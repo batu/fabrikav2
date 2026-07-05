@@ -1,0 +1,362 @@
+/*
+ * @fabrikav2/ui base stylesheet (wave A primitives).
+ *
+ * Structure/layout/animation live here, driven by `--fab-*` semantic tokens
+ * scoped to `.fab-ui`. A consuming game overrides ONLY the semantic tokens
+ * (via applyTheme or its own theme.css) — never the rules — so reskinning needs
+ * zero structural CSS. Wrapped in @layer so a consumer's unlayered token
+ * override always wins without specificity/!important wars.
+ *
+ * Token-defaults policy (card VD1JPfyY, conductor comment 1): neutral literal
+ * defaults are permitted ONLY as the direct single-line value of a `--fab-*`
+ * declaration in the fab.tokens layer below — never inside a function (e.g. a
+ * gradient) and never as a property value or var() fallback. The audit
+ * no-literals linter enforces exactly this carve-out; component rules resolve
+ * every color through var(--fab-*).
+ *
+ * Consumers: `import '@fabrikav2/ui/ui.css'`.
+ */
+
+@layer fab.tokens, fab.components;
+
+@layer fab.tokens {
+  .fab-ui {
+    /* ---- Shared semantic scalars (the override contract) ---- */
+    --fab-color-surface: #ffffff;
+    --fab-color-overlay-scrim: rgba(0, 0, 0, 0.4);
+    --fab-color-text: #3d3d3d;
+    --fab-color-text-muted: #555555;
+    --fab-color-accent: #6b7280;
+    --fab-color-on-accent: #ffffff;
+    --fab-color-secondary-surface: #f0f0f0;
+    --fab-color-on-secondary: #333333;
+    --fab-color-secondary-border: #cccccc;
+
+    --fab-space-sm: 8px;
+    --fab-space-md: 20px;
+    --fab-space-lg: 24px;
+
+    --fab-radius-sm: 8px;
+    --fab-radius-md: 16px;
+    --fab-radius-pill: 28px;
+
+    --fab-font-family: 'Nunito', sans-serif;
+    --fab-font-size-sm: 15px;
+    --fab-font-size-md: 14px;
+    --fab-font-size-lg: 18px;
+    --fab-font-weight-normal: 500;
+    --fab-font-weight-bold: 800;
+
+    --fab-duration-fast: 80ms;
+
+    /* ---- Button ---- */
+    --fab-shadow-button: 0 3px 8px rgba(17, 24, 39, 0.17);
+    --fab-shadow-button-active: 0 1px 4px rgba(17, 24, 39, 0.16);
+    --fab-shadow-button-disabled: 0 1px 0 rgba(17, 24, 39, 0.08);
+    --fab-btn-secondary-shadow: 0 2px 6px rgba(17, 24, 39, 0.09);
+    --fab-btn-icon-color: #6b7280;
+    --fab-btn-icon-shadow: 0 2px 6px rgba(17, 24, 39, 0.08);
+    --fab-btn-min-size: 48px;
+    --fab-btn-primary-padding: 14px 28px;
+    --fab-btn-secondary-padding: 10px 18px;
+    --fab-btn-icon-size: 48px;
+    --fab-btn-disabled-opacity: 0.5;
+    --fab-btn-line-height: 1.1;
+
+    /* ---- Modal shell ---- */
+    --fab-shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.2);
+    --fab-modal-backdrop-padding: 18px;
+    --fab-modal-card-border: #ffffff;
+    --fab-modal-backdrop-animation: fabModalBackdropIn 140ms ease-out both;
+    --fab-modal-card-animation: fabModalCardIn 180ms cubic-bezier(0.16, 1.05, 0.22, 1.12) both;
+
+    /* ---- Toast (new) ---- */
+    --fab-toast-bg: rgba(0, 0, 0, 0.7);
+    --fab-toast-color: #ffffff;
+    --fab-toast-shadow: 0 4px 12px rgba(0, 0, 0, 0.24);
+    --fab-toast-radius: 20px;
+    --fab-toast-padding: 10px 16px;
+    --fab-toast-duration-ms: 3000ms;
+    --fab-toast-fade-ms: 250ms;
+
+    /* ---- Toggle row (new) ---- */
+    --fab-toggle-track-off: #cccccc;
+    --fab-toggle-thumb: #ffffff;
+    --fab-toggle-row-gap: 11px;
+    --fab-toggle-row-padding: 10px 13px;
+    --fab-toggle-radius: 20px;
+  }
+}
+
+@layer fab.components {
+  /* ---- Modal primitive shell ----
+     Generic modal scaffold (fresh .fab-* names — never touches a game's own
+     .modal-* classes). */
+  .fab-modal-backdrop {
+    pointer-events: auto;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--fab-modal-backdrop-padding);
+    z-index: 10;
+    background: var(--fab-color-overlay-scrim);
+    font-family: var(--fab-font-family);
+    color: var(--fab-color-text);
+    animation: var(--fab-modal-backdrop-animation);
+  }
+
+  .fab-modal-card {
+    width: min(78vw, 360px);
+    min-width: 260px;
+    max-width: calc(100vw - 36px);
+    padding: var(--fab-space-lg);
+    border: 2px solid var(--fab-modal-card-border);
+    border-radius: var(--fab-radius-md);
+    background: var(--fab-color-surface);
+    box-shadow: var(--fab-shadow-modal);
+    transform-origin: 50% 54%;
+    animation: var(--fab-modal-card-animation);
+  }
+
+  .fab-modal-title {
+    margin-bottom: var(--fab-space-sm);
+    color: var(--fab-color-text);
+  }
+
+  .fab-modal-subtitle {
+    margin: 0 0 var(--fab-space-md) 0;
+    color: var(--fab-color-text-muted);
+    font-size: var(--fab-font-size-sm);
+    font-weight: var(--fab-font-weight-normal);
+  }
+
+  .fab-modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    align-items: stretch;
+  }
+
+  /* ---- Button primitive ---- */
+  .fab-btn {
+    pointer-events: auto;
+    cursor: pointer;
+    width: 100%;
+    min-width: var(--fab-btn-min-size);
+    min-height: var(--fab-btn-min-size);
+    border: 0;
+    font-family: var(--fab-font-family);
+    box-shadow: var(--fab-shadow-button);
+    line-height: var(--fab-btn-line-height);
+    touch-action: manipulation;
+    transition:
+      filter var(--fab-duration-fast) ease,
+      opacity var(--fab-duration-fast) ease,
+      transform var(--fab-duration-fast) ease;
+  }
+  .fab-btn:hover:not(:disabled) {
+    filter: brightness(1.03);
+  }
+  .fab-btn:active:not(:disabled) {
+    filter: brightness(0.98);
+    transform: translateY(2px) scale(0.985);
+    box-shadow: var(--fab-shadow-button-active);
+  }
+
+  .fab-btn:disabled,
+  .fab-btn[data-disabled='true'] {
+    cursor: not-allowed;
+    opacity: var(--fab-btn-disabled-opacity);
+    filter: grayscale(0.28) saturate(0.42);
+    box-shadow: var(--fab-shadow-button-disabled);
+    transform: none;
+  }
+
+  .fab-btn-primary {
+    background: var(--fab-color-accent);
+    color: var(--fab-color-on-accent);
+    padding: var(--fab-btn-primary-padding);
+    border-radius: var(--fab-radius-pill);
+    font-size: var(--fab-font-size-lg);
+    font-weight: var(--fab-font-weight-bold);
+  }
+
+  .fab-btn-secondary {
+    background: var(--fab-color-secondary-surface);
+    color: var(--fab-color-on-secondary);
+    border: 2px solid var(--fab-color-secondary-border);
+    box-shadow: var(--fab-btn-secondary-shadow);
+    padding: var(--fab-btn-secondary-padding);
+    border-radius: calc(var(--fab-radius-sm) + 6px);
+    font-size: var(--fab-font-size-md);
+    font-weight: var(--fab-font-weight-bold);
+  }
+
+  .fab-btn-icon {
+    width: var(--fab-btn-icon-size);
+    min-width: var(--fab-btn-icon-size);
+    min-height: var(--fab-btn-icon-size);
+    padding: 0;
+    border-radius: 50%;
+    background: var(--fab-color-secondary-surface);
+    color: var(--fab-btn-icon-color);
+    border: 1px solid var(--fab-color-secondary-border);
+    box-shadow: var(--fab-btn-icon-shadow);
+    font-size: var(--fab-font-size-lg);
+    font-weight: var(--fab-font-weight-bold);
+  }
+
+  .fab-modal-actions .fab-btn-secondary {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    color: var(--fab-color-text-muted);
+    margin-top: -2px;
+  }
+
+  @keyframes fabModalBackdropIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes fabModalCardIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.975);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* ---- Toast primitive ---- */
+  .fab-toaster {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+  }
+
+  .fab-toast {
+    position: absolute;
+    left: 50%;
+    bottom: 80px;
+    transform: translate(-50%, 0);
+    max-width: 80vw;
+    padding: var(--fab-toast-padding);
+    border-radius: var(--fab-toast-radius);
+    background: var(--fab-toast-bg);
+    color: var(--fab-toast-color);
+    box-shadow: var(--fab-toast-shadow);
+    font-family: var(--fab-font-family);
+    font-size: var(--fab-font-size-md);
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--fab-toast-fade-ms) ease;
+  }
+
+  .fab-toast--visible {
+    opacity: 1;
+  }
+
+  /* ---- Toggle row primitive ---- */
+  .fab-toggle-rows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fab-toggle-row-gap);
+    font-family: var(--fab-font-family);
+  }
+
+  .fab-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--fab-space-md);
+    min-height: 66px;
+    padding: var(--fab-toggle-row-padding);
+    border-radius: var(--fab-toggle-radius);
+    background: var(--fab-color-secondary-surface);
+    color: var(--fab-color-text);
+  }
+
+  .fab-toggle-row-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  .fab-toggle-row-icon {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    flex: 0 0 auto;
+  }
+
+  .fab-toggle-row-label {
+    min-width: 0;
+    color: var(--fab-color-text);
+    font-size: var(--fab-font-size-md);
+    font-weight: var(--fab-font-weight-bold);
+  }
+
+  .fab-toggle-switch {
+    position: relative;
+    width: 54px;
+    height: 32px;
+    flex: 0 0 auto;
+    cursor: pointer;
+  }
+
+  .fab-toggle-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .fab-toggle-slider {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--fab-radius-pill);
+    background: var(--fab-toggle-track-off);
+    transition: background var(--fab-duration-fast) ease;
+  }
+
+  .fab-toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    left: 3px;
+    bottom: 3px;
+    border-radius: 50%;
+    background: var(--fab-toggle-thumb);
+    transition: transform var(--fab-duration-fast) ease;
+  }
+
+  .fab-toggle-input:checked + .fab-toggle-slider {
+    background: var(--fab-color-accent);
+  }
+
+  .fab-toggle-input:checked + .fab-toggle-slider::before {
+    transform: translateX(22px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fab-btn,
+    .fab-toast,
+    .fab-toggle-slider,
+    .fab-toggle-slider::before {
+      transition: none;
+    }
+    .fab-modal-backdrop,
+    .fab-modal-card {
+      animation: none;
+    }
+  }
+}
