@@ -19,6 +19,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+      # npm query .workspace reads node_modules metadata; on a bare checkout it
+      # returns [] and the empty-matrix guard below would skip `check` entirely,
+      # silently recreating v1's zero-coverage failure. npm ci first.
+      - run: npm ci
       - id: set
         name: Discover workspaces
         run: |
