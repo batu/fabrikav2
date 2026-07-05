@@ -1,0 +1,5 @@
+{
+  "_doc": "no-literals escape hatch. 'literals': exact literal strings to permit (e.g. a design-token default). 'files': repo-relative path substrings to skip entirely. Keep this empty by default; every entry is a documented exception to guardrail #2.",
+  "literals": [],
+  "files": []
+}
