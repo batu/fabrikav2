@@ -1,0 +1,634 @@
+<title>fabrika v2 — design report</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root {
+    --bg: #f6f3ee;
+    --surface: #ffffff;
+    --surface-2: #efece3;
+    --border: #ddd6c8;
+    --text: #201d18;
+    --text-dim: #5b564c;
+    --text-faint: #8a8578;
+    --accent: #23685c;
+    --accent-strong: #16473e;
+    --accent-tint: #dce9e5;
+    --good: #3f8a4a;
+    --good-tint: #e3f0e3;
+    --bad: #b8362d;
+    --bad-tint: #f6e2df;
+    --warn: #a8701a;
+    --warn-tint: #f3e6d2;
+    --code-bg: #eee9dd;
+    --shadow: 0 1px 2px rgba(30, 25, 15, 0.06), 0 8px 24px -12px rgba(30, 25, 15, 0.12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171a;
+      --surface: #1b1f23;
+      --surface-2: #20252a;
+      --border: #2d333a;
+      --text: #e9e6df;
+      --text-dim: #a5a196;
+      --text-faint: #726e64;
+      --accent: #57bba7;
+      --accent-strong: #86d3c3;
+      --accent-tint: #1c2f2c;
+      --good: #6cbd74;
+      --good-tint: #1c2c1e;
+      --bad: #e18178;
+      --bad-tint: #302020;
+      --warn: #d6a545;
+      --warn-tint: #2f2718;
+      --code-bg: #23282e;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14171a; --surface: #1b1f23; --surface-2: #20252a; --border: #2d333a;
+    --text: #e9e6df; --text-dim: #a5a196; --text-faint: #726e64;
+    --accent: #57bba7; --accent-strong: #86d3c3; --accent-tint: #1c2f2c;
+    --good: #6cbd74; --good-tint: #1c2c1e; --bad: #e18178; --bad-tint: #302020;
+    --warn: #d6a545; --warn-tint: #2f2718; --code-bg: #23282e;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f3ee; --surface: #ffffff; --surface-2: #efece3; --border: #ddd6c8;
+    --text: #201d18; --text-dim: #5b564c; --text-faint: #8a8578;
+    --accent: #23685c; --accent-strong: #16473e; --accent-tint: #dce9e5;
+    --good: #3f8a4a; --good-tint: #e3f0e3; --bad: #b8362d; --bad-tint: #f6e2df;
+    --warn: #a8701a; --warn-tint: #f3e6d2; --code-bg: #eee9dd;
+    --shadow: 0 1px 2px rgba(30, 25, 15, 0.06), 0 8px 24px -12px rgba(30, 25, 15, 0.12);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.55;
+    font-size: 16px;
+  }
+  code, .mono, .num, th, td, .eyebrow, h1, h2, h3, nav.toc a {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+  .num { font-variant-numeric: tabular-nums; }
+
+  a { color: var(--accent-strong); text-decoration-color: var(--border); text-underline-offset: 2px; }
+  a:hover { text-decoration-color: currentColor; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .skiplink { position: absolute; left: -999px; }
+  .skiplink:focus { left: 8px; top: 8px; background: var(--surface); padding: 6px 10px; z-index: 100; }
+
+  header.masthead {
+    border-bottom: 1px solid var(--border);
+    padding: 2.6rem 1.5rem 1.6rem;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; }
+  .eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin: 0 0 0.7rem;
+  }
+  h1 {
+    font-size: 1.9rem;
+    line-height: 1.2;
+    margin: 0 0 0.6rem;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+  .subtitle {
+    color: var(--text-dim);
+    max-width: 60ch;
+    margin: 0 0 1.1rem;
+    font-size: 1.02rem;
+  }
+  .meta-row {
+    display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem;
+    font-size: 0.82rem; color: var(--text-faint);
+  }
+  .meta-row b { color: var(--text-dim); font-weight: 600; }
+
+  nav.toc {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 0 1.5rem;
+  }
+  nav.toc .wrap { display: flex; gap: 1.4rem; padding: 0.7rem 0; max-width: 920px; }
+  nav.toc a {
+    font-size: 0.74rem; letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--text-dim); text-decoration: none; white-space: nowrap;
+  }
+  nav.toc a:hover { color: var(--accent-strong); }
+
+  main { padding: 0 1.5rem 4rem; }
+  section { max-width: 920px; margin: 0 auto; padding-top: 3rem; }
+  section + section { border-top: 1px solid var(--border); }
+
+  .section-label {
+    display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.3rem;
+  }
+  .section-num { color: var(--text-faint); font-size: 0.85rem; }
+  h2 {
+    font-size: 1.32rem; margin: 0 0 0.9rem; letter-spacing: -0.005em; text-wrap: balance;
+  }
+  h3 { font-size: 1.03rem; margin: 1.6rem 0 0.6rem; }
+  p { max-width: 74ch; }
+  p, li { color: var(--text); }
+  .prose-dim { color: var(--text-dim); }
+
+  .lede {
+    font-size: 1.05rem; color: var(--text-dim); max-width: 68ch; margin-bottom: 1.6rem;
+  }
+
+  /* verdict cards for section 1 */
+  .verdict-list { display: flex; flex-direction: column; gap: 0.9rem; margin: 1.4rem 0; }
+  .verdict {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1rem 1.2rem; box-shadow: var(--shadow);
+  }
+  .verdict-head { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; margin-bottom: 0.45rem; }
+  .verdict-head .letter { font-weight: 700; color: var(--text-faint); font-size: 0.9rem; }
+  .verdict-head strong { font-size: 0.98rem; }
+  .pill {
+    font-size: 0.66rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700;
+    padding: 0.16rem 0.55rem; border-radius: 99px; white-space: nowrap;
+  }
+  .pill-refuted { background: var(--bad-tint); color: var(--bad); }
+  .pill-confirmed { background: var(--good-tint); color: var(--good); }
+  .pill-nuanced { background: var(--warn-tint); color: var(--warn); }
+  .verdict p { margin: 0.35rem 0 0; font-size: 0.93rem; }
+  .verdict .cite { font-size: 0.78rem; color: var(--text-faint); margin-top: 0.4rem; }
+
+  .callout {
+    border-left: 3px solid var(--warn);
+    background: var(--warn-tint);
+    padding: 0.9rem 1.1rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1.4rem 0;
+    font-size: 0.93rem;
+  }
+  .callout b { color: var(--warn); }
+
+  /* ranked bottleneck */
+  .rank-item {
+    display: grid; grid-template-columns: 2.2rem 1fr; gap: 0.9rem;
+    padding: 1.1rem 0; border-top: 1px solid var(--border);
+  }
+  .rank-item:first-of-type { border-top: none; }
+  .rank-num {
+    font-size: 1.3rem; font-weight: 700; color: var(--accent); line-height: 1;
+  }
+  .rank-title { font-size: 1rem; font-weight: 700; margin: 0 0 0.25rem; }
+  .strength-row { display: flex; gap: 0.5rem; align-items: center; margin: 0.25rem 0 0.5rem; flex-wrap: wrap; }
+  .strength {
+    font-size: 0.66rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 700;
+    padding: 0.14rem 0.5rem; border-radius: 4px;
+  }
+  .strength-hard { background: var(--good-tint); color: var(--good); }
+  .strength-doc { background: var(--accent-tint); color: var(--accent-strong); }
+  .strength-inf { background: var(--warn-tint); color: var(--warn); }
+  .fix-box {
+    margin-top: 0.6rem; padding: 0.6rem 0.8rem; background: var(--surface-2);
+    border-radius: 6px; font-size: 0.88rem;
+  }
+  .fix-box b { color: var(--accent-strong); }
+
+  /* chart */
+  .chart { margin: 1.3rem 0 0.6rem; }
+  .chart-row { display: grid; grid-template-columns: 15rem 1fr 4.2rem; align-items: center; gap: 0.6rem; padding: 0.28rem 0; }
+  .chart-row .label { font-size: 0.78rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chart-track { background: var(--surface-2); border-radius: 4px; height: 14px; position: relative; }
+  .chart-fill { background: var(--accent); border-radius: 4px; height: 100%; transition: filter 0.15s; }
+  .chart-row:hover .chart-fill { filter: brightness(1.12); }
+  .chart-row:hover .label { color: var(--text); }
+  .chart-val { font-size: 0.78rem; text-align: right; color: var(--text-faint); }
+  .chart-note { font-size: 0.76rem; color: var(--text-faint); margin-top: 0.3rem; }
+
+  /* tables */
+  .table-scroll { overflow-x: auto; margin: 1.1rem 0 1.6rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.82rem; min-width: 720px; }
+  th, td { text-align: left; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th {
+    background: var(--surface-2); font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--text-dim); position: sticky; top: 0;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr.group-head td {
+    background: var(--accent-tint); font-weight: 700; color: var(--accent-strong);
+    font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  td.mono, .table-scroll code { font-size: 0.76rem; }
+  code { background: var(--code-bg); padding: 0.08em 0.35em; border-radius: 4px; font-size: 0.85em; }
+  .small { font-size: 0.82rem; color: var(--text-dim); }
+
+  /* architecture diagram */
+  .diagram {
+    display: flex; flex-direction: column; gap: 0.55rem; margin: 1.4rem 0;
+  }
+  .d-tier { display: flex; gap: 0.55rem; flex-wrap: wrap; }
+  .d-box {
+    flex: 1; min-width: 130px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--surface); padding: 0.7rem 0.85rem; box-shadow: var(--shadow);
+  }
+  .d-box .name { font-weight: 700; font-size: 0.86rem; color: var(--accent-strong); }
+  .d-box .desc { font-size: 0.76rem; color: var(--text-dim); margin-top: 0.2rem; }
+  .d-arrow { text-align: center; color: var(--text-faint); font-size: 0.75rem; letter-spacing: 0.05em; }
+  .d-games .d-box { background: var(--accent-tint); }
+
+  .tree {
+    background: var(--code-bg); border-radius: 8px; padding: 1rem 1.2rem;
+    font-size: 0.78rem; overflow-x: auto; white-space: pre; line-height: 1.6;
+    margin: 1rem 0;
+  }
+  .tree .c1 { color: var(--accent-strong); }
+  .tree .c2 { color: var(--text-faint); }
+
+  ol.steps { padding-left: 1.2rem; }
+  ol.steps li { margin-bottom: 0.6rem; max-width: 68ch; }
+  ol.steps li .status {
+    display: inline-block; margin-left: 0.5rem; font-size: 0.7rem; letter-spacing: 0.04em;
+    text-transform: uppercase; padding: 0.1rem 0.45rem; border-radius: 4px; font-weight: 700;
+  }
+  .status-done { background: var(--good-tint); color: var(--good); }
+  .status-progress { background: var(--warn-tint); color: var(--warn); }
+  .status-open { background: var(--surface-2); color: var(--text-faint); }
+
+  .decision-card {
+    border: 1px solid var(--border); border-radius: 8px; padding: 0.85rem 1.1rem;
+    margin-bottom: 0.7rem; background: var(--surface);
+  }
+  .decision-card b { display: block; font-size: 0.93rem; margin-bottom: 0.2rem; }
+  .decision-card span { font-size: 0.85rem; color: var(--text-dim); }
+
+  footer {
+    max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem 3rem; color: var(--text-faint); font-size: 0.78rem;
+  }
+
+  @media (max-width: 640px) {
+    h1 { font-size: 1.5rem; }
+    .rank-item { grid-template-columns: 1.6rem 1fr; }
+    .chart-row { grid-template-columns: 6.5rem 1fr 3rem; }
+  }
+</style>
+
+<a class="skiplink" href="#s1">Skip to content</a>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">fabrika v2 — design report</p>
+    <h1>The shell was the cost center, not the games.</h1>
+    <p class="subtitle">Evidence-first read of what v1 actually spent time on, the v2 architecture it justifies, and the full extraction backlog to scaffold from. Written for Batu.</p>
+    <div class="meta-row">
+      <span><b>Repo:</b> fabrikav2 (fresh) · fabrika v1 (read-only source)</span>
+      <span><b>Date:</b> 2026-07-06</span>
+      <span><b>Sources:</b> DECISIONS-2026-07-06 · v2-architecture.md · research 01–07</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Table of contents">
+  <div class="wrap">
+    <a href="#s1">1. Contradicts assumptions</a>
+    <a href="#s2">2. Ranked bottlenecks</a>
+    <a href="#s3">3. v2 architecture</a>
+    <a href="#s4">4. Extraction backlog</a>
+    <a href="#s5">5. design-sheets wiring</a>
+    <a href="#s6">6. Migration path</a>
+    <a href="#s7">7. Decisions that are yours</a>
+  </div>
+</nav>
+
+<main>
+
+<section id="s1">
+  <div class="section-label"><span class="section-num">01</span><h2>What contradicts your starting assumptions</h2></div>
+  <p class="lede">Before the bottleneck list: eight places where the evidence lands differently than the framing going into this research did. Each is graded against the original assumption — confirmed, refuted, or nuanced.</p>
+
+  <div class="verdict-list">
+
+    <div class="verdict">
+      <div class="verdict-head"><span class="letter">a</span><strong>design-sheets has never been wired to fabrika</strong><span class="pill pill-refuted">Refuted</span></div>
+      <p>Zero references to <code>design-sheets</code> or <code>dsheets</code> exist anywhere in the fabrika repo. <code>dsheets apply</code> and <code>pull-tokens</code> have never run against it. The one real sheet (<code>marble-run-sugar3d</code>) is a one-way, already-executed, read-only extraction <i>into</i> design-sheets — nothing flows back. Fabrika's own <code>--fab-*</code> tokens are a pre-existing independent mechanism the ingester merely reads.</p>
+      <p class="cite">05-design-sheets-contract.md:32–37</p>
+    </div>
+
+    <div class="verdict">
+      <div class="verdict-head"><span class="letter">b</span><strong>"Atomic-write helper re-broken across 4+ files"</strong><span class="pill pill-refuted">Refuted</span></div>
+      <p>No tmp-file-and-rename / atomic-write pattern exists anywhere in the codebase — all persistence is plain <code>localStorage</code>. The real story: core's guarded-JSON <code>persisted-state.ts</code> helper ("extracted after the fifth identical copy") is adopted by exactly <b>1 of 4</b> games (marble_run). Arrow, block_blast, and find_the_dog each independently reimplemented persistence instead of using it.</p>
+      <p class="cite">04-cross-game-duplication.md:27, 60</p>
+    </div>
+
+    <div class="verdict">
+      <div class="verdict-head"><span class="letter">c</span><strong>Coin-fly exists at 2 sites, not 3 — and there's a hidden third inside one game</strong><span class="pill pill-nuanced">Nuanced</span></div>
+      <p>Cross-game, it's 2 sites: FTD's 300-line <code>EconomyTransfer.ts</code> and marble_run's ~35-line <code>animateCoinToken()</code>, which shares identical magic numbers (drift 84px, 760ms) with FTD's — a stripped copy, not an independent third technique. But FTD itself carries a <i>second</i>, Phaser-canvas implementation of the same UX (<code>playRestorationPickupAnimation</code>), undetected by a cross-game-only search.</p>
+      <p class="cite">04-cross-game-duplication.md:46, 62 · 07-godfile-dissection.md R47 (GameScene.ts:2308–2368)</p>
+    </div>
+
+    <div class="verdict">
+      <div class="verdict-head"><span class="letter">d</span><strong>"4 haptics implementations"</strong><span class="pill pill-nuanced">Nuanced</span></div>
+      <p>Literally true as a count (3 per-game + 1 shared = 4 files), but the framing hides the real defect: the shared core implementation exists, is 226 lines, works fine, and was created <i>after</i> all three per-game copies. Only marble_run/sugar3d actually adopted it. This isn't 4 competing designs — it's 3 games ignoring the 1 correct one.</p>
+      <p class="cite">04-cross-game-duplication.md:15–21 · 03-git-churn-analysis.md:109–114</p>
+    </div>
+
+    <div class="verdict">
+      <div class="verdict-head"><span class="letter">e</span><strong>"Phaser 3 + TypeScript" stack</strong><span class="pill pill-refuted">Refuted</span></div>
+      <p>Only 3 of 5 games use Phaser. <code>arrow</code> is Canvas2D; <code>marble_run/sugar3d</code> is Three.js. Three incompatible meta-UI substrates exist across the games (Phaser scene-graph / DOM-innerHTML / immediate-mode Canvas), and nothing in the docs declares this as intentional — v1's own architecture review calls it "undeclared."</p>
+      <p class="cite">01-v1-goals-and-docs.md:38 · 04-cross-game-duplication.md:33</p>
+    </div>
+
+    <div class="verdict">
+      <div class="verdict-head"><span class="letter">f</span><strong>The biggest un-flagged duplication is audio</strong><span class="pill pill-confirmed">Confirmed (new)</span></div>
+      <p>Not in the original claims list at all. Four independent audio rewrites, ~1,860 lines total, nothing shared: arrow's oscillator synth (80), block_blast's <code>SoundFx.ts</code>+<code>ProceduralSfx.ts</code> (381), FTD's <code>AudioManager.ts</code>+<code>AmbientManager.ts</code> (1,009), marble_run's <code>Music.ts</code>+<code>Sfx.ts</code> (390). Each has a different mute/volume API shape.</p>
+      <p class="cite">04-cross-game-duplication.md:50</p>
+    </div>
+
+    <div class="verdict">
+      <div class="verdict-head"><span class="letter">g</span><strong>v1's own July-2 architecture review already diagnosed most of this</strong><span class="pill pill-confirmed">Confirmed</span></div>
+      <p><code>docs/reports/2026-07-02-architecture-review-shared-core.md</code> already proposed a layered core (L0 kernel / L1 services / L2 engine / L3 testkit / L4 UI), a <code>platform/</code> scaffold layer, DOM as the standard meta-UI substrate, and a ~14-component UI kit grown from FTD's DOM implementation — independently arriving at close to this same v2 shape, three days before this session.</p>
+      <p class="cite">01-v1-goals-and-docs.md:51–55</p>
+    </div>
+
+    <div class="verdict">
+      <div class="verdict-head"><span class="letter">h</span><strong>FTD bypasses core primitives that already exist and work</strong><span class="pill pill-confirmed">Confirmed</span></div>
+      <p>FTD never imports <code>ui/Modal.ts</code>'s <code>mountModal</code> — every modal is hand-rolled DOM instead. <code>puzzle/juice</code>'s <code>Fail.shake</code> exists and is bypassed by raw <code>cameras.main.shake</code> calls in both FTD and block_blast. <code>puzzle/orchestrator</code> exists and FTD imports nothing from <code>core/puzzle</code> at all. This isn't a missing-package problem — it's an adoption problem, which the "shell code starts shared" guardrail in §3 is built to prevent from recurring.</p>
+      <p class="cite">07-godfile-dissection.md, cross-cutting synthesis point 3</p>
+    </div>
+
+  </div>
+</section>
+
+<section id="s2">
+  <div class="section-label"><span class="section-num">02</span><h2>Ranked bottleneck list</h2></div>
+  <p class="lede">Ranked by measured cost — git-verified churn and commit-message signal where it exists, doc citations where git doesn't reach, and inference only where explicitly labeled.</p>
+
+  <div class="callout"><b>Evidence caveat, stated plainly:</b> the session-history source (research 02) failed outright — the required extraction skills (<code>ce-session-inventory</code>/<code>ce-session-extract</code>) were unavailable, and the agent correctly refused to hand-parse 844+517 raw session files as a substitute. Every time-cost claim below rests on git/doc archaeology, not on session data. There is no session-level record of correction counts, frustration, or reskin round-trip attempts — that gap is real and unfilled.</p>
+
+  <div class="rank-item">
+    <div class="rank-num">1</div>
+    <div>
+      <p class="rank-title">In-canvas / hand-rolled shell UI</p>
+      <div class="strength-row"><span class="strength strength-hard">Hard numbers</span></div>
+      <p>The three hottest files in the whole repo are all FTD's commercial shell, and each is fix-dominated, not feature-dominated:</p>
+      <div class="chart">
+        <div class="chart-row"><span class="label">FTD styles.css</span><div class="chart-track"><div class="chart-fill" style="width:100%"></div></div><span class="chart-val num">9,923</span></div>
+        <div class="chart-row"><span class="label">FTD GameScene.ts</span><div class="chart-track"><div class="chart-fill" style="width:66.5%"></div></div><span class="chart-val num">6,600</span></div>
+        <div class="chart-row"><span class="label">FTD HUD.ts</span><div class="chart-track"><div class="chart-fill" style="width:39.3%"></div></div><span class="chart-val num">3,900</span></div>
+        <div class="chart-row"><span class="label">marble_run style.css</span><div class="chart-track"><div class="chart-fill" style="width:31.6%"></div></div><span class="chart-val num">3,137</span></div>
+        <div class="chart-row"><span class="label">core ui.css</span><div class="chart-track"><div class="chart-fill" style="width:22.0%"></div></div><span class="chart-val num">2,178</span></div>
+        <div class="chart-row"><span class="label">block_blast GameScene.ts</span><div class="chart-track"><div class="chart-fill" style="width:21.9%"></div></div><span class="chart-val num">2,177</span></div>
+        <div class="chart-note">Churn = lines added + deleted (code files only, excludes JSON level data / lockfiles). 03-git-churn-analysis.md:48–63</div>
+      </div>
+      <p>styles.css: 56 commits, 41 (<b>73%</b>) fix/rework-labeled. GameScene.ts: 78 commits, 53 (<b>68%</b>) fix-labeled — edited in every month of the game's existence, never tapering. HUD.ts: 52 commits, 34 (<b>65%</b>) fix-labeled, with its <i>peak</i> activity a month <i>after</i> creation. 52% of all 552 commits in the repo carry fix/rework/polish/retry language.</p>
+      <p class="cite">03-git-churn-analysis.md:82–103, 156–165</p>
+      <div class="fix-box"><b>v2 fix:</b> meta-UI is DOM-only, themed through <code>--fab-*</code> tokens, built once in <code>packages/ui</code> as the shared shell kit — not hand-rolled per game (v2-architecture.md §packages/ui).</div>
+    </div>
+  </div>
+
+  <div class="rank-item">
+    <div class="rank-num">2</div>
+    <div>
+      <p class="rank-title">Duplicate-first, extract-never subsystem pattern</p>
+      <div class="strength-row"><span class="strength strength-hard">Hard numbers</span><span class="strength strength-doc">Doc-cited</span></div>
+      <p>For every subsystem checked — haptics, ScaffoldEvents, analytics, atomic-write — the same order happened: duplicate per-game first, shared package (if any) comes later, older games never migrate back. Haptics: <code>packages/core/src/haptics/index.ts</code> was created 2026-04-27, <i>after</i> block_blast (03-05), find_the_dog (04-14), and arrow (04-18) had each already written their own. Only the game built after that date (marble_run/sugar3d, 06-29) consumed the shared version. Analytics never got a shared package at all — block_blast (122 lines) and FTD (482 lines + a 2,610-line, 10-file bespoke pipeline) independently diverged.</p>
+      <p class="cite">03-git-churn-analysis.md:109–154 · 04-cross-game-duplication.md:15–23</p>
+      <div class="fix-box"><b>v2 fix:</b> the "extract after 2nd use" rule inverts — shell code starts shared, and <code>tools/audit</code>'s duplication gate fails CI if a game re-implements something whose name/shape already exists in <code>packages/</code> (v2-architecture.md Guardrail 3).</div>
+    </div>
+  </div>
+
+  <div class="rank-item">
+    <div class="rank-num">3</div>
+    <div>
+      <p class="rank-title">No design pipeline</p>
+      <div class="strength-row"><span class="strength strength-hard">Hard numbers</span></div>
+      <p>design-sheets is unwired (see §1a). In the one game it was pointed at, <code>marble_run/sugar3d/src/ui/style.css</code> alone carries <b>~140–197</b> hex literals depending on counting method (research 05 counted 197, 112 unique; an independent regex recount gives ~140), <b>227</b> rgba/rgb literals, and <b>817</b> px values — none lifted into tokens, only font vars are mechanically extracted. Copy is hardcoded throughout <code>dom.ts</code> (e.g. <code>'WATCH AD'</code>, <code>'Tap again to wipe all progress'</code>) with no schema to bind it to.</p>
+      <p class="cite">05-design-sheets-contract.md:42–50</p>
+      <div class="fix-box"><b>v2 fix:</b> reskin bar is zero code edits — see §5 for the full mechanism (copy schema, asset-binding apply, generated <code>design/</code> layer).</div>
+    </div>
+  </div>
+
+  <div class="rank-item">
+    <div class="rank-num">4</div>
+    <div>
+      <p class="rank-title">Build/CI fragmentation</p>
+      <div class="strength-row"><span class="strength strength-hard">Hard numbers</span><span class="strength strength-doc">Doc-cited</span></div>
+      <p>3 of 4 games import <code>@fabrika/core</code> without declaring it as a dependency — it resolves only via npm workspace hoisting, with no built/versioned core artifact (consumption is always live source; a breaking change in <code>packages/core/src</code> is invisible until each game's own tsc/vitest runs). Toolchain versions drift (vitest ^3.2.0 vs ^4.0.18, Capacitor ^8.1.0 vs ^8.3.1). The one audit script meant to catch unsafe removals, <code>scripts/grep-affected-games.sh</code>, greps for double-quoted imports while every game uses single quotes — it always reports "safe to remove," silently.</p>
+      <p><b>Staleness correction:</b> the "CI covers 2 of 5 workspaces" finding in research 01 was true when captured but has since been fixed in v1 — commit <code>b2a18cf39</code> ("ci: add root workspace gates for zero-CI games", 2026-07-02) landed after that research pass, and the live <code>.github/workflows/ci.yml</code> now runs <b>five</b> unconditional jobs (core, find_the_dog, arrow, block_blast, sugar3d) — verified directly in the read-only v1 repo for this report. The phantom deps, unbuilt/unversioned core, broken audit script, and toolchain drift remain true and unfixed in v1.</p>
+      <p class="cite">06-shared-package-audit.md:11, 23, 62–63 · 01-v1-goals-and-docs.md:42 · CI count superseded by v1 commit b2a18cf39 (2026-07-02)</p>
+      <div class="fix-box"><b>v2 fix:</b> declared deps only (CI fails on undeclared) and single pinned toolchain versions at root — the still-open v1 gaps — plus a workspace-matrix CI from day one so coverage never has to be retrofitted the way v1's was (v2-architecture.md Guardrails 1, 4, 5).</div>
+    </div>
+  </div>
+
+  <div class="rank-item">
+    <div class="rank-num">5</div>
+    <div>
+      <p class="rank-title">Discarded-experiment churn</p>
+      <div class="strength-row"><span class="strength strength-hard">Hard numbers</span></div>
+      <p><code>games/seat_shuffle</code>: added as a prototype 2026-03-09, deleted 2026-04-13 — 5,234 lines of churn over 5 weeks for a game that never shipped. <code>games/arrow_colors</code>: scaffolded 2026-04-27, deleted 2026-07-02 — 15,555 lines of churn over ~10 weeks, then fully retired. <code>games/marble_run</code> built 4 parallel 2D theme variants (base/night/sugar/wood, all created 2026-06-11) sharing a duplicated <code>GameScene.ts</code>, then archived all 4 eighteen days later, keeping only the Three.js <code>sugar3d</code> rewrite — the source doesn't itemize the variants' individual churn share of marble_run's 57,269-line total, so that split isn't quoted as a number here, but the build-4-keep-1 pattern is git-dated and unambiguous.</p>
+      <p class="cite">03-git-churn-analysis.md:68, 128–133</p>
+      <div class="fix-box"><b>v2 fix:</b> not a structural fix — a portfolio-shape awareness. v1's own goal ordering already prioritizes shipping over reskinning (DECISIONS §Goal ordering); the cost here is inherent to "steady stream of new mechanics," not a defect to engineer away.</div>
+    </div>
+  </div>
+
+</section>
+
+<section id="s3">
+  <div class="section-label"><span class="section-num">03</span><h2>v2 architecture</h2></div>
+  <p class="lede">Rendered from <code>docs/architecture/v2-architecture.md</code> as locked — this section presents it, it doesn't re-litigate it.</p>
+
+  <h3>Thesis</h3>
+  <p>v1's cost was not gameplay code — it was the commercial shell. 52% of all commits carry fix/rework language and they cluster on find_the_dog's in-canvas UI, while the shared package got 64× less churn and was mostly bypassed. v2 ships the shell — screens, SDKs, theming, build — as the product, and keeps games down to a canvas plus declarative config. Every design value lives in a sheet-driven generated layer, never in hand-written TS/CSS.</p>
+  <p class="cite small">v2-architecture.md:8–15</p>
+
+  <h3>Repo layout</h3>
+  <div class="tree">fabrikav2/
+  packages/
+    <span class="c1">kernel/</span>     <span class="c2"># zero-dependency runtime primitives (no DOM, no Phaser)</span>
+    <span class="c1">ui/</span>         <span class="c2"># DOM shell kit: screens + primitives, token-themed only</span>
+    <span class="c1">sdk/</span>        <span class="c2"># provider-agnostic device/monetization services</span>
+    <span class="c1">services/</span>   <span class="c2"># backend-facing: owned analytics worker, remote-config, CDN manifest</span>
+    <span class="c1">testkit/</span>    <span class="c2"># playwright page objects, harness, debug/tuning panel</span>
+  tools/
+    create-game/    <span class="c2"># scaffold generator + port registry</span>
+    audit/          <span class="c2"># duplication + literal-value linters</span>
+  configs/          <span class="c2"># tsconfig.base, eslint, vite, playwright shared configs</span>
+  games/
+    &lt;name&gt;/         <span class="c2"># gameplay canvas + game.config.ts + design/ (generated)</span>
+  .github/workflows/ci.yml   <span class="c2"># workspace-matrix CI, every game included</span></div>
+  <p class="cite small">v2-architecture.md:19–34</p>
+
+  <h3>Layer diagram</h3>
+  <div class="diagram">
+    <div class="d-tier"><div class="d-box"><div class="name">kernel</div><div class="desc">event emitter, persisted-state, seeded rand, responsive/safe-area, screen flow machine</div></div></div>
+    <div class="d-arrow">▲ consumed by ▲</div>
+    <div class="d-tier">
+      <div class="d-box"><div class="name">ui</div><div class="desc">DOM shell: HomeMenu, SagaMap, Shop, Settings, ResultCard, PauseOverlay + primitives</div></div>
+      <div class="d-box"><div class="name">sdk</div><div class="desc">ads · analytics · iap · attribution · haptics · audio — 1 interface + N adapters each</div></div>
+      <div class="d-box"><div class="name">services</div><div class="desc">analytics-worker · remote-config · CDN asset manifest</div></div>
+    </div>
+    <div class="d-arrow">▲ consumed by ▲</div>
+    <div class="d-tier d-games"><div class="d-box"><div class="name">games/&lt;name&gt;</div><div class="desc">gameplay canvas (Phaser / Three / Canvas2D, free) + game.config.ts + generated design/</div></div></div>
+    <div class="d-arrow">◆ tested by ◆ testkit (playwright page objects, harness, debug panel) — spans all tiers</div>
+  </div>
+
+  <h3>Package responsibilities</h3>
+  <div class="table-scroll">
+  <table>
+    <tr><th>Package</th><th>Owns</th><th>Notable v1 carry-over</th></tr>
+    <tr><td class="mono">kernel</td><td>Typed event emitter, persisted-state (guarded localStorage blob), seeded rand, responsive/safe-area, screen flow machine</td><td>v1 <code>runtime</code> mostly as-is; v1's dead <code>shell/flow-machine.ts</code> is the starting point, rewritten against real consumers</td></tr>
+    <tr><td class="mono">ui</td><td>Screens (HomeMenu+SagaMap, Shop, Settings, ResultCard, PauseOverlay) + primitives (Button, ModalShell, ToastSystem, ToggleRow, EconomyTransfer, ConnectivityIndicator, RestorePurchasesRow, OfferSurface, TutorialOverlay, SceneTransitionCover). Zero literal colors/copy/asset paths — resolves through <code>--fab-*</code> tokens and generated modules, lint-enforced.</td><td>EconomyTransfer extracted from FTD's 300-line version; marble_run's copy dies</td></tr>
+    <tr><td class="mono">sdk</td><td>ads (AdProvider + admob/applovin-max/disabled adapters), analytics (event contract + firebase/owned-mirror/console sinks), iap (product-catalog + RevenueCat), attribution (Adjust), haptics, audio (minimal AudioBus)</td><td>ads generalizes core's AdMob-only AdService; analytics generalizes FTD's 482-line service against block_blast's 122-line minimal shape; haptics carried as-is; audio kills the 4×~1,860-line rewrite pattern</td></tr>
+    <tr><td class="mono">services</td><td>analytics-worker (FTD's Cloudflare worker generalized to multi-game), remote-config (FTD's schema/template made game-agnostic), CDN asset manifest (decide per pilot need)</td><td>FTD's worker/service are the only real backend integration in v1 — the source</td></tr>
+    <tr><td class="mono">games/&lt;name&gt;</td><td><code>src/</code> gameplay only (free substrate); <code>game.config.ts</code> declares screens/saga/economy/ads/catalog/analytics; <code>design/</code> generated and git-committed, never hand-edited</td><td>—</td></tr>
+  </table>
+  </div>
+  <p class="cite small">v2-architecture.md:36–84</p>
+
+  <h3>Guardrails — enforced, not aspirational</h3>
+  <ol class="steps">
+    <li><b>Declared deps only.</b> No phantom <code>@fabrika/*</code> imports; CI fails on undeclared. (Directly answers §2 item 4.)</li>
+    <li><b>No literal design values</b> in <code>packages/ui</code> or game shell code — lint greps for hex/rgba/copy-string patterns outside <code>design/</code>, replacing the broken <code>grep-affected-games.sh</code> with tests.</li>
+    <li><b>Duplication gate.</b> A game implementing something whose name/shape exists in <code>packages/</code> fails <code>tools/audit</code> — "extract after 2nd use" inverts to "shell code starts shared."</li>
+    <li><b>CI matrix covers every workspace</b> from day one. (The architecture doc says "v1 covered 2 of 5" — true when written, but v1 commit <code>b2a18cf39</code> has since added all five jobs; the guardrail stands as "never retrofit coverage," per §2 item 4.)</li>
+    <li><b>Single toolchain versions</b> pinned at root (v1 had vitest 3 vs 4, Capacitor drift).</li>
+  </ol>
+  <p class="cite small">v2-architecture.md:105–116</p>
+</section>
+
+<section id="s4">
+  <div class="section-label"><span class="section-num">04</span><h2>Extraction backlog</h2></div>
+  <p class="lede">The core deliverable. Every subsystem found buried or duplicated across v1's games, sourced from the cross-game duplication sweep (04), the shared-package audit (06), and the god-file dissection of HUD.ts / GameScene.ts (07).</p>
+
+  <div class="table-scroll">
+  <table>
+    <thead>
+      <tr><th>Item</th><th>Duplicate / buried sites</th><th>Divergence</th><th>v2 home</th><th>Shared API must expose</th><th>Migration note</th></tr>
+    </thead>
+    <tbody>
+      <tr class="group-head"><td colspan="6">Shell UI surfaces</td></tr>
+      <tr><td>Settings toggle rows</td><td class="mono">FTD HUD.ts:852–963 · marble_run shell/settings.ts:9–74</td><td>Drifted (same 3 toggles)</td><td>ui / ToggleRow</td><td><code>SettingKey</code> union, view-model builder, onChange callback</td><td>marble_run's decoupled view-model (R26) is the better seed than FTD's inline version</td></tr>
+      <tr><td>HUD bar</td><td class="mono">FTD HUD.ts:98–243 · marble_run dom.ts:145–243 · arrow hud.ts:22–486</td><td>Rewritten, 3 tech stacks (DOM/DOM/canvas)</td><td>ui / HUDBar</td><td>currency + lives/hearts + hint-button model props</td><td>arrow's version is canvas — out of scope until arrow's meta-UI moves to the DOM shell per the substrate rule</td></tr>
+      <tr><td>Win/lose result surfaces</td><td class="mono">FTD GameScene.ts:1586–1750 + overlays · marble_run dom.ts:461,500,539 · arrow hud.ts:449 + end-screen.ts · block_blast GameOverScene.ts</td><td>Rewritten, 4 games</td><td>ui / ResultCard</td><td>one modal shell, two content slots (win/lose)</td><td>architecture doc names ResultCard explicitly as the win/lose merge</td></tr>
+      <tr><td>Confetti</td><td class="mono">FTD GameScene.ts:3136–3204 (copy of arrow's fx/confetti.ts:21) + core ui/index.ts:~429</td><td>Copied then drifted; FTD fires both its own and core's</td><td>ui or kernel/juice</td><td><code>emitConfetti(container, style)</code></td><td>fix the double-fire first; arrow's <code>Confetti</code> class is the cleanest source</td></tr>
+      <tr><td>Particle burst</td><td class="mono">FTD GameScene.ts:3052–3119 (paw/dust) · block_blast ParticleFx.ts:122 <code>emitBurst</code></td><td>Rewritten</td><td>ui / kernel</td><td><code>emitBurst(scene, BurstConfig)</code></td><td>block_blast's already-parameterized, tested version is the seed</td></tr>
+      <tr><td>Camera shake</td><td class="mono">core puzzle/juice/index.ts:119–123 <code>Fail.shake</code> (exists) — bypassed at FTD GameScene.ts:3121–3134 and block_blast GameScene.ts:575, 1121</td><td>Exists, bypassed 3 sites</td><td>kernel/juice (carry as-is)</td><td><code>Fail.shake(camera, opts)</code></td><td>no rewrite — just wire the 3 bypass sites onto the existing primitive</td></tr>
+      <tr><td>Hint / booster systems</td><td class="mono">FTD GameScene.ts:3206–3277 + HUD.ts:263–397 · arrow hint.ts + fx/hint-glow.ts · marble_run dom.ts:190–204</td><td>Rewritten, 3 systems</td><td>ui / OfferSurface</td><td>offer model (cost, CTA, onRedeem) shared with fail/continue</td><td>FTD's modal content is richest but must lose hand-rolled DOM in favor of ModalShell</td></tr>
+      <tr><td>Level-select grid</td><td class="mono">FTD HUD.ts:406–492 · arrow menu.ts:20–240 · marble_run dom.ts:145</td><td>Rewritten, 3 surfaces</td><td>ui / HomeMenu + SagaMap</td><td><code>LevelMapNode[]</code> contract</td><td><code>mountLevelMap</code> is core's only proven ≥2-game reuse — extract it out of the 796-line ui/index.ts barrel first</td></tr>
+      <tr><td>Debug panels</td><td class="mono">FTD GameScene.ts:2779–2814, 3279–3379 · block_blast DebugPanel.ts + LiveTuning.ts · marble_run dom.ts:259,340</td><td>Rewritten, 3 panels</td><td>testkit</td><td>panelShell registration contract</td><td>core's <code>debug/panelShell.ts</code> exists — verify its API against these 3 real consumers before declaring it done</td></tr>
+      <tr><td>Tutorial pointer-at-coordinate</td><td class="mono">FTD GameScene.ts:1805–1903 + TutorialOverlay.ts · arrow tutorial.ts · marble_run dom.ts:349</td><td>Rewritten, 3 implementations</td><td>ui / TutorialOverlay</td><td><code>showPointerAt(screenPoint, opts)</code></td><td>also collapses the in-file duplicate pulsing ring (R32/R69, see below)</td></tr>
+      <tr><td>Toast</td><td class="mono">FTD HUD.ts:1370–1423 (only implementation)</td><td>Single-game, none in core</td><td>ui / ToastSystem</td><td><code>showToast(msg, opts)</code></td><td>clean, small — promote as-is</td></tr>
+      <tr><td>Connectivity indicator</td><td class="mono">FTD HUD.ts:1421–1441 (only implementation)</td><td>Single-game, none in core</td><td>ui / ConnectivityIndicator</td><td><code>navigator.onLine</code> wrapper + toast hook</td><td>promote as-is</td></tr>
+      <tr><td>Slide-up page shell</td><td class="mono">FTD HUD.ts:493–595 (only implementation)</td><td>Single-game; core's Modal.ts is a centered dialog only, no page-shell primitive</td><td>ui / new page-shell primitive</td><td>full-screen slide-in contract (header + body renderer + swipe-to-close)</td><td>net-new primitive, FTD is the sole source</td></tr>
+
+      <tr class="group-head"><td colspan="6">Monetization &amp; growth</td></tr>
+      <tr><td>Restore-purchases state machine</td><td class="mono">FTD HUD.ts:964–1147 (~180 lines)</td><td>Sole implementor, no shared IAP-restore machine anywhere</td><td>ui / RestorePurchasesRow + sdk/iap</td><td>states: idle · initializing · busy · unavailable · pending · restored · empty · failed; <code>IapService</code> interface</td><td>promote wholesale, decouple from FTD-specific copy strings</td></tr>
+      <tr><td>IAP purchase flow</td><td class="mono">FTD HUD.ts:1220–1299 + shop/ProductCatalog.ts (172) + IapService.ts (617) + PurchaseFulfillment.ts (267) = 1,221-line subsystem</td><td>Sole implementor</td><td>sdk / iap</td><td>product-catalog schema (from ProductCatalog.ts) + RevenueCat purchase/restore/fulfillment</td><td>net-new shared schema; FTD is the only source to generalize from</td></tr>
+      <tr><td>Fail/continue economy</td><td class="mono">FTD GameScene.ts:2014–2089</td><td>Sole implementor</td><td>ui / OfferSurface (shared with hint/booster)</td><td>continue-cost model (coins or IAP)</td><td>no cross-game parallel to reconcile</td></tr>
+      <tr><td>Ads (AdMob + AppLovin)</td><td class="mono">core AdService.ts (547, AdMob-only) · FTD ads/ (899: AppLovinMaxProvider 425, AppLovinConfig 171, AppLovinMaxPlugin 66, own AdProvider/Service/AdMobProvider/DisabledAdProvider)</td><td>Rewritten in parallel, not built on core</td><td>sdk / ads</td><td><code>AdProvider</code> interface, adapters admob / applovin-max / disabled, rewarded + interstitial lifecycles</td><td>generalize <code>AdMobAdapter</code> into <code>AdProvider</code>; port FTD's AppLovin stack as an adapter file</td></tr>
+      <tr><td>Attribution</td><td class="mono">core attribution/ (1,214 lines, 7 files, 0 consumers, last touched 2026-07-02) · FTD attribution/ (493 lines, same file set reimplemented independently)</td><td>Forked; core copy fresh but unwired</td><td>sdk / attribution</td><td>Adjust adapter</td><td>"core's module finally gets its consumer" — cut FTD onto core's version rather than keeping both</td></tr>
+      <tr><td>Product catalog</td><td class="mono">FTD shop/ProductCatalog.ts (172, only implementation)</td><td>Sole implementor</td><td>sdk / iap</td><td>product-catalog schema</td><td>net-new; FTD is the source</td></tr>
+      <tr><td>Remote-config</td><td class="mono">FTD config/RemoteConfigService.ts + schema + template (only implementation)</td><td>Sole implementor</td><td>services / remote-config</td><td>schema/template contract, game-agnostic</td><td>generalize FTD's service</td></tr>
+      <tr><td>Owned analytics worker</td><td class="mono">FTD analytics-worker/ (1,110 lines: contracts, storage, budget, index, query, ingest)</td><td>Sole implementor, no shared client anywhere</td><td>services / analytics-worker</td><td>ingest/query contract keyed by <code>game_id</code></td><td>generalize FTD's Cloudflare worker</td></tr>
+      <tr><td>Analytics services</td><td class="mono">block_blast AnalyticsService.ts (122) · FTD AnalyticsService.ts (482) + 2,610-line 10-file bespoke pipeline (CanonicalAnalyticsEvents 672, OwnedAnalyticsMirror 337, GameAnalyticsProvider 335) · arrow / marble_run: none · core: no analytics module at all</td><td>Rewritten/incomparable, 2 of 4 games only</td><td>sdk / analytics</td><td>canonical event contract + pluggable sinks (firebase / owned-mirror / console)</td><td>block_blast's 122-line shape is the minimal baseline; FTD's canonical event contract is the richer source to generalize</td></tr>
+
+      <tr class="group-head"><td colspan="6">Runtime &amp; kernel primitives</td></tr>
+      <tr><td>Haptics</td><td class="mono">core haptics/index.ts (92) · arrow haptics.ts (42) · block_blast Haptics.ts (13) · FTD HapticsManager.ts (41)</td><td>3 independent per-game rewrites; only marble_run adopted core</td><td>sdk / haptics (carry as-is)</td><td><code>safeImpact</code> / <code>safeNotification</code></td><td>no rewrite needed — wire the 3 remaining games onto the existing implementation</td></tr>
+      <tr><td>Persisted-state</td><td class="mono">core runtime/persisted-state.ts (46, only marble_run uses it) · arrow persist.ts (168, own try/catch+migration) · block_blast GameState.ts (41, no try/catch) · FTD GameState.ts (1,010, ~18 hand-guarded keys)</td><td>Drifted / rewritten, 3 of 4 games unmigrated</td><td>kernel (carry as-is)</td><td>single-blob guarded JSON storage API</td><td>FTD's many-key layout needs restructuring to fit the single-blob API</td></tr>
+      <tr><td>EconomyTransfer coin-fly</td><td class="mono">FTD EconomyTransfer.ts (300) · marble_run dom.ts:~404,676 (~35, stripped copy) · FTD internal 2nd impl GameScene.ts:2308–2368</td><td>Drifted duplicate + in-game duplicate (see §1c)</td><td>ui / EconomyTransfer</td><td><code>animateTransfer(from, to, amount, style)</code></td><td>FTD's DOM version is already the right API; marble_run's copy dies; FTD's internal Phaser duplicate collapses into it or gets a documented exception</td></tr>
+      <tr><td>Audio managers</td><td class="mono">arrow audio.ts (80) · block_blast SoundFx.ts (44) + ProceduralSfx.ts (337) · FTD AudioManager.ts (458) + AmbientManager.ts (551) · marble_run Music.ts (145) + Sfx.ts (245) — ~1,860 lines total, nothing in core</td><td>4 independent rewrites</td><td>sdk / audio</td><td>minimal <code>AudioBus</code> (play / mute / volume / ducking)</td><td>biggest un-flagged duplication in the repo — kills the rewrite pattern outright</td></tr>
+      <tr><td>Texture prewarmer</td><td class="mono">FTD GameScene.ts:444–527 (only implementation)</td><td>Sole implementor</td><td>kernel</td><td><code>prewarmLevel(textureKeys)</code></td><td>unique in the monorepo; texture-key format is currently fragile (no shared constant) — fix on extraction</td></tr>
+      <tr><td>capTextureLongEdge</td><td class="mono">FTD GameScene.ts:2994–3017 (only implementation)</td><td>Sole implementor</td><td>kernel</td><td><code>capTextureLongEdge(texture, maxEdge)</code></td><td>GPU-memory guard, promote as-is</td></tr>
+      <tr><td>Idle-scheduling wrapper</td><td class="mono">FTD GameScene.ts:539–557 + in-file duplicate 1752–1768; platform/browserScheduling (FTD-local, 0 refs elsewhere)</td><td>Sole implementor + in-file dup</td><td>kernel</td><td><code>runWhenVisibleAndIdle(fn)</code></td><td>collapse the in-file duplicate first, then promote</td></tr>
+      <tr><td>prefersReducedMotion</td><td class="mono">FTD GameScene.ts:1905 · core ui/index.ts:511 · FTD EconomyTransfer.ts:252 — verbatim ×3</td><td>Identical</td><td>kernel</td><td><code>prefersReducedMotion(): boolean</code></td><td>zero-risk single-export extraction, delete the other two copies</td></tr>
+      <tr><td>Lifecycle suspend/resume</td><td class="mono">FTD GameScene.ts:1105–1141 + platform/gameLifecycle (FTD-local, 0 refs elsewhere)</td><td>Sole implementor</td><td>kernel</td><td>onSuspend/onResume hooks pausing Phaser clock + tweens</td><td>"every Phaser mobile game needs this" — promote wholesale</td></tr>
+      <tr><td>Canvas↔DOM coordinate bridge</td><td class="mono">FTD GameScene.ts: counterTargetPoint 2254–2271, viewportToScrollFactorZeroPoint 2244–2252, levelToViewportPoint 2236–2242</td><td>Sole implementor</td><td>kernel</td><td><code>resolveDomAnchorToCanvasPoint(el, canvas)</code> → canvas-space point</td><td>hard dependency of the EconomyTransfer coin-fly row above — a canvas sprite flying to a DOM HUD anchor needs this bridge; extract together</td></tr>
+      <tr><td>retriggerCssAnimation</td><td class="mono">FTD GameScene.ts:2300–2306 (<code>pulseDogCounter</code>: forced-reflow CSS animation re-trigger)</td><td>Sole implementor</td><td>ui</td><td><code>retriggerCssAnimation(el, class)</code></td><td>tiny generic util currently wearing a game-specific name</td></tr>
+      <tr><td>isTapRelease</td><td class="mono">FTD GameScene.ts:1143–1149</td><td>Sole implementor</td><td>kernel</td><td>squared-distance tap-vs-drag discriminator</td><td>promote as-is</td></tr>
+      <tr><td>Canvas/texture micro-utils</td><td class="mono">FTD GameScene.ts: getRendererKind 2167–2172, refreshCanvasTexture 2985–2992, desaturateImageDataInPlace 2975–2983</td><td>Sole implementor</td><td>kernel</td><td>renderer-kind probe, iOS-WebGL-safe CanvasTexture refresh, pure ImageData grayscale</td><td>minor — sweep into kernel alongside the texture prewarmer / capTextureLongEdge extractions</td></tr>
+      <tr><td>Test harnesses</td><td class="mono">FTD testing/ (R71, GameScene.ts:3381–3521) · block_blast TestHarness.ts · marble_run testing/window.d.ts · core/testing (60 lines, exists)</td><td>3 per-game harnesses beside a thin shared module</td><td>testkit</td><td>harness / page-object contract</td><td>core/testing carries as-is; fold the 3 per-game harnesses into generic page objects</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>In-file duplication to collapse on extraction</h3>
+  <ul>
+    <li><b>4× the 250ms poll idiom</b> — HUD.ts <code>schedulePageShopProductsRefresh</code> (833–843), <code>scheduleLateRestoreResultPoll</code> (1010–1030), <code>scheduleRestoreControlRefresh</code> (1076–1086), <code>scheduleShopNativeOperationRefresh</code> (1204–1219)</li>
+    <li><b>2× pulsing rings</b> — GameScene.ts tutorial spotlight (1805–1903) and hint circle (3206–3277)</li>
+    <li><b>2× idle-scheduling wrappers</b> — GameScene.ts <code>scheduleNonCriticalPreloads</code> (539–557) and <code>scheduleAmbientCrossfade</code> (1752–1768)</li>
+    <li><b>2× particle-burst helpers</b> — GameScene.ts <code>emitPawBurst</code> / <code>emitDustPoof</code> (3052–3119)</li>
+    <li><b>2× fly-to-balance systems within FTD</b> — Phaser <code>playRestorationPickupAnimation</code> (2308–2368) vs DOM <code>EconomyTransfer.ts</code></li>
+  </ul>
+  <p class="cite small">07-godfile-dissection.md, cross-cutting synthesis point 4</p>
+
+  <h3>Dead code found</h3>
+  <ul>
+    <li>HUD.ts <code>refreshCacheStatsLabel</code> (1334–1350) and <code>handleClearCacheTap</code> (1351–1369) — orphaned, no referencing markup or button exists.</li>
+    <li>core's <code>attribution/</code> (1,214 lines) and <code>shell/</code> (1,017 lines, incl. 360-line <code>flow-machine.ts</code>) — zero consumers each. <b>Nuance:</b> attribution was last touched 2026-07-02 ("feat(core): add reusable Adjust attribution JS module") — a fresh, not-yet-wired extraction, not abandoned legacy. <code>shell</code> has no dated evidence either way but reads the same: built ahead of a consumer, never wired.</li>
+  </ul>
+  <p class="cite small">06-shared-package-audit.md:33–38, 53</p>
+</section>
+
+<section id="s5">
+  <div class="section-label"><span class="section-num">05</span><h2>design-sheets wiring</h2></div>
+  <p class="lede">The reskin bar is zero code edits (locked decision). Here is the exact mechanism that makes that true, and what's still missing to get there.</p>
+
+  <h3>The mechanism</h3>
+  <ol class="steps">
+    <li><b>Standardize where design values live.</b> v2 puts every game's design surface at <code>games/&lt;g&gt;/design/</code> (<code>tokens.css</code>, <code>copy.ts</code>, <code>assets.ts</code>) plus <code>--fab-*</code> CSS tokens, so <b>one</b> generic ingester (<code>fabrikav2</code> ingester) replaces v1's per-game bespoke ingester. It reads <code>game.config.ts</code> + <code>design/</code> + ui-kit component cards.</li>
+    <li><b>design-sheets gains new capabilities</b> (schema changes explicitly allowed per the kickoff decisions): a <b>copy schema</b> (localized-copy leaf type — today nothing models UI text), <b>asset-binding apply</b> for module imports (v0 <code>apply</code> explicitly refuses these), and optional layout/spacing token conventions.</li>
+    <li><b>Round-trip:</b> <code>dsheets build</code> publishes the sheet → claude.ai/design (Batu, agents, or an external designer edit it) → <code>dsheets diff</code>/<code>apply</code> writes tokens/copy/asset bindings back into <code>games/&lt;g&gt;/design/</code> atomically → CI builds + screenshot diff. Structural/component changes route to a change-brief card on the TWF board instead of silent auto-apply.</li>
+    <li><b>New-game creation runs the same path in reverse.</b> <code>create-game</code> scaffolds a default sheet, so picking a color scheme and assets for a new game is a sheet-editing session, not a code session — this is what puts theming-at-creation on the time-to-ship critical path.</li>
+  </ol>
+  <p class="cite small">v2-architecture.md:85–104</p>
+
+  <h3>What's missing today, plainly</h3>
+  <ul>
+    <li><b>No copy schema.</b> None of design-sheets' 4 schemas (sheet-manifest, tokens, asset-index, change-brief) define a localized-copy or UI-text leaf type.</li>
+    <li><b>No layout schema.</b> Nothing models the 817 px occurrences or <code>translate3d(...)</code> position literals found in marble_run's style.css.</li>
+    <li><b><code>apply</code> refuses DOM-import asset bindings.</b> <code>serializeAssetBindingChangeContent</code> (<code>src/apply/change-brief.ts:79–91</code>, the string itself at line 88 — verified against the live file) states outright: "v0 apply does not rewrite DOM import asset bindings" — these route to a manual change brief instead.</li>
+    <li><b>4 "TODO capture" placeholder page cards</b> — flagged by the ingester's own README, not concealed: <code>ingesters/fabrika-sugar3d/README.md:57–58</code> discloses that 4 page cards in the one real sheet are structural-only placeholders.</li>
+  </ul>
+  <p class="cite small">05-design-sheets-contract.md:17, 61, 19</p>
+</section>
+
+<section id="s6">
+  <div class="section-label"><span class="section-num">06</span><h2>Migration path</h2></div>
+  <p class="lede">Ordered as locked in the architecture doc, with current status against each step.</p>
+
+  <ol class="steps">
+    <li>Scaffold: workspaces, <code>configs/</code>, CI matrix, <code>tools/create-game</code> skeleton.<span class="status status-progress">In progress</span> — repo bootstrapped at <code>fabrikav2</code>; TWF board <code>scratch-2</code> claimed for this workstream; wave-1 card <code>iz57J8mL</code> ("scaffold") open.</li>
+    <li><code>kernel</code> + <code>testkit</code> (mostly carry v1 runtime/Playwright/debug/testing).<span class="status status-progress">In progress</span> — wave-1 cards <code>Fw1NtsCr</code> ("kernel") and <code>MDvEyHhL</code> ("testkit") created.</li>
+    <li><code>ui</code> shell kit extracted from FTD's DOM implementations + v1 <code>core/ui</code> (<code>mountLevelMap</code> is the proven seed), token-only from the first commit.<span class="status status-open">Not started</span></li>
+    <li>design-sheets: copy schema + asset-binding apply + generic <code>fabrikav2</code> ingester.<span class="status status-open">Not started</span></li>
+    <li><code>sdk</code>: haptics, audio, analytics, ads, iap, attribution — in that order, cheapest first; monetization SDKs need native shells to verify.<span class="status status-open">Not started</span></li>
+    <li><b>Pilot:</b> port marble_run/sugar3d onto the shell + all SDKs (the full-implementation test).<span class="status status-open">Not started</span></li>
+    <li>Reskin drill as acceptance: change palette + copy in the sheet, rebuild, ship a visibly different marble_run with zero code edits.<span class="status status-open">Not started</span></li>
+  </ol>
+  <p class="cite small">v2-architecture.md:117–129</p>
+</section>
+
+<section id="s7">
+  <div class="section-label"><span class="section-num">07</span><h2>Decisions that are yours</h2></div>
+  <p class="lede">Carried from the architecture doc's open-decisions list, plus one this research surfaced directly.</p>
+
+  <div class="decision-card"><b>Where sheets live long-term</b><span>design-sheets repo vs. per-game inside fabrikav2.</span></div>
+  <div class="decision-card"><b>v1's CDN/asset-cache layer</b><span>Bring it to v2 now, or defer until a game actually needs level-streaming? (v1's version was FTD-only, per §4.)</span></div>
+  <div class="decision-card"><b>Native shells</b><span>Keep Capacitor as-is? Assumed yes in the architecture doc, under the same "same stack" rule — worth an explicit yes/no.</span></div>
+  <div class="decision-card"><b>Analytics owned-mirror topology</b><span>One worker serving all games, or per-game worker deploys?</span></div>
+  <div class="decision-card"><b>Fate of arrow / block_blast / find_the_dog after the pilot</b><span>Port order, or freeze in place while marble_run proves the shell?</span></div>
+  <div class="decision-card"><b>Session-history tooling</b><span>Not in the architecture doc — surfaced by this research. The session-history source failed outright (§2 caveat); if correction-burden and reskin-round-trip evidence matters going forward (it's goal #2 in the kickoff decisions), the missing <code>ce-session-inventory</code>/<code>ce-session-extract</code> skills are a real gap, not just a caveat to note once.</span></div>
+</section>
+
+</main>
+
+<footer>
+  fabrika v2 design report · generated 2026-07-06 · sources: <code>docs/DECISIONS-2026-07-06-v2-kickoff.md</code>, <code>docs/architecture/v2-architecture.md</code>, <code>docs/research/01–07</code>
+</footer>
