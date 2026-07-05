@@ -19,5 +19,11 @@
       "archive": "6a4628b331f982bb3ee27ab0",
       "pre_release_check_list": "6a4628b3f3109bb5276e9a75"
     }
+  },
+  "twf_agents": {
+    "default": "claude/opus",
+    "stages": {
+      "reviewed": "claude/fable"
+    }
   }
 }
