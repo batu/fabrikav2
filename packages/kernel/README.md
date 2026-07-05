@@ -8,4 +8,6 @@ mostly as-is; v1's dead `shell/flow-machine.ts` is the starting point for the fl
 machine, rewritten this time against real consumers. Source-shipped (`main: src/index.ts`,
 no build step) — see the migration order in `docs/architecture/v2-architecture.md`.
 
-_Stub — no implementation yet. Ported by a later card (kernel port)._
+Subpath exports: `./emitter`, `./persist`, `./rand`, `./responsive`, `./flow`. The
+`./flow` machine is `@experimental` — a v1 seed with zero consumers, carried in
+quarantined and slated for rewrite against the real UI consumers.
