@@ -7,4 +7,16 @@ v1's runtime/playwright/debug/testing modules (see the migration order in
 `docs/architecture/v2-architecture.md`). Extend the shared Playwright base from
 `configs/playwright.base.ts` here. Source-shipped, no build step.
 
-_Stub — no implementation yet. Ported alongside kernel in an early migration card._
+## Subpath exports
+
+- `@fabrikav2/testkit/playwright` — canvas fraction helpers, the `window`-harness
+  bridge (`waitForHarness` / `readHarness` / `callHarness` / `pollHarness`), page-object
+  navigation (`gotoAndWaitForHarness`, `waitForSceneActive`), and Playwright video capture.
+- `@fabrikav2/testkit/debug` — the fixed debug panel shell (`mountDebugPanel`) and the
+  immutable-defaults `createTuningStore`.
+- `@fabrikav2/testkit/testing` — `assignWindowBindings` for test-time `window` binding
+  with restore-on-cleanup.
+
+Ported as-is from v1 `packages/core/src/{playwright,debug,testing}` (research 06 §5: carry the
+genuinely multi-game-adopted utilities). Dependency-light: only `@playwright/test` types and
+vitest, both pinned at the root. No build step — source-shipped `.ts`.

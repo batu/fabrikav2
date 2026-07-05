@@ -4,5 +4,15 @@
   "private": true,
   "type": "module",
   "main": "src/index.ts",
-  "types": "src/index.ts"
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./playwright": "./src/playwright/index.ts",
+    "./debug": "./src/debug/index.ts",
+    "./testing": "./src/testing/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run"
+  }
 }
