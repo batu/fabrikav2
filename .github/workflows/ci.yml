@@ -52,3 +52,17 @@ jobs:
       - run: npm run typecheck -w "${{ matrix.workspace }}" --if-present
       - run: npm run lint -w "${{ matrix.workspace }}" --if-present
       - run: npm run test:unit -w "${{ matrix.workspace }}" --if-present
+
+  # Guardrail linters (tools/audit). Matrix-independent: runs once over the whole
+  # repo, not per-workspace, since the checks are cross-workspace (duplication
+  # compares games against packages; phantom-dep scans every workspace's imports).
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run audit
