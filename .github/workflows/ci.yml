@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Matrix is DISCOVERED from npm workspaces, never hardcoded — every current and
+# future packages/* and games/* workspace is covered automatically. v1's CI
+# covered only 2 of 5 games (docs/research/01-v1-goals-and-docs.md §2), which is
+# exactly the drift this discovery step exists to prevent.
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    outputs:
+      workspaces: ${{ steps.set.outputs.workspaces }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - id: set
+        name: Discover workspaces
+        run: |
+          list="$(npm query .workspace --json | node -e 'const w=JSON.parse(require("fs").readFileSync(0,"utf8"));process.stdout.write(JSON.stringify(w.map(p=>p.name)))')"
+          echo "Discovered workspaces: $list"
+          echo "workspaces=$list" >> "$GITHUB_OUTPUT"
+
+  check:
+    needs: discover
+    # Empty repo (no workspaces yet) → skip cleanly instead of erroring on an
+    # empty matrix.
+    if: ${{ needs.discover.outputs.workspaces != '[]' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        workspace: ${{ fromJSON(needs.discover.outputs.workspaces) }}
+    name: check (${{ matrix.workspace }})
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck -w "${{ matrix.workspace }}" --if-present
+      - run: npm run lint -w "${{ matrix.workspace }}" --if-present
+      - run: npm run test:unit -w "${{ matrix.workspace }}" --if-present
