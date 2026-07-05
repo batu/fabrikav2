@@ -44,6 +44,19 @@ Batu + agents both edit sheets. Pipeline must be safe for programmatic edits.
 - IAP: shared product-catalog schema + RevenueCat purchase/restore flow.
 - Attribution: Adjust (generalize v1 core's currently-dead attribution module).
 
+## SDK test credentials
+Batu authorized reusing **find_the_dog's existing credentials/app IDs** (from v1,
+read-only — AppLovinConfig.ts, firebaseApp.ts, Adjust/RevenueCat config) as TEST
+credentials for the marble_run pilot's SDK verification. Guardrails: prefer each
+SDK's sandbox/test mode (AdMob test flag, Adjust sandbox env, RevenueCat sandbox
+purchases); tag analytics events with a dev/test environment marker where supported;
+note residual risk on the card that untagged events pollute FTD's production data.
+Real marble_run app IDs are a Blocked-on-Batu item only where sandbox mode is
+impossible.
+
+## Comms
+No progress pings (no telegram-send per card). Board + morning report only.
+
 ## Overnight write boundaries
 - May commit: **fabrikav2** and **design-sheets**.
 - fabrika v1: read-only, always.
