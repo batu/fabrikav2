@@ -1,0 +1,26 @@
+{
+  "name": "fabrikav2",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "fabrika v2 monorepo: DOM shell + free canvas games. See docs/architecture/v2-architecture.md.",
+  "workspaces": [
+    "packages/*",
+    "games/*"
+  ],
+  "scripts": {
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test:unit": "npm run test:unit --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^25.3.3",
+    "eslint": "^9.39.4",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.58.2",
+    "vite": "^6.0.5",
+    "vitest": "^4.0.18"
+  }
+}
