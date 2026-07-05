@@ -11,6 +11,12 @@ Run all three: `npm run audit` (from repo root). Exits non-zero on any violation
 1. **no-literals** — `packages/ui/**` and `games/*/src/shell/**` must be
    token-only. Flags:
    - **colors** — hex (`#rgb`/`#rgba`/`#rrggbb`/`#rrggbbaa`) and `rgb()`/`rgba()`.
+     *CSS token carve-out:* in `.css` files a color literal is permitted **only**
+     as the direct value of a `--fab-*` custom-property declaration
+     (`:root { --fab-color-accent: #ff8c42 }`) — that is the design layer's home.
+     Direct property values (`color: #fff`) and `var()` fallbacks
+     (`var(--fab-x, #fff)`, which silently fork the token system) stay
+     violations. TS files get no carve-out.
    - **copy** — user-facing copy. *Heuristic (this repo is JSX-free):* a string
      literal of **>2 whitespace-separated words** assigned/passed to a DOM sink
      (`textContent`, `innerText`, `innerHTML`, `placeholder`, `title`, `alt`,

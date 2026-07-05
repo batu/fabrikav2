@@ -21,9 +21,25 @@ describe('no-literals', () => {
     // hex + rgba + copy + asset = at least four distinct hits
     expect(violations.length).toBeGreaterThanOrEqual(4);
     for (const v of violations) {
-      expect(v.file).toMatch(/packages\/ui\/Bad\.ts/);
+      expect(v.file).toMatch(/packages\/ui\/(Bad\.ts|bad\.css)/);
       expect(v.line).toBeGreaterThan(0);
     }
+  });
+
+  it('permits hex/rgb only as direct --fab-* token declaration values in .css', () => {
+    // pass fixture ships tokens.css with :root{--fab-*: #hex / rgba(...)} — no hits.
+    const { violations } = lintNoLiterals(fixture('pass'));
+    expect(violations).toEqual([]);
+  });
+
+  it('still flags direct css property values and var() fallbacks', () => {
+    const { violations } = lintNoLiterals(fixture('fail'));
+    const cssColors = violations.filter(
+      (v) => v.kind === 'color' && /bad\.css/.test(v.file),
+    );
+    // `color: #fff` (direct value) AND `var(--fab-color-accent, #fff)` (fallback)
+    // both remain violations; the token carve-out must not rescue them.
+    expect(cssColors.length).toBe(2);
   });
 
   it('honors the literals allowlist', () => {

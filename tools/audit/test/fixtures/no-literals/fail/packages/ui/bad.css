@@ -1,0 +1,3 @@
+/* Two violations the token carve-out must still catch. */
+.btn { color: #fff; }
+.btn:hover { color: var(--fab-color-accent, #fff); }

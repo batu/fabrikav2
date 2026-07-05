@@ -20,6 +20,15 @@
 //   assets  — string literals ending in a known asset extension (png, svg,
 //             mp3, glb, ...). Allowed only under games/*/design/, which is
 //             outside the scan set, so any hit here is a violation.
+//
+// CSS TOKEN CARVE-OUT (conductor policy, card p9eS4dQf comment 3): `packages/ui`
+// must ship neutral token defaults in .css (`:root { --fab-color-x: #... }`).
+// A hex/rgb literal is PERMITTED in a .css file ONLY when it is the direct
+// assigned value of a `--fab-*` custom-property declaration (property name
+// matches /^--fab-[\w-]*$/, value not nested inside any function). Direct
+// property values (`color: #fff`) AND var() fallbacks (`var(--fab-x, #fff)` —
+// which silently fork the token system) remain violations. TS files never get
+// this carve-out; there is no token layer there.
 
 import { join } from 'node:path';
 import {
@@ -55,6 +64,36 @@ function wordCount(s) {
   return t.split(/\s+/).length;
 }
 
+const FAB_PROP_RE = /^--fab-[\w-]*$/;
+
+/**
+ * Is a color literal at `matchIndex` on a .css `line` a permitted `--fab-*`
+ * token default? True only when it is the direct value of a `--fab-*`
+ * declaration and not nested inside any function (e.g. a var() fallback).
+ */
+function isFabTokenDefault(line, matchIndex) {
+  // Declaration = text from the previous statement/block boundary to the match.
+  let declStart = 0;
+  for (let i = matchIndex - 1; i >= 0; i--) {
+    const c = line[i];
+    if (c === '{' || c === '}' || c === ';') { declStart = i + 1; break; }
+  }
+  const decl = line.slice(declStart, matchIndex);
+  const colon = decl.indexOf(':');
+  if (colon === -1) return false; // literal isn't in a value position
+  const prop = decl.slice(0, colon).trim();
+  if (!FAB_PROP_RE.test(prop)) return false; // not a --fab-* token declaration
+  // Value must be direct: no open function paren between the colon and the hit
+  // (that's how var() fallbacks and other nested funcs stay violations).
+  const value = decl.slice(colon + 1);
+  let depth = 0;
+  for (const c of value) {
+    if (c === '(') depth++;
+    else if (c === ')') depth = Math.max(0, depth - 1);
+  }
+  return depth === 0;
+}
+
 /**
  * @param {string} root  Absolute dir to scan (repo root, or a fixture root).
  * @param {object} [opts]
@@ -69,6 +108,7 @@ export function lintNoLiterals(root, opts = {}) {
     for (const file of walkFiles(dir, { exts: [...SOURCE_EXTS, '.css'] })) {
       const relPath = rel(root, file);
       if (fileAllowed(allowlist, relPath)) continue;
+      const isCss = file.endsWith('.css');
       const text = readText(file);
       const lines = text.split('\n');
 
@@ -78,9 +118,13 @@ export function lintNoLiterals(root, opts = {}) {
           if (allowlist.literals.has(value)) return;
           violations.push({ file: relPath, line: lineNo, kind, value });
         };
+        const addColor = (m) => {
+          if (isCss && isFabTokenDefault(line, m.index)) return;
+          add('color', m[0]);
+        };
 
-        for (const m of line.matchAll(HEX_RE)) add('color', m[0]);
-        for (const m of line.matchAll(RGB_RE)) add('color', m[0]);
+        for (const m of line.matchAll(HEX_RE)) addColor(m);
+        for (const m of line.matchAll(RGB_RE)) addColor(m);
 
         const isDomSink = DOM_SINK_RE.test(line);
         for (const m of line.matchAll(STRING_LITERAL_RE)) {

@@ -1,0 +1,10 @@
+/* Token defaults are the design layer's home: hex/rgb literals are permitted
+   ONLY as the direct value of a --fab-* custom property declaration. */
+:root {
+  --fab-color-accent: #ff8c42;
+  --fab-color-bg: rgba(0, 0, 0, 0.5);
+}
+.card {
+  color: var(--fab-color-accent);
+  background: var(--fab-color-bg);
+}
