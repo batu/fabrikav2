@@ -11,4 +11,20 @@ fork. Concerns: `ads` (`AdProvider` interface generalizing v1's AdMob-only servi
 rewrite). Source-shipped; native-backed SDKs need a native shell to verify. See
 `docs/architecture/v2-architecture.md` §packages/sdk.
 
-_Stub — no implementation yet. Built in migration order (haptics → audio → analytics → ads → iap → attribution)._
+Built in migration order (haptics → audio → analytics → ads → iap → attribution). Landed so far:
+
+- **`./haptics`** — v1 core's 92-line wrapper carried nearly verbatim (`safeImpact` /
+  `safeNotification`, two-layer web/native safety, native enum re-exports) plus
+  `createHaptics({ isEnabled })` — a gated factory taking an INJECTED predicate (FTD's
+  gating pattern, decoupled from `gameState`). `@capacitor/core` + `@capacitor/haptics` are
+  OPTIONAL peer deps (native shell supplies them; unit tests mock them).
+- **`./audio`** — a minimal `AudioBus` (`music` / `sfx` channels; `play`, per-channel
+  `setMuted` / `setVolume`, depth-counted `duck` / `unduck`, `unlock` / `suspend` / `resume`,
+  `master` recording tap). Games plug in decoded clips or procedural voices; the gain math is
+  a pure `Mixer` state machine (`effectiveGain = muted ? 0 : volume * duckFactor`) with a thin
+  Web Audio apply-layer over it. Ships exactly one trivial test synth — no game synth is
+  ported. Covers all 4 v1 games' mute/volume shapes (see
+  `docs/brainstorms/2026-07-06-sdk-haptics-audiobus-requirements.md`).
+
+Remaining concerns (`analytics` / `ads` / `iap` / `attribution`) are still stubs. Source-shipped;
+native-backed SDKs need a native shell to verify.

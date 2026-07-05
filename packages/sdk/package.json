@@ -4,5 +4,22 @@
   "private": true,
   "type": "module",
   "main": "src/index.ts",
-  "types": "src/index.ts"
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./haptics": "./src/haptics/index.ts",
+    "./audio": "./src/audio/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run"
+  },
+  "peerDependencies": {
+    "@capacitor/core": "*",
+    "@capacitor/haptics": "*"
+  },
+  "peerDependenciesMeta": {
+    "@capacitor/core": { "optional": true },
+    "@capacitor/haptics": { "optional": true }
+  }
 }
