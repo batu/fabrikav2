@@ -23,8 +23,28 @@
 .fab-ui {
   /* ---- Tokens @fabrikav2/ui consumes (theme the screens) ---- */
   --fab-color-surface: #fff3d7;
-  --fab-color-accent: #ff8a3d;
+  /* Reference affirmative is the candy GREEN (same family as the level-start CTA
+     below), NOT orange. --fab-color-accent drives every .fab-btn-primary fill
+     and the checked toggle track (packages/ui .fab-toggle-input:checked), so one
+     token flips both primary buttons and toggles to match the reference (F21,
+     F29). Orange is retained ONLY for the settings ribbon (see
+     --fab-ribbon-neutral-bg), the one place the reference uses it. */
+  --fab-color-accent: #5fd06a;
   --fab-color-on-accent: #ffffff;
+
+  /* Settings ribbon keeps the reference ORANGE (the settings overlay is the sole
+     reference surface that stays orange after the accent→green flip). The shared
+     OverlayCard renders the settings header as a neutral-tone ribbon, so the
+     neutral ribbon fill carries the orange. Win/fail ribbons use their own
+     win/fail tones and are unaffected. */
+  --fab-ribbon-neutral-bg: #ff8a3d;
+
+  /* Top safe-area inset (iOS notch/status-bar zone). env() resolves to 0 off
+     iOS and pre-viewport-fit=cover, so this is a no-op except where a real inset
+     exists. Consumed by the top chrome — menu top bar (index.html), in-level HUD
+     (GameController), and the slide-up page/settings header (packages/ui ui.css)
+     — so the status bar no longer overlaps the coin pill / hearts / gear (F01). */
+  --fab-safe-top: env(safe-area-inset-top);
   --fab-color-text: #6a3016;
   --fab-color-text-muted: #8a5a3d;
   --fab-color-on-secondary: #6a3016;

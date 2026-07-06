@@ -692,6 +692,10 @@
     display: flex;
     flex-direction: column;
     padding: var(--fab-page-padding);
+    /* Additive top inset so the page header clears the device status-bar zone.
+       --fab-safe-top is a consumer-supplied token (env(safe-area-inset-top));
+       falls back to 0 so non-inset contexts render identically. */
+    padding-top: calc(var(--fab-page-padding) + var(--fab-safe-top, 0px));
     background: var(--fab-page-overlay-bg);
     font-family: var(--fab-font-family);
     color: var(--fab-color-text);

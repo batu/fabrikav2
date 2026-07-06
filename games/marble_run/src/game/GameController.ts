@@ -867,10 +867,11 @@ function injectHudStyles(): void {
       background:linear-gradient(180deg,var(--fab-color-chrome-teal-top,#6fdcff),var(--fab-color-chrome-teal-bottom,#23a7db));
       box-shadow:0 4px 0 var(--fab-color-chrome-teal-shadow,#1c7fb0),inset 0 2px 0 rgba(255,255,255,.35);
       color:var(--fab-color-chrome-ink,#fff); }
-    .mr-hearts-panel { top:16px; left:16px; display:flex; align-items:center; gap:5px; padding:9px 15px; border-radius:18px; }
+    /* Top HUD panels clear the iOS status-bar zone via --fab-safe-top (0 off-device). */
+    .mr-hearts-panel { top:calc(16px + var(--fab-safe-top,0px)); left:16px; display:flex; align-items:center; gap:5px; padding:9px 15px; border-radius:18px; }
     .mr-hearts-panel span { font-size:24px; line-height:1; color:var(--fab-color-heart,#ff5d6c); transition:opacity .2s,transform .2s,filter .2s; filter:drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
     .mr-hearts-panel span.dead { opacity:.28; transform:scale(.8); filter:grayscale(1); }
-    .mr-gear-btn { top:16px; right:16px; width:56px; height:56px; padding:0; display:grid; place-items:center; border-radius:16px; font-size:28px; line-height:1; }
+    .mr-gear-btn { top:calc(16px + var(--fab-safe-top,0px)); right:16px; width:56px; height:56px; padding:0; display:grid; place-items:center; border-radius:16px; font-size:28px; line-height:1; }
     .mr-coin { bottom:22px; left:16px; display:flex; align-items:center; gap:6px; padding:8px 16px 8px 10px; border-radius:999px; font-weight:900; font-size:18px; }
     .mr-coin-glyph { font-size:20px; }
     .mr-coin-value { color:var(--fab-color-chrome-ink,#fff); text-shadow:0 1px 2px rgba(0,0,0,.25); }

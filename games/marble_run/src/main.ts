@@ -43,6 +43,18 @@ const sdk = createGameSdk({
 });
 void sdk.init();
 
+// StatusBar (light content + overlay) is configured declaratively in
+// capacitor.config.ts. The matching runtime init —
+//   import { StatusBar, Style } from '@capacitor/status-bar';
+//   if (Capacitor.isNativePlatform()) {
+//     void StatusBar.setStyle({ style: Style.Light });
+//     void StatusBar.setOverlaysWebView({ overlay: true });
+//   }
+// — is intentionally omitted: @capacitor/status-bar is not yet a dependency
+// (adding it + the iOS platform is the SDK-wiring/native card's scope). The
+// top-chrome status-bar OVERLAP fix (--fab-safe-top insets) lands this card and
+// works on-device without the plugin; only the glyph tint (N5) awaits it.
+
 const app = new App({ canvas, hudRoot, uiRoot }, sdk, harnessSink);
 app.start();
 

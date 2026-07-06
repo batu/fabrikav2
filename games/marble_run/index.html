@@ -109,6 +109,9 @@
         align-items: center;
         width: 100%;
         gap: 8px;
+        /* Clear the iOS status-bar zone so the coin pill + gear are not overlapped
+           (--fab-safe-top = env(safe-area-inset-top); 0 off-device). */
+        padding-top: var(--fab-safe-top, 0px);
       }
       .mr-topbar {
         display: flex;
