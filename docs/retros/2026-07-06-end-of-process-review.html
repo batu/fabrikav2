@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>fabrikav2 — end-of-process review</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root {
+    --bg: #f6f3ee;
+    --surface: #ffffff;
+    --surface-2: #efece3;
+    --border: #ddd6c8;
+    --text: #201d18;
+    --text-dim: #5b564c;
+    --text-faint: #8a8578;
+    --accent: #23685c;
+    --accent-strong: #16473e;
+    --accent-tint: #dce9e5;
+    --good: #3f8a4a;
+    --good-tint: #e3f0e3;
+    --bad: #b8362d;
+    --bad-tint: #f6e2df;
+    --warn: #a8701a;
+    --warn-tint: #f3e6d2;
+    --code-bg: #eee9dd;
+    --shadow: 0 1px 2px rgba(30, 25, 15, 0.06), 0 8px 24px -12px rgba(30, 25, 15, 0.12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14171a;
+      --surface: #1b1f23;
+      --surface-2: #20252a;
+      --border: #2d333a;
+      --text: #e9e6df;
+      --text-dim: #a5a196;
+      --text-faint: #726e64;
+      --accent: #57bba7;
+      --accent-strong: #86d3c3;
+      --accent-tint: #1c2f2c;
+      --good: #6cbd74;
+      --good-tint: #1c2c1e;
+      --bad: #e18178;
+      --bad-tint: #302020;
+      --warn: #d6a545;
+      --warn-tint: #2f2718;
+      --code-bg: #23282e;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14171a; --surface: #1b1f23; --surface-2: #20252a; --border: #2d333a;
+    --text: #e9e6df; --text-dim: #a5a196; --text-faint: #726e64;
+    --accent: #57bba7; --accent-strong: #86d3c3; --accent-tint: #1c2f2c;
+    --good: #6cbd74; --good-tint: #1c2c1e; --bad: #e18178; --bad-tint: #302020;
+    --warn: #d6a545; --warn-tint: #2f2718; --code-bg: #23282e;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+  }
+  :root[data-theme="light"] {
+    --bg: #f6f3ee; --surface: #ffffff; --surface-2: #efece3; --border: #ddd6c8;
+    --text: #201d18; --text-dim: #5b564c; --text-faint: #8a8578;
+    --accent: #23685c; --accent-strong: #16473e; --accent-tint: #dce9e5;
+    --good: #3f8a4a; --good-tint: #e3f0e3; --bad: #b8362d; --bad-tint: #f6e2df;
+    --warn: #a8701a; --warn-tint: #f3e6d2; --code-bg: #eee9dd;
+    --shadow: 0 1px 2px rgba(30, 25, 15, 0.06), 0 8px 24px -12px rgba(30, 25, 15, 0.12);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.55;
+    font-size: 16px;
+  }
+  code, .mono, .num, th, td, .eyebrow, h1, h2, h3, nav.toc a {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+  .num { font-variant-numeric: tabular-nums; }
+
+  a { color: var(--accent-strong); text-decoration-color: var(--border); text-underline-offset: 2px; }
+  a:hover { text-decoration-color: currentColor; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .skiplink { position: absolute; left: -999px; }
+  .skiplink:focus { left: 8px; top: 8px; background: var(--surface); padding: 6px 10px; z-index: 100; }
+
+  header.masthead {
+    border-bottom: 1px solid var(--border);
+    padding: 2.6rem 1.5rem 1.6rem;
+  }
+  .wrap { max-width: 920px; margin: 0 auto; }
+  .eyebrow {
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin: 0 0 0.7rem;
+  }
+  h1 {
+    font-size: 1.9rem;
+    line-height: 1.2;
+    margin: 0 0 0.6rem;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+  .subtitle {
+    color: var(--text-dim);
+    max-width: 60ch;
+    margin: 0 0 1.1rem;
+    font-size: 1.02rem;
+  }
+  .meta-row {
+    display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem;
+    font-size: 0.82rem; color: var(--text-faint);
+  }
+  .meta-row b { color: var(--text-dim); font-weight: 600; }
+
+  nav.toc {
+    position: sticky; top: 0; z-index: 20;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 0 1.5rem;
+  }
+  nav.toc .wrap { display: flex; gap: 1.4rem; padding: 0.7rem 0; max-width: 920px; }
+  nav.toc a {
+    font-size: 0.74rem; letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--text-dim); text-decoration: none; white-space: nowrap;
+  }
+  nav.toc a:hover { color: var(--accent-strong); }
+
+  main { padding: 0 1.5rem 4rem; }
+  section { max-width: 920px; margin: 0 auto; padding-top: 3rem; }
+  section + section { border-top: 1px solid var(--border); }
+
+  .section-label {
+    display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.3rem;
+  }
+  .section-num { color: var(--text-faint); font-size: 0.85rem; }
+  h2 {
+    font-size: 1.32rem; margin: 0 0 0.9rem; letter-spacing: -0.005em; text-wrap: balance;
+  }
+  h3 { font-size: 1.03rem; margin: 1.6rem 0 0.6rem; }
+  p { max-width: 74ch; }
+  p, li { color: var(--text); }
+  .prose-dim { color: var(--text-dim); }
+
+  .lede {
+    font-size: 1.05rem; color: var(--text-dim); max-width: 68ch; margin-bottom: 1.6rem;
+  }
+
+  /* verdict cards for section 1 */
+  .verdict-list { display: flex; flex-direction: column; gap: 0.9rem; margin: 1.4rem 0; }
+  .verdict {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1rem 1.2rem; box-shadow: var(--shadow);
+  }
+  .verdict-head { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; margin-bottom: 0.45rem; }
+  .verdict-head .letter { font-weight: 700; color: var(--text-faint); font-size: 0.9rem; }
+  .verdict-head strong { font-size: 0.98rem; }
+  .pill {
+    font-size: 0.66rem; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 700;
+    padding: 0.16rem 0.55rem; border-radius: 99px; white-space: nowrap;
+  }
+  .pill-refuted { background: var(--bad-tint); color: var(--bad); }
+  .pill-confirmed { background: var(--good-tint); color: var(--good); }
+  .pill-nuanced { background: var(--warn-tint); color: var(--warn); }
+  .verdict p { margin: 0.35rem 0 0; font-size: 0.93rem; }
+  .verdict .cite { font-size: 0.78rem; color: var(--text-faint); margin-top: 0.4rem; }
+
+  .callout {
+    border-left: 3px solid var(--warn);
+    background: var(--warn-tint);
+    padding: 0.9rem 1.1rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1.4rem 0;
+    font-size: 0.93rem;
+  }
+  .callout b { color: var(--warn); }
+
+  /* ranked bottleneck */
+  .rank-item {
+    display: grid; grid-template-columns: 2.2rem 1fr; gap: 0.9rem;
+    padding: 1.1rem 0; border-top: 1px solid var(--border);
+  }
+  .rank-item:first-of-type { border-top: none; }
+  .rank-num {
+    font-size: 1.3rem; font-weight: 700; color: var(--accent); line-height: 1;
+  }
+  .rank-title { font-size: 1rem; font-weight: 700; margin: 0 0 0.25rem; }
+  .strength-row { display: flex; gap: 0.5rem; align-items: center; margin: 0.25rem 0 0.5rem; flex-wrap: wrap; }
+  .strength {
+    font-size: 0.66rem; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 700;
+    padding: 0.14rem 0.5rem; border-radius: 4px;
+  }
+  .strength-hard { background: var(--good-tint); color: var(--good); }
+  .strength-doc { background: var(--accent-tint); color: var(--accent-strong); }
+  .strength-inf { background: var(--warn-tint); color: var(--warn); }
+  .fix-box {
+    margin-top: 0.6rem; padding: 0.6rem 0.8rem; background: var(--surface-2);
+    border-radius: 6px; font-size: 0.88rem;
+  }
+  .fix-box b { color: var(--accent-strong); }
+
+  /* chart */
+  .chart { margin: 1.3rem 0 0.6rem; }
+  .chart-row { display: grid; grid-template-columns: 15rem 1fr 4.2rem; align-items: center; gap: 0.6rem; padding: 0.28rem 0; }
+  .chart-row .label { font-size: 0.78rem; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chart-track { background: var(--surface-2); border-radius: 4px; height: 14px; position: relative; }
+  .chart-fill { background: var(--accent); border-radius: 4px; height: 100%; transition: filter 0.15s; }
+  .chart-row:hover .chart-fill { filter: brightness(1.12); }
+  .chart-row:hover .label { color: var(--text); }
+  .chart-val { font-size: 0.78rem; text-align: right; color: var(--text-faint); }
+  .chart-note { font-size: 0.76rem; color: var(--text-faint); margin-top: 0.3rem; }
+
+  /* tables */
+  .table-scroll { overflow-x: auto; margin: 1.1rem 0 1.6rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-size: 0.82rem; min-width: 720px; }
+  th, td { text-align: left; padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th {
+    background: var(--surface-2); font-size: 0.68rem; letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--text-dim); position: sticky; top: 0;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr.group-head td {
+    background: var(--accent-tint); font-weight: 700; color: var(--accent-strong);
+    font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  td.mono, .table-scroll code { font-size: 0.76rem; }
+  code { background: var(--code-bg); padding: 0.08em 0.35em; border-radius: 4px; font-size: 0.85em; }
+  .small { font-size: 0.82rem; color: var(--text-dim); }
+
+  /* architecture diagram */
+  .diagram {
+    display: flex; flex-direction: column; gap: 0.55rem; margin: 1.4rem 0;
+  }
+  .d-tier { display: flex; gap: 0.55rem; flex-wrap: wrap; }
+  .d-box {
+    flex: 1; min-width: 130px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--surface); padding: 0.7rem 0.85rem; box-shadow: var(--shadow);
+  }
+  .d-box .name { font-weight: 700; font-size: 0.86rem; color: var(--accent-strong); }
+  .d-box .desc { font-size: 0.76rem; color: var(--text-dim); margin-top: 0.2rem; }
+  .d-arrow { text-align: center; color: var(--text-faint); font-size: 0.75rem; letter-spacing: 0.05em; }
+  .d-games .d-box { background: var(--accent-tint); }
+
+  .tree {
+    background: var(--code-bg); border-radius: 8px; padding: 1rem 1.2rem;
+    font-size: 0.78rem; overflow-x: auto; white-space: pre; line-height: 1.6;
+    margin: 1rem 0;
+  }
+  .tree .c1 { color: var(--accent-strong); }
+  .tree .c2 { color: var(--text-faint); }
+
+  ol.steps { padding-left: 1.2rem; }
+  ol.steps li { margin-bottom: 0.6rem; max-width: 68ch; }
+  ol.steps li .status {
+    display: inline-block; margin-left: 0.5rem; font-size: 0.7rem; letter-spacing: 0.04em;
+    text-transform: uppercase; padding: 0.1rem 0.45rem; border-radius: 4px; font-weight: 700;
+  }
+  .status-done { background: var(--good-tint); color: var(--good); }
+  .status-progress { background: var(--warn-tint); color: var(--warn); }
+  .status-open { background: var(--surface-2); color: var(--text-faint); }
+
+  .decision-card {
+    border: 1px solid var(--border); border-radius: 8px; padding: 0.85rem 1.1rem;
+    margin-bottom: 0.7rem; background: var(--surface);
+  }
+  .decision-card b { display: block; font-size: 0.93rem; margin-bottom: 0.2rem; }
+  .decision-card span { font-size: 0.85rem; color: var(--text-dim); }
+
+  footer {
+    max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem 3rem; color: var(--text-faint); font-size: 0.78rem;
+  }
+
+  @media (max-width: 640px) {
+    h1 { font-size: 1.5rem; }
+    .rank-item { grid-template-columns: 1.6rem 1fr; }
+    .chart-row { grid-template-columns: 6.5rem 1fr 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<a class="skiplink" href="#s1">Skip to content</a>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">fabrikav2 — end-of-process review</p>
+    <h1>Rework rides the seam-defining cards. Ceremony rides everything else.</h1>
+    <p class="subtitle">The full-process retrospective for the 2026-07-06 night run: what the ledger and metrics actually say, a prioritized + effort-estimated list of process updates, and the top-5 to do first with concrete diffs. Analysis + spec only — agency-repo changes are Batu-gated. Written for Batu.</p>
+    <div class="meta-row">
+      <span><b>Card:</b> uRpkmITI</span>
+      <span><b>Date:</b> 2026-07-06</span>
+      <span><b>Sources:</b> night-run F1–F16 · 19 improvement ideas · insitu notes · harness-eval (KEghp3x4) · twf metrics · board.jsonl ledger</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Table of contents">
+  <div class="wrap">
+    <a href="#s1">1. What the numbers say</a>
+    <a href="#s2">2. Prioritized updates</a>
+    <a href="#s3">3. Top-5 specs</a>
+    <a href="#s4">Appendix</a>
+  </div>
+</nav>
+
+<main>
+
+<section id="s1">
+  <div class="section-label"><span class="section-num">01</span><h2>What the numbers say</h2></div>
+  <p class="lede">One page from the evaluation ledger (<code>board.jsonl</code>, 319 records) and <code>twf metrics report</code> (fabrikav2, 22 cards). Every claim is reproducible — see the appendix. Two findings dominate; three caveats bound what the data can support.</p>
+
+  <div class="verdict-list">
+    <div class="verdict">
+      <div class="verdict-head"><span class="letter">a</span><strong>Rework concentrated in first-of-kind work; ports &amp; composition needed none</strong><span class="pill pill-confirmed">Headline</span></div>
+      <p>Of 29 outcome-bearing <code>land</code> records, <b>0 cards</b> needed more than one rework round. 21 (72%) needed zero; 8 (28%) needed one. The 8 that reworked are all <b>scaffolding, cross-package generalization, or first-consumer integration</b> — cards defining a contract or seam for the first time. The 21 clean cards are pure ports, composition-from-existing-primitives, additive wiring, and the design-sheets CLI.</p>
+      <p class="cite">Quantitative support for F4 (shared registration points collide) and F5 (cross-package contracts need a declared owner). Fixes #3, #5 target the measured cost.</p>
+    </div>
+
+    <div class="verdict">
+      <div class="verdict-head"><span class="letter">b</span><strong>Ceremony is a ~1-second march through 6–8 columns</strong><span class="pill pill-confirmed">Headline</span></div>
+      <p>Real work lives in <code>worked</code> (minutes–hours). Every downstream gate — <code>tested_insitu</code>, <code>reviewed</code>, <code>evidence</code>, <code>video</code>, <code>compounded</code> — is a 1-second <code>twf next</code> + comment on one-pass cards. The mechanical confirmation of F1 ("~30% of conductor actions were column-marching") and F16 (an impl card forced through a brainstorm-doc checklist). <b>This very card hit F16</b>: the raw <code>todo→brainstormed</code> transition demands a requirements doc that makes no sense for an analysis deliverable.</p>
+      <p class="cite">Fixes #2, #7 collapse non-applicable gates by card classification.</p>
+    </div>
+
+    <div class="verdict">
+      <div class="verdict-head"><span class="letter">c</span><strong>Routing happened; routing <i>evaluation</i> can't be computed yet</strong><span class="pill pill-nuanced">Caveat</span></div>
+      <p>279 spawns carry a routed worker model (gpt-5.5 42%, opus-4-8 37%, fable-5 6%). But all 29 outcome records are attributed to <code>claude/opus</code> (the conductor doing land bookkeeping) — not the model that did each stage. So task-class × worker-model performance, exactly what idea #14 (<code>route-suggest</code>) needs, is <b>not joinable today</b>. The one readable cross-vendor outcome: MQPvX0qi (reskin drill, all-codex) landed partial-accepted at friction 3.</p>
+      <p class="cite">Schema gap → fix #8: land records must stamp per-stage <code>worker.model</code>.</p>
+    </div>
+
+    <div class="verdict">
+      <div class="verdict-head"><span class="letter">d</span><strong>Token &amp; active-time economics are unmeasured</strong><span class="pill pill-nuanced">Caveat</span></div>
+      <p><code>cost.tokens</code> and <code>cost.wall_s</code> are <b>0/319 populated</b>; active-time is 0s everywhere (no Codex activity logs to attribute). Wall time is the only usable time signal. Any "ceremony cost in tokens" claim is currently unsupportable.</p>
+    </div>
+
+    <div class="verdict">
+      <div class="verdict-head"><span class="letter">e</span><strong>The friction scale is defined two opposite ways</strong><span class="pill pill-refuted">Bug</span></div>
+      <p>The ledger's <code>plan_friction</code> reads <b>5 = plan survived cleanly</b> (20/29 scored 5, nearly all 0-rework + accepted). But <code>harness-evaluation.md</code> defines <b>1 = frictionless … 5 = blocked</b> — the opposite direction. Same word, inverted scales. Any dashboard mixing them ranks backwards.</p>
+      <p class="cite">Cheap fix #17; flagged loudly because it silently corrupts downstream aggregates.</p>
+    </div>
+  </div>
+
+  <h3>Rework rounds (29 outcome-bearing cards)</h3>
+  <div class="chart">
+    <div class="chart-row"><span class="label">0 rounds — clean</span><div class="chart-track"><div class="chart-fill" style="width:72%"></div></div><span class="chart-val">21 · 72%</span></div>
+    <div class="chart-row"><span class="label">1 round</span><div class="chart-track"><div class="chart-fill" style="width:28%;background:var(--warn)"></div></div><span class="chart-val">8 · 28%</span></div>
+    <div class="chart-row"><span class="label">2+ rounds</span><div class="chart-track"><div class="chart-fill" style="width:1%;background:var(--bad)"></div></div><span class="chart-val">0</span></div>
+  </div>
+
+  <h3>The 8 cards that reworked — all seam-defining</h3>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Card</th><th>Task class</th><th>Shape</th><th>plan_friction</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">iz57J8mL</td><td class="mono">scaffold-infra</td><td>first infra</td><td class="num">4</td></tr>
+        <tr><td class="mono">p9eS4dQf</td><td class="mono">tooling-linters</td><td>first infra</td><td class="num">4</td></tr>
+        <tr><td class="mono">QzqGf6el</td><td class="mono">template-scaffold</td><td>first infra</td><td class="num">4</td></tr>
+        <tr><td class="mono">X50H87vS</td><td class="mono">sdk-contract</td><td>new wire seam</td><td class="num">4</td></tr>
+        <tr><td class="mono">M3ngFJXt</td><td class="mono">sdk-port-generalize</td><td>generalization</td><td class="num">4</td></tr>
+        <tr><td class="mono">XwYJKFHk</td><td class="mono">services-worker-generalize</td><td>generalization</td><td class="num">4</td></tr>
+        <tr><td class="mono">9SbVZcm7</td><td class="mono">game-port-pilot</td><td>first consumer</td><td class="num">5</td></tr>
+        <tr><td class="mono">dcEkgvae</td><td class="mono">harness-adoption-first-consumer</td><td>first consumer</td><td class="num">5</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Ceremony tax — per-stage wall time (representative)</h3>
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>Card</th><th>planned</th><th>worked</th><th>tested_insitu</th><th>reviewed</th><th>evidence</th><th>video</th><th>compounded</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">Fw1NtsCr <span class="small">port-carry</span></td><td class="num">0s</td><td class="num">9m</td><td class="num">1s</td><td class="num">1s</td><td class="num">1s</td><td class="num">1s</td><td class="num">1s</td></tr>
+        <tr><td class="mono">GjUg0sbk <span class="small">sdk-contract</span></td><td class="num">0s</td><td class="num">11m</td><td class="num">1s</td><td class="num">1s</td><td class="num">1s</td><td class="num">1s</td><td class="num">1s</td></tr>
+        <tr><td class="mono">KEghp3x4 <span class="small">harness-eval</span></td><td class="num">1s</td><td class="num">1s</td><td class="num">0s</td><td class="num">0s</td><td class="num">0s</td><td class="num">0s</td><td class="num">0s</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="chart-note">Every non-<code>worked</code> gate is a sub-second transition on one-pass cards — the ceremony F1 quantifies. Active-time reads 0s (instrumentation gap, caveat d); wall time is the ceremony signal.</p>
+
+  <h3>Spawn model routing (279 spawns)</h3>
+  <div class="chart">
+    <div class="chart-row"><span class="label">gpt-5.5 (codex)</span><div class="chart-track"><div class="chart-fill" style="width:48%"></div></div><span class="chart-val">134 · 42%</span></div>
+    <div class="chart-row"><span class="label">claude-opus-4-8</span><div class="chart-track"><div class="chart-fill" style="width:42%"></div></div><span class="chart-val">118 · 37%</span></div>
+    <div class="chart-row"><span class="label">claude/opus (conductor)</span><div class="chart-track"><div class="chart-fill" style="width:11%"></div></div><span class="chart-val">30 · 9%</span></div>
+    <div class="chart-row"><span class="label">claude-fable-5</span><div class="chart-track"><div class="chart-fill" style="width:7%"></div></div><span class="chart-val">20 · 6%</span></div>
+    <div class="chart-row"><span class="label">gpt-5-mini / gpt-5 / other</span><div class="chart-track"><div class="chart-fill" style="width:6%"></div></div><span class="chart-val">17 · 5%</span></div>
+  </div>
+  <p class="chart-note">Routing is diverse; outcomes aren't joined to it (caveat c). Model performance verdicts are premature until fix #8 lands.</p>
+</section>
+
+<section id="s2">
+  <div class="section-label"><span class="section-num">02</span><h2>Prioritized, effort-estimated update list</h2></div>
+  <p class="lede">Priority ≈ (incident frequency × cost-per-incident) ÷ effort. Effort: XS &lt;30min · S ~1–2h · M ~half-day · L ~1+ day. Targets: <code>[twf]</code> CLI · <code>[AGENTS]</code> policy · <code>[skill]</code> twf-conduct/trello-pipeline · <code>[card-tmpl]</code> card templates. Every item cites incidents.</p>
+
+  <div class="table-scroll">
+    <table>
+      <thead><tr><th>#</th><th>Update</th><th>Targets</th><th>Evidence</th><th>Effort</th></tr></thead>
+      <tbody>
+        <tr class="group-head"><td colspan="5">Tier S — do first (specs in §3)</td></tr>
+        <tr><td class="num">1</td><td>Per-project merge gate (config-driven, <code>npm install</code> pre-step)</td><td class="mono">[twf]</td><td>F2, F8, idea 1 — every TS landing (22 cards)</td><td>M</td></tr>
+        <tr><td class="num">2</td><td>Honor card classification + collapse non-applicable gates</td><td class="mono">[twf][card-tmpl][skill]</td><td>F1, F3, F16, idea 2/3; §1b, §1c</td><td>M</td></tr>
+        <tr><td class="num">3</td><td>Contract-ownership line + zero-adaptation round-trip test</td><td class="mono">[card-tmpl][skill]</td><td>F5, idea 9; §1a rework</td><td>S</td></tr>
+        <tr><td class="num">4</td><td>merge-card: auto-ledger + no-hand-merge guard + refusal hints</td><td class="mono">[twf]</td><td>F7, F7b, F8, idea 4/5/8; §1c</td><td>M</td></tr>
+        <tr><td class="num">5</td><td>Shared-utils preflight in multi-subtree cards</td><td class="mono">[card-tmpl][skill]</td><td>F4, idea 10 — with-timeout vendored 3×</td><td>S</td></tr>
+        <tr class="group-head"><td colspan="5">Tier A — high value, next wave</td></tr>
+        <tr><td class="num">6</td><td><code>.twf/</code> in project-bootstrap gitignore</td><td class="mono">[twf][AGENTS]</td><td>F9, idea 7 — first-spawn stranded</td><td>XS</td></tr>
+        <tr><td class="num">7</td><td><code>twf next --through &lt;col&gt;</code> / <code>pipeline: short</code> profile</td><td class="mono">[twf][skill]</td><td>F1, idea 2; §1b (ship with #2)</td><td>M</td></tr>
+        <tr><td class="num">8</td><td>Ledger <code>land</code> records carry per-stage <code>worker.model</code></td><td class="mono">[twf]</td><td>§1c — unblocks idea 14 route-suggest</td><td>S</td></tr>
+        <tr><td class="num">9</td><td>Capacity preflight live-quota probe + <code>twf agents failover</code></td><td class="mono">[twf]</td><td>idea 13a/13 — codex cap + Gemini 429</td><td>M</td></tr>
+        <tr><td class="num">10</td><td><code>run-card</code> cwd-safe + <code>--sync-main</code></td><td class="mono">[twf]</td><td>F12, idea 6/17</td><td>S–M</td></tr>
+        <tr class="group-head"><td colspan="5">Tier B — codify when convenient</td></tr>
+        <tr><td class="num">11</td><td>Session-history skills in default install set</td><td class="mono">[AGENTS]</td><td>F10, idea 12</td><td>XS</td></tr>
+        <tr><td class="num">12</td><td>Conductor evidence-capture → gitignored <code>.work/</code></td><td class="mono">[skill][AGENTS]</td><td>F11, idea 16</td><td>XS</td></tr>
+        <tr><td class="num">13</td><td>Aesthetics-gate transfer semantics (name receiving card)</td><td class="mono">[skill][card-tmpl]</td><td>idea 11</td><td>XS</td></tr>
+        <tr><td class="num">14</td><td>Template/linter co-evolution per generated-artifact class</td><td class="mono">[skill][AGENTS]</td><td>F15, idea 19</td><td>S</td></tr>
+        <tr><td class="num">15</td><td>Background-worker respawn playbook / <code>run-card --resume</code></td><td class="mono">[twf][skill]</td><td>F6, idea 15 — 6 workers died on interrupt</td><td>M</td></tr>
+        <tr><td class="num">16</td><td>Native-build playbook (SPM Capacitor) → skill/tool</td><td class="mono">[skill]</td><td>F13, F14, idea 18</td><td>L</td></tr>
+        <tr><td class="num">17</td><td>Disambiguate the <code>plan_friction</code> scale</td><td class="mono">[twf][skill]</td><td>§1e — inverted across two docs</td><td>XS</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout"><b>Out of scope for this card.</b> The in-situ device gaps (insitu notes 1–7) and the six harness-evaluation card drafts (reach-recipe state-pinning, <code>refs/manifest.yaml</code>, blank-canvas-witness, merceka two-image judge, Gemini billing, DS13 round-trip) are <b>feature cards</b> for fabrikav2/testkit/design-sheets, not process/policy. Already drafted in <code>harness-evaluation.md</code>; listed here only for completeness.</div>
+</section>
+
+<section id="s3">
+  <div class="section-label"><span class="section-num">03</span><h2>Top-5 — concrete diffs / specs</h2></div>
+  <p class="lede">The five highest-leverage updates, with implementable specs. All target the agency repo and are Batu-gated — this card writes the spec, not the code.</p>
+
+  <div class="rank-item">
+    <div class="rank-num">1</div>
+    <div>
+      <p class="rank-title">Per-project merge gate <code>[twf]</code></p>
+      <div class="strength-row"><span class="strength strength-hard">F2</span><span class="strength strength-hard">F8</span><span class="strength strength-doc">idea 1</span><span class="strength strength-inf">every TS landing (22 cards)</span></div>
+      <p class="small"><code>twf.py:_run_verification_gate</code> (line 1240) hardcodes <code>uv run python -m pytest -q</code> + <code>uv run ruff check</code>. Every TS-repo landing fails it; the conductor runs the npm gate by hand. Stale <code>node_modules</code> after dep-adding merges caused false-fails (F8).</p>
+      <div class="fix-box"><b>Spec.</b> Read the gate from <code>agents/config.json</code>, run an optional pre-step first, fall back to the Python default when unconfigured.
+<div class="tree"><span class="c2">// agents/config.json</span>
+"twf_gate": {
+  "pre":  ["npm install --no-audit --no-fund"],   <span class="c2">// F8</span>
+  "cmds": ["npm run typecheck", "npm run lint",
+           "npm run test:unit", "npm run audit"]
+}</div>
+Load config in <code>_run_verification_gate</code>; if <code>twf_gate</code> present, run <code>pre + cmds</code> (via <code>shlex.split</code>) in order, else the current pytest/ruff pair. Add a test that a configured gate runs in order and a missing config falls back.</div>
+    </div>
+  </div>
+
+  <div class="rank-item">
+    <div class="rank-num">2</div>
+    <div>
+      <p class="rank-title">Honor card classification + collapse non-applicable gates <code>[twf][card-tmpl][skill]</code></p>
+      <div class="strength-row"><span class="strength strength-hard">F1</span><span class="strength strength-hard">F3</span><span class="strength strength-hard">F16</span><span class="strength strength-doc">idea 2/3</span></div>
+      <p class="small">Pickup routing is nondeterministic (F3); one-pass cards are marched through 6–8 gates (§1b), some demanding artifacts that make no sense for the class (F16).</p>
+      <div class="fix-box"><b>Spec (two parts).</b> (1) Card carries its own classification + profile; <code>twf pickup</code>/<code>run-card</code> read the body when the flag is omitted instead of guessing:
+<div class="tree">Classification: direct-to-work   <span class="c2"># | needs-plan | needs-brainstorm</span>
+Pipeline: short                  <span class="c2"># full | short | analysis</span></div>
+(2) Profiles define the set of <i>applicable</i> columns; <code>twf next</code> auto-stamps "n/a for &lt;profile&gt;" and skips the rest:
+<div class="tree">PIPELINE_PROFILES = {
+  "full":     PIPELINE_SEQUENCE,
+  "short":    [todo, planned, worked, reviewed, merged],
+  "analysis": [todo, worked, reviewed, merged],  <span class="c1"># THIS card</span>
+}</div>
+The <code>analysis</code> profile is exactly what this review card wants. Subsumes idea 3 + half of idea 2; ship #7 as the manual escape hatch in the same PR.</div>
+    </div>
+  </div>
+
+  <div class="rank-item">
+    <div class="rank-num">3</div>
+    <div>
+      <p class="rank-title">Contract-ownership line + round-trip test for cross-card seams <code>[card-tmpl][skill]</code></p>
+      <div class="strength-row"><span class="strength strength-hard">F5</span><span class="strength strength-doc">idea 9</span><span class="strength strength-inf">§1a rework tax</span></div>
+      <p class="small">The sdk owned-mirror sink and services worker shipped incompatible wire shapes under one schema tag — each card green, mismatch cost a full extra pass (F5). §1a shows the rework landing on exactly these seam cards. No gate caught it.</p>
+      <div class="fix-box"><b>Spec.</b> Card-writing checklist (twf-conduct + template): if a card produces/consumes a contract another card touches — (1) name the shared file in <b>both</b> bodies: <code>Contract: packages/sdk/src/analytics/wire.ts (owner: this card)</code>; (2) declare exactly <b>one</b> owner, consumers import; (3) acceptance = a <b>zero-adaptation round-trip test</b> (producer emits → consumer parses, no massaging — the proven analytics-wire pattern). Optional lint: <code>twf</code> warns if two in-flight cards both claim <code>owner: this card</code> for the same path.</div>
+    </div>
+  </div>
+
+  <div class="rank-item">
+    <div class="rank-num">4</div>
+    <div>
+      <p class="rank-title">merge-card: auto-ledger + no-hand-merge guard + refusal hints <code>[twf]</code></p>
+      <div class="strength-row"><span class="strength strength-hard">F7</span><span class="strength strength-hard">F7b</span><span class="strength strength-hard">F8</span><span class="strength strength-doc">idea 4/5/8</span></div>
+      <p class="small">Conductor forgets <code>twf ledger add</code> under load (sparse outcomes, §1c); two premature "Landed" comments before the gate ran (F7); a hand-merge after refusal hit the truncated-branch trap (F7b).</p>
+      <div class="fix-box"><b>Spec (three changes to <code>run_merge_card</code>).</b> (1) <b>Auto-append the <code>land</code> record</b> after gate-pass — it already has card, stage (<code>landed["stage"]</code>), verify result; stamp <code>worker.model</code> from the stage's spawn record (closes idea 8 <i>and</i> the §1c gap → #8). (2) <b>"Landed" comment only after gate-pass, from inside merge-card</b> (idea 5) — assert unreachable before <code>gate_fn</code> returns 0. (3) <b>Refusal text</b>: print the exact resolving command, end with "re-run <code>twf merge-card &lt;id&gt;</code> — do NOT hand-merge (F7b)"; add <code>--fix-dirty</code> for lockfile-only auto-commit.</div>
+    </div>
+  </div>
+
+  <div class="rank-item">
+    <div class="rank-num">5</div>
+    <div>
+      <p class="rank-title">Shared-utils preflight in multi-subtree cards <code>[card-tmpl][skill]</code></p>
+      <div class="strength-row"><span class="strength strength-hard">F4</span><span class="strength strength-doc">idea 10</span><span class="strength strength-inf">real defect</span></div>
+      <p class="small"><code>with-timeout</code> was vendored <b>3× inside one package in one night</b> — a real defect, not churn — because parallel cards each added a subtree without a named home for shared helpers.</p>
+      <div class="fix-box"><b>Spec.</b> Card-writing checklist: when adding parallel subtrees to one package, name shared utils + canonical path up front — <code>Shared: with-timeout lives at packages/sdk/src/with-timeout.ts — import, do not vendor.</code> First card to land owns it; later cards import. Optional guardrail: extend the duplication linter to flag identical exported function bodies across sibling subtrees.</div>
+    </div>
+  </div>
+</section>
+
+<section id="s4">
+  <div class="section-label"><span class="section-num">A</span><h2>Appendix — reproduce the numbers</h2></div>
+  <p class="small">Ledger snapshot at analysis time: 319 records (279 spawn / 40 land), 29 outcome-bearing. Markdown source of record: <code>docs/retros/2026-07-06-end-of-process-review.md</code>.</p>
+  <div class="tree"><span class="c2"># Per-stage wall time (ceremony tax, §1b)</span>
+cd fabrikav2 &amp;&amp; twf metrics report
+
+<span class="c2"># Ledger aggregates (§1a rework, §1c routing, §1e friction)</span>
+python3 - &lt;&lt;'PY'
+import json, collections
+recs=[json.loads(l) for l in open(
+  '~/.local/share/agency/ledger/board.jsonl'.replace('~', __import__('os').path.expanduser('~')))
+  if l.strip()]
+rich=[r for r in recs if r.get('outcome',{}).get('rework_rounds') is not None]
+print("rework:",   collections.Counter(r['outcome']['rework_rounds'] for r in rich))
+print("friction:", collections.Counter(r['bias']['plan_friction'] for r in rich))
+print("spawns:",   collections.Counter(r['worker']['model']
+                     for r in recs if r['event']=='spawn'))
+PY</div>
+</section>
+
+</main>
+
+<footer>
+  <p>Card uRpkmITI · analysis + spec only (agency-repo changes Batu-gated) · 2026-07-06. Companion markdown: <code>docs/retros/2026-07-06-end-of-process-review.md</code>. Every recommendation cites its incident (F# / idea# / §-number); every number traces to <code>board.jsonl</code> or <code>twf metrics report</code>.</p>
+</footer>
+</body>
+</html>
