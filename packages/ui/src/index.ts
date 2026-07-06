@@ -24,6 +24,34 @@ export type {
 export { animateEconomyTransfer } from './EconomyTransfer.ts';
 export type { EconomyTransferKind, EconomyTransferOptions } from './EconomyTransfer.ts';
 
+// ---- Screen layer (this card) ----
+export { mountSagaMap } from './SagaMap.ts';
+export type {
+  LevelNodeState,
+  LevelMapNode,
+  LevelMapState,
+  LevelMapActions,
+  SagaMapOptions,
+} from './SagaMap.ts';
+
+export { mountHomeMenu } from './HomeMenu.ts';
+export type { HomeMenuOptions, HomeMenuAction, HomeMenuSagaConfig } from './HomeMenu.ts';
+
+export { mountPageShell } from './PageShell.ts';
+export type { PageShellOptions } from './PageShell.ts';
+
+export { mountSettingsPage } from './SettingsPage.ts';
+export type { SettingsPageOptions, LegalLink, PrivacyChoice } from './SettingsPage.ts';
+
+export { mountResultCard } from './ResultCard.ts';
+export type { ResultVariant, ResultCardOptions } from './ResultCard.ts';
+
+export { mountPauseOverlay } from './PauseOverlay.ts';
+export type { PauseOverlayOptions, PauseOverlayActions, PauseOverlayLabels } from './PauseOverlay.ts';
+
+export { createPageStack } from './PageStack.ts';
+export type { PageStack, PageStackOptions } from './PageStack.ts';
+
 export { resolveDomAnchorToCanvasPoint } from './canvasDomBridge.ts';
 export type { CanvasPoint, AnchorFraction } from './canvasDomBridge.ts';
 
