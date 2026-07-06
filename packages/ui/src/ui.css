@@ -85,6 +85,16 @@
     --fab-toggle-row-gap: 11px;
     --fab-toggle-row-padding: 10px 13px;
     --fab-toggle-radius: 20px;
+
+    /* ---- Economy transfer (wave B) ---- */
+    --fab-economy-token-size: 34px;
+    --fab-economy-layer-z: 60;
+    --fab-economy-bump-scale: 1.18;
+    --fab-economy-bump-duration: 520ms;
+
+    /* ---- Connectivity indicator (wave B) ---- */
+    --fab-connectivity-size: 10px;
+    --fab-connectivity-color: #e5533c;
   }
 }
 
@@ -347,15 +357,67 @@
     transform: translateX(22px);
   }
 
+  /* ---- Economy transfer coin-fly (wave B) ----
+     The flight layer is fixed to the viewport so token transforms (computed in
+     JS from client rects) map 1:1. Token motion is driven by inline transforms
+     in EconomyTransfer.ts; only the landing target-bump is a CSS animation. */
+  .fab-economy-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: var(--fab-economy-layer-z);
+  }
+
+  .fab-economy-token {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--fab-economy-token-size);
+    height: var(--fab-economy-token-size);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+
+  .fab-economy-target-bump {
+    animation: fabEconomyTargetBump var(--fab-economy-bump-duration) ease-out;
+  }
+
+  @keyframes fabEconomyTargetBump {
+    0% { transform: scale(1); }
+    40% { transform: scale(var(--fab-economy-bump-scale)); }
+    100% { transform: scale(1); }
+  }
+
+  /* ---- Connectivity indicator (wave B) ----
+     A dot that becomes visible only when offline (toggled via `--offline`). */
+  .fab-connectivity {
+    width: var(--fab-connectivity-size);
+    height: var(--fab-connectivity-size);
+    border-radius: 50%;
+    background: var(--fab-connectivity-color);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--fab-duration-fast) ease;
+  }
+
+  .fab-connectivity--offline {
+    opacity: 1;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .fab-btn,
     .fab-toast,
     .fab-toggle-slider,
-    .fab-toggle-slider::before {
+    .fab-toggle-slider::before,
+    .fab-connectivity {
       transition: none;
     }
     .fab-modal-backdrop,
-    .fab-modal-card {
+    .fab-modal-card,
+    .fab-economy-target-bump {
       animation: none;
     }
   }

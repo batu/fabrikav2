@@ -21,5 +21,19 @@ export type {
   SettingsViewModel,
 } from './ToggleRow.ts';
 
+export { animateEconomyTransfer } from './EconomyTransfer.ts';
+export type { EconomyTransferKind, EconomyTransferOptions } from './EconomyTransfer.ts';
+
+export { resolveDomAnchorToCanvasPoint } from './canvasDomBridge.ts';
+export type { CanvasPoint, AnchorFraction } from './canvasDomBridge.ts';
+
+export { mountConnectivityIndicator } from './ConnectivityIndicator.ts';
+export type {
+  ConnectivityIndicatorOptions,
+  ConnectivityIndicatorHandle,
+} from './ConnectivityIndicator.ts';
+
+export { prefersReducedMotion, retriggerCssAnimation } from './motion.ts';
+
 export { applyTheme } from './internal.ts';
 export type { ThemeTokens, UiHandle } from './internal.ts';
