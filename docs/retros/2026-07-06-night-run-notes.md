@@ -89,6 +89,45 @@ improvement proposals. Updated as events happen; not polished.
   Caveats honored: no browser/xcodebuild inside codex sandbox — evidence capture
   stays with claude workers or the conductor.
 
+## POST-PORT RETRO (the pilot, reviewed 2026-07-06 ~10:40)
+
+**Outcome: the port worked.** One implementation pass + one aesthetics-fix pass;
+landed gate-green; e2e 2/2; device-installed and launched on Batu's iPhone same
+morning. v1's definition of done met by the pilot in one night.
+
+What the port proved:
+- **The shared layer holds.** The game is a canvas + config + thin shell wiring;
+  every meta surface came from packages/ui unchanged. The two aesthetics findings
+  were design/-token completeness, not component defects — the reskin surface is
+  load-bearing exactly as designed.
+- **Flow machine graduated for real** — all transitions via machine.events, zero
+  transition-table changes. The @experimental-seed-with-forced-verdict pattern is
+  validated; adopt it for future carried-but-unproven modules.
+- **Worker root-caused beyond the finding**: the token-shadowing fix (.fab-ui layer
+  specificity) repaired a defect every future game would have hit. Findings phrased
+  as symptoms + freedom to chase the cause > prescriptive fixes.
+- **Determinism discipline paid**: pinned mulberry32 sequence test protected 20
+  committed levels through the port.
+
+Port-specific friction (new items):
+- **F11 — conductor evidence capture dirtied the worker's tree.** Capture scripts/
+  outputs must target gitignored paths from the first command (game .work/ +
+  screenshots straight into evidence/ only when committing them is intended).
+- **F12 — run-card must be invoked from the repo root**; invoking from inside the
+  card's worktree tries to double-create the worktree. Tool should handle or error
+  clearly (improvement 17).
+- **F13 — background-shell cwd is sticky and surprising.** Four consecutive failed
+  xcodebuild spawns from wrong-cwd assumptions. Playbook: every background command
+  starts with an explicit absolute cd (or embeds absolute paths); verify with pwd
+  when it matters.
+- **F14 — Capacitor is SPM-based now**: no .xcworkspace; build with
+  -project App.xcodeproj; first device build needs playwright-style patience (SPM
+  resolve) + keychain unlock + DEVELOPMENT_TEAM injection into the generated pbxproj.
+  Codified here so the next native build is one pass.
+- **F15 — generated native shells vs structure linter**: ios/ tripped the
+  whitelist; rule (gitignored-generated = allowed) routed to hardening card. The
+  linter/template must co-evolve with each new generated artifact class.
+
 ## Decisions made mid-run worth keeping
 
 - Token defaults live ONLY as `--fab-*` declarations in CSS; var() fallbacks are

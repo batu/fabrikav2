@@ -12,7 +12,8 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test:unit": "vitest run"
+    "test:unit": "vitest run",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@fabrikav2/sdk": "*"

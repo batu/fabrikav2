@@ -9,5 +9,9 @@ dist/
 # contract README (the promotion rule) is committed. See games/_template/.work/.
 games/*/.work/*
 !games/*/.work/README.md
+# Generated Capacitor native shells: cap-generated, never committed. Committed
+# native inputs live in games/*/native-resources/. The structure linter enforces
+# this — a tracked ios/ or android/ is a violation.
 games/*/test-results/
 games/*/ios/
+games/*/android/

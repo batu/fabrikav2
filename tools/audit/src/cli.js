@@ -15,9 +15,13 @@ function fmtNoLiterals(v) {
   return `${v.file}:${v.line}  [${v.kind}]  ${JSON.stringify(v.value)}`;
 }
 function fmtNoDuplication(v) {
+  if (v.kind === 'local') return `${v.file}  ${v.note}`;
   return `${v.file}  re-declares export "${v.name}" (owned by ${v.package})`;
 }
 function fmtDepsDeclared(v) {
+  if (v.kind === 'unused') {
+    return `${v.workspace}  declares ${v.import} but never imports it`;
+  }
   return `${v.file}  imports ${v.import} — not declared in ${v.workspace}/package.json`;
 }
 function fmtStructure(v) {
@@ -51,22 +55,35 @@ function main() {
 
   const results = runAll(root, { allowlistPath });
   let failed = false;
+  let warned = false;
 
+  // A violation is a WARNING when it carries `severity: 'warn'` (reported but
+  // non-failing — e.g. sdk local-name dups and unused-declared deps, whose fixes
+  // land outside this card's scope). Everything else is a hard error.
   for (const { name, fmt, violations } of results) {
-    if (violations.length === 0) {
+    const errors = violations.filter((v) => v.severity !== 'warn');
+    const warnings = violations.filter((v) => v.severity === 'warn');
+    if (errors.length === 0 && warnings.length === 0) {
       console.log(`✓ ${name}: ok`);
       continue;
     }
-    failed = true;
-    console.log(`✗ ${name}: ${violations.length} violation(s)`);
-    for (const v of violations) console.log(`    ${fmt(v)}`);
+    if (errors.length) {
+      failed = true;
+      console.log(`✗ ${name}: ${errors.length} error(s)`);
+      for (const v of errors) console.log(`    ${fmt(v)}`);
+    }
+    if (warnings.length) {
+      warned = true;
+      console.log(`⚠ ${name}: ${warnings.length} warning(s)`);
+      for (const v of warnings) console.log(`    ${fmt(v)}`);
+    }
   }
 
   if (failed) {
     console.error('\naudit failed — see violations above.');
     process.exit(1);
   }
-  console.log('\naudit passed.');
+  console.log(warned ? '\naudit passed (with warnings — see above).' : '\naudit passed.');
 }
 
 // Run only when invoked directly (not when imported by tests).

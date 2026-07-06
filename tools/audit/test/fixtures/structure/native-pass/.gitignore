@@ -1,0 +1,8 @@
+games/*/.work/*
+!games/*/.work/README.md
+# Native shells: ignore the generated CONTENTS but commit a .gitkeep so the dir
+# survives checkout (the linter reads it as a gitignored native shell → allowed).
+games/*/ios/*
+!games/*/ios/.gitkeep
+games/*/android/*
+!games/*/android/.gitkeep

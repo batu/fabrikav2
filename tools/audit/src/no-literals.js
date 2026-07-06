@@ -5,8 +5,10 @@
 // user-facing copy, or asset paths. Design values live in `games/*/design/` and
 // resolve through `--fab-*` CSS custom properties + injected copy/asset modules.
 //
-// Scope scanned: packages/ui/** and games/*/src/shell/**. Anything under a
-// game's design/ dir is out of scope by construction (never in the scan set).
+// Scope scanned: packages/ui/**, games/*/src/shell/**, and each game's
+// games/*/game.config.ts manifest (research 10 finding 9 — a config-specific
+// copy-key rule; see lintGameConfigs). Anything under a game's design/ dir is
+// out of scope by construction (never in the scan set).
 //
 // Three violation classes:
 //   colors  — hex (#rgb/#rgba/#rrggbb/#rrggbbaa) and rgb()/rgba() literals.
@@ -30,6 +32,7 @@
 // which silently fork the token system) remain violations. TS files never get
 // this carve-out; there is no token layer there.
 
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import {
   walkFiles, readText, rel, listDirs, hasExt,
@@ -47,7 +50,15 @@ const DOM_SINK_RE =
 // A quoted string literal (single, double, or template with no ${...}).
 const STRING_LITERAL_RE = /(['"])((?:\\.|(?!\1).)*)\1|`([^`$\\]*)`/g;
 
-/** Collect the directories in scope for a given root. */
+/**
+ * Collect the directories in scope for a given root: packages/ui and each
+ * game's src/shell tree. The `games/<game>/src/shell/` path is the REAL, current
+ * template layout — both games/_template/src/shell/ and games/marble_run/src/shell/
+ * exist on disk (research 10 finding 9's worry that this path "may never match"
+ * is stale-resolved; documented here so it is not re-litigated). Each game's
+ * game.config.ts manifest is scanned separately (a single file, not a dir) by
+ * lintGameConfigs — see below.
+ */
 function scanRoots(root) {
   const roots = [];
   const uiDir = join(root, 'packages', 'ui');
@@ -142,5 +153,55 @@ export function lintNoLiterals(root, opts = {}) {
     }
   }
 
+  lintGameConfigs(root, allowlist, violations);
   return { violations };
+}
+
+// A copy KEY: a dotted identifier like `game.title` (segments of word chars
+// joined by dots, no whitespace) that references design/copy.ts. The sanctioned
+// pattern — never flagged.
+const COPY_KEY_RE = /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)+$/;
+
+/**
+ * Scan each game's game.config.ts for user-facing copy literals (research 10
+ * finding 9). The declarative manifest must reference copy KEYS (design/copy.ts),
+ * never raw user-facing strings — `title: "game.title" satisfies CopyKey` is the
+ * sanctioned template pattern; `title: "Marble Run"` is the drift this catches.
+ *
+ * It has no DOM sinks, so the main scan's DOM-sink copy heuristic never fires
+ * here. Config-specific rule: flag a MULTI-WORD (whitespace-containing) string
+ * literal as likely user-facing copy. Single-token values pass — ids
+ * (`marble_run`), screen names (`HomeMenu`), currency (`coins`), event ids
+ * (`level_start`), and dotted copy keys — none contain whitespace. LIMITS
+ * (documented): a single-word literal title (e.g. `"Tetris"`) evades this net —
+ * the `satisfies CopyKey` typing in the template is the primary guard, this is
+ * the secondary net; and a multi-word quoted phrase in a trailing inline comment
+ * on a code line could false-positive (comment-only lines are skipped).
+ *
+ * WARN severity: it has a legit current hit (marble_run's `title: "Marble Run"`),
+ * whose fix edits a game's copy module + shell — out of this audit card's blast
+ * radius. Report + promote (conductor: checks with legit current hits land WARN).
+ */
+function lintGameConfigs(root, allowlist, violations) {
+  for (const gameDir of listDirs(join(root, 'games'))) {
+    const cfg = join(gameDir, 'game.config.ts');
+    if (!existsSync(cfg)) continue;
+    const relPath = rel(root, cfg);
+    if (fileAllowed(allowlist, relPath)) continue;
+    readText(cfg).split('\n').forEach((line, idx) => {
+      const trimmed = line.trim();
+      // Skip comment-only lines (line comments and block-comment bodies) so the
+      // manifest's JSDoc/prose never trips the copy heuristic.
+      if (trimmed.startsWith('//') || trimmed.startsWith('*') || trimmed.startsWith('/*')) return;
+      for (const m of line.matchAll(STRING_LITERAL_RE)) {
+        const value = m[2] !== undefined ? m[2] : m[3];
+        if (value === undefined) continue;
+        if (allowlist.literals.has(value)) continue;
+        if (COPY_KEY_RE.test(value.trim())) continue; // sanctioned copy key
+        if (wordCount(value) > 1) {
+          violations.push({ file: relPath, line: idx + 1, kind: 'copy', value, severity: 'warn' });
+        }
+      }
+    });
+  }
 }
