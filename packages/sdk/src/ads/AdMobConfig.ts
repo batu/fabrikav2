@@ -30,7 +30,7 @@ const DEFAULT_IOS_BANNER_AD_UNIT_ID = 'ca-app-pub-3940256099942544/2934735716';
 const DEFAULT_ANDROID_REWARDED_AD_UNIT_ID = 'ca-app-pub-3940256099942544/5224354917';
 const DEFAULT_IOS_REWARDED_AD_UNIT_ID = 'ca-app-pub-3940256099942544/1712485313';
 
-const parseBooleanEnv = (value: string | undefined, defaultValue: boolean): boolean => {
+const parseAdMobBooleanEnv = (value: string | undefined, defaultValue: boolean): boolean => {
   if (value === undefined) {
     return defaultValue;
   }
@@ -69,8 +69,8 @@ interface ViteEnv {
 }
 
 export const createAdConfig = (env: ViteEnv = {}): AdConfig => ({
-  enabled: parseBooleanEnv(env.VITE_ADMOB_ENABLED, true),
-  isTesting: parseBooleanEnv(env.VITE_ADMOB_TEST_MODE, env.DEV ?? false),
+  enabled: parseAdMobBooleanEnv(env.VITE_ADMOB_ENABLED, true),
+  isTesting: parseAdMobBooleanEnv(env.VITE_ADMOB_TEST_MODE, env.DEV ?? false),
   androidInterstitialAdUnitId: getEnvString(
     env.VITE_ADMOB_ANDROID_INTERSTITIAL_ID,
     DEFAULT_ANDROID_INTERSTITIAL_AD_UNIT_ID,
