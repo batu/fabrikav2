@@ -68,3 +68,14 @@ tools/refcap MUST verify the foreground package (dumpsys topResumedActivity)
 matches the manifest's package id at every capture, and stamp package+version
 into the capture's metadata. Multiple installed variants of the same game on
 test devices is the NORM (6 marble runs on this Pixel), not an edge case.
+
+## UPDATE 2026-07-06 ~13:30: XCUITest device lane WORKS (wishlist item 2 CLOSED)
+
+Standalone XCUITest runner (xcodegen project in game .work/, no game-project
+changes) launches the installed app by bundle id, taps via a11y labels +
+coordinates, and captures true device screenshots via XCUIScreen — extracted
+from xcresult attachments. Proved: WKWebView exposes the DOM to XCUITest;
+real coordinate taps work. Immediately found 2 device-only P-findings
+(safe-area, a11y vocabulary) invisible to every browser lane. Lessons: label
+predicates need distinct aria vocabulary (D2); status-bar zone shadows taps.
+Promote the runner to games/_template + testkit docs.
