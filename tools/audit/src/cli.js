@@ -12,6 +12,7 @@ import { lintNoDuplication } from './no-duplication.js';
 import { lintDepsDeclared } from './deps-declared.js';
 import { lintStructure } from './structure.js';
 import { lintHooks } from './hooks.js';
+import { lintHarness } from './harness.js';
 
 function fmtNoLiterals(v) {
   return `${v.file}:${v.line}  [${v.kind}]  ${JSON.stringify(v.value)}`;
@@ -32,6 +33,9 @@ function fmtStructure(v) {
 function fmtHooks(v) {
   return `${v.file}  accepts an interaction option (onClick/onTap/onSelect) but exposes no data-fab-* hook`;
 }
+function fmtHarness(v) {
+  return `${v.game}  missing REQUIRED harness surface: ${v.missing.join(', ')}`;
+}
 
 const LINTERS = [
   {
@@ -43,6 +47,7 @@ const LINTERS = [
   { name: 'deps-declared', run: (root) => lintDepsDeclared(root), fmt: fmtDepsDeclared },
   { name: 'structure', run: (root) => lintStructure(root), fmt: fmtStructure },
   { name: 'hooks', run: (root) => lintHooks(root), fmt: fmtHooks },
+  { name: 'harness', run: (root) => lintHarness(root), fmt: fmtHarness },
 ];
 
 export function runAll(root, { allowlistPath } = {}) {

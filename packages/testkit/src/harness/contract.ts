@@ -110,6 +110,14 @@ export interface PerfSample {
  * The observation methods (`capture`/`perf`/`drainEvents`) are OPTIONAL: a game
  * implements the witnesses it can. The runner-side collectors degrade when a
  * witness is absent.
+ *
+ * The REQUIRED debug-harness surface (`reference-fidelity-harness.md`) is the
+ * STATE half — {@link snapshot} (scene+status+inputReady) — plus the ACTION half:
+ * primitive semantic {@link verbs} AND solver-bound goal verbs
+ * ({@link winLevel}/{@link failLevel}, and ideally {@link driveTo}). The goal verbs
+ * are typed optional here purely to accommodate marble_run's pre-rename
+ * `autoWin`/`autoFail`; the tools/audit harness check is what enforces their
+ * presence per game.
  */
 export interface GameHarness<GameVerb extends string = never> {
   // ── standard core ────────────────────────────────────────────────
@@ -118,7 +126,16 @@ export interface GameHarness<GameVerb extends string = never> {
   gotoState(state: string): void;
   /** Start a level by id (marble_run `startLevel`). */
   startLevel(id: number): void;
-  /** The game's inner state fingerprint (wrapped by {@link wrapSnapshot}). */
+  /**
+   * The game's inner state fingerprint (wrapped by {@link wrapSnapshot}). REQUIRED
+   * state-query half of the debug harness (`reference-fidelity-harness.md` 'REQUIRED
+   * debug harness per game'). It MUST include at least `scene` (the flow-machine
+   * state), `status` (the in-level outcome, e.g. `playing`/`won`/`lost`), and
+   * `inputReady` (whether the game is accepting player input) so a driver GATES every
+   * transition on queryable state instead of eyeballing a screenshot; games add their
+   * own fields (`hearts`/`lives`, `score`/`coins`, `board?`…). marble_run's
+   * `snapshot()` is the reference shape.
+   */
   snapshot(): unknown;
   /** The currently reachable saga node ids (marble_run `sagaNodes`). */
   sagaNodes(): readonly (string | number)[];
@@ -133,6 +150,29 @@ export interface GameHarness<GameVerb extends string = never> {
   /** The game's extra verbs, keyed by the `GameVerb` union. Empty (`never`
    *  key) when a game declares none. Each verb carries both flavors. */
   readonly verbs: Record<GameVerb, GameVerbHandler>;
+
+  // ── goal verbs (solver-bound; the ACTION half's terminal tier) ────
+  /**
+   * Play the current level to a WIN, resolving true iff the win was reached and
+   * confirmed via {@link snapshot}. This is a GOAL verb: it MUST be bound to an
+   * in-game DETERMINISTIC AI (an A-star/search/solver replaying its solution) —
+   * NEVER an llm or a random policy — so a driven run reproduces byte-for-byte
+   * (`harness-ledger.md`: "playing-to-win is a deterministic search problem").
+   * A game WITHOUT a solver supplies a scripted deterministic move list instead.
+   *
+   * Declared OPTIONAL here only because the reference impl (marble_run) predates
+   * the portfolio rename and exposes the same capability as `autoWin()`/`autoFail()`;
+   * the tools/audit harness check enforces PRESENCE of a solver-bound win/fail goal
+   * verb under either the canonical (`winLevel`/`failLevel`) or the legacy
+   * (`autoWin`/`autoFail`) name. New games implement the canonical names.
+   */
+  winLevel?(): Promise<boolean>;
+  /**
+   * Play the current level to a LOSS (deterministic, solver-bound — see
+   * {@link winLevel}); resolves true iff the fail state was reached and confirmed
+   * via {@link snapshot}. marble_run's `autoFail` is the reference impl.
+   */
+  failLevel?(): Promise<boolean>;
 
   // ── navigation (optional-but-recommended) ────────────────────────
   /**
