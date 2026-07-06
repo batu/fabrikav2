@@ -1,0 +1,15 @@
+{
+  "name": "@fabrikav2/verify-device",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "ONE-COMMAND on-device capture + diff. The forcing function for AGENTS.md #8: build harness bundle -> install on device -> XCUITest capture -> diff vs committed reference -> device|reference|diff grid + PASS/FAIL verdict. Reuses tools/refcap-compare primitives; device steps gated (graceful skip when no device).",
+  "bin": {
+    "verify-device": "cli.mjs"
+  },
+  "scripts": {
+    "verify-device": "node cli.mjs",
+    "test:unit": "vitest run",
+    "lint": "eslint ."
+  }
+}

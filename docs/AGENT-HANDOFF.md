@@ -8,7 +8,7 @@ Proposed agency-repo changes exist as docs (see §6) but are NOT applied yet.
 
 ## 1. What this project is
 v2 rebuild of the fabrika mobile-game studio: DOM shell + free gameplay canvas,
-npm workspaces. `packages/{kernel,ui,sdk,services,testkit}`, `tools/{audit,create-game,refcap-compare}`,
+npm workspaces. `packages/{kernel,ui,sdk,services,testkit}`, `tools/{audit,create-game,refcap-compare,verify-device}`,
 `games/*` (+ `games/_template`). Design values flow through `games/<g>/design/`
 (tokens.css/copy.ts/assets.ts) and the design-sheets round-trip. marble_run is the
 pilot (= "sugar3d", old name). Architecture: `docs/architecture/v2-architecture.md`.
@@ -59,6 +59,18 @@ To add more: `agency add-skill <name>` then `agency sync --write`. List: `agency
   `games/<g>/refs/manifest.yaml`). Reference lane = adb-over-ssh (foreground-verify
   the package!). v2 lane = harness `driveTo` capture. Asset & FONT identity is a
   FIRST-CLASS diff axis, not polish.
+- **On-device close-out (REQUIRED for any on-device/UI change — AGENTS.md #8)**:
+  `npm run verify-device -- --game <g>` is THE close-out that proves a rendering
+  change on the real device. ONE command: builds the harness bundle with the
+  `allstates` tour → installs on the plugged-in device → the committed XCUITest
+  runner (`tools/verify-device/runner/`, inherited by every game) captures each
+  canonical state → diffs vs the committed reference set → writes a
+  device|reference|pixel-diff grid at `docs/evidence/<date>-device-verify/grid.html`
+  + a PASS/FAIL verdict. A change to on-device rendering is NOT done until this grid
+  exists and is diffed. Device/keychain/Mac steps are gated (graceful skip + clear
+  "UNVERIFIED" message when no device); the non-device glue (arg/extract/verdict) is
+  unit-tested (`npm run test:unit --workspace=tools/verify-device`). The device path
+  is conductor-run on this Mac+device.
 - **Design round-trip**: design-sheets (`/Users/base/dev/appletolye/design-sheets`)
   ingests `games/<g>/design/`, and `dsheets apply` writes token/copy/asset edits back
   — a reskin is zero code edits. UI/game code carries ZERO literal colors/copy/asset
