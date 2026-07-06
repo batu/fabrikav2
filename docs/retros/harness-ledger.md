@@ -75,3 +75,33 @@ Resolution options (Batu's call):
   screenshot, feed a board state into `solveLevel()`, map `order` back to pixel
   taps. This is the general "clone off a running reference" capability — bigger,
   but it makes ANY reference game drivable. Worth a card if we do more clones.
+
+## UPDATE: solver-bound android replay ALSO failed — root cause is 3D projection
+
+Applied the deterministic approach to the reference: computed `solveLevel(LEVELS[3]).order`
+(level 4, 19 moves, waves [6,6,6,1]), verified the fresh android board matches the
+level def (blue@col4/row0, the col1 gap in the bottom row — orientation confirmed),
+calibrated a uniform 6x6 cell→pixel grid, and replayed the 19 solver cells as adb taps.
+
+Result: only move 1 ({4,0}, top row) cleared; moves 2-19 landed in the GAPS between
+marbles. Hearts stayed 5 (no blocked mis-hits), so taps hit empty space, not wrong
+marbles. Retried with 1.6s settle (ruled out animation-lock). Root cause:
+
+**The reference board is rendered in 3D PERSPECTIVE, not a flat grid.** A uniform
+cell→pixel mapping is only correct for row 0; lower rows are foreshortened by the
+camera. External tapping needs the game's own projection matrix, which a third-party
+APK does not expose. This is the hard limit of driving a reference game blind.
+
+Confirms the harness thesis from the other direction: v2 games are drivable because
+they expose state + solver + a coordinate accessor (`cellClientPoint`); a reference
+game exposes NONE of these, so it is fundamentally not auto-drivable by coordinates.
+
+**The only reliable reference-driver is CV** (detect marble pixel centres per-frame,
+tap detected positions) — carded as the general "clone off a running reference"
+capability if the studio does more reference-driven ports. Not built today.
+
+**Android WIN reference: documented gap.** Captured on the reference: menu, settings
+(from-menu RESTART/HOME + in-level RESTART/HOME), level, FAIL (red-ribbon 'LEVEL n
+FAILED' + blue card + crying emoji + green primary/yellow RETRY). The WIN card is the
+green-ribbon 'LEVEL COMPLETE' analog of that proven card language — inferable for the
+fidelity finding without the exact pixel. v2 WIN captured on device (flat cream card).
