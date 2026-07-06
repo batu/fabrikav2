@@ -103,6 +103,32 @@ Forced changes (conventions, priced in):
    or stay conductor-run per landing? Advise: conductor-run until flake rate
    is known.
 
+## REQUIRED debug harness per game (Batu, 2026-07-06 — hard expectation)
+
+Every game MUST ship a debug harness exposing BOTH halves, and the template
+MUST scaffold it so a new game is born with it (a game without it does not pass
+review):
+
+A. **STATE (inform)** — `snapshot()` returns a typed, queryable state:
+   `{scene, status, inputReady, hearts/lives, score/coins, board?...}`. Drivers
+   and the conductor read state; they never eyeball a screenshot to decide.
+B. **ACTIONS (do)** — two tiers:
+   - **Primitive verbs**, semantic not coordinate: e.g. `tapOpenMarble()` /
+     `tapBlockedMarble()` / `tapCell(x,y)`, each in state-drive + input-drive
+     flavours (a real pointer event at a queryable client point).
+   - **Goal verbs bound to an IN-GAME deterministic AI** (A-star/search/solver,
+     NEVER an LLM/random policy): `winLevel()` (`autoWin`), `failLevel()`
+     (`autoFail`), and ideally `driveTo(state)`. A game with a solver replays
+     its solution; a game without one ships a scripted deterministic move list.
+C. **CAPTURE** — `capture()` self-screenshot + `collectRun()` bundle (H1).
+
+Enforcement: this is a card-writing-checklist item AND a tools/audit check
+(a game workspace must export the GameHarness contract surface). Rationale is
+in docs/retros/harness-ledger.md — driving a game blind (no state, no solver)
+is unreliable; the harness is what makes a game deterministically drivable and
+capturable. The reverse (a third-party reference APK exposes NONE of this) is
+exactly why the android reference could not be auto-driven — see the ledger.
+
 ## End-of-process review (standing commitment)
 
 When the drill + harness package land, a full process review synthesizes:
