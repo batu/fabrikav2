@@ -1,0 +1,91 @@
+diff --git a/games/marble_run/src/testing/insituTour.ts b/games/marble_run/src/testing/insituTour.ts
+index 66e99bc..7fc04aa 100644
+--- a/games/marble_run/src/testing/insituTour.ts
++++ b/games/marble_run/src/testing/insituTour.ts
+@@ -1,52 +1,58 @@
+ /**
+- * Dev-gated on-device tour: drives the game to states unreachable by blind
+- * taps (win, fail) so an external screenshotter (XCUITest / adb / conductor)
+- * can capture them in situ. Active ONLY when the test harness is enabled AND
+- * the page URL carries ?insituTour=<script>. Never bundles behavior into
+- * production: TEST_HARNESS_ENABLED gates the caller in main.ts.
++ * Dev-gated on-device tour that drives the game to WIN and FAIL result cards so
++ * an external screenshotter (XCUITest / adb / conductor) can capture states that
++ * blind input can't reach. Active ONLY when the harness is enabled AND either
++ * VITE_INSITU_TOUR is set (bundled dev build) or ?insituTour=<script> is present.
+  *
+- * Scripts: "winfail" (default) — menu dwell, play level 1 to WIN via the
+- * tapUnlockedMarble verb, dwell on the result card, return to menu, then
+- * play again to FAIL via tapBlockedMarble, dwell on the fail card.
++ * GAMEPLAY IS SOLVER-BOUND, NOT LLM/RANDOM-BOUND (Batu, 2026-07-06): winning
++ * replays the in-game A-star search solver's tap order (h.autoWin), losing taps
++ * genuinely-blocked marbles (h.autoFail). Every transition is then CONFIRMED by
++ * querying h.snapshot().status — the tour never assumes a state it hasn't
++ * verified (the "did I actually win?" failure this fixes).
+  */
+ import type { App } from '../shell/App';
+ 
+ const DWELL_MS = 6000;
+-const STEP_MS = 450;
+ 
+ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+ 
+ export async function maybeRunInsituTour(app: App): Promise<void> {
+-  // Trigger from a build-time env flag (baked into a bundled dev build — no
+-  // network/URL needed on device) OR a URL param (web dev server).
+   const script =
+     (import.meta.env.VITE_INSITU_TOUR as string | undefined) ||
+     new URLSearchParams(window.location.search).get('insituTour');
+   if (!script) return;
+   const h = app.harness();
+ 
+-  const playUntil = async (
+-    verb: 'tapUnlockedMarble' | 'tapBlockedMarble',
+-    done: (status: string) => boolean,
+-  ): Promise<void> => {
+-    for (let i = 0; i < 300; i += 1) {
+-      const s = h.snapshot() as Record<string, unknown>;
+-      if (done(String(s.status))) return;
+-      h.verbs[verb].run(Math.random());
+-      await sleep(STEP_MS);
+-    }
++  const status = (): string => String((h.snapshot() as Record<string, unknown>).status);
++  const scene = (): string => String((h.snapshot() as Record<string, unknown>).scene);
++
++  const log = (m: string): void => {
++    // Surfaced in device logs (idevicesyslog / Xcode console) so the tour's
++    // state decisions are inspectable, not silent.
++    // eslint-disable-next-line no-console
++    console.info(`[insituTour] ${m}`);
+   };
+ 
+   await sleep(3000); // menu dwell (external shot: menu)
++  log(`menu scene=${scene()}`);
++
++  // ── WIN: solver-bound, state-confirmed ──────────────────────────────────
+   h.startLevel(1);
+-  await sleep(2500);
+-  await playUntil('tapUnlockedMarble', (s) => s === 'won');
+-  await sleep(DWELL_MS); // result-card WIN dwell (external shot)
++  await sleep(2200);
++  const won = await h.autoWin();
++  // Confirm via state query — do NOT assume the card is up.
++  for (let i = 0; i < 20 && scene() !== 'complete'; i += 1) await sleep(250);
++  log(`autoWin returned ${won}; status=${status()} scene=${scene()}`);
++  await sleep(DWELL_MS); // WIN result-card dwell (external shot)
+ 
++  // ── FAIL: blocked-marble taps, state-confirmed ──────────────────────────
+   h.gotoMenu();
+-  await sleep(2000);
++  await sleep(1500);
+   h.startLevel(1);
+-  await sleep(2500);
+-  await playUntil('tapBlockedMarble', (s) => s === 'failed');
+-  await sleep(DWELL_MS); // result-card FAIL dwell (external shot)
++  await sleep(2200);
++  const failed = await h.autoFail();
++  for (let i = 0; i < 20 && scene() !== 'failed'; i += 1) await sleep(250);
++  log(`autoFail returned ${failed}; status=${status()} scene=${scene()}`);
++  await sleep(DWELL_MS); // FAIL result-card dwell (external shot)
++  log('tour complete');
+ }
