@@ -20,7 +20,10 @@ import type { CaptureResult, PerfSample, AnalyticsEventLike, SnapshotEnvelope } 
  * DOM chrome), the browser `capture()` canvas witness is exercised, and the
  * accumulated snapshot envelopes / analytics trace / perf sample are drained at
  * the end. `collectRun` (node fs writer) assembles it into
- * `evidence/2026-07-06-harness-first-run/`.
+ * `<date>-<topic>/`. By DEFAULT that lands in the gitignored `.work/` scratch so
+ * the suite is side-effect-free; set `PROMOTE_EVIDENCE=1` to (re)generate the
+ * committed `evidence/2026-07-06-harness-first-run/` artifact (the .work
+ * promotion rule — games/_template/.work/README.md).
  *
  * HONESTY (card §1): every screenshot is a CHROMIUM / BROWSER capture. The
  * on-device capture path is an unwired stub (`capture.ts` captureToDeviceDocuments)
@@ -47,7 +50,7 @@ interface Harness {
   drainEvents(): readonly AnalyticsEventLike[];
 }
 
-test('collectRun: capture every reachable state into the committed evidence artifact', async ({ page }) => {
+test('collectRun: capture every reachable state into a run bundle (.work by default, evidence/ on PROMOTE_EVIDENCE=1)', async ({ page }) => {
   test.slow();
   await page.setViewportSize(VIEWPORT);
   await gotoAndWaitForHarness<Harness>(page, '/', {
@@ -106,7 +109,16 @@ test('collectRun: capture every reachable state into the committed evidence arti
   const perf = await readHarness<Harness, PerfSample>(page, WINDOW_KEY, (h) => h.perf());
 
   // ── Assemble the run dir (node fs writer) ────────────────────────
-  const outDir = fileURLToPath(new URL('../../evidence', import.meta.url));
+  // Side-effect-free by DEFAULT: write the run bundle into the game's gitignored
+  // `.work/` scratch, so a plain test/CI/conductor run never dirties the tree.
+  // Promotion to the COMMITTED `evidence/` artifact is an explicit opt-in
+  // (`PROMOTE_EVIDENCE=1`), per the .work contract's promotion rule
+  // (games/_template/.work/README.md). The evidence artifact stays committed;
+  // regenerating it is a deliberate step, not an accident of running the suite.
+  const promote = process.env.PROMOTE_EVIDENCE === '1';
+  const outDir = fileURLToPath(
+    new URL(promote ? '../../evidence' : '../../.work', import.meta.url),
+  );
   const result = collectRun({
     outDir,
     topic: RUN_TOPIC,
