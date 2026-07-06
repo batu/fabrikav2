@@ -1,0 +1,105 @@
+# Reskin-drill verification — 52a97b4 on trello-MQPvX0qi-reskin-drill-acceptance-test-for-zero-co
+# Generated for card MQPvX0qi (worked stage)
+
+## 1. Reskin edit diff (working tree vs branch tip HEAD) — TRUE containment proof
+$ git diff --stat HEAD
+ games/marble_run/design/assets.ts  |  2 +-
+ games/marble_run/design/copy.ts    | 10 +++++-----
+ games/marble_run/design/tokens.css |  4 ++--
+ 3 files changed, 8 insertions(+), 8 deletions(-)
+
+## 2. Files changed by the reskin (names only)
+games/marble_run/design/assets.ts
+games/marble_run/design/copy.ts
+games/marble_run/design/tokens.css
+
+## 3. Card AC command verbatim (vs main), EXCLUDING design + evidence
+$ git diff --stat main -- ":!games/marble_run/design" ":!docs/evidence"
+ ...eskin-drill-zero-code-roundtrip-requirements.md | 202 +++++++++++++++++++++
+ 1 file changed, 202 insertions(+)
+  ^ the single entry is the prior-stage brainstorm doc (docs/brainstorms/, committed 52a97b4
+    at the 'brainstormed' stage) — NOT a reskin edit. It predates this worked stage.
+
+## 4. Same AC command also excluding the prior-stage brainstorm doc -> EMPTY (zero code moves)
+$ git diff --stat main -- ":!games/marble_run/design" ":!docs/evidence" ":!docs/brainstorms"
+(empty above == acceptance proof: the reskin moved nothing outside games/marble_run/design/)
+
+## 5. Full unified diff of the three design/ files
+diff --git a/games/marble_run/design/assets.ts b/games/marble_run/design/assets.ts
+index 1a53893..ded6ef5 100644
+--- a/games/marble_run/design/assets.ts
++++ b/games/marble_run/design/assets.ts
+@@ -8,7 +8,7 @@ export const assets = {
+     banner: "marble-run-banner"
+   },
+   hud: {
+-    coin: "icon-marble-coin",
++    coin: "icon-coin-sparkle",
+     replay: "icon-replay",
+     gear: "icon-gear"
+   },
+diff --git a/games/marble_run/design/copy.ts b/games/marble_run/design/copy.ts
+index 9c0b2b3..62bf776 100644
+--- a/games/marble_run/design/copy.ts
++++ b/games/marble_run/design/copy.ts
+@@ -4,9 +4,9 @@
+ export const copyLocale = "en";
+ 
+ export const copy = {
+-  "app.title": "Marble Run",
++  "app.title": "Marble Rush",
+   "menu.play": "Play",
+-  "menu.levelButton": "Level",
++  "menu.levelButton": "Start",
+   "menu.levels": "Levels",
+   "menu.shop": "Shop",
+   "menu.settings": "Settings",
+@@ -30,7 +30,7 @@ export const copy = {
+   "saga.loading": "Loading levels",
+   "hud.hint": "Hint",
+   "hud.pause": "Pause",
+-  "settings.title": "Settings",
++  "settings.title": "Options",
+   "settings.music": "Music",
+   "settings.sfx": "Sound Effects",
+   "settings.haptics": "Haptics",
+@@ -39,7 +39,7 @@ export const copy = {
+   "settings.restart": "Restart",
+   "settings.home": "Home",
+   "settings.reset": "Reset Progress",
+-  "result.win.title": "Level Complete",
++  "result.win.title": "You Win!",
+   "result.win.reward": "Reward",
+   "result.win.next": "Next",
+   "result.win.finish": "Finish",
+@@ -52,7 +52,7 @@ export const copy = {
+   "result.lose.watchAd": "Watch Ad",
+   "result.lose.retry": "Retry",
+   "result.lose.quit": "Quit",
+-  "pause.title": "Paused",
++  "pause.title": "Take a Break",
+   "pause.resume": "Resume",
+   "pause.settings": "Settings",
+   "pause.quit": "Quit",
+diff --git a/games/marble_run/design/tokens.css b/games/marble_run/design/tokens.css
+index 8ffe9a4..e7ebe65 100644
+--- a/games/marble_run/design/tokens.css
++++ b/games/marble_run/design/tokens.css
+@@ -23,7 +23,7 @@
+ .fab-ui {
+   /* ---- Tokens @fabrikav2/ui consumes (theme the screens) ---- */
+   --fab-color-surface: #fff3d7;
+-  --fab-color-accent: #ff8a3d;
++  --fab-color-accent: #e84393;
+   --fab-color-on-accent: #ffffff;
+   --fab-color-text: #6a3016;
+   --fab-color-text-muted: #8a5a3d;
+@@ -64,7 +64,7 @@
+   --fab-levelmap-node-current-font: 52px;
+ 
+   /* ---- Game-owned tokens (the DOM body backdrop the shell paints) ---- */
+-  --fab-color-bg-top: #9b7bcd;
++  --fab-color-bg-top: #3a4fb8;
+   --fab-color-bg-bottom: #6b568e;
+   --fab-color-text-on-candy: #ffffff;
+   --fab-color-text-ink: #203050;

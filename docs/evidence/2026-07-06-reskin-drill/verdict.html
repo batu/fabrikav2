@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reskin drill — zero-code-edit round-trip on marble_run (MQPvX0qi)</title>
+<style>
+  :root{
+    --bg:#0f1220; --panel:#181c2e; --panel2:#1f2440; --ink:#e8eaf4; --muted:#a2a8c8;
+    --line:#2c3252; --ok:#48c774; --warn:#ffb454; --bad:#ff6b7a; --accent:#7aa2ff;
+    --mono:'SF Mono',ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;}
+  .wrap{max-width:1040px;margin:0 auto;padding:40px 28px 80px}
+  h1{font-size:26px;margin:0 0 4px}
+  h2{font-size:19px;margin:38px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+  h3{font-size:15px;margin:20px 0 8px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .sub{color:var(--muted);margin:0 0 24px}
+  .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600;vertical-align:middle}
+  .b-ok{background:rgba(72,199,116,.16);color:var(--ok);border:1px solid rgba(72,199,116,.4)}
+  .b-warn{background:rgba(255,180,84,.16);color:var(--warn);border:1px solid rgba(255,180,84,.4)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:14px 0}
+  .verdict{background:linear-gradient(135deg,#1c2340,#181c2e);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:18px 0}
+  code,pre{font-family:var(--mono);font-size:13px}
+  pre{background:#0b0e1a;border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow:auto;color:#cdd3f0}
+  .kv{color:var(--muted)} .kv b{color:var(--ink);font-weight:600}
+  table{width:100%;border-collapse:collapse;margin:8px 0}
+  th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);font-size:14px;vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  td code{background:#0b0e1a;padding:1px 6px;border-radius:4px}
+  .old{color:var(--bad)} .new{color:var(--ok)}
+  .shots{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+  .shot{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center}
+  .shot img{width:100%;max-width:300px;border-radius:6px;border:1px solid var(--line)}
+  .shot .lbl{font-size:12px;color:var(--muted);margin:8px 0 2px;text-transform:uppercase;letter-spacing:.05em}
+  .row{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0}
+  .swatch{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+  .chip{width:16px;height:16px;border-radius:4px;border:1px solid rgba(255,255,255,.25);display:inline-block}
+  ul{margin:8px 0;padding-left:20px} li{margin:4px 0}
+  .p1{border-left:3px solid var(--warn)}
+  a{color:var(--accent)}
+  .foot{color:var(--muted);font-size:13px;margin-top:40px;border-top:1px solid var(--line);padding-top:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Reskin drill — zero-code-edit round-trip on <code>marble_run</code></h1>
+  <p class="sub">Trello card <b>MQPvX0qi</b> · worked stage · branch
+    <code>trello-MQPvX0qi-reskin-drill-acceptance-test-for-zero-co</code> · 2026-07-06</p>
+
+  <div class="verdict">
+    <div style="font-size:20px;font-weight:700;margin-bottom:6px">
+      Verdict: <span class="badge b-ok">CONTAINMENT AC — PASS</span>
+      &nbsp; <span class="badge b-warn">P1 defect found in the real ingester</span>
+    </div>
+    <p style="margin:8px 0 0">
+      A palette change (2 tokens), 5 copy strings, and 1 asset binding were applied to
+      <code>games/marble_run/design/</code> only. Build is green, the no-literals audit is
+      unchanged, and the git diff moves <b>nothing outside <code>games/marble_run/design/</code></b>
+      (the acceptance property of the v2 &ldquo;Reskin bar&rdquo;). The before/after screenshots
+      show the reskin taking effect on three live screens.
+    </p>
+    <p style="margin:10px 0 0">
+      <b>Caveat (honest):</b> the <em>actual</em> design-sheets round-trip could not be run because
+      the generic fabrikav2 ingester <b>throws</b> on marble_run — it cannot index the game&rsquo;s
+      committed <code>.webp</code> art. Per the card contract (&ldquo;only acceptable if the ingester
+      hits a real defect &mdash; which is itself a P1 finding to report&rdquo;), the reskin was applied
+      as a <b>byte-faithful simulation of the <code>apply</code> output</b>, verified against apply&rsquo;s
+      own anchoring code. See §P1.
+    </p>
+  </div>
+
+  <h2 id="p1">§P1 — Ingester defect (blocks the real round-trip)</h2>
+  <div class="card p1">
+    <p><b>The DS11 generic fabrikav2 ingester cannot ingest marble_run.</b> Running it fails hard:</p>
+    <pre>$ node ingesters/fabrikav2/run.mjs --game &lt;.../games/marble_run&gt; --out /tmp/mr-sheet
+Error: assets.ts binding home.banner points at marble-run-banner,
+       which has no file in design/assets/
+    at readGame (ingesters/fabrikav2/lib/read-game.mjs:22:13)</pre>
+    <p><b>Root cause — two <code>.webp</code> gaps in the ingester (design-sheets HEAD b53052c):</b></p>
+    <ul>
+      <li><b>Asset discovery excludes webp.</b> <code>listAssetFiles</code>
+        (<code>read-game.mjs:118</code>) filters on <code>/\.(?:svg|png)$/i</code>, so the six
+        committed <code>.webp</code> files (<code>marble-run-banner</code>, the four
+        <code>level-node-*</code>, <code>ribbon-fail</code>) are never indexed. Every
+        <code>assets.ts</code> binding pointing at a webp id then fails the binding&rarr;file
+        existence check at <code>read-game.mjs:22</code> and the run throws before writing a sheet.</li>
+      <li><b>Metadata reader has no webp branch.</b> Even with the filter widened,
+        <code>readAssetMetadata</code> (<code>sheet-writer.mjs:178</code>) routes any non-svg file
+        to <code>readPngMetadata</code>, which throws <code>Not a PNG file</code> on webp bytes.
+        Full webp support needs RIFF/VP8 dimension parsing — real feature work, not a one-liner.</li>
+    </ul>
+    <p><b>Severity: P1.</b> DS11 is billed as &ldquo;one ingester for every v2 game,&rdquo; yet it cannot
+      ingest the pilot v2 game because that game uses <code>.webp</code> — a completely standard web
+      asset format. This is a coverage hole, not a marble_run defect. <b>Recommended follow-up card:</b>
+      add webp support to the fabrikav2 ingester (discovery filter + a webp metadata reader), then
+      re-run this drill against the real round-trip to retire the simulation caveat.</p>
+    <p class="kv">Fix lives in the <b>design-sheets</b> repo, which is outside this card&rsquo;s file scope
+      (<code>games/marble_run/design/**</code>, <code>docs/evidence/**</code>) — so it is reported here,
+      not patched inline, exactly as the card directs.</p>
+  </div>
+
+  <h2>What changed (3 design inputs, applied to <code>design/</code> only)</h2>
+
+  <h3>Palette — 2 <code>--fab-*</code> tokens in <code>tokens.css</code></h3>
+  <table>
+    <tr><th>Token</th><th>Before</th><th>After</th></tr>
+    <tr><td><code>--fab-color-accent</code></td>
+      <td><span class="swatch"><span class="chip" style="background:#ff8a3d"></span><code class="old">#ff8a3d</code></span></td>
+      <td><span class="swatch"><span class="chip" style="background:#e84393"></span><code class="new">#e84393</code></span></td></tr>
+    <tr><td><code>--fab-color-bg-top</code></td>
+      <td><span class="swatch"><span class="chip" style="background:#9b7bcd"></span><code class="old">#9b7bcd</code></span></td>
+      <td><span class="swatch"><span class="chip" style="background:#3a4fb8"></span><code class="new">#3a4fb8</code></span></td></tr>
+  </table>
+
+  <h3>Copy — 5 on-screen leaves in <code>copy.ts</code></h3>
+  <table>
+    <tr><th>Key</th><th>Before</th><th>After</th><th>Where visible</th></tr>
+    <tr><td><code>app.title</code></td><td class="old">Marble Run</td><td class="new">Marble Rush</td><td>menu banner</td></tr>
+    <tr><td><code>menu.levelButton</code></td><td class="old">Level</td><td class="new">Start</td><td>menu CTA</td></tr>
+    <tr><td><code>settings.title</code></td><td class="old">Settings</td><td class="new">Options</td><td>settings modal</td></tr>
+    <tr><td><code>result.win.title</code></td><td class="old">Level Complete</td><td class="new">You Win!</td><td>result modal</td></tr>
+    <tr><td><code>pause.title</code></td><td class="old">Paused</td><td class="new">Take a Break</td><td>pause modal (source-verified)</td></tr>
+  </table>
+
+  <h3>Asset binding — 1 slot rebind in <code>assets.ts</code></h3>
+  <table>
+    <tr><th>Slot</th><th>Before id</th><th>After id</th><th>Kind</th></tr>
+    <tr><td><code>assets.hud.coin</code></td><td class="old">icon-marble-coin</td><td class="new">icon-coin-sparkle</td>
+      <td>pure value change (auto-applied by apply&rsquo;s <code>ts-asset-module</code> anchor)</td></tr>
+  </table>
+  <p class="kv">Both ids resolve to committed bytes under <code>design/assets/</code>. This is a data-layer
+    id relabel; it is not visually rendered because the runtime Vite import lives in the hand-companion
+    <code>theme.ts</code> (outside the round-trip surface, unchanged here) — a known architecture seam
+    documented in <code>theme.ts</code>. Add/remove of a slot would route to a change-brief (DS10) and is
+    out of scope; only a value rebind is auto-applied, which is why this exact shape was chosen.</p>
+
+  <h2>Before / After</h2>
+  <div class="shots">
+    <div class="shot"><div class="lbl">Menu — before</div><img src="screenshots/before/01-menu.png" alt="menu before"></div>
+    <div class="shot"><div class="lbl">Menu — after</div><img src="screenshots/after/01-menu.png" alt="menu after"></div>
+    <div class="shot"><div class="lbl">Settings — before</div><img src="screenshots/before/02-settings.png" alt="settings before"></div>
+    <div class="shot"><div class="lbl">Settings — after</div><img src="screenshots/after/02-settings.png" alt="settings after"></div>
+    <div class="shot"><div class="lbl">Result — before</div><img src="screenshots/before/03-result.png" alt="result before"></div>
+    <div class="shot"><div class="lbl">Result — after</div><img src="screenshots/after/03-result.png" alt="result after"></div>
+  </div>
+  <p class="kv">Captured inline with Playwright driving the shell harness
+    (<code>capture-reskin-screenshots.mjs</code>, in this folder). Note: this contradicts the
+    brainstorm&rsquo;s S2/S3 assumption that Playwright cannot run in the worker sandbox — in <em>this</em>
+    environment it launches Chromium and screenshots fine, so the pair was captured directly rather than
+    handed off. The script is committed so the conductor / CI can reproduce or extend it.</p>
+
+  <h2>Acceptance proof — containment</h2>
+  <div class="card">
+    <p><b>Reskin edit diff</b> (working tree vs branch tip) touches only the three <code>design/</code> files:</p>
+    <pre>$ git diff --stat HEAD
+ games/marble_run/design/assets.ts  |  2 +-
+ games/marble_run/design/copy.ts    | 10 +++++-----
+ games/marble_run/design/tokens.css |  4 ++--
+ 3 files changed, 8 insertions(+), 8 deletions(-)</pre>
+    <p><b>Card AC command</b> (vs <code>main</code>), excluding <code>design/</code> + <code>docs/evidence/</code>:</p>
+    <pre>$ git diff --stat main -- ':!games/marble_run/design' ':!docs/evidence'
+ ...reskin-drill-zero-code-roundtrip-requirements.md | 202 +++++++++++++++++++++
+ 1 file changed, 202 insertions(+)</pre>
+    <p class="kv">The single entry is the <b>prior-stage brainstorm doc</b>
+      (<code>docs/brainstorms/…</code>, committed <code>52a97b4</code> at the brainstormed stage) — a
+      pipeline artifact, not a reskin code edit. Excluding <code>docs/brainstorms</code> too, the AC diff
+      is <b>empty</b>:</p>
+    <pre>$ git diff --stat main -- ':!games/marble_run/design' ':!docs/evidence' ':!docs/brainstorms'
+(empty)</pre>
+    <p class="kv">Full command transcript: <code>diffstat.txt</code> (this folder).</p>
+  </div>
+
+  <h2>Build &amp; audit — green</h2>
+  <table>
+    <tr><th>Gate</th><th>Result</th></tr>
+    <tr><td><code>npm run build --workspace=games/marble_run</code></td><td><span class="badge b-ok">✓ built</span> (~0.8s)</td></tr>
+    <tr><td><code>npm run audit</code></td><td><span class="badge b-ok">✓ passed</span> — no-literals + deps + structure. Warnings are pre-existing and unchanged from baseline (a copy literal in <code>game.config.ts:13</code> + sdk duplication), none introduced by the reskin.</td></tr>
+  </table>
+
+  <div class="foot">
+    Method: apply&rsquo;s edit anchors (<code>planCssVarReplacement</code>, <code>planTsStringReplacement</code>,
+    <code>planTsAssetModuleReplacement</code> in design-sheets <code>src/apply/anchors.ts</code>) were read to
+    confirm each is a surgical <em>in-place value substitution</em> that preserves comments, the compound
+    <code>:root,&nbsp;.fab-ui</code> selector, and all untouched tokens/keys/slots. The hand-edits here therefore
+    match, byte-for-byte, what a real <code>dsheets apply</code> would emit for these three inputs — the
+    simulation is faithful, and the containment property it demonstrates is a genuine property of the pipeline
+    (apply resolves every write through <code>resolvePathInsideRoot(repoRoot,…)</code>, so it can only write
+    inside <code>&lt;gameDir&gt;/design/</code>).
+  </div>
+
+</div>
+</body>
+</html>

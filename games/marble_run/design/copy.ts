@@ -4,9 +4,9 @@
 export const copyLocale = "en";
 
 export const copy = {
-  "app.title": "Marble Run",
+  "app.title": "Marble Rush",
   "menu.play": "Play",
-  "menu.levelButton": "Level",
+  "menu.levelButton": "Start",
   "menu.levels": "Levels",
   "menu.shop": "Shop",
   "menu.settings": "Settings",
@@ -30,7 +30,7 @@ export const copy = {
   "saga.loading": "Loading levels",
   "hud.hint": "Hint",
   "hud.pause": "Pause",
-  "settings.title": "Settings",
+  "settings.title": "Options",
   "settings.music": "Music",
   "settings.sfx": "Sound Effects",
   "settings.haptics": "Haptics",
@@ -39,7 +39,7 @@ export const copy = {
   "settings.restart": "Restart",
   "settings.home": "Home",
   "settings.reset": "Reset Progress",
-  "result.win.title": "Level Complete",
+  "result.win.title": "You Win!",
   "result.win.reward": "Reward",
   "result.win.next": "Next",
   "result.win.finish": "Finish",
@@ -52,7 +52,7 @@ export const copy = {
   "result.lose.watchAd": "Watch Ad",
   "result.lose.retry": "Retry",
   "result.lose.quit": "Quit",
-  "pause.title": "Paused",
+  "pause.title": "Take a Break",
   "pause.resume": "Resume",
   "pause.settings": "Settings",
   "pause.quit": "Quit",
