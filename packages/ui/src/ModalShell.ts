@@ -26,6 +26,13 @@ export interface ModalRibbon {
   eyebrow?: string;
   /** Themed colour family: green win, red fail, or neutral (default). */
   tone?: 'win' | 'fail' | 'neutral';
+  /**
+   * Optional banner sprite the consumer injects (Vite-resolved url) — the game
+   * OWNS the bytes; the shell only paints them as the ribbon's background. When
+   * present the visible title collapses to a screen-reader label (the sprite
+   * carries its own baked lettering) while `tone` stays as the colour fallback.
+   */
+  image?: string;
 }
 
 export interface ModalShellOptions {
@@ -42,6 +49,12 @@ export interface ModalShellOptions {
   labelledById?: string;
   describedById?: string;
   cardClassName?: string;
+  /**
+   * Optional card-panel sprite the consumer injects (Vite-resolved url). Painted
+   * as the card's background (the game owns the bytes); the shell drops its own
+   * surface fill / border / shadow so the sprite reads as the whole panel.
+   */
+  cardImage?: string;
 }
 
 let nextModalId = 0;
@@ -109,6 +122,10 @@ export function mountModalShell(opts: ModalShellOptions): UiHandle {
 
   const card = document.createElement('div');
   card.className = ['fab-modal-card', opts.cardClassName].filter(Boolean).join(' ');
+  if (opts.cardImage) {
+    card.classList.add('fab-modal-card--image');
+    card.style.backgroundImage = `url(${opts.cardImage})`;
+  }
   card.setAttribute('role', 'dialog');
   card.setAttribute('aria-modal', 'true');
   if (opts.labelledById) card.setAttribute('aria-labelledby', opts.labelledById);
@@ -118,6 +135,10 @@ export function mountModalShell(opts: ModalShellOptions): UiHandle {
     const tone = opts.ribbon.tone ?? 'neutral';
     const ribbon = document.createElement('div');
     ribbon.className = `fab-modal-ribbon fab-modal-ribbon--${tone}`;
+    if (opts.ribbon.image) {
+      ribbon.classList.add('fab-modal-ribbon--image');
+      ribbon.style.backgroundImage = `url(${opts.ribbon.image})`;
+    }
     if (opts.ribbon.eyebrow) {
       const eyebrow = document.createElement('span');
       eyebrow.className = 'fab-modal-ribbon-eyebrow';

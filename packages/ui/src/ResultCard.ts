@@ -30,6 +30,12 @@ export interface ResultCardOptions {
   title?: string;
   /** Injected ribbon eyebrow above the title (e.g. "LEVEL 4"). */
   eyebrow?: string;
+  /** Injected ribbon-banner sprite (game owns the bytes; forwarded to the shell). */
+  ribbonImage?: string;
+  /** Injected card-panel sprite painted as the whole card background. */
+  cardImage?: string;
+  /** Win art shown at the top of the body (e.g. a crown sprite). Fresh element. */
+  art?: HTMLElement;
   /** Injected body copy line(s). */
   messages?: string | readonly string[];
   /** Win reward-display slot. Fresh element. */
@@ -58,6 +64,12 @@ function normalizeMessages(messages: ResultCardOptions['messages']): string[] {
 export function mountResultCard(opts: ResultCardOptions): UiHandle {
   const body = document.createElement('div');
   body.className = 'fab-result-body';
+
+  if (opts.art) {
+    assertFreshSlot(opts.art);
+    opts.art.classList.add('fab-result-art');
+    body.appendChild(opts.art);
+  }
 
   const messages = normalizeMessages(opts.messages);
   if (messages.length > 0) {
@@ -91,6 +103,7 @@ export function mountResultCard(opts: ResultCardOptions): UiHandle {
           title: opts.title ?? '',
           eyebrow: opts.eyebrow,
           tone: opts.variant === 'win' ? ('win' as const) : ('fail' as const),
+          image: opts.ribbonImage,
         }
       : undefined;
 
@@ -103,6 +116,7 @@ export function mountResultCard(opts: ResultCardOptions): UiHandle {
     onDismiss: opts.onDismiss,
     theme: opts.theme,
     id: opts.id,
+    cardImage: opts.cardImage,
     cardClassName: `fab-result-card fab-result-card--${opts.variant}`,
   });
 }

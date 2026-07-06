@@ -20,6 +20,7 @@ import {
   W3D,
 } from '../core/Constants';
 import { saveState } from '../core/SaveState';
+import { assetUrls } from '../../design/theme';
 import { BoardEngine } from '../engine/board';
 import type { Cell, LevelDef, TapChange } from '../engine/types';
 import { LEVELS } from '../levels/levels.generated';
@@ -629,7 +630,9 @@ export class GameController {
   private buildHud(levelId: number, hearts: number, coins: number): void {
     this.clearHud();
     const canAffordHint = coins >= HINT_COIN_COST;
-    const heartSpans = Array.from({ length: hearts }, () => '<span>❤</span>').join('');
+    // Drawn heart glyph (SVG, tinted via --fab-color-heart) — not the system ❤
+    // emoji, matching the reference hearts panel.
+    const heartSpans = Array.from({ length: hearts }, () => `<span class="mr-heart">${HEART_SVG}</span>`).join('');
     // Reference in-level chrome (refs/.../level-start.png): hearts panel TL,
     // gear TR, coin pill BL, square HINT+cost BR. Free-canvas (this is the
     // gameplay half) but every color resolves through the game's design tokens
@@ -639,10 +642,10 @@ export class GameController {
     el.className = 'mr-hud';
     el.innerHTML = `
       <div class="mr-hearts-panel mr-hud-panel" data-r="hearts">${heartSpans}</div>
-      <button class="mr-gear-btn mr-hud-panel" data-a="pause" type="button" aria-label="Pause">⚙</button>
-      <div class="mr-coin mr-hud-panel" data-r="coin"><span class="mr-coin-glyph">🪙</span><span class="mr-coin-value">${coins}</span></div>
+      <button class="mr-gear-btn mr-hud-panel" data-a="pause" type="button" aria-label="Pause"><img class="mr-gear-btn-icon" src="${assetUrls.gear}" alt="" aria-hidden="true"></button>
+      <div class="mr-coin mr-hud-panel" data-r="coin"><img class="mr-coin-img" src="${assetUrls.coin}" alt="" aria-hidden="true"><span class="mr-coin-value">${coins}</span></div>
       <button class="mr-hint mr-hud-tile" data-a="hint" type="button" aria-label="Hint costs ${HINT_COIN_COST} coins"${canAffordHint ? '' : ' disabled'}>
-        <span class="mr-hint-label">HINT</span><span class="mr-hint-cost">🪙 ${HINT_COIN_COST}</span>
+        <span class="mr-hint-label">HINT</span><span class="mr-hint-cost"><img class="mr-hint-coin" src="${assetUrls.coin}" alt="" aria-hidden="true"> ${HINT_COIN_COST}</span>
       </button>
     `;
     this.hudRoot.appendChild(el);
@@ -852,6 +855,11 @@ function comboPhrase(streak: number): string {
   return 'Nice!';
 }
 
+/** Drawn heart glyph (inline SVG) tinted via `currentColor` (--fab-color-heart).
+ *  Replaces the system ❤ emoji so hearts render as the reference drawn heart. */
+const HEART_SVG =
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+
 const HUD_STYLE_ID = 'mr-game-hud-styles';
 
 /** Minimal functional HUD styling; visual polish is a later stage. */
@@ -869,20 +877,23 @@ function injectHudStyles(): void {
       color:var(--fab-color-chrome-ink,#fff); }
     /* Top HUD panels clear the iOS status-bar zone via --fab-safe-top (0 off-device). */
     .mr-hearts-panel { top:calc(16px + var(--fab-safe-top,0px)); left:16px; display:flex; align-items:center; gap:5px; padding:9px 15px; border-radius:18px; }
-    .mr-hearts-panel span { font-size:24px; line-height:1; color:var(--fab-color-heart,#ff5d6c); transition:opacity .2s,transform .2s,filter .2s; filter:drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
+    .mr-hearts-panel span { display:grid; place-items:center; color:var(--fab-color-heart,#ff5d6c); transition:opacity .2s,transform .2s,filter .2s; filter:drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
     .mr-hearts-panel span.dead { opacity:.28; transform:scale(.8); filter:grayscale(1); }
-    .mr-gear-btn { top:calc(16px + var(--fab-safe-top,0px)); right:16px; width:56px; height:56px; padding:0; display:grid; place-items:center; border-radius:16px; font-size:28px; line-height:1; }
+    .mr-heart svg { display:block; width:22px; height:22px; }
+    .mr-gear-btn { top:calc(16px + var(--fab-safe-top,0px)); right:16px; width:56px; height:56px; padding:0; display:grid; place-items:center; border-radius:16px; }
+    .mr-gear-btn-icon { width:34px; height:34px; object-fit:contain; filter:drop-shadow(0 1px 2px rgba(0,0,0,.25)); }
     .mr-coin { bottom:22px; left:16px; display:flex; align-items:center; gap:6px; padding:8px 16px 8px 10px; border-radius:999px; font-weight:900; font-size:18px; }
-    .mr-coin-glyph { font-size:20px; }
+    .mr-coin-img { width:22px; height:22px; object-fit:contain; }
     .mr-coin-value { color:var(--fab-color-chrome-ink,#fff); text-shadow:0 1px 2px rgba(0,0,0,.25); }
-    /* Square HINT tile BR — cream candy panel (surface + panel tokens). */
+    /* Square HINT tile BR — warm-tan candy panel (hint secondary-chrome tokens). */
     .mr-hud-tile { position:absolute; bottom:22px; right:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
-      width:96px; height:82px; border:3px solid var(--fab-color-panel-border,#c87845); border-radius:20px;
-      background:var(--fab-color-surface,#fff3d7); box-shadow:0 4px 0 var(--fab-color-panel-shadow,#8d4a29),inset 0 2px 0 rgba(255,255,255,.5);
-      color:var(--fab-color-text,#6a3016); }
+      width:96px; height:82px; border:3px solid var(--fab-color-hint-border,#a9713c); border-radius:20px;
+      background:var(--fab-color-hint-surface,#d8a566); box-shadow:0 4px 0 var(--fab-color-hint-shadow,#82552c),inset 0 2px 0 rgba(255,255,255,.5);
+      color:var(--fab-color-hint-ink,#4a2a12); }
     .mr-hint-label { font-weight:900; font-size:18px; letter-spacing:.06em; }
     .mr-hint:disabled { opacity:.5; }
-    .mr-hint-cost { font-size:13px; font-weight:800; opacity:.92; }
+    .mr-hint-cost { display:inline-flex; align-items:center; gap:4px; font-size:13px; font-weight:800; opacity:.92; }
+    .mr-hint-coin { width:14px; height:14px; object-fit:contain; }
     .mr-streak { position:absolute; top:40%; left:50%; transform:translate(-50%,-50%); color:#fff; font-weight:900; font-size:34px; text-shadow:0 3px 12px rgba(0,0,0,.5); pointer-events:none; animation:mr-streak-pop 1.3s ease-out forwards; }
     @keyframes mr-streak-pop { 0%{opacity:0;transform:translate(-50%,-40%) scale(.6);} 15%{opacity:1;transform:translate(-50%,-50%) scale(1.15);} 30%{transform:translate(-50%,-50%) scale(1);} 80%{opacity:1;} 100%{opacity:0;transform:translate(-50%,-70%) scale(1);} }
     .mr-route-blocked { position:absolute; bottom:96px; left:50%; transform:translateX(-50%); background:rgba(255,77,109,.92); color:#fff; font-weight:800; font-size:13px; letter-spacing:.5px; padding:7px 16px; border-radius:999px; pointer-events:none; }

@@ -20,17 +20,21 @@
         margin: 0;
         height: 100%;
         overflow: hidden;
-        /* Reference bg: purple gradient with a faint repeating marble-motif —
-           two offset circle grids (var --fab-color-bg-motif) over the gradient. */
+        /* Reference bg: purple gradient with a repeating marble-SPHERE motif —
+           two offset grids of translucent glass spheres (a bright off-centre
+           highlight fading into the translucent --fab-color-bg-motif body) over
+           the gradient, so the dots read as marbles, not flat discs. */
         background:
           radial-gradient(
-            circle at 20px 20px,
-            var(--fab-color-bg-motif, rgba(255, 255, 255, 0.06)) 0 9px,
+            circle at 16px 14px,
+            var(--fab-color-bg-motif-hi, rgba(255, 255, 255, 0.16)) 0 2px,
+            var(--fab-color-bg-motif, rgba(255, 255, 255, 0.06)) 4px 9px,
             transparent 10px
           ),
           radial-gradient(
-            circle at 70px 68px,
-            var(--fab-color-bg-motif, rgba(255, 255, 255, 0.06)) 0 6px,
+            circle at 67px 64px,
+            var(--fab-color-bg-motif-hi, rgba(255, 255, 255, 0.16)) 0 1.5px,
+            var(--fab-color-bg-motif, rgba(255, 255, 255, 0.06)) 3px 6px,
             transparent 7px
           ),
           linear-gradient(
@@ -170,11 +174,11 @@
         padding: 0;
         border-radius: 16px;
       }
-      .mr-gear-glyph {
-        font-size: 30px;
-        line-height: 1;
-        color: var(--fab-color-chrome-ink, #fff);
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+      .mr-gear-icon {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
       }
 
       /* ---- Single green LEVEL-start CTA (unlayered → beats .fab-btn-primary) ---- */
@@ -202,6 +206,38 @@
       }
       .fab-btn.mr-level-cta:active:not(:disabled) {
         transform: translateY(3px) scale(1);
+        box-shadow:
+          0 2px 0 var(--fab-color-cta-green-shadow, #2b8a3c),
+          inset 0 2px 0 rgba(255, 255, 255, 0.35);
+      }
+
+      /* ---- Result-card primary CTA — chunky Button_Green candy treatment ----
+         The shared ResultCard primary button (Next / Watch-ad / Menu) wears the
+         same green candy skin as the menu CTA (Button_Green reference), sized for
+         the modal. Token-driven so a reskin recolors it; the raster Button_Green
+         sprite (assetUrls.buttonPrimary) is left exported to avoid stretch. */
+      .fab-modal-actions .fab-btn.mr-result-cta {
+        width: 100%;
+        padding: 14px 24px;
+        border: 3px solid var(--fab-color-cta-green-border, #2f7d3f);
+        border-radius: 18px;
+        background: linear-gradient(
+          180deg,
+          var(--fab-color-cta-green-top, #7fe089),
+          var(--fab-color-cta-green-bottom, #3fb356)
+        );
+        box-shadow:
+          0 5px 0 var(--fab-color-cta-green-shadow, #2b8a3c),
+          inset 0 2px 0 rgba(255, 255, 255, 0.35);
+        color: var(--fab-color-cta-green-ink, #fff);
+        font-weight: 900;
+        font-size: 19px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        text-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+      }
+      .fab-modal-actions .fab-btn.mr-result-cta:active:not(:disabled) {
+        transform: translateY(3px);
         box-shadow:
           0 2px 0 var(--fab-color-cta-green-shadow, #2b8a3c),
           inset 0 2px 0 rgba(255, 255, 255, 0.35);
