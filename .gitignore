@@ -4,3 +4,8 @@ dist/
 .env.*
 .DS_Store
 .twf/
+
+# Per-game agent scratch: contents are disposable and gitignored; only the
+# contract README (the promotion rule) is committed. See games/_template/.work/.
+games/*/.work/*
+!games/*/.work/README.md
