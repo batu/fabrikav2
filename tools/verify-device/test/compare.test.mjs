@@ -58,6 +58,22 @@ describe('buildRows + verdict (reuse path, offline)', () => {
     expect(verdict.pass).toBe(false);
   });
 
+  it('stamps lane=browser on every device-side cell for the browser-fallback lane', () => {
+    const { rows } = buildRows({ manifest, deviceCaptures, lane: 'browser' });
+    const menu = rows.find((r) => r.state === 'menu');
+    expect(menu.device.lane).toBe('browser');
+    expect(menu.device.alt).toBe('menu browser');
+    // default (no lane arg) still stamps 'device', so existing device-path callers are unaffected
+    const deviceRows = buildRows({ manifest, deviceCaptures }).rows;
+    expect(deviceRows.find((r) => r.state === 'menu').device.lane).toBe('device');
+  });
+
+  it('a missing browser-lane capture is reported with a lane-specific gap message', () => {
+    const { rows } = buildRows({ manifest, deviceCaptures, lane: 'browser' });
+    const fail = rows.find((r) => r.state === 'fail');
+    expect(fail.device.gap).toMatch(/no browser capture for "fail"/);
+  });
+
   it('a documented reference gap (pause) yields no-reference, not a crash', () => {
     // pause has no device capture here either (reference is a gap) — but if a
     // device capture existed it would be no-reference. Assert the reference gap

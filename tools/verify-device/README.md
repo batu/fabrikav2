@@ -41,6 +41,30 @@ stays **UNVERIFIED**.
 - `--captures <dir>` — diff pre-extracted device shots (`<state>.png`) with no build.
 - `--xcresult <path>` — extract + diff from an existing `.xcresult` (no build/run).
 
+## Browser-fallback lane (`--lane browser`)
+
+Explicit only — the **default lane stays device** (a phone pass is what actually
+confirms fidelity; browser never becomes the default scorer). When the phone is
+unavailable, `--lane browser` drives a `vite` dev server + Playwright/Chromium
+against the game harness's `driveTo(state)` (`window.__<GAME>_HARNESS__`) instead
+of building/installing on the iOS device — same capture-integrity discipline
+(`driveTo` only resolves `true` once its own `snapshot()` poll confirms arrival;
+a state it can't confirm is a documented gap, never a guess). Results are scored
+by the **same vision panel** but every capture is stamped `lane=browser` and the
+grid carries a **DEVICE-UNVERIFIED** banner — safe-area/notch insets can't be
+validated off-device. Lets fidelity work + panel-scoring progress when the phone
+is down; a device pass later is what actually confirms the result.
+
+## Budget-guard (OpenRouter credit floor)
+
+Before every panel run, `verify-device` checks remaining OpenRouter credit
+(`GET /credits`). Below `--budget-floor` (default `$5`) the panel **HALTS**: a
+clear `PANEL HALTED: OpenRouter credit floor` note goes to stderr + the grid,
+the run exits non-fatally (0), and evidence is marked `UNVERIFIED-panel` — never
+a silent drain of the shared OpenRouter budget to $0 mid-overnight-run. A failed
+credit *check* (network blip, bad response) does not halt — it proceeds and
+relies on the panel's own per-judge credit-skip as the backstop.
+
 ## Vision panel & judge registry (primary verdict)
 
 The PRIMARY fidelity verdict is a **multi-model vision panel**: for each state it
@@ -73,7 +97,8 @@ gracefully (exit 0) and on-device fidelity stays **UNVERIFIED**.
 `--threshold <0..1>` (default 0.20) · `--ensemble <name>` (default `default`;
 `kitchen-sink` for the full roster) · `--models <a,b,c>` (overrides the ensemble) ·
 `--panel-threshold <0..100>` (default 85) · `--skip-panel` · `--strict` (FAIL →
-non-zero exit; default advisory) · `--skip-device` · `-h/--help`.
+non-zero exit; default advisory) · `--skip-device` · `--lane <device|browser>`
+(default `device`) · `--budget-floor <n>` (default 5) · `-h/--help`.
 
 ## Reuse
 

@@ -91,9 +91,11 @@ function shortModel(id) {
  * @param {Array} params.rows [{state, device, reference, diff}]
  * @param {{pass:boolean, summary:string, states:Array}} params.verdict phash verdict
  * @param {object} [params.panel] runPanel result (primary verdict + consensus matrix)
+ * @param {'device'|'browser'} [params.lane] default 'device'; 'browser' renders a
+ *   DEVICE-UNVERIFIED banner (safe-area/notch fidelity is device-only)
  * @returns {string} full HTML document
  */
-export function buildGridHtml({ game, generatedAt, device, rows, verdict, panel }) {
+export function buildGridHtml({ game, generatedAt, device, rows, verdict, panel, lane = 'device' }) {
   const statusByState = Object.fromEntries((verdict?.states || []).map((s) => [s.state, s]));
   const body = rows.map((row) => {
     const st = statusByState[row.state] || { status: 'unknown', reason: '' };
@@ -111,7 +113,7 @@ export function buildGridHtml({ game, generatedAt, device, rows, verdict, panel 
       <h2>${esc(row.state)} <span class="badge ${esc(st.status)}">${esc(st.status)}</span>
           <span class="reason">${esc(st.reason || '')}</span></h2>
       <figure class="cell">
-        <figcaption>device (iOS, on-device)</figcaption>
+        <figcaption>${lane === 'browser' ? 'browser (chromium, DEVICE-UNVERIFIED)' : 'device (iOS, on-device)'}</figcaption>
         ${imgTag(row.device, 'dev')}
         ${meta(row.device)}
       </figure>
@@ -197,6 +199,7 @@ export function buildGridHtml({ game, generatedAt, device, rows, verdict, panel 
      The forcing function for AGENTS.md #8: a change to on-device rendering is not
      done until captured on-device and diffed here.</p>
   <p class="verdict ${primaryClass}">${esc(primaryLabel)}: ${esc(primary?.summary || 'no verdict')}</p>
+  ${lane === 'browser' ? '<p class="verdict bad">BROWSER LANE — DEVICE-UNVERIFIED: captured via vite-dev + Chromium, not the iOS device. Safe-area/notch insets cannot be validated here; an on-device pass is required to confirm.</p>' : ''}
   ${panelSection(panel)}
   <p class="sub">Secondary signal — phash pixel-diff: <b>${esc(verdict?.summary || 'n/a')}</b></p>
   ${body}
