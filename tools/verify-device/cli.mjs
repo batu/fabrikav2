@@ -27,6 +27,7 @@ import { extractFromExportDir, loadCapturesDir } from './src/attachments.mjs';
 import { buildRows } from './src/compare.mjs';
 import { computeVerdict } from './src/verdict.mjs';
 import { buildGridHtml } from './src/grid.mjs';
+import { runPanel } from './src/panel.mjs';
 import * as steps from './src/steps.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -41,13 +42,14 @@ function readAppBundleId(gameDir) {
   return m ? m[1] : null;
 }
 
-// MAC_PASSWORD for the keychain unlock: env first, then a sibling .env (the repo
-// lives under a parent that holds .env — see the card). Never committed/echoed.
-function readMacPassword() {
-  if (process.env.MAC_PASSWORD) return process.env.MAC_PASSWORD;
+// Read a secret from env first, then a sibling .env (the repo lives under a parent
+// that holds .env — see the card). Never committed/echoed. Used for the keychain
+// unlock (MAC_PASSWORD) and the vision panel (OPENROUTER_API_KEY).
+function readEnvSecret(name) {
+  if (process.env[name]) return process.env[name];
   for (const cand of [path.join(REPO_ROOT, '..', '.env'), path.join(REPO_ROOT, '.env')]) {
     if (fs.existsSync(cand)) {
-      const m = fs.readFileSync(cand, 'utf8').match(/^\s*MAC_PASSWORD\s*=\s*(.+)\s*$/m);
+      const m = fs.readFileSync(cand, 'utf8').match(new RegExp(`^\\s*${name}\\s*=\\s*(.+)\\s*$`, 'm'));
       if (m) return m[1].trim().replace(/^['"]|['"]$/g, '');
     }
   }
@@ -92,7 +94,7 @@ function runDevicePath(args, manifest, date) {
   const appBundleId = readAppBundleId(manifest.gameDir);
   if (!appBundleId) return { skip: `could not read appId from ${manifest.gameDir}/capacitor.config.ts` };
 
-  steps.unlockKeychain(readMacPassword());
+  steps.unlockKeychain(readEnvSecret('MAC_PASSWORD'));
   steps.buildHarnessBundle(manifest.gameDir);
   steps.buildAndInstallApp(manifest.gameDir, device.udid, appBundleId);
   const exportDir = steps.runXcuiTestAndExport({
@@ -107,7 +109,7 @@ function defaultOut(args, date) {
   return args.out ? path.resolve(args.out) : path.join(REPO_ROOT, 'docs', 'evidence', `${date}-device-verify`);
 }
 
-function main() {
+async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.help) { process.stdout.write(HELP); return 0; }
 
@@ -125,26 +127,44 @@ function main() {
   }
 
   const { rows } = buildRows({ manifest, deviceCaptures: resolved.captures });
-  const verdict = computeVerdict(rows, args.threshold);
-  const html = buildGridHtml({ game: args.game, generatedAt: date, device: resolved.deviceLabel, rows, verdict });
+  const phashVerdict = computeVerdict(rows, args.threshold);
 
+  // PRIMARY verdict: the multi-model vision panel (phash is now a secondary
+  // advisory signal). Conductor-run — needs OPENROUTER_API_KEY + network; skips
+  // gracefully (fidelity stays UNVERIFIED) in the worker/CI sandbox.
   const outDir = defaultOut(args, date);
   fs.mkdirSync(outDir, { recursive: true });
+  let panel = { skipped: 'panel disabled by --skip-panel' };
+  if (!args.skipPanel) {
+    panel = await runPanel({
+      rows, models: args.models, apiKey: readEnvSecret('OPENROUTER_API_KEY'),
+      thresholdPct: args.panelThreshold,
+    });
+    if (panel.states) fs.writeFileSync(path.join(outDir, 'panel.json'), JSON.stringify(panel, null, 2));
+  }
+
+  const html = buildGridHtml({
+    game: args.game, generatedAt: date, device: resolved.deviceLabel,
+    rows, verdict: phashVerdict, panel,
+  });
   const outFile = path.join(outDir, 'grid.html');
   fs.writeFileSync(outFile, html);
 
+  // The overall PASS/FAIL is the panel's when it ran; otherwise phash (advisory).
+  const primary = panel.verdict || phashVerdict;
+  const primaryLabel = panel.verdict ? 'panel' : 'phash (panel skipped)';
   process.stdout.write(
     `verify-device: device captures from ${resolved.deviceLabel}\n` +
-    verdict.states.map((s) => `  ${s.status.padEnd(12)} ${s.state.padEnd(9)} ${s.reason}`).join('\n') + '\n' +
-    `  verdict: ${verdict.summary}\n` +
+    `  phash: ${phashVerdict.summary}\n` +
+    (panel.verdict ? `  panel: ${panel.verdict.summary}\n`
+      : `  panel: SKIPPED — ${panel.skipped} (on-device fidelity UNVERIFIED)\n`) +
+    `  verdict (${primaryLabel}): ${primary.summary}\n` +
     `  grid: ${path.relative(REPO_ROOT, outFile)}\n`
   );
-  return args.strict && !verdict.pass ? 1 : 0;
+  return args.strict && !primary.pass ? 1 : 0;
 }
 
-try {
-  process.exit(main());
-} catch (err) {
+main().then((code) => process.exit(code)).catch((err) => {
   process.stderr.write(`verify-device: ${err.message}\n`);
   process.exit(1);
-}
+});

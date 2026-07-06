@@ -8,10 +8,9 @@ re-authoring a `.work/` throwaway.
 
 A standalone **UI-testing bundle** (`bundle.ui-testing`) — no host app. It
 launches the already-installed game app **by bundle id** and captures a real
-device screenshot (`XCUIScreen.main.screenshot()`) per canonical state, on the
-same 6s dwell cadence as the `allstates` insitu tour
-(`games/<g>/src/testing/insituTour.ts`). Screenshots attach to the `.xcresult`;
-`verify-device` extracts them via `xcrun xcresulttool export attachments`.
+device screenshot (`XCUIScreen.main.screenshot()`) per canonical state. Screenshots
+attach to the `.xcresult`; `verify-device` extracts them via
+`xcrun xcresulttool export attachments`.
 
 ## Generic across games
 
@@ -34,10 +33,21 @@ environment. One file, all games.
   the `.xcodeproj` is absent, so only the spec + Swift are committed.
 - `VerifyDeviceRunner/InsituTourTests.swift` — the capture test.
 
-## Why the cadence, not the DOM attr
+## Why element-gated, not timed
 
-The tour marks `body[data-tour-state]`, but XCUITest can't read that WKWebView DOM
-attribute reliably across the bridge (see the insitu-runner comments), so capture
-is timed to the tour's confirmed-state dwell and each shot is stamped with its
-intended canonical state name. The tour itself only dwells **after** confirming
-`snapshot().scene` (harness ledger), so the beat lines up.
+Earlier revisions shot on a fixed dwell timer and stamped the intended state name.
+That drifts: `driveTo` is variable-time, so the timer fired on the wrong frame and
+labelled menu/level as settings/fail (docs/evidence/2026-07-06-2315-paired/ +
+docs/retros/fidelity-diff-mistakes-ledger.md — the exact bug this whole card
+exists to kill).
+
+The runner now **waits for the state before shooting**. The `allstates` tour, on
+CONFIRMING each state via the harness snapshot, publishes an accessibility element
+labelled `tourstate:<state>` (a hidden `role=text` node `#__tourstate__` in
+`games/<g>/src/testing/insituTour.ts`). The WKWebView surfaces that `aria-label`
+to the native accessibility tree, so `InsituTourTests` matches
+`label == "tourstate:<state>"`, `waitForExistence(timeout:)`, and screenshots only
+once it exists. **A state that never appears is a loud `XCTFail`** (and a
+`<n>-<state>-MISSING` attachment for inspection) — a missing state is never a
+silent wrong frame. The tour requires `VITE_ENABLE_TEST_HARNESS=true` +
+`VITE_INSITU_TOUR=allstates` in the installed bundle.

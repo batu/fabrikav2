@@ -12,8 +12,27 @@ describe('parseArgs', () => {
     const a = parseArgs(['--game', 'marble_run']);
     expect(a.game).toBe('marble_run');
     expect(a.threshold).toBe(0.2);
+    expect(a.panelThreshold).toBe(85);
+    expect(a.skipPanel).toBe(false);
+    expect(a.models).toBeUndefined(); // undefined -> panel.mjs DEFAULT_MODELS
     expect(a.strict).toBe(false);
     expect(a.skipDevice).toBe(false);
+  });
+
+  it('parses the panel flags', () => {
+    const a = parseArgs([
+      '--game', 'g', '--models', 'anthropic/claude-opus-4.1, google/gemini-3.5-flash',
+      '--panel-threshold', '70', '--skip-panel',
+    ]);
+    expect(a.models).toEqual(['anthropic/claude-opus-4.1', 'google/gemini-3.5-flash']);
+    expect(a.panelThreshold).toBe(70);
+    expect(a.skipPanel).toBe(true);
+  });
+
+  it('validates the panel-threshold range and non-empty models', () => {
+    expect(() => parseArgs(['--game', 'g', '--panel-threshold', '101'])).toThrow(/\[0,100\]/);
+    expect(() => parseArgs(['--game', 'g', '--panel-threshold', 'x'])).toThrow(/\[0,100\]/);
+    expect(() => parseArgs(['--game', 'g', '--models', ' , '])).toThrow(/at least one model/);
   });
 
   it('parses all flags', () => {

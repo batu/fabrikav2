@@ -22,23 +22,36 @@ Options:
   --xcresult <path>    skip build/run; extract device captures from this .xcresult.
   --out <dir>          output dir (default docs/evidence/<date>-device-verify).
   --date <YYYY-MM-DD>  stamp used in the default --out and the HTML header.
-  --threshold <0..1>   diff changed-fraction above which a state is a FAIL
-                       (default 0.20, advisory).
+  --threshold <0..1>   phash diff changed-fraction above which a state is a FAIL
+                       (default 0.20, advisory). Secondary signal — the vision
+                       panel is the primary verdict.
+  --models <a,b,c>     comma-separated OpenRouter vision models for the panel
+                       (default: anthropic/claude-opus-4.1, anthropic/claude-sonnet-5,
+                       google/gemini-3.5-flash). A model that 404s is skipped w/ note.
+  --panel-threshold <n> panel fidelity floor 0..100; a state FAILs below it or on a
+                       consensus blocker finding (default 85, advisory).
+  --skip-panel         skip the vision panel (phash-only verdict).
   --strict             make a FAIL verdict a non-zero exit (default: advisory —
                        verdict is printed, exit stays 0 while the gate beds in).
   --skip-device        force the graceful device-absent skip (CI-safe).
   -h, --help           show this help.
+
+The vision panel needs OPENROUTER_API_KEY (env or the sibling .env); without it
+the panel skips gracefully (exit 0) and on-device fidelity stays UNVERIFIED.
 `;
 
 /**
  * @param {string[]} argv process.argv.slice(2)
  * @returns {{game?:string, device?:string, captures?:string, xcresult?:string,
- *   out?:string, date?:string, threshold:number, strict:boolean,
+ *   out?:string, date?:string, threshold:number, models?:string[],
+ *   panelThreshold:number, skipPanel:boolean, strict:boolean,
  *   skipDevice:boolean, help:boolean}}
  */
 export function parseArgs(argv) {
   const args = {
     threshold: 0.2,
+    panelThreshold: 85,
+    skipPanel: false,
     strict: false,
     skipDevice: false,
     help: false,
@@ -52,6 +65,9 @@ export function parseArgs(argv) {
     else if (a === '--out') args.out = req(argv, ++i, a);
     else if (a === '--date') args.date = req(argv, ++i, a);
     else if (a === '--threshold') args.threshold = parseThreshold(req(argv, ++i, a));
+    else if (a === '--models') args.models = parseModels(req(argv, ++i, a));
+    else if (a === '--panel-threshold') args.panelThreshold = parsePanelThreshold(req(argv, ++i, a));
+    else if (a === '--skip-panel') args.skipPanel = true;
     else if (a === '--strict') args.strict = true;
     else if (a === '--skip-device') args.skipDevice = true;
     else if (a === '--help' || a === '-h') args.help = true;
@@ -73,4 +89,18 @@ function parseThreshold(v) {
     throw new Error(`--threshold must be a number in [0,1], got: ${v}`);
   }
   return n;
+}
+
+function parsePanelThreshold(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n) || n < 0 || n > 100) {
+    throw new Error(`--panel-threshold must be a number in [0,100], got: ${v}`);
+  }
+  return n;
+}
+
+function parseModels(v) {
+  const models = v.split(',').map((s) => s.trim()).filter(Boolean);
+  if (!models.length) throw new Error('--models needs at least one model id');
+  return models;
 }

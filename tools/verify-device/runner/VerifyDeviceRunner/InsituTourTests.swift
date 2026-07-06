@@ -13,11 +13,19 @@ import XCTest
 /// the CLI passes `TEST_RUNNER_TARGET_BUNDLE_ID=<appId>` and we read
 /// `TARGET_BUNDLE_ID` here.
 final class InsituTourTests: XCTestCase {
-    /// Screenshot dwell cadence — MUST match the allstates insitu tour's
-    /// DWELL_MS (6s) in games/<g>/src/testing/insituTour.ts. The tour drives
-    /// menu->level->settings->pause->win->fail, dwelling 6s on each; we shoot on
-    /// the same beat and stamp the intended canonical state name.
-    private let dwellSeconds: UInt32 = 6
+    /// Per-state wait budget. The allstates tour drives menu->level->settings->
+    /// pause->win->fail with a long dwell on each and, on arrival, publishes an
+    /// accessibility element labelled `tourstate:<state>` (see
+    /// games/<g>/src/testing/insituTour.ts, #__tourstate__). We WAIT for that
+    /// label before shooting, so the frame we capture is guaranteed to BE the
+    /// state we stamp it with — never the previous/next frame. Budget covers the
+    /// tour's slowest transition (driveTo is variable-time) plus dwell.
+    private let stateTimeout: TimeInterval = 25
+
+    /// Canonical states, tour order. The tour label is `tourstate:<state>`; the
+    /// attachment name keeps a "<n>-<state>" order prefix so the CLI's
+    /// states.mjs maps it back to the same canonical vocab as the reference lane.
+    private let states = ["menu", "level", "settings", "pause", "win", "fail"]
 
     private func shot(_ name: String) {
         let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
@@ -34,16 +42,30 @@ final class InsituTourTests: XCTestCase {
         let app = XCUIApplication(bundleIdentifier: bundleId)
         app.launch()
 
-        // The allstates tour marks body[data-tour-state] on each state, but
-        // XCUITest can't read that WKWebView DOM attr reliably across the bridge,
-        // so we capture on the tour's dwell cadence and stamp the intended state.
-        // Canonical order mirrors insituTour.ts states + CANONICAL_STATES.
-        let order = ["1-menu", "2-level", "3-settings", "4-pause", "5-win", "6-fail"]
-        sleep(4) // initial menu dwell before the first shot
-        for name in order {
-            shot(name)
-            sleep(dwellSeconds)
+        // ELEMENT-GATED CAPTURE (replaces the old fixed-interval sleep cadence).
+        // The allstates tour publishes `tourstate:<state>` on a hidden a11y element
+        // (#__tourstate__, role=text) as it CONFIRMS each state via the harness
+        // snapshot. The WKWebView surfaces that element's aria-label to the native
+        // accessibility tree, so we can WAIT for the exact state before shooting.
+        // A state that never appears is a LOUD XCTFail — a missing state is never a
+        // silent wrong-frame. Proven bug this kills: timed capture shot menu/level
+        // while stamping settings/fail (docs/evidence/2026-07-06-2315-paired/ +
+        // docs/retros/fidelity-diff-mistakes-ledger.md).
+        for (index, state) in states.enumerated() {
+            let marker = app.descendants(matching: .any)
+                .matching(NSPredicate(format: "label == %@", "tourstate:\(state)"))
+                .firstMatch
+            let name = "\(index + 1)-\(state)"
+            if marker.waitForExistence(timeout: stateTimeout) {
+                shot(name)
+            } else {
+                // Attach whatever is on screen so the failure is inspectable, then
+                // fail loudly — the CLI verdict also flags the missing state.
+                shot("\(name)-MISSING")
+                XCTFail("state '\(state)' never published tourstate:\(state) within \(Int(stateTimeout))s — "
+                    + "the tour did not reach it (or the harness/tour flag is off). "
+                    + "A missing state is a loud failure, not a silent wrong frame.")
+            }
         }
-        shot("7-final")
     }
 }
