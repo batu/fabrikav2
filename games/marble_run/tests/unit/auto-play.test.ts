@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { BoardEngine } from '../../src/engine/board';
 import { LEVELS } from '../../src/levels/levels.generated';
 import { driveAutoWin, driveAutoFail } from '../../src/testing/autoPlay';
+import * as solverModule from '../../src/puzzle/marble-board/solver';
 
 /**
  * The real acceptance for the solver-bound harness (Batu, 2026-07-06): the
@@ -37,6 +38,42 @@ describe('driveAutoWin — solver-bound win', () => {
     expect(wonB).toBe(true);
     // No random: identical replay leaves identical hearts (and thus star grade).
     expect(a.hearts()).toBe(b.hearts());
+  });
+
+  it('resolves an honest false — never taps — when the level is unsolvable', async () => {
+    const level = LEVELS[0]!;
+    const engine = new BoardEngine(level);
+    const solveSpy = vi
+      .spyOn(solverModule, 'solveLevel')
+      .mockReturnValue({ solvable: false, waves: [], order: [], stuck: 3 });
+    const tap = vi.fn();
+
+    const won = await driveAutoWin(engine, level, tap, 0);
+
+    expect(won).toBe(false);
+    expect(tap).not.toHaveBeenCalled();
+    expect(engine.gameStatus()).toBe('playing'); // untouched — no tap attempted
+    solveSpy.mockRestore();
+  });
+
+  it('stops replaying early if the board leaves "playing" mid-plan', async () => {
+    const level = LEVELS[0]!;
+    const engine = new BoardEngine(level);
+    const plan = solverModule.solveLevel(level);
+    expect(plan.order.length).toBeGreaterThan(1);
+    let taps = 0;
+    const statusSpy = vi.spyOn(engine, 'gameStatus');
+    // Report 'playing' for the first tap only, then a terminal state — the
+    // driver must stop consuming `plan.order` once the engine is no longer playing.
+    statusSpy.mockImplementation(() => (taps === 0 ? 'playing' : 'failed'));
+
+    const won = await driveAutoWin(engine, level, () => {
+      taps += 1;
+    }, 0);
+
+    expect(won).toBe(false);
+    expect(taps).toBe(1);
+    statusSpy.mockRestore();
   });
 });
 
