@@ -67,6 +67,12 @@ These target the agency repo (out of write scope tonight) — implement there la
 
 ## Multi-provider
 
+13a. **Capacity preflight must include a live quota probe.** First real codex
+    spawn (2026-07-06 06:20) failed instantly on a usage cap the config-level
+    preflight couldn't see. `twf run-card` should do a 1-token provider ping (or
+    parse the CLI's quota error) BEFORE burning a spawn + ledger record, and the
+    failover command below should probe all candidate providers and pick the
+    first live one.
 13. **Codex preflight is good; add a capacity-failover routine.** Tonight's
     manual flow (claude cap predicted → flip twf_agents.default to
     codex/gpt-5.5 → commit) should be one command: `twf agents failover codex/gpt-5.5`
