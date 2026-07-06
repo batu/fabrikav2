@@ -11,7 +11,7 @@ import type {
   AttributionParams,
   AttributionProvider,
 } from './AttributionProvider.ts';
-import { isTimeoutError, withTimeout } from './with-timeout.ts';
+import { isTimeoutError, withTimeout } from '../with-timeout.ts';
 
 const NATIVE_INIT_TIMEOUT_MS = 5_000;
 const NATIVE_TRACK_TIMEOUT_MS = 3_000;

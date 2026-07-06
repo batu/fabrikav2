@@ -17,7 +17,7 @@
  * VERBATIM. It is subtle and battle-tested; do not "simplify" it.
  */
 import { assertUniqueCatalogProductIds, type CatalogProduct } from './catalog.ts';
-import { withTimeout } from './withTimeout.ts';
+import { withTimeout } from '../with-timeout.ts';
 
 export type IapServiceState =
   | 'idle'

@@ -7,7 +7,7 @@ import type {
   AttributionProvider,
 } from './AttributionProvider.ts';
 import { DisabledAttributionProvider } from './DisabledAttributionProvider.ts';
-import { withTimeout } from './with-timeout.ts';
+import { withTimeout } from '../with-timeout.ts';
 
 const STARTUP_GATE_TIMEOUT_MS = 5_000;
 
