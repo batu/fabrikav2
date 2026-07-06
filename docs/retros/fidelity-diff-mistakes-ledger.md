@@ -73,3 +73,16 @@ C5. **No per-state "driveTo" convenience.** Reaching each state for capture was 
 - B1-B4 → rigor rules baked into the comparison tool's output (forces paired,
   evidence-backed, dedup'd) + the diff card's method section.
 - UI findings (A1-A11 + Batu's list) → ranked fidelity-fix cards.
+
+## B5 (NEW, found by the rigorous re-diff): mislabeled v2 captures
+
+The rigorous diff caught that my committed v2 device shots 03-level.png and
+04-pause.png are BOTH the menu at different board-rotation angles — not a level,
+not a pause. So I labeled menu frames as 'level' and 'pause' and diffed against
+them. This is worse than the dup-capture (B2): wrong STATE entirely, asserted
+confidently. Root: the XCUITest tour's gear/level taps were swallowed (safe-area,
+D1) so it never left the menu, and I didn't verify the captured scene matched the
+intended state. FIX: refcap-compare + driveTo MUST confirm snapshot().scene ==
+requested state before saving a capture (capture-integrity gate) — no screenshot
+is trusted unless the harness confirms the state. Recapture v2 level+pause via
+driveTo before re-verifying fixes.
