@@ -9,6 +9,15 @@ export const TEST_HARNESS_ENABLED: boolean =
 export const SAVE_KEY = 'marble_run_v5_save';
 export const LEVEL_COUNT = 20;
 export const GAMEPLAY_CAMERA_GROUND_ANGLE_DEG = 60;
+/**
+ * In-level camera azimuth. v1 renders the board near-top-down and STRAIGHT
+ * (edges parallel to screen) by driving the dimetric camera at yaw 90° — its
+ * App.startLevel() calls applyDebugTuning() with cameraYawDeg:90. The Stage
+ * constructor (shared with v1) defaults to 45°, which renders the square board
+ * as a 45° diamond. v2's GameController never re-applied the 90° tuning, so the
+ * board floated as a diamond (P1b). startLevel() now sets this explicitly.
+ */
+export const GAMEPLAY_CAMERA_YAW_DEG = 90;
 export type CameraMode = 'perspective' | 'dimetric' | 'isometric' | 'trimetric';
 /** DPR 3 nearly triples canvas pixels versus DPR 2 on modern phones; cap the
  * renderer to keep mobile GPU cost predictable. */

@@ -55,6 +55,9 @@
   --fab-levelmap-far-opacity: 1;
   --fab-levelmap-distant-opacity: 1;
   --fab-levelmap-node-gap: 14px;
+  /* Reference saga is a CENTERED chain with SLIGHT alternating offsets (not the
+     wide full-width scatter of the ui default 57px). */
+  --fab-levelmap-offset: 18px;
   --fab-levelmap-node-size: 76px;
   --fab-levelmap-node-current-size: 142px;
   --fab-levelmap-node-font: 23px;
@@ -70,4 +73,33 @@
   --fab-radius-pill: 999px;
   --fab-radius-panel: 34px;
   --fab-radius-card: 24px;
+
+  /* ---- Teal chrome (menu top bar + in-level HUD panels) ----
+     The reference (refs/captures/android-basegamelab) draws coin pill, gear,
+     hearts panel and hint tile as chunky cyan-candy panels. Game-owned tokens
+     so a reskin re-colors the whole chrome by overriding these four. */
+  --fab-color-chrome-teal: #3fc6ef;
+  --fab-color-chrome-teal-top: #6fdcff;
+  --fab-color-chrome-teal-bottom: #23a7db;
+  --fab-color-chrome-teal-border: #ffffff;
+  --fab-color-chrome-teal-shadow: #1c7fb0;
+  --fab-color-chrome-ink: #ffffff;
+  --fab-color-heart: #ff5d6c;
+
+  /* ---- Green LEVEL-start CTA (single primary menu button) ---- */
+  --fab-color-cta-green: #5fd06a;
+  --fab-color-cta-green-top: #7fe089;
+  --fab-color-cta-green-bottom: #3fb356;
+  --fab-color-cta-green-border: #2f7d3f;
+  --fab-color-cta-green-shadow: #2b8a3c;
+  --fab-color-cta-green-ink: #ffffff;
+
+  /* ---- Menu background motif + ambient confetti ----
+     A repeating marble-circle pattern painted over the flat gradient, plus the
+     confetti fleck palette (menu only). Composed in index.html / the shell. */
+  --fab-color-bg-motif: rgba(255, 255, 255, 0.06);
+  --fab-color-confetti-a: #ffcf4d;
+  --fab-color-confetti-b: #ff7a9c;
+  --fab-color-confetti-c: #5fd06a;
+  --fab-color-confetti-d: #6fdcff;
 }

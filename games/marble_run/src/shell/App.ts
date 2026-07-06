@@ -20,10 +20,11 @@ import {
 } from '@fabrikav2/kernel';
 import {
   mountHomeMenu,
-  mountSagaMap,
   mountResultCard,
   mountPauseOverlay,
-  mountSettingsPage,
+  mountModalShell,
+  mountToggleRows,
+  buildSettingsModel,
   mountToaster,
   mountConnectivityIndicator,
   mountShopPage,
@@ -162,21 +163,107 @@ export class App {
 
   private mountMenu(): void {
     const nodes = buildSagaNodes(saveState.unlocked, MENU_SAGA_WINDOW);
+    const level = saveState.currentLevel();
     this.screenHandle = mountHomeMenu({
       mountInto: this.uiRoot,
-      header: this.buildBanner(),
+      header: this.buildMenuHeader(),
       saga: {
         state: { nodes },
         actions: { onSelectLevel: (id) => this.onSagaSelect(Number(id)) },
         loadingLabel: copy['saga.loading'],
       },
+      // Reference menu is a SINGLE chunky green "Level N" CTA (no Play/Levels/
+      // Shop/Settings stack — those live in the top-bar chrome). Matches v1
+      // dom.ts showMenu (`Level ${currentLevel()}`).
       actions: [
-        { label: copy['menu.play'], onClick: () => this.startCurrentLevel(), variant: 'primary' },
-        { label: copy['menu.levels'], onClick: () => this.openLevelSelect(), variant: 'secondary' },
-        { label: copy['menu.shop'], onClick: () => this.openShop(), variant: 'secondary' },
-        { label: copy['menu.settings'], onClick: () => this.openSettings(false), variant: 'secondary' },
+        {
+          label: `${copy['menu.levelButton']} ${level}`,
+          onClick: () => this.startCurrentLevel(),
+          variant: 'primary',
+          className: 'mr-level-cta',
+          dataAction: 'play',
+        },
       ],
     });
+  }
+
+  /** Menu top-bar chrome: coin pill (left) + gear (right), teal candy panels.
+   *  Built as shell DOM with `--fab-*` tokens (game-local `.mr-topbar-*` layout
+   *  in index.html), mirroring how the banner is composed. */
+  private buildTopBar(): HTMLElement {
+    const bar = document.createElement('div');
+    bar.className = 'mr-topbar';
+
+    const coin = document.createElement('button');
+    coin.type = 'button';
+    coin.className = 'mr-coin-pill';
+    coin.dataset.fabAction = 'shop';
+    coin.setAttribute('aria-label', copy['menu.shop']);
+    const coinIcon = document.createElement('img');
+    coinIcon.className = 'mr-coin-pill-icon';
+    coinIcon.src = assetUrls.coin;
+    coinIcon.alt = '';
+    coinIcon.setAttribute('aria-hidden', 'true');
+    const coinValue = document.createElement('span');
+    coinValue.className = 'mr-coin-pill-value';
+    coinValue.setAttribute('data-fab-economy-target', 'coin');
+    coinValue.textContent = String(saveState.coins);
+    coin.append(coinIcon, coinValue);
+    coin.addEventListener('click', () => {
+      toggleClick(true);
+      this.openShop();
+    });
+
+    const gear = document.createElement('button');
+    gear.type = 'button';
+    gear.className = 'mr-gear';
+    gear.dataset.fabAction = 'settings';
+    gear.setAttribute('aria-label', copy['menu.settings']);
+    const gearIcon = document.createElement('span');
+    gearIcon.className = 'mr-gear-glyph';
+    gearIcon.textContent = '⚙';
+    gearIcon.setAttribute('aria-hidden', 'true');
+    gear.appendChild(gearIcon);
+    gear.addEventListener('click', () => {
+      toggleClick(true);
+      this.openSettings(false);
+    });
+
+    bar.append(coin, gear);
+    return bar;
+  }
+
+  private buildMenuHeader(): HTMLElement {
+    const header = document.createElement('div');
+    header.className = 'mr-menu-header';
+    // Ambient confetti is a fixed-position child, so it covers the viewport yet
+    // is torn down with the menu (menu-only per the card). Positions/timing are
+    // index-derived (deterministic); colors come from the confetti tokens.
+    header.append(this.buildConfetti(), this.buildTopBar(), this.buildBanner());
+    return header;
+  }
+
+  private buildConfetti(): HTMLElement {
+    const layer = document.createElement('div');
+    layer.className = 'mr-confetti';
+    layer.setAttribute('aria-hidden', 'true');
+    const palette = [
+      'var(--fab-color-confetti-a)',
+      'var(--fab-color-confetti-b)',
+      'var(--fab-color-confetti-c)',
+      'var(--fab-color-confetti-d)',
+    ];
+    const count = prefersReducedMotion() ? 0 : 16;
+    for (let i = 0; i < count; i += 1) {
+      const fleck = document.createElement('span');
+      fleck.className = 'mr-confetti-fleck';
+      fleck.style.left = `${(i * 61) % 100}%`;
+      fleck.style.background = palette[i % palette.length]!;
+      fleck.style.animationDuration = `${5 + (i % 5)}s`;
+      fleck.style.animationDelay = `${-(i * 0.7).toFixed(2)}s`;
+      layer.appendChild(fleck);
+    }
+    return layer;
   }
 
   private openShop(): void {
@@ -221,16 +308,6 @@ export class App {
         onRestore: (result) => this.sdk.applyRestoreResult(result),
       }),
     );
-  }
-
-  private mountLevelSelect(): void {
-    const nodes = buildSagaNodes(saveState.unlocked, MENU_SAGA_WINDOW);
-    this.screenHandle = mountSagaMap({
-      mountInto: this.uiRoot,
-      state: { nodes },
-      actions: { onSelectLevel: (id) => this.onSagaSelect(Number(id)) },
-      loadingLabel: copy['saga.loading'],
-    });
   }
 
   private mountWin(info: PendingWin): void {
@@ -294,14 +371,42 @@ export class App {
     });
   }
 
+  /**
+   * Settings surface. The Android reference (refs/.../settings.png) is a MODAL
+   * over the dimmed menu — blue card, title, green toggles, CLOSE button, RESET
+   * PROGRESS link — NOT the slide-up full page v2 originally shipped (conductor
+   * comment #3). Composed from ModalShell + the wave-A ToggleRows (compose, not
+   * rebuild). Out of game only offers RESET PROGRESS.
+   */
   private openSettings(inGame: boolean): void {
-    this.pageStack.push(() =>
-      mountSettingsPage({
+    const togglesSection = document.createElement('div');
+    togglesSection.className = 'mr-settings-toggles';
+
+    const actions: ModalAction[] = [
+      { label: copy['settings.close'], onClick: () => this.pageStack.pop(), variant: 'primary', className: 'mr-level-cta' },
+    ];
+    if (!inGame && saveState.hasProgress) {
+      actions.push({
+        label: copy['settings.reset'],
+        onClick: () => this.resetProgress(),
+        variant: 'secondary',
+      });
+    }
+
+    let toggles: UiHandle | null = null;
+    this.pageStack.push(() => {
+      const modal = mountModalShell({
         mountInto: this.uiRoot,
-        header: this.buildPageTitle(copy['settings.title']),
-        backIcon: assetUrls.back,
-        backLabel: copy['settings.back'],
-        settings: {
+        title: copy['settings.title'],
+        body: togglesSection,
+        actions,
+        backdropDismiss: true,
+        cardClassName: 'mr-settings-card',
+        onDismiss: () => toggles?.dismiss(),
+      });
+      toggles = mountToggleRows({
+        mountInto: togglesSection,
+        rows: buildSettingsModel({
           music: saveState.musicEnabled,
           sfx: saveState.sfxEnabled,
           haptics: saveState.hapticsEnabled,
@@ -310,10 +415,20 @@ export class App {
             sfx: copy['settings.sfx'],
             haptics: copy['settings.haptics'],
           },
-        },
-        onToggle: (key, next) => this.onSettingToggle(key, next, inGame),
-      }),
-    );
+        }).toggles,
+        onToggle: (key, next) => this.onSettingToggle(key as SettingKey, next, inGame),
+      });
+      return modal;
+    });
+  }
+
+  private resetProgress(): void {
+    saveState.resetProgress();
+    music.stop();
+    this.pageStack.pop();
+    this.toaster.show(copy['settings.reset']);
+    // Re-render the menu so the coin pill + saga reflect the wiped progress.
+    if (this.machine.state === 'menu') this.renderMenu();
   }
 
   // ── Transitions (guarded) ───────────────────────────────────────
@@ -340,14 +455,6 @@ export class App {
       if (this.machine.can('toMenu')) this.machine.toMenu();
     }
     if (this.machine.can('start')) this.machine.start(String(levelId));
-  }
-
-  private openLevelSelect(): void {
-    if (this.machine.can('selectLevel')) {
-      this.machine.selectLevel();
-      this.clearScreen();
-      this.mountLevelSelect();
-    }
   }
 
   private next(levelId: number): void {
@@ -432,13 +539,6 @@ export class App {
     header.appendChild(img);
     header.appendChild(title);
     return header;
-  }
-
-  private buildPageTitle(text: string): HTMLElement {
-    const title = document.createElement('h2');
-    title.className = 'mr-page-title';
-    title.textContent = text;
-    return title;
   }
 
   private buildRewardDisplay(amount: number): { el: HTMLElement; source: HTMLElement } {

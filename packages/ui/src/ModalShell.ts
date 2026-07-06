@@ -7,6 +7,8 @@ export interface ModalAction {
   variant?: ButtonVariant;
   disabled?: boolean;
   ariaLabel?: string;
+  /** Extra class(es) for game-local theming (e.g. a green CLOSE CTA). */
+  className?: string;
 }
 
 export interface ModalShellOptions {
@@ -53,6 +55,7 @@ function buildActions(actions: readonly ModalAction[] | HTMLElement | undefined)
         variant: action.variant,
         disabled: action.disabled,
         ariaLabel: action.ariaLabel,
+        className: action.className,
       }),
     );
   }

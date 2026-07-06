@@ -6,6 +6,7 @@ export const copyLocale = "en";
 export const copy = {
   "app.title": "Marble Run",
   "menu.play": "Play",
+  "menu.levelButton": "Level",
   "menu.levels": "Levels",
   "menu.shop": "Shop",
   "menu.settings": "Settings",

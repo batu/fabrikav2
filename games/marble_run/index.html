@@ -20,10 +20,27 @@
         margin: 0;
         height: 100%;
         overflow: hidden;
-        background: linear-gradient(
-          var(--fab-color-bg-top, #9b7bcd),
-          var(--fab-color-bg-bottom, #6b568e)
-        );
+        /* Reference bg: purple gradient with a faint repeating marble-motif —
+           two offset circle grids (var --fab-color-bg-motif) over the gradient. */
+        background:
+          radial-gradient(
+            circle at 20px 20px,
+            var(--fab-color-bg-motif, rgba(255, 255, 255, 0.06)) 0 9px,
+            transparent 10px
+          ),
+          radial-gradient(
+            circle at 70px 68px,
+            var(--fab-color-bg-motif, rgba(255, 255, 255, 0.06)) 0 6px,
+            transparent 7px
+          ),
+          linear-gradient(
+            var(--fab-color-bg-top, #9b7bcd),
+            var(--fab-color-bg-bottom, #6b568e)
+          );
+        background-size:
+          100px 96px,
+          100px 96px,
+          100% 100%;
         font-family: var(--fab-font-family, system-ui, sans-serif);
         -webkit-user-select: none;
         user-select: none;
@@ -42,10 +59,15 @@
         inset: 0;
         pointer-events: none;
       }
-      #hud > *,
-      #ui > * {
-        pointer-events: auto;
-      }
+      /* #hud / #ui are pass-through overlay layers: interactive children opt in
+         via their own `pointer-events: auto` (every @fabrikav2/ui primitive —
+         .fab-btn, .fab-levelmap-node, .fab-modal-backdrop, .fab-page — and the
+         in-game HUD's `.mr-hud button` already declare it). A blanket
+         `#ui > * { pointer-events: auto }` here (id specificity 1,0,0) OVERRODE
+         the toaster/economy/connectivity overlays' own `pointer-events: none`,
+         turning the full-bleed `.fab-toaster` (inset:0, z-index:10) into a
+         click-swallowing layer above the menu — the dead-buttons P1. The
+         real-click e2e (tests/e2e/menu-clicks.spec.ts) guards it. */
       /* Menu banner: the plaque art is a frame; the title sits on its face.
          (Shell injects .mr-menu-banner/.mr-menu-title; layout lives here, not in
          the audited shell.) */
@@ -76,13 +98,158 @@
         color: var(--fab-color-text, #6a3016);
         text-shadow: 0 2px 0 rgba(255, 255, 255, 0.5);
       }
-      /* Settings page title in the slide-up page header. */
-      .mr-page-title {
-        margin: 0;
+      /* ---- Menu top-bar chrome (coin pill + gear) — teal candy panels ----
+         Shell injects .mr-topbar/.mr-coin-pill/.mr-gear; layout + the token-fed
+         candy look live here (index.html is outside the audited shell scope, so
+         the var() fallbacks are legal). Colors resolve through the game-owned
+         --fab-color-chrome-* tokens so a reskin re-colors the whole bar. */
+      .mr-menu-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        gap: 8px;
+      }
+      .mr-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: min(430px, 94vw);
+        margin: 6px auto 0;
+      }
+      .mr-coin-pill,
+      .mr-gear {
+        pointer-events: auto;
+        cursor: pointer;
+        border: 3px solid var(--fab-color-chrome-teal-border, #fff);
+        background: linear-gradient(
+          180deg,
+          var(--fab-color-chrome-teal-top, #6fdcff),
+          var(--fab-color-chrome-teal-bottom, #23a7db)
+        );
+        box-shadow:
+          0 4px 0 var(--fab-color-chrome-teal-shadow, #1c7fb0),
+          inset 0 2px 0 rgba(255, 255, 255, 0.35);
+        color: var(--fab-color-chrome-ink, #fff);
         font-family: var(--fab-font-family, 'Nunito', system-ui, sans-serif);
-        font-weight: 800;
-        font-size: 22px;
-        color: var(--fab-color-text, #6a3016);
+        transition: transform 80ms ease;
+      }
+      .mr-coin-pill:active,
+      .mr-gear:active {
+        transform: translateY(2px);
+        box-shadow:
+          0 2px 0 var(--fab-color-chrome-teal-shadow, #1c7fb0),
+          inset 0 2px 0 rgba(255, 255, 255, 0.35);
+      }
+      .mr-coin-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 16px 7px 9px;
+        border-radius: var(--fab-radius-pill, 999px);
+      }
+      .mr-coin-pill-icon {
+        width: 26px;
+        height: 26px;
+        object-fit: contain;
+      }
+      .mr-coin-pill-value {
+        font-weight: 900;
+        font-size: 18px;
+        color: var(--fab-color-chrome-ink, #fff);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+      }
+      .mr-gear {
+        display: grid;
+        place-items: center;
+        width: 52px;
+        height: 52px;
+        padding: 0;
+        border-radius: 16px;
+      }
+      .mr-gear-glyph {
+        font-size: 30px;
+        line-height: 1;
+        color: var(--fab-color-chrome-ink, #fff);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+      }
+
+      /* ---- Single green LEVEL-start CTA (unlayered → beats .fab-btn-primary) ---- */
+      .fab-btn.mr-level-cta {
+        width: min(360px, 84vw);
+        align-self: center;
+        margin: 4px auto 0;
+        padding: 16px 28px;
+        border: 3px solid var(--fab-color-cta-green-border, #2f7d3f);
+        border-radius: 20px;
+        background: linear-gradient(
+          180deg,
+          var(--fab-color-cta-green-top, #7fe089),
+          var(--fab-color-cta-green-bottom, #3fb356)
+        );
+        box-shadow:
+          0 5px 0 var(--fab-color-cta-green-shadow, #2b8a3c),
+          inset 0 2px 0 rgba(255, 255, 255, 0.35);
+        color: var(--fab-color-cta-green-ink, #fff);
+        font-weight: 900;
+        font-size: 20px;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        text-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+      }
+      .fab-btn.mr-level-cta:active:not(:disabled) {
+        transform: translateY(3px) scale(1);
+        box-shadow:
+          0 2px 0 var(--fab-color-cta-green-shadow, #2b8a3c),
+          inset 0 2px 0 rgba(255, 255, 255, 0.35);
+      }
+
+      /* ---- Settings modal (ModalShell variant — conductor comment #3) ---- */
+      .mr-settings-card .fab-modal-title {
+        text-align: center;
+        font-size: 24px;
+        font-weight: 900;
+        color: var(--fab-color-chrome-teal-bottom, #23a7db);
+      }
+      .mr-settings-toggles {
+        margin: 6px 0 12px;
+      }
+
+      /* ---- Menu ambient confetti (fixed layer, torn down with the menu) ---- */
+      .mr-confetti {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 0;
+      }
+      .mr-confetti-fleck {
+        position: absolute;
+        top: -16px;
+        width: 8px;
+        height: 13px;
+        border-radius: 2px;
+        opacity: 0.85;
+        animation: mr-confetti-fall linear infinite;
+      }
+      @keyframes mr-confetti-fall {
+        0% {
+          transform: translateY(-20px) rotate(0deg);
+          opacity: 0;
+        }
+        12% {
+          opacity: 0.85;
+        }
+        100% {
+          transform: translateY(105vh) rotate(320deg);
+          opacity: 0.85;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .mr-confetti-fleck {
+          animation: none;
+          display: none;
+        }
       }
       /* Gameplay screen-shake (BoardScene toggles body.mistake-feedback — S6). */
       body.mistake-feedback #scene {

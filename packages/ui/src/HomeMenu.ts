@@ -20,6 +20,10 @@ export interface HomeMenuAction {
   onClick: (event: MouseEvent) => void;
   variant?: ButtonVariant;
   ariaLabel?: string;
+  /** Extra class(es) for game-local theming (e.g. a green LEVEL-start CTA). */
+  className?: string;
+  /** Stable hook (→ data-fab-action) for real-click e2e / analytics. */
+  dataAction?: string;
 }
 
 export interface HomeMenuSagaConfig {
@@ -91,6 +95,8 @@ export function mountHomeMenu(opts: HomeMenuOptions): UiHandle {
           onClick: action.onClick,
           variant: action.variant,
           ariaLabel: action.ariaLabel,
+          className: action.className,
+          dataAction: action.dataAction,
         }),
       );
     }

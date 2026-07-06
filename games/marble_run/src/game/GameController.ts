@@ -10,7 +10,15 @@
  */
 import { createHaptics, ImpactStyle, NotificationType } from '@fabrikav2/sdk/haptics';
 import type { GatedHaptics } from '@fabrikav2/sdk/haptics';
-import { HINT_COIN_COST, LEVEL_COIN_REWARD, LEVEL_COUNT, LONG_PRESS_ROUTE_MS, W3D } from '../core/Constants';
+import {
+  GAMEPLAY_CAMERA_GROUND_ANGLE_DEG,
+  GAMEPLAY_CAMERA_YAW_DEG,
+  HINT_COIN_COST,
+  LEVEL_COIN_REWARD,
+  LEVEL_COUNT,
+  LONG_PRESS_ROUTE_MS,
+  W3D,
+} from '../core/Constants';
 import { saveState } from '../core/SaveState';
 import { BoardEngine } from '../engine/board';
 import type { Cell, TapChange } from '../engine/types';
@@ -130,6 +138,10 @@ export class GameController {
     this.clearDecor();
     this.mode = 'menu';
     this.paused = false;
+    // Match the reference menu (near-straight board) and stay consistent with
+    // in-level framing: without this the decor board keeps whatever yaw the last
+    // level left (or the Stage's 45° default on a cold boot) — a diamond.
+    this.stage.setDimetricCamera(GAMEPLAY_CAMERA_GROUND_ANGLE_DEG, GAMEPLAY_CAMERA_YAW_DEG);
     this.stage.setViewOffsetYRatio(0.11);
 
     const decorLevel = LEVELS[2] ?? LEVELS[0]!;
@@ -162,6 +174,11 @@ export class GameController {
       onBlockedImpact: (change) => this.handleBlockedImpact(change),
     });
     this.stage.world.add(this.board.root);
+    // v1 parity: App.startLevel() applies its debug tuning (yaw 90°) here so the
+    // board renders near-top-down and straight. Without it the Stage stays at
+    // its 45° constructor default and the square board reads as a floating
+    // diamond (P1b). Set the dimetric yaw before framing.
+    this.stage.setDimetricCamera(GAMEPLAY_CAMERA_GROUND_ANGLE_DEG, GAMEPLAY_CAMERA_YAW_DEG);
     const { w, d } = this.board.boardSize();
     this.stage.frameBoard(w, d);
     this.board.refreshGateLiveness();
@@ -610,20 +627,20 @@ export class GameController {
     this.clearHud();
     const canAffordHint = coins >= HINT_COIN_COST;
     const heartSpans = Array.from({ length: hearts }, () => '<span>❤</span>').join('');
+    // Reference in-level chrome (refs/.../level-start.png): hearts panel TL,
+    // gear TR, coin pill BL, square HINT+cost BR. Free-canvas (this is the
+    // gameplay half) but every color resolves through the game's design tokens
+    // (--fab-color-chrome-* / surface / panel), so a reskin re-themes it.
+    void levelId;
     const el = document.createElement('div');
     el.className = 'mr-hud';
     el.innerHTML = `
-      <div class="mr-hud-top">
-        <div class="mr-level">Level ${levelId}</div>
-        <div class="mr-hearts" data-r="hearts">${heartSpans}</div>
-        <div class="mr-coin" data-r="coin"><span class="mr-coin-glyph">🪙</span><span class="mr-coin-value">${coins}</span></div>
-        <button class="mr-pause" data-a="pause" type="button" aria-label="Pause">II</button>
-      </div>
-      <div class="mr-hud-bottom">
-        <button class="mr-hint" data-a="hint" type="button" aria-label="Hint costs ${HINT_COIN_COST} coins"${canAffordHint ? '' : ' disabled'}>
-          <span>HINT</span><span class="mr-hint-cost">🪙 ${HINT_COIN_COST}</span>
-        </button>
-      </div>
+      <div class="mr-hearts-panel mr-hud-panel" data-r="hearts">${heartSpans}</div>
+      <button class="mr-gear-btn mr-hud-panel" data-a="pause" type="button" aria-label="Pause">⚙</button>
+      <div class="mr-coin mr-hud-panel" data-r="coin"><span class="mr-coin-glyph">🪙</span><span class="mr-coin-value">${coins}</span></div>
+      <button class="mr-hint mr-hud-tile" data-a="hint" type="button" aria-label="Hint costs ${HINT_COIN_COST} coins"${canAffordHint ? '' : ' disabled'}>
+        <span class="mr-hint-label">HINT</span><span class="mr-hint-cost">🪙 ${HINT_COIN_COST}</span>
+      </button>
     `;
     this.hudRoot.appendChild(el);
     this.hudEl = el;
@@ -835,19 +852,28 @@ function injectHudStyles(): void {
   const style = document.createElement('style');
   style.id = HUD_STYLE_ID;
   style.textContent = `
-    .mr-hud { position:absolute; inset:0; pointer-events:none; font-family:system-ui,-apple-system,sans-serif; z-index:5; }
+    .mr-hud { position:absolute; inset:0; pointer-events:none; font-family:var(--fab-font-family,'Nunito',system-ui,sans-serif); z-index:5; }
     .mr-hud button { pointer-events:auto; cursor:pointer; }
-    .mr-hud-top { position:absolute; top:0; left:0; right:0; display:flex; align-items:center; gap:12px; padding:14px 16px; }
-    .mr-level { color:#fff; font-weight:800; font-size:18px; text-shadow:0 2px 6px rgba(0,0,0,.45); }
-    .mr-hearts { display:flex; gap:4px; margin-left:auto; }
-    .mr-hearts span { font-size:22px; line-height:1; transition:opacity .2s,transform .2s,filter .2s; filter:drop-shadow(0 1px 2px rgba(0,0,0,.35)); }
-    .mr-hearts span.dead { opacity:.25; transform:scale(.8); filter:grayscale(1); }
-    .mr-coin { display:flex; align-items:center; gap:5px; background:rgba(0,0,0,.34); color:#ffd84f; font-weight:800; font-size:15px; padding:6px 12px; border-radius:999px; }
-    .mr-pause { width:40px; height:40px; border:0; border-radius:12px; background:rgba(0,0,0,.34); color:#fff; font-weight:800; font-size:15px; letter-spacing:1px; }
-    .mr-hud-bottom { position:absolute; left:0; right:0; bottom:26px; display:flex; justify-content:center; }
-    .mr-hint { display:flex; align-items:center; gap:8px; border:0; border-radius:16px; padding:12px 22px; background:#ff8a3d; color:#fff; font-weight:800; font-size:16px; box-shadow:0 6px 16px rgba(0,0,0,.3); }
+    /* Teal candy panel shared by hearts / gear / coin (chrome tokens). */
+    .mr-hud-panel { position:absolute; border:3px solid var(--fab-color-chrome-teal-border,#fff);
+      background:linear-gradient(180deg,var(--fab-color-chrome-teal-top,#6fdcff),var(--fab-color-chrome-teal-bottom,#23a7db));
+      box-shadow:0 4px 0 var(--fab-color-chrome-teal-shadow,#1c7fb0),inset 0 2px 0 rgba(255,255,255,.35);
+      color:var(--fab-color-chrome-ink,#fff); }
+    .mr-hearts-panel { top:16px; left:16px; display:flex; align-items:center; gap:5px; padding:9px 15px; border-radius:18px; }
+    .mr-hearts-panel span { font-size:24px; line-height:1; color:var(--fab-color-heart,#ff5d6c); transition:opacity .2s,transform .2s,filter .2s; filter:drop-shadow(0 1px 1px rgba(0,0,0,.25)); }
+    .mr-hearts-panel span.dead { opacity:.28; transform:scale(.8); filter:grayscale(1); }
+    .mr-gear-btn { top:16px; right:16px; width:56px; height:56px; padding:0; display:grid; place-items:center; border-radius:16px; font-size:28px; line-height:1; }
+    .mr-coin { bottom:22px; left:16px; display:flex; align-items:center; gap:6px; padding:8px 16px 8px 10px; border-radius:999px; font-weight:900; font-size:18px; }
+    .mr-coin-glyph { font-size:20px; }
+    .mr-coin-value { color:var(--fab-color-chrome-ink,#fff); text-shadow:0 1px 2px rgba(0,0,0,.25); }
+    /* Square HINT tile BR — cream candy panel (surface + panel tokens). */
+    .mr-hud-tile { position:absolute; bottom:22px; right:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+      width:96px; height:82px; border:3px solid var(--fab-color-panel-border,#c87845); border-radius:20px;
+      background:var(--fab-color-surface,#fff3d7); box-shadow:0 4px 0 var(--fab-color-panel-shadow,#8d4a29),inset 0 2px 0 rgba(255,255,255,.5);
+      color:var(--fab-color-text,#6a3016); }
+    .mr-hint-label { font-weight:900; font-size:18px; letter-spacing:.06em; }
     .mr-hint:disabled { opacity:.5; }
-    .mr-hint-cost { font-size:13px; opacity:.9; }
+    .mr-hint-cost { font-size:13px; font-weight:800; opacity:.92; }
     .mr-streak { position:absolute; top:40%; left:50%; transform:translate(-50%,-50%); color:#fff; font-weight:900; font-size:34px; text-shadow:0 3px 12px rgba(0,0,0,.5); pointer-events:none; animation:mr-streak-pop 1.3s ease-out forwards; }
     @keyframes mr-streak-pop { 0%{opacity:0;transform:translate(-50%,-40%) scale(.6);} 15%{opacity:1;transform:translate(-50%,-50%) scale(1.15);} 30%{transform:translate(-50%,-50%) scale(1);} 80%{opacity:1;} 100%{opacity:0;transform:translate(-50%,-70%) scale(1);} }
     .mr-route-blocked { position:absolute; bottom:96px; left:50%; transform:translateX(-50%); background:rgba(255,77,109,.92); color:#fff; font-weight:800; font-size:13px; letter-spacing:.5px; padding:7px 16px; border-radius:999px; pointer-events:none; }
