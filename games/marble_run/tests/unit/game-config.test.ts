@@ -4,6 +4,7 @@ import { gameConfig } from '../../game.config.ts';
 import { LEVELS } from '../../src/levels/levels.generated.ts';
 import { LEVEL_COUNT } from '../../src/core/Constants.ts';
 import { MENU_SAGA_WINDOW } from '../../src/shell/saga.ts';
+import { marbleProductIds } from '../../src/sdk/catalog.ts';
 
 // AC leg: validate the game.config.ts literal against the kernel GameConfig
 // contract and marble's structural invariants. The `satisfies GameConfig` in
@@ -45,13 +46,31 @@ describe('gameConfig', () => {
     }
   });
 
-  it('declares the canonical level lifecycle analytics events', () => {
-    for (const event of ['level_start', 'level_complete', 'level_fail']) {
+  it('declares the canonical analytics event set the SDK wiring emits', () => {
+    for (const event of [
+      'session_start',
+      'session_end',
+      'level_start',
+      'level_complete',
+      'level_fail',
+      'resource_change',
+      'ad_request',
+      'ad_impression',
+      'ad_reward',
+      'purchase',
+    ]) {
       expect(gameConfig.analyticsEvents).toContain(event);
     }
   });
 
-  it('ships no IAP products in the pilot', () => {
-    expect(gameConfig.productCatalog).toHaveLength(0);
+  it('declares the rewarded + interstitial ad placements the wiring uses', () => {
+    for (const placement of ['rewarded_fail_save', 'rewarded_hint', 'interstitial_level']) {
+      expect(gameConfig.adPlacements).toContain(placement);
+    }
+  });
+
+  it('declares the IAP catalog product ids in lockstep with the catalog fixture', () => {
+    expect(gameConfig.productCatalog).toContain('no_ads');
+    expect([...gameConfig.productCatalog].sort()).toEqual([...marbleProductIds].sort());
   });
 });

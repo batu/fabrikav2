@@ -14,7 +14,22 @@ export const gameConfig = {
   screens: ['HomeMenu', 'SagaMap', 'Settings', 'ResultCard', 'PauseOverlay', 'Toast', 'ConnectivityIndicator'],
   saga: { levels: 20 },
   economy: { softCurrency: 'coins' },
-  adPlacements: ['rewarded_fail_save'],
-  productCatalog: [],
-  analyticsEvents: ['level_start', 'level_complete', 'level_fail'],
+  // Rewarded (hint + fail-save) + level-cadence interstitial. Placement strings
+  // match the analytics `placement` param emitted by the SDK wiring.
+  adPlacements: ['rewarded_fail_save', 'rewarded_hint', 'interstitial_level'],
+  // Catalog product `id`s (see src/sdk/catalog.ts): a no-ads entitlement + coin packs.
+  productCatalog: ['no_ads', 'coins_small', 'coins_medium', 'coins_large'],
+  // Canonical event set the SDK wiring emits (level / economy / ad / purchase / session).
+  analyticsEvents: [
+    'session_start',
+    'session_end',
+    'level_start',
+    'level_complete',
+    'level_fail',
+    'resource_change',
+    'ad_request',
+    'ad_impression',
+    'ad_reward',
+    'purchase',
+  ],
 } as const satisfies GameConfig;

@@ -8,6 +8,8 @@ import '@fabrikav2/ui/ui.css';
 import '../design/tokens.css';
 import { assignWindowBindings } from '@fabrikav2/testkit/testing';
 import { App, isHarnessEnabled } from './shell/App';
+import { createGameSdk, type GameEconomyBridge } from './sdk/SdkContext';
+import { saveState } from './core/SaveState';
 import { installLevelMapArt } from '../design/theme';
 import { unlockAudio } from './audio/Sfx';
 
@@ -19,8 +21,22 @@ const canvas = document.getElementById('scene') as HTMLCanvasElement;
 const hudRoot = document.getElementById('hud') as HTMLElement;
 const uiRoot = document.getElementById('ui') as HTMLElement;
 
-const app = new App({ canvas, hudRoot, uiRoot });
+// Compose the four SDKs at the one boot seam. The economy bridge adapts the
+// SaveState singleton so GameSdk stays decoupled from concrete persistence.
+const economy: GameEconomyBridge = {
+  addCoins: (amount) => saveState.addCoins(amount),
+  grantNoAds: () => saveState.grantNoAds(),
+  hasNoAds: () => saveState.noAds,
+  coinBalance: () => saveState.coins,
+};
+const sdk = createGameSdk({ economy, firstOpen: !saveState.hasProgress });
+void sdk.init();
+
+const app = new App({ canvas, hudRoot, uiRoot }, sdk);
 app.start();
+
+// End the analytics session when the tab is hidden/closed (flush pending events).
+window.addEventListener('pagehide', () => sdk.endSession(), { once: true });
 
 // Web Audio must be unlocked from a user gesture.
 window.addEventListener('pointerdown', () => unlockAudio(), { once: false });

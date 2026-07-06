@@ -36,6 +36,11 @@ export interface GameHooks {
   onPauseRequested(): void;
   /** Fired when the player taps the HUD "watch ad to continue" affordance on a fail. The shell runs the rewarded-ad flow and returns whether it was granted; if granted, the controller refills hearts and resumes. */
   requestFailSave(): Promise<boolean>;
+  /** Rewarded-ad-instead-of-pay for a hint. The shell runs the rewarded-ad flow
+   *  and resolves true if the player earned a free hint (skip the coin cost). */
+  requestRewardedHint(): Promise<boolean>;
+  /** Report a soft-currency spend to the shell (which owns the analytics SDK). */
+  onCoinsSpent(amount: number, reason: string): void;
 }
 
 type Mode = 'idle' | 'menu' | 'level';
@@ -480,7 +485,7 @@ export class GameController {
     this.hooks.onFail({ levelId: this.levelId });
   }
 
-  showHint(): void {
+  async showHint(): Promise<void> {
     if (!this.engine || !this.board) return;
     if (this.engine.gameStatus() !== 'playing') return;
     if (this.board.hasRoutePreview()) return;
@@ -488,11 +493,24 @@ export class GameController {
     if (movable.length === 0) return;
     const preview = this.engine.previewTap(movable[0]!.cell);
     if (!preview) return;
-    if (!saveState.spendCoins(HINT_COIN_COST)) {
-      this.hapticImpact(ImpactStyle.Light);
-      return;
+
+    // Rewarded-ad-instead-of-pay: watching a rewarded ad grants the hint for
+    // free. On web/CI the ad provider is disabled → granted:false → the coin
+    // path runs unchanged. Re-guard after the await (the modal ad may have
+    // ended the level or disposed the controller).
+    const rewarded = await this.hooks.requestRewardedHint();
+    if (this.disposed || !this.engine || !this.board) return;
+    if (this.engine.gameStatus() !== 'playing') return;
+    if (this.board.hasRoutePreview()) return;
+
+    if (!rewarded) {
+      if (!saveState.spendCoins(HINT_COIN_COST)) {
+        this.hapticImpact(ImpactStyle.Light);
+        return;
+      }
+      this.hooks.onCoinsSpent(HINT_COIN_COST, 'hint');
+      this.setCoins(saveState.coins);
     }
-    this.setCoins(saveState.coins);
     this.board.showRoutePreview(preview);
     this.hapticImpact(ImpactStyle.Light);
   }
@@ -619,7 +637,7 @@ export class GameController {
     });
     el.querySelector('[data-a=hint]')!.addEventListener('click', () => {
       uiTap();
-      this.showHint();
+      void this.showHint();
     });
   }
 

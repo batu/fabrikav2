@@ -37,7 +37,16 @@ interface DeathAdCoordinatorOptions {
   adStepTimeoutMs?: number;
 }
 
-const withTimeout = async (promise: Promise<unknown>, timeoutMs: number): Promise<void> =>
+/**
+ * `settleWithin` — run `promise` but never let it wedge the game-over flow:
+ * resolve void on success, on failure, AND on timeout (settle-on-anything,
+ * never throws). This is the OPPOSITE contract to the shared
+ * `with-timeout.ts` `withTimeout`, which rejects with `TimeoutError`. The
+ * death-ad coordinator deliberately wants "continue no matter what after N ms"
+ * (an ad step must never block the game-over transition), so the two helpers
+ * are intentionally kept separate — same idea, honestly different names.
+ */
+const settleWithin = async (promise: Promise<unknown>, timeoutMs: number): Promise<void> =>
   new Promise<void>((resolve: () => void): void => {
     let finished = false;
     const settle = (): void => {
@@ -75,10 +84,10 @@ export const createDeathAdCoordinator = (
 
     isHandlingDeath = true;
     try {
-      await withTimeout(adService.maybeShowInterstitial(), adStepTimeoutMs);
+      await settleWithin(adService.maybeShowInterstitial(), adStepTimeoutMs);
     } finally {
       try {
-        await withTimeout(adService.preloadInterstitial(), adStepTimeoutMs);
+        await settleWithin(adService.preloadInterstitial(), adStepTimeoutMs);
       } finally {
         isHandlingDeath = false;
       }
