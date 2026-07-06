@@ -62,6 +62,9 @@ When the user asks for a public or shareable HTML artifact URL, use the `html-ar
      pyproject.toml / package.json detection. Do not add language-scoped
      tools here by hand. -->
 
+- Use [`eslint`](https://eslint.org) for TypeScript/JavaScript linting. Run `npx eslint .` before committing.
+- Use [`knip`](https://knip.dev) to find unused files, dependencies, and exports. Run `npx knip` periodically and before cleanup passes — review hits before deleting, knip can flag legitimate entry points.
+
 ## Self-Improvement
 
 If you notice a repeated failure or a durable improvement to this document, propose a specific edit to `agents/policy/AGENTS.md` and explain why it would help future sessions. After an approved policy edit, run `agency sync --write` to distribute it to synced targets.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Android ADB Testing"
+  short_description: "General Android real-device testing via ADB"
+  default_prompt: "Use $android-adb-real-device-testing to validate this mobile change on a connected Android device with ADB and before/after screenshots."
