@@ -51,13 +51,21 @@
   --fab-levelmap-line-top: #cf844e;
   --fab-levelmap-line-mid: #c87845;
   --fab-levelmap-line-bottom: #bb7650;
-  --fab-levelmap-line-glow: #ffcc1f;
+  /* Fed into `box-shadow` on the connector bar (packages/ui .fab-levelmap-path::before,
+     a single 9px rope whose width is NOT tokenised). Real reference is an intricate
+     TWIN-RAIL track — that is asset-dependent (see SURPRISES). Best shell-only nudge:
+     a warm glow plus two flanking side-rails so the rope reads as a richer, twin-rail-
+     leaning track instead of a plain rope. (The prior value `#ffcc1f` was an invalid
+     box-shadow — no offsets — so the glow was silently dropped.) */
+  --fab-levelmap-line-glow: 0 0 7px rgba(255, 204, 31, 0.4), 8px 0 0 -2px #cf844e, -8px 0 0 -2px #cf844e;
   --fab-levelmap-far-opacity: 1;
   --fab-levelmap-distant-opacity: 1;
   --fab-levelmap-node-gap: 14px;
-  /* Reference saga is a CENTERED chain with SLIGHT alternating offsets (not the
-     wide full-width scatter of the ui default 57px). */
-  --fab-levelmap-offset: 18px;
+  /* Reference saga is a STRAIGHT vertical line: every node sits on one centre
+     line, connected top-to-bottom. Zero the ui default's alternating left/right
+     offset (57px) so odd/even nodes no longer scatter — translateX collapses to
+     0 for all nodes. See saga-layout.test.ts. */
+  --fab-levelmap-offset: 0px;
   --fab-levelmap-node-size: 76px;
   --fab-levelmap-node-current-size: 142px;
   --fab-levelmap-node-font: 23px;
