@@ -46,9 +46,12 @@ function panelSection(panel) {
   }
   const v = panel.verdict || { pass: false, summary: 'no verdict' };
   const rows = panel.states.map((s) => {
+    const participated = s.models.filter((m) => m.ok).length;
+    const skipped = s.models.length - participated;
     const modelCells = s.models.map((m) =>
       `<span class="model ${m.ok ? 'ok' : 'skip'}" title="${esc(m.model)}${m.ok ? '' : ': ' + esc(m.skipped || 'skipped')}">`
-      + `${esc(shortModel(m.model))}: ${m.ok ? esc(m.fidelity) + '%' : 'skip'}</span>`).join(' ');
+      + `${esc(m.judge || shortModel(m.model))}: ${m.ok ? esc(m.fidelity) + '%' : 'skip'}</span>`).join(' ')
+      + (s.models.length ? `<div class="reason">participated ${participated} · skipped ${skipped}</div>` : '');
     const consensus = s.consensus.length
       ? `<ul class="consensus">${s.consensus.map((c) =>
         `<li><span class="sev ${esc(c.severity)}">${esc(c.severity)}</span> <b>${esc(c.key)}</b>`
@@ -65,8 +68,9 @@ function panelSection(panel) {
   return `<section class="panel">
     <h2>Vision panel <span class="badge ${v.pass ? 'pass' : 'fail'}">${v.pass ? 'pass' : 'fail'}</span>
         <span class="reason">${esc(v.summary)}</span></h2>
-    <p class="reason">Primary fidelity verdict: median of N vision models scoring device vs reference
-       per state (floor ${esc(panel.thresholdPct)}%). Models: ${esc((panel.models || []).join(', '))}.
+    <p class="reason">Primary fidelity verdict: median of N vision judges scoring device vs reference
+       per state (floor ${esc(panel.thresholdPct)}%). Roster: ${esc((panel.judges || []).map((j) => `${j.id} (${j.model})`).join(', ') || (panel.models || []).join(', '))}.
+       A judge with no key/budget is skipped-and-recorded (participated vs skipped shown per state).
        A state fails below the floor or on a consensus blocker finding.</p>
     <table class="ptable">
       <thead><tr><th>state</th><th>panel</th><th>per-model</th><th>consensus findings</th></tr></thead>

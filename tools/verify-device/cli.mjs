@@ -28,6 +28,7 @@ import { buildRows } from './src/compare.mjs';
 import { computeVerdict } from './src/verdict.mjs';
 import { buildGridHtml } from './src/grid.mjs';
 import { runPanel } from './src/panel.mjs';
+import { loadRegistry, resolveJudges } from './src/judges.mjs';
 import * as steps from './src/steps.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -136,8 +137,14 @@ async function main() {
   fs.mkdirSync(outDir, { recursive: true });
   let panel = { skipped: 'panel disabled by --skip-panel' };
   if (!args.skipPanel) {
+    // Resolve the roster from the judge registry: --ensemble names a set,
+    // --models overrides it. A keyless/credit-depleted judge is skipped-and-recorded
+    // inside runPanel, not here (so the CLI never aborts over one broke judge).
+    const judges = resolveJudges({ registry: loadRegistry(), ensemble: args.ensemble, models: args.models });
+    process.stderr.write(`verify-device: panel roster (${args.models ? 'models override' : `ensemble ${args.ensemble}`}): `
+      + `${judges.map((j) => j.id).join(', ')}\n`);
     panel = await runPanel({
-      rows, models: args.models, apiKey: readEnvSecret('OPENROUTER_API_KEY'),
+      rows, judges, apiKey: readEnvSecret('OPENROUTER_API_KEY'),
       thresholdPct: args.panelThreshold,
     });
     if (panel.states) fs.writeFileSync(path.join(outDir, 'panel.json'), JSON.stringify(panel, null, 2));

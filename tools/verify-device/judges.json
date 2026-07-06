@@ -1,0 +1,25 @@
+{
+  "_comment": [
+    "Judge registry for the verify-device vision panel. Each judge is {id, model,",
+    "provider, enabled, weight?}. `model` is the OpenRouter id; OpenRouter fronts",
+    "openai/anthropic/google so one HTTP path serves every judge today. `provider`",
+    "defaults to 'openrouter' and is the seam for a future direct-provider adapter",
+    "(a one-file add in panel.mjs' callModel switch). Named ensembles below select a",
+    "roster by judge id; `--ensemble <name>` picks one, `--models a,b,c` overrides.",
+    "A keyless / credit-depleted / absent judge is skipped-and-recorded at runtime",
+    "(401/402/403/404/429/timeout), never fatal — see panel.mjs classifySkip."
+  ],
+  "judges": [
+    { "id": "opus",         "model": "anthropic/claude-opus-4.1",  "provider": "openrouter", "enabled": true },
+    { "id": "sonnet",       "model": "anthropic/claude-sonnet-5",  "provider": "openrouter", "enabled": true },
+    { "id": "gemini-flash", "model": "google/gemini-3.5-flash",    "provider": "openrouter", "enabled": true },
+    { "id": "codex",        "model": "openai/gpt-5",               "provider": "openrouter", "enabled": true },
+    { "id": "opus-4",       "model": "anthropic/claude-opus-4",    "provider": "openrouter", "enabled": true },
+    { "id": "sonnet-4.5",   "model": "anthropic/claude-sonnet-4.5","provider": "openrouter", "enabled": true },
+    { "id": "gemini-pro",   "model": "google/gemini-3.5-pro",      "provider": "openrouter", "enabled": true }
+  ],
+  "ensembles": {
+    "default": ["opus", "sonnet", "gemini-flash"],
+    "kitchen-sink": ["opus", "sonnet", "gemini-flash", "codex", "opus-4", "sonnet-4.5", "gemini-pro"]
+  }
+}

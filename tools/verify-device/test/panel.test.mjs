@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   median, parseModelResponse, aggregateState, aggregatePanel, callModel, runPanel,
-  DEFAULT_MODELS, DIFF_PROMPT,
+  classifySkip, CREDIT_STATUSES, DEFAULT_MODELS, DIFF_PROMPT,
 } from '../src/panel.mjs';
 
 // A scoring model result as produced by callModel (the shape aggregateState reads).
@@ -158,12 +158,44 @@ describe('callModel (mocked fetch)', () => {
     expect(r).toMatchObject({ ok: false, skipped: expect.stringMatching(/404/) });
   });
 
+  it('CREDIT-SKIP: 401/402/403/429 are recorded as credit/quota skips, never fatal', async () => {
+    for (const status of [401, 402, 403, 429]) {
+      const r = await callModel('google/gemini-3.5-flash', {
+        referenceB64: 'A', deviceB64: 'B', apiKey: 'k', judge: 'gemini', fetchImpl: mockFetch(status, {}),
+      });
+      // {judge, skipped, reason}: judge recorded, ok:false, reason names credit/quota + status
+      expect(r).toMatchObject({ judge: 'gemini', ok: false });
+      expect(r.skipped).toMatch(new RegExp(`credit/quota.*${status}`));
+    }
+  });
+
+  it('CREDIT-SKIP: a request timeout (AbortError) is a skip, not a throw', async () => {
+    const fetchImpl = async () => { const e = new Error('aborted'); e.name = 'AbortError'; throw e; };
+    const r = await callModel('m', { referenceB64: 'A', deviceB64: 'B', apiKey: 'k', judge: 'j', timeoutMs: 5, fetchImpl });
+    expect(r).toMatchObject({ judge: 'j', ok: false, skipped: expect.stringMatching(/timeout after 5ms/) });
+  });
+
+  it('threads the judge id onto both scored and skipped results', async () => {
+    const good = mockFetch(200, { choices: [{ message: { content: '{"fidelity":80,"findings":[]}' } }] });
+    expect(await callModel('anthropic/claude-opus-4.1', { referenceB64: 'A', deviceB64: 'B', apiKey: 'k', judge: 'opus', fetchImpl: good }))
+      .toMatchObject({ judge: 'opus', ok: true, fidelity: 80 });
+    expect(await callModel('anthropic/claude-opus-4.1', { referenceB64: 'A', deviceB64: 'B', apiKey: 'k', judge: 'opus', fetchImpl: mockFetch(402, {}) }))
+      .toMatchObject({ judge: 'opus', ok: false });
+  });
+
   it('skips on a non-2xx status and on unparseable model output', async () => {
     expect(await callModel('m', { referenceB64: 'A', deviceB64: 'B', apiKey: 'k', fetchImpl: mockFetch(500, {}) }))
       .toMatchObject({ ok: false, skipped: expect.stringMatching(/HTTP 500/) });
     const bad = mockFetch(200, { choices: [{ message: { content: 'not json at all' } }] });
     expect(await callModel('m', { referenceB64: 'A', deviceB64: 'B', apiKey: 'k', fetchImpl: bad }))
       .toMatchObject({ ok: false, skipped: expect.stringMatching(/bad model output/) });
+  });
+
+  it('classifySkip maps statuses; CREDIT_STATUSES covers Gemini\'s 402/429 failure mode', () => {
+    expect(classifySkip(404)).toMatch(/not found/);
+    expect(classifySkip(402)).toMatch(/credit\/quota.*402/);
+    expect(classifySkip(500)).toBe('HTTP 500');
+    expect([...CREDIT_STATUSES].sort()).toEqual([401, 402, 403, 429]);
   });
 
   it('sends the reference as image 1 and device as image 2 with the fixed prompt', async () => {
@@ -206,5 +238,31 @@ describe('runPanel', () => {
   it('defaults to the 3-model panel from the card', () => {
     expect(DEFAULT_MODELS).toHaveLength(3);
     expect(DEFAULT_MODELS).toContain('anthropic/claude-sonnet-5');
+  });
+
+  it('runs a judges roster and a credit-depleted judge is skipped-and-recorded, not fatal', async () => {
+    // Kitchen-sink-style roster: opus/sonnet answer, codex is out of budget (402).
+    const fetchImpl = async (_url, opts) => {
+      const model = JSON.parse(opts.body).model;
+      if (model === 'openai/gpt-5') return { status: 402, ok: false, json: async () => ({}) };
+      return { status: 200, ok: true, json: async () => ({ choices: [{ message: { content: '{"fidelity":90,"findings":[]}' } }] }) };
+    };
+    const r = await runPanel({
+      rows: [row('menu', 'A', 'B')],
+      judges: [
+        { id: 'opus', model: 'anthropic/claude-opus-4.1' },
+        { id: 'sonnet', model: 'anthropic/claude-sonnet-5' },
+        { id: 'codex', model: 'openai/gpt-5' },
+      ],
+      apiKey: 'k', thresholdPct: 85, fetchImpl,
+    });
+    const menu = r.states.find((s) => s.state === 'menu');
+    // Panel scored on whoever answered (2 judges), codex recorded as a skip.
+    expect(menu).toMatchObject({ status: 'pass', score: 90 });
+    const codex = menu.models.find((m) => m.judge === 'codex');
+    expect(codex).toMatchObject({ ok: false, skipped: expect.stringMatching(/credit\/quota.*402/) });
+    expect(menu.models.filter((m) => m.ok).map((m) => m.judge)).toEqual(['opus', 'sonnet']);
+    expect(r.verdict.pass).toBe(true); // one broke judge does not sink the panel
+    expect(r.judges).toHaveLength(3);
   });
 });

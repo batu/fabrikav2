@@ -17,6 +17,7 @@ export default [
         require: "readonly",
         global: "readonly",
         URL: "readonly",
+        AbortController: "readonly",
       },
     },
   },

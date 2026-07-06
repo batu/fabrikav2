@@ -25,8 +25,14 @@ Options:
   --threshold <0..1>   phash diff changed-fraction above which a state is a FAIL
                        (default 0.20, advisory). Secondary signal — the vision
                        panel is the primary verdict.
-  --models <a,b,c>     comma-separated OpenRouter vision models for the panel
-                       (default: anthropic/claude-opus-4.1, anthropic/claude-sonnet-5,
+  --ensemble <name>    named judge set from tools/verify-device/judges.json:
+                       'default' (proven-working opus/sonnet/gemini-flash) or
+                       'kitchen-sink' (full roster incl. openai/gpt-5 Codex + more
+                       claude/gemini variants). Default: default. A judge with no
+                       key / no budget (401/402/403/404/429/timeout) is
+                       skipped-and-recorded, never fatal.
+  --models <a,b,c>     comma-separated OpenRouter model ids; OVERRIDES --ensemble
+                       and the registry (e.g. anthropic/claude-opus-4.1,
                        google/gemini-3.5-flash). A model that 404s is skipped w/ note.
   --panel-threshold <n> panel fidelity floor 0..100; a state FAILs below it or on a
                        consensus blocker finding (default 85, advisory).
@@ -43,13 +49,14 @@ the panel skips gracefully (exit 0) and on-device fidelity stays UNVERIFIED.
 /**
  * @param {string[]} argv process.argv.slice(2)
  * @returns {{game?:string, device?:string, captures?:string, xcresult?:string,
- *   out?:string, date?:string, threshold:number, models?:string[],
+ *   out?:string, date?:string, threshold:number, ensemble:string, models?:string[],
  *   panelThreshold:number, skipPanel:boolean, strict:boolean,
  *   skipDevice:boolean, help:boolean}}
  */
 export function parseArgs(argv) {
   const args = {
     threshold: 0.2,
+    ensemble: 'default',
     panelThreshold: 85,
     skipPanel: false,
     strict: false,
@@ -65,6 +72,7 @@ export function parseArgs(argv) {
     else if (a === '--out') args.out = req(argv, ++i, a);
     else if (a === '--date') args.date = req(argv, ++i, a);
     else if (a === '--threshold') args.threshold = parseThreshold(req(argv, ++i, a));
+    else if (a === '--ensemble') args.ensemble = req(argv, ++i, a);
     else if (a === '--models') args.models = parseModels(req(argv, ++i, a));
     else if (a === '--panel-threshold') args.panelThreshold = parsePanelThreshold(req(argv, ++i, a));
     else if (a === '--skip-panel') args.skipPanel = true;

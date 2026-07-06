@@ -41,12 +41,39 @@ stays **UNVERIFIED**.
 - `--captures <dir>` — diff pre-extracted device shots (`<state>.png`) with no build.
 - `--xcresult <path>` — extract + diff from an existing `.xcresult` (no build/run).
 
+## Vision panel & judge registry (primary verdict)
+
+The PRIMARY fidelity verdict is a **multi-model vision panel**: for each state it
+sends the (device, reference) pair to N judges via OpenRouter and takes the MEDIAN
+fidelity + majority-consensus findings (phash is now a secondary advisory signal).
+Aggregation is **count-agnostic** — the panel scores with whoever answered.
+
+Judges live in [`judges.json`](judges.json) as `{id, model, provider, enabled,
+weight?}` (`model` = OpenRouter id; `provider` defaults to `openrouter` and is the
+seam for a future direct-provider adapter). Named ensembles select a roster:
+
+- `default` — proven-working `anthropic/claude-opus-4.1`, `anthropic/claude-sonnet-5`,
+  `google/gemini-3.5-flash`.
+- `kitchen-sink` — the full roster incl. `openai/gpt-5` (Codex) + more claude/gemini
+  variants. Judges without budget/key are auto-skipped (see below).
+
+**Credit-skip:** a judge that is absent (404), out of credit / keyless /
+rate-limited (**401/402/403/429**), or times out is **skipped-and-recorded**
+(`{judge, skipped, reason}`), never fatal — Gemini's real failure mode is 402/429,
+and Codex is registered-but-broke until it has budget. The grid lists **participated
+vs skipped** per state explicitly.
+
+The panel needs `OPENROUTER_API_KEY` (env or sibling `.env`); without it, it skips
+gracefully (exit 0) and on-device fidelity stays **UNVERIFIED**.
+
 ## Flags
 
 `--game <name>` (required) · `--device <udid>` · `--captures <dir>` ·
 `--xcresult <path>` · `--out <dir>` · `--date <YYYY-MM-DD>` ·
-`--threshold <0..1>` (default 0.20) · `--strict` (FAIL → non-zero exit;
-default advisory) · `--skip-device` · `-h/--help`.
+`--threshold <0..1>` (default 0.20) · `--ensemble <name>` (default `default`;
+`kitchen-sink` for the full roster) · `--models <a,b,c>` (overrides the ensemble) ·
+`--panel-threshold <0..100>` (default 85) · `--skip-panel` · `--strict` (FAIL →
+non-zero exit; default advisory) · `--skip-device` · `-h/--help`.
 
 ## Reuse
 

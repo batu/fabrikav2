@@ -14,12 +14,33 @@
 // CONDUCTOR-run; runPanel degrades gracefully (skipped, UNVERIFIED) with no key.
 
 /** Default panel — all confirmed working on OpenRouter (card comment 2). Any that
- *  404 (model absent) are skipped-with-note, never a silent gap. */
+ *  404 (model absent) or 401/402/403/429 (credit/quota) are skipped-with-note,
+ *  never a silent gap. The registry (judges.json) is the source of truth for the
+ *  live roster; this constant is the no-registry fallback + the `default` ensemble
+ *  contract the unit tests pin. */
 export const DEFAULT_MODELS = [
   'anthropic/claude-opus-4.1',
   'anthropic/claude-sonnet-5',
   'google/gemini-3.5-flash',
 ];
+
+/** HTTP statuses that mean "this judge can't answer right now" (missing key,
+ *  no budget, rate-limited) rather than a bug. Each is skipped-and-recorded so the
+ *  panel runs with whoever answered — Gemini's real failure mode is 402/429, and
+ *  Codex/openai is registered-but-broke until it has budget. 404 is kept distinct
+ *  (model absent from OpenRouter) for a clearer note. */
+export const CREDIT_STATUSES = new Set([401, 402, 403, 429]);
+
+/** Default per-judge network timeout (ms). A judge that hangs is skipped like a
+ *  credit-depleted one, never blocking the whole panel. */
+export const DEFAULT_TIMEOUT_MS = 60000;
+
+/** Classify a non-2xx status into a skip reason string ({judge, skipped, reason}). */
+export function classifySkip(status) {
+  if (status === 404) return 'model not found on OpenRouter (404)';
+  if (CREDIT_STATUSES.has(status)) return `credit/quota unavailable (HTTP ${status})`;
+  return `HTTP ${status}`;
+}
 
 /** Controlled finding vocabulary. Free-text descriptions are kept for display,
  *  but consensus is computed on these keys so "same finding across models" is a
@@ -116,6 +137,7 @@ function normFinding(f) {
 export function aggregateState(state, perModel, thresholdPct) {
   const scored = perModel.filter((m) => m.ok);
   const models = perModel.map((m) => ({
+    judge: m.judge || m.model,
     model: m.model,
     ok: !!m.ok,
     fidelity: m.ok ? m.fidelity : null,
@@ -201,13 +223,23 @@ export function aggregatePanel(states, thresholdPct) {
 }
 
 /**
- * Call one vision model on OpenRouter with the (reference, device) pair.
- * Network path — CONDUCTOR-run. `fetchImpl` is injectable for tests. A 404 (model
- * absent) resolves to { ok:false, skipped } rather than throwing, so one missing
- * model never sinks the panel.
- * @returns {Promise<{model:string, ok:boolean, fidelity?:number, findings?:Array, skipped?:string}>}
+ * Call one vision judge on OpenRouter with the (reference, device) pair.
+ * Network path — CONDUCTOR-run. `fetchImpl` is injectable for tests. A judge that
+ * is absent (404), out of credit / keyless / rate-limited (401/402/403/429), times
+ * out, or emits junk resolves to { ok:false, skipped } rather than throwing, so one
+ * broke or missing judge never sinks the panel. Every return carries the judge id
+ * so the grid can list participated-vs-skipped explicitly ({judge, skipped, reason}).
+ * @param {string} model OpenRouter model id
+ * @param {object} opts
+ * @param {string} [opts.judge] registry judge id (defaults to the model id)
+ * @param {number} [opts.timeoutMs]
+ * @returns {Promise<{judge:string, model:string, ok:boolean, fidelity?:number, findings?:Array, skipped?:string}>}
  */
-export async function callModel(model, { referenceB64, deviceB64, apiKey, prompt = DIFF_PROMPT, fetchImpl = fetch }) {
+export async function callModel(model, {
+  referenceB64, deviceB64, apiKey, prompt = DIFF_PROMPT, fetchImpl = fetch,
+  judge = model, timeoutMs = DEFAULT_TIMEOUT_MS,
+}) {
+  const skip = (reason) => ({ judge, model, ok: false, skipped: reason });
   const body = {
     model,
     messages: [{
@@ -219,49 +251,77 @@ export async function callModel(model, { referenceB64, deviceB64, apiKey, prompt
       ],
     }],
   };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
   let res;
   try {
     res = await fetchImpl('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify(body),
+      signal: controller.signal,
     });
   } catch (err) {
-    return { model, ok: false, skipped: `request failed: ${err.message}` };
+    return err && err.name === 'AbortError'
+      ? skip(`timeout after ${timeoutMs}ms`)
+      : skip(`request failed: ${err.message}`);
+  } finally {
+    clearTimeout(timer);
   }
-  if (res.status === 404) return { model, ok: false, skipped: 'model not found on OpenRouter (404)' };
-  if (!res.ok) return { model, ok: false, skipped: `HTTP ${res.status}` };
+  if (!res.ok) return skip(classifySkip(res.status));
   let text;
   try {
     const json = await res.json();
     text = json && json.choices && json.choices[0] && json.choices[0].message && json.choices[0].message.content;
   } catch (err) {
-    return { model, ok: false, skipped: `unparseable API envelope: ${err.message}` };
+    return skip(`unparseable API envelope: ${err.message}`);
   }
   try {
     const parsed = parseModelResponse(text);
-    return { model, ok: true, fidelity: parsed.fidelity, findings: parsed.findings };
+    return { judge, model, ok: true, fidelity: parsed.fidelity, findings: parsed.findings };
   } catch (err) {
-    return { model, ok: false, skipped: `bad model output: ${err.message}` };
+    return skip(`bad model output: ${err.message}`);
   }
+}
+
+/**
+ * Normalise the roster into judge objects. Prefer `judges` (registry-resolved
+ * {id, model, ...}); fall back to `models` (id === model); else DEFAULT_MODELS.
+ * A bare string in `judges` is tolerated as a model id.
+ * @returns {Array<{id:string, model:string}>}
+ */
+function normalizeRoster({ judges, models }) {
+  if (judges && judges.length) {
+    return judges.map((j) => (typeof j === 'string' ? { id: j, model: j } : j));
+  }
+  const ms = models && models.length ? models : DEFAULT_MODELS;
+  return ms.map((m) => ({ id: m, model: m }));
 }
 
 /**
  * Run the full panel over the built rows. Graceful skip (no throw) when there is
  * no API key. States missing either image are reported unscored (never invented).
+ * Aggregation is count-agnostic, so a per-judge credit-skip just shrinks the panel
+ * for that state — whoever answered still produces a verdict.
  * @param {object} params
  * @param {Array} params.rows compare.buildRows rows (device/reference carry base64)
- * @param {string[]} [params.models]
+ * @param {Array<{id:string, model:string}>} [params.judges] registry-resolved roster
+ * @param {string[]} [params.models] legacy roster (id === model); used if no judges
  * @param {string} [params.apiKey]
  * @param {number} [params.thresholdPct]
+ * @param {number} [params.timeoutMs]
  * @param {Function} [params.fetchImpl]
- * @returns {Promise<{skipped?:string, models?:string[], thresholdPct?:number,
- *   states?:Array, verdict?:object}>}
+ * @returns {Promise<{skipped?:string, models?:string[], judges?:Array,
+ *   thresholdPct?:number, states?:Array, verdict?:object}>}
  */
-export async function runPanel({ rows, models = DEFAULT_MODELS, apiKey, thresholdPct = 85, fetchImpl = fetch }) {
+export async function runPanel({
+  rows, judges, models, apiKey, thresholdPct = 85,
+  timeoutMs = DEFAULT_TIMEOUT_MS, fetchImpl = fetch,
+}) {
   if (!apiKey) {
     return { skipped: 'no OPENROUTER_API_KEY — panel scoring UNVERIFIED (set it to run the vision panel)' };
   }
+  const roster = normalizeRoster({ judges, models });
   const states = [];
   for (const row of rows) {
     const refB64 = row.reference && !row.reference.gap ? row.reference.base64 : null;
@@ -275,10 +335,15 @@ export async function runPanel({ rows, models = DEFAULT_MODELS, apiKey, threshol
       continue;
     }
     const perModel = [];
-    for (const model of models) {
-      perModel.push(await callModel(model, { referenceB64: refB64, deviceB64: devB64, apiKey, fetchImpl }));
+    for (const j of roster) {
+      perModel.push(await callModel(j.model, {
+        referenceB64: refB64, deviceB64: devB64, apiKey, fetchImpl, judge: j.id, timeoutMs,
+      }));
     }
     states.push(aggregateState(row.state, perModel, thresholdPct));
   }
-  return { models, thresholdPct, states, verdict: aggregatePanel(states, thresholdPct) };
+  return {
+    models: roster.map((j) => j.model), judges: roster,
+    thresholdPct, states, verdict: aggregatePanel(states, thresholdPct),
+  };
 }

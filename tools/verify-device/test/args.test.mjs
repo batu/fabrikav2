@@ -14,6 +14,7 @@ describe('parseArgs', () => {
     expect(a.threshold).toBe(0.2);
     expect(a.panelThreshold).toBe(85);
     expect(a.skipPanel).toBe(false);
+    expect(a.ensemble).toBe('default'); // registry ensemble selected when unset
     expect(a.models).toBeUndefined(); // undefined -> panel.mjs DEFAULT_MODELS
     expect(a.strict).toBe(false);
     expect(a.skipDevice).toBe(false);
@@ -27,6 +28,11 @@ describe('parseArgs', () => {
     expect(a.models).toEqual(['anthropic/claude-opus-4.1', 'google/gemini-3.5-flash']);
     expect(a.panelThreshold).toBe(70);
     expect(a.skipPanel).toBe(true);
+  });
+
+  it('parses --ensemble (kitchen-sink selects the full roster)', () => {
+    expect(parseArgs(['--game', 'g', '--ensemble', 'kitchen-sink']).ensemble).toBe('kitchen-sink');
+    expect(() => parseArgs(['--game', 'g', '--ensemble'])).toThrow(/--ensemble needs a value/);
   });
 
   it('validates the panel-threshold range and non-empty models', () => {
