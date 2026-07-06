@@ -75,3 +75,13 @@ Resolution options (Batu's call):
   screenshot, feed a board state into `solveLevel()`, map `order` back to pixel
   taps. This is the general "clone off a running reference" capability — bigger,
   but it makes ANY reference game drivable. Worth a card if we do more clones.
+
+## Landed
+
+- 2026-07-06, commit 8d2ea77 — clean pipeline implementation of the solver-bound
+  harness (card gknHRQYg): `GameController.currentLevelDef()`,
+  `App.harness().autoWin/autoFail` delegating to the headless-testable drivers in
+  `src/testing/autoPlay.ts`, `insituTour.ts` rewritten solver-bound +
+  snapshot-confirmed, and unit tests `tests/unit/auto-play.test.ts` (startLevel(1)
+  → autoWin → won; blocked-marble taps → failed; deterministic, no random).
+  Gates green: typecheck + test:unit (53 passed) + audit.
