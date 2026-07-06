@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-// tools/audit CLI — runs all four guardrail linters against the repo and exits
-// non-zero if any reports a violation. Wired into the root `audit` npm script
-// and the `audit` CI job (matrix-independent).
+// tools/audit CLI — runs all guardrail linters against the repo and exits
+// non-zero if any reports an ERROR (warnings are reported but non-failing).
+// Wired into the root `audit` npm script and the `audit` CI job
+// (matrix-independent).
 
 import { join } from 'node:path';
 import { existsSync } from 'node:fs';
@@ -10,6 +11,7 @@ import { lintNoLiterals } from './no-literals.js';
 import { lintNoDuplication } from './no-duplication.js';
 import { lintDepsDeclared } from './deps-declared.js';
 import { lintStructure } from './structure.js';
+import { lintHooks } from './hooks.js';
 
 function fmtNoLiterals(v) {
   return `${v.file}:${v.line}  [${v.kind}]  ${JSON.stringify(v.value)}`;
@@ -27,6 +29,9 @@ function fmtDepsDeclared(v) {
 function fmtStructure(v) {
   return `${v.game}/${v.entry} -> ${v.home}`;
 }
+function fmtHooks(v) {
+  return `${v.file}  accepts an interaction option (onClick/onTap/onSelect) but exposes no data-fab-* hook`;
+}
 
 const LINTERS = [
   {
@@ -37,6 +42,7 @@ const LINTERS = [
   { name: 'no-duplication', run: (root) => lintNoDuplication(root), fmt: fmtNoDuplication },
   { name: 'deps-declared', run: (root) => lintDepsDeclared(root), fmt: fmtDepsDeclared },
   { name: 'structure', run: (root) => lintStructure(root), fmt: fmtStructure },
+  { name: 'hooks', run: (root) => lintHooks(root), fmt: fmtHooks },
 ];
 
 export function runAll(root, { allowlistPath } = {}) {
