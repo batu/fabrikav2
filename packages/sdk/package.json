@@ -9,7 +9,8 @@
     ".": "./src/index.ts",
     "./haptics": "./src/haptics/index.ts",
     "./audio": "./src/audio/index.ts",
-    "./attribution": "./src/attribution/index.ts"
+    "./attribution": "./src/attribution/index.ts",
+    "./analytics": "./src/analytics/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
