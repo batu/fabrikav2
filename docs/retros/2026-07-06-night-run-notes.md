@@ -59,6 +59,13 @@ improvement proposals. Updated as events happen; not polished.
   comment posted before gate actually ran (premature "Landed" on attribution —
   corrected on-card). Playbook now: sync branch → gate on branch → merge from
   main checkout → gate on main → THEN comment/cleanup.
+- **F7b — hand-merge after merge-card refusal is a trap.** Two incidents: shop
+  landing hit merge-card's dirty-tree refusal; conductor hand-merged and hit the
+  TRUNCATED BRANCH NAME failure the skill explicitly warns about (branch ends
+  '-u' not '-ui'), briefly believing the code landed when it hadn't (caught by
+  ls-the-file + git log check). Playbook: when merge-card refuses, fix its
+  complaint and RERUN merge-card; never hand-merge. Also: 'Landed' comments only
+  after verifying the branch commit is in main's log.
 - **F8 — main checkout node_modules staleness** after merges that add deps
   (happy-dom, yaml): `npm install` must be part of the post-merge gate, always.
 - **F9 — .twf/ metadata gitignore** wasn't in the repo template; first worker
