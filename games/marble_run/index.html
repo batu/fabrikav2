@@ -46,6 +46,44 @@
       #ui > * {
         pointer-events: auto;
       }
+      /* Menu banner: the plaque art is a frame; the title sits on its face.
+         (Shell injects .mr-menu-banner/.mr-menu-title; layout lives here, not in
+         the audited shell.) */
+      .mr-menu-banner {
+        position: relative;
+        width: min(360px, 86vw);
+        margin: 4px auto 2px;
+        line-height: 0;
+      }
+      .mr-menu-banner-art {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .mr-menu-title {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 16%;
+        line-height: 1.05;
+        text-align: center;
+        font-family: var(--fab-font-family, 'Nunito', system-ui, sans-serif);
+        font-weight: 900;
+        font-size: clamp(22px, 7.4vw, 34px);
+        letter-spacing: 0.01em;
+        color: var(--fab-color-text, #6a3016);
+        text-shadow: 0 2px 0 rgba(255, 255, 255, 0.5);
+      }
+      /* Settings page title in the slide-up page header. */
+      .mr-page-title {
+        margin: 0;
+        font-family: var(--fab-font-family, 'Nunito', system-ui, sans-serif);
+        font-weight: 800;
+        font-size: 22px;
+        color: var(--fab-color-text, #6a3016);
+      }
       /* Gameplay screen-shake (BoardScene toggles body.mistake-feedback — S6). */
       body.mistake-feedback #scene {
         animation: mr-shake 0.32s ease;

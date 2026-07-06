@@ -8,7 +8,12 @@ import '@fabrikav2/ui/ui.css';
 import '../design/tokens.css';
 import { assignWindowBindings } from '@fabrikav2/testkit/testing';
 import { App, isHarnessEnabled } from './shell/App';
+import { installLevelMapArt } from '../design/theme';
 import { unlockAudio } from './audio/Sfx';
+
+// Level-map node art (Vite-resolved urls) as an unlayered `.fab-levelmap` rule —
+// see installLevelMapArt for why an inline theme can't reach the nested rail.
+installLevelMapArt();
 
 const canvas = document.getElementById('scene') as HTMLCanvasElement;
 const hudRoot = document.getElementById('hud') as HTMLElement;

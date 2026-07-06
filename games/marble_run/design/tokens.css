@@ -5,12 +5,22 @@
  * v1 sugar3d style.css `:root` (canonical), core/Constants COLORS3D, and
  * shell/shellTheme MARBLE_LEVELMAP_THEME. Where the three disagreed (S11) the
  * style.css `:root` value wins: e.g. bg-top is #9b7bcd here, not the #9b7bc7
- * of Constants. Token NAMES are the ones @fabrikav2/ui reads (see ui.css), so
- * a `:root` override themes every mounted screen without a per-screen theme
- * object; only the level-map art urls live in theme.ts (Vite must resolve the
- * committed asset bytes).
+ * of Constants. Token NAMES are the ones @fabrikav2/ui reads (see ui.css).
+ *
+ * SCOPE (aesthetics-gate fix): @fabrikav2/ui ships its neutral token DEFAULTS
+ * on the `.fab-ui` selector inside `@layer fab.tokens`, and every mounted screen
+ * root carries `.fab-ui`. A `:root`-only override lives on <html> and is
+ * SHADOWED on each screen by that screen's own `.fab-ui` default (the nearer
+ * ancestor wins for inherited custom properties) — so an unthemed accent/
+ * surface/level-map fell back to grey/white. The override therefore targets
+ * `.fab-ui` as well: an UNLAYERED `.fab-ui` declaration beats the LAYERED
+ * `.fab-ui` default on the same element, themeing every screen. Body-backdrop
+ * tokens (bg-top/bottom) also stay on `:root` for the index.html gradient.
+ * Only the level-map art urls live in theme.ts (Vite must resolve the committed
+ * asset bytes, scoped to `.fab-levelmap`).
  */
-:root {
+:root,
+.fab-ui {
   /* ---- Tokens @fabrikav2/ui consumes (theme the screens) ---- */
   --fab-color-surface: #fff3d7;
   --fab-color-accent: #ff8a3d;
@@ -25,6 +35,11 @@
   --fab-modal-card-border: #c87845;
   --fab-pause-title-color: #6a3016;
   --fab-connectivity-color: #44d164;
+
+  /* Slide-up page shell (SettingsPage) — themed candy panel, not default white. */
+  --fab-page-overlay-bg: #fff3d7;
+  --fab-page-card-bg: #ffe2bd;
+  --fab-btn-icon-color: #6a3016;
 
   /* Level-map (saga) rail — colors + geometry (art urls come from theme.ts). */
   --fab-levelmap-current-color: #6a3016;

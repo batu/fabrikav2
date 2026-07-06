@@ -36,7 +36,7 @@ import {
   type SettingKey,
 } from '@fabrikav2/ui';
 import { copy } from '../../design/copy';
-import { assetUrls, levelMapTheme } from '../../design/theme';
+import { assetUrls } from '../../design/theme';
 import { buildSagaNodes, MENU_SAGA_WINDOW } from './saga';
 import { GameController, type GameHooks } from '../game/GameController';
 import { saveState } from '../core/SaveState';
@@ -149,7 +149,6 @@ export class App {
     const nodes = buildSagaNodes(saveState.unlocked, MENU_SAGA_WINDOW);
     this.screenHandle = mountHomeMenu({
       mountInto: this.uiRoot,
-      theme: levelMapTheme,
       header: this.buildBanner(),
       saga: {
         state: { nodes },
@@ -168,7 +167,6 @@ export class App {
     const nodes = buildSagaNodes(saveState.unlocked, MENU_SAGA_WINDOW);
     this.screenHandle = mountSagaMap({
       mountInto: this.uiRoot,
-      theme: levelMapTheme,
       state: { nodes },
       actions: { onSelectLevel: (id) => this.onSagaSelect(Number(id)) },
       loadingLabel: copy['saga.loading'],
@@ -240,6 +238,8 @@ export class App {
     this.pageStack.push(() =>
       mountSettingsPage({
         mountInto: this.uiRoot,
+        header: this.buildPageTitle(copy['settings.title']),
+        backIcon: assetUrls.back,
         backLabel: copy['settings.back'],
         settings: {
           music: saveState.musicEnabled,
@@ -361,10 +361,23 @@ export class App {
     const header = document.createElement('div');
     header.className = 'mr-menu-banner';
     const img = document.createElement('img');
+    img.className = 'mr-menu-banner-art';
     img.src = assetUrls.banner;
-    img.alt = copy['app.title'];
+    img.alt = '';
+    img.setAttribute('aria-hidden', 'true');
+    const title = document.createElement('span');
+    title.className = 'mr-menu-title';
+    title.textContent = copy['app.title'];
     header.appendChild(img);
+    header.appendChild(title);
     return header;
+  }
+
+  private buildPageTitle(text: string): HTMLElement {
+    const title = document.createElement('h2');
+    title.className = 'mr-page-title';
+    title.textContent = text;
+    return title;
   }
 
   private buildRewardDisplay(amount: number): { el: HTMLElement; source: HTMLElement } {
