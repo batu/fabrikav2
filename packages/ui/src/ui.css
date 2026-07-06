@@ -162,6 +162,28 @@
     /* ---- Pause overlay (this card) ---- */
     --fab-pause-action-gap: 9px;
     --fab-pause-title-color: #3d3d3d;
+
+    /* ---- Shop page (this card) ---- */
+    --fab-shop-gap: 20px;
+    --fab-shop-section-gap: 12px;
+    --fab-shop-grid-gap: 12px;
+    --fab-shop-grid-min: 120px;
+    --fab-shop-card-bg: #f7f7f7;
+    --fab-shop-card-radius: 16px;
+    --fab-shop-card-padding: 14px;
+    --fab-shop-card-title-color: #3d3d3d;
+    --fab-shop-card-desc-color: #555555;
+    --fab-shop-card-icon-size: 64px;
+    --fab-shop-section-title-color: #3d3d3d;
+    --fab-shop-badge-bg: #6b7280;
+    --fab-shop-badge-color: #ffffff;
+    --fab-shop-badge-radius: 10px;
+    --fab-shop-restore-gap: 12px;
+    --fab-shop-restore-bg: #f0f0f0;
+    --fab-shop-restore-radius: 16px;
+    --fab-shop-restore-padding: 14px;
+    --fab-shop-restore-title-color: #3d3d3d;
+    --fab-shop-restore-status-color: #555555;
   }
 }
 
@@ -736,6 +758,112 @@
   }
   .fab-modal-card.fab-pause-card .fab-modal-actions {
     gap: var(--fab-pause-action-gap);
+  }
+
+  /* ---- Shop page (this card) ---- */
+  .fab-shop {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fab-shop-gap);
+  }
+  .fab-shop-products {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fab-shop-gap);
+  }
+  .fab-shop-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fab-shop-section-gap);
+  }
+  .fab-shop-section-title {
+    color: var(--fab-shop-section-title-color);
+    font-family: var(--fab-font-family);
+    font-size: var(--fab-font-size-lg);
+    font-weight: var(--fab-font-weight-bold);
+  }
+  .fab-shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--fab-shop-grid-min), 1fr));
+    gap: var(--fab-shop-grid-gap);
+  }
+  .fab-shop-section--featured .fab-shop-grid {
+    grid-template-columns: 1fr;
+  }
+  .fab-shop-card-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fab-shop-section-gap);
+    position: relative;
+  }
+  .fab-shop-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fab-shop-section-gap);
+    background: var(--fab-shop-card-bg);
+    border-radius: var(--fab-shop-card-radius);
+    padding: var(--fab-shop-card-padding);
+  }
+  .fab-shop-card--featured {
+    flex-direction: row;
+    align-items: center;
+  }
+  .fab-shop-card-icon {
+    width: var(--fab-shop-card-icon-size);
+    height: var(--fab-shop-card-icon-size);
+    flex: none;
+  }
+  .fab-shop-card-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .fab-shop-card-title {
+    color: var(--fab-shop-card-title-color);
+    font-family: var(--fab-font-family);
+    font-size: var(--fab-font-size-md);
+    font-weight: var(--fab-font-weight-bold);
+  }
+  .fab-shop-card-desc {
+    color: var(--fab-shop-card-desc-color);
+    font-family: var(--fab-font-family);
+    font-size: var(--fab-font-size-sm);
+  }
+  .fab-shop-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: var(--fab-shop-badge-bg);
+    color: var(--fab-shop-badge-color);
+    border-radius: var(--fab-shop-badge-radius);
+    padding: var(--fab-space-sm);
+    font-family: var(--fab-font-family);
+    font-size: var(--fab-font-size-sm);
+    font-weight: var(--fab-font-weight-bold);
+  }
+  .fab-shop-restore {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--fab-shop-restore-gap);
+    background: var(--fab-shop-restore-bg);
+    border-radius: var(--fab-shop-restore-radius);
+    padding: var(--fab-shop-restore-padding);
+  }
+  .fab-shop-restore-copy {
+    display: flex;
+    flex-direction: column;
+  }
+  .fab-shop-restore-title {
+    color: var(--fab-shop-restore-title-color);
+    font-family: var(--fab-font-family);
+    font-size: var(--fab-font-size-md);
+    font-weight: var(--fab-font-weight-bold);
+  }
+  .fab-shop-restore-status {
+    color: var(--fab-shop-restore-status-color);
+    font-family: var(--fab-font-family);
+    font-size: var(--fab-font-size-sm);
   }
 
   @media (prefers-reduced-motion: reduce) {

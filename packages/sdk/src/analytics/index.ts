@@ -44,6 +44,14 @@ export {
   type SessionStartParams,
 } from './contract.ts';
 
+// --- wire contract (shared with @fabrikav2/services) ---
+export {
+  OWNED_ANALYTICS_WIRE_SCHEMA,
+  type OwnedAnalyticsWireBatch,
+  type OwnedAnalyticsWireEvent,
+  type OwnedAnalyticsWireSchema,
+} from './wire.ts';
+
 // --- sinks ---
 export { type AnalyticsSink } from './sink.ts';
 export { createConsoleSink, type ConsoleSinkOptions } from './console-sink.ts';

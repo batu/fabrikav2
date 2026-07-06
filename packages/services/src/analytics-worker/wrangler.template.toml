@@ -1,0 +1,48 @@
+# Cloudflare Worker deploy TEMPLATE for the multi-game owned-analytics ingest.
+#
+# This is a TEMPLATE, not a live config. Every `<...>` placeholder is Batu's to
+# fill at deploy time — v2 ships code + tests only (no account ids, no secrets,
+# no deploy). Copy to `wrangler.toml` outside the repo (or fill via CI secrets)
+# before `wrangler deploy`. Public client keys and the operator token are
+# SECRETS: set them with `wrangler secret put`, never inline here.
+
+name = "<worker-name>"                      # e.g. fabrika-owned-analytics
+main = "src/analytics-worker/index.ts"
+compatibility_date = "2024-11-01"
+account_id = "<cloudflare-account-id>"
+
+# --- storage bindings -------------------------------------------------------
+# Default storage mode is Analytics Engine. D1 is the fallback, selected by
+# ANALYTICS_STORAGE_MODE=d1; bind DB only if you enable it.
+[[analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "<analytics-engine-dataset-name>"
+
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "<d1-database-name>"
+# database_id = "<d1-database-id>"
+
+# --- non-secret config (safe to commit in the filled copy) ------------------
+[vars]
+ANALYTICS_INGEST_ENABLED = "true"
+ANALYTICS_KILL_SWITCH = "false"
+# Comma-separated allow-list of game_ids served by this deployment. Empty
+# string accepts any well-formed game_id.
+ANALYTICS_ALLOWED_GAME_IDS = "<game-a>,<game-b>"
+ANALYTICS_MAX_BATCH_EVENTS = "100"
+ANALYTICS_MAX_BODY_BYTES = "96000"
+ANALYTICS_MAX_CLOCK_SKEW_SECONDS = "300"
+ANALYTICS_RATE_LIMIT_PER_MINUTE = "120"
+ANALYTICS_REPLAY_TTL_SECONDS = "600"
+ANALYTICS_STORAGE_MODE = "analytics_engine"
+ANALYTICS_AE_SAMPLE_RATE = "1"
+ANALYTICS_QUERY_ENABLED = "false"
+ANALYTICS_QUERY_ALLOWED_ORIGINS = "<https://dashboard.example.com>"
+ANALYTICS_QUERY_MAX_ROWS = "500"
+ANALYTICS_QUERY_TIMEOUT_MS = "750"
+ANALYTICS_QUERY_STALE_AFTER_MS = "900000"
+
+# --- secrets (DO NOT put values here) ---------------------------------------
+# wrangler secret put ANALYTICS_PUBLIC_CLIENT_KEYS   # comma-separated, each >= 16 chars
+# wrangler secret put ANALYTICS_OPERATOR_TOKEN       # dashboard/query bearer token
