@@ -70,4 +70,3 @@ export {
   type InterstitialCadenceState,
 } from './cadence.ts';
 
-export { withTimeout, isTimeoutError, TimeoutError } from './withTimeout.ts';

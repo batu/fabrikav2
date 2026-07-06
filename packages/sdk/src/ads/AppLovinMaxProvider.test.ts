@@ -10,7 +10,7 @@ vi.mock('@capacitor/core', () => ({
 import { AppLovinMaxProvider } from './AppLovinMaxProvider.ts';
 import type { AppLovinMaxPlugin } from './AppLovinMaxPlugin.ts';
 import type { AppLovinConfig } from './AppLovinConfig.ts';
-import { TimeoutError } from './withTimeout.ts';
+import { TimeoutError } from '../with-timeout.ts';
 
 const config: AppLovinConfig = {
   platform: 'ios',

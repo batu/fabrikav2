@@ -11,4 +11,3 @@ export * from './fake-provider.ts';
 export * from './revenuecat-provider.ts';
 export * from './fulfillment.ts';
 export * from './restore-machine.ts';
-export { TimeoutError, isTimeoutError, withTimeout } from './withTimeout.ts';

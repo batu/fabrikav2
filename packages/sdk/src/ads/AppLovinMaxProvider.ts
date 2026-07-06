@@ -1,7 +1,7 @@
 import type { AdProvider, FullScreenAdLifecycle, FullScreenAdType, MaybeShowInterstitialOptions, RewardedAdResult } from './AdProvider.ts';
 import type { AppLovinConfig } from './AppLovinConfig.ts';
 import { AppLovinMax, type AppLovinAdRevenuePaidEvent, type AppLovinMaxPlugin } from './AppLovinMaxPlugin.ts';
-import { withTimeout, isTimeoutError } from './withTimeout.ts';
+import { withTimeout, isTimeoutError } from '../with-timeout.ts';
 
 const MIN_INTERSTITIAL_INTERVAL_MS = 120_000;
 
