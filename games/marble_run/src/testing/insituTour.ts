@@ -42,8 +42,29 @@ export async function maybeRunInsituTour(app: App): Promise<void> {
     return scene() === want;
   };
 
+  // Mark the current state on <body data-tour-state> so an external capturer
+  // (XCUITest / adb) can CONFIRM the state before shooting — device-side
+  // capture-integrity, not timed guessing.
+  const mark = (s: string): void => {
+    document.body.setAttribute('data-tour-state', s);
+    log(`state=${s} scene=${scene()}`);
+  };
+
+  // 'allstates' = drive to EVERY canonical state via driveTo (each confirmed),
+  // dwelling for a device capture. This is the required device-verification tour.
+  if (script === 'allstates' && typeof h.driveTo === 'function') {
+    const states = ['menu', 'level', 'settings', 'pause', 'win', 'fail'] as const;
+    for (const s of states) {
+      const ok = await h.driveTo(s);
+      mark(ok ? s : `${s}-FAILED`);
+      await sleep(DWELL_MS);
+    }
+    mark('done');
+    return;
+  }
+
   await sleep(3000); // menu dwell (external shot: menu)
-  log(`menu scene=${scene()}`);
+  mark('menu');
 
   // ── WIN: solver-bound, state-confirmed ──────────────────────────────────
   h.startLevel(1);
@@ -51,6 +72,7 @@ export async function maybeRunInsituTour(app: App): Promise<void> {
   const won = await h.autoWin();
   const winConfirmed = await confirmScene('complete');
   log(`autoWin returned ${won}; confirmed=${winConfirmed} status=${status()} scene=${scene()}`);
+  mark('win');
   await sleep(DWELL_MS); // WIN result-card dwell (external shot)
 
   // ── FAIL: blocked-marble taps, state-confirmed ──────────────────────────
@@ -61,6 +83,7 @@ export async function maybeRunInsituTour(app: App): Promise<void> {
   const failed = await h.autoFail();
   const failConfirmed = await confirmScene('failed');
   log(`autoFail returned ${failed}; confirmed=${failConfirmed} status=${status()} scene=${scene()}`);
+  mark('fail');
   await sleep(DWELL_MS); // FAIL result-card dwell (external shot)
   log('tour complete');
 }
