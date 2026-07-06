@@ -35,10 +35,12 @@ fabrikav2/
 
 ### packages/kernel
 Typed event emitter, persisted-state (guarded localStorage blob), seeded rand,
-responsive/safe-area, and the **screen flow machine** (open/close/back-stack contract
-that `ui` screens implement). Carried from v1 core: `runtime` mostly as-is; v1's dead
-`shell/flow-machine.ts` is the starting point for the flow machine, rewritten against
-real consumers this time.
+responsive/safe-area, and the **screen flow machine** (game screen-state lifecycle).
+Carried from v1 core: `runtime` mostly as-is; v1's dead `shell/flow-machine.ts` is the
+seed. STATUS 2026-07-06: page back-stack turned out to be a ui concern — `ui/PageStack`
+owns it; the flow machine's graduation test is the marble_run port's shell wiring
+(game state lifecycle). If the pilot bypasses it too, drop it rather than carry a
+second-generation zero-consumer module.
 
 ### packages/ui — the shell kit (DOM only)
 Screens (each a themeable component with a data contract, no game knowledge):
