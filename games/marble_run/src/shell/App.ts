@@ -60,6 +60,7 @@ import { LEVEL_COUNT, LEVEL_COIN_REWARD, TEST_HARNESS_ENABLED } from '../core/Co
 import { music } from '../audio/Music';
 import { toggleClick } from '../audio/Sfx';
 import { pickByRoll, blockedMarbles } from './marbleVerbs';
+import { driveAutoWin, driveAutoFail } from '../testing/autoPlay';
 import type { Cell } from '../engine/types';
 
 /** The marble_run extra-verb union — the `GameHarness` extension point. */
@@ -78,6 +79,10 @@ export interface MarbleHarness extends GameHarness<MarbleVerb> {
   cellClientPoint(x: number, y: number): ClientPoint | null;
   setAnimationSpeed(multiplier: number): void;
   solveStep(): Cell | null;
+  /** Deterministic solver-bound win: replays solveLevel().order. Resolves true if won. */
+  autoWin(stepMs?: number): Promise<boolean>;
+  /** Deterministic loss: taps genuinely-blocked marbles until hearts deplete. Resolves true if failed. */
+  autoFail(stepMs?: number): Promise<boolean>;
 }
 
 export interface AppMounts {
@@ -665,6 +670,23 @@ export class App {
         const cell = movable[0].cell;
         this.controller.tapCell(cell);
         return cell;
+      },
+
+      // ── DETERMINISTIC solver-bound auto-play (A-star search, never random) ─
+      // Gameplay-to-terminal-state is bound to the in-game solver, not to any
+      // LLM/random policy: autoWin replays solveLevel().order; autoFail taps
+      // genuinely-blocked marbles. Both drive via the real tapCell input path
+      // and gate each step on gameStatus() (see ../testing/autoPlay).
+      autoWin: (stepMs = 260): Promise<boolean> => {
+        const level = this.controller.currentLevelDef();
+        const engine = this.controller.engineRef();
+        if (!level || !engine) return Promise.resolve(false);
+        return driveAutoWin(engine, level, (cell) => this.controller.tapCell(cell), stepMs);
+      },
+      autoFail: (stepMs = 260): Promise<boolean> => {
+        const engine = this.controller.engineRef();
+        if (!engine) return Promise.resolve(false);
+        return driveAutoFail(engine, (cell) => this.controller.tapCell(cell), stepMs);
       },
     };
   }

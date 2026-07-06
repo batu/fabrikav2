@@ -21,7 +21,7 @@ import {
 } from '../core/Constants';
 import { saveState } from '../core/SaveState';
 import { BoardEngine } from '../engine/board';
-import type { Cell, TapChange } from '../engine/types';
+import type { Cell, LevelDef, TapChange } from '../engine/types';
 import { LEVELS } from '../levels/levels.generated';
 import {
   absorbPlop,
@@ -809,6 +809,11 @@ export class GameController {
 
   engineRef(): BoardEngine | null {
     return this.engine;
+  }
+
+  /** The active level definition (for solver-bound auto-play). */
+  currentLevelDef(): LevelDef | null {
+    return LEVELS[this.levelId - 1] ?? null;
   }
 
   cellClientPoint(cell: Cell): { x: number; y: number } | null {
