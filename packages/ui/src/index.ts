@@ -52,6 +52,17 @@ export type { PauseOverlayOptions, PauseOverlayActions, PauseOverlayLabels } fro
 export { createPageStack } from './PageStack.ts';
 export type { PageStack, PageStackOptions } from './PageStack.ts';
 
+export { mountShopPage } from './ShopPage.ts';
+export type {
+  ShopPageOptions,
+  ShopPageHandle,
+  ShopSection,
+  ShopSectionLayout,
+  ShopCopy,
+  ShopPurchaseCopy,
+  ShopRestoreCopy,
+} from './ShopPage.ts';
+
 export { resolveDomAnchorToCanvasPoint } from './canvasDomBridge.ts';
 export type { CanvasPoint, AnchorFraction } from './canvasDomBridge.ts';
 
