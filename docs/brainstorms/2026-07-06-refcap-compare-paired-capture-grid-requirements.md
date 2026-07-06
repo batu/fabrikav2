@@ -50,13 +50,13 @@ unexercised path here.
   manifest's `reference.recipe` must reproduce it. README also records the
   PENDING gap: win/fail "not reachable via blind taps."
 - **The v2 captures the offline run pairs against** — under
-  `games/marble_run/evidence/`: `2026-07-06-v2-screens/{01-home-menu-saga,
+  `games/marble_run/evidence/`: `2026-07-06-0953-v2-screens/{01-home-menu-saga,
   02-settings-page,03-gameplay-hud,04-pause-overlay,05-result-card}.png`,
-  `2026-07-06-fixed/{v2-menu,v2-settings,v2-level}.png`,
-  `2026-07-06-fidelity-harness/screenshots/{menu,settings,level-start,level-mid}.png`.
+  `2026-07-06-1328-fixed/{v2-menu,v2-settings,v2-level}.png`,
+  `2026-07-06-1534-fidelity-harness/screenshots/{menu,settings,level-start,level-mid}.png`.
 - **Prior-art grid to supersede** —
-  `games/marble_run/evidence/2026-07-06-fidelity-harness/fidelity-grid.html` and
-  `2026-07-06-fixed/before-after-grid.html` are **hand-authored one-off HTML
+  `games/marble_run/evidence/2026-07-06-1534-fidelity-harness/fidelity-grid.html` and
+  `2026-07-06-1328-fixed/before-after-grid.html` are **hand-authored one-off HTML
   grids**. refcap-compare generalizes these into a repeatable, manifest-driven,
   dedup-guarded generator. Read both before designing the HTML so the output is
   at least as legible.

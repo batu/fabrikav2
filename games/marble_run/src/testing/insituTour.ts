@@ -47,6 +47,21 @@ export async function maybeRunInsituTour(app: App): Promise<void> {
   // capture-integrity, not timed guessing.
   const mark = (s: string): void => {
     document.body.setAttribute('data-tour-state', s);
+    // Surface the state to the native accessibility tree so an external capturer
+    // (XCUITest) can WAIT for `tourstate:<s>` before shooting — element-gated
+    // capture-integrity on device, replacing timed guessing.
+    let el = document.getElementById('__tourstate__');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = '__tourstate__';
+      el.setAttribute('role', 'text');
+      el.style.cssText =
+        'position:fixed;left:0;top:0;width:2px;height:2px;opacity:0.01;pointer-events:none;z-index:99999;';
+      document.body.appendChild(el);
+    }
+    const tag = `tourstate:${s}`;
+    el.setAttribute('aria-label', tag);
+    el.textContent = tag;
     log(`state=${s} scene=${scene()}`);
   };
 
@@ -54,10 +69,15 @@ export async function maybeRunInsituTour(app: App): Promise<void> {
   // dwelling for a device capture. This is the required device-verification tour.
   if (script === 'allstates' && typeof h.driveTo === 'function') {
     const states = ['menu', 'level', 'settings', 'pause', 'win', 'fail'] as const;
+    // Long dwell so an ELEMENT-gated external capturer (XCUITest waits for each
+    // state's signature text, not a timer) reliably catches every state even
+    // though driveTo steps take variable time. Timed capture drifts — see the
+    // fidelity-diff mistakes ledger (settings/fail mislabeled as menu/level).
+    const ALLSTATES_DWELL = 11000;
     for (const s of states) {
       const ok = await h.driveTo(s);
       mark(ok ? s : `${s}-FAILED`);
-      await sleep(DWELL_MS);
+      await sleep(ALLSTATES_DWELL);
     }
     mark('done');
     return;

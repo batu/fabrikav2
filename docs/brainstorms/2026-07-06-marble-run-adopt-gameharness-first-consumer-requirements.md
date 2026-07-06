@@ -124,8 +124,8 @@ implement the contract; everything else is under `games/marble_run/tests/**`.
   (`packages/testkit/src/harness/seedFromConfig.ts:24`) bridges it to
   `gotoState` targets.
 - `games/marble_run/evidence/` already exists with three dated dirs
-  (`2026-07-06-fixed/`, `-v1v2-fidelity/`, `-v2-screens/`). New run goes in
-  `evidence/2026-07-06-harness-first-run/` per
+  (`2026-07-06-1328-fixed/`, `-v1v2-fidelity/`, `-v2-screens/`). New run goes in
+  `evidence/2026-07-06-1446-harness-first-run/` per
   `games/_template/evidence/README.md` (`<date>-<topic>/`), matching
   `buildRunLayout()`'s `${date}-${topic}` dir name (`runLayout.ts:104`).
 
@@ -217,7 +217,7 @@ implement the contract; everything else is under `games/marble_run/tests/**`.
 
 ### 2.4 One `collectRun()` producing the evaluation artifact
 
-- Produce `games/marble_run/evidence/2026-07-06-harness-first-run/` via
+- Produce `games/marble_run/evidence/2026-07-06-1446-harness-first-run/` via
   `collectRun()` (`collectRun.ts:37`): screenshots of **all reachable states**
   (drive each `game.config.ts` screen, browser `capture()`), the event trace
   (`drainEvents()` from the ring sink), and perf (`perf()`), assembled by the
@@ -284,7 +284,7 @@ npm run typecheck                                  # harness now satisfies GameH
 Done bar: harness satisfies `GameHarness<GameVerb>` and typechecks; chaos test
 green **and reproducible by a printed seed**; real-click suite green across
 menu/settings/pause/result/shop with real (no-force) clicks; one `collectRun`
-run committed under `games/marble_run/evidence/2026-07-06-harness-first-run/`
+run committed under `games/marble_run/evidence/2026-07-06-1446-harness-first-run/`
 (screenshots of all reachable states + event trace + perf), labelled as
 browser/Chromium capture. If Playwright cannot run in-worker (§4.5), the e2e +
 evidence steps are flagged as conductor-executed rather than claimed done.

@@ -22,7 +22,7 @@ import type { CaptureResult, PerfSample, AnalyticsEventLike, SnapshotEnvelope } 
  * the end. `collectRun` (node fs writer) assembles it into
  * `<date>-<topic>/`. By DEFAULT that lands in the gitignored `.work/` scratch so
  * the suite is side-effect-free; set `PROMOTE_EVIDENCE=1` to (re)generate the
- * committed `evidence/2026-07-06-harness-first-run/` artifact (the .work
+ * committed `evidence/2026-07-06-1446-harness-first-run/` artifact (the .work
  * promotion rule — games/_template/.work/README.md).
  *
  * HONESTY (card §1): every screenshot is a CHROMIUM / BROWSER capture. The

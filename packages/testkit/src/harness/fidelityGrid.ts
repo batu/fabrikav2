@@ -6,7 +6,7 @@
  *
  * WHY THIS EXISTS (card KEghp3x4 friction #1): before this, every fidelity
  * consumer hand-wrote ~90 lines of grid `<html>` + inline CSS in its spec (the
- * marble_run fidelity re-run, the reskin-drill verdict page, the `2026-07-06-fixed`
+ * marble_run fidelity re-run, the reskin-drill verdict page, the `2026-07-06-1328-fixed`
  * before/after grid). `collectRun` knew screenshots/snapshots/events/perf but had
  * no notion of "compare a capture against its reference." This is that primitive.
  */

@@ -7,7 +7,7 @@ consumer hit, the top-3 fixes landed in-card, and concrete card drafts for the r
 Method: dogfood, not survey. Every grade below comes from actually driving the
 surface (or, where noted, from reading the code + a prior committed run). The
 fidelity surface was exercised end-to-end and its evidence is committed at
-`games/marble_run/evidence/2026-07-06-fidelity-harness/`.
+`games/marble_run/evidence/2026-07-06-1534-fidelity-harness/`.
 
 - Verification for this card: `npm run typecheck && npm run test:unit && npm run audit` — all green (audit passes with the pre-existing sdk-duplication + copy-literal warnings).
 - v1 is READ-ONLY; nothing in this card touched it.
@@ -20,9 +20,9 @@ fidelity surface was exercised end-to-end and its evidence is committed at
   clicks (the gear→settings modal is a real click, dead-button-safe) + the
   `capture()` canvas witness, assembles the run with `collectRun()`, and pairs
   each v2 capture with its v1 Android reference into
-  `evidence/2026-07-06-fidelity-harness/fidelity-grid.html`. Regenerate with
+  `evidence/2026-07-06-1534-fidelity-harness/fidelity-grid.html`. Regenerate with
   `PROMOTE_EVIDENCE=1 npx playwright test tests/e2e/fidelity.spec.ts`.
-- **One real Gemini tier-2 verdict** — `evidence/2026-07-06-fidelity-harness/tier2-gemini/tier2-gemini-verdict.json`
+- **One real Gemini tier-2 verdict** — `evidence/2026-07-06-1534-fidelity-harness/tier2-gemini/tier2-gemini-verdict.json`
   (10 element-by-element findings on the menu pair). Reproduce with
   `tier2-gemini/judge_menu_pair.py`.
 
@@ -35,7 +35,7 @@ had to hand-roll around the contract.
 |---|---|---|---|
 | **chaos** (`tests/e2e/chaos.spec.ts`) | **1** | Seeded kernel `rand`, typed verbs (both flavours), `drainEvents()` — a chaos run is reproducible and side-effect-free by construction (landed in `f44dbcc`; not re-run here, read from code). | Nothing material. This is the surface the contract was designed for; it fits. |
 | **fidelity** (this card) | **3** | `collectRun()` cleanly bundled screenshots/snapshots/events/perf. `SharedShellDriver.openSettings()` drove the real gear click. | No reference-pairing / grid primitive: ~90 lines of hand-written grid HTML + ref-copy fs glue per consumer. No reach-recipe manifest (state→refPath→axes is prose in a README, re-encoded per spec). `capture()` canvas witness is near-useless for DOM-chrome states (see below). **→ fixes 1–3 landed.** |
-| **drill / reskin** (`docs/evidence/2026-07-06-reskin-drill/`) | **4** | The in-page harness bridge (`window.__MARBLE_RUN_HARNESS__`) existed to drive states. | The drill's `capture-reskin-screenshots.mjs` is a **standalone `node` script** that re-implements the harness bridge, navigation, screenshotting, and fs writing by hand — it does NOT use `SharedShellDriver` or `collectRun`. Its evidence was harness-*bridged* but not testkit-*produced*. This card re-produces those states (menu/settings via `fidelity.spec.ts`; menu/settings/playing/pause/result via `collect-run.spec.ts`) through the real testkit, retiring the drill's hand-script provenance. |
+| **drill / reskin** (`docs/evidence/2026-07-06-1359-reskin-drill/`) | **4** | The in-page harness bridge (`window.__MARBLE_RUN_HARNESS__`) existed to drive states. | The drill's `capture-reskin-screenshots.mjs` is a **standalone `node` script** that re-implements the harness bridge, navigation, screenshotting, and fs writing by hand — it does NOT use `SharedShellDriver` or `collectRun`. Its evidence was harness-*bridged* but not testkit-*produced*. This card re-produces those states (menu/settings via `fidelity.spec.ts`; menu/settings/playing/pause/result via `collect-run.spec.ts`) through the real testkit, retiring the drill's hand-script provenance. |
 | **device pull** (`capture.ts` `captureToDeviceDocuments`) | **5** (by design) | An honest typed stub that throws with a ledger-gap reference. | The path itself: no native documents-dir bridge exists, so no on-device v2 capture is possible. The stub is the _correct_ behaviour (loud, not silent) but the capability is a hard gap. Every v2 frame in this card is a Chromium/browser capture; this is stated in each artifact's README. |
 | **page-card capture** (fabrikav2 ingester) | **n/a — not run** | `capture()` is the pipeline DS11 wanted. | Not exercised in this card (lives in the fabrikav2 ingester + design-sheets, other repos). Filed as **card draft DS13** below. |
 | **Gemini tier-2 judge** (merceka-core) | **2** | Read the committed `refs/menu.png` + `screenshots/menu.png` straight out of the `collectRun` dir — the run layout was clean to consume. Returned 10 structured findings with severity+confidence. | Two frictions, neither in `collectRun`: (a) the Google-direct lane (GOOGLE_API_KEY, the card's intended path) is **billing-dead** — `429 RESOURCE_EXHAUSTED, prepayment credits depleted`; had to fall back to the OpenRouter Gemini lane (still merceka-core, still real Gemini). (b) merceka-core's `generate_with_resource` takes a **single** image, so the ref+candidate had to be composed side-by-side into one PNG — the two-image judge shape isn't a first-class merceka-core call. |
