@@ -11,7 +11,7 @@ import tseslint from "typescript-eslint";
 
 export default [
   {
-    ignores: ["dist/**", "node_modules/**", "**/design/**", "android/**", "ios/**"],
+    ignores: ["dist/**", "node_modules/**", "**/design/**", "android/**", "ios/**", "**/.work/**", "**/test-results/**", "**/evidence/**"],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
