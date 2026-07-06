@@ -1,0 +1,59 @@
+[
+  {
+    "name": "session_start",
+    "params": {
+      "platform": "web",
+      "first_open": true
+    },
+    "timestamp": 1783338270705,
+    "sessionId": "827f72c3-387d-4917-abfc-537d79b92419",
+    "env": "development"
+  },
+  {
+    "name": "level_start",
+    "params": {
+      "platform": "web",
+      "level_id": "1",
+      "level_index": 1
+    },
+    "timestamp": 1783338273520,
+    "sessionId": "827f72c3-387d-4917-abfc-537d79b92419",
+    "env": "development"
+  },
+  {
+    "name": "level_start",
+    "params": {
+      "platform": "web",
+      "level_id": "1",
+      "level_index": 1
+    },
+    "timestamp": 1783338276741,
+    "sessionId": "827f72c3-387d-4917-abfc-537d79b92419",
+    "env": "development"
+  },
+  {
+    "name": "level_complete",
+    "params": {
+      "platform": "web",
+      "level_id": "1",
+      "level_index": 1
+    },
+    "timestamp": 1783338279637,
+    "sessionId": "827f72c3-387d-4917-abfc-537d79b92419",
+    "env": "development"
+  },
+  {
+    "name": "resource_change",
+    "params": {
+      "platform": "web",
+      "currency": "coins",
+      "amount": 25,
+      "flow": "source",
+      "reason": "level_reward",
+      "balance": 25
+    },
+    "timestamp": 1783338279637,
+    "sessionId": "827f72c3-387d-4917-abfc-537d79b92419",
+    "env": "development"
+  }
+]

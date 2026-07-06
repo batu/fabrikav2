@@ -26,6 +26,7 @@ import {
   createAnalytics,
   createConsoleSink,
   type Analytics,
+  type AnalyticsSink,
 } from '@fabrikav2/sdk/analytics';
 import {
   FakePurchaseProvider,
@@ -301,6 +302,10 @@ export function createGameSdk(deps: {
   economy: GameEconomyBridge;
   buildEnv?: SdkBuildEnv;
   firstOpen?: boolean;
+  /** Extra analytics sinks fanned beside the console sink. The test harness
+   *  injects a RingBufferSink here so `drainEvents()` can witness the trace;
+   *  empty in production. */
+  analyticsSinks?: readonly AnalyticsSink[];
 }): GameSdk {
   const buildEnv: SdkBuildEnv = deps.buildEnv ?? (import.meta.env.PROD ? 'production' : 'development');
   const environments = resolveSdkEnvironments(buildEnv);
@@ -312,7 +317,7 @@ export function createGameSdk(deps: {
   const analytics = createAnalytics({
     env: environments.analytics,
     sessionId: crypto.randomUUID(),
-    sinks: [createConsoleSink()],
+    sinks: [createConsoleSink(), ...(deps.analyticsSinks ?? [])],
     globalParams: { platform },
   });
 

@@ -37,6 +37,18 @@ import {
   type ModalAction,
   type SettingKey,
 } from '@fabrikav2/ui';
+import {
+  captureCanvasPng,
+  createPerfRecorder,
+  type PerfRecorder,
+  type GameHarness,
+  type GameVerbHandler,
+  type ClientPoint,
+  type CaptureResult,
+  type PerfSample,
+  type AnalyticsEventLike,
+} from '@fabrikav2/testkit/harness';
+import type { RingBufferSink } from '@fabrikav2/sdk/analytics';
 import type { GameSdk } from '../sdk/SdkContext';
 import type { MarbleGrant } from '../sdk/catalog';
 import { copy } from '../../design/copy';
@@ -47,7 +59,26 @@ import { saveState } from '../core/SaveState';
 import { LEVEL_COUNT, LEVEL_COIN_REWARD, TEST_HARNESS_ENABLED } from '../core/Constants';
 import { music } from '../audio/Music';
 import { toggleClick } from '../audio/Sfx';
+import { pickByRoll, blockedMarbles } from './marbleVerbs';
 import type { Cell } from '../engine/types';
+
+/** The marble_run extra-verb union — the `GameHarness` extension point. */
+export type MarbleVerb = 'tapCell' | 'tapUnlockedMarble' | 'tapBlockedMarble';
+
+/**
+ * marble_run's concrete harness: the portfolio {@link GameHarness} contract plus
+ * the organic legacy verbs the existing specs (`play.spec.ts`,
+ * `menu-clicks.spec.ts`) still read, kept additively so adopting the contract
+ * regresses nothing.
+ */
+export interface MarbleHarness extends GameHarness<MarbleVerb> {
+  /** @deprecated legacy no-arg menu jump — prefer `gotoState('HomeMenu')`. */
+  gotoMenu(): void;
+  showHint(): void;
+  cellClientPoint(x: number, y: number): ClientPoint | null;
+  setAnimationSpeed(multiplier: number): void;
+  solveStep(): Cell | null;
+}
 
 export interface AppMounts {
   canvas: HTMLCanvasElement;
@@ -73,10 +104,18 @@ export class App {
   private pendingWin: PendingWin | null = null;
   /** The level currently in play — used to tag fail analytics. */
   private currentLevelId = 0;
+  /** Canvas root — the `capture()` witness rasterises this (browser path). */
+  private readonly canvas: HTMLCanvasElement;
+  /** Test-only analytics buffer behind `drainEvents()`; null outside harness. */
+  private readonly harnessSink: RingBufferSink | null;
+  /** Test-only frame-time recorder behind `perf()`; self-driven via rAF. */
+  private readonly perfRecorder: PerfRecorder = createPerfRecorder();
 
-  constructor(mounts: AppMounts, sdk: GameSdk) {
+  constructor(mounts: AppMounts, sdk: GameSdk, harnessSink: RingBufferSink | null = null) {
     this.uiRoot = mounts.uiRoot;
     this.sdk = sdk;
+    this.canvas = mounts.canvas;
+    this.harnessSink = harnessSink;
 
     const hooks: GameHooks = {
       onWin: (info) => this.handleWin(info),
@@ -108,11 +147,29 @@ export class App {
     );
     this.machine.events.on('level:complete', () => this.renderComplete());
     this.machine.events.on('level:fail', () => this.renderFailed());
+
+    // Feed the perf witness real frame times — a test-only rAF loop, so it never
+    // runs in a production build (no gameplay-loop edit, no shipped cost).
+    if (TEST_HARNESS_ENABLED) this.startPerfLoop();
   }
 
   /** Boot into the menu. */
   start(): void {
     this.toMenu();
+  }
+
+  /** Sample frame deltas into {@link perfRecorder} for the `perf()` witness.
+   *  rAF-driven and self-perpetuating; only started when the harness is enabled. */
+  private startPerfLoop(): void {
+    if (typeof requestAnimationFrame !== 'function') return;
+    let last = performance.now();
+    const tick = (): void => {
+      const now = performance.now();
+      this.perfRecorder.record(now - last);
+      last = now;
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
   }
 
   // ── State entry (event-driven) ──────────────────────────────────
@@ -312,8 +369,8 @@ export class App {
 
   private mountWin(info: PendingWin): void {
     const actions: ModalAction[] = [
-      { label: copy['result.win.next'], onClick: () => this.next(info.levelId), variant: 'primary' },
-      { label: copy['result.win.retry'], onClick: () => this.retry(), variant: 'secondary' },
+      { label: copy['result.win.next'], onClick: () => this.next(info.levelId), variant: 'primary', dataAction: 'result-next' },
+      { label: copy['result.win.retry'], onClick: () => this.retry(), variant: 'secondary', dataAction: 'result-retry' },
     ];
     const reward = this.buildRewardDisplay(info.reward);
     this.screenHandle = mountResultCard({
@@ -328,7 +385,7 @@ export class App {
 
   private mountFinale(): void {
     const actions: ModalAction[] = [
-      { label: copy['result.finale.action'], onClick: () => this.toMenu(), variant: 'primary' },
+      { label: copy['result.finale.action'], onClick: () => this.toMenu(), variant: 'primary', dataAction: 'result-menu' },
     ];
     this.screenHandle = mountResultCard({
       mountInto: this.uiRoot,
@@ -341,9 +398,9 @@ export class App {
 
   private mountLose(): void {
     const actions: ModalAction[] = [
-      { label: copy['result.lose.watchAd'], onClick: () => void this.requestFailSave(), variant: 'primary' },
-      { label: copy['result.lose.retry'], onClick: () => this.retry(), variant: 'secondary' },
-      { label: copy['result.lose.quit'], onClick: () => this.toMenu(), variant: 'secondary' },
+      { label: copy['result.lose.watchAd'], onClick: () => void this.requestFailSave(), variant: 'primary', dataAction: 'result-next' },
+      { label: copy['result.lose.retry'], onClick: () => this.retry(), variant: 'secondary', dataAction: 'result-retry' },
+      { label: copy['result.lose.quit'], onClick: () => this.toMenu(), variant: 'secondary', dataAction: 'result-menu' },
     ];
     this.screenHandle = mountResultCard({
       mountInto: this.uiRoot,
@@ -575,16 +632,31 @@ export class App {
 
   // ── Test harness surface ────────────────────────────────────────
 
-  harness(): Record<string, unknown> {
+  harness(): MarbleHarness {
     return {
-      gotoMenu: () => this.toMenu(),
+      // ── standard GameHarness core ─────────────────────────────────
+      gotoState: (state: string) => this.gotoState(state),
       startLevel: (id: number) => this.startLevelId(id),
-      tapCell: (x: number, y: number) => this.controller.tapCell({ x, y } as Cell),
+      snapshot: () => this.snapshot(),
+      sagaNodes: () => buildSagaNodes(saveState.unlocked, MENU_SAGA_WINDOW).map((n) => n.id),
+      unlockAll: () => {
+        for (let i = 1; i <= LEVEL_COUNT; i += 1) saveState.recordWin(i, 0);
+      },
+      grantCoins: (coins: number) => saveState.addCoins(coins),
+
+      // ── typed game verbs (both flavours: state-drive + input-drive) ─
+      verbs: this.buildVerbs(),
+
+      // ── observation witnesses (browser paths) ─────────────────────
+      capture: (): CaptureResult => captureCanvasPng(this.canvas),
+      perf: (): PerfSample => this.perfRecorder.sample(),
+      drainEvents: (): readonly AnalyticsEventLike[] => this.harnessSink?.drain() ?? [],
+
+      // ── legacy organic verbs (kept additively; no spec regresses) ──
+      gotoMenu: () => this.toMenu(),
       showHint: () => this.controller.showHint(),
       cellClientPoint: (x: number, y: number) => this.controller.cellClientPoint({ x, y } as Cell),
       setAnimationSpeed: (m: number) => this.controller.setAnimationSpeed(m),
-      snapshot: () => this.snapshot(),
-      sagaNodes: () => buildSagaNodes(saveState.unlocked, MENU_SAGA_WINDOW).map((n) => n.id),
       solveStep: () => {
         const engine = this.controller.engineRef();
         if (!engine) return null;
@@ -594,10 +666,87 @@ export class App {
         this.controller.tapCell(cell);
         return cell;
       },
-      unlockAll: () => {
-        for (let i = 1; i <= LEVEL_COUNT; i += 1) saveState.recordWin(i, 0);
+    };
+  }
+
+  /**
+   * Jump the flow to a named `gameConfig.screens` state (the contract
+   * `gotoState`). Terminal/in-level screens (ResultCard/PauseOverlay) are SEEDED
+   * here from existing transitions — a caller drives `solveStep()` to actually
+   * reach a result — so this composes App transitions only, never engine logic.
+   */
+  private gotoState(state: string): void {
+    switch (state) {
+      case 'Settings':
+        this.toMenu();
+        this.openSettings(false);
+        return;
+      case 'PauseOverlay':
+        this.startLevelId(1);
+        this.pauseGame();
+        return;
+      case 'ResultCard':
+        this.startLevelId(1);
+        return;
+      case 'HomeMenu':
+      case 'SagaMap':
+      case 'Toast':
+      case 'ConnectivityIndicator':
+      default:
+        this.toMenu();
+    }
+  }
+
+  /**
+   * The typed verb map. Each verb carries `run` (state-drive engine call) and
+   * `clientPoint` (input-drive coordinate accessor). Marble selection is a PURE
+   * function of the roll ({@link pickByRoll}) so the two flavours target the
+   * IDENTICAL marble and a seeded chaos run replays exactly. A `clientPoint`
+   * with no legal target returns an off-screen point `{x:-1,y:-1}` — `driveInputAt`
+   * then hit-tests `null`, an honest "nothing to tap" signal rather than a lie.
+   */
+  private buildVerbs(): Record<MarbleVerb, GameVerbHandler> {
+    const offscreen: ClientPoint = { x: -1, y: -1 };
+    return {
+      tapCell: {
+        run: (x: number, y: number) => this.controller.tapCell({ x, y } as Cell),
+        clientPoint: (x: number, y: number) =>
+          this.controller.cellClientPoint({ x, y } as Cell) ?? offscreen,
       },
-      grantCoins: (coins: number) => saveState.addCoins(coins),
+      tapUnlockedMarble: {
+        run: (roll?: number) => {
+          const engine = this.controller.engineRef();
+          if (!engine) return null;
+          const marble = pickByRoll(engine.movableMarbles(), roll ?? Math.random());
+          if (!marble) return null;
+          this.controller.tapCell(marble.cell);
+          return marble.cell;
+        },
+        clientPoint: (roll?: number) => {
+          const engine = this.controller.engineRef();
+          const marble = engine ? pickByRoll(engine.movableMarbles(), roll ?? 0) : null;
+          return (marble && this.controller.cellClientPoint(marble.cell)) || offscreen;
+        },
+      },
+      tapBlockedMarble: {
+        run: (roll?: number) => {
+          const engine = this.controller.engineRef();
+          if (!engine) return null;
+          const blocked = blockedMarbles(engine.allMarbles(), engine.movableMarbles());
+          const marble = pickByRoll(blocked, roll ?? Math.random());
+          if (!marble) return null;
+          this.controller.tapCell(marble.cell);
+          return marble.cell;
+        },
+        clientPoint: (roll?: number) => {
+          const engine = this.controller.engineRef();
+          const blocked = engine
+            ? blockedMarbles(engine.allMarbles(), engine.movableMarbles())
+            : [];
+          const marble = pickByRoll(blocked, roll ?? 0);
+          return (marble && this.controller.cellClientPoint(marble.cell)) || offscreen;
+        },
+      },
     };
   }
 

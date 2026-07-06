@@ -7,6 +7,7 @@
 import '@fabrikav2/ui/ui.css';
 import '../design/tokens.css';
 import { assignWindowBindings } from '@fabrikav2/testkit/testing';
+import { createRingBufferSink } from '@fabrikav2/sdk/analytics';
 import { App, isHarnessEnabled } from './shell/App';
 import { createGameSdk, type GameEconomyBridge } from './sdk/SdkContext';
 import { saveState } from './core/SaveState';
@@ -29,10 +30,20 @@ const economy: GameEconomyBridge = {
   hasNoAds: () => saveState.noAds,
   coinBalance: () => saveState.coins,
 };
-const sdk = createGameSdk({ economy, firstOpen: !saveState.hasProgress });
+
+// Test-only analytics witness: when the harness is enabled, fan a RingBufferSink
+// beside the console sink so the GameHarness `drainEvents()` can read the trace
+// (the coins-conservation oracle for the chaos e2e). Null in production.
+const harnessSink = isHarnessEnabled ? createRingBufferSink() : null;
+
+const sdk = createGameSdk({
+  economy,
+  firstOpen: !saveState.hasProgress,
+  analyticsSinks: harnessSink ? [harnessSink] : undefined,
+});
 void sdk.init();
 
-const app = new App({ canvas, hudRoot, uiRoot }, sdk);
+const app = new App({ canvas, hudRoot, uiRoot }, sdk, harnessSink);
 app.start();
 
 // End the analytics session when the tab is hidden/closed (flush pending events).
