@@ -37,3 +37,8 @@ export {
   type RunFile,
   type RunLayout,
 } from './runLayout.ts';
+export {
+  buildFidelityGrid,
+  type FidelityPair,
+  type FidelityGridOptions,
+} from './fidelityGrid.ts';
