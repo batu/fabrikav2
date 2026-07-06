@@ -50,4 +50,17 @@ describe('no-literals', () => {
     const hexHits = withList.violations.filter((v) => v.value === '#ff0000');
     expect(hexHits).toEqual([]);
   });
+
+  it('passes a game.config.ts that uses a copy KEY for the title', () => {
+    const { violations } = lintNoLiterals(fixture('config-pass'));
+    expect(violations).toEqual([]);
+  });
+
+  it('warns on a raw user-facing title literal in game.config.ts', () => {
+    const { violations } = lintNoLiterals(fixture('config-fail'));
+    const copy = violations.filter((v) => v.kind === 'copy');
+    expect(copy).toHaveLength(1);
+    expect(copy[0]).toMatchObject({ value: 'Marble Madness Deluxe', severity: 'warn' });
+    expect(copy[0].file).toMatch(/games\/badgame\/game\.config\.ts/);
+  });
 });

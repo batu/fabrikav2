@@ -26,4 +26,19 @@ describe('structure', () => {
     // Every violation names the offending game so the message is actionable.
     for (const v of violations) expect(v.game).toBe('games/badgame');
   });
+
+  it('allows generated ios/ and android/ when the fixture .gitignore covers them', () => {
+    const { violations } = lintStructure(fixture('native-pass'));
+    expect(violations).toEqual([]);
+  });
+
+  it('flags ios/ and android/ when NOT gitignored (must be cap-generated + ignored)', () => {
+    const { violations } = lintStructure(fixture('native-fail'));
+    const entries = violations.map((v) => v.entry).sort();
+    expect(entries).toEqual(['android/', 'ios/']);
+    for (const v of violations) {
+      expect(v.game).toBe('games/badgame');
+      expect(v.home).toMatch(/native-resources|gitignore/);
+    }
+  });
 });
