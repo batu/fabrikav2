@@ -25,16 +25,14 @@ function batch(eventOverrides: Record<string, unknown> = {}, batchOverrides: Rec
     env: 'production',
     events: [
       {
-        id: 'level_start',
+        event_id: 'event-1',
+        enqueued_at: 1_000,
+        name: 'level_start',
         params: {
           app_version: '1.2.3',
           platform: 'ios',
           level_id: 'level-1',
         },
-        event_occurrence_id: 'event-1',
-        dedupe_key: 'dedupe-1',
-        enqueued_at_ms: 1_000,
-        attempt: 0,
         ...eventOverrides,
       },
     ],
@@ -81,8 +79,8 @@ describe('owned analytics worker ingest', (): void => {
     expect(dataPoints).toHaveLength(2);
     expect(dataPoints[0].indexes).toEqual(['marble_run', 'production', 'level_start', '1.2.3', 'ios']);
     expect(dataPoints[0].blobs[0]).toBe('event-1');
-    expect(dataPoints[0].blobs[1]).toBe('dedupe-1');
-    expect(dataPoints[0].doubles).toEqual([1, 1_000, 0, 1]);
+    expect(JSON.parse(dataPoints[0].blobs[1]) as Record<string, unknown>).toMatchObject({ level_id: 'level-1' });
+    expect(dataPoints[0].doubles).toEqual([1, 1_000, 1]);
   });
 
   it('rejects malformed game_id and unknown game_id (env allow-list), and invalid env', async (): Promise<void> => {
@@ -182,10 +180,10 @@ describe('owned analytics worker ingest', (): void => {
     };
     const worker = new OwnedAnalyticsIngestWorker(enabledEnv(), { nowMs: () => 1_100 });
 
-    expect((await worker.fetch(request(batch({ dedupe_key: 'dedupe-1', event_occurrence_id: 'event-1' })), { store })).status).toBe(202);
-    expect((await worker.fetch(request(batch({ dedupe_key: 'dedupe-2', event_occurrence_id: 'event-2' })), { store })).status).toBe(202);
-    expect((await worker.fetch(request(batch({ dedupe_key: 'dedupe-3', event_occurrence_id: 'event-3' })), { store })).status).toBe(202);
-    const limited = await worker.fetch(request(batch({ dedupe_key: 'dedupe-4', event_occurrence_id: 'event-4' })), { store });
+    expect((await worker.fetch(request(batch({ event_id: 'event-1' })), { store })).status).toBe(202);
+    expect((await worker.fetch(request(batch({ event_id: 'event-2' })), { store })).status).toBe(202);
+    expect((await worker.fetch(request(batch({ event_id: 'event-3' })), { store })).status).toBe(202);
+    const limited = await worker.fetch(request(batch({ event_id: 'event-4' })), { store });
 
     expect(limited.status).toBe(429);
     expect(await json(limited)).toMatchObject({
@@ -210,11 +208,11 @@ describe('owned analytics worker ingest', (): void => {
     };
     const worker = new OwnedAnalyticsIngestWorker(enabledEnv(), { nowMs: () => 1_100 });
 
-    expect((await worker.fetch(request(batch({ dedupe_key: 'dedupe-v1', event_occurrence_id: 'event-v1' }), { 'x-fabrika-app-version': 'spoof-1' }), { store })).status).toBe(202);
-    expect((await worker.fetch(request(batch({ dedupe_key: 'dedupe-v2', event_occurrence_id: 'event-v2' }), { 'x-fabrika-app-version': 'spoof-2' }), { store })).status).toBe(202);
-    expect((await worker.fetch(request(batch({ dedupe_key: 'dedupe-v3', event_occurrence_id: 'event-v3' }), { 'x-fabrika-app-version': 'spoof-3' }), { store })).status).toBe(202);
+    expect((await worker.fetch(request(batch({ event_id: 'event-v1' }), { 'x-fabrika-app-version': 'spoof-1' }), { store })).status).toBe(202);
+    expect((await worker.fetch(request(batch({ event_id: 'event-v2' }), { 'x-fabrika-app-version': 'spoof-2' }), { store })).status).toBe(202);
+    expect((await worker.fetch(request(batch({ event_id: 'event-v3' }), { 'x-fabrika-app-version': 'spoof-3' }), { store })).status).toBe(202);
 
-    expect((await worker.fetch(request(batch({ dedupe_key: 'dedupe-v4', event_occurrence_id: 'event-v4' }), { 'x-fabrika-app-version': 'spoof-4' }), { store })).status).toBe(429);
+    expect((await worker.fetch(request(batch({ event_id: 'event-v4' }), { 'x-fabrika-app-version': 'spoof-4' }), { store })).status).toBe(429);
   });
 
   it('does not let one game exhaust another game rate-limit bucket', async (): Promise<void> => {
@@ -234,14 +232,14 @@ describe('owned analytics worker ingest', (): void => {
       ANALYTICS_ALLOWED_GAME_IDS: 'marble_run, find_the_dog',
     }), { nowMs: () => 1_100 });
 
-    expect((await worker.fetch(request(batch({ dedupe_key: 'a', event_occurrence_id: 'a' }), {}), { store })).status).toBe(202);
+    expect((await worker.fetch(request(batch({ event_id: 'a' }), {}), { store })).status).toBe(202);
     // find_the_dog still has its own budget.
-    expect((await worker.fetch(request(batch({ dedupe_key: 'b', event_occurrence_id: 'b' }, { game_id: 'find_the_dog' })), { store })).status).toBe(202);
+    expect((await worker.fetch(request(batch({ event_id: 'b' }, { game_id: 'find_the_dog' })), { store })).status).toBe(202);
     // marble_run is now over its own limit.
-    expect((await worker.fetch(request(batch({ dedupe_key: 'c', event_occurrence_id: 'c' }), {}), { store })).status).toBe(429);
+    expect((await worker.fetch(request(batch({ event_id: 'c' }), {}), { store })).status).toBe(429);
   });
 
-  it('rejects duplicate dedupe keys inside the same batch', async (): Promise<void> => {
+  it('rejects duplicate event_id inside the same batch', async (): Promise<void> => {
     const writes = vi.fn();
     const worker = new OwnedAnalyticsIngestWorker(enabledEnv({ ANALYTICS: { writeDataPoint: writes } }), { nowMs: () => 1_100 });
     const parsedBatch = JSON.parse(batch()) as { events: Record<string, unknown>[] };
@@ -251,14 +249,15 @@ describe('owned analytics worker ingest', (): void => {
       env: 'production',
       events: [
         parsedBatch.events[0],
-        { ...parsedBatch.events[0], event_occurrence_id: 'event-2' },
+        // same event_id, different name — collides on the idempotency key.
+        { ...parsedBatch.events[0], name: 'level_complete' },
       ],
     });
 
     const response = await worker.fetch(request(body));
 
     expect(response.status).toBe(409);
-    expect(await json(response)).toMatchObject({ ok: false, error: { code: 'duplicate_dedupe_key' } });
+    expect(await json(response)).toMatchObject({ ok: false, error: { code: 'duplicate_event_id' } });
     expect(writes).not.toHaveBeenCalled();
   });
 
@@ -269,7 +268,7 @@ describe('owned analytics worker ingest', (): void => {
       ANALYTICS: { writeDataPoint: writes },
     }), { nowMs: () => 100_000 });
 
-    const response = await worker.fetch(request(batch({ enqueued_at_ms: 1_000 })));
+    const response = await worker.fetch(request(batch({ enqueued_at: 1_000 })));
 
     expect(response.status).toBe(400);
     expect(await json(response)).toMatchObject({ ok: false, error: { code: 'clock_skew' } });
@@ -293,7 +292,7 @@ describe('owned analytics worker ingest', (): void => {
       ANALYTICS_RATE_LIMIT_PER_MINUTE: '10',
       ANALYTICS: { writeDataPoint: vi.fn() },
     });
-    const makeRequest = (dedupe: string, occurrence: string, ip: string, key: string): Request =>
+    const makeRequest = (eventId: string, ip: string, key: string): Request =>
       new Request('https://analytics.example.com/ingest', {
         method: 'POST',
         headers: {
@@ -301,19 +300,19 @@ describe('owned analytics worker ingest', (): void => {
           'content-type': 'application/json',
           'cf-connecting-ip': ip,
         },
-        body: batch({ dedupe_key: dedupe, event_occurrence_id: occurrence, enqueued_at_ms: now }),
+        body: batch({ event_id: eventId, enqueued_at: now }),
       });
 
-    expect((await workerEntrypoint.fetch(makeRequest('entrypoint-dedupe-1', 'entrypoint-event-1', '198.51.100.9', 'entrypoint-public-key-123456'), replayEnv)).status).toBe(202);
-    expect((await workerEntrypoint.fetch(makeRequest('entrypoint-dedupe-1', 'entrypoint-event-1', '198.51.100.9', 'entrypoint-public-key-123456'), replayEnv)).status).toBe(409);
+    expect((await workerEntrypoint.fetch(makeRequest('entrypoint-event-1', '198.51.100.9', 'entrypoint-public-key-123456'), replayEnv)).status).toBe(202);
+    expect((await workerEntrypoint.fetch(makeRequest('entrypoint-event-1', '198.51.100.9', 'entrypoint-public-key-123456'), replayEnv)).status).toBe(409);
 
     const rateEnv = enabledEnv({
       ANALYTICS_PUBLIC_CLIENT_KEYS: 'entrypoint-rate-key-123456',
       ANALYTICS_RATE_LIMIT_PER_MINUTE: '1',
       ANALYTICS: { writeDataPoint: vi.fn() },
     });
-    expect((await workerEntrypoint.fetch(makeRequest('entrypoint-rate-dedupe-1', 'entrypoint-rate-event-1', '198.51.100.10', 'entrypoint-rate-key-123456'), rateEnv)).status).toBe(202);
-    expect((await workerEntrypoint.fetch(makeRequest('entrypoint-rate-dedupe-2', 'entrypoint-rate-event-2', '198.51.100.10', 'entrypoint-rate-key-123456'), rateEnv)).status).toBe(429);
+    expect((await workerEntrypoint.fetch(makeRequest('entrypoint-rate-event-1', '198.51.100.10', 'entrypoint-rate-key-123456'), rateEnv)).status).toBe(202);
+    expect((await workerEntrypoint.fetch(makeRequest('entrypoint-rate-event-2', '198.51.100.10', 'entrypoint-rate-key-123456'), rateEnv)).status).toBe(429);
   });
 
   it('keeps unauthenticated health response minimal', async (): Promise<void> => {

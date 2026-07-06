@@ -123,10 +123,10 @@ export class OwnedAnalyticsIngestWorker {
       sampleRate: config.sampleRate,
     };
 
-    const duplicateDedupeKey = firstDuplicate(parsed.batch.events.map((event) => event.dedupe_key));
-    if (duplicateDedupeKey !== null) {
+    const duplicateEventId = firstDuplicate(parsed.batch.events.map((event) => event.event_id));
+    if (duplicateEventId !== null) {
       this.abuseCounters.replayed += 1;
-      return jsonError(409, { code: 'duplicate_dedupe_key', message: `Batch contains duplicate dedupe key ${duplicateDedupeKey}.` });
+      return jsonError(409, { code: 'duplicate_event_id', message: `Batch contains duplicate event_id ${duplicateEventId}.` });
     }
 
     const rateKey = `${context.gameId}:${auth.publicClientKey}:${context.clientIp}`;
@@ -141,22 +141,22 @@ export class OwnedAnalyticsIngestWorker {
       });
     }
 
-    const skewed = parsed.batch.events.find((event) => Math.abs(now - event.enqueued_at_ms) > config.maxClockSkewMs);
+    const skewed = parsed.batch.events.find((event) => Math.abs(now - event.enqueued_at) > config.maxClockSkewMs);
     if (skewed !== undefined) {
       this.abuseCounters.clockSkew += 1;
-      return jsonError(400, { code: 'clock_skew', message: `Event ${skewed.dedupe_key} is outside the allowed clock skew.` });
+      return jsonError(400, { code: 'clock_skew', message: `Event ${skewed.event_id} is outside the allowed clock skew.` });
     }
 
-    const replayed = parsed.batch.events.find((event) => this.replayStore.has(replayKey(context.gameId, event.dedupe_key), now));
+    const replayed = parsed.batch.events.find((event) => this.replayStore.has(replayKey(context.gameId, event.event_id), now));
     if (replayed !== undefined) {
       this.abuseCounters.replayed += 1;
-      return jsonError(409, { code: 'replay', message: `Event ${replayed.dedupe_key} was already accepted.` });
+      return jsonError(409, { code: 'replay', message: `Event ${replayed.event_id} was already accepted.` });
     }
 
     const store = dependencies.store ?? this.createStore(config);
     const result = await store.writeBatch(parsed.batch, context);
     for (const event of parsed.batch.events) {
-      this.replayStore.add(replayKey(context.gameId, event.dedupe_key), now + config.replayTtlMs);
+      this.replayStore.add(replayKey(context.gameId, event.event_id), now + config.replayTtlMs);
     }
 
     return jsonResponse(202, {
@@ -297,8 +297,8 @@ export class SlidingWindowRateLimiter {
   }
 }
 
-function replayKey(gameId: string, dedupeKey: string): string {
-  return `${gameId}:${dedupeKey}`;
+function replayKey(gameId: string, eventId: string): string {
+  return `${gameId}:${eventId}`;
 }
 
 function authenticate(request: Request, config: AnalyticsWorkerConfig): { readonly ok: true; readonly publicClientKey: string } | { readonly ok: false; readonly status: 401 | 403; readonly error: WorkerError } {
@@ -319,22 +319,15 @@ function isAnalyticsEnvironment(value: string): value is AnalyticsEnvironment {
 
 function isOwnedAnalyticsWorkerEvent(value: unknown): value is OwnedAnalyticsWorkerEvent {
   if (!isObject(value)) return false;
-  const enqueuedAtMs = value.enqueued_at_ms;
-  const attempt = value.attempt;
-  return isObject(value)
-    && typeof value.id === 'string'
-    && value.id.length > 0
+  const enqueuedAt = value.enqueued_at;
+  return typeof value.event_id === 'string'
+    && value.event_id.length > 0
+    && typeof value.name === 'string'
+    && value.name.length > 0
     && isObject(value.params)
-    && typeof value.event_occurrence_id === 'string'
-    && value.event_occurrence_id.length > 0
-    && typeof value.dedupe_key === 'string'
-    && value.dedupe_key.length > 0
-    && Number.isSafeInteger(enqueuedAtMs)
-    && typeof enqueuedAtMs === 'number'
-    && enqueuedAtMs > 0
-    && Number.isSafeInteger(attempt)
-    && typeof attempt === 'number'
-    && attempt >= 0
+    && typeof enqueuedAt === 'number'
+    && Number.isSafeInteger(enqueuedAt)
+    && enqueuedAt > 0
     && Object.values(value.params).every(isAnalyticsPrimitive);
 }
 

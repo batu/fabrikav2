@@ -15,11 +15,16 @@ import type {
  * every dashboard query is naturally scoped to one game + one environment —
  * the multi-game and test-partitioning generalizations, made queryable at the
  * storage boundary rather than reconstructed from blobs.
+ *
+ * `event_id` here is the funnel DIMENSION — the event *name/type* (e.g.
+ * `level_start`), which is what a funnel groups by. The wire's unique
+ * per-occurrence idempotency id is carried in the `event_uid` blob for
+ * traceability (dedupe/replay is enforced at ingest, not at query time).
  */
 export const analyticsEngineLayout = {
   indexes: ['game_id', 'env', 'event_id', 'app_version', 'platform'] as const,
-  blobs: ['event_occurrence_id', 'dedupe_key', 'dimension_json', 'source_health_json'] as const,
-  doubles: ['event_count', 'enqueued_at_ms', 'attempt', 'sample_rate'] as const,
+  blobs: ['event_uid', 'dimension_json', 'source_health_json'] as const,
+  doubles: ['event_count', 'enqueued_at_ms', 'sample_rate'] as const,
 };
 
 export class AnalyticsEngineStore implements AnalyticsWorkerStore {
@@ -28,7 +33,7 @@ export class AnalyticsEngineStore implements AnalyticsWorkerStore {
   async writeBatch(batch: OwnedAnalyticsWorkerBatch, context: AnalyticsWorkerRequestContext): Promise<AnalyticsWorkerWriteResult> {
     let eventWrites = 0;
     for (const event of batch.events) {
-      if (!shouldWriteAnalyticsEngineSample(event.dedupe_key, context.sampleRate)) continue;
+      if (!shouldWriteAnalyticsEngineSample(event.event_id, context.sampleRate)) continue;
       this.dataset.writeDataPoint(toAnalyticsEnginePoint(event, context, null));
       eventWrites += 1;
     }
@@ -81,8 +86,8 @@ export class D1AnalyticsEventStore implements AnalyticsWorkerStore {
       queryCount += 1;
       writes += 1;
       await this.db.prepare(
-        'insert into analytics_events (game_id, env, dedupe_key, event_id, app_version, enqueued_at_ms, payload_json) values (?, ?, ?, ?, ?, ?, ?)',
-      ).bind(context.gameId, context.env, event.dedupe_key, event.id, context.appVersion, event.enqueued_at_ms, payload).run();
+        'insert into analytics_events (game_id, env, event_uid, event_id, app_version, enqueued_at_ms, payload_json) values (?, ?, ?, ?, ?, ?, ?)',
+      ).bind(context.gameId, context.env, event.event_id, event.name, context.appVersion, event.enqueued_at, payload).run();
     }
 
     queryCount += 1;
@@ -131,20 +136,18 @@ export function toAnalyticsEnginePoint(
     indexes: [
       context.gameId,
       context.env,
-      event.id,
+      event.name,
       context.appVersion,
       stringDimension(event.params.platform, 'unknown'),
     ],
     blobs: [
-      event.event_occurrence_id,
-      event.dedupe_key,
+      event.event_id,
       JSON.stringify(event.params),
       sourceHealth === null ? '' : JSON.stringify(sourceHealth),
     ],
     doubles: [
       1,
-      event.enqueued_at_ms,
-      event.attempt,
+      event.enqueued_at,
       context.sampleRate,
     ],
   };
@@ -177,8 +180,8 @@ export function buildSourceHealthRow(input: {
 function sourceHealthAnalyticsPoint(row: SourceHealthRow): AnalyticsEngineDataPoint {
   return {
     indexes: [row.game_id, row.env, 'source_health', row.app_version, row.storage_mode],
-    blobs: ['', '', '{}', JSON.stringify(row)],
-    doubles: [row.accepted_events, row.checked_at_ms, row.rejected_events, 1],
+    blobs: ['', '{}', JSON.stringify(row)],
+    doubles: [row.accepted_events, row.checked_at_ms, row.rejected_events],
   };
 }
 

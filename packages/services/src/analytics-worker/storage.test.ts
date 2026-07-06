@@ -23,16 +23,14 @@ function testBatch(size = 2): OwnedAnalyticsWorkerBatch {
     game_id: 'marble_run',
     env: 'production',
     events: Array.from({ length: size }, (_, index) => ({
-      id: 'level_start',
+      event_id: `event-${index + 1}`,
+      enqueued_at: 1_000 + index,
+      name: 'level_start',
       params: {
         app_version: '1.2.3',
         platform: 'android',
         level_id: `level-${index + 1}`,
       },
-      event_occurrence_id: `event-${index + 1}`,
-      dedupe_key: `dedupe-${index + 1}`,
-      enqueued_at_ms: 1_000 + index,
-      attempt: index,
     })),
   };
 }
@@ -43,13 +41,14 @@ describe('owned analytics worker storage', (): void => {
 
     expect(analyticsEngineLayout).toEqual({
       indexes: ['game_id', 'env', 'event_id', 'app_version', 'platform'],
-      blobs: ['event_occurrence_id', 'dedupe_key', 'dimension_json', 'source_health_json'],
-      doubles: ['event_count', 'enqueued_at_ms', 'attempt', 'sample_rate'],
+      blobs: ['event_uid', 'dimension_json', 'source_health_json'],
+      doubles: ['event_count', 'enqueued_at_ms', 'sample_rate'],
     });
+    // index[2] is the funnel dimension = event name; blob[0] is the unique wire id.
     expect(point.indexes).toEqual(['marble_run', 'production', 'level_start', '1.2.3', 'android']);
-    expect(point.blobs.slice(0, 2)).toEqual(['event-1', 'dedupe-1']);
-    expect(JSON.parse(point.blobs[2]) as Record<string, unknown>).toMatchObject({ level_id: 'level-1' });
-    expect(point.doubles).toEqual([1, 1_000, 0, 0.5]);
+    expect(point.blobs[0]).toBe('event-1');
+    expect(JSON.parse(point.blobs[1]) as Record<string, unknown>).toMatchObject({ level_id: 'level-1' });
+    expect(point.doubles).toEqual([1, 1_000, 0.5]);
   });
 
   it('builds source-health rows carrying game_id and env for accepted/rejected ingest', (): void => {
@@ -128,7 +127,7 @@ describe('owned analytics worker storage', (): void => {
     const writes: unknown[] = [];
     const store = new AnalyticsEngineStore({ writeDataPoint: (point) => writes.push(point) });
     const batch = testBatch(2);
-    const sampleRate = shouldWriteAnalyticsEngineSample('dedupe-1', 0.5) ? 0 : 0.5;
+    const sampleRate = shouldWriteAnalyticsEngineSample('event-1', 0.5) ? 0 : 0.5;
 
     await store.writeBatch(batch, context({ sampleRate }));
 

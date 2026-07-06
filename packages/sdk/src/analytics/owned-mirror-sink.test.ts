@@ -36,6 +36,8 @@ function baseOptions(
     url: 'https://mirror.example/ingest',
     publicClientKey: 'pk_test_0123456789abcdef',
     transport,
+    gameId: 'marble_run',
+    env: 'test',
     now: () => 1_700_000_000_000,
     generateId: () => `evt-${++n}`,
     ...overrides,
@@ -59,9 +61,14 @@ describe('createOwnedMirrorSink — batching + wire body', () => {
     expect(transport.calls).toHaveLength(1);
     const body = JSON.parse(transport.calls[0]!.body) as {
       schema: string;
+      game_id: string;
+      env: string;
       events: { event_id: string; name: string; params: Record<string, unknown> }[];
     };
     expect(body.schema).toBe(OWNED_MIRROR_SCHEMA);
+    // batch envelope carries game_id + env (the multi-game / env-partition keys)
+    expect(body.game_id).toBe('marble_run');
+    expect(body.env).toBe('test');
     expect(body.events).toHaveLength(2);
     // idempotency ids are distinct per enqueue
     expect(body.events[0]!.event_id).toBe('evt-1');

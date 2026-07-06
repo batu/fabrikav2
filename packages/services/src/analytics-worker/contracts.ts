@@ -21,12 +21,27 @@
  * lockstep.
  */
 
-export const ownedAnalyticsWorkerSchema = 'fabrika-owned-analytics-v1' as const;
+import {
+  OWNED_ANALYTICS_WIRE_SCHEMA,
+  type AnalyticsEnvironment,
+  type OwnedAnalyticsWireBatch,
+  type OwnedAnalyticsWireEvent,
+} from '@fabrikav2/sdk/analytics';
+
+/**
+ * The wire shape is owned by the PRODUCER: `@fabrikav2/sdk`'s
+ * `owned-mirror-sink` builds these batches, and this worker validates against
+ * the exact same declaration (imported below) so client and worker can never
+ * drift under the shared `fabrika-owned-analytics-v1` tag. The worker's own
+ * types (`OwnedAnalyticsWorkerBatch`/`Event`) are thin aliases kept for local
+ * readability and back-compat of the module's exported names.
+ */
+export const ownedAnalyticsWorkerSchema = OWNED_ANALYTICS_WIRE_SCHEMA;
 
 export type OwnedAnalyticsWorkerSchema = typeof ownedAnalyticsWorkerSchema;
 
 /** The environment marker every batch must carry (decision-doc guardrail). */
-export type AnalyticsEnvironment = 'production' | 'development' | 'test';
+export type { AnalyticsEnvironment };
 
 export const ANALYTICS_ENVIRONMENTS: readonly AnalyticsEnvironment[] = [
   'production',
@@ -34,26 +49,9 @@ export const ANALYTICS_ENVIRONMENTS: readonly AnalyticsEnvironment[] = [
   'test',
 ];
 
-export type AnalyticsWorkerPrimitive = string | number | boolean | null;
-export type AnalyticsWorkerParams = Record<string, AnalyticsWorkerPrimitive>;
+export type OwnedAnalyticsWorkerEvent = OwnedAnalyticsWireEvent;
 
-export interface OwnedAnalyticsWorkerEvent {
-  readonly id: string;
-  readonly params: AnalyticsWorkerParams;
-  readonly event_occurrence_id: string;
-  readonly dedupe_key: string;
-  readonly enqueued_at_ms: number;
-  readonly attempt: number;
-}
-
-export interface OwnedAnalyticsWorkerBatch {
-  readonly schema: OwnedAnalyticsWorkerSchema;
-  /** Which game these events belong to — keys storage, never trusted for auth. */
-  readonly game_id: string;
-  /** Environment marker; test/development traffic is partitioned from prod. */
-  readonly env: AnalyticsEnvironment;
-  readonly events: readonly OwnedAnalyticsWorkerEvent[];
-}
+export type OwnedAnalyticsWorkerBatch = OwnedAnalyticsWireBatch;
 
 export interface AnalyticsEngineDataPoint {
   readonly indexes: readonly string[];

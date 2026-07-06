@@ -16,10 +16,13 @@ scopes rate-limit + replay) and an `env` marker (`production` |
 `development` | `test`) that partitions dev/test SDK verification out of
 production data — the decision-doc 'SDK test credentials' guardrail, promoted
 from a credential-level convention to a validated field of the ingest contract.
-Wire format tag: `fabrika-owned-analytics-v1`.
+Wire format tag: `fabrika-owned-analytics-v1`. The wire shape is owned by the
+producer and imported from `@fabrikav2/sdk/analytics` (`wire.ts`: batch
+`{ schema, game_id, env, events }`, event `{ event_id, enqueued_at, name,
+params }`) so client and worker cannot drift under the shared tag.
 
 - Ingest: `POST /ingest` — auth (public client key), abuse gates (oversize,
-  malformed, duplicate/replayed `dedupe_key`, clock skew, per-(game,key,ip)
+  malformed, duplicate/replayed `event_id`, clock skew, per-(game,key,ip)
   rate limit), then Analytics Engine (default) or D1 (fallback) storage.
 - Query: `GET /v1/query/funnel?game_id=…&env=…&start_ms=…&end_ms=…` — operator
   funnel reads with low-N suppression, freshness, and trust labels.
