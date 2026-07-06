@@ -57,4 +57,5 @@ if (isHarnessEnabled) {
     __MARBLE_RUN_HARNESS__: app.harness(),
     __MARBLE_RUN_GAME__: app,
   });
+  void import('./testing/insituTour').then(({ maybeRunInsituTour }) => maybeRunInsituTour(app));
 }
