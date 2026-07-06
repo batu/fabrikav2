@@ -18,6 +18,9 @@ declare module '@capacitor/core' {
     getPlatform(): 'web' | 'ios' | 'android';
     isNativePlatform(): boolean;
   };
+  // Used by the attribution carry to obtain the native `AdjustAttribution`
+  // bridge (`registerPlugin<AdjustAttributionPlugin>('AdjustAttribution')`).
+  export function registerPlugin<T>(name: string): T;
 }
 
 declare module '@capacitor/haptics' {

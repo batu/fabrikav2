@@ -9,6 +9,9 @@
     ".": "./src/index.ts",
     "./haptics": "./src/haptics/index.ts",
     "./audio": "./src/audio/index.ts",
+    "./attribution": "./src/attribution/index.ts",
+    "./analytics": "./src/analytics/index.ts",
+    "./iap": "./src/iap/index.ts",
     "./ads": "./src/ads/index.ts"
   },
   "scripts": {
