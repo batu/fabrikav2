@@ -90,3 +90,22 @@ These target the agency repo (out of write scope tonight) — implement there la
     skill: document the fast respawn playbook (worktrees survive; re-run
     run-card), or teach run-card a `--resume` that detects a live worker PID file
     in `.twf/` before spawning a duplicate.
+
+## Post-port additions (2026-07-06 morning)
+
+16. **Evidence-capture convention for conductors** (F11): capture scripts and
+    intermediate outputs go to the game's gitignored .work/; only promoted
+    artifacts land in evidence/. A dirty worker tree from conductor activity
+    cost a respawn cycle.
+17. **run-card should be cwd-safe** (F12): invoked from inside the card's own
+    worktree it tries to re-create the worktree; detect and reuse instead, or
+    error with the fix.
+18. **Native build playbook → skill/tool** (F13/F14): SPM-based Capacitor has no
+    .xcworkspace (build -project App.xcodeproj); needs keychain unlock +
+    DEVELOPMENT_TEAM injection + devicectl install/launch. Worth a `twf`-adjacent
+    or agency skill so device installs are one command, not an evening of cwd
+    archaeology.
+19. **Template/linter co-evolution rule** (F15): every new class of generated
+    artifact (native shells today, future codegen) needs a same-card update to
+    the structure whitelist + template README, or local audits go red while CI
+    stays green — a confusing split-brain.
