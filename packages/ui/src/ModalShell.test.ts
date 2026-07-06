@@ -58,6 +58,23 @@ describe('mountModalShell', () => {
     expect(card.getAttribute('aria-labelledby')).toBe(title.id);
   });
 
+  it('paints injected ribbon + card sprites additively over the tone fallback', () => {
+    const handle = mountModalShell({
+      mountInto: host(),
+      ribbon: { title: 'COMPLETED', tone: 'win', image: 'ribbon-src' },
+      cardImage: 'card-src',
+      id: 'sprite-modal',
+    });
+    const ribbon = handle.el.querySelector<HTMLElement>('.fab-modal-ribbon')!;
+    // Tone stays as the colour fallback; the image class + inline bg add on top.
+    expect(ribbon.classList.contains('fab-modal-ribbon--win')).toBe(true);
+    expect(ribbon.classList.contains('fab-modal-ribbon--image')).toBe(true);
+    expect(ribbon.style.backgroundImage).toContain('ribbon-src');
+    const card = handle.el.querySelector<HTMLElement>('.fab-modal-card')!;
+    expect(card.classList.contains('fab-modal-card--image')).toBe(true);
+    expect(card.style.backgroundImage).toContain('card-src');
+  });
+
   it('ribbon tone defaults to neutral and omits an absent eyebrow', () => {
     const handle = mountModalShell({
       mountInto: host(),

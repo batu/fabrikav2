@@ -161,8 +161,19 @@
      A repeating marble-circle pattern painted over the flat gradient, plus the
      confetti fleck palette (menu only). Composed in index.html / the shell. */
   --fab-color-bg-motif: rgba(255, 255, 255, 0.06);
+  /* Bright off-centre highlight that turns each motif dot into a glossy marble
+     sphere (paired with --fab-color-bg-motif in the index.html backdrop). */
+  --fab-color-bg-motif-hi: rgba(255, 255, 255, 0.16);
   --fab-color-confetti-a: #ffcf4d;
   --fab-color-confetti-b: #ff7a9c;
   --fab-color-confetti-c: #5fd06a;
   --fab-color-confetti-d: #6fdcff;
+
+  /* ---- HINT tile — warm-tan secondary chrome (in-level HUD, BR) ----
+     The reference hint tile is a warm-tan chunky panel, distinct from the cream
+     currency/goal surfaces. Game-owned so a reskin recolors the tile alone. */
+  --fab-color-hint-surface: #d8a566;
+  --fab-color-hint-border: #a9713c;
+  --fab-color-hint-shadow: #82552c;
+  --fab-color-hint-ink: #4a2a12;
 }

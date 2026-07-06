@@ -285,9 +285,10 @@ export class App {
     gear.className = 'mr-gear';
     gear.dataset.fabAction = 'settings';
     gear.setAttribute('aria-label', copy['menu.settings']);
-    const gearIcon = document.createElement('span');
-    gearIcon.className = 'mr-gear-glyph';
-    gearIcon.textContent = '⚙';
+    const gearIcon = document.createElement('img');
+    gearIcon.className = 'mr-gear-icon';
+    gearIcon.src = assetUrls.gear;
+    gearIcon.alt = '';
     gearIcon.setAttribute('aria-hidden', 'true');
     gear.appendChild(gearIcon);
     gear.addEventListener('click', () => {
@@ -378,7 +379,7 @@ export class App {
 
   private mountWin(info: PendingWin): void {
     const actions: ModalAction[] = [
-      { label: copy['result.win.next'], onClick: () => this.next(info.levelId), variant: 'primary', dataAction: 'result-next' },
+      { label: copy['result.win.next'], onClick: () => this.next(info.levelId), variant: 'primary', className: 'mr-result-cta', dataAction: 'result-next' },
       { label: copy['result.win.retry'], onClick: () => this.retry(), variant: 'secondary', dataAction: 'result-retry' },
     ];
     const reward = this.buildRewardDisplay(info.reward);
@@ -386,6 +387,9 @@ export class App {
       mountInto: this.uiRoot,
       variant: 'win',
       title: copy['result.win.title'],
+      ribbonImage: assetUrls.ribbonCompleted,
+      cardImage: assetUrls.popup,
+      art: this.buildWinCrown(),
       rewardDisplay: reward.el,
       actions,
     });
@@ -394,12 +398,15 @@ export class App {
 
   private mountFinale(): void {
     const actions: ModalAction[] = [
-      { label: copy['result.finale.action'], onClick: () => this.toMenu(), variant: 'primary', dataAction: 'result-menu' },
+      { label: copy['result.finale.action'], onClick: () => this.toMenu(), variant: 'primary', className: 'mr-result-cta', dataAction: 'result-menu' },
     ];
     this.screenHandle = mountResultCard({
       mountInto: this.uiRoot,
       variant: 'win',
       title: copy['result.finale.title'],
+      ribbonImage: assetUrls.ribbonCompleted,
+      cardImage: assetUrls.popup,
+      art: this.buildWinCrown(),
       messages: copy['result.finale.message'],
       actions,
     });
@@ -407,7 +414,7 @@ export class App {
 
   private mountLose(): void {
     const actions: ModalAction[] = [
-      { label: copy['result.lose.watchAd'], onClick: () => void this.requestFailSave(), variant: 'primary', dataAction: 'result-next' },
+      { label: copy['result.lose.watchAd'], onClick: () => void this.requestFailSave(), variant: 'primary', className: 'mr-result-cta', dataAction: 'result-next' },
       { label: copy['result.lose.retry'], onClick: () => this.retry(), variant: 'secondary', dataAction: 'result-retry' },
       { label: copy['result.lose.quit'], onClick: () => this.toMenu(), variant: 'secondary', dataAction: 'result-menu' },
     ];
@@ -415,6 +422,8 @@ export class App {
       mountInto: this.uiRoot,
       variant: 'lose',
       title: copy['result.lose.title'],
+      ribbonImage: assetUrls.ribbonFailed,
+      cardImage: assetUrls.popup,
       messages: copy['result.lose.message'],
       actions,
     });
@@ -605,6 +614,15 @@ export class App {
     header.appendChild(img);
     header.appendChild(title);
     return header;
+  }
+
+  /** Win-overlay crown sprite shown at the top of the ResultCard body. */
+  private buildWinCrown(): HTMLElement {
+    const img = document.createElement('img');
+    img.src = assetUrls.crown;
+    img.alt = '';
+    img.setAttribute('aria-hidden', 'true');
+    return img;
   }
 
   private buildRewardDisplay(amount: number): { el: HTMLElement; source: HTMLElement } {

@@ -37,6 +37,33 @@ describe('mountResultCard', () => {
     expect(handle.el.querySelector('.fab-result-continue')).toBeNull();
   });
 
+  it('binds injected ribbon/card sprites and a win-art slot (game owns the bytes)', () => {
+    const crown = document.createElement('img');
+    const handle = mountResultCard({
+      mountInto: host(),
+      variant: 'win',
+      title: 'Level Complete',
+      ribbonImage: 'ribbon-src',
+      cardImage: 'card-src',
+      art: crown,
+      actions: [{ label: 'Next', onClick: () => {} }],
+      id: 'result',
+    });
+    // Ribbon paints the injected sprite; the visible title collapses to an
+    // sr-only label (the sprite carries its own baked lettering).
+    const ribbon = handle.el.querySelector<HTMLElement>('.fab-modal-ribbon')!;
+    expect(ribbon.classList.contains('fab-modal-ribbon--image')).toBe(true);
+    expect(ribbon.style.backgroundImage).toContain('ribbon-src');
+    // Card panel wears the popup sprite.
+    const card = handle.el.querySelector<HTMLElement>('.fab-modal-card')!;
+    expect(card.classList.contains('fab-modal-card--image')).toBe(true);
+    expect(card.style.backgroundImage).toContain('card-src');
+    // Win art lands at the top of the body.
+    const art = handle.el.querySelector<HTMLElement>('.fab-result-art')!;
+    expect(art).toBe(crown);
+    expect(art.parentElement?.classList.contains('fab-result-body')).toBe(true);
+  });
+
   it('renders the lose variant with the continue-offer slot', () => {
     const offer = document.createElement('div');
     offer.textContent = 'Watch ad';
