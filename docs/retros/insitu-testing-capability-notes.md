@@ -57,3 +57,14 @@ One `packages/testkit` extension + one tools/ CLI:
   device (item 2), run manually via the F14 playbook.
 - CI visual baseline for the ui package + each game's 5 canonical screens
   (item 5).
+
+## Incident 2026-07-06: wrong-package reference (near-miss)
+
+The first adb reference capture grabbed com.utolye.marblerun.v5 (conductor's
+monkey launch of the server agent's "LATEST" pick) while the correct reference
+was com.basegamelab.marblerun (Batu launched it manually; visually a different
+game skin). Caught only because Batu was watching the phone. Harness rule:
+tools/refcap MUST verify the foreground package (dumpsys topResumedActivity)
+matches the manifest's package id at every capture, and stamp package+version
+into the capture's metadata. Multiple installed variants of the same game on
+test devices is the NORM (6 marble runs on this Pixel), not an edge case.
