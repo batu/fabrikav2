@@ -55,8 +55,11 @@ export async function maybeRunInsituTour(app: App): Promise<void> {
       el = document.createElement('div');
       el.id = '__tourstate__';
       el.setAttribute('role', 'text');
+      // Off-screen (not opacity-faded) so it NEVER shows in a capture but stays
+      // in the a11y tree for XCUITest to query — the faint on-screen ghost of the
+      // old opacity:0.01 marker contaminated the panel's own captures (Fable caught it).
       el.style.cssText =
-        'position:fixed;left:0;top:0;width:2px;height:2px;opacity:0.01;pointer-events:none;z-index:99999;';
+        'position:fixed;left:-9999px;top:0;width:1px;height:1px;overflow:hidden;pointer-events:none;';
       document.body.appendChild(el);
     }
     const tag = `tourstate:${s}`;
