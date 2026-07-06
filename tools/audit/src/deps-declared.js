@@ -10,6 +10,10 @@
 // matched double-quoted imports while every game used single quotes (research
 // 06 §3). This linter matches BOTH quote styles — that specific bug is covered
 // by a regression fixture.
+//
+// It also runs the INVERSE check (research 10 finding 10): a declared
+// `@fabrikav2/*` dep with zero imports anywhere in the workspace is a WARNING
+// (not a gate failure). Test-file imports count as usage.
 
 import { join } from 'node:path';
 import {
@@ -49,11 +53,13 @@ export function lintDepsDeclared(root) {
     const wsName = (pkg && pkg.name) || rel(root, wsDir);
     const declared = declaredDeps(pkg);
     const seen = new Set();
+    const used = new Set();
 
     for (const file of walkFiles(wsDir, { exts: SOURCE_EXTS })) {
       const text = stripComments(readText(file));
       for (const m of text.matchAll(IMPORT_RE)) {
         const imported = m[2]; // e.g. @fabrikav2/kernel
+        used.add(imported);
         if (imported === wsName) continue; // self-import (rare) is not phantom
         if (declared.has(imported)) continue;
         const key = `${file}::${imported}`;
@@ -61,6 +67,19 @@ export function lintDepsDeclared(root) {
         seen.add(key);
         violations.push({ workspace: wsName, file: rel(root, file), import: imported });
       }
+    }
+
+    // Inverse check (research 10 finding 10): a declared `@fabrikav2/*` dep that
+    // is never imported anywhere in the workspace. WARN, not error — a dead
+    // workspace dep is a smell, not the build hazard a phantom import is.
+    // Test-file imports COUNT (the walk includes colocated `*.test.ts`): a dep
+    // used only in tests is correctly "used" (this is why packages/ui's kernel
+    // devDep, imported in *.test.ts via @fabrikav2/kernel/flow, does NOT warn).
+    for (const dep of declared) {
+      if (!dep.startsWith(SCOPE)) continue; // only sibling @fabrikav2/* deps
+      if (dep === wsName) continue;
+      if (used.has(dep)) continue;
+      violations.push({ workspace: wsName, import: dep, kind: 'unused', severity: 'warn' });
     }
   }
 

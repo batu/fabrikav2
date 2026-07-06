@@ -5,7 +5,7 @@
 // regexes). Keeping them here is the whole point of this card's title: no
 // literal-value duplication across the linters themselves.
 
-import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -187,6 +187,39 @@ export function extractExportNames(text, { includeReExportsFromScope = true } = 
       const name = asMatch ? asMatch[1] : piece.split(/\s+/)[0];
       if (name && name !== 'default') names.add(name);
     }
+  }
+  return names;
+}
+
+/**
+ * Names of LOCAL (non-exported) function-shaped declarations in a source file:
+ * `function NAME`, `const/let/var NAME = (…) => …`, `const NAME = async …`,
+ * `const NAME = function …`. Exported declarations are excluded — they are the
+ * shared surface, not a shadowing local. Comment-stripped; strings preserved.
+ *
+ * Deliberately function-shaped only (not data consts): a naive all-declaration
+ * scan collides on ubiquitous local names (`result`, `config`, `now`) and is
+ * useless noise. Used by no-duplication's packages/sdk local-name scan to catch
+ * the withTimeout-×2 footgun (a local re-implementation shadowing a shared
+ * export — research 10 finding 2).
+ */
+export function extractLocalFunctionNames(text) {
+  const names = new Set();
+  const stripped = stripComments(text);
+  // Two alternations: a `function NAME` declaration, or a `const/let/var NAME =`
+  // bound to a function value (`function`, an arrow `(...) =>`, or a bare
+  // single-param arrow `x =>`). Capture group 1/3 is a leading `export` (which
+  // disqualifies it as a local); 2/4 is the name.
+  // The arrow return-type annotation is matched with `[^=]*` (not `[^=>]*`): it
+  // must allow generic `>` (e.g. `): Promise<void> =>`) yet stop before the `=>`
+  // arrow, which `[^=]*` does since the arrow starts with `=`.
+  const declRe =
+    /\b(export\s+)?(?:default\s+)?(?:async\s+)?function\*?\s+([A-Za-z_$][\w$]*)|\b(export\s+)?(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*(?::[^=\n]+)?=\s*(?:async\s+)?(?:function\b|\([^)]*\)\s*(?::[^=]*)?=>|[A-Za-z_$][\w$]*\s*=>)/g;
+  for (const m of stripped.matchAll(declRe)) {
+    const exported = Boolean(m[1] || m[3]);
+    if (exported) continue;
+    const name = m[2] || m[4];
+    if (name) names.add(name);
   }
   return names;
 }

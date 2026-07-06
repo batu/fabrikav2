@@ -10,6 +10,11 @@
 // correct home (from the conductor's approved ban list, card QzqGf6el), and
 // verifies each game's `.work/` scratch is gitignored. It intentionally checks
 // ONLY the top level — the interior of an allowed dir is that dir's business.
+//
+// Generated native shells (`ios/`, `android/`) are a CONDITIONAL top-level
+// allowance: legitimate only when gitignored (Capacitor-generated, never
+// committed — committed native inputs live in `native-resources/`), a violation
+// when git-tracked. Checked via the deterministic `.gitignore`-text rule below.
 
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -39,6 +44,7 @@ export const ALLOWED_FILES = new Set([
   'vitest.config.ts',
   'playwright.config.ts',
   'capacitor.config.ts',
+  'eslint.config.js',
   'README.md',
   '.gitignore',
 ]);
@@ -79,6 +85,13 @@ const SECRET_HOME = 'never in-tree — use a secrets manager';
 const DEFAULT_HOME =
   'not an allowed top-level game entry — see games/_template for the canonical structure';
 
+// Generated Capacitor native shells. Legitimate at a game's top level ONLY when
+// gitignored (cap-generated, never committed; committed inputs live in
+// native-resources/). See conductor comment + the marble_run ios/ shell case.
+const NATIVE_SHELLS = new Set(['ios', 'android']);
+const NATIVE_HOME =
+  'generated native shell — gitignore it (cap-generated); commit native inputs to native-resources/';
+
 /** Name the correct home for a disallowed entry. */
 function redirectFor(name) {
   if (REDIRECTS.has(name)) return REDIRECTS.get(name);
@@ -99,6 +112,41 @@ function workIsGitignored(root) {
     const line = raw.trim();
     if (!line || line.startsWith('#') || line.startsWith('!')) return false;
     return line.includes('.work');
+  });
+}
+
+/**
+ * Deterministic `.gitignore`-text check (conductor Q1): is `relDir` (a repo-
+ * relative, forward-slash dir path like `games/marble_run/ios`) covered by an
+ * active gitignore rule? Mirrors the workIsGitignored precedent — pure text, no
+ * `git ls-files` shell-out, so it can't detect a force-added tracked-but-ignored
+ * file (acceptable: the ban is "don't commit", the gitignore line is the
+ * committed statement of that policy, and diff review owns a force-add). A
+ * gitignore glob is translated to a regex: `**` → any depth, `*` → one segment.
+ */
+function gitignoreCoversDir(root, relDir) {
+  const text = readText(join(root, '.gitignore'));
+  return text.split('\n').some((raw) => {
+    const line = raw.trim();
+    if (!line || line.startsWith('#') || line.startsWith('!')) return false;
+    // Normalize the three ways a rule ignores a dir to the bare dir path: a dir
+    // rule (`ios/`), and the contents-ignore forms (`ios/*`, `ios/**`) — the
+    // latter mean "everything inside is ignored", which for our purpose (is this
+    // native shell gitignored) is the same as ignoring the dir.
+    const pat = line.replace(/\/\*\*?$/, '').replace(/\/+$/, '');
+    const re = new RegExp(
+      '^' +
+        pat
+          .split('/')
+          .map((seg) =>
+            seg === '**'
+              ? '.*'
+              : seg.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '[^/]*'),
+          )
+          .join('/') +
+        '$',
+    );
+    return re.test(relDir);
   });
 }
 
@@ -125,6 +173,13 @@ export function lintStructure(root) {
       if (IGNORED_ARTIFACTS.has(name)) continue;
       const isDir = entry.isDirectory();
       if (name === '.work') hasWork = true;
+
+      // Generated native shell: allowed iff gitignored, violation if committed.
+      if (isDir && NATIVE_SHELLS.has(name)) {
+        if (gitignoreCoversDir(root, `${game}/${name}`)) continue;
+        violations.push({ game, entry: `${name}/`, home: NATIVE_HOME });
+        continue;
+      }
 
       const allowed = isDir ? ALLOWED_DIRS.has(name) : ALLOWED_FILES.has(name);
       if (allowed) continue;

@@ -22,4 +22,17 @@ describe('deps-declared', () => {
       expect(v.file).toMatch(/games\/badgame\/src\/index\.ts/);
     }
   });
+
+  it('warns on a declared @fabrikav2/* dep that is never imported (inverse check)', () => {
+    const { violations } = lintDepsDeclared(fixture('unused-fail'));
+    const unused = violations.filter((v) => v.kind === 'unused');
+    expect(unused).toHaveLength(1);
+    expect(unused[0]).toMatchObject({
+      workspace: '@fabrikav2/consumer',
+      import: '@fabrikav2/kernel',
+      severity: 'warn',
+    });
+    // it is a warning, not a phantom-import error — no phantom violations here.
+    expect(violations.filter((v) => v.kind !== 'unused')).toEqual([]);
+  });
 });
