@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// tools/audit CLI — runs all three guardrail linters against the repo and exits
+// tools/audit CLI — runs all four guardrail linters against the repo and exits
 // non-zero if any reports a violation. Wired into the root `audit` npm script
 // and the `audit` CI job (matrix-independent).
 
@@ -9,6 +9,7 @@ import { repoRoot } from './lib.js';
 import { lintNoLiterals } from './no-literals.js';
 import { lintNoDuplication } from './no-duplication.js';
 import { lintDepsDeclared } from './deps-declared.js';
+import { lintStructure } from './structure.js';
 
 function fmtNoLiterals(v) {
   return `${v.file}:${v.line}  [${v.kind}]  ${JSON.stringify(v.value)}`;
@@ -19,6 +20,9 @@ function fmtNoDuplication(v) {
 function fmtDepsDeclared(v) {
   return `${v.file}  imports ${v.import} — not declared in ${v.workspace}/package.json`;
 }
+function fmtStructure(v) {
+  return `${v.game}/${v.entry} -> ${v.home}`;
+}
 
 const LINTERS = [
   {
@@ -28,6 +32,7 @@ const LINTERS = [
   },
   { name: 'no-duplication', run: (root) => lintNoDuplication(root), fmt: fmtNoDuplication },
   { name: 'deps-declared', run: (root) => lintDepsDeclared(root), fmt: fmtDepsDeclared },
+  { name: 'structure', run: (root) => lintStructure(root), fmt: fmtStructure },
 ];
 
 export function runAll(root, { allowlistPath } = {}) {

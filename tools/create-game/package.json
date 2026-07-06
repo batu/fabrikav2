@@ -1,0 +1,13 @@
+{
+  "name": "@fabrikav2/create-game",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Scaffold a new game from games/_template. Run via root `npm run create-game -- <name>`.",
+  "bin": {
+    "fabrikav2-create-game": "src/create-game.mjs"
+  },
+  "scripts": {
+    "test:unit": "vitest run"
+  }
+}
