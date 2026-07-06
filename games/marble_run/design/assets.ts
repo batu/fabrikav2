@@ -8,7 +8,7 @@ export const assets = {
     banner: "marble-run-banner"
   },
   hud: {
-    coin: "icon-coin-sparkle",
+    coin: "icon-marble-coin",
     replay: "icon-replay",
     gear: "icon-gear"
   },

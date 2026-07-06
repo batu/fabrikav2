@@ -23,7 +23,7 @@
 .fab-ui {
   /* ---- Tokens @fabrikav2/ui consumes (theme the screens) ---- */
   --fab-color-surface: #fff3d7;
-  --fab-color-accent: #e84393;
+  --fab-color-accent: #ff8a3d;
   --fab-color-on-accent: #ffffff;
   --fab-color-text: #6a3016;
   --fab-color-text-muted: #8a5a3d;
@@ -64,7 +64,7 @@
   --fab-levelmap-node-current-font: 52px;
 
   /* ---- Game-owned tokens (the DOM body backdrop the shell paints) ---- */
-  --fab-color-bg-top: #3a4fb8;
+  --fab-color-bg-top: #9b7bcd;
   --fab-color-bg-bottom: #6b568e;
   --fab-color-text-on-candy: #ffffff;
   --fab-color-text-ink: #203050;
