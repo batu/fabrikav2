@@ -1,0 +1,142 @@
+{
+  "meta": {
+    "title": "marble_run v1 (Android reference) vs v2 (web port) UI differential",
+    "date": "2026-07-06",
+    "reference": "games/marble_run/refs/captures/android-basegamelab/*.png",
+    "candidate": "fresh capture from main @ 390x844 and 430x932, games/marble_run/.work/2026-07-06-ui-differential/",
+    "surfaces_captured": ["menu", "settings", "level", "pause", "result"],
+    "note": "No v1 reference exists for pause/result (PENDING in ref README); those findings judge v2 against v1's established visual language, not a paired capture."
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "title": "Saga rail is drawn on top of the live 3D board — nodes collide with the playfield",
+      "surface": "menu",
+      "severity": "P1",
+      "confidence": "high",
+      "evidence": "v2-menu.png / v2-menu-430.png: node 4 sits dead-center over the marbles, nodes 5 and 3 punch through the board edges, the connector line runs straight down through the playfield. v1-menu.png: board is a small discrete sprite at the TOP, the numbered chain hangs cleanly BELOW it through empty purple space.",
+      "root_cause": "App.renderMenu() calls controller.showMenuScene(), rendering the gameplay 3D board full-bleed on the shared #scene canvas as the menu backdrop; the DOM saga rail (HomeMenu -> SagaMap) is layered on top of it.",
+      "fix_direction": "layout/composition: stop using the gameplay board as the menu backdrop. Render a small static board sprite as the top anchor of the rail and route all numbered nodes strictly below it (mirror v1). Change in App.mountMenu + HomeMenu vertical order."
+    },
+    {
+      "id": "F3",
+      "title": "Overlay palette inverted: cream card + orange primary where v1 uses blue card + green primary",
+      "surface": "settings / pause / result",
+      "severity": "P1",
+      "confidence": "high",
+      "evidence": "v2-settings.png, v2-pause.png, v2-result.png all render cream cards with ORANGE primary buttons (Close-region CTA, Resume, Next) and orange toggles. v1-settings.png: blue card, GREEN affirmative CLOSE, GREEN toggles; orange is used ONLY for the ribbon header. The menu's own LEVEL button is green (mr-level-cta) — so v2 contradicts itself surface-to-surface.",
+      "root_cause": "design/tokens.css: --fab-color-surface:#fff3d7 (cream) and --fab-color-accent:#ff8a3d (orange). Shared UI components (buttons, toggles) resolve primary/affirmative through --fab-color-accent, so the affirmative color flipped green->orange and card base flipped blue->cream everywhere.",
+      "fix_direction": "token: set --fab-color-accent to the candy green used by the menu CTA; introduce a separate --fab-color-ribbon/header orange token; set overlay card surface to the candy blue. Toggle-on color follows accent automatically."
+    },
+    {
+      "id": "F4",
+      "title": "Settings lost the orange ribbon banner, corner X-close, blue card, and RESET PROGRESS visibility",
+      "surface": "settings",
+      "severity": "P1",
+      "confidence": "high",
+      "evidence": "v1-settings.png: orange 3D ribbon header 'SETTINGS' with gloss/folds, cyan X close top-right, blue card, green toggles, green CLOSE, underlined RESET PROGRESS link. v2-settings.png: flat cream card, plain flat-blue text 'Settings' (no ribbon), no X affordance, orange toggles, no visible RESET link.",
+      "root_cause": "SettingsPage composes mountPageShell (a slide-up PAGE with a plain title slot) rather than a modal with a ribbon header + corner close. No ribbon-header or corner-X component capability exists in packages/ui. RESET PROGRESS is wired in App.ts (resetProgress) but not visible in the captured card.",
+      "fix_direction": "component: add a ribbon-header slot and a corner X-close affordance to ModalShell/SettingsPage (missing capability, not just a token). Verify RESET PROGRESS placement renders inside the visible card."
+    },
+    {
+      "id": "F5",
+      "title": "Overlays are opaque and full-screen — no dimmed scrim, the game/menu behind is gone",
+      "surface": "settings / pause / result",
+      "severity": "P2",
+      "confidence": "high",
+      "evidence": "v2-settings.png / v2-pause.png show flat purple around the card — the paused board/menu is not visible behind. v1-settings.png clearly floats over a DIMMED menu (the sun medallion is visible through the scrim), preserving depth and context.",
+      "root_cause": "Settings/pause/result are PAGE-style opaque surfaces (mountPageShell family). --fab-color-overlay-scrim (rgba(0,0,0,0.4)) exists but these surfaces don't sit over the live scene.",
+      "fix_direction": "layout: render pause + settings as modals over the live scene with the translucent scrim, not opaque page replacements."
+    },
+    {
+      "id": "F2",
+      "title": "Menu board is oversized, over-tilted, and dominates the composition",
+      "surface": "menu",
+      "severity": "P2",
+      "confidence": "medium",
+      "evidence": "v2-menu.png: board is large, tilted ~18deg, vertically centered — it is the loudest element and fights the rail. v1-menu.png: board is small, gently tilted ~8deg, clearly secondary to the chain + CTA.",
+      "root_cause": "Menu reuses the full gameplay board scene (same scale/tilt) instead of a reduced decorative sprite.",
+      "fix_direction": "layout: shrink the menu board, reduce camera yaw toward v1's gentle tilt, push it up as the rail's top anchor. Pairs with F1."
+    },
+    {
+      "id": "F8",
+      "title": "Coin iconography is inconsistent across surfaces and none match v1's gold coin",
+      "surface": "menu / level / result",
+      "severity": "P2",
+      "confidence": "medium",
+      "evidence": "Menu coin pill uses icon-marble-coin.png (a muddy marble/globe, reads as a grey blob at '0'); in-level HUD coin and HINT cost use a Unicode emoji glyph (GameController.ts renders U+1FA99); result reward '25' has NO coin icon at all. v1 uses one crisp gold dollar coin everywhere.",
+      "root_cause": "Three different coin representations: design/assets/icon-marble-coin.png (menu), emoji glyph (HUD/hint, GameController.ts), and bare number (result reward).",
+      "fix_direction": "asset: ship one gold-coin sprite and use it consistently in the menu pill, HUD coin, HINT cost, and result reward; replace the emoji glyphs with the img."
+    },
+    {
+      "id": "F9",
+      "title": "Buttons and panels are flat — thin bevels and weak gloss versus v1's chunky candy dimensionality",
+      "surface": "menu / all",
+      "severity": "P2",
+      "confidence": "medium",
+      "evidence": "v2-menu.png LEVEL button: flat green fill, thin bottom edge, a small corner gloss blob. v1-menu.png LEVEL button: broad top gloss sheen, thick rounded bevel, inner shadow, chunky dark outline. Same flattening on the coin pill and gear.",
+      "root_cause": "Shared .fab-btn uses --fab-shadow-button (0 3px 8px soft web drop-shadow) instead of layered inset-highlight + hard bottom-bevel that reads as a molded candy button.",
+      "fix_direction": "token/component: richer button treatment — inset top highlight, hard bottom bevel via stacked box-shadows, thicker border; apply to coin pill + gear too."
+    },
+    {
+      "id": "F11",
+      "title": "In-level HINT tile lost its warm tan/wood fill — reads greyish and disabled",
+      "surface": "level",
+      "severity": "P2",
+      "confidence": "medium",
+      "evidence": "v2-level.png: HINT tile is a washed grey-lavender rounded square, reads muted/disabled even when affordable. v1-level.png: warm tan wood square with purple 'HINT' text and a gold coin.",
+      "root_cause": "GameController hint tile uses background var(--fab-color-surface,#fff3d7) with muted borders; against the purple field it reads cool/grey rather than warm wood.",
+      "fix_direction": "style/token: give the hint tile a dedicated warm tan wood fill token and stronger contrast; distinguish affordable vs disabled clearly."
+    },
+    {
+      "id": "F6",
+      "title": "Pause is a wide landscape cream card with flat text links — reads like a debug dialog",
+      "surface": "pause",
+      "severity": "P2",
+      "confidence": "medium",
+      "evidence": "v2-pause.png: 'Paused' + orange Resume pill + tiny brown 'Settings'/'Quit' text links, wider-than-tall card floating mid-screen, no icons, no juice.",
+      "root_cause": "PauseOverlay minimal composition; secondary actions are plain text links, primary inherits orange accent (see F3).",
+      "fix_direction": "component/layout: vertical card, stacked chunky buttons with iconography, scrim behind (see F5), green primary (see F3)."
+    },
+    {
+      "id": "F7",
+      "title": "Result card breaks v1's reward language: cream+orange, no ribbon, no coin icon, muddy medallion",
+      "surface": "result",
+      "severity": "P2",
+      "confidence": "low",
+      "evidence": "v2-result.png: 'Level Complete' plain left-aligned brown text, cream card, big ORANGE Next button, reward '25' with no coin icon, 'Replay' text link, muddy AI-looking medallion, a stray green hairline at the card's top edge. No v1 result reference exists — judged against v1's blue-card/orange-ribbon/green-button language.",
+      "root_cause": "ResultCard shares the cream surface + orange accent tokens (F3) and the ribbon-less header pattern (F4).",
+      "fix_direction": "token+component: apply the F3/F4 fixes; add a coin glyph to the reward number; consider a confetti burst on reveal. Capture a v1 result reference to set the exact target."
+    },
+    {
+      "id": "F10",
+      "title": "Gear glyph is a flat Unicode emoji, not v1's molded 3D gear",
+      "surface": "menu / level",
+      "severity": "P3",
+      "confidence": "medium",
+      "evidence": "v2-menu.png and v2-level.png gears render as a flat/outline system U+2699 glyph. v1 gear is a solid, shaded, dimensional gear icon.",
+      "root_cause": "Both the menu gear (mr-gear-glyph textContent) and HUD gear (mr-gear-btn) use the Unicode gear character.",
+      "fix_direction": "asset: replace the Unicode gear with a rendered gear sprite matching the candy chrome."
+    },
+    {
+      "id": "F12",
+      "title": "Background motif is flat pale dots versus v1's embossed marble texture",
+      "surface": "menu / level",
+      "severity": "P3",
+      "confidence": "low",
+      "evidence": "v1 backgrounds carry tonal embossed marble/bubble spheres; v2 shows pale flat circles. Minor character loss on an otherwise faithful purple ground.",
+      "root_cause": "Background pattern uses simple flat circles instead of a shaded sphere motif.",
+      "fix_direction": "art: richer, shaded sphere background texture."
+    },
+    {
+      "id": "F13",
+      "title": "Ambient motion / press-state / transition juice unverified — likely thin",
+      "surface": "all",
+      "severity": "P3",
+      "confidence": "low",
+      "evidence": "Static captures only. Menu/level confetti flecks are present (good), but there is no evidence of board ambient motion (v1 ships level-mid as an ambient-anim reference), button press-scale states, or screen-to-screen transitions.",
+      "root_cause": "Cannot confirm from stills; flagged for a motion pass.",
+      "fix_direction": "motion: verify/add subtle board ambient motion, button press-scale feedback, and screen transitions; run a video capture to confirm."
+    }
+  ]
+}

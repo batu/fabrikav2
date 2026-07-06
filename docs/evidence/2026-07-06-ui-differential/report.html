@@ -1,0 +1,506 @@
+<title>marble_run — v1 vs v2 UI differential</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#17131f; --bg-raise:#211a2e; --bg-card:#271f38;
+    --edge:#38304d; --edge-soft:#2e2740;
+    --ink:#efe9f7; --ink-dim:#b9afcf; --ink-mute:#8a80a4;
+    --purple:#7b5cc4; --purple-lit:#9b7ce6;
+    --p1:#ff5d73; --p1-bg:#3a1d29;
+    --p2:#ffb23e; --p2-bg:#3a2c17;
+    --p3:#6fb6ff; --p3-bg:#182b3d;
+    --good:#4cd28a; --good-bg:#153025;
+    --hi:#efe9f7; --med:#c9bfe2; --low:#8a80a4;
+    --mono:ui-monospace,"SF Mono",Menlo,monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:
+      radial-gradient(120% 60% at 50% -10%, #241b34 0%, var(--bg) 60%) fixed;
+    color:var(--ink);font-family:var(--sans);line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px 96px}
+
+  /* ---- header ---- */
+  header.hero{padding:56px 0 28px;border-bottom:1px solid var(--edge)}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--purple-lit);margin:0 0 14px}
+  h1{font-size:clamp(28px,5vw,46px);line-height:1.05;margin:0;
+    font-weight:800;letter-spacing:-.02em;text-wrap:balance}
+  h1 .v1{color:var(--good)} h1 .v2{color:var(--p2)}
+  .sub{color:var(--ink-dim);max-width:64ch;margin:18px 0 0;font-size:16px}
+  .meta{display:flex;flex-wrap:wrap;gap:8px 10px;margin-top:22px;
+    font-family:var(--mono);font-size:11.5px;color:var(--ink-mute)}
+  .meta span{background:var(--bg-raise);border:1px solid var(--edge-soft);
+    padding:5px 10px;border-radius:6px}
+
+  /* ---- verdict band ---- */
+  .verdict{margin:28px 0 8px;background:var(--bg-card);
+    border:1px solid var(--edge);border-left:4px solid var(--p1);
+    border-radius:12px;padding:20px 22px}
+  .verdict h2{margin:0 0 8px;font-size:15px;letter-spacing:.02em}
+  .verdict p{margin:0;color:var(--ink-dim);font-size:14.5px;max-width:80ch}
+  .verdict b{color:var(--ink)}
+
+  /* ---- counts ---- */
+  .counts{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:24px 0 8px}
+  .count{background:var(--bg-raise);border:1px solid var(--edge-soft);
+    border-radius:12px;padding:16px 16px 14px}
+  .count .n{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1}
+  .count .l{font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+    text-transform:uppercase;color:var(--ink-mute);margin-top:8px}
+  .count.p1 .n{color:var(--p1)} .count.p2 .n{color:var(--p2)}
+  .count.p3 .n{color:var(--p3)} .count.tot .n{color:var(--ink)}
+
+  h2.sec{font-size:13px;font-family:var(--mono);letter-spacing:.14em;
+    text-transform:uppercase;color:var(--ink-mute);margin:56px 0 18px;
+    padding-bottom:10px;border-bottom:1px solid var(--edge-soft)}
+
+  /* ---- scorecard ---- */
+  .scorewrap{overflow-x:auto;border:1px solid var(--edge);border-radius:12px}
+  table{border-collapse:collapse;width:100%;min-width:560px;font-size:13.5px}
+  th,td{padding:11px 14px;text-align:left;border-bottom:1px solid var(--edge-soft)}
+  thead th{background:var(--bg-raise);font-size:11px;font-family:var(--mono);
+    letter-spacing:.08em;text-transform:uppercase;color:var(--ink-mute)}
+  tbody tr:last-child td{border-bottom:none}
+  td.area{color:var(--ink-dim)}
+  .score{font-variant-numeric:tabular-nums;font-weight:700;font-family:var(--mono)}
+  .s1{color:#ff5d73}.s2{color:#ff7d52}.s3{color:var(--p2)}.s4{color:#a6d84c}.s5{color:var(--good)}
+  td.note{color:var(--ink-mute);font-size:12.5px}
+
+  /* ---- findings ---- */
+  .finding{background:var(--bg-card);border:1px solid var(--edge);
+    border-radius:16px;padding:0;margin:20px 0;overflow:hidden}
+  .fhead{display:flex;gap:14px;align-items:flex-start;padding:20px 22px 16px;
+    border-bottom:1px solid var(--edge-soft)}
+  .fid{font-family:var(--mono);font-size:12px;color:var(--ink-mute);
+    padding-top:3px;min-width:26px}
+  .ftitle{flex:1;min-width:0}
+  .ftitle h3{margin:0;font-size:17px;font-weight:700;letter-spacing:-.01em;text-wrap:balance}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+  .chip{font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;
+    text-transform:uppercase;padding:3px 9px;border-radius:20px;font-weight:600;
+    border:1px solid transparent}
+  .chip.p1{color:var(--p1);background:var(--p1-bg);border-color:#5a2634}
+  .chip.p2{color:var(--p2);background:var(--p2-bg);border-color:#5a4322}
+  .chip.p3{color:var(--p3);background:var(--p3-bg);border-color:#22415c}
+  .chip.surf{color:var(--ink-dim);background:var(--bg-raise);border-color:var(--edge)}
+  .chip.conf-high{color:var(--good);background:var(--good-bg);border-color:#245139}
+  .chip.conf-medium{color:var(--p2);background:var(--p2-bg);border-color:#5a4322}
+  .chip.conf-low{color:var(--ink-mute);background:var(--bg-raise);border-color:var(--edge)}
+
+  .fbody{padding:18px 22px 22px}
+  .row{margin:0 0 15px}
+  .row:last-child{margin-bottom:0}
+  .row .lab{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+    text-transform:uppercase;color:var(--ink-mute);margin:0 0 5px}
+  .row p{margin:0;font-size:14px;color:var(--ink-dim)}
+  .row.fix p{color:var(--ink)}
+  .row.fix{background:var(--bg-raise);border:1px solid var(--edge-soft);
+    border-radius:10px;padding:12px 14px}
+  .row.cause p{font-family:var(--mono);font-size:12.5px;color:var(--ink-mute);line-height:1.55}
+  code{font-family:var(--mono);font-size:.86em;background:var(--bg-raise);
+    padding:1px 5px;border-radius:4px;color:var(--med)}
+
+  /* ---- capture pair ---- */
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:4px 0 18px}
+  figure{margin:0;background:var(--bg);border:1px solid var(--edge);
+    border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+  figure img{width:100%;display:block;background:#5b4a8a}
+  figcaption{font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+    padding:9px 12px;border-top:1px solid var(--edge-soft);
+    display:flex;justify-content:space-between;align-items:center}
+  figure.ref figcaption{color:var(--good)}
+  figure.cand figcaption{color:var(--p2)}
+  figcaption .tag{color:var(--ink-mute);text-transform:uppercase}
+  .noref{padding:24px 16px;color:var(--ink-mute);font-size:12.5px;
+    font-family:var(--mono);text-align:center;line-height:1.6}
+
+  footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--edge);
+    color:var(--ink-mute);font-size:12.5px;font-family:var(--mono);line-height:1.7}
+  a{color:var(--purple-lit)}
+  @media(max-width:640px){
+    .counts{grid-template-columns:repeat(2,1fr)}
+    .pair{grid-template-columns:1fr}
+    .fhead{flex-direction:column;gap:6px}
+  }
+</style>
+
+<div class="wrap">
+<header class="hero">
+  <p class="kicker">Blind UI-quality differential · marble_run</p>
+  <h1><span class="v1">v1 shipped Android</span> vs <span class="v2">v2 web port</span>: why the menu &amp; UI still feel off</h1>
+  <p class="sub">A surface-by-surface experiential comparison — hierarchy, proportion, dimensionality, palette, and juice — against Batu-confirmed Android reference captures. Findings are ranked by severity, then confidence. Lower-confidence items are included with labels, not omitted.</p>
+  <div class="meta">
+    <span>reference: refs/captures/android-basegamelab</span>
+    <span>candidate: main @ 390×844 + 430×932</span>
+    <span>surfaces: menu · settings · level · pause · result</span>
+    <span>date: 2026-07-06</span>
+  </div>
+</header>
+
+<div class="verdict">
+  <h2>Bottom line</h2>
+  <p>v2 is not failing on placement — the menu has the banner, board, rail and green CTA roughly where v1 puts them. It fails on <b>three structural things a fidelity pass didn't reach</b>: (1) the menu <b>renders the live gameplay board as a backdrop with the level rail dropped on top of it</b>, so the numbered nodes collide with the marbles; (2) every overlay (settings, pause, result) inherits a <b>cream card + orange primary</b> palette where v1 is <b>blue card + green primary, orange only on the ribbon</b>; and (3) the overlays are <b>opaque page replacements with no ribbon header, no corner-X, and no dimmed scrim</b> — they read like web dialogs, not molded candy modals. Everything else (flat gloss, emoji coins/gears, washed HINT tile) compounds a "cheap" read on top.</p>
+</div>
+
+<div class="counts">
+  <div class="count p1"><div class="n">3</div><div class="l">P1 · experience-breaking</div></div>
+  <div class="count p2"><div class="n">7</div><div class="l">P2 · clearly worse</div></div>
+  <div class="count p3"><div class="n">3</div><div class="l">P3 · polish</div></div>
+  <div class="count tot"><div class="n">13</div><div class="l">total findings</div></div>
+</div>
+
+<!-- ============ SCORECARD ============ -->
+<h2 class="sec">Rubric scorecard · v1 → v2 per surface</h2>
+<div class="scorewrap">
+<table>
+  <thead><tr>
+    <th>Rubric area</th><th>Menu</th><th>Settings</th><th>Level HUD</th><th>Pause</th><th>Result</th>
+  </tr></thead>
+  <tbody>
+    <tr><td class="area">First 30 seconds</td>
+      <td><span class="score s5">5</span>→<span class="score s3">3</span></td>
+      <td><span class="score s5">5</span>→<span class="score s4">4</span></td>
+      <td><span class="score s5">5</span>→<span class="score s4">4</span></td>
+      <td><span class="score s4">4</span>→<span class="score s3">3</span></td>
+      <td><span class="score s5">5</span>→<span class="score s3">3</span></td></tr>
+    <tr><td class="area">Touch ergonomics</td>
+      <td><span class="score s5">5</span>→<span class="score s4">4</span></td>
+      <td><span class="score s5">5</span>→<span class="score s4">4</span></td>
+      <td><span class="score s5">5</span>→<span class="score s4">4</span></td>
+      <td><span class="score s5">5</span>→<span class="score s3">3</span></td>
+      <td><span class="score s5">5</span>→<span class="score s4">4</span></td></tr>
+    <tr><td class="area">HUD / readability</td>
+      <td><span class="score s5">5</span>→<span class="score s2">2</span></td>
+      <td><span class="score s5">5</span>→<span class="score s3">3</span></td>
+      <td><span class="score s5">5</span>→<span class="score s4">4</span></td>
+      <td><span class="score s5">5</span>→<span class="score s3">3</span></td>
+      <td><span class="score s5">5</span>→<span class="score s3">3</span></td></tr>
+    <tr><td class="area">Visual character / depth</td>
+      <td><span class="score s5">5</span>→<span class="score s2">2</span></td>
+      <td><span class="score s5">5</span>→<span class="score s1">1</span></td>
+      <td><span class="score s5">5</span>→<span class="score s3">3</span></td>
+      <td><span class="score s5">5</span>→<span class="score s1">1</span></td>
+      <td><span class="score s5">5</span>→<span class="score s2">2</span></td></tr>
+    <tr><td class="area">Feedback / juice</td>
+      <td><span class="score s4">4</span>→<span class="score s3">3</span></td>
+      <td><span class="score s4">4</span>→<span class="score s2">2</span></td>
+      <td><span class="score s5">5</span>→<span class="score s3">3</span></td>
+      <td><span class="score s4">4</span>→<span class="score s2">2</span></td>
+      <td><span class="score s5">5</span>→<span class="score s2">2</span></td></tr>
+    <tr><td class="area">Flow momentum</td>
+      <td><span class="score s5">5</span>→<span class="score s4">4</span></td>
+      <td><span class="score s5">5</span>→<span class="score s4">4</span></td>
+      <td><span class="score s5">5</span>→<span class="score s4">4</span></td>
+      <td><span class="score s5">5</span>→<span class="score s4">4</span></td>
+      <td><span class="score s5">5</span>→<span class="score s4">4</span></td></tr>
+    <tr><td class="area">Responsive canvas</td>
+      <td><span class="score s5">5</span>→<span class="score s3">3</span></td>
+      <td><span class="score s5">5</span>→<span class="score s4">4</span></td>
+      <td><span class="score s5">5</span>→<span class="score s4">4</span></td>
+      <td><span class="score s5">5</span>→<span class="score s4">4</span></td>
+      <td><span class="score s5">5</span>→<span class="score s4">4</span></td></tr>
+  </tbody>
+</table>
+</div>
+<p style="color:var(--ink-mute);font-size:12px;margin-top:10px">v1 held as 5 baseline except where its own captures show a &lt;5 (e.g. juice not provable from stills). Menu HUD/character drop to 2 is driven by the rail-over-board collision (F1) and the flat button gloss (F9); settings/pause character drop to 1 by the wrong palette + missing ribbon/scrim (F3/F4/F5).</p>
+
+<!-- ============ FINDINGS ============ -->
+<h2 class="sec">Findings · ranked by severity then confidence</h2>
+
+<!-- F1 -->
+<article class="finding">
+  <div class="fhead">
+    <div class="fid">F1</div>
+    <div class="ftitle">
+      <h3>Saga rail is drawn on top of the live 3D board — nodes collide with the playfield</h3>
+      <div class="chips">
+        <span class="chip p1">P1</span><span class="chip conf-high">confidence: high</span>
+        <span class="chip surf">menu</span>
+      </div>
+    </div>
+  </div>
+  <div class="fbody">
+    <div class="pair">
+      <figure class="ref"><img src="img/v1-menu.png" alt="v1 menu"><figcaption>v1 reference <span class="tag">board on top · chain below</span></figcaption></figure>
+      <figure class="cand"><img src="img/v2-menu.png" alt="v2 menu"><figcaption>v2 candidate <span class="tag">nodes over board</span></figcaption></figure>
+    </div>
+    <div class="row"><p class="lab">What to look at</p><p>In v2, node <b>4</b> sits dead-center over the marbles, nodes <b>5</b> and <b>3</b> punch through the board edges, and the connector line runs straight down through the playfield. In v1 the board is a small discrete sprite at the <b>top</b> and the numbered chain hangs cleanly <b>below</b> it through empty purple space. This clutter is the single loudest "something's wrong" signal on the menu.</p></div>
+    <div class="row cause"><p class="lab">Root cause</p><p>App.renderMenu() → controller.showMenuScene() renders the gameplay 3D board full-bleed on the shared <code>#scene</code> canvas as the menu backdrop; the DOM saga rail (HomeMenu → SagaMap) is layered on top.</p></div>
+    <div class="row fix"><p class="lab">Fix direction · layout/composition</p><p>Stop using the gameplay board as the menu backdrop. Render a small static board sprite as the rail's top anchor and route all numbered nodes strictly below it (mirror v1). Change lives in <code>App.mountMenu</code> + HomeMenu vertical order.</p></div>
+  </div>
+</article>
+
+<!-- F3 -->
+<article class="finding">
+  <div class="fhead">
+    <div class="fid">F3</div>
+    <div class="ftitle">
+      <h3>Overlay palette inverted: cream card + orange primary where v1 uses blue card + green primary</h3>
+      <div class="chips">
+        <span class="chip p1">P1</span><span class="chip conf-high">confidence: high</span>
+        <span class="chip surf">settings · pause · result</span>
+      </div>
+    </div>
+  </div>
+  <div class="fbody">
+    <div class="pair">
+      <figure class="ref"><img src="img/v1-settings.png" alt="v1 settings"><figcaption>v1 reference <span class="tag">blue card · green toggles</span></figcaption></figure>
+      <figure class="cand"><img src="img/v2-settings.png" alt="v2 settings"><figcaption>v2 candidate <span class="tag">cream card · orange toggles</span></figcaption></figure>
+    </div>
+    <div class="row"><p class="lab">What to look at</p><p>v2 settings, pause and result all render <b>cream cards with orange primary buttons and orange toggles</b>. v1 settings is a <b>blue card with a green CLOSE and green toggles</b> — orange appears <b>only on the ribbon header</b>. The affirmative/primary color has flipped green→orange and the card base blue→cream across every overlay. The menu's own LEVEL button is still green, so v2 contradicts itself surface-to-surface.</p></div>
+    <div class="row cause"><p class="lab">Root cause</p><p>design/tokens.css: <code>--fab-color-surface:#fff3d7</code> (cream) and <code>--fab-color-accent:#ff8a3d</code> (orange). Shared UI components resolve primary/affirmative + toggle-on through <code>--fab-color-accent</code>.</p></div>
+    <div class="row fix"><p class="lab">Fix direction · token</p><p>Point <code>--fab-color-accent</code> at the candy green used by the menu CTA; add a separate <code>--fab-color-ribbon</code> orange token for headers only; set the overlay card surface to the candy blue. Toggle-on follows accent automatically.</p></div>
+  </div>
+</article>
+
+<!-- F4 -->
+<article class="finding">
+  <div class="fhead">
+    <div class="fid">F4</div>
+    <div class="ftitle">
+      <h3>Settings lost the orange ribbon banner, corner X-close, blue card, and RESET PROGRESS visibility</h3>
+      <div class="chips">
+        <span class="chip p1">P1</span><span class="chip conf-high">confidence: high</span>
+        <span class="chip surf">settings</span>
+      </div>
+    </div>
+  </div>
+  <div class="fbody">
+    <div class="pair">
+      <figure class="ref"><img src="img/v1-settings.png" alt="v1 settings"><figcaption>v1 reference <span class="tag">ribbon · X · reset link</span></figcaption></figure>
+      <figure class="cand"><img src="img/v2-settings.png" alt="v2 settings"><figcaption>v2 candidate <span class="tag">flat title · no X</span></figcaption></figure>
+    </div>
+    <div class="row"><p class="lab">What to look at</p><p>v1 has a 3D <b>orange ribbon header</b> ("SETTINGS", gloss + folds), a <b>cyan X close</b> top-right, a blue card, green toggles, a green CLOSE and an underlined <b>RESET PROGRESS</b> link. v2 has a flat cream card, plain flat-blue text "Settings" (no ribbon), <b>no X affordance</b>, orange toggles, and <b>no visible RESET link</b> inside the card.</p></div>
+    <div class="row cause"><p class="lab">Root cause</p><p>SettingsPage composes <code>mountPageShell</code> (a slide-up page with a plain title slot), not a modal with a ribbon + corner-X. No ribbon-header / corner-X capability exists in packages/ui. RESET is wired in <code>App.resetProgress</code> but did not render in the captured card.</p></div>
+    <div class="row fix"><p class="lab">Fix direction · component</p><p>Add a ribbon-header slot and a corner X-close to ModalShell/SettingsPage — this is a <b>missing component capability, not just a token</b>. Verify RESET PROGRESS lands inside the visible card.</p></div>
+  </div>
+</article>
+
+<!-- F5 -->
+<article class="finding">
+  <div class="fhead">
+    <div class="fid">F5</div>
+    <div class="ftitle">
+      <h3>Overlays are opaque and full-screen — no dimmed scrim, the game/menu behind is gone</h3>
+      <div class="chips">
+        <span class="chip p2">P2</span><span class="chip conf-high">confidence: high</span>
+        <span class="chip surf">settings · pause · result</span>
+      </div>
+    </div>
+  </div>
+  <div class="fbody">
+    <div class="pair">
+      <figure class="ref"><img src="img/v1-settings.png" alt="v1 settings over dimmed menu"><figcaption>v1 reference <span class="tag">dimmed menu behind</span></figcaption></figure>
+      <figure class="cand"><img src="img/v2-pause.png" alt="v2 pause opaque"><figcaption>v2 candidate <span class="tag">opaque purple</span></figcaption></figure>
+    </div>
+    <div class="row"><p class="lab">What to look at</p><p>v1 settings floats over a <b>dimmed menu</b> — the sun medallion is visible through the scrim, preserving depth and context. v2 settings and pause show flat purple around the card; the paused board / menu is not visible behind it. The overlays feel like full page swaps, which kills the "modal sitting above the game" depth cue.</p></div>
+    <div class="row cause"><p class="lab">Root cause</p><p>Settings/pause/result are PAGE-style opaque surfaces (mountPageShell family). <code>--fab-color-overlay-scrim</code> (rgba(0,0,0,.4)) exists but these surfaces don't sit over the live scene.</p></div>
+    <div class="row fix"><p class="lab">Fix direction · layout</p><p>Render pause + settings as modals over the live scene with the translucent scrim, not opaque page replacements.</p></div>
+  </div>
+</article>
+
+<!-- F2 -->
+<article class="finding">
+  <div class="fhead">
+    <div class="fid">F2</div>
+    <div class="ftitle">
+      <h3>Menu board is oversized, over-tilted, and dominates the composition</h3>
+      <div class="chips">
+        <span class="chip p2">P2</span><span class="chip conf-medium">confidence: medium</span>
+        <span class="chip surf">menu</span>
+      </div>
+    </div>
+  </div>
+  <div class="fbody">
+    <div class="pair">
+      <figure class="ref"><img src="img/v1-menu.png" alt="v1 menu small board"><figcaption>v1 reference <span class="tag">small · ~8° tilt</span></figcaption></figure>
+      <figure class="cand"><img src="img/v2-menu-430.png" alt="v2 menu large board 430"><figcaption>v2 candidate · 430w <span class="tag">large · ~18° tilt</span></figcaption></figure>
+    </div>
+    <div class="row"><p class="lab">What to look at</p><p>v2's board is large, tilted ~18°, and vertically centered — it is the loudest element and fights the rail. v1's board is small, gently tilted ~8°, and clearly secondary to the chain + CTA. At 430w the collision (F1) is even more pronounced.</p></div>
+    <div class="row cause"><p class="lab">Root cause</p><p>Menu reuses the full gameplay board scene (scale + yaw) instead of a reduced decorative sprite.</p></div>
+    <div class="row fix"><p class="lab">Fix direction · layout</p><p>Shrink the menu board, reduce camera yaw toward v1's gentle tilt, push it up as the rail's top anchor. Pairs with F1.</p></div>
+  </div>
+</article>
+
+<!-- F8 -->
+<article class="finding">
+  <div class="fhead">
+    <div class="fid">F8</div>
+    <div class="ftitle">
+      <h3>Coin iconography is inconsistent across surfaces and none match v1's gold coin</h3>
+      <div class="chips">
+        <span class="chip p2">P2</span><span class="chip conf-medium">confidence: medium</span>
+        <span class="chip surf">menu · level · result</span>
+      </div>
+    </div>
+  </div>
+  <div class="fbody">
+    <div class="pair">
+      <figure class="ref"><img src="img/v1-level.png" alt="v1 level gold coin"><figcaption>v1 reference <span class="tag">gold $ coin</span></figcaption></figure>
+      <figure class="cand"><img src="img/v2-level.png" alt="v2 level emoji coin"><figcaption>v2 candidate <span class="tag">emoji + marble png</span></figcaption></figure>
+    </div>
+    <div class="row"><p class="lab">What to look at</p><p>The menu coin pill uses <code>icon-marble-coin.png</code> (a muddy marble/globe that reads as a grey blob at "0"); the in-level HUD coin and HINT cost use a <b>Unicode 🪙 emoji</b> glyph; the result reward "25" has <b>no coin icon at all</b>. Three representations, none as crisp/legible as v1's single gold dollar coin.</p></div>
+    <div class="row cause"><p class="lab">Root cause</p><p>design/assets/icon-marble-coin.png (menu) vs an emoji glyph in GameController.ts (HUD + hint) vs a bare number in the result reward.</p></div>
+    <div class="row fix"><p class="lab">Fix direction · asset</p><p>Ship one gold-coin sprite and use it consistently in the menu pill, HUD coin, HINT cost, and result reward; replace the emoji glyphs with the <code>&lt;img&gt;</code>.</p></div>
+  </div>
+</article>
+
+<!-- F9 -->
+<article class="finding">
+  <div class="fhead">
+    <div class="fid">F9</div>
+    <div class="ftitle">
+      <h3>Buttons and panels are flat — thin bevels and weak gloss versus v1's chunky candy dimensionality</h3>
+      <div class="chips">
+        <span class="chip p2">P2</span><span class="chip conf-medium">confidence: medium</span>
+        <span class="chip surf">menu · all</span>
+      </div>
+    </div>
+  </div>
+  <div class="fbody">
+    <div class="pair">
+      <figure class="ref"><img src="img/v1-menu.png" alt="v1 glossy level button"><figcaption>v1 reference <span class="tag">broad gloss · thick bevel</span></figcaption></figure>
+      <figure class="cand"><img src="img/v2-menu.png" alt="v2 flat level button"><figcaption>v2 candidate <span class="tag">flat fill · corner blob</span></figcaption></figure>
+    </div>
+    <div class="row"><p class="lab">What to look at</p><p>v2's LEVEL button is a flat green fill with a thin bottom edge and a small corner gloss blob. v1's has a broad top gloss sheen sweeping across, a thick rounded bevel, an inner shadow, and a chunky dark outline. Same flattening on the coin pill and gear. This is a big part of the "cheap" read even when color and position are right.</p></div>
+    <div class="row cause"><p class="lab">Root cause</p><p>Shared <code>.fab-btn</code> uses <code>--fab-shadow-button</code> (a soft <code>0 3px 8px</code> web drop-shadow) instead of layered inset-highlight + hard bottom-bevel.</p></div>
+    <div class="row fix"><p class="lab">Fix direction · token + component</p><p>Richer button treatment: inset top highlight, hard bottom bevel via stacked box-shadows, thicker border. Apply to coin pill + gear too.</p></div>
+  </div>
+</article>
+
+<!-- F11 -->
+<article class="finding">
+  <div class="fhead">
+    <div class="fid">F11</div>
+    <div class="ftitle">
+      <h3>In-level HINT tile lost its warm tan/wood fill — reads greyish and disabled</h3>
+      <div class="chips">
+        <span class="chip p2">P2</span><span class="chip conf-medium">confidence: medium</span>
+        <span class="chip surf">level</span>
+      </div>
+    </div>
+  </div>
+  <div class="fbody">
+    <div class="pair">
+      <figure class="ref"><img src="img/v1-level.png" alt="v1 tan hint"><figcaption>v1 reference <span class="tag">warm tan wood</span></figcaption></figure>
+      <figure class="cand"><img src="img/v2-level.png" alt="v2 grey hint"><figcaption>v2 candidate <span class="tag">grey-lavender</span></figcaption></figure>
+    </div>
+    <div class="row"><p class="lab">What to look at</p><p>v2's HINT tile is a washed grey-lavender rounded square that reads muted/disabled even when the player can afford it. v1's is a warm tan wood square with purple "HINT" text and a gold coin — clearly an active, inviting affordance.</p></div>
+    <div class="row cause"><p class="lab">Root cause</p><p>The hint tile uses <code>background: var(--fab-color-surface, #fff3d7)</code> with muted borders; against the purple field it resolves cool/grey rather than warm wood.</p></div>
+    <div class="row fix"><p class="lab">Fix direction · style/token</p><p>Give the hint tile a dedicated warm tan wood fill token and stronger contrast; make affordable vs disabled visually distinct.</p></div>
+  </div>
+</article>
+
+<!-- F6 -->
+<article class="finding">
+  <div class="fhead">
+    <div class="fid">F6</div>
+    <div class="ftitle">
+      <h3>Pause is a wide landscape cream card with flat text links — reads like a debug dialog</h3>
+      <div class="chips">
+        <span class="chip p2">P2</span><span class="chip conf-medium">confidence: medium</span>
+        <span class="chip surf">pause</span>
+      </div>
+    </div>
+  </div>
+  <div class="fbody">
+    <div class="pair">
+      <figure class="cand"><img src="img/v2-pause.png" alt="v2 pause"><figcaption>v2 candidate <span class="tag">wide · flat links</span></figcaption></figure>
+      <figure class="ref"><div class="noref">No v1 pause reference<br>(PENDING in ref README).<br>Judged against v1's modal language:<br>vertical card · ribbon · scrim · green primary.</div></figure>
+    </div>
+    <div class="row"><p class="lab">What to look at</p><p>"Paused" + an orange Resume pill + tiny brown "Settings"/"Quit" <b>text links</b> on a wider-than-tall card floating mid-screen, no icons, no scrim. It reads like a debug dialog rather than a casual-game pause modal.</p></div>
+    <div class="row cause"><p class="lab">Root cause</p><p>Minimal PauseOverlay composition; secondary actions are plain text links, primary inherits the orange accent (F3), backdrop opaque (F5).</p></div>
+    <div class="row fix"><p class="lab">Fix direction · component/layout</p><p>Vertical card, stacked chunky buttons with iconography, scrim behind (F5), green primary (F3).</p></div>
+  </div>
+</article>
+
+<!-- F7 -->
+<article class="finding">
+  <div class="fhead">
+    <div class="fid">F7</div>
+    <div class="ftitle">
+      <h3>Result card breaks v1's reward language: cream+orange, no ribbon, no coin icon, muddy medallion</h3>
+      <div class="chips">
+        <span class="chip p2">P2</span><span class="chip conf-low">confidence: low</span>
+        <span class="chip surf">result</span>
+      </div>
+    </div>
+  </div>
+  <div class="fbody">
+    <div class="pair">
+      <figure class="cand"><img src="img/v2-result.png" alt="v2 result"><figcaption>v2 candidate <span class="tag">cream · orange Next</span></figcaption></figure>
+      <figure class="ref"><div class="noref">No v1 result reference<br>(PENDING in ref README).<br>Judged against v1's language:<br>blue card · orange ribbon · green Next · coin glyph · confetti.</div></figure>
+    </div>
+    <div class="row"><p class="lab">What to look at</p><p>"Level Complete" as plain left-aligned brown text, cream card, a big <b>orange</b> Next button, a reward "25" with <b>no coin icon</b>, a "Replay" text link, a muddy AI-looking medallion, and a <b>stray green hairline</b> at the card's top edge. Confidence is low only because there is no paired v1 result capture — but it clearly departs from v1's established reward language.</p></div>
+    <div class="row cause"><p class="lab">Root cause</p><p>ResultCard shares the cream surface + orange accent tokens (F3) and the ribbon-less header pattern (F4).</p></div>
+    <div class="row fix"><p class="lab">Fix direction · token + component</p><p>Apply the F3/F4 fixes; add a coin glyph to the reward number; consider a confetti burst on reveal. Capture a v1 result reference to lock the exact target.</p></div>
+  </div>
+</article>
+
+<!-- F10 -->
+<article class="finding">
+  <div class="fhead">
+    <div class="fid">F10</div>
+    <div class="ftitle">
+      <h3>Gear glyph is a flat Unicode emoji, not v1's molded 3D gear</h3>
+      <div class="chips">
+        <span class="chip p3">P3</span><span class="chip conf-medium">confidence: medium</span>
+        <span class="chip surf">menu · level</span>
+      </div>
+    </div>
+  </div>
+  <div class="fbody">
+    <div class="row"><p class="lab">What to look at</p><p>Both the menu gear and the in-level HUD gear render as a flat/outline system <code>U+2699</code> glyph (see the gear in <b>v2-menu.png</b> and <b>v2-level.png</b>). v1's gear is a solid, shaded, dimensional icon that matches the candy chrome.</p></div>
+    <div class="row cause"><p class="lab">Root cause</p><p>Menu gear (<code>mr-gear-glyph</code> textContent) and HUD gear (<code>mr-gear-btn</code>) both use the Unicode gear character.</p></div>
+    <div class="row fix"><p class="lab">Fix direction · asset</p><p>Replace the Unicode gear with a rendered gear sprite matching the chrome.</p></div>
+  </div>
+</article>
+
+<!-- F12 -->
+<article class="finding">
+  <div class="fhead">
+    <div class="fid">F12</div>
+    <div class="ftitle">
+      <h3>Background motif is flat pale dots versus v1's embossed marble texture</h3>
+      <div class="chips">
+        <span class="chip p3">P3</span><span class="chip conf-low">confidence: low</span>
+        <span class="chip surf">menu · level</span>
+      </div>
+    </div>
+  </div>
+  <div class="fbody">
+    <div class="row"><p class="lab">What to look at</p><p>v1 backgrounds carry tonal, embossed marble/bubble spheres; v2 (both menu and level) shows pale flat circles. Minor character loss on an otherwise faithful purple ground — contributes subtly to the "flatter" overall read.</p></div>
+    <div class="row fix"><p class="lab">Fix direction · art</p><p>Richer, shaded sphere background texture.</p></div>
+  </div>
+</article>
+
+<!-- F13 -->
+<article class="finding">
+  <div class="fhead">
+    <div class="fid">F13</div>
+    <div class="ftitle">
+      <h3>Ambient motion / press-state / transition juice unverified — likely thin</h3>
+      <div class="chips">
+        <span class="chip p3">P3</span><span class="chip conf-low">confidence: low</span>
+        <span class="chip surf">all</span>
+      </div>
+    </div>
+  </div>
+  <div class="fbody">
+    <div class="row"><p class="lab">What to look at</p><p>Static captures only. Menu/level confetti flecks are present (good), but there is no evidence of board ambient motion (v1 ships <code>level-mid.png</code> as an ambient-anim reference), button press-scale states, or screen-to-screen transitions. Flagged rather than asserted.</p></div>
+    <div class="row fix"><p class="lab">Fix direction · motion</p><p>Verify/add subtle board ambient motion, button press-scale feedback, and screen transitions; run a video capture to confirm.</p></div>
+  </div>
+</article>
+
+<footer>
+  Reference (authoritative): games/marble_run/refs/captures/android-basegamelab/*.png<br>
+  Candidate (fresh from main): games/marble_run/.work/2026-07-06-ui-differential/ · 390×844 + 430×932<br>
+  Machine-readable findings: ./findings.json · capture scripts: .work/2026-07-06-ui-differential/capture.mjs, cap-pause.mjs<br>
+  No v1 reference exists for pause/result (PENDING in ref README); those are judged against v1's established visual language, not paired captures.
+</footer>
+</div>
