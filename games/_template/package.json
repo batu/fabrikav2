@@ -1,0 +1,17 @@
+{
+  "name": "@fabrikav2/game-template",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Canonical v2 game skeleton. Copied by `npm run create-game -- <name>`; never shipped as a game itself.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@fabrikav2/kernel": "*"
+  }
+}

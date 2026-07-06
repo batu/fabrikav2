@@ -1,10 +1,10 @@
 # tools/audit
 
-Three guardrail linters that enforce the anti-v1 rules
+Four guardrail linters that enforce the anti-v1 rules
 (`docs/architecture/v2-architecture.md` §Guardrails). They replace v1's broken
 `scripts/grep-affected-games.sh` — this time with tests.
 
-Run all three: `npm run audit` (from repo root). Exits non-zero on any violation.
+Run all four: `npm run audit` (from repo root). Exits non-zero on any violation.
 
 ## The linters (`src/`)
 
@@ -41,8 +41,19 @@ Run all three: `npm run audit` (from repo root). Exits non-zero on any violation
    **both** quote styles; v1's grep only matched double quotes while every game
    used single quotes (research 06 §3), so it always green-lit unsafe removals.
 
-Shared constants/helpers live in `src/lib.js` so the three linters don't
-duplicate literal values themselves.
+4. **structure** — a `games/*` game's **top-level entries** must match the
+   canonical whitelist (the `games/_template` skeleton). Any extra top-level dir
+   or file fails with a message naming the correct home
+   (`games/<g>/marketing/ -> repo docs/marketing`), sourced from the conductor's
+   approved ban list (card QzqGf6el) and `docs/research/09-game-folder-chaos-
+   analysis.md` (v1: up to 48 top-level entries, 4 asset homes, 6 test locations,
+   committed `.work` scratch, in-tree secrets/archives). It also verifies each
+   game's `.work/` scratch is gitignored. Only the top level is checked — the
+   interior of an allowed dir is that dir's business. Build/install artifacts
+   (`node_modules`, `dist`, …) are skipped, not whitelisted.
+
+Shared constants/helpers live in `src/lib.js` so the linters don't duplicate
+literal values themselves.
 
 ## Tests
 
@@ -51,9 +62,10 @@ fixture and at least one fixture that fails it, under `test/fixtures/`.
 
 ## Note on workspace membership
 
-Unlike `tools/create-game`, `tools/audit` **is** declared as an npm workspace
-(listed explicitly in the root `workspaces`, not via a `tools/*` glob, so
-`create-game` stays out). That is what lets `npm run test:unit
+`tools/audit` is declared as an npm workspace (listed explicitly in the root
+`workspaces`, not via a `tools/*` glob). That is what lets `npm run test:unit
 --workspace=tools/audit` resolve and puts the audit tests in the CI matrix. The
 linters scan `packages/*`/`games/*` by path, so making `tools/audit` a workspace
-does not change what they lint.
+does not change what they lint. `tools/create-game` is a workspace on the same
+basis (its scaffold test runs in the gate); both are listed explicitly, and the
+`tools/*` glob is intentionally not used.
