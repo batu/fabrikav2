@@ -3,14 +3,25 @@
 // committed byte basenames under design/assets/, extension stripped); the
 // design-sheets ingester indexes those bytes and the round-trip rewrites this
 // module. The runtime URL resolution lives in theme.ts (Vite-resolved).
+//
+// FIDELITY FIX 4: the coin/gear/win-crown/ribbon/popup/button ids below are the
+// reference's OWN sugar3d sprites (copied READ-ONLY from
+// games/marble_run/sugar3d/src/ui/assets/vida/**), replacing the muddy-disc /
+// globe / system-emoji stand-ins the v2 seed shipped. `coin` is wired live
+// (App menu + reward badge). The end-screen ids (crown/ribbon*/popup/button*)
+// and hud frame/booster are staged here for the overlay + ribbon-banner
+// consumers (FIX-1 hcuSVRBy) to inject; see docs/evidence/asset-swap-plan.md
+// for the per-asset source + wired-vs-parked ledger.
 export const assets = {
   home: {
     banner: "marble-run-banner"
   },
   hud: {
-    coin: "icon-marble-coin",
+    coin: "icon-coin",
     replay: "icon-replay",
-    gear: "icon-gear"
+    gear: "icon-settings",
+    currencyFrame: "frame-currency",
+    booster: "button-booster"
   },
   levelNode: {
     default: "level-node-default",
@@ -19,7 +30,13 @@ export const assets = {
     completed: "level-node-completed"
   },
   resultModal: {
-    ribbonFail: "ribbon-fail"
+    crown: "win-crown",
+    popup: "popup-card",
+    ribbonCompleted: "ribbon-completed",
+    ribbonFailed: "ribbon-failed",
+    ribbonTutorial: "ribbon-orange",
+    buttonPrimary: "button-green",
+    buttonSecondary: "button-orange"
   }
 } as const;
 
