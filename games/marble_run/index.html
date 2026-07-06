@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <title>Marble Run</title>
+    <link rel="icon" type="image/png" href="/design/assets/app-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        background: linear-gradient(
+          var(--fab-color-bg-top, #9b7bcd),
+          var(--fab-color-bg-bottom, #6b568e)
+        );
+        font-family: var(--fab-font-family, system-ui, sans-serif);
+        -webkit-user-select: none;
+        user-select: none;
+        touch-action: none;
+      }
+      #scene {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      #hud,
+      #ui {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+      }
+      #hud > *,
+      #ui > * {
+        pointer-events: auto;
+      }
+      /* Gameplay screen-shake (BoardScene toggles body.mistake-feedback — S6). */
+      body.mistake-feedback #scene {
+        animation: mr-shake 0.32s ease;
+      }
+      @keyframes mr-shake {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+        20% {
+          transform: translate(-6px, 2px);
+        }
+        40% {
+          transform: translate(6px, -2px);
+        }
+        60% {
+          transform: translate(-4px, 3px);
+        }
+        80% {
+          transform: translate(4px, -3px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="scene"></canvas>
+    <div id="hud"></div>
+    <div id="ui"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

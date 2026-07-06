@@ -1,0 +1,25 @@
+{
+  "name": "@fabrikav2/marble_run",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run",
+    "e2e": "playwright test"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.1.0",
+    "@capacitor/haptics": "^8.0.2",
+    "@fabrikav2/kernel": "*",
+    "@fabrikav2/sdk": "*",
+    "@fabrikav2/ui": "*",
+    "three": "^0.180.0"
+  },
+  "devDependencies": {
+    "@fabrikav2/testkit": "*",
+    "@types/three": "^0.180.0"
+  }
+}
