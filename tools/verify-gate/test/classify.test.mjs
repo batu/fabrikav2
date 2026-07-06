@@ -1,0 +1,108 @@
+import { describe, it, expect } from 'vitest';
+import {
+  hasDoneLanguage,
+  detectUnverified,
+  isVisualFile,
+  gamesFromVisualFiles,
+  evidenceIsFresh,
+} from '../src/classify.mjs';
+
+describe('hasDoneLanguage', () => {
+  it('detects each done-language token/phrase (case-insensitive)', () => {
+    for (const s of [
+      'All done.',
+      'This is VERIFIED on device',
+      'it works now',
+      'the menu renders correctly',
+      'render correctly on the phone', // renders? -> optional s
+      'looks right to me',
+      'the screen matches the reference',
+      'pixel-perfect against the mock',
+      'high fidelity now',
+      'shipped it',
+      'complete on device',
+    ]) {
+      expect(hasDoneLanguage(s), s).toBe(true);
+    }
+  });
+
+  it('does NOT fire on a refactor with no done-claim (the precision that matters)', () => {
+    for (const s of [
+      'Refactored the scoring loop into a pure function; no behavior change.',
+      'Extracted the HUD layout constants into a shared module.',
+      'Renamed variables for clarity and updated imports.',
+      '', // empty
+    ]) {
+      expect(hasDoneLanguage(s), s).toBe(false);
+    }
+  });
+
+  it('word boundaries avoid substring false positives', () => {
+    expect(hasDoneLanguage('I abandoned that approach')).toBe(false); // "done" inside "abandoned"
+    expect(hasDoneLanguage('using several frameworks here')).toBe(false); // "works" inside "frameworks"
+  });
+});
+
+describe('detectUnverified', () => {
+  it('captures the marker and reason', () => {
+    const r = detectUnverified('Changed the HUD.\nUNVERIFIED: no device plugged in right now');
+    expect(r.present).toBe(true);
+    expect(r.reason).toBe('no device plugged in right now');
+  });
+  it('present with a fallback reason when none given', () => {
+    expect(detectUnverified('UNVERIFIED:').reason).toBe('(no reason given)');
+  });
+  it('is absent when no marker', () => {
+    expect(detectUnverified('all done, looks right').present).toBe(false);
+  });
+  it('is case-sensitive — lowercase does not trigger the escape hatch', () => {
+    expect(detectUnverified('this is unverified: whatever').present).toBe(false);
+  });
+});
+
+describe('isVisualFile', () => {
+  it('matches the three visual globs', () => {
+    expect(isVisualFile('games/marble_run/src/main.ts')).toBe(true);
+    expect(isVisualFile('games/marble_run/src/scenes/Boot.ts')).toBe(true);
+    expect(isVisualFile('games/marble_run/design/tokens.json')).toBe(true);
+    expect(isVisualFile('packages/ui/Button.tsx')).toBe(true);
+    expect(isVisualFile('packages/ui/nested/deep/thing.css')).toBe(true);
+    expect(isVisualFile('./games/marble_run/src/main.ts')).toBe(true); // leading ./
+  });
+  it('does NOT match non-visual paths', () => {
+    expect(isVisualFile('tools/verify-gate/src/classify.mjs')).toBe(false);
+    expect(isVisualFile('games/marble_run/README.md')).toBe(false);
+    expect(isVisualFile('games/marble_run/tests/scoring.test.ts')).toBe(false);
+    expect(isVisualFile('packages/engine/index.ts')).toBe(false);
+    expect(isVisualFile('docs/AGENT-HANDOFF.md')).toBe(false);
+  });
+});
+
+describe('gamesFromVisualFiles', () => {
+  it('extracts unique game slugs', () => {
+    expect(gamesFromVisualFiles([
+      'games/marble_run/src/a.ts',
+      'games/marble_run/design/b.json',
+      'games/tower/src/c.ts',
+      'packages/ui/x.tsx',
+    ])).toEqual(['marble_run', 'tower']);
+  });
+});
+
+describe('evidenceIsFresh', () => {
+  it('fresh when a panel is newer than the newest visual change', () => {
+    expect(evidenceIsFresh(1000, [500, 1500])).toBe(true);
+  });
+  it('stale when every panel is older than the change', () => {
+    expect(evidenceIsFresh(1000, [200, 800])).toBe(false);
+  });
+  it('stale when there are no panels at all', () => {
+    expect(evidenceIsFresh(1000, [])).toBe(false);
+  });
+  it('equal mtime is NOT fresh (strictly newer required)', () => {
+    expect(evidenceIsFresh(1000, [1000])).toBe(false);
+  });
+  it('no stat-able visual file => not gated (treated fresh)', () => {
+    expect(evidenceIsFresh(null, [])).toBe(true);
+  });
+});

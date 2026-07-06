@@ -5,6 +5,10 @@ dist/
 .DS_Store
 .twf/
 
+# Runtime UNVERIFIED skip ledger (verify-gate). Generated state, never committed;
+# the merge gate reads it at land time. See docs/AGENT-HANDOFF.md.
+.work/verify-ledger.jsonl
+
 # Per-game agent scratch: contents are disposable and gitignored; only the
 # contract README (the promotion rule) is committed. See games/_template/.work/.
 games/*/.work/*

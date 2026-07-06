@@ -10,11 +10,14 @@
     "tools/audit",
     "tools/create-game",
     "tools/refcap-compare",
-    "tools/verify-device"
+    "tools/verify-device",
+    "tools/verify-gate"
   ],
   "scripts": {
     "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test:unit --workspaces --if-present",
     "test:unit": "npm run test:unit --workspaces --if-present",
+    "verify-merge-gate": "node tools/verify-gate/merge-gate.mjs",
     "lint": "npm run lint --workspaces --if-present",
     "audit": "node tools/audit/src/cli.js",
     "create-game": "node tools/create-game/src/create-game.mjs",
