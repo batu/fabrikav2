@@ -17,12 +17,22 @@
  * scheduling, HMAC identifier policy, keepalive tuning. The env marker rides in
  * every event body because payloads are built via `toWirePayload`.
  */
-import type { AnalyticsEvent, AnalyticsParams } from './contract.ts';
+import type {
+  AnalyticsEnvironment,
+  AnalyticsEvent,
+  AnalyticsParams,
+} from './contract.ts';
 import { toWirePayload } from './contract.ts';
 import type { AnalyticsSink } from './sink.ts';
+import { OWNED_ANALYTICS_WIRE_SCHEMA } from './wire.ts';
+import type { OwnedAnalyticsWireEvent } from './wire.ts';
 
-/** Schema tag on every batch body; lets the worker version its ingest format. */
-export const OWNED_MIRROR_SCHEMA = 'fabrika-owned-analytics-v1';
+/**
+ * Schema tag on every batch body; lets the worker version its ingest format.
+ * Aliased to the shared {@link OWNED_ANALYTICS_WIRE_SCHEMA} so producer and
+ * consumer cannot drift out of lockstep.
+ */
+export const OWNED_MIRROR_SCHEMA = OWNED_ANALYTICS_WIRE_SCHEMA;
 
 /** HTTP statuses worth retrying (transient); everything else drops immediately. */
 const RETRYABLE_STATUSES: ReadonlySet<number> = new Set([
@@ -33,7 +43,7 @@ export interface MirrorTransportRequest {
   readonly url: string;
   /** Sent as `Authorization: Bearer <publicClientKey>` by a real transport. */
   readonly publicClientKey: string;
-  /** JSON string: `{ schema, events: [...] }`. */
+  /** JSON string of a `OwnedAnalyticsWireBatch`: `{ schema, game_id, env, events }`. */
   readonly body: string;
 }
 
@@ -51,6 +61,10 @@ export interface OwnedMirrorSinkOptions {
   readonly url: string;
   readonly publicClientKey: string;
   readonly transport: MirrorTransport;
+  /** Which game's traffic this sink mirrors — rides the batch envelope. */
+  readonly gameId: string;
+  /** Environment marker for the batch envelope (partitions test from prod). */
+  readonly env: AnalyticsEnvironment;
   /** Flush automatically once this many events are queued. Default 10. */
   readonly batchSize?: number;
   /** Drop an event after this many failed attempts. Default 3. */
@@ -76,14 +90,6 @@ interface QueuedEvent {
   readonly name: string;
   readonly params: AnalyticsParams;
   readonly attempt: number;
-}
-
-/** Wire shape of one event inside a batch body. */
-interface MirrorBodyEvent {
-  readonly event_id: string;
-  readonly enqueued_at: number;
-  readonly name: string;
-  readonly params: AnalyticsParams;
 }
 
 export interface OwnedMirrorSink extends AnalyticsSink {
@@ -113,7 +119,7 @@ export function createOwnedMirrorSink(
     dropReasons[reason] = (dropReasons[reason] ?? 0) + count;
   }
 
-  function toBodyEvent(event: QueuedEvent): MirrorBodyEvent {
+  function toBodyEvent(event: QueuedEvent): OwnedAnalyticsWireEvent {
     return {
       event_id: event.event_id,
       enqueued_at: event.enqueued_at,
@@ -130,6 +136,8 @@ export function createOwnedMirrorSink(
         const batch = queue.splice(0, batchSize);
         const body = JSON.stringify({
           schema: OWNED_MIRROR_SCHEMA,
+          game_id: options.gameId,
+          env: options.env,
           events: batch.map(toBodyEvent),
         });
 
