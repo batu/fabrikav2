@@ -15,6 +15,18 @@
 // Non-device path (worker/CI, unit-tested): --captures <dir> / --xcresult <path>
 // feed pre-captured shots straight into steps 4-5; no device is required and the
 // tool degrades gracefully (clear skip, exit 0) when no device is connected.
+//
+// Browser-fallback lane (--lane browser, explicit only — default stays device):
+// vite-dev + Playwright/Chromium drive the game harness's driveTo(state) instead
+// of a physical iOS device. Scored by the SAME panel, but every result is
+// stamped lane=browser and the grid is marked DEVICE-UNVERIFIED (safe-area/notch
+// fidelity is device-only). Lets fidelity work + panel-scoring progress when the
+// phone is unavailable; a device pass later is what actually confirms it.
+//
+// Budget-guard: before the panel runs, remaining OpenRouter credit is checked
+// (GET /credits); below --budget-floor (default $5) the panel HALTS — non-fatal,
+// evidence marked UNVERIFIED-panel — instead of draining the shared budget to $0
+// mid-overnight-run.
 
 import fs from 'node:fs';
 import os from 'node:os';
@@ -29,6 +41,9 @@ import { computeVerdict } from './src/verdict.mjs';
 import { buildGridHtml } from './src/grid.mjs';
 import { runPanel } from './src/panel.mjs';
 import { loadRegistry, resolveJudges } from './src/judges.mjs';
+import { CANONICAL_STATES } from './src/states.mjs';
+import { harnessWindowKey, startDevServer, captureBrowserStates } from './src/browserLane.mjs';
+import { checkBudget } from './src/budget.mjs';
 import * as steps from './src/steps.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -110,6 +125,40 @@ function defaultOut(args, date) {
   return args.out ? path.resolve(args.out) : path.join(REPO_ROOT, 'docs', 'evidence', `${date}-device-verify`);
 }
 
+// BROWSER-FALLBACK LANE (--lane browser, explicit only — default lane stays
+// device). Drives a vite-dev server + Playwright/Chromium against the game
+// harness's driveTo(state) instead of building/installing on a physical iOS
+// device, so fidelity work + panel-scoring can progress when the phone is
+// unavailable. Gracefully skips (never throws) if the dev server or Chromium
+// can't come up — same degrade spirit as the device-absent skip.
+async function runBrowserLane(manifest) {
+  let dev;
+  try {
+    dev = await startDevServer(manifest.gameDir);
+  } catch (err) {
+    return { skip: `browser lane: could not start vite dev server — ${err.message}` };
+  }
+  try {
+    const { chromium } = await import('@playwright/test');
+    const windowKey = harnessWindowKey(manifest.game);
+    const { captures } = await captureBrowserStates({
+      states: CANONICAL_STATES,
+      baseUrl: dev.baseUrl,
+      windowKey,
+      outDir: path.join(os.tmpdir(), `verify-device-browser-${manifest.game}`),
+      launch: () => chromium.launch(),
+    });
+    return {
+      captures, lane: 'browser',
+      deviceLabel: `browser (chromium @ ${dev.baseUrl}, harness ${windowKey}) — DEVICE-UNVERIFIED`,
+    };
+  } catch (err) {
+    return { skip: `browser lane: capture failed — ${err.message}` };
+  } finally {
+    dev.stop();
+  }
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.help) { process.stdout.write(HELP); return 0; }
@@ -117,7 +166,9 @@ async function main() {
   const date = args.date || new Date().toISOString().slice(0, 10);
   const manifest = loadGameManifest(args.game, REPO_ROOT);
 
-  const resolved = resolveDeviceCaptures(args, manifest, date);
+  const resolved = args.lane === 'browser'
+    ? await runBrowserLane(manifest)
+    : resolveDeviceCaptures(args, manifest, date);
   if (resolved.skip) {
     process.stdout.write(
       `verify-device: SKIPPED on-device verification — ${resolved.skip}.\n` +
@@ -126,8 +177,9 @@ async function main() {
     );
     return 0; // graceful skip: absence of a device is not a build failure
   }
+  const lane = resolved.lane || 'device';
 
-  const { rows } = buildRows({ manifest, deviceCaptures: resolved.captures });
+  const { rows } = buildRows({ manifest, deviceCaptures: resolved.captures, lane });
   const phashVerdict = computeVerdict(rows, args.threshold);
 
   // PRIMARY verdict: the multi-model vision panel (phash is now a secondary
@@ -143,16 +195,27 @@ async function main() {
     const judges = resolveJudges({ registry: loadRegistry(), ensemble: args.ensemble, models: args.models });
     process.stderr.write(`verify-device: panel roster (${args.models ? 'models override' : `ensemble ${args.ensemble}`}): `
       + `${judges.map((j) => j.id).join(', ')}\n`);
-    panel = await runPanel({
-      rows, judges, apiKey: readEnvSecret('OPENROUTER_API_KEY'),
-      thresholdPct: args.panelThreshold,
-    });
-    if (panel.states) fs.writeFileSync(path.join(outDir, 'panel.json'), JSON.stringify(panel, null, 2));
+    const apiKey = readEnvSecret('OPENROUTER_API_KEY');
+
+    // BUDGET-GUARD: never drain the shared OpenRouter credit to $0 mid-overnight
+    // run. A confirmed remaining balance below --budget-floor HALTS the panel
+    // (non-fatal, exit stays 0); a failed credit *check* (network blip, etc.)
+    // does not halt — the panel's own per-judge credit-skip is the backstop.
+    const budget = await checkBudget({ apiKey, floor: args.budgetFloor });
+    if (budget.halted) {
+      process.stderr.write(`verify-device: ${budget.reason}\n`);
+      panel = { skipped: `${budget.reason} (panel not run — evidence UNVERIFIED-panel)`, halted: true, budget };
+    } else {
+      panel = await runPanel({
+        rows, judges, apiKey, thresholdPct: args.panelThreshold,
+      });
+      if (panel.states) fs.writeFileSync(path.join(outDir, 'panel.json'), JSON.stringify(panel, null, 2));
+    }
   }
 
   const html = buildGridHtml({
     game: args.game, generatedAt: date, device: resolved.deviceLabel,
-    rows, verdict: phashVerdict, panel,
+    rows, verdict: phashVerdict, panel, lane,
   });
   const outFile = path.join(outDir, 'grid.html');
   fs.writeFileSync(outFile, html);
@@ -161,7 +224,8 @@ async function main() {
   const primary = panel.verdict || phashVerdict;
   const primaryLabel = panel.verdict ? 'panel' : 'phash (panel skipped)';
   process.stdout.write(
-    `verify-device: device captures from ${resolved.deviceLabel}\n` +
+    `verify-device: ${lane} captures from ${resolved.deviceLabel}\n` +
+    (lane === 'browser' ? '  NOTE: browser lane — safe-area/notch fidelity is DEVICE-UNVERIFIED.\n' : '') +
     `  phash: ${phashVerdict.summary}\n` +
     (panel.verdict ? `  panel: ${panel.verdict.summary}\n`
       : `  panel: SKIPPED — ${panel.skipped} (on-device fidelity UNVERIFIED)\n`) +

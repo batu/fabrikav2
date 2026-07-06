@@ -18,6 +18,22 @@ describe('parseArgs', () => {
     expect(a.models).toBeUndefined(); // undefined -> panel.mjs DEFAULT_MODELS
     expect(a.strict).toBe(false);
     expect(a.skipDevice).toBe(false);
+    expect(a.lane).toBe('device'); // default lane stays device (never auto-browser)
+    expect(a.budgetFloor).toBe(5);
+  });
+
+  it('parses --lane and rejects anything but device/browser', () => {
+    expect(parseArgs(['--game', 'g', '--lane', 'browser']).lane).toBe('browser');
+    expect(parseArgs(['--game', 'g', '--lane', 'device']).lane).toBe('device');
+    expect(() => parseArgs(['--game', 'g', '--lane', 'android'])).toThrow(/"device" or "browser"/);
+    expect(() => parseArgs(['--game', 'g', '--lane'])).toThrow(/--lane needs a value/);
+  });
+
+  it('parses --budget-floor and rejects negative/non-numeric values', () => {
+    expect(parseArgs(['--game', 'g', '--budget-floor', '10']).budgetFloor).toBe(10);
+    expect(parseArgs(['--game', 'g', '--budget-floor', '0']).budgetFloor).toBe(0);
+    expect(() => parseArgs(['--game', 'g', '--budget-floor', '-1'])).toThrow(/non-negative/);
+    expect(() => parseArgs(['--game', 'g', '--budget-floor', 'x'])).toThrow(/non-negative/);
   });
 
   it('parses the panel flags', () => {

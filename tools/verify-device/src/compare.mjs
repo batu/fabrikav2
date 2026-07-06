@@ -12,18 +12,18 @@ import { decodePng } from '../../refcap-compare/src/png.mjs';
 import { signature, digest } from '../../refcap-compare/src/phash.mjs';
 import { diffThumbnail } from '../../refcap-compare/src/diff.mjs';
 
-function deviceCell(state, absPath) {
+function deviceCell(state, absPath, lane) {
   if (!absPath || !fs.existsSync(absPath)) {
-    return { gap: `no device capture for "${state}" — state missing from the tour`, lane: 'device' };
+    return { gap: `no ${lane} capture for "${state}" — state missing from the tour`, lane };
   }
   const buffer = fs.readFileSync(absPath);
   const img = decodePng(buffer);
   return {
-    lane: 'device',
+    lane,
     state,
     gap: null,
     source: absPath,
-    alt: `${state} device`,
+    alt: `${state} ${lane}`,
     base64: buffer.toString('base64'),
     img,
     resolution: `${img.width}x${img.height}`,
@@ -60,13 +60,15 @@ function referenceCell(gameDir, state, laneDef, refMeta) {
  * @param {object} params
  * @param {object} params.manifest loaded refcap-compare manifest (with gameDir)
  * @param {Record<string,string>} params.deviceCaptures state -> abs PNG path
+ * @param {'device'|'browser'} [params.lane] stamped onto every device-side cell
+ *   (default 'device'; 'browser' for the --lane browser fallback capture)
  * @returns {{rows: Array}} one row per canonical state
  */
-export function buildRows({ manifest, deviceCaptures }) {
+export function buildRows({ manifest, deviceCaptures, lane = 'device' }) {
   const { gameDir } = manifest;
   const rows = [];
   for (const st of manifest.states) {
-    const device = deviceCell(st.name, deviceCaptures[st.name]);
+    const device = deviceCell(st.name, deviceCaptures[st.name], lane);
     const reference = referenceCell(gameDir, st.name, st.reference, manifest.reference);
     let diff = null;
     if (!device.gap && !reference.gap) {

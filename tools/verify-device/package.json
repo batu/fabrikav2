@@ -11,5 +11,8 @@
     "verify-device": "node cli.mjs",
     "test:unit": "vitest run",
     "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2"
   }
 }

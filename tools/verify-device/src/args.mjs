@@ -40,6 +40,16 @@ Options:
   --strict             make a FAIL verdict a non-zero exit (default: advisory —
                        verdict is printed, exit stays 0 while the gate beds in).
   --skip-device        force the graceful device-absent skip (CI-safe).
+  --lane <device|browser> capture lane (default: device). 'browser' drives a
+                       vite-dev + Playwright/Chromium fallback via the game
+                       harness's driveTo(state) instead of the iOS device, scored
+                       by the SAME panel but stamped lane=browser and marked
+                       DEVICE-UNVERIFIED (safe-area/notch fidelity is device-only).
+                       Explicit only — the default lane stays device.
+  --budget-floor <n>   OpenRouter credit floor in USD (default 5). Before the
+                       panel runs, remaining OpenRouter credit is checked; below
+                       the floor the panel HALTS (non-fatal, evidence marked
+                       UNVERIFIED-panel) instead of draining the budget to $0.
   -h, --help           show this help.
 
 The vision panel needs OPENROUTER_API_KEY (env or the sibling .env); without it
@@ -51,7 +61,7 @@ the panel skips gracefully (exit 0) and on-device fidelity stays UNVERIFIED.
  * @returns {{game?:string, device?:string, captures?:string, xcresult?:string,
  *   out?:string, date?:string, threshold:number, ensemble:string, models?:string[],
  *   panelThreshold:number, skipPanel:boolean, strict:boolean,
- *   skipDevice:boolean, help:boolean}}
+ *   skipDevice:boolean, lane:'device'|'browser', budgetFloor:number, help:boolean}}
  */
 export function parseArgs(argv) {
   const args = {
@@ -61,6 +71,8 @@ export function parseArgs(argv) {
     skipPanel: false,
     strict: false,
     skipDevice: false,
+    lane: 'device',
+    budgetFloor: 5,
     help: false,
   };
   for (let i = 0; i < argv.length; i++) {
@@ -78,11 +90,28 @@ export function parseArgs(argv) {
     else if (a === '--skip-panel') args.skipPanel = true;
     else if (a === '--strict') args.strict = true;
     else if (a === '--skip-device') args.skipDevice = true;
+    else if (a === '--lane') args.lane = parseLane(req(argv, ++i, a));
+    else if (a === '--budget-floor') args.budgetFloor = parseBudgetFloor(req(argv, ++i, a));
     else if (a === '--help' || a === '-h') args.help = true;
     else throw new Error(`unknown argument: ${a}`);
   }
   if (!args.help && !args.game) throw new Error('--game is required');
   return args;
+}
+
+function parseLane(v) {
+  if (v !== 'device' && v !== 'browser') {
+    throw new Error(`--lane must be "device" or "browser", got: ${v}`);
+  }
+  return v;
+}
+
+function parseBudgetFloor(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n) || n < 0) {
+    throw new Error(`--budget-floor must be a non-negative number, got: ${v}`);
+  }
+  return n;
 }
 
 function req(argv, i, flag) {

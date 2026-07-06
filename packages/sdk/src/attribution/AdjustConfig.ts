@@ -1,5 +1,6 @@
 import type { AdjustEnvironment } from './AdjustAttributionPlugin.ts';
 import type { AttributionEventName } from './AttributionProvider.ts';
+import { envString, parseBooleanEnv, requiredValue } from '../config-env.ts';
 
 export type AdjustEventTokens = Record<AttributionEventName, string | null>;
 
@@ -168,24 +169,3 @@ function parseAdjustEnvironment(value: string): AdjustEnvironment | null {
   return null;
 }
 
-function envString(value: string | boolean | undefined): string | null {
-  if (typeof value !== 'string') return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
-}
-
-function requiredValue(value: string | null): string {
-  if (value === null) {
-    throw new Error('Adjust config value was read after missing-key validation.');
-  }
-  return value;
-}
-
-function parseBooleanEnv(value: string | boolean | undefined, defaultValue: boolean): boolean {
-  if (typeof value === 'boolean') return value;
-  if (typeof value !== 'string') return defaultValue;
-  const normalized = value.trim().toLowerCase();
-  if (['true', '1', 'yes', 'on'].includes(normalized)) return true;
-  if (['false', '0', 'no', 'off'].includes(normalized)) return false;
-  return defaultValue;
-}
