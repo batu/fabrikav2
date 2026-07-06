@@ -68,6 +68,20 @@ improvement proposals. Updated as events happen; not polished.
   catalog but not installed) — cost the corrections-evidence source for the v1
   analysis; repo archaeology substituted. Install them for future runs.
 
+## Standing conductor practices (added mid-run by Batu)
+
+- **twf ledger**: every landing recorded (`twf ledger add --event land ...` with
+  task-class, rework-rounds, plan-friction). Backfilled 16 landings 2026-07-06.
+  Spawns recorded going forward.
+- **Cross-vendor diversity (codex/gpt-5.5)**: preflight green (network_access
+  on, writable roots ok). Assignment plan: (a) marble_run port card's REVIEW
+  stage runs on codex — a different model family reviewing claude-written code
+  on the highest-stakes card; (b) the reskin drill card runs fully on codex —
+  mechanical + verification-heavy, good diversity probe; ledger records
+  worker-model per stage so the two vendors become comparable on task classes.
+  Caveats honored: no browser/xcodebuild inside codex sandbox — evidence capture
+  stays with claude workers or the conductor.
+
 ## Decisions made mid-run worth keeping
 
 - Token defaults live ONLY as `--fab-*` declarations in CSS; var() fallbacks are
