@@ -3,10 +3,13 @@
  *
  * This implements the portfolio {@link GameHarness} contract
  * (`@fabrikav2/testkit/harness`) with PLACEHOLDER verbs. A port replaces the
- * placeholders with real engine calls, but keeps the SHAPE: the standard core
- * (`gotoState`/`startLevel`/`snapshot`/`sagaNodes` + cheats), the typed
- * `verbs` extension point, and the optional witnesses (`perf`/`capture`/
- * `drainEvents`).
+ * placeholders with real engine calls, but keeps the SHAPE — the REQUIRED debug
+ * harness (`reference-fidelity-harness.md`): the STATE half (`snapshot()` with
+ * scene+status+inputReady) and the ACTION half — the standard core
+ * (`gotoState`/`startLevel`/`sagaNodes` + cheats), the typed primitive `verbs`
+ * extension point, and the solver-bound goal verbs (`winLevel`/`failLevel`) — plus
+ * the optional witnesses (`perf`/`capture`/`drainEvents`). A new game is thus born
+ * REQUIRING the harness (a game shipping without it does not pass audit/review).
  *
  * SEEDED-RAND RULE (CONDUCTOR comment (6);
  * `docs/architecture/reference-fidelity-harness.md` forced-change #3): any
@@ -81,10 +84,36 @@ export function createTemplateHarness(meta: { buildVersion: string; packageId: s
     },
   };
 
-  function snapshot(): { scene: string } {
+  function snapshot(): { scene: string; status: string; inputReady: boolean } {
     // A port returns its real state fingerprint (marble_run: controller state +
-    // scene). Placeholder: the first declared screen.
-    return { scene: states[0] ?? 'HomeMenu' };
+    // scene). The contract REQUIRES at least scene+status+inputReady so a driver
+    // gates transitions on queryable state (reference-fidelity-harness.md);
+    // a port adds hearts/score/board as needed. Placeholder: the first screen,
+    // idle status, input open.
+    return { scene: states[0] ?? 'HomeMenu', status: 'idle', inputReady: true };
+  }
+
+  // ── DETERMINISTIC solver-bound goal verbs (deterministic in-game AI only) ─────
+  // These are the ACTION half's terminal tier. They MUST be bound to an in-game
+  // DETERMINISTIC AI (A-star/search/solver replaying its solution) — NEVER an llm
+  // or Math.random — so a driven run reproduces byte-for-byte. A game WITHOUT a
+  // solver ships a SCRIPTED deterministic move list here (the placeholder below).
+  // Each resolves true iff the terminal state was reached AND confirmed via
+  // snapshot(); false otherwise — an honest "did not reach", never a bare `true`.
+  async function winLevel(): Promise<boolean> {
+    // TODO(port): drive this game's SOLVER to a win. Replay solver output through
+    // the real input path (marble_run: driveAutoWin replays solveLevel().order via
+    // controller.tapCell), gating each step on snapshot().status. With no solver,
+    // replay a fixed scripted move list seeded from the kernel rng (`rand` above)
+    // — deterministic in-game AI only, never llm/random. Confirm arrival:
+    //   return snapshot().status === 'won';
+    return false;
+  }
+  async function failLevel(): Promise<boolean> {
+    // TODO(port): drive this game's SOLVER (or scripted move list) to a LOSS the
+    // same way (marble_run: driveAutoFail taps genuinely-blocked marbles). Confirm:
+    //   return snapshot().status === 'lost';
+    return false;
   }
 
   return {
@@ -109,6 +138,8 @@ export function createTemplateHarness(meta: { buildVersion: string; packageId: s
       // A port credits soft currency (marble_run: saveState.addCoins).
     },
     verbs: { placeholderTap },
+    winLevel,
+    failLevel,
     perf(): PerfSample {
       return perf.sample();
     },
