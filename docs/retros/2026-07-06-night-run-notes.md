@@ -137,3 +137,12 @@ Port-specific friction (new items):
   pattern for generated-asset pipelines.
 - Aesthetics gates transfer explicitly (screens → pilot port) rather than
   self-skip silently.
+
+- **F16 — column checklists vs card nature mismatch.** The H3 evaluation card
+  (pure implementation) entered 'brainstormed' whose checklist demands a
+  requirements doc — nonsense for that card; worker correctly did the real
+  scope and flagged it. Same family as F1/F3: pipeline ceremony should follow
+  card CLASSIFICATION, not column defaults. (Agency improvement idea 2/3.)
+- **NEEDS-BATU (billing): Google-direct Gemini prepay depleted (429).**
+  OpenRouter Gemini fallback works via merceka-core. Decide: top up Google
+  prepay, or bless OpenRouter as the tier-2 judge lane.
