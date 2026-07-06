@@ -18,7 +18,7 @@ the authoritative Android reference captures
 the tree, not trusted from the card.
 
 Source of truth for the deltas:
-`games/marble_run/evidence/2026-07-06-v1v2-fidelity/FINDINGS.md` (6 committed
+`games/marble_run/evidence/2026-07-06-1052-v1v2-fidelity/FINDINGS.md` (6 committed
 captures) + the three conductor comments on the card (reference-package
 corrections: the authoritative package is **com.basegamelab.marblerun**, which
 matches the v1-web build closely — discard the earlier `com.utolye.marblerun.v5`

@@ -33,7 +33,7 @@ states:
       offline: refs/captures/android-basegamelab/menu.png
       recipe: launch app cold; lands on the saga menu
     v2:
-      offline: evidence/2026-07-06-fixed/v2-menu.png
+      offline: evidence/2026-07-06-1328-fixed/v2-menu.png
       driveTo: menu
 
   - name: level
@@ -41,7 +41,7 @@ states:
       offline: refs/captures/android-basegamelab/level-start.png
       recipe: from menu, tap the green LEVEL button
     v2:
-      offline: evidence/2026-07-06-fixed/v2-level.png
+      offline: evidence/2026-07-06-1328-fixed/v2-level.png
       driveTo: level
 
   - name: settings
@@ -49,14 +49,14 @@ states:
       offline: refs/captures/android-basegamelab/settings.png
       recipe: from menu, tap the gear; modal opens over dimmed menu
     v2:
-      offline: evidence/2026-07-06-fixed/v2-settings.png
+      offline: evidence/2026-07-06-1328-fixed/v2-settings.png
       driveTo: settings
 
   - name: pause
     reference:
       gap: "no reference pause capture exists (refs README) — documented gap"
     v2:
-      offline: evidence/2026-07-06-v2-screens/04-pause-overlay.png
+      offline: evidence/2026-07-06-0953-v2-screens/04-pause-overlay.png
       driveTo: pause
 
   - name: win
@@ -65,7 +65,7 @@ states:
       manual: true
       prompt: "Drive the phone to the WIN / level-complete screen, then press ENTER to capture."
     v2:
-      offline: evidence/2026-07-06-v2-screens/05-result-card.png
+      offline: evidence/2026-07-06-0953-v2-screens/05-result-card.png
       driveTo: win
 
   - name: fail

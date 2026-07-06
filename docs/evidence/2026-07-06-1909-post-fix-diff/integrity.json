@@ -1,0 +1,59 @@
+{
+  "method": "v2 = vite-dev harness driveTo(state) @390x844 Chromium; every shot gated on driveTo()===true && expected snapshot scene/flag. ref = committed android-basegamelab PNGs.",
+  "captured": [
+    {
+      "state": "menu",
+      "driveToReturned": true,
+      "expected": "scene==='menu'",
+      "actualScene": "menu",
+      "settingsOpen": false,
+      "inputReady": true,
+      "integrityPass": true
+    },
+    {
+      "state": "level",
+      "driveToReturned": true,
+      "expected": "scene==='playing'",
+      "actualScene": "playing",
+      "settingsOpen": false,
+      "inputReady": false,
+      "integrityPass": true
+    },
+    {
+      "state": "settings",
+      "driveToReturned": true,
+      "expected": "settingsOpen===true (modal over menu)",
+      "actualScene": "menu",
+      "settingsOpen": true,
+      "inputReady": true,
+      "integrityPass": true
+    },
+    {
+      "state": "pause",
+      "driveToReturned": true,
+      "expected": "scene==='paused'",
+      "actualScene": "paused",
+      "settingsOpen": false,
+      "inputReady": true,
+      "integrityPass": true
+    },
+    {
+      "state": "win",
+      "driveToReturned": true,
+      "expected": "scene==='complete'",
+      "actualScene": "complete",
+      "settingsOpen": false,
+      "inputReady": true,
+      "integrityPass": true
+    },
+    {
+      "state": "fail",
+      "driveToReturned": true,
+      "expected": "scene==='failed'",
+      "actualScene": "failed",
+      "settingsOpen": false,
+      "inputReady": true,
+      "integrityPass": true
+    }
+  ]
+}

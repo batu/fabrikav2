@@ -166,7 +166,7 @@ design-sheets repo's own `sheets/` state.**
 - A minimal capture script uses testkit's `gotoAndWaitForHarness`/`waitForSceneActive` to
   reach deterministic screens (menu, a level, settings, a result modal) then
   `page.screenshot({ path })`. Run it **once before** the round-trip (baseline) and **once
-  after** (reskinned) into `docs/evidence/2026-07-06-reskin-drill/`.
+  after** (reskinned) into `docs/evidence/2026-07-06-1359-reskin-drill/`.
 - Because of S2/S3, the deliverable at minimum is: the **committed capture script** + a
   hand-off note with exact commands, so the conductor (or a human outside the sandbox) can
   produce the before/after pair. If the executing environment allows it inline, capture

@@ -18,8 +18,8 @@ import type { CaptureResult, PerfSample, AnalyticsEventLike, SnapshotEnvelope } 
 /**
  * FIDELITY RE-RUN (card KEghp3x4 §1 "USE") — the harness-produced replacement
  * for the hand scripts that made the earlier fidelity evidence
- * (`evidence/2026-07-06-v1v2-fidelity/` was captured by ad-hoc scripts; the
- * reskin-drill grid by `docs/evidence/2026-07-06-reskin-drill/capture-reskin-screenshots.mjs`,
+ * (`evidence/2026-07-06-1052-v1v2-fidelity/` was captured by ad-hoc scripts; the
+ * reskin-drill grid by `docs/evidence/2026-07-06-1359-reskin-drill/capture-reskin-screenshots.mjs`,
  * a standalone `node` bridge, NOT the testkit).
  *
  * This drives ONE continuous harness session through the four states the
@@ -32,7 +32,7 @@ import type { CaptureResult, PerfSample, AnalyticsEventLike, SnapshotEnvelope } 
  *
  * By DEFAULT the run lands in the gitignored `.work/` scratch (side-effect-free
  * suite). Set `PROMOTE_EVIDENCE=1` to (re)generate the committed
- * `evidence/2026-07-06-fidelity-harness/` artifact.
+ * `evidence/2026-07-06-1534-fidelity-harness/` artifact.
  *
  * HONESTY: every v2 screenshot is a CHROMIUM / BROWSER capture (Playwright
  * viewport). The reference PNGs are the real Android device captures
