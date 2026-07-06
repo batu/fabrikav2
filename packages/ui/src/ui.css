@@ -95,6 +95,73 @@
     /* ---- Connectivity indicator (wave B) ---- */
     --fab-connectivity-size: 10px;
     --fab-connectivity-color: #e5533c;
+
+    /* ---- SagaMap / level-map rail (ported verbatim from v1 core ui.css) ---- */
+    --fab-levelmap-path-width: min(265px, 76vw);
+    --fab-levelmap-node-gap: 9px;
+    --fab-levelmap-offset: 57px;
+    --fab-levelmap-node-size: 64px;
+    --fab-levelmap-node-current-size: 138px;
+    --fab-levelmap-node-font: 21px;
+    --fab-levelmap-node-current-font: 53px;
+    --fab-levelmap-far-opacity: 0.66;
+    --fab-levelmap-far-scale: 0.93;
+    --fab-levelmap-distant-opacity: 0.46;
+    --fab-levelmap-distant-scale: 0.86;
+    --fab-levelmap-node-color: #374151;
+    --fab-levelmap-dot-color: #4b5563;
+    --fab-levelmap-locked-color: #9ca3af;
+    --fab-levelmap-locked-dot-color: #6b7280;
+    --fab-levelmap-completed-color: #111827;
+    --fab-levelmap-current-color: #ffffff;
+    /* line gradient decomposed into direct color-stop tokens — the audit
+       carve-out permits a color literal only as a --fab-* value NOT nested in a
+       function, so the gradient itself is composed in the rule below via var(). */
+    --fab-levelmap-line-top: rgba(156, 163, 175, 0.3);
+    --fab-levelmap-line-mid: #9ca3af;
+    --fab-levelmap-line-bottom: #6b7280;
+    --fab-levelmap-line-glow: 0 0 0 3px rgba(255, 255, 255, 0.26), 0 0 18px rgba(107, 114, 128, 0.24);
+    --fab-levelmap-loading-bg: rgba(255, 255, 255, 0.56);
+    --fab-levelmap-loading-border: rgba(209, 213, 219, 0.7);
+    --fab-levelmap-loading-shadow: 0 8px 18px rgba(75, 85, 99, 0.12);
+    --fab-levelmap-loading-current-bg: rgba(107, 114, 128, 0.4);
+    --fab-levelmap-art-default: none;
+    --fab-levelmap-art-locked: none;
+    --fab-levelmap-art-completed: none;
+    --fab-levelmap-art-current: none;
+
+    /* ---- Home menu (this card) ---- */
+    --fab-home-menu-gap: 16px;
+    --fab-home-menu-actions-gap: 10px;
+
+    /* ---- Page shell (this card) ---- */
+    --fab-page-overlay-bg: #ffffff;
+    --fab-page-card-bg: #ffffff;
+    --fab-page-header-height: 64px;
+    --fab-page-slide-ms: 340ms;
+    --fab-page-slide-easing: cubic-bezier(0.16, 1.05, 0.22, 1);
+    --fab-page-exit-ms: 420;
+    --fab-page-swipe-dismiss-px: 80;
+    --fab-page-stagger-step-ms: 46ms;
+    --fab-page-back-icon-size: 24px;
+    --fab-page-body-gap: 14px;
+    --fab-page-padding: 16px;
+
+    /* ---- Settings page (this card) ---- */
+    --fab-settings-section-gap: 18px;
+    --fab-settings-legal-color: #6b7280;
+    --fab-settings-legal-separator: #e5e7eb;
+    --fab-settings-legal-gap: 8px;
+
+    /* ---- Result card (this card, generic shell only) ---- */
+    --fab-result-win-accent: #22c55e;
+    --fab-result-lose-accent: #ef4444;
+    --fab-result-reward-color: #d97706;
+    --fab-result-card-gap: 14px;
+
+    /* ---- Pause overlay (this card) ---- */
+    --fab-pause-action-gap: 9px;
+    --fab-pause-title-color: #3d3d3d;
   }
 }
 
@@ -407,12 +474,278 @@
     opacity: 1;
   }
 
+  /* ---- SagaMap / level-map rail (ported verbatim from v1 core ui.css) ---- */
+  .fab-levelmap-path {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--fab-levelmap-node-gap);
+    width: var(--fab-levelmap-path-width);
+    min-height: min(455px, 100%);
+    padding: 0;
+    transform: translateY(-8px);
+  }
+  .fab-levelmap-path::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 6px;
+    bottom: 38px;
+    width: 9px;
+    border-radius: 999px;
+    transform: translateX(-50%);
+    background: linear-gradient(
+      180deg,
+      var(--fab-levelmap-line-top),
+      var(--fab-levelmap-line-mid) 28%,
+      var(--fab-levelmap-line-bottom) 100%
+    );
+    opacity: 0.9;
+    box-shadow: var(--fab-levelmap-line-glow);
+  }
+
+  .fab-levelmap-node {
+    pointer-events: auto;
+    position: relative;
+    z-index: 1;
+    --node-x: 0px;
+    --node-scale: 1;
+    min-height: 61px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 0;
+    background: transparent;
+    color: var(--fab-levelmap-node-color);
+    font-family: var(--fab-font-family);
+    font-weight: 760;
+    text-align: center;
+    cursor: pointer;
+    transform: translateX(var(--node-x)) scale(var(--node-scale));
+  }
+  .fab-levelmap-node:nth-child(odd) { --node-x: calc(-1 * var(--fab-levelmap-offset)); }
+  .fab-levelmap-node:nth-child(even) { --node-x: var(--fab-levelmap-offset); }
+  .fab-levelmap-node.current { --node-x: 0px; }
+
+  .fab-levelmap-node-dot {
+    z-index: 1;
+    width: var(--fab-levelmap-node-size);
+    height: var(--fab-levelmap-node-size);
+    display: grid;
+    place-items: center;
+    border: 0;
+    background: var(--fab-levelmap-art-default) center / contain no-repeat;
+    font-size: var(--fab-levelmap-node-font);
+    font-weight: 760;
+    color: var(--fab-levelmap-dot-color);
+  }
+  .fab-levelmap-node.locked { color: var(--fab-levelmap-locked-color); }
+  .fab-levelmap-node.locked .fab-levelmap-node-dot {
+    background-image: var(--fab-levelmap-art-locked);
+    color: var(--fab-levelmap-locked-dot-color);
+    font-weight: 720;
+  }
+  .fab-levelmap-node.completed .fab-levelmap-node-dot {
+    background-image: var(--fab-levelmap-art-completed);
+    color: var(--fab-levelmap-completed-color);
+  }
+  .fab-levelmap-node.current .fab-levelmap-node-dot {
+    width: var(--fab-levelmap-node-current-size);
+    height: var(--fab-levelmap-node-current-size);
+    background-image: var(--fab-levelmap-art-current);
+    color: var(--fab-levelmap-current-color);
+    font-size: var(--fab-levelmap-node-current-font);
+    font-weight: 900;
+  }
+  .fab-levelmap-node.far { opacity: var(--fab-levelmap-far-opacity); --node-scale: var(--fab-levelmap-far-scale); }
+  .fab-levelmap-node.distant { opacity: var(--fab-levelmap-distant-opacity); --node-scale: var(--fab-levelmap-distant-scale); }
+
+  .fab-levelmap-loading-node {
+    z-index: 1;
+    width: 62px;
+    height: 62px;
+    border-radius: 16px;
+    background: var(--fab-levelmap-loading-bg);
+    border: 4px solid var(--fab-levelmap-loading-border);
+    box-shadow: var(--fab-levelmap-loading-shadow);
+  }
+  .fab-levelmap-loading-node.current {
+    width: 92px;
+    height: 92px;
+    border-radius: 24px;
+    background: var(--fab-levelmap-loading-current-bg);
+  }
+
+  /* ---- Home menu (this card) ---- */
+  .fab-home-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--fab-home-menu-gap);
+    font-family: var(--fab-font-family);
+    color: var(--fab-color-text);
+  }
+  .fab-home-menu-content {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+  .fab-home-menu-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fab-home-menu-actions-gap);
+    width: 100%;
+    align-items: stretch;
+  }
+
+  /* ---- Page shell (this card) ---- */
+  .fab-page {
+    pointer-events: auto;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    padding: var(--fab-page-padding);
+    background: var(--fab-page-overlay-bg);
+    font-family: var(--fab-font-family);
+    color: var(--fab-color-text);
+    z-index: 20;
+    transform: translateY(100%);
+    opacity: 0;
+    transition:
+      transform var(--fab-page-slide-ms) var(--fab-page-slide-easing),
+      opacity var(--fab-page-slide-ms) ease;
+  }
+  .fab-page.fab-page--open {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  .fab-page.fab-page--instant {
+    transition: none;
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .fab-page-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: var(--fab-page-header-height);
+    flex: 0 0 auto;
+  }
+  .fab-page-back-art {
+    width: var(--fab-page-back-icon-size);
+    height: var(--fab-page-back-icon-size);
+    object-fit: contain;
+  }
+  .fab-page-title {
+    margin: 0;
+    color: var(--fab-color-text);
+  }
+
+  .fab-page-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fab-page-body-gap);
+    overflow-y: auto;
+    flex: 1 1 auto;
+  }
+  .fab-page-body-item {
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+      opacity var(--fab-page-slide-ms) ease,
+      transform var(--fab-page-slide-ms) ease;
+  }
+  .fab-page--open .fab-page-body-item {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .fab-page-body-item:nth-child(1) { transition-delay: calc(var(--fab-page-stagger-step-ms) * 1); }
+  .fab-page-body-item:nth-child(2) { transition-delay: calc(var(--fab-page-stagger-step-ms) * 2); }
+  .fab-page-body-item:nth-child(3) { transition-delay: calc(var(--fab-page-stagger-step-ms) * 3); }
+  .fab-page-body-item:nth-child(4) { transition-delay: calc(var(--fab-page-stagger-step-ms) * 4); }
+  .fab-page-body-item:nth-child(n + 5) { transition-delay: calc(var(--fab-page-stagger-step-ms) * 5); }
+  .fab-page--instant .fab-page-body-item {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  /* ---- Settings page (this card) ---- */
+  .fab-settings-legal {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fab-settings-legal-gap);
+    padding-top: var(--fab-settings-section-gap);
+    border-top: 1px solid var(--fab-settings-legal-separator);
+  }
+  .fab-settings-legal-link {
+    color: var(--fab-settings-legal-color);
+  }
+  .fab-settings-privacy {
+    padding-top: var(--fab-settings-section-gap);
+  }
+
+  /* ---- Result card (this card, generic shell only) ---- */
+  .fab-modal-card.fab-result-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fab-result-card-gap);
+  }
+  .fab-modal-card.fab-result-card--win {
+    border-top: 3px solid var(--fab-result-win-accent);
+  }
+  .fab-modal-card.fab-result-card--lose {
+    border-top: 3px solid var(--fab-result-lose-accent);
+  }
+  .fab-result-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--fab-result-card-gap);
+  }
+  .fab-result-messages {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .fab-result-message {
+    margin: 0;
+    color: var(--fab-color-text-muted);
+    font-size: var(--fab-font-size-sm);
+    text-align: center;
+  }
+  .fab-result-reward {
+    display: flex;
+    justify-content: center;
+    color: var(--fab-result-reward-color);
+    font-weight: var(--fab-font-weight-bold);
+  }
+  .fab-result-continue {
+    display: flex;
+    justify-content: center;
+  }
+
+  /* ---- Pause overlay (this card) ---- */
+  .fab-modal-card.fab-pause-card .fab-modal-title {
+    color: var(--fab-pause-title-color);
+    text-align: center;
+  }
+  .fab-modal-card.fab-pause-card .fab-modal-actions {
+    gap: var(--fab-pause-action-gap);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .fab-btn,
     .fab-toast,
     .fab-toggle-slider,
     .fab-toggle-slider::before,
-    .fab-connectivity {
+    .fab-connectivity,
+    .fab-page,
+    .fab-page-body-item {
       transition: none;
     }
     .fab-modal-backdrop,
