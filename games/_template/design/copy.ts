@@ -2,6 +2,7 @@
 export const copyLocale = "en";
 
 export const copy = {
+  "game.title": "Template Game",
   "menu.play": "Play",
 } as const;
 

@@ -82,10 +82,12 @@ export function createGame({ name, repoRoot }) {
   delete pkg.description; // the template's "copied by create-game" note no longer applies
   writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
 
-  // Anchored text substitutions across config + titles.
-  substitute(join(targetDir, 'game.config.ts'), [
-    ['id: "template"', `id: "${name}"`],
-    ['title: "Template Game"', `title: "${title}"`],
+  // Anchored text substitutions across config + titles. The game title is a
+  // copy KEY in game.config.ts; the human title lives in design/copy.ts, so we
+  // substitute the "game.title" copy value there (not a literal in the config).
+  substitute(join(targetDir, 'game.config.ts'), [['id: "template"', `id: "${name}"`]]);
+  substitute(join(targetDir, 'design', 'copy.ts'), [
+    ['"game.title": "Template Game"', `"game.title": "${title}"`],
   ]);
   substitute(join(targetDir, 'index.html'), [['<title>Template Game</title>', `<title>${title}</title>`]]);
   substitute(join(targetDir, 'capacitor.config.ts'), [

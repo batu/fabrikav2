@@ -9,6 +9,7 @@ import { createGame, titleCase } from '../src/create-game.mjs';
 function writeTemplate(root) {
   const tpl = join(root, 'games', '_template');
   mkdirSync(join(tpl, 'src'), { recursive: true });
+  mkdirSync(join(tpl, 'design'), { recursive: true });
   mkdirSync(join(tpl, '.work'), { recursive: true });
   mkdirSync(join(tpl, 'node_modules', 'junk'), { recursive: true });
 
@@ -16,7 +17,8 @@ function writeTemplate(root) {
     join(tpl, 'package.json'),
     JSON.stringify({ name: '@fabrikav2/game-template', private: true, description: 'copied by create-game' }, null, 2),
   );
-  writeFileSync(join(tpl, 'game.config.ts'), 'export const gameConfig = {\n  id: "template",\n  title: "Template Game",\n} as const;\n');
+  writeFileSync(join(tpl, 'game.config.ts'), 'export const gameConfig = {\n  id: "template",\n  title: "game.title" satisfies CopyKey,\n} as const;\n');
+  writeFileSync(join(tpl, 'design', 'copy.ts'), 'export const copy = {\n  "game.title": "Template Game",\n} as const;\n');
   writeFileSync(join(tpl, 'index.html'), '<title>Template Game</title>\n');
   writeFileSync(join(tpl, 'capacitor.config.ts'), 'const config = {\n  appId: "com.fabrika.template",\n  appName: "Template Game",\n};\n');
   writeFileSync(join(tpl, 'README.md'), '# Template Game\n\nSkeleton.\n');
@@ -52,7 +54,9 @@ describe('createGame', () => {
     expect(pkg.description).toBeUndefined(); // template-only note dropped
 
     expect(readFileSync(join(targetDir, 'game.config.ts'), 'utf8')).toContain('id: "my_game"');
-    expect(readFileSync(join(targetDir, 'game.config.ts'), 'utf8')).toContain('title: "My Game"');
+    // title stays a copy KEY in the config; the human title is substituted into copy.ts.
+    expect(readFileSync(join(targetDir, 'game.config.ts'), 'utf8')).toContain('title: "game.title"');
+    expect(readFileSync(join(targetDir, 'design', 'copy.ts'), 'utf8')).toContain('"game.title": "My Game"');
     expect(readFileSync(join(targetDir, 'index.html'), 'utf8')).toContain('<title>My Game</title>');
 
     const cap = readFileSync(join(targetDir, 'capacitor.config.ts'), 'utf8');
