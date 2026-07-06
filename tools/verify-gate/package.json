@@ -6,10 +6,12 @@
   "description": "DETERMINISTIC claim-gated verify enforcement (card elkcIthD): a Stop-hook that blocks done-claims on visual changes lacking fresh verify-device evidence, an UNVERIFIED ledger escape hatch, and a merge gate backstop. Self-disabling (no-op) when tools/verify-device or games/ are absent.",
   "bin": {
     "verify-visual-claim": "cli.mjs",
-    "verify-merge-gate": "merge-gate.mjs"
+    "verify-merge-gate": "merge-gate.mjs",
+    "project-gate": "project-gate.mjs"
   },
   "scripts": {
     "verify-merge-gate": "node merge-gate.mjs",
+    "project-gate": "node project-gate.mjs",
     "test:unit": "vitest run",
     "lint": "eslint ."
   }
