@@ -32,6 +32,43 @@ describe('mountModalShell', () => {
     expect(onAction).toHaveBeenCalledOnce();
   });
 
+  it('renders a dimmed backdrop scrim element behind the card', () => {
+    const handle = mountModalShell({ mountInto: host(), title: 'Dim', id: 'scrim-modal' });
+    const scrim = handle.el.querySelector<HTMLElement>('.fab-modal-scrim');
+    expect(scrim).not.toBeNull();
+    expect(scrim!.getAttribute('aria-hidden')).toBe('true');
+    // Scrim precedes the card so the card paints on top.
+    const card = handle.el.querySelector<HTMLElement>('.fab-modal-card')!;
+    expect(scrim!.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('renders a themed ribbon banner header with eyebrow, title, and tone', () => {
+    const handle = mountModalShell({
+      mountInto: host(),
+      ribbon: { eyebrow: 'LEVEL 4', title: 'COMPLETED', tone: 'win' },
+      id: 'ribbon-modal',
+    });
+    const ribbon = handle.el.querySelector<HTMLElement>('.fab-modal-ribbon')!;
+    expect(ribbon.classList.contains('fab-modal-ribbon--win')).toBe(true);
+    expect(ribbon.querySelector('.fab-modal-ribbon-eyebrow')?.textContent).toBe('LEVEL 4');
+    const title = ribbon.querySelector<HTMLElement>('.fab-modal-ribbon-title')!;
+    expect(title.textContent).toBe('COMPLETED');
+    // The ribbon title labels the dialog.
+    const card = handle.el.querySelector<HTMLElement>('.fab-modal-card')!;
+    expect(card.getAttribute('aria-labelledby')).toBe(title.id);
+  });
+
+  it('ribbon tone defaults to neutral and omits an absent eyebrow', () => {
+    const handle = mountModalShell({
+      mountInto: host(),
+      ribbon: { title: 'Settings' },
+      id: 'neutral-ribbon',
+    });
+    const ribbon = handle.el.querySelector<HTMLElement>('.fab-modal-ribbon')!;
+    expect(ribbon.classList.contains('fab-modal-ribbon--neutral')).toBe(true);
+    expect(ribbon.querySelector('.fab-modal-ribbon-eyebrow')).toBeNull();
+  });
+
   it('renders body arrays and caller-provided action slots', () => {
     const first = document.createElement('p');
     first.textContent = 'First';

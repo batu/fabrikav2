@@ -26,8 +26,10 @@ export type ResultVariant = 'win' | 'lose';
 export interface ResultCardOptions {
   mountInto: HTMLElement;
   variant: ResultVariant;
-  /** Injected headline copy. */
+  /** Injected ribbon-banner title copy (e.g. "COMPLETED" / "FAILED"). */
   title?: string;
+  /** Injected ribbon eyebrow above the title (e.g. "LEVEL 4"). */
+  eyebrow?: string;
   /** Injected body copy line(s). */
   messages?: string | readonly string[];
   /** Win reward-display slot. Fresh element. */
@@ -81,9 +83,20 @@ export function mountResultCard(opts: ResultCardOptions): UiHandle {
     body.appendChild(opts.continueOffer);
   }
 
+  // The result title lives in a themed ribbon banner (green win, red fail) that
+  // replaces the old vestigial 2px top-strip — matching the reference overlay.
+  const ribbon =
+    opts.title !== undefined || opts.eyebrow !== undefined
+      ? {
+          title: opts.title ?? '',
+          eyebrow: opts.eyebrow,
+          tone: opts.variant === 'win' ? ('win' as const) : ('fail' as const),
+        }
+      : undefined;
+
   return mountModalShell({
     mountInto: opts.mountInto,
-    title: opts.title,
+    ribbon,
     body,
     actions: opts.actions,
     backdropDismiss: opts.backdropDismiss,

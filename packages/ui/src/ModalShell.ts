@@ -13,9 +13,26 @@ export interface ModalAction {
   dataAction?: string;
 }
 
+/**
+ * Ribbon-banner header (the reference overlay language: a coloured ribbon that
+ * overhangs the top edge of the card, carrying an optional eyebrow + a bold
+ * title — e.g. eyebrow "LEVEL 4" / title "COMPLETED"). Tone selects the themed
+ * colour family via `--fab-ribbon-*` tokens; it never hard-codes a colour.
+ */
+export interface ModalRibbon {
+  /** Bold banner title, e.g. "COMPLETED" / "FAILED". Doubles as the aria label. */
+  title: string;
+  /** Small eyebrow line above the title, e.g. "LEVEL 4". Omit to hide. */
+  eyebrow?: string;
+  /** Themed colour family: green win, red fail, or neutral (default). */
+  tone?: 'win' | 'fail' | 'neutral';
+}
+
 export interface ModalShellOptions {
   mountInto: HTMLElement;
   title?: string;
+  /** Ribbon-banner header. Takes over the aria label when present. */
+  ribbon?: ModalRibbon;
   body?: HTMLElement | readonly HTMLElement[];
   actions?: readonly ModalAction[] | HTMLElement;
   backdropDismiss?: boolean;
@@ -81,12 +98,44 @@ export function mountModalShell(opts: ModalShellOptions): UiHandle {
   if (root.reentrant) return root.handle;
 
   const { el, close } = root;
+
+  // Dimmed backdrop scrim as its own (non-interactive) element so overlays float
+  // OVER a dimmed scene instead of blanking it. Behind the card; pointer-events
+  // off so backdrop-dismiss still targets the backdrop itself.
+  const scrim = document.createElement('div');
+  scrim.className = 'fab-modal-scrim';
+  scrim.setAttribute('aria-hidden', 'true');
+  el.appendChild(scrim);
+
   const card = document.createElement('div');
   card.className = ['fab-modal-card', opts.cardClassName].filter(Boolean).join(' ');
   card.setAttribute('role', 'dialog');
   card.setAttribute('aria-modal', 'true');
   if (opts.labelledById) card.setAttribute('aria-labelledby', opts.labelledById);
   if (opts.describedById) card.setAttribute('aria-describedby', opts.describedById);
+
+  if (opts.ribbon) {
+    const tone = opts.ribbon.tone ?? 'neutral';
+    const ribbon = document.createElement('div');
+    ribbon.className = `fab-modal-ribbon fab-modal-ribbon--${tone}`;
+    if (opts.ribbon.eyebrow) {
+      const eyebrow = document.createElement('span');
+      eyebrow.className = 'fab-modal-ribbon-eyebrow';
+      eyebrow.textContent = opts.ribbon.eyebrow;
+      ribbon.appendChild(eyebrow);
+    }
+    const ribbonTitle = document.createElement('h2');
+    ribbonTitle.className = 'fab-modal-ribbon-title';
+    ribbonTitle.textContent = opts.ribbon.title;
+    if (opts.labelledById) {
+      ribbonTitle.id = opts.labelledById;
+    } else {
+      ribbonTitle.id = `${el.id}-ribbon-title`;
+      card.setAttribute('aria-labelledby', ribbonTitle.id);
+    }
+    ribbon.appendChild(ribbonTitle);
+    card.appendChild(ribbon);
+  }
 
   if (opts.title) {
     const title = document.createElement('h2');

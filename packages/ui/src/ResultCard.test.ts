@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createFlowMachine } from '@fabrikav2/kernel/flow';
-import { mountResultCard, type UiHandle } from './index.ts';
+import { mountResultCard, mountModalShell, type UiHandle } from './index.ts';
 
 function host(): HTMLElement {
   document.body.innerHTML = '<div id="host"></div>';
@@ -15,6 +15,7 @@ describe('mountResultCard', () => {
       mountInto: host(),
       variant: 'win',
       title: 'You win!',
+      eyebrow: 'LEVEL 4',
       messages: 'All marbles sorted',
       rewardDisplay: reward,
       actions: [{ label: 'Next', onClick: () => {} }],
@@ -22,7 +23,15 @@ describe('mountResultCard', () => {
     });
     const card = handle.el.querySelector<HTMLElement>('.fab-modal-card')!;
     expect(card.classList.contains('fab-result-card--win')).toBe(true);
-    expect(handle.el.querySelector('.fab-modal-title')?.textContent).toBe('You win!');
+    // Title renders in a green (win) ribbon banner, not a flat top-strip.
+    const ribbon = handle.el.querySelector<HTMLElement>('.fab-modal-ribbon')!;
+    expect(ribbon.classList.contains('fab-modal-ribbon--win')).toBe(true);
+    expect(ribbon.querySelector('.fab-modal-ribbon-title')?.textContent).toBe('You win!');
+    expect(ribbon.querySelector('.fab-modal-ribbon-eyebrow')?.textContent).toBe('LEVEL 4');
+    // The card is labelled by the ribbon title.
+    expect(card.getAttribute('aria-labelledby')).toBe(ribbon.querySelector('.fab-modal-ribbon-title')?.id);
+    // Dimmed backdrop scrim floats the card over the scene.
+    expect(handle.el.querySelector('.fab-modal-scrim')).not.toBeNull();
     expect(handle.el.querySelector('.fab-result-message')?.textContent).toBe('All marbles sorted');
     expect(handle.el.querySelector('.fab-result-reward')?.textContent).toBe('+50');
     expect(handle.el.querySelector('.fab-result-continue')).toBeNull();
@@ -34,14 +43,50 @@ describe('mountResultCard', () => {
     const handle = mountResultCard({
       mountInto: host(),
       variant: 'lose',
+      title: 'Failed',
       messages: ['No hearts left'],
       continueOffer: offer,
       actions: [{ label: 'Retry', onClick: () => {} }],
       id: 'result',
     });
     expect(handle.el.querySelector('.fab-modal-card')?.classList.contains('fab-result-card--lose')).toBe(true);
+    // Lose ribbon is the red (fail) tone.
+    expect(handle.el.querySelector('.fab-modal-ribbon--fail')).not.toBeNull();
+    expect(handle.el.querySelector('.fab-modal-scrim')).not.toBeNull();
     expect(handle.el.querySelector('.fab-result-continue')?.textContent).toBe('Watch ad');
     expect(handle.el.querySelector('.fab-result-reward')).toBeNull();
+  });
+
+  it('the three reference overlays (settings/win/fail) all gain a ribbon + scrim', () => {
+    const h = host();
+    const win = mountResultCard({
+      mountInto: h,
+      variant: 'win',
+      title: 'Completed',
+      actions: [{ label: 'Next', onClick: () => {} }],
+      id: 'ov-win',
+    });
+    expect(win.el.querySelector('.fab-modal-ribbon--win')).not.toBeNull();
+    expect(win.el.querySelector('.fab-modal-scrim')).not.toBeNull();
+
+    const fail = mountResultCard({
+      mountInto: h,
+      variant: 'lose',
+      title: 'Failed',
+      actions: [{ label: 'Retry', onClick: () => {} }],
+      id: 'ov-fail',
+    });
+    expect(fail.el.querySelector('.fab-modal-ribbon--fail')).not.toBeNull();
+    expect(fail.el.querySelector('.fab-modal-scrim')).not.toBeNull();
+
+    // settings-style modal (neutral-tone ribbon over the same shell)
+    const settings = mountModalShell({
+      mountInto: h,
+      ribbon: { title: 'Settings' },
+      id: 'ov-settings',
+    });
+    expect(settings.el.querySelector('.fab-modal-ribbon--neutral')).not.toBeNull();
+    expect(settings.el.querySelector('.fab-modal-scrim')).not.toBeNull();
   });
 
   it('mounts on Complete enter and unmounts on leave via a real flow machine', () => {
