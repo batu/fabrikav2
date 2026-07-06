@@ -26,6 +26,7 @@ import {
   mountSettingsPage,
   mountToaster,
   mountConnectivityIndicator,
+  mountShopPage,
   createPageStack,
   animateEconomyTransfer,
   prefersReducedMotion,
@@ -35,6 +36,8 @@ import {
   type ModalAction,
   type SettingKey,
 } from '@fabrikav2/ui';
+import type { GameSdk } from '../sdk/SdkContext';
+import type { MarbleGrant } from '../sdk/catalog';
 import { copy } from '../../design/copy';
 import { assetUrls } from '../../design/theme';
 import { buildSagaNodes, MENU_SAGA_WINDOW } from './saga';
@@ -60,21 +63,27 @@ interface PendingWin {
 export class App {
   private readonly machine: FlowMachine;
   private readonly controller: GameController;
+  private readonly sdk: GameSdk;
   private readonly uiRoot: HTMLElement;
   private readonly pageStack: PageStack;
   private readonly toaster: ToasterHandle;
   /** The single mounted lifecycle screen (menu / saga / result / pause). */
   private screenHandle: UiHandle | null = null;
   private pendingWin: PendingWin | null = null;
+  /** The level currently in play — used to tag fail analytics. */
+  private currentLevelId = 0;
 
-  constructor(mounts: AppMounts) {
+  constructor(mounts: AppMounts, sdk: GameSdk) {
     this.uiRoot = mounts.uiRoot;
+    this.sdk = sdk;
 
     const hooks: GameHooks = {
       onWin: (info) => this.handleWin(info),
       onFail: (info) => this.handleFail(info),
       onPauseRequested: () => this.pauseGame(),
       requestFailSave: () => this.requestFailSave(),
+      requestRewardedHint: () => this.sdk.tryRewardedHint(),
+      onCoinsSpent: (amount, reason) => this.sdk.recordSpend(amount, reason, saveState.coins),
     };
     this.controller = new GameController(mounts.canvas, mounts.hudRoot, hooks);
 
@@ -118,6 +127,8 @@ export class App {
   private enterLevel(levelId: number): void {
     this.clearScreen();
     music.stop();
+    this.currentLevelId = levelId;
+    this.sdk.levelStart(levelId);
     this.controller.setInputBlocked(false);
     this.controller.startLevel(levelId);
   }
@@ -127,6 +138,7 @@ export class App {
     if (!info) return;
     this.pendingWin = null;
     saveState.recordWin(info.levelId, info.reward);
+    this.sdk.levelComplete(info.levelId, info.reward, saveState.coins);
     this.controller.refreshHudCoins();
     this.controller.setInputBlocked(true);
     this.clearScreen();
@@ -135,9 +147,12 @@ export class App {
     } else {
       this.mountWin(info);
     }
+    // Interstitial cadence (remote-config driven, suppressed by no-ads).
+    void this.sdk.maybeShowInterstitialAfterLevel(info.levelId);
   }
 
   private renderFailed(): void {
+    this.sdk.levelFail(this.currentLevelId);
     this.controller.setInputBlocked(true);
     this.clearScreen();
     this.mountLose();
@@ -158,9 +173,54 @@ export class App {
       actions: [
         { label: copy['menu.play'], onClick: () => this.startCurrentLevel(), variant: 'primary' },
         { label: copy['menu.levels'], onClick: () => this.openLevelSelect(), variant: 'secondary' },
+        { label: copy['menu.shop'], onClick: () => this.openShop(), variant: 'secondary' },
         { label: copy['menu.settings'], onClick: () => this.openSettings(false), variant: 'secondary' },
       ],
     });
+  }
+
+  private openShop(): void {
+    this.pageStack.push(() =>
+      mountShopPage<MarbleGrant>({
+        mountInto: this.uiRoot,
+        iap: this.sdk.iap,
+        sections: [
+          { group: 'entitlements', layout: 'featured' },
+          { group: 'coins', layout: 'grid', title: copy['shop.coins'] },
+        ],
+        copy: {
+          purchase: {
+            pending: copy['shop.purchase.pending'],
+            busy: copy['shop.purchase.busy'],
+            unavailable: copy['shop.purchase.unavailable'],
+          },
+          restore: {
+            title: copy['shop.restore.title'],
+            status: {
+              idle: copy['shop.restore.status.idle'],
+              initializing: copy['shop.restore.status.initializing'],
+              busy: copy['shop.restore.status.busy'],
+              unavailable: copy['shop.restore.status.unavailable'],
+              pending: copy['shop.restore.status.pending'],
+              restored: copy['shop.restore.status.restored'],
+              empty: copy['shop.restore.status.empty'],
+              failed: copy['shop.restore.status.failed'],
+            },
+            button: {
+              rest: copy['shop.restore.button.rest'],
+              pending: copy['shop.restore.button.pending'],
+              restored: copy['shop.restore.button.restored'],
+            },
+          },
+        },
+        badges: { popular: copy['shop.badge.popular'] },
+        onPurchase: (result) => {
+          this.sdk.applyPurchaseResult(result);
+          if (result.status === 'purchased') this.controller.refreshHudCoins();
+        },
+        onRestore: (result) => this.sdk.applyRestoreResult(result),
+      }),
+    );
   }
 
   private mountLevelSelect(): void {
@@ -333,10 +393,11 @@ export class App {
   }
 
   private async requestFailSave(): Promise<boolean> {
-    // No ad provider is wired in the v2 pilot (ads deferred — see SURPRISES);
-    // the rewarded fail-save surfaces the v1 "unavailable" path.
-    this.toaster.show(copy['toast.saveUnavailable']);
-    return false;
+    // Rewarded fail-save via the ads SDK. On web/CI the provider is disabled →
+    // granted:false → surface the v1 "unavailable" toast (no ad fill).
+    const granted = await this.sdk.tryRewardedFailSave();
+    if (!granted) this.toaster.show(copy['toast.saveUnavailable']);
+    return granted;
   }
 
   private onSettingToggle(key: SettingKey, next: boolean, inGame: boolean): void {

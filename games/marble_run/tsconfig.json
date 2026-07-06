@@ -2,7 +2,10 @@
   "extends": "../../configs/tsconfig.base.json",
   "compilerOptions": {
     "noUnusedLocals": false,
-    "noUnusedParameters": false
+    "noUnusedParameters": false,
+    "paths": {
+      "@capacitor-community/admob": ["./src/sdk/shims/capacitor-community-admob.ts"]
+    }
   },
   "include": ["src", "tests"]
 }

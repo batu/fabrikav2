@@ -20,6 +20,8 @@
  * out to the configured sinks.
  */
 
+import type { FullScreenAdType } from '../ads/AdProvider.ts';
+
 /**
  * The environment marker. Rides in EVERY emitted payload (`toWirePayload`
  * injects it under {@link ENV_PARAM_KEY}) so a dashboard/query can always
@@ -110,7 +112,10 @@ export interface PurchaseParams {
   readonly quantity?: number;
 }
 
-export type AdFormat = 'banner' | 'interstitial' | 'rewarded';
+// `ad_format` must provably be a superset of what the ad provider can show —
+// AdFormat = the full-screen formats (interstitial | rewarded) plus 'banner'.
+// Type-only import (analytics → ads); ads never imports analytics, so no cycle.
+export type AdFormat = FullScreenAdType | 'banner';
 
 export interface AdParams {
   readonly ad_format: AdFormat;
