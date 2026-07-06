@@ -322,6 +322,8 @@ export function mountShopPage<TPayload = unknown>(
     label: opts.copy.restore.button.rest,
     variant: 'secondary',
     className: 'fab-shop-restore-btn',
+    // Stable hook so SharedShellDriver drives restore via a real click.
+    dataAction: 'shop-restore',
     onClick: () => {
       void runRestore();
     },

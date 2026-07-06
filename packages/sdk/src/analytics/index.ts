@@ -56,6 +56,12 @@ export {
 export { type AnalyticsSink } from './sink.ts';
 export { createConsoleSink, type ConsoleSinkOptions } from './console-sink.ts';
 export {
+  DEFAULT_RING_CAPACITY,
+  createRingBufferSink,
+  type RingBufferSink,
+  type RingBufferSinkOptions,
+} from './ring-sink.ts';
+export {
   createFirebaseSink,
   type FirebaseTransport,
 } from './firebase-sink.ts';

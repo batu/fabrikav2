@@ -41,17 +41,19 @@ export interface PauseOverlayOptions {
 }
 
 export function mountPauseOverlay(opts: PauseOverlayOptions): UiHandle {
+  // Stable data-fab-action hooks so SharedShellDriver drives pause navigation
+  // for every game via real clicks (attribute-only, no markup change).
   const actions: ModalAction[] = [
-    { label: opts.labels.resume, variant: 'primary', onClick: () => opts.actions.onResume() },
+    { label: opts.labels.resume, variant: 'primary', dataAction: 'pause-resume', onClick: () => opts.actions.onResume() },
   ];
   if (opts.actions.onSettings) {
     if (opts.labels.settings === undefined) {
       throw new Error('mountPauseOverlay: labels.settings is required when actions.onSettings is supplied.');
     }
     const onSettings = opts.actions.onSettings;
-    actions.push({ label: opts.labels.settings, variant: 'secondary', onClick: () => onSettings() });
+    actions.push({ label: opts.labels.settings, variant: 'secondary', dataAction: 'pause-settings', onClick: () => onSettings() });
   }
-  actions.push({ label: opts.labels.quit, variant: 'secondary', onClick: () => opts.actions.onQuit() });
+  actions.push({ label: opts.labels.quit, variant: 'secondary', dataAction: 'pause-quit', onClick: () => opts.actions.onQuit() });
 
   return mountModalShell({
     mountInto: opts.mountInto,

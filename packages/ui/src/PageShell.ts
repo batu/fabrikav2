@@ -104,6 +104,9 @@ export function mountPageShell(opts: PageShellOptions): UiHandle {
       ariaLabel: opts.backLabel ?? '',
       variant: 'icon',
       className: 'fab-page-back',
+      // Stable hook so SharedShellDriver can dismiss any page (settings/shop)
+      // via a real click (attribute-only).
+      dataAction: 'back',
       onClick: () => beginClose(),
     });
     if (opts.backIcon !== undefined) {

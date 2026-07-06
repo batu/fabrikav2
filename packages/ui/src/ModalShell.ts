@@ -9,6 +9,8 @@ export interface ModalAction {
   ariaLabel?: string;
   /** Extra class(es) for game-local theming (e.g. a green CLOSE CTA). */
   className?: string;
+  /** Stable hook (→ data-fab-action) for real-click e2e / SharedShellDriver. */
+  dataAction?: string;
 }
 
 export interface ModalShellOptions {
@@ -56,6 +58,7 @@ function buildActions(actions: readonly ModalAction[] | HTMLElement | undefined)
         disabled: action.disabled,
         ariaLabel: action.ariaLabel,
         className: action.className,
+        dataAction: action.dataAction,
       }),
     );
   }

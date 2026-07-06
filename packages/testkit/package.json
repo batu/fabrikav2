@@ -7,6 +7,7 @@
   "types": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./harness": "./src/harness/index.ts",
     "./playwright": "./src/playwright/index.ts",
     "./debug": "./src/debug/index.ts",
     "./testing": "./src/testing/index.ts"
