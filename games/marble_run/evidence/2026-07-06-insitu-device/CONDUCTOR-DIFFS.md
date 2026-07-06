@@ -86,3 +86,27 @@ Coverage now: menu, settings(modal), level, pause, win, fail — all on device.
 Remaining gap: no ANDROID reference for win/fail/pause yet (pending adb capture),
 so D4-D7 are judged against the app's own established language + the browser
 differential, not paired references.
+
+## WIN card — paired reference now captured (android win-ref.png vs v2 05-win.png)
+
+D4/D5 UPGRADED TO P1 with paired evidence. Android WIN reference vs v2 device WIN:
+
+| Element        | Reference (android)                          | v2 (device)                         |
+|----------------|----------------------------------------------|-------------------------------------|
+| Header         | GREEN ribbon banner "LEVEL 4 / COMPLETED"    | brown left-aligned "Level Complete", no banner |
+| Card           | blue rounded card, floats over DIMMED board  | flat cream card on OPAQUE purple (no scrim) |
+| Art            | gold CROWN (celebratory)                     | generic gold disc w/ scribble globe |
+| Reward         | "REWARD" label + gold coin "+25"             | bare "25", no label, no coin        |
+| Primary button | GREEN "Next" (candy gloss/bevel)             | ORANGE "Next" (the accent-flip)     |
+| Coin balance   | coin pill top-right visible                  | orphan coin stack bottom-left       |
+
+This is the SAME ribbon+blue-card+dimmed-scrim language as the reference FAIL and
+SETTINGS cards — v2 breaks it identically on all three overlays. The win card is
+the highest-impact instance (core reward moment). Confirms F3 (accent-flip),
+F5 (no scrim), D4 (opaque overlays) with a paired win reference; adds: missing
+ribbon header, wrong card color, wrong celebratory art (globe vs crown), reward
+framing lost.
+
+REFERENCE SET NOW COMPLETE on android: menu, settings(from-menu + in-level),
+level, WIN, FAIL. v2 captured on device: menu, settings, level, pause, WIN, FAIL.
+Every fidelity finding is now paired-reference-backed.
