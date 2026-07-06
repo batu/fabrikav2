@@ -1,0 +1,16 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "ignore": [
+    "**/ios/**",
+    "**/android/**",
+    "**/build/**",
+    "**/dist/**",
+    "**/.work/**",
+    "docs/evidence/**",
+    "**/test/fixtures/**"
+  ],
+  "ignoreDependencies": [
+    "@capacitor/core",
+    "@capacitor/haptics"
+  ]
+}

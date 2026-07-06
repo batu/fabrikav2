@@ -20,6 +20,7 @@
     "verify-merge-gate": "node tools/verify-gate/merge-gate.mjs",
     "lint": "npm run lint --workspaces --if-present",
     "audit": "node tools/audit/src/cli.js",
+    "knip": "knip",
     "create-game": "node tools/create-game/src/create-game.mjs",
     "refcap-compare": "node tools/refcap-compare/cli.mjs",
     "verify-device": "node tools/verify-device/cli.mjs"
@@ -30,6 +31,7 @@
     "@types/node": "^25.3.3",
     "eslint": "^9.39.4",
     "happy-dom": "20.10.6",
+    "knip": "6.24.0",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.58.2",
     "vite": "^6.0.5",
