@@ -18,6 +18,7 @@
     "test": "npm run test:unit --workspaces --if-present",
     "test:unit": "npm run test:unit --workspaces --if-present",
     "verify-merge-gate": "node tools/verify-gate/merge-gate.mjs",
+    "project-gate": "node tools/verify-gate/project-gate.mjs",
     "lint": "npm run lint --workspaces --if-present",
     "audit": "node tools/audit/src/cli.js",
     "create-game": "node tools/create-game/src/create-game.mjs",
