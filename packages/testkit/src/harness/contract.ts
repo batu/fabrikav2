@@ -134,6 +134,19 @@ export interface GameHarness<GameVerb extends string = never> {
    *  key) when a game declares none. Each verb carries both flavors. */
   readonly verbs: Record<GameVerb, GameVerbHandler>;
 
+  // ── navigation (optional-but-recommended) ────────────────────────
+  /**
+   * OPTIONAL-but-recommended: deterministically navigate to a named canonical
+   * state for capture, CONFIRMING arrival via {@link snapshot} before resolving
+   * (fidelity-diff ledger C5). Resolves true iff the state was reached and
+   * confirmed; false on an unknown state or a confirmation timeout — an honest
+   * "did not reach", never an unverified success. State names are per-game (a
+   * game documents its own set, e.g. marble_run `menu`/`level`/`win`/`fail`/
+   * `settings`/`pause`); a game that cannot deterministically drive its states
+   * omits this and the capture tooling falls back to `gotoState` + polling.
+   */
+  driveTo?(state: string): Promise<boolean>;
+
   // ── observation (witness side; all optional) ─────────────────────
   /** Self-screenshot → PNG (browser path via {@link captureCanvasPng}). */
   capture?(): CaptureResult | Promise<CaptureResult>;

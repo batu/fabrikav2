@@ -61,6 +61,7 @@ import { music } from '../audio/Music';
 import { toggleClick } from '../audio/Sfx';
 import { pickByRoll, blockedMarbles } from './marbleVerbs';
 import { driveAutoWin, driveAutoFail } from '../testing/autoPlay';
+import { driveTo as driveToState } from '../testing/driveTo';
 import type { Cell } from '../engine/types';
 
 /** The marble_run extra-verb union — the `GameHarness` extension point. */
@@ -83,6 +84,9 @@ export interface MarbleHarness extends GameHarness<MarbleVerb> {
   autoWin(stepMs?: number): Promise<boolean>;
   /** Deterministic loss: taps genuinely-blocked marbles until hearts deplete. Resolves true if failed. */
   autoFail(stepMs?: number): Promise<boolean>;
+  /** Deterministically navigate to a canonical capture state, confirming arrival
+   *  via snapshot() before resolving (fidelity-diff ledger C5). */
+  driveTo(state: string): Promise<boolean>;
 }
 
 export interface AppMounts {
@@ -677,18 +681,49 @@ export class App {
       // LLM/random policy: autoWin replays solveLevel().order; autoFail taps
       // genuinely-blocked marbles. Both drive via the real tapCell input path
       // and gate each step on gameStatus() (see ../testing/autoPlay).
-      autoWin: (stepMs = 260): Promise<boolean> => {
-        const level = this.controller.currentLevelDef();
-        const engine = this.controller.engineRef();
-        if (!level || !engine) return Promise.resolve(false);
-        return driveAutoWin(engine, level, (cell) => this.controller.tapCell(cell), stepMs);
-      },
-      autoFail: (stepMs = 260): Promise<boolean> => {
-        const engine = this.controller.engineRef();
-        if (!engine) return Promise.resolve(false);
-        return driveAutoFail(engine, (cell) => this.controller.tapCell(cell), stepMs);
-      },
+      autoWin: (stepMs = 260): Promise<boolean> => this.runAutoWin(stepMs),
+      autoFail: (stepMs = 260): Promise<boolean> => this.runAutoFail(stepMs),
+
+      // ── DETERMINISTIC per-state navigation (ledger C5) ────────────────────
+      // Normalises to menu, drives to the named state, and CONFIRMS arrival via
+      // snapshot() before resolving. Composes the App transitions + the solver-
+      // bound autoWin/autoFail above (see ../testing/driveTo).
+      driveTo: (state: string): Promise<boolean> => this.driveTo(state),
     };
+  }
+
+  private runAutoWin(stepMs = 260): Promise<boolean> {
+    const level = this.controller.currentLevelDef();
+    const engine = this.controller.engineRef();
+    if (!level || !engine) return Promise.resolve(false);
+    return driveAutoWin(engine, level, (cell) => this.controller.tapCell(cell), stepMs);
+  }
+
+  private runAutoFail(stepMs = 260): Promise<boolean> {
+    const engine = this.controller.engineRef();
+    if (!engine) return Promise.resolve(false);
+    return driveAutoFail(engine, (cell) => this.controller.tapCell(cell), stepMs);
+  }
+
+  /**
+   * Deterministically navigate to a canonical capture state ({@link driveToState}).
+   * Wires the pure driver to the real App transitions; win/fail delegate to the
+   * solver-bound {@link runAutoWin}/{@link runAutoFail}. Confirms every arrival
+   * via {@link snapshot} before resolving.
+   */
+  private driveTo(state: string): Promise<boolean> {
+    return driveToState(
+      {
+        gotoMenu: () => this.toMenu(),
+        startLevel: (id) => this.startLevelId(id),
+        openSettings: () => this.openSettings(false),
+        pause: () => this.pauseGame(),
+        autoWin: () => this.runAutoWin(),
+        autoFail: () => this.runAutoFail(),
+        snapshot: () => this.snapshot(),
+      },
+      state,
+    );
   }
 
   /**
@@ -776,6 +811,12 @@ export class App {
     return {
       ...this.controller.snapshot(),
       scene: this.machine.state,
+      // Settings is a MODAL over the menu (no distinct flow-machine scene), so
+      // driveTo('settings') confirms arrival on this DOM-derived flag rather
+      // than on `scene`. `scene`/`status`/`inputReady`/`hearts`/`coins` (the
+      // fields driveTo + the capture tool read) all flow up from the controller
+      // snapshot above.
+      settingsOpen: !!this.uiRoot.querySelector('.mr-settings-card'),
       reward: LEVEL_COIN_REWARD,
       sagaNodeIds:
         this.machine.state === 'menu' || this.machine.state === 'levelSelect'
