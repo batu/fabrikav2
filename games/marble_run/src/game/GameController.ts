@@ -564,7 +564,10 @@ export class GameController {
     if (!this.paused) {
       this.board?.tick(dt);
       this.decorBoard?.tick(dt);
-      if (this.decorBoard) this.decorBoard.root.rotation.y += dt * 0.12;
+      // The decor board stays LOCKED at the yaw showMenuScene() set (near-straight,
+      // matching the reference menu). No continuous spin — a rotating board clashes
+      // with the static saga rail overlaid on the menu. See the diff report
+      // (docs/evidence/2026-07-06-rigorous-diff): reference menu board is static.
       this.tickMenuDecor(dt);
     }
     this.stage.render();
