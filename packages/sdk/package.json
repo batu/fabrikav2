@@ -8,7 +8,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./haptics": "./src/haptics/index.ts",
-    "./audio": "./src/audio/index.ts"
+    "./audio": "./src/audio/index.ts",
+    "./ads": "./src/ads/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
