@@ -69,3 +69,43 @@ mechanically detectable.
 4. android-remote lane (blocked on ubuntu-server ssh access).
 5. Retrofit: fidelity card 6QcUojYp re-verified through the harness as its
    acceptance (dogfood).
+
+## Step-back: fit with the overall fabrika flow (2026-07-06, Batu-prompted)
+
+The harness is not a testing add-on; it becomes the verification spine of every
+stage of the studio loop:
+
+- **Birth**: template ships harness.ts → every game is born instrumented; the
+  refs/manifest state list can be SEEDED from game.config.ts screens (one
+  source of truth for "what states exist").
+- **Design round-trip (synthesis 1)**: DS11 shipped page cards as
+  structural-only because "v2 has no screen-capture pipeline" — capture()
+  IS that pipeline. Follow-up: the fabrikav2 ingester embeds harness captures
+  into sheet page cards, so designers in claude.ai/design see real screens.
+- **Board pipeline (synthesis 2)**: tested_insitu / aesthetics_reviewed /
+  evidence_captured stages standardize on collectRun() artifacts instead of
+  ad-hoc proof — card checklists can demand a run dir. Process-doc change,
+  not code.
+- **Monetization QA (synthesis 3)**: drainEvents() + the owned-mirror dev
+  environment give client- and server-side views of the same events — SDK
+  wiring becomes assertable end-to-end without store builds.
+- **Later ports**: FTD's 140-line bespoke TestHarness (research 07 R71)
+  collapses into contract + verbs. Store-listing screenshots and demo reels
+  consume capture() instead of v1's .work/appstore-shots chaos.
+
+Forced changes (conventions, priced in):
+1. ui components maintain stable data-fab-* hooks (H1 adds the audit check).
+2. Game cards' AC must include harness coverage of any new surface — a feature
+   without verbs/states is untestable by construction. → card-writing checklist.
+3. Games route randomness through kernel rand (seeded) so chaos runs reproduce.
+   marble_run already does; template must say it.
+4. OPEN (Batu, not urgent): does chaos/e2e join the CI matrix (browser cost)
+   or stay conductor-run per landing? Advise: conductor-run until flake rate
+   is known.
+
+## End-of-process review (standing commitment)
+
+When the drill + harness package land, a full process review synthesizes:
+night-run friction ledger (F1-F15+), agency improvement ideas (19+), the
+harness evaluation doc, and twf ledger metrics — output: prioritized updates
+to AGENTS.md / twf / skills / card templates. Carded on the board.
