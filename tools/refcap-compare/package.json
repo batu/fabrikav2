@@ -1,0 +1,15 @@
+{
+  "name": "@fabrikav2/refcap-compare",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Paired reference(android)+v2 capture -> side-by-side grid per canonical state. Fixes fidelity-diff ledger C4/B1/B2/B3. Zero runtime deps (PNG via node:zlib).",
+  "bin": {
+    "refcap-compare": "cli.mjs"
+  },
+  "scripts": {
+    "refcap-compare": "node cli.mjs",
+    "test:unit": "vitest run",
+    "lint": "eslint ."
+  }
+}

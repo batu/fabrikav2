@@ -8,14 +8,16 @@
     "packages/*",
     "games/*",
     "tools/audit",
-    "tools/create-game"
+    "tools/create-game",
+    "tools/refcap-compare"
   ],
   "scripts": {
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test:unit": "npm run test:unit --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "audit": "node tools/audit/src/cli.js",
-    "create-game": "node tools/create-game/src/create-game.mjs"
+    "create-game": "node tools/create-game/src/create-game.mjs",
+    "refcap-compare": "node tools/refcap-compare/cli.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
