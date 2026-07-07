@@ -1,0 +1,701 @@
+{
+  "models": [
+    "anthropic/claude-opus-4.1",
+    "anthropic/claude-sonnet-5",
+    "google/gemini-3.5-flash"
+  ],
+  "judges": [
+    {
+      "id": "opus",
+      "model": "anthropic/claude-opus-4.1",
+      "provider": "openrouter",
+      "enabled": true
+    },
+    {
+      "id": "sonnet",
+      "model": "anthropic/claude-sonnet-5",
+      "provider": "openrouter",
+      "enabled": true
+    },
+    {
+      "id": "gemini-flash",
+      "model": "google/gemini-3.5-flash",
+      "provider": "openrouter",
+      "enabled": true
+    }
+  ],
+  "thresholdPct": 85,
+  "states": [
+    {
+      "state": "menu",
+      "score": 55,
+      "status": "fail",
+      "reason": "panel 55% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 55
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 35
+        }
+      ],
+      "consensus": [
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Level numbers on chain are different",
+            "Coin balance differs from reference",
+            "Incorrect level progression and coin data displayed across the screen."
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 2,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Game board is rendered flat/straight-on instead of the tilted, angled perspective seen in the reference",
+            "The main game board in OURS is oriented vertically (not rotated/tilted) and is placed too high up under the 'Marble Run' banner, overlapping other elements."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "level",
+      "score": 60,
+      "status": "fail",
+      "reason": "panel 60% < 85%; consensus blocker: layout (3/3)",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 65
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 40
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 60
+        }
+      ],
+      "consensus": [
+        {
+          "key": "layout",
+          "count": 3,
+          "of": 3,
+          "severity": "blocker",
+          "descriptions": [
+            "Game board marble positions are completely different",
+            "Board is a different puzzle state: fewer marbles (5x5 grid reduced to 4x4 with far fewer balls), goal marble positions and colors swapped",
+            "The game board state and active interactive elements are in completely different configurations."
+          ]
+        },
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Coin count value differs",
+            "Coin balance value differs significantly",
+            "The coin reward/balance value displayed at the bottom-left is incorrect."
+          ]
+        },
+        {
+          "key": "sizing",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Hint button appears slightly larger",
+            "Board size and marble slot count differ due to fewer rows/columns"
+          ]
+        }
+      ]
+    },
+    {
+      "state": "settings",
+      "score": 65,
+      "status": "fail",
+      "reason": "panel 65% < 85%; consensus blocker: layout (3/3)",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 85
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 55
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 65
+        }
+      ],
+      "consensus": [
+        {
+          "key": "layout",
+          "count": 3,
+          "of": 3,
+          "severity": "blocker",
+          "descriptions": [
+            "Sound Effects text is broken into two lines",
+            "Entire panel is zoomed in and shifted, cutting off top content and close button",
+            "The entire settings dialog is shifted upward, cutting off the top of the 'SETTINGS' header, ribbon, and the close button."
+          ]
+        },
+        {
+          "key": "missing-element",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Decorative gear/cog element missing at bottom",
+            "Badge/ribbon icon below the panel is missing"
+          ]
+        },
+        {
+          "key": "background",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Background text watermark present",
+            "The background opacity of the settings dialog is too transparent, revealing game elements (like 'Marble Run' text and level nodes) behind it."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "pause",
+      "score": null,
+      "status": "unscored",
+      "reason": "no reference to score against",
+      "models": [],
+      "consensus": []
+    },
+    {
+      "state": "win",
+      "score": 62,
+      "status": "fail",
+      "reason": "panel 62% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 40
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 62
+        }
+      ],
+      "consensus": [
+        {
+          "key": "missing-element",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Coin counter missing from top right",
+            "Coin counter badge (75) missing from top of screen",
+            "The dark brown wooden background panel behind the light blue content card is missing."
+          ]
+        },
+        {
+          "key": "extra-element",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Extra coins scattered outside main panel",
+            "Extra scattered coin icons appear around the card and near the Next button",
+            "Stray gold coins are scattered randomly across the screen (one overlapping 'REWARD', a cluster at the bottom left of the card, and one floating above 'NEXT')."
+          ]
+        },
+        {
+          "key": "typography",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "REWARD text styling differs",
+            "REWARD text overlaps with an extra coin icon, and Next button text style differs (all caps sans-serif vs stylized rounded font)",
+            "The font styles, outlines, 3D/drop-shadow effects on 'COMPLETED', 'REWARD', '+25', and 'Next' buttons do not match the stylized vector art of the reference."
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Reward coin and text alignment",
+            "Card/banner layout scaled up and cropped, missing wooden frame background behind card",
+            "The main content card and the 'COMPLETED' ribbon are scaled up too large, cropping off the screen edges and losing their original proportions."
+          ]
+        },
+        {
+          "key": "background",
+          "count": 3,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Green banner extends across entire width",
+            "Background color shade differs slightly",
+            "The background texture patterns (faint darker purple circular shapes) are missing or extremely faded compared to the reference."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "fail",
+      "score": 60,
+      "status": "fail",
+      "reason": "panel 60% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 55
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 60
+        }
+      ],
+      "consensus": [
+        {
+          "key": "missing-element",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Background ribbon/banner element missing",
+            "Wooden background panel behind the card is missing",
+            "The wooden board texture background sitting behind the popup is missing."
+          ]
+        },
+        {
+          "key": "iconography",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Different emoji expression",
+            "Different emoji used for sad face",
+            "The sad face emoji / icon in the center is completely different."
+          ]
+        },
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Green button has different text",
+            "Button text differs from reference",
+            "The green button has different text content."
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 2,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Content is oversized and cropped, pushing elements off-screen at top and increasing overall scale",
+            "The red header banner 'FAILED' is incorrectly scaled and positioned, getting clipped at the top and sides of the screen rather than fitting as a card overlay."
+          ]
+        }
+      ]
+    }
+  ],
+  "verdict": {
+    "pass": false,
+    "summary": "FAIL — panel median 60% · 0 pass, 5 fail, 1 unscored (floor 85%)",
+    "states": [
+      {
+        "state": "menu",
+        "score": 55,
+        "status": "fail",
+        "reason": "panel 55% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 55
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 35
+          }
+        ],
+        "consensus": [
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Level numbers on chain are different",
+              "Coin balance differs from reference",
+              "Incorrect level progression and coin data displayed across the screen."
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 2,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Game board is rendered flat/straight-on instead of the tilted, angled perspective seen in the reference",
+              "The main game board in OURS is oriented vertically (not rotated/tilted) and is placed too high up under the 'Marble Run' banner, overlapping other elements."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "level",
+        "score": 60,
+        "status": "fail",
+        "reason": "panel 60% < 85%; consensus blocker: layout (3/3)",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 65
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 40
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 60
+          }
+        ],
+        "consensus": [
+          {
+            "key": "layout",
+            "count": 3,
+            "of": 3,
+            "severity": "blocker",
+            "descriptions": [
+              "Game board marble positions are completely different",
+              "Board is a different puzzle state: fewer marbles (5x5 grid reduced to 4x4 with far fewer balls), goal marble positions and colors swapped",
+              "The game board state and active interactive elements are in completely different configurations."
+            ]
+          },
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Coin count value differs",
+              "Coin balance value differs significantly",
+              "The coin reward/balance value displayed at the bottom-left is incorrect."
+            ]
+          },
+          {
+            "key": "sizing",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Hint button appears slightly larger",
+              "Board size and marble slot count differ due to fewer rows/columns"
+            ]
+          }
+        ]
+      },
+      {
+        "state": "settings",
+        "score": 65,
+        "status": "fail",
+        "reason": "panel 65% < 85%; consensus blocker: layout (3/3)",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 85
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 55
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 65
+          }
+        ],
+        "consensus": [
+          {
+            "key": "layout",
+            "count": 3,
+            "of": 3,
+            "severity": "blocker",
+            "descriptions": [
+              "Sound Effects text is broken into two lines",
+              "Entire panel is zoomed in and shifted, cutting off top content and close button",
+              "The entire settings dialog is shifted upward, cutting off the top of the 'SETTINGS' header, ribbon, and the close button."
+            ]
+          },
+          {
+            "key": "missing-element",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Decorative gear/cog element missing at bottom",
+              "Badge/ribbon icon below the panel is missing"
+            ]
+          },
+          {
+            "key": "background",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Background text watermark present",
+              "The background opacity of the settings dialog is too transparent, revealing game elements (like 'Marble Run' text and level nodes) behind it."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "pause",
+        "score": null,
+        "status": "unscored",
+        "reason": "no reference to score against",
+        "models": [],
+        "consensus": []
+      },
+      {
+        "state": "win",
+        "score": 62,
+        "status": "fail",
+        "reason": "panel 62% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 40
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 62
+          }
+        ],
+        "consensus": [
+          {
+            "key": "missing-element",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Coin counter missing from top right",
+              "Coin counter badge (75) missing from top of screen",
+              "The dark brown wooden background panel behind the light blue content card is missing."
+            ]
+          },
+          {
+            "key": "extra-element",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Extra coins scattered outside main panel",
+              "Extra scattered coin icons appear around the card and near the Next button",
+              "Stray gold coins are scattered randomly across the screen (one overlapping 'REWARD', a cluster at the bottom left of the card, and one floating above 'NEXT')."
+            ]
+          },
+          {
+            "key": "typography",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "REWARD text styling differs",
+              "REWARD text overlaps with an extra coin icon, and Next button text style differs (all caps sans-serif vs stylized rounded font)",
+              "The font styles, outlines, 3D/drop-shadow effects on 'COMPLETED', 'REWARD', '+25', and 'Next' buttons do not match the stylized vector art of the reference."
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Reward coin and text alignment",
+              "Card/banner layout scaled up and cropped, missing wooden frame background behind card",
+              "The main content card and the 'COMPLETED' ribbon are scaled up too large, cropping off the screen edges and losing their original proportions."
+            ]
+          },
+          {
+            "key": "background",
+            "count": 3,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Green banner extends across entire width",
+              "Background color shade differs slightly",
+              "The background texture patterns (faint darker purple circular shapes) are missing or extremely faded compared to the reference."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "fail",
+        "score": 60,
+        "status": "fail",
+        "reason": "panel 60% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 55
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 60
+          }
+        ],
+        "consensus": [
+          {
+            "key": "missing-element",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Background ribbon/banner element missing",
+              "Wooden background panel behind the card is missing",
+              "The wooden board texture background sitting behind the popup is missing."
+            ]
+          },
+          {
+            "key": "iconography",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Different emoji expression",
+              "Different emoji used for sad face",
+              "The sad face emoji / icon in the center is completely different."
+            ]
+          },
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Green button has different text",
+              "Button text differs from reference",
+              "The green button has different text content."
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 2,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Content is oversized and cropped, pushing elements off-screen at top and increasing overall scale",
+              "The red header banner 'FAILED' is incorrectly scaled and positioned, getting clipped at the top and sides of the screen rather than fitting as a card overlay."
+            ]
+          }
+        ]
+      }
+    ],
+    "score": 60
+  },
+  "budgetHalted": false,
+  "game": "marble_run",
+  "lane": "device",
+  "generatedAt": "2026-07-07T13:05:54.408Z"
+}
