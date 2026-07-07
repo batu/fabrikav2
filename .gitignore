@@ -22,3 +22,6 @@ games/*/android/
 
 # Conductor scratch (ledgers, capture throwaways) — never tracked
 .work/
+
+# Xcode result bundles (bulky binary; grid.html+panel.json are the committed evidence)
+*.xcresult/

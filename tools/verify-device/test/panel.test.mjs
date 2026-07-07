@@ -1,13 +1,17 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import {
   median, parseModelResponse, aggregateState, aggregatePanel, callModel, runPanel,
-  classifySkip, CREDIT_STATUSES, DEFAULT_MODELS, DIFF_PROMPT,
+  classifySkip, CREDIT_STATUSES, DEFAULT_MODELS, DIFF_PROMPT, withPanelMetadata,
 } from '../src/panel.mjs';
 
 // A scoring model result as produced by callModel (the shape aggregateState reads).
 const ok = (model, fidelity, findings = []) => ({ model, ok: true, fidelity, findings });
 const skip = (model, why) => ({ model, ok: false, skipped: why });
 const f = (key, severity) => ({ key, severity, description: `${key} differs` });
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe('median', () => {
   it('odd/even/empty', () => {
@@ -99,6 +103,34 @@ describe('aggregateState', () => {
     expect(s.consensus.find((c) => c.key === 'layout')).toMatchObject({ count: 2, of: 2, severity: 'blocker' });
     expect(s.status).toBe('fail');
   });
+
+  it('handles larger panels: 4/7 reaches consensus, 3/7 does not', () => {
+    const s = aggregateState('menu', [
+      ok('a', 95, [f('layout', 'major'), f('color', 'minor')]),
+      ok('b', 95, [f('layout', 'major'), f('color', 'minor')]),
+      ok('c', 95, [f('layout', 'major'), f('color', 'minor')]),
+      ok('d', 95, [f('layout', 'major')]),
+      ok('e', 95, []),
+      ok('f', 95, []),
+      ok('g', 95, []),
+    ], 85);
+    expect(s.consensus.find((c) => c.key === 'layout')).toMatchObject({ count: 4, of: 7 });
+    expect(s.consensus.map((c) => c.key)).not.toContain('color');
+  });
+
+  it('excludes skipped judges from larger-panel majority math', () => {
+    const s = aggregateState('menu', [
+      ok('a', 95, [f('missing-element', 'blocker')]),
+      ok('b', 95, [f('missing-element', 'blocker')]),
+      ok('c', 95, [f('missing-element', 'blocker')]),
+      ok('d', 95, []),
+      ok('e', 95, []),
+      skip('f', '402'),
+      skip('g', '429'),
+    ], 85);
+    expect(s.consensus.find((c) => c.key === 'missing-element')).toMatchObject({ count: 3, of: 5 });
+    expect(s.status).toBe('fail');
+  });
 });
 
 describe('color-consensus edge: exactly majority', () => {
@@ -134,6 +166,23 @@ describe('aggregatePanel', () => {
     const v = aggregatePanel([pass('menu', 90), uns('pause')], 85);
     expect(v.pass).toBe(false);
     expect(v.summary).toMatch(/1 unscored/);
+  });
+});
+
+describe('withPanelMetadata', () => {
+  it('stamps the gate-trusted metadata without changing the verdict shape', () => {
+    const panel = { verdict: { pass: true }, states: [{ state: 'menu' }] };
+    expect(withPanelMetadata(panel, {
+      game: 'marble_run',
+      lane: 'device',
+      generatedAt: '2026-07-07T10:00:00.000Z',
+    })).toEqual({
+      game: 'marble_run',
+      lane: 'device',
+      generatedAt: '2026-07-07T10:00:00.000Z',
+      verdict: { pass: true },
+      states: [{ state: 'menu' }],
+    });
   });
 });
 
@@ -173,6 +222,31 @@ describe('callModel (mocked fetch)', () => {
     const fetchImpl = async () => { const e = new Error('aborted'); e.name = 'AbortError'; throw e; };
     const r = await callModel('m', { referenceB64: 'A', deviceB64: 'B', apiKey: 'k', judge: 'j', timeoutMs: 5, fetchImpl });
     expect(r).toMatchObject({ judge: 'j', ok: false, skipped: expect.stringMatching(/timeout after 5ms/) });
+  });
+
+  it('CREDIT-SKIP: AbortController timeout aborts a hanging fetch', async () => {
+    vi.useFakeTimers();
+    const fetchImpl = async (_url, opts) => new Promise((_resolve, reject) => {
+      opts.signal.addEventListener('abort', () => {
+        const e = new Error('aborted by signal');
+        e.name = 'AbortError';
+        reject(e);
+      });
+    });
+    const result = callModel('m', {
+      referenceB64: 'A',
+      deviceB64: 'B',
+      apiKey: 'k',
+      judge: 'j',
+      timeoutMs: 25,
+      fetchImpl,
+    });
+    await vi.advanceTimersByTimeAsync(25);
+    await expect(result).resolves.toMatchObject({
+      judge: 'j',
+      ok: false,
+      skipped: expect.stringMatching(/timeout after 25ms/),
+    });
   });
 
   it('threads the judge id onto both scored and skipped results', async () => {
@@ -264,5 +338,39 @@ describe('runPanel', () => {
     expect(menu.models.filter((m) => m.ok).map((m) => m.judge)).toEqual(['opus', 'sonnet']);
     expect(r.verdict.pass).toBe(true); // one broke judge does not sink the panel
     expect(r.judges).toHaveLength(3);
+  });
+
+  it('checks budget before each billable model call and records halted judges without calling them', async () => {
+    let fetchCalls = 0;
+    const checks = [];
+    const fetchImpl = async () => {
+      fetchCalls += 1;
+      return {
+        status: 200,
+        ok: true,
+        json: async () => ({ choices: [{ message: { content: '{"fidelity":90,"findings":[]}' } }] }),
+      };
+    };
+    const budgetCheck = async ({ state, judge }) => {
+      checks.push(`${state}:${judge.id}`);
+      return checks.length === 1
+        ? { halted: false, reason: 'budget ok' }
+        : { halted: true, reason: 'remaining OpenRouter credit $1.00 below floor $5.00' };
+    };
+    const r = await runPanel({
+      rows: [row('menu', 'A', 'B')],
+      judges: [{ id: 'first', model: 'm1' }, { id: 'second', model: 'm2' }],
+      apiKey: 'k',
+      fetchImpl,
+      budgetCheck,
+    });
+    expect(checks).toEqual(['menu:first', 'menu:second']);
+    expect(fetchCalls).toBe(1);
+    const second = r.states[0].models.find((m) => m.judge === 'second');
+    expect(second).toMatchObject({
+      ok: false,
+      skipped: expect.stringMatching(/budget halted before model call/),
+    });
+    expect(r.budgetHalted).toBe(true);
   });
 });

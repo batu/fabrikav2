@@ -94,6 +94,10 @@ export function createGame({ name, repoRoot }) {
     ['appId: "com.fabrika.template"', `appId: "com.fabrika.${appIdSegment(name)}"`],
     ['appName: "Template Game"', `appName: "${title}"`],
   ]);
+  substitute(join(targetDir, 'refs', 'manifest.yaml'), [
+    ['game: template', `game: ${name}`],
+    ['package: com.fabrikav2.template', `package: com.fabrikav2.${name}`],
+  ]);
   substitute(join(targetDir, 'README.md'), [['# Template Game', `# ${title}`]]);
 
   return { targetDir, packageName, title };

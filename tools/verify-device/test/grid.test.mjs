@@ -87,4 +87,19 @@ describe('buildGridHtml', () => {
     expect(h).toContain('crown absent');
     expect(h).toContain('Secondary signal'); // phash demoted to advisory
   });
+
+  it('stamps provided captures as device-provenance-unverified', () => {
+    const h = buildGridHtml({
+      game: 'g',
+      generatedAt: 'd',
+      device: 'captures dir tmp/shots — DEVICE-PROVENANCE-UNVERIFIED',
+      rows,
+      verdict,
+      lane: 'provided-captures',
+    });
+    expect(h).toContain('PROVIDED CAPTURES');
+    expect(h).toContain('DEVICE-PROVENANCE-UNVERIFIED');
+    expect(h).toContain('provided captures (DEVICE-PROVENANCE-UNVERIFIED)');
+    expect(h).toContain('Excluded from strict device-pass semantics');
+  });
 });

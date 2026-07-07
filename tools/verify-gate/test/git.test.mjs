@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolveBaseRef, changedFilesVsMain } from '../src/git.mjs';
+import { resolveBaseRef, changedFilesVsMain, dirtyFiles } from '../src/git.mjs';
 
 // A scripted command runner: matches on a substring of the git command.
 function runner(map) {
@@ -14,17 +14,17 @@ function runner(map) {
 describe('resolveBaseRef', () => {
   it('prefers origin/main when it resolves', () => {
     const run = runner({ 'rev-parse --verify --quiet origin/main': { ok: true, stdout: 'sha\n' } });
-    expect(resolveBaseRef(run)).toBe('origin/main');
+    expect(resolveBaseRef(run)).toEqual({ ok: true, ref: 'origin/main' });
   });
   it('falls back to main when origin/main is absent', () => {
     const run = runner({
       'rev-parse --verify --quiet origin/main': { ok: false, stdout: '' },
       'rev-parse --verify --quiet main': { ok: true, stdout: 'sha\n' },
     });
-    expect(resolveBaseRef(run)).toBe('main');
+    expect(resolveBaseRef(run)).toEqual({ ok: true, ref: 'main' });
   });
-  it('returns null when neither resolves', () => {
-    expect(resolveBaseRef(runner({}))).toBe(null);
+  it('fails closed when neither base ref resolves', () => {
+    expect(resolveBaseRef(runner({}))).toMatchObject({ ok: false, error: expect.stringMatching(/origin\/main or main/) });
   });
 });
 
@@ -34,15 +34,13 @@ describe('changedFilesVsMain', () => {
       'rev-parse --verify --quiet origin/main': { ok: true, stdout: 'sha\n' },
       'merge-base origin/main HEAD': { ok: true, stdout: 'BASESHA\n' },
       'diff --name-only BASESHA': { ok: true, stdout: 'games/g/src/a.ts\npackages/ui/b.tsx\n' },
+      'ls-files --others --exclude-standard': { ok: true, stdout: '' },
     });
-    expect(changedFilesVsMain(run)).toEqual(['games/g/src/a.ts', 'packages/ui/b.tsx']);
+    expect(changedFilesVsMain(run)).toEqual({ ok: true, files: ['games/g/src/a.ts', 'packages/ui/b.tsx'] });
   });
 
-  it('falls back to `git diff HEAD` when no base ref resolves', () => {
-    const run = runner({
-      'diff --name-only HEAD': { ok: true, stdout: 'games/g/src/a.ts\n' },
-    });
-    expect(changedFilesVsMain(run)).toEqual(['games/g/src/a.ts']);
+  it('fails closed when no base ref resolves', () => {
+    expect(changedFilesVsMain(runner({}))).toMatchObject({ ok: false });
   });
 
   it('includes untracked files and de-dupes against the diff', () => {
@@ -52,14 +50,46 @@ describe('changedFilesVsMain', () => {
       'diff --name-only BASESHA': { ok: true, stdout: 'games/g/src/a.ts\n' },
       'ls-files --others --exclude-standard': { ok: true, stdout: 'games/g/src/a.ts\ngames/g/src/new.ts\n' },
     });
-    expect(changedFilesVsMain(run)).toEqual(['games/g/src/a.ts', 'games/g/src/new.ts']);
+    expect(changedFilesVsMain(run)).toEqual({ ok: true, files: ['games/g/src/a.ts', 'games/g/src/new.ts'] });
   });
 
-  it('returns [] when the diff command fails', () => {
+  it('fails closed when the diff command fails', () => {
     const run = runner({
       'rev-parse --verify --quiet origin/main': { ok: true, stdout: 'sha\n' },
       'merge-base origin/main HEAD': { ok: true, stdout: 'BASESHA\n' },
+      'diff --name-only BASESHA': { ok: false, stdout: '' },
     });
-    expect(changedFilesVsMain(run)).toEqual([]);
+    expect(changedFilesVsMain(run)).toMatchObject({ ok: false, error: expect.stringMatching(/diff/) });
+  });
+
+  it('fails closed when untracked-file enumeration fails', () => {
+    const run = runner({
+      'rev-parse --verify --quiet origin/main': { ok: true, stdout: 'sha\n' },
+      'merge-base origin/main HEAD': { ok: true, stdout: 'BASESHA\n' },
+      'diff --name-only BASESHA': { ok: true, stdout: '' },
+      'ls-files --others --exclude-standard': { ok: false, stdout: '' },
+    });
+    expect(changedFilesVsMain(run)).toMatchObject({ ok: false, error: expect.stringMatching(/ls-files/) });
+  });
+});
+
+describe('dirtyFiles', () => {
+  it('parses staged, unstaged, untracked, and renamed paths', () => {
+    const run = runner({
+      'status --porcelain': {
+        ok: true,
+        stdout: ' M src/edit.ts\nA  src/new.ts\n?? scratch.txt\nR  old.ts -> src/renamed.ts\n',
+      },
+    });
+    expect(dirtyFiles(run)).toEqual({
+      ok: true,
+      files: ['src/edit.ts', 'src/new.ts', 'scratch.txt', 'src/renamed.ts'],
+    });
+  });
+
+  it('fails closed when git status fails', () => {
+    expect(dirtyFiles(runner({
+      'status --porcelain': { ok: false, stdout: '' },
+    }))).toMatchObject({ ok: false, error: expect.stringMatching(/status/) });
   });
 });

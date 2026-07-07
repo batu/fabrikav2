@@ -222,6 +222,15 @@ export function aggregatePanel(states, thresholdPct) {
   return { pass, summary, states, score: overall };
 }
 
+export function withPanelMetadata(panel, { game, lane = 'device', generatedAt }) {
+  return {
+    ...panel,
+    game,
+    lane,
+    generatedAt,
+  };
+}
+
 /**
  * Call one vision judge on OpenRouter with the (reference, device) pair.
  * Network path — CONDUCTOR-run. `fetchImpl` is injectable for tests. A judge that
@@ -311,18 +320,20 @@ function normalizeRoster({ judges, models }) {
  * @param {number} [params.thresholdPct]
  * @param {number} [params.timeoutMs]
  * @param {Function} [params.fetchImpl]
+ * @param {Function} [params.budgetCheck] async guard run before each billable model call
  * @returns {Promise<{skipped?:string, models?:string[], judges?:Array,
  *   thresholdPct?:number, states?:Array, verdict?:object}>}
  */
 export async function runPanel({
   rows, judges, models, apiKey, thresholdPct = 85,
-  timeoutMs = DEFAULT_TIMEOUT_MS, fetchImpl = fetch,
+  timeoutMs = DEFAULT_TIMEOUT_MS, fetchImpl = fetch, budgetCheck,
 }) {
   if (!apiKey) {
     return { skipped: 'no OPENROUTER_API_KEY — panel scoring UNVERIFIED (set it to run the vision panel)' };
   }
   const roster = normalizeRoster({ judges, models });
   const states = [];
+  let budgetHalted = false;
   for (const row of rows) {
     const refB64 = row.reference && !row.reference.gap ? row.reference.base64 : null;
     const devB64 = row.device && !row.device.gap ? row.device.base64 : null;
@@ -336,6 +347,19 @@ export async function runPanel({
     }
     const perModel = [];
     for (const j of roster) {
+      if (budgetCheck) {
+        const budget = await budgetCheck({ state: row.state, judge: j });
+        if (budget?.halted) {
+          budgetHalted = true;
+          perModel.push({
+            judge: j.id,
+            model: j.model,
+            ok: false,
+            skipped: `${budget.reason} (budget halted before model call)`,
+          });
+          continue;
+        }
+      }
       perModel.push(await callModel(j.model, {
         referenceB64: refB64, deviceB64: devB64, apiKey, fetchImpl, judge: j.id, timeoutMs,
       }));
@@ -345,5 +369,6 @@ export async function runPanel({
   return {
     models: roster.map((j) => j.model), judges: roster,
     thresholdPct, states, verdict: aggregatePanel(states, thresholdPct),
+    budgetHalted,
   };
 }

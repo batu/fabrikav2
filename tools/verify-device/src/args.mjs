@@ -16,9 +16,10 @@ Options:
   --game <name>        required. games/<name>/refs/manifest.yaml must exist.
   --device <udid>      target device (default: auto-detect the single connected
                        device via 'xcrun devicectl list devices'). Never hardcoded.
-  --captures <dir>     skip the device build/capture; diff pre-extracted device
-                       PNGs (named <state>.png) already in <dir>. The non-device
-                       path the AC/unit tests exercise.
+  --captures <dir>     skip the device build/capture; diff PNGs (named
+                       <state>.png) already in <dir>. Stamped
+                       provided-captures + DEVICE-PROVENANCE-UNVERIFIED and
+                       excluded from strict device-pass semantics.
   --xcresult <path>    skip build/run; extract device captures from this .xcresult.
   --out <dir>          output dir (default docs/evidence/<date>-device-verify).
   --date <YYYY-MM-DD>  stamp used in the default --out and the HTML header.
@@ -37,8 +38,9 @@ Options:
   --panel-threshold <n> panel fidelity floor 0..100; a state FAILs below it or on a
                        consensus blocker finding (default 85, advisory).
   --skip-panel         skip the vision panel (phash-only verdict).
-  --strict             make a FAIL verdict a non-zero exit (default: advisory —
-                       verdict is printed, exit stays 0 while the gate beds in).
+  --strict             require a PASS verdict from a verified device lane; FAIL,
+                       browser, or provided-captures lanes exit non-zero
+                       (default: advisory).
   --skip-device        force the graceful device-absent skip (CI-safe).
   --lane <device|browser> capture lane (default: device). 'browser' drives a
                        vite-dev + Playwright/Chromium fallback via the game
@@ -46,10 +48,10 @@ Options:
                        by the SAME panel but stamped lane=browser and marked
                        DEVICE-UNVERIFIED (safe-area/notch fidelity is device-only).
                        Explicit only — the default lane stays device.
-  --budget-floor <n>   OpenRouter credit floor in USD (default 5). Before the
-                       panel runs, remaining OpenRouter credit is checked; below
-                       the floor the panel HALTS (non-fatal, evidence marked
-                       UNVERIFIED-panel) instead of draining the budget to $0.
+  --budget-floor <n>   OpenRouter credit floor in USD (default 5). Before every
+                       billable model call, remaining credit is checked; below
+                       the floor that judge/state is recorded as budget-halted
+                       without making the model call.
   -h, --help           show this help.
 
 The vision panel needs OPENROUTER_API_KEY (env or the sibling .env); without it

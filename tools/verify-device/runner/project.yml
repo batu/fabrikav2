@@ -1,9 +1,8 @@
 # xcodegen spec for the committed verify-device XCUITest runner. Generalised from
 # games/marble_run/.work/insitu-runner/project.yml (the proven runner). The CLI
-# runs `xcodegen generate` here (if the .xcodeproj is absent) before `xcodebuild
-# test`. DEVELOPMENT_TEAM is injected from the environment so the template carries
-# no machine-specific signing identity; it falls back to the studio dev team used
-# across this repo when unset.
+# runs `xcodegen generate` here before `xcodebuild test`. The committed default
+# team id keeps the generated pbxproj valid; steps.mjs passes any runtime
+# DEVELOPMENT_TEAM override as an xcodebuild build setting.
 name: VerifyDeviceRunner
 options:
   bundleIdPrefix: com.appletolye.verifydevice
@@ -15,7 +14,7 @@ targets:
     sources: [VerifyDeviceRunner]
     settings:
       base:
-        DEVELOPMENT_TEAM: ${DEVELOPMENT_TEAM:-42L77JAX72}
+        DEVELOPMENT_TEAM: 42L77JAX72
         CODE_SIGN_STYLE: Automatic
         PRODUCT_BUNDLE_IDENTIFIER: com.appletolye.verifydevice.uitests
         GENERATE_INFOPLIST_FILE: YES

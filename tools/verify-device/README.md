@@ -21,8 +21,8 @@ npm run verify-device -- --game marble_run
    device serial is **read from `xcrun devicectl list devices`** (or `--device`) —
    never hardcoded.
 3. **Run the committed XCUITest runner** (`runner/`) — launches the installed app
-   by bundle id, captures each canonical state on the tour's dwell cadence, exports
-   the PNGs from the `.xcresult`.
+   by bundle id, waits for each `tourstate:<state>` accessibility marker, captures
+   the PNGs from the `.xcresult`, and still exports attachments when XCTest fails.
 4. **Diff device vs the committed reference set** (`games/<g>/refs/`, via the same
    manifest `tools/refcap-compare` uses) → a **device|reference|pixel-diff grid** at
    `docs/evidence/<date>-device-verify/grid.html` + a **PASS/FAIL** summary (FAIL if
@@ -38,7 +38,9 @@ stays **UNVERIFIED**.
 
 ## Non-device paths (what CI + unit tests exercise)
 
-- `--captures <dir>` — diff pre-extracted device shots (`<state>.png`) with no build.
+- `--captures <dir>` — diff pre-extracted shots (`<state>.png`) with no build.
+  This lane is stamped `provided-captures` and `DEVICE-PROVENANCE-UNVERIFIED`;
+  it is excluded from strict device-pass semantics.
 - `--xcresult <path>` — extract + diff from an existing `.xcresult` (no build/run).
 
 ## Browser-fallback lane (`--lane browser`)
@@ -57,13 +59,12 @@ is down; a device pass later is what actually confirms the result.
 
 ## Budget-guard (OpenRouter credit floor)
 
-Before every panel run, `verify-device` checks remaining OpenRouter credit
-(`GET /credits`). Below `--budget-floor` (default `$5`) the panel **HALTS**: a
-clear `PANEL HALTED: OpenRouter credit floor` note goes to stderr + the grid,
-the run exits non-fatally (0), and evidence is marked `UNVERIFIED-panel` — never
-a silent drain of the shared OpenRouter budget to $0 mid-overnight-run. A failed
-credit *check* (network blip, bad response) does not halt — it proceeds and
-relies on the panel's own per-judge credit-skip as the backstop.
+Before every billable model call, `verify-device` checks remaining OpenRouter
+credit (`GET /credits`). Below `--budget-floor` (default `$5`), that judge/state
+is recorded as budget-halted and no model call is made — never a silent drain of
+the shared OpenRouter budget to $0 mid-overnight-run. A failed credit *check*
+(network blip, bad response) does not halt; it proceeds and relies on the panel's
+own per-judge credit-skip as the backstop.
 
 ## Vision panel & judge registry (primary verdict)
 
@@ -96,9 +97,10 @@ gracefully (exit 0) and on-device fidelity stays **UNVERIFIED**.
 `--xcresult <path>` · `--out <dir>` · `--date <YYYY-MM-DD>` ·
 `--threshold <0..1>` (default 0.20) · `--ensemble <name>` (default `default`;
 `kitchen-sink` for the full roster) · `--models <a,b,c>` (overrides the ensemble) ·
-`--panel-threshold <0..100>` (default 85) · `--skip-panel` · `--strict` (FAIL →
-non-zero exit; default advisory) · `--skip-device` · `--lane <device|browser>`
-(default `device`) · `--budget-floor <n>` (default 5) · `-h/--help`.
+`--panel-threshold <0..100>` (default 85) · `--skip-panel` · `--strict` (FAIL or
+non-device lane → non-zero exit; default advisory) · `--skip-device` ·
+`--lane <device|browser>` (default `device`) · `--budget-floor <n>` (default 5) ·
+`-h/--help`.
 
 ## Reuse
 

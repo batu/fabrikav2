@@ -5,21 +5,10 @@
 
 export type MarbleColor = 'red' | 'blue' | 'green' | 'yellow' | 'purple' | 'orange';
 
-export const ALL_MARBLE_COLORS: readonly MarbleColor[] = [
-  'red',
-  'blue',
-  'green',
-  'yellow',
-  'purple',
-  'orange',
-];
-
 export interface Cell {
   readonly x: number;
   readonly y: number;
 }
-
-export type Side = 'top' | 'bottom' | 'left' | 'right';
 
 /**
  * A gate sits OUTSIDE the grid on one border. `index` is the column
@@ -28,7 +17,7 @@ export type Side = 'top' | 'bottom' | 'left' | 'right';
  * touches) and then stepping out into the gate.
  */
 export interface GateDef {
-  readonly side: Side;
+  readonly side: 'top' | 'bottom' | 'left' | 'right';
   readonly index: number;
   readonly color: MarbleColor;
 }

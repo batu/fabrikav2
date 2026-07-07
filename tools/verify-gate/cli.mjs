@@ -16,7 +16,7 @@ import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { decideStop, buildBlockMessage, isVisualFile } from './src/classify.mjs';
 import { changedFilesVsMain } from './src/git.mjs';
-import { newestMtimeMs, panelMtimesMs } from './src/evidence.mjs';
+import { newestVisualChangeMs, readPanelEvidence } from './src/evidence.mjs';
 import { readLastAssistantText } from './src/transcript.mjs';
 import { appendLedgerEntry, LEDGER_PATH } from './src/ledger.mjs';
 
@@ -60,16 +60,19 @@ function main() {
   if (!toolPresent || !gamesDirPresent) return 0;
 
   const message = readLastAssistantText(input.transcript_path);
-  const changedFiles = changedFilesVsMain(makeRunner(projectDir));
+  const run = makeRunner(projectDir);
+  const changed = changedFilesVsMain(run);
+  if (!changed.ok) return 0; // fail-open: merge-gate is the fail-closed backstop
+  const changedFiles = changed.files;
   const visualFiles = changedFiles.filter(isVisualFile);
-  const newest = newestMtimeMs(visualFiles, projectDir);
-  const panels = panelMtimesMs(projectDir);
+  const { newestChangeMs } = newestVisualChangeMs(visualFiles, projectDir, { run });
+  const panels = readPanelEvidence(projectDir);
 
   const decision = decideStop({
     message,
     changedFiles,
-    newestVisualMtimeMs: newest,
-    panelMtimesMs: panels,
+    newestVisualMtimeMs: newestChangeMs,
+    panelEvidence: panels,
     toolPresent,
     gamesDirPresent,
   });
