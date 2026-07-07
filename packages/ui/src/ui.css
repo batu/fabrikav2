@@ -100,6 +100,8 @@
     --fab-ribbon-title-size: 30px;
     --fab-ribbon-eyebrow-size: 14px;
     --fab-ribbon-shadow: 0 4px 0 rgba(0, 0, 0, 0.12);
+    --fab-ribbon-image-eyebrow-top: 27%;
+    --fab-ribbon-image-eyebrow-max-width: 72%;
     /* Intrinsic aspect of an injected ribbon sprite (width / height); sizes the
        banner when a game binds --fab-modal-ribbon--image so the art never squashes. */
     --fab-ribbon-image-aspect: 898 / 308;
@@ -354,6 +356,15 @@
   .fab-modal-ribbon--image .fab-modal-ribbon-title {
     position: relative;
     z-index: 1;
+  }
+  .fab-modal-ribbon--image:not(.fab-modal-ribbon--image-title-visible) .fab-modal-ribbon-eyebrow {
+    position: absolute;
+    top: var(--fab-ribbon-image-eyebrow-top);
+    left: 50%;
+    width: max-content;
+    max-width: var(--fab-ribbon-image-eyebrow-max-width);
+    line-height: 1;
+    transform: translate(-50%, -50%);
   }
   .fab-modal-ribbon--image:not(.fab-modal-ribbon--image-title-visible) .fab-modal-ribbon-title {
     position: absolute;

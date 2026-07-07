@@ -79,6 +79,39 @@ async function winLevel1(page: Page): Promise<void> {
   );
 }
 
+async function expectImageRibbonEyebrow(
+  page: Page,
+  opts: { resultState: 'win' | 'fail'; cardClass: 'win' | 'lose'; assetName: string },
+): Promise<void> {
+  const reached = await callHarness<Harness, string, Promise<boolean>>(
+    page,
+    WINDOW_KEY,
+    (h, state) => h.driveTo(state),
+    opts.resultState,
+  );
+  expect(reached).toBe(true);
+
+  const card = page.locator(`.fab-result-card--${opts.cardClass}`);
+  await expect(card).toBeVisible({ timeout: 4000 });
+  const ribbon = card.locator('.fab-modal-ribbon--image');
+  await expect(ribbon).toBeVisible();
+  await expect(ribbon.locator('.fab-modal-ribbon-image')).toHaveAttribute('src', new RegExp(opts.assetName));
+
+  const eyebrow = ribbon.locator('.fab-modal-ribbon-eyebrow');
+  await expect(eyebrow).toHaveText('LEVEL 4');
+
+  const ribbonBox = await ribbon.boundingBox();
+  const eyebrowBox = await eyebrow.boundingBox();
+  expect(ribbonBox).not.toBeNull();
+  expect(eyebrowBox).not.toBeNull();
+  const eyebrowMidY = eyebrowBox!.y + eyebrowBox!.height / 2;
+  const eyebrowBottomY = eyebrowBox!.y + eyebrowBox!.height;
+  expect(eyebrowBox!.y).toBeGreaterThan(ribbonBox!.y);
+  expect(eyebrowMidY - ribbonBox!.y).toBeGreaterThan(ribbonBox!.height * 0.14);
+  expect(eyebrowMidY - ribbonBox!.y).toBeLessThan(ribbonBox!.height * 0.36);
+  expect(eyebrowBottomY).toBeLessThan(ribbonBox!.y + ribbonBox!.height * 0.43);
+}
+
 test.describe('marble_run — real-click coverage across every screen', () => {
   test('menu: SharedShellDriver play() really starts the level (HUD mounts)', async ({ page }) => {
     const shell = await boot(page);
@@ -240,6 +273,24 @@ test.describe('marble_run — real-click coverage across every screen', () => {
     expect((coinBox?.x ?? 0) + (coinBox?.width ?? 0)).toBeGreaterThan(viewport.width * 0.76);
     expect(viewport.width - ((coinBox?.x ?? 0) + (coinBox?.width ?? 0))).toBeLessThan(24);
     expect(coinBox?.y ?? viewport.height).toBeLessThan(40);
+  });
+
+  test('result: win image ribbon keeps LEVEL 4 above the completed sprite title', async ({ page }) => {
+    await boot(page);
+    await expectImageRibbonEyebrow(page, {
+      resultState: 'win',
+      cardClass: 'win',
+      assetName: 'ribbon-completed',
+    });
+  });
+
+  test('result: fail image ribbon keeps LEVEL 4 above the failed sprite title', async ({ page }) => {
+    await boot(page);
+    await expectImageRibbonEyebrow(page, {
+      resultState: 'fail',
+      cardClass: 'lose',
+      assetName: 'ribbon-failed',
+    });
   });
 
   test('result: resultRetry() really restarts from the fail card (HUD remounts)', async ({ page }) => {
