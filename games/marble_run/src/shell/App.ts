@@ -34,7 +34,6 @@ import {
   type UiHandle,
   type ToasterHandle,
   type PageStack,
-  type ModalAction,
   type SettingKey,
 } from '@fabrikav2/ui';
 import {
@@ -380,9 +379,15 @@ export class App {
   }
 
   private mountWin(info: PendingWin): void {
-    const actions: ModalAction[] = [
-      { label: copy['result.win.next'], onClick: () => this.next(info.levelId), variant: 'primary', className: 'mr-result-cta mr-result-cta--green', dataAction: 'result-next' },
-    ];
+    const actions = this.buildResultActions([
+      {
+        label: copy['result.win.next'],
+        image: assetUrls.buttonPrimary,
+        className: 'mr-result-cta mr-result-cta--green',
+        dataAction: 'result-next',
+        onClick: () => this.next(info.levelId),
+      },
+    ]);
     const reward = this.buildRewardDisplay(info.reward);
     this.screenHandle = mountResultCard({
       mountInto: this.uiRoot,
@@ -401,9 +406,15 @@ export class App {
   }
 
   private mountFinale(): void {
-    const actions: ModalAction[] = [
-      { label: copy['result.finale.action'], onClick: () => this.toMenu(), variant: 'primary', className: 'mr-result-cta', dataAction: 'result-menu' },
-    ];
+    const actions = this.buildResultActions([
+      {
+        label: copy['result.finale.action'],
+        image: assetUrls.buttonPrimary,
+        className: 'mr-result-cta mr-result-cta--green',
+        dataAction: 'result-menu',
+        onClick: () => this.toMenu(),
+      },
+    ]);
     this.screenHandle = mountResultCard({
       mountInto: this.uiRoot,
       variant: 'win',
@@ -419,10 +430,22 @@ export class App {
   }
 
   private mountLose(): void {
-    const actions: ModalAction[] = [
-      { label: copy['result.lose.watchAd'], onClick: () => void this.requestFailSave(), variant: 'primary', className: 'mr-result-cta mr-result-cta--green', dataAction: 'result-next' },
-      { label: copy['result.lose.retry'], onClick: () => this.retry(), variant: 'primary', className: 'mr-result-cta mr-result-cta--yellow', dataAction: 'result-retry' },
-    ];
+    const actions = this.buildResultActions([
+      {
+        label: copy['result.lose.watchAd'],
+        image: assetUrls.buttonPrimary,
+        className: 'mr-result-cta mr-result-cta--green',
+        dataAction: 'result-next',
+        onClick: () => void this.requestFailSave(),
+      },
+      {
+        label: copy['result.lose.retry'],
+        image: assetUrls.buttonSecondary,
+        className: 'mr-result-cta mr-result-cta--orange',
+        dataAction: 'result-retry',
+        onClick: () => this.retry(),
+      },
+    ]);
     this.screenHandle = mountResultCard({
       mountInto: this.uiRoot,
       variant: 'lose',
@@ -515,10 +538,10 @@ export class App {
     }`;
     if (!inGame) {
       actions.append(
-        this.buildSettingsAction({
+        this.buildSpriteAction({
           label: copy['settings.close'],
           image: assetUrls.buttonPrimary,
-          className: 'mr-settings-action--close',
+          className: 'mr-settings-action mr-settings-action--close',
           dataAction: 'settings-close-cta',
           onClick: () => this.pageStack.pop(),
         }),
@@ -528,17 +551,17 @@ export class App {
     }
 
     actions.append(
-      this.buildSettingsAction({
+      this.buildSpriteAction({
         label: copy['settings.restart'],
         image: assetUrls.buttonSecondary,
-        className: 'mr-settings-action--restart',
+        className: 'mr-settings-action mr-settings-action--restart',
         dataAction: 'settings-restart',
         onClick: () => this.restartFromSettings(inGame),
       }),
-      this.buildSettingsAction({
+      this.buildSpriteAction({
         label: copy['settings.home'],
         image: assetUrls.buttonPrimary,
-        className: 'mr-settings-action--home',
+        className: 'mr-settings-action mr-settings-action--home',
         dataAction: 'settings-home',
         onClick: () => this.homeFromSettings(),
       }),
@@ -556,7 +579,20 @@ export class App {
     return button;
   }
 
-  private buildSettingsAction(opts: {
+  private buildResultActions(opts: Array<{
+    label: string;
+    image: string;
+    className: string;
+    dataAction: string;
+    onClick: () => void;
+  }>): HTMLElement {
+    const actions = document.createElement('div');
+    actions.className = 'fab-modal-actions mr-result-actions';
+    actions.append(...opts.map((action) => this.buildSpriteAction(action)));
+    return actions;
+  }
+
+  private buildSpriteAction(opts: {
     label: string;
     image: string;
     className: string;
@@ -565,10 +601,10 @@ export class App {
   }): HTMLButtonElement {
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = `fab-btn fab-btn-primary mr-settings-action ${opts.className}`;
+    button.className = `fab-btn fab-btn-primary ${opts.className}`;
     button.dataset.fabAction = opts.dataAction;
     button.textContent = opts.label;
-    button.style.setProperty('--mr-settings-action-image', `url(${opts.image})`);
+    button.style.setProperty('--mr-button-sprite-image', `url(${opts.image})`);
     button.addEventListener('click', () => opts.onClick());
     return button;
   }

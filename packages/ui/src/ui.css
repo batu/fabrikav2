@@ -322,12 +322,14 @@
   .fab-modal-ribbon--fail { background: var(--fab-ribbon-fail-bg); }
 
   /* Injected ribbon sprite: paint it at the banner's intrinsic aspect (no
-     squash) and collapse the visible title to a screen-reader label — the art
-     carries its own baked lettering, so keeping the <h2> visible would double it. */
+     squash), respect PNG alpha, and collapse the visible title to a
+     screen-reader label — the art carries its own baked lettering, so keeping
+     the <h2> visible would double it. */
   .fab-modal-ribbon--image {
     aspect-ratio: var(--fab-ribbon-image-aspect);
     justify-content: center;
     padding: 0;
+    background-color: transparent;
     background-size: 100% 100%;
     background-repeat: no-repeat;
     background-position: center;

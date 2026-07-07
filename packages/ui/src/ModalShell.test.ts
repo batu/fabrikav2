@@ -58,7 +58,7 @@ describe('mountModalShell', () => {
     expect(card.getAttribute('aria-labelledby')).toBe(title.id);
   });
 
-  it('paints injected ribbon + card sprites additively over the tone fallback', () => {
+  it('retains the tone class while painting injected ribbon + card sprites', () => {
     const handle = mountModalShell({
       mountInto: host(),
       ribbon: { title: 'COMPLETED', tone: 'win', image: 'ribbon-src' },
@@ -66,7 +66,7 @@ describe('mountModalShell', () => {
       id: 'sprite-modal',
     });
     const ribbon = handle.el.querySelector<HTMLElement>('.fab-modal-ribbon')!;
-    // Tone stays as the colour fallback; the image class + inline bg add on top.
+    // Tone stays as the semantic fallback class; image mode supplies the visible art.
     expect(ribbon.classList.contains('fab-modal-ribbon--win')).toBe(true);
     expect(ribbon.classList.contains('fab-modal-ribbon--image')).toBe(true);
     expect(ribbon.style.backgroundImage).toContain('ribbon-src');

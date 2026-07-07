@@ -16,9 +16,9 @@ import { type ThemeTokens, type UiHandle } from './internal.ts';
  *    drive wave-B `animateEconomyTransfer` into it);
  *  - `continueOffer` is the lose slot (the "watch ad to continue" affordance —
  *    the offer content itself comes from the sdk/iap card);
- *  - `actions` are injected `ModalAction[]` — the consumer wires them to
- *    `machine.next(id)` / `retry()` / `toMenu()` (guarding double-fires with
- *    `machine.can(...)`, brainstorm S4).
+ *  - `actions` are injected `ModalAction[]` or a fresh action slot — the
+ *    consumer wires them to `machine.next(id)` / `retry()` / `toMenu()`
+ *    (guarding double-fires with `machine.can(...)`, brainstorm S4).
  */
 
 export type ResultVariant = 'win' | 'lose';
@@ -46,8 +46,8 @@ export interface ResultCardOptions {
   rewardDisplay?: HTMLElement;
   /** Lose continue-offer slot. Fresh element. */
   continueOffer?: HTMLElement;
-  /** Injected actions (win: Next/Replay/Menu; lose: Retry/Continue/Menu). */
-  actions: readonly ModalAction[];
+  /** Injected actions (win: Next/Replay/Menu; lose: Retry/Continue/Menu), or a game-owned action slot. */
+  actions: readonly ModalAction[] | HTMLElement;
   backdropDismiss?: boolean;
   onDismiss?: () => void;
   theme?: ThemeTokens;

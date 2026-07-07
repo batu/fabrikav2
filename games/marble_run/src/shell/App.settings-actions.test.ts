@@ -42,12 +42,14 @@ describe('App settings action variants', () => {
     const actions = app.buildSettingsActions(false);
 
     expect(actions.classList.contains('mr-settings-actions--menu')).toBe(true);
-    expect(action(actions, 'settings-close-cta')?.textContent).toBe('Close');
+    const close = action(actions, 'settings-close-cta');
+    expect(close?.textContent).toBe('Close');
+    expect(close?.style.getPropertyValue('--mr-button-sprite-image')).toContain('url(');
     expect(action(actions, 'settings-reset')?.textContent).toBe('Reset Progress');
     expect(action(actions, 'settings-restart')).toBeNull();
     expect(action(actions, 'settings-home')).toBeNull();
 
-    action(actions, 'settings-close-cta')?.click();
+    close?.click();
     expect(app.pageStack.pop).toHaveBeenCalledOnce();
   });
 
@@ -68,13 +70,17 @@ describe('App settings action variants', () => {
     const actions = app.buildSettingsActions(true);
 
     expect(actions.classList.contains('mr-settings-actions--inlevel')).toBe(true);
-    expect(action(actions, 'settings-restart')?.textContent).toBe('Restart');
-    expect(action(actions, 'settings-home')?.textContent).toBe('Home');
+    const restart = action(actions, 'settings-restart');
+    const home = action(actions, 'settings-home');
+    expect(restart?.textContent).toBe('Restart');
+    expect(home?.textContent).toBe('Home');
+    expect(restart?.style.getPropertyValue('--mr-button-sprite-image')).toContain('url(');
+    expect(home?.style.getPropertyValue('--mr-button-sprite-image')).toContain('url(');
     expect(action(actions, 'settings-close-cta')).toBeNull();
     expect(action(actions, 'settings-reset')).toBeNull();
 
-    action(actions, 'settings-restart')?.click();
-    action(actions, 'settings-home')?.click();
+    restart?.click();
+    home?.click();
     expect(app.restartFromSettings).toHaveBeenCalledWith(true);
     expect(app.homeFromSettings).toHaveBeenCalledOnce();
   });

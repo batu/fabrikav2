@@ -69,6 +69,27 @@ describe('mountResultCard', () => {
     expect(art.parentElement?.classList.contains('fab-result-body')).toBe(true);
   });
 
+  it('forwards a caller-owned action slot for game-specific CTA art', () => {
+    const actions = document.createElement('div');
+    actions.className = 'custom-result-actions';
+    const next = document.createElement('button');
+    next.type = 'button';
+    next.dataset.fabAction = 'result-next';
+    next.textContent = 'Next';
+    actions.appendChild(next);
+
+    const handle = mountResultCard({
+      mountInto: host(),
+      variant: 'win',
+      title: 'Level Complete',
+      actions,
+      id: 'result',
+    });
+
+    expect(handle.el.querySelector('.custom-result-actions')).toBe(actions);
+    expect(handle.el.querySelector('[data-fab-action="result-next"]')?.textContent).toBe('Next');
+  });
+
   it('renders the lose variant with the continue-offer slot', () => {
     const offer = document.createElement('div');
     offer.textContent = 'Watch ad';
