@@ -36,6 +36,7 @@ import {
 } from '@fabrikav2/testkit/harness';
 
 import { gameConfig } from '../../game.config.ts';
+import { driveTo as driveToState } from '../testing/driveTo.ts';
 
 /** This game's extra verbs. A port lists its input verbs here (the mirror of
  *  the sdk `Analytics<GameEvent>` extension point). */
@@ -116,6 +117,38 @@ export function createTemplateHarness(meta: { buildVersion: string; packageId: s
     return false;
   }
 
+  /**
+   * Deterministically navigate to a canonical capture state (fidelity-diff
+   * ledger C5; `../testing/driveTo.ts`). Wires the pure driver's deps to this
+   * game's transitions; `autoWin`/`autoFail` delegate to `winLevel`/`failLevel`
+   * above. TODO(port): `gotoMenu`/`openSettings`/`pause` are no-ops here — a
+   * port wires each to its real flow-machine transition (marble_run:
+   * `App.ts`'s private `driveTo`), which is also what makes the confirm polls
+   * in `driveTo.ts` actually resolve `true` instead of an honest timeout.
+   */
+  function driveTo(state: string): Promise<boolean> {
+    return driveToState(
+      {
+        gotoMenu(): void {
+          // TODO(port): drive the flow machine to its menu state.
+        },
+        startLevel(_id: number): void {
+          // TODO(port): start the level (marble_run: startLevelId).
+        },
+        openSettings(): void {
+          // TODO(port): open this game's settings modal.
+        },
+        pause(): void {
+          // TODO(port): pause the flow machine.
+        },
+        autoWin: () => winLevel(),
+        autoFail: () => failLevel(),
+        snapshot: () => snapshot(),
+      },
+      state,
+    );
+  }
+
   return {
     gotoState(state: string): void {
       // A port drives its flow machine to `state`. Placeholder validates the
@@ -140,6 +173,7 @@ export function createTemplateHarness(meta: { buildVersion: string; packageId: s
     verbs: { placeholderTap },
     winLevel,
     failLevel,
+    driveTo,
     perf(): PerfSample {
       return perf.sample();
     },
