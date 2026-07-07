@@ -1,10 +1,10 @@
 # tools/audit
 
-Six guardrail linters that enforce the anti-v1 rules
+Seven guardrail linters that enforce the anti-v1 rules
 (`docs/architecture/v2-architecture.md` §Guardrails). They replace v1's broken
 `scripts/grep-affected-games.sh` — this time with tests.
 
-Run all six: `npm run audit` (from repo root). Exits non-zero on any **error**.
+Run all seven: `npm run audit` (from repo root). Exits non-zero on any **error**.
 Some checks emit **warnings** (`⚠`) instead: reported, printed, but non-failing
 (`audit passed (with warnings)`, exit 0). A check lands as a warning when it has
 legitimate current hits whose fix is out of an audit change's natural blast
@@ -101,6 +101,20 @@ rather than reddening the gate. See the per-linter notes below.
    the no-harness case, because a game without that surface is not
    deterministically drivable/capturable by `tools/verify-device` and the shared
    harness tooling.
+
+7. **asset-identity** — covered games opt in with
+   `games/<game>/design/asset-identity.json`. The manifest maps every shipped
+   `design/assets/*` file to a repo-resolvable canonical source and expectation:
+   `exact-bytes`, `perceptual` (PNG only, using `tools/refcap-compare`'s phash
+   signature/distance), or `intentionally-different` with a non-empty reason.
+   `coverage: "incomplete"` downgrades completeness findings such as
+   `MISSING-MAPPING` to warnings; `coverage: "complete"` makes missing mappings
+   and divergences hard errors. The linter also scans `design/copy.ts` for emoji
+   or pictographic copy values used as art stand-ins, requiring explicit
+   `glyphs` manifest entries, and validates `design/reference-metrics.json`
+   token expectations for font family and font size values. Documented
+   `intentionally-different` entries stay visible as warnings so known debt does
+   not disappear from the audit output.
 
 Shared constants/helpers live in `src/lib.js` so the linters don't duplicate
 literal values themselves.
