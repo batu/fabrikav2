@@ -74,6 +74,13 @@ export interface ModalShellOptions {
    * surface fill / border / shadow so the sprite reads as the whole panel.
    */
   cardImage?: string;
+  /**
+   * Optional decorative layer behind the dialog card. The consumer owns the
+   * bytes and any game-specific sizing; the shell only inserts the inert layer.
+   */
+  backplateImage?: string;
+  /** Extra class(es) for the optional decorative backplate layer. */
+  backplateClassName?: string;
 }
 
 let nextModalId = 0;
@@ -138,6 +145,14 @@ export function mountModalShell(opts: ModalShellOptions): UiHandle {
   scrim.className = 'fab-modal-scrim';
   scrim.setAttribute('aria-hidden', 'true');
   el.appendChild(scrim);
+
+  if (opts.backplateImage) {
+    const backplate = document.createElement('div');
+    backplate.className = ['fab-modal-backplate', opts.backplateClassName].filter(Boolean).join(' ');
+    backplate.setAttribute('aria-hidden', 'true');
+    backplate.style.setProperty('--fab-modal-backplate-image', `url(${opts.backplateImage})`);
+    el.appendChild(backplate);
+  }
 
   const card = document.createElement('div');
   card.className = ['fab-modal-card', opts.cardClassName].filter(Boolean).join(' ');

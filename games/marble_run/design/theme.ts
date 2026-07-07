@@ -14,6 +14,7 @@ import currencyFrame from './assets/frame-currency.png';
 import booster from './assets/button-booster.png';
 import crown from './assets/win-crown.png';
 import popup from './assets/popup-card.png';
+import modalBackplate from './assets/marble-shadow-tile.png';
 import ribbonCompleted from './assets/ribbon-completed.png';
 import ribbonFailed from './assets/ribbon-failed.png';
 import ribbonTutorial from './assets/ribbon-orange.png';
@@ -46,6 +47,7 @@ export const assetUrls = {
   booster,
   crown,
   popup,
+  modalBackplate,
   ribbonCompleted,
   ribbonFailed,
   ribbonTutorial,

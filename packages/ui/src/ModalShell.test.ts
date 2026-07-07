@@ -75,6 +75,23 @@ describe('mountModalShell', () => {
     expect(card.style.backgroundImage).toContain('card-src');
   });
 
+  it('renders an optional inert backplate sprite behind the card', () => {
+    const handle = mountModalShell({
+      mountInto: host(),
+      title: 'Backed',
+      backplateImage: 'wood-src',
+      backplateClassName: 'game-backplate',
+      id: 'backplate-modal',
+    });
+    const backplate = handle.el.querySelector<HTMLElement>('.fab-modal-backplate')!;
+    expect(backplate).not.toBeNull();
+    expect(backplate.classList.contains('game-backplate')).toBe(true);
+    expect(backplate.getAttribute('aria-hidden')).toBe('true');
+    expect(backplate.style.getPropertyValue('--fab-modal-backplate-image')).toContain('wood-src');
+    const card = handle.el.querySelector<HTMLElement>('.fab-modal-card')!;
+    expect(backplate.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it('can keep the live title visible over blank injected ribbon art', () => {
     const handle = mountModalShell({
       mountInto: host(),
