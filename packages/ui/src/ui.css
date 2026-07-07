@@ -317,23 +317,43 @@
     border-radius: var(--fab-ribbon-radius);
     box-shadow: var(--fab-ribbon-shadow);
   }
-  .fab-modal-ribbon--neutral { background: var(--fab-ribbon-neutral-bg); }
-  .fab-modal-ribbon--win { background: var(--fab-ribbon-win-bg); }
-  .fab-modal-ribbon--fail { background: var(--fab-ribbon-fail-bg); }
+  .fab-modal-ribbon--neutral { background-color: var(--fab-ribbon-neutral-bg); }
+  .fab-modal-ribbon--win { background-color: var(--fab-ribbon-win-bg); }
+  .fab-modal-ribbon--fail { background-color: var(--fab-ribbon-fail-bg); }
 
   /* Injected ribbon sprite: paint it at the banner's intrinsic aspect (no
      squash), respect PNG alpha, and collapse the visible title to a
      screen-reader label — the art carries its own baked lettering, so keeping
      the <h2> visible would double it. */
   .fab-modal-ribbon--image {
+    position: relative;
     aspect-ratio: var(--fab-ribbon-image-aspect);
     justify-content: center;
     padding: 0;
+    background-image: none;
     background-color: transparent;
-    background-size: 100% 100%;
-    background-repeat: no-repeat;
-    background-position: center;
     box-shadow: none;
+  }
+  .fab-modal-ribbon--image.fab-modal-ribbon--neutral,
+  .fab-modal-ribbon--image.fab-modal-ribbon--win,
+  .fab-modal-ribbon--image.fab-modal-ribbon--fail {
+    background-image: none;
+    background-color: transparent;
+  }
+  .fab-modal-ribbon-image {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    pointer-events: none;
+    user-select: none;
+  }
+  .fab-modal-ribbon--image .fab-modal-ribbon-eyebrow,
+  .fab-modal-ribbon--image .fab-modal-ribbon-title {
+    position: relative;
+    z-index: 1;
   }
   .fab-modal-ribbon--image:not(.fab-modal-ribbon--image-title-visible) .fab-modal-ribbon-title {
     position: absolute;

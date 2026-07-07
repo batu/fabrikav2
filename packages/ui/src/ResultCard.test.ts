@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { createFlowMachine } from '@fabrikav2/kernel/flow';
 import { mountResultCard, mountModalShell, type UiHandle } from './index.ts';
@@ -5,6 +7,22 @@ import { mountResultCard, mountModalShell, type UiHandle } from './index.ts';
 function host(): HTMLElement {
   document.body.innerHTML = '<div id="host"></div>';
   return document.getElementById('host')!;
+}
+
+function installUiCss(): void {
+  if (document.getElementById('fab-ui-css-test')) return;
+  const style = document.createElement('style');
+  style.id = 'fab-ui-css-test';
+  style.textContent = readFileSync(resolve('src/ui.css'), 'utf8');
+  document.head.appendChild(style);
+}
+
+function expectTransparentRibbonContainer(ribbon: HTMLElement): void {
+  const style = getComputedStyle(ribbon);
+  expect(ribbon.style.backgroundImage).toBe('');
+  expect(['none', ''].includes(style.backgroundImage)).toBe(true);
+  const alpha = style.backgroundColor.match(/rgba\([^)]*,\s*([0-9.]+)\)$/)?.[1];
+  expect(style.backgroundColor === 'transparent' || style.backgroundColor === '' || alpha === '0').toBe(true);
 }
 
 describe('mountResultCard', () => {
@@ -55,7 +73,8 @@ describe('mountResultCard', () => {
     // sr-only label (the sprite carries its own baked lettering).
     const ribbon = handle.el.querySelector<HTMLElement>('.fab-modal-ribbon')!;
     expect(ribbon.classList.contains('fab-modal-ribbon--image')).toBe(true);
-    expect(ribbon.style.backgroundImage).toContain('ribbon-src');
+    expect(ribbon.style.backgroundImage).toBe('');
+    expect(ribbon.querySelector<HTMLImageElement>('.fab-modal-ribbon-image')?.src).toContain('ribbon-src');
     // Card panel wears the popup sprite.
     const card = handle.el.querySelector<HTMLElement>('.fab-modal-card')!;
     expect(card.classList.contains('fab-modal-card--image')).toBe(true);
@@ -67,6 +86,44 @@ describe('mountResultCard', () => {
     const art = handle.el.querySelector<HTMLElement>('.fab-result-art')!;
     expect(art).toBe(crown);
     expect(art.parentElement?.classList.contains('fab-result-body')).toBe(true);
+  });
+
+  it('keeps settings, win, and fail image ribbon containers transparent', () => {
+    installUiCss();
+    const h = host();
+
+    const settings = mountModalShell({
+      mountInto: h,
+      ribbon: {
+        title: 'SETTINGS',
+        tone: 'neutral',
+        image: 'settings-ribbon-src',
+        imageTitleVisibility: 'visible',
+      },
+      id: 'settings-ribbon-transparent',
+    });
+    const win = mountResultCard({
+      mountInto: h,
+      variant: 'win',
+      title: 'COMPLETED',
+      ribbonImage: 'win-ribbon-src',
+      actions: [{ label: 'Next', onClick: () => {} }],
+      id: 'win-ribbon-transparent',
+    });
+    const fail = mountResultCard({
+      mountInto: h,
+      variant: 'lose',
+      title: 'FAILED',
+      ribbonImage: 'fail-ribbon-src',
+      actions: [{ label: 'Retry', onClick: () => {} }],
+      id: 'fail-ribbon-transparent',
+    });
+
+    for (const handle of [settings, win, fail]) {
+      const ribbon = handle.el.querySelector<HTMLElement>('.fab-modal-ribbon')!;
+      expect(ribbon.querySelector('.fab-modal-ribbon-image')).not.toBeNull();
+      expectTransparentRibbonContainer(ribbon);
+    }
   });
 
   it('forwards a caller-owned action slot for game-specific CTA art', () => {

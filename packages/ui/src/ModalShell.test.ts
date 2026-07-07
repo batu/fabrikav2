@@ -69,7 +69,8 @@ describe('mountModalShell', () => {
     // Tone stays as the semantic fallback class; image mode supplies the visible art.
     expect(ribbon.classList.contains('fab-modal-ribbon--win')).toBe(true);
     expect(ribbon.classList.contains('fab-modal-ribbon--image')).toBe(true);
-    expect(ribbon.style.backgroundImage).toContain('ribbon-src');
+    expect(ribbon.style.backgroundImage).toBe('');
+    expect(ribbon.querySelector<HTMLImageElement>('.fab-modal-ribbon-image')?.src).toContain('ribbon-src');
     const card = handle.el.querySelector<HTMLElement>('.fab-modal-card')!;
     expect(card.classList.contains('fab-modal-card--image')).toBe(true);
     expect(card.style.backgroundImage).toContain('card-src');

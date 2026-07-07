@@ -281,6 +281,8 @@
 
       /* ---- Result cards — reference popup + floating candy CTAs ---- */
       .fab-modal-card.fab-result-card {
+        --mr-result-copy-size: 24px;
+        --mr-result-fail-copy-size: 18px;
         width: min(64vw, 282px);
         min-width: min(64vw, 248px);
         padding: 84px 34px 48px;
@@ -319,9 +321,12 @@
       .fab-result-card .fab-result-message {
         color: var(--fab-color-result-copy, #6170a7);
         font-family: 'Titan One', var(--fab-font-family, system-ui, sans-serif);
-        font-size: 24px;
+        font-size: var(--mr-result-copy-size);
         font-weight: 400;
         line-height: 1.24;
+      }
+      .fab-result-card--lose .fab-result-message {
+        font-size: var(--mr-result-fail-copy-size);
       }
       .fab-result-card .fab-result-art {
         width: 120px;
@@ -578,6 +583,8 @@
       }
       @media (max-width: 360px), (max-height: 740px) {
         .fab-modal-card.fab-result-card {
+          --mr-result-copy-size: 20px;
+          --mr-result-fail-copy-size: 16px;
           width: min(66vw, 260px);
           min-width: min(66vw, 230px);
           padding: 76px 28px 44px;
@@ -594,9 +601,6 @@
         }
         .fab-result-card .fab-result-art.mr-result-emoji {
           font-size: 78px;
-        }
-        .fab-result-card .fab-result-message {
-          font-size: 20px;
         }
         .fab-result-card .fab-modal-actions {
           width: min(78vw, 292px);

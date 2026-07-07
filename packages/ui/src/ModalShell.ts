@@ -28,9 +28,10 @@ export interface ModalRibbon {
   tone?: 'win' | 'fail' | 'neutral';
   /**
    * Optional banner sprite the consumer injects (Vite-resolved url) — the game
-   * OWNS the bytes; the shell only paints them as the ribbon's background. When
-   * present the visible title collapses to a screen-reader label (the sprite
-   * carries its own baked lettering) while `tone` stays as the colour fallback.
+   * OWNS the bytes; the shell inserts them as the only visible ribbon layer.
+   * When present the visible title collapses to a screen-reader label (the
+   * sprite carries its own baked lettering) while `tone` stays as the colour
+   * fallback for non-image ribbons.
    */
   image?: string;
   /**
@@ -187,7 +188,12 @@ export function mountModalShell(opts: ModalShellOptions): UiHandle {
       if (opts.ribbon.imageTitleVisibility === 'visible') {
         ribbon.classList.add('fab-modal-ribbon--image-title-visible');
       }
-      ribbon.style.backgroundImage = `url(${opts.ribbon.image})`;
+      const ribbonImage = document.createElement('img');
+      ribbonImage.className = 'fab-modal-ribbon-image';
+      ribbonImage.src = opts.ribbon.image;
+      ribbonImage.alt = '';
+      ribbonImage.setAttribute('aria-hidden', 'true');
+      ribbon.appendChild(ribbonImage);
     }
     if (opts.ribbon.eyebrow) {
       const eyebrow = document.createElement('span');
