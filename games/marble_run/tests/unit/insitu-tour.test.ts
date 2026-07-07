@@ -27,6 +27,24 @@ interface FakeElement {
   appendChild?(el: FakeElement): void;
 }
 
+function snapshotFor(state: string): Record<string, unknown> {
+  switch (state) {
+    case 'level':
+      return { scene: 'playing', status: 'playing', inputReady: true };
+    case 'settings':
+      return { scene: 'menu', status: 'idle', inputReady: true, settingsOpen: true };
+    case 'pause':
+      return { scene: 'paused', status: 'playing', inputReady: true };
+    case 'win':
+      return { scene: 'complete', status: 'complete', inputReady: false };
+    case 'fail':
+      return { scene: 'failed', status: 'failed', inputReady: false };
+    case 'menu':
+    default:
+      return { scene: 'menu', status: 'idle', inputReady: true };
+  }
+}
+
 function makeElement(ariaHistory: string[]): FakeElement {
   const el: FakeElement = {
     id: '',
@@ -66,10 +84,18 @@ function installFakeDom(ariaHistory: string[]): { markerFor: (id: string) => Fak
 }
 
 /** A fake App whose harness().driveTo/snapshot are fully under test control. */
-function makeFakeApp(driveTo: (state: string) => Promise<boolean>): App {
+function makeFakeApp(
+  driveTo: (state: string) => Promise<boolean>,
+  snapshot?: () => Record<string, unknown>,
+): App {
+  let currentState = 'menu';
   const h = {
-    snapshot: () => ({ scene: 'menu', status: 'idle' }),
-    driveTo,
+    snapshot: () => snapshot?.() ?? snapshotFor(currentState),
+    driveTo: async (state: string): Promise<boolean> => {
+      const ok = await driveTo(state);
+      if (ok) currentState = state;
+      return ok;
+    },
     startLevel: () => {},
     gotoMenu: () => {},
     autoWin: async () => true,
@@ -106,14 +132,21 @@ describe('maybeRunInsituTour — allstates', () => {
 
     expect(seen).toEqual(['menu', 'level', 'settings', 'pause', 'win', 'fail']);
     // Every state confirmed (driveTo resolved true) → marked by its own name,
-    // in drive order, ending with the tour's own 'done' sentinel.
+    // then retired before the next drive so a late runner cannot accept a stale
+    // exact marker during the transition to the next state.
     expect(ariaHistory).toEqual([
       'tourstate:menu',
+      'tourstate:menu-DONE',
       'tourstate:level',
+      'tourstate:level-DONE',
       'tourstate:settings',
+      'tourstate:settings-DONE',
       'tourstate:pause',
+      'tourstate:pause-DONE',
       'tourstate:win',
+      'tourstate:win-DONE',
       'tourstate:fail',
+      'tourstate:fail-DONE',
       'tourstate:done',
     ]);
   });
@@ -128,6 +161,41 @@ describe('maybeRunInsituTour — allstates', () => {
 
     expect(ariaHistory).toContain('tourstate:pause-FAILED');
     expect(ariaHistory).not.toContain('tourstate:pause');
+  });
+
+  it('marks FAILED instead of a false success when the settle re-check no longer matches', async () => {
+    let currentState = 'menu';
+    const driveTo = async (state: string): Promise<boolean> => {
+      currentState = state;
+      return true;
+    };
+    const app = makeFakeApp(driveTo, () =>
+      currentState === 'settings'
+        ? { scene: 'menu', status: 'idle', inputReady: true, settingsOpen: false }
+        : snapshotFor(currentState),
+    );
+
+    const run = maybeRunInsituTour(app);
+    await vi.runAllTimersAsync();
+    await run;
+
+    expect(ariaHistory).toContain('tourstate:settings-FAILED');
+    expect(ariaHistory).not.toContain('tourstate:settings');
+  });
+
+  it('retires the exact settings marker before driving pause, preventing stale captures', async () => {
+    let markerAtPauseStart: string | undefined;
+    const driveTo = async (state: string): Promise<boolean> => {
+      if (state === 'pause') markerAtPauseStart = ariaHistory.at(-1);
+      return true;
+    };
+    const app = makeFakeApp(driveTo);
+
+    const run = maybeRunInsituTour(app);
+    await vi.runAllTimersAsync();
+    await run;
+
+    expect(markerAtPauseStart).toBe('tourstate:settings-DONE');
   });
 
   it('writes a single #__tourstate__ marker that is off-screen yet present in the a11y tree', async () => {

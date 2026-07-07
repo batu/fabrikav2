@@ -6,18 +6,41 @@ function setTourSearch(search: string): void {
   window.history.pushState({}, "", search ? `/${search}` : "/");
 }
 
+function snapshotFor(state: string): Record<string, unknown> {
+  switch (state) {
+    case "level":
+      return { scene: "playing", status: "playing", inputReady: true };
+    case "settings":
+      return { scene: "menu", status: "idle", inputReady: true, settingsOpen: true };
+    case "pause":
+      return { scene: "paused", status: "playing", inputReady: true };
+    case "win":
+      return { scene: "complete", status: "complete", inputReady: false };
+    case "fail":
+      return { scene: "failed", status: "failed", inputReady: false };
+    case "menu":
+    default:
+      return { scene: "menu", status: "idle", inputReady: true };
+  }
+}
+
 function makeHarness(driveTo: (state: string) => Promise<boolean>): GameHarness {
+  let currentState = "menu";
   return {
     gotoState: () => {},
     startLevel: () => {},
-    snapshot: () => ({ scene: "menu", status: "idle", inputReady: true }),
+    snapshot: () => snapshotFor(currentState),
     sagaNodes: () => [],
     unlockAll: () => {},
     grantCoins: () => {},
     verbs: {},
     winLevel: async () => true,
     failLevel: async () => true,
-    driveTo,
+    driveTo: async (state: string): Promise<boolean> => {
+      const ok = await driveTo(state);
+      if (ok) currentState = state;
+      return ok;
+    },
   } as GameHarness;
 }
 
@@ -63,11 +86,17 @@ describe("_template maybeRunInsituTour — allstates", () => {
     expect(seen).toEqual(["menu", "level", "settings", "pause", "win", "fail"]);
     expect(ariaHistory).toEqual([
       "tourstate:menu",
+      "tourstate:menu-DONE",
       "tourstate:level",
+      "tourstate:level-DONE",
       "tourstate:settings",
+      "tourstate:settings-DONE",
       "tourstate:pause",
+      "tourstate:pause-DONE",
       "tourstate:win",
+      "tourstate:win-DONE",
       "tourstate:fail",
+      "tourstate:fail-DONE",
       "tourstate:done",
     ]);
   });
@@ -82,6 +111,20 @@ describe("_template maybeRunInsituTour — allstates", () => {
     expect(ariaHistory).toContain("tourstate:pause-FAILED");
     expect(ariaHistory).not.toContain("tourstate:pause");
     expect(ariaHistory.at(-1)).toBe("tourstate:done");
+  });
+
+  it("retires each exact marker before driving the next state", async () => {
+    let markerAtPauseStart: string | undefined;
+    const harness = makeHarness(async (state) => {
+      if (state === "pause") markerAtPauseStart = ariaHistory.at(-1);
+      return true;
+    });
+
+    const run = maybeRunInsituTour(harness);
+    await vi.runAllTimersAsync();
+    await run;
+
+    expect(markerAtPauseStart).toBe("tourstate:settings-DONE");
   });
 
   it("writes one off-screen #__tourstate__ marker with exact final label and text", async () => {

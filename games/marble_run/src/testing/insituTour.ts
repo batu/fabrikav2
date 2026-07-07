@@ -14,8 +14,29 @@
 import type { App } from '../shell/App';
 
 const DWELL_MS = 6000;
+const ALLSTATES = ['menu', 'level', 'settings', 'pause', 'win', 'fail'] as const;
+const ALLSTATES_DWELL_MS = 11000;
+const MARK_SETTLE_RECHECK_MS = 500;
 
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
+type AllstatesState = (typeof ALLSTATES)[number];
+
+function snapshotMatchesState(state: AllstatesState, snap: Record<string, unknown>): boolean {
+  switch (state) {
+    case 'menu':
+      return snap.scene === 'menu';
+    case 'level':
+      return snap.scene === 'playing' && snap.inputReady === true;
+    case 'settings':
+      return snap.settingsOpen === true;
+    case 'pause':
+      return snap.scene === 'paused';
+    case 'win':
+      return snap.scene === 'complete';
+    case 'fail':
+      return snap.scene === 'failed';
+  }
+}
 
 export async function maybeRunInsituTour(app: App): Promise<void> {
   // Trigger from a build-time env flag (baked into a bundled dev build — no
@@ -71,16 +92,21 @@ export async function maybeRunInsituTour(app: App): Promise<void> {
   // 'allstates' = drive to EVERY canonical state via driveTo (each confirmed),
   // dwelling for a device capture. This is the required device-verification tour.
   if (script === 'allstates' && typeof h.driveTo === 'function') {
-    const states = ['menu', 'level', 'settings', 'pause', 'win', 'fail'] as const;
-    // Long dwell so an ELEMENT-gated external capturer (XCUITest waits for each
-    // state's signature text, not a timer) reliably catches every state even
-    // though driveTo steps take variable time. Timed capture drifts — see the
-    // fidelity-diff mistakes ledger (settings/fail mislabeled as menu/level).
-    const ALLSTATES_DWELL = 11000;
-    for (const s of states) {
+    const stillMatches = (state: AllstatesState): boolean =>
+      snapshotMatchesState(state, h.snapshot() as Record<string, unknown>);
+
+    for (const s of ALLSTATES) {
       const ok = await h.driveTo(s);
-      mark(ok ? s : `${s}-FAILED`);
-      await sleep(ALLSTATES_DWELL);
+      let stable = false;
+      if (ok) {
+        await sleep(MARK_SETTLE_RECHECK_MS);
+        stable = stillMatches(s);
+      }
+      mark(stable ? s : `${s}-FAILED`);
+      await sleep(ALLSTATES_DWELL_MS);
+      if (stable) {
+        mark(stillMatches(s) ? `${s}-DONE` : `${s}-FAILED`);
+      }
     }
     mark('done');
     return;

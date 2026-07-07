@@ -29,14 +29,33 @@ import type { GameHarness } from '@fabrikav2/testkit/harness';
 /** The canonical device-capture states the 'allstates' script drives through
  *  (mirrors `driveTo.ts`'s `DriveState` / `tools/refcap-compare` `CANONICAL_STATES`). */
 const ALLSTATES = ['menu', 'level', 'settings', 'pause', 'win', 'fail'] as const;
+type AllstatesState = (typeof ALLSTATES)[number];
 
 // Long dwell so an ELEMENT-gated external capturer (XCUITest waits for each
 // state's signature text, not a timer) reliably catches every state even
 // though driveTo steps take variable time. Timed capture drifts — see the
 // fidelity-diff mistakes ledger (settings/fail mislabeled as menu/level).
 const ALLSTATES_DWELL_MS = 11000;
+const MARK_SETTLE_RECHECK_MS = 500;
 
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
+
+function snapshotMatchesState(state: AllstatesState, snap: Record<string, unknown>): boolean {
+  switch (state) {
+    case 'menu':
+      return snap.scene === 'menu';
+    case 'level':
+      return snap.scene === 'playing' && (snap.inputReady === undefined || snap.inputReady === true);
+    case 'settings':
+      return snap.settingsOpen === true;
+    case 'pause':
+      return snap.scene === 'paused';
+    case 'win':
+      return snap.scene === 'complete';
+    case 'fail':
+      return snap.scene === 'failed';
+  }
+}
 
 export async function maybeRunInsituTour(harness: GameHarness): Promise<void> {
   // Trigger from a build-time env flag (baked into a bundled dev build — no
@@ -89,8 +108,20 @@ export async function maybeRunInsituTour(harness: GameHarness): Promise<void> {
   if (script === 'allstates' && typeof harness.driveTo === 'function') {
     for (const s of ALLSTATES) {
       const ok = await harness.driveTo(s);
-      mark(ok ? s : `${s}-FAILED`);
+      let stable = false;
+      if (ok) {
+        await sleep(MARK_SETTLE_RECHECK_MS);
+        stable = snapshotMatchesState(s, harness.snapshot() as Record<string, unknown>);
+      }
+      mark(stable ? s : `${s}-FAILED`);
       await sleep(ALLSTATES_DWELL_MS);
+      if (stable) {
+        mark(
+          snapshotMatchesState(s, harness.snapshot() as Record<string, unknown>)
+            ? `${s}-DONE`
+            : `${s}-FAILED`,
+        );
+      }
     }
     mark('done');
     return;

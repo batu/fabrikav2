@@ -105,6 +105,12 @@ function bootApp(): App {
   return app;
 }
 
+const CAPTURE_SETTLE_MS = 600;
+
+interface WinHarness {
+  handleWin(info: { levelId: number; reward: number; isFinalLevel: boolean }): void;
+}
+
 describe('App harness driveTo wiring', () => {
   beforeEach(() => {
     controllerProbe.instances.length = 0;
@@ -112,6 +118,7 @@ describe('App harness driveTo wiring', () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
@@ -135,5 +142,40 @@ describe('App harness driveTo wiring', () => {
 
     expect(await h.driveTo('level')).toBe(true);
     expect(h.snapshot()).toMatchObject({ settingsOpen: false });
+  });
+
+  it("driveTo('settings') keeps the settings modal mounted through the capture settle window", async () => {
+    const app = bootApp();
+    const h = app.harness();
+
+    expect(await h.driveTo('settings')).toBe(true);
+    expect(h.snapshot()).toMatchObject({ settingsOpen: true });
+
+    vi.useFakeTimers();
+    await vi.advanceTimersByTimeAsync(CAPTURE_SETTLE_MS);
+
+    expect(h.snapshot()).toMatchObject({ settingsOpen: true });
+    expect(document.querySelector('.mr-settings-card')).not.toBeNull();
+  });
+
+  it('keeps the win modal mounted through the capture settle window', async () => {
+    const app = bootApp();
+    const h = app.harness();
+
+    h.startLevel(4);
+    (app as unknown as WinHarness).handleWin({
+      levelId: 4,
+      reward: 25,
+      isFinalLevel: false,
+    });
+
+    expect(h.snapshot()).toMatchObject({ scene: 'complete', settingsOpen: false });
+    expect(document.querySelector('.fab-result-card--win')).not.toBeNull();
+
+    vi.useFakeTimers();
+    await vi.advanceTimersByTimeAsync(CAPTURE_SETTLE_MS);
+
+    expect(h.snapshot()).toMatchObject({ scene: 'complete' });
+    expect(document.querySelector('.fab-result-card--win')).not.toBeNull();
   });
 });
