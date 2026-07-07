@@ -1,0 +1,86 @@
+.tap-ten-screen {
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  justify-items: center;
+  gap: var(--fab-space-md);
+  padding: var(--fab-space-screen-padding);
+  padding-top: calc(var(--fab-space-screen-padding) + env(safe-area-inset-top));
+  padding-bottom: calc(var(--fab-space-screen-padding) + env(safe-area-inset-bottom));
+  background: var(--fab-color-surface);
+  color: var(--fab-color-text);
+  font-family: var(--fab-font-family);
+}
+
+.tap-ten-screen__header {
+  width: min(100%, var(--fab-tap-content-width));
+  text-align: center;
+}
+
+.tap-ten-screen__title {
+  margin: 0;
+  font-size: var(--fab-tap-title-size);
+  line-height: 1;
+}
+
+.tap-ten-screen__status {
+  min-height: var(--fab-tap-status-height);
+  margin: var(--fab-space-sm) 0 0;
+  color: var(--fab-color-text-muted);
+  font-size: var(--fab-font-size-lg);
+  font-weight: var(--fab-font-weight-bold);
+}
+
+.tap-ten-screen__stats {
+  width: min(100%, var(--fab-tap-content-width));
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--fab-space-sm);
+  margin: 0;
+}
+
+.tap-ten-screen__stat {
+  min-width: 0;
+  padding: var(--fab-tap-stat-padding);
+  border: var(--fab-tap-panel-border);
+  border-radius: var(--fab-radius-sm);
+  background: var(--fab-color-secondary-surface);
+  text-align: center;
+}
+
+.tap-ten-screen__stat-label {
+  margin: 0;
+  color: var(--fab-color-text-muted);
+  font-size: var(--fab-font-size-sm);
+  font-weight: var(--fab-font-weight-normal);
+}
+
+.tap-ten-screen__stat-value {
+  margin: var(--fab-tap-stat-gap) 0 0;
+  color: var(--fab-color-text);
+  font-size: var(--fab-font-size-lg);
+  font-weight: var(--fab-font-weight-bold);
+}
+
+.tap-ten-screen__board {
+  width: min(var(--fab-tap-board-size), calc(100vw - (var(--fab-space-screen-padding) * 2)));
+  aspect-ratio: 1;
+  touch-action: manipulation;
+  border: 0;
+  border-radius: var(--fab-tap-board-radius);
+  box-shadow: var(--fab-shadow-button);
+}
+
+.tap-ten-screen__actions {
+  width: min(100%, var(--fab-tap-content-width));
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--fab-space-sm);
+}
+
+.tap-ten-screen__action {
+  width: 100%;
+  min-width: 0;
+}

@@ -1,0 +1,70 @@
+# refcap-compare manifest STUB for a fresh `create-game` scaffold (card vFSI5FwY).
+# Modelled on games/marble_run/refs/manifest.yaml; loaded by
+# tools/refcap-compare/src/manifest.mjs `loadManifest`. Every state below is an
+# explicit "gap" — a fresh game has NO captures yet, on either lane. A port
+# replaces each `gap:` with a real `offline:` PNG + `driveTo:`/`recipe:` as
+# captures land; do not delete states to "pass" — absence must stay documented.
+game: tap_ten
+
+# REFERENCE lane = a third-party/prior-version app captured for comparison, over
+# the ubuntu-server adb bridge (see games/marble_run/refs/manifest.yaml). A
+# fresh game usually has none yet — every state below declares a gap.
+reference:
+  package: com.example.reference   # TODO(port): the reference app's package id.
+  version: unknown
+  device: unknown
+  host: ubuntu-server
+  adb: /home/batu/android-sdk/platform-tools/adb
+  serial: null
+
+# V2 lane = this fabrikav2 port, driven by the game harness `driveTo(state)`
+# (`../src/testing/driveTo.ts`, wired in `../src/shell/harness.ts`).
+v2:
+  package: com.fabrikav2.tap_ten   # create-game substitutes this to com.fabrikav2.<game>.
+  version: dev
+  viewport: 390x844
+
+# Canonical states (tools/refcap-compare/src/manifest.mjs CANONICAL_STATES).
+# Each lane needs either "offline" (a committed PNG) or an explicit "gap".
+states:
+  - name: menu
+    reference:
+      gap: "no reference capture — fresh scaffold, nothing captured yet"
+    v2:
+      gap: "no v2 capture yet"
+      driveTo: menu
+
+  - name: level
+    reference:
+      gap: "no reference capture — fresh scaffold, nothing captured yet"
+    v2:
+      gap: "no v2 capture yet"
+      driveTo: level
+
+  - name: settings
+    reference:
+      gap: "no reference capture — fresh scaffold, nothing captured yet"
+    v2:
+      gap: "no v2 capture yet"
+      driveTo: settings
+
+  - name: pause
+    reference:
+      gap: "no reference capture — fresh scaffold, nothing captured yet"
+    v2:
+      gap: "no v2 capture yet"
+      driveTo: pause
+
+  - name: win
+    reference:
+      gap: "no reference capture — fresh scaffold, nothing captured yet"
+    v2:
+      gap: "no v2 capture yet"
+      driveTo: win
+
+  - name: fail
+    reference:
+      gap: "no reference capture — fresh scaffold, nothing captured yet"
+    v2:
+      gap: "no v2 capture yet"
+      driveTo: fail
