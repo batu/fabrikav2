@@ -7,7 +7,3 @@
  */
 export * from './types';
 export { BoardEngine } from './board';
-export { analyzeDifficulty, solveLevel } from './solver';
-export { generateLevel } from './generate';
-export type { DifficultyReport, SolveResult } from './solver';
-export type { GenerateParams } from './generate';

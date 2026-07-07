@@ -9,8 +9,25 @@
     "docs/evidence/**",
     "**/test/fixtures/**"
   ],
-  "ignoreDependencies": [
-    "@capacitor/core",
-    "@capacitor/haptics"
-  ]
+  "workspaces": {
+    "games/*": {
+      "entry": [
+        "src/main.ts",
+        "game.config.ts",
+        "capacitor.config.ts",
+        "design/assets.ts",
+        "design/copy.ts"
+      ],
+      "ignoreDependencies": [
+        "@capacitor/ios"
+      ]
+    },
+    "packages/sdk": {
+      "ignoreDependencies": [
+        "@capacitor/core",
+        "@capacitor/haptics",
+        "@capacitor-community/admob"
+      ]
+    }
+  }
 }
