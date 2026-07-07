@@ -91,8 +91,8 @@ function shortModel(id) {
  * @param {Array} params.rows [{state, device, reference, diff}]
  * @param {{pass:boolean, summary:string, states:Array}} params.verdict phash verdict
  * @param {object} [params.panel] runPanel result (primary verdict + consensus matrix)
- * @param {'device'|'browser'} [params.lane] default 'device'; 'browser' renders a
- *   DEVICE-UNVERIFIED banner (safe-area/notch fidelity is device-only)
+ * @param {'device'|'browser'|'provided-captures'} [params.lane] default 'device';
+ *   non-device lanes render explicit unverified provenance banners.
  * @returns {string} full HTML document
  */
 export function buildGridHtml({ game, generatedAt, device, rows, verdict, panel, lane = 'device' }) {
@@ -113,7 +113,7 @@ export function buildGridHtml({ game, generatedAt, device, rows, verdict, panel,
       <h2>${esc(row.state)} <span class="badge ${esc(st.status)}">${esc(st.status)}</span>
           <span class="reason">${esc(st.reason || '')}</span></h2>
       <figure class="cell">
-        <figcaption>${lane === 'browser' ? 'browser (chromium, DEVICE-UNVERIFIED)' : 'device (iOS, on-device)'}</figcaption>
+        <figcaption>${esc(laneCaption(lane))}</figcaption>
         ${imgTag(row.device, 'dev')}
         ${meta(row.device)}
       </figure>
@@ -129,6 +129,11 @@ export function buildGridHtml({ game, generatedAt, device, rows, verdict, panel,
   const primary = panel?.verdict || verdict;
   const primaryClass = primary?.pass ? 'ok' : 'bad';
   const primaryLabel = panel?.verdict ? 'PANEL (primary)' : 'PHASH (panel skipped)';
+  const provenanceBanner = lane === 'browser'
+    ? '<p class="verdict bad">BROWSER LANE — DEVICE-UNVERIFIED: captured via vite-dev + Chromium, not the iOS device. Safe-area/notch insets cannot be validated here; an on-device pass is required to confirm.</p>'
+    : lane === 'provided-captures'
+      ? '<p class="verdict bad">PROVIDED CAPTURES — DEVICE-PROVENANCE-UNVERIFIED: screenshots came from a directory, not a verified device run/xcresult. Excluded from strict device-pass semantics.</p>'
+      : '';
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -199,11 +204,17 @@ export function buildGridHtml({ game, generatedAt, device, rows, verdict, panel,
      The forcing function for AGENTS.md #8: a change to on-device rendering is not
      done until captured on-device and diffed here.</p>
   <p class="verdict ${primaryClass}">${esc(primaryLabel)}: ${esc(primary?.summary || 'no verdict')}</p>
-  ${lane === 'browser' ? '<p class="verdict bad">BROWSER LANE — DEVICE-UNVERIFIED: captured via vite-dev + Chromium, not the iOS device. Safe-area/notch insets cannot be validated here; an on-device pass is required to confirm.</p>' : ''}
+  ${provenanceBanner}
   ${panelSection(panel)}
   <p class="sub">Secondary signal — phash pixel-diff: <b>${esc(verdict?.summary || 'n/a')}</b></p>
   ${body}
 </body>
 </html>
 `;
+}
+
+function laneCaption(lane) {
+  if (lane === 'browser') return 'browser (chromium, DEVICE-UNVERIFIED)';
+  if (lane === 'provided-captures') return 'provided captures (DEVICE-PROVENANCE-UNVERIFIED)';
+  return 'device (iOS, on-device)';
 }

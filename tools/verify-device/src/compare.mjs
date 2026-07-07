@@ -60,8 +60,9 @@ function referenceCell(gameDir, state, laneDef, refMeta) {
  * @param {object} params
  * @param {object} params.manifest loaded refcap-compare manifest (with gameDir)
  * @param {Record<string,string>} params.deviceCaptures state -> abs PNG path
- * @param {'device'|'browser'} [params.lane] stamped onto every device-side cell
- *   (default 'device'; 'browser' for the --lane browser fallback capture)
+ * @param {'device'|'browser'|'provided-captures'} [params.lane] stamped onto
+ *   every device-side cell (default 'device'; browser/provided-captures are
+ *   unverified provenance lanes)
  * @returns {{rows: Array}} one row per canonical state
  */
 export function buildRows({ manifest, deviceCaptures, lane = 'device' }) {

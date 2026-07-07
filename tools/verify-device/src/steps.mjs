@@ -11,16 +11,29 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
+export function formatCommand(file, args, { redact = [] } = {}) {
+  const secrets = redact.filter((v) => typeof v === 'string' && v.length > 0);
+  const rendered = args.map((arg) => {
+    let s = String(arg);
+    for (const secret of secrets) {
+      s = s.split(secret).join('***');
+    }
+    return s;
+  });
+  return `$ ${file} ${rendered.join(' ')}`;
+}
+
 /** Run a command, streaming output; returns stdout. Throws on non-zero. */
 function sh(file, args, opts = {}) {
-  process.stderr.write(`  $ ${file} ${args.join(' ')}\n`);
-  return execFileSync(file, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'], ...opts });
+  const { redact = [], ...execOpts } = opts;
+  process.stderr.write(`  ${formatCommand(file, args, { redact })}\n`);
+  return execFileSync(file, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'], ...execOpts });
 }
 
 /** Export attachments from an existing .xcresult into exportDir (manifest.json + PNGs). */
-export function exportAttachments(xcresultPath, exportDir) {
+export function exportAttachments(xcresultPath, exportDir, { shImpl = sh } = {}) {
   fs.rmSync(exportDir, { recursive: true, force: true });
-  sh('xcrun', ['xcresulttool', 'export', 'attachments', '--path', xcresultPath, '--output-path', exportDir]);
+  shImpl('xcrun', ['xcresulttool', 'export', 'attachments', '--path', xcresultPath, '--output-path', exportDir]);
   return exportDir;
 }
 
@@ -38,7 +51,9 @@ export function unlockKeychain(password) {
     return;
   }
   try {
-    sh('security', ['unlock-keychain', '-p', password, `${process.env.HOME}/Library/Keychains/login.keychain-db`]);
+    sh('security', ['unlock-keychain', '-p', password, `${process.env.HOME}/Library/Keychains/login.keychain-db`], {
+      redact: [password],
+    });
   } catch (err) {
     process.stderr.write(`  keychain unlock failed (continuing, may already be unlocked): ${err.message}\n`);
   }
@@ -75,23 +90,40 @@ export function buildAndInstallApp(gameDir, deviceUdid, appBundleId) {
 
 /**
  * Step 3: generate + run the XCUITest runner against the device, export xcresult.
- * @returns {string} the export dir containing manifest.json + attachment PNGs
+ * @returns {{exportDir:string, testError:Error|null}} exported attachments plus
+ *   the xcodebuild test failure, if XCTest failed after writing device.xcresult
  */
-export function runXcuiTestAndExport({ runnerDir, deviceUdid, appBundleId, outDir, developmentTeam }) {
+export function runXcuiTestAndExport({
+  runnerDir, deviceUdid, appBundleId, outDir, developmentTeam, shImpl = sh,
+}) {
   const xcodeproj = path.join(runnerDir, 'VerifyDeviceRunner.xcodeproj');
-  if (!fs.existsSync(xcodeproj)) {
-    // The template ships project.yml; materialise the .xcodeproj with xcodegen.
-    sh('xcodegen', ['generate'], { cwd: runnerDir, env: { ...process.env, DEVELOPMENT_TEAM: developmentTeam || '' } });
-  }
+  // The template ships project.yml; materialise the .xcodeproj every run so a
+  // stale generated project cannot poison signing or runner settings.
+  shImpl('xcodegen', ['generate'], { cwd: runnerDir });
   const xcresult = path.join(outDir, 'device.xcresult');
   fs.rmSync(xcresult, { recursive: true, force: true });
-  sh('xcodebuild', [
-    'test', '-project', xcodeproj, '-scheme', 'VerifyDeviceRunner',
-    '-destination', `id=${deviceUdid}`, '-resultBundlePath', xcresult,
-    `TEST_RUNNER_TARGET_BUNDLE_ID=${appBundleId}`,
-  ]);
+  const buildSettings = developmentTeam ? [`DEVELOPMENT_TEAM=${developmentTeam}`] : [];
+  let testError = null;
+  try {
+    shImpl('xcodebuild', [
+      'test', '-project', xcodeproj, '-scheme', 'VerifyDeviceRunner',
+      '-destination', `id=${deviceUdid}`, '-allowProvisioningUpdates',
+      '-resultBundlePath', xcresult,
+      ...buildSettings,
+    ], {
+      env: { ...process.env, TEST_RUNNER_TARGET_BUNDLE_ID: appBundleId },
+    });
+  } catch (err) {
+    testError = err;
+    process.stderr.write(`  xcodebuild test failed; exporting xcresult attachments before failing: ${err.message}\n`);
+  }
   const exportDir = path.join(outDir, 'device-attachments');
-  fs.rmSync(exportDir, { recursive: true, force: true });
-  sh('xcrun', ['xcresulttool', 'export', 'attachments', '--path', xcresult, '--output-path', exportDir]);
-  return exportDir;
+  if (!fs.existsSync(xcresult)) {
+    if (testError) {
+      throw new Error(`xcodebuild test failed and did not produce ${xcresult}: ${testError.message}`);
+    }
+    throw new Error(`xcodebuild test did not produce ${xcresult}`);
+  }
+  exportAttachments(xcresult, exportDir, { shImpl });
+  return { exportDir, testError };
 }

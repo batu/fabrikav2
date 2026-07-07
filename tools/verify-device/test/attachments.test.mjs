@@ -43,6 +43,17 @@ describe('mapAttachmentsToStates', () => {
     expect(unmapped.map((u) => u.file)).toContain('g.png');
   });
 
+  it('maps fail-loud *-MISSING runner shots back to their intended state', () => {
+    const manifest = [{
+      attachments: [
+        { exportedFileName: 'missing.png', suggestedHumanReadableName: '6-fail-MISSING_0_uuid.png', timestamp: 100 },
+      ],
+    }];
+    const { byState, unmapped } = mapAttachmentsToStates(manifest);
+    expect(byState.fail.file).toBe('missing.png');
+    expect(unmapped).toEqual([]);
+  });
+
   it('is empty-safe', () => {
     expect(mapAttachmentsToStates([]).byState).toEqual({});
     expect(mapAttachmentsToStates(null).byState).toEqual({});
