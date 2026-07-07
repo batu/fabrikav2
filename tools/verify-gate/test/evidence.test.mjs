@@ -90,6 +90,26 @@ describe('readPanelEvidence', () => {
     }]);
   });
 
+  it('keeps verdict score and summary as advisory metadata', () => {
+    writeJson('docs/evidence/2026-07-07-device-verify/panel.json', {
+      game: 'marble_run',
+      lane: 'device',
+      generatedAt: '2026-07-07T10:00:00.000Z',
+      verdict: { pass: false, score: 45, summary: 'FAIL — panel median 45%' },
+      states: [],
+    });
+    expect(readPanelEvidence(dir)).toEqual([{
+      path: 'docs/evidence/2026-07-07-device-verify/panel.json',
+      valid: true,
+      game: 'marble_run',
+      lane: 'device',
+      generatedAtMs: Date.parse('2026-07-07T10:00:00.000Z'),
+      verdictPass: false,
+      verdictScore: 45,
+      verdictSummary: 'FAIL — panel median 45%',
+    }]);
+  });
+
   it('marks corrupt or legacy panels invalid rather than satisfying the gate', () => {
     write('docs/evidence/2026-07-07-device-verify/panel.json', 1000);
     writeJson('games/marble_run/evidence/run/panel.json', { verdict: { pass: true } }, 2000);
@@ -112,7 +132,7 @@ describe('freshness end-to-end (fs -> pure compare)', () => {
   it('FRESH panel (newer than change) is fresh -> would pass', () => {
     write('games/g/src/menu.ts', 3000);
     writeJson('docs/evidence/2026-07-07-device-verify/panel.json', {
-      game: 'g', lane: 'device', generatedAt: '1970-01-01T00:00:08.000Z', verdict: { pass: true },
+      game: 'g', lane: 'device', generatedAt: '1970-01-01T00:00:08.000Z', verdict: { pass: false },
     }, 8000);
     const { newestChangeMs } = newestVisualChangeMs(['games/g/src/menu.ts'], dir);
     expect(evidenceIsFresh(newestChangeMs, readPanelEvidence(dir), ['g'])).toBe(true);
