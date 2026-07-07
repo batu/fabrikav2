@@ -362,6 +362,9 @@
         gap: 8px;
         align-items: center;
       }
+      .mr-settings-actions--menu {
+        gap: 6px;
+      }
       .fab-modal-actions .fab-btn.mr-settings-action {
         width: min(220px, 68%);
         min-width: 0;
@@ -381,9 +384,33 @@
           0 4px 0 var(--fab-color-text-ink, #203050),
           0 5px 0 rgba(0, 0, 0, 0.15);
       }
+      .mr-settings-actions--menu .fab-btn.mr-settings-action--close {
+        width: min(286px, 86%);
+        font-size: 27px;
+      }
       .fab-modal-actions .fab-btn.mr-settings-action:active:not(:disabled) {
         transform: translateY(3px);
         box-shadow: none;
+      }
+      .mr-settings-reset {
+        pointer-events: auto;
+        cursor: pointer;
+        border: 0;
+        padding: 0 6px 2px;
+        background: transparent;
+        color: var(--fab-color-text-ink, #203050);
+        font-family: 'Titan One', var(--fab-font-family, system-ui, sans-serif);
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 1.1;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+        text-decoration-line: underline;
+        text-decoration-thickness: 2px;
+        text-underline-offset: 4px;
+      }
+      .mr-settings-reset:active {
+        transform: translateY(1px);
       }
       @media (max-width: 360px), (max-height: 740px) {
         .fab-modal-card.mr-settings-card {
@@ -429,6 +456,13 @@
         .fab-modal-actions .fab-btn.mr-settings-action {
           width: min(198px, 68%);
           font-size: 21px;
+        }
+        .mr-settings-actions--menu .fab-btn.mr-settings-action--close {
+          width: min(248px, 84%);
+          font-size: 24px;
+        }
+        .mr-settings-reset {
+          font-size: 14px;
         }
       }
 

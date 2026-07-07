@@ -29,8 +29,11 @@ const PAUSE_CARD = '.fab-pause-card';
 const SETTINGS_CARD = '.mr-settings-card';
 
 interface Harness {
+  gotoMenu(): void;
+  gotoState(state: string): void;
   startLevel(id: number): void;
   unlockAll(): void;
+  grantCoins(coins: number): void;
   snapshot(): { scene: string; status: string; inputReady: boolean; paused: boolean };
   solveStep(): unknown;
 }
@@ -86,9 +89,10 @@ test.describe('marble_run — real-click coverage across every screen', () => {
     const shell = await boot(page);
     await shell.openSettings();
     await expect(page.locator(SETTINGS_CARD)).toBeVisible({ timeout: 4000 });
-    await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-restart"]`)).toBeVisible();
-    await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-home"]`)).toBeVisible();
-    await expect(page.locator(`${SETTINGS_CARD}`).getByText('Reset Progress')).toHaveCount(0);
+    await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-close-cta"]`)).toBeVisible();
+    await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-reset"]`)).toBeVisible();
+    await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-restart"]`)).toHaveCount(0);
+    await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-home"]`)).toHaveCount(0);
 
     // The real user-clickable control is the visible `.fab-toggle-switch` label
     // (the `<input>` itself is opacity-0/zero-size — see SURPRISES). Clicking the
@@ -100,14 +104,41 @@ test.describe('marble_run — real-click coverage across every screen', () => {
       await page.locator(`${row} .fab-toggle-switch`).click();
       await expect(input).toBeChecked({ checked: !before });
     }
-    await shell.settingsClose();
+    await shell.settingsCloseCta();
     await expect(page.locator(SETTINGS_CARD)).toBeHidden({ timeout: 4000 });
   });
 
-  test('settings: restart starts the current level from the menu modal', async ({ page }) => {
-    const shell = await boot(page);
+  test('menu settings: reset progress link resets progress and returns to the menu', async ({ page }) => {
+    await boot(page);
+    await callHarness<Harness, null, void>(page, WINDOW_KEY, (h) => h.unlockAll(), null);
+    await callHarness<Harness, number, void>(page, WINDOW_KEY, (h, coins) => h.grantCoins(coins), 25);
+    await enterLevel(page, 1);
+    await callHarness<Harness, null, void>(page, WINDOW_KEY, (h) => h.gotoMenu(), null);
+    await expect(page.locator('[data-fab-action="play"]')).toBeVisible({ timeout: 4000 });
+    await expect(page.locator('[data-fab-action="play"]')).not.toHaveText('Level 1');
+    await expect(page.locator('.mr-coin-pill-value')).toHaveText('25');
+
+    const shell = new SharedShellDriver(page);
     await shell.openSettings();
     await expect(page.locator(SETTINGS_CARD)).toBeVisible({ timeout: 4000 });
+    await shell.settingsReset();
+    await expect(page.locator(SETTINGS_CARD)).toBeHidden({ timeout: 4000 });
+    await expect(page.locator('[data-fab-action="play"]')).toHaveText('Level 1');
+    await expect(page.locator('.mr-coin-pill-value')).toHaveText('0');
+  });
+
+  test('paused settings: restart starts the current level from the in-level modal', async ({ page }) => {
+    await boot(page);
+    await enterLevel(page, 1);
+    const shell = new SharedShellDriver(page);
+    await page.locator(HUD_PAUSE).click();
+    await expect(page.locator(PAUSE_CARD)).toBeVisible({ timeout: 4000 });
+    await shell.pauseSettings();
+    await expect(page.locator(SETTINGS_CARD)).toBeVisible({ timeout: 4000 });
+    await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-restart"]`)).toBeVisible();
+    await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-home"]`)).toBeVisible();
+    await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-close-cta"]`)).toHaveCount(0);
+    await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-reset"]`)).toHaveCount(0);
     await shell.settingsRestart();
     await expect(page.locator('#hud .mr-hud')).toBeVisible({ timeout: 8000 });
   });
@@ -120,6 +151,10 @@ test.describe('marble_run — real-click coverage across every screen', () => {
     await expect(page.locator(PAUSE_CARD)).toBeVisible({ timeout: 4000 });
     await shell.pauseSettings();
     await expect(page.locator(SETTINGS_CARD)).toBeVisible({ timeout: 4000 });
+    await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-restart"]`)).toBeVisible();
+    await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-home"]`)).toBeVisible();
+    await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-close-cta"]`)).toHaveCount(0);
+    await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-reset"]`)).toHaveCount(0);
     await shell.settingsHome();
     await expect(page.locator('[data-fab-action="play"]')).toBeVisible({ timeout: 4000 });
     await expect(page.locator(SETTINGS_CARD)).toBeHidden({ timeout: 4000 });
@@ -158,6 +193,10 @@ test.describe('marble_run — real-click coverage across every screen', () => {
     await expect(page.locator(PAUSE_CARD)).toBeVisible({ timeout: 4000 });
     await shell.pauseSettings();
     await expect(page.locator(SETTINGS_CARD)).toBeVisible({ timeout: 4000 });
+    await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-restart"]`)).toBeVisible();
+    await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-home"]`)).toBeVisible();
+    await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-close-cta"]`)).toHaveCount(0);
+    await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-reset"]`)).toHaveCount(0);
   });
 
   test('pause: pauseQuit() really returns to the menu', async ({ page }) => {

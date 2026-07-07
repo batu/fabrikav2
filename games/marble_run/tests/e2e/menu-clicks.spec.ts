@@ -43,10 +43,12 @@ test.describe('marble_run — menu buttons are really clickable (P1a)', () => {
     await expect(card).toBeVisible({ timeout: 4000 });
     await expect(card.locator('.fab-modal-ribbon')).toBeVisible();
     await expect(card.locator('[data-fab-action="settings-close"]')).toBeVisible();
-    await expect(card.locator('[data-fab-action="settings-restart"]')).toBeVisible();
-    await expect(card.locator('[data-fab-action="settings-home"]')).toBeVisible();
+    await expect(card.locator('[data-fab-action="settings-close-cta"]')).toBeVisible();
+    await expect(card.locator('[data-fab-action="settings-reset"]')).toBeVisible();
+    await expect(card.locator('[data-fab-action="settings-restart"]')).toHaveCount(0);
+    await expect(card.locator('[data-fab-action="settings-home"]')).toHaveCount(0);
     await expect(card.locator('.fab-toggle-row')).toHaveCount(3);
-    await expect(card.getByText('Reset Progress')).toHaveCount(0);
+    await expect(card.getByText('Reset Progress')).toBeVisible();
   });
 
   test('coin pill: a REAL click opens the shop', async ({ page }) => {

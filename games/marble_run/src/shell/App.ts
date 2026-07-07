@@ -447,10 +447,9 @@ export class App {
   }
 
   /**
-   * Settings surface. The Android reference (refs/.../settings.png) is a MODAL
-   * over the dimmed menu — blue card, orange ribbon, blue X close, green
-   * toggles, and RESTART/HOME buttons. Composed from ModalShell + the wave-A
-   * ToggleRows (compose, not rebuild).
+   * Settings surface. The Android references are two variants over the same
+   * card chrome: menu settings closes/resets progress, while paused in-level
+   * settings restarts/goes home. Both compose ModalShell + ToggleRows.
    */
   private openSettings(inGame: boolean): void {
     const togglesSection = document.createElement('div');
@@ -500,7 +499,23 @@ export class App {
 
   private buildSettingsActions(inGame: boolean): HTMLElement {
     const actions = document.createElement('div');
-    actions.className = 'fab-modal-actions mr-settings-actions';
+    actions.className = `fab-modal-actions mr-settings-actions ${
+      inGame ? 'mr-settings-actions--inlevel' : 'mr-settings-actions--menu'
+    }`;
+    if (!inGame) {
+      actions.append(
+        this.buildSettingsAction({
+          label: copy['settings.close'],
+          image: assetUrls.buttonPrimary,
+          className: 'mr-settings-action--close',
+          dataAction: 'settings-close-cta',
+          onClick: () => this.pageStack.pop(),
+        }),
+        this.buildSettingsResetAction(),
+      );
+      return actions;
+    }
+
     actions.append(
       this.buildSettingsAction({
         label: copy['settings.restart'],
@@ -518,6 +533,16 @@ export class App {
       }),
     );
     return actions;
+  }
+
+  private buildSettingsResetAction(): HTMLButtonElement {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'mr-settings-reset';
+    button.dataset.fabAction = 'settings-reset';
+    button.textContent = copy['settings.reset'];
+    button.addEventListener('click', () => this.resetProgressFromSettings());
+    return button;
   }
 
   private buildSettingsAction(opts: {
@@ -546,6 +571,12 @@ export class App {
   private homeFromSettings(): void {
     this.pageStack.pop();
     this.toMenu();
+  }
+
+  private resetProgressFromSettings(): void {
+    saveState.resetProgress();
+    this.pageStack.pop();
+    this.renderMenu();
   }
 
   // ── Transitions (guarded) ───────────────────────────────────────

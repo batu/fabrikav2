@@ -41,7 +41,13 @@ export const SHELL_HOOKS = {
   /** ResultCard actions (consumer sets these on the injected ModalActions). */
   result: { next: 'result-next', retry: 'result-retry', menu: 'result-menu' },
   /** Settings modal actions. */
-  settings: { close: 'settings-close', restart: 'settings-restart', home: 'settings-home' },
+  settings: {
+    close: 'settings-close',
+    closeCta: 'settings-close-cta',
+    restart: 'settings-restart',
+    home: 'settings-home',
+    reset: 'settings-reset',
+  },
   /** PageShell back button (added additively to PageShell). */
   back: 'back',
   /** ShopPage restore control (added additively to ShopPage). */
@@ -112,11 +118,17 @@ export class SharedShellDriver {
   settingsClose(): Promise<void> {
     return this.action(SHELL_HOOKS.settings.close).click();
   }
+  settingsCloseCta(): Promise<void> {
+    return this.action(SHELL_HOOKS.settings.closeCta).click();
+  }
   settingsRestart(): Promise<void> {
     return this.action(SHELL_HOOKS.settings.restart).click();
   }
   settingsHome(): Promise<void> {
     return this.action(SHELL_HOOKS.settings.home).click();
+  }
+  settingsReset(): Promise<void> {
+    return this.action(SHELL_HOOKS.settings.reset).click();
   }
   restorePurchases(): Promise<void> {
     return this.action(SHELL_HOOKS.shopRestore).click();
