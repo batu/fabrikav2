@@ -3,6 +3,9 @@ import {
   hasDoneLanguage,
   detectUnverified,
   isVisualFile,
+  isDocsMarkdownFile,
+  isRubberStampExempt,
+  decideRubberStamp,
   gamesFromVisualFiles,
   evidenceIsFresh,
 } from '../src/classify.mjs';
@@ -83,6 +86,48 @@ describe('isVisualFile', () => {
     expect(isVisualFile('packages/engine/index.ts')).toBe(false);
     expect(isVisualFile('docs/AGENT-HANDOFF.md')).toBe(false);
   });
+  it('narrowly excludes games/_template because it is scaffold, not an installable game', () => {
+    expect(isVisualFile('games/_template/src/main.ts')).toBe(false);
+    expect(isVisualFile('games/_template/design/tokens.json')).toBe(false);
+    expect(isVisualFile('games/marble_run/src/main.ts')).toBe(true);
+  });
+});
+
+describe('rubber-stamp docs-only gate', () => {
+  it('recognizes only Markdown under docs/', () => {
+    expect(isDocsMarkdownFile('docs/brainstorms/example.md')).toBe(true);
+    expect(isDocsMarkdownFile('docs/plans/nested/example.md')).toBe(true);
+    expect(isDocsMarkdownFile('games/marble_run/README.md')).toBe(false);
+    expect(isDocsMarkdownFile('docs/assets/example.png')).toBe(false);
+  });
+
+  it('exempts doc/research/spike cards by label or title prefix', () => {
+    expect(isRubberStampExempt({ cardLabels: ['research'] })).toBe(true);
+    expect(isRubberStampExempt({ cardLabels: [{ name: 'Documentation' }] })).toBe(true);
+    expect(isRubberStampExempt({ cardTitle: 'RESEARCH: measure funnel drift' })).toBe(true);
+    expect(isRubberStampExempt({ cardTitle: 'PROCESS: land implementation guard' })).toBe(false);
+  });
+
+  it('fails non-exempt docs-only implementation diffs', () => {
+    const decision = decideRubberStamp({
+      changedFiles: ['docs/brainstorms/example.md', 'docs/plans/example.md'],
+      cardTitle: 'MACHINERY 4: land gate',
+      cardLabels: [],
+    });
+    expect(decision.ok).toBe(false);
+    expect(decision.reason).toMatch(/rubber-stamp/);
+  });
+
+  it('passes docs-only diffs for explicit doc/research work and passes mixed diffs', () => {
+    expect(decideRubberStamp({
+      changedFiles: ['docs/research/example.md'],
+      cardLabels: ['research'],
+    }).ok).toBe(true);
+    expect(decideRubberStamp({
+      changedFiles: ['docs/brainstorms/example.md', 'tools/verify-gate/src/classify.mjs'],
+      cardTitle: 'MACHINERY 4: land gate',
+    }).ok).toBe(true);
+  });
 });
 
 describe('gamesFromVisualFiles', () => {
@@ -112,17 +157,29 @@ describe('evidenceIsFresh', () => {
   it('no stat-able visual change time => not fresh (deleted files fail closed)', () => {
     expect(evidenceIsFresh(null, [])).toBe(false);
   });
-  it('requires a matching fresh passing device panel for each affected game', () => {
+  it('requires a matching fresh device panel for each affected game', () => {
     const panels = [
       { valid: true, game: 'other', lane: 'device', verdictPass: true, generatedAtMs: 2000 },
       { valid: true, game: 'marble_run', lane: 'browser', verdictPass: true, generatedAtMs: 2000 },
-      { valid: true, game: 'marble_run', lane: 'device', verdictPass: false, generatedAtMs: 2000 },
       { valid: true, game: 'marble_run', lane: 'device', verdictPass: true, generatedAtMs: 500 },
     ];
     expect(evidenceIsFresh(1000, panels, ['marble_run'])).toBe(false);
     expect(evidenceIsFresh(1000, [
       ...panels,
-      { valid: true, game: 'marble_run', lane: 'device', verdictPass: true, generatedAtMs: 2000 },
+      { valid: true, game: 'marble_run', lane: 'device', verdictPass: false, generatedAtMs: 2000 },
+    ], ['marble_run'])).toBe(true);
+  });
+
+  it('treats verdict failure as informational for fresh device observations', () => {
+    expect(evidenceIsFresh(1000, [
+      {
+        valid: true,
+        game: 'marble_run',
+        lane: 'device',
+        verdictPass: false,
+        verdictScore: 45,
+        generatedAtMs: 2000,
+      },
     ], ['marble_run'])).toBe(true);
   });
 });

@@ -17,6 +17,10 @@ export function bootGame(mountInto: HTMLElement) {
   return { machine, screen, config: gameConfig };
 }
 
+export function harnessWindowKeyForGame(gameId: string): string {
+  return `__${gameId.toUpperCase()}_HARNESS__`;
+}
+
 // Non-production (or explicit opt-in) gate for the debug harness — mirrors
 // marble_run's `core/Constants.ts` `TEST_HARNESS_ENABLED` (card vFSI5FwY: a
 // fresh `create-game` output must be device-verifiable out of the box, not
@@ -32,12 +36,13 @@ if (appRoot) {
   bootGame(appRoot);
 
   if (TEST_HARNESS_ENABLED) {
-    // Fixed, game-agnostic window key (no create-game substitution needed —
-    // `@fabrikav2/testkit/playwright` `waitForHarness` takes the key as a
-    // caller-supplied argument, not a hardcoded name).
+    // Match tools/verify-device's browser-lane convention:
+    // __${manifest.game.toUpperCase()}_HARNESS__. create-game keeps
+    // manifest.game aligned with gameConfig.id.
+    const harnessWindowKey = harnessWindowKeyForGame(gameConfig.id);
     const harness = createTemplateHarness({ buildVersion: "dev", packageId: `com.fabrikav2.${gameConfig.id}` });
     assignWindowBindings(window as unknown as Record<string, unknown>, {
-      __GAME_HARNESS__: harness,
+      [harnessWindowKey]: harness,
     });
     void import("./testing/insituTour.ts").then(({ maybeRunInsituTour }) => maybeRunInsituTour(harness));
   }

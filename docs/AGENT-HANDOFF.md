@@ -132,32 +132,42 @@ See the requirements brainstorm for the full grounded read:
   `tourstate:<s>` — byte-exact with the element-gate contract
   `tools/verify-device/runner/VerifyDeviceRunner/InsituTourTests.swift` waits
   on. Dropped marble_run's non-`allstates` scripted win/fail dwell path — out of
-  scope; a fresh template has no solver-bound win/fail to demo yet.
+  scope. Hi6nHsXv ruling: this allstates tour is a deterministic scripted
+  fixture with a fixed state list and no judgment. It is permitted only because
+  XCUITest cannot call JS directly inside WKWebView; any future branching,
+  heuristic choice, visual judgment, retry policy, or convergence loop in the
+  bundle violates the autonomy law and belongs in an agent or external
+  one-shot tool that returns.
 - **`games/_template/src/shell/harness.ts`** — added `driveTo(state)`, wiring
-  `../testing/driveTo.ts`'s deps to the template's placeholder transitions
-  (`gotoMenu`/`openSettings`/`pause` are `TODO(port)` no-ops; `startLevel`
-  delegates to the existing placeholder; `autoWin`/`autoFail` delegate to
-  `winLevel`/`failLevel`, which already return `false`). Exposed on the
-  returned `TemplateHarness` (the contract already typed `driveTo` optional).
+  `../testing/driveTo.ts`'s deps to a tiny deterministic placeholder state model
+  using kernel FlowState names (`menu`/`playing`/`complete`/`failed`/`paused`).
+  `gotoMenu`/`startLevel`/`openSettings`/`pause` mutate that state;
+  `winLevel`/`failLevel` flip `playing` to `complete`/`failed` and resolve true
+  only after `snapshot()` confirms the target. Exposed on the returned
+  `TemplateHarness` (the contract already typed `driveTo` optional).
 - **`games/_template/src/main.ts`** — closed the orphan-stub gap: added a
   `TEST_HARNESS_ENABLED` gate (mirrors marble_run's `core/Constants.ts`),
   calls `createTemplateHarness(...)` (previously never invoked anywhere),
-  `assignWindowBindings(window, { __GAME_HARNESS__: harness })`, and lazily
-  imports + runs `maybeRunInsituTour(harness)`. A fresh game's harness is now
-  actually mounted and drivable, not just compiled.
+  derives the verify-device-compatible `__${gameConfig.id.toUpperCase()}_HARNESS__`
+  key, assigns that binding, and lazily imports + runs
+  `maybeRunInsituTour(harness)`. A fresh game's harness is now actually mounted
+  and drivable, not just compiled.
 - **`games/_template/refs/manifest.yaml`** — a refcap-compare manifest stub
   (valid against `tools/refcap-compare/src/manifest.mjs` `loadManifest`): all
   six canonical states, each lane (`reference`/`v2`) declaring an explicit
   `gap:` (a fresh game has zero captures) plus a `driveTo:` target for the v2
-  lane. `reference.package`/`v2.package`/the top-level `game:` field are
-  placeholders a port edits by hand (same posture as `game.config.ts`'s
-  per-game fields — `create-game` does not substitute them).
+  lane. `create-game` substitutes the top-level `game:` field and `v2.package`
+  so the manifest game id, `game.config.ts` id, and browser-lane harness key
+  stay aligned from the first scaffold.
 - **`games/_template/tests/unit/drive-to.test.ts`** — headless unit test for
   the pure `driveTo`, against a fake deps object (not a real FlowMachine, since
-  the template's own harness deps are still `TODO(port)` no-ops): all six
-  states reach + confirm against the fake, unknown state honestly returns
-  `false`, and a terminal driver that never transitions honestly times out to
-  `false` (the confirm-before-resolve contract).
+  the template has no real game engine): all six states reach + confirm against
+  the fake and the real `createTemplateHarness`, unknown state honestly returns
+  `false`, terminal drivers that lie or never transition time out to `false`,
+  and a never-ready input gate prevents terminal drivers from being trusted.
+  `tests/unit/insitu-tour.test.ts` covers allstates drive order, true markers,
+  `-FAILED` markers, off-screen marker details, done sentinel, and no-script
+  no-op.
 
 ## Decisions on the brainstorm's open questions
 
@@ -167,22 +177,24 @@ See the requirements brainstorm for the full grounded read:
   unchanged. No mapping table was needed — `driveTo`'s deps interface never
   references `gameConfig.screens` at all, so the two vocabularies coexist
   without merging.
-- **Transition bodies (Q2):** template `driveTo` deps are `TODO(port)`
-  placeholders (mirrors `winLevel`/`failLevel`'s existing `return false`) —
-  confirm-before-resolve stays load-bearing, so an un-ported template's
-  `driveTo` honestly returns `false` for every state rather than faking a pass.
-- **Window-binding key (Q3):** fixed `__GAME_HARNESS__`, not derived from
-  `gameConfig.id`. `@fabrikav2/testkit/playwright`'s `waitForHarness` takes the
-  window key as a caller argument, not a hardcoded name, so no `create-game`
-  substitution step is needed — simpler than templating the key.
+- **Transition bodies (Q2):** Hi6nHsXv replaced the TODO no-op placeholder
+  with a deterministic in-memory state model. A fresh template now returns true
+  for `driveTo(menu|level|settings|pause|win|fail)` only after snapshot-confirmed
+  state mutation.
+- **Window-binding key (Q3):** Hi6nHsXv aligned to `tools/verify-device`:
+  `main.ts` derives `__${gameConfig.id.toUpperCase()}_HARNESS__`, while
+  `create-game` rewrites `refs/manifest.yaml` so `manifest.game` equals
+  `gameConfig.id`. A scaffolded `my_game` therefore exposes
+  `__MY_GAME_HARNESS__`, matching the browser-lane convention.
 - **Linter enforcement (Q4):** did **not** extend `tools/audit/src/harness.js`.
   It already passes for the template (`snapshot`/`verbs`/`winLevel`/`failLevel`
   tokens were already present) and adding `driveTo`/marker/manifest checks
   would be new WARN-first scope beyond this card's ask; the unit test +
   `create-game` round-trip below are the enforcement for now. Revisit as a
   follow-up if a future card wants the AC machine-gated.
-- **Manifest (Q5):** hand-authored stub (marble_run's own manifest is also
-  hand-authored; no generator exists).
+- **Manifest (Q5):** the stub remains hand-authored, but create-game now
+  substitutes the game id and `v2.package` during scaffold so fresh games are
+  key-aligned without manual manifest edits.
 - **e2e scope (Q6):** did not add a tour/collect-run e2e spec — the existing
   `playwright.config.ts` + `tests/e2e/boot.spec.ts` already covers "inherit the
   full test setup" per the AC; porting marble_run's e2e suite was explicitly

@@ -120,6 +120,20 @@ describe('driveTo — deterministic per-state navigation', () => {
     expect(deps.snapshot().scene).toBe('playing');
   });
 
+  it.each([
+    ['win', 'autoWin'] as const,
+    ['fail', 'autoFail'] as const,
+  ])('returns false when %s driver claims success but snapshot stays playing', async (state, driver) => {
+    const { deps } = makeFakeApp({
+      [driver]: async () => true,
+    });
+
+    const reached = await driveTo(deps, state, { pollMs: 0, maxPolls: 3, sleep: instantSleep });
+
+    expect(reached).toBe(false);
+    expect(deps.snapshot().scene).toBe('playing');
+  });
+
   it('waits for inputReady before running the solver', async () => {
     const machine = createFlowMachine({ optionalStates: ['levelSelect', 'paused'] });
     machine.toMenu();

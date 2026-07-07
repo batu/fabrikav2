@@ -19,10 +19,10 @@ afterEach(() => {
   fs.rmSync(dir, { recursive: true, force: true });
 });
 
-function runCli() {
+function runCli(env = {}) {
   return spawnSync(process.execPath, [CLI], {
     cwd: dir,
-    env: { ...process.env, VERIFY_GATE_PROJECT_DIR: dir },
+    env: { ...process.env, VERIFY_GATE_PROJECT_DIR: dir, ...env },
     encoding: 'utf8',
   });
 }
@@ -57,7 +57,55 @@ describe('merge-gate CLI', () => {
     expect(res.stderr).toMatch(/origin\/main or main/);
   });
 
-  it('PASSES a visual diff only with a fresh matching passing device panel', () => {
+  it('FAILS when the worktree has uncommitted changes', () => {
+    git('init -q -b main');
+    git('config user.email t@t.t');
+    git('config user.name t');
+    write('README.md', 'base');
+    git('add -A');
+    git('commit -q -m base');
+    git('checkout -q -b feature');
+    write('src/work.ts', 'uncommitted');
+    const res = runCli();
+    expect(res.status).toBe(1);
+    expect(res.stderr).toMatch(/uncommitted worktree/);
+    expect(res.stderr).toContain('src/work.ts');
+  });
+
+  it('FAILS a non-exempt docs-only implementation diff', () => {
+    git('init -q -b main');
+    git('config user.email t@t.t');
+    git('config user.name t');
+    write('README.md', 'base');
+    git('add -A');
+    git('commit -q -m base');
+    git('checkout -q -b feature');
+    write('docs/brainstorms/requirements.md', '# Requirements\n');
+    git('add -A');
+    git('commit -q -m "docs: requirements only"');
+    const res = runCli({ VERIFY_GATE_CARD_TITLE: 'MACHINERY 4: implementation card' });
+    expect(res.status).toBe(1);
+    expect(res.stderr).toMatch(/rubber-stamp/);
+    expect(res.stderr).toContain('docs/brainstorms/requirements.md');
+  });
+
+  it('PASSES a docs-only diff when card labels mark it as research', () => {
+    git('init -q -b main');
+    git('config user.email t@t.t');
+    git('config user.name t');
+    write('README.md', 'base');
+    git('add -A');
+    git('commit -q -m base');
+    git('checkout -q -b feature');
+    write('docs/research/note.md', '# Note\n');
+    git('add -A');
+    git('commit -q -m "docs: research note"');
+    const res = runCli({ VERIFY_GATE_CARD_LABELS: 'research' });
+    expect(res.status).toBe(0);
+    expect(res.stdout).toMatch(/PASS/);
+  });
+
+  it('PASSES a visual diff with a fresh matching device panel even when verdict fails', () => {
     git('init -q -b main');
     git('config user.email t@t.t');
     git('config user.name t');
@@ -70,11 +118,15 @@ describe('merge-gate CLI', () => {
       game: 'g',
       lane: 'device',
       generatedAt: '1970-01-01T00:00:02.000Z',
-      verdict: { pass: true },
+      verdict: { pass: false, score: 45, summary: 'FAIL — panel median 45%' },
       states: [],
     }), 2000);
+    git('add -A');
+    git('commit -q -m "feat: visual change with evidence"');
     const res = runCli();
     expect(res.status).toBe(0);
     expect(res.stdout).toMatch(/PASS/);
+    expect(res.stdout).toMatch(/verdict FAIL/);
+    expect(res.stdout).toMatch(/45/);
   });
 });

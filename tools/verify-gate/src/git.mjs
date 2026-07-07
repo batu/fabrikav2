@@ -25,6 +25,31 @@ function lines(res) {
     .filter(Boolean);
 }
 
+function porcelainPath(line) {
+  let file = String(line || '').slice(3);
+  if (file.includes(' -> ')) {
+    const parts = file.split(' -> ');
+    file = parts[parts.length - 1];
+  }
+  return file.trim().replace(/^"|"$/g, '');
+}
+
+/**
+ * Dirty paths in the current worktree, including staged, unstaged, and
+ * untracked files. Landing gates are fail-closed: if git status cannot run,
+ * callers should treat that as a red gate.
+ * @param {(cmd:string)=>{ok:boolean, stdout:string}} run
+ * @returns {{ok:true, files:string[]}|{ok:false, error:string}}
+ */
+export function dirtyFiles(run) {
+  const status = run('git status --porcelain --untracked-files=all');
+  if (!status.ok) {
+    return { ok: false, error: 'git status --porcelain --untracked-files=all failed' };
+  }
+  const rawLines = status.stdout.split('\n').filter((line) => line.trim() !== '');
+  return { ok: true, files: [...new Set(rawLines.map(porcelainPath))] };
+}
+
 /**
  * Files changed between the merge-base with origin/main (or main) and the
  * working tree — includes committed, staged, and unstaged changes, PLUS

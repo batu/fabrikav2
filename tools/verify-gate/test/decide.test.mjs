@@ -28,7 +28,7 @@ describe('decideStop — the block gate', () => {
   it('PASSES when fresh evidence covers the change', () => {
     const d = decideStop({
       ...base,
-      panelEvidence: [{ valid: true, game: 'marble_run', lane: 'device', verdictPass: true, generatedAtMs: 3000 }],
+      panelEvidence: [{ valid: true, game: 'marble_run', lane: 'device', verdictPass: false, generatedAtMs: 3000 }],
     });
     expect(d.action).toBe('pass');
     expect(d.reason).toMatch(/fresh/);
@@ -94,6 +94,38 @@ describe('decideMerge — the ship-time backstop', () => {
     gamesDirPresent: true,
   };
 
+  it('FAILS when the worktree has uncommitted changes', () => {
+    const d = decideMerge({ ...mbase, worktreeDirtyFiles: ['src/work.ts'] });
+    expect(d.ok).toBe(false);
+    expect(d.reason).toMatch(/uncommitted worktree/);
+    expect(d.dirtyFiles).toEqual(['src/work.ts']);
+  });
+
+  it('FAILS a non-exempt implementation card whose diff is only docs/**/*.md', () => {
+    const d = decideMerge({
+      ...mbase,
+      changedFiles: ['docs/brainstorms/requirements.md', 'docs/plans/plan.md'],
+      cardTitle: 'MACHINERY 4: land gate',
+      cardLabels: [],
+    });
+    expect(d.ok).toBe(false);
+    expect(d.reason).toMatch(/rubber-stamp/);
+    expect(d.docsOnlyFiles).toEqual(['docs/brainstorms/requirements.md', 'docs/plans/plan.md']);
+  });
+
+  it('PASSES docs-only diffs when the card is explicitly doc/research-exempt', () => {
+    expect(decideMerge({
+      ...mbase,
+      changedFiles: ['docs/research/note.md'],
+      cardLabels: ['research'],
+    }).ok).toBe(true);
+    expect(decideMerge({
+      ...mbase,
+      changedFiles: ['docs/brainstorms/note.md'],
+      cardTitle: 'DOCS: refresh handoff',
+    }).ok).toBe(true);
+  });
+
   it('FAILS when the only evidence is UNVERIFIED ledger entries', () => {
     const d = decideMerge({ ...mbase, ledgerEntryCount: 3 });
     expect(d.ok).toBe(false);
@@ -113,11 +145,29 @@ describe('decideMerge — the ship-time backstop', () => {
     }).ok).toBe(true);
   });
 
-  it('FAILS for cross-game, browser-lane, failing, corrupt, and stale panels', () => {
+  it('PASSES F4 scenario: fresh marble_run device panel with failing verdict', () => {
+    const d = decideMerge({
+      ...mbase,
+      panelEvidence: [{
+        valid: true,
+        game: 'marble_run',
+        lane: 'device',
+        verdictPass: false,
+        verdictScore: 45,
+        verdictSummary: 'FAIL — panel median 45%',
+        generatedAtMs: 3000,
+      }],
+    });
+    expect(d.ok).toBe(true);
+    expect(d.reason).toMatch(/observed the visual change on device/);
+    expect(d.reason).toMatch(/verdict FAIL/);
+    expect(d.reason).toMatch(/45/);
+  });
+
+  it('FAILS for cross-game, browser-lane, corrupt, and stale panels', () => {
     const badPanels = [
       [{ valid: true, game: 'other', lane: 'device', verdictPass: true, generatedAtMs: 3000 }],
       [{ valid: true, game: 'marble_run', lane: 'browser', verdictPass: true, generatedAtMs: 3000 }],
-      [{ valid: true, game: 'marble_run', lane: 'device', verdictPass: false, generatedAtMs: 3000 }],
       [{ valid: false, error: 'panel is not valid JSON' }],
       [{ valid: true, game: 'marble_run', lane: 'device', verdictPass: true, generatedAtMs: 1000 }],
     ];

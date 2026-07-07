@@ -33,6 +33,19 @@ export const UNVERIFIED_RE = /UNVERIFIED:[ \t]*([^\n]*)/;
  *  verify-device evidence. Card-specified. */
 export const VISUAL_GLOBS = ['games/*/src/**', 'games/*/design/**', 'packages/ui/**'];
 
+export const RUBBER_STAMP_EXEMPT_LABELS = [
+  'doc',
+  'docs',
+  'documentation',
+  'research',
+  'brainstorm',
+  'brainstorming',
+  'spike',
+];
+
+export const RUBBER_STAMP_EXEMPT_PREFIX_RE =
+  /^\s*(?:DOCS?|DOCUMENTATION|RESEARCH|BRAINSTORM(?:ED|ING)?|SPIKE)\s*[:-]/i;
+
 // Minimal glob -> RegExp (no dependency). `**` -> any chars incl. `/`;
 // `*` -> any chars except `/`; everything else literal.
 function globToRegExp(glob) {
@@ -58,10 +71,62 @@ function globToRegExp(glob) {
 
 const VISUAL_RES = VISUAL_GLOBS.map(globToRegExp);
 
+function repoPath(file) {
+  return String(file || '').replace(/^\.\//, '');
+}
+
 /** True when a repo-relative path matches any visual glob. */
 export function isVisualFile(file) {
-  const f = String(file || '').replace(/^\.\//, '');
+  const f = repoPath(file);
+  // games/_template is scaffold source, not an installable game with an iOS
+  // platform. Its device proof path is scaffold-a-real-game, then verify that
+  // generated game; demanding device evidence for _template itself is impossible.
+  if (f.startsWith('games/_template/')) return false;
   return VISUAL_RES.some((re) => re.test(f));
+}
+
+/** True when the path is exactly under docs/ and is Markdown. */
+export function isDocsMarkdownFile(file) {
+  return /^docs\/.+\.md$/.test(repoPath(file));
+}
+
+function normalizeLabels(labels) {
+  return (labels || [])
+    .map((label) => {
+      if (typeof label === 'string') return label;
+      if (label && typeof label.name === 'string') return label.name;
+      return '';
+    })
+    .map((label) => label.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+/** Doc/research/spike cards may legitimately land docs-only diffs. */
+export function isRubberStampExempt({ cardTitle = '', cardLabels = [] } = {}) {
+  const exempt = new Set(RUBBER_STAMP_EXEMPT_LABELS);
+  if (normalizeLabels(cardLabels).some((label) => exempt.has(label))) return true;
+  return RUBBER_STAMP_EXEMPT_PREFIX_RE.test(String(cardTitle || ''));
+}
+
+/**
+ * Refuse implementation-card branches that changed only requirements/planning
+ * Markdown under docs/. This catches rubber-stamped "worked" stages that landed
+ * a plan/requirements doc but no implementation.
+ */
+export function decideRubberStamp({ changedFiles, cardTitle = '', cardLabels = [] }) {
+  const files = (changedFiles || []).map(repoPath).filter(Boolean);
+  if (files.length === 0) return { ok: true, reason: 'no changed files' };
+  if (!files.every(isDocsMarkdownFile)) {
+    return { ok: true, reason: 'diff includes non-docs implementation files' };
+  }
+  if (isRubberStampExempt({ cardTitle, cardLabels })) {
+    return { ok: true, reason: 'docs-only diff allowed for doc/research/spike card' };
+  }
+  return {
+    ok: false,
+    reason: 'rubber-stamp refusal: non-exempt implementation card changed only docs/**/*.md',
+    files,
+  };
 }
 
 /** True when the message makes a done/verified claim. */
@@ -95,13 +160,17 @@ export function gamesFromVisualFiles(files) {
 }
 
 /**
- * Evidence freshness: is there a passing device-lane verify-device panel newer
- * than the newest visual change for every affected game? A stale/corrupt/
- * cross-game/browser/failing panel does NOT count.
+ * Evidence freshness: is there a device-lane verify-device panel newer than the
+ * newest visual change for every affected game? The panel verdict/score is
+ * recorded for humans, but it is not the landing bar. Dogfooding found the
+ * previous `verdict.pass === true` requirement deadlocked fidelity fixes: a
+ * fresh marble_run device panel honestly reporting FAIL could not land the code
+ * needed to make that same panel pass. The merge/stop gate proves observation
+ * happened on the real device; the fidelity floor stays a phase/conductor bar.
  * @param {number|null} newestVisualMtimeMs newest changed-visual-file/change time
  * @param {Array|number[]} panelEvidence structured panel records, or legacy mtimes
  * @param {string[]} affectedGames game slugs extracted from visual files. When
- *   empty (e.g. packages/ui), any fresh passing device panel is accepted.
+ *   empty (e.g. packages/ui), any fresh device panel is accepted.
  */
 export function evidenceIsFresh(newestVisualMtimeMs, panelEvidence, affectedGames = []) {
   if (newestVisualMtimeMs == null) return false;
@@ -113,20 +182,56 @@ export function evidenceIsFresh(newestVisualMtimeMs, panelEvidence, affectedGame
     return panels.some((t) => t > newestVisualMtimeMs);
   }
 
-  const valid = panels.filter((p) =>
-    p && p.valid === true
-    && p.lane === 'device'
-    && p.verdictPass === true
-    && typeof p.generatedAtMs === 'number'
-    && p.generatedAtMs > newestVisualMtimeMs
-  );
+  const valid = freshDevicePanels(newestVisualMtimeMs, panels);
   if (affectedGames.length === 0) return valid.length > 0;
   return affectedGames.every((game) => valid.some((p) => p.game === game));
 }
 
+function freshDevicePanels(newestVisualMtimeMs, panels) {
+  return (panels || []).filter((p) =>
+    p && p.valid === true
+    && p.lane === 'device'
+    && typeof p.generatedAtMs === 'number'
+    && p.generatedAtMs > newestVisualMtimeMs
+  );
+}
+
+function bestPanelForGame(panels, game) {
+  const candidates = panels.filter((p) => p.game === game);
+  if (candidates.length === 0) return null;
+  return candidates.reduce((best, panel) => (
+    !best || panel.generatedAtMs > best.generatedAtMs ? panel : best
+  ), null);
+}
+
+function freshEvidenceDetails(newestVisualMtimeMs, panels, affectedGames = []) {
+  if (newestVisualMtimeMs == null) return [];
+  if ((panels || []).every((p) => typeof p === 'number')) return [];
+
+  const fresh = freshDevicePanels(newestVisualMtimeMs, panels);
+  if (affectedGames.length === 0) {
+    return fresh.length === 0
+      ? []
+      : [fresh.reduce((best, panel) => (
+          !best || panel.generatedAtMs > best.generatedAtMs ? panel : best
+        ), null)].filter(Boolean);
+  }
+  return affectedGames.map((game) => bestPanelForGame(fresh, game)).filter(Boolean);
+}
+
+function panelVerdictSummary(panel) {
+  const verdict = panel.verdictPass === true ? 'PASS' : 'FAIL';
+  const score = Number.isFinite(panel.verdictScore) ? `, score ${panel.verdictScore}%` : '';
+  const summary = panel.verdictSummary ? `, ${panel.verdictSummary}` : '';
+  return `${panel.game || 'unknown'}: verdict ${verdict}${score}${summary}`;
+}
+
 function freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs }) {
   const panels = panelEvidence || panelMtimesMs || [];
-  return evidenceIsFresh(newestVisualMtimeMs, panels, gamesFromVisualFiles(visualFiles));
+  const affectedGames = gamesFromVisualFiles(visualFiles);
+  const ok = evidenceIsFresh(newestVisualMtimeMs, panels, affectedGames);
+  const details = ok ? freshEvidenceDetails(newestVisualMtimeMs, panels, affectedGames) : [];
+  return { ok, details };
 }
 
 /**
@@ -166,8 +271,12 @@ export function decideStop({
     // Gate on the CLAIM, not the file: a refactor with no done-claim passes.
     return { action: 'pass', reason: 'visual change but no done-claim — not gated' };
   }
-  if (freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs })) {
-    return { action: 'pass', reason: 'fresh verify-device evidence covers the change' };
+  const fresh = freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs });
+  if (fresh.ok) {
+    const detail = fresh.details.length
+      ? ` (${fresh.details.map(panelVerdictSummary).join('; ')})`
+      : '';
+    return { action: 'pass', reason: `fresh verify-device evidence covers the change${detail}` };
   }
   return {
     action: 'block',
@@ -213,9 +322,27 @@ export function decideMerge({
   panelMtimesMs,
   panelEvidence,
   ledgerEntryCount = 0,
+  worktreeDirtyFiles = [],
+  cardTitle = '',
+  cardLabels = [],
   toolPresent,
   gamesDirPresent,
 }) {
+  if ((worktreeDirtyFiles || []).length > 0) {
+    return {
+      ok: false,
+      reason: 'uncommitted worktree changes cannot land: worker must commit or discard them before landing',
+      dirtyFiles: worktreeDirtyFiles,
+    };
+  }
+  const rubberStamp = decideRubberStamp({ changedFiles, cardTitle, cardLabels });
+  if (!rubberStamp.ok) {
+    return {
+      ok: false,
+      reason: rubberStamp.reason,
+      docsOnlyFiles: rubberStamp.files,
+    };
+  }
   if (!toolPresent || !gamesDirPresent) {
     return { ok: true, reason: 'self-disabled: verify-device tool or games/ dir absent' };
   }
@@ -223,8 +350,12 @@ export function decideMerge({
   if (visualFiles.length === 0) {
     return { ok: true, reason: 'no visual files in diff — merge gate not applicable' };
   }
-  if (freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs })) {
-    return { ok: true, reason: 'fresh verify-device panel.json covers the visual change' };
+  const fresh = freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs });
+  if (fresh.ok) {
+    const detail = fresh.details.length
+      ? ` (${fresh.details.map(panelVerdictSummary).join('; ')})`
+      : '';
+    return { ok: true, reason: `fresh verify-device panel.json observed the visual change on device${detail}` };
   }
   const detail = ledgerEntryCount > 0
     ? `the only evidence is ${ledgerEntryCount} UNVERIFIED ledger ${ledgerEntryCount === 1 ? 'entry' : 'entries'} `
