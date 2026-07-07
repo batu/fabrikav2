@@ -22,6 +22,13 @@ v2:
   version: dev
   viewport: 390x844
 
+# verify-device-only hygiene: iOS screenshots include the system status bar,
+# while the Android reference captures are fullscreen immersive. Crop the
+# physical-pixel status area from device captures before phash + panel judging;
+# raw captures are still preserved in the evidence directory.
+verifyDevice:
+  contentInsetTop: 130
+
 # Canonical states. Each state names a reference source and a v2 source.
 # offline: committed PNG consumed by `--offline` (the path the AC exercises).
 # recipe/driveTo: the live-lane instructions (coded, not run in the sandbox).

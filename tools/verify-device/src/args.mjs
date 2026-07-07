@@ -23,6 +23,12 @@ Options:
   --xcresult <path>    skip build/run; extract device captures from this .xcresult.
   --out <dir>          output dir (default docs/evidence/<date>-device-verify).
   --date <YYYY-MM-DD>  stamp used in the default --out and the HTML header.
+  --content-inset-top <px>
+                       crop this many physical pixels from the TOP of device
+                       captures before phash + panel judging. Overrides
+                       games/<game>/refs/manifest.yaml verifyDevice.contentInsetTop.
+                       Default: manifest value, else 0. Raw captures are still
+                       preserved in the evidence dir.
   --threshold <0..1>   phash diff changed-fraction above which a state is a FAIL
                        (default 0.20, advisory). Secondary signal — the vision
                        panel is the primary verdict.
@@ -61,7 +67,7 @@ the panel skips gracefully (exit 0) and on-device fidelity stays UNVERIFIED.
 /**
  * @param {string[]} argv process.argv.slice(2)
  * @returns {{game?:string, device?:string, captures?:string, xcresult?:string,
- *   out?:string, date?:string, threshold:number, ensemble:string, models?:string[],
+ *   out?:string, date?:string, contentInsetTop?:number, threshold:number, ensemble:string, models?:string[],
  *   panelThreshold:number, skipPanel:boolean, strict:boolean,
  *   skipDevice:boolean, lane:'device'|'browser', budgetFloor:number, help:boolean}}
  */
@@ -85,6 +91,7 @@ export function parseArgs(argv) {
     else if (a === '--xcresult') args.xcresult = req(argv, ++i, a);
     else if (a === '--out') args.out = req(argv, ++i, a);
     else if (a === '--date') args.date = req(argv, ++i, a);
+    else if (a === '--content-inset-top') args.contentInsetTop = parseContentInsetTop(req(argv, ++i, a));
     else if (a === '--threshold') args.threshold = parseThreshold(req(argv, ++i, a));
     else if (a === '--ensemble') args.ensemble = req(argv, ++i, a);
     else if (a === '--models') args.models = parseModels(req(argv, ++i, a));
@@ -112,6 +119,14 @@ function parseBudgetFloor(v) {
   const n = Number(v);
   if (!Number.isFinite(n) || n < 0) {
     throw new Error(`--budget-floor must be a non-negative number, got: ${v}`);
+  }
+  return n;
+}
+
+function parseContentInsetTop(v) {
+  const n = Number(v);
+  if (!Number.isInteger(n) || n < 0) {
+    throw new Error(`--content-inset-top must be a non-negative integer pixel value, got: ${v}`);
   }
   return n;
 }

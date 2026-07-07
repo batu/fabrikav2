@@ -23,11 +23,16 @@ npm run verify-device -- --game marble_run
 3. **Run the committed XCUITest runner** (`runner/`) — launches the installed app
    by bundle id, waits for each `tourstate:<state>` accessibility marker, captures
    the PNGs from the `.xcresult`, and still exports attachments when XCTest fails.
-4. **Diff device vs the committed reference set** (`games/<g>/refs/`, via the same
-   manifest `tools/refcap-compare` uses) → a **device|reference|pixel-diff grid** at
+4. **Prepare judged captures** — copy raw device PNGs to `raw-captures/`, then
+   crop the configured top content inset into `judged-captures/` before phash +
+   panel judging. Raw is the integrity/evidence artifact; judged is the artifact
+   sent to diff/panel.
+5. **Diff judged device captures vs the committed reference set** (`games/<g>/refs/`,
+   via the same manifest `tools/refcap-compare` uses) → a
+   **device|reference|pixel-diff grid** at
    `docs/evidence/<date>-device-verify/grid.html` + a **PASS/FAIL** summary (FAIL if
    a state is missing or its diff exceeds `--threshold`, default advisory).
-5. **Print the grid path + a one-line verdict.**
+6. **Print the grid path + a one-line verdict.**
 
 ## Gating / graceful degrade
 
@@ -42,6 +47,9 @@ stays **UNVERIFIED**.
   This lane is stamped `provided-captures` and `DEVICE-PROVENANCE-UNVERIFIED`;
   it is excluded from strict device-pass semantics.
 - `--xcresult <path>` — extract + diff from an existing `.xcresult` (no build/run).
+- `--content-inset-top <px>` — crop this many physical pixels from the top of
+  device captures before phash + panel. Overrides `verifyDevice.contentInsetTop`
+  in the game manifest; default is manifest value, otherwise `0`.
 
 ## Browser-fallback lane (`--lane browser`)
 
@@ -95,6 +103,7 @@ gracefully (exit 0) and on-device fidelity stays **UNVERIFIED**.
 
 `--game <name>` (required) · `--device <udid>` · `--captures <dir>` ·
 `--xcresult <path>` · `--out <dir>` · `--date <YYYY-MM-DD>` ·
+`--content-inset-top <px>` ·
 `--threshold <0..1>` (default 0.20) · `--ensemble <name>` (default `default`;
 `kitchen-sink` for the full roster) · `--models <a,b,c>` (overrides the ensemble) ·
 `--panel-threshold <0..100>` (default 85) · `--skip-panel` · `--strict` (FAIL or
