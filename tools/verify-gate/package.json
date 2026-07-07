@@ -7,11 +7,13 @@
   "bin": {
     "verify-visual-claim": "cli.mjs",
     "verify-merge-gate": "merge-gate.mjs",
-    "project-gate": "project-gate.mjs"
+    "project-gate": "project-gate.mjs",
+    "verify-landed-gate": "landed-gate.mjs"
   },
   "scripts": {
     "verify-merge-gate": "node merge-gate.mjs",
     "project-gate": "node project-gate.mjs",
+    "verify-landed-gate": "node landed-gate.mjs",
     "test:unit": "vitest run",
     "lint": "eslint ."
   }
