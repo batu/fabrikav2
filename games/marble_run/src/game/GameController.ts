@@ -219,6 +219,13 @@ export class GameController {
     this.setCoins(saveState.coins);
   }
 
+  setResultHudMode(mode: 'win' | 'lose' | null): void {
+    if (!this.hudEl) return;
+    this.hudEl.classList.toggle('mr-hud--result', mode !== null);
+    this.hudEl.classList.toggle('mr-hud--result-win', mode === 'win');
+    this.hudEl.classList.toggle('mr-hud--result-lose', mode === 'lose');
+  }
+
   coinAnchor(): HTMLElement | null {
     return this.coinAnchorEl;
   }
@@ -872,6 +879,7 @@ function injectHudStyles(): void {
   style.id = HUD_STYLE_ID;
   style.textContent = `
     .mr-hud { position:absolute; inset:0; pointer-events:none; font-family:var(--fab-font-family,'Nunito',system-ui,sans-serif); z-index:5; }
+    .mr-hud--result { z-index:15; }
     .mr-hud button { pointer-events:auto; cursor:pointer; }
     /* Teal candy panel shared by hearts / gear / coin (chrome tokens). */
     .mr-hud-panel { position:absolute; border:3px solid var(--fab-color-chrome-teal-border,#fff);
@@ -888,6 +896,15 @@ function injectHudStyles(): void {
     .mr-coin { bottom:22px; left:16px; display:flex; align-items:center; gap:6px; padding:8px 16px 8px 10px; border-radius:999px; font-weight:900; font-size:18px; }
     .mr-coin-img { width:22px; height:22px; object-fit:contain; }
     .mr-coin-value { color:var(--fab-color-chrome-ink,#fff); text-shadow:0 1px 2px rgba(0,0,0,.25); }
+    .mr-hud--result .mr-hearts-panel,
+    .mr-hud--result .mr-gear-btn,
+    .mr-hud--result .mr-hint,
+    .mr-hud--result .mr-route-blocked,
+    .mr-hud--result .mr-streak,
+    .mr-hud--result .mr-failbar,
+    .mr-hud--result-lose .mr-coin { display:none; }
+    .mr-hud--result-win .mr-coin { top:calc(54px + var(--fab-safe-top,0px)); right:28px; bottom:auto; left:auto; gap:8px; padding:10px 22px 10px 12px; font-size:22px; }
+    .mr-hud--result-win .mr-coin-img { width:30px; height:30px; }
     /* Square HINT tile BR — warm-tan candy panel (hint secondary-chrome tokens). */
     .mr-hud-tile { position:absolute; bottom:22px; right:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
       width:96px; height:82px; border:3px solid var(--fab-color-hint-border,#a9713c); border-radius:20px;

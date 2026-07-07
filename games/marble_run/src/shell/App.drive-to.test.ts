@@ -6,6 +6,7 @@ const controllerProbe = vi.hoisted(() => ({
   instances: [] as Array<{
     startedLevels: number[];
     postStartInputs: boolean[];
+    resultHudModes: Array<'win' | 'lose' | null>;
   }>,
 }));
 
@@ -19,6 +20,7 @@ vi.mock('../game/GameController.ts', () => {
   class GameController {
     readonly startedLevels: number[] = [];
     readonly postStartInputs: boolean[] = [];
+    readonly resultHudModes: Array<'win' | 'lose' | null> = [];
     private mode: 'menu' | 'level' = 'menu';
     private levelSnapshotPolls = 0;
 
@@ -45,6 +47,9 @@ vi.mock('../game/GameController.ts', () => {
     pause(): void {}
     resume(): void {}
     setInputBlocked(): void {}
+    setResultHudMode(mode: 'win' | 'lose' | null): void {
+      this.resultHudModes.push(mode);
+    }
     refreshHudCoins(): void {}
     showHint(): void {}
     setAnimationSpeed(): void {}
@@ -111,6 +116,10 @@ interface WinHarness {
   handleWin(info: { levelId: number; reward: number; isFinalLevel: boolean }): void;
 }
 
+interface FailHarness {
+  handleFail(info: { levelId: number }): void;
+}
+
 describe('App harness driveTo wiring', () => {
   beforeEach(() => {
     controllerProbe.instances.length = 0;
@@ -171,11 +180,24 @@ describe('App harness driveTo wiring', () => {
 
     expect(h.snapshot()).toMatchObject({ scene: 'complete', settingsOpen: false });
     expect(document.querySelector('.fab-result-card--win')).not.toBeNull();
+    expect(controllerProbe.instances.at(-1)!.resultHudModes).toEqual(['win']);
 
     vi.useFakeTimers();
     await vi.advanceTimersByTimeAsync(CAPTURE_SETTLE_MS);
 
     expect(h.snapshot()).toMatchObject({ scene: 'complete' });
     expect(document.querySelector('.fab-result-card--win')).not.toBeNull();
+  });
+
+  it('sets lose result HUD mode before mounting the fail modal', () => {
+    const app = bootApp();
+    const h = app.harness();
+
+    h.startLevel(3);
+    (app as unknown as FailHarness).handleFail({ levelId: 3 });
+
+    expect(h.snapshot()).toMatchObject({ scene: 'failed', settingsOpen: false });
+    expect(document.querySelector('.fab-result-card--lose')).not.toBeNull();
+    expect(controllerProbe.instances.at(-1)!.resultHudModes).toEqual(['lose']);
   });
 });

@@ -208,6 +208,7 @@ export class App {
     this.sdk.levelComplete(info.levelId, info.reward, saveState.coins);
     this.controller.refreshHudCoins();
     this.controller.setInputBlocked(true);
+    this.controller.setResultHudMode('win');
     this.clearScreen();
     if (info.isFinalLevel) {
       this.mountFinale();
@@ -221,6 +222,7 @@ export class App {
   private renderFailed(): void {
     this.sdk.levelFail(this.currentLevelId);
     this.controller.setInputBlocked(true);
+    this.controller.setResultHudMode('lose');
     this.clearScreen();
     this.mountLose();
   }
