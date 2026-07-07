@@ -5,6 +5,12 @@ import { computeStrictExitCode, computeVerdict, isVerifiedDeviceLane } from '../
 const passRow = (state, cf) => ({ state, device: { base64: 'x' }, reference: { base64: 'y' }, diff: { changedFraction: cf } });
 const missingRow = (state) => ({ state, device: { gap: `no device capture for "${state}"` }, reference: { base64: 'y' }, diff: null });
 const noRefRow = (state) => ({ state, device: { base64: 'x' }, reference: { gap: 'documented reference gap' }, diff: null });
+const skippedRow = (state) => ({
+  state,
+  device: { base64: 'x' },
+  reference: { gap: 'reference skipped by refs manifest at-rest:false', skipJudging: true },
+  diff: null,
+});
 
 describe('computeVerdict', () => {
   it('passes when every diffed state is under threshold', () => {
@@ -30,6 +36,13 @@ describe('computeVerdict', () => {
     const v = computeVerdict([noRefRow('pause')], 0.2);
     expect(v.pass).toBe(true); // no-reference doesn't fail the gate...
     expect(v.states[0].status).toBe('no-reference'); // ...but is reported explicitly
+  });
+
+  it('marks refs manifest exclusions as skipped without failing the phash verdict', () => {
+    const v = computeVerdict([passRow('menu', 0.01), skippedRow('fail')], 0.2);
+    expect(v.pass).toBe(true);
+    expect(v.states.find((s) => s.state === 'fail')).toMatchObject({ status: 'skipped' });
+    expect(v.summary).toContain('1 skipped');
   });
 
   it('threshold boundary: equal to threshold passes', () => {

@@ -22,6 +22,7 @@ export function computeVerdict(rows, threshold) {
     `${fails.length} over-threshold`,
     `${missing.length} missing`,
     `${states.filter((s) => s.status === 'no-reference').length} no-reference`,
+    `${states.filter((s) => s.status === 'skipped').length} skipped`,
   ];
   const summary = `${pass ? 'PASS' : 'FAIL'} — ${parts.join(', ')} (threshold ${(threshold * 100).toFixed(0)}% changed)`;
   return { pass, states, summary };
@@ -40,6 +41,14 @@ export function computeStrictExitCode({ strict, lane, primary, captureFailure })
 
 function classify(row, threshold) {
   const cf = row.diff ? row.diff.changedFraction : null;
+  if (row.reference && row.reference.skipJudging) {
+    return {
+      state: row.state,
+      status: 'skipped',
+      reason: row.reference.gap || 'reference excluded from judging',
+      changedFraction: null,
+    };
+  }
   if (row.device && row.device.gap) {
     return { state: row.state, status: 'missing', reason: row.device.gap, changedFraction: null };
   }

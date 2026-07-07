@@ -148,6 +148,7 @@ describe('aggregatePanel', () => {
   const pass = (state, score) => ({ state, score, status: 'pass', reason: '', models: [], consensus: [] });
   const fail = (state, score) => ({ state, score, status: 'fail', reason: '', models: [], consensus: [] });
   const uns = (state) => ({ state, score: null, status: 'unscored', reason: '', models: [], consensus: [] });
+  const skipped = (state) => ({ state, score: null, status: 'skipped', reason: 'not at rest', models: [], consensus: [] });
 
   it('passes only when zero fails AND zero unscored', () => {
     const v = aggregatePanel([pass('menu', 90), pass('win', 88)], 85);
@@ -166,6 +167,12 @@ describe('aggregatePanel', () => {
     const v = aggregatePanel([pass('menu', 90), uns('pause')], 85);
     expect(v.pass).toBe(false);
     expect(v.summary).toMatch(/1 unscored/);
+  });
+
+  it('a manifest-skipped state is visible but excluded from the scoring gate', () => {
+    const v = aggregatePanel([pass('menu', 90), skipped('fail')], 85);
+    expect(v.pass).toBe(true);
+    expect(v.summary).toMatch(/1 skipped/);
   });
 });
 
@@ -289,6 +296,11 @@ describe('runPanel', () => {
     device: dev ? { base64: dev } : { gap: 'no device capture' },
     reference: ref ? { base64: ref } : { gap: 'no reference' },
   });
+  const skippedRefRow = (state) => ({
+    state,
+    device: { base64: 'DEV' },
+    reference: { gap: 'reference skipped by refs manifest at-rest:false', skipJudging: true },
+  });
 
   it('gracefully skips (no throw) when there is no API key', async () => {
     const r = await runPanel({ rows: [row('menu', 'A', 'B')] });
@@ -307,6 +319,23 @@ describe('runPanel', () => {
     expect(r.states.find((s) => s.state === 'menu')).toMatchObject({ status: 'pass', score: 92 });
     expect(r.states.find((s) => s.state === 'pause')).toMatchObject({ status: 'unscored' });
     expect(r.verdict.pass).toBe(false); // the unscored pause holds the gate
+  });
+
+  it('does not call a model for refs manifest skipped rows', async () => {
+    let fetchCalls = 0;
+    const fetchImpl = async () => {
+      fetchCalls += 1;
+      return { status: 200, ok: true, json: async () => ({
+        choices: [{ message: { content: '{"fidelity": 92, "findings": []}' } }],
+      }) };
+    };
+    const r = await runPanel({
+      rows: [row('menu', 'A', 'B'), skippedRefRow('fail')],
+      models: ['m1'], apiKey: 'k', thresholdPct: 85, fetchImpl,
+    });
+    expect(fetchCalls).toBe(1);
+    expect(r.states.find((s) => s.state === 'fail')).toMatchObject({ status: 'skipped' });
+    expect(r.verdict.pass).toBe(true);
   });
 
   it('defaults to the 3-model panel from the card', () => {

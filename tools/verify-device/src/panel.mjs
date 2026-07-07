@@ -131,7 +131,7 @@ function normFinding(f) {
  * @param {string} state
  * @param {Array<{model:string, ok:boolean, fidelity?:number, findings?:Array, skipped?:string}>} perModel
  * @param {number} thresholdPct fidelity floor (0..100); below it the state FAILs
- * @returns {{state, score:number|null, status:'pass'|'fail'|'unscored',
+ * @returns {{state, score:number|null, status:'pass'|'fail'|'unscored'|'skipped',
  *   reason:string, models:Array, consensus:Array}}
  */
 export function aggregateState(state, perModel, thresholdPct) {
@@ -211,13 +211,14 @@ function aggregateSeverity(severities, majority) {
 export function aggregatePanel(states, thresholdPct) {
   const fails = states.filter((s) => s.status === 'fail');
   const unscored = states.filter((s) => s.status === 'unscored');
+  const skipped = states.filter((s) => s.status === 'skipped');
   const passes = states.filter((s) => s.status === 'pass');
   const scores = states.map((s) => s.score).filter((v) => typeof v === 'number');
   const overall = median(scores);
   // UNSCORED never silently passes: it holds the gate open (not a clean PASS).
   const pass = fails.length === 0 && unscored.length === 0;
   const summary = `${pass ? 'PASS' : 'FAIL'} — panel median ${overall == null ? 'n/a' : `${overall}%`}`
-    + ` · ${passes.length} pass, ${fails.length} fail, ${unscored.length} unscored`
+    + ` · ${passes.length} pass, ${fails.length} fail, ${unscored.length} unscored, ${skipped.length} skipped`
     + ` (floor ${thresholdPct}%)`;
   return { pass, summary, states, score: overall };
 }
@@ -335,6 +336,17 @@ export async function runPanel({
   const states = [];
   let budgetHalted = false;
   for (const row of rows) {
+    if (row.reference?.skipJudging || row.device?.skipJudging) {
+      states.push({
+        state: row.state,
+        score: null,
+        status: 'skipped',
+        reason: row.reference?.gap || row.device?.gap || 'excluded from panel scoring',
+        models: [],
+        consensus: [],
+      });
+      continue;
+    }
     const refB64 = row.reference && !row.reference.gap ? row.reference.base64 : null;
     const devB64 = row.device && !row.device.gap ? row.device.base64 : null;
     if (!refB64 || !devB64) {

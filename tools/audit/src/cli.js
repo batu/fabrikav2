@@ -14,6 +14,7 @@ import { lintStructure } from './structure.js';
 import { lintHooks } from './hooks.js';
 import { lintHarness } from './harness.js';
 import { lintAssetIdentity } from './asset-identity.js';
+import { lintRefs } from './refs-lint.js';
 
 function fmtNoLiterals(v) {
   return `${v.file}:${v.line}  [${v.kind}]  ${JSON.stringify(v.value)}`;
@@ -44,6 +45,12 @@ function fmtAssetIdentity(v) {
   if (v.detail) bits.push(v.detail);
   return bits.join('  ');
 }
+function fmtRefs(v) {
+  const bits = [`${v.game}/${v.entry}`, `[${v.kind}]`];
+  if (v.field) bits.push(`field=${v.field}`);
+  if (v.detail) bits.push(v.detail);
+  return bits.join('  ');
+}
 
 const LINTERS = [
   {
@@ -57,6 +64,7 @@ const LINTERS = [
   { name: 'hooks', run: (root) => lintHooks(root), fmt: fmtHooks },
   { name: 'harness', run: (root) => lintHarness(root), fmt: fmtHarness },
   { name: 'asset-identity', run: (root) => lintAssetIdentity(root), fmt: fmtAssetIdentity },
+  { name: 'refs-lint', run: (root) => lintRefs(root), fmt: fmtRefs },
 ];
 
 export function runAll(root, { allowlistPath } = {}) {
