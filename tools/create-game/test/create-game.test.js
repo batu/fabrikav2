@@ -10,6 +10,7 @@ function writeTemplate(root) {
   const tpl = join(root, 'games', '_template');
   mkdirSync(join(tpl, 'src'), { recursive: true });
   mkdirSync(join(tpl, 'design'), { recursive: true });
+  mkdirSync(join(tpl, 'refs'), { recursive: true });
   mkdirSync(join(tpl, '.work'), { recursive: true });
   mkdirSync(join(tpl, 'node_modules', 'junk'), { recursive: true });
 
@@ -21,8 +22,12 @@ function writeTemplate(root) {
   writeFileSync(join(tpl, 'design', 'copy.ts'), 'export const copy = {\n  "game.title": "Template Game",\n} as const;\n');
   writeFileSync(join(tpl, 'index.html'), '<title>Template Game</title>\n');
   writeFileSync(join(tpl, 'capacitor.config.ts'), 'const config = {\n  appId: "com.fabrika.template",\n  appName: "Template Game",\n};\n');
+  writeFileSync(join(tpl, 'refs', 'manifest.yaml'), 'game: template\nv2:\n  package: com.fabrikav2.template\n');
   writeFileSync(join(tpl, 'README.md'), '# Template Game\n\nSkeleton.\n');
-  writeFileSync(join(tpl, 'src', 'main.ts'), 'export {};\n');
+  writeFileSync(
+    join(tpl, 'src', 'main.ts'),
+    'import { gameConfig } from "../game.config.ts";\nexport function harnessWindowKeyForGame(gameId) {\n  return `__${gameId.toUpperCase()}_HARNESS__`;\n}\nexport const harnessWindowKey = harnessWindowKeyForGame(gameConfig.id);\n',
+  );
   writeFileSync(join(tpl, '.work', 'README.md'), '# scratch\n');
   writeFileSync(join(tpl, 'node_modules', 'junk', 'index.js'), 'module.exports = 1;\n');
 }
@@ -58,6 +63,20 @@ describe('createGame', () => {
     expect(readFileSync(join(targetDir, 'game.config.ts'), 'utf8')).toContain('title: "game.title"');
     expect(readFileSync(join(targetDir, 'design', 'copy.ts'), 'utf8')).toContain('"game.title": "My Game"');
     expect(readFileSync(join(targetDir, 'index.html'), 'utf8')).toContain('<title>My Game</title>');
+
+    const manifest = readFileSync(join(targetDir, 'refs', 'manifest.yaml'), 'utf8');
+    expect(manifest).toContain('game: my_game');
+    expect(manifest).toContain('package: com.fabrikav2.my_game');
+
+    const configGame = readFileSync(join(targetDir, 'game.config.ts'), 'utf8').match(/id: "([^"]+)"/)?.[1];
+    const manifestGame = manifest.match(/^game: ([^\n]+)$/m)?.[1];
+    const derivedConfigKey = `__${configGame?.toUpperCase()}_HARNESS__`;
+    const derivedManifestKey = `__${manifestGame?.toUpperCase()}_HARNESS__`;
+    expect(derivedConfigKey).toBe('__MY_GAME_HARNESS__');
+    expect(derivedConfigKey).toBe(derivedManifestKey);
+
+    const main = readFileSync(join(targetDir, 'src', 'main.ts'), 'utf8');
+    expect(main).toContain('gameId.toUpperCase()');
 
     const cap = readFileSync(join(targetDir, 'capacitor.config.ts'), 'utf8');
     expect(cap).toContain('appId: "com.fabrika.mygame"');

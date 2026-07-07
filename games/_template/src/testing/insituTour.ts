@@ -16,6 +16,13 @@
  * transition here is CONFIRMED by querying `snapshot()` — the tour never
  * assumes a state it hasn't verified (the "did I actually win?" failure this
  * fixes).
+ *
+ * CONDUCTOR RULING (card Hi6nHsXv, 2026-07-07): the 'allstates' tour below is
+ * permitted under the autonomy law ONLY as a deterministic scripted fixture.
+ * It has a fixed state list and no judgment; it exists because XCUITest cannot
+ * call JS directly inside WKWebView. Do not add branching, heuristic state
+ * choice, visual judgment, retry policy, or convergence loops here. Those
+ * belong in the agent or in an external one-shot tool that returns.
  */
 import type { GameHarness } from '@fabrikav2/testkit/harness';
 
