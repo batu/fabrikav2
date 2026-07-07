@@ -903,7 +903,7 @@ function injectHudStyles(): void {
     .mr-hud--result .mr-streak,
     .mr-hud--result .mr-failbar,
     .mr-hud--result-lose .mr-coin { display:none; }
-    .mr-hud--result-win .mr-coin { top:calc(54px + var(--fab-safe-top,0px)); right:28px; bottom:auto; left:auto; gap:8px; padding:10px 22px 10px 12px; font-size:22px; }
+    .mr-hud--result-win .mr-coin { top:calc(28px + var(--fab-safe-top,0px)); right:16px; bottom:auto; left:auto; gap:8px; padding:10px 22px 10px 12px; font-size:22px; }
     .mr-hud--result-win .mr-coin-img { width:30px; height:30px; }
     /* Square HINT tile BR — warm-tan candy panel (hint secondary-chrome tokens). */
     .mr-hud-tile { position:absolute; bottom:22px; right:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;

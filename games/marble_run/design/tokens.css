@@ -94,7 +94,7 @@
      box-shadow and is preserved. */
   --fab-color-container-outline: #212c48;
   --fab-color-secondary-border: var(--fab-color-container-outline);
-  --fab-color-overlay-scrim: rgba(31, 24, 46, 0.76);
+  --fab-color-overlay-scrim: rgba(31, 24, 46, 0.9);
   /* Chunky rounded display face (FIX-4). Titan One is the heavier fallback for
      the same silhouette; system-ui only shows during the font swap. */
   --fab-font-family: 'Fredoka One', 'Titan One', system-ui, sans-serif;

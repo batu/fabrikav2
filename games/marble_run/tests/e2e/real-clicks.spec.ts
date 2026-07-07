@@ -95,7 +95,7 @@ test.describe('marble_run — real-click coverage across every screen', () => {
     const settingsCard = await page.locator(SETTINGS_CARD).boundingBox();
     expect(settingsRibbon?.y ?? 0).toBeGreaterThan(40);
     expect((settingsCard?.y ?? 0) + (settingsCard?.height ?? viewport.height)).toBeLessThan(viewport.height - 24);
-    await expect(page.locator('.fab-modal-scrim')).toHaveCSS('background-color', 'rgba(31, 24, 46, 0.76)');
+    await expect(page.locator('.fab-modal-scrim')).toHaveCSS('background-color', 'rgba(31, 24, 46, 0.9)');
     await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-close-cta"]`)).toBeVisible();
     await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-reset"]`)).toBeVisible();
     await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-restart"]`)).toHaveCount(0);
@@ -238,7 +238,8 @@ test.describe('marble_run — real-click coverage across every screen', () => {
     const viewport = page.viewportSize()!;
     const coinBox = await page.locator('#hud .mr-hud--result-win .mr-coin').boundingBox();
     expect((coinBox?.x ?? 0) + (coinBox?.width ?? 0)).toBeGreaterThan(viewport.width * 0.76);
-    expect(coinBox?.y ?? viewport.height).toBeLessThan(viewport.height * 0.2);
+    expect(viewport.width - ((coinBox?.x ?? 0) + (coinBox?.width ?? 0))).toBeLessThan(24);
+    expect(coinBox?.y ?? viewport.height).toBeLessThan(40);
   });
 
   test('result: resultRetry() really restarts from the fail card (HUD remounts)', async ({ page }) => {
@@ -246,6 +247,7 @@ test.describe('marble_run — real-click coverage across every screen', () => {
     const reached = await callHarness<Harness, string, Promise<boolean>>(page, WINDOW_KEY, (h, state) => h.driveTo(state), 'fail');
     expect(reached).toBe(true);
     await expect(page.locator('.fab-result-card--lose')).toBeVisible({ timeout: 4000 });
+    await expect(page.locator('.fab-result-card--lose .mr-result-emoji')).toHaveText('😢');
     const shell = new SharedShellDriver(page);
     await shell.resultRetry();
     await expect(page.locator('#hud .mr-hud')).toBeVisible({ timeout: 8000 });
@@ -256,6 +258,7 @@ test.describe('marble_run — real-click coverage across every screen', () => {
     const reached = await callHarness<Harness, string, Promise<boolean>>(page, WINDOW_KEY, (h, state) => h.driveTo(state), 'fail');
     expect(reached).toBe(true);
     await expect(page.locator('.fab-result-card--lose')).toBeVisible({ timeout: 4000 });
+    await expect(page.locator('.fab-result-card--lose .mr-result-emoji')).toHaveText('😢');
     await expect(page.locator('#hud .mr-hud--result-lose')).toBeVisible();
     await expect(page.locator('#hud .mr-hearts-panel')).toBeHidden();
     await expect(page.locator('#hud [data-a="pause"]')).toBeHidden();

@@ -49,7 +49,7 @@ export const copy = {
   "result.finale.message": "More levels are on the way!",
   "result.finale.action": "Awesome",
   "result.lose.title": "Failed",
-  "result.lose.emoji": "😭",
+  "result.lose.emoji": "😢",
   "result.lose.message": "No hearts left! Watch an ad to continue.",
   "result.lose.watchAd": "Watch",
   "result.lose.retry": "Retry",
