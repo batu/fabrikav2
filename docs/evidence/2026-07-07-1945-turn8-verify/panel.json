@@ -1,0 +1,753 @@
+{
+  "models": [
+    "anthropic/claude-opus-4.1",
+    "anthropic/claude-sonnet-5",
+    "google/gemini-3.5-flash"
+  ],
+  "judges": [
+    {
+      "id": "opus",
+      "model": "anthropic/claude-opus-4.1",
+      "provider": "openrouter",
+      "enabled": true
+    },
+    {
+      "id": "sonnet",
+      "model": "anthropic/claude-sonnet-5",
+      "provider": "openrouter",
+      "enabled": true
+    },
+    {
+      "id": "gemini-flash",
+      "model": "google/gemini-3.5-flash",
+      "provider": "openrouter",
+      "enabled": true
+    }
+  ],
+  "thresholdPct": 85,
+  "states": [
+    {
+      "state": "menu",
+      "score": 75,
+      "status": "fail",
+      "reason": "panel 75% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 62
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 80
+        }
+      ],
+      "consensus": [
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Level numbers are completely different",
+            "Level path numbers differ (progress state mismatch)",
+            "The active/target level and associated road levels do not match the reference."
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Coin badge in reference is centered/larger with more padding compared to smaller top-left aligned badge in ours",
+            "The tilt and marble configuration on the preview board is completely different, indicating a different level state or randomized setup."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "level",
+      "score": 75,
+      "status": "fail",
+      "reason": "panel 75% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 45
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 80
+        }
+      ],
+      "consensus": [
+        {
+          "key": "layout",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Ball positions on game board are completely different",
+            "Game board size and grid layout differ - reference shows 5x5 grid, ours shows 4x4 grid",
+            "The game board state (positions of the colored marbles, empty sockets, launchers, and active launcher colors) is completely different, indicating a mismatch in the level configuration or state rendering."
+          ]
+        },
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Coin count value different",
+            "Coin count value differs significantly",
+            "The coin/point values on the UI elements do not match."
+          ]
+        },
+        {
+          "key": "typography",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "HINT button text styling differs",
+            "The 'HINT' text styling on the button in the bottom right corner uses a different font, size, and layout."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "settings",
+      "score": 45,
+      "status": "fail",
+      "reason": "panel 45% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 85
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 45
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 35
+        }
+      ],
+      "consensus": [
+        {
+          "key": "layout",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Settings panel positioned higher",
+            "Overall content is shifted/zoomed in, cropping the top close button and pushing content down, causing extra vertical gap between header and Music toggle",
+            "The entire settings dialog is pushed upwards, cropping the 'SETTINGS' header and the blue 'X' close button off the top edge of the screen."
+          ]
+        },
+        {
+          "key": "extra-element",
+          "count": 2,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Level indicator button present at bottom",
+            "Extra background panel/box and 'LEVEL 5' banner appear behind and below the settings card that are not present in reference"
+          ]
+        },
+        {
+          "key": "background",
+          "count": 2,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Background shows game elements",
+            "Elements from the main game board (brown wooden tiles and a green 'LEVEL 5' button) are partially visible behind and below the dialogue container."
+          ]
+        },
+        {
+          "key": "sizing",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Settings panel appears smaller",
+            "Overall settings card appears larger/zoomed compared to reference, causing elements to be cropped and enlarged"
+          ]
+        }
+      ]
+    },
+    {
+      "state": "pause",
+      "score": null,
+      "status": "unscored",
+      "reason": "no reference to score against",
+      "models": [],
+      "consensus": []
+    },
+    {
+      "state": "win",
+      "score": 60,
+      "status": "fail",
+      "reason": "panel 60% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 60
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 40
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 75
+        }
+      ],
+      "consensus": [
+        {
+          "key": "missing-element",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Coin counter at top",
+            "Top-right coin counter with '75' balance is missing",
+            "The top-right blue coin counter displaying '75' is missing in our version."
+          ]
+        },
+        {
+          "key": "extra-element",
+          "count": 2,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Hearts/lives indicator at top left",
+            "Extra UI elements not present in reference (hearts bar, settings gear, hint button, coin counter at bottom)"
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 2,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Overall vertical layout is compressed/shifted, wooden background and card sizing differ, elements pushed closer to edges",
+            "Background HUD elements from the game screen (hearts bar, settings gear, hint button, and bottom coin counter) are showing through behind and around the modal overlay in our version."
+          ]
+        },
+        {
+          "key": "typography",
+          "count": 3,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Next button text styling",
+            "Text color for 'REWARD' and '+25' differs",
+            "The font weight and outlines for 'REWARD' and '+25' are heavier/thicker, and the 'Next' button text is in all caps and a different font."
+          ]
+        },
+        {
+          "key": "background",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Green background behind banner",
+            "Wooden shelf background barely visible/cropped in ours"
+          ]
+        },
+        {
+          "key": "sizing",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Crown icon size and card proportions slightly different",
+            "The green 'COMPLETED' ribbon banner at the top of the modal is stretched horizontally and clipped awkwardly at the sides."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "fail",
+      "score": 65,
+      "status": "fail",
+      "reason": "panel 65% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 55
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 65
+        }
+      ],
+      "consensus": [
+        {
+          "key": "iconography",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Different emoji expression",
+            "Emoji used differs",
+            "The sad/crying face emoji/graphic is completely different."
+          ]
+        },
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Green button text differs",
+            "Green button label differs",
+            "Green button text has different copy."
+          ]
+        },
+        {
+          "key": "extra-element",
+          "count": 2,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Top navigation bar with settings button added",
+            "Extra UI elements not present in reference: hearts bar, settings gear icon at top, and coin counters with 'continue' bar at bottom"
+          ]
+        },
+        {
+          "key": "typography",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Message text casing differs",
+            "The spacing and line height of the 'No hearts left! Watch an ad to continue.' text block is larger and wider."
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Overall content is zoomed in / larger, causing top and bottom elements to be cut off and overflow screen bounds",
+            "The entire failed pop-up modal is vertically shifted upwards and clipped at the top, and background UI elements leak from behind."
+          ]
+        }
+      ]
+    }
+  ],
+  "verdict": {
+    "pass": false,
+    "summary": "FAIL — panel median 65% · 0 pass, 5 fail, 1 unscored (floor 85%)",
+    "states": [
+      {
+        "state": "menu",
+        "score": 75,
+        "status": "fail",
+        "reason": "panel 75% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 62
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 80
+          }
+        ],
+        "consensus": [
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Level numbers are completely different",
+              "Level path numbers differ (progress state mismatch)",
+              "The active/target level and associated road levels do not match the reference."
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Coin badge in reference is centered/larger with more padding compared to smaller top-left aligned badge in ours",
+              "The tilt and marble configuration on the preview board is completely different, indicating a different level state or randomized setup."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "level",
+        "score": 75,
+        "status": "fail",
+        "reason": "panel 75% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 45
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 80
+          }
+        ],
+        "consensus": [
+          {
+            "key": "layout",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Ball positions on game board are completely different",
+              "Game board size and grid layout differ - reference shows 5x5 grid, ours shows 4x4 grid",
+              "The game board state (positions of the colored marbles, empty sockets, launchers, and active launcher colors) is completely different, indicating a mismatch in the level configuration or state rendering."
+            ]
+          },
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Coin count value different",
+              "Coin count value differs significantly",
+              "The coin/point values on the UI elements do not match."
+            ]
+          },
+          {
+            "key": "typography",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "HINT button text styling differs",
+              "The 'HINT' text styling on the button in the bottom right corner uses a different font, size, and layout."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "settings",
+        "score": 45,
+        "status": "fail",
+        "reason": "panel 45% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 85
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 45
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 35
+          }
+        ],
+        "consensus": [
+          {
+            "key": "layout",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Settings panel positioned higher",
+              "Overall content is shifted/zoomed in, cropping the top close button and pushing content down, causing extra vertical gap between header and Music toggle",
+              "The entire settings dialog is pushed upwards, cropping the 'SETTINGS' header and the blue 'X' close button off the top edge of the screen."
+            ]
+          },
+          {
+            "key": "extra-element",
+            "count": 2,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Level indicator button present at bottom",
+              "Extra background panel/box and 'LEVEL 5' banner appear behind and below the settings card that are not present in reference"
+            ]
+          },
+          {
+            "key": "background",
+            "count": 2,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Background shows game elements",
+              "Elements from the main game board (brown wooden tiles and a green 'LEVEL 5' button) are partially visible behind and below the dialogue container."
+            ]
+          },
+          {
+            "key": "sizing",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Settings panel appears smaller",
+              "Overall settings card appears larger/zoomed compared to reference, causing elements to be cropped and enlarged"
+            ]
+          }
+        ]
+      },
+      {
+        "state": "pause",
+        "score": null,
+        "status": "unscored",
+        "reason": "no reference to score against",
+        "models": [],
+        "consensus": []
+      },
+      {
+        "state": "win",
+        "score": 60,
+        "status": "fail",
+        "reason": "panel 60% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 60
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 40
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 75
+          }
+        ],
+        "consensus": [
+          {
+            "key": "missing-element",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Coin counter at top",
+              "Top-right coin counter with '75' balance is missing",
+              "The top-right blue coin counter displaying '75' is missing in our version."
+            ]
+          },
+          {
+            "key": "extra-element",
+            "count": 2,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Hearts/lives indicator at top left",
+              "Extra UI elements not present in reference (hearts bar, settings gear, hint button, coin counter at bottom)"
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 2,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Overall vertical layout is compressed/shifted, wooden background and card sizing differ, elements pushed closer to edges",
+              "Background HUD elements from the game screen (hearts bar, settings gear, hint button, and bottom coin counter) are showing through behind and around the modal overlay in our version."
+            ]
+          },
+          {
+            "key": "typography",
+            "count": 3,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Next button text styling",
+              "Text color for 'REWARD' and '+25' differs",
+              "The font weight and outlines for 'REWARD' and '+25' are heavier/thicker, and the 'Next' button text is in all caps and a different font."
+            ]
+          },
+          {
+            "key": "background",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Green background behind banner",
+              "Wooden shelf background barely visible/cropped in ours"
+            ]
+          },
+          {
+            "key": "sizing",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Crown icon size and card proportions slightly different",
+              "The green 'COMPLETED' ribbon banner at the top of the modal is stretched horizontally and clipped awkwardly at the sides."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "fail",
+        "score": 65,
+        "status": "fail",
+        "reason": "panel 65% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 55
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 65
+          }
+        ],
+        "consensus": [
+          {
+            "key": "iconography",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Different emoji expression",
+              "Emoji used differs",
+              "The sad/crying face emoji/graphic is completely different."
+            ]
+          },
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Green button text differs",
+              "Green button label differs",
+              "Green button text has different copy."
+            ]
+          },
+          {
+            "key": "extra-element",
+            "count": 2,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Top navigation bar with settings button added",
+              "Extra UI elements not present in reference: hearts bar, settings gear icon at top, and coin counters with 'continue' bar at bottom"
+            ]
+          },
+          {
+            "key": "typography",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Message text casing differs",
+              "The spacing and line height of the 'No hearts left! Watch an ad to continue.' text block is larger and wider."
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Overall content is zoomed in / larger, causing top and bottom elements to be cut off and overflow screen bounds",
+              "The entire failed pop-up modal is vertically shifted upwards and clipped at the top, and background UI elements leak from behind."
+            ]
+          }
+        ]
+      }
+    ],
+    "score": 65
+  },
+  "budgetHalted": false,
+  "game": "marble_run",
+  "lane": "device",
+  "generatedAt": "2026-07-07T14:10:00.859Z"
+}
