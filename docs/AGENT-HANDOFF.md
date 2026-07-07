@@ -19,9 +19,12 @@ hook is a thin shim that self-disables and delegates.
 - **Core:** `tools/verify-gate/cli.mjs` → `src/classify.mjs`.
 - On turn end it reads the **last assistant message** from the transcript and
   **BLOCKS** (Claude Code Stop-hook `{"decision":"block"}`) **iff ALL** of:
-  1. the message makes a **done-claim** (regex, case-insensitive:
-     `done|verified|works|renders? correctly|looks right|matches the reference|pixel|fidelity|shipped|complete on device`,
-     anchored to word boundaries so `abandoned`/`frameworks` don't false-fire);
+  1. the message makes a **done-claim**. The source of truth is
+     `DONE_LANGUAGE_RES` in `tools/verify-gate/src/classify.mjs`; examples include
+     `done`, `verified`, `validated`, `tested`, `fixed`, `implemented`, `landed`,
+     `renders correctly`, `looks right`, `matches the reference`, and
+     pixel/fidelity clean/pass wording. The same file's incomplete-language guard
+     prevents unresolved/partial/blocked prose from counting as done.
   2. `git diff` vs the merge-base with `origin/main` (plus untracked files)
      touches a **visual glob**: `games/*/src/**`, `games/*/design/**`,
      `packages/ui/**`;
@@ -82,14 +85,13 @@ Both the shell shim and the Node cores exit as a no-op when
 promote catalog-wide to non-game projects — it simply does nothing there.
 
 ## Activation / sync
-The card's footprint is `agents/**` (the source of truth). Claude Code loads the
-**live** copies under `.claude/` (`.claude/settings.json`, `.claude/hooks/`),
-which are byte-identical mirrors maintained by the `agents/ → .claude/` sync
-(same as `block-destructive-git.sh`). This worker committed only the `agents/`
-source; **the conductor's sync step must mirror `agents/hooks/verify-visual-claim.sh`
-and the `Stop` hook in `agents/settings.json` into `.claude/`** to make the hook
-live. Catalog promotion is a separate conductor step (do not touch the agency
-repo).
+The Stop hook is committed-active in this checkout: `agents/settings.json` and
+`.claude/settings.json` both register `.claude/hooks/verify-visual-claim.sh`,
+and the hook file itself is mirrored under `agents/hooks/` and `.claude/hooks/`.
+`tools/verify-gate/src/claude-mirror.mjs` plus
+`tools/verify-gate/check-claude-mirror.mjs` fail the project gate on drift between
+the source `agents/**` files and the live `.claude/**` copies. Catalog promotion
+is a separate conductor step (do not touch the agency repo).
 
 ## Tests
 `npm run test:unit -w @fabrikav2/verify-gate` covers done-language detection
@@ -107,9 +109,15 @@ bash.
 # AGENT-HANDOFF — templatize driveTo + insitu allstates tour + tourstate marker (card vFSI5FwY)
 
 Upstreams marble_run's device-verification surface into `games/_template` so a
-fresh `create-game` output is device-verifiable out of the box (previously the
-review finding was: no `driveTo`, no `insituTour`, no `#__tourstate__` marker,
-and the template's `createTemplateHarness` was compiled but never mounted).
+fresh `create-game` output has the web harness/tour/reference scaffold that
+`verify-device` drives. It is device-verification-ready after native shell
+generation, not device-installable immediately: `tools/create-game/src/create-game.mjs`
+only copies/substitutes files, `games/_template/native-resources/README.md` and
+`games/_template/capacitor.config.ts` say native projects are generated on
+demand, and `tools/verify-device/src/steps.mjs` requires `npx cap add ios` before
+install. Previously the review finding was: no `driveTo`, no `insituTour`, no
+`#__tourstate__` marker, and the template's `createTemplateHarness` was compiled
+but never mounted.
 See the requirements brainstorm for the full grounded read:
 `docs/brainstorms/2026-07-07-harness-upstream-template-driveto-tour-marker-requirements.md`.
 
@@ -186,12 +194,12 @@ See the requirements brainstorm for the full grounded read:
   `create-game` rewrites `refs/manifest.yaml` so `manifest.game` equals
   `gameConfig.id`. A scaffolded `my_game` therefore exposes
   `__MY_GAME_HARNESS__`, matching the browser-lane convention.
-- **Linter enforcement (Q4):** did **not** extend `tools/audit/src/harness.js`.
-  It already passes for the template (`snapshot`/`verbs`/`winLevel`/`failLevel`
-  tokens were already present) and adding `driveTo`/marker/manifest checks
-  would be new WARN-first scope beyond this card's ask; the unit test +
-  `create-game` round-trip below are the enforcement for now. Revisit as a
-  follow-up if a future card wants the AC machine-gated.
+- **Linter enforcement (Q4):** Hi6nHsXv did **not** extend
+  `tools/audit/src/harness.js` for `driveTo`/marker/manifest checks; those stayed
+  covered by unit tests and the `create-game` round-trip. JXyby5qC later hardened
+  the existing required-harness law in `tools/audit/src/harness.js`: missing
+  harness imports and missing `snapshot`/`verbs`/`winLevel|autoWin`/
+  `failLevel|autoFail` members are hard audit errors, not warnings.
 - **Manifest (Q5):** the stub remains hand-authored, but create-game now
   substitutes the game id and `v2.package` during scaffold so fresh games are
   key-aligned without manual manifest edits.
@@ -211,8 +219,9 @@ card's documentation ask.
 ## Verified-how
 
 - `node tools/audit/src/cli.js` (pure Node, no `node_modules` dependency) —
-  PASS, `harness: ok` for `_template` (unaffected; the linter doesn't check the
-  new surface — see Q4 above).
+  PASS, `harness: ok` for `_template`; after JXyby5qC, a harnessless game or a
+  game missing required harness members is a hard audit error
+  (`tools/audit/src/harness.js`, `tools/audit/src/cli.js`).
 - `node tools/create-game/src/create-game.mjs probe_game` (pure Node) then
   `node -e "loadManifest('games/probe_game')"` — the new
   `src/testing/{driveTo,insituTour}.ts`, `tests/unit/drive-to.test.ts`, and

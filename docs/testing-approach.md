@@ -53,22 +53,30 @@ on-device lane and the forcing function for AGENTS.md #7/#8 (see
 `docs/AGENT-HANDOFF.md`, `docs/plans/2026-07-06-001-tooling-verify-device-plan.md`).
 In order:
 
-1. Build the harness bundle with the `allstates` insitu tour
+1. For a fresh scaffold, generate the Capacitor iOS shell once with
+   `npx cap add ios` in `games/<g>` before device verification; `_template`
+   commits only native inputs/config (`games/_template/native-resources/README.md`,
+   `games/_template/capacitor.config.ts`), `create-game` only copies/substitutes
+   files (`tools/create-game/src/create-game.mjs`), and
+   `tools/verify-device/src/steps.mjs` hard-fails install when
+   `ios/App/App.xcodeproj` is absent.
+2. Build the harness bundle with the `allstates` insitu tour
    (`VITE_ENABLE_TEST_HARNESS=true VITE_INSITU_TOUR=allstates vite build`,
-   `games/<g>/src/testing/insituTour.ts`) + `npx cap sync ios`.
-2. Build + `devicectl install` on a real connected iPhone (serial read from
+   `games/<g>/src/testing/insituTour.ts`) + `npx cap sync ios`
+   (`tools/verify-device/src/steps.mjs`).
+3. Build + `devicectl install` on a real connected iPhone (serial read from
    `xcrun devicectl list devices`, never hardcoded).
-3. Run the committed XCUITest runner
+4. Run the committed XCUITest runner
    (`tools/verify-device/runner/VerifyDeviceRunner/InsituTourTests.swift`):
    launch the installed app by bundle id, **wait for an accessibility element**
    labelled `tourstate:<state>` before shooting each state, `XCTFail` loudly if
    a state never appears. This replaced a fixed-`sleep(6)` cadence that
    silently captured the wrong frame (the menu/level-as-settings mislabel,
    `docs/retros/fidelity-diff-mistakes-ledger.md`).
-4. Diff device captures against the committed reference set
+5. Diff device captures against the committed reference set
    (`games/<g>/refs/manifest.yaml`), primary verdict from a multi-model vision
    panel (`tools/verify-device/src/panel.mjs`), phash demoted to advisory.
-5. Print a `docs/evidence/<date>-device-verify/grid.html` path + one-line
+6. Print a `docs/evidence/<date>-device-verify/grid.html` path + one-line
    PASS/FAIL/UNVERIFIED verdict.
 
 There's also an explicit `--lane browser` fallback (never the default) for
@@ -82,7 +90,7 @@ WKWebView vs desktop Chromium divergence), state-accuracy of the capture
 
 ### 4. Panel fidelity (visual judge)
 
-The vision panel from layer 3 (step 4) is also the acceptance mechanism for
+The vision panel from layer 3 (step 5) is also the acceptance mechanism for
 "does this look like the reference" work — `docs/architecture/reference-fidelity-harness.md`'s
 tiered judge (pixel/SSIM → structural/real-click → Gemini/multi-model
 judgment on must-match axes: layout, palette, chrome, typography, motion).
@@ -94,8 +102,14 @@ hand-waved.
 
 ## How a new game gets all four
 
-`games/_template` ships all four already wired, so a new game inherits them
-by construction, not by remembering to add them:
+`games/_template` ships the web/test/harness/reference scaffold for all four
+layers, so a new game inherits the code-level contracts by construction. It is
+not device-installable immediately after `create-game`: the native projects
+(`ios/`, `android/`) are generated on demand from committed inputs/config
+(`games/_template/native-resources/README.md`, `games/_template/capacitor.config.ts`),
+`tools/create-game/src/create-game.mjs` only copies/substitutes template files,
+and `tools/verify-device/src/steps.mjs` requires `npx cap add ios` before
+build/install can proceed.
 
 - `tests/unit/smoke.test.ts` + `vitest.config.ts` — layer 1, green from the
   template's first commit.
@@ -112,7 +126,10 @@ by construction, not by remembering to add them:
   testable by construction, and `tools/audit` enforces its presence.
 - `refs/` (manifest + art/video/notes dirs) — the reference-fidelity contract
   a port's card ships against, consumed by layer 3/4.
-- `capacitor.config.ts` — the iOS shell layer 3 builds/installs.
+- `capacitor.config.ts` + `native-resources/` — the committed native-shell
+  inputs. Run `npx cap add ios` before the first layer-3 device install so
+  `ios/App/App.xcodeproj` exists (`games/_template/native-resources/README.md`,
+  `games/_template/capacitor.config.ts`, `tools/verify-device/src/steps.mjs`).
 
 ### The required-harness contract's role
 

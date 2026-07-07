@@ -4,7 +4,7 @@
 // Wired into the root `audit` npm script and the `audit` CI job
 // (matrix-independent).
 
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { existsSync } from 'node:fs';
 import { repoRoot } from './lib.js';
 import { lintNoLiterals } from './no-literals.js';
@@ -59,8 +59,24 @@ export function runAll(root, { allowlistPath } = {}) {
   return results;
 }
 
-function main() {
-  const root = repoRoot();
+function parseArgs(argv) {
+  let root;
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    if (arg === '--root') {
+      const value = argv[++i];
+      if (!value) throw new Error('--root requires a path');
+      root = resolve(value);
+    } else {
+      throw new Error(`unknown argument: ${arg}`);
+    }
+  }
+  return { root };
+}
+
+export function main(argv = process.argv.slice(2)) {
+  const args = parseArgs(argv);
+  const root = args.root || repoRoot();
   const defaultAllowlist = join(root, 'tools', 'audit', 'allowlist.json');
   const allowlistPath = existsSync(defaultAllowlist) ? defaultAllowlist : undefined;
 
@@ -92,12 +108,18 @@ function main() {
 
   if (failed) {
     console.error('\naudit failed — see violations above.');
-    process.exit(1);
+    return 1;
   }
   console.log(warned ? '\naudit passed (with warnings — see above).' : '\naudit passed.');
+  return 0;
 }
 
 // Run only when invoked directly (not when imported by tests).
 if (process.argv[1] && process.argv[1].endsWith('cli.js')) {
-  main();
+  try {
+    process.exitCode = main();
+  } catch (err) {
+    console.error(`audit: ${err.message}`);
+    process.exitCode = 2;
+  }
 }

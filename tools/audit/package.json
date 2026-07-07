@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Guardrail linters: no-literals, no-duplication, deps-declared, structure. Replaces v1's broken grep-affected-games.sh.",
+  "description": "Guardrail linters: no-literals, no-duplication, deps-declared, structure, hooks, harness. Replaces v1's broken grep-affected-games.sh.",
   "bin": {
     "fabrikav2-audit": "src/cli.js"
   },
