@@ -46,6 +46,11 @@ describe('parseArgs', () => {
     expect(() => parseArgs(['--game', 'g', '--budget-floor', 'x'])).toThrow(/non-negative/);
   });
 
+  it('parses --compare previous run dir', () => {
+    expect(parseArgs(['--game', 'g', '--compare', 'docs/evidence/prev']).compare).toBe('docs/evidence/prev');
+    expect(() => parseArgs(['--game', 'g', '--compare'])).toThrow(/--compare needs a value/);
+  });
+
   it('parses the panel flags', () => {
     const a = parseArgs([
       '--game', 'g', '--models', 'anthropic/claude-opus-4.1, google/gemini-3.5-flash',

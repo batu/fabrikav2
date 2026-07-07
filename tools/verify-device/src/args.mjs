@@ -58,6 +58,10 @@ Options:
                        billable model call, remaining credit is checked; below
                        the floor that judge/state is recorded as budget-halted
                        without making the model call.
+  --compare <prev-run-dir>
+                       load summary.json from a previous verify-device run
+                       (falling back to panel.json for older runs) and print
+                       per-state score / consensus / verdict deltas.
   -h, --help           show this help.
 
 The vision panel needs OPENROUTER_API_KEY (env or the sibling .env); without it
@@ -69,7 +73,7 @@ the panel skips gracefully (exit 0) and on-device fidelity stays UNVERIFIED.
  * @returns {{game?:string, device?:string, captures?:string, xcresult?:string,
  *   out?:string, date?:string, contentInsetTop?:number, threshold:number, ensemble:string, models?:string[],
  *   panelThreshold:number, skipPanel:boolean, strict:boolean,
- *   skipDevice:boolean, lane:'device'|'browser', budgetFloor:number, help:boolean}}
+ *   skipDevice:boolean, lane:'device'|'browser', budgetFloor:number, compare?:string, help:boolean}}
  */
 export function parseArgs(argv) {
   const args = {
@@ -101,6 +105,7 @@ export function parseArgs(argv) {
     else if (a === '--skip-device') args.skipDevice = true;
     else if (a === '--lane') args.lane = parseLane(req(argv, ++i, a));
     else if (a === '--budget-floor') args.budgetFloor = parseBudgetFloor(req(argv, ++i, a));
+    else if (a === '--compare') args.compare = req(argv, ++i, a);
     else if (a === '--help' || a === '-h') args.help = true;
     else throw new Error(`unknown argument: ${a}`);
   }

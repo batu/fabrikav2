@@ -30,9 +30,11 @@ npm run verify-device -- --game marble_run
 5. **Diff judged device captures vs the committed reference set** (`games/<g>/refs/`,
    via the same manifest `tools/refcap-compare` uses) → a
    **device|reference|pixel-diff grid** at
-   `docs/evidence/<date>-device-verify/grid.html` + a **PASS/FAIL** summary (FAIL if
-   a state is missing or its diff exceeds `--threshold`, default advisory).
-6. **Print the grid path + a one-line verdict.**
+   `docs/evidence/<date>-device-verify/grid.html` + `summary.json` with stable
+   per-state `{score, majorConsensusCount, verdict}` entries + a **PASS/FAIL**
+   summary (FAIL if a state is missing or its diff exceeds `--threshold`, default
+   advisory).
+6. **Print the grid path, summary path, one-line per-state table, and verdict.**
 
 ## Gating / graceful degrade
 
@@ -109,7 +111,8 @@ gracefully (exit 0) and on-device fidelity stays **UNVERIFIED**.
 `--panel-threshold <0..100>` (default 85) · `--skip-panel` · `--strict` (FAIL or
 non-device lane → non-zero exit; default advisory) · `--skip-device` ·
 `--lane <device|browser>` (default `device`) · `--budget-floor <n>` (default 5) ·
-`-h/--help`.
+`--compare <prev-run-dir>` (print per-state score / consensus / verdict deltas
+against a previous run's `summary.json`, falling back to `panel.json`) · `-h/--help`.
 
 ## Reuse
 
