@@ -247,7 +247,7 @@ export class App {
         {
           label: `${copy['menu.levelButton']} ${level}`,
           onClick: () => this.startCurrentLevel(),
-          variant: 'primary',
+          spriteImage: assetUrls.buttonPrimary,
           className: 'mr-level-cta',
           dataAction: 'play',
         },
@@ -495,9 +495,7 @@ export class App {
         mountInto: this.uiRoot,
         ribbon: {
           title: copy['settings.title'],
-          tone: 'neutral',
           image: assetUrls.ribbonTutorial,
-          imageTitleVisibility: 'visible',
         },
         closeButton: {
           label: copy['settings.closeGlyph'],
@@ -571,13 +569,13 @@ export class App {
   }
 
   private buildSettingsResetAction(): HTMLButtonElement {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'mr-settings-reset';
-    button.dataset.fabAction = 'settings-reset';
-    button.textContent = copy['settings.reset'];
-    button.addEventListener('click', () => this.resetProgressFromSettings());
-    return button;
+    return this.buildSpriteAction({
+      label: copy['settings.reset'],
+      image: assetUrls.buttonSecondary,
+      className: 'mr-settings-action mr-settings-action--reset',
+      dataAction: 'settings-reset',
+      onClick: () => this.resetProgressFromSettings(),
+    });
   }
 
   private buildResultActions(opts: Array<{
@@ -602,10 +600,10 @@ export class App {
   }): HTMLButtonElement {
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = `fab-btn fab-btn-primary ${opts.className}`;
+    button.className = `fab-btn ${opts.className}`;
     button.dataset.fabAction = opts.dataAction;
     button.textContent = opts.label;
-    button.style.setProperty('--mr-button-sprite-image', `url(${opts.image})`);
+    button.style.setProperty('--fab-btn-sprite-image', `url(${opts.image})`);
     button.addEventListener('click', () => opts.onClick());
     return button;
   }

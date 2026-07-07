@@ -1,5 +1,16 @@
 import { FlowStates } from "@fabrikav2/kernel";
-import { mountButton, type ButtonHandle } from "@fabrikav2/ui";
+import {
+  buildButtonElement,
+  buildSettingsModel,
+  mountButton,
+  mountModalShell,
+  mountResultCard,
+  mountToggleRows,
+  type ButtonHandle,
+  type SettingKey,
+  type UiHandle,
+} from "@fabrikav2/ui";
+import { assetUrls } from "../../design/theme.ts";
 import { copy } from "../../design/copy.ts";
 import {
   TAP_TEN_GOAL,
@@ -23,6 +34,18 @@ export interface TapTenScreen {
 }
 
 const CANVAS_FALLBACK_SIZE = 320;
+
+const surfaceCopy = {
+  settingsClose: "Close",
+  settingsMusic: "Music",
+  settingsSfx: "SFX",
+  settingsHaptics: "Haptics",
+  resultLevel: "LEVEL {level}",
+  winTitle: "Ten hits",
+  winMessage: "Clean run. One coin earned.",
+  failTitle: "Too many misses",
+  failMessage: "Retry the sequence.",
+} as const;
 
 export function mountTapTenScreen(opts: TapTenScreenOptions): TapTenScreen {
   const root = document.createElement("main");
@@ -60,24 +83,32 @@ export function mountTapTenScreen(opts: TapTenScreenOptions): TapTenScreen {
   root.append(header, stats, canvas, actions);
   opts.mountInto.appendChild(root);
 
+  const preferences: Record<SettingKey, boolean> = {
+    music: true,
+    sfx: true,
+    haptics: true,
+  };
+  const surface: SurfaceMount = { kind: null, handle: null };
+
   const primary = mountButton({
     mountInto: actions,
     label: copy["menu.play"],
+    spriteImage: assetUrls.buttonPrimary,
     onClick: () => startOrRestart(opts.controller),
     className: "tap-ten-screen__action",
   });
   const pause = mountButton({
     mountInto: actions,
     label: copy["action.pause"],
+    spriteImage: assetUrls.buttonSecondary,
     onClick: () => pauseOrResume(opts.controller),
-    variant: "secondary",
     className: "tap-ten-screen__action",
   });
   const menu = mountButton({
     mountInto: actions,
     label: copy["action.menu"],
-    onClick: () => opts.controller.gotoMenu(),
-    variant: "secondary",
+    spriteImage: assetUrls.buttonSecondary,
+    onClick: () => menuOrSettings(opts.controller),
     className: "tap-ten-screen__action",
   });
 
@@ -94,14 +125,17 @@ export function mountTapTenScreen(opts: TapTenScreenOptions): TapTenScreen {
       return clientPointForTile(canvas, tile);
     },
     refresh(): void {
-      render(opts.controller.snapshot(), { status, score: score.value, misses: misses.value }, canvas, {
-        primary,
-        pause,
-        menu,
-      });
+      render(
+        opts.controller.snapshot(),
+        { status, score: score.value, misses: misses.value },
+        canvas,
+        { primary, pause, menu },
+        { root, surface, controller: opts.controller, preferences },
+      );
     },
     destroy(): void {
       unsubscribe();
+      clearSurface(surface);
       root.remove();
     },
   };
@@ -113,6 +147,20 @@ export function mountTapTenScreen(opts: TapTenScreenOptions): TapTenScreen {
 interface StatNode {
   readonly root: HTMLElement;
   readonly value: HTMLElement;
+}
+
+type SurfaceKind = "settings" | "win" | "fail";
+
+interface SurfaceMount {
+  kind: SurfaceKind | null;
+  handle: UiHandle | null;
+}
+
+interface SurfaceContext {
+  root: HTMLElement;
+  surface: SurfaceMount;
+  controller: TapTenController;
+  preferences: Record<SettingKey, boolean>;
 }
 
 function statNode(labelText: string): StatNode {
@@ -142,11 +190,21 @@ function pauseOrResume(controller: TapTenController): void {
   }
 }
 
+function menuOrSettings(controller: TapTenController): void {
+  const snap = controller.snapshot();
+  if (snap.scene === FlowStates.Menu && !snap.settingsOpen) {
+    controller.openSettings();
+    return;
+  }
+  controller.gotoMenu();
+}
+
 function render(
   snap: TapTenSnapshot,
   labels: { status: HTMLElement; score: HTMLElement; misses: HTMLElement },
   canvas: HTMLCanvasElement,
   buttons: { primary: ButtonHandle; pause: ButtonHandle; menu: ButtonHandle },
+  surface: SurfaceContext,
 ): void {
   labels.status.textContent = statusCopy(snap);
   labels.score.textContent = copy["hud.scoreValue"]
@@ -158,10 +216,144 @@ function render(
 
   buttons.primary.setLabel(snap.scene === FlowStates.Menu ? copy["menu.play"] : copy["action.restart"]);
   buttons.pause.setLabel(snap.scene === FlowStates.Paused ? copy["action.resume"] : copy["action.pause"]);
+  buttons.menu.setLabel(snap.scene === FlowStates.Menu && !snap.settingsOpen ? copy["state.settings"] : copy["action.menu"]);
   buttons.pause.setDisabled(snap.scene !== FlowStates.Playing && snap.scene !== FlowStates.Paused);
-  buttons.menu.setDisabled(snap.scene === FlowStates.Menu && !snap.settingsOpen);
+  buttons.menu.setDisabled(snap.settingsOpen);
 
   drawBoard(canvas, snap);
+  reconcileSurface(snap, surface);
+}
+
+function targetSurface(snap: TapTenSnapshot): SurfaceKind | null {
+  if (snap.settingsOpen) return "settings";
+  if (snap.scene === FlowStates.Complete) return "win";
+  if (snap.scene === FlowStates.Failed) return "fail";
+  return null;
+}
+
+function reconcileSurface(snap: TapTenSnapshot, ctx: SurfaceContext): void {
+  const next = targetSurface(snap);
+  if (ctx.surface.kind === next) return;
+  clearSurface(ctx.surface);
+  if (next === null) return;
+  ctx.surface.kind = next;
+  ctx.surface.handle = mountSurface(next, snap, ctx);
+}
+
+function clearSurface(surface: SurfaceMount): void {
+  const handle = surface.handle;
+  surface.kind = null;
+  surface.handle = null;
+  handle?.dismiss();
+}
+
+function mountSurface(kind: SurfaceKind, snap: TapTenSnapshot, ctx: SurfaceContext): UiHandle {
+  switch (kind) {
+    case "settings":
+      return mountSettingsSurface(ctx);
+    case "win":
+      return mountResultSurface("win", snap, ctx);
+    case "fail":
+      return mountResultSurface("fail", snap, ctx);
+  }
+}
+
+function mountSettingsSurface(ctx: SurfaceContext): UiHandle {
+  const togglesSection = document.createElement("div");
+  togglesSection.className = "tap-ten-surface__toggles";
+  const actions = document.createElement("div");
+  actions.className = "fab-modal-actions tap-ten-surface__actions";
+  actions.appendChild(
+    buildSpriteAction({
+      label: surfaceCopy.settingsClose,
+      image: assetUrls.buttonPrimary,
+      dataAction: "settings-close",
+      onClick: () => ctx.controller.gotoMenu(),
+    }),
+  );
+
+  let toggles: UiHandle | null = null;
+  const handle = mountModalShell({
+    mountInto: ctx.root,
+    ribbon: {
+      title: copy["state.settings"],
+      image: assetUrls.ribbonNeutral,
+    },
+    body: togglesSection,
+    actions,
+    cardClassName: "tap-ten-surface tap-ten-surface--settings",
+    cardImage: assetUrls.popup,
+    onDismiss: () => toggles?.dismiss(),
+  });
+  toggles = mountToggleRows({
+    mountInto: togglesSection,
+    rows: buildSettingsModel({
+      ...ctx.preferences,
+      labels: {
+        music: surfaceCopy.settingsMusic,
+        sfx: surfaceCopy.settingsSfx,
+        haptics: surfaceCopy.settingsHaptics,
+      },
+    }).toggles,
+    onToggle: (key, next) => {
+      ctx.preferences[key as SettingKey] = next;
+    },
+  });
+  return handle;
+}
+
+function mountResultSurface(kind: "win" | "fail", snap: TapTenSnapshot, ctx: SurfaceContext): UiHandle {
+  const isWin = kind === "win";
+  const actions = document.createElement("div");
+  actions.className = "fab-modal-actions tap-ten-surface__actions";
+  actions.append(
+    buildSpriteAction({
+      label: isWin ? copy["action.restart"] : copy["action.restart"],
+      image: assetUrls.buttonPrimary,
+      dataAction: isWin ? "result-restart" : "result-retry",
+      onClick: () => ctx.controller.startLevel(snap.levelId),
+    }),
+    buildSpriteAction({
+      label: copy["action.menu"],
+      image: assetUrls.buttonSecondary,
+      dataAction: "result-menu",
+      onClick: () => ctx.controller.gotoMenu(),
+    }),
+  );
+
+  return mountResultCard({
+    mountInto: ctx.root,
+    variant: isWin ? "win" : "lose",
+    title: isWin ? surfaceCopy.winTitle : surfaceCopy.failTitle,
+    eyebrow: surfaceCopy.resultLevel.replace("{level}", String(snap.levelId)),
+    ribbonImage: isWin ? assetUrls.ribbonWin : assetUrls.ribbonFail,
+    cardImage: assetUrls.popup,
+    messages: isWin ? surfaceCopy.winMessage : surfaceCopy.failMessage,
+    rewardDisplay: isWin ? buildRewardNode(snap.coins) : undefined,
+    actions,
+  });
+}
+
+function buildRewardNode(coins: number): HTMLElement {
+  const reward = document.createElement("div");
+  reward.className = "tap-ten-surface__reward";
+  reward.textContent = `+${Math.max(1, coins)}`;
+  return reward;
+}
+
+function buildSpriteAction(opts: {
+  label: string;
+  image: string;
+  dataAction: string;
+  onClick: () => void;
+}): HTMLButtonElement {
+  return buildButtonElement({
+    label: opts.label,
+    spriteImage: opts.image,
+    dataAction: opts.dataAction,
+    className: "tap-ten-surface__button",
+    onClick: () => opts.onClick(),
+  });
 }
 
 function statusCopy(snap: TapTenSnapshot): string {

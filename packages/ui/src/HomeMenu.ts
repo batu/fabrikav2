@@ -1,4 +1,4 @@
-import { buildButtonElement, type ButtonVariant } from './Button.ts';
+import { buildButtonElement } from './Button.ts';
 import { mountSagaMap, type LevelMapState, type LevelMapActions } from './SagaMap.ts';
 import { createUiRoot, type ThemeTokens, type UiHandle } from './internal.ts';
 
@@ -18,7 +18,8 @@ import { createUiRoot, type ThemeTokens, type UiHandle } from './internal.ts';
 export interface HomeMenuAction {
   label: string;
   onClick: (event: MouseEvent) => void;
-  variant?: ButtonVariant;
+  /** Optional game-owned button sprite. When supplied, it is the button surface. */
+  spriteImage?: string;
   ariaLabel?: string;
   /** Extra class(es) for game-local theming (e.g. a green LEVEL-start CTA). */
   className?: string;
@@ -93,7 +94,7 @@ export function mountHomeMenu(opts: HomeMenuOptions): UiHandle {
         buildButtonElement({
           label: action.label,
           onClick: action.onClick,
-          variant: action.variant,
+          spriteImage: action.spriteImage,
           ariaLabel: action.ariaLabel,
           className: action.className,
           dataAction: action.dataAction,

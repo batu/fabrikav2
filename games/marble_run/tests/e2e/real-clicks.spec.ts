@@ -93,12 +93,12 @@ async function expectImageRibbonEyebrow(
 
   const card = page.locator(`.fab-result-card--${opts.cardClass}`);
   await expect(card).toBeVisible({ timeout: 4000 });
-  const ribbon = card.locator('.fab-modal-ribbon--image');
+  const ribbon = card.locator('.fab-modal-ribbon');
   await expect(ribbon).toBeVisible();
   await expect(ribbon.locator('.fab-modal-ribbon-image')).toHaveAttribute('src', new RegExp(opts.assetName));
 
   const eyebrow = ribbon.locator('.fab-modal-ribbon-eyebrow');
-  await expect(eyebrow).toHaveText('LEVEL 4');
+  await expect(eyebrow).toHaveText('Level 4');
 
   const ribbonBox = await ribbon.boundingBox();
   const eyebrowBox = await eyebrow.boundingBox();

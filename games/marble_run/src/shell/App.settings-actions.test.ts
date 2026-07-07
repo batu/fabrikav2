@@ -32,21 +32,23 @@ function action(root: HTMLElement, name: string): HTMLButtonElement | null {
   return root.querySelector<HTMLButtonElement>(`[data-fab-action="${name}"]`);
 }
 
-describe('App settings action variants', () => {
+describe('App settings actions', () => {
   afterEach(() => {
     saveState.resetSave();
     vi.restoreAllMocks();
   });
 
-  it('renders menu settings with close CTA and reset link only', () => {
+  it('renders menu settings with close and reset sprite CTAs only', () => {
     const app = harness();
     const actions = app.buildSettingsActions(false);
 
     expect(actions.classList.contains('mr-settings-actions--menu')).toBe(true);
     const close = action(actions, 'settings-close-cta');
     expect(close?.textContent).toBe('Close');
-    expect(close?.style.getPropertyValue('--mr-button-sprite-image')).toContain('url(');
-    expect(action(actions, 'settings-reset')?.textContent).toBe('Reset Progress');
+    expect(close?.style.getPropertyValue('--fab-btn-sprite-image')).toContain('url(');
+    const reset = action(actions, 'settings-reset');
+    expect(reset?.textContent).toBe('Reset Progress');
+    expect(reset?.style.getPropertyValue('--fab-btn-sprite-image')).toContain('url(');
     expect(action(actions, 'settings-restart')).toBeNull();
     expect(action(actions, 'settings-home')).toBeNull();
 
@@ -75,8 +77,8 @@ describe('App settings action variants', () => {
     const home = action(actions, 'settings-home');
     expect(restart?.textContent).toBe('Restart');
     expect(home?.textContent).toBe('Home');
-    expect(restart?.style.getPropertyValue('--mr-button-sprite-image')).toContain('url(');
-    expect(home?.style.getPropertyValue('--mr-button-sprite-image')).toContain('url(');
+    expect(restart?.style.getPropertyValue('--fab-btn-sprite-image')).toContain('url(');
+    expect(home?.style.getPropertyValue('--fab-btn-sprite-image')).toContain('url(');
     expect(action(actions, 'settings-close-cta')).toBeNull();
     expect(action(actions, 'settings-reset')).toBeNull();
 

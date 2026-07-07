@@ -53,13 +53,13 @@
     --fab-shadow-button: 0 3px 8px rgba(17, 24, 39, 0.17);
     --fab-shadow-button-active: 0 1px 4px rgba(17, 24, 39, 0.16);
     --fab-shadow-button-disabled: 0 1px 0 rgba(17, 24, 39, 0.08);
-    --fab-btn-secondary-shadow: 0 2px 6px rgba(17, 24, 39, 0.09);
-    --fab-btn-icon-color: #6b7280;
-    --fab-btn-icon-shadow: 0 2px 6px rgba(17, 24, 39, 0.08);
     --fab-btn-min-size: 48px;
-    --fab-btn-primary-padding: 14px 28px;
-    --fab-btn-secondary-padding: 10px 18px;
-    --fab-btn-icon-size: 48px;
+    --fab-btn-padding: 14px 26px;
+    --fab-btn-radius: 18px;
+    --fab-btn-sprite-image: none;
+    --fab-btn-color: var(--fab-color-on-accent);
+    --fab-btn-font-size: var(--fab-font-size-lg);
+    --fab-btn-text-shadow: none;
     --fab-btn-disabled-opacity: 0.5;
     --fab-btn-line-height: 1.1;
 
@@ -69,6 +69,7 @@
     --fab-modal-card-border: #ffffff;
     --fab-modal-backdrop-animation: fabModalBackdropIn 140ms ease-out both;
     --fab-modal-card-animation: fabModalCardIn 180ms cubic-bezier(0.16, 1.05, 0.22, 1.12) both;
+    --fab-modal-card-image: none;
     --fab-modal-close-size: 48px;
     --fab-modal-close-inset: 10px;
     --fab-modal-close-z: 3;
@@ -84,26 +85,19 @@
     --fab-modal-backplate-background-repeat: no-repeat;
     --fab-modal-backplate-background-position: center;
 
-    /* ---- Overlay ribbon banner (this card) ----
-       Coloured banner overhanging the card top; tone picks the fill. Neutral
-       token defaults only — a game reskins via --fab-* (green/red are the
-       neutral candy defaults, overridden per theme). */
-    --fab-ribbon-neutral-bg: #6b7280;
-    --fab-ribbon-win-bg: #22c55e;
-    --fab-ribbon-fail-bg: #ef4444;
+    /* ---- Overlay ribbon banner ---- */
     --fab-ribbon-title-color: #ffffff;
     --fab-ribbon-title-outline: rgba(0, 0, 0, 0.55);
     --fab-ribbon-eyebrow-color: rgba(0, 0, 0, 0.38);
-    --fab-ribbon-radius: 14px;
-    --fab-ribbon-padding: 9px 22px 11px;
+    --fab-ribbon-width: min(100%, 360px);
     --fab-ribbon-overhang: 20px;
     --fab-ribbon-title-size: 30px;
     --fab-ribbon-eyebrow-size: 14px;
-    --fab-ribbon-shadow: 0 4px 0 rgba(0, 0, 0, 0.12);
-    --fab-ribbon-image-eyebrow-top: 27%;
-    --fab-ribbon-image-eyebrow-max-width: 72%;
+    --fab-ribbon-eyebrow-top: 30%;
+    --fab-ribbon-title-top: 55%;
+    --fab-ribbon-text-max-width: 74%;
     /* Intrinsic aspect of an injected ribbon sprite (width / height); sizes the
-       banner when a game binds --fab-modal-ribbon--image so the art never squashes. */
+       banner so the art never squashes. */
     --fab-ribbon-image-aspect: 898 / 308;
 
     /* ---- Toast (new) ---- */
@@ -288,6 +282,7 @@
   /* Injected card-panel sprite: the art carries the panel's fill/border/shadow,
      so the shell drops its own so the sprite reads as the whole card. */
   .fab-modal-card.fab-modal-card--image {
+    background-image: var(--fab-modal-card-image);
     background-color: transparent;
     background-size: 100% 100%;
     background-repeat: no-repeat;
@@ -306,41 +301,19 @@
     min-height: var(--fab-modal-close-size);
   }
 
-  /* ---- Overlay ribbon banner ----
-     Overhangs the top edge of the card; tone modifier fills it. */
+  /* ---- Overlay ribbon banner ---- */
   .fab-modal-ribbon {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    position: relative;
+    align-self: center;
+    width: var(--fab-ribbon-width);
+    aspect-ratio: var(--fab-ribbon-image-aspect);
     text-align: center;
     margin: calc(-1 * var(--fab-space-lg) - var(--fab-ribbon-overhang))
       calc(-1 * var(--fab-space-sm)) var(--fab-space-md);
-    padding: var(--fab-ribbon-padding);
-    border-radius: var(--fab-ribbon-radius);
-    box-shadow: var(--fab-ribbon-shadow);
-  }
-  .fab-modal-ribbon--neutral { background-color: var(--fab-ribbon-neutral-bg); }
-  .fab-modal-ribbon--win { background-color: var(--fab-ribbon-win-bg); }
-  .fab-modal-ribbon--fail { background-color: var(--fab-ribbon-fail-bg); }
-
-  /* Injected ribbon sprite: paint it at the banner's intrinsic aspect (no
-     squash), respect PNG alpha, and collapse the visible title to a
-     screen-reader label — the art carries its own baked lettering, so keeping
-     the <h2> visible would double it. */
-  .fab-modal-ribbon--image {
-    position: relative;
-    aspect-ratio: var(--fab-ribbon-image-aspect);
-    justify-content: center;
     padding: 0;
     background-image: none;
     background-color: transparent;
     box-shadow: none;
-  }
-  .fab-modal-ribbon--image.fab-modal-ribbon--neutral,
-  .fab-modal-ribbon--image.fab-modal-ribbon--win,
-  .fab-modal-ribbon--image.fab-modal-ribbon--fail {
-    background-image: none;
-    background-color: transparent;
   }
   .fab-modal-ribbon-image {
     position: absolute;
@@ -352,42 +325,31 @@
     pointer-events: none;
     user-select: none;
   }
-  .fab-modal-ribbon--image .fab-modal-ribbon-eyebrow,
-  .fab-modal-ribbon--image .fab-modal-ribbon-title {
-    position: relative;
-    z-index: 1;
-  }
-  .fab-modal-ribbon--image:not(.fab-modal-ribbon--image-title-visible) .fab-modal-ribbon-eyebrow {
+  .fab-modal-ribbon-eyebrow,
+  .fab-modal-ribbon-title {
     position: absolute;
-    top: var(--fab-ribbon-image-eyebrow-top);
     left: 50%;
     width: max-content;
-    max-width: var(--fab-ribbon-image-eyebrow-max-width);
-    line-height: 1;
+    max-width: var(--fab-ribbon-text-max-width);
     transform: translate(-50%, -50%);
+    z-index: 1;
+    line-height: 1;
   }
-  .fab-modal-ribbon--image:not(.fab-modal-ribbon--image-title-visible) .fab-modal-ribbon-title {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-
   .fab-modal-ribbon-eyebrow {
+    top: var(--fab-ribbon-eyebrow-top);
     color: var(--fab-ribbon-eyebrow-color);
     font-size: var(--fab-ribbon-eyebrow-size);
     font-weight: var(--fab-font-weight-bold);
-    letter-spacing: 0.08em;
+    letter-spacing: 0;
     text-transform: uppercase;
   }
   .fab-modal-ribbon-title {
+    top: var(--fab-ribbon-title-top);
     margin: 0;
     color: var(--fab-ribbon-title-color);
     font-size: var(--fab-ribbon-title-size);
     font-weight: var(--fab-font-weight-bold);
-    letter-spacing: 0.02em;
+    letter-spacing: 0;
     text-transform: uppercase;
     -webkit-text-stroke: 2px var(--fab-ribbon-title-outline);
     paint-order: stroke fill;
@@ -421,6 +383,13 @@
     min-height: var(--fab-btn-min-size);
     border: 0;
     font-family: var(--fab-font-family);
+    font-size: var(--fab-btn-font-size);
+    font-weight: var(--fab-font-weight-bold);
+    color: var(--fab-btn-color);
+    text-shadow: var(--fab-btn-text-shadow);
+    padding: var(--fab-btn-padding);
+    border-radius: var(--fab-btn-radius);
+    background: var(--fab-btn-sprite-image) center / 100% 100% no-repeat;
     box-shadow: var(--fab-shadow-button);
     line-height: var(--fab-btn-line-height);
     touch-action: manipulation;
@@ -447,46 +416,14 @@
     transform: none;
   }
 
-  .fab-btn-primary {
-    background: var(--fab-color-accent);
-    color: var(--fab-color-on-accent);
-    padding: var(--fab-btn-primary-padding);
-    border-radius: var(--fab-radius-pill);
-    font-size: var(--fab-font-size-lg);
-    font-weight: var(--fab-font-weight-bold);
-  }
-
-  .fab-btn-secondary {
-    background: var(--fab-color-secondary-surface);
-    color: var(--fab-color-on-secondary);
-    border: 2px solid var(--fab-color-secondary-border);
-    box-shadow: var(--fab-btn-secondary-shadow);
-    padding: var(--fab-btn-secondary-padding);
-    border-radius: calc(var(--fab-radius-sm) + 6px);
-    font-size: var(--fab-font-size-md);
-    font-weight: var(--fab-font-weight-bold);
-  }
-
-  .fab-btn-icon {
-    width: var(--fab-btn-icon-size);
-    min-width: var(--fab-btn-icon-size);
-    min-height: var(--fab-btn-icon-size);
+  .fab-page-back,
+  .fab-modal-close {
+    width: var(--fab-modal-close-size);
+    min-width: var(--fab-modal-close-size);
+    min-height: var(--fab-modal-close-size);
     padding: 0;
     border-radius: 50%;
-    background: var(--fab-color-secondary-surface);
-    color: var(--fab-btn-icon-color);
-    border: 1px solid var(--fab-color-secondary-border);
-    box-shadow: var(--fab-btn-icon-shadow);
-    font-size: var(--fab-font-size-lg);
-    font-weight: var(--fab-font-weight-bold);
-  }
-
-  .fab-modal-actions .fab-btn-secondary {
-    background: transparent;
-    border-color: transparent;
-    box-shadow: none;
-    color: var(--fab-color-text-muted);
-    margin-top: -2px;
+    background-color: transparent;
   }
 
   @keyframes fabModalBackdropIn {

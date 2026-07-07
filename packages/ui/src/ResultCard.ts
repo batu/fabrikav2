@@ -27,11 +27,11 @@ export interface ResultCardOptions {
   mountInto: HTMLElement;
   variant: ResultVariant;
   /** Injected ribbon-banner title copy (e.g. "COMPLETED" / "FAILED"). */
-  title?: string;
+  title: string;
   /** Injected ribbon eyebrow above the title (e.g. "LEVEL 4"). */
   eyebrow?: string;
   /** Injected ribbon-banner sprite (game owns the bytes; forwarded to the shell). */
-  ribbonImage?: string;
+  ribbonImage: string;
   /** Injected card-panel sprite painted as the whole card background. */
   cardImage?: string;
   /** Injected decorative layer behind the card, forwarded to ModalShell. */
@@ -99,21 +99,13 @@ export function mountResultCard(opts: ResultCardOptions): UiHandle {
     body.appendChild(opts.continueOffer);
   }
 
-  // The result title lives in a themed ribbon banner (green win, red fail) that
-  // replaces the old vestigial 2px top-strip — matching the reference overlay.
-  const ribbon =
-    opts.title !== undefined || opts.eyebrow !== undefined
-      ? {
-          title: opts.title ?? '',
-          eyebrow: opts.eyebrow,
-          tone: opts.variant === 'win' ? ('win' as const) : ('fail' as const),
-          image: opts.ribbonImage,
-        }
-      : undefined;
-
   return mountModalShell({
     mountInto: opts.mountInto,
-    ribbon,
+    ribbon: {
+      title: opts.title,
+      eyebrow: opts.eyebrow,
+      image: opts.ribbonImage,
+    },
     body,
     actions: opts.actions,
     backdropDismiss: opts.backdropDismiss,

@@ -1,10 +1,11 @@
-import { buildButtonElement, type ButtonVariant } from './Button.ts';
+import { buildButtonElement } from './Button.ts';
 import { createUiRoot, type ThemeTokens, type UiHandle } from './internal.ts';
 
 export interface ModalAction {
   label: string;
   onClick: (event: MouseEvent) => void;
-  variant?: ButtonVariant;
+  /** Optional game-owned button sprite. When supplied, it is the button surface. */
+  spriteImage?: string;
   disabled?: boolean;
   ariaLabel?: string;
   /** Extra class(es) for game-local theming (e.g. a green CLOSE CTA). */
@@ -14,32 +15,17 @@ export interface ModalAction {
 }
 
 /**
- * Ribbon-banner header (the reference overlay language: a coloured ribbon that
- * overhangs the top edge of the card, carrying an optional eyebrow + a bold
- * title — e.g. eyebrow "LEVEL 4" / title "COMPLETED"). Tone selects the themed
- * colour family via `--fab-ribbon-*` tokens; it never hard-codes a colour.
+ * Ribbon-banner header: one game-owned sprite, with live eyebrow/title text
+ * positioned over it. The kit owns the structure; the consumer owns the bytes
+ * and copy.
  */
 export interface ModalRibbon {
   /** Bold banner title, e.g. "COMPLETED" / "FAILED". Doubles as the aria label. */
   title: string;
   /** Small eyebrow line above the title, e.g. "LEVEL 4". Omit to hide. */
   eyebrow?: string;
-  /** Themed colour family: green win, red fail, or neutral (default). */
-  tone?: 'win' | 'fail' | 'neutral';
-  /**
-   * Optional banner sprite the consumer injects (Vite-resolved url) — the game
-   * OWNS the bytes; the shell inserts them as the only visible ribbon layer.
-   * When present the visible title collapses to a screen-reader label (the
-   * sprite carries its own baked lettering) while `tone` stays as the colour
-   * fallback for non-image ribbons.
-   */
-  image?: string;
-  /**
-   * By default an injected sprite is assumed to carry its own baked lettering,
-   * so the DOM title stays screen-reader-only. Set to `visible` for blank
-   * ribbon art that needs live text painted over it.
-   */
-  imageTitleVisibility?: 'hidden' | 'visible';
+  /** Banner sprite the consumer injects (Vite-resolved url). */
+  image: string;
 }
 
 export interface ModalCloseButton {
@@ -47,6 +33,8 @@ export interface ModalCloseButton {
   label: string;
   /** Accessible action label, e.g. "Close". */
   ariaLabel: string;
+  /** Optional game-owned button sprite. When supplied, it is the button surface. */
+  spriteImage?: string;
   /** Extra class(es) for game-local theming. */
   className?: string;
   /** Stable hook (→ data-fab-action) for real-click e2e / SharedShellDriver. */
@@ -111,7 +99,7 @@ function buildActions(actions: readonly ModalAction[] | HTMLElement | undefined)
       buildButtonElement({
         label: action.label,
         onClick: action.onClick,
-        variant: action.variant,
+        spriteImage: action.spriteImage,
         disabled: action.disabled,
         ariaLabel: action.ariaLabel,
         className: action.className,
@@ -159,6 +147,7 @@ export function mountModalShell(opts: ModalShellOptions): UiHandle {
   card.className = ['fab-modal-card', opts.cardClassName].filter(Boolean).join(' ');
   if (opts.cardImage) {
     card.classList.add('fab-modal-card--image');
+    card.style.setProperty('--fab-modal-card-image', `url(${opts.cardImage})`);
     card.style.backgroundImage = `url(${opts.cardImage})`;
   }
   card.setAttribute('role', 'dialog');
@@ -171,7 +160,7 @@ export function mountModalShell(opts: ModalShellOptions): UiHandle {
       buildButtonElement({
         label: opts.closeButton.label,
         ariaLabel: opts.closeButton.ariaLabel,
-        variant: 'icon',
+        spriteImage: opts.closeButton.spriteImage,
         className: ['fab-modal-close', opts.closeButton.className].filter(Boolean).join(' '),
         dataAction: opts.closeButton.dataAction,
         onClick: () => close(),
@@ -180,21 +169,14 @@ export function mountModalShell(opts: ModalShellOptions): UiHandle {
   }
 
   if (opts.ribbon) {
-    const tone = opts.ribbon.tone ?? 'neutral';
     const ribbon = document.createElement('div');
-    ribbon.className = `fab-modal-ribbon fab-modal-ribbon--${tone}`;
-    if (opts.ribbon.image) {
-      ribbon.classList.add('fab-modal-ribbon--image');
-      if (opts.ribbon.imageTitleVisibility === 'visible') {
-        ribbon.classList.add('fab-modal-ribbon--image-title-visible');
-      }
-      const ribbonImage = document.createElement('img');
-      ribbonImage.className = 'fab-modal-ribbon-image';
-      ribbonImage.src = opts.ribbon.image;
-      ribbonImage.alt = '';
-      ribbonImage.setAttribute('aria-hidden', 'true');
-      ribbon.appendChild(ribbonImage);
-    }
+    ribbon.className = 'fab-modal-ribbon';
+    const ribbonImage = document.createElement('img');
+    ribbonImage.className = 'fab-modal-ribbon-image';
+    ribbonImage.src = opts.ribbon.image;
+    ribbonImage.alt = '';
+    ribbonImage.setAttribute('aria-hidden', 'true');
+    ribbon.appendChild(ribbonImage);
     if (opts.ribbon.eyebrow) {
       const eyebrow = document.createElement('span');
       eyebrow.className = 'fab-modal-ribbon-eyebrow';
