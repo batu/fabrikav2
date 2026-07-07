@@ -1,0 +1,693 @@
+{
+  "models": [
+    "anthropic/claude-opus-4.1",
+    "anthropic/claude-sonnet-5",
+    "google/gemini-3.5-flash"
+  ],
+  "judges": [
+    {
+      "id": "opus",
+      "model": "anthropic/claude-opus-4.1",
+      "provider": "openrouter",
+      "enabled": true
+    },
+    {
+      "id": "sonnet",
+      "model": "anthropic/claude-sonnet-5",
+      "provider": "openrouter",
+      "enabled": true
+    },
+    {
+      "id": "gemini-flash",
+      "model": "google/gemini-3.5-flash",
+      "provider": "openrouter",
+      "enabled": true
+    }
+  ],
+  "thresholdPct": 85,
+  "states": [
+    {
+      "state": "menu",
+      "score": 75,
+      "status": "fail",
+      "reason": "panel 75% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 60
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 75
+        }
+      ],
+      "consensus": [
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Coin count value is different",
+            "Level progression numbers differ from reference",
+            "The user progress indicators show a different level progression and/or state compared to the reference design."
+          ]
+        },
+        {
+          "key": "other",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Marble positions in game board are different",
+            "The wood board diagram/illustration of the level layout shows a different layout state of marbles and dots."
+          ]
+        },
+        {
+          "key": "background",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Decorative confetti elements have different positions",
+            "Extra confetti/paper decoration scattered around screen not present in reference"
+          ]
+        }
+      ]
+    },
+    {
+      "state": "level",
+      "score": 45,
+      "status": "fail",
+      "reason": "panel 45% < 85%; consensus blocker: layout (3/3)",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 45
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 35
+        }
+      ],
+      "consensus": [
+        {
+          "key": "layout",
+          "count": 3,
+          "of": 3,
+          "severity": "blocker",
+          "descriptions": [
+            "Game board configuration is completely different",
+            "Game board is 4x4 instead of 4x5, with fewer marbles and different arrangement/colors of goal pucks and balls",
+            "The game board state represents a completely different level, layout, and configuration of marbles."
+          ]
+        },
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Coin count value differs",
+            "Coin count value differs between the two screenshots",
+            "The coin/money count in the bottom-left container is incorrect."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "settings",
+      "score": 78,
+      "status": "fail",
+      "reason": "panel 78% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 85
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 62
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 78
+        }
+      ],
+      "consensus": [
+        {
+          "key": "extra-element",
+          "count": 2,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Bottom wooden wheel/gear element visible",
+            "A 'LEVEL 5' badge/label appears below the dialog, not present in reference"
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 3,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Settings panel is taller/more elongated",
+            "Dialog is cropped at the top, extending beyond the visible screen area, cutting off top spacing",
+            "The settings modal sits over a different background layout, exposing a brown rectangular board structure that is not visible in the reference."
+          ]
+        },
+        {
+          "key": "background",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Background has additional wooden elements",
+            "Background differs; a brown/wooden panel and dark background elements appear instead of the solid purple background with faint bubble pattern"
+          ]
+        },
+        {
+          "key": "typography",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Close button icon text differs slightly (bold 'X' vs stylized '✕' icon)",
+            "The font weight for list items ('Music', 'Sound Effects', 'Haptics') and the close button is heavier and has a different stroke/shadow style."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "pause",
+      "score": null,
+      "status": "unscored",
+      "reason": "no reference to score against",
+      "models": [],
+      "consensus": []
+    },
+    {
+      "state": "win",
+      "score": 75,
+      "status": "fail",
+      "reason": "panel 75% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 55
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 75
+        }
+      ],
+      "consensus": [
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Coin counter shows different value",
+            "'LEVEL 4' text overlaps and is obscured by 'COMPLETED' text instead of being positioned above it",
+            "The coin counter value differs."
+          ]
+        },
+        {
+          "key": "color",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Top coin counter background color different",
+            "Coin counter badge has wrong background color/style",
+            "The coin counter button in the top right is extremely dark/inactive instead of bright blue."
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Green banner ribbon appears differently shaped",
+            "The green ribbon banner containing 'COMPLETED' is broken in design, showing clipping and layered segments incorrectly."
+          ]
+        },
+        {
+          "key": "spacing",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Crown icon positioned differently",
+            "Overall vertical spacing/layout slightly compressed, elements positioned differently"
+          ]
+        }
+      ]
+    },
+    {
+      "state": "fail",
+      "score": 75,
+      "status": "fail",
+      "reason": "panel 75% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 85
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 55
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 75
+        }
+      ],
+      "consensus": [
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Green button shows different text",
+            "Button label text differs",
+            "The green action button text differs."
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 3,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Banner and dialog positioning",
+            "Overall content is shifted down and card is larger/wider relative to screen",
+            "The 'FAILED' red banner header graphic is misaligned, distorted, and overlaps abnormally with the outer ribbon wings, losing its original curved silhouette."
+          ]
+        },
+        {
+          "key": "iconography",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Sad emoji has different expression",
+            "The crying emoji/icon used in the center is a stock 3D emoji instead of the stylized 2D vector asset."
+          ]
+        },
+        {
+          "key": "typography",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "'LEVEL 4' text overlaps with 'FAILED' text instead of being positioned above it",
+            "The small header text 'LEVEL 4' is almost completely obscured behind the 'FAILED' text block in our rendering due to incorrect vertical spacing/layering."
+          ]
+        }
+      ]
+    }
+  ],
+  "verdict": {
+    "pass": false,
+    "summary": "FAIL — panel median 75% · 0 pass, 5 fail, 1 unscored (floor 85%)",
+    "states": [
+      {
+        "state": "menu",
+        "score": 75,
+        "status": "fail",
+        "reason": "panel 75% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 60
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 75
+          }
+        ],
+        "consensus": [
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Coin count value is different",
+              "Level progression numbers differ from reference",
+              "The user progress indicators show a different level progression and/or state compared to the reference design."
+            ]
+          },
+          {
+            "key": "other",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Marble positions in game board are different",
+              "The wood board diagram/illustration of the level layout shows a different layout state of marbles and dots."
+            ]
+          },
+          {
+            "key": "background",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Decorative confetti elements have different positions",
+              "Extra confetti/paper decoration scattered around screen not present in reference"
+            ]
+          }
+        ]
+      },
+      {
+        "state": "level",
+        "score": 45,
+        "status": "fail",
+        "reason": "panel 45% < 85%; consensus blocker: layout (3/3)",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 45
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 35
+          }
+        ],
+        "consensus": [
+          {
+            "key": "layout",
+            "count": 3,
+            "of": 3,
+            "severity": "blocker",
+            "descriptions": [
+              "Game board configuration is completely different",
+              "Game board is 4x4 instead of 4x5, with fewer marbles and different arrangement/colors of goal pucks and balls",
+              "The game board state represents a completely different level, layout, and configuration of marbles."
+            ]
+          },
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Coin count value differs",
+              "Coin count value differs between the two screenshots",
+              "The coin/money count in the bottom-left container is incorrect."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "settings",
+        "score": 78,
+        "status": "fail",
+        "reason": "panel 78% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 85
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 62
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 78
+          }
+        ],
+        "consensus": [
+          {
+            "key": "extra-element",
+            "count": 2,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Bottom wooden wheel/gear element visible",
+              "A 'LEVEL 5' badge/label appears below the dialog, not present in reference"
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 3,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Settings panel is taller/more elongated",
+              "Dialog is cropped at the top, extending beyond the visible screen area, cutting off top spacing",
+              "The settings modal sits over a different background layout, exposing a brown rectangular board structure that is not visible in the reference."
+            ]
+          },
+          {
+            "key": "background",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Background has additional wooden elements",
+              "Background differs; a brown/wooden panel and dark background elements appear instead of the solid purple background with faint bubble pattern"
+            ]
+          },
+          {
+            "key": "typography",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Close button icon text differs slightly (bold 'X' vs stylized '✕' icon)",
+              "The font weight for list items ('Music', 'Sound Effects', 'Haptics') and the close button is heavier and has a different stroke/shadow style."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "pause",
+        "score": null,
+        "status": "unscored",
+        "reason": "no reference to score against",
+        "models": [],
+        "consensus": []
+      },
+      {
+        "state": "win",
+        "score": 75,
+        "status": "fail",
+        "reason": "panel 75% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 55
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 75
+          }
+        ],
+        "consensus": [
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Coin counter shows different value",
+              "'LEVEL 4' text overlaps and is obscured by 'COMPLETED' text instead of being positioned above it",
+              "The coin counter value differs."
+            ]
+          },
+          {
+            "key": "color",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Top coin counter background color different",
+              "Coin counter badge has wrong background color/style",
+              "The coin counter button in the top right is extremely dark/inactive instead of bright blue."
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Green banner ribbon appears differently shaped",
+              "The green ribbon banner containing 'COMPLETED' is broken in design, showing clipping and layered segments incorrectly."
+            ]
+          },
+          {
+            "key": "spacing",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Crown icon positioned differently",
+              "Overall vertical spacing/layout slightly compressed, elements positioned differently"
+            ]
+          }
+        ]
+      },
+      {
+        "state": "fail",
+        "score": 75,
+        "status": "fail",
+        "reason": "panel 75% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 85
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 55
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 75
+          }
+        ],
+        "consensus": [
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Green button shows different text",
+              "Button label text differs",
+              "The green action button text differs."
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 3,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Banner and dialog positioning",
+              "Overall content is shifted down and card is larger/wider relative to screen",
+              "The 'FAILED' red banner header graphic is misaligned, distorted, and overlaps abnormally with the outer ribbon wings, losing its original curved silhouette."
+            ]
+          },
+          {
+            "key": "iconography",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Sad emoji has different expression",
+              "The crying emoji/icon used in the center is a stock 3D emoji instead of the stylized 2D vector asset."
+            ]
+          },
+          {
+            "key": "typography",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "'LEVEL 4' text overlaps with 'FAILED' text instead of being positioned above it",
+              "The small header text 'LEVEL 4' is almost completely obscured behind the 'FAILED' text block in our rendering due to incorrect vertical spacing/layering."
+            ]
+          }
+        ]
+      }
+    ],
+    "score": 75
+  },
+  "budgetHalted": false,
+  "game": "marble_run",
+  "lane": "device",
+  "generatedAt": "2026-07-07T14:54:27.855Z"
+}
