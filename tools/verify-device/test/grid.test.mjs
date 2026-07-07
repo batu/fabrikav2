@@ -44,6 +44,25 @@ describe('buildGridHtml', () => {
     expect(html).toContain('documented gap');
   });
 
+  it('documents raw and judged capture artifacts when content inset is configured', () => {
+    const h = buildGridHtml({
+      game: 'g',
+      generatedAt: 'd',
+      device: 'd',
+      rows,
+      verdict,
+      captureArtifacts: {
+        contentInsetTop: 130,
+        rawDir: 'docs/evidence/run/raw-captures',
+        judgedDir: 'docs/evidence/run/judged-captures',
+      },
+    });
+    expect(h).toContain('raw device captures preserved');
+    expect(h).toContain('docs/evidence/run/raw-captures');
+    expect(h).toContain('docs/evidence/run/judged-captures');
+    expect(h).toContain('130px');
+  });
+
   it('escapes untrusted text', () => {
     const evil = buildGridHtml({
       game: '<script>x</script>', generatedAt: 'd', device: 'd', rows: [], verdict: { pass: true, summary: 's', states: [] },

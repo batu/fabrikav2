@@ -43,6 +43,7 @@ import { loadRegistry, resolveJudges } from './src/judges.mjs';
 import { CANONICAL_STATES } from './src/states.mjs';
 import { harnessWindowKey, startDevServer, captureBrowserStates } from './src/browserLane.mjs';
 import { checkBudget } from './src/budget.mjs';
+import { prepareJudgedCaptures, resolveJudgedContentInsetTop } from './src/contentInset.mjs';
 import * as steps from './src/steps.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -186,14 +187,21 @@ async function main() {
   }
   const lane = resolved.lane || 'device';
 
-  const { rows } = buildRows({ manifest, deviceCaptures: resolved.captures, lane });
+  const outDir = defaultOut(args, date);
+  fs.mkdirSync(outDir, { recursive: true });
+  const contentInsetTop = resolveJudgedContentInsetTop({ args, manifest, lane });
+  const prepared = prepareJudgedCaptures({
+    captures: resolved.captures,
+    outDir,
+    contentInsetTop,
+  });
+
+  const { rows } = buildRows({ manifest, deviceCaptures: prepared.judgedCaptures, lane });
   const phashVerdict = computeVerdict(rows, args.threshold);
 
   // PRIMARY verdict: the multi-model vision panel (phash is now a secondary
   // advisory signal). Conductor-run — needs OPENROUTER_API_KEY + network; skips
   // gracefully (fidelity stays UNVERIFIED) in the worker/CI sandbox.
-  const outDir = defaultOut(args, date);
-  fs.mkdirSync(outDir, { recursive: true });
   let panel = { skipped: 'panel disabled by --skip-panel' };
   if (!args.skipPanel) {
     // Resolve the roster from the judge registry: --ensemble names a set,
@@ -227,6 +235,11 @@ async function main() {
   const html = buildGridHtml({
     game: args.game, generatedAt: date, device: resolved.deviceLabel,
     rows, verdict: phashVerdict, panel, lane,
+    captureArtifacts: {
+      contentInsetTop,
+      rawDir: path.relative(REPO_ROOT, prepared.artifacts.rawDir),
+      judgedDir: path.relative(REPO_ROOT, prepared.artifacts.judgedDir),
+    },
   });
   const outFile = path.join(outDir, 'grid.html');
   fs.writeFileSync(outFile, html);
@@ -242,6 +255,9 @@ async function main() {
   process.stdout.write(
     `verify-device: ${lane} captures from ${resolved.deviceLabel}\n` +
     laneNote +
+    `  content-inset: top ${contentInsetTop}px cropped before phash/panel; ` +
+    `raw ${path.relative(REPO_ROOT, prepared.artifacts.rawDir)}; ` +
+    `judged ${path.relative(REPO_ROOT, prepared.artifacts.judgedDir)}\n` +
     (resolved.captureFailure ? `  capture: FAILED — ${resolved.captureFailure}\n` : '') +
     `  phash: ${phashVerdict.summary}\n` +
     (panel.verdict ? `  panel: ${panel.verdict.summary}\n`

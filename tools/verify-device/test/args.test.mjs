@@ -20,6 +20,16 @@ describe('parseArgs', () => {
     expect(a.skipDevice).toBe(false);
     expect(a.lane).toBe('device'); // default lane stays device (never auto-browser)
     expect(a.budgetFloor).toBe(5);
+    expect(a.contentInsetTop).toBeUndefined(); // undefined -> manifest value, then 0
+  });
+
+  it('parses --content-inset-top and rejects non-integer/negative values', () => {
+    expect(parseArgs(['--game', 'g', '--content-inset-top', '130']).contentInsetTop).toBe(130);
+    expect(parseArgs(['--game', 'g', '--content-inset-top', '0']).contentInsetTop).toBe(0);
+    expect(() => parseArgs(['--game', 'g', '--content-inset-top', '-1'])).toThrow(/non-negative integer/);
+    expect(() => parseArgs(['--game', 'g', '--content-inset-top', '1.5'])).toThrow(/non-negative integer/);
+    expect(() => parseArgs(['--game', 'g', '--content-inset-top', 'x'])).toThrow(/non-negative integer/);
+    expect(() => parseArgs(['--game', 'g', '--content-inset-top'])).toThrow(/--content-inset-top needs a value/);
   });
 
   it('parses --lane and rejects anything but device/browser', () => {
@@ -60,12 +70,12 @@ describe('parseArgs', () => {
   it('parses all flags', () => {
     const a = parseArgs([
       '--game', 'marble_run', '--device', 'UDID-1', '--captures', 'cap/',
-      '--out', 'o/', '--date', '2026-07-06', '--threshold', '0.05',
+      '--out', 'o/', '--date', '2026-07-06', '--content-inset-top', '10', '--threshold', '0.05',
       '--strict', '--skip-device',
     ]);
     expect(a).toMatchObject({
       game: 'marble_run', device: 'UDID-1', captures: 'cap/', out: 'o/',
-      date: '2026-07-06', threshold: 0.05, strict: true, skipDevice: true,
+      date: '2026-07-06', contentInsetTop: 10, threshold: 0.05, strict: true, skipDevice: true,
     });
   });
 
