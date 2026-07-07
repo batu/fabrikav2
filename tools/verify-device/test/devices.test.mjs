@@ -2,12 +2,18 @@ import { describe, it, expect } from 'vitest';
 import { parseDeviceList, pickDevice } from '../src/devices.mjs';
 
 // Shaped like `xcrun devicectl list devices --json-output`.
-function dev({ udid, name = 'iPhone', platform = 'iOS', state = 'connected' }) {
+function dev({
+  udid,
+  name = 'iPhone',
+  platform = 'iOS',
+  state = 'connected',
+  pairingState,
+}) {
   return {
     identifier: udid,
     hardwareProperties: { udid, platform },
     deviceProperties: { name },
-    connectionProperties: { tunnelState: state },
+    connectionProperties: { tunnelState: state, pairingState },
   };
 }
 
@@ -20,6 +26,30 @@ describe('parseDeviceList', () => {
       dev({ udid: 'D', name: 'iPhone D', state: 'available' }),
     ] } };
     expect(parseDeviceList(json).map((d) => d.udid).sort()).toEqual(['A', 'D']);
+  });
+
+  it('keeps paired idle devices even when their tunnel is disconnected', () => {
+    const json = { result: { devices: [
+      dev({ udid: 'P', state: 'disconnected', pairingState: 'paired' }),
+    ] } };
+    expect(parseDeviceList(json).map((d) => d.udid)).toEqual(['P']);
+  });
+
+  it('excludes explicitly unpaired devices even if tunnel state looks usable', () => {
+    const json = { result: { devices: [
+      dev({ udid: 'U1', state: 'connected', pairingState: 'unpaired' }),
+      dev({ udid: 'U2', state: 'available', pairingState: 'unpaired' }),
+    ] } };
+    expect(parseDeviceList(json)).toEqual([]);
+  });
+
+  it('keeps connected/available devices for older devicectl shapes without pairingState', () => {
+    const json = { result: { devices: [
+      dev({ udid: 'C', state: 'connected' }),
+      dev({ udid: 'A', state: 'available' }),
+      dev({ udid: 'D', state: 'disconnected' }),
+    ] } };
+    expect(parseDeviceList(json).map((d) => d.udid).sort()).toEqual(['A', 'C']);
   });
 
   it('is empty-safe for missing/garbage shapes', () => {

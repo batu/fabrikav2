@@ -17,9 +17,10 @@ attach to the `.xcresult`; `verify-device` extracts them via
 The target bundle id is **injected, never hardcoded** — the CLI runs:
 
 ```sh
+TEST_RUNNER_TARGET_BUNDLE_ID=<appId> \
 xcodebuild test -project VerifyDeviceRunner.xcodeproj -scheme VerifyDeviceRunner \
-  -destination id=<device-udid> -resultBundlePath <out>/device.xcresult \
-  TEST_RUNNER_TARGET_BUNDLE_ID=<appId>
+  -destination id=<device-udid> -allowProvisioningUpdates \
+  -resultBundlePath <out>/device.xcresult
 ```
 
 `xcodebuild` forwards `TEST_RUNNER_`-prefixed vars to the test process with the
@@ -28,9 +29,10 @@ environment. One file, all games.
 
 ## Files
 
-- `project.yml` — xcodegen spec. `DEVELOPMENT_TEAM` is taken from the environment
-  (falls back to the studio dev team). The CLI runs `xcodegen generate` here when
-  the `.xcodeproj` is absent, so only the spec + Swift are committed.
+- `project.yml` — xcodegen spec with the committed studio dev team default. The
+  CLI runs `xcodegen generate` every time so stale generated projects cannot be
+  reused; a runtime `DEVELOPMENT_TEAM` override is passed to `xcodebuild` as a
+  build setting.
 - `VerifyDeviceRunner/InsituTourTests.swift` — the capture test.
 
 ## Why element-gated, not timed

@@ -27,6 +27,17 @@ export function computeVerdict(rows, threshold) {
   return { pass, states, summary };
 }
 
+export function isVerifiedDeviceLane(lane) {
+  return lane === 'device';
+}
+
+export function computeStrictExitCode({ strict, lane, primary, captureFailure }) {
+  if (captureFailure) return 1;
+  if (!strict) return 0;
+  if (!isVerifiedDeviceLane(lane)) return 1;
+  return primary?.pass ? 0 : 1;
+}
+
 function classify(row, threshold) {
   const cf = row.diff ? row.diff.changedFraction : null;
   if (row.device && row.device.gap) {
