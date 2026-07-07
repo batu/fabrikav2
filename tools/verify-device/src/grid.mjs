@@ -23,6 +23,8 @@ function meta(cell) {
   if (!cell || cell.gap) return '';
   const rows = [
     ['source', cell.source],
+    ['state-variant', cell.stateVariant],
+    ['at-rest', cell.atRest],
     ['package', cell.package],
     ['version', cell.version],
     ['resolution', cell.resolution],
@@ -167,6 +169,7 @@ export function buildGridHtml({ game, generatedAt, device, rows, verdict, panel,
   .badge.fail { background: #3a1a20; color: #ff9aa6; }
   .badge.missing { background: #3a2f16; color: #ffd479; }
   .badge.no-reference { background: #241f3a; color: #cdb4d6; }
+  .badge.skipped { background: #241f3a; color: #cdb4d6; }
   .reason { font-size: 12px; color: #8f86ad; text-transform: none; margin-left: 6px; }
   .cell { margin: 0; text-align: center; }
   .cell figcaption { color: #b3a9cc; font-size: 12px; margin-bottom: 8px; }
@@ -192,6 +195,7 @@ export function buildGridHtml({ game, generatedAt, device, rows, verdict, panel,
   tr.pstate.fail td:first-child { border-left: 3px solid #7a3040; }
   tr.pstate.pass td:first-child { border-left: 3px solid #2f6d3c; }
   tr.pstate.unscored td:first-child { border-left: 3px solid #7a5a1f; }
+  tr.pstate.skipped td:first-child { border-left: 3px solid #6b6390; }
   .model { display: inline-block; padding: 1px 7px; border-radius: 999px; margin: 1px 2px;
            font-size: 11px; background: #241f3a; color: #cdb4d6; }
   .model.skip { color: #8f86ad; text-decoration: line-through; }

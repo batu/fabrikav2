@@ -14,6 +14,15 @@ const rows = [
     reference: { gap: 'no reference pause capture — documented gap' },
     diff: null,
   },
+  {
+    state: 'fail',
+    device: { base64: 'EEEE', alt: 'fail device' },
+    reference: {
+      gap: 'reference skipped by refs manifest at-rest:false: refs/captures/source/fail.png',
+      skipJudging: true,
+    },
+    diff: null,
+  },
 ];
 const verdict = {
   pass: false,
@@ -21,6 +30,7 @@ const verdict = {
   states: [
     { state: 'menu', status: 'fail', reason: 'diff 12.0% > threshold 20%', changedFraction: 0.12 },
     { state: 'pause', status: 'no-reference', reason: 'documented gap', changedFraction: null },
+    { state: 'fail', status: 'skipped', reason: 'at-rest:false', changedFraction: null },
   ],
 };
 
@@ -38,6 +48,7 @@ describe('buildGridHtml', () => {
     expect(html).toContain('verdict bad');
     expect(html).toContain('badge fail');
     expect(html).toContain('badge no-reference');
+    expect(html).toContain('badge skipped');
   });
 
   it('renders documented gaps explicitly, never a blank', () => {

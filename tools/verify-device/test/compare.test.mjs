@@ -32,8 +32,8 @@ describe('buildRows + verdict (reuse path, offline)', () => {
         deviceCaptures[st.name] = dst;
       }
     }
-    // Drop one state to prove "missing device capture" is caught.
-    delete deviceCaptures.fail;
+    // Drop one at-rest state to prove "missing device capture" is caught.
+    delete deviceCaptures.win;
   });
 
   afterAll(() => fs.rmSync(capturesDir, { recursive: true, force: true }));
@@ -54,7 +54,7 @@ describe('buildRows + verdict (reuse path, offline)', () => {
   it('a state with no device capture is flagged missing (fail)', () => {
     const { rows } = buildRows({ manifest, deviceCaptures });
     const verdict = computeVerdict(rows, 0.2);
-    expect(verdict.states.find((s) => s.state === 'fail').status).toBe('missing');
+    expect(verdict.states.find((s) => s.state === 'win').status).toBe('missing');
     expect(verdict.pass).toBe(false);
   });
 
@@ -70,8 +70,8 @@ describe('buildRows + verdict (reuse path, offline)', () => {
 
   it('a missing browser-lane capture is reported with a lane-specific gap message', () => {
     const { rows } = buildRows({ manifest, deviceCaptures, lane: 'browser' });
-    const fail = rows.find((r) => r.state === 'fail');
-    expect(fail.device.gap).toMatch(/no browser capture for "fail"/);
+    const win = rows.find((r) => r.state === 'win');
+    expect(win.device.gap).toMatch(/no browser capture for "win"/);
   });
 
   it('a documented reference gap (pause) yields no-reference, not a crash', () => {
@@ -81,5 +81,17 @@ describe('buildRows + verdict (reuse path, offline)', () => {
     const { rows } = buildRows({ manifest, deviceCaptures });
     const pause = rows.find((r) => r.state === 'pause');
     expect(pause.reference.gap).toBeTruthy();
+  });
+
+  it('excludes at-rest:false references from diffing and judging', () => {
+    const { rows } = buildRows({ manifest, deviceCaptures });
+    const fail = rows.find((r) => r.state === 'fail');
+    expect(fail.reference.skipJudging).toBe(true);
+    expect(fail.reference.gap).toMatch(/at-rest:false/);
+    expect(fail.reference.gap).toMatch(/recapture/i);
+    expect(fail.diff).toBeNull();
+
+    const verdict = computeVerdict(rows, 0.2);
+    expect(verdict.states.find((s) => s.state === 'fail')).toMatchObject({ status: 'skipped' });
   });
 });

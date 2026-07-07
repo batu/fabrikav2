@@ -31,9 +31,31 @@ function deviceCell(state, absPath, lane) {
   };
 }
 
-function referenceCell(gameDir, state, laneDef, refMeta) {
+function reasonForNotAtRest(captureMeta) {
+  const reason = captureMeta['not-at-rest-reason'];
+  const recapture = captureMeta['recapture-note'];
+  return [
+    typeof reason === 'string' && reason.trim() ? reason.trim() : null,
+    typeof recapture === 'string' && recapture.trim() ? `recapture: ${recapture.trim()}` : null,
+  ].filter(Boolean).join('; ');
+}
+
+function referenceCell(gameDir, state, laneDef, refMeta, refsMeta) {
   if (!laneDef || (!laneDef.offline && laneDef.gap)) {
     return { gap: (laneDef && laneDef.gap) || `no reference for "${state}"`, lane: 'reference' };
+  }
+  const captureMeta = refsMeta && refsMeta[laneDef.offline];
+  if (captureMeta && captureMeta['at-rest'] === false) {
+    const reason = reasonForNotAtRest(captureMeta);
+    return {
+      lane: 'reference',
+      state,
+      gap: `reference skipped by refs manifest at-rest:false: ${laneDef.offline}${reason ? ` - ${reason}` : ''}`,
+      source: laneDef.offline,
+      skipJudging: true,
+      atRest: false,
+      stateVariant: captureMeta['state-variant'],
+    };
   }
   const abs = path.join(gameDir, laneDef.offline);
   if (!fs.existsSync(abs)) {
@@ -51,6 +73,8 @@ function referenceCell(gameDir, state, laneDef, refMeta) {
     img,
     package: refMeta && refMeta.package,
     version: refMeta && refMeta.version,
+    atRest: captureMeta && captureMeta['at-rest'],
+    stateVariant: captureMeta && captureMeta['state-variant'],
     resolution: `${img.width}x${img.height}`,
     sig: digest(signature(img)),
   };
@@ -68,9 +92,10 @@ function referenceCell(gameDir, state, laneDef, refMeta) {
 export function buildRows({ manifest, deviceCaptures, lane = 'device' }) {
   const { gameDir } = manifest;
   const rows = [];
+  const refsMeta = manifest.refs && typeof manifest.refs === 'object' ? manifest.refs : {};
   for (const st of manifest.states) {
     const device = deviceCell(st.name, deviceCaptures[st.name], lane);
-    const reference = referenceCell(gameDir, st.name, st.reference, manifest.reference);
+    const reference = referenceCell(gameDir, st.name, st.reference, manifest.reference, refsMeta);
     let diff = null;
     if (!device.gap && !reference.gap) {
       const d = diffThumbnail(reference.img, device.img);

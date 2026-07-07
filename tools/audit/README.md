@@ -1,6 +1,6 @@
 # tools/audit
 
-Seven guardrail linters that enforce the anti-v1 rules
+Eight guardrail linters that enforce the anti-v1 rules
 (`docs/architecture/v2-architecture.md` §Guardrails). They replace v1's broken
 `scripts/grep-affected-games.sh` — this time with tests.
 
@@ -115,6 +115,16 @@ rather than reddening the gate. See the per-linter notes below.
    token expectations for font family and font size values. Documented
    `intentionally-different` entries stay visible as warnings so known debt does
    not disappear from the audit output.
+
+8. **refs-lint** — every committed image under
+   `games/<game>/refs/captures/` must have a top-level `refs:` entry in
+   `games/<game>/refs/manifest.yaml`. Each entry records `state-variant`,
+   `capture-recipe`, boolean `at-rest`, and structured `provenance`. Stale
+   entries, missing entries, missing required fields, invalid booleans, and
+   undocumented `at-rest: false` refs are hard errors. Known-bad captures can
+   stay in the corpus only when they carry `not-at-rest-reason` and
+   `recapture-note`, which lets `verify-device` skip them instead of scoring
+   them as authoritative references.
 
 Shared constants/helpers live in `src/lib.js` so the linters don't duplicate
 literal values themselves.
