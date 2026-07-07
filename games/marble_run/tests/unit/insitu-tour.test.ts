@@ -87,6 +87,7 @@ function installFakeDom(ariaHistory: string[]): { markerFor: (id: string) => Fak
 function makeFakeApp(
   driveTo: (state: string) => Promise<boolean>,
   snapshot?: () => Record<string, unknown>,
+  harnessOverrides: Record<string, unknown> = {},
 ): App {
   let currentState = 'menu';
   const h = {
@@ -100,6 +101,7 @@ function makeFakeApp(
     gotoMenu: () => {},
     autoWin: async () => true,
     autoFail: async () => true,
+    ...harnessOverrides,
   };
   return { harness: () => h } as unknown as App;
 }
@@ -149,6 +151,29 @@ describe('maybeRunInsituTour — allstates', () => {
       'tourstate:fail-DONE',
       'tourstate:done',
     ]);
+  });
+
+  it('resets and seeds save state before the first canonical drive', async () => {
+    const calls: string[] = [];
+    const app = makeFakeApp(
+      async (state) => {
+        calls.push(`drive:${state}`);
+        return true;
+      },
+      undefined,
+      {
+        resetSave: () => calls.push('reset'),
+        seedSave: (profile: { unlockedLevel?: number; coins?: number }) => {
+          calls.push(`seed:${profile.unlockedLevel}:${profile.coins}`);
+        },
+      },
+    );
+
+    const run = maybeRunInsituTour(app);
+    await vi.runAllTimersAsync();
+    await run;
+
+    expect(calls.slice(0, 3)).toEqual(['reset', 'seed:2:25', 'drive:menu']);
   });
 
   it('marks a state "-FAILED" — an honest miss, not a false confirm — when driveTo cannot reach it', async () => {

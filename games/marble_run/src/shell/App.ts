@@ -46,6 +46,7 @@ import {
   type CaptureResult,
   type PerfSample,
   type AnalyticsEventLike,
+  type HarnessSaveProfile,
 } from '@fabrikav2/testkit/harness';
 import type { RingBufferSink } from '@fabrikav2/sdk/analytics';
 import type { GameSdk } from '../sdk/SdkContext';
@@ -809,6 +810,14 @@ export class App {
         for (let i = 1; i <= LEVEL_COUNT; i += 1) saveState.recordWin(i, 0);
       },
       grantCoins: (coins: number) => saveState.addCoins(coins),
+      resetSave: () => {
+        saveState.resetSave();
+        this.renderMenu();
+      },
+      seedSave: (profile: HarnessSaveProfile) => {
+        saveState.seedSave(profile);
+        this.renderMenu();
+      },
 
       // ── typed game verbs (both flavours: state-drive + input-drive) ─
       verbs: this.buildVerbs(),

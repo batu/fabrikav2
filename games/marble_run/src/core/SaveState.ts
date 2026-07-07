@@ -16,6 +16,15 @@ export interface SaveData {
   haptics: boolean;
 }
 
+export interface SaveSeedProfile {
+  unlockedLevel?: number;
+  coins?: number;
+  noAds?: boolean;
+  sfx?: boolean;
+  music?: boolean;
+  haptics?: boolean;
+}
+
 interface LegacySaveData {
   v: 1;
   unlocked?: number;
@@ -26,6 +35,11 @@ interface LegacySaveData {
 
 function defaults(): SaveData {
   return { v: 2, unlocked: 1, coins: 0, noAds: false, sfx: true, music: true, haptics: true };
+}
+
+function clampInt(value: number | undefined, min: number, max: number, fallback: number): number {
+  if (value === undefined || !Number.isFinite(value)) return fallback;
+  return Math.min(Math.max(Math.trunc(value), min), max);
 }
 
 function load(): SaveData {
@@ -115,6 +129,25 @@ export class SaveState {
     // Settings AND the paid no-ads entitlement survive a progress reset.
     const { sfx, music, haptics, noAds } = this.data;
     this.data = { ...defaults(), sfx, music, haptics, noAds };
+    this.save();
+  }
+
+  resetSave(): void {
+    this.data = defaults();
+    this.save();
+  }
+
+  seedSave(profile: SaveSeedProfile): void {
+    const base = defaults();
+    this.data = {
+      v: 2,
+      unlocked: clampInt(profile.unlockedLevel, 1, LEVEL_COUNT, base.unlocked),
+      coins: clampInt(profile.coins, 0, Number.MAX_SAFE_INTEGER, base.coins),
+      noAds: profile.noAds ?? base.noAds,
+      sfx: profile.sfx ?? base.sfx,
+      music: profile.music ?? base.music,
+      haptics: profile.haptics ?? base.haptics,
+    };
     this.save();
   }
 

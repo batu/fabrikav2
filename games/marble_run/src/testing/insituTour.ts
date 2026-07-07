@@ -12,11 +12,20 @@
  * verified (the "did I actually win?" failure this fixes).
  */
 import type { App } from '../shell/App';
+import type { HarnessSaveProfile } from '@fabrikav2/testkit/harness';
 
 const DWELL_MS = 6000;
 const ALLSTATES = ['menu', 'level', 'settings', 'pause', 'win', 'fail'] as const;
 const ALLSTATES_DWELL_MS = 11000;
 const MARK_SETTLE_RECHECK_MS = 500;
+const ALLSTATES_SAVE_PROFILE = {
+  unlockedLevel: 2,
+  coins: 25,
+  noAds: false,
+  sfx: true,
+  music: true,
+  haptics: true,
+} as const satisfies HarnessSaveProfile;
 
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
 type AllstatesState = (typeof ALLSTATES)[number];
@@ -92,6 +101,9 @@ export async function maybeRunInsituTour(app: App): Promise<void> {
   // 'allstates' = drive to EVERY canonical state via driveTo (each confirmed),
   // dwelling for a device capture. This is the required device-verification tour.
   if (script === 'allstates' && typeof h.driveTo === 'function') {
+    await h.resetSave?.();
+    await h.seedSave?.(ALLSTATES_SAVE_PROFILE);
+
     const stillMatches = (state: AllstatesState): boolean =>
       snapshotMatchesState(state, h.snapshot() as Record<string, unknown>);
 

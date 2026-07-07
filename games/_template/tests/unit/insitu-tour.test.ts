@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { GameHarness } from "@fabrikav2/testkit/harness";
+import type { GameHarness, HarnessSaveProfile } from "@fabrikav2/testkit/harness";
 import { maybeRunInsituTour } from "../../src/testing/insituTour.ts";
 
 function setTourSearch(search: string): void {
@@ -24,7 +24,10 @@ function snapshotFor(state: string): Record<string, unknown> {
   }
 }
 
-function makeHarness(driveTo: (state: string) => Promise<boolean>): GameHarness {
+function makeHarness(
+  driveTo: (state: string) => Promise<boolean>,
+  overrides: Partial<GameHarness> = {},
+): GameHarness {
   let currentState = "menu";
   return {
     gotoState: () => {},
@@ -41,6 +44,7 @@ function makeHarness(driveTo: (state: string) => Promise<boolean>): GameHarness 
       if (ok) currentState = state;
       return ok;
     },
+    ...overrides,
   } as GameHarness;
 }
 
@@ -99,6 +103,30 @@ describe("_template maybeRunInsituTour — allstates", () => {
       "tourstate:fail-DONE",
       "tourstate:done",
     ]);
+  });
+
+  it("resets and seeds save state before the first canonical drive", async () => {
+    const calls: string[] = [];
+    const harness = makeHarness(
+      async (state) => {
+        calls.push(`drive:${state}`);
+        return true;
+      },
+      {
+        resetSave: () => {
+          calls.push("reset");
+        },
+        seedSave: (profile: HarnessSaveProfile) => {
+          calls.push(`seed:${profile.unlockedLevel}:${profile.coins}`);
+        },
+      },
+    );
+
+    const run = maybeRunInsituTour(harness);
+    await vi.runAllTimersAsync();
+    await run;
+
+    expect(calls.slice(0, 3)).toEqual(["reset", "seed:2:25", "drive:menu"]);
   });
 
   it("marks a failed state honestly when driveTo returns false", async () => {

@@ -11,6 +11,7 @@ export type {
   ClientPoint,
   GameHarness,
   GameVerbHandler,
+  HarnessSaveProfile,
   PerfBucket,
   PerfSample,
   SnapshotEnvelope,

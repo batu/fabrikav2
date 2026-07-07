@@ -24,7 +24,7 @@
  * choice, visual judgment, retry policy, or convergence loops here. Those
  * belong in the agent or in an external one-shot tool that returns.
  */
-import type { GameHarness } from '@fabrikav2/testkit/harness';
+import type { GameHarness, HarnessSaveProfile } from '@fabrikav2/testkit/harness';
 
 /** The canonical device-capture states the 'allstates' script drives through
  *  (mirrors `driveTo.ts`'s `DriveState` / `tools/refcap-compare` `CANONICAL_STATES`). */
@@ -37,6 +37,14 @@ type AllstatesState = (typeof ALLSTATES)[number];
 // fidelity-diff mistakes ledger (settings/fail mislabeled as menu/level).
 const ALLSTATES_DWELL_MS = 11000;
 const MARK_SETTLE_RECHECK_MS = 500;
+const ALLSTATES_SAVE_PROFILE = {
+  unlockedLevel: 2,
+  coins: 25,
+  noAds: false,
+  sfx: true,
+  music: true,
+  haptics: true,
+} as const satisfies HarnessSaveProfile;
 
 const sleep = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
 
@@ -106,6 +114,9 @@ export async function maybeRunInsituTour(harness: GameHarness): Promise<void> {
   // 'allstates' = drive to EVERY canonical state via driveTo (each confirmed),
   // dwelling for a device capture. This is the required device-verification tour.
   if (script === 'allstates' && typeof harness.driveTo === 'function') {
+    await harness.resetSave?.();
+    await harness.seedSave?.(ALLSTATES_SAVE_PROFILE);
+
     for (const s of ALLSTATES) {
       const ok = await harness.driveTo(s);
       let stable = false;

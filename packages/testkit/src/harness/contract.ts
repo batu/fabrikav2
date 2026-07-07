@@ -102,6 +102,26 @@ export interface PerfSample {
 }
 
 /**
+ * Deterministic persisted-state seed used by capture tours before they drive
+ * canonical states. Every field is optional so a game can consume only the
+ * parts its save model understands; the index signature leaves room for
+ * game-specific seed data without forking the shared harness contract.
+ */
+export interface HarnessSaveProfile {
+  /** Current/highest unlocked level for games where progression is level-gated. */
+  readonly unlockedLevel?: number;
+  /** Soft-currency balance visible in menus/HUDs. */
+  readonly coins?: number;
+  /** Durable no-ads entitlement or equivalent purchase flag. */
+  readonly noAds?: boolean;
+  /** Audio/haptics settings when visible or gameplay-affecting. */
+  readonly sfx?: boolean;
+  readonly music?: boolean;
+  readonly haptics?: boolean;
+  readonly [gameSpecific: string]: unknown;
+}
+
+/**
  * The standard in-game harness contract. `GameVerb` is the per-game extension
  * point — a union of that game's extra verb-name literals, defaulting to
  * `never` (a game needing only the core writes `GameHarness` with no argument),
@@ -145,6 +165,17 @@ export interface GameHarness<GameVerb extends string = never> {
   unlockAll(): void;
   /** Grant soft currency (marble_run `grantCoins`). */
   grantCoins(amount: number): void;
+  /**
+   * Optional persistence reset for deterministic capture tours. Games with no
+   * durable save state omit this and the tour continues unchanged.
+   */
+  resetSave?(): void | Promise<void>;
+  /**
+   * Optional deterministic save seed applied before capture-state driving.
+   * Implementations should make the seeded values observable via snapshot()
+   * and the visible surfaces the capture tour will visit.
+   */
+  seedSave?(profile: HarnessSaveProfile): void | Promise<void>;
 
   // ── typed game-verb extension point ──────────────────────────────
   /** The game's extra verbs, keyed by the `GameVerb` union. Empty (`never`

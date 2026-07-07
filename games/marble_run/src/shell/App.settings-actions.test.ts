@@ -34,6 +34,7 @@ function action(root: HTMLElement, name: string): HTMLButtonElement | null {
 
 describe('App settings action variants', () => {
   afterEach(() => {
+    saveState.resetSave();
     vi.restoreAllMocks();
   });
 
@@ -83,5 +84,65 @@ describe('App settings action variants', () => {
     home?.click();
     expect(app.restartFromSettings).toHaveBeenCalledWith(true);
     expect(app.homeFromSettings).toHaveBeenCalledOnce();
+  });
+
+  it('exposes seeded capture progress through the harness snapshot path', async () => {
+    const app = Object.create(App.prototype) as {
+      controller: { snapshot(): Record<string, unknown> };
+      machine: { state: string };
+      uiRoot: HTMLElement;
+      canvas: HTMLCanvasElement;
+      perfRecorder: { sample: ReturnType<typeof vi.fn> };
+      harnessSink: null;
+      renderMenu: ReturnType<typeof vi.fn>;
+      harness(): {
+        resetSave?: () => void | Promise<void>;
+        seedSave?: (profile: {
+          unlockedLevel?: number;
+          coins?: number;
+          noAds?: boolean;
+          sfx?: boolean;
+          music?: boolean;
+          haptics?: boolean;
+        }) => void | Promise<void>;
+        snapshot(): unknown;
+      };
+    };
+    app.controller = {
+      snapshot: () => ({
+        unlocked: saveState.unlocked,
+        coins: saveState.coins,
+        status: 'none',
+        inputReady: true,
+      }),
+    };
+    app.machine = { state: 'menu' };
+    app.uiRoot = document.createElement('div');
+    app.canvas = document.createElement('canvas');
+    app.perfRecorder = { sample: vi.fn() };
+    app.harnessSink = null;
+    app.renderMenu = vi.fn();
+
+    saveState.recordWin(8, 0);
+    saveState.addCoins(500);
+    saveState.grantNoAds();
+
+    const harness = app.harness();
+    await harness.resetSave?.();
+    await harness.seedSave?.({
+      unlockedLevel: 2,
+      coins: 25,
+      noAds: false,
+      sfx: true,
+      music: true,
+      haptics: true,
+    });
+
+    expect(harness.snapshot()).toMatchObject({
+      scene: 'menu',
+      unlocked: 2,
+      coins: 25,
+    });
+    expect(app.renderMenu).toHaveBeenCalledTimes(2);
   });
 });
