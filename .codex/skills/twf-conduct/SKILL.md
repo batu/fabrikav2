@@ -49,6 +49,16 @@ Workers inherit a *different* effective environment than the conductor; every on
 3. **Select a wave.** Pick cards whose file footprints don't overlap. Two cards that both wire into the same registration point (a CLI parser, an index, a route table) DO overlap even if their main modules differ — run those sequentially, or assign the shared wiring to one card only.
 4. **Spawn workers**: `twf run-card <shortid> --worktree` per card, in parallel via background Bash. Foreground output streams through; the worker moves its own card via `twf next`/`twf back` and posts its handoff via `twf handoff`.
 5. **Read handoffs, then act on them.** For each finished worker: verify the card moved **exactly one column** and the handoff exists; merge or queue its worktree branch via `twf merge-card` (use `--to-branch <name>` when the run integrates on a spike branch instead of the default branch — hand-glue merges are how silent truncated-branch-name bugs happen); `git worktree remove` merged ones. After each wave, run `gh pr list` — workers open PRs against explicit no-PR instructions often enough that the sweep is mandatory; close rogue ones and note it on the card. An eager worker will happily drive a card through every stage to `merged` if allowed — each `twf next` prints the next stage's checklist, which reads like an invitation. The prompt forbids it, but the conductor is the enforcement: a card that jumped multiple columns means later stages (and their model routing — review!) were skipped; move it back to where its verified work actually ends.
+
+   **Landing gate is a hard precondition, not a sidecar command.** For this repo,
+   `agents/config.json` routes `twf merge-card` through `npm run land-gate`;
+   that command runs project quality + `verify-merge-gate` as direct child
+   processes and honors each exit code. Never pipe it through `tail`, `tee`,
+   `grep`, or any command that would replace `$?`; a red gate aborts landing and
+   cleanup. When manually cleaning a branch/worktree outside `twf merge-card`,
+   first run `npm run land-gate -- --branch trello-<shortid>-<slug>` (or
+   `--shortid <shortid>`) so `verify-landed-gate` proves the branch tip is on
+   the integration ref before deletion.
 6. **Course-correct between waves** — this is the conductor's real work:
    - **Fix flagged out-of-scope gaps yourself — but hold the env-vs-code line.** The conductor may repair *environment*: binaries, servers, ports, configs, credentials, sandbox settings. The moment the fix means editing test or product logic (even "just the test harness"), that's implementation — write a fix card and spawn a worker. "Closing a QA-harness gap" is how the no-inline-work rule erodes one rationalization at a time.
    - **Debug infra in the foreground, not through the wakeup loop.** When a step fails on environment (corrupt binary, hung server, port conflict), do a tight fix-and-retry loop in one turn until it's resolved. One-fix-per-wakeup turns a 15-minute repair into an hour of 5-minute polls. Reserve scheduled wakeups for genuinely long worker runs where there is nothing to do but wait.
