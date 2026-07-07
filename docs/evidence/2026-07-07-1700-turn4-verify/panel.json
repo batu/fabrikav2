@@ -1,0 +1,685 @@
+{
+  "models": [
+    "anthropic/claude-opus-4.1",
+    "anthropic/claude-sonnet-5",
+    "google/gemini-3.5-flash"
+  ],
+  "judges": [
+    {
+      "id": "opus",
+      "model": "anthropic/claude-opus-4.1",
+      "provider": "openrouter",
+      "enabled": true
+    },
+    {
+      "id": "sonnet",
+      "model": "anthropic/claude-sonnet-5",
+      "provider": "openrouter",
+      "enabled": true
+    },
+    {
+      "id": "gemini-flash",
+      "model": "google/gemini-3.5-flash",
+      "provider": "openrouter",
+      "enabled": true
+    }
+  ],
+  "thresholdPct": 85,
+  "states": [
+    {
+      "state": "menu",
+      "score": 55,
+      "status": "fail",
+      "reason": "panel 55% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 55
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 40
+        }
+      ],
+      "consensus": [
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Level progression numbers are different",
+            "Level number and progression values differ",
+            "Different level state is displayed across the interface (Level 2 vs Level 4), including the level path node index values and the bottom button text."
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 2,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Board is flat/front-facing instead of tilted with perspective, and is larger, overlapping the title banner",
+            "The game board (marble grid) is not rotated as in the reference, and it is positioned higher up, overlapping with the 'Marble Run' title frame and the numbered level path."
+          ]
+        },
+        {
+          "key": "extra-element",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Additional level indicator present",
+            "Extra confetti/decorative pieces scattered across screen not present in reference"
+          ]
+        }
+      ]
+    },
+    {
+      "state": "level",
+      "score": 30,
+      "status": "fail",
+      "reason": "panel 30% < 85%; consensus blocker: missing-element (3/3)",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 35
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 8
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 30
+        }
+      ],
+      "consensus": [
+        {
+          "key": "missing-element",
+          "count": 3,
+          "of": 3,
+          "severity": "blocker",
+          "descriptions": [
+            "Title header with game name is missing",
+            "Hearts/lives indicator missing",
+            "The life count container (hearts panel) at the top-left is completely missing."
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Lives/hearts display positioned differently",
+            "Overall board layout altered with confetti decorations and extra UI elements overlapping board",
+            "The entire screen layout and state is fundamentally different, showing a level-select/map overlay instead of the active gameplay screen."
+          ]
+        },
+        {
+          "key": "extra-element",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Extra UI element in bottom-right",
+            "Level map with numbered nodes (8,7,6,5,4) and 'Marble Run' title added, not present in reference",
+            "Floating rectangular party confetti pieces are scattered across the screen in our version."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "settings",
+      "score": 65,
+      "status": "fail",
+      "reason": "panel 65% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 85
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 55
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 65
+        }
+      ],
+      "consensus": [
+        {
+          "key": "layout",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Sound Effects text is displayed on two lines",
+            "Entire modal is zoomed in and shifted, causing top portion (close button, empty space below banner) to be cropped off-screen",
+            "The entire settings dialog is shifted upwards and cut off at the top of the viewport."
+          ]
+        },
+        {
+          "key": "missing-element",
+          "count": 3,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Bottom decorative element is missing",
+            "Achievement badge/ribbon below the modal is not visible",
+            "The background elements peeking from behind the main dialog are missing in the ours version."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "pause",
+      "score": null,
+      "status": "unscored",
+      "reason": "no reference to score against",
+      "models": [],
+      "consensus": []
+    },
+    {
+      "state": "win",
+      "score": 58,
+      "status": "fail",
+      "reason": "panel 58% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 40
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 58
+        }
+      ],
+      "consensus": [
+        {
+          "key": "missing-element",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Currency counter missing from top of screen",
+            "Coin counter/currency display missing from top right",
+            "The coin status bar at the top right of the screen is missing in our version."
+          ]
+        },
+        {
+          "key": "extra-element",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Multiple decorative coins added",
+            "Extra scattered coin icons overlaid on the reward card and outside the card",
+            "Multiple floating gold coins are scattered on the left side of the reward card, which looks like an unaligned animation frame or misplaced assets."
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Crown and reward text positioning",
+            "Overall layout is shifted down/cropped, cutting off top elements and pushing card content lower",
+            "The main reward card is significantly shifted downwards and cut off at the top, overlapping with the 'COMPLETED' banner incorrectly."
+          ]
+        },
+        {
+          "key": "typography",
+          "count": 3,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Next button text casing",
+            "Text styling for REWARD, +25, and Next button differ significantly",
+            "The 'Next' button text in our version is less stylized, lacking the dark outline and dimensional shadow effect."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "fail",
+      "score": 65,
+      "status": "fail",
+      "reason": "panel 65% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 55
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 65
+        }
+      ],
+      "consensus": [
+        {
+          "key": "missing-element",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Missing decorative ribbon banner element",
+            "Wooden crate/background texture behind the dialog card is missing",
+            "The dark wooden board structure framing the blue message card is missing."
+          ]
+        },
+        {
+          "key": "iconography",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Different emoji expression",
+            "Emoji used differs between versions",
+            "The sad face emoji illustration inside the card is completely different."
+          ]
+        },
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Watch button has wrong text",
+            "Button label differs from reference",
+            "The green button's label text differs."
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Dialog box positioning differs",
+            "Content is scaled up and cropped, causing the wooden background panel to be missing and layout to shift off-frame",
+            "The top 'FAILED' banner is incorrectly scaled and positioned, spilling over the top edge and lacking the side-ribbon flaps structure shown in the reference."
+          ]
+        }
+      ]
+    }
+  ],
+  "verdict": {
+    "pass": false,
+    "summary": "FAIL — panel median 58% · 0 pass, 5 fail, 1 unscored (floor 85%)",
+    "states": [
+      {
+        "state": "menu",
+        "score": 55,
+        "status": "fail",
+        "reason": "panel 55% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 55
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 40
+          }
+        ],
+        "consensus": [
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Level progression numbers are different",
+              "Level number and progression values differ",
+              "Different level state is displayed across the interface (Level 2 vs Level 4), including the level path node index values and the bottom button text."
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 2,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Board is flat/front-facing instead of tilted with perspective, and is larger, overlapping the title banner",
+              "The game board (marble grid) is not rotated as in the reference, and it is positioned higher up, overlapping with the 'Marble Run' title frame and the numbered level path."
+            ]
+          },
+          {
+            "key": "extra-element",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Additional level indicator present",
+              "Extra confetti/decorative pieces scattered across screen not present in reference"
+            ]
+          }
+        ]
+      },
+      {
+        "state": "level",
+        "score": 30,
+        "status": "fail",
+        "reason": "panel 30% < 85%; consensus blocker: missing-element (3/3)",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 35
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 8
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 30
+          }
+        ],
+        "consensus": [
+          {
+            "key": "missing-element",
+            "count": 3,
+            "of": 3,
+            "severity": "blocker",
+            "descriptions": [
+              "Title header with game name is missing",
+              "Hearts/lives indicator missing",
+              "The life count container (hearts panel) at the top-left is completely missing."
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Lives/hearts display positioned differently",
+              "Overall board layout altered with confetti decorations and extra UI elements overlapping board",
+              "The entire screen layout and state is fundamentally different, showing a level-select/map overlay instead of the active gameplay screen."
+            ]
+          },
+          {
+            "key": "extra-element",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Extra UI element in bottom-right",
+              "Level map with numbered nodes (8,7,6,5,4) and 'Marble Run' title added, not present in reference",
+              "Floating rectangular party confetti pieces are scattered across the screen in our version."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "settings",
+        "score": 65,
+        "status": "fail",
+        "reason": "panel 65% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 85
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 55
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 65
+          }
+        ],
+        "consensus": [
+          {
+            "key": "layout",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Sound Effects text is displayed on two lines",
+              "Entire modal is zoomed in and shifted, causing top portion (close button, empty space below banner) to be cropped off-screen",
+              "The entire settings dialog is shifted upwards and cut off at the top of the viewport."
+            ]
+          },
+          {
+            "key": "missing-element",
+            "count": 3,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Bottom decorative element is missing",
+              "Achievement badge/ribbon below the modal is not visible",
+              "The background elements peeking from behind the main dialog are missing in the ours version."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "pause",
+        "score": null,
+        "status": "unscored",
+        "reason": "no reference to score against",
+        "models": [],
+        "consensus": []
+      },
+      {
+        "state": "win",
+        "score": 58,
+        "status": "fail",
+        "reason": "panel 58% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 40
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 58
+          }
+        ],
+        "consensus": [
+          {
+            "key": "missing-element",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Currency counter missing from top of screen",
+              "Coin counter/currency display missing from top right",
+              "The coin status bar at the top right of the screen is missing in our version."
+            ]
+          },
+          {
+            "key": "extra-element",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Multiple decorative coins added",
+              "Extra scattered coin icons overlaid on the reward card and outside the card",
+              "Multiple floating gold coins are scattered on the left side of the reward card, which looks like an unaligned animation frame or misplaced assets."
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Crown and reward text positioning",
+              "Overall layout is shifted down/cropped, cutting off top elements and pushing card content lower",
+              "The main reward card is significantly shifted downwards and cut off at the top, overlapping with the 'COMPLETED' banner incorrectly."
+            ]
+          },
+          {
+            "key": "typography",
+            "count": 3,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Next button text casing",
+              "Text styling for REWARD, +25, and Next button differ significantly",
+              "The 'Next' button text in our version is less stylized, lacking the dark outline and dimensional shadow effect."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "fail",
+        "score": 65,
+        "status": "fail",
+        "reason": "panel 65% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 55
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 65
+          }
+        ],
+        "consensus": [
+          {
+            "key": "missing-element",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Missing decorative ribbon banner element",
+              "Wooden crate/background texture behind the dialog card is missing",
+              "The dark wooden board structure framing the blue message card is missing."
+            ]
+          },
+          {
+            "key": "iconography",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Different emoji expression",
+              "Emoji used differs between versions",
+              "The sad face emoji illustration inside the card is completely different."
+            ]
+          },
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Watch button has wrong text",
+              "Button label differs from reference",
+              "The green button's label text differs."
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Dialog box positioning differs",
+              "Content is scaled up and cropped, causing the wooden background panel to be missing and layout to shift off-frame",
+              "The top 'FAILED' banner is incorrectly scaled and positioned, spilling over the top edge and lacking the side-ribbon flaps structure shown in the reference."
+            ]
+          }
+        ]
+      }
+    ],
+    "score": 58
+  },
+  "budgetHalted": false,
+  "game": "marble_run",
+  "lane": "device",
+  "generatedAt": "2026-07-07T12:45:35.540Z"
+}
