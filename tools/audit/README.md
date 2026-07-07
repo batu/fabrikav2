@@ -1,10 +1,10 @@
 # tools/audit
 
-Four guardrail linters that enforce the anti-v1 rules
+Six guardrail linters that enforce the anti-v1 rules
 (`docs/architecture/v2-architecture.md` §Guardrails). They replace v1's broken
 `scripts/grep-affected-games.sh` — this time with tests.
 
-Run all four: `npm run audit` (from repo root). Exits non-zero on any **error**.
+Run all six: `npm run audit` (from repo root). Exits non-zero on any **error**.
 Some checks emit **warnings** (`⚠`) instead: reported, printed, but non-failing
 (`audit passed (with warnings)`, exit 0). A check lands as a warning when it has
 legitimate current hits whose fix is out of an audit change's natural blast
@@ -89,6 +89,18 @@ rather than reddening the gate. See the per-linter notes below.
    violation when git-tracked. Enforced via a deterministic `.gitignore`-text
    check (it can't catch a force-added tracked-but-ignored file — diff review owns
    that). `.gitignore` covers `games/*/ios/` and `games/*/android/`.
+
+5. **hooks** — interactive shell components that accept `onClick`/`onTap`/
+   `onSelect` must expose a stable `data-fab-*` hook for tests and harnesses.
+   Warning: existing UI work can land incrementally without blocking unrelated
+   audit changes.
+
+6. **harness** — every game must import `@fabrikav2/testkit/harness` and expose
+   the required deterministic driving surface: `snapshot`, `verbs`,
+   `winLevel|autoWin`, and `failLevel|autoFail`. This is a hard error, including
+   the no-harness case, because a game without that surface is not
+   deterministically drivable/capturable by `tools/verify-device` and the shared
+   harness tooling.
 
 Shared constants/helpers live in `src/lib.js` so the linters don't duplicate
 literal values themselves.

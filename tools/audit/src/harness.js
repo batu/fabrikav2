@@ -1,4 +1,4 @@
-// Linter 6 — harness (WARN-first).
+// Linter 6 — harness (hard error).
 //
 // Guardrail: every game ships the REQUIRED debug harness
 // (docs/architecture/reference-fidelity-harness.md 'REQUIRED debug harness per
@@ -29,9 +29,9 @@
 // It is a STATIC token scan (like the hooks linter), not a type/reachability
 // analysis, so it verifies the SURFACE is present, not that each member is
 // correctly wired — the TS contract (`@fabrikav2/testkit/harness`) owns typing and
-// diff review owns wiring. Because it is a heuristic it is WARN-FIRST
-// (`severity: 'warn'`): reported but non-failing, so coverage lands incrementally
-// without breaking the gate (mirrors the hooks linter — tools/audit/src/cli.js).
+// diff review owns wiring. The surface itself is required: missing harness imports
+// or missing required members are hard audit errors because the game is not
+// deterministically drivable/capturable without them.
 
 import { join } from 'node:path';
 import { listDirs, walkFiles, readText, rel, stripComments, SCOPE, SOURCE_EXTS } from './lib.js';
@@ -54,7 +54,7 @@ const REQUIRED = [
 
 /**
  * @param {string} root
- * @returns {{violations: Array<{game:string, missing:string[], severity:'warn'}>}}
+ * @returns {{violations: Array<{game:string, missing:string[], severity:'error'}>}}
  */
 export function lintHarness(root) {
   const violations = [];
@@ -69,7 +69,7 @@ export function lintHarness(root) {
       violations.push({
         game,
         missing: [`(no harness — no file imports ${HARNESS_MODULE})`],
-        severity: 'warn',
+        severity: 'error',
       });
       continue;
     }
@@ -78,7 +78,7 @@ export function lintHarness(root) {
     // each REQUIRED member is referenced somewhere in it.
     const blob = harnessFiles.map((f) => stripComments(readText(f))).join('\n');
     const missing = REQUIRED.filter((r) => !r.re.test(blob)).map((r) => r.label);
-    if (missing.length) violations.push({ game, missing, severity: 'warn' });
+    if (missing.length) violations.push({ game, missing, severity: 'error' });
   }
 
   return { violations };
