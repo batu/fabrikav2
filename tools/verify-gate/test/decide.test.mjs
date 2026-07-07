@@ -28,7 +28,7 @@ describe('decideStop — the block gate', () => {
   it('PASSES when fresh evidence covers the change', () => {
     const d = decideStop({
       ...base,
-      panelEvidence: [{ valid: true, game: 'marble_run', lane: 'device', verdictPass: true, generatedAtMs: 3000 }],
+      panelEvidence: [{ valid: true, game: 'marble_run', lane: 'device', verdictPass: false, generatedAtMs: 3000 }],
     });
     expect(d.action).toBe('pass');
     expect(d.reason).toMatch(/fresh/);
@@ -145,11 +145,29 @@ describe('decideMerge — the ship-time backstop', () => {
     }).ok).toBe(true);
   });
 
-  it('FAILS for cross-game, browser-lane, failing, corrupt, and stale panels', () => {
+  it('PASSES F4 scenario: fresh marble_run device panel with failing verdict', () => {
+    const d = decideMerge({
+      ...mbase,
+      panelEvidence: [{
+        valid: true,
+        game: 'marble_run',
+        lane: 'device',
+        verdictPass: false,
+        verdictScore: 45,
+        verdictSummary: 'FAIL — panel median 45%',
+        generatedAtMs: 3000,
+      }],
+    });
+    expect(d.ok).toBe(true);
+    expect(d.reason).toMatch(/observed the visual change on device/);
+    expect(d.reason).toMatch(/verdict FAIL/);
+    expect(d.reason).toMatch(/45/);
+  });
+
+  it('FAILS for cross-game, browser-lane, corrupt, and stale panels', () => {
     const badPanels = [
       [{ valid: true, game: 'other', lane: 'device', verdictPass: true, generatedAtMs: 3000 }],
       [{ valid: true, game: 'marble_run', lane: 'browser', verdictPass: true, generatedAtMs: 3000 }],
-      [{ valid: true, game: 'marble_run', lane: 'device', verdictPass: false, generatedAtMs: 3000 }],
       [{ valid: false, error: 'panel is not valid JSON' }],
       [{ valid: true, game: 'marble_run', lane: 'device', verdictPass: true, generatedAtMs: 1000 }],
     ];

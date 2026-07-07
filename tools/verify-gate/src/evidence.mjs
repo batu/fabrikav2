@@ -113,7 +113,8 @@ function parseGeneratedAt(value) {
  * satisfy the landing gate.
  *
  * @returns {Array<{path:string, valid:boolean, game?:string, lane?:string,
- *   generatedAtMs?:number|null, verdictPass?:boolean, error?:string}>}
+ *   generatedAtMs?:number|null, verdictPass?:boolean, verdictScore?:number,
+ *   verdictSummary?:string, error?:string}>}
  */
 export function readPanelEvidence(projectDir, fsImpl = fs) {
   return panelPaths(projectDir, fsImpl).map((rel) => {
@@ -133,15 +134,19 @@ export function readPanelEvidence(projectDir, fsImpl = fs) {
     const game = typeof panel.game === 'string' ? panel.game : null;
     const lane = typeof panel.lane === 'string' ? panel.lane : null;
     const generatedAtMs = parseGeneratedAt(panel.generatedAt);
-    const verdictPass = panel.verdict && panel.verdict.pass === true;
+    const verdict = panel.verdict && typeof panel.verdict === 'object' ? panel.verdict : null;
+    const verdictPass = verdict && verdict.pass === true;
     const missing = [];
     if (!game) missing.push('game');
     if (!lane) missing.push('lane');
     if (generatedAtMs === null) missing.push('generatedAt');
-    if (!panel.verdict || typeof panel.verdict.pass !== 'boolean') missing.push('verdict.pass');
+    if (!verdict || typeof verdict.pass !== 'boolean') missing.push('verdict.pass');
     if (missing.length) {
       return { path: rel, valid: false, error: `missing/invalid metadata: ${missing.join(', ')}` };
     }
-    return { path: rel, valid: true, game, lane, generatedAtMs, verdictPass };
+    const record = { path: rel, valid: true, game, lane, generatedAtMs, verdictPass };
+    if (Number.isFinite(verdict.score)) record.verdictScore = verdict.score;
+    if (typeof verdict.summary === 'string') record.verdictSummary = verdict.summary;
+    return record;
   });
 }

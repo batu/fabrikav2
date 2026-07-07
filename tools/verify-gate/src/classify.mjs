@@ -160,13 +160,17 @@ export function gamesFromVisualFiles(files) {
 }
 
 /**
- * Evidence freshness: is there a passing device-lane verify-device panel newer
- * than the newest visual change for every affected game? A stale/corrupt/
- * cross-game/browser/failing panel does NOT count.
+ * Evidence freshness: is there a device-lane verify-device panel newer than the
+ * newest visual change for every affected game? The panel verdict/score is
+ * recorded for humans, but it is not the landing bar. Dogfooding found the
+ * previous `verdict.pass === true` requirement deadlocked fidelity fixes: a
+ * fresh marble_run device panel honestly reporting FAIL could not land the code
+ * needed to make that same panel pass. The merge/stop gate proves observation
+ * happened on the real device; the fidelity floor stays a phase/conductor bar.
  * @param {number|null} newestVisualMtimeMs newest changed-visual-file/change time
  * @param {Array|number[]} panelEvidence structured panel records, or legacy mtimes
  * @param {string[]} affectedGames game slugs extracted from visual files. When
- *   empty (e.g. packages/ui), any fresh passing device panel is accepted.
+ *   empty (e.g. packages/ui), any fresh device panel is accepted.
  */
 export function evidenceIsFresh(newestVisualMtimeMs, panelEvidence, affectedGames = []) {
   if (newestVisualMtimeMs == null) return false;
@@ -178,20 +182,56 @@ export function evidenceIsFresh(newestVisualMtimeMs, panelEvidence, affectedGame
     return panels.some((t) => t > newestVisualMtimeMs);
   }
 
-  const valid = panels.filter((p) =>
-    p && p.valid === true
-    && p.lane === 'device'
-    && p.verdictPass === true
-    && typeof p.generatedAtMs === 'number'
-    && p.generatedAtMs > newestVisualMtimeMs
-  );
+  const valid = freshDevicePanels(newestVisualMtimeMs, panels);
   if (affectedGames.length === 0) return valid.length > 0;
   return affectedGames.every((game) => valid.some((p) => p.game === game));
 }
 
+function freshDevicePanels(newestVisualMtimeMs, panels) {
+  return (panels || []).filter((p) =>
+    p && p.valid === true
+    && p.lane === 'device'
+    && typeof p.generatedAtMs === 'number'
+    && p.generatedAtMs > newestVisualMtimeMs
+  );
+}
+
+function bestPanelForGame(panels, game) {
+  const candidates = panels.filter((p) => p.game === game);
+  if (candidates.length === 0) return null;
+  return candidates.reduce((best, panel) => (
+    !best || panel.generatedAtMs > best.generatedAtMs ? panel : best
+  ), null);
+}
+
+function freshEvidenceDetails(newestVisualMtimeMs, panels, affectedGames = []) {
+  if (newestVisualMtimeMs == null) return [];
+  if ((panels || []).every((p) => typeof p === 'number')) return [];
+
+  const fresh = freshDevicePanels(newestVisualMtimeMs, panels);
+  if (affectedGames.length === 0) {
+    return fresh.length === 0
+      ? []
+      : [fresh.reduce((best, panel) => (
+          !best || panel.generatedAtMs > best.generatedAtMs ? panel : best
+        ), null)].filter(Boolean);
+  }
+  return affectedGames.map((game) => bestPanelForGame(fresh, game)).filter(Boolean);
+}
+
+function panelVerdictSummary(panel) {
+  const verdict = panel.verdictPass === true ? 'PASS' : 'FAIL';
+  const score = Number.isFinite(panel.verdictScore) ? `, score ${panel.verdictScore}%` : '';
+  const summary = panel.verdictSummary ? `, ${panel.verdictSummary}` : '';
+  return `${panel.game || 'unknown'}: verdict ${verdict}${score}${summary}`;
+}
+
 function freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs }) {
   const panels = panelEvidence || panelMtimesMs || [];
-  return evidenceIsFresh(newestVisualMtimeMs, panels, gamesFromVisualFiles(visualFiles));
+  const affectedGames = gamesFromVisualFiles(visualFiles);
+  const ok = evidenceIsFresh(newestVisualMtimeMs, panels, affectedGames);
+  const details = ok ? freshEvidenceDetails(newestVisualMtimeMs, panels, affectedGames) : [];
+  return { ok, details };
 }
 
 /**
@@ -231,8 +271,12 @@ export function decideStop({
     // Gate on the CLAIM, not the file: a refactor with no done-claim passes.
     return { action: 'pass', reason: 'visual change but no done-claim — not gated' };
   }
-  if (freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs })) {
-    return { action: 'pass', reason: 'fresh verify-device evidence covers the change' };
+  const fresh = freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs });
+  if (fresh.ok) {
+    const detail = fresh.details.length
+      ? ` (${fresh.details.map(panelVerdictSummary).join('; ')})`
+      : '';
+    return { action: 'pass', reason: `fresh verify-device evidence covers the change${detail}` };
   }
   return {
     action: 'block',
@@ -306,8 +350,12 @@ export function decideMerge({
   if (visualFiles.length === 0) {
     return { ok: true, reason: 'no visual files in diff — merge gate not applicable' };
   }
-  if (freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs })) {
-    return { ok: true, reason: 'fresh verify-device panel.json covers the visual change' };
+  const fresh = freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs });
+  if (fresh.ok) {
+    const detail = fresh.details.length
+      ? ` (${fresh.details.map(panelVerdictSummary).join('; ')})`
+      : '';
+    return { ok: true, reason: `fresh verify-device panel.json observed the visual change on device${detail}` };
   }
   const detail = ledgerEntryCount > 0
     ? `the only evidence is ${ledgerEntryCount} UNVERIFIED ledger ${ledgerEntryCount === 1 ? 'entry' : 'entries'} `
