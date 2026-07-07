@@ -72,6 +72,17 @@
     --fab-modal-close-size: 48px;
     --fab-modal-close-inset: 10px;
     --fab-modal-close-z: 3;
+    --fab-modal-backplate-image: none;
+    --fab-modal-backplate-width: min(88vw, 420px);
+    --fab-modal-backplate-aspect: 1 / 1;
+    --fab-modal-backplate-radius: 0;
+    --fab-modal-backplate-opacity: 1;
+    --fab-modal-backplate-filter: none;
+    --fab-modal-backplate-shadow: none;
+    --fab-modal-backplate-transform: translate(-50%, -50%);
+    --fab-modal-backplate-background-size: cover;
+    --fab-modal-backplate-background-repeat: no-repeat;
+    --fab-modal-backplate-background-position: center;
 
     /* ---- Overlay ribbon banner (this card) ----
        Coloured banner overhanging the card top; tone picks the fill. Neutral
@@ -237,9 +248,29 @@
     background: var(--fab-color-overlay-scrim);
   }
 
+  .fab-modal-backplate {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 1;
+    pointer-events: none;
+    width: var(--fab-modal-backplate-width);
+    aspect-ratio: var(--fab-modal-backplate-aspect);
+    overflow: hidden;
+    border-radius: var(--fab-modal-backplate-radius);
+    background-image: var(--fab-modal-backplate-image);
+    background-size: var(--fab-modal-backplate-background-size);
+    background-repeat: var(--fab-modal-backplate-background-repeat);
+    background-position: var(--fab-modal-backplate-background-position);
+    box-shadow: var(--fab-modal-backplate-shadow);
+    opacity: var(--fab-modal-backplate-opacity);
+    filter: var(--fab-modal-backplate-filter);
+    transform: var(--fab-modal-backplate-transform);
+  }
+
   .fab-modal-card {
     position: relative;
-    z-index: 1;
+    z-index: 2;
     width: min(78vw, 360px);
     min-width: 260px;
     max-width: calc(100vw - 36px);

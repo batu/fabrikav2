@@ -34,6 +34,10 @@ export interface ResultCardOptions {
   ribbonImage?: string;
   /** Injected card-panel sprite painted as the whole card background. */
   cardImage?: string;
+  /** Injected decorative layer behind the card, forwarded to ModalShell. */
+  backplateImage?: string;
+  /** Extra class(es) for the optional decorative backplate layer. */
+  backplateClassName?: string;
   /** Win art shown at the top of the body (e.g. a crown sprite). Fresh element. */
   art?: HTMLElement;
   /** Injected body copy line(s). */
@@ -117,6 +121,8 @@ export function mountResultCard(opts: ResultCardOptions): UiHandle {
     theme: opts.theme,
     id: opts.id,
     cardImage: opts.cardImage,
+    backplateImage: opts.backplateImage,
+    backplateClassName: opts.backplateClassName,
     cardClassName: `fab-result-card fab-result-card--${opts.variant}`,
   });
 }

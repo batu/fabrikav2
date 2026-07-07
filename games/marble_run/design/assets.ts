@@ -32,6 +32,7 @@ export const assets = {
   resultModal: {
     crown: "win-crown",
     popup: "popup-card",
+    modalBackplate: "marble-shadow-tile",
     ribbonCompleted: "ribbon-completed",
     ribbonFailed: "ribbon-failed",
     ribbonTutorial: "ribbon-orange",

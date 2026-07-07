@@ -45,6 +45,8 @@ describe('mountResultCard', () => {
       title: 'Level Complete',
       ribbonImage: 'ribbon-src',
       cardImage: 'card-src',
+      backplateImage: 'backplate-src',
+      backplateClassName: 'result-backplate',
       art: crown,
       actions: [{ label: 'Next', onClick: () => {} }],
       id: 'result',
@@ -58,6 +60,9 @@ describe('mountResultCard', () => {
     const card = handle.el.querySelector<HTMLElement>('.fab-modal-card')!;
     expect(card.classList.contains('fab-modal-card--image')).toBe(true);
     expect(card.style.backgroundImage).toContain('card-src');
+    const backplate = handle.el.querySelector<HTMLElement>('.fab-modal-backplate')!;
+    expect(backplate.classList.contains('result-backplate')).toBe(true);
+    expect(backplate.style.getPropertyValue('--fab-modal-backplate-image')).toContain('backplate-src');
     // Win art lands at the top of the body.
     const art = handle.el.querySelector<HTMLElement>('.fab-result-art')!;
     expect(art).toBe(crown);
