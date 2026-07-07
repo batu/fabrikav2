@@ -180,6 +180,35 @@ describe('driveTo — deterministic per-state navigation', () => {
     expect(reached).toBe(true);
     expect(autoWinCalledWhileReady).toBe(true);
   });
+
+  it('waits for inputReady before confirming the level state', async () => {
+    const machine = createFlowMachine({ optionalStates: ['levelSelect', 'paused'] });
+    machine.toMenu();
+    const levelReadyPolls: boolean[] = [];
+    let polls = 0;
+    const deps: DriveToDeps = {
+      gotoMenu: () => {
+        if (machine.can('toMenu')) machine.toMenu();
+      },
+      startLevel: (id) => {
+        if (machine.can('start')) machine.start(String(id));
+      },
+      openSettings: () => {},
+      pause: () => {},
+      autoWin: async () => false,
+      autoFail: async () => false,
+      snapshot: () => {
+        const inputReady = machine.state !== 'playing' || polls++ >= 2;
+        if (machine.state === 'playing') levelReadyPolls.push(inputReady);
+        return { scene: machine.state, inputReady };
+      },
+    };
+
+    const reached = await driveTo(deps, 'level', { pollMs: 0, maxPolls: 10, sleep: instantSleep });
+
+    expect(reached).toBe(true);
+    expect(levelReadyPolls).toEqual([false, false, true]);
+  });
 });
 
 describe('isDriveState', () => {

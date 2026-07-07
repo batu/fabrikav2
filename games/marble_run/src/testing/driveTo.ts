@@ -118,7 +118,7 @@ export async function driveTo(
 
     case 'level':
       deps.startLevel(1);
-      return settle(sceneIs('playing'));
+      return settle(playingReady);
 
     case 'win': {
       deps.startLevel(RESULT_REFERENCE_LEVEL);

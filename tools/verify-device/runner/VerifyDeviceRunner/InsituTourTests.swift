@@ -13,6 +13,12 @@ import XCTest
 /// the CLI passes `TEST_RUNNER_TARGET_BUNDLE_ID=<appId>` and we read
 /// `TARGET_BUNDLE_ID` here.
 final class InsituTourTests: XCTestCase {
+    private enum TourMarkerResult {
+        case reached
+        case failed
+        case missing
+    }
+
     /// Per-state wait budget. The allstates tour drives menu->level->settings->
     /// pause->win->fail with a long dwell on each and, on arrival, publishes an
     /// accessibility element labelled `tourstate:<state>` (see
@@ -34,6 +40,40 @@ final class InsituTourTests: XCTestCase {
         add(attachment)
     }
 
+    private func waitForTourMarker(
+        app: XCUIApplication,
+        state: String,
+        timeout: TimeInterval
+    ) -> TourMarkerResult {
+        let exactLabel = "tourstate:\(state)"
+        let failedLabel = "\(exactLabel)-FAILED"
+        let marker = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label == %@", exactLabel))
+            .firstMatch
+        let failedMarker = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label == %@", failedLabel))
+            .firstMatch
+        let deadline = Date().addingTimeInterval(timeout)
+
+        while Date() < deadline {
+            if marker.exists {
+                return .reached
+            }
+            if failedMarker.exists {
+                return .failed
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        }
+
+        if marker.exists {
+            return .reached
+        }
+        if failedMarker.exists {
+            return .failed
+        }
+        return .missing
+    }
+
     func testAllStates() {
         guard let bundleId = ProcessInfo.processInfo.environment["TARGET_BUNDLE_ID"], !bundleId.isEmpty else {
             XCTFail("TARGET_BUNDLE_ID not set — pass TEST_RUNNER_TARGET_BUNDLE_ID=<appId> to xcodebuild test")
@@ -52,13 +92,16 @@ final class InsituTourTests: XCTestCase {
         // while stamping settings/fail (docs/evidence/2026-07-06-2315-paired/ +
         // docs/retros/fidelity-diff-mistakes-ledger.md).
         for (index, state) in states.enumerated() {
-            let marker = app.descendants(matching: .any)
-                .matching(NSPredicate(format: "label == %@", "tourstate:\(state)"))
-                .firstMatch
             let name = "\(index + 1)-\(state)"
-            if marker.waitForExistence(timeout: stateTimeout) {
+            switch waitForTourMarker(app: app, state: state, timeout: stateTimeout) {
+            case .reached:
                 shot(name)
-            } else {
+            case .failed:
+                shot("\(name)-MISSING")
+                XCTFail("state '\(state)' published tourstate:\(state)-FAILED within \(Int(stateTimeout))s — "
+                    + "the tour explicitly reported that driveTo('\(state)') did not reach the state. "
+                    + "A failed state is a loud failure, not a silent wrong frame.")
+            case .missing:
                 // Attach whatever is on screen so the failure is inspectable, then
                 // fail loudly — the CLI verdict also flags the missing state.
                 shot("\(name)-MISSING")

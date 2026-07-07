@@ -583,6 +583,7 @@ export class App {
   // ── Transitions (guarded) ───────────────────────────────────────
 
   private toMenu(): void {
+    this.pageStack.dispose();
     if (this.machine.can('toMenu') || this.machine.state === 'boot') {
       this.machine.toMenu();
     }
@@ -600,6 +601,7 @@ export class App {
   }
 
   private startLevelId(levelId: number): void {
+    this.pageStack.dispose();
     if (this.machine.state === 'playing' || this.machine.state === 'paused') {
       if (this.machine.can('toMenu')) this.machine.toMenu();
     }

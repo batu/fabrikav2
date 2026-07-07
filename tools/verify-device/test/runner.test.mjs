@@ -7,10 +7,15 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const runnerSwift = path.resolve(__dirname, '..', 'runner', 'VerifyDeviceRunner', 'InsituTourTests.swift');
 
 describe('VerifyDeviceRunner template', () => {
-  it('captures only after the tour marker exists, and fail-loud attaches *-MISSING before XCTFail', () => {
+  it('F2-7 waits on exact tourstate labels and fails loud on explicit -FAILED markers', () => {
     const src = fs.readFileSync(runnerSwift, 'utf8');
-    expect(src).toMatch(/if\s+marker\.waitForExistence\(timeout:\s*stateTimeout\)\s*\{\s*shot\(name\)\s*\}\s*else\s*\{/s);
-    expect(src).toMatch(/else\s*\{[\s\S]*shot\("\\\(name\)-MISSING"\)[\s\S]*XCTFail\(/);
-    expect(src.indexOf('shot(name)')).toBeGreaterThan(src.indexOf('marker.waitForExistence'));
+    expect(src).not.toMatch(/CONTAINS/);
+    expect(src).toContain(String.raw`let exactLabel = "tourstate:\(state)"`);
+    expect(src).toContain(String.raw`let failedLabel = "\(exactLabel)-FAILED"`);
+    expect(src).toMatch(/NSPredicate\(format:\s*"label == %@"/);
+    expect(src).toContain('case .reached:');
+    expect(src).toContain('case .failed:');
+    expect(src).toMatch(/case\s+\.failed:[\s\S]*shot\("\\\(name\)-MISSING"\)[\s\S]*XCTFail\("state '\\\(state\)' published tourstate:\\\(state\)-FAILED/);
+    expect(src.indexOf('shot(name)')).toBeGreaterThan(src.indexOf('case .reached:'));
   });
 });
