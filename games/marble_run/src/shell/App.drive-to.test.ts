@@ -180,6 +180,9 @@ describe('App harness driveTo wiring', () => {
 
     expect(h.snapshot()).toMatchObject({ scene: 'complete', settingsOpen: false });
     expect(document.querySelector('.fab-result-card--win')).not.toBeNull();
+    const next = document.querySelector<HTMLButtonElement>('[data-fab-action="result-next"]')!;
+    expect(next.classList.contains('mr-result-cta')).toBe(true);
+    expect(next.style.getPropertyValue('--mr-button-sprite-image')).toContain('url(');
     expect(controllerProbe.instances.at(-1)!.resultHudModes).toEqual(['win']);
 
     vi.useFakeTimers();
@@ -198,6 +201,11 @@ describe('App harness driveTo wiring', () => {
 
     expect(h.snapshot()).toMatchObject({ scene: 'failed', settingsOpen: false });
     expect(document.querySelector('.fab-result-card--lose')).not.toBeNull();
+    const watch = document.querySelector<HTMLButtonElement>('[data-fab-action="result-next"]')!;
+    const retry = document.querySelector<HTMLButtonElement>('[data-fab-action="result-retry"]')!;
+    expect(watch.style.getPropertyValue('--mr-button-sprite-image')).toContain('url(');
+    expect(retry.classList.contains('mr-result-cta--orange')).toBe(true);
+    expect(retry.style.getPropertyValue('--mr-button-sprite-image')).toContain('url(');
     expect(controllerProbe.instances.at(-1)!.resultHudModes).toEqual(['lose']);
   });
 });

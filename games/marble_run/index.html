@@ -368,7 +368,8 @@
         z-index: 3;
         width: min(76vw, 320px);
         transform: translateX(-50%);
-        gap: 30px;
+        gap: 10px;
+        align-items: center;
       }
       .fab-result-card--win .fab-modal-actions {
         top: calc(100% + 112px);
@@ -377,28 +378,22 @@
       .fab-result-card--lose .fab-modal-actions {
         top: calc(100% - 18px);
       }
-      /* Chunky Button_Green / Button_Orange candy treatment, sized for result
-         screens. Token-driven so a reskin recolors the gradient without changing
-         the shared @fabrikav2/ui button primitive. */
+      /* Real Button_Green / Button_Orange sprites, with baked glare preserved. */
       .fab-modal-actions .fab-btn.mr-result-cta {
-        width: 100%;
-        min-height: 78px;
-        padding: 13px 24px 18px;
-        border: 4px solid var(--fab-color-cta-green-border, #2f7d3f);
-        border-radius: 28px;
-        background: linear-gradient(
-          180deg,
-          var(--fab-color-cta-green-top, #7fe089),
-          var(--fab-color-cta-green-bottom, #3fb356)
-        );
-        box-shadow:
-          0 5px 0 var(--fab-color-cta-green-shadow, #2b8a3c),
-          inset 0 2px 0 rgba(255, 255, 255, 0.35);
+        width: min(100%, 232px);
+        min-width: 0;
+        min-height: 0;
+        aspect-ratio: 435 / 200;
+        padding: 0 26px 10px;
+        border: 0;
+        border-radius: 22px;
+        background: var(--mr-button-sprite-image) center / 100% 100% no-repeat;
+        box-shadow: none;
         color: var(--fab-color-cta-green-ink, #fff);
         font-family: 'Titan One', var(--fab-font-family, system-ui, sans-serif);
         font-weight: 400;
         font-size: 29px;
-        letter-spacing: 0.02em;
+        letter-spacing: 0;
         text-transform: uppercase;
         text-shadow:
           0 4px 0 var(--fab-color-text-ink, #203050),
@@ -407,27 +402,9 @@
       .fab-result-card--win .fab-modal-actions .fab-btn.mr-result-cta {
         text-transform: none;
       }
-      .fab-modal-actions .fab-btn.mr-result-cta--yellow {
-        border-color: var(--fab-color-cta-yellow-border, #203050);
-        background: linear-gradient(
-          180deg,
-          var(--fab-color-cta-yellow-top, #ffe86a),
-          var(--fab-color-cta-yellow-bottom, #ffad24)
-        );
-        box-shadow:
-          0 5px 0 var(--fab-color-cta-yellow-shadow, #eb7500),
-          inset 0 2px 0 rgba(255, 255, 255, 0.45);
-      }
       .fab-modal-actions .fab-btn.mr-result-cta:active:not(:disabled) {
         transform: translateY(3px);
-        box-shadow:
-          0 2px 0 var(--fab-color-cta-green-shadow, #2b8a3c),
-          inset 0 2px 0 rgba(255, 255, 255, 0.35);
-      }
-      .fab-modal-actions .fab-btn.mr-result-cta--yellow:active:not(:disabled) {
-        box-shadow:
-          0 2px 0 var(--fab-color-cta-yellow-shadow, #eb7500),
-          inset 0 2px 0 rgba(255, 255, 255, 0.45);
+        box-shadow: none;
       }
 
       /* ---- Settings modal (reference popup + ribbon + sprite buttons) ---- */
@@ -560,7 +537,7 @@
         padding: 0 26px 9px;
         border: 0;
         border-radius: 22px;
-        background: var(--mr-settings-action-image) center / 100% 100% no-repeat;
+        background: var(--mr-button-sprite-image) center / 100% 100% no-repeat;
         box-shadow: none;
         color: var(--fab-color-chrome-ink, #fff);
         font-family: 'Titan One', var(--fab-font-family, system-ui, sans-serif);
@@ -623,15 +600,16 @@
         }
         .fab-result-card .fab-modal-actions {
           width: min(78vw, 292px);
-          gap: 24px;
+          gap: 8px;
         }
         .fab-result-card--win .fab-modal-actions {
           top: calc(100% + 92px);
           width: min(48vw, 190px);
         }
         .fab-modal-actions .fab-btn.mr-result-cta {
-          min-height: 68px;
+          width: min(100%, 208px);
           font-size: 25px;
+          padding-bottom: 8px;
         }
         .fab-modal-card.mr-settings-card {
           padding: 66px 23px 24px;

@@ -44,6 +44,14 @@ import { CANONICAL_STATES } from './src/states.mjs';
 import { harnessWindowKey, startDevServer, captureBrowserStates } from './src/browserLane.mjs';
 import { checkBudget } from './src/budget.mjs';
 import { prepareJudgedCaptures, resolveJudgedContentInsetTop } from './src/contentInset.mjs';
+import {
+  buildSummary,
+  compareSummaries,
+  formatCompareTable,
+  formatSummaryTable,
+  loadRunSummary,
+  writeSummaryJson,
+} from './src/summary.mjs';
 import * as steps from './src/steps.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -244,6 +252,15 @@ async function main() {
   const outFile = path.join(outDir, 'grid.html');
   fs.writeFileSync(outFile, html);
 
+  const summary = buildSummary({ panel, phashVerdict });
+  const summaryFile = writeSummaryJson(outDir, summary);
+  let compareTable = '';
+  if (args.compare) {
+    const previous = loadRunSummary(args.compare);
+    const previousLabel = path.relative(REPO_ROOT, path.resolve(args.compare)) || '.';
+    compareTable = formatCompareTable(compareSummaries(summary, previous), previousLabel);
+  }
+
   // The overall PASS/FAIL is the panel's when it ran; otherwise phash (advisory).
   const primary = panel.verdict || phashVerdict;
   const primaryLabel = panel.verdict ? 'panel' : 'phash (panel skipped)';
@@ -263,7 +280,10 @@ async function main() {
     (panel.verdict ? `  panel: ${panel.verdict.summary}\n`
       : `  panel: SKIPPED — ${panel.skipped} (on-device fidelity UNVERIFIED)\n`) +
     `  verdict (${primaryLabel}): ${primary.summary}\n` +
-    `  grid: ${path.relative(REPO_ROOT, outFile)}\n`
+    `  grid: ${path.relative(REPO_ROOT, outFile)}\n` +
+    `  summary: ${path.relative(REPO_ROOT, summaryFile)}\n` +
+    formatSummaryTable(summary) +
+    compareTable
   );
   return computeStrictExitCode({
     strict: args.strict,
