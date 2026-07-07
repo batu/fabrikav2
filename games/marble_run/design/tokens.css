@@ -82,12 +82,26 @@
   --fab-color-text-muted: #8a5a3d;
   --fab-color-on-secondary: #6a3016;
   --fab-color-secondary-surface: #ffe2bd;
-  --fab-color-secondary-border: #cf844e;
+  /* FIDELITY FIX 8 — saturated-blue chrome outline (through-line, all screens).
+     The reference (refs/captures/android-basegamelab) draws EVERY pill / card /
+     button with one dark saturated-blue outer stroke — measured #212c48 off the
+     coin pill, hearts, gear, X-close and both green CTAs. The v2 seed instead
+     used a warm beige (#cf844e / #c87845) on cards+secondary buttons and a white
+     glow (#ffffff) on the teal chrome, so the outline read as the wrong family.
+     Swapping the four consumed container-border tokens below to that one navy
+     re-unifies the outline across menu / level / result / settings. The inner
+     white gloss (inset highlight in index.html / GameController) is a separate
+     box-shadow and is preserved. */
+  --fab-color-container-outline: #212c48;
+  --fab-color-secondary-border: var(--fab-color-container-outline);
   --fab-color-overlay-scrim: #6b568e;
   /* Chunky rounded display face (FIX-4). Titan One is the heavier fallback for
      the same silhouette; system-ui only shows during the font swap. */
   --fab-font-family: 'Fredoka One', 'Titan One', system-ui, sans-serif;
-  --fab-modal-card-border: #c87845;
+  /* FIX-8: card outline joins the saturated-blue through-line (was beige
+     #c87845). Result cards inject the popup-card sprite — which already carries
+     the reference navy stroke — so this drives any non-sprite modal card. */
+  --fab-modal-card-border: var(--fab-color-container-outline);
   --fab-pause-title-color: #6a3016;
   --fab-connectivity-color: #44d164;
 
@@ -144,7 +158,9 @@
   --fab-color-chrome-teal: #3fc6ef;
   --fab-color-chrome-teal-top: #6fdcff;
   --fab-color-chrome-teal-bottom: #23a7db;
-  --fab-color-chrome-teal-border: #ffffff;
+  /* FIX-8: coin pill / gear / hearts / HUD panels get the navy through-line
+     outline (was a white glow #ffffff — the wrong outline family vs reference). */
+  --fab-color-chrome-teal-border: var(--fab-color-container-outline);
   --fab-color-chrome-teal-shadow: #1c7fb0;
   --fab-color-chrome-ink: #ffffff;
   --fab-color-heart: #ff5d6c;
@@ -153,7 +169,10 @@
   --fab-color-cta-green: #5fd06a;
   --fab-color-cta-green-top: #7fe089;
   --fab-color-cta-green-bottom: #3fb356;
-  --fab-color-cta-green-border: #2f7d3f;
+  /* FIX-8: the green LEVEL / CLOSE / result CTAs carry the SAME navy outline in
+     the reference (measured #212d49 off the menu LEVEL + settings CLOSE buttons),
+     not a green-on-green edge — join the through-line (was dark green #2f7d3f). */
+  --fab-color-cta-green-border: var(--fab-color-container-outline);
   --fab-color-cta-green-shadow: #2b8a3c;
   --fab-color-cta-green-ink: #ffffff;
 
