@@ -23,10 +23,9 @@
 // fidelity is device-only). Lets fidelity work + panel-scoring progress when the
 // phone is unavailable; a device pass later is what actually confirms it.
 //
-// Budget-guard: before the panel runs, remaining OpenRouter credit is checked
-// (GET /credits); below --budget-floor (default $5) the panel HALTS — non-fatal,
-// evidence marked UNVERIFIED-panel — instead of draining the shared budget to $0
-// mid-overnight-run.
+// Budget-guard: before every billable panel model call, remaining OpenRouter
+// credit is checked (GET /credits); below --budget-floor (default $5) that
+// judge/state is recorded as budget-halted without making the model call.
 
 import fs from 'node:fs';
 import os from 'node:os';
@@ -37,7 +36,7 @@ import { loadGameManifest } from '../refcap-compare/src/run.mjs';
 import { parseDeviceList, pickDevice } from './src/devices.mjs';
 import { extractFromExportDir, loadCapturesDir } from './src/attachments.mjs';
 import { buildRows } from './src/compare.mjs';
-import { computeVerdict } from './src/verdict.mjs';
+import { computeStrictExitCode, computeVerdict } from './src/verdict.mjs';
 import { buildGridHtml } from './src/grid.mjs';
 import { runPanel, withPanelMetadata } from './src/panel.mjs';
 import { loadRegistry, resolveJudges } from './src/judges.mjs';
@@ -77,7 +76,11 @@ function readEnvSecret(name) {
 function resolveDeviceCaptures(args, manifest, date) {
   if (args.captures) {
     const dir = path.resolve(args.captures);
-    return { captures: loadCapturesDir(dir), deviceLabel: `captures dir ${path.relative(REPO_ROOT, dir)}` };
+    return {
+      captures: loadCapturesDir(dir),
+      lane: 'provided-captures',
+      deviceLabel: `captures dir ${path.relative(REPO_ROOT, dir)} — DEVICE-PROVENANCE-UNVERIFIED`,
+    };
   }
   if (args.xcresult) {
     const exportDir = path.join(os.tmpdir(), `verify-device-${date}-export`);
@@ -113,12 +116,16 @@ function runDevicePath(args, manifest, date) {
   steps.unlockKeychain(readEnvSecret('MAC_PASSWORD'));
   steps.buildHarnessBundle(manifest.gameDir);
   steps.buildAndInstallApp(manifest.gameDir, device.udid, appBundleId);
-  const exportDir = steps.runXcuiTestAndExport({
+  const { exportDir, testError } = steps.runXcuiTestAndExport({
     runnerDir: RUNNER_DIR, deviceUdid: device.udid, appBundleId, outDir,
     developmentTeam: process.env.DEVELOPMENT_TEAM,
   });
   const { byState } = extractFromExportDir(exportDir);
-  return { captures: byState, deviceLabel: `${device.name} (${device.udid})` };
+  return {
+    captures: byState,
+    deviceLabel: `${device.name} (${device.udid})`,
+    captureFailure: testError ? `xcodebuild test failed: ${testError.message}` : null,
+  };
 }
 
 function defaultOut(args, date) {
@@ -197,26 +204,23 @@ async function main() {
       + `${judges.map((j) => j.id).join(', ')}\n`);
     const apiKey = readEnvSecret('OPENROUTER_API_KEY');
 
-    // BUDGET-GUARD: never drain the shared OpenRouter credit to $0 mid-overnight
-    // run. A confirmed remaining balance below --budget-floor HALTS the panel
-    // (non-fatal, exit stays 0); a failed credit *check* (network blip, etc.)
-    // does not halt — the panel's own per-judge credit-skip is the backstop.
-    const budget = await checkBudget({ apiKey, floor: args.budgetFloor });
-    if (budget.halted) {
-      process.stderr.write(`verify-device: ${budget.reason}\n`);
-      panel = { skipped: `${budget.reason} (panel not run — evidence UNVERIFIED-panel)`, halted: true, budget };
-    } else {
-      panel = await runPanel({
-        rows, judges, apiKey, thresholdPct: args.panelThreshold,
+    // BUDGET-GUARD: check remaining OpenRouter credit immediately before every
+    // billable model call. A confirmed balance below --budget-floor records that
+    // judge/state as skipped without making the call; failed checks do not halt.
+    panel = await runPanel({
+      rows, judges, apiKey, thresholdPct: args.panelThreshold,
+      budgetCheck: () => checkBudget({ apiKey, floor: args.budgetFloor }),
+    });
+    if (panel.budgetHalted) {
+      process.stderr.write('verify-device: budget halted one or more panel calls; see panel.json/grid for skipped judges\n');
+    }
+    if (panel.states) {
+      panel = withPanelMetadata(panel, {
+        game: args.game,
+        lane,
+        generatedAt: new Date().toISOString(),
       });
-      if (panel.states) {
-        panel = withPanelMetadata(panel, {
-          game: args.game,
-          lane,
-          generatedAt: new Date().toISOString(),
-        });
-        fs.writeFileSync(path.join(outDir, 'panel.json'), JSON.stringify(panel, null, 2));
-      }
+      fs.writeFileSync(path.join(outDir, 'panel.json'), JSON.stringify(panel, null, 2));
     }
   }
 
@@ -230,16 +234,27 @@ async function main() {
   // The overall PASS/FAIL is the panel's when it ran; otherwise phash (advisory).
   const primary = panel.verdict || phashVerdict;
   const primaryLabel = panel.verdict ? 'panel' : 'phash (panel skipped)';
+  const laneNote = lane === 'browser'
+    ? '  NOTE: browser lane — safe-area/notch fidelity is DEVICE-UNVERIFIED.\n'
+    : lane === 'provided-captures'
+      ? '  NOTE: provided-captures lane — DEVICE-PROVENANCE-UNVERIFIED; strict requires a verified device lane.\n'
+      : '';
   process.stdout.write(
     `verify-device: ${lane} captures from ${resolved.deviceLabel}\n` +
-    (lane === 'browser' ? '  NOTE: browser lane — safe-area/notch fidelity is DEVICE-UNVERIFIED.\n' : '') +
+    laneNote +
+    (resolved.captureFailure ? `  capture: FAILED — ${resolved.captureFailure}\n` : '') +
     `  phash: ${phashVerdict.summary}\n` +
     (panel.verdict ? `  panel: ${panel.verdict.summary}\n`
       : `  panel: SKIPPED — ${panel.skipped} (on-device fidelity UNVERIFIED)\n`) +
     `  verdict (${primaryLabel}): ${primary.summary}\n` +
     `  grid: ${path.relative(REPO_ROOT, outFile)}\n`
   );
-  return args.strict && !primary.pass ? 1 : 0;
+  return computeStrictExitCode({
+    strict: args.strict,
+    lane,
+    primary,
+    captureFailure: resolved.captureFailure,
+  });
 }
 
 main().then((code) => process.exit(code)).catch((err) => {

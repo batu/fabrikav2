@@ -28,6 +28,7 @@ export function parseDeviceList(json) {
 // reports tunnelState 'disconnected' — the earlier tunnelState-only check
 // rejected every idle device (found on verify-device's first live device run).
 function isUsable(d) {
+  if (d.pairingState && d.pairingState !== 'paired') return false;
   return (
     d.pairingState === 'paired' || d.state === 'connected' || d.state === 'available'
   );

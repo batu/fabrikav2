@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeVerdict } from '../src/verdict.mjs';
+import { computeStrictExitCode, computeVerdict, isVerifiedDeviceLane } from '../src/verdict.mjs';
 
 // Row shapes as produced by compare.buildRows (only the fields verdict reads).
 const passRow = (state, cf) => ({ state, device: { base64: 'x' }, reference: { base64: 'y' }, diff: { changedFraction: cf } });
@@ -35,5 +35,27 @@ describe('computeVerdict', () => {
   it('threshold boundary: equal to threshold passes', () => {
     const v = computeVerdict([passRow('menu', 0.2)], 0.2);
     expect(v.states[0].status).toBe('pass');
+  });
+});
+
+describe('strict device exit semantics', () => {
+  it('requires a verified device lane under --strict', () => {
+    expect(isVerifiedDeviceLane('device')).toBe(true);
+    expect(isVerifiedDeviceLane('browser')).toBe(false);
+    expect(isVerifiedDeviceLane('provided-captures')).toBe(false);
+    expect(computeStrictExitCode({ strict: true, lane: 'device', primary: { pass: true } })).toBe(0);
+    expect(computeStrictExitCode({ strict: true, lane: 'browser', primary: { pass: true } })).toBe(1);
+    expect(computeStrictExitCode({ strict: true, lane: 'provided-captures', primary: { pass: true } })).toBe(1);
+  });
+
+  it('keeps advisory mode advisory except for capture-runner failures', () => {
+    expect(computeStrictExitCode({ strict: false, lane: 'browser', primary: { pass: true } })).toBe(0);
+    expect(computeStrictExitCode({ strict: false, lane: 'device', primary: { pass: false } })).toBe(0);
+    expect(computeStrictExitCode({
+      strict: false,
+      lane: 'device',
+      primary: { pass: true },
+      captureFailure: 'xcodebuild test failed',
+    })).toBe(1);
   });
 });

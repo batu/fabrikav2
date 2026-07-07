@@ -121,6 +121,8 @@ describe('captureBrowserStates', () => {
       launch,
     });
     expect(captures).toEqual({});
+    expect(integrity.map((i) => i.state)).toEqual(['win', 'fail']);
     expect(integrity.every((i) => i.integrityPass === false)).toBe(true);
+    expect(integrity.every((i) => i.driveToReturned === false)).toBe(true);
   });
 });

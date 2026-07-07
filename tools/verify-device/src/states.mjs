@@ -16,8 +16,9 @@ const CANONICAL_SET = new Set(CANONICAL_STATES);
 /**
  * Extract a canonical state from a shot / attachment name.
  * Handles: "1-menu", "01-menu", "6-fail", and xcresult export names like
- * "04-pause_0_8A262C31-...png" or "1-menu_0_<uuid>.png". Returns null for names
- * that don't carry a canonical state (e.g. "7-final", "screenshot").
+ * "04-pause_0_8A262C31-...png" or "1-menu_0_<uuid>.png". Also maps runner
+ * failure inspection shots like "6-fail-MISSING". Returns null for names that
+ * don't carry a canonical state (e.g. "7-final", "screenshot").
  * @param {string} name
  * @returns {string|null}
  */
@@ -28,6 +29,6 @@ export function stateFromShotName(name) {
   const base = name.replace(/\.[a-z0-9]+$/i, '');
   const shot = base.split('_')[0];
   // shot is like "01-menu" or "menu" — drop a leading "<digits>-" order prefix.
-  const token = shot.replace(/^\d+[-.]/, '').toLowerCase();
+  const token = shot.replace(/^\d+[-.]/, '').replace(/-missing$/i, '').toLowerCase();
   return CANONICAL_SET.has(token) ? token : null;
 }

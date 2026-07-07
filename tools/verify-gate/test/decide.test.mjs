@@ -94,6 +94,38 @@ describe('decideMerge — the ship-time backstop', () => {
     gamesDirPresent: true,
   };
 
+  it('FAILS when the worktree has uncommitted changes', () => {
+    const d = decideMerge({ ...mbase, worktreeDirtyFiles: ['src/work.ts'] });
+    expect(d.ok).toBe(false);
+    expect(d.reason).toMatch(/uncommitted worktree/);
+    expect(d.dirtyFiles).toEqual(['src/work.ts']);
+  });
+
+  it('FAILS a non-exempt implementation card whose diff is only docs/**/*.md', () => {
+    const d = decideMerge({
+      ...mbase,
+      changedFiles: ['docs/brainstorms/requirements.md', 'docs/plans/plan.md'],
+      cardTitle: 'MACHINERY 4: land gate',
+      cardLabels: [],
+    });
+    expect(d.ok).toBe(false);
+    expect(d.reason).toMatch(/rubber-stamp/);
+    expect(d.docsOnlyFiles).toEqual(['docs/brainstorms/requirements.md', 'docs/plans/plan.md']);
+  });
+
+  it('PASSES docs-only diffs when the card is explicitly doc/research-exempt', () => {
+    expect(decideMerge({
+      ...mbase,
+      changedFiles: ['docs/research/note.md'],
+      cardLabels: ['research'],
+    }).ok).toBe(true);
+    expect(decideMerge({
+      ...mbase,
+      changedFiles: ['docs/brainstorms/note.md'],
+      cardTitle: 'DOCS: refresh handoff',
+    }).ok).toBe(true);
+  });
+
   it('FAILS when the only evidence is UNVERIFIED ledger entries', () => {
     const d = decideMerge({ ...mbase, ledgerEntryCount: 3 });
     expect(d.ok).toBe(false);
