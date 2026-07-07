@@ -1,0 +1,721 @@
+{
+  "models": [
+    "anthropic/claude-opus-4.1",
+    "anthropic/claude-sonnet-5",
+    "google/gemini-3.5-flash"
+  ],
+  "judges": [
+    {
+      "id": "opus",
+      "model": "anthropic/claude-opus-4.1",
+      "provider": "openrouter",
+      "enabled": true
+    },
+    {
+      "id": "sonnet",
+      "model": "anthropic/claude-sonnet-5",
+      "provider": "openrouter",
+      "enabled": true
+    },
+    {
+      "id": "gemini-flash",
+      "model": "google/gemini-3.5-flash",
+      "provider": "openrouter",
+      "enabled": true
+    }
+  ],
+  "thresholdPct": 85,
+  "states": [
+    {
+      "state": "menu",
+      "score": 75,
+      "status": "fail",
+      "reason": "panel 75% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 60
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 80
+        }
+      ],
+      "consensus": [
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Level number progression differs",
+            "Coin count differs from reference",
+            "The user progress data (levels and coin amounts) does not match the reference state."
+          ]
+        },
+        {
+          "key": "other",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Game board marble configuration differs",
+            "Confetti particle distribution patterns differ across the two screens."
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Marble board is more crowded with additional marbles filling more holes",
+            "Marble board content layout is mismatched, indicating a different level state or randomized positioning."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "level",
+      "score": 65,
+      "status": "fail",
+      "reason": "panel 65% < 85%; consensus blocker: layout (3/3)",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 45
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 65
+        }
+      ],
+      "consensus": [
+        {
+          "key": "layout",
+          "count": 3,
+          "of": 3,
+          "severity": "blocker",
+          "descriptions": [
+            "Game board has different ball arrangement",
+            "Board is a different puzzle configuration entirely - different grid size, ball count, positions, and colors of the goal pockets",
+            "The game board state (balls and shooters placement) does not match the reference design state at all, indicating a completely different level configuration or randomized placement."
+          ]
+        },
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Coin count is significantly different",
+            "Coin count value differs significantly",
+            "The coin count in the bottom-left HUD displays a different value."
+          ]
+        },
+        {
+          "key": "sizing",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Game board dimensions are different",
+            "Game board is smaller and positioned differently on screen"
+          ]
+        }
+      ]
+    },
+    {
+      "state": "settings",
+      "score": 75,
+      "status": "fail",
+      "reason": "panel 75% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 85
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 62
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 75
+        }
+      ],
+      "consensus": [
+        {
+          "key": "background",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Background shows game elements instead of clean purple",
+            "Background shows unrelated game elements (wooden panel, level indicator, buttons) instead of the plain solid purple background",
+            "An incorrect brown wooden block/board background is visible behind the dialog in OURS, which obscures the main background elements."
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 3,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Settings panel appears slightly higher on screen",
+            "Close (X) icon uses a text-based 'X' letter instead of the graphic cross icon, and its position/style differs slightly",
+            "The header banner ribbon 'SETTINGS' has clipping issues at the bottom left and right wings."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "pause",
+      "score": null,
+      "status": "unscored",
+      "reason": "no reference to score against",
+      "models": [],
+      "consensus": []
+    },
+    {
+      "state": "win",
+      "score": 74,
+      "status": "fail",
+      "reason": "panel 74% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 55
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 74
+        }
+      ],
+      "consensus": [
+        {
+          "key": "layout",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Coin counter positioning differs",
+            "LEVEL 4 text overlaps with COMPLETED text instead of sitting above it in its own banner space",
+            "The green 'LEVEL 4 COMPLETED' ribbon is incorrectly layered and lacks its proper multi-dimensional shape; it appears flat and extends straight to the edges of the card, cutting off the card's rounded top corners."
+          ]
+        },
+        {
+          "key": "color",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Reward text color differs",
+            "Coin counter pill uses wrong color scheme",
+            "The top-right coin display counter has a completely different dark-blue, semi-transparent color instead of the active bright blue style."
+          ]
+        },
+        {
+          "key": "typography",
+          "count": 3,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Reward amount text style differs",
+            "REWARD and +25 text color differs",
+            "The 'Next' button text and 'REWARD' text have slightly different fonts and stroke weights."
+          ]
+        },
+        {
+          "key": "text-content",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Total coin count differs significantly",
+            "Coin counter value differs"
+          ]
+        },
+        {
+          "key": "iconography",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Number of coin icons in counter",
+            "Coin icon in top counter differs"
+          ]
+        }
+      ]
+    },
+    {
+      "state": "fail",
+      "score": 72,
+      "status": "fail",
+      "reason": "panel 72% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 55
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 72
+        }
+      ],
+      "consensus": [
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Green button has wrong text",
+            "Green button label differs",
+            "The text on the primary green button is different."
+          ]
+        },
+        {
+          "key": "iconography",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Emoji shows different expression",
+            "Emoji used differs",
+            "The emoji/icon displayed in the center of the dialog is different."
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Banner ribbon shape differs",
+            "Entire card is shifted up and cropped, cutting off top spacing",
+            "The red 'FAILED' banner at the top of the dialog is broken, stretched excessively horizontally, and cuts off improperly at the wings."
+          ]
+        },
+        {
+          "key": "sizing",
+          "count": 3,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Main panel height is shorter",
+            "Card and banner appear scaled larger relative to screen, causing edges to be cut off on both sides",
+            "The text and button styling look flatter with less pronounced shadows, and the yellow RETRY button is wider."
+          ]
+        },
+        {
+          "key": "typography",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "'LEVEL 4' text overlaps with 'FAILED' text due to spacing/sizing differences",
+            "The 'LEVEL 4' text is partially obscured by the 'FAILED' text overlapping on top of it."
+          ]
+        }
+      ]
+    }
+  ],
+  "verdict": {
+    "pass": false,
+    "summary": "FAIL — panel median 74% · 0 pass, 5 fail, 1 unscored (floor 85%)",
+    "states": [
+      {
+        "state": "menu",
+        "score": 75,
+        "status": "fail",
+        "reason": "panel 75% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 60
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 80
+          }
+        ],
+        "consensus": [
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Level number progression differs",
+              "Coin count differs from reference",
+              "The user progress data (levels and coin amounts) does not match the reference state."
+            ]
+          },
+          {
+            "key": "other",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Game board marble configuration differs",
+              "Confetti particle distribution patterns differ across the two screens."
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Marble board is more crowded with additional marbles filling more holes",
+              "Marble board content layout is mismatched, indicating a different level state or randomized positioning."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "level",
+        "score": 65,
+        "status": "fail",
+        "reason": "panel 65% < 85%; consensus blocker: layout (3/3)",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 45
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 65
+          }
+        ],
+        "consensus": [
+          {
+            "key": "layout",
+            "count": 3,
+            "of": 3,
+            "severity": "blocker",
+            "descriptions": [
+              "Game board has different ball arrangement",
+              "Board is a different puzzle configuration entirely - different grid size, ball count, positions, and colors of the goal pockets",
+              "The game board state (balls and shooters placement) does not match the reference design state at all, indicating a completely different level configuration or randomized placement."
+            ]
+          },
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Coin count is significantly different",
+              "Coin count value differs significantly",
+              "The coin count in the bottom-left HUD displays a different value."
+            ]
+          },
+          {
+            "key": "sizing",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Game board dimensions are different",
+              "Game board is smaller and positioned differently on screen"
+            ]
+          }
+        ]
+      },
+      {
+        "state": "settings",
+        "score": 75,
+        "status": "fail",
+        "reason": "panel 75% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 85
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 62
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 75
+          }
+        ],
+        "consensus": [
+          {
+            "key": "background",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Background shows game elements instead of clean purple",
+              "Background shows unrelated game elements (wooden panel, level indicator, buttons) instead of the plain solid purple background",
+              "An incorrect brown wooden block/board background is visible behind the dialog in OURS, which obscures the main background elements."
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 3,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Settings panel appears slightly higher on screen",
+              "Close (X) icon uses a text-based 'X' letter instead of the graphic cross icon, and its position/style differs slightly",
+              "The header banner ribbon 'SETTINGS' has clipping issues at the bottom left and right wings."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "pause",
+        "score": null,
+        "status": "unscored",
+        "reason": "no reference to score against",
+        "models": [],
+        "consensus": []
+      },
+      {
+        "state": "win",
+        "score": 74,
+        "status": "fail",
+        "reason": "panel 74% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 55
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 74
+          }
+        ],
+        "consensus": [
+          {
+            "key": "layout",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Coin counter positioning differs",
+              "LEVEL 4 text overlaps with COMPLETED text instead of sitting above it in its own banner space",
+              "The green 'LEVEL 4 COMPLETED' ribbon is incorrectly layered and lacks its proper multi-dimensional shape; it appears flat and extends straight to the edges of the card, cutting off the card's rounded top corners."
+            ]
+          },
+          {
+            "key": "color",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Reward text color differs",
+              "Coin counter pill uses wrong color scheme",
+              "The top-right coin display counter has a completely different dark-blue, semi-transparent color instead of the active bright blue style."
+            ]
+          },
+          {
+            "key": "typography",
+            "count": 3,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Reward amount text style differs",
+              "REWARD and +25 text color differs",
+              "The 'Next' button text and 'REWARD' text have slightly different fonts and stroke weights."
+            ]
+          },
+          {
+            "key": "text-content",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Total coin count differs significantly",
+              "Coin counter value differs"
+            ]
+          },
+          {
+            "key": "iconography",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Number of coin icons in counter",
+              "Coin icon in top counter differs"
+            ]
+          }
+        ]
+      },
+      {
+        "state": "fail",
+        "score": 72,
+        "status": "fail",
+        "reason": "panel 72% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 55
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 72
+          }
+        ],
+        "consensus": [
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Green button has wrong text",
+              "Green button label differs",
+              "The text on the primary green button is different."
+            ]
+          },
+          {
+            "key": "iconography",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Emoji shows different expression",
+              "Emoji used differs",
+              "The emoji/icon displayed in the center of the dialog is different."
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Banner ribbon shape differs",
+              "Entire card is shifted up and cropped, cutting off top spacing",
+              "The red 'FAILED' banner at the top of the dialog is broken, stretched excessively horizontally, and cuts off improperly at the wings."
+            ]
+          },
+          {
+            "key": "sizing",
+            "count": 3,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Main panel height is shorter",
+              "Card and banner appear scaled larger relative to screen, causing edges to be cut off on both sides",
+              "The text and button styling look flatter with less pronounced shadows, and the yellow RETRY button is wider."
+            ]
+          },
+          {
+            "key": "typography",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "'LEVEL 4' text overlaps with 'FAILED' text due to spacing/sizing differences",
+              "The 'LEVEL 4' text is partially obscured by the 'FAILED' text overlapping on top of it."
+            ]
+          }
+        ]
+      }
+    ],
+    "score": 74
+  },
+  "budgetHalted": false,
+  "game": "marble_run",
+  "lane": "device",
+  "generatedAt": "2026-07-07T14:32:43.674Z"
+}
