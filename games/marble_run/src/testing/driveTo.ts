@@ -27,6 +27,7 @@ const DRIVE_STATES: readonly DriveState[] = [
   'settings',
   'pause',
 ];
+const RESULT_REFERENCE_LEVEL = 4;
 
 /**
  * The App transitions `driveTo` composes. Each mirrors an existing private App
@@ -120,14 +121,14 @@ export async function driveTo(
       return settle(sceneIs('playing'));
 
     case 'win': {
-      deps.startLevel(1);
+      deps.startLevel(RESULT_REFERENCE_LEVEL);
       if (!(await settle(playingReady))) return false;
       await deps.autoWin();
       return settle(sceneIs('complete'));
     }
 
     case 'fail': {
-      deps.startLevel(1);
+      deps.startLevel(RESULT_REFERENCE_LEVEL);
       if (!(await settle(playingReady))) return false;
       await deps.autoFail();
       return settle(sceneIs('failed'));

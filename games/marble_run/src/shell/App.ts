@@ -379,14 +379,14 @@ export class App {
 
   private mountWin(info: PendingWin): void {
     const actions: ModalAction[] = [
-      { label: copy['result.win.next'], onClick: () => this.next(info.levelId), variant: 'primary', className: 'mr-result-cta', dataAction: 'result-next' },
-      { label: copy['result.win.retry'], onClick: () => this.retry(), variant: 'secondary', dataAction: 'result-retry' },
+      { label: copy['result.win.next'], onClick: () => this.next(info.levelId), variant: 'primary', className: 'mr-result-cta mr-result-cta--green', dataAction: 'result-next' },
     ];
     const reward = this.buildRewardDisplay(info.reward);
     this.screenHandle = mountResultCard({
       mountInto: this.uiRoot,
       variant: 'win',
       title: copy['result.win.title'],
+      eyebrow: this.resultLevelEyebrow(info.levelId),
       ribbonImage: assetUrls.ribbonCompleted,
       cardImage: assetUrls.popup,
       art: this.buildWinCrown(),
@@ -414,16 +414,17 @@ export class App {
 
   private mountLose(): void {
     const actions: ModalAction[] = [
-      { label: copy['result.lose.watchAd'], onClick: () => void this.requestFailSave(), variant: 'primary', className: 'mr-result-cta', dataAction: 'result-next' },
-      { label: copy['result.lose.retry'], onClick: () => this.retry(), variant: 'secondary', dataAction: 'result-retry' },
-      { label: copy['result.lose.quit'], onClick: () => this.toMenu(), variant: 'secondary', dataAction: 'result-menu' },
+      { label: copy['result.lose.watchAd'], onClick: () => void this.requestFailSave(), variant: 'primary', className: 'mr-result-cta mr-result-cta--green', dataAction: 'result-next' },
+      { label: copy['result.lose.retry'], onClick: () => this.retry(), variant: 'primary', className: 'mr-result-cta mr-result-cta--yellow', dataAction: 'result-retry' },
     ];
     this.screenHandle = mountResultCard({
       mountInto: this.uiRoot,
       variant: 'lose',
       title: copy['result.lose.title'],
+      eyebrow: this.resultLevelEyebrow(this.currentLevelId),
       ribbonImage: assetUrls.ribbonFailed,
       cardImage: assetUrls.popup,
+      art: this.buildFailEmoji(),
       messages: copy['result.lose.message'],
       actions,
     });
@@ -698,10 +699,27 @@ export class App {
     return img;
   }
 
+  private buildFailEmoji(): HTMLElement {
+    const emoji = document.createElement('span');
+    emoji.className = 'mr-result-emoji';
+    emoji.textContent = copy['result.lose.emoji'];
+    emoji.setAttribute('aria-hidden', 'true');
+    return emoji;
+  }
+
+  private resultLevelEyebrow(levelId: number): string {
+    return `${copy['menu.levelButton']} ${levelId}`;
+  }
+
   private buildRewardDisplay(amount: number): { el: HTMLElement; source: HTMLElement } {
     const el = document.createElement('div');
     el.className = 'mr-reward';
     el.setAttribute('data-fab-economy-target', 'coin');
+    const label = document.createElement('div');
+    label.className = 'mr-reward-label';
+    label.textContent = copy['result.win.reward'];
+    const amountRow = document.createElement('div');
+    amountRow.className = 'mr-reward-amount';
     const icon = document.createElement('img');
     icon.className = 'mr-reward-icon';
     icon.src = assetUrls.coin;
@@ -709,9 +727,9 @@ export class App {
     icon.setAttribute('data-fab-economy-anchor', 'coin');
     const value = document.createElement('span');
     value.className = 'mr-reward-value';
-    value.textContent = String(amount);
-    el.appendChild(icon);
-    el.appendChild(value);
+    value.textContent = `+${amount}`;
+    amountRow.append(icon, value);
+    el.append(label, amountRow);
     return { el, source: icon };
   }
 

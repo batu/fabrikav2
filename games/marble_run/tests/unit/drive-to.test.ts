@@ -105,6 +105,20 @@ describe('driveTo — deterministic per-state navigation', () => {
     expect(machine.state).toBe('failed');
   });
 
+  it.each(['win', 'fail'] as const)('seeds %s captures from the reference result level', async (state) => {
+    const started: number[] = [];
+    const { deps } = makeFakeApp();
+    const startLevel = deps.startLevel;
+    deps.startLevel = (id) => {
+      started.push(id);
+      startLevel(id);
+    };
+
+    await driveTo(deps, state, opts);
+
+    expect(started).toContain(4);
+  });
+
   it('returns false for an unknown state (honest "did not reach")', async () => {
     const { deps, machine } = makeFakeApp();
     expect(await driveTo(deps, 'bogus', opts)).toBe(false);

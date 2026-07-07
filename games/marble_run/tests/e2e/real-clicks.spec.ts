@@ -36,6 +36,7 @@ interface Harness {
   grantCoins(coins: number): void;
   snapshot(): { scene: string; status: string; inputReady: boolean; paused: boolean };
   solveStep(): unknown;
+  driveTo(state: string): Promise<boolean>;
 }
 
 async function boot(page: Page): Promise<SharedShellDriver> {
@@ -219,11 +220,11 @@ test.describe('marble_run — real-click coverage across every screen', () => {
     await expect(page.locator('#hud .mr-hud')).toBeVisible({ timeout: 8000 });
   });
 
-  test('result: resultRetry() really restarts the level (HUD remounts)', async ({ page }) => {
+  test('result: resultRetry() really restarts from the fail card (HUD remounts)', async ({ page }) => {
     await boot(page);
-    await winLevel1(page);
-    const scene = await readHarness<Harness, string>(page, WINDOW_KEY, (h) => h.snapshot().scene);
-    test.skip(scene !== 'complete', 'level 1 resolved to a fail this run; win-card path not reachable');
+    const reached = await callHarness<Harness, string, Promise<boolean>>(page, WINDOW_KEY, (h, state) => h.driveTo(state), 'fail');
+    expect(reached).toBe(true);
+    await expect(page.locator('.fab-result-card--lose')).toBeVisible({ timeout: 4000 });
     const shell = new SharedShellDriver(page);
     await shell.resultRetry();
     await expect(page.locator('#hud .mr-hud')).toBeVisible({ timeout: 8000 });
