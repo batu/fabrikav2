@@ -42,27 +42,3 @@ export function solveLevel(level: LevelDef): SolveResult {
   }
   return { solvable: true, waves, order, stuck: 0 };
 }
-
-export interface DifficultyReport {
-  readonly marbles: number;
-  readonly colors: number;
-  readonly waves: number;
-  /** Fraction of marbles movable at the start — lower = tighter opening. */
-  readonly initialMovableFraction: number;
-}
-
-export function analyzeDifficulty(level: LevelDef): DifficultyReport {
-  const solved = solveLevel(level);
-  if (!solved.solvable) {
-    throw new Error(`Level ${level.id} is not solvable`);
-  }
-  const engine = new BoardEngine(level);
-  const marbles = engine.remainingCount();
-  const colors = new Set(engine.allMarbles().map((m) => m.color)).size;
-  return {
-    marbles,
-    colors,
-    waves: solved.waves.length,
-    initialMovableFraction: marbles === 0 ? 1 : solved.waves[0]! / marbles,
-  };
-}

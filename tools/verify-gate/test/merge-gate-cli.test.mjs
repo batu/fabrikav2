@@ -105,7 +105,7 @@ describe('merge-gate CLI', () => {
     expect(res.stdout).toMatch(/PASS/);
   });
 
-  it('PASSES a visual diff only with a fresh matching passing device panel', () => {
+  it('PASSES a visual diff with a fresh matching device panel even when verdict fails', () => {
     git('init -q -b main');
     git('config user.email t@t.t');
     git('config user.name t');
@@ -118,7 +118,7 @@ describe('merge-gate CLI', () => {
       game: 'g',
       lane: 'device',
       generatedAt: '1970-01-01T00:00:02.000Z',
-      verdict: { pass: true },
+      verdict: { pass: false, score: 45, summary: 'FAIL — panel median 45%' },
       states: [],
     }), 2000);
     git('add -A');
@@ -126,5 +126,7 @@ describe('merge-gate CLI', () => {
     const res = runCli();
     expect(res.status).toBe(0);
     expect(res.stdout).toMatch(/PASS/);
+    expect(res.stdout).toMatch(/verdict FAIL/);
+    expect(res.stdout).toMatch(/45/);
   });
 });

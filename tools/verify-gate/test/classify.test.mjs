@@ -157,17 +157,29 @@ describe('evidenceIsFresh', () => {
   it('no stat-able visual change time => not fresh (deleted files fail closed)', () => {
     expect(evidenceIsFresh(null, [])).toBe(false);
   });
-  it('requires a matching fresh passing device panel for each affected game', () => {
+  it('requires a matching fresh device panel for each affected game', () => {
     const panels = [
       { valid: true, game: 'other', lane: 'device', verdictPass: true, generatedAtMs: 2000 },
       { valid: true, game: 'marble_run', lane: 'browser', verdictPass: true, generatedAtMs: 2000 },
-      { valid: true, game: 'marble_run', lane: 'device', verdictPass: false, generatedAtMs: 2000 },
       { valid: true, game: 'marble_run', lane: 'device', verdictPass: true, generatedAtMs: 500 },
     ];
     expect(evidenceIsFresh(1000, panels, ['marble_run'])).toBe(false);
     expect(evidenceIsFresh(1000, [
       ...panels,
-      { valid: true, game: 'marble_run', lane: 'device', verdictPass: true, generatedAtMs: 2000 },
+      { valid: true, game: 'marble_run', lane: 'device', verdictPass: false, generatedAtMs: 2000 },
+    ], ['marble_run'])).toBe(true);
+  });
+
+  it('treats verdict failure as informational for fresh device observations', () => {
+    expect(evidenceIsFresh(1000, [
+      {
+        valid: true,
+        game: 'marble_run',
+        lane: 'device',
+        verdictPass: false,
+        verdictScore: 45,
+        generatedAtMs: 2000,
+      },
     ], ['marble_run'])).toBe(true);
   });
 });
