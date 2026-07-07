@@ -1,0 +1,649 @@
+{
+  "models": [
+    "anthropic/claude-opus-4.1",
+    "anthropic/claude-sonnet-5",
+    "google/gemini-3.5-flash"
+  ],
+  "judges": [
+    {
+      "id": "opus",
+      "model": "anthropic/claude-opus-4.1",
+      "provider": "openrouter",
+      "enabled": true
+    },
+    {
+      "id": "sonnet",
+      "model": "anthropic/claude-sonnet-5",
+      "provider": "openrouter",
+      "enabled": true
+    },
+    {
+      "id": "gemini-flash",
+      "model": "google/gemini-3.5-flash",
+      "provider": "openrouter",
+      "enabled": true
+    }
+  ],
+  "thresholdPct": 85,
+  "states": [
+    {
+      "state": "menu",
+      "score": 60,
+      "status": "fail",
+      "reason": "panel 60% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 60
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 60
+        }
+      ],
+      "consensus": [
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Coin count differs significantly",
+            "Coin count value differs",
+            "The active level and sequence path represent different progress states."
+          ]
+        },
+        {
+          "key": "other",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Game board marble arrangement differs",
+            "The board rotation angle and marble configurations inside the preview tile do not match."
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Marble board tilt/orientation slightly different, and marble positions vary",
+            "Background confetti particles are generated in different randomized positions."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "level",
+      "score": 60,
+      "status": "fail",
+      "reason": "panel 60% < 85%; consensus blocker: layout (3/3)",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 45
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 60
+        }
+      ],
+      "consensus": [
+        {
+          "key": "layout",
+          "count": 3,
+          "of": 3,
+          "severity": "blocker",
+          "descriptions": [
+            "Game board has different ball positions",
+            "Board is 4x4 with different ball arrangement instead of 5x5 grid with layout matching reference",
+            "The game board state and grid size differs fundamentally. The reference has a 5x5 grid of circles with various red and blue marbles, whereas ours shows a 4x4 grid of circles with fewer marbles in different positions."
+          ]
+        },
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Coin count is different",
+            "Coin count value differs significantly",
+            "The coin/currency counter value does not match."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "settings",
+      "score": 85,
+      "status": "pass",
+      "reason": "panel 85% ≥ 85%, no blocker consensus",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 85
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 62
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 94
+        }
+      ],
+      "consensus": [
+        {
+          "key": "extra-element",
+          "count": 2,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Wooden plank/board element below the settings panel",
+            "Extra UI elements visible at top of screen behind modal"
+          ]
+        },
+        {
+          "key": "background",
+          "count": 2,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Background shows a wooden board and level info visible behind the modal instead of a plain purple background",
+            "The background peeking behind the settings modal shows game board elements instead of the clean dim background."
+          ]
+        },
+        {
+          "key": "typography",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Close icon 'X' rendered as plain text instead of stylized icon",
+            "The font used for 'SETTINGS' and 'CLOSE' differs slightly in style, thickness, and letter spacing."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "pause",
+      "score": null,
+      "status": "unscored",
+      "reason": "no reference to score against",
+      "models": [],
+      "consensus": []
+    },
+    {
+      "state": "win",
+      "score": 75,
+      "status": "fail",
+      "reason": "panel 75% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 55
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 78
+        }
+      ],
+      "consensus": [
+        {
+          "key": "color",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Top coin counter has different background color",
+            "Coin counter badge uses a dark, low-contrast style instead of the bright blue pill",
+            "The coin container in the top right corner is extremely dark and barely visible, suggesting an incorrect opacity level or color overlay."
+          ]
+        },
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Top coin counter shows different value",
+            "Coin count value differs and is hard to read",
+            "The total coin count in the top right corner displays a different value."
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 2,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Top banner and main card positioning differs",
+            "'LEVEL 4' text overlaps with 'COMPLETED' banner instead of being positioned above it"
+          ]
+        },
+        {
+          "key": "typography",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "REWARD text styling lacks the bold black outline seen in reference",
+            "The 'LEVEL 4' text on the green ribbon is partially obscured and lacks contrast."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "fail",
+      "score": 74,
+      "status": "fail",
+      "reason": "panel 74% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 85
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 55
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 74
+        }
+      ],
+      "consensus": [
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Green button has different text",
+            "Button label differs from reference",
+            "The green action button text displays 'WATCH' instead of 'LOADING'."
+          ]
+        },
+        {
+          "key": "iconography",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Emoji expression differs slightly",
+            "The center sad face emoji is a generic system emoji style instead of the custom 2D flat vector icon style."
+          ]
+        },
+        {
+          "key": "sizing",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Emoji appears slightly larger",
+            "Emoji icon is smaller than reference"
+          ]
+        }
+      ]
+    }
+  ],
+  "verdict": {
+    "pass": false,
+    "summary": "FAIL — panel median 74% · 1 pass, 4 fail, 1 unscored (floor 85%)",
+    "states": [
+      {
+        "state": "menu",
+        "score": 60,
+        "status": "fail",
+        "reason": "panel 60% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 60
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 60
+          }
+        ],
+        "consensus": [
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Coin count differs significantly",
+              "Coin count value differs",
+              "The active level and sequence path represent different progress states."
+            ]
+          },
+          {
+            "key": "other",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Game board marble arrangement differs",
+              "The board rotation angle and marble configurations inside the preview tile do not match."
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Marble board tilt/orientation slightly different, and marble positions vary",
+              "Background confetti particles are generated in different randomized positions."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "level",
+        "score": 60,
+        "status": "fail",
+        "reason": "panel 60% < 85%; consensus blocker: layout (3/3)",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 45
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 60
+          }
+        ],
+        "consensus": [
+          {
+            "key": "layout",
+            "count": 3,
+            "of": 3,
+            "severity": "blocker",
+            "descriptions": [
+              "Game board has different ball positions",
+              "Board is 4x4 with different ball arrangement instead of 5x5 grid with layout matching reference",
+              "The game board state and grid size differs fundamentally. The reference has a 5x5 grid of circles with various red and blue marbles, whereas ours shows a 4x4 grid of circles with fewer marbles in different positions."
+            ]
+          },
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Coin count is different",
+              "Coin count value differs significantly",
+              "The coin/currency counter value does not match."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "settings",
+        "score": 85,
+        "status": "pass",
+        "reason": "panel 85% ≥ 85%, no blocker consensus",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 85
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 62
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 94
+          }
+        ],
+        "consensus": [
+          {
+            "key": "extra-element",
+            "count": 2,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Wooden plank/board element below the settings panel",
+              "Extra UI elements visible at top of screen behind modal"
+            ]
+          },
+          {
+            "key": "background",
+            "count": 2,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Background shows a wooden board and level info visible behind the modal instead of a plain purple background",
+              "The background peeking behind the settings modal shows game board elements instead of the clean dim background."
+            ]
+          },
+          {
+            "key": "typography",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Close icon 'X' rendered as plain text instead of stylized icon",
+              "The font used for 'SETTINGS' and 'CLOSE' differs slightly in style, thickness, and letter spacing."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "pause",
+        "score": null,
+        "status": "unscored",
+        "reason": "no reference to score against",
+        "models": [],
+        "consensus": []
+      },
+      {
+        "state": "win",
+        "score": 75,
+        "status": "fail",
+        "reason": "panel 75% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 55
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 78
+          }
+        ],
+        "consensus": [
+          {
+            "key": "color",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Top coin counter has different background color",
+              "Coin counter badge uses a dark, low-contrast style instead of the bright blue pill",
+              "The coin container in the top right corner is extremely dark and barely visible, suggesting an incorrect opacity level or color overlay."
+            ]
+          },
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Top coin counter shows different value",
+              "Coin count value differs and is hard to read",
+              "The total coin count in the top right corner displays a different value."
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 2,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Top banner and main card positioning differs",
+              "'LEVEL 4' text overlaps with 'COMPLETED' banner instead of being positioned above it"
+            ]
+          },
+          {
+            "key": "typography",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "REWARD text styling lacks the bold black outline seen in reference",
+              "The 'LEVEL 4' text on the green ribbon is partially obscured and lacks contrast."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "fail",
+        "score": 74,
+        "status": "fail",
+        "reason": "panel 74% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 85
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 55
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 74
+          }
+        ],
+        "consensus": [
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Green button has different text",
+              "Button label differs from reference",
+              "The green action button text displays 'WATCH' instead of 'LOADING'."
+            ]
+          },
+          {
+            "key": "iconography",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Emoji expression differs slightly",
+              "The center sad face emoji is a generic system emoji style instead of the custom 2D flat vector icon style."
+            ]
+          },
+          {
+            "key": "sizing",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Emoji appears slightly larger",
+              "Emoji icon is smaller than reference"
+            ]
+          }
+        ]
+      }
+    ],
+    "score": 74
+  },
+  "budgetHalted": false,
+  "game": "marble_run",
+  "lane": "device",
+  "generatedAt": "2026-07-07T17:20:11.472Z"
+}
