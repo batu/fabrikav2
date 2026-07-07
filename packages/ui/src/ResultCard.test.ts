@@ -126,6 +126,40 @@ describe('mountResultCard', () => {
     }
   });
 
+  it('keeps the image-ribbon eyebrow in the sprite upper band while hiding the live title', () => {
+    installUiCss();
+    const handle = mountResultCard({
+      mountInto: host(),
+      variant: 'win',
+      title: 'COMPLETED',
+      eyebrow: 'LEVEL 4',
+      ribbonImage: 'win-ribbon-src',
+      actions: [{ label: 'Next', onClick: () => {} }],
+      id: 'win-image-eyebrow',
+    });
+
+    const ribbon = handle.el.querySelector<HTMLElement>('.fab-modal-ribbon')!;
+    expect(ribbon.classList.contains('fab-modal-ribbon--image')).toBe(true);
+    expect(ribbon.classList.contains('fab-modal-ribbon--image-title-visible')).toBe(false);
+    expect(ribbon.querySelector<HTMLImageElement>('.fab-modal-ribbon-image')?.src).toContain('win-ribbon-src');
+
+    const eyebrow = ribbon.querySelector<HTMLElement>('.fab-modal-ribbon-eyebrow')!;
+    expect(eyebrow.textContent).toBe('LEVEL 4');
+
+    const title = ribbon.querySelector<HTMLElement>('.fab-modal-ribbon-title')!;
+    expect(title.textContent).toBe('COMPLETED');
+
+    const css = readFileSync(resolve('src/ui.css'), 'utf8');
+    expect(css).toContain(
+      '.fab-modal-ribbon--image:not(.fab-modal-ribbon--image-title-visible) .fab-modal-ribbon-eyebrow',
+    );
+    expect(css).toContain('top: var(--fab-ribbon-image-eyebrow-top);');
+    expect(css).toContain('transform: translate(-50%, -50%);');
+    expect(css).toContain(
+      '.fab-modal-ribbon--image:not(.fab-modal-ribbon--image-title-visible) .fab-modal-ribbon-title',
+    );
+  });
+
   it('forwards a caller-owned action slot for game-specific CTA art', () => {
     const actions = document.createElement('div');
     actions.className = 'custom-result-actions';
