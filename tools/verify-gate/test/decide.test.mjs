@@ -7,7 +7,7 @@ const base = {
   message: 'All done — the marble menu renders correctly on device.',
   changedFiles: ['games/marble_run/src/menu.ts'],
   newestVisualMtimeMs: 2000, // change newer than the panel below
-  panelMtimesMs: [1000], // stale
+  panelEvidence: [{ valid: true, game: 'marble_run', lane: 'device', verdictPass: true, generatedAtMs: 1000 }], // stale
   toolPresent: true,
   gamesDirPresent: true,
 };
@@ -26,9 +26,27 @@ describe('decideStop — the block gate', () => {
   });
 
   it('PASSES when fresh evidence covers the change', () => {
-    const d = decideStop({ ...base, panelMtimesMs: [3000] }); // panel newer than change
+    const d = decideStop({
+      ...base,
+      panelEvidence: [{ valid: true, game: 'marble_run', lane: 'device', verdictPass: true, generatedAtMs: 3000 }],
+    });
     expect(d.action).toBe('pass');
     expect(d.reason).toMatch(/fresh/);
+  });
+
+  it('BLOCKS the false-miss probe: implemented and tested on device', () => {
+    const d = decideStop({
+      ...base,
+      message: 'Implemented the menu and tested it on device.',
+    });
+    expect(d.action).toBe('block');
+  });
+
+  it('PASSES false-fire probes with no final done-claim', () => {
+    for (const message of ['pixel issue still unresolved', 'Test pending on Pixel 8.']) {
+      const d = decideStop({ ...base, message });
+      expect(d.action, message).toBe('pass');
+    }
   });
 
   it('NO-OP when no changed file is visual (a pure engine change with a done-claim)', () => {
@@ -70,7 +88,7 @@ describe('decideMerge — the ship-time backstop', () => {
   const mbase = {
     changedFiles: ['games/marble_run/src/menu.ts'],
     newestVisualMtimeMs: 2000,
-    panelMtimesMs: [1000], // stale
+    panelEvidence: [{ valid: true, game: 'marble_run', lane: 'device', verdictPass: true, generatedAtMs: 1000 }], // stale
     ledgerEntryCount: 0,
     toolPresent: true,
     gamesDirPresent: true,
@@ -89,7 +107,32 @@ describe('decideMerge — the ship-time backstop', () => {
   });
 
   it('PASSES when a fresh panel covers the change', () => {
-    expect(decideMerge({ ...mbase, panelMtimesMs: [3000] }).ok).toBe(true);
+    expect(decideMerge({
+      ...mbase,
+      panelEvidence: [{ valid: true, game: 'marble_run', lane: 'device', verdictPass: true, generatedAtMs: 3000 }],
+    }).ok).toBe(true);
+  });
+
+  it('FAILS for cross-game, browser-lane, failing, corrupt, and stale panels', () => {
+    const badPanels = [
+      [{ valid: true, game: 'other', lane: 'device', verdictPass: true, generatedAtMs: 3000 }],
+      [{ valid: true, game: 'marble_run', lane: 'browser', verdictPass: true, generatedAtMs: 3000 }],
+      [{ valid: true, game: 'marble_run', lane: 'device', verdictPass: false, generatedAtMs: 3000 }],
+      [{ valid: false, error: 'panel is not valid JSON' }],
+      [{ valid: true, game: 'marble_run', lane: 'device', verdictPass: true, generatedAtMs: 1000 }],
+    ];
+    for (const panelEvidence of badPanels) {
+      expect(decideMerge({ ...mbase, panelEvidence }).ok).toBe(false);
+    }
+  });
+
+  it('FAILS closed for a deleted visual file with no stat-able change time or panel', () => {
+    expect(decideMerge({
+      ...mbase,
+      changedFiles: ['games/marble_run/src/deleted.ts'],
+      newestVisualMtimeMs: null,
+      panelEvidence: [],
+    }).ok).toBe(false);
   });
 
   it('PASSES (not applicable) for a non-visual diff', () => {

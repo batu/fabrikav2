@@ -7,7 +7,7 @@ skipped repeatedly (proxy substitution) and rubber-stamped. This layer moves
 enforcement **from judgment to structure**. Everything here is DETERMINISTIC (no
 LLM) and SELF-DISABLING (a no-op for non-game projects).
 
-## The three pieces
+## The five pieces
 
 All logic lives in `tools/verify-gate/` (a unit-tested Node workspace). The shell
 hook is a thin shim that self-disables and delegates.
@@ -44,11 +44,37 @@ hook is a thin shim that self-disables and delegates.
 ### 3. Merge gate (ship-time backstop)
 - `tools/verify-gate/merge-gate.mjs` (root script:
   `npm run verify-merge-gate`). For a diff that touches visual globs it
-  **HARD-FAILS** (exit 1) when there is no fresh real `panel.json` covering the
-  change — even if the ledger is full of `UNVERIFIED` entries. This is the
-  ship-time backstop for the escape hatch. Fail-**closed** (an unexpected error
-  is a hard fail), unlike the Stop hook which fails **open**.
-- Conductors should run it in the landing gate for visual-touching cards.
+  **HARD-FAILS** (exit 1) when there is no fresh structured `panel.json`
+  covering the affected game: `game` must match, `lane` must be `device`,
+  `generatedAt` must be newer than the visual change, and `verdict.pass` must be
+  `true`. Cross-game panels, browser-lane panels, failing verdicts, corrupt
+  panels, stale panels, git-diff errors, and deleted visual files without fresh
+  evidence all fail closed. This is the ship-time backstop for the escape hatch.
+  Fail-**closed** (an unexpected error is a hard fail), unlike the Stop hook
+  which fails **open**.
+- Conductors run it through the hard landing gate below, not as an adjacent
+  best-effort command.
+
+### 4. Landing gate (no pipe masks)
+- `tools/verify-gate/land-gate.mjs` (root script: `npm run land-gate`) composes
+  `project-gate` + `verify-merge-gate` as direct child processes and preserves
+  each child exit code. Do **not** pipe it through `tail`, `tee`, `grep`, or any
+  other command before testing `$?`; the incident class was a red gate masked by
+  a pipeline.
+- `agents/config.json` sets `twf_gate.cmds` to `npm run land-gate`, so
+  `twf merge-card` reaches cleanup only after the hard landing gate returns 0.
+- When a conductor is manually deciding whether it is safe to delete a card
+  branch/worktree, run `npm run land-gate -- --branch trello-<shortid>-<slug>`
+  or `npm run land-gate -- --shortid <shortid>`; that adds
+  `verify-landed-gate` and proves the branch tip is on the integration ref
+  before cleanup.
+
+### 5. Live activation mirror check
+- `tools/verify-gate/check-claude-mirror.mjs` (root script:
+  `npm run check-claude-mirror`) fails when `agents/settings.json` or
+  `agents/hooks/*` drift from their live `.claude/` mirrors. It is included in
+  `project_gate.cmds`, so a checkout cannot claim Stop-hook activation while the
+  live Claude files are inert or stale.
 
 ## Self-disable (catalog-safe)
 Both the shell shim and the Node cores exit as a no-op when
@@ -66,12 +92,15 @@ live. Catalog promotion is a separate conductor step (do not touch the agency
 repo).
 
 ## Tests
-`npm test` (or `npm run test:unit -w @fabrikav2/verify-gate`) — 50 tests:
-done-language detect (positive + negative incl. refactor-no-claim = NO BLOCK),
-visual-glob match, evidence freshness (stale = block, fresh = pass), UNVERIFIED
-bypass + ledger append, self-disable when tool/games absent, transcript parsing,
-git diff/untracked plumbing, and both `decideStop`/`decideMerge` gates. The shell
-hook delegates to this tested Node core — logic is unit-tested, not just bash.
+`npm run test:unit -w @fabrikav2/verify-gate` covers done-language detection
+(positive + negative including refactor-no-claim, `tested on device`, unresolved
+pixel prose, and `Pixel 8`), visual-glob matching, structured panel evidence
+(stale, fresh, cross-game, browser lane, failing verdict, corrupt panel),
+UNVERIFIED ledger append, self-disable when tool/games are absent, transcript
+parsing, fail-closed git diff plumbing, merge-gate CLI failures, land-gate
+ordering, `.claude` mirror drift, and both `decideStop`/`decideMerge` gates. The
+shell hook delegates to this tested Node core — logic is unit-tested, not just
+bash.
 
 ---
 

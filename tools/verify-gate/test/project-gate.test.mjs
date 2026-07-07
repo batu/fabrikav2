@@ -26,7 +26,24 @@ function writeConfig(obj) {
 }
 
 describe('readConfig + resolveGateCommands (config-read)', () => {
-  it('reads twf_gate and returns pre then cmds in order', () => {
+  it('reads project_gate and returns pre then cmds in order', () => {
+    const file = writeConfig({
+      twf_gate: { cmds: ['npm run land-gate'] },
+      project_gate: {
+        pre: ['npm install'],
+        cmds: ['npm run typecheck', 'npm run test:unit', 'npm run audit'],
+      },
+    });
+    const cmds = resolveGateCommands(readConfig(file));
+    expect(cmds).toEqual([
+      'npm install',
+      'npm run typecheck',
+      'npm run test:unit',
+      'npm run audit',
+    ]);
+  });
+
+  it('falls back to twf_gate for older configs', () => {
     const file = writeConfig({
       twf_gate: {
         pre: ['npm install'],
@@ -54,7 +71,7 @@ describe('readConfig + resolveGateCommands (config-read)', () => {
 
   it('throws when the twf_gate block is absent', () => {
     const file = writeConfig({ trello: {} });
-    expect(() => resolveGateCommands(readConfig(file))).toThrow(/no `twf_gate` block/);
+    expect(() => resolveGateCommands(readConfig(file))).toThrow(/no `project_gate` or `twf_gate` block/);
   });
 
   it('throws when twf_gate resolves to zero commands', () => {

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   median, parseModelResponse, aggregateState, aggregatePanel, callModel, runPanel,
-  classifySkip, CREDIT_STATUSES, DEFAULT_MODELS, DIFF_PROMPT,
+  classifySkip, CREDIT_STATUSES, DEFAULT_MODELS, DIFF_PROMPT, withPanelMetadata,
 } from '../src/panel.mjs';
 
 // A scoring model result as produced by callModel (the shape aggregateState reads).
@@ -134,6 +134,23 @@ describe('aggregatePanel', () => {
     const v = aggregatePanel([pass('menu', 90), uns('pause')], 85);
     expect(v.pass).toBe(false);
     expect(v.summary).toMatch(/1 unscored/);
+  });
+});
+
+describe('withPanelMetadata', () => {
+  it('stamps the gate-trusted metadata without changing the verdict shape', () => {
+    const panel = { verdict: { pass: true }, states: [{ state: 'menu' }] };
+    expect(withPanelMetadata(panel, {
+      game: 'marble_run',
+      lane: 'device',
+      generatedAt: '2026-07-07T10:00:00.000Z',
+    })).toEqual({
+      game: 'marble_run',
+      lane: 'device',
+      generatedAt: '2026-07-07T10:00:00.000Z',
+      verdict: { pass: true },
+      states: [{ state: 'menu' }],
+    });
   });
 });
 

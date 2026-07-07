@@ -1,7 +1,8 @@
 #!/usr/bin/env node
-// CLI for the project quality merge gate (card Lg56R10n). Reads the `twf_gate`
-// block from agents/config.json and runs `pre` then `cmds`, failing closed on
-// the first non-zero command so a broken build/test/audit blocks the land.
+// CLI for the project quality merge gate (card Lg56R10n). Reads the
+// `project_gate` block from agents/config.json (falling back to historical
+// `twf_gate`) and runs `pre` then `cmds`, failing closed on the first non-zero
+// command so a broken build/test/audit blocks the land.
 //
 //   node tools/verify-gate/project-gate.mjs      # gate this repo
 //

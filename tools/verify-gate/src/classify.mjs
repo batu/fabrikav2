@@ -8,14 +8,21 @@
 // that changes a visual file but makes no done-claim must NOT block.
 
 /**
- * Done-language: the claim that work is finished/verified. Case-insensitive.
- * Word boundaries (\b) are deliberate — the card lists these tokens without
- * boundaries, but "done" as a bare substring matches "abandoned" and "works"
- * matches "frameworks", which would block innocent refactors. Precision is the
- * whole point of this card, so we anchor to whole words/phrases.
+ * Sentence-level done-language. The gate should catch ordinary final-status
+ * claims ("implemented and tested") without false-firing on unresolved pixel
+ * notes or device names like "Pixel 8". Precision matters because this hook
+ * runs at turn end.
  */
-export const DONE_LANGUAGE_RE =
-  /\b(done|verified|works|renders? correctly|looks right|matches the reference|pixel|fidelity|shipped|complete on device)\b/i;
+export const DONE_LANGUAGE_RES = [
+  /\b(done|verified|validated|confirmed|tested|fixed|implemented|shipped|complete(?:d)?|works|working|pass(?:es|ed|ing)?|landed)\b/i,
+  /\brenders?\s+correctly\b/i,
+  /\blooks?\s+right\b/i,
+  /\bmatches?\s+(?:the\s+)?reference\b/i,
+  /\b(?:pixel|fidelity)[-\s]?(?:perfect|pass(?:es|ed)?|match(?:es|ed)?|verified|clean|ok|good)\b/i,
+];
+
+export const INCOMPLETE_LANGUAGE_RE =
+  /\b(?:unverified|untested|unfixed|unimplemented|unresolved|incomplete|partial|blocked|failing|fails|broken|wip)\b|\b(?:not|never)\s+(?:done|verified|validated|confirmed|tested|fixed|implemented|complete|working|passing|rendering|matching)\b|\b(?:needs?|requires?|still)\s+(?:test|testing|verification|fix|work|unresolved|failing|broken)|\b(?:issue|bug|problem)\s+(?:still\s+)?(?:unresolved|open|remaining)\b/i;
 
 /** The escape-hatch marker. Exact-case UPPERCASE so it is an INTENTIONAL token,
  *  never triggered by ordinary prose. `UNVERIFIED: <reason>` bypasses the block
@@ -59,7 +66,14 @@ export function isVisualFile(file) {
 
 /** True when the message makes a done/verified claim. */
 export function hasDoneLanguage(message) {
-  return DONE_LANGUAGE_RE.test(String(message || ''));
+  const sentences = String(message || '')
+    .split(/(?<=[.!?])\s+|\n+/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return sentences.some((sentence) =>
+    !INCOMPLETE_LANGUAGE_RE.test(sentence)
+    && DONE_LANGUAGE_RES.some((re) => re.test(sentence))
+  );
 }
 
 /** Detect the UNVERIFIED escape hatch. Returns {present, reason}. */
@@ -81,16 +95,38 @@ export function gamesFromVisualFiles(files) {
 }
 
 /**
- * Evidence freshness: is there any verify-device panel newer than the newest
- * changed visual file? A stale panel (older than the change) does NOT count.
- * @param {number|null} newestVisualMtimeMs newest changed-visual-file mtime
- * @param {number[]} panelMtimesMs mtimes of discovered panel.json files
+ * Evidence freshness: is there a passing device-lane verify-device panel newer
+ * than the newest visual change for every affected game? A stale/corrupt/
+ * cross-game/browser/failing panel does NOT count.
+ * @param {number|null} newestVisualMtimeMs newest changed-visual-file/change time
+ * @param {Array|number[]} panelEvidence structured panel records, or legacy mtimes
+ * @param {string[]} affectedGames game slugs extracted from visual files. When
+ *   empty (e.g. packages/ui), any fresh passing device panel is accepted.
  */
-export function evidenceIsFresh(newestVisualMtimeMs, panelMtimesMs) {
-  // No stat-able visual file (e.g. deletions only) => nothing to be stale
-  // against; don't gate on it.
-  if (newestVisualMtimeMs == null) return true;
-  return (panelMtimesMs || []).some((t) => t > newestVisualMtimeMs);
+export function evidenceIsFresh(newestVisualMtimeMs, panelEvidence, affectedGames = []) {
+  if (newestVisualMtimeMs == null) return false;
+  const panels = panelEvidence || [];
+
+  // Backward-compatible pure helper path for older tests/callers. The CLIs pass
+  // structured records and therefore enforce game/lane/verdict.
+  if (panels.every((p) => typeof p === 'number')) {
+    return panels.some((t) => t > newestVisualMtimeMs);
+  }
+
+  const valid = panels.filter((p) =>
+    p && p.valid === true
+    && p.lane === 'device'
+    && p.verdictPass === true
+    && typeof p.generatedAtMs === 'number'
+    && p.generatedAtMs > newestVisualMtimeMs
+  );
+  if (affectedGames.length === 0) return valid.length > 0;
+  return affectedGames.every((game) => valid.some((p) => p.game === game));
+}
+
+function freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs }) {
+  const panels = panelEvidence || panelMtimesMs || [];
+  return evidenceIsFresh(newestVisualMtimeMs, panels, gamesFromVisualFiles(visualFiles));
 }
 
 /**
@@ -105,6 +141,7 @@ export function decideStop({
   changedFiles,
   newestVisualMtimeMs,
   panelMtimesMs,
+  panelEvidence,
   toolPresent,
   gamesDirPresent,
 }) {
@@ -129,7 +166,7 @@ export function decideStop({
     // Gate on the CLAIM, not the file: a refactor with no done-claim passes.
     return { action: 'pass', reason: 'visual change but no done-claim — not gated' };
   }
-  if (evidenceIsFresh(newestVisualMtimeMs, panelMtimesMs)) {
+  if (freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs })) {
     return { action: 'pass', reason: 'fresh verify-device evidence covers the change' };
   }
   return {
@@ -174,6 +211,7 @@ export function decideMerge({
   changedFiles,
   newestVisualMtimeMs,
   panelMtimesMs,
+  panelEvidence,
   ledgerEntryCount = 0,
   toolPresent,
   gamesDirPresent,
@@ -185,7 +223,7 @@ export function decideMerge({
   if (visualFiles.length === 0) {
     return { ok: true, reason: 'no visual files in diff — merge gate not applicable' };
   }
-  if (evidenceIsFresh(newestVisualMtimeMs, panelMtimesMs)) {
+  if (freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs })) {
     return { ok: true, reason: 'fresh verify-device panel.json covers the visual change' };
   }
   const detail = ledgerEntryCount > 0
