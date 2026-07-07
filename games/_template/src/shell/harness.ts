@@ -24,7 +24,7 @@
  * of "what states exist", shared with the refs/manifest generator, never
  * re-typed here.
  */
-import { mulberry32 } from '@fabrikav2/kernel';
+import { FlowStates, mulberry32 } from '@fabrikav2/kernel';
 import {
   createPerfRecorder,
   seedStatesFromConfig,
@@ -46,6 +46,22 @@ export type TemplateVerb = 'placeholderTap';
  *  threads the scenario seed in instead of this constant. */
 const HARNESS_SEED = 0x9e3779b9;
 
+type PlaceholderScene =
+  | typeof FlowStates.Menu
+  | typeof FlowStates.Playing
+  | typeof FlowStates.Complete
+  | typeof FlowStates.Failed
+  | typeof FlowStates.Paused;
+
+type PlaceholderStatus = 'idle' | 'playing' | 'won' | 'lost' | 'paused';
+
+interface PlaceholderState {
+  scene: PlaceholderScene;
+  status: PlaceholderStatus;
+  inputReady: boolean;
+  settingsOpen: boolean;
+}
+
 export interface TemplateHarness extends GameHarness<TemplateVerb> {
   /** The stamped snapshot envelope (wrong-package guard). Ports keep this. */
   snapshotEnvelope(): SnapshotEnvelope;
@@ -64,6 +80,38 @@ export function createTemplateHarness(meta: { buildVersion: string; packageId: s
 
   // gotoState targets, derived from the config (single source of truth).
   const states = seedStatesFromConfig(gameConfig);
+  const placeholder: PlaceholderState = {
+    scene: FlowStates.Menu,
+    status: 'idle',
+    inputReady: true,
+    settingsOpen: false,
+  };
+
+  function gotoMenu(): void {
+    placeholder.scene = FlowStates.Menu;
+    placeholder.status = 'idle';
+    placeholder.inputReady = true;
+    placeholder.settingsOpen = false;
+  }
+
+  function startLevel(_id: number): void {
+    placeholder.scene = FlowStates.Playing;
+    placeholder.status = 'playing';
+    placeholder.inputReady = true;
+    placeholder.settingsOpen = false;
+  }
+
+  function openSettings(): void {
+    placeholder.settingsOpen = true;
+  }
+
+  function pause(): void {
+    if (placeholder.scene !== FlowStates.Playing) return;
+    placeholder.scene = FlowStates.Paused;
+    placeholder.status = 'paused';
+    placeholder.inputReady = false;
+    placeholder.settingsOpen = false;
+  }
 
   // A placeholder input verb in BOTH flavors: `run` is the state-drive (engine
   // call, for setup); `clientPoint` is the input-drive accessor the generic
@@ -85,13 +133,12 @@ export function createTemplateHarness(meta: { buildVersion: string; packageId: s
     },
   };
 
-  function snapshot(): { scene: string; status: string; inputReady: boolean } {
+  function snapshot(): { scene: PlaceholderScene; status: PlaceholderStatus; inputReady: boolean; settingsOpen: boolean } {
     // A port returns its real state fingerprint (marble_run: controller state +
     // scene). The contract REQUIRES at least scene+status+inputReady so a driver
     // gates transitions on queryable state (reference-fidelity-harness.md);
-    // a port adds hearts/score/board as needed. Placeholder: the first screen,
-    // idle status, input open.
-    return { scene: states[0] ?? 'HomeMenu', status: 'idle', inputReady: true };
+    // a port adds hearts/score/board as needed.
+    return { ...placeholder };
   }
 
   // ── DETERMINISTIC solver-bound goal verbs (deterministic in-game AI only) ─────
@@ -106,41 +153,44 @@ export function createTemplateHarness(meta: { buildVersion: string; packageId: s
     // the real input path (marble_run: driveAutoWin replays solveLevel().order via
     // controller.tapCell), gating each step on snapshot().status. With no solver,
     // replay a fixed scripted move list seeded from the kernel rng (`rand` above)
-    // — deterministic in-game AI only, never llm/random. Confirm arrival:
-    //   return snapshot().status === 'won';
-    return false;
+    // — deterministic in-game AI only, never llm/random. The template's tiny
+    // placeholder is that scripted terminal transition.
+    if (placeholder.scene === FlowStates.Playing) {
+      placeholder.scene = FlowStates.Complete;
+      placeholder.status = 'won';
+      placeholder.inputReady = false;
+      placeholder.settingsOpen = false;
+    }
+    return snapshot().scene === FlowStates.Complete;
   }
   async function failLevel(): Promise<boolean> {
     // TODO(port): drive this game's SOLVER (or scripted move list) to a LOSS the
-    // same way (marble_run: driveAutoFail taps genuinely-blocked marbles). Confirm:
-    //   return snapshot().status === 'lost';
-    return false;
+    // same way (marble_run: driveAutoFail taps genuinely-blocked marbles). The
+    // template's tiny placeholder is that scripted terminal transition.
+    if (placeholder.scene === FlowStates.Playing) {
+      placeholder.scene = FlowStates.Failed;
+      placeholder.status = 'lost';
+      placeholder.inputReady = false;
+      placeholder.settingsOpen = false;
+    }
+    return snapshot().scene === FlowStates.Failed;
   }
 
   /**
    * Deterministically navigate to a canonical capture state (fidelity-diff
    * ledger C5; `../testing/driveTo.ts`). Wires the pure driver's deps to this
    * game's transitions; `autoWin`/`autoFail` delegate to `winLevel`/`failLevel`
-   * above. TODO(port): `gotoMenu`/`openSettings`/`pause` are no-ops here — a
-   * port wires each to its real flow-machine transition (marble_run:
-   * `App.ts`'s private `driveTo`), which is also what makes the confirm polls
-   * in `driveTo.ts` actually resolve `true` instead of an honest timeout.
+   * above. This placeholder state model is intentionally tiny, deterministic,
+   * and query-confirmed; a port replaces these transitions with its real
+   * flow-machine/engine calls without changing the driver contract.
    */
   function driveTo(state: string): Promise<boolean> {
     return driveToState(
       {
-        gotoMenu(): void {
-          // TODO(port): drive the flow machine to its menu state.
-        },
-        startLevel(_id: number): void {
-          // TODO(port): start the level (marble_run: startLevelId).
-        },
-        openSettings(): void {
-          // TODO(port): open this game's settings modal.
-        },
-        pause(): void {
-          // TODO(port): pause the flow machine.
-        },
+        gotoMenu,
+        startLevel,
+        openSettings,
+        pause,
         autoWin: () => winLevel(),
         autoFail: () => failLevel(),
         snapshot: () => snapshot(),
@@ -156,10 +206,9 @@ export function createTemplateHarness(meta: { buildVersion: string; packageId: s
       if (!states.includes(state as (typeof states)[number])) {
         throw new Error(`gotoState: "${state}" is not a declared gameConfig.screens state.`);
       }
+      if (state === states[0]) gotoMenu();
     },
-    startLevel(_id: number): void {
-      // A port starts the level (marble_run: startLevelId).
-    },
+    startLevel,
     snapshot,
     sagaNodes(): readonly number[] {
       return [];

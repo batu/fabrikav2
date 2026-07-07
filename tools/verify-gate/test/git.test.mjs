@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { resolveBaseRef, changedFilesVsMain } from '../src/git.mjs';
+import { resolveBaseRef, changedFilesVsMain, dirtyFiles } from '../src/git.mjs';
 
 // A scripted command runner: matches on a substring of the git command.
 function runner(map) {
@@ -70,5 +70,26 @@ describe('changedFilesVsMain', () => {
       'ls-files --others --exclude-standard': { ok: false, stdout: '' },
     });
     expect(changedFilesVsMain(run)).toMatchObject({ ok: false, error: expect.stringMatching(/ls-files/) });
+  });
+});
+
+describe('dirtyFiles', () => {
+  it('parses staged, unstaged, untracked, and renamed paths', () => {
+    const run = runner({
+      'status --porcelain': {
+        ok: true,
+        stdout: ' M src/edit.ts\nA  src/new.ts\n?? scratch.txt\nR  old.ts -> src/renamed.ts\n',
+      },
+    });
+    expect(dirtyFiles(run)).toEqual({
+      ok: true,
+      files: ['src/edit.ts', 'src/new.ts', 'scratch.txt', 'src/renamed.ts'],
+    });
+  });
+
+  it('fails closed when git status fails', () => {
+    expect(dirtyFiles(runner({
+      'status --porcelain': { ok: false, stdout: '' },
+    }))).toMatchObject({ ok: false, error: expect.stringMatching(/status/) });
   });
 });

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { driveTo, isDriveState, type DriveToDeps } from "../../src/testing/driveTo.ts";
+import { createTemplateHarness } from "../../src/shell/harness.ts";
 
 /**
  * Headless acceptance for the per-state navigator (fidelity-diff ledger C5),
@@ -93,6 +94,42 @@ describe("_template driveTo — deterministic per-state navigation", () => {
     expect(reached).toBe(false);
     expect(deps.snapshot().scene).toBe("playing");
   });
+
+  it.each([
+    ["win", "autoWin"] as const,
+    ["fail", "autoFail"] as const,
+  ])("returns false when %s driver claims success but snapshot stays playing", async (state, driver) => {
+    const { deps } = makeFakeDeps({
+      [driver]: async () => true,
+    });
+
+    const reached = await driveTo(deps, state, { pollMs: 0, maxPolls: 3, sleep: instantSleep });
+
+    expect(reached).toBe(false);
+    expect(deps.snapshot().scene).toBe("playing");
+  });
+
+  it.each([
+    ["win", "autoWin"] as const,
+    ["fail", "autoFail"] as const,
+  ])("returns false and never trusts %s driver when inputReady never becomes true", async (state, driver) => {
+    const fake = makeFakeDeps();
+    let terminalDriverCalled = false;
+    const deps: DriveToDeps = {
+      ...fake.deps,
+      [driver]: async () => {
+        terminalDriverCalled = true;
+        return true;
+      },
+      snapshot: () => ({ ...fake.deps.snapshot(), inputReady: false }),
+    };
+
+    const reached = await driveTo(deps, state, { pollMs: 0, maxPolls: 3, sleep: instantSleep });
+
+    expect(reached).toBe(false);
+    expect(terminalDriverCalled).toBe(false);
+    expect(deps.snapshot().scene).toBe("playing");
+  });
 });
 
 describe("isDriveState", () => {
@@ -102,5 +139,23 @@ describe("isDriveState", () => {
     }
     expect(isDriveState("boot")).toBe(false);
     expect(isDriveState("")).toBe(false);
+  });
+});
+
+describe("createTemplateHarness driveTo", () => {
+  it.each([
+    ["menu", "menu", false] as const,
+    ["level", "playing", false] as const,
+    ["win", "complete", false] as const,
+    ["fail", "failed", false] as const,
+    ["pause", "paused", false] as const,
+    ["settings", "menu", true] as const,
+  ])("driveTo(%s) reaches + confirms it on the fresh placeholder harness", async (state, scene, settingsOpen) => {
+    const harness = createTemplateHarness({ buildVersion: "test", packageId: "com.fabrikav2.template" });
+
+    const reached = await harness.driveTo!(state);
+
+    expect(reached).toBe(true);
+    expect(harness.snapshot()).toMatchObject({ scene, settingsOpen });
   });
 });

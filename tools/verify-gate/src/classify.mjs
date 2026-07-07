@@ -33,6 +33,19 @@ export const UNVERIFIED_RE = /UNVERIFIED:[ \t]*([^\n]*)/;
  *  verify-device evidence. Card-specified. */
 export const VISUAL_GLOBS = ['games/*/src/**', 'games/*/design/**', 'packages/ui/**'];
 
+export const RUBBER_STAMP_EXEMPT_LABELS = [
+  'doc',
+  'docs',
+  'documentation',
+  'research',
+  'brainstorm',
+  'brainstorming',
+  'spike',
+];
+
+export const RUBBER_STAMP_EXEMPT_PREFIX_RE =
+  /^\s*(?:DOCS?|DOCUMENTATION|RESEARCH|BRAINSTORM(?:ED|ING)?|SPIKE)\s*[:-]/i;
+
 // Minimal glob -> RegExp (no dependency). `**` -> any chars incl. `/`;
 // `*` -> any chars except `/`; everything else literal.
 function globToRegExp(glob) {
@@ -58,10 +71,62 @@ function globToRegExp(glob) {
 
 const VISUAL_RES = VISUAL_GLOBS.map(globToRegExp);
 
+function repoPath(file) {
+  return String(file || '').replace(/^\.\//, '');
+}
+
 /** True when a repo-relative path matches any visual glob. */
 export function isVisualFile(file) {
-  const f = String(file || '').replace(/^\.\//, '');
+  const f = repoPath(file);
+  // games/_template is scaffold source, not an installable game with an iOS
+  // platform. Its device proof path is scaffold-a-real-game, then verify that
+  // generated game; demanding device evidence for _template itself is impossible.
+  if (f.startsWith('games/_template/')) return false;
   return VISUAL_RES.some((re) => re.test(f));
+}
+
+/** True when the path is exactly under docs/ and is Markdown. */
+export function isDocsMarkdownFile(file) {
+  return /^docs\/.+\.md$/.test(repoPath(file));
+}
+
+function normalizeLabels(labels) {
+  return (labels || [])
+    .map((label) => {
+      if (typeof label === 'string') return label;
+      if (label && typeof label.name === 'string') return label.name;
+      return '';
+    })
+    .map((label) => label.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+/** Doc/research/spike cards may legitimately land docs-only diffs. */
+export function isRubberStampExempt({ cardTitle = '', cardLabels = [] } = {}) {
+  const exempt = new Set(RUBBER_STAMP_EXEMPT_LABELS);
+  if (normalizeLabels(cardLabels).some((label) => exempt.has(label))) return true;
+  return RUBBER_STAMP_EXEMPT_PREFIX_RE.test(String(cardTitle || ''));
+}
+
+/**
+ * Refuse implementation-card branches that changed only requirements/planning
+ * Markdown under docs/. This catches rubber-stamped "worked" stages that landed
+ * a plan/requirements doc but no implementation.
+ */
+export function decideRubberStamp({ changedFiles, cardTitle = '', cardLabels = [] }) {
+  const files = (changedFiles || []).map(repoPath).filter(Boolean);
+  if (files.length === 0) return { ok: true, reason: 'no changed files' };
+  if (!files.every(isDocsMarkdownFile)) {
+    return { ok: true, reason: 'diff includes non-docs implementation files' };
+  }
+  if (isRubberStampExempt({ cardTitle, cardLabels })) {
+    return { ok: true, reason: 'docs-only diff allowed for doc/research/spike card' };
+  }
+  return {
+    ok: false,
+    reason: 'rubber-stamp refusal: non-exempt implementation card changed only docs/**/*.md',
+    files,
+  };
 }
 
 /** True when the message makes a done/verified claim. */
@@ -213,9 +278,27 @@ export function decideMerge({
   panelMtimesMs,
   panelEvidence,
   ledgerEntryCount = 0,
+  worktreeDirtyFiles = [],
+  cardTitle = '',
+  cardLabels = [],
   toolPresent,
   gamesDirPresent,
 }) {
+  if ((worktreeDirtyFiles || []).length > 0) {
+    return {
+      ok: false,
+      reason: 'uncommitted worktree changes cannot land: worker must commit or discard them before landing',
+      dirtyFiles: worktreeDirtyFiles,
+    };
+  }
+  const rubberStamp = decideRubberStamp({ changedFiles, cardTitle, cardLabels });
+  if (!rubberStamp.ok) {
+    return {
+      ok: false,
+      reason: rubberStamp.reason,
+      docsOnlyFiles: rubberStamp.files,
+    };
+  }
   if (!toolPresent || !gamesDirPresent) {
     return { ok: true, reason: 'self-disabled: verify-device tool or games/ dir absent' };
   }

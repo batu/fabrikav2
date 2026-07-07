@@ -3,6 +3,9 @@ import {
   hasDoneLanguage,
   detectUnverified,
   isVisualFile,
+  isDocsMarkdownFile,
+  isRubberStampExempt,
+  decideRubberStamp,
   gamesFromVisualFiles,
   evidenceIsFresh,
 } from '../src/classify.mjs';
@@ -82,6 +85,48 @@ describe('isVisualFile', () => {
     expect(isVisualFile('games/marble_run/tests/scoring.test.ts')).toBe(false);
     expect(isVisualFile('packages/engine/index.ts')).toBe(false);
     expect(isVisualFile('docs/AGENT-HANDOFF.md')).toBe(false);
+  });
+  it('narrowly excludes games/_template because it is scaffold, not an installable game', () => {
+    expect(isVisualFile('games/_template/src/main.ts')).toBe(false);
+    expect(isVisualFile('games/_template/design/tokens.json')).toBe(false);
+    expect(isVisualFile('games/marble_run/src/main.ts')).toBe(true);
+  });
+});
+
+describe('rubber-stamp docs-only gate', () => {
+  it('recognizes only Markdown under docs/', () => {
+    expect(isDocsMarkdownFile('docs/brainstorms/example.md')).toBe(true);
+    expect(isDocsMarkdownFile('docs/plans/nested/example.md')).toBe(true);
+    expect(isDocsMarkdownFile('games/marble_run/README.md')).toBe(false);
+    expect(isDocsMarkdownFile('docs/assets/example.png')).toBe(false);
+  });
+
+  it('exempts doc/research/spike cards by label or title prefix', () => {
+    expect(isRubberStampExempt({ cardLabels: ['research'] })).toBe(true);
+    expect(isRubberStampExempt({ cardLabels: [{ name: 'Documentation' }] })).toBe(true);
+    expect(isRubberStampExempt({ cardTitle: 'RESEARCH: measure funnel drift' })).toBe(true);
+    expect(isRubberStampExempt({ cardTitle: 'PROCESS: land implementation guard' })).toBe(false);
+  });
+
+  it('fails non-exempt docs-only implementation diffs', () => {
+    const decision = decideRubberStamp({
+      changedFiles: ['docs/brainstorms/example.md', 'docs/plans/example.md'],
+      cardTitle: 'MACHINERY 4: land gate',
+      cardLabels: [],
+    });
+    expect(decision.ok).toBe(false);
+    expect(decision.reason).toMatch(/rubber-stamp/);
+  });
+
+  it('passes docs-only diffs for explicit doc/research work and passes mixed diffs', () => {
+    expect(decideRubberStamp({
+      changedFiles: ['docs/research/example.md'],
+      cardLabels: ['research'],
+    }).ok).toBe(true);
+    expect(decideRubberStamp({
+      changedFiles: ['docs/brainstorms/example.md', 'tools/verify-gate/src/classify.mjs'],
+      cardTitle: 'MACHINERY 4: land gate',
+    }).ok).toBe(true);
   });
 });
 
