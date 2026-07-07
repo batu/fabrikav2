@@ -18,12 +18,19 @@ export function parseDeviceList(json) {
       name: d?.deviceProperties?.name || '(unnamed)',
       platform: d?.hardwareProperties?.platform || '',
       state: d?.connectionProperties?.tunnelState || '',
+      pairingState: d?.connectionProperties?.pairingState || '',
     }))
-    .filter((d) => d.udid && /^iOS$/i.test(d.platform) && isConnected(d.state));
+    .filter((d) => d.udid && /^iOS$/i.test(d.platform) && isUsable(d));
 }
 
-function isConnected(state) {
-  return state === 'connected' || state === 'available';
+// A device usable for build/install/test is one that is PAIRED. tunnelState is
+// established on demand by xcodebuild/devicectl, so an idle paired+wired device
+// reports tunnelState 'disconnected' — the earlier tunnelState-only check
+// rejected every idle device (found on verify-device's first live device run).
+function isUsable(d) {
+  return (
+    d.pairingState === 'paired' || d.state === 'connected' || d.state === 'available'
+  );
 }
 
 /**
