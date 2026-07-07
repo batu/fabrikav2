@@ -18,9 +18,12 @@ describe('hasDoneLanguage', () => {
       'looks right to me',
       'the screen matches the reference',
       'pixel-perfect against the mock',
-      'high fidelity now',
+      'fidelity pass against the reference',
       'shipped it',
       'complete on device',
+      'Implemented the menu and tested it on device',
+      'Validated the interaction on the phone',
+      'Confirmed working after the fix',
     ]) {
       expect(hasDoneLanguage(s), s).toBe(true);
     }
@@ -31,6 +34,10 @@ describe('hasDoneLanguage', () => {
       'Refactored the scoring loop into a pure function; no behavior change.',
       'Extracted the HUD layout constants into a shared module.',
       'Renamed variables for clarity and updated imports.',
+      'pixel issue still unresolved',
+      'Needs testing on a Pixel 8 before we call it done.',
+      'The fidelity diff still fails.',
+      'Implemented the menu, but not tested on device.',
       '', // empty
     ]) {
       expect(hasDoneLanguage(s), s).toBe(false);
@@ -102,7 +109,20 @@ describe('evidenceIsFresh', () => {
   it('equal mtime is NOT fresh (strictly newer required)', () => {
     expect(evidenceIsFresh(1000, [1000])).toBe(false);
   });
-  it('no stat-able visual file => not gated (treated fresh)', () => {
-    expect(evidenceIsFresh(null, [])).toBe(true);
+  it('no stat-able visual change time => not fresh (deleted files fail closed)', () => {
+    expect(evidenceIsFresh(null, [])).toBe(false);
+  });
+  it('requires a matching fresh passing device panel for each affected game', () => {
+    const panels = [
+      { valid: true, game: 'other', lane: 'device', verdictPass: true, generatedAtMs: 2000 },
+      { valid: true, game: 'marble_run', lane: 'browser', verdictPass: true, generatedAtMs: 2000 },
+      { valid: true, game: 'marble_run', lane: 'device', verdictPass: false, generatedAtMs: 2000 },
+      { valid: true, game: 'marble_run', lane: 'device', verdictPass: true, generatedAtMs: 500 },
+    ];
+    expect(evidenceIsFresh(1000, panels, ['marble_run'])).toBe(false);
+    expect(evidenceIsFresh(1000, [
+      ...panels,
+      { valid: true, game: 'marble_run', lane: 'device', verdictPass: true, generatedAtMs: 2000 },
+    ], ['marble_run'])).toBe(true);
   });
 });

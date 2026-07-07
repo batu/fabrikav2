@@ -7,11 +7,15 @@
   "bin": {
     "verify-visual-claim": "cli.mjs",
     "verify-merge-gate": "merge-gate.mjs",
+    "land-gate": "land-gate.mjs",
+    "check-claude-mirror": "check-claude-mirror.mjs",
     "project-gate": "project-gate.mjs",
     "verify-landed-gate": "landed-gate.mjs"
   },
   "scripts": {
     "verify-merge-gate": "node merge-gate.mjs",
+    "land-gate": "node land-gate.mjs",
+    "check-claude-mirror": "node check-claude-mirror.mjs",
     "project-gate": "node project-gate.mjs",
     "verify-landed-gate": "node landed-gate.mjs",
     "test:unit": "vitest run",

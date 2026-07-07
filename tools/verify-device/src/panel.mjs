@@ -222,6 +222,15 @@ export function aggregatePanel(states, thresholdPct) {
   return { pass, summary, states, score: overall };
 }
 
+export function withPanelMetadata(panel, { game, lane = 'device', generatedAt }) {
+  return {
+    ...panel,
+    game,
+    lane,
+    generatedAt,
+  };
+}
+
 /**
  * Call one vision judge on OpenRouter with the (reference, device) pair.
  * Network path — CONDUCTOR-run. `fetchImpl` is injectable for tests. A judge that

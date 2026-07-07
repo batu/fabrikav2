@@ -15,7 +15,7 @@ import path from 'node:path';
 import { execSync } from 'node:child_process';
 import { decideMerge, isVisualFile } from './src/classify.mjs';
 import { changedFilesVsMain } from './src/git.mjs';
-import { newestMtimeMs, panelMtimesMs } from './src/evidence.mjs';
+import { newestVisualChangeMs, readPanelEvidence } from './src/evidence.mjs';
 import { readLedger, LEDGER_PATH } from './src/ledger.mjs';
 
 function makeRunner(cwd) {
@@ -40,16 +40,21 @@ function main() {
     gamesDirPresent = false;
   }
 
-  const changedFiles = changedFilesVsMain(makeRunner(projectDir));
+  const run = makeRunner(projectDir);
+  const changed = changedFilesVsMain(run);
+  if (!changed.ok) {
+    throw new Error(`could not resolve changed files: ${changed.error}`);
+  }
+  const changedFiles = changed.files;
   const visualFiles = changedFiles.filter(isVisualFile);
-  const newest = newestMtimeMs(visualFiles, projectDir);
-  const panels = panelMtimesMs(projectDir);
+  const { newestChangeMs } = newestVisualChangeMs(visualFiles, projectDir, { run });
+  const panels = readPanelEvidence(projectDir);
   const ledger = readLedger(path.join(projectDir, LEDGER_PATH));
 
   const decision = decideMerge({
     changedFiles,
-    newestVisualMtimeMs: newest,
-    panelMtimesMs: panels,
+    newestVisualMtimeMs: newestChangeMs,
+    panelEvidence: panels,
     ledgerEntryCount: ledger.length,
     toolPresent,
     gamesDirPresent,

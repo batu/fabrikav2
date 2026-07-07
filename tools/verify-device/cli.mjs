@@ -39,7 +39,7 @@ import { extractFromExportDir, loadCapturesDir } from './src/attachments.mjs';
 import { buildRows } from './src/compare.mjs';
 import { computeVerdict } from './src/verdict.mjs';
 import { buildGridHtml } from './src/grid.mjs';
-import { runPanel } from './src/panel.mjs';
+import { runPanel, withPanelMetadata } from './src/panel.mjs';
 import { loadRegistry, resolveJudges } from './src/judges.mjs';
 import { CANONICAL_STATES } from './src/states.mjs';
 import { harnessWindowKey, startDevServer, captureBrowserStates } from './src/browserLane.mjs';
@@ -209,7 +209,14 @@ async function main() {
       panel = await runPanel({
         rows, judges, apiKey, thresholdPct: args.panelThreshold,
       });
-      if (panel.states) fs.writeFileSync(path.join(outDir, 'panel.json'), JSON.stringify(panel, null, 2));
+      if (panel.states) {
+        panel = withPanelMetadata(panel, {
+          game: args.game,
+          lane,
+          generatedAt: new Date().toISOString(),
+        });
+        fs.writeFileSync(path.join(outDir, 'panel.json'), JSON.stringify(panel, null, 2));
+      }
     }
   }
 
