@@ -36,6 +36,7 @@ export const copy = {
   "settings.haptics": "Haptics",
   "settings.back": "Back",
   "settings.close": "Close",
+  "settings.closeGlyph": "X",
   "settings.restart": "Restart",
   "settings.home": "Home",
   "settings.reset": "Reset Progress",

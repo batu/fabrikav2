@@ -69,6 +69,9 @@
     --fab-modal-card-border: #ffffff;
     --fab-modal-backdrop-animation: fabModalBackdropIn 140ms ease-out both;
     --fab-modal-card-animation: fabModalCardIn 180ms cubic-bezier(0.16, 1.05, 0.22, 1.12) both;
+    --fab-modal-close-size: 48px;
+    --fab-modal-close-inset: 10px;
+    --fab-modal-close-z: 3;
 
     /* ---- Overlay ribbon banner (this card) ----
        Coloured banner overhanging the card top; tone picks the fill. Neutral
@@ -259,6 +262,17 @@
     box-shadow: none;
   }
 
+  .fab-modal-close {
+    position: absolute;
+    top: var(--fab-modal-close-inset);
+    right: var(--fab-modal-close-inset);
+    z-index: var(--fab-modal-close-z);
+    width: var(--fab-modal-close-size);
+    min-width: var(--fab-modal-close-size);
+    height: var(--fab-modal-close-size);
+    min-height: var(--fab-modal-close-size);
+  }
+
   /* ---- Overlay ribbon banner ----
      Overhangs the top edge of the card; tone modifier fills it. */
   .fab-modal-ribbon {
@@ -288,7 +302,7 @@
     background-position: center;
     box-shadow: none;
   }
-  .fab-modal-ribbon--image .fab-modal-ribbon-title {
+  .fab-modal-ribbon--image:not(.fab-modal-ribbon--image-title-visible) .fab-modal-ribbon-title {
     position: absolute;
     width: 1px;
     height: 1px;

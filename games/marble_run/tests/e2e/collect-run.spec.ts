@@ -78,7 +78,7 @@ test('collectRun: capture every reachable state into a run bundle (.work by defa
   await callHarness<Harness, null, void>(page, WINDOW_KEY, (h) => h.gotoState('Settings'), null);
   await expect(page.locator(SETTINGS_CARD)).toBeVisible({ timeout: 4000 });
   await capture('settings');
-  await page.locator(`${SETTINGS_CARD} .mr-level-cta`).click();
+  await page.locator(`${SETTINGS_CARD} [data-fab-action="settings-close"]`).click();
   await expect(page.locator(SETTINGS_CARD)).toBeHidden({ timeout: 4000 });
 
   // ── Playing (a live level) + the browser capture() canvas witness ─

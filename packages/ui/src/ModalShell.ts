@@ -33,6 +33,23 @@ export interface ModalRibbon {
    * carries its own baked lettering) while `tone` stays as the colour fallback.
    */
   image?: string;
+  /**
+   * By default an injected sprite is assumed to carry its own baked lettering,
+   * so the DOM title stays screen-reader-only. Set to `visible` for blank
+   * ribbon art that needs live text painted over it.
+   */
+  imageTitleVisibility?: 'hidden' | 'visible';
+}
+
+export interface ModalCloseButton {
+  /** Visible glyph/copy injected by the consumer. */
+  label: string;
+  /** Accessible action label, e.g. "Close". */
+  ariaLabel: string;
+  /** Extra class(es) for game-local theming. */
+  className?: string;
+  /** Stable hook (→ data-fab-action) for real-click e2e / SharedShellDriver. */
+  dataAction?: string;
 }
 
 export interface ModalShellOptions {
@@ -40,6 +57,8 @@ export interface ModalShellOptions {
   title?: string;
   /** Ribbon-banner header. Takes over the aria label when present. */
   ribbon?: ModalRibbon;
+  /** Optional visible close affordance. Omit for action-only modals. */
+  closeButton?: ModalCloseButton;
   body?: HTMLElement | readonly HTMLElement[];
   actions?: readonly ModalAction[] | HTMLElement;
   backdropDismiss?: boolean;
@@ -131,12 +150,28 @@ export function mountModalShell(opts: ModalShellOptions): UiHandle {
   if (opts.labelledById) card.setAttribute('aria-labelledby', opts.labelledById);
   if (opts.describedById) card.setAttribute('aria-describedby', opts.describedById);
 
+  if (opts.closeButton) {
+    card.appendChild(
+      buildButtonElement({
+        label: opts.closeButton.label,
+        ariaLabel: opts.closeButton.ariaLabel,
+        variant: 'icon',
+        className: ['fab-modal-close', opts.closeButton.className].filter(Boolean).join(' '),
+        dataAction: opts.closeButton.dataAction,
+        onClick: () => close(),
+      }),
+    );
+  }
+
   if (opts.ribbon) {
     const tone = opts.ribbon.tone ?? 'neutral';
     const ribbon = document.createElement('div');
     ribbon.className = `fab-modal-ribbon fab-modal-ribbon--${tone}`;
     if (opts.ribbon.image) {
       ribbon.classList.add('fab-modal-ribbon--image');
+      if (opts.ribbon.imageTitleVisibility === 'visible') {
+        ribbon.classList.add('fab-modal-ribbon--image-title-visible');
+      }
       ribbon.style.backgroundImage = `url(${opts.ribbon.image})`;
     }
     if (opts.ribbon.eyebrow) {

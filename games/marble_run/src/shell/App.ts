@@ -448,35 +448,36 @@ export class App {
 
   /**
    * Settings surface. The Android reference (refs/.../settings.png) is a MODAL
-   * over the dimmed menu — blue card, title, green toggles, CLOSE button, RESET
-   * PROGRESS link — NOT the slide-up full page v2 originally shipped (conductor
-   * comment #3). Composed from ModalShell + the wave-A ToggleRows (compose, not
-   * rebuild). Out of game only offers RESET PROGRESS.
+   * over the dimmed menu — blue card, orange ribbon, blue X close, green
+   * toggles, and RESTART/HOME buttons. Composed from ModalShell + the wave-A
+   * ToggleRows (compose, not rebuild).
    */
   private openSettings(inGame: boolean): void {
     const togglesSection = document.createElement('div');
     togglesSection.className = 'mr-settings-toggles';
-
-    const actions: ModalAction[] = [
-      { label: copy['settings.close'], onClick: () => this.pageStack.pop(), variant: 'primary', className: 'mr-level-cta' },
-    ];
-    if (!inGame && saveState.hasProgress) {
-      actions.push({
-        label: copy['settings.reset'],
-        onClick: () => this.resetProgress(),
-        variant: 'secondary',
-      });
-    }
+    const actions = this.buildSettingsActions(inGame);
 
     let toggles: UiHandle | null = null;
     this.pageStack.push(() => {
       const modal = mountModalShell({
         mountInto: this.uiRoot,
-        title: copy['settings.title'],
+        ribbon: {
+          title: copy['settings.title'],
+          tone: 'neutral',
+          image: assetUrls.ribbonTutorial,
+          imageTitleVisibility: 'visible',
+        },
+        closeButton: {
+          label: copy['settings.closeGlyph'],
+          ariaLabel: copy['settings.close'],
+          className: 'mr-settings-close',
+          dataAction: 'settings-close',
+        },
         body: togglesSection,
         actions,
         backdropDismiss: true,
         cardClassName: 'mr-settings-card',
+        cardImage: assetUrls.popup,
         onDismiss: () => toggles?.dismiss(),
       });
       toggles = mountToggleRows({
@@ -497,13 +498,54 @@ export class App {
     });
   }
 
-  private resetProgress(): void {
-    saveState.resetProgress();
-    music.stop();
+  private buildSettingsActions(inGame: boolean): HTMLElement {
+    const actions = document.createElement('div');
+    actions.className = 'fab-modal-actions mr-settings-actions';
+    actions.append(
+      this.buildSettingsAction({
+        label: copy['settings.restart'],
+        image: assetUrls.buttonSecondary,
+        className: 'mr-settings-action--restart',
+        dataAction: 'settings-restart',
+        onClick: () => this.restartFromSettings(inGame),
+      }),
+      this.buildSettingsAction({
+        label: copy['settings.home'],
+        image: assetUrls.buttonPrimary,
+        className: 'mr-settings-action--home',
+        dataAction: 'settings-home',
+        onClick: () => this.homeFromSettings(),
+      }),
+    );
+    return actions;
+  }
+
+  private buildSettingsAction(opts: {
+    label: string;
+    image: string;
+    className: string;
+    dataAction: string;
+    onClick: () => void;
+  }): HTMLButtonElement {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `fab-btn fab-btn-primary mr-settings-action ${opts.className}`;
+    button.dataset.fabAction = opts.dataAction;
+    button.textContent = opts.label;
+    button.style.setProperty('--mr-settings-action-image', `url(${opts.image})`);
+    button.addEventListener('click', () => opts.onClick());
+    return button;
+  }
+
+  private restartFromSettings(inGame: boolean): void {
+    const levelId = inGame && this.currentLevelId > 0 ? this.currentLevelId : saveState.currentLevel();
     this.pageStack.pop();
-    this.toaster.show(copy['settings.reset']);
-    // Re-render the menu so the coin pill + saga reflect the wiped progress.
-    if (this.machine.state === 'menu') this.renderMenu();
+    this.startLevelId(levelId);
+  }
+
+  private homeFromSettings(): void {
+    this.pageStack.pop();
+    this.toMenu();
   }
 
   // ── Transitions (guarded) ───────────────────────────────────────

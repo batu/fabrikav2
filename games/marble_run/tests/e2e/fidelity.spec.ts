@@ -97,7 +97,7 @@ test('fidelity: capture the four reference-locked states via the harness and gri
   await driver.openSettings();
   await expect(page.locator(SETTINGS_CARD)).toBeVisible({ timeout: 4000 });
   await capture('settings');
-  await page.locator(`${SETTINGS_CARD} .mr-level-cta`).click();
+  await page.locator(`${SETTINGS_CARD} [data-fab-action="settings-close"]`).click();
   await expect(page.locator(SETTINGS_CARD)).toBeHidden({ timeout: 4000 });
 
   // ── level-start + the capture() canvas witness ───────────────────

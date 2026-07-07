@@ -75,6 +75,17 @@ describe('mountModalShell', () => {
     expect(card.style.backgroundImage).toContain('card-src');
   });
 
+  it('can keep the live title visible over blank injected ribbon art', () => {
+    const handle = mountModalShell({
+      mountInto: host(),
+      ribbon: { title: 'SETTINGS', image: 'blank-ribbon-src', imageTitleVisibility: 'visible' },
+      id: 'visible-title-ribbon',
+    });
+    const ribbon = handle.el.querySelector<HTMLElement>('.fab-modal-ribbon')!;
+    expect(ribbon.classList.contains('fab-modal-ribbon--image-title-visible')).toBe(true);
+    expect(ribbon.querySelector('.fab-modal-ribbon-title')?.textContent).toBe('SETTINGS');
+  });
+
   it('ribbon tone defaults to neutral and omits an absent eyebrow', () => {
     const handle = mountModalShell({
       mountInto: host(),
@@ -120,6 +131,25 @@ describe('mountModalShell', () => {
     const labelledCard = labelled.el.querySelector<HTMLElement>('.fab-modal-card')!;
     expect(labelledCard.getAttribute('aria-labelledby')).toBe('custom-title');
     expect(labelled.el.querySelector('.fab-modal-title')?.id).toBe('custom-title');
+  });
+
+  it('renders an optional close button that dismisses through the modal lifecycle', async () => {
+    const onDismiss = vi.fn();
+    const h = host();
+    const handle = mountModalShell({
+      mountInto: h,
+      title: 'Closeable',
+      closeButton: { label: 'X', ariaLabel: 'Close', dataAction: 'modal-close' },
+      onDismiss,
+      id: 'closeable',
+    });
+    const close = handle.el.querySelector<HTMLButtonElement>('[data-fab-action="modal-close"]')!;
+    expect(close.classList.contains('fab-modal-close')).toBe(true);
+    expect(close.getAttribute('aria-label')).toBe('Close');
+    close.click();
+    await handle.dismissed;
+    expect(h.querySelector('#closeable')).toBeNull();
+    expect(onDismiss).toHaveBeenCalledOnce();
   });
 
   it('dismisses on backdrop click only when enabled', async () => {

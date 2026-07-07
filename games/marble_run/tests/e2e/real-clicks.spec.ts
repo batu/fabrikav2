@@ -17,8 +17,8 @@ import {
  * effect — so a click that "lands" but does nothing also fails.
  *
  * `SharedShellDriver` drives the shared `data-fab-*` hooks. The two marble-local
- * controls it can't reach (the HUD gear that opens pause, the settings close
- * button) are clicked through their real selectors — still real clicks, no force.
+ * controls it can't reach (the HUD gear that opens pause) are clicked through
+ * their real selectors — still real clicks, no force.
  * Level/result SETUP goes through the harness; the control UNDER TEST is always a
  * real click.
  */
@@ -86,6 +86,9 @@ test.describe('marble_run — real-click coverage across every screen', () => {
     const shell = await boot(page);
     await shell.openSettings();
     await expect(page.locator(SETTINGS_CARD)).toBeVisible({ timeout: 4000 });
+    await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-restart"]`)).toBeVisible();
+    await expect(page.locator(`${SETTINGS_CARD} [data-fab-action="settings-home"]`)).toBeVisible();
+    await expect(page.locator(`${SETTINGS_CARD}`).getByText('Reset Progress')).toHaveCount(0);
 
     // The real user-clickable control is the visible `.fab-toggle-switch` label
     // (the `<input>` itself is opacity-0/zero-size — see SURPRISES). Clicking the
@@ -97,8 +100,28 @@ test.describe('marble_run — real-click coverage across every screen', () => {
       await page.locator(`${row} .fab-toggle-switch`).click();
       await expect(input).toBeChecked({ checked: !before });
     }
-    // Close via the real close button (marble-local, not a shell hook).
-    await page.locator(`${SETTINGS_CARD} .mr-level-cta`).click();
+    await shell.settingsClose();
+    await expect(page.locator(SETTINGS_CARD)).toBeHidden({ timeout: 4000 });
+  });
+
+  test('settings: restart starts the current level from the menu modal', async ({ page }) => {
+    const shell = await boot(page);
+    await shell.openSettings();
+    await expect(page.locator(SETTINGS_CARD)).toBeVisible({ timeout: 4000 });
+    await shell.settingsRestart();
+    await expect(page.locator('#hud .mr-hud')).toBeVisible({ timeout: 8000 });
+  });
+
+  test('settings: home returns from paused settings to the menu', async ({ page }) => {
+    await boot(page);
+    await enterLevel(page, 1);
+    const shell = new SharedShellDriver(page);
+    await page.locator(HUD_PAUSE).click();
+    await expect(page.locator(PAUSE_CARD)).toBeVisible({ timeout: 4000 });
+    await shell.pauseSettings();
+    await expect(page.locator(SETTINGS_CARD)).toBeVisible({ timeout: 4000 });
+    await shell.settingsHome();
+    await expect(page.locator('[data-fab-action="play"]')).toBeVisible({ timeout: 4000 });
     await expect(page.locator(SETTINGS_CARD)).toBeHidden({ timeout: 4000 });
   });
 

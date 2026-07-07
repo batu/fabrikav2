@@ -6,7 +6,7 @@ export { mountButton, buildButtonElement } from './Button.ts';
 export type { ButtonVariant, ButtonOptions, ButtonHandle } from './Button.ts';
 
 export { mountModalShell, mountModal } from './ModalShell.ts';
-export type { ModalShellOptions, ModalAction } from './ModalShell.ts';
+export type { ModalShellOptions, ModalAction, ModalRibbon, ModalCloseButton } from './ModalShell.ts';
 
 export { mountToaster } from './ToastSystem.ts';
 export type { ToasterOptions, ToasterHandle } from './ToastSystem.ts';

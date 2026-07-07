@@ -40,6 +40,8 @@ export const SHELL_HOOKS = {
   pause: { resume: 'pause-resume', settings: 'pause-settings', quit: 'pause-quit' },
   /** ResultCard actions (consumer sets these on the injected ModalActions). */
   result: { next: 'result-next', retry: 'result-retry', menu: 'result-menu' },
+  /** Settings modal actions. */
+  settings: { close: 'settings-close', restart: 'settings-restart', home: 'settings-home' },
   /** PageShell back button (added additively to PageShell). */
   back: 'back',
   /** ShopPage restore control (added additively to ShopPage). */
@@ -106,6 +108,15 @@ export class SharedShellDriver {
   /** Toggle a settings row by its stable key (music/sfx/haptics/...). */
   toggle(key: string): Promise<void> {
     return this.page.locator(`${fabToggle(key)} .fab-toggle-input`).click();
+  }
+  settingsClose(): Promise<void> {
+    return this.action(SHELL_HOOKS.settings.close).click();
+  }
+  settingsRestart(): Promise<void> {
+    return this.action(SHELL_HOOKS.settings.restart).click();
+  }
+  settingsHome(): Promise<void> {
+    return this.action(SHELL_HOOKS.settings.home).click();
   }
   restorePurchases(): Promise<void> {
     return this.action(SHELL_HOOKS.shopRestore).click();

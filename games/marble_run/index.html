@@ -243,15 +243,193 @@
           inset 0 2px 0 rgba(255, 255, 255, 0.35);
       }
 
-      /* ---- Settings modal (ModalShell variant — conductor comment #3) ---- */
-      .mr-settings-card .fab-modal-title {
-        text-align: center;
-        font-size: 24px;
-        font-weight: 900;
-        color: var(--fab-color-chrome-teal-bottom, #23a7db);
+      /* ---- Settings modal (reference popup + ribbon + sprite buttons) ---- */
+      .fab-modal-card.mr-settings-card {
+        width: min(86vw, 390px);
+        min-width: min(86vw, 300px);
+        max-width: calc(100vw - 28px);
+        min-height: min(69vh, 590px);
+        padding: 92px 31px 34px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .mr-settings-card .fab-modal-ribbon {
+        position: absolute;
+        z-index: 2;
+        top: -74px;
+        left: 50%;
+        width: min(112%, 410px);
+        margin: 0;
+        transform: translateX(-50%);
+      }
+      .mr-settings-card .fab-modal-ribbon-title {
+        color: var(--fab-color-chrome-ink, #fff);
+        font-family: 'Titan One', var(--fab-font-family, system-ui, sans-serif);
+        font-size: 32px;
+        font-weight: 400;
+        letter-spacing: 0;
+        text-shadow:
+          0 4px 0 var(--fab-color-text-ink, #203050),
+          0 5px 0 rgba(0, 0, 0, 0.18);
+        -webkit-text-stroke: 0;
+        paint-order: normal;
+      }
+      .fab-btn.mr-settings-close {
+        top: -70px;
+        right: 10px;
+        width: 62px;
+        min-width: 62px;
+        height: 62px;
+        min-height: 62px;
+        border: 3px solid var(--fab-color-chrome-teal-shadow, #1c7fb0);
+        border-radius: 18px;
+        background: linear-gradient(
+          180deg,
+          var(--fab-color-chrome-teal-top, #6fdcff),
+          var(--fab-color-chrome-teal-bottom, #23a7db)
+        );
+        box-shadow:
+          0 5px 0 var(--fab-color-chrome-teal-shadow, #1c7fb0),
+          inset 0 3px 0 rgba(255, 255, 255, 0.28);
+        color: var(--fab-color-chrome-ink, #fff);
+        font-family: 'Titan One', var(--fab-font-family, system-ui, sans-serif);
+        font-size: 27px;
+        font-weight: 400;
+        text-shadow: 0 3px 0 var(--fab-color-text-ink, #203050);
+      }
+      .fab-btn.mr-settings-close:active:not(:disabled) {
+        transform: translateY(3px);
+        box-shadow:
+          0 2px 0 var(--fab-color-chrome-teal-shadow, #1c7fb0),
+          inset 0 3px 0 rgba(255, 255, 255, 0.28);
       }
       .mr-settings-toggles {
-        margin: 6px 0 12px;
+        margin: 3px 0 31px;
+      }
+      .mr-settings-card .fab-toggle-rows {
+        gap: 14px;
+      }
+      .mr-settings-card .fab-toggle-row {
+        min-height: 72px;
+        padding: 10px 17px 10px 22px;
+        border-radius: 22px;
+        background: var(--fab-color-settings-row, #eaf8ff);
+        box-shadow:
+          inset 0 3px 0 rgba(255, 255, 255, 0.82),
+          0 4px 0 rgba(32, 48, 80, 0.08);
+      }
+      .mr-settings-card .fab-toggle-row-left {
+        gap: 10px;
+      }
+      .mr-settings-card .fab-toggle-row-label {
+        color: var(--fab-color-text-ink, #203050);
+        font-family: var(--fab-font-family, 'Fredoka One', system-ui, sans-serif);
+        font-size: 25px;
+        font-weight: 400;
+      }
+      .mr-settings-card .fab-toggle-switch {
+        width: 82px;
+        height: 48px;
+      }
+      .mr-settings-card .fab-toggle-slider {
+        background: linear-gradient(180deg, #d8e5ee, #b7c6d2);
+        box-shadow:
+          inset 0 4px 7px rgba(0, 0, 0, 0.16),
+          0 2px 0 rgba(32, 48, 80, 0.09);
+      }
+      .mr-settings-card .fab-toggle-slider::before {
+        width: 38px;
+        height: 38px;
+        left: 5px;
+        bottom: 5px;
+        background: var(--fab-color-toggle-thumb, #fff5df);
+        box-shadow:
+          inset 0 2px 0 rgba(255, 255, 255, 0.62),
+          0 2px 4px rgba(32, 48, 80, 0.22);
+      }
+      .mr-settings-card .fab-toggle-input:checked + .fab-toggle-slider {
+        background: linear-gradient(
+          180deg,
+          var(--fab-color-cta-green-top, #7fe089),
+          var(--fab-color-cta-green-bottom, #3fb356)
+        );
+      }
+      .mr-settings-card .fab-toggle-input:checked + .fab-toggle-slider::before {
+        transform: translateX(34px);
+      }
+      .mr-settings-actions {
+        gap: 8px;
+        align-items: center;
+      }
+      .fab-modal-actions .fab-btn.mr-settings-action {
+        width: min(220px, 68%);
+        min-width: 0;
+        min-height: 0;
+        aspect-ratio: 435 / 200;
+        padding: 0 26px 9px;
+        border: 0;
+        border-radius: 22px;
+        background: var(--mr-settings-action-image) center / 100% 100% no-repeat;
+        box-shadow: none;
+        color: var(--fab-color-chrome-ink, #fff);
+        font-family: 'Titan One', var(--fab-font-family, system-ui, sans-serif);
+        font-size: 23px;
+        font-weight: 400;
+        text-transform: uppercase;
+        text-shadow:
+          0 4px 0 var(--fab-color-text-ink, #203050),
+          0 5px 0 rgba(0, 0, 0, 0.15);
+      }
+      .fab-modal-actions .fab-btn.mr-settings-action:active:not(:disabled) {
+        transform: translateY(3px);
+        box-shadow: none;
+      }
+      @media (max-width: 360px), (max-height: 740px) {
+        .fab-modal-card.mr-settings-card {
+          padding: 82px 25px 26px;
+          min-height: min(70vh, 535px);
+        }
+        .mr-settings-card .fab-modal-ribbon {
+          top: -63px;
+          width: min(110%, 360px);
+        }
+        .mr-settings-card .fab-modal-ribbon-title {
+          font-size: 28px;
+        }
+        .fab-btn.mr-settings-close {
+          top: -59px;
+          width: 54px;
+          min-width: 54px;
+          height: 54px;
+          min-height: 54px;
+          font-size: 24px;
+        }
+        .mr-settings-toggles {
+          margin-bottom: 23px;
+        }
+        .mr-settings-card .fab-toggle-row {
+          min-height: 63px;
+          padding: 8px 13px 8px 17px;
+        }
+        .mr-settings-card .fab-toggle-row-label {
+          font-size: 22px;
+        }
+        .mr-settings-card .fab-toggle-switch {
+          width: 72px;
+          height: 42px;
+        }
+        .mr-settings-card .fab-toggle-slider::before {
+          width: 32px;
+          height: 32px;
+        }
+        .mr-settings-card .fab-toggle-input:checked + .fab-toggle-slider::before {
+          transform: translateX(30px);
+        }
+        .fab-modal-actions .fab-btn.mr-settings-action {
+          width: min(198px, 68%);
+          font-size: 21px;
+        }
       }
 
       /* ---- Menu ambient confetti (fixed layer, torn down with the menu) ---- */
