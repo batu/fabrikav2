@@ -1,0 +1,805 @@
+{
+  "models": [
+    "anthropic/claude-opus-4.1",
+    "anthropic/claude-sonnet-5",
+    "google/gemini-3.5-flash"
+  ],
+  "judges": [
+    {
+      "id": "opus",
+      "model": "anthropic/claude-opus-4.1",
+      "provider": "openrouter",
+      "enabled": true
+    },
+    {
+      "id": "sonnet",
+      "model": "anthropic/claude-sonnet-5",
+      "provider": "openrouter",
+      "enabled": true
+    },
+    {
+      "id": "gemini-flash",
+      "model": "google/gemini-3.5-flash",
+      "provider": "openrouter",
+      "enabled": true
+    }
+  ],
+  "thresholdPct": 85,
+  "states": [
+    {
+      "state": "menu",
+      "score": 55,
+      "status": "fail",
+      "reason": "panel 55% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 55
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 35
+        }
+      ],
+      "consensus": [
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Level progression numbers are different",
+            "Level and path numbers differ from reference",
+            "Different level state and coin count displayed."
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Game board position different",
+            "Marble board is shown flat/frontal and overlaps the path nodes, whereas reference shows it tilted in perspective and positioned above the path with a gap",
+            "The tiltable marble board is completely straight (unrotated) and overlapping behind/underneath the level path nodes, unlike the rotated and separated design in the reference."
+          ]
+        },
+        {
+          "key": "extra-element",
+          "count": 3,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Status bar elements present",
+            "Status bar visible in ours but not in reference",
+            "iOS Status bar elements (time, signal, battery) are visible at the top of the screen."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "level",
+      "score": 60,
+      "status": "fail",
+      "reason": "panel 60% < 85%; consensus blocker: layout (3/3)",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 45
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 60
+        }
+      ],
+      "consensus": [
+        {
+          "key": "layout",
+          "count": 3,
+          "of": 3,
+          "severity": "blocker",
+          "descriptions": [
+            "Game board marbles are in completely different positions",
+            "Game board grid size and ball arrangement differ significantly",
+            "The layout of the game pieces (marbles, shooters, and empty spots) completely differs from the reference, representing a different game state or puzzle setup."
+          ]
+        },
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Coin count value different",
+            "Coin count value differs",
+            "The coin counter value at the bottom-left is incorrect."
+          ]
+        },
+        {
+          "key": "extra-element",
+          "count": 3,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Status bar elements present",
+            "Status bar (time, battery icon) visible in ours but not in reference",
+            "System status bar elements are visible at the top of the screen in our version."
+          ]
+        },
+        {
+          "key": "typography",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Hint button text formatting",
+            "The font style of the text inside the 'HINT' button at the bottom-right does not match the reference design."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "settings",
+      "score": 60,
+      "status": "fail",
+      "reason": "panel 60% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 65
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 40
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 60
+        }
+      ],
+      "consensus": [
+        {
+          "key": "extra-element",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Orange RESTART button added above green button",
+            "Extra RESTART button added that doesn't exist in reference",
+            "Device status bar information (time '4:50' and battery charging icon) is visible on top of the dialog header."
+          ]
+        },
+        {
+          "key": "text-content",
+          "count": 2,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Bottom button text completely different",
+            "Bottom button says HOME instead of CLOSE, and RESET PROGRESS link missing"
+          ]
+        },
+        {
+          "key": "missing-element",
+          "count": 2,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "RESET PROGRESS text missing below buttons",
+            "CLOSE button missing entirely"
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Close 'X' button design differs, includes battery icon overlapping it",
+            "The buttons at the bottom of the dialog differ completely from the reference design."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "pause",
+      "score": null,
+      "status": "unscored",
+      "reason": "no reference to score against",
+      "models": [],
+      "consensus": []
+    },
+    {
+      "state": "win",
+      "score": 40,
+      "status": "fail",
+      "reason": "panel 40% < 85%; consensus blocker: missing-element (3/3)",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 45
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 40
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 35
+        }
+      ],
+      "consensus": [
+        {
+          "key": "missing-element",
+          "count": 3,
+          "of": 3,
+          "severity": "blocker",
+          "descriptions": [
+            "Top coin counter UI element is missing",
+            "Coin balance indicator (75) shown at top right is missing",
+            "The coin counterbalance displaying '75' in the top right-hand corner is completely missing."
+          ]
+        },
+        {
+          "key": "extra-element",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Replay button added that doesn't exist in reference",
+            "Extra scattered coin graphics falling around and below the card are not in the reference",
+            "Stray animated/static gold coins are scattered vertically on the bottom-left area of the card extending onto the background."
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Next button positioned inside card instead of below",
+            "Card is not centered vertically; positioned lower with extra empty space at top, and layout is compressed/cut off differently than reference",
+            "The 'Next' button is incorrectly positioned inside the main modal card instead of floating below it as a prominent CTA."
+          ]
+        },
+        {
+          "key": "sizing",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Main card appears wider",
+            "Card and elements are stretched/sized differently, appearing larger and less proportioned than reference"
+          ]
+        },
+        {
+          "key": "background",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Wood paneling background behind the card is missing",
+            "The wooden board texture/backing behind the card is missing in our rendering."
+          ]
+        },
+        {
+          "key": "typography",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Reward amount styling differs; missing coin icon inline and '+' prefix, color is orange instead of white with black outline",
+            "The 'NEXT' button text color, capitalization, and font styling differ."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "fail",
+      "score": 45,
+      "status": "fail",
+      "reason": "panel 45% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 45
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 30
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 45
+        }
+      ],
+      "consensus": [
+        {
+          "key": "missing-element",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Crying emoji is missing from the dialog",
+            "Sad emoji face illustration missing from card",
+            "The crying face emoji/illustration in the center of the dialog is missing."
+          ]
+        },
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Different message text",
+            "Main message text differs and is missing 'No hearts left!' line",
+            "The main message text inside the card is different in content, typography, and styling."
+          ]
+        },
+        {
+          "key": "extra-element",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Status bar elements present",
+            "Extra 'Quit' text link not present in reference",
+            "Standard OS status bar (time, signal, battery) is visible on our screen but hidden in the reference."
+          ]
+        },
+        {
+          "key": "typography",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Different text styling for retry option",
+            "Retry button style changed from large filled button to plain text link",
+            "Buttons do not use the stylized 3D game font and differ in style."
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 2,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Button layout completely different",
+            "The entire layout, structure, and button configuration of the card dialog differ significantly."
+          ]
+        }
+      ]
+    }
+  ],
+  "verdict": {
+    "pass": false,
+    "summary": "FAIL — panel median 55% · 0 pass, 5 fail, 1 unscored (floor 85%)",
+    "states": [
+      {
+        "state": "menu",
+        "score": 55,
+        "status": "fail",
+        "reason": "panel 55% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 55
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 35
+          }
+        ],
+        "consensus": [
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Level progression numbers are different",
+              "Level and path numbers differ from reference",
+              "Different level state and coin count displayed."
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Game board position different",
+              "Marble board is shown flat/frontal and overlaps the path nodes, whereas reference shows it tilted in perspective and positioned above the path with a gap",
+              "The tiltable marble board is completely straight (unrotated) and overlapping behind/underneath the level path nodes, unlike the rotated and separated design in the reference."
+            ]
+          },
+          {
+            "key": "extra-element",
+            "count": 3,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Status bar elements present",
+              "Status bar visible in ours but not in reference",
+              "iOS Status bar elements (time, signal, battery) are visible at the top of the screen."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "level",
+        "score": 60,
+        "status": "fail",
+        "reason": "panel 60% < 85%; consensus blocker: layout (3/3)",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 45
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 60
+          }
+        ],
+        "consensus": [
+          {
+            "key": "layout",
+            "count": 3,
+            "of": 3,
+            "severity": "blocker",
+            "descriptions": [
+              "Game board marbles are in completely different positions",
+              "Game board grid size and ball arrangement differ significantly",
+              "The layout of the game pieces (marbles, shooters, and empty spots) completely differs from the reference, representing a different game state or puzzle setup."
+            ]
+          },
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Coin count value different",
+              "Coin count value differs",
+              "The coin counter value at the bottom-left is incorrect."
+            ]
+          },
+          {
+            "key": "extra-element",
+            "count": 3,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Status bar elements present",
+              "Status bar (time, battery icon) visible in ours but not in reference",
+              "System status bar elements are visible at the top of the screen in our version."
+            ]
+          },
+          {
+            "key": "typography",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Hint button text formatting",
+              "The font style of the text inside the 'HINT' button at the bottom-right does not match the reference design."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "settings",
+        "score": 60,
+        "status": "fail",
+        "reason": "panel 60% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 65
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 40
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 60
+          }
+        ],
+        "consensus": [
+          {
+            "key": "extra-element",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Orange RESTART button added above green button",
+              "Extra RESTART button added that doesn't exist in reference",
+              "Device status bar information (time '4:50' and battery charging icon) is visible on top of the dialog header."
+            ]
+          },
+          {
+            "key": "text-content",
+            "count": 2,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Bottom button text completely different",
+              "Bottom button says HOME instead of CLOSE, and RESET PROGRESS link missing"
+            ]
+          },
+          {
+            "key": "missing-element",
+            "count": 2,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "RESET PROGRESS text missing below buttons",
+              "CLOSE button missing entirely"
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Close 'X' button design differs, includes battery icon overlapping it",
+              "The buttons at the bottom of the dialog differ completely from the reference design."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "pause",
+        "score": null,
+        "status": "unscored",
+        "reason": "no reference to score against",
+        "models": [],
+        "consensus": []
+      },
+      {
+        "state": "win",
+        "score": 40,
+        "status": "fail",
+        "reason": "panel 40% < 85%; consensus blocker: missing-element (3/3)",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 45
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 40
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 35
+          }
+        ],
+        "consensus": [
+          {
+            "key": "missing-element",
+            "count": 3,
+            "of": 3,
+            "severity": "blocker",
+            "descriptions": [
+              "Top coin counter UI element is missing",
+              "Coin balance indicator (75) shown at top right is missing",
+              "The coin counterbalance displaying '75' in the top right-hand corner is completely missing."
+            ]
+          },
+          {
+            "key": "extra-element",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Replay button added that doesn't exist in reference",
+              "Extra scattered coin graphics falling around and below the card are not in the reference",
+              "Stray animated/static gold coins are scattered vertically on the bottom-left area of the card extending onto the background."
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Next button positioned inside card instead of below",
+              "Card is not centered vertically; positioned lower with extra empty space at top, and layout is compressed/cut off differently than reference",
+              "The 'Next' button is incorrectly positioned inside the main modal card instead of floating below it as a prominent CTA."
+            ]
+          },
+          {
+            "key": "sizing",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Main card appears wider",
+              "Card and elements are stretched/sized differently, appearing larger and less proportioned than reference"
+            ]
+          },
+          {
+            "key": "background",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Wood paneling background behind the card is missing",
+              "The wooden board texture/backing behind the card is missing in our rendering."
+            ]
+          },
+          {
+            "key": "typography",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Reward amount styling differs; missing coin icon inline and '+' prefix, color is orange instead of white with black outline",
+              "The 'NEXT' button text color, capitalization, and font styling differ."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "fail",
+        "score": 45,
+        "status": "fail",
+        "reason": "panel 45% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 45
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 30
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 45
+          }
+        ],
+        "consensus": [
+          {
+            "key": "missing-element",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Crying emoji is missing from the dialog",
+              "Sad emoji face illustration missing from card",
+              "The crying face emoji/illustration in the center of the dialog is missing."
+            ]
+          },
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Different message text",
+              "Main message text differs and is missing 'No hearts left!' line",
+              "The main message text inside the card is different in content, typography, and styling."
+            ]
+          },
+          {
+            "key": "extra-element",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Status bar elements present",
+              "Extra 'Quit' text link not present in reference",
+              "Standard OS status bar (time, signal, battery) is visible on our screen but hidden in the reference."
+            ]
+          },
+          {
+            "key": "typography",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Different text styling for retry option",
+              "Retry button style changed from large filled button to plain text link",
+              "Buttons do not use the stylized 3D game font and differ in style."
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 2,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Button layout completely different",
+              "The entire layout, structure, and button configuration of the card dialog differ significantly."
+            ]
+          }
+        ]
+      }
+    ],
+    "score": 55
+  },
+  "budgetHalted": false,
+  "game": "marble_run",
+  "lane": "device",
+  "generatedAt": "2026-07-07T11:55:28.418Z"
+}
