@@ -1,6 +1,11 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import {
+  MENU_DECOR_BOARD_TILT_DEG,
+  MENU_DECOR_CAMERA_YAW_DEG,
+  MENU_DECOR_FRAME_SCALE,
+} from '../game/menuDecor';
 import { buildSagaNodes } from './saga';
 
 /**
@@ -43,5 +48,23 @@ describe('saga straight-line topology', () => {
       const first = xs[0];
       for (const x of xs) expect(x).toBe(first);
     }
+  });
+});
+
+describe('menu board/saga composition constants', () => {
+  it('keeps the menu board visibly tilted and smaller than the old upright decor', () => {
+    expect(MENU_DECOR_BOARD_TILT_DEG).toBeGreaterThanOrEqual(12);
+    expect(MENU_DECOR_CAMERA_YAW_DEG).toBe(75);
+    expect(MENU_DECOR_FRAME_SCALE).toBeGreaterThan(1.42);
+  });
+
+  it('keeps the current sunburst materially larger than the small medallions', () => {
+    const css = readFileSync(TOKENS_CSS, 'utf8');
+    const node = Number(css.match(/--fab-levelmap-node-size:\s*(\d+(?:\.\d+)?)px/)?.[1]);
+    const current = Number(css.match(/--fab-levelmap-node-current-size:\s*(\d+(?:\.\d+)?)px/)?.[1]);
+    if (!Number.isFinite(node) || !Number.isFinite(current)) {
+      throw new Error('level-map node size tokens not found in tokens.css');
+    }
+    expect(current / node).toBeGreaterThan(2);
   });
 });

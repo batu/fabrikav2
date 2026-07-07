@@ -117,6 +117,37 @@
            (--fab-safe-top = env(safe-area-inset-top); 0 off-device). */
         padding-top: var(--fab-safe-top, 0px);
       }
+      .fab-home-menu {
+        position: absolute;
+        inset: 0;
+        gap: 0;
+        min-height: 100%;
+        pointer-events: none;
+      }
+      .fab-home-menu-header {
+        width: 100%;
+        pointer-events: none;
+      }
+      .fab-home-menu-content {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: clamp(112px, 13dvh, 124px);
+        pointer-events: none;
+      }
+      .fab-home-menu-content .fab-levelmap-path {
+        min-height: auto;
+        height: clamp(350px, 43dvh, 388px);
+        justify-content: flex-end;
+        transform: none;
+      }
+      .fab-home-menu-actions {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: max(24px, env(safe-area-inset-bottom));
+        pointer-events: none;
+      }
       .mr-topbar {
         display: flex;
         align-items: center;

@@ -129,16 +129,16 @@
   --fab-levelmap-line-glow: 0 0 7px rgba(255, 204, 31, 0.4), 8px 0 0 -2px #cf844e, -8px 0 0 -2px #cf844e;
   --fab-levelmap-far-opacity: 1;
   --fab-levelmap-distant-opacity: 1;
-  --fab-levelmap-node-gap: 14px;
+  --fab-levelmap-node-gap: 8px;
   /* Reference saga is a STRAIGHT vertical line: every node sits on one centre
      line, connected top-to-bottom. Zero the ui default's alternating left/right
      offset (57px) so odd/even nodes no longer scatter — translateX collapses to
      0 for all nodes. See saga-layout.test.ts. */
   --fab-levelmap-offset: 0px;
-  --fab-levelmap-node-size: 76px;
-  --fab-levelmap-node-current-size: 142px;
-  --fab-levelmap-node-font: 23px;
-  --fab-levelmap-node-current-font: 52px;
+  --fab-levelmap-node-size: 66px;
+  --fab-levelmap-node-current-size: 150px;
+  --fab-levelmap-node-font: 21px;
+  --fab-levelmap-node-current-font: 54px;
 
   /* ---- Game-owned tokens (the DOM body backdrop the shell paints) ---- */
   --fab-color-bg-top: #9b7bcd;

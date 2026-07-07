@@ -25,7 +25,7 @@ export interface SagaWindowOptions {
 const DEFAULT_AHEAD = 4;
 const DEFAULT_BEHIND = 1;
 export const MENU_SAGA_WINDOW: Required<Pick<SagaWindowOptions, 'ahead' | 'behind'>> = {
-  ahead: 4,
+  ahead: 3,
   behind: 0,
 };
 

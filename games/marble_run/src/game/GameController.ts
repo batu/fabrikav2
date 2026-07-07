@@ -35,6 +35,11 @@ import {
 } from '../audio/Sfx';
 import { BoardScene } from './BoardScene';
 import { Stage } from './Stage';
+import {
+  MENU_DECOR_CAMERA_YAW_DEG,
+  MENU_DECOR_FRAME_SCALE,
+  MENU_DECOR_VIEW_OFFSET_Y_RATIO,
+} from './menuDecor';
 
 export interface GameHooks {
   /** Fired once when the level is WON (after the win animation settles). The shell records the win, shows the ResultCard, runs the coin-fly, then calls refreshHudCoins(). */
@@ -139,11 +144,10 @@ export class GameController {
     this.clearDecor();
     this.mode = 'menu';
     this.paused = false;
-    // Match the reference menu (near-straight board) and stay consistent with
-    // in-level framing: without this the decor board keeps whatever yaw the last
-    // level left (or the Stage's 45° default on a cold boot) — a diamond.
-    this.stage.setDimetricCamera(GAMEPLAY_CAMERA_GROUND_ANGLE_DEG, GAMEPLAY_CAMERA_YAW_DEG);
-    this.stage.setViewOffsetYRatio(0.11);
+    // Menu-only decor uses the reference tray tilt. In-level boards remain at
+    // GAMEPLAY_CAMERA_YAW_DEG so gameplay keeps its straight top-down read.
+    this.stage.setDimetricCamera(GAMEPLAY_CAMERA_GROUND_ANGLE_DEG, MENU_DECOR_CAMERA_YAW_DEG);
+    this.stage.setViewOffsetYRatio(MENU_DECOR_VIEW_OFFSET_Y_RATIO);
 
     const decorLevel = LEVELS[2] ?? LEVELS[0]!;
     const engine = new BoardEngine(decorLevel);
@@ -156,7 +160,7 @@ export class GameController {
     });
     this.stage.world.add(this.decorBoard.root);
     const { w, d } = this.decorBoard.boardSize();
-    this.stage.frameBoard(w * 1.42, d * 1.42);
+    this.stage.frameBoard(w * MENU_DECOR_FRAME_SCALE, d * MENU_DECOR_FRAME_SCALE);
   }
 
   startLevel(levelId: number): void {
@@ -565,8 +569,7 @@ export class GameController {
     if (!this.paused) {
       this.board?.tick(dt);
       this.decorBoard?.tick(dt);
-      // The decor board stays LOCKED at the yaw showMenuScene() set (near-straight,
-      // matching the reference menu). No continuous spin — a rotating board clashes
+      // The decor board stays LOCKED at the yaw showMenuScene() set. No continuous spin — a rotating board clashes
       // with the static saga rail overlaid on the menu. See the diff report
       // (docs/evidence/2026-07-06-1747-rigorous-diff): reference menu board is static.
       this.tickMenuDecor(dt);
