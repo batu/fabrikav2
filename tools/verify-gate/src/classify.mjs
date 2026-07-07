@@ -32,6 +32,10 @@ export const UNVERIFIED_RE = /UNVERIFIED:[ \t]*([^\n]*)/;
 /** Globs whose files render on-device — a done-claim touching these needs
  *  verify-device evidence. Card-specified. */
 export const VISUAL_GLOBS = ['games/*/src/**', 'games/*/design/**', 'packages/ui/**'];
+const NON_RENDERED_DESIGN_RES = [
+  /^games\/[^/]+\/design\/asset-identity\.json$/,
+  /^games\/[^/]+\/design\/reference-metrics\.json$/,
+];
 
 export const RUBBER_STAMP_EXEMPT_LABELS = [
   'doc',
@@ -82,6 +86,10 @@ export function isVisualFile(file) {
   // platform. Its device proof path is scaffold-a-real-game, then verify that
   // generated game; demanding device evidence for _template itself is impossible.
   if (f.startsWith('games/_template/')) return false;
+  // Audit metadata under design/ records asset provenance and hand-measured
+  // token expectations. It is not loaded by the runtime, so it should not make
+  // a headless audit/tooling card require a device visual panel.
+  if (NON_RENDERED_DESIGN_RES.some((re) => re.test(f))) return false;
   return VISUAL_RES.some((re) => re.test(f));
 }
 

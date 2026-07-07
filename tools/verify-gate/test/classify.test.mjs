@@ -75,6 +75,7 @@ describe('isVisualFile', () => {
     expect(isVisualFile('games/marble_run/src/main.ts')).toBe(true);
     expect(isVisualFile('games/marble_run/src/scenes/Boot.ts')).toBe(true);
     expect(isVisualFile('games/marble_run/design/tokens.json')).toBe(true);
+    expect(isVisualFile('games/marble_run/design/assets/button.png')).toBe(true);
     expect(isVisualFile('packages/ui/Button.tsx')).toBe(true);
     expect(isVisualFile('packages/ui/nested/deep/thing.css')).toBe(true);
     expect(isVisualFile('./games/marble_run/src/main.ts')).toBe(true); // leading ./
@@ -85,6 +86,11 @@ describe('isVisualFile', () => {
     expect(isVisualFile('games/marble_run/tests/scoring.test.ts')).toBe(false);
     expect(isVisualFile('packages/engine/index.ts')).toBe(false);
     expect(isVisualFile('docs/AGENT-HANDOFF.md')).toBe(false);
+  });
+  it('excludes non-rendered audit metadata under design/', () => {
+    expect(isVisualFile('games/marble_run/design/asset-identity.json')).toBe(false);
+    expect(isVisualFile('games/marble_run/design/reference-metrics.json')).toBe(false);
+    expect(isVisualFile('games/marble_run/design/tokens.css')).toBe(true);
   });
   it('narrowly excludes games/_template because it is scaffold, not an installable game', () => {
     expect(isVisualFile('games/_template/src/main.ts')).toBe(false);

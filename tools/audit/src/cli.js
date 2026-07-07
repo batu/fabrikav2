@@ -13,6 +13,7 @@ import { lintDepsDeclared } from './deps-declared.js';
 import { lintStructure } from './structure.js';
 import { lintHooks } from './hooks.js';
 import { lintHarness } from './harness.js';
+import { lintAssetIdentity } from './asset-identity.js';
 
 function fmtNoLiterals(v) {
   return `${v.file}:${v.line}  [${v.kind}]  ${JSON.stringify(v.value)}`;
@@ -36,6 +37,13 @@ function fmtHooks(v) {
 function fmtHarness(v) {
   return `${v.game}  missing REQUIRED harness surface: ${v.missing.join(', ')}`;
 }
+function fmtAssetIdentity(v) {
+  const bits = [`${v.game}/${v.entry}`, `[${v.kind}]`];
+  if (v.expectation) bits.push(`expectation=${v.expectation}`);
+  if (v.source) bits.push(`source=${v.source}`);
+  if (v.detail) bits.push(v.detail);
+  return bits.join('  ');
+}
 
 const LINTERS = [
   {
@@ -48,6 +56,7 @@ const LINTERS = [
   { name: 'structure', run: (root) => lintStructure(root), fmt: fmtStructure },
   { name: 'hooks', run: (root) => lintHooks(root), fmt: fmtHooks },
   { name: 'harness', run: (root) => lintHarness(root), fmt: fmtHarness },
+  { name: 'asset-identity', run: (root) => lintAssetIdentity(root), fmt: fmtAssetIdentity },
 ];
 
 export function runAll(root, { allowlistPath } = {}) {
