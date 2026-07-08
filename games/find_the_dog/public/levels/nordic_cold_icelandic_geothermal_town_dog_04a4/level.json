@@ -1,0 +1,640 @@
+{
+  "id": "nordic_cold_icelandic_geothermal_town_dog_04a4",
+  "name": "Level nordic_cold_icelandic_geothermal_town_dog_04a4 (clean_old_cartoon)",
+  "width": 2560,
+  "height": 3840,
+  "bwImage": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/bw.png",
+  "colorImage": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/color.png",
+  "dogs": [
+    {
+      "id": "dog_00",
+      "x": 1555,
+      "y": 2107,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_00/sprite_000.png",
+        "x": 1504,
+        "y": 2025,
+        "width": 114,
+        "height": 148,
+        "anchorX": 0.4474,
+        "anchorY": 0.5541,
+        "cleanup": {
+          "x": 1410,
+          "y": 1972,
+          "width": 279,
+          "height": 280
+        }
+      }
+    },
+    {
+      "id": "dog_01",
+      "x": 1233,
+      "y": 1455,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_01/sprite_000.png",
+        "x": 1190,
+        "y": 1373,
+        "width": 108,
+        "height": 79,
+        "anchorX": 0.3981,
+        "anchorY": 1.0,
+        "cleanup": {
+          "x": 1088,
+          "y": 1362,
+          "width": 236,
+          "height": 226
+        }
+      }
+    },
+    {
+      "id": "dog_02",
+      "x": 1095,
+      "y": 3056,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_02/sprite_000.png",
+        "x": 1047,
+        "y": 2978,
+        "width": 108,
+        "height": 155,
+        "anchorX": 0.4444,
+        "anchorY": 0.5032,
+        "cleanup": {
+          "x": 950,
+          "y": 2942,
+          "width": 290,
+          "height": 209
+        }
+      }
+    },
+    {
+      "id": "dog_03",
+      "x": 1026,
+      "y": 1145,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_03/sprite_000.png",
+        "x": 949,
+        "y": 1079,
+        "width": 194,
+        "height": 201,
+        "anchorX": 0.3969,
+        "anchorY": 0.3284,
+        "cleanup": {
+          "x": 924,
+          "y": 1051,
+          "width": 241,
+          "height": 235
+        }
+      }
+    },
+    {
+      "id": "dog_04",
+      "x": 1422,
+      "y": 948,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_04/sprite_000.png",
+        "x": 1371,
+        "y": 881,
+        "width": 106,
+        "height": 142,
+        "anchorX": 0.4811,
+        "anchorY": 0.4718,
+        "cleanup": {
+          "x": 1277,
+          "y": 807,
+          "width": 290,
+          "height": 279
+        }
+      }
+    },
+    {
+      "id": "dog_05",
+      "x": 1392,
+      "y": 2946,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_05/sprite_000.png",
+        "x": 1330,
+        "y": 2864,
+        "width": 133,
+        "height": 165,
+        "anchorX": 0.4662,
+        "anchorY": 0.497,
+        "cleanup": {
+          "x": 1322,
+          "y": 2857,
+          "width": 145,
+          "height": 177
+        }
+      }
+    },
+    {
+      "id": "dog_06",
+      "x": 1819,
+      "y": 2542,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_06/sprite_000.png",
+        "x": 1758,
+        "y": 2461,
+        "width": 107,
+        "height": 160,
+        "anchorX": 0.5701,
+        "anchorY": 0.5062,
+        "cleanup": {
+          "x": 1748,
+          "y": 2450,
+          "width": 138,
+          "height": 175
+        }
+      }
+    },
+    {
+      "id": "dog_07",
+      "x": 2068,
+      "y": 1205,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_07/sprite_000.png",
+        "x": 2016,
+        "y": 1140,
+        "width": 109,
+        "height": 138,
+        "anchorX": 0.4771,
+        "anchorY": 0.471,
+        "cleanup": {
+          "x": 1996,
+          "y": 1109,
+          "width": 137,
+          "height": 174
+        }
+      }
+    },
+    {
+      "id": "dog_08",
+      "x": 2078,
+      "y": 892,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_08/sprite_000.png",
+        "x": 2012,
+        "y": 818,
+        "width": 131,
+        "height": 189,
+        "anchorX": 0.5038,
+        "anchorY": 0.3915,
+        "cleanup": {
+          "x": 1987,
+          "y": 782,
+          "width": 236,
+          "height": 255
+        }
+      }
+    },
+    {
+      "id": "dog_09",
+      "x": 677,
+      "y": 855,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_09/sprite_000.png",
+        "x": 618,
+        "y": 776,
+        "width": 140,
+        "height": 157,
+        "anchorX": 0.4214,
+        "anchorY": 0.5032,
+        "cleanup": {
+          "x": 532,
+          "y": 711,
+          "width": 290,
+          "height": 244
+        }
+      }
+    },
+    {
+      "id": "dog_10",
+      "x": 848,
+      "y": 2262,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_10/sprite_000.png",
+        "x": 794,
+        "y": 2193,
+        "width": 100,
+        "height": 147,
+        "anchorX": 0.54,
+        "anchorY": 0.4694,
+        "cleanup": {
+          "x": 786,
+          "y": 2187,
+          "width": 130,
+          "height": 157
+        }
+      }
+    },
+    {
+      "id": "dog_11",
+      "x": 949,
+      "y": 3336,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_11/sprite_000.png",
+        "x": 895,
+        "y": 3246,
+        "width": 102,
+        "height": 162,
+        "anchorX": 0.5294,
+        "anchorY": 0.5556,
+        "cleanup": {
+          "x": 850,
+          "y": 3242,
+          "width": 169,
+          "height": 174
+        }
+      }
+    },
+    {
+      "id": "dog_12",
+      "x": 1540,
+      "y": 1491,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_12/sprite_000.png",
+        "x": 1485,
+        "y": 1415,
+        "width": 117,
+        "height": 159,
+        "anchorX": 0.4701,
+        "anchorY": 0.478,
+        "cleanup": {
+          "x": 1395,
+          "y": 1397,
+          "width": 290,
+          "height": 239
+        }
+      }
+    },
+    {
+      "id": "dog_13",
+      "x": 953,
+      "y": 1484,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_13/sprite_000.png",
+        "x": 908,
+        "y": 1405,
+        "width": 117,
+        "height": 170,
+        "anchorX": 0.3846,
+        "anchorY": 0.4647,
+        "cleanup": {
+          "x": 813,
+          "y": 1394,
+          "width": 285,
+          "height": 185
+        }
+      }
+    },
+    {
+      "id": "dog_14",
+      "x": 2073,
+      "y": 2962,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_14/sprite_000.png",
+        "x": 2016,
+        "y": 2883,
+        "width": 110,
+        "height": 164,
+        "anchorX": 0.5182,
+        "anchorY": 0.4817,
+        "cleanup": {
+          "x": 2000,
+          "y": 2877,
+          "width": 145,
+          "height": 174
+        }
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 1175,
+      "y": 2653,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_15/sprite_000.png",
+        "x": 1116,
+        "y": 2577,
+        "width": 117,
+        "height": 155,
+        "anchorX": 0.5043,
+        "anchorY": 0.4903,
+        "cleanup": {
+          "x": 1103,
+          "y": 2572,
+          "width": 134,
+          "height": 186
+        }
+      }
+    },
+    {
+      "id": "dog_16",
+      "x": 439,
+      "y": 2666,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_16/sprite_000.png",
+        "x": 371,
+        "y": 2593,
+        "width": 125,
+        "height": 152,
+        "anchorX": 0.544,
+        "anchorY": 0.4803,
+        "cleanup": {
+          "x": 294,
+          "y": 2526,
+          "width": 253,
+          "height": 224
+        }
+      }
+    },
+    {
+      "id": "dog_17",
+      "x": 718,
+      "y": 2704,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_17/sprite_000.png",
+        "x": 661,
+        "y": 2623,
+        "width": 109,
+        "height": 157,
+        "anchorX": 0.5229,
+        "anchorY": 0.5159,
+        "cleanup": {
+          "x": 649,
+          "y": 2609,
+          "width": 141,
+          "height": 177
+        }
+      }
+    },
+    {
+      "id": "dog_18",
+      "x": 604,
+      "y": 3417,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_18/sprite_000.png",
+        "x": 523,
+        "y": 3348,
+        "width": 137,
+        "height": 155,
+        "anchorX": 0.5912,
+        "anchorY": 0.4452,
+        "cleanup": {
+          "x": 519,
+          "y": 3326,
+          "width": 155,
+          "height": 185
+        }
+      }
+    },
+    {
+      "id": "dog_19",
+      "x": 1960,
+      "y": 1995,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_19/sprite_000.png",
+        "x": 1906,
+        "y": 1915,
+        "width": 99,
+        "height": 161,
+        "anchorX": 0.5455,
+        "anchorY": 0.4969,
+        "cleanup": {
+          "x": 1888,
+          "y": 1906,
+          "width": 147,
+          "height": 174
+        }
+      }
+    },
+    {
+      "id": "dog_20",
+      "x": 740,
+      "y": 1903,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_20/sprite_000.png",
+        "x": 686,
+        "y": 1822,
+        "width": 112,
+        "height": 156,
+        "anchorX": 0.4821,
+        "anchorY": 0.5192,
+        "cleanup": {
+          "x": 678,
+          "y": 1810,
+          "width": 160,
+          "height": 183
+        }
+      }
+    },
+    {
+      "id": "dog_21",
+      "x": 2094,
+      "y": 2389,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_21/sprite_000.png",
+        "x": 2037,
+        "y": 2307,
+        "width": 115,
+        "height": 151,
+        "anchorX": 0.4957,
+        "anchorY": 0.543,
+        "cleanup": {
+          "x": 1958,
+          "y": 2296,
+          "width": 267,
+          "height": 214
+        }
+      }
+    },
+    {
+      "id": "dog_22",
+      "x": 1438,
+      "y": 3367,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_22/sprite_000.png",
+        "x": 1365,
+        "y": 3294,
+        "width": 131,
+        "height": 147,
+        "anchorX": 0.5573,
+        "anchorY": 0.4966,
+        "cleanup": {
+          "x": 1361,
+          "y": 3271,
+          "width": 145,
+          "height": 179
+        }
+      }
+    },
+    {
+      "id": "dog_23",
+      "x": 649,
+      "y": 1312,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_23/sprite_000.png",
+        "x": 584,
+        "y": 1220,
+        "width": 133,
+        "height": 173,
+        "anchorX": 0.4887,
+        "anchorY": 0.5318,
+        "cleanup": {
+          "x": 582,
+          "y": 1217,
+          "width": 137,
+          "height": 179
+        }
+      }
+    },
+    {
+      "id": "dog_24",
+      "x": 1195,
+      "y": 2259,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_24/sprite_000.png",
+        "x": 1144,
+        "y": 2177,
+        "width": 107,
+        "height": 155,
+        "anchorX": 0.4766,
+        "anchorY": 0.529,
+        "cleanup": {
+          "x": 1050,
+          "y": 2169,
+          "width": 251,
+          "height": 219
+        }
+      }
+    },
+    {
+      "id": "dog_25",
+      "x": 1892,
+      "y": 1527,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_25/sprite_000.png",
+        "x": 1840,
+        "y": 1464,
+        "width": 103,
+        "height": 133,
+        "anchorX": 0.5049,
+        "anchorY": 0.4737,
+        "cleanup": {
+          "x": 1819,
+          "y": 1439,
+          "width": 146,
+          "height": 191
+        }
+      }
+    },
+    {
+      "id": "dog_26",
+      "x": 1073,
+      "y": 1816,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_26/sprite_000.png",
+        "x": 1019,
+        "y": 1744,
+        "width": 115,
+        "height": 155,
+        "anchorX": 0.4696,
+        "anchorY": 0.4645,
+        "cleanup": {
+          "x": 979,
+          "y": 1726,
+          "width": 164,
+          "height": 177
+        }
+      }
+    },
+    {
+      "id": "dog_27",
+      "x": 498,
+      "y": 2200,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_27/sprite_000.png",
+        "x": 441,
+        "y": 2119,
+        "width": 116,
+        "height": 162,
+        "anchorX": 0.4914,
+        "anchorY": 0.5,
+        "cleanup": {
+          "x": 426,
+          "y": 2113,
+          "width": 143,
+          "height": 173
+        }
+      }
+    },
+    {
+      "id": "dog_28",
+      "x": 1788,
+      "y": 957,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_28/sprite_000.png",
+        "x": 1724,
+        "y": 871,
+        "width": 112,
+        "height": 170,
+        "anchorX": 0.5714,
+        "anchorY": 0.5059,
+        "cleanup": {
+          "x": 1710,
+          "y": 861,
+          "width": 149,
+          "height": 186
+        }
+      }
+    },
+    {
+      "id": "dog_29",
+      "x": 1554,
+      "y": 1795,
+      "r": 50,
+      "sprite": {
+        "image": "levels/nordic_cold_icelandic_geothermal_town_dog_04a4/dogs/dog_29/sprite_000.png",
+        "x": 1489,
+        "y": 1705,
+        "width": 145,
+        "height": 198,
+        "anchorX": 0.4483,
+        "anchorY": 0.4545,
+        "cleanup": {
+          "x": 1446,
+          "y": 1650,
+          "width": 253,
+          "height": 290
+        }
+      }
+    }
+  ]
+}

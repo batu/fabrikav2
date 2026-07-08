@@ -1,0 +1,640 @@
+{
+  "id": "uk_scottish_highlands_pub_dog_9213",
+  "name": "Level uk_scottish_highlands_pub_dog_9213 (clean_old_cartoon)",
+  "width": 2560,
+  "height": 3840,
+  "bwImage": "levels/uk_scottish_highlands_pub_dog_9213/bw.png",
+  "colorImage": "levels/uk_scottish_highlands_pub_dog_9213/color.png",
+  "dogs": [
+    {
+      "id": "dog_00",
+      "x": 2028,
+      "y": 2915,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_00/sprite_000.png",
+        "x": 1973,
+        "y": 2847,
+        "width": 179,
+        "height": 128,
+        "anchorX": 0.3073,
+        "anchorY": 0.5312,
+        "cleanup": {
+          "x": 1885,
+          "y": 2770,
+          "width": 271,
+          "height": 287
+        }
+      }
+    },
+    {
+      "id": "dog_01",
+      "x": 976,
+      "y": 2923,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_01/sprite_000.png",
+        "x": 916,
+        "y": 2828,
+        "width": 127,
+        "height": 135,
+        "anchorX": 0.4724,
+        "anchorY": 0.7037,
+        "cleanup": {
+          "x": 905,
+          "y": 2823,
+          "width": 142,
+          "height": 183
+        }
+      }
+    },
+    {
+      "id": "dog_02",
+      "x": 1075,
+      "y": 3351,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_02/sprite_000.png",
+        "x": 1021,
+        "y": 3284,
+        "width": 122,
+        "height": 112,
+        "anchorX": 0.4426,
+        "anchorY": 0.5982,
+        "cleanup": {
+          "x": 1016,
+          "y": 3279,
+          "width": 132,
+          "height": 141
+        }
+      }
+    },
+    {
+      "id": "dog_03",
+      "x": 503,
+      "y": 2798,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_03/sprite_000.png",
+        "x": 445,
+        "y": 2732,
+        "width": 139,
+        "height": 158,
+        "anchorX": 0.4173,
+        "anchorY": 0.4177,
+        "cleanup": {
+          "x": 441,
+          "y": 2726,
+          "width": 147,
+          "height": 168
+        }
+      }
+    },
+    {
+      "id": "dog_04",
+      "x": 1658,
+      "y": 1054,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_04/sprite_000.png",
+        "x": 1596,
+        "y": 976,
+        "width": 126,
+        "height": 147,
+        "anchorX": 0.4921,
+        "anchorY": 0.5306,
+        "cleanup": {
+          "x": 1588,
+          "y": 967,
+          "width": 141,
+          "height": 172
+        }
+      }
+    },
+    {
+      "id": "dog_05",
+      "x": 1014,
+      "y": 977,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_05/sprite_000.png",
+        "x": 950,
+        "y": 901,
+        "width": 119,
+        "height": 144,
+        "anchorX": 0.5378,
+        "anchorY": 0.5278,
+        "cleanup": {
+          "x": 946,
+          "y": 897,
+          "width": 138,
+          "height": 152
+        }
+      }
+    },
+    {
+      "id": "dog_06",
+      "x": 1555,
+      "y": 1909,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_06/sprite_000.png",
+        "x": 1481,
+        "y": 1787,
+        "width": 162,
+        "height": 167,
+        "anchorX": 0.4568,
+        "anchorY": 0.7305,
+        "cleanup": {
+          "x": 1477,
+          "y": 1783,
+          "width": 170,
+          "height": 192
+        }
+      }
+    },
+    {
+      "id": "dog_07",
+      "x": 1532,
+      "y": 3096,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_07/sprite_000.png",
+        "x": 1478,
+        "y": 3020,
+        "width": 105,
+        "height": 155,
+        "anchorX": 0.5143,
+        "anchorY": 0.4903,
+        "cleanup": {
+          "x": 1461,
+          "y": 3009,
+          "width": 146,
+          "height": 174
+        }
+      }
+    },
+    {
+      "id": "dog_08",
+      "x": 768,
+      "y": 1669,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_08/sprite_000.png",
+        "x": 699,
+        "y": 1599,
+        "width": 91,
+        "height": 146,
+        "anchorX": 0.7582,
+        "anchorY": 0.4795,
+        "cleanup": {
+          "x": 694,
+          "y": 1583,
+          "width": 141,
+          "height": 167
+        }
+      }
+    },
+    {
+      "id": "dog_09",
+      "x": 1953,
+      "y": 1395,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_09/sprite_000.png",
+        "x": 1897,
+        "y": 1317,
+        "width": 126,
+        "height": 139,
+        "anchorX": 0.4444,
+        "anchorY": 0.5612,
+        "cleanup": {
+          "x": 1885,
+          "y": 1312,
+          "width": 142,
+          "height": 164
+        }
+      }
+    },
+    {
+      "id": "dog_10",
+      "x": 801,
+      "y": 1302,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_10/sprite_000.png",
+        "x": 751,
+        "y": 1232,
+        "width": 128,
+        "height": 164,
+        "anchorX": 0.3906,
+        "anchorY": 0.4268,
+        "cleanup": {
+          "x": 732,
+          "y": 1228,
+          "width": 151,
+          "height": 172
+        }
+      }
+    },
+    {
+      "id": "dog_11",
+      "x": 1769,
+      "y": 2238,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_11/sprite_000.png",
+        "x": 1715,
+        "y": 2140,
+        "width": 111,
+        "height": 157,
+        "anchorX": 0.4865,
+        "anchorY": 0.6242,
+        "cleanup": {
+          "x": 1663,
+          "y": 2136,
+          "width": 173,
+          "height": 166
+        }
+      }
+    },
+    {
+      "id": "dog_12",
+      "x": 1092,
+      "y": 2572,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_12/sprite_000.png",
+        "x": 1026,
+        "y": 2501,
+        "width": 123,
+        "height": 136,
+        "anchorX": 0.5366,
+        "anchorY": 0.5221,
+        "cleanup": {
+          "x": 1020,
+          "y": 2478,
+          "width": 143,
+          "height": 181
+        }
+      }
+    },
+    {
+      "id": "dog_13",
+      "x": 1319,
+      "y": 1314,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_13/sprite_000.png",
+        "x": 1246,
+        "y": 1235,
+        "width": 120,
+        "height": 150,
+        "anchorX": 0.6083,
+        "anchorY": 0.5267,
+        "cleanup": {
+          "x": 1241,
+          "y": 1223,
+          "width": 146,
+          "height": 176
+        }
+      }
+    },
+    {
+      "id": "dog_14",
+      "x": 2028,
+      "y": 2579,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_14/sprite_000.png",
+        "x": 1969,
+        "y": 2512,
+        "width": 120,
+        "height": 145,
+        "anchorX": 0.4917,
+        "anchorY": 0.4621,
+        "cleanup": {
+          "x": 1965,
+          "y": 2484,
+          "width": 131,
+          "height": 177
+        }
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 631,
+      "y": 2181,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_15/sprite_000.png",
+        "x": 572,
+        "y": 2098,
+        "width": 130,
+        "height": 163,
+        "anchorX": 0.4538,
+        "anchorY": 0.5092,
+        "cleanup": {
+          "x": 568,
+          "y": 2093,
+          "width": 138,
+          "height": 173
+        }
+      }
+    },
+    {
+      "id": "dog_16",
+      "x": 1425,
+      "y": 2366,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_16/sprite_000.png",
+        "x": 1359,
+        "y": 2288,
+        "width": 120,
+        "height": 143,
+        "anchorX": 0.55,
+        "anchorY": 0.5455,
+        "cleanup": {
+          "x": 1354,
+          "y": 2271,
+          "width": 139,
+          "height": 184
+        }
+      }
+    },
+    {
+      "id": "dog_17",
+      "x": 1968,
+      "y": 1069,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_17/sprite_000.png",
+        "x": 1906,
+        "y": 993,
+        "width": 129,
+        "height": 157,
+        "anchorX": 0.4806,
+        "anchorY": 0.4841,
+        "cleanup": {
+          "x": 1902,
+          "y": 986,
+          "width": 137,
+          "height": 168
+        }
+      }
+    },
+    {
+      "id": "dog_18",
+      "x": 1992,
+      "y": 1900,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_18/sprite_000.png",
+        "x": 1921,
+        "y": 1830,
+        "width": 138,
+        "height": 154,
+        "anchorX": 0.5145,
+        "anchorY": 0.4545,
+        "cleanup": {
+          "x": 1916,
+          "y": 1826,
+          "width": 147,
+          "height": 162
+        }
+      }
+    },
+    {
+      "id": "dog_19",
+      "x": 1613,
+      "y": 729,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_19/sprite_000.png",
+        "x": 1563,
+        "y": 653,
+        "width": 91,
+        "height": 141,
+        "anchorX": 0.5495,
+        "anchorY": 0.539,
+        "cleanup": {
+          "x": 1548,
+          "y": 649,
+          "width": 133,
+          "height": 167
+        }
+      }
+    },
+    {
+      "id": "dog_20",
+      "x": 511,
+      "y": 994,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_20/sprite_000.png",
+        "x": 459,
+        "y": 930,
+        "width": 102,
+        "height": 137,
+        "anchorX": 0.5098,
+        "anchorY": 0.4672,
+        "cleanup": {
+          "x": 443,
+          "y": 901,
+          "width": 134,
+          "height": 170
+        }
+      }
+    },
+    {
+      "id": "dog_21",
+      "x": 1188,
+      "y": 2085,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_21/sprite_000.png",
+        "x": 1128,
+        "y": 2008,
+        "width": 119,
+        "height": 138,
+        "anchorX": 0.5042,
+        "anchorY": 0.558,
+        "cleanup": {
+          "x": 1043,
+          "y": 2004,
+          "width": 228,
+          "height": 226
+        }
+      }
+    },
+    {
+      "id": "dog_22",
+      "x": 1181,
+      "y": 1727,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_22/sprite_000.png",
+        "x": 1124,
+        "y": 1640,
+        "width": 116,
+        "height": 170,
+        "anchorX": 0.4914,
+        "anchorY": 0.5118,
+        "cleanup": {
+          "x": 1119,
+          "y": 1630,
+          "width": 134,
+          "height": 185
+        }
+      }
+    },
+    {
+      "id": "dog_23",
+      "x": 882,
+      "y": 693,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_23/sprite_000.png",
+        "x": 831,
+        "y": 625,
+        "width": 105,
+        "height": 131,
+        "anchorX": 0.4857,
+        "anchorY": 0.5191,
+        "cleanup": {
+          "x": 809,
+          "y": 621,
+          "width": 141,
+          "height": 155
+        }
+      }
+    },
+    {
+      "id": "dog_24",
+      "x": 1623,
+      "y": 1509,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_24/sprite_000.png",
+        "x": 1516,
+        "y": 1429,
+        "width": 153,
+        "height": 178,
+        "anchorX": 0.6993,
+        "anchorY": 0.4494,
+        "cleanup": {
+          "x": 1512,
+          "y": 1418,
+          "width": 175,
+          "height": 230
+        }
+      }
+    },
+    {
+      "id": "dog_25",
+      "x": 659,
+      "y": 3338,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_25/sprite_000.png",
+        "x": 615,
+        "y": 3268,
+        "width": 103,
+        "height": 135,
+        "anchorX": 0.4272,
+        "anchorY": 0.5185,
+        "cleanup": {
+          "x": 588,
+          "y": 3244,
+          "width": 201,
+          "height": 239
+        }
+      }
+    },
+    {
+      "id": "dog_26",
+      "x": 1593,
+      "y": 3423,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_26/sprite_000.png",
+        "x": 1527,
+        "y": 3332,
+        "width": 136,
+        "height": 164,
+        "anchorX": 0.4853,
+        "anchorY": 0.5549,
+        "cleanup": {
+          "x": 1518,
+          "y": 3327,
+          "width": 149,
+          "height": 185
+        }
+      }
+    },
+    {
+      "id": "dog_27",
+      "x": 1309,
+      "y": 824,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_27/sprite_000.png",
+        "x": 1260,
+        "y": 750,
+        "width": 98,
+        "height": 137,
+        "anchorX": 0.5,
+        "anchorY": 0.5401,
+        "cleanup": {
+          "x": 1237,
+          "y": 733,
+          "width": 125,
+          "height": 158
+        }
+      }
+    },
+    {
+      "id": "dog_28",
+      "x": 452,
+      "y": 1375,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_28/sprite_000.png",
+        "x": 398,
+        "y": 1310,
+        "width": 100,
+        "height": 137,
+        "anchorX": 0.54,
+        "anchorY": 0.4745,
+        "cleanup": {
+          "x": 389,
+          "y": 1305,
+          "width": 115,
+          "height": 147
+        }
+      }
+    },
+    {
+      "id": "dog_29",
+      "x": 910,
+      "y": 2268,
+      "r": 50,
+      "sprite": {
+        "image": "levels/uk_scottish_highlands_pub_dog_9213/dogs/dog_29/sprite_000.png",
+        "x": 857,
+        "y": 2197,
+        "width": 123,
+        "height": 148,
+        "anchorX": 0.4309,
+        "anchorY": 0.4797,
+        "cleanup": {
+          "x": 842,
+          "y": 2174,
+          "width": 143,
+          "height": 179
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,640 @@
+{
+  "id": "france_alsace_wine_village_dog_f12c",
+  "name": "Level france_alsace_wine_village_dog_f12c (clean_old_cartoon)",
+  "width": 2560,
+  "height": 3840,
+  "bwImage": "levels/france_alsace_wine_village_dog_f12c/bw.png",
+  "colorImage": "levels/france_alsace_wine_village_dog_f12c/color.png",
+  "dogs": [
+    {
+      "id": "dog_00",
+      "x": 1864,
+      "y": 2319,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_00/sprite_000.png",
+        "x": 1756,
+        "y": 2195,
+        "width": 196,
+        "height": 216,
+        "anchorX": 0.551,
+        "anchorY": 0.5741,
+        "cleanup": {
+          "x": 1724,
+          "y": 2191,
+          "width": 285,
+          "height": 273
+        }
+      }
+    },
+    {
+      "id": "dog_01",
+      "x": 2122,
+      "y": 1648,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_01/sprite_000.png",
+        "x": 2073,
+        "y": 1564,
+        "width": 105,
+        "height": 145,
+        "anchorX": 0.4667,
+        "anchorY": 0.5793,
+        "cleanup": {
+          "x": 1977,
+          "y": 1505,
+          "width": 290,
+          "height": 267
+        }
+      }
+    },
+    {
+      "id": "dog_02",
+      "x": 1291,
+      "y": 2272,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_02/sprite_000.png",
+        "x": 1242,
+        "y": 2189,
+        "width": 106,
+        "height": 161,
+        "anchorX": 0.4623,
+        "anchorY": 0.5155,
+        "cleanup": {
+          "x": 1226,
+          "y": 2182,
+          "width": 137,
+          "height": 177
+        }
+      }
+    },
+    {
+      "id": "dog_03",
+      "x": 961,
+      "y": 2585,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_03/sprite_000.png",
+        "x": 902,
+        "y": 2519,
+        "width": 118,
+        "height": 139,
+        "anchorX": 0.5,
+        "anchorY": 0.4748,
+        "cleanup": {
+          "x": 897,
+          "y": 2490,
+          "width": 132,
+          "height": 180
+        }
+      }
+    },
+    {
+      "id": "dog_04",
+      "x": 794,
+      "y": 3402,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_04/sprite_000.png",
+        "x": 734,
+        "y": 3323,
+        "width": 119,
+        "height": 152,
+        "anchorX": 0.5042,
+        "anchorY": 0.5197,
+        "cleanup": {
+          "x": 725,
+          "y": 3298,
+          "width": 135,
+          "height": 184
+        }
+      }
+    },
+    {
+      "id": "dog_05",
+      "x": 1904,
+      "y": 2714,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_05/sprite_000.png",
+        "x": 1834,
+        "y": 2641,
+        "width": 111,
+        "height": 144,
+        "anchorX": 0.6306,
+        "anchorY": 0.5069,
+        "cleanup": {
+          "x": 1830,
+          "y": 2623,
+          "width": 142,
+          "height": 177
+        }
+      }
+    },
+    {
+      "id": "dog_06",
+      "x": 498,
+      "y": 2534,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_06/sprite_000.png",
+        "x": 440,
+        "y": 2459,
+        "width": 117,
+        "height": 119,
+        "anchorX": 0.4957,
+        "anchorY": 0.6303,
+        "cleanup": {
+          "x": 426,
+          "y": 2447,
+          "width": 145,
+          "height": 174
+        }
+      }
+    },
+    {
+      "id": "dog_07",
+      "x": 474,
+      "y": 1304,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_07/sprite_000.png",
+        "x": 418,
+        "y": 1219,
+        "width": 122,
+        "height": 173,
+        "anchorX": 0.459,
+        "anchorY": 0.4913,
+        "cleanup": {
+          "x": 360,
+          "y": 1215,
+          "width": 184,
+          "height": 181
+        }
+      }
+    },
+    {
+      "id": "dog_08",
+      "x": 621,
+      "y": 2083,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_08/sprite_000.png",
+        "x": 558,
+        "y": 1999,
+        "width": 128,
+        "height": 170,
+        "anchorX": 0.4922,
+        "anchorY": 0.4941,
+        "cleanup": {
+          "x": 476,
+          "y": 1938,
+          "width": 290,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_09",
+      "x": 1207,
+      "y": 732,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_09/sprite_000.png",
+        "x": 1146,
+        "y": 658,
+        "width": 146,
+        "height": 182,
+        "anchorX": 0.4178,
+        "anchorY": 0.4066,
+        "cleanup": {
+          "x": 1062,
+          "y": 587,
+          "width": 286,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_10",
+      "x": 975,
+      "y": 1240,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_10/sprite_000.png",
+        "x": 938,
+        "y": 1153,
+        "width": 112,
+        "height": 160,
+        "anchorX": 0.3304,
+        "anchorY": 0.5437,
+        "cleanup": {
+          "x": 830,
+          "y": 1149,
+          "width": 290,
+          "height": 236
+        }
+      }
+    },
+    {
+      "id": "dog_11",
+      "x": 1482,
+      "y": 3327,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_11/sprite_000.png",
+        "x": 1336,
+        "y": 3149,
+        "width": 282,
+        "height": 281,
+        "anchorX": 0.5177,
+        "anchorY": 0.6335,
+        "cleanup": {
+          "x": 1332,
+          "y": 3145,
+          "width": 290,
+          "height": 327
+        }
+      }
+    },
+    {
+      "id": "dog_12",
+      "x": 1407,
+      "y": 2977,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_12/sprite_000.png",
+        "x": 1270,
+        "y": 2869,
+        "width": 274,
+        "height": 245,
+        "anchorX": 0.5,
+        "anchorY": 0.4408,
+        "cleanup": {
+          "x": 1262,
+          "y": 2866,
+          "width": 290,
+          "height": 256
+        }
+      }
+    },
+    {
+      "id": "dog_13",
+      "x": 932,
+      "y": 1772,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_13/sprite_000.png",
+        "x": 874,
+        "y": 1696,
+        "width": 111,
+        "height": 129,
+        "anchorX": 0.5225,
+        "anchorY": 0.5891,
+        "cleanup": {
+          "x": 859,
+          "y": 1675,
+          "width": 151,
+          "height": 181
+        }
+      }
+    },
+    {
+      "id": "dog_14",
+      "x": 911,
+      "y": 955,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_14/sprite_000.png",
+        "x": 855,
+        "y": 872,
+        "width": 118,
+        "height": 149,
+        "anchorX": 0.4746,
+        "anchorY": 0.557,
+        "cleanup": {
+          "x": 766,
+          "y": 860,
+          "width": 290,
+          "height": 240
+        }
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 1715,
+      "y": 1458,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_15/sprite_000.png",
+        "x": 1652,
+        "y": 1376,
+        "width": 116,
+        "height": 193,
+        "anchorX": 0.5431,
+        "anchorY": 0.4249,
+        "cleanup": {
+          "x": 1599,
+          "y": 1326,
+          "width": 200,
+          "height": 266
+        }
+      }
+    },
+    {
+      "id": "dog_16",
+      "x": 1156,
+      "y": 3349,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_16/sprite_000.png",
+        "x": 1105,
+        "y": 3274,
+        "width": 128,
+        "height": 148,
+        "anchorX": 0.3984,
+        "anchorY": 0.5068,
+        "cleanup": {
+          "x": 1011,
+          "y": 3256,
+          "width": 226,
+          "height": 237
+        }
+      }
+    },
+    {
+      "id": "dog_17",
+      "x": 1907,
+      "y": 692,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_17/sprite_000.png",
+        "x": 1847,
+        "y": 612,
+        "width": 121,
+        "height": 137,
+        "anchorX": 0.4959,
+        "anchorY": 0.5839,
+        "cleanup": {
+          "x": 1765,
+          "y": 547,
+          "width": 287,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_18",
+      "x": 1521,
+      "y": 1987,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_18/sprite_000.png",
+        "x": 1469,
+        "y": 1915,
+        "width": 110,
+        "height": 154,
+        "anchorX": 0.4727,
+        "anchorY": 0.4675,
+        "cleanup": {
+          "x": 1455,
+          "y": 1892,
+          "width": 138,
+          "height": 183
+        }
+      }
+    },
+    {
+      "id": "dog_19",
+      "x": 2122,
+      "y": 2021,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_19/sprite_000.png",
+        "x": 2068,
+        "y": 1945,
+        "width": 161,
+        "height": 151,
+        "anchorX": 0.3354,
+        "anchorY": 0.5033,
+        "cleanup": {
+          "x": 1977,
+          "y": 1925,
+          "width": 289,
+          "height": 241
+        }
+      }
+    },
+    {
+      "id": "dog_20",
+      "x": 1315,
+      "y": 2682,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_20/sprite_000.png",
+        "x": 1252,
+        "y": 2599,
+        "width": 122,
+        "height": 150,
+        "anchorX": 0.5164,
+        "anchorY": 0.5533,
+        "cleanup": {
+          "x": 1170,
+          "y": 2590,
+          "width": 290,
+          "height": 217
+        }
+      }
+    },
+    {
+      "id": "dog_21",
+      "x": 1298,
+      "y": 1364,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_21/sprite_000.png",
+        "x": 1229,
+        "y": 1281,
+        "width": 140,
+        "height": 159,
+        "anchorX": 0.4929,
+        "anchorY": 0.522,
+        "cleanup": {
+          "x": 1153,
+          "y": 1271,
+          "width": 290,
+          "height": 232
+        }
+      }
+    },
+    {
+      "id": "dog_22",
+      "x": 1573,
+      "y": 747,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_22/sprite_000.png",
+        "x": 1514,
+        "y": 666,
+        "width": 125,
+        "height": 138,
+        "anchorX": 0.472,
+        "anchorY": 0.587,
+        "cleanup": {
+          "x": 1483,
+          "y": 651,
+          "width": 162,
+          "height": 185
+        }
+      }
+    },
+    {
+      "id": "dog_23",
+      "x": 461,
+      "y": 1737,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_23/sprite_000.png",
+        "x": 413,
+        "y": 1657,
+        "width": 102,
+        "height": 160,
+        "anchorX": 0.4706,
+        "anchorY": 0.5,
+        "cleanup": {
+          "x": 375,
+          "y": 1643,
+          "width": 159,
+          "height": 180
+        }
+      }
+    },
+    {
+      "id": "dog_24",
+      "x": 494,
+      "y": 3363,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_24/sprite_000.png",
+        "x": 441,
+        "y": 3284,
+        "width": 137,
+        "height": 125,
+        "anchorX": 0.3869,
+        "anchorY": 0.632,
+        "cleanup": {
+          "x": 349,
+          "y": 3276,
+          "width": 290,
+          "height": 232
+        }
+      }
+    },
+    {
+      "id": "dog_25",
+      "x": 1859,
+      "y": 1145,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_25/sprite_000.png",
+        "x": 1788,
+        "y": 1079,
+        "width": 140,
+        "height": 135,
+        "anchorX": 0.5071,
+        "anchorY": 0.4889,
+        "cleanup": {
+          "x": 1714,
+          "y": 1051,
+          "width": 290,
+          "height": 233
+        }
+      }
+    },
+    {
+      "id": "dog_26",
+      "x": 976,
+      "y": 2203,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_26/sprite_000.png",
+        "x": 897,
+        "y": 2090,
+        "width": 188,
+        "height": 193,
+        "anchorX": 0.4202,
+        "anchorY": 0.5855,
+        "cleanup": {
+          "x": 831,
+          "y": 2058,
+          "width": 290,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_27",
+      "x": 1213,
+      "y": 1804,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_27/sprite_000.png",
+        "x": 1144,
+        "y": 1696,
+        "width": 185,
+        "height": 185,
+        "anchorX": 0.373,
+        "anchorY": 0.5838,
+        "cleanup": {
+          "x": 1068,
+          "y": 1692,
+          "width": 289,
+          "height": 257
+        }
+      }
+    },
+    {
+      "id": "dog_28",
+      "x": 726,
+      "y": 3071,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_28/sprite_000.png",
+        "x": 670,
+        "y": 2963,
+        "width": 118,
+        "height": 166,
+        "anchorX": 0.4746,
+        "anchorY": 0.6506,
+        "cleanup": {
+          "x": 581,
+          "y": 2959,
+          "width": 289,
+          "height": 257
+        }
+      }
+    },
+    {
+      "id": "dog_29",
+      "x": 588,
+      "y": 795,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_alsace_wine_village_dog_f12c/dogs/dog_29/sprite_000.png",
+        "x": 525,
+        "y": 700,
+        "width": 127,
+        "height": 152,
+        "anchorX": 0.4961,
+        "anchorY": 0.625,
+        "cleanup": {
+          "x": 447,
+          "y": 650,
+          "width": 286,
+          "height": 290
+        }
+      }
+    }
+  ]
+}

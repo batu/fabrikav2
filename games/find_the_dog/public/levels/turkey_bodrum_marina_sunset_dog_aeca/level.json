@@ -1,0 +1,640 @@
+{
+  "id": "turkey_bodrum_marina_sunset_dog_aeca",
+  "name": "Level turkey_bodrum_marina_sunset_dog_aeca (clean_old_cartoon)",
+  "width": 2560,
+  "height": 3840,
+  "bwImage": "levels/turkey_bodrum_marina_sunset_dog_aeca/bw.png",
+  "colorImage": "levels/turkey_bodrum_marina_sunset_dog_aeca/color.png",
+  "dogs": [
+    {
+      "id": "dog_00",
+      "x": 850,
+      "y": 1943,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_00/sprite_000.png",
+        "x": 795,
+        "y": 1880,
+        "width": 119,
+        "height": 143,
+        "anchorX": 0.4622,
+        "anchorY": 0.4406,
+        "cleanup": {
+          "x": 785,
+          "y": 1848,
+          "width": 133,
+          "height": 188
+        }
+      }
+    },
+    {
+      "id": "dog_01",
+      "x": 1801,
+      "y": 932,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_01/sprite_000.png",
+        "x": 1794,
+        "y": 875,
+        "width": 69,
+        "height": 167,
+        "anchorX": 0.1014,
+        "anchorY": 0.3413,
+        "cleanup": {
+          "x": 1698,
+          "y": 787,
+          "width": 232,
+          "height": 289
+        }
+      }
+    },
+    {
+      "id": "dog_02",
+      "x": 440,
+      "y": 2613,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_02/sprite_000.png",
+        "x": 378,
+        "y": 2530,
+        "width": 164,
+        "height": 179,
+        "anchorX": 0.378,
+        "anchorY": 0.4637,
+        "cleanup": {
+          "x": 367,
+          "y": 2525,
+          "width": 179,
+          "height": 188
+        }
+      }
+    },
+    {
+      "id": "dog_03",
+      "x": 1974,
+      "y": 3069,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_03/sprite_000.png",
+        "x": 1917,
+        "y": 2987,
+        "width": 119,
+        "height": 167,
+        "anchorX": 0.479,
+        "anchorY": 0.491,
+        "cleanup": {
+          "x": 1900,
+          "y": 2982,
+          "width": 146,
+          "height": 178
+        }
+      }
+    },
+    {
+      "id": "dog_04",
+      "x": 1627,
+      "y": 2101,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_04/sprite_000.png",
+        "x": 1570,
+        "y": 2024,
+        "width": 116,
+        "height": 125,
+        "anchorX": 0.4914,
+        "anchorY": 0.616,
+        "cleanup": {
+          "x": 1559,
+          "y": 2012,
+          "width": 143,
+          "height": 172
+        }
+      }
+    },
+    {
+      "id": "dog_05",
+      "x": 637,
+      "y": 3188,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_05/sprite_000.png",
+        "x": 592,
+        "y": 3116,
+        "width": 107,
+        "height": 151,
+        "anchorX": 0.4206,
+        "anchorY": 0.4768,
+        "cleanup": {
+          "x": 492,
+          "y": 3053,
+          "width": 290,
+          "height": 280
+        }
+      }
+    },
+    {
+      "id": "dog_06",
+      "x": 950,
+      "y": 2837,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_06/sprite_000.png",
+        "x": 903,
+        "y": 2762,
+        "width": 96,
+        "height": 136,
+        "anchorX": 0.4896,
+        "anchorY": 0.5515,
+        "cleanup": {
+          "x": 880,
+          "y": 2758,
+          "width": 138,
+          "height": 166
+        }
+      }
+    },
+    {
+      "id": "dog_07",
+      "x": 1553,
+      "y": 3056,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_07/sprite_000.png",
+        "x": 1448,
+        "y": 2940,
+        "width": 186,
+        "height": 194,
+        "anchorX": 0.5645,
+        "anchorY": 0.5979,
+        "cleanup": {
+          "x": 1408,
+          "y": 2911,
+          "width": 290,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_08",
+      "x": 2034,
+      "y": 2625,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_08/sprite_000.png",
+        "x": 1970,
+        "y": 2548,
+        "width": 136,
+        "height": 151,
+        "anchorX": 0.4706,
+        "anchorY": 0.5099,
+        "cleanup": {
+          "x": 1965,
+          "y": 2480,
+          "width": 178,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_09",
+      "x": 1990,
+      "y": 2262,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_09/sprite_000.png",
+        "x": 1933,
+        "y": 2199,
+        "width": 112,
+        "height": 105,
+        "anchorX": 0.5089,
+        "anchorY": 0.6,
+        "cleanup": {
+          "x": 1928,
+          "y": 2176,
+          "width": 133,
+          "height": 146
+        }
+      }
+    },
+    {
+      "id": "dog_10",
+      "x": 2017,
+      "y": 1545,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_10/sprite_000.png",
+        "x": 1952,
+        "y": 1487,
+        "width": 166,
+        "height": 126,
+        "anchorX": 0.3916,
+        "anchorY": 0.4603,
+        "cleanup": {
+          "x": 1872,
+          "y": 1454,
+          "width": 266,
+          "height": 176
+        }
+      }
+    },
+    {
+      "id": "dog_11",
+      "x": 1627,
+      "y": 1533,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_11/sprite_000.png",
+        "x": 1572,
+        "y": 1470,
+        "width": 113,
+        "height": 116,
+        "anchorX": 0.4867,
+        "anchorY": 0.5431,
+        "cleanup": {
+          "x": 1567,
+          "y": 1442,
+          "width": 183,
+          "height": 159
+        }
+      }
+    },
+    {
+      "id": "dog_12",
+      "x": 1048,
+      "y": 1513,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_12/sprite_000.png",
+        "x": 993,
+        "y": 1431,
+        "width": 153,
+        "height": 159,
+        "anchorX": 0.3595,
+        "anchorY": 0.5157,
+        "cleanup": {
+          "x": 903,
+          "y": 1379,
+          "width": 269,
+          "height": 279
+        }
+      }
+    },
+    {
+      "id": "dog_13",
+      "x": 486,
+      "y": 1821,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_13/sprite_000.png",
+        "x": 423,
+        "y": 1744,
+        "width": 140,
+        "height": 182,
+        "anchorX": 0.45,
+        "anchorY": 0.4231,
+        "cleanup": {
+          "x": 416,
+          "y": 1726,
+          "width": 151,
+          "height": 204
+        }
+      }
+    },
+    {
+      "id": "dog_14",
+      "x": 1585,
+      "y": 2520,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_14/sprite_000.png",
+        "x": 1529,
+        "y": 2457,
+        "width": 115,
+        "height": 130,
+        "anchorX": 0.487,
+        "anchorY": 0.4846,
+        "cleanup": {
+          "x": 1525,
+          "y": 2438,
+          "width": 123,
+          "height": 153
+        }
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 1317,
+      "y": 2116,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_15/sprite_000.png",
+        "x": 1257,
+        "y": 2036,
+        "width": 97,
+        "height": 161,
+        "anchorX": 0.6186,
+        "anchorY": 0.4969,
+        "cleanup": {
+          "x": 1245,
+          "y": 2018,
+          "width": 144,
+          "height": 193
+        }
+      }
+    },
+    {
+      "id": "dog_16",
+      "x": 798,
+      "y": 2320,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_16/sprite_000.png",
+        "x": 724,
+        "y": 2245,
+        "width": 157,
+        "height": 139,
+        "anchorX": 0.4713,
+        "anchorY": 0.5396,
+        "cleanup": {
+          "x": 653,
+          "y": 2200,
+          "width": 246,
+          "height": 265
+        }
+      }
+    },
+    {
+      "id": "dog_17",
+      "x": 463,
+      "y": 1367,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_17/sprite_000.png",
+        "x": 386,
+        "y": 1295,
+        "width": 151,
+        "height": 141,
+        "anchorX": 0.5099,
+        "anchorY": 0.5106,
+        "cleanup": {
+          "x": 382,
+          "y": 1281,
+          "width": 159,
+          "height": 174
+        }
+      }
+    },
+    {
+      "id": "dog_18",
+      "x": 772,
+      "y": 1086,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_18/sprite_000.png",
+        "x": 727,
+        "y": 1011,
+        "width": 100,
+        "height": 158,
+        "anchorX": 0.45,
+        "anchorY": 0.4747,
+        "cleanup": {
+          "x": 627,
+          "y": 941,
+          "width": 290,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_19",
+      "x": 1228,
+      "y": 2686,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_19/sprite_000.png",
+        "x": 1156,
+        "y": 2611,
+        "width": 139,
+        "height": 153,
+        "anchorX": 0.518,
+        "anchorY": 0.4902,
+        "cleanup": {
+          "x": 1150,
+          "y": 2594,
+          "width": 152,
+          "height": 175
+        }
+      }
+    },
+    {
+      "id": "dog_20",
+      "x": 1564,
+      "y": 3373,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_20/sprite_000.png",
+        "x": 1506,
+        "y": 3297,
+        "width": 141,
+        "height": 163,
+        "anchorX": 0.4113,
+        "anchorY": 0.4663,
+        "cleanup": {
+          "x": 1419,
+          "y": 3228,
+          "width": 290,
+          "height": 252
+        }
+      }
+    },
+    {
+      "id": "dog_21",
+      "x": 1427,
+      "y": 1037,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_21/sprite_000.png",
+        "x": 1360,
+        "y": 950,
+        "width": 137,
+        "height": 162,
+        "anchorX": 0.4891,
+        "anchorY": 0.537,
+        "cleanup": {
+          "x": 1282,
+          "y": 892,
+          "width": 290,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_22",
+      "x": 1516,
+      "y": 699,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_22/sprite_000.png",
+        "x": 1461,
+        "y": 615,
+        "width": 100,
+        "height": 144,
+        "anchorX": 0.55,
+        "anchorY": 0.5833,
+        "cleanup": {
+          "x": 1445,
+          "y": 598,
+          "width": 159,
+          "height": 188
+        }
+      }
+    },
+    {
+      "id": "dog_23",
+      "x": 1237,
+      "y": 1832,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_23/sprite_000.png",
+        "x": 1100,
+        "y": 1747,
+        "width": 246,
+        "height": 222,
+        "anchorX": 0.5569,
+        "anchorY": 0.3829,
+        "cleanup": {
+          "x": 1092,
+          "y": 1744,
+          "width": 257,
+          "height": 233
+        }
+      }
+    },
+    {
+      "id": "dog_24",
+      "x": 739,
+      "y": 726,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_24/sprite_000.png",
+        "x": 671,
+        "y": 632,
+        "width": 123,
+        "height": 161,
+        "anchorX": 0.5528,
+        "anchorY": 0.5839,
+        "cleanup": {
+          "x": 594,
+          "y": 627,
+          "width": 235,
+          "height": 211
+        }
+      }
+    },
+    {
+      "id": "dog_25",
+      "x": 1329,
+      "y": 1348,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_25/sprite_000.png",
+        "x": 1330,
+        "y": 1279,
+        "width": 63,
+        "height": 145,
+        "anchorX": 0.0,
+        "anchorY": 0.4759,
+        "cleanup": {
+          "x": 1257,
+          "y": 1255,
+          "width": 144,
+          "height": 177
+        }
+      }
+    },
+    {
+      "id": "dog_26",
+      "x": 1001,
+      "y": 3190,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_26/sprite_000.png",
+        "x": 864,
+        "y": 3107,
+        "width": 274,
+        "height": 220,
+        "anchorX": 0.5,
+        "anchorY": 0.3773,
+        "cleanup": {
+          "x": 856,
+          "y": 3104,
+          "width": 290,
+          "height": 231
+        }
+      }
+    },
+    {
+      "id": "dog_27",
+      "x": 1896,
+      "y": 1240,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_27/sprite_000.png",
+        "x": 1845,
+        "y": 1158,
+        "width": 101,
+        "height": 160,
+        "anchorX": 0.505,
+        "anchorY": 0.5125,
+        "cleanup": {
+          "x": 1752,
+          "y": 1120,
+          "width": 289,
+          "height": 241
+        }
+      }
+    },
+    {
+      "id": "dog_28",
+      "x": 1071,
+      "y": 846,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_28/sprite_000.png",
+        "x": 977,
+        "y": 756,
+        "width": 243,
+        "height": 123,
+        "anchorX": 0.3868,
+        "anchorY": 0.7317,
+        "cleanup": {
+          "x": 926,
+          "y": 701,
+          "width": 298,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_29",
+      "x": 1933,
+      "y": 1965,
+      "r": 50,
+      "sprite": {
+        "image": "levels/turkey_bodrum_marina_sunset_dog_aeca/dogs/dog_29/sprite_000.png",
+        "x": 1871,
+        "y": 1883,
+        "width": 108,
+        "height": 144,
+        "anchorX": 0.5741,
+        "anchorY": 0.5694,
+        "cleanup": {
+          "x": 1866,
+          "y": 1878,
+          "width": 136,
+          "height": 175
+        }
+      }
+    }
+  ]
+}

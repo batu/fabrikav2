@@ -1,0 +1,640 @@
+{
+  "id": "italy_tuscan_hill_village_dog_1359",
+  "name": "Level italy_tuscan_hill_village_dog_1359 (clean_old_cartoon)",
+  "width": 2560,
+  "height": 3840,
+  "bwImage": "levels/italy_tuscan_hill_village_dog_1359/bw.png",
+  "colorImage": "levels/italy_tuscan_hill_village_dog_1359/color.png",
+  "dogs": [
+    {
+      "id": "dog_00",
+      "x": 1121,
+      "y": 2502,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_00/sprite_000.png",
+        "x": 1012,
+        "y": 2403,
+        "width": 175,
+        "height": 172,
+        "anchorX": 0.6229,
+        "anchorY": 0.5756,
+        "cleanup": {
+          "x": 976,
+          "y": 2357,
+          "width": 290,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_01",
+      "x": 1840,
+      "y": 1688,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_01/sprite_000.png",
+        "x": 1790,
+        "y": 1608,
+        "width": 109,
+        "height": 192,
+        "anchorX": 0.4587,
+        "anchorY": 0.4167,
+        "cleanup": {
+          "x": 1695,
+          "y": 1601,
+          "width": 290,
+          "height": 203
+        }
+      }
+    },
+    {
+      "id": "dog_02",
+      "x": 688,
+      "y": 2191,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_02/sprite_000.png",
+        "x": 639,
+        "y": 2094,
+        "width": 114,
+        "height": 173,
+        "anchorX": 0.4298,
+        "anchorY": 0.5607,
+        "cleanup": {
+          "x": 618,
+          "y": 2090,
+          "width": 140,
+          "height": 184
+        }
+      }
+    },
+    {
+      "id": "dog_03",
+      "x": 1601,
+      "y": 2504,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_03/sprite_000.png",
+        "x": 1532,
+        "y": 2428,
+        "width": 110,
+        "height": 153,
+        "anchorX": 0.6273,
+        "anchorY": 0.4967,
+        "cleanup": {
+          "x": 1456,
+          "y": 2412,
+          "width": 290,
+          "height": 237
+        }
+      }
+    },
+    {
+      "id": "dog_04",
+      "x": 1161,
+      "y": 3031,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_04/sprite_000.png",
+        "x": 1106,
+        "y": 2945,
+        "width": 106,
+        "height": 172,
+        "anchorX": 0.5189,
+        "anchorY": 0.5,
+        "cleanup": {
+          "x": 1022,
+          "y": 2907,
+          "width": 284,
+          "height": 265
+        }
+      }
+    },
+    {
+      "id": "dog_05",
+      "x": 1736,
+      "y": 2081,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_05/sprite_000.png",
+        "x": 1693,
+        "y": 2005,
+        "width": 95,
+        "height": 128,
+        "anchorX": 0.4526,
+        "anchorY": 0.5938,
+        "cleanup": {
+          "x": 1664,
+          "y": 1989,
+          "width": 144,
+          "height": 178
+        }
+      }
+    },
+    {
+      "id": "dog_06",
+      "x": 592,
+      "y": 1718,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_06/sprite_000.png",
+        "x": 547,
+        "y": 1691,
+        "width": 89,
+        "height": 86,
+        "anchorX": 0.5056,
+        "anchorY": 0.314,
+        "cleanup": {
+          "x": 447,
+          "y": 1573,
+          "width": 242,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_07",
+      "x": 1585,
+      "y": 1090,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_07/sprite_000.png",
+        "x": 1588,
+        "y": 1038,
+        "width": 70,
+        "height": 141,
+        "anchorX": 0.0,
+        "anchorY": 0.3688,
+        "cleanup": {
+          "x": 1521,
+          "y": 989,
+          "width": 141,
+          "height": 194
+        }
+      }
+    },
+    {
+      "id": "dog_08",
+      "x": 817,
+      "y": 768,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_08/sprite_000.png",
+        "x": 763,
+        "y": 691,
+        "width": 109,
+        "height": 158,
+        "anchorX": 0.4954,
+        "anchorY": 0.4873,
+        "cleanup": {
+          "x": 672,
+          "y": 623,
+          "width": 290,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_09",
+      "x": 1762,
+      "y": 752,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_09/sprite_000.png",
+        "x": 1698,
+        "y": 664,
+        "width": 140,
+        "height": 162,
+        "anchorX": 0.4571,
+        "anchorY": 0.5432,
+        "cleanup": {
+          "x": 1625,
+          "y": 658,
+          "width": 282,
+          "height": 239
+        }
+      }
+    },
+    {
+      "id": "dog_10",
+      "x": 1445,
+      "y": 3221,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_10/sprite_000.png",
+        "x": 1384,
+        "y": 3140,
+        "width": 139,
+        "height": 185,
+        "anchorX": 0.4388,
+        "anchorY": 0.4378,
+        "cleanup": {
+          "x": 1300,
+          "y": 3076,
+          "width": 290,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_11",
+      "x": 665,
+      "y": 3025,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_11/sprite_000.png",
+        "x": 611,
+        "y": 2957,
+        "width": 110,
+        "height": 158,
+        "anchorX": 0.4909,
+        "anchorY": 0.4304,
+        "cleanup": {
+          "x": 594,
+          "y": 2930,
+          "width": 142,
+          "height": 189
+        }
+      }
+    },
+    {
+      "id": "dog_12",
+      "x": 1424,
+      "y": 689,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_12/sprite_000.png",
+        "x": 1374,
+        "y": 610,
+        "width": 102,
+        "height": 161,
+        "anchorX": 0.4902,
+        "anchorY": 0.4907,
+        "cleanup": {
+          "x": 1283,
+          "y": 553,
+          "width": 286,
+          "height": 281
+        }
+      }
+    },
+    {
+      "id": "dog_13",
+      "x": 2104,
+      "y": 893,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_13/sprite_000.png",
+        "x": 2004,
+        "y": 812,
+        "width": 145,
+        "height": 212,
+        "anchorX": 0.6897,
+        "anchorY": 0.3821,
+        "cleanup": {
+          "x": 1959,
+          "y": 748,
+          "width": 290,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_14",
+      "x": 1017,
+      "y": 2077,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_14/sprite_000.png",
+        "x": 952,
+        "y": 1999,
+        "width": 127,
+        "height": 157,
+        "anchorX": 0.5118,
+        "anchorY": 0.4968,
+        "cleanup": {
+          "x": 872,
+          "y": 1932,
+          "width": 290,
+          "height": 289
+        }
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 2070,
+      "y": 1364,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_15/sprite_000.png",
+        "x": 2009,
+        "y": 1283,
+        "width": 127,
+        "height": 140,
+        "anchorX": 0.4803,
+        "anchorY": 0.5786,
+        "cleanup": {
+          "x": 1925,
+          "y": 1251,
+          "width": 290,
+          "height": 237
+        }
+      }
+    },
+    {
+      "id": "dog_16",
+      "x": 1314,
+      "y": 1651,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_16/sprite_000.png",
+        "x": 1254,
+        "y": 1572,
+        "width": 123,
+        "height": 159,
+        "anchorX": 0.4878,
+        "anchorY": 0.4969,
+        "cleanup": {
+          "x": 1179,
+          "y": 1506,
+          "width": 280,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_17",
+      "x": 1194,
+      "y": 979,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_17/sprite_000.png",
+        "x": 1138,
+        "y": 917,
+        "width": 121,
+        "height": 143,
+        "anchorX": 0.4628,
+        "anchorY": 0.4336,
+        "cleanup": {
+          "x": 1063,
+          "y": 834,
+          "width": 276,
+          "height": 288
+        }
+      }
+    },
+    {
+      "id": "dog_18",
+      "x": 868,
+      "y": 1434,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_18/sprite_000.png",
+        "x": 818,
+        "y": 1360,
+        "width": 120,
+        "height": 149,
+        "anchorX": 0.4167,
+        "anchorY": 0.4966,
+        "cleanup": {
+          "x": 796,
+          "y": 1340,
+          "width": 146,
+          "height": 180
+        }
+      }
+    },
+    {
+      "id": "dog_19",
+      "x": 853,
+      "y": 1074,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_19/sprite_000.png",
+        "x": 716,
+        "y": 937,
+        "width": 274,
+        "height": 274,
+        "anchorX": 0.5,
+        "anchorY": 0.5,
+        "cleanup": {
+          "x": 708,
+          "y": 929,
+          "width": 290,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_20",
+      "x": 908,
+      "y": 3306,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_20/sprite_000.png",
+        "x": 841,
+        "y": 3213,
+        "width": 130,
+        "height": 200,
+        "anchorX": 0.5154,
+        "anchorY": 0.465,
+        "cleanup": {
+          "x": 763,
+          "y": 3161,
+          "width": 290,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_21",
+      "x": 2108,
+      "y": 2745,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_21/sprite_000.png",
+        "x": 2073,
+        "y": 2738,
+        "width": 88,
+        "height": 112,
+        "anchorX": 0.3977,
+        "anchorY": 0.0625,
+        "cleanup": {
+          "x": 1963,
+          "y": 2626,
+          "width": 248,
+          "height": 264
+        }
+      }
+    },
+    {
+      "id": "dog_22",
+      "x": 1137,
+      "y": 696,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_22/sprite_000.png",
+        "x": 1000,
+        "y": 559,
+        "width": 274,
+        "height": 274,
+        "anchorX": 0.5,
+        "anchorY": 0.5,
+        "cleanup": {
+          "x": 992,
+          "y": 553,
+          "width": 290,
+          "height": 288
+        }
+      }
+    },
+    {
+      "id": "dog_23",
+      "x": 495,
+      "y": 700,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_23/sprite_000.png",
+        "x": 447,
+        "y": 623,
+        "width": 92,
+        "height": 150,
+        "anchorX": 0.5217,
+        "anchorY": 0.5133,
+        "cleanup": {
+          "x": 350,
+          "y": 555,
+          "width": 290,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_24",
+      "x": 1638,
+      "y": 2873,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_24/sprite_000.png",
+        "x": 1568,
+        "y": 2782,
+        "width": 160,
+        "height": 164,
+        "anchorX": 0.4375,
+        "anchorY": 0.5549,
+        "cleanup": {
+          "x": 1564,
+          "y": 2778,
+          "width": 168,
+          "height": 181
+        }
+      }
+    },
+    {
+      "id": "dog_25",
+      "x": 1502,
+      "y": 1372,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_25/sprite_000.png",
+        "x": 1445,
+        "y": 1297,
+        "width": 113,
+        "height": 156,
+        "anchorX": 0.5044,
+        "anchorY": 0.4808,
+        "cleanup": {
+          "x": 1357,
+          "y": 1241,
+          "width": 290,
+          "height": 276
+        }
+      }
+    },
+    {
+      "id": "dog_26",
+      "x": 524,
+      "y": 2498,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_26/sprite_000.png",
+        "x": 461,
+        "y": 2414,
+        "width": 147,
+        "height": 166,
+        "anchorX": 0.4286,
+        "anchorY": 0.506,
+        "cleanup": {
+          "x": 379,
+          "y": 2410,
+          "width": 290,
+          "height": 233
+        }
+      }
+    },
+    {
+      "id": "dog_27",
+      "x": 1407,
+      "y": 1935,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_27/sprite_000.png",
+        "x": 1364,
+        "y": 1868,
+        "width": 106,
+        "height": 131,
+        "anchorX": 0.4057,
+        "anchorY": 0.5115,
+        "cleanup": {
+          "x": 1262,
+          "y": 1802,
+          "width": 287,
+          "height": 270
+        }
+      }
+    },
+    {
+      "id": "dog_28",
+      "x": 2116,
+      "y": 3061,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_28/sprite_000.png",
+        "x": 2062,
+        "y": 2982,
+        "width": 122,
+        "height": 154,
+        "anchorX": 0.4426,
+        "anchorY": 0.513,
+        "cleanup": {
+          "x": 1971,
+          "y": 2916,
+          "width": 290,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_29",
+      "x": 2119,
+      "y": 1978,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_tuscan_hill_village_dog_1359/dogs/dog_29/sprite_000.png",
+        "x": 2063,
+        "y": 1887,
+        "width": 130,
+        "height": 216,
+        "anchorX": 0.4308,
+        "anchorY": 0.4213,
+        "cleanup": {
+          "x": 1974,
+          "y": 1833,
+          "width": 289,
+          "height": 290
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "version": 1,
+  "coverage": "initial-port",
+  "notes": "FTD keeps the v1 public/ui assets byte-for-byte in the v2 public tree. The selected design/assets bytes are mirrors of those runtime assets so design-sheets has concrete identities from the first port pass.",
+  "assets": {
+    "design/assets/home-banner-mascot-runtime.png": {
+      "source": "public/ui/home/home-banner-mascot-runtime.png",
+      "runtime": "public/ui/home/home-banner-mascot-runtime.png",
+      "expectation": "exact-bytes",
+      "provenance": "Copied from v1 find_the_dog public UI art."
+    },
+    "design/assets/no-ads-runtime.png": {
+      "source": "public/ui/home/no-ads-runtime.png",
+      "runtime": "public/ui/home/no-ads-runtime.png",
+      "expectation": "exact-bytes",
+      "provenance": "Copied from v1 find_the_dog public UI art."
+    },
+    "design/assets/play-level-button-runtime.png": {
+      "source": "public/ui/home/play-level-button-runtime.png",
+      "runtime": "public/ui/home/play-level-button-runtime.png",
+      "expectation": "exact-bytes",
+      "provenance": "Copied from v1 find_the_dog public UI art."
+    },
+    "design/assets/level-node-locked-runtime.png": {
+      "source": "public/ui/home/level-node-locked-runtime.png",
+      "runtime": "public/ui/home/level-node-locked-runtime.png",
+      "expectation": "exact-bytes",
+      "provenance": "Copied from v1 find_the_dog public UI art."
+    },
+    "design/assets/level-node-locked-bones-runtime.png": {
+      "source": "public/ui/home/level-node-locked-bones-runtime.png",
+      "runtime": "public/ui/home/level-node-locked-bones-runtime.png",
+      "expectation": "exact-bytes",
+      "provenance": "Copied from v1 find_the_dog public UI art."
+    },
+    "design/assets/node-current-candy.png": {
+      "source": "public/ui/home/node-current-candy.png",
+      "runtime": "public/ui/home/node-current-candy.png",
+      "expectation": "exact-bytes",
+      "provenance": "Copied from v1 find_the_dog public UI art."
+    },
+    "design/assets/level-node-current-teal-runtime.png": {
+      "source": "public/ui/home/level-node-current-teal-runtime.png",
+      "runtime": "public/ui/home/level-node-current-teal-runtime.png",
+      "expectation": "exact-bytes",
+      "provenance": "Copied from v1 find_the_dog public UI art."
+    },
+    "design/assets/level-node-complete-runtime.png": {
+      "source": "public/ui/home/level-node-complete-runtime.png",
+      "runtime": "public/ui/home/level-node-complete-runtime.png",
+      "expectation": "exact-bytes",
+      "provenance": "Copied from v1 find_the_dog public UI art."
+    },
+    "design/assets/icon_coin.png": {
+      "source": "public/ui/menu-icons/icon_coin.png",
+      "runtime": "public/ui/menu-icons/icon_coin.png",
+      "expectation": "exact-bytes",
+      "provenance": "Copied from v1 find_the_dog public UI art."
+    },
+    "design/assets/icon_heart.png": {
+      "source": "public/ui/menu-icons/icon_heart.png",
+      "runtime": "public/ui/menu-icons/icon_heart.png",
+      "expectation": "exact-bytes",
+      "provenance": "Copied from v1 find_the_dog public UI art."
+    },
+    "design/assets/icon_hint_magnifier.png": {
+      "source": "public/ui/menu-icons/icon_hint_magnifier.png",
+      "runtime": "public/ui/menu-icons/icon_hint_magnifier.png",
+      "expectation": "exact-bytes",
+      "provenance": "Copied from v1 find_the_dog public UI art."
+    },
+    "design/assets/settings-icon-runtime.png": {
+      "source": "public/ui/menu-icons/settings-icon-runtime.png",
+      "runtime": "public/ui/menu-icons/settings-icon-runtime.png",
+      "expectation": "exact-bytes",
+      "provenance": "Copied from v1 find_the_dog public UI art."
+    },
+    "design/assets/shop-icon-runtime.png": {
+      "source": "public/ui/menu-icons/shop-icon-runtime.png",
+      "runtime": "public/ui/menu-icons/shop-icon-runtime.png",
+      "expectation": "exact-bytes",
+      "provenance": "Copied from v1 find_the_dog public UI art."
+    },
+    "design/assets/back_button.png": {
+      "source": "public/ui/page-header/back_button.png",
+      "runtime": "public/ui/page-header/back_button.png",
+      "expectation": "exact-bytes",
+      "provenance": "Copied from v1 find_the_dog public UI art."
+    },
+    "design/assets/dog-detective-complete.png": {
+      "source": "public/ui/level-complete/dog-detective-complete.png",
+      "runtime": "public/ui/level-complete/dog-detective-complete.png",
+      "expectation": "exact-bytes",
+      "provenance": "Copied from v1 find_the_dog public UI art."
+    },
+    "design/assets/dog-detective-crying.png": {
+      "source": "public/ui/level-complete/dog-detective-crying.png",
+      "runtime": "public/ui/level-complete/dog-detective-crying.png",
+      "expectation": "exact-bytes",
+      "provenance": "Copied from v1 find_the_dog public UI art."
+    },
+    "design/assets/level-complete-title.png": {
+      "source": "public/ui/level-complete/level-complete-title.png",
+      "runtime": "public/ui/level-complete/level-complete-title.png",
+      "expectation": "exact-bytes",
+      "provenance": "Copied from v1 find_the_dog public UI art."
+    },
+    "design/assets/dog-detective-openai.png": {
+      "source": "public/ui/mascots/dog-detective-openai.png",
+      "runtime": "public/ui/mascots/dog-detective-openai.png",
+      "expectation": "exact-bytes",
+      "provenance": "Copied from v1 find_the_dog public UI art."
+    },
+    "design/assets/shop_no_ads.png": {
+      "source": "public/ui/shop/shop_no_ads.png",
+      "runtime": "public/ui/shop/shop_no_ads.png",
+      "expectation": "exact-bytes",
+      "provenance": "Copied from v1 find_the_dog public UI art."
+    }
+  }
+}
