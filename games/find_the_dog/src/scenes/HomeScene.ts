@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { Capacitor } from '@capacitor/core';
 import { gameState } from '../core/GameState';
 import { getLevelIndex, loadLevel, loadLevelForProgression, type LevelData, type LevelIndexEntry } from '../data/levels';
 import { initHUD, openPage, setHomeCallback } from '../ui/HUD';
@@ -517,19 +516,11 @@ export class HomeScene extends Phaser.Scene {
     return ((index % this.levelIndex.length) + this.levelIndex.length) % this.levelIndex.length;
   }
 
-  // iOS WKWebView does not composite alpha for transparent <video> (neither
-  // VP9 WebM's alpha side-channel nor HEVC-with-alpha), so the banner renders
-  // on an opaque base layer. Fall back to the static transparent logo on iOS;
-  // Android/Chromium composites the WebM alpha correctly so it keeps the
-  // animated banner.
+  // Use the transparent PNG everywhere. The WebM alpha path can paint an opaque
+  // base layer in WebView capture paths, which breaks the banner-over-paws
+  // composition the shipped home screen relies on.
   private renderBannerMedia(): string {
-    if (Capacitor.getPlatform() === 'ios') {
-      return '<img class="home-brand-art" src="/ui/home/home-banner-mascot-runtime.png" alt="Find the Dog">';
-    }
-    return `
-            <video class="home-brand-art home-brand-video" muted playsinline preload="none" poster="/ui/home/home-banner-mascot-runtime.png" aria-label="Find the Dog">
-              <source src="/ui/banner-concepts/home-banner-dog-idle-boomerang-alpha.webm" type="video/webm">
-            </video>`;
+    return '<img class="home-brand-art" src="/ui/home/home-banner-mascot-runtime.png" alt="Find the Dog">';
   }
 
   private renderHome(): string {

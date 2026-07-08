@@ -2573,7 +2573,8 @@
 
 .home-play-btn {
   justify-self: center;
-  width: min(62vw, 244px);
+  width: min(46vw, 220px);
+  min-width: 176px;
   aspect-ratio: 652 / 171;
   min-height: 0;
   border: 0;
@@ -2746,10 +2747,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 6px;
-  min-width: 96px;
-  min-height: 42px;
-  padding: 5px 12px 5px 14px;
+  box-sizing: border-box;
+  gap: 7px;
+  width: 124px;
+  min-width: 124px;
+  height: 46px;
+  min-height: 46px;
+  padding: 5px 14px 5px 34px;
   border-radius: 999px;
   background: linear-gradient(180deg, #fffaf0 0%, #ffe7b6 100%);
   box-shadow:
@@ -2761,26 +2765,41 @@
   font-family: 'Nunito', sans-serif;
   font-size: 18px;
   font-weight: 900;
+  line-height: 1;
 }
 
 #home-shell .home-balance-pill img {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   object-fit: contain;
+  flex: 0 0 28px;
+  max-width: 28px;
+  max-height: 28px;
   filter:
     drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff)
     drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff)
     drop-shadow(0 3px 3px rgba(70, 40, 10, 0.3));
 }
 
-#home-shell .home-balance-pill span { min-width: 1ch; padding-right: 2px; }
+#home-shell .home-balance-pill span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2ch;
+  max-width: 4ch;
+  padding-right: 0;
+  line-height: 1;
+  overflow: hidden;
+  text-align: center;
+}
 
 .home-pill-plus {
   position: absolute;
   left: 0;
   bottom: -7px;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 22px;
   height: 22px;
   border: 0;
@@ -2791,11 +2810,19 @@
     0 2px 0 #2a7d2c,
     0 3px 5px rgba(20, 80, 20, 0.4);
   color: #fff;
-  font-size: 15px;
+  font-size: 0;
   font-weight: 900;
   line-height: 1;
   cursor: pointer;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+}
+.home-pill-plus::after {
+  content: "+";
+  display: block;
+  flex: 0 0 auto;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1;
 }
 /* Expand the tap target to >=44px (project min) without enlarging the 22px badge. */
 .home-pill-plus::before {
@@ -2869,15 +2896,15 @@
   display: grid;
   place-items: center;
   gap: 2px;
-  width: 62px;
+  width: 66px;
   border: 0;
   background: transparent;
   cursor: pointer;
 }
 
 .home-no-ads-btn .home-no-ads-art {
-  width: 62px;
-  height: 62px;
+  width: 66px;
+  height: 66px;
   object-fit: contain;
   filter: drop-shadow(0 4px 5px rgba(96, 40, 10, 0.34));
   pointer-events: none;
@@ -3113,9 +3140,15 @@
   overflow: visible;
 }
 
+#home-shell .home-nav-bar > button {
+  box-sizing: border-box;
+  flex: 0 0 calc(100% / 3);
+  width: calc(100% / 3);
+  max-width: calc(100% / 3);
+}
+
 /* Side slots — equal thirds, divider lines between, icon + label centered. */
 #home-shell .home-nav-btn {
-  flex: 1;
   align-self: stretch;
   flex-direction: column;
   justify-content: center;
@@ -3149,7 +3182,6 @@
 
 /* Center Play slot — a full third, highlighted lighter, icon rises above. */
 #home-shell .home-nav-play-btn {
-  flex: 1;
   align-self: stretch;
   position: relative;
   z-index: 3;
