@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test, expect } from "@playwright/test";
 
-const NO_ADS_SHA256 = "a81f1439fc3f5d1eb3e202ee8707186d6e930711b38c94da5a62a1c4aed800f5";
+const NO_ADS_SHA256 = "ba4bba67bed79199645c6e1e568ec26589a3e1a799a8c2cb5ace66ed2f292722";
 const PLAY_BUTTON_SHA256 = "41876ebb627203339a81a78ec1fbe30964642881c124383627e0e0a58fbfc5c7";
 
 function sha256File(path: string): string {
@@ -51,12 +51,13 @@ test.describe("home menu polish regressions", () => {
     const manifest = JSON.parse(
       readFileSync(join(process.cwd(), "design/asset-identity.json"), "utf8"),
     ) as {
-      assets: Record<string, { sha256?: string; v1Sha256?: string }>;
+      assets: Record<string, { sha256?: string; sourceSha256?: string; v1Sha256?: string }>;
     };
 
     expect(sha256File(join(process.cwd(), "public/ui/home/no-ads-runtime.png"))).toBe(NO_ADS_SHA256);
     expect(sha256File(join(process.cwd(), "design/assets/no-ads-runtime.png"))).toBe(NO_ADS_SHA256);
     expect(manifest.assets["design/assets/no-ads-runtime.png"].sha256).toBe(NO_ADS_SHA256);
+    expect(manifest.assets["design/assets/no-ads-runtime.png"].sourceSha256).toBe(NO_ADS_SHA256);
     expect(manifest.assets["design/assets/no-ads-runtime.png"].v1Sha256).toBe(NO_ADS_SHA256);
     expect(sha256File(join(process.cwd(), "public/ui/home/play-level-button-runtime.png"))).toBe(
       PLAY_BUTTON_SHA256,
@@ -169,8 +170,8 @@ test.describe("home menu polish regressions", () => {
     expect(layout.bannerTag).toBe("IMG");
     expect(layout.hasBannerVideo).toBe(false);
     expect(layout.bannerContainerBackground).toBe("rgba(0, 0, 0, 0)");
-    expect(layout.noAdsNaturalWidth).toBe(1254);
-    expect(layout.noAdsNaturalHeight).toBe(1254);
+    expect(layout.noAdsNaturalWidth).toBe(320);
+    expect(layout.noAdsNaturalHeight).toBe(320);
     expect(layout.noAdsLeft).toBeGreaterThanOrEqual(20);
     expect(layout.noAdsLeft).toBeLessThanOrEqual(40);
     expect(layout.noAdsTop).toBeGreaterThanOrEqual(190);

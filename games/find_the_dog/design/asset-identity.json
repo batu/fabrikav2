@@ -13,10 +13,11 @@
       "source": "public/ui/home/no-ads-runtime.png",
       "runtime": "public/ui/home/no-ads-runtime.png",
       "expectation": "exact-bytes",
-      "sha256": "a81f1439fc3f5d1eb3e202ee8707186d6e930711b38c94da5a62a1c4aed800f5",
-      "v1Source": "fabrika/games/find_the_dog/.work/art/noads_final.png",
-      "v1Sha256": "a81f1439fc3f5d1eb3e202ee8707186d6e930711b38c94da5a62a1c4aed800f5",
-      "provenance": "Copied from v1 find_the_dog no-ads badge art."
+      "sha256": "ba4bba67bed79199645c6e1e568ec26589a3e1a799a8c2cb5ace66ed2f292722",
+      "sourceSha256": "ba4bba67bed79199645c6e1e568ec26589a3e1a799a8c2cb5ace66ed2f292722",
+      "v1Source": "fabrika/games/find_the_dog/public/ui/home/no-ads-runtime.png",
+      "v1Sha256": "ba4bba67bed79199645c6e1e568ec26589a3e1a799a8c2cb5ace66ed2f292722",
+      "provenance": "Copied byte-for-byte from the no-ads badge asset rendered by v1 HomeScene."
     },
     "design/assets/play-level-button-runtime.png": {
       "source": "public/ui/home/play-level-button-runtime.png",
