@@ -10,13 +10,26 @@ function writeTemplate(root) {
   const tpl = join(root, 'games', '_template');
   mkdirSync(join(tpl, 'src'), { recursive: true });
   mkdirSync(join(tpl, 'design'), { recursive: true });
+  mkdirSync(join(tpl, 'docs'), { recursive: true });
   mkdirSync(join(tpl, 'refs'), { recursive: true });
   mkdirSync(join(tpl, '.work'), { recursive: true });
   mkdirSync(join(tpl, 'node_modules', 'junk'), { recursive: true });
 
   writeFileSync(
     join(tpl, 'package.json'),
-    JSON.stringify({ name: '@fabrikav2/game-template', private: true, description: 'copied by create-game' }, null, 2),
+    JSON.stringify(
+      {
+        name: '@fabrikav2/game-template',
+        private: true,
+        description: 'copied by create-game',
+        devDependencies: {
+          '@fabrikav2/kernel': '*',
+          '@fabrikav2/testkit': '*',
+        },
+      },
+      null,
+      2,
+    ),
   );
   writeFileSync(join(tpl, 'game.config.ts'), 'export const gameConfig = {\n  id: "template",\n  title: "game.title" satisfies CopyKey,\n} as const;\n');
   writeFileSync(join(tpl, 'design', 'copy.ts'), 'export const copy = {\n  "game.title": "Template Game",\n} as const;\n');
@@ -24,6 +37,10 @@ function writeTemplate(root) {
   writeFileSync(join(tpl, 'capacitor.config.ts'), 'const config = {\n  appId: "com.fabrika.template",\n  appName: "Template Game",\n};\n');
   writeFileSync(join(tpl, 'refs', 'manifest.yaml'), 'game: template\nv2:\n  package: com.fabrikav2.template\n');
   writeFileSync(join(tpl, 'README.md'), '# Template Game\n\nSkeleton.\n');
+  writeFileSync(
+    join(tpl, 'docs', 'brief.md'),
+    '# <Game> - design brief\n\n> Replace this file when you scaffold a game.\n',
+  );
   writeFileSync(
     join(tpl, 'src', 'main.ts'),
     'import { gameConfig } from "../game.config.ts";\nexport function harnessWindowKeyForGame(gameId) {\n  return `__${gameId.toUpperCase()}_HARNESS__`;\n}\nexport const harnessWindowKey = harnessWindowKeyForGame(gameConfig.id);\n',
@@ -57,6 +74,12 @@ describe('createGame', () => {
     const pkg = JSON.parse(readFileSync(join(targetDir, 'package.json'), 'utf8'));
     expect(pkg.name).toBe('@fabrikav2/my_game');
     expect(pkg.description).toBeUndefined(); // template-only note dropped
+    expect(pkg.devDependencies).toEqual({
+      '@fabrikav2/kernel': '*',
+      '@fabrikav2/ui': '*',
+      '@fabrikav2/sdk': '*',
+      '@fabrikav2/testkit': '*',
+    });
 
     expect(readFileSync(join(targetDir, 'game.config.ts'), 'utf8')).toContain('id: "my_game"');
     // title stays a copy KEY in the config; the human title is substituted into copy.ts.
@@ -82,7 +105,19 @@ describe('createGame', () => {
     expect(cap).toContain('appId: "com.fabrika.mygame"');
     expect(cap).toContain('appName: "My Game"');
 
-    expect(readFileSync(join(targetDir, 'README.md'), 'utf8')).toContain('# My Game');
+    const readme = readFileSync(join(targetDir, 'README.md'), 'utf8');
+    expect(readme).toContain('# My Game');
+    expect(readme).toContain('`my_game`');
+    expect(readme).toContain('@fabrikav2/ui');
+    expect(readme).toContain('@fabrikav2/sdk');
+    expect(readme).not.toContain('Template Game');
+    expect(readme).not.toContain('Canonical v2 game skeleton');
+
+    const brief = readFileSync(join(targetDir, 'docs', 'brief.md'), 'utf8');
+    expect(brief).toContain('# My Game - design brief');
+    expect(brief).toContain('Game id: `my_game`');
+    expect(brief).not.toContain('<Game>');
+    expect(brief).not.toContain('Replace this file when you scaffold a game');
   });
 
   it('copies real content but skips node_modules', () => {

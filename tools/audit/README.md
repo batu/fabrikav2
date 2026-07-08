@@ -1,10 +1,10 @@
 # tools/audit
 
-Eight guardrail linters that enforce the anti-v1 rules
+Nine guardrail linters that enforce the anti-v1 rules
 (`docs/architecture/v2-architecture.md` §Guardrails). They replace v1's broken
 `scripts/grep-affected-games.sh` — this time with tests.
 
-Run all seven: `npm run audit` (from repo root). Exits non-zero on any **error**.
+Run all nine: `npm run audit` (from repo root). Exits non-zero on any **error**.
 Some checks emit **warnings** (`⚠`) instead: reported, printed, but non-failing
 (`audit passed (with warnings)`, exit 0). A check lands as a warning when it has
 legitimate current hits whose fix is out of an audit change's natural blast
@@ -125,6 +125,32 @@ rather than reddening the gate. See the per-linter notes below.
    stay in the corpus only when they carry `not-at-rest-reason` and
    `recapture-note`, which lets `verify-device` skip them instead of scoring
    them as authoritative references.
+
+9. **token-consumers** (⚠ warning) — every `--fab-*` custom property defined in
+   `games/<game>/design/tokens.css` must have a static `var(--token)` consumer
+   in either `packages/ui` or that game's `games/<game>/src` tree. The check
+   strips comments, ignores test/spec files, and does not scan generated design
+   files as consumers. Token aliases inside `tokens.css` are resolved as
+   dependencies: if `--fab-color-border: var(--fab-color-outline)` and
+   `--fab-color-border` is consumed by source, both tokens are treated as live;
+   alias chains with no real source consumer still warn. Findings include
+   `orphaned token` and stay warning-only so design-token cleanup is visible but
+   does not fail unrelated gates.
+
+   Intentional or transitional orphans live in `tools/audit/allowlist.json` under
+   `orphanTokens`:
+
+   ```json
+   {
+     "game": "marble_run",
+     "token": "--fab-future-sheet-token",
+     "reason": "reserved for a generated sheet column that lands next"
+   }
+   ```
+
+   Entries require a non-empty reason. Stale entries, including tokens that were
+   removed or later gained a consumer, are reported as warnings so exceptions do
+   not become hidden permanent debt.
 
 Shared constants/helpers live in `src/lib.js` so the linters don't duplicate
 literal values themselves.

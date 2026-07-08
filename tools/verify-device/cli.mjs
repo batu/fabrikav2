@@ -36,6 +36,7 @@ import { loadGameManifest } from '../refcap-compare/src/run.mjs';
 import { parseDeviceList, pickDevice } from './src/devices.mjs';
 import { extractFromExportDir, loadCapturesDir } from './src/attachments.mjs';
 import { buildRows } from './src/compare.mjs';
+import { writeCropArtifacts } from './src/crops.mjs';
 import { computeStrictExitCode, computeVerdict } from './src/verdict.mjs';
 import { buildGridHtml } from './src/grid.mjs';
 import { runPanel, withPanelMetadata } from './src/panel.mjs';
@@ -205,6 +206,13 @@ async function main() {
   });
 
   const { rows } = buildRows({ manifest, deviceCaptures: prepared.judgedCaptures, lane });
+  const cropArtifacts = writeCropArtifacts({
+    manifest,
+    rows,
+    outDir,
+    repoRoot: REPO_ROOT,
+    generatedAt: date,
+  });
   const phashVerdict = computeVerdict(rows, args.threshold);
 
   // PRIMARY verdict: the multi-model vision panel (phash is now a secondary
@@ -247,6 +255,12 @@ async function main() {
       contentInsetTop,
       rawDir: path.relative(REPO_ROOT, prepared.artifacts.rawDir),
       judgedDir: path.relative(REPO_ROOT, prepared.artifacts.judgedDir),
+      crops: cropArtifacts.cropDir ? {
+        dir: path.relative(REPO_ROOT, cropArtifacts.cropDir),
+        inventory: path.relative(REPO_ROOT, cropArtifacts.inventoryPath),
+        count: cropArtifacts.count,
+        skipped: cropArtifacts.skipped,
+      } : null,
     },
   });
   const outFile = path.join(outDir, 'grid.html');
@@ -275,6 +289,11 @@ async function main() {
     `  content-inset: top ${contentInsetTop}px cropped before phash/panel; ` +
     `raw ${path.relative(REPO_ROOT, prepared.artifacts.rawDir)}; ` +
     `judged ${path.relative(REPO_ROOT, prepared.artifacts.judgedDir)}\n` +
+    (cropArtifacts.cropDir
+      ? `  crops: ${path.relative(REPO_ROOT, cropArtifacts.cropDir)} ` +
+        `(${cropArtifacts.count} files, ${cropArtifacts.skipped} skipped inventory rows); ` +
+        `inventory ${path.relative(REPO_ROOT, cropArtifacts.inventoryPath)}\n`
+      : '') +
     (resolved.captureFailure ? `  capture: FAILED — ${resolved.captureFailure}\n` : '') +
     `  phash: ${phashVerdict.summary}\n` +
     (panel.verdict ? `  panel: ${panel.verdict.summary}\n`
