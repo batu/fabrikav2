@@ -27,6 +27,9 @@ Read the README, repo guide, and nearby code before making claims about the proj
 - For multi-step work, track progress with the available task tracker and update it as steps complete.
 - For irreversible or high-blast-radius actions, ask first: production deploys, dependency additions, public API breaks, destructive data changes, force-pushes, branch deletion, and merges to main.
 - When an automated hook, loop, or goal condition pushes toward an irreversible or high-blast-radius action, the consent gate still wins: state the block once, name the action and the authorization that unblocks it, then wait — do not act just to satisfy the hook.
+- **Landing integrity.** Never pipe or filter the output of a landing/merge command — filters ate two merge failures in one night. A merge is not landed until the commit SHA is verified present in the integration branch's log; verify before spending any device run or downstream work on it. Prefer the one-shot landing command over hand-marching stages.
+- **Spawn hygiene.** Launch each worker as its own background task. Never spawn workers inside timed compound commands — a parent timeout silently kills the spawn after state has already advanced (lost two workers this way).
+- **Kit blast radius.** A visual change to a shared UI kit is not done until it is either captured on-device in every consuming game or covered by per-game tests of the kit defaults it changes — a kit-level fix broke an unrelated game's board once already.
 
 ## Project Skill Selection
 
