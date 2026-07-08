@@ -72,3 +72,68 @@ states:
     v2:
       offline: refs/captures/device-2026-07-09/fail.png
       driveTo: fail
+
+# At-rest reference registry (audit refs-lint contract). These are v2's own
+# device captures, conductor-accepted 2026-07-09, serving as the baseline for
+# an original title with no external reference app.
+refs:
+  refs/captures/device-2026-07-09/menu.png:
+    state-variant: menu/allstates-tour
+    capture-recipe: verify-device canonical tour, element-gated tourstate marker, iPhone 12
+    at-rest: true
+    provenance:
+      source: shipped-capture
+      package: com.basegamelab.cameleon.dev
+      device: iPhone 12 1170x2532
+      tool: verify-device XCUITest runner (element-gated)
+      captured: 2026-07-09
+  refs/captures/device-2026-07-09/level.png:
+    state-variant: level/allstates-tour
+    capture-recipe: verify-device canonical tour, element-gated tourstate marker, iPhone 12
+    at-rest: true
+    provenance:
+      source: shipped-capture
+      package: com.basegamelab.cameleon.dev
+      device: iPhone 12 1170x2532
+      tool: verify-device XCUITest runner (element-gated)
+      captured: 2026-07-09
+  refs/captures/device-2026-07-09/settings.png:
+    state-variant: settings/allstates-tour
+    capture-recipe: verify-device canonical tour, element-gated tourstate marker, iPhone 12
+    at-rest: true
+    provenance:
+      source: shipped-capture
+      package: com.basegamelab.cameleon.dev
+      device: iPhone 12 1170x2532
+      tool: verify-device XCUITest runner (element-gated)
+      captured: 2026-07-09
+  refs/captures/device-2026-07-09/pause.png:
+    state-variant: pause/allstates-tour
+    capture-recipe: verify-device canonical tour, element-gated tourstate marker, iPhone 12
+    at-rest: true
+    provenance:
+      source: shipped-capture
+      package: com.basegamelab.cameleon.dev
+      device: iPhone 12 1170x2532
+      tool: verify-device XCUITest runner (element-gated)
+      captured: 2026-07-09
+  refs/captures/device-2026-07-09/win.png:
+    state-variant: win/allstates-tour
+    capture-recipe: verify-device canonical tour, element-gated tourstate marker, iPhone 12
+    at-rest: true
+    provenance:
+      source: shipped-capture
+      package: com.basegamelab.cameleon.dev
+      device: iPhone 12 1170x2532
+      tool: verify-device XCUITest runner (element-gated)
+      captured: 2026-07-09
+  refs/captures/device-2026-07-09/fail.png:
+    state-variant: fail/allstates-tour
+    capture-recipe: verify-device canonical tour, element-gated tourstate marker, iPhone 12
+    at-rest: true
+    provenance:
+      source: shipped-capture
+      package: com.basegamelab.cameleon.dev
+      device: iPhone 12 1170x2532
+      tool: verify-device XCUITest runner (element-gated)
+      captured: 2026-07-09

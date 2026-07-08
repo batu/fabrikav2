@@ -8,6 +8,8 @@
   --fab-color-cameleon-ink-fade: rgb(31 36 48 / 72%);
   --fab-color-cameleon-slot-border: rgb(31 36 48 / 45%);
   --fab-color-cameleon-slot-empty: rgb(119 214 209 / 22%);
+  --fab-color-cameleon-night-ink: #14213a;
+  --fab-color-cameleon-night-paper: #f6f3e8;
   background: var(--fab-color-canvas-backdrop);
   color: var(--fab-color-text);
   font-family: var(--fab-font-display);
@@ -294,18 +296,18 @@
 }
 
 .cameleon-screen__result[data-outcome="fail"] {
-  background: color-mix(in srgb, #14213a 78%, transparent);
+  background: color-mix(in srgb, var(--fab-color-cameleon-night-ink) 78%, transparent);
 }
 
 .cameleon-screen__result[data-outcome="fail"] .cameleon-screen__result-stamp {
-  border-color: #f6f3e8;
-  color: #f6f3e8;
-  background: #14213a;
+  border-color: var(--fab-color-cameleon-night-paper);
+  color: var(--fab-color-cameleon-night-paper);
+  background: var(--fab-color-cameleon-night-ink);
   transform: rotate(3deg);
 }
 
 .cameleon-screen__result[data-outcome="fail"] .cameleon-screen__result-count {
-  color: #f6f3e8;
+  color: var(--fab-color-cameleon-night-paper);
 }
 
 @media (max-width: 430px) {
@@ -390,11 +392,11 @@
 /* Pause reads dark and minimal; settings reads as a bottom sheet — the two
    overlays must be visually distinct states (device phash backstop). */
 .cameleon-screen__overlay--pause {
-  background: color-mix(in srgb, #14213a 74%, transparent);
+  background: color-mix(in srgb, var(--fab-color-cameleon-night-ink) 74%, transparent);
 }
 
 .cameleon-screen__overlay--pause h2 {
-  color: #f6f3e8;
+  color: var(--fab-color-cameleon-night-paper);
 }
 
 .cameleon-screen__overlay--sheet {
