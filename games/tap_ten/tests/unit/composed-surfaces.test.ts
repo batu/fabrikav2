@@ -1,10 +1,37 @@
+import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { beforeEach, describe, expect, it } from "vitest";
 import { bootGame } from "../../src/main.ts";
 import { TAP_TEN_GOAL, TAP_TEN_MAX_MISSES, TAP_TEN_TILE_COUNT } from "../../src/game/tapTen.ts";
 
+const UI_CSS = readFileSync(
+  resolve(dirname(fileURLToPath(import.meta.url)), "../../../../packages/ui/src/ui.css"),
+  "utf8",
+);
+
 function appRoot(): HTMLElement {
   document.body.innerHTML = '<div id="app"></div>';
   return document.getElementById("app")!;
+}
+
+function expectEyebrowCenteredWithinRibbon(ribbon: HTMLElement, eyebrow: HTMLElement): void {
+  const ribbonBox = ribbon.getBoundingClientRect();
+  const eyebrowBox = eyebrow.getBoundingClientRect();
+
+  if (ribbonBox.width > 0 && eyebrowBox.width > 0) {
+    const ribbonCenter = ribbonBox.x + ribbonBox.width / 2;
+    const eyebrowCenter = eyebrowBox.x + eyebrowBox.width / 2;
+    expect(eyebrowBox.x).toBeGreaterThanOrEqual(ribbonBox.x);
+    expect(eyebrowBox.x + eyebrowBox.width).toBeLessThanOrEqual(ribbonBox.x + ribbonBox.width);
+    expect(Math.abs(eyebrowCenter - ribbonCenter)).toBeLessThanOrEqual(2);
+    return;
+  }
+
+  expect(UI_CSS).toContain(".fab-modal-ribbon {\n    position: relative;");
+  expect(UI_CSS).toContain("left: 0;\n    right: 0;");
+  expect(UI_CSS).toContain("margin-inline: auto;");
+  expect(UI_CSS).toContain("transform: translateY(-50%);");
 }
 
 function expectSpriteRibbon(
@@ -23,6 +50,7 @@ function expectSpriteRibbon(
     const eyebrow = ribbon.querySelector<HTMLElement>(".fab-modal-ribbon-eyebrow")!;
     expect(eyebrow.textContent).toBe(opts.eyebrow);
     expect(eyebrow.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expectEyebrowCenteredWithinRibbon(ribbon, eyebrow);
   }
 }
 

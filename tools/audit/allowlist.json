@@ -1,5 +1,6 @@
 {
-  "_doc": "no-literals escape hatch. 'literals': exact literal strings to permit (e.g. a design-token default). 'files': repo-relative path substrings to skip entirely. Keep this empty by default; every entry is a documented exception to guardrail #2.",
+  "_doc": "Audit escape hatches. 'literals' and 'files' are for no-literals. 'orphanTokens' is for token-consumers entries shaped { \"game\": \"marble_run\", \"token\": \"--fab-token-name\", \"reason\": \"why this intentional orphan stays\" }. Keep entries rare; every one is documented debt.",
   "literals": [],
-  "files": []
+  "files": [],
+  "orphanTokens": []
 }

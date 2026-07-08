@@ -15,6 +15,7 @@ import { lintHooks } from './hooks.js';
 import { lintHarness } from './harness.js';
 import { lintAssetIdentity } from './asset-identity.js';
 import { lintRefs } from './refs-lint.js';
+import { lintTokenConsumers } from './token-consumers.js';
 
 function fmtNoLiterals(v) {
   return `${v.file}:${v.line}  [${v.kind}]  ${JSON.stringify(v.value)}`;
@@ -51,6 +52,10 @@ function fmtRefs(v) {
   if (v.detail) bits.push(v.detail);
   return bits.join('  ');
 }
+function fmtTokenConsumers(v) {
+  const loc = v.file ? `${v.file}:${v.line}` : 'tools/audit/allowlist.json';
+  return `${loc}  [${v.kind}]  ${v.game}/${v.token}  ${v.detail}`;
+}
 
 const LINTERS = [
   {
@@ -65,6 +70,11 @@ const LINTERS = [
   { name: 'harness', run: (root) => lintHarness(root), fmt: fmtHarness },
   { name: 'asset-identity', run: (root) => lintAssetIdentity(root), fmt: fmtAssetIdentity },
   { name: 'refs-lint', run: (root) => lintRefs(root), fmt: fmtRefs },
+  {
+    name: 'token-consumers',
+    run: (root, allowlistPath) => lintTokenConsumers(root, { allowlistPath }),
+    fmt: fmtTokenConsumers,
+  },
 ];
 
 export function runAll(root, { allowlistPath } = {}) {

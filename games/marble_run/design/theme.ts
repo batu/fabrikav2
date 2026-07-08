@@ -15,8 +15,8 @@ import booster from './assets/button-booster.png';
 import crown from './assets/win-crown.png';
 import popup from './assets/popup-card.png';
 import modalBackplate from './assets/marble-shadow-tile.png';
-import ribbonCompleted from './assets/ribbon-completed.png';
-import ribbonFailed from './assets/ribbon-failed.png';
+import ribbonCompleted from './assets/ribbon-completed-blank.png';
+import ribbonFailed from './assets/ribbon-failed-blank.png';
 import ribbonTutorial from './assets/ribbon-orange.png';
 import buttonPrimary from './assets/button-green.png';
 import buttonSecondary from './assets/button-orange.png';
@@ -58,6 +58,12 @@ export const assetUrls = {
   nodeCurrent,
   nodeCompleted,
 } as const;
+
+/**
+ * Result ribbons use neutral art because @fabrikav2/ui owns the live
+ * eyebrow/title stack. The old title-bearing reference sprites remain committed
+ * for provenance only.
+ */
 
 /**
  * Install the level-map node art (Vite-resolved urls, so they can't live in the

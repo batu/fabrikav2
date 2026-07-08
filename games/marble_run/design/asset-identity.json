@@ -99,10 +99,20 @@
       "expectation": "exact-bytes",
       "provenance": "Copied from sugar3d/src/ui/assets/vida/End/Win/Popup.png per docs/evidence/asset-swap-plan.md."
     },
+    "design/assets/ribbon-completed-blank.png": {
+      "source": "refs/assets/design/ribbon-completed-blank.png",
+      "expectation": "exact-bytes",
+      "provenance": "Derived from refs/assets/design/ribbon-orange.png by deterministic hue-remap to preserve the reference ribbon shape/shading while removing baked title text; used because @fabrikav2/ui owns the live result title."
+    },
     "design/assets/ribbon-completed.png": {
       "source": "refs/assets/design/ribbon-completed.png",
       "expectation": "exact-bytes",
       "provenance": "Copied from sugar3d/src/ui/assets/vida/End/Win/Ribbon_Completed.png per docs/evidence/asset-swap-plan.md."
+    },
+    "design/assets/ribbon-failed-blank.png": {
+      "source": "refs/assets/design/ribbon-failed-blank.png",
+      "expectation": "exact-bytes",
+      "provenance": "Derived from refs/assets/design/ribbon-orange.png by deterministic hue-remap to preserve the reference ribbon shape/shading while removing baked title text; used because @fabrikav2/ui owns the live result title."
     },
     "design/assets/ribbon-failed.png": {
       "source": "refs/assets/design/ribbon-failed.png",

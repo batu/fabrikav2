@@ -28,6 +28,95 @@ v2:
 # raw captures are still preserved in the evidence directory.
 verifyDevice:
   contentInsetTop: 130
+  regions:
+    - name: gameplay_top_hud
+      label: Gameplay top HUD hearts and settings band
+      coords: normalized
+      states:
+        - level
+      box:
+        x: 0.04
+        y: 0.06
+        width: 0.92
+        height: 0.11
+
+    - name: gameplay_bottom_hud
+      label: Gameplay bottom coin and hint controls
+      coords: normalized
+      states:
+        - level
+      box:
+        x: 0.03
+        y: 0.82
+        width: 0.94
+        height: 0.13
+
+    - name: settings_button_band
+      label: Settings modal close and reset controls
+      coords: normalized
+      states:
+        - settings
+      box:
+        x: 0.18
+        y: 0.54
+        width: 0.64
+        height: 0.19
+
+    - name: result_ribbon
+      label: Result screen headline ribbon
+      coords: normalized
+      states:
+        - win
+        - fail
+      box:
+        x: 0.07
+        y: 0.19
+        width: 0.86
+        height: 0.14
+
+    - name: win_next_button
+      label: Win screen primary next button
+      coords: normalized
+      states:
+        - win
+      box:
+        x: 0.27
+        y: 0.73
+        width: 0.46
+        height: 0.12
+
+    - name: fail_continue_button
+      label: Fail screen continue/loading primary button
+      coords: normalized
+      states:
+        - fail
+      box:
+        x: 0.22
+        y: 0.60
+        width: 0.56
+        height: 0.12
+
+    - name: fail_retry_button
+      label: Fail screen retry secondary button
+      coords: normalized
+      states:
+        - fail
+      box:
+        x: 0.22
+        y: 0.76
+        width: 0.56
+        height: 0.12
+
+    - name: menu_level_button
+      label: Menu primary level button
+      coords: normalized
+      states:
+        - menu
+      box:
+        x: 0.22
+        y: 0.84
+        width: 0.56
+        height: 0.12
 
 # Reference corpus metadata. Every committed image under refs/captures/ has an
 # entry here so audit/verify-device can distinguish trusted at-rest targets from

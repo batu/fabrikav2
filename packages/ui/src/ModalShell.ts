@@ -43,6 +43,7 @@ export interface ModalCloseButton {
 
 export interface ModalShellOptions {
   mountInto: HTMLElement;
+  /** Plain modal title. Ignored when `ribbon` is present because the ribbon title labels the dialog. */
   title?: string;
   /** Ribbon-banner header. Takes over the aria label when present. */
   ribbon?: ModalRibbon;
@@ -196,7 +197,7 @@ export function mountModalShell(opts: ModalShellOptions): UiHandle {
     card.appendChild(ribbon);
   }
 
-  if (opts.title) {
+  if (opts.title && !opts.ribbon) {
     const title = document.createElement('h2');
     title.className = 'fab-modal-title';
     title.textContent = opts.title;

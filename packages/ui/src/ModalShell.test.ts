@@ -100,6 +100,20 @@ describe('mountModalShell', () => {
     expect(ribbon.querySelector('.fab-modal-ribbon-title')?.textContent).toBe('SETTINGS');
   });
 
+  it('uses the ribbon as the only title path when legacy title data is also present', () => {
+    const handle = mountModalShell({
+      mountInto: host(),
+      title: 'Legacy Title',
+      ribbon: { eyebrow: 'LEVEL 4', title: 'COMPLETED', image: 'ribbon-src' },
+      id: 'single-ribbon-title',
+    });
+    const card = handle.el.querySelector<HTMLElement>('.fab-modal-card')!;
+    expect(card.querySelectorAll('.fab-modal-title')).toHaveLength(0);
+    expect(card.querySelectorAll('.fab-modal-ribbon-title')).toHaveLength(1);
+    expect(card.querySelectorAll('.fab-modal-ribbon-eyebrow')).toHaveLength(1);
+    expect(card.textContent).not.toContain('Legacy Title');
+  });
+
   it('ribbon omits an absent eyebrow', () => {
     const handle = mountModalShell({
       mountInto: host(),
