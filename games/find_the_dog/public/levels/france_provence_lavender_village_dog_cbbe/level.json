@@ -1,0 +1,619 @@
+{
+  "id": "france_provence_lavender_village_dog_cbbe",
+  "name": "Level france_provence_lavender_village_dog_cbbe (clean_old_cartoon)",
+  "width": 2560,
+  "height": 3840,
+  "bwImage": "levels/france_provence_lavender_village_dog_cbbe/bw.png",
+  "colorImage": "levels/france_provence_lavender_village_dog_cbbe/color.png",
+  "dogs": [
+    {
+      "id": "dog_00",
+      "x": 474,
+      "y": 2052,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_00/sprite_000.png",
+        "x": 387,
+        "y": 1979,
+        "width": 219,
+        "height": 125,
+        "anchorX": 0.3973,
+        "anchorY": 0.584,
+        "cleanup": {
+          "x": 329,
+          "y": 1923,
+          "width": 290,
+          "height": 274
+        }
+      }
+    },
+    {
+      "id": "dog_01",
+      "x": 645,
+      "y": 2569,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_01/sprite_000.png",
+        "x": 597,
+        "y": 2530,
+        "width": 79,
+        "height": 129,
+        "anchorX": 0.6076,
+        "anchorY": 0.3023,
+        "cleanup": {
+          "x": 500,
+          "y": 2424,
+          "width": 290,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_02",
+      "x": 2082,
+      "y": 1347,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_02/sprite_000.png",
+        "x": 1945,
+        "y": 1246,
+        "width": 274,
+        "height": 228,
+        "anchorX": 0.5,
+        "anchorY": 0.443,
+        "cleanup": {
+          "x": 1937,
+          "y": 1243,
+          "width": 290,
+          "height": 234
+        }
+      }
+    },
+    {
+      "id": "dog_03",
+      "x": 1531,
+      "y": 2751,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_03/sprite_000.png",
+        "x": 1474,
+        "y": 2673,
+        "width": 139,
+        "height": 160,
+        "anchorX": 0.4101,
+        "anchorY": 0.4875,
+        "cleanup": {
+          "x": 1469,
+          "y": 2668,
+          "width": 148,
+          "height": 169
+        }
+      }
+    },
+    {
+      "id": "dog_04",
+      "x": 1472,
+      "y": 2446,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_04/sprite_000.png",
+        "x": 1415,
+        "y": 2370,
+        "width": 114,
+        "height": 156,
+        "anchorX": 0.5,
+        "anchorY": 0.4872,
+        "cleanup": {
+          "x": 1327,
+          "y": 2301,
+          "width": 289,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_05",
+      "x": 1885,
+      "y": 2264,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_05/sprite_000.png",
+        "x": 1824,
+        "y": 2183,
+        "width": 131,
+        "height": 140,
+        "anchorX": 0.4656,
+        "anchorY": 0.5786,
+        "cleanup": {
+          "x": 1740,
+          "y": 2119,
+          "width": 290,
+          "height": 272
+        }
+      }
+    },
+    {
+      "id": "dog_06",
+      "x": 1295,
+      "y": 1356,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_06/sprite_000.png",
+        "x": 1237,
+        "y": 1283,
+        "width": 117,
+        "height": 143,
+        "anchorX": 0.4957,
+        "anchorY": 0.5105,
+        "cleanup": {
+          "x": 1150,
+          "y": 1226,
+          "width": 290,
+          "height": 274
+        }
+      }
+    },
+    {
+      "id": "dog_07",
+      "x": 827,
+      "y": 3035,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_07/sprite_000.png",
+        "x": 690,
+        "y": 2929,
+        "width": 274,
+        "height": 243,
+        "anchorX": 0.5,
+        "anchorY": 0.4362,
+        "cleanup": {
+          "x": 682,
+          "y": 2927,
+          "width": 290,
+          "height": 253
+        }
+      }
+    },
+    {
+      "id": "dog_08",
+      "x": 1583,
+      "y": 1912,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_08/sprite_000.png",
+        "x": 1523,
+        "y": 1832,
+        "width": 121,
+        "height": 129,
+        "anchorX": 0.4959,
+        "anchorY": 0.6202,
+        "cleanup": {
+          "x": 1438,
+          "y": 1807,
+          "width": 290,
+          "height": 250
+        }
+      }
+    },
+    {
+      "id": "dog_09",
+      "x": 730,
+      "y": 1354,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_09/sprite_000.png",
+        "x": 673,
+        "y": 1284,
+        "width": 114,
+        "height": 137,
+        "anchorX": 0.5,
+        "anchorY": 0.5109,
+        "cleanup": {
+          "x": 649,
+          "y": 1257,
+          "width": 152,
+          "height": 192
+        }
+      }
+    },
+    {
+      "id": "dog_11",
+      "x": 1750,
+      "y": 1603,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_11/sprite_000.png",
+        "x": 1695,
+        "y": 1534,
+        "width": 116,
+        "height": 136,
+        "anchorX": 0.4741,
+        "anchorY": 0.5074,
+        "cleanup": {
+          "x": 1605,
+          "y": 1511,
+          "width": 290,
+          "height": 237
+        }
+      }
+    },
+    {
+      "id": "dog_12",
+      "x": 1243,
+      "y": 1782,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_12/sprite_000.png",
+        "x": 1186,
+        "y": 1708,
+        "width": 165,
+        "height": 138,
+        "anchorX": 0.3455,
+        "anchorY": 0.5362,
+        "cleanup": {
+          "x": 1111,
+          "y": 1685,
+          "width": 277,
+          "height": 242
+        }
+      }
+    },
+    {
+      "id": "dog_13",
+      "x": 1365,
+      "y": 906,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_13/sprite_000.png",
+        "x": 1302,
+        "y": 830,
+        "width": 118,
+        "height": 129,
+        "anchorX": 0.5339,
+        "anchorY": 0.5891,
+        "cleanup": {
+          "x": 1220,
+          "y": 791,
+          "width": 290,
+          "height": 260
+        }
+      }
+    },
+    {
+      "id": "dog_14",
+      "x": 1272,
+      "y": 3314,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_14/sprite_000.png",
+        "x": 1211,
+        "y": 3230,
+        "width": 125,
+        "height": 184,
+        "anchorX": 0.488,
+        "anchorY": 0.4565,
+        "cleanup": {
+          "x": 1127,
+          "y": 3189,
+          "width": 290,
+          "height": 262
+        }
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 792,
+      "y": 2096,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_15/sprite_000.png",
+        "x": 731,
+        "y": 2006,
+        "width": 120,
+        "height": 155,
+        "anchorX": 0.5083,
+        "anchorY": 0.5806,
+        "cleanup": {
+          "x": 647,
+          "y": 1999,
+          "width": 245,
+          "height": 242
+        }
+      }
+    },
+    {
+      "id": "dog_16",
+      "x": 727,
+      "y": 764,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_16/sprite_000.png",
+        "x": 590,
+        "y": 627,
+        "width": 273,
+        "height": 274,
+        "anchorX": 0.5018,
+        "anchorY": 0.5,
+        "cleanup": {
+          "x": 582,
+          "y": 623,
+          "width": 283,
+          "height": 286
+        }
+      }
+    },
+    {
+      "id": "dog_17",
+      "x": 1815,
+      "y": 2847,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_17/sprite_000.png",
+        "x": 1730,
+        "y": 2759,
+        "width": 144,
+        "height": 170,
+        "anchorX": 0.5903,
+        "anchorY": 0.5176,
+        "cleanup": {
+          "x": 1716,
+          "y": 2744,
+          "width": 167,
+          "height": 191
+        }
+      }
+    },
+    {
+      "id": "dog_18",
+      "x": 521,
+      "y": 1039,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_18/sprite_000.png",
+        "x": 469,
+        "y": 964,
+        "width": 97,
+        "height": 105,
+        "anchorX": 0.5361,
+        "anchorY": 0.7143,
+        "cleanup": {
+          "x": 404,
+          "y": 895,
+          "width": 262,
+          "height": 289
+        }
+      }
+    },
+    {
+      "id": "dog_19",
+      "x": 1251,
+      "y": 2769,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_19/sprite_000.png",
+        "x": 1182,
+        "y": 2684,
+        "width": 189,
+        "height": 159,
+        "anchorX": 0.3651,
+        "anchorY": 0.5346,
+        "cleanup": {
+          "x": 1113,
+          "y": 2624,
+          "width": 262,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_20",
+      "x": 538,
+      "y": 3387,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_20/sprite_000.png",
+        "x": 476,
+        "y": 3301,
+        "width": 126,
+        "height": 166,
+        "anchorX": 0.4921,
+        "anchorY": 0.5181,
+        "cleanup": {
+          "x": 393,
+          "y": 3250,
+          "width": 290,
+          "height": 282
+        }
+      }
+    },
+    {
+      "id": "dog_21",
+      "x": 1171,
+      "y": 2440,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_21/sprite_000.png",
+        "x": 1110,
+        "y": 2351,
+        "width": 113,
+        "height": 280,
+        "anchorX": 0.5398,
+        "anchorY": 0.3179,
+        "cleanup": {
+          "x": 1026,
+          "y": 2295,
+          "width": 290,
+          "height": 340
+        }
+      }
+    },
+    {
+      "id": "dog_22",
+      "x": 1088,
+      "y": 740,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_22/sprite_000.png",
+        "x": 1021,
+        "y": 657,
+        "width": 128,
+        "height": 168,
+        "anchorX": 0.5234,
+        "anchorY": 0.494,
+        "cleanup": {
+          "x": 943,
+          "y": 595,
+          "width": 290,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_23",
+      "x": 1872,
+      "y": 711,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_23/sprite_000.png",
+        "x": 1735,
+        "y": 592,
+        "width": 274,
+        "height": 256,
+        "anchorX": 0.5,
+        "anchorY": 0.4648,
+        "cleanup": {
+          "x": 1727,
+          "y": 590,
+          "width": 290,
+          "height": 263
+        }
+      }
+    },
+    {
+      "id": "dog_24",
+      "x": 790,
+      "y": 1681,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_24/sprite_000.png",
+        "x": 727,
+        "y": 1590,
+        "width": 125,
+        "height": 168,
+        "anchorX": 0.504,
+        "anchorY": 0.5417,
+        "cleanup": {
+          "x": 645,
+          "y": 1536,
+          "width": 250,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_25",
+      "x": 1689,
+      "y": 3361,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_25/sprite_000.png",
+        "x": 1633,
+        "y": 3230,
+        "width": 114,
+        "height": 234,
+        "anchorX": 0.4912,
+        "anchorY": 0.5598,
+        "cleanup": {
+          "x": 1544,
+          "y": 3226,
+          "width": 290,
+          "height": 280
+        }
+      }
+    },
+    {
+      "id": "dog_26",
+      "x": 2047,
+      "y": 1703,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_26/sprite_000.png",
+        "x": 1995,
+        "y": 1610,
+        "width": 129,
+        "height": 166,
+        "anchorX": 0.4031,
+        "anchorY": 0.5602,
+        "cleanup": {
+          "x": 1902,
+          "y": 1558,
+          "width": 289,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_27",
+      "x": 1025,
+      "y": 1034,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_27/sprite_000.png",
+        "x": 963,
+        "y": 917,
+        "width": 168,
+        "height": 185,
+        "anchorX": 0.369,
+        "anchorY": 0.6324,
+        "cleanup": {
+          "x": 880,
+          "y": 913,
+          "width": 290,
+          "height": 249
+        }
+      }
+    },
+    {
+      "id": "dog_28",
+      "x": 1238,
+      "y": 2093,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_28/sprite_000.png",
+        "x": 1177,
+        "y": 2011,
+        "width": 129,
+        "height": 165,
+        "anchorX": 0.4729,
+        "anchorY": 0.497,
+        "cleanup": {
+          "x": 1093,
+          "y": 1960,
+          "width": 290,
+          "height": 275
+        }
+      }
+    },
+    {
+      "id": "dog_29",
+      "x": 502,
+      "y": 2987,
+      "r": 50,
+      "sprite": {
+        "image": "levels/france_provence_lavender_village_dog_cbbe/dogs/dog_29/sprite_000.png",
+        "x": 449,
+        "y": 2913,
+        "width": 119,
+        "height": 135,
+        "anchorX": 0.4454,
+        "anchorY": 0.5481,
+        "cleanup": {
+          "x": 429,
+          "y": 2892,
+          "width": 145,
+          "height": 183
+        }
+      }
+    }
+  ]
+}

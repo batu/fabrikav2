@@ -149,7 +149,10 @@ describe('mountResultCard', () => {
     expect(css).toContain('.fab-modal-ribbon-eyebrow');
     expect(css).toContain('top: var(--fab-ribbon-eyebrow-top);');
     expect(css).toContain('top: var(--fab-ribbon-title-top);');
-    expect(css).toContain('transform: translate(-50%, -50%);');
+    expect(css).toContain('left: 0;');
+    expect(css).toContain('right: 0;');
+    expect(css).toContain('margin-inline: auto;');
+    expect(css).toContain('transform: translateY(-50%);');
     expect(css).not.toContain('fab-modal-ribbon--image-title-visible');
     expect(css).not.toContain(':not(.fab-modal-ribbon');
   });
