@@ -10,6 +10,9 @@ export const copy = {
   "hud.foundValue": "{found}/{total}",
   "hud.mode": "Mode",
   "hud.dir": "Direction",
+  "result.win": "FOUND ENOUGH",
+  "result.spotless": "SPOTLESS",
+  "result.fail": "OUT OF DARTS",
 } as const;
 
 export type CopyKey = keyof typeof copy;

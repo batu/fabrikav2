@@ -49,7 +49,12 @@ export async function bootGame(mountInto: HTMLElement, options: CameleonBootOpti
     flowMachine: machine,
     env: import.meta.env.MODE === "test" ? "test" : "development",
   });
-  const screen = mountCameleonScreen({ mountInto });
+  const screen = mountCameleonScreen({
+    mountInto,
+    onModeSelect: (mode) => controller.setPlayMode(mode),
+    onStart: () => controller.startLevel(1),
+    onConfirmAim: () => controller.confirmAim(),
+  });
   const unsubscribe = controller.subscribe(() => screen.refresh(controller.snapshot()));
   const runtime = options.startRuntime === false
     ? null
