@@ -1,0 +1,92 @@
+{
+ "world": [
+  4320,
+  1440
+ ],
+ "panels": [
+  "panelA-poster-v2-clean",
+  "panelB-poster-probe",
+  "panelC-poster-v2"
+ ],
+ "seams": [
+  {
+   "sprite": "seam-pillar-deck",
+   "cx": 1440,
+   "cy": 505
+  },
+  {
+   "sprite": "seam-pillar-deck",
+   "cx": 2880,
+   "cy": 505
+  }
+ ],
+ "hides": {
+  "li-01": {
+   "painted": "li01-painted",
+   "white": "li01-white",
+   "cx": 1220,
+   "cy": 895,
+   "h": 130
+  },
+  "li-03": {
+   "painted": "li03-painted",
+   "white": "li03-white",
+   "cx": 1790,
+   "cy": 800,
+   "h": 260
+  },
+  "li-04": {
+   "painted": "li04-painted",
+   "white": "li04-white",
+   "cx": 1398,
+   "cy": 645,
+   "h": 175
+  },
+  "li-05": {
+   "painted": "li05-painted",
+   "white": "li05-white",
+   "cx": 2320,
+   "cy": 800,
+   "h": 150
+  },
+  "li-09": {
+   "painted": "li09-painted",
+   "white": "li09-white",
+   "cx": 3122,
+   "cy": 908,
+   "h": 160
+  }
+ },
+ "decoys": [
+  {
+   "sprite": "decoy-tent",
+   "cx": 1600,
+   "cy": 780,
+   "h": 300
+  },
+  {
+   "sprite": "decoy-tent",
+   "cx": 1975,
+   "cy": 780,
+   "h": 300
+  },
+  {
+   "sprite": "decoy-robe",
+   "cx": 1270,
+   "cy": 638,
+   "h": 170
+  },
+  {
+   "sprite": "decoy-bodyprint-towel",
+   "cx": 2560,
+   "cy": 830,
+   "h": 170
+  },
+  {
+   "sprite": "decoy-ringstack",
+   "cx": 2990,
+   "cy": 925,
+   "h": 130
+  }
+ ]
+}
