@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "image": "dogs/dog_16/sprite_000.png",
+  "mask": "dogs/dog_16/sprite_mask_000.png",
+  "sourceBox": [
+    1502,
+    936,
+    1730,
+    1164
+  ],
+  "spriteBox": [
+    1538,
+    960,
+    1694,
+    1131
+  ],
+  "width": 156,
+  "height": 171,
+  "anchorX": 0.5,
+  "anchorY": 0.5263,
+  "technique": "public-color-bg-diff-localized-v2",
+  "quality": {
+    "pickupUsable": true,
+    "publicPackageFallback": true
+  },
+  "cleanupBox": [
+    1534,
+    956,
+    1698,
+    1135
+  ]
+}

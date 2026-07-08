@@ -1,0 +1,11 @@
+{
+  "_source": "Hand-mirrored from src/audio/AmbientManager.ts BUILDERS at the time of authorship. Update both files when adding/removing presets. The level builder UI fetches this list to populate the section ambient-preset dropdown for landscape levels.",
+  "presets": [
+    { "key": "velvet_ii_v", "label": "Velvet ii-V", "description": "Looped background music" },
+    { "key": "morning_market", "label": "Morning Market", "description": "Soft chimes, market stall murmur, dawn light" },
+    { "key": "temple_garden", "label": "Temple Garden", "description": "Wind through bamboo, koi pond, mid-day calm" },
+    { "key": "river_bridge", "label": "River Bridge", "description": "Flowing water, distant bells, footsteps on wood" },
+    { "key": "festival_grounds", "label": "Festival Grounds", "description": "Crowd hum, paper lanterns rustling, drums in the distance" },
+    { "key": "night_harbor", "label": "Night Harbor", "description": "Boat bells, lapping waves, evening crickets" }
+  ]
+}

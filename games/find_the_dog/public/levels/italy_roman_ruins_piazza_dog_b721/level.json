@@ -1,0 +1,640 @@
+{
+  "id": "italy_roman_ruins_piazza_dog_b721",
+  "name": "Level italy_roman_ruins_piazza_dog_b721 (clean_old_cartoon)",
+  "width": 2560,
+  "height": 3840,
+  "bwImage": "levels/italy_roman_ruins_piazza_dog_b721/bw.png",
+  "colorImage": "levels/italy_roman_ruins_piazza_dog_b721/color.png",
+  "dogs": [
+    {
+      "id": "dog_00",
+      "x": 632,
+      "y": 2228,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_00/sprite_000.png",
+        "x": 573,
+        "y": 2145,
+        "width": 109,
+        "height": 156,
+        "anchorX": 0.5413,
+        "anchorY": 0.5321,
+        "cleanup": {
+          "x": 561,
+          "y": 2132,
+          "width": 149,
+          "height": 185
+        }
+      }
+    },
+    {
+      "id": "dog_01",
+      "x": 1640,
+      "y": 730,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_01/sprite_000.png",
+        "x": 1574,
+        "y": 641,
+        "width": 123,
+        "height": 166,
+        "anchorX": 0.5366,
+        "anchorY": 0.5361,
+        "cleanup": {
+          "x": 1515,
+          "y": 587,
+          "width": 270,
+          "height": 288
+        }
+      }
+    },
+    {
+      "id": "dog_02",
+      "x": 1553,
+      "y": 1220,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_02/sprite_000.png",
+        "x": 1459,
+        "y": 1124,
+        "width": 153,
+        "height": 159,
+        "anchorX": 0.6144,
+        "anchorY": 0.6038,
+        "cleanup": {
+          "x": 1408,
+          "y": 1102,
+          "width": 277,
+          "height": 263
+        }
+      }
+    },
+    {
+      "id": "dog_03",
+      "x": 825,
+      "y": 2601,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_03/sprite_000.png",
+        "x": 762,
+        "y": 2517,
+        "width": 120,
+        "height": 150,
+        "anchorX": 0.525,
+        "anchorY": 0.56,
+        "cleanup": {
+          "x": 695,
+          "y": 2469,
+          "width": 275,
+          "height": 277
+        }
+      }
+    },
+    {
+      "id": "dog_04",
+      "x": 767,
+      "y": 3097,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_04/sprite_000.png",
+        "x": 691,
+        "y": 3015,
+        "width": 166,
+        "height": 174,
+        "anchorX": 0.4578,
+        "anchorY": 0.4713,
+        "cleanup": {
+          "x": 687,
+          "y": 3007,
+          "width": 174,
+          "height": 186
+        }
+      }
+    },
+    {
+      "id": "dog_05",
+      "x": 1237,
+      "y": 3293,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_05/sprite_000.png",
+        "x": 1170,
+        "y": 3212,
+        "width": 135,
+        "height": 164,
+        "anchorX": 0.4963,
+        "anchorY": 0.4939,
+        "cleanup": {
+          "x": 1163,
+          "y": 3199,
+          "width": 166,
+          "height": 182
+        }
+      }
+    },
+    {
+      "id": "dog_06",
+      "x": 1390,
+      "y": 2310,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_06/sprite_000.png",
+        "x": 1342,
+        "y": 2223,
+        "width": 91,
+        "height": 118,
+        "anchorX": 0.5275,
+        "anchorY": 0.7373,
+        "cleanup": {
+          "x": 1245,
+          "y": 2184,
+          "width": 290,
+          "height": 271
+        }
+      }
+    },
+    {
+      "id": "dog_07",
+      "x": 1201,
+      "y": 2912,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_07/sprite_000.png",
+        "x": 1148,
+        "y": 2839,
+        "width": 107,
+        "height": 152,
+        "anchorX": 0.4953,
+        "anchorY": 0.4803,
+        "cleanup": {
+          "x": 1056,
+          "y": 2816,
+          "width": 290,
+          "height": 241
+        }
+      }
+    },
+    {
+      "id": "dog_08",
+      "x": 1748,
+      "y": 3065,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_08/sprite_000.png",
+        "x": 1687,
+        "y": 2981,
+        "width": 116,
+        "height": 167,
+        "anchorX": 0.5259,
+        "anchorY": 0.503,
+        "cleanup": {
+          "x": 1603,
+          "y": 2920,
+          "width": 290,
+          "height": 289
+        }
+      }
+    },
+    {
+      "id": "dog_09",
+      "x": 1727,
+      "y": 2569,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_09/sprite_000.png",
+        "x": 1657,
+        "y": 2486,
+        "width": 145,
+        "height": 162,
+        "anchorX": 0.4828,
+        "anchorY": 0.5123,
+        "cleanup": {
+          "x": 1582,
+          "y": 2481,
+          "width": 290,
+          "height": 229
+        }
+      }
+    },
+    {
+      "id": "dog_10",
+      "x": 1272,
+      "y": 677,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_10/sprite_000.png",
+        "x": 1217,
+        "y": 594,
+        "width": 139,
+        "height": 152,
+        "anchorX": 0.3957,
+        "anchorY": 0.5461,
+        "cleanup": {
+          "x": 1131,
+          "y": 535,
+          "width": 286,
+          "height": 287
+        }
+      }
+    },
+    {
+      "id": "dog_11",
+      "x": 917,
+      "y": 1879,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_11/sprite_000.png",
+        "x": 868,
+        "y": 1795,
+        "width": 116,
+        "height": 165,
+        "anchorX": 0.4224,
+        "anchorY": 0.5091,
+        "cleanup": {
+          "x": 772,
+          "y": 1757,
+          "width": 243,
+          "height": 267
+        }
+      }
+    },
+    {
+      "id": "dog_12",
+      "x": 1338,
+      "y": 1562,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_12/sprite_000.png",
+        "x": 1273,
+        "y": 1493,
+        "width": 115,
+        "height": 141,
+        "anchorX": 0.5652,
+        "anchorY": 0.4894,
+        "cleanup": {
+          "x": 1193,
+          "y": 1428,
+          "width": 290,
+          "height": 278
+        }
+      }
+    },
+    {
+      "id": "dog_13",
+      "x": 1276,
+      "y": 1167,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_13/sprite_000.png",
+        "x": 1227,
+        "y": 1035,
+        "width": 168,
+        "height": 260,
+        "anchorX": 0.2917,
+        "anchorY": 0.5077,
+        "cleanup": {
+          "x": 1132,
+          "y": 1027,
+          "width": 289,
+          "height": 285
+        }
+      }
+    },
+    {
+      "id": "dog_14",
+      "x": 1792,
+      "y": 1878,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_14/sprite_000.png",
+        "x": 1735,
+        "y": 1801,
+        "width": 104,
+        "height": 159,
+        "anchorX": 0.5481,
+        "anchorY": 0.4843,
+        "cleanup": {
+          "x": 1647,
+          "y": 1736,
+          "width": 270,
+          "height": 256
+        }
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 438,
+      "y": 930,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_15/sprite_000.png",
+        "x": 382,
+        "y": 848,
+        "width": 115,
+        "height": 167,
+        "anchorX": 0.487,
+        "anchorY": 0.491,
+        "cleanup": {
+          "x": 372,
+          "y": 844,
+          "width": 135,
+          "height": 175
+        }
+      }
+    },
+    {
+      "id": "dog_16",
+      "x": 1281,
+      "y": 1849,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_16/sprite_000.png",
+        "x": 1206,
+        "y": 1768,
+        "width": 119,
+        "height": 194,
+        "anchorX": 0.6303,
+        "anchorY": 0.4175,
+        "cleanup": {
+          "x": 1163,
+          "y": 1756,
+          "width": 248,
+          "height": 238
+        }
+      }
+    },
+    {
+      "id": "dog_17",
+      "x": 792,
+      "y": 1362,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_17/sprite_000.png",
+        "x": 720,
+        "y": 1285,
+        "width": 156,
+        "height": 244,
+        "anchorX": 0.4615,
+        "anchorY": 0.3156,
+        "cleanup": {
+          "x": 647,
+          "y": 1253,
+          "width": 290,
+          "height": 280
+        }
+      }
+    },
+    {
+      "id": "dog_18",
+      "x": 773,
+      "y": 780,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_18/sprite_000.png",
+        "x": 713,
+        "y": 695,
+        "width": 124,
+        "height": 173,
+        "anchorX": 0.4839,
+        "anchorY": 0.4913,
+        "cleanup": {
+          "x": 628,
+          "y": 635,
+          "width": 290,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_19",
+      "x": 508,
+      "y": 2759,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_19/sprite_000.png",
+        "x": 445,
+        "y": 2669,
+        "width": 122,
+        "height": 174,
+        "anchorX": 0.5164,
+        "anchorY": 0.5172,
+        "cleanup": {
+          "x": 426,
+          "y": 2663,
+          "width": 197,
+          "height": 241
+        }
+      }
+    },
+    {
+      "id": "dog_20",
+      "x": 1967,
+      "y": 846,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_20/sprite_000.png",
+        "x": 1903,
+        "y": 770,
+        "width": 194,
+        "height": 226,
+        "anchorX": 0.3299,
+        "anchorY": 0.3363,
+        "cleanup": {
+          "x": 1822,
+          "y": 745,
+          "width": 290,
+          "height": 255
+        }
+      }
+    },
+    {
+      "id": "dog_21",
+      "x": 770,
+      "y": 3411,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_21/sprite_000.png",
+        "x": 715,
+        "y": 3342,
+        "width": 119,
+        "height": 147,
+        "anchorX": 0.4622,
+        "anchorY": 0.4694,
+        "cleanup": {
+          "x": 625,
+          "y": 3266,
+          "width": 290,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_22",
+      "x": 2114,
+      "y": 2329,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_22/sprite_000.png",
+        "x": 2047,
+        "y": 2244,
+        "width": 124,
+        "height": 174,
+        "anchorX": 0.5403,
+        "anchorY": 0.4885,
+        "cleanup": {
+          "x": 2029,
+          "y": 2236,
+          "width": 160,
+          "height": 191
+        }
+      }
+    },
+    {
+      "id": "dog_23",
+      "x": 1851,
+      "y": 1390,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_23/sprite_000.png",
+        "x": 1773,
+        "y": 1255,
+        "width": 191,
+        "height": 329,
+        "anchorX": 0.4084,
+        "anchorY": 0.4103,
+        "cleanup": {
+          "x": 1720,
+          "y": 1251,
+          "width": 276,
+          "height": 337
+        }
+      }
+    },
+    {
+      "id": "dog_24",
+      "x": 2088,
+      "y": 3035,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_24/sprite_000.png",
+        "x": 2032,
+        "y": 2942,
+        "width": 120,
+        "height": 178,
+        "anchorX": 0.4667,
+        "anchorY": 0.5225,
+        "cleanup": {
+          "x": 1943,
+          "y": 2905,
+          "width": 274,
+          "height": 223
+        }
+      }
+    },
+    {
+      "id": "dog_25",
+      "x": 1710,
+      "y": 2218,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_25/sprite_000.png",
+        "x": 1644,
+        "y": 2148,
+        "width": 117,
+        "height": 136,
+        "anchorX": 0.5641,
+        "anchorY": 0.5147,
+        "cleanup": {
+          "x": 1638,
+          "y": 2073,
+          "width": 197,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_26",
+      "x": 549,
+      "y": 1720,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_26/sprite_000.png",
+        "x": 492,
+        "y": 1639,
+        "width": 124,
+        "height": 190,
+        "anchorX": 0.4597,
+        "anchorY": 0.4263,
+        "cleanup": {
+          "x": 486,
+          "y": 1600,
+          "width": 208,
+          "height": 244
+        }
+      }
+    },
+    {
+      "id": "dog_27",
+      "x": 1528,
+      "y": 3382,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_27/sprite_000.png",
+        "x": 1474,
+        "y": 3316,
+        "width": 110,
+        "height": 133,
+        "anchorX": 0.4909,
+        "anchorY": 0.4962,
+        "cleanup": {
+          "x": 1383,
+          "y": 3237,
+          "width": 290,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_28",
+      "x": 2037,
+      "y": 2611,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_28/sprite_000.png",
+        "x": 1975,
+        "y": 2531,
+        "width": 125,
+        "height": 162,
+        "anchorX": 0.496,
+        "anchorY": 0.4938,
+        "cleanup": {
+          "x": 1892,
+          "y": 2466,
+          "width": 290,
+          "height": 288
+        }
+      }
+    },
+    {
+      "id": "dog_29",
+      "x": 1284,
+      "y": 2587,
+      "r": 50,
+      "sprite": {
+        "image": "levels/italy_roman_ruins_piazza_dog_b721/dogs/dog_29/sprite_000.png",
+        "x": 1229,
+        "y": 2522,
+        "width": 112,
+        "height": 131,
+        "anchorX": 0.4911,
+        "anchorY": 0.4962,
+        "cleanup": {
+          "x": 1139,
+          "y": 2476,
+          "width": 290,
+          "height": 251
+        }
+      }
+    }
+  ]
+}

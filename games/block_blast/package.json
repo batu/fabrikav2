@@ -1,0 +1,20 @@
+{
+  "name": "@fabrikav2/block_blast",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@fabrikav2/kernel": "*",
+    "@fabrikav2/ui": "*",
+    "@fabrikav2/sdk": "*",
+    "@fabrikav2/testkit": "*"
+  }
+}

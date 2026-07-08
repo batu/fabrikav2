@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "revisionNumber": 1,
+  "catalogRevision": "catalog-000001",
+  "generatedAt": "2026-06-03T13:06:45.545893Z",
+  "levels": [
+    {
+      "id": "pirate_shipwreck_island_jungle_cave_shore_dog_9c25",
+      "name": "Level pirate_shipwreck_island_jungle_cave_shore_dog_9c25 (clean_old_cartoon)",
+      "width": 2560,
+      "height": 3840,
+      "packageId": "pirate_shipwreck_island_jungle_cave_shore_dog_9c25:3dda976c548910c4",
+      "catalogRevision": "catalog-000001",
+      "listable": true,
+      "bundledInApp": false,
+      "cohortBuckets": [
+        "all"
+      ],
+      "allCohortAvailable": true,
+      "tombstonedAt": null,
+      "retention": {
+        "activeSequenceVersions": [],
+        "rollbackEligibleSequenceVersions": []
+      },
+      "package": {
+        "complete": true,
+        "requiredBytes": 37754727,
+        "requiredAssets": [
+          {
+            "role": "levelJson",
+            "hash": "f6dbd876ec44f5819688f31aa5246b37709e81209b7f0e48f8219f0f9ff7a21b",
+            "size": 3180,
+            "path": "levels/pirate_shipwreck_island_jungle_cave_shore_dog_9c25/level.json"
+          },
+          {
+            "role": "colorImage",
+            "hash": "ad88a481cda5184a5c166041fac9664917fdea21a24d796275683c9d270c08ae",
+            "size": 17367857,
+            "path": "levels/pirate_shipwreck_island_jungle_cave_shore_dog_9c25/color.png"
+          },
+          {
+            "role": "bgImage:0",
+            "hash": "4eaa353bd4811510d353b12814ce4050eb22416e5f27a20f620ac41480814370",
+            "size": 3475497,
+            "path": "levels/pirate_shipwreck_island_jungle_cave_shore_dog_9c25/bg_00.png"
+          },
+          {
+            "role": "bgImage:1",
+            "hash": "f39c6bb316aca673f8dea0c34d633c63dd4895ac2527069b7d4d587e7a1c4b12",
+            "size": 16908193,
+            "path": "levels/pirate_shipwreck_island_jungle_cave_shore_dog_9c25/bg_01.png"
+          }
+        ],
+        "optionalAssets": []
+      },
+      "uploadedAt": "2026-06-03T13:06:45.545814Z",
+      "sourceVariant": "gemini"
+    }
+  ]
+}
