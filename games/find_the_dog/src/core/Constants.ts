@@ -16,6 +16,7 @@ function detectMaxRenderbufferSize(): number {
 
 const maxSafeTextureSize = Math.min(4096, detectMaxRenderbufferSize());
 const maxSafeTextureDimension = maxSafeTextureSize - 2;
+const nativeCanvasDprCap = 3;
 // Shipped landscape levels can produce a mask texture wider than the
 // viewport: maskWidth ~= portraitViewportHeight * levelAspect. Keep the
 // global DPR low enough that the largest current aspect stays attachable
@@ -23,7 +24,7 @@ const maxSafeTextureDimension = maxSafeTextureSize - 2;
 const maxLevelMaskAspectRatio = 1.5;
 const dpr = Math.min(
   window.devicePixelRatio || 1,
-  2,
+  nativeCanvasDprCap,
   maxSafeTextureDimension / portraitViewportWidth,
   maxSafeTextureDimension / portraitViewportHeight,
   maxSafeTextureDimension / (portraitViewportHeight * maxLevelMaskAspectRatio),
