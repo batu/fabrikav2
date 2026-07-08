@@ -12,6 +12,7 @@ describe("arrow menu theme", () => {
     expect(style?.textContent).not.toContain("--fab-levelmap-art-");
     expect(style?.textContent).toContain(".fab-levelmap-path::before");
     expect(style?.textContent).toContain(".arrow-menu-header::before");
+    expect(style?.textContent).toContain(".arrow-play-button");
   });
 
   it("is idempotent", () => {

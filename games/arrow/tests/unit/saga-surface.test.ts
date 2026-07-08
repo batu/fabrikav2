@@ -1,11 +1,13 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { mountHomeMenu } from "@fabrikav2/ui";
 
+import { copy } from "../../design/copy.js";
 import { installLevelMapArt } from "../../design/theme.js";
 import { DEFAULT_JUICE } from "../../src/game/juice.js";
 import type { Progress } from "../../src/game/persist.js";
+import { bootGame } from "../../src/main.js";
 import { buildSagaNodes } from "../../src/shell/saga.js";
 
 const REQUIRED_LEVELMAP_TOKENS = [
@@ -44,6 +46,25 @@ const REQUIRED_LEVELMAP_TOKENS = [
   "--fab-levelmap-art-completed",
   "--fab-levelmap-art-current",
 ] as const;
+
+const store = new Map<string, string>();
+const mockLocalStorage = {
+  getItem: (key: string): string | null => store.get(key) ?? null,
+  setItem: (key: string, value: string): void => {
+    store.set(key, value);
+  },
+  removeItem: (key: string): void => {
+    store.delete(key);
+  },
+  clear: (): void => {
+    store.clear();
+  },
+  key: (index: number): string | null => Array.from(store.keys())[index] ?? null,
+  get length(): number {
+    return store.size;
+  },
+};
+vi.stubGlobal("localStorage", mockLocalStorage);
 
 function progress(done: number): Progress {
   return {
@@ -147,6 +168,34 @@ function expectCenteredSagaNodes(root: HTMLElement): void {
   }
 }
 
+function installCanvasHarness(): void {
+  const gradient = { addColorStop: () => undefined };
+  const ctx = new Proxy(
+    {},
+    {
+      get(_target, prop) {
+        if (prop === "createLinearGradient" || prop === "createRadialGradient") return () => gradient;
+        if (prop === "measureText") return () => ({ width: 0 });
+        return () => undefined;
+      },
+      set() {
+        return true;
+      },
+    },
+  ) as CanvasRenderingContext2D;
+
+  vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockImplementation(() => ctx);
+  vi.spyOn(window, "requestAnimationFrame").mockImplementation(() => 1);
+  vi.spyOn(window, "cancelAnimationFrame").mockImplementation(() => undefined);
+}
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  store.clear();
+  document.head.innerHTML = "";
+  document.body.innerHTML = "";
+});
+
 describe("arrow saga composed surface", () => {
   it("defines every shared level-map token in design/tokens.css", () => {
     const css = readFileSync(resolve("design/tokens.css"), "utf8");
@@ -176,5 +225,30 @@ describe("arrow saga composed surface", () => {
     expectVisibleSagaDots(handle.el);
     expectSagaStateStyles(handle.el);
     expectCenteredSagaNodes(handle.el);
+  });
+
+  it("renders exactly one Play CTA wired to the first incomplete level", () => {
+    document.body.innerHTML = `
+      <canvas id="scene" style="width: 390px; height: 844px"></canvas>
+      <div id="ui" class="arrow-ui"></div>
+    `;
+    installCanvasHarness();
+    installLevelMapArt(document);
+
+    const canvas = document.getElementById("scene") as HTMLCanvasElement;
+    const ui = document.getElementById("ui")!;
+    const app = bootGame(canvas, ui);
+    app.harness().seedSave!({ unlockedLevel: 7 });
+
+    const playButtons = ui.querySelectorAll<HTMLButtonElement>("[data-fab-action='play']");
+    expect(playButtons).toHaveLength(1);
+    expect(playButtons[0]!.textContent).toBe(copy["menu.play"]);
+    expect(playButtons[0]!.classList.contains("arrow-play-button")).toBe(true);
+    expect(playButtons[0]!.getAttribute("aria-label")).toBe(`${copy["menu.play"]} ${copy["menu.levelButton"]} 7`);
+
+    playButtons[0]!.click();
+
+    expect(app.snapshot()).toMatchObject({ scene: "playing", status: "playing", level: 7 });
+    expect(ui.querySelector("[data-fab-action='play']")).toBeNull();
   });
 });

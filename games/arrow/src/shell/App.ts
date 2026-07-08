@@ -151,6 +151,7 @@ export class App {
     this.clearScreen();
     this.dismissSettings();
     this.controller.showIdle();
+    const playLevel = this.nextPlayableLevel();
     this.screenHandle = mountHomeMenu({
       mountInto: this.uiRoot,
       header: this.buildMenuHeader(),
@@ -161,11 +162,11 @@ export class App {
       },
       actions: [
         {
-          label: `${copy["menu.levelButton"]} ${this.nextPlayableLevel()}`,
-          ariaLabel: copy["menu.play"],
+          label: copy["menu.play"],
+          ariaLabel: `${copy["menu.play"]} ${copy["menu.levelButton"]} ${playLevel}`,
           dataAction: "play",
           className: "arrow-play-button",
-          onClick: () => this.startLevelId(this.nextPlayableLevel()),
+          onClick: () => this.startLevelId(playLevel),
         },
       ],
     });

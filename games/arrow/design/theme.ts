@@ -62,6 +62,31 @@ export function installLevelMapArt(doc: Document = document): void {
 .arrow-menu-header > * {
   position: relative;
   z-index: 1;
+}
+.arrow-ui .fab-home-menu {
+  box-sizing: border-box;
+  min-height: 100dvh;
+  padding: 0 20px calc(16px + env(safe-area-inset-bottom, 0px));
+}
+.arrow-ui .fab-home-menu-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  align-items: center;
+}
+.arrow-ui .fab-home-menu-actions {
+  width: min(72vw, 260px);
+  margin: 0 auto;
+}
+.arrow-play-button {
+  min-height: 58px;
+  border: 2px solid var(--arrow-panel-border);
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--active-blue), var(--fab-color-accent));
+  color: var(--fab-color-on-accent);
+  font-size: 22px;
+  font-weight: 900;
+  box-shadow: 0 9px 0 var(--arrow-panel-border), 0 18px 28px var(--arrow-panel-shadow);
+  text-transform: uppercase;
 }`;
   doc.head.appendChild(style);
 }
