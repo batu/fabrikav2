@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { stateFromShotName, CANONICAL_STATES } from '../src/states.mjs';
+import { isMissingShotName, stateFromShotName, CANONICAL_STATES } from '../src/states.mjs';
 
 describe('stateFromShotName', () => {
   it('maps runner shot names (order-prefixed) to canonical states', () => {
@@ -28,5 +28,12 @@ describe('stateFromShotName', () => {
 
   it('covers exactly the six canonical states', () => {
     expect(CANONICAL_STATES).toEqual(['menu', 'level', 'settings', 'pause', 'win', 'fail']);
+  });
+});
+
+describe('isMissingShotName', () => {
+  it('detects runner inspection shots for blind captures', () => {
+    expect(isMissingShotName('6-fail-MISSING_0_uuid.png')).toBe(true);
+    expect(isMissingShotName('1-menu_0_uuid.png')).toBe(false);
   });
 });

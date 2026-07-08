@@ -68,6 +68,10 @@ Options:
   --strict             require a PASS verdict from a verified device lane; FAIL,
                        browser, or provided-captures lanes exit non-zero
                        (default: advisory).
+  --allow-ungated      allow iOS runner *-MISSING inspection screenshots to be
+                       processed without forcing a non-zero exit. Use only for
+                       forensic replays; blind captures are still marked in the
+                       state table and summary.json.
   --skip-device        force the graceful device-absent skip (CI-safe).
   --lane <device|browser> capture lane (default: device). 'browser' drives a
                        vite-dev + Playwright/Chromium fallback via the game
@@ -101,7 +105,7 @@ the panel skips gracefully (exit 0) and on-device fidelity stays UNVERIFIED.
  *   androidSdk?:string, androidActivity?:string, captures?:string, xcresult?:string,
  *   out?:string, date?:string, contentInsetTop?:number, contentInsetBottom?:number,
  *   threshold:number, ensemble:string, models?:string[],
- *   panelThreshold:number, skipPanel:boolean, strict:boolean,
+ *   panelThreshold:number, skipPanel:boolean, strict:boolean, allowUngated:boolean,
  *   skipDevice:boolean, lane:'device'|'browser', budgetFloor:number, compare?:string, help:boolean}}
  */
 export function parseArgs(argv) {
@@ -112,6 +116,7 @@ export function parseArgs(argv) {
     panelThreshold: 85,
     skipPanel: false,
     strict: false,
+    allowUngated: false,
     skipDevice: false,
     lane: 'device',
     budgetFloor: 5,
@@ -138,6 +143,7 @@ export function parseArgs(argv) {
     else if (a === '--panel-threshold') args.panelThreshold = parsePanelThreshold(req(argv, ++i, a));
     else if (a === '--skip-panel') args.skipPanel = true;
     else if (a === '--strict') args.strict = true;
+    else if (a === '--allow-ungated') args.allowUngated = true;
     else if (a === '--skip-device') args.skipDevice = true;
     else if (a === '--lane') args.lane = parseLane(req(argv, ++i, a));
     else if (a === '--budget-floor') args.budgetFloor = parseBudgetFloor(req(argv, ++i, a));

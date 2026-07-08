@@ -17,6 +17,7 @@ describe('parseArgs', () => {
     expect(a.ensemble).toBe('default'); // registry ensemble selected when unset
     expect(a.models).toBeUndefined(); // undefined -> panel.mjs DEFAULT_MODELS
     expect(a.strict).toBe(false);
+    expect(a.allowUngated).toBe(false);
     expect(a.skipDevice).toBe(false);
     expect(a.lane).toBe('device'); // default lane stays device (never auto-browser)
     expect(a.platform).toBe('auto'); // auto preserves existing iOS manifests unless configured
@@ -108,12 +109,12 @@ describe('parseArgs', () => {
       '--game', 'marble_run', '--device', 'UDID-1', '--captures', 'cap/',
       '--out', 'o/', '--date', '2026-07-06', '--content-inset-top', '10',
       '--content-inset-bottom', '20', '--threshold', '0.05',
-      '--strict', '--skip-device',
+      '--strict', '--allow-ungated', '--skip-device',
     ]);
     expect(a).toMatchObject({
       game: 'marble_run', device: 'UDID-1', captures: 'cap/', out: 'o/',
       date: '2026-07-06', contentInsetTop: 10, contentInsetBottom: 20,
-      threshold: 0.05, strict: true, skipDevice: true,
+      threshold: 0.05, strict: true, allowUngated: true, skipDevice: true,
     });
   });
 
