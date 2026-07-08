@@ -2724,8 +2724,9 @@
       Now dock, side rail, richer bottom bar ─────────────────────────── */
 
 #home-shell.home-progression-shell {
-  padding: calc(env(safe-area-inset-top, 0px) + 10px) 12px 0;
-  gap: 0;
+  padding: 10px 12px 0;
+  padding: calc(env(safe-area-inset-top) + 10px) 12px 0;
+  gap: 6px;
 }
 
 /* Banner with currency pills flanking the dog in its transparent side areas */
@@ -2831,7 +2832,7 @@
   /* Current tile is ANCHORED here, low down (just above the nav). It must NOT
      move when tuning the map — to make the upper tiles reach/tuck under the
      banner, increase --fab-levelmap-node-gap (the spacing), never this padding. */
-  padding: 0 0 10px;
+  padding: 6px 0 24px;
 }
 
 .home-play-dock {
@@ -3120,7 +3121,8 @@
   justify-content: center;
   gap: 8px;
   min-width: 0;
-  padding: 9px 0 calc(env(safe-area-inset-bottom, 0px) + 18px);
+  padding: 9px 0 4px;
+  padding: 9px 0 calc(env(safe-area-inset-bottom) + 4px);
   border-radius: 0;
   background: transparent;
   overflow: visible;
@@ -3158,7 +3160,8 @@
   gap: 4px;
   margin-top: 0;
   min-width: 0;
-  padding: 9px 0 calc(env(safe-area-inset-bottom, 0px) + 20px);
+  padding: 9px 0 4px;
+  padding: 9px 0 calc(env(safe-area-inset-bottom) + 4px);
   background: linear-gradient(180deg, #ffe3a6 0%, #f3bf68 100%);
   border: 0;
   border-radius: 0;
