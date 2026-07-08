@@ -66,6 +66,13 @@ const mockLocalStorage = {
 };
 vi.stubGlobal("localStorage", mockLocalStorage);
 
+const launchViewport = { width: 390, height: 844 } as const;
+const originalViewport = { width: window.innerWidth, height: window.innerHeight } as const;
+
+interface HappyDomViewportApi {
+  setViewport(viewport: { width: number; height: number }): void;
+}
+
 function progress(done: number): Progress {
   return {
     schema: "arrow-progress",
@@ -77,6 +84,16 @@ function progress(done: number): Progress {
     completions: 0,
     juice: DEFAULT_JUICE,
   };
+}
+
+function setViewport(width: number, height: number): void {
+  const happyDom = (window as Window & { happyDOM?: HappyDomViewportApi }).happyDOM;
+  if (happyDom) {
+    happyDom.setViewport({ width, height });
+    return;
+  }
+  Object.defineProperty(window, "innerWidth", { configurable: true, value: width });
+  Object.defineProperty(window, "innerHeight", { configurable: true, value: height });
 }
 
 function unwrapCssLayers(css: string): string {
@@ -168,6 +185,29 @@ function expectCenteredSagaNodes(root: HTMLElement): void {
   }
 }
 
+function firstPx(value: string): number {
+  const match = /(-?\d+(?:\.\d+)?)px/.exec(value);
+  return match ? Number(match[1]) : Number.NaN;
+}
+
+function expectFixedLaunchCta(button: HTMLButtonElement): void {
+  const style = getComputedStyle(button);
+  expect(["fixed", "sticky"]).toContain(style.position);
+  expect(style.left).toBe("50%");
+  expect(style.bottom).toContain("18px");
+  expect(style.width).toContain("260px");
+  expect(style.transform).toContain("translateX(-50%)");
+
+  const declaredWidth = firstPx(style.width);
+  const maxWidth = firstPx(style.maxWidth);
+  const minimumTouchHeight = firstPx(style.minHeight);
+  const bottomInset = firstPx(style.bottom);
+  expect(declaredWidth).toBeLessThanOrEqual(window.innerWidth);
+  expect(maxWidth).toBeLessThanOrEqual(window.innerWidth);
+  expect(minimumTouchHeight).toBeGreaterThanOrEqual(44);
+  expect(bottomInset + minimumTouchHeight).toBeLessThanOrEqual(window.innerHeight);
+}
+
 function installCanvasHarness(): void {
   const gradient = { addColorStop: () => undefined };
   const ctx = new Proxy(
@@ -191,6 +231,7 @@ function installCanvasHarness(): void {
 
 afterEach(() => {
   vi.restoreAllMocks();
+  setViewport(originalViewport.width, originalViewport.height);
   store.clear();
   document.head.innerHTML = "";
   document.body.innerHTML = "";
@@ -227,11 +268,14 @@ describe("arrow saga composed surface", () => {
     expectCenteredSagaNodes(handle.el);
   });
 
-  it("renders exactly one Play CTA wired to the first incomplete level", () => {
+  it("renders exactly one fixed Play CTA wired to the first incomplete level", () => {
     document.body.innerHTML = `
       <canvas id="scene" style="width: 390px; height: 844px"></canvas>
       <div id="ui" class="arrow-ui"></div>
     `;
+    setViewport(launchViewport.width, launchViewport.height);
+    installCss("fab-ui-css-test", "../../packages/ui/src/ui.css");
+    installCss("arrow-token-css-test", "design/tokens.css");
     installCanvasHarness();
     installLevelMapArt(document);
 
@@ -245,6 +289,7 @@ describe("arrow saga composed surface", () => {
     expect(playButtons[0]!.textContent).toBe(copy["menu.play"]);
     expect(playButtons[0]!.classList.contains("arrow-play-button")).toBe(true);
     expect(playButtons[0]!.getAttribute("aria-label")).toBe(`${copy["menu.play"]} ${copy["menu.levelButton"]} 7`);
+    expectFixedLaunchCta(playButtons[0]!);
 
     playButtons[0]!.click();
 
