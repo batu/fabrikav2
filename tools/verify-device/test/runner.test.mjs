@@ -18,4 +18,14 @@ describe('VerifyDeviceRunner template', () => {
     expect(src).toMatch(/case\s+\.failed:[\s\S]*shot\("\\\(name\)-MISSING"\)[\s\S]*XCTFail\("state '\\\(state\)' published tourstate:\\\(state\)-FAILED/);
     expect(src.indexOf('shot(name)')).toBeGreaterThan(src.indexOf('case .reached:'));
   });
+
+  it('reads and attaches the matching viewport metrics marker for every reached state', () => {
+    const src = fs.readFileSync(runnerSwift, 'utf8');
+    expect(src).toContain(String.raw`let prefix = "viewportmetrics:state=tourstate:\(state);"`);
+    expect(src).toMatch(/NSPredicate\(format:\s*"label BEGINSWITH %@"/);
+    expect(src).toContain(String.raw`attachText("\(name)-viewportmetrics", metrics)`);
+    expect(src).toContain(String.raw`attachText("\(name)-viewportmetrics-MISSING"`);
+    expect(src.indexOf(String.raw`attachText("\(name)-viewportmetrics", metrics)`))
+      .toBeLessThan(src.indexOf('shot(name)'));
+  });
 });

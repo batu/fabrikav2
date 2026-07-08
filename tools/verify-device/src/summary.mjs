@@ -12,18 +12,46 @@ const MAJOR_OR_WORSE = new Set(['major', 'blocker']);
  * @param {object} params
  * @param {object} [params.panel] runPanel result
  * @param {object} [params.phashVerdict] computeVerdict result used when panel skipped
- * @returns {Record<string,{score:number|null,majorConsensusCount:number,verdict:string}>}
+ * @param {Record<string,object>} [params.viewportMetrics] state -> parsed viewport metrics
+ * @param {Array<object>} [params.viewportMetricAssertions] manifest range assertion results
+ * @returns {Record<string,{
+ *   score:number|null,
+ *   majorConsensusCount:number,
+ *   verdict:string,
+ *   viewportMetrics?:object,
+ *   viewportMetricAssertions?:Array<object>,
+ * }>}
  */
-export function buildSummary({ panel, phashVerdict }) {
+export function buildSummary({ panel, phashVerdict, viewportMetrics = {}, viewportMetricAssertions = [] }) {
+  let summary;
   if (Array.isArray(panel?.states)) {
-    return Object.fromEntries(panel.states.map((state) => [state.state, summarizePanelState(state)]));
+    summary = Object.fromEntries(panel.states.map((state) => [state.state, summarizePanelState(state)]));
+  } else {
+    const states = Array.isArray(phashVerdict?.states) ? phashVerdict.states : [];
+    summary = Object.fromEntries(states.map((state) => [state.state, {
+      score: null,
+      majorConsensusCount: 0,
+      verdict: String(state.status || 'unknown'),
+    }]));
   }
-  const states = Array.isArray(phashVerdict?.states) ? phashVerdict.states : [];
-  return Object.fromEntries(states.map((state) => [state.state, {
-    score: null,
-    majorConsensusCount: 0,
-    verdict: String(state.status || 'unknown'),
-  }]));
+
+  const assertionsByState = groupAssertionsByState(viewportMetricAssertions);
+  for (const state of new Set([
+    ...Object.keys(viewportMetrics || {}),
+    ...Object.keys(assertionsByState),
+  ])) {
+    if (!summary[state]) {
+      summary[state] = { score: null, majorConsensusCount: 0, verdict: 'unknown' };
+    }
+    if (isPlainObject(viewportMetrics?.[state])) {
+      summary[state].viewportMetrics = viewportMetrics[state];
+    }
+    if (assertionsByState[state]?.length > 0) {
+      summary[state].viewportMetricAssertions = assertionsByState[state];
+    }
+  }
+
+  return summary;
 }
 
 export function writeSummaryJson(outDir, summary) {
@@ -53,11 +81,18 @@ export function normalizeSummary(raw) {
   return Object.fromEntries(Object.entries(source).map(([state, value]) => {
     const score = value?.score;
     const majorConsensusCount = Number(value?.majorConsensusCount);
-    return [state, {
+    const normalized = {
       score: Number.isFinite(score) ? score : null,
       majorConsensusCount: Number.isFinite(majorConsensusCount) ? majorConsensusCount : 0,
       verdict: String(value?.verdict || value?.status || 'unknown'),
-    }];
+    };
+    if (isPlainObject(value?.viewportMetrics)) {
+      normalized.viewportMetrics = value.viewportMetrics;
+    }
+    if (Array.isArray(value?.viewportMetricAssertions)) {
+      normalized.viewportMetricAssertions = value.viewportMetricAssertions;
+    }
+    return [state, normalized];
   }));
 }
 
@@ -120,6 +155,17 @@ function summarizePanelState(state) {
     majorConsensusCount: consensus.filter((finding) => MAJOR_OR_WORSE.has(finding?.severity)).length,
     verdict: String(state.status || 'unknown'),
   };
+}
+
+function groupAssertionsByState(assertions) {
+  const byState = {};
+  for (const assertion of Array.isArray(assertions) ? assertions : []) {
+    const state = assertion?.state;
+    if (typeof state !== 'string' || state.length === 0) continue;
+    if (!byState[state]) byState[state] = [];
+    byState[state].push(assertion);
+  }
+  return byState;
 }
 
 function numericDelta(current, previous) {

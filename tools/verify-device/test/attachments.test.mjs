@@ -58,6 +58,21 @@ describe('mapAttachmentsToStates', () => {
     expect(mapAttachmentsToStates([]).byState).toEqual({});
     expect(mapAttachmentsToStates(null).byState).toEqual({});
   });
+
+  it('maps viewport metrics text attachments separately from screenshots', () => {
+    const manifest = [{
+      attachments: [
+        { exportedFileName: 'old.txt', suggestedHumanReadableName: '1-menu-viewportmetrics_0_uuid.txt', timestamp: 100 },
+        { exportedFileName: 'new.txt', suggestedHumanReadableName: '1-menu-viewportmetrics_1_uuid.txt', timestamp: 200 },
+      ],
+    }];
+
+    const { byState, viewportMetricAttachments, unmapped } = mapAttachmentsToStates(manifest);
+
+    expect(byState).toEqual({});
+    expect(viewportMetricAttachments.menu.file).toBe('new.txt');
+    expect(unmapped).toEqual([]);
+  });
 });
 
 describe('extractFromExportDir + loadCapturesDir (fs)', () => {
@@ -72,6 +87,33 @@ describe('extractFromExportDir + loadCapturesDir (fs)', () => {
     const { byState } = extractFromExportDir(dir);
     expect(byState.menu).toBe(path.join(dir, 'menu-retake.png'));
     expect(byState.fail).toBe(path.join(dir, 'f.png'));
+  });
+
+  it('parses viewport metrics text sidecars from the export dir', () => {
+    const metricsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vd-metrics-'));
+    fs.writeFileSync(path.join(metricsDir, 'manifest.json'), JSON.stringify([{
+      attachments: [{
+        exportedFileName: 'menu-metrics.txt',
+        suggestedHumanReadableName: '1-menu-viewportmetrics_0_uuid.txt',
+        timestamp: 100,
+      }],
+    }]));
+    fs.writeFileSync(
+      path.join(metricsDir, 'menu-metrics.txt'),
+      'viewportmetrics:state=tourstate:menu;inner=390x844;vv=390x800@1;screen=393x852;safe=59,0,34,0;canvas=390x844/780x1688;dpr=3'
+    );
+
+    const { viewportMetrics } = extractFromExportDir(metricsDir);
+
+    expect(viewportMetrics.menu).toMatchObject({
+      markerState: 'tourstate:menu',
+      windowInnerWidth: 390,
+      windowInnerHeight: 844,
+      safeAreaInsetTop: 59,
+      canvasBackingHeight: 1688,
+      devicePixelRatio: 3,
+    });
+    fs.rmSync(metricsDir, { recursive: true, force: true });
   });
 
   it('throws a clear error when the manifest is missing', () => {

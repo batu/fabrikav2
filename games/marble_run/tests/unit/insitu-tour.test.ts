@@ -83,6 +83,10 @@ function installFakeDom(ariaHistory: string[]): { markerFor: (id: string) => Fak
   return { markerFor: (id) => registry.get(id) ?? null };
 }
 
+function tourHistory(ariaHistory: string[]): string[] {
+  return ariaHistory.filter((value) => value.startsWith('tourstate:'));
+}
+
 /** A fake App whose harness().driveTo/snapshot are fully under test control. */
 function makeFakeApp(
   driveTo: (state: string) => Promise<boolean>,
@@ -136,7 +140,7 @@ describe('maybeRunInsituTour — allstates', () => {
     // Every state confirmed (driveTo resolved true) → marked by its own name,
     // then retired before the next drive so a late runner cannot accept a stale
     // exact marker during the transition to the next state.
-    expect(ariaHistory).toEqual([
+    expect(tourHistory(ariaHistory)).toEqual([
       'tourstate:menu',
       'tourstate:menu-DONE',
       'tourstate:level',
@@ -211,7 +215,7 @@ describe('maybeRunInsituTour — allstates', () => {
   it('retires the exact settings marker before driving pause, preventing stale captures', async () => {
     let markerAtPauseStart: string | undefined;
     const driveTo = async (state: string): Promise<boolean> => {
-      if (state === 'pause') markerAtPauseStart = ariaHistory.at(-1);
+      if (state === 'pause') markerAtPauseStart = tourHistory(ariaHistory).at(-1);
       return true;
     };
     const app = makeFakeApp(driveTo);
@@ -242,7 +246,7 @@ describe('maybeRunInsituTour — allstates', () => {
     expect(marker!.textContent).toBe('tourstate:done');
   });
 
-  it('reuses the same marker element across states instead of creating a new one each time', async () => {
+  it('reuses the tour and viewport metrics marker elements across states', async () => {
     let created = 0;
     const registry = new Map<string, FakeElement>();
     const body = makeElement(ariaHistory);
@@ -264,7 +268,9 @@ describe('maybeRunInsituTour — allstates', () => {
     await vi.runAllTimersAsync();
     await run;
 
-    expect(created).toBe(1);
+    expect(created).toBe(2);
+    expect(registry.has('__tourstate__')).toBe(true);
+    expect(registry.has('__viewportmetrics__')).toBe(true);
   });
 });
 

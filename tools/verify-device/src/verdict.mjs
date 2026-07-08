@@ -32,11 +32,11 @@ export function isVerifiedDeviceLane(lane) {
   return lane === 'device';
 }
 
-export function computeStrictExitCode({ strict, lane, primary, captureFailure }) {
+export function computeStrictExitCode({ strict, lane, primary, captureFailure, viewportMetricsPass = true }) {
   if (captureFailure) return 1;
   if (!strict) return 0;
   if (!isVerifiedDeviceLane(lane)) return 1;
-  return primary?.pass ? 0 : 1;
+  return primary?.pass && viewportMetricsPass ? 0 : 1;
 }
 
 function classify(row, threshold) {

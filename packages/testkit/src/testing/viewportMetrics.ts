@@ -30,13 +30,16 @@ export interface ViewportMetricsSnapshot {
 const VIEWPORT_METRICS_MARKER_ID = '__viewportmetrics__';
 
 export function readViewportMetrics(canvas: HTMLCanvasElement | null = findCanvas()): ViewportMetricsSnapshot {
-  const visualViewport = window.visualViewport;
+  const visualViewport = typeof window === 'undefined' ? undefined : window.visualViewport;
   const canvasRect = canvas?.getBoundingClientRect();
   const safeArea = measureSafeAreaInsets();
+  const doc = typeof document === 'undefined' ? undefined : document;
+  const win = typeof window === 'undefined' ? undefined : window;
+  const screen = win?.screen;
 
   return {
-    windowInnerWidth: window.innerWidth,
-    windowInnerHeight: window.innerHeight,
+    windowInnerWidth: win?.innerWidth ?? doc?.documentElement?.clientWidth ?? doc?.body?.clientWidth ?? 0,
+    windowInnerHeight: win?.innerHeight ?? doc?.documentElement?.clientHeight ?? doc?.body?.clientHeight ?? 0,
     visualViewportWidth: visualViewport?.width ?? null,
     visualViewportHeight: visualViewport?.height ?? null,
     visualViewportOffsetTop: visualViewport?.offsetTop ?? null,
@@ -44,13 +47,13 @@ export function readViewportMetrics(canvas: HTMLCanvasElement | null = findCanva
     visualViewportPageTop: visualViewport?.pageTop ?? null,
     visualViewportPageLeft: visualViewport?.pageLeft ?? null,
     visualViewportScale: visualViewport?.scale ?? null,
-    screenWidth: window.screen.width,
-    screenHeight: window.screen.height,
-    devicePixelRatio: window.devicePixelRatio || 1,
-    documentElementClientWidth: document.documentElement.clientWidth,
-    documentElementClientHeight: document.documentElement.clientHeight,
-    bodyClientWidth: document.body?.clientWidth ?? 0,
-    bodyClientHeight: document.body?.clientHeight ?? 0,
+    screenWidth: screen?.width ?? 0,
+    screenHeight: screen?.height ?? 0,
+    devicePixelRatio: win?.devicePixelRatio || 1,
+    documentElementClientWidth: doc?.documentElement?.clientWidth ?? 0,
+    documentElementClientHeight: doc?.documentElement?.clientHeight ?? 0,
+    bodyClientWidth: doc?.body?.clientWidth ?? 0,
+    bodyClientHeight: doc?.body?.clientHeight ?? 0,
     safeAreaInsetTop: safeArea.top,
     safeAreaInsetRight: safeArea.right,
     safeAreaInsetBottom: safeArea.bottom,
@@ -59,8 +62,8 @@ export function readViewportMetrics(canvas: HTMLCanvasElement | null = findCanva
     canvasCssHeight: canvasRect?.height ?? null,
     canvasBackingWidth: canvas?.width ?? null,
     canvasBackingHeight: canvas?.height ?? null,
-    orientationType: window.screen.orientation?.type ?? null,
-    timestampMs: Math.round(performance.now()),
+    orientationType: screen?.orientation?.type ?? null,
+    timestampMs: Math.round(typeof performance === 'undefined' ? 0 : performance.now()),
   };
 }
 
@@ -74,11 +77,21 @@ export function publishViewportMetricsMarker(state?: string): ViewportMetricsSna
 }
 
 function findCanvas(): HTMLCanvasElement | null {
+  if (typeof document === 'undefined' || typeof document.querySelector !== 'function') return null;
   return document.querySelector('canvas');
 }
 
 function measureSafeAreaInsets(): { top: number | null; right: number | null; bottom: number | null; left: number | null } {
-  if (!document.body) return { top: null, right: null, bottom: null, left: null };
+  if (
+    typeof document === 'undefined' ||
+    typeof window === 'undefined' ||
+    !document.body ||
+    typeof document.body.appendChild !== 'function' ||
+    typeof document.createElement !== 'function' ||
+    typeof window.getComputedStyle !== 'function'
+  ) {
+    return { top: null, right: null, bottom: null, left: null };
+  }
 
   const probe = document.createElement('div');
   probe.style.position = 'fixed';
@@ -101,7 +114,7 @@ function measureSafeAreaInsets(): { top: number | null; right: number | null; bo
     bottom: parseCssPx(computed.paddingBottom),
     left: parseCssPx(computed.paddingLeft),
   };
-  probe.remove();
+  probe.remove?.();
   return insets;
 }
 
