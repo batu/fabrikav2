@@ -13,6 +13,9 @@ describe("arrow menu theme", () => {
     expect(style?.textContent).toContain(".fab-levelmap-path::before");
     expect(style?.textContent).toContain(".arrow-menu-header::before");
     expect(style?.textContent).toContain(".arrow-play-button");
+    expect(style?.textContent).toContain(".arrow-ui .arrow-play-button:active:not(:disabled)");
+    expect(style?.textContent).toContain("bottom: calc(18px + env(safe-area-inset-bottom, 0px));");
+    expect(style?.textContent).toContain("width: min(72vw, 260px);");
   });
 
   it("is idempotent", () => {

@@ -66,7 +66,8 @@ export function installLevelMapArt(doc: Document = document): void {
 .arrow-ui .fab-home-menu {
   box-sizing: border-box;
   min-height: 100dvh;
-  padding: 0 20px calc(16px + env(safe-area-inset-bottom, 0px));
+  padding: 0 20px 96px;
+  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
 }
 .arrow-ui .fab-home-menu-content {
   flex: 1 1 auto;
@@ -77,8 +78,17 @@ export function installLevelMapArt(doc: Document = document): void {
   width: min(72vw, 260px);
   margin: 0 auto;
 }
-.arrow-play-button {
+.arrow-ui .arrow-play-button {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  z-index: 20;
+  width: 260px;
+  max-width: 72vw;
+  width: min(72vw, 260px);
   min-height: 58px;
+  transform: translateX(-50%);
   border: 2px solid var(--arrow-panel-border);
   border-radius: 999px;
   background: linear-gradient(180deg, var(--active-blue), var(--fab-color-accent));
@@ -87,6 +97,9 @@ export function installLevelMapArt(doc: Document = document): void {
   font-weight: 900;
   box-shadow: 0 9px 0 var(--arrow-panel-border), 0 18px 28px var(--arrow-panel-shadow);
   text-transform: uppercase;
+}
+.arrow-ui .arrow-play-button:active:not(:disabled) {
+  transform: translateX(-50%) translateY(2px) scale(0.985);
 }`;
   doc.head.appendChild(style);
 }
