@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { maybeRunInsituTour, type TourHarness } from "../../src/testing/insituTour.ts";
-import type { DriveState } from "../../src/testing/driveTo.ts";
+import { DRIVE_STATES, type DriveState } from "../../src/testing/driveTo.ts";
 
 interface HarnessSaveProfile {
   unlockedLevel?: number;
@@ -48,11 +48,13 @@ function makeHarness(
 
 describe("find_the_dog maybeRunInsituTour — allstates", () => {
   let ariaHistory: string[];
+  let metricsHistory: string[];
 
   beforeEach(() => {
     document.body.innerHTML = "";
     setTourSearch("?insituTour=allstates");
     ariaHistory = [];
+    metricsHistory = [];
     vi.stubEnv("VITE_INSITU_TOUR", "");
     const originalSetAttribute = Element.prototype.setAttribute;
     vi.spyOn(Element.prototype, "setAttribute").mockImplementation(function (
@@ -61,6 +63,7 @@ describe("find_the_dog maybeRunInsituTour — allstates", () => {
       value: string,
     ) {
       if (this.id === "__tourstate__" && name === "aria-label") ariaHistory.push(value);
+      if (this.id === "__viewportmetrics__" && name === "aria-label") metricsHistory.push(value);
       return originalSetAttribute.call(this, name, value);
     });
     vi.useFakeTimers();
@@ -87,16 +90,23 @@ describe("find_the_dog maybeRunInsituTour — allstates", () => {
 
     expect(seen).toEqual(["menu", "level", "settings", "pause", "win", "fail"]);
     expect(ariaHistory).toEqual([
+      "tourstate:pending",
+      "tourstate:menu",
       "tourstate:menu",
       "tourstate:menu-DONE",
       "tourstate:level",
+      "tourstate:level",
       "tourstate:level-DONE",
+      "tourstate:settings",
       "tourstate:settings",
       "tourstate:settings-DONE",
       "tourstate:pause",
+      "tourstate:pause",
       "tourstate:pause-DONE",
       "tourstate:win",
+      "tourstate:win",
       "tourstate:win-DONE",
+      "tourstate:fail",
       "tourstate:fail",
       "tourstate:fail-DONE",
       "tourstate:done",
@@ -169,7 +179,7 @@ describe("find_the_dog maybeRunInsituTour — allstates", () => {
     expect(marker!.textContent).toBe("tourstate:done");
   });
 
-  it("publishes viewport geometry on a separate off-screen accessibility marker", async () => {
+  it("publishes viewport geometry on a separate off-screen accessibility marker for exact states", async () => {
     const canvas = document.createElement("canvas");
     canvas.width = 780;
     canvas.height = 1688;
@@ -186,7 +196,7 @@ describe("find_the_dog maybeRunInsituTour — allstates", () => {
     const label = marker?.getAttribute("aria-label") ?? "";
     expect(marker).not.toBeNull();
     expect(marker!.style.cssText).toContain("left: -9999px");
-    expect(label).toContain("viewportmetrics:state=tourstate:done");
+    expect(label).toContain("viewportmetrics:state=tourstate:fail");
     expect(label).toContain("inner=");
     expect(label).toContain("vv=");
     expect(label).toContain("screen=");
@@ -194,6 +204,11 @@ describe("find_the_dog maybeRunInsituTour — allstates", () => {
     expect(label).toContain("canvas=");
     expect(label).toContain("dpr=");
     expect(marker!.textContent).toBe(label);
+    for (const state of DRIVE_STATES) {
+      expect(metricsHistory.some((value) => value.startsWith(`viewportmetrics:state=tourstate:${state};`))).toBe(true);
+    }
+    expect(metricsHistory.some((value) => value.includes("-DONE"))).toBe(false);
+    expect(metricsHistory.some((value) => value.includes("-FAILED"))).toBe(false);
   });
 });
 

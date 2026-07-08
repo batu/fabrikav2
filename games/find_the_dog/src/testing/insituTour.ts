@@ -30,16 +30,22 @@ export async function maybeRunInsituTour(harness: TourHarness): Promise<void> {
   const marker = ensureMarker();
   for (const state of DRIVE_STATES) {
     const ok = await harness.driveTo(state);
-    let stable = false;
-    if (ok) {
-      await sleep(MARK_SETTLE_RECHECK_MS);
-      stable = snapshotMatchesState(state, harness.snapshot());
+    if (!ok) {
+      mark(marker, `tourstate:${state}-FAILED`);
+      await sleep(ALLSTATES_DWELL_MS);
+      continue;
     }
-    mark(marker, `tourstate:${stable ? state : `${state}-FAILED`}`);
+    publishReachedState(marker, state);
+    await sleep(MARK_SETTLE_RECHECK_MS);
+    const stable = snapshotMatchesState(state, harness.snapshot());
+    if (!stable) {
+      mark(marker, `tourstate:${state}-FAILED`);
+      await sleep(ALLSTATES_DWELL_MS);
+      continue;
+    }
+    publishReachedState(marker, state);
     await sleep(ALLSTATES_DWELL_MS);
-    if (stable) {
-      mark(marker, `tourstate:${snapshotMatchesState(state, harness.snapshot()) ? `${state}-DONE` : `${state}-FAILED`}`);
-    }
+    mark(marker, `tourstate:${snapshotMatchesState(state, harness.snapshot()) ? `${state}-DONE` : `${state}-FAILED`}`);
   }
   mark(marker, 'tourstate:done');
 }
@@ -57,14 +63,20 @@ function ensureMarker(): HTMLElement {
   marker.setAttribute('role', 'text');
   marker.style.cssText = 'position:fixed;left:-9999px;top:0;width:1px;height:1px;overflow:hidden;pointer-events:none;';
   marker.textContent = 'tourstate:pending';
+  marker.setAttribute('aria-label', 'tourstate:pending');
   document.body.appendChild(marker);
   return marker;
+}
+
+function publishReachedState(marker: HTMLElement, state: DriveState): void {
+  const value = `tourstate:${state}`;
+  mark(marker, value);
+  publishViewportMetricsMarker(value);
 }
 
 function mark(marker: HTMLElement, value: string): void {
   marker.textContent = value;
   marker.setAttribute('aria-label', value);
-  publishViewportMetricsMarker(value);
 }
 
 function snapshotMatchesState(state: DriveState, raw: unknown): boolean {
