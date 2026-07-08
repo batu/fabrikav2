@@ -37,7 +37,7 @@ npm run verify-device -- --game marble_run
    via the same manifest `tools/refcap-compare` uses) → a
    **device|reference|pixel-diff grid** at
    `docs/evidence/<date>-device-verify/grid.html` + `summary.json` with stable
-   per-state `{score, majorConsensusCount, verdict}` entries + a **PASS/FAIL**
+   per-state `{score, majorConsensusCount, verdict, capture}` entries + a **PASS/FAIL**
    summary (FAIL if a state is missing or its diff exceeds `--threshold`, default
    advisory).
 6. **Emit named-region crops** under `<out>/crops/` when
@@ -53,6 +53,13 @@ Device/keychain/Mac-only steps are gated. With no connected device (or
 `--skip-device`, or no Xcode), the tool **skips with a clear message and exits 0**
 so CI degrades instead of failing — and says plainly that on-device rendering
 stays **UNVERIFIED**.
+
+If the iOS runner exports a `*-MISSING` inspection screenshot, that state is
+recorded in `summary.json` as `capture: { "gated": false }`, the state table marks
+it `BLIND`, and the command exits non-zero by default with
+`<state> CAPTURED BLIND (marker never appeared)`. Pass `--allow-ungated` only when
+replaying historical or forensic captures where the non-zero gate is intentionally
+disabled.
 
 ## Android lane (`--platform android`)
 
@@ -211,6 +218,7 @@ gracefully (exit 0) and on-device fidelity stays **UNVERIFIED**.
 `kitchen-sink` for the full roster) · `--models <a,b,c>` (overrides the ensemble) ·
 `--panel-threshold <0..100>` (default 85) · `--skip-panel` · `--strict` (FAIL or
 non-device lane → non-zero exit; default advisory) · `--skip-device` ·
+`--allow-ungated` (forensic replay escape hatch for `*-MISSING` iOS attachments) ·
 `--lane <device|browser>` (default `device`) · `--budget-floor <n>` (default 5) ·
 `--compare <prev-run-dir>` (print per-state score / consensus / verdict deltas
 against a previous run's `summary.json`, falling back to `panel.json`) · `-h/--help`.

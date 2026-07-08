@@ -8,13 +8,13 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { stateFromShotName, CANONICAL_STATES } from './states.mjs';
+import { isMissingShotName, stateFromShotName, CANONICAL_STATES } from './states.mjs';
 import { parseViewportMetricsLabel, stateFromViewportMetricsAttachmentName } from './viewportMetrics.mjs';
 
 /**
  * Map an xcresulttool attachments manifest onto canonical states.
  * @param {any} manifest parsed manifest.json (array of {attachments:[...]})
- * @returns {{byState: Record<string,{file:string, humanName:string, timestamp:number}>,
+ * @returns {{byState: Record<string,{file:string, humanName:string, timestamp:number, gated:boolean}>,
  *   viewportMetricAttachments: Record<string,{file:string, humanName:string, timestamp:number}>,
  *   unmapped: Array<{file:string, humanName:string}>}}
  *   When several attachments map to the same state, the latest timestamp wins
@@ -48,7 +48,7 @@ export function mapAttachmentsToStates(manifest) {
       const timestamp = Number(att?.timestamp) || 0;
       const prev = byState[state];
       if (!prev || timestamp >= prev.timestamp) {
-        byState[state] = { file, humanName, timestamp };
+        byState[state] = { file, humanName, timestamp, gated: !isMissingShotName(humanName) };
       }
     }
   }
@@ -58,8 +58,10 @@ export function mapAttachmentsToStates(manifest) {
 /**
  * Resolve device captures from an xcresulttool export directory.
  * @param {string} exportDir dir containing manifest.json + the exported PNGs
- * @returns {{byState: Record<string,string>, viewportMetrics: Record<string,object>, unmapped: Array}}
- *   state -> abs PNG path plus parsed viewport metrics sidecars when present
+ * @returns {{byState: Record<string,string>, captureByState: Record<string,{gated:boolean}>,
+ *   viewportMetrics: Record<string,object>, unmapped: Array}}
+ *   state -> abs PNG path, capture integrity flags, and parsed viewport metrics
+ *   sidecars when present
  */
 export function extractFromExportDir(exportDir) {
   const manifestPath = path.join(exportDir, 'manifest.json');
@@ -69,15 +71,17 @@ export function extractFromExportDir(exportDir) {
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
   const { byState, viewportMetricAttachments, unmapped } = mapAttachmentsToStates(manifest);
   const resolved = {};
+  const captureByState = {};
   for (const [state, info] of Object.entries(byState)) {
     resolved[state] = path.join(exportDir, info.file);
+    captureByState[state] = { gated: info.gated !== false };
   }
   const viewportMetrics = {};
   for (const [state, info] of Object.entries(viewportMetricAttachments)) {
     const file = path.join(exportDir, info.file);
     viewportMetrics[state] = parseViewportMetricsLabel(fs.readFileSync(file, 'utf8').trim());
   }
-  return { byState: resolved, viewportMetrics, unmapped };
+  return { byState: resolved, captureByState, viewportMetrics, unmapped };
 }
 
 /**

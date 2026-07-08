@@ -77,4 +77,20 @@ describe('strict device exit semantics', () => {
       captureFailure: 'xcodebuild test failed',
     })).toBe(1);
   });
+
+  it('fails blind captures by default even outside --strict, with an explicit escape hatch', () => {
+    expect(computeStrictExitCode({
+      strict: false,
+      lane: 'device',
+      primary: { pass: true },
+      ungatedCaptureStates: ['fail'],
+    })).toBe(1);
+    expect(computeStrictExitCode({
+      strict: false,
+      lane: 'device',
+      primary: { pass: true },
+      ungatedCaptureStates: ['fail'],
+      allowUngated: true,
+    })).toBe(0);
+  });
 });

@@ -12,17 +12,25 @@ const MAJOR_OR_WORSE = new Set(['major', 'blocker']);
  * @param {object} params
  * @param {object} [params.panel] runPanel result
  * @param {object} [params.phashVerdict] computeVerdict result used when panel skipped
+ * @param {Record<string,{gated:boolean}>} [params.captureByState] attachment-derived capture integrity
  * @param {Record<string,object>} [params.viewportMetrics] state -> parsed viewport metrics
  * @param {Array<object>} [params.viewportMetricAssertions] manifest range assertion results
  * @returns {Record<string,{
  *   score:number|null,
  *   majorConsensusCount:number,
  *   verdict:string,
+ *   capture?:{gated:boolean},
  *   viewportMetrics?:object,
  *   viewportMetricAssertions?:Array<object>,
  * }>}
  */
-export function buildSummary({ panel, phashVerdict, viewportMetrics = {}, viewportMetricAssertions = [] }) {
+export function buildSummary({
+  panel,
+  phashVerdict,
+  captureByState = {},
+  viewportMetrics = {},
+  viewportMetricAssertions = [],
+}) {
   let summary;
   if (Array.isArray(panel?.states)) {
     summary = Object.fromEntries(panel.states.map((state) => [state.state, summarizePanelState(state)]));
@@ -37,11 +45,15 @@ export function buildSummary({ panel, phashVerdict, viewportMetrics = {}, viewpo
 
   const assertionsByState = groupAssertionsByState(viewportMetricAssertions);
   for (const state of new Set([
+    ...Object.keys(captureByState || {}),
     ...Object.keys(viewportMetrics || {}),
     ...Object.keys(assertionsByState),
   ])) {
     if (!summary[state]) {
       summary[state] = { score: null, majorConsensusCount: 0, verdict: 'unknown' };
+    }
+    if (isPlainObject(captureByState?.[state]) && typeof captureByState[state].gated === 'boolean') {
+      summary[state].capture = { gated: captureByState[state].gated };
     }
     if (isPlainObject(viewportMetrics?.[state])) {
       summary[state].viewportMetrics = viewportMetrics[state];
@@ -89,6 +101,9 @@ export function normalizeSummary(raw) {
     if (isPlainObject(value?.viewportMetrics)) {
       normalized.viewportMetrics = value.viewportMetrics;
     }
+    if (isPlainObject(value?.capture) && typeof value.capture.gated === 'boolean') {
+      normalized.capture = { gated: value.capture.gated };
+    }
     if (Array.isArray(value?.viewportMetricAssertions)) {
       normalized.viewportMetricAssertions = value.viewportMetricAssertions;
     }
@@ -122,12 +137,25 @@ export function formatSummaryTable(summary) {
   const stateWidth = Math.max(5, ...entries.map(([state]) => state.length));
   const lines = [
     '  states:',
-    `    ${'state'.padEnd(stateWidth)}  score  majors  verdict`,
+    `    ${'state'.padEnd(stateWidth)}  score  majors  verdict  capture`,
     ...entries.map(([state, value]) =>
       `    ${state.padEnd(stateWidth)}  ${formatNumber(value.score).padStart(5)}  `
-      + `${formatNumber(value.majorConsensusCount).padStart(6)}  ${value.verdict}`),
+      + `${formatNumber(value.majorConsensusCount).padStart(6)}  ${String(value.verdict).padEnd(7)}  `
+      + `${formatCapture(value.capture)}`),
   ];
   return `${lines.join('\n')}\n`;
+}
+
+export function ungatedCaptureStates(summary) {
+  return Object.entries(normalizeSummary(summary))
+    .filter(([, value]) => value.capture?.gated === false)
+    .map(([state]) => state);
+}
+
+export function formatUngatedCaptureWarnings(states) {
+  const list = Array.isArray(states) ? states : [];
+  if (list.length === 0) return '';
+  return list.map((state) => `  ${state} CAPTURED BLIND (marker never appeared)`).join('\n') + '\n';
 }
 
 export function formatCompareTable(deltas, previousLabel) {
@@ -181,6 +209,12 @@ function formatDelta(value) {
 function formatNumber(value) {
   if (!Number.isFinite(value)) return '-';
   return Number.isInteger(value) ? String(value) : value.toFixed(1);
+}
+
+function formatCapture(capture) {
+  if (capture?.gated === false) return 'BLIND';
+  if (capture?.gated === true) return 'gated';
+  return '-';
 }
 
 function isPlainObject(value) {

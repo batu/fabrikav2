@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { GameHarness, HarnessSaveProfile } from '@fabrikav2/testkit/harness';
 import { gameState, type CompletionTransaction, type GameSettings, type WalletSnapshot } from '../core/GameState';
+import { GAMEPLAY, TIMING } from '../core/Constants';
 import { GameScene, type ClassicRenderDiagnosticsSnapshot, type RuntimeTexturesSnapshot, type ViewportEffectSnapshot } from '../scenes/GameScene';
 import { loadLevel, packageCacheSnapshot as getPackageCacheSnapshot, runtimeSequenceSnapshot as getRuntimeSequenceSnapshot, type LevelData, type LevelDog } from '../data/levels';
 import type { RuntimeSequenceResolution } from '../sequence/runtimeSequence';
@@ -15,6 +16,19 @@ import { driveTo, isDriveState, type DriveState, type DriveToDeps, type DriveSna
 import { readViewportMetrics, type ViewportMetricsSnapshot } from '@fabrikav2/testkit/testing';
 
 type FindTheDogVerb = 'gotoHome' | 'startLevel' | 'openSettings' | 'tapSafeMiss';
+
+const SETTINGS_PAGE_SELECTOR = [
+  '#home-page-overlay.home-page-settings',
+  '.settings-page-card',
+  '[data-page="settings"]',
+  '.settings-page',
+  '#settings-page',
+].join(', ');
+
+const WRONG_TAP_SETTLE_MS = TIMING.PENALTY_COOLDOWN_MS + 20;
+
+const sleep = (ms: number): Promise<void> =>
+  new Promise((resolve) => window.setTimeout(resolve, ms));
 
 export interface FindTheDogSnapshot {
   activeScene: string;
@@ -146,15 +160,26 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
   }
 
   function gotoHome(): void {
+    setLifecycleForTest('active');
     game.scene.stop('GameScene');
     game.scene.start('HomeScene');
   }
 
   function startLevel(): void {
+    setLifecycleForTest('active');
     prepareGameplayOverlay();
     const scene = game.scene.getScene('GameScene');
     if (scene !== null && game.scene.isActive('GameScene')) scene.scene.restart({});
     else game.scene.start('GameScene', {});
+  }
+
+  function openSettingsFromUi(): void {
+    const button = document.querySelector<HTMLButtonElement>('#home-nav-settings, #settings-btn');
+    if (button !== null) {
+      button.click();
+      return;
+    }
+    openPage('settings');
   }
 
   function safeMissPoint(): { x: number; y: number } {
@@ -187,21 +212,23 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
   }
 
   async function failLevel(): Promise<boolean> {
-    for (let i = 0; i < 6; i += 1) {
+    for (let i = 0; i < GAMEPLAY.LIVES_PER_LEVEL + 2; i += 1) {
       const snapshot = harnessSnapshot();
       if (snapshot.lives <= 0) return true;
       tapSafeMiss();
+      if (harnessSnapshot().lives <= 0) return true;
+      await sleep(WRONG_TAP_SETTLE_MS);
     }
     return harnessSnapshot().lives <= 0;
   }
 
   function driveSnapshot(): DriveSnapshot {
     const snapshot = harnessSnapshot();
-    const settingsOpen = document.querySelector('[data-page="settings"], .settings-page, #settings-page') !== null;
     return {
       activeScene: snapshot.activeScene,
       inputReady: snapshot.levelDataReady,
-      settingsOpen,
+      settingsOpen: snapshot.settingsOpen,
+      lifecycleSuspended: snapshot.lifecycleSuspended,
       levelComplete: snapshot.levelComplete,
       lives: snapshot.lives,
       status: snapshot.status,
@@ -212,7 +239,7 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     return {
       gotoMenu: () => gotoHome(),
       startLevel: () => startLevel(),
-      openSettings: () => openPage('settings'),
+      openSettings: () => openSettingsFromUi(),
       pause: () => setLifecycleForTest('inactive'),
       autoWin: () => winLevel(),
       autoFail: () => failLevel(),
@@ -237,7 +264,7 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
             : activeScene === 'GameScene'
               ? 'playing'
               : undefined,
-      settingsOpen: document.querySelector('[data-page="settings"], .settings-page, #settings-page') !== null,
+      settingsOpen: document.querySelector(SETTINGS_PAGE_SELECTOR) !== null,
       lifecycleSuspended: isGameSuspended(),
       levelId: level?.id ?? '',
       levelSize: { width: level?.width ?? 0, height: level?.height ?? 0 },
@@ -291,7 +318,7 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     verbs: {
       gotoHome: { run: gotoHome },
       startLevel: { run: startLevel },
-      openSettings: { run: () => openPage('settings') },
+      openSettings: { run: openSettingsFromUi },
       tapSafeMiss: { run: tapSafeMiss },
     },
 

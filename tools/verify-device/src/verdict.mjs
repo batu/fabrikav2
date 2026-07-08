@@ -32,7 +32,16 @@ export function isVerifiedDeviceLane(lane) {
   return lane === 'device';
 }
 
-export function computeStrictExitCode({ strict, lane, primary, captureFailure, viewportMetricsPass = true }) {
+export function computeStrictExitCode({
+  strict,
+  lane,
+  primary,
+  captureFailure,
+  viewportMetricsPass = true,
+  ungatedCaptureStates = [],
+  allowUngated = false,
+}) {
+  if (!allowUngated && Array.isArray(ungatedCaptureStates) && ungatedCaptureStates.length > 0) return 1;
   if (captureFailure) return 1;
   if (!strict) return 0;
   if (!isVerifiedDeviceLane(lane)) return 1;
