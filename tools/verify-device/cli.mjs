@@ -164,12 +164,19 @@ async function runAndroidDevicePath(args, manifest, date) {
   if (!appId) return { skip: `could not read appId from ${manifest.gameDir}/capacitor.config.ts` };
 
   const adbPrefix = args.adbPrefix || process.env.VERIFY_DEVICE_ADB_PREFIX || 'adb';
+  const buildPrefix = args.buildPrefix || process.env.VERIFY_DEVICE_BUILD_PREFIX;
   const serial = args.device;
   const activity = args.androidActivity || `${appId}/.MainActivity`;
 
-  steps.buildAndroidHarnessBundle(manifest.gameDir, { androidSdk: args.androidSdk });
-  steps.assembleAndroidDebug(manifest.gameDir, { androidSdk: args.androidSdk });
-  steps.installAndroidDebugApk({ gameDir: manifest.gameDir, serial, adbPrefix });
+  steps.buildAndroidHarnessBundle(manifest.gameDir, { androidSdk: args.androidSdk, buildPrefix });
+  steps.assembleAndroidDebug(manifest.gameDir, { androidSdk: args.androidSdk, buildPrefix });
+  steps.installAndroidDebugApk({
+    gameDir: manifest.gameDir,
+    serial,
+    adbPrefix,
+    requireLocalApk: !buildPrefix,
+  });
+  const logcatSinceEpochMs = Date.now();
   steps.launchAndroidApp({ appId, activity, serial, adbPrefix });
 
   const { captures, failures } = await captureAndroidStates({
@@ -177,6 +184,7 @@ async function runAndroidDevicePath(args, manifest, date) {
     outDir: path.join(outDir, 'android-captures'),
     adbPrefix,
     serial,
+    logcatSinceEpochMs,
   });
 
   return {

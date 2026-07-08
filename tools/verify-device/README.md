@@ -19,11 +19,16 @@ npm run verify-device -- --game marble_run
    before a 6s dwell.
 2. **Build + install on the device** — iOS uses `xcodebuild` + `devicectl install`.
    Android uses generated Capacitor `android/`, `./gradlew assembleDebug`, then
-   `adb install -r` via the configured adb command prefix.
+   `adb install -r` via the configured adb command prefix. Android build commands
+   can be wrapped with `VERIFY_DEVICE_BUILD_PREFIX` / `--build-prefix` when the
+   Gradle/JDK toolchain lives on a separate build host.
 3. **Run the platform capture driver** — iOS runs the committed XCUITest runner
-   (`runner/`). Android polls `adb shell uiautomator dump` for exact
-   `tourstate:<state>` markers, captures PNGs with `adb exec-out screencap -p`,
-   and waits for exact `tourstate:<state>-DONE` retire markers before advancing.
+   (`runner/`). Android polls `adb logcat -d -v epoch` for fresh
+   `[insituTour] state=<state>` console lines since app launch, falls back to
+   `adb shell uiautomator dump` for exact `tourstate:<state>` markers, captures
+   PNGs with `adb exec-out screencap -p`, and waits for exact
+   `state=<state>-DONE` / `tourstate:<state>-DONE` retire markers before
+   advancing.
 4. **Prepare judged captures** — copy raw device PNGs to `raw-captures/`, then
    crop the configured content inset into `judged-captures/` before phash +
    panel judging. Raw is the integrity/evidence artifact; judged is the artifact
@@ -93,6 +98,14 @@ When only adb is remote, pass `--adb-prefix 'ssh ubuntu-server adb'`; the driver
 runs commands such as `ssh ubuntu-server adb -s 27091JEGR22183 exec-out screencap
 -p`. The generated `games/<game>/android/` directory remains an ignored build
 artifact; the first live build/capture is conductor-run on the device host.
+
+When the CLI is run from a host without local Gradle/Java but the Android build
+checkout exists on the build host, pass `--build-prefix 'ssh ubuntu-server'` or
+set `VERIFY_DEVICE_BUILD_PREFIX='ssh ubuntu-server'`. The Android build steps are
+assembled as `<prefix> cd <gameDir> && env ANDROID_HOME=... VITE_INSITU_TOUR=allstates <command>`,
+while install/launch/capture still use `--adb-prefix` / `VERIFY_DEVICE_ADB_PREFIX`.
+For remote-build runs, the local APK existence check is skipped because the APK
+is produced on the build host.
 
 ## Non-device paths (what CI + unit tests exercise)
 
@@ -190,9 +203,10 @@ gracefully (exit 0) and on-device fidelity stays **UNVERIFIED**.
 
 `--game <name>` (required) · `--platform <auto|ios|android>` ·
 `--device <udid-or-adb-serial>` · `--adb-prefix <cmd>` ·
-`--android-sdk <path>` · `--android-activity <component>` · `--captures <dir>` ·
-`--xcresult <path>` · `--out <dir>` · `--date <YYYY-MM-DD>` ·
-`--content-inset-top <px>` · `--content-inset-bottom <px>` ·
+`--build-prefix <cmd>` · `--android-sdk <path>` ·
+`--android-activity <component>` · `--captures <dir>` · `--xcresult <path>` ·
+`--out <dir>` · `--date <YYYY-MM-DD>` · `--content-inset-top <px>` ·
+`--content-inset-bottom <px>` ·
 `--threshold <0..1>` (default 0.20) · `--ensemble <name>` (default `default`;
 `kitchen-sink` for the full roster) · `--models <a,b,c>` (overrides the ensemble) ·
 `--panel-threshold <0..100>` (default 85) · `--skip-panel` · `--strict` (FAIL or
