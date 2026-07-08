@@ -3,7 +3,13 @@ export const copyLocale = "en";
 
 export const copy = {
   "game.title": "Cameleon",
+  "board.label": "Sunwash Lido board",
   "menu.play": "Play",
+  "hud.status": "Sunwash Lido",
+  "hud.found": "Found",
+  "hud.foundValue": "{found}/{total}",
+  "hud.mode": "Mode",
+  "hud.dir": "Direction",
 } as const;
 
 export type CopyKey = keyof typeof copy;

@@ -1,49 +1,102 @@
+import "@fabrikav2/ui/ui.css";
+import "../design/tokens.css";
+import "./shell/cameleon.css";
+
 import { createFlowMachine } from "@fabrikav2/kernel";
 import { assignWindowBindings, maybeRunInsituTour } from "@fabrikav2/testkit/testing";
-import { gameConfig } from "../game.config.ts";
-import { copy } from "../design/copy.ts";
-import { mountPlaceholderScreen } from "./shell/PlaceholderScreen.ts";
-import { createTemplateHarness } from "./shell/harness.ts";
 
-/**
- * Boot the game: stand up the kernel screen-flow machine and mount the
- * placeholder shell screen. A real port replaces the placeholder with the
- * declared `gameConfig.screens` from `@fabrikav2/ui` and wires the machine's
- * transitions to gameplay. Returned so the unit smoke test can assert on it.
- */
-export function bootGame(mountInto: HTMLElement) {
+import { gameConfig } from "../game.config.ts";
+import {
+  CAMELEON_TOUR_STATES,
+  createCameleonController,
+  snapshotMatchesCameleonTourState,
+  type CameleonController,
+} from "./game/CameleonController.ts";
+import { loadLevelDefinition, LIDO_LEVEL_URL, type LevelFetch } from "./game/levelLoader.ts";
+import type { CameleonLevelDefinition } from "./game/level.ts";
+import { mountCameleonPhaser, type CameleonPhaserRuntime } from "./game/phaserRuntime.ts";
+import { parseCameleonQuery, type CameleonQueryParams } from "./game/query.ts";
+import { mountCameleonScreen, type CameleonScreen } from "./shell/CameleonScreen.ts";
+import { createCameleonHarness } from "./shell/harness.ts";
+
+export interface CameleonBootOptions {
+  readonly level?: CameleonLevelDefinition;
+  readonly levelUrl?: string;
+  readonly fetcher?: LevelFetch;
+  readonly query?: Partial<CameleonQueryParams>;
+  readonly startRuntime?: boolean;
+}
+
+export interface CameleonBoot {
+  readonly machine: ReturnType<typeof createFlowMachine>;
+  readonly controller: CameleonController;
+  readonly screen: CameleonScreen;
+  readonly runtime: CameleonPhaserRuntime | null;
+  readonly config: typeof gameConfig;
+  destroy(): void;
+}
+
+export async function bootGame(mountInto: HTMLElement, options: CameleonBootOptions = {}): Promise<CameleonBoot> {
   const machine = createFlowMachine();
-  const screen = mountPlaceholderScreen({ mountInto, label: copy["menu.play"] });
-  return { machine, screen, config: gameConfig };
+  const level = options.level ?? await loadLevelDefinition(options.levelUrl ?? LIDO_LEVEL_URL, options.fetcher);
+  const query = {
+    ...parseCameleonQuery(typeof window === "undefined" ? "" : window.location.search),
+    ...options.query,
+  };
+  const controller = createCameleonController({
+    level,
+    query,
+    env: import.meta.env.MODE === "test" ? "test" : "development",
+  });
+  const screen = mountCameleonScreen({ mountInto });
+  const unsubscribe = controller.subscribe(() => screen.refresh(controller.snapshot()));
+  const runtime = options.startRuntime === false
+    ? null
+    : await mountCameleonPhaser({ canvas: screen.canvas, controller });
+
+  return {
+    machine,
+    controller,
+    screen,
+    runtime,
+    config: gameConfig,
+    destroy(): void {
+      unsubscribe();
+      runtime?.destroy();
+      screen.destroy();
+    },
+  };
 }
 
 export function harnessWindowKeyForGame(gameId: string): string {
   return `__${gameId.toUpperCase()}_HARNESS__`;
 }
 
-// Non-production (or explicit opt-in) gate for the debug harness — mirrors
-// marble_run's `core/Constants.ts` `TEST_HARNESS_ENABLED` (card vFSI5FwY: a
-// fresh `create-game` output must be device-verifiable out of the box, not
-// only games that hand-ported the gate).
 const TEST_HARNESS_ENABLED: boolean =
   import.meta.env.MODE !== "production" ||
   import.meta.env.VITE_ENABLE_TEST_HARNESS === "true";
 
-// Browser entrypoint (index.html loads this module). No-ops under a non-DOM or
-// unmounted test import, where #app does not exist yet.
 const appRoot = typeof document !== "undefined" ? document.getElementById("app") : null;
 if (appRoot) {
-  bootGame(appRoot);
-
-  if (TEST_HARNESS_ENABLED) {
-    // Match tools/verify-device's browser-lane convention:
-    // __${manifest.game.toUpperCase()}_HARNESS__. create-game keeps
-    // manifest.game aligned with gameConfig.id.
-    const harnessWindowKey = harnessWindowKeyForGame(gameConfig.id);
-    const harness = createTemplateHarness({ buildVersion: "dev", packageId: `com.fabrikav2.${gameConfig.id}` });
-    assignWindowBindings(window as unknown as Record<string, unknown>, {
-      [harnessWindowKey]: harness,
+  void bootGame(appRoot)
+    .then((boot) => {
+      if (!TEST_HARNESS_ENABLED) return;
+      const harnessWindowKey = harnessWindowKeyForGame(gameConfig.id);
+      const harness = createCameleonHarness({
+        buildVersion: "dev",
+        packageId: "com.basegamelab.cameleon.dev",
+        controller: boot.controller,
+        screen: boot.screen,
+      });
+      assignWindowBindings(window as unknown as Record<string, unknown>, {
+        [harnessWindowKey]: harness,
+      });
+      void maybeRunInsituTour(harness, {
+        states: CAMELEON_TOUR_STATES,
+        snapshotMatchesState: snapshotMatchesCameleonTourState,
+      });
+    })
+    .catch((error: unknown) => {
+      console.error(error);
     });
-    void maybeRunInsituTour(harness);
-  }
 }

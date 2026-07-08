@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { driveTo, isDriveState, type DriveToDeps } from "@fabrikav2/testkit/testing";
-import { createTemplateHarness } from "../../src/shell/harness.ts";
+import { createCameleonController } from "../../src/game/CameleonController.ts";
+import { mountCameleonScreen } from "../../src/shell/CameleonScreen.ts";
+import { createCameleonHarness } from "../../src/shell/harness.ts";
+import { loadLidoFixture } from "./lidoFixture.ts";
 
 /**
  * Headless acceptance for the per-state navigator (fidelity-diff ledger C5),
@@ -142,20 +145,31 @@ describe("isDriveState", () => {
   });
 });
 
-describe("createTemplateHarness driveTo", () => {
+describe("createCameleonHarness driveTo", () => {
   it.each([
-    ["menu", "menu", false] as const,
-    ["level", "playing", false] as const,
-    ["win", "complete", false] as const,
-    ["fail", "failed", false] as const,
-    ["pause", "paused", false] as const,
-    ["settings", "menu", true] as const,
-  ])("driveTo(%s) reaches + confirms it on the fresh placeholder harness", async (state, scene, settingsOpen) => {
-    const harness = createTemplateHarness({ buildVersion: "test", packageId: "com.fabrikav2.template" });
+    ["menu", "menu", "menu"] as const,
+    ["zone1", "playing", "zone1"] as const,
+    ["zone3", "playing", "zone3"] as const,
+    ["zone5", "playing", "zone5"] as const,
+    ["found-beat", "playing", "found-beat"] as const,
+    ["win", "complete", "win"] as const,
+    ["fail", "failed", "fail"] as const,
+  ])("driveTo(%s) reaches + confirms it on the Cameleon harness", async (state, scene, tourState) => {
+    document.body.innerHTML = "";
+    const level = loadLidoFixture();
+    const controller = createCameleonController({ level, env: "test" });
+    const screen = mountCameleonScreen({ mountInto: document.body });
+    const harness = createCameleonHarness({
+      buildVersion: "test",
+      packageId: "com.basegamelab.cameleon.dev",
+      controller,
+      screen,
+    });
 
     const reached = await harness.driveTo!(state);
 
     expect(reached).toBe(true);
-    expect(harness.snapshot()).toMatchObject({ scene, settingsOpen });
+    expect(harness.snapshot()).toMatchObject({ scene, tourState });
+    screen.destroy();
   });
 });

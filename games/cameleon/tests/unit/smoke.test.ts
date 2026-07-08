@@ -1,21 +1,29 @@
 import { describe, it, expect } from "vitest";
 import { bootGame } from "../../src/main.ts";
 import { gameConfig } from "../../game.config.ts";
-import { copy } from "../../design/copy.ts";
+import { loadLidoFixture } from "./lidoFixture.ts";
 
-// Smoke test: the template must boot end-to-end (kernel flow machine + a mounted
-// shell screen driven by generated copy) so a fresh `create-game` output is
-// green from the first commit.
-describe("_template smoke", () => {
-  it("boots the kernel flow machine and mounts the placeholder screen", () => {
+describe("Cameleon smoke", () => {
+  it("boots the kernel flow machine, controller, and canvas shell", async () => {
     document.body.innerHTML = '<div id="app"></div>';
     const app = document.getElementById("app")!;
 
-    const { machine, screen, config } = bootGame(app);
+    const boot = await bootGame(app, {
+      level: loadLidoFixture(),
+      startRuntime: false,
+      query: { bodies: "white", dir: "night", mode: "confirm" },
+    });
 
-    expect(machine.state).toBe("boot");
-    expect(config).toBe(gameConfig);
-    expect(app.contains(screen)).toBe(true);
-    expect(screen.textContent).toBe(copy["menu.play"]);
+    expect(boot.machine.state).toBe("boot");
+    expect(boot.config).toBe(gameConfig);
+    expect(app.contains(boot.screen.root)).toBe(true);
+    expect(boot.screen.canvas).toBeInstanceOf(HTMLCanvasElement);
+    expect(boot.controller.snapshot()).toMatchObject({
+      bodies: "white",
+      dir: "night",
+      mode: "confirm",
+    });
+
+    boot.destroy();
   });
 });
