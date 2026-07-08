@@ -24,6 +24,9 @@ Options:
   --adb-prefix <cmd>   Android only: command prefix used for adb (default:
                        VERIFY_DEVICE_ADB_PREFIX, else adb). Example:
                        'ssh ubuntu-server adb'.
+  --build-prefix <cmd> Android only: command prefix for harness/cap/Gradle build
+                       steps (default: VERIFY_DEVICE_BUILD_PREFIX). Example:
+                       'ssh ubuntu-server'.
   --android-sdk <path> Android only: SDK root for cap/gradle env (default:
                        ANDROID_HOME, ANDROID_SDK_ROOT, else /home/batu/android-sdk).
   --android-activity <component>
@@ -94,6 +97,7 @@ the panel skips gracefully (exit 0) and on-device fidelity stays UNVERIFIED.
 /**
  * @param {string[]} argv process.argv.slice(2)
  * @returns {{game?:string, platform:'auto'|'ios'|'android', device?:string, adbPrefix?:string,
+ *   buildPrefix?:string,
  *   androidSdk?:string, androidActivity?:string, captures?:string, xcresult?:string,
  *   out?:string, date?:string, contentInsetTop?:number, contentInsetBottom?:number,
  *   threshold:number, ensemble:string, models?:string[],
@@ -119,6 +123,7 @@ export function parseArgs(argv) {
     else if (a === '--platform') args.platform = parsePlatform(req(argv, ++i, a));
     else if (a === '--device') args.device = req(argv, ++i, a);
     else if (a === '--adb-prefix') args.adbPrefix = req(argv, ++i, a);
+    else if (a === '--build-prefix') args.buildPrefix = req(argv, ++i, a);
     else if (a === '--android-sdk') args.androidSdk = req(argv, ++i, a);
     else if (a === '--android-activity') args.androidActivity = req(argv, ++i, a);
     else if (a === '--captures') args.captures = req(argv, ++i, a);

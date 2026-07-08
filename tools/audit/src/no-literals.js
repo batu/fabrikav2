@@ -119,6 +119,9 @@ export function lintNoLiterals(root, opts = {}) {
     for (const file of walkFiles(dir, { exts: [...SOURCE_EXTS, '.css'] })) {
       const relPath = rel(root, file);
       if (fileAllowed(allowlist, relPath)) continue;
+      // Test fixtures legitimately assert literal values (e.g. computed-style
+      // color checks); the token-discipline rule applies to shipped source only.
+      if (/\.(test|spec)\.(ts|tsx|js|mjs)$/.test(file)) continue;
       const isCss = file.endsWith('.css');
       const text = readText(file);
       const lines = text.split('\n');
