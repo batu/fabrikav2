@@ -25,6 +25,12 @@ function expectTransparentRibbonContainer(ribbon: HTMLElement): void {
   expect(style.backgroundColor === 'transparent' || style.backgroundColor === '' || alpha === '0').toBe(true);
 }
 
+function cssRuleBody(css: string, pattern: RegExp): string {
+  const match = css.match(pattern);
+  expect(match?.groups?.body).toBeDefined();
+  return match!.groups!.body;
+}
+
 describe('mountResultCard', () => {
   it('renders the win variant with reward-display slot and injected copy', () => {
     const reward = document.createElement('div');
@@ -123,7 +129,7 @@ describe('mountResultCard', () => {
     }
   });
 
-  it('keeps the sprite-ribbon eyebrow above the live title', () => {
+  it('keeps the sprite-ribbon eyebrow and live title centered inside the same ribbon', () => {
     installUiCss();
     const handle = mountResultCard({
       mountInto: host(),
@@ -146,13 +152,22 @@ describe('mountResultCard', () => {
     expect(eyebrow.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     const css = readFileSync(resolve('src/ui.css'), 'utf8');
-    expect(css).toContain('.fab-modal-ribbon-eyebrow');
-    expect(css).toContain('top: var(--fab-ribbon-eyebrow-top);');
-    expect(css).toContain('top: var(--fab-ribbon-title-top);');
-    expect(css).toContain('left: 0;');
-    expect(css).toContain('right: 0;');
-    expect(css).toContain('margin-inline: auto;');
-    expect(css).toContain('transform: translateY(-50%);');
+    const sharedTextRule = cssRuleBody(
+      css,
+      /\.fab-modal-ribbon-eyebrow,\s*\.fab-modal-ribbon-title\s*\{(?<body>[^}]+)\}/,
+    );
+    expect(sharedTextRule).toContain('left: 0;');
+    expect(sharedTextRule).toContain('right: 0;');
+    expect(sharedTextRule).toContain('width: max-content;');
+    expect(sharedTextRule).toContain('margin-inline: auto;');
+    expect(sharedTextRule).toContain('transform: translateY(-50%);');
+    expect(cssRuleBody(css, /\.fab-modal-ribbon-eyebrow\s*\{(?<body>[^}]+)\}/)).toContain(
+      'top: var(--fab-ribbon-eyebrow-top);',
+    );
+    const titleRule = cssRuleBody(css, /(?:^|\n)[ ]{2}\.fab-modal-ribbon-title\s*\{(?<body>\s*top:[^}]+)\}/);
+    expect(titleRule).toContain('top: var(--fab-ribbon-title-top);');
+    expect(titleRule).toContain('margin-block: 0;');
+    expect(titleRule).not.toContain('margin: 0;');
     expect(css).not.toContain('fab-modal-ribbon--image-title-visible');
     expect(css).not.toContain(':not(.fab-modal-ribbon');
   });

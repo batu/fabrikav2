@@ -347,7 +347,7 @@
   }
   .fab-modal-ribbon-title {
     top: var(--fab-ribbon-title-top);
-    margin: 0;
+    margin-block: 0;
     color: var(--fab-ribbon-title-color);
     font-size: var(--fab-ribbon-title-size);
     font-weight: var(--fab-font-weight-bold);
