@@ -52,7 +52,9 @@ import {
   compareSummaries,
   formatCompareTable,
   formatSummaryTable,
+  formatUngatedCaptureWarnings,
   loadRunSummary,
+  ungatedCaptureStates,
   writeSummaryJson,
 } from './src/summary.mjs';
 import {
@@ -105,9 +107,10 @@ async function resolveDeviceCaptures(args, manifest, date, platform) {
     }
     const exportDir = path.join(os.tmpdir(), `verify-device-${date}-export`);
     steps.exportAttachments(path.resolve(args.xcresult), exportDir);
-    const { byState, viewportMetrics } = extractFromExportDir(exportDir);
+    const { byState, captureByState, viewportMetrics } = extractFromExportDir(exportDir);
     return {
       captures: byState,
+      captureByState,
       viewportMetrics,
       deviceLabel: `xcresult ${path.relative(REPO_ROOT, path.resolve(args.xcresult))}`,
     };
@@ -148,9 +151,10 @@ function runIosDevicePath(args, manifest, date) {
     runnerDir: RUNNER_DIR, deviceUdid: device.udid, appBundleId, outDir,
     developmentTeam: process.env.DEVELOPMENT_TEAM,
   });
-  const { byState, viewportMetrics } = extractFromExportDir(exportDir);
+  const { byState, captureByState, viewportMetrics } = extractFromExportDir(exportDir);
   return {
     captures: byState,
+    captureByState,
     viewportMetrics,
     deviceLabel: `${device.name} (${device.udid})`,
     captureFailure: testError ? `xcodebuild test failed: ${testError.message}` : null,
@@ -189,6 +193,7 @@ async function runAndroidDevicePath(args, manifest, date) {
 
   return {
     captures,
+    captureByState: Object.fromEntries(Object.keys(captures).map((state) => [state, { gated: true }])),
     lane: 'device',
     deviceLabel: `Android${serial ? ` ${serial}` : ''} via ${adbPrefix}`,
     captureFailure: failures.length ? `android capture failures: ${failures.join('; ')}` : null,
@@ -224,6 +229,7 @@ async function runBrowserLane(manifest) {
     });
     return {
       captures, lane: 'browser',
+      captureByState: Object.fromEntries(Object.keys(captures).map((state) => [state, { gated: true }])),
       deviceLabel: `browser (chromium @ ${dev.baseUrl}, harness ${windowKey}) — DEVICE-UNVERIFIED`,
     };
   } catch (err) {
@@ -332,9 +338,11 @@ async function main() {
   const summary = buildSummary({
     panel,
     phashVerdict,
+    captureByState: resolved.captureByState || {},
     viewportMetrics: resolved.viewportMetrics || {},
     viewportMetricAssertions,
   });
+  const blindCaptureStates = ungatedCaptureStates(summary);
   const summaryFile = writeSummaryJson(outDir, summary);
   let compareTable = '';
   if (args.compare) {
@@ -346,6 +354,11 @@ async function main() {
   // The overall PASS/FAIL is the panel's when it ran; otherwise phash (advisory).
   const primary = panel.verdict || phashVerdict;
   const primaryLabel = panel.verdict ? 'panel' : 'phash (panel skipped)';
+  const blindCaptureNote = blindCaptureStates.length === 0
+    ? ''
+    : args.allowUngated
+      ? `  ungated captures allowed by --allow-ungated: ${blindCaptureStates.join(', ')}\n`
+      : formatUngatedCaptureWarnings(blindCaptureStates);
   const laneNote = lane === 'browser'
     ? '  NOTE: browser lane — safe-area/notch fidelity is DEVICE-UNVERIFIED.\n'
     : lane === 'provided-captures'
@@ -364,6 +377,7 @@ async function main() {
         `inventory ${path.relative(REPO_ROOT, cropArtifacts.inventoryPath)}\n`
       : '') +
     (resolved.captureFailure ? `  capture: FAILED — ${resolved.captureFailure}\n` : '') +
+    blindCaptureNote +
     `  phash: ${phashVerdict.summary}\n` +
     (panel.verdict ? `  panel: ${panel.verdict.summary}\n`
       : `  panel: SKIPPED — ${panel.skipped} (on-device fidelity UNVERIFIED)\n`) +
@@ -380,6 +394,8 @@ async function main() {
     primary,
     captureFailure: resolved.captureFailure,
     viewportMetricsPass: viewportMetricAssertionsPass(viewportMetricAssertions),
+    ungatedCaptureStates: blindCaptureStates,
+    allowUngated: args.allowUngated,
   });
 }
 
