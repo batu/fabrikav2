@@ -2,6 +2,12 @@
   position: fixed;
   inset: 0;
   overflow: hidden;
+  --fab-color-cameleon-found: #d8342f;
+  --fab-color-cameleon-body: #f8f8ef;
+  --fab-color-cameleon-lens: rgb(255 247 223 / 22%);
+  --fab-color-cameleon-ink-fade: rgb(31 36 48 / 72%);
+  --fab-color-cameleon-slot-border: rgb(31 36 48 / 45%);
+  --fab-color-cameleon-slot-empty: rgb(119 214 209 / 22%);
   background: var(--fab-color-canvas-backdrop);
   color: var(--fab-color-text);
   font-family: var(--fab-font-display);
@@ -72,7 +78,7 @@
   min-height: 44px;
   border: 2px solid var(--fab-color-hud-border);
   border-radius: 8px;
-  background: #fff7df;
+  background: var(--fab-color-hud-surface);
   color: var(--fab-color-text);
   font: 800 14px/1 var(--fab-font-display);
   box-shadow: 0 3px 0 var(--fab-color-hud-border);
@@ -104,9 +110,9 @@
 .cameleon-screen__dart {
   width: 8px;
   height: 8px;
-  border: 1px solid #1f2430;
+  border: 1px solid var(--fab-color-hud-border);
   border-radius: 999px;
-  background: #d8342f;
+  background: var(--fab-color-cameleon-found);
 }
 
 .cameleon-screen__dart[data-spent="true"] {
@@ -124,7 +130,7 @@
   justify-items: stretch;
   padding: 14px;
   border: 2px solid var(--fab-color-hud-border);
-  background: #fff7df;
+  background: var(--fab-color-hud-surface);
   box-shadow: 0 4px 0 var(--fab-color-hud-border);
   pointer-events: auto;
 }
@@ -141,15 +147,15 @@
 }
 
 .cameleon-screen__mode-button[aria-pressed="true"] {
-  background: #d8342f;
-  color: #fff7df;
+  background: var(--fab-color-cameleon-found);
+  color: var(--fab-color-hud-surface);
 }
 
 .cameleon-screen__play,
 .cameleon-screen__confirm {
   width: 100%;
-  background: #1f2430;
-  color: #fff7df;
+  background: var(--fab-color-hud-border);
+  color: var(--fab-color-hud-surface);
 }
 
 .cameleon-screen__reticle {
@@ -158,10 +164,10 @@
   top: var(--cameleon-reticle-y, 50%);
   width: 92px;
   height: 92px;
-  border: 3px solid #d8342f;
+  border: 3px solid var(--fab-color-cameleon-found);
   border-radius: 999px;
-  background: rgb(255 247 223 / 22%);
-  box-shadow: 0 0 0 2px #fff7df, inset 0 0 0 2px rgb(31 36 48 / 72%);
+  background: var(--fab-color-cameleon-lens);
+  box-shadow: 0 0 0 2px var(--fab-color-hud-surface), inset 0 0 0 2px var(--fab-color-cameleon-ink-fade);
   pointer-events: none;
   transform: translate(-50%, -50%);
 }
@@ -170,7 +176,7 @@
 .cameleon-screen__reticle::after {
   position: absolute;
   content: "";
-  background: #d8342f;
+  background: var(--fab-color-cameleon-found);
 }
 
 .cameleon-screen__reticle::before {
@@ -216,7 +222,7 @@
   height: 56px;
   padding: 7px;
   border: 2px solid var(--fab-color-hud-border);
-  background: #fff7df;
+  background: var(--fab-color-hud-surface);
   box-shadow: 0 3px 0 var(--fab-color-hud-border);
   pointer-events: none;
 }
@@ -224,14 +230,14 @@
 .cameleon-screen__bench-slot {
   position: relative;
   min-width: 0;
-  border: 1px dashed rgb(31 36 48 / 45%);
+  border: 1px dashed var(--fab-color-cameleon-slot-border);
   border-radius: 7px;
-  background: rgb(119 214 209 / 22%);
+  background: var(--fab-color-cameleon-slot-empty);
 }
 
 .cameleon-screen__bench-slot[data-found="true"] {
   border-style: solid;
-  background: #f8f8ef;
+  background: var(--fab-color-cameleon-body);
 }
 
 .cameleon-screen__bench-slot[data-found="true"]::before {
@@ -240,9 +246,9 @@
   bottom: 6px;
   width: min(18px, 72%);
   height: 25px;
-  border: 2px solid #1f2430;
+  border: 2px solid var(--fab-color-hud-border);
   border-radius: 999px 999px 7px 7px;
-  background: #f8f8ef;
+  background: var(--fab-color-cameleon-body);
   content: "";
   transform: translateX(-50%);
 }
@@ -252,9 +258,9 @@
   left: 50%;
   top: 48%;
   padding: 10px 16px;
-  border: 4px solid #d8342f;
-  background: #fff7df;
-  color: #d8342f;
+  border: 4px solid var(--fab-color-cameleon-found);
+  background: var(--fab-color-hud-surface);
+  color: var(--fab-color-cameleon-found);
   font: 900 28px/1 var(--fab-font-display);
   letter-spacing: 0;
   pointer-events: none;
@@ -262,8 +268,8 @@
 }
 
 .cameleon-screen__result[data-outcome="fail"] {
-  border-color: #1f2430;
-  color: #1f2430;
+  border-color: var(--fab-color-hud-border);
+  color: var(--fab-color-hud-border);
   transform: translate(-50%, -50%) rotate(3deg);
 }
 

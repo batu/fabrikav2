@@ -215,13 +215,13 @@ function renderBench(slots: readonly HTMLElement[], snapshot: CameleonSnapshot):
 function renderResult(result: HTMLElement, snapshot: CameleonSnapshot): void {
   if (snapshot.scene === "complete") {
     result.hidden = false;
-    result.textContent = snapshot.spotless ? "SPOTLESS" : "FOUND ENOUGH";
+    result.textContent = snapshot.spotless ? copy["result.spotless"] : copy["result.win"];
     result.dataset.outcome = snapshot.spotless ? "spotless" : "win";
     return;
   }
   if (snapshot.scene === "failed") {
     result.hidden = false;
-    result.textContent = "OUT OF DARTS";
+    result.textContent = copy["result.fail"];
     result.dataset.outcome = "fail";
     return;
   }
