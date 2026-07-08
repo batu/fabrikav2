@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ports Night — 2026-07-08 morning report</title>
+<style>
+  :root { --fg:#1a1a1a; --muted:#666; --ok:#0a7d33; --warn:#b06000; --bad:#b3261e; --card:#f6f6f4; --line:#e2e2de; }
+  body { font: 15px/1.55 -apple-system, system-ui, sans-serif; color: var(--fg); margin: 2rem auto; max-width: 1080px; padding: 0 1.2rem; }
+  h1 { font-size: 1.5rem; } h2 { font-size: 1.15rem; margin-top: 2.2rem; border-bottom: 1px solid var(--line); padding-bottom: .35rem; }
+  .ok { color: var(--ok); font-weight: 600; } .warn { color: var(--warn); font-weight: 600; } .bad { color: var(--bad); font-weight: 600; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(230px,1fr)); gap: 1rem; margin: 1rem 0; }
+  figure { margin: 0; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: .6rem; }
+  figure img { width: 100%; border-radius: 6px; display: block; }
+  figcaption { font-size: .82rem; color: var(--muted); margin-top: .45rem; }
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+  td, th { border: 1px solid var(--line); padding: .45rem .6rem; text-align: left; vertical-align: top; }
+  th { background: var(--card); }
+  code { background: var(--card); padding: .1em .35em; border-radius: 4px; font-size: .85em; }
+  .pill { display: inline-block; padding: .1em .55em; border-radius: 99px; font-size: .78rem; font-weight: 600; }
+  .pill.g { background: #e2f3e8; color: var(--ok); } .pill.y { background: #f7ecd9; color: var(--warn); } .pill.r { background: #f9e2e0; color: var(--bad); }
+</style>
+</head>
+<body>
+<h1>Ports Night — morning report <span class="pill g">FLOOR MET</span></h1>
+<p><strong>All three games ported to fabrika v2 and running on their target devices, sagas live.</strong>
+FTD deep-converged on the iPhone (parked at 2 cosmetic defects needing one interactive session);
+android lane proven end-to-end first-try; block_blast + arrow playable on the Pixel with their derived sagas.
+Full learning write-up (per-game scorecards + cross-game synthesis) in <code>.work/overnight-ledger.md</code>.</p>
+
+<h2>The one-look row</h2>
+<div class="grid">
+  <figure><img src="../evidence/2026-07-08-1700-ftd-converge3-real/raw-captures/menu.png" alt="FTD port on iPhone">
+    <figcaption><strong>find_the_dog — port on iPhone.</strong> Saga home after converge-1 closed 4/6 divergences (Play Now, rail, sparkles, badge). Compare the shipped ref: <code>games/find_the_dog/refs/device/menu-shipped.png</code>.</figcaption></figure>
+  <figure><img src="../evidence/2026-07-08-1730-pixel-polish1/com.basegamelab.block_blast.dev.png" alt="block_blast port on Pixel">
+    <figcaption><strong>block_blast — port on Pixel.</strong> Derived staged saga + preserved Endless. Dark direction per shipped mood. Known bug: invisible node chips (fix in flight).</figcaption></figure>
+  <figure><img src="../evidence/2026-07-08-1730-pixel-polish1/com.basegamelab.arrow.dev.png" alt="arrow port on Pixel">
+    <figcaption><strong>arrow — port on Pixel.</strong> 40 authored levels surfaced as the saga. Same chip-rendering bug; house theme awaits your Gallery verdict.</figcaption></figure>
+</div>
+
+<h2>Status by lane</h2>
+<table>
+<tr><th>Lane</th><th>State</th><th>Evidence</th></tr>
+<tr><td>FTD port (FOR-SURE-COPY, iPhone)</td><td><span class="ok">Deep-converged, parked honestly</span> — engine/saga/corpus carried verbatim, all 6 states device-captured, converge-1 closed 4/6 named divergences. <span class="warn">Open: Play-label safe-area clip + top rhythm</span> — 3 fix rounds moved zero pixels; CSS/HTML/plist/capacitor-config all v1-identical. Needs one 5-min Safari-Web-Inspector session (viewport instrumentation already in the installed build).</td><td><code>docs/evidence/2026-07-08-1700-ftd-converge3-real/</code></td></tr>
+<tr><td>Android lane (ubuntu-server → Pixel)</td><td><span class="ok">Proven end-to-end first try</span>: rsync → build → cap add android → gradle → adb install, both games. Capture driver (uiautomator element-gate) still with its worker.</td><td>ledger ~15:15; <code>docs/evidence/2026-07-08-1430-bb-pixel-first/</code></td></tr>
+<tr><td>block_blast saga (derived)</td><td><span class="ok">Live on device</span> — "Stage 1 / Target: Reach…" + Endless preserved. <span class="warn">Chips invisible (SAGA-CHIPS card in flight)</span>; taste verdict queued.</td><td><code>docs/evidence/2026-07-08-1730-pixel-polish1/</code></td></tr>
+<tr><td>arrow saga (derived)</td><td><span class="ok">Live on device</span> — 40 nodes. Same chip bug; polish-1 regressed the board so taste iterations were parked for your verdict instead of burning the night.</td><td>same dir</td></tr>
+<tr><td>UI-KIT single path</td><td><span class="ok">Landed</span> after the crop close-out caught a double-mount that all green gates missed; ribbon saga closed for good (5 rounds total) with one-node + position assertions now guarding it.</td><td><code>docs/evidence/2026-07-08-1130-ribbon-final/crops/</code></td></tr>
+</table>
+
+<h2>Your morning queue</h2>
+<table>
+<tr><th>Item</th><th>What's needed</th></tr>
+<tr><td>Gallery <code>req_87e0d7</code></td><td>FTD first device captures — approve direction / flag divergences.</td></tr>
+<tr><td>Gallery <code>req_d2e23f</code></td><td>Android ports: BB dark direction ok? Arrow house theme direction?</td></tr>
+<tr><td>Gallery <code>req_4052ed</code></td><td>(from yesterday) marble_run ribbon transparency crops.</td></tr>
+<tr><td>FTD safe-area (5 min, phone in hand)</td><td>Safari Web Inspector → the installed dev build publishes <code>viewportMetrics</code>; read <code>env(safe-area-inset-bottom)</code> live. Card <code>YzgV6mvj</code> has the trail.</td></tr>
+<tr><td>Family Link</td><td>com.ecffri.arrows locks the Pixel on launch — answer the screen-time dialog once so the shipped-arrow ref can be captured.</td></tr>
+</table>
+
+<h2>What the night taught (synthesis, short form)</h2>
+<p><strong>Works:</strong> the port pattern scaled to 3 heterogeneous games in one night; the harness contract transplanted everywhere and its evidence loop caught 2 would-have-shipped regressions; all 3 saga derivations were implemented as derived; the android recipe had zero platform surprises.</p>
+<p><strong>Improve (cards queued MINE3-1…4):</strong> jsdom is blind to paint — add computed-style/paint assertions to the kit test class; <code>var()</code> to an undefined token paints nothing silently — add the inverse-orphan lint; native-shell geometry (safe-area) needs a device-proven template recipe + machine-readable viewport metrics; landing flow needs deterministic lockfile-conflict resolution.</p>
+<p style="color:var(--muted); font-size:.85rem; margin-top:2.5rem;">Generated by the overnight conductor. All numbered claims trace to committed evidence dirs; open items are marked, nothing above is claimed beyond its capture.</p>
+</body>
+</html>
