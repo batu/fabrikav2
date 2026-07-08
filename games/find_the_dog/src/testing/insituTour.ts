@@ -1,4 +1,5 @@
 import { DRIVE_STATES, type DriveState } from './driveTo';
+import { publishViewportMetricsMarker } from './viewportMetrics';
 
 export interface TourHarness {
   driveTo: (state: DriveState) => Promise<boolean>;
@@ -42,4 +43,5 @@ function ensureMarker(): HTMLElement {
 function mark(marker: HTMLElement, value: string): void {
   marker.textContent = value;
   marker.setAttribute('aria-label', value);
+  publishViewportMetricsMarker(value);
 }

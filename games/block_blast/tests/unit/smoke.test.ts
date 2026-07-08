@@ -13,6 +13,19 @@ describe("block_blast smoke", () => {
     expect(config).toBe(gameConfig);
     expect(app.contains(screen.root)).toBe(true);
     expect(controller.snapshot()).toMatchObject({ scene: "menu", unlockedStage: 1 });
+    expect(screen.root.dataset.scene).toBe("menu");
+    expect(screen.root.dataset.surface).toBe("menu");
     expect(app.querySelector(".fab-home-menu")).not.toBeNull();
+    expect(app.querySelectorAll(".block-blast-screen__title")).toHaveLength(1);
+    expect(app.querySelectorAll(".block-blast-menu-header")).toHaveLength(0);
+
+    app.querySelector<HTMLButtonElement>("[data-fab-action='play']")?.click();
+    expect(controller.snapshot()).toMatchObject({ scene: "playing", status: "playing" });
+    expect(screen.root.dataset.scene).toBe("playing");
+    expect(screen.root.dataset.surface).toBe("game");
+    expect(app.querySelector(".fab-home-menu")).toBeNull();
+    expect(app.querySelector(".block-blast-screen__stat[data-stat='target'] .block-blast-screen__stat-value")?.textContent).toBe(
+      "Reach 40",
+    );
   });
 });

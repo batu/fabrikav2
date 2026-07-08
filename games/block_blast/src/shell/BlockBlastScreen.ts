@@ -76,10 +76,10 @@ export function mountBlockBlastScreen(opts: BlockBlastScreenOptions): BlockBlast
 
   const stats = document.createElement("dl");
   stats.className = "block-blast-screen__stats";
-  const score = statNode(copy["hud.score"]);
-  const best = statNode(copy["hud.best"]);
-  const stage = statNode(copy["hud.stage"]);
-  const target = statNode(copy["hud.target"]);
+  const score = statNode(copy["hud.score"], "score");
+  const best = statNode(copy["hud.best"], "best");
+  const stage = statNode(copy["hud.stage"], "stage");
+  const target = statNode(copy["hud.target"], "target");
   stats.append(score.root, best.root, stage.root, target.root);
 
   const canvas = document.createElement("canvas");
@@ -135,6 +135,9 @@ export function mountBlockBlastScreen(opts: BlockBlastScreenOptions): BlockBlast
     },
     refresh(): void {
       const snap = opts.controller.snapshot();
+      const surfaceKind = targetSurface(snap);
+      root.dataset.scene = snap.scene;
+      root.dataset.surface = surfaceKind ?? "game";
       subtitle.textContent = subtitleFor(snap);
       score.value.textContent = String(snap.score);
       best.value.textContent = String(snap.bestScore);
@@ -171,9 +174,10 @@ interface SurfaceContext {
   readonly preferences: Record<SettingKey, boolean>;
 }
 
-function statNode(labelText: string): StatNode {
+function statNode(labelText: string, stat: string): StatNode {
   const root = document.createElement("div");
   root.className = "block-blast-screen__stat";
+  root.dataset.stat = stat;
   const label = document.createElement("dt");
   label.className = "block-blast-screen__stat-label";
   label.textContent = labelText;
@@ -258,19 +262,8 @@ function mountSurface(kind: NonNullable<SurfaceMount["kind"]>, snap: BlockBlastS
 }
 
 function mountMenuSurface(snap: BlockBlastSnapshot, ctx: SurfaceContext): UiHandle {
-  const header = document.createElement("div");
-  header.className = "block-blast-menu-header";
-  const title = document.createElement("h2");
-  title.className = "block-blast-menu-header__title";
-  title.textContent = copy["game.title"];
-  const best = document.createElement("p");
-  best.className = "block-blast-menu-header__best";
-  best.textContent = copy["menu.best"].replace("{score}", String(snap.bestScore));
-  header.append(title, best);
-
   return mountHomeMenu({
     mountInto: ctx.overlay,
-    header,
     saga: {
       state: { nodes: buildSagaNodes(snap) },
       actions: {
@@ -283,7 +276,7 @@ function mountMenuSurface(snap: BlockBlastSnapshot, ctx: SurfaceContext): UiHand
     },
     actions: [
       {
-        label: copy["menu.stage"].replace("{stage}", String(snap.unlockedStage)),
+        label: copy["menu.play"],
         dataAction: "play",
         onClick: () => ctx.controller.startStage(snap.unlockedStage),
       },

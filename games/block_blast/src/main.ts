@@ -1,3 +1,4 @@
+import "@fabrikav2/ui/ui.css";
 import { createFlowMachine } from "@fabrikav2/kernel";
 import { assignWindowBindings } from "@fabrikav2/testkit/testing";
 import { gameConfig } from "../game.config.ts";
