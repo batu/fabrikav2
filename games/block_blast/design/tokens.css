@@ -79,6 +79,16 @@
   --fab-bb-board-line: #37527f;
   --fab-bb-board-preview: rgba(54, 169, 255, 0.34);
   --fab-bb-board-preview-bad: rgba(255, 91, 56, 0.38);
+  --fab-bb-screen-bg-tile: url("/design/assets/bb-background-tile.png");
+  --fab-bb-screen-bg-size: 128px 128px;
+  --fab-bb-screen-bg-vignette: radial-gradient(circle at 50% 78%, rgba(54, 169, 255, 0.12) 0 24%, rgba(7, 11, 27, 0) 48%);
+  --fab-bb-block-tile-a: url("/design/assets/bb-block-tile-emerald.png");
+  --fab-bb-block-tile-b: url("/design/assets/bb-block-tile-azure.png");
+  --fab-bb-block-tile-c: url("/design/assets/bb-block-tile-amber.png");
+  --fab-bb-block-tile-d: url("/design/assets/bb-block-tile-ruby.png");
+  --fab-bb-block-tile-e: url("/design/assets/bb-block-tile-magenta.png");
+  --fab-bb-block-tile-f: url("/design/assets/bb-block-tile-violet.png");
+  --fab-bb-block-tile-g: url("/design/assets/bb-block-tile-teal.png");
   --fab-bb-block-a: #35e06f;
   --fab-bb-block-b: #36a9ff;
   --fab-bb-block-c: #ffc928;

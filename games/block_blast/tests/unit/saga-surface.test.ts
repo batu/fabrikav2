@@ -2,6 +2,8 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
+import { assets } from "../../design/assets.ts";
+import { assetUrls } from "../../design/theme.ts";
 import { bootGame } from "../../src/main.ts";
 
 const REQUIRED_LEVELMAP_TOKENS = [
@@ -39,6 +41,19 @@ const REQUIRED_LEVELMAP_TOKENS = [
   "--fab-levelmap-art-locked",
   "--fab-levelmap-art-completed",
   "--fab-levelmap-art-current",
+] as const;
+
+const REQUIRED_BLOCK_ART_TOKENS = [
+  "--fab-bb-screen-bg-tile",
+  "--fab-bb-screen-bg-size",
+  "--fab-bb-screen-bg-vignette",
+  "--fab-bb-block-tile-a",
+  "--fab-bb-block-tile-b",
+  "--fab-bb-block-tile-c",
+  "--fab-bb-block-tile-d",
+  "--fab-bb-block-tile-e",
+  "--fab-bb-block-tile-f",
+  "--fab-bb-block-tile-g",
 ] as const;
 
 function unwrapCssLayers(css: string): string {
@@ -136,6 +151,19 @@ describe("block_blast saga composed surface", () => {
 
     for (const token of REQUIRED_LEVELMAP_TOKENS) {
       expect(css).toMatch(new RegExp(`${token}:`));
+    }
+  });
+
+  it("defines gameplay art tokens and binds them to committed PNG assets", () => {
+    const css = readFileSync(resolve("design/tokens.css"), "utf8");
+
+    for (const token of REQUIRED_BLOCK_ART_TOKENS) {
+      expect(css).toMatch(new RegExp(`${token}:`));
+    }
+
+    expect(assetUrls.blockTiles).toHaveLength(7);
+    for (const assetId of Object.values(assets.gameplay)) {
+      expect(readFileSync(resolve(`design/assets/${assetId}.png`)).length).toBeGreaterThan(0);
     }
   });
 

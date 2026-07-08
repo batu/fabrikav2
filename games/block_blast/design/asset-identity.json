@@ -1,17 +1,455 @@
 {
-  "version": 1,
-  "coverage": "complete",
-  "notes": "First-pass Block Blast v2 design assets are hand-authored vector shell ribbons. Gameplay blocks are canvas-rendered from design tokens and have no shipped asset bytes.",
   "assets": {
-    "design/assets/ribbon-win.svg": {
-      "source": "design/assets/ribbon-win.svg",
+    "design/assets/bb-background-tile.png": {
+      "bytes": 46162,
+      "dimensions": {
+        "width": 256,
+        "height": 256
+      },
       "expectation": "exact-bytes",
-      "provenance": "Block Blast v2 seed result ribbon authored for this port; no v1 ribbon asset exists."
+      "provenance": {
+        "cost_estimate_usd": 0.06,
+        "date": "2026-07-08T14:53:02.940011Z",
+        "generated": true,
+        "model": "google/gemini-2.5-flash-image",
+        "spec": {
+          "description": "A seamless dark repeating background tile for a mobile Block Blast menu and gameplay screen. Low-contrast rounded square block motif arranged on a grid, deep navy base, subtle teal, indigo, violet, amber and coral squares at very low opacity, faint glossy arcs at the corners, no paw prints, no text, no logo. The edges must repeat cleanly with no obvious seam and remain quiet behind UI.",
+          "kind": "sprite",
+          "name": "bb-background-tile",
+          "size": "256x256",
+          "style_refs": [
+            "docs/evidence/2026-07-08-1500-pixel-round/com.utolye.blockblastextreme.png"
+          ],
+          "transparent": false
+        },
+        "style_guide": {
+          "finish_tokens": [
+            "flat",
+            "saturated"
+          ],
+          "palette": [
+            "#0d0f1f",
+            "#14172f",
+            "#44555b",
+            "#af7749",
+            "#a2a3a3"
+          ],
+          "phrases": [
+            "palette: #0d0f1f, #14172f, #44555b, #af7749, #a2a3a3",
+            "simple readable shapes",
+            "soft rounded contours",
+            "flat color blocks with minimal texture",
+            "saturated arcade colors"
+          ],
+          "shape_tokens": [
+            "simple",
+            "soft"
+          ]
+        }
+      },
+      "sha256": "c5ef269543858b5db02213ffea5209890c8654f4959c2755eae9ca9cea144670",
+      "source": "design/assets/bb-background-tile.png",
+      "warnings": [
+        "generated image resized from 1024x1024 to 256x256"
+      ]
+    },
+    "design/assets/bb-block-tile-amber.png": {
+      "source": "design/assets/bb-block-tile-amber.png",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "cost_estimate_usd": 0.06,
+        "date": "2026-07-08T14:55:01.559570Z",
+        "generated": true,
+        "model": "google/gemini-2.5-flash-image",
+        "spec": {
+          "description": "Single isolated square block tile sprite for Block Blast board pieces, generated as a chroma-key source for a transparent final PNG. Chunky rounded-square silhouette, faceted gem face, beveled warm gold rim, glossy white highlights, subtle inner facets, arcade jewel polish matching the shipped Block Blast title capture. Centered with generous padding. Use a perfectly flat solid #00ff00 chroma-key background for removal: the background must be one uniform #00ff00 color with no shadows, gradients, texture, reflection, floor plane, or lighting variation. Do not use #00ff00 anywhere in the subject. No cast shadow, no contact shadow, no text, no logo, no watermark. Color direction: amber gold gem face, honey-orange facets and bright yellow highlights.",
+          "kind": "sprite",
+          "name": "bb-block-tile-amber",
+          "size": "128x128",
+          "style_refs": [
+            "docs/evidence/2026-07-08-1500-pixel-round/com.utolye.blockblastextreme.png"
+          ],
+          "transparent": false
+        },
+        "style_guide": {
+          "finish_tokens": [
+            "flat",
+            "saturated"
+          ],
+          "palette": [
+            "#0d0f1f",
+            "#14172f",
+            "#44555b",
+            "#af7749",
+            "#a2a3a3"
+          ],
+          "phrases": [
+            "palette: #0d0f1f, #14172f, #44555b, #af7749, #a2a3a3",
+            "simple readable shapes",
+            "soft rounded contours",
+            "flat color blocks with minimal texture",
+            "saturated arcade colors"
+          ],
+          "shape_tokens": [
+            "simple",
+            "soft"
+          ]
+        }
+      },
+      "sha256": "74b5fb4d0f9b8270d426f3fbf782eafbd93baa995db84b11432967744dde89d5",
+      "bytes": 22541,
+      "dimensions": {
+        "width": 128,
+        "height": 128
+      },
+      "warnings": [
+        "generated image resized from 1024x1024 to 128x128",
+        "postprocessed: chroma-key background removed to alpha with remove_chroma_key.py",
+        "postprocessed: transparent bounds fit to 112x112 within the 128x128 sprite canvas"
+      ]
+    },
+    "design/assets/bb-block-tile-azure.png": {
+      "source": "design/assets/bb-block-tile-azure.png",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "cost_estimate_usd": 0.06,
+        "date": "2026-07-08T14:55:07.544383Z",
+        "generated": true,
+        "model": "google/gemini-2.5-flash-image",
+        "spec": {
+          "description": "Single isolated square block tile sprite for Block Blast board pieces, generated as a chroma-key source for a transparent final PNG. Chunky rounded-square silhouette, faceted gem face, beveled warm gold rim, glossy white highlights, subtle inner facets, arcade jewel polish matching the shipped Block Blast title capture. Centered with generous padding. Use a perfectly flat solid #00ff00 chroma-key background for removal: the background must be one uniform #00ff00 color with no shadows, gradients, texture, reflection, floor plane, or lighting variation. Do not use #00ff00 anywhere in the subject. No cast shadow, no contact shadow, no text, no logo, no watermark. Color direction: azure blue gem face, saturated royal-blue facets and icy cyan highlights.",
+          "kind": "sprite",
+          "name": "bb-block-tile-azure",
+          "size": "128x128",
+          "style_refs": [
+            "docs/evidence/2026-07-08-1500-pixel-round/com.utolye.blockblastextreme.png"
+          ],
+          "transparent": false
+        },
+        "style_guide": {
+          "finish_tokens": [
+            "flat",
+            "saturated"
+          ],
+          "palette": [
+            "#0d0f1f",
+            "#14172f",
+            "#44555b",
+            "#af7749",
+            "#a2a3a3"
+          ],
+          "phrases": [
+            "palette: #0d0f1f, #14172f, #44555b, #af7749, #a2a3a3",
+            "simple readable shapes",
+            "soft rounded contours",
+            "flat color blocks with minimal texture",
+            "saturated arcade colors"
+          ],
+          "shape_tokens": [
+            "simple",
+            "soft"
+          ]
+        }
+      },
+      "sha256": "500147dba9c91302c29d6ff1b953f86ed6b52a1ee83ae367a2566a47e9b15599",
+      "bytes": 19759,
+      "dimensions": {
+        "width": 128,
+        "height": 128
+      },
+      "warnings": [
+        "generated image resized from 1024x1024 to 128x128",
+        "postprocessed: chroma-key background removed to alpha with remove_chroma_key.py",
+        "postprocessed: transparent bounds fit to 112x112 within the 128x128 sprite canvas"
+      ]
+    },
+    "design/assets/bb-block-tile-emerald.png": {
+      "source": "design/assets/bb-block-tile-emerald.png",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "cost_estimate_usd": 0.06,
+        "date": "2026-07-08T14:57:29.293207Z",
+        "generated": true,
+        "model": "google/gemini-2.5-flash-image",
+        "spec": {
+          "description": "Single isolated square block tile sprite for Block Blast board pieces, generated as a chroma-key source for a transparent final PNG. Chunky rounded-square silhouette, faceted gem face, beveled warm gold rim, glossy white highlights, subtle inner facets, arcade jewel polish matching the shipped Block Blast title capture. Centered with generous padding. Use a perfectly flat solid #ff00ff magenta chroma-key background for removal: the background must be one uniform #ff00ff color with no shadows, gradients, texture, reflection, floor plane, or lighting variation. Do not use #ff00ff anywhere in the subject. No cast shadow, no contact shadow, no text, no logo, no watermark. Color direction: emerald green gem face, rich bottle-green facets and pale mint highlights, clearly green after background removal.",
+          "kind": "sprite",
+          "name": "bb-block-tile-emerald",
+          "size": "128x128",
+          "style_refs": [
+            "docs/evidence/2026-07-08-1500-pixel-round/com.utolye.blockblastextreme.png"
+          ],
+          "transparent": false
+        },
+        "style_guide": {
+          "finish_tokens": [
+            "flat",
+            "saturated"
+          ],
+          "palette": [
+            "#0d0f1f",
+            "#14172f",
+            "#44555b",
+            "#af7749",
+            "#a2a3a3"
+          ],
+          "phrases": [
+            "palette: #0d0f1f, #14172f, #44555b, #af7749, #a2a3a3",
+            "simple readable shapes",
+            "soft rounded contours",
+            "flat color blocks with minimal texture",
+            "saturated arcade colors"
+          ],
+          "shape_tokens": [
+            "simple",
+            "soft"
+          ]
+        }
+      },
+      "sha256": "2dd068787df0f535557d18e6eeba98a995ebc178b396252d75d33569ac54668b",
+      "bytes": 22504,
+      "dimensions": {
+        "width": 128,
+        "height": 128
+      },
+      "warnings": [
+        "generated image resized from 1024x1024 to 128x128",
+        "postprocessed: chroma-key background removed to alpha with remove_chroma_key.py",
+        "postprocessed: transparent bounds fit to 112x112 within the 128x128 sprite canvas"
+      ]
+    },
+    "design/assets/bb-block-tile-magenta.png": {
+      "source": "design/assets/bb-block-tile-magenta.png",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "cost_estimate_usd": 0.06,
+        "date": "2026-07-08T14:55:20.369682Z",
+        "generated": true,
+        "model": "google/gemini-2.5-flash-image",
+        "spec": {
+          "description": "Single isolated square block tile sprite for Block Blast board pieces, generated as a chroma-key source for a transparent final PNG. Chunky rounded-square silhouette, faceted gem face, beveled warm gold rim, glossy white highlights, subtle inner facets, arcade jewel polish matching the shipped Block Blast title capture. Centered with generous padding. Use a perfectly flat solid #00ff00 chroma-key background for removal: the background must be one uniform #00ff00 color with no shadows, gradients, texture, reflection, floor plane, or lighting variation. Do not use #00ff00 anywhere in the subject. No cast shadow, no contact shadow, no text, no logo, no watermark. Color direction: magenta pink gem face, fuchsia facets and pale rose highlights.",
+          "kind": "sprite",
+          "name": "bb-block-tile-magenta",
+          "size": "128x128",
+          "style_refs": [
+            "docs/evidence/2026-07-08-1500-pixel-round/com.utolye.blockblastextreme.png"
+          ],
+          "transparent": false
+        },
+        "style_guide": {
+          "finish_tokens": [
+            "flat",
+            "saturated"
+          ],
+          "palette": [
+            "#0d0f1f",
+            "#14172f",
+            "#44555b",
+            "#af7749",
+            "#a2a3a3"
+          ],
+          "phrases": [
+            "palette: #0d0f1f, #14172f, #44555b, #af7749, #a2a3a3",
+            "simple readable shapes",
+            "soft rounded contours",
+            "flat color blocks with minimal texture",
+            "saturated arcade colors"
+          ],
+          "shape_tokens": [
+            "simple",
+            "soft"
+          ]
+        }
+      },
+      "sha256": "b91d830d083f8176e4a1db17cd6570b3b71f11e7919a2f462a4ea9927bd0e063",
+      "bytes": 22707,
+      "dimensions": {
+        "width": 128,
+        "height": 128
+      },
+      "warnings": [
+        "generated image resized from 1024x1024 to 128x128",
+        "postprocessed: chroma-key background removed to alpha with remove_chroma_key.py",
+        "postprocessed: transparent bounds fit to 112x112 within the 128x128 sprite canvas"
+      ]
+    },
+    "design/assets/bb-block-tile-ruby.png": {
+      "source": "design/assets/bb-block-tile-ruby.png",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "cost_estimate_usd": 0.06,
+        "date": "2026-07-08T14:55:44.235838Z",
+        "generated": true,
+        "model": "google/gemini-2.5-flash-image",
+        "spec": {
+          "description": "Single isolated square block tile sprite for Block Blast board pieces, generated as a chroma-key source for a transparent final PNG. Chunky rounded-square silhouette, faceted gem face, beveled warm gold rim, glossy white highlights, subtle inner facets, arcade jewel polish matching the shipped Block Blast title capture. Centered with generous padding. Use a perfectly flat solid #00ff00 chroma-key background for removal: the background must be one uniform #00ff00 color with no shadows, gradients, texture, reflection, floor plane, or lighting variation. Do not use #00ff00 anywhere in the subject. No cast shadow, no contact shadow, no text, no logo, no watermark. Color direction: ruby coral red gem face, orange-red facets and hot ember highlights.",
+          "kind": "sprite",
+          "name": "bb-block-tile-ruby",
+          "size": "128x128",
+          "style_refs": [
+            "docs/evidence/2026-07-08-1500-pixel-round/com.utolye.blockblastextreme.png"
+          ],
+          "transparent": false
+        },
+        "style_guide": {
+          "finish_tokens": [
+            "flat",
+            "saturated"
+          ],
+          "palette": [
+            "#0d0f1f",
+            "#14172f",
+            "#44555b",
+            "#af7749",
+            "#a2a3a3"
+          ],
+          "phrases": [
+            "palette: #0d0f1f, #14172f, #44555b, #af7749, #a2a3a3",
+            "simple readable shapes",
+            "soft rounded contours",
+            "flat color blocks with minimal texture",
+            "saturated arcade colors"
+          ],
+          "shape_tokens": [
+            "simple",
+            "soft"
+          ]
+        }
+      },
+      "sha256": "8d6f57822b90ff9669a39a94acfad06182f588ddfc98d0d338a77a5477aae2ba",
+      "bytes": 19082,
+      "dimensions": {
+        "width": 128,
+        "height": 128
+      },
+      "warnings": [
+        "generated image resized from 1024x1024 to 128x128",
+        "postprocessed: chroma-key background removed to alpha with remove_chroma_key.py",
+        "postprocessed: transparent bounds fit to 112x112 within the 128x128 sprite canvas"
+      ]
+    },
+    "design/assets/bb-block-tile-teal.png": {
+      "source": "design/assets/bb-block-tile-teal.png",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "cost_estimate_usd": 0.06,
+        "date": "2026-07-08T14:57:35.289746Z",
+        "generated": true,
+        "model": "google/gemini-2.5-flash-image",
+        "spec": {
+          "description": "Single isolated square block tile sprite for Block Blast board pieces, generated as a chroma-key source for a transparent final PNG. Chunky rounded-square silhouette, faceted gem face, beveled warm gold rim, glossy white highlights, subtle inner facets, arcade jewel polish matching the shipped Block Blast title capture. Centered with generous padding. Use a perfectly flat solid #ff00ff magenta chroma-key background for removal: the background must be one uniform #ff00ff color with no shadows, gradients, texture, reflection, floor plane, or lighting variation. Do not use #ff00ff anywhere in the subject. No cast shadow, no contact shadow, no text, no logo, no watermark. Color direction: aqua teal gem face, blue-green facets and bright turquoise highlights, clearly teal after background removal.",
+          "kind": "sprite",
+          "name": "bb-block-tile-teal",
+          "size": "128x128",
+          "style_refs": [
+            "docs/evidence/2026-07-08-1500-pixel-round/com.utolye.blockblastextreme.png"
+          ],
+          "transparent": false
+        },
+        "style_guide": {
+          "finish_tokens": [
+            "flat",
+            "saturated"
+          ],
+          "palette": [
+            "#0d0f1f",
+            "#14172f",
+            "#44555b",
+            "#af7749",
+            "#a2a3a3"
+          ],
+          "phrases": [
+            "palette: #0d0f1f, #14172f, #44555b, #af7749, #a2a3a3",
+            "simple readable shapes",
+            "soft rounded contours",
+            "flat color blocks with minimal texture",
+            "saturated arcade colors"
+          ],
+          "shape_tokens": [
+            "simple",
+            "soft"
+          ]
+        }
+      },
+      "sha256": "c4d082695b0947ece0fb6833226a83e875bdc16cf84fe1e16a614574c3366d6a",
+      "bytes": 18948,
+      "dimensions": {
+        "width": 128,
+        "height": 128
+      },
+      "warnings": [
+        "generated image resized from 1024x1024 to 128x128",
+        "postprocessed: chroma-key background removed to alpha with remove_chroma_key.py",
+        "postprocessed: transparent bounds fit to 112x112 within the 128x128 sprite canvas"
+      ]
+    },
+    "design/assets/bb-block-tile-violet.png": {
+      "source": "design/assets/bb-block-tile-violet.png",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "cost_estimate_usd": 0.06,
+        "date": "2026-07-08T14:55:56.531135Z",
+        "generated": true,
+        "model": "google/gemini-2.5-flash-image",
+        "spec": {
+          "description": "Single isolated square block tile sprite for Block Blast board pieces, generated as a chroma-key source for a transparent final PNG. Chunky rounded-square silhouette, faceted gem face, beveled warm gold rim, glossy white highlights, subtle inner facets, arcade jewel polish matching the shipped Block Blast title capture. Centered with generous padding. Use a perfectly flat solid #00ff00 chroma-key background for removal: the background must be one uniform #00ff00 color with no shadows, gradients, texture, reflection, floor plane, or lighting variation. Do not use #00ff00 anywhere in the subject. No cast shadow, no contact shadow, no text, no logo, no watermark. Color direction: violet purple gem face, blue-violet facets and lavender highlights.",
+          "kind": "sprite",
+          "name": "bb-block-tile-violet",
+          "size": "128x128",
+          "style_refs": [
+            "docs/evidence/2026-07-08-1500-pixel-round/com.utolye.blockblastextreme.png"
+          ],
+          "transparent": false
+        },
+        "style_guide": {
+          "finish_tokens": [
+            "flat",
+            "saturated"
+          ],
+          "palette": [
+            "#0d0f1f",
+            "#14172f",
+            "#44555b",
+            "#af7749",
+            "#a2a3a3"
+          ],
+          "phrases": [
+            "palette: #0d0f1f, #14172f, #44555b, #af7749, #a2a3a3",
+            "simple readable shapes",
+            "soft rounded contours",
+            "flat color blocks with minimal texture",
+            "saturated arcade colors"
+          ],
+          "shape_tokens": [
+            "simple",
+            "soft"
+          ]
+        }
+      },
+      "sha256": "244f074961b6e6b0a9c8c91a68c5e5addb79f3fa4bc45835bb4f2060db46840a",
+      "bytes": 19536,
+      "dimensions": {
+        "width": 128,
+        "height": 128
+      },
+      "warnings": [
+        "generated image resized from 1024x1024 to 128x128",
+        "postprocessed: chroma-key background removed to alpha with remove_chroma_key.py",
+        "postprocessed: transparent bounds fit to 112x112 within the 128x128 sprite canvas"
+      ]
     },
     "design/assets/ribbon-fail.svg": {
-      "source": "design/assets/ribbon-fail.svg",
       "expectation": "exact-bytes",
-      "provenance": "Block Blast v2 seed fail ribbon authored for this port; no v1 ribbon asset exists."
+      "provenance": "Block Blast v2 seed fail ribbon authored for this port; no v1 ribbon asset exists.",
+      "source": "design/assets/ribbon-fail.svg"
+    },
+    "design/assets/ribbon-win.svg": {
+      "expectation": "exact-bytes",
+      "provenance": "Block Blast v2 seed result ribbon authored for this port; no v1 ribbon asset exists.",
+      "source": "design/assets/ribbon-win.svg"
     }
-  }
+  },
+  "coverage": "complete",
+  "notes": "Block Blast design assets include seed result ribbons plus pixelsmith-generated gameplay block sprites and a subtle repeating background tile for menu/game surfaces.",
+  "version": 1
 }

@@ -51,6 +51,10 @@ interface SurfaceMount {
   handle: UiHandle | null;
 }
 
+interface RenderAssets {
+  readonly blockTiles: readonly HTMLImageElement[];
+}
+
 const BLOCK_COLORS = [
   "--bb-block-a",
   "--bb-block-b",
@@ -64,6 +68,10 @@ const BLOCK_COLORS = [
 export function mountBlockBlastScreen(opts: BlockBlastScreenOptions): BlockBlastScreen {
   const root = document.createElement("main");
   root.className = "block-blast-screen fab-ui";
+  let screenRef: BlockBlastScreen | null = null;
+  const renderAssets: RenderAssets = {
+    blockTiles: loadBlockTileImages(assetUrls.blockTiles, () => screenRef?.refresh()),
+  };
 
   const header = document.createElement("header");
   header.className = "block-blast-screen__header";
@@ -143,7 +151,7 @@ export function mountBlockBlastScreen(opts: BlockBlastScreenOptions): BlockBlast
       best.value.textContent = String(snap.bestScore);
       stage.value.textContent = snap.mode === "endless" ? copy["hud.mode.endless"] : String(snap.stageId);
       target.value.textContent = targetCopy(snap.objective);
-      lastLayout = renderCanvas(canvas, root, snap);
+      lastLayout = renderCanvas(canvas, root, snap, renderAssets);
       reconcileSurface(snap, {
         overlay,
         surface,
@@ -158,6 +166,7 @@ export function mountBlockBlastScreen(opts: BlockBlastScreenOptions): BlockBlast
     },
   };
 
+  screenRef = screen;
   const unsubscribe = opts.controller.subscribe(screen.refresh);
   return screen;
 }
@@ -389,7 +398,12 @@ function mountResultSurface(kind: "win" | "fail", snap: BlockBlastSnapshot, ctx:
   });
 }
 
-function renderCanvas(canvas: HTMLCanvasElement, root: HTMLElement, snap: BlockBlastSnapshot): Layout {
+function renderCanvas(
+  canvas: HTMLCanvasElement,
+  root: HTMLElement,
+  snap: BlockBlastSnapshot,
+  assets: RenderAssets,
+): Layout {
   const layout = layoutForCanvas(canvas);
   const dpr = window.devicePixelRatio || 1;
   canvas.width = Math.max(1, Math.round(layout.width * dpr));
@@ -399,8 +413,8 @@ function renderCanvas(canvas: HTMLCanvasElement, root: HTMLElement, snap: BlockB
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, layout.width, layout.height);
   const palette = paletteFrom(root);
-  drawBoard(ctx, layout, snap, palette);
-  drawHand(ctx, layout, snap, palette);
+  drawBoard(ctx, layout, snap, palette, assets);
+  drawHand(ctx, layout, snap, palette, assets);
   return layout;
 }
 
@@ -449,6 +463,7 @@ function drawBoard(
   layout: Layout,
   snap: BlockBlastSnapshot,
   palette: Palette,
+  assets: RenderAssets,
 ): void {
   roundedRect(ctx, layout.boardX - 8, layout.boardY - 8, layout.boardSize + 16, layout.boardSize + 16, 14);
   ctx.fillStyle = palette.boardBg;
@@ -460,8 +475,11 @@ function drawBoard(
       const py = layout.boardY + y * (layout.cell + layout.gap);
       roundedRect(ctx, px, py, layout.cell, layout.cell, 7);
       const cell = snap.board[y]![x];
-      ctx.fillStyle = cell === null ? palette.empty : palette.blocks[cell % palette.blocks.length]!;
+      ctx.fillStyle = palette.empty;
       ctx.fill();
+      if (cell !== null) {
+        drawBlockTile(ctx, px, py, layout.cell, layout.cell, 7, cell, palette, assets);
+      }
     }
   }
 
@@ -476,6 +494,7 @@ function drawHand(
   layout: Layout,
   snap: BlockBlastSnapshot,
   palette: Palette,
+  assets: RenderAssets,
 ): void {
   for (let slot = 0; slot < HAND_SLOTS; slot += 1) {
     const center = layout.slotCenters[slot]!;
@@ -484,7 +503,7 @@ function drawHand(
     ctx.fill();
     const piece = pieceFromSnapshot(snap, slot);
     if (!piece) continue;
-    drawPiece(ctx, piece, center.x, center.y, layout.slotSize / 5.4, palette);
+    drawPiece(ctx, piece, center.x, center.y, layout.slotSize / 5.4, palette, assets);
   }
 }
 
@@ -501,16 +520,62 @@ function drawPiece(
   centerY: number,
   cellSize: number,
   palette: Palette,
+  assets: RenderAssets,
 ): void {
   const maxX = Math.max(...piece.cells.map((cell) => cell.x));
   const maxY = Math.max(...piece.cells.map((cell) => cell.y));
   const originX = centerX - ((maxX + 1) * cellSize) / 2;
   const originY = centerY - ((maxY + 1) * cellSize) / 2;
   for (const cell of piece.cells) {
-    roundedRect(ctx, originX + cell.x * cellSize, originY + cell.y * cellSize, cellSize - 2, cellSize - 2, 5);
-    ctx.fillStyle = palette.blocks[piece.colorIndex % palette.blocks.length]!;
-    ctx.fill();
+    drawBlockTile(
+      ctx,
+      originX + cell.x * cellSize,
+      originY + cell.y * cellSize,
+      cellSize - 2,
+      cellSize - 2,
+      5,
+      piece.colorIndex,
+      palette,
+      assets,
+    );
   }
+}
+
+function drawBlockTile(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+  colorIndex: number,
+  palette: Palette,
+  assets: RenderAssets,
+): void {
+  const tileIndex = assets.blockTiles.length > 0 ? colorIndex % assets.blockTiles.length : -1;
+  const image = tileIndex >= 0 ? assets.blockTiles[tileIndex] : undefined;
+  if (isRenderableImage(image)) {
+    ctx.drawImage(image, x, y, width, height);
+    return;
+  }
+  roundedRect(ctx, x, y, width, height, radius);
+  ctx.fillStyle = palette.blocks[colorIndex % palette.blocks.length]!;
+  ctx.fill();
+}
+
+function loadBlockTileImages(urls: readonly string[], onReady: () => void): HTMLImageElement[] {
+  if (typeof Image === "undefined") return [];
+  return urls.map((url) => {
+    const image = new Image();
+    image.decoding = "async";
+    image.addEventListener("load", onReady, { once: true });
+    image.src = url;
+    return image;
+  });
+}
+
+function isRenderableImage(image: HTMLImageElement | undefined): image is HTMLImageElement {
+  return Boolean(image?.complete && image.naturalWidth > 0);
 }
 
 function roundedRect(

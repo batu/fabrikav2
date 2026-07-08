@@ -15,11 +15,21 @@ body {
 }
 
 .block-blast-screen {
+  --bb-screen-bg-tile: var(--fab-bb-screen-bg-tile);
+  --bb-screen-bg-size: var(--fab-bb-screen-bg-size);
+  --bb-screen-bg-vignette: var(--fab-bb-screen-bg-vignette);
   --bb-board-bg: var(--fab-bb-board-bg);
   --bb-board-empty: var(--fab-bb-board-empty);
   --bb-board-line: var(--fab-bb-board-line);
   --bb-board-preview: var(--fab-bb-board-preview);
   --bb-board-preview-bad: var(--fab-bb-board-preview-bad);
+  --bb-block-tile-a: var(--fab-bb-block-tile-a);
+  --bb-block-tile-b: var(--fab-bb-block-tile-b);
+  --bb-block-tile-c: var(--fab-bb-block-tile-c);
+  --bb-block-tile-d: var(--fab-bb-block-tile-d);
+  --bb-block-tile-e: var(--fab-bb-block-tile-e);
+  --bb-block-tile-f: var(--fab-bb-block-tile-f);
+  --bb-block-tile-g: var(--fab-bb-block-tile-g);
   --bb-block-a: var(--fab-bb-block-a);
   --bb-block-b: var(--fab-bb-block-b);
   --bb-block-c: var(--fab-bb-block-c);
@@ -41,7 +51,10 @@ body {
   padding-top: max(calc(var(--fab-space-screen-padding) + var(--fab-safe-top)), var(--fab-bb-safe-top-padding));
   padding-bottom: calc(var(--fab-space-screen-padding) + env(safe-area-inset-bottom, 0px));
   overflow: hidden;
-  background: var(--fab-bb-screen-bg);
+  background-color: var(--fab-bb-screen-bg);
+  background-image: var(--bb-screen-bg-vignette), var(--bb-screen-bg-tile);
+  background-position: center, center;
+  background-size: 100% 100%, var(--bb-screen-bg-size);
   color: var(--fab-color-text);
   font-family: var(--fab-font-family);
 }
