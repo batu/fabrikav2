@@ -2,7 +2,7 @@ import "@fabrikav2/ui/ui.css";
 import "../design/tokens.css";
 import "./shell/cameleon.css";
 
-import { createFlowMachine } from "@fabrikav2/kernel";
+import { createFlowMachine, FlowStates } from "@fabrikav2/kernel";
 import { assignWindowBindings, maybeRunInsituTour } from "@fabrikav2/testkit/testing";
 
 import { gameConfig } from "../game.config.ts";
@@ -37,7 +37,7 @@ export interface CameleonBoot {
 }
 
 export async function bootGame(mountInto: HTMLElement, options: CameleonBootOptions = {}): Promise<CameleonBoot> {
-  const machine = createFlowMachine();
+  const machine = createFlowMachine({ optionalStates: [FlowStates.Paused] });
   const level = options.level ?? await loadLevelDefinition(options.levelUrl ?? LIDO_LEVEL_URL, options.fetcher);
   const query = {
     ...parseCameleonQuery(typeof window === "undefined" ? "" : window.location.search),
@@ -46,9 +46,15 @@ export async function bootGame(mountInto: HTMLElement, options: CameleonBootOpti
   const controller = createCameleonController({
     level,
     query,
+    flowMachine: machine,
     env: import.meta.env.MODE === "test" ? "test" : "development",
   });
-  const screen = mountCameleonScreen({ mountInto });
+  const screen = mountCameleonScreen({
+    mountInto,
+    onModeSelect: (mode) => controller.setPlayMode(mode),
+    onStart: () => controller.startLevel(1),
+    onConfirmAim: () => controller.confirmAim(),
+  });
   const unsubscribe = controller.subscribe(() => screen.refresh(controller.snapshot()));
   const runtime = options.startRuntime === false
     ? null

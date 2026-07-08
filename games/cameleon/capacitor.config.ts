@@ -4,7 +4,7 @@
 // project (ios/ or android/) is generated on demand, never committed here — see
 // native-resources/README.md.
 const config = {
-  appId: "com.fabrika.cameleon",
+  appId: "com.basegamelab.cameleon.dev",
   appName: "Cameleon",
   webDir: "dist",
   ios: {
