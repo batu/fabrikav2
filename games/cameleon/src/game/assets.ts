@@ -12,9 +12,6 @@ export interface CameleonAssetEntry {
   readonly note?: string;
 }
 
-const PANEL_ALIAS_NOTE =
-  "TODO(cHf5RquT): conductor generates riso/night panels after device proof; aliases are approved only for this temporary panel gap.";
-
 const ORGANIC_HIDE_IDS = ["li-01", "li-03", "li-04", "li-05", "li-09"] as const;
 const SIGN_HIDE_FILES = {
   "li-02": "li-02-no-diving",
@@ -28,36 +25,12 @@ const LIDO_PANEL_ASSETS = [
   asset("lido.poster.panel-a", "panel", "levels/lido/panels/poster/panel-a.png"),
   asset("lido.poster.panel-b", "panel", "levels/lido/panels/poster/panel-b.png"),
   asset("lido.poster.panel-c", "panel", "levels/lido/panels/poster/panel-c.png"),
-  asset("lido.riso.panel-a", "panel", "levels/lido/panels/poster/panel-a.png", {
-    aliasOf: "lido.poster.panel-a",
-    temporary: true,
-    note: PANEL_ALIAS_NOTE,
-  }),
-  asset("lido.riso.panel-b", "panel", "levels/lido/panels/poster/panel-b.png", {
-    aliasOf: "lido.poster.panel-b",
-    temporary: true,
-    note: PANEL_ALIAS_NOTE,
-  }),
-  asset("lido.riso.panel-c", "panel", "levels/lido/panels/poster/panel-c.png", {
-    aliasOf: "lido.poster.panel-c",
-    temporary: true,
-    note: PANEL_ALIAS_NOTE,
-  }),
-  asset("lido.night.panel-a", "panel", "levels/lido/panels/poster/panel-a.png", {
-    aliasOf: "lido.poster.panel-a",
-    temporary: true,
-    note: PANEL_ALIAS_NOTE,
-  }),
-  asset("lido.night.panel-b", "panel", "levels/lido/panels/poster/panel-b.png", {
-    aliasOf: "lido.poster.panel-b",
-    temporary: true,
-    note: PANEL_ALIAS_NOTE,
-  }),
-  asset("lido.night.panel-c", "panel", "levels/lido/panels/poster/panel-c.png", {
-    aliasOf: "lido.poster.panel-c",
-    temporary: true,
-    note: PANEL_ALIAS_NOTE,
-  }),
+  asset("lido.riso.panel-a", "panel", "levels/lido/panels/riso/panel-a.png"),
+  asset("lido.riso.panel-b", "panel", "levels/lido/panels/riso/panel-b.png"),
+  asset("lido.riso.panel-c", "panel", "levels/lido/panels/riso/panel-c.png"),
+  asset("lido.night.panel-a", "panel", "levels/lido/panels/night/panel-a.png"),
+  asset("lido.night.panel-b", "panel", "levels/lido/panels/night/panel-b.png"),
+  asset("lido.night.panel-c", "panel", "levels/lido/panels/night/panel-c.png"),
 ] as const;
 
 const LIDO_HIDE_ASSETS = [

@@ -77,24 +77,21 @@ describe("Cameleon Lido production assets", () => {
     }
   });
 
-  it("keeps poster panels in conductor order and documents temporary riso/night aliases", () => {
+  it("keeps per-direction panels real files in conductor order (no temporary aliases)", () => {
     const level = loadLidoFixture();
 
-    expect(level.assetKeys.zonePanels.poster.map((key) => resolveCameleonAsset(key).publicPath)).toEqual([
-      "levels/lido/panels/poster/panel-a.png",
-      "levels/lido/panels/poster/panel-b.png",
-      "levels/lido/panels/poster/panel-c.png",
-    ]);
+    for (const direction of CAMELEON_DIRECTIONS) {
+      expect(level.assetKeys.zonePanels[direction].map((key) => resolveCameleonAsset(key).publicPath)).toEqual([
+        `levels/lido/panels/${direction}/panel-a.png`,
+        `levels/lido/panels/${direction}/panel-b.png`,
+        `levels/lido/panels/${direction}/panel-c.png`,
+      ]);
+    }
 
     const aliases = CAMELEON_DIRECTIONS.flatMap((direction) =>
       level.assetKeys.zonePanels[direction].map((key) => resolveCameleonAsset(key))
     ).filter((entry) => entry.temporary);
-
-    expect(aliases).toHaveLength(6);
-    for (const alias of aliases) {
-      expect(alias.aliasOf).toMatch(/^lido\.poster\.panel-/);
-      expect(alias.note).toContain("conductor generates riso/night panels after device proof");
-    }
+    expect(aliases).toHaveLength(0);
   });
 
   it("keeps derived organic variants alpha-locked to the white reveal", () => {
