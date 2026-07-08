@@ -119,7 +119,7 @@ export function mountCameleonScreen(opts: CameleonScreenOptions): CameleonScreen
   pauseOverlay.append(pauseTitle, resumeButton);
 
   const settingsOverlay = document.createElement("section");
-  settingsOverlay.className = "cameleon-screen__overlay cameleon-screen__overlay--settings";
+  settingsOverlay.className = "cameleon-screen__overlay cameleon-screen__overlay--settings cameleon-screen__overlay--sheet";
   const settingsTitle = document.createElement("h2");
   settingsTitle.textContent = "SETTINGS";
   const settingsMode = document.createElement("p");
@@ -159,6 +159,11 @@ export function mountCameleonScreen(opts: CameleonScreenOptions): CameleonScreen
 
   const result = document.createElement("section");
   result.className = "cameleon-screen__result";
+  const resultStamp = document.createElement("strong");
+  resultStamp.className = "cameleon-screen__result-stamp";
+  const resultCount = document.createElement("p");
+  resultCount.className = "cameleon-screen__result-count";
+  result.append(resultStamp, resultCount);
 
   hud.append(title, found.root, mode.root, direction.root, ammo.root, hint, pauseButton);
   root.append(canvas, hud, startMenu, reticle, confirmBar, bench, result, pauseOverlay, settingsOverlay);
@@ -288,19 +293,22 @@ function renderBench(slots: readonly HTMLElement[], snapshot: CameleonSnapshot):
 }
 
 function renderResult(result: HTMLElement, snapshot: CameleonSnapshot): void {
+  const stamp = result.querySelector(".cameleon-screen__result-stamp");
+  const count = result.querySelector(".cameleon-screen__result-count");
   if (snapshot.scene === "complete") {
     result.hidden = false;
-    result.textContent = snapshot.spotless ? copy["result.spotless"] : copy["result.win"];
+    if (stamp) stamp.textContent = snapshot.spotless ? copy["result.spotless"] : copy["result.win"];
+    if (count) count.textContent = `${snapshot.foundCount}/${snapshot.hides.length} exposed`;
     result.dataset.outcome = snapshot.spotless ? "spotless" : "win";
     return;
   }
   if (snapshot.scene === "failed") {
     result.hidden = false;
-    result.textContent = copy["result.fail"];
+    if (stamp) stamp.textContent = copy["result.fail"];
+    if (count) count.textContent = `${snapshot.foundCount}/${snapshot.hides.length} exposed`;
     result.dataset.outcome = "fail";
     return;
   }
   result.hidden = true;
-  result.textContent = "";
   delete result.dataset.outcome;
 }
