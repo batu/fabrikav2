@@ -32,6 +32,8 @@ export interface HomeMenuSagaConfig {
   actions: LevelMapActions;
   /** Injected accessible name for the empty-state loading rail. */
   loadingLabel: string;
+  /** Opt out when game-provided node art already includes its own backing. */
+  suppressDefaultNodeDisc?: boolean;
   id?: string;
 }
 
@@ -82,6 +84,7 @@ export function mountHomeMenu(opts: HomeMenuOptions): UiHandle {
     state: opts.saga.state,
     actions: opts.saga.actions,
     loadingLabel: opts.saga.loadingLabel,
+    suppressDefaultNodeDisc: opts.saga.suppressDefaultNodeDisc,
     id: opts.saga.id,
   });
   root.registerCleanup(() => saga.dismiss());

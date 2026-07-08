@@ -230,6 +230,7 @@ export class HomeScene extends Phaser.Scene {
       mountInto: mapMount,
       state: { nodes: this.buildLevelMapNodes() },
       theme: { ...FTD_UI_THEME, ...FTD_LEVELMAP_THEME },
+      suppressDefaultNodeDisc: true,
       actions: {
         // Forward-only rail: only the current node is playable (preserves the
         // prior dataset.state !== 'current' gate).

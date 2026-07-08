@@ -2575,8 +2575,8 @@
   justify-self: center;
   width: min(46vw, 220px);
   min-width: 176px;
-  aspect-ratio: 652 / 171;
-  min-height: 0;
+  height: 66px;
+  min-height: 66px;
   border: 0;
   border-radius: 999px;
   background: url('/ui/home/play-level-button-runtime.png') center / 100% 100% no-repeat;
@@ -2884,7 +2884,8 @@
   z-index: 4;
 }
 .home-rail-left {
-  left: 0;
+  top: 44px;
+  left: 28px;
   align-items: flex-start;
 }
 .home-rail-right {

@@ -48,6 +48,8 @@ export interface SagaMapOptions {
   actions: LevelMapActions;
   /** Injected accessible name for the empty-state loading rail (no baked copy). */
   loadingLabel: string;
+  /** Opt out when game-provided node art already includes its own backing. */
+  suppressDefaultNodeDisc?: boolean;
   theme?: ThemeTokens;
   /** Root element id (re-entrancy key). Defaults to 'fab-saga-map'. */
   id?: string;
@@ -112,6 +114,7 @@ export function mountSagaMap(opts: SagaMapOptions): UiHandle {
   });
   if (root.reentrant) return root.handle;
   const { el } = root;
+  if (opts.suppressDefaultNodeDisc) el.dataset.fabNodeDisc = 'none';
 
   el.appendChild(buildRail(opts.state, opts.loadingLabel));
 

@@ -118,6 +118,34 @@ describe('mountSagaMap', () => {
     expectCenteredSagaNodes(handle.el);
   });
 
+  it('can suppress the kit default node disc while retaining game node art', () => {
+    installUiCss();
+    const handle = mountSagaMap({
+      mountInto: host(),
+      state: { nodes: NODES },
+      actions: { onSelectLevel: () => {} },
+      loadingLabel: 'Loading levels',
+      suppressDefaultNodeDisc: true,
+      theme: {
+        '--fab-levelmap-art-default': 'linear-gradient(180deg, #ffffff 0%, #eeeeee 100%)',
+        '--fab-levelmap-art-locked': 'linear-gradient(180deg, #dddddd 0%, #bbbbbb 100%)',
+        '--fab-levelmap-art-completed': 'linear-gradient(180deg, #ccddff 0%, #99bbff 100%)',
+        '--fab-levelmap-art-current': 'linear-gradient(180deg, #88ffff 0%, #2299cc 100%)',
+      },
+      id: 'saga-no-disc',
+    });
+
+    expect(handle.el.dataset.fabNodeDisc).toBe('none');
+    const dots = Array.from(handle.el.querySelectorAll<HTMLElement>('.fab-levelmap-node-dot'));
+    expect(dots).toHaveLength(3);
+    for (const dot of dots) {
+      const style = getComputedStyle(dot);
+      expect(isTransparent(style.backgroundColor)).toBe(true);
+      expect(style.backgroundImage).not.toContain('var(');
+      expect(style.backgroundImage).not.toBe('none');
+    }
+  });
+
   it('renders the loading placeholder with the injected label and no baked copy', () => {
     const handle = mountSagaMap({
       mountInto: host(),

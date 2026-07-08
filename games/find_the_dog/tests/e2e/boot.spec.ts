@@ -125,6 +125,12 @@ test.describe("home menu polish regressions", () => {
       const playStyle = window.getComputedStyle(play);
       const noAds = document.querySelector<HTMLImageElement>(".home-no-ads-art");
       if (noAds === null) throw new Error("Missing no-ads art");
+      const noAdsBox = noAds.getBoundingClientRect();
+      const currentDot = document.querySelector<HTMLElement>(".fab-levelmap-node.current .fab-levelmap-node-dot");
+      if (currentDot === null) throw new Error("Missing current saga dot");
+      const currentDotStyle = window.getComputedStyle(currentDot);
+      const saga = document.querySelector<HTMLElement>(".fab-levelmap");
+      if (saga === null) throw new Error("Missing saga map");
       const banner = document.querySelector<HTMLElement>(".home-brand-art");
       if (banner === null) throw new Error("Missing banner art");
       const bannerContainer = document.querySelector<HTMLElement>(".home-brand-banner");
@@ -138,6 +144,14 @@ test.describe("home menu polish regressions", () => {
         hasBannerVideo: document.querySelector(".home-brand-banner video") !== null,
         noAdsNaturalWidth: noAds.naturalWidth,
         noAdsNaturalHeight: noAds.naturalHeight,
+        noAdsLeft: noAdsBox.left,
+        noAdsTop: noAdsBox.top,
+        noAdsRight: noAdsBox.right,
+        noAdsBottom: noAdsBox.bottom,
+        viewportWidth: window.innerWidth,
+        sagaNodeDisc: saga.dataset.fabNodeDisc,
+        currentDotBackgroundColor: currentDotStyle.backgroundColor,
+        currentDotBackgroundImage: currentDotStyle.backgroundImage,
         plusStyles,
         coinContained:
           contained(box(".home-coin-pill"), box(".home-coin-pill span")) &&
@@ -157,6 +171,15 @@ test.describe("home menu polish regressions", () => {
     expect(layout.bannerContainerBackground).toBe("rgba(0, 0, 0, 0)");
     expect(layout.noAdsNaturalWidth).toBe(1254);
     expect(layout.noAdsNaturalHeight).toBe(1254);
+    expect(layout.noAdsLeft).toBeGreaterThanOrEqual(20);
+    expect(layout.noAdsLeft).toBeLessThanOrEqual(40);
+    expect(layout.noAdsTop).toBeGreaterThanOrEqual(190);
+    expect(layout.noAdsTop).toBeLessThanOrEqual(255);
+    expect(layout.noAdsRight).toBeLessThanOrEqual(layout.viewportWidth);
+    expect(layout.noAdsBottom).toBeLessThan(360);
+    expect(layout.sagaNodeDisc).toBe("none");
+    expect(layout.currentDotBackgroundColor).toMatch(/^(rgba\(0, 0, 0, 0\)|transparent)$/);
+    expect(layout.currentDotBackgroundImage).toContain("node-current-candy.png");
     for (const plus of layout.plusStyles) {
       expect(plus.display).toBe("flex");
       expect(plus.alignItems).toBe("center");
@@ -172,6 +195,7 @@ test.describe("home menu polish regressions", () => {
     expect(layout.playBackground).toContain("play-level-button-runtime.png");
     expect(layout.playWidth).toBeGreaterThanOrEqual(176);
     expect(layout.playWidth).toBeLessThanOrEqual(220);
-    expect(layout.playWidth / layout.playHeight).toBeCloseTo(652 / 171, 1);
+    expect(layout.playHeight).toBeGreaterThanOrEqual(60);
+    expect(layout.playHeight).toBeLessThanOrEqual(72);
   });
 });

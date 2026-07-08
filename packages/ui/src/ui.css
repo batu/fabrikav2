@@ -704,6 +704,12 @@
     font-size: var(--fab-levelmap-node-current-font);
     font-weight: 900;
   }
+  .fab-levelmap[data-fab-node-disc='none'] .fab-levelmap-node-dot,
+  .fab-levelmap[data-fab-node-disc='none'] .fab-levelmap-node.locked .fab-levelmap-node-dot,
+  .fab-levelmap[data-fab-node-disc='none'] .fab-levelmap-node.completed .fab-levelmap-node-dot,
+  .fab-levelmap[data-fab-node-disc='none'] .fab-levelmap-node.current .fab-levelmap-node-dot {
+    background-color: transparent;
+  }
   .fab-levelmap-node.far { opacity: var(--fab-levelmap-far-opacity); --node-scale: var(--fab-levelmap-far-scale); }
   .fab-levelmap-node.distant { opacity: var(--fab-levelmap-distant-opacity); --node-scale: var(--fab-levelmap-distant-scale); }
 

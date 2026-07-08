@@ -53,6 +53,11 @@ describe("home menu polish regressions", () => {
           <button class="home-pill-plus" type="button">+</button>
         </div>
         <button id="home-play-now" class="home-play-btn" type="button">Play Now</button>
+        <aside class="home-rail home-rail-left">
+          <button id="home-no-ads" class="home-side-btn home-no-ads-btn" type="button">
+            <img class="home-no-ads-art" alt="">
+          </button>
+        </aside>
         <nav class="home-nav-bar">
           <button type="button"></button>
           <button type="button"></button>
@@ -99,5 +104,11 @@ describe("home menu polish regressions", () => {
     const play = window.getComputedStyle(element("#home-play-now"));
     expect(play.backgroundImage).toContain("/ui/home/play-level-button-runtime.png");
     expect(play.minWidth).toBe("176px");
+    expect(play.height).toBe("66px");
+    expect(play.minHeight).toBe("66px");
+
+    const noAdsRail = window.getComputedStyle(element(".home-rail-left"));
+    expect(noAdsRail.left).toBe("28px");
+    expect(noAdsRail.top).toBe("44px");
   });
 });

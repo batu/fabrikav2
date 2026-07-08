@@ -147,6 +147,8 @@ export interface LevelMapOptions {
   mountInto: HTMLElement;
   state: LevelMapState;
   actions: LevelMapActions;
+  /** Opt out when game-provided node art already includes its own backing. */
+  suppressDefaultNodeDisc?: boolean;
   theme?: ThemeTokens;
   /** Root element id (re-entrancy key). Defaults to 'fab-level-map'. */
   id?: string;
@@ -214,6 +216,7 @@ export function mountLevelMap(opts: LevelMapOptions): UiHandle {
   });
   if (root.reentrant) return root.handle;
   const { el } = root;
+  if (opts.suppressDefaultNodeDisc) el.dataset.fabNodeDisc = 'none';
 
   el.appendChild(buildRail(opts.state));
 
