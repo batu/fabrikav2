@@ -155,6 +155,8 @@ if (typeof window !== 'undefined') {
       });
       void maybeRunInsituTour(harness, {
         snapshotMatchesState: snapshotMatchesFindTheDogDriveState,
+      }).catch((err: unknown): void => {
+        console.warn('[insituTour] failed while running FTD tour', err);
       });
       if (String(import.meta.env.VITE_FTD_SIM_AUTOPLAY) === 'true') {
         window.setTimeout((): void => {
@@ -174,6 +176,8 @@ if (typeof window !== 'undefined') {
           }, 250);
         }, 250);
       }
+    }).catch((err: unknown): void => {
+      console.warn('[testHarness] failed to initialize FTD harness', err);
     });
   }
 }

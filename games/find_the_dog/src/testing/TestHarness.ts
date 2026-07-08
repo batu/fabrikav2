@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import type { GameHarness, HarnessSaveProfile } from '@fabrikav2/testkit/harness';
 import { gameState, type CompletionTransaction, type GameSettings, type WalletSnapshot } from '../core/GameState';
+import { GAMEPLAY, TIMING } from '../core/Constants';
 import { GameScene, type ClassicRenderDiagnosticsSnapshot, type RuntimeTexturesSnapshot, type ViewportEffectSnapshot } from '../scenes/GameScene';
 import { loadLevel, packageCacheSnapshot as getPackageCacheSnapshot, runtimeSequenceSnapshot as getRuntimeSequenceSnapshot, type LevelData, type LevelDog } from '../data/levels';
 import type { RuntimeSequenceResolution } from '../sequence/runtimeSequence';
@@ -36,8 +37,11 @@ export const findTheDogDrivePredicates = {
     return ready
       && (scene === 'playing' || scene === 'GameScene')
       && snapshot.levelComplete !== true
+      && snapshot.lifecycleSuspended !== true
+      && status !== 'paused'
       && status !== 'complete'
-      && status !== 'failed';
+      && status !== 'failed'
+      && snapshot.lives !== 0;
   },
   settings: (snapshot: DriveSnapshot): boolean => snapshot.settingsOpen === true,
   pause: (snapshot: DriveSnapshot): boolean => {
@@ -61,6 +65,22 @@ export function snapshotMatchesFindTheDogDriveState(state: DriveState, raw: unkn
   const snapshot = (raw ?? {}) as DriveSnapshot;
   return findTheDogDrivePredicates[state](snapshot);
 }
+
+const SETTINGS_PAGE_SELECTOR = [
+  '#home-page-overlay.home-page-settings',
+  '.settings-page-card',
+  '[data-page="settings"]',
+  '.settings-page',
+  '#settings-page',
+].join(', ');
+
+const SETTINGS_OPEN_TRIGGER_SELECTOR = '#home-nav-settings, #settings-btn';
+const SETTINGS_OPEN_TARGET_POLL_MS = 50;
+const SETTINGS_OPEN_TARGET_MAX_POLLS = 40;
+const WRONG_TAP_SETTLE_MS = TIMING.PENALTY_COOLDOWN_MS + 20;
+
+const sleep = (ms: number): Promise<void> =>
+  new Promise((resolve) => window.setTimeout(resolve, ms));
 
 export interface FindTheDogSnapshot {
   activeScene: string;
@@ -192,15 +212,38 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
   }
 
   function gotoHome(): void {
+    setLifecycleForTest('active');
     game.scene.stop('GameScene');
     game.scene.start('HomeScene');
   }
 
   function startLevel(): void {
+    setLifecycleForTest('active');
     prepareGameplayOverlay();
     const scene = game.scene.getScene('GameScene');
     if (scene !== null && game.scene.isActive('GameScene')) scene.scene.restart({});
     else game.scene.start('GameScene', {});
+  }
+
+  async function waitForSettingsOpenTarget(): Promise<void> {
+    for (let i = 0; i < SETTINGS_OPEN_TARGET_MAX_POLLS; i += 1) {
+      if (document.querySelector(SETTINGS_PAGE_SELECTOR) !== null) return;
+      if (document.querySelector(SETTINGS_OPEN_TRIGGER_SELECTOR) !== null) return;
+      await sleep(SETTINGS_OPEN_TARGET_POLL_MS);
+    }
+  }
+
+  async function openSettingsFromUi(): Promise<void> {
+    await waitForSettingsOpenTarget();
+    const button = document.querySelector<HTMLButtonElement>(SETTINGS_OPEN_TRIGGER_SELECTOR);
+    if (button !== null) {
+      button.click();
+    }
+    if (document.querySelector(SETTINGS_PAGE_SELECTOR) === null) openPage('settings');
+  }
+
+  function runOpenSettingsVerb(): void {
+    void openSettingsFromUi();
   }
 
   function safeMissPoint(): { x: number; y: number } {
@@ -233,21 +276,23 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
   }
 
   async function failLevel(): Promise<boolean> {
-    for (let i = 0; i < 6; i += 1) {
+    for (let i = 0; i < GAMEPLAY.LIVES_PER_LEVEL + 2; i += 1) {
       const snapshot = harnessSnapshot();
       if (snapshot.lives <= 0) return true;
       tapSafeMiss();
+      if (harnessSnapshot().lives <= 0) return true;
+      await sleep(WRONG_TAP_SETTLE_MS);
     }
     return harnessSnapshot().lives <= 0;
   }
 
   function driveSnapshot(): DriveSnapshot {
     const snapshot = harnessSnapshot();
-    const settingsOpen = document.querySelector('[data-page="settings"], .settings-page, #settings-page') !== null;
     return {
       activeScene: snapshot.activeScene,
       inputReady: snapshot.levelDataReady,
-      settingsOpen,
+      settingsOpen: snapshot.settingsOpen,
+      lifecycleSuspended: snapshot.lifecycleSuspended,
       levelComplete: snapshot.levelComplete,
       lives: snapshot.lives,
       status: snapshot.status,
@@ -258,7 +303,7 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     return {
       gotoMenu: () => gotoHome(),
       startLevel: () => startLevel(),
-      openSettings: () => openPage('settings'),
+      openSettings: () => openSettingsFromUi(),
       pause: () => setLifecycleForTest('inactive'),
       autoWin: () => winLevel(),
       autoFail: () => failLevel(),
@@ -283,7 +328,7 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
             : activeScene === 'GameScene'
               ? 'playing'
               : undefined,
-      settingsOpen: document.querySelector('[data-page="settings"], .settings-page, #settings-page') !== null,
+      settingsOpen: document.querySelector(SETTINGS_PAGE_SELECTOR) !== null,
       lifecycleSuspended: isGameSuspended(),
       levelId: level?.id ?? '',
       levelSize: { width: level?.width ?? 0, height: level?.height ?? 0 },
@@ -337,7 +382,7 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     verbs: {
       gotoHome: { run: gotoHome },
       startLevel: { run: startLevel },
-      openSettings: { run: () => openPage('settings') },
+      openSettings: { run: runOpenSettingsVerb },
       tapSafeMiss: { run: tapSafeMiss },
     },
 

@@ -3,3 +3,4 @@ export * from './viewportMetrics.ts';
 export * from './tourMarker.ts';
 export * from './driveTo.ts';
 export * from './insituTour.ts';
+export * from './tourDriveTimeout.ts';

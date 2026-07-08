@@ -43,7 +43,15 @@ const defaultSleep = (ms: number): Promise<void> =>
 
 export const defaultDriveStatePredicates: DriveStatePredicates = {
   menu: (snap) => snap.scene === 'menu',
-  level: (snap) => snap.scene === 'playing' && snap.inputReady !== false,
+  level: (snap) =>
+    snap.scene === 'playing'
+    && snap.inputReady !== false
+    && snap.levelComplete !== true
+    && snap.lifecycleSuspended !== true
+    && snap.status !== 'paused'
+    && snap.status !== 'complete'
+    && snap.status !== 'failed'
+    && snap.lives !== 0,
   win: (snap) => snap.scene === 'complete',
   fail: (snap) => snap.scene === 'failed',
   settings: (snap) => snap.settingsOpen === true,
@@ -51,7 +59,7 @@ export const defaultDriveStatePredicates: DriveStatePredicates = {
 };
 
 export const defaultPlayingReady: DriveStatePredicate = (snap) =>
-  snap.scene === 'playing' && snap.inputReady === true;
+  defaultDriveStatePredicates.level(snap);
 
 export function isDriveState(state: string): state is DriveState {
   return (DRIVE_STATES as readonly string[]).includes(state);
@@ -74,10 +82,11 @@ export async function driveTo(
 
   await deps.gotoMenu();
   const atMenu = await settle(predicates.menu);
+  if (!atMenu) return false;
 
   switch (state) {
     case 'menu':
-      return atMenu;
+      return true;
 
     case 'settings':
       await deps.openSettings();
@@ -90,14 +99,14 @@ export async function driveTo(
     case 'win': {
       await deps.startLevel(opts.levelIds?.win ?? 1);
       if (!(await settle(playingReady))) return false;
-      await deps.autoWin();
+      if (!(await deps.autoWin())) return false;
       return settle(predicates.win);
     }
 
     case 'fail': {
       await deps.startLevel(opts.levelIds?.fail ?? 1);
       if (!(await settle(playingReady))) return false;
-      await deps.autoFail();
+      if (!(await deps.autoFail())) return false;
       return settle(predicates.fail);
     }
 

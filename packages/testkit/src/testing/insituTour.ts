@@ -6,6 +6,7 @@ import {
   type DriveState,
 } from './driveTo.ts';
 import { publishTourMarker } from './tourMarker.ts';
+import { driveTourStateWithTimeout } from './tourDriveTimeout.ts';
 
 export interface InsituTourHarness<State extends string = DriveState> {
   driveTo?: (state: State) => Promise<boolean>;
@@ -20,6 +21,7 @@ export interface InsituTourOptions<State extends string = DriveState> {
   readonly states?: readonly State[];
   readonly dwellMs?: number;
   readonly markSettleRecheckMs?: number;
+  readonly driveTimeoutMs?: number;
   readonly saveProfile?: HarnessSaveProfile | null;
   readonly sleep?: (ms: number) => Promise<void>;
   readonly snapshotMatchesState?: (state: State, snapshot: unknown) => boolean;
@@ -29,6 +31,7 @@ export interface InsituTourOptions<State extends string = DriveState> {
 
 const ALLSTATES_DWELL_MS = 11000;
 const MARK_SETTLE_RECHECK_MS = 500;
+const TOUR_DRIVE_TIMEOUT_MS = 20_000;
 
 const DEFAULT_SAVE_PROFILE = {
   unlockedLevel: 2,
@@ -53,8 +56,10 @@ export async function maybeRunInsituTour<State extends string = DriveState>(
   const sleep = options.sleep ?? defaultSleep;
   const dwellMs = options.dwellMs ?? ALLSTATES_DWELL_MS;
   const markSettleRecheckMs = options.markSettleRecheckMs ?? MARK_SETTLE_RECHECK_MS;
+  const driveTimeoutMs = options.driveTimeoutMs ?? TOUR_DRIVE_TIMEOUT_MS;
   const saveProfile = options.saveProfile === undefined ? DEFAULT_SAVE_PROFILE : options.saveProfile;
   const matches = options.snapshotMatchesState ?? defaultSnapshotMatchesState;
+  const driveTo = harness.driveTo;
   const snapshot = (): unknown => harness.snapshot();
   const log = (message: string): void => {
     options.logger?.(`[insituTour] ${message}`);
@@ -67,7 +72,10 @@ export async function maybeRunInsituTour<State extends string = DriveState>(
   }
 
   for (const state of states) {
-    const ok = await harness.driveTo(state);
+    const ok = await driveTourStateWithTimeout(state, (target) => driveTo(target), {
+      timeoutMs: driveTimeoutMs,
+      onTimeout: (target) => log(`driveTo(${String(target)}) timed out after ${driveTimeoutMs}ms`),
+    });
     let stable = false;
     if (ok) {
       await sleep(markSettleRecheckMs);
@@ -99,7 +107,7 @@ export async function maybeRunInsituTour<State extends string = DriveState>(
 
 function requestedScript(): string | null {
   const env = ((import.meta as unknown as { env?: Record<string, string | undefined> }).env ?? {});
-  if (env.VITE_INSITU_TOUR !== undefined) return env.VITE_INSITU_TOUR;
+  if (env.VITE_INSITU_TOUR) return env.VITE_INSITU_TOUR;
   if (typeof window === 'undefined') return null;
   return new URLSearchParams(window.location.search).get('insituTour');
 }

@@ -28,6 +28,7 @@ describe('mapAttachmentsToStates', () => {
   it('maps each canonical state to its attachment file', () => {
     const { byState } = mapAttachmentsToStates(MANIFEST);
     expect(byState.level.file).toBe('b.png');
+    expect(byState.level.gated).toBe(true);
     expect(byState.settings.file).toBe('c.png');
     expect(byState.pause.file).toBe('d.png');
     expect(byState.win.file).toBe('e.png');
@@ -44,7 +45,7 @@ describe('mapAttachmentsToStates', () => {
     expect(unmapped.map((u) => u.file)).toContain('g.png');
   });
 
-  it('maps fail-loud *-MISSING runner shots back to their intended state', () => {
+  it('maps fail-loud *-MISSING runner shots back to their intended state as ungated', () => {
     const manifest = [{
       attachments: [
         { exportedFileName: 'missing.png', suggestedHumanReadableName: '6-fail-MISSING_0_uuid.png', timestamp: 100 },
@@ -52,6 +53,7 @@ describe('mapAttachmentsToStates', () => {
     }];
     const { byState, unmapped } = mapAttachmentsToStates(manifest);
     expect(byState.fail.file).toBe('missing.png');
+    expect(byState.fail.gated).toBe(false);
     expect(unmapped).toEqual([]);
   });
 
@@ -85,9 +87,26 @@ describe('extractFromExportDir + loadCapturesDir (fs)', () => {
   afterAll(() => fs.rmSync(dir, { recursive: true, force: true }));
 
   it('resolves attachment files to absolute paths under the export dir', () => {
-    const { byState } = extractFromExportDir(dir);
+    const { byState, captureByState } = extractFromExportDir(dir);
     expect(byState.menu).toBe(path.join(dir, 'menu-retake.png'));
     expect(byState.fail).toBe(path.join(dir, 'f.png'));
+    expect(captureByState.menu).toEqual({ gated: true });
+    expect(captureByState.fail).toEqual({ gated: true });
+  });
+
+  it('returns capture integrity flags from exported attachment names', () => {
+    const blindDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vd-blind-'));
+    fs.writeFileSync(path.join(blindDir, 'manifest.json'), JSON.stringify([{
+      attachments: [
+        { exportedFileName: 'fail.png', suggestedHumanReadableName: '6-fail-MISSING_0_uuid.png', timestamp: 100 },
+      ],
+    }]));
+
+    const { byState, captureByState } = extractFromExportDir(blindDir);
+
+    expect(byState.fail).toBe(path.join(blindDir, 'fail.png'));
+    expect(captureByState.fail).toEqual({ gated: false });
+    fs.rmSync(blindDir, { recursive: true, force: true });
   });
 
   it('parses viewport metrics text sidecars from the export dir', () => {

@@ -32,3 +32,17 @@ export function stateFromShotName(name) {
   const token = shot.replace(/^\d+[-.]/, '').replace(/-missing$/i, '').toLowerCase();
   return CANONICAL_SET.has(token) ? token : null;
 }
+
+/**
+ * Whether the runner attachment name is an inspection shot taken after the exact
+ * tourstate marker failed to appear. These PNGs are useful evidence, but they
+ * are not gated captures of the named state.
+ * @param {string} name
+ * @returns {boolean}
+ */
+export function isMissingShotName(name) {
+  if (typeof name !== 'string') return false;
+  const base = name.replace(/\.[a-z0-9]+$/i, '');
+  const shot = base.split('_')[0];
+  return /-missing$/i.test(shot);
+}

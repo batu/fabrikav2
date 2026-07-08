@@ -7,8 +7,10 @@ import {
   compareSummaries,
   formatCompareTable,
   formatSummaryTable,
+  formatUngatedCaptureWarnings,
   loadRunSummary,
   normalizeSummary,
+  ungatedCaptureStates,
   writeSummaryJson,
 } from '../src/summary.mjs';
 
@@ -89,6 +91,17 @@ describe('buildSummary', () => {
       ],
     });
   });
+
+  it('records attachment-derived capture gating under each state', () => {
+    const summary = buildSummary({
+      panel: { states: [{ state: 'fail', score: 40, status: 'fail', consensus: [] }] },
+      phashVerdict: null,
+      captureByState: { fail: { gated: false }, menu: { gated: true } },
+    });
+
+    expect(summary.fail.capture).toEqual({ gated: false });
+    expect(summary.menu.capture).toEqual({ gated: true });
+  });
 });
 
 describe('summary persistence', () => {
@@ -122,6 +135,7 @@ describe('summary persistence', () => {
           score: 80,
           majorConsensusCount: 2,
           verdict: 'fail',
+          capture: { gated: false },
           viewportMetrics: { windowInnerHeight: 844 },
           viewportMetricAssertions: [{ state: 'menu', metric: 'windowInnerHeight', status: 'pass' }],
         },
@@ -131,6 +145,7 @@ describe('summary persistence', () => {
         score: 80,
         majorConsensusCount: 2,
         verdict: 'fail',
+        capture: { gated: false },
         viewportMetrics: { windowInnerHeight: 844 },
         viewportMetricAssertions: [{ state: 'menu', metric: 'windowInnerHeight', status: 'pass' }],
       },
@@ -141,7 +156,7 @@ describe('summary persistence', () => {
 describe('summary formatting and compare mode', () => {
   it('prints one table row per state', () => {
     const text = formatSummaryTable({
-      menu: { score: 75, majorConsensusCount: 2, verdict: 'fail' },
+      menu: { score: 75, majorConsensusCount: 2, verdict: 'fail', capture: { gated: false } },
       pause: { score: null, majorConsensusCount: 0, verdict: 'unscored' },
     });
 
@@ -149,6 +164,18 @@ describe('summary formatting and compare mode', () => {
     expect(text).toContain('menu');
     expect(text).toContain('pause');
     expect(text).toContain('majors');
+    expect(text).toContain('capture');
+    expect(text).toContain('BLIND');
+  });
+
+  it('formats loud blind-capture warnings from summary capture flags', () => {
+    const states = ungatedCaptureStates({
+      menu: { score: 90, majorConsensusCount: 0, verdict: 'pass', capture: { gated: true } },
+      fail: { score: null, majorConsensusCount: 0, verdict: 'missing', capture: { gated: false } },
+    });
+
+    expect(states).toEqual(['fail']);
+    expect(formatUngatedCaptureWarnings(states)).toContain('fail CAPTURED BLIND (marker never appeared)');
   });
 
   it('computes and formats per-state score, major consensus, and verdict deltas', () => {
