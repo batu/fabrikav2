@@ -18,6 +18,7 @@
     "test": "npm run test:unit --workspaces --if-present",
     "test:unit": "npm run test:unit --workspaces --if-present",
     "land-gate": "node tools/verify-gate/land-gate.mjs",
+    "setup-lockfile-merge-driver": "node tools/verify-gate/setup-lockfile-merge-driver.mjs",
     "verify-merge-gate": "node tools/verify-gate/merge-gate.mjs",
     "check-claude-mirror": "node tools/verify-gate/check-claude-mirror.mjs",
     "project-gate": "node tools/verify-gate/project-gate.mjs",

@@ -12,6 +12,28 @@ LLM) and SELF-DISABLING (a no-op for non-game projects).
 All logic lives in `tools/verify-gate/` (a unit-tested Node workspace). The shell
 hook is a thin shim that self-disables and delegates.
 
+## Lockfile Merge Driver
+
+Root `package-lock.json` conflicts are handled by a committed Git merge driver:
+`.gitattributes` maps `/package-lock.json` to `merge=npm-lock-regen`, and
+`tools/verify-gate/npm-lock-merge-driver.mjs` resolves the conflict by taking
+the current integration branch's lockfile, running
+`npm install --package-lock-only --ignore-scripts --no-audit --no-fund`, and
+writing the regenerated lockfile back to Git's merge result. During normal
+`twf merge-card` landing, "current" is `main`, so the result is main's lockfile
+after deterministic npm regen, before the merge commit is created.
+
+Activate the driver once per clone/worktree set:
+
+```bash
+npm run setup-lockfile-merge-driver
+```
+
+That command writes the required local Git config:
+`merge.npm-lock-regen.driver = node tools/verify-gate/npm-lock-merge-driver.mjs %O %A %B %P`.
+The behavior is covered by `tools/verify-gate/test/lockfile-merge-driver.test.mjs`,
+including a real temp-repo merge conflict.
+
 ### 1. Claim-gated Stop hook
 - **Shim:** `agents/hooks/verify-visual-claim.sh` (mirrored to `.claude/hooks/`
   by the standard sync — see "Activation" below).
