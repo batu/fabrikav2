@@ -21,7 +21,9 @@ export async function mountCameleonPhaser(options: CameleonPhaserOptions): Promi
   const scene = createLidoSceneClass(PhaserRuntime, options.controller);
   const size = canvasSize(options.canvas);
   const game = new PhaserRuntime.Game({
-    type: PhaserRuntime.AUTO,
+    // Explicit renderer: AUTO throws "custom environment" outside a detected
+    // browser (seen in instrumented Chromium) and would abort the whole boot.
+    type: typeof WebGLRenderingContext === "undefined" ? PhaserRuntime.CANVAS : PhaserRuntime.WEBGL,
     canvas: options.canvas,
     width: size.width,
     height: size.height,

@@ -59,10 +59,25 @@ export async function bootGame(mountInto: HTMLElement, options: CameleonBootOpti
     onResume: () => controller.resume(),
     onSettingsClose: () => controller.gotoMenu(),
   });
-  const unsubscribe = controller.subscribe(() => screen.refresh(controller.snapshot()));
-  const runtime = options.startRuntime === false
-    ? null
-    : await mountCameleonPhaser({ canvas: screen.canvas, controller });
+  const unsubscribe = controller.subscribe(() => {
+    // A throwing listener must never poison controller.notify() — that would
+    // reject every subsequent driveTo and kill the insitu tour mid-run.
+    try {
+      screen.refresh(controller.snapshot());
+    } catch (error) {
+      console.error("[cameleon] screen refresh failed", error);
+    }
+  });
+  let runtime: CameleonPhaserRuntime | null = null;
+  if (options.startRuntime !== false) {
+    try {
+      runtime = await mountCameleonPhaser({ canvas: screen.canvas, controller });
+    } catch (error) {
+      // The DOM shell + harness must stay alive even if the canvas renderer
+      // fails to boot; the tour and controller are renderer-independent.
+      console.error("[cameleon] phaser mount failed", error);
+    }
+  }
 
   return {
     machine,

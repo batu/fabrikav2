@@ -319,6 +319,15 @@
   font: 800 14px/1 var(--fab-font-display);
 }
 
+/* Author display values (grid/flex) beat the UA's [hidden]{display:none};
+   without this, "hidden" elements still paint (device-verify caught the
+   start menu + both overlays stacked in every capture). */
+.cameleon-screen [hidden],
+.cameleon-screen__start[hidden],
+.cameleon-screen__overlay[hidden] {
+  display: none !important;
+}
+
 .cameleon-screen__overlay {
   position: absolute;
   inset: 0;
