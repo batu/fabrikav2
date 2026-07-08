@@ -1,6 +1,6 @@
 import { DRIVE_STATES, type DriveState } from './driveTo';
 import type { HarnessSaveProfile } from '@fabrikav2/testkit/harness';
-import { publishViewportMetricsMarker } from '@fabrikav2/testkit/testing';
+import { driveTourStateWithTimeout, publishViewportMetricsMarker } from '@fabrikav2/testkit/testing';
 
 export interface TourHarness {
   driveTo: (state: DriveState) => Promise<boolean>;
@@ -12,6 +12,7 @@ export interface TourHarness {
 const TOUR_MARKER_ID = '__tourstate__';
 const ALLSTATES_DWELL_MS = 11000;
 const MARK_SETTLE_RECHECK_MS = 500;
+const TOUR_DRIVE_TIMEOUT_MS = 20_000;
 const ALLSTATES_SAVE_PROFILE = {
   unlockedLevel: 2,
   coins: 25,
@@ -29,7 +30,10 @@ export async function maybeRunInsituTour(harness: TourHarness): Promise<void> {
   await harness.seedSave?.(ALLSTATES_SAVE_PROFILE);
   const marker = ensureMarker();
   for (const state of DRIVE_STATES) {
-    const ok = await harness.driveTo(state);
+    const ok = await driveTourStateWithTimeout(state, (target) => harness.driveTo(target), {
+      timeoutMs: TOUR_DRIVE_TIMEOUT_MS,
+      onTimeout: (target) => console.info(`[insituTour] driveTo(${target}) timed out after ${TOUR_DRIVE_TIMEOUT_MS}ms`),
+    });
     if (!ok) {
       mark(marker, `tourstate:${state}-FAILED`);
       await sleep(ALLSTATES_DWELL_MS);

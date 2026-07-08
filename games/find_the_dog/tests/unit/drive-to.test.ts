@@ -97,6 +97,49 @@ describe("_template driveTo — deterministic per-state navigation", () => {
     expect(deps.snapshot()).toMatchObject({ scene: "menu", settingsOpen: true });
   });
 
+  it("waits for an async settings opener before confirming settings", async () => {
+    let scene: Scene = "menu";
+    let settingsOpen = false;
+    const actions: string[] = [];
+    const deps: DriveToDeps = {
+      gotoMenu: () => {
+        actions.push("gotoMenu");
+        scene = "menu";
+        settingsOpen = false;
+      },
+      startLevel: () => {
+        actions.push("startLevel");
+        scene = "playing";
+      },
+      openSettings: async () => {
+        actions.push("openSettings:start");
+        await instantSleep();
+        settingsOpen = true;
+        actions.push("openSettings:done");
+      },
+      pause: () => {
+        actions.push("pause");
+        scene = "paused";
+      },
+      autoWin: async () => {
+        actions.push("autoWin");
+        scene = "complete";
+        return true;
+      },
+      autoFail: async () => {
+        actions.push("autoFail");
+        scene = "failed";
+        return true;
+      },
+      snapshot: () => ({ scene, inputReady: true, settingsOpen }),
+    };
+
+    await expect(driveTo(deps, "settings", opts)).resolves.toBe(true);
+
+    expect(actions).toEqual(["gotoMenu", "openSettings:start", "openSettings:done"]);
+    expect(deps.snapshot()).toMatchObject({ scene: "menu", settingsOpen: true });
+  });
+
   it.each([
     ["level", ["gotoMenu", "startLevel"]] as const,
     ["pause", ["gotoMenu", "startLevel", "pause"]] as const,

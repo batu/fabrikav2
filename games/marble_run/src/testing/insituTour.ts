@@ -13,12 +13,13 @@
  */
 import type { App } from '../shell/App';
 import type { HarnessSaveProfile } from '@fabrikav2/testkit/harness';
-import { publishViewportMetricsMarker } from '@fabrikav2/testkit/testing';
+import { driveTourStateWithTimeout, publishViewportMetricsMarker } from '@fabrikav2/testkit/testing';
 
 const DWELL_MS = 6000;
 const ALLSTATES = ['menu', 'level', 'settings', 'pause', 'win', 'fail'] as const;
 const ALLSTATES_DWELL_MS = 11000;
 const MARK_SETTLE_RECHECK_MS = 500;
+const TOUR_DRIVE_TIMEOUT_MS = 20_000;
 const ALLSTATES_SAVE_PROFILE = {
   unlockedLevel: 2,
   coins: 25,
@@ -110,7 +111,10 @@ export async function maybeRunInsituTour(app: App): Promise<void> {
       snapshotMatchesState(state, h.snapshot() as Record<string, unknown>);
 
     for (const s of ALLSTATES) {
-      const ok = await h.driveTo(s);
+      const ok = await driveTourStateWithTimeout(s, (state) => h.driveTo(state), {
+        timeoutMs: TOUR_DRIVE_TIMEOUT_MS,
+        onTimeout: (state) => log(`driveTo(${state}) timed out after ${TOUR_DRIVE_TIMEOUT_MS}ms`),
+      });
       let stable = false;
       if (ok) {
         await sleep(MARK_SETTLE_RECHECK_MS);

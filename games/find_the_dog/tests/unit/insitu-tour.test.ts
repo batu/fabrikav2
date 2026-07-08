@@ -149,6 +149,25 @@ describe("find_the_dog maybeRunInsituTour — allstates", () => {
     expect(ariaHistory.at(-1)).toBe("tourstate:done");
   });
 
+  it("times out a never-settling driveTo, marks FAILED, and continues the tour", async () => {
+    const seen: string[] = [];
+    const harness = makeHarness(async (state) => {
+      seen.push(state);
+      if (state === "settings") return new Promise<boolean>(() => {});
+      return true;
+    });
+
+    const run = maybeRunInsituTour(harness);
+    await vi.runAllTimersAsync();
+    await run;
+
+    expect(seen).toEqual(["menu", "level", "settings", "pause", "win", "fail"]);
+    expect(ariaHistory).toContain("tourstate:settings-FAILED");
+    expect(ariaHistory).not.toContain("tourstate:settings");
+    expect(ariaHistory).toContain("tourstate:pause-DONE");
+    expect(ariaHistory.at(-1)).toBe("tourstate:done");
+  });
+
   it("retires each exact marker before driving the next state", async () => {
     let markerAtPauseStart: string | undefined;
     const harness = makeHarness(async (state) => {

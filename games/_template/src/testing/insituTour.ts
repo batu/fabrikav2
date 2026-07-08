@@ -25,7 +25,7 @@
  * belong in the agent or in an external one-shot tool that returns.
  */
 import type { GameHarness, HarnessSaveProfile } from '@fabrikav2/testkit/harness';
-import { publishViewportMetricsMarker } from '@fabrikav2/testkit/testing';
+import { driveTourStateWithTimeout, publishViewportMetricsMarker } from '@fabrikav2/testkit/testing';
 
 /** The canonical device-capture states the 'allstates' script drives through
  *  (mirrors `driveTo.ts`'s `DriveState` / `tools/refcap-compare` `CANONICAL_STATES`). */
@@ -38,6 +38,7 @@ type AllstatesState = (typeof ALLSTATES)[number];
 // fidelity-diff mistakes ledger (settings/fail mislabeled as menu/level).
 const ALLSTATES_DWELL_MS = 11000;
 const MARK_SETTLE_RECHECK_MS = 500;
+const TOUR_DRIVE_TIMEOUT_MS = 20_000;
 const ALLSTATES_SAVE_PROFILE = {
   unlockedLevel: 2,
   coins: 25,
@@ -116,11 +117,15 @@ export async function maybeRunInsituTour(harness: GameHarness): Promise<void> {
   // 'allstates' = drive to EVERY canonical state via driveTo (each confirmed),
   // dwelling for a device capture. This is the required device-verification tour.
   if (script === 'allstates' && typeof harness.driveTo === 'function') {
+    const driveTo = harness.driveTo;
     await harness.resetSave?.();
     await harness.seedSave?.(ALLSTATES_SAVE_PROFILE);
 
     for (const s of ALLSTATES) {
-      const ok = await harness.driveTo(s);
+      const ok = await driveTourStateWithTimeout(s, (state) => driveTo(state), {
+        timeoutMs: TOUR_DRIVE_TIMEOUT_MS,
+        onTimeout: (state) => log(`driveTo(${state}) timed out after ${TOUR_DRIVE_TIMEOUT_MS}ms`),
+      });
       let stable = false;
       if (ok) {
         await sleep(MARK_SETTLE_RECHECK_MS);

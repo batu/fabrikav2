@@ -25,6 +25,9 @@ const SETTINGS_PAGE_SELECTOR = [
   '#settings-page',
 ].join(', ');
 
+const SETTINGS_OPEN_TRIGGER_SELECTOR = '#home-nav-settings, #settings-btn';
+const SETTINGS_OPEN_TARGET_POLL_MS = 50;
+const SETTINGS_OPEN_TARGET_MAX_POLLS = 40;
 const WRONG_TAP_SETTLE_MS = TIMING.PENALTY_COOLDOWN_MS + 20;
 
 const sleep = (ms: number): Promise<void> =>
@@ -173,13 +176,25 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     else game.scene.start('GameScene', {});
   }
 
-  function openSettingsFromUi(): void {
-    const button = document.querySelector<HTMLButtonElement>('#home-nav-settings, #settings-btn');
+  async function waitForSettingsOpenTarget(): Promise<void> {
+    for (let i = 0; i < SETTINGS_OPEN_TARGET_MAX_POLLS; i += 1) {
+      if (document.querySelector(SETTINGS_PAGE_SELECTOR) !== null) return;
+      if (document.querySelector(SETTINGS_OPEN_TRIGGER_SELECTOR) !== null) return;
+      await sleep(SETTINGS_OPEN_TARGET_POLL_MS);
+    }
+  }
+
+  async function openSettingsFromUi(): Promise<void> {
+    await waitForSettingsOpenTarget();
+    const button = document.querySelector<HTMLButtonElement>(SETTINGS_OPEN_TRIGGER_SELECTOR);
     if (button !== null) {
       button.click();
-      return;
     }
-    openPage('settings');
+    if (document.querySelector(SETTINGS_PAGE_SELECTOR) === null) openPage('settings');
+  }
+
+  function runOpenSettingsVerb(): void {
+    void openSettingsFromUi();
   }
 
   function safeMissPoint(): { x: number; y: number } {
@@ -318,7 +333,7 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     verbs: {
       gotoHome: { run: gotoHome },
       startLevel: { run: startLevel },
-      openSettings: { run: openSettingsFromUi },
+      openSettings: { run: runOpenSettingsVerb },
       tapSafeMiss: { run: tapSafeMiss },
     },
 
