@@ -9,11 +9,12 @@ function host(): HTMLElement {
 describe('mountButton', () => {
   it('renders a real button with label assigned as text', () => {
     const h = host();
-    const handle = mountButton({ mountInto: h, label: '<b>Play</b>', onClick: () => {} });
+    const handle = mountButton({ mountInto: h, label: '<b>Play</b>', spriteImage: 'button-src', onClick: () => {} });
     expect(handle.el.tagName).toBe('BUTTON');
     expect(handle.el.textContent).toBe('<b>Play</b>');
     expect(handle.el.querySelector('b')).toBeNull();
-    expect(handle.el.classList.contains('fab-btn-primary')).toBe(true);
+    expect(handle.el.classList.contains('fab-btn')).toBe(true);
+    expect(handle.el.style.getPropertyValue('--fab-btn-sprite-image')).toContain('button-src');
     expect(h.contains(handle.el)).toBe(true);
   });
 
@@ -97,19 +98,14 @@ describe('mountButton', () => {
     }).toThrow(/id collision/);
   });
 
-  it('icon variant requires visible label or ariaLabel', () => {
-    expect(() => {
-      mountButton({ mountInto: host(), label: '', onClick: () => {}, variant: 'icon' });
-    }).toThrow(/ariaLabel/);
-
+  it('allows icon-only callers to supply the accessible label without a variant branch', () => {
     const handle = mountButton({
       mountInto: host(),
       label: '',
       ariaLabel: 'Close',
       onClick: () => {},
-      variant: 'icon',
     });
-    expect(handle.el.classList.contains('fab-btn-icon')).toBe(true);
+    expect(handle.el.classList.contains('fab-btn')).toBe(true);
     expect(handle.el.getAttribute('aria-label')).toBe('Close');
   });
 });

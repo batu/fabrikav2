@@ -120,6 +120,32 @@ interface FailHarness {
   handleFail(info: { levelId: number }): void;
 }
 
+function expectSpriteRibbon(
+  card: HTMLElement,
+  opts: { assetName: string; title: string; eyebrow?: string },
+): void {
+  const ribbon = card.querySelector<HTMLElement>('.fab-modal-ribbon')!;
+  expect(ribbon).not.toBeNull();
+  expect(Array.from(ribbon.classList).filter((name) => name.startsWith('fab-modal-ribbon--'))).toEqual([]);
+  expect(ribbon.style.backgroundImage).toBe('');
+  expect(ribbon.querySelector<HTMLImageElement>('.fab-modal-ribbon-image')?.src).toContain(opts.assetName);
+  const title = ribbon.querySelector<HTMLElement>('.fab-modal-ribbon-title')!;
+  expect(title.textContent).toBe(opts.title);
+  if (opts.eyebrow !== undefined) {
+    const eyebrow = ribbon.querySelector<HTMLElement>('.fab-modal-ribbon-eyebrow')!;
+    expect(eyebrow.textContent).toBe(opts.eyebrow);
+    expect(eyebrow.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  }
+}
+
+function expectSpriteButton(action: string, assetName: string): void {
+  const button = document.querySelector<HTMLButtonElement>(`[data-fab-action="${action}"]`)!;
+  expect(button).not.toBeNull();
+  expect(button.classList.contains('fab-btn')).toBe(true);
+  expect(button.classList.contains('fab-btn-primary')).toBe(false);
+  expect(button.style.getPropertyValue('--fab-btn-sprite-image')).toContain(assetName);
+}
+
 describe('App harness driveTo wiring', () => {
   beforeEach(() => {
     controllerProbe.instances.length = 0;
@@ -182,7 +208,7 @@ describe('App harness driveTo wiring', () => {
     expect(document.querySelector('.fab-result-card--win')).not.toBeNull();
     const next = document.querySelector<HTMLButtonElement>('[data-fab-action="result-next"]')!;
     expect(next.classList.contains('mr-result-cta')).toBe(true);
-    expect(next.style.getPropertyValue('--mr-button-sprite-image')).toContain('url(');
+    expect(next.style.getPropertyValue('--fab-btn-sprite-image')).toContain('url(');
     expect(controllerProbe.instances.at(-1)!.resultHudModes).toEqual(['win']);
 
     vi.useFakeTimers();
@@ -203,9 +229,40 @@ describe('App harness driveTo wiring', () => {
     expect(document.querySelector('.fab-result-card--lose')).not.toBeNull();
     const watch = document.querySelector<HTMLButtonElement>('[data-fab-action="result-next"]')!;
     const retry = document.querySelector<HTMLButtonElement>('[data-fab-action="result-retry"]')!;
-    expect(watch.style.getPropertyValue('--mr-button-sprite-image')).toContain('url(');
+    expect(watch.style.getPropertyValue('--fab-btn-sprite-image')).toContain('url(');
     expect(retry.classList.contains('mr-result-cta--orange')).toBe(true);
-    expect(retry.style.getPropertyValue('--mr-button-sprite-image')).toContain('url(');
+    expect(retry.style.getPropertyValue('--fab-btn-sprite-image')).toContain('url(');
     expect(controllerProbe.instances.at(-1)!.resultHudModes).toEqual(['lose']);
+  });
+
+  it('composes settings, win, and fail surfaces with real sprite ribbons and buttons', async () => {
+    const app = bootApp();
+    const h = app.harness();
+
+    expect(await h.driveTo('settings')).toBe(true);
+    const settings = document.querySelector<HTMLElement>('.mr-settings-card')!;
+    expect(settings.classList.contains('fab-modal-card--image')).toBe(true);
+    expect(settings.style.getPropertyValue('--fab-modal-card-image')).toContain('popup-card');
+    expectSpriteRibbon(settings, { assetName: 'ribbon-orange', title: 'Settings' });
+    expectSpriteButton('settings-close-cta', 'button-green');
+    expectSpriteButton('settings-reset', 'button-orange');
+
+    h.startLevel(4);
+    (app as unknown as WinHarness).handleWin({ levelId: 4, reward: 25, isFinalLevel: false });
+    const win = document.querySelector<HTMLElement>('.fab-result-card--win')!;
+    expect(win.classList.contains('fab-modal-card--image')).toBe(true);
+    expect(win.style.getPropertyValue('--fab-modal-card-image')).toContain('popup-card');
+    expectSpriteRibbon(win, { assetName: 'ribbon-completed', title: 'Level Complete', eyebrow: 'Level 4' });
+    expectSpriteButton('result-next', 'button-green');
+
+    document.querySelector<HTMLButtonElement>('[data-fab-action="result-next"]')!.click();
+    h.startLevel(4);
+    (app as unknown as FailHarness).handleFail({ levelId: 4 });
+    const fail = document.querySelector<HTMLElement>('.fab-result-card--lose')!;
+    expect(fail.classList.contains('fab-modal-card--image')).toBe(true);
+    expect(fail.style.getPropertyValue('--fab-modal-card-image')).toContain('popup-card');
+    expectSpriteRibbon(fail, { assetName: 'ribbon-failed', title: 'Failed', eyebrow: 'Level 4' });
+    expectSpriteButton('result-next', 'button-green');
+    expectSpriteButton('result-retry', 'button-orange');
   });
 });

@@ -102,7 +102,6 @@ export function mountPageShell(opts: PageShellOptions): UiHandle {
     const backBtn = buildButtonElement({
       label: '',
       ariaLabel: opts.backLabel ?? '',
-      variant: 'icon',
       className: 'fab-page-back',
       // Stable hook so SharedShellDriver can dismiss any page (settings/shop)
       // via a real click (attribute-only).

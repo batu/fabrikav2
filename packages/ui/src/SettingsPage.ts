@@ -60,7 +60,6 @@ function buildLegalSection(links: readonly LegalLink[], onOpenLink?: (url: strin
   for (const link of links) {
     const btn = buildButtonElement({
       label: link.label,
-      variant: 'secondary',
       className: 'fab-settings-legal-link',
       onClick: () => onOpenLink?.(link.url),
     });
@@ -76,7 +75,6 @@ function buildPrivacySection(choice: PrivacyChoice): HTMLElement {
   const restingLabel = choice.label;
   const btn = buildButtonElement({
     label: restingLabel,
-    variant: 'secondary',
     className: 'fab-settings-privacy-btn',
     onClick: () => {
       // In-place pending/disabled state (v1 "Opening…" affordance). The button

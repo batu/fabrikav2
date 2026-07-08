@@ -34,6 +34,7 @@ describe('mountResultCard', () => {
       variant: 'win',
       title: 'You win!',
       eyebrow: 'LEVEL 4',
+      ribbonImage: 'win-ribbon-src',
       messages: 'All marbles sorted',
       rewardDisplay: reward,
       actions: [{ label: 'Next', onClick: () => {} }],
@@ -41,9 +42,8 @@ describe('mountResultCard', () => {
     });
     const card = handle.el.querySelector<HTMLElement>('.fab-modal-card')!;
     expect(card.classList.contains('fab-result-card--win')).toBe(true);
-    // Title renders in a green (win) ribbon banner, not a flat top-strip.
     const ribbon = handle.el.querySelector<HTMLElement>('.fab-modal-ribbon')!;
-    expect(ribbon.classList.contains('fab-modal-ribbon--win')).toBe(true);
+    expect(ribbon.querySelector<HTMLImageElement>('.fab-modal-ribbon-image')?.src).toContain('win-ribbon-src');
     expect(ribbon.querySelector('.fab-modal-ribbon-title')?.textContent).toBe('You win!');
     expect(ribbon.querySelector('.fab-modal-ribbon-eyebrow')?.textContent).toBe('LEVEL 4');
     // The card is labelled by the ribbon title.
@@ -69,12 +69,11 @@ describe('mountResultCard', () => {
       actions: [{ label: 'Next', onClick: () => {} }],
       id: 'result',
     });
-    // Ribbon paints the injected sprite; the visible title collapses to an
-    // sr-only label (the sprite carries its own baked lettering).
+    // Ribbon paints the injected sprite and keeps the live title visible.
     const ribbon = handle.el.querySelector<HTMLElement>('.fab-modal-ribbon')!;
-    expect(ribbon.classList.contains('fab-modal-ribbon--image')).toBe(true);
     expect(ribbon.style.backgroundImage).toBe('');
     expect(ribbon.querySelector<HTMLImageElement>('.fab-modal-ribbon-image')?.src).toContain('ribbon-src');
+    expect(ribbon.querySelector('.fab-modal-ribbon-title')?.textContent).toBe('Level Complete');
     // Card panel wears the popup sprite.
     const card = handle.el.querySelector<HTMLElement>('.fab-modal-card')!;
     expect(card.classList.contains('fab-modal-card--image')).toBe(true);
@@ -96,9 +95,7 @@ describe('mountResultCard', () => {
       mountInto: h,
       ribbon: {
         title: 'SETTINGS',
-        tone: 'neutral',
         image: 'settings-ribbon-src',
-        imageTitleVisibility: 'visible',
       },
       id: 'settings-ribbon-transparent',
     });
@@ -126,6 +123,37 @@ describe('mountResultCard', () => {
     }
   });
 
+  it('keeps the sprite-ribbon eyebrow above the live title', () => {
+    installUiCss();
+    const handle = mountResultCard({
+      mountInto: host(),
+      variant: 'win',
+      title: 'COMPLETED',
+      eyebrow: 'LEVEL 4',
+      ribbonImage: 'win-ribbon-src',
+      actions: [{ label: 'Next', onClick: () => {} }],
+      id: 'win-image-eyebrow',
+    });
+
+    const ribbon = handle.el.querySelector<HTMLElement>('.fab-modal-ribbon')!;
+    expect(ribbon.querySelector<HTMLImageElement>('.fab-modal-ribbon-image')?.src).toContain('win-ribbon-src');
+
+    const eyebrow = ribbon.querySelector<HTMLElement>('.fab-modal-ribbon-eyebrow')!;
+    expect(eyebrow.textContent).toBe('LEVEL 4');
+
+    const title = ribbon.querySelector<HTMLElement>('.fab-modal-ribbon-title')!;
+    expect(title.textContent).toBe('COMPLETED');
+    expect(eyebrow.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+
+    const css = readFileSync(resolve('src/ui.css'), 'utf8');
+    expect(css).toContain('.fab-modal-ribbon-eyebrow');
+    expect(css).toContain('top: var(--fab-ribbon-eyebrow-top);');
+    expect(css).toContain('top: var(--fab-ribbon-title-top);');
+    expect(css).toContain('transform: translate(-50%, -50%);');
+    expect(css).not.toContain('fab-modal-ribbon--image-title-visible');
+    expect(css).not.toContain(':not(.fab-modal-ribbon');
+  });
+
   it('forwards a caller-owned action slot for game-specific CTA art', () => {
     const actions = document.createElement('div');
     actions.className = 'custom-result-actions';
@@ -139,6 +167,7 @@ describe('mountResultCard', () => {
       mountInto: host(),
       variant: 'win',
       title: 'Level Complete',
+      ribbonImage: 'ribbon-src',
       actions,
       id: 'result',
     });
@@ -154,14 +183,14 @@ describe('mountResultCard', () => {
       mountInto: host(),
       variant: 'lose',
       title: 'Failed',
+      ribbonImage: 'fail-ribbon-src',
       messages: ['No hearts left'],
       continueOffer: offer,
       actions: [{ label: 'Retry', onClick: () => {} }],
       id: 'result',
     });
     expect(handle.el.querySelector('.fab-modal-card')?.classList.contains('fab-result-card--lose')).toBe(true);
-    // Lose ribbon is the red (fail) tone.
-    expect(handle.el.querySelector('.fab-modal-ribbon--fail')).not.toBeNull();
+    expect(handle.el.querySelector<HTMLImageElement>('.fab-modal-ribbon-image')?.src).toContain('fail-ribbon-src');
     expect(handle.el.querySelector('.fab-modal-scrim')).not.toBeNull();
     expect(handle.el.querySelector('.fab-result-continue')?.textContent).toBe('Watch ad');
     expect(handle.el.querySelector('.fab-result-reward')).toBeNull();
@@ -173,29 +202,31 @@ describe('mountResultCard', () => {
       mountInto: h,
       variant: 'win',
       title: 'Completed',
+      ribbonImage: 'win-ribbon-src',
       actions: [{ label: 'Next', onClick: () => {} }],
       id: 'ov-win',
     });
-    expect(win.el.querySelector('.fab-modal-ribbon--win')).not.toBeNull();
+    expect(win.el.querySelector<HTMLImageElement>('.fab-modal-ribbon-image')?.src).toContain('win-ribbon-src');
     expect(win.el.querySelector('.fab-modal-scrim')).not.toBeNull();
 
     const fail = mountResultCard({
       mountInto: h,
       variant: 'lose',
       title: 'Failed',
+      ribbonImage: 'fail-ribbon-src',
       actions: [{ label: 'Retry', onClick: () => {} }],
       id: 'ov-fail',
     });
-    expect(fail.el.querySelector('.fab-modal-ribbon--fail')).not.toBeNull();
+    expect(fail.el.querySelector<HTMLImageElement>('.fab-modal-ribbon-image')?.src).toContain('fail-ribbon-src');
     expect(fail.el.querySelector('.fab-modal-scrim')).not.toBeNull();
 
     // settings-style modal (neutral-tone ribbon over the same shell)
     const settings = mountModalShell({
       mountInto: h,
-      ribbon: { title: 'Settings' },
+      ribbon: { title: 'Settings', image: 'settings-ribbon-src' },
       id: 'ov-settings',
     });
-    expect(settings.el.querySelector('.fab-modal-ribbon--neutral')).not.toBeNull();
+    expect(settings.el.querySelector<HTMLImageElement>('.fab-modal-ribbon-image')?.src).toContain('settings-ribbon-src');
     expect(settings.el.querySelector('.fab-modal-scrim')).not.toBeNull();
   });
 
@@ -211,6 +242,8 @@ describe('mountResultCard', () => {
         result = mountResultCard({
           mountInto: h,
           variant: isWin ? 'win' : 'lose',
+          title: isWin ? 'Completed' : 'Failed',
+          ribbonImage: isWin ? 'win-ribbon-src' : 'fail-ribbon-src',
           actions: isWin
             ? [
                 // Next needs the id up front (S2); guard the double-fire (S4).
@@ -252,6 +285,8 @@ describe('mountResultCard', () => {
     const handle = mountResultCard({
       mountInto: h,
       variant: 'lose',
+      title: 'Failed',
+      ribbonImage: 'fail-ribbon-src',
       actions: [{ label: 'Retry', onClick: () => machine.can('retry') && machine.retry() }],
       id: 'result',
     });
