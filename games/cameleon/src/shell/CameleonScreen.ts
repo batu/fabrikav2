@@ -13,6 +13,9 @@ export interface CameleonScreenOptions {
   readonly onDirectionSelect?: (direction: CameleonDirection) => void;
   readonly onStart?: () => void;
   readonly onConfirmAim?: () => void;
+  readonly onPause?: () => void;
+  readonly onResume?: () => void;
+  readonly onSettingsClose?: () => void;
 }
 
 export interface CameleonScreen {
@@ -97,6 +100,39 @@ export function mountCameleonScreen(opts: CameleonScreenOptions): CameleonScreen
   playButton.addEventListener("click", () => opts.onStart?.());
   startMenu.append(modePicker, directionPicker, playButton);
 
+  const pauseButton = document.createElement("button");
+  pauseButton.className = "cameleon-screen__pause-button";
+  pauseButton.type = "button";
+  pauseButton.setAttribute("aria-label", "Pause");
+  pauseButton.textContent = "II";
+  pauseButton.addEventListener("click", () => opts.onPause?.());
+
+  const pauseOverlay = document.createElement("section");
+  pauseOverlay.className = "cameleon-screen__overlay cameleon-screen__overlay--pause";
+  const pauseTitle = document.createElement("h2");
+  pauseTitle.textContent = "PAUSED";
+  const resumeButton = document.createElement("button");
+  resumeButton.className = "cameleon-screen__overlay-action";
+  resumeButton.type = "button";
+  resumeButton.textContent = "Resume";
+  resumeButton.addEventListener("click", () => opts.onResume?.());
+  pauseOverlay.append(pauseTitle, resumeButton);
+
+  const settingsOverlay = document.createElement("section");
+  settingsOverlay.className = "cameleon-screen__overlay cameleon-screen__overlay--settings";
+  const settingsTitle = document.createElement("h2");
+  settingsTitle.textContent = "SETTINGS";
+  const settingsMode = document.createElement("p");
+  settingsMode.className = "cameleon-screen__overlay-line";
+  const settingsDirection = document.createElement("p");
+  settingsDirection.className = "cameleon-screen__overlay-line";
+  const settingsClose = document.createElement("button");
+  settingsClose.className = "cameleon-screen__overlay-action";
+  settingsClose.type = "button";
+  settingsClose.textContent = "Back";
+  settingsClose.addEventListener("click", () => opts.onSettingsClose?.());
+  settingsOverlay.append(settingsTitle, settingsMode, settingsDirection, settingsClose);
+
   const reticle = document.createElement("div");
   reticle.className = "cameleon-screen__reticle";
   reticle.setAttribute("aria-hidden", "true");
@@ -124,8 +160,8 @@ export function mountCameleonScreen(opts: CameleonScreenOptions): CameleonScreen
   const result = document.createElement("section");
   result.className = "cameleon-screen__result";
 
-  hud.append(title, found.root, mode.root, direction.root, ammo.root, hint);
-  root.append(canvas, hud, startMenu, reticle, confirmBar, bench, result);
+  hud.append(title, found.root, mode.root, direction.root, ammo.root, hint, pauseButton);
+  root.append(canvas, hud, startMenu, reticle, confirmBar, bench, result, pauseOverlay, settingsOverlay);
   opts.mountInto.appendChild(root);
 
   return {
@@ -144,7 +180,12 @@ export function mountCameleonScreen(opts: CameleonScreenOptions): CameleonScreen
       renderAmmo(ammoRow, snapshot);
       ammo.root.hidden = snapshot.maxAmmo === null;
       hint.dataset.dimmed = String(snapshot.tapMissMockery);
-      startMenu.hidden = snapshot.scene !== "menu";
+      startMenu.hidden = snapshot.scene !== "menu" || snapshot.settingsOpen;
+      pauseButton.hidden = snapshot.scene !== "playing";
+      pauseOverlay.hidden = snapshot.scene !== "paused";
+      settingsOverlay.hidden = !snapshot.settingsOpen;
+      settingsMode.textContent = `Mode: ${modeLabel(snapshot.mode)}`;
+      settingsDirection.textContent = `Direction: ${directionLabel(snapshot.dir)}`;
       confirmBar.hidden = snapshot.scene !== "playing" || snapshot.mode !== "confirm";
       confirmButton.disabled = snapshot.scene !== "playing" || snapshot.mode !== "confirm" || !snapshot.aim?.armed;
       renderReticle(root, reticle, snapshot);

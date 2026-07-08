@@ -7,7 +7,7 @@ import { assignWindowBindings, maybeRunInsituTour } from "@fabrikav2/testkit/tes
 
 import { gameConfig } from "../game.config.ts";
 import {
-  CAMELEON_TOUR_STATES,
+  CAMELEON_DEVICE_TOUR_STATES,
   createCameleonController,
   snapshotMatchesCameleonTourState,
   type CameleonController,
@@ -55,6 +55,9 @@ export async function bootGame(mountInto: HTMLElement, options: CameleonBootOpti
     onDirectionSelect: (direction) => controller.setDirection(direction),
     onStart: () => controller.startLevel(1),
     onConfirmAim: () => controller.confirmAim(),
+    onPause: () => controller.pause(),
+    onResume: () => controller.resume(),
+    onSettingsClose: () => controller.gotoMenu(),
   });
   const unsubscribe = controller.subscribe(() => screen.refresh(controller.snapshot()));
   const runtime = options.startRuntime === false
@@ -99,7 +102,9 @@ if (appRoot) {
         [harnessWindowKey]: harness,
       });
       void maybeRunInsituTour(harness, {
-        states: CAMELEON_TOUR_STATES,
+        // The committed XCUITest runner waits on exactly the six canonical
+        // tourstate markers; zone/found-beat states remain harness-only.
+        states: CAMELEON_DEVICE_TOUR_STATES,
         snapshotMatchesState: snapshotMatchesCameleonTourState,
       });
     })

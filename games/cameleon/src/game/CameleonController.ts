@@ -34,6 +34,9 @@ import { DEFAULT_CAMELEON_QUERY, type CameleonQueryParams } from "./query.ts";
 
 export const CAMELEON_TOUR_STATES = [
   "menu",
+  "level",
+  "settings",
+  "pause",
   "zone1",
   "zone2",
   "zone3",
@@ -43,6 +46,13 @@ export const CAMELEON_TOUR_STATES = [
   "win",
   "fail",
 ] as const;
+
+/**
+ * The device-verification tour drives exactly the six canonical states the
+ * committed XCUITest runner waits on (tourstate:<state> a11y markers). The
+ * zone/found-beat states stay available to the local harness via driveTo.
+ */
+export const CAMELEON_DEVICE_TOUR_STATES = ["menu", "level", "settings", "pause", "win", "fail"] as const;
 
 export type CameleonTourState = (typeof CAMELEON_TOUR_STATES)[number];
 
@@ -265,7 +275,7 @@ class CameleonStateController implements CameleonController {
     this.status = "idle";
     this.inputReady = true;
     this.settingsOpen = true;
-    this.tourState = "menu";
+    this.tourState = "settings";
     this.notify();
   }
 
@@ -276,6 +286,7 @@ class CameleonStateController implements CameleonController {
     this.syncSceneFromFlow();
     this.status = "paused";
     this.inputReady = false;
+    this.tourState = "pause";
     this.notify();
   }
 
@@ -398,6 +409,21 @@ class CameleonStateController implements CameleonController {
     if (state === "menu") {
       this.gotoMenu();
       return this.snapshot().tourState === "menu";
+    }
+    if (state === "level") {
+      this.startLevel(1);
+      this.tourState = "level";
+      this.notify();
+      return this.snapshot().scene === FlowStates.Playing;
+    }
+    if (state === "settings") {
+      this.openSettings();
+      return this.snapshot().tourState === "settings" && this.snapshot().settingsOpen;
+    }
+    if (state === "pause") {
+      if (this.scene !== FlowStates.Playing) this.startLevel(1);
+      this.pause();
+      return this.snapshot().scene === FlowStates.Paused;
     }
     if (state === "win") return this.winLevel();
     if (state === "fail") return this.failLevel();
@@ -645,7 +671,11 @@ export function snapshotMatchesCameleonTourState(state: CameleonTourState, snaps
   const status = (snapshot as { readonly status?: unknown }).status;
   const inputReady = (snapshot as { readonly inputReady?: unknown }).inputReady;
   const feedback = (snapshot as { readonly feedback?: unknown }).feedback;
-  if (state === "menu") return scene === FlowStates.Menu && tourState === "menu";
+  const settingsOpen = (snapshot as { readonly settingsOpen?: unknown }).settingsOpen;
+  if (state === "menu") return scene === FlowStates.Menu && tourState === "menu" && settingsOpen !== true;
+  if (state === "level") return scene === FlowStates.Playing && status === "playing" && tourState === "level";
+  if (state === "settings") return tourState === "settings" && settingsOpen === true;
+  if (state === "pause") return scene === FlowStates.Paused && tourState === "pause";
   if (state === "win") return scene === FlowStates.Complete;
   if (state === "fail") return scene === FlowStates.Failed;
   if (state === "found-beat") {
