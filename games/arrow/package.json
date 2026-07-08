@@ -1,0 +1,32 @@
+{
+  "name": "@fabrikav2/arrow",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 5181 --strictPort",
+    "build": "tsc --noEmit && vite build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "lint": "eslint .",
+    "levels:gen": "node content/level-tools/levels-gen.mjs",
+    "levels:check": "node content/level-tools/levels-gen.mjs --check",
+    "levels:check-all": "node --import tsx content/level-tools/levels-check-all.mts",
+    "level:new": "node content/level-tools/level-new.mjs",
+    "gallery": "vite --config content/level-tools/gallery/vite.config.ts"
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.1.0",
+    "@capacitor/haptics": "^8.0.2"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@fabrikav2/kernel": "*",
+    "@fabrikav2/ui": "*",
+    "@fabrikav2/testkit": "*",
+    "tsx": "^4.21.0"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "coverage": "complete",
+  "notes": "Arrow has no historical runtime art pack; gameplay is Canvas2D primitives. The two ResultCard ribbon sprites are v2 design-owned seed assets used to satisfy the shared UI sprite contract.",
+  "assets": {
+    "design/assets/gear.svg": {
+      "source": "design/assets/gear.svg",
+      "expectation": "exact-bytes",
+      "provenance": "Generated v2 settings icon for the Arrow menu chrome."
+    },
+    "design/assets/ribbon_win.svg": {
+      "source": "design/assets/ribbon_win.svg",
+      "expectation": "exact-bytes",
+      "provenance": "Generated v2 seed ribbon for the Arrow win ResultCard."
+    },
+    "design/assets/ribbon_lose.svg": {
+      "source": "design/assets/ribbon_lose.svg",
+      "expectation": "exact-bytes",
+      "provenance": "Generated v2 seed ribbon for the Arrow fail ResultCard."
+    }
+  }
+}
