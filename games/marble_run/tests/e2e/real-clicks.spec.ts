@@ -110,8 +110,13 @@ async function expectImageRibbonEyebrow(
   const eyebrowBox = await eyebrow.boundingBox();
   expect(ribbonBox).not.toBeNull();
   expect(eyebrowBox).not.toBeNull();
+  const ribbonCenterX = ribbonBox!.x + ribbonBox!.width / 2;
+  const eyebrowCenterX = eyebrowBox!.x + eyebrowBox!.width / 2;
   const eyebrowMidY = eyebrowBox!.y + eyebrowBox!.height / 2;
   const eyebrowBottomY = eyebrowBox!.y + eyebrowBox!.height;
+  expect(eyebrowBox!.x).toBeGreaterThanOrEqual(ribbonBox!.x);
+  expect(eyebrowBox!.x + eyebrowBox!.width).toBeLessThanOrEqual(ribbonBox!.x + ribbonBox!.width);
+  expect(Math.abs(eyebrowCenterX - ribbonCenterX)).toBeLessThanOrEqual(2);
   expect(eyebrowBox!.y).toBeGreaterThan(ribbonBox!.y);
   expect(eyebrowMidY - ribbonBox!.y).toBeGreaterThan(ribbonBox!.height * 0.14);
   expect(eyebrowMidY - ribbonBox!.y).toBeLessThan(ribbonBox!.height * 0.36);
