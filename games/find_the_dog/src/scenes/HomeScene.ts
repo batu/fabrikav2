@@ -203,9 +203,18 @@ export class HomeScene extends Phaser.Scene {
       });
     }
 
-    overlay.querySelector<HTMLButtonElement>('#home-nav-play')?.addEventListener('click', (e) => {
-      triggerNavBounce(e.currentTarget as HTMLButtonElement);
+    const startCurrentLevel = (button: HTMLButtonElement): void => {
+      if (document.getElementById('home-page-overlay')) return;
+      triggerNavBounce(button);
       void this.startLevelFromMap(gameState.currentLevelIndex);
+    };
+
+    overlay.querySelector<HTMLButtonElement>('#home-play-now')?.addEventListener('click', (e) => {
+      startCurrentLevel(e.currentTarget as HTMLButtonElement);
+    });
+
+    overlay.querySelector<HTMLButtonElement>('#home-nav-play')?.addEventListener('click', (e) => {
+      startCurrentLevel(e.currentTarget as HTMLButtonElement);
     });
 
     this.mountHomeLevelMap();
@@ -538,7 +547,6 @@ export class HomeScene extends Phaser.Scene {
           <aside class="home-rail home-rail-left" aria-label="Quick actions">
             <button id="home-no-ads" class="home-side-btn home-no-ads-btn" type="button" aria-label="Remove ads">
               <img class="home-no-ads-art" src="/ui/home/no-ads-runtime.png" alt="" aria-hidden="true">
-              <span class="home-side-btn-label">No Ads</span>
             </button>
           </aside>
           <section id="home-map-mount" class="home-map-stage" aria-label="Level progression"></section>
@@ -554,6 +562,10 @@ export class HomeScene extends Phaser.Scene {
               <button id="home-hint-plus" class="home-pill-plus" type="button" aria-label="Buy more hints">+</button>
             </div>
           </aside>
+        </div>
+
+        <div class="home-play-dock">
+          <button id="home-play-now" class="home-play-btn" type="button" aria-label="Play Level ${currentLevel} Now">Play Now</button>
         </div>
 
         <nav class="home-nav-bar" aria-label="Main navigation">

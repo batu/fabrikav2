@@ -11,6 +11,7 @@ const ICON_URLS: readonly string[] = [
   '/ui/menu-icons/settings-icon-runtime.png',
   '/ui/menu-icons/magnifier-runtime.png',
   '/ui/home/no-ads-runtime.png',
+  '/ui/home/play-level-button-runtime.png',
   '/ui/home/home-banner-mascot-runtime.png',
   '/ui/home/node-current-candy.png',
   '/ui/home/level-node-locked-runtime.png',

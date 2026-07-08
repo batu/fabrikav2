@@ -2573,20 +2573,25 @@
 
 .home-play-btn {
   justify-self: center;
-  width: min(326px, 88vw);
-  min-height: 90px;
+  width: min(62vw, 244px);
+  aspect-ratio: 652 / 171;
+  min-height: 0;
   border: 0;
   border-radius: 999px;
   background: url('/ui/home/play-level-button-runtime.png') center / 100% 100% no-repeat;
   box-shadow: none;
   color: #fff;
   font-family: 'Nunito', sans-serif;
-  font-size: 31px;
+  font-size: 25px;
   font-weight: 900;
-  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+  line-height: 1;
+  text-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.32),
+    0 0 3px rgba(0, 0, 0, 0.55);
   transform-origin: 50% 58%;
   will-change: transform;
   animation: homePlayButtonIdle 1650ms ease-in-out infinite;
+  cursor: pointer;
 }
 
 .home-brand-banner {
@@ -2720,7 +2725,7 @@
 
 #home-shell.home-progression-shell {
   padding: calc(env(safe-area-inset-top, 0px) + 10px) 12px 0;
-  gap: 6px;
+  gap: 0;
 }
 
 /* Banner with currency pills flanking the dog in its transparent side areas */
@@ -2826,7 +2831,18 @@
   /* Current tile is ANCHORED here, low down (just above the nav). It must NOT
      move when tuning the map — to make the upper tiles reach/tuck under the
      banner, increase --fab-levelmap-node-gap (the spacing), never this padding. */
-  padding: 6px 0 24px;
+  padding: 0 0 10px;
+}
+
+.home-play-dock {
+  position: relative;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  margin-top: -24px;
+  margin-bottom: 13px;
+  pointer-events: auto;
 }
 
 /* Side rails just below the banner: No-Ads on the left, coin+hint stacked
@@ -2918,21 +2934,29 @@
    line still works here because --node-x isn't a core token. */
 .home-map-stage .fab-levelmap-node { --node-x: 0px !important; }
 
-/* Subtle dark "track" between nodes — reads as a recessed groove, not a bright
-   line, so it doesn't compete behind the tiles. Its own steeper top-fade makes
-   it vanish faster than the tiles as the path recedes. */
+/* Shipped-style blue/gold saga rail between nodes. */
 .home-map-stage .fab-levelmap-path::before {
-  width: 26px;
+  width: 34px;
   border-radius: 999px;
-  box-shadow: none;
+  box-shadow:
+    0 0 0 2px rgba(255, 246, 197, 0.45),
+    0 5px 9px rgba(79, 47, 13, 0.22);
   opacity: 1;
   background:
-    /* ties */
-    repeating-linear-gradient(180deg, transparent 0 13px, rgba(74, 42, 14, 0.5) 13px 19px),
-    /* two recessed rails */
     linear-gradient(90deg,
-      transparent 0 2px, #5e3411 2px 5px, #91561f 5px 10px, #5e3411 10px 12px, transparent 12px 14px,
-      #5e3411 14px 16px, #91561f 16px 21px, #5e3411 21px 24px, transparent 24px);
+      rgba(132, 82, 22, 0.32) 0 5%,
+      #d98f32 5% 13%,
+      #ffdb63 13% 21%,
+      #fff5b8 21% 26%,
+      #67d7e8 26% 38%,
+      #11a6d3 38% 47%,
+      #ffd857 47% 53%,
+      #11a6d3 53% 62%,
+      #67d7e8 62% 74%,
+      #fff5b8 74% 79%,
+      #ffdb63 79% 87%,
+      #d98f32 87% 95%,
+      rgba(132, 82, 22, 0.32) 95% 100%);
 }
 
 /* Opaque backing behind the bones tiles so the track never shows through their
@@ -2945,6 +2969,21 @@
 
 /* Padlock badge on every locked level node (the levels above current). */
 .home-map-stage .fab-levelmap-node.locked .fab-levelmap-node-dot { position: relative; }
+.home-map-stage .fab-levelmap-node.locked::before {
+  content: "";
+  position: absolute;
+  left: calc(50% - 43px);
+  top: 9px;
+  z-index: 2;
+  width: 38px;
+  height: 46px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0) 0 18%, rgba(255, 255, 255, 0.96) 19% 42%, rgba(255, 255, 255, 0) 43% 100%);
+  clip-path: polygon(42% 0, 58% 32%, 100% 43%, 63% 55%, 48% 100%, 36% 58%, 0 48%, 34% 36%);
+  filter: drop-shadow(0 1px 2px rgba(255, 255, 255, 0.75));
+  opacity: 0.86;
+  pointer-events: none;
+  transform: rotate(-13deg);
+}
 .home-map-stage .fab-levelmap-node.locked .fab-levelmap-node-dot::after {
   content: "";
   position: absolute;
@@ -3081,7 +3120,7 @@
   justify-content: center;
   gap: 8px;
   min-width: 0;
-  padding: 9px 0 calc(env(safe-area-inset-bottom, 0px) + 4px);
+  padding: 9px 0 calc(env(safe-area-inset-bottom, 0px) + 18px);
   border-radius: 0;
   background: transparent;
   overflow: visible;
@@ -3119,7 +3158,7 @@
   gap: 4px;
   margin-top: 0;
   min-width: 0;
-  padding: 9px 0 calc(env(safe-area-inset-bottom, 0px) + 4px);
+  padding: 9px 0 calc(env(safe-area-inset-bottom, 0px) + 20px);
   background: linear-gradient(180deg, #ffe3a6 0%, #f3bf68 100%);
   border: 0;
   border-radius: 0;
