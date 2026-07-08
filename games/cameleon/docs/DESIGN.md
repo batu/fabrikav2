@@ -233,6 +233,20 @@ checklist + a fairness check per hide.
 No readable text in generated art; sign/poster/menu text is composited programmatically
 from authored assets (kills the gibberish-text failure class).
 
+### 9b. Amendment (2026-07-08, conductor, after generation probe 1)
+
+The image model outputs native 1024×1024; non-square requests get stretched. Binding
+geometry change: **world = 4320×1440**, composed of **three square panels** (1440×1440
+world each, generated at 1024² and uniformly upscaled ×1.406): panel A = zones 1–2
+(entrance + changing, x 0–1440), panel B = zone 3 (pool deck, x 1440–2880), panel C =
+zones 4–5 (tower + kiosk, x 2880–4320). Zone x-ranges compress accordingly (~864 px
+conceptual zones; hide roster and reading order unchanged). Panel seams are made
+DIEGETIC: each panel edge carries an architectural divider (wall end, hedge, fence
+post) drawn inside its own panel — seams become design instead of inpainting debt
+(v1 Cardboard's killer, solved structurally). Prompts lock a shared band layout
+(wall band / deck band / water-lawn band at fixed heights) so panels agree at the
+divider. All prompts demand full-bleed edge-to-edge art (probe 1 produced margins).
+
 ## 10. Tech shape (fabrikav2 conventions; workers implement)
 
 - Phaser, portrait, camera scrolls x ∈ [0, 4800−viewportW]; drag/fling scroll.
