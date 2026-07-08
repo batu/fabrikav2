@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { mapAttachmentsToStates, extractFromExportDir, loadCapturesDir } from '../src/attachments.mjs';
+import { buildSummary } from '../src/summary.mjs';
 
 // Manifest shaped like `xcrun xcresulttool export attachments` output — mirrors
 // the committed games/marble_run/.work/insitu-runner/*/manifest.json format.
@@ -109,6 +110,39 @@ describe('extractFromExportDir + loadCapturesDir (fs)', () => {
       markerState: 'tourstate:menu',
       windowInnerWidth: 390,
       windowInnerHeight: 844,
+      safeAreaInsetTop: 59,
+      canvasBackingHeight: 1688,
+      devicePixelRatio: 3,
+    });
+    fs.rmSync(metricsDir, { recursive: true, force: true });
+  });
+
+  it('round-trips runner viewport metrics sidecars into summary metrics', () => {
+    const metricsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vd-metrics-roundtrip-'));
+    fs.writeFileSync(path.join(metricsDir, 'manifest.json'), JSON.stringify([{
+      attachments: [{
+        exportedFileName: 'menu-viewportmetrics.txt',
+        suggestedHumanReadableName: '1-menu-viewportmetrics_0_uuid.txt',
+        timestamp: 100,
+      }],
+    }]));
+    fs.writeFileSync(
+      path.join(metricsDir, 'menu-viewportmetrics.txt'),
+      'viewportmetrics:state=tourstate:menu;inner=390x844;vv=390x800@1;screen=393x852;safe=59,0,34,0;canvas=390x844/780x1688;dpr=3'
+    );
+
+    const { viewportMetrics } = extractFromExportDir(metricsDir);
+    const summary = buildSummary({
+      panel: { states: [{ state: 'menu', score: 91, status: 'pass', consensus: [] }] },
+      phashVerdict: null,
+      viewportMetrics,
+    });
+
+    expect(summary.menu.viewportMetrics).toMatchObject({
+      markerState: 'tourstate:menu',
+      windowInnerWidth: 390,
+      windowInnerHeight: 844,
+      visualViewportHeight: 800,
       safeAreaInsetTop: 59,
       canvasBackingHeight: 1688,
       devicePixelRatio: 3,

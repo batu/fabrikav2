@@ -3,8 +3,27 @@ import { maybeRunInsituTour, type TourHarness } from "../../src/testing/insituTo
 import type { DriveState } from "../../src/testing/driveTo.ts";
 
 interface HarnessSaveProfile {
-  unlockedLevel: number;
-  coins: number;
+  unlockedLevel?: number;
+  coins?: number;
+  [gameSpecific: string]: unknown;
+}
+
+function snapshotFor(state: string): Record<string, unknown> {
+  switch (state) {
+    case "level":
+      return { activeScene: "GameScene", status: "playing", levelDataReady: true, levelComplete: false };
+    case "settings":
+      return { activeScene: "HomeScene", status: undefined, settingsOpen: true };
+    case "pause":
+      return { activeScene: "GameScene", status: "paused", lifecycleSuspended: true };
+    case "win":
+      return { activeScene: "GameScene", status: "complete", levelComplete: true };
+    case "fail":
+      return { activeScene: "GameScene", status: "failed", lives: 0 };
+    case "menu":
+    default:
+      return { activeScene: "HomeScene", status: undefined, settingsOpen: false };
+  }
 }
 
 function setTourSearch(search: string): void {
@@ -15,11 +34,14 @@ function makeHarness(
   driveTo: (state: string) => Promise<boolean>,
   overrides: Partial<TourHarness> = {},
 ): TourHarness {
+  let currentState = "menu";
   return {
     driveTo: async (state: DriveState): Promise<boolean> => {
       const ok = await driveTo(state);
+      if (ok) currentState = state;
       return ok;
     },
+    snapshot: () => snapshotFor(currentState),
     ...overrides,
   };
 }
@@ -113,11 +135,11 @@ describe("find_the_dog maybeRunInsituTour — allstates", () => {
     await run;
 
     expect(ariaHistory).toContain("tourstate:pause-FAILED");
-    expect(ariaHistory).toContain("tourstate:pause");
+    expect(ariaHistory).not.toContain("tourstate:pause");
     expect(ariaHistory.at(-1)).toBe("tourstate:done");
   });
 
-  it("marks the exact state before asking the harness to drive it", async () => {
+  it("retires each exact marker before driving the next state", async () => {
     let markerAtPauseStart: string | undefined;
     const harness = makeHarness(async (state) => {
       if (state === "pause") markerAtPauseStart = ariaHistory.at(-1);
@@ -128,7 +150,7 @@ describe("find_the_dog maybeRunInsituTour — allstates", () => {
     await vi.runAllTimersAsync();
     await run;
 
-    expect(markerAtPauseStart).toBe("tourstate:pause");
+    expect(markerAtPauseStart).toBe("tourstate:settings-DONE");
   });
 
   it("writes one off-screen #__tourstate__ marker with exact final label and text", async () => {
@@ -141,7 +163,7 @@ describe("find_the_dog maybeRunInsituTour — allstates", () => {
     const marker = document.getElementById("__tourstate__");
     expect(marker).not.toBeNull();
     expect(document.querySelectorAll("#__tourstate__")).toHaveLength(1);
-    expect(marker!.style.cssText).toContain("left: -10000px");
+    expect(marker!.style.cssText).toContain("left: -9999px");
     expect(marker!.style.cssText).not.toContain("opacity");
     expect(marker!.getAttribute("aria-label")).toBe("tourstate:done");
     expect(marker!.textContent).toBe("tourstate:done");

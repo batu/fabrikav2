@@ -8,16 +8,19 @@ import type { planRollingPackageRetention } from '../data/levelPackageCache';
 import { remoteConfigService, type RemoteConfigSnapshot } from '../config/RemoteConfigService';
 import { iapService, type IapSnapshot, type IapTestState } from '../shop/IapService';
 import { setRewardedAdResultForTest, type RewardedAdResultForTest } from '../ads/Service';
-import { setLifecycleForTest } from '../platform/gameLifecycle';
+import { isGameSuspended, setLifecycleForTest } from '../platform/gameLifecycle';
 import { initHUD, openPage } from '../ui/HUD';
 import { setFailOverlayPendingRecoveryMsForTest } from '../ui/LevelFailedOverlay';
 import { driveTo, isDriveState, type DriveState, type DriveToDeps, type DriveSnapshot } from './driveTo';
-import { readViewportMetrics, type ViewportMetricsSnapshot } from './viewportMetrics';
+import { readViewportMetrics, type ViewportMetricsSnapshot } from '@fabrikav2/testkit/testing';
 
 type FindTheDogVerb = 'gotoHome' | 'startLevel' | 'openSettings' | 'tapSafeMiss';
 
 export interface FindTheDogSnapshot {
   activeScene: string;
+  status: 'playing' | 'paused' | 'complete' | 'failed' | undefined;
+  settingsOpen: boolean;
+  lifecycleSuspended: boolean;
   levelId: string;
   levelSize: { width: number; height: number };
   dogPositions: Array<{ id: string; x: number; y: number; r: number; found: boolean }>;
@@ -201,7 +204,7 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       settingsOpen,
       levelComplete: snapshot.levelComplete,
       lives: snapshot.lives,
-      status: snapshot.lives <= 0 ? 'failed' : snapshot.levelComplete ? 'complete' : undefined,
+      status: snapshot.status,
     };
   }
 
@@ -219,11 +222,23 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
 
   function harnessSnapshot(): FindTheDogSnapshot {
     const scene = getGameScene();
+    const activeScene = game.scene.getScenes(true)[0]?.scene.key ?? 'unknown';
     const level = scene?.getLevel();
     const dogs: LevelDog[] = level?.dogs ?? [];
 
     return {
-      activeScene: game.scene.getScenes(true)[0]?.scene.key ?? 'unknown',
+      activeScene,
+      status: isGameSuspended()
+        ? 'paused'
+        : gameState.lives <= 0
+          ? 'failed'
+          : (scene?.isLevelComplete() ?? false)
+            ? 'complete'
+            : activeScene === 'GameScene'
+              ? 'playing'
+              : undefined,
+      settingsOpen: document.querySelector('[data-page="settings"], .settings-page, #settings-page') !== null,
+      lifecycleSuspended: isGameSuspended(),
       levelId: level?.id ?? '',
       levelSize: { width: level?.width ?? 0, height: level?.height ?? 0 },
       dogPositions: dogs.map((d) => ({
