@@ -42,14 +42,14 @@ describe('mountModalShell', () => {
     expect(scrim!.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it('renders a themed ribbon banner header with eyebrow, title, and tone', () => {
+  it('renders a sprite ribbon banner header with eyebrow and title', () => {
     const handle = mountModalShell({
       mountInto: host(),
-      ribbon: { eyebrow: 'LEVEL 4', title: 'COMPLETED', tone: 'win' },
+      ribbon: { eyebrow: 'LEVEL 4', title: 'COMPLETED', image: 'ribbon-src' },
       id: 'ribbon-modal',
     });
     const ribbon = handle.el.querySelector<HTMLElement>('.fab-modal-ribbon')!;
-    expect(ribbon.classList.contains('fab-modal-ribbon--win')).toBe(true);
+    expect(ribbon.querySelector<HTMLImageElement>('.fab-modal-ribbon-image')?.src).toContain('ribbon-src');
     expect(ribbon.querySelector('.fab-modal-ribbon-eyebrow')?.textContent).toBe('LEVEL 4');
     const title = ribbon.querySelector<HTMLElement>('.fab-modal-ribbon-title')!;
     expect(title.textContent).toBe('COMPLETED');
@@ -58,17 +58,14 @@ describe('mountModalShell', () => {
     expect(card.getAttribute('aria-labelledby')).toBe(title.id);
   });
 
-  it('retains the tone class while painting injected ribbon + card sprites', () => {
+  it('paints injected ribbon and card sprites', () => {
     const handle = mountModalShell({
       mountInto: host(),
-      ribbon: { title: 'COMPLETED', tone: 'win', image: 'ribbon-src' },
+      ribbon: { title: 'COMPLETED', image: 'ribbon-src' },
       cardImage: 'card-src',
       id: 'sprite-modal',
     });
     const ribbon = handle.el.querySelector<HTMLElement>('.fab-modal-ribbon')!;
-    // Tone stays as the semantic fallback class; image mode supplies the visible art.
-    expect(ribbon.classList.contains('fab-modal-ribbon--win')).toBe(true);
-    expect(ribbon.classList.contains('fab-modal-ribbon--image')).toBe(true);
     expect(ribbon.style.backgroundImage).toBe('');
     expect(ribbon.querySelector<HTMLImageElement>('.fab-modal-ribbon-image')?.src).toContain('ribbon-src');
     const card = handle.el.querySelector<HTMLElement>('.fab-modal-card')!;
@@ -93,25 +90,24 @@ describe('mountModalShell', () => {
     expect(backplate.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it('can keep the live title visible over blank injected ribbon art', () => {
+  it('keeps the live title visible over injected ribbon art', () => {
     const handle = mountModalShell({
       mountInto: host(),
-      ribbon: { title: 'SETTINGS', image: 'blank-ribbon-src', imageTitleVisibility: 'visible' },
+      ribbon: { title: 'SETTINGS', image: 'blank-ribbon-src' },
       id: 'visible-title-ribbon',
     });
     const ribbon = handle.el.querySelector<HTMLElement>('.fab-modal-ribbon')!;
-    expect(ribbon.classList.contains('fab-modal-ribbon--image-title-visible')).toBe(true);
     expect(ribbon.querySelector('.fab-modal-ribbon-title')?.textContent).toBe('SETTINGS');
   });
 
-  it('ribbon tone defaults to neutral and omits an absent eyebrow', () => {
+  it('ribbon omits an absent eyebrow', () => {
     const handle = mountModalShell({
       mountInto: host(),
-      ribbon: { title: 'Settings' },
+      ribbon: { title: 'Settings', image: 'settings-ribbon-src' },
       id: 'neutral-ribbon',
     });
     const ribbon = handle.el.querySelector<HTMLElement>('.fab-modal-ribbon')!;
-    expect(ribbon.classList.contains('fab-modal-ribbon--neutral')).toBe(true);
+    expect(ribbon.querySelector<HTMLImageElement>('.fab-modal-ribbon-image')?.src).toContain('settings-ribbon-src');
     expect(ribbon.querySelector('.fab-modal-ribbon-eyebrow')).toBeNull();
   });
 

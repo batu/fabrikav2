@@ -1,12 +1,11 @@
 import { createUiRoot, type ThemeTokens, type UiHandle } from './internal.ts';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'icon';
-
 export interface ButtonOptions {
   mountInto: HTMLElement;
   label: string;
   onClick: (event: MouseEvent) => void;
-  variant?: ButtonVariant;
+  /** Optional game-owned button sprite. When supplied, it is the button surface. */
+  spriteImage?: string;
   disabled?: boolean;
   theme?: ThemeTokens;
   id?: string;
@@ -23,7 +22,8 @@ export interface ButtonHandle extends UiHandle {
 interface BuildButtonOptions {
   label: string;
   onClick: (event: MouseEvent) => void;
-  variant?: ButtonVariant;
+  /** Optional game-owned button sprite. When supplied, it is the button surface. */
+  spriteImage?: string;
   disabled?: boolean;
   ariaLabel?: string;
   className?: string;
@@ -32,28 +32,25 @@ interface BuildButtonOptions {
 
 let nextButtonId = 0;
 
-function classForVariant(variant: ButtonVariant): string {
-  return variant === 'icon' ? 'fab-btn-icon' : `fab-btn-${variant}`;
-}
-
 export function buildButtonElement(opts: BuildButtonOptions): HTMLButtonElement {
-  const variant = opts.variant ?? 'primary';
-  if (variant === 'icon' && opts.label.length === 0 && !opts.ariaLabel) {
-    throw new Error('mountButton icon variant requires a visible label or ariaLabel.');
-  }
-
   const button = document.createElement('button');
   button.type = 'button';
-  button.className = ['fab-btn', classForVariant(variant), opts.className].filter(Boolean).join(' ');
+  button.className = ['fab-btn', opts.className].filter(Boolean).join(' ');
   button.textContent = opts.label;
   if (opts.ariaLabel) button.setAttribute('aria-label', opts.ariaLabel);
   if (opts.dataAction) button.dataset.fabAction = opts.dataAction;
+  applyButtonSprite(button, opts.spriteImage);
   setButtonDisabled(button, opts.disabled ?? false);
   button.addEventListener('click', (event) => {
     if (button.disabled) return;
     opts.onClick(event);
   });
   return button;
+}
+
+function applyButtonSprite(button: HTMLButtonElement, spriteImage: string | undefined): void {
+  if (spriteImage === undefined) return;
+  button.style.setProperty('--fab-btn-sprite-image', `url(${spriteImage})`);
 }
 
 function setButtonDisabled(button: HTMLButtonElement, disabled: boolean): void {
@@ -88,7 +85,7 @@ export function mountButton(opts: ButtonOptions): ButtonHandle {
   const root = createUiRoot({
     mountInto: opts.mountInto,
     id: opts.id ?? `fab-button-${++nextButtonId}`,
-    className: ['fab-ui', 'fab-btn', classForVariant(opts.variant ?? 'primary'), opts.className].filter(Boolean).join(' '),
+    className: ['fab-ui', 'fab-btn', opts.className].filter(Boolean).join(' '),
     theme: opts.theme,
     tagName: 'button',
   });
@@ -98,9 +95,7 @@ export function mountButton(opts: ButtonOptions): ButtonHandle {
   button.type = 'button';
   button.textContent = opts.label;
   if (opts.ariaLabel) button.setAttribute('aria-label', opts.ariaLabel);
-  if ((opts.variant ?? 'primary') === 'icon' && opts.label.length === 0 && !opts.ariaLabel) {
-    throw new Error('mountButton icon variant requires a visible label or ariaLabel.');
-  }
+  applyButtonSprite(button, opts.spriteImage);
   setButtonDisabled(button, opts.disabled ?? false);
   button.addEventListener('click', (event) => {
     if (button.disabled) return;
