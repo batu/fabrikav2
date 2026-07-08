@@ -3,7 +3,7 @@
 // once from a consumer: `import '@fabrikav2/ui/ui.css'`.
 
 export { mountButton, buildButtonElement } from './Button.ts';
-export type { ButtonVariant, ButtonOptions, ButtonHandle } from './Button.ts';
+export type { ButtonOptions, ButtonHandle } from './Button.ts';
 
 export { mountModalShell, mountModal } from './ModalShell.ts';
 export type { ModalShellOptions, ModalAction, ModalRibbon, ModalCloseButton } from './ModalShell.ts';

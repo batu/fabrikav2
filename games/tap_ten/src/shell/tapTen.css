@@ -1,4 +1,5 @@
 .tap-ten-screen {
+  position: relative;
   min-height: 100vh;
   box-sizing: border-box;
   display: grid;
@@ -83,4 +84,60 @@
 .tap-ten-screen__action {
   width: 100%;
   min-width: 0;
+  min-height: 0;
+  aspect-ratio: 435 / 200;
+  padding: 0 12px 6px;
+  border-radius: 18px;
+  color: var(--fab-color-on-accent);
+  font-size: 15px;
+  line-height: 1;
+  text-shadow: 0 2px 0 var(--fab-color-text);
+  text-transform: uppercase;
+}
+
+.tap-ten-surface.fab-modal-card {
+  width: min(86vw, 360px);
+  min-width: min(86vw, 280px);
+  color: var(--fab-color-text);
+}
+
+.tap-ten-surface .fab-result-body,
+.tap-ten-surface__toggles {
+  width: 100%;
+  align-items: stretch;
+}
+
+.tap-ten-surface .fab-result-messages {
+  text-align: center;
+}
+
+.tap-ten-surface__reward {
+  align-self: center;
+  min-width: 74px;
+  padding: 8px 14px;
+  border: var(--fab-tap-panel-border);
+  border-radius: var(--fab-radius-sm);
+  background: var(--fab-color-secondary-surface);
+  color: var(--fab-color-accent);
+  font-size: 28px;
+  font-weight: var(--fab-font-weight-bold);
+  text-align: center;
+}
+
+.tap-ten-surface__actions {
+  align-items: center;
+}
+
+.tap-ten-surface__button {
+  width: min(220px, 76%);
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: 435 / 200;
+  padding: 0 18px 8px;
+  border-radius: 18px;
+  color: var(--fab-color-on-accent);
+  font-size: 18px;
+  line-height: 1;
+  text-shadow: 0 3px 0 var(--fab-color-text);
+  text-transform: uppercase;
 }

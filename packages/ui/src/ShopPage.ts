@@ -216,7 +216,6 @@ export function mountShopPage<TPayload = unknown>(
   ): HTMLButtonElement {
     const button = buildButtonElement({
       label: '',
-      variant: 'primary',
       className: 'fab-shop-purchase-btn',
       onClick: () => {
         void runPurchase(product.productId);
@@ -320,7 +319,6 @@ export function mountShopPage<TPayload = unknown>(
 
   const restoreButton = buildButtonElement({
     label: opts.copy.restore.button.rest,
-    variant: 'secondary',
     className: 'fab-shop-restore-btn',
     // Stable hook so SharedShellDriver drives restore via a real click.
     dataAction: 'shop-restore',
