@@ -46,7 +46,7 @@ exists to kill).
 The runner now **waits for the state before shooting**. The `allstates` tour, on
 CONFIRMING each state via the harness snapshot, publishes an accessibility element
 labelled `tourstate:<state>` (a hidden `role=text` node `#__tourstate__` in
-`games/<g>/src/testing/insituTour.ts`). The WKWebView surfaces that `aria-label`
+`@fabrikav2/testkit/testing` `maybeRunInsituTour`). The WKWebView surfaces that `aria-label`
 to the native accessibility tree, so `InsituTourTests` matches
 `label == "tourstate:<state>"`, `waitForExistence(timeout:)`, and screenshots only
 once it exists. **A state that never appears is a loud `XCTFail`** (and a

@@ -7,7 +7,7 @@
 //
 // Capture-integrity gate mirrors the device lane's "never screenshot a state
 // you didn't confirm": driveTo(state) resolves true only after ITS OWN
-// snapshot() poll confirms arrival (games/marble_run/src/testing/driveTo.ts) —
+// snapshot() poll confirms arrival (@fabrikav2/testkit/testing) —
 // a state where it resolves false is recorded as a gap, never guessed, exactly
 // like a missing device shot (compare.mjs's "no <lane> capture" gap cell).
 

@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { extractFromExportDir } from '../src/attachments.mjs';
-import { maybeRunInsituTour } from '../../../games/find_the_dog/src/testing/insituTour.ts';
+import { maybeRunInsituTour } from '@fabrikav2/testkit/testing';
 
 function snapshotFor(state) {
   switch (state) {
@@ -33,6 +33,25 @@ function makeHarness() {
     },
     snapshot: () => snapshotFor(currentState),
   };
+}
+
+function snapshotMatchesFindTheDogState(state, raw) {
+  const snapshot = raw ?? {};
+  const scene = String(snapshot.scene ?? snapshot.activeScene ?? '');
+  const status = String(snapshot.status ?? '');
+  const ready = snapshot.inputReady !== false && snapshot.levelDataReady !== false;
+  if (state === 'menu') return scene === 'menu' || scene === 'HomeScene';
+  if (state === 'level') {
+    return ready
+      && (scene === 'playing' || scene === 'GameScene')
+      && snapshot.levelComplete !== true
+      && status !== 'complete'
+      && status !== 'failed';
+  }
+  if (state === 'settings') return snapshot.settingsOpen === true;
+  if (state === 'pause') return scene === 'paused' || status === 'paused' || snapshot.lifecycleSuspended === true;
+  if (state === 'win') return scene === 'complete' || status === 'complete' || snapshot.levelComplete === true;
+  return scene === 'failed' || status === 'failed' || snapshot.lives === 0;
 }
 
 function setTourSearch(search) {
@@ -78,7 +97,9 @@ describe('tour marker DOM to runner attachment round-trip', () => {
     canvas.style.height = '844px';
     document.body.appendChild(canvas);
 
-    const run = maybeRunInsituTour(makeHarness());
+    const run = maybeRunInsituTour(makeHarness(), {
+      snapshotMatchesState: snapshotMatchesFindTheDogState,
+    });
     await vi.runAllTimersAsync();
     await run;
 

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { assignWindowBindings } from '@fabrikav2/testkit/testing';
+import { assignWindowBindings, maybeRunInsituTour } from '@fabrikav2/testkit/testing';
 import { GameConfig } from './core/GameConfig';
 import { TEST_HARNESS_ENABLED } from './core/Constants';
 import { gameState } from './core/GameState';
@@ -144,7 +144,7 @@ if (typeof window !== 'undefined') {
     void Promise.all([
       import('./testing/TestHarness'),
       import('./audio/AmbientManager'),
-    ]).then(([{ createFindTheDogHarness }, ambient]): void => {
+    ]).then(([{ createFindTheDogHarness, snapshotMatchesFindTheDogDriveState }, ambient]): void => {
       const harness = createFindTheDogHarness(game);
       releaseTestBindings?.();
       releaseTestBindings = assignWindowBindings(window as unknown as Record<string, unknown>, {
@@ -152,6 +152,9 @@ if (typeof window !== 'undefined') {
         __FIND_DOG_STATE__: gameState,
         __FIND_DOG_HARNESS__: harness,
         __FIND_DOG_AMBIENT__: ambient.__ambientDebugSnapshot,
+      });
+      void maybeRunInsituTour(harness, {
+        snapshotMatchesState: snapshotMatchesFindTheDogDriveState,
       });
       if (String(import.meta.env.VITE_FTD_SIM_AUTOPLAY) === 'true') {
         window.setTimeout((): void => {

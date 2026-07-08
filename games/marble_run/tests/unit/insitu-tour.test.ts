@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import type { App } from '../../src/shell/App';
-import { maybeRunInsituTour } from '../../src/testing/insituTour';
+import { maybeRunInsituTour } from '@fabrikav2/testkit/testing';
 
 /**
  * Headless acceptance for the on-device tour (fidelity-diff ledger C5/D4-D7).
@@ -132,7 +132,7 @@ describe('maybeRunInsituTour — allstates', () => {
     };
     const app = makeFakeApp(driveTo);
 
-    const run = maybeRunInsituTour(app);
+    const run = maybeRunInsituTour(app.harness());
     await vi.runAllTimersAsync();
     await run;
 
@@ -173,7 +173,7 @@ describe('maybeRunInsituTour — allstates', () => {
       },
     );
 
-    const run = maybeRunInsituTour(app);
+    const run = maybeRunInsituTour(app.harness());
     await vi.runAllTimersAsync();
     await run;
 
@@ -184,7 +184,7 @@ describe('maybeRunInsituTour — allstates', () => {
     const driveTo = async (state: string): Promise<boolean> => state !== 'pause';
     const app = makeFakeApp(driveTo);
 
-    const run = maybeRunInsituTour(app);
+    const run = maybeRunInsituTour(app.harness());
     await vi.runAllTimersAsync();
     await run;
 
@@ -204,7 +204,7 @@ describe('maybeRunInsituTour — allstates', () => {
         : snapshotFor(currentState),
     );
 
-    const run = maybeRunInsituTour(app);
+    const run = maybeRunInsituTour(app.harness());
     await vi.runAllTimersAsync();
     await run;
 
@@ -220,7 +220,7 @@ describe('maybeRunInsituTour — allstates', () => {
     };
     const app = makeFakeApp(driveTo);
 
-    const run = maybeRunInsituTour(app);
+    const run = maybeRunInsituTour(app.harness());
     await vi.runAllTimersAsync();
     await run;
 
@@ -231,7 +231,7 @@ describe('maybeRunInsituTour — allstates', () => {
     const { markerFor } = installFakeDom(ariaHistory); // re-install for a fresh registry
     const app = makeFakeApp(async () => true);
 
-    const run = maybeRunInsituTour(app);
+    const run = maybeRunInsituTour(app.harness());
     await vi.runAllTimersAsync();
     await run;
 
@@ -264,7 +264,7 @@ describe('maybeRunInsituTour — allstates', () => {
     vi.stubGlobal('window', { location: { search: '?insituTour=allstates' } });
 
     const app = makeFakeApp(async () => true);
-    const run = maybeRunInsituTour(app);
+    const run = maybeRunInsituTour(app.harness());
     await vi.runAllTimersAsync();
     await run;
 
@@ -284,7 +284,7 @@ describe('maybeRunInsituTour — no script', () => {
       return true;
     });
 
-    await maybeRunInsituTour(app);
+    await maybeRunInsituTour(app.harness());
 
     expect(driveToCalled).toBe(false);
     expect(ariaHistory).toEqual([]);

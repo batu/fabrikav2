@@ -34,9 +34,9 @@ import {
   type PerfSample,
   type SnapshotEnvelope,
 } from '@fabrikav2/testkit/harness';
+import { driveTo as driveToState } from '@fabrikav2/testkit/testing';
 
 import { gameConfig } from '../../game.config.ts';
-import { driveTo as driveToState } from '../testing/driveTo.ts';
 
 /** This game's extra verbs. A port lists its input verbs here (the mirror of
  *  the sdk `Analytics<GameEvent>` extension point). */
@@ -178,7 +178,7 @@ export function createTemplateHarness(meta: { buildVersion: string; packageId: s
 
   /**
    * Deterministically navigate to a canonical capture state (fidelity-diff
-   * ledger C5; `../testing/driveTo.ts`). Wires the pure driver's deps to this
+   * ledger C5; `@fabrikav2/testkit/testing`). Wires the pure driver's deps to this
    * game's transitions; `autoWin`/`autoFail` delegate to `winLevel`/`failLevel`
    * above. This placeholder state model is intentionally tiny, deterministic,
    * and query-confirmed; a port replaces these transitions with its real

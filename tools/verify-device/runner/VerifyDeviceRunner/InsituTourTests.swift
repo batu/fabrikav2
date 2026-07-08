@@ -22,7 +22,7 @@ final class InsituTourTests: XCTestCase {
     /// Per-state wait budget. The allstates tour drives menu->level->settings->
     /// pause->win->fail with a long dwell on each and, on arrival, publishes an
     /// accessibility element labelled `tourstate:<state>` (see
-    /// games/<g>/src/testing/insituTour.ts, #__tourstate__). We WAIT for that
+    /// @fabrikav2/testkit/testing maybeRunInsituTour, #__tourstate__). We WAIT for that
     /// label before shooting, so the frame we capture is guaranteed to BE the
     /// state we stamp it with — never the previous/next frame. Budget covers the
     /// tour's slowest transition (driveTo is variable-time) plus dwell.

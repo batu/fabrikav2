@@ -10,6 +10,7 @@ import {
   type PerfSample,
   type SnapshotEnvelope,
 } from '@fabrikav2/testkit/harness';
+import { driveTo as driveToState } from '@fabrikav2/testkit/testing';
 
 import { gameConfig } from '../../game.config.ts';
 import {
@@ -20,7 +21,6 @@ import {
   type TapTenController,
   type TapTenSnapshot,
 } from '../game/tapTen.ts';
-import { driveTo as driveToState } from '../testing/driveTo.ts';
 import type { TapTenScreen } from './TapTenScreen.ts';
 
 export type TapTenVerb = 'tapTile';

@@ -14,7 +14,7 @@ npm run verify-device -- --game marble_run
 1. **Build the harness bundle with the allstates tour** —
    `VITE_ENABLE_TEST_HARNESS=true VITE_INSITU_TOUR=allstates vite build` + Capacitor
    sync for the selected device platform. The `allstates` tour
-   (`games/<g>/src/testing/insituTour.ts`) drives
+   (`@fabrikav2/testkit/testing` `maybeRunInsituTour`) drives
    menu→level→settings→pause→win→fail, each state CONFIRMED via `snapshot().scene`
    before a 6s dwell.
 2. **Build + install on the device** — iOS uses `xcodebuild` + `devicectl install`.

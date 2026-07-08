@@ -18,6 +18,7 @@ import {
   type PerfRecorder,
   type PerfSample,
 } from "@fabrikav2/testkit/harness";
+import { driveTo as driveToState } from "@fabrikav2/testkit/testing";
 import { copy } from "../../design/copy.js";
 import { assetUrls } from "../../design/theme.js";
 import { GameController, type GameHooks } from "../game/GameController.js";
@@ -32,7 +33,6 @@ import {
   type Progress,
 } from "../game/persist.js";
 import type { JuiceSettings } from "../game/juice.js";
-import { driveTo as driveToState } from "../testing/driveTo.js";
 import { ARROW_PACK, buildSagaNodes, isSagaLevelOpen } from "./saga.js";
 
 export type ArrowVerb = "tapCell";

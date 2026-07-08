@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { driveTo, isDriveState, type DriveToDeps } from "../../src/testing/driveTo.ts";
+import { driveTo, isDriveState, type DriveToDeps } from "@fabrikav2/testkit/testing";
 
 /**
  * Headless acceptance for the per-state navigator (fidelity-diff ledger C5),

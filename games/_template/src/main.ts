@@ -1,5 +1,5 @@
 import { createFlowMachine } from "@fabrikav2/kernel";
-import { assignWindowBindings } from "@fabrikav2/testkit/testing";
+import { assignWindowBindings, maybeRunInsituTour } from "@fabrikav2/testkit/testing";
 import { gameConfig } from "../game.config.ts";
 import { copy } from "../design/copy.ts";
 import { mountPlaceholderScreen } from "./shell/PlaceholderScreen.ts";
@@ -44,6 +44,6 @@ if (appRoot) {
     assignWindowBindings(window as unknown as Record<string, unknown>, {
       [harnessWindowKey]: harness,
     });
-    void import("./testing/insituTour.ts").then(({ maybeRunInsituTour }) => maybeRunInsituTour(harness));
+    void maybeRunInsituTour(harness);
   }
 }

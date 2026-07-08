@@ -1,13 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { createFlowMachine, type FlowMachine } from '@fabrikav2/kernel';
-import { driveTo, isDriveState, type DriveToDeps } from '../../src/testing/driveTo';
+import { driveTo, isDriveState, type DriveToDeps } from '@fabrikav2/testkit/testing';
 
 /**
  * Headless acceptance for the per-state navigator (fidelity-diff ledger C5).
  *
  * driveTo lives on App.harness(), which needs WebGL/DOM (Stage, canvas) and
- * cannot run in vitest — so, exactly like the autoPlay drivers, the composition
- * is extracted (src/testing/driveTo) and exercised here against a fake App
+ * cannot run in vitest, so the shared composition is exercised here against a fake App
  * backed by a REAL @fabrikav2/kernel FlowMachine. That makes the scene
  * transitions genuine (menu→playing→complete/failed/paused come from the same
  * transition table App uses), so the test proves driveTo actually REACHES and
@@ -19,7 +18,7 @@ import { driveTo, isDriveState, type DriveToDeps } from '../../src/testing/drive
  */
 
 const instantSleep = (): Promise<void> => Promise.resolve();
-const opts = { pollMs: 0, sleep: instantSleep } as const;
+const opts = { pollMs: 0, sleep: instantSleep, levelIds: { win: 4, fail: 4 } } as const;
 
 interface FakeApp {
   deps: DriveToDeps;
