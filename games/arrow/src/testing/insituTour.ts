@@ -25,6 +25,7 @@
  * belong in the agent or in an external one-shot tool that returns.
  */
 import type { GameHarness, HarnessSaveProfile } from '@fabrikav2/testkit/harness';
+import { publishViewportMetricsMarker } from '@fabrikav2/testkit/testing';
 
 /** The canonical device-capture states the 'allstates' script drives through
  *  (mirrors `driveTo.ts`'s `DriveState` / `tools/refcap-compare` `CANONICAL_STATES`). */
@@ -108,6 +109,7 @@ export async function maybeRunInsituTour(harness: GameHarness): Promise<void> {
     const tag = `tourstate:${s}`;
     el.setAttribute('aria-label', tag);
     el.textContent = tag;
+    publishViewportMetricsMarker(tag);
     log(`state=${s} scene=${scene()}`);
   };
 
