@@ -24,6 +24,7 @@ import {
   zoneForWorldX,
   type CameleonBodyMode,
   type CameleonDirection,
+  type CameleonHideDefinition,
   type CameleonLevelDefinition,
   type CameleonPlayMode,
 } from "./level.ts";
@@ -53,6 +54,7 @@ export type CameleonScene =
 export type CameleonStatus = "idle" | "playing" | "won" | "lost" | "paused";
 export type CameleonTapResult = "hit" | "decoy" | "miss" | "ignored";
 export type CameleonEvent = "hide_found" | "decoy_hit" | "miss" | "level_win" | "mode_selected" | "dir_selected";
+export type CameleonFoundBeatPhase = "hit-stop" | "stamp" | "peel" | "shock" | "ragdoll" | "collect" | "done";
 
 export interface CameleonViewport {
   readonly width: number;
@@ -64,6 +66,28 @@ export interface CameleonFeedback {
   readonly kind: Exclude<CameleonTapResult, "ignored"> | "mode";
   readonly id?: string;
   readonly point?: WorldPoint;
+}
+
+export interface CameleonFoundBeat {
+  readonly sequence: number;
+  readonly hideId: string;
+  readonly point: WorldPoint;
+  readonly startedAtMs: number;
+  readonly elapsedMs: number;
+  readonly phase: CameleonFoundBeatPhase;
+  readonly interruptible: boolean;
+}
+
+export interface CameleonAim {
+  readonly point: WorldPoint;
+  readonly armed: boolean;
+}
+
+export interface CameleonIdleShimmer {
+  readonly sequence: number;
+  readonly hideId: string;
+  readonly point: WorldPoint;
+  readonly startedAtMs: number;
 }
 
 export interface CameleonSnapshot {
@@ -81,10 +105,16 @@ export interface CameleonSnapshot {
   readonly foundCount: number;
   readonly winAt: number;
   readonly ammo: number | null;
+  readonly maxAmmo: number | null;
   readonly coins: number;
+  readonly spotless: boolean;
+  readonly tapMissMockery: boolean;
   readonly tourState: CameleonTourState;
   readonly hides: readonly HideObjectView[];
+  readonly aim: CameleonAim | null;
   readonly feedback: CameleonFeedback | null;
+  readonly foundBeat: CameleonFoundBeat | null;
+  readonly idleShimmer: CameleonIdleShimmer | null;
 }
 
 export interface CameleonControllerOptions {
@@ -108,8 +138,11 @@ export interface CameleonController {
   setDirection(direction: CameleonDirection): void;
   setPlayMode(mode: CameleonPlayMode): void;
   scrollTo(x: number): void;
+  aimAtWorld(point: WorldPoint): boolean;
+  confirmAim(): CameleonTapResult;
   tapWorld(point: WorldPoint): CameleonTapResult;
   revealHide(id: string): boolean;
+  tick(): void;
   driveToTourState(state: CameleonTourState): Promise<boolean>;
   winLevel(): Promise<boolean>;
   failLevel(): Promise<boolean>;
@@ -124,6 +157,12 @@ export interface CameleonController {
 const DEFAULT_VIEWPORT: CameleonViewport = { width: 390, height: 844 };
 const SHOOT_AMMO = 14;
 const CONFIRM_AMMO = 16;
+const FOUND_BEAT_INTERRUPTIBLE_MS = 900;
+const FOUND_BEAT_TOTAL_MS = 1400;
+const IDLE_SHIMMER_AFTER_MS = 60_000;
+const IDLE_SHIMMER_REPEAT_MS = 45_000;
+const TAP_MOCKERY_WINDOW_MS = 10_000;
+const TAP_MOCKERY_WRONG_TAPS = 3;
 
 class CameleonStateController implements CameleonController {
   readonly level: CameleonLevelDefinition;
@@ -139,21 +178,33 @@ class CameleonStateController implements CameleonController {
   private scrollX = 0;
   private hideState: HideStateMap;
   private ammo: number | null = null;
+  private maxAmmo: number | null = null;
   private coins = 0;
   private feedback: CameleonFeedback | null = null;
   private feedbackSequence = 0;
+  private foundBeat: Omit<CameleonFoundBeat, "elapsedMs" | "phase" | "interruptible"> | null = null;
+  private aim: CameleonAim | null = null;
+  private idleShimmer: CameleonIdleShimmer | null = null;
+  private idleShimmerSequence = 0;
+  private lastFindAtMs: number;
+  private lastIdleShimmerAtMs = Number.NEGATIVE_INFINITY;
+  private readonly shimmeredAtByHide = new Map<string, number>();
+  private tapWrongTimestamps: number[] = [];
   private tourState: CameleonTourState = "menu";
   private readonly listeners = new Set<() => void>();
   private readonly sink: RingBufferSink;
   private readonly analytics: Analytics<CameleonEvent>;
+  private readonly now: () => number;
 
   constructor(options: CameleonControllerOptions) {
     this.level = options.level;
     const query = { ...DEFAULT_CAMELEON_QUERY, ...options.query };
+    this.now = options.now ?? (() => Date.now());
     this.mode = query.mode;
     this.direction = query.dir;
     this.bodyMode = query.bodies;
     this.hideState = createHideStateMap(this.level);
+    this.lastFindAtMs = this.now();
     this.sink = options.analyticsSink ?? createRingBufferSink();
     this.analytics = createAnalytics<CameleonEvent>({
       env: options.env ?? "development",
@@ -172,6 +223,10 @@ class CameleonStateController implements CameleonController {
     this.settingsOpen = false;
     this.tourState = "menu";
     this.feedback = null;
+    this.foundBeat = null;
+    this.aim = null;
+    this.idleShimmer = null;
+    this.tapWrongTimestamps = [];
     this.notify();
   }
 
@@ -181,8 +236,16 @@ class CameleonStateController implements CameleonController {
     this.inputReady = true;
     this.settingsOpen = false;
     this.hideState = createHideStateMap(this.level);
-    this.ammo = ammoForMode(this.mode);
+    this.maxAmmo = ammoForMode(this.mode);
+    this.ammo = this.maxAmmo;
     this.feedback = null;
+    this.foundBeat = null;
+    this.aim = defaultAimFor(this.level, this.viewport);
+    this.idleShimmer = null;
+    this.lastFindAtMs = this.now();
+    this.lastIdleShimmerAtMs = Number.NEGATIVE_INFINITY;
+    this.shimmeredAtByHide.clear();
+    this.tapWrongTimestamps = [];
     this.scrollTo(0);
     this.analytics.levelStart({
       level_id: this.level.id,
@@ -242,7 +305,10 @@ class CameleonStateController implements CameleonController {
   setPlayMode(mode: CameleonPlayMode): void {
     if (this.mode === mode) return;
     this.mode = mode;
-    this.ammo = this.scene === FlowStates.Playing ? ammoForMode(mode) : this.ammo;
+    const nextMaxAmmo = ammoForMode(mode);
+    this.maxAmmo = this.scene === FlowStates.Playing ? nextMaxAmmo : this.maxAmmo;
+    this.ammo = this.scene === FlowStates.Playing ? nextMaxAmmo : this.ammo;
+    this.aim = mode === "confirm" ? this.aim ?? defaultAimFor(this.level, this.viewport) : null;
     this.analytics.track("mode_selected", { mode });
     this.feedback = this.nextFeedback("mode");
     this.notify();
@@ -254,8 +320,20 @@ class CameleonStateController implements CameleonController {
     this.notify();
   }
 
+  aimAtWorld(point: WorldPoint): boolean {
+    if (this.scene !== FlowStates.Playing || this.mode !== "confirm") return false;
+    this.aim = { point: clampWorldPoint(this.level, point), armed: true };
+    this.notify();
+    return true;
+  }
+
+  confirmAim(): CameleonTapResult {
+    if (this.mode !== "confirm" || !this.aim) return "ignored";
+    return this.tapWorld(this.aim.point);
+  }
+
   tapWorld(point: WorldPoint): CameleonTapResult {
-    if (this.scene !== FlowStates.Playing || !this.inputReady) return "ignored";
+    if (this.scene !== FlowStates.Playing || !this.canAcceptInput()) return "ignored";
     const result = hitTestLevel(this.level, point, this.hideState);
     switch (result.kind) {
       case "hide":
@@ -270,6 +348,8 @@ class CameleonStateController implements CameleonController {
   revealHide(id: string): boolean {
     if (isHideFound(this.hideState, id)) return false;
     this.hideState = revealHideInState(this.hideState, id);
+    this.lastFindAtMs = this.now();
+    this.tapWrongTimestamps = [];
     this.analytics.track("hide_found", {
       level_id: this.level.id,
       hide_id: id,
@@ -280,6 +360,28 @@ class CameleonStateController implements CameleonController {
     if (hideFoundCount(this.hideState) >= this.level.winAt) this.completeLevel();
     this.notify();
     return true;
+  }
+
+  tick(): void {
+    if (this.scene !== FlowStates.Playing) return;
+    const now = this.now();
+    if (now - this.lastFindAtMs < IDLE_SHIMMER_AFTER_MS) return;
+    if (now - this.lastIdleShimmerAtMs < IDLE_SHIMMER_REPEAT_MS) return;
+    const candidate = nearestUnfoundHide(this.level, this.hideState, {
+      x: this.scrollX + this.viewport.width / 2,
+      y: this.viewport.height / 2,
+    }, this.shimmeredAtByHide, now);
+    if (!candidate) return;
+    this.idleShimmerSequence += 1;
+    this.idleShimmer = {
+      sequence: this.idleShimmerSequence,
+      hideId: candidate.id,
+      point: rectCenter(candidate.rect),
+      startedAtMs: now,
+    };
+    this.lastIdleShimmerAtMs = now;
+    this.shimmeredAtByHide.set(candidate.id, now);
+    this.notify();
   }
 
   async driveToTourState(state: CameleonTourState): Promise<boolean> {
@@ -345,10 +447,13 @@ class CameleonStateController implements CameleonController {
   }
 
   snapshot(): CameleonSnapshot {
+    const foundCount = hideFoundCount(this.hideState);
+    const now = this.now();
+    const foundBeat = this.snapshotFoundBeat(now);
     return {
       scene: this.scene,
       status: this.status,
-      inputReady: this.inputReady,
+      inputReady: this.inputReady && !isFoundBeatBlocking(foundBeat),
       settingsOpen: this.settingsOpen,
       levelId: this.level.id,
       mode: this.mode,
@@ -357,13 +462,19 @@ class CameleonStateController implements CameleonController {
       scrollX: this.scrollX,
       viewport: this.viewport,
       world: this.level.world,
-      foundCount: hideFoundCount(this.hideState),
+      foundCount,
       winAt: this.level.winAt,
       ammo: this.ammo,
+      maxAmmo: this.maxAmmo,
       coins: this.coins,
+      spotless: foundCount === this.level.hides.length,
+      tapMissMockery: this.tapWrongTimestamps.length >= TAP_MOCKERY_WRONG_TAPS,
       tourState: this.tourState,
       hides: hideObjectViews(this.level, this.hideState, this.bodyMode, this.direction),
+      aim: this.mode === "confirm" ? this.aim : null,
       feedback: this.feedback,
+      foundBeat,
+      idleShimmer: this.idleShimmer,
     };
   }
 
@@ -379,6 +490,12 @@ class CameleonStateController implements CameleonController {
 
   private applyHideHit(id: string, point: WorldPoint): CameleonTapResult {
     this.feedback = this.nextFeedback("hit", id, point);
+    this.foundBeat = {
+      sequence: this.feedback.sequence,
+      hideId: id,
+      point,
+      startedAtMs: this.now(),
+    };
     this.revealHide(id);
     return "hit";
   }
@@ -386,6 +503,7 @@ class CameleonStateController implements CameleonController {
   private applyDecoyHit(id: string, point: WorldPoint): CameleonTapResult {
     this.consumeAmmo(costForWrongTarget(this.mode));
     this.feedback = this.nextFeedback("decoy", id, point);
+    this.recordWrongTap();
     this.analytics.track("decoy_hit", {
       level_id: this.level.id,
       decoy_id: id,
@@ -401,6 +519,7 @@ class CameleonStateController implements CameleonController {
   private applyMiss(point: WorldPoint): CameleonTapResult {
     this.consumeAmmo(costForMiss(this.mode));
     this.feedback = this.nextFeedback("miss", undefined, point);
+    this.recordWrongTap();
     this.analytics.track("miss", {
       level_id: this.level.id,
       found_count: hideFoundCount(this.hideState),
@@ -445,6 +564,29 @@ class CameleonStateController implements CameleonController {
     return { sequence: this.feedbackSequence, kind, id, point };
   }
 
+  private canAcceptInput(): boolean {
+    return this.inputReady && !isFoundBeatBlocking(this.snapshotFoundBeat(this.now()));
+  }
+
+  private snapshotFoundBeat(now: number): CameleonFoundBeat | null {
+    if (!this.foundBeat) return null;
+    const elapsedMs = Math.max(0, now - this.foundBeat.startedAtMs);
+    return {
+      ...this.foundBeat,
+      elapsedMs,
+      phase: foundBeatPhaseForElapsed(elapsedMs),
+      interruptible: elapsedMs >= FOUND_BEAT_INTERRUPTIBLE_MS,
+    };
+  }
+
+  private recordWrongTap(): void {
+    if (this.mode !== "tap") return;
+    const now = this.now();
+    this.tapWrongTimestamps = [...this.tapWrongTimestamps, now].filter((timestamp) =>
+      now - timestamp <= TAP_MOCKERY_WINDOW_MS
+    );
+  }
+
   private notify(): void {
     for (const listener of this.listeners) listener();
   }
@@ -480,4 +622,55 @@ function costForWrongTarget(mode: CameleonPlayMode): number {
 
 function costForMiss(mode: CameleonPlayMode): number {
   return mode === "confirm" ? 2 : costForWrongTarget(mode);
+}
+
+function defaultAimFor(level: CameleonLevelDefinition, viewport: CameleonViewport): CameleonAim {
+  return {
+    point: clampWorldPoint(level, { x: viewport.width / 2, y: viewport.height / 2 }),
+    armed: false,
+  };
+}
+
+function clampWorldPoint(level: CameleonLevelDefinition, point: WorldPoint): WorldPoint {
+  return {
+    x: clampNumber(point.x, 0, level.world.width),
+    y: clampNumber(point.y, 0, level.world.height),
+  };
+}
+
+function foundBeatPhaseForElapsed(elapsedMs: number): CameleonFoundBeatPhase {
+  if (elapsedMs < 80) return "hit-stop";
+  if (elapsedMs < 200) return "stamp";
+  if (elapsedMs < 450) return "peel";
+  if (elapsedMs < 650) return "shock";
+  if (elapsedMs < 1_150) return "ragdoll";
+  if (elapsedMs < FOUND_BEAT_TOTAL_MS) return "collect";
+  return "done";
+}
+
+function isFoundBeatBlocking(foundBeat: CameleonFoundBeat | null): boolean {
+  return foundBeat !== null && !foundBeat.interruptible;
+}
+
+function nearestUnfoundHide(
+  level: CameleonLevelDefinition,
+  hideState: HideStateMap,
+  point: WorldPoint,
+  shimmeredAtByHide: ReadonlyMap<string, number>,
+  now: number,
+): CameleonHideDefinition | null {
+  let best: { hide: CameleonHideDefinition; distance: number } | null = null;
+  for (const hide of level.hides) {
+    if (isHideFound(hideState, hide.id)) continue;
+    const lastShimmeredAt = shimmeredAtByHide.get(hide.id) ?? Number.NEGATIVE_INFINITY;
+    if (now - lastShimmeredAt < IDLE_SHIMMER_REPEAT_MS) continue;
+    const center = rectCenter(hide.rect);
+    const distance = Math.hypot(center.x - point.x, center.y - point.y);
+    if (best === null || distance < best.distance) best = { hide, distance };
+  }
+  return best?.hide ?? null;
+}
+
+function clampNumber(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
 }
