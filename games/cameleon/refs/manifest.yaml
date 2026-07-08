@@ -28,40 +28,40 @@ states:
     reference:
       gap: "original title — no reference app"
     v2:
-      gap: "no committed capture yet — first device run pending"
+      offline: refs/captures/device-2026-07-09/menu.png
       driveTo: menu
 
   - name: level
     reference:
       gap: "original title — no reference app"
     v2:
-      gap: "no committed capture yet — first device run pending"
+      offline: refs/captures/device-2026-07-09/level.png
       driveTo: level
 
   - name: settings
     reference:
       gap: "original title — no reference app"
     v2:
-      gap: "no committed capture yet — first device run pending"
+      offline: refs/captures/device-2026-07-09/settings.png
       driveTo: settings
 
   - name: pause
     reference:
       gap: "original title — no reference app"
     v2:
-      gap: "no committed capture yet — first device run pending"
+      offline: refs/captures/device-2026-07-09/pause.png
       driveTo: pause
 
   - name: win
     reference:
       gap: "original title — no reference app"
     v2:
-      gap: "no committed capture yet — first device run pending"
+      offline: refs/captures/device-2026-07-09/win.png
       driveTo: win
 
   - name: fail
     reference:
       gap: "original title — no reference app"
     v2:
-      gap: "no committed capture yet — first device run pending"
+      offline: refs/captures/device-2026-07-09/fail.png
       driveTo: fail
