@@ -28,110 +28,468 @@
   "states": [
     {
       "state": "menu",
-      "score": null,
-      "status": "unscored",
-      "reason": "no reference to score against",
-      "models": [],
+      "score": 96,
+      "status": "pass",
+      "reason": "panel 96% ≥ 85%, no blocker consensus",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 95
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 96
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 98
+        }
+      ],
       "consensus": []
     },
     {
       "state": "level",
-      "score": null,
-      "status": "unscored",
-      "reason": "no reference to score against",
-      "models": [],
-      "consensus": []
+      "score": 90,
+      "status": "pass",
+      "reason": "panel 90% ≥ 85%, no blocker consensus",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 85
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 90
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 98
+        }
+      ],
+      "consensus": [
+        {
+          "key": "extra-element",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Yellow/orange poster or sign visible on the right side",
+            "A poster/sign image with yellow background and illustrated content appears inside the framed sign on the right side of the screen, which is empty (teal) in the reference"
+          ]
+        },
+        {
+          "key": "text-content",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Different time shown in status bar",
+            "The time displayed in the status bar top-left is different."
+          ]
+        }
+      ]
     },
     {
       "state": "settings",
-      "score": null,
-      "status": "unscored",
-      "reason": "no reference to score against",
-      "models": [],
-      "consensus": []
+      "score": 95,
+      "status": "pass",
+      "reason": "panel 95% ≥ 85%, no blocker consensus",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 95
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 90
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 98
+        }
+      ],
+      "consensus": [
+        {
+          "key": "text-content",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Different time displayed in status bar",
+            "Status bar timestamp differs."
+          ]
+        }
+      ]
     },
     {
       "state": "pause",
-      "score": null,
-      "status": "unscored",
-      "reason": "no reference to score against",
-      "models": [],
-      "consensus": []
+      "score": 96,
+      "status": "pass",
+      "reason": "panel 96% ≥ 85%, no blocker consensus",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 95
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 96
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 98
+        }
+      ],
+      "consensus": [
+        {
+          "key": "text-content",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Different time displayed in status bar",
+            "The system clock time in the status bar differs."
+          ]
+        }
+      ]
     },
     {
       "state": "win",
-      "score": null,
-      "status": "unscored",
-      "reason": "no reference to score against",
-      "models": [],
-      "consensus": []
+      "score": 95,
+      "status": "pass",
+      "reason": "panel 95% ≥ 85%, no blocker consensus",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 95
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 92
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 98
+        }
+      ],
+      "consensus": [
+        {
+          "key": "extra-element",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "An additional poster/image element is visible on the right edge of the screen that is not present in the reference",
+            "A yellow card or poster graphic is partially visible within the frame on the right side of the screen."
+          ]
+        }
+      ]
     },
     {
       "state": "fail",
-      "score": null,
-      "status": "unscored",
-      "reason": "no reference to score against",
-      "models": [],
-      "consensus": []
+      "score": 96,
+      "status": "pass",
+      "reason": "panel 96% ≥ 85%, no blocker consensus",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 95
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 96
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 98
+        }
+      ],
+      "consensus": [
+        {
+          "key": "text-content",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Time display shows different time",
+            "The system clock in the status bar shows a different time."
+          ]
+        }
+      ]
     }
   ],
   "verdict": {
-    "pass": false,
-    "summary": "FAIL — panel median n/a · 0 pass, 0 fail, 6 unscored, 0 skipped (floor 85%)",
+    "pass": true,
+    "summary": "PASS — panel median 95.5% · 6 pass, 0 fail, 0 unscored, 0 skipped (floor 85%)",
     "states": [
       {
         "state": "menu",
-        "score": null,
-        "status": "unscored",
-        "reason": "no reference to score against",
-        "models": [],
+        "score": 96,
+        "status": "pass",
+        "reason": "panel 96% ≥ 85%, no blocker consensus",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 95
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 96
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 98
+          }
+        ],
         "consensus": []
       },
       {
         "state": "level",
-        "score": null,
-        "status": "unscored",
-        "reason": "no reference to score against",
-        "models": [],
-        "consensus": []
+        "score": 90,
+        "status": "pass",
+        "reason": "panel 90% ≥ 85%, no blocker consensus",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 85
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 90
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 98
+          }
+        ],
+        "consensus": [
+          {
+            "key": "extra-element",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Yellow/orange poster or sign visible on the right side",
+              "A poster/sign image with yellow background and illustrated content appears inside the framed sign on the right side of the screen, which is empty (teal) in the reference"
+            ]
+          },
+          {
+            "key": "text-content",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Different time shown in status bar",
+              "The time displayed in the status bar top-left is different."
+            ]
+          }
+        ]
       },
       {
         "state": "settings",
-        "score": null,
-        "status": "unscored",
-        "reason": "no reference to score against",
-        "models": [],
-        "consensus": []
+        "score": 95,
+        "status": "pass",
+        "reason": "panel 95% ≥ 85%, no blocker consensus",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 95
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 90
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 98
+          }
+        ],
+        "consensus": [
+          {
+            "key": "text-content",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Different time displayed in status bar",
+              "Status bar timestamp differs."
+            ]
+          }
+        ]
       },
       {
         "state": "pause",
-        "score": null,
-        "status": "unscored",
-        "reason": "no reference to score against",
-        "models": [],
-        "consensus": []
+        "score": 96,
+        "status": "pass",
+        "reason": "panel 96% ≥ 85%, no blocker consensus",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 95
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 96
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 98
+          }
+        ],
+        "consensus": [
+          {
+            "key": "text-content",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Different time displayed in status bar",
+              "The system clock time in the status bar differs."
+            ]
+          }
+        ]
       },
       {
         "state": "win",
-        "score": null,
-        "status": "unscored",
-        "reason": "no reference to score against",
-        "models": [],
-        "consensus": []
+        "score": 95,
+        "status": "pass",
+        "reason": "panel 95% ≥ 85%, no blocker consensus",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 95
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 92
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 98
+          }
+        ],
+        "consensus": [
+          {
+            "key": "extra-element",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "An additional poster/image element is visible on the right edge of the screen that is not present in the reference",
+              "A yellow card or poster graphic is partially visible within the frame on the right side of the screen."
+            ]
+          }
+        ]
       },
       {
         "state": "fail",
-        "score": null,
-        "status": "unscored",
-        "reason": "no reference to score against",
-        "models": [],
-        "consensus": []
+        "score": 96,
+        "status": "pass",
+        "reason": "panel 96% ≥ 85%, no blocker consensus",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 95
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 96
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 98
+          }
+        ],
+        "consensus": [
+          {
+            "key": "text-content",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Time display shows different time",
+              "The system clock in the status bar shows a different time."
+            ]
+          }
+        ]
       }
     ],
-    "score": null
+    "score": 95.5
   },
   "budgetHalted": false,
   "game": "cameleon",
   "lane": "device",
-  "generatedAt": "2026-07-08T21:44:28.015Z"
+  "generatedAt": "2026-07-08T22:00:35.274Z"
 }
