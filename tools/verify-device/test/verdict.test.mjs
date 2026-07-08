@@ -93,4 +93,13 @@ describe('strict device exit semantics', () => {
       allowUngated: true,
     })).toBe(0);
   });
+
+  it('fails indistinguishable state captures by default even outside --strict', () => {
+    expect(computeStrictExitCode({
+      strict: false,
+      lane: 'device',
+      primary: { pass: true },
+      indistinguishableStatePairs: [{ stateA: 'menu', stateB: 'level' }],
+    })).toBe(1);
+  });
 });

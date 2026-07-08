@@ -61,6 +61,22 @@ it `BLIND`, and the command exits non-zero by default with
 replaying historical or forensic captures where the non-zero gate is intentionally
 disabled.
 
+After raw captures are preserved, `verify-device` also perceptually hashes each
+different state against every other state. Near-identical raw captures are
+reported as `INDISTINGUISHABLE STATES` in stdout and `summary.json`, and force a
+non-zero exit even when the fidelity verdict is advisory. If two states are
+legitimately similar, document the exception in `games/<game>/refs/manifest.yaml`:
+
+```yaml
+verifyDevice:
+  indistinguishableStates:
+    allow:
+      - states:
+          - win
+          - fail
+        reason: "same terminal shell is expected for this game"
+```
+
 ## Device registry (`devices.json`)
 
 Prefer selecting devices by a stable registry name:

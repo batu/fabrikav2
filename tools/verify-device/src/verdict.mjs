@@ -40,8 +40,10 @@ export function computeStrictExitCode({
   viewportMetricsPass = true,
   ungatedCaptureStates = [],
   allowUngated = false,
+  indistinguishableStatePairs = [],
 }) {
   if (!allowUngated && Array.isArray(ungatedCaptureStates) && ungatedCaptureStates.length > 0) return 1;
+  if (Array.isArray(indistinguishableStatePairs) && indistinguishableStatePairs.length > 0) return 1;
   if (captureFailure) return 1;
   if (!strict) return 0;
   if (!isVerifiedDeviceLane(lane)) return 1;

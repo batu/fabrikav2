@@ -48,6 +48,11 @@ import { prepareJudgedCaptures, resolveJudgedContentInsets } from './src/content
 import { captureAndroidStates } from './src/androidDriver.mjs';
 import { resolveDevicePlatform } from './src/platform.mjs';
 import {
+  detectIndistinguishableStates,
+  formatAllowedIndistinguishableStates,
+  formatIndistinguishableStateWarnings,
+} from './src/indistinguishableStates.mjs';
+import {
   androidDeviceSerial,
   iosDeviceUdid,
   loadDeviceRegistry,
@@ -288,6 +293,10 @@ async function main() {
     outDir,
     contentInsets,
   });
+  const indistinguishableStates = detectIndistinguishableStates({
+    captures: prepared.rawCaptures,
+    manifest,
+  });
 
   const { rows } = buildRows({ manifest, deviceCaptures: prepared.judgedCaptures, lane });
   const cropArtifacts = writeCropArtifacts({
@@ -359,6 +368,7 @@ async function main() {
     panel,
     phashVerdict,
     captureByState: resolved.captureByState || {},
+    indistinguishablePairs: indistinguishableStates.pairs,
     viewportMetrics: resolved.viewportMetrics || {},
     viewportMetricAssertions,
   });
@@ -379,6 +389,8 @@ async function main() {
     : args.allowUngated
       ? `  ungated captures allowed by --allow-ungated: ${blindCaptureStates.join(', ')}\n`
       : formatUngatedCaptureWarnings(blindCaptureStates);
+  const indistinguishableNote = formatIndistinguishableStateWarnings(indistinguishableStates.blockingPairs)
+    + formatAllowedIndistinguishableStates(indistinguishableStates.allowedPairs);
   const laneNote = lane === 'browser'
     ? '  NOTE: browser lane — safe-area/notch fidelity is DEVICE-UNVERIFIED.\n'
     : lane === 'provided-captures'
@@ -398,6 +410,7 @@ async function main() {
       : '') +
     (resolved.captureFailure ? `  capture: FAILED — ${resolved.captureFailure}\n` : '') +
     blindCaptureNote +
+    indistinguishableNote +
     `  phash: ${phashVerdict.summary}\n` +
     (panel.verdict ? `  panel: ${panel.verdict.summary}\n`
       : `  panel: SKIPPED — ${panel.skipped} (on-device fidelity UNVERIFIED)\n`) +
@@ -416,6 +429,7 @@ async function main() {
     viewportMetricsPass: viewportMetricAssertionsPass(viewportMetricAssertions),
     ungatedCaptureStates: blindCaptureStates,
     allowUngated: args.allowUngated,
+    indistinguishableStatePairs: indistinguishableStates.blockingPairs,
   });
 }
 

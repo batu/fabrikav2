@@ -13,6 +13,7 @@ const MAJOR_OR_WORSE = new Set(['major', 'blocker']);
  * @param {object} [params.panel] runPanel result
  * @param {object} [params.phashVerdict] computeVerdict result used when panel skipped
  * @param {Record<string,{gated:boolean}>} [params.captureByState] attachment-derived capture integrity
+ * @param {Array<object>} [params.indistinguishablePairs] raw-capture state hash integrity findings
  * @param {Record<string,object>} [params.viewportMetrics] state -> parsed viewport metrics
  * @param {Array<object>} [params.viewportMetricAssertions] manifest range assertion results
  * @returns {Record<string,{
@@ -20,6 +21,7 @@ const MAJOR_OR_WORSE = new Set(['major', 'blocker']);
  *   majorConsensusCount:number,
  *   verdict:string,
  *   capture?:{gated:boolean},
+ *   indistinguishableStates?:Array<object>,
  *   viewportMetrics?:object,
  *   viewportMetricAssertions?:Array<object>,
  * }>}
@@ -28,6 +30,7 @@ export function buildSummary({
   panel,
   phashVerdict,
   captureByState = {},
+  indistinguishablePairs = [],
   viewportMetrics = {},
   viewportMetricAssertions = [],
 }) {
@@ -62,6 +65,7 @@ export function buildSummary({
       summary[state].viewportMetricAssertions = assertionsByState[state];
     }
   }
+  attachIndistinguishablePairs(summary, indistinguishablePairs);
 
   return summary;
 }
@@ -107,6 +111,9 @@ export function normalizeSummary(raw) {
     if (Array.isArray(value?.viewportMetricAssertions)) {
       normalized.viewportMetricAssertions = value.viewportMetricAssertions;
     }
+    if (Array.isArray(value?.indistinguishableStates)) {
+      normalized.indistinguishableStates = value.indistinguishableStates;
+    }
     return [state, normalized];
   }));
 }
@@ -141,7 +148,7 @@ export function formatSummaryTable(summary) {
     ...entries.map(([state, value]) =>
       `    ${state.padEnd(stateWidth)}  ${formatNumber(value.score).padStart(5)}  `
       + `${formatNumber(value.majorConsensusCount).padStart(6)}  ${String(value.verdict).padEnd(7)}  `
-      + `${formatCapture(value.capture)}`),
+      + `${formatCapture(value.capture, value.indistinguishableStates)}`),
   ];
   return `${lines.join('\n')}\n`;
 }
@@ -196,6 +203,32 @@ function groupAssertionsByState(assertions) {
   return byState;
 }
 
+function attachIndistinguishablePairs(summary, pairs) {
+  for (const pair of Array.isArray(pairs) ? pairs : []) {
+    attachIndistinguishablePair(summary, pair.stateA, pair.stateB, pair);
+    attachIndistinguishablePair(summary, pair.stateB, pair.stateA, pair);
+  }
+}
+
+function attachIndistinguishablePair(summary, state, otherState, pair) {
+  if (typeof state !== 'string' || typeof otherState !== 'string') return;
+  if (!summary[state]) {
+    summary[state] = { score: null, majorConsensusCount: 0, verdict: 'unknown' };
+  }
+  if (!Array.isArray(summary[state].indistinguishableStates)) {
+    summary[state].indistinguishableStates = [];
+  }
+  summary[state].indistinguishableStates.push({
+    state: otherState,
+    status: pair.allowed ? 'allowed' : 'INDISTINGUISHABLE STATES',
+    distance: Number.isFinite(pair.distance) ? Number(pair.distance.toFixed(3)) : null,
+    threshold: Number.isFinite(pair.threshold) ? pair.threshold : null,
+    digest: state === pair.stateA ? pair.digestB : pair.digestA,
+    allowed: Boolean(pair.allowed),
+    reason: pair.reason || null,
+  });
+}
+
 function numericDelta(current, previous) {
   return Number.isFinite(current) && Number.isFinite(previous) ? current - previous : null;
 }
@@ -211,10 +244,16 @@ function formatNumber(value) {
   return Number.isInteger(value) ? String(value) : value.toFixed(1);
 }
 
-function formatCapture(capture) {
+function formatCapture(capture, indistinguishableStates = []) {
   if (capture?.gated === false) return 'BLIND';
-  if (capture?.gated === true) return 'gated';
-  return '-';
+  const tags = [];
+  if (capture?.gated === true) tags.push('gated');
+  if (Array.isArray(indistinguishableStates) && indistinguishableStates.some((item) => item?.allowed === false)) {
+    tags.push('INDIST');
+  } else if (Array.isArray(indistinguishableStates) && indistinguishableStates.length > 0) {
+    tags.push('allowed-similar');
+  }
+  return tags.length > 0 ? tags.join(',') : '-';
 }
 
 function isPlainObject(value) {

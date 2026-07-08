@@ -102,6 +102,42 @@ describe('buildSummary', () => {
     expect(summary.fail.capture).toEqual({ gated: false });
     expect(summary.menu.capture).toEqual({ gated: true });
   });
+
+  it('records indistinguishable-state integrity findings under both states', () => {
+    const summary = buildSummary({
+      panel: { states: [{ state: 'menu', score: 90, status: 'pass', consensus: [] }] },
+      phashVerdict: null,
+      indistinguishablePairs: [
+        {
+          stateA: 'menu',
+          stateB: 'level',
+          distance: 0,
+          threshold: 10,
+          digestA: 'aaaaaaaa',
+          digestB: 'bbbbbbbb',
+          allowed: false,
+          reason: null,
+        },
+      ],
+    });
+
+    expect(summary.menu.indistinguishableStates).toEqual([
+      {
+        state: 'level',
+        status: 'INDISTINGUISHABLE STATES',
+        distance: 0,
+        threshold: 10,
+        digest: 'bbbbbbbb',
+        allowed: false,
+        reason: null,
+      },
+    ]);
+    expect(summary.level.indistinguishableStates[0]).toMatchObject({
+      state: 'menu',
+      status: 'INDISTINGUISHABLE STATES',
+      digest: 'aaaaaaaa',
+    });
+  });
 });
 
 describe('summary persistence', () => {
@@ -136,6 +172,7 @@ describe('summary persistence', () => {
           majorConsensusCount: 2,
           verdict: 'fail',
           capture: { gated: false },
+          indistinguishableStates: [{ state: 'level', status: 'INDISTINGUISHABLE STATES', allowed: false }],
           viewportMetrics: { windowInnerHeight: 844 },
           viewportMetricAssertions: [{ state: 'menu', metric: 'windowInnerHeight', status: 'pass' }],
         },
@@ -146,6 +183,7 @@ describe('summary persistence', () => {
         majorConsensusCount: 2,
         verdict: 'fail',
         capture: { gated: false },
+        indistinguishableStates: [{ state: 'level', status: 'INDISTINGUISHABLE STATES', allowed: false }],
         viewportMetrics: { windowInnerHeight: 844 },
         viewportMetricAssertions: [{ state: 'menu', metric: 'windowInnerHeight', status: 'pass' }],
       },
@@ -156,7 +194,13 @@ describe('summary persistence', () => {
 describe('summary formatting and compare mode', () => {
   it('prints one table row per state', () => {
     const text = formatSummaryTable({
-      menu: { score: 75, majorConsensusCount: 2, verdict: 'fail', capture: { gated: false } },
+      menu: {
+        score: 75,
+        majorConsensusCount: 2,
+        verdict: 'fail',
+        capture: { gated: true },
+        indistinguishableStates: [{ state: 'level', status: 'INDISTINGUISHABLE STATES', allowed: false }],
+      },
       pause: { score: null, majorConsensusCount: 0, verdict: 'unscored' },
     });
 
@@ -165,7 +209,7 @@ describe('summary formatting and compare mode', () => {
     expect(text).toContain('pause');
     expect(text).toContain('majors');
     expect(text).toContain('capture');
-    expect(text).toContain('BLIND');
+    expect(text).toContain('INDIST');
   });
 
   it('formats loud blind-capture warnings from summary capture flags', () => {
