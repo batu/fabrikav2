@@ -6,10 +6,6 @@ import ribbonWin from './assets/ribbon_win.svg';
 import ribbonLose from './assets/ribbon_lose.svg';
 import gear from './assets/gear.svg';
 import headerRoute from './assets/header_route.svg';
-import nodeDefault from './assets/level_node_default.svg';
-import nodeLocked from './assets/level_node_locked.svg';
-import nodeCurrent from './assets/level_node_current.svg';
-import nodeCompleted from './assets/level_node_completed.svg';
 
 export const assetUrls = {
   gear,
@@ -18,9 +14,9 @@ export const assetUrls = {
 } as const;
 
 /**
- * Install Vite-resolved saga art on the nested @fabrikav2/ui LevelMap root.
- * The shared kit resets `--fab-levelmap-art-*` on each `.fab-ui` screen, so the
- * game-owned asset URLs have to land on `.fab-levelmap` itself.
+ * Install non-token saga accents on the nested @fabrikav2/ui LevelMap root.
+ * Design tokens, including node art URLs, live in design/tokens.css so the
+ * composed CSS surface is deterministic and auditable.
  */
 export function installLevelMapArt(doc: Document = document): void {
   const id = 'arrow-levelmap-art';
@@ -28,29 +24,7 @@ export function installLevelMapArt(doc: Document = document): void {
   const style = doc.createElement('style');
   style.id = id;
   style.textContent = `.fab-levelmap {
-  --fab-levelmap-art-default: url(${nodeDefault});
-  --fab-levelmap-art-locked: url(${nodeLocked});
-  --fab-levelmap-art-current: url(${nodeCurrent});
-  --fab-levelmap-art-completed: url(${nodeCompleted});
-  --fab-levelmap-path-width: min(244px, 72vw);
-  --fab-levelmap-node-gap: 12px;
-  --fab-levelmap-offset: 43px;
-  --fab-levelmap-node-size: 60px;
-  --fab-levelmap-node-current-size: 88px;
-  --fab-levelmap-node-font: 20px;
-  --fab-levelmap-node-current-font: 34px;
-  --fab-levelmap-node-color: #343858;
-  --fab-levelmap-dot-color: #343858;
-  --fab-levelmap-locked-color: #676b91;
-  --fab-levelmap-locked-dot-color: #676b91;
-  --fab-levelmap-completed-color: #ffffff;
-  --fab-levelmap-current-color: #ffffff;
-  --fab-levelmap-line-top: #d8d4c8;
-  --fab-levelmap-line-mid: #9da1d3;
-  --fab-levelmap-line-bottom: #6d86f5;
-  --fab-levelmap-line-glow: 0 0 0 3px rgba(255, 255, 255, 0.7), 7px 0 0 -2px rgba(236, 119, 152, 0.52), -7px 0 0 -2px rgba(93, 187, 117, 0.44), 0 10px 24px rgba(109, 134, 245, 0.22);
-  --fab-levelmap-far-opacity: 0.86;
-  --fab-levelmap-distant-opacity: 0.68;
+  isolation: isolate;
 }
 .fab-levelmap-path::before {
   top: 18px;

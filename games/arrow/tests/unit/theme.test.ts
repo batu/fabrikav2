@@ -9,9 +9,7 @@ describe("arrow menu theme", () => {
 
     const style = document.getElementById("arrow-levelmap-art");
     expect(style).not.toBeNull();
-    expect(style?.textContent).toContain("--fab-levelmap-art-current: url(");
-    expect(style?.textContent).toContain("--fab-levelmap-art-locked: url(");
-    expect(style?.textContent).toContain("--fab-levelmap-art-completed: url(");
+    expect(style?.textContent).not.toContain("--fab-levelmap-art-");
     expect(style?.textContent).toContain(".fab-levelmap-path::before");
     expect(style?.textContent).toContain(".arrow-menu-header::before");
   });
