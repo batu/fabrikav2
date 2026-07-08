@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 393 852" role="img" aria-label="Arrow saga theme variant B warm route">
+  <defs>
+    <linearGradient id="page" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".48" stop-color="#fbf0df"/>
+      <stop offset="1" stop-color="#f8f4e8"/>
+    </linearGradient>
+    <linearGradient id="rail" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#f0b55b"/>
+      <stop offset=".48" stop-color="#ec7798"/>
+      <stop offset="1" stop-color="#6d86f5"/>
+    </linearGradient>
+    <linearGradient id="current" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffcb78"/>
+      <stop offset=".5" stop-color="#f0b55b"/>
+      <stop offset="1" stop-color="#ec7798"/>
+    </linearGradient>
+    <linearGradient id="locked" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff8ec"/>
+      <stop offset=".58" stop-color="#f3ddbf"/>
+      <stop offset="1" stop-color="#b9bddf"/>
+    </linearGradient>
+    <linearGradient id="completed" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#7ed890"/>
+      <stop offset=".56" stop-color="#5dbb75"/>
+      <stop offset="1" stop-color="#3f8f69"/>
+    </linearGradient>
+    <filter id="chip-shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="8" stdDeviation="5" flood-color="#3f416b" flood-opacity=".15"/>
+    </filter>
+  </defs>
+  <rect width="393" height="852" fill="url(#page)"/>
+  <g transform="translate(24 48)">
+    <rect width="345" height="108" rx="22" fill="#fff8ec" opacity=".92"/>
+    <path d="M20 76c38-18 67-16 103-2 34 13 64 13 101-13 34-24 66-40 121-31" fill="none" stroke="#f0b55b" stroke-width="7" stroke-linecap="round" opacity=".72"/>
+    <path d="M275 25 331 41l-45 32 7-25Z" fill="#ffffff" stroke="#343858" stroke-width="4" stroke-linejoin="round"/>
+    <text x="16" y="56" font-family="Nunito, SF Pro Rounded, system-ui" font-size="48" font-weight="900" fill="#343858">Arrow</text>
+    <text x="18" y="87" font-family="Nunito, SF Pro Rounded, system-ui" font-size="17" font-weight="800" fill="#676b91">40 authored levels</text>
+    <circle cx="319" cy="55" r="29" fill="#ffffff" stroke="#f0b55b" stroke-width="4"/>
+    <text x="319" y="65" text-anchor="middle" font-family="Nunito, SF Pro Rounded, system-ui" font-size="27" font-weight="900" fill="#343858">⚙</text>
+  </g>
+  <g transform="translate(196 204)">
+    <path d="M0 22v544" stroke="#ffffff" stroke-width="21" stroke-linecap="round"/>
+    <path d="M0 22v544" stroke="url(#rail)" stroke-width="12" stroke-linecap="round"/>
+    <path d="M-8 22v544" stroke="#f0b55b" stroke-width="3" stroke-linecap="round" opacity=".58"/>
+    <path d="M8 22v544" stroke="#6d86f5" stroke-width="3" stroke-linecap="round" opacity=".44"/>
+    <g filter="url(#chip-shadow)" font-family="Nunito, SF Pro Rounded, system-ui" font-weight="900" text-anchor="middle">
+      <g transform="translate(-43 18)">
+        <circle r="30" fill="url(#completed)" stroke="#343858" stroke-width="4"/>
+        <text y="8" font-size="20" fill="#ffffff">1</text>
+      </g>
+      <g transform="translate(43 96)">
+        <circle r="30" fill="url(#completed)" stroke="#343858" stroke-width="4"/>
+        <text y="8" font-size="20" fill="#ffffff">2</text>
+      </g>
+      <g transform="translate(-43 174)">
+        <circle r="30" fill="url(#completed)" stroke="#343858" stroke-width="4"/>
+        <text y="8" font-size="20" fill="#ffffff">3</text>
+      </g>
+      <g transform="translate(43 252)">
+        <circle r="30" fill="url(#completed)" stroke="#343858" stroke-width="4"/>
+        <text y="8" font-size="20" fill="#ffffff">4</text>
+      </g>
+      <g transform="translate(0 346)">
+        <path d="M0-51 9-30 31-43 32-18 56-20 43 1 64 11 43 22 56 43 32 41 31 66 9 53 0 74-9 53-31 66-32 41-56 43-43 22-64 11-43 1-56-20-32-18-31-43-9-30Z" fill="#6d86f5" stroke="#343858" stroke-width="4" stroke-linejoin="round"/>
+        <circle r="43" fill="url(#current)" stroke="#ffffff" stroke-width="5"/>
+        <text y="13" font-size="34" fill="#ffffff">5</text>
+      </g>
+      <g transform="translate(43 460)" opacity=".92">
+        <circle r="30" fill="url(#locked)" stroke="#676b91" stroke-width="4"/>
+        <text y="8" font-size="20" fill="#676b91">6</text>
+      </g>
+      <g transform="translate(-43 538)" opacity=".78">
+        <circle r="30" fill="url(#locked)" stroke="#676b91" stroke-width="4"/>
+        <text y="8" font-size="20" fill="#676b91">7</text>
+      </g>
+    </g>
+  </g>
+  <g transform="translate(92 774)">
+    <rect width="210" height="52" rx="24" fill="#f0b55b" stroke="#343858" stroke-width="4"/>
+    <text x="105" y="34" text-anchor="middle" font-family="Nunito, SF Pro Rounded, system-ui" font-size="20" font-weight="900" fill="#343858">Level 5</text>
+  </g>
+</svg>

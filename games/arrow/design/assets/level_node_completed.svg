@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-label="completed level chip">
+  <defs>
+    <linearGradient id="completed-fill" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#78d28c"/>
+      <stop offset=".54" stop-color="#5dbb75"/>
+      <stop offset="1" stop-color="#459a60"/>
+    </linearGradient>
+  </defs>
+  <path d="M80 8 103 19l25-1 14 21 11 23-9 24 1 25-20 15-23 11-24-9-25 1-15-20-11-23 9-24-1-25 20-15Z" fill="url(#completed-fill)" stroke="#343858" stroke-width="8" stroke-linejoin="round"/>
+  <circle cx="80" cy="80" r="48" fill="none" stroke="#ffffff" stroke-opacity=".4" stroke-width="8"/>
+  <path d="m54 81 17 17 36-42" fill="none" stroke="#ffffff" stroke-width="13" stroke-linecap="round" stroke-linejoin="round" opacity=".28"/>
+</svg>

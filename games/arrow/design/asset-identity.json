@@ -1,12 +1,37 @@
 {
   "version": 1,
   "coverage": "complete",
-  "notes": "Arrow has no historical runtime art pack; gameplay is Canvas2D primitives. The two ResultCard ribbon sprites are v2 design-owned seed assets used to satisfy the shared UI sprite contract.",
+  "notes": "Arrow has no historical runtime art pack; gameplay is Canvas2D primitives. Result ribbons, menu chrome, and saga chips are v2 design-owned seed assets used to satisfy the shared UI sprite contract.",
   "assets": {
     "design/assets/gear.svg": {
       "source": "design/assets/gear.svg",
       "expectation": "exact-bytes",
       "provenance": "Generated v2 settings icon for the Arrow menu chrome."
+    },
+    "design/assets/header_route.svg": {
+      "source": "design/assets/header_route.svg",
+      "expectation": "exact-bytes",
+      "provenance": "Generated v2 header route art for the Arrow saga menu."
+    },
+    "design/assets/level_node_completed.svg": {
+      "source": "design/assets/level_node_completed.svg",
+      "expectation": "exact-bytes",
+      "provenance": "Generated v2 completed-state chip for the Arrow saga rail."
+    },
+    "design/assets/level_node_current.svg": {
+      "source": "design/assets/level_node_current.svg",
+      "expectation": "exact-bytes",
+      "provenance": "Generated v2 current-state chip for the Arrow saga rail."
+    },
+    "design/assets/level_node_default.svg": {
+      "source": "design/assets/level_node_default.svg",
+      "expectation": "exact-bytes",
+      "provenance": "Generated v2 fallback chip for the Arrow saga rail."
+    },
+    "design/assets/level_node_locked.svg": {
+      "source": "design/assets/level_node_locked.svg",
+      "expectation": "exact-bytes",
+      "provenance": "Generated v2 locked-state chip for the Arrow saga rail."
     },
     "design/assets/ribbon_win.svg": {
       "source": "design/assets/ribbon_win.svg",
