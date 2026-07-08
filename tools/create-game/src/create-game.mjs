@@ -11,6 +11,12 @@ import { fileURLToPath } from 'node:url';
 
 const TEMPLATE_NAME = '_template';
 const NAME_RE = /^[a-z][a-z0-9_]*$/;
+const SHARED_WORKSPACE_DEV_DEPS = [
+  '@fabrikav2/kernel',
+  '@fabrikav2/ui',
+  '@fabrikav2/sdk',
+  '@fabrikav2/testkit',
+];
 
 // Never copied into a new game (build/install artifacts).
 const SKIP_ENTRIES = new Set(['node_modules', 'dist', 'coverage', '.DS_Store']);
@@ -41,6 +47,57 @@ function substitute(path, replacements) {
   let text = readFileSync(path, 'utf8');
   for (const [from, to] of replacements) text = text.split(from).join(to);
   writeFileSync(path, text);
+}
+
+function gameDevDependencies(existing = {}) {
+  const shared = Object.fromEntries(SHARED_WORKSPACE_DEV_DEPS.map((dep) => [dep, '*']));
+  const nonShared = Object.fromEntries(
+    Object.entries(existing).filter(([dep]) => !SHARED_WORKSPACE_DEV_DEPS.includes(dep)),
+  );
+  return { ...shared, ...nonShared };
+}
+
+function generatedReadme({ name, packageName, title }) {
+  return `# ${title}
+
+\`${name}\` is a v2 game scaffold created with \`npm run create-game -- ${name}\`.
+
+This workspace starts from the shared template and is ready for a game-specific
+design pass. Keep gameplay code in \`src/\`, source references in \`refs/\`,
+promoted evidence in \`evidence/\`, and design-owned copy, tokens, and assets in
+\`design/\`.
+
+Shared workspace dependencies are declared up front: \`@fabrikav2/kernel\`,
+\`@fabrikav2/ui\`, \`@fabrikav2/sdk\`, and \`@fabrikav2/testkit\`.
+
+Useful checks:
+
+- \`npm run typecheck -w ${packageName}\`
+- \`npm run test:unit -w ${packageName}\`
+- \`npm run audit\`
+`;
+}
+
+function generatedBrief({ name, title }) {
+  return `# ${title} - design brief
+
+Game id: \`${name}\`
+
+Replace this scaffolded brief with the game-specific design contract. Keep the
+title and game id above so agents can identify the workspace while the design is
+still being authored.
+
+## What it is
+One paragraph for ${title}: the mechanic, the fantasy, and the session shape.
+
+## Feel
+The 3-5 adjectives ${title} should evoke, plus any motion or juice references
+from \`refs/\`.
+
+## Constraints
+Platform targets, monetization posture, content scope, and anything a
+contributor must not break.
+`;
 }
 
 /**
@@ -80,6 +137,7 @@ export function createGame({ name, repoRoot }) {
   const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
   pkg.name = packageName;
   delete pkg.description; // the template's "copied by create-game" note no longer applies
+  pkg.devDependencies = gameDevDependencies(pkg.devDependencies);
   writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
 
   // Anchored text substitutions across config + titles. The game title is a
@@ -98,7 +156,8 @@ export function createGame({ name, repoRoot }) {
     ['game: template', `game: ${name}`],
     ['package: com.fabrikav2.template', `package: com.fabrikav2.${name}`],
   ]);
-  substitute(join(targetDir, 'README.md'), [['# Template Game', `# ${title}`]]);
+  writeFileSync(join(targetDir, 'README.md'), generatedReadme({ name, packageName, title }));
+  writeFileSync(join(targetDir, 'docs', 'brief.md'), generatedBrief({ name, title }));
 
   return { targetDir, packageName, title };
 }
