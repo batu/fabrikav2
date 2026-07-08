@@ -7,6 +7,13 @@ const config = {
   appId: "com.basegamelab.find_the_dog.dev",
   appName: "Find the Dog",
   webDir: "dist",
+  ios: {
+    // Keep the WKWebView scroll view from applying automatic safe-area content
+    // insets. The game owns safe-area rhythm through CSS env(...) probes and
+    // Phaser's frozen viewport constants, so native inset adjustment must stay
+    // pinned at the Capacitor config level.
+    contentInset: "never",
+  },
 };
 
 export default config;
