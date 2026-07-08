@@ -11,6 +11,7 @@ describe("insitu tour repro (device wiring, no phaser)", () => {
     document.body.appendChild(mountInto);
     const boot = await bootGame(mountInto, { level: loadLidoFixture(), startRuntime: false });
     const harness = createCameleonHarness({
+      buildVersion: "test",
       packageId: "com.basegamelab.cameleon.dev",
       controller: boot.controller,
       screen: boot.screen,
