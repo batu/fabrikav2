@@ -1,6 +1,6 @@
 // iOS device detection from `xcrun devicectl list devices --json-output <file>`.
 // The device serial is NEVER hardcoded (card constraint): the CLI reads the
-// connected device from devicectl JSON, or honours an explicit --device <udid>.
+// connected device from devicectl JSON, or honours a registry/env preferred UDID.
 // These are pure functions over the already-parsed JSON so they unit-test
 // without a Mac or a device attached.
 
@@ -37,10 +37,10 @@ function isUsable(d) {
 /**
  * Choose the target device.
  * @param {Array<{udid:string,name:string}>} devices connected iOS devices
- * @param {string|undefined} preferredUdid explicit --device value
+ * @param {string|undefined} preferredUdid registry/env/legacy preferred UDID
  * @returns {{device:{udid:string,name:string}|null, reason:string}}
  *   device=null means "skip gracefully" (no device); reason explains the pick/skip.
- *   Throws only on an unsatisfiable explicit request or an ambiguous auto-pick.
+ *   Throws only on an unsatisfiable preferred request or an ambiguous auto-pick.
  */
 export function pickDevice(devices, preferredUdid) {
   if (preferredUdid) {

@@ -9,8 +9,13 @@ describe('device platform selection', () => {
     expect(() => parsePlatform('browser')).toThrow(/auto.*ios.*android/);
   });
 
-  it('honors CLI override, then manifest platform, then iOS default', () => {
+  it('honors CLI override, then registry device platform, then manifest platform, then iOS default', () => {
     expect(resolveDevicePlatform({ args: { platform: 'android' }, manifest: {} })).toBe('android');
+    expect(resolveDevicePlatform({
+      args: { platform: 'auto' },
+      manifest: { verifyDevice: { platform: 'ios' } },
+      device: { platform: 'android' },
+    })).toBe('android');
     expect(resolveDevicePlatform({
       args: { platform: 'auto' },
       manifest: { verifyDevice: { platform: 'android' } },

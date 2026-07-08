@@ -23,5 +23,9 @@ games/*/android/
 # Conductor scratch (ledgers, capture throwaways) — never tracked
 .work/
 
+# Local device registry: host-specific UDIDs, serials, and ssh aliases.
+/devices.json
+/tools/verify-device/devices.json
+
 # Xcode result bundles (bulky binary; grid.html+panel.json are the committed evidence)
 *.xcresult/

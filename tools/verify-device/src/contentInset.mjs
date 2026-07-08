@@ -6,20 +6,30 @@ export function resolveContentInsetTop({ args = {}, manifest = {} } = {}) {
   return resolveContentInsets({ args, manifest }).top;
 }
 
-export function resolveContentInsets({ args = {}, manifest = {}, platform = 'ios' } = {}) {
+export function resolveContentInsets({ args = {}, manifest = {}, platform = 'ios', device = {}, env = {} } = {}) {
   const vd = manifest.verifyDevice || {};
   return {
     top: resolveOneInset({
-      argsValue: args.contentInsetTop,
-      cliLabel: '--content-inset-top',
-      manifestValue: platformValue(vd, platform, 'ContentInsetTop', 'contentInsetTop'),
-      manifestLabel: platformLabel(vd, platform, 'ContentInsetTop', 'contentInsetTop'),
+      sources: [
+        { value: args.contentInsetTop, label: '--content-inset-top' },
+        { value: env.VERIFY_DEVICE_CONTENT_INSET_TOP, label: 'VERIFY_DEVICE_CONTENT_INSET_TOP' },
+        { value: device.contentInsets?.top, label: 'devices.json contentInsets.top' },
+        {
+          value: platformValue(vd, platform, 'ContentInsetTop', 'contentInsetTop'),
+          label: platformLabel(vd, platform, 'ContentInsetTop', 'contentInsetTop'),
+        },
+      ],
     }),
     bottom: resolveOneInset({
-      argsValue: args.contentInsetBottom,
-      cliLabel: '--content-inset-bottom',
-      manifestValue: platformValue(vd, platform, 'ContentInsetBottom', 'contentInsetBottom'),
-      manifestLabel: platformLabel(vd, platform, 'ContentInsetBottom', 'contentInsetBottom'),
+      sources: [
+        { value: args.contentInsetBottom, label: '--content-inset-bottom' },
+        { value: env.VERIFY_DEVICE_CONTENT_INSET_BOTTOM, label: 'VERIFY_DEVICE_CONTENT_INSET_BOTTOM' },
+        { value: device.contentInsets?.bottom, label: 'devices.json contentInsets.bottom' },
+        {
+          value: platformValue(vd, platform, 'ContentInsetBottom', 'contentInsetBottom'),
+          label: platformLabel(vd, platform, 'ContentInsetBottom', 'contentInsetBottom'),
+        },
+      ],
     }),
   };
 }
@@ -28,16 +38,30 @@ export function resolveJudgedContentInsetTop({ args = {}, manifest = {}, lane = 
   return resolveJudgedContentInsets({ args, manifest, lane }).top;
 }
 
-export function resolveJudgedContentInsets({ args = {}, manifest = {}, lane = 'device', platform = 'ios' } = {}) {
-  if (lane === 'browser' && args.contentInsetTop === undefined && args.contentInsetBottom === undefined) {
+export function resolveJudgedContentInsets({
+  args = {},
+  manifest = {},
+  lane = 'device',
+  platform = 'ios',
+  device = {},
+  env = {},
+} = {}) {
+  if (lane === 'browser' && !hasExplicitContentInsetOverride(args, env)) {
     return { top: 0, bottom: 0 };
   }
-  return resolveContentInsets({ args, manifest, platform });
+  return resolveContentInsets({ args, manifest, platform, device, env });
 }
 
-function resolveOneInset({ argsValue, cliLabel, manifestValue, manifestLabel }) {
-  if (argsValue !== undefined) return normalizeContentInsetTop(argsValue, cliLabel);
-  return manifestValue === undefined ? 0 : normalizeContentInsetTop(manifestValue, manifestLabel);
+function resolveOneInset({ sources }) {
+  const source = sources.find(({ value }) => value !== undefined);
+  return source === undefined ? 0 : normalizeContentInsetTop(source.value, source.label);
+}
+
+function hasExplicitContentInsetOverride(args, env) {
+  return args.contentInsetTop !== undefined
+    || args.contentInsetBottom !== undefined
+    || env.VERIFY_DEVICE_CONTENT_INSET_TOP !== undefined
+    || env.VERIFY_DEVICE_CONTENT_INSET_BOTTOM !== undefined;
 }
 
 function platformValue(verifyDevice, platform, suffix, fallbackKey) {

@@ -1,0 +1,24 @@
+{
+  "devices": [
+    {
+      "name": "iphone-local",
+      "platform": "ios",
+      "udid": "00000000-0000000000000000",
+      "contentInsets": {
+        "top": 130,
+        "bottom": 0
+      }
+    },
+    {
+      "name": "pixel-remote",
+      "platform": "android",
+      "serial": "ANDROID_SERIAL_HERE",
+      "ssh": "ubuntu-server",
+      "androidSdk": "/home/batu/android-sdk",
+      "contentInsets": {
+        "top": 72,
+        "bottom": 96
+      }
+    }
+  ]
+}

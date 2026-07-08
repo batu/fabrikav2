@@ -100,12 +100,38 @@ describe('content inset crop', () => {
     expect(resolveContentInsets({ manifest, platform: 'ios' })).toEqual({ top: 130, bottom: 0 });
   });
 
+  it('resolves registry and env content inset precedence before manifest defaults', () => {
+    const manifest = {
+      verifyDevice: {
+        androidContentInsetTop: 72,
+        androidContentInsetBottom: 96,
+      },
+    };
+    const device = {
+      contentInsets: {
+        top: 80,
+      },
+    };
+
+    expect(resolveContentInsets({ manifest, platform: 'android', device, env: {} }))
+      .toEqual({ top: 80, bottom: 96 });
+    expect(resolveContentInsets({
+      args: { contentInsetTop: 12 },
+      manifest,
+      platform: 'android',
+      device,
+      env: { VERIFY_DEVICE_CONTENT_INSET_TOP: '44', VERIFY_DEVICE_CONTENT_INSET_BOTTOM: '88' },
+    })).toEqual({ top: 12, bottom: 88 });
+  });
+
   it('does not apply device manifest crop to browser fallback unless CLI overrides it', () => {
     const manifest = loadGameManifest('marble_run', REPO_ROOT);
+    const device = { contentInsets: { top: 44, bottom: 55 } };
 
     expect(resolveJudgedContentInsetTop({ manifest, lane: 'browser' })).toBe(0);
     expect(resolveJudgedContentInsetTop({ args: { contentInsetTop: 12 }, manifest, lane: 'browser' })).toBe(12);
     expect(resolveJudgedContentInsetTop({ manifest, lane: 'provided-captures' })).toBe(130);
+    expect(resolveJudgedContentInsets({ manifest, lane: 'browser', device, env: {} })).toEqual({ top: 0, bottom: 0 });
     expect(resolveJudgedContentInsets({
       args: { contentInsetBottom: 7 },
       manifest,

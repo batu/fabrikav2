@@ -18,9 +18,11 @@ Options:
                        device platform for --lane device (default: auto).
                        auto reads verifyDevice.platform from the manifest, then
                        falls back to ios for existing manifests.
-  --device <udid>      target device (default: auto-detect the single connected
-                       iOS device via 'xcrun devicectl list devices', or Android
-                       adb serial when --platform android). Never hardcoded.
+  --device <name>      target device name from devices.json. If no registry is
+                       present, this falls back to the legacy raw iOS UDID /
+                       Android adb serial behavior. Default: VERIFY_DEVICE_NAME,
+                       then verifyDevice.defaultDevice, then auto-detect iOS or
+                       adb default serial.
   --adb-prefix <cmd>   Android only: command prefix used for adb (default:
                        VERIFY_DEVICE_ADB_PREFIX, else adb). Example:
                        'ssh ubuntu-server adb'.

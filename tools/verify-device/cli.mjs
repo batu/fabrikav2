@@ -48,6 +48,12 @@ import { prepareJudgedCaptures, resolveJudgedContentInsets } from './src/content
 import { captureAndroidStates } from './src/androidDriver.mjs';
 import { resolveDevicePlatform } from './src/platform.mjs';
 import {
+  androidDeviceSerial,
+  iosDeviceUdid,
+  loadDeviceRegistry,
+  resolveDeviceConfig,
+} from './src/deviceRegistry.mjs';
+import {
   buildSummary,
   compareSummaries,
   formatCompareTable,
@@ -92,7 +98,7 @@ function readEnvSecret(name) {
 
 // Resolve the device captures (state -> abs PNG path), or a graceful skip.
 // Returns { captures, deviceLabel } or { skip: '<reason>' }.
-async function resolveDeviceCaptures(args, manifest, date, platform) {
+async function resolveDeviceCaptures(args, manifest, date, platform, deviceConfig) {
   if (args.captures) {
     const dir = path.resolve(args.captures);
     return {
@@ -117,13 +123,13 @@ async function resolveDeviceCaptures(args, manifest, date, platform) {
   }
   if (args.skipDevice) return { skip: 'forced by --skip-device' };
   return platform === 'android'
-    ? await runAndroidDevicePath(args, manifest, date)
-    : runIosDevicePath(args, manifest, date);
+    ? await runAndroidDevicePath(args, manifest, date, deviceConfig)
+    : runIosDevicePath(args, manifest, date, deviceConfig);
 }
 
 // The full on-device capture path. Gated: skips gracefully with a clear message
 // when no device/toolchain is present so CI degrades instead of failing.
-function runIosDevicePath(args, manifest, date) {
+function runIosDevicePath(args, manifest, date, deviceConfig = {}) {
   const outDir = defaultOut(args, date);
   fs.mkdirSync(outDir, { recursive: true });
   const tmp = path.join(os.tmpdir(), `verify-device-${date}`);
@@ -135,7 +141,7 @@ function runIosDevicePath(args, manifest, date) {
   } catch (err) {
     return { skip: `devicectl unavailable (not a Mac / no Xcode?): ${err.message}` };
   }
-  const { device, reason } = pickDevice(parseDeviceList(devicesJson), args.device);
+  const { device, reason } = pickDevice(parseDeviceList(devicesJson), iosDeviceUdid(deviceConfig));
   if (!device) return { skip: `${reason} — plug in a signed iOS device to run the on-device lane` };
   process.stderr.write(`verify-device: ${reason}\n`);
 
@@ -156,24 +162,24 @@ function runIosDevicePath(args, manifest, date) {
     captures: byState,
     captureByState,
     viewportMetrics,
-    deviceLabel: `${device.name} (${device.udid})`,
+    deviceLabel: `${deviceConfig.name ? `${deviceConfig.name}: ` : ''}${device.name} (${device.udid})`,
     captureFailure: testError ? `xcodebuild test failed: ${testError.message}` : null,
   };
 }
 
-async function runAndroidDevicePath(args, manifest, date) {
+async function runAndroidDevicePath(args, manifest, date, deviceConfig = {}) {
   const outDir = defaultOut(args, date);
   fs.mkdirSync(outDir, { recursive: true });
   const appId = readAppBundleId(manifest.gameDir);
   if (!appId) return { skip: `could not read appId from ${manifest.gameDir}/capacitor.config.ts` };
 
-  const adbPrefix = args.adbPrefix || process.env.VERIFY_DEVICE_ADB_PREFIX || 'adb';
-  const buildPrefix = args.buildPrefix || process.env.VERIFY_DEVICE_BUILD_PREFIX;
-  const serial = args.device;
+  const adbPrefix = deviceConfig.adbPrefix || 'adb';
+  const buildPrefix = deviceConfig.buildPrefix;
+  const serial = androidDeviceSerial(deviceConfig);
   const activity = args.androidActivity || `${appId}/.MainActivity`;
 
-  steps.buildAndroidHarnessBundle(manifest.gameDir, { androidSdk: args.androidSdk, buildPrefix });
-  steps.assembleAndroidDebug(manifest.gameDir, { androidSdk: args.androidSdk, buildPrefix });
+  steps.buildAndroidHarnessBundle(manifest.gameDir, { androidSdk: deviceConfig.androidSdk, buildPrefix });
+  steps.assembleAndroidDebug(manifest.gameDir, { androidSdk: deviceConfig.androidSdk, buildPrefix });
   steps.installAndroidDebugApk({
     gameDir: manifest.gameDir,
     serial,
@@ -195,7 +201,7 @@ async function runAndroidDevicePath(args, manifest, date) {
     captures,
     captureByState: Object.fromEntries(Object.keys(captures).map((state) => [state, { gated: true }])),
     lane: 'device',
-    deviceLabel: `Android${serial ? ` ${serial}` : ''} via ${adbPrefix}`,
+    deviceLabel: `${deviceConfig.name ? `${deviceConfig.name}: ` : ''}Android${serial ? ` ${serial}` : ''} via ${adbPrefix}`,
     captureFailure: failures.length ? `android capture failures: ${failures.join('; ')}` : null,
   };
 }
@@ -245,11 +251,18 @@ async function main() {
 
   const date = args.date || new Date().toISOString().slice(0, 10);
   const manifest = loadGameManifest(args.game, REPO_ROOT);
-  const platform = resolveDevicePlatform({ args, manifest });
+  const deviceRegistry = loadDeviceRegistry({ repoRoot: REPO_ROOT, env: process.env });
+  const deviceConfig = resolveDeviceConfig({
+    args,
+    manifest,
+    registry: deviceRegistry.devices,
+    env: process.env,
+  });
+  const platform = resolveDevicePlatform({ args, manifest, device: deviceConfig });
 
   const resolved = args.lane === 'browser'
     ? await runBrowserLane(manifest)
-    : await resolveDeviceCaptures(args, manifest, date, platform);
+    : await resolveDeviceCaptures(args, manifest, date, platform, deviceConfig);
   if (resolved.skip) {
     process.stdout.write(
       `verify-device: SKIPPED on-device verification — ${resolved.skip}.\n` +
@@ -262,7 +275,14 @@ async function main() {
 
   const outDir = defaultOut(args, date);
   fs.mkdirSync(outDir, { recursive: true });
-  const contentInsets = resolveJudgedContentInsets({ args, manifest, lane, platform });
+  const contentInsets = resolveJudgedContentInsets({
+    args,
+    manifest,
+    lane,
+    platform,
+    device: deviceConfig,
+    env: process.env,
+  });
   const prepared = prepareJudgedCaptures({
     captures: resolved.captures,
     outDir,

@@ -5,9 +5,13 @@ export function parsePlatform(v, label = '--platform') {
   return v;
 }
 
-export function resolveDevicePlatform({ args = {}, manifest = {} } = {}) {
+export function resolveDevicePlatform({ args = {}, manifest = {}, device = {} } = {}) {
   const requested = parsePlatform(args.platform || 'auto');
   if (requested !== 'auto') return requested;
+
+  if (device.platform !== undefined && device.platform !== null) {
+    return parsePlatform(device.platform, 'devices.json platform');
+  }
 
   const configured = manifest.verifyDevice?.platform;
   if (configured !== undefined && configured !== null) {

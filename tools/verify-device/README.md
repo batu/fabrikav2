@@ -61,6 +61,66 @@ it `BLIND`, and the command exits non-zero by default with
 replaying historical or forensic captures where the non-zero gate is intentionally
 disabled.
 
+## Device registry (`devices.json`)
+
+Prefer selecting devices by a stable registry name:
+
+```sh
+npm run verify-device -- --game block_blast --device pixel-remote
+```
+
+`verify-device` looks for a local `devices.json` at the repo root, then at
+`tools/verify-device/devices.json`. Set `VERIFY_DEVICE_REGISTRY=/path/to/devices.json`
+to use another file. Real registries are gitignored because they contain
+host-specific UDIDs, adb serials, and ssh aliases; copy
+`tools/verify-device/devices.example.json` as a starting point.
+
+Registry shape:
+
+```json
+{
+  "devices": [
+    {
+      "name": "pixel-remote",
+      "platform": "android",
+      "serial": "27091JEGR22183",
+      "ssh": "ubuntu-server",
+      "androidSdk": "/home/batu/android-sdk",
+      "contentInsets": { "top": 72, "bottom": 96 }
+    },
+    {
+      "name": "iphone-local",
+      "platform": "ios",
+      "udid": "00000000-0000000000000000",
+      "contentInsets": { "top": 130, "bottom": 0 }
+    }
+  ]
+}
+```
+
+For Android, `ssh: "ubuntu-server"` expands to `adbPrefix:
+"ssh ubuntu-server adb"` and `buildPrefix: "ssh ubuntu-server"`. You can set
+`adbPrefix` / `buildPrefix` explicitly when the adb and build hosts differ.
+
+A game manifest can pin the normal device:
+
+```yaml
+verifyDevice:
+  defaultDevice: pixel-remote
+```
+
+Selection precedence is: `--device` registry name, then `VERIFY_DEVICE_NAME`,
+then `verifyDevice.defaultDevice` / `verifyDevice.device`, then legacy auto
+selection. With no registry present, `--device` remains backward-compatible as a
+raw iOS UDID or Android serial.
+
+Value precedence is: CLI flags, then env overrides, then the selected registry
+entry, then manifest defaults. Supported env overrides include
+`VERIFY_DEVICE_UDID`, `VERIFY_DEVICE_SERIAL`, `ANDROID_SERIAL`,
+`VERIFY_DEVICE_ADB_PREFIX`, `VERIFY_DEVICE_BUILD_PREFIX`,
+`VERIFY_DEVICE_ANDROID_SDK`, `VERIFY_DEVICE_PLATFORM`,
+`VERIFY_DEVICE_CONTENT_INSET_TOP`, and `VERIFY_DEVICE_CONTENT_INSET_BOTTOM`.
+
 ## Android lane (`--platform android`)
 
 Android keeps the evidence lane stamped `lane=device`; `platform=android` is the
@@ -209,7 +269,7 @@ gracefully (exit 0) and on-device fidelity stays **UNVERIFIED**.
 ## Flags
 
 `--game <name>` (required) · `--platform <auto|ios|android>` ·
-`--device <udid-or-adb-serial>` · `--adb-prefix <cmd>` ·
+`--device <registry-name>` · `--adb-prefix <cmd>` ·
 `--build-prefix <cmd>` · `--android-sdk <path>` ·
 `--android-activity <component>` · `--captures <dir>` · `--xcresult <path>` ·
 `--out <dir>` · `--date <YYYY-MM-DD>` · `--content-inset-top <px>` ·
