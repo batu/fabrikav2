@@ -3,6 +3,8 @@
 // index.html for first-paint; this covers everything (incl. shop/settings,
 // which open later) from one list and is cheap to keep in sync.
 
+export const HOME_NO_ADS_BADGE_SRC = '/ui/home/no-ads-runtime.png';
+
 const ICON_URLS: readonly string[] = [
   // Home — nav bar, currency, no-ads, banner, level nodes
   '/ui/menu-icons/icon_coin.png',
@@ -10,7 +12,7 @@ const ICON_URLS: readonly string[] = [
   '/ui/menu-icons/shop-icon-runtime.png',
   '/ui/menu-icons/settings-icon-runtime.png',
   '/ui/menu-icons/magnifier-runtime.png',
-  '/ui/home/no-ads-runtime.png',
+  HOME_NO_ADS_BADGE_SRC,
   '/ui/home/play-level-button-runtime.png',
   '/ui/home/home-banner-mascot-runtime.png',
   '/ui/home/node-current-candy.png',

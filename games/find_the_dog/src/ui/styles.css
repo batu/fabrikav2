@@ -2895,15 +2895,15 @@
   display: grid;
   place-items: center;
   gap: 2px;
-  width: 66px;
+  width: 62px;
   border: 0;
   background: transparent;
   cursor: pointer;
 }
 
 .home-no-ads-btn .home-no-ads-art {
-  width: 66px;
-  height: 66px;
+  width: 62px;
+  height: 62px;
   object-fit: contain;
   filter: drop-shadow(0 4px 5px rgba(96, 40, 10, 0.34));
   pointer-events: none;

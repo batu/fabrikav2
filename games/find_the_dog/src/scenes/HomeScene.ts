@@ -17,6 +17,7 @@ import { isGameSuspended, registerLifecycleHooks } from '../platform/gameLifecyc
 import type { GameSceneData } from './GameScene';
 import { GameScene } from './GameScene';
 import { FTD_UI_THEME } from '../ui/ftdTheme';
+import { HOME_NO_ADS_BADGE_SRC } from '../ui/iconPreload';
 
 function triggerNavBounce(btn: HTMLButtonElement): void {
   btn.classList.remove('home-nav-btn--tapped');
@@ -539,7 +540,7 @@ export class HomeScene extends Phaser.Scene {
         <div class="home-map-region">
           <aside class="home-rail home-rail-left" aria-label="Quick actions">
             <button id="home-no-ads" class="home-side-btn home-no-ads-btn" type="button" aria-label="Remove ads">
-              <img class="home-no-ads-art" src="/ui/home/no-ads-runtime.png" alt="" aria-hidden="true">
+              <img class="home-no-ads-art" src="${HOME_NO_ADS_BADGE_SRC}" alt="" aria-hidden="true">
             </button>
           </aside>
           <section id="home-map-mount" class="home-map-stage" aria-label="Level progression"></section>

@@ -2,8 +2,9 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
+import { HOME_NO_ADS_BADGE_SRC } from "../../src/ui/iconPreload";
 
-const NO_ADS_SHA256 = "a81f1439fc3f5d1eb3e202ee8707186d6e930711b38c94da5a62a1c4aed800f5";
+const NO_ADS_SHA256 = "ba4bba67bed79199645c6e1e568ec26589a3e1a799a8c2cb5ace66ed2f292722";
 const PLAY_BUTTON_SHA256 = "41876ebb627203339a81a78ec1fbe30964642881c124383627e0e0a58fbfc5c7";
 const CSS_TEXT = readFileSync(join(process.cwd(), "src/ui/styles.css"), "utf8");
 
@@ -15,6 +16,11 @@ function element(selector: string): HTMLElement {
   const found = document.querySelector<HTMLElement>(selector);
   if (found === null) throw new Error(`Missing selector: ${selector}`);
   return found;
+}
+
+function publicPathForSrc(src: string): string {
+  if (!src.startsWith("/")) throw new Error(`Expected root-relative src: ${src}`);
+  return join(process.cwd(), "public", src.slice(1));
 }
 
 describe("home menu polish regressions", () => {
@@ -30,13 +36,18 @@ describe("home menu polish regressions", () => {
     const manifest = JSON.parse(
       readFileSync(join(process.cwd(), "design/asset-identity.json"), "utf8"),
     ) as {
-      assets: Record<string, { sha256?: string; v1Sha256?: string }>;
+      assets: Record<string, { sha256?: string; sourceSha256?: string; v1Sha256?: string }>;
     };
+    const noAdsManifest = manifest.assets["design/assets/no-ads-runtime.png"];
 
     expect(sha256File(join(process.cwd(), "public/ui/home/no-ads-runtime.png"))).toBe(NO_ADS_SHA256);
     expect(sha256File(join(process.cwd(), "design/assets/no-ads-runtime.png"))).toBe(NO_ADS_SHA256);
-    expect(manifest.assets["design/assets/no-ads-runtime.png"].sha256).toBe(NO_ADS_SHA256);
-    expect(manifest.assets["design/assets/no-ads-runtime.png"].v1Sha256).toBe(NO_ADS_SHA256);
+    expect(noAdsManifest.sha256).toBe(NO_ADS_SHA256);
+    expect(noAdsManifest.sourceSha256).toBe(NO_ADS_SHA256);
+    expect(noAdsManifest.v1Sha256).toBe(NO_ADS_SHA256);
+    document.body.innerHTML = `<img class="home-no-ads-art" src="${HOME_NO_ADS_BADGE_SRC}" alt="">`;
+    const renderedBadgeSrc = element(".home-no-ads-art").getAttribute("src") ?? "";
+    expect(sha256File(publicPathForSrc(renderedBadgeSrc))).toBe(noAdsManifest.sha256);
     expect(sha256File(join(process.cwd(), "public/ui/home/play-level-button-runtime.png"))).toBe(
       PLAY_BUTTON_SHA256,
     );
@@ -55,7 +66,7 @@ describe("home menu polish regressions", () => {
         <button id="home-play-now" class="home-play-btn" type="button">Play Now</button>
         <aside class="home-rail home-rail-left">
           <button id="home-no-ads" class="home-side-btn home-no-ads-btn" type="button">
-            <img class="home-no-ads-art" alt="">
+            <img class="home-no-ads-art" src="${HOME_NO_ADS_BADGE_SRC}" alt="">
           </button>
         </aside>
         <nav class="home-nav-bar">
@@ -112,5 +123,14 @@ describe("home menu polish regressions", () => {
     const noAdsRail = window.getComputedStyle(element(".home-rail-left"));
     expect(noAdsRail.left).toBe("0px");
     expect(noAdsRail.top).toBe("116px");
+
+    const noAdsButton = window.getComputedStyle(element(".home-no-ads-btn"));
+    expect(noAdsButton.width).toBe("62px");
+
+    const noAdsArt = element(".home-no-ads-art") as HTMLImageElement;
+    expect(noAdsArt.getAttribute("src")).toBe(HOME_NO_ADS_BADGE_SRC);
+    expect(window.getComputedStyle(noAdsArt).width).toBe("62px");
+    expect(window.getComputedStyle(noAdsArt).height).toBe("62px");
+    expect(sha256File(publicPathForSrc(noAdsArt.getAttribute("src") ?? ""))).toBe(NO_ADS_SHA256);
   });
 });
