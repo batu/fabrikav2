@@ -44,7 +44,9 @@ import { loadRegistry, resolveJudges } from './src/judges.mjs';
 import { CANONICAL_STATES } from './src/states.mjs';
 import { harnessWindowKey, startDevServer, captureBrowserStates } from './src/browserLane.mjs';
 import { checkBudget } from './src/budget.mjs';
-import { prepareJudgedCaptures, resolveJudgedContentInsetTop } from './src/contentInset.mjs';
+import { prepareJudgedCaptures, resolveJudgedContentInsets } from './src/contentInset.mjs';
+import { captureAndroidStates } from './src/androidDriver.mjs';
+import { resolveDevicePlatform } from './src/platform.mjs';
 import {
   buildSummary,
   compareSummaries,
@@ -83,7 +85,7 @@ function readEnvSecret(name) {
 
 // Resolve the device captures (state -> abs PNG path), or a graceful skip.
 // Returns { captures, deviceLabel } or { skip: '<reason>' }.
-function resolveDeviceCaptures(args, manifest, date) {
+async function resolveDeviceCaptures(args, manifest, date, platform) {
   if (args.captures) {
     const dir = path.resolve(args.captures);
     return {
@@ -93,18 +95,23 @@ function resolveDeviceCaptures(args, manifest, date) {
     };
   }
   if (args.xcresult) {
+    if (platform === 'android') {
+      throw new Error('--xcresult is an iOS/XCUITest input; use --captures or --platform ios');
+    }
     const exportDir = path.join(os.tmpdir(), `verify-device-${date}-export`);
     steps.exportAttachments(path.resolve(args.xcresult), exportDir);
     const { byState } = extractFromExportDir(exportDir);
     return { captures: byState, deviceLabel: `xcresult ${path.relative(REPO_ROOT, path.resolve(args.xcresult))}` };
   }
   if (args.skipDevice) return { skip: 'forced by --skip-device' };
-  return runDevicePath(args, manifest, date);
+  return platform === 'android'
+    ? await runAndroidDevicePath(args, manifest, date)
+    : runIosDevicePath(args, manifest, date);
 }
 
 // The full on-device capture path. Gated: skips gracefully with a clear message
 // when no device/toolchain is present so CI degrades instead of failing.
-function runDevicePath(args, manifest, date) {
+function runIosDevicePath(args, manifest, date) {
   const outDir = defaultOut(args, date);
   fs.mkdirSync(outDir, { recursive: true });
   const tmp = path.join(os.tmpdir(), `verify-device-${date}`);
@@ -135,6 +142,36 @@ function runDevicePath(args, manifest, date) {
     captures: byState,
     deviceLabel: `${device.name} (${device.udid})`,
     captureFailure: testError ? `xcodebuild test failed: ${testError.message}` : null,
+  };
+}
+
+async function runAndroidDevicePath(args, manifest, date) {
+  const outDir = defaultOut(args, date);
+  fs.mkdirSync(outDir, { recursive: true });
+  const appId = readAppBundleId(manifest.gameDir);
+  if (!appId) return { skip: `could not read appId from ${manifest.gameDir}/capacitor.config.ts` };
+
+  const adbPrefix = args.adbPrefix || process.env.VERIFY_DEVICE_ADB_PREFIX || 'adb';
+  const serial = args.device;
+  const activity = args.androidActivity || `${appId}/.MainActivity`;
+
+  steps.buildAndroidHarnessBundle(manifest.gameDir, { androidSdk: args.androidSdk });
+  steps.assembleAndroidDebug(manifest.gameDir, { androidSdk: args.androidSdk });
+  steps.installAndroidDebugApk({ gameDir: manifest.gameDir, serial, adbPrefix });
+  steps.launchAndroidApp({ appId, activity, serial, adbPrefix });
+
+  const { captures, failures } = await captureAndroidStates({
+    states: CANONICAL_STATES,
+    outDir: path.join(outDir, 'android-captures'),
+    adbPrefix,
+    serial,
+  });
+
+  return {
+    captures,
+    lane: 'device',
+    deviceLabel: `Android${serial ? ` ${serial}` : ''} via ${adbPrefix}`,
+    captureFailure: failures.length ? `android capture failures: ${failures.join('; ')}` : null,
   };
 }
 
@@ -182,15 +219,16 @@ async function main() {
 
   const date = args.date || new Date().toISOString().slice(0, 10);
   const manifest = loadGameManifest(args.game, REPO_ROOT);
+  const platform = resolveDevicePlatform({ args, manifest });
 
   const resolved = args.lane === 'browser'
     ? await runBrowserLane(manifest)
-    : resolveDeviceCaptures(args, manifest, date);
+    : await resolveDeviceCaptures(args, manifest, date, platform);
   if (resolved.skip) {
     process.stdout.write(
       `verify-device: SKIPPED on-device verification — ${resolved.skip}.\n` +
       `  This is the CI-safe degrade path; on-device rendering stays UNVERIFIED.\n` +
-      `  Run on the Mac with the device plugged in to produce the grid + verdict.\n`
+      `  Run on the configured device host with the device plugged in to produce the grid + verdict.\n`
     );
     return 0; // graceful skip: absence of a device is not a build failure
   }
@@ -198,11 +236,11 @@ async function main() {
 
   const outDir = defaultOut(args, date);
   fs.mkdirSync(outDir, { recursive: true });
-  const contentInsetTop = resolveJudgedContentInsetTop({ args, manifest, lane });
+  const contentInsets = resolveJudgedContentInsets({ args, manifest, lane, platform });
   const prepared = prepareJudgedCaptures({
     captures: resolved.captures,
     outDir,
-    contentInsetTop,
+    contentInsets,
   });
 
   const { rows } = buildRows({ manifest, deviceCaptures: prepared.judgedCaptures, lane });
@@ -252,7 +290,8 @@ async function main() {
     game: args.game, generatedAt: date, device: resolved.deviceLabel,
     rows, verdict: phashVerdict, panel, lane,
     captureArtifacts: {
-      contentInsetTop,
+      contentInsetTop: prepared.artifacts.contentInsetTop,
+      contentInsetBottom: prepared.artifacts.contentInsetBottom,
       rawDir: path.relative(REPO_ROOT, prepared.artifacts.rawDir),
       judgedDir: path.relative(REPO_ROOT, prepared.artifacts.judgedDir),
       crops: cropArtifacts.cropDir ? {
@@ -286,7 +325,8 @@ async function main() {
   process.stdout.write(
     `verify-device: ${lane} captures from ${resolved.deviceLabel}\n` +
     laneNote +
-    `  content-inset: top ${contentInsetTop}px cropped before phash/panel; ` +
+    `  platform: ${platform}\n` +
+    `  content-inset: top ${contentInsets.top}px, bottom ${contentInsets.bottom}px cropped before phash/panel; ` +
     `raw ${path.relative(REPO_ROOT, prepared.artifacts.rawDir)}; ` +
     `judged ${path.relative(REPO_ROOT, prepared.artifacts.judgedDir)}\n` +
     (cropArtifacts.cropDir

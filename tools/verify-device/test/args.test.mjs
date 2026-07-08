@@ -19,8 +19,10 @@ describe('parseArgs', () => {
     expect(a.strict).toBe(false);
     expect(a.skipDevice).toBe(false);
     expect(a.lane).toBe('device'); // default lane stays device (never auto-browser)
+    expect(a.platform).toBe('auto'); // auto preserves existing iOS manifests unless configured
     expect(a.budgetFloor).toBe(5);
     expect(a.contentInsetTop).toBeUndefined(); // undefined -> manifest value, then 0
+    expect(a.contentInsetBottom).toBeUndefined();
   });
 
   it('parses --content-inset-top and rejects non-integer/negative values', () => {
@@ -30,6 +32,32 @@ describe('parseArgs', () => {
     expect(() => parseArgs(['--game', 'g', '--content-inset-top', '1.5'])).toThrow(/non-negative integer/);
     expect(() => parseArgs(['--game', 'g', '--content-inset-top', 'x'])).toThrow(/non-negative integer/);
     expect(() => parseArgs(['--game', 'g', '--content-inset-top'])).toThrow(/--content-inset-top needs a value/);
+  });
+
+  it('parses --content-inset-bottom and rejects non-integer/negative values', () => {
+    expect(parseArgs(['--game', 'g', '--content-inset-bottom', '96']).contentInsetBottom).toBe(96);
+    expect(parseArgs(['--game', 'g', '--content-inset-bottom', '0']).contentInsetBottom).toBe(0);
+    expect(() => parseArgs(['--game', 'g', '--content-inset-bottom', '-1'])).toThrow(/non-negative integer/);
+    expect(() => parseArgs(['--game', 'g', '--content-inset-bottom', '1.5'])).toThrow(/non-negative integer/);
+    expect(() => parseArgs(['--game', 'g', '--content-inset-bottom'])).toThrow(/--content-inset-bottom needs a value/);
+  });
+
+  it('parses Android platform/build flags', () => {
+    const a = parseArgs([
+      '--game', 'g',
+      '--platform', 'android',
+      '--device', '27091JEGR22183',
+      '--adb-prefix', 'ssh ubuntu-server adb',
+      '--android-sdk', '/home/batu/android-sdk',
+      '--android-activity', 'com.example/.MainActivity',
+    ]);
+    expect(a.platform).toBe('android');
+    expect(a.device).toBe('27091JEGR22183');
+    expect(a.adbPrefix).toBe('ssh ubuntu-server adb');
+    expect(a.androidSdk).toBe('/home/batu/android-sdk');
+    expect(a.androidActivity).toBe('com.example/.MainActivity');
+    expect(() => parseArgs(['--game', 'g', '--platform', 'linux'])).toThrow(/auto.*ios.*android/);
+    expect(() => parseArgs(['--game', 'g', '--platform'])).toThrow(/--platform needs a value/);
   });
 
   it('parses --lane and rejects anything but device/browser', () => {
@@ -75,12 +103,14 @@ describe('parseArgs', () => {
   it('parses all flags', () => {
     const a = parseArgs([
       '--game', 'marble_run', '--device', 'UDID-1', '--captures', 'cap/',
-      '--out', 'o/', '--date', '2026-07-06', '--content-inset-top', '10', '--threshold', '0.05',
+      '--out', 'o/', '--date', '2026-07-06', '--content-inset-top', '10',
+      '--content-inset-bottom', '20', '--threshold', '0.05',
       '--strict', '--skip-device',
     ]);
     expect(a).toMatchObject({
       game: 'marble_run', device: 'UDID-1', captures: 'cap/', out: 'o/',
-      date: '2026-07-06', contentInsetTop: 10, threshold: 0.05, strict: true, skipDevice: true,
+      date: '2026-07-06', contentInsetTop: 10, contentInsetBottom: 20,
+      threshold: 0.05, strict: true, skipDevice: true,
     });
   });
 

@@ -10,6 +10,8 @@
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import { buildAdbCommandParts } from './androidDriver.mjs';
+import { execCommandParts } from './command.mjs';
 
 export function formatCommand(file, args, { redact = [] } = {}) {
   const secrets = redact.filter((v) => typeof v === 'string' && v.length > 0);
@@ -67,6 +69,99 @@ export function buildHarnessBundle(gameDir) {
   const env = { ...process.env, VITE_ENABLE_TEST_HARNESS: 'true', VITE_INSITU_TOUR: 'allstates' };
   sh('npx', ['vite', 'build'], { cwd: gameDir, env });
   sh('npx', ['cap', 'sync', 'ios'], { cwd: gameDir, env });
+}
+
+export function resolveAndroidSdkRoot(androidSdk) {
+  return androidSdk || process.env.ANDROID_HOME || process.env.ANDROID_SDK_ROOT || '/home/batu/android-sdk';
+}
+
+export function androidBuildEnv(androidSdk) {
+  const sdk = resolveAndroidSdkRoot(androidSdk);
+  const bins = [
+    path.join(sdk, 'cmdline-tools', 'latest', 'bin'),
+    path.join(sdk, 'platform-tools'),
+  ];
+  return {
+    ...process.env,
+    ANDROID_HOME: sdk,
+    ANDROID_SDK_ROOT: sdk,
+    PATH: `${bins.join(path.delimiter)}${path.delimiter}${process.env.PATH || ''}`,
+    VITE_ENABLE_TEST_HARNESS: 'true',
+    VITE_INSITU_TOUR: 'allstates',
+  };
+}
+
+/**
+ * Android step 1: build the harness-enabled bundle, create android/ once, then
+ * sync web/native assets. The generated Capacitor project stays ignored.
+ */
+export function buildAndroidHarnessBundle(gameDir, { androidSdk, shImpl = sh } = {}) {
+  const env = androidBuildEnv(androidSdk);
+  shImpl('npx', ['vite', 'build'], { cwd: gameDir, env });
+  if (!fs.existsSync(path.join(gameDir, 'android'))) {
+    shImpl('npx', ['cap', 'add', 'android'], { cwd: gameDir, env });
+  }
+  shImpl('npx', ['cap', 'sync', 'android'], { cwd: gameDir, env });
+}
+
+export function androidDebugApkPath(gameDir) {
+  return path.join(gameDir, 'android', 'app', 'build', 'outputs', 'apk', 'debug', 'app-debug.apk');
+}
+
+/** Android step 2: assemble a debug APK via the generated Gradle wrapper. */
+export function assembleAndroidDebug(gameDir, { androidSdk, shImpl = sh } = {}) {
+  const androidDir = path.join(gameDir, 'android');
+  if (!fs.existsSync(androidDir)) {
+    throw new Error(`no Capacitor Android project at ${androidDir} — run 'npx cap add android' first`);
+  }
+  shImpl('./gradlew', ['--no-daemon', 'assembleDebug'], {
+    cwd: androidDir,
+    env: androidBuildEnv(androidSdk),
+  });
+  return androidDebugApkPath(gameDir);
+}
+
+/** Android step 3: install the debug APK with a configurable adb command prefix. */
+export function installAndroidDebugApk({
+  gameDir,
+  serial,
+  adbPrefix = process.env.VERIFY_DEVICE_ADB_PREFIX || 'adb',
+  shImpl = execCommandParts,
+} = {}) {
+  const apk = androidDebugApkPath(gameDir);
+  if (!fs.existsSync(apk)) {
+    throw new Error(`debug APK not found: ${apk}`);
+  }
+  shImpl(buildAdbCommandParts({
+    adbPrefix,
+    serial,
+    adbArgs: ['install', '-r', apk],
+  }));
+  return apk;
+}
+
+export function launchAndroidApp({
+  appId,
+  activity = `${appId}/.MainActivity`,
+  serial,
+  adbPrefix = process.env.VERIFY_DEVICE_ADB_PREFIX || 'adb',
+  shImpl = execCommandParts,
+} = {}) {
+  try {
+    shImpl(buildAdbCommandParts({
+      adbPrefix,
+      serial,
+      adbArgs: ['shell', 'am', 'force-stop', appId],
+    }));
+  } catch (err) {
+    process.stderr.write(`  adb force-stop failed (continuing): ${err.message}\n`);
+  }
+  shImpl(buildAdbCommandParts({
+    adbPrefix,
+    serial,
+    adbArgs: ['shell', 'am', 'start', '-W', '-n', activity],
+  }));
+  return activity;
 }
 
 /**

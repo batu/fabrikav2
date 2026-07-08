@@ -1,6 +1,6 @@
 # verify-device
 
-**ONE command** to capture the real iOS device and diff it against the committed
+**ONE command** to capture the real device and diff it against the committed
 reference set. The forcing function for **AGENTS.md #8**: on-device verification
 was OPTIONAL + MULTI-STEP, so it got skipped for a proxy. This makes the correct
 check the path of least resistance.
@@ -12,19 +12,20 @@ npm run verify-device -- --game marble_run
 ## What it does (in order)
 
 1. **Build the harness bundle with the allstates tour** —
-   `VITE_ENABLE_TEST_HARNESS=true VITE_INSITU_TOUR=allstates vite build` + `npx cap
-   sync ios`. The `allstates` tour (`games/<g>/src/testing/insituTour.ts`) drives
+   `VITE_ENABLE_TEST_HARNESS=true VITE_INSITU_TOUR=allstates vite build` + Capacitor
+   sync for the selected device platform. The `allstates` tour
+   (`games/<g>/src/testing/insituTour.ts`) drives
    menu→level→settings→pause→win→fail, each state CONFIRMED via `snapshot().scene`
    before a 6s dwell.
-2. **Build + install on the device** — `xcodebuild` the Capacitor app + `devicectl
-   install`. Keychain unlocked from `MAC_PASSWORD` (env, or a sibling `.env`). The
-   device serial is **read from `xcrun devicectl list devices`** (or `--device`) —
-   never hardcoded.
-3. **Run the committed XCUITest runner** (`runner/`) — launches the installed app
-   by bundle id, waits for each `tourstate:<state>` accessibility marker, captures
-   the PNGs from the `.xcresult`, and still exports attachments when XCTest fails.
+2. **Build + install on the device** — iOS uses `xcodebuild` + `devicectl install`.
+   Android uses generated Capacitor `android/`, `./gradlew assembleDebug`, then
+   `adb install -r` via the configured adb command prefix.
+3. **Run the platform capture driver** — iOS runs the committed XCUITest runner
+   (`runner/`). Android polls `adb shell uiautomator dump` for exact
+   `tourstate:<state>` markers, captures PNGs with `adb exec-out screencap -p`,
+   and waits for exact `tourstate:<state>-DONE` retire markers before advancing.
 4. **Prepare judged captures** — copy raw device PNGs to `raw-captures/`, then
-   crop the configured top content inset into `judged-captures/` before phash +
+   crop the configured content inset into `judged-captures/` before phash +
    panel judging. Raw is the integrity/evidence artifact; judged is the artifact
    sent to diff/panel.
 5. **Diff judged device captures vs the committed reference set** (`games/<g>/refs/`,
@@ -48,15 +49,62 @@ Device/keychain/Mac-only steps are gated. With no connected device (or
 so CI degrades instead of failing — and says plainly that on-device rendering
 stays **UNVERIFIED**.
 
+## Android lane (`--platform android`)
+
+Android keeps the evidence lane stamped `lane=device`; `platform=android` is the
+device backend. Select it explicitly with `--platform android`, or set
+`verifyDevice.platform: android` in `games/<game>/refs/manifest.yaml` and leave
+the CLI on `--platform auto`.
+
+Ubuntu Pixel 6a build-host recipe:
+
+```sh
+rsync -az --delete \
+  --exclude '.git/' \
+  --exclude 'node_modules/' \
+  --exclude 'dist/' \
+  --exclude '.env' \
+  --exclude '.env.*' \
+  --exclude '.work/' \
+  --exclude 'docs/evidence/' \
+  --exclude 'games/*/.work/' \
+  --exclude 'games/*/test-results/' \
+  --exclude 'games/*/ios/' \
+  --exclude 'games/*/android/' \
+  ./ ubuntu-server:/home/batu/Desktop/utolye/fabrikav2/
+
+ssh ubuntu-server '
+set -euo pipefail
+export ANDROID_HOME=/home/batu/android-sdk
+export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$HOME/.nvm/versions/node/v25.0.0/bin:$PATH
+cd /home/batu/Desktop/utolye/fabrikav2
+npm ci
+node tools/verify-device/cli.mjs \
+  --game <game> \
+  --platform android \
+  --device 27091JEGR22183 \
+  --android-sdk /home/batu/android-sdk \
+  --content-inset-top <pixel-6a-statusbar-px> \
+  --content-inset-bottom <pixel-6a-navbar-px>
+'
+```
+
+When only adb is remote, pass `--adb-prefix 'ssh ubuntu-server adb'`; the driver
+runs commands such as `ssh ubuntu-server adb -s 27091JEGR22183 exec-out screencap
+-p`. The generated `games/<game>/android/` directory remains an ignored build
+artifact; the first live build/capture is conductor-run on the device host.
+
 ## Non-device paths (what CI + unit tests exercise)
 
 - `--captures <dir>` — diff pre-extracted shots (`<state>.png`) with no build.
   This lane is stamped `provided-captures` and `DEVICE-PROVENANCE-UNVERIFIED`;
   it is excluded from strict device-pass semantics.
 - `--xcresult <path>` — extract + diff from an existing `.xcresult` (no build/run).
-- `--content-inset-top <px>` — crop this many physical pixels from the top of
-  device captures before phash + panel. Overrides `verifyDevice.contentInsetTop`
-  in the game manifest; default is manifest value, otherwise `0`.
+- `--content-inset-top <px>` / `--content-inset-bottom <px>` — crop physical
+  pixels from the top/bottom of device captures before phash + panel. Overrides
+  `verifyDevice.contentInsetTop` / `verifyDevice.contentInsetBottom`; platform
+  keys `iosContentInsetTop`, `androidContentInsetTop`, `iosContentInsetBottom`,
+  and `androidContentInsetBottom` are also supported.
 
 ## Browser-fallback lane (`--lane browser`)
 
@@ -80,6 +128,8 @@ runner must remember for normal evidence. Regions live under `verifyDevice`:
 ```yaml
 verifyDevice:
   contentInsetTop: 130
+  androidContentInsetTop: 72
+  androidContentInsetBottom: 96
   regions:
     - name: result_ribbon
       label: Result screen headline ribbon
@@ -96,8 +146,8 @@ verifyDevice:
 
 `coords: normalized` means `x`, `y`, `width`, and `height` are 0..1 fractions
 of the source image. Device/current crops are cut from `judged-captures/`, after
-the configured top content inset has already been applied. Reference crops are
-cut from committed refs only when that reference is available and trusted;
+the configured content inset has already been applied. Reference crops are cut
+from committed refs only when that reference is available and trusted;
 documented gaps and `at-rest:false` entries become skipped inventory rows. When
 both sides exist, `verify-device` also writes a region-level diff crop using the
 same perceptual diff semantics as the full-state grid.
@@ -138,9 +188,11 @@ gracefully (exit 0) and on-device fidelity stays **UNVERIFIED**.
 
 ## Flags
 
-`--game <name>` (required) · `--device <udid>` · `--captures <dir>` ·
+`--game <name>` (required) · `--platform <auto|ios|android>` ·
+`--device <udid-or-adb-serial>` · `--adb-prefix <cmd>` ·
+`--android-sdk <path>` · `--android-activity <component>` · `--captures <dir>` ·
 `--xcresult <path>` · `--out <dir>` · `--date <YYYY-MM-DD>` ·
-`--content-inset-top <px>` ·
+`--content-inset-top <px>` · `--content-inset-bottom <px>` ·
 `--threshold <0..1>` (default 0.20) · `--ensemble <name>` (default `default`;
 `kitchen-sink` for the full roster) · `--models <a,b,c>` (overrides the ensemble) ·
 `--panel-threshold <0..100>` (default 85) · `--skip-panel` · `--strict` (FAIL or
@@ -164,5 +216,8 @@ npm run lint --workspace=tools/verify-device
 node tools/verify-device/cli.mjs --game marble_run --captures <dir-of-state-pngs>
 ```
 
-The **device path is conductor-run** on the Mac+device — the worker builds and
-unit-tests the non-device glue only.
+The **device path is conductor-run** on the Mac/iPhone or ubuntu-server/Pixel —
+the worker builds and unit-tests the non-device glue only. Android's first live
+run is conductor-run on `ubuntu-server` + Pixel; worker verification covers the
+parser, driver command construction, build step orchestration, and
+provided-capture grid path.

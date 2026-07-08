@@ -14,8 +14,21 @@ the committed reference set into a device|reference|diff grid + PASS/FAIL verdic
 
 Options:
   --game <name>        required. games/<name>/refs/manifest.yaml must exist.
+  --platform <auto|ios|android>
+                       device platform for --lane device (default: auto).
+                       auto reads verifyDevice.platform from the manifest, then
+                       falls back to ios for existing manifests.
   --device <udid>      target device (default: auto-detect the single connected
-                       device via 'xcrun devicectl list devices'). Never hardcoded.
+                       iOS device via 'xcrun devicectl list devices', or Android
+                       adb serial when --platform android). Never hardcoded.
+  --adb-prefix <cmd>   Android only: command prefix used for adb (default:
+                       VERIFY_DEVICE_ADB_PREFIX, else adb). Example:
+                       'ssh ubuntu-server adb'.
+  --android-sdk <path> Android only: SDK root for cap/gradle env (default:
+                       ANDROID_HOME, ANDROID_SDK_ROOT, else /home/batu/android-sdk).
+  --android-activity <component>
+                       Android only: launch component (default:
+                       <appId>/.MainActivity).
   --captures <dir>     skip the device build/capture; diff PNGs (named
                        <state>.png) already in <dir>. Stamped
                        provided-captures + DEVICE-PROVENANCE-UNVERIFIED and
@@ -29,6 +42,11 @@ Options:
                        games/<game>/refs/manifest.yaml verifyDevice.contentInsetTop.
                        Default: manifest value, else 0. Raw captures are still
                        preserved in the evidence dir.
+  --content-inset-bottom <px>
+                       crop this many physical pixels from the BOTTOM of device
+                       captures before phash + panel judging. Overrides
+                       games/<game>/refs/manifest.yaml verifyDevice.contentInsetBottom.
+                       Useful for Android navigation bars on Pixel captures.
   --threshold <0..1>   phash diff changed-fraction above which a state is a FAIL
                        (default 0.20, advisory). Secondary signal — the vision
                        panel is the primary verdict.
@@ -75,13 +93,16 @@ the panel skips gracefully (exit 0) and on-device fidelity stays UNVERIFIED.
 
 /**
  * @param {string[]} argv process.argv.slice(2)
- * @returns {{game?:string, device?:string, captures?:string, xcresult?:string,
- *   out?:string, date?:string, contentInsetTop?:number, threshold:number, ensemble:string, models?:string[],
+ * @returns {{game?:string, platform:'auto'|'ios'|'android', device?:string, adbPrefix?:string,
+ *   androidSdk?:string, androidActivity?:string, captures?:string, xcresult?:string,
+ *   out?:string, date?:string, contentInsetTop?:number, contentInsetBottom?:number,
+ *   threshold:number, ensemble:string, models?:string[],
  *   panelThreshold:number, skipPanel:boolean, strict:boolean,
  *   skipDevice:boolean, lane:'device'|'browser', budgetFloor:number, compare?:string, help:boolean}}
  */
 export function parseArgs(argv) {
   const args = {
+    platform: 'auto',
     threshold: 0.2,
     ensemble: 'default',
     panelThreshold: 85,
@@ -95,12 +116,17 @@ export function parseArgs(argv) {
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a === '--game') args.game = req(argv, ++i, a);
+    else if (a === '--platform') args.platform = parsePlatform(req(argv, ++i, a));
     else if (a === '--device') args.device = req(argv, ++i, a);
+    else if (a === '--adb-prefix') args.adbPrefix = req(argv, ++i, a);
+    else if (a === '--android-sdk') args.androidSdk = req(argv, ++i, a);
+    else if (a === '--android-activity') args.androidActivity = req(argv, ++i, a);
     else if (a === '--captures') args.captures = req(argv, ++i, a);
     else if (a === '--xcresult') args.xcresult = req(argv, ++i, a);
     else if (a === '--out') args.out = req(argv, ++i, a);
     else if (a === '--date') args.date = req(argv, ++i, a);
     else if (a === '--content-inset-top') args.contentInsetTop = parseContentInsetTop(req(argv, ++i, a));
+    else if (a === '--content-inset-bottom') args.contentInsetBottom = parseContentInsetTop(req(argv, ++i, a), '--content-inset-bottom');
     else if (a === '--threshold') args.threshold = parseThreshold(req(argv, ++i, a));
     else if (a === '--ensemble') args.ensemble = req(argv, ++i, a);
     else if (a === '--models') args.models = parseModels(req(argv, ++i, a));
@@ -118,6 +144,13 @@ export function parseArgs(argv) {
   return args;
 }
 
+function parsePlatform(v) {
+  if (v !== 'auto' && v !== 'ios' && v !== 'android') {
+    throw new Error(`--platform must be "auto", "ios", or "android", got: ${v}`);
+  }
+  return v;
+}
+
 function parseLane(v) {
   if (v !== 'device' && v !== 'browser') {
     throw new Error(`--lane must be "device" or "browser", got: ${v}`);
@@ -133,10 +166,10 @@ function parseBudgetFloor(v) {
   return n;
 }
 
-function parseContentInsetTop(v) {
+function parseContentInsetTop(v, flag = '--content-inset-top') {
   const n = Number(v);
   if (!Number.isInteger(n) || n < 0) {
-    throw new Error(`--content-inset-top must be a non-negative integer pixel value, got: ${v}`);
+    throw new Error(`${flag} must be a non-negative integer pixel value, got: ${v}`);
   }
   return n;
 }
