@@ -13,6 +13,7 @@ import { animateHintsToBalance } from './EconomyTransfer';
 import { getLegalLinks, type LegalLinks } from '../platform/LegalLinks';
 import { privacyConsentService } from '../privacy/PrivacyConsentService';
 import { rewardedAdIconMarkup } from './RewardedAdIcon';
+import { hideHomeMenuLayer } from './OverlayVisibility';
 
 let hintCallback: (() => void) | null = null;
 
@@ -94,6 +95,7 @@ export function initHUD(): void {
   const overlay = document.getElementById('hud-overlay');
   if (!overlay) return;
 
+  hideHomeMenuLayer(overlay);
   overlay.innerHTML = `
     <div class="hud-top-bar">
       <div class="hud-left">

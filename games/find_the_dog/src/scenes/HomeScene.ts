@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { gameState } from '../core/GameState';
 import { getLevelIndex, loadLevel, loadLevelForProgression, type LevelData, type LevelIndexEntry } from '../data/levels';
 import { initHUD, openPage, setHomeCallback } from '../ui/HUD';
+import { hideHomeMenuLayer, showHomeMenuLayer } from '../ui/OverlayVisibility';
 import { hideSceneTransitionCoverAfterPaint, showSceneTransitionCover } from '../ui/SceneTransitionCover';
 import { adService } from '../ads/Service';
 import { hapticWrong } from '../haptics/HapticsManager';
@@ -131,7 +132,7 @@ export class HomeScene extends Phaser.Scene {
       this.clearBannerVideoReplay();
       this.unregisterLifecycleHooks?.();
       this.unregisterLifecycleHooks = null;
-      overlay.classList.remove('home-mode');
+      hideHomeMenuLayer(overlay);
       if (overlay.querySelector('#home-shell')) overlay.innerHTML = '';
       this.overlay = null;
     });
@@ -171,7 +172,7 @@ export class HomeScene extends Phaser.Scene {
     this.navigationGeneration += 1;
     this.clearBannerVideoReplay();
     overlay.innerHTML = this.renderHome();
-    overlay.classList.add('home-mode');
+    showHomeMenuLayer(overlay);
     this.startBannerVideoReplay();
 
     overlay.querySelector<HTMLButtonElement>('#home-nav-settings')?.addEventListener('click', (e) => {
@@ -256,7 +257,7 @@ export class HomeScene extends Phaser.Scene {
     this.cancelScheduledHomeAmbient();
     this.clearBannerVideoReplay();
     if (overlay) {
-      overlay.classList.remove('home-mode');
+      hideHomeMenuLayer(overlay);
       overlay.innerHTML = '';
     }
     initHUD();
