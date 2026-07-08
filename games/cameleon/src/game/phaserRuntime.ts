@@ -37,12 +37,14 @@ export async function mountCameleonPhaser(options: CameleonPhaserOptions): Promi
     scene,
   });
 
-  options.controller.setViewport(size);
+  options.controller.setViewport(worldViewport(size, level));
   const onResize = (): void => {
     const next = canvasSize(options.canvas);
     game.scale.resize(next.width, next.height);
-    options.controller.setViewport(next);
-    game.scene.getScene("lido").cameras.main.setBounds(0, 0, level.world.width, level.world.height);
+    options.controller.setViewport(worldViewport(next, level));
+    const camera = game.scene.getScene("lido").cameras.main;
+    camera.setBounds(0, 0, level.world.width, level.world.height);
+    camera.setZoom(next.height / level.world.height);
   };
   window.addEventListener("resize", onResize);
 
@@ -52,6 +54,16 @@ export async function mountCameleonPhaser(options: CameleonPhaserOptions): Promi
       game.destroy(true);
     },
   };
+}
+
+function worldViewport(size: { width: number; height: number }, level: CameleonLevelDefinition): { width: number; height: number } {
+  const zoom = size.height / level.world.height;
+  return { width: size.width / zoom, height: level.world.height };
+}
+
+function worldPointFor(camera: Phaser.Cameras.Scene2D.Camera, pointer: Phaser.Input.Pointer): { x: number; y: number } {
+  const point = camera.getWorldPoint(pointer.x, pointer.y);
+  return { x: point.x, y: point.y };
 }
 
 async function importPhaser(): Promise<PhaserStatic> {
@@ -84,6 +96,9 @@ function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonC
     create(): void {
       const level = controller.level;
       this.cameras.main.setBounds(0, 0, level.world.width, level.world.height);
+      // Fit the full 1440px world height into the canvas; the camera shows
+      // ~height/zoom world px, so scroll/pointer math converts via zoom.
+      this.cameras.main.setZoom(this.scale.height / level.world.height);
       this.cameras.main.setRoundPixels(true);
       this.addZonePanels(level, controller.snapshot().dir);
       this.addVisualOverlays(level);
@@ -160,7 +175,7 @@ function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonC
           this.flingVelocity = 0;
           this.drag = null;
           this.confirmPointer = pointer;
-          controller.aimAtWorld({ x: snapshot.scrollX + pointer.x, y: pointer.y });
+          controller.aimAtWorld(worldPointFor(this.cameras.main, pointer));
           return;
         }
         this.flingVelocity = 0;
@@ -176,13 +191,12 @@ function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonC
 
       this.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
         if (this.confirmPointer === pointer && pointer.isDown) {
-          const snapshot = controller.snapshot();
-          controller.aimAtWorld({ x: snapshot.scrollX + pointer.x, y: pointer.y });
+          controller.aimAtWorld(worldPointFor(this.cameras.main, pointer));
           return;
         }
         if (!this.drag || !pointer.isDown) return;
-        const dx = pointer.x - this.drag.startX;
-        if (Math.abs(dx) > 6) this.drag.moved = true;
+        const dx = (pointer.x - this.drag.startX) / this.cameras.main.zoom;
+        if (Math.abs(pointer.x - this.drag.startX) > 6) this.drag.moved = true;
         controller.scrollTo(this.drag.startScroll - dx);
         const dt = Math.max(1, pointer.event.timeStamp - this.drag.lastTime);
         this.drag.velocity = ((pointer.x - this.drag.lastX) / dt) * 1000;
@@ -192,8 +206,7 @@ function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonC
 
       this.input.on("pointerup", (pointer: Phaser.Input.Pointer) => {
         if (this.confirmPointer === pointer) {
-          const snapshot = controller.snapshot();
-          controller.aimAtWorld({ x: snapshot.scrollX + pointer.x, y: pointer.y });
+          controller.aimAtWorld(worldPointFor(this.cameras.main, pointer));
           this.confirmPointer = null;
           return;
         }
@@ -204,12 +217,15 @@ function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonC
           controller.tapWorld({ x: pointer.worldX, y: pointer.worldY });
           return;
         }
-        this.flingVelocity = drag.velocity;
+        this.flingVelocity = drag.velocity / this.cameras.main.zoom;
       });
     }
 
     private renderSnapshot(snapshot: CameleonSnapshot): void {
-      this.cameras.main.scrollX = snapshot.scrollX;
+      const cam = this.cameras.main;
+      // worldView.x = scrollX + width/2 - displayWidth/2; pin left edge to
+      // the controller's world-space scrollX.
+      cam.scrollX = snapshot.scrollX - cam.width / 2 + cam.width / (2 * cam.zoom);
       this.renderPanels(controller.level, snapshot.dir);
       if (snapshot.foundCount === 0) this.collectedHideIds.clear();
       for (const view of snapshot.hides) {
@@ -239,7 +255,7 @@ function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonC
       this.feedbackText?.destroy();
       const label = labelForFeedback(snapshot, feedback.kind);
       const color = feedback.kind === "hit" ? "#d8342f" : "#5f6875";
-      const point = clampFeedbackPoint(this.cameras.main.scrollX, snapshot.viewport.width, feedback.point);
+      const point = clampFeedbackPoint(snapshot.scrollX, snapshot.viewport.width, feedback.point);
       if (feedback.kind === "hit" && feedback.id) {
         this.playFoundBeat(snapshot, feedback.id, feedback.point, label);
         return;
@@ -318,8 +334,9 @@ function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonC
         .setAngle(0);
 
       this.cameras.main.shake(80, 0.004);
-      this.cameras.main.zoomTo(1.018, 80);
-      this.time.delayedCall(90, () => this.cameras.main.zoomTo(1, 120));
+      const baseZoom = this.scale.height / controller.level.world.height;
+      this.cameras.main.zoomTo(baseZoom * 1.018, 80);
+      this.time.delayedCall(90, () => this.cameras.main.zoomTo(baseZoom, 120));
       this.playVignettePulse();
       this.playFoundStamp(snapshot, point, label);
       this.playPaintPeel(snapshot, point);
