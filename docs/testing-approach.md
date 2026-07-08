@@ -67,9 +67,13 @@ In order:
 2. Build the harness bundle with the `allstates` insitu tour
    (`VITE_ENABLE_TEST_HARNESS=true VITE_INSITU_TOUR=allstates vite build`,
    `games/<g>/src/testing/insituTour.ts`) + `npx cap sync ios`
-   (`tools/verify-device/src/steps.mjs`).
+   (`tools/verify-device/src/steps.mjs`). After local `cap sync`, the tool
+   reapplies committed native recipe files from `games/<g>/native-resources/`
+   into the generated shell.
 3. Build + `devicectl install` on a real connected iPhone (serial read from
-   `xcrun devicectl list devices`, never hardcoded).
+   `xcrun devicectl list devices`, never hardcoded). iOS signing comes from the
+   `DEVELOPMENT_TEAM` environment variable plus `xcodebuild
+   -allowProvisioningUpdates`, not a committed team id.
 4. Run the committed XCUITest runner
    (`tools/verify-device/runner/VerifyDeviceRunner/InsituTourTests.swift`):
    launch the installed app by bundle id, **wait for an accessibility element**
@@ -135,6 +139,9 @@ build/install can proceed.
   inputs. Run `npx cap add ios` before the first layer-3 device install so
   `ios/App/App.xcodeproj` exists (`games/_template/native-resources/README.md`,
   `games/_template/capacitor.config.ts`, `tools/verify-device/src/steps.mjs`).
+  The template recipe pins the full-bleed iOS shell with
+  `ios.contentInset: "never"` and `viewport-fit=cover`; app markup must consume
+  `env(safe-area-inset-*)` values for visible chrome.
 
 ### The required-harness contract's role
 

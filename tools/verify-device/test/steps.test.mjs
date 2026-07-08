@@ -6,8 +6,10 @@ import {
   androidBuildEnv,
   buildAndroidBuildCommandParts,
   androidDebugApkPath,
+  applyNativeRecipe,
   assembleAndroidDebug,
   buildAndInstallApp,
+  buildHarnessBundle,
   buildAndroidHarnessBundle,
   formatCommand,
   installAndroidDebugApk,
@@ -85,6 +87,54 @@ describe('buildAndInstallApp', () => {
     } finally {
       fs.rmSync(gameDir, { recursive: true, force: true });
       restoreDevelopmentTeam(originalDevelopmentTeam);
+    }
+  });
+});
+
+describe('native resource recipe application', () => {
+  it('copies iOS recipe inputs into the generated Capacitor App target', () => {
+    const gameDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vd-recipe-game-'));
+    const source = path.join(gameDir, 'native-resources', 'ios', 'App');
+    fs.mkdirSync(path.join(source, 'Config'), { recursive: true });
+    fs.writeFileSync(path.join(source, 'Info.plist'), '<plist />');
+    fs.writeFileSync(path.join(source, 'Config', 'Signing.xcconfig'), 'CODE_SIGN_STYLE = Automatic\n');
+
+    try {
+      const applied = applyNativeRecipe(gameDir, 'ios');
+
+      expect(applied).toEqual(['Config/Signing.xcconfig', 'Info.plist']);
+      expect(fs.readFileSync(path.join(gameDir, 'ios', 'App', 'App', 'Info.plist'), 'utf8')).toBe('<plist />');
+      expect(
+        fs.readFileSync(path.join(gameDir, 'ios', 'App', 'App', 'Config', 'Signing.xcconfig'), 'utf8'),
+      ).toContain('CODE_SIGN_STYLE');
+    } finally {
+      fs.rmSync(gameDir, { recursive: true, force: true });
+    }
+  });
+
+  it('applies the iOS recipe after cap sync during the harness build', () => {
+    const gameDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vd-ios-game-'));
+    fs.mkdirSync(path.join(gameDir, 'native-resources', 'ios', 'App'), { recursive: true });
+    fs.writeFileSync(path.join(gameDir, 'native-resources', 'ios', 'App', 'Info.plist'), '<plist />');
+    const calls = [];
+
+    try {
+      buildHarnessBundle(gameDir, {
+        shImpl: (file, args, opts = {}) => {
+          calls.push({ file, args, opts });
+          return '';
+        },
+      });
+
+      expect(calls.map((c) => `${c.file} ${c.args.join(' ')}`)).toEqual([
+        'npx vite build',
+        'npx cap sync ios',
+      ]);
+      expect(fs.readFileSync(path.join(gameDir, 'ios', 'App', 'App', 'Info.plist'), 'utf8')).toBe('<plist />');
+      expect(calls[0].opts.env.VITE_ENABLE_TEST_HARNESS).toBe('true');
+      expect(calls[0].opts.env.VITE_INSITU_TOUR).toBe('allstates');
+    } finally {
+      fs.rmSync(gameDir, { recursive: true, force: true });
     }
   });
 });
@@ -197,6 +247,9 @@ describe('Android build/install steps', () => {
 
   it('builds the Android harness bundle and runs cap add only when android/ is absent', () => {
     const gameDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vd-android-game-'));
+    const recipeValues = path.join(gameDir, 'native-resources', 'android', 'app', 'src', 'main', 'res', 'values');
+    fs.mkdirSync(recipeValues, { recursive: true });
+    fs.writeFileSync(path.join(recipeValues, 'strings.xml'), '<resources />');
     const calls = [];
     const shImpl = (file, args, opts = {}) => {
       calls.push({ file, args, opts });
@@ -220,6 +273,9 @@ describe('Android build/install steps', () => {
     expect(calls[0].opts.env.VITE_INSITU_TOUR).toBe('allstates');
     expect(calls[0].opts.env.ANDROID_HOME).toBe('/home/batu/android-sdk');
     expect(calls[0].opts.env.PATH).toContain('/home/batu/android-sdk/platform-tools');
+    expect(
+      fs.readFileSync(path.join(gameDir, 'android', 'app', 'src', 'main', 'res', 'values', 'strings.xml'), 'utf8'),
+    ).toBe('<resources />');
 
     fs.rmSync(gameDir, { recursive: true, force: true });
   });

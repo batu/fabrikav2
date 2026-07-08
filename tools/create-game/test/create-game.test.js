@@ -12,6 +12,8 @@ function writeTemplate(root) {
   mkdirSync(join(tpl, 'design'), { recursive: true });
   mkdirSync(join(tpl, 'docs'), { recursive: true });
   mkdirSync(join(tpl, 'refs'), { recursive: true });
+  mkdirSync(join(tpl, 'native-resources', 'ios', 'App'), { recursive: true });
+  mkdirSync(join(tpl, 'native-resources', 'android', 'app', 'src', 'main', 'res', 'values'), { recursive: true });
   mkdirSync(join(tpl, '.work'), { recursive: true });
   mkdirSync(join(tpl, 'node_modules', 'junk'), { recursive: true });
 
@@ -39,7 +41,18 @@ function writeTemplate(root) {
   writeFileSync(join(tpl, 'game.config.ts'), 'export const gameConfig = {\n  id: "template",\n  title: "game.title" satisfies CopyKey,\n} as const;\n');
   writeFileSync(join(tpl, 'design', 'copy.ts'), 'export const copy = {\n  "game.title": "Template Game",\n} as const;\n');
   writeFileSync(join(tpl, 'index.html'), '<title>Template Game</title>\n');
-  writeFileSync(join(tpl, 'capacitor.config.ts'), 'const config = {\n  appId: "com.fabrika.template",\n  appName: "Template Game",\n};\n');
+  writeFileSync(
+    join(tpl, 'capacitor.config.ts'),
+    'const config = {\n  appId: "com.fabrika.template",\n  appName: "Template Game",\n  ios: {\n    contentInset: "never",\n  },\n};\n',
+  );
+  writeFileSync(
+    join(tpl, 'native-resources', 'ios', 'App', 'Info.plist'),
+    '<key>CFBundleDisplayName</key>\n<string>Template Game</string>\n',
+  );
+  writeFileSync(
+    join(tpl, 'native-resources', 'android', 'app', 'src', 'main', 'res', 'values', 'strings.xml'),
+    '<resources><string name="app_name">Template Game</string><string name="package_name">com.fabrika.template</string></resources>\n',
+  );
   writeFileSync(join(tpl, 'refs', 'manifest.yaml'), 'game: template\nv2:\n  package: com.fabrikav2.template\n');
   writeFileSync(join(tpl, 'README.md'), '# Template Game\n\nSkeleton.\n');
   writeFileSync(
@@ -116,12 +129,27 @@ describe('createGame', () => {
     const cap = readFileSync(join(targetDir, 'capacitor.config.ts'), 'utf8');
     expect(cap).toContain('appId: "com.fabrika.mygame"');
     expect(cap).toContain('appName: "My Game"');
+    expect(cap).toContain('contentInset: "never"');
+
+    const iosPlist = readFileSync(join(targetDir, 'native-resources', 'ios', 'App', 'Info.plist'), 'utf8');
+    expect(iosPlist).toContain('<string>My Game</string>');
+    expect(iosPlist).not.toContain('Template Game');
+
+    const androidStrings = readFileSync(
+      join(targetDir, 'native-resources', 'android', 'app', 'src', 'main', 'res', 'values', 'strings.xml'),
+      'utf8',
+    );
+    expect(androidStrings).toContain('My Game');
+    expect(androidStrings).toContain('com.fabrika.mygame');
+    expect(androidStrings).not.toContain('Template Game');
 
     const readme = readFileSync(join(targetDir, 'README.md'), 'utf8');
     expect(readme).toContain('# My Game');
     expect(readme).toContain('`my_game`');
     expect(readme).toContain('@fabrikav2/ui');
     expect(readme).toContain('@fabrikav2/sdk');
+    expect(readme).toContain('native-resources/');
+    expect(readme).toContain('DEVELOPMENT_TEAM=<team id>');
     expect(readme).not.toContain('Template Game');
     expect(readme).not.toContain('Canonical v2 game skeleton');
 

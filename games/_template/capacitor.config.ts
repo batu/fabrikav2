@@ -7,6 +7,11 @@ const config = {
   appId: "com.fabrika.template",
   appName: "Template Game",
   webDir: "dist",
+  ios: {
+    // Keep the WKWebView full-bleed. The app layer owns safe-area consumption
+    // through viewport-fit=cover plus CSS env(safe-area-inset-*) padding.
+    contentInset: "never",
+  },
 };
 
 export default config;
