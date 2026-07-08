@@ -1,4 +1,4 @@
-import { FlowStates } from "@fabrikav2/kernel";
+import { createFlowMachine, FlowStates, FlowTransitions, type FlowMachine } from "@fabrikav2/kernel";
 import {
   createAnalytics,
   createRingBufferSink,
@@ -90,6 +90,7 @@ export interface CameleonSnapshot {
 export interface CameleonControllerOptions {
   readonly level: CameleonLevelDefinition;
   readonly query?: Partial<CameleonQueryParams>;
+  readonly flowMachine?: FlowMachine;
   readonly env?: AnalyticsEnvironment;
   readonly sessionId?: string;
   readonly analyticsSink?: RingBufferSink;
@@ -144,6 +145,7 @@ class CameleonStateController implements CameleonController {
   private feedbackSequence = 0;
   private tourState: CameleonTourState = "menu";
   private readonly listeners = new Set<() => void>();
+  private readonly flowMachine: FlowMachine;
   private readonly sink: RingBufferSink;
   private readonly analytics: Analytics<CameleonEvent>;
 
@@ -154,6 +156,8 @@ class CameleonStateController implements CameleonController {
     this.direction = query.dir;
     this.bodyMode = query.bodies;
     this.hideState = createHideStateMap(this.level);
+    this.flowMachine = options.flowMachine ?? createFlowMachine({ optionalStates: [FlowStates.Paused] });
+    this.enterMenuFlow();
     this.sink = options.analyticsSink ?? createRingBufferSink();
     this.analytics = createAnalytics<CameleonEvent>({
       env: options.env ?? "development",
@@ -166,7 +170,7 @@ class CameleonStateController implements CameleonController {
   }
 
   gotoMenu(): void {
-    this.scene = FlowStates.Menu;
+    this.enterMenuFlow({ source: "goto-menu" });
     this.status = "idle";
     this.inputReady = true;
     this.settingsOpen = false;
@@ -176,7 +180,7 @@ class CameleonStateController implements CameleonController {
   }
 
   startLevel(_id = 1): void {
-    this.scene = FlowStates.Playing;
+    this.startFlow();
     this.status = "playing";
     this.inputReady = true;
     this.settingsOpen = false;
@@ -192,7 +196,7 @@ class CameleonStateController implements CameleonController {
   }
 
   openSettings(): void {
-    this.scene = FlowStates.Menu;
+    this.enterMenuFlow({ source: "settings" });
     this.status = "idle";
     this.inputReady = true;
     this.settingsOpen = true;
@@ -202,7 +206,9 @@ class CameleonStateController implements CameleonController {
 
   pause(): void {
     if (this.scene !== FlowStates.Playing) return;
-    this.scene = FlowStates.Paused;
+    if (!this.flowMachine.can(FlowTransitions.Pause)) return;
+    this.flowMachine.pause();
+    this.syncSceneFromFlow();
     this.status = "paused";
     this.inputReady = false;
     this.notify();
@@ -210,7 +216,9 @@ class CameleonStateController implements CameleonController {
 
   resume(): void {
     if (this.scene !== FlowStates.Paused) return;
-    this.scene = FlowStates.Playing;
+    if (!this.flowMachine.can(FlowTransitions.Resume)) return;
+    this.flowMachine.resume();
+    this.syncSceneFromFlow();
     this.status = "playing";
     this.inputReady = true;
     this.notify();
@@ -320,7 +328,8 @@ class CameleonStateController implements CameleonController {
   async failLevel(): Promise<boolean> {
     if (this.scene !== FlowStates.Playing) this.startLevel(1);
     this.ammo = 0;
-    this.scene = FlowStates.Failed;
+    if (this.flowMachine.can(FlowTransitions.Fail)) this.flowMachine.fail({ reason: "testkit-fail-level" });
+    this.syncSceneFromFlow();
     this.status = "lost";
     this.inputReady = false;
     this.tourState = "fail";
@@ -414,7 +423,8 @@ class CameleonStateController implements CameleonController {
 
   private completeLevel(): void {
     if (this.scene === FlowStates.Complete) return;
-    this.scene = FlowStates.Complete;
+    if (this.flowMachine.can(FlowTransitions.Complete)) this.flowMachine.complete({ found: hideFoundCount(this.hideState) });
+    this.syncSceneFromFlow();
     this.status = "won";
     this.inputReady = false;
     this.tourState = "win";
@@ -429,7 +439,8 @@ class CameleonStateController implements CameleonController {
 
   private failIfOutOfAmmo(): void {
     if (this.ammo === null || this.ammo > 0 || hideFoundCount(this.hideState) >= this.level.winAt) return;
-    this.scene = FlowStates.Failed;
+    if (this.flowMachine.can(FlowTransitions.Fail)) this.flowMachine.fail({ reason: "out-of-ammo" });
+    this.syncSceneFromFlow();
     this.status = "lost";
     this.inputReady = false;
     this.tourState = "fail";
@@ -448,6 +459,35 @@ class CameleonStateController implements CameleonController {
   private notify(): void {
     for (const listener of this.listeners) listener();
   }
+
+  private startFlow(): void {
+    if (this.flowMachine.state !== FlowStates.Boot && this.flowMachine.state !== FlowStates.Menu) {
+      this.enterMenuFlow({ source: "restart" });
+    }
+    if (this.flowMachine.can(FlowTransitions.Start)) {
+      this.flowMachine.start(this.level.id, { source: "cameleon" });
+    }
+    this.syncSceneFromFlow();
+  }
+
+  private enterMenuFlow(meta?: Record<string, string>): void {
+    if (this.flowMachine.state === FlowStates.Menu) {
+      this.syncSceneFromFlow();
+      return;
+    }
+    if (this.flowMachine.can(FlowTransitions.ToMenu)) {
+      this.flowMachine.toMenu(meta);
+    }
+    this.syncSceneFromFlow();
+  }
+
+  private syncSceneFromFlow(): void {
+    const state = this.flowMachine.state;
+    if (!isCameleonScene(state)) {
+      throw new Error(`Cameleon flow reached unsupported state: ${state}`);
+    }
+    this.scene = state;
+  }
 }
 
 export function createCameleonController(options: CameleonControllerOptions): CameleonController {
@@ -458,9 +498,34 @@ export function snapshotMatchesCameleonTourState(state: CameleonTourState, snaps
   if (snapshot === null || typeof snapshot !== "object") return false;
   const tourState = (snapshot as { readonly tourState?: unknown }).tourState;
   const scene = (snapshot as { readonly scene?: unknown }).scene;
+  const status = (snapshot as { readonly status?: unknown }).status;
+  const inputReady = (snapshot as { readonly inputReady?: unknown }).inputReady;
+  const feedback = (snapshot as { readonly feedback?: unknown }).feedback;
+  if (state === "menu") return scene === FlowStates.Menu && tourState === "menu";
   if (state === "win") return scene === FlowStates.Complete;
   if (state === "fail") return scene === FlowStates.Failed;
-  return tourState === state;
+  if (state === "found-beat") {
+    return (
+      scene === FlowStates.Playing &&
+      status === "playing" &&
+      inputReady === true &&
+      tourState === "found-beat" &&
+      feedback !== null &&
+      typeof feedback === "object" &&
+      (feedback as { readonly kind?: unknown }).kind === "hit"
+    );
+  }
+  return scene === FlowStates.Playing && status === "playing" && inputReady === true && tourState === state;
+}
+
+function isCameleonScene(state: string): state is CameleonScene {
+  return (
+    state === FlowStates.Menu ||
+    state === FlowStates.Playing ||
+    state === FlowStates.Complete ||
+    state === FlowStates.Failed ||
+    state === FlowStates.Paused
+  );
 }
 
 function ammoForMode(mode: CameleonPlayMode): number | null {

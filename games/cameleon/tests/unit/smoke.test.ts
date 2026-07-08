@@ -14,7 +14,7 @@ describe("Cameleon smoke", () => {
       query: { bodies: "white", dir: "night", mode: "confirm" },
     });
 
-    expect(boot.machine.state).toBe("boot");
+    expect(boot.machine.state).toBe("menu");
     expect(boot.config).toBe(gameConfig);
     expect(app.contains(boot.screen.root)).toBe(true);
     expect(boot.screen.canvas).toBeInstanceOf(HTMLCanvasElement);

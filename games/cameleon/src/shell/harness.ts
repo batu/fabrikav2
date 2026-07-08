@@ -20,7 +20,7 @@ import {
 } from "../game/CameleonController.ts";
 import type { CameleonScreen } from "./CameleonScreen.ts";
 
-export type CameleonVerb = "scrollTo" | "tapWorld" | "revealHide";
+export type CameleonVerb = "scrollTo" | "tapWorld" | "revealHide" | "winLevel" | "failLevel" | "driveTo";
 
 export interface CameleonHarnessOptions {
   readonly buildVersion: string;
@@ -60,6 +60,25 @@ export function createCameleonHarness(options: CameleonHarnessOptions): Cameleon
     },
   };
 
+  const winLevel: GameVerbHandler = {
+    run(): Promise<boolean> {
+      return controller.winLevel();
+    },
+  };
+
+  const failLevel: GameVerbHandler = {
+    run(): Promise<boolean> {
+      return controller.failLevel();
+    },
+  };
+
+  const driveTo: GameVerbHandler<[string]> = {
+    run(state: string): Promise<boolean> {
+      if (!isCameleonTourState(state)) return Promise.resolve(false);
+      return controller.driveToTourState(state);
+    },
+  };
+
   return {
     gotoState(state: string): void {
       if (!states.includes(state as (typeof states)[number])) {
@@ -89,7 +108,7 @@ export function createCameleonHarness(options: CameleonHarnessOptions): Cameleon
     seedSave(profile: HarnessSaveProfile): void {
       controller.seedSave(profile);
     },
-    verbs: { scrollTo, tapWorld, revealHide },
+    verbs: { scrollTo, tapWorld, revealHide, winLevel, failLevel, driveTo },
     winLevel(): Promise<boolean> {
       return controller.winLevel();
     },

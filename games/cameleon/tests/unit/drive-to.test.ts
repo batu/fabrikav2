@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { driveTo, isDriveState, type DriveToDeps } from "@fabrikav2/testkit/testing";
-import { createCameleonController } from "../../src/game/CameleonController.ts";
+import {
+  CAMELEON_TOUR_STATES,
+  createCameleonController,
+  snapshotMatchesCameleonTourState,
+} from "../../src/game/CameleonController.ts";
 import { mountCameleonScreen } from "../../src/shell/CameleonScreen.ts";
-import { createCameleonHarness } from "../../src/shell/harness.ts";
+import { createCameleonHarness, type CameleonHarness } from "../../src/shell/harness.ts";
 import { loadLidoFixture } from "./lidoFixture.ts";
 
 /**
@@ -146,30 +150,41 @@ describe("isDriveState", () => {
 });
 
 describe("createCameleonHarness driveTo", () => {
-  it.each([
-    ["menu", "menu", "menu"] as const,
-    ["zone1", "playing", "zone1"] as const,
-    ["zone3", "playing", "zone3"] as const,
-    ["zone5", "playing", "zone5"] as const,
-    ["found-beat", "playing", "found-beat"] as const,
-    ["win", "complete", "win"] as const,
-    ["fail", "failed", "fail"] as const,
-  ])("driveTo(%s) reaches + confirms it on the Cameleon harness", async (state, scene, tourState) => {
-    document.body.innerHTML = "";
-    const level = loadLidoFixture();
-    const controller = createCameleonController({ level, env: "test" });
-    const screen = mountCameleonScreen({ mountInto: document.body });
-    const harness = createCameleonHarness({
-      buildVersion: "test",
-      packageId: "com.basegamelab.cameleon.dev",
-      controller,
-      screen,
-    });
+  it.each(CAMELEON_TOUR_STATES)("driveTo(%s) reaches + confirms it on the Cameleon harness", async (state) => {
+    const { harness, screen } = makeCameleonHarness();
 
     const reached = await harness.driveTo!(state);
 
     expect(reached).toBe(true);
-    expect(harness.snapshot()).toMatchObject({ scene, tourState });
+    expect(snapshotMatchesCameleonTourState(state, harness.snapshot())).toBe(true);
+    screen.destroy();
+  });
+
+  it("exposes solver and tour actions through the game verb table", async () => {
+    const { harness, screen } = makeCameleonHarness();
+
+    await expect(harness.verbs.driveTo.run("zone2")).resolves.toBe(true);
+    expect(harness.snapshot().tourState).toBe("zone2");
+
+    await expect(harness.verbs.winLevel.run()).resolves.toBe(true);
+    expect(harness.snapshot().scene).toBe("complete");
+
+    await expect(harness.verbs.failLevel.run()).resolves.toBe(true);
+    expect(harness.snapshot().scene).toBe("failed");
     screen.destroy();
   });
 });
+
+function makeCameleonHarness(): { readonly harness: CameleonHarness; readonly screen: ReturnType<typeof mountCameleonScreen> } {
+  document.body.innerHTML = "";
+  const level = loadLidoFixture();
+  const controller = createCameleonController({ level, env: "test" });
+  const screen = mountCameleonScreen({ mountInto: document.body });
+  const harness = createCameleonHarness({
+    buildVersion: "test",
+    packageId: "com.basegamelab.cameleon.dev",
+    controller,
+    screen,
+  });
+  return { harness, screen };
+}
