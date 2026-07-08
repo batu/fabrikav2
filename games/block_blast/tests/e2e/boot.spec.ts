@@ -1,10 +1,26 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import type { BlockBlastHarness } from "../../src/shell/harness.ts";
 
 declare global {
   interface Window {
     __BLOCK_BLAST_HARNESS__?: BlockBlastHarness;
   }
+}
+
+async function expectSagaNodesOnRail(page: Page): Promise<void> {
+  const deltas = await page.locator(".fab-levelmap").evaluate((root) => {
+    const path = root.querySelector<HTMLElement>(".fab-levelmap-path");
+    if (!path) return [];
+    const pathRect = path.getBoundingClientRect();
+    const railX = pathRect.left + pathRect.width / 2;
+    return Array.from(root.querySelectorAll<HTMLElement>(".fab-levelmap-node-dot")).map((dot) => {
+      const rect = dot.getBoundingClientRect();
+      return Math.abs(rect.left + rect.width / 2 - railX);
+    });
+  });
+
+  expect(deltas.length).toBeGreaterThan(0);
+  for (const delta of deltas) expect(delta).toBeLessThanOrEqual(4);
 }
 
 test("boots to menu and starts gameplay through the rendered Play action", async ({ page }) => {
@@ -16,6 +32,7 @@ test("boots to menu and starts gameplay through the rendered Play action", async
   await expect(screen).toHaveAttribute("data-surface", "menu");
   await expect(canvas).toBeHidden();
   await expect(page.locator(".block-blast-menu-header")).toHaveCount(0);
+  await expectSagaNodesOnRail(page);
 
   const bootSnapshot = await page.evaluate(() => window.__BLOCK_BLAST_HARNESS__?.snapshot());
   expect(bootSnapshot).toMatchObject({ scene: "menu", status: "idle" });

@@ -104,6 +104,32 @@ function expectVisibleSagaDots(root: HTMLElement): void {
   }
 }
 
+function expectSagaStateStyles(root: HTMLElement): void {
+  const completed = root.querySelector<HTMLElement>(".fab-levelmap-node.completed .fab-levelmap-node-dot");
+  const current = root.querySelector<HTMLElement>(".fab-levelmap-node.current .fab-levelmap-node-dot");
+  const locked = root.querySelector<HTMLElement>(".fab-levelmap-node.locked .fab-levelmap-node-dot");
+  expect(completed).not.toBeNull();
+  expect(current).not.toBeNull();
+  expect(locked).not.toBeNull();
+
+  const currentStyle = getComputedStyle(current!);
+  const completedStyle = getComputedStyle(completed!);
+  const lockedStyle = getComputedStyle(locked!);
+  expect(currentStyle.backgroundImage).not.toContain("var(");
+  expect(completedStyle.backgroundImage).not.toContain("var(");
+  expect(lockedStyle.backgroundImage).not.toContain("var(");
+  expect(Number.parseFloat(currentStyle.width)).toBeGreaterThan(Number.parseFloat(completedStyle.width));
+  expect(Number.parseFloat(currentStyle.width)).toBeGreaterThan(Number.parseFloat(lockedStyle.width));
+}
+
+function expectCenteredSagaNodes(root: HTMLElement): void {
+  const nodes = Array.from(root.querySelectorAll<HTMLElement>(".fab-levelmap-node"));
+  expect(nodes.length).toBeGreaterThan(0);
+  for (const node of nodes) {
+    expect(getComputedStyle(node).getPropertyValue("--node-x").trim()).toBe("0px");
+  }
+}
+
 describe("block_blast saga composed surface", () => {
   it("defines every shared level-map token in design/tokens.css", () => {
     const css = readFileSync(resolve("design/tokens.css"), "utf8");
@@ -121,8 +147,13 @@ describe("block_blast saga composed surface", () => {
     installCss("block-blast-shell-css-test", "src/shell/blockBlast.css");
 
     const app = document.getElementById("app")!;
-    bootGame(app);
+    const boot = bootGame(app);
+    boot.controller.seedSave({ unlockedLevel: 3 });
+    boot.controller.startStage(3);
+    boot.controller.gotoMenu();
 
     expectVisibleSagaDots(app);
+    expectSagaStateStyles(app);
+    expectCenteredSagaNodes(app);
   });
 });
