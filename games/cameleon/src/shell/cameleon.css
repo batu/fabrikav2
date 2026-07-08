@@ -71,6 +71,7 @@
 }
 
 .cameleon-screen__hint,
+.cameleon-screen__direction-button,
 .cameleon-screen__mode-button,
 .cameleon-screen__play,
 .cameleon-screen__confirm {
@@ -141,11 +142,19 @@
   gap: 8px;
 }
 
+.cameleon-screen__direction-picker {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.cameleon-screen__direction-button,
 .cameleon-screen__mode-button {
   width: 100%;
   padding: 0 8px;
 }
 
+.cameleon-screen__direction-button[aria-pressed="true"],
 .cameleon-screen__mode-button[aria-pressed="true"] {
   background: var(--fab-color-cameleon-found);
   color: var(--fab-color-hud-surface);
@@ -288,6 +297,7 @@
     font-size: 16px;
   }
 
+  .cameleon-screen__direction-picker,
   .cameleon-screen__mode-picker {
     grid-template-columns: 1fr;
   }

@@ -1,10 +1,16 @@
 import { copy } from "../../design/copy.ts";
 import type { CameleonSnapshot } from "../game/CameleonController.ts";
-import { CAMELEON_PLAY_MODES, type CameleonPlayMode } from "../game/level.ts";
+import {
+  CAMELEON_DIRECTIONS,
+  CAMELEON_PLAY_MODES,
+  type CameleonDirection,
+  type CameleonPlayMode,
+} from "../game/level.ts";
 
 export interface CameleonScreenOptions {
   readonly mountInto: HTMLElement;
   readonly onModeSelect?: (mode: CameleonPlayMode) => void;
+  readonly onDirectionSelect?: (direction: CameleonDirection) => void;
   readonly onStart?: () => void;
   readonly onConfirmAim?: () => void;
 }
@@ -70,12 +76,26 @@ export function mountCameleonScreen(opts: CameleonScreenOptions): CameleonScreen
     modePicker.appendChild(button);
   }
 
+  const directionButtons = new Map<CameleonDirection, HTMLButtonElement>();
+  const directionPicker = document.createElement("div");
+  directionPicker.className = "cameleon-screen__direction-picker";
+  for (const visualDirection of CAMELEON_DIRECTIONS) {
+    const button = document.createElement("button");
+    button.className = "cameleon-screen__direction-button";
+    button.type = "button";
+    button.dataset.direction = visualDirection;
+    button.textContent = directionLabel(visualDirection);
+    button.addEventListener("click", () => opts.onDirectionSelect?.(visualDirection));
+    directionButtons.set(visualDirection, button);
+    directionPicker.appendChild(button);
+  }
+
   const playButton = document.createElement("button");
   playButton.className = "cameleon-screen__play";
   playButton.type = "button";
   playButton.textContent = copy["menu.play"];
   playButton.addEventListener("click", () => opts.onStart?.());
-  startMenu.append(modePicker, playButton);
+  startMenu.append(modePicker, directionPicker, playButton);
 
   const reticle = document.createElement("div");
   reticle.className = "cameleon-screen__reticle";
@@ -133,6 +153,9 @@ export function mountCameleonScreen(opts: CameleonScreenOptions): CameleonScreen
       for (const [playMode, button] of modeButtons) {
         button.setAttribute("aria-pressed", String(playMode === snapshot.mode));
       }
+      for (const [visualDirection, button] of directionButtons) {
+        button.setAttribute("aria-pressed", String(visualDirection === snapshot.dir));
+      }
     },
     destroy(): void {
       root.remove();
@@ -158,6 +181,17 @@ function hudItem(labelText: string): HudItem {
 
   root.append(label, value);
   return { root, value };
+}
+
+function directionLabel(direction: CameleonDirection): string {
+  switch (direction) {
+    case "poster":
+      return "Poster";
+    case "riso":
+      return "Riso";
+    case "night":
+      return "Night";
+  }
 }
 
 function modeLabel(mode: CameleonPlayMode): string {

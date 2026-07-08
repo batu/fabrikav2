@@ -24,6 +24,9 @@ describe("Cameleon smoke", () => {
       mode: "confirm",
     });
     expect(app.querySelector<HTMLButtonElement>(".cameleon-screen__mode-button[data-mode='confirm']")?.getAttribute("aria-pressed")).toBe("true");
+    expect(app.querySelector<HTMLButtonElement>(".cameleon-screen__direction-button[data-direction='night']")?.getAttribute("aria-pressed")).toBe("true");
+    app.querySelector<HTMLButtonElement>(".cameleon-screen__direction-button[data-direction='riso']")?.click();
+    expect(boot.controller.snapshot().dir).toBe("riso");
     expect(app.querySelectorAll(".cameleon-screen__bench-slot")).toHaveLength(12);
 
     app.querySelector<HTMLButtonElement>(".cameleon-screen__play")?.click();

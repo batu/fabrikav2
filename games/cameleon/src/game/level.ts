@@ -29,7 +29,7 @@ export interface HideSpritePairKeys {
 
 /**
  * CAM-1 level.json schema, consumed by CAM-2 art importers and CAM-3 runtime
- * polish. Rects are world-space hit rectangles in the 4800x1440 panorama.
+ * polish. Rects are world-space hit rectangles in the production panorama.
  * `spritePair.white` and each `spritePair.painted[dir]` must be silhouette
  * siblings: the art can recolor/fill differently per direction, but the alpha
  * mask is shared. Runtime hide objects are keyed by `id`; do not infer identity
@@ -50,6 +50,14 @@ export interface CameleonDecoyDefinition {
   readonly id: string;
   readonly zone: CameleonZone;
   readonly kind: string;
+  readonly spriteKey: string;
+  readonly rect: WorldRect;
+}
+
+export interface CameleonVisualOverlayDefinition {
+  readonly id: string;
+  readonly kind: string;
+  readonly spriteKey: string;
   readonly rect: WorldRect;
 }
 
@@ -65,9 +73,12 @@ export interface CameleonLevelDefinition {
   readonly assetKeys: CameleonLevelAssetKeys;
   readonly hides: readonly CameleonHideDefinition[];
   readonly decoys: readonly CameleonDecoyDefinition[];
+  readonly visualOverlays: readonly CameleonVisualOverlayDefinition[];
 }
 
 const MIN_HIDE_EDGE = 72;
+const LIDO_PANEL_COUNT = 3;
+const LOGICAL_ZONE_COUNT = 5;
 
 export function parseLevelDefinition(raw: unknown): CameleonLevelDefinition {
   const root = asRecord(raw, "level");
@@ -82,17 +93,27 @@ export function parseLevelDefinition(raw: unknown): CameleonLevelDefinition {
   const decoys = arrayField(root, "decoys", "level.decoys").map((value, index) =>
     parseDecoy(value, `level.decoys[${index}]`, world),
   );
+  const visualOverlays = arrayField(root, "visualOverlays", "level.visualOverlays").map((value, index) =>
+    parseVisualOverlay(value, `level.visualOverlays[${index}]`, world),
+  );
 
   if (hides.length === 0) throw new Error("level.hides must contain at least one hide.");
   if (winAt > hides.length) throw new Error("level.winAt cannot exceed hide count.");
   assertUnique(hides.map((hide) => hide.id), "hide id");
   assertUnique(decoys.map((decoy) => decoy.id), "decoy id");
+  assertUnique(visualOverlays.map((overlay) => overlay.id), "visual overlay id");
 
-  return { id, name, world, winAt, assetKeys, hides, decoys };
+  return { id, name, world, winAt, assetKeys, hides, decoys, visualOverlays };
 }
 
 export function zoneForWorldX(world: CameleonWorld, x: number): CameleonZone {
-  return clampZone(Math.floor(x / world.zoneWidth) + 1);
+  const zoneWidth = world.width / LOGICAL_ZONE_COUNT;
+  const clampedX = clamp(x, 0, Math.max(0, world.width - 1));
+  return clampZone(Math.floor(clampedX / zoneWidth) + 1);
+}
+
+export function worldXForZone(world: CameleonWorld, zone: CameleonZone): number {
+  return ((zone - 1) * world.width) / LOGICAL_ZONE_COUNT;
 }
 
 export function rectCenter(rect: WorldRect): { x: number; y: number } {
@@ -117,7 +138,9 @@ function parseWorld(value: unknown): CameleonWorld {
   const width = positiveInteger(world, "width", "level.world.width");
   const height = positiveInteger(world, "height", "level.world.height");
   const zoneWidth = positiveInteger(world, "zoneWidth", "level.world.zoneWidth");
-  if (width !== zoneWidth * 5) throw new Error("level.world.width must equal zoneWidth * 5.");
+  if (width !== zoneWidth * LIDO_PANEL_COUNT) {
+    throw new Error(`level.world.width must equal zoneWidth * ${LIDO_PANEL_COUNT}.`);
+  }
   return { width, height, zoneWidth };
 }
 
@@ -125,8 +148,8 @@ function parseAssetKeys(value: unknown): CameleonLevelAssetKeys {
   const assetKeys = asRecord(value, "level.assetKeys");
   const zonePanels = parseDirectionStringArrays(required(assetKeys, "zonePanels", "level.assetKeys.zonePanels"));
   for (const direction of CAMELEON_DIRECTIONS) {
-    if (zonePanels[direction].length !== 5) {
-      throw new Error(`level.assetKeys.zonePanels.${direction} must contain 5 keys.`);
+    if (zonePanels[direction].length !== LIDO_PANEL_COUNT) {
+      throw new Error(`level.assetKeys.zonePanels.${direction} must contain ${LIDO_PANEL_COUNT} keys.`);
     }
   }
   return { zonePanels };
@@ -156,7 +179,18 @@ function parseDecoy(value: unknown, path: string, world: CameleonWorld): Cameleo
     id: stringField(decoy, "id", `${path}.id`),
     zone: zoneField(decoy, "zone", `${path}.zone`),
     kind: stringField(decoy, "kind", `${path}.kind`),
+    spriteKey: stringField(decoy, "spriteKey", `${path}.spriteKey`),
     rect: parseRect(required(decoy, "rect", `${path}.rect`), `${path}.rect`, world),
+  };
+}
+
+function parseVisualOverlay(value: unknown, path: string, world: CameleonWorld): CameleonVisualOverlayDefinition {
+  const overlay = asRecord(value, path);
+  return {
+    id: stringField(overlay, "id", `${path}.id`),
+    kind: stringField(overlay, "kind", `${path}.kind`),
+    spriteKey: stringField(overlay, "spriteKey", `${path}.spriteKey`),
+    rect: parseRect(required(overlay, "rect", `${path}.rect`), `${path}.rect`, world),
   };
 }
 

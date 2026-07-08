@@ -1,7 +1,8 @@
 import type Phaser from "phaser";
 
+import { assetEntriesForLevel } from "./assets.ts";
 import type { CameleonController, CameleonSnapshot } from "./CameleonController.ts";
-import type { CameleonDirection, CameleonHideDefinition, CameleonLevelDefinition } from "./level.ts";
+import type { CameleonDirection, CameleonLevelDefinition, WorldRect } from "./level.ts";
 
 export interface CameleonPhaserRuntime {
   destroy(): void;
@@ -11,29 +12,6 @@ export interface CameleonPhaserOptions {
   readonly canvas: HTMLCanvasElement;
   readonly controller: CameleonController;
 }
-
-const ZONE_LABELS = [
-  "ZONE 1 - ENTRANCE",
-  "ZONE 2 - TENTS",
-  "ZONE 3 - POOL DECK",
-  "ZONE 4 - TOWER",
-  "ZONE 5 - KIOSK",
-] as const;
-
-const ZONE_COLORS: Record<CameleonDirection, readonly number[]> = {
-  poster: [0x79d8d0, 0xf5d86c, 0x42b7d8, 0xff7a5f, 0xb2df7e],
-  riso: [0x83e0d7, 0xff6f91, 0x47c5bf, 0xf6ff7c, 0xf78ad3],
-  night: [0x14365f, 0x214973, 0x0e6070, 0x71386c, 0x1f7058],
-};
-
-const PAINTED_COLORS: Record<CameleonDirection, number> = {
-  poster: 0x6f7f83,
-  riso: 0xff5e7e,
-  night: 0x6fb0bd,
-};
-
-const WHITE_BODY = 0xf8f8ef;
-const DECOY_STROKE = 0x1f2430;
 
 type PhaserStatic = typeof Phaser;
 
@@ -80,7 +58,9 @@ async function importPhaser(): Promise<PhaserStatic> {
 
 function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonController) {
   return class LidoScene extends PhaserRuntime.Scene {
+    private readonly panelSprites: Phaser.GameObjects.Image[] = [];
     private readonly hideSprites = new Map<string, { painted: Phaser.GameObjects.Image; white: Phaser.GameObjects.Image }>();
+    private activePanelDirection: CameleonDirection | null = null;
     private feedbackText: Phaser.GameObjects.Text | null = null;
     private unsubscribe: (() => void) | null = null;
     private drag: { startX: number; startScroll: number; moved: boolean; lastX: number; lastTime: number; velocity: number } | null = null;
@@ -95,12 +75,16 @@ function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonC
       super("lido");
     }
 
+    preload(): void {
+      preloadLevelAssets(this, controller.level);
+    }
+
     create(): void {
       const level = controller.level;
       this.cameras.main.setBounds(0, 0, level.world.width, level.world.height);
       this.cameras.main.setRoundPixels(true);
-      generatePlaceholderTextures(this, level);
       this.addZonePanels(level, controller.snapshot().dir);
+      this.addVisualOverlays(level);
       this.addDecoys(level);
       this.addHides(controller.snapshot());
       this.installInput();
@@ -119,29 +103,48 @@ function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonC
     private addZonePanels(level: CameleonLevelDefinition, direction: CameleonDirection): void {
       const keys = level.assetKeys.zonePanels[direction];
       keys.forEach((key, index) => {
-        this.add.image(index * level.world.zoneWidth, 0, key).setOrigin(0, 0).setDepth(0);
-        this.add.text(index * level.world.zoneWidth + 42, 118, ZONE_LABELS[index] ?? "", {
-          fontFamily: "system-ui, sans-serif",
-          fontSize: "34px",
-          color: direction === "night" ? "#f8f8ef" : "#1f2430",
-          backgroundColor: direction === "night" ? "#14365f" : "#fff7df",
-          padding: { x: 12, y: 8 },
-        }).setDepth(2);
+        const panel = this.add.image(index * level.world.zoneWidth, 0, key)
+          .setOrigin(0, 0)
+          .setDisplaySize(level.world.zoneWidth, level.world.height)
+          .setDepth(0);
+        this.panelSprites[index] = panel;
       });
+      this.activePanelDirection = direction;
+    }
+
+    private renderPanels(level: CameleonLevelDefinition, direction: CameleonDirection): void {
+      if (this.activePanelDirection === direction) return;
+      const keys = level.assetKeys.zonePanels[direction];
+      keys.forEach((key, index) => {
+        this.panelSprites[index]?.setTexture(key).setDisplaySize(level.world.zoneWidth, level.world.height);
+      });
+      this.activePanelDirection = direction;
+    }
+
+    private addVisualOverlays(level: CameleonLevelDefinition): void {
+      for (const overlay of level.visualOverlays) {
+        fitImageToRect(this.add.image(overlay.rect.x, overlay.rect.y, overlay.spriteKey), overlay.rect)
+          .setOrigin(0, 0)
+          .setDepth(3);
+      }
     }
 
     private addDecoys(level: CameleonLevelDefinition): void {
-      const graphics = this.add.graphics().setDepth(4);
-      graphics.lineStyle(4, DECOY_STROKE, 0.42);
       for (const decoy of level.decoys) {
-        graphics.strokeRoundedRect(decoy.rect.x, decoy.rect.y, decoy.rect.w, decoy.rect.h, 10);
+        fitImageToRect(this.add.image(decoy.rect.x, decoy.rect.y, decoy.spriteKey), decoy.rect)
+          .setOrigin(0, 0)
+          .setDepth(4);
       }
     }
 
     private addHides(snapshot: CameleonSnapshot): void {
       for (const view of snapshot.hides) {
-        const painted = this.add.image(view.rect.x, view.rect.y, view.painted.key).setOrigin(0, 0).setDepth(6);
-        const white = this.add.image(view.rect.x, view.rect.y, view.white.key).setOrigin(0, 0).setDepth(7);
+        const painted = fitImageToRect(this.add.image(view.rect.x, view.rect.y, view.painted.key), view.rect)
+          .setOrigin(0, 0)
+          .setDepth(6);
+        const white = fitImageToRect(this.add.image(view.rect.x, view.rect.y, view.white.key), view.rect)
+          .setOrigin(0, 0)
+          .setDepth(7);
         this.hideSprites.set(view.id, { painted, white });
       }
       this.renderSnapshot(snapshot);
@@ -205,16 +208,15 @@ function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonC
 
     private renderSnapshot(snapshot: CameleonSnapshot): void {
       this.cameras.main.scrollX = snapshot.scrollX;
+      this.renderPanels(controller.level, snapshot.dir);
       if (snapshot.foundCount === 0) this.collectedHideIds.clear();
       for (const view of snapshot.hides) {
         const sprites = this.hideSprites.get(view.id);
         if (!sprites) continue;
         if (this.activeFoundBeatHideId === view.id) continue;
         const collected = this.collectedHideIds.has(view.id);
-        const x = view.rect.x;
-        const y = view.rect.y;
-        sprites.painted.setTexture(view.painted.key).setPosition(x, y).setScale(1).setAngle(0);
-        sprites.white.setTexture(view.white.key).setPosition(x, y).setScale(1).setAngle(0);
+        fitImageToRect(sprites.painted.setTexture(view.painted.key), view.rect).setAngle(0);
+        fitImageToRect(sprites.white.setTexture(view.white.key), view.rect).setAngle(0);
         if (collected) {
           sprites.painted.setVisible(false).setAlpha(0);
           sprites.white.setVisible(false).setAlpha(0);
@@ -304,19 +306,13 @@ function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonC
       if (!sprites || !view) return;
 
       this.activeFoundBeatHideId = hideId;
-      sprites.painted
-        .setTexture(view.painted.key)
+      fitImageToRect(sprites.painted.setTexture(view.painted.key), view.rect)
         .setVisible(true)
         .setAlpha(1)
-        .setPosition(view.rect.x, view.rect.y)
-        .setScale(1)
         .setAngle(0);
-      sprites.white
-        .setTexture(view.white.key)
+      fitImageToRect(sprites.white.setTexture(view.white.key), view.rect)
         .setVisible(true)
         .setAlpha(0)
-        .setPosition(view.rect.x, view.rect.y)
-        .setScale(1)
         .setAngle(0);
 
       this.cameras.main.shake(80, 0.004);
@@ -345,8 +341,8 @@ function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonC
           targets: sprites.white,
           angle: hideIndex % 2 === 0 ? 540 : -420,
           y: Math.min(snapshot.world.height - view.rect.h, Math.max(point.y + 72, snapshot.world.height - 190)),
-          scaleX: 1.08,
-          scaleY: 0.9,
+          displayWidth: view.rect.w * 1.08,
+          displayHeight: view.rect.h * 0.9,
           duration: 500,
           ease: "Sine.easeInOut",
         });
@@ -358,8 +354,8 @@ function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonC
           x: snapshot.scrollX + slot.x - view.rect.w * 0.12,
           y: slot.y - view.rect.h * 0.12,
           angle: 0,
-          scaleX: 0.24,
-          scaleY: 0.24,
+          displayWidth: view.rect.w * 0.24,
+          displayHeight: view.rect.h * 0.24,
           duration: 250,
           ease: "Cubic.easeIn",
           onComplete: () => {
@@ -520,76 +516,17 @@ function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonC
   };
 }
 
-function generatePlaceholderTextures(scene: Phaser.Scene, level: CameleonLevelDefinition): void {
-  for (const direction of Object.keys(ZONE_COLORS) as CameleonDirection[]) {
-    const zoneColors = ZONE_COLORS[direction];
-    for (const [index, key] of level.assetKeys.zonePanels[direction].entries()) {
-      if (scene.textures.exists(key)) continue;
-      const graphics = scene.make.graphics(undefined, false);
-      graphics.fillStyle(zoneColors[index] ?? zoneColors[0] ?? 0xffffff, 1);
-      graphics.fillRect(0, 0, level.world.zoneWidth, level.world.height);
-      graphics.fillStyle(direction === "night" ? 0x0a223c : 0xfff7df, 0.35);
-      graphics.fillRect(0, 0, level.world.zoneWidth, 180);
-      graphics.lineStyle(10, direction === "night" ? 0x80dce4 : 0x1f2430, 0.35);
-      graphics.strokeRect(0, 0, level.world.zoneWidth, level.world.height);
-      graphics.generateTexture(key, level.world.zoneWidth, level.world.height);
-      graphics.destroy();
-    }
-  }
-
-  for (const hide of level.hides) {
-    generateHideTexture(scene, hide.spritePair.white, hide, WHITE_BODY);
-    for (const direction of Object.keys(PAINTED_COLORS) as CameleonDirection[]) {
-      generateHideTexture(scene, hide.spritePair.painted[direction], hide, PAINTED_COLORS[direction]);
-    }
+function preloadLevelAssets(scene: Phaser.Scene, level: CameleonLevelDefinition): void {
+  for (const entry of assetEntriesForLevel(level)) {
+    if (scene.textures.exists(entry.key)) continue;
+    scene.load.image(entry.key, entry.url);
   }
 }
 
-function generateHideTexture(scene: Phaser.Scene, key: string, hide: CameleonHideDefinition, color: number): void {
-  if (scene.textures.exists(key)) return;
-  const graphics = scene.make.graphics(undefined, false);
-  graphics.fillStyle(color, 1);
-  drawPoseSilhouette(graphics, hide.pose, hide.rect.w, hide.rect.h);
-  graphics.lineStyle(3, 0x1f2430, 0.32);
-  drawPoseOutline(graphics, hide.pose, hide.rect.w, hide.rect.h);
-  graphics.generateTexture(key, Math.ceil(hide.rect.w), Math.ceil(hide.rect.h));
-  graphics.destroy();
-}
-
-function drawPoseSilhouette(graphics: Phaser.GameObjects.Graphics, pose: string, width: number, height: number): void {
-  if (pose.includes("prone") || pose.includes("lane")) {
-    graphics.fillRoundedRect(0, height * 0.18, width, height * 0.62, height * 0.31);
-    return;
-  }
-  if (pose.includes("curl")) {
-    graphics.fillCircle(width * 0.42, height * 0.5, Math.min(width, height) * 0.42);
-    graphics.fillCircle(width * 0.66, height * 0.44, Math.min(width, height) * 0.25);
-    return;
-  }
-  if (pose.includes("slanted") || pose.includes("backbend")) {
-    graphics.save();
-    graphics.translateCanvas(width * 0.5, height * 0.5);
-    graphics.rotateCanvas(-0.28);
-    graphics.fillRoundedRect(-width * 0.22, -height * 0.42, width * 0.44, height * 0.84, width * 0.18);
-    graphics.fillCircle(0, -height * 0.48, width * 0.22);
-    graphics.restore();
-    return;
-  }
-  graphics.fillRoundedRect(width * 0.24, height * 0.12, width * 0.52, height * 0.78, width * 0.22);
-  graphics.fillCircle(width * 0.5, height * 0.1, width * 0.24);
-}
-
-function drawPoseOutline(graphics: Phaser.GameObjects.Graphics, pose: string, width: number, height: number): void {
-  if (pose.includes("prone") || pose.includes("lane")) {
-    graphics.strokeRoundedRect(0, height * 0.18, width, height * 0.62, height * 0.31);
-    return;
-  }
-  if (pose.includes("curl")) {
-    graphics.strokeCircle(width * 0.42, height * 0.5, Math.min(width, height) * 0.42);
-    graphics.strokeCircle(width * 0.66, height * 0.44, Math.min(width, height) * 0.25);
-    return;
-  }
-  graphics.strokeRoundedRect(width * 0.24, height * 0.12, width * 0.52, height * 0.78, width * 0.22);
+function fitImageToRect(image: Phaser.GameObjects.Image, rect: WorldRect): Phaser.GameObjects.Image {
+  return image
+    .setPosition(rect.x, rect.y)
+    .setDisplaySize(rect.w, rect.h);
 }
 
 function labelForFeedback(

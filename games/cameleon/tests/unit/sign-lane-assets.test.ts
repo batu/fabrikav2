@@ -11,6 +11,7 @@ const SPRITES_ROOT = resolve(GAME_ROOT, "public/levels/lido/sprites");
 const PALETTES = ["poster", "riso", "night"] as const;
 const HIDE_IDS = [
   "li-02-no-diving",
+  "li-06-lane-rope",
   "li-07-fifth-poster-figure",
   "li-08-slipping-man",
   "li-10-soft-serve-mascot",

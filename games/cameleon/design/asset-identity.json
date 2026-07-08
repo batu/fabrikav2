@@ -1,1520 +1,2296 @@
 {
- "version": 1,
- "coverage": "complete",
- "notes": "Cameleon sign-lane level sprites are authored vectors rendered locally at zero image-generation cost. Non-design level sprite entries document provenance; the current audit linter enforces design/assets only.",
- "assets": {
-  "design/assets/placeholder_logo.svg": {
-   "source": "design/assets/placeholder_logo.svg",
-   "expectation": "exact-bytes",
-   "provenance": "Template placeholder asset retained until Cameleon-specific chrome replaces it."
-  },
-  "public/levels/lido/sprites/source/poster/decoy-rules-board.svg": {
-   "source": "public/levels/lido/sprites/source/poster/decoy-rules-board.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "poster",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/poster/decoy-rules-board.png": {
-   "source": "public/levels/lido/sprites/source/poster/decoy-rules-board.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "poster",
-    "dimensions": {
-     "width": 420,
-     "height": 300
+  "version": 1,
+  "coverage": "complete",
+  "notes": "Cameleon sign-lane level sprites are authored vectors rendered locally at zero image-generation cost. Non-design level sprite entries document provenance; the current audit linter enforces design/assets only.",
+  "assets": {
+    "design/assets/placeholder_logo.svg": {
+      "source": "design/assets/placeholder_logo.svg",
+      "expectation": "exact-bytes",
+      "provenance": "Template placeholder asset retained until Cameleon-specific chrome replaces it."
     },
-    "bytes": 6778,
-    "sha256": "f2c8403fea000dc9f88af8a9564c65f28b75d156c0bf727f3e7000fd9f260221",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/poster/decoy-no-running-sign.svg": {
-   "source": "public/levels/lido/sprites/source/poster/decoy-no-running-sign.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "poster",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/poster/decoy-no-running-sign.png": {
-   "source": "public/levels/lido/sprites/source/poster/decoy-no-running-sign.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "poster",
-    "dimensions": {
-     "width": 256,
-     "height": 256
+    "public/levels/lido/sprites/source/poster/decoy-rules-board.svg": {
+      "source": "public/levels/lido/sprites/source/poster/decoy-rules-board.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 4496,
-    "sha256": "661c24588dabdd758f90c746abda92d4ff23141ccf5f10492850cd5972a20914",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/poster/decoy-depth-markers.svg": {
-   "source": "public/levels/lido/sprites/source/poster/decoy-depth-markers.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "poster",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/poster/decoy-depth-markers.png": {
-   "source": "public/levels/lido/sprites/source/poster/decoy-depth-markers.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "poster",
-    "dimensions": {
-     "width": 400,
-     "height": 180
+    "public/levels/lido/sprites/poster/decoy-rules-board.png": {
+      "source": "public/levels/lido/sprites/source/poster/decoy-rules-board.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 420,
+          "height": 300
+        },
+        "bytes": 6778,
+        "sha256": "f2c8403fea000dc9f88af8a9564c65f28b75d156c0bf727f3e7000fd9f260221",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 2207,
-    "sha256": "58c81ff2d04760521878b16c91c36f31102ab73365e3c8a79d87b30f4b095f4e",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/poster/decoy-wet-floor-aframe.svg": {
-   "source": "public/levels/lido/sprites/source/poster/decoy-wet-floor-aframe.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "poster",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/poster/decoy-wet-floor-aframe.png": {
-   "source": "public/levels/lido/sprites/source/poster/decoy-wet-floor-aframe.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "poster",
-    "dimensions": {
-     "width": 240,
-     "height": 300
+    "public/levels/lido/sprites/source/poster/decoy-no-running-sign.svg": {
+      "source": "public/levels/lido/sprites/source/poster/decoy-no-running-sign.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 3458,
-    "sha256": "f8fe653505927d9d555cc85b059c987ebe42fce8c3f123e2836b6f2e93b44d62",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/poster/decoy-swim-school-poster.svg": {
-   "source": "public/levels/lido/sprites/source/poster/decoy-swim-school-poster.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "poster",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/poster/decoy-swim-school-poster.png": {
-   "source": "public/levels/lido/sprites/source/poster/decoy-swim-school-poster.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "poster",
-    "dimensions": {
-     "width": 440,
-     "height": 300
+    "public/levels/lido/sprites/poster/decoy-no-running-sign.png": {
+      "source": "public/levels/lido/sprites/source/poster/decoy-no-running-sign.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 256,
+          "height": 256
+        },
+        "bytes": 4496,
+        "sha256": "661c24588dabdd758f90c746abda92d4ff23141ccf5f10492850cd5972a20914",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 5056,
-    "sha256": "ff364ffe3c253f8eba091033792a994802b21e9271f1c2a80b2f0523ff31e4a7",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/poster/decoy-kiosk-mascot-panel.svg": {
-   "source": "public/levels/lido/sprites/source/poster/decoy-kiosk-mascot-panel.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "poster",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/poster/decoy-kiosk-mascot-panel.png": {
-   "source": "public/levels/lido/sprites/source/poster/decoy-kiosk-mascot-panel.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "poster",
-    "dimensions": {
-     "width": 320,
-     "height": 300
+    "public/levels/lido/sprites/source/poster/decoy-depth-markers.svg": {
+      "source": "public/levels/lido/sprites/source/poster/decoy-depth-markers.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 4619,
-    "sha256": "af815e024c4c5628847fd7bd252c652927b559264c861ccddcca55539884a5ac",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/poster/li-02-no-diving-painted.svg": {
-   "source": "public/levels/lido/sprites/source/poster/li-02-no-diving-painted.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "poster",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/poster/li-02-no-diving-painted.png": {
-   "source": "public/levels/lido/sprites/source/poster/li-02-no-diving-painted.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "poster",
-    "dimensions": {
-     "width": 256,
-     "height": 256
+    "public/levels/lido/sprites/poster/decoy-depth-markers.png": {
+      "source": "public/levels/lido/sprites/source/poster/decoy-depth-markers.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 400,
+          "height": 180
+        },
+        "bytes": 2207,
+        "sha256": "58c81ff2d04760521878b16c91c36f31102ab73365e3c8a79d87b30f4b095f4e",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 1554,
-    "sha256": "61592a8c172d2db945d0bdc95842a96bc53e00a74d4ca31f1e139dc5b07da603",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/poster/li-07-fifth-poster-figure-painted.svg": {
-   "source": "public/levels/lido/sprites/source/poster/li-07-fifth-poster-figure-painted.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "poster",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/poster/li-07-fifth-poster-figure-painted.png": {
-   "source": "public/levels/lido/sprites/source/poster/li-07-fifth-poster-figure-painted.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "poster",
-    "dimensions": {
-     "width": 256,
-     "height": 256
+    "public/levels/lido/sprites/source/poster/decoy-wet-floor-aframe.svg": {
+      "source": "public/levels/lido/sprites/source/poster/decoy-wet-floor-aframe.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 1799,
-    "sha256": "ee6195f9b583a08fbd94268a4d2b6b506f20169bded694f7d21073654ca4e5d4",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/poster/li-08-slipping-man-painted.svg": {
-   "source": "public/levels/lido/sprites/source/poster/li-08-slipping-man-painted.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "poster",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/poster/li-08-slipping-man-painted.png": {
-   "source": "public/levels/lido/sprites/source/poster/li-08-slipping-man-painted.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "poster",
-    "dimensions": {
-     "width": 256,
-     "height": 256
+    "public/levels/lido/sprites/poster/decoy-wet-floor-aframe.png": {
+      "source": "public/levels/lido/sprites/source/poster/decoy-wet-floor-aframe.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 240,
+          "height": 300
+        },
+        "bytes": 3458,
+        "sha256": "f8fe653505927d9d555cc85b059c987ebe42fce8c3f123e2836b6f2e93b44d62",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 1795,
-    "sha256": "5937f82362dbf742471f6971fd455c844f404b708e2e25b64e928d3b642cfa31",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/poster/li-10-soft-serve-mascot-painted.svg": {
-   "source": "public/levels/lido/sprites/source/poster/li-10-soft-serve-mascot-painted.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "poster",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/poster/li-10-soft-serve-mascot-painted.png": {
-   "source": "public/levels/lido/sprites/source/poster/li-10-soft-serve-mascot-painted.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "poster",
-    "dimensions": {
-     "width": 256,
-     "height": 256
+    "public/levels/lido/sprites/source/poster/decoy-swim-school-poster.svg": {
+      "source": "public/levels/lido/sprites/source/poster/decoy-swim-school-poster.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 2065,
-    "sha256": "687e0892feb65bbb88386bf020235f4c76ed57d9449cfd25eac82e3e9cd7e5a3",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/riso/decoy-rules-board.svg": {
-   "source": "public/levels/lido/sprites/source/riso/decoy-rules-board.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "riso",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/riso/decoy-rules-board.png": {
-   "source": "public/levels/lido/sprites/source/riso/decoy-rules-board.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "riso",
-    "dimensions": {
-     "width": 420,
-     "height": 300
+    "public/levels/lido/sprites/poster/decoy-swim-school-poster.png": {
+      "source": "public/levels/lido/sprites/source/poster/decoy-swim-school-poster.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 440,
+          "height": 300
+        },
+        "bytes": 5056,
+        "sha256": "ff364ffe3c253f8eba091033792a994802b21e9271f1c2a80b2f0523ff31e4a7",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 6806,
-    "sha256": "12a735e6b7f004de17c60b4a51896f2ebdf6d230c65a581837a614c1620b30eb",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/riso/decoy-no-running-sign.svg": {
-   "source": "public/levels/lido/sprites/source/riso/decoy-no-running-sign.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "riso",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/riso/decoy-no-running-sign.png": {
-   "source": "public/levels/lido/sprites/source/riso/decoy-no-running-sign.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "riso",
-    "dimensions": {
-     "width": 256,
-     "height": 256
+    "public/levels/lido/sprites/source/poster/decoy-kiosk-mascot-panel.svg": {
+      "source": "public/levels/lido/sprites/source/poster/decoy-kiosk-mascot-panel.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 4494,
-    "sha256": "291fa09a2ba1ce107686ab60367e81f59f2d05e5012033b64e2e60b8d718b3fc",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/riso/decoy-depth-markers.svg": {
-   "source": "public/levels/lido/sprites/source/riso/decoy-depth-markers.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "riso",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/riso/decoy-depth-markers.png": {
-   "source": "public/levels/lido/sprites/source/riso/decoy-depth-markers.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "riso",
-    "dimensions": {
-     "width": 400,
-     "height": 180
+    "public/levels/lido/sprites/poster/decoy-kiosk-mascot-panel.png": {
+      "source": "public/levels/lido/sprites/source/poster/decoy-kiosk-mascot-panel.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 320,
+          "height": 300
+        },
+        "bytes": 4619,
+        "sha256": "af815e024c4c5628847fd7bd252c652927b559264c861ccddcca55539884a5ac",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 2216,
-    "sha256": "065b7d9ce7418fec227bd4b711c5800bd00b0fec09da18dfa8f80a226e390a75",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/riso/decoy-wet-floor-aframe.svg": {
-   "source": "public/levels/lido/sprites/source/riso/decoy-wet-floor-aframe.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "riso",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/riso/decoy-wet-floor-aframe.png": {
-   "source": "public/levels/lido/sprites/source/riso/decoy-wet-floor-aframe.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "riso",
-    "dimensions": {
-     "width": 240,
-     "height": 300
+    "public/levels/lido/sprites/source/poster/li-02-no-diving-painted.svg": {
+      "source": "public/levels/lido/sprites/source/poster/li-02-no-diving-painted.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 3463,
-    "sha256": "91d9137f2ad7de777da016b0cd740d45d0f08dc8fc38a6b09b5ada29ea9e8ce3",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/riso/decoy-swim-school-poster.svg": {
-   "source": "public/levels/lido/sprites/source/riso/decoy-swim-school-poster.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "riso",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/riso/decoy-swim-school-poster.png": {
-   "source": "public/levels/lido/sprites/source/riso/decoy-swim-school-poster.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "riso",
-    "dimensions": {
-     "width": 440,
-     "height": 300
+    "public/levels/lido/sprites/poster/li-02-no-diving-painted.png": {
+      "source": "public/levels/lido/sprites/source/poster/li-02-no-diving-painted.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 256,
+          "height": 256
+        },
+        "bytes": 1554,
+        "sha256": "61592a8c172d2db945d0bdc95842a96bc53e00a74d4ca31f1e139dc5b07da603",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 5064,
-    "sha256": "a8a31907bdb4f0f8bd211abac1cfc318c9bd703b410349c6fdf9cb772b04de3c",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/riso/decoy-kiosk-mascot-panel.svg": {
-   "source": "public/levels/lido/sprites/source/riso/decoy-kiosk-mascot-panel.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "riso",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/riso/decoy-kiosk-mascot-panel.png": {
-   "source": "public/levels/lido/sprites/source/riso/decoy-kiosk-mascot-panel.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "riso",
-    "dimensions": {
-     "width": 320,
-     "height": 300
+    "public/levels/lido/sprites/source/poster/li-07-fifth-poster-figure-painted.svg": {
+      "source": "public/levels/lido/sprites/source/poster/li-07-fifth-poster-figure-painted.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 4615,
-    "sha256": "23ced81fd2b0ad23f2b82472c8316d8873061bb1d17c245f86b9589ab479ac4f",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/riso/li-02-no-diving-painted.svg": {
-   "source": "public/levels/lido/sprites/source/riso/li-02-no-diving-painted.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "riso",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/riso/li-02-no-diving-painted.png": {
-   "source": "public/levels/lido/sprites/source/riso/li-02-no-diving-painted.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "riso",
-    "dimensions": {
-     "width": 256,
-     "height": 256
+    "public/levels/lido/sprites/poster/li-07-fifth-poster-figure-painted.png": {
+      "source": "public/levels/lido/sprites/source/poster/li-07-fifth-poster-figure-painted.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 256,
+          "height": 256
+        },
+        "bytes": 1799,
+        "sha256": "ee6195f9b583a08fbd94268a4d2b6b506f20169bded694f7d21073654ca4e5d4",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 1550,
-    "sha256": "c623624f856ee2d5845df33673dc070020e2d9da129a9a749dd62d51baf27a61",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/riso/li-07-fifth-poster-figure-painted.svg": {
-   "source": "public/levels/lido/sprites/source/riso/li-07-fifth-poster-figure-painted.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "riso",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/riso/li-07-fifth-poster-figure-painted.png": {
-   "source": "public/levels/lido/sprites/source/riso/li-07-fifth-poster-figure-painted.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "riso",
-    "dimensions": {
-     "width": 256,
-     "height": 256
+    "public/levels/lido/sprites/source/poster/li-08-slipping-man-painted.svg": {
+      "source": "public/levels/lido/sprites/source/poster/li-08-slipping-man-painted.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 1798,
-    "sha256": "d718f5ad789df30538a831fa87b14b5b55bdfed5b7e9fee84acfce321f8b80e8",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/riso/li-08-slipping-man-painted.svg": {
-   "source": "public/levels/lido/sprites/source/riso/li-08-slipping-man-painted.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "riso",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/riso/li-08-slipping-man-painted.png": {
-   "source": "public/levels/lido/sprites/source/riso/li-08-slipping-man-painted.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "riso",
-    "dimensions": {
-     "width": 256,
-     "height": 256
+    "public/levels/lido/sprites/poster/li-08-slipping-man-painted.png": {
+      "source": "public/levels/lido/sprites/source/poster/li-08-slipping-man-painted.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 256,
+          "height": 256
+        },
+        "bytes": 1795,
+        "sha256": "5937f82362dbf742471f6971fd455c844f404b708e2e25b64e928d3b642cfa31",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 1790,
-    "sha256": "c9ed8c144d85c76fc5fb35fda6815af6dc91a730107f3e4c587af419dd4e425e",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/riso/li-10-soft-serve-mascot-painted.svg": {
-   "source": "public/levels/lido/sprites/source/riso/li-10-soft-serve-mascot-painted.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "riso",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/riso/li-10-soft-serve-mascot-painted.png": {
-   "source": "public/levels/lido/sprites/source/riso/li-10-soft-serve-mascot-painted.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "riso",
-    "dimensions": {
-     "width": 256,
-     "height": 256
+    "public/levels/lido/sprites/source/poster/li-10-soft-serve-mascot-painted.svg": {
+      "source": "public/levels/lido/sprites/source/poster/li-10-soft-serve-mascot-painted.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 2054,
-    "sha256": "f7c044eb0ba695a5fdf07df64866101b4e9f181711f8cd0899393c2553d7eaf5",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/night/decoy-rules-board.svg": {
-   "source": "public/levels/lido/sprites/source/night/decoy-rules-board.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "night",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/night/decoy-rules-board.png": {
-   "source": "public/levels/lido/sprites/source/night/decoy-rules-board.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "night",
-    "dimensions": {
-     "width": 420,
-     "height": 300
+    "public/levels/lido/sprites/poster/li-10-soft-serve-mascot-painted.png": {
+      "source": "public/levels/lido/sprites/source/poster/li-10-soft-serve-mascot-painted.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 256,
+          "height": 256
+        },
+        "bytes": 2065,
+        "sha256": "687e0892feb65bbb88386bf020235f4c76ed57d9449cfd25eac82e3e9cd7e5a3",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 6817,
-    "sha256": "5595eab247006e8e497d26f70a8a907f850fd8e2f8c8fb5db17b3b8adfb82c78",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/night/decoy-no-running-sign.svg": {
-   "source": "public/levels/lido/sprites/source/night/decoy-no-running-sign.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "night",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/night/decoy-no-running-sign.png": {
-   "source": "public/levels/lido/sprites/source/night/decoy-no-running-sign.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "night",
-    "dimensions": {
-     "width": 256,
-     "height": 256
+    "public/levels/lido/sprites/source/riso/decoy-rules-board.svg": {
+      "source": "public/levels/lido/sprites/source/riso/decoy-rules-board.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 4499,
-    "sha256": "e0e382f633fd5a6268c4d4569f19f106abc79a194785c00298cc6f83bbb2011f",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/night/decoy-depth-markers.svg": {
-   "source": "public/levels/lido/sprites/source/night/decoy-depth-markers.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "night",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/night/decoy-depth-markers.png": {
-   "source": "public/levels/lido/sprites/source/night/decoy-depth-markers.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "night",
-    "dimensions": {
-     "width": 400,
-     "height": 180
+    "public/levels/lido/sprites/riso/decoy-rules-board.png": {
+      "source": "public/levels/lido/sprites/source/riso/decoy-rules-board.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 420,
+          "height": 300
+        },
+        "bytes": 6806,
+        "sha256": "12a735e6b7f004de17c60b4a51896f2ebdf6d230c65a581837a614c1620b30eb",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 2221,
-    "sha256": "3fad88538947fc6dd989ef3bb8fc476e135d47b26ecd7df93aeb7dbb44f00200",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/night/decoy-wet-floor-aframe.svg": {
-   "source": "public/levels/lido/sprites/source/night/decoy-wet-floor-aframe.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "night",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/night/decoy-wet-floor-aframe.png": {
-   "source": "public/levels/lido/sprites/source/night/decoy-wet-floor-aframe.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "night",
-    "dimensions": {
-     "width": 240,
-     "height": 300
+    "public/levels/lido/sprites/source/riso/decoy-no-running-sign.svg": {
+      "source": "public/levels/lido/sprites/source/riso/decoy-no-running-sign.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 3469,
-    "sha256": "0c05dd3f093dd1cf00cee529229fd626bd0f59a8c6c6fc5f53a77b657c7fd91c",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/night/decoy-swim-school-poster.svg": {
-   "source": "public/levels/lido/sprites/source/night/decoy-swim-school-poster.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "night",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/night/decoy-swim-school-poster.png": {
-   "source": "public/levels/lido/sprites/source/night/decoy-swim-school-poster.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "night",
-    "dimensions": {
-     "width": 440,
-     "height": 300
+    "public/levels/lido/sprites/riso/decoy-no-running-sign.png": {
+      "source": "public/levels/lido/sprites/source/riso/decoy-no-running-sign.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 256,
+          "height": 256
+        },
+        "bytes": 4494,
+        "sha256": "291fa09a2ba1ce107686ab60367e81f59f2d05e5012033b64e2e60b8d718b3fc",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 5057,
-    "sha256": "2d5e8e27c67aa077bcc2526858a6957413f326776fd65e94a50ff91f18fe80aa",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/night/decoy-kiosk-mascot-panel.svg": {
-   "source": "public/levels/lido/sprites/source/night/decoy-kiosk-mascot-panel.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "night",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/night/decoy-kiosk-mascot-panel.png": {
-   "source": "public/levels/lido/sprites/source/night/decoy-kiosk-mascot-panel.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "decoy",
-    "palette": "night",
-    "dimensions": {
-     "width": 320,
-     "height": 300
+    "public/levels/lido/sprites/source/riso/decoy-depth-markers.svg": {
+      "source": "public/levels/lido/sprites/source/riso/decoy-depth-markers.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 4623,
-    "sha256": "1254137fa66f503962fe2d3305908ed729d9ef8c167aef5f752e506969c542af",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/night/li-02-no-diving-painted.svg": {
-   "source": "public/levels/lido/sprites/source/night/li-02-no-diving-painted.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "night",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/night/li-02-no-diving-painted.png": {
-   "source": "public/levels/lido/sprites/source/night/li-02-no-diving-painted.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "night",
-    "dimensions": {
-     "width": 256,
-     "height": 256
+    "public/levels/lido/sprites/riso/decoy-depth-markers.png": {
+      "source": "public/levels/lido/sprites/source/riso/decoy-depth-markers.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 400,
+          "height": 180
+        },
+        "bytes": 2216,
+        "sha256": "065b7d9ce7418fec227bd4b711c5800bd00b0fec09da18dfa8f80a226e390a75",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 1552,
-    "sha256": "2da6433aad07e3eb423b4ee554359ae551e4eb086a68617fcd515f5d1cf3aeed",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/night/li-07-fifth-poster-figure-painted.svg": {
-   "source": "public/levels/lido/sprites/source/night/li-07-fifth-poster-figure-painted.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "night",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/night/li-07-fifth-poster-figure-painted.png": {
-   "source": "public/levels/lido/sprites/source/night/li-07-fifth-poster-figure-painted.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "night",
-    "dimensions": {
-     "width": 256,
-     "height": 256
+    "public/levels/lido/sprites/source/riso/decoy-wet-floor-aframe.svg": {
+      "source": "public/levels/lido/sprites/source/riso/decoy-wet-floor-aframe.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 1797,
-    "sha256": "3d91863186b052d6c2f44d5692bfff36bbddbb58809e677cffad703028fe9ef7",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/night/li-08-slipping-man-painted.svg": {
-   "source": "public/levels/lido/sprites/source/night/li-08-slipping-man-painted.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "night",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/night/li-08-slipping-man-painted.png": {
-   "source": "public/levels/lido/sprites/source/night/li-08-slipping-man-painted.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "night",
-    "dimensions": {
-     "width": 256,
-     "height": 256
+    "public/levels/lido/sprites/riso/decoy-wet-floor-aframe.png": {
+      "source": "public/levels/lido/sprites/source/riso/decoy-wet-floor-aframe.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 240,
+          "height": 300
+        },
+        "bytes": 3463,
+        "sha256": "91d9137f2ad7de777da016b0cd740d45d0f08dc8fc38a6b09b5ada29ea9e8ce3",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 1806,
-    "sha256": "259786f8e407d2263303757924a3026481cbc1154579a5dec19f6370a2c401ea",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/night/li-10-soft-serve-mascot-painted.svg": {
-   "source": "public/levels/lido/sprites/source/night/li-10-soft-serve-mascot-painted.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "night",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/night/li-10-soft-serve-mascot-painted.png": {
-   "source": "public/levels/lido/sprites/source/night/li-10-soft-serve-mascot-painted.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-painted",
-    "palette": "night",
-    "dimensions": {
-     "width": 256,
-     "height": 256
+    "public/levels/lido/sprites/source/riso/decoy-swim-school-poster.svg": {
+      "source": "public/levels/lido/sprites/source/riso/decoy-swim-school-poster.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 2067,
-    "sha256": "393ba303d57a1b0d23f3e976660e3f9cb0fb5951a70ef4d3c604f3573a4e3831",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/white/li-02-no-diving-white.svg": {
-   "source": "public/levels/lido/sprites/source/white/li-02-no-diving-white.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-white",
-    "palette": "white",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/white/li-02-no-diving-white.png": {
-   "source": "public/levels/lido/sprites/source/white/li-02-no-diving-white.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-white",
-    "palette": "white",
-    "dimensions": {
-     "width": 256,
-     "height": 256
+    "public/levels/lido/sprites/riso/decoy-swim-school-poster.png": {
+      "source": "public/levels/lido/sprites/source/riso/decoy-swim-school-poster.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 440,
+          "height": 300
+        },
+        "bytes": 5064,
+        "sha256": "a8a31907bdb4f0f8bd211abac1cfc318c9bd703b410349c6fdf9cb772b04de3c",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 1548,
-    "sha256": "65773c4812f76724440d757d5d923c9c610984c02c34152d5477c7c21c3c7513",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/white/li-07-fifth-poster-figure-white.svg": {
-   "source": "public/levels/lido/sprites/source/white/li-07-fifth-poster-figure-white.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-white",
-    "palette": "white",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/white/li-07-fifth-poster-figure-white.png": {
-   "source": "public/levels/lido/sprites/source/white/li-07-fifth-poster-figure-white.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-white",
-    "palette": "white",
-    "dimensions": {
-     "width": 256,
-     "height": 256
+    "public/levels/lido/sprites/source/riso/decoy-kiosk-mascot-panel.svg": {
+      "source": "public/levels/lido/sprites/source/riso/decoy-kiosk-mascot-panel.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 1793,
-    "sha256": "ebc60b623d6cfee6d7adc571c9872a574a5b4ea485f315bcf9351e275fb648f4",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/white/li-08-slipping-man-white.svg": {
-   "source": "public/levels/lido/sprites/source/white/li-08-slipping-man-white.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-white",
-    "palette": "white",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/white/li-08-slipping-man-white.png": {
-   "source": "public/levels/lido/sprites/source/white/li-08-slipping-man-white.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-white",
-    "palette": "white",
-    "dimensions": {
-     "width": 256,
-     "height": 256
+    "public/levels/lido/sprites/riso/decoy-kiosk-mascot-panel.png": {
+      "source": "public/levels/lido/sprites/source/riso/decoy-kiosk-mascot-panel.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 320,
+          "height": 300
+        },
+        "bytes": 4615,
+        "sha256": "23ced81fd2b0ad23f2b82472c8316d8873061bb1d17c245f86b9589ab479ac4f",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 1801,
-    "sha256": "b5a48cd15df24b7648d5c1e99f064f701fd8f679cdc8670678dff0b1d4701d04",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/source/white/li-10-soft-serve-mascot-white.svg": {
-   "source": "public/levels/lido/sprites/source/white/li-10-soft-serve-mascot-white.svg",
-   "expectation": "exact-bytes",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-white",
-    "palette": "white",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  },
-  "public/levels/lido/sprites/white/li-10-soft-serve-mascot-white.png": {
-   "source": "public/levels/lido/sprites/source/white/li-10-soft-serve-mascot-white.svg",
-   "expectation": "intentionally-different",
-   "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
-   "provenance": {
-    "authored": true,
-    "generated": false,
-    "card": "JWZ5Un6g",
-    "script": "tools/cameleon-sign-lane-assets.mjs",
-    "kind": "hide-white",
-    "palette": "white",
-    "dimensions": {
-     "width": 256,
-     "height": 256
+    "public/levels/lido/sprites/source/riso/li-02-no-diving-painted.svg": {
+      "source": "public/levels/lido/sprites/source/riso/li-02-no-diving-painted.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
     },
-    "bytes": 2061,
-    "sha256": "5d679f13c12a79ee18dc31bd4c7c39de9806509e7e6acb8bc2f739b5a8dd0e33",
-    "designRefs": [
-     "docs/DESIGN.md#4-hide-roster",
-     "docs/DESIGN.md#9-art-generation-plan"
-    ]
-   }
-  }
- },
- "conductor-art-v1": [
-  {
-   "path": "public/levels/lido/panels/poster/panel-a.png",
-   "generated": true,
-   "model": "google/gemini-2.5-flash-image",
-   "date": "2026-07-08",
-   "cost_estimate_usd": 0.24,
-   "spec": "panelA-poster-v2",
-   "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
-   "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
+    "public/levels/lido/sprites/riso/li-02-no-diving-painted.png": {
+      "source": "public/levels/lido/sprites/source/riso/li-02-no-diving-painted.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 256,
+          "height": 256
+        },
+        "bytes": 1550,
+        "sha256": "c623624f856ee2d5845df33673dc070020e2d9da129a9a749dd62d51baf27a61",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/source/riso/li-07-fifth-poster-figure-painted.svg": {
+      "source": "public/levels/lido/sprites/source/riso/li-07-fifth-poster-figure-painted.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/riso/li-07-fifth-poster-figure-painted.png": {
+      "source": "public/levels/lido/sprites/source/riso/li-07-fifth-poster-figure-painted.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 256,
+          "height": 256
+        },
+        "bytes": 1798,
+        "sha256": "d718f5ad789df30538a831fa87b14b5b55bdfed5b7e9fee84acfce321f8b80e8",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/source/riso/li-08-slipping-man-painted.svg": {
+      "source": "public/levels/lido/sprites/source/riso/li-08-slipping-man-painted.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/riso/li-08-slipping-man-painted.png": {
+      "source": "public/levels/lido/sprites/source/riso/li-08-slipping-man-painted.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 256,
+          "height": 256
+        },
+        "bytes": 1790,
+        "sha256": "c9ed8c144d85c76fc5fb35fda6815af6dc91a730107f3e4c587af419dd4e425e",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/source/riso/li-10-soft-serve-mascot-painted.svg": {
+      "source": "public/levels/lido/sprites/source/riso/li-10-soft-serve-mascot-painted.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/riso/li-10-soft-serve-mascot-painted.png": {
+      "source": "public/levels/lido/sprites/source/riso/li-10-soft-serve-mascot-painted.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 256,
+          "height": 256
+        },
+        "bytes": 2054,
+        "sha256": "f7c044eb0ba695a5fdf07df64866101b4e9f181711f8cd0899393c2553d7eaf5",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/source/night/decoy-rules-board.svg": {
+      "source": "public/levels/lido/sprites/source/night/decoy-rules-board.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/night/decoy-rules-board.png": {
+      "source": "public/levels/lido/sprites/source/night/decoy-rules-board.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 420,
+          "height": 300
+        },
+        "bytes": 6817,
+        "sha256": "5595eab247006e8e497d26f70a8a907f850fd8e2f8c8fb5db17b3b8adfb82c78",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/source/night/decoy-no-running-sign.svg": {
+      "source": "public/levels/lido/sprites/source/night/decoy-no-running-sign.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/night/decoy-no-running-sign.png": {
+      "source": "public/levels/lido/sprites/source/night/decoy-no-running-sign.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 256,
+          "height": 256
+        },
+        "bytes": 4499,
+        "sha256": "e0e382f633fd5a6268c4d4569f19f106abc79a194785c00298cc6f83bbb2011f",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/source/night/decoy-depth-markers.svg": {
+      "source": "public/levels/lido/sprites/source/night/decoy-depth-markers.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/night/decoy-depth-markers.png": {
+      "source": "public/levels/lido/sprites/source/night/decoy-depth-markers.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 400,
+          "height": 180
+        },
+        "bytes": 2221,
+        "sha256": "3fad88538947fc6dd989ef3bb8fc476e135d47b26ecd7df93aeb7dbb44f00200",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/source/night/decoy-wet-floor-aframe.svg": {
+      "source": "public/levels/lido/sprites/source/night/decoy-wet-floor-aframe.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/night/decoy-wet-floor-aframe.png": {
+      "source": "public/levels/lido/sprites/source/night/decoy-wet-floor-aframe.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 240,
+          "height": 300
+        },
+        "bytes": 3469,
+        "sha256": "0c05dd3f093dd1cf00cee529229fd626bd0f59a8c6c6fc5f53a77b657c7fd91c",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/source/night/decoy-swim-school-poster.svg": {
+      "source": "public/levels/lido/sprites/source/night/decoy-swim-school-poster.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/night/decoy-swim-school-poster.png": {
+      "source": "public/levels/lido/sprites/source/night/decoy-swim-school-poster.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 440,
+          "height": 300
+        },
+        "bytes": 5057,
+        "sha256": "2d5e8e27c67aa077bcc2526858a6957413f326776fd65e94a50ff91f18fe80aa",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/source/night/decoy-kiosk-mascot-panel.svg": {
+      "source": "public/levels/lido/sprites/source/night/decoy-kiosk-mascot-panel.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/night/decoy-kiosk-mascot-panel.png": {
+      "source": "public/levels/lido/sprites/source/night/decoy-kiosk-mascot-panel.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "decoy",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 320,
+          "height": 300
+        },
+        "bytes": 4623,
+        "sha256": "1254137fa66f503962fe2d3305908ed729d9ef8c167aef5f752e506969c542af",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/source/night/li-02-no-diving-painted.svg": {
+      "source": "public/levels/lido/sprites/source/night/li-02-no-diving-painted.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/night/li-02-no-diving-painted.png": {
+      "source": "public/levels/lido/sprites/source/night/li-02-no-diving-painted.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 256,
+          "height": 256
+        },
+        "bytes": 1552,
+        "sha256": "2da6433aad07e3eb423b4ee554359ae551e4eb086a68617fcd515f5d1cf3aeed",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/source/night/li-07-fifth-poster-figure-painted.svg": {
+      "source": "public/levels/lido/sprites/source/night/li-07-fifth-poster-figure-painted.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/night/li-07-fifth-poster-figure-painted.png": {
+      "source": "public/levels/lido/sprites/source/night/li-07-fifth-poster-figure-painted.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 256,
+          "height": 256
+        },
+        "bytes": 1797,
+        "sha256": "3d91863186b052d6c2f44d5692bfff36bbddbb58809e677cffad703028fe9ef7",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/source/night/li-08-slipping-man-painted.svg": {
+      "source": "public/levels/lido/sprites/source/night/li-08-slipping-man-painted.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/night/li-08-slipping-man-painted.png": {
+      "source": "public/levels/lido/sprites/source/night/li-08-slipping-man-painted.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 256,
+          "height": 256
+        },
+        "bytes": 1806,
+        "sha256": "259786f8e407d2263303757924a3026481cbc1154579a5dec19f6370a2c401ea",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/source/night/li-10-soft-serve-mascot-painted.svg": {
+      "source": "public/levels/lido/sprites/source/night/li-10-soft-serve-mascot-painted.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/night/li-10-soft-serve-mascot-painted.png": {
+      "source": "public/levels/lido/sprites/source/night/li-10-soft-serve-mascot-painted.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 256,
+          "height": 256
+        },
+        "bytes": 2067,
+        "sha256": "393ba303d57a1b0d23f3e976660e3f9cb0fb5951a70ef4d3c604f3573a4e3831",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/source/white/li-02-no-diving-white.svg": {
+      "source": "public/levels/lido/sprites/source/white/li-02-no-diving-white.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-white",
+        "palette": "white",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/white/li-02-no-diving-white.png": {
+      "source": "public/levels/lido/sprites/source/white/li-02-no-diving-white.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-white",
+        "palette": "white",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 256,
+          "height": 256
+        },
+        "bytes": 1548,
+        "sha256": "65773c4812f76724440d757d5d923c9c610984c02c34152d5477c7c21c3c7513",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/source/white/li-07-fifth-poster-figure-white.svg": {
+      "source": "public/levels/lido/sprites/source/white/li-07-fifth-poster-figure-white.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-white",
+        "palette": "white",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/white/li-07-fifth-poster-figure-white.png": {
+      "source": "public/levels/lido/sprites/source/white/li-07-fifth-poster-figure-white.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-white",
+        "palette": "white",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 256,
+          "height": 256
+        },
+        "bytes": 1793,
+        "sha256": "ebc60b623d6cfee6d7adc571c9872a574a5b4ea485f315bcf9351e275fb648f4",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/source/white/li-08-slipping-man-white.svg": {
+      "source": "public/levels/lido/sprites/source/white/li-08-slipping-man-white.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-white",
+        "palette": "white",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/white/li-08-slipping-man-white.png": {
+      "source": "public/levels/lido/sprites/source/white/li-08-slipping-man-white.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-white",
+        "palette": "white",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 256,
+          "height": 256
+        },
+        "bytes": 1801,
+        "sha256": "b5a48cd15df24b7648d5c1e99f064f701fd8f679cdc8670678dff0b1d4701d04",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/source/white/li-10-soft-serve-mascot-white.svg": {
+      "source": "public/levels/lido/sprites/source/white/li-10-soft-serve-mascot-white.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-white",
+        "palette": "white",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/white/li-10-soft-serve-mascot-white.png": {
+      "source": "public/levels/lido/sprites/source/white/li-10-soft-serve-mascot-white.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-white",
+        "palette": "white",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 256,
+          "height": 256
+        },
+        "bytes": 2061,
+        "sha256": "5d679f13c12a79ee18dc31bd4c7c39de9806509e7e6acb8bc2f739b5a8dd0e33",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/riso/li-01-painted-organic.png": {
+      "source": "public/levels/lido/sprites/poster/li-01-painted-organic.png",
+      "expectation": "derived-alpha-lock",
+      "reason": "Deterministic local recolor from accepted Poster Pop organic sprite; alpha copied from the accepted white reveal.",
+      "provenance": {
+        "authored": false,
+        "generated": false,
+        "model": "derived",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "card": "cHf5RquT",
+        "script": "tools/cameleon-lido-asset-variants.mjs",
+        "kind": "hide-painted-derived",
+        "palette": "riso",
+        "sourcePainted": "public/levels/lido/sprites/poster/li-01-painted-organic.png",
+        "sourceAlpha": "public/levels/lido/sprites/white/li-01-white-organic.png",
+        "dimensions": {
+          "width": 602,
+          "height": 594
+        },
+        "bytes": 162011,
+        "sha256": "c5687f0ff43764f497ef8c5030c7fcf95cf28787f39c599eb48dc4a752b78495",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/night/li-01-painted-organic.png": {
+      "source": "public/levels/lido/sprites/poster/li-01-painted-organic.png",
+      "expectation": "derived-alpha-lock",
+      "reason": "Deterministic local recolor from accepted Poster Pop organic sprite; alpha copied from the accepted white reveal.",
+      "provenance": {
+        "authored": false,
+        "generated": false,
+        "model": "derived",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "card": "cHf5RquT",
+        "script": "tools/cameleon-lido-asset-variants.mjs",
+        "kind": "hide-painted-derived",
+        "palette": "night",
+        "sourcePainted": "public/levels/lido/sprites/poster/li-01-painted-organic.png",
+        "sourceAlpha": "public/levels/lido/sprites/white/li-01-white-organic.png",
+        "dimensions": {
+          "width": 602,
+          "height": 594
+        },
+        "bytes": 170794,
+        "sha256": "5fa5c3c00fd4941a888c9f0677262884ac0615fef5ec82a1e1942ae54c185592",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/riso/li-03-painted-organic.png": {
+      "source": "public/levels/lido/sprites/poster/li-03-painted-organic.png",
+      "expectation": "derived-alpha-lock",
+      "reason": "Deterministic local recolor from accepted Poster Pop organic sprite; alpha copied from the accepted white reveal.",
+      "provenance": {
+        "authored": false,
+        "generated": false,
+        "model": "derived",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "card": "cHf5RquT",
+        "script": "tools/cameleon-lido-asset-variants.mjs",
+        "kind": "hide-painted-derived",
+        "palette": "riso",
+        "sourcePainted": "public/levels/lido/sprites/poster/li-03-painted-organic.png",
+        "sourceAlpha": "public/levels/lido/sprites/white/li-03-white-organic.png",
+        "dimensions": {
+          "width": 516,
+          "height": 703
+        },
+        "bytes": 205471,
+        "sha256": "232ee45cc80aef8eaf0eb0c68bc90326fa3fb03a9d06adea5d3e3f28975cb1ef",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/night/li-03-painted-organic.png": {
+      "source": "public/levels/lido/sprites/poster/li-03-painted-organic.png",
+      "expectation": "derived-alpha-lock",
+      "reason": "Deterministic local recolor from accepted Poster Pop organic sprite; alpha copied from the accepted white reveal.",
+      "provenance": {
+        "authored": false,
+        "generated": false,
+        "model": "derived",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "card": "cHf5RquT",
+        "script": "tools/cameleon-lido-asset-variants.mjs",
+        "kind": "hide-painted-derived",
+        "palette": "night",
+        "sourcePainted": "public/levels/lido/sprites/poster/li-03-painted-organic.png",
+        "sourceAlpha": "public/levels/lido/sprites/white/li-03-white-organic.png",
+        "dimensions": {
+          "width": 516,
+          "height": 703
+        },
+        "bytes": 212186,
+        "sha256": "16abce7390779e5754b43415e9277f74ea14f4e3dc2e431120fb3c1d0ad21d65",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/riso/li-04-painted-organic.png": {
+      "source": "public/levels/lido/sprites/poster/li-04-painted-organic.png",
+      "expectation": "derived-alpha-lock",
+      "reason": "Deterministic local recolor from accepted Poster Pop organic sprite; alpha copied from the accepted white reveal.",
+      "provenance": {
+        "authored": false,
+        "generated": false,
+        "model": "derived",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "card": "cHf5RquT",
+        "script": "tools/cameleon-lido-asset-variants.mjs",
+        "kind": "hide-painted-derived",
+        "palette": "riso",
+        "sourcePainted": "public/levels/lido/sprites/poster/li-04-painted-organic.png",
+        "sourceAlpha": "public/levels/lido/sprites/white/li-04-white-organic.png",
+        "dimensions": {
+          "width": 481,
+          "height": 774
+        },
+        "bytes": 182172,
+        "sha256": "b657255dd78248b4aa34694d8793b1d651bd4095ac6f15b8b1553f7d16b170cb",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/night/li-04-painted-organic.png": {
+      "source": "public/levels/lido/sprites/poster/li-04-painted-organic.png",
+      "expectation": "derived-alpha-lock",
+      "reason": "Deterministic local recolor from accepted Poster Pop organic sprite; alpha copied from the accepted white reveal.",
+      "provenance": {
+        "authored": false,
+        "generated": false,
+        "model": "derived",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "card": "cHf5RquT",
+        "script": "tools/cameleon-lido-asset-variants.mjs",
+        "kind": "hide-painted-derived",
+        "palette": "night",
+        "sourcePainted": "public/levels/lido/sprites/poster/li-04-painted-organic.png",
+        "sourceAlpha": "public/levels/lido/sprites/white/li-04-white-organic.png",
+        "dimensions": {
+          "width": 481,
+          "height": 774
+        },
+        "bytes": 189039,
+        "sha256": "8f3da27faa8b98f6d876a956040a287f97130b5a7f9c85f08ccd419ea079395f",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/riso/li-05-painted-organic.png": {
+      "source": "public/levels/lido/sprites/poster/li-05-painted-organic.png",
+      "expectation": "derived-alpha-lock",
+      "reason": "Deterministic local recolor from accepted Poster Pop organic sprite; alpha copied from the accepted white reveal.",
+      "provenance": {
+        "authored": false,
+        "generated": false,
+        "model": "derived",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "card": "cHf5RquT",
+        "script": "tools/cameleon-lido-asset-variants.mjs",
+        "kind": "hide-painted-derived",
+        "palette": "riso",
+        "sourcePainted": "public/levels/lido/sprites/poster/li-05-painted-organic.png",
+        "sourceAlpha": "public/levels/lido/sprites/white/li-05-white-organic.png",
+        "dimensions": {
+          "width": 830,
+          "height": 318
+        },
+        "bytes": 147325,
+        "sha256": "7fe01aed0c6dc8bf0b3a3f327b3b01758de851a585f328fcbfa4db8c2e70fd08",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/night/li-05-painted-organic.png": {
+      "source": "public/levels/lido/sprites/poster/li-05-painted-organic.png",
+      "expectation": "derived-alpha-lock",
+      "reason": "Deterministic local recolor from accepted Poster Pop organic sprite; alpha copied from the accepted white reveal.",
+      "provenance": {
+        "authored": false,
+        "generated": false,
+        "model": "derived",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "card": "cHf5RquT",
+        "script": "tools/cameleon-lido-asset-variants.mjs",
+        "kind": "hide-painted-derived",
+        "palette": "night",
+        "sourcePainted": "public/levels/lido/sprites/poster/li-05-painted-organic.png",
+        "sourceAlpha": "public/levels/lido/sprites/white/li-05-white-organic.png",
+        "dimensions": {
+          "width": 830,
+          "height": 318
+        },
+        "bytes": 151654,
+        "sha256": "60b3d684c0c5ce6d912cbaef5b0b1c174cef358cbbf8189c6788cce7cc3ab3b3",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/riso/li-09-painted-organic.png": {
+      "source": "public/levels/lido/sprites/poster/li-09-painted-organic.png",
+      "expectation": "derived-alpha-lock",
+      "reason": "Deterministic local recolor from accepted Poster Pop organic sprite; alpha copied from the accepted white reveal.",
+      "provenance": {
+        "authored": false,
+        "generated": false,
+        "model": "derived",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "card": "cHf5RquT",
+        "script": "tools/cameleon-lido-asset-variants.mjs",
+        "kind": "hide-painted-derived",
+        "palette": "riso",
+        "sourcePainted": "public/levels/lido/sprites/poster/li-09-painted-organic.png",
+        "sourceAlpha": "public/levels/lido/sprites/white/li-09-white-organic.png",
+        "dimensions": {
+          "width": 565,
+          "height": 544
+        },
+        "bytes": 198268,
+        "sha256": "96bb3f891a887d61e2fa8b2ac7275433ae17df06aa15bb538c6f8a080c6ff47f",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/night/li-09-painted-organic.png": {
+      "source": "public/levels/lido/sprites/poster/li-09-painted-organic.png",
+      "expectation": "derived-alpha-lock",
+      "reason": "Deterministic local recolor from accepted Poster Pop organic sprite; alpha copied from the accepted white reveal.",
+      "provenance": {
+        "authored": false,
+        "generated": false,
+        "model": "derived",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "card": "cHf5RquT",
+        "script": "tools/cameleon-lido-asset-variants.mjs",
+        "kind": "hide-painted-derived",
+        "palette": "night",
+        "sourcePainted": "public/levels/lido/sprites/poster/li-09-painted-organic.png",
+        "sourceAlpha": "public/levels/lido/sprites/white/li-09-white-organic.png",
+        "dimensions": {
+          "width": 565,
+          "height": 544
+        },
+        "bytes": 204029,
+        "sha256": "9e9cdd44756ca8c82e0685b0f125cd48298c41ac5075534a0c4f70aad68a8fbe",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/source/poster/li-06-lane-rope-painted.svg": {
+      "source": "public/levels/lido/sprites/source/poster/li-06-lane-rope-painted.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/poster/li-06-lane-rope-painted.png": {
+      "source": "public/levels/lido/sprites/source/poster/li-06-lane-rope-painted.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "poster",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 320,
+          "height": 120
+        },
+        "bytes": 1733,
+        "sha256": "4516b81d210adb8b9b0efdffc1ef423b3f3a2de806e6369c998b53c10e80b7b0",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/source/riso/li-06-lane-rope-painted.svg": {
+      "source": "public/levels/lido/sprites/source/riso/li-06-lane-rope-painted.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/riso/li-06-lane-rope-painted.png": {
+      "source": "public/levels/lido/sprites/source/riso/li-06-lane-rope-painted.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "riso",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 320,
+          "height": 120
+        },
+        "bytes": 1737,
+        "sha256": "4c83ad438ae72327afa8c4b1c6d7190bfbf975340606ca16b64e79b06b86cb0b",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/source/night/li-06-lane-rope-painted.svg": {
+      "source": "public/levels/lido/sprites/source/night/li-06-lane-rope-painted.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/night/li-06-lane-rope-painted.png": {
+      "source": "public/levels/lido/sprites/source/night/li-06-lane-rope-painted.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-painted",
+        "palette": "night",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 320,
+          "height": 120
+        },
+        "bytes": 1731,
+        "sha256": "8db5c946c5be3aec11f874e5ecd21ae971a180f99d26d1eac261857c814e83a7",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/source/white/li-06-lane-rope-white.svg": {
+      "source": "public/levels/lido/sprites/source/white/li-06-lane-rope-white.svg",
+      "expectation": "exact-bytes",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-white",
+        "palette": "white",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    },
+    "public/levels/lido/sprites/white/li-06-lane-rope-white.png": {
+      "source": "public/levels/lido/sprites/source/white/li-06-lane-rope-white.svg",
+      "expectation": "intentionally-different",
+      "reason": "Rendered PNG from authored SVG/vector primitives by the local sign-lane asset script.",
+      "provenance": {
+        "authored": true,
+        "generated": false,
+        "card": "JWZ5Un6g",
+        "script": "tools/cameleon-sign-lane-assets.mjs",
+        "kind": "hide-white",
+        "palette": "white",
+        "model": "authored-vector",
+        "date": "2026-07-08",
+        "cost_estimate_usd": 0,
+        "dimensions": {
+          "width": 320,
+          "height": 120
+        },
+        "bytes": 1636,
+        "sha256": "14911cfac7ca194a45177e33bcc879d5f40019e1734e25f5b809b1800bca55ff",
+        "designRefs": [
+          "docs/DESIGN.md#4-hide-roster",
+          "docs/DESIGN.md#9-art-generation-plan"
+        ]
+      }
+    }
   },
-  {
-   "path": "public/levels/lido/panels/poster/panel-b.png",
-   "generated": true,
-   "model": "google/gemini-2.5-flash-image",
-   "date": "2026-07-08",
-   "cost_estimate_usd": 0.12,
-   "spec": "panelB-poster-probe",
-   "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
-   "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
-  },
-  {
-   "path": "public/levels/lido/panels/poster/panel-c.png",
-   "generated": true,
-   "model": "google/gemini-2.5-flash-image",
-   "date": "2026-07-08",
-   "cost_estimate_usd": 0.24,
-   "spec": "panelC-poster-v2",
-   "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
-   "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
-  },
-  {
-   "path": "public/levels/lido/sprites/poster/li-01-painted-organic.png",
-   "generated": true,
-   "model": "google/gemini-2.5-flash-image",
-   "date": "2026-07-08",
-   "cost_estimate_usd": 0.24,
-   "spec": "li01 spec",
-   "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
-   "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
-  },
-  {
-   "path": "public/levels/lido/sprites/white/li-01-white-organic.png",
-   "generated": false,
-   "model": "derived",
-   "date": "2026-07-08",
-   "cost_estimate_usd": 0.0,
-   "spec": "derived from li-01 painted alpha (alpha-locked, byte-equal)",
-   "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
-   "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
-  },
-  {
-   "path": "public/levels/lido/sprites/poster/li-03-painted-organic.png",
-   "generated": true,
-   "model": "google/gemini-2.5-flash-image",
-   "date": "2026-07-08",
-   "cost_estimate_usd": 0.12,
-   "spec": "li03 spec",
-   "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
-   "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
-  },
-  {
-   "path": "public/levels/lido/sprites/white/li-03-white-organic.png",
-   "generated": false,
-   "model": "derived",
-   "date": "2026-07-08",
-   "cost_estimate_usd": 0.0,
-   "spec": "derived from li-03 painted alpha (alpha-locked, byte-equal)",
-   "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
-   "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
-  },
-  {
-   "path": "public/levels/lido/sprites/poster/li-04-painted-organic.png",
-   "generated": true,
-   "model": "google/gemini-2.5-flash-image",
-   "date": "2026-07-08",
-   "cost_estimate_usd": 0.12,
-   "spec": "li04 spec",
-   "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
-   "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
-  },
-  {
-   "path": "public/levels/lido/sprites/white/li-04-white-organic.png",
-   "generated": false,
-   "model": "derived",
-   "date": "2026-07-08",
-   "cost_estimate_usd": 0.0,
-   "spec": "derived from li-04 painted alpha (alpha-locked, byte-equal)",
-   "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
-   "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
-  },
-  {
-   "path": "public/levels/lido/sprites/poster/li-05-painted-organic.png",
-   "generated": true,
-   "model": "google/gemini-2.5-flash-image",
-   "date": "2026-07-08",
-   "cost_estimate_usd": 0.36,
-   "spec": "li05 spec",
-   "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
-   "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
-  },
-  {
-   "path": "public/levels/lido/sprites/white/li-05-white-organic.png",
-   "generated": false,
-   "model": "derived",
-   "date": "2026-07-08",
-   "cost_estimate_usd": 0.0,
-   "spec": "derived from li-05 painted alpha (alpha-locked, byte-equal)",
-   "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
-   "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
-  },
-  {
-   "path": "public/levels/lido/sprites/poster/li-09-painted-organic.png",
-   "generated": true,
-   "model": "google/gemini-2.5-flash-image",
-   "date": "2026-07-08",
-   "cost_estimate_usd": 0.24,
-   "spec": "li09 spec",
-   "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
-   "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
-  },
-  {
-   "path": "public/levels/lido/sprites/white/li-09-white-organic.png",
-   "generated": false,
-   "model": "derived",
-   "date": "2026-07-08",
-   "cost_estimate_usd": 0.0,
-   "spec": "derived from li-09 painted alpha (alpha-locked, byte-equal)",
-   "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
-   "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
-  },
-  {
-   "path": "public/levels/lido/sprites/poster/decoy-tent.png",
-   "generated": true,
-   "model": "google/gemini-2.5-flash-image",
-   "date": "2026-07-08",
-   "cost_estimate_usd": 0.12,
-   "spec": "decoy-tent",
-   "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
-   "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
-  },
-  {
-   "path": "public/levels/lido/sprites/poster/decoy-robe.png",
-   "generated": true,
-   "model": "google/gemini-2.5-flash-image",
-   "date": "2026-07-08",
-   "cost_estimate_usd": 0.12,
-   "spec": "decoy-robe",
-   "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
-   "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
-  },
-  {
-   "path": "public/levels/lido/sprites/poster/decoy-ringstack.png",
-   "generated": true,
-   "model": "google/gemini-2.5-flash-image",
-   "date": "2026-07-08",
-   "cost_estimate_usd": 0.12,
-   "spec": "decoy-ringstack",
-   "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
-   "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
-  },
-  {
-   "path": "public/levels/lido/sprites/poster/decoy-bodyprint-towel.png",
-   "generated": true,
-   "model": "google/gemini-2.5-flash-image",
-   "date": "2026-07-08",
-   "cost_estimate_usd": 0.12,
-   "spec": "decoy-bodyprint-towel",
-   "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
-   "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
-  },
-  {
-   "path": "public/levels/lido/sprites/poster/seam-pillar-deck.png",
-   "generated": false,
-   "model": "authored",
-   "date": "2026-07-08",
-   "cost_estimate_usd": 0.0,
-   "spec": "authored PIL",
-   "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
-   "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
-  }
- ]
+  "conductor-art-v1": [
+    {
+      "path": "public/levels/lido/panels/poster/panel-a.png",
+      "generated": true,
+      "model": "google/gemini-2.5-flash-image",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0.24,
+      "spec": "panelA-poster-v2",
+      "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
+      "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
+    },
+    {
+      "path": "public/levels/lido/panels/poster/panel-b.png",
+      "generated": true,
+      "model": "google/gemini-2.5-flash-image",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0.12,
+      "spec": "panelB-poster-probe",
+      "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
+      "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
+    },
+    {
+      "path": "public/levels/lido/panels/poster/panel-c.png",
+      "generated": true,
+      "model": "google/gemini-2.5-flash-image",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0.24,
+      "spec": "panelC-poster-v2",
+      "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
+      "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
+    },
+    {
+      "path": "public/levels/lido/sprites/poster/li-01-painted-organic.png",
+      "generated": true,
+      "model": "google/gemini-2.5-flash-image",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0.24,
+      "spec": "li01 spec",
+      "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
+      "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
+    },
+    {
+      "path": "public/levels/lido/sprites/white/li-01-white-organic.png",
+      "generated": false,
+      "model": "derived",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0,
+      "spec": "derived from li-01 painted alpha (alpha-locked, byte-equal)",
+      "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
+      "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
+    },
+    {
+      "path": "public/levels/lido/sprites/poster/li-03-painted-organic.png",
+      "generated": true,
+      "model": "google/gemini-2.5-flash-image",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0.12,
+      "spec": "li03 spec",
+      "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
+      "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
+    },
+    {
+      "path": "public/levels/lido/sprites/white/li-03-white-organic.png",
+      "generated": false,
+      "model": "derived",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0,
+      "spec": "derived from li-03 painted alpha (alpha-locked, byte-equal)",
+      "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
+      "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
+    },
+    {
+      "path": "public/levels/lido/sprites/poster/li-04-painted-organic.png",
+      "generated": true,
+      "model": "google/gemini-2.5-flash-image",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0.12,
+      "spec": "li04 spec",
+      "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
+      "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
+    },
+    {
+      "path": "public/levels/lido/sprites/white/li-04-white-organic.png",
+      "generated": false,
+      "model": "derived",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0,
+      "spec": "derived from li-04 painted alpha (alpha-locked, byte-equal)",
+      "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
+      "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
+    },
+    {
+      "path": "public/levels/lido/sprites/poster/li-05-painted-organic.png",
+      "generated": true,
+      "model": "google/gemini-2.5-flash-image",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0.36,
+      "spec": "li05 spec",
+      "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
+      "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
+    },
+    {
+      "path": "public/levels/lido/sprites/white/li-05-white-organic.png",
+      "generated": false,
+      "model": "derived",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0,
+      "spec": "derived from li-05 painted alpha (alpha-locked, byte-equal)",
+      "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
+      "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
+    },
+    {
+      "path": "public/levels/lido/sprites/poster/li-09-painted-organic.png",
+      "generated": true,
+      "model": "google/gemini-2.5-flash-image",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0.24,
+      "spec": "li09 spec",
+      "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
+      "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
+    },
+    {
+      "path": "public/levels/lido/sprites/white/li-09-white-organic.png",
+      "generated": false,
+      "model": "derived",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0,
+      "spec": "derived from li-09 painted alpha (alpha-locked, byte-equal)",
+      "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
+      "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
+    },
+    {
+      "path": "public/levels/lido/sprites/poster/decoy-tent.png",
+      "generated": true,
+      "model": "google/gemini-2.5-flash-image",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0.12,
+      "spec": "decoy-tent",
+      "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
+      "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
+    },
+    {
+      "path": "public/levels/lido/sprites/poster/decoy-robe.png",
+      "generated": true,
+      "model": "google/gemini-2.5-flash-image",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0.12,
+      "spec": "decoy-robe",
+      "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
+      "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
+    },
+    {
+      "path": "public/levels/lido/sprites/poster/decoy-ringstack.png",
+      "generated": true,
+      "model": "google/gemini-2.5-flash-image",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0.12,
+      "spec": "decoy-ringstack",
+      "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
+      "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
+    },
+    {
+      "path": "public/levels/lido/sprites/poster/decoy-bodyprint-towel.png",
+      "generated": true,
+      "model": "google/gemini-2.5-flash-image",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0.12,
+      "spec": "decoy-bodyprint-towel",
+      "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
+      "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
+    },
+    {
+      "path": "public/levels/lido/sprites/poster/seam-pillar-deck.png",
+      "generated": false,
+      "model": "authored",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0,
+      "spec": "authored PIL",
+      "provenance": "conductor art lane, specs in games/cameleon/.work/gen-2026-07-08/",
+      "accepted_by": "conductor eyes-on (pano-mock-v3 + per-hide crops)"
+    }
+  ],
+  "derived-lido-art-v1": [
+    {
+      "path": "public/levels/lido/sprites/riso/li-01-painted-organic.png",
+      "generated": false,
+      "model": "derived",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0,
+      "spec": "li-01 riso local recolor; alpha copied from white reveal",
+      "source": "public/levels/lido/sprites/poster/li-01-painted-organic.png",
+      "alpha_source": "public/levels/lido/sprites/white/li-01-white-organic.png",
+      "provenance": "tools/cameleon-lido-asset-variants.mjs"
+    },
+    {
+      "path": "public/levels/lido/sprites/night/li-01-painted-organic.png",
+      "generated": false,
+      "model": "derived",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0,
+      "spec": "li-01 night local recolor; alpha copied from white reveal",
+      "source": "public/levels/lido/sprites/poster/li-01-painted-organic.png",
+      "alpha_source": "public/levels/lido/sprites/white/li-01-white-organic.png",
+      "provenance": "tools/cameleon-lido-asset-variants.mjs"
+    },
+    {
+      "path": "public/levels/lido/sprites/riso/li-03-painted-organic.png",
+      "generated": false,
+      "model": "derived",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0,
+      "spec": "li-03 riso local recolor; alpha copied from white reveal",
+      "source": "public/levels/lido/sprites/poster/li-03-painted-organic.png",
+      "alpha_source": "public/levels/lido/sprites/white/li-03-white-organic.png",
+      "provenance": "tools/cameleon-lido-asset-variants.mjs"
+    },
+    {
+      "path": "public/levels/lido/sprites/night/li-03-painted-organic.png",
+      "generated": false,
+      "model": "derived",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0,
+      "spec": "li-03 night local recolor; alpha copied from white reveal",
+      "source": "public/levels/lido/sprites/poster/li-03-painted-organic.png",
+      "alpha_source": "public/levels/lido/sprites/white/li-03-white-organic.png",
+      "provenance": "tools/cameleon-lido-asset-variants.mjs"
+    },
+    {
+      "path": "public/levels/lido/sprites/riso/li-04-painted-organic.png",
+      "generated": false,
+      "model": "derived",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0,
+      "spec": "li-04 riso local recolor; alpha copied from white reveal",
+      "source": "public/levels/lido/sprites/poster/li-04-painted-organic.png",
+      "alpha_source": "public/levels/lido/sprites/white/li-04-white-organic.png",
+      "provenance": "tools/cameleon-lido-asset-variants.mjs"
+    },
+    {
+      "path": "public/levels/lido/sprites/night/li-04-painted-organic.png",
+      "generated": false,
+      "model": "derived",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0,
+      "spec": "li-04 night local recolor; alpha copied from white reveal",
+      "source": "public/levels/lido/sprites/poster/li-04-painted-organic.png",
+      "alpha_source": "public/levels/lido/sprites/white/li-04-white-organic.png",
+      "provenance": "tools/cameleon-lido-asset-variants.mjs"
+    },
+    {
+      "path": "public/levels/lido/sprites/riso/li-05-painted-organic.png",
+      "generated": false,
+      "model": "derived",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0,
+      "spec": "li-05 riso local recolor; alpha copied from white reveal",
+      "source": "public/levels/lido/sprites/poster/li-05-painted-organic.png",
+      "alpha_source": "public/levels/lido/sprites/white/li-05-white-organic.png",
+      "provenance": "tools/cameleon-lido-asset-variants.mjs"
+    },
+    {
+      "path": "public/levels/lido/sprites/night/li-05-painted-organic.png",
+      "generated": false,
+      "model": "derived",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0,
+      "spec": "li-05 night local recolor; alpha copied from white reveal",
+      "source": "public/levels/lido/sprites/poster/li-05-painted-organic.png",
+      "alpha_source": "public/levels/lido/sprites/white/li-05-white-organic.png",
+      "provenance": "tools/cameleon-lido-asset-variants.mjs"
+    },
+    {
+      "path": "public/levels/lido/sprites/riso/li-09-painted-organic.png",
+      "generated": false,
+      "model": "derived",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0,
+      "spec": "li-09 riso local recolor; alpha copied from white reveal",
+      "source": "public/levels/lido/sprites/poster/li-09-painted-organic.png",
+      "alpha_source": "public/levels/lido/sprites/white/li-09-white-organic.png",
+      "provenance": "tools/cameleon-lido-asset-variants.mjs"
+    },
+    {
+      "path": "public/levels/lido/sprites/night/li-09-painted-organic.png",
+      "generated": false,
+      "model": "derived",
+      "date": "2026-07-08",
+      "cost_estimate_usd": 0,
+      "spec": "li-09 night local recolor; alpha copied from white reveal",
+      "source": "public/levels/lido/sprites/poster/li-09-painted-organic.png",
+      "alpha_source": "public/levels/lido/sprites/white/li-09-white-organic.png",
+      "provenance": "tools/cameleon-lido-asset-variants.mjs"
+    }
+  ]
 }

@@ -11,6 +11,7 @@ const WORK_DIR = join(GAME_ROOT, '.work');
 const MANIFEST_PATH = join(GAME_ROOT, 'design', 'asset-identity.json');
 const SCRIPT_REL = 'tools/cameleon-sign-lane-assets.mjs';
 const DESIGN_REFS = ['docs/DESIGN.md#4-hide-roster', 'docs/DESIGN.md#9-art-generation-plan'];
+const ART_DATE = '2026-07-08';
 const SAMPLE_OFFSETS = [0.25, 0.75];
 
 const PALETTES = {
@@ -297,6 +298,27 @@ function hideLi02(style) {
   return asset('li-02-no-diving', 256, 256, shapes, 'li-02 dive-pose sign hide');
 }
 
+function hideLi06(style) {
+  const shapes = [];
+  shapes.push(line(24, 62, 296, 62, 26, style.shadow, { opacity: 0.22 }));
+  const beads = [
+    [28, 34, 30, style.ropeWhite],
+    [62, 34, 30, style.ropeRed],
+    [98, 50, 42, style.ropeWhite],
+    [136, 34, 30, style.ropeRed],
+    [171, 34, 30, style.ropeWhite],
+    [208, 50, 42, style.ropeRed],
+    [246, 34, 30, style.ropeWhite],
+    [282, 34, 30, style.ropeRed],
+  ];
+  for (const [cx, w, h, fill] of beads) {
+    shapes.push(rect(cx - w / 2, 62 - h / 2, w, h, fill, { rx: h / 2 }));
+  }
+  shapes.push(ellipse(98, 54, 13, 8, style.shade, { opacity: 0.32 }));
+  shapes.push(ellipse(208, 70, 15, 8, style.shade, { opacity: 0.3 }));
+  return asset('li-06-lane-rope', 320, 120, shapes, 'li-06 lane-rope hide with two oversized pill beads');
+}
+
 function hideLi07(style) {
   const fill = style.body;
   const shade = style.shade;
@@ -340,6 +362,7 @@ const DECOYS = [
 
 const HIDES = [
   hideLi02,
+  hideLi06,
   hideLi07,
   hideLi08,
   hideLi10,
@@ -354,6 +377,8 @@ function paintedStyle(palette) {
     body: palette.ink,
     shade: palette.inkSoft,
     shadow: palette.shadow,
+    ropeRed: palette.red,
+    ropeWhite: palette.cream,
   };
 }
 
@@ -362,6 +387,8 @@ function whiteStyle(palette) {
     body: palette.whiteBody,
     shade: palette.whiteShade,
     shadow: palette.shadow,
+    ropeRed: palette.whiteBody,
+    ropeWhite: palette.whiteShade,
   };
 }
 
@@ -565,7 +592,11 @@ function sha256(path) {
 }
 
 function writeManifest(entries) {
+  const existing = existsSync(MANIFEST_PATH)
+    ? JSON.parse(readFileSync(MANIFEST_PATH, 'utf8'))
+    : {};
   const assets = {
+    ...(existing.assets ?? {}),
     'design/assets/placeholder_logo.svg': {
       source: 'design/assets/placeholder_logo.svg',
       expectation: 'exact-bytes',
@@ -586,6 +617,9 @@ function writeManifest(entries) {
         script: SCRIPT_REL,
         kind: entry.kind,
         palette: entry.palette,
+        model: 'authored-vector',
+        date: ART_DATE,
+        cost_estimate_usd: 0.0,
         designRefs: DESIGN_REFS,
       },
     };
@@ -600,6 +634,9 @@ function writeManifest(entries) {
         script: SCRIPT_REL,
         kind: entry.kind,
         palette: entry.palette,
+        model: 'authored-vector',
+        date: ART_DATE,
+        cost_estimate_usd: 0.0,
         dimensions: { width: entry.width, height: entry.height },
         bytes: readFileSync(entry.pngPath).length,
         sha256: sha256(entry.pngPath),
@@ -609,6 +646,7 @@ function writeManifest(entries) {
   }
 
   const manifest = {
+    ...existing,
     version: 1,
     coverage: 'complete',
     notes: 'Cameleon sign-lane level sprites are authored vectors rendered locally at zero image-generation cost. Non-design level sprite entries document provenance; the current audit linter enforces design/assets only.',

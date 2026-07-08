@@ -52,6 +52,7 @@ export async function bootGame(mountInto: HTMLElement, options: CameleonBootOpti
   const screen = mountCameleonScreen({
     mountInto,
     onModeSelect: (mode) => controller.setPlayMode(mode),
+    onDirectionSelect: (direction) => controller.setDirection(direction),
     onStart: () => controller.startLevel(1),
     onConfirmAim: () => controller.confirmAim(),
   });

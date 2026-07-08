@@ -226,7 +226,7 @@ describe("Cameleon controller", () => {
     now += 1;
     controller.tick();
     const first = controller.snapshot().idleShimmer;
-    expect(first).toMatchObject({ sequence: 1, hideId: "li-01" });
+    expect(first).toMatchObject({ sequence: 1, hideId: "li-02" });
 
     now += 1_000;
     controller.tick();
@@ -234,7 +234,7 @@ describe("Cameleon controller", () => {
 
     now += 45_000;
     controller.tick();
-    expect(controller.snapshot().idleShimmer).toMatchObject({ sequence: 2, hideId: "li-01" });
+    expect(controller.snapshot().idleShimmer).toMatchObject({ sequence: 2, hideId: "li-02" });
   });
 
   it("wins once eight hides are revealed", async () => {
@@ -281,10 +281,29 @@ describe("Cameleon controller", () => {
     controller.startLevel(1);
 
     controller.scrollTo(9000);
-    expect(controller.snapshot().scrollX).toBe(4410);
+    expect(controller.snapshot().scrollX).toBe(3930);
     expect(controller.snapshot().tourState).toBe("zone5");
 
     controller.scrollTo(-100);
     expect(controller.snapshot().scrollX).toBe(0);
+  });
+
+  it("switches visual direction without resetting finds or scroll", () => {
+    const level = loadLidoFixture();
+    const controller = createCameleonController({ level, env: "test" });
+    controller.setViewport({ width: 390, height: 844 });
+    controller.startLevel(1);
+    controller.scrollTo(2100);
+    controller.revealHide("li-01");
+
+    controller.setDirection("night");
+
+    expect(controller.snapshot()).toMatchObject({
+      dir: "night",
+      foundCount: 1,
+      scrollX: 2100,
+    });
+    expect(controller.snapshot().hides.find((hide) => hide.id === "li-02")?.painted.key).toBe("lido.night.li-02.painted");
+    expect(controller.drainEvents().find((event) => event.name === "dir_selected")?.params).toMatchObject({ dir: "night" });
   });
 });

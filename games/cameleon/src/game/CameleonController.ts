@@ -21,12 +21,14 @@ import {
 import {
   clampScrollX,
   rectCenter,
+  worldXForZone,
   zoneForWorldX,
   type CameleonBodyMode,
   type CameleonDirection,
   type CameleonHideDefinition,
   type CameleonLevelDefinition,
   type CameleonPlayMode,
+  type CameleonZone,
 } from "./level.ts";
 import { DEFAULT_CAMELEON_QUERY, type CameleonQueryParams } from "./query.ts";
 
@@ -411,8 +413,8 @@ class CameleonStateController implements CameleonController {
     const zoneMatch = /^zone([1-5])$/.exec(state);
     if (!zoneMatch) return false;
     this.startLevel(1);
-    const zone = Number(zoneMatch[1]);
-    this.scrollTo((zone - 1) * this.level.world.zoneWidth);
+    const zone = Number(zoneMatch[1]) as CameleonZone;
+    this.scrollTo(worldXForZone(this.level.world, zone));
     this.tourState = state;
     this.notify();
     return this.snapshot().tourState === state;
