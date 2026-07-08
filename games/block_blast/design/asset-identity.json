@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "coverage": "complete",
+  "notes": "First-pass Block Blast v2 design assets are hand-authored vector shell ribbons. Gameplay blocks are canvas-rendered from design tokens and have no shipped asset bytes.",
+  "assets": {
+    "design/assets/ribbon-win.svg": {
+      "source": "design/assets/ribbon-win.svg",
+      "expectation": "exact-bytes",
+      "provenance": "Block Blast v2 seed result ribbon authored for this port; no v1 ribbon asset exists."
+    },
+    "design/assets/ribbon-fail.svg": {
+      "source": "design/assets/ribbon-fail.svg",
+      "expectation": "exact-bytes",
+      "provenance": "Block Blast v2 seed fail ribbon authored for this port; no v1 ribbon asset exists."
+    }
+  }
+}

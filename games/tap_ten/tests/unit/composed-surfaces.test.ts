@@ -15,23 +15,39 @@ function appRoot(): HTMLElement {
   return document.getElementById("app")!;
 }
 
-function expectEyebrowCenteredWithinRibbon(ribbon: HTMLElement, eyebrow: HTMLElement): void {
-  const ribbonBox = ribbon.getBoundingClientRect();
-  const eyebrowBox = eyebrow.getBoundingClientRect();
+function cssRuleBody(pattern: RegExp): string {
+  const match = UI_CSS.match(pattern);
+  expect(match?.groups?.body).toBeDefined();
+  return match!.groups!.body;
+}
 
-  if (ribbonBox.width > 0 && eyebrowBox.width > 0) {
+function expectRibbonTextCenteredWithinRibbon(ribbon: HTMLElement, text: HTMLElement): void {
+  const ribbonBox = ribbon.getBoundingClientRect();
+  const textBox = text.getBoundingClientRect();
+
+  if (ribbonBox.width > 0 && textBox.width > 0) {
     const ribbonCenter = ribbonBox.x + ribbonBox.width / 2;
-    const eyebrowCenter = eyebrowBox.x + eyebrowBox.width / 2;
-    expect(eyebrowBox.x).toBeGreaterThanOrEqual(ribbonBox.x);
-    expect(eyebrowBox.x + eyebrowBox.width).toBeLessThanOrEqual(ribbonBox.x + ribbonBox.width);
-    expect(Math.abs(eyebrowCenter - ribbonCenter)).toBeLessThanOrEqual(2);
+    const textCenter = textBox.x + textBox.width / 2;
+    expect(textBox.x).toBeGreaterThanOrEqual(ribbonBox.x);
+    expect(textBox.x + textBox.width).toBeLessThanOrEqual(ribbonBox.x + ribbonBox.width);
+    expect(Math.abs(textCenter - ribbonCenter)).toBeLessThanOrEqual(2);
     return;
   }
 
   expect(UI_CSS).toContain(".fab-modal-ribbon {\n    position: relative;");
-  expect(UI_CSS).toContain("left: 0;\n    right: 0;");
-  expect(UI_CSS).toContain("margin-inline: auto;");
-  expect(UI_CSS).toContain("transform: translateY(-50%);");
+  const sharedTextRule = cssRuleBody(
+    /\.fab-modal-ribbon-eyebrow,\s*\.fab-modal-ribbon-title\s*\{(?<body>[^}]+)\}/,
+  );
+  expect(sharedTextRule).toContain("left: 0;");
+  expect(sharedTextRule).toContain("right: 0;");
+  expect(sharedTextRule).toContain("width: max-content;");
+  expect(sharedTextRule).toContain("margin-inline: auto;");
+  expect(sharedTextRule).toContain("transform: translateY(-50%);");
+  if (text.classList.contains("fab-modal-ribbon-title")) {
+    const titleRule = cssRuleBody(/(?:^|\n)[ ]{2}\.fab-modal-ribbon-title\s*\{(?<body>\s*top:[^}]+)\}/);
+    expect(titleRule).toContain("margin-block: 0;");
+    expect(titleRule).not.toContain("margin: 0;");
+  }
 }
 
 function expectSpriteRibbon(
@@ -46,11 +62,12 @@ function expectSpriteRibbon(
   expect(src).toMatch(new RegExp(`${opts.assetName}|data:image/svg`));
   const title = ribbon.querySelector<HTMLElement>(".fab-modal-ribbon-title")!;
   expect(title.textContent).toBe(opts.title);
+  expectRibbonTextCenteredWithinRibbon(ribbon, title);
   if (opts.eyebrow !== undefined) {
     const eyebrow = ribbon.querySelector<HTMLElement>(".fab-modal-ribbon-eyebrow")!;
     expect(eyebrow.textContent).toBe(opts.eyebrow);
     expect(eyebrow.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expectEyebrowCenteredWithinRibbon(ribbon, eyebrow);
+    expectRibbonTextCenteredWithinRibbon(ribbon, eyebrow);
   }
 }
 
