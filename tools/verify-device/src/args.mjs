@@ -64,6 +64,11 @@ Options:
                        per-state score / consensus / verdict deltas.
   -h, --help           show this help.
 
+Crops:
+  If games/<game>/refs/manifest.yaml declares verifyDevice.regions, crops are
+  emitted automatically under <out>/crops/ with crops/inventory.json. No flag is
+  required; device/current crops use judged-captures after content-inset cropping.
+
 The vision panel needs OPENROUTER_API_KEY (env or the sibling .env); without it
 the panel skips gracefully (exit 0) and on-device fidelity stays UNVERIFIED.
 `;

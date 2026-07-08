@@ -74,6 +74,32 @@ describe('buildGridHtml', () => {
     expect(h).toContain('130px');
   });
 
+  it('documents named-region crop artifacts when manifest regions are present', () => {
+    const h = buildGridHtml({
+      game: 'g',
+      generatedAt: 'd',
+      device: 'd',
+      rows,
+      verdict,
+      captureArtifacts: {
+        contentInsetTop: 0,
+        rawDir: 'docs/evidence/run/raw-captures',
+        judgedDir: 'docs/evidence/run/judged-captures',
+        crops: {
+          dir: 'docs/evidence/run/crops',
+          inventory: 'docs/evidence/run/crops/inventory.json',
+          count: 12,
+          skipped: 3,
+        },
+      },
+    });
+    expect(h).toContain('Named-region crops');
+    expect(h).toContain('docs/evidence/run/crops');
+    expect(h).toContain('docs/evidence/run/crops/inventory.json');
+    expect(h).toContain('12 crop files');
+    expect(h).toContain('3 skipped rows');
+  });
+
   it('escapes untrusted text', () => {
     const evil = buildGridHtml({
       game: '<script>x</script>', generatedAt: 'd', device: 'd', rows: [], verdict: { pass: true, summary: 's', states: [] },

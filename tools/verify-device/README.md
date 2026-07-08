@@ -34,7 +34,12 @@ npm run verify-device -- --game marble_run
    per-state `{score, majorConsensusCount, verdict}` entries + a **PASS/FAIL**
    summary (FAIL if a state is missing or its diff exceeds `--threshold`, default
    advisory).
-6. **Print the grid path, summary path, one-line per-state table, and verdict.**
+6. **Emit named-region crops** under `<out>/crops/` when
+   `games/<g>/refs/manifest.yaml` declares `verifyDevice.regions`. Each crop run
+   writes device/reference/diff PNGs where possible plus `crops/inventory.json`
+   with explicit skip reasons for missing captures or documented reference gaps.
+7. **Print the grid path, summary path, crop directory when present, one-line
+   per-state table, and verdict.**
 
 ## Gating / graceful degrade
 
@@ -66,6 +71,36 @@ by the **same vision panel** but every capture is stamped `lane=browser` and the
 grid carries a **DEVICE-UNVERIFIED** banner — safe-area/notch insets can't be
 validated off-device. Lets fidelity work + panel-scoring progress when the phone
 is down; a device pass later is what actually confirms the result.
+
+## Named-region crops
+
+Crops are default-on when the refs manifest declares regions; there is no flag a
+runner must remember for normal evidence. Regions live under `verifyDevice`:
+
+```yaml
+verifyDevice:
+  contentInsetTop: 130
+  regions:
+    - name: result_ribbon
+      label: Result screen headline ribbon
+      coords: normalized
+      states:
+        - win
+        - fail
+      box:
+        x: 0.07
+        y: 0.19
+        width: 0.86
+        height: 0.14
+```
+
+`coords: normalized` means `x`, `y`, `width`, and `height` are 0..1 fractions
+of the source image. Device/current crops are cut from `judged-captures/`, after
+the configured top content inset has already been applied. Reference crops are
+cut from committed refs only when that reference is available and trusted;
+documented gaps and `at-rest:false` entries become skipped inventory rows. When
+both sides exist, `verify-device` also writes a region-level diff crop using the
+same perceptual diff semantics as the full-state grid.
 
 ## Budget-guard (OpenRouter credit floor)
 
