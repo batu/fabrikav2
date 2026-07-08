@@ -1,0 +1,278 @@
+{
+  "menu": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "no-reference",
+    "capture": {
+      "gated": true
+    },
+    "viewportMetrics": {
+      "markerState": "tourstate:menu",
+      "windowInnerWidth": 390,
+      "windowInnerHeight": 844,
+      "visualViewportWidth": 390,
+      "visualViewportHeight": 844,
+      "visualViewportScale": 1,
+      "screenWidth": 390,
+      "screenHeight": 844,
+      "safeAreaInsetTop": 47,
+      "safeAreaInsetRight": 0,
+      "safeAreaInsetBottom": 34,
+      "safeAreaInsetLeft": 0,
+      "canvasCssWidth": 390,
+      "canvasCssHeight": 844,
+      "canvasBackingWidth": 1170,
+      "canvasBackingHeight": 2532,
+      "devicePixelRatio": 3
+    },
+    "indistinguishableStates": [
+      {
+        "state": "fail",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 5.037,
+        "threshold": 10,
+        "digest": "fcf7929e",
+        "allowed": false,
+        "reason": null
+      },
+      {
+        "state": "win",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 4.979,
+        "threshold": 10,
+        "digest": "f0515cea",
+        "allowed": false,
+        "reason": null
+      },
+      {
+        "state": "pause",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 4.758,
+        "threshold": 10,
+        "digest": "07cfadcc",
+        "allowed": false,
+        "reason": null
+      },
+      {
+        "state": "settings",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 4.463,
+        "threshold": 10,
+        "digest": "54ee5ad6",
+        "allowed": false,
+        "reason": null
+      }
+    ]
+  },
+  "level": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "no-reference",
+    "capture": {
+      "gated": true
+    },
+    "viewportMetrics": {
+      "markerState": "tourstate:level",
+      "windowInnerWidth": 390,
+      "windowInnerHeight": 844,
+      "visualViewportWidth": 390,
+      "visualViewportHeight": 844,
+      "visualViewportScale": 1,
+      "screenWidth": 390,
+      "screenHeight": 844,
+      "safeAreaInsetTop": 47,
+      "safeAreaInsetRight": 0,
+      "safeAreaInsetBottom": 34,
+      "safeAreaInsetLeft": 0,
+      "canvasCssWidth": 390,
+      "canvasCssHeight": 844,
+      "canvasBackingWidth": 1170,
+      "canvasBackingHeight": 2532,
+      "devicePixelRatio": 3
+    }
+  },
+  "settings": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "no-reference",
+    "capture": {
+      "gated": false
+    },
+    "indistinguishableStates": [
+      {
+        "state": "fail",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 2.143,
+        "threshold": 10,
+        "digest": "fcf7929e",
+        "allowed": false,
+        "reason": null
+      },
+      {
+        "state": "win",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 1.438,
+        "threshold": 10,
+        "digest": "f0515cea",
+        "allowed": false,
+        "reason": null
+      },
+      {
+        "state": "pause",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 1.129,
+        "threshold": 10,
+        "digest": "07cfadcc",
+        "allowed": false,
+        "reason": null
+      },
+      {
+        "state": "menu",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 4.463,
+        "threshold": 10,
+        "digest": "7cdcd2fc",
+        "allowed": false,
+        "reason": null
+      }
+    ]
+  },
+  "pause": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "no-reference",
+    "capture": {
+      "gated": false
+    },
+    "indistinguishableStates": [
+      {
+        "state": "fail",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 1.654,
+        "threshold": 10,
+        "digest": "fcf7929e",
+        "allowed": false,
+        "reason": null
+      },
+      {
+        "state": "win",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 1.09,
+        "threshold": 10,
+        "digest": "f0515cea",
+        "allowed": false,
+        "reason": null
+      },
+      {
+        "state": "settings",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 1.129,
+        "threshold": 10,
+        "digest": "54ee5ad6",
+        "allowed": false,
+        "reason": null
+      },
+      {
+        "state": "menu",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 4.758,
+        "threshold": 10,
+        "digest": "7cdcd2fc",
+        "allowed": false,
+        "reason": null
+      }
+    ]
+  },
+  "win": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "no-reference",
+    "capture": {
+      "gated": false
+    },
+    "indistinguishableStates": [
+      {
+        "state": "fail",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 1.076,
+        "threshold": 10,
+        "digest": "fcf7929e",
+        "allowed": false,
+        "reason": null
+      },
+      {
+        "state": "pause",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 1.09,
+        "threshold": 10,
+        "digest": "07cfadcc",
+        "allowed": false,
+        "reason": null
+      },
+      {
+        "state": "settings",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 1.438,
+        "threshold": 10,
+        "digest": "54ee5ad6",
+        "allowed": false,
+        "reason": null
+      },
+      {
+        "state": "menu",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 4.979,
+        "threshold": 10,
+        "digest": "7cdcd2fc",
+        "allowed": false,
+        "reason": null
+      }
+    ]
+  },
+  "fail": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "no-reference",
+    "capture": {
+      "gated": false
+    },
+    "indistinguishableStates": [
+      {
+        "state": "win",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 1.076,
+        "threshold": 10,
+        "digest": "f0515cea",
+        "allowed": false,
+        "reason": null
+      },
+      {
+        "state": "pause",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 1.654,
+        "threshold": 10,
+        "digest": "07cfadcc",
+        "allowed": false,
+        "reason": null
+      },
+      {
+        "state": "settings",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 2.143,
+        "threshold": 10,
+        "digest": "54ee5ad6",
+        "allowed": false,
+        "reason": null
+      },
+      {
+        "state": "menu",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 5.037,
+        "threshold": 10,
+        "digest": "7cdcd2fc",
+        "allowed": false,
+        "reason": null
+      }
+    ]
+  }
+}
