@@ -660,7 +660,7 @@
     transform: translate3d(-50%, -130dvh, 0) scale(1.02);
     backface-visibility: hidden;
     will-change: transform, opacity;
-    animation: fabCompleteConfettiTopBlast 5200ms linear var(--fab-confetti-delay) forwards;
+    animation: fabCompleteConfettiTopBlast 5200ms linear var(--fab-confetti-delay, 0ms) forwards;
   }
 
   .fab-complete-confetti-burst {
@@ -672,7 +672,7 @@
     object-fit: contain;
     backface-visibility: hidden;
     will-change: transform, opacity;
-    animation: fabCompleteConfettiSideBlast 5200ms linear var(--fab-confetti-delay) forwards;
+    animation: fabCompleteConfettiSideBlast 5200ms linear var(--fab-confetti-delay, 0ms) forwards;
   }
   .fab-complete-confetti-burst.left {
     left: 0;

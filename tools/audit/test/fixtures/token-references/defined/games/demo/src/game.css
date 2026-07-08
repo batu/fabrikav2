@@ -1,0 +1,5 @@
+.demo {
+  --source-local: var(--fab-game-bg);
+  color: var(--source-local);
+  margin: var(--fab-space-sm);
+}

@@ -127,10 +127,10 @@ describe('mountSagaMap', () => {
       loadingLabel: 'Loading levels',
       suppressDefaultNodeDisc: true,
       theme: {
-        '--fab-levelmap-art-default': 'linear-gradient(180deg, #ffffff 0%, #eeeeee 100%)',
-        '--fab-levelmap-art-locked': 'linear-gradient(180deg, #dddddd 0%, #bbbbbb 100%)',
-        '--fab-levelmap-art-completed': 'linear-gradient(180deg, #ccddff 0%, #99bbff 100%)',
-        '--fab-levelmap-art-current': 'linear-gradient(180deg, #88ffff 0%, #2299cc 100%)',
+        '--fab-levelmap-art-default': 'linear-gradient(180deg, white 0%, gainsboro 100%)',
+        '--fab-levelmap-art-locked': 'linear-gradient(180deg, lightgray 0%, silver 100%)',
+        '--fab-levelmap-art-completed': 'linear-gradient(180deg, lavender 0%, cornflowerblue 100%)',
+        '--fab-levelmap-art-current': 'linear-gradient(180deg, cyan 0%, steelblue 100%)',
       },
       id: 'saga-no-disc',
     });

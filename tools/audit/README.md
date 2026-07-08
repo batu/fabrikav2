@@ -1,10 +1,10 @@
 # tools/audit
 
-Nine guardrail linters that enforce the anti-v1 rules
+Ten guardrail linters that enforce the anti-v1 rules
 (`docs/architecture/v2-architecture.md` §Guardrails). They replace v1's broken
 `scripts/grep-affected-games.sh` — this time with tests.
 
-Run all nine: `npm run audit` (from repo root). Exits non-zero on any **error**.
+Run all ten: `npm run audit` (from repo root). Exits non-zero on any **error**.
 Some checks emit **warnings** (`⚠`) instead: reported, printed, but non-failing
 (`audit passed (with warnings)`, exit 0). A check lands as a warning when it has
 legitimate current hits whose fix is out of an audit change's natural blast
@@ -151,6 +151,14 @@ rather than reddening the gate. See the per-linter notes below.
    Entries require a non-empty reason. Stale entries, including tokens that were
    removed or later gained a consumer, are reported as warnings so exceptions do
    not become hidden permanent debt.
+
+10. **token-references** — every CSS `var()` reference in `packages/ui` and
+   `games/*/{src,design}` must either resolve to a custom property definition in
+   the UI kit defaults, that game's scanned CSS token/declaration surface, or
+   carry its own fallback (`var(--maybe-runtime-token, none)`). This is the
+   inverse of token-consumers: instead of reporting defined-but-dead tokens, it
+   blocks referenced-but-missing tokens because a no-fallback unresolved `var()`
+   invalidates the whole CSS value and can silently erase visible paint.
 
 Shared constants/helpers live in `src/lib.js` so the linters don't duplicate
 literal values themselves.

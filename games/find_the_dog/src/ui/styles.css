@@ -4051,8 +4051,8 @@
   animation-delay: var(--shine-delay, 0s);
   will-change: transform;
   z-index: 2;
-  -webkit-mask-image: var(--icon-src);
-  mask-image: var(--icon-src);
+  -webkit-mask-image: var(--icon-src, none);
+  mask-image: var(--icon-src, none);
   -webkit-mask-size: contain;
   mask-size: contain;
   -webkit-mask-repeat: no-repeat;

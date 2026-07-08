@@ -1,0 +1,9 @@
+:root,
+.fab-ui {
+  --fab-game-bg: var(--fab-color-text);
+  --game-local-token: var(--fab-game-bg);
+}
+
+.demo-design {
+  color: var(--game-local-token);
+}

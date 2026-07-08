@@ -1,0 +1,10 @@
+.fab-ui {
+  --fab-color-text: #111111;
+  --fab-space-sm: 8px;
+  --ui-local: var(--fab-color-text);
+}
+
+.ui-thing {
+  color: var(--fab-color-text);
+  border-color: var(--ui-local);
+}

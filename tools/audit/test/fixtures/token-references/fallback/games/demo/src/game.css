@@ -1,0 +1,4 @@
+.demo {
+  background: var(--game-missing, transparent);
+  box-shadow: var(--outer, var(--inner, none));
+}
