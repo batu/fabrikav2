@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { driveTo, isDriveState, type DriveToDeps } from "../../src/testing/driveTo.ts";
+import { driveTo, isDriveState, type DriveToDeps } from "@fabrikav2/testkit/testing";
 import { createBlockBlastHarness } from "../../src/shell/harness.ts";
 import { installMemoryStorage } from "./testStorage.ts";
 

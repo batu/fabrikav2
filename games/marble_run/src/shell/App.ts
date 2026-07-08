@@ -48,6 +48,7 @@ import {
   type AnalyticsEventLike,
   type HarnessSaveProfile,
 } from '@fabrikav2/testkit/harness';
+import { driveTo as driveToState } from '@fabrikav2/testkit/testing';
 import type { RingBufferSink } from '@fabrikav2/sdk/analytics';
 import type { GameSdk } from '../sdk/SdkContext';
 import type { MarbleGrant } from '../sdk/catalog';
@@ -61,7 +62,6 @@ import { music } from '../audio/Music';
 import { toggleClick } from '../audio/Sfx';
 import { pickByRoll, blockedMarbles } from './marbleVerbs';
 import { driveAutoWin, driveAutoFail } from '../testing/autoPlay';
-import { driveTo as driveToState } from '../testing/driveTo';
 import type { Cell } from '../engine/types';
 
 /** The marble_run extra-verb union — the `GameHarness` extension point. */
@@ -851,7 +851,7 @@ export class App {
       // ── DETERMINISTIC per-state navigation (ledger C5) ────────────────────
       // Normalises to menu, drives to the named state, and CONFIRMS arrival via
       // snapshot() before resolving. Composes the App transitions + the solver-
-      // bound autoWin/autoFail above (see ../testing/driveTo).
+      // bound autoWin/autoFail above (see @fabrikav2/testkit/testing).
       driveTo: (state: string): Promise<boolean> => this.driveTo(state),
     };
   }
@@ -887,6 +887,7 @@ export class App {
         snapshot: () => this.snapshot(),
       },
       state,
+      { levelIds: { win: 4, fail: 4 } },
     );
   }
 

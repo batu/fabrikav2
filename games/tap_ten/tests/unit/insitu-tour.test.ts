@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { GameHarness } from "@fabrikav2/testkit/harness";
-import { maybeRunInsituTour } from "../../src/testing/insituTour.ts";
+import { maybeRunInsituTour } from "@fabrikav2/testkit/testing";
 
 function setTourSearch(search: string): void {
   window.history.pushState({}, "", search ? `/${search}` : "/");

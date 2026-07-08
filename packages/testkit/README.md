@@ -14,8 +14,9 @@ v1's runtime/playwright/debug/testing modules (see the migration order in
   navigation (`gotoAndWaitForHarness`, `waitForSceneActive`), and Playwright video capture.
 - `@fabrikav2/testkit/debug` — the fixed debug panel shell (`mountDebugPanel`) and the
   immutable-defaults `createTuningStore`.
-- `@fabrikav2/testkit/testing` — `assignWindowBindings` for test-time `window` binding
-  with restore-on-cleanup.
+- `@fabrikav2/testkit/testing` — `assignWindowBindings`, canonical `driveTo`
+  navigation, the `maybeRunInsituTour` device-capture tour, off-screen tour and
+  viewport-metrics markers, and restore-on-cleanup helpers.
 
 Ported as-is from v1 `packages/core/src/{playwright,debug,testing}` (research 06 §5: carry the
 genuinely multi-game-adopted utilities). Dependency-light: only `@playwright/test` types and

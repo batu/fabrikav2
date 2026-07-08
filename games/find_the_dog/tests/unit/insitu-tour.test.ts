@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { maybeRunInsituTour, type TourHarness } from "../../src/testing/insituTour.ts";
-import { DRIVE_STATES, type DriveState } from "../../src/testing/driveTo.ts";
+import { DRIVE_STATES, maybeRunInsituTour, type DriveState, type TourHarness } from "@fabrikav2/testkit/testing";
 
 interface HarnessSaveProfile {
   unlockedLevel?: number;
@@ -46,6 +45,31 @@ function makeHarness(
   };
 }
 
+function snapshotMatchesFindTheDogDriveState(state: DriveState, raw: unknown): boolean {
+  const snapshot = (raw ?? {}) as Record<string, unknown>;
+  const scene = String(snapshot.scene ?? snapshot.activeScene ?? "");
+  const status = String(snapshot.status ?? "");
+  const ready = snapshot.inputReady !== false && snapshot.levelDataReady !== false;
+  if (state === "menu") return scene === "menu" || scene === "HomeScene";
+  if (state === "level") {
+    return ready
+      && (scene === "playing" || scene === "GameScene")
+      && snapshot.levelComplete !== true
+      && status !== "complete"
+      && status !== "failed";
+  }
+  if (state === "settings") return snapshot.settingsOpen === true;
+  if (state === "pause") return scene === "paused" || status === "paused" || snapshot.lifecycleSuspended === true;
+  if (state === "win") return scene === "complete" || status === "complete" || snapshot.levelComplete === true;
+  return scene === "failed" || status === "failed" || snapshot.lives === 0;
+}
+
+function runFindTheDogTour(harness: TourHarness): Promise<void> {
+  return maybeRunInsituTour(harness, {
+    snapshotMatchesState: snapshotMatchesFindTheDogDriveState,
+  });
+}
+
 describe("find_the_dog maybeRunInsituTour — allstates", () => {
   let ariaHistory: string[];
   let metricsHistory: string[];
@@ -84,29 +108,22 @@ describe("find_the_dog maybeRunInsituTour — allstates", () => {
       return true;
     });
 
-    const run = maybeRunInsituTour(harness);
+    const run = runFindTheDogTour(harness);
     await vi.runAllTimersAsync();
     await run;
 
     expect(seen).toEqual(["menu", "level", "settings", "pause", "win", "fail"]);
     expect(ariaHistory).toEqual([
-      "tourstate:pending",
-      "tourstate:menu",
       "tourstate:menu",
       "tourstate:menu-DONE",
       "tourstate:level",
-      "tourstate:level",
       "tourstate:level-DONE",
-      "tourstate:settings",
       "tourstate:settings",
       "tourstate:settings-DONE",
       "tourstate:pause",
-      "tourstate:pause",
       "tourstate:pause-DONE",
       "tourstate:win",
-      "tourstate:win",
       "tourstate:win-DONE",
-      "tourstate:fail",
       "tourstate:fail",
       "tourstate:fail-DONE",
       "tourstate:done",
@@ -130,7 +147,7 @@ describe("find_the_dog maybeRunInsituTour — allstates", () => {
       },
     );
 
-    const run = maybeRunInsituTour(harness);
+    const run = runFindTheDogTour(harness);
     await vi.runAllTimersAsync();
     await run;
 
@@ -140,7 +157,7 @@ describe("find_the_dog maybeRunInsituTour — allstates", () => {
   it("marks a failed state honestly when driveTo returns false", async () => {
     const harness = makeHarness(async (state) => state !== "pause");
 
-    const run = maybeRunInsituTour(harness);
+    const run = runFindTheDogTour(harness);
     await vi.runAllTimersAsync();
     await run;
 
@@ -157,7 +174,7 @@ describe("find_the_dog maybeRunInsituTour — allstates", () => {
       return true;
     });
 
-    const run = maybeRunInsituTour(harness);
+    const run = runFindTheDogTour(harness);
     await vi.runAllTimersAsync();
     await run;
 
@@ -175,7 +192,7 @@ describe("find_the_dog maybeRunInsituTour — allstates", () => {
       return true;
     });
 
-    const run = maybeRunInsituTour(harness);
+    const run = runFindTheDogTour(harness);
     await vi.runAllTimersAsync();
     await run;
 
@@ -185,7 +202,7 @@ describe("find_the_dog maybeRunInsituTour — allstates", () => {
   it("writes one off-screen #__tourstate__ marker with exact final label and text", async () => {
     const harness = makeHarness(async () => true);
 
-    const run = maybeRunInsituTour(harness);
+    const run = runFindTheDogTour(harness);
     await vi.runAllTimersAsync();
     await run;
 
@@ -207,7 +224,7 @@ describe("find_the_dog maybeRunInsituTour — allstates", () => {
     document.body.appendChild(canvas);
     const harness = makeHarness(async () => true);
 
-    const run = maybeRunInsituTour(harness);
+    const run = runFindTheDogTour(harness);
     await vi.runAllTimersAsync();
     await run;
 

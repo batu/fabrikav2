@@ -12,10 +12,59 @@ import { setRewardedAdResultForTest, type RewardedAdResultForTest } from '../ads
 import { isGameSuspended, setLifecycleForTest } from '../platform/gameLifecycle';
 import { initHUD, openPage } from '../ui/HUD';
 import { setFailOverlayPendingRecoveryMsForTest } from '../ui/LevelFailedOverlay';
-import { driveTo, isDriveState, type DriveState, type DriveToDeps, type DriveSnapshot } from './driveTo';
-import { readViewportMetrics, type ViewportMetricsSnapshot } from '@fabrikav2/testkit/testing';
+import {
+  driveTo,
+  isDriveState,
+  readViewportMetrics,
+  type DriveSnapshot,
+  type DriveState,
+  type DriveStatePredicates,
+  type DriveToDeps,
+  type ViewportMetricsSnapshot,
+} from '@fabrikav2/testkit/testing';
 
 type FindTheDogVerb = 'gotoHome' | 'startLevel' | 'openSettings' | 'tapSafeMiss';
+
+export const findTheDogDrivePredicates = {
+  menu: (snapshot: DriveSnapshot): boolean => {
+    const scene = String(snapshot.scene ?? snapshot.activeScene ?? '');
+    return scene === 'menu' || scene === 'HomeScene';
+  },
+  level: (snapshot: DriveSnapshot): boolean => {
+    const scene = String(snapshot.scene ?? snapshot.activeScene ?? '');
+    const status = String(snapshot.status ?? '');
+    const ready = snapshot.inputReady !== false && snapshot.levelDataReady !== false;
+    return ready
+      && (scene === 'playing' || scene === 'GameScene')
+      && snapshot.levelComplete !== true
+      && snapshot.lifecycleSuspended !== true
+      && status !== 'paused'
+      && status !== 'complete'
+      && status !== 'failed'
+      && snapshot.lives !== 0;
+  },
+  settings: (snapshot: DriveSnapshot): boolean => snapshot.settingsOpen === true,
+  pause: (snapshot: DriveSnapshot): boolean => {
+    const scene = String(snapshot.scene ?? snapshot.activeScene ?? '');
+    const status = String(snapshot.status ?? '');
+    return scene === 'paused' || status === 'paused' || snapshot.lifecycleSuspended === true;
+  },
+  win: (snapshot: DriveSnapshot): boolean => {
+    const scene = String(snapshot.scene ?? snapshot.activeScene ?? '');
+    const status = String(snapshot.status ?? '');
+    return scene === 'complete' || status === 'complete' || snapshot.levelComplete === true;
+  },
+  fail: (snapshot: DriveSnapshot): boolean => {
+    const scene = String(snapshot.scene ?? snapshot.activeScene ?? '');
+    const status = String(snapshot.status ?? '');
+    return scene === 'failed' || status === 'failed' || snapshot.lives === 0;
+  },
+} satisfies DriveStatePredicates;
+
+export function snapshotMatchesFindTheDogDriveState(state: DriveState, raw: unknown): boolean {
+  const snapshot = (raw ?? {}) as DriveSnapshot;
+  return findTheDogDrivePredicates[state](snapshot);
+}
 
 const SETTINGS_PAGE_SELECTOR = [
   '#home-page-overlay.home-page-settings',
@@ -416,7 +465,10 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     failLevel,
 
     driveTo(state: DriveState): Promise<boolean> {
-      return driveTo(driveDeps(), state);
+      return driveTo(driveDeps(), state, {
+        predicates: findTheDogDrivePredicates,
+        playingReady: findTheDogDrivePredicates.level,
+      });
     },
 
     resetSave(): void {

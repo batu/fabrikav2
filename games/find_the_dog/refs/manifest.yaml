@@ -18,7 +18,7 @@ reference:
   serial: null
 
 # V2 lane = this fabrikav2 port, driven by the game harness `driveTo(state)`
-# (`../src/testing/driveTo.ts`, wired in `../src/shell/harness.ts`).
+# (`@fabrikav2/testkit/testing`, wired in `../src/testing/TestHarness.ts`).
 v2:
   package: com.fabrikav2.find_the_dog   # create-game substitutes this to com.fabrikav2.<game>.
   version: dev

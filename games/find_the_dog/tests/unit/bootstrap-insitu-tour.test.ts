@@ -21,7 +21,6 @@ const mockedModules = [
   "../../src/ui/iconPreload",
   "../../src/testing/TestHarness",
   "../../src/audio/AmbientManager",
-  "../../src/testing/insituTour",
 ];
 
 describe("find_the_dog bootstrap insitu tour wiring", () => {
@@ -47,6 +46,7 @@ describe("find_the_dog bootstrap insitu tour wiring", () => {
     const assignWindowBindings = vi.fn(() => vi.fn());
     const maybeRunInsituTour = vi.fn(() => Promise.resolve());
     const createFindTheDogHarness = vi.fn(() => harness);
+    const snapshotMatchesFindTheDogDriveState = vi.fn();
     const Game = vi.fn(function MockPhaserGame() {
       return game;
     });
@@ -56,6 +56,7 @@ describe("find_the_dog bootstrap insitu tour wiring", () => {
     }));
     vi.doMock("@fabrikav2/testkit/testing", () => ({
       assignWindowBindings,
+      maybeRunInsituTour,
     }));
     vi.doMock("../../src/core/GameConfig", () => ({ GameConfig: {} }));
     vi.doMock("../../src/core/Constants", () => ({ TEST_HARNESS_ENABLED: true }));
@@ -114,9 +115,11 @@ describe("find_the_dog bootstrap insitu tour wiring", () => {
       installButtonVoiceEffects: vi.fn(),
     }));
     vi.doMock("../../src/ui/iconPreload", () => ({ preloadIcons: vi.fn() }));
-    vi.doMock("../../src/testing/TestHarness", () => ({ createFindTheDogHarness }));
+    vi.doMock("../../src/testing/TestHarness", () => ({
+      createFindTheDogHarness,
+      snapshotMatchesFindTheDogDriveState,
+    }));
     vi.doMock("../../src/audio/AmbientManager", () => ({ __ambientDebugSnapshot: vi.fn() }));
-    vi.doMock("../../src/testing/insituTour", () => ({ maybeRunInsituTour }));
 
     await import("../../src/bootstrap.ts");
 
@@ -124,7 +127,9 @@ describe("find_the_dog bootstrap insitu tour wiring", () => {
       expect(assignWindowBindings).toHaveBeenCalledWith(expect.any(Object), expect.objectContaining({
         __FIND_DOG_HARNESS__: harness,
       }));
-      expect(maybeRunInsituTour).toHaveBeenCalledWith(harness);
+      expect(maybeRunInsituTour).toHaveBeenCalledWith(harness, {
+        snapshotMatchesState: snapshotMatchesFindTheDogDriveState,
+      });
     });
   });
 });

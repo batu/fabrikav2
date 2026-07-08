@@ -1,7 +1,7 @@
 // Canonical device-verification states and the mapping from an XCUITest shot
 // name (or an xcresult attachment's human-readable name) to a canonical state.
 //
-// The `allstates` insitu tour (games/<g>/src/testing/insituTour.ts) drives these
+// The `allstates` insitu tour (@fabrikav2/testkit/testing) drives these
 // six states in order, marking body[data-tour-state]. The committed XCUITest
 // runner captures one screenshot per state, named "<order>-<state>" (e.g.
 // "1-menu", "01-menu", "6-fail"). We normalise both the runner's names and the

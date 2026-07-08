@@ -6,7 +6,7 @@
  */
 import '@fabrikav2/ui/ui.css';
 import '../design/tokens.css';
-import { assignWindowBindings } from '@fabrikav2/testkit/testing';
+import { assignWindowBindings, maybeRunInsituTour } from '@fabrikav2/testkit/testing';
 import { createRingBufferSink } from '@fabrikav2/sdk/analytics';
 import { App, isHarnessEnabled } from './shell/App';
 import { createGameSdk, type GameEconomyBridge } from './sdk/SdkContext';
@@ -69,5 +69,5 @@ if (isHarnessEnabled) {
     __MARBLE_RUN_HARNESS__: app.harness(),
     __MARBLE_RUN_GAME__: app,
   });
-  void import('./testing/insituTour').then(({ maybeRunInsituTour }) => maybeRunInsituTour(app));
+  void maybeRunInsituTour(app.harness());
 }

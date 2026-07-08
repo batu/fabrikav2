@@ -9,11 +9,11 @@ import {
   type PerfSample,
   type SnapshotEnvelope,
 } from "@fabrikav2/testkit/harness";
+import { driveTo as driveToState } from "@fabrikav2/testkit/testing";
 
 import { gameConfig } from "../../game.config.ts";
 import { createBlockBlastController, type BlockBlastController } from "../game/BlockBlastFlow.ts";
 import type { BlockBlastSnapshot } from "../game/types.ts";
-import { driveTo as driveToState } from "../testing/driveTo.ts";
 import type { BlockBlastScreen } from "./BlockBlastScreen.ts";
 
 export type BlockBlastVerb = "selectSlot" | "tapCell";

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { assignWindowBindings } from '@fabrikav2/testkit/testing';
+import { assignWindowBindings, maybeRunInsituTour } from '@fabrikav2/testkit/testing';
 import { GameConfig } from './core/GameConfig';
 import { TEST_HARNESS_ENABLED } from './core/Constants';
 import { gameState } from './core/GameState';
@@ -144,8 +144,7 @@ if (typeof window !== 'undefined') {
     void Promise.all([
       import('./testing/TestHarness'),
       import('./audio/AmbientManager'),
-      import('./testing/insituTour'),
-    ]).then(([{ createFindTheDogHarness }, ambient, { maybeRunInsituTour }]): void => {
+    ]).then(([{ createFindTheDogHarness, snapshotMatchesFindTheDogDriveState }, ambient]): void => {
       const harness = createFindTheDogHarness(game);
       releaseTestBindings?.();
       releaseTestBindings = assignWindowBindings(window as unknown as Record<string, unknown>, {
@@ -154,7 +153,9 @@ if (typeof window !== 'undefined') {
         __FIND_DOG_HARNESS__: harness,
         __FIND_DOG_AMBIENT__: ambient.__ambientDebugSnapshot,
       });
-      void maybeRunInsituTour(harness).catch((err: unknown): void => {
+      void maybeRunInsituTour(harness, {
+        snapshotMatchesState: snapshotMatchesFindTheDogDriveState,
+      }).catch((err: unknown): void => {
         console.warn('[insituTour] failed while running FTD tour', err);
       });
       if (String(import.meta.env.VITE_FTD_SIM_AUTOPLAY) === 'true') {
