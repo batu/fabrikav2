@@ -125,7 +125,9 @@ function runDevicePath(args, manifest, date) {
 
   steps.unlockKeychain(readEnvSecret('MAC_PASSWORD'));
   steps.buildHarnessBundle(manifest.gameDir);
-  steps.buildAndInstallApp(manifest.gameDir, device.udid, appBundleId);
+  steps.buildAndInstallApp(manifest.gameDir, device.udid, appBundleId, {
+    developmentTeam: process.env.DEVELOPMENT_TEAM,
+  });
   const { exportDir, testError } = steps.runXcuiTestAndExport({
     runnerDir: RUNNER_DIR, deviceUdid: device.udid, appBundleId, outDir,
     developmentTeam: process.env.DEVELOPMENT_TEAM,

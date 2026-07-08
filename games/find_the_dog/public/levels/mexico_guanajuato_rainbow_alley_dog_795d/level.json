@@ -1,0 +1,640 @@
+{
+  "id": "mexico_guanajuato_rainbow_alley_dog_795d",
+  "name": "Level mexico_guanajuato_rainbow_alley_dog_795d (clean_old_cartoon)",
+  "width": 2560,
+  "height": 3840,
+  "bwImage": "levels/mexico_guanajuato_rainbow_alley_dog_795d/bw.png",
+  "colorImage": "levels/mexico_guanajuato_rainbow_alley_dog_795d/color.png",
+  "dogs": [
+    {
+      "id": "dog_00",
+      "x": 2000,
+      "y": 1526,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_00/sprite_000.png",
+        "x": 1944,
+        "y": 1453,
+        "width": 118,
+        "height": 157,
+        "anchorX": 0.4746,
+        "anchorY": 0.465,
+        "cleanup": {
+          "x": 1929,
+          "y": 1445,
+          "width": 151,
+          "height": 191
+        }
+      }
+    },
+    {
+      "id": "dog_01",
+      "x": 1484,
+      "y": 3368,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_01/sprite_000.png",
+        "x": 1420,
+        "y": 3283,
+        "width": 128,
+        "height": 228,
+        "anchorX": 0.5,
+        "anchorY": 0.3728,
+        "cleanup": {
+          "x": 1339,
+          "y": 3223,
+          "width": 290,
+          "height": 292
+        }
+      }
+    },
+    {
+      "id": "dog_02",
+      "x": 1388,
+      "y": 2527,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_02/sprite_000.png",
+        "x": 1324,
+        "y": 2448,
+        "width": 131,
+        "height": 177,
+        "anchorX": 0.4885,
+        "anchorY": 0.4463,
+        "cleanup": {
+          "x": 1243,
+          "y": 2382,
+          "width": 290,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_03",
+      "x": 850,
+      "y": 1104,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_03/sprite_000.png",
+        "x": 787,
+        "y": 1014,
+        "width": 117,
+        "height": 173,
+        "anchorX": 0.5385,
+        "anchorY": 0.5202,
+        "cleanup": {
+          "x": 705,
+          "y": 959,
+          "width": 290,
+          "height": 287
+        }
+      }
+    },
+    {
+      "id": "dog_04",
+      "x": 618,
+      "y": 3171,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_04/sprite_000.png",
+        "x": 554,
+        "y": 3067,
+        "width": 148,
+        "height": 170,
+        "anchorX": 0.4324,
+        "anchorY": 0.6118,
+        "cleanup": {
+          "x": 544,
+          "y": 3063,
+          "width": 162,
+          "height": 193
+        }
+      }
+    },
+    {
+      "id": "dog_05",
+      "x": 1844,
+      "y": 2811,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_05/sprite_000.png",
+        "x": 1811,
+        "y": 2734,
+        "width": 102,
+        "height": 120,
+        "anchorX": 0.3235,
+        "anchorY": 0.6417,
+        "cleanup": {
+          "x": 1782,
+          "y": 2717,
+          "width": 136,
+          "height": 163
+        }
+      }
+    },
+    {
+      "id": "dog_06",
+      "x": 1388,
+      "y": 1925,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_06/sprite_000.png",
+        "x": 1342,
+        "y": 1845,
+        "width": 96,
+        "height": 156,
+        "anchorX": 0.4792,
+        "anchorY": 0.5128,
+        "cleanup": {
+          "x": 1320,
+          "y": 1832,
+          "width": 140,
+          "height": 174
+        }
+      }
+    },
+    {
+      "id": "dog_07",
+      "x": 2032,
+      "y": 2021,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_07/sprite_000.png",
+        "x": 1961,
+        "y": 1924,
+        "width": 160,
+        "height": 183,
+        "anchorX": 0.4437,
+        "anchorY": 0.5301,
+        "cleanup": {
+          "x": 1887,
+          "y": 1876,
+          "width": 290,
+          "height": 285
+        }
+      }
+    },
+    {
+      "id": "dog_08",
+      "x": 1541,
+      "y": 904,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_08/sprite_000.png",
+        "x": 1472,
+        "y": 825,
+        "width": 126,
+        "height": 159,
+        "anchorX": 0.5476,
+        "anchorY": 0.4969,
+        "cleanup": {
+          "x": 1396,
+          "y": 759,
+          "width": 247,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_09",
+      "x": 1194,
+      "y": 3198,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_09/sprite_000.png",
+        "x": 1132,
+        "y": 3112,
+        "width": 126,
+        "height": 163,
+        "anchorX": 0.4921,
+        "anchorY": 0.5276,
+        "cleanup": {
+          "x": 1049,
+          "y": 3084,
+          "width": 269,
+          "height": 259
+        }
+      }
+    },
+    {
+      "id": "dog_10",
+      "x": 990,
+      "y": 1701,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_10/sprite_000.png",
+        "x": 937,
+        "y": 1617,
+        "width": 100,
+        "height": 163,
+        "anchorX": 0.53,
+        "anchorY": 0.5153,
+        "cleanup": {
+          "x": 919,
+          "y": 1611,
+          "width": 145,
+          "height": 173
+        }
+      }
+    },
+    {
+      "id": "dog_11",
+      "x": 459,
+      "y": 1759,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_11/sprite_000.png",
+        "x": 389,
+        "y": 1687,
+        "width": 121,
+        "height": 140,
+        "anchorX": 0.5785,
+        "anchorY": 0.5143,
+        "cleanup": {
+          "x": 384,
+          "y": 1666,
+          "width": 146,
+          "height": 172
+        }
+      }
+    },
+    {
+      "id": "dog_12",
+      "x": 1677,
+      "y": 1737,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_12/sprite_000.png",
+        "x": 1540,
+        "y": 1642,
+        "width": 274,
+        "height": 232,
+        "anchorX": 0.5,
+        "anchorY": 0.4095,
+        "cleanup": {
+          "x": 1532,
+          "y": 1640,
+          "width": 290,
+          "height": 242
+        }
+      }
+    },
+    {
+      "id": "dog_13",
+      "x": 877,
+      "y": 2891,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_13/sprite_000.png",
+        "x": 819,
+        "y": 2817,
+        "width": 124,
+        "height": 153,
+        "anchorX": 0.4677,
+        "anchorY": 0.4837,
+        "cleanup": {
+          "x": 807,
+          "y": 2812,
+          "width": 142,
+          "height": 164
+        }
+      }
+    },
+    {
+      "id": "dog_14",
+      "x": 504,
+      "y": 2847,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_14/sprite_000.png",
+        "x": 441,
+        "y": 2761,
+        "width": 133,
+        "height": 159,
+        "anchorX": 0.4737,
+        "anchorY": 0.5409,
+        "cleanup": {
+          "x": 401,
+          "y": 2702,
+          "width": 243,
+          "height": 285
+        }
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 1097,
+      "y": 2304,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_15/sprite_000.png",
+        "x": 1039,
+        "y": 2218,
+        "width": 113,
+        "height": 175,
+        "anchorX": 0.5133,
+        "anchorY": 0.4914,
+        "cleanup": {
+          "x": 952,
+          "y": 2159,
+          "width": 290,
+          "height": 264
+        }
+      }
+    },
+    {
+      "id": "dog_16",
+      "x": 650,
+      "y": 2043,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_16/sprite_000.png",
+        "x": 600,
+        "y": 1973,
+        "width": 97,
+        "height": 156,
+        "anchorX": 0.5155,
+        "anchorY": 0.4487,
+        "cleanup": {
+          "x": 593,
+          "y": 1898,
+          "width": 202,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_17",
+      "x": 1449,
+      "y": 1226,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_17/sprite_000.png",
+        "x": 1398,
+        "y": 1151,
+        "width": 94,
+        "height": 149,
+        "anchorX": 0.5426,
+        "anchorY": 0.5034,
+        "cleanup": {
+          "x": 1304,
+          "y": 1092,
+          "width": 290,
+          "height": 279
+        }
+      }
+    },
+    {
+      "id": "dog_18",
+      "x": 974,
+      "y": 2025,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_18/sprite_000.png",
+        "x": 911,
+        "y": 1951,
+        "width": 133,
+        "height": 143,
+        "anchorX": 0.4737,
+        "anchorY": 0.5175,
+        "cleanup": {
+          "x": 832,
+          "y": 1931,
+          "width": 278,
+          "height": 227
+        }
+      }
+    },
+    {
+      "id": "dog_19",
+      "x": 1137,
+      "y": 1413,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_19/sprite_000.png",
+        "x": 1075,
+        "y": 1336,
+        "width": 129,
+        "height": 130,
+        "anchorX": 0.4806,
+        "anchorY": 0.5923,
+        "cleanup": {
+          "x": 992,
+          "y": 1327,
+          "width": 290,
+          "height": 230
+        }
+      }
+    },
+    {
+      "id": "dog_20",
+      "x": 895,
+      "y": 3246,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_20/sprite_000.png",
+        "x": 834,
+        "y": 3164,
+        "width": 125,
+        "height": 151,
+        "anchorX": 0.488,
+        "anchorY": 0.543,
+        "cleanup": {
+          "x": 824,
+          "y": 3156,
+          "width": 147,
+          "height": 164
+        }
+      }
+    },
+    {
+      "id": "dog_21",
+      "x": 1860,
+      "y": 913,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_21/sprite_000.png",
+        "x": 1805,
+        "y": 827,
+        "width": 125,
+        "height": 168,
+        "anchorX": 0.44,
+        "anchorY": 0.5119,
+        "cleanup": {
+          "x": 1793,
+          "y": 822,
+          "width": 146,
+          "height": 178
+        }
+      }
+    },
+    {
+      "id": "dog_22",
+      "x": 482,
+      "y": 1441,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_22/sprite_000.png",
+        "x": 418,
+        "y": 1347,
+        "width": 127,
+        "height": 225,
+        "anchorX": 0.5039,
+        "anchorY": 0.4178,
+        "cleanup": {
+          "x": 337,
+          "y": 1310,
+          "width": 290,
+          "height": 276
+        }
+      }
+    },
+    {
+      "id": "dog_23",
+      "x": 1009,
+      "y": 824,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_23/sprite_000.png",
+        "x": 956,
+        "y": 753,
+        "width": 129,
+        "height": 144,
+        "anchorX": 0.4109,
+        "anchorY": 0.4931,
+        "cleanup": {
+          "x": 951,
+          "y": 679,
+          "width": 196,
+          "height": 264
+        }
+      }
+    },
+    {
+      "id": "dog_24",
+      "x": 768,
+      "y": 2514,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_24/sprite_000.png",
+        "x": 711,
+        "y": 2426,
+        "width": 100,
+        "height": 171,
+        "anchorX": 0.57,
+        "anchorY": 0.5146,
+        "cleanup": {
+          "x": 692,
+          "y": 2419,
+          "width": 151,
+          "height": 183
+        }
+      }
+    },
+    {
+      "id": "dog_25",
+      "x": 1550,
+      "y": 2228,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_25/sprite_000.png",
+        "x": 1494,
+        "y": 2153,
+        "width": 118,
+        "height": 157,
+        "anchorX": 0.4746,
+        "anchorY": 0.4777,
+        "cleanup": {
+          "x": 1439,
+          "y": 2128,
+          "width": 178,
+          "height": 188
+        }
+      }
+    },
+    {
+      "id": "dog_26",
+      "x": 812,
+      "y": 1379,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_26/sprite_000.png",
+        "x": 759,
+        "y": 1297,
+        "width": 107,
+        "height": 151,
+        "anchorX": 0.4953,
+        "anchorY": 0.543,
+        "cleanup": {
+          "x": 753,
+          "y": 1291,
+          "width": 131,
+          "height": 164
+        }
+      }
+    },
+    {
+      "id": "dog_27",
+      "x": 467,
+      "y": 2564,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_27/sprite_000.png",
+        "x": 416,
+        "y": 2492,
+        "width": 124,
+        "height": 172,
+        "anchorX": 0.4113,
+        "anchorY": 0.4186,
+        "cleanup": {
+          "x": 324,
+          "y": 2470,
+          "width": 251,
+          "height": 203
+        }
+      }
+    },
+    {
+      "id": "dog_28",
+      "x": 525,
+      "y": 811,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_28/sprite_000.png",
+        "x": 459,
+        "y": 724,
+        "width": 131,
+        "height": 154,
+        "anchorX": 0.5038,
+        "anchorY": 0.5649,
+        "cleanup": {
+          "x": 449,
+          "y": 717,
+          "width": 150,
+          "height": 172
+        }
+      }
+    },
+    {
+      "id": "dog_29",
+      "x": 1295,
+      "y": 2849,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_guanajuato_rainbow_alley_dog_795d/dogs/dog_29/sprite_000.png",
+        "x": 1233,
+        "y": 2779,
+        "width": 120,
+        "height": 138,
+        "anchorX": 0.5167,
+        "anchorY": 0.5072,
+        "cleanup": {
+          "x": 1224,
+          "y": 2756,
+          "width": 143,
+          "height": 175
+        }
+      }
+    }
+  ]
+}

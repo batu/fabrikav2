@@ -1,0 +1,63 @@
+# refcap-compare manifest for the Block Blast v2 port. Modelled on
+# games/marble_run/refs/manifest.yaml; loaded by tools/refcap-compare.
+# Captures are intentionally still gaps in this worker sandbox: the conductor
+# owns the real Android WebView/device capture lane.
+game: block_blast
+
+reference:
+  package: com.utolye.blockblastextreme
+  version: unknown
+  device: unknown
+  host: ubuntu-server
+  adb: /home/batu/android-sdk/platform-tools/adb
+  serial: null
+
+v2:
+  package: com.basegamelab.block_blast.dev
+  version: dev
+  viewport: 390x844
+
+# Canonical states (tools/refcap-compare/src/manifest.mjs CANONICAL_STATES).
+# Each lane needs either "offline" (a committed PNG) or an explicit "gap".
+states:
+  - name: menu
+    reference:
+      gap: "reference capture unavailable in this worker sandbox"
+    v2:
+      gap: "device/web capture unavailable in this worker sandbox"
+      driveTo: menu
+
+  - name: level
+    reference:
+      gap: "reference capture unavailable in this worker sandbox"
+    v2:
+      gap: "device/web capture unavailable in this worker sandbox"
+      driveTo: level
+
+  - name: settings
+    reference:
+      gap: "reference capture unavailable in this worker sandbox"
+    v2:
+      gap: "device/web capture unavailable in this worker sandbox"
+      driveTo: settings
+
+  - name: pause
+    reference:
+      gap: "reference capture unavailable in this worker sandbox"
+    v2:
+      gap: "device/web capture unavailable in this worker sandbox"
+      driveTo: pause
+
+  - name: win
+    reference:
+      gap: "reference capture unavailable in this worker sandbox"
+    v2:
+      gap: "device/web capture unavailable in this worker sandbox"
+      driveTo: win
+
+  - name: fail
+    reference:
+      gap: "reference capture unavailable in this worker sandbox"
+    v2:
+      gap: "device/web capture unavailable in this worker sandbox"
+      driveTo: fail

@@ -79,7 +79,7 @@ async function winLevel1(page: Page): Promise<void> {
   );
 }
 
-async function expectImageRibbonEyebrow(
+async function expectImageRibbonTitleStack(
   page: Page,
   opts: { resultState: 'win' | 'fail'; cardClass: 'win' | 'lose'; assetName: string; title: string },
 ): Promise<void> {
@@ -108,14 +108,29 @@ async function expectImageRibbonEyebrow(
 
   const ribbonBox = await ribbon.boundingBox();
   const eyebrowBox = await eyebrow.boundingBox();
+  const titleBox = await title.boundingBox();
   expect(ribbonBox).not.toBeNull();
   expect(eyebrowBox).not.toBeNull();
+  expect(titleBox).not.toBeNull();
+  const ribbonCenterX = ribbonBox!.x + ribbonBox!.width / 2;
+  const eyebrowCenterX = eyebrowBox!.x + eyebrowBox!.width / 2;
+  const titleCenterX = titleBox!.x + titleBox!.width / 2;
   const eyebrowMidY = eyebrowBox!.y + eyebrowBox!.height / 2;
   const eyebrowBottomY = eyebrowBox!.y + eyebrowBox!.height;
+  const titleMidY = titleBox!.y + titleBox!.height / 2;
+  expect(eyebrowBox!.x).toBeGreaterThanOrEqual(ribbonBox!.x);
+  expect(eyebrowBox!.x + eyebrowBox!.width).toBeLessThanOrEqual(ribbonBox!.x + ribbonBox!.width);
+  expect(Math.abs(eyebrowCenterX - ribbonCenterX)).toBeLessThanOrEqual(2);
+  expect(titleBox!.x).toBeGreaterThanOrEqual(ribbonBox!.x);
+  expect(titleBox!.x + titleBox!.width).toBeLessThanOrEqual(ribbonBox!.x + ribbonBox!.width);
+  expect(Math.abs(titleCenterX - ribbonCenterX)).toBeLessThanOrEqual(2);
   expect(eyebrowBox!.y).toBeGreaterThan(ribbonBox!.y);
   expect(eyebrowMidY - ribbonBox!.y).toBeGreaterThan(ribbonBox!.height * 0.14);
   expect(eyebrowMidY - ribbonBox!.y).toBeLessThan(ribbonBox!.height * 0.36);
   expect(eyebrowBottomY).toBeLessThan(ribbonBox!.y + ribbonBox!.height * 0.43);
+  expect(titleMidY - ribbonBox!.y).toBeGreaterThan(ribbonBox!.height * 0.43);
+  expect(titleMidY - ribbonBox!.y).toBeLessThan(ribbonBox!.height * 0.72);
+  expect(eyebrowMidY).toBeLessThan(titleMidY);
 }
 
 test.describe('marble_run — real-click coverage across every screen', () => {
@@ -283,7 +298,7 @@ test.describe('marble_run — real-click coverage across every screen', () => {
 
   test('result: win image ribbon keeps one LEVEL 4 eyebrow above one completed title', async ({ page }) => {
     await boot(page);
-    await expectImageRibbonEyebrow(page, {
+    await expectImageRibbonTitleStack(page, {
       resultState: 'win',
       cardClass: 'win',
       assetName: 'ribbon-completed-blank',
@@ -293,7 +308,7 @@ test.describe('marble_run — real-click coverage across every screen', () => {
 
   test('result: fail image ribbon keeps one LEVEL 4 eyebrow above one failed title', async ({ page }) => {
     await boot(page);
-    await expectImageRibbonEyebrow(page, {
+    await expectImageRibbonTitleStack(page, {
       resultState: 'fail',
       cardClass: 'lose',
       assetName: 'ribbon-failed-blank',

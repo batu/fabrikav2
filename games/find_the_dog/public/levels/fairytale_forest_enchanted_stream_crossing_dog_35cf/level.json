@@ -1,0 +1,640 @@
+{
+  "id": "fairytale_forest_enchanted_stream_crossing_dog_35cf",
+  "name": "Level fairytale_forest_enchanted_stream_crossing_dog_35cf (clean_old_cartoon)",
+  "width": 2560,
+  "height": 3840,
+  "bwImage": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/bw.png",
+  "colorImage": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/color.png",
+  "dogs": [
+    {
+      "id": "dog_00",
+      "x": 1951,
+      "y": 1696,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_00/sprite_000.png",
+        "x": 1893,
+        "y": 1614,
+        "width": 130,
+        "height": 161,
+        "anchorX": 0.4462,
+        "anchorY": 0.5093,
+        "cleanup": {
+          "x": 1823,
+          "y": 1609,
+          "width": 259,
+          "height": 221
+        }
+      }
+    },
+    {
+      "id": "dog_01",
+      "x": 1102,
+      "y": 2917,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_01/sprite_000.png",
+        "x": 1043,
+        "y": 2854,
+        "width": 115,
+        "height": 156,
+        "anchorX": 0.513,
+        "anchorY": 0.4038,
+        "cleanup": {
+          "x": 1029,
+          "y": 2831,
+          "width": 135,
+          "height": 183
+        }
+      }
+    },
+    {
+      "id": "dog_02",
+      "x": 2009,
+      "y": 2139,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_02/sprite_000.png",
+        "x": 1953,
+        "y": 2057,
+        "width": 121,
+        "height": 164,
+        "anchorX": 0.4628,
+        "anchorY": 0.5,
+        "cleanup": {
+          "x": 1946,
+          "y": 2046,
+          "width": 134,
+          "height": 180
+        }
+      }
+    },
+    {
+      "id": "dog_03",
+      "x": 623,
+      "y": 2241,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_03/sprite_000.png",
+        "x": 573,
+        "y": 2175,
+        "width": 112,
+        "height": 132,
+        "anchorX": 0.4464,
+        "anchorY": 0.5,
+        "cleanup": {
+          "x": 478,
+          "y": 2136,
+          "width": 290,
+          "height": 239
+        }
+      }
+    },
+    {
+      "id": "dog_04",
+      "x": 987,
+      "y": 1277,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_04/sprite_000.png",
+        "x": 926,
+        "y": 1190,
+        "width": 128,
+        "height": 167,
+        "anchorX": 0.4766,
+        "anchorY": 0.521,
+        "cleanup": {
+          "x": 891,
+          "y": 1161,
+          "width": 241,
+          "height": 261
+        }
+      }
+    },
+    {
+      "id": "dog_05",
+      "x": 1924,
+      "y": 2944,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_05/sprite_000.png",
+        "x": 1866,
+        "y": 2861,
+        "width": 122,
+        "height": 157,
+        "anchorX": 0.4754,
+        "anchorY": 0.5287,
+        "cleanup": {
+          "x": 1854,
+          "y": 2848,
+          "width": 141,
+          "height": 184
+        }
+      }
+    },
+    {
+      "id": "dog_06",
+      "x": 1538,
+      "y": 2878,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_06/sprite_000.png",
+        "x": 1483,
+        "y": 2807,
+        "width": 113,
+        "height": 136,
+        "anchorX": 0.4867,
+        "anchorY": 0.5221,
+        "cleanup": {
+          "x": 1467,
+          "y": 2802,
+          "width": 145,
+          "height": 159
+        }
+      }
+    },
+    {
+      "id": "dog_07",
+      "x": 1664,
+      "y": 1952,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_07/sprite_000.png",
+        "x": 1565,
+        "y": 1877,
+        "width": 171,
+        "height": 223,
+        "anchorX": 0.5789,
+        "anchorY": 0.3363,
+        "cleanup": {
+          "x": 1519,
+          "y": 1872,
+          "width": 259,
+          "height": 232
+        }
+      }
+    },
+    {
+      "id": "dog_08",
+      "x": 1387,
+      "y": 3209,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_08/sprite_000.png",
+        "x": 1325,
+        "y": 3135,
+        "width": 128,
+        "height": 156,
+        "anchorX": 0.4844,
+        "anchorY": 0.4744,
+        "cleanup": {
+          "x": 1317,
+          "y": 3119,
+          "width": 141,
+          "height": 178
+        }
+      }
+    },
+    {
+      "id": "dog_09",
+      "x": 700,
+      "y": 1827,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_09/sprite_000.png",
+        "x": 627,
+        "y": 1746,
+        "width": 129,
+        "height": 160,
+        "anchorX": 0.5659,
+        "anchorY": 0.5062,
+        "cleanup": {
+          "x": 623,
+          "y": 1742,
+          "width": 149,
+          "height": 172
+        }
+      }
+    },
+    {
+      "id": "dog_10",
+      "x": 918,
+      "y": 3249,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_10/sprite_000.png",
+        "x": 854,
+        "y": 3162,
+        "width": 129,
+        "height": 164,
+        "anchorX": 0.4961,
+        "anchorY": 0.5305,
+        "cleanup": {
+          "x": 776,
+          "y": 3154,
+          "width": 287,
+          "height": 203
+        }
+      }
+    },
+    {
+      "id": "dog_11",
+      "x": 498,
+      "y": 3063,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_11/sprite_000.png",
+        "x": 443,
+        "y": 2983,
+        "width": 110,
+        "height": 151,
+        "anchorX": 0.5,
+        "anchorY": 0.5298,
+        "cleanup": {
+          "x": 436,
+          "y": 2975,
+          "width": 132,
+          "height": 163
+        }
+      }
+    },
+    {
+      "id": "dog_12",
+      "x": 2024,
+      "y": 2531,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_12/sprite_000.png",
+        "x": 1965,
+        "y": 2449,
+        "width": 125,
+        "height": 166,
+        "anchorX": 0.472,
+        "anchorY": 0.494,
+        "cleanup": {
+          "x": 1930,
+          "y": 2429,
+          "width": 182,
+          "height": 191
+        }
+      }
+    },
+    {
+      "id": "dog_13",
+      "x": 1391,
+      "y": 2550,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_13/sprite_000.png",
+        "x": 1314,
+        "y": 2489,
+        "width": 132,
+        "height": 128,
+        "anchorX": 0.5833,
+        "anchorY": 0.4766,
+        "cleanup": {
+          "x": 1310,
+          "y": 2483,
+          "width": 157,
+          "height": 155
+        }
+      }
+    },
+    {
+      "id": "dog_14",
+      "x": 445,
+      "y": 688,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_14/sprite_000.png",
+        "x": 382,
+        "y": 604,
+        "width": 126,
+        "height": 177,
+        "anchorX": 0.5,
+        "anchorY": 0.4746,
+        "cleanup": {
+          "x": 315,
+          "y": 597,
+          "width": 255,
+          "height": 227
+        }
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 1821,
+      "y": 754,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_15/sprite_000.png",
+        "x": 1760,
+        "y": 665,
+        "width": 132,
+        "height": 160,
+        "anchorX": 0.4621,
+        "anchorY": 0.5563,
+        "cleanup": {
+          "x": 1679,
+          "y": 661,
+          "width": 230,
+          "height": 238
+        }
+      }
+    },
+    {
+      "id": "dog_16",
+      "x": 1286,
+      "y": 716,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_16/sprite_000.png",
+        "x": 1231,
+        "y": 636,
+        "width": 115,
+        "height": 163,
+        "anchorX": 0.4783,
+        "anchorY": 0.4908,
+        "cleanup": {
+          "x": 1214,
+          "y": 621,
+          "width": 147,
+          "height": 182
+        }
+      }
+    },
+    {
+      "id": "dog_17",
+      "x": 641,
+      "y": 2561,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_17/sprite_000.png",
+        "x": 572,
+        "y": 2498,
+        "width": 127,
+        "height": 172,
+        "anchorX": 0.5433,
+        "anchorY": 0.3663,
+        "cleanup": {
+          "x": 567,
+          "y": 2485,
+          "width": 145,
+          "height": 189
+        }
+      }
+    },
+    {
+      "id": "dog_18",
+      "x": 988,
+      "y": 2397,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_18/sprite_000.png",
+        "x": 933,
+        "y": 2336,
+        "width": 114,
+        "height": 139,
+        "anchorX": 0.4825,
+        "anchorY": 0.4388,
+        "cleanup": {
+          "x": 922,
+          "y": 2320,
+          "width": 133,
+          "height": 159
+        }
+      }
+    },
+    {
+      "id": "dog_19",
+      "x": 1063,
+      "y": 1711,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_19/sprite_000.png",
+        "x": 999,
+        "y": 1628,
+        "width": 134,
+        "height": 167,
+        "anchorX": 0.4776,
+        "anchorY": 0.497,
+        "cleanup": {
+          "x": 991,
+          "y": 1611,
+          "width": 146,
+          "height": 190
+        }
+      }
+    },
+    {
+      "id": "dog_20",
+      "x": 1282,
+      "y": 1202,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_20/sprite_000.png",
+        "x": 1221,
+        "y": 1116,
+        "width": 126,
+        "height": 169,
+        "anchorX": 0.4841,
+        "anchorY": 0.5089,
+        "cleanup": {
+          "x": 1138,
+          "y": 1057,
+          "width": 289,
+          "height": 286
+        }
+      }
+    },
+    {
+      "id": "dog_21",
+      "x": 842,
+      "y": 713,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_21/sprite_000.png",
+        "x": 784,
+        "y": 648,
+        "width": 114,
+        "height": 134,
+        "anchorX": 0.5088,
+        "anchorY": 0.4851,
+        "cleanup": {
+          "x": 715,
+          "y": 622,
+          "width": 197,
+          "height": 218
+        }
+      }
+    },
+    {
+      "id": "dog_22",
+      "x": 1782,
+      "y": 1271,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_22/sprite_000.png",
+        "x": 1655,
+        "y": 1193,
+        "width": 235,
+        "height": 178,
+        "anchorX": 0.5404,
+        "anchorY": 0.4382,
+        "cleanup": {
+          "x": 1637,
+          "y": 1165,
+          "width": 288,
+          "height": 248
+        }
+      }
+    },
+    {
+      "id": "dog_23",
+      "x": 1615,
+      "y": 2251,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_23/sprite_000.png",
+        "x": 1571,
+        "y": 2175,
+        "width": 104,
+        "height": 154,
+        "anchorX": 0.4231,
+        "anchorY": 0.4935,
+        "cleanup": {
+          "x": 1470,
+          "y": 2157,
+          "width": 275,
+          "height": 223
+        }
+      }
+    },
+    {
+      "id": "dog_24",
+      "x": 1212,
+      "y": 2102,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_24/sprite_000.png",
+        "x": 1146,
+        "y": 2028,
+        "width": 123,
+        "height": 157,
+        "anchorX": 0.5366,
+        "anchorY": 0.4713,
+        "cleanup": {
+          "x": 1067,
+          "y": 1988,
+          "width": 221,
+          "height": 239
+        }
+      }
+    },
+    {
+      "id": "dog_25",
+      "x": 1667,
+      "y": 3255,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_25/sprite_000.png",
+        "x": 1600,
+        "y": 3180,
+        "width": 134,
+        "height": 152,
+        "anchorX": 0.5,
+        "anchorY": 0.4934,
+        "cleanup": {
+          "x": 1522,
+          "y": 3121,
+          "width": 290,
+          "height": 245
+        }
+      }
+    },
+    {
+      "id": "dog_26",
+      "x": 2114,
+      "y": 1075,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_26/sprite_000.png",
+        "x": 2048,
+        "y": 994,
+        "width": 124,
+        "height": 169,
+        "anchorX": 0.5323,
+        "anchorY": 0.4793,
+        "cleanup": {
+          "x": 2012,
+          "y": 933,
+          "width": 245,
+          "height": 287
+        }
+      }
+    },
+    {
+      "id": "dog_27",
+      "x": 579,
+      "y": 1035,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_27/sprite_000.png",
+        "x": 393,
+        "y": 885,
+        "width": 384,
+        "height": 335,
+        "anchorX": 0.4844,
+        "anchorY": 0.4478,
+        "cleanup": {
+          "x": 389,
+          "y": 881,
+          "width": 392,
+          "height": 343
+        }
+      }
+    },
+    {
+      "id": "dog_28",
+      "x": 1504,
+      "y": 1560,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_28/sprite_000.png",
+        "x": 1430,
+        "y": 1484,
+        "width": 189,
+        "height": 169,
+        "anchorX": 0.3915,
+        "anchorY": 0.4497,
+        "cleanup": {
+          "x": 1359,
+          "y": 1461,
+          "width": 290,
+          "height": 196
+        }
+      }
+    },
+    {
+      "id": "dog_29",
+      "x": 530,
+      "y": 1501,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_enchanted_stream_crossing_dog_35cf/dogs/dog_29/sprite_000.png",
+        "x": 463,
+        "y": 1417,
+        "width": 131,
+        "height": 172,
+        "anchorX": 0.5115,
+        "anchorY": 0.4884,
+        "cleanup": {
+          "x": 457,
+          "y": 1410,
+          "width": 147,
+          "height": 190
+        }
+      }
+    }
+  ]
+}

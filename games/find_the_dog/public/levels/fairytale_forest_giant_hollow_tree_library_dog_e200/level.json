@@ -1,0 +1,640 @@
+{
+  "id": "fairytale_forest_giant_hollow_tree_library_dog_e200",
+  "name": "Level fairytale_forest_giant_hollow_tree_library_dog_e200 (clean_old_cartoon)",
+  "width": 2560,
+  "height": 3840,
+  "bwImage": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/bw.png",
+  "colorImage": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/color.png",
+  "dogs": [
+    {
+      "id": "dog_00",
+      "x": 1722,
+      "y": 2683,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_00/sprite_000.png",
+        "x": 1660,
+        "y": 2601,
+        "width": 126,
+        "height": 168,
+        "anchorX": 0.4921,
+        "anchorY": 0.4881,
+        "cleanup": {
+          "x": 1651,
+          "y": 2594,
+          "width": 156,
+          "height": 234
+        }
+      }
+    },
+    {
+      "id": "dog_01",
+      "x": 1788,
+      "y": 1869,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_01/sprite_000.png",
+        "x": 1719,
+        "y": 1779,
+        "width": 140,
+        "height": 170,
+        "anchorX": 0.4929,
+        "anchorY": 0.5294,
+        "cleanup": {
+          "x": 1714,
+          "y": 1775,
+          "width": 149,
+          "height": 179
+        }
+      }
+    },
+    {
+      "id": "dog_02",
+      "x": 1556,
+      "y": 1414,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_02/sprite_000.png",
+        "x": 1489,
+        "y": 1337,
+        "width": 167,
+        "height": 175,
+        "anchorX": 0.4012,
+        "anchorY": 0.44,
+        "cleanup": {
+          "x": 1450,
+          "y": 1322,
+          "width": 228,
+          "height": 233
+        }
+      }
+    },
+    {
+      "id": "dog_03",
+      "x": 1541,
+      "y": 938,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_03/sprite_000.png",
+        "x": 1470,
+        "y": 861,
+        "width": 131,
+        "height": 163,
+        "anchorX": 0.542,
+        "anchorY": 0.4724,
+        "cleanup": {
+          "x": 1452,
+          "y": 857,
+          "width": 157,
+          "height": 171
+        }
+      }
+    },
+    {
+      "id": "dog_04",
+      "x": 1400,
+      "y": 2211,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_04/sprite_000.png",
+        "x": 1341,
+        "y": 2140,
+        "width": 192,
+        "height": 175,
+        "anchorX": 0.3073,
+        "anchorY": 0.4057,
+        "cleanup": {
+          "x": 1255,
+          "y": 2088,
+          "width": 290,
+          "height": 251
+        }
+      }
+    },
+    {
+      "id": "dog_05",
+      "x": 2009,
+      "y": 2679,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_05/sprite_000.png",
+        "x": 1939,
+        "y": 2600,
+        "width": 128,
+        "height": 159,
+        "anchorX": 0.5469,
+        "anchorY": 0.4969,
+        "cleanup": {
+          "x": 1864,
+          "y": 2534,
+          "width": 290,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_06",
+      "x": 1420,
+      "y": 3009,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_06/sprite_000.png",
+        "x": 1369,
+        "y": 2929,
+        "width": 114,
+        "height": 167,
+        "anchorX": 0.4474,
+        "anchorY": 0.479,
+        "cleanup": {
+          "x": 1364,
+          "y": 2923,
+          "width": 124,
+          "height": 178
+        }
+      }
+    },
+    {
+      "id": "dog_07",
+      "x": 960,
+      "y": 2710,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_07/sprite_000.png",
+        "x": 899,
+        "y": 2632,
+        "width": 116,
+        "height": 162,
+        "anchorX": 0.5259,
+        "anchorY": 0.4815,
+        "cleanup": {
+          "x": 894,
+          "y": 2626,
+          "width": 133,
+          "height": 173
+        }
+      }
+    },
+    {
+      "id": "dog_08",
+      "x": 1211,
+      "y": 1557,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_08/sprite_000.png",
+        "x": 1132,
+        "y": 1452,
+        "width": 162,
+        "height": 165,
+        "anchorX": 0.4877,
+        "anchorY": 0.6364,
+        "cleanup": {
+          "x": 1122,
+          "y": 1448,
+          "width": 176,
+          "height": 194
+        }
+      }
+    },
+    {
+      "id": "dog_09",
+      "x": 1898,
+      "y": 1166,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_09/sprite_000.png",
+        "x": 1837,
+        "y": 1081,
+        "width": 121,
+        "height": 173,
+        "anchorX": 0.5041,
+        "anchorY": 0.4913,
+        "cleanup": {
+          "x": 1831,
+          "y": 1075,
+          "width": 139,
+          "height": 184
+        }
+      }
+    },
+    {
+      "id": "dog_10",
+      "x": 999,
+      "y": 3009,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_10/sprite_000.png",
+        "x": 930,
+        "y": 2929,
+        "width": 141,
+        "height": 169,
+        "anchorX": 0.4894,
+        "anchorY": 0.4734,
+        "cleanup": {
+          "x": 925,
+          "y": 2923,
+          "width": 151,
+          "height": 180
+        }
+      }
+    },
+    {
+      "id": "dog_11",
+      "x": 802,
+      "y": 2109,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_11/sprite_000.png",
+        "x": 734,
+        "y": 2024,
+        "width": 135,
+        "height": 170,
+        "anchorX": 0.5037,
+        "anchorY": 0.5,
+        "cleanup": {
+          "x": 729,
+          "y": 2006,
+          "width": 144,
+          "height": 193
+        }
+      }
+    },
+    {
+      "id": "dog_12",
+      "x": 1852,
+      "y": 1497,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_12/sprite_000.png",
+        "x": 1786,
+        "y": 1417,
+        "width": 124,
+        "height": 163,
+        "anchorX": 0.5323,
+        "anchorY": 0.4908,
+        "cleanup": {
+          "x": 1782,
+          "y": 1412,
+          "width": 144,
+          "height": 173
+        }
+      }
+    },
+    {
+      "id": "dog_13",
+      "x": 1264,
+      "y": 895,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_13/sprite_000.png",
+        "x": 1201,
+        "y": 820,
+        "width": 129,
+        "height": 162,
+        "anchorX": 0.4884,
+        "anchorY": 0.463,
+        "cleanup": {
+          "x": 1197,
+          "y": 813,
+          "width": 137,
+          "height": 173
+        }
+      }
+    },
+    {
+      "id": "dog_14",
+      "x": 530,
+      "y": 804,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_14/sprite_000.png",
+        "x": 435,
+        "y": 701,
+        "width": 165,
+        "height": 345,
+        "anchorX": 0.5758,
+        "anchorY": 0.2986,
+        "cleanup": {
+          "x": 431,
+          "y": 697,
+          "width": 218,
+          "height": 353
+        }
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 769,
+      "y": 1713,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_15/sprite_000.png",
+        "x": 710,
+        "y": 1629,
+        "width": 143,
+        "height": 174,
+        "anchorX": 0.4126,
+        "anchorY": 0.4828,
+        "cleanup": {
+          "x": 703,
+          "y": 1624,
+          "width": 154,
+          "height": 184
+        }
+      }
+    },
+    {
+      "id": "dog_16",
+      "x": 1342,
+      "y": 2696,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_16/sprite_000.png",
+        "x": 1284,
+        "y": 2613,
+        "width": 129,
+        "height": 162,
+        "anchorX": 0.4496,
+        "anchorY": 0.5123,
+        "cleanup": {
+          "x": 1257,
+          "y": 2608,
+          "width": 160,
+          "height": 175
+        }
+      }
+    },
+    {
+      "id": "dog_17",
+      "x": 1448,
+      "y": 1875,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_17/sprite_000.png",
+        "x": 1386,
+        "y": 1796,
+        "width": 122,
+        "height": 166,
+        "anchorX": 0.5082,
+        "anchorY": 0.4759,
+        "cleanup": {
+          "x": 1303,
+          "y": 1766,
+          "width": 290,
+          "height": 254
+        }
+      }
+    },
+    {
+      "id": "dog_18",
+      "x": 607,
+      "y": 3366,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_18/sprite_000.png",
+        "x": 546,
+        "y": 3290,
+        "width": 118,
+        "height": 149,
+        "anchorX": 0.5169,
+        "anchorY": 0.5101,
+        "cleanup": {
+          "x": 542,
+          "y": 3285,
+          "width": 129,
+          "height": 159
+        }
+      }
+    },
+    {
+      "id": "dog_19",
+      "x": 1741,
+      "y": 3073,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_19/sprite_000.png",
+        "x": 1687,
+        "y": 2998,
+        "width": 115,
+        "height": 163,
+        "anchorX": 0.4696,
+        "anchorY": 0.4601,
+        "cleanup": {
+          "x": 1596,
+          "y": 2930,
+          "width": 290,
+          "height": 288
+        }
+      }
+    },
+    {
+      "id": "dog_20",
+      "x": 585,
+      "y": 3072,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_20/sprite_000.png",
+        "x": 481,
+        "y": 2915,
+        "width": 271,
+        "height": 317,
+        "anchorX": 0.3838,
+        "anchorY": 0.4953,
+        "cleanup": {
+          "x": 454,
+          "y": 2911,
+          "width": 302,
+          "height": 325
+        }
+      }
+    },
+    {
+      "id": "dog_21",
+      "x": 815,
+      "y": 1259,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_21/sprite_000.png",
+        "x": 751,
+        "y": 1178,
+        "width": 130,
+        "height": 166,
+        "anchorX": 0.4923,
+        "anchorY": 0.488,
+        "cleanup": {
+          "x": 747,
+          "y": 1157,
+          "width": 213,
+          "height": 247
+        }
+      }
+    },
+    {
+      "id": "dog_22",
+      "x": 471,
+      "y": 1397,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_22/sprite_000.png",
+        "x": 408,
+        "y": 1316,
+        "width": 123,
+        "height": 164,
+        "anchorX": 0.5122,
+        "anchorY": 0.4939,
+        "cleanup": {
+          "x": 326,
+          "y": 1263,
+          "width": 290,
+          "height": 261
+        }
+      }
+    },
+    {
+      "id": "dog_23",
+      "x": 2080,
+      "y": 1964,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_23/sprite_000.png",
+        "x": 2019,
+        "y": 1883,
+        "width": 141,
+        "height": 148,
+        "anchorX": 0.4326,
+        "anchorY": 0.5473,
+        "cleanup": {
+          "x": 2010,
+          "y": 1828,
+          "width": 189,
+          "height": 222
+        }
+      }
+    },
+    {
+      "id": "dog_24",
+      "x": 513,
+      "y": 2169,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_24/sprite_000.png",
+        "x": 449,
+        "y": 2080,
+        "width": 128,
+        "height": 171,
+        "anchorX": 0.5,
+        "anchorY": 0.5205,
+        "cleanup": {
+          "x": 381,
+          "y": 2048,
+          "width": 274,
+          "height": 207
+        }
+      }
+    },
+    {
+      "id": "dog_25",
+      "x": 1948,
+      "y": 2254,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_25/sprite_000.png",
+        "x": 1854,
+        "y": 2162,
+        "width": 174,
+        "height": 220,
+        "anchorX": 0.5402,
+        "anchorY": 0.4182,
+        "cleanup": {
+          "x": 1803,
+          "y": 2158,
+          "width": 257,
+          "height": 241
+        }
+      }
+    },
+    {
+      "id": "dog_26",
+      "x": 2065,
+      "y": 3058,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_26/sprite_000.png",
+        "x": 2007,
+        "y": 2978,
+        "width": 120,
+        "height": 178,
+        "anchorX": 0.4833,
+        "anchorY": 0.4494,
+        "cleanup": {
+          "x": 1993,
+          "y": 2972,
+          "width": 145,
+          "height": 188
+        }
+      }
+    },
+    {
+      "id": "dog_27",
+      "x": 550,
+      "y": 2566,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_27/sprite_000.png",
+        "x": 481,
+        "y": 2475,
+        "width": 130,
+        "height": 168,
+        "anchorX": 0.5308,
+        "anchorY": 0.5417,
+        "cleanup": {
+          "x": 444,
+          "y": 2470,
+          "width": 225,
+          "height": 241
+        }
+      }
+    },
+    {
+      "id": "dog_28",
+      "x": 950,
+      "y": 955,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_28/sprite_000.png",
+        "x": 889,
+        "y": 871,
+        "width": 122,
+        "height": 175,
+        "anchorX": 0.5,
+        "anchorY": 0.48,
+        "cleanup": {
+          "x": 805,
+          "y": 858,
+          "width": 290,
+          "height": 242
+        }
+      }
+    },
+    {
+      "id": "dog_29",
+      "x": 495,
+      "y": 1079,
+      "r": 50,
+      "sprite": {
+        "image": "levels/fairytale_forest_giant_hollow_tree_library_dog_e200/dogs/dog_29/sprite_000.png",
+        "x": 435,
+        "y": 995,
+        "width": 108,
+        "height": 169,
+        "anchorX": 0.5556,
+        "anchorY": 0.497,
+        "cleanup": {
+          "x": 427,
+          "y": 988,
+          "width": 140,
+          "height": 180
+        }
+      }
+    }
+  ]
+}

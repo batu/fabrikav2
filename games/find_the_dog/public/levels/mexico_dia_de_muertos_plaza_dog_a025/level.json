@@ -1,0 +1,619 @@
+{
+  "id": "mexico_dia_de_muertos_plaza_dog_a025",
+  "name": "Level mexico_dia_de_muertos_plaza_dog_a025 (clean_old_cartoon)",
+  "width": 2560,
+  "height": 3840,
+  "bwImage": "levels/mexico_dia_de_muertos_plaza_dog_a025/bw.png",
+  "colorImage": "levels/mexico_dia_de_muertos_plaza_dog_a025/color.png",
+  "dogs": [
+    {
+      "id": "dog_00",
+      "x": 1546,
+      "y": 2349,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_00/sprite_000.png",
+        "x": 1490,
+        "y": 2279,
+        "width": 107,
+        "height": 147,
+        "anchorX": 0.5234,
+        "anchorY": 0.4762,
+        "cleanup": {
+          "x": 1401,
+          "y": 2262,
+          "width": 290,
+          "height": 215
+        }
+      }
+    },
+    {
+      "id": "dog_01",
+      "x": 1044,
+      "y": 2791,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_01/sprite_000.png",
+        "x": 991,
+        "y": 2733,
+        "width": 117,
+        "height": 142,
+        "anchorX": 0.453,
+        "anchorY": 0.4085,
+        "cleanup": {
+          "x": 973,
+          "y": 2700,
+          "width": 145,
+          "height": 180
+        }
+      }
+    },
+    {
+      "id": "dog_02",
+      "x": 707,
+      "y": 790,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_02/sprite_000.png",
+        "x": 651,
+        "y": 701,
+        "width": 121,
+        "height": 164,
+        "anchorX": 0.4628,
+        "anchorY": 0.5427,
+        "cleanup": {
+          "x": 562,
+          "y": 652,
+          "width": 290,
+          "height": 246
+        }
+      }
+    },
+    {
+      "id": "dog_03",
+      "x": 765,
+      "y": 1120,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_03/sprite_000.png",
+        "x": 701,
+        "y": 1047,
+        "width": 133,
+        "height": 163,
+        "anchorX": 0.4812,
+        "anchorY": 0.4479,
+        "cleanup": {
+          "x": 693,
+          "y": 999,
+          "width": 150,
+          "height": 239
+        }
+      }
+    },
+    {
+      "id": "dog_04",
+      "x": 1241,
+      "y": 2375,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_04/sprite_000.png",
+        "x": 1189,
+        "y": 2307,
+        "width": 115,
+        "height": 122,
+        "anchorX": 0.4522,
+        "anchorY": 0.5574,
+        "cleanup": {
+          "x": 1096,
+          "y": 2279,
+          "width": 290,
+          "height": 239
+        }
+      }
+    },
+    {
+      "id": "dog_05",
+      "x": 1641,
+      "y": 1842,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_05/sprite_000.png",
+        "x": 1586,
+        "y": 1755,
+        "width": 135,
+        "height": 156,
+        "anchorX": 0.4074,
+        "anchorY": 0.5577,
+        "cleanup": {
+          "x": 1572,
+          "y": 1750,
+          "width": 153,
+          "height": 180
+        }
+      }
+    },
+    {
+      "id": "dog_06",
+      "x": 829,
+      "y": 2230,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_06/sprite_000.png",
+        "x": 769,
+        "y": 2145,
+        "width": 127,
+        "height": 176,
+        "anchorX": 0.4724,
+        "anchorY": 0.483,
+        "cleanup": {
+          "x": 756,
+          "y": 2141,
+          "width": 144,
+          "height": 184
+        }
+      }
+    },
+    {
+      "id": "dog_07",
+      "x": 1470,
+      "y": 749,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_07/sprite_000.png",
+        "x": 1364,
+        "y": 643,
+        "width": 228,
+        "height": 222,
+        "anchorX": 0.4649,
+        "anchorY": 0.4775,
+        "cleanup": {
+          "x": 1360,
+          "y": 639,
+          "width": 255,
+          "height": 252
+        }
+      }
+    },
+    {
+      "id": "dog_08",
+      "x": 745,
+      "y": 3428,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_08/sprite_000.png",
+        "x": 692,
+        "y": 3345,
+        "width": 134,
+        "height": 159,
+        "anchorX": 0.3955,
+        "anchorY": 0.522,
+        "cleanup": {
+          "x": 676,
+          "y": 3340,
+          "width": 158,
+          "height": 186
+        }
+      }
+    },
+    {
+      "id": "dog_09",
+      "x": 1049,
+      "y": 1610,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_09/sprite_000.png",
+        "x": 984,
+        "y": 1530,
+        "width": 122,
+        "height": 152,
+        "anchorX": 0.5328,
+        "anchorY": 0.5263,
+        "cleanup": {
+          "x": 976,
+          "y": 1517,
+          "width": 145,
+          "height": 177
+        }
+      }
+    },
+    {
+      "id": "dog_10",
+      "x": 1806,
+      "y": 1094,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_10/sprite_000.png",
+        "x": 1742,
+        "y": 1014,
+        "width": 122,
+        "height": 162,
+        "anchorX": 0.5246,
+        "anchorY": 0.4938,
+        "cleanup": {
+          "x": 1661,
+          "y": 949,
+          "width": 290,
+          "height": 288
+        }
+      }
+    },
+    {
+      "id": "dog_11",
+      "x": 1036,
+      "y": 3250,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_11/sprite_000.png",
+        "x": 984,
+        "y": 3169,
+        "width": 119,
+        "height": 168,
+        "anchorX": 0.437,
+        "anchorY": 0.4821,
+        "cleanup": {
+          "x": 891,
+          "y": 3158,
+          "width": 270,
+          "height": 237
+        }
+      }
+    },
+    {
+      "id": "dog_12",
+      "x": 1581,
+      "y": 2795,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_12/sprite_000.png",
+        "x": 1524,
+        "y": 2723,
+        "width": 111,
+        "height": 132,
+        "anchorX": 0.5135,
+        "anchorY": 0.5455,
+        "cleanup": {
+          "x": 1511,
+          "y": 2705,
+          "width": 140,
+          "height": 157
+        }
+      }
+    },
+    {
+      "id": "dog_13",
+      "x": 1900,
+      "y": 1549,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_13/sprite_000.png",
+        "x": 1835,
+        "y": 1475,
+        "width": 129,
+        "height": 153,
+        "anchorX": 0.5039,
+        "anchorY": 0.4837,
+        "cleanup": {
+          "x": 1755,
+          "y": 1404,
+          "width": 290,
+          "height": 290
+        }
+      }
+    },
+    {
+      "id": "dog_14",
+      "x": 674,
+      "y": 3055,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_14/sprite_000.png",
+        "x": 610,
+        "y": 2976,
+        "width": 115,
+        "height": 156,
+        "anchorX": 0.5565,
+        "anchorY": 0.5064,
+        "cleanup": {
+          "x": 587,
+          "y": 2971,
+          "width": 156,
+          "height": 168
+        }
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 452,
+      "y": 1442,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_15/sprite_000.png",
+        "x": 392,
+        "y": 1355,
+        "width": 118,
+        "height": 168,
+        "anchorX": 0.5085,
+        "anchorY": 0.5179,
+        "cleanup": {
+          "x": 384,
+          "y": 1347,
+          "width": 140,
+          "height": 181
+        }
+      }
+    },
+    {
+      "id": "dog_16",
+      "x": 1823,
+      "y": 2453,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_16/sprite_000.png",
+        "x": 1763,
+        "y": 2374,
+        "width": 123,
+        "height": 161,
+        "anchorX": 0.4878,
+        "anchorY": 0.4907,
+        "cleanup": {
+          "x": 1718,
+          "y": 2325,
+          "width": 180,
+          "height": 214
+        }
+      }
+    },
+    {
+      "id": "dog_17",
+      "x": 1225,
+      "y": 1978,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_17/sprite_000.png",
+        "x": 1165,
+        "y": 1903,
+        "width": 117,
+        "height": 207,
+        "anchorX": 0.5128,
+        "anchorY": 0.3623,
+        "cleanup": {
+          "x": 1080,
+          "y": 1860,
+          "width": 290,
+          "height": 254
+        }
+      }
+    },
+    {
+      "id": "dog_18",
+      "x": 1063,
+      "y": 842,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_18/sprite_000.png",
+        "x": 999,
+        "y": 727,
+        "width": 165,
+        "height": 195,
+        "anchorX": 0.3879,
+        "anchorY": 0.5897,
+        "cleanup": {
+          "x": 920,
+          "y": 723,
+          "width": 248,
+          "height": 243
+        }
+      }
+    },
+    {
+      "id": "dog_19",
+      "x": 596,
+      "y": 2718,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_19/sprite_000.png",
+        "x": 546,
+        "y": 2645,
+        "width": 98,
+        "height": 147,
+        "anchorX": 0.5102,
+        "anchorY": 0.4966,
+        "cleanup": {
+          "x": 526,
+          "y": 2624,
+          "width": 143,
+          "height": 174
+        }
+      }
+    },
+    {
+      "id": "dog_20",
+      "x": 1324,
+      "y": 3123,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_20/sprite_000.png",
+        "x": 1265,
+        "y": 3042,
+        "width": 117,
+        "height": 163,
+        "anchorX": 0.5043,
+        "anchorY": 0.4969,
+        "cleanup": {
+          "x": 1254,
+          "y": 3037,
+          "width": 146,
+          "height": 178
+        }
+      }
+    },
+    {
+      "id": "dog_21",
+      "x": 533,
+      "y": 2135,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_21/sprite_000.png",
+        "x": 466,
+        "y": 2047,
+        "width": 133,
+        "height": 161,
+        "anchorX": 0.5038,
+        "anchorY": 0.5466,
+        "cleanup": {
+          "x": 462,
+          "y": 2042,
+          "width": 144,
+          "height": 172
+        }
+      }
+    },
+    {
+      "id": "dog_22",
+      "x": 442,
+      "y": 1721,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_22/sprite_000.png",
+        "x": 351,
+        "y": 1597,
+        "width": 158,
+        "height": 216,
+        "anchorX": 0.5759,
+        "anchorY": 0.5741,
+        "cleanup": {
+          "x": 347,
+          "y": 1593,
+          "width": 167,
+          "height": 224
+        }
+      }
+    },
+    {
+      "id": "dog_23",
+      "x": 1934,
+      "y": 2026,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_23/sprite_000.png",
+        "x": 1868,
+        "y": 1947,
+        "width": 116,
+        "height": 143,
+        "anchorX": 0.569,
+        "anchorY": 0.5524,
+        "cleanup": {
+          "x": 1843,
+          "y": 1933,
+          "width": 224,
+          "height": 237
+        }
+      }
+    },
+    {
+      "id": "dog_24",
+      "x": 2033,
+      "y": 2901,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_24/sprite_000.png",
+        "x": 1967,
+        "y": 2819,
+        "width": 127,
+        "height": 161,
+        "anchorX": 0.5197,
+        "anchorY": 0.5093,
+        "cleanup": {
+          "x": 1888,
+          "y": 2782,
+          "width": 285,
+          "height": 264
+        }
+      }
+    },
+    {
+      "id": "dog_25",
+      "x": 1451,
+      "y": 1525,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_25/sprite_000.png",
+        "x": 1391,
+        "y": 1438,
+        "width": 113,
+        "height": 145,
+        "anchorX": 0.531,
+        "anchorY": 0.6,
+        "cleanup": {
+          "x": 1380,
+          "y": 1429,
+          "width": 144,
+          "height": 181
+        }
+      }
+    },
+    {
+      "id": "dog_26",
+      "x": 766,
+      "y": 1500,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_26/sprite_000.png",
+        "x": 699,
+        "y": 1423,
+        "width": 118,
+        "height": 158,
+        "anchorX": 0.5678,
+        "anchorY": 0.4873,
+        "cleanup": {
+          "x": 694,
+          "y": 1404,
+          "width": 147,
+          "height": 183
+        }
+      }
+    },
+    {
+      "id": "dog_27",
+      "x": 2109,
+      "y": 1105,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_27/sprite_000.png",
+        "x": 2051,
+        "y": 1019,
+        "width": 112,
+        "height": 139,
+        "anchorX": 0.5179,
+        "anchorY": 0.6187,
+        "cleanup": {
+          "x": 2022,
+          "y": 1014,
+          "width": 216,
+          "height": 236
+        }
+      }
+    },
+    {
+      "id": "dog_28",
+      "x": 1223,
+      "y": 1168,
+      "r": 50,
+      "sprite": {
+        "image": "levels/mexico_dia_de_muertos_plaza_dog_a025/dogs/dog_28/sprite_000.png",
+        "x": 1159,
+        "y": 1087,
+        "width": 129,
+        "height": 183,
+        "anchorX": 0.4961,
+        "anchorY": 0.4426,
+        "cleanup": {
+          "x": 1078,
+          "y": 1082,
+          "width": 256,
+          "height": 192
+        }
+      }
+    }
+  ]
+}

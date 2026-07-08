@@ -73,18 +73,28 @@ export function buildHarnessBundle(gameDir) {
  * Step 2: build + install the Capacitor app on the device.
  * @returns {string} the installed app bundle id (from capacitor config)
  */
-export function buildAndInstallApp(gameDir, deviceUdid, appBundleId) {
+export function buildAndInstallApp(
+  gameDir,
+  deviceUdid,
+  appBundleId,
+  { developmentTeam = process.env.DEVELOPMENT_TEAM, shImpl = sh } = {},
+) {
   const proj = path.join(gameDir, 'ios', 'App', 'App.xcodeproj');
   if (!fs.existsSync(proj)) {
     throw new Error(`no Capacitor iOS project at ${proj} — run 'npx cap add ios' in ${gameDir} first`);
   }
   const derived = path.join(gameDir, 'ios', 'App', 'build');
-  sh('xcodebuild', [
+  const provisioningArgs = developmentTeam ? ['-allowProvisioningUpdates'] : [];
+  const buildSettings = developmentTeam ? [`DEVELOPMENT_TEAM=${developmentTeam}`] : [];
+  shImpl('xcodebuild', [
     '-project', proj, '-scheme', 'App', '-configuration', 'Debug',
-    '-destination', `id=${deviceUdid}`, '-derivedDataPath', derived, 'build',
+    '-destination', `id=${deviceUdid}`, '-derivedDataPath', derived,
+    ...provisioningArgs,
+    'build',
+    ...buildSettings,
   ]);
   const appPath = path.join(derived, 'Build', 'Products', 'Debug-iphoneos', 'App.app');
-  sh('xcrun', ['devicectl', 'device', 'install', 'app', '--device', deviceUdid, appPath]);
+  shImpl('xcrun', ['devicectl', 'device', 'install', 'app', '--device', deviceUdid, appPath]);
   return appBundleId;
 }
 
