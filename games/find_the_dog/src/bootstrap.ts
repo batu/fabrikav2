@@ -144,7 +144,8 @@ if (typeof window !== 'undefined') {
     void Promise.all([
       import('./testing/TestHarness'),
       import('./audio/AmbientManager'),
-    ]).then(([{ createFindTheDogHarness }, ambient]): void => {
+      import('./testing/insituTour'),
+    ]).then(([{ createFindTheDogHarness }, ambient, { maybeRunInsituTour }]): void => {
       const harness = createFindTheDogHarness(game);
       releaseTestBindings?.();
       releaseTestBindings = assignWindowBindings(window as unknown as Record<string, unknown>, {
@@ -152,6 +153,9 @@ if (typeof window !== 'undefined') {
         __FIND_DOG_STATE__: gameState,
         __FIND_DOG_HARNESS__: harness,
         __FIND_DOG_AMBIENT__: ambient.__ambientDebugSnapshot,
+      });
+      void maybeRunInsituTour(harness).catch((err: unknown): void => {
+        console.warn('[insituTour] failed while running FTD tour', err);
       });
       if (String(import.meta.env.VITE_FTD_SIM_AUTOPLAY) === 'true') {
         window.setTimeout((): void => {
@@ -171,6 +175,8 @@ if (typeof window !== 'undefined') {
           }, 250);
         }, 250);
       }
+    }).catch((err: unknown): void => {
+      console.warn('[testHarness] failed to initialize FTD harness', err);
     });
   }
 }
