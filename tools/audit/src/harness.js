@@ -31,7 +31,8 @@
 // correctly wired — the TS contract (`@fabrikav2/testkit/harness`) owns typing and
 // diff review owns wiring. The surface itself is required: missing harness imports
 // or missing required members are hard audit errors because the game is not
-// deterministically drivable/capturable without them.
+// deterministically drivable/capturable without them. This linter intentionally
+// does not inspect package.json or require a Playwright/browser-e2e npm script.
 
 import { join } from 'node:path';
 import { listDirs, walkFiles, readText, rel, stripComments, SCOPE, SOURCE_EXTS } from './lib.js';

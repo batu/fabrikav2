@@ -22,6 +22,11 @@ function writeTemplate(root) {
         name: '@fabrikav2/game-template',
         private: true,
         description: 'copied by create-game',
+        scripts: {
+          typecheck: 'tsc --noEmit',
+          'test:unit': 'vitest run',
+          lint: 'eslint .',
+        },
         devDependencies: {
           '@fabrikav2/kernel': '*',
           '@fabrikav2/testkit': '*',
@@ -74,6 +79,13 @@ describe('createGame', () => {
     const pkg = JSON.parse(readFileSync(join(targetDir, 'package.json'), 'utf8'));
     expect(pkg.name).toBe('@fabrikav2/my_game');
     expect(pkg.description).toBeUndefined(); // template-only note dropped
+    expect(pkg.scripts).toEqual({
+      typecheck: 'tsc --noEmit',
+      'test:unit': 'vitest run',
+      lint: 'eslint .',
+    });
+    expect(pkg.scripts).not.toHaveProperty('test:e2e');
+    expect(pkg.scripts).not.toHaveProperty('e2e');
     expect(pkg.devDependencies).toEqual({
       '@fabrikav2/kernel': '*',
       '@fabrikav2/ui': '*',

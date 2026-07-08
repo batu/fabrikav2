@@ -18,6 +18,7 @@ Useful checks:
 - `npm run audit`
 
 The committed Playwright spec in `tests/e2e/boot.spec.ts` drives the browser
-harness through all six canonical states and calls `capture()`. On this worker,
-local Chromium launch is blocked by macOS sandbox permissions; run it on a host
-where Playwright can launch browsers with `npm run test:e2e -w @fabrikav2/tap_ten`.
+harness through all six canonical states and calls `capture()`. It is a manual
+browser diagnostic, not default worker verification; run it only on a host where
+Playwright can launch browsers:
+`npx playwright test --config games/tap_ten/playwright.config.ts`.

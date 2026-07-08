@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { lintHarness } from '../src/harness.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -12,6 +13,15 @@ describe('harness', () => {
   it('passes a game with the canonical surface AND one using the autoWin/autoFail aliases', () => {
     const { violations } = lintHarness(fixture('pass'));
     expect(violations).toEqual([]);
+  });
+
+  it('does not require a browser e2e npm script', () => {
+    const pkg = JSON.parse(
+      readFileSync(join(fixture('pass'), 'games', 'canonical_game', 'package.json'), 'utf8'),
+    );
+    expect(pkg.scripts).not.toHaveProperty('test:e2e');
+    expect(pkg.scripts).not.toHaveProperty('e2e');
+    expect(lintHarness(fixture('pass')).violations).toEqual([]);
   });
 
   it('hard-errors on a harness missing the solver-bound goal verbs', () => {

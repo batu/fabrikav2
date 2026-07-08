@@ -8,8 +8,9 @@ const admobStub = fileURLToPath(
   new URL('./src/sdk/shims/capacitor-community-admob.ts', import.meta.url),
 );
 
-// Unit suites only. The e2e Playwright specs under tests/e2e/ run via
-// `npm run e2e` (Playwright), never vitest.
+// Unit suites only. The e2e Playwright specs under tests/e2e/ are manual browser
+// diagnostics (`npx playwright test --config games/marble_run/playwright.config.ts`),
+// never vitest.
 export default defineConfig({
   resolve: { alias: { '@capacitor-community/admob': admobStub } },
   test: {

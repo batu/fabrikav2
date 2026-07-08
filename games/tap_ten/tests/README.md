@@ -1,9 +1,10 @@
 # tests/
 
 The single home for tests, split into exactly two kinds: `unit/` (vitest, run in
-`npm run test:unit`) and `e2e/` (Playwright, run in `npm run test:e2e`). The
-Playwright suite is browser-smoke only: it can prove the scaffold boots in a
-desktop browser, but it is not mobile close-out proof.
+`npm run test:unit`) and `e2e/` (manual Playwright specs). Browser e2e is kept
+for explicit diagnostics. Run it from the repo root on hosts where browsers
+launch: `npx playwright test --config games/tap_ten/playwright.config.ts`.
+It is not part of default game worker verification or mobile close-out proof.
 
 Mobile-game close-out is device-first. Use `npm run verify-device -- --game
 <game>` and commit the resulting on-device capture/evidence when a card changes

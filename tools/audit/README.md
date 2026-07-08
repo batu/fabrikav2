@@ -100,7 +100,9 @@ rather than reddening the gate. See the per-linter notes below.
    `winLevel|autoWin`, and `failLevel|autoFail`. This is a hard error, including
    the no-harness case, because a game without that surface is not
    deterministically drivable/capturable by `tools/verify-device` and the shared
-   harness tooling.
+   harness tooling. It does not read `package.json` or require a `test:e2e` /
+   Playwright npm script; browser e2e is a manual diagnostic, not a harness
+   contract member.
 
 7. **asset-identity** — covered games opt in with
    `games/<game>/design/asset-identity.json`. The manifest maps every shipped

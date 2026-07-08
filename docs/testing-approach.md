@@ -23,13 +23,16 @@ Covers: pure logic, state machines, data transforms, kernel/sdk/testkit
 internals. Does **not** touch a real DOM event, a real screen, or a real
 device.
 
-### 2. Playwright e2e (browser)
+### 2. Playwright e2e (manual browser diagnostics)
 
-`games/<g>/tests/e2e/*.spec.ts`, run against a vite dev server
-(`games/_template/tests/e2e/boot.spec.ts` is the skeleton: boot the page,
-assert the placeholder screen renders). This is real-browser but
-**state-drive by default** — most flows call the harness's `run()` engine
-verbs directly to set up scenarios fast.
+`games/<g>/tests/e2e/*.spec.ts` stays committed and runnable against a vite dev
+server, but it is no longer part of default game worker verification. Run it
+only when explicitly useful, on a host where Playwright can launch browsers:
+`npx playwright test --config games/<g>/playwright.config.ts`
+(`games/_template/tests/e2e/boot.spec.ts` is the skeleton: boot the page, assert
+the placeholder screen renders). This is real-browser but **state-drive by
+default** — most flows call the harness's `run()` engine verbs directly to set
+up scenarios fast.
 
 Where this layer *does* cover real input: `packages/testkit/src/harness/inputDriver.ts`'s
 `driveInputAt()` dispatches a genuine bubbling `pointerdown → pointerup → click`
@@ -44,7 +47,8 @@ ships **both** flavors — `run()` (state-drive, for setup) and
 A verb with only `run()` is a setup shortcut, not an input test.
 
 Covers: real DOM events, real hit-testing, real-click regressions — but only
-inside desktop Chromium/WebKit via Playwright. Does not run on-device.
+inside desktop Chromium/WebKit via Playwright. Does not run on-device, and is
+not a substitute for worker close-out proof.
 
 ### 3. Device element-gated capture (`verify-device`)
 
@@ -113,9 +117,10 @@ build/install can proceed.
 
 - `tests/unit/smoke.test.ts` + `vitest.config.ts` — layer 1, green from the
   template's first commit.
-- `tests/e2e/boot.spec.ts` + `playwright.config.ts` — layer 2 skeleton; a
-  port grows it into the game's real smoke flow and adds `clientPoint()`
-  accessors as it adds interactive verbs.
+- `tests/e2e/boot.spec.ts` + `playwright.config.ts` — manual layer 2 skeleton;
+  a port can grow it into the game's real smoke flow and add `clientPoint()`
+  accessors as it adds interactive verbs. It is not part of the default worker
+  verification chain.
 - `src/shell/harness.ts` (`createTemplateHarness`) — implements
   `@fabrikav2/testkit/harness`'s `GameHarness` contract with placeholder
   verbs. A port replaces the placeholders with real engine calls but keeps

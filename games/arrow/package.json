@@ -9,7 +9,6 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:unit": "vitest run",
-    "test:e2e": "playwright test",
     "lint": "eslint .",
     "levels:gen": "node content/level-tools/levels-gen.mjs",
     "levels:check": "node content/level-tools/levels-gen.mjs --check",
