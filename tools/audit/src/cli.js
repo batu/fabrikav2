@@ -53,6 +53,29 @@ function fmtRefs(v) {
   if (v.detail) bits.push(v.detail);
   return bits.join('  ');
 }
+function pad(value, width) {
+  return String(value).padEnd(width);
+}
+export function formatRefsCoverage(coverage) {
+  if (!coverage?.length) return [];
+  const columns = [
+    ['game', (row) => row.game],
+    ['state', (row) => row.state],
+    ['refs', (row) => row.refs],
+    ['provenance', (row) => row.provenance],
+    ['age', (row) => row.age],
+  ];
+  const widths = columns.map(([header, read]) =>
+    Math.max(header.length, ...coverage.map((row) => String(read(row)).length)),
+  );
+
+  const header = columns.map(([label], i) => pad(label, widths[i])).join('  ');
+  const divider = widths.map((width) => '-'.repeat(width)).join('  ');
+  const rows = coverage.map((row) =>
+    columns.map(([, read], i) => pad(read(row), widths[i])).join('  '),
+  );
+  return ['    refs coverage:', `      ${header}`, `      ${divider}`, ...rows.map((row) => `      ${row}`)];
+}
 function fmtTokenConsumers(v) {
   const loc = v.file ? `${v.file}:${v.line}` : 'tools/audit/allowlist.json';
   return `${loc}  [${v.kind}]  ${v.game}/${v.token}  ${v.detail}`;
@@ -85,8 +108,13 @@ const LINTERS = [
 export function runAll(root, { allowlistPath } = {}) {
   const results = [];
   for (const linter of LINTERS) {
-    const { violations } = linter.run(root, allowlistPath);
-    results.push({ name: linter.name, fmt: linter.fmt, violations });
+    const result = linter.run(root, allowlistPath);
+    results.push({
+      name: linter.name,
+      fmt: linter.fmt,
+      violations: result.violations,
+      coverage: result.coverage ?? [],
+    });
   }
   return results;
 }
@@ -119,11 +147,12 @@ export function main(argv = process.argv.slice(2)) {
   // A violation is a WARNING when it carries `severity: 'warn'` (reported but
   // non-failing — e.g. sdk local-name dups and unused-declared deps, whose fixes
   // land outside this card's scope). Everything else is a hard error.
-  for (const { name, fmt, violations } of results) {
+  for (const { name, fmt, violations, coverage } of results) {
     const errors = violations.filter((v) => v.severity !== 'warn');
     const warnings = violations.filter((v) => v.severity === 'warn');
     if (errors.length === 0 && warnings.length === 0) {
       console.log(`✓ ${name}: ok`);
+      for (const line of name === 'refs-lint' ? formatRefsCoverage(coverage) : []) console.log(line);
       continue;
     }
     if (errors.length) {
@@ -136,6 +165,7 @@ export function main(argv = process.argv.slice(2)) {
       console.log(`⚠ ${name}: ${warnings.length} warning(s)`);
       for (const v of warnings) console.log(`    ${fmt(v)}`);
     }
+    for (const line of name === 'refs-lint' ? formatRefsCoverage(coverage) : []) console.log(line);
   }
 
   if (failed) {

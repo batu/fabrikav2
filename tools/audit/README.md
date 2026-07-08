@@ -121,12 +121,20 @@ rather than reddening the gate. See the per-linter notes below.
 8. **refs-lint** — every committed image under
    `games/<game>/refs/captures/` must have a top-level `refs:` entry in
    `games/<game>/refs/manifest.yaml`. Each entry records `state-variant`,
-   `capture-recipe`, boolean `at-rest`, and structured `provenance`. Stale
-   entries, missing entries, missing required fields, invalid booleans, and
-   undocumented `at-rest: false` refs are hard errors. Known-bad captures can
-   stay in the corpus only when they carry `not-at-rest-reason` and
-   `recapture-note`, which lets `verify-device` skip them instead of scoring
-   them as authoritative references.
+   `capture-recipe`, boolean `at-rest`, and structured `provenance`. Standard
+   provenance includes `source` (`shipped-capture`, `design-sheet`, or
+   `generated`), `package`, `device` or `lane`, `host` or `tool`, and
+   `captured` (`YYYY-MM-DD`). Stale entries, missing entries, missing required
+   fields, invalid booleans, and undocumented `at-rest: false` refs are hard
+   errors. Known-bad captures can stay in the corpus only when they carry
+   `not-at-rest-reason` and `recapture-note`, which lets `verify-device` skip
+   them instead of scoring them as authoritative references.
+
+   The audit output also prints a refs coverage table per manifest state:
+   `game`, `state`, number of refs, provenance source(s), and age from the
+   captured date. A manifest that declares states but has no refs emits a
+   non-failing `NO-REFS` warning so reference scarcity is visible without
+   blocking parked games.
 
 9. **token-consumers** (⚠ warning) — every `--fab-*` custom property defined in
    `games/<game>/design/tokens.css` must have a static `var(--token)` consumer

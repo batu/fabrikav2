@@ -70,6 +70,12 @@ promoted evidence in \`evidence/\`, and design-owned copy, tokens, and assets in
 Shared workspace dependencies are declared up front: \`@fabrikav2/kernel\`,
 \`@fabrikav2/ui\`, \`@fabrikav2/sdk\`, and \`@fabrikav2/testkit\`.
 
+Native shell inputs live in \`native-resources/\`. Before the first device run,
+create the generated shell with \`npx cap add ios\` or \`npx cap add android\`;
+\`verify-device\` reapplies the committed recipe after \`cap sync\`. For iOS
+signing, set \`DEVELOPMENT_TEAM=<team id>\` in the environment instead of
+hard-coding it in the generated Xcode project.
+
 Useful checks:
 
 - \`npm run typecheck -w ${packageName}\`
@@ -131,6 +137,7 @@ export function createGame({ name, repoRoot }) {
 
   const title = titleCase(name);
   const packageName = `@fabrikav2/${name}`;
+  const appId = `com.fabrika.${appIdSegment(name)}`;
 
   // package.json: bump the name (JSON, so rewrite the field precisely).
   const pkgPath = join(targetDir, 'package.json');
@@ -149,8 +156,15 @@ export function createGame({ name, repoRoot }) {
   ]);
   substitute(join(targetDir, 'index.html'), [['<title>Template Game</title>', `<title>${title}</title>`]]);
   substitute(join(targetDir, 'capacitor.config.ts'), [
-    ['appId: "com.fabrika.template"', `appId: "com.fabrika.${appIdSegment(name)}"`],
+    ['appId: "com.fabrika.template"', `appId: "${appId}"`],
     ['appName: "Template Game"', `appName: "${title}"`],
+  ]);
+  substitute(join(targetDir, 'native-resources', 'ios', 'App', 'Info.plist'), [
+    ['<string>Template Game</string>', `<string>${title}</string>`],
+  ]);
+  substitute(join(targetDir, 'native-resources', 'android', 'app', 'src', 'main', 'res', 'values', 'strings.xml'), [
+    ['Template Game', title],
+    ['com.fabrika.template', appId],
   ]);
   substitute(join(targetDir, 'refs', 'manifest.yaml'), [
     ['game: template', `game: ${name}`],

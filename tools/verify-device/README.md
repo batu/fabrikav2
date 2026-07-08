@@ -16,7 +16,9 @@ npm run verify-device -- --game marble_run
    sync for the selected device platform. The `allstates` tour
    (`@fabrikav2/testkit/testing` `maybeRunInsituTour`) drives
    menu→level→settings→pause→win→fail, each state CONFIRMED via `snapshot().scene`
-   before a 6s dwell.
+   before a 6s dwell. After local `cap sync`, `verify-device` reapplies committed
+   native-shell recipe files from `games/<g>/native-resources/ios/App` or
+   `games/<g>/native-resources/android/app` into the generated shell.
 2. **Build + install on the device** — iOS uses `xcodebuild` + `devicectl install`.
    Android uses generated Capacitor `android/`, `./gradlew assembleDebug`, then
    `adb install -r` via the configured adb command prefix. Android build commands
@@ -53,6 +55,11 @@ Device/keychain/Mac-only steps are gated. With no connected device (or
 `--skip-device`, or no Xcode), the tool **skips with a clear message and exits 0**
 so CI degrades instead of failing — and says plainly that on-device rendering
 stays **UNVERIFIED**.
+
+For iOS signing, set `DEVELOPMENT_TEAM=<team id>` in the environment. The device
+path passes it to both app and runner `xcodebuild` invocations and uses
+`-allowProvisioningUpdates`; the committed recipe must not contain a literal
+team id.
 
 If the iOS runner exports a `*-MISSING` inspection screenshot, that state is
 recorded in `summary.json` as `capture: { "gated": false }`, the state table marks

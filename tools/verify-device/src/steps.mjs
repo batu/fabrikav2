@@ -74,6 +74,47 @@ function runAndroidBuildCommand(command, args, {
   return shImpl(command, args, { cwd, env });
 }
 
+function collectRecipeFiles(root) {
+  if (!fs.existsSync(root)) return [];
+  const files = [];
+  const entries = fs.readdirSync(root, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name));
+  for (const entry of entries) {
+    const abs = path.join(root, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...collectRecipeFiles(abs));
+    } else if (entry.isFile()) {
+      files.push(abs);
+    }
+  }
+  return files;
+}
+
+/**
+ * Copy committed native recipe inputs into the generated Capacitor shell.
+ * Generated ios/ and android/ trees stay gitignored; native-resources/ is the
+ * durable source-of-truth that verify-device reapplies after every cap sync.
+ */
+export function applyNativeRecipe(gameDir, platform) {
+  const sourceRoot = platform === 'ios'
+    ? path.join(gameDir, 'native-resources', 'ios', 'App')
+    : path.join(gameDir, 'native-resources', 'android', 'app');
+  const targetRoot = platform === 'ios'
+    ? path.join(gameDir, 'ios', 'App', 'App')
+    : path.join(gameDir, 'android', 'app');
+  const files = collectRecipeFiles(sourceRoot);
+  if (files.length === 0) return [];
+
+  const applied = [];
+  for (const source of files) {
+    const relative = path.relative(sourceRoot, source);
+    const target = path.join(targetRoot, relative);
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.copyFileSync(source, target);
+    applied.push(relative.split(path.sep).join('/'));
+  }
+  return applied;
+}
+
 /** Export attachments from an existing .xcresult into exportDir (manifest.json + PNGs). */
 export function exportAttachments(xcresultPath, exportDir, { shImpl = sh } = {}) {
   fs.rmSync(exportDir, { recursive: true, force: true });
@@ -107,10 +148,14 @@ export function unlockKeychain(password) {
  * Step 1: build the harness-enabled bundle with the allstates tour + cap sync ios.
  * @param {string} gameDir absolute games/<game> dir
  */
-export function buildHarnessBundle(gameDir) {
+export function buildHarnessBundle(gameDir, { shImpl = sh } = {}) {
   const env = { ...process.env, VITE_ENABLE_TEST_HARNESS: 'true', VITE_INSITU_TOUR: 'allstates' };
-  sh('npx', ['vite', 'build'], { cwd: gameDir, env });
-  sh('npx', ['cap', 'sync', 'ios'], { cwd: gameDir, env });
+  shImpl('npx', ['vite', 'build'], { cwd: gameDir, env });
+  shImpl('npx', ['cap', 'sync', 'ios'], { cwd: gameDir, env });
+  const applied = applyNativeRecipe(gameDir, 'ios');
+  if (applied.length) {
+    process.stderr.write(`  native-resources ios recipe applied: ${applied.join(', ')}\n`);
+  }
 }
 
 export function resolveAndroidSdkRoot(androidSdk) {
@@ -149,6 +194,12 @@ export function buildAndroidHarnessBundle(gameDir, {
     runAndroidBuildCommand('npx', ['cap', 'add', 'android'], { cwd: gameDir, env, buildPrefix, shImpl, partsImpl });
   }
   runAndroidBuildCommand('npx', ['cap', 'sync', 'android'], { cwd: gameDir, env, buildPrefix, shImpl, partsImpl });
+  if (!buildPrefix) {
+    const applied = applyNativeRecipe(gameDir, 'android');
+    if (applied.length) {
+      process.stderr.write(`  native-resources android recipe applied: ${applied.join(', ')}\n`);
+    }
+  }
 }
 
 export function androidDebugApkPath(gameDir) {

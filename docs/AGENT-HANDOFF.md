@@ -137,9 +137,13 @@ generation, not device-installable immediately: `tools/create-game/src/create-ga
 only copies/substitutes files, `games/_template/native-resources/README.md` and
 `games/_template/capacitor.config.ts` say native projects are generated on
 demand, and `tools/verify-device/src/steps.mjs` requires `npx cap add ios` before
-install. Previously the review finding was: no `driveTo`, no `insituTour`, no
-`#__tourstate__` marker, and the template's `createTemplateHarness` was compiled
-but never mounted.
+install. The native recipe is now reapplied by `verify-device` after local
+`cap sync`: iOS signing comes from `DEVELOPMENT_TEAM` +
+`-allowProvisioningUpdates`, and safe-area is the full-bleed shell contract
+(`viewport-fit=cover`, `ios.contentInset: "never"`, app-layer
+`env(safe-area-inset-*)` consumption). Previously the review finding was: no
+`driveTo`, no `insituTour`, no `#__tourstate__` marker, and the template's
+`createTemplateHarness` was compiled but never mounted.
 See the requirements brainstorm for the full grounded read:
 `docs/brainstorms/2026-07-07-harness-upstream-template-driveto-tour-marker-requirements.md`.
 
