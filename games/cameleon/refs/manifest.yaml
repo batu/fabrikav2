@@ -21,47 +21,54 @@ v2:
 verifyDevice:
   platform: ios
 
-# Canonical states. First device run captures become the at-rest references
-# after conductor eyeball; until then v2 offline entries are explicit gaps.
+# Canonical states. CAMELEON is original — the reference lane is the AT-REST
+# baseline: device captures accepted by conductor eyes (2026-07-09 round 4)
+# become the committed reference set future device runs are scored against.
 states:
   - name: menu
     reference:
-      gap: "original title — no reference app"
+      offline: refs/captures/device-2026-07-09/menu.png
+      recipe: at-rest baseline — own device capture, conductor-accepted 2026-07-09
     v2:
       offline: refs/captures/device-2026-07-09/menu.png
       driveTo: menu
 
   - name: level
     reference:
-      gap: "original title — no reference app"
+      offline: refs/captures/device-2026-07-09/level.png
+      recipe: at-rest baseline — own device capture, conductor-accepted 2026-07-09
     v2:
       offline: refs/captures/device-2026-07-09/level.png
       driveTo: level
 
   - name: settings
     reference:
-      gap: "original title — no reference app"
+      offline: refs/captures/device-2026-07-09/settings.png
+      recipe: at-rest baseline — own device capture, conductor-accepted 2026-07-09
     v2:
       offline: refs/captures/device-2026-07-09/settings.png
       driveTo: settings
 
   - name: pause
     reference:
-      gap: "original title — no reference app"
+      offline: refs/captures/device-2026-07-09/pause.png
+      recipe: at-rest baseline — own device capture, conductor-accepted 2026-07-09
     v2:
       offline: refs/captures/device-2026-07-09/pause.png
       driveTo: pause
 
   - name: win
     reference:
-      gap: "original title — no reference app"
+      offline: refs/captures/device-2026-07-09/win.png
+      recipe: at-rest baseline — own device capture, conductor-accepted 2026-07-09
     v2:
       offline: refs/captures/device-2026-07-09/win.png
       driveTo: win
 
   - name: fail
     reference:
-      gap: "original title — no reference app"
+      offline: refs/captures/device-2026-07-09/fail.png
+      recipe: at-rest baseline — own device capture, conductor-accepted 2026-07-09
     v2:
       offline: refs/captures/device-2026-07-09/fail.png
       driveTo: fail

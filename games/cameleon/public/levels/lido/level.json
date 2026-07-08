@@ -55,10 +55,10 @@
       "pose": "slanted",
       "disguise": "NO DIVING pictogram figure on the yellow warning panel",
       "rect": {
-        "x": 940,
-        "y": 430,
-        "w": 84,
-        "h": 165
+        "x": 860,
+        "y": 420,
+        "w": 80,
+        "h": 175
       },
       "tell": "his feet overflow the rules board border",
       "difficulty": "medium",
@@ -165,10 +165,10 @@
       "pose": "wall-flat",
       "disguise": "extra swim-school poster demonstrator",
       "rect": {
-        "x": 2588,
-        "y": 354,
-        "w": 94,
-        "h": 210
+        "x": 2560,
+        "y": 250,
+        "w": 80,
+        "h": 180
       },
       "tell": "the fifth figure has no step number",
       "difficulty": "hard",
@@ -187,10 +187,10 @@
       "pose": "crouch slanted",
       "disguise": "slipping-man pictogram on a wet-floor A-frame",
       "rect": {
-        "x": 3180,
-        "y": 760,
-        "w": 160,
-        "h": 190
+        "x": 3050,
+        "y": 845,
+        "w": 76,
+        "h": 105
       },
       "tell": "small contact shadow under the figure",
       "difficulty": "medium",
@@ -231,10 +231,10 @@
       "pose": "backbend standing",
       "disguise": "soft-serve mascot on the kiosk menu board",
       "rect": {
-        "x": 3990,
-        "y": 360,
-        "w": 150,
-        "h": 250
+        "x": 3985,
+        "y": 415,
+        "w": 85,
+        "h": 175
       },
       "tell": "swirl ends in blunt pill hands and head tilts",
       "difficulty": "med-hard",
@@ -255,10 +255,10 @@
       "kind": "rules-board pictogram",
       "spriteKey": "lido.poster.decoy-rules-board",
       "rect": {
-        "x": 700,
-        "y": 350,
-        "w": 320,
-        "h": 230
+        "x": 600,
+        "y": 340,
+        "w": 340,
+        "h": 246
       }
     },
     {
@@ -327,10 +327,10 @@
       "kind": "numbered swim poster figure",
       "spriteKey": "lido.poster.decoy-swim-school-poster",
       "rect": {
-        "x": 2470,
-        "y": 320,
-        "w": 240,
-        "h": 164
+        "x": 2200,
+        "y": 170,
+        "w": 460,
+        "h": 300
       }
     },
     {
@@ -380,6 +380,18 @@
         "w": 150,
         "h": 250
       }
+    },
+    {
+      "id": "dc-blank-menu-panel",
+      "rect": {
+        "x": 3950,
+        "y": 370,
+        "w": 150,
+        "h": 250
+      },
+      "spriteKey": "lido.poster.decoy-blank-menu-panel",
+      "kind": "sign",
+      "zone": 5
     }
   ],
   "visualOverlays": [

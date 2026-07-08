@@ -23,7 +23,7 @@ describe("Cameleon Lido level schema", () => {
       "li-10",
     ]);
     expect(new Set(level.hides.map((hide) => hide.zone))).toEqual(new Set([1, 2, 3, 4, 5]));
-    expect(level.decoys).toHaveLength(11);
+    expect(level.decoys).toHaveLength(12);
     expect(level.visualOverlays.map((overlay) => overlay.id)).toEqual([
       "seam-pillar-a-b",
       "seam-pillar-b-c",

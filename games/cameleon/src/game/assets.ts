@@ -94,6 +94,7 @@ const LIDO_DECOY_ASSETS = [
   asset("lido.poster.decoy-robe", "decoy", "levels/lido/sprites/poster/decoy-robe.png"),
   asset("lido.poster.decoy-bodyprint-towel", "decoy", "levels/lido/sprites/poster/decoy-bodyprint-towel.png"),
   asset("lido.poster.decoy-ringstack", "decoy", "levels/lido/sprites/poster/decoy-ringstack.png"),
+  asset("lido.poster.decoy-blank-menu-panel", "decoy", "levels/lido/sprites/poster/decoy-blank-menu-panel.png"),
 ] as const;
 
 const LIDO_OVERLAY_ASSETS = [
