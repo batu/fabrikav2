@@ -1,0 +1,269 @@
+{
+  "id": "lido",
+  "name": "Sunwash Lido",
+  "world": {
+    "width": 4800,
+    "height": 1440,
+    "zoneWidth": 960
+  },
+  "winAt": 8,
+  "assetKeys": {
+    "zonePanels": {
+      "poster": [
+        "lido.poster.zone1",
+        "lido.poster.zone2",
+        "lido.poster.zone3",
+        "lido.poster.zone4",
+        "lido.poster.zone5"
+      ],
+      "riso": [
+        "lido.riso.zone1",
+        "lido.riso.zone2",
+        "lido.riso.zone3",
+        "lido.riso.zone4",
+        "lido.riso.zone5"
+      ],
+      "night": [
+        "lido.night.zone1",
+        "lido.night.zone2",
+        "lido.night.zone3",
+        "lido.night.zone4",
+        "lido.night.zone5"
+      ]
+    }
+  },
+  "hides": [
+    {
+      "id": "li-01",
+      "zone": 1,
+      "pose": "curl",
+      "disguise": "towel draped on the entrance rail",
+      "rect": { "x": 180, "y": 510, "w": 150, "h": 88 },
+      "tell": "round head-bump end and a sagging pill arm",
+      "difficulty": "easy",
+      "spritePair": {
+        "white": "lido.li-01.white",
+        "painted": {
+          "poster": "lido.poster.li-01.painted",
+          "riso": "lido.riso.li-01.painted",
+          "night": "lido.night.li-01.painted"
+        }
+      }
+    },
+    {
+      "id": "li-02",
+      "zone": 1,
+      "pose": "slanted",
+      "disguise": "NO DIVING pictogram figure on the yellow warning panel",
+      "rect": { "x": 620, "y": 300, "w": 94, "h": 170 },
+      "tell": "feet overflow the sign printed border",
+      "difficulty": "medium",
+      "spritePair": {
+        "white": "lido.li-02.white",
+        "painted": {
+          "poster": "lido.poster.li-02.painted",
+          "riso": "lido.riso.li-02.painted",
+          "night": "lido.night.li-02.painted"
+        }
+      }
+    },
+    {
+      "id": "li-03",
+      "zone": 2,
+      "pose": "standing wall-flat",
+      "disguise": "stripe of a red and white changing tent",
+      "rect": { "x": 1120, "y": 280, "w": 110, "h": 420 },
+      "tell": "stripes bulge and break alignment around the belly",
+      "difficulty": "medium",
+      "spritePair": {
+        "white": "lido.li-03.white",
+        "painted": {
+          "poster": "lido.poster.li-03.painted",
+          "riso": "lido.riso.li-03.painted",
+          "night": "lido.night.li-03.painted"
+        }
+      }
+    },
+    {
+      "id": "li-04",
+      "zone": 2,
+      "pose": "wall-flat hanging",
+      "disguise": "robe on a hook among real robes",
+      "rect": { "x": 1600, "y": 460, "w": 135, "h": 330 },
+      "tell": "feet show below the hem",
+      "difficulty": "hard",
+      "spritePair": {
+        "white": "lido.li-04.white",
+        "painted": {
+          "poster": "lido.poster.li-04.painted",
+          "riso": "lido.riso.li-04.painted",
+          "night": "lido.night.li-04.painted"
+        }
+      }
+    },
+    {
+      "id": "li-05",
+      "zone": 3,
+      "pose": "prone",
+      "disguise": "towel laid on a lounger",
+      "rect": { "x": 2140, "y": 880, "w": 220, "h": 105 },
+      "tell": "corner hangs off the edge as a mitt hand",
+      "difficulty": "easy-medium",
+      "spritePair": {
+        "white": "lido.li-05.white",
+        "painted": {
+          "poster": "lido.poster.li-05.painted",
+          "riso": "lido.riso.li-05.painted",
+          "night": "lido.night.li-05.painted"
+        }
+      }
+    },
+    {
+      "id": "li-06",
+      "zone": 3,
+      "pose": "prone stretched",
+      "disguise": "lane-rope segment along the pool near edge",
+      "rect": { "x": 2520, "y": 1080, "w": 320, "h": 86 },
+      "tell": "two beads are larger and rounder than the rhythm",
+      "difficulty": "medium",
+      "spritePair": {
+        "white": "lido.li-06.white",
+        "painted": {
+          "poster": "lido.poster.li-06.painted",
+          "riso": "lido.riso.li-06.painted",
+          "night": "lido.night.li-06.painted"
+        }
+      }
+    },
+    {
+      "id": "li-07",
+      "zone": 3,
+      "pose": "wall-flat",
+      "disguise": "extra swim-school poster demonstrator",
+      "rect": { "x": 2740, "y": 355, "w": 94, "h": 210 },
+      "tell": "the fifth figure has no step number",
+      "difficulty": "hard",
+      "spritePair": {
+        "white": "lido.li-07.white",
+        "painted": {
+          "poster": "lido.poster.li-07.painted",
+          "riso": "lido.riso.li-07.painted",
+          "night": "lido.night.li-07.painted"
+        }
+      }
+    },
+    {
+      "id": "li-08",
+      "zone": 4,
+      "pose": "crouch slanted",
+      "disguise": "slipping-man pictogram on a wet-floor A-frame",
+      "rect": { "x": 3180, "y": 760, "w": 160, "h": 190 },
+      "tell": "small contact shadow under the figure",
+      "difficulty": "medium",
+      "spritePair": {
+        "white": "lido.li-08.white",
+        "painted": {
+          "poster": "lido.poster.li-08.painted",
+          "riso": "lido.riso.li-08.painted",
+          "night": "lido.night.li-08.painted"
+        }
+      }
+    },
+    {
+      "id": "li-09",
+      "zone": 4,
+      "pose": "curl ball",
+      "disguise": "two stacked swim rings in the float pile",
+      "rect": { "x": 3680, "y": 900, "w": 180, "h": 168 },
+      "tell": "solid centers where ring holes should be",
+      "difficulty": "hard",
+      "spritePair": {
+        "white": "lido.li-09.white",
+        "painted": {
+          "poster": "lido.poster.li-09.painted",
+          "riso": "lido.riso.li-09.painted",
+          "night": "lido.night.li-09.painted"
+        }
+      }
+    },
+    {
+      "id": "li-10",
+      "zone": 5,
+      "pose": "backbend standing",
+      "disguise": "soft-serve mascot on the kiosk menu board",
+      "rect": { "x": 4300, "y": 360, "w": 150, "h": 250 },
+      "tell": "swirl ends in blunt pill hands and head tilts",
+      "difficulty": "med-hard",
+      "spritePair": {
+        "white": "lido.li-10.white",
+        "painted": {
+          "poster": "lido.poster.li-10.painted",
+          "riso": "lido.riso.li-10.painted",
+          "night": "lido.night.li-10.painted"
+        }
+      }
+    }
+  ],
+  "decoys": [
+    {
+      "id": "dc-rules-pictograms",
+      "zone": 1,
+      "kind": "rules-board pictogram",
+      "rect": { "x": 420, "y": 230, "w": 120, "h": 150 }
+    },
+    {
+      "id": "dc-stacked-towels",
+      "zone": 1,
+      "kind": "stacked towels",
+      "rect": { "x": 345, "y": 535, "w": 150, "h": 82 }
+    },
+    {
+      "id": "dc-hook-robe",
+      "zone": 2,
+      "kind": "real robe on hook",
+      "rect": { "x": 1450, "y": 430, "w": 130, "h": 320 }
+    },
+    {
+      "id": "dc-tent-stripes",
+      "zone": 2,
+      "kind": "straight tent stripe",
+      "rect": { "x": 1260, "y": 260, "w": 92, "h": 450 }
+    },
+    {
+      "id": "dc-lounger-towel",
+      "zone": 3,
+      "kind": "real towel on lounger",
+      "rect": { "x": 1965, "y": 895, "w": 205, "h": 100 }
+    },
+    {
+      "id": "dc-poster-figure",
+      "zone": 3,
+      "kind": "numbered swim poster figure",
+      "rect": { "x": 2630, "y": 360, "w": 82, "h": 195 }
+    },
+    {
+      "id": "dc-real-wet-floor",
+      "zone": 4,
+      "kind": "real wet-floor A-frame",
+      "rect": { "x": 3020, "y": 810, "w": 130, "h": 170 }
+    },
+    {
+      "id": "dc-float-rings",
+      "zone": 4,
+      "kind": "open swim rings",
+      "rect": { "x": 3500, "y": 910, "w": 170, "h": 150 }
+    },
+    {
+      "id": "dc-kiosk-mascot",
+      "zone": 5,
+      "kind": "real kiosk mascot print",
+      "rect": { "x": 4480, "y": 360, "w": 150, "h": 250 }
+    },
+    {
+      "id": "dc-picnic-blanket",
+      "zone": 5,
+      "kind": "picnic blanket fold",
+      "rect": { "x": 4020, "y": 945, "w": 250, "h": 130 }
+    }
+  ]
+}
