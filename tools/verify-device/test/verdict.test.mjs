@@ -59,6 +59,12 @@ describe('strict device exit semantics', () => {
     expect(computeStrictExitCode({ strict: true, lane: 'device', primary: { pass: true } })).toBe(0);
     expect(computeStrictExitCode({ strict: true, lane: 'browser', primary: { pass: true } })).toBe(1);
     expect(computeStrictExitCode({ strict: true, lane: 'provided-captures', primary: { pass: true } })).toBe(1);
+    expect(computeStrictExitCode({
+      strict: true,
+      lane: 'device',
+      primary: { pass: true },
+      viewportMetricsPass: false,
+    })).toBe(1);
   });
 
   it('keeps advisory mode advisory except for capture-runner failures', () => {

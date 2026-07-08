@@ -1,9 +1,82 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import { mountSagaMap, type LevelMapNode } from './index.ts';
 
 function host(): HTMLElement {
   document.body.innerHTML = '<div id="host"></div>';
   return document.getElementById('host')!;
+}
+
+function unwrapCssLayers(css: string): string {
+  const withoutComments = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  let output = '';
+  let i = 0;
+  while (i < withoutComments.length) {
+    if (withoutComments.startsWith('@layer', i)) {
+      const open = withoutComments.indexOf('{', i);
+      const semi = withoutComments.indexOf(';', i);
+      if (semi !== -1 && (open === -1 || semi < open)) {
+        i = semi + 1;
+        continue;
+      }
+      if (open === -1) break;
+      let depth = 1;
+      let close = open + 1;
+      while (close < withoutComments.length && depth > 0) {
+        const char = withoutComments[close];
+        if (char === '{') depth += 1;
+        if (char === '}') depth -= 1;
+        close += 1;
+      }
+      output += unwrapCssLayers(withoutComments.slice(open + 1, close - 1));
+      i = close;
+      continue;
+    }
+    output += withoutComments[i];
+    i += 1;
+  }
+  return output;
+}
+
+function installUiCss(): void {
+  if (document.getElementById('fab-ui-css-test')) return;
+  const style = document.createElement('style');
+  style.id = 'fab-ui-css-test';
+  style.textContent = unwrapCssLayers(readFileSync(resolve('src/ui.css'), 'utf8'));
+  document.head.appendChild(style);
+}
+
+function isTransparent(color: string): boolean {
+  const normalized = color.trim().toLowerCase();
+  return (
+    normalized === '' ||
+    normalized === 'transparent' ||
+    /rgba\([^)]*,\s*0(?:\.0+)?\)$/.test(normalized)
+  );
+}
+
+function expectVisibleSagaDots(root: HTMLElement): void {
+  const dots = Array.from(root.querySelectorAll<HTMLElement>('.fab-levelmap-node-dot'));
+  expect(dots).toHaveLength(3);
+  for (const dot of dots) {
+    const style = getComputedStyle(dot);
+    expect(Number.parseFloat(style.width)).toBeGreaterThan(0);
+    expect(Number.parseFloat(style.height)).toBeGreaterThan(0);
+    expect(style.backgroundImage).not.toContain('var(');
+    expect(style.backgroundColor).not.toContain('var(');
+    const hasImage = !['', 'none'].includes(style.backgroundImage.trim());
+    const hasColor = !isTransparent(style.backgroundColor);
+    expect(hasImage || hasColor).toBe(true);
+  }
+}
+
+function expectCenteredSagaNodes(root: HTMLElement): void {
+  const nodes = Array.from(root.querySelectorAll<HTMLElement>('.fab-levelmap-node'));
+  expect(nodes).toHaveLength(3);
+  for (const node of nodes) {
+    expect(getComputedStyle(node).getPropertyValue('--node-x').trim()).toBe('0px');
+  }
 }
 
 const NODES: LevelMapNode[] = [
@@ -29,6 +102,20 @@ describe('mountSagaMap', () => {
     expect(nodes[2].classList.contains('locked')).toBe(true);
     expect(nodes.map((n) => n.querySelector('.fab-levelmap-node-dot')?.textContent)).toEqual(['1', '2', '3']);
     expect(nodes[2].getAttribute('aria-label')).toBe('Level 3');
+  });
+
+  it('computes visible chip backgrounds and dimensions from the kit stylesheet', () => {
+    installUiCss();
+    const handle = mountSagaMap({
+      mountInto: host(),
+      state: { nodes: NODES },
+      actions: { onSelectLevel: () => {} },
+      loadingLabel: 'Loading levels',
+      id: 'saga-visible-css',
+    });
+
+    expectVisibleSagaDots(handle.el);
+    expectCenteredSagaNodes(handle.el);
   });
 
   it('renders the loading placeholder with the injected label and no baked copy', () => {

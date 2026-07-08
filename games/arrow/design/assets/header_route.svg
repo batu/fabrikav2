@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 460 124" role="img" aria-label="arrow route header art">
+  <defs>
+    <linearGradient id="header-bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".94"/>
+      <stop offset=".58" stop-color="#f8f4e8" stop-opacity=".88"/>
+      <stop offset="1" stop-color="#e5e6f5" stop-opacity=".82"/>
+    </linearGradient>
+    <linearGradient id="route" x1="16" x2="416" y1="90" y2="26" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#9da1d3"/>
+      <stop offset=".58" stop-color="#8ba7f7"/>
+      <stop offset="1" stop-color="#ec7798"/>
+    </linearGradient>
+  </defs>
+  <path d="M24 16h412c9 0 16 7 16 16v60c0 9-7 16-16 16H24c-9 0-16-7-16-16V32c0-9 7-16 16-16Z" fill="url(#header-bg)"/>
+  <path d="M28 88c46-22 74-18 112-2 39 16 72 19 116-10 44-30 75-49 150-42" fill="none" stroke="url(#route)" stroke-width="8" stroke-linecap="round"/>
+  <g fill="#ffffff" stroke="#343858" stroke-width="5" stroke-linejoin="round">
+    <path d="M363 29 428 47l-52 38 7-31Z"/>
+  </g>
+  <g fill="#f0b55b" stroke="#343858" stroke-width="4">
+    <circle cx="292" cy="58" r="9"/>
+    <circle cx="178" cy="85" r="7"/>
+  </g>
+  <path d="M48 26h138" stroke="#ffffff" stroke-width="10" stroke-linecap="round" opacity=".56"/>
+</svg>

@@ -6,7 +6,7 @@ import { createUiRoot, type ThemeTokens, type UiHandle } from './internal.ts';
  * ≥2-game shared UI component in v1 (consumed by FTD `HomeScene` and marble
  * `saga.ts`). Pure DOM — no game-state / env coupling.
  *
- * Renders a vertical zig-zag rail of `.fab-levelmap-node` buttons (states
+ * Renders a vertical single-path rail of `.fab-levelmap-node` buttons (states
  * `current | locked | completed`), depth-fade ahead of current, an empty-state
  * loading placeholder, and a single delegated click listener that fires
  * `onSelectLevel(node.id)` for EVERY node (gating a locked tap is the consumer's

@@ -9,17 +9,20 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { stateFromShotName, CANONICAL_STATES } from './states.mjs';
+import { parseViewportMetricsLabel, stateFromViewportMetricsAttachmentName } from './viewportMetrics.mjs';
 
 /**
  * Map an xcresulttool attachments manifest onto canonical states.
  * @param {any} manifest parsed manifest.json (array of {attachments:[...]})
  * @returns {{byState: Record<string,{file:string, humanName:string, timestamp:number}>,
+ *   viewportMetricAttachments: Record<string,{file:string, humanName:string, timestamp:number}>,
  *   unmapped: Array<{file:string, humanName:string}>}}
  *   When several attachments map to the same state, the latest timestamp wins
  *   (deterministic: a re-captured state supersedes an earlier one).
  */
 export function mapAttachmentsToStates(manifest) {
   const byState = {};
+  const viewportMetricAttachments = {};
   const unmapped = [];
   const entries = Array.isArray(manifest) ? manifest : [];
   for (const test of entries) {
@@ -28,6 +31,15 @@ export function mapAttachmentsToStates(manifest) {
       const file = att?.exportedFileName;
       const humanName = att?.suggestedHumanReadableName || file || '';
       if (!file) continue;
+      const metricsState = stateFromViewportMetricsAttachmentName(humanName);
+      if (metricsState) {
+        const timestamp = Number(att?.timestamp) || 0;
+        const prev = viewportMetricAttachments[metricsState];
+        if (!prev || timestamp >= prev.timestamp) {
+          viewportMetricAttachments[metricsState] = { file, humanName, timestamp };
+        }
+        continue;
+      }
       const state = stateFromShotName(humanName);
       if (!state) {
         unmapped.push({ file, humanName });
@@ -40,13 +52,14 @@ export function mapAttachmentsToStates(manifest) {
       }
     }
   }
-  return { byState, unmapped };
+  return { byState, viewportMetricAttachments, unmapped };
 }
 
 /**
  * Resolve device captures from an xcresulttool export directory.
  * @param {string} exportDir dir containing manifest.json + the exported PNGs
- * @returns {{byState: Record<string,string>, unmapped: Array}} state -> abs PNG path
+ * @returns {{byState: Record<string,string>, viewportMetrics: Record<string,object>, unmapped: Array}}
+ *   state -> abs PNG path plus parsed viewport metrics sidecars when present
  */
 export function extractFromExportDir(exportDir) {
   const manifestPath = path.join(exportDir, 'manifest.json');
@@ -54,12 +67,17 @@ export function extractFromExportDir(exportDir) {
     throw new Error(`no manifest.json in xcresult export dir: ${exportDir}`);
   }
   const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-  const { byState, unmapped } = mapAttachmentsToStates(manifest);
+  const { byState, viewportMetricAttachments, unmapped } = mapAttachmentsToStates(manifest);
   const resolved = {};
   for (const [state, info] of Object.entries(byState)) {
     resolved[state] = path.join(exportDir, info.file);
   }
-  return { byState: resolved, unmapped };
+  const viewportMetrics = {};
+  for (const [state, info] of Object.entries(viewportMetricAttachments)) {
+    const file = path.join(exportDir, info.file);
+    viewportMetrics[state] = parseViewportMetricsLabel(fs.readFileSync(file, 'utf8').trim());
+  }
+  return { byState: resolved, viewportMetrics, unmapped };
 }
 
 /**

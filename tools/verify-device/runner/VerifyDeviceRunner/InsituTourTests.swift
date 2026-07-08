@@ -40,6 +40,13 @@ final class InsituTourTests: XCTestCase {
         add(attachment)
     }
 
+    private func attachText(_ name: String, _ text: String) {
+        let attachment = XCTAttachment(string: text)
+        attachment.name = name
+        attachment.lifetime = .keepAlways
+        add(attachment)
+    }
+
     private func waitForTourMarker(
         app: XCUIApplication,
         state: String,
@@ -74,6 +81,27 @@ final class InsituTourTests: XCTestCase {
         return .missing
     }
 
+    private func waitForViewportMetrics(
+        app: XCUIApplication,
+        state: String,
+        timeout: TimeInterval
+    ) -> String? {
+        let prefix = "viewportmetrics:state=tourstate:\(state);"
+        let marker = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label BEGINSWITH %@", prefix))
+            .firstMatch
+        let deadline = Date().addingTimeInterval(timeout)
+
+        while Date() < deadline {
+            if marker.exists {
+                return marker.label
+            }
+            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+        }
+
+        return marker.exists ? marker.label : nil
+    }
+
     func testAllStates() {
         guard let bundleId = ProcessInfo.processInfo.environment["TARGET_BUNDLE_ID"], !bundleId.isEmpty else {
             XCTFail("TARGET_BUNDLE_ID not set — pass TEST_RUNNER_TARGET_BUNDLE_ID=<appId> to xcodebuild test")
@@ -95,6 +123,13 @@ final class InsituTourTests: XCTestCase {
             let name = "\(index + 1)-\(state)"
             switch waitForTourMarker(app: app, state: state, timeout: stateTimeout) {
             case .reached:
+                if let metrics = waitForViewportMetrics(app: app, state: state, timeout: 2) {
+                    attachText("\(name)-viewportmetrics", metrics)
+                } else {
+                    attachText("\(name)-viewportmetrics-MISSING", "viewportmetrics:state=tourstate:\(state);missing=true")
+                    XCTFail("state '\(state)' reached tourstate:\(state), but did not publish viewportmetrics "
+                        + "within 2s. Device geometry must be machine-readable in verify-device summary.json.")
+                }
                 shot(name)
             case .failed:
                 shot("\(name)-MISSING")

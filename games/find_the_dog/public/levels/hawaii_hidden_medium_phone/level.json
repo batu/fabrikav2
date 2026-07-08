@@ -1,0 +1,220 @@
+{
+  "id": "hawaii_hidden_medium_phone",
+  "name": "Level hawaii_hidden_medium_phone (clean_old_cartoon)",
+  "width": 1024,
+  "height": 1536,
+  "bwImage": "levels/hawaii_hidden_medium_phone/bw.png",
+  "colorImage": "levels/hawaii_hidden_medium_phone/color.png",
+  "dogs": [
+    {
+      "id": "dog_00",
+      "x": 703,
+      "y": 401,
+      "r": 30,
+      "sprite": {
+        "image": "levels/hawaii_hidden_medium_phone/dogs/dog_00/sprite_000.png",
+        "x": 665,
+        "y": 352,
+        "width": 71,
+        "height": 95,
+        "anchorX": 0.5352,
+        "anchorY": 0.5158,
+        "cleanup": {
+          "x": 657,
+          "y": 348,
+          "width": 92,
+          "height": 103
+        }
+      }
+    },
+    {
+      "id": "dog_01",
+      "x": 267,
+      "y": 827,
+      "r": 30,
+      "sprite": {
+        "image": "levels/hawaii_hidden_medium_phone/dogs/dog_01/sprite_000.png",
+        "x": 229,
+        "y": 788,
+        "width": 76,
+        "height": 80,
+        "anchorX": 0.5,
+        "anchorY": 0.4875,
+        "cleanup": {
+          "x": 221,
+          "y": 775,
+          "width": 92,
+          "height": 99
+        }
+      }
+    },
+    {
+      "id": "dog_02",
+      "x": 533,
+      "y": 729,
+      "r": 30,
+      "sprite": {
+        "image": "levels/hawaii_hidden_medium_phone/dogs/dog_02/sprite_000.png",
+        "x": 491,
+        "y": 691,
+        "width": 76,
+        "height": 77,
+        "anchorX": 0.5526,
+        "anchorY": 0.4935,
+        "cleanup": {
+          "x": 487,
+          "y": 677,
+          "width": 92,
+          "height": 99
+        }
+      }
+    },
+    {
+      "id": "dog_03",
+      "x": 738,
+      "y": 659,
+      "r": 30,
+      "sprite": {
+        "image": "levels/hawaii_hidden_medium_phone/dogs/dog_03/sprite_000.png",
+        "x": 688,
+        "y": 610,
+        "width": 89,
+        "height": 94,
+        "anchorX": 0.5618,
+        "anchorY": 0.5213,
+        "cleanup": {
+          "x": 684,
+          "y": 606,
+          "width": 100,
+          "height": 102
+        }
+      }
+    },
+    {
+      "id": "dog_04",
+      "x": 606,
+      "y": 1067,
+      "r": 30,
+      "sprite": {
+        "image": "levels/hawaii_hidden_medium_phone/dogs/dog_04/sprite_000.png",
+        "x": 578,
+        "y": 1028,
+        "width": 67,
+        "height": 72,
+        "anchorX": 0.4179,
+        "anchorY": 0.5417,
+        "cleanup": {
+          "x": 560,
+          "y": 1015,
+          "width": 92,
+          "height": 99
+        }
+      }
+    },
+    {
+      "id": "dog_05",
+      "x": 314,
+      "y": 1244,
+      "r": 30,
+      "sprite": {
+        "image": "levels/hawaii_hidden_medium_phone/dogs/dog_05/sprite_000.png",
+        "x": 274,
+        "y": 1205,
+        "width": 83,
+        "height": 90,
+        "anchorX": 0.4819,
+        "anchorY": 0.4333,
+        "cleanup": {
+          "x": 268,
+          "y": 1192,
+          "width": 93,
+          "height": 107
+        }
+      }
+    },
+    {
+      "id": "dog_06",
+      "x": 578,
+      "y": 346,
+      "r": 30,
+      "sprite": {
+        "image": "levels/hawaii_hidden_medium_phone/dogs/dog_06/sprite_000.png",
+        "x": 549,
+        "y": 286,
+        "width": 72,
+        "height": 89,
+        "anchorX": 0.4028,
+        "anchorY": 0.6742,
+        "cleanup": {
+          "x": 532,
+          "y": 282,
+          "width": 93,
+          "height": 111
+        }
+      }
+    },
+    {
+      "id": "dog_07",
+      "x": 496,
+      "y": 869,
+      "r": 30,
+      "sprite": {
+        "image": "levels/hawaii_hidden_medium_phone/dogs/dog_07/sprite_000.png",
+        "x": 467,
+        "y": 826,
+        "width": 64,
+        "height": 85,
+        "anchorX": 0.4531,
+        "anchorY": 0.5059,
+        "cleanup": {
+          "x": 450,
+          "y": 817,
+          "width": 92,
+          "height": 99
+        }
+      }
+    },
+    {
+      "id": "dog_08",
+      "x": 200,
+      "y": 644,
+      "r": 30,
+      "sprite": {
+        "image": "levels/hawaii_hidden_medium_phone/dogs/dog_08/sprite_000.png",
+        "x": 162,
+        "y": 596,
+        "width": 96,
+        "height": 109,
+        "anchorX": 0.3958,
+        "anchorY": 0.4404,
+        "cleanup": {
+          "x": 154,
+          "y": 592,
+          "width": 108,
+          "height": 117
+        }
+      }
+    },
+    {
+      "id": "dog_09",
+      "x": 272,
+      "y": 1110,
+      "r": 30,
+      "sprite": {
+        "image": "levels/hawaii_hidden_medium_phone/dogs/dog_09/sprite_000.png",
+        "x": 234,
+        "y": 1067,
+        "width": 72,
+        "height": 73,
+        "anchorX": 0.5278,
+        "anchorY": 0.589,
+        "cleanup": {
+          "x": 226,
+          "y": 1058,
+          "width": 92,
+          "height": 99
+        }
+      }
+    }
+  ]
+}

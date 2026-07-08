@@ -66,6 +66,29 @@ describe('buildSummary', () => {
     expect(summary.menu).toEqual({ score: null, majorConsensusCount: 0, verdict: 'pass' });
     expect(summary.fail).toEqual({ score: null, majorConsensusCount: 0, verdict: 'missing' });
   });
+
+  it('records viewport metrics and metric assertions under each state', () => {
+    const summary = buildSummary({
+      panel: { states: [{ state: 'menu', score: 91, status: 'pass', consensus: [] }] },
+      phashVerdict: null,
+      viewportMetrics: {
+        menu: { windowInnerHeight: 844, safeAreaInsetTop: 59 },
+      },
+      viewportMetricAssertions: [
+        { state: 'menu', metric: 'windowInnerHeight', value: 844, min: 800, max: 900, status: 'pass' },
+      ],
+    });
+
+    expect(summary.menu).toEqual({
+      score: 91,
+      majorConsensusCount: 0,
+      verdict: 'pass',
+      viewportMetrics: { windowInnerHeight: 844, safeAreaInsetTop: 59 },
+      viewportMetricAssertions: [
+        { state: 'menu', metric: 'windowInnerHeight', value: 844, min: 800, max: 900, status: 'pass' },
+      ],
+    });
+  });
 });
 
 describe('summary persistence', () => {
@@ -95,10 +118,22 @@ describe('summary persistence', () => {
   it('normalizes wrapped summaries for forward compatibility', () => {
     expect(normalizeSummary({
       states: {
-        menu: { score: 80, majorConsensusCount: 2, verdict: 'fail' },
+        menu: {
+          score: 80,
+          majorConsensusCount: 2,
+          verdict: 'fail',
+          viewportMetrics: { windowInnerHeight: 844 },
+          viewportMetricAssertions: [{ state: 'menu', metric: 'windowInnerHeight', status: 'pass' }],
+        },
       },
     })).toEqual({
-      menu: { score: 80, majorConsensusCount: 2, verdict: 'fail' },
+      menu: {
+        score: 80,
+        majorConsensusCount: 2,
+        verdict: 'fail',
+        viewportMetrics: { windowInnerHeight: 844 },
+        viewportMetricAssertions: [{ state: 'menu', metric: 'windowInnerHeight', status: 'pass' }],
+      },
     });
   });
 });

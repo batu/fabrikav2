@@ -13,6 +13,7 @@
  */
 import type { App } from '../shell/App';
 import type { HarnessSaveProfile } from '@fabrikav2/testkit/harness';
+import { publishViewportMetricsMarker } from '@fabrikav2/testkit/testing';
 
 const DWELL_MS = 6000;
 const ALLSTATES = ['menu', 'level', 'settings', 'pause', 'win', 'fail'] as const;
@@ -95,6 +96,7 @@ export async function maybeRunInsituTour(app: App): Promise<void> {
     const tag = `tourstate:${s}`;
     el.setAttribute('aria-label', tag);
     el.textContent = tag;
+    publishViewportMetricsMarker(tag);
     log(`state=${s} scene=${scene()}`);
   };
 

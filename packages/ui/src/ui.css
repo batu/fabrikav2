@@ -155,6 +155,11 @@
     --fab-levelmap-loading-border: rgba(209, 213, 219, 0.7);
     --fab-levelmap-loading-shadow: 0 8px 18px rgba(75, 85, 99, 0.12);
     --fab-levelmap-loading-current-bg: rgba(107, 114, 128, 0.4);
+    --fab-levelmap-node-bg: #e5e7eb;
+    --fab-levelmap-locked-bg: #d1d5db;
+    --fab-levelmap-completed-bg: #c7d2fe;
+    --fab-levelmap-current-bg: #6b7280;
+    --fab-levelmap-node-radius: 999px;
     --fab-levelmap-art-default: none;
     --fab-levelmap-art-locked: none;
     --fab-levelmap-art-completed: none;
@@ -328,10 +333,12 @@
   .fab-modal-ribbon-eyebrow,
   .fab-modal-ribbon-title {
     position: absolute;
-    left: 50%;
+    left: 0;
+    right: 0;
     width: max-content;
     max-width: var(--fab-ribbon-text-max-width);
-    transform: translate(-50%, -50%);
+    margin-inline: auto;
+    transform: translateY(-50%);
     z-index: 1;
     line-height: 1;
   }
@@ -345,7 +352,7 @@
   }
   .fab-modal-ribbon-title {
     top: var(--fab-ribbon-title-top);
-    margin: 0;
+    margin-block: 0;
     color: var(--fab-ribbon-title-color);
     font-size: var(--fab-ribbon-title-size);
     font-weight: var(--fab-font-weight-bold);
@@ -607,7 +614,7 @@
     opacity: 1;
   }
 
-  /* ---- SagaMap / level-map rail (ported verbatim from v1 core ui.css) ---- */
+  /* ---- SagaMap / level-map rail: single path, nodes centered on the rail ---- */
   .fab-levelmap-path {
     position: relative;
     display: flex;
@@ -659,10 +666,6 @@
     cursor: pointer;
     transform: translateX(var(--node-x)) scale(var(--node-scale));
   }
-  .fab-levelmap-node:nth-child(odd) { --node-x: calc(-1 * var(--fab-levelmap-offset)); }
-  .fab-levelmap-node:nth-child(even) { --node-x: var(--fab-levelmap-offset); }
-  .fab-levelmap-node.current { --node-x: 0px; }
-
   .fab-levelmap-node-dot {
     z-index: 1;
     width: var(--fab-levelmap-node-size);
@@ -670,24 +673,32 @@
     display: grid;
     place-items: center;
     border: 0;
-    background: var(--fab-levelmap-art-default) center / contain no-repeat;
+    border-radius: var(--fab-levelmap-node-radius);
+    background-color: var(--fab-levelmap-node-bg);
+    background-image: var(--fab-levelmap-art-default);
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
     font-size: var(--fab-levelmap-node-font);
     font-weight: 760;
     color: var(--fab-levelmap-dot-color);
   }
   .fab-levelmap-node.locked { color: var(--fab-levelmap-locked-color); }
   .fab-levelmap-node.locked .fab-levelmap-node-dot {
+    background-color: var(--fab-levelmap-locked-bg);
     background-image: var(--fab-levelmap-art-locked);
     color: var(--fab-levelmap-locked-dot-color);
     font-weight: 720;
   }
   .fab-levelmap-node.completed .fab-levelmap-node-dot {
+    background-color: var(--fab-levelmap-completed-bg);
     background-image: var(--fab-levelmap-art-completed);
     color: var(--fab-levelmap-completed-color);
   }
   .fab-levelmap-node.current .fab-levelmap-node-dot {
     width: var(--fab-levelmap-node-current-size);
     height: var(--fab-levelmap-node-current-size);
+    background-color: var(--fab-levelmap-current-bg);
     background-image: var(--fab-levelmap-art-current);
     color: var(--fab-levelmap-current-color);
     font-size: var(--fab-levelmap-node-current-font);

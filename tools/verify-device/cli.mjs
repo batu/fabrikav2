@@ -55,6 +55,11 @@ import {
   loadRunSummary,
   writeSummaryJson,
 } from './src/summary.mjs';
+import {
+  evaluateViewportMetricAssertions,
+  formatViewportMetricAssertions,
+  viewportMetricAssertionsPass,
+} from './src/viewportMetrics.mjs';
 import * as steps from './src/steps.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -100,8 +105,12 @@ async function resolveDeviceCaptures(args, manifest, date, platform) {
     }
     const exportDir = path.join(os.tmpdir(), `verify-device-${date}-export`);
     steps.exportAttachments(path.resolve(args.xcresult), exportDir);
-    const { byState } = extractFromExportDir(exportDir);
-    return { captures: byState, deviceLabel: `xcresult ${path.relative(REPO_ROOT, path.resolve(args.xcresult))}` };
+    const { byState, viewportMetrics } = extractFromExportDir(exportDir);
+    return {
+      captures: byState,
+      viewportMetrics,
+      deviceLabel: `xcresult ${path.relative(REPO_ROOT, path.resolve(args.xcresult))}`,
+    };
   }
   if (args.skipDevice) return { skip: 'forced by --skip-device' };
   return platform === 'android'
@@ -132,14 +141,17 @@ function runIosDevicePath(args, manifest, date) {
 
   steps.unlockKeychain(readEnvSecret('MAC_PASSWORD'));
   steps.buildHarnessBundle(manifest.gameDir);
-  steps.buildAndInstallApp(manifest.gameDir, device.udid, appBundleId);
+  steps.buildAndInstallApp(manifest.gameDir, device.udid, appBundleId, {
+    developmentTeam: process.env.DEVELOPMENT_TEAM,
+  });
   const { exportDir, testError } = steps.runXcuiTestAndExport({
     runnerDir: RUNNER_DIR, deviceUdid: device.udid, appBundleId, outDir,
     developmentTeam: process.env.DEVELOPMENT_TEAM,
   });
-  const { byState } = extractFromExportDir(exportDir);
+  const { byState, viewportMetrics } = extractFromExportDir(exportDir);
   return {
     captures: byState,
+    viewportMetrics,
     deviceLabel: `${device.name} (${device.udid})`,
     captureFailure: testError ? `xcodebuild test failed: ${testError.message}` : null,
   };
@@ -252,6 +264,10 @@ async function main() {
     generatedAt: date,
   });
   const phashVerdict = computeVerdict(rows, args.threshold);
+  const viewportMetricAssertions = evaluateViewportMetricAssertions({
+    manifest,
+    metricsByState: resolved.viewportMetrics || {},
+  });
 
   // PRIMARY verdict: the multi-model vision panel (phash is now a secondary
   // advisory signal). Conductor-run — needs OPENROUTER_API_KEY + network; skips
@@ -305,7 +321,12 @@ async function main() {
   const outFile = path.join(outDir, 'grid.html');
   fs.writeFileSync(outFile, html);
 
-  const summary = buildSummary({ panel, phashVerdict });
+  const summary = buildSummary({
+    panel,
+    phashVerdict,
+    viewportMetrics: resolved.viewportMetrics || {},
+    viewportMetricAssertions,
+  });
   const summaryFile = writeSummaryJson(outDir, summary);
   let compareTable = '';
   if (args.compare) {
@@ -341,6 +362,7 @@ async function main() {
     `  verdict (${primaryLabel}): ${primary.summary}\n` +
     `  grid: ${path.relative(REPO_ROOT, outFile)}\n` +
     `  summary: ${path.relative(REPO_ROOT, summaryFile)}\n` +
+    formatViewportMetricAssertions(viewportMetricAssertions) +
     formatSummaryTable(summary) +
     compareTable
   );
@@ -349,6 +371,7 @@ async function main() {
     lane,
     primary,
     captureFailure: resolved.captureFailure,
+    viewportMetricsPass: viewportMetricAssertionsPass(viewportMetricAssertions),
   });
 }
 

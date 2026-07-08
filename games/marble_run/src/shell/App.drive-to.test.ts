@@ -129,10 +129,15 @@ function expectSpriteRibbon(
   expect(Array.from(ribbon.classList).filter((name) => name.startsWith('fab-modal-ribbon--'))).toEqual([]);
   expect(ribbon.style.backgroundImage).toBe('');
   expect(ribbon.querySelector<HTMLImageElement>('.fab-modal-ribbon-image')?.src).toContain(opts.assetName);
-  const title = ribbon.querySelector<HTMLElement>('.fab-modal-ribbon-title')!;
+  const titleNodes = card.querySelectorAll<HTMLElement>('.fab-modal-ribbon-title');
+  expect(titleNodes).toHaveLength(1);
+  expect(card.querySelectorAll('.fab-modal-title')).toHaveLength(0);
+  const title = titleNodes[0]!;
   expect(title.textContent).toBe(opts.title);
   if (opts.eyebrow !== undefined) {
-    const eyebrow = ribbon.querySelector<HTMLElement>('.fab-modal-ribbon-eyebrow')!;
+    const eyebrowNodes = card.querySelectorAll<HTMLElement>('.fab-modal-ribbon-eyebrow');
+    expect(eyebrowNodes).toHaveLength(1);
+    const eyebrow = eyebrowNodes[0]!;
     expect(eyebrow.textContent).toBe(opts.eyebrow);
     expect(eyebrow.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   }
@@ -252,7 +257,7 @@ describe('App harness driveTo wiring', () => {
     const win = document.querySelector<HTMLElement>('.fab-result-card--win')!;
     expect(win.classList.contains('fab-modal-card--image')).toBe(true);
     expect(win.style.getPropertyValue('--fab-modal-card-image')).toContain('popup-card');
-    expectSpriteRibbon(win, { assetName: 'ribbon-completed', title: 'Level Complete', eyebrow: 'Level 4' });
+    expectSpriteRibbon(win, { assetName: 'ribbon-completed-blank', title: 'COMPLETED', eyebrow: 'Level 4' });
     expectSpriteButton('result-next', 'button-green');
 
     document.querySelector<HTMLButtonElement>('[data-fab-action="result-next"]')!.click();
@@ -261,7 +266,7 @@ describe('App harness driveTo wiring', () => {
     const fail = document.querySelector<HTMLElement>('.fab-result-card--lose')!;
     expect(fail.classList.contains('fab-modal-card--image')).toBe(true);
     expect(fail.style.getPropertyValue('--fab-modal-card-image')).toContain('popup-card');
-    expectSpriteRibbon(fail, { assetName: 'ribbon-failed', title: 'Failed', eyebrow: 'Level 4' });
+    expectSpriteRibbon(fail, { assetName: 'ribbon-failed-blank', title: 'FAILED', eyebrow: 'Level 4' });
     expectSpriteButton('result-next', 'button-green');
     expectSpriteButton('result-retry', 'button-orange');
   });
