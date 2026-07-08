@@ -48,16 +48,19 @@ describe('parseArgs', () => {
       '--platform', 'android',
       '--device', '27091JEGR22183',
       '--adb-prefix', 'ssh ubuntu-server adb',
+      '--build-prefix', 'ssh ubuntu-server',
       '--android-sdk', '/home/batu/android-sdk',
       '--android-activity', 'com.example/.MainActivity',
     ]);
     expect(a.platform).toBe('android');
     expect(a.device).toBe('27091JEGR22183');
     expect(a.adbPrefix).toBe('ssh ubuntu-server adb');
+    expect(a.buildPrefix).toBe('ssh ubuntu-server');
     expect(a.androidSdk).toBe('/home/batu/android-sdk');
     expect(a.androidActivity).toBe('com.example/.MainActivity');
     expect(() => parseArgs(['--game', 'g', '--platform', 'linux'])).toThrow(/auto.*ios.*android/);
     expect(() => parseArgs(['--game', 'g', '--platform'])).toThrow(/--platform needs a value/);
+    expect(() => parseArgs(['--game', 'g', '--build-prefix'])).toThrow(/--build-prefix needs a value/);
   });
 
   it('parses --lane and rejects anything but device/browser', () => {

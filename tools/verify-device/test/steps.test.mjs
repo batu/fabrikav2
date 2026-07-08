@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {
   androidBuildEnv,
+  buildAndroidBuildCommandParts,
   androidDebugApkPath,
   assembleAndroidDebug,
   buildAndInstallApp,
@@ -170,6 +171,30 @@ describe('runXcuiTestAndExport', () => {
 });
 
 describe('Android build/install steps', () => {
+  it('assembles remote Android build commands with cwd and harness env through a build prefix', () => {
+    const parts = buildAndroidBuildCommandParts({
+      buildPrefix: 'ssh ubuntu-server',
+      cwd: '/home/batu/Desktop/utolye/fabrikav2/games/block_blast',
+      env: androidBuildEnv('/home/batu/android-sdk'),
+      command: 'npx',
+      args: ['vite', 'build'],
+    });
+
+    expect(parts.slice(0, 6)).toEqual([
+      'ssh',
+      'ubuntu-server',
+      'cd',
+      '/home/batu/Desktop/utolye/fabrikav2/games/block_blast',
+      '&&',
+      'env',
+    ]);
+    expect(parts).toContain('ANDROID_HOME=/home/batu/android-sdk');
+    expect(parts).toContain('ANDROID_SDK_ROOT=/home/batu/android-sdk');
+    expect(parts).toContain('VITE_ENABLE_TEST_HARNESS=true');
+    expect(parts).toContain('VITE_INSITU_TOUR=allstates');
+    expect(parts.slice(-3)).toEqual(['npx', 'vite', 'build']);
+  });
+
   it('builds the Android harness bundle and runs cap add only when android/ is absent', () => {
     const gameDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vd-android-game-'));
     const calls = [];
@@ -199,6 +224,29 @@ describe('Android build/install steps', () => {
     fs.rmSync(gameDir, { recursive: true, force: true });
   });
 
+  it('runs Android harness build commands through VERIFY_DEVICE_BUILD_PREFIX style wrappers', () => {
+    const gameDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vd-android-game-'));
+    const calls = [];
+
+    buildAndroidHarnessBundle(gameDir, {
+      androidSdk: '/home/batu/android-sdk',
+      buildPrefix: 'ssh ubuntu-server',
+      partsImpl: (parts) => {
+        calls.push(parts);
+        return '';
+      },
+    });
+
+    expect(calls).toHaveLength(3);
+    expect(calls[0].slice(0, 3)).toEqual(['ssh', 'ubuntu-server', 'cd']);
+    expect(calls[0]).toContain(gameDir);
+    expect(calls[0].slice(-3)).toEqual(['npx', 'vite', 'build']);
+    expect(calls[1].slice(-4)).toEqual(['npx', 'cap', 'add', 'android']);
+    expect(calls[2].slice(-4)).toEqual(['npx', 'cap', 'sync', 'android']);
+
+    fs.rmSync(gameDir, { recursive: true, force: true });
+  });
+
   it('assembles the generated Android debug APK with Gradle', () => {
     const gameDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vd-android-game-'));
     fs.mkdirSync(path.join(gameDir, 'android'), { recursive: true });
@@ -220,6 +268,27 @@ describe('Android build/install steps', () => {
     fs.rmSync(gameDir, { recursive: true, force: true });
   });
 
+  it('assembles Android debug APK through a build prefix without requiring local android/', () => {
+    const gameDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vd-android-game-'));
+    const calls = [];
+
+    const apk = assembleAndroidDebug(gameDir, {
+      androidSdk: '/home/batu/android-sdk',
+      buildPrefix: 'ssh ubuntu-server',
+      partsImpl: (parts) => {
+        calls.push(parts);
+        return '';
+      },
+    });
+
+    expect(apk).toBe(androidDebugApkPath(gameDir));
+    expect(calls[0].slice(0, 3)).toEqual(['ssh', 'ubuntu-server', 'cd']);
+    expect(calls[0]).toContain(path.join(gameDir, 'android'));
+    expect(calls[0].slice(-3)).toEqual(['./gradlew', '--no-daemon', 'assembleDebug']);
+
+    fs.rmSync(gameDir, { recursive: true, force: true });
+  });
+
   it('installs the debug APK through a configurable adb prefix', () => {
     const gameDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vd-android-game-'));
     const apk = androidDebugApkPath(gameDir);
@@ -236,6 +305,32 @@ describe('Android build/install steps', () => {
 
     expect(calls[0]).toEqual([
       'ssh', 'ubuntu-server', 'adb', '-s', '27091JEGR22183', 'install', '-r', apk,
+    ]);
+
+    fs.rmSync(gameDir, { recursive: true, force: true });
+  });
+
+  it('can assemble a remote install command without a local APK artifact', () => {
+    const gameDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vd-android-game-'));
+    const calls = [];
+
+    installAndroidDebugApk({
+      gameDir,
+      serial: '27091JEGR22183',
+      adbPrefix: 'ssh ubuntu-server adb',
+      requireLocalApk: false,
+      shImpl: (parts) => calls.push(parts),
+    });
+
+    expect(calls[0]).toEqual([
+      'ssh',
+      'ubuntu-server',
+      'adb',
+      '-s',
+      '27091JEGR22183',
+      'install',
+      '-r',
+      androidDebugApkPath(gameDir),
     ]);
 
     fs.rmSync(gameDir, { recursive: true, force: true });

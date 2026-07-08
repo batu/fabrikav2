@@ -34,8 +34,45 @@ export function hasExactTourStateMarker(dump, state) {
   return readTourMarker(dump, state) === 'reached';
 }
 
+export function extractLogcatEpochMs(line) {
+  const match = String(line || '').match(/^\s*(\d{10,13})(?:\.(\d{1,9}))?\s+/);
+  if (!match) return null;
+  const base = Number(match[1]);
+  if (!Number.isFinite(base)) return null;
+  if (match[1].length >= 13) return base;
+  const millis = match[2] ? Number(match[2].padEnd(3, '0').slice(0, 3)) : 0;
+  return (base * 1000) + millis;
+}
+
+export function extractInsituTourLogcatEvents(logcat, { sinceEpochMs } = {}) {
+  const events = [];
+  const since = Number.isFinite(sinceEpochMs) ? Number(sinceEpochMs) : null;
+  for (const line of String(logcat || '').split(/\r?\n/)) {
+    if (!line.includes('[insituTour]')) continue;
+    const epochMs = extractLogcatEpochMs(line);
+    if (since !== null && (epochMs === null || epochMs < since)) continue;
+    const match = line.match(/\[insituTour\][^"\n\r]*\bstate=([A-Za-z0-9_-]+)/);
+    if (match) events.push({ state: match[1], epochMs, line });
+  }
+  return events;
+}
+
+export function readTourLogcatMarker(logcat, state, { sinceEpochMs } = {}) {
+  const exact = String(state);
+  let marker = 'missing';
+  for (const event of extractInsituTourLogcatEvents(logcat, { sinceEpochMs })) {
+    if (event.state === exact) marker = 'reached';
+    else if (event.state === `${exact}-FAILED`) marker = 'failed';
+    else if (event.state === `${exact}-DONE`) marker = 'retired';
+    else if (event.state === 'done') marker = 'done';
+  }
+  return marker;
+}
+
 export async function waitForAndroidTourState({
   state,
+  readLogcat,
+  logcatSinceEpochMs,
   dumpUi,
   timeoutMs = DEFAULT_ANDROID_STATE_TIMEOUT_MS,
   pollMs = DEFAULT_ANDROID_POLL_MS,
@@ -44,10 +81,20 @@ export async function waitForAndroidTourState({
 }) {
   const deadline = now() + timeoutMs;
   while (now() <= deadline) {
-    const dump = dumpUi();
-    const marker = readTourMarker(dump, state);
-    if (marker === 'reached') return { status: 'reached', dump };
-    if (marker === 'failed') return { status: 'failed', dump };
+    const logcatResult = readLogcatTourMarker(readLogcat, state, logcatSinceEpochMs);
+    if (logcatResult.marker === 'reached') return { status: 'reached', logcat: logcatResult.logcat };
+    if (logcatResult.marker === 'failed') return { status: 'failed', logcat: logcatResult.logcat };
+    if (logcatResult.marker === 'retired') return { status: 'retired', logcat: logcatResult.logcat };
+    if (logcatResult.marker === 'done') return { status: 'done', logcat: logcatResult.logcat };
+
+    if (dumpUi) {
+      const dump = dumpUi();
+      const marker = readTourMarker(dump, state);
+      if (marker === 'reached') return { status: 'reached', dump };
+      if (marker === 'failed') return { status: 'failed', dump };
+      if (marker === 'retired') return { status: 'retired', dump };
+      if (marker === 'done') return { status: 'done', dump };
+    }
     await sleep(pollMs);
   }
   return { status: 'timeout' };
@@ -55,6 +102,8 @@ export async function waitForAndroidTourState({
 
 export async function waitForAndroidTourRetire({
   state,
+  readLogcat,
+  logcatSinceEpochMs,
   dumpUi,
   timeoutMs = DEFAULT_ANDROID_STATE_TIMEOUT_MS,
   pollMs = DEFAULT_ANDROID_POLL_MS,
@@ -63,13 +112,29 @@ export async function waitForAndroidTourRetire({
 }) {
   const deadline = now() + timeoutMs;
   while (now() <= deadline) {
-    const dump = dumpUi();
-    const marker = readTourMarker(dump, state);
-    if (marker === 'retired' || marker === 'done') return { status: 'retired', dump };
-    if (marker === 'failed') return { status: 'failed', dump };
+    const logcatResult = readLogcatTourMarker(readLogcat, state, logcatSinceEpochMs);
+    if (logcatResult.marker === 'retired' || logcatResult.marker === 'done') {
+      return { status: 'retired', logcat: logcatResult.logcat };
+    }
+    if (logcatResult.marker === 'failed') return { status: 'failed', logcat: logcatResult.logcat };
+
+    if (dumpUi) {
+      const dump = dumpUi();
+      const marker = readTourMarker(dump, state);
+      if (marker === 'retired' || marker === 'done') return { status: 'retired', dump };
+      if (marker === 'failed') return { status: 'failed', dump };
+    }
     await sleep(pollMs);
   }
   return { status: 'timeout' };
+}
+
+export function dumpAndroidLogcat({ adbPrefix, serial, shImpl = execCommandParts } = {}) {
+  return String(shImpl(buildAdbCommandParts({
+    adbPrefix,
+    serial,
+    adbArgs: ['logcat', '-d', '-v', 'epoch'],
+  })));
 }
 
 export function dumpAndroidUi({ adbPrefix, serial, shImpl = execCommandParts } = {}) {
@@ -109,6 +174,8 @@ export async function captureAndroidStates({
   timeoutMs = DEFAULT_ANDROID_STATE_TIMEOUT_MS,
   pollMs = DEFAULT_ANDROID_POLL_MS,
   shImpl = execCommandParts,
+  readLogcat,
+  logcatSinceEpochMs,
   dumpUi,
   capturePng,
   sleep = defaultSleep,
@@ -117,12 +184,24 @@ export async function captureAndroidStates({
   fs.mkdirSync(outDir, { recursive: true });
   const captures = {};
   const failures = [];
-  const readDump = dumpUi || (() => dumpAndroidUi({ adbPrefix, serial, shImpl }));
+  const readLogs = readLogcat === undefined
+    ? (dumpUi ? null : () => dumpAndroidLogcat({ adbPrefix, serial, shImpl }))
+    : readLogcat;
+  const readDump = dumpUi === undefined
+    ? (() => dumpAndroidUi({ adbPrefix, serial, shImpl }))
+    : dumpUi;
   const shoot = capturePng || ((outFile) => captureAndroidPng({ adbPrefix, serial, outFile, shImpl }));
 
   for (const state of states || []) {
     const reached = await waitForAndroidTourState({
-      state, dumpUi: readDump, timeoutMs, pollMs, sleep, now,
+      state,
+      readLogcat: readLogs,
+      logcatSinceEpochMs,
+      dumpUi: readDump,
+      timeoutMs,
+      pollMs,
+      sleep,
+      now,
     });
     if (reached.status !== 'reached') {
       failures.push(androidStateFailure(state, reached.status));
@@ -134,7 +213,14 @@ export async function captureAndroidStates({
     captures[state] = outFile;
 
     const retired = await waitForAndroidTourRetire({
-      state, dumpUi: readDump, timeoutMs, pollMs, sleep, now,
+      state,
+      readLogcat: readLogs,
+      logcatSinceEpochMs,
+      dumpUi: readDump,
+      timeoutMs,
+      pollMs,
+      sleep,
+      now,
     });
     if (retired.status !== 'retired') {
       failures.push(androidRetireFailure(state, retired.status));
@@ -147,6 +233,12 @@ export async function captureAndroidStates({
 function androidStateFailure(state, status) {
   if (status === 'failed') {
     return `state "${state}" published exact tourstate:${state}-FAILED before capture`;
+  }
+  if (status === 'retired') {
+    return `state "${state}" retired as tourstate:${state}-DONE before capture`;
+  }
+  if (status === 'done') {
+    return `tour completed before state "${state}" was captured`;
   }
   return `state "${state}" never published exact tourstate:${state} before timeout`;
 }
@@ -177,6 +269,19 @@ function isPng(buffer) {
     && buffer[5] === 0x0a
     && buffer[6] === 0x1a
     && buffer[7] === 0x0a;
+}
+
+function readLogcatTourMarker(readLogcat, state, sinceEpochMs) {
+  if (!readLogcat) return { marker: 'missing' };
+  try {
+    const logcat = readLogcat();
+    return {
+      marker: readTourLogcatMarker(logcat, state, { sinceEpochMs }),
+      logcat,
+    };
+  } catch (err) {
+    return { marker: 'missing', error: err };
+  }
 }
 
 function defaultSleep(ms) {
