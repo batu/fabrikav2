@@ -7,6 +7,7 @@ export interface DriveSnapshot {
   status?: string;
   inputReady?: boolean;
   settingsOpen?: boolean;
+  lifecycleSuspended?: boolean;
   levelComplete?: boolean;
   lives?: number;
 }
@@ -44,13 +45,14 @@ export async function driveTo(
   const maxPolls = options.maxPolls ?? DEFAULT_MAX_POLLS;
   const sleep = options.sleep ?? ((ms: number): Promise<void> => new Promise((resolve) => window.setTimeout(resolve, ms)));
 
+  await deps.gotoMenu();
+  const atMenu = await confirm(deps, 'menu', maxPolls, pollMs, sleep);
   if (state === 'menu') {
-    await deps.gotoMenu();
-    return confirm(deps, state, maxPolls, pollMs, sleep);
+    return atMenu;
   }
+  if (!atMenu) return false;
 
   if (state === 'settings') {
-    await deps.gotoMenu();
     await deps.openSettings();
     return confirm(deps, state, maxPolls, pollMs, sleep);
   }
@@ -78,18 +80,28 @@ async function confirm(
 ): Promise<boolean> {
   for (let i = 0; i < maxPolls; i += 1) {
     if (matches(deps.snapshot(), state)) return true;
-    await sleep(pollMs);
+    if (pollMs > 0) await sleep(pollMs);
   }
-  return false;
+  return matches(deps.snapshot(), state);
 }
 
 function matches(snapshot: DriveSnapshot, state: DriveState): boolean {
   const scene = snapshot.scene ?? snapshot.activeScene ?? '';
+  const status = snapshot.status ?? '';
   const ready = snapshot.inputReady !== false;
   if (state === 'menu') return scene === 'menu' || scene === 'HomeScene';
   if (state === 'settings') return snapshot.settingsOpen === true;
-  if (state === 'level') return ready && (scene === 'playing' || scene === 'GameScene') && snapshot.levelComplete !== true;
-  if (state === 'pause') return scene === 'paused' || snapshot.status === 'paused';
-  if (state === 'win') return scene === 'complete' || snapshot.status === 'complete' || snapshot.levelComplete === true;
-  return scene === 'failed' || snapshot.status === 'failed' || snapshot.lives === 0;
+  if (state === 'level') {
+    return ready
+      && (scene === 'playing' || scene === 'GameScene')
+      && snapshot.levelComplete !== true
+      && snapshot.lifecycleSuspended !== true
+      && status !== 'paused'
+      && status !== 'complete'
+      && status !== 'failed'
+      && snapshot.lives !== 0;
+  }
+  if (state === 'pause') return scene === 'paused' || status === 'paused' || snapshot.lifecycleSuspended === true;
+  if (state === 'win') return scene === 'complete' || status === 'complete' || snapshot.levelComplete === true;
+  return scene === 'failed' || status === 'failed' || snapshot.lives === 0;
 }
