@@ -1,9 +1,8 @@
 import { test, expect } from "@playwright/test";
 
-// End-to-end skeleton: the game boots in a real browser and mounts the
-// placeholder screen into #app. Runs against the vite dev server started by
-// playwright.config.ts. A real port grows this into the game's smoke flow.
-test("boots and shows the placeholder screen", async ({ page }) => {
+// Manual browser diagnostic. Worker close-out uses unit/type/audit plus device
+// verification in the later pipeline stage; this remains directly runnable.
+test("boots and shows the Cameleon canvas shell", async ({ page }) => {
   await page.goto("/");
-  await expect(page.locator("#app .fab-placeholder-screen")).toBeVisible();
+  await expect(page.locator("#app .cameleon-screen__canvas")).toBeVisible();
 });

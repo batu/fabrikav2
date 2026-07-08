@@ -11,11 +11,11 @@ export const gameConfig = {
   // the actual title lives in design/copy.ts and a reskin edits it through the
   // design sheet. `satisfies CopyKey` fails typecheck if a literal is pasted here.
   title: "game.title" satisfies CopyKey,
-  screens: ["HomeMenu"],
+  screens: ["menu", "game", "win", "fail"],
   saga: { levels: 1 },
   economy: { softCurrency: "coins" },
   adPlacements: [],
   productCatalog: [],
   // Canonical @fabrikav2/sdk analytics events (see packages/sdk analytics contract).
-  analyticsEvents: ["level_start", "level_complete", "level_fail"],
+  analyticsEvents: ["level_start", "hide_found", "decoy_hit", "miss", "level_win", "mode_selected", "dir_selected"],
 } as const;

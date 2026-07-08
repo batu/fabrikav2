@@ -10,6 +10,9 @@
     "test:unit": "vitest run",
     "lint": "eslint ."
   },
+  "dependencies": {
+    "phaser": "^3.90.0"
+  },
   "devDependencies": {
     "@fabrikav2/kernel": "*",
     "@fabrikav2/ui": "*",
