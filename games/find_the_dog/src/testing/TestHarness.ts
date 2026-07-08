@@ -12,6 +12,7 @@ import { setLifecycleForTest } from '../platform/gameLifecycle';
 import { initHUD, openPage } from '../ui/HUD';
 import { setFailOverlayPendingRecoveryMsForTest } from '../ui/LevelFailedOverlay';
 import { driveTo, isDriveState, type DriveState, type DriveToDeps, type DriveSnapshot } from './driveTo';
+import { readViewportMetrics, type ViewportMetricsSnapshot } from './viewportMetrics';
 
 type FindTheDogVerb = 'gotoHome' | 'startLevel' | 'openSettings' | 'tapSafeMiss';
 
@@ -46,6 +47,7 @@ export interface FindTheDogSnapshot {
   cameraScrollX: number;
   cameraScrollY: number;
   gameSize: { width: number; height: number };
+  viewportMetrics: ViewportMetricsSnapshot;
   runtimeTextures: RuntimeTexturesSnapshot;
   classicRenderDiagnostics: ClassicRenderDiagnosticsSnapshot | null;
   runtimeSequence: RuntimeSequenceResolution | null;
@@ -253,6 +255,7 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       cameraScrollX: scene?.cameras.main.scrollX ?? 0,
       cameraScrollY: scene?.cameras.main.scrollY ?? 0,
       gameSize: { width: game.canvas.width, height: game.canvas.height },
+      viewportMetrics: readViewportMetrics(game.canvas),
       runtimeTextures: scene?.getRuntimeTexturesSnapshot() ?? {
         maxLongEdge: 0,
         color: null,

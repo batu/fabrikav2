@@ -146,6 +146,33 @@ describe("find_the_dog maybeRunInsituTour — allstates", () => {
     expect(marker!.getAttribute("aria-label")).toBe("tourstate:done");
     expect(marker!.textContent).toBe("tourstate:done");
   });
+
+  it("publishes viewport geometry on a separate off-screen accessibility marker", async () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 780;
+    canvas.height = 1688;
+    canvas.style.width = "390px";
+    canvas.style.height = "844px";
+    document.body.appendChild(canvas);
+    const harness = makeHarness(async () => true);
+
+    const run = maybeRunInsituTour(harness);
+    await vi.runAllTimersAsync();
+    await run;
+
+    const marker = document.getElementById("__viewportmetrics__");
+    const label = marker?.getAttribute("aria-label") ?? "";
+    expect(marker).not.toBeNull();
+    expect(marker!.style.cssText).toContain("left: -9999px");
+    expect(label).toContain("viewportmetrics:state=tourstate:done");
+    expect(label).toContain("inner=");
+    expect(label).toContain("vv=");
+    expect(label).toContain("screen=");
+    expect(label).toContain("safe=");
+    expect(label).toContain("canvas=");
+    expect(label).toContain("dpr=");
+    expect(marker!.textContent).toBe(label);
+  });
 });
 
 describe("find_the_dog maybeRunInsituTour — no script", () => {
