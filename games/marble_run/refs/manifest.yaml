@@ -127,6 +127,7 @@ refs:
     capture-recipe: launch the Android reference app cold and wait for the saga menu to settle
     at-rest: true
     provenance:
+      source: shipped-capture
       package: com.basegamelab.marblerun
       device: Pixel 6a 1080x2400 @420dpi
       host: ubuntu-server
@@ -138,6 +139,7 @@ refs:
     capture-recipe: from the saga menu, tap the green LEVEL button and capture after the board settles
     at-rest: true
     provenance:
+      source: shipped-capture
       package: com.basegamelab.marblerun
       device: Pixel 6a 1080x2400 @420dpi
       host: ubuntu-server
@@ -149,6 +151,7 @@ refs:
     capture-recipe: from a started level, wait several seconds and capture the ongoing board state
     at-rest: true
     provenance:
+      source: shipped-capture
       package: com.basegamelab.marblerun
       device: Pixel 6a 1080x2400 @420dpi
       host: ubuntu-server
@@ -160,6 +163,7 @@ refs:
     capture-recipe: from a started level, capture the fullscreen Android reference board without status-bar chrome
     at-rest: true
     provenance:
+      source: shipped-capture
       package: com.basegamelab.marblerun
       device: Pixel 6a 1080x2400 @420dpi
       host: ubuntu-server
@@ -171,6 +175,7 @@ refs:
     capture-recipe: from the saga menu, tap the gear and capture the settings modal with CLOSE and RESET PROGRESS actions
     at-rest: true
     provenance:
+      source: shipped-capture
       package: com.basegamelab.marblerun
       device: Pixel 6a 1080x2400 @420dpi
       host: ubuntu-server
@@ -182,6 +187,7 @@ refs:
     capture-recipe: from an active level, tap the gear and capture the settings modal with RESTART and HOME actions
     at-rest: true
     provenance:
+      source: shipped-capture
       package: com.basegamelab.marblerun
       device: Pixel 6a 1080x2400 @420dpi
       host: ubuntu-server
@@ -193,6 +199,7 @@ refs:
     capture-recipe: human-drive the Android reference app to the settled WIN screen, then capture after the level-complete card is idle
     at-rest: true
     provenance:
+      source: shipped-capture
       package: com.basegamelab.marblerun
       device: Pixel 6a 1080x2400 @420dpi
       host: ubuntu-server
@@ -206,6 +213,7 @@ refs:
     not-at-rest-reason: contains a mid-load LOADING button and is not a stable fail screen
     recapture-note: recapture after human or scripted play reaches the settled fail overlay; keep excluded from verify-device judging until then
     provenance:
+      source: shipped-capture
       package: com.basegamelab.marblerun
       device: Pixel 6a 1080x2400 @420dpi
       host: ubuntu-server

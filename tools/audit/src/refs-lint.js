@@ -13,6 +13,8 @@ import { listDirs, readText, rel, walkFiles } from './lib.js';
 const CAPTURE_EXTS = ['.png', '.jpg', '.jpeg', '.webp'];
 const REQUIRED_FIELDS = ['state-variant', 'capture-recipe', 'at-rest', 'provenance'];
 const FALSE_AT_REST_FIELDS = ['not-at-rest-reason', 'recapture-note'];
+const PROVENANCE_SOURCES = ['shipped-capture', 'design-sheet', 'generated'];
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 function isPlainObject(value) {
   return Boolean(value && typeof value === 'object' && !Array.isArray(value));
@@ -50,6 +52,97 @@ function captureFiles(gameDir) {
 function entryMap(manifest) {
   if (!isPlainObject(manifest?.refs)) return new Map();
   return new Map(Object.entries(manifest.refs).map(([key, value]) => [normalizeRel(key), value]));
+}
+
+function manifestStates(manifest) {
+  if (!Array.isArray(manifest?.states)) return [];
+  return manifest.states
+    .filter((state) => isPlainObject(state) && typeof state.name === 'string' && state.name.trim() !== '')
+    .map((state) => ({ ...state, name: state.name.trim() }));
+}
+
+function stateFromVariant(entry) {
+  const variant = entry?.['state-variant'];
+  if (typeof variant !== 'string') return null;
+  const state = variant.split('/')[0].trim();
+  return state || null;
+}
+
+function addCoverageRef(refsByState, state, path, entry) {
+  if (!state) return;
+  if (!refsByState.has(state)) refsByState.set(state, new Map());
+  refsByState.get(state).set(path, entry);
+}
+
+function ageDays(captured, now) {
+  if (typeof captured !== 'string') return null;
+  const match = captured.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) return null;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const capturedDate = new Date(Date.UTC(year, month - 1, day));
+  if (
+    capturedDate.getUTCFullYear() !== year ||
+    capturedDate.getUTCMonth() !== month - 1 ||
+    capturedDate.getUTCDate() !== day
+  ) {
+    return null;
+  }
+
+  const nowDate = now instanceof Date ? now : new Date(now);
+  if (Number.isNaN(nowDate.getTime())) return null;
+  const nowDay = Date.UTC(nowDate.getUTCFullYear(), nowDate.getUTCMonth(), nowDate.getUTCDate());
+  return Math.floor((nowDay - capturedDate.getTime()) / MS_PER_DAY);
+}
+
+function ageLabelForEntries(entries, now) {
+  if (entries.length === 0) return '-';
+  const labels = new Set();
+  for (const [, entry] of entries) {
+    const days = ageDays(entry?.provenance?.captured, now);
+    if (days == null) labels.add('unknown');
+    else if (days < 0) labels.add('future');
+    else labels.add(`${days}d`);
+  }
+  return [...labels].sort().join(',');
+}
+
+function sourceLabelForEntries(entries) {
+  if (entries.length === 0) return '-';
+  return [...new Set(entries.map(([, entry]) => entry?.provenance?.source || 'unknown'))].sort().join(',');
+}
+
+function coverageForGame(game, manifest, refs, now) {
+  const states = manifestStates(manifest);
+  const refsByState = new Map();
+
+  for (const [path, entry] of refs) {
+    if (!isPlainObject(entry)) continue;
+    addCoverageRef(refsByState, stateFromVariant(entry), path, entry);
+  }
+
+  for (const state of states) {
+    const offline = state.reference?.offline;
+    if (typeof offline !== 'string') continue;
+    const refPath = normalizeRel(offline);
+    if (refs.has(refPath)) addCoverageRef(refsByState, state.name, refPath, refs.get(refPath));
+  }
+
+  return states.map((state) => {
+    const entries = [...(refsByState.get(state.name)?.entries() ?? [])].sort(([a], [b]) =>
+      a.localeCompare(b),
+    );
+    return {
+      game,
+      state: state.name,
+      refs: entries.length,
+      provenance: sourceLabelForEntries(entries),
+      age: ageLabelForEntries(entries, now),
+      entries: entries.map(([path]) => path),
+    };
+  });
 }
 
 function validateStringField(violations, base, entry, field) {
@@ -93,6 +186,22 @@ function validateProvenance(violations, base, provenance) {
         detail: `provenance requires ${field}`,
       });
     }
+  }
+
+  if (!Object.hasOwn(provenance, 'source')) {
+    add(violations, {
+      ...base,
+      kind: 'MISSING-FIELD',
+      field: 'provenance.source',
+      detail: `provenance.source is required (${PROVENANCE_SOURCES.join(', ')})`,
+    });
+  } else if (!PROVENANCE_SOURCES.includes(provenance.source)) {
+    add(violations, {
+      ...base,
+      kind: 'INVALID-FIELD',
+      field: 'provenance.source',
+      detail: `provenance.source must be one of ${PROVENANCE_SOURCES.join(', ')}`,
+    });
   }
 }
 
@@ -162,10 +271,14 @@ function validateRefEntry(violations, gameDir, game, entryPath, entry) {
 
 /**
  * @param {string} root
- * @returns {{violations: Array<{game:string,entry:string,kind:string,field?:string,detail:string}>}}
+ * @returns {{
+ *   violations: Array<{game:string,entry:string,kind:string,field?:string,detail:string,severity?:string}>,
+ *   coverage: Array<{game:string,state:string,refs:number,provenance:string,age:string,entries:string[]}>,
+ * }}
  */
-export function lintRefs(root) {
+export function lintRefs(root, { now = new Date() } = {}) {
   const violations = [];
+  const coverage = [];
 
   for (const gameDir of listDirs(join(root, 'games'))) {
     const game = rel(root, gameDir);
@@ -203,10 +316,20 @@ export function lintRefs(root) {
         });
       }
     }
+    if (manifestStates(manifest).length > 0 && refs.size === 0) {
+      add(violations, {
+        game,
+        entry: 'refs/manifest.yaml',
+        kind: 'NO-REFS',
+        severity: 'warn',
+        detail: 'manifest declares states but has no refs entries; reference scarcity is visible but non-failing',
+      });
+    }
     for (const [entryPath, entry] of refs) {
       validateRefEntry(violations, gameDir, game, entryPath, entry);
     }
+    coverage.push(...coverageForGame(game, manifest, refs, now));
   }
 
-  return { violations };
+  return { violations, coverage };
 }

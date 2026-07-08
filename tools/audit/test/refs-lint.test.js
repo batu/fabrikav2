@@ -3,6 +3,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { lintRefs } from '../src/refs-lint.js';
+import { formatRefsCoverage } from '../src/cli.js';
 
 const roots = [];
 
@@ -29,6 +30,7 @@ function manifestEntry(overrides = {}) {
     'capture-recipe': 'launch the reference app and wait for the menu to settle',
     'at-rest': true,
     provenance: {
+      source: 'shipped-capture',
       package: 'com.example.reference',
       device: 'Pixel 6a',
       host: 'ubuntu-server',
@@ -82,18 +84,63 @@ describe('refs-lint', () => {
     expect(lintRefs(repo).violations).toEqual([]);
   });
 
+  it('reports per-state coverage with provenance and age', () => {
+    const repo = root();
+    write(repo, 'games/game/refs/captures/source/menu.png', 'png');
+    writeManifest(repo, {
+      'refs/captures/source/menu.png': manifestEntry(),
+    });
+
+    expect(lintRefs(repo, { now: new Date('2026-07-08T12:00:00Z') }).coverage).toEqual([
+      {
+        game: 'games/game',
+        state: 'menu',
+        refs: 1,
+        provenance: 'shipped-capture',
+        age: '2d',
+        entries: ['refs/captures/source/menu.png'],
+      },
+    ]);
+  });
+
+  it('warns without failing when a manifest declares states but has no refs', () => {
+    const repo = root();
+    writeManifest(repo, {});
+
+    const { violations, coverage } = lintRefs(repo);
+    expect(violations).toEqual([
+      expect.objectContaining({
+        game: 'games/game',
+        entry: 'refs/manifest.yaml',
+        kind: 'NO-REFS',
+        severity: 'warn',
+      }),
+    ]);
+    expect(coverage).toEqual([
+      expect.objectContaining({
+        game: 'games/game',
+        state: 'menu',
+        refs: 0,
+        provenance: '-',
+        age: '-',
+      }),
+    ]);
+  });
+
   it('errors when a capture file has no manifest entry', () => {
     const repo = root();
     write(repo, 'games/game/refs/captures/source/menu.png', 'png');
     writeManifest(repo, {});
 
-    expect(lintRefs(repo).violations).toMatchObject([
-      {
-        game: 'games/game',
-        entry: 'refs/captures/source/menu.png',
-        kind: 'MISSING-ENTRY',
-      },
-    ]);
+    expect(lintRefs(repo).violations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          game: 'games/game',
+          entry: 'refs/captures/source/menu.png',
+          kind: 'MISSING-ENTRY',
+        }),
+      ]),
+    );
   });
 
   it('errors when a required field is missing', () => {
@@ -167,5 +214,65 @@ describe('refs-lint', () => {
         expect.objectContaining({ field: 'recapture-note' }),
       ]),
     );
+  });
+
+  it('requires provenance source to use the standard origin vocabulary', () => {
+    const missing = root();
+    write(missing, 'games/game/refs/captures/source/menu.png', 'png');
+    const missingEntry = manifestEntry();
+    delete missingEntry.provenance.source;
+    writeManifest(missing, {
+      'refs/captures/source/menu.png': missingEntry,
+    });
+
+    expect(lintRefs(missing).violations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'MISSING-FIELD',
+          field: 'provenance.source',
+        }),
+      ]),
+    );
+
+    const invalid = root();
+    write(invalid, 'games/game/refs/captures/source/menu.png', 'png');
+    writeManifest(invalid, {
+      'refs/captures/source/menu.png': manifestEntry({
+        provenance: { ...manifestEntry().provenance, source: 'unknown-origin' },
+      }),
+    });
+
+    expect(lintRefs(invalid).violations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'INVALID-FIELD',
+          field: 'provenance.source',
+        }),
+      ]),
+    );
+  });
+
+  it('formats refs coverage as a stable audit table', () => {
+    const output = formatRefsCoverage([
+      {
+        game: 'games/game',
+        state: 'menu',
+        refs: 1,
+        provenance: 'shipped-capture',
+        age: '2d',
+      },
+      {
+        game: 'games/game',
+        state: 'pause',
+        refs: 0,
+        provenance: '-',
+        age: '-',
+      },
+    ]).join('\n');
+
+    expect(output).toContain('refs coverage:');
+    expect(output).toMatch(/game\s+state\s+refs\s+provenance\s+age/);
+    expect(output).toMatch(/games\/game\s+menu\s+1\s+shipped-capture\s+2d/);
+    expect(output).toMatch(/games\/game\s+pause\s+0\s+-\s+-/);
   });
 });
