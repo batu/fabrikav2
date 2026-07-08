@@ -100,6 +100,8 @@ describe("home menu polish regressions", () => {
     expect(navCell.flex).toBe("0 0 calc(100% / 3)");
     expect(navCell.width).toBe("calc(100% / 3)");
     expect(navCell.maxWidth).toBe("calc(100% / 3)");
+    expect(CSS_TEXT).toContain("padding: 0 0 env(safe-area-inset-bottom, 0px);");
+    expect(CSS_TEXT).not.toContain("calc(env(safe-area-inset-bottom) + 4px)");
 
     const play = window.getComputedStyle(element("#home-play-now"));
     expect(play.backgroundImage).toContain("/ui/home/play-level-button-runtime.png");
@@ -108,7 +110,7 @@ describe("home menu polish regressions", () => {
     expect(play.minHeight).toBe("66px");
 
     const noAdsRail = window.getComputedStyle(element(".home-rail-left"));
-    expect(noAdsRail.left).toBe("28px");
-    expect(noAdsRail.top).toBe("44px");
+    expect(noAdsRail.left).toBe("0px");
+    expect(noAdsRail.top).toBe("116px");
   });
 });
