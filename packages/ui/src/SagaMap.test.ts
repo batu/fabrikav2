@@ -71,6 +71,14 @@ function expectVisibleSagaDots(root: HTMLElement): void {
   }
 }
 
+function expectCenteredSagaNodes(root: HTMLElement): void {
+  const nodes = Array.from(root.querySelectorAll<HTMLElement>('.fab-levelmap-node'));
+  expect(nodes).toHaveLength(3);
+  for (const node of nodes) {
+    expect(getComputedStyle(node).getPropertyValue('--node-x').trim()).toBe('0px');
+  }
+}
+
 const NODES: LevelMapNode[] = [
   { id: 1, label: '1', name: 'Level 1', state: 'completed' },
   { id: 2, label: '2', name: 'Level 2', state: 'current' },
@@ -107,6 +115,7 @@ describe('mountSagaMap', () => {
     });
 
     expectVisibleSagaDots(handle.el);
+    expectCenteredSagaNodes(handle.el);
   });
 
   it('renders the loading placeholder with the injected label and no baked copy', () => {

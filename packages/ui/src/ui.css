@@ -614,7 +614,7 @@
     opacity: 1;
   }
 
-  /* ---- SagaMap / level-map rail (ported verbatim from v1 core ui.css) ---- */
+  /* ---- SagaMap / level-map rail: single path, nodes centered on the rail ---- */
   .fab-levelmap-path {
     position: relative;
     display: flex;
@@ -666,10 +666,6 @@
     cursor: pointer;
     transform: translateX(var(--node-x)) scale(var(--node-scale));
   }
-  .fab-levelmap-node:nth-child(odd) { --node-x: calc(-1 * var(--fab-levelmap-offset)); }
-  .fab-levelmap-node:nth-child(even) { --node-x: var(--fab-levelmap-offset); }
-  .fab-levelmap-node.current { --node-x: 0px; }
-
   .fab-levelmap-node-dot {
     z-index: 1;
     width: var(--fab-levelmap-node-size);
