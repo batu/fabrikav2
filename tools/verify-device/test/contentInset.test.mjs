@@ -6,9 +6,12 @@ import { fileURLToPath } from 'node:url';
 import { loadGameManifest } from '../../refcap-compare/src/run.mjs';
 import { decodePng, encodePng } from '../../refcap-compare/src/png.mjs';
 import {
+  cropPngVertical,
   cropPngTop,
   prepareJudgedCaptures,
+  resolveContentInsets,
   resolveContentInsetTop,
+  resolveJudgedContentInsets,
   resolveJudgedContentInsetTop,
 } from '../src/contentInset.mjs';
 
@@ -55,9 +58,20 @@ describe('content inset crop', () => {
     expect([...img.data.slice(8, 12)]).toEqual(rows[2]);
   });
 
+  it('crops requested top and bottom rows from a PNG', () => {
+    const { buffer, rows } = testPng();
+    const cropped = cropPngVertical(buffer, { top: 1, bottom: 1 });
+    const img = decodePng(cropped.buffer);
+
+    expect(img.width).toBe(2);
+    expect(img.height).toBe(1);
+    expect([...img.data.slice(0, 4)]).toEqual(rows[1]);
+  });
+
   it('rejects a crop that would remove the whole image', () => {
     const { buffer } = testPng();
     expect(() => cropPngTop(buffer, 3)).toThrow(/smaller than image height/);
+    expect(() => cropPngVertical(buffer, { top: 2, bottom: 1 })).toThrow(/smaller than image height/);
   });
 
   it('resolves manifest content inset and lets the CLI override it', () => {
@@ -68,12 +82,35 @@ describe('content inset crop', () => {
     expect(resolveContentInsetTop({ manifest: {} })).toBe(0);
   });
 
+  it('resolves platform-specific Android content insets for Pixel bars', () => {
+    const manifest = {
+      verifyDevice: {
+        contentInsetTop: 130,
+        androidContentInsetTop: 72,
+        androidContentInsetBottom: 96,
+      },
+    };
+
+    expect(resolveContentInsets({ manifest, platform: 'android' })).toEqual({ top: 72, bottom: 96 });
+    expect(resolveContentInsets({
+      args: { contentInsetTop: 12, contentInsetBottom: 34 },
+      manifest,
+      platform: 'android',
+    })).toEqual({ top: 12, bottom: 34 });
+    expect(resolveContentInsets({ manifest, platform: 'ios' })).toEqual({ top: 130, bottom: 0 });
+  });
+
   it('does not apply device manifest crop to browser fallback unless CLI overrides it', () => {
     const manifest = loadGameManifest('marble_run', REPO_ROOT);
 
     expect(resolveJudgedContentInsetTop({ manifest, lane: 'browser' })).toBe(0);
     expect(resolveJudgedContentInsetTop({ args: { contentInsetTop: 12 }, manifest, lane: 'browser' })).toBe(12);
     expect(resolveJudgedContentInsetTop({ manifest, lane: 'provided-captures' })).toBe(130);
+    expect(resolveJudgedContentInsets({
+      args: { contentInsetBottom: 7 },
+      manifest,
+      lane: 'browser',
+    })).toEqual({ top: 130, bottom: 7 });
   });
 
   it('preserves raw captures and writes cropped judged captures separately', () => {
@@ -86,7 +123,7 @@ describe('content inset crop', () => {
     const prepared = prepareJudgedCaptures({
       captures: { menu: source },
       outDir,
-      contentInsetTop: 1,
+      contentInsets: { top: 1, bottom: 1 },
     });
 
     expect(fs.readFileSync(source).equals(buffer)).toBe(true);
@@ -94,6 +131,8 @@ describe('content inset crop', () => {
     expect(prepared.rawCaptures.menu).toContain(`${path.sep}raw-captures${path.sep}`);
     expect(prepared.judgedCaptures.menu).toContain(`${path.sep}judged-captures${path.sep}`);
     expect(decodePng(fs.readFileSync(prepared.rawCaptures.menu)).height).toBe(3);
-    expect(decodePng(fs.readFileSync(prepared.judgedCaptures.menu)).height).toBe(2);
+    expect(decodePng(fs.readFileSync(prepared.judgedCaptures.menu)).height).toBe(1);
+    expect(prepared.artifacts.contentInsetTop).toBe(1);
+    expect(prepared.artifacts.contentInsetBottom).toBe(1);
   });
 });

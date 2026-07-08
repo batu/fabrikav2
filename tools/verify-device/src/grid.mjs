@@ -93,7 +93,8 @@ function shortModel(id) {
  * @param {Array} params.rows [{state, device, reference, diff}]
  * @param {{pass:boolean, summary:string, states:Array}} params.verdict phash verdict
  * @param {object} [params.panel] runPanel result (primary verdict + consensus matrix)
- * @param {{contentInsetTop:number, rawDir:string, judgedDir:string, crops?:object|null}} [params.captureArtifacts]
+ * @param {{contentInsetTop:number, contentInsetBottom?:number,
+ *   rawDir:string, judgedDir:string, crops?:object|null}} [params.captureArtifacts]
  * @param {'device'|'browser'|'provided-captures'} [params.lane] default 'device';
  *   non-device lanes render explicit unverified provenance banners.
  * @returns {string} full HTML document
@@ -134,8 +135,9 @@ export function buildGridHtml({ game, generatedAt, device, rows, verdict, panel,
   const primaryLabel = panel?.verdict ? 'PANEL (primary)' : 'PHASH (panel skipped)';
   const captureNote = captureArtifacts
     ? `<p class="sub">Capture integrity: raw device captures preserved at <code>${esc(captureArtifacts.rawDir)}</code>;
-       judged captures at <code>${esc(captureArtifacts.judgedDir)}</code>. Top content inset cropped before phash/panel:
-       <b>${esc(captureArtifacts.contentInsetTop)}px</b>.${cropNote(captureArtifacts.crops)}</p>`
+       judged captures at <code>${esc(captureArtifacts.judgedDir)}</code>. Content inset cropped before phash/panel:
+       top <b>${esc(captureArtifacts.contentInsetTop)}px</b>, bottom
+       <b>${esc(captureArtifacts.contentInsetBottom || 0)}px</b>.${cropNote(captureArtifacts.crops)}</p>`
     : '';
   const provenanceBanner = lane === 'browser'
     ? '<p class="verdict bad">BROWSER LANE — DEVICE-UNVERIFIED: captured via vite-dev + Chromium, not the iOS device. Safe-area/notch insets cannot be validated here; an on-device pass is required to confirm.</p>'
@@ -227,7 +229,7 @@ export function buildGridHtml({ game, generatedAt, device, rows, verdict, panel,
 function laneCaption(lane) {
   if (lane === 'browser') return 'browser (chromium, DEVICE-UNVERIFIED)';
   if (lane === 'provided-captures') return 'provided captures (DEVICE-PROVENANCE-UNVERIFIED)';
-  return 'device (iOS, on-device)';
+  return 'device (on-device)';
 }
 
 function cropNote(crops) {

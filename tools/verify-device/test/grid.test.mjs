@@ -64,6 +64,7 @@ describe('buildGridHtml', () => {
       verdict,
       captureArtifacts: {
         contentInsetTop: 130,
+        contentInsetBottom: 96,
         rawDir: 'docs/evidence/run/raw-captures',
         judgedDir: 'docs/evidence/run/judged-captures',
       },
@@ -72,6 +73,7 @@ describe('buildGridHtml', () => {
     expect(h).toContain('docs/evidence/run/raw-captures');
     expect(h).toContain('docs/evidence/run/judged-captures');
     expect(h).toContain('130px');
+    expect(h).toContain('96px');
   });
 
   it('documents named-region crop artifacts when manifest regions are present', () => {
