@@ -11,7 +11,7 @@ import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { buildAdbCommandParts } from './androidDriver.mjs';
-import { execCommandParts } from './command.mjs';
+import { execCommandParts, splitCommandPrefix } from './command.mjs';
 
 export function formatCommand(file, args, { redact = [] } = {}) {
   const secrets = redact.filter((v) => typeof v === 'string' && v.length > 0);
@@ -30,6 +30,48 @@ function sh(file, args, opts = {}) {
   const { redact = [], ...execOpts } = opts;
   process.stderr.write(`  ${formatCommand(file, args, { redact })}\n`);
   return execFileSync(file, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'], ...execOpts });
+}
+
+const ANDROID_BUILD_ENV_KEYS = [
+  'ANDROID_HOME',
+  'ANDROID_SDK_ROOT',
+  'PATH',
+  'VITE_ENABLE_TEST_HARNESS',
+  'VITE_INSITU_TOUR',
+];
+
+export function buildAndroidBuildCommandParts({
+  buildPrefix,
+  cwd,
+  env = {},
+  command,
+  args = [],
+} = {}) {
+  if (!command) throw new Error('Android build command must name a command');
+  if (!buildPrefix) return [command, ...args];
+  const envAssignments = ANDROID_BUILD_ENV_KEYS
+    .filter((key) => env[key] !== undefined)
+    .map((key) => `${key}=${env[key]}`);
+  return [
+    ...splitCommandPrefix(buildPrefix, 'build prefix'),
+    ...(cwd ? ['cd', cwd, '&&'] : []),
+    ...(envAssignments.length ? ['env', ...envAssignments] : []),
+    command,
+    ...args,
+  ];
+}
+
+function runAndroidBuildCommand(command, args, {
+  cwd,
+  env,
+  buildPrefix,
+  shImpl = sh,
+  partsImpl = execCommandParts,
+} = {}) {
+  if (buildPrefix) {
+    return partsImpl(buildAndroidBuildCommandParts({ buildPrefix, cwd, env, command, args }));
+  }
+  return shImpl(command, args, { cwd, env });
 }
 
 /** Export attachments from an existing .xcresult into exportDir (manifest.json + PNGs). */
@@ -95,13 +137,18 @@ export function androidBuildEnv(androidSdk) {
  * Android step 1: build the harness-enabled bundle, create android/ once, then
  * sync web/native assets. The generated Capacitor project stays ignored.
  */
-export function buildAndroidHarnessBundle(gameDir, { androidSdk, shImpl = sh } = {}) {
+export function buildAndroidHarnessBundle(gameDir, {
+  androidSdk,
+  buildPrefix = process.env.VERIFY_DEVICE_BUILD_PREFIX,
+  shImpl = sh,
+  partsImpl = execCommandParts,
+} = {}) {
   const env = androidBuildEnv(androidSdk);
-  shImpl('npx', ['vite', 'build'], { cwd: gameDir, env });
+  runAndroidBuildCommand('npx', ['vite', 'build'], { cwd: gameDir, env, buildPrefix, shImpl, partsImpl });
   if (!fs.existsSync(path.join(gameDir, 'android'))) {
-    shImpl('npx', ['cap', 'add', 'android'], { cwd: gameDir, env });
+    runAndroidBuildCommand('npx', ['cap', 'add', 'android'], { cwd: gameDir, env, buildPrefix, shImpl, partsImpl });
   }
-  shImpl('npx', ['cap', 'sync', 'android'], { cwd: gameDir, env });
+  runAndroidBuildCommand('npx', ['cap', 'sync', 'android'], { cwd: gameDir, env, buildPrefix, shImpl, partsImpl });
 }
 
 export function androidDebugApkPath(gameDir) {
@@ -109,14 +156,22 @@ export function androidDebugApkPath(gameDir) {
 }
 
 /** Android step 2: assemble a debug APK via the generated Gradle wrapper. */
-export function assembleAndroidDebug(gameDir, { androidSdk, shImpl = sh } = {}) {
+export function assembleAndroidDebug(gameDir, {
+  androidSdk,
+  buildPrefix = process.env.VERIFY_DEVICE_BUILD_PREFIX,
+  shImpl = sh,
+  partsImpl = execCommandParts,
+} = {}) {
   const androidDir = path.join(gameDir, 'android');
-  if (!fs.existsSync(androidDir)) {
+  if (!buildPrefix && !fs.existsSync(androidDir)) {
     throw new Error(`no Capacitor Android project at ${androidDir} — run 'npx cap add android' first`);
   }
-  shImpl('./gradlew', ['--no-daemon', 'assembleDebug'], {
+  runAndroidBuildCommand('./gradlew', ['--no-daemon', 'assembleDebug'], {
     cwd: androidDir,
     env: androidBuildEnv(androidSdk),
+    buildPrefix,
+    shImpl,
+    partsImpl,
   });
   return androidDebugApkPath(gameDir);
 }
@@ -126,10 +181,11 @@ export function installAndroidDebugApk({
   gameDir,
   serial,
   adbPrefix = process.env.VERIFY_DEVICE_ADB_PREFIX || 'adb',
+  requireLocalApk = true,
   shImpl = execCommandParts,
 } = {}) {
   const apk = androidDebugApkPath(gameDir);
-  if (!fs.existsSync(apk)) {
+  if (requireLocalApk && !fs.existsSync(apk)) {
     throw new Error(`debug APK not found: ${apk}`);
   }
   shImpl(buildAdbCommandParts({
