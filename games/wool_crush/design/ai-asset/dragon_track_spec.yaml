@@ -1,0 +1,31 @@
+style_ref: style_guide.yaml
+type: dragon_track
+title: Yarn dragon and stitched track lane
+aspect_ratio: "16:9"
+
+description: >
+  Curving tan stitched track over a pale knitted board with a segmented yarn
+  dragon/rope body that follows the lane. Dragon states use plush red/orange
+  fibers, soft horns, and bright green/pink/cyan body segments.
+
+palette_roles: [board, yarn, dragon, companion, shadow]
+visible_sources:
+  - gameplay track lanes
+  - yarn dragon body segments
+  - fail-state character overlay
+  - menu character art
+
+shape:
+  track: rounded_loop_with_dashed_stitch_centerline
+  dragon: chunky_knitted_plush
+  motion_fx: warm_fire_and_red_tether_line
+
+confidence_note: >
+  Lower confidence than core yarn tiles because the dragon/track appears in
+  multiple animation and overlay states, including dim fail frames.
+
+negative:
+  - hard_roads
+  - reptile_scales
+  - realistic_dragon_skin
+  - sharp_track_turns

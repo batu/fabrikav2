@@ -1,0 +1,32 @@
+style_ref: style_guide.yaml
+type: yarn_ball
+title: Directional yarn ball puzzle tile
+aspect_ratio: "1:1"
+
+description: >
+  Chunky square puzzle tile filled with knitted yarn texture and a clear white
+  arrow direction marker. The tile reads as plush/fiber, not flat plastic.
+
+palette_roles: [yarn, highlight, shadow, text]
+states:
+  - idle
+  - selected
+  - moving
+  - locked_under_arrow
+
+shape:
+  silhouette: rounded_square
+  bevel: thick_soft
+  stitch_pattern: braided_chevron
+  icon_treatment: white_arrow_with_dark_shadow
+
+materials:
+  body: saturated_knitted_yarn
+  rim: darker_yarn_edge
+  shadow: soft_bottom_drop_shadow
+
+negative:
+  - flat_rectangles
+  - thin_arrows
+  - photorealistic_fabric
+  - hard_metal_edges

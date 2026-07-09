@@ -1,0 +1,29 @@
+style_ref: style_guide.yaml
+type: panel
+title: Cream cards, orange frames, and shop panels
+aspect_ratio: "9:16"
+
+description: >
+  Soft cream cards and rounded orange-framed panels that sit over dim gameplay
+  or bright shop/menu backgrounds. Panels use thick borders, inner tan rows,
+  blue price bands, and purple reward-pass surfaces.
+
+palette_roles: [panel, button, text, shadow, background]
+surfaces:
+  - settings_popup
+  - shop_card
+  - bottom_navigation
+  - failure_banner
+  - reward_pass_panel
+
+shape:
+  container: rounded_card_with_thick_orange_rim
+  rows: inset_soft_tan
+  tab_bar: chunky_icon_slots
+  overlay: dimmed_gameplay_backdrop
+
+negative:
+  - flat_modal
+  - transparent_glass
+  - thin_borders
+  - monochrome_panel
