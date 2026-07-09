@@ -33,3 +33,7 @@ games/*/android/
 # Device capture video (hundreds of MB each; keep on disk, never in git —
 # 7.4GB of these were purged from history on 2026-07-09)
 docs/evidence/*/device-attachments/*.mp4
+
+# Human-provided reference videos (large; keep local, never in git)
+games/*/refs/video/*.mp4
+games/*/refs/video/*.mov
