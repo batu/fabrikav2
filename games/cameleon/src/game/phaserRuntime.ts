@@ -52,7 +52,10 @@ export async function mountCameleonPhaser(options: CameleonPhaserOptions): Promi
   return {
     destroy(): void {
       window.removeEventListener("resize", onResize);
-      game.destroy(true);
+      // false: keep the canvas element — level switches remount a new game
+      // into the SAME canvas; destroy(true) would detach it from the DOM and
+      // every later mount would render into a dangling element (blank world).
+      game.destroy(false);
     },
   };
 }
@@ -106,7 +109,17 @@ function createCameleonSceneClass(PhaserRuntime: PhaserStatic, controller: Camel
       this.addDecoys(level);
       this.addHides(controller.snapshot());
       this.installInput();
-      this.unsubscribe = controller.subscribe(() => this.renderSnapshot(controller.snapshot()));
+      this.unsubscribe = controller.subscribe(() => {
+        // A notify can arrive mid-teardown during level switches (game.destroy
+        // runs before the SHUTDOWN unsubscribe) — never let a dead scene throw
+        // back into the controller's notify loop.
+        try {
+          if (!this.sys || !this.cameras?.main) return;
+          this.renderSnapshot(controller.snapshot());
+        } catch (error) {
+          console.error("[cameleon] scene render failed", error);
+        }
+      });
       this.events.once(PhaserRuntime.Scenes.Events.SHUTDOWN, () => this.unsubscribe?.());
     }
 
