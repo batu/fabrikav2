@@ -3017,5 +3017,88 @@
    "spec": "alpha-locked white derivation (byte-equal verified)",
    "provenance": "deterministic"
   }
+ ],
+ "conductor-art-v3": [
+  {
+   "path": "public/levels/lido/sprites/screenprint/host-blank-sign.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "sign-host decoy for the pose-split (generated)",
+   "provenance": "conductor pose-first pass"
+  },
+  {
+   "path": "public/levels/lido/sprites/screenprint/host-swim-poster.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "sign-host decoy for the pose-split (generated+composited (4x fig-li-07))",
+   "provenance": "conductor pose-first pass"
+  },
+  {
+   "path": "public/levels/lido/sprites/screenprint/host-aframe.png",
+   "generated": false,
+   "model": "authored",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "sign-host decoy for the pose-split (authored PIL)",
+   "provenance": "conductor pose-first pass"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/screenprint/host-empty-arch.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "sign-host decoy for the pose-split (generated)",
+   "provenance": "conductor pose-first pass"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/screenprint/host-brass-plaque.png",
+   "generated": false,
+   "model": "authored",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "sign-host decoy for the pose-split (authored PIL)",
+   "provenance": "conductor pose-first pass"
+  },
+  {
+   "path": "public/levels/waterpark/sprites/screenprint/host-safety-poster.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "sign-host decoy for the pose-split (generated)",
+   "provenance": "conductor pose-first pass"
+  },
+  {
+   "path": "public/levels/museum/sprites/screenprint/host-vintage-poster.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "sign-host decoy for the pose-split (generated (text patched))",
+   "provenance": "conductor pose-first pass"
+  },
+  {
+   "path": "public/levels/museum/sprites/screenprint/host-sepia-photo.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "sign-host decoy for the pose-split (generated (gen2 decoy reuse))",
+   "provenance": "conductor pose-first pass"
+  },
+  {
+   "path": "public/levels/**/sprites/**",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 4.44,
+   "spec": "pose-first regeneration: 24 pose-true painted bodies + 9 figure-only sign hides (+6 re-rolls, pose sheet); whites re-derived alpha-locked; specs in job tmp cam-gen3",
+   "provenance": "conductor pose-first pass per LEVELS.md \u00a78 (Batu directive: canonical pose silhouettes)"
+  }
  ]
 }

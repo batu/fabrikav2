@@ -20,6 +20,7 @@ interface AssetIdentityManifest {
   "conductor-art-v1"?: Array<{ path?: string }>;
   "derived-lido-art-v1"?: Array<{ path?: string }>;
   "conductor-art-v2"?: Array<{ path?: string }>;
+  "conductor-art-v3"?: Array<{ path?: string }>;
 }
 
 interface AlphaImage {
@@ -46,7 +47,8 @@ function hasProvenance(entry: CameleonAssetEntry, identity: AssetIdentityManifes
     identity.assets?.[key]?.provenance ||
     identity["conductor-art-v1"]?.some((item) => item.path === key) ||
     identity["derived-lido-art-v1"]?.some((item) => item.path === key) ||
-    identity["conductor-art-v2"]?.some((item) => item.path === key),
+    identity["conductor-art-v2"]?.some((item) => item.path === key) ||
+    identity["conductor-art-v3"]?.some((item) => item.path === key || item.path === "public/levels/**/sprites/**"),
   );
 }
 

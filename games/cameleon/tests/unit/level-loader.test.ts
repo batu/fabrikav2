@@ -25,13 +25,13 @@ describe("Cameleon level schema", () => {
   it("keeps Lido's sprite-backed decoys and overlay seam contract", () => {
     const level = loadLidoFixture();
 
-    expect(level.decoys).toHaveLength(12);
+    expect(level.decoys).toHaveLength(15);
     expect(level.visualOverlays.map((overlay) => overlay.id)).toEqual([
       "seam-pillar-a-b",
       "seam-pillar-b-c",
     ]);
     for (const decoy of level.decoys) {
-      expect(decoy.spriteKey).toMatch(/^lido\.screenprint\.decoy-/);
+      expect(decoy.spriteKey).toMatch(/^lido\.screenprint\.(decoy|host)-/);
     }
   });
 
@@ -39,13 +39,18 @@ describe("Cameleon level schema", () => {
     const levels = loadAllCameleonLevelFixtures().filter((level) => level.id !== "lido");
 
     expect(levels.map((level) => [level.id, level.decoys.length])).toEqual([
-      ["bathhouse", 4],
-      ["waterpark", 4],
-      ["museum", 4],
+      ["bathhouse", 6],
+      ["waterpark", 5],
+      ["museum", 6],
     ]);
     for (const level of levels) {
       expect(level.visualOverlays).toHaveLength(0);
-      expect(level.decoys.every((decoy) => decoy.spriteKey === undefined)).toBe(true);
+      // baked decoys are hitbox-only; HOST decoys (sign/poster carriers for the
+      // pose-split figures) are sprite-backed
+      for (const decoy of level.decoys) {
+        if (decoy.id.startsWith("host-")) expect(decoy.spriteKey).toMatch(/screenprint\.host-/);
+        else expect(decoy.spriteKey).toBeUndefined();
+      }
     }
     expect(levels.find((level) => level.id === "bathhouse")?.hides.find((hide) => hide.id === "bh-06")?.fx).toEqual({
       alpha: 0.55,

@@ -105,6 +105,14 @@ const LIDO_DECOY_ASSETS = [
   asset("lido.screenprint.decoy-bodyprint-towel", "decoy", "levels/lido/sprites/screenprint/decoy-bodyprint-towel.png"),
   asset("lido.screenprint.decoy-ringstack", "decoy", "levels/lido/sprites/screenprint/decoy-ringstack.png"),
   asset("lido.screenprint.decoy-blank-menu-panel", "decoy", "levels/lido/sprites/screenprint/decoy-blank-menu-panel.png"),
+  asset("lido.screenprint.host-blank-sign", "decoy", "levels/lido/sprites/screenprint/host-blank-sign.png"),
+  asset("lido.screenprint.host-swim-poster", "decoy", "levels/lido/sprites/screenprint/host-swim-poster.png"),
+  asset("lido.screenprint.host-aframe", "decoy", "levels/lido/sprites/screenprint/host-aframe.png"),
+  asset("bathhouse.screenprint.host-empty-arch", "decoy", "levels/bathhouse/sprites/screenprint/host-empty-arch.png"),
+  asset("bathhouse.screenprint.host-brass-plaque", "decoy", "levels/bathhouse/sprites/screenprint/host-brass-plaque.png"),
+  asset("waterpark.screenprint.host-safety-poster", "decoy", "levels/waterpark/sprites/screenprint/host-safety-poster.png"),
+  asset("museum.screenprint.host-vintage-poster", "decoy", "levels/museum/sprites/screenprint/host-vintage-poster.png"),
+  asset("museum.screenprint.host-sepia-photo", "decoy", "levels/museum/sprites/screenprint/host-sepia-photo.png"),
 ] as const;
 
 const LIDO_OVERLAY_ASSETS = [

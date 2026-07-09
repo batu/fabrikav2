@@ -83,10 +83,10 @@
       "pose": "wall-flat",
       "disguise": "lifeguard figure on the safety poster",
       "rect": {
-        "x": 511,
-        "y": 88,
-        "w": 179,
-        "h": 235
+        "x": 554,
+        "y": 140,
+        "w": 93,
+        "h": 150
       },
       "tell": "the poster's caption box overlaps his legs",
       "difficulty": "medium",
@@ -261,6 +261,18 @@
         "y": 765,
         "w": 245,
         "h": 335
+      }
+    },
+    {
+      "id": "host-safety-poster",
+      "zone": 1,
+      "kind": "sign",
+      "spriteKey": "waterpark.screenprint.host-safety-poster",
+      "rect": {
+        "x": 483,
+        "y": 88,
+        "w": 235,
+        "h": 235
       }
     }
   ],

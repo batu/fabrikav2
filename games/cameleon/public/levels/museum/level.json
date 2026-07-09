@@ -23,10 +23,10 @@
       "pose": "wall-flat",
       "disguise": "diver on the vintage PLONGEZ! poster",
       "rect": {
-        "x": 921,
-        "y": 255,
-        "w": 319,
-        "h": 330
+        "x": 1011,
+        "y": 323,
+        "w": 130,
+        "h": 210
       },
       "tell": "his toes break the poster's printed border",
       "difficulty": "medium",
@@ -103,10 +103,10 @@
       "pose": "wall-flat",
       "disguise": "figure in the sepia team photograph",
       "rect": {
-        "x": 2299,
-        "y": 85,
-        "w": 343,
-        "h": 300
+        "x": 2412,
+        "y": 153,
+        "w": 117,
+        "h": 190
       },
       "tell": "he's the twelfth, and slightly larger than the print grain",
       "difficulty": "hard",
@@ -261,6 +261,30 @@
         "y": 440,
         "w": 210,
         "h": 430
+      }
+    },
+    {
+      "id": "host-vintage-poster",
+      "zone": 1,
+      "kind": "sign",
+      "spriteKey": "museum.screenprint.host-vintage-poster",
+      "rect": {
+        "x": 915,
+        "y": 255,
+        "w": 330,
+        "h": 330
+      }
+    },
+    {
+      "id": "host-sepia-photo",
+      "zone": 2,
+      "kind": "sign",
+      "spriteKey": "museum.screenprint.host-sepia-photo",
+      "rect": {
+        "x": 2320,
+        "y": 85,
+        "w": 300,
+        "h": 300
       }
     }
   ],

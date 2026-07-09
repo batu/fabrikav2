@@ -63,10 +63,10 @@
       "pose": "wall-flat",
       "disguise": "bather figure in the mosaic wall panel",
       "rect": {
-        "x": 4164,
-        "y": 338,
-        "w": 133,
-        "h": 255
+        "x": 1917,
+        "y": 88,
+        "w": 148,
+        "h": 240
       },
       "tell": "his tiles are smooth - no grout lines cross his body",
       "difficulty": "hard",
@@ -103,10 +103,10 @@
       "pose": "standing",
       "disguise": "attendant pictogram on the brass ATTENDANT ON DUTY sign",
       "rect": {
-        "x": 238,
-        "y": 298,
-        "w": 124,
-        "h": 125
+        "x": 312,
+        "y": 307,
+        "w": 76,
+        "h": 110
       },
       "tell": "he's engraved in relief but casts a contact shadow",
       "difficulty": "medium",
@@ -270,6 +270,30 @@
         "y": 535,
         "w": 150,
         "h": 335
+      }
+    },
+    {
+      "id": "host-empty-arch",
+      "zone": 2,
+      "kind": "sign",
+      "spriteKey": "bathhouse.screenprint.host-empty-arch",
+      "rect": {
+        "x": 1819,
+        "y": 18,
+        "w": 345,
+        "h": 345
+      }
+    },
+    {
+      "id": "host-brass-plaque",
+      "zone": 1,
+      "kind": "sign",
+      "spriteKey": "bathhouse.screenprint.host-brass-plaque",
+      "rect": {
+        "x": 275,
+        "y": 285,
+        "w": 150,
+        "h": 150
       }
     }
   ],
