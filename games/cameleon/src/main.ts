@@ -54,10 +54,14 @@ export async function bootGame(mountInto: HTMLElement, options: CameleonBootOpti
     onModeSelect: (mode) => controller.setPlayMode(mode),
     onDirectionSelect: (direction) => controller.setDirection(direction),
     onStart: () => controller.startLevel(1),
+    onContinue: () => controller.gotoMenu(),
+    onRetry: () => controller.startLevel(1),
     onConfirmAim: () => controller.confirmAim(),
     onPause: () => controller.pause(),
     onResume: () => controller.resume(),
-    onSettingsClose: () => controller.gotoMenu(),
+    onQuitToMenu: () => controller.gotoMenu(),
+    onSettingsOpen: () => controller.openSettings(),
+    onSettingsClose: () => controller.closeSettings(),
   });
   const unsubscribe = controller.subscribe(() => {
     // A throwing listener must never poison controller.notify() — that would

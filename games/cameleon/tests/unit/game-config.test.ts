@@ -4,9 +4,9 @@ import capacitorConfig from "../../capacitor.config.ts";
 import { gameConfig } from "../../game.config.ts";
 
 describe("Cameleon game config", () => {
-  it("declares the single-node menu to game to terminal flow", () => {
-    expect(gameConfig.screens).toEqual(["menu", "game", "win", "fail"]);
-    expect(gameConfig.saga).toEqual({ levels: 1 });
+  it("declares the kit shell screens and four-node saga", () => {
+    expect(gameConfig.screens).toEqual(["HomeMenu", "SagaMap", "Settings", "ResultCard", "PauseOverlay", "Toast"]);
+    expect(gameConfig.saga).toEqual({ levels: 4 });
   });
 
   it("declares the Cameleon analytics event contract", () => {
