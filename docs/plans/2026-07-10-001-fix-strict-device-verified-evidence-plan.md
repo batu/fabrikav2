@@ -18,7 +18,7 @@ trello: "https://trello.com/c/9l9Ploxe"
 - **Objective:** Make `verify-device --strict` fail closed unless at least one applicable state has fresh, live-device provenance and complete primary fidelity evidence, while every required applicable state is covered and every strict gate passes.
 - **Authority:** Trello card `9l9Ploxe` is the product source of truth. `tools/verify-device/src/verdict.mjs` owns evidence normalization, typed run classification, and exit policy; the CLI, grid, and summary consume that result.
 - **Execution profile:** Bounded JavaScript logic, subprocess regression tests, compatibility tests, and documentation. No device run, PR, merge, or push is required; commit only.
-- **Scope fence:** Touch only `tools/verify-device/src/verdict.mjs`, `tools/verify-device/cli.mjs`, `tools/verify-device/src/grid.mjs`, `tools/verify-device/src/summary.mjs`, `tools/verify-device/src/panel.mjs` if panel output needs an additive coverage field, their focused tests under `tools/verify-device/test/`, and `tools/verify-device/README.md`.
+- **Scope fence:** Touch only `tools/verify-device/src/verdict.mjs`, `tools/verify-device/cli.mjs`, `tools/verify-device/src/args.mjs`, `tools/verify-device/src/grid.mjs`, `tools/verify-device/src/summary.mjs`, `tools/verify-device/src/panel.mjs` if panel output needs an additive coverage field, `tools/verify-device/test/verdict.test.mjs`, `tools/verify-device/test/cli.test.mjs`, `tools/verify-device/test/args.test.mjs`, the other focused consumer tests named below, and `tools/verify-device/README.md`.
 - **Stop condition:** Stop if the additive run metadata cannot be introduced without breaking a known `summary.json`, grid, Portal, or `refcap-compare` consumer, or if detached-artifact freshness would require implementing the attestation contract owned by downstream AUDIT #7 rather than merely failing closed until it exists.
 
 ---
@@ -60,8 +60,8 @@ Strict device verification is the forcing function behind AGENTS.md #8 and #9. A
 - R13. The CLI computes the typed run verdict once after rows, panel results, provenance, viewport assertions, capture integrity, and indistinguishable-state checks are known but before grid, summary, stdout, Portal delivery, or exit. Those consumers receive the same object.
 - R14. Wire changes are additive: existing per-state fields remain; `summary.json` gains one reserved run-metadata member that internal state iterators explicitly exclude; the grid gains an additive run-verdict input and keeps panel/phash detail as diagnostics. Existing summary files without run metadata continue to load and compare unchanged.
 - R15. Table-driven verdict tests cover evidence composition, enforcement, provenance, primary-fidelity coverage, panel/phash divergence, stale/duplicate/extra panel rows, mixed applicable/inapplicable rows, and every cross-cutting gate. Each case asserts kind, reason class, and exit code.
-- R16. Subprocess CLI tests cover every early-exit class: help, strict and exploratory forced skip, injected missing-device/toolchain skip reasons through the same executable wrapper, and top-level fatal rejection. They assert the real process exit code and truthful stdout/stderr, so a verdict-only unit test cannot mask an unchanged CLI return.
-- R17. `README.md` defines the minimum strict proof, the five evidence kinds, exploratory enforcement, panel-required fidelity, additive artifact metadata, and the detached-artifact boundary.
+- R16. Subprocess CLI tests cover every early-exit class: help, strict and exploratory forced skip, injected missing-device/toolchain skip reasons through the same executable wrapper, and top-level fatal rejection. They assert the real process exit code and truthful stdout/stderr, including `--help` strings for strict missing-panel failure, detached `--xcresult` provenance, and panel-versus-phash authority, so a verdict-only unit test cannot mask an unchanged CLI return or stale operator guidance.
+- R17. `README.md` and CLI `HELP` define the minimum strict proof, the five evidence kinds, exploratory enforcement, panel-required fidelity, phash's advisory role, additive artifact metadata, and the detached-artifact boundary. Help must say that missing primary panel evidence is strict-nonzero, detached `--xcresult` is unverified pending attestation, and phash-only output cannot be a verified pass.
 - R18. Freshness is not inferred from file modification time. Only captures produced by the live iOS/Android path in the current CLI invocation, with every applicable row stamped consistently for that live lane, are provenance-verified in this card. `--captures`, browser captures, mixed-lane rows, and detached `--xcresult` are unverified and strict-nonzero until AUDIT #7 provides and this verifier validates a run/commit/device attestation.
 - R19. When a panel verdict exists, fidelity is evaluated per captured applicable state by canonical state identity after structural missing states have already failed: exactly one panel state is required for each remaining applicable row; phash supplies structure and an advisory diagnostic; panel failures override phash passes; panel passes may override phash threshold failures; inapplicable or unknown extra panel states are ignored and reported; missing or duplicate panel states for captured applicable evidence make the run `unverified`.
 
@@ -119,7 +119,8 @@ Product Contract changed: R2-R17 were clarified and R18-R19 plus AE9-AE14 were a
 - KTD6. **Keep summary compatibility additive.** Add a reserved `__run` metadata member while leaving every existing state entry unchanged. Internal normalize/compare/format helpers skip `__run` as a state; old files without it retain existing behavior. Stop if a known external consumer cannot tolerate the additive member.
 - KTD7. **Trust only current-invocation live captures.** The live iOS/Android resolver marks provenance verified. Browser, `--captures`, and `--xcresult` mark it unverified. AUDIT #7 may later supply a validated attestation; this card does not infer freshness from paths, timestamps, or labels.
 - KTD8. **Test the executable boundary.** Keep pure table tests for classification, but add a subprocess harness around the real CLI wrapper for every early-return class. Deterministic dependency injection may select the skip/fatal condition; the assertion remains the child process exit and emitted labels.
-- KTD9. **Retire divergent exit policy.** `computeStrictExitCode` is either removed with all callers updated or retained solely as a compatibility adapter over the typed verdict. It cannot accept independent booleans that recreate policy.
+- KTD9. **Treat CLI help as part of the proof contract.** Update `src/args.mjs` in the same change as exit semantics: `--strict`, `--skip-panel`, `--xcresult`, and the panel credential note must describe the typed verdict accurately. Assert the exported help text directly and through `cli.mjs --help` so source-level and executable guidance cannot drift.
+- KTD10. **Retire divergent exit policy.** `computeStrictExitCode` is either removed with all callers updated or retained solely as a compatibility adapter over the typed verdict. It cannot accept independent booleans that recreate policy.
 
 ### High-Level Technical Design
 
@@ -151,6 +152,7 @@ The run verdict is authoritative for run-level status. Panel and phash remain vi
 ### Sources and Research
 
 - `tools/verify-device/src/verdict.mjs` — current device-first `missing` precedence and aggregate fail-open.
+- `tools/verify-device/src/args.mjs` — exported CLI help currently promises panel-skipped exit 0 without the strict exception and does not identify detached `--xcresult` as unverified.
 - `tools/verify-device/src/compare.mjs` — raw row fields needed for reference-first applicability and lane identity.
 - `tools/verify-device/src/panel.mjs` — per-state panel statuses and aggregate behavior that currently lets inapplicable `unscored` rows contaminate `primary.pass`.
 - `tools/verify-device/cli.mjs` — graceful-skip early return, `--xcresult` provenance alias, artifact-build ordering, and independent exit booleans.
@@ -176,11 +178,11 @@ The run verdict is authoritative for run-level status. Panel and phash remain vi
 ### U2. Route CLI capture provenance and every exit through the verdict
 
 - **Goal:** Compute the verdict before artifacts and prove all CLI early exits use it.
-- **Requirements:** R9-R13, R16, R18; AE2-AE3, AE7, AE13-AE14.
+- **Requirements:** R9-R13, R16-R18; AE2-AE3, AE7, AE13-AE14.
 - **Dependencies:** U1.
-- **Files:** `tools/verify-device/cli.mjs`, `tools/verify-device/test/cli.test.mjs`, and a focused test fixture under `tools/verify-device/test/fixtures/` only if deterministic child-process injection requires it.
-- **Approach:** Stamp only current live iOS/Android results as provenance-verified; demote browser, `--captures`, and detached `--xcresult`; compute capture-integrity inputs before summary construction; build the typed verdict before rendering; and return only its exit code. Make the executable wrapper testable without bypassing its actual process boundary.
-- **Test scenarios:** Child process `--help` exits 0; exploratory forced skip exits 0 with `EXPLORATORY`, `skipped`, and UNVERIFIED; strict forced skip exits nonzero with the same evidence kind; deterministic no-device and no-toolchain skip reasons behave identically; top-level fatal error exits nonzero; detached `--xcresult` cannot report verified provenance or strict success.
+- **Files:** `tools/verify-device/cli.mjs`, `tools/verify-device/src/args.mjs`, `tools/verify-device/test/cli.test.mjs`, `tools/verify-device/test/args.test.mjs`, and a focused test fixture under `tools/verify-device/test/fixtures/` only if deterministic child-process injection requires it.
+- **Approach:** Stamp only current live iOS/Android results as provenance-verified; demote browser, `--captures`, and detached `--xcresult`; compute capture-integrity inputs before summary construction; build the typed verdict before rendering; and return only its exit code. Update CLI `HELP` in `args.mjs` so `--strict` names complete primary panel evidence, `--skip-panel` says phash remains advisory and strict becomes `unverified`/nonzero, detached `--xcresult` says provenance is unverified pending AUDIT #7 attestation, and the missing-panel credential note distinguishes exploratory exit 0 from strict failure. Make the executable wrapper testable without bypassing its actual process boundary.
+- **Test scenarios:** Child process `--help` exits 0 and its stdout contains the strict missing-panel, detached-`--xcresult`, and advisory-phash claims; `args.test.mjs` pins the same exported `HELP` contract; exploratory forced skip exits 0 with `EXPLORATORY`, `skipped`, and UNVERIFIED; strict forced skip exits nonzero with the same evidence kind; deterministic no-device and no-toolchain skip reasons behave identically; top-level fatal error exits nonzero; detached `--xcresult` cannot report verified provenance or strict success.
 - **Verification:** Subprocess assertions observe the real exit codes and output labels, and no CLI early return carries an independent success constant.
 
 ### U3. Make grid and summary consume the run verdict compatibly
@@ -198,7 +200,7 @@ The run verdict is authoritative for run-level status. Panel and phash remain vi
 - **Goal:** Make every evidence/enforcement/provenance/coverage boundary executable and prevent future silent-pass regressions.
 - **Requirements:** R15-R16, R18-R19; AE1-AE14.
 - **Dependencies:** U1-U3.
-- **Files:** `tools/verify-device/test/verdict.test.mjs`, `tools/verify-device/test/cli.test.mjs`, `tools/verify-device/test/grid.test.mjs`, `tools/verify-device/test/summary.test.mjs`, and `tools/verify-device/test/panel.test.mjs` if touched by U3.
+- **Files:** `tools/verify-device/test/verdict.test.mjs`, `tools/verify-device/test/cli.test.mjs`, `tools/verify-device/test/args.test.mjs`, `tools/verify-device/test/grid.test.mjs`, `tools/verify-device/test/summary.test.mjs`, and `tools/verify-device/test/panel.test.mjs` if touched by U3.
 - **Approach:** Consolidate table fixtures around raw rows, panel state maps, provenance, enforcement, and gate inputs. Keep process-boundary tests separate from pure verdict tables so both policy and wiring are independently proven.
 - **Test scenarios:** Cross every base composition with strict/exploratory where exit differs; cross canonical panel coverage with missing/duplicate/extra/stale/inapplicable rows; assert mixed row-lane input cannot be promoted by a global `device` label; assert the hard-integrity and viewport-policy distinction; run all early-exit subprocess cases.
 - **Verification:** Each requirement and acceptance example maps to at least one named assertion; no expected result is inferred solely from `primary.pass`.
@@ -208,10 +210,10 @@ The run verdict is authoritative for run-level status. Panel and phash remain vi
 - **Goal:** Make strict proof, exploratory output, panel dependence, artifact metadata, and AUDIT #7 ownership explicit to operators.
 - **Requirements:** R17-R18.
 - **Dependencies:** U1-U4.
-- **Files:** `tools/verify-device/README.md`.
-- **Approach:** Document the five evidence kinds, two enforcement modes, strict minimum proof, non-strict viewport behavior, hard-integrity exceptions, panel-required fidelity, `summary.json.__run`, and why detached captures remain unverified pending AUDIT #7.
-- **Test expectation:** None — documentation mirrors the tested contract.
-- **Verification:** README terminology and examples match the final table/subprocess behavior and contain no claim that phash-only or detached evidence is verified.
+- **Files:** `tools/verify-device/README.md`, `tools/verify-device/src/args.mjs`, and `tools/verify-device/test/args.test.mjs`.
+- **Approach:** Document the five evidence kinds, two enforcement modes, strict minimum proof, non-strict viewport behavior, hard-integrity exceptions, panel-required fidelity, phash's advisory role, `summary.json.__run`, and why detached captures remain unverified pending AUDIT #7. Keep README and `HELP` terminology aligned, including strict behavior when the panel is missing.
+- **Test scenarios:** Direct `HELP` assertions cover strict missing-panel nonzero semantics, detached `--xcresult` as unverified, and phash-only as advisory; the U2 subprocess help case proves the executable emits those same claims.
+- **Verification:** README and CLI help match the final table/subprocess behavior and contain no claim that phash-only, missing-panel, or detached evidence is verified under strict enforcement.
 
 ---
 
@@ -219,11 +221,11 @@ The run verdict is authoritative for run-level status. Panel and phash remain vi
 
 | Gate | Command or Evidence | Proves |
 |---|---|---|
-| Focused verdict and CLI tests | `npm run test:unit -w @fabrikav2/verify-device -- verdict.test.mjs cli.test.mjs` | Structural normalization, typed classification, policy, provenance, and executable early exits match R1-R19. |
+| Focused verdict and CLI tests | `npm run test:unit -w @fabrikav2/verify-device -- verdict.test.mjs cli.test.mjs args.test.mjs` | Structural normalization, typed classification, policy, provenance, executable early exits, and truthful CLI help match R1-R19. |
 | Package unit tests | `npm run test:unit -w @fabrikav2/verify-device` | Grid, summary, panel, Portal, and legacy artifact compatibility remain intact. |
 | Package lint | `npm run lint -w @fabrikav2/verify-device` | The amended verifier surfaces satisfy repository JavaScript standards. |
 | Root unit and audit | `npm run test:unit` and `npm run audit` | Workspace consumers and repository audit rules remain green. |
-| Process evidence | Subprocess assertions for help, strict/exploratory skip, injected device/toolchain skip, fatal error, and detached provenance | No CLI early exit or detached artifact bypasses the typed verdict. |
+| Process evidence | Subprocess assertions for truthful help strings, strict/exploratory skip, injected device/toolchain skip, fatal error, and detached provenance | No CLI early exit or detached artifact bypasses the typed verdict, and operator guidance describes the enforced behavior. |
 | Scope and ownership audit | Changed-file review plus import search for verdict/exit helpers | Work remains in scoped verifier files and no independent exit-deciding boolean survives. |
 
 ---
@@ -239,5 +241,5 @@ The run verdict is authoritative for run-level status. Panel and phash remain vi
 - Grid top status, additive `summary.json.__run`, stdout, and process exit consume the same run verdict; legacy state-only summaries continue to load and compare.
 - Detached `--xcresult` remains unverified until AUDIT #7 supplies a validated attestation; freshness is never guessed from timestamps or paths.
 - Focused verifier tests, full package tests, lint, root unit tests, and audit pass.
-- README matches the tested proof/provenance contract, abandoned alternatives are absent, and changes stay within the amended scope.
+- README and CLI `HELP` match the tested proof/provenance contract, including strict missing-panel failure, detached `--xcresult` unverified provenance, and advisory-only phash; abandoned alternatives are absent, and changes stay within the amended scope.
 - No PR, merge, push, or device run is performed; the plan amendment and later implementation are committed separately.
