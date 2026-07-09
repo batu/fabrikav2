@@ -135,3 +135,22 @@ family, fusion repair, or reassign the hide) — never brute-force re-rolls.
    judging; local interior+halo fusion where the pasted-read flag trips.
 4. Lido (level 1) re-art in the winning style LAST — it must match the saga.
 5. Device gate re-run after CAM-7 shell + new levels wire.
+
+
+## 7. Evaluation record (2026-07-09, conductor)
+
+- **Panel style probes** (bathhouse hall, both lead styles, judged per §5 + eyes):
+  screenprint ACCEPT-WITH-FIXES (style 9, density 7, substrate 9 — lantern/mosaic
+  overlap noted and avoided in production prompts); gouache REJECT (style 6.5 —
+  reads digital-clean, not brushy; density 6). Matches the old repo's verdicts.
+- **Production**: 12 panels (4 levels × 3) in screenprint; 40 hide sprite pairs;
+  9 panel/hide re-rolls; 1 concept swap (bh-01 towel-roll → towel-heap after two
+  same-concept failures); 3 letterboxed panels repaired by content-box crop;
+  text defects patched by measurement (one over-patch reverted from source).
+- **Direction verdict**: composition-preserving restyle to gouache/roughrender is
+  NOT achievable with the current generation tool (two documented probes returned
+  the same style back). Combined with the integration verdicts, **screenprint
+  ships as the single production direction**; the direction system stays in code
+  for future styles. Old repo's own conclusion, re-validated: "keep Screenprint,
+  revisit others after the lighting/material integration issue is solved."
+- Spend this phase ≈ $8.5; total ≈ $10.6 of $50 (ledger in docs/gen-ledger.md).
