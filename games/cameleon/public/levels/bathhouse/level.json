@@ -1,0 +1,307 @@
+{
+  "id": "bathhouse",
+  "name": "The Marble Bathhouse",
+  "world": {
+    "width": 4320,
+    "height": 1440,
+    "zoneWidth": 1440
+  },
+  "winAt": 8,
+  "assetKeys": {
+    "zonePanels": {
+      "screenprint": [
+        "bathhouse.screenprint.panel-a",
+        "bathhouse.screenprint.panel-b",
+        "bathhouse.screenprint.panel-c"
+      ],
+      "gouache": [
+        "bathhouse.gouache.panel-a",
+        "bathhouse.gouache.panel-b",
+        "bathhouse.gouache.panel-c"
+      ],
+      "roughrender": [
+        "bathhouse.roughrender.panel-a",
+        "bathhouse.roughrender.panel-b",
+        "bathhouse.roughrender.panel-c"
+      ]
+    }
+  },
+  "hides": [
+    {
+      "id": "bh-01",
+      "zone": 2,
+      "pose": "curl",
+      "disguise": "rolled towel atop the towel-store pyramid",
+      "rect": {
+        "x": 1193,
+        "y": 798,
+        "w": 195,
+        "h": 195
+      },
+      "tell": "the roll has a head-dome and no spiral end",
+      "difficulty": "easy",
+      "spritePair": {
+        "white": "bathhouse.bh-01.white",
+        "painted": {
+          "screenprint": "bathhouse.screenprint.bh-01.painted",
+          "gouache": "bathhouse.gouache.bh-01.painted",
+          "roughrender": "bathhouse.roughrender.bh-01.painted"
+        }
+      }
+    },
+    {
+      "id": "bh-02",
+      "zone": 2,
+      "pose": "wall-flat",
+      "disguise": "robe on the entrance robe wall",
+      "rect": {
+        "x": 1125,
+        "y": 463,
+        "w": 120,
+        "h": 225
+      },
+      "tell": "feet below the hem",
+      "difficulty": "medium",
+      "spritePair": {
+        "white": "bathhouse.bh-02.white",
+        "painted": {
+          "screenprint": "bathhouse.screenprint.bh-02.painted",
+          "gouache": "bathhouse.gouache.bh-02.painted",
+          "roughrender": "bathhouse.roughrender.bh-02.painted"
+        }
+      }
+    },
+    {
+      "id": "bh-03",
+      "zone": 5,
+      "pose": "wall-flat",
+      "disguise": "bather figure in the mosaic wall panel",
+      "rect": {
+        "x": 4164,
+        "y": 338,
+        "w": 133,
+        "h": 255
+      },
+      "tell": "his tiles are smooth - no grout lines cross his body",
+      "difficulty": "hard",
+      "spritePair": {
+        "white": "bathhouse.bh-03.white",
+        "painted": {
+          "screenprint": "bathhouse.screenprint.bh-03.painted",
+          "gouache": "bathhouse.gouache.bh-03.painted",
+          "roughrender": "bathhouse.roughrender.bh-03.painted"
+        }
+      }
+    },
+    {
+      "id": "bh-04",
+      "zone": 3,
+      "pose": "prone",
+      "disguise": "towel laid along a marble bench",
+      "rect": {
+        "x": 2036,
+        "y": 640,
+        "w": 248,
+        "h": 130
+      },
+      "tell": "the towel sags between the bench legs - cloth doesn't",
+      "difficulty": "medium",
+      "spritePair": {
+        "white": "bathhouse.bh-04.white",
+        "painted": {
+          "screenprint": "bathhouse.screenprint.bh-04.painted",
+          "gouache": "bathhouse.gouache.bh-04.painted",
+          "roughrender": "bathhouse.roughrender.bh-04.painted"
+        }
+      }
+    },
+    {
+      "id": "bh-05",
+      "zone": 1,
+      "pose": "standing",
+      "disguise": "attendant pictogram on the brass ATTENDANT ON DUTY sign",
+      "rect": {
+        "x": 238,
+        "y": 298,
+        "w": 124,
+        "h": 125
+      },
+      "tell": "he's engraved in relief but casts a contact shadow",
+      "difficulty": "medium",
+      "spritePair": {
+        "white": "bathhouse.bh-05.white",
+        "painted": {
+          "screenprint": "bathhouse.screenprint.bh-05.painted",
+          "gouache": "bathhouse.gouache.bh-05.painted",
+          "roughrender": "bathhouse.roughrender.bh-05.painted"
+        }
+      }
+    },
+    {
+      "id": "bh-06",
+      "zone": 4,
+      "pose": "standing silhouette",
+      "disguise": "figure behind the frosted steam-room glass",
+      "rect": {
+        "x": 3016,
+        "y": 530,
+        "w": 329,
+        "h": 430
+      },
+      "tell": "his silhouette touches the floor line; the etched ones float in the glass panel",
+      "difficulty": "hard",
+      "spritePair": {
+        "white": "bathhouse.bh-06.white",
+        "painted": {
+          "screenprint": "bathhouse.screenprint.bh-06.painted",
+          "gouache": "bathhouse.gouache.bh-06.painted",
+          "roughrender": "bathhouse.roughrender.bh-06.painted"
+        }
+      },
+      "fx": {
+        "alpha": 0.55,
+        "tint": [
+          188,
+          212,
+          200
+        ],
+        "tint_amt": 0.45
+      }
+    },
+    {
+      "id": "bh-07",
+      "zone": 4,
+      "pose": "curl",
+      "disguise": "laundry in a wheeled basket",
+      "rect": {
+        "x": 2891,
+        "y": 865,
+        "w": 259,
+        "h": 250
+      },
+      "tell": "a pill arm hangs over the basket rim",
+      "difficulty": "easy-medium",
+      "spritePair": {
+        "white": "bathhouse.bh-07.white",
+        "painted": {
+          "screenprint": "bathhouse.screenprint.bh-07.painted",
+          "gouache": "bathhouse.gouache.bh-07.painted",
+          "roughrender": "bathhouse.roughrender.bh-07.painted"
+        }
+      }
+    },
+    {
+      "id": "bh-08",
+      "zone": 3,
+      "pose": "backbend",
+      "disguise": "towel draped over a brass rail",
+      "rect": {
+        "x": 2452,
+        "y": 535,
+        "w": 186,
+        "h": 220
+      },
+      "tell": "the drape has a waist - it narrows mid-span",
+      "difficulty": "medium",
+      "spritePair": {
+        "white": "bathhouse.bh-08.white",
+        "painted": {
+          "screenprint": "bathhouse.screenprint.bh-08.painted",
+          "gouache": "bathhouse.gouache.bh-08.painted",
+          "roughrender": "bathhouse.roughrender.bh-08.painted"
+        }
+      }
+    },
+    {
+      "id": "bh-09",
+      "zone": 5,
+      "pose": "crouch",
+      "disguise": "stacked folded towels on a shelf slot",
+      "rect": {
+        "x": 3688,
+        "y": 480,
+        "w": 144,
+        "h": 160
+      },
+      "tell": "his stack leans; every other stack is plumb",
+      "difficulty": "hard",
+      "spritePair": {
+        "white": "bathhouse.bh-09.white",
+        "painted": {
+          "screenprint": "bathhouse.screenprint.bh-09.painted",
+          "gouache": "bathhouse.gouache.bh-09.painted",
+          "roughrender": "bathhouse.roughrender.bh-09.painted"
+        }
+      }
+    },
+    {
+      "id": "bh-10",
+      "zone": 5,
+      "pose": "slanted",
+      "disguise": "mop against the wall by the wet floor sign",
+      "rect": {
+        "x": 3974,
+        "y": 728,
+        "w": 272,
+        "h": 335
+      },
+      "tell": "the mop handle bends at a knee",
+      "difficulty": "medium-hard",
+      "spritePair": {
+        "white": "bathhouse.bh-10.white",
+        "painted": {
+          "screenprint": "bathhouse.screenprint.bh-10.painted",
+          "gouache": "bathhouse.gouache.bh-10.painted",
+          "roughrender": "bathhouse.roughrender.bh-10.painted"
+        }
+      }
+    }
+  ],
+  "decoys": [
+    {
+      "id": "dc-bh-robe-wall-west",
+      "zone": 2,
+      "kind": "real robe on entrance robe wall",
+      "rect": {
+        "x": 910,
+        "y": 420,
+        "w": 190,
+        "h": 330
+      }
+    },
+    {
+      "id": "dc-bh-robe-wall-east",
+      "zone": 2,
+      "kind": "real robe on entrance robe wall",
+      "rect": {
+        "x": 1250,
+        "y": 410,
+        "w": 190,
+        "h": 340
+      }
+    },
+    {
+      "id": "dc-bh-etched-glass-west",
+      "zone": 4,
+      "kind": "etched frosted-glass bather silhouette",
+      "rect": {
+        "x": 3330,
+        "y": 540,
+        "w": 150,
+        "h": 330
+      }
+    },
+    {
+      "id": "dc-bh-etched-glass-east",
+      "zone": 5,
+      "kind": "etched frosted-glass bather silhouette",
+      "rect": {
+        "x": 3530,
+        "y": 535,
+        "w": 150,
+        "h": 335
+      }
+    }
+  ],
+  "visualOverlays": []
+}

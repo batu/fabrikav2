@@ -15,7 +15,7 @@ const ART_DATE = '2026-07-08';
 const SAMPLE_OFFSETS = [0.25, 0.75];
 
 const PALETTES = {
-  poster: {
+  screenprint: {
     paper: '#fff3c4',
     panel: '#ffd85a',
     panelDark: '#e6aa36',
@@ -29,7 +29,7 @@ const PALETTES = {
     whiteBody: '#f9f7ea',
     whiteShade: '#d8d4c7',
   },
-  riso: {
+  gouache: {
     paper: '#f7e3bd',
     panel: '#f7c84f',
     panelDark: '#d49a2d',
@@ -43,7 +43,7 @@ const PALETTES = {
     whiteBody: '#fff1da',
     whiteShade: '#dfcdb8',
   },
-  night: {
+  roughrender: {
     paper: '#182544',
     panel: '#f0bc4f',
     panelDark: '#a97331',
@@ -696,7 +696,7 @@ function writeContactSheet(entries) {
     const y = headerH + row * cellH;
     const tileShapes = [
       rect(x + 16, y + 14, cellW - 32, cellH - 28, '#fff9df', { rx: 10 }),
-      rect(x + 28, y + 26, cellW - 56, 250, entry.palette === 'night' ? '#182544' : '#fff3c4', { rx: 8 }),
+      rect(x + 28, y + 26, cellW - 56, 250, entry.palette === 'roughrender' ? '#182544' : '#fff3c4', { rx: 8 }),
     ];
     const tilePng = decodePng(renderPng(width, height, tileShapes));
     for (let i = 0; i < data.length; i += 4) {
@@ -747,7 +747,7 @@ function main() {
     }
   }
 
-  const whitePalette = PALETTES.poster;
+  const whitePalette = PALETTES.screenprint;
   for (const makeHide of HIDES) {
     const white = makeHide(whiteStyle(whitePalette));
     writeAsset(white, 'white', `${white.id}-white`, { kind: 'hide-white', palette: 'white' }, entries);

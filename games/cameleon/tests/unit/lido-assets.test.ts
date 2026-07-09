@@ -6,11 +6,11 @@ import { describe, expect, it } from "vitest";
 import { decodePng } from "../../../../tools/refcap-compare/src/png.mjs";
 
 import { assetEntriesForLevel, resolveCameleonAsset, type CameleonAssetEntry } from "../../src/game/assets.ts";
-import { CAMELEON_DIRECTIONS } from "../../src/game/level.ts";
+import { CAMELEON_DIRECTIONS, CAMELEON_LEVEL_IDS } from "../../src/game/level.ts";
 import { createHideStateMap } from "../../src/game/hideState.ts";
 import { hitTestLevel } from "../../src/game/hitTest.ts";
 import { rectCenter } from "../../src/game/level.ts";
-import { loadLidoFixture } from "./lidoFixture.ts";
+import { loadAllCameleonLevelFixtures, loadLidoFixture } from "./lidoFixture.ts";
 
 const GAME_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const ORGANIC_HIDE_IDS = ["li-01", "li-03", "li-04", "li-05", "li-09"] as const;
@@ -19,6 +19,7 @@ interface AssetIdentityManifest {
   assets?: Record<string, { provenance?: unknown }>;
   "conductor-art-v1"?: Array<{ path?: string }>;
   "derived-lido-art-v1"?: Array<{ path?: string }>;
+  "conductor-art-v2"?: Array<{ path?: string }>;
 }
 
 interface AlphaImage {
@@ -44,7 +45,8 @@ function hasProvenance(entry: CameleonAssetEntry, identity: AssetIdentityManifes
   return Boolean(
     identity.assets?.[key]?.provenance ||
     identity["conductor-art-v1"]?.some((item) => item.path === key) ||
-    identity["derived-lido-art-v1"]?.some((item) => item.path === key),
+    identity["derived-lido-art-v1"]?.some((item) => item.path === key) ||
+    identity["conductor-art-v2"]?.some((item) => item.path === key),
   );
 }
 
@@ -64,16 +66,18 @@ function firstMismatch(a: Uint8Array, b: Uint8Array): number {
   return -1;
 }
 
-describe("Cameleon Lido production assets", () => {
+describe("Cameleon production assets", () => {
   it("resolves every level key to a committed file with provenance", () => {
-    const level = loadLidoFixture();
+    const levels = loadAllCameleonLevelFixtures();
     const identity = manifest();
-    const entries = assetEntriesForLevel(level);
 
-    expect(entries).toHaveLength(new Set(entries.map((entry) => entry.key)).size);
-    for (const entry of entries) {
-      expect(existsSync(physicalPath(entry)), entry.key).toBe(true);
-      expect(hasProvenance(entry, identity), entry.key).toBe(true);
+    for (const level of levels) {
+      const entries = assetEntriesForLevel(level);
+      expect(entries).toHaveLength(new Set(entries.map((entry) => entry.key)).size);
+      for (const entry of entries) {
+        expect(existsSync(physicalPath(entry)), `${level.id}:${entry.key}`).toBe(true);
+        expect(hasProvenance(entry, identity), `${level.id}:${entry.key}`).toBe(true);
+      }
     }
   });
 
@@ -92,6 +96,35 @@ describe("Cameleon Lido production assets", () => {
       level.assetKeys.zonePanels[direction].map((key) => resolveCameleonAsset(key))
     ).filter((entry) => entry.temporary);
     expect(aliases).toHaveLength(0);
+  });
+
+  it("maps new-level gouache and roughrender keys to documented temporary screenprint aliases", () => {
+    const newLevels = loadAllCameleonLevelFixtures().filter((level) => level.id !== "lido");
+
+    expect(newLevels.map((level) => level.id)).toEqual(CAMELEON_LEVEL_IDS.filter((levelId) => levelId !== "lido"));
+    for (const level of newLevels) {
+      for (const direction of ["gouache", "roughrender"] as const) {
+        const panelEntries = level.assetKeys.zonePanels[direction].map((key) => resolveCameleonAsset(key));
+        expect(panelEntries).toHaveLength(3);
+        for (const [index, entry] of panelEntries.entries()) {
+          expect(entry).toMatchObject({
+            publicPath: `levels/${level.id}/panels/screenprint/panel-${String.fromCharCode(97 + index)}.png`,
+            aliasOf: `${level.id}.screenprint.panel-${String.fromCharCode(97 + index)}`,
+            temporary: true,
+            note: "conductor generates gouache/roughrender variants",
+          });
+        }
+
+        for (const hide of level.hides) {
+          expect(resolveCameleonAsset(hide.spritePair.painted[direction])).toMatchObject({
+            publicPath: `levels/${level.id}/sprites/screenprint/${hide.id}-painted.png`,
+            aliasOf: `${level.id}.screenprint.${hide.id}.painted`,
+            temporary: true,
+            note: "conductor generates gouache/roughrender variants",
+          });
+        }
+      }
+    }
   });
 
   it("keeps derived organic variants alpha-locked to the white reveal", () => {

@@ -14,12 +14,12 @@ const DESIGN_REFS = ['docs/DESIGN.md#4-hide-roster', 'docs/DESIGN.md#9-art-gener
 
 const ORGANIC_HIDE_IDS = ['li-01', 'li-03', 'li-04', 'li-05', 'li-09'];
 const PALETTES = {
-  riso: {
+  gouache: {
     shadow: [22, 80, 92],
     mid: [255, 95, 126],
     light: [255, 241, 202],
   },
-  night: {
+  roughrender: {
     shadow: [13, 34, 60],
     mid: [111, 176, 189],
     light: [246, 243, 232],
@@ -46,18 +46,18 @@ function luminance(data, index) {
   return (0.299 * data[index] + 0.587 * data[index + 1] + 0.114 * data[index + 2]) / 255;
 }
 
-function repaintOrganic(poster, white, palette) {
-  if (poster.width !== white.width || poster.height !== white.height) {
-    throw new Error(`dimension mismatch: ${poster.width}x${poster.height} vs ${white.width}x${white.height}`);
+function repaintOrganic(screenprint, white, palette) {
+  if (screenprint.width !== white.width || screenprint.height !== white.height) {
+    throw new Error(`dimension mismatch: ${screenprint.width}x${screenprint.height} vs ${white.width}x${white.height}`);
   }
-  const out = new Uint8Array(poster.data.length);
+  const out = new Uint8Array(screenprint.data.length);
   for (let index = 0; index < out.length; index += 4) {
     const alpha = white.data[index + 3];
     if (alpha === 0) {
       out[index + 3] = 0;
       continue;
     }
-    const lum = luminance(poster.data, index);
+    const lum = luminance(screenprint.data, index);
     const base = lum < 0.58
       ? mix(palette.shadow, palette.mid, lum / 0.58)
       : mix(palette.mid, palette.light, (lum - 0.58) / 0.42);
@@ -66,7 +66,7 @@ function repaintOrganic(poster, white, palette) {
     out[index + 2] = base[2];
     out[index + 3] = alpha;
   }
-  return encodePng(poster.width, poster.height, out);
+  return encodePng(screenprint.width, screenprint.height, out);
 }
 
 function readPng(path) {
@@ -82,7 +82,7 @@ function writeManifest(entries) {
 
   for (const entry of entries) {
     assets[entry.outputRel] = {
-      source: entry.posterRel,
+      source: entry.screenprintRel,
       expectation: 'derived-alpha-lock',
       reason: 'Deterministic local recolor from accepted Poster Pop organic sprite; alpha copied from the accepted white reveal.',
       provenance: {
@@ -95,7 +95,7 @@ function writeManifest(entries) {
         script: SCRIPT_REL,
         kind: 'hide-painted-derived',
         palette: entry.palette,
-        sourcePainted: entry.posterRel,
+        sourcePainted: entry.screenprintRel,
         sourceAlpha: entry.whiteRel,
         dimensions: { width: entry.width, height: entry.height },
         bytes: entry.bytes,
@@ -110,7 +110,7 @@ function writeManifest(entries) {
       date: ART_DATE,
       cost_estimate_usd: 0.0,
       spec: `${entry.hideId} ${entry.palette} local recolor; alpha copied from white reveal`,
-      source: entry.posterRel,
+      source: entry.screenprintRel,
       alpha_source: entry.whiteRel,
       provenance: SCRIPT_REL,
     });
@@ -134,23 +134,23 @@ function writeManifest(entries) {
 function main() {
   const entries = [];
   for (const hideId of ORGANIC_HIDE_IDS) {
-    const posterPath = join(SPRITES_DIR, 'poster', `${hideId}-painted-organic.png`);
+    const screenprintPath = join(SPRITES_DIR, 'screenprint', `${hideId}-painted-organic.png`);
     const whitePath = join(SPRITES_DIR, 'white', `${hideId}-white-organic.png`);
-    const poster = readPng(posterPath);
+    const screenprint = readPng(screenprintPath);
     const white = readPng(whitePath);
     for (const [paletteName, palette] of Object.entries(PALETTES)) {
       const outputPath = join(SPRITES_DIR, paletteName, `${hideId}-painted-organic.png`);
       mkdirSync(dirname(outputPath), { recursive: true });
-      const png = repaintOrganic(poster, white, palette);
+      const png = repaintOrganic(screenprint, white, palette);
       writeFileSync(outputPath, png);
       entries.push({
         hideId,
         palette: paletteName,
         outputRel: relGame(outputPath),
-        posterRel: relGame(posterPath),
+        screenprintRel: relGame(screenprintPath),
         whiteRel: relGame(whitePath),
-        width: poster.width,
-        height: poster.height,
+        width: screenprint.width,
+        height: screenprint.height,
         bytes: png.length,
         sha256: sha256(png),
       });

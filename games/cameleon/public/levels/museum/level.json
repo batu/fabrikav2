@@ -1,0 +1,298 @@
+{
+  "id": "museum",
+  "name": "The Natatorium Museum",
+  "world": {
+    "width": 4320,
+    "height": 1440,
+    "zoneWidth": 1440
+  },
+  "winAt": 8,
+  "assetKeys": {
+    "zonePanels": {
+      "screenprint": [
+        "museum.screenprint.panel-a",
+        "museum.screenprint.panel-b",
+        "museum.screenprint.panel-c"
+      ],
+      "gouache": [
+        "museum.gouache.panel-a",
+        "museum.gouache.panel-b",
+        "museum.gouache.panel-c"
+      ],
+      "roughrender": [
+        "museum.roughrender.panel-a",
+        "museum.roughrender.panel-b",
+        "museum.roughrender.panel-c"
+      ]
+    }
+  },
+  "hides": [
+    {
+      "id": "nm-01",
+      "zone": 2,
+      "pose": "wall-flat",
+      "disguise": "diver on the vintage PLONGEZ! poster",
+      "rect": {
+        "x": 921,
+        "y": 255,
+        "w": 319,
+        "h": 330
+      },
+      "tell": "his toes break the poster's printed border",
+      "difficulty": "medium",
+      "spritePair": {
+        "white": "museum.nm-01.white",
+        "painted": {
+          "screenprint": "museum.screenprint.nm-01.painted",
+          "gouache": "museum.gouache.nm-01.painted",
+          "roughrender": "museum.roughrender.nm-01.painted"
+        }
+      }
+    },
+    {
+      "id": "nm-02",
+      "zone": 4,
+      "pose": "standing",
+      "disguise": "fifth mannequin",
+      "rect": {
+        "x": 2638,
+        "y": 445,
+        "w": 221,
+        "h": 430
+      },
+      "tell": "no plinth plaque - every real mannequin has one",
+      "difficulty": "medium-hard",
+      "spritePair": {
+        "white": "museum.nm-02.white",
+        "painted": {
+          "screenprint": "museum.screenprint.nm-02.painted",
+          "gouache": "museum.gouache.nm-02.painted",
+          "roughrender": "museum.roughrender.nm-02.painted"
+        }
+      }
+    },
+    {
+      "id": "nm-03",
+      "zone": 5,
+      "pose": "prone",
+      "disguise": "rolled exhibition banner on the archive shelf",
+      "rect": {
+        "x": 3422,
+        "y": 248,
+        "w": 217,
+        "h": 88
+      },
+      "tell": "the roll bends limply over the shelf edge",
+      "difficulty": "easy-medium",
+      "spritePair": {
+        "white": "museum.nm-03.white",
+        "painted": {
+          "screenprint": "museum.screenprint.nm-03.painted",
+          "gouache": "museum.gouache.nm-03.painted",
+          "roughrender": "museum.roughrender.nm-03.painted"
+        }
+      }
+    },
+    {
+      "id": "nm-04",
+      "zone": 4,
+      "pose": "curl",
+      "disguise": "pile of souvenir beach balls in the gift-shop bin",
+      "rect": {
+        "x": 3074,
+        "y": 885,
+        "w": 253,
+        "h": 210
+      },
+      "tell": "one ball has an ear",
+      "difficulty": "hard",
+      "spritePair": {
+        "white": "museum.nm-04.white",
+        "painted": {
+          "screenprint": "museum.screenprint.nm-04.painted",
+          "gouache": "museum.gouache.nm-04.painted",
+          "roughrender": "museum.roughrender.nm-04.painted"
+        }
+      }
+    },
+    {
+      "id": "nm-05",
+      "zone": 3,
+      "pose": "wall-flat",
+      "disguise": "figure in the sepia team photograph",
+      "rect": {
+        "x": 2299,
+        "y": 85,
+        "w": 343,
+        "h": 300
+      },
+      "tell": "he's the twelfth, and slightly larger than the print grain",
+      "difficulty": "hard",
+      "spritePair": {
+        "white": "museum.nm-05.white",
+        "painted": {
+          "screenprint": "museum.screenprint.nm-05.painted",
+          "gouache": "museum.gouache.nm-05.painted",
+          "roughrender": "museum.roughrender.nm-05.painted"
+        }
+      }
+    },
+    {
+      "id": "nm-06",
+      "zone": 3,
+      "pose": "crouch",
+      "disguise": "stanchion base under the velvet rope",
+      "rect": {
+        "x": 1871,
+        "y": 805,
+        "w": 189,
+        "h": 270
+      },
+      "tell": "his stanchion sags the rope - real posts hold it taut",
+      "difficulty": "medium",
+      "spritePair": {
+        "white": "museum.nm-06.white",
+        "painted": {
+          "screenprint": "museum.screenprint.nm-06.painted",
+          "gouache": "museum.gouache.nm-06.painted",
+          "roughrender": "museum.roughrender.nm-06.painted"
+        }
+      }
+    },
+    {
+      "id": "nm-07",
+      "zone": 3,
+      "pose": "backbend",
+      "disguise": "display-case bracket under the trophy shelf",
+      "rect": {
+        "x": 2006,
+        "y": 430,
+        "w": 112,
+        "h": 140
+      },
+      "tell": "the bracket wears a swim cap",
+      "difficulty": "medium",
+      "spritePair": {
+        "white": "museum.nm-07.white",
+        "painted": {
+          "screenprint": "museum.screenprint.nm-07.painted",
+          "gouache": "museum.gouache.nm-07.painted",
+          "roughrender": "museum.roughrender.nm-07.painted"
+        }
+      }
+    },
+    {
+      "id": "nm-08",
+      "zone": 4,
+      "pose": "standing",
+      "disguise": "gift-shop towel model cutout",
+      "rect": {
+        "x": 3296,
+        "y": 560,
+        "w": 238,
+        "h": 430
+      },
+      "tell": "cardboard is 3mm thick; he has depth and a body-shaped shadow",
+      "difficulty": "hard",
+      "spritePair": {
+        "white": "museum.nm-08.white",
+        "painted": {
+          "screenprint": "museum.screenprint.nm-08.painted",
+          "gouache": "museum.gouache.nm-08.painted",
+          "roughrender": "museum.roughrender.nm-08.painted"
+        }
+      }
+    },
+    {
+      "id": "nm-09",
+      "zone": 5,
+      "pose": "prone",
+      "disguise": "draught excluder along the archive door",
+      "rect": {
+        "x": 4088,
+        "y": 909,
+        "w": 232,
+        "h": 118
+      },
+      "tell": "it has a waistband",
+      "difficulty": "easy",
+      "spritePair": {
+        "white": "museum.nm-09.white",
+        "painted": {
+          "screenprint": "museum.screenprint.nm-09.painted",
+          "gouache": "museum.gouache.nm-09.painted",
+          "roughrender": "museum.roughrender.nm-09.painted"
+        }
+      }
+    },
+    {
+      "id": "nm-10",
+      "zone": 3,
+      "pose": "slanted",
+      "disguise": "oar in the rowing exhibit rack",
+      "rect": {
+        "x": 1615,
+        "y": 518,
+        "w": 261,
+        "h": 345
+      },
+      "tell": "the oar's blade end is a foot",
+      "difficulty": "medium",
+      "spritePair": {
+        "white": "museum.nm-10.white",
+        "painted": {
+          "screenprint": "museum.screenprint.nm-10.painted",
+          "gouache": "museum.gouache.nm-10.painted",
+          "roughrender": "museum.roughrender.nm-10.painted"
+        }
+      }
+    }
+  ],
+  "decoys": [
+    {
+      "id": "dc-nm-mannequin-01",
+      "zone": 2,
+      "kind": "real swimwear mannequin with plinth plaque",
+      "rect": {
+        "x": 1560,
+        "y": 440,
+        "w": 210,
+        "h": 430
+      }
+    },
+    {
+      "id": "dc-nm-mannequin-02",
+      "zone": 3,
+      "kind": "real swimwear mannequin with plinth plaque",
+      "rect": {
+        "x": 1860,
+        "y": 430,
+        "w": 210,
+        "h": 440
+      }
+    },
+    {
+      "id": "dc-nm-mannequin-03",
+      "zone": 3,
+      "kind": "real swimwear mannequin with plinth plaque",
+      "rect": {
+        "x": 2160,
+        "y": 440,
+        "w": 210,
+        "h": 430
+      }
+    },
+    {
+      "id": "dc-nm-mannequin-04",
+      "zone": 4,
+      "kind": "real swimwear mannequin with plinth plaque",
+      "rect": {
+        "x": 3035,
+        "y": 440,
+        "w": 210,
+        "h": 430
+      }
+    }
+  ],
+  "visualOverlays": []
+}

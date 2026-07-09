@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { createCameleonController } from "../../src/game/CameleonController.ts";
 import { rectCenter } from "../../src/game/level.ts";
-import { loadLidoFixture } from "./lidoFixture.ts";
+import { loadCameleonLevelFixture, loadLidoFixture } from "./lidoFixture.ts";
 
 describe("Cameleon controller", () => {
   it("mirrors menu, gameplay, win, and fail transitions into the kernel flow machine", async () => {
@@ -58,7 +58,7 @@ describe("Cameleon controller", () => {
       hide_id: "li-01",
       found_count: 1,
       mode: "tap",
-      dir: "poster",
+      dir: "screenprint",
     });
   });
 
@@ -89,13 +89,13 @@ describe("Cameleon controller", () => {
       decoy_id: "dc-rules-pictograms",
       found_count: 0,
       mode: "shoot",
-      dir: "poster",
+      dir: "screenprint",
     });
     expect(events.find((event) => event.name === "miss")?.params).toMatchObject({
       level_id: "lido",
       found_count: 0,
       mode: "shoot",
-      dir: "poster",
+      dir: "screenprint",
     });
   });
 
@@ -254,7 +254,39 @@ describe("Cameleon controller", () => {
       level_id: "lido",
       found_count: 8,
       mode: "tap",
-      dir: "poster",
+      dir: "screenprint",
+    });
+  });
+
+  it("unlocks the next saga level after a win and preserves progress across a level switch", async () => {
+    const bathhouse = loadCameleonLevelFixture("bathhouse");
+    const waterpark = loadCameleonLevelFixture("waterpark");
+    const controller = createCameleonController({ level: bathhouse, env: "test" });
+
+    expect(controller.snapshot()).toMatchObject({
+      levelId: "bathhouse",
+      levelNumber: 1,
+      unlockedLevel: 1,
+      nextLevelId: "waterpark",
+      coins: 0,
+    });
+    expect(controller.isLevelUnlocked("waterpark")).toBe(false);
+
+    await expect(controller.winLevel()).resolves.toBe(true);
+    expect(controller.snapshot()).toMatchObject({
+      scene: FlowStates.Complete,
+      unlockedLevel: 2,
+      coins: 1,
+    });
+    expect(controller.isLevelUnlocked("waterpark")).toBe(true);
+
+    controller.setLevel(waterpark);
+    expect(controller.snapshot()).toMatchObject({
+      scene: FlowStates.Menu,
+      levelId: "waterpark",
+      levelNumber: 2,
+      unlockedLevel: 2,
+      coins: 1,
     });
   });
 
@@ -296,14 +328,14 @@ describe("Cameleon controller", () => {
     controller.scrollTo(2100);
     controller.revealHide("li-01");
 
-    controller.setDirection("night");
+    controller.setDirection("roughrender");
 
     expect(controller.snapshot()).toMatchObject({
-      dir: "night",
+      dir: "roughrender",
       foundCount: 1,
       scrollX: 2100,
     });
-    expect(controller.snapshot().hides.find((hide) => hide.id === "li-02")?.painted.key).toBe("lido.night.li-02.painted");
-    expect(controller.drainEvents().find((event) => event.name === "dir_selected")?.params).toMatchObject({ dir: "night" });
+    expect(controller.snapshot().hides.find((hide) => hide.id === "li-02")?.painted.key).toBe("lido.roughrender.li-02.painted");
+    expect(controller.drainEvents().find((event) => event.name === "dir_selected")?.params).toMatchObject({ dir: "roughrender" });
   });
 });

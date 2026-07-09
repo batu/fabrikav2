@@ -1,0 +1,298 @@
+{
+  "id": "waterpark",
+  "name": "Splashworld Arcade",
+  "world": {
+    "width": 4320,
+    "height": 1440,
+    "zoneWidth": 1440
+  },
+  "winAt": 8,
+  "assetKeys": {
+    "zonePanels": {
+      "screenprint": [
+        "waterpark.screenprint.panel-a",
+        "waterpark.screenprint.panel-b",
+        "waterpark.screenprint.panel-c"
+      ],
+      "gouache": [
+        "waterpark.gouache.panel-a",
+        "waterpark.gouache.panel-b",
+        "waterpark.gouache.panel-c"
+      ],
+      "roughrender": [
+        "waterpark.roughrender.panel-a",
+        "waterpark.roughrender.panel-b",
+        "waterpark.roughrender.panel-c"
+      ]
+    }
+  },
+  "hides": [
+    {
+      "id": "sw-01",
+      "zone": 2,
+      "pose": "standing",
+      "disguise": "fourth Splashy standee",
+      "rect": {
+        "x": 1089,
+        "y": 790,
+        "w": 293,
+        "h": 300
+      },
+      "tell": "his flipper is a five-less mitt hand, and no floor stand",
+      "difficulty": "medium",
+      "spritePair": {
+        "white": "waterpark.sw-01.white",
+        "painted": {
+          "screenprint": "waterpark.screenprint.sw-01.painted",
+          "gouache": "waterpark.gouache.sw-01.painted",
+          "roughrender": "waterpark.roughrender.sw-01.painted"
+        }
+      }
+    },
+    {
+      "id": "sw-02",
+      "zone": 2,
+      "pose": "curl",
+      "disguise": "inflatable in the deflated pile",
+      "rect": {
+        "x": 1478,
+        "y": 540,
+        "w": 445,
+        "h": 200
+      },
+      "tell": "he's the only inflatable without a valve",
+      "difficulty": "easy",
+      "spritePair": {
+        "white": "waterpark.sw-02.white",
+        "painted": {
+          "screenprint": "waterpark.screenprint.sw-02.painted",
+          "gouache": "waterpark.gouache.sw-02.painted",
+          "roughrender": "waterpark.roughrender.sw-02.painted"
+        }
+      }
+    },
+    {
+      "id": "sw-03",
+      "zone": 4,
+      "pose": "crouch",
+      "disguise": "plush on the prize counter's top row",
+      "rect": {
+        "x": 3070,
+        "y": 330,
+        "w": 101,
+        "h": 140
+      },
+      "tell": "he's the only one not shrink-wrapped",
+      "difficulty": "hard",
+      "spritePair": {
+        "white": "waterpark.sw-03.white",
+        "painted": {
+          "screenprint": "waterpark.screenprint.sw-03.painted",
+          "gouache": "waterpark.gouache.sw-03.painted",
+          "roughrender": "waterpark.roughrender.sw-03.painted"
+        }
+      }
+    },
+    {
+      "id": "sw-04",
+      "zone": 1,
+      "pose": "wall-flat",
+      "disguise": "lifeguard figure on the safety poster",
+      "rect": {
+        "x": 511,
+        "y": 88,
+        "w": 179,
+        "h": 235
+      },
+      "tell": "the poster's caption box overlaps his legs",
+      "difficulty": "medium",
+      "spritePair": {
+        "white": "waterpark.sw-04.white",
+        "painted": {
+          "screenprint": "waterpark.screenprint.sw-04.painted",
+          "gouache": "waterpark.gouache.sw-04.painted",
+          "roughrender": "waterpark.roughrender.sw-04.painted"
+        }
+      }
+    },
+    {
+      "id": "sw-05",
+      "zone": 3,
+      "pose": "prone",
+      "disguise": "rolled banner waiting above the lockers",
+      "rect": {
+        "x": 2253,
+        "y": 708,
+        "w": 295,
+        "h": 105
+      },
+      "tell": "the roll's ends are feet, not paper spirals",
+      "difficulty": "medium",
+      "spritePair": {
+        "white": "waterpark.sw-05.white",
+        "painted": {
+          "screenprint": "waterpark.screenprint.sw-05.painted",
+          "gouache": "waterpark.gouache.sw-05.painted",
+          "roughrender": "waterpark.roughrender.sw-05.painted"
+        }
+      }
+    },
+    {
+      "id": "sw-06",
+      "zone": 4,
+      "pose": "backbend",
+      "disguise": "inner tube arch on the slide-mouth rack",
+      "rect": {
+        "x": 2588,
+        "y": 580,
+        "w": 205,
+        "h": 240
+      },
+      "tell": "his arch has a head at the apex",
+      "difficulty": "medium-hard",
+      "spritePair": {
+        "white": "waterpark.sw-06.white",
+        "painted": {
+          "screenprint": "waterpark.screenprint.sw-06.painted",
+          "gouache": "waterpark.gouache.sw-06.painted",
+          "roughrender": "waterpark.roughrender.sw-06.painted"
+        }
+      }
+    },
+    {
+      "id": "sw-07",
+      "zone": 2,
+      "pose": "standing",
+      "disguise": "queue-line post pal foam buddy",
+      "rect": {
+        "x": 850,
+        "y": 718,
+        "w": 180,
+        "h": 285
+      },
+      "tell": "he has no rope attached; every real post does",
+      "difficulty": "hard",
+      "spritePair": {
+        "white": "waterpark.sw-07.white",
+        "painted": {
+          "screenprint": "waterpark.screenprint.sw-07.painted",
+          "gouache": "waterpark.gouache.sw-07.painted",
+          "roughrender": "waterpark.roughrender.sw-07.painted"
+        }
+      }
+    },
+    {
+      "id": "sw-08",
+      "zone": 5,
+      "pose": "curl",
+      "disguise": "beanbag by the arcade bench",
+      "rect": {
+        "x": 3516,
+        "y": 913,
+        "w": 289,
+        "h": 235
+      },
+      "tell": "a foot pokes from under the beanbag seam",
+      "difficulty": "easy-medium",
+      "spritePair": {
+        "white": "waterpark.sw-08.white",
+        "painted": {
+          "screenprint": "waterpark.screenprint.sw-08.painted",
+          "gouache": "waterpark.gouache.sw-08.painted",
+          "roughrender": "waterpark.roughrender.sw-08.painted"
+        }
+      }
+    },
+    {
+      "id": "sw-09",
+      "zone": 5,
+      "pose": "wall-flat",
+      "disguise": "dance-game screen character",
+      "rect": {
+        "x": 4157,
+        "y": 523,
+        "w": 142,
+        "h": 245
+      },
+      "tell": "he's painted outside the screen bezel",
+      "difficulty": "hard",
+      "spritePair": {
+        "white": "waterpark.sw-09.white",
+        "painted": {
+          "screenprint": "waterpark.screenprint.sw-09.painted",
+          "gouache": "waterpark.gouache.sw-09.painted",
+          "roughrender": "waterpark.roughrender.sw-09.painted"
+        }
+      }
+    },
+    {
+      "id": "sw-10",
+      "zone": 3,
+      "pose": "slanted",
+      "disguise": "kickboard in the rental rack",
+      "rect": {
+        "x": 2332,
+        "y": 598,
+        "w": 127,
+        "h": 185
+      },
+      "tell": "his board has shoulders",
+      "difficulty": "medium",
+      "spritePair": {
+        "white": "waterpark.sw-10.white",
+        "painted": {
+          "screenprint": "waterpark.screenprint.sw-10.painted",
+          "gouache": "waterpark.gouache.sw-10.painted",
+          "roughrender": "waterpark.roughrender.sw-10.painted"
+        }
+      }
+    }
+  ],
+  "decoys": [
+    {
+      "id": "dc-sw-standee-01",
+      "zone": 1,
+      "kind": "real Splashy seal standee",
+      "rect": {
+        "x": 170,
+        "y": 760,
+        "w": 245,
+        "h": 335
+      }
+    },
+    {
+      "id": "dc-sw-standee-02",
+      "zone": 1,
+      "kind": "real Splashy seal standee",
+      "rect": {
+        "x": 470,
+        "y": 750,
+        "w": 250,
+        "h": 345
+      }
+    },
+    {
+      "id": "dc-sw-standee-03",
+      "zone": 1,
+      "kind": "real Splashy seal standee",
+      "rect": {
+        "x": 760,
+        "y": 770,
+        "w": 245,
+        "h": 330
+      }
+    },
+    {
+      "id": "dc-sw-standee-04",
+      "zone": 2,
+      "kind": "real Splashy seal standee",
+      "rect": {
+        "x": 1010,
+        "y": 765,
+        "w": 245,
+        "h": 335
+      }
+    }
+  ],
+  "visualOverlays": []
+}

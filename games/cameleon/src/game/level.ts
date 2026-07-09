@@ -1,5 +1,8 @@
-export const CAMELEON_DIRECTIONS = ["poster", "riso", "night"] as const;
+export const CAMELEON_DIRECTIONS = ["screenprint", "gouache", "roughrender"] as const;
 export type CameleonDirection = (typeof CAMELEON_DIRECTIONS)[number];
+
+export const CAMELEON_LEVEL_IDS = ["bathhouse", "waterpark", "museum", "lido"] as const;
+export type CameleonLevelId = (typeof CAMELEON_LEVEL_IDS)[number];
 
 export const CAMELEON_BODY_MODES = ["painted", "white", "off"] as const;
 export type CameleonBodyMode = (typeof CAMELEON_BODY_MODES)[number];
@@ -27,6 +30,12 @@ export interface HideSpritePairKeys {
   readonly painted: Readonly<Record<CameleonDirection, string>>;
 }
 
+export interface CameleonHideFxDefinition {
+  readonly alpha?: number;
+  readonly tint?: readonly [number, number, number];
+  readonly tintAmt?: number;
+}
+
 /**
  * CAM-1 level.json schema, consumed by CAM-2 art importers and CAM-3 runtime
  * polish. Rects are world-space hit rectangles in the production panorama.
@@ -44,13 +53,14 @@ export interface CameleonHideDefinition {
   readonly tell: string;
   readonly difficulty: string;
   readonly spritePair: HideSpritePairKeys;
+  readonly fx?: CameleonHideFxDefinition;
 }
 
 export interface CameleonDecoyDefinition {
   readonly id: string;
   readonly zone: CameleonZone;
   readonly kind: string;
-  readonly spriteKey: string;
+  readonly spriteKey?: string;
   readonly rect: WorldRect;
 }
 
@@ -66,7 +76,7 @@ export interface CameleonLevelAssetKeys {
 }
 
 export interface CameleonLevelDefinition {
-  readonly id: string;
+  readonly id: CameleonLevelId;
   readonly name: string;
   readonly world: CameleonWorld;
   readonly winAt: number;
@@ -77,12 +87,12 @@ export interface CameleonLevelDefinition {
 }
 
 const MIN_HIDE_EDGE = 72;
-const LIDO_PANEL_COUNT = 3;
+const PANEL_COUNT = 3;
 const LOGICAL_ZONE_COUNT = 5;
 
 export function parseLevelDefinition(raw: unknown): CameleonLevelDefinition {
   const root = asRecord(raw, "level");
-  const id = stringField(root, "id", "level.id");
+  const id = levelIdField(root, "id", "level.id");
   const name = stringField(root, "name", "level.name");
   const world = parseWorld(required(root, "world", "level.world"));
   const winAt = positiveInteger(root, "winAt", "level.winAt");
@@ -133,13 +143,31 @@ export function clampScrollX(level: CameleonLevelDefinition, x: number, viewport
   return clamp(x, 0, Math.max(0, level.world.width - viewportWidth));
 }
 
+export function isCameleonLevelId(value: string): value is CameleonLevelId {
+  return (CAMELEON_LEVEL_IDS as readonly string[]).includes(value);
+}
+
+export function levelNumberForId(levelId: CameleonLevelId): number {
+  return CAMELEON_LEVEL_IDS.indexOf(levelId) + 1;
+}
+
+export function levelIdForNumber(levelNumber: number): CameleonLevelId {
+  const index = clamp(Math.trunc(levelNumber), 1, CAMELEON_LEVEL_IDS.length) - 1;
+  return CAMELEON_LEVEL_IDS[index] ?? CAMELEON_LEVEL_IDS[0];
+}
+
+export function nextLevelIdAfter(levelId: CameleonLevelId): CameleonLevelId | null {
+  const next = CAMELEON_LEVEL_IDS.indexOf(levelId) + 1;
+  return CAMELEON_LEVEL_IDS[next] ?? null;
+}
+
 function parseWorld(value: unknown): CameleonWorld {
   const world = asRecord(value, "level.world");
   const width = positiveInteger(world, "width", "level.world.width");
   const height = positiveInteger(world, "height", "level.world.height");
   const zoneWidth = positiveInteger(world, "zoneWidth", "level.world.zoneWidth");
-  if (width !== zoneWidth * LIDO_PANEL_COUNT) {
-    throw new Error(`level.world.width must equal zoneWidth * ${LIDO_PANEL_COUNT}.`);
+  if (width !== zoneWidth * PANEL_COUNT) {
+    throw new Error(`level.world.width must equal zoneWidth * ${PANEL_COUNT}.`);
   }
   return { width, height, zoneWidth };
 }
@@ -148,8 +176,8 @@ function parseAssetKeys(value: unknown): CameleonLevelAssetKeys {
   const assetKeys = asRecord(value, "level.assetKeys");
   const zonePanels = parseDirectionStringArrays(required(assetKeys, "zonePanels", "level.assetKeys.zonePanels"));
   for (const direction of CAMELEON_DIRECTIONS) {
-    if (zonePanels[direction].length !== LIDO_PANEL_COUNT) {
-      throw new Error(`level.assetKeys.zonePanels.${direction} must contain ${LIDO_PANEL_COUNT} keys.`);
+    if (zonePanels[direction].length !== PANEL_COUNT) {
+      throw new Error(`level.assetKeys.zonePanels.${direction} must contain ${PANEL_COUNT} keys.`);
     }
   }
   return { zonePanels };
@@ -170,16 +198,18 @@ function parseHide(value: unknown, path: string, world: CameleonWorld): Cameleon
     tell: stringField(hide, "tell", `${path}.tell`),
     difficulty: stringField(hide, "difficulty", `${path}.difficulty`),
     spritePair: parseSpritePair(required(hide, "spritePair", `${path}.spritePair`), `${path}.spritePair`),
+    fx: parseOptionalFx(hide.fx, `${path}.fx`),
   };
 }
 
 function parseDecoy(value: unknown, path: string, world: CameleonWorld): CameleonDecoyDefinition {
   const decoy = asRecord(value, path);
+  const spriteKey = optionalStringField(decoy, "spriteKey", `${path}.spriteKey`);
   return {
     id: stringField(decoy, "id", `${path}.id`),
     zone: zoneField(decoy, "zone", `${path}.zone`),
     kind: stringField(decoy, "kind", `${path}.kind`),
-    spriteKey: stringField(decoy, "spriteKey", `${path}.spriteKey`),
+    ...(spriteKey === undefined ? {} : { spriteKey }),
     rect: parseRect(required(decoy, "rect", `${path}.rect`), `${path}.rect`, world),
   };
 }
@@ -218,26 +248,20 @@ function parseRect(value: unknown, path: string, world: CameleonWorld): WorldRec
 
 function parseDirectionStrings(value: unknown): Readonly<Record<CameleonDirection, string>> {
   const record = asRecord(value, "direction map");
-  return {
-    poster: stringField(record, "poster", "direction map.poster"),
-    riso: stringField(record, "riso", "direction map.riso"),
-    night: stringField(record, "night", "direction map.night"),
-  };
+  return Object.fromEntries(CAMELEON_DIRECTIONS.map((direction) => [
+    direction,
+    stringField(record, direction, `direction map.${direction}`),
+  ])) as Readonly<Record<CameleonDirection, string>>;
 }
 
 function parseDirectionStringArrays(value: unknown): Readonly<Record<CameleonDirection, readonly string[]>> {
   const record = asRecord(value, "direction array map");
-  return {
-    poster: arrayField(record, "poster", "direction array map.poster").map((item, index) =>
-      ensureString(item, `direction array map.poster[${index}]`),
+  return Object.fromEntries(CAMELEON_DIRECTIONS.map((direction) => [
+    direction,
+    arrayField(record, direction, `direction array map.${direction}`).map((item, index) =>
+      ensureString(item, `direction array map.${direction}[${index}]`),
     ),
-    riso: arrayField(record, "riso", "direction array map.riso").map((item, index) =>
-      ensureString(item, `direction array map.riso[${index}]`),
-    ),
-    night: arrayField(record, "night", "direction array map.night").map((item, index) =>
-      ensureString(item, `direction array map.night[${index}]`),
-    ),
-  };
+  ])) as unknown as Readonly<Record<CameleonDirection, readonly string[]>>;
 }
 
 function asRecord(value: unknown, path: string): Record<string, unknown> {
@@ -256,8 +280,52 @@ function stringField(record: Record<string, unknown>, key: string, path: string)
   return ensureString(required(record, key, path), path);
 }
 
+function optionalStringField(record: Record<string, unknown>, key: string, path: string): string | undefined {
+  if (!(key in record)) return undefined;
+  return ensureString(record[key], path);
+}
+
 function ensureString(value: unknown, path: string): string {
   if (typeof value !== "string" || value.trim() === "") throw new Error(`${path} must be a non-empty string.`);
+  return value;
+}
+
+function levelIdField(record: Record<string, unknown>, key: string, path: string): CameleonLevelId {
+  const levelId = stringField(record, key, path);
+  if (!isCameleonLevelId(levelId)) {
+    throw new Error(`${path} must be one of ${CAMELEON_LEVEL_IDS.join(", ")}.`);
+  }
+  return levelId;
+}
+
+function parseOptionalFx(value: unknown, path: string): CameleonHideFxDefinition | undefined {
+  if (value === undefined) return undefined;
+  const fx = asRecord(value, path);
+  const out: CameleonHideFxDefinition = {
+    alpha: optionalUnitNumber(fx, "alpha", `${path}.alpha`),
+    tint: parseOptionalTint(fx.tint, `${path}.tint`),
+    tintAmt: optionalUnitNumber(fx, "tint_amt", `${path}.tint_amt`),
+  };
+  return Object.values(out).some((field) => field !== undefined) ? out : undefined;
+}
+
+function parseOptionalTint(value: unknown, path: string): readonly [number, number, number] | undefined {
+  if (value === undefined) return undefined;
+  if (!Array.isArray(value) || value.length !== 3) throw new Error(`${path} must be an RGB tuple.`);
+  return value.map((channel, index) => {
+    if (typeof channel !== "number" || !Number.isInteger(channel) || channel < 0 || channel > 255) {
+      throw new Error(`${path}[${index}] must be an integer from 0 to 255.`);
+    }
+    return channel;
+  }) as [number, number, number];
+}
+
+function optionalUnitNumber(record: Record<string, unknown>, key: string, path: string): number | undefined {
+  if (!(key in record)) return undefined;
+  const value = record[key];
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0 || value > 1) {
+    throw new Error(`${path} must be a number from 0 to 1.`);
+  }
   return value;
 }
 

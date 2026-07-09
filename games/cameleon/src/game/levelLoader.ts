@@ -1,13 +1,24 @@
-import { parseLevelDefinition, type CameleonLevelDefinition } from "./level.ts";
+import {
+  CAMELEON_LEVEL_IDS,
+  isCameleonLevelId,
+  parseLevelDefinition,
+  type CameleonLevelDefinition,
+  type CameleonLevelId,
+} from "./level.ts";
 
 export type LevelFetch = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 
-export const LIDO_LEVEL_URL = "/levels/lido/level.json";
+export const DEFAULT_CAMELEON_LEVEL_ID = CAMELEON_LEVEL_IDS[0];
+
+export function levelUrlForId(levelId: CameleonLevelId): string {
+  return `/levels/${levelId}/level.json`;
+}
 
 export async function loadLevelDefinition(
-  url: string = LIDO_LEVEL_URL,
+  levelIdOrUrl: CameleonLevelId | string = DEFAULT_CAMELEON_LEVEL_ID,
   fetcher: LevelFetch = fetch,
 ): Promise<CameleonLevelDefinition> {
+  const url = isCameleonLevelId(levelIdOrUrl) ? levelUrlForId(levelIdOrUrl) : levelIdOrUrl;
   const response = await fetcher(url);
   if (!response.ok) {
     throw new Error(`Unable to load level JSON from ${url}: ${response.status}`);

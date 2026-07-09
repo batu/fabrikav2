@@ -15,7 +15,7 @@ export interface CameleonQueryParams {
 
 export const DEFAULT_CAMELEON_QUERY: CameleonQueryParams = {
   bodies: "painted",
-  dir: "poster",
+  dir: "screenprint",
   mode: "tap",
 };
 

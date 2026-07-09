@@ -11,7 +11,7 @@ describe("Cameleon smoke", () => {
     const boot = await bootGame(app, {
       level: loadLidoFixture(),
       startRuntime: false,
-      query: { bodies: "white", dir: "night", mode: "confirm" },
+      query: { bodies: "white", dir: "roughrender", mode: "confirm" },
     });
 
     expect(boot.machine.state).toBe("menu");
@@ -20,16 +20,16 @@ describe("Cameleon smoke", () => {
     expect(boot.screen.canvas).toBeInstanceOf(HTMLCanvasElement);
     expect(boot.controller.snapshot()).toMatchObject({
       bodies: "white",
-      dir: "night",
+      dir: "roughrender",
       mode: "confirm",
     });
     expect(app.querySelector(".fab-home-menu")).not.toBeNull();
     expect(app.querySelectorAll(".fab-levelmap-node")).toHaveLength(4);
     app.querySelector<HTMLButtonElement>(".cameleon-screen__settings-open")?.click();
     expect(app.querySelector<HTMLButtonElement>(".cameleon-screen__mode-button[data-mode='confirm']")?.getAttribute("aria-pressed")).toBe("true");
-    expect(app.querySelector<HTMLButtonElement>(".cameleon-screen__direction-button[data-direction='night']")?.getAttribute("aria-pressed")).toBe("true");
-    app.querySelector<HTMLButtonElement>(".cameleon-screen__direction-button[data-direction='riso']")?.click();
-    expect(boot.controller.snapshot().dir).toBe("riso");
+    expect(app.querySelector<HTMLButtonElement>(".cameleon-screen__direction-button[data-direction='roughrender']")?.getAttribute("aria-pressed")).toBe("true");
+    app.querySelector<HTMLButtonElement>(".cameleon-screen__direction-button[data-direction='gouache']")?.click();
+    expect(boot.controller.snapshot().dir).toBe("gouache");
     expect(app.querySelectorAll(".cameleon-screen__bench-slot")).toHaveLength(12);
     app.querySelector<HTMLButtonElement>(".cameleon-screen__modal-close")?.click();
 
