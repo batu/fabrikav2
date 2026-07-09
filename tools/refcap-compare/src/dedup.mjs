@@ -1,5 +1,5 @@
 // Dedup guard (fixes ledger B2). A capture set is invalid if two captures tagged
-// as DIFFERENT canonical states are perceptually identical — that is exactly the
+// as DIFFERENT manifest states are perceptually identical — that is exactly the
 // "near-duplicate captures labeled as distinct states" failure. Hard error naming
 // the colliding states, never a silent pass.
 

@@ -1,14 +1,11 @@
-import { CANONICAL_STATES } from './states.mjs';
+import { shotToken } from './states.mjs';
 
-const CANONICAL_SET = new Set(CANONICAL_STATES);
-
-export function stateFromViewportMetricsAttachmentName(name) {
+export function stateFromViewportMetricsAttachmentName(name, states = []) {
   if (typeof name !== 'string') return null;
-  const base = name.replace(/\.[a-z0-9]+$/i, '');
-  const attachment = base.split('_')[0];
-  const token = attachment.replace(/^\d+[-.]/, '').toLowerCase();
+  const validStates = new Set(Array.isArray(states) ? states : []);
+  const token = shotToken(name);
   const state = token.replace(/-viewportmetrics(?:-missing)?$/, '');
-  return CANONICAL_SET.has(state) && state !== token ? state : null;
+  return validStates.has(state) && state !== token ? state : null;
 }
 
 export function parseViewportMetricsLabel(label) {

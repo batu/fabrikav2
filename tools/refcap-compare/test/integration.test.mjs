@@ -9,7 +9,7 @@ const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '.
 describe('offline grid build (marble_run manifest)', () => {
   const manifest = loadGameManifest('marble_run', REPO);
 
-  it('loads the canonical states from the committed manifest', () => {
+  it('loads states from the committed manifest', () => {
     expect(manifest.game).toBe('marble_run');
     expect(manifest.states.map((s) => s.name)).toEqual(
       ['menu', 'level', 'settings', 'pause', 'win', 'fail'],
