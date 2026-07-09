@@ -31,26 +31,34 @@ hardened step-4 tool (claims-view, twf card Yg2DZKNO, parked) will timestamp-ver
 - Win: dragon fully unraveled (all sections pulled) before it reaches the cat. [inference]
 - Fail: dragon reaches the cat, or slot deadlock (4 unmatchable spools). [Batu: deadlock = death]
 
-## Mechanics resolution [Batu, 2026-07-09 — HIGH, build against these]
+## Mechanics resolution [Batu, 2026-07-09 — HIGH, build against these; grilled via ce-brainstorm]
 
-1. **Pull:** a spool of length N pulls exactly N yarn sections, always the **closest matching
-   section**. When several spools are active, the **closest-to-finish spool finishes first**.
-2. **Dragon motion:** constant forward speed; while being pulled it shortens at the pull rate,
-   so it **effectively stays in place during a pull**.
-3. **Slots:** free only when a spool completes. (Discard/swap are sellable boosters — later.)
-4. **Levels:** single layout style. A level = the thread map; win = **finish the map** (clear
+1. **Pull:** a spool of length N pulls exactly N yarn sections, always the **closest VISIBLE
+   matching section** (pullable = sections currently on screen — the viewport is the scarcity
+   window; the dragon is longer than the visible track). When several spools are active, the
+   **closest-to-finish spool finishes first**. Pulling a middle section: the body **seams shut
+   (gap closes, Zuma-style)** — adjacencies change.
+2. **Dragon motion:** constant forward speed; while any pull is active it shortens at the pull
+   rate, so it **effectively stays in place during a pull**. A spool with no visible match
+   **idles, keeping progress and its slot** — idle spools lose the race (the teal-death case:
+   4 teal spools while teal lives at the unseen tail ⇒ the dragon reaches the cat).
+3. **Layout:** dragon track = TOP half of the screen, S / reverse-S curve; thread board =
+   BOTTOM half; tail feeds in from the top edge. Cat at the track's end.
+4. **Slots:** free only when a spool completes; released thread → leftmost free slot.
+   (Discard/swap are sellable boosters — later.)
+5. **Levels:** single layout style. A level = the thread map; win = **finish the map** (clear
    all threads). Dragon length is **derived from the board**: more tiles ⇒ longer dragon.
    Invariant: dragon sections per color == total thread length per color (conservation).
    Never more than 4 slots. v0: ~3 levels; level 1 = ~6 tiles, very simple; grow difficulty.
-5. **Boosters: none in v0.**
-6. **Warehouse boxes: none in v0.** (Their role: they spawn new tiles — for later.)
-7. **Blocking:** only other threads. No walls/obstacles in v0.
+6. **Fail:** dragon's head touches the cat — instant. No separate deadlock detection in v0;
+   the cat clock resolves deadlocks naturally.
+7. **Boosters: none in v0.** **Warehouse boxes: none in v0** (they spawn new tiles — later).
+8. **Blocking:** only other threads. No walls/obstacles in v0.
 
 ## v0 scope
 
 - 3 levels, single layout style, 4 slots fixed, no boosters, no warehouse, no timers.
-- Fail = dragon reaches the cat, or 4-slot deadlock (no spool matches any remaining
-  accessible dragon section AND no thread can be released).
+- Fail = dragon's head reaches the cat (deadlocks lose via the clock, no separate detection).
 - Minimalist gameplay rendering (dragon = curving line of colored sections); full-clone shell.
 
 ## Meta & monetization [frames + web, MEDIUM]
