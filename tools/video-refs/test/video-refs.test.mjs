@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { parseFrameRate, selectFrameRate, snapToFrameMidpoint } from '../src/time.mjs';
 
 const TOOL_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const RUN = path.join(TOOL_DIR, 'run.mjs');
@@ -31,11 +32,11 @@ function makeFixtureVideo(dir) {
     '-f',
     'lavfi',
     '-i',
-    'color=c=red:s=320x180:d=2',
+    'color=c=red:s=320x180:r=30:d=2',
     '-f',
     'lavfi',
     '-i',
-    'color=c=blue:s=320x180:d=2',
+    'color=c=blue:s=320x180:r=30:d=2',
     '-filter_complex',
     '[0:v][1:v]concat=n=2:v=1:a=0,format=yuv420p',
     video,
@@ -43,7 +44,29 @@ function makeFixtureVideo(dir) {
   return video;
 }
 
+function assertMidFrame(t, fps) {
+  const scaled = t * fps;
+  const nearestMidpoint = Math.floor(scaled) + 0.5;
+  assert.ok(
+    Math.abs(scaled - nearestMidpoint) <= 1e-6,
+    `expected ${t} to be on the ${fps}fps midpoint grid`,
+  );
+}
+
 describe('video-refs CLI', () => {
+  it('parses and selects frame rates for midpoint snapping', () => {
+    assert.equal(parseFrameRate('30/1'), 30);
+    assert.equal(parseFrameRate('30000/1001'), 30000 / 1001);
+    assert.equal(parseFrameRate('0/0'), null);
+    assert.equal(selectFrameRate({ avgFrameRate: '30/1', rFrameRate: '30/1' }), 30);
+    assert.equal(selectFrameRate({ avgFrameRate: '0/0', rFrameRate: '30000/1001' }), 30000 / 1001);
+    assert.throws(
+      () => selectFrameRate({ avgFrameRate: '30000/1001', rFrameRate: '30/1' }),
+      /conflicting video frame rates/,
+    );
+    assert.equal(snapToFrameMidpoint(2, 30), 60.5 / 30);
+  });
+
   it('suggests, builds a self-contained picker, and extracts verdict frames', () => {
     const dir = makeTempDir();
     const video = makeFixtureVideo(dir);
@@ -66,10 +89,16 @@ describe('video-refs CLI', () => {
     const candidates = JSON.parse(fs.readFileSync(candidatesPath, 'utf8'));
     assert.equal(candidates.video, video);
     assert.equal(candidates.duration_s, 4);
+    assert.equal(candidates.fps, 30);
     assert.ok(candidates.candidates.length >= 2, 'expected red and blue candidates after dedup');
-    assert.ok(candidates.candidates.some((candidate) => Math.abs(candidate.t - 0) < 0.2));
-    assert.ok(candidates.candidates.some((candidate) => Math.abs(candidate.t - 2) < 0.25));
+    const firstFrameMidpoint = snapToFrameMidpoint(0, candidates.fps);
+    const sceneMidpoint = snapToFrameMidpoint(2 + (2 / candidates.fps), candidates.fps);
+    const uniformCutMidpoint = snapToFrameMidpoint(2, candidates.fps);
+    assert.ok(candidates.candidates.some((candidate) => Math.abs(candidate.t - firstFrameMidpoint) <= 1e-6));
+    assert.ok(candidates.candidates.some((candidate) => Math.abs(candidate.t - sceneMidpoint) <= 1e-6));
+    assert.ok(!candidates.candidates.some((candidate) => Math.abs(candidate.t - uniformCutMidpoint) <= 1e-6));
     for (const candidate of candidates.candidates) {
+      assertMidFrame(candidate.t, candidates.fps);
       assert.ok(fs.existsSync(path.join(suggestOut, candidate.file)), `missing ${candidate.file}`);
     }
 
