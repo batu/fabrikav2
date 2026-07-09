@@ -40,6 +40,20 @@ interface CreateUiRootOptions {
   theme?: ThemeTokens;
   /** Root tag name. Defaults to div for existing overlay components. */
   tagName?: 'button' | 'div';
+  /**
+   * Component identity for kind-validated re-entrant reuse. When set, a
+   * re-entrant mount only reuses the existing root if it was registered under
+   * the SAME kind; a root registered under a different kind (or a foreign/
+   * untracked element sharing this id) is an incompatible collision — the stale
+   * root is torn down (listeners/DOM/timers) and a fresh root is built instead.
+   * This stops a caller from receiving a handle whose methods belong to another
+   * component (which would throw on the missing method it blindly casts to).
+   *
+   * When unset, legacy behavior holds: any existing root with this id is treated
+   * as re-entrant (tracked handle reused, else an inert handle bound to it), and
+   * the caller is responsible for validating/adapting the returned handle.
+   */
+  kind?: string;
 }
 
 export interface UiRootControls {
@@ -65,8 +79,14 @@ export type CreateUiRootResult =
 
 // Live handles keyed by their mounted root, so a re-entrant mount can return the
 // REAL handle (working dismiss / accurate dismissed) instead of a dead no-op.
+// The `kind` tags which component registered the root, so a kind-validated mount
+// can reject a handle whose methods belong to a different component.
 // WeakMap → entries clear when the element is GC'd; close() deletes eagerly.
-const MOUNTED = new WeakMap<HTMLElement, UiHandle>();
+interface MountRecord {
+  handle: UiHandle;
+  kind?: string;
+}
+const MOUNTED = new WeakMap<HTMLElement, MountRecord>();
 
 export function createUiRoot(opts: CreateUiRootOptions): CreateUiRootResult {
   // Match by id among direct children — the root is always appendChild'd to
@@ -77,12 +97,26 @@ export function createUiRoot(opts: CreateUiRootOptions): CreateUiRootResult {
     (child): child is HTMLElement => child instanceof HTMLElement && child.id === opts.id,
   );
   if (existing) {
-    // Re-entrant: a root with this id is already open. Return its LIVE handle
-    // so the caller can actually dismiss it and `await dismissed` truthfully.
-    const live = MOUNTED.get(existing);
-    if (live) return { reentrant: true, handle: live };
-    // Fallback (element not ours / pre-existing): inert handle bound to it.
-    return { reentrant: true, handle: { el: existing, dismiss: () => {}, dismissed: Promise.resolve() } };
+    const record = MOUNTED.get(existing);
+    if (opts.kind !== undefined) {
+      // Kind-validated reuse: reuse ONLY a live root registered under the same
+      // kind — that handle has this component's methods, so returning it is safe.
+      if (record && record.kind === opts.kind) {
+        return { reentrant: true, handle: record.handle };
+      }
+      // Incompatible collision: a root under a different kind, or a foreign/
+      // untracked element holding this id. Tear the stale one down (aborting its
+      // listeners, clearing its timers, removing its DOM — no leak) and fall
+      // through to build a fresh, correctly-typed root in its place.
+      if (record) record.handle.dismiss();
+      else existing.remove();
+    } else {
+      // Legacy: a root with this id is already open. Return its LIVE handle so
+      // the caller can actually dismiss it and `await dismissed` truthfully.
+      if (record) return { reentrant: true, handle: record.handle };
+      // Fallback (element not ours / pre-existing): inert handle bound to it.
+      return { reentrant: true, handle: { el: existing, dismiss: () => {}, dismissed: Promise.resolve() } };
+    }
   }
 
   const el = document.createElement(opts.tagName ?? 'div');
@@ -143,7 +177,7 @@ export function createUiRoot(opts: CreateUiRootOptions): CreateUiRootResult {
 
   const finalize = (override?: UiHandle): UiHandle => {
     const handle: UiHandle = override ?? { el, dismiss: close, dismissed };
-    MOUNTED.set(el, handle);
+    MOUNTED.set(el, { handle, kind: opts.kind });
     opts.mountInto.appendChild(el);
     return handle;
   };

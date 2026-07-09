@@ -44,7 +44,11 @@ export function mountConnectivityIndicator(
     id: opts.id ?? `fab-connectivity-${++nextIndicatorId}`,
     className: ['fab-ui', 'fab-connectivity', opts.className].filter(Boolean).join(' '),
     theme: opts.theme,
+    kind: 'connectivity',
   });
+  // Kind-validated: a re-entrant handle here is guaranteed to be a live indicator
+  // (createUiRoot replaces any incompatible mount), so the cast can't hand back a
+  // handle missing `isOnline`.
   if (root.reentrant) return root.handle as ConnectivityIndicatorHandle;
 
   const dot = root.el;
