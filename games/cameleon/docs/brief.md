@@ -2,11 +2,11 @@
 
 Game id: `cameleon`
 
-Full binding design: [DESIGN.md](DESIGN.md). Product brief source:
+Binding design: [LEVELS.md](LEVELS.md) (current) + [DESIGN.md](DESIGN.md) (day-1 record). Product brief source:
 `/Users/base/dev/appletolye/cameleon/FABLE_PROMPT.md` (read-only reference repo).
 
 ## What it is
-A portrait hidden-object game: you scroll one wide sunny lido (public pool) scene
+A portrait hidden-object game: you scroll wide illustrated scenes (four levels: bathhouse, waterpark arcade, museum, lido)
 left/right and hunt white doughboy ragdoll people painted to look like towels, signs,
 robes, and pool junk — visible but misread, never invisible. Tap (or spend limited
 paint-darts on) a suspect; on a hit the paint flakes off, the white body is exposed in

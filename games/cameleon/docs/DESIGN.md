@@ -1,5 +1,13 @@
 # CAMELEON — Level 1 "Sunwash Lido" — Design
 
+> **STATUS (2026-07-09):** historical design record of the day-1 build. The
+> shipped game has evolved: FOUR levels (docs/LEVELS.md — Bathhouse, Splashworld,
+> Museum, Lido re-arted), the ORIGINAL Screenprint style as the single production
+> direction (LEVELS.md §7), the house-kit shell (saga/settings/result/pause), and
+> POSE-FIRST hide silhouettes (LEVELS.md §8). Where this file and LEVELS.md
+> disagree, LEVELS.md wins. The found-beat (§7), modes (§6), fairness valves
+> (§5), and tech shape (§10) remain accurate.
+
 Conductor-authored, 2026-07-08. This document is the binding design for the fabrikav2
 implementation. Inputs: FABLE_PROMPT.md (old repo, binding brief), the old repo's research
 corpus and AESTH-2 adversarial review (read in full), and the fresh reference pull in
