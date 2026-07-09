@@ -71,6 +71,15 @@ function buildHtml(model) {
       margin: 0 auto;
       padding: max(14px, env(safe-area-inset-top)) 14px max(18px, env(safe-area-inset-bottom));
     }
+    .picker-layout {
+      display: grid;
+    }
+    .video-pane {
+      display: contents;
+    }
+    .candidate-pane {
+      order: 2;
+    }
     .topbar {
       display: flex;
       align-items: center;
@@ -157,6 +166,7 @@ function buildHtml(model) {
       background: #ffffff;
       border: 1px solid rgba(24, 27, 32, 0.12);
       border-radius: 8px;
+      cursor: pointer;
     }
     .frame.dropped {
       opacity: 0.55;
@@ -212,6 +222,7 @@ function buildHtml(model) {
       color: #483500;
     }
     .status {
+      order: 3;
       min-height: 22px;
       margin-top: 10px;
       color: #334155;
@@ -221,6 +232,42 @@ function buildHtml(model) {
     }
     .status.success { color: #136f3b; font-weight: 700; }
     .status.error { color: #b3261e; font-weight: 700; }
+    @media (min-width: 900px) {
+      main {
+        width: min(100%, 1180px);
+        padding: max(16px, env(safe-area-inset-top)) 18px max(22px, env(safe-area-inset-bottom));
+      }
+      .topbar {
+        margin-bottom: 14px;
+      }
+      .picker-layout {
+        grid-template-columns: minmax(360px, 45%) minmax(0, 1fr);
+        gap: 18px;
+        align-items: start;
+      }
+      .video-pane {
+        display: block;
+        position: sticky;
+        top: 0;
+        max-height: 100vh;
+        overflow-y: auto;
+        padding-bottom: max(18px, env(safe-area-inset-bottom));
+        background: #f6f4ef;
+      }
+      .candidate-pane {
+        order: initial;
+        min-width: 0;
+      }
+      .status {
+        order: initial;
+      }
+      video {
+        max-height: 52vh;
+      }
+      .list {
+        gap: 10px;
+      }
+    }
     @media (max-width: 430px) {
       main { padding-left: 10px; padding-right: 10px; }
       .frame { grid-template-columns: 96px 1fr; }
@@ -235,14 +282,20 @@ function buildHtml(model) {
       <h1>Reference frames</h1>
       <div class="count" id="count"></div>
     </div>
-    <video id="video" src="${escapeHtml(model.videoSrc)}" playsinline controls preload="metadata"></video>
-    <div class="timeline" id="timeline" aria-label="candidate timeline"></div>
-    <div class="actions">
-      <button id="add" type="button">Add frame at current time</button>
-      <button id="submit" type="button" class="primary">Submit frames</button>
+    <div class="picker-layout">
+      <section class="video-pane" aria-label="video controls">
+        <video id="video" src="${escapeHtml(model.videoSrc)}" playsinline controls preload="metadata"></video>
+        <div class="timeline" id="timeline" aria-label="candidate timeline"></div>
+        <div class="actions">
+          <button id="add" type="button">Add frame at current time</button>
+          <button id="submit" type="button" class="primary">Submit frames</button>
+        </div>
+        <div class="status" id="status" role="status"></div>
+      </section>
+      <section class="candidate-pane" aria-label="candidate frames">
+        <div class="list" id="list"></div>
+      </section>
     </div>
-    <div class="list" id="list"></div>
-    <div class="status" id="status" role="status"></div>
   </main>
   <script>
     const MODEL = ${json};
@@ -293,13 +346,19 @@ function buildHtml(model) {
         const img = document.createElement('img');
         img.src = marker.thumb;
         img.alt = marker.label + ' at ' + fmt(marker.t) + 's';
-        img.addEventListener('click', () => seekTo(marker.t));
+        img.addEventListener('click', (event) => {
+          event.stopPropagation();
+          seekTo(marker.t);
+        });
         return img;
       }
       const node = document.createElement('div');
       node.className = 'manual-thumb';
       node.textContent = 'ADDED';
-      node.addEventListener('click', () => seekTo(marker.t));
+      node.addEventListener('click', (event) => {
+        event.stopPropagation();
+        seekTo(marker.t);
+      });
       return node;
     }
 
@@ -326,6 +385,11 @@ function buildHtml(model) {
         .forEach((marker) => {
           const item = document.createElement('section');
           item.className = 'frame' + (marker.keep ? '' : ' dropped');
+          item.addEventListener('click', (event) => {
+            const target = event.target;
+            if (target instanceof Element && target.closest('button')) return;
+            seekTo(marker.t);
+          });
           item.appendChild(markerThumb(marker));
 
           const meta = document.createElement('div');
