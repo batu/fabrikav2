@@ -115,25 +115,45 @@ describe('video-refs CLI', () => {
     ]);
     const html = fs.readFileSync(htmlPath, 'utf8');
     assert.match(html, /src="02_fixture\.mp4"/);
-    assert.match(html, /INITIAL_MARKERS/);
+    assert.match(html, /var MODEL = /);
+    assert.match(html, /var LABELS = \["menu","level","settings","pause","win","fail","gameplay","other"\];/);
+    assert.match(html, /markers: MODEL\.markers\.map\(function \(m\) \{ return Object\.assign\(\{\}, m\); \}\)/);
+    assert.match(html, /var FPS = MODEL\.fps \|\| null;/);
+    assert.doesNotMatch(html, /INITIAL_MARKERS/);
     assert.doesNotMatch(html, /https?:\/\//i);
-    assert.match(html, /<div class="picker-layout">/);
+    assert.match(html, /<div class="workspace">/);
     assert.match(
       html,
-      /<section class="video-pane" aria-label="video controls">[\s\S]*<video id="video"[\s\S]*<div class="status" id="status" role="status"><\/div>[\s\S]*<\/section>/,
+      /<section class="stage" aria-label="video stage">[\s\S]*<video id="video" src="02_fixture\.mp4"[\s\S]*<\/section>/,
     );
     assert.match(
       html,
-      /<section class="candidate-pane" aria-label="candidate frames">\s*<div class="list" id="list"><\/div>\s*<\/section>/,
+      /<section class="rail-shell" aria-label="candidate frames">[\s\S]*<div class="rail" id="rail"><\/div>[\s\S]*<div class="status" id="status" role="status">Review the candidates, then submit the kept frames\.<\/div>[\s\S]*<\/section>/,
     );
+    assert.match(html, /<nav class="kbd-hint" aria-label="keyboard shortcuts">[\s\S]*<kbd>Space<\/kbd> play[\s\S]*<kbd>J<\/kbd><kbd>K<\/kbd> walk[\s\S]*<kbd>X<\/kbd> keep \/ drop[\s\S]*<kbd>1<\/kbd>[\s\S]*<kbd>8<\/kbd> label[\s\S]*<\/nav>/);
+    assert.match(html, /function makeChips\(m\) \{[\s\S]*LABELS\.forEach\(function \(label, i\) \{[\s\S]*c\.className = 'chip' \+ \(m\.label === label \? ' active' : ''\);[\s\S]*assignLabel\(m, label\);/);
+    assert.match(html, /<button class="submit" id="submit" type="button">Submit<\/button>/);
     assert.match(
       html,
-      /@media \(min-width: 900px\) \{[\s\S]*grid-template-columns: minmax\(360px, 45%\) minmax\(0, 1fr\);[\s\S]*position: sticky;[\s\S]*top: 0;[\s\S]*max-height: 100vh;/,
+      /\.workspace \{[\s\S]*grid-template-columns: minmax\(440px, 42%\) minmax\(0, 1fr\);[\s\S]*min-height: 0;/,
     );
+    assert.doesNotMatch(html, /class="picker-layout"/);
+    assert.doesNotMatch(html, /class="video-pane"/);
+    assert.doesNotMatch(html, /class="candidate-pane"/);
+    assert.doesNotMatch(html, /class="list" id="list"/);
+    assert.doesNotMatch(html, /\.video-pane[\s\S]*position: sticky;[\s\S]*max-height: 100vh;/);
     assert.match(
       html,
-      /item\.addEventListener\('click', \(event\) => \{[\s\S]*target instanceof Element && target\.closest\('button'\)[\s\S]*seekTo\(marker\.t\);[\s\S]*\}\);/,
+      /function makeCard\(m\) \{[\s\S]*card\.addEventListener\('click', function \(\) \{ if \(m\.id !== state\.focusId\) setFocus\(m\.id, \{\}\); \}\);[\s\S]*return card;/,
     );
+    assert.match(html, /function setFocus\(id, opts\) \{[\s\S]*if \(opts\.seek\) seekTo\(m\.t\);[\s\S]*node\.scrollIntoView\(\{ block: 'nearest', behavior: 'smooth' \}\);/);
+    assert.match(html, /document\.addEventListener\('keydown', function \(e\) \{[\s\S]*if \(e\.key === ' ' \|\| e\.key === 'Spacebar'\)[\s\S]*if \(e\.key === 'j' \|\| e\.key === 'ArrowDown' \|\| e\.key === 'ArrowRight'\)[\s\S]*if \(e\.key === 'k' \|\| e\.key === 'ArrowUp' \|\| e\.key === 'ArrowLeft'\)[\s\S]*if \(e\.key === 'x' \|\| e\.key === 'd'\)[\s\S]*if \(e\.key >= '1' && e\.key <= '8'\)/);
+    assert.match(html, /function resetConfirm\(\) \{[\s\S]*state\.confirming = false;[\s\S]*clearTimeout\(confirmTimer\);[\s\S]*updateSubmitLabel\(\);[\s\S]*\}/);
+    assert.match(html, /if \(!state\.confirming\) \{[\s\S]*state\.confirming = true;[\s\S]*Click Confirm to send, or make more edits\.[\s\S]*confirmTimer = setTimeout\(resetConfirm, 4000\);[\s\S]*return;[\s\S]*\}/);
+    assert.match(html, /await fetch\('\/r\/' \+ encodeURIComponent\(reqId\) \+ '\/decide', \{[\s\S]*method: 'POST'[\s\S]*body: JSON\.stringify\(\{ payload: \{ frames: frames \} \}\)/);
+    assert.match(html, /\.map\(function \(m\) \{ return \{ t: m\.t, label: m\.label, source: m\.source \}; \}\);/);
+    assert.match(html, /state\.submitted = true;[\s\S]*setStatus\('Submitted ' \+ frames\.length \+ ' frames\. Portal has your selection\.', 'success'\);[\s\S]*submitBtn\.textContent = '.*Submitted';/);
+    assert.match(html, /catch \(err\) \{[\s\S]*setStatus\(err\.message, 'error'\);[\s\S]*submitBtn\.disabled = false;[\s\S]*updateSubmitLabel\(\);/);
 
     const verdictPath = path.join(dir, 'verdict.json');
     fs.writeFileSync(verdictPath, JSON.stringify({
