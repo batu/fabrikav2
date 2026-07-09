@@ -74,6 +74,7 @@ import {
   viewportMetricAssertionsPass,
 } from './src/viewportMetrics.mjs';
 import * as steps from './src/steps.mjs';
+import { deliverReport } from './src/portal.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
@@ -421,6 +422,21 @@ async function main() {
     formatSummaryTable(summary) +
     compareTable
   );
+
+  // OPTIONAL Portal delivery (portal-spec.md §10): push grid.html + summary.json
+  // to a Portal stream as a `report`. Best-effort — deliverReport never throws
+  // and never touches the exit code; a missing config or failed POST logs one
+  // warning and the run continues exactly as it would have without --portal-stream.
+  const portalStream = args.portalStream || process.env.PORTAL_STREAM;
+  if (portalStream) {
+    await deliverReport({
+      slug: portalStream,
+      game: args.game,
+      date,
+      files: [outFile, summaryFile],
+    });
+  }
+
   return computeStrictExitCode({
     strict: args.strict,
     lane,

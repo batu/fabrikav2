@@ -89,6 +89,15 @@ Options:
                        load summary.json from a previous verify-device run
                        (falling back to panel.json for older runs) and print
                        per-state score / consensus / verdict deltas.
+  --portal-stream <slug>
+                       OPTIONAL. After the run, also POST grid.html + summary.json
+                       to the Portal (gallery) stream <slug> as a report post
+                       (portal-spec.md §10). Stream auto-creates server-side.
+                       Falls back to the PORTAL_STREAM env var. Portal URL+token
+                       come from GALLERY_URL/GALLERY_TOKEN, else
+                       ~/.gallery/config.json. Delivery is best-effort: a missing
+                       config or a failed POST logs one warning and never changes
+                       the verify exit code.
   -h, --help           show this help.
 
 Crops:
@@ -108,7 +117,8 @@ the panel skips gracefully (exit 0) and on-device fidelity stays UNVERIFIED.
  *   out?:string, date?:string, contentInsetTop?:number, contentInsetBottom?:number,
  *   threshold:number, ensemble:string, models?:string[],
  *   panelThreshold:number, skipPanel:boolean, strict:boolean, allowUngated:boolean,
- *   skipDevice:boolean, lane:'device'|'browser', budgetFloor:number, compare?:string, help:boolean}}
+ *   skipDevice:boolean, lane:'device'|'browser', budgetFloor:number, compare?:string,
+ *   portalStream?:string, help:boolean}}
  */
 export function parseArgs(argv) {
   const args = {
@@ -150,6 +160,7 @@ export function parseArgs(argv) {
     else if (a === '--lane') args.lane = parseLane(req(argv, ++i, a));
     else if (a === '--budget-floor') args.budgetFloor = parseBudgetFloor(req(argv, ++i, a));
     else if (a === '--compare') args.compare = req(argv, ++i, a);
+    else if (a === '--portal-stream') args.portalStream = req(argv, ++i, a);
     else if (a === '--help' || a === '-h') args.help = true;
     else throw new Error(`unknown argument: ${a}`);
   }

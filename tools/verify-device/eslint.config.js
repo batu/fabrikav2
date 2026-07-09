@@ -18,6 +18,8 @@ export default [
         global: "readonly",
         URL: "readonly",
         AbortController: "readonly",
+        FormData: "readonly",
+        Blob: "readonly",
       },
     },
   },
