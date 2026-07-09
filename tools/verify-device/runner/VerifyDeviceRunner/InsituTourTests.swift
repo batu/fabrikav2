@@ -110,6 +110,12 @@ final class InsituTourTests: XCTestCase {
         let app = XCUIApplication(bundleIdentifier: bundleId)
         app.launch()
 
+        // SYSTEM-ALERT SWEEP: any OS permission dialog (from THIS app or queued by
+        // another app) photobombs every capture and tanks the visual panel. Sweep
+        // Springboard for alerts and dismiss them, preferring the non-granting
+        // button so a capture run never silently grants a permission.
+        dismissSystemAlerts()
+
         // ELEMENT-GATED CAPTURE (replaces the old fixed-interval sleep cadence).
         // The allstates tour publishes `tourstate:<state>` on a hidden a11y element
         // (#__tourstate__, role=text) as it CONFIRMS each state via the harness
@@ -144,6 +150,29 @@ final class InsituTourTests: XCTestCase {
                     + "the tour did not reach it (or the harness/tour flag is off). "
                     + "A missing state is a loud failure, not a silent wrong frame.")
             }
+        }
+    }
+
+    /// Dismiss any Springboard alert covering the screen. Prefers deny-style
+    /// buttons; falls back to the first button so an unknown dialog still clears.
+    private func dismissSystemAlerts() {
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let deadline = Date().addingTimeInterval(5)
+        while Date() < deadline {
+            let alert = springboard.alerts.firstMatch
+            guard alert.waitForExistence(timeout: 1.5) else { return }
+            let preferred = ["Don’t Allow", "Don't Allow", "Not Now", "Later", "Cancel", "OK", "Dismiss"]
+            var tapped = false
+            for label in preferred where alert.buttons[label].exists {
+                alert.buttons[label].tap()
+                tapped = true
+                break
+            }
+            if !tapped {
+                let first = alert.buttons.firstMatch
+                if first.exists { first.tap() } else { return }
+            }
+            Thread.sleep(forTimeInterval: 0.5)
         }
     }
 }
