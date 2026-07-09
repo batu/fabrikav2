@@ -28,178 +28,206 @@
   "states": [
     {
       "state": "menu",
-      "score": 100,
+      "score": 85,
       "status": "pass",
-      "reason": "panel 100% ≥ 85%, no blocker consensus",
+      "reason": "panel 85% ≥ 85%, no blocker consensus",
       "models": [
         {
           "judge": "opus",
           "model": "anthropic/claude-opus-4.1",
           "ok": true,
-          "fidelity": 95
+          "fidelity": 85
         },
         {
           "judge": "sonnet",
           "model": "anthropic/claude-sonnet-5",
           "ok": true,
-          "fidelity": 100
+          "fidelity": 75
         },
         {
           "judge": "gemini-flash",
           "model": "google/gemini-3.5-flash",
-          "ok": true,
-          "fidelity": 100
-        }
-      ],
-      "consensus": []
-    },
-    {
-      "state": "level",
-      "score": 100,
-      "status": "pass",
-      "reason": "panel 100% ≥ 85%, no blocker consensus",
-      "models": [
-        {
-          "judge": "opus",
-          "model": "anthropic/claude-opus-4.1",
-          "ok": true,
-          "fidelity": 95
-        },
-        {
-          "judge": "sonnet",
-          "model": "anthropic/claude-sonnet-5",
-          "ok": true,
-          "fidelity": 100
-        },
-        {
-          "judge": "gemini-flash",
-          "model": "google/gemini-3.5-flash",
-          "ok": true,
-          "fidelity": 100
-        }
-      ],
-      "consensus": []
-    },
-    {
-      "state": "settings",
-      "score": 99,
-      "status": "pass",
-      "reason": "panel 99% ≥ 85%, no blocker consensus",
-      "models": [
-        {
-          "judge": "opus",
-          "model": "anthropic/claude-opus-4.1",
           "ok": true,
           "fidelity": 98
-        },
-        {
-          "judge": "sonnet",
-          "model": "anthropic/claude-sonnet-5",
-          "ok": true,
-          "fidelity": 100
-        },
-        {
-          "judge": "gemini-flash",
-          "model": "google/gemini-3.5-flash",
-          "ok": true,
-          "fidelity": 99
         }
       ],
       "consensus": [
         {
-          "key": "text-content",
+          "key": "extra-element",
           "count": 2,
           "of": 3,
           "severity": "minor",
           "descriptions": [
-            "Status bar time displays different time",
-            "The system clock in the status bar displays a different time."
+            "Extra text overlay in header area",
+            "System status bar shows a back navigation shortcut link 'UnityFabrika...' in the top left corner, which is not present in the reference."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "level",
+      "score": 85,
+      "status": "pass",
+      "reason": "panel 85% ≥ 85%, no blocker consensus",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 85
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 70
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 98
+        }
+      ],
+      "consensus": [
+        {
+          "key": "iconography",
+          "count": 3,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Character icon shows different figure",
+            "The circular icon graphic differs in style/design",
+            "The target icon inside the gold medallion on the background wall is different."
+          ]
+        },
+        {
+          "key": "extra-element",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Additional text appears in top left corner",
+            "Wall lamp fixture beneath the coin icon is missing in ours"
+          ]
+        },
+        {
+          "key": "other",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Status bar shows a developer/debug overlay text instead of clean status bar",
+            "System status bar shows back-to-app navigation link 'UnityFabrika...' on the top left, overlaying the time."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "settings",
+      "score": 95,
+      "status": "pass",
+      "reason": "panel 95% ≥ 85%, no blocker consensus",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 95
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 90
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 98
+        }
+      ],
+      "consensus": [
+        {
+          "key": "extra-element",
+          "count": 3,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Additional status bar text at top left",
+            "A debug/development status bar overlay with a back arrow and 'UnityFabrika...' label appears at the top, not present in reference",
+            "An iOS status bar navigation return link is visible in the top left corner."
           ]
         }
       ]
     },
     {
       "state": "pause",
-      "score": 99,
+      "score": 85,
       "status": "pass",
-      "reason": "panel 99% ≥ 85%, no blocker consensus",
+      "reason": "panel 85% ≥ 85%, no blocker consensus",
       "models": [
         {
           "judge": "opus",
           "model": "anthropic/claude-opus-4.1",
           "ok": true,
-          "fidelity": 95
+          "fidelity": 85
         },
         {
           "judge": "sonnet",
           "model": "anthropic/claude-sonnet-5",
           "ok": true,
-          "fidelity": 100
+          "fidelity": 80
         },
         {
           "judge": "gemini-flash",
           "model": "google/gemini-3.5-flash",
           "ok": true,
-          "fidelity": 99
+          "fidelity": 98
         }
       ],
       "consensus": [
         {
-          "key": "text-content",
+          "key": "extra-element",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Additional back button and text in top left",
+            "A status/back bar with app name is shown below the time in OURS but absent in REFERENCE",
+            "Navigation status bar includes application back-link text 'UnityFabrika...' indicating build environment leak."
+          ]
+        },
+        {
+          "key": "iconography",
           "count": 2,
           "of": 3,
           "severity": "minor",
           "descriptions": [
-            "Different time displayed in status bar",
-            "The system clock in the status bar shows a different time."
+            "Character icon in circular frame is different",
+            "The coin/medal icon graphic differs in style and color detail"
           ]
         }
       ]
     },
     {
       "state": "win",
-      "score": 100,
+      "score": 85,
       "status": "pass",
-      "reason": "panel 100% ≥ 85%, no blocker consensus",
+      "reason": "panel 85% ≥ 85%, no blocker consensus",
       "models": [
         {
           "judge": "opus",
           "model": "anthropic/claude-opus-4.1",
           "ok": true,
-          "fidelity": 98
+          "fidelity": 85
         },
         {
           "judge": "sonnet",
           "model": "anthropic/claude-sonnet-5",
           "ok": true,
-          "fidelity": 100
-        },
-        {
-          "judge": "gemini-flash",
-          "model": "google/gemini-3.5-flash",
-          "ok": true,
-          "fidelity": 100
-        }
-      ],
-      "consensus": []
-    },
-    {
-      "state": "fail",
-      "score": 98,
-      "status": "pass",
-      "reason": "panel 98% ≥ 85%, no blocker consensus",
-      "models": [
-        {
-          "judge": "opus",
-          "model": "anthropic/claude-opus-4.1",
-          "ok": true,
-          "fidelity": 98
-        },
-        {
-          "judge": "sonnet",
-          "model": "anthropic/claude-sonnet-5",
-          "ok": true,
-          "fidelity": 100
+          "fidelity": 70
         },
         {
           "judge": "gemini-flash",
@@ -210,13 +238,72 @@
       ],
       "consensus": [
         {
-          "key": "text-content",
+          "key": "extra-element",
+          "count": 2,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Navigation bar with back button and app name added at top",
+            "A status bar back navigation label ('UnityFabrika...') with back arrow is visible, not present in reference"
+          ]
+        },
+        {
+          "key": "background",
           "count": 2,
           "of": 3,
           "severity": "minor",
           "descriptions": [
-            "Time in status bar differs",
-            "The system clock in the status bar shows a different time."
+            "Circular frame contains different content",
+            "An icon/graphic of a stick figure inside a circular sign is visible in the background of OURS, whereas the REFERENCE shows a blank greyed-out circle in that spot."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "fail",
+      "score": 92,
+      "status": "pass",
+      "reason": "panel 92% ≥ 85%, no blocker consensus",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 92
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 82
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 98
+        }
+      ],
+      "consensus": [
+        {
+          "key": "extra-element",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Back navigation element added to status bar",
+            "Extra debug/status bar showing app name is present at top of screen",
+            "System back navigation link/app name ('UnityFabrika...') is displayed in the top-left status bar area."
+          ]
+        },
+        {
+          "key": "other",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Status bar time differs (not a real defect, just screenshot timing)",
+            "The illustration inside the circular wall frame/medallion in the background is different."
           ]
         }
       ]
@@ -224,182 +311,210 @@
   ],
   "verdict": {
     "pass": true,
-    "summary": "PASS — panel median 99.5% · 6 pass, 0 fail, 0 unscored, 0 skipped (floor 85%)",
+    "summary": "PASS — panel median 85% · 6 pass, 0 fail, 0 unscored, 0 skipped (floor 85%)",
     "states": [
       {
         "state": "menu",
-        "score": 100,
+        "score": 85,
         "status": "pass",
-        "reason": "panel 100% ≥ 85%, no blocker consensus",
+        "reason": "panel 85% ≥ 85%, no blocker consensus",
         "models": [
           {
             "judge": "opus",
             "model": "anthropic/claude-opus-4.1",
             "ok": true,
-            "fidelity": 95
+            "fidelity": 85
           },
           {
             "judge": "sonnet",
             "model": "anthropic/claude-sonnet-5",
             "ok": true,
-            "fidelity": 100
+            "fidelity": 75
           },
           {
             "judge": "gemini-flash",
             "model": "google/gemini-3.5-flash",
-            "ok": true,
-            "fidelity": 100
-          }
-        ],
-        "consensus": []
-      },
-      {
-        "state": "level",
-        "score": 100,
-        "status": "pass",
-        "reason": "panel 100% ≥ 85%, no blocker consensus",
-        "models": [
-          {
-            "judge": "opus",
-            "model": "anthropic/claude-opus-4.1",
-            "ok": true,
-            "fidelity": 95
-          },
-          {
-            "judge": "sonnet",
-            "model": "anthropic/claude-sonnet-5",
-            "ok": true,
-            "fidelity": 100
-          },
-          {
-            "judge": "gemini-flash",
-            "model": "google/gemini-3.5-flash",
-            "ok": true,
-            "fidelity": 100
-          }
-        ],
-        "consensus": []
-      },
-      {
-        "state": "settings",
-        "score": 99,
-        "status": "pass",
-        "reason": "panel 99% ≥ 85%, no blocker consensus",
-        "models": [
-          {
-            "judge": "opus",
-            "model": "anthropic/claude-opus-4.1",
             "ok": true,
             "fidelity": 98
-          },
-          {
-            "judge": "sonnet",
-            "model": "anthropic/claude-sonnet-5",
-            "ok": true,
-            "fidelity": 100
-          },
-          {
-            "judge": "gemini-flash",
-            "model": "google/gemini-3.5-flash",
-            "ok": true,
-            "fidelity": 99
           }
         ],
         "consensus": [
           {
-            "key": "text-content",
+            "key": "extra-element",
             "count": 2,
             "of": 3,
             "severity": "minor",
             "descriptions": [
-              "Status bar time displays different time",
-              "The system clock in the status bar displays a different time."
+              "Extra text overlay in header area",
+              "System status bar shows a back navigation shortcut link 'UnityFabrika...' in the top left corner, which is not present in the reference."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "level",
+        "score": 85,
+        "status": "pass",
+        "reason": "panel 85% ≥ 85%, no blocker consensus",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 85
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 70
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 98
+          }
+        ],
+        "consensus": [
+          {
+            "key": "iconography",
+            "count": 3,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Character icon shows different figure",
+              "The circular icon graphic differs in style/design",
+              "The target icon inside the gold medallion on the background wall is different."
+            ]
+          },
+          {
+            "key": "extra-element",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Additional text appears in top left corner",
+              "Wall lamp fixture beneath the coin icon is missing in ours"
+            ]
+          },
+          {
+            "key": "other",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Status bar shows a developer/debug overlay text instead of clean status bar",
+              "System status bar shows back-to-app navigation link 'UnityFabrika...' on the top left, overlaying the time."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "settings",
+        "score": 95,
+        "status": "pass",
+        "reason": "panel 95% ≥ 85%, no blocker consensus",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 95
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 90
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 98
+          }
+        ],
+        "consensus": [
+          {
+            "key": "extra-element",
+            "count": 3,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Additional status bar text at top left",
+              "A debug/development status bar overlay with a back arrow and 'UnityFabrika...' label appears at the top, not present in reference",
+              "An iOS status bar navigation return link is visible in the top left corner."
             ]
           }
         ]
       },
       {
         "state": "pause",
-        "score": 99,
+        "score": 85,
         "status": "pass",
-        "reason": "panel 99% ≥ 85%, no blocker consensus",
+        "reason": "panel 85% ≥ 85%, no blocker consensus",
         "models": [
           {
             "judge": "opus",
             "model": "anthropic/claude-opus-4.1",
             "ok": true,
-            "fidelity": 95
+            "fidelity": 85
           },
           {
             "judge": "sonnet",
             "model": "anthropic/claude-sonnet-5",
             "ok": true,
-            "fidelity": 100
+            "fidelity": 80
           },
           {
             "judge": "gemini-flash",
             "model": "google/gemini-3.5-flash",
             "ok": true,
-            "fidelity": 99
+            "fidelity": 98
           }
         ],
         "consensus": [
           {
-            "key": "text-content",
+            "key": "extra-element",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Additional back button and text in top left",
+              "A status/back bar with app name is shown below the time in OURS but absent in REFERENCE",
+              "Navigation status bar includes application back-link text 'UnityFabrika...' indicating build environment leak."
+            ]
+          },
+          {
+            "key": "iconography",
             "count": 2,
             "of": 3,
             "severity": "minor",
             "descriptions": [
-              "Different time displayed in status bar",
-              "The system clock in the status bar shows a different time."
+              "Character icon in circular frame is different",
+              "The coin/medal icon graphic differs in style and color detail"
             ]
           }
         ]
       },
       {
         "state": "win",
-        "score": 100,
+        "score": 85,
         "status": "pass",
-        "reason": "panel 100% ≥ 85%, no blocker consensus",
+        "reason": "panel 85% ≥ 85%, no blocker consensus",
         "models": [
           {
             "judge": "opus",
             "model": "anthropic/claude-opus-4.1",
             "ok": true,
-            "fidelity": 98
+            "fidelity": 85
           },
           {
             "judge": "sonnet",
             "model": "anthropic/claude-sonnet-5",
             "ok": true,
-            "fidelity": 100
-          },
-          {
-            "judge": "gemini-flash",
-            "model": "google/gemini-3.5-flash",
-            "ok": true,
-            "fidelity": 100
-          }
-        ],
-        "consensus": []
-      },
-      {
-        "state": "fail",
-        "score": 98,
-        "status": "pass",
-        "reason": "panel 98% ≥ 85%, no blocker consensus",
-        "models": [
-          {
-            "judge": "opus",
-            "model": "anthropic/claude-opus-4.1",
-            "ok": true,
-            "fidelity": 98
-          },
-          {
-            "judge": "sonnet",
-            "model": "anthropic/claude-sonnet-5",
-            "ok": true,
-            "fidelity": 100
+            "fidelity": 70
           },
           {
             "judge": "gemini-flash",
@@ -410,22 +525,81 @@
         ],
         "consensus": [
           {
-            "key": "text-content",
+            "key": "extra-element",
+            "count": 2,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Navigation bar with back button and app name added at top",
+              "A status bar back navigation label ('UnityFabrika...') with back arrow is visible, not present in reference"
+            ]
+          },
+          {
+            "key": "background",
             "count": 2,
             "of": 3,
             "severity": "minor",
             "descriptions": [
-              "Time in status bar differs",
-              "The system clock in the status bar shows a different time."
+              "Circular frame contains different content",
+              "An icon/graphic of a stick figure inside a circular sign is visible in the background of OURS, whereas the REFERENCE shows a blank greyed-out circle in that spot."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "fail",
+        "score": 92,
+        "status": "pass",
+        "reason": "panel 92% ≥ 85%, no blocker consensus",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 92
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 82
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 98
+          }
+        ],
+        "consensus": [
+          {
+            "key": "extra-element",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Back navigation element added to status bar",
+              "Extra debug/status bar showing app name is present at top of screen",
+              "System back navigation link/app name ('UnityFabrika...') is displayed in the top-left status bar area."
+            ]
+          },
+          {
+            "key": "other",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Status bar time differs (not a real defect, just screenshot timing)",
+              "The illustration inside the circular wall frame/medallion in the background is different."
             ]
           }
         ]
       }
     ],
-    "score": 99.5
+    "score": 85
   },
   "budgetHalted": false,
   "game": "cameleon",
   "lane": "device",
-  "generatedAt": "2026-07-09T06:43:43.863Z"
+  "generatedAt": "2026-07-09T07:38:15.991Z"
 }
