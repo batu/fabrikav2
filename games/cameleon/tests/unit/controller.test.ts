@@ -328,14 +328,15 @@ describe("Cameleon controller", () => {
     controller.scrollTo(2100);
     controller.revealHide("li-01");
 
-    controller.setDirection("roughrender");
+    controller.setDirection("screenprint");
 
     expect(controller.snapshot()).toMatchObject({
-      dir: "roughrender",
+      dir: "screenprint",
       foundCount: 1,
       scrollX: 2100,
     });
-    expect(controller.snapshot().hides.find((hide) => hide.id === "li-02")?.painted.key).toBe("lido.roughrender.li-02.painted");
-    expect(controller.drainEvents().find((event) => event.name === "dir_selected")?.params).toMatchObject({ dir: "roughrender" });
+    expect(controller.snapshot().hides.find((hide) => hide.id === "li-02")?.painted.key).toBe("lido.screenprint.li-02.painted");
+    // single production direction: re-selecting the active direction is a no-op
+    expect(controller.drainEvents().find((event) => event.name === "dir_selected")).toBeUndefined();
   });
 });

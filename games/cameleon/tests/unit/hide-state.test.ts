@@ -30,13 +30,13 @@ describe("Cameleon hide state machine", () => {
     expect(painted.white.visible).toBe(false);
     expect(painted.painted.alpha).toBe(painted.white.alpha);
 
-    const white = hideObjectView(hide, "hidden", "white", "gouache");
+    const white = hideObjectView(hide, "hidden", "white", "screenprint");
     expect(white.visibleBody).toBe("white");
     expect(white.white.key).toBe(hide.spritePair.white);
-    expect(white.painted.key).toBe(hide.spritePair.painted.gouache);
+    expect(white.painted.key).toBe(hide.spritePair.painted.screenprint);
     expect(white.painted.alpha).toBe(white.white.alpha);
 
-    const off = hideObjectView(hide, "found", "off", "roughrender");
+    const off = hideObjectView(hide, "found", "off", "screenprint");
     expect(off.visibleBody).toBe("off");
     expect(off.painted.visible).toBe(false);
     expect(off.white.visible).toBe(false);

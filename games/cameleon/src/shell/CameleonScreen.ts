@@ -65,8 +65,6 @@ const MODE_COPY_KEYS = {
 
 const DIRECTION_COPY_KEYS = {
   screenprint: "direction.screenprint",
-  gouache: "direction.gouache",
-  roughrender: "direction.roughrender",
 } as const satisfies Record<CameleonDirection, CopyKey>;
 
 type SurfaceKind = "home" | "settings" | "pause" | "win" | "fail";
@@ -392,6 +390,8 @@ function mountSettingsSurface(
     directionButtons.set(visualDirection, button);
     directionSection.options.appendChild(button);
   }
+  // A one-option picker is clutter: hide the row while only one style ships.
+  directionSection.root.hidden = CAMELEON_DIRECTIONS.length < 2;
 
   const togglesSection = document.createElement("div");
   togglesSection.className = "cameleon-screen__settings-toggles";

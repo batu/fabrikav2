@@ -1,4 +1,6 @@
-export const CAMELEON_DIRECTIONS = ["screenprint", "gouache", "roughrender"] as const;
+// Single production direction per the 2026-07-09 original-styles verdict
+// (docs/LEVELS.md §7); the plumbing stays direction-shaped for future styles.
+export const CAMELEON_DIRECTIONS = ["screenprint"] as const;
 export type CameleonDirection = (typeof CAMELEON_DIRECTIONS)[number];
 
 export const CAMELEON_LEVEL_IDS = ["bathhouse", "waterpark", "museum", "lido"] as const;

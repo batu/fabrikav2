@@ -8,7 +8,7 @@ import { decodePng } from "../../../../tools/refcap-compare/src/png.mjs";
 const GAME_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const SPRITES_ROOT = resolve(GAME_ROOT, "public/levels/lido/sprites");
 
-const PALETTES = ["screenprint", "gouache", "roughrender"] as const;
+const PALETTES = ["screenprint"] as const;
 const HIDE_IDS = [
   "li-02-no-diving",
   "li-06-lane-rope",

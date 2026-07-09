@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import { decodePng } from "../../../../tools/refcap-compare/src/png.mjs";
 
 import { assetEntriesForLevel, resolveCameleonAsset, type CameleonAssetEntry } from "../../src/game/assets.ts";
-import { CAMELEON_DIRECTIONS, CAMELEON_LEVEL_IDS } from "../../src/game/level.ts";
+import { CAMELEON_DIRECTIONS } from "../../src/game/level.ts";
 import { createHideStateMap } from "../../src/game/hideState.ts";
 import { hitTestLevel } from "../../src/game/hitTest.ts";
 import { rectCenter } from "../../src/game/level.ts";
@@ -98,31 +98,15 @@ describe("Cameleon production assets", () => {
     expect(aliases).toHaveLength(0);
   });
 
-  it("maps new-level gouache and roughrender keys to documented temporary screenprint aliases", () => {
-    const newLevels = loadAllCameleonLevelFixtures().filter((level) => level.id !== "lido");
-
-    expect(newLevels.map((level) => level.id)).toEqual(CAMELEON_LEVEL_IDS.filter((levelId) => levelId !== "lido"));
-    for (const level of newLevels) {
-      for (const direction of ["gouache", "roughrender"] as const) {
-        const panelEntries = level.assetKeys.zonePanels[direction].map((key) => resolveCameleonAsset(key));
-        expect(panelEntries).toHaveLength(3);
-        for (const [index, entry] of panelEntries.entries()) {
-          expect(entry).toMatchObject({
-            publicPath: `levels/${level.id}/panels/screenprint/panel-${String.fromCharCode(97 + index)}.png`,
-            aliasOf: `${level.id}.screenprint.panel-${String.fromCharCode(97 + index)}`,
-            temporary: true,
-            note: "conductor generates gouache/roughrender variants",
-          });
-        }
-
-        for (const hide of level.hides) {
-          expect(resolveCameleonAsset(hide.spritePair.painted[direction])).toMatchObject({
-            publicPath: `levels/${level.id}/sprites/screenprint/${hide.id}-painted.png`,
-            aliasOf: `${level.id}.screenprint.${hide.id}.painted`,
-            temporary: true,
-            note: "conductor generates gouache/roughrender variants",
-          });
-        }
+  it("ships exactly one production direction with real files everywhere (no aliases)", () => {
+    const levels = loadAllCameleonLevelFixtures();
+    expect(CAMELEON_DIRECTIONS).toEqual(["screenprint"]);
+    for (const level of levels) {
+      const panelEntries = level.assetKeys.zonePanels.screenprint.map((key) => resolveCameleonAsset(key));
+      expect(panelEntries).toHaveLength(3);
+      for (const entry of panelEntries) {
+        expect(entry.aliasOf).toBeUndefined();
+        expect(entry.temporary).toBeUndefined();
       }
     }
   });

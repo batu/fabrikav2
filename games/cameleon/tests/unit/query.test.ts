@@ -12,9 +12,9 @@ describe("Cameleon query params", () => {
   });
 
   it("accepts body, direction, and mode overrides", () => {
-    expect(parseCameleonQuery("?bodies=white&dir=roughrender&mode=confirm")).toEqual({
+    expect(parseCameleonQuery("?bodies=white&dir=screenprint&mode=confirm")).toEqual({
       bodies: "white",
-      dir: "roughrender",
+      dir: "screenprint",
       mode: "confirm",
     });
   });

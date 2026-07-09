@@ -57,7 +57,7 @@ describe("Cameleon level schema", () => {
   it("maps the three-panel world into five logical tour zones", () => {
     const level = loadLidoFixture();
 
-    expect(CAMELEON_DIRECTIONS.map((direction) => level.assetKeys.zonePanels[direction].length)).toEqual([3, 3, 3]);
+    expect(CAMELEON_DIRECTIONS.map((direction) => level.assetKeys.zonePanels[direction].length)).toEqual([3]);
     expect([1, 2, 3, 4, 5].map((zone) => zoneForWorldX(level.world, worldXForZone(level.world, zone as 1 | 2 | 3 | 4 | 5)))).toEqual([
       1,
       2,

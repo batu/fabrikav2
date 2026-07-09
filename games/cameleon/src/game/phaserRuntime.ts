@@ -594,15 +594,8 @@ function rgbToTint(rgb: readonly [number, number, number]): number {
   return (rgb[0] << 16) + (rgb[1] << 8) + rgb[2];
 }
 
-function flakeColors(direction: CameleonDirection): readonly number[] {
-  switch (direction) {
-    case "screenprint":
-      return [0xd8342f, 0xf5d86c, 0x79d8d0, 0xff7a5f];
-    case "gouache":
-      return [0xff5e7e, 0xf6ff7c, 0x47c5bf, 0xf78ad3];
-    case "roughrender":
-      return [0x6fb0bd, 0x80dce4, 0x71386c, 0xf8f8ef];
-  }
+function flakeColors(_direction: CameleonDirection): readonly number[] {
+  return [0xd8342f, 0xf5d86c, 0x79d8d0, 0xff7a5f];
 }
 
 function benchSlotCenter(snapshot: CameleonSnapshot, hideIndex: number): { x: number; y: number } {
