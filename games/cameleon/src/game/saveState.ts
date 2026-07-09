@@ -2,7 +2,7 @@ import { loadPersistedJson, savePersistedJson } from "@fabrikav2/kernel";
 
 import { CAMELEON_LEVEL_IDS } from "./level.ts";
 
-export const CAMELEON_SAVE_KEY = "@fabrikav2/cameleon/save/v1";
+const CAMELEON_SAVE_KEY = "@fabrikav2/cameleon/save/v1";
 
 export interface CameleonSaveData {
   readonly v: 1;

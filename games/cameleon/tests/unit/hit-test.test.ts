@@ -19,7 +19,7 @@ describe("Cameleon hit testing", () => {
     const state = createHideStateMap(level);
     const result = hitTestLevel(level, rectCenter(level.decoys[0]!.rect), state);
 
-    expect(result).toMatchObject({ kind: "decoy", decoy: expect.objectContaining({ id: "dc-rules-pictograms" }) });
+    expect(result).toMatchObject({ kind: "decoy", decoy: expect.objectContaining({ id: "dc-rules-board" }) });
   });
 
   it("does not let already-found hides be hit again", () => {

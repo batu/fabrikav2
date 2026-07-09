@@ -220,148 +220,125 @@
   ],
   "decoys": [
     {
-      "id": "dc-rules-pictograms",
+      "id": "dc-rules-board",
       "zone": 1,
-      "kind": "rules-board pictogram",
-      "spriteKey": "lido.screenprint.decoy-rules-board",
+      "kind": "sign",
       "rect": {
-        "x": 600,
-        "y": 340,
-        "w": 340,
-        "h": 246
+        "x": 60,
+        "y": 240,
+        "w": 160,
+        "h": 240
       }
     },
     {
-      "id": "dc-no-running-sign",
+      "id": "dc-rail-towels",
       "zone": 1,
-      "kind": "real no-running sign",
-      "spriteKey": "lido.screenprint.decoy-no-running-sign",
+      "kind": "textile",
       "rect": {
-        "x": 150,
-        "y": 290,
-        "w": 110,
-        "h": 110
+        "x": 470,
+        "y": 370,
+        "w": 350,
+        "h": 200
       }
     },
     {
       "id": "dc-hook-robe",
       "zone": 2,
-      "kind": "real robe on hook",
-      "spriteKey": "lido.screenprint.decoy-robe",
+      "kind": "textile",
       "rect": {
-        "x": 1216,
-        "y": 553,
-        "w": 109,
-        "h": 170
+        "x": 1130,
+        "y": 190,
+        "w": 140,
+        "h": 280
+      }
+    },
+    {
+      "id": "dc-sign-two",
+      "zone": 2,
+      "kind": "sign",
+      "rect": {
+        "x": 1865,
+        "y": 118,
+        "w": 150,
+        "h": 200
+      }
+    },
+    {
+      "id": "dc-sign-three",
+      "zone": 3,
+      "kind": "sign",
+      "rect": {
+        "x": 2049,
+        "y": 118,
+        "w": 155,
+        "h": 200
       }
     },
     {
       "id": "dc-tent-west",
       "zone": 2,
-      "kind": "straight tent stripe",
-      "spriteKey": "lido.screenprint.decoy-tent",
+      "kind": "textile",
       "rect": {
-        "x": 1466,
-        "y": 630,
-        "w": 267,
-        "h": 300
+        "x": 1560,
+        "y": 500,
+        "w": 200,
+        "h": 420
       }
     },
     {
       "id": "dc-tent-east",
       "zone": 3,
-      "kind": "straight tent stripe",
-      "spriteKey": "lido.screenprint.decoy-tent",
+      "kind": "textile",
       "rect": {
-        "x": 1841,
-        "y": 630,
-        "w": 267,
+        "x": 2270,
+        "y": 500,
+        "w": 200,
+        "h": 420
+      }
+    },
+    {
+      "id": "dc-lifeguard-post",
+      "zone": 3,
+      "kind": "prop",
+      "rect": {
+        "x": 2660,
+        "y": 520,
+        "w": 180,
         "h": 300
       }
     },
     {
-      "id": "dc-bodyprint-towel",
+      "id": "dc-towel-cart",
       "zone": 3,
-      "kind": "real bodyprint towel",
-      "spriteKey": "lido.screenprint.decoy-bodyprint-towel",
+      "kind": "textile",
       "rect": {
-        "x": 2521,
-        "y": 745,
-        "w": 78,
-        "h": 170
+        "x": 2700,
+        "y": 700,
+        "w": 190,
+        "h": 260
       }
     },
     {
-      "id": "dc-poster-figure",
-      "zone": 3,
-      "kind": "numbered swim poster figure",
-      "spriteKey": "lido.screenprint.decoy-swim-school-poster",
-      "rect": {
-        "x": 2200,
-        "y": 170,
-        "w": 460,
-        "h": 300
-      }
-    },
-    {
-      "id": "dc-depth-markers",
-      "zone": 3,
-      "kind": "pool depth marker sign",
-      "spriteKey": "lido.screenprint.decoy-depth-markers",
-      "rect": {
-        "x": 2220,
-        "y": 1210,
-        "w": 260,
-        "h": 117
-      }
-    },
-    {
-      "id": "dc-real-wet-floor",
+      "id": "dc-ring-pen",
       "zone": 4,
-      "kind": "real wet-floor A-frame",
-      "spriteKey": "lido.screenprint.decoy-wet-floor-aframe",
+      "kind": "prop",
       "rect": {
-        "x": 3020,
-        "y": 810,
-        "w": 130,
-        "h": 170
+        "x": 2960,
+        "y": 640,
+        "w": 200,
+        "h": 240
       }
     },
     {
-      "id": "dc-float-rings",
-      "zone": 4,
-      "kind": "open swim rings",
-      "spriteKey": "lido.screenprint.decoy-ringstack",
-      "rect": {
-        "x": 2901,
-        "y": 860,
-        "w": 178,
-        "h": 130
-      }
-    },
-    {
-      "id": "dc-kiosk-mascot",
+      "id": "dc-mascot-board",
       "zone": 5,
-      "kind": "real kiosk mascot print",
-      "spriteKey": "lido.screenprint.decoy-kiosk-mascot-panel",
-      "rect": {
-        "x": 4140,
-        "y": 365,
-        "w": 150,
-        "h": 250
-      }
-    },
-    {
-      "id": "dc-blank-menu-panel",
-      "rect": {
-        "x": 3950,
-        "y": 370,
-        "w": 150,
-        "h": 250
-      },
-      "spriteKey": "lido.screenprint.decoy-blank-menu-panel",
       "kind": "sign",
-      "zone": 5
+      "rect": {
+        "x": 3820,
+        "y": 290,
+        "w": 170,
+        "h": 150
+      }
     },
     {
       "id": "host-blank-sign",

@@ -25,13 +25,14 @@ describe("Cameleon level schema", () => {
   it("keeps Lido's sprite-backed decoys and overlay seam contract", () => {
     const level = loadLidoFixture();
 
-    expect(level.decoys).toHaveLength(15);
+    expect(level.decoys).toHaveLength(14);
     expect(level.visualOverlays.map((overlay) => overlay.id)).toEqual([
       "seam-pillar-a-b",
       "seam-pillar-b-c",
     ]);
     for (const decoy of level.decoys) {
-      expect(decoy.spriteKey).toMatch(/^lido\.screenprint\.(decoy|host)-/);
+      if (decoy.id.startsWith("host-")) expect(decoy.spriteKey).toMatch(/^lido\.screenprint\.host-/);
+      else expect(decoy.spriteKey).toBeUndefined();
     }
   });
 

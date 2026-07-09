@@ -74,7 +74,7 @@ describe("Cameleon controller", () => {
     expect(controller.tapWorld(rectCenter(level.decoys[0]!.rect))).toBe("decoy");
     expect(controller.snapshot()).toMatchObject({
       ammo: 13,
-      feedback: expect.objectContaining({ kind: "decoy", id: "dc-rules-pictograms" }),
+      feedback: expect.objectContaining({ kind: "decoy", id: "dc-rules-board" }),
     });
 
     expect(controller.tapWorld({ x: 18, y: 1380 })).toBe("miss");
@@ -86,7 +86,7 @@ describe("Cameleon controller", () => {
     const events = controller.drainEvents();
     expect(events.find((event) => event.name === "decoy_hit")?.params).toMatchObject({
       level_id: "lido",
-      decoy_id: "dc-rules-pictograms",
+      decoy_id: "dc-rules-board",
       found_count: 0,
       mode: "shoot",
       dir: "screenprint",

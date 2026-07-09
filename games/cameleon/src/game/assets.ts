@@ -20,15 +20,7 @@ const PANEL_FILES = ["panel-a", "panel-b", "panel-c"] as const;
 const SCREENPRINT_ONLY_LEVEL_IDS = ["bathhouse", "waterpark", "museum"] as const satisfies readonly CameleonLevelId[];
 const TEMPORARY_ALIAS_NOTE = "conductor generates gouache/roughrender variants";
 
-const ORGANIC_HIDE_IDS = ["li-01", "li-03", "li-04", "li-05", "li-09"] as const;
-const SIGN_HIDE_FILES = {
-  "li-02": "li-02-no-diving",
-  "li-06": "li-06-lane-rope",
-  "li-07": "li-07-fifth-poster-figure",
-  "li-08": "li-08-slipping-man",
-  "li-10": "li-10-soft-serve-mascot",
-} as const;
-
+const ORGANIC_HIDE_IDS = ["li-01", "li-02", "li-03", "li-04", "li-05", "li-06", "li-07", "li-08", "li-09", "li-10"] as const;
 const SCREENPRINT_ONLY_HIDE_IDS = {
   bathhouse: ["bh-01", "bh-02", "bh-03", "bh-04", "bh-05", "bh-06", "bh-07", "bh-08", "bh-09", "bh-10"],
   waterpark: ["sw-01", "sw-02", "sw-03", "sw-04", "sw-05", "sw-06", "sw-07", "sw-08", "sw-09", "sw-10"],
@@ -66,16 +58,6 @@ const LIDO_HIDE_ASSETS = [
     ),
     asset(`lido.${hideId}.white`, "hide-white", `levels/lido/sprites/white/${hideId}-white-organic.png`),
   ]),
-  ...Object.entries(SIGN_HIDE_FILES).flatMap(([hideId, fileName]) => [
-    ...CAMELEON_DIRECTIONS.map((direction) =>
-      asset(
-        `lido.${direction}.${hideId}.painted`,
-        "hide-painted",
-        `levels/lido/sprites/${direction}/${fileName}-painted.png`,
-      )
-    ),
-    asset(`lido.${hideId}.white`, "hide-white", `levels/lido/sprites/white/${fileName}-white.png`),
-  ]),
 ];
 
 const SCREENPRINT_ONLY_HIDE_ASSETS = SCREENPRINT_ONLY_LEVEL_IDS.flatMap((levelId) =>
@@ -94,17 +76,6 @@ const SCREENPRINT_ONLY_HIDE_ASSETS = SCREENPRINT_ONLY_LEVEL_IDS.flatMap((levelId
 );
 
 const LIDO_DECOY_ASSETS = [
-  asset("lido.screenprint.decoy-rules-board", "decoy", "levels/lido/sprites/screenprint/decoy-rules-board.png"),
-  asset("lido.screenprint.decoy-no-running-sign", "decoy", "levels/lido/sprites/screenprint/decoy-no-running-sign.png"),
-  asset("lido.screenprint.decoy-depth-markers", "decoy", "levels/lido/sprites/screenprint/decoy-depth-markers.png"),
-  asset("lido.screenprint.decoy-swim-school-poster", "decoy", "levels/lido/sprites/screenprint/decoy-swim-school-poster.png"),
-  asset("lido.screenprint.decoy-wet-floor-aframe", "decoy", "levels/lido/sprites/screenprint/decoy-wet-floor-aframe.png"),
-  asset("lido.screenprint.decoy-kiosk-mascot-panel", "decoy", "levels/lido/sprites/screenprint/decoy-kiosk-mascot-panel.png"),
-  asset("lido.screenprint.decoy-tent", "decoy", "levels/lido/sprites/screenprint/decoy-tent.png"),
-  asset("lido.screenprint.decoy-robe", "decoy", "levels/lido/sprites/screenprint/decoy-robe.png"),
-  asset("lido.screenprint.decoy-bodyprint-towel", "decoy", "levels/lido/sprites/screenprint/decoy-bodyprint-towel.png"),
-  asset("lido.screenprint.decoy-ringstack", "decoy", "levels/lido/sprites/screenprint/decoy-ringstack.png"),
-  asset("lido.screenprint.decoy-blank-menu-panel", "decoy", "levels/lido/sprites/screenprint/decoy-blank-menu-panel.png"),
   asset("lido.screenprint.host-blank-sign", "decoy", "levels/lido/sprites/screenprint/host-blank-sign.png"),
   asset("lido.screenprint.host-swim-poster", "decoy", "levels/lido/sprites/screenprint/host-swim-poster.png"),
   asset("lido.screenprint.host-aframe", "decoy", "levels/lido/sprites/screenprint/host-aframe.png"),
@@ -119,14 +90,14 @@ const LIDO_OVERLAY_ASSETS = [
   asset("lido.screenprint.seam-pillar-deck", "overlay", "levels/lido/sprites/screenprint/seam-pillar-deck.png"),
 ] as const;
 
-export const CAMELEON_LIDO_ASSETS = [
+const CAMELEON_LIDO_ASSETS = [
   ...LIDO_PANEL_ASSETS,
   ...LIDO_HIDE_ASSETS,
   ...LIDO_DECOY_ASSETS,
   ...LIDO_OVERLAY_ASSETS,
 ] as const satisfies readonly CameleonAssetEntry[];
 
-export const CAMELEON_ASSETS = [
+const CAMELEON_ASSETS = [
   ...CAMELEON_LIDO_ASSETS,
   ...SCREENPRINT_ONLY_PANEL_ASSETS,
   ...SCREENPRINT_ONLY_HIDE_ASSETS,
@@ -140,7 +111,7 @@ export function resolveCameleonAsset(key: string): CameleonAssetEntry {
   return entry;
 }
 
-export function assetKeysForLevel(level: CameleonLevelDefinition): readonly string[] {
+function assetKeysForLevel(level: CameleonLevelDefinition): readonly string[] {
   const keys = new Set<string>();
   for (const direction of CAMELEON_DIRECTIONS) {
     for (const key of level.assetKeys.zonePanels[direction]) keys.add(key);
