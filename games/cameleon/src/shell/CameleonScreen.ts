@@ -16,8 +16,10 @@ import { gameConfig } from "../../game.config.ts";
 import type { CameleonSnapshot } from "../game/CameleonController.ts";
 import {
   CAMELEON_DIRECTIONS,
+  CAMELEON_LEVEL_IDS,
   CAMELEON_PLAY_MODES,
   type CameleonDirection,
+  type CameleonLevelId,
   type CameleonPlayMode,
 } from "../game/level.ts";
 
@@ -25,6 +27,7 @@ export interface CameleonScreenOptions {
   readonly mountInto: HTMLElement;
   readonly onModeSelect?: (mode: CameleonPlayMode) => void;
   readonly onDirectionSelect?: (direction: CameleonDirection) => void;
+  readonly onStartLevel?: (levelId: CameleonLevelId) => void;
   readonly onStart?: () => void;
   readonly onContinue?: () => void;
   readonly onRetry?: () => void;
@@ -46,14 +49,13 @@ export interface CameleonScreen {
 
 const CANVAS_FALLBACK_WIDTH = 390;
 const CANVAS_FALLBACK_HEIGHT = 844;
-const PLAYABLE_LEVEL_ID = "lido";
 
 const CAMELEON_SAGA_LEVELS = [
-  { id: "lido", label: "1", name: "saga.level.lido" },
-  { id: "bathhouse", label: "2", name: "saga.level.bathhouse" },
-  { id: "waterpark", label: "3", name: "saga.level.waterpark" },
-  { id: "museum", label: "4", name: "saga.level.museum" },
-] as const satisfies readonly { readonly id: string; readonly label: string; readonly name: CopyKey }[];
+  { id: "bathhouse", label: "1", name: "saga.level.bathhouse" },
+  { id: "waterpark", label: "2", name: "saga.level.waterpark" },
+  { id: "museum", label: "3", name: "saga.level.museum" },
+  { id: "lido", label: "4", name: "saga.level.lido" },
+] as const satisfies readonly { readonly id: CameleonLevelId; readonly label: string; readonly name: CopyKey }[];
 
 const MODE_COPY_KEYS = {
   tap: "mode.tap",
@@ -62,9 +64,9 @@ const MODE_COPY_KEYS = {
 } as const satisfies Record<CameleonPlayMode, CopyKey>;
 
 const DIRECTION_COPY_KEYS = {
-  poster: "direction.poster",
-  riso: "direction.riso",
-  night: "direction.night",
+  screenprint: "direction.screenprint",
+  gouache: "direction.gouache",
+  roughrender: "direction.roughrender",
 } as const satisfies Record<CameleonDirection, CopyKey>;
 
 type SurfaceKind = "home" | "settings" | "pause" | "win" | "fail";
@@ -89,15 +91,24 @@ const DEFAULT_SETTINGS: Record<CameleonSettingKey, boolean> = {
   haptics: true,
 };
 
-export function buildCameleonSagaNodes(): LevelMapNode[] {
+export function buildCameleonSagaNodes(unlockedLevel = 1): LevelMapNode[] {
+  const current = clampLevel(unlockedLevel);
   return CAMELEON_SAGA_LEVELS
     .slice(0, gameConfig.saga.levels)
-    .map((level, index) => ({
+    .map((level, index) => {
+      const levelNumber = index + 1;
+      return {
       id: level.id,
       label: level.label,
       name: copy[level.name],
-      state: index === 0 ? ("current" as const) : ("locked" as const),
-    }))
+        state:
+          levelNumber < current
+            ? ("completed" as const)
+            : levelNumber === current
+              ? ("current" as const)
+              : ("locked" as const),
+      };
+    })
     .reverse();
 }
 
@@ -274,7 +285,7 @@ function mountSurface(
   surface.kind = surfaceKind(key);
   switch (surface.kind) {
     case "home":
-      surface.handle = mountHomeSurface(mountInto, opts, toaster);
+      surface.handle = mountHomeSurface(mountInto, snapshot, opts, toaster);
       return;
     case "settings": {
       const mounted = mountSettingsSurface(mountInto, snapshot, preferences, opts, toaster);
@@ -305,7 +316,12 @@ function clearSurface(surface: SurfaceMount): void {
   handle?.dismiss();
 }
 
-function mountHomeSurface(mountInto: HTMLElement, opts: CameleonScreenOptions, toaster: ToasterHandle): UiHandle {
+function mountHomeSurface(
+  mountInto: HTMLElement,
+  snapshot: CameleonSnapshot,
+  opts: CameleonScreenOptions,
+  toaster: ToasterHandle,
+): UiHandle {
   const header = document.createElement("header");
   header.className = "cameleon-screen__menu-header";
   const title = document.createElement("h1");
@@ -317,11 +333,11 @@ function mountHomeSurface(mountInto: HTMLElement, opts: CameleonScreenOptions, t
     mountInto,
     header,
     saga: {
-      state: { nodes: buildCameleonSagaNodes() },
+      state: { nodes: buildCameleonSagaNodes(snapshot.unlockedLevel) },
       actions: {
         onSelectLevel: (id) => {
-          if (id === PLAYABLE_LEVEL_ID) {
-            opts.onStart?.();
+          if (typeof id === "string" && (CAMELEON_LEVEL_IDS as readonly string[]).includes(id)) {
+            opts.onStartLevel?.(id as CameleonLevelId);
             return;
           }
           toaster.show(copy["toast.locked"]);
@@ -587,4 +603,10 @@ function renderBench(slots: readonly HTMLElement[], snapshot: CameleonSnapshot):
         : copy["bench.slot"].replace("{slot}", String(index + 1)),
     );
   });
+}
+
+function clampLevel(levelNumber: number): number {
+  const max = Math.max(1, Math.min(CAMELEON_LEVEL_IDS.length, gameConfig.saga.levels));
+  if (!Number.isFinite(levelNumber)) return 1;
+  return Math.min(Math.max(Math.trunc(levelNumber), 1), max);
 }

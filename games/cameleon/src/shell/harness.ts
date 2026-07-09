@@ -100,9 +100,11 @@ export function createCameleonHarness(options: CameleonHarnessOptions): Cameleon
       return controller.snapshot();
     },
     sagaNodes(): readonly (string | number)[] {
-      return buildCameleonSagaNodes().map((node) => node.id);
+      return buildCameleonSagaNodes(controller.snapshot().unlockedLevel).map((node) => node.id);
     },
-    unlockAll(): void {},
+    unlockAll(): void {
+      controller.seedSave({ unlockedLevel: gameConfig.saga.levels });
+    },
     grantCoins(amount: number): void {
       controller.grantCoins(amount);
     },

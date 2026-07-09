@@ -2,7 +2,7 @@ import type Phaser from "phaser";
 
 import { assetEntriesForLevel } from "./assets.ts";
 import type { CameleonController, CameleonSnapshot } from "./CameleonController.ts";
-import type { CameleonDirection, CameleonLevelDefinition, WorldRect } from "./level.ts";
+import type { CameleonDirection, CameleonHideFxDefinition, CameleonLevelDefinition, WorldRect } from "./level.ts";
 
 export interface CameleonPhaserRuntime {
   destroy(): void;
@@ -14,11 +14,12 @@ export interface CameleonPhaserOptions {
 }
 
 type PhaserStatic = typeof Phaser;
+const CAMELEON_SCENE_KEY = "cameleon";
 
 export async function mountCameleonPhaser(options: CameleonPhaserOptions): Promise<CameleonPhaserRuntime> {
   const PhaserRuntime = await importPhaser();
   const level = options.controller.level;
-  const scene = createLidoSceneClass(PhaserRuntime, options.controller);
+  const scene = createCameleonSceneClass(PhaserRuntime, options.controller);
   const size = canvasSize(options.canvas);
   const game = new PhaserRuntime.Game({
     // Explicit renderer: AUTO throws "custom environment" outside a detected
@@ -42,7 +43,7 @@ export async function mountCameleonPhaser(options: CameleonPhaserOptions): Promi
     const next = canvasSize(options.canvas);
     game.scale.resize(next.width, next.height);
     options.controller.setViewport(worldViewport(next, level));
-    const camera = game.scene.getScene("lido").cameras.main;
+    const camera = game.scene.getScene(CAMELEON_SCENE_KEY).cameras.main;
     camera.setBounds(0, 0, level.world.width, level.world.height);
     camera.setZoom(next.height / level.world.height);
   };
@@ -70,8 +71,8 @@ async function importPhaser(): Promise<PhaserStatic> {
   return await import("phaser") as unknown as PhaserStatic;
 }
 
-function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonController) {
-  return class LidoScene extends PhaserRuntime.Scene {
+function createCameleonSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonController) {
+  return class CameleonScene extends PhaserRuntime.Scene {
     private readonly panelSprites: Phaser.GameObjects.Image[] = [];
     private readonly hideSprites = new Map<string, { painted: Phaser.GameObjects.Image; white: Phaser.GameObjects.Image }>();
     private activePanelDirection: CameleonDirection | null = null;
@@ -86,7 +87,7 @@ function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonC
     private readonly collectedHideIds = new Set<string>();
 
     constructor() {
-      super("lido");
+      super(CAMELEON_SCENE_KEY);
     }
 
     preload(): void {
@@ -148,6 +149,7 @@ function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonC
 
     private addDecoys(level: CameleonLevelDefinition): void {
       for (const decoy of level.decoys) {
+        if (!decoy.spriteKey) continue;
         fitImageToRect(this.add.image(decoy.rect.x, decoy.rect.y, decoy.spriteKey), decoy.rect)
           .setOrigin(0, 0)
           .setDepth(4);
@@ -236,12 +238,14 @@ function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonC
         fitImageToRect(sprites.painted.setTexture(view.painted.key), view.rect).setAngle(0);
         fitImageToRect(sprites.white.setTexture(view.white.key), view.rect).setAngle(0);
         if (collected) {
-          sprites.painted.setVisible(false).setAlpha(0);
-          sprites.white.setVisible(false).setAlpha(0);
+          sprites.painted.clearTint().setVisible(false).setAlpha(0);
+          sprites.white.clearTint().setVisible(false).setAlpha(0);
           continue;
         }
-        sprites.painted.setTexture(view.painted.key).setAlpha(view.painted.alpha).setVisible(view.painted.visible);
-        sprites.white.setTexture(view.white.key).setAlpha(view.white.alpha).setVisible(view.white.visible);
+        applyHideRenderFx(sprites.painted.setTexture(view.painted.key), view.painted.alpha, view.fx)
+          .setVisible(view.painted.visible);
+        applyHideRenderFx(sprites.white.setTexture(view.white.key), view.white.alpha, view.fx)
+          .setVisible(view.white.visible);
       }
       this.renderFeedback(snapshot);
       this.renderIdleShimmer(snapshot);
@@ -324,13 +328,11 @@ function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonC
       if (!sprites || !view) return;
 
       this.activeFoundBeatHideId = hideId;
-      fitImageToRect(sprites.painted.setTexture(view.painted.key), view.rect)
+      applyHideRenderFx(fitImageToRect(sprites.painted.setTexture(view.painted.key), view.rect), 1, view.fx)
         .setVisible(true)
-        .setAlpha(1)
         .setAngle(0);
-      fitImageToRect(sprites.white.setTexture(view.white.key), view.rect)
+      applyHideRenderFx(fitImageToRect(sprites.white.setTexture(view.white.key), view.rect), 0, view.fx)
         .setVisible(true)
-        .setAlpha(0)
         .setAngle(0);
 
       this.cameras.main.shake(80, 0.004);
@@ -349,7 +351,7 @@ function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonC
       });
       this.tweens.add({
         targets: sprites.white,
-        alpha: 1,
+        alpha: hideRenderAlpha(1, view.fx),
         delay: 200,
         duration: 250,
       });
@@ -379,8 +381,8 @@ function createLidoSceneClass(PhaserRuntime: PhaserStatic, controller: CameleonC
           ease: "Cubic.easeIn",
           onComplete: () => {
             this.collectedHideIds.add(hideId);
-            sprites.white.setVisible(false).setAlpha(0);
-            sprites.painted.setVisible(false).setAlpha(0);
+            sprites.white.clearTint().setVisible(false).setAlpha(0);
+            sprites.painted.clearTint().setVisible(false).setAlpha(0);
             this.activeFoundBeatHideId = null;
           },
         });
@@ -573,13 +575,32 @@ function clampFeedbackPoint(scrollX: number, viewportWidth: number, point: { rea
   };
 }
 
+function applyHideRenderFx(
+  image: Phaser.GameObjects.Image,
+  alpha: number,
+  fx: CameleonHideFxDefinition | undefined,
+): Phaser.GameObjects.Image {
+  image.setAlpha(hideRenderAlpha(alpha, fx));
+  if (fx?.tint && (fx.tintAmt ?? 0) > 0) image.setTint(rgbToTint(fx.tint));
+  else image.clearTint();
+  return image;
+}
+
+function hideRenderAlpha(alpha: number, fx: CameleonHideFxDefinition | undefined): number {
+  return alpha * (fx?.alpha ?? 1);
+}
+
+function rgbToTint(rgb: readonly [number, number, number]): number {
+  return (rgb[0] << 16) + (rgb[1] << 8) + rgb[2];
+}
+
 function flakeColors(direction: CameleonDirection): readonly number[] {
   switch (direction) {
-    case "poster":
+    case "screenprint":
       return [0xd8342f, 0xf5d86c, 0x79d8d0, 0xff7a5f];
-    case "riso":
+    case "gouache":
       return [0xff5e7e, 0xf6ff7c, 0x47c5bf, 0xf78ad3];
-    case "night":
+    case "roughrender":
       return [0x6fb0bd, 0x80dce4, 0x71386c, 0xf8f8ef];
   }
 }

@@ -20,6 +20,8 @@ import {
 } from "./hideState.ts";
 import {
   clampScrollX,
+  levelNumberForId,
+  nextLevelIdAfter,
   rectCenter,
   worldXForZone,
   zoneForWorldX,
@@ -27,10 +29,12 @@ import {
   type CameleonDirection,
   type CameleonHideDefinition,
   type CameleonLevelDefinition,
+  type CameleonLevelId,
   type CameleonPlayMode,
   type CameleonZone,
 } from "./level.ts";
 import { DEFAULT_CAMELEON_QUERY, type CameleonQueryParams } from "./query.ts";
+import { createMemoryCameleonSaveState, type CameleonProgressStore } from "./saveState.ts";
 
 export const CAMELEON_TOUR_STATES = [
   "menu",
@@ -107,7 +111,10 @@ export interface CameleonSnapshot {
   readonly status: CameleonStatus;
   readonly inputReady: boolean;
   readonly settingsOpen: boolean;
-  readonly levelId: string;
+  readonly levelId: CameleonLevelId;
+  readonly levelNumber: number;
+  readonly unlockedLevel: number;
+  readonly nextLevelId: CameleonLevelId | null;
   readonly mode: CameleonPlayMode;
   readonly dir: CameleonDirection;
   readonly bodies: CameleonBodyMode;
@@ -132,6 +139,7 @@ export interface CameleonSnapshot {
 export interface CameleonControllerOptions {
   readonly level: CameleonLevelDefinition;
   readonly query?: Partial<CameleonQueryParams>;
+  readonly saveState?: CameleonProgressStore;
   readonly flowMachine?: FlowMachine;
   readonly env?: AnalyticsEnvironment;
   readonly sessionId?: string;
@@ -141,6 +149,8 @@ export interface CameleonControllerOptions {
 
 export interface CameleonController {
   readonly level: CameleonLevelDefinition;
+  setLevel(level: CameleonLevelDefinition): void;
+  isLevelUnlocked(levelId: CameleonLevelId): boolean;
   gotoMenu(): void;
   startLevel(id?: number): void;
   openSettings(): void;
@@ -162,7 +172,7 @@ export interface CameleonController {
   failLevel(): Promise<boolean>;
   grantCoins(amount: number): void;
   resetSave(): void;
-  seedSave(profile: { readonly coins?: number }): void;
+  seedSave(profile: { readonly coins?: number; readonly unlockedLevel?: number }): void;
   snapshot(): CameleonSnapshot;
   subscribe(listener: () => void): () => void;
   drainEvents(): readonly AnalyticsEvent[];
@@ -179,8 +189,7 @@ const TAP_MOCKERY_WINDOW_MS = 10_000;
 const TAP_MOCKERY_WRONG_TAPS = 3;
 
 class CameleonStateController implements CameleonController {
-  readonly level: CameleonLevelDefinition;
-
+  private currentLevel: CameleonLevelDefinition;
   private scene: CameleonScene = FlowStates.Menu;
   private status: CameleonStatus = "idle";
   private inputReady = true;
@@ -193,7 +202,6 @@ class CameleonStateController implements CameleonController {
   private hideState: HideStateMap;
   private ammo: number | null = null;
   private maxAmmo: number | null = null;
-  private coins = 0;
   private feedback: CameleonFeedback | null = null;
   private feedbackSequence = 0;
   private foundBeat: Omit<CameleonFoundBeat, "elapsedMs" | "phase" | "interruptible"> | null = null;
@@ -210,11 +218,13 @@ class CameleonStateController implements CameleonController {
   private readonly sink: RingBufferSink;
   private readonly analytics: Analytics<CameleonEvent>;
   private readonly now: () => number;
+  private readonly saveState: CameleonProgressStore;
 
   constructor(options: CameleonControllerOptions) {
-    this.level = options.level;
+    this.currentLevel = options.level;
     const query = { ...DEFAULT_CAMELEON_QUERY, ...options.query };
     this.now = options.now ?? (() => Date.now());
+    this.saveState = options.saveState ?? createMemoryCameleonSaveState();
     this.mode = query.mode;
     this.direction = query.dir;
     this.bodyMode = query.bodies;
@@ -231,6 +241,31 @@ class CameleonStateController implements CameleonController {
       globalParams: { game_id: "cameleon" },
     });
     this.analytics.sessionStart({ first_open: false });
+  }
+
+  get level(): CameleonLevelDefinition {
+    return this.currentLevel;
+  }
+
+  setLevel(level: CameleonLevelDefinition): void {
+    this.currentLevel = level;
+    this.hideState = createHideStateMap(this.level);
+    this.scrollX = 0;
+    this.feedback = null;
+    this.foundBeat = null;
+    this.aim = null;
+    this.idleShimmer = null;
+    this.tapWrongTimestamps = [];
+    this.enterMenuFlow({ source: "level-switch" });
+    this.status = "idle";
+    this.inputReady = true;
+    this.settingsOpen = false;
+    this.tourState = "menu";
+    this.notify();
+  }
+
+  isLevelUnlocked(levelId: CameleonLevelId): boolean {
+    return this.saveState.isUnlocked(levelNumberForId(levelId));
   }
 
   gotoMenu(): void {
@@ -480,17 +515,17 @@ class CameleonStateController implements CameleonController {
   }
 
   grantCoins(amount: number): void {
-    this.coins = Math.max(0, this.coins + Math.trunc(amount));
+    this.saveState.addCoins(amount);
     this.notify();
   }
 
   resetSave(): void {
-    this.coins = 0;
+    this.saveState.resetSave();
     this.notify();
   }
 
-  seedSave(profile: { readonly coins?: number }): void {
-    this.coins = Math.max(0, Math.trunc(profile.coins ?? this.coins));
+  seedSave(profile: { readonly coins?: number; readonly unlockedLevel?: number }): void {
+    this.saveState.seedSave(profile);
     this.notify();
   }
 
@@ -504,6 +539,9 @@ class CameleonStateController implements CameleonController {
       inputReady: this.inputReady && !isFoundBeatBlocking(foundBeat),
       settingsOpen: this.settingsOpen,
       levelId: this.level.id,
+      levelNumber: levelNumberForId(this.level.id),
+      unlockedLevel: this.saveState.unlockedLevel,
+      nextLevelId: nextLevelIdAfter(this.level.id),
       mode: this.mode,
       dir: this.direction,
       bodies: this.bodyMode,
@@ -514,7 +552,7 @@ class CameleonStateController implements CameleonController {
       winAt: this.level.winAt,
       ammo: this.ammo,
       maxAmmo: this.maxAmmo,
-      coins: this.coins,
+      coins: this.saveState.coins,
       spotless: foundCount === this.level.hides.length,
       tapMissMockery: this.tapWrongTimestamps.length >= TAP_MOCKERY_WRONG_TAPS,
       tourState: this.tourState,
@@ -586,7 +624,7 @@ class CameleonStateController implements CameleonController {
     this.status = "won";
     this.inputReady = false;
     this.tourState = "win";
-    this.coins += 1;
+    this.saveState.recordWin(levelNumberForId(this.level.id), 1);
     this.analytics.track("level_win", {
       level_id: this.level.id,
       found_count: hideFoundCount(this.hideState),

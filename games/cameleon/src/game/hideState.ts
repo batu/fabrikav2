@@ -1,6 +1,7 @@
 import type {
   CameleonBodyMode,
   CameleonDirection,
+  CameleonHideFxDefinition,
   CameleonHideDefinition,
   CameleonLevelDefinition,
   WorldRect,
@@ -33,6 +34,7 @@ export interface HideObjectView {
   readonly visibleBody: VisibleBodySprite;
   readonly painted: HideSpriteView;
   readonly white: HideSpriteView;
+  readonly fx?: CameleonHideFxDefinition;
   readonly hittable: boolean;
 }
 
@@ -79,6 +81,7 @@ export function hideObjectView(
       alpha,
       visible: visibleBody === "white",
     },
+    ...(hide.fx === undefined ? {} : { fx: hide.fx }),
     hittable: phase === "hidden",
   };
 }
