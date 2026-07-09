@@ -106,4 +106,161 @@ describe('remote-config service', (): void => {
     expect(service.state).toBe('local-only');
     expect(service.value('interstitialEveryNLevels')).toBe(3);
   });
+
+  describe('overlapping refreshes (stale-refresh guard)', (): void => {
+    // A provider whose fetches are settled by the test, so we can drive the
+    // completion order of two concurrent refreshes independently of start order.
+    function deferredProvider(): {
+      provider: RemoteConfigProvider;
+      settle: (values: Record<string, unknown>) => void;
+      reject: (err: unknown) => void;
+    } {
+      const gate: {
+        resolve?: (values: Record<string, unknown>) => void;
+        reject?: (err: unknown) => void;
+      } = {};
+      const provider: RemoteConfigProvider = {
+        fetch: () =>
+          new Promise<Record<string, unknown>>((resolve, reject) => {
+            gate.resolve = resolve;
+            gate.reject = reject;
+          }),
+      };
+      return {
+        provider,
+        settle: (values) => gate.resolve?.(values),
+        reject: (err) => gate.reject?.(err),
+      };
+    }
+
+    it('older success settling last does not overwrite the newer success', async (): Promise<void> => {
+      // Two independent in-flight fetches: the first-started (older) resolves
+      // AFTER the second-started (newer). Newer must win.
+      const a = deferredProvider();
+      const b = deferredProvider();
+      let call = 0;
+      const provider: RemoteConfigProvider = {
+        fetch: () => (call++ === 0 ? a.provider.fetch() : b.provider.fetch()),
+      };
+      const service = createRemoteConfigService(schema, { provider });
+
+      const first = service.refresh(); // older, gen 1
+      const second = service.refresh(); // newer, gen 2
+
+      b.settle({ interstitial_every_n_levels: 9 }); // newer completes first
+      await second;
+      expect(service.value('interstitialEveryNLevels')).toBe(9);
+
+      a.settle({ interstitial_every_n_levels: 1 }); // older completes late
+      await first;
+      // Older completion is discarded — newer value survives.
+      expect(service.value('interstitialEveryNLevels')).toBe(9);
+      expect(service.state).toBe('ready');
+    });
+
+    it('older failure settling last does not clear the newer success', async (): Promise<void> => {
+      const a = deferredProvider();
+      const b = deferredProvider();
+      let call = 0;
+      const provider: RemoteConfigProvider = {
+        fetch: () => (call++ === 0 ? a.provider.fetch() : b.provider.fetch()),
+      };
+      const service = createRemoteConfigService(schema, { provider });
+
+      const first = service.refresh(); // older, gen 1
+      const second = service.refresh(); // newer, gen 2
+
+      b.settle({ interstitial_every_n_levels: 9 });
+      await second;
+
+      a.reject(new Error('older network down'));
+      await first;
+      // Newer success is not cleared to fetch-failed by the stale rejection.
+      expect(service.state).toBe('ready');
+      expect(service.value('interstitialEveryNLevels')).toBe(9);
+      expect(service.snapshot().lastErrorMessage).toBeNull();
+    });
+
+    it('older success settling last does not clear the newer failure', async (): Promise<void> => {
+      const a = deferredProvider();
+      const b = deferredProvider();
+      let call = 0;
+      const provider: RemoteConfigProvider = {
+        fetch: () => (call++ === 0 ? a.provider.fetch() : b.provider.fetch()),
+      };
+      const service = createRemoteConfigService(schema, { provider });
+
+      const first = service.refresh(); // older, gen 1
+      const second = service.refresh(); // newer, gen 2
+
+      b.reject(new Error('newer network down')); // newer fails first
+      await second;
+      expect(service.state).toBe('fetch-failed');
+
+      a.settle({ interstitial_every_n_levels: 1 }); // older succeeds late
+      await first;
+      // Stale older success is discarded — newer failure state stands.
+      expect(service.state).toBe('fetch-failed');
+      expect(service.snapshot().lastErrorMessage).toBe('newer network down');
+      expect(service.value('interstitialEveryNLevels')).toBe(3);
+    });
+
+    it('completion in start order still lets the newer result win', async (): Promise<void> => {
+      const a = deferredProvider();
+      const b = deferredProvider();
+      let call = 0;
+      const provider: RemoteConfigProvider = {
+        fetch: () => (call++ === 0 ? a.provider.fetch() : b.provider.fetch()),
+      };
+      const service = createRemoteConfigService(schema, { provider });
+
+      const first = service.refresh(); // older, gen 1
+      const second = service.refresh(); // newer, gen 2
+
+      a.settle({ interstitial_every_n_levels: 1 }); // older completes first
+      await first;
+      b.settle({ interstitial_every_n_levels: 9 }); // newer completes last
+      await second;
+
+      expect(service.value('interstitialEveryNLevels')).toBe(9);
+      expect(service.state).toBe('ready');
+    });
+
+    it('discards an in-flight success that settles after dispose', async (): Promise<void> => {
+      const a = deferredProvider();
+      const service = createRemoteConfigService(schema, { provider: a.provider });
+
+      const pending = service.refresh();
+      service.dispose();
+      a.settle({ interstitial_every_n_levels: 9 });
+      await pending;
+
+      // Post-dispose settle must not mutate committed state.
+      expect(service.state).toBe('fetching');
+      expect(service.value('interstitialEveryNLevels')).toBe(3);
+    });
+
+    it('discards an in-flight rejection that settles after dispose', async (): Promise<void> => {
+      const a = deferredProvider();
+      const service = createRemoteConfigService(schema, { provider: a.provider });
+
+      const pending = service.refresh();
+      service.dispose();
+      a.reject(new Error('down after dispose'));
+      await pending;
+
+      expect(service.state).toBe('fetching');
+      expect(service.snapshot().lastErrorMessage).toBeNull();
+    });
+
+    it('no-ops refresh() calls made after dispose', async (): Promise<void> => {
+      const service = createRemoteConfigService(schema, {
+        provider: provider({ interstitial_every_n_levels: 9 }),
+      });
+      service.dispose();
+      await service.refresh();
+      expect(service.state).toBe('local-only');
+      expect(service.value('interstitialEveryNLevels')).toBe(3);
+    });
+  });
 });
