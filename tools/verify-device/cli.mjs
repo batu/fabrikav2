@@ -41,7 +41,6 @@ import { computeStrictExitCode, computeVerdict } from './src/verdict.mjs';
 import { buildGridHtml } from './src/grid.mjs';
 import { runPanel, withPanelMetadata } from './src/panel.mjs';
 import { loadRegistry, resolveJudges } from './src/judges.mjs';
-import { CANONICAL_STATES } from './src/states.mjs';
 import { harnessWindowKey, startDevServer, captureBrowserStates } from './src/browserLane.mjs';
 import { checkBudget } from './src/budget.mjs';
 import { prepareJudgedCaptures, resolveJudgedContentInsets } from './src/contentInset.mjs';
@@ -105,10 +104,11 @@ function readEnvSecret(name) {
 // Resolve the device captures (state -> abs PNG path), or a graceful skip.
 // Returns { captures, deviceLabel } or { skip: '<reason>' }.
 async function resolveDeviceCaptures(args, manifest, date, platform, deviceConfig) {
+  const stateNames = manifestStateNames(manifest);
   if (args.captures) {
     const dir = path.resolve(args.captures);
     return {
-      captures: loadCapturesDir(dir),
+      captures: loadCapturesDir(dir, stateNames),
       lane: 'provided-captures',
       deviceLabel: `captures dir ${path.relative(REPO_ROOT, dir)} — DEVICE-PROVENANCE-UNVERIFIED`,
     };
@@ -119,7 +119,7 @@ async function resolveDeviceCaptures(args, manifest, date, platform, deviceConfi
     }
     const exportDir = path.join(os.tmpdir(), `verify-device-${date}-export`);
     steps.exportAttachments(path.resolve(args.xcresult), exportDir);
-    const { byState, captureByState, viewportMetrics } = extractFromExportDir(exportDir);
+    const { byState, captureByState, viewportMetrics } = extractFromExportDir(exportDir, stateNames);
     return {
       captures: byState,
       captureByState,
@@ -163,7 +163,7 @@ function runIosDevicePath(args, manifest, date, deviceConfig = {}) {
     runnerDir: RUNNER_DIR, deviceUdid: device.udid, appBundleId, outDir,
     developmentTeam: process.env.DEVELOPMENT_TEAM,
   });
-  const { byState, captureByState, viewportMetrics } = extractFromExportDir(exportDir);
+  const { byState, captureByState, viewportMetrics } = extractFromExportDir(exportDir, manifestStateNames(manifest));
   return {
     captures: byState,
     captureByState,
@@ -196,7 +196,7 @@ async function runAndroidDevicePath(args, manifest, date, deviceConfig = {}) {
   steps.launchAndroidApp({ appId, activity, serial, adbPrefix });
 
   const { captures, failures } = await captureAndroidStates({
-    states: CANONICAL_STATES,
+    states: manifestStateNames(manifest),
     outDir: path.join(outDir, 'android-captures'),
     adbPrefix,
     serial,
@@ -233,7 +233,7 @@ async function runBrowserLane(manifest) {
     const { chromium } = await import('@playwright/test');
     const windowKey = harnessWindowKey(manifest.game);
     const { captures } = await captureBrowserStates({
-      states: CANONICAL_STATES,
+      states: manifestStateNames(manifest),
       baseUrl: dev.baseUrl,
       windowKey,
       outDir: path.join(os.tmpdir(), `verify-device-browser-${manifest.game}`),
@@ -249,6 +249,10 @@ async function runBrowserLane(manifest) {
   } finally {
     dev.stop();
   }
+}
+
+function manifestStateNames(manifest) {
+  return (manifest.states || []).map((state) => state.name);
 }
 
 async function main() {

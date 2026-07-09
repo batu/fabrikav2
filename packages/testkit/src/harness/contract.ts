@@ -103,9 +103,9 @@ export interface PerfSample {
 
 /**
  * Deterministic persisted-state seed used by capture tours before they drive
- * canonical states. Every field is optional so a game can consume only the
- * parts its save model understands; the index signature leaves room for
- * game-specific seed data without forking the shared harness contract.
+ * default or per-game manifest states. Every field is optional so a game can
+ * consume only the parts its save model understands; the index signature leaves
+ * room for game-specific seed data without forking the shared harness contract.
  */
 export interface HarnessSaveProfile {
   /** Current/highest unlocked level for games where progression is level-gated. */

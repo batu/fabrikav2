@@ -14,9 +14,11 @@ npm run verify-device -- --game marble_run
 1. **Build the harness bundle with the allstates tour** —
    `VITE_ENABLE_TEST_HARNESS=true VITE_INSITU_TOUR=allstates vite build` + Capacitor
    sync for the selected device platform. The `allstates` tour
-   (`@fabrikav2/testkit/testing` `maybeRunInsituTour`) drives
-   menu→level→settings→pause→win→fail, each state CONFIRMED via `snapshot().scene`
-   before a 6s dwell. After local `cap sync`, `verify-device` reapplies committed
+   (`@fabrikav2/testkit/testing` `maybeRunInsituTour`) is expected to expose the
+   states declared in `games/<game>/refs/manifest.yaml` `states:` order; each
+   state is CONFIRMED via `snapshot()` before its dwell. Those manifest states
+   are discovered at ingestion and human-ratified per game; the six familiar
+   names are only scaffold defaults. After local `cap sync`, `verify-device` reapplies committed
    native-shell recipe files from `games/<g>/native-resources/ios/App` or
    `games/<g>/native-resources/android/app` into the generated shell.
 2. **Build + install on the device** — iOS uses `xcodebuild` + `devicectl install`.
@@ -36,7 +38,7 @@ npm run verify-device -- --game marble_run
    panel judging. Raw is the integrity/evidence artifact; judged is the artifact
    sent to diff/panel.
 5. **Diff judged device captures vs the committed reference set** (`games/<g>/refs/`,
-   via the same manifest `tools/refcap-compare` uses) → a
+   using the same manifest states that `tools/refcap-compare` uses) → a
    **device|reference|pixel-diff grid** at
    `docs/evidence/<date>-device-verify/grid.html` + `summary.json` with stable
    per-state `{score, majorConsensusCount, verdict, capture}` entries + a **PASS/FAIL**
@@ -199,7 +201,8 @@ is produced on the build host.
 
 ## Non-device paths (what CI + unit tests exercise)
 
-- `--captures <dir>` — diff pre-extracted shots (`<state>.png`) with no build.
+- `--captures <dir>` — diff pre-extracted shots (`<state>.png`, for states named
+  in the per-game manifest) with no build.
   This lane is stamped `provided-captures` and `DEVICE-PROVENANCE-UNVERIFIED`;
   it is excluded from strict device-pass semantics.
 - `--xcresult <path>` — extract + diff from an existing `.xcresult` (no build/run).
@@ -217,7 +220,7 @@ unavailable, `--lane browser` drives a `vite` dev server + Playwright/Chromium
 against the game harness's `driveTo(state)` (`window.__<GAME>_HARNESS__`) instead
 of building/installing on the iOS device — same capture-integrity discipline
 (`driveTo` only resolves `true` once its own `snapshot()` poll confirms arrival;
-a state it can't confirm is a documented gap, never a guess). Results are scored
+a manifest state it can't confirm is a documented gap, never a guess). Results are scored
 by the **same vision panel** but every capture is stamped `lane=browser` and the
 grid carries a **DEVICE-UNVERIFIED** banner — safe-area/notch insets can't be
 validated off-device. Lets fidelity work + panel-scoring progress when the phone

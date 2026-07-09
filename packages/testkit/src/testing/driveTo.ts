@@ -24,6 +24,8 @@ export interface DriveToDeps {
   autoWin(): Promise<boolean>;
   autoFail(): Promise<boolean>;
   snapshot(): DriveSnapshot;
+  readonly states?: readonly string[];
+  gotoState?(state: string): void | Promise<void>;
 }
 
 export type DriveStatePredicate = (snapshot: DriveSnapshot) => boolean;
@@ -33,7 +35,7 @@ export interface DriveToOptions {
   readonly pollMs?: number;
   readonly maxPolls?: number;
   readonly sleep?: (ms: number) => Promise<void>;
-  readonly predicates?: Partial<DriveStatePredicates>;
+  readonly predicates?: Partial<Record<string, DriveStatePredicate>>;
   readonly playingReady?: DriveStatePredicate;
   readonly levelIds?: Partial<Record<Extract<DriveState, 'level' | 'win' | 'fail' | 'pause'>, number>>;
 }
@@ -61,8 +63,10 @@ export const defaultDriveStatePredicates: DriveStatePredicates = {
 export const defaultPlayingReady: DriveStatePredicate = (snap) =>
   defaultDriveStatePredicates.level(snap);
 
-export function isDriveState(state: string): state is DriveState {
-  return (DRIVE_STATES as readonly string[]).includes(state);
+export function isDriveState(state: string): state is DriveState;
+export function isDriveState(state: string, states: readonly string[]): boolean;
+export function isDriveState(state: string, states: readonly string[] = DRIVE_STATES): boolean {
+  return states.includes(state);
 }
 
 export async function driveTo(
@@ -70,12 +74,16 @@ export async function driveTo(
   state: string,
   opts: DriveToOptions = {},
 ): Promise<boolean> {
-  if (!isDriveState(state)) return false;
+  const effectiveStates = deps.states ?? DRIVE_STATES;
+  if (!isDriveState(state, effectiveStates)) return false;
 
   const pollMs = opts.pollMs ?? 50;
   const maxPolls = opts.maxPolls ?? 60;
   const sleep = opts.sleep ?? defaultSleep;
-  const predicates = { ...defaultDriveStatePredicates, ...opts.predicates };
+  const predicates: DriveStatePredicates & Partial<Record<string, DriveStatePredicate>> = {
+    ...defaultDriveStatePredicates,
+    ...opts.predicates,
+  };
   const playingReady = opts.playingReady ?? defaultPlayingReady;
   const settle = (predicate: DriveStatePredicate): Promise<boolean> =>
     confirm(deps, predicate, pollMs, maxPolls, sleep);
@@ -115,6 +123,13 @@ export async function driveTo(
       if (!(await settle(playingReady))) return false;
       await deps.pause();
       return settle(predicates.pause);
+
+    default: {
+      const predicate = predicates[state];
+      if (!deps.gotoState || !predicate) return false;
+      await deps.gotoState(state);
+      return settle(predicate);
+    }
   }
 }
 

@@ -127,7 +127,7 @@ describe('tour marker DOM to runner attachment round-trip', () => {
       }]));
       fs.writeFileSync(path.join(exportDir, 'menu-viewportmetrics.txt'), metricsLabel);
 
-      const parsed = extractFromExportDir(exportDir);
+      const parsed = extractFromExportDir(exportDir, ['menu', 'level', 'settings', 'pause', 'win', 'fail']);
 
       expect({
         state,

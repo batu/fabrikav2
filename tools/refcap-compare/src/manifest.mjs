@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { parseYaml } from './yaml.mjs';
 
-const CANONICAL_STATES = ['menu', 'level', 'settings', 'pause', 'win', 'fail'];
+const STATE_NAME_RE = /^[a-z][a-z0-9_-]*$/;
 
 /**
  * @param {string} gameDir absolute path to games/<game>/
@@ -35,14 +35,14 @@ function validate(doc, manifestPath) {
   const seen = new Set();
   for (const st of doc.states) {
     if (!st || !st.name) throw new Error(`manifest ${manifestPath}: a state is missing "name"`);
-    if (seen.has(st.name)) throw new Error(`manifest ${manifestPath}: duplicate state "${st.name}"`);
-    seen.add(st.name);
-    if (!CANONICAL_STATES.includes(st.name)) {
+    if (typeof st.name !== 'string' || !STATE_NAME_RE.test(st.name)) {
       throw new Error(
-        `manifest ${manifestPath}: state "${st.name}" is not canonical ` +
-        `(expected one of ${CANONICAL_STATES.join(', ')})`
+        `manifest ${manifestPath}: invalid state name "${st.name}" ` +
+        `(expected ${STATE_NAME_RE})`
       );
     }
+    if (seen.has(st.name)) throw new Error(`manifest ${manifestPath}: duplicate state "${st.name}"`);
+    seen.add(st.name);
     for (const lane of ['reference', 'v2']) {
       const laneDef = st[lane];
       if (!laneDef || typeof laneDef !== 'object') {
@@ -58,5 +58,3 @@ function validate(doc, manifestPath) {
     }
   }
 }
-
-export { CANONICAL_STATES };

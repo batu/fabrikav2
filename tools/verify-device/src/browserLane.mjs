@@ -85,7 +85,7 @@ export function startDevServer(gameDir, { env = process.env, spawnImpl = spawn, 
 }
 
 /**
- * Drive every canonical state via window[windowKey].driveTo(state) and capture
+ * Drive every manifest state via window[windowKey].driveTo(state) and capture
  * a screenshot only once driveTo confirms arrival. Writes PNGs to outDir named
  * "<state>.png" (the same shape resolveDeviceCaptures produces) so the result
  * plugs straight into compare.buildRows.

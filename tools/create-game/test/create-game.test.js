@@ -1,8 +1,12 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { createGame, titleCase } from '../src/create-game.mjs';
+import { loadManifest } from '../../refcap-compare/src/manifest.mjs';
+
+const REPO = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 
 // Build a minimal, hermetic fake repo (games/_template only) in a tmp dir so the
 // test never scaffolds into the real games/ tree.
@@ -175,5 +179,15 @@ describe('createGame', () => {
     expect(() => createGame({ name: 'My Game', repoRoot: root })).toThrow(/invalid game name/);
     expect(() => createGame({ name: '', repoRoot: root })).toThrow(/invalid game name/);
     expect(() => createGame({ name: '_template', repoRoot: root })).toThrow(/template/);
+  });
+});
+
+describe('template manifest', () => {
+  it('validates the scaffold default states with the production manifest reader', () => {
+    const manifest = loadManifest(join(REPO, 'games', '_template'));
+
+    expect(manifest.states.map((state) => state.name)).toEqual(
+      ['menu', 'level', 'settings', 'pause', 'win', 'fail'],
+    );
   });
 });

@@ -1,7 +1,8 @@
 # refcap-compare
 
 Paired **reference (android)** + **v2 (apple/web port)** capture → self-contained
-HTML grid, one row per canonical state, with a perceptual pixel-diff thumbnail.
+HTML grid, one row per per-game manifest state, with a perceptual pixel-diff
+thumbnail.
 
 Root fix for the fidelity-diff mistakes ledger (`docs/retros/fidelity-diff-mistakes-ledger.md`):
 makes paired diffing **one command** instead of ad-hoc adb one-liners — closes
@@ -24,9 +25,11 @@ Flags: `--game <name>` (required), `--offline`, `--out <dir>`, `--date <YYYY-MM-
 
 ## How it works
 
-- **Manifest-driven.** `games/<game>/refs/manifest.yaml` lists the canonical states
-  (`menu, level, settings, pause, win, fail`) and, per lane, how to reach/source
-  each capture. Paths are relative to the game root.
+- **Manifest-driven.** `games/<game>/refs/manifest.yaml` `states:` is the source
+  of truth for that game's state vocabulary and order. State names are
+  discovered at ingestion and human-ratified in the manifest; the six familiar
+  names are only scaffold defaults for fresh games. Each state declares, per
+  lane, how to reach/source its capture. Paths are relative to the game root.
 - **Three lanes.**
   - **reference (adb, live):** ssh to the ubuntu-server bridge, `dumpsys`
     foreground-verify the expected package **before every `screencap`**, stamp
@@ -39,7 +42,7 @@ Flags: `--game <name>` (required), `--offline`, `--out <dir>`, `--date <YYYY-MM-
     only path exercised in the worker sandbox and by the AC/verification.
 - **Two structural guards.**
   - **dedup (B2):** two captures tagged as *different* states but perceptually
-    identical → hard error naming both. `level-start`/`level-mid` is the canonical
+    identical → hard error naming both. `level-start`/`level-mid` is the common
     trip case.
   - **foreground-verify (A5):** reference lane refuses to capture the wrong app.
 - **Self-contained output.** Images are base64-inlined; missing sides (e.g. `pause`

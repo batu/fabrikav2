@@ -36,10 +36,13 @@ describe('viewport metrics parsing', () => {
     });
   });
 
-  it('maps runner viewport-metrics attachment names back to canonical states', () => {
-    expect(stateFromViewportMetricsAttachmentName('1-menu-viewportmetrics_0_uuid.txt')).toBe('menu');
-    expect(stateFromViewportMetricsAttachmentName('6-fail-viewportmetrics-MISSING_0_uuid.txt')).toBe('fail');
-    expect(stateFromViewportMetricsAttachmentName('7-final-viewportmetrics_0_uuid.txt')).toBeNull();
+  it('maps runner viewport-metrics attachment names back to manifest states', () => {
+    const states = ['menu', 'fail', 'shop', 'level_intro'];
+    expect(stateFromViewportMetricsAttachmentName('1-menu-viewportmetrics_0_uuid.txt', states)).toBe('menu');
+    expect(stateFromViewportMetricsAttachmentName('6-fail-viewportmetrics-MISSING_0_uuid.txt', states)).toBe('fail');
+    expect(stateFromViewportMetricsAttachmentName('2-shop-viewportmetrics_0_uuid.txt', states)).toBe('shop');
+    expect(stateFromViewportMetricsAttachmentName('3-level_intro-viewportmetrics_0_uuid.txt', states)).toBe('level_intro');
+    expect(stateFromViewportMetricsAttachmentName('7-final-viewportmetrics_0_uuid.txt', states)).toBeNull();
   });
 });
 
