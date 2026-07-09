@@ -1,0 +1,26 @@
+style_ref: style_guide.yaml
+type: coin
+title: Polished gold paw coin
+aspect_ratio: "1:1"
+
+description: >
+  Bright gold coin and stacked reward piles with a raised paw emblem, orange
+  rim shadows, and glossy top-left highlights. Used in hud counters, shop
+  bundles, and reward panels.
+
+palette_roles: [coin, highlight, panel, text]
+surfaces:
+  - hud_coin_counter
+  - shop_coin_stack
+  - reward_bundle_icon
+
+shape:
+  silhouette: round_coin_with_embossed_paw
+  stack: overlapping_coins_with_chunky_depth
+  highlight: warm_yellow_gloss
+
+negative:
+  - realistic_currency
+  - flat_yellow_disc
+  - silver_or_copper_primary
+  - tiny_unreadable_markings
