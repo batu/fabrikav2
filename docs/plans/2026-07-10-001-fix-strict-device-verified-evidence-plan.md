@@ -4,6 +4,7 @@ artifact_readiness: implementation-ready
 product_contract_source: trello-card
 execution: code
 date: 2026-07-10
+deepened: 2026-07-10
 type: fix
 title: Strict Device Verification Requires Verified Evidence - Plan
 origin: "Trello card 9l9Ploxe"
@@ -14,11 +15,11 @@ trello: "https://trello.com/c/9l9Ploxe"
 
 ## Goal Capsule
 
-- **Objective:** Make `verify-device --strict` fail closed unless at least one fresh, applicable device state was actually captured and verified and every required applicable state is covered — replacing the current truthy-default pass that lets empty, skipped-only, no-reference, no-applicable, and `--skip-device` runs report a verified success.
-- **Authority:** Trello card `9l9Ploxe` is the source of truth. `tools/verify-device/src/verdict.mjs` is the canonical owner of the strict verdict contract (per the card's `Contract:` line and the board's `contract-ownership` lesson); the CLI and panel/summary consume that typed verdict, they do not re-declare pass/fail semantics.
-- **Execution profile:** Bounded logic + test + docs work inside `tools/verify-device`; no PR, no merge, no device run required (the fix is pure JS glue + table-driven tests). Commit only.
-- **Scope fence:** Touch only `tools/verify-device/src/verdict.mjs`, `tools/verify-device/cli.mjs`, `tools/verify-device/src/panel.mjs` (only if needed to source the shared typed verdict), `tools/verify-device/test/verdict.test.mjs` (and, if a CLI-level skip path is asserted, a narrow new/existing CLI test), and `tools/verify-device/README.md`.
-- **Stop condition:** Stop and surface a blocker if making the typed verdict authoritative would require changing the row/summary/panel wire shapes consumed by other tools (`refcap-compare`, Portal) beyond additive fields, or if the "applicable state" definition cannot be derived from data already present in `compare.buildRows` output + the manifest without a new manifest field.
+- **Objective:** Make `verify-device --strict` fail closed unless at least one applicable state has fresh, live-device provenance and complete primary fidelity evidence, while every required applicable state is covered and every strict gate passes.
+- **Authority:** Trello card `9l9Ploxe` is the product source of truth. `tools/verify-device/src/verdict.mjs` owns evidence normalization, typed run classification, and exit policy; the CLI, grid, and summary consume that result.
+- **Execution profile:** Bounded JavaScript logic, subprocess regression tests, compatibility tests, and documentation. No device run, PR, merge, or push is required; commit only.
+- **Scope fence:** Touch only `tools/verify-device/src/verdict.mjs`, `tools/verify-device/cli.mjs`, `tools/verify-device/src/grid.mjs`, `tools/verify-device/src/summary.mjs`, `tools/verify-device/src/panel.mjs` if panel output needs an additive coverage field, their focused tests under `tools/verify-device/test/`, and `tools/verify-device/README.md`.
+- **Stop condition:** Stop if the additive run metadata cannot be introduced without breaking a known `summary.json`, grid, Portal, or `refcap-compare` consumer, or if detached-artifact freshness would require implementing the attestation contract owned by downstream AUDIT #7 rather than merely failing closed until it exists.
 
 ---
 
@@ -26,185 +27,191 @@ trello: "https://trello.com/c/9l9Ploxe"
 
 ### Summary
 
-`verify-device` has two verdict surfaces today: `computeVerdict` (phash) and `aggregatePanel` (panel), both shaped `{pass, summary, states}`, plus `computeStrictExitCode` which turns a chosen `primary.pass` boolean and several sibling booleans into an exit code. Strict mode is meant to be the gate that only exits 0 when the real device rendered correctly. It does not currently do that:
+`verify-device` currently derives success from aggregate booleans that can be true without proof. Empty, skipped-only, and no-reference-only phash rows pass by default; the graceful-skip branch exits before strict policy runs; panel and phash can aggregate different state sets; and `--xcresult` is implicitly stamped as a trusted device lane without proving that the artifact belongs to the current run.
 
-1. `computeVerdict` sets `pass = fails.length === 0 && missing.length === 0`. An **empty** row set, a **skipped-only** set, and a **no-reference-only** set all contain zero fails and zero missing, so they report `pass: true` — a verified success derived from the absence of evidence.
-2. The CLI graceful-skip path (`cli.mjs` ~276-283) prints the UNVERIFIED message and `return 0` **before** `computeStrictExitCode` is ever reached, so `--strict --skip-device` (and any device-absent run) exits 0 even though nothing was verified.
-3. `computeStrictExitCode` requires a `device` lane and `primary.pass`, but never checks that at least one *applicable* state actually produced fresh, trusted, diffed device evidence — so a device-lane run that captured only skipped/no-reference states still passes strict.
-
-The fix introduces a single **typed run verdict** owned by `verdict.mjs` that classifies every run into one of `verified-pass`, `verified-fail`, `skipped`, `unverified`, or `no-applicable-evidence`, and derives both the human-facing status/summary and the process exit code from that one typed value. Strict mode exits 0 only for `verified-pass`. A clearly labeled non-strict exploratory mode is preserved, but it is never represented as verified.
+The fix creates one typed run verdict after row normalization, primary fidelity evaluation, provenance, and cross-cutting gates are known. Evidence classification and enforcement mode are separate axes: `kind` describes the evidence, while `enforcement` and `exitCode` describe whether `--strict` turns that evidence into a process gate. The same run verdict is computed before and consumed by the grid, summary, stdout, and final process exit.
 
 ### Problem Frame
 
-Strict device verification is the forcing function behind AGENTS.md #8/#9 ("a proxy is not verification", "name the concrete artifact that proves it"). A gate that returns 0 when *no evidence exists* is worse than no gate: it manufactures false "verified" signals for exactly the empty/skipped/skip-device cases a reviewer would reach for when the device is unavailable. The verdict must fail closed on absence of evidence and only pass on the presence of fresh, applicable, trusted device evidence covering every required state.
+Strict device verification is the forcing function behind AGENTS.md #8 and #9. A gate that passes without current, applicable, trusted evidence manufactures a completion claim. The contract must distinguish absence, inapplicability, untrusted provenance, incomplete fidelity evaluation, and observed failure without letting aggregate defaults or stale rows blur those states.
 
 ### Requirements
 
-**Typed Verdict Contract (owner: `verdict.mjs`)**
+**Evidence normalization and typed verdict**
 
-- R1. `verdict.mjs` exports a typed run-verdict value with a discriminated `kind` covering exactly: `verified-pass`, `verified-fail`, `skipped`, `unverified`, `no-applicable-evidence`. The kind is derived from evidence, never from a truthy default.
-- R2. An **applicable** state is defined as a state that has a trusted reference to diff against and is not excluded from judging — i.e. not `skipped` (refs manifest `skipJudging`/`at-rest:false`) and not `no-reference` (documented reference gap). The definition is derived from data already present in `compare.buildRows` row classification; no new manifest field is introduced.
-- R3. `verified-pass` requires **all** of: the lane is a verified device lane; capture did not fail; there is **at least one** applicable state; **every** applicable state was device-captured (not `missing`) and passed its fidelity check; and no cross-cutting gate (ungated/blind captures, indistinguishable states, viewport-metric assertions) failed.
-- R4. `verified-fail` is the classification when applicable evidence exists (≥1 applicable state and a verified device lane) but at least one applicable state failed, was missing, or a cross-cutting gate failed.
-- R5. `no-applicable-evidence` is the classification when the row set is empty or contains zero applicable states (all skipped and/or no-reference), on any lane.
-- R6. `skipped` is the classification when the device capture was skipped entirely (`--skip-device`, no device, no toolchain) so no captures were produced.
-- R7. `unverified` is the classification when captures exist on a non-verified device lane (`browser`, `provided-captures`) — evidence exists but not from a trusted device.
-- R8. The typed verdict carries a human-readable `summary`/`reason` string that names *why* it landed in its kind (e.g. `"no applicable device evidence: 0 of 3 states diffable"`), and the per-state breakdown, so the grid/stdout/summary and the exit code read from the same object.
+- R1. `verdict.mjs` exports one discriminated run verdict whose `kind` is exactly `verified-pass`, `verified-fail`, `skipped`, `unverified`, or `no-applicable-evidence`; `kind` is evidence-derived and does not change merely because `--strict` is on or off.
+- R2. Applicability is reference-first and is derived from raw row structure, not inferred from the old status name: `skipJudging` is `skipped`; an absent, gapped, or otherwise untrusted reference is `no-reference` even when the device capture is also absent; only a state with a trusted reference is applicable; and an applicable state without a complete device capture/diff is `missing`.
+- R3. `verified-pass` requires a verified live-device provenance boundary, at least one applicable state, every required capture/diff present, exactly one complete primary panel result for each captured applicable state, every such panel state passing, and every strict evidence gate passing.
+- R4. `verified-fail` requires verified live-device provenance and at least one applicable state, but one or more applicable states are missing, fail the complete primary panel evaluation, or fail a strict evidence gate such as viewport assertions. Lack of a usable primary panel evaluation is `unverified`, not a fabricated failure or pass.
+- R5. `no-applicable-evidence` applies when zero states have a trusted reference, including empty rows and rows missing both device and reference. It takes precedence over lane classification unless capture was skipped entirely.
+- R6. `skipped` applies only when capture was not attempted or produced no run because of `--skip-device`, missing device/toolchain, or an equivalent graceful-skip reason.
+- R7. `unverified` applies when captures exist but their provenance is not trusted (`browser`, `provided-captures`, detached `--xcresult`) or when primary panel fidelity for an otherwise captured applicable state is absent, incomplete, duplicated, or cannot be matched one-to-one. A structurally missing applicable capture remains `verified-fail` on a live run.
+- R8. The verdict carries `kind`, `enforcement`, `exitCode`, `summary`, `reason`, `applicableCount`, `fidelitySource`, normalized per-state evidence, ignored stale/inapplicable panel states, coverage gaps, and blocking reasons. Human surfaces and exit policy consume these fields rather than reconstructing them.
 
-**Strict / Non-strict Exit Semantics**
+**Strict and exploratory enforcement**
 
-- R9. In `--strict` mode the process exits nonzero for every kind except `verified-pass`. Specifically empty, skipped-only, no-reference, no-applicable-state, browser/provided-captures lane, and `--skip-device` runs all exit nonzero.
-- R10. A fully verified applicable pass (`verified-pass`) exits 0 in strict mode. A verified failure (`verified-fail`) exits nonzero.
-- R11. Non-strict (exploratory) mode preserves today's behavior: it exits 0 for `skipped`, `unverified`, and `no-applicable-evidence`, and does not fail on fidelity `verified-fail` — **but** it still exits nonzero on the existing hard integrity gates (capture-runner failure, ungated/blind captures without `--allow-ungated`, indistinguishable states). Exploratory output is always labeled UNVERIFIED and never presented as verified.
-- R12. The CLI graceful-skip path must route through the typed verdict instead of an unconditional `return 0`: a skip under `--strict` exits nonzero (kind `skipped`), a skip without `--strict` exits 0 with the existing clear UNVERIFIED message.
+- R9. With `enforcement: strict`, exit code 0 is possible only for `verified-pass`; `verified-fail`, `skipped`, `unverified`, and `no-applicable-evidence` are nonzero.
+- R10. A complete live-device and panel pass exits 0 under strict; any missing applicable capture, applicable panel failure, viewport assertion failure, or hard integrity failure exits nonzero.
+- R11. With `enforcement: exploratory`, fidelity failure, viewport failure, skipped capture, unverified provenance, and no applicable evidence remain exit 0, preserving current advisory behavior. Capture-runner failure, ungated/blind captures without `--allow-ungated`, and blocking indistinguishable states remain hard integrity failures and exit nonzero in both modes. Output says `EXPLORATORY` and separately reports the evidence kind; it never presents exit 0 as a strict gate pass.
+- R12. Every graceful-skip reason routes through the typed verdict. Strict skip is `skipped` with nonzero exit; exploratory skip is `skipped` with exit 0 and the existing explicit UNVERIFIED explanation.
 
-**Single Source of Truth**
+**Fidelity reconciliation, provenance, and consumers**
 
-- R13. The panel/summary status/label and the CLI exit code both derive from the one typed verdict. No new independent pass/fail boolean is introduced in the CLI to compute the exit; existing sibling signals (viewport, ungated, indistinguishable, capture failure) are folded into the typed verdict as inputs rather than remaining parallel exit-deciding booleans.
-- R14. Backward-compatible wire shapes: `computeVerdict`'s existing `{pass, states, summary}` return and the panel verdict shape may gain additive fields but must not break `summary.json`, the grid, or `refcap-compare`/Portal consumers. If `computeStrictExitCode` is retained it becomes a thin derivation of the typed verdict (or is superseded by a typed-verdict accessor with updated call sites/tests).
-
-**Tests and Documentation**
-
-- R15. Table-driven tests in `verdict.test.mjs` cover every evidence composition (empty, skipped-only, no-reference-only, mixed applicable+skipped, all-applicable-pass, applicable-with-one-fail, applicable-with-one-missing) crossed with strict/non-strict, and each cross-cutting gate (capture failure, ungated, indistinguishable, viewport-fail). Each row asserts both the typed `kind` and the resulting exit code.
-- R16. A test proves the `--skip-device` behavior contract: skip under strict → nonzero, skip without strict → 0. Prefer covering this at the verdict/typed-verdict boundary; add a narrow CLI-level assertion only if the strict-skip routing cannot be observed from the verdict function alone.
-- R17. `README.md` states the **minimum proof contract** explicitly: what strict requires to exit 0 (≥1 applicable state, all applicable states captured and passed on a verified device lane, no failed gate), and that the exploratory (non-strict / skip / browser / provided-captures) mode is never a verified result.
+- R13. The CLI computes the typed run verdict once after rows, panel results, provenance, viewport assertions, capture integrity, and indistinguishable-state checks are known but before grid, summary, stdout, Portal delivery, or exit. Those consumers receive the same object.
+- R14. Wire changes are additive: existing per-state fields remain; `summary.json` gains one reserved run-metadata member that internal state iterators explicitly exclude; the grid gains an additive run-verdict input and keeps panel/phash detail as diagnostics. Existing summary files without run metadata continue to load and compare unchanged.
+- R15. Table-driven verdict tests cover evidence composition, enforcement, provenance, primary-fidelity coverage, panel/phash divergence, stale/duplicate/extra panel rows, mixed applicable/inapplicable rows, and every cross-cutting gate. Each case asserts kind, reason class, and exit code.
+- R16. Subprocess CLI tests cover every early-exit class: help, strict and exploratory forced skip, injected missing-device/toolchain skip reasons through the same executable wrapper, and top-level fatal rejection. They assert the real process exit code and truthful stdout/stderr, so a verdict-only unit test cannot mask an unchanged CLI return.
+- R17. `README.md` defines the minimum strict proof, the five evidence kinds, exploratory enforcement, panel-required fidelity, additive artifact metadata, and the detached-artifact boundary.
+- R18. Freshness is not inferred from file modification time. Only captures produced by the live iOS/Android path in the current CLI invocation, with every applicable row stamped consistently for that live lane, are provenance-verified in this card. `--captures`, browser captures, mixed-lane rows, and detached `--xcresult` are unverified and strict-nonzero until AUDIT #7 provides and this verifier validates a run/commit/device attestation.
+- R19. When a panel verdict exists, fidelity is evaluated per captured applicable state by canonical state identity after structural missing states have already failed: exactly one panel state is required for each remaining applicable row; phash supplies structure and an advisory diagnostic; panel failures override phash passes; panel passes may override phash threshold failures; inapplicable or unknown extra panel states are ignored and reported; missing or duplicate panel states for captured applicable evidence make the run `unverified`.
 
 ### Acceptance Examples
 
-- AE1. Given zero rows (or a rows set where every row is `skipped`/`no-reference`), when the run is strict, then the typed kind is `no-applicable-evidence` and the process exits nonzero.
-- AE2. Given `--strict --skip-device`, when the run executes, then it prints the UNVERIFIED skip message, the typed kind is `skipped`, and the process exits nonzero.
-- AE3. Given `--skip-device` without `--strict`, when the run executes, then it prints the UNVERIFIED skip message and exits 0 (exploratory, labeled unverified).
-- AE4. Given a device-lane run where states `menu` and `level` are applicable and both diff under threshold and no gate fails, when the run is strict, then the typed kind is `verified-pass` and it exits 0.
-- AE5. Given a device-lane run where `menu` passes but `win` is missing (never captured), when the run is strict, then the typed kind is `verified-fail` and it exits nonzero.
-- AE6. Given a device-lane run where `menu` is applicable and passes but `fail` is `skipped` (refs `at-rest:false`), when the run is strict, then the typed kind is `verified-pass` (skipped states are excluded from the applicable set, and ≥1 applicable state was verified).
-- AE7. Given a `--lane browser` run where every applicable state passes, when the run is strict, then the typed kind is `unverified` and it exits nonzero; without `--strict` it exits 0 and is labeled DEVICE-UNVERIFIED.
-- AE8. Given a device-lane verified-pass on fidelity but one state was captured blind (ungated) without `--allow-ungated`, when the run is strict or non-strict, then it exits nonzero (existing integrity gate folded into the typed verdict).
+- AE1. Zero rows or rows that are all `skipped`/`no-reference` produce `no-applicable-evidence`; strict exits nonzero and exploratory exits 0 with no verified-gate claim.
+- AE2. `--strict --skip-device` prints the UNVERIFIED skip reason, reports `skipped`, and exits nonzero.
+- AE3. `--skip-device` without strict reports `EXPLORATORY` plus `skipped` and exits 0.
+- AE4. A live-device run with applicable `menu` and `level`, exactly one passing panel result for each, complete captures/diffs, and no failed gate is `verified-pass`; strict exits 0.
+- AE5. A live-device run where `menu` passes but applicable `win` lacks its capture/diff is `verified-fail`; strict exits nonzero.
+- AE6. A live-device run with passing applicable `menu` and manifest-skipped `fail` is `verified-pass`; the skipped state remains visible but cannot help or hurt coverage.
+- AE7. Browser or provided captures with complete passing panel results are `unverified`; strict exits nonzero and exploratory exits 0 with provenance labeled.
+- AE8. A blind capture without `--allow-ungated` exits nonzero in either enforcement mode and names the hard integrity reason.
+- AE9. A row missing both reference and device is `no-reference`, not `missing`, and cannot increase applicable coverage.
+- AE10. A passing applicable row plus a no-reference row can be `verified-pass`; the panel `unscored` diagnostic for the inapplicable row does not poison the applicable aggregate.
+- AE11. With complete panel coverage, panel pass plus phash fail uses the panel pass; panel fail plus phash pass is `verified-fail`. A missing or duplicate applicable panel state is `unverified`, never pass.
+- AE12. A viewport assertion failure on otherwise verified evidence is `verified-fail`; strict exits nonzero while exploratory exits 0 and reports the failure.
+- AE13. A device run with the panel disabled, unavailable, or entirely unscored is `unverified`; advisory phash cannot produce `verified-pass`.
+- AE14. A detached or stale `--xcresult` with visually passing rows is `unverified` and strict-nonzero until AUDIT #7 attestation is present and validated.
 
 ### Scope Boundaries
 
 **In scope**
 
-- `tools/verify-device/src/verdict.mjs` — the typed run verdict + strict/non-strict exit derivation (canonical owner).
-- `tools/verify-device/cli.mjs` — route the graceful-skip path and the final exit through the typed verdict; stop pre-returning 0 on skip under strict; feed the existing sibling signals in as verdict inputs.
-- `tools/verify-device/src/panel.mjs` — only if the shared typed status/label must be sourced here; prefer leaving panel aggregation as-is and composing the run verdict in `verdict.mjs`.
-- `tools/verify-device/test/verdict.test.mjs` — table-driven coverage (and a narrow CLI skip-path test only if R16 needs it).
-- `tools/verify-device/README.md` — minimum proof contract.
+- Canonical evidence normalization and typed verdict in `tools/verify-device/src/verdict.mjs`.
+- CLI ordering, graceful-skip routing, live-vs-detached provenance stamping, and executable subprocess coverage in `tools/verify-device/cli.mjs` and `tools/verify-device/test/cli.test.mjs`.
+- Additive run-verdict consumption in `tools/verify-device/src/grid.mjs`, `tools/verify-device/src/summary.mjs`, and focused tests.
+- Panel output changes only if an additive state-identity/coverage field is required; prefer reconciling existing panel states in `verdict.mjs`.
+- Minimum-proof and artifact-contract documentation in `tools/verify-device/README.md`.
+
+**Deferred to Follow-Up Work**
+
+- AUDIT #7 owns the durable attestation that could upgrade a detached `--xcresult` to verified provenance. Until that contract lands, detached artifacts fail closed as `unverified`.
 
 **Out of scope**
 
-- No changes to the device capture drivers (`steps.mjs`, `androidDriver.mjs`, `browserLane.mjs`, `attachments.mjs`), the image codec/diff (`refcap-compare`), or the vision panel scoring math.
-- No new manifest field; "applicable" is derived from existing row classification.
-- No change to `summary.json`/grid/Portal wire shapes beyond additive fields.
-- No new dependency, no PR, no merge, no device run, no threshold retuning.
+- No changes to capture drivers, image codec/diff math, panel scoring thresholds, judge roster, reference manifest schema, or Portal transport.
+- No new dependency, device run, PR, merge, or push.
 
 ---
 
 ## Planning Contract
 
+### Product Contract Preservation
+
+Product Contract changed: R2-R17 were clarified and R18-R19 plus AE9-AE14 were added to resolve the contract red-team findings. The outcome remains the card's original fail-closed strict-device objective.
+
 ### Key Technical Decisions
 
-- KTD1. **One typed verdict, five kinds, derived last.** Add a function in `verdict.mjs` (e.g. `classifyRunVerdict({ lane, rows, primary, captureFailure, viewportMetricsPass, ungatedCaptureStates, allowUngated, indistinguishableStatePairs, skipReason, strict })`) returning `{ kind, exitCode, summary, applicableCount, coverageGaps, states }`. It is the last thing computed and the only thing the CLI exit reads. This satisfies R13/AC-series without scattering booleans.
-- KTD2. **Applicability comes from the phash row classification, fidelity comes from `primary`.** `computeVerdict`/`classify` already labels each state `pass|fail|missing|skipped|no-reference`. The applicable set = states classified `pass|fail|missing` (they have a trusted reference). `verified-pass` needs applicable set non-empty, no `missing` in it, and `primary.pass` true. Using the row classification for structure and `primary` (panel when present, else phash) for the fidelity decision avoids a second fidelity computation and keeps panel/phash as the fidelity authority. Reconcile the two only where panel `states` and phash rows disagree on presence; prefer the phash row classification for the missing/skipped/no-reference structural facts.
-- KTD3. **Fix the fail-open at the source too.** Change `computeVerdict` so `pass` is not `true` on an empty/skipped-only/no-reference-only set — either by exposing an explicit `applicableCount`/`hasApplicable` field the run verdict consumes, or by making `pass` require `applicableCount > 0`. Preserve the existing per-state statuses and the existing tests' intent (a `no-reference` state alongside a real pass must not, by itself, fail the *phash* advisory number — but the *run* verdict must still refuse `verified-pass` when there is no applicable evidence at all). Encode the run-level requirement in the typed verdict, and add `hasApplicable`/`applicableCount` to `computeVerdict`'s output so the truthy-default is removed without overloading the advisory phash number's meaning.
-- KTD4. **Strict-skip routing in the CLI.** Replace the unconditional `return 0` in the skip branch with: build a `skipped` typed verdict, print the existing UNVERIFIED message, and `return verdict.exitCode` (nonzero under strict, 0 otherwise). This is the direct fix for the reported `--strict --skip-device` bug.
-- KTD5. **Keep `computeStrictExitCode` as a thin adapter or retire it with call-site updates.** To minimize churn and keep the existing strict-lane tests meaningful, prefer keeping `computeStrictExitCode` as a function that internally delegates to the typed verdict (or is re-expressed in terms of it). If it is retired, update `cli.mjs` and `verdict.test.mjs` call sites in the same change so there are no divergent exit booleans left (R13).
-- KTD6. **Exploratory labeling stays truthful.** The stdout `laneNote`/skip message and the grid banner already say DEVICE-UNVERIFIED / DEVICE-PROVENANCE-UNVERIFIED for browser/provided-captures/skip. Ensure the typed verdict's `unverified`/`skipped`/`no-applicable-evidence` summaries reinforce that and that non-strict exit 0 never prints "verified".
+- KTD1. **Normalize structure before fidelity.** Produce one normalized state record from each raw row using reference-first precedence. Applicability is an explicit field, so dual-gap rows cannot alias to applicable `missing` states.
+- KTD2. **Separate evidence from enforcement.** `kind` records evidence truth; `enforcement` is `strict` or `exploratory`; `exitCode` combines both with the hard-integrity override. A non-strict live run may show evidence kind `verified-pass`, but the surface remains labeled `EXPLORATORY`, not a strict gate success.
+- KTD3. **Require complete canonical panel coverage after structural coverage.** A trusted-reference state with no complete capture/diff is immediately `verified-fail` on a live run. For the remaining captured applicable states, match panel states by identity, ignore/report rows outside that set, reject duplicate/missing canonical results as `unverified`, and use per-state panel status rather than aggregate `primary.pass`. Phash remains structural/advisory when panel exists.
+- KTD4. **Panel absence cannot verify fidelity.** A skipped, unavailable, or incomplete panel yields `unverified` even when device provenance and phash look good. This follows the current grid/CLI language that the panel is primary and phash is advisory.
+- KTD5. **Compute once before rendering.** Derive ungated states directly from capture metadata passed to the verdict rather than from the already-built summary, breaking the current summary-to-exit cycle. Then pass the completed run verdict to grid, summary, stdout, Portal artifacts, and exit.
+- KTD6. **Keep summary compatibility additive.** Add a reserved `__run` metadata member while leaving every existing state entry unchanged. Internal normalize/compare/format helpers skip `__run` as a state; old files without it retain existing behavior. Stop if a known external consumer cannot tolerate the additive member.
+- KTD7. **Trust only current-invocation live captures.** The live iOS/Android resolver marks provenance verified. Browser, `--captures`, and `--xcresult` mark it unverified. AUDIT #7 may later supply a validated attestation; this card does not infer freshness from paths, timestamps, or labels.
+- KTD8. **Test the executable boundary.** Keep pure table tests for classification, but add a subprocess harness around the real CLI wrapper for every early-return class. Deterministic dependency injection may select the skip/fatal condition; the assertion remains the child process exit and emitted labels.
+- KTD9. **Retire divergent exit policy.** `computeStrictExitCode` is either removed with all callers updated or retained solely as a compatibility adapter over the typed verdict. It cannot accept independent booleans that recreate policy.
 
 ### High-Level Technical Design
 
 ```mermaid
 flowchart TB
-  A[cli.main] --> B{resolved.skip?}
-  B -->|yes| C[build typed verdict kind=skipped]
-  C --> D[print UNVERIFIED skip message]
-  D --> E[return verdict.exitCode  strict:nonzero / else 0]
-  B -->|no| F[buildRows + computeVerdict phash + panel]
-  F --> G[primary = panel.verdict or phash]
-  G --> H[classifyRunVerdict lane, rows, primary, captureFailure,\nviewport, ungated, indistinguishable, strict]
-  H --> I{kind}
-  I -->|verified-pass| J[exit 0]
-  I -->|verified-fail| K[exit nonzero]
-  I -->|no-applicable-evidence / skipped / unverified| L[strict: nonzero / non-strict: 0\nplus integrity-gate override to nonzero]
-  H --> M[summary/status/grid label read from same verdict]
+  A[Capture resolver] --> B{Capture skipped?}
+  B -->|yes| C[Typed verdict: skipped]
+  B -->|no| D[Build raw rows]
+  D --> E[Reference-first state normalization]
+  E --> F[Panel results keyed to applicable states]
+  F --> G[Provenance and cross-cutting gates]
+  G --> H[Compute one typed run verdict]
+  H --> I[Grid top status and diagnostics]
+  H --> J[Summary state map plus __run metadata]
+  H --> K[CLI stdout and process exit]
+  C --> K
 ```
 
-Direction is authoritative on ordering: the run verdict is computed once from all inputs, and both the printed status and the returned exit code read from it. Applicability (structure) is sourced from the phash row classification; the fidelity pass/fail is sourced from `primary`; the integrity gates (capture failure, ungated, indistinguishable, viewport) are inputs that can force `verified-fail`/nonzero even in non-strict mode, exactly as today.
+The run verdict is authoritative for run-level status. Panel and phash remain visible diagnostics, but neither consumer recomputes the run result.
 
 ### Assumptions
 
-- `compare.buildRows` output continues to classify states such that `classify()` can distinguish `pass|fail|missing|skipped|no-reference` (verified against `verdict.mjs:53-89` and `verdict.test.mjs` row factories).
-- `primary = panel.verdict || phashVerdict` remains the fidelity authority; when the panel is skipped the run can still be `verified-pass` on phash if the device lane and applicable-coverage requirements hold (the panel-skip means fidelity is *advisory*, but the card's contract is about evidence *presence/coverage*, not about forcing the panel to run). If the card intent is that a skipped panel must also block strict `verified-pass`, that is a one-line tightening in `classifyRunVerdict`; call it out at implementation and confirm against the card rather than guessing — default to the coverage-based reading above and note the toggle.
-- No consumer of `computeVerdict`/panel verdict outside `tools/verify-device` depends on the empty/skipped-only set returning `pass:true`; additive fields are safe.
-- The change is pure logic; the conductor does not need a device run to verify it — unit tests exercise every composition.
+- `manifest.states` remains the canonical required-state set and state names are unique. Duplicate canonical names are invalid input and fail closed.
+- Current-invocation live iOS/Android capture provenance is trusted for this card; detached attestation is owned by AUDIT #7.
+- A complete primary panel evaluation is required for `verified-pass`; phash remains advisory.
+- The reserved `summary.json.__run` member is an additive change, but implementation must stop if a known external consumer proves otherwise.
+- No new reference-manifest field is required; trusted-reference/applicability facts already exist in each raw row.
 
 ### Sources and Research
 
-- `tools/verify-device/src/verdict.mjs:15-89` — `computeVerdict` (the `pass = fails===0 && missing===0` fail-open), `computeStrictExitCode`, `isVerifiedDeviceLane`, and `classify` (the per-state status source).
-- `tools/verify-device/cli.mjs:276-283` — the graceful-skip `return 0` that precedes `computeStrictExitCode`; `cli.mjs:389-391` (`primary` selection); `cli.mjs:444-453` (the current `computeStrictExitCode` call with sibling booleans).
-- `tools/verify-device/test/verdict.test.mjs` — existing row factories (`passRow`, `missingRow`, `noRefRow`, `skippedRow`) and the strict/advisory exit-semantics blocks to extend into the table-driven suite.
-- `tools/verify-device/src/summary.mjs:29-56,156-171` — `buildSummary` and `ungatedCaptureStates` (how per-state verdict/status flows into `summary.json`; keep additive).
-- `tools/verify-device/src/panel.mjs:206-209,383` — `aggregatePanel` returns `{pass, summary, states, score}`, the panel side of `primary`.
-- `tools/verify-device/README.md:54-71,296-331` — gating/degrade prose + Flags + Verify sections to update with the minimum proof contract.
-- Board lesson `contract-ownership` + card `Contract:` line — `verdict.mjs` owns the strict verdict; consumers import it and do not re-declare pass/fail.
+- `tools/verify-device/src/verdict.mjs` — current device-first `missing` precedence and aggregate fail-open.
+- `tools/verify-device/src/compare.mjs` — raw row fields needed for reference-first applicability and lane identity.
+- `tools/verify-device/src/panel.mjs` — per-state panel statuses and aggregate behavior that currently lets inapplicable `unscored` rows contaminate `primary.pass`.
+- `tools/verify-device/cli.mjs` — graceful-skip early return, `--xcresult` provenance alias, artifact-build ordering, and independent exit booleans.
+- `tools/verify-device/src/grid.mjs` and `tools/verify-device/src/summary.mjs` — existing panel/phash consumers and stable state-keyed summary contract.
+- `tools/verify-device/test/verdict.test.mjs`, `tools/verify-device/test/panel.test.mjs`, `tools/verify-device/test/grid.test.mjs`, and `tools/verify-device/test/summary.test.mjs` — nearby fixtures and compatibility expectations.
 
 ---
 
 ## Implementation Units
 
-### U1. Introduce the typed run verdict in `verdict.mjs`
+### U1. Normalize evidence and classify one typed run verdict
 
-- **Goal:** A single typed run-verdict value with five kinds derived from evidence, plus an applicability accessor that removes the truthy default.
-- **Requirements:** R1, R2, R3, R4, R5, R6, R7, R8, R13, R14.
+- **Goal:** Make applicability, evidence kind, fidelity coverage, and enforcement deterministic without aggregate truthy defaults.
+- **Requirements:** R1-R11, R18-R19; AE1, AE4-AE14.
 - **Dependencies:** None.
 - **Files:** `tools/verify-device/src/verdict.mjs`, `tools/verify-device/test/verdict.test.mjs`.
-- **Approach:** Add `classifyRunVerdict(...)` returning `{ kind, exitCode, summary, applicableCount, coverageGaps, states }`. Compute the applicable set from the phash per-state classification (`pass|fail|missing` = has trusted reference; `skipped|no-reference` = excluded). Add `hasApplicable`/`applicableCount` to `computeVerdict`'s output and stop `computeVerdict.pass` from being `true` when `applicableCount === 0`. Fold `captureFailure`, `ungatedCaptureStates`+`allowUngated`, `indistinguishableStatePairs`, and `viewportMetricsPass` in as inputs that can force `verified-fail`/nonzero. Re-express `computeStrictExitCode` as a thin delegator to `classifyRunVerdict` (or retire it and update call sites in U3/tests).
-- **Patterns to follow:** Existing `classify()` status taxonomy, `isVerifiedDeviceLane`, and the current `computeStrictExitCode` gate ordering (integrity gates first, then strict/lane, then fidelity).
-- **Test scenarios:** Covered exhaustively in U4; here just ensure the function compiles and the five kinds are reachable.
-- **Verification:** `verdict.test.mjs` (extended in U4) is the proof; typecheck/lint clean.
+- **Approach:** Add reference-first normalized state evidence, explicit applicability, canonical panel-state matching, provenance/fidelity completeness checks, the five evidence kinds, and strict/exploratory exit derivation. Remove or thinly delegate the legacy exit adapter.
+- **Execution note:** Start with the dual-gap, mixed no-reference, missing/duplicate panel, panel/phash divergence, panel-skipped, stale-provenance, and viewport enforcement regressions before changing classification.
+- **Patterns to follow:** Existing per-state reason strings and `isVerifiedDeviceLane`, while replacing boolean aggregate reuse with explicit normalized records.
+- **Test scenarios:** Empty rows; skipped-only; no-reference-only; dual device+reference gap; mixed pass+skipped; mixed pass+no-reference; all-applicable panel pass; applicable capture missing; panel fail; panel missing/duplicate/extra state; both panel/phash divergence directions; panel skipped/all-unscored; live/browser/provided/detached provenance; strict/exploratory; capture failure; ungated with and without override; indistinguishable states; viewport failure.
+- **Verification:** Every table row asserts evidence kind, applicability/coverage facts, reason category, and exit code; no zero-applicable or incomplete-primary case can become `verified-pass`.
 
-### U2. Route the CLI skip path and final exit through the typed verdict
+### U2. Route CLI capture provenance and every exit through the verdict
 
-- **Goal:** `--strict --skip-device` (and any device-absent run under strict) exits nonzero; non-strict skip still exits 0; the final CLI exit reads only the typed verdict.
-- **Requirements:** R9, R10, R11, R12, R13.
+- **Goal:** Compute the verdict before artifacts and prove all CLI early exits use it.
+- **Requirements:** R9-R13, R16, R18; AE2-AE3, AE7, AE13-AE14.
 - **Dependencies:** U1.
-- **Files:** `tools/verify-device/cli.mjs`.
-- **Approach:** Replace the skip branch's `return 0` with a `skipped` typed verdict (`classifyRunVerdict({ kind-driving skipReason, strict, lane })`), keep the existing three-line UNVERIFIED message, and `return verdict.exitCode`. At the end of `main()`, replace the `computeStrictExitCode({...})` call with `classifyRunVerdict({...})` (or the retained thin adapter), passing `rows`, `primary`, `lane`, `captureFailure`, `viewportMetricsPass`, `blindCaptureStates`, `allowUngated`, `indistinguishableStates.blockingPairs`, and `strict`. Ensure the printed `verdict (...)` line and lane notes reflect the typed kind (labels stay truthful per KTD6).
-- **Patterns to follow:** Current skip branch (`cli.mjs:276-283`) and final `computeStrictExitCode` call (`cli.mjs:444-453`); `laneNote` truthful labeling (`cli.mjs:399-403`).
-- **Test scenarios:** Skip-under-strict → nonzero and skip-without-strict → 0 (U4/R16). If not observable from the verdict function alone, add a narrow CLI test that invokes the skip branch.
-- **Verification:** Manual `node tools/verify-device/cli.mjs --game <g> --skip-device --strict` exits nonzero and `--skip-device` (no strict) exits 0; plus the table tests.
+- **Files:** `tools/verify-device/cli.mjs`, `tools/verify-device/test/cli.test.mjs`, and a focused test fixture under `tools/verify-device/test/fixtures/` only if deterministic child-process injection requires it.
+- **Approach:** Stamp only current live iOS/Android results as provenance-verified; demote browser, `--captures`, and detached `--xcresult`; compute capture-integrity inputs before summary construction; build the typed verdict before rendering; and return only its exit code. Make the executable wrapper testable without bypassing its actual process boundary.
+- **Test scenarios:** Child process `--help` exits 0; exploratory forced skip exits 0 with `EXPLORATORY`, `skipped`, and UNVERIFIED; strict forced skip exits nonzero with the same evidence kind; deterministic no-device and no-toolchain skip reasons behave identically; top-level fatal error exits nonzero; detached `--xcresult` cannot report verified provenance or strict success.
+- **Verification:** Subprocess assertions observe the real exit codes and output labels, and no CLI early return carries an independent success constant.
 
-### U3. Reconcile call sites and keep wire shapes additive
+### U3. Make grid and summary consume the run verdict compatibly
 
-- **Goal:** No divergent exit booleans remain; existing consumers (`summary.json`, grid, `refcap-compare`, Portal) keep working.
-- **Requirements:** R13, R14.
+- **Goal:** Align run-level human and machine artifacts with the exact verdict used for exit while retaining existing diagnostic shapes.
+- **Requirements:** R8, R13-R14, R17.
 - **Dependencies:** U1, U2.
-- **Files:** `tools/verify-device/cli.mjs`, `tools/verify-device/src/panel.mjs` (only if the shared status label is sourced there), `tools/verify-device/test/verdict.test.mjs`.
-- **Approach:** Ensure `buildSummary`/grid still receive the fields they read (`state.status`/`verdict`); only add fields. If `computeStrictExitCode` is retired, update its remaining references and the `verdict.test.mjs` `computeStrictExitCode(...)` expectations to the new API in the same commit so the suite stays green and meaningful. Grep for all importers of `computeStrictExitCode`/`computeVerdict` to confirm no external adaptation is needed.
-- **Patterns to follow:** `summary.mjs` additive `{score, majorConsensusCount, verdict}` shape; existing import graph in `cli.mjs`.
-- **Test scenarios:** Existing `panel.test.mjs`, `summary.test.mjs`, `grid.test.mjs` still pass unchanged.
-- **Verification:** Full `npm run test:unit -w @fabrikav2/verify-device` green; `git grep computeStrictExitCode` shows only updated call sites.
+- **Files:** `tools/verify-device/src/grid.mjs`, `tools/verify-device/src/summary.mjs`, `tools/verify-device/test/grid.test.mjs`, `tools/verify-device/test/summary.test.mjs`, and `tools/verify-device/src/panel.mjs`/`tools/verify-device/test/panel.test.mjs` only if additive panel coverage metadata is necessary.
+- **Approach:** Render the run verdict as the grid's top status and retain panel/phash sections as labeled diagnostics. Store additive `__run` metadata in `summary.json`; exclude that reserved member from state formatting/comparison; continue loading legacy state-only summaries.
+- **Test scenarios:** Verified pass/fail, unverified provenance, no-applicable, and skipped banners use the run verdict; panel/phash divergence cannot change the banner independently; new summary round-trip preserves `__run`; old summary fixtures load unchanged; `__run` is not rendered or compared as a game state; Portal file delivery inputs remain unchanged.
+- **Verification:** Grid, summary, compare, and Portal-focused tests remain green with old and new artifact shapes.
 
-### U4. Table-driven verdict tests for every composition
+### U4. Complete the adversarial contract matrix
 
-- **Goal:** Prove all evidence compositions × strict/non-strict × integrity gates land in the right kind and exit code.
-- **Requirements:** R15, R16, and all AEs.
-- **Dependencies:** U1, U2, U3.
-- **Files:** `tools/verify-device/test/verdict.test.mjs`.
-- **Approach:** Add a `describe` with a table of cases: `[]` (empty), `[skippedRow]` only, `[noRefRow]` only, `[passRow, skippedRow]`, `[passRow, passRow]`, `[passRow, missingRow]`, `[passRow, failRow]`, each under `strict:true|false`, and each cross-cutting gate (`captureFailure`, `ungatedCaptureStates` ±`allowUngated`, `indistinguishableStatePairs`, `viewportMetricsPass:false`), plus lane variants (`device|browser|provided-captures`). Assert `{kind, exitCode}` per row. Add the two `--skip-device` contract cases (strict→nonzero, non-strict→0). Reuse/extend the existing row factories; add a `failRow` factory.
-- **Patterns to follow:** Existing `verdict.test.mjs` structure and row factories; table-driven `it.each` style.
-- **Test scenarios:** Enumerated above; each AE1–AE8 has a corresponding row.
-- **Verification:** `npm run test:unit -w @fabrikav2/verify-device` passes with the new table; every listed composition has an assertion.
+- **Goal:** Make every evidence/enforcement/provenance/coverage boundary executable and prevent future silent-pass regressions.
+- **Requirements:** R15-R16, R18-R19; AE1-AE14.
+- **Dependencies:** U1-U3.
+- **Files:** `tools/verify-device/test/verdict.test.mjs`, `tools/verify-device/test/cli.test.mjs`, `tools/verify-device/test/grid.test.mjs`, `tools/verify-device/test/summary.test.mjs`, and `tools/verify-device/test/panel.test.mjs` if touched by U3.
+- **Approach:** Consolidate table fixtures around raw rows, panel state maps, provenance, enforcement, and gate inputs. Keep process-boundary tests separate from pure verdict tables so both policy and wiring are independently proven.
+- **Test scenarios:** Cross every base composition with strict/exploratory where exit differs; cross canonical panel coverage with missing/duplicate/extra/stale/inapplicable rows; assert mixed row-lane input cannot be promoted by a global `device` label; assert the hard-integrity and viewport-policy distinction; run all early-exit subprocess cases.
+- **Verification:** Each requirement and acceptance example maps to at least one named assertion; no expected result is inferred solely from `primary.pass`.
 
-### U5. Document the minimum proof contract
+### U5. Document minimum proof and detached provenance
 
-- **Goal:** README states exactly what strict requires and that exploratory mode is never verified.
-- **Requirements:** R17.
-- **Dependencies:** U1–U4.
+- **Goal:** Make strict proof, exploratory output, panel dependence, artifact metadata, and AUDIT #7 ownership explicit to operators.
+- **Requirements:** R17-R18.
+- **Dependencies:** U1-U4.
 - **Files:** `tools/verify-device/README.md`.
-- **Approach:** In the "Gating / graceful degrade" and Flags/`--strict` prose, state: strict exits 0 only when ≥1 applicable state exists, every applicable state was device-captured and passed on a verified device lane, and no integrity gate failed; empty/skipped-only/no-reference/no-applicable/`--skip-device`/browser/provided-captures all exit nonzero under strict; non-strict is exploratory and always labeled UNVERIFIED. Name the five verdict kinds.
-- **Patterns to follow:** Existing README §"Gating / graceful degrade" and §Flags tone.
-- **Test scenarios:** N/A (docs); consistency checked against implemented behavior.
-- **Verification:** README diff matches the shipped strict semantics; no stale "exits 0" claim for skip-under-strict remains.
+- **Approach:** Document the five evidence kinds, two enforcement modes, strict minimum proof, non-strict viewport behavior, hard-integrity exceptions, panel-required fidelity, `summary.json.__run`, and why detached captures remain unverified pending AUDIT #7.
+- **Test expectation:** None — documentation mirrors the tested contract.
+- **Verification:** README terminology and examples match the final table/subprocess behavior and contain no claim that phash-only or detached evidence is verified.
 
 ---
 
@@ -212,23 +219,25 @@ Direction is authoritative on ordering: the run verdict is computed once from al
 
 | Gate | Command or Evidence | Proves |
 |---|---|---|
-| Package unit tests | `npm run test:unit -w @fabrikav2/verify-device` | Typed verdict, every evidence composition, strict/non-strict, integrity gates, and the `--skip-device` contract behave per AC1–AC8. |
-| Package typecheck/lint | `npm run typecheck -w @fabrikav2/verify-device` (if present) + `npm run lint -w @fabrikav2/verify-device` / `npx eslint tools/verify-device` | No type/lint regressions from the new verdict API. |
-| Root unit + audit | root `npm run test:unit` and `npm run audit` (per card Verification line) | The change doesn't break the workspace or violate repo audit rules. |
-| Skip-path exit codes | `node tools/verify-device/cli.mjs --game <g> --skip-device --strict; echo $?` (nonzero) and `... --skip-device; echo $?` (0) | The reported `--strict --skip-device` exits-0 bug is fixed and non-strict skip still degrades gracefully. |
-| Scope audit | `git diff --name-only` | Changes limited to `verdict.mjs`, `cli.mjs`, `panel.mjs` (if needed), `verdict.test.mjs` (+ narrow CLI test if used), `README.md`, and this plan. |
-| No divergent booleans | `git grep -n computeStrictExitCode tools/verify-device` | Exit code derives from the single typed verdict; any retained adapter delegates to it. |
+| Focused verdict and CLI tests | `npm run test:unit -w @fabrikav2/verify-device -- verdict.test.mjs cli.test.mjs` | Structural normalization, typed classification, policy, provenance, and executable early exits match R1-R19. |
+| Package unit tests | `npm run test:unit -w @fabrikav2/verify-device` | Grid, summary, panel, Portal, and legacy artifact compatibility remain intact. |
+| Package lint | `npm run lint -w @fabrikav2/verify-device` | The amended verifier surfaces satisfy repository JavaScript standards. |
+| Root unit and audit | `npm run test:unit` and `npm run audit` | Workspace consumers and repository audit rules remain green. |
+| Process evidence | Subprocess assertions for help, strict/exploratory skip, injected device/toolchain skip, fatal error, and detached provenance | No CLI early exit or detached artifact bypasses the typed verdict. |
+| Scope and ownership audit | Changed-file review plus import search for verdict/exit helpers | Work remains in scoped verifier files and no independent exit-deciding boolean survives. |
 
 ---
 
 ## Definition of Done
 
-- `verdict.mjs` exports a typed run verdict with kinds `verified-pass`, `verified-fail`, `skipped`, `unverified`, `no-applicable-evidence`, derived from evidence with no truthy default.
-- `computeVerdict` no longer reports `pass: true` for empty, skipped-only, or no-reference-only row sets (via an applicability accessor the run verdict consumes).
-- Strict mode exits nonzero for empty, skipped-only, no-reference, no-applicable-state, browser/provided-captures lane, and `--skip-device`; exits 0 only for a fully verified applicable pass; exits nonzero for verified failures.
-- The CLI skip branch and final exit both derive from the typed verdict; `--strict --skip-device` exits nonzero, `--skip-device` without strict exits 0 with the UNVERIFIED message.
-- Panel/summary status and CLI exit read from the same typed verdict; no parallel exit-deciding boolean remains (any retained `computeStrictExitCode` is a thin delegator).
-- Table-driven `verdict.test.mjs` covers all evidence compositions × strict/non-strict × integrity gates and the two skip-path cases; `npm run test:unit -w @fabrikav2/verify-device` passes.
-- Package typecheck/lint and root unit/audit pass.
-- `README.md` states the minimum proof contract and names the five kinds; no stale skip-exits-0-under-strict claim remains.
-- No PR opened, no merge, no device run required; commit only; changes stay within the scoped files aside from this plan artifact.
+- `verdict.mjs` normalizes rows reference-first, so dual gaps and no-reference states never count as applicable missing evidence.
+- The typed verdict has exactly five evidence kinds plus separate strict/exploratory enforcement, complete reason/coverage fields, and one authoritative exit code.
+- `verified-pass` requires current-invocation live-device provenance and complete per-applicable-state panel passes; panel-skipped, incomplete, duplicated, stale, mixed-lane, or detached evidence cannot pass strict.
+- Panel/phash divergence follows R19, and inapplicable/extra panel rows are visible diagnostics that cannot affect applicable fidelity.
+- Viewport failure is strict-nonzero but exploratory-advisory; capture failure, disallowed ungated capture, and blocking indistinguishable states remain nonzero in both modes.
+- CLI computes the verdict before grid/summary/stdout and every early exit is covered through a subprocess boundary.
+- Grid top status, additive `summary.json.__run`, stdout, and process exit consume the same run verdict; legacy state-only summaries continue to load and compare.
+- Detached `--xcresult` remains unverified until AUDIT #7 supplies a validated attestation; freshness is never guessed from timestamps or paths.
+- Focused verifier tests, full package tests, lint, root unit tests, and audit pass.
+- README matches the tested proof/provenance contract, abandoned alternatives are absent, and changes stay within the amended scope.
+- No PR, merge, push, or device run is performed; the plan amendment and later implementation are committed separately.
