@@ -95,3 +95,19 @@ The manifest is shaped for folding into `games/<game>/refs/manifest.yaml`.
 node --test tools/video-refs/test/
 npx eslint --config tools/video-refs/eslint.config.js tools/video-refs
 ```
+
+Structural tests are not visual proof. Before shipping a change to the
+generated picker HTML, build a view from a **realistic** candidates.json
+(dozens of markers, not the 3-marker test fixture), screenshot it with
+Playwright at desktop width, and look at it:
+
+```sh
+node tools/video-refs/run.mjs build-view --candidates <real candidates.json> \
+  --video-src x.mp4 --out /tmp/picker.html
+npx playwright screenshot --viewport-size=1440,900 "file:///tmp/picker.html" /tmp/picker.png
+```
+
+Portal views are PC-first web pages — the browser IS their real environment,
+so Playwright screenshots are the sanctioned verification here (unlike mobile
+games, where a browser render is never evidence). The 2026-07-09 timeline-blob
+defect shipped precisely because density was never rendered and looked at.
