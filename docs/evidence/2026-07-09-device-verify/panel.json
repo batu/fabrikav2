@@ -1,0 +1,431 @@
+{
+  "models": [
+    "anthropic/claude-opus-4.1",
+    "anthropic/claude-sonnet-5",
+    "google/gemini-3.5-flash"
+  ],
+  "judges": [
+    {
+      "id": "opus",
+      "model": "anthropic/claude-opus-4.1",
+      "provider": "openrouter",
+      "enabled": true
+    },
+    {
+      "id": "sonnet",
+      "model": "anthropic/claude-sonnet-5",
+      "provider": "openrouter",
+      "enabled": true
+    },
+    {
+      "id": "gemini-flash",
+      "model": "google/gemini-3.5-flash",
+      "provider": "openrouter",
+      "enabled": true
+    }
+  ],
+  "thresholdPct": 85,
+  "states": [
+    {
+      "state": "menu",
+      "score": 100,
+      "status": "pass",
+      "reason": "panel 100% ≥ 85%, no blocker consensus",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 95
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 100
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 100
+        }
+      ],
+      "consensus": []
+    },
+    {
+      "state": "level",
+      "score": 100,
+      "status": "pass",
+      "reason": "panel 100% ≥ 85%, no blocker consensus",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 95
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 100
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 100
+        }
+      ],
+      "consensus": []
+    },
+    {
+      "state": "settings",
+      "score": 99,
+      "status": "pass",
+      "reason": "panel 99% ≥ 85%, no blocker consensus",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 98
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 100
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 99
+        }
+      ],
+      "consensus": [
+        {
+          "key": "text-content",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Status bar time displays different time",
+            "The system clock in the status bar displays a different time."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "pause",
+      "score": 99,
+      "status": "pass",
+      "reason": "panel 99% ≥ 85%, no blocker consensus",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 95
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 100
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 99
+        }
+      ],
+      "consensus": [
+        {
+          "key": "text-content",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Different time displayed in status bar",
+            "The system clock in the status bar shows a different time."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "win",
+      "score": 100,
+      "status": "pass",
+      "reason": "panel 100% ≥ 85%, no blocker consensus",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 98
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 100
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 100
+        }
+      ],
+      "consensus": []
+    },
+    {
+      "state": "fail",
+      "score": 98,
+      "status": "pass",
+      "reason": "panel 98% ≥ 85%, no blocker consensus",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 98
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 100
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 98
+        }
+      ],
+      "consensus": [
+        {
+          "key": "text-content",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Time in status bar differs",
+            "The system clock in the status bar shows a different time."
+          ]
+        }
+      ]
+    }
+  ],
+  "verdict": {
+    "pass": true,
+    "summary": "PASS — panel median 99.5% · 6 pass, 0 fail, 0 unscored, 0 skipped (floor 85%)",
+    "states": [
+      {
+        "state": "menu",
+        "score": 100,
+        "status": "pass",
+        "reason": "panel 100% ≥ 85%, no blocker consensus",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 95
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 100
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 100
+          }
+        ],
+        "consensus": []
+      },
+      {
+        "state": "level",
+        "score": 100,
+        "status": "pass",
+        "reason": "panel 100% ≥ 85%, no blocker consensus",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 95
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 100
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 100
+          }
+        ],
+        "consensus": []
+      },
+      {
+        "state": "settings",
+        "score": 99,
+        "status": "pass",
+        "reason": "panel 99% ≥ 85%, no blocker consensus",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 98
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 100
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 99
+          }
+        ],
+        "consensus": [
+          {
+            "key": "text-content",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Status bar time displays different time",
+              "The system clock in the status bar displays a different time."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "pause",
+        "score": 99,
+        "status": "pass",
+        "reason": "panel 99% ≥ 85%, no blocker consensus",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 95
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 100
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 99
+          }
+        ],
+        "consensus": [
+          {
+            "key": "text-content",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Different time displayed in status bar",
+              "The system clock in the status bar shows a different time."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "win",
+        "score": 100,
+        "status": "pass",
+        "reason": "panel 100% ≥ 85%, no blocker consensus",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 98
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 100
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 100
+          }
+        ],
+        "consensus": []
+      },
+      {
+        "state": "fail",
+        "score": 98,
+        "status": "pass",
+        "reason": "panel 98% ≥ 85%, no blocker consensus",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 98
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 100
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 98
+          }
+        ],
+        "consensus": [
+          {
+            "key": "text-content",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Time in status bar differs",
+              "The system clock in the status bar shows a different time."
+            ]
+          }
+        ]
+      }
+    ],
+    "score": 99.5
+  },
+  "budgetHalted": false,
+  "game": "cameleon",
+  "lane": "device",
+  "generatedAt": "2026-07-09T06:43:43.863Z"
+}
