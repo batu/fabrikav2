@@ -19,6 +19,15 @@ stack), 3 rejects salvaged as decoys. Panorama mock: world reads as one lido; de
 fix downstream — seam color-steps (authored pillar strips ON seams), robe hook rail,
 floating decoy towel, ring-stack baseline nudge, gibberish scrub on panel A.
 
+| 2026-07-09 | ORIGINAL-STYLES PHASE: style probes (2) + 12 level panels + 3 panel re-rolls + 41 hide sprites incl. re-rolls/concept-swap/arch-panel + 2 restyle probes (composition-preserving restyle NOT achievable — documented) | LEVELS.md protocol | ~72 | ~$8.64 | **~$10.68** |
+
+Phase-2 findings: spec `name` field leaks into art as captions (keyer's largest-component
+pass absorbs them); letterboxing recurs on ~25% of square panels → content-box crop repair
+is reliable; text-patching MUST be measured from zoomed crops (one blind patch destroyed a
+sign band and was reverted from source); gemini-flash-image cannot restyle-preserving-
+composition (returns the input style) — direction variants are therefore generation-bound,
+sealing the single-direction verdict.
+
 Findings so far: model is square-native (world re-planned to 3×1440² panels, DESIGN §9b);
 magenta chroma-key gives clean sprite alphas; white bodies will be AUTHORED flat doughboys
 masked into the painted sprite's alpha (deterministic silhouette lock, zero gen cost) —
