@@ -111,6 +111,7 @@ export function mountSagaMap(opts: SagaMapOptions): UiHandle {
     id: opts.id ?? 'fab-saga-map',
     className: 'fab-ui fab-levelmap',
     theme: opts.theme,
+    kind: 'saga-map',
   });
   if (root.reentrant) return root.handle;
   const { el } = root;

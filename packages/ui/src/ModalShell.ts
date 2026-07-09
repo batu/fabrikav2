@@ -123,6 +123,7 @@ export function mountModalShell(opts: ModalShellOptions): UiHandle {
     id: opts.id ?? `fab-modal-${++nextModalId}`,
     className: 'fab-ui fab-modal-backdrop',
     theme: opts.theme,
+    kind: 'modal-shell',
   });
   if (root.reentrant) return root.handle;
 

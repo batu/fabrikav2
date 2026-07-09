@@ -66,6 +66,7 @@ export function mountPageShell(opts: PageShellOptions): UiHandle {
     id: opts.id ?? `fab-page-${++nextPageId}`,
     className: 'fab-ui fab-page',
     theme: opts.theme,
+    kind: 'page-shell',
   });
   if (root.reentrant) return root.handle;
 

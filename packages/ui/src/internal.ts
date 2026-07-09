@@ -41,19 +41,11 @@ interface CreateUiRootOptions {
   /** Root tag name. Defaults to div for existing overlay components. */
   tagName?: 'button' | 'div';
   /**
-   * Component identity for kind-validated re-entrant reuse. When set, a
-   * re-entrant mount only reuses the existing root if it was registered under
-   * the SAME kind; a root registered under a different kind (or a foreign/
-   * untracked element sharing this id) is an incompatible collision — the stale
-   * root is torn down (listeners/DOM/timers) and a fresh root is built instead.
-   * This stops a caller from receiving a handle whose methods belong to another
-   * component (which would throw on the missing method it blindly casts to).
-   *
-   * When unset, legacy behavior holds: any existing root with this id is treated
-   * as re-entrant (tracked handle reused, else an inert handle bound to it), and
-   * the caller is responsible for validating/adapting the returned handle.
+   * Component identity for kind-validated re-entrant reuse. A mount reuses only
+   * a live root registered under the same kind. A different owned kind or an
+   * untracked element sharing the id is rejected without mutating either root.
    */
-  kind?: string;
+  kind: string;
 }
 
 export interface UiRootControls {
@@ -84,7 +76,7 @@ export type CreateUiRootResult =
 // WeakMap → entries clear when the element is GC'd; close() deletes eagerly.
 interface MountRecord {
   handle: UiHandle;
-  kind?: string;
+  kind: string;
 }
 const MOUNTED = new WeakMap<HTMLElement, MountRecord>();
 
@@ -98,25 +90,17 @@ export function createUiRoot(opts: CreateUiRootOptions): CreateUiRootResult {
   );
   if (existing) {
     const record = MOUNTED.get(existing);
-    if (opts.kind !== undefined) {
-      // Kind-validated reuse: reuse ONLY a live root registered under the same
-      // kind — that handle has this component's methods, so returning it is safe.
-      if (record && record.kind === opts.kind) {
-        return { reentrant: true, handle: record.handle };
-      }
-      // Incompatible collision: a root under a different kind, or a foreign/
-      // untracked element holding this id. Tear the stale one down (aborting its
-      // listeners, clearing its timers, removing its DOM — no leak) and fall
-      // through to build a fresh, correctly-typed root in its place.
-      if (record) record.handle.dismiss();
-      else existing.remove();
-    } else {
-      // Legacy: a root with this id is already open. Return its LIVE handle so
-      // the caller can actually dismiss it and `await dismissed` truthfully.
-      if (record) return { reentrant: true, handle: record.handle };
-      // Fallback (element not ours / pre-existing): inert handle bound to it.
-      return { reentrant: true, handle: { el: existing, dismiss: () => {}, dismissed: Promise.resolve() } };
+    if (!record) {
+      throw new Error(
+        `createUiRoot id collision for "${opts.id}": cannot mount kind "${opts.kind}" over an untracked element.`,
+      );
     }
+    if (record.kind !== opts.kind) {
+      throw new Error(
+        `createUiRoot id collision for "${opts.id}": cannot mount kind "${opts.kind}" over owned kind "${record.kind}".`,
+      );
+    }
+    return { reentrant: true, handle: record.handle };
   }
 
   const el = document.createElement(opts.tagName ?? 'div');

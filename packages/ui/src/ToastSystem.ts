@@ -48,9 +48,8 @@ export function mountToaster(opts: ToasterOptions): ToasterHandle {
     theme: opts.theme,
     kind: 'toaster',
   });
-  // Kind-validated: a re-entrant handle here is guaranteed to be a live toaster
-  // (createUiRoot replaces any incompatible mount), so the cast can't hand back a
-  // handle missing `show`.
+  // Kind-validated: a re-entrant handle here is guaranteed to be a live toaster;
+  // createUiRoot rejects incompatible owners before this cast can be reached.
   if (root.reentrant) return root.handle as ToasterHandle;
 
   const host = root.el;

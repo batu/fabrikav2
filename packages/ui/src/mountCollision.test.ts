@@ -1,12 +1,17 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { mountConnectivityIndicator, mountToaster } from './index.ts';
+import {
+  mountConnectivityIndicator,
+  mountModalShell,
+  mountPageShell,
+  mountToaster,
+} from './index.ts';
 
 /**
  * Cross-component mount-id collisions on the shared `createUiRoot` registry.
  * A root left by one component must never hand a later mount of a DIFFERENT
- * component a handle missing that component's methods (AUDIT #28). The stale
- * root is torn down and replaced predictably; a same-component re-mount still
- * reuses idempotently.
+ * component a handle missing that component's methods (AUDIT #28). Collisions
+ * fail before mutating either owned or foreign DOM; a same-component re-mount
+ * still reuses idempotently.
  */
 
 function host(): HTMLElement {
@@ -22,54 +27,138 @@ const CONN_COPY = { onlineCopy: 'Back online', offlineCopy: 'Offline — playing
 
 afterEach(() => {
   setOnline(true);
+  vi.useRealTimers();
   vi.restoreAllMocks();
   document.body.innerHTML = '';
 });
 
 describe('shared-UI mount-id collisions', () => {
-  it('connectivity mount over a toaster id returns a working indicator, not a method-less cast', () => {
-    setOnline(true);
+  it('rejects a foreign same-id element without disturbing its subtree', () => {
     const h = host();
-    const toaster = mountToaster({ mountInto: h, id: 'shared' });
-    toaster.show('First');
+    const foreign = document.createElement('section');
+    foreign.id = 'shared';
+    foreign.dataset.owner = 'host-app';
+    const child = document.createElement('button');
+    child.textContent = 'Host action';
+    foreign.appendChild(child);
+    h.appendChild(foreign);
 
-    const indicator = mountConnectivityIndicator({ mountInto: h, ...CONN_COPY, id: 'shared' });
+    expect(() => mountToaster({ mountInto: h, id: 'shared' })).toThrow(
+      /id collision.*shared.*toaster.*untracked/i,
+    );
 
-    // The collision must yield a real indicator API, not the toaster's.
-    expect(typeof indicator.isOnline).toBe('function');
-    expect(indicator.isOnline()).toBe(true);
-    expect((indicator as unknown as { show?: unknown }).show).toBeUndefined();
-
-    // Exactly one root under the shared id, and it is the indicator's dot.
     expect(h.querySelectorAll('#shared')).toHaveLength(1);
-    expect(h.querySelector('#shared')!.classList.contains('fab-connectivity')).toBe(true);
-    expect(h.querySelector('.fab-toaster')).toBeNull();
+    expect(h.querySelector('#shared')).toBe(foreign);
+    expect(foreign.dataset.owner).toBe('host-app');
+    expect(foreign.firstElementChild).toBe(child);
   });
 
-  it('toaster mount over a connectivity id returns a working toaster and tears down the old listeners', () => {
+  it('rejects an incompatible owned kind without dismissing it or clearing its timers', async () => {
+    vi.useFakeTimers();
+    const h = host();
+    const toaster = mountToaster({ mountInto: h, id: 'shared' });
+    toaster.show('Still owned');
+    let dismissed = false;
+    void toaster.dismissed.then(() => {
+      dismissed = true;
+    });
+
+    expect(() =>
+      mountConnectivityIndicator({ mountInto: h, ...CONN_COPY, id: 'shared' }),
+    ).toThrow(/id collision.*shared.*connectivity.*toaster/i);
+
+    expect(h.querySelectorAll('#shared')).toHaveLength(1);
+    expect(h.querySelector('#shared')).toBe(toaster.el);
+    expect(h.querySelector('.fab-toast')?.textContent).toBe('Still owned');
+    await Promise.resolve();
+    expect(dismissed).toBe(false);
+
+    // A rejected collision does not cancel the existing owner's timers.
+    vi.advanceTimersByTime(3250);
+    expect(h.querySelector('.fab-toast')).toBeNull();
+    expect(h.querySelector('#shared')).toBe(toaster.el);
+    await Promise.resolve();
+    expect(dismissed).toBe(false);
+
+    toaster.dismiss();
+    await toaster.dismissed;
+    expect(dismissed).toBe(true);
+    expect(h.querySelector('#shared')).toBeNull();
+  });
+
+  it('rejects the reverse owned collision and leaves existing listeners active', () => {
     setOnline(true);
     const h = host();
     const onToast = vi.fn();
-    mountConnectivityIndicator({ mountInto: h, ...CONN_COPY, onToast, id: 'shared' });
+    const indicator = mountConnectivityIndicator({
+      mountInto: h,
+      ...CONN_COPY,
+      onToast,
+      id: 'shared',
+    });
 
-    const toaster = mountToaster({ mountInto: h, id: 'shared' });
+    expect(() => mountToaster({ mountInto: h, id: 'shared' })).toThrow(
+      /id collision.*shared.*toaster.*connectivity/i,
+    );
 
-    // The collision must yield a real toaster API, not the indicator's.
-    expect(typeof toaster.show).toBe('function');
-    expect((toaster as unknown as { isOnline?: unknown }).isOnline).toBeUndefined();
-    toaster.show('Hello');
-    expect(toaster.el.querySelector('.fab-toast')!.textContent).toBe('Hello');
-
-    // Exactly one root under the shared id, and it is the toaster host.
     expect(h.querySelectorAll('#shared')).toHaveLength(1);
-    expect(h.querySelector('#shared')!.classList.contains('fab-toaster')).toBe(true);
-    expect(h.querySelector('.fab-connectivity')).toBeNull();
-
-    // Replacement cleaned the indicator's window listeners: a transition must
-    // not reach the old toast sink (no leak).
+    expect(h.querySelector('#shared')).toBe(indicator.el);
     setOnline(false);
     window.dispatchEvent(new Event('offline'));
-    expect(onToast).not.toHaveBeenCalled();
+    expect(onToast).toHaveBeenCalledWith(CONN_COPY.offlineCopy);
+  });
+
+  it('does not assume PageShell async dismissal vacates a collided id', async () => {
+    vi.useFakeTimers();
+    const h = host();
+    const body = document.createElement('div');
+    const page = mountPageShell({ mountInto: h, body, id: 'shared' });
+    let dismissed = false;
+    void page.dismissed.then(() => {
+      dismissed = true;
+    });
+
+    expect(() => mountToaster({ mountInto: h, id: 'shared' })).toThrow(
+      /id collision.*shared.*toaster.*page-shell/i,
+    );
+
+    expect(h.querySelectorAll('#shared')).toHaveLength(1);
+    expect(h.querySelector('#shared')).toBe(page.el);
+    vi.advanceTimersByTime(500);
+    await Promise.resolve();
+    expect(h.querySelector('#shared')).toBe(page.el);
+    expect(dismissed).toBe(false);
+
+    page.dismiss();
+    vi.advanceTimersByTime(420);
+    await page.dismissed;
+    expect(dismissed).toBe(true);
+    expect(h.querySelector('#shared')).toBeNull();
+  });
+
+  it('does not trigger ModalShell onDismiss while rejecting a collision', async () => {
+    const h = host();
+    let replacement: ReturnType<typeof mountModalShell> | undefined;
+    const onDismiss = vi.fn(() => {
+      replacement = mountModalShell({ mountInto: h, title: 'Replacement', id: 'shared' });
+    });
+    const modal = mountModalShell({ mountInto: h, title: 'Original', onDismiss, id: 'shared' });
+
+    expect(() => mountToaster({ mountInto: h, id: 'shared' })).toThrow(
+      /id collision.*shared.*toaster.*modal-shell/i,
+    );
+
+    expect(onDismiss).not.toHaveBeenCalled();
+    expect(h.querySelectorAll('#shared')).toHaveLength(1);
+    expect(h.querySelector('#shared')).toBe(modal.el);
+
+    // The modal's normal synchronous teardown/remount contract still works.
+    modal.dismiss();
+    await modal.dismissed;
+    expect(onDismiss).toHaveBeenCalledOnce();
+    expect(h.querySelectorAll('#shared')).toHaveLength(1);
+    expect(h.querySelector('#shared')).toBe(replacement?.el);
+    expect(h.querySelector('#shared .fab-modal-title')?.textContent).toBe('Replacement');
   });
 
   it('same-component re-mount reuses the live handle idempotently (toaster)', () => {
@@ -91,24 +180,5 @@ describe('shared-UI mount-id collisions', () => {
     expect(second).toBe(first);
     expect(h.querySelectorAll('#shared')).toHaveLength(1);
     expect(second.isOnline()).toBe(true);
-  });
-
-  it('replacing a mount does not leak the old timers onto the new root', () => {
-    vi.useFakeTimers();
-    try {
-      const h = host();
-      const toaster = mountToaster({ mountInto: h, id: 'shared' });
-      toaster.show('Stale'); // schedules fade/remove timers on the old host
-      const indicator = mountConnectivityIndicator({ mountInto: h, ...CONN_COPY, id: 'shared' });
-
-      // The old toaster's pending timers must fire harmlessly and never touch the
-      // indicator that replaced it.
-      vi.advanceTimersByTime(10000);
-      expect(h.querySelectorAll('#shared')).toHaveLength(1);
-      expect(h.querySelector('#shared')).toBe(indicator.el);
-      expect(h.querySelector('.fab-toast')).toBeNull();
-    } finally {
-      vi.useRealTimers();
-    }
   });
 });
