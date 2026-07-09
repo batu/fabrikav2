@@ -18,10 +18,14 @@ didn't: painted sprites that preserve a full humanoid silhouette read as "that i
 *before* the tap. Paint alone cannot fix a silhouette problem. This design attacks the
 silhouette structurally, three ways:
 
-1. **Pose-as-object.** Every hide's locked silhouette must first read as its disguise
-   object's shape. Compact poses dominate (curl, prone, wall-flat, crouch, backbend).
-   Standing poses are allowed ONLY inside printed-figure contexts (signs, posters) where
-   upright humanoids are native.
+1. **Pose-first silhouettes (revised 2026-07-09, Batu directive).** Every hide's
+   locked silhouette IS a person — a doughboy body in one of the CANONICAL POSES
+   from the original game's pose wheel (see the pose registry in LEVELS.md §8):
+   standing, standing-arms-up, crouch, curl, prone, wall-flat, backbend, slanted.
+   The misread comes from PAINT + CONTEXT (the body is painted in the surface's
+   own pattern and placed against that surface), never from distorting the body
+   into an object shape. The earlier pose-as-object doctrine over-corrected:
+   object-shaped silhouettes made white-mode reveals read as blobs, not guys.
 2. **Decoy population.** The scene legitimately contains printed humanoid figures —
    safety pictograms, a swim-school poster, a kiosk mascot. Spotting "a humanoid shape"
    is therefore NOT an instant win; the player must verify *which figure is a body*.

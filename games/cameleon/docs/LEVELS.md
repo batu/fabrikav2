@@ -154,3 +154,28 @@ family, fusion repair, or reassign the hide) — never brute-force re-rolls.
   for future styles. Old repo's own conclusion, re-validated: "keep Screenprint,
   revisit others after the lighting/material integration issue is solved."
 - Spend this phase ≈ $8.5; total ≈ $10.6 of $50 (ledger in docs/gen-ledger.md).
+
+
+## 8. Canonical pose registry (2026-07-09, Batu directive — binding)
+
+The hidden bodies use ONLY the original game's researched pose wheel
+(refs/meccha/poses; research 02-hiding-postures.md). Every hide silhouette is a
+full doughboy person in exactly one of:
+
+| pose | shape contract |
+|---|---|
+| standing | upright, arms as pills at the sides, feet together |
+| standing-arms-up | upright, both arms raised (mascot/celebration read) |
+| crouch | squat, knees hugged to chest, head resting on knees |
+| curl | full ball — back out, head tucked, limbs wrapped |
+| prone | lying flat face-down, arms along the body |
+| wall-flat | pressed flat against a surface, limbs slightly spread (flush) |
+| backbend | arched backward over a rail/edge, belly up |
+| slanted | straight body leaning ~10-20° like a plank |
+
+Starfish (splayed limbs off-surface) stays banned per the original research.
+White-mode QA contract: EVERY hide's white sprite must read "a person in
+<pose>" at 390pt width — object-blob silhouettes are rejects. Paint carries
+the disguise: the body is painted in its host surface's pattern (tent stripes,
+tile grid, towel stripes, wood grain) and composited ON that surface so the
+pattern continues.
