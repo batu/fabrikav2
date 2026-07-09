@@ -2355,5 +2355,667 @@
    "alpha_source": "public/levels/lido/sprites/white/li-09-white-organic.png",
    "provenance": "tools/cameleon-lido-asset-variants.mjs"
   }
+ ],
+ "conductor-art-v2": [
+  {
+   "path": "public/levels/bathhouse/panels/screenprint/panel-a.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "bathhouse panel a, screenprint style, style_ref=old-repo color_screenprint.png",
+   "provenance": "conductor art lane 2 (original-styles run), specs in job tmp cam-gen2",
+   "accepted_by": "conductor eyes-on (mock panoramas + rubric \u00a75 of docs/LEVELS.md)"
+  },
+  {
+   "path": "public/levels/bathhouse/panels/screenprint/panel-b.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "bathhouse panel b, screenprint style, style_ref=old-repo color_screenprint.png",
+   "provenance": "conductor art lane 2 (original-styles run), specs in job tmp cam-gen2",
+   "accepted_by": "conductor eyes-on (mock panoramas + rubric \u00a75 of docs/LEVELS.md)"
+  },
+  {
+   "path": "public/levels/bathhouse/panels/screenprint/panel-c.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "bathhouse panel c, screenprint style, style_ref=old-repo color_screenprint.png",
+   "provenance": "conductor art lane 2 (original-styles run), specs in job tmp cam-gen2",
+   "accepted_by": "conductor eyes-on (mock panoramas + rubric \u00a75 of docs/LEVELS.md)"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/screenprint/bh-01-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide bh-01 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/white/bh-01-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/screenprint/bh-02-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide bh-02 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/white/bh-02-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/screenprint/bh-03-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide bh-03 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/white/bh-03-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/screenprint/bh-04-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide bh-04 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/white/bh-04-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/screenprint/bh-05-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide bh-05 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/white/bh-05-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/screenprint/bh-06-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide bh-06 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/white/bh-06-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/screenprint/bh-07-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide bh-07 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/white/bh-07-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/screenprint/bh-08-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide bh-08 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/white/bh-08-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/screenprint/bh-09-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide bh-09 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/white/bh-09-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/screenprint/bh-10-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide bh-10 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/bathhouse/sprites/white/bh-10-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/waterpark/panels/screenprint/panel-a.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "waterpark panel a, screenprint style, style_ref=old-repo color_screenprint.png",
+   "provenance": "conductor art lane 2 (original-styles run), specs in job tmp cam-gen2",
+   "accepted_by": "conductor eyes-on (mock panoramas + rubric \u00a75 of docs/LEVELS.md)"
+  },
+  {
+   "path": "public/levels/waterpark/panels/screenprint/panel-b.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "waterpark panel b, screenprint style, style_ref=old-repo color_screenprint.png",
+   "provenance": "conductor art lane 2 (original-styles run), specs in job tmp cam-gen2",
+   "accepted_by": "conductor eyes-on (mock panoramas + rubric \u00a75 of docs/LEVELS.md)"
+  },
+  {
+   "path": "public/levels/waterpark/panels/screenprint/panel-c.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "waterpark panel c, screenprint style, style_ref=old-repo color_screenprint.png",
+   "provenance": "conductor art lane 2 (original-styles run), specs in job tmp cam-gen2",
+   "accepted_by": "conductor eyes-on (mock panoramas + rubric \u00a75 of docs/LEVELS.md)"
+  },
+  {
+   "path": "public/levels/waterpark/sprites/screenprint/sw-01-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide sw-01 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/waterpark/sprites/white/sw-01-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/waterpark/sprites/screenprint/sw-02-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide sw-02 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/waterpark/sprites/white/sw-02-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/waterpark/sprites/screenprint/sw-03-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide sw-03 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/waterpark/sprites/white/sw-03-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/waterpark/sprites/screenprint/sw-04-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide sw-04 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/waterpark/sprites/white/sw-04-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/waterpark/sprites/screenprint/sw-05-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide sw-05 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/waterpark/sprites/white/sw-05-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/waterpark/sprites/screenprint/sw-06-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide sw-06 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/waterpark/sprites/white/sw-06-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/waterpark/sprites/screenprint/sw-07-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide sw-07 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/waterpark/sprites/white/sw-07-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/waterpark/sprites/screenprint/sw-08-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide sw-08 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/waterpark/sprites/white/sw-08-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/waterpark/sprites/screenprint/sw-09-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide sw-09 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/waterpark/sprites/white/sw-09-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/waterpark/sprites/screenprint/sw-10-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide sw-10 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/waterpark/sprites/white/sw-10-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/museum/panels/screenprint/panel-a.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "museum panel a, screenprint style, style_ref=old-repo color_screenprint.png",
+   "provenance": "conductor art lane 2 (original-styles run), specs in job tmp cam-gen2",
+   "accepted_by": "conductor eyes-on (mock panoramas + rubric \u00a75 of docs/LEVELS.md)"
+  },
+  {
+   "path": "public/levels/museum/panels/screenprint/panel-b.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "museum panel b, screenprint style, style_ref=old-repo color_screenprint.png",
+   "provenance": "conductor art lane 2 (original-styles run), specs in job tmp cam-gen2",
+   "accepted_by": "conductor eyes-on (mock panoramas + rubric \u00a75 of docs/LEVELS.md)"
+  },
+  {
+   "path": "public/levels/museum/panels/screenprint/panel-c.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "museum panel c, screenprint style, style_ref=old-repo color_screenprint.png",
+   "provenance": "conductor art lane 2 (original-styles run), specs in job tmp cam-gen2",
+   "accepted_by": "conductor eyes-on (mock panoramas + rubric \u00a75 of docs/LEVELS.md)"
+  },
+  {
+   "path": "public/levels/museum/sprites/screenprint/nm-01-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide nm-01 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/museum/sprites/white/nm-01-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/museum/sprites/screenprint/nm-02-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide nm-02 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/museum/sprites/white/nm-02-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/museum/sprites/screenprint/nm-03-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide nm-03 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/museum/sprites/white/nm-03-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/museum/sprites/screenprint/nm-04-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide nm-04 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/museum/sprites/white/nm-04-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/museum/sprites/screenprint/nm-05-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide nm-05 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/museum/sprites/white/nm-05-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/museum/sprites/screenprint/nm-06-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide nm-06 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/museum/sprites/white/nm-06-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/museum/sprites/screenprint/nm-07-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide nm-07 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/museum/sprites/white/nm-07-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/museum/sprites/screenprint/nm-08-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide nm-08 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/museum/sprites/white/nm-08-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/museum/sprites/screenprint/nm-09-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide nm-09 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/museum/sprites/white/nm-09-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  },
+  {
+   "path": "public/levels/museum/sprites/screenprint/nm-10-painted.png",
+   "generated": true,
+   "model": "google/gemini-2.5-flash-image",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.12,
+   "spec": "hide nm-10 per docs/LEVELS.md roster",
+   "provenance": "magenta-key pipeline, conductor per-hide eyeball",
+   "accepted_by": "conductor"
+  },
+  {
+   "path": "public/levels/museum/sprites/white/nm-10-white.png",
+   "generated": false,
+   "model": "derived",
+   "date": "2026-07-09",
+   "cost_estimate_usd": 0.0,
+   "spec": "alpha-locked white derivation (byte-equal verified)",
+   "provenance": "deterministic"
+  }
  ]
 }
