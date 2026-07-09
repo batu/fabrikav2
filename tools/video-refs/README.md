@@ -54,12 +54,21 @@ file that was used for `suggest --video`.
 
 The picker label list comes from `--labels` when provided, otherwise from a
 top-level `labels` array in `candidates.json`, otherwise from the default labels
-`menu,level,settings,pause,win,fail,gameplay,other`. Labels must match
+`menu,level,settings,pause,win,fail,gameplay`. Labels must match
 `/^[a-z][a-z0-9_-]*$/`, be unique, and be non-empty. Candidate labels outside the
 active list fall back to the first active label instead of inventing `gameplay`.
 The generated chip row, summary counts, and number-key shortcuts use the active
-label list. The picker also has a `+ label` control for adding another validated
-label during review; runtime labels submit like configured labels.
+label list.
+
+Every candidate card also ends its chip row with a non-label `other...` chip.
+Click it, or press its displayed number key when one is available, to open an
+inline text input on that card. Enter lowercases the text, converts whitespace
+runs to `-`, validates the normalized token with `/^[a-z][a-z0-9_-]*$/`, adds it
+as a normal global label, and assigns it to that candidate. Invalid or duplicate
+labels stay open with an inline error and do not mutate the picker. Escape closes
+the input without changing the candidate. Runtime labels created through
+`other...` appear on every card, in summary counts, and submit like configured
+labels.
 
 Candidate entries may include `atRest: true` or `atRest: false`. Missing
 `atRest` defaults to not trusted (`false`) in the picker. Each card shows an

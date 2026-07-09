@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { formatTimestamp } from './time.mjs';
 
-const DEFAULT_LABELS = ['menu', 'level', 'settings', 'pause', 'win', 'fail', 'gameplay', 'other'];
+const DEFAULT_LABELS = ['menu', 'level', 'settings', 'pause', 'win', 'fail', 'gameplay'];
 const LABEL_TOKEN_RE = /^[a-z][a-z0-9_-]*$/;
 const NOT_AT_REST_REASON = 'human-flagged mid-motion';
 
@@ -505,13 +505,32 @@ function buildHtml(model) {
     }
     .chip.active .k { color: #4a3708; }
     .cand.dropped .chips { opacity: 0.5; }
-    .add-label {
-      min-height: 30px; padding: 0 11px;
-      border-radius: 8px; border: 1px solid var(--line);
-      background: var(--panel-2); color: var(--text);
-      font: 700 12px/1 var(--sans);
+    .other-chip {
+      border-style: dashed;
+      color: var(--amber-bright);
+      background: rgba(244,178,62,0.08);
     }
-    .add-label:hover { background: var(--panel-3); border-color: #3a4152; }
+    .other-label-form {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+      width: 100%;
+      min-height: 30px;
+    }
+    .other-label-input {
+      min-width: 148px; flex: 1 1 148px;
+      height: 30px;
+      padding: 0 9px;
+      border-radius: 8px;
+      border: 1px solid var(--focus);
+      background: #0f1218;
+      color: var(--text);
+      font: 650 12px/1 var(--sans);
+    }
+    .other-label-input::placeholder { color: var(--muted-2); }
+    .other-label-error {
+      flex-basis: 100%;
+      color: var(--red);
+      font: 650 10.5px/1.25 var(--sans);
+    }
 
     /* ---------- submit bar ---------- */
     .submitbar {
@@ -601,14 +620,13 @@ function buildHtml(model) {
           <div class="row"><span class="keys"><kbd>Space</kbd></span> play / pause</div>
           <div class="row"><span class="keys"><kbd>J</kbd><kbd>K</kbd></span> prev / next frame</div>
           <div class="row"><span class="keys"><kbd>X</kbd></span> keep / drop focused</div>
-          <div class="row"><span class="keys" id="legend-label-keys"></span> assign label</div>
+          <div class="row"><span class="keys" id="legend-label-keys"></span> label / other</div>
         </div>
       </section>
 
       <section class="rail-shell" aria-label="candidate frames">
         <div class="rail-head">
           <div class="rail-title">Candidates <span class="n" id="rail-n"></span></div>
-          <button class="add-label" id="add-label" type="button">+ label</button>
           <div class="summary" id="summary"></div>
         </div>
         <div class="rail" id="rail"></div>
@@ -648,6 +666,10 @@ function buildHtml(model) {
       focusId: MODEL.markers.length ? MODEL.markers[0].id : null,
       confirming: false,
       submitted: false,
+      otherInputForId: null,
+      otherDraft: '',
+      otherError: '',
+      focusOtherAfterRender: false,
     };
     var confirmTimer = null;
 
@@ -656,6 +678,12 @@ function buildHtml(model) {
     }
     function focusedMarker() {
       return state.markers.find(function (m) { return m.id === state.focusId; }) || null;
+    }
+    function clearOtherInputState() {
+      state.otherInputForId = null;
+      state.otherDraft = '';
+      state.otherError = '';
+      state.focusOtherAfterRender = false;
     }
 
     function duration() {
@@ -681,6 +709,18 @@ function buildHtml(model) {
     function validateLabel(label) {
       return LABEL_RE.test(label);
     }
+    function labelValidationError(label) {
+      if (!validateLabel(label)) {
+        return { text: 'Label must match /^[a-z][a-z0-9_-]*$.', kind: 'error' };
+      }
+      if (LABELS.indexOf(label) !== -1) {
+        return { text: 'Label "' + label + '" already exists.', kind: 'warn' };
+      }
+      return null;
+    }
+    function normalizeOtherLabel(rawLabel) {
+      return String(rawLabel || '').trim().toLowerCase().replace(/\\s+/g, '-');
+    }
 
     // Frame-exact seek: assign the producer time verbatim, clamped to media bounds. No offsets.
     function seekTo(t) {
@@ -692,6 +732,7 @@ function buildHtml(model) {
 
     function setFocus(id, opts) {
       opts = opts || {};
+      if (state.otherInputForId && state.otherInputForId !== id) clearOtherInputState();
       state.focusId = id;
       var m = focusedMarker();
       if (m) {
@@ -725,18 +766,16 @@ function buildHtml(model) {
     }
     function assignLabel(m, label) {
       if (m.label === label) return;
+      if (state.otherInputForId === m.id) clearOtherInputState();
       m.label = label;
       if (state.confirming) resetConfirm();
       render(false);
     }
     function addLabel(rawLabel) {
       var label = String(rawLabel || '').trim();
-      if (!validateLabel(label)) {
-        setStatus('Label must match /^[a-z][a-z0-9_-]*$/.', 'error');
-        return null;
-      }
-      if (LABELS.indexOf(label) !== -1) {
-        setStatus('Label "' + label + '" already exists.', 'warn');
+      var error = labelValidationError(label);
+      if (error) {
+        setStatus(error.text, error.kind);
         return null;
       }
       LABELS.push(label);
@@ -744,6 +783,35 @@ function buildHtml(model) {
       setStatus('Added label "' + label + '".');
       render(false);
       return label;
+    }
+    function openOtherInput(m) {
+      state.focusId = m.id;
+      state.otherInputForId = m.id;
+      state.otherDraft = '';
+      state.otherError = '';
+      state.focusOtherAfterRender = true;
+      render(false);
+    }
+    function cancelOtherInput() {
+      clearOtherInputState();
+      render(false);
+    }
+    function submitOtherLabel(m, rawLabel) {
+      var label = normalizeOtherLabel(rawLabel);
+      var error = labelValidationError(label);
+      if (error) {
+        state.otherInputForId = m.id;
+        state.otherDraft = rawLabel;
+        state.otherError = error.text;
+        state.focusOtherAfterRender = true;
+        setStatus(error.text, error.kind);
+        render(false);
+        return;
+      }
+      var added = addLabel(label);
+      if (!added) return;
+      clearOtherInputState();
+      assignLabel(m, added);
     }
 
     /* ---------- rendering ---------- */
@@ -808,7 +876,64 @@ function buildHtml(model) {
         });
         wrap.appendChild(c);
       });
+      if (state.otherInputForId === m.id) {
+        wrap.appendChild(makeOtherInput(m));
+      } else {
+        wrap.appendChild(makeOtherChip(m));
+      }
       return wrap;
+    }
+
+    function makeOtherChip(m) {
+      var c = document.createElement('button');
+      c.type = 'button';
+      c.className = 'chip other-chip';
+      var shortcut = otherShortcutKey();
+      var key = document.createElement('span');
+      key.className = 'k';
+      key.textContent = shortcut || '';
+      c.appendChild(key);
+      c.appendChild(document.createTextNode('other...'));
+      c.title = 'Create a new label' + (shortcut ? '  (' + shortcut + ')' : '');
+      c.addEventListener('click', function (e) {
+        e.stopPropagation();
+        openOtherInput(m);
+      });
+      return c;
+    }
+
+    function makeOtherInput(m) {
+      var form = document.createElement('div');
+      form.className = 'other-label-form';
+      var input = document.createElement('input');
+      input.className = 'other-label-input';
+      input.type = 'text';
+      input.value = state.otherDraft;
+      input.placeholder = 'new-label';
+      input.setAttribute('aria-label', 'New label');
+      input.addEventListener('click', function (e) { e.stopPropagation(); });
+      input.addEventListener('input', function () {
+        state.otherDraft = input.value;
+        state.otherError = '';
+      });
+      input.addEventListener('keydown', function (e) {
+        e.stopPropagation();
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          submitOtherLabel(m, input.value);
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          cancelOtherInput();
+        }
+      });
+      form.appendChild(input);
+      if (state.otherError) {
+        var error = document.createElement('div');
+        error.className = 'other-label-error';
+        error.textContent = state.otherError;
+        form.appendChild(error);
+      }
+      return form;
     }
 
     function makeCard(m) {
@@ -939,9 +1064,12 @@ function buildHtml(model) {
     function shortcutKeyForIndex(i) {
       return i >= 0 && i < 9 ? String(i + 1) : null;
     }
+    function otherShortcutKey() {
+      return shortcutKeyForIndex(LABELS.length);
+    }
     function renderShortcutKeyRange(el) {
       el.textContent = '';
-      var count = Math.min(LABELS.length, 9);
+      var count = Math.min(LABELS.length + (otherShortcutKey() ? 1 : 0), 9);
       if (count < 1) return;
       var first = document.createElement('kbd');
       first.textContent = '1';
@@ -975,6 +1103,14 @@ function buildHtml(model) {
       renderInspector();
       renderShortcutHints();
       updateSubmitLabel();
+      if (state.focusOtherAfterRender && state.otherInputForId) {
+        var input = rail.querySelector('[data-id="' + cssId(state.otherInputForId) + '"] .other-label-input');
+        if (input) {
+          input.focus();
+          if (input.select) input.select();
+          state.focusOtherAfterRender = false;
+        }
+      }
     }
 
     /* ---------- interactions ---------- */
@@ -1004,12 +1140,6 @@ function buildHtml(model) {
       if (state.confirming) resetConfirm();
       setStatus('Added a frame at ' + clockAt(m.t) + '.');
       setFocus(m.id, { scroll: true });
-    });
-
-    document.getElementById('add-label').addEventListener('click', function () {
-      var label = window.prompt('New label');
-      if (label === null) return;
-      addLabel(label);
     });
 
     document.getElementById('focus-seek').addEventListener('click', function () {
@@ -1077,6 +1207,8 @@ function buildHtml(model) {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       var tag = (e.target && e.target.tagName) || '';
       var onButton = tag === 'BUTTON';
+      var onTextInput = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+      if (onTextInput) return;
 
       if (e.key === ' ' || e.key === 'Spacebar') {
         if (onButton) return; // let the focused button take the space
@@ -1095,6 +1227,7 @@ function buildHtml(model) {
         var idx = Number(e.key) - 1;
         var fm = focusedMarker();
         if (fm && LABELS[idx]) { e.preventDefault(); assignLabel(fm, LABELS[idx]); }
+        else if (fm && idx === LABELS.length && otherShortcutKey()) { e.preventDefault(); openOtherInput(fm); }
         return;
       }
     });
