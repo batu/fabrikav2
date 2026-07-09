@@ -106,7 +106,13 @@ export function createOwnedMirrorSink(
   const generateId = options.generateId ?? (() => crypto.randomUUID());
 
   const queue: QueuedEvent[] = [];
-  let flushing = false;
+  // The single in-flight drain, shared by every concurrent flush() caller. When
+  // null, no drain is running and the next flush() starts one. A caller that
+  // arrives mid-drain gets THIS promise back (not an instant resolve), so it
+  // only settles once the active drain has finished — including any events it
+  // enqueued before calling, which the drain's `while (queue.length > 0)` loop
+  // picks up in the same pass. Cleared in `finally` so the next flush() is fresh.
+  let inFlight: Promise<void> | null = null;
 
   let enqueued = 0;
   let sent = 0;
@@ -128,60 +134,65 @@ export function createOwnedMirrorSink(
     };
   }
 
-  async function flush(): Promise<void> {
-    if (flushing) return;
-    flushing = true;
-    try {
-      while (queue.length > 0) {
-        const batch = queue.splice(0, batchSize);
-        const body = JSON.stringify({
-          schema: OWNED_MIRROR_SCHEMA,
-          game_id: options.gameId,
-          env: options.env,
-          events: batch.map(toBodyEvent),
+  function flush(): Promise<void> {
+    // Concurrent callers share the one active drain rather than each firing a
+    // duplicate send (or, as the old guard did, resolving instantly while zero
+    // events had reached transport).
+    if (inFlight) return inFlight;
+    inFlight = drain().finally(() => {
+      inFlight = null;
+    });
+    return inFlight;
+  }
+
+  async function drain(): Promise<void> {
+    while (queue.length > 0) {
+      const batch = queue.splice(0, batchSize);
+      const body = JSON.stringify({
+        schema: OWNED_MIRROR_SCHEMA,
+        game_id: options.gameId,
+        env: options.env,
+        events: batch.map(toBodyEvent),
+      });
+
+      let result: MirrorTransportResult;
+      try {
+        result = await options.transport({
+          url: options.url,
+          publicClientKey: options.publicClientKey,
+          body,
         });
-
-        let result: MirrorTransportResult;
-        try {
-          result = await options.transport({
-            url: options.url,
-            publicClientKey: options.publicClientKey,
-            body,
-          });
-        } catch {
-          // Network throw is transient — treat as retryable (status 0).
-          result = { ok: false, status: 0 };
-        }
-
-        if (result.ok) {
-          sent += batch.length;
-          continue;
-        }
-
-        const retryable =
-          result.status === 0 || RETRYABLE_STATUSES.has(result.status);
-        if (!retryable) {
-          recordDrop(batch.length, `status_${result.status}`);
-          continue;
-        }
-
-        // Retryable failure: bump attempts, drop the exhausted, requeue the rest
-        // at the front, and STOP flushing so we don't hammer a down backend.
-        retried += 1;
-        const survivors: QueuedEvent[] = [];
-        for (const event of batch) {
-          const attempt = event.attempt + 1;
-          if (attempt >= maxAttempts) {
-            recordDrop(1, 'max_attempts');
-          } else {
-            survivors.push({ ...event, attempt });
-          }
-        }
-        queue.unshift(...survivors);
-        break;
+      } catch {
+        // Network throw is transient — treat as retryable (status 0).
+        result = { ok: false, status: 0 };
       }
-    } finally {
-      flushing = false;
+
+      if (result.ok) {
+        sent += batch.length;
+        continue;
+      }
+
+      const retryable =
+        result.status === 0 || RETRYABLE_STATUSES.has(result.status);
+      if (!retryable) {
+        recordDrop(batch.length, `status_${result.status}`);
+        continue;
+      }
+
+      // Retryable failure: bump attempts, drop the exhausted, requeue the rest
+      // at the front, and STOP flushing so we don't hammer a down backend.
+      retried += 1;
+      const survivors: QueuedEvent[] = [];
+      for (const event of batch) {
+        const attempt = event.attempt + 1;
+        if (attempt >= maxAttempts) {
+          recordDrop(1, 'max_attempts');
+        } else {
+          survivors.push({ ...event, attempt });
+        }
+      }
+      queue.unshift(...survivors);
+      break;
     }
   }
 
