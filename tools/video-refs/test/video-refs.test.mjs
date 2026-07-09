@@ -5,6 +5,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { loadManifest } from '../../refcap-compare/src/manifest.mjs';
+import { parseYaml } from '../../refcap-compare/src/yaml.mjs';
 import { parseFrameRate, selectFrameRate, snapToFrameMidpoint } from '../src/time.mjs';
 
 const TOOL_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -160,8 +162,15 @@ describe('video-refs CLI', () => {
       id: 'req_123',
       payload: {
         frames: [
-          { t: 0, label: 'menu', source: 'agent' },
-          { t: 2, label: 'level', source: 'human' },
+          { t: 0, label: 'menu', source: 'agent', 'at-rest': true },
+          {
+            t: 2,
+            label: 'level',
+            source: 'human',
+            'at-rest': false,
+            'not-at-rest-reason': 'spinner still moving',
+            'recapture-note': 'wait for the level screen to settle',
+          },
           { t: 2, label: 'level', source: 'human' },
         ],
       },
@@ -176,15 +185,142 @@ describe('video-refs CLI', () => {
       verdictPath,
       '--out',
       extractOut,
+      '--captured',
+      '2026-07-09',
     ]);
 
     const manifest = JSON.parse(fs.readFileSync(path.join(extractOut, 'extracted.json'), 'utf8'));
     assert.deepEqual(manifest.map((entry) => entry.file), ['menu-0.png', 'level-2.png', 'level-2-2.png']);
     assert.equal(manifest[1].source, 'human');
-    assert.equal(manifest[1].provenance, 'video-refs extract from fixture.mp4');
-    assert.equal(manifest[1]['at-rest'], true);
+    assert.deepEqual(manifest[0].provenance, {
+      source: 'video-extract',
+      tool: 'video-refs extract',
+      captured: '2026-07-09',
+      video,
+    });
+    assert.equal(manifest[0]['at-rest'], true);
+    assert.equal(manifest[0]['not-at-rest-reason'], undefined);
+    assert.equal(manifest[1]['at-rest'], false);
+    assert.equal(manifest[1]['not-at-rest-reason'], 'spinner still moving');
+    assert.equal(manifest[1]['recapture-note'], 'wait for the level screen to settle');
+    assert.equal(manifest[2]['at-rest'], false);
+    assert.equal(manifest[2]['not-at-rest-reason'], 'unjudged video frame');
+    assert.equal(
+      manifest[2]['recapture-note'],
+      'review this extracted video frame before accepting it as an at-rest reference',
+    );
+    assert.equal(manifest[2].provenance.source, 'video-extract');
+    assert.equal(manifest[2].provenance.video, video);
+    assert.equal(manifest[2].provenance.captured, '2026-07-09');
+    assert.equal(manifest[2].provenance.tool, 'video-refs extract');
     for (const entry of manifest) {
       assert.ok(fs.existsSync(path.join(extractOut, entry.file)), `missing extracted ${entry.file}`);
     }
+  });
+
+  it('folds extracted frames into manifest refs and promoted captures idempotently', () => {
+    const dir = makeTempDir();
+    const gameDir = path.join(dir, 'games', 'fold_fixture');
+    const artDir = path.join(gameDir, 'refs', 'art');
+    fs.mkdirSync(artDir, { recursive: true });
+    fs.writeFileSync(path.join(artDir, 'gameplay-8.png'), 'png');
+    fs.writeFileSync(path.join(artDir, 'fail-15.9.png'), 'png');
+    fs.writeFileSync(path.join(gameDir, 'refs', 'manifest.yaml'), [
+      'game: fold_fixture',
+      'reference:',
+      '  package: com.example.fold',
+      'v2:',
+      '  package: com.fabrikav2.fold',
+      'states:',
+      '  - name: menu',
+      '    reference:',
+      '      gap: no menu reference selected',
+      '    v2:',
+      '      gap: no menu v2 selected',
+      '',
+    ].join('\n'));
+    const extractedPath = path.join(artDir, 'extracted.json');
+    fs.writeFileSync(extractedPath, `${JSON.stringify([
+      {
+        state: 'gameplay',
+        t: 8,
+        file: 'gameplay-8.png',
+        source: 'agent',
+        provenance: {
+          source: 'video-extract',
+          tool: 'video-refs extract',
+          captured: '2026-07-09',
+          video: 'refs/video/source.mp4',
+        },
+        'at-rest': true,
+      },
+      {
+        state: 'fail',
+        t: 15.9,
+        file: 'fail-15.9.png',
+        source: 'human',
+        provenance: 'video-refs extract from source.mp4',
+        'at-rest': false,
+        'not-at-rest-reason': 'mid-transition result panel',
+        'recapture-note': 'recapture after the fail panel settles',
+      },
+    ], null, 2)}\n`);
+
+    for (let i = 0; i < 2; i++) {
+      sh(process.execPath, [
+        RUN,
+        'fold',
+        '--game',
+        gameDir,
+        '--extracted',
+        extractedPath,
+        '--video',
+        'refs/video/source.mp4',
+        '--captured',
+        '2026-07-09',
+      ]);
+    }
+
+    const captureRoot = path.join(gameDir, 'refs', 'captures', 'video-extract', 'source');
+    assert.ok(fs.existsSync(path.join(captureRoot, 'gameplay-8.png')));
+    assert.ok(fs.existsSync(path.join(captureRoot, 'fail-15.9.png')));
+
+    const manifestText = fs.readFileSync(path.join(gameDir, 'refs', 'manifest.yaml'), 'utf8');
+    const manifest = parseYaml(manifestText);
+    const refs = Object.keys(manifest.refs).sort();
+    assert.deepEqual(refs, [
+      'refs/captures/video-extract/source/fail-15.9.png',
+      'refs/captures/video-extract/source/gameplay-8.png',
+    ]);
+    assert.equal(
+      manifest.refs['refs/captures/video-extract/source/gameplay-8.png']['state-variant'],
+      'gameplay/t8',
+    );
+    assert.match(
+      manifest.refs['refs/captures/video-extract/source/gameplay-8.png']['capture-recipe'],
+      /timestamp 8/,
+    );
+    assert.deepEqual(
+      manifest.refs['refs/captures/video-extract/source/gameplay-8.png'].provenance,
+      {
+        source: 'video-extract',
+        tool: 'video-refs extract',
+        captured: '2026-07-09',
+        video: 'refs/video/source.mp4',
+      },
+    );
+    assert.equal(manifest.refs['refs/captures/video-extract/source/fail-15.9.png']['at-rest'], false);
+    assert.equal(
+      manifest.refs['refs/captures/video-extract/source/fail-15.9.png']['not-at-rest-reason'],
+      'mid-transition result panel',
+    );
+    assert.equal(
+      manifest.refs['refs/captures/video-extract/source/fail-15.9.png']['recapture-note'],
+      'recapture after the fail panel settles',
+    );
+    assert.deepEqual(manifest.states.map((state) => state.name), ['menu', 'gameplay', 'fail']);
+    assert.equal(manifest.states.filter((state) => state.name === 'gameplay').length, 1);
+    assert.equal(manifest.states.find((state) => state.name === 'gameplay').reference.gap.includes('video-extract'), true);
+    assert.equal(loadManifest(gameDir).game, 'fold_fixture');
   });
 });

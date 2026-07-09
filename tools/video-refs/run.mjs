@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildView } from './src/build-view.mjs';
 import { extractFrames } from './src/extract.mjs';
+import { foldExtractedFrames } from './src/fold.mjs';
 import { suggestFrames } from './src/suggest.mjs';
 
 const HELP = `video-refs - reference video frame tooling
@@ -11,7 +12,8 @@ const HELP = `video-refs - reference video frame tooling
 Usage:
   node tools/video-refs/run.mjs suggest --video <path> --out <dir> [--interval 2] [--scene 0.3]
   node tools/video-refs/run.mjs build-view --candidates <candidates.json> --video-src <string> --out <file.html>
-  node tools/video-refs/run.mjs extract --video <path> --verdict <verdict.json> --out <dir>
+  node tools/video-refs/run.mjs extract --video <path> --verdict <verdict.json> --out <dir> [--captured YYYY-MM-DD]
+  node tools/video-refs/run.mjs fold --game games/<game> [--extracted games/<game>/refs/art/extracted.json] --video <path> [--captured YYYY-MM-DD]
 
 Same-file contract:
   Run suggest on the exact playback file/proxy that build-view --video-src will play.
@@ -84,8 +86,23 @@ export function main(argv = process.argv.slice(2)) {
       video: requireFlag(flags, 'video'),
       verdictFile: requireFlag(flags, 'verdict'),
       outDir: requireFlag(flags, 'out'),
+      captured: flags.captured,
     });
     process.stdout.write(`video-refs extract: ${result.frames.length} frames -> ${result.manifestFile}\n`);
+    return 0;
+  }
+
+  if (verb === 'fold') {
+    const result = foldExtractedFrames({
+      gameDir: requireFlag(flags, 'game'),
+      extractedFile: flags.extracted,
+      video: flags.video,
+      captured: flags.captured,
+    });
+    process.stdout.write(
+      `video-refs fold: ${result.frames} frames -> ${result.manifestFile}\n` +
+      `video-refs fold: ${result.captures.length} captures under refs/captures/video-extract\n`
+    );
     return 0;
   }
 

@@ -76,7 +76,8 @@ to `/r/<reqId>/decide`, where `reqId` is read from `/media/<reqId>/...`.
 node tools/video-refs/run.mjs extract \
   --video original-source.mp4 \
   --verdict verdict.json \
-  --out games/<game>/refs/art
+  --out games/<game>/refs/art \
+  [--captured YYYY-MM-DD]
 ```
 
 Accepts either a Portal verdict object with `payload.frames` or a bare
@@ -95,13 +96,47 @@ the original for accurate still extraction.
     "t": 2,
     "file": "gameplay-2.png",
     "source": "agent",
-    "provenance": "video-refs extract from gameplay.mp4",
-    "at-rest": true
+    "provenance": {
+      "source": "video-extract",
+      "tool": "video-refs extract",
+      "captured": "2026-07-09",
+      "video": "original-source.mp4"
+    },
+    "at-rest": false,
+    "not-at-rest-reason": "unjudged video frame",
+    "recapture-note": "review this extracted video frame before accepting it as an at-rest reference"
   }
 ]
 ```
 
-The manifest is shaped for folding into `games/<game>/refs/manifest.yaml`.
+`extract` preserves an explicit frame `at-rest` boolean from a picker or judge.
+When that field is absent, the frame is written as not at rest with the
+`unjudged video frame` reason above; unreviewed video frames are never promoted
+as trusted by default. `--captured` defaults to today's date and exists so tests
+and replayed folds can be deterministic.
+
+## fold
+
+```sh
+node tools/video-refs/run.mjs fold \
+  --game games/<game> \
+  --extracted games/<game>/refs/art/extracted.json \
+  --video refs/video/reference-video.mp4 \
+  --captured YYYY-MM-DD
+```
+
+`fold` promotes every extracted PNG into
+`games/<game>/refs/captures/video-extract/<video-stem>/` and updates
+`games/<game>/refs/manifest.yaml` with a `refs:` entry for each promoted
+capture. Folded entries use the marble_run-compatible shape: `state-variant`,
+`capture-recipe`, `at-rest`, optional false-at-rest explanation fields, and
+structured `provenance` with `source: video-extract`, `tool`, `captured`, and
+`video`.
+
+The command appends missing states found in `extracted.json` with explicit
+reference and v2 gaps. It does not make refs-lint scan `refs/art`; that folder
+remains source material, while `refs/captures` is the committed reference
+contract.
 
 ## Verify
 

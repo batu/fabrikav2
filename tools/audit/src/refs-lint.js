@@ -13,7 +13,7 @@ import { listDirs, readText, rel, walkFiles } from './lib.js';
 const CAPTURE_EXTS = ['.png', '.jpg', '.jpeg', '.webp'];
 const REQUIRED_FIELDS = ['state-variant', 'capture-recipe', 'at-rest', 'provenance'];
 const FALSE_AT_REST_FIELDS = ['not-at-rest-reason', 'recapture-note'];
-const PROVENANCE_SOURCES = ['shipped-capture', 'design-sheet', 'generated'];
+const PROVENANCE_SOURCES = ['shipped-capture', 'design-sheet', 'generated', 'video-extract'];
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 function isPlainObject(value) {
@@ -167,16 +167,44 @@ function validateProvenance(violations, base, provenance) {
     return;
   }
 
+  const sourceIsPresent = Object.hasOwn(provenance, 'source');
+  const sourceIsKnown = sourceIsPresent && PROVENANCE_SOURCES.includes(provenance.source);
+  if (!sourceIsPresent) {
+    add(violations, {
+      ...base,
+      kind: 'MISSING-FIELD',
+      field: 'provenance.source',
+      detail: `provenance.source is required (${PROVENANCE_SOURCES.join(', ')})`,
+    });
+  } else if (!sourceIsKnown) {
+    add(violations, {
+      ...base,
+      kind: 'INVALID-FIELD',
+      field: 'provenance.source',
+      detail: `provenance.source must be one of ${PROVENANCE_SOURCES.join(', ')}`,
+    });
+  }
+
   const checks = [
-    ['package', (p) => typeof p.package === 'string' && p.package.trim() !== ''],
-    ['device|lane', (p) =>
-      (typeof p.device === 'string' && p.device.trim() !== '') ||
-      (typeof p.lane === 'string' && p.lane.trim() !== '')],
-    ['host|tool', (p) =>
-      (typeof p.host === 'string' && p.host.trim() !== '') ||
-      (typeof p.tool === 'string' && p.tool.trim() !== '')],
     ['captured', (p) => typeof p.captured === 'string' && p.captured.trim() !== ''],
   ];
+  if (provenance.source === 'video-extract') {
+    checks.push(
+      ['video', (p) => typeof p.video === 'string' && p.video.trim() !== ''],
+      ['tool', (p) => typeof p.tool === 'string' && p.tool.trim() !== ''],
+    );
+  } else {
+    checks.push(
+      ['package', (p) => typeof p.package === 'string' && p.package.trim() !== ''],
+      ['device|lane', (p) =>
+        (typeof p.device === 'string' && p.device.trim() !== '') ||
+        (typeof p.lane === 'string' && p.lane.trim() !== '')],
+      ['host|tool', (p) =>
+        (typeof p.host === 'string' && p.host.trim() !== '') ||
+        (typeof p.tool === 'string' && p.tool.trim() !== '')],
+    );
+  }
+
   for (const [field, ok] of checks) {
     if (!ok(provenance)) {
       add(violations, {
@@ -186,22 +214,6 @@ function validateProvenance(violations, base, provenance) {
         detail: `provenance requires ${field}`,
       });
     }
-  }
-
-  if (!Object.hasOwn(provenance, 'source')) {
-    add(violations, {
-      ...base,
-      kind: 'MISSING-FIELD',
-      field: 'provenance.source',
-      detail: `provenance.source is required (${PROVENANCE_SOURCES.join(', ')})`,
-    });
-  } else if (!PROVENANCE_SOURCES.includes(provenance.source)) {
-    add(violations, {
-      ...base,
-      kind: 'INVALID-FIELD',
-      field: 'provenance.source',
-      detail: `provenance.source must be one of ${PROVENANCE_SOURCES.join(', ')}`,
-    });
   }
 }
 

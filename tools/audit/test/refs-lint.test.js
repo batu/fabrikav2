@@ -40,6 +40,18 @@ function manifestEntry(overrides = {}) {
   };
 }
 
+function videoExtractEntry(overrides = {}) {
+  return manifestEntry({
+    provenance: {
+      source: 'video-extract',
+      video: 'refs/video/source.mp4',
+      tool: 'video-refs extract',
+      captured: '2026-07-09',
+    },
+    ...overrides,
+  });
+}
+
 function writeManifest(rootDir, refs) {
   const lines = [
     'game: game',
@@ -250,6 +262,80 @@ describe('refs-lint', () => {
         }),
       ]),
     );
+  });
+
+  it('accepts video-extract provenance with video, tool, and captured fields', () => {
+    const repo = root();
+    write(repo, 'games/game/refs/captures/video-extract/source/menu.png', 'png');
+    writeManifest(repo, {
+      'refs/captures/video-extract/source/menu.png': videoExtractEntry(),
+    });
+
+    expect(lintRefs(repo).violations).toEqual([]);
+  });
+
+  it('requires video-extract provenance to include video and tool fields', () => {
+    const missingVideo = root();
+    write(missingVideo, 'games/game/refs/captures/video-extract/source/menu.png', 'png');
+    const noVideo = videoExtractEntry();
+    delete noVideo.provenance.video;
+    writeManifest(missingVideo, {
+      'refs/captures/video-extract/source/menu.png': noVideo,
+    });
+
+    expect(lintRefs(missingVideo).violations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'MISSING-FIELD',
+          field: 'provenance.video',
+        }),
+      ]),
+    );
+
+    const missingTool = root();
+    write(missingTool, 'games/game/refs/captures/video-extract/source/menu.png', 'png');
+    const noTool = videoExtractEntry();
+    delete noTool.provenance.tool;
+    writeManifest(missingTool, {
+      'refs/captures/video-extract/source/menu.png': noTool,
+    });
+
+    expect(lintRefs(missingTool).violations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'MISSING-FIELD',
+          field: 'provenance.tool',
+        }),
+      ]),
+    );
+  });
+
+  it('continues requiring package and device or lane for shipped-capture provenance', () => {
+    const repo = root();
+    write(repo, 'games/game/refs/captures/source/menu.png', 'png');
+    writeManifest(repo, {
+      'refs/captures/source/menu.png': manifestEntry({
+        provenance: {
+          source: 'shipped-capture',
+          host: 'ubuntu-server',
+          captured: '2026-07-06',
+        },
+      }),
+    });
+
+    expect(lintRefs(repo).violations).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ field: 'provenance.package' }),
+        expect.objectContaining({ field: 'provenance.device|lane' }),
+      ]),
+    );
+  });
+
+  it('does not treat refs/art images as committed capture refs', () => {
+    const repo = root();
+    write(repo, 'games/game/refs/art/menu.png', 'png');
+
+    expect(lintRefs(repo).violations).toEqual([]);
   });
 
   it('formats refs coverage as a stable audit table', () => {

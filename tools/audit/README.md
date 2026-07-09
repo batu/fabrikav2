@@ -124,11 +124,14 @@ rather than reddening the gate. See the per-linter notes below.
    `capture-recipe`, boolean `at-rest`, and structured `provenance`. Standard
    provenance includes `source` (`shipped-capture`, `design-sheet`, or
    `generated`), `package`, `device` or `lane`, `host` or `tool`, and
-   `captured` (`YYYY-MM-DD`). Stale entries, missing entries, missing required
-   fields, invalid booleans, and undocumented `at-rest: false` refs are hard
-   errors. Known-bad captures can stay in the corpus only when they carry
-   `not-at-rest-reason` and `recapture-note`, which lets `verify-device` skip
-   them instead of scoring them as authoritative references.
+   `captured` (`YYYY-MM-DD`). `video-extract` provenance is the source-specific
+   exception for frames folded from `tools/video-refs`: it requires `video`,
+   `tool`, and `captured` instead of shipped-app `package` and `device` metadata.
+   Stale entries, missing entries, missing required fields, invalid booleans,
+   and undocumented `at-rest: false` refs are hard errors. Known-bad captures can
+   stay in the corpus only when they carry `not-at-rest-reason` and
+   `recapture-note`, which lets `verify-device` skip them instead of scoring them
+   as authoritative references.
 
    The audit output also prints a refs coverage table per manifest state:
    `game`, `state`, number of refs, provenance source(s), and age from the

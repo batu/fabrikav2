@@ -1,14 +1,15 @@
 # refcap-compare manifest STUB for a fresh `create-game` scaffold (card vFSI5FwY).
 # Modelled on games/marble_run/refs/manifest.yaml; loaded by
 # tools/refcap-compare/src/manifest.mjs `loadManifest`. Every state below is an
-# explicit "gap" — a fresh game has NO captures yet, on either lane. A port
-# replaces each `gap:` with a real `offline:` PNG + `driveTo:`/`recipe:` as
-# captures land; do not delete states to "pass" — absence must stay documented.
+# explicit "gap" until a lane selects a primary `offline:` PNG. Folded
+# video-extract refs can exist in `refs:` before they become lane defaults; do
+# not delete states to "pass" — absence must stay documented.
 game: wool_crush
 
 # REFERENCE lane = a third-party/prior-version app captured for comparison, over
 # the ubuntu-server adb bridge (see games/marble_run/refs/manifest.yaml). A
-# fresh game usually has none yet — every state below declares a gap.
+# fresh game usually starts with none. Wool Crush now has folded video-extract
+# refs, while the reference lane still has no primary offline selection.
 reference:
   package: com.example.woolcrush   # TODO(reference-package): confirm the real reference bundle id with Batu.
   version: unknown
@@ -24,12 +25,163 @@ v2:
   version: dev
   viewport: 390x844
 
-# Canonical states (tools/refcap-compare/src/manifest.mjs CANONICAL_STATES).
+refs:
+  refs/captures/video-extract/woolcrush-reference-video/fail-448.png:
+    state-variant: fail/t448
+    capture-recipe: video-refs extract --video refs/video/woolcrush-reference-video.mp4 --verdict <verdict.json> --out refs/art; timestamp 448
+    at-rest: true
+    provenance:
+      source: video-extract
+      tool: video-refs extract
+      captured: 2026-07-09
+      video: refs/video/woolcrush-reference-video.mp4
+
+  refs/captures/video-extract/woolcrush-reference-video/fail-476.png:
+    state-variant: fail/t476
+    capture-recipe: video-refs extract --video refs/video/woolcrush-reference-video.mp4 --verdict <verdict.json> --out refs/art; timestamp 476
+    at-rest: true
+    provenance:
+      source: video-extract
+      tool: video-refs extract
+      captured: 2026-07-09
+      video: refs/video/woolcrush-reference-video.mp4
+
+  refs/captures/video-extract/woolcrush-reference-video/fail-484.png:
+    state-variant: fail/t484
+    capture-recipe: video-refs extract --video refs/video/woolcrush-reference-video.mp4 --verdict <verdict.json> --out refs/art; timestamp 484
+    at-rest: true
+    provenance:
+      source: video-extract
+      tool: video-refs extract
+      captured: 2026-07-09
+      video: refs/video/woolcrush-reference-video.mp4
+
+  refs/captures/video-extract/woolcrush-reference-video/gameplay-0.2.png:
+    state-variant: gameplay/t0_2
+    capture-recipe: video-refs extract --video refs/video/woolcrush-reference-video.mp4 --verdict <verdict.json> --out refs/art; timestamp 0.2
+    at-rest: true
+    provenance:
+      source: video-extract
+      tool: video-refs extract
+      captured: 2026-07-09
+      video: refs/video/woolcrush-reference-video.mp4
+
+  refs/captures/video-extract/woolcrush-reference-video/gameplay-15.9.png:
+    state-variant: gameplay/t15_9
+    capture-recipe: video-refs extract --video refs/video/woolcrush-reference-video.mp4 --verdict <verdict.json> --out refs/art; timestamp 15.9
+    at-rest: true
+    provenance:
+      source: video-extract
+      tool: video-refs extract
+      captured: 2026-07-09
+      video: refs/video/woolcrush-reference-video.mp4
+
+  refs/captures/video-extract/woolcrush-reference-video/gameplay-20.png:
+    state-variant: gameplay/t20
+    capture-recipe: video-refs extract --video refs/video/woolcrush-reference-video.mp4 --verdict <verdict.json> --out refs/art; timestamp 20
+    at-rest: true
+    provenance:
+      source: video-extract
+      tool: video-refs extract
+      captured: 2026-07-09
+      video: refs/video/woolcrush-reference-video.mp4
+
+  refs/captures/video-extract/woolcrush-reference-video/gameplay-36.png:
+    state-variant: gameplay/t36
+    capture-recipe: video-refs extract --video refs/video/woolcrush-reference-video.mp4 --verdict <verdict.json> --out refs/art; timestamp 36
+    at-rest: true
+    provenance:
+      source: video-extract
+      tool: video-refs extract
+      captured: 2026-07-09
+      video: refs/video/woolcrush-reference-video.mp4
+
+  refs/captures/video-extract/woolcrush-reference-video/gameplay-8.png:
+    state-variant: gameplay/t8
+    capture-recipe: video-refs extract --video refs/video/woolcrush-reference-video.mp4 --verdict <verdict.json> --out refs/art; timestamp 8
+    at-rest: true
+    provenance:
+      source: video-extract
+      tool: video-refs extract
+      captured: 2026-07-09
+      video: refs/video/woolcrush-reference-video.mp4
+
+  refs/captures/video-extract/woolcrush-reference-video/menu-132.png:
+    state-variant: menu/t132
+    capture-recipe: video-refs extract --video refs/video/woolcrush-reference-video.mp4 --verdict <verdict.json> --out refs/art; timestamp 132
+    at-rest: true
+    provenance:
+      source: video-extract
+      tool: video-refs extract
+      captured: 2026-07-09
+      video: refs/video/woolcrush-reference-video.mp4
+
+  refs/captures/video-extract/woolcrush-reference-video/other-136.5.png:
+    state-variant: other/t136_5
+    capture-recipe: video-refs extract --video refs/video/woolcrush-reference-video.mp4 --verdict <verdict.json> --out refs/art; timestamp 136.5
+    at-rest: true
+    provenance:
+      source: video-extract
+      tool: video-refs extract
+      captured: 2026-07-09
+      video: refs/video/woolcrush-reference-video.mp4
+
+  refs/captures/video-extract/woolcrush-reference-video/other-144.png:
+    state-variant: other/t144
+    capture-recipe: video-refs extract --video refs/video/woolcrush-reference-video.mp4 --verdict <verdict.json> --out refs/art; timestamp 144
+    at-rest: true
+    provenance:
+      source: video-extract
+      tool: video-refs extract
+      captured: 2026-07-09
+      video: refs/video/woolcrush-reference-video.mp4
+
+  refs/captures/video-extract/woolcrush-reference-video/other-151.9.png:
+    state-variant: other/t151_9
+    capture-recipe: video-refs extract --video refs/video/woolcrush-reference-video.mp4 --verdict <verdict.json> --out refs/art; timestamp 151.9
+    at-rest: true
+    provenance:
+      source: video-extract
+      tool: video-refs extract
+      captured: 2026-07-09
+      video: refs/video/woolcrush-reference-video.mp4
+
+  refs/captures/video-extract/woolcrush-reference-video/other-404.png:
+    state-variant: other/t404
+    capture-recipe: video-refs extract --video refs/video/woolcrush-reference-video.mp4 --verdict <verdict.json> --out refs/art; timestamp 404
+    at-rest: true
+    provenance:
+      source: video-extract
+      tool: video-refs extract
+      captured: 2026-07-09
+      video: refs/video/woolcrush-reference-video.mp4
+
+  refs/captures/video-extract/woolcrush-reference-video/settings-128.png:
+    state-variant: settings/t128
+    capture-recipe: video-refs extract --video refs/video/woolcrush-reference-video.mp4 --verdict <verdict.json> --out refs/art; timestamp 128
+    at-rest: true
+    provenance:
+      source: video-extract
+      tool: video-refs extract
+      captured: 2026-07-09
+      video: refs/video/woolcrush-reference-video.mp4
+
+  refs/captures/video-extract/woolcrush-reference-video/win-120.png:
+    state-variant: win/t120
+    capture-recipe: video-refs extract --video refs/video/woolcrush-reference-video.mp4 --verdict <verdict.json> --out refs/art; timestamp 120
+    at-rest: true
+    provenance:
+      source: video-extract
+      tool: video-refs extract
+      captured: 2026-07-09
+      video: refs/video/woolcrush-reference-video.mp4
+
+# Canonical states plus per-game video-extract states.
 # Each lane needs either "offline" (a committed PNG) or an explicit "gap".
 states:
   - name: menu
     reference:
-      gap: "no reference capture — fresh scaffold, nothing captured yet"
+      gap: "video-extract refs exist under refs/captures/video-extract; no primary offline reference selected yet"
     v2:
       gap: "no v2 capture yet"
       driveTo: menu
@@ -43,7 +195,7 @@ states:
 
   - name: settings
     reference:
-      gap: "no reference capture — fresh scaffold, nothing captured yet"
+      gap: "video-extract refs exist under refs/captures/video-extract; no primary offline reference selected yet"
     v2:
       gap: "no v2 capture yet"
       driveTo: settings
@@ -57,14 +209,26 @@ states:
 
   - name: win
     reference:
-      gap: "no reference capture — fresh scaffold, nothing captured yet"
+      gap: "video-extract refs exist under refs/captures/video-extract; no primary offline reference selected yet"
     v2:
       gap: "no v2 capture yet"
       driveTo: win
 
   - name: fail
     reference:
-      gap: "no reference capture — fresh scaffold, nothing captured yet"
+      gap: "video-extract refs exist under refs/captures/video-extract; no primary offline reference selected yet"
     v2:
       gap: "no v2 capture yet"
       driveTo: fail
+
+  - name: gameplay
+    reference:
+      gap: video-extract refs folded under refs/captures/video-extract; no primary offline reference selected yet
+    v2:
+      gap: no v2 capture selected for this video-extracted state
+
+  - name: other
+    reference:
+      gap: video-extract refs folded under refs/captures/video-extract; no primary offline reference selected yet
+    v2:
+      gap: no v2 capture selected for this video-extracted state

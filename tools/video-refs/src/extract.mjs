@@ -21,6 +21,43 @@ function loadFrames(verdictFile) {
   return frames;
 }
 
+function todayStamp() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function hasOwn(object, key) {
+  return Object.hasOwn(object, key);
+}
+
+function frameAtRestValue(frame) {
+  if (hasOwn(frame, 'at-rest')) return frame['at-rest'];
+  if (hasOwn(frame, 'atRest')) return frame.atRest;
+  return undefined;
+}
+
+function frameTextValue(frame, kebabKey, camelKey) {
+  const value = hasOwn(frame, kebabKey) ? frame[kebabKey] : frame[camelKey];
+  return typeof value === 'string' && value.trim() !== '' ? value.trim() : null;
+}
+
+function atRestFields(frame) {
+  const value = frameAtRestValue(frame);
+  if (value === true) return { 'at-rest': true };
+
+  const explicitFalse = value === false;
+  if (value !== undefined && !explicitFalse) {
+    throw new Error(`invalid at-rest value for frame at ${frame.t}: expected boolean`);
+  }
+
+  return {
+    'at-rest': false,
+    'not-at-rest-reason': frameTextValue(frame, 'not-at-rest-reason', 'notAtRestReason') ||
+      (explicitFalse ? 'marked not at rest by video frame review' : 'unjudged video frame'),
+    'recapture-note': frameTextValue(frame, 'recapture-note', 'recaptureNote') ||
+      'review this extracted video frame before accepting it as an at-rest reference',
+  };
+}
+
 function uniquePngPath(outDir, label, t) {
   const stem = `${sanitizeLabel(label)}-${formatTimestamp(t)}`;
   let candidate = path.join(outDir, `${stem}.png`);
@@ -32,11 +69,14 @@ function uniquePngPath(outDir, label, t) {
   return candidate;
 }
 
-export function extractFrames({ video, verdictFile, outDir }) {
+export function extractFrames({ video, verdictFile, outDir, captured = todayStamp() }) {
   requireTool('ffmpeg');
   if (!video) throw new Error('--video is required');
   if (!verdictFile) throw new Error('--verdict is required');
   if (!outDir) throw new Error('--out is required');
+  if (typeof captured !== 'string' || captured.trim() === '') {
+    throw new Error('--captured must be a non-empty date string');
+  }
 
   const absVideo = path.resolve(video);
   if (!fs.existsSync(absVideo)) throw new Error(`video not found: ${absVideo}`);
@@ -68,8 +108,13 @@ export function extractFrames({ video, verdictFile, outDir }) {
       t: Number(formatTimestamp(t)),
       file: path.basename(outPath),
       source: frame.source || 'agent',
-      provenance: `video-refs extract from ${path.basename(absVideo)}`,
-      'at-rest': true,
+      provenance: {
+        source: 'video-extract',
+        tool: 'video-refs extract',
+        captured: captured.trim(),
+        video,
+      },
+      ...atRestFields(frame),
     });
   }
 
