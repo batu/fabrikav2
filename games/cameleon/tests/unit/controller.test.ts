@@ -226,7 +226,7 @@ describe("Cameleon controller", () => {
     now += 1;
     controller.tick();
     const first = controller.snapshot().idleShimmer;
-    expect(first).toMatchObject({ sequence: 1, hideId: "li-01" });
+    expect(first).toMatchObject({ sequence: 1, hideId: "li-04" });
 
     now += 1_000;
     controller.tick();
@@ -234,7 +234,7 @@ describe("Cameleon controller", () => {
 
     now += 45_000;
     controller.tick();
-    expect(controller.snapshot().idleShimmer).toMatchObject({ sequence: 2, hideId: "li-01" });
+    expect(controller.snapshot().idleShimmer).toMatchObject({ sequence: 2, hideId: "li-04" });
   });
 
   it("wins once eight hides are revealed", async () => {
