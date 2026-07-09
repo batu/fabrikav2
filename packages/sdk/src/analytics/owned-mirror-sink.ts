@@ -92,6 +92,12 @@ interface QueuedEvent {
   readonly attempt: number;
 }
 
+interface FlushOwner {
+  readonly promise: Promise<void>;
+  readonly resolve: () => void;
+  readonly reject: (reason: unknown) => void;
+}
+
 export interface OwnedMirrorSink extends AnalyticsSink {
   flush(): Promise<void>;
   stats(): OwnedMirrorStats;
@@ -106,13 +112,10 @@ export function createOwnedMirrorSink(
   const generateId = options.generateId ?? (() => crypto.randomUUID());
 
   const queue: QueuedEvent[] = [];
-  // The single in-flight drain, shared by every concurrent flush() caller. When
-  // null, no drain is running and the next flush() starts one. A caller that
-  // arrives mid-drain gets THIS promise back (not an instant resolve), so it
-  // only settles once the active drain has finished — including any events it
-  // enqueued before calling, which the drain's `while (queue.length > 0)` loop
-  // picks up in the same pass. Cleared in `finally` so the next flush() is fresh.
-  let inFlight: Promise<void> | null = null;
+  // The single in-flight drain owner, shared by every concurrent flush() caller.
+  // Its deferred promise settles only after a final queue check and synchronous
+  // ownership release, so work enqueued before the caller resumes cannot strand.
+  let inFlight: FlushOwner | null = null;
 
   let enqueued = 0;
   let sent = 0;
@@ -138,14 +141,40 @@ export function createOwnedMirrorSink(
     // Concurrent callers share the one active drain rather than each firing a
     // duplicate send (or, as the old guard did, resolving instantly while zero
     // events had reached transport).
-    if (inFlight) return inFlight;
-    inFlight = drain().finally(() => {
-      inFlight = null;
+    if (inFlight) return inFlight.promise;
+
+    let resolve!: () => void;
+    let reject!: (reason: unknown) => void;
+    const promise = new Promise<void>((resolvePromise, rejectPromise) => {
+      resolve = resolvePromise;
+      reject = rejectPromise;
     });
-    return inFlight;
+    const owner: FlushOwner = { promise, resolve, reject };
+    inFlight = owner;
+    void runOwnedDrain(owner);
+    return promise;
   }
 
-  async function drain(): Promise<void> {
+  async function runOwnedDrain(owner: FlushOwner): Promise<void> {
+    try {
+      let stoppedForRetry: boolean;
+      do {
+        stoppedForRetry = await drain();
+        // `await drain()` creates the handoff where a synchronous emit can join
+        // an otherwise-empty pass. Check again under the same owner before it
+        // settles. A retryable failure deliberately leaves the queue for a
+        // later flush, so it must not spin here and hammer the backend.
+      } while (!stoppedForRetry && queue.length > 0);
+
+      if (inFlight === owner) inFlight = null;
+      owner.resolve();
+    } catch (error) {
+      if (inFlight === owner) inFlight = null;
+      owner.reject(error);
+    }
+  }
+
+  async function drain(): Promise<boolean> {
     while (queue.length > 0) {
       const batch = queue.splice(0, batchSize);
       const body = JSON.stringify({
@@ -192,8 +221,9 @@ export function createOwnedMirrorSink(
         }
       }
       queue.unshift(...survivors);
-      break;
+      return true;
     }
+    return false;
   }
 
   return {

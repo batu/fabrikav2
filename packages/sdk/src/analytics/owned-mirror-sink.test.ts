@@ -209,6 +209,42 @@ function gatedTransport(results: MirrorTransportResult[] = []): MirrorTransport 
 }
 
 describe('createOwnedMirrorSink — concurrent flush', () => {
+  it('drains an event emitted synchronously after an empty flush starts', async () => {
+    const transport = scriptedTransport([{ ok: true, status: 200 }]);
+    const sink = createOwnedMirrorSink(baseOptions(transport, { batchSize: 100 }));
+
+    const done = sink.flush();
+    sink.emit(event('joined-before-settlement'));
+    await done;
+
+    expect(transport.calls).toHaveLength(1);
+    expect(sink.stats().sent).toBe(1);
+    expect(sink.stats().queueLength).toBe(0);
+  });
+
+  it('stops after a retryable failure during the empty-flush handoff', async () => {
+    const transport = scriptedTransport([
+      { ok: false, status: 503 },
+      { ok: true, status: 200 },
+    ]);
+    const sink = createOwnedMirrorSink(
+      baseOptions(transport, { batchSize: 100, maxAttempts: 3 }),
+    );
+
+    const done = sink.flush();
+    sink.emit(event('joined-before-retry'));
+    await done;
+
+    expect(transport.calls).toHaveLength(1);
+    expect(sink.stats().retried).toBe(1);
+    expect(sink.stats().queueLength).toBe(1);
+
+    await sink.flush();
+    expect(transport.calls).toHaveLength(2);
+    expect(sink.stats().sent).toBe(1);
+    expect(sink.stats().queueLength).toBe(0);
+  });
+
   it('concurrent callers share one in-flight drain (no duplicate sends) and both resolve after delivery', async () => {
     const transport = gatedTransport();
     const sink = createOwnedMirrorSink(baseOptions(transport, { batchSize: 100 }));
@@ -218,10 +254,13 @@ describe('createOwnedMirrorSink — concurrent flush', () => {
 
     let firstDone = false;
     let secondDone = false;
-    const first = sink.flush().then(() => {
+    const firstFlush = sink.flush();
+    const secondFlush = sink.flush();
+    expect(secondFlush).toBe(firstFlush);
+    const first = firstFlush.then(() => {
       firstDone = true;
     });
-    const second = sink.flush().then(() => {
+    const second = secondFlush.then(() => {
       secondDone = true;
     });
 
