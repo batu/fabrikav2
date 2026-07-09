@@ -124,9 +124,16 @@ export function createRemoteConfigService<S extends ConfigSchema>(
         nextOrigins[key as string] = 'default';
       }
     }
+    const nextFetchAtMs = now();
+
+    // Validation and the injected clock are caller-controlled callbacks. They
+    // may re-enter refresh(), so verify ownership again immediately before the
+    // mutation-only commit block.
+    if (gen !== generation) return;
+
     active = resolved as ConfigValues<S>;
     origins = nextOrigins as Record<keyof S, ValueOrigin>;
-    lastFetchAtMs = now();
+    lastFetchAtMs = nextFetchAtMs;
     lastErrorMessage = null;
     state = 'ready';
   }

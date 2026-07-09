@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { booleanField, numberField, stringField, type ConfigSchema } from './schema.ts';
-import { createRemoteConfigService, type RemoteConfigProvider } from './service.ts';
+import {
+  createRemoteConfigService,
+  type RemoteConfigProvider,
+} from './service.ts';
 
 const schema = {
   interstitialEveryNLevels: numberField(3, { remoteKey: 'interstitial_every_n_levels', validate: (v) => v >= 0 }),
@@ -236,6 +239,79 @@ describe('remote-config service', (): void => {
 
       expect(service.value('interstitialEveryNLevels')).toBe(9);
       expect(service.state).toBe('ready');
+    });
+
+    it('does not let validate() reentrancy commit the superseded generation', async (): Promise<void> => {
+      const newer = deferredProvider();
+      let fetchCount = 0;
+      let startNewerRefresh: (() => void) | undefined;
+      let newerRefresh: Promise<void> | undefined;
+      const reentrantSchema = {
+        value: numberField(0, {
+          validate: () => {
+            startNewerRefresh?.();
+            return true;
+          },
+        }),
+      } satisfies ConfigSchema;
+      const provider: RemoteConfigProvider = {
+        fetch: () =>
+          fetchCount++ === 0 ? Promise.resolve({ value: 1 }) : newer.provider.fetch(),
+      };
+      const service = createRemoteConfigService(reentrantSchema, { provider });
+      startNewerRefresh = () => {
+        startNewerRefresh = undefined;
+        newerRefresh = service.refresh();
+      };
+
+      await service.refresh();
+
+      expect(newerRefresh).toBeDefined();
+      expect(service.state).toBe('fetching');
+      expect(service.value('value')).toBe(0);
+      expect(service.snapshot().origins.value).toBe('default');
+      expect(service.snapshot().lastFetchAtMs).toBeNull();
+
+      newer.settle({ value: 2 });
+      await newerRefresh;
+      expect(service.state).toBe('ready');
+      expect(service.value('value')).toBe(2);
+    });
+
+    it('does not let now() reentrancy partially commit the superseded generation', async (): Promise<void> => {
+      const newer = deferredProvider();
+      let fetchCount = 0;
+      let startNewer = true;
+      let newerRefresh: Promise<void> | undefined;
+      const reentrantSchema = { value: numberField(0) } satisfies ConfigSchema;
+      const provider: RemoteConfigProvider = {
+        fetch: () =>
+          fetchCount++ === 0 ? Promise.resolve({ value: 1 }) : newer.provider.fetch(),
+      };
+      const service = createRemoteConfigService(reentrantSchema, {
+        provider,
+        now: () => {
+          if (startNewer) {
+            startNewer = false;
+            newerRefresh = service.refresh();
+          }
+          return 1_234;
+        },
+      });
+
+      await service.refresh();
+
+      expect(newerRefresh).toBeDefined();
+      expect(service.state).toBe('fetching');
+      expect(service.value('value')).toBe(0);
+      expect(service.snapshot().origins.value).toBe('default');
+      expect(service.snapshot().lastFetchAtMs).toBeNull();
+
+      newer.settle({ value: 2 });
+      await newerRefresh;
+      expect(service.state).toBe('ready');
+      expect(service.value('value')).toBe(2);
+      expect(service.snapshot().lastFetchAtMs).toBe(1_234);
     });
   });
 });
