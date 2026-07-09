@@ -107,6 +107,12 @@ describe('remote-config service', (): void => {
     expect(service.value('interstitialEveryNLevels')).toBe(3);
   });
 
+  it('preserves the original service surface without a required lifecycle API', (): void => {
+    const service = createRemoteConfigService(schema);
+
+    expect(service).not.toHaveProperty('dispose');
+  });
+
   describe('overlapping refreshes (stale-refresh guard)', (): void => {
     // A provider whose fetches are settled by the test, so we can drive the
     // completion order of two concurrent refreshes independently of start order.
@@ -219,48 +225,17 @@ describe('remote-config service', (): void => {
 
       a.settle({ interstitial_every_n_levels: 1 }); // older completes first
       await first;
+      // Settling a stale generation cannot commit state while the newest call
+      // is still pending.
+      expect(service.state).toBe('fetching');
+      expect(service.value('interstitialEveryNLevels')).toBe(3);
+      expect(service.snapshot().lastFetchAtMs).toBeNull();
+
       b.settle({ interstitial_every_n_levels: 9 }); // newer completes last
       await second;
 
       expect(service.value('interstitialEveryNLevels')).toBe(9);
       expect(service.state).toBe('ready');
-    });
-
-    it('discards an in-flight success that settles after dispose', async (): Promise<void> => {
-      const a = deferredProvider();
-      const service = createRemoteConfigService(schema, { provider: a.provider });
-
-      const pending = service.refresh();
-      service.dispose();
-      a.settle({ interstitial_every_n_levels: 9 });
-      await pending;
-
-      // Post-dispose settle must not mutate committed state.
-      expect(service.state).toBe('fetching');
-      expect(service.value('interstitialEveryNLevels')).toBe(3);
-    });
-
-    it('discards an in-flight rejection that settles after dispose', async (): Promise<void> => {
-      const a = deferredProvider();
-      const service = createRemoteConfigService(schema, { provider: a.provider });
-
-      const pending = service.refresh();
-      service.dispose();
-      a.reject(new Error('down after dispose'));
-      await pending;
-
-      expect(service.state).toBe('fetching');
-      expect(service.snapshot().lastErrorMessage).toBeNull();
-    });
-
-    it('no-ops refresh() calls made after dispose', async (): Promise<void> => {
-      const service = createRemoteConfigService(schema, {
-        provider: provider({ interstitial_every_n_levels: 9 }),
-      });
-      service.dispose();
-      await service.refresh();
-      expect(service.state).toBe('local-only');
-      expect(service.value('interstitialEveryNLevels')).toBe(3);
     });
   });
 });
