@@ -12,6 +12,10 @@ Usage:
   node tools/video-refs/run.mjs suggest --video <path> --out <dir> [--interval 2] [--scene 0.3]
   node tools/video-refs/run.mjs build-view --candidates <candidates.json> --video-src <string> --out <file.html>
   node tools/video-refs/run.mjs extract --video <path> --verdict <verdict.json> --out <dir>
+
+Same-file contract:
+  Run suggest on the exact playback file/proxy that build-view --video-src will play.
+  Run extract on the original source video after the picker verdict.
 `;
 
 function parseFlags(argv) {

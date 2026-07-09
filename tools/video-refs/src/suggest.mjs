@@ -2,19 +2,26 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { requireTool, runFile } from './ffmpeg.mjs';
 import { isDuplicate, signature } from './phash.mjs';
-import { formatTimestamp } from './time.mjs';
+import { formatTimestamp, selectFrameRate, snapToFrameMidpoint } from './time.mjs';
+
+const SOURCE_PRIORITY = {
+  uniform: 0,
+  scene: 1,
+};
 
 function parsePositiveNumber(value, name) {
   if (!Number.isFinite(value) || value <= 0) throw new Error(`${name} must be a positive number`);
   return value;
 }
 
-function probeDuration(video) {
+function probeVideo(video) {
   const result = runFile('ffprobe', [
     '-v',
     'error',
+    '-select_streams',
+    'v:0',
     '-show_entries',
-    'format=duration',
+    'stream=avg_frame_rate,r_frame_rate:format=duration',
     '-of',
     'json',
     video,
@@ -24,7 +31,13 @@ function probeDuration(video) {
   if (!Number.isFinite(duration) || duration <= 0) {
     throw new Error(`could not determine video duration: ${video}`);
   }
-  return duration;
+  const stream = data.streams?.[0];
+  if (!stream) throw new Error(`could not determine video stream: ${video}`);
+  const fps = selectFrameRate({
+    avgFrameRate: stream.avg_frame_rate,
+    rFrameRate: stream.r_frame_rate,
+  });
+  return { duration, fps };
 }
 
 function sceneTimes(video, scene) {
@@ -50,18 +63,38 @@ function uniformTimes(duration, interval) {
   return times.length ? times : [0];
 }
 
-function uniqueSortedTimes(times, duration) {
-  const seen = new Set();
-  const out = [];
-  for (const raw of times) {
-    const t = Number(formatTimestamp(raw));
+function uniqueSortedRecords(records, duration) {
+  const byTimestamp = new Map();
+  for (const record of records) {
+    const t = Number(formatTimestamp(record.t));
     if (!Number.isFinite(t) || t < 0 || t >= duration) continue;
     const key = formatTimestamp(t);
-    if (seen.has(key)) continue;
-    seen.add(key);
-    out.push(t);
+    const existing = byTimestamp.get(key);
+    if (!existing || SOURCE_PRIORITY[record.source] > SOURCE_PRIORITY[existing.source]) {
+      byTimestamp.set(key, { ...record, t });
+    }
   }
-  return out.sort((a, b) => a - b);
+  return [...byTimestamp.values()].sort((a, b) => a.t - b.t);
+}
+
+export function buildCandidateRecords({ duration, fps, interval, sceneCuts }) {
+  const records = [
+    ...uniformTimes(duration, interval).map((t) => ({
+      source: 'uniform',
+      rawT: t,
+      t: snapToFrameMidpoint(t, fps),
+    })),
+    ...sceneCuts.map((t) => {
+      const biasedT = t + (2 / fps);
+      return {
+        source: 'scene',
+        rawT: t,
+        biasedT,
+        t: snapToFrameMidpoint(biasedT, fps),
+      };
+    }),
+  ];
+  return uniqueSortedRecords(records, duration);
 }
 
 function frameSignature(video, t) {
@@ -116,31 +149,49 @@ export function suggestFrames({ video, outDir, interval = 2, scene = 0.3 }) {
   const framesDir = path.join(absOut, 'frames');
   fs.mkdirSync(framesDir, { recursive: true });
 
-  const duration = probeDuration(absVideo);
-  const rawTimes = uniqueSortedTimes([
-    ...uniformTimes(duration, sampleInterval),
-    ...sceneTimes(absVideo, sceneThreshold),
-  ], duration);
+  const { duration, fps } = probeVideo(absVideo);
+  const records = buildCandidateRecords({
+    duration,
+    fps,
+    interval: sampleInterval,
+    sceneCuts: sceneTimes(absVideo, sceneThreshold),
+  });
 
   const kept = [];
-  for (const t of rawTimes) {
-    const sig = frameSignature(absVideo, t);
-    if (kept.some((candidate) => isDuplicate(candidate.signature, sig))) continue;
+  for (const record of records) {
+    const sig = frameSignature(absVideo, record.t);
+    const duplicateIndex = kept.findIndex((candidate) => isDuplicate(candidate.signature, sig));
+    if (duplicateIndex !== -1) {
+      const duplicate = kept[duplicateIndex];
+      if (record.source === 'scene' && duplicate.source !== 'scene') {
+        kept[duplicateIndex] = { ...record, signature: sig };
+      }
+      continue;
+    }
+    kept.push({ ...record, signature: sig });
+  }
 
+  kept.sort((a, b) => a.t - b.t);
+  for (const candidate of kept) {
+    const t = candidate.t;
     const timeName = formatTimestamp(t);
     const file = `frames/cand-${timeName}.jpg`;
     extractThumb(absVideo, t, path.join(absOut, file));
-    kept.push({
-      t: Number(timeName),
-      file,
-      signature: sig,
-    });
+    candidate.t = Number(timeName);
+    candidate.file = file;
   }
 
-  const candidates = kept.map(({ signature: _signature, ...candidate }) => candidate);
+  const candidates = kept.map(({
+    signature: _signature,
+    source: _source,
+    rawT: _rawT,
+    biasedT: _biasedT,
+    ...candidate
+  }) => candidate);
   const out = {
     video: absVideo,
     duration_s: Number(formatTimestamp(duration)),
+    fps: Number(formatTimestamp(fps)),
     candidates,
   };
   const candidatesFile = path.join(absOut, 'candidates.json');
