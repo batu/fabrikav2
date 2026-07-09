@@ -11,8 +11,8 @@ left/right and hunt white doughboy ragdoll people painted to look like towels, s
 robes, and pool junk — visible but misread, never invisible. Tap (or spend limited
 paint-darts on) a suspect; on a hit the paint flakes off, the white body is exposed in
 the same silhouette, panics, ragdolls off its perch, and joins the collection bench.
-One level, 10 hides, win at 8. A session is one 3–8 minute sweep, replayable across 3
-visual directions and 3 interaction modes.
+Four levels of 10 hides each on a single-path saga, win at 8. A session is one 3–8
+minute sweep per level, replayable across 3 interaction modes.
 
 ## Feel
 Sunny, sneaky, deadpan-funny, print-crafted, punchy-on-find. Motion references: the
