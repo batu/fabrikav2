@@ -35,6 +35,16 @@ if [ "$SOURCE" = "startup" ]; then
     fi
   fi
 
+  # Orient any fresh session to its twf role (read-only, fail-soft). A cold
+  # agent that doesn't know twf exists is the one that hand-merges or skips
+  # stages; teach it at time zero.
+  if command -v twf >/dev/null 2>&1; then
+    ORIENT=$(timeout 5 twf orient --brief 2>/dev/null)
+    if [ -n "$ORIENT" ]; then
+      CONTEXT="$CONTEXT\n\n$ORIENT"
+    fi
+  fi
+
   jq -n --arg ctx "$CONTEXT" '{
     hookSpecificOutput: {
       hookEventName: "SessionStart",
