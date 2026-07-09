@@ -123,11 +123,20 @@ export function createGame({ name, repoRoot }) {
 
   const templateDir = join(repoRoot, 'games', TEMPLATE_NAME);
   const targetDir = join(repoRoot, 'games', name);
+  const archivedDir = join(repoRoot, 'archive', 'games', name);
   if (!existsSync(templateDir)) {
     throw new Error(`template not found at ${templateDir}`);
   }
   if (existsSync(targetDir)) {
     throw new Error(`games/${name} already exists — refusing to overwrite`);
+  }
+  // A slug living under archive/games is a deprecation tombstone: the game was
+  // deliberately retired (history + assets preserved). Recreating it as an active
+  // workspace would silently resurrect a deprecated game, so refuse by name.
+  if (existsSync(archivedDir)) {
+    throw new Error(
+      `"${name}" is archived at archive/games/${name} — it was deprecated; pick a different name instead of resurrecting it`,
+    );
   }
 
   cpSync(templateDir, targetDir, {
