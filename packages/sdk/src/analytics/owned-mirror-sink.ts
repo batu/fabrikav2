@@ -113,8 +113,8 @@ export function createOwnedMirrorSink(
 
   const queue: QueuedEvent[] = [];
   // The single in-flight drain owner, shared by every concurrent flush() caller.
-  // Its deferred promise settles only after a final queue check and synchronous
-  // ownership release, so work enqueued before the caller resumes cannot strand.
+  // Its deferred promise settles only after a closeout turn, final queue check,
+  // and synchronous ownership release, so drain-completion microtasks can join.
   let inFlight: FlushOwner | null = null;
 
   let enqueued = 0;
@@ -160,10 +160,14 @@ export function createOwnedMirrorSink(
       let stoppedForRetry: boolean;
       do {
         stoppedForRetry = await drain();
-        // `await drain()` creates the handoff where a synchronous emit can join
-        // an otherwise-empty pass. Check again under the same owner before it
-        // settles. A retryable failure deliberately leaves the queue for a
-        // later flush, so it must not spin here and hammer the backend.
+        if (!stoppedForRetry && queue.length === 0) {
+          // Keep ownership through one closeout turn so emitters already queued
+          // behind the drain continuation can join this pass. The queue check
+          // below then drains them before the owner settles.
+          await Promise.resolve();
+        }
+        // A retryable failure deliberately leaves the queue for a later flush,
+        // so it skips closeout and must not spin here against a down backend.
       } while (!stoppedForRetry && queue.length > 0);
 
       if (inFlight === owner) inFlight = null;

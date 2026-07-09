@@ -222,6 +222,32 @@ describe('createOwnedMirrorSink — concurrent flush', () => {
     expect(sink.stats().queueLength).toBe(0);
   });
 
+  it('drains an event emitted by queueMicrotask after an empty flush starts', async () => {
+    const transport = scriptedTransport([{ ok: true, status: 200 }]);
+    const sink = createOwnedMirrorSink(baseOptions(transport, { batchSize: 100 }));
+
+    const done = sink.flush();
+    queueMicrotask(() => sink.emit(event('joined-in-queued-microtask')));
+    await done;
+
+    expect(transport.calls).toHaveLength(1);
+    expect(sink.stats().sent).toBe(1);
+    expect(sink.stats().queueLength).toBe(0);
+  });
+
+  it('drains an event emitted by Promise.then after an empty flush starts', async () => {
+    const transport = scriptedTransport([{ ok: true, status: 200 }]);
+    const sink = createOwnedMirrorSink(baseOptions(transport, { batchSize: 100 }));
+
+    const done = sink.flush();
+    void Promise.resolve().then(() => sink.emit(event('joined-in-promise-reaction')));
+    await done;
+
+    expect(transport.calls).toHaveLength(1);
+    expect(sink.stats().sent).toBe(1);
+    expect(sink.stats().queueLength).toBe(0);
+  });
+
   it('stops after a retryable failure during the empty-flush handoff', async () => {
     const transport = scriptedTransport([
       { ok: false, status: 503 },
