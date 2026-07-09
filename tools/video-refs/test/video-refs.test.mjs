@@ -88,6 +88,23 @@ describe('video-refs CLI', () => {
     assert.match(html, /src="02_fixture\.mp4"/);
     assert.match(html, /INITIAL_MARKERS/);
     assert.doesNotMatch(html, /https?:\/\//i);
+    assert.match(html, /<div class="picker-layout">/);
+    assert.match(
+      html,
+      /<section class="video-pane" aria-label="video controls">[\s\S]*<video id="video"[\s\S]*<div class="status" id="status" role="status"><\/div>[\s\S]*<\/section>/,
+    );
+    assert.match(
+      html,
+      /<section class="candidate-pane" aria-label="candidate frames">\s*<div class="list" id="list"><\/div>\s*<\/section>/,
+    );
+    assert.match(
+      html,
+      /@media \(min-width: 900px\) \{[\s\S]*grid-template-columns: minmax\(360px, 45%\) minmax\(0, 1fr\);[\s\S]*position: sticky;[\s\S]*top: 0;[\s\S]*max-height: 100vh;/,
+    );
+    assert.match(
+      html,
+      /item\.addEventListener\('click', \(event\) => \{[\s\S]*target instanceof Element && target\.closest\('button'\)[\s\S]*seekTo\(marker\.t\);[\s\S]*\}\);/,
+    );
 
     const verdictPath = path.join(dir, 'verdict.json');
     fs.writeFileSync(verdictPath, JSON.stringify({
