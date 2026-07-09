@@ -85,10 +85,21 @@ export function createUiRoot(opts: CreateUiRootOptions): CreateUiRootResult {
   // mountInto, so a children scan finds it. Avoids a CSS `#${id}` selector,
   // which would throw on ids with CSS-special chars (and CSS.escape isn't
   // available in every DOM env, e.g. jsdom).
-  const existing = Array.from(opts.mountInto.children).find(
-    (child): child is HTMLElement => child instanceof HTMLElement && child.id === opts.id,
+  const matches = Array.from(opts.mountInto.children).filter(
+    (child) => child.getAttribute('id') === opts.id,
   );
+  if (matches.length > 1) {
+    throw new Error(
+      `createUiRoot id collision for "${opts.id}": cannot mount kind "${opts.kind}"; ambiguous ${matches.length} matching direct children.`,
+    );
+  }
+  const existing = matches[0];
   if (existing) {
+    if (!(existing instanceof HTMLElement)) {
+      throw new Error(
+        `createUiRoot id collision for "${opts.id}": cannot mount kind "${opts.kind}" over non-HTMLElement <${existing.localName}>.`,
+      );
+    }
     const record = MOUNTED.get(existing);
     if (!record) {
       throw new Error(
