@@ -144,6 +144,7 @@ export interface CameleonController {
   gotoMenu(): void;
   startLevel(id?: number): void;
   openSettings(): void;
+  closeSettings(): void;
   pause(): void;
   resume(): void;
   setViewport(viewport: CameleonViewport): void;
@@ -271,11 +272,21 @@ class CameleonStateController implements CameleonController {
   }
 
   openSettings(): void {
-    this.enterMenuFlow({ source: "settings" });
-    this.status = "idle";
-    this.inputReady = true;
+    if (this.scene !== FlowStates.Paused) {
+      this.enterMenuFlow({ source: "settings" });
+      this.status = "idle";
+    }
+    this.inputReady = this.scene !== FlowStates.Paused;
     this.settingsOpen = true;
     this.tourState = "settings";
+    this.notify();
+  }
+
+  closeSettings(): void {
+    if (!this.settingsOpen) return;
+    this.settingsOpen = false;
+    this.inputReady = this.scene !== FlowStates.Paused;
+    this.tourState = this.scene === FlowStates.Paused ? "pause" : "menu";
     this.notify();
   }
 

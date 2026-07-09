@@ -1,4 +1,18 @@
-import { copy } from "../../design/copy.ts";
+import {
+  mountHomeMenu,
+  mountModalShell,
+  mountPauseOverlay,
+  mountResultCard,
+  mountToaster,
+  mountToggleRows,
+  type LevelMapNode,
+  type ToasterHandle,
+  type UiHandle,
+} from "@fabrikav2/ui";
+
+import { copy, type CopyKey } from "../../design/copy.ts";
+import { assetUrls } from "../../design/theme.ts";
+import { gameConfig } from "../../game.config.ts";
 import type { CameleonSnapshot } from "../game/CameleonController.ts";
 import {
   CAMELEON_DIRECTIONS,
@@ -12,9 +26,13 @@ export interface CameleonScreenOptions {
   readonly onModeSelect?: (mode: CameleonPlayMode) => void;
   readonly onDirectionSelect?: (direction: CameleonDirection) => void;
   readonly onStart?: () => void;
+  readonly onContinue?: () => void;
+  readonly onRetry?: () => void;
   readonly onConfirmAim?: () => void;
   readonly onPause?: () => void;
   readonly onResume?: () => void;
+  readonly onQuitToMenu?: () => void;
+  readonly onSettingsOpen?: () => void;
   readonly onSettingsClose?: () => void;
 }
 
@@ -22,11 +40,66 @@ export interface CameleonScreen {
   readonly root: HTMLElement;
   readonly canvas: HTMLCanvasElement;
   refresh(snapshot: CameleonSnapshot): void;
+  showToast(message: string): void;
   destroy(): void;
 }
 
 const CANVAS_FALLBACK_WIDTH = 390;
 const CANVAS_FALLBACK_HEIGHT = 844;
+const PLAYABLE_LEVEL_ID = "lido";
+
+const CAMELEON_SAGA_LEVELS = [
+  { id: "lido", label: "1", name: "saga.level.lido" },
+  { id: "bathhouse", label: "2", name: "saga.level.bathhouse" },
+  { id: "waterpark", label: "3", name: "saga.level.waterpark" },
+  { id: "museum", label: "4", name: "saga.level.museum" },
+] as const satisfies readonly { readonly id: string; readonly label: string; readonly name: CopyKey }[];
+
+const MODE_COPY_KEYS = {
+  tap: "mode.tap",
+  shoot: "mode.shoot",
+  confirm: "mode.confirm",
+} as const satisfies Record<CameleonPlayMode, CopyKey>;
+
+const DIRECTION_COPY_KEYS = {
+  poster: "direction.poster",
+  riso: "direction.riso",
+  night: "direction.night",
+} as const satisfies Record<CameleonDirection, CopyKey>;
+
+type SurfaceKind = "home" | "settings" | "pause" | "win" | "fail";
+type CameleonSettingKey = "sfx" | "haptics";
+
+interface SurfaceMount {
+  key: string | null;
+  kind: SurfaceKind | null;
+  handle: UiHandle | null;
+  settingsControls: SettingsControls | null;
+}
+
+interface SettingsControls {
+  readonly modeButtons: ReadonlyMap<CameleonPlayMode, HTMLButtonElement>;
+  readonly directionButtons: ReadonlyMap<CameleonDirection, HTMLButtonElement>;
+  readonly toggles: UiHandle;
+  readonly toggleInputs: ReadonlyMap<CameleonSettingKey, HTMLInputElement>;
+}
+
+const DEFAULT_SETTINGS: Record<CameleonSettingKey, boolean> = {
+  sfx: true,
+  haptics: true,
+};
+
+export function buildCameleonSagaNodes(): LevelMapNode[] {
+  return CAMELEON_SAGA_LEVELS
+    .slice(0, gameConfig.saga.levels)
+    .map((level, index) => ({
+      id: level.id,
+      label: level.label,
+      name: copy[level.name],
+      state: index === 0 ? ("current" as const) : ("locked" as const),
+    }))
+    .reverse();
+}
 
 export function mountCameleonScreen(opts: CameleonScreenOptions): CameleonScreen {
   const root = document.createElement("main");
@@ -41,97 +114,21 @@ export function mountCameleonScreen(opts: CameleonScreenOptions): CameleonScreen
   const hud = document.createElement("section");
   hud.className = "cameleon-screen__hud";
 
-  const title = document.createElement("h1");
-  title.className = "cameleon-screen__title";
-  title.textContent = copy["hud.status"];
-
   const found = hudItem(copy["hud.found"]);
   const mode = hudItem(copy["hud.mode"]);
-  const direction = hudItem(copy["hud.dir"]);
-  const ammo = hudItem("Darts");
-  direction.root.classList.add("cameleon-screen__hud-item--direction");
+  const ammo = hudItem(copy["hud.darts"]);
   ammo.root.classList.add("cameleon-screen__hud-item--ammo");
-
-  const hint = document.createElement("button");
-  hint.className = "cameleon-screen__hint";
-  hint.type = "button";
-  hint.textContent = "?";
-  hint.setAttribute("aria-label", "Hint");
 
   const ammoRow = document.createElement("div");
   ammoRow.className = "cameleon-screen__ammo";
   ammo.root.appendChild(ammoRow);
 
-  const startMenu = document.createElement("section");
-  startMenu.className = "cameleon-screen__start";
-
-  const modeButtons = new Map<CameleonPlayMode, HTMLButtonElement>();
-  const modePicker = document.createElement("div");
-  modePicker.className = "cameleon-screen__mode-picker";
-  for (const playMode of CAMELEON_PLAY_MODES) {
-    const button = document.createElement("button");
-    button.className = "cameleon-screen__mode-button";
-    button.type = "button";
-    button.dataset.mode = playMode;
-    button.textContent = modeLabel(playMode);
-    button.addEventListener("click", () => opts.onModeSelect?.(playMode));
-    modeButtons.set(playMode, button);
-    modePicker.appendChild(button);
-  }
-
-  const directionButtons = new Map<CameleonDirection, HTMLButtonElement>();
-  const directionPicker = document.createElement("div");
-  directionPicker.className = "cameleon-screen__direction-picker";
-  for (const visualDirection of CAMELEON_DIRECTIONS) {
-    const button = document.createElement("button");
-    button.className = "cameleon-screen__direction-button";
-    button.type = "button";
-    button.dataset.direction = visualDirection;
-    button.textContent = directionLabel(visualDirection);
-    button.addEventListener("click", () => opts.onDirectionSelect?.(visualDirection));
-    directionButtons.set(visualDirection, button);
-    directionPicker.appendChild(button);
-  }
-
-  const playButton = document.createElement("button");
-  playButton.className = "cameleon-screen__play";
-  playButton.type = "button";
-  playButton.textContent = copy["menu.play"];
-  playButton.addEventListener("click", () => opts.onStart?.());
-  startMenu.append(modePicker, directionPicker, playButton);
-
   const pauseButton = document.createElement("button");
   pauseButton.className = "cameleon-screen__pause-button";
   pauseButton.type = "button";
-  pauseButton.setAttribute("aria-label", "Pause");
-  pauseButton.textContent = "II";
+  pauseButton.setAttribute("aria-label", copy["hud.pause"]);
+  pauseButton.textContent = copy["hud.pauseGlyph"];
   pauseButton.addEventListener("click", () => opts.onPause?.());
-
-  const pauseOverlay = document.createElement("section");
-  pauseOverlay.className = "cameleon-screen__overlay cameleon-screen__overlay--pause";
-  const pauseTitle = document.createElement("h2");
-  pauseTitle.textContent = "PAUSED";
-  const resumeButton = document.createElement("button");
-  resumeButton.className = "cameleon-screen__overlay-action";
-  resumeButton.type = "button";
-  resumeButton.textContent = "Resume";
-  resumeButton.addEventListener("click", () => opts.onResume?.());
-  pauseOverlay.append(pauseTitle, resumeButton);
-
-  const settingsOverlay = document.createElement("section");
-  settingsOverlay.className = "cameleon-screen__overlay cameleon-screen__overlay--settings cameleon-screen__overlay--sheet";
-  const settingsTitle = document.createElement("h2");
-  settingsTitle.textContent = "SETTINGS";
-  const settingsMode = document.createElement("p");
-  settingsMode.className = "cameleon-screen__overlay-line";
-  const settingsDirection = document.createElement("p");
-  settingsDirection.className = "cameleon-screen__overlay-line";
-  const settingsClose = document.createElement("button");
-  settingsClose.className = "cameleon-screen__overlay-action";
-  settingsClose.type = "button";
-  settingsClose.textContent = "Back";
-  settingsClose.addEventListener("click", () => opts.onSettingsClose?.());
-  settingsOverlay.append(settingsTitle, settingsMode, settingsDirection, settingsClose);
 
   const reticle = document.createElement("div");
   reticle.className = "cameleon-screen__reticle";
@@ -142,71 +139,71 @@ export function mountCameleonScreen(opts: CameleonScreenOptions): CameleonScreen
   const confirmButton = document.createElement("button");
   confirmButton.className = "cameleon-screen__confirm";
   confirmButton.type = "button";
-  confirmButton.textContent = "CONFIRM";
+  confirmButton.textContent = copy["action.confirm"];
   confirmButton.addEventListener("click", () => opts.onConfirmAim?.());
   confirmBar.appendChild(confirmButton);
 
   const bench = document.createElement("section");
   bench.className = "cameleon-screen__bench";
-  bench.setAttribute("aria-label", "Collection bench");
+  bench.setAttribute("aria-label", copy["bench.label"]);
   const benchSlots = Array.from({ length: 12 }, (_, index) => {
     const slot = document.createElement("span");
     slot.className = "cameleon-screen__bench-slot";
-    slot.setAttribute("aria-label", `Collection slot ${index + 1}`);
+    slot.setAttribute("aria-label", copy["bench.slot"].replace("{slot}", String(index + 1)));
     bench.appendChild(slot);
     return slot;
   });
 
-  const result = document.createElement("section");
-  result.className = "cameleon-screen__result";
-  const resultStamp = document.createElement("strong");
-  resultStamp.className = "cameleon-screen__result-stamp";
-  const resultCount = document.createElement("p");
-  resultCount.className = "cameleon-screen__result-count";
-  result.append(resultStamp, resultCount);
-
-  hud.append(title, found.root, mode.root, direction.root, ammo.root, hint, pauseButton);
-  root.append(canvas, hud, startMenu, reticle, confirmBar, bench, result, pauseOverlay, settingsOverlay);
+  hud.append(found.root, mode.root, ammo.root, pauseButton);
+  root.append(canvas, hud, reticle, confirmBar, bench);
   opts.mountInto.appendChild(root);
 
-  return {
+  const toaster = mountToaster({
+    mountInto: root,
+    className: "cameleon-screen__toaster",
+  });
+  const preferences = { ...DEFAULT_SETTINGS };
+  const surface: SurfaceMount = {
+    key: null,
+    kind: null,
+    handle: null,
+    settingsControls: null,
+  };
+
+  const screen: CameleonScreen = {
     root,
     canvas,
     refresh(snapshot: CameleonSnapshot): void {
       root.dataset.state = snapshot.scene;
       root.dataset.mode = snapshot.mode;
       root.dataset.inputReady = String(snapshot.inputReady);
+      root.dataset.surface = targetSurfaceKey(snapshot) ?? "";
       found.value.textContent = copy["hud.foundValue"]
         .replace("{found}", String(snapshot.foundCount))
         .replace("{total}", String(snapshot.hides.length));
       mode.value.textContent = modeLabel(snapshot.mode);
-      direction.value.textContent = snapshot.dir.toUpperCase();
-      ammo.value.textContent = snapshot.ammo === null ? "-" : `${snapshot.ammo}/${snapshot.maxAmmo ?? snapshot.ammo}`;
+      ammo.value.textContent = ammoLabel(snapshot);
       renderAmmo(ammoRow, snapshot);
-      ammo.root.hidden = snapshot.maxAmmo === null;
-      hint.dataset.dimmed = String(snapshot.tapMissMockery);
-      startMenu.hidden = snapshot.scene !== "menu" || snapshot.settingsOpen;
+      hud.hidden = snapshot.scene !== "playing" && snapshot.scene !== "paused";
       pauseButton.hidden = snapshot.scene !== "playing";
-      pauseOverlay.hidden = snapshot.scene !== "paused";
-      settingsOverlay.hidden = !snapshot.settingsOpen;
-      settingsMode.textContent = `Mode: ${modeLabel(snapshot.mode)}`;
-      settingsDirection.textContent = `Direction: ${directionLabel(snapshot.dir)}`;
       confirmBar.hidden = snapshot.scene !== "playing" || snapshot.mode !== "confirm";
       confirmButton.disabled = snapshot.scene !== "playing" || snapshot.mode !== "confirm" || !snapshot.aim?.armed;
       renderReticle(root, reticle, snapshot);
       renderBench(benchSlots, snapshot);
-      renderResult(result, snapshot);
-      for (const [playMode, button] of modeButtons) {
-        button.setAttribute("aria-pressed", String(playMode === snapshot.mode));
-      }
-      for (const [visualDirection, button] of directionButtons) {
-        button.setAttribute("aria-pressed", String(visualDirection === snapshot.dir));
-      }
+      bench.hidden = snapshot.scene !== "playing" && snapshot.scene !== "paused";
+      reconcileSurface(root, snapshot, surface, preferences, opts, toaster);
+    },
+    showToast(message: string): void {
+      toaster.show(message);
     },
     destroy(): void {
+      clearSurface(surface);
+      toaster.dismiss();
       root.remove();
     },
   };
+
+  return screen;
 }
 
 interface HudItem {
@@ -229,26 +226,321 @@ function hudItem(labelText: string): HudItem {
   return { root, value };
 }
 
-function directionLabel(direction: CameleonDirection): string {
-  switch (direction) {
-    case "poster":
-      return "Poster";
-    case "riso":
-      return "Riso";
-    case "night":
-      return "Night";
+function targetSurfaceKey(snapshot: CameleonSnapshot): string | null {
+  if (snapshot.settingsOpen) return "settings";
+  if (snapshot.scene === "menu") return "home";
+  if (snapshot.scene === "paused") return "pause";
+  if (snapshot.scene === "complete") return snapshot.spotless ? "win:spotless" : "win";
+  if (snapshot.scene === "failed") return "fail";
+  return null;
+}
+
+function surfaceKind(key: string): SurfaceKind {
+  if (key.startsWith("win")) return "win";
+  if (key === "fail") return "fail";
+  if (key === "settings") return "settings";
+  if (key === "pause") return "pause";
+  return "home";
+}
+
+function reconcileSurface(
+  mountInto: HTMLElement,
+  snapshot: CameleonSnapshot,
+  surface: SurfaceMount,
+  preferences: Record<CameleonSettingKey, boolean>,
+  opts: CameleonScreenOptions,
+  toaster: ToasterHandle,
+): void {
+  const nextKey = targetSurfaceKey(snapshot);
+  if (surface.key !== nextKey) {
+    clearSurface(surface);
+    if (nextKey !== null) mountSurface(mountInto, nextKey, snapshot, surface, preferences, opts, toaster);
+  }
+  if (surface.kind === "settings" && surface.settingsControls) {
+    updateSettingsControls(surface.settingsControls, snapshot, preferences);
   }
 }
 
-function modeLabel(mode: CameleonPlayMode): string {
-  switch (mode) {
-    case "tap":
-      return "Tap";
-    case "shoot":
-      return "Shoot";
-    case "confirm":
-      return "Confirm";
+function mountSurface(
+  mountInto: HTMLElement,
+  key: string,
+  snapshot: CameleonSnapshot,
+  surface: SurfaceMount,
+  preferences: Record<CameleonSettingKey, boolean>,
+  opts: CameleonScreenOptions,
+  toaster: ToasterHandle,
+): void {
+  surface.key = key;
+  surface.kind = surfaceKind(key);
+  switch (surface.kind) {
+    case "home":
+      surface.handle = mountHomeSurface(mountInto, opts, toaster);
+      return;
+    case "settings": {
+      const mounted = mountSettingsSurface(mountInto, snapshot, preferences, opts, toaster);
+      surface.handle = mounted.handle;
+      surface.settingsControls = mounted.controls;
+      return;
+    }
+    case "pause":
+      surface.handle = mountPauseSurface(mountInto, opts);
+      return;
+    case "win":
+      surface.handle = mountResultSurface(mountInto, "win", snapshot, opts);
+      return;
+    case "fail":
+      surface.handle = mountResultSurface(mountInto, "fail", snapshot, opts);
+      return;
   }
+}
+
+function clearSurface(surface: SurfaceMount): void {
+  const handle = surface.handle;
+  const controls = surface.settingsControls;
+  surface.key = null;
+  surface.kind = null;
+  surface.handle = null;
+  surface.settingsControls = null;
+  controls?.toggles.dismiss();
+  handle?.dismiss();
+}
+
+function mountHomeSurface(mountInto: HTMLElement, opts: CameleonScreenOptions, toaster: ToasterHandle): UiHandle {
+  const header = document.createElement("header");
+  header.className = "cameleon-screen__menu-header";
+  const title = document.createElement("h1");
+  title.className = "cameleon-screen__menu-title";
+  title.textContent = copy["game.title"];
+  header.appendChild(title);
+
+  return mountHomeMenu({
+    mountInto,
+    header,
+    saga: {
+      state: { nodes: buildCameleonSagaNodes() },
+      actions: {
+        onSelectLevel: (id) => {
+          if (id === PLAYABLE_LEVEL_ID) {
+            opts.onStart?.();
+            return;
+          }
+          toaster.show(copy["toast.locked"]);
+        },
+      },
+      loadingLabel: copy["saga.loading"],
+    },
+    actions: [
+      {
+        label: copy["menu.play"],
+        spriteImage: assetUrls.buttonPrimary,
+        className: "cameleon-screen__menu-action cameleon-screen__play",
+        dataAction: "play",
+        onClick: () => opts.onStart?.(),
+      },
+      {
+        label: copy["menu.settings"],
+        spriteImage: assetUrls.buttonSecondary,
+        className: "cameleon-screen__menu-action cameleon-screen__settings-open",
+        dataAction: "settings",
+        onClick: () => opts.onSettingsOpen?.(),
+      },
+    ],
+    id: "cameleon-home-menu",
+  });
+}
+
+function mountSettingsSurface(
+  mountInto: HTMLElement,
+  snapshot: CameleonSnapshot,
+  preferences: Record<CameleonSettingKey, boolean>,
+  opts: CameleonScreenOptions,
+  toaster: ToasterHandle,
+): { readonly handle: UiHandle; readonly controls: SettingsControls } {
+  const body = document.createElement("div");
+  body.className = "cameleon-screen__settings-body";
+
+  const modeSection = pickerSection(copy["settings.mode"]);
+  const modeButtons = new Map<CameleonPlayMode, HTMLButtonElement>();
+  for (const playMode of CAMELEON_PLAY_MODES) {
+    const button = pickerButton(modeLabel(playMode), "mode", playMode);
+    button.addEventListener("click", () => opts.onModeSelect?.(playMode));
+    modeButtons.set(playMode, button);
+    modeSection.options.appendChild(button);
+  }
+
+  const directionSection = pickerSection(copy["settings.direction"]);
+  const directionButtons = new Map<CameleonDirection, HTMLButtonElement>();
+  for (const visualDirection of CAMELEON_DIRECTIONS) {
+    const button = pickerButton(directionLabel(visualDirection), "direction", visualDirection);
+    button.addEventListener("click", () => opts.onDirectionSelect?.(visualDirection));
+    directionButtons.set(visualDirection, button);
+    directionSection.options.appendChild(button);
+  }
+
+  const togglesSection = document.createElement("div");
+  togglesSection.className = "cameleon-screen__settings-toggles";
+  const toggles = mountToggleRows({
+    mountInto: togglesSection,
+    rows: [
+      { key: "sfx", label: copy["settings.sfx"], value: preferences.sfx },
+      { key: "haptics", label: copy["settings.haptics"], value: preferences.haptics },
+    ],
+    onToggle: (key, next) => {
+      if (key !== "sfx" && key !== "haptics") return;
+      preferences[key] = next;
+      toaster.show(next ? copy["toast.enabled"] : copy["toast.disabled"]);
+    },
+    id: "cameleon-settings-toggles",
+  });
+  const toggleInputs = new Map<CameleonSettingKey, HTMLInputElement>();
+  for (const key of ["sfx", "haptics"] as const) {
+    const input = toggles.el.querySelector<HTMLInputElement>(`.fab-toggle-row[data-fab-toggle-key="${key}"] input`);
+    if (input) toggleInputs.set(key, input);
+  }
+
+  body.append(modeSection.root, directionSection.root, togglesSection);
+  const handle = mountModalShell({
+    mountInto,
+    ribbon: {
+      title: copy["settings.title"],
+      image: assetUrls.ribbonNeutral,
+    },
+    closeButton: {
+      label: copy["settings.closeGlyph"],
+      ariaLabel: copy["settings.close"],
+      dataAction: "settings-close",
+      className: "cameleon-screen__modal-close",
+    },
+    body,
+    backdropDismiss: true,
+    cardClassName: "cameleon-screen__modal-card cameleon-screen__settings-card",
+    cardImage: assetUrls.popup,
+    onDismiss: () => opts.onSettingsClose?.(),
+    id: "cameleon-settings",
+  });
+  const controls = { modeButtons, directionButtons, toggles, toggleInputs };
+  updateSettingsControls(controls, snapshot, preferences);
+  return { handle, controls };
+}
+
+function pickerSection(labelText: string): { readonly root: HTMLElement; readonly options: HTMLElement } {
+  const root = document.createElement("section");
+  root.className = "cameleon-screen__settings-section";
+  const label = document.createElement("h3");
+  label.className = "cameleon-screen__settings-label";
+  label.textContent = labelText;
+  const options = document.createElement("div");
+  options.className = "cameleon-screen__settings-options";
+  root.append(label, options);
+  return { root, options };
+}
+
+function pickerButton(label: string, kind: "mode" | "direction", value: string): HTMLButtonElement {
+  const button = document.createElement("button");
+  button.className = `cameleon-screen__picker-button cameleon-screen__${kind}-button`;
+  button.type = "button";
+  button.textContent = label;
+  button.dataset[kind] = value;
+  return button;
+}
+
+function updateSettingsControls(
+  controls: SettingsControls,
+  snapshot: CameleonSnapshot,
+  preferences: Record<CameleonSettingKey, boolean>,
+): void {
+  for (const [playMode, button] of controls.modeButtons) {
+    button.setAttribute("aria-pressed", String(playMode === snapshot.mode));
+  }
+  for (const [visualDirection, button] of controls.directionButtons) {
+    button.setAttribute("aria-pressed", String(visualDirection === snapshot.dir));
+  }
+  for (const [key, input] of controls.toggleInputs) {
+    input.checked = preferences[key];
+  }
+}
+
+function mountPauseSurface(mountInto: HTMLElement, opts: CameleonScreenOptions): UiHandle {
+  return mountPauseOverlay({
+    mountInto,
+    actions: {
+      onResume: () => opts.onResume?.(),
+      onSettings: () => opts.onSettingsOpen?.(),
+      onQuit: () => opts.onQuitToMenu?.(),
+    },
+    labels: {
+      title: copy["pause.title"],
+      resume: copy["pause.resume"],
+      settings: copy["pause.settings"],
+      quit: copy["pause.quit"],
+    },
+    id: "cameleon-pause",
+  });
+}
+
+function mountResultSurface(
+  mountInto: HTMLElement,
+  kind: "win" | "fail",
+  snapshot: CameleonSnapshot,
+  opts: CameleonScreenOptions,
+): UiHandle {
+  const isWin = kind === "win";
+  const title = isWin
+    ? snapshot.spotless
+      ? copy["result.spotless"]
+      : copy["result.win"]
+    : copy["result.fail"];
+  return mountResultCard({
+    mountInto,
+    variant: isWin ? "win" : "lose",
+    title,
+    eyebrow: copy["result.level"].replace("{level}", snapshot.levelId.toUpperCase()),
+    ribbonImage: isWin ? assetUrls.ribbonWin : assetUrls.ribbonFail,
+    cardImage: assetUrls.popup,
+    messages: isWin ? undefined : formatFoundCount(snapshot),
+    rewardDisplay: isWin ? resultCountNode(snapshot) : undefined,
+    actions: [
+      {
+        label: isWin ? copy["result.continue"] : copy["result.retry"],
+        spriteImage: assetUrls.buttonPrimary,
+        className: "cameleon-screen__result-action",
+        dataAction: isWin ? "result-continue" : "result-retry",
+        onClick: () => {
+          if (isWin) opts.onContinue?.();
+          else opts.onRetry?.();
+        },
+      },
+    ],
+    id: isWin ? "cameleon-result-win" : "cameleon-result-fail",
+  });
+}
+
+function resultCountNode(snapshot: CameleonSnapshot): HTMLElement {
+  const node = document.createElement("strong");
+  node.className = "cameleon-screen__result-count";
+  node.textContent = formatFoundCount(snapshot);
+  return node;
+}
+
+function modeLabel(mode: CameleonPlayMode): string {
+  return copy[MODE_COPY_KEYS[mode]];
+}
+
+function directionLabel(direction: CameleonDirection): string {
+  return copy[DIRECTION_COPY_KEYS[direction]];
+}
+
+function ammoLabel(snapshot: CameleonSnapshot): string {
+  if (snapshot.maxAmmo === null) return copy["hud.dartsFree"];
+  return copy["hud.dartsValue"]
+    .replace("{ammo}", String(snapshot.ammo ?? 0))
+    .replace("{max}", String(snapshot.maxAmmo));
+}
+
+function formatFoundCount(snapshot: CameleonSnapshot): string {
+  return copy["result.count"]
+    .replace("{found}", String(snapshot.foundCount))
+    .replace("{total}", String(snapshot.hides.length));
 }
 
 function renderAmmo(row: HTMLElement, snapshot: CameleonSnapshot): void {
@@ -288,27 +580,11 @@ function renderBench(slots: readonly HTMLElement[], snapshot: CameleonSnapshot):
     const hide = snapshot.hides[index];
     const found = hide?.phase === "found";
     slot.dataset.found = String(found);
-    slot.setAttribute("aria-label", found ? `Collected ${hide.id}` : `Collection slot ${index + 1}`);
+    slot.setAttribute(
+      "aria-label",
+      found && hide
+        ? copy["bench.collected"].replace("{id}", hide.id)
+        : copy["bench.slot"].replace("{slot}", String(index + 1)),
+    );
   });
-}
-
-function renderResult(result: HTMLElement, snapshot: CameleonSnapshot): void {
-  const stamp = result.querySelector(".cameleon-screen__result-stamp");
-  const count = result.querySelector(".cameleon-screen__result-count");
-  if (snapshot.scene === "complete") {
-    result.hidden = false;
-    if (stamp) stamp.textContent = snapshot.spotless ? copy["result.spotless"] : copy["result.win"];
-    if (count) count.textContent = `${snapshot.foundCount}/${snapshot.hides.length} exposed`;
-    result.dataset.outcome = snapshot.spotless ? "spotless" : "win";
-    return;
-  }
-  if (snapshot.scene === "failed") {
-    result.hidden = false;
-    if (stamp) stamp.textContent = copy["result.fail"];
-    if (count) count.textContent = `${snapshot.foundCount}/${snapshot.hides.length} exposed`;
-    result.dataset.outcome = "fail";
-    return;
-  }
-  result.hidden = true;
-  delete result.dataset.outcome;
 }

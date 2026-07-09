@@ -23,11 +23,15 @@ describe("Cameleon smoke", () => {
       dir: "night",
       mode: "confirm",
     });
+    expect(app.querySelector(".fab-home-menu")).not.toBeNull();
+    expect(app.querySelectorAll(".fab-levelmap-node")).toHaveLength(4);
+    app.querySelector<HTMLButtonElement>(".cameleon-screen__settings-open")?.click();
     expect(app.querySelector<HTMLButtonElement>(".cameleon-screen__mode-button[data-mode='confirm']")?.getAttribute("aria-pressed")).toBe("true");
     expect(app.querySelector<HTMLButtonElement>(".cameleon-screen__direction-button[data-direction='night']")?.getAttribute("aria-pressed")).toBe("true");
     app.querySelector<HTMLButtonElement>(".cameleon-screen__direction-button[data-direction='riso']")?.click();
     expect(boot.controller.snapshot().dir).toBe("riso");
     expect(app.querySelectorAll(".cameleon-screen__bench-slot")).toHaveLength(12);
+    app.querySelector<HTMLButtonElement>(".cameleon-screen__modal-close")?.click();
 
     app.querySelector<HTMLButtonElement>(".cameleon-screen__play")?.click();
     expect(boot.controller.snapshot()).toMatchObject({
@@ -45,6 +49,14 @@ describe("Cameleon smoke", () => {
       ammo: 14,
       feedback: expect.objectContaining({ kind: "miss" }),
     });
+
+    app.querySelector<HTMLButtonElement>(".cameleon-screen__pause-button")?.click();
+    expect(app.querySelector("#cameleon-pause .fab-pause-card")).not.toBeNull();
+    app.querySelector<HTMLButtonElement>("[data-fab-action='pause-resume']")?.click();
+    expect(boot.controller.snapshot().scene).toBe("playing");
+
+    await boot.controller.winLevel();
+    expect(app.querySelector("#cameleon-result-win .fab-result-card")).not.toBeNull();
 
     boot.destroy();
   });

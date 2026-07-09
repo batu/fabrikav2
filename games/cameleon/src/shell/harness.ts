@@ -18,7 +18,7 @@ import {
   type CameleonSnapshot,
   type CameleonTourState,
 } from "../game/CameleonController.ts";
-import type { CameleonScreen } from "./CameleonScreen.ts";
+import { buildCameleonSagaNodes, type CameleonScreen } from "./CameleonScreen.ts";
 
 export type CameleonVerb = "scrollTo" | "tapWorld" | "revealHide" | "winLevel" | "failLevel" | "driveTo";
 
@@ -84,10 +84,14 @@ export function createCameleonHarness(options: CameleonHarnessOptions): Cameleon
       if (!states.includes(state as (typeof states)[number])) {
         throw new Error(`gotoState: "${state}" is not a declared Cameleon screen.`);
       }
-      if (state === "menu") controller.gotoMenu();
-      if (state === "game") controller.startLevel(1);
-      if (state === "win") void controller.winLevel();
-      if (state === "fail") void controller.failLevel();
+      if (state === "HomeMenu" || state === "SagaMap") controller.gotoMenu();
+      if (state === "Settings") controller.openSettings();
+      if (state === "PauseOverlay") {
+        controller.startLevel(1);
+        controller.pause();
+      }
+      if (state === "ResultCard") void controller.winLevel();
+      if (state === "Toast") options.screen.showToast("Toast");
     },
     startLevel(id = 1): void {
       controller.startLevel(id);
@@ -95,8 +99,8 @@ export function createCameleonHarness(options: CameleonHarnessOptions): Cameleon
     snapshot(): CameleonSnapshot {
       return controller.snapshot();
     },
-    sagaNodes(): readonly number[] {
-      return [1];
+    sagaNodes(): readonly (string | number)[] {
+      return buildCameleonSagaNodes().map((node) => node.id);
     },
     unlockAll(): void {},
     grantCoins(amount: number): void {
