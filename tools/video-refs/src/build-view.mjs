@@ -2,7 +2,9 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { formatTimestamp } from './time.mjs';
 
-const LABELS = ['menu', 'level', 'settings', 'pause', 'win', 'fail', 'gameplay', 'other'];
+const DEFAULT_LABELS = ['menu', 'level', 'settings', 'pause', 'win', 'fail', 'gameplay', 'other'];
+const LABEL_TOKEN_RE = /^[a-z][a-z0-9_-]*$/;
+const NOT_AT_REST_REASON = 'human-flagged mid-motion';
 
 function escapeHtml(value) {
   return String(value)
@@ -17,11 +19,45 @@ function safeJsonForScript(value) {
   return JSON.stringify(value).replaceAll('<', '\\u003c');
 }
 
-function readCandidates(candidatesFile, videoSrc) {
+function normalizeLabels(value, source) {
+  const rawLabels = Array.isArray(value) ? value : String(value).split(',');
+  const labels = rawLabels.map((label, index) => {
+    if (typeof label !== 'string') throw new Error(`${source} label ${index + 1} must be a string`);
+    const trimmed = label.trim();
+    if (!LABEL_TOKEN_RE.test(trimmed)) {
+      throw new Error(`${source} label "${trimmed}" must match ${LABEL_TOKEN_RE}`);
+    }
+    return trimmed;
+  });
+  if (!labels.length) throw new Error(`${source} must contain at least one label`);
+  const seen = new Set();
+  for (const label of labels) {
+    if (seen.has(label)) throw new Error(`${source} contains duplicate label "${label}"`);
+    seen.add(label);
+  }
+  return labels;
+}
+
+function resolveLabels(labelInput, candidateLabels) {
+  if (labelInput !== undefined) return normalizeLabels(labelInput, '--labels');
+  if (candidateLabels !== undefined) return normalizeLabels(candidateLabels, 'candidates.json labels');
+  return DEFAULT_LABELS.slice();
+}
+
+function normalizeAtRest(candidate, index) {
+  if (!Object.hasOwn(candidate, 'atRest')) return false;
+  if (typeof candidate.atRest !== 'boolean') {
+    throw new Error(`candidate ${index} atRest must be a boolean`);
+  }
+  return candidate.atRest;
+}
+
+function readCandidates(candidatesFile, videoSrc, labelInput) {
   const abs = path.resolve(candidatesFile);
   const baseDir = path.dirname(abs);
   const data = JSON.parse(fs.readFileSync(abs, 'utf8'));
   if (!Array.isArray(data.candidates)) throw new Error('candidates.json must contain a candidates array');
+  const labels = resolveLabels(labelInput, data.labels);
 
   const fps = Number.isFinite(data.fps) && data.fps > 0 ? data.fps : null;
 
@@ -34,7 +70,8 @@ function readCandidates(candidatesFile, videoSrc) {
       id: `agent-${index + 1}`,
       // Preserve producer time exactly (millisecond precision) so seeks land frame-exact.
       t: Number(formatTimestamp(candidate.t)),
-      label: LABELS.includes(candidate.label) ? candidate.label : 'gameplay',
+      label: labels.includes(candidate.label) ? candidate.label : labels[0],
+      atRest: normalizeAtRest(candidate, index),
       source: 'agent',
       keep: true,
       thumb: `data:image/jpeg;base64,${buffer.toString('base64')}`,
@@ -45,6 +82,7 @@ function readCandidates(candidatesFile, videoSrc) {
     videoSrc,
     fps,
     duration: Number.isFinite(data.duration_s) ? data.duration_s : 0,
+    labels,
     markers,
   };
 }
@@ -279,6 +317,17 @@ function buildHtml(model) {
       background: var(--amber); color: #201603;
     }
     .inspector.is-dropped .lab { background: var(--panel-3); color: var(--muted); }
+    .inspector .info .rest-state {
+      align-self: start;
+      font: 700 10px/1 var(--sans); letter-spacing: 0.4px;
+      padding: 4px 8px; border-radius: 7px;
+      background: rgba(255,85,115,0.12); color: var(--red);
+      border: 1px solid rgba(255,85,115,0.42);
+    }
+    .inspector .info .rest-state.is-rest {
+      background: rgba(52,211,180,0.13); color: var(--teal);
+      border-color: rgba(52,211,180,0.42);
+    }
 
     /* shortcuts legend */
     .legend {
@@ -425,6 +474,17 @@ function buildHtml(model) {
       background: transparent; color: var(--red);
       border-color: rgba(255,85,115,0.55);
     }
+    .restbtn {
+      display: inline-flex; align-items: center; gap: 5px;
+      min-height: 28px; padding: 0 9px;
+      border-radius: 8px; border: 1px solid rgba(255,85,115,0.38);
+      font: 750 11px/1 var(--sans); letter-spacing: 0.2px;
+      background: rgba(255,85,115,0.10); color: var(--red);
+    }
+    .restbtn.is-rest {
+      border-color: rgba(52,211,180,0.42);
+      background: rgba(52,211,180,0.12); color: var(--teal);
+    }
 
     .chips {
       display: flex; flex-wrap: wrap; gap: 6px;
@@ -435,7 +495,7 @@ function buildHtml(model) {
       border: 1px solid var(--line);
       background: transparent; color: var(--muted);
       font: 650 10.5px/1 var(--sans); letter-spacing: 0.2px;
-      text-transform: capitalize;
+      text-transform: none;
       transition: background .1s ease, color .1s ease, border-color .1s ease;
     }
     .chip .k { font: 700 9px/1 var(--mono); color: var(--muted-2); margin-right: 4px; }
@@ -445,6 +505,13 @@ function buildHtml(model) {
     }
     .chip.active .k { color: #4a3708; }
     .cand.dropped .chips { opacity: 0.5; }
+    .add-label {
+      min-height: 30px; padding: 0 11px;
+      border-radius: 8px; border: 1px solid var(--line);
+      background: var(--panel-2); color: var(--text);
+      font: 700 12px/1 var(--sans);
+    }
+    .add-label:hover { background: var(--panel-3); border-color: #3a4152; }
 
     /* ---------- submit bar ---------- */
     .submitbar {
@@ -503,7 +570,7 @@ function buildHtml(model) {
         <span class="grp"><kbd>Space</kbd> play</span>
         <span class="grp"><kbd>J</kbd><kbd>K</kbd> walk</span>
         <span class="grp"><kbd>X</kbd> keep / drop</span>
-        <span class="grp"><kbd>1</kbd>–<kbd>8</kbd> label</span>
+        <span class="grp"><span class="keys" id="label-hint-keys"></span> label</span>
       </nav>
     </header>
 
@@ -526,6 +593,7 @@ function buildHtml(model) {
             <div class="lead">Focused candidate</div>
             <div class="headline" id="insp-head">—</div>
             <div class="lab" id="insp-lab">—</div>
+            <div class="rest-state" id="insp-rest">—</div>
           </div>
         </div>
         <div class="legend">
@@ -533,13 +601,14 @@ function buildHtml(model) {
           <div class="row"><span class="keys"><kbd>Space</kbd></span> play / pause</div>
           <div class="row"><span class="keys"><kbd>J</kbd><kbd>K</kbd></span> prev / next frame</div>
           <div class="row"><span class="keys"><kbd>X</kbd></span> keep / drop focused</div>
-          <div class="row"><span class="keys"><kbd>1</kbd>…<kbd>8</kbd></span> assign label</div>
+          <div class="row"><span class="keys" id="legend-label-keys"></span> assign label</div>
         </div>
       </section>
 
       <section class="rail-shell" aria-label="candidate frames">
         <div class="rail-head">
           <div class="rail-title">Candidates <span class="n" id="rail-n"></span></div>
+          <button class="add-label" id="add-label" type="button">+ label</button>
           <div class="summary" id="summary"></div>
         </div>
         <div class="rail" id="rail"></div>
@@ -553,7 +622,9 @@ function buildHtml(model) {
 
   <script>
     var MODEL = ${json};
-    var LABELS = ${safeJsonForScript(LABELS)};
+    var LABELS = MODEL.labels.slice();
+    var LABEL_RE = ${LABEL_TOKEN_RE.toString()};
+    var NOT_AT_REST_REASON = ${safeJsonForScript(NOT_AT_REST_REASON)};
     var FPS = MODEL.fps || null;
 
     var video = document.getElementById('video');
@@ -567,7 +638,10 @@ function buildHtml(model) {
     var inspThumb = document.getElementById('insp-thumb');
     var inspHead = document.getElementById('insp-head');
     var inspLab = document.getElementById('insp-lab');
+    var inspRest = document.getElementById('insp-rest');
     var inspector = document.getElementById('inspector');
+    var labelHintKeys = document.getElementById('label-hint-keys');
+    var legendLabelKeys = document.getElementById('legend-label-keys');
 
     var state = {
       markers: MODEL.markers.map(function (m) { return Object.assign({}, m); }),
@@ -603,6 +677,9 @@ function buildHtml(model) {
     function setStatus(text, kind) {
       statusEl.textContent = text;
       statusEl.className = 'status' + (kind ? ' ' + kind : '');
+    }
+    function validateLabel(label) {
+      return LABEL_RE.test(label);
     }
 
     // Frame-exact seek: assign the producer time verbatim, clamped to media bounds. No offsets.
@@ -641,9 +718,32 @@ function buildHtml(model) {
       if (state.confirming) resetConfirm();
       render(false);
     }
-    function assignLabel(m, label) {
-      m.label = label;
+    function toggleAtRest(m) {
+      m.atRest = !m.atRest;
+      if (state.confirming) resetConfirm();
       render(false);
+    }
+    function assignLabel(m, label) {
+      if (m.label === label) return;
+      m.label = label;
+      if (state.confirming) resetConfirm();
+      render(false);
+    }
+    function addLabel(rawLabel) {
+      var label = String(rawLabel || '').trim();
+      if (!validateLabel(label)) {
+        setStatus('Label must match /^[a-z][a-z0-9_-]*$/.', 'error');
+        return null;
+      }
+      if (LABELS.indexOf(label) !== -1) {
+        setStatus('Label "' + label + '" already exists.', 'warn');
+        return null;
+      }
+      LABELS.push(label);
+      if (state.confirming) resetConfirm();
+      setStatus('Added label "' + label + '".');
+      render(false);
+      return label;
     }
 
     /* ---------- rendering ---------- */
@@ -695,9 +795,13 @@ function buildHtml(model) {
         var c = document.createElement('button');
         c.type = 'button';
         c.className = 'chip' + (m.label === label ? ' active' : '');
-        c.innerHTML = '<span class="k">' + (i + 1) + '</span>' + label;
+        var key = document.createElement('span');
+        key.className = 'k';
+        key.textContent = shortcutKeyForIndex(i) || '';
+        c.appendChild(key);
+        c.appendChild(document.createTextNode(label));
         c.setAttribute('aria-pressed', m.label === label ? 'true' : 'false');
-        c.title = 'Label: ' + label + '  (' + (i + 1) + ')';
+        c.title = 'Label: ' + label + (shortcutKeyForIndex(i) ? '  (' + shortcutKeyForIndex(i) + ')' : '');
         c.addEventListener('click', function (e) {
           e.stopPropagation();
           assignLabel(m, label);
@@ -749,6 +853,14 @@ function buildHtml(model) {
       srcTag.className = 'src-tag';
       srcTag.textContent = 'manual';
       top.appendChild(srcTag);
+      var atRest = document.createElement('button');
+      atRest.type = 'button';
+      atRest.className = 'restbtn' + (m.atRest ? ' is-rest' : '');
+      atRest.textContent = m.atRest ? 'At rest' : 'Moving';
+      atRest.setAttribute('aria-pressed', m.atRest ? 'true' : 'false');
+      atRest.title = m.atRest ? 'Marked at rest — click to mark moving' : 'Marked moving — click to mark at rest';
+      atRest.addEventListener('click', function (e) { e.stopPropagation(); toggleAtRest(m); });
+      top.appendChild(atRest);
       var keep = document.createElement('button');
       keep.type = 'button';
       keep.className = 'keepbtn';
@@ -793,7 +905,14 @@ function buildHtml(model) {
         var n = counts[l];
         var chip = document.createElement('span');
         chip.className = 'lab-count' + (n === 0 ? ' zero' : '');
-        chip.innerHTML = '<span class="dot"></span>' + l + ' <b>' + n + '</b>';
+        var dot = document.createElement('span');
+        dot.className = 'dot';
+        var label = document.createTextNode(l + ' ');
+        var count = document.createElement('b');
+        count.textContent = n;
+        chip.appendChild(dot);
+        chip.appendChild(label);
+        chip.appendChild(count);
         summaryEl.appendChild(chip);
       });
     }
@@ -801,11 +920,42 @@ function buildHtml(model) {
     function renderInspector() {
       var m = focusedMarker();
       inspector.classList.toggle('is-dropped', !!m && !m.keep);
-      if (!m) { inspHead.textContent = '—'; inspLab.textContent = '—'; inspThumb.removeAttribute('src'); return; }
+      if (!m) {
+        inspHead.textContent = '—';
+        inspLab.textContent = '—';
+        inspRest.textContent = '—';
+        inspRest.classList.remove('is-rest');
+        inspThumb.removeAttribute('src');
+        return;
+      }
       if (m.thumb) { inspThumb.src = m.thumb; } else { inspThumb.removeAttribute('src'); }
       var fr = frameNo(m.t);
       inspHead.textContent = clockAt(m.t) + (fr != null ? '  ·  frame #' + fr : '') + '  ·  ' + (m.keep ? 'kept' : 'dropped');
       inspLab.textContent = m.label;
+      inspRest.textContent = m.atRest ? 'At rest' : 'Moving';
+      inspRest.classList.toggle('is-rest', m.atRest);
+    }
+
+    function shortcutKeyForIndex(i) {
+      return i >= 0 && i < 9 ? String(i + 1) : null;
+    }
+    function renderShortcutKeyRange(el) {
+      el.textContent = '';
+      var count = Math.min(LABELS.length, 9);
+      if (count < 1) return;
+      var first = document.createElement('kbd');
+      first.textContent = '1';
+      el.appendChild(first);
+      if (count > 1) {
+        el.appendChild(document.createTextNode('-'));
+        var last = document.createElement('kbd');
+        last.textContent = String(count);
+        el.appendChild(last);
+      }
+    }
+    function renderShortcutHints() {
+      renderShortcutKeyRange(labelHintKeys);
+      renderShortcutKeyRange(legendLabelKeys);
     }
 
     function updateSubmitLabel() {
@@ -823,6 +973,7 @@ function buildHtml(model) {
       renderRail();
       renderSummary();
       renderInspector();
+      renderShortcutHints();
       updateSubmitLabel();
     }
 
@@ -844,13 +995,21 @@ function buildHtml(model) {
       var m = {
         id: 'human-' + Date.now(),
         t: Math.round(video.currentTime * 1000) / 1000,
-        label: 'gameplay',
+        label: LABELS[0],
+        atRest: false,
         source: 'human',
         keep: true,
       };
       state.markers.push(m);
+      if (state.confirming) resetConfirm();
       setStatus('Added a frame at ' + clockAt(m.t) + '.');
       setFocus(m.id, { scroll: true });
+    });
+
+    document.getElementById('add-label').addEventListener('click', function () {
+      var label = window.prompt('New label');
+      if (label === null) return;
+      addLabel(label);
     });
 
     document.getElementById('focus-seek').addEventListener('click', function () {
@@ -884,7 +1043,11 @@ function buildHtml(model) {
       var frames = kept
         .slice()
         .sort(function (a, b) { return a.t - b.t; })
-        .map(function (m) { return { t: m.t, label: m.label, source: m.source }; });
+        .map(function (m) {
+          var frame = { t: m.t, label: m.label, source: m.source, atRest: m.atRest === true };
+          if (!frame.atRest) frame.notAtRestReason = NOT_AT_REST_REASON;
+          return frame;
+        });
 
       submitBtn.disabled = true;
       setStatus('Submitting ' + frames.length + ' frames…');
@@ -928,7 +1091,7 @@ function buildHtml(model) {
         if (m) { e.preventDefault(); toggleKeep(m); }
         return;
       }
-      if (e.key >= '1' && e.key <= '8') {
+      if (e.key >= '1' && e.key <= '9') {
         var idx = Number(e.key) - 1;
         var fm = focusedMarker();
         if (fm && LABELS[idx]) { e.preventDefault(); assignLabel(fm, LABELS[idx]); }
@@ -943,14 +1106,14 @@ function buildHtml(model) {
 `;
 }
 
-export function buildView({ candidatesFile, videoSrc, outFile }) {
+export function buildView({ candidatesFile, videoSrc, outFile, labels }) {
   if (!candidatesFile) throw new Error('--candidates is required');
   if (!videoSrc) throw new Error('--video-src is required');
   if (!outFile) throw new Error('--out is required');
 
-  const model = readCandidates(candidatesFile, videoSrc);
+  const model = readCandidates(candidatesFile, videoSrc, labels);
   const absOut = path.resolve(outFile);
   fs.mkdirSync(path.dirname(absOut), { recursive: true });
   fs.writeFileSync(absOut, buildHtml(model));
-  return { outFile: absOut, markers: model.markers };
+  return { outFile: absOut, markers: model.markers, labels: model.labels };
 }

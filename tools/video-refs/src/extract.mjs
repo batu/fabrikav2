@@ -3,6 +3,8 @@ import path from 'node:path';
 import { requireTool, runFile } from './ffmpeg.mjs';
 import { formatTimestamp } from './time.mjs';
 
+const HUMAN_FLAGGED_NOT_AT_REST_REASON = 'human-flagged mid-motion';
+
 function sanitizeLabel(label) {
   const safe = String(label || 'other')
     .trim()
@@ -52,7 +54,7 @@ function atRestFields(frame) {
   return {
     'at-rest': false,
     'not-at-rest-reason': frameTextValue(frame, 'not-at-rest-reason', 'notAtRestReason') ||
-      (explicitFalse ? 'marked not at rest by video frame review' : 'unjudged video frame'),
+      (explicitFalse ? HUMAN_FLAGGED_NOT_AT_REST_REASON : 'unjudged video frame'),
     'recapture-note': frameTextValue(frame, 'recapture-note', 'recaptureNote') ||
       'review this extracted video frame before accepting it as an at-rest reference',
   };

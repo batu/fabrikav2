@@ -11,7 +11,7 @@ const HELP = `video-refs - reference video frame tooling
 
 Usage:
   node tools/video-refs/run.mjs suggest --video <path> --out <dir> [--interval 2] [--scene 0.3]
-  node tools/video-refs/run.mjs build-view --candidates <candidates.json> --video-src <string> --out <file.html>
+  node tools/video-refs/run.mjs build-view --candidates <candidates.json> --video-src <string> --out <file.html> [--labels menu,gameplay,shop]
   node tools/video-refs/run.mjs extract --video <path> --verdict <verdict.json> --out <dir> [--captured YYYY-MM-DD]
   node tools/video-refs/run.mjs fold --game games/<game> [--extracted games/<game>/refs/art/extracted.json] --video <path> [--captured YYYY-MM-DD]
 
@@ -76,6 +76,7 @@ export function main(argv = process.argv.slice(2)) {
       candidatesFile: requireFlag(flags, 'candidates'),
       videoSrc: requireFlag(flags, 'video-src'),
       outFile: requireFlag(flags, 'out'),
+      labels: flags.labels,
     });
     process.stdout.write(`video-refs build-view: ${result.markers.length} markers -> ${result.outFile}\n`);
     return 0;

@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { Window } from 'happy-dom';
 import { loadManifest } from '../../refcap-compare/src/manifest.mjs';
 import { parseYaml } from '../../refcap-compare/src/yaml.mjs';
 import { parseFrameRate, selectFrameRate, snapToFrameMidpoint } from '../src/time.mjs';
@@ -44,6 +45,37 @@ function makeFixtureVideo(dir) {
     video,
   ]);
   return video;
+}
+
+function makeCandidatesFixture(dir, data) {
+  const framesDir = path.join(dir, 'frames');
+  fs.mkdirSync(framesDir, { recursive: true });
+  for (const candidate of data.candidates) {
+    fs.writeFileSync(path.join(dir, candidate.file), 'not-really-a-jpeg');
+  }
+  const candidatesPath = path.join(dir, 'candidates.json');
+  fs.writeFileSync(candidatesPath, `${JSON.stringify({
+    duration_s: 6,
+    fps: 30,
+    ...data,
+  }, null, 2)}\n`);
+  return candidatesPath;
+}
+
+function generatedModel(html) {
+  const match = html.match(/var MODEL = ([\s\S]*?);\n {4}var LABELS = MODEL\.labels\.slice\(\);/);
+  assert.ok(match, 'expected generated MODEL script');
+  return JSON.parse(match[1]);
+}
+
+function assertCliFails(args, pattern) {
+  assert.throws(
+    () => sh(process.execPath, args),
+    (err) => {
+      assert.match(err.stderr, pattern);
+      return true;
+    },
+  );
 }
 
 function assertMidFrame(t, fps) {
@@ -118,7 +150,9 @@ describe('video-refs CLI', () => {
     const html = fs.readFileSync(htmlPath, 'utf8');
     assert.match(html, /src="02_fixture\.mp4"/);
     assert.match(html, /var MODEL = /);
-    assert.match(html, /var LABELS = \["menu","level","settings","pause","win","fail","gameplay","other"\];/);
+    assert.deepEqual(generatedModel(html).labels, ['menu', 'level', 'settings', 'pause', 'win', 'fail', 'gameplay', 'other']);
+    assert.match(html, /var LABELS = MODEL\.labels\.slice\(\);/);
+    assert.match(html, /var LABEL_RE = \/\^\[a-z\]\[a-z0-9_-\]\*\$\/;/);
     assert.match(html, /markers: MODEL\.markers\.map\(function \(m\) \{ return Object\.assign\(\{\}, m\); \}\)/);
     assert.match(html, /var FPS = MODEL\.fps \|\| null;/);
     assert.doesNotMatch(html, /INITIAL_MARKERS/);
@@ -132,8 +166,12 @@ describe('video-refs CLI', () => {
       html,
       /<section class="rail-shell" aria-label="candidate frames">[\s\S]*<div class="rail" id="rail"><\/div>[\s\S]*<div class="status" id="status" role="status">Review the candidates, then submit the kept frames\.<\/div>[\s\S]*<\/section>/,
     );
-    assert.match(html, /<nav class="kbd-hint" aria-label="keyboard shortcuts">[\s\S]*<kbd>Space<\/kbd> play[\s\S]*<kbd>J<\/kbd><kbd>K<\/kbd> walk[\s\S]*<kbd>X<\/kbd> keep \/ drop[\s\S]*<kbd>1<\/kbd>[\s\S]*<kbd>8<\/kbd> label[\s\S]*<\/nav>/);
+    assert.match(html, /<nav class="kbd-hint" aria-label="keyboard shortcuts">[\s\S]*<kbd>Space<\/kbd> play[\s\S]*<kbd>J<\/kbd><kbd>K<\/kbd> walk[\s\S]*<kbd>X<\/kbd> keep \/ drop[\s\S]*id="label-hint-keys"[\s\S]*label[\s\S]*<\/nav>/);
     assert.match(html, /function makeChips\(m\) \{[\s\S]*LABELS\.forEach\(function \(label, i\) \{[\s\S]*c\.className = 'chip' \+ \(m\.label === label \? ' active' : ''\);[\s\S]*assignLabel\(m, label\);/);
+    assert.match(html, /<button class="add-label" id="add-label" type="button">\+ label<\/button>/);
+    assert.match(html, /document\.getElementById\('add-label'\)\.addEventListener\('click', function \(\) \{[\s\S]*window\.prompt\('New label'\);[\s\S]*addLabel\(label\);/);
+    assert.match(html, /function toggleAtRest\(m\) \{[\s\S]*m\.atRest = !m\.atRest;[\s\S]*render\(false\);[\s\S]*\}/);
+    assert.match(html, /atRest\.className = 'restbtn' \+ \(m\.atRest \? ' is-rest' : ''\);/);
     assert.match(html, /<button class="submit" id="submit" type="button">Submit<\/button>/);
     assert.match(
       html,
@@ -149,11 +187,11 @@ describe('video-refs CLI', () => {
       /function makeCard\(m\) \{[\s\S]*card\.addEventListener\('click', function \(\) \{ if \(m\.id !== state\.focusId\) setFocus\(m\.id, \{\}\); \}\);[\s\S]*return card;/,
     );
     assert.match(html, /function setFocus\(id, opts\) \{[\s\S]*if \(opts\.seek\) seekTo\(m\.t\);[\s\S]*node\.scrollIntoView\(\{ block: 'nearest', behavior: 'smooth' \}\);/);
-    assert.match(html, /document\.addEventListener\('keydown', function \(e\) \{[\s\S]*if \(e\.key === ' ' \|\| e\.key === 'Spacebar'\)[\s\S]*if \(e\.key === 'j' \|\| e\.key === 'ArrowDown' \|\| e\.key === 'ArrowRight'\)[\s\S]*if \(e\.key === 'k' \|\| e\.key === 'ArrowUp' \|\| e\.key === 'ArrowLeft'\)[\s\S]*if \(e\.key === 'x' \|\| e\.key === 'd'\)[\s\S]*if \(e\.key >= '1' && e\.key <= '8'\)/);
+    assert.match(html, /document\.addEventListener\('keydown', function \(e\) \{[\s\S]*if \(e\.key === ' ' \|\| e\.key === 'Spacebar'\)[\s\S]*if \(e\.key === 'j' \|\| e\.key === 'ArrowDown' \|\| e\.key === 'ArrowRight'\)[\s\S]*if \(e\.key === 'k' \|\| e\.key === 'ArrowUp' \|\| e\.key === 'ArrowLeft'\)[\s\S]*if \(e\.key === 'x' \|\| e\.key === 'd'\)[\s\S]*if \(e\.key >= '1' && e\.key <= '9'\)/);
     assert.match(html, /function resetConfirm\(\) \{[\s\S]*state\.confirming = false;[\s\S]*clearTimeout\(confirmTimer\);[\s\S]*updateSubmitLabel\(\);[\s\S]*\}/);
     assert.match(html, /if \(!state\.confirming\) \{[\s\S]*state\.confirming = true;[\s\S]*Click Confirm to send, or make more edits\.[\s\S]*confirmTimer = setTimeout\(resetConfirm, 4000\);[\s\S]*return;[\s\S]*\}/);
     assert.match(html, /await fetch\('\/r\/' \+ encodeURIComponent\(reqId\) \+ '\/decide', \{[\s\S]*method: 'POST'[\s\S]*body: JSON\.stringify\(\{ payload: \{ frames: frames \} \}\)/);
-    assert.match(html, /\.map\(function \(m\) \{ return \{ t: m\.t, label: m\.label, source: m\.source \}; \}\);/);
+    assert.match(html, /\.map\(function \(m\) \{[\s\S]*var frame = \{ t: m\.t, label: m\.label, source: m\.source, atRest: m\.atRest === true \};[\s\S]*if \(!frame\.atRest\) frame\.notAtRestReason = NOT_AT_REST_REASON;[\s\S]*return frame;[\s\S]*\}\);/);
     assert.match(html, /state\.submitted = true;[\s\S]*setStatus\('Submitted ' \+ frames\.length \+ ' frames\. Portal has your selection\.', 'success'\);[\s\S]*submitBtn\.textContent = '.*Submitted';/);
     assert.match(html, /catch \(err\) \{[\s\S]*setStatus\(err\.message, 'error'\);[\s\S]*submitBtn\.disabled = false;[\s\S]*updateSubmitLabel\(\);/);
 
@@ -163,6 +201,7 @@ describe('video-refs CLI', () => {
       payload: {
         frames: [
           { t: 0, label: 'menu', source: 'agent', 'at-rest': true },
+          { t: 1, label: 'gameplay', source: 'agent', atRest: false },
           {
             t: 2,
             label: 'level',
@@ -190,8 +229,8 @@ describe('video-refs CLI', () => {
     ]);
 
     const manifest = JSON.parse(fs.readFileSync(path.join(extractOut, 'extracted.json'), 'utf8'));
-    assert.deepEqual(manifest.map((entry) => entry.file), ['menu-0.png', 'level-2.png', 'level-2-2.png']);
-    assert.equal(manifest[1].source, 'human');
+    assert.deepEqual(manifest.map((entry) => entry.file), ['menu-0.png', 'gameplay-1.png', 'level-2.png', 'level-2-2.png']);
+    assert.equal(manifest[2].source, 'human');
     assert.deepEqual(manifest[0].provenance, {
       source: 'video-extract',
       tool: 'video-refs extract',
@@ -201,21 +240,163 @@ describe('video-refs CLI', () => {
     assert.equal(manifest[0]['at-rest'], true);
     assert.equal(manifest[0]['not-at-rest-reason'], undefined);
     assert.equal(manifest[1]['at-rest'], false);
-    assert.equal(manifest[1]['not-at-rest-reason'], 'spinner still moving');
-    assert.equal(manifest[1]['recapture-note'], 'wait for the level screen to settle');
+    assert.equal(manifest[1]['not-at-rest-reason'], 'human-flagged mid-motion');
     assert.equal(manifest[2]['at-rest'], false);
-    assert.equal(manifest[2]['not-at-rest-reason'], 'unjudged video frame');
+    assert.equal(manifest[2]['not-at-rest-reason'], 'spinner still moving');
+    assert.equal(manifest[2]['recapture-note'], 'wait for the level screen to settle');
+    assert.equal(manifest[3]['at-rest'], false);
+    assert.equal(manifest[3]['not-at-rest-reason'], 'unjudged video frame');
     assert.equal(
-      manifest[2]['recapture-note'],
+      manifest[3]['recapture-note'],
       'review this extracted video frame before accepting it as an at-rest reference',
     );
-    assert.equal(manifest[2].provenance.source, 'video-extract');
-    assert.equal(manifest[2].provenance.video, video);
-    assert.equal(manifest[2].provenance.captured, '2026-07-09');
-    assert.equal(manifest[2].provenance.tool, 'video-refs extract');
+    assert.equal(manifest[3].provenance.source, 'video-extract');
+    assert.equal(manifest[3].provenance.video, video);
+    assert.equal(manifest[3].provenance.captured, '2026-07-09');
+    assert.equal(manifest[3].provenance.tool, 'video-refs extract');
     for (const entry of manifest) {
       assert.ok(fs.existsSync(path.join(extractOut, entry.file)), `missing extracted ${entry.file}`);
     }
+  });
+
+  it('builds picker labels from candidates json or CLI override and validates label tokens', () => {
+    const dir = makeTempDir();
+    const candidatesPath = makeCandidatesFixture(dir, {
+      labels: ['menu', 'shop', 'boss_intro'],
+      candidates: [
+        { t: 0.5, file: 'frames/a.jpg', label: 'shop', atRest: true },
+        { t: 1.5, file: 'frames/b.jpg', label: 'settings', atRest: false },
+        { t: 2.5, file: 'frames/c.jpg' },
+      ],
+    });
+
+    const htmlPath = path.join(dir, 'picker.html');
+    sh(process.execPath, [
+      RUN,
+      'build-view',
+      '--candidates',
+      candidatesPath,
+      '--video-src',
+      '02_fixture.mp4',
+      '--out',
+      htmlPath,
+    ]);
+    const model = generatedModel(fs.readFileSync(htmlPath, 'utf8'));
+    assert.deepEqual(model.labels, ['menu', 'shop', 'boss_intro']);
+    assert.deepEqual(
+      model.markers.map((marker) => [marker.label, marker.atRest]),
+      [
+        ['shop', true],
+        ['menu', false],
+        ['menu', false],
+      ],
+    );
+
+    const overridePath = path.join(dir, 'override.html');
+    sh(process.execPath, [
+      RUN,
+      'build-view',
+      '--candidates',
+      candidatesPath,
+      '--video-src',
+      '02_fixture.mp4',
+      '--out',
+      overridePath,
+      '--labels',
+      'menu,tutorial',
+    ]);
+    const overrideModel = generatedModel(fs.readFileSync(overridePath, 'utf8'));
+    assert.deepEqual(overrideModel.labels, ['menu', 'tutorial']);
+    assert.deepEqual(overrideModel.markers.map((marker) => marker.label), ['menu', 'menu', 'menu']);
+
+    assertCliFails([
+      RUN,
+      'build-view',
+      '--candidates',
+      candidatesPath,
+      '--video-src',
+      '02_fixture.mp4',
+      '--out',
+      path.join(dir, 'bad.html'),
+      '--labels',
+      'menu,Bad Label',
+    ], /must match/);
+    assertCliFails([
+      RUN,
+      'build-view',
+      '--candidates',
+      candidatesPath,
+      '--video-src',
+      '02_fixture.mp4',
+      '--out',
+      path.join(dir, 'dup.html'),
+      '--labels',
+      'menu,menu',
+    ], /duplicate label "menu"/);
+  });
+
+  it('runs the generated picker add-label, at-rest flip, and submit payload flow', async () => {
+    const dir = makeTempDir();
+    const candidatesPath = makeCandidatesFixture(dir, {
+      labels: ['menu', 'gameplay', 'shop'],
+      candidates: [
+        { t: 0.5, file: 'frames/a.jpg', label: 'menu', atRest: true },
+        { t: 1.5, file: 'frames/b.jpg', label: 'gameplay', atRest: false },
+        { t: 2.5, file: 'frames/c.jpg', label: 'shop', atRest: true },
+      ],
+    });
+    const htmlPath = path.join(dir, 'picker.html');
+    sh(process.execPath, [
+      RUN,
+      'build-view',
+      '--candidates',
+      candidatesPath,
+      '--video-src',
+      '02_fixture.mp4',
+      '--out',
+      htmlPath,
+      '--labels',
+      'menu,gameplay,shop',
+    ]);
+
+    const window = new Window({
+      url: 'http://127.0.0.1:4173/media/req_dom/picker.html',
+      settings: { disableJavaScriptEvaluation: false },
+    });
+    let submitted = null;
+    window.fetch = async (_url, options) => {
+      submitted = JSON.parse(options.body);
+      return { ok: true, text: async () => 'ok' };
+    };
+    window.prompt = () => 'boss_intro';
+    const html = fs.readFileSync(htmlPath, 'utf8');
+    const script = html.match(/<script>\n([\s\S]*?)\n {2}<\/script>/);
+    assert.ok(script, 'expected generated inline script');
+    window.document.write(html.replace(script[0], ''));
+    window.eval(script[1]);
+    await window.happyDOM.whenAsyncComplete();
+    assert.equal(window.document.querySelectorAll('.cand').length, 3);
+
+    window.document.dispatchEvent(new window.KeyboardEvent('keydown', { key: '3', bubbles: true }));
+    window.document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    window.document.querySelector('#add-label').click();
+    assert.ok(
+      Array.from(window.document.querySelectorAll('.chip')).some((chip) => chip.textContent.includes('boss_intro')),
+      'expected runtime label chip',
+    );
+    Array.from(window.document.querySelectorAll('.cand.focused .chip'))
+      .find((chip) => chip.textContent.includes('boss_intro'))
+      .click();
+    window.document.querySelector('.cand.focused .restbtn').click();
+    window.document.querySelector('#submit').click();
+    window.document.querySelector('#submit').click();
+    await window.happyDOM.whenAsyncComplete();
+
+    assert.deepEqual(submitted.payload.frames.map((frame) => frame.label), ['shop', 'boss_intro', 'shop']);
+    assert.deepEqual(submitted.payload.frames.map((frame) => frame.atRest), [true, true, true]);
+    assert.ok(submitted.payload.frames.every((frame) => !Object.hasOwn(frame, 'notAtRestReason')));
+    assert.match(window.document.querySelector('#status').textContent, /Submitted 3 frames/);
+    window.close();
   });
 
   it('folds extracted frames into manifest refs and promoted captures idempotently', () => {

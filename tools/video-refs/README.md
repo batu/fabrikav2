@@ -43,13 +43,27 @@ Outputs:
 node tools/video-refs/run.mjs build-view \
   --candidates /tmp/video-refs/candidates.json \
   --video-src "02_playback-proxy.mp4" \
-  --out /tmp/video-refs/picker.html
+  --out /tmp/video-refs/picker.html \
+  [--labels menu,gameplay,shop]
 ```
 
 Builds one self-contained HTML file with inline CSS/JS and data-URI thumbnails.
 `--video-src` is baked into the `<video>` tag exactly as provided; the tool never
 discovers Portal asset names. Pass the Portal asset name for the same playback
 file that was used for `suggest --video`.
+
+The picker label list comes from `--labels` when provided, otherwise from a
+top-level `labels` array in `candidates.json`, otherwise from the default labels
+`menu,level,settings,pause,win,fail,gameplay,other`. Labels must match
+`/^[a-z][a-z0-9_-]*$/`, be unique, and be non-empty. Candidate labels outside the
+active list fall back to the first active label instead of inventing `gameplay`.
+The generated chip row, summary counts, and number-key shortcuts use the active
+label list. The picker also has a `+ label` control for adding another validated
+label during review; runtime labels submit like configured labels.
+
+Candidate entries may include `atRest: true` or `atRest: false`. Missing
+`atRest` defaults to not trusted (`false`) in the picker. Each card shows an
+at-rest/moving toggle, and human edits are carried into the submitted verdict.
 
 Portal posting recipe:
 
@@ -65,7 +79,20 @@ view.
 The view submits:
 
 ```json
-{ "payload": { "frames": [{ "t": 2, "label": "gameplay", "source": "agent" }] } }
+{
+  "payload": {
+    "frames": [
+      { "t": 2, "label": "gameplay", "source": "agent", "atRest": true },
+      {
+        "t": 3.5,
+        "label": "shop",
+        "source": "agent",
+        "atRest": false,
+        "notAtRestReason": "human-flagged mid-motion"
+      }
+    ]
+  }
+}
 ```
 
 to `/r/<reqId>/decide`, where `reqId` is read from `/media/<reqId>/...`.
@@ -110,10 +137,13 @@ the original for accurate still extraction.
 ```
 
 `extract` preserves an explicit frame `at-rest` boolean from a picker or judge.
-When that field is absent, the frame is written as not at rest with the
-`unjudged video frame` reason above; unreviewed video frames are never promoted
-as trusted by default. `--captured` defaults to today's date and exists so tests
-and replayed folds can be deterministic.
+Picker verdicts may use either `atRest`/`notAtRestReason` or
+`at-rest`/`not-at-rest-reason`; `extract` writes the fold-compatible kebab-case
+fields. An explicit false value without a supplied reason becomes
+`human-flagged mid-motion`. When the at-rest field is absent, the frame is
+written as not at rest with the `unjudged video frame` reason above; unreviewed
+video frames are never promoted as trusted by default. `--captured` defaults to
+today's date and exists so tests and replayed folds can be deterministic.
 
 ## fold
 
@@ -152,7 +182,7 @@ Playwright at desktop width, and look at it:
 
 ```sh
 node tools/video-refs/run.mjs build-view --candidates <real candidates.json> \
-  --video-src x.mp4 --out /tmp/picker.html
+  --video-src x.mp4 --out /tmp/picker.html --labels menu,gameplay,shop,tutorial
 npx playwright screenshot --viewport-size=1440,900 "file:///tmp/picker.html" /tmp/picker.png
 ```
 
@@ -160,3 +190,7 @@ Portal views are PC-first web pages — the browser IS their real environment,
 so Playwright screenshots are the sanctioned verification here (unlike mobile
 games, where a browser render is never evidence). The 2026-07-09 timeline-blob
 defect shipped precisely because density was never rendered and looked at.
+For label or at-rest picker changes, also exercise the page through a Portal-like
+stub URL so `/r/<reqId>/decide` receives the real POST payload, and inspect the
+captured JSON for configured labels, any runtime-added labels, `atRest`, and
+`notAtRestReason`.
