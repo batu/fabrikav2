@@ -112,25 +112,59 @@ function buildHtml(model) {
       height: 42px;
       margin: 12px 0 8px;
       border-radius: 8px;
-      background: linear-gradient(90deg, #253142, #697b8f);
+      background: linear-gradient(90deg, #212b39, #2f3d50);
       overflow: hidden;
       border: 1px solid rgba(24, 27, 32, 0.14);
+      cursor: pointer;
     }
     .marker {
       position: absolute;
       top: 6px;
-      width: 28px;
-      height: 30px;
+      bottom: 6px;
+      width: 3px;
+      min-height: 0;
+      padding: 0;
       transform: translateX(-50%);
       border: 0;
-      border-radius: 999px;
+      border-radius: 1.5px;
       background: #f4c542;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.24);
+      box-shadow: 0 0 0 1px rgba(15, 20, 30, 0.35);
+      cursor: pointer;
+      transition: width 0.08s ease, box-shadow 0.12s ease;
+      z-index: 1;
     }
     .marker[data-source="human"] { background: #52b788; }
     .marker.dropped {
-      opacity: 0.38;
-      background: #c5cad1;
+      background: #8b96a5;
+      opacity: 0.5;
+    }
+    .marker:hover,
+    .marker:focus-visible {
+      width: 5px;
+      box-shadow: 0 0 0 1px rgba(15, 20, 30, 0.55), 0 0 8px rgba(255, 255, 255, 0.85);
+      outline: none;
+      z-index: 2;
+    }
+    .playhead {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 2px;
+      background: #ff3b5c;
+      box-shadow: 0 0 0 1px rgba(15, 20, 30, 0.55), 0 0 6px rgba(255, 59, 92, 0.8);
+      pointer-events: none;
+      z-index: 3;
+    }
+    .playhead::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 1px;
+      transform: translateX(-50%);
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 7px solid #ff3b5c;
     }
     .actions {
       display: grid;
@@ -362,6 +396,14 @@ function buildHtml(model) {
       return node;
     }
 
+    const playhead = document.createElement('div');
+    playhead.className = 'playhead';
+
+    function updatePlayhead() {
+      const pct = Math.min(100, Math.max(0, (video.currentTime / duration()) * 100));
+      playhead.style.left = pct + '%';
+    }
+
     function renderTimeline() {
       timeline.textContent = '';
       const total = duration();
@@ -372,10 +414,23 @@ function buildHtml(model) {
         button.dataset.source = marker.source;
         button.style.left = Math.min(100, Math.max(0, (marker.t / total) * 100)) + '%';
         button.title = marker.label + ' ' + fmt(marker.t) + 's';
-        button.addEventListener('click', () => seekTo(marker.t));
+        button.addEventListener('click', (event) => {
+          event.stopPropagation();
+          seekTo(marker.t);
+        });
         timeline.appendChild(button);
       });
+      timeline.appendChild(playhead);
+      updatePlayhead();
     }
+
+    timeline.addEventListener('click', (event) => {
+      const rect = timeline.getBoundingClientRect();
+      if (rect.width <= 0) return;
+      const ratio = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+      seekTo(ratio * duration());
+    });
+    video.addEventListener('timeupdate', updatePlayhead);
 
     function renderList() {
       list.textContent = '';
