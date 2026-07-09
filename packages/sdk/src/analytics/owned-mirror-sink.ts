@@ -65,9 +65,9 @@ export interface OwnedMirrorSinkOptions {
   readonly gameId: string;
   /** Environment marker for the batch envelope (partitions test from prod). */
   readonly env: AnalyticsEnvironment;
-  /** Flush automatically once this many events are queued. Default 10. */
+  /** Flush automatically once this many events are queued. Positive integer; default 10. */
   readonly batchSize?: number;
-  /** Drop an event after this many failed attempts. Default 3. */
+  /** Drop an event after this many failed attempts. Positive integer; default 3. */
   readonly maxAttempts?: number;
   /** Injected clock (for `enqueued_at`); default `Date.now`. */
   readonly now?: () => number;
@@ -98,6 +98,23 @@ interface FlushOwner {
   readonly reject: (reason: unknown) => void;
 }
 
+/** Resume after the current task's complete microtask checkpoint. */
+function waitForTaskBoundary(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, 0));
+}
+
+function requirePositiveInteger(
+  option: 'batchSize' | 'maxAttempts',
+  value: number,
+): number {
+  if (!Number.isFinite(value) || !Number.isInteger(value) || value <= 0) {
+    throw new RangeError(
+      `OwnedMirrorSink ${option} must be a finite positive integer; received ${String(value)}`,
+    );
+  }
+  return value;
+}
+
 export interface OwnedMirrorSink extends AnalyticsSink {
   flush(): Promise<void>;
   stats(): OwnedMirrorStats;
@@ -106,15 +123,19 @@ export interface OwnedMirrorSink extends AnalyticsSink {
 export function createOwnedMirrorSink(
   options: OwnedMirrorSinkOptions,
 ): OwnedMirrorSink {
-  const batchSize = options.batchSize ?? 10;
-  const maxAttempts = options.maxAttempts ?? 3;
+  const batchSize = requirePositiveInteger('batchSize', options.batchSize ?? 10);
+  const maxAttempts = requirePositiveInteger(
+    'maxAttempts',
+    options.maxAttempts ?? 3,
+  );
   const now = options.now ?? Date.now;
   const generateId = options.generateId ?? (() => crypto.randomUUID());
 
   const queue: QueuedEvent[] = [];
   // The single in-flight drain owner, shared by every concurrent flush() caller.
-  // Its deferred promise settles only after a closeout turn, final queue check,
-  // and synchronous ownership release, so drain-completion microtasks can join.
+  // Its deferred promise settles only after a task-boundary handoff, final queue
+  // check, and synchronous ownership release, so all nested microtasks from the
+  // current task can join. No ordering with future tasks is promised.
   let inFlight: FlushOwner | null = null;
 
   let enqueued = 0;
@@ -161,10 +182,10 @@ export function createOwnedMirrorSink(
       do {
         stoppedForRetry = await drain();
         if (!stoppedForRetry && queue.length === 0) {
-          // Keep ownership through one closeout turn so emitters already queued
-          // behind the drain continuation can join this pass. The queue check
-          // below then drains them before the owner settles.
-          await Promise.resolve();
+          // A task callback runs only after the current microtask checkpoint is
+          // exhausted, including nested queueMicrotask / Promise reactions.
+          // The queue check below drains those arrivals before owner settlement.
+          await waitForTaskBoundary();
         }
         // A retryable failure deliberately leaves the queue for a later flush,
         // so it skips closeout and must not spin here against a down backend.

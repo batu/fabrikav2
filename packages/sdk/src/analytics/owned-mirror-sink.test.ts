@@ -44,6 +44,32 @@ function baseOptions(
   };
 }
 
+describe('createOwnedMirrorSink — configuration', () => {
+  it.each([
+    ['batchSize', 0],
+    ['batchSize', -1],
+    ['batchSize', 0.5],
+    ['batchSize', Number.NaN],
+    ['batchSize', Number.POSITIVE_INFINITY],
+    ['maxAttempts', 0],
+    ['maxAttempts', -1],
+    ['maxAttempts', 0.5],
+    ['maxAttempts', Number.NaN],
+    ['maxAttempts', Number.POSITIVE_INFINITY],
+  ] as const)('rejects invalid %s value %s at construction', (option, value) => {
+    const transport = scriptedTransport([]);
+    const overrides =
+      option === 'batchSize' ? { batchSize: value } : { maxAttempts: value };
+
+    expect(() => createOwnedMirrorSink(baseOptions(transport, overrides))).toThrow(
+      new RangeError(
+        `OwnedMirrorSink ${option} must be a finite positive integer; received ${String(value)}`,
+      ),
+    );
+    expect(transport.calls).toHaveLength(0);
+  });
+});
+
 describe('createOwnedMirrorSink — batching + wire body', () => {
   it('auto-flushes once batchSize is reached and posts a schema-tagged body', async () => {
     const transport = scriptedTransport([{ ok: true, status: 200 }]);
@@ -248,6 +274,36 @@ describe('createOwnedMirrorSink — concurrent flush', () => {
     expect(sink.stats().queueLength).toBe(0);
   });
 
+  it('drains an event emitted by a nested queueMicrotask before the current task ends', async () => {
+    const transport = scriptedTransport([{ ok: true, status: 200 }]);
+    const sink = createOwnedMirrorSink(baseOptions(transport, { batchSize: 100 }));
+
+    const done = sink.flush();
+    queueMicrotask(() => {
+      queueMicrotask(() => sink.emit(event('joined-in-nested-queued-microtask')));
+    });
+    await done;
+
+    expect(transport.calls).toHaveLength(1);
+    expect(sink.stats().sent).toBe(1);
+    expect(sink.stats().queueLength).toBe(0);
+  });
+
+  it('drains an event emitted by a nested Promise reaction before the current task ends', async () => {
+    const transport = scriptedTransport([{ ok: true, status: 200 }]);
+    const sink = createOwnedMirrorSink(baseOptions(transport, { batchSize: 100 }));
+
+    const done = sink.flush();
+    void Promise.resolve().then(() =>
+      Promise.resolve().then(() => sink.emit(event('joined-in-nested-promise-reaction'))),
+    );
+    await done;
+
+    expect(transport.calls).toHaveLength(1);
+    expect(sink.stats().sent).toBe(1);
+    expect(sink.stats().queueLength).toBe(0);
+  });
+
   it('stops after a retryable failure during the empty-flush handoff', async () => {
     const transport = scriptedTransport([
       { ok: false, status: 503 },
@@ -257,9 +313,18 @@ describe('createOwnedMirrorSink — concurrent flush', () => {
       baseOptions(transport, { batchSize: 100, maxAttempts: 3 }),
     );
 
-    const done = sink.flush();
-    sink.emit(event('joined-before-retry'));
-    await done;
+    const setTimeoutSpy = vi.spyOn(globalThis, 'setTimeout');
+    try {
+      const done = sink.flush();
+      sink.emit(event('joined-before-retry'));
+      await done;
+
+      // Retry-stop settles immediately; it must not enter the task-boundary
+      // closeout and accidentally retry against the same failing backend.
+      expect(setTimeoutSpy).not.toHaveBeenCalled();
+    } finally {
+      setTimeoutSpy.mockRestore();
+    }
 
     expect(transport.calls).toHaveLength(1);
     expect(sink.stats().retried).toBe(1);
