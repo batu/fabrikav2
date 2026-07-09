@@ -117,7 +117,7 @@ refs:
       video: refs/video/woolcrush-reference-video.mp4
 
   refs/captures/video-extract/woolcrush-reference-video/other-136.5.png:
-    state-variant: other/t136_5
+    state-variant: shop/t136_5
     capture-recipe: video-refs extract --video refs/video/woolcrush-reference-video.mp4 --verdict <verdict.json> --out refs/art; timestamp 136.5
     at-rest: true
     provenance:
@@ -127,7 +127,7 @@ refs:
       video: refs/video/woolcrush-reference-video.mp4
 
   refs/captures/video-extract/woolcrush-reference-video/other-144.png:
-    state-variant: other/t144
+    state-variant: shop/t144
     capture-recipe: video-refs extract --video refs/video/woolcrush-reference-video.mp4 --verdict <verdict.json> --out refs/art; timestamp 144
     at-rest: true
     provenance:
@@ -137,7 +137,7 @@ refs:
       video: refs/video/woolcrush-reference-video.mp4
 
   refs/captures/video-extract/woolcrush-reference-video/other-151.9.png:
-    state-variant: other/t151_9
+    state-variant: shop/t151_9
     capture-recipe: video-refs extract --video refs/video/woolcrush-reference-video.mp4 --verdict <verdict.json> --out refs/art; timestamp 151.9
     at-rest: true
     provenance:
@@ -147,7 +147,7 @@ refs:
       video: refs/video/woolcrush-reference-video.mp4
 
   refs/captures/video-extract/woolcrush-reference-video/other-404.png:
-    state-variant: other/t404
+    state-variant: tutorial/t404
     capture-recipe: video-refs extract --video refs/video/woolcrush-reference-video.mp4 --verdict <verdict.json> --out refs/art; timestamp 404
     at-rest: true
     provenance:
@@ -227,7 +227,13 @@ states:
     v2:
       gap: no v2 capture selected for this video-extracted state
 
-  - name: other
+  - name: shop
+    reference:
+      gap: video-extract refs folded under refs/captures/video-extract; no primary offline reference selected yet
+    v2:
+      gap: no v2 capture selected for this video-extracted state
+
+  - name: tutorial
     reference:
       gap: video-extract refs folded under refs/captures/video-extract; no primary offline reference selected yet
     v2:
