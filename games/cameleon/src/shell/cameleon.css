@@ -361,3 +361,13 @@
     padding: 6px;
   }
 }
+
+/* Win and lose must read as different STATES at a glance (device phash
+   backstop flagged them near-identical): lose gets a deep indigo scrim wash. */
+.cameleon-screen #cameleon-result-fail .fab-modal-backdrop {
+  background: var(--fab-cameleon-fail-scrim);
+}
+
+.cameleon-screen #cameleon-result-win .fab-modal-backdrop {
+  background: var(--fab-cameleon-win-scrim);
+}
