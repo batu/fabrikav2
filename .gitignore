@@ -29,3 +29,7 @@ games/*/android/
 
 # Xcode result bundles (bulky binary; grid.html+panel.json are the committed evidence)
 *.xcresult/
+
+# Device capture video (hundreds of MB each; keep on disk, never in git —
+# 7.4GB of these were purged from history on 2026-07-09)
+docs/evidence/*/device-attachments/*.mp4
