@@ -371,3 +371,21 @@
 .cameleon-screen #cameleon-result-win .fab-modal-backdrop {
   background: var(--fab-cameleon-win-scrim);
 }
+
+/* PauseOverlay actions ship unstyled (no sprite): cream-on-white labels were
+   invisible on device. Give pause buttons the house ink treatment. */
+.cameleon-screen .fab-pause-card .fab-btn {
+  background-color: var(--fab-color-hud-border);
+  color: var(--fab-color-on-accent);
+}
+
+.cameleon-screen .fab-pause-card .fab-btn[data-action="pause-resume"] {
+  background-color: var(--fab-color-cameleon-found);
+}
+
+/* Keep result ribbon titles on one line (FOUND ENOUGH wrapped over the eyebrow). */
+.cameleon-screen #cameleon-result-win .fab-modal-ribbon,
+.cameleon-screen #cameleon-result-fail .fab-modal-ribbon {
+  font-size: 20px;
+  white-space: nowrap;
+}
