@@ -150,7 +150,7 @@ describe('video-refs CLI', () => {
     const html = fs.readFileSync(htmlPath, 'utf8');
     assert.match(html, /src="02_fixture\.mp4"/);
     assert.match(html, /var MODEL = /);
-    assert.deepEqual(generatedModel(html).labels, ['menu', 'level', 'settings', 'pause', 'win', 'fail', 'gameplay', 'other']);
+    assert.deepEqual(generatedModel(html).labels, ['menu', 'level', 'settings', 'pause', 'win', 'fail', 'gameplay']);
     assert.match(html, /var LABELS = MODEL\.labels\.slice\(\);/);
     assert.match(html, /var LABEL_RE = \/\^\[a-z\]\[a-z0-9_-\]\*\$\/;/);
     assert.match(html, /markers: MODEL\.markers\.map\(function \(m\) \{ return Object\.assign\(\{\}, m\); \}\)/);
@@ -168,8 +168,10 @@ describe('video-refs CLI', () => {
     );
     assert.match(html, /<nav class="kbd-hint" aria-label="keyboard shortcuts">[\s\S]*<kbd>Space<\/kbd> play[\s\S]*<kbd>J<\/kbd><kbd>K<\/kbd> walk[\s\S]*<kbd>X<\/kbd> keep \/ drop[\s\S]*id="label-hint-keys"[\s\S]*label[\s\S]*<\/nav>/);
     assert.match(html, /function makeChips\(m\) \{[\s\S]*LABELS\.forEach\(function \(label, i\) \{[\s\S]*c\.className = 'chip' \+ \(m\.label === label \? ' active' : ''\);[\s\S]*assignLabel\(m, label\);/);
-    assert.match(html, /<button class="add-label" id="add-label" type="button">\+ label<\/button>/);
-    assert.match(html, /document\.getElementById\('add-label'\)\.addEventListener\('click', function \(\) \{[\s\S]*window\.prompt\('New label'\);[\s\S]*addLabel\(label\);/);
+    assert.match(html, /function makeOtherChip\(m\) \{[\s\S]*c\.className = 'chip other-chip';[\s\S]*openOtherInput\(m\);/);
+    assert.match(html, /function makeOtherInput\(m\) \{[\s\S]*input\.className = 'other-label-input';[\s\S]*submitOtherLabel\(m, input\.value\);/);
+    assert.doesNotMatch(html, /id="add-label"/);
+    assert.doesNotMatch(html, /window\.prompt\('New label'\)/);
     assert.match(html, /function toggleAtRest\(m\) \{[\s\S]*m\.atRest = !m\.atRest;[\s\S]*render\(false\);[\s\S]*\}/);
     assert.match(html, /atRest\.className = 'restbtn' \+ \(m\.atRest \? ' is-rest' : ''\);/);
     assert.match(html, /<button class="submit" id="submit" type="button">Submit<\/button>/);
@@ -335,7 +337,7 @@ describe('video-refs CLI', () => {
     ], /duplicate label "menu"/);
   });
 
-  it('runs the generated picker add-label, at-rest flip, and submit payload flow', async () => {
+  it('runs the generated picker inline other label, validation, cancel, and submit payload flow', async () => {
     const dir = makeTempDir();
     const candidatesPath = makeCandidatesFixture(dir, {
       labels: ['menu', 'gameplay', 'shop'],
@@ -368,7 +370,6 @@ describe('video-refs CLI', () => {
       submitted = JSON.parse(options.body);
       return { ok: true, text: async () => 'ok' };
     };
-    window.prompt = () => 'boss_intro';
     const html = fs.readFileSync(htmlPath, 'utf8');
     const script = html.match(/<script>\n([\s\S]*?)\n {2}<\/script>/);
     assert.ok(script, 'expected generated inline script');
@@ -376,17 +377,53 @@ describe('video-refs CLI', () => {
     window.eval(script[1]);
     await window.happyDOM.whenAsyncComplete();
     assert.equal(window.document.querySelectorAll('.cand').length, 3);
+    assert.equal(window.document.querySelectorAll('.other-chip').length, 3);
+    assert.equal(window.document.querySelectorAll('#add-label').length, 0);
+    assert.ok(window.document.querySelector('.cand.focused .other-chip').textContent.includes('4'));
+
+    window.document.dispatchEvent(new window.KeyboardEvent('keydown', { key: '4', bubbles: true }));
+    await window.happyDOM.whenAsyncComplete();
+    assert.equal(window.document.querySelectorAll('.cand.focused .other-label-input').length, 1);
+    let input = window.document.querySelector('.cand.focused .other-label-input');
+    input.value = 'temporary label';
+    input.dispatchEvent(new window.Event('input', { bubbles: true }));
+    input.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await window.happyDOM.whenAsyncComplete();
+    assert.equal(window.document.querySelectorAll('.other-label-input').length, 0);
+    assert.equal(
+      Array.from(window.document.querySelectorAll('.chip')).some((chip) => chip.textContent.includes('temporary-label')),
+      false,
+    );
 
     window.document.dispatchEvent(new window.KeyboardEvent('keydown', { key: '3', bubbles: true }));
     window.document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
-    window.document.querySelector('#add-label').click();
-    assert.ok(
-      Array.from(window.document.querySelectorAll('.chip')).some((chip) => chip.textContent.includes('boss_intro')),
-      'expected runtime label chip',
+    window.document.querySelector('.cand.focused .other-chip').click();
+    input = window.document.querySelector('.cand.focused .other-label-input');
+    input.value = '123 bad';
+    input.dispatchEvent(new window.Event('input', { bubbles: true }));
+    input.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    await window.happyDOM.whenAsyncComplete();
+    assert.match(window.document.querySelector('.cand.focused .other-label-error').textContent, /must match/);
+    assert.equal(
+      Array.from(window.document.querySelectorAll('.chip')).some((chip) => chip.textContent.includes('123-bad')),
+      false,
     );
-    Array.from(window.document.querySelectorAll('.cand.focused .chip'))
-      .find((chip) => chip.textContent.includes('boss_intro'))
-      .click();
+    assert.equal(window.document.querySelector('.cand.focused .chip.active').textContent.includes('gameplay'), true);
+
+    input = window.document.querySelector('.cand.focused .other-label-input');
+    input.value = 'boss_intro';
+    input.dispatchEvent(new window.Event('input', { bubbles: true }));
+    input.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    await window.happyDOM.whenAsyncComplete();
+    assert.equal(
+      Array.from(window.document.querySelectorAll('.cand')).filter((card) => (
+        Array.from(card.querySelectorAll('.chip:not(.other-chip)')).some((chip) => chip.textContent.includes('boss_intro'))
+      )).length,
+      3,
+      'expected runtime label chip on every card',
+    );
+    assert.ok(window.document.querySelector('.cand.focused .chip.active').textContent.includes('boss_intro'));
+    assert.match(window.document.querySelector('#summary').textContent, /boss_intro\s+1/);
     window.document.querySelector('.cand.focused .restbtn').click();
     window.document.querySelector('#submit').click();
     window.document.querySelector('#submit').click();
@@ -396,6 +433,57 @@ describe('video-refs CLI', () => {
     assert.deepEqual(submitted.payload.frames.map((frame) => frame.atRest), [true, true, true]);
     assert.ok(submitted.payload.frames.every((frame) => !Object.hasOwn(frame, 'notAtRestReason')));
     assert.match(window.document.querySelector('#status').textContent, /Submitted 3 frames/);
+    window.close();
+  });
+
+  it('normalizes inline other text before creating the global label', async () => {
+    const dir = makeTempDir();
+    const candidatesPath = makeCandidatesFixture(dir, {
+      labels: ['menu', 'gameplay'],
+      candidates: [
+        { t: 0.5, file: 'frames/a.jpg', label: 'menu', atRest: true },
+        { t: 1.5, file: 'frames/b.jpg', label: 'gameplay', atRest: true },
+      ],
+    });
+    const htmlPath = path.join(dir, 'picker.html');
+    sh(process.execPath, [
+      RUN,
+      'build-view',
+      '--candidates',
+      candidatesPath,
+      '--video-src',
+      '02_fixture.mp4',
+      '--out',
+      htmlPath,
+    ]);
+
+    const window = new Window({
+      url: 'http://127.0.0.1:4173/media/req_dom/picker.html',
+      settings: { disableJavaScriptEvaluation: false },
+    });
+    const html = fs.readFileSync(htmlPath, 'utf8');
+    const script = html.match(/<script>\n([\s\S]*?)\n {2}<\/script>/);
+    assert.ok(script, 'expected generated inline script');
+    window.document.write(html.replace(script[0], ''));
+    window.eval(script[1]);
+    await window.happyDOM.whenAsyncComplete();
+
+    window.document.querySelector('.cand.focused .other-chip').click();
+    const input = window.document.querySelector('.cand.focused .other-label-input');
+    input.value = 'Boss Intro';
+    input.dispatchEvent(new window.Event('input', { bubbles: true }));
+    input.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    await window.happyDOM.whenAsyncComplete();
+
+    assert.equal(window.document.querySelectorAll('.other-label-input').length, 0);
+    assert.ok(window.document.querySelector('.cand.focused .chip.active').textContent.includes('boss-intro'));
+    assert.equal(
+      Array.from(window.document.querySelectorAll('.cand')).filter((card) => (
+        Array.from(card.querySelectorAll('.chip:not(.other-chip)')).some((chip) => chip.textContent.includes('boss-intro'))
+      )).length,
+      2,
+    );
+    assert.match(window.document.querySelector('#summary').textContent, /boss-intro\s+1/);
     window.close();
   });
 
