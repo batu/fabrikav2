@@ -79,12 +79,13 @@ function iconAction(options: {
   readonly action: string;
   readonly image: string;
   readonly instance: string;
+  readonly className?: string;
   readonly onClick: () => void;
 }): HTMLButtonElement {
   const button = buildButtonElement({
     label: options.label,
     ariaLabel: options.label,
-    className: "template-shell__icon-action",
+    className: ["template-shell__icon-action", options.className].filter(Boolean).join(" "),
     dataAction: options.action,
     onClick: options.onClick,
   });
@@ -93,10 +94,10 @@ function iconAction(options: {
   return button;
 }
 
-function currencyCounter(snapshot: TemplateShellSnapshot, instance: string): HTMLElement {
+function currencyCounter(snapshot: TemplateShellSnapshot, instance?: string): HTMLElement {
   const counter = document.createElement("div");
-  counter.className = "template-shell__currency";
-  counter.dataset.fabInstance = instance;
+  counter.className = "template-shell__currency template-shell__currency--contrasted";
+  if (instance) counter.dataset.fabInstance = instance;
   counter.setAttribute("role", "status");
   counter.setAttribute("aria-label", copy["currency.label"]);
   counter.append(
@@ -143,6 +144,7 @@ function menuHeader(
       action: "settings",
       image: assetUrls.settings,
       instance: "menu.settings",
+      className: "template-shell__icon-action--utility",
       onClick: () => {
         controller.openSettings();
         render();
@@ -224,37 +226,55 @@ function renderLevel(
   snapshot: TemplateShellSnapshot,
   controller: TemplateShellController,
   render: () => void,
+  options: { readonly pausedBackdrop?: boolean } = {},
 ): void {
+  const pausedBackdrop = options.pausedBackdrop ?? false;
   const page = document.createElement("main");
-  page.className = "template-shell__level";
+  page.className = ["template-shell__level", pausedBackdrop && "template-shell__level--paused-backdrop"]
+    .filter(Boolean)
+    .join(" ");
+  if (pausedBackdrop) {
+    page.dataset.templateBackdrop = "paused-level";
+    page.setAttribute("aria-hidden", "true");
+    page.setAttribute("inert", "");
+  }
 
   const hud = document.createElement("header");
   hud.className = "template-shell__hud";
   const label = document.createElement("h1");
-  label.className = "template-shell__level-label";
-  label.dataset.fabInstance = "level.label";
+  label.className = "template-shell__level-label template-shell__level-label--compact";
+  if (!pausedBackdrop) label.dataset.fabInstance = "level.label";
   label.textContent = `${copy["level.label"]} ${snapshot.currentLevel}`;
-  hud.append(
-    currencyCounter(snapshot, "level.currency"),
-    label,
-    iconAction({
-      label: copy["level.pause"],
-      action: "pause",
-      image: assetUrls.pause,
-      instance: "level.pause",
-      onClick: () => {
-        controller.pause();
-        render();
-      },
-    }),
-  );
+  hud.append(currencyCounter(snapshot, pausedBackdrop ? undefined : "level.currency"), label);
+  if (!pausedBackdrop) {
+    hud.append(
+      iconAction({
+        label: copy["level.pause"],
+        action: "pause",
+        image: assetUrls.pause,
+        instance: "level.pause",
+        onClick: () => {
+          controller.pause();
+          render();
+        },
+      }),
+    );
+  }
 
   const gameplay = document.createElement("section");
   gameplay.className = "template-shell__gameplay";
-  gameplay.dataset.fabRole = "gameplay-region";
-  gameplay.dataset.fabInstance = "level.gameplay-region";
-  gameplay.setAttribute("role", "group");
-  gameplay.setAttribute("aria-label", copy["level.gameplay.label"]);
+  if (!pausedBackdrop) {
+    gameplay.dataset.fabRole = "gameplay-region";
+    gameplay.dataset.fabInstance = "level.gameplay-region";
+    gameplay.dataset.templateSocket = "replaceable-mechanic";
+    gameplay.setAttribute("role", "group");
+    gameplay.setAttribute("aria-label", copy["level.gameplay.label"]);
+  }
+  const gameplayCopy = document.createElement("div");
+  gameplayCopy.className = "template-shell__gameplay-copy";
+  const gameplayKicker = document.createElement("p");
+  gameplayKicker.className = "template-shell__gameplay-kicker";
+  gameplayKicker.textContent = copy["level.gameplay.kicker"];
   const gameplayTitle = document.createElement("h2");
   gameplayTitle.textContent = copy["level.gameplay.title"];
   const gameplayBody = document.createElement("p");
@@ -263,47 +283,49 @@ function renderLevel(
   gameplayEmblem.className = "template-shell__gameplay-emblem";
   gameplayEmblem.setAttribute("aria-hidden", "true");
   gameplayEmblem.append(art(assetUrls.gameplay, "template-shell__gameplay-art"));
-  gameplay.append(gameplayEmblem, gameplayTitle, gameplayBody);
+  gameplayCopy.append(gameplayKicker, gameplayTitle, gameplayBody);
+  gameplay.append(gameplayEmblem, gameplayCopy);
 
-  const sample = document.createElement("section");
-  sample.className = "template-shell__sample-outcomes";
-  sample.setAttribute("aria-labelledby", "template-sample-outcomes-title");
-  const sampleTitle = document.createElement("h2");
-  sampleTitle.id = "template-sample-outcomes-title";
-  sampleTitle.className = "template-shell__sample-title";
-  sampleTitle.textContent = copy["level.sample.title"];
-  const sampleBody = document.createElement("p");
-  sampleBody.className = "template-shell__sample-body";
-  sampleBody.textContent = copy["level.sample.body"];
-  const testActions = document.createElement("div");
-  testActions.className = "template-shell__test-actions";
-  testActions.append(
-    buildButtonElement({
-      label: copy["level.testWin"],
-      className: "template-shell__test-action template-shell__test-action--win",
-      spriteImage: assetUrls.buttonPrimary,
-      dataAction: "test-win",
-      onClick: () => {
-        controller.win();
-        render();
-      },
-    }),
-    buildButtonElement({
-      label: copy["level.testLose"],
-      className: "template-shell__test-action template-shell__test-action--lose",
-      spriteImage: assetUrls.buttonSecondary,
-      dataAction: "test-lose",
-      onClick: () => {
-        controller.lose();
-        render();
-      },
-    }),
-  );
-  testActions.children[0]?.setAttribute("data-fab-instance", "level.test-win");
-  testActions.children[1]?.setAttribute("data-fab-instance", "level.test-lose");
-  sample.append(sampleTitle, sampleBody, testActions);
-
-  page.append(hud, gameplay, sample);
+  page.append(hud, gameplay);
+  if (!pausedBackdrop) {
+    const sample = document.createElement("section");
+    sample.className = "template-shell__sample-outcomes";
+    sample.dataset.templateDiagnostic = "outcomes";
+    sample.setAttribute("aria-labelledby", "template-sample-outcomes-title");
+    const sampleTitle = document.createElement("h2");
+    sampleTitle.id = "template-sample-outcomes-title";
+    sampleTitle.className = "template-shell__sample-title";
+    sampleTitle.textContent = copy["level.sample.title"];
+    const sampleBody = document.createElement("p");
+    sampleBody.className = "template-shell__sample-body";
+    sampleBody.textContent = copy["level.sample.body"];
+    const testActions = document.createElement("div");
+    testActions.className = "template-shell__test-actions";
+    testActions.append(
+      buildButtonElement({
+        label: copy["level.testWin"],
+        className: "template-shell__test-action template-shell__test-action--win",
+        dataAction: "test-win",
+        onClick: () => {
+          controller.win();
+          render();
+        },
+      }),
+      buildButtonElement({
+        label: copy["level.testLose"],
+        className: "template-shell__test-action template-shell__test-action--lose",
+        dataAction: "test-lose",
+        onClick: () => {
+          controller.lose();
+          render();
+        },
+      }),
+    );
+    testActions.children[0]?.setAttribute("data-fab-instance", "level.test-win");
+    testActions.children[1]?.setAttribute("data-fab-instance", "level.test-lose");
+    sample.append(sampleTitle, sampleBody, testActions);
+    page.appendChild(sample);
+  }
   mountInto.appendChild(page);
 }
 
@@ -481,9 +503,8 @@ export function mountTemplateShell(options: MountTemplateShellOptions): Template
     if (surfaceHandle) {
       surfaceHandle.dismiss();
       surfaceHandle = null;
-    } else {
-      root.replaceChildren();
     }
+    root.replaceChildren();
     replacingSurface = false;
   };
 
@@ -502,6 +523,7 @@ export function mountTemplateShell(options: MountTemplateShellOptions): Template
         surfaceHandle = renderSettings(root, snapshot, options.controller, render, () => replacingSurface);
         break;
       case "pause":
+        renderLevel(root, snapshot, options.controller, render, { pausedBackdrop: true });
         surfaceHandle = renderPause(root, options.controller, render);
         break;
       case "win":

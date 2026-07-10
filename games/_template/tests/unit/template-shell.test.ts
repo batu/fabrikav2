@@ -181,6 +181,51 @@ describe("template shell renderer and harness", () => {
     expect(css).toMatch(/\.template-shell \.fab-toggle-input\s*\{[^}]*width:\s*100%;[^}]*height:\s*100%;/s);
   });
 
+  it("keeps Settings a quiet utility and the white currency star on a contrasted surface", () => {
+    const controller = createController();
+    const root = document.getElementById("app")!;
+    const shell = mountTemplateShell({ mountInto: root, controller });
+
+    const settings = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="settings"]');
+    const currency = shell.root.querySelector<HTMLElement>('[data-fab-instance="menu.currency"]');
+    const css = templateShellCss();
+
+    expect(settings?.classList.contains("template-shell__icon-action--utility")).toBe(true);
+    expect(currency?.classList.contains("template-shell__currency--contrasted")).toBe(true);
+    expect(css).toMatch(
+      /\.template-shell__icon-action--utility\s*\{[^}]*background-color:\s*var\(--fab-seed-color-utility-surface\);[^}]*box-shadow:\s*none;/s,
+    );
+    expect(css).toMatch(
+      /\.template-shell__currency--contrasted\s*\{[^}]*background-color:\s*var\(--fab-seed-color-currency-surface\);[^}]*color:\s*var\(--fab-seed-color-currency-on-surface\);/s,
+    );
+  });
+
+  it("keeps the paused level visibly present without duplicating its live controls", () => {
+    const controller = createController();
+    const root = document.getElementById("app")!;
+    const shell = mountTemplateShell({ mountInto: root, controller });
+
+    controller.startCurrent();
+    controller.pause();
+    shell.render();
+
+    const backdrop = shell.root.querySelector<HTMLElement>(".template-shell__level--paused-backdrop");
+    const css = templateShellCss();
+
+    expect(backdrop).not.toBeNull();
+    expect(backdrop?.dataset.templateBackdrop).toBe("paused-level");
+    expect(backdrop?.getAttribute("aria-hidden")).toBe("true");
+    expect(backdrop?.hasAttribute("inert")).toBe(true);
+    expect(backdrop?.querySelectorAll("[data-fab-action]")).toHaveLength(0);
+    expect(backdrop?.querySelectorAll("[data-fab-instance]")).toHaveLength(0);
+    expect(backdrop?.querySelector(".template-shell__sample-outcomes")).toBeNull();
+    expect(shell.root.querySelector('[data-fab-instance="pause.panel"]')).not.toBeNull();
+    expect(css).toMatch(/\.template-shell__level--paused-backdrop\s*\{[^}]*pointer-events:\s*none;/s);
+    expect(css).toMatch(
+      /\.template-shell\[data-fab-state="pause"\] \.fab-modal-scrim\s*\{[^}]*background:\s*var\(--fab-seed-color-pause-scrim\);/s,
+    );
+  });
+
   it("frames the required outcome controls as an intentional starter interaction", () => {
     const controller = createController();
     const root = document.getElementById("app")!;
@@ -191,10 +236,33 @@ describe("template shell renderer and harness", () => {
 
     const sample = shell.root.querySelector<HTMLElement>(".template-shell__sample-outcomes");
     expect(sample).not.toBeNull();
-    expect(sample?.textContent).toContain("Sample outcome");
-    expect(sample?.querySelector('[data-fab-action="test-win"]')?.textContent).toBe("Complete round");
-    expect(sample?.querySelector('[data-fab-action="test-lose"]')?.textContent).toBe("Preview retry");
+    expect(sample?.dataset.templateDiagnostic).toBe("outcomes");
+    expect(sample?.textContent).toContain("Template diagnostics");
+    expect(sample?.querySelector('[data-fab-action="test-win"]')?.textContent).toBe("Show win");
+    expect(sample?.querySelector('[data-fab-action="test-lose"]')?.textContent).toBe("Show retry");
+    expect(sample?.querySelector('[data-fab-action="test-win"]')?.classList.contains("template-shell__test-action--win")).toBe(true);
+    expect(sample?.querySelector('[data-fab-action="test-lose"]')?.classList.contains("template-shell__test-action--lose")).toBe(true);
+    const socket = shell.root.querySelector<HTMLElement>('[data-fab-role="gameplay-region"]');
+    expect(socket?.dataset.templateSocket).toBe("replaceable-mechanic");
+    expect(socket?.querySelector(".template-shell__gameplay-kicker")?.textContent).toBe("Mechanic socket");
     expect(shell.root.textContent).not.toContain("Gameplay goes here");
+  });
+
+  it("keeps the in-level identity compact and on one line", () => {
+    const controller = createController();
+    const root = document.getElementById("app")!;
+    const shell = mountTemplateShell({ mountInto: root, controller });
+
+    controller.startCurrent();
+    shell.render();
+
+    const label = shell.root.querySelector<HTMLElement>('[data-fab-instance="level.label"]');
+    const css = templateShellCss();
+
+    expect(label?.classList.contains("template-shell__level-label--compact")).toBe(true);
+    expect(css).toMatch(
+      /\.template-shell__level-label--compact\s*\{[^}]*white-space:\s*nowrap;[^}]*overflow:\s*hidden;[^}]*text-overflow:\s*ellipsis;/s,
+    );
   });
 
   it("uses the state owner for rendered semantic actions and keeps locked nodes inert", () => {

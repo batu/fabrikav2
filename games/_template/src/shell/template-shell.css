@@ -10,6 +10,8 @@ body {
 }
 
 .template-shell {
+  position: relative;
+  isolation: isolate;
   min-height: 100dvh;
   background: var(--fab-color-surface);
   color: var(--fab-color-text);
@@ -123,9 +125,13 @@ body {
   gap: var(--fab-space-xs);
   padding: var(--fab-space-xs) var(--fab-space-sm);
   border-radius: var(--fab-radius-pill);
-  background: var(--fab-color-secondary-surface);
-  color: var(--fab-color-on-secondary);
   font-weight: var(--fab-font-weight-bold);
+}
+
+.template-shell__currency--contrasted {
+  background-color: var(--fab-seed-color-currency-surface);
+  color: var(--fab-seed-color-currency-on-surface);
+  border: var(--fab-border-width) solid var(--fab-seed-color-currency-border);
 }
 
 .template-shell__currency-icon,
@@ -145,6 +151,11 @@ body {
   background-color: var(--fab-color-accent);
 }
 
+.template-shell__icon-action--utility {
+  background-color: var(--fab-seed-color-utility-surface);
+  box-shadow: none;
+}
+
 .template-shell .fab-page-back {
   background-color: var(--fab-color-accent);
   box-shadow: var(--fab-shadow-button);
@@ -154,9 +165,23 @@ body {
 .template-shell__level-label {
   margin: 0;
   color: var(--fab-color-text);
-  font-size: var(--fab-font-size-title);
   font-weight: var(--fab-font-weight-bold);
   text-align: center;
+}
+
+.template-shell__title {
+  font-size: var(--fab-font-size-title);
+}
+
+.template-shell__level-label--compact {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: var(--fab-color-text);
+  font-size: var(--fab-hud-level-font-size);
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .template-shell__hero-stage {
@@ -204,14 +229,17 @@ body {
 
 .template-shell__gameplay {
   display: grid;
-  place-items: center;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--fab-space-md);
   min-height: var(--fab-gameplay-min-height);
   padding: var(--fab-space-lg);
   border: var(--fab-border-width) solid var(--fab-color-secondary-border);
+  border-style: dashed;
   border-radius: var(--fab-radius-md);
-  background: var(--fab-color-gameplay-surface);
+  background-color: var(--fab-seed-color-socket-surface);
   color: var(--fab-color-text);
-  text-align: center;
+  text-align: left;
 }
 
 .template-shell__gameplay-emblem {
@@ -235,6 +263,19 @@ body {
   margin: 0;
 }
 
+.template-shell__gameplay-copy {
+  display: grid;
+  gap: var(--fab-space-xs);
+}
+
+.template-shell__gameplay-kicker {
+  color: var(--fab-seed-color-socket-kicker);
+  font-size: var(--fab-font-size-sm);
+  font-weight: var(--fab-font-weight-bold);
+  letter-spacing: var(--fab-node-status-letter-spacing);
+  text-transform: uppercase;
+}
+
 .template-shell__sample-outcomes {
   display: grid;
   gap: var(--fab-space-xs);
@@ -249,8 +290,10 @@ body {
 }
 
 .template-shell__sample-title {
-  color: var(--fab-color-text);
-  font-size: var(--fab-font-size-md);
+  color: var(--fab-color-text-muted);
+  font-size: var(--fab-font-size-sm);
+  letter-spacing: var(--fab-node-status-letter-spacing);
+  text-transform: uppercase;
 }
 
 .template-shell__sample-body {
@@ -269,6 +312,7 @@ body {
 
 .template-shell__test-actions {
   align-items: stretch;
+  justify-content: center;
   flex-wrap: wrap;
 }
 
@@ -305,10 +349,35 @@ body {
 }
 
 .template-shell__test-action {
-  flex: 1 1 140px;
-  min-height: var(--fab-demo-action-min-height);
-  padding: var(--fab-space-sm);
-  font-size: var(--fab-font-size-md);
+  flex: 1 1 var(--fab-diagnostic-action-min-width);
+  max-width: var(--fab-diagnostic-action-max-width);
+  min-height: var(--fab-btn-min-size);
+  padding: var(--fab-space-xs) var(--fab-space-sm);
+  font-size: var(--fab-font-size-sm);
+  box-shadow: none;
+}
+
+.template-shell__test-action--win {
+  background-color: var(--fab-seed-color-diagnostic-win-surface);
+  color: var(--fab-seed-color-diagnostic-text);
+  border: var(--fab-border-width) solid var(--fab-seed-color-diagnostic-win-border);
+}
+
+.template-shell__test-action--lose {
+  background-color: var(--fab-seed-color-diagnostic-lose-surface);
+  color: var(--fab-seed-color-diagnostic-text);
+  border: var(--fab-border-width) solid var(--fab-seed-color-diagnostic-lose-border);
+}
+
+.template-shell__level--paused-backdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.template-shell[data-fab-state="pause"] .fab-modal-scrim {
+  background: var(--fab-seed-color-pause-scrim);
 }
 
 .template-shell .fab-modal-card.fab-pause-card {

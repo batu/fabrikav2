@@ -11,6 +11,18 @@
   --fab-seed-color-on-secondary: #173042;
   --fab-seed-color-secondary-border: #aac4ca;
   --fab-seed-color-gameplay-surface: #dceef0;
+  --fab-seed-color-utility-surface: #4f6977;
+  --fab-seed-color-currency-surface: #173042;
+  --fab-seed-color-currency-on-surface: #ffffff;
+  --fab-seed-color-currency-border: #4f6977;
+  --fab-seed-color-socket-surface: #eaf5ee;
+  --fab-seed-color-socket-kicker: #2f6f59;
+  --fab-seed-color-pause-scrim: rgba(24, 42, 54, 0.52);
+  --fab-seed-color-diagnostic-text: #173042;
+  --fab-seed-color-diagnostic-win-surface: #d8efe1;
+  --fab-seed-color-diagnostic-win-border: #72b58e;
+  --fab-seed-color-diagnostic-lose-surface: #f3e2d9;
+  --fab-seed-color-diagnostic-lose-border: #c98d76;
   --fab-seed-color-hero-surface: #1f8063;
   --fab-seed-color-hero-border: #bfe5cf;
   --fab-seed-color-pause-surface: #fff6df;
@@ -33,6 +45,7 @@
   --fab-seed-font-size-sm: 14px;
   --fab-seed-font-size-md: 16px;
   --fab-seed-font-size-lg: 20px;
+  --fab-hud-level-font-size: 24px;
   --fab-seed-font-weight-normal: 600;
   --fab-seed-font-weight-bold: 800;
   --fab-seed-shadow-button: 0 4px 10px rgba(23, 48, 66, 0.2);
@@ -90,7 +103,8 @@
   --fab-hero-ring-size: 220px;
   --fab-gameplay-emblem-size: 112px;
   --fab-gameplay-art-width: 70px;
-  --fab-demo-action-min-height: 56px;
+  --fab-diagnostic-action-min-width: 120px;
+  --fab-diagnostic-action-max-width: 168px;
   --fab-node-status-offset: 12px;
   --fab-node-status-min-width: 58px;
   --fab-node-status-padding: 4px 8px;

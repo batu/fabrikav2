@@ -234,3 +234,84 @@ Run the mandatory fresh independent aesthetics review against settled frames.
 
 - Sol performed a read-only contract-to-DOM census and identified the level 1
   and level 3 progression edge cases; deterministic tests now cover both.
+
+### Iteration 4 - Keep the starter shell quiet, contextual, and replaceable
+
+#### Planned Result
+
+The editor-neutral template should retain its compact Trailhead starter language
+without mistaking utilities, diagnostics, or the mechanic socket for
+production-primary game UI. Pause should retain enough of the active level to
+keep a player oriented, while the single controller remains the only behavior
+owner.
+
+#### Why This Iteration
+
+The independent aesthetics follow-up identified six bounded seams: Settings
+competed with Continue, the white currency star lacked a reliable backing,
+Pause replaced rather than contextualized the level, the HUD identity could
+wrap, the mechanic-neutral region resembled a result card, and the required
+Win/Lose controls still read as production actions instead of template-only
+diagnostics.
+
+#### Changes Made
+
+- Menu Settings now uses a muted utility surface with no button shadow; the
+  primary Continue path remains the visual action hierarchy.
+- The white Kenney star now sits on a dark, bordered currency surface in both
+  menu and HUD contexts.
+- Pause renders a visually retained, `aria-hidden` and `inert` level backdrop
+  beneath a lighter pause scrim. That backdrop carries neither semantic
+  instances nor action hooks, so only the foreground Pause controls can drive
+  the shared controller.
+- The HUD level label now uses a compact single-line ellipsis treatment.
+- The gameplay area is now an explicitly labelled, dashed mechanic socket with
+  a left-aligned content area rather than a centered result-card composition.
+- Win and Lose remain functional but are relabelled as compact `Template
+  diagnostics` with distinct, subdued win/retry treatments.
+
+#### Deterministic Verification
+
+- Proof-first command: `npm run test:unit -w @fabrikav2/game-template --
+  tests/unit/template-shell.test.ts` initially failed in the four new
+  utility/currency, paused-backdrop, diagnostic-socket, and compact-HUD
+  assertions.
+- After the bounded change, that same focused suite passes all 15 tests.
+- `npm run typecheck -w @fabrikav2/game-template`, `npm run lint -w
+  @fabrikav2/game-template`, and `npm run build -w
+  @fabrikav2/game-template` pass.
+- The full template unit suite passes 6 files / 43 tests, and
+  `KENNEY_APPROVED_SOURCE_ROOT=/Users/base/dev/appletolye/assets npm run
+  audit:kenney -w @fabrikav2/game-template` verifies all 29 fixtures.
+- Root `npm run audit` passes with its existing repository/reference coverage
+  warnings; no new template warning was introduced.
+
+#### Post-Change Capture Contract
+
+No new browser or physical-device capture is claimed by this iteration. A
+worker attempt against the current worktree's Vite server reached Playwright
+startup but macOS denied Chromium's `MachPortRendezvousServer` registration
+before any frame rendered. Before the independent aesthetics decision, run the
+existing real-click diagnostic from `games/_template` with an unrestricted
+browser:
+
+```sh
+npm run dev -- --host 127.0.0.1 --port 5199
+node .work/2026-07-11-aesthetics-remediation/capture.mjs u2-seam-remediation
+```
+
+Review the resulting menu, level, pause, settings, win, and fail frames at
+390 x 844. In particular, verify the muted Settings control, star contrast,
+visible noninteractive paused level, unwrapped HUD, socket treatment, and
+subordinate diagnostic actions. This is browser diagnostic evidence only, not
+Android or iPhone proof.
+
+#### Decision
+
+partial
+
+#### Next Action
+
+The Aesthetics Reviewed worker must obtain fresh settled frames with the recipe
+above and perform the mandatory independent visual review. Android/iPhone safe
+areas, touch feel, fonts, and performance remain explicitly unverified.
