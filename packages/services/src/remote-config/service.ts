@@ -102,8 +102,13 @@ export function createRemoteConfigService<S extends ConfigSchema>(
     } catch (err) {
       // Discard a superseded failure so it cannot clear a newer result or state.
       if (gen !== generation) return;
+      // errorMessage() reads caller-controlled Error.message/toString, which can
+      // re-enter refresh(). Resolve it into a local, then recheck ownership
+      // immediately before the mutation-only commit.
+      const message = errorMessage(err);
+      if (gen !== generation) return;
       // Keep last good values; do not revert to defaults on a transient failure.
-      lastErrorMessage = errorMessage(err);
+      lastErrorMessage = message;
       state = 'fetch-failed';
       return;
     }

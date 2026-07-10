@@ -278,6 +278,49 @@ describe('remote-config service', (): void => {
       expect(service.value('value')).toBe(2);
     });
 
+    it('does not let a reentrant error message getter commit the superseded catch', async (): Promise<void> => {
+      // The older refresh rejects with an error whose message getter starts a
+      // newer refresh. The message is read inside the catch; if the stale catch
+      // then committed, it would overwrite the newer fetching state.
+      const newer = deferredProvider();
+      let fetchCount = 0;
+      let newerRefresh: Promise<void> | undefined;
+      const reentrantSchema = { value: numberField(0) } satisfies ConfigSchema;
+
+      const service = createRemoteConfigService(reentrantSchema, {
+        provider: {
+          fetch: () => {
+            if (fetchCount++ === 0) {
+              const err = new Error();
+              // Reading .message re-enters refresh() with a newer generation.
+              Object.defineProperty(err, 'message', {
+                get: (): string => {
+                  if (newerRefresh === undefined) newerRefresh = service.refresh();
+                  return 'older network down';
+                },
+              });
+              return Promise.reject(err);
+            }
+            return newer.provider.fetch();
+          },
+        },
+      });
+
+      await service.refresh();
+
+      // The stale older catch must not have committed fetch-failed over the
+      // newer, still-pending fetch.
+      expect(newerRefresh).toBeDefined();
+      expect(service.state).toBe('fetching');
+      expect(service.snapshot().lastErrorMessage).toBeNull();
+
+      newer.settle({ value: 2 });
+      await newerRefresh;
+      expect(service.state).toBe('ready');
+      expect(service.value('value')).toBe(2);
+      expect(service.snapshot().lastErrorMessage).toBeNull();
+    });
+
     it('does not let now() reentrancy partially commit the superseded generation', async (): Promise<void> => {
       const newer = deferredProvider();
       let fetchCount = 0;
