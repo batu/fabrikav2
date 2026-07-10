@@ -8,14 +8,37 @@ import {
   RUN_VERDICT_KINDS,
 } from '../src/verdict.mjs';
 
+const LIVE = 'live-device';
+
 // Row shapes as produced by compare.buildRows (only the fields verdict reads).
-const capturedRow = (state, cf = 0.01) => ({ state, device: { base64: 'x' }, reference: { base64: 'y' }, diff: { changedFraction: cf } });
-const missingRow = (state) => ({ state, device: { gap: `no device capture for "${state}"` }, reference: { base64: 'y' }, diff: null });
-const noRefRow = (state) => ({ state, device: { base64: 'x' }, reference: { gap: 'documented reference gap' }, diff: null });
-const dualGapRow = (state) => ({ state, device: { gap: 'no device capture' }, reference: { gap: 'documented reference gap' }, diff: null });
-const skippedRow = (state) => ({
+const captureIdentity = (overrides = {}) => ({ lane: 'device', provenance: LIVE, ...overrides });
+const capturedRow = (state, cf = 0.01, identity = {}) => ({
   state,
-  device: { base64: 'x' },
+  device: { base64: 'x', ...captureIdentity(identity) },
+  reference: { base64: 'y' },
+  diff: { changedFraction: cf },
+});
+const missingRow = (state, identity = {}) => ({
+  state,
+  device: { gap: `no device capture for "${state}"`, ...captureIdentity(identity) },
+  reference: { base64: 'y' },
+  diff: null,
+});
+const noRefRow = (state, identity = {}) => ({
+  state,
+  device: { base64: 'x', ...captureIdentity(identity) },
+  reference: { gap: 'documented reference gap' },
+  diff: null,
+});
+const dualGapRow = (state, identity = {}) => ({
+  state,
+  device: { gap: 'no device capture', ...captureIdentity(identity) },
+  reference: { gap: 'documented reference gap' },
+  diff: null,
+});
+const skippedRow = (state, identity = {}) => ({
+  state,
+  device: { base64: 'x', ...captureIdentity(identity) },
   reference: { gap: 'reference skipped by refs manifest at-rest:false', skipJudging: true },
   diff: null,
 });
@@ -23,7 +46,6 @@ const skippedRow = (state) => ({
 // A vision-panel result keyed by per-state status (classifyRunVerdict reads only
 // {state, status}). `null` panel means the panel never ran (skipped/no key).
 const panelWith = (entries) => ({ states: entries.map(([state, status]) => ({ state, status })) });
-const LIVE = 'live-device';
 
 describe('computeVerdict (phash advisory signal)', () => {
   it('passes when every diffed state is under threshold', () => {
@@ -80,9 +102,29 @@ describe('normalizeStateEvidence (reference-first applicability)', () => {
   it('classifies a trusted reference with a device capture/diff as captured (applicable)', () => {
     expect(normalizeStateEvidence(capturedRow('menu')).applicability).toBe('captured');
   });
+  it('preserves the per-row device lane and provenance on normalized evidence', () => {
+    expect(normalizeStateEvidence(capturedRow('menu', 0.01, {
+      lane: 'browser',
+      provenance: 'browser',
+    }))).toMatchObject({
+      applicability: 'captured',
+      deviceLane: 'browser',
+      deviceProvenance: 'browser',
+    });
+  });
 });
 
 describe('provenance helpers', () => {
+  it('exports exactly the five typed evidence kinds', () => {
+    expect(RUN_VERDICT_KINDS).toEqual([
+      'verified-pass',
+      'verified-fail',
+      'skipped',
+      'unverified',
+      'no-applicable-evidence',
+    ]);
+  });
+
   it('trusts only the live-device lane / provenance', () => {
     expect(isVerifiedDeviceLane('device')).toBe(true);
     expect(isVerifiedDeviceLane('browser')).toBe(false);
@@ -138,6 +180,42 @@ describe('classifyRunVerdict — evidence composition × enforcement', () => {
       name: 'AE14 detached xcresult + passing panel → unverified',
       input: { provenance: 'detached-xcresult', rows: [capturedRow('menu')], panel: panelWith([['menu', 'pass']]) },
       kind: 'unverified', strictExit: 1, exploratoryExit: 0,
+    },
+    {
+      name: 'R18 global live + mixed browser row → unverified',
+      input: {
+        provenance: LIVE,
+        rows: [capturedRow('menu'), capturedRow('level', 0.01, { lane: 'browser', provenance: 'browser' })],
+        panel: panelWith([['menu', 'pass'], ['level', 'pass']]),
+      },
+      kind: 'unverified', strictExit: 1, exploratoryExit: 0, reasonIncludes: ['level', 'browser'],
+    },
+    {
+      name: 'R18 global live + mixed provided-captures row → unverified',
+      input: {
+        provenance: LIVE,
+        rows: [capturedRow('menu'), capturedRow('level', 0.01, { lane: 'provided-captures', provenance: 'provided-captures' })],
+        panel: panelWith([['menu', 'pass'], ['level', 'pass']]),
+      },
+      kind: 'unverified', strictExit: 1, exploratoryExit: 0, reasonIncludes: ['level', 'provided-captures'],
+    },
+    {
+      name: 'R18 global live + mixed detached row → unverified',
+      input: {
+        provenance: LIVE,
+        rows: [capturedRow('menu'), capturedRow('level', 0.01, { lane: 'device', provenance: 'detached-xcresult' })],
+        panel: panelWith([['menu', 'pass'], ['level', 'pass']]),
+      },
+      kind: 'unverified', strictExit: 1, exploratoryExit: 0, reasonIncludes: ['level', 'detached-xcresult'],
+    },
+    {
+      name: 'R18 global live + mixed non-live row → unverified',
+      input: {
+        provenance: LIVE,
+        rows: [capturedRow('menu'), capturedRow('level', 0.01, { lane: 'device', provenance: 'stale-device' })],
+        panel: panelWith([['menu', 'pass'], ['level', 'pass']]),
+      },
+      kind: 'unverified', strictExit: 1, exploratoryExit: 0, reasonIncludes: ['level', 'stale-device'],
     },
     {
       name: 'AE13 live run but panel skipped → unverified (phash cannot verify)',
@@ -203,12 +281,14 @@ describe('classifyRunVerdict — evidence composition × enforcement', () => {
       expect(strict.enforcement).toBe('strict');
       expect(strict.exitCode).toBe(c.strictExit);
       expect(RUN_VERDICT_KINDS).toContain(strict.kind);
+      for (const marker of c.reasonIncludes || []) expect(strict.reason).toContain(marker);
     });
     it(`${c.name} [exploratory exit ${c.exploratoryExit}]`, () => {
       const exploratory = classifyRunVerdict({ ...c.input, strict: false });
       expect(exploratory.kind).toBe(c.kind); // kind is evidence-derived, mode-independent
       expect(exploratory.enforcement).toBe('exploratory');
       expect(exploratory.exitCode).toBe(c.exploratoryExit);
+      for (const marker of c.reasonIncludes || []) expect(exploratory.reason).toContain(marker);
     });
   }
 
@@ -224,6 +304,7 @@ describe('classifyRunVerdict — evidence composition × enforcement', () => {
     expect(ignored).toEqual(['ghost', 'pause']);
     expect(v.applicableCount).toBe(1);
   });
+
 });
 
 // Hard-integrity gates fire in BOTH modes and are independent of the evidence kind

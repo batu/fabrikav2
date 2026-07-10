@@ -71,12 +71,22 @@ export function isProvenanceVerified(provenance) {
  * (not a false `missing`) and cannot inflate applicable coverage (R2, AE9).
  *
  * @param {object} row compare.buildRows row {state, device, reference, diff}
- * @returns {{state:string, applicability:'skipped'|'no-reference'|'missing'|'captured', reason:string}}
+ * @returns {{state:string, applicability:'skipped'|'no-reference'|'missing'|'captured', reason:string,
+ *   deviceLane:string|null, deviceProvenance:string|null}}
  */
 export function normalizeStateEvidence(row) {
   const state = row.state;
+  const captureIdentity = {
+    deviceLane: typeof row.device?.lane === 'string' ? row.device.lane : null,
+    deviceProvenance: typeof row.device?.provenance === 'string' ? row.device.provenance : null,
+  };
   if (row.reference && row.reference.skipJudging) {
-    return { state, applicability: 'skipped', reason: row.reference.gap || 'reference excluded from judging' };
+    return {
+      state,
+      applicability: 'skipped',
+      reason: row.reference.gap || 'reference excluded from judging',
+      ...captureIdentity,
+    };
   }
   const referenceTrusted = row.reference && !row.reference.gap;
   if (!referenceTrusted) {
@@ -84,6 +94,7 @@ export function normalizeStateEvidence(row) {
       state,
       applicability: 'no-reference',
       reason: (row.reference && row.reference.gap) || 'no trusted reference to diff against',
+      ...captureIdentity,
     };
   }
   const deviceMissing = !row.device || row.device.gap || !row.diff;
@@ -92,9 +103,15 @@ export function normalizeStateEvidence(row) {
       state,
       applicability: 'missing',
       reason: (row.device && row.device.gap) || 'trusted reference but no device capture/diff',
+      ...captureIdentity,
     };
   }
-  return { state, applicability: 'captured', reason: 'trusted reference and device capture present' };
+  return {
+    state,
+    applicability: 'captured',
+    reason: 'trusted reference and device capture present',
+    ...captureIdentity,
+  };
 }
 
 /**
@@ -196,6 +213,21 @@ export function classifyRunVerdict({
       ...base,
       kind: 'unverified',
       reason: `unverified provenance (${provenance || 'non-device lane'}) — strict requires a live-device capture`,
+    });
+  }
+
+  const unverifiedApplicableRows = states.filter((state) => (
+    (state.applicability === 'captured' || state.applicability === 'missing')
+    && (!isVerifiedDeviceLane(state.deviceLane) || !isProvenanceVerified(state.deviceProvenance))
+  ));
+  if (unverifiedApplicableRows.length) {
+    const details = unverifiedApplicableRows.map((state) => (
+      `${state.state} (lane=${state.deviceLane || 'unstamped'}, provenance=${state.deviceProvenance || 'unstamped'})`
+    ));
+    return finalize({
+      ...base,
+      kind: 'unverified',
+      reason: `unverified applicable row provenance: ${details.join(', ')} — strict requires every applicable row to be device/live-device`,
     });
   }
 

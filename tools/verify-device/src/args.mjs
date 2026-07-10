@@ -68,7 +68,7 @@ Options:
                        and the registry (e.g. anthropic/claude-opus-4.1,
                        google/gemini-3.5-flash). A model that 404s is skipped w/ note.
   --panel-threshold <n> panel fidelity floor 0..100; a state FAILs below it or on a
-                       consensus blocker finding (default 85, advisory).
+                       consensus blocker finding (default 85; primary fidelity gate under --strict).
   --skip-panel         skip the vision panel. phash is ADVISORY only and can never
                        be a verified pass, so a panel-skipped run is UNVERIFIED and
                        exits non-zero under --strict (exit 0 only when advisory).

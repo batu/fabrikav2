@@ -44,6 +44,12 @@ describe('cli.mjs --help (proof contract in operator guidance)', () => {
     expect(stdout).toContain('AUDIT #7');
   });
 
+  it('describes --panel-threshold as a primary strict fidelity gate, not advisory', () => {
+    const paragraph = stdout.slice(stdout.indexOf('--panel-threshold'), stdout.indexOf('--skip-panel'));
+    expect(paragraph).toContain('primary fidelity gate under --strict');
+    expect(paragraph).not.toContain('advisory');
+  });
+
   it('names the typed run-verdict kinds including verified-pass as the only strict exit 0', () => {
     expect(stdout).toContain('verified-pass');
     expect(stdout).toContain('no-applicable-evidence');

@@ -20,6 +20,12 @@ describe('HELP proof contract', () => {
     expect(HELP).toContain('live-device provenance');
   });
 
+  it('describes --panel-threshold as a primary strict fidelity gate, not advisory', () => {
+    const paragraph = HELP.slice(HELP.indexOf('--panel-threshold'), HELP.indexOf('--skip-panel'));
+    expect(paragraph).toContain('primary fidelity gate under --strict');
+    expect(paragraph).not.toContain('advisory');
+  });
+
   it('names the typed run-verdict kinds', () => {
     for (const kind of ['verified-pass', 'verified-fail', 'unverified', 'skipped', 'no-applicable-evidence']) {
       expect(HELP).toContain(kind);

@@ -313,7 +313,12 @@ async function main() {
     manifest,
   });
 
-  const { rows } = buildRows({ manifest, deviceCaptures: prepared.judgedCaptures, lane });
+  const { rows } = buildRows({
+    manifest,
+    deviceCaptures: prepared.judgedCaptures,
+    lane,
+    provenance: resolved.provenance,
+  });
   const cropArtifacts = writeCropArtifacts({
     manifest,
     rows,
