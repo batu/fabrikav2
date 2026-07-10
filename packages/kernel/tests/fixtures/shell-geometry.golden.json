@@ -1,0 +1,52 @@
+{
+  "profiles": [
+    {
+      "id": "baseline-iphone",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "insets": { "top": 59, "right": 0, "bottom": 34, "left": 0 }
+      },
+      "geometry": {
+        "offset": { "x": 0, "y": 0 },
+        "size": { "width": 0.2, "height": 0.1 },
+        "fit": "contain"
+      },
+      "expected": {
+        "top-left": { "x": 0, "y": 59, "width": 78, "height": 75.1 },
+        "top-center": { "x": 156, "y": 59, "width": 78, "height": 75.1 },
+        "top-right": { "x": 312, "y": 59, "width": 78, "height": 75.1 },
+        "center-left": { "x": 0, "y": 396.95, "width": 78, "height": 75.1 },
+        "center": { "x": 156, "y": 396.95, "width": 78, "height": 75.1 },
+        "center-right": { "x": 312, "y": 396.95, "width": 78, "height": 75.1 },
+        "bottom-left": { "x": 0, "y": 734.9, "width": 78, "height": 75.1 },
+        "bottom-center": { "x": 156, "y": 734.9, "width": 78, "height": 75.1 },
+        "bottom-right": { "x": 312, "y": 734.9, "width": 78, "height": 75.1 }
+      }
+    },
+    {
+      "id": "asymmetric-insets",
+      "viewport": {
+        "width": 430,
+        "height": 932,
+        "insets": { "top": 62, "right": 8, "bottom": 30, "left": 12 }
+      },
+      "geometry": {
+        "offset": { "x": 0, "y": 0 },
+        "size": { "width": 0.2, "height": 0.1 },
+        "fit": "contain"
+      },
+      "expected": {
+        "top-left": { "x": 12, "y": 62, "width": 82, "height": 84 },
+        "top-center": { "x": 176, "y": 62, "width": 82, "height": 84 },
+        "top-right": { "x": 340, "y": 62, "width": 82, "height": 84 },
+        "center-left": { "x": 12, "y": 440, "width": 82, "height": 84 },
+        "center": { "x": 176, "y": 440, "width": 82, "height": 84 },
+        "center-right": { "x": 340, "y": 440, "width": 82, "height": 84 },
+        "bottom-left": { "x": 12, "y": 818, "width": 82, "height": 84 },
+        "bottom-center": { "x": 176, "y": 818, "width": 82, "height": 84 },
+        "bottom-right": { "x": 340, "y": 818, "width": 82, "height": 84 }
+      }
+    }
+  ]
+}
