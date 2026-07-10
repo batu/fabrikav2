@@ -13,6 +13,13 @@ task_class: ads-lifecycle-contract
 touches:
   - packages/sdk/src/ads/AdMobProvider.ts
   - packages/sdk/src/ads/AdMobProvider.test.ts
+  - packages/sdk/src/ads/createAdProvider.ts
+  - packages/sdk/src/ads/createAdProvider.test.ts
+  - games/marble_run/src/sdk/SdkContext.ts
+  - games/marble_run/tests/unit/sdk-wiring.test.ts
+  - games/marble_run/src/main.ts
+  - games/marble_run/package.json
+  - package-lock.json
 ---
 
 # fix: AdMob interstitial — ready-only display + re-arm
@@ -37,7 +44,8 @@ already ships the exact ready-only + re-arm contract this card asks for: backgro
 converge-to-sibling job, not a design-from-scratch.** We bring AdMob's interstitial into parity with
 AppLovin's already-shipped contract, honoring the AdMob-specific mechanics AppLovin lacks, and adding
 the three net-new testable seams the acceptance criteria require (bounded load backoff, app-foreground
-re-arm, disposal) as **AdMob-local** additions that do not widen the shared `AdProvider` interface.
+re-arm, disposal). The shared `AdProvider` method interface stays unchanged; production construction instead
+returns an explicit lifecycle owner that carries the provider plus teardown.
 
 **Scope is AdMob interstitial only.** Rewarded (`:469-506`) intentionally awaits-then-shows (the caller
 *wants* to wait for a hint) and is untouched. Banner is untouched. AppLovin is untouched.
@@ -61,15 +69,11 @@ Three behaviors diverge from the AppLovin contract and from the card's acceptanc
 ### The pivotal AdMob-specific mechanic
 
 AppLovin's `showInterstitial` promise resolves on **dismiss**, so its `finally` re-arm fires when the ad is
-genuinely finished. AdMob's native `showInterstitial()` resolves on **present**, not dismiss —
-`createFullScreenAdDismissalWaiter` (`:513-566`) compensates by awaiting `Dismissed`/`FailedToShow`, but it
-is **only constructed when lifecycle hooks are present** (`:390`). This is the crux of "re-arm exactly once":
-a re-arm placed in `finally` still fires **once per `maybeShowInterstitial` call that reached the show block**,
-because that block executes at most once per call. On the no-hooks path `finally` runs right after *present*
-(ad still on screen) — but re-preloading then is safe: AdMob's `prepareInterstitial` loads the *next* ad into
-a separate slot and does not disturb the currently-displayed one. So a `finally` re-arm (mirroring AppLovin)
-is both correct and exactly-once **provided** the show block is guarded against concurrent entry (U1) so it
-cannot run twice for overlapping calls.
+genuinely finished. AdMob's native `showInterstitial()` resolves on **present**, not dismiss, and the v8 native
+plugin holds one interstitial reference per platform rather than a documented separate next-ad slot. AdMob must
+therefore always create its `Dismissed`/`FailedToShow` waiter, independent of audio lifecycle hooks, and keep
+`showInProgress` set until that terminal waiter settles. `finally` remains the single re-arm site, but it runs
+only after a terminal event (or an immediate `showInterstitial` rejection), never merely after present.
 
 ---
 
@@ -82,13 +86,14 @@ Traced to the card's acceptance criteria (AC1-AC4) and the brainstorm's contract
 - **R2 (AC2):** A ready ad displays **once**; dismissal or show-failure **re-arms exactly once**; concurrent
   `maybeShowInterstitial` calls do **not** duplicate a show.
 - **R3 (prewarm):** A background prewarm exists so the first eligible opportunity can find a ready ad.
-- **R4 (AC3):** Re-preload after load failure has **bounded retry/backoff** (no unbounded retry storm),
+- **R4 (AC3):** Re-preload after load failure has **bounded retry/backoff** with at most three total native load
+  attempts per failure streak (the initial attempt plus at most two retries; no unbounded retry storm),
   driven by an **injectable** scheduler so it is deterministic to unit-test (matching the repo's inject-`now`,
   no-fake-timers convention, `AdMobProviderOptions.now` at `:113-119`).
 - **R5 (AC3):** App foreground (resume) re-arms a stale interstitial via an **injectable** app-lifecycle seam —
-  **never auto-shows**. No new runtime dependency (`@capacitor/app`) is added at this stage.
-- **R6 (AC3):** An AdMob-local `dispose()` removes registered listeners and cancels any pending backoff/app
-  listeners so the provider can be torn down cleanly.
+  **never auto-shows** — and the production composition root supplies that seam from `@capacitor/app`.
+- **R6 (AC3):** An AdMob-local `dispose()` removes registered listeners, cancels pending backoff/app listeners,
+  fences in-flight async completions, and is reachable through the lifecycle owner returned by production construction.
 - **R7 (AC3):** Tests cover initialization, load failure + backoff, dismissal/re-arm, app background/foreground,
   disposal, and the concurrent-show guard.
 - **R8 (AC4 / boundary):** All new seams are validated against **mocks only** at this stage. Mocks are **not**
@@ -106,19 +111,16 @@ throwing.
 Each resolves one of the brainstorm's six open decisions, defaulting to AppLovin parity + the CLAUDE.md rule
 "reuse compatible AppLovin semantics without forcing provider-specific internals into the common API."
 
-- **KTD1 — Re-arm lives in `finally` (converge to AppLovin), not a persistent dismissal listener.**
-  Mirror `AppLovinMaxProvider.ts:203-208`: in `maybeShowInterstitial`'s `finally`, after `interstitialLoaded = false`,
-  fire `void this.preloadInterstitial()`. Exactly-once holds because the show block runs at most once per call
-  (KTD2 guards concurrency), and the existing `InterstitialAdPluginEvents.FailedToLoad` listener (`:204-207`)
-  already clears `interstitialLoaded` on a failed load. *Rejected:* a separate always-on `Dismissed` re-arm
-  listener — it adds a second re-arm path that would need de-duping against `finally`, exactly the double-arm
-  risk the brainstorm flagged. The `finally` path is simpler and provably one-per-ad.
+- **KTD1 — Re-arm lives in `finally`, after an always-on per-show terminal waiter.** Every ready show creates
+  `Dismissed`/`FailedToShow` listeners even when no `FullScreenAdLifecycle` hooks were injected. A successful native
+  present awaits that terminal waiter before returning; an immediate show rejection is already terminal. `finally`
+  is the only re-arm site, so dismissal and failed-to-show cannot double-arm. If the required dismissal listener
+  cannot be registered, the provider does not present the ad and returns the ready state to a safe retryable state.
 
-- **KTD2 — Concurrent-show guard via an in-flight flag.** Add `private showInProgress = false`. After the ready
-  check and before `beginFullScreenAd`, if `showInProgress` is set, `return false` immediately; otherwise set it,
-  and clear it in `finally`. Needed because `lastInterstitialShownAt` is only updated *after* present, so the
-  frequency cap alone cannot dedupe two overlapping calls. AdMob-local. *(AppLovin has the same latent gap;
-  fixing it there is out of scope — noted in Scope Boundaries.)*
+- **KTD2 — Concurrent-show guard spans presentation through terminal dismissal.** Add `private showInProgress = false`.
+  Check it before the not-loaded lazy-arm branch, set it before any listener-registration await, and clear it only in
+  terminal cleanup. This prevents a second call, including one with `minIntervalMs: 0`, from arming or presenting
+  while the first ad remains onscreen.
 
 - **KTD3 — Prewarm on init success AND keep the lazy arm.** After `this.initialized = true` inside the init IIFE
   (`:251`), fire `void this.preloadInterstitial()` (fire-and-forget — must NOT be awaited, or it would block init).
@@ -128,30 +130,35 @@ Each resolves one of the brainstorm's six open decisions, defaulting to AppLovin
 
 - **KTD4 — Bounded load backoff via an injectable scheduler seam.** Add
   `AdMobProviderOptions.scheduleRetry?: (fn: () => void, delayMs: number) => () => void` (returns a cancel fn),
-  defaulting to a `setTimeout`/`clearTimeout` wrapper. On a preload failure, if attempts remain, schedule one
-  re-preload after an exponential-ish delay; reset the attempt counter on any successful load. Constants (module-level):
-  `MAX_INTERSTITIAL_LOAD_ATTEMPTS = 3`, `INTERSTITIAL_BACKOFF_BASE_MS = 2_000`, multiplier `2`, cap `30_000`.
+  defaulting to a `setTimeout`/`clearTimeout` wrapper. `MAX_INTERSTITIAL_LOAD_ATTEMPTS = 3` counts **total native
+  `prepareInterstitial` calls in one streak**, including the initial call, so only failures 1 and 2 schedule retries;
+  failure 3 stops. Reset the counter on success or a new explicit arm after the capped streak. Backoff uses base
+  `2_000`, multiplier `2`, and cap `30_000`.
   Only **one** pending retry at a time (a scheduled retry is skipped/replaced if one is already pending) to avoid a
   timer pile-up. This is net-new (AppLovin has no backoff); the injectable seam matches the inject-`now` convention
   and keeps tests free of fake timers. *Rejected:* real `setTimeout` with fake timers in tests — the file's
   established convention is dependency injection over `vi.useFakeTimers`.
 
-- **KTD5 — App-foreground re-arm via an injectable seam; no new dependency now.** Add
+- **KTD5 — App-foreground re-arm is injected into AdMob and wired at the production composition root.** Add
   `AdMobProviderOptions.addAppResumeListener?: (onResume: () => void) => Promise<ListenerHandle>`. When provided,
   `init` (on success) registers a handler that, on resume, fires `void this.preloadInterstitial()` **only if not
-  currently loaded** — it never shows. When absent, foreground re-arm is a no-op. The real `@capacitor/app` wiring
-  (a new runtime dependency requiring approval per CLAUDE.md) is **deferred to the downstream native-integration
-  task** — the SDK just exposes the seam so the behavior is implemented and unit-tested now. *Rejected:* adding
-  `@capacitor/app` in this card — it is a dependency addition (needs explicit approval) and native wiring belongs to
-  the native-proof stage, not the mock stage.
+  currently loaded or showing** — it never shows. `games/marble_run/src/main.ts` supplies the seam from
+  `@capacitor/app`'s `resume` listener, and `games/marble_run/package.json`/`package-lock.json` add the Capacitor-8-aligned
+  runtime dependency. The SDK package itself remains free of a hard app-plugin dependency.
 
-- **KTD6 — AdMob-local `dispose()`, not on the shared interface.** Retain listener handles (today
+- **KTD6 — AdMob-local `dispose()` is exposed through a separate lifecycle owner, not `AdProvider`.** Retain listener handles (today
   `registerEventListeners` discards them, `:190-212`) in a `private disposables: ListenerHandle[]`. Add
-  `async dispose(): Promise<void>` that: cancels any pending backoff timer (via the KTD4 cancel fn), removes the app
-  resume listener (KTD5), removes all retained plugin listeners, and marks the provider disposed so late re-arms
-  no-op. Do **not** add `dispose` to `AdProvider` (`AdProvider.ts:20-30`) — that would force it onto AppLovin +
-  Disabled (kit blast radius) for no consumer need. Document the promotion path if a shared consumer ever needs it.
-  *Rejected:* shared-interface `dispose` — violates "don't force provider-specific internals into the common API."
+  `async dispose(): Promise<void>` that marks disposal first, advances a lifecycle generation, cancels retry state,
+  and removes every retained listener with per-handle error swallowing. `createAdProvider` returns an
+  `AdProviderOwner` containing `{ provider: AdProvider, dispose(): Promise<void> }`; AdMob delegates teardown to the
+  concrete provider, while AppLovin/Disabled owners use a no-op. `GameSdk` retains the owner and its pagehide path
+  calls owner disposal. The shared `AdProvider` method interface remains unchanged.
+
+- **KTD7 — Generation guards make disposal win every async race.** Capture the current lifecycle generation before
+  each init, listener registration, preload, scheduled retry, and terminal-show cleanup. After every await, mutate
+  fields or retain a handle only if the generation still matches and the provider is not disposed; otherwise remove
+  any late handle immediately and ignore the late load result. `dispose()` advances the generation before awaiting
+  teardown, so an in-flight init/preload cannot resurrect loaded state or leak a listener.
 
 ---
 
@@ -166,30 +173,34 @@ flowchart TD
   C -- no --> F0[return false]
   C -- yes --> D{within frequency cap?}
   D -- yes --> F1[return false]
-  D -- no --> E{interstitialLoaded?}
-  E -- no --> G["void preloadInterstitial()  (background arm)"] --> F2[return false immediately]
-  E -- yes --> H{showInProgress?}
+  D -- no --> H{showInProgress?}
   H -- yes --> F3[return false]
-  H -- no --> I[showInProgress = true; beginFullScreenAd]
+  H -- no --> E{interstitialLoaded?}
+  E -- no --> G["void preloadInterstitial()  (background arm)"] --> F2[return false immediately]
+  E -- yes --> I[showInProgress = true; register terminal waiter]
   I --> J[await adapter.showInterstitial]
-  J --> K[set lastInterstitialShownAt; await dismissal.wait if hooks]
+  J --> K[set lastInterstitialShownAt; await Dismissed or FailedToShow]
   K --> R[return true]
   J -- throws --> S[warn; return false]
-  I --> Z["finally: cleanup dismissal; finishFullScreenAd;\ninterstitialLoaded=false; showInProgress=false;\nvoid preloadInterstitial()  (re-arm)"]
+  I --> Z["finally: non-throwing cleanup; finishFullScreenAd;\ninterstitialLoaded=false; showInProgress=false;\nvoid preloadInterstitial()  (re-arm)"]
 ```
 
 ### Preload + backoff lifecycle
 
 ```mermaid
 flowchart TD
-  P[preloadInterstitial] --> Q{already loading?}
+  P[preloadInterstitial] --> D0{disposed or stale generation?}
+  D0 -- yes --> D1[return]
+  D0 -- no --> Q{already loading?}
   Q -- yes --> Q1[return in-flight promise]
   Q -- no --> R1[await init; platform check]
   R1 --> R2[adapter.prepareInterstitial]
-  R2 -- success --> S1["interstitialLoaded=true; loadAttempts=0; clear pending retry"]
-  R2 -- failure --> T1{loadAttempts < MAX?}
-  T1 -- yes --> T2["loadAttempts++; if no pending retry: scheduleRetry(preload, backoff(loadAttempts))"]
-  T1 -- no --> T3[give up until next explicit arm; loadAttempts stays capped]
+  R2 -- success --> S0{generation still current?}
+  S0 -- no --> D1
+  S0 -- yes --> S1["interstitialLoaded=true; attempts=0; clear pending retry"]
+  R2 -- failure --> T1{total attempts < 3?}
+  T1 -- yes --> T2["if no pending retry: schedule next attempt with backoff"]
+  T1 -- no --> T3[give up until next explicit arm]
 ```
 
 Trigger sources feeding `preloadInterstitial` (all `void`-fired, all deduped by the in-flight promise):
@@ -200,8 +211,8 @@ backoff retry (KTD4).
 
 ## Implementation Units
 
-All units modify `packages/sdk/src/ads/AdMobProvider.ts` and its test
-`packages/sdk/src/ads/AdMobProvider.test.ts`. Ordered by dependency.
+U1-U6 modify `packages/sdk/src/ads/AdMobProvider.ts` and its test. U7 wires the resulting lifecycle through
+provider selection and the Marble Run production composition root without adding `dispose` to `AdProvider`.
 
 ### U1. Ready-only `maybeShowInterstitial` + concurrent-show guard
 
@@ -218,8 +229,10 @@ never double-show.
 - Add `private showInProgress = false` field.
 - Replace the blocking not-loaded branch (`:382-388`) with the AppLovin pattern: if `!this.interstitialLoaded`,
   `void this.preloadInterstitial(); return false;`.
-- After the ready check, guard on `showInProgress`: if set, `return false`; else set it true.
-- Reset `showInProgress = false` in the existing `finally` (`:409-415`).
+- Check `showInProgress` before the ready/lazy-arm branch; if set, return `false` without preloading.
+- Set the guard before awaiting terminal-listener registration and always create the dismissal waiter, even with no lifecycle hooks.
+- Do not call native show when the required dismissal listener cannot be registered.
+- Reset `showInProgress` only after `Dismissed`, `FailedToShow`, or an immediate native show rejection.
 
 **Patterns to follow:** `AppLovinMaxProvider.ts:180-183` (background arm + immediate false); the existing
 `finally` structure at `AdMobProvider.ts:409-415`.
@@ -233,6 +246,10 @@ never double-show.
 - Concurrent guard: fire two `maybeShowInterstitial` calls without awaiting the first (adapter `showInterstitial`
   holds a pending promise), assert `showInterstitial` called exactly once and the second call resolves `false`.
   Covers AC2 (no duplicate).
+- Present-vs-dismiss race: let native `showInterstitial` resolve while withholding `Dismissed`, call again with
+  `minIntervalMs: 0`, and assert the second call returns `false` with no preload/show until the terminal event fires.
+- No lifecycle hooks: a successful present still waits for `Dismissed` before resolving, clearing the guard, or re-arming.
+- Listener registration failure: if the required dismissal listener cannot be installed, return `false` without presenting.
 - Regression: "returns false when the preload fails" (`:133-144`) still passes (not-loaded → background arm that
   fails → immediate false; `showInterstitial` never called).
 
@@ -249,9 +266,10 @@ network call (no `showInterstitial` on the not-loaded path).
 
 **Files:** `packages/sdk/src/ads/AdMobProvider.ts`, `packages/sdk/src/ads/AdMobProvider.test.ts`.
 
-**Approach:** In `maybeShowInterstitial`'s `finally`, after `this.interstitialLoaded = false`, add
-`void this.preloadInterstitial();` — mirroring `AppLovinMaxProvider.ts:205-207`. No new state; relies on U1's
-guard for one-per-ad and on `preloadInterstitial`'s in-flight dedup.
+**Approach:** In `maybeShowInterstitial`'s `finally`, after the always-created waiter has observed `Dismissed` or
+`FailedToShow`, mark the ad consumed and fire one background preload. Cleanup removes each temporary listener with
+per-handle error swallowing. A nested finalization block must still finish lifecycle hooks, reset loaded/show state,
+and re-arm if cleanup unexpectedly rejects, preserving the shared never-throw provider contract.
 
 **Patterns to follow:** `AppLovinMaxProvider.ts:203-208`.
 
@@ -262,6 +280,10 @@ guard for one-per-ad and on `preloadInterstitial`'s in-flight dedup.
   `finally` still fires a re-arm (`prepareInterstitial` called again).
 - Exactly-once: a single show results in exactly one re-arm preload (assert `prepareInterstitial` call count delta
   is 1 across one show, accounting for the frequency-cap clock).
+- Present is not terminal: resolving native show alone causes no re-arm; emitting `Dismissed` causes exactly one.
+- `FailedToShow` after a resolved native present releases the guard and re-arms exactly once.
+- A listener handle whose `remove()` rejects cannot make `maybeShowInterstitial` reject and cannot strand
+  `showInProgress`, `interstitialLoaded`, lifecycle-finish, or the re-arm.
 
 **Verification:** SDK unit tests green; re-arm count is exactly one per completed/failed show.
 
@@ -278,7 +300,7 @@ guard for one-per-ad and on `preloadInterstitial`'s in-flight dedup.
 **Approach:** Inside the init IIFE, immediately after `this.initialized = true` (`:251`), add
 `void this.preloadInterstitial();` (fire-and-forget — never awaited). Guarded naturally: `preloadInterstitial`
 re-enters `init` but returns early since `initialized` is already true, and the in-flight `preloadPromise` dedups
-against any racing lazy arm.
+against any racing lazy arm. U6 later fences prewarm and init continuations with KTD7's lifecycle generation.
 
 **Patterns to follow:** the fire-and-forget `void this.registerAdRevenueListener()` call in
 `AppLovinMaxProvider.ts:105` (post-init side-effect, not awaited).
@@ -307,11 +329,12 @@ against any racing lazy arm.
 - Add module constants `MAX_INTERSTITIAL_LOAD_ATTEMPTS = 3`, `INTERSTITIAL_BACKOFF_BASE_MS = 2_000`, cap `30_000`.
 - Add `AdMobProviderOptions.scheduleRetry?: (fn: () => void, delayMs: number) => () => void`, defaulting to a
   `setTimeout`/`clearTimeout` wrapper that returns a cancel function.
-- Add fields `private interstitialLoadAttempts = 0` and `private pendingRetryCancel: (() => void) | null = null`.
+- Add fields `private interstitialLoadAttempts = 0` and `private pendingRetryCancel: (() => void) | null = null`;
+  increment the counter immediately before each native `prepareInterstitial` call.
 - In `preloadInterstitial`'s success branch: `interstitialLoaded = true; interstitialLoadAttempts = 0;` and clear
   any `pendingRetryCancel`.
-- In the failure branch (`:297-300`): if `interstitialLoadAttempts < MAX` and no retry is pending, increment
-  attempts, compute `delay = min(cap, BASE * 2 ** (attempts - 1))`, and
+- In the failure branch (`:297-300`): if `interstitialLoadAttempts < MAX` and no retry is pending, compute
+  `delay = min(cap, BASE * 2 ** (attempts - 1))`, and
   `this.pendingRetryCancel = this.scheduleRetry(() => { this.pendingRetryCancel = null; void this.preloadInterstitial(); }, delay)`.
   At the cap, stop scheduling (no storm).
 - Backoff must not run after disposal (U6 sets a disposed flag the scheduler callback and scheduling site check).
@@ -323,10 +346,13 @@ constructor-injected, defaulted seam.
 - On a failing `prepareInterstitial`, `scheduleRetry` is invoked once with the base delay; invoking the captured
   callback retries `prepareInterstitial`; a second failure schedules with the doubled delay. Covers AC3 backoff.
 - Success resets: after a retry succeeds, `interstitialLoadAttempts` is 0 and a later failure schedules at base delay again.
-- Cap: after `MAX` consecutive failures, no further `scheduleRetry` call is made (retry storm bounded).
+- Cap: one explicit arm plus scheduled retries makes exactly three native prepare calls total; the third failure
+  schedules nothing (retry storm bounded, with no off-by-one fourth attempt).
 - Single pending retry: back-to-back failures while a retry is pending do not stack multiple timers.
 - Default scheduler unit: the default `scheduleRetry` wrapper returns a working cancel (asserted via injecting a
   spy factory, not real timers).
+- Timer race: dispose after a retry callback starts but before native prepare resolves; the late result cannot set
+  loaded state or schedule another timer.
 
 **Execution note:** Prefer a fake `scheduleRetry` that captures `(fn, delay)` synchronously — do not use
 `vi.useFakeTimers`; this file's convention is dependency injection over fake timers.
@@ -335,7 +361,7 @@ constructor-injected, defaulted seam.
 
 ### U5. App-foreground re-arm via injectable seam
 
-**Goal:** Satisfy R5 — resume re-arms a stale interstitial, never shows, no new dependency.
+**Goal:** Satisfy the provider half of R5 — resume re-arms a stale interstitial and never shows.
 
 **Requirements:** R5, KTD5.
 
@@ -345,8 +371,8 @@ constructor-injected, defaulted seam.
 
 **Approach:**
 - Add `AdMobProviderOptions.addAppResumeListener?: (onResume: () => void) => Promise<ListenerHandle>`.
-- On init success (after prewarm), if provided, `await`/register a handler: on resume, if `!this.interstitialLoaded`
-  and not disposed, `void this.preloadInterstitial()`. Never calls `showInterstitial`.
+- On init success (after prewarm), if provided, register a handler: on resume, if not loaded, not showing, and not
+  disposed, `void this.preloadInterstitial()`. Never calls `showInterstitial`.
 - Store the returned handle in `disposables` (U6) so `dispose` removes it.
 - When the option is absent, foreground re-arm is a no-op (no registration).
 
@@ -356,6 +382,7 @@ constructor-injected, defaulted seam.
 - With a fake `addAppResumeListener` that exposes an emit hook: firing resume while not loaded calls
   `prepareInterstitial` and never `showInterstitial`. Covers AC3 app foreground.
 - Resume while already loaded is a no-op (no extra `prepareInterstitial`).
+- Resume while a show is in progress is a no-op.
 - No option provided → no resume registration, no crash.
 - Resume after `dispose` (U6) does nothing.
 
@@ -363,9 +390,9 @@ constructor-injected, defaulted seam.
 
 ### U6. AdMob-local `dispose()` teardown
 
-**Goal:** Satisfy R6 — clean teardown of listeners and pending timers; AdMob-local only.
+**Goal:** Satisfy the provider half of R6 — clean teardown, race fencing, and non-throwing cleanup.
 
-**Requirements:** R6, KTD6.
+**Requirements:** R6, KTD6, KTD7.
 
 **Dependencies:** U4 (cancels pending backoff), U5 (removes resume listener).
 
@@ -374,11 +401,12 @@ constructor-injected, defaulted seam.
 **Approach:**
 - Retain listener handles: change `registerEventListeners` (`:190-212`) to push each `addListener` result into a
   `private disposables: ListenerHandle[]`. Push the resume handle (U5) too.
-- Add `private disposed = false`.
-- Add `async dispose(): Promise<void>`: set `disposed = true`; call `pendingRetryCancel?.()`; `await`-remove every
-  handle in `disposables` (swallow errors); clear the array. Guard re-arm sites (backoff callback, resume handler,
-  `finally` re-arm) with `if (this.disposed) return;` so late fire-and-forget preloads no-op.
-- `dispose` is **not** added to `AdProvider`. Add a short doc comment noting the promotion path.
+- Add `private disposed = false` and a monotonic lifecycle generation captured by every async operation.
+- Add `async dispose(): Promise<void>`: mark disposed and advance the generation before any await, cancel pending
+  retry state, and remove every handle independently while swallowing removal errors.
+- After every init/preload/listener await, discard stale results; remove a handle that resolves after disposal rather
+  than retaining it. Guard show finalization so disposal never starts another preload.
+- Make dismissal cleanup independently swallow each handle-removal error so the public show promise remains safe.
 
 **Patterns to follow:** the handle-collection + pop-and-remove teardown already in
 `createFullScreenAdDismissalWaiter` (`:552-563`).
@@ -388,8 +416,46 @@ constructor-injected, defaulted seam.
 - `dispose` cancels a pending backoff retry (the injected `scheduleRetry` cancel fn is invoked).
 - After `dispose`, a resume emit and a `finally` re-arm do not call `prepareInterstitial` (disposed guard).
 - `dispose` is idempotent (second call is a safe no-op).
+- Dispose while native preload is pending, then resolve success/failure: loaded state stays false and no retry appears.
+- Dispose while init or listener registration is pending, then resolve it: initialized stays false, no prewarm
+  starts, and any late listener handle is removed immediately.
+- Dispose while listener registration is pending, then resolve a handle: that handle is immediately removed and not retained.
+- One listener `remove()` rejection does not prevent remaining handles from being removed or make `dispose` reject.
 
 **Verification:** SDK unit tests green; no listener or timer survives `dispose`.
+
+### U7. Production lifecycle owner and Capacitor resume wiring
+
+**Goal:** Make R5/R6 reachable from the real construction and teardown paths without widening `AdProvider`.
+
+**Requirements:** R5, R6, KTD5, KTD6, KTD7.
+
+**Dependencies:** U5, U6.
+
+**Files:** `packages/sdk/src/ads/createAdProvider.ts`, `packages/sdk/src/ads/createAdProvider.test.ts`,
+`packages/sdk/src/ads/index.ts`, `games/marble_run/src/sdk/SdkContext.ts`,
+`games/marble_run/tests/unit/sdk-wiring.test.ts`, `games/marble_run/src/main.ts`,
+`games/marble_run/package.json`, `package-lock.json`.
+
+**Approach:**
+- Introduce an `AdProviderOwner` return wrapper with a provider-facing `AdProvider` value and a separate async
+  disposal function. `createAdProvider` returns this owner; AdMob delegates disposal to its concrete instance,
+  while AppLovin and Disabled owners use a no-op. `AdProvider.ts` remains unchanged.
+- Let production construction pass the AdMob resume-listener seam through the owner factory.
+- Add Capacitor-8-compatible `@capacitor/app` to Marble Run, inject `App.addListener('resume', ...)` from
+  `src/main.ts`, retain the returned owner in `GameSdk`, and invoke its disposal from the existing pagehide/session
+  teardown path. Dependency and lockfile changes are confined to the game composition root.
+
+**Test scenarios:**
+- Provider selection returns an owner whose `provider` preserves current AdMob/AppLovin/Disabled selection behavior.
+- Disposing an AdMob owner calls the concrete provider once; AppLovin/Disabled owner disposal is a safe no-op.
+- The production GameSdk factory forwards the injected resume seam to Android AdMob construction.
+- Emitting the injected production resume callback re-arms but never calls show.
+- Calling GameSdk teardown invokes owner disposal once even when pagehide/session teardown repeats.
+- Type-level regression: normal game code still consumes only `AdProvider`; no `dispose` member is added to that interface.
+
+**Verification:** SDK selection tests and Marble Run wiring tests prove that resume and teardown are reachable from
+production construction; the manifest and lockfile resolve one Capacitor-major-compatible app plugin.
 
 ---
 
@@ -399,7 +465,9 @@ Per the card ("SDK ad tests/typecheck, root unit/audit/eslint. Commit only."):
 
 - `npm run typecheck -w packages/sdk` (or root `npm run typecheck`) — clean.
 - `npm run test:unit -w packages/sdk` — all AdMob ad tests green, including the rewritten `:120` test and every new
-  scenario in U1-U6.
+  scenario in U1-U7, plus provider-owner selection/teardown coverage.
+- `npm run typecheck -w @fabrikav2/marble_run` and `npm run test:unit -w @fabrikav2/marble_run` — production resume
+  injection and pagehide disposal wiring compile and pass.
 - `npm run lint -w packages/sdk` / root `npm run lint` (eslint) — clean.
 - Root `npm run test:unit` and `npm run audit` — green (blast-radius check; this change is AdMob-local but the
   shared `AdProvider` interface and AppLovin/Disabled providers must remain untouched and passing).
@@ -409,36 +477,41 @@ Per the card ("SDK ad tests/typecheck, root unit/audit/eslint. Commit only."):
 
 ## Scope Boundaries
 
-**In scope:** AdMob interstitial ready-only display, re-arm, prewarm, bounded backoff, app-foreground re-arm
-(injectable seam), disposal, concurrent-show guard — all AdMob-local, all mock-tested.
+**In scope:** AdMob interstitial ready-only display, terminal-event re-arm, prewarm, bounded backoff,
+app-foreground re-arm, disposal, concurrent-show guard, the provider lifecycle owner, and Marble Run production
+resume/teardown wiring. `@capacitor/app` is added only at the game composition root.
 
 **Non-goals (out of this card's identity):**
 - AdMob rewarded and banner lifecycles — rewarded intentionally awaits-then-shows (`:469-506`); untouched.
-- Any change to the shared `AdProvider` interface (`AdProvider.ts`) — `dispose` stays AdMob-local.
+- Any change to the shared `AdProvider` method interface (`AdProvider.ts`) — lifecycle ownership stays in the
+  separate `AdProviderOwner` construction result.
 - Any change to `AppLovinMaxProvider` or the Disabled provider. AppLovin shares the latent concurrent-show gap
   (KTD2) but fixing it there is a separate change (kit blast radius across shared consumers).
-- Adding `@capacitor/app` or any new runtime dependency — deferred; requires explicit approval and belongs to the
-  native-integration/native-proof stage.
+- Adding native dependencies to the shared SDK package — `@capacitor/app` belongs only to Marble Run's composition root.
 
 **Deferred to Follow-Up Work (downstream pipeline tasks, not this PR):**
-- **Native-device proof / explicit release gate (R8, AC4).** Mocks are not native proof. A downstream task must
-  wire the real `@capacitor/app` resume seam and validate ready-only + re-arm + backoff on a physical device (or
-  record an explicit release gate) before this card is considered done. The mock stages here cannot close AC4.
+- **Native-device proof / explicit release gate (R8, AC4).** Mocks are not native proof. After the real
+  `@capacitor/app` seam is wired in U7, a downstream task must validate ready-only + dismissal re-arm + backoff +
+  resume on a physical device (or record an explicit release gate) before this card is considered done.
 - Optionally back-porting the concurrent-show guard and prewarm to AppLovin for provider parity.
 
 ---
 
 ## Risks & Mitigations
 
-- **"Exactly once" re-arm double-fire.** Mitigation: KTD1 keeps re-arm solely in `finally`; KTD2's `showInProgress`
-  guard ensures the show block (and thus the `finally`) runs at most once per call. Test asserts a single re-arm
-  per show.
+- **"Exactly once" re-arm double-fire or early present-time re-arm.** Mitigation: KTD1 always waits for
+  `Dismissed`/`FailedToShow`, KTD2 holds the guard across that wait, and only terminal `finally` re-arms.
 - **Prewarm changes existing test expectations.** Prewarm-on-init (U3) and ready-only (U1) both alter what the
   current `:120` test observes; that test is explicitly rewritten in U1, and U3's regression scenario re-checks the
   init-once invariant. Risk is contained to the one test.
-- **Backoff timer leak / storm.** Mitigation: single-pending-retry rule + `MAX` cap + `dispose` cancellation (U4/U6),
-  all unit-tested with an injected scheduler.
-- **Floating `void` preloads after disposal.** Mitigation: `disposed` guard at every re-arm site (U6).
+- **Backoff timer leak / storm.** Mitigation: single-pending-retry rule, three total attempts, and disposal generation
+  fencing (U4/U6), all unit-tested with an injected scheduler.
+- **Floating async completions after disposal.** Mitigation: generation validation after every await and immediate
+  removal of late listener handles (KTD7/U6).
+- **Lifecycle API blast radius.** Mitigation: `AdProvider` stays unchanged; a returned owner makes teardown explicit
+  at construction and gives non-AdMob providers no-op disposal.
+- **New native dependency.** Mitigation: pin `@capacitor/app` to the existing Capacitor 8 major at Marble Run only,
+  update the lockfile, and keep physical-device proof as R8 rather than treating mock wiring as native evidence.
 - **Card contract-path error.** The card cites `packages/sdk/src/ads/provider.ts` (does not exist); the real
   contract is `packages/sdk/src/ads/AdProvider.ts`. This plan uses the correct path throughout (carried from the
   origin brainstorm).
@@ -452,16 +525,20 @@ Per the card ("SDK ad tests/typecheck, root unit/audit/eslint. Commit only."):
   `maybeShowInterstitial`), `:185-216` (listener registration), `:513-566` (dismissal waiter).
 - Parity target: `packages/sdk/src/ads/AppLovinMaxProvider.ts:134-209` (ready-only + `finally` re-arm).
 - Contract of record: `packages/sdk/src/ads/AdProvider.ts:20-42`.
+- Production owner/consumer: `packages/sdk/src/ads/createAdProvider.ts`, `games/marble_run/src/sdk/SdkContext.ts`,
+  `games/marble_run/src/main.ts`.
+- Native contract checked against `@capacitor-community/admob` v8: `showInterstitial` resolves on present and each
+  platform executor retains one interstitial reference; terminal completion arrives through plugin events.
 - Test harness convention: `packages/sdk/src/ads/AdMobProvider.test.ts` (fake adapter + `__emit`, injected `now`,
   no fake timers).
 
 ## Definition of Done
 
-- U1-U6 implemented in `AdMobProvider.ts`; all test scenarios present and green in `AdMobProvider.test.ts`.
+- U1-U7 implemented; provider tests, owner-selection tests, Marble Run wiring tests, and dependency lockfile are green.
 - `maybeShowInterstitial` never awaits a preload (R1); re-arms exactly once on dismissal/failure and never
-  double-shows (R2); init prewarm arms an ad (R3); load failures back off within bounds via the injected scheduler
-  (R4); app resume re-arms without showing (R5); `dispose` tears down listeners and timers (R6); AC3 coverage
-  complete (R7).
+  double-shows through dismissal (R2); init prewarm arms an ad (R3); load failures make at most three total attempts
+  (R4); production app resume re-arms without showing (R5); owner disposal tears down and fences late work (R6);
+  AC3 coverage is complete (R7).
 - Shared `AdProvider` interface, AppLovin, and Disabled providers untouched and passing (blast-radius clean).
 - Typecheck, sdk unit tests, eslint, root unit/audit green. Commit only; no PR.
 - **R8/AC4 remains open by design** — a downstream native-proof/release-gate task is required before the card closes.
