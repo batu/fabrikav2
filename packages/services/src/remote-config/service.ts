@@ -15,6 +15,13 @@
  * declared type and passes the field's optional `validate`. Absent, wrong-type,
  * and failed-validate all fall back to the declared default. A failed refresh
  * keeps the last good values rather than reverting to defaults.
+ *
+ * Overlap contract (stale-refresh guard): `refresh()` may be called before an
+ * earlier `refresh()` has settled. Each call takes a monotonically increasing
+ * generation at its start; only the newest-started generation may mutate
+ * value/origin/error/loading state. A slower older fetch — success OR failure —
+ * that resolves after a newer one is discarded, so completion order can never
+ * overwrite the newer result.
  */
 import {
   coerceConfigValue,
@@ -53,7 +60,11 @@ export interface RemoteConfigServiceOptions {
 }
 
 export interface RemoteConfigService<S extends ConfigSchema> {
-  /** Fetch, validate, and cache remote values. Idempotent-safe to re-call. */
+  /**
+   * Fetch, validate, and cache remote values. Safe to call while a prior
+   * refresh is still in flight: only the newest-started call may commit, so an
+   * older completion can never overwrite a newer result.
+   */
   refresh(): Promise<void>;
   /** Typed accessor: remote value when valid, else the declared default. */
   value<K extends keyof S>(key: K): ConfigValues<S>[K];
@@ -74,6 +85,8 @@ export function createRemoteConfigService<S extends ConfigSchema>(
   let origins = allDefaultOrigins(keys);
   let lastFetchAtMs: number | null = null;
   let lastErrorMessage: string | null = null;
+  // Monotonic per-refresh token; only the newest generation may commit.
+  let generation = 0;
 
   async function refresh(): Promise<void> {
     const provider = options.provider;
@@ -81,16 +94,27 @@ export function createRemoteConfigService<S extends ConfigSchema>(
       state = 'local-only';
       return;
     }
+    const gen = ++generation;
     state = 'fetching';
     let raw: Record<string, unknown>;
     try {
       raw = await provider.fetch();
     } catch (err) {
+      // Discard a superseded failure so it cannot clear a newer result or state.
+      if (gen !== generation) return;
+      // errorMessage() reads caller-controlled Error.message/toString, which can
+      // re-enter refresh(). Resolve it into a local, then recheck ownership
+      // immediately before the mutation-only commit.
+      const message = errorMessage(err);
+      if (gen !== generation) return;
       // Keep last good values; do not revert to defaults on a transient failure.
-      lastErrorMessage = errorMessage(err);
+      lastErrorMessage = message;
       state = 'fetch-failed';
       return;
     }
+
+    // Discard a stale success so a slow older fetch cannot overwrite a newer one.
+    if (gen !== generation) return;
 
     const resolved: Record<string, unknown> = {};
     const nextOrigins: Record<string, ValueOrigin> = {};
@@ -105,9 +129,16 @@ export function createRemoteConfigService<S extends ConfigSchema>(
         nextOrigins[key as string] = 'default';
       }
     }
+    const nextFetchAtMs = now();
+
+    // Validation and the injected clock are caller-controlled callbacks. They
+    // may re-enter refresh(), so verify ownership again immediately before the
+    // mutation-only commit block.
+    if (gen !== generation) return;
+
     active = resolved as ConfigValues<S>;
     origins = nextOrigins as Record<keyof S, ValueOrigin>;
-    lastFetchAtMs = now();
+    lastFetchAtMs = nextFetchAtMs;
     lastErrorMessage = null;
     state = 'ready';
   }
