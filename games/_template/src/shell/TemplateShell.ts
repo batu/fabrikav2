@@ -373,7 +373,6 @@ function renderResult(
     title: win ? copy["win.title"] : copy["fail.title"],
     eyebrow: `${copy["level.label"]} ${snapshot.currentLevel}`,
     ribbonImage: assetUrls.ribbon,
-    cardImage: assetUrls.modalPanel,
     art: art(win ? assetUrls.win : assetUrls.fail, "template-shell__result-art", artInstance),
     messages: win ? copy["win.message"] : copy["fail.message"],
     actions,

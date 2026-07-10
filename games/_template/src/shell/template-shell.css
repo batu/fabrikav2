@@ -1,5 +1,14 @@
 /* Template-shell layout stays token-only. The Kenney fixtures are injected by
    design/assets.ts; this file only composes their semantic slots. */
+body {
+  min-height: 100dvh;
+  margin: 0;
+}
+
+#app {
+  min-height: 100dvh;
+}
+
 .template-shell {
   min-height: 100dvh;
   background: var(--fab-color-surface);
@@ -55,6 +64,12 @@
   min-width: var(--fab-btn-min-size);
   min-height: var(--fab-btn-min-size);
   gap: var(--fab-space-xs);
+  background-color: var(--fab-color-accent);
+}
+
+.template-shell .fab-page-back {
+  background-color: var(--fab-color-accent);
+  box-shadow: var(--fab-shadow-button);
 }
 
 .template-shell__title,
@@ -94,6 +109,15 @@
   margin: 0;
 }
 
+/* The curated win/lose glyphs are white, so this stays a compact contrast layer
+   after the action sprite is removed from the card itself. */
+.template-shell .fab-result-body {
+  padding: var(--fab-space-md);
+  border: var(--fab-border-width) solid var(--fab-color-secondary-border);
+  border-radius: var(--fab-radius-md);
+  background-color: var(--fab-color-gameplay-surface);
+}
+
 .template-shell__test-actions {
   align-items: stretch;
 }
@@ -123,6 +147,16 @@
 
 .template-shell__test-action {
   flex: 1;
+}
+
+.template-shell .fab-pause-card .fab-btn {
+  background-color: var(--fab-color-accent);
+  color: var(--fab-color-on-accent);
+}
+
+.template-shell .fab-pause-card [data-fab-action="pause-quit"] {
+  background-color: var(--fab-color-secondary-surface);
+  color: var(--fab-color-on-secondary);
 }
 
 @media (max-width: 360px) {

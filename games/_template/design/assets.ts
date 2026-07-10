@@ -69,7 +69,6 @@ export const assetUrls = {
   gameplay: assets.decoration.heroPlaceholder,
   back: assets.icon.back,
   ribbon: assets.action.testWin,
-  modalPanel: assets.action.testLose,
   win: assets.result.win,
   fail: assets.result.fail,
 } as const;

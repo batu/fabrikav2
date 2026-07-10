@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createTemplateShellController } from "../../src/core/TemplateShellController.ts";
 import { createTemplateHarness } from "../../src/shell/harness.ts";
@@ -8,6 +10,10 @@ function createController() {
     storageKey: "fabrikav2.template-shell.test",
     now: () => 123,
   });
+}
+
+function templateShellCss(): string {
+  return readFileSync(resolve(process.cwd(), "src/shell/template-shell.css"), "utf8");
 }
 
 beforeEach(() => {
@@ -125,6 +131,16 @@ describe("template shell settings and persistence", () => {
 });
 
 describe("template shell renderer and harness", () => {
+  it("declares a margin-free viewport host and visible shared control surfaces", () => {
+    const css = templateShellCss();
+
+    expect(css).toMatch(/body\s*\{[^}]*margin:\s*0;/s);
+    expect(css).toMatch(/\.template-shell__icon-action\s*\{[^}]*background-color:\s*var\(--fab-color-accent\);/s);
+    expect(css).toMatch(/\.template-shell \.fab-pause-card \.fab-btn\s*\{[^}]*background-color:\s*var\(--fab-color-accent\);/s);
+    expect(css).toMatch(/\.template-shell \.fab-page-back\s*\{[^}]*background-color:\s*var\(--fab-color-accent\);/s);
+    expect(css).toMatch(/\.template-shell \.fab-result-body\s*\{[^}]*background-color:\s*var\(--fab-color-gameplay-surface\);/s);
+  });
+
   it("uses the state owner for rendered semantic actions and keeps locked nodes inert", () => {
     const controller = createController();
     const root = document.getElementById("app")!;
@@ -189,5 +205,23 @@ describe("template shell renderer and harness", () => {
     music!.click();
     expect(controller.snapshot().settings.music).toBe(false);
     expect(harness.drainEvents!().map((event) => event.name)).toContain("level_start");
+  });
+
+  it("keeps result actions in a readable shared card instead of stretching a button sprite into a panel", async () => {
+    const controller = createController();
+    const root = document.getElementById("app")!;
+    const shell = mountTemplateShell({ mountInto: root, controller });
+    const harness = createTemplateHarness({
+      buildVersion: "test",
+      packageId: "com.fabrikav2.template",
+      controller,
+    });
+
+    expect(await harness.driveTo!("fail")).toBe(true);
+    shell.render();
+
+    expect(shell.root.querySelector(".fab-result-card.fab-modal-card--image")).toBeNull();
+    expect(shell.root.querySelector('[data-fab-action="result-retry"]')).not.toBeNull();
+    expect(shell.root.querySelector('[data-fab-action="result-menu"]')).not.toBeNull();
   });
 });

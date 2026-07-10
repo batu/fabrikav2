@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "audit:kenney": "node scripts/audit-kenney-seed.mjs",
+    "audit:kenney": "node tests/unit/audit-kenney-seed.mjs",
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run",
     "lint": "eslint ."

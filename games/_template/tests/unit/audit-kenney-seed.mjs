@@ -12,7 +12,7 @@ if (!approvedSourceRootValue) {
 }
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
-const templateRoot = path.resolve(dirname, "..");
+const templateRoot = path.resolve(dirname, "../..");
 const approvedSourceRoot = path.resolve(approvedSourceRootValue);
 const manifest = JSON.parse(
   fs.readFileSync(path.join(templateRoot, "design/kenney-seed.manifest.json"), "utf8"),
