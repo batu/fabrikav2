@@ -136,3 +136,63 @@ describe('cli.mjs provided-captures run derives exit from the typed verdict', ()
     expect(summary.__run).toMatchObject({ kind: 'unverified', exitCode: 1 });
   });
 });
+
+// A hard-integrity failure (here: two different states with byte-identical
+// captures -> indistinguishable-state blocking pair) is a PROCESS GATE that must
+// force a nonzero exit in BOTH strict and exploratory modes. This proves cli.mjs
+// actually wires its hard-integrity inputs into classifyRunVerdict at the process
+// boundary — a verdict-only unit test cannot show the wiring — and specifically
+// that the gate OVERRIDES the exploratory exit-0 degrade the sibling test above
+// relies on for the same provided-captures lane (handoff P2; R11/R16, KTD5).
+describe('cli.mjs hard-integrity wiring forces nonzero exit in both modes', () => {
+  let capturesDir;
+  let outDir;
+  let hasRef = false;
+
+  beforeAll(() => {
+    const manifest = loadGameManifest(GAME, REPO_ROOT);
+    capturesDir = fs.mkdtempSync(path.join(os.tmpdir(), 'verify-device-cli-hi-caps-'));
+    outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'verify-device-cli-hi-out-'));
+    // Find any committed reference PNG and stamp it onto TWO distinct manifest
+    // states so their captures are byte-identical -> a blocking indistinguishable pair.
+    const named = manifest.states.map((s) => s.name);
+    const [a, b] = [named[0], named[1]];
+    let ref = null;
+    for (const state of manifest.states) {
+      const offline = state.reference && state.reference.offline;
+      if (!offline || offline === 'committed') continue;
+      const abs = path.join(manifest.gameDir, offline);
+      if (fs.existsSync(abs)) { ref = abs; break; }
+    }
+    if (ref && a && b) {
+      fs.copyFileSync(ref, path.join(capturesDir, `${a}.png`));
+      fs.copyFileSync(ref, path.join(capturesDir, `${b}.png`));
+      hasRef = true;
+    }
+  });
+
+  afterAll(() => {
+    for (const dir of [capturesDir, outDir]) {
+      if (dir) fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('exploratory run exits NONZERO when a hard-integrity gate fires (overrides the exit-0 degrade)', () => {
+    if (!hasRef) return;
+    const { status, stdout } = runCli(['--game', GAME, '--captures', capturesDir, '--skip-panel', '--out', outDir]);
+    expect(status).toBe(1);
+    expect(stdout).toMatch(/run verdict: \w+ \[EXPLORATORY\]/);
+    expect(stdout).toMatch(/hard integrity: indistinguishable states/);
+    const summary = JSON.parse(fs.readFileSync(path.join(outDir, 'summary.json'), 'utf8'));
+    expect(summary.__run).toMatchObject({ enforcement: 'exploratory', exitCode: 1 });
+  });
+
+  it('strict run also exits NONZERO with the same hard-integrity gate', () => {
+    if (!hasRef) return;
+    const { status, stdout } = runCli(['--game', GAME, '--captures', capturesDir, '--skip-panel', '--strict', '--out', outDir]);
+    expect(status).toBe(1);
+    expect(stdout).toMatch(/hard integrity: indistinguishable states/);
+    const summary = JSON.parse(fs.readFileSync(path.join(outDir, 'summary.json'), 'utf8'));
+    expect(summary.__run).toMatchObject({ enforcement: 'strict', exitCode: 1 });
+  });
+});
