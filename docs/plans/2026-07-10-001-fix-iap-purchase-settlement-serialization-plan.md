@@ -4,19 +4,21 @@ artifact_readiness: implementation-ready
 product_contract_source: legacy-requirements
 execution: code
 date: 2026-07-10
+deepened: 2026-07-10
 type: fix
-title: "fix: Keep IAP purchase serialization through native settlement"
+title: "Keep IAP Purchase Serialization Through Native Settlement - Plan"
 origin: docs/brainstorms/2026-07-10-iap-purchase-native-settlement-serialization-requirements.md
 trello: https://trello.com/c/9SQPxvlw
 ---
 
-# fix: Keep IAP Purchase Serialization Through Native Settlement
+# Keep IAP Purchase Serialization Through Native Settlement - Plan
 
 ## Goal Capsule
 
-**Objective.** Prevent a caller-facing purchase timeout from releasing Fabrika v2's shared
-native-store lock while RevenueCat is still processing the charge. Preserve every late native
-outcome, make it drainable with stable request identity, and keep fulfillment exactly-once.
+**Objective.** Prevent any timeout, restart, or stale callback from reopening Fabrika v2's shared
+native-store gate while a charge may still settle. Persist purchase ownership and outcomes across
+process death, deliver paid results until durably acknowledged, and grant each store transaction
+exactly once.
 
 **Authority.** The committed legacy requirements document at
 `docs/brainstorms/2026-07-10-iap-purchase-native-settlement-serialization-requirements.md` is the
@@ -24,14 +26,16 @@ product contract. The hardened `restore()` path in `packages/sdk/src/iap/service
 implementation precedent; the archived Fabrika learning on RevenueCat native-operation
 serialization supplies corroborating context.
 
-**Execution profile.** This is a money-path state-machine fix centered in `@fabrikav2/sdk`, plus
-the existing `ShopPage.refresh()` integration seam needed to prove a late result round-trips to a
-consumer without adding UI copy or a polling clock. RevenueCat's provider port remains unchanged.
+**Execution profile.** This is a deep money-path state-machine and persistence fix spanning the SDK
+provider/service contract, `ShopPage`, and both game composition roots. The RevenueCat port widens
+only for current customer-information reconciliation and complete non-subscription transaction
+identity; no unsupported cancellation or idempotency input is invented.
 
-**Stop condition.** Stop and surface a blocker if the installed native RevenueCat plugin exposes a
-different `purchaseStoreProduct` contract than the structural adapter, or if native proof cannot
-use a real Capacitor bridge plus RevenueCat Test Store / StoreKit / Play sandbox. Fakes prove the
-state machine only and cannot close the device-evidence gate.
+**Stop condition.** Stop and surface a blocker if the native plugin cannot provide transaction IDs,
+purchase tokens, and purchase dates through `getCustomerInfo()`, if the host cannot supply a
+crash-durable atomic journal, or if a restart leaves settlement indeterminate. An indeterminate
+record blocks new purchase and restore calls; elapsed time, a journal read error, and an empty
+CustomerInfo snapshot are never treated as proof that the old charge ended.
 
 **Tail ownership.** The next TWF worker implements and verifies this plan in the card worktree; the
 conductor owns review and landing.
@@ -48,73 +52,101 @@ caller-facing `withTimeout(...)`. When that timer wins, `finally` clears
 therefore issue a second charge while the first call remains active, and the first call's eventual
 transaction is discarded.
 
-`restore()` already separates these lifetimes: the caller may return on a short timeout while a
-second settlement observer retains the native promise, owns the lock until settlement, and banks a
-late result. Purchase must adopt that discipline while accounting for transaction identity,
-consumables, and the fact that a bounded bridge watchdog cannot cancel an underlying store call.
+`restore()` separates caller and native lifetimes within one JavaScript process, but its bounded
+watchdog is not a safe payment precedent: a timer cannot cancel StoreKit, Play, or RevenueCat.
+Purchase therefore needs a crash-durable owner and result journal, provider-backed restart
+reconciliation, and acknowledged delivery into the persistent transaction ledger.
+
+**Product Contract preservation.** R1-R7 are strengthened to close the red-team findings; R8-R10
+add restart reconciliation, acknowledged delivery, and native lifecycle proof. The card's original
+goal and no-overlapping-charge acceptance criterion are unchanged.
 
 ### Requirements
 
-- **R1 — Serialization survives caller timeout.** One authorized purchase owns the shared native
-  store gate until native resolve/reject or the explicit settlement bound. A retry of the same or a
-  different SKU, and restore during that interval, returns the existing `unavailable` / "native
-  store operation already in progress" result without calling the provider again.
-- **R2 — Caller and native lifetimes are separate.** Preserve the current caller-facing purchase
-  timeout and early failed return, but retain and observe the raw native promise independently.
-  A longer native-settlement watchdog prevents a permanently hung bridge from wedging the SDK.
-- **R3 — Late outcomes are drainable.** A native success, cancellation, or failure that lands after
-  the caller returned is captured exactly once and exposed through a purchase-result drain. A late
-  purchased result can pass through the existing verified fulfill-once ledger; consumables are not
-  recovered through the customer-info listener.
-- **R4 — Lock release is owner-safe.** Success, cancellation, rejection, and settlement-watchdog
-  expiry release only the lock owned by that purchase request. An old callback must never clear a
-  newer purchase or restore. Existing purchase/restore mutual exclusion and customer-info listener
-  behavior remain intact.
-- **R5 — Request identity is correlation, not store idempotency.** Each authorized provider call
-  receives a service-local request ID that follows the caller result and any drained late result.
-  Store transaction ID / purchase token remains the durable entitlement-deduplication key.
-- **R6 — Deterministic coverage.** Fake-provider tests cover timeout then retry, late success and
-  grant, late failure, separate-SKU serialization, purchase/restore exclusion, watchdog release,
-  stale-callback ownership, and FIFO draining without wall-clock sleeps.
-- **R7 — Public contract fidelity.** New result metadata and the drain method are owned by
-  `packages/sdk/src/iap/service.ts`, flow through the existing SDK barrels, and are exercised by a
-  real package consumer without parallel result-shape declarations.
+**Settlement safety and identity**
+
+- R1. **Serialization survives every elapsed-time boundary.** One authorized purchase owns the
+  shared native-store gate until its native promise reaches a provider-proven terminal or restart
+  reconciliation finds a durable terminal transaction. No watchdog releases that gate.
+- R2. **Caller and native lifetimes are separate.** Preserve the caller-facing timeout and early
+  return while retaining the raw native observer. A longer stall threshold emits diagnostics and a
+  recovery-required state only; it never authorizes another store operation.
+- R3. **Ownership and outcomes are crash-durable.** Before invoking the provider, persist a
+  versioned journal record with collision-resistant request identity and a baseline of known store
+  transactions. Persist an actual terminal outcome before releasing the gate or returning it.
+- R4. **Lock and error updates are owner-safe.** A terminal callback releases only its matching
+  durable owner. Old outcomes remain deliverable but cannot clear, relabel, or overwrite the
+  snapshot error of a newer owner.
+- R5. **Request identity is durable correlation, not financial idempotency.** Each authorized call
+  uses a collision-resistant persisted request ID. Store transaction ID or purchase token remains
+  the wallet deduplication key; a request ID never permits a retry.
+**Verification and public contract**
+
+- R6. **Deterministic coverage.** Controllable provider and journal fakes cover timeout and
+  arbitrary stall boundaries, restart reconstruction, result/ack crashes, background-resume,
+  listener-versus-promise ordering, stale errors, and same/different-SKU plus restore exclusion.
+- R7. **Public contract migration is explicit.** Journal, provider, result, and acknowledgement
+  contracts are SDK-owned and flow through existing barrels. `ShopPage`, Marble Run, and Find the
+  Dog migrate without local shape redeclarations or implicit acknowledgement.
+**Restart reconciliation and delivery**
+
+- R8. **Restart reconciliation is conservative.** On initialization, compare full current
+  non-subscription transaction history against the persisted pre-purchase baseline. A unique new
+  matching transaction becomes a durable purchased result; no match or an ambiguous match remains
+  indeterminate and keeps purchase/restore blocked.
+- R9. **Delivery is two-phase.** Completed results are peeked or claimed non-destructively and
+  removed only after the consumer reports a durable fulfilled/duplicate ledger outcome. Throws,
+  rejections, dismissal, and crashes leave the result available for replay.
+**Native proof**
+
+- R10. **Native proof covers lifecycle failure.** Device evidence includes the diagnostic-bound
+  expiry, background/foreground, process kill and restart, delayed CustomerInfo ordering, and a
+  crash between wallet commit and journal acknowledgement.
 
 ### Scope Boundaries
 
 **In scope**
 
-- Purchase settlement tracking, lock ownership, result capture/draining, and timeout policy in
-  `packages/sdk/src/iap/service.ts`.
-- Deterministic SDK and fulfillment tests using `FakePurchaseProvider` and Vitest fake timers.
-- A zero-adaptation `ShopPage.refresh()` drain path and test using the public SDK package export.
+- Durable settlement-journal storage, restart reconciliation, lock ownership, result delivery, and
+  diagnostic timeout policy in `packages/sdk/src/iap`.
+- Complete RevenueCat non-subscription transaction mapping plus `getCustomerInfo()` reconciliation.
+- Deterministic SDK, fulfillment, UI, and game-composition tests with controllable provider and
+  journal fakes.
+- Explicit acknowledgement integration in `ShopPage`, Marble Run, and Find the Dog.
 - Real-device native-bridge evidence at the later evidence stage.
 
 **Out of scope**
 
 - A purchase queue or automatic retry; concurrent operations remain rejected.
 - New shop copy, toasts, timers, or visual states.
-- Rewriting restore beyond an owner-safe shared helper if implementation genuinely needs one.
+- Rewriting restore beyond honoring the durable purchase recovery gate.
 - Treating customer-info updates as consumable fulfillment.
-- Adding a provider idempotency parameter unsupported by RevenueCat.
+- Releasing an indeterminate purchase because a timer elapsed or a journal read failed.
 - Claiming native correctness from Vitest, browser, or fake-provider evidence.
+
+**Deferred to follow-up work**
+
+- Server-side RevenueCat webhook fulfillment for uninstall, cross-device, and local-storage-loss
+  recovery. RevenueCat recommends server-owned consumable redemption; this card guarantees process
+  crash/restart safety on one installed app instance.
 
 ### Acceptance Examples
 
-- **AE1.** Given SKU A's native promise outlives the caller timeout, when A or SKU B is attempted
-  before native settlement, then the second result is `unavailable` and `purchaseCalls` still has
-  exactly one entry.
-- **AE2.** Given the caller has received a timeout failure, when the original native promise later
-  resolves with transaction `txn-1`, then one drained `purchased` result carries the original SKU,
-  transaction, and request ID; fulfillment grants once and a second drain returns `null`.
-- **AE3.** Given a late native rejection, when it settles, then the request's failure is drainable,
-  `lastErrorMessage` is updated, and purchase or restore may start after the lock releases.
-- **AE4.** Given an old native promise settles after its settlement watchdog released the gate and a
-  newer operation acquired it, then the old result is captured under its own request ID without
-  clearing or relabeling the newer operation.
-- **AE5.** Given a real-device caller timeout while a native store sheet remains active, when the
-  player retries or taps Restore, then no second native purchase starts; completing or cancelling
-  the original flow produces one observable terminal result and releases the controls.
+- AE1. Given SKU A outlives both caller and stall thresholds, attempts for A, SKU B, and Restore
+  remain unavailable with no additional provider calls until a proven terminal exists.
+- AE2. Given transaction `txn-1` settles after caller return, the service persists it before
+  releasing the gate. If fulfillment crashes before acknowledgement, restart replays `txn-1`; the
+  wallet grants once, duplicate replay grants zero, and acknowledgement then removes the result.
+- AE3. Given `onPurchase` throws or rejects, the same result remains the head of the durable
+  delivery queue and a later refresh can process it again.
+- AE4. Given the process dies with an active journal record, initialization diffs current
+  transactions against the stored baseline. One new matching transaction is recovered; zero or
+  multiple ambiguous matches keep the gate blocked.
+- AE5. Given an old terminal arrives while newer non-store state exists, its error is attached to
+  its own result and cannot replace the newer request's snapshot error.
+- AE6. Given a real device is backgrounded or killed around purchase settlement, relaunch shows
+  the durable recovery state, issues no retry, and proves one transaction and one durable grant
+  across callback-first and CustomerInfo-first orderings.
 
 ---
 
@@ -124,194 +156,207 @@ consumables, and the fact that a bounded bridge watchdog cannot cancel an underl
 
 | ID | Decision | Rationale |
 |---|---|---|
-| KTD1 | Keep `purchaseTimeoutMs` as the caller-facing wait (default 60 seconds) and add a separately configurable `purchaseSettleTimeoutMs` with `DEFAULT_PURCHASE_SETTLE_TIMEOUT_MS = 300_000` (five minutes). Sample both once per request and require finite positive values with settlement strictly greater than caller wait before invoking the provider. | Existing callers retain their return behavior, tests/device harnesses can shorten both bounds deterministically, and the native lease is materially longer without becoming unbounded. Five minutes is an explicit Fabrika safety policy, not a RevenueCat latency guarantee. |
-| KTD2 | Replace the product-id-only lock with a private active purchase owner containing `{ requestId, productId }`; preserve the public snapshot fields by deriving them from that owner. | A product ID cannot distinguish a timed-out old request from a later request for the same SKU. Owner identity prevents stale handlers from clearing new work. |
-| KTD3 | Generate monotonic service-local request IDs only after all preflight guards pass and immediately before the single provider invocation. Add optional `requestId` correlation metadata to `IapPurchaseResult`; unavailable preflight/retry results have no request ID. | Callers can correlate the timeout view and late native result without pretending the local ID is a provider idempotency key. Optional additive metadata avoids forcing unrelated unavailable-result fixtures to invent an operation. |
-| KTD4 | Retain the raw native promise, attach one idempotent native-outcome observer, and run caller and settlement watchdogs as separate views of that same promise. | This mirrors restore's proven discipline while ensuring the underlying promise is still observed after either timer wins. |
-| KTD5 | Store late native outcomes in a private FIFO, drained one at a time by `consumeCompletedPurchaseResult()`. Do not auto-return an old SKU's result from a new `purchase(productId)` call. | Explicit draining avoids misattributing SKU A to a call for SKU B. FIFO avoids overwriting A if a watchdog later permits B before A's detached promise finally settles. |
-| KTD6 | On settlement-watchdog expiry, record `lastErrorMessage` and release only the matching owner, but keep the raw promise observed. Do not enqueue a synthetic timeout result; the caller already received its timeout, and the queue must contain at most one actual native outcome per request. If native eventually settles, enqueue that actual outcome under the original request ID without touching a newer owner. | A JavaScript watchdog cannot cancel StoreKit/Play. Continuing observation prevents a post-bound charge from disappearing while owner checks prevent stale callbacks from corrupting current state. |
-| KTD7 | Leave `PurchaseProvider.purchaseProduct(productId)` and `RevenueCatProvider` unchanged. | Current official `PurchaseStoreProductOptions` contains the product and Android product-change fields, but no caller-supplied request/idempotency key. RevenueCat documents waiting for an operation already in progress; Fabrika's shared service gate is the primary defense. |
-| KTD8 | Route drained purchased results through existing `fulfillVerifiedPurchaseOnce`; never dedupe grants by request ID or customer-info-listener IDs. | The persistent wallet ledger already dedupes on purchase token / transaction ID. That is the durable store identity and preserves consumable safety. |
+| KTD1 | Remove settlement-watchdog release. Keep the caller timeout, and replace the five-minute safety lease with a diagnostic stall threshold that never clears ownership. | StoreKit, Play, and RevenueCat are not cancelled by a JavaScript timer. Financial safety outranks recovering Buy-button availability. |
+| KTD2 | Require a versioned, crash-durable settlement journal with atomic whole-record replacement. Native initialization and purchase fail closed when journal load or write fails. | In-memory ownership and FIFO state disappear on process death. Persisting before the provider call makes a possible charge visible after restart. |
+| KTD3 | Use a persisted collision-resistant request ID generated from a cryptographic UUID source, with an injectable deterministic factory for tests. | A service-local counter resets and can alias an old callback after recreation. The request ID remains correlation only. |
+| KTD4 | Model provider outcomes as definitive success, definitive cancellation/failure, externally pending, or indeterminate. RevenueCat payment-pending and operation-in-progress errors do not release the gate. | A rejected JavaScript promise can still represent later store approval; the service must not confuse callback completion with financial finality. |
+| KTD5 | Persist a baseline set of transaction keys before purchase and reconcile restart through `getCustomerInfo()` with complete non-subscription transaction ID, token, product, and purchase-date fields. | RevenueCat CustomerInfo contains transaction history. A unique new matching transaction proves success; absence does not prove cancellation. |
+| KTD6 | Persist every actual terminal result before clearing its owner or returning it to the caller. Journal phases distinguish prepared, native-pending, recovery-required, and terminal-unacknowledged. | A crash in the callback-to-UI gap must not discard a paid consumable. |
+| KTD7 | Replace destructive consumption with non-destructive claim/peek plus explicit acknowledgement. Acknowledgement is accepted only for the matching request after durable consumer processing, and an unacknowledged terminal keeps purchase unavailable. | At-least-once delivery plus the wallet transaction ledger closes crashes before and after grant while preventing paid-but-unapplied backlog. |
+| KTD8 | Require all purchased-result consumers to use a persistent transaction/token ledger and acknowledge only `fulfilled` or `duplicate`; non-purchased terminals acknowledge only after their handler completes. | A crash after grant but before journal acknowledgement safely replays and dedupes instead of double-granting. |
+| KTD9 | Store error state on the operation record and publish global error state only from the current owner or newest completed request. | A stale callback must not relabel a newer operation. |
+| KTD10 | Widen `PurchaseProvider` with current-customer-info reconciliation and preserve full transaction metadata; do not add a fake request idempotency option. | The current Capacitor API supports `getCustomerInfo()` and transaction history but no client purchase idempotency key. |
+| KTD11 | Drive replay from explicit application lifecycle refresh and initialization, with no polling timer. | Restart and foreground events are the durable recovery clocks; hidden timers cannot prove store settlement. |
+| KTD12 | Treat ambiguous reconciliation as a surfaced recovery-required state, not an automatic retry or journal reset. | Zero or multiple candidate transactions cannot safely identify the original attempt. |
 
 ### High-Level Technical Design
 
 ```mermaid
-sequenceDiagram
-  participant UI as Caller / ShopPage
-  participant IAP as IapService
-  participant RC as PurchaseProvider
+stateDiagram-v2
+  [*] --> Ready
+  Ready --> Prepared: persist owner + transaction baseline
+  Prepared --> NativePending: invoke provider once
+  NativePending --> NativePending: caller timeout or stall diagnostic
+  NativePending --> TerminalUnacknowledged: persist proven terminal
+  NativePending --> RecoveryRequired: process death or externally pending
+  RecoveryRequired --> TerminalUnacknowledged: unique transaction reconciled
+  RecoveryRequired --> RecoveryRequired: absent or ambiguous evidence
+  TerminalUnacknowledged --> Ready: durable fulfillment or duplicate, then ack
+```
 
-  UI->>IAP: purchase(SKU A)
-  IAP->>IAP: acquire {requestId, SKU A}
-  IAP->>RC: purchaseProduct(SKU A) once
-  par caller view
-    IAP-->>UI: failed timeout + requestId at 60s
-  and native observer
-    RC-->>IAP: native outcome later
-    IAP->>IAP: enqueue actual result + release if owner matches
-  and settlement watchdog
-    IAP->>IAP: at 5m, record timeout + release if still owner
-  end
-  UI->>IAP: consumeCompletedPurchaseResult()
-  IAP-->>UI: FIFO actual native result
-  UI->>UI: fulfill by transaction/token exactly once
+```mermaid
+sequenceDiagram
+  participant App as App lifecycle
+  participant IAP as IapService
+  participant J as Durable journal
+  participant RC as RevenueCat
+  participant W as Wallet ledger
+
+  App->>IAP: purchase(SKU A)
+  IAP->>RC: getCustomerInfo baseline
+  IAP->>J: persist prepared request UUID
+  IAP->>RC: purchaseProduct once
+  IAP-->>App: caller timeout
+  Note over IAP,J: gate remains owned across every timer
+  App->>App: process killed and relaunched
+  App->>IAP: init / foreground reconcile
+  IAP->>J: load active request
+  IAP->>RC: getCustomerInfo current
+  RC-->>IAP: transaction history
+  IAP->>J: persist terminal purchased result
+  IAP-->>App: non-destructive result claim
+  App->>W: apply transaction key once
+  W-->>App: fulfilled or duplicate
+  App->>IAP: acknowledge request
+  IAP->>J: atomically remove acknowledged result
 ```
 
 ### Purchase State and Failure Semantics
 
-| Event | Caller result | Lock / owner | Drain and error behavior |
+| Event | Caller view | Durable journal and gate | Delivery/error behavior |
 |---|---|---|---|
-| Service/product/provider preflight fails | `unavailable`, no request ID | Never acquired | No provider call; no queued result. |
-| Another purchase or restore owns the gate | `unavailable`, no request ID | Existing owner unchanged | No provider call; queue unchanged. |
-| Native resolves before caller timeout | `purchased` with request ID | Matching owner releases | Returned directly; not queued. |
-| Native rejects/cancels before caller timeout | `failed` / `cancelled` with request ID | Matching owner releases | Returned directly; `lastErrorMessage` records non-cancel failure; not queued. |
-| Caller timeout wins | `failed` with request ID | Remains owned | Raw native promise continues; timeout is not settlement. |
-| Native resolves after caller timeout | Caller already returned | Matching owner releases if still active | Enqueue one `purchased` result with the same request ID. |
-| Native rejects/cancels after caller timeout | Caller already returned | Matching owner releases if still active | Enqueue one `failed` / `cancelled` result and record non-cancel error. |
-| Settlement watchdog expires | Caller already returned because settle bound is greater | Matching owner releases | Record settlement-timeout error; enqueue no synthetic native result; keep raw promise observed. |
-| Raw native promise settles after watchdog and newer work starts | No change to prior caller | New owner remains untouched | Enqueue old actual result with old request ID; FIFO prevents overwrite. |
+| Preflight, journal, or baseline read fails | `unavailable`, no provider call | No native call; failed prepared write remains recovery-required if its outcome is uncertain | Error is scoped to that attempted request. |
+| Provider call authorized | Pending | Prepared/native-pending owner is persisted before invocation | Exactly one provider call for the request UUID. |
+| Caller timeout or stall threshold wins | Timed-out/indeterminate caller result | Owner remains; purchase and restore stay blocked indefinitely | Diagnostic only; no synthetic terminal result. |
+| Native success | `purchased` when caller still waits | Persist terminal transaction, then release native owner | Result remains unacknowledged until durable fulfillment. |
+| Proven cancellation/definitive failure | Cancelled/failed when caller still waits | Persist terminal, then release native owner | Failure is attached to this request; stale errors do not update newer state. |
+| Payment pending or ambiguous provider error | Pending/recovery-required | Owner remains blocked | CustomerInfo listener and lifecycle reconciliation may later prove success. |
+| Process restart with one new matching transaction | No old caller | Persist reconstructed purchased result and release owner | Replay carries original request ID and store transaction identity. |
+| Restart with zero or multiple candidates | Recovery-required | Owner and shared gate remain blocked | Surface support diagnostics; do not retry, restore, or clear automatically. |
+| Handler throws, rejects, or app dies before ack | No acknowledgement | Terminal result remains durable | The same request is offered again. |
+| Wallet reports fulfilled or duplicate | Handled | Matching result is atomically acknowledged and removed | A crash before ack replays safely through wallet dedupe. |
 
 ### Assumptions
 
-- A five-minute settlement lease is long enough for ordinary RevenueCat purchase flows but remains
-  a policy boundary, not cancellation. A result after that boundary is still captured; the SDK may
-  allow a new operation after the bound to avoid a permanent wedge.
-- The card accepts that bounded recovery creates a residual post-bound overlap risk because the
-  provider exposes no idempotency key. Device evidence must call this out rather than claiming
-  impossible exactly-once charging beyond the watchdog.
-- `consumeCompletedPurchaseResult()` is a non-blocking drain. Consumers own when to call
-  `refresh()`, matching the existing restore contract; the SDK adds no timer or UI callback loop.
-- The customer-info listener remains dedicated to deferred non-consumable recovery and is not used
-  to grant consumables. Late purchase fulfillment uses the complete transaction-bearing result.
-- Existing barrel exports (`packages/sdk/src/iap/index.ts` and `packages/sdk/src/index.ts`) already
-  re-export `service.ts`; no barrel edit is needed unless implementation changes that fact.
+- The host provides one crash-durable storage key with atomic replacement semantics. A storage exception fails closed before charging.
+- RevenueCat CustomerInfo returns complete non-subscription transaction identity on the supported native plugin version. Implementation verifies the installed type and runtime payload.
+- Reconciliation accepts only a unique transaction not present in the persisted baseline and compatible with the active product. Sandbox alias ambiguity remains blocked unless uniqueness proves the mapping.
+- An empty CustomerInfo result cannot distinguish cancellation from an unfinished or unsynced charge and therefore never releases the gate.
+- This card covers process crash/restart for one installation. Server-side webhook redemption remains the follow-up for uninstall, cross-device, and local-storage loss.
+- Customer-info listeners may trigger reconciliation but never directly grant consumables. All grants flow through the transaction-bearing journal result.
 
 ### Sources and Research
 
-- `packages/sdk/src/iap/service.ts:230` contains the racy purchase path; `:291-363` contains the
-  restore late-settlement precedent and result drain.
-- `packages/sdk/src/iap/fake-provider.ts:22-112` provides delayed, rejected, and hanging purchases
-  plus `purchaseCalls`, sufficient for deterministic state-machine tests.
-- `packages/sdk/src/iap/fulfillment.ts:81-121` establishes transaction/token ledger identity and
-  fulfill-once behavior.
-- `packages/ui/src/ShopPage.ts:360-398` is the existing consumer-driven refresh and result-hook seam;
-  it owns no timer.
-- `fabrika/docs/solutions/integration-issues/revenuecat-native-operation-serialization-20260522.md`
-  records the same `Promise.race` sharp edge and shared native-operation rule in the archived source.
-- [RevenueCat Capacitor API](https://github.com/RevenueCat/purchases-capacitor/blob/main/README.md)
-  documents `PurchaseStoreProductOptions` without a request/idempotency key.
-- [RevenueCat error handling](https://www.revenuecat.com/docs/test-and-launch/errors) documents
-  `OPERATION_ALREADY_IN_PROGRESS` and instructs clients to wait for the original operation.
-- [RevenueCat purchase flow](https://www.revenuecat.com/docs/getting-started/making-purchases) confirms
-  successful purchase completion returns transaction details and updated customer information.
+- [RevenueCat Capacitor API](https://github.com/RevenueCat/purchases-capacitor/blob/main/README.md) documents `getCustomerInfo()` and full `PurchasesStoreTransaction` identity: transaction identifier, product, purchase date, and Android token.
+- [RevenueCat CustomerInfo](https://www.revenuecat.com/docs/customers/customer-info) documents lifecycle refresh and safe repeated `getCustomerInfo()` reads.
+- [RevenueCat non-subscription purchases](https://www.revenuecat.com/docs/platform-resources/non-subscriptions) states that consumable redemption must be tracked outside RevenueCat and recommends server webhooks.
+- `packages/sdk/src/iap/fulfillment.ts` supplies the transaction/token fulfill-once ledger contract.
+- `games/find_the_dog/src/core/GameState.ts` supplies the existing persistent processed-purchase ledger pattern.
 
 ---
 
 ## Implementation Units
 
-### U1. Introduce Owner-Identified Purchase Settlement Tracking
+### U1. Add the Durable Settlement Journal and Fail-Closed Gate
 
-- **Goal:** Make caller timeout a view onto, rather than the lifetime owner of, one native purchase.
-- **Requirements:** R1, R2, R4, R5.
+- **Goal:** Make purchase ownership survive caller timeout, diagnostics, service recreation, and process restart.
+- **Requirements:** R1-R5, R8.
 - **Dependencies:** None.
-- **Files:** `packages/sdk/src/iap/service.ts`.
+- **Files:** `packages/sdk/src/iap/settlement-journal.ts`, `packages/sdk/src/iap/settlement-journal.test.ts`, `packages/sdk/src/iap/service.ts`, `packages/sdk/src/iap/service.test.ts`, `packages/sdk/src/iap/index.ts`.
 - **Approach:**
-  - Add `purchaseSettleTimeoutMs?: () => number` to `IapServiceDependencies`, the five-minute
-    default, and one helper that snapshots/validates both purchase bounds before lock acquisition.
-  - Replace `activePurchaseProductId` with a private owner record and monotonic request sequence;
-    derive `pendingPurchaseProductIds`, `purchaseInProgress`, and `nativeOperationInProgress` so the
-    public snapshot stays compatible.
-  - Add optional `requestId` to `IapPurchaseResult`; include it on every result from an authorized
-    native attempt, including the caller timeout and eventual late outcome.
-  - Invoke `provider.purchaseProduct(productId)` exactly once inside a synchronous-throw-safe block.
-    Attach the raw settlement observer before awaiting the caller timeout. Centralize native result
-    mapping and owner-checked release so resolve/reject/watchdog races are idempotent.
-  - Run the longer watchdog independently. On expiry, set the settlement-timeout error and release
-    only if `requestId` still owns the gate. Do not detach the raw observer or let it release a newer
-    owner when it eventually fires.
-- **Patterns to follow:** Preserve `restore()`'s `release...InFinally` discipline and
-  `withTimeout` primitive; do not refactor the sibling machine unless a tiny shared owner-release
-  helper reduces duplication without changing restore semantics.
-- **Test scenarios:** Invalid timeout configuration makes no provider call; synchronous provider
-  throw releases; early success/cancel/failure release normally; caller timeout keeps the gate;
-  watchdog expiry clears it; stale completion cannot clear a newer owner.
-- **Verification:** SDK tests observe one provider invocation per request and snapshot fields remain
-  compatible before, during, and after each terminal.
-
-### U2. Add FIFO Late-Purchase Reconciliation and Fulfill-Once Proof
-
-- **Goal:** Preserve every actual native outcome after caller return and prove a late charge grants
-  exactly once.
-- **Requirements:** R3, R5, R6, R7.
-- **Dependencies:** U1.
-- **Files:** `packages/sdk/src/iap/service.ts`, `packages/sdk/src/iap/service.test.ts`,
-  `packages/sdk/src/iap/fulfillment.test.ts`.
-- **Approach:**
-  - Add a private FIFO of completed late native results and public
-    `consumeCompletedPurchaseResult(): IapPurchaseResult | null` that shifts one entry.
-  - Queue only actual native outcomes whose caller already returned. Direct outcomes are returned
-    normally, and watchdog expiry updates error state without manufacturing a second terminal.
-  - Guard each operation record so native resolve/reject is mapped and enqueued at most once.
-  - Keep the provider seam unchanged. Use the result's transaction ID / purchase token with
-    `fulfillVerifiedPurchaseOnce`; request ID is asserted only for correlation.
-  - Use Vitest fake timers with the existing fake provider delays/hangs; remove the current real
-    `wait()` helper from late-settlement coverage touched by this work.
+  - Define a versioned journal schema for prepared/native-pending/recovery-required/terminal-unacknowledged records and an injected atomic storage port.
+  - Load and validate the journal before the service becomes purchase-ready. Corrupt or unavailable native storage produces a recovery-required/unavailable snapshot rather than silently discarding ownership.
+  - Generate UUID request identity, persist the pre-purchase transaction baseline and owner, then invoke the provider once. A synchronous throw is classified and journaled without leaving an untracked attempt.
+  - Replace the settlement release timer with a diagnostic threshold. Purchase and restore guards consult the durable owner.
+  - Serialize journal mutations so callbacks, lifecycle reconciliation, and acknowledgement cannot overwrite one another.
+- **Execution note:** Build the journal transition tests before replacing the current product-ID lock.
 - **Test scenarios:**
-  - Caller timeout then same-SKU retry: retry unavailable, exactly one `purchaseCalls` entry.
-  - Caller timeout then different-SKU attempt and restore: both unavailable until native settles.
-  - Late success drains once with original SKU/request/transaction and fulfillment grants once.
-  - Late cancellation and generic rejection drain with correct status; generic rejection updates
-    `lastErrorMessage`; both release the gate.
-  - SKU A settles, SKU B later settles, and FIFO preserves order/identity without overwrite.
-  - Watchdog releases a never-settling purchase; a later owner remains active when an old delayed
-    result arrives; the old actual result remains drainable.
-- **Verification:** Targeted SDK tests pass entirely under fake timers, with no network and no
-  wall-clock sleeps.
+  - Storage write fails before provider invocation: no purchase call occurs and the service reports unavailable.
+  - Caller and diagnostic timers expire: same-SKU, different-SKU, and restore attempts remain unavailable after arbitrary fake-clock advancement.
+  - Recreating the service over the same journal restores the request UUID and blocks all store operations.
+  - Corrupt/newer-schema journal data fails closed with actionable diagnostics.
+  - An old callback cannot clear a recovered or newer owner, and cannot overwrite its error.
+- **Verification:** Tests prove there is no time-based transition from unresolved owner to ready.
 
-### U3. Prove the Public Drain Through the Existing Shop Consumer
+### U5. Add Transaction-Bearing RevenueCat Reconciliation
 
-- **Goal:** Demonstrate zero-adaptation contract flow from the SDK barrel to a consumer and its
-  existing fulfillment callback, without adding UI state or timers.
-- **Requirements:** R3, R7.
+- **Goal:** Prove restart success from store history without inventing provider idempotency or cancellation.
+- **Requirements:** R4, R5, R7, R8.
+- **Dependencies:** U1.
+- **Files:** `packages/sdk/src/iap/revenuecat-provider.ts`, `packages/sdk/src/iap/revenuecat-provider.test.ts`, `packages/sdk/src/iap/fake-provider.ts`, `packages/sdk/src/iap/service.test.ts`.
+- **Approach:**
+  - Extend structural CustomerInfo transaction entries with transaction ID, purchase token, product ID, and purchase date, and expose `getCustomerInfo()` through `PurchaseProvider`.
+  - Preserve the complete fields through purchase, listener, restore, and current-info mappings.
+  - Add controllable deferred purchases, mutable transaction history, listener ordering, and `getCustomerInfo` failures to the fake provider.
+  - On init and foreground refresh, diff current transaction keys against the persisted baseline. Persist a terminal purchased result only for one unambiguous candidate; otherwise retain recovery-required.
+  - Normalize payment-pending/operation-in-progress errors as nonterminal and keep the owner blocked until reconciliation.
+- **Test scenarios:**
+  - Current-info before purchase creates the exact baseline stored in the journal.
+  - Restart with one new matching iOS transaction ID or Android token reconstructs the original request result.
+  - Zero candidates, two candidates, an alias ambiguity, and current-info failure all remain blocked.
+  - Listener-before-promise and promise-before-listener persist one terminal result.
+  - Payment-pending followed by a listener transaction transitions once; payment-pending alone never releases.
+- **Verification:** Adapter tests round-trip official RevenueCat transaction fields without local shape conversion.
+
+### U2. Make Result Delivery Acknowledged and Fulfillment Idempotent
+
+- **Goal:** Guarantee that a paid result is replayed until its transaction has durably fulfilled or been recognized as a duplicate.
+- **Requirements:** R3, R5, R6, R9.
+- **Dependencies:** U1, U5.
+- **Files:** `packages/sdk/src/iap/service.ts`, `packages/sdk/src/iap/service.test.ts`, `packages/sdk/src/iap/fulfillment.ts`, `packages/sdk/src/iap/fulfillment.test.ts`.
+- **Approach:**
+  - Persist every actual terminal before owner release, including direct results whose caller is still present.
+  - Expose non-destructive claim/peek and matching-request acknowledgement. Remove destructive `consumeCompletedPurchaseResult()` from the proposed contract.
+  - Keep a terminal purchased result until the consumer reports `fulfilled` or `duplicate` from the transaction/token ledger. Unverified/unknown/ambiguous outcomes remain pending for repair.
+  - Acknowledge cancellation/failure only after the consumer handler completes.
+  - Maintain FIFO ordering for terminal records while allowing an old record's error to remain operation-local.
+- **Test scenarios:**
+  - Direct and late success both remain available until acknowledged.
+  - Throw, rejected promise, dismissal, and simulated crash between claim and ack preserve the result.
+  - Crash after wallet commit but before ack replays; fulfillment returns duplicate, grants zero, and then acknowledgement removes it.
+  - Wrong request ID, wrong transaction key, and acknowledgement before durable disposition are rejected.
+  - Repeated callback/listener delivery creates one journal result and one wallet grant.
+- **Verification:** The journal provides at-least-once delivery while the wallet ledger proves exactly-once grant.
+
+### U3. Migrate ShopPage to the Two-Phase Consumer Contract
+
+- **Goal:** Process direct and replayed results through one awaited acknowledgement path without polling.
+- **Requirements:** R7, R9.
 - **Dependencies:** U2.
 - **Files:** `packages/ui/src/ShopPage.ts`, `packages/ui/src/ShopPage.test.ts`.
-- **Approach:** During `ShopPage.refresh()`, drain all currently completed purchase results in FIFO
-  order and invoke the existing `onPurchase` hook once per result before rendering the fresh
-  snapshot. Keep `runPurchase()`'s direct-result callback unchanged; because direct results are not
-  queued, the two paths cannot double-call. Preserve the component's explicit consumer-driven
-  refresh contract and source guard prohibiting `setTimeout`, `setInterval`, and
-  `requestAnimationFrame`.
-- **Patterns to follow:** Mirror the existing late-restore drain in `refresh()` and import the
-  service/result contract only from `@fabrikav2/sdk/iap`.
-- **Test scenarios:** A caller-timed-out delayed purchase settles, `handle.refresh()` drains it and
-  calls `onPurchase` once with matching request/transaction identity; a second refresh does not
-  repeat it; direct success still calls once; no-polling source guard remains green.
-- **Verification:** UI tests prove the public package boundary and callback path without local type
-  redeclarations or a new clock.
-
-### U4. Capture Native-Bridge Settlement Evidence
-
-- **Goal:** Prove the state machine against a real mobile bridge and store flow, not only fakes.
-- **Requirements:** R1-R4 and AE5.
-- **Dependencies:** U1, U2, U3 and an available native RevenueCat-enabled game/harness.
-- **Files:** `docs/evidence/2026-07-10-iap-purchase-settlement/` evidence artifacts only; do not add a
-  production test mode to SDK source.
 - **Approach:**
-  - Build a native development variant with explicit short caller timeout and longer settlement
-    timeout injected at the composition root. Record the exact values and build commit.
-  - Use an iPhone or Android device with RevenueCat debug logging and Test Store, StoreKit sandbox,
-    or Play license testing. Prefer a real StoreKit/Play sandbox transaction for the charge path.
-  - Start a purchase and leave the native sheet unresolved beyond caller timeout. Capture the
-    timeout result/request ID and busy snapshot, then attempt the same SKU, another SKU, and Restore.
-    Logs must show no second provider purchase while the first lease is active.
-  - Complete one run successfully and cancel/fail another. Capture the late drained result,
-    transaction/token, matching request ID, one wallet/entitlement change, and released controls.
-  - Save device provenance, screen recording/screenshots, Xcode/Android Studio + RevenueCat logs,
-    and a short result table. Redact account identifiers and tokens while retaining stable hashes
-    sufficient to correlate one transaction.
-- **Verification:** Evidence explicitly distinguishes native bridge/store proof from unit proof.
-  `verify-device` screenshots may supplement the artifact but cannot alone prove provider call
-  count, settlement timing, or charge identity.
+  - Replace the fire-and-forget `onPurchase: void` contract with an explicit asynchronous processing disposition that distinguishes durable fulfilled/duplicate, handled non-purchase, and retry.
+  - Serialize direct and refresh-driven delivery so a result cannot be concurrently offered twice. Refresh peeks the durable head and acknowledges only after a successful disposition.
+  - Leave thrown/rejected/retry results unacknowledged and render from a fresh snapshot. Keep the source guard against polling clocks.
+- **Test scenarios:**
+  - Direct success, caller-timeout late success, and restart-replayed success each use the same processor and acknowledge once.
+  - Synchronous throw, async rejection, dismissal, and retry disposition retain the result for the next refresh.
+  - Fulfilled and duplicate dispositions remove the matching result; a second refresh does not callback.
+  - Multiple durable results retain FIFO order and stop draining when the head is unacknowledged.
+- **Verification:** UI tests prove zero-adaptation use of the public SDK contract and no destructive pre-callback shift.
+
+### U6. Migrate Game Wallets and Composition Roots
+
+- **Goal:** Supply durable journal storage and transaction-ledger acknowledgement in every current purchase consumer.
+- **Requirements:** R5, R7-R9.
+- **Dependencies:** U2, U3.
+- **Files:** `games/marble_run/src/sdk/SdkContext.ts`, `games/marble_run/src/core/SaveState.ts`, `games/marble_run/src/core/SaveState.test.ts`, `games/marble_run/src/shell/App.ts`, `games/marble_run/tests/unit/sdk-wiring.test.ts`, `games/marble_run/tests/unit/iap-settlement.test.ts`, `games/find_the_dog/src/shop/IapService.ts`, `games/find_the_dog/src/ui/HUD.ts`, `games/find_the_dog/src/scenes/GameScene.ts`, `games/find_the_dog/tests/unit/iap-settlement.test.ts`.
+- **Approach:**
+  - Add an atomic local journal adapter at each composition root, namespaced and versioned independently from wallet save data.
+  - Give Marble Run a persistent processed-transaction ledger and route purchases through `fulfillVerifiedPurchaseOnce`; remove unconditional coin grants from `applyPurchaseResult`.
+  - Expose claim/ack/reconcile through the Find the Dog wrapper and acknowledge only after its existing persistent GameState ledger reports fulfilled or duplicate.
+  - Wire app initialization and foreground lifecycle to reconciliation and ShopPage refresh.
+- **Test scenarios:**
+  - Marble Run applies a transaction once across SaveState recreation and acknowledges duplicate replay without adding coins.
+  - Find the Dog crashes after GameState commit but before journal ack, then replays and acknowledges without a second grant.
+  - Both games fail closed when journal storage is unavailable on native.
+  - Foreground reconciliation before and after page mount delivers one result.
+- **Verification:** Game tests prove durable wallet and journal composition, not merely SDK-level mocks.
+
+### U4. Capture Native Restart and Settlement Evidence
+
+- **Goal:** Prove the safety contract against a real Capacitor/RevenueCat bridge and store lifecycle.
+- **Requirements:** R1-R4, R8-R10 and AE6.
+- **Dependencies:** U1-U3, U5, U6 and an available native RevenueCat-enabled Marble Run harness.
+- **Files:** `docs/evidence/2026-07-10-iap-purchase-settlement/` evidence artifacts only.
+- **Approach:**
+  - Build a native development variant with short caller and diagnostic thresholds, durable journal inspection, RevenueCat debug logs, and redacted transaction hashes.
+  - Hold the native sheet beyond both thresholds; attempt same SKU, different SKU, and Restore before and after foregrounding. Record zero additional provider calls.
+  - Exercise success, cancellation, payment pending/Ask to Buy, background/foreground, and process kill during the sheet and after store completion.
+  - Relaunch and capture journal reconstruction, CustomerInfo reconciliation, transaction-bearing replay, wallet fulfillment, and acknowledgement.
+  - Force one handler failure and one kill after wallet commit but before acknowledgement; prove replay and duplicate-ledger acknowledgement without a second grant.
+  - Record callback-first and CustomerInfo-first orderings when the platform permits, plus any ordering that could not be forced.
+- **Verification:** Evidence includes device/build provenance, exact thresholds, journal transitions, provider logs, transaction-key hashes, and wallet counts. Screenshots alone do not prove call count or financial identity.
 
 ---
 
@@ -319,63 +364,56 @@ sequenceDiagram
 
 | Gate | Command or evidence | Proves |
 |---|---|---|
-| SDK focused tests | `npm run test:unit -w @fabrikav2/sdk -- src/iap/service.test.ts src/iap/fulfillment.test.ts` | Caller/native lifetime split, owner-safe release, FIFO drain, and fulfill-once behavior. |
-| SDK typecheck | `npm run typecheck -w @fabrikav2/sdk` | New dependency/result/method contracts are coherent. |
-| SDK lint | `npm run lint -w @fabrikav2/sdk` | State-machine implementation satisfies repository lint rules. |
-| UI focused tests | `npm run test:unit -w @fabrikav2/ui -- src/ShopPage.test.ts` | Public barrel round-trip, consumer drain, one callback, and no polling loop. |
-| UI typecheck/lint | `npm run typecheck -w @fabrikav2/ui && npm run lint -w @fabrikav2/ui` | The downstream consumer compiles without an adapter/redeclaration. |
-| Regression suite | `npm run test:unit` | Restore, customer-info, fulfillment, games, and shared packages retain behavior. |
+| SDK focused tests | `npm run test:unit -w @fabrikav2/sdk -- src/iap/service.test.ts src/iap/settlement-journal.test.ts src/iap/revenuecat-provider.test.ts src/iap/fulfillment.test.ts` | Durable ownership, no timer release, reconciliation, acknowledged replay, and ledger dedupe. |
+| SDK typecheck/lint | `npm run typecheck -w @fabrikav2/sdk && npm run lint -w @fabrikav2/sdk` | Journal/provider/public API contracts are coherent. |
+| UI focused tests | `npm run test:unit -w @fabrikav2/ui -- src/ShopPage.test.ts` | Awaited processing, non-destructive replay, acknowledgement, and no polling. |
+| UI typecheck/lint | `npm run typecheck -w @fabrikav2/ui && npm run lint -w @fabrikav2/ui` | The breaking callback migration is complete. |
+| Marble Run focused tests | `npm run test:unit -w @fabrikav2/marble_run -- src/core/SaveState.test.ts tests/unit/sdk-wiring.test.ts` | Persistent transaction ledger and journal composition survive recreation. |
+| Find the Dog focused tests | `npm run test:unit -w @fabrikav2/find_the_dog -- tests/unit` | Existing wallet ledger acknowledges replay without duplicate consumable grants. |
+| Regression suite | `npm run test:unit` | Restore, listener, game, and package consumers retain behavior. |
 | Repository audit | `npm run audit` | No dependency, duplication, or workspace-boundary regression. |
-| Native evidence | `docs/evidence/2026-07-10-iap-purchase-settlement/` with verified device provenance, store/debug logs, screenshots/recording, timeout values, and scenario table | A real Capacitor/RevenueCat bridge holds one operation through caller timeout and surfaces one late terminal. |
+| Native evidence | `docs/evidence/2026-07-10-iap-purchase-settlement/` with device provenance, store/debug logs, journal snapshots, lifecycle timestamps, and redacted transaction hashes | A real bridge never reopens by time, reconstructs after restart, and grants/acknowledges exactly once. |
 
 ### Native Evidence Result Table
 
-The evidence artifact must record at least:
-
-| Scenario | Caller timeout observed | Retry/restore provider calls while active | Native terminal | Drained result | Grant count | Lock released |
-|---|---:|---:|---|---|---:|---:|
-| Same-SKU retry | Yes | 0 | Success | Purchased, matching request | 1 | Yes |
-| Different-SKU + restore | Yes | 0 | Cancel or failure | Matching cancelled/failed result | 0 | Yes |
+| Scenario | Timers elapsed | Process/lifecycle event | Additional purchase/restore calls | Reconciliation result | Wallet grants | Journal end state |
+|---|---:|---|---:|---|---:|---|
+| Sheet held beyond caller and diagnostic thresholds | Yes | Foreground | 0 | Still native-pending | 0 | Owner retained |
+| Kill while sheet or external approval is pending | Yes | Relaunch | 0 | No transaction or pending | 0 | Recovery-required |
+| Kill after store success before JavaScript callback | Yes | Relaunch | 0 | Unique transaction recovered | 1 | Terminal until ack |
+| CustomerInfo listener before/after purchase promise | Either | Background/foreground | 0 | Same transaction persisted once | 1 | Acknowledged |
+| Kill after wallet commit before journal ack | Either | Relaunch | 0 | Result replayed as duplicate | 1 total | Acknowledged after replay |
+| Proven cancellation or definitive failure | Either | Foreground | 0 while active | Terminal non-purchase result | 0 | Acknowledged after handling |
 
 ---
 
 ## Risks and Mitigations
 
-- **A store call may settle after the five-minute watchdog.** JavaScript cannot cancel it. Keep the
-  raw observer attached, identify it by request, and capture its actual outcome without releasing a
-  newer owner. Document the residual post-bound overlap risk in native evidence.
-- **A single result slot can overwrite another late charge.** Use FIFO rather than a nullable slot,
-  because a watchdog may release the gate before an old bridge callback arrives.
-- **Request ID may be mistaken for financial idempotency.** Name and document it as local
-  correlation only; continue fulfilling/deduping exclusively by purchase token/transaction ID.
-- **Customer-info recovery can double-grant consumables.** Do not route late purchase fulfillment
-  through that listener; drain the complete transaction-bearing result.
-- **Timeout races can double-return or double-enqueue.** Centralize native outcome capture in one
-  operation record with idempotent flags, and use fake timers to test boundary ordering.
-- **Consumer refresh may not run after settlement.** Preserve the explicit ShopPage contract and
-  prove the drain on refresh; native integration must wire its existing app refresh/lifecycle clock
-  and demonstrate the late grant. Do not hide this responsibility in an SDK timer.
+- **An indeterminate record can block purchases indefinitely.** This is the intentional safety posture. Surface recovery diagnostics and support metadata; never trade a possible duplicate charge for automatic availability.
+- **Local journal or wallet storage can be lost on uninstall or device failure.** Keep this card scoped to process crash/restart and track authenticated RevenueCat webhook fulfillment as follow-up.
+- **CustomerInfo history can be stale, incomplete, or ambiguous.** Require complete transaction fields, compare against the persisted baseline, accept only one unambiguous candidate, and otherwise stay recovery-required.
+- **Provider error meanings can drift.** Normalize documented pending and in-progress codes in the RevenueCat adapter and cover unknown codes with fail-closed tests.
+- **Journal and wallet are separate durable writes.** Deliver at least once and acknowledge only after the wallet transaction ledger reports fulfilled or duplicate; every crash boundary is safe under replay.
+- **The public migration is broader than the original drain proposal.** Compile and test every constructor and purchase consumer, including both games, rather than hiding compatibility behind optional defaults.
+- **Lifecycle callbacks can race the original promise.** Serialize journal transitions by request and transaction key; listener-first and promise-first tests must converge on one record.
+- **Sandbox alias products can make product matching ambiguous.** Use the pre-purchase baseline and unique-candidate rule; ambiguity blocks instead of guessing.
 
 ---
 
 ## Definition of Done
 
-- Caller-facing purchase timeout no longer clears the active native-operation owner.
-- Same-SKU, different-SKU, and restore attempts are rejected without provider calls while the
-  purchase settlement lease remains active.
-- Every authorized purchase has stable local request identity across caller and late-result views.
-- Native success/cancel/failure releases only its matching owner and is returned or queued exactly
-  once; watchdog expiry releases a hung owner while the raw promise remains safely observed.
-- `consumeCompletedPurchaseResult()` drains late actual outcomes FIFO, and a late purchase fulfills
-  through the transaction/token ledger exactly once.
-- RevenueCat provider interfaces and adapter remain unchanged because no supported idempotency-key
-  input exists.
-- Restore mutual exclusion, restore late settlement, and customer-info listener tests remain green.
-- ShopPage proves the new SDK contract through its existing refresh/onPurchase seam with no new
-  copy, visual state, timer, or result-shape redeclaration.
-- SDK/UI typecheck, lint, focused tests, root unit suite, and repository audit pass.
-- A real-device evidence artifact demonstrates caller timeout, blocked retries/restore, one native
-  terminal, one drained outcome, one grant, and lock release; fake/browser evidence is not labeled
-  as native proof.
-- No implementation outside the files and evidence surface named above, no provider-port widening,
-  no merge, and no push are introduced by the planning stage.
+- No caller timeout, diagnostic threshold, background event, restart, journal error, or reconciliation miss releases an unresolved native purchase owner.
+- A durable journal record and cryptographic request ID are committed before the single provider purchase invocation.
+- Purchase and restore remain unavailable while native-pending or recovery-required, regardless of elapsed time.
+- Native terminal outcomes are persisted before owner release and survive service/process recreation.
+- Restart reconciliation uses full RevenueCat transaction identity and releases only on one proven matching transaction or a provider-proven definitive terminal.
+- Payment-pending, operation-in-progress, empty history, ambiguous history, and reconciliation failure remain blocked.
+- Completed results are delivered non-destructively until matching acknowledgement follows durable fulfilled/duplicate processing.
+- A crash before fulfillment grants once on replay; a crash after wallet commit but before acknowledgement replays as duplicate and grants zero additional value.
+- Stale callbacks and failures cannot clear or relabel a newer owner or overwrite its snapshot error.
+- RevenueCat adapter, fake provider, SDK barrels, ShopPage, Marble Run, and Find the Dog compile against one SDK-owned contract.
+- Marble Run gains a persistent transaction ledger; Find the Dog continues using its existing persistent ledger; both acknowledge only safe fulfillment outcomes.
+- Focused SDK/UI/game tests, package typechecks and lint, the root unit suite, and repository audit pass.
+- Native evidence demonstrates timer expiry, retry/restore exclusion, background/foreground, process kill/restart, both callback orderings, replay, duplicate-ledger handling, and one total grant.
+- Fake, browser, and screenshot evidence is never labeled as native store proof.
+- Abandoned experimental paths and compatibility shims that bypass durable acknowledgement are absent from the final diff.
