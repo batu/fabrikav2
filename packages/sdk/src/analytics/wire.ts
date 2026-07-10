@@ -40,9 +40,9 @@ export interface OwnedAnalyticsWireEvent {
 /** The batch envelope the sink POSTs and the worker parses. */
 export interface OwnedAnalyticsWireBatch {
   readonly schema: OwnedAnalyticsWireSchema;
-  /** Which game these events belong to — keys storage, never trusted for auth. */
+  /** Game identity; the server authorizes it against the presenting credential. */
   readonly game_id: string;
-  /** Environment marker; test/development traffic is partitioned from prod. */
+  /** Environment identity; the server authorizes it against the presenting credential. */
   readonly env: AnalyticsEnvironment;
   readonly events: readonly OwnedAnalyticsWireEvent[];
 }

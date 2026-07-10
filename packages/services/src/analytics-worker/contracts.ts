@@ -77,6 +77,8 @@ export interface D1Database {
 export interface AnalyticsWorkerEnv {
   readonly ANALYTICS_INGEST_ENABLED?: string;
   readonly ANALYTICS_KILL_SWITCH?: string;
+  readonly ANALYTICS_INGEST_CREDENTIALS?: string;
+  /** Retired ingest-auth source; retained only for offline migration inventory. */
   readonly ANALYTICS_PUBLIC_CLIENT_KEYS?: string;
   readonly ANALYTICS_MAX_BATCH_EVENTS?: string;
   readonly ANALYTICS_MAX_BODY_BYTES?: string;
@@ -96,6 +98,11 @@ export interface AnalyticsWorkerEnv {
   readonly ANALYTICS_QUERY_STALE_AFTER_MS?: string;
   readonly ANALYTICS?: AnalyticsEngineDataset;
   readonly DB?: D1Database;
+}
+
+export interface AnalyticsWorkerError {
+  readonly code: string;
+  readonly message: string;
 }
 
 export type AnalyticsWorkerStorageMode = 'analytics_engine' | 'd1';
@@ -141,6 +148,8 @@ export interface SourceHealthRow {
 
 export interface AnalyticsWorkerAbuseCounters {
   readonly unauthorized: number;
+  readonly forbiddenScopeGame: number;
+  readonly forbiddenScopeEnv: number;
   readonly malformed: number;
   readonly replayed: number;
   readonly rateLimited: number;

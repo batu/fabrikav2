@@ -1,5 +1,5 @@
 import type { AnalyticsEnvironment, AnalyticsWorkerEnv, D1Database } from './contracts.ts';
-import { ANALYTICS_ENVIRONMENTS } from './contracts.ts';
+import { isAnalyticsEnvironment } from './auth.ts';
 
 export type AnalyticsQuerySourceState = 'owned_live' | 'owned_cached' | 'partial' | 'stale' | 'empty';
 export type AnalyticsQueryTrustLabel = 'owned_ingest_verified' | 'owned_ingest_partial' | 'owned_ingest_stale' | 'sample';
@@ -312,10 +312,6 @@ function confidenceFor(state: AnalyticsQuerySourceState): AnalyticsQueryConfiden
   if (state === 'partial') return 'partial_timeout';
   if (state === 'stale') return 'stale';
   return 'ready';
-}
-
-function isAnalyticsEnvironment(value: string): value is AnalyticsEnvironment {
-  return (ANALYTICS_ENVIRONMENTS as readonly string[]).includes(value);
 }
 
 function jsonError(status: number, error: AnalyticsQueryError, headers: Headers): Response {

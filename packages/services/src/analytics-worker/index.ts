@@ -11,6 +11,18 @@ import type { AnalyticsWorkerEnv } from './contracts.ts';
 export { analyticsEngineLayout, AnalyticsEngineStore, D1AnalyticsEventStore, buildSourceHealthRow, shouldWriteAnalyticsEngineSample, toAnalyticsEnginePoint } from './storage.ts';
 export { analyticsWorkerComputedVolumeBudget, analyticsWorkerVolumeBudget, analyticsWorkerD1Budget, analyticsWorkerSamplingContract } from './budget.ts';
 export { OwnedAnalyticsIngestWorker, readAnalyticsWorkerConfig, parseOwnedAnalyticsBatch, SlidingWindowRateLimiter, TtlSet } from './ingest.ts';
+export {
+  GAME_ID_PATTERN,
+  authenticate,
+  authorizeEnvelope,
+  isAnalyticsEnvironment,
+  parseIngestCredentials,
+  type IngestAuthenticationResult,
+  type IngestAuthorizationResult,
+  type IngestCredential,
+  type IngestCredentialConfigState,
+  type ParsedIngestCredentials,
+} from './auth.ts';
 export { OwnedAnalyticsQueryApi, readAnalyticsQueryConfig } from './query.ts';
 export {
   ownedAnalyticsWorkerSchema,
@@ -19,6 +31,7 @@ export {
   type AnalyticsEngineDataset,
   type AnalyticsEnvironment,
   type AnalyticsWorkerEnv,
+  type AnalyticsWorkerError,
   type AnalyticsWorkerRequestContext,
   type AnalyticsWorkerStorageMode,
   type AnalyticsWorkerStore,
