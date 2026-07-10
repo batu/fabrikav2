@@ -16,6 +16,67 @@ body {
   font-family: var(--fab-font-family);
 }
 
+/* Shared primitives set neutral defaults on each .fab-ui root. Bridge every
+   rendered surface back to this committed seed without introducing a theme
+   module or changing package UI. */
+.template-shell .fab-ui {
+  --fab-color-surface: var(--fab-seed-color-surface);
+  --fab-color-overlay-scrim: var(--fab-seed-color-overlay-scrim);
+  --fab-color-text: var(--fab-seed-color-text);
+  --fab-color-text-muted: var(--fab-seed-color-text-muted);
+  --fab-color-accent: var(--fab-seed-color-accent);
+  --fab-color-on-accent: var(--fab-seed-color-on-accent);
+  --fab-color-secondary-surface: var(--fab-seed-color-secondary-surface);
+  --fab-color-on-secondary: var(--fab-seed-color-on-secondary);
+  --fab-color-secondary-border: var(--fab-seed-color-secondary-border);
+  --fab-color-gameplay-surface: var(--fab-seed-color-gameplay-surface);
+  --fab-modal-card-border: var(--fab-seed-color-surface);
+  --fab-page-overlay-bg: var(--fab-seed-color-surface);
+  --fab-space-sm: var(--fab-seed-space-sm);
+  --fab-space-md: var(--fab-seed-space-md);
+  --fab-space-lg: var(--fab-seed-space-lg);
+  --fab-radius-md: var(--fab-seed-radius-md);
+  --fab-radius-pill: var(--fab-seed-radius-pill);
+  --fab-font-family: var(--fab-seed-font-family);
+  --fab-font-size-sm: var(--fab-seed-font-size-sm);
+  --fab-font-size-md: var(--fab-seed-font-size-md);
+  --fab-font-size-lg: var(--fab-seed-font-size-lg);
+  --fab-font-weight-normal: var(--fab-seed-font-weight-normal);
+  --fab-font-weight-bold: var(--fab-seed-font-weight-bold);
+  --fab-btn-color: var(--fab-seed-color-on-accent);
+  --fab-shadow-button: var(--fab-seed-shadow-button);
+  --fab-shadow-button-active: var(--fab-seed-shadow-button-active);
+  --fab-shadow-button-disabled: var(--fab-seed-shadow-button-disabled);
+  --fab-shadow-modal: var(--fab-seed-shadow-modal);
+  --fab-pause-title-color: var(--fab-seed-color-text);
+  --fab-ribbon-title-color: var(--fab-seed-color-on-accent);
+  --fab-ribbon-eyebrow-color: var(--fab-seed-color-text);
+  --fab-result-reward-color: var(--fab-color-accent);
+  --fab-toggle-track-off: var(--fab-seed-color-toggle-track-off);
+  --fab-toggle-thumb: var(--fab-seed-color-on-accent);
+  --fab-levelmap-node-bg: var(--fab-seed-color-gameplay-surface);
+  --fab-levelmap-locked-bg: var(--fab-seed-color-levelmap-locked);
+  --fab-levelmap-completed-bg: var(--fab-seed-color-levelmap-completed);
+  --fab-levelmap-current-bg: var(--fab-seed-color-accent);
+  --fab-levelmap-node-color: var(--fab-seed-color-text);
+  --fab-levelmap-locked-color: var(--fab-seed-color-surface);
+  --fab-levelmap-completed-color: var(--fab-seed-color-on-accent);
+  --fab-levelmap-current-color: var(--fab-seed-color-on-accent);
+  --fab-levelmap-dot-color: var(--fab-seed-color-text);
+  --fab-levelmap-locked-dot-color: var(--fab-seed-color-surface);
+  --fab-levelmap-line-top: var(--fab-seed-color-levelmap-line-top);
+  --fab-levelmap-line-mid: var(--fab-seed-color-levelmap-locked);
+  --fab-levelmap-line-bottom: var(--fab-seed-color-accent);
+  --fab-levelmap-art-locked: var(--fab-seed-levelmap-art-locked);
+  --fab-levelmap-art-completed: var(--fab-seed-levelmap-art-completed);
+  --fab-levelmap-art-current: var(--fab-seed-levelmap-art-current);
+  --fab-levelmap-path-width: var(--fab-seed-levelmap-path-width);
+  --fab-levelmap-node-size: var(--fab-seed-levelmap-node-size);
+  --fab-levelmap-node-current-size: var(--fab-seed-levelmap-node-current-size);
+  --fab-levelmap-node-font: var(--fab-seed-levelmap-node-font);
+  --fab-levelmap-node-current-font: var(--fab-seed-levelmap-node-current-font);
+}
+
 .template-shell .fab-home-menu,
 .template-shell__level {
   box-sizing: border-box;
@@ -27,6 +88,23 @@ body {
 .template-shell__level {
   display: grid;
   gap: var(--fab-space-md);
+}
+
+.template-shell__level {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.template-shell__heading {
+  display: grid;
+  gap: var(--fab-space-xs);
+  text-align: center;
+}
+
+.template-shell__subtitle {
+  margin: 0;
+  color: var(--fab-color-text-muted);
+  font-size: var(--fab-font-size-md);
+  font-weight: var(--fab-font-weight-normal);
 }
 
 .template-shell__utility,
@@ -81,8 +159,33 @@ body {
   text-align: center;
 }
 
+.template-shell__hero-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: var(--fab-hero-stage-min-height);
+  overflow: hidden;
+  border: var(--fab-border-width) solid var(--fab-seed-color-hero-border);
+  border-radius: var(--fab-radius-md);
+  background-color: var(--fab-seed-color-hero-surface);
+  box-shadow: var(--fab-shadow-button);
+}
+
+.template-shell .fab-levelmap-path {
+  min-height: var(--fab-seed-levelmap-path-min-height);
+}
+
+.template-shell__hero-stage::before {
+  position: absolute;
+  width: var(--fab-hero-ring-size);
+  height: var(--fab-hero-ring-size);
+  border: var(--fab-border-width) solid var(--fab-seed-color-hero-border);
+  border-radius: 50%;
+  content: "";
+  opacity: 0.45;
+}
+
 .template-shell__hero-art,
-.template-shell__gameplay-art,
 .template-shell__result-art {
   display: block;
   width: var(--fab-art-width);
@@ -90,6 +193,13 @@ body {
   max-height: var(--fab-art-max-height);
   margin-inline: auto;
   object-fit: contain;
+}
+
+.template-shell__hero-art {
+  position: relative;
+  z-index: 1;
+  width: var(--fab-hero-art-width);
+  max-height: none;
 }
 
 .template-shell__gameplay {
@@ -104,9 +214,48 @@ body {
   text-align: center;
 }
 
+.template-shell__gameplay-emblem {
+  display: grid;
+  width: var(--fab-gameplay-emblem-size);
+  aspect-ratio: 1;
+  place-items: center;
+  border: var(--fab-border-width) solid var(--fab-seed-color-hero-border);
+  border-radius: 50%;
+  background-color: var(--fab-seed-color-hero-surface);
+}
+
+.template-shell__gameplay-art {
+  display: block;
+  width: var(--fab-gameplay-art-width);
+  height: auto;
+}
+
 .template-shell__gameplay h2,
 .template-shell__gameplay p {
   margin: 0;
+}
+
+.template-shell__sample-outcomes {
+  display: grid;
+  gap: var(--fab-space-xs);
+  padding-top: var(--fab-space-sm);
+  border-top: var(--fab-border-width) solid var(--fab-color-secondary-border);
+  text-align: center;
+}
+
+.template-shell__sample-title,
+.template-shell__sample-body {
+  margin: 0;
+}
+
+.template-shell__sample-title {
+  color: var(--fab-color-text);
+  font-size: var(--fab-font-size-md);
+}
+
+.template-shell__sample-body {
+  color: var(--fab-color-text-muted);
+  font-size: var(--fab-font-size-sm);
 }
 
 /* The curated win/lose glyphs are white, so this stays a compact contrast layer
@@ -120,6 +269,7 @@ body {
 
 .template-shell__test-actions {
   align-items: stretch;
+  flex-wrap: wrap;
 }
 
 .template-shell__test-action,
@@ -146,17 +296,66 @@ body {
 }
 
 .template-shell__test-action {
-  flex: 1;
+  flex: 1 1 140px;
+  min-height: var(--fab-demo-action-min-height);
+  padding: var(--fab-space-sm);
+  font-size: var(--fab-font-size-md);
 }
 
-.template-shell .fab-pause-card .fab-btn {
+.template-shell .fab-modal-card.fab-pause-card {
+  background-color: var(--fab-seed-color-pause-surface);
+  border-color: var(--fab-seed-color-pause-border);
+  box-shadow: var(--fab-shadow-modal);
+}
+
+.template-shell .fab-pause-card .fab-modal-title {
+  color: var(--fab-seed-color-text);
+}
+
+.template-shell .fab-pause-card [data-fab-action="pause-resume"] {
   background-color: var(--fab-color-accent);
   color: var(--fab-color-on-accent);
+}
+
+.template-shell .fab-pause-card [data-fab-action="pause-settings"] {
+  background-color: var(--fab-seed-color-pause-secondary-surface);
+  color: var(--fab-seed-color-text);
 }
 
 .template-shell .fab-pause-card [data-fab-action="pause-quit"] {
   background-color: var(--fab-color-secondary-surface);
   color: var(--fab-color-on-secondary);
+}
+
+.template-shell__node-status {
+  position: absolute;
+  left: calc(100% + var(--fab-node-status-offset));
+  min-width: var(--fab-node-status-min-width);
+  padding: var(--fab-node-status-padding);
+  border-radius: var(--fab-radius-pill);
+  background-color: var(--fab-color-secondary-surface);
+  color: var(--fab-color-text-muted);
+  font-size: var(--fab-node-status-font-size);
+  font-weight: var(--fab-font-weight-bold);
+  letter-spacing: var(--fab-node-status-letter-spacing);
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.template-shell .fab-levelmap-node.current .template-shell__node-status {
+  background-color: var(--fab-color-accent);
+  color: var(--fab-color-on-accent);
+}
+
+.template-shell .fab-levelmap-node.completed .template-shell__node-status {
+  background-color: var(--fab-levelmap-completed-bg);
+  color: var(--fab-color-on-accent);
+}
+
+.template-shell .fab-levelmap-node.locked .template-shell__node-status {
+  background-color: var(--fab-levelmap-locked-bg);
+  color: var(--fab-color-on-accent);
 }
 
 @media (max-width: 360px) {

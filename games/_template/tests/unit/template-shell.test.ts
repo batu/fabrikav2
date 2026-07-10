@@ -135,10 +135,28 @@ describe("template shell renderer and harness", () => {
     const css = templateShellCss();
 
     expect(css).toMatch(/body\s*\{[^}]*margin:\s*0;/s);
+    expect(css).toMatch(/\.template-shell \.fab-ui\s*\{[^}]*--fab-color-accent:\s*var\(--fab-seed-color-accent\);/s);
     expect(css).toMatch(/\.template-shell__icon-action\s*\{[^}]*background-color:\s*var\(--fab-color-accent\);/s);
-    expect(css).toMatch(/\.template-shell \.fab-pause-card \.fab-btn\s*\{[^}]*background-color:\s*var\(--fab-color-accent\);/s);
+    expect(css).toMatch(/\.template-shell \.fab-pause-card \[data-fab-action="pause-resume"\]\s*\{[^}]*background-color:\s*var\(--fab-color-accent\);/s);
+    expect(css).toMatch(/\.template-shell \.fab-modal-card\.fab-pause-card\s*\{[^}]*background-color:\s*var\(--fab-seed-color-pause-surface\);/s);
     expect(css).toMatch(/\.template-shell \.fab-page-back\s*\{[^}]*background-color:\s*var\(--fab-color-accent\);/s);
     expect(css).toMatch(/\.template-shell \.fab-result-body\s*\{[^}]*background-color:\s*var\(--fab-color-gameplay-surface\);/s);
+  });
+
+  it("frames the required outcome controls as an intentional starter interaction", () => {
+    const controller = createController();
+    const root = document.getElementById("app")!;
+    const shell = mountTemplateShell({ mountInto: root, controller });
+
+    controller.startCurrent();
+    shell.render();
+
+    const sample = shell.root.querySelector<HTMLElement>('[data-fab-instance="level.sample-outcomes"]');
+    expect(sample).not.toBeNull();
+    expect(sample?.textContent).toContain("Sample outcome");
+    expect(sample?.querySelector('[data-fab-action="test-win"]')?.textContent).toBe("Complete round");
+    expect(sample?.querySelector('[data-fab-action="test-lose"]')?.textContent).toBe("Preview retry");
+    expect(shell.root.textContent).not.toContain("Gameplay goes here");
   });
 
   it("uses the state owner for rendered semantic actions and keeps locked nodes inert", () => {
@@ -157,6 +175,9 @@ describe("template shell renderer and harness", () => {
     expect(
       Array.from(shell.root.querySelectorAll("[data-fab-node-state]")).map((node) => node.getAttribute("data-fab-node-state")),
     ).toEqual(["completed", "current", "locked"]);
+    expect(
+      Array.from(shell.root.querySelectorAll("[data-fab-node-state]")).map((node) => node.getAttribute("aria-label")),
+    ).toEqual(["Trail 1, Complete", "Trail 2, Current", "Trail 3, Locked"]);
     play!.click();
     expect(controller.snapshot()).toMatchObject({ surface: "level", scene: "playing" });
 

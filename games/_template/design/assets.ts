@@ -68,7 +68,8 @@ export const assetUrls = {
   pause: assets.icon.pause,
   gameplay: assets.decoration.heroPlaceholder,
   back: assets.icon.back,
-  ribbon: assets.action.testWin,
+  ribbonWin: assets.action.testWin,
+  ribbonFail: assets.action.testLose,
   win: assets.result.win,
   fail: assets.result.fail,
 } as const;

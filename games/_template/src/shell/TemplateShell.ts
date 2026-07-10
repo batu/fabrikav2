@@ -84,8 +84,19 @@ function menuHeader(
   title.dataset.fabInstance = "menu.title";
   title.textContent = copy["game.title"];
 
+  const heading = document.createElement("div");
+  heading.className = "template-shell__heading";
+  const subtitle = document.createElement("p");
+  subtitle.className = "template-shell__subtitle";
+  subtitle.textContent = copy["menu.subtitle"];
+  heading.append(title, subtitle);
+
+  const heroStage = document.createElement("div");
+  heroStage.className = "template-shell__hero-stage";
+  heroStage.dataset.fabInstance = "menu.hero-stage";
   const hero = art(assetUrls.heroArt, "template-shell__hero-art", "menu.hero");
   hero.dataset.fabSlot = "hero-art";
+  heroStage.appendChild(hero);
 
   const utility = document.createElement("div");
   utility.className = "template-shell__utility";
@@ -103,7 +114,7 @@ function menuHeader(
     }),
   );
 
-  header.append(utility, title, hero);
+  header.append(utility, heading, heroStage);
   return header;
 }
 
@@ -120,12 +131,15 @@ function renderMenu(
     saga: {
       id: "template-saga",
       state: {
-        nodes: levelIds.map((level) => ({
-          id: level,
-          label: String(level),
-          name: `${copy["menu.level"]} ${level}`,
-          state: levelNodeState(snapshot, level),
-        })),
+        nodes: levelIds.map((level) => {
+          const state = levelNodeState(snapshot, level);
+          return {
+            id: level,
+            label: String(level),
+            name: `${copy["menu.level"]} ${level}, ${copy[`menu.node.${state}`]}`,
+            state,
+          };
+        }),
       },
       actions: {
         onSelectLevel: (level) => {
@@ -155,6 +169,11 @@ function renderMenu(
     const state = levelNodeState(snapshot, level);
     node.dataset.fabInstance = `menu.node.${state}`;
     node.dataset.fabNodeState = state;
+    const status = document.createElement("span");
+    status.className = "template-shell__node-status";
+    status.setAttribute("aria-hidden", "true");
+    status.textContent = copy[`menu.node.${state}`];
+    node.appendChild(status);
     if (state === "current") node.dataset.fabAction = "play";
     if (state === "locked") {
       node.dataset.fabAction = "locked";
@@ -204,8 +223,23 @@ function renderLevel(
   gameplayTitle.textContent = copy["level.gameplay.title"];
   const gameplayBody = document.createElement("p");
   gameplayBody.textContent = copy["level.gameplay.body"];
-  gameplay.append(art(assetUrls.gameplay, "template-shell__gameplay-art", "level.gameplay-region"), gameplayTitle, gameplayBody);
+  const gameplayEmblem = document.createElement("div");
+  gameplayEmblem.className = "template-shell__gameplay-emblem";
+  gameplayEmblem.setAttribute("aria-hidden", "true");
+  gameplayEmblem.append(art(assetUrls.gameplay, "template-shell__gameplay-art", "level.gameplay-region"));
+  gameplay.append(gameplayEmblem, gameplayTitle, gameplayBody);
 
+  const sample = document.createElement("section");
+  sample.className = "template-shell__sample-outcomes";
+  sample.dataset.fabInstance = "level.sample-outcomes";
+  sample.setAttribute("aria-labelledby", "template-sample-outcomes-title");
+  const sampleTitle = document.createElement("h2");
+  sampleTitle.id = "template-sample-outcomes-title";
+  sampleTitle.className = "template-shell__sample-title";
+  sampleTitle.textContent = copy["level.sample.title"];
+  const sampleBody = document.createElement("p");
+  sampleBody.className = "template-shell__sample-body";
+  sampleBody.textContent = copy["level.sample.body"];
   const testActions = document.createElement("div");
   testActions.className = "template-shell__test-actions";
   testActions.append(
@@ -232,8 +266,9 @@ function renderLevel(
   );
   testActions.children[0]?.setAttribute("data-fab-instance", "level.test-win");
   testActions.children[1]?.setAttribute("data-fab-instance", "level.test-lose");
+  sample.append(sampleTitle, sampleBody, testActions);
 
-  page.append(hud, gameplay, testActions);
+  page.append(hud, gameplay, sample);
   mountInto.appendChild(page);
 }
 
@@ -372,7 +407,7 @@ function renderResult(
     variant: win ? "win" : "lose",
     title: win ? copy["win.title"] : copy["fail.title"],
     eyebrow: `${copy["level.label"]} ${snapshot.currentLevel}`,
-    ribbonImage: assetUrls.ribbon,
+    ribbonImage: win ? assetUrls.ribbonWin : assetUrls.ribbonFail,
     art: art(win ? assetUrls.win : assetUrls.fail, "template-shell__result-art", artInstance),
     messages: win ? copy["win.message"] : copy["fail.message"],
     actions,
