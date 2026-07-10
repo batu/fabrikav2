@@ -14,7 +14,12 @@ interface SeedAsset {
 }
 
 interface SeedManifest {
-  readonly sources: readonly { readonly id: string; readonly license: string; readonly licenseFile: string }[];
+  readonly sources: readonly {
+    readonly id: string;
+    readonly approvedSourcePath: string;
+    readonly license: string;
+    readonly licenseFile: string;
+  }[];
   readonly assets: readonly SeedAsset[];
 }
 
@@ -37,6 +42,8 @@ describe("Kenney semantic seed manifest", () => {
     ]);
     for (const source of manifest.sources) {
       expect(source.license).toBe("CC0-1.0");
+      expect(path.isAbsolute(source.approvedSourcePath)).toBe(false);
+      expect(source.approvedSourcePath.split(/[\\/]/)).not.toContain("..");
       expect(fs.existsSync(path.join(templateRoot, "design", source.licenseFile))).toBe(true);
     }
     expect(manifest.assets).toHaveLength(29);
