@@ -41,9 +41,9 @@ npm run verify-device -- --game marble_run
    using the same manifest states that `tools/refcap-compare` uses) → a
    **device|reference|pixel-diff grid** at
    `docs/evidence/<date>-device-verify/grid.html` + `summary.json` with stable
-   per-state `{score, majorConsensusCount, verdict, capture}` entries + a **PASS/FAIL**
-   summary (FAIL if a state is missing or its diff exceeds `--threshold`, default
-   advisory).
+   per-state `{score, majorConsensusCount, verdict, capture}` entries plus an
+   additive reserved `__run` member carrying the typed run verdict (see below).
+   The phash pass/fail is advisory; run status is the typed verdict, not the diff.
 6. **Emit named-region crops** under `<out>/crops/` when
    `games/<g>/refs/manifest.yaml` declares `verifyDevice.regions`. Each crop run
    writes device/reference/diff PNGs where possible plus `crops/inventory.json`
@@ -51,12 +51,59 @@ npm run verify-device -- --game marble_run
 7. **Print the grid path, summary path, crop directory when present, one-line
    per-state table, and verdict.**
 
+## Strict verification & the typed run verdict (minimum proof)
+
+`verify-device` emits ONE typed run verdict (`tools/verify-device/src/verdict.mjs`,
+`classifyRunVerdict`) that owns run status **and** the process exit code. The CLI
+exit, the grid's top banner, the stdout `run verdict:` line, and `summary.json`'s
+additive `__run` member all read that same object — there is no second success
+boolean that can disagree with it.
+
+`kind` describes the **evidence** and is independent of `--strict`; `enforcement`
+(`strict`/`exploratory`) plus hard-integrity gates decide the **exit**. The five
+evidence kinds:
+
+| kind | meaning | strict exit | exploratory exit |
+|---|---|---|---|
+| `verified-pass` | ≥1 applicable state, **live-device** provenance, complete primary (panel) fidelity pass, every required applicable state covered, no failed gate | 0 | 0 |
+| `verified-fail` | live provenance + applicable evidence, but a missing capture, an applicable panel fidelity fail, or a viewport assertion failed | nonzero | 0 (advisory) |
+| `unverified` | captures exist but provenance is untrusted (`browser`, `provided-captures`, detached `--xcresult`) **or** primary panel fidelity is absent/incomplete/duplicated/unscored for a captured applicable state | nonzero | 0 (advisory) |
+| `skipped` | capture was not attempted (`--skip-device`, no device/toolchain) | nonzero | 0 (degrade) |
+| `no-applicable-evidence` | zero states have a trusted reference — empty, skipped-only, no-reference-only, or dual device+reference gaps | nonzero | 0 |
+
+**Minimum strict proof:** a `verified-pass` requires (1) a current-invocation
+live iOS/Android capture (provenance `live-device`), (2) at least one applicable
+state — a state with a trusted, non-skipped reference, (3) exactly one complete,
+passing primary **vision-panel** result for each captured applicable state,
+(4) every required applicable state covered (a trusted-reference state with no
+capture is `verified-fail`), and (5) no failed strict gate (viewport assertions).
+The **phash** pixel-diff is advisory only — it can never, on its own, produce a
+`verified-pass`; a panel-skipped run is `unverified`.
+
+Applicability is **reference-first**: a row missing both its device capture and a
+trusted reference is `no-reference` (never a false `missing`) and cannot inflate
+coverage. Inapplicable or extra panel rows are reported as ignored diagnostics and
+can neither help nor hurt the applicable fidelity aggregate.
+
+Hard-integrity gates (capture-runner failure, blind/ungated captures without
+`--allow-ungated`, blocking indistinguishable states) exit nonzero in **both**
+strict and exploratory modes — they are process gates, not an evidence kind.
+
+**Detached provenance boundary:** `--captures`, `--lane browser`, and a detached
+`--xcresult` are `unverified` and strict-nonzero. Freshness is **never** inferred
+from a path, label, or file timestamp. A validated run/commit/device attestation
+that could upgrade a detached artifact to trusted provenance is owned by
+**AUDIT #7**; until it lands and this verifier validates it, detached artifacts
+fail closed.
+
 ## Gating / graceful degrade
 
 Device/keychain/Mac-only steps are gated. With no connected device (or
-`--skip-device`, or no Xcode), the tool **skips with a clear message and exits 0**
-so CI degrades instead of failing — and says plainly that on-device rendering
-stays **UNVERIFIED**.
+`--skip-device`, or no Xcode), the tool **skips with a clear message**, routes the
+skip through the typed run verdict (`skipped`), and says plainly that on-device
+rendering stays **UNVERIFIED**. In the default exploratory mode this degrades to
+**exit 0** so CI passes; under `--strict` a skipped run fails closed and **exits
+non-zero** (absence is never a verified pass).
 
 For iOS signing, set `DEVELOPMENT_TEAM=<team id>` in the environment. The device
 path passes it to both app and runner `xcodebuild` invocations and uses
@@ -302,8 +349,10 @@ gracefully (exit 0) and on-device fidelity stays **UNVERIFIED**.
 `--content-inset-bottom <px>` ·
 `--threshold <0..1>` (default 0.20) · `--ensemble <name>` (default `default`;
 `kitchen-sink` for the full roster) · `--models <a,b,c>` (overrides the ensemble) ·
-`--panel-threshold <0..100>` (default 85) · `--skip-panel` · `--strict` (FAIL or
-non-device lane → non-zero exit; default advisory) · `--skip-device` ·
+`--panel-threshold <0..100>` (default 85) · `--skip-panel` (phash advisory only →
+strict `unverified`) · `--strict` (only a live-device `verified-pass` exits 0;
+`verified-fail`, `unverified`, `skipped`, and `no-applicable-evidence` are
+non-zero; default exploratory/advisory) · `--skip-device` ·
 `--allow-ungated` (forensic replay escape hatch for `*-MISSING` iOS attachments) ·
 `--lane <device|browser>` (default `device`) · `--budget-floor <n>` (default 5) ·
 `--compare <prev-run-dir>` (print per-state score / consensus / verdict deltas

@@ -3,6 +3,16 @@ import path from 'node:path';
 
 const MAJOR_OR_WORSE = new Set(['major', 'blocker']);
 
+// Reserved, additive run-metadata member. It carries the ONE typed run verdict so
+// summary.json machine consumers read the same status the CLI exits on, WITHOUT
+// turning run metadata into a fake game state. Every state iterator here skips it,
+// and legacy summaries that lack it keep their existing behavior (KTD6, R14).
+export const RUN_META_KEY = '__run';
+
+function isRunMetaKey(key) {
+  return key === RUN_META_KEY;
+}
+
 /**
  * Build the stable per-state summary the conductor used to reconstruct from
  * panel.json by hand: state -> { score, majorConsensusCount, verdict }.
@@ -33,6 +43,7 @@ export function buildSummary({
   indistinguishablePairs = [],
   viewportMetrics = {},
   viewportMetricAssertions = [],
+  runVerdict = null,
 }) {
   let summary;
   if (Array.isArray(panel?.states)) {
@@ -67,7 +78,26 @@ export function buildSummary({
   }
   attachIndistinguishablePairs(summary, indistinguishablePairs);
 
+  if (runVerdict) {
+    summary[RUN_META_KEY] = summarizeRunVerdict(runVerdict);
+  }
+
   return summary;
+}
+
+// Additive run-metadata: the discriminated kind, enforcement, exit code, and
+// human summary/reason — everything a machine consumer needs to read run status
+// without recomputing it from per-state booleans.
+function summarizeRunVerdict(runVerdict) {
+  return {
+    kind: String(runVerdict.kind),
+    enforcement: String(runVerdict.enforcement),
+    exitCode: Number(runVerdict.exitCode),
+    applicableCount: Number(runVerdict.applicableCount) || 0,
+    fidelitySource: runVerdict.fidelitySource || null,
+    reason: String(runVerdict.reason || ''),
+    summary: String(runVerdict.summary || ''),
+  };
 }
 
 export function writeSummaryJson(outDir, summary) {
@@ -94,7 +124,8 @@ export function loadRunSummary(runDir) {
 export function normalizeSummary(raw) {
   const source = raw?.states && isPlainObject(raw.states) ? raw.states : raw;
   if (!isPlainObject(source)) throw new Error('summary.json must be an object keyed by state');
-  return Object.fromEntries(Object.entries(source).map(([state, value]) => {
+  const stateEntries = Object.entries(source).filter(([key]) => !isRunMetaKey(key));
+  return Object.fromEntries(stateEntries.map(([state, value]) => {
     const score = value?.score;
     const majorConsensusCount = Number(value?.majorConsensusCount);
     const normalized = {

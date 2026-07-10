@@ -37,7 +37,7 @@ import { parseDeviceList, pickDevice } from './src/devices.mjs';
 import { extractFromExportDir, loadCapturesDir } from './src/attachments.mjs';
 import { buildRows } from './src/compare.mjs';
 import { writeCropArtifacts } from './src/crops.mjs';
-import { computeStrictExitCode, computeVerdict } from './src/verdict.mjs';
+import { classifyRunVerdict, computeVerdict } from './src/verdict.mjs';
 import { buildGridHtml } from './src/grid.mjs';
 import { runPanel, withPanelMetadata } from './src/panel.mjs';
 import { loadRegistry, resolveJudges } from './src/judges.mjs';
@@ -64,7 +64,6 @@ import {
   formatSummaryTable,
   formatUngatedCaptureWarnings,
   loadRunSummary,
-  ungatedCaptureStates,
   writeSummaryJson,
 } from './src/summary.mjs';
 import {
@@ -110,6 +109,7 @@ async function resolveDeviceCaptures(args, manifest, date, platform, deviceConfi
     return {
       captures: loadCapturesDir(dir, stateNames),
       lane: 'provided-captures',
+      provenance: 'provided-captures',
       deviceLabel: `captures dir ${path.relative(REPO_ROOT, dir)} — DEVICE-PROVENANCE-UNVERIFIED`,
     };
   }
@@ -124,7 +124,10 @@ async function resolveDeviceCaptures(args, manifest, date, platform, deviceConfi
       captures: byState,
       captureByState,
       viewportMetrics,
-      deviceLabel: `xcresult ${path.relative(REPO_ROOT, path.resolve(args.xcresult))}`,
+      // Detached artifact: we cannot prove it belongs to the current run/commit/device,
+      // so provenance is UNVERIFIED until AUDIT #7 supplies a validated attestation.
+      provenance: 'detached-xcresult',
+      deviceLabel: `xcresult ${path.relative(REPO_ROOT, path.resolve(args.xcresult))} — DEVICE-PROVENANCE-UNVERIFIED (detached artifact)`,
     };
   }
   if (args.skipDevice) return { skip: 'forced by --skip-device' };
@@ -168,6 +171,7 @@ function runIosDevicePath(args, manifest, date, deviceConfig = {}) {
     captures: byState,
     captureByState,
     viewportMetrics,
+    provenance: 'live-device',
     deviceLabel: `${deviceConfig.name ? `${deviceConfig.name}: ` : ''}${device.name} (${device.udid})`,
     captureFailure: testError ? `xcodebuild test failed: ${testError.message}` : null,
   };
@@ -207,6 +211,7 @@ async function runAndroidDevicePath(args, manifest, date, deviceConfig = {}) {
     captures,
     captureByState: Object.fromEntries(Object.keys(captures).map((state) => [state, { gated: true }])),
     lane: 'device',
+    provenance: 'live-device',
     deviceLabel: `${deviceConfig.name ? `${deviceConfig.name}: ` : ''}Android${serial ? ` ${serial}` : ''} via ${adbPrefix}`,
     captureFailure: failures.length ? `android capture failures: ${failures.join('; ')}` : null,
   };
@@ -240,7 +245,7 @@ async function runBrowserLane(manifest) {
       launch: () => chromium.launch(),
     });
     return {
-      captures, lane: 'browser',
+      captures, lane: 'browser', provenance: 'browser',
       captureByState: Object.fromEntries(Object.keys(captures).map((state) => [state, { gated: true }])),
       deviceLabel: `browser (chromium @ ${dev.baseUrl}, harness ${windowKey}) — DEVICE-UNVERIFIED`,
     };
@@ -274,12 +279,17 @@ async function main() {
     ? await runBrowserLane(manifest)
     : await resolveDeviceCaptures(args, manifest, date, platform, deviceConfig);
   if (resolved.skip) {
+    // Every graceful-skip reason routes through the ONE typed verdict so strict and
+    // exploratory diverge in exactly one place (R12). Exploratory keeps the CI-safe
+    // exit-0 degrade; strict fails closed — a skipped run is never "verified".
+    const skipVerdict = classifyRunVerdict({ strict: args.strict, captureSkip: resolved.skip });
     process.stdout.write(
       `verify-device: SKIPPED on-device verification — ${resolved.skip}.\n` +
-      `  This is the CI-safe degrade path; on-device rendering stays UNVERIFIED.\n` +
-      `  Run on the configured device host with the device plugged in to produce the grid + verdict.\n`
+      `  This is the ${args.strict ? 'strict' : 'CI-safe'} degrade path; on-device rendering stays UNVERIFIED.\n` +
+      `  Run on the configured device host with the device plugged in to produce the grid + verdict.\n` +
+      `  run verdict: ${skipVerdict.summary}\n`
     );
-    return 0; // graceful skip: absence of a device is not a build failure
+    return skipVerdict.exitCode; // exploratory: 0 (absence is not a build failure); strict: nonzero
   }
   const lane = resolved.lane || 'device';
 
@@ -350,9 +360,33 @@ async function main() {
     }
   }
 
+  // Blind (marker-never-appeared) captures are a hard integrity input. Derive them
+  // straight from capture metadata — NOT from the summary we are about to build —
+  // so the run verdict never depends on an artifact it also feeds (KTD5).
+  const blindCaptureStates = Object.entries(resolved.captureByState || {})
+    .filter(([, meta]) => meta && meta.gated === false)
+    .map(([state]) => state);
+
+  // ONE typed run verdict, computed after rows, panel, provenance, viewport
+  // assertions, capture integrity, and indistinguishable-state checks are known
+  // but BEFORE grid, summary, stdout, Portal delivery, or exit (R13). Every one
+  // of those consumers reads THIS object — no divergent success booleans (AC3).
+  const runVerdict = classifyRunVerdict({
+    strict: args.strict,
+    provenance: resolved.provenance,
+    rows,
+    panel,
+    phashVerdict,
+    viewportMetricsPass: viewportMetricAssertionsPass(viewportMetricAssertions),
+    captureFailure: resolved.captureFailure,
+    ungatedCaptureStates: blindCaptureStates,
+    allowUngated: args.allowUngated,
+    indistinguishableStatePairs: indistinguishableStates.blockingPairs,
+  });
+
   const html = buildGridHtml({
     game: args.game, generatedAt: date, device: resolved.deviceLabel,
-    rows, verdict: phashVerdict, panel, lane,
+    rows, verdict: phashVerdict, panel, lane, runVerdict,
     captureArtifacts: {
       contentInsetTop: prepared.artifacts.contentInsetTop,
       contentInsetBottom: prepared.artifacts.contentInsetBottom,
@@ -376,8 +410,8 @@ async function main() {
     indistinguishablePairs: indistinguishableStates.pairs,
     viewportMetrics: resolved.viewportMetrics || {},
     viewportMetricAssertions,
+    runVerdict,
   });
-  const blindCaptureStates = ungatedCaptureStates(summary);
   const summaryFile = writeSummaryJson(outDir, summary);
   let compareTable = '';
   if (args.compare) {
@@ -386,9 +420,7 @@ async function main() {
     compareTable = formatCompareTable(compareSummaries(summary, previous), previousLabel);
   }
 
-  // The overall PASS/FAIL is the panel's when it ran; otherwise phash (advisory).
-  const primary = panel.verdict || phashVerdict;
-  const primaryLabel = panel.verdict ? 'panel' : 'phash (panel skipped)';
+  // Panel/phash remain visible DIAGNOSTICS; the run verdict above owns status.
   const blindCaptureNote = blindCaptureStates.length === 0
     ? ''
     : args.allowUngated
@@ -416,10 +448,10 @@ async function main() {
     (resolved.captureFailure ? `  capture: FAILED — ${resolved.captureFailure}\n` : '') +
     blindCaptureNote +
     indistinguishableNote +
-    `  phash: ${phashVerdict.summary}\n` +
-    (panel.verdict ? `  panel: ${panel.verdict.summary}\n`
+    `  phash (advisory): ${phashVerdict.summary}\n` +
+    (panel.verdict ? `  panel (primary fidelity): ${panel.verdict.summary}\n`
       : `  panel: SKIPPED — ${panel.skipped} (on-device fidelity UNVERIFIED)\n`) +
-    `  verdict (${primaryLabel}): ${primary.summary}\n` +
+    `  run verdict: ${runVerdict.summary}\n` +
     `  grid: ${path.relative(REPO_ROOT, outFile)}\n` +
     `  summary: ${path.relative(REPO_ROOT, summaryFile)}\n` +
     formatViewportMetricAssertions(viewportMetricAssertions) +
@@ -441,16 +473,7 @@ async function main() {
     });
   }
 
-  return computeStrictExitCode({
-    strict: args.strict,
-    lane,
-    primary,
-    captureFailure: resolved.captureFailure,
-    viewportMetricsPass: viewportMetricAssertionsPass(viewportMetricAssertions),
-    ungatedCaptureStates: blindCaptureStates,
-    allowUngated: args.allowUngated,
-    indistinguishableStatePairs: indistinguishableStates.blockingPairs,
-  });
+  return runVerdict.exitCode;
 }
 
 main().then((code) => process.exit(code)).catch((err) => {
