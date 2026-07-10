@@ -65,9 +65,9 @@ export interface OwnedMirrorSinkOptions {
   readonly gameId: string;
   /** Environment marker for the batch envelope (partitions test from prod). */
   readonly env: AnalyticsEnvironment;
-  /** Flush automatically once this many events are queued. Default 10. */
+  /** Flush automatically once this many events are queued. Positive integer; default 10. */
   readonly batchSize?: number;
-  /** Drop an event after this many failed attempts. Default 3. */
+  /** Drop an event after this many failed attempts. Positive integer; default 3. */
   readonly maxAttempts?: number;
   /** Injected clock (for `enqueued_at`); default `Date.now`. */
   readonly now?: () => number;
@@ -92,6 +92,29 @@ interface QueuedEvent {
   readonly attempt: number;
 }
 
+interface FlushOwner {
+  readonly promise: Promise<void>;
+  readonly resolve: () => void;
+  readonly reject: (reason: unknown) => void;
+}
+
+/** Resume after the current task's complete microtask checkpoint. */
+function waitForTaskBoundary(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, 0));
+}
+
+function requirePositiveInteger(
+  option: 'batchSize' | 'maxAttempts',
+  value: number,
+): number {
+  if (!Number.isFinite(value) || !Number.isInteger(value) || value <= 0) {
+    throw new RangeError(
+      `OwnedMirrorSink ${option} must be a finite positive integer; received ${String(value)}`,
+    );
+  }
+  return value;
+}
+
 export interface OwnedMirrorSink extends AnalyticsSink {
   flush(): Promise<void>;
   stats(): OwnedMirrorStats;
@@ -100,13 +123,20 @@ export interface OwnedMirrorSink extends AnalyticsSink {
 export function createOwnedMirrorSink(
   options: OwnedMirrorSinkOptions,
 ): OwnedMirrorSink {
-  const batchSize = options.batchSize ?? 10;
-  const maxAttempts = options.maxAttempts ?? 3;
+  const batchSize = requirePositiveInteger('batchSize', options.batchSize ?? 10);
+  const maxAttempts = requirePositiveInteger(
+    'maxAttempts',
+    options.maxAttempts ?? 3,
+  );
   const now = options.now ?? Date.now;
   const generateId = options.generateId ?? (() => crypto.randomUUID());
 
   const queue: QueuedEvent[] = [];
-  let flushing = false;
+  // The single in-flight drain owner, shared by every concurrent flush() caller.
+  // Its deferred promise settles only after a task-boundary handoff, final queue
+  // check, and synchronous ownership release, so all nested microtasks from the
+  // current task can join. No ordering with future tasks is promised.
+  let inFlight: FlushOwner | null = null;
 
   let enqueued = 0;
   let sent = 0;
@@ -128,61 +158,97 @@ export function createOwnedMirrorSink(
     };
   }
 
-  async function flush(): Promise<void> {
-    if (flushing) return;
-    flushing = true;
+  function flush(): Promise<void> {
+    // Concurrent callers share the one active drain rather than each firing a
+    // duplicate send (or, as the old guard did, resolving instantly while zero
+    // events had reached transport).
+    if (inFlight) return inFlight.promise;
+
+    let resolve!: () => void;
+    let reject!: (reason: unknown) => void;
+    const promise = new Promise<void>((resolvePromise, rejectPromise) => {
+      resolve = resolvePromise;
+      reject = rejectPromise;
+    });
+    const owner: FlushOwner = { promise, resolve, reject };
+    inFlight = owner;
+    void runOwnedDrain(owner);
+    return promise;
+  }
+
+  async function runOwnedDrain(owner: FlushOwner): Promise<void> {
     try {
-      while (queue.length > 0) {
-        const batch = queue.splice(0, batchSize);
-        const body = JSON.stringify({
-          schema: OWNED_MIRROR_SCHEMA,
-          game_id: options.gameId,
-          env: options.env,
-          events: batch.map(toBodyEvent),
-        });
-
-        let result: MirrorTransportResult;
-        try {
-          result = await options.transport({
-            url: options.url,
-            publicClientKey: options.publicClientKey,
-            body,
-          });
-        } catch {
-          // Network throw is transient — treat as retryable (status 0).
-          result = { ok: false, status: 0 };
+      let stoppedForRetry: boolean;
+      do {
+        stoppedForRetry = await drain();
+        if (!stoppedForRetry && queue.length === 0) {
+          // A task callback runs only after the current microtask checkpoint is
+          // exhausted, including nested queueMicrotask / Promise reactions.
+          // The queue check below drains those arrivals before owner settlement.
+          await waitForTaskBoundary();
         }
+        // A retryable failure deliberately leaves the queue for a later flush,
+        // so it skips closeout and must not spin here against a down backend.
+      } while (!stoppedForRetry && queue.length > 0);
 
-        if (result.ok) {
-          sent += batch.length;
-          continue;
-        }
-
-        const retryable =
-          result.status === 0 || RETRYABLE_STATUSES.has(result.status);
-        if (!retryable) {
-          recordDrop(batch.length, `status_${result.status}`);
-          continue;
-        }
-
-        // Retryable failure: bump attempts, drop the exhausted, requeue the rest
-        // at the front, and STOP flushing so we don't hammer a down backend.
-        retried += 1;
-        const survivors: QueuedEvent[] = [];
-        for (const event of batch) {
-          const attempt = event.attempt + 1;
-          if (attempt >= maxAttempts) {
-            recordDrop(1, 'max_attempts');
-          } else {
-            survivors.push({ ...event, attempt });
-          }
-        }
-        queue.unshift(...survivors);
-        break;
-      }
-    } finally {
-      flushing = false;
+      if (inFlight === owner) inFlight = null;
+      owner.resolve();
+    } catch (error) {
+      if (inFlight === owner) inFlight = null;
+      owner.reject(error);
     }
+  }
+
+  async function drain(): Promise<boolean> {
+    while (queue.length > 0) {
+      const batch = queue.splice(0, batchSize);
+      const body = JSON.stringify({
+        schema: OWNED_MIRROR_SCHEMA,
+        game_id: options.gameId,
+        env: options.env,
+        events: batch.map(toBodyEvent),
+      });
+
+      let result: MirrorTransportResult;
+      try {
+        result = await options.transport({
+          url: options.url,
+          publicClientKey: options.publicClientKey,
+          body,
+        });
+      } catch {
+        // Network throw is transient — treat as retryable (status 0).
+        result = { ok: false, status: 0 };
+      }
+
+      if (result.ok) {
+        sent += batch.length;
+        continue;
+      }
+
+      const retryable =
+        result.status === 0 || RETRYABLE_STATUSES.has(result.status);
+      if (!retryable) {
+        recordDrop(batch.length, `status_${result.status}`);
+        continue;
+      }
+
+      // Retryable failure: bump attempts, drop the exhausted, requeue the rest
+      // at the front, and STOP flushing so we don't hammer a down backend.
+      retried += 1;
+      const survivors: QueuedEvent[] = [];
+      for (const event of batch) {
+        const attempt = event.attempt + 1;
+        if (attempt >= maxAttempts) {
+          recordDrop(1, 'max_attempts');
+        } else {
+          survivors.push({ ...event, attempt });
+        }
+      }
+      queue.unshift(...survivors);
+      return true;
+    }
+    return false;
   }
 
   return {
