@@ -88,6 +88,7 @@ export function mountButton(opts: ButtonOptions): ButtonHandle {
     className: ['fab-ui', 'fab-btn', opts.className].filter(Boolean).join(' '),
     theme: opts.theme,
     tagName: 'button',
+    kind: 'button',
   });
   if (root.reentrant) return buttonHandleForExisting(root.handle);
 

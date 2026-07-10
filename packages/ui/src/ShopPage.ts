@@ -158,6 +158,7 @@ export function mountShopPage<TPayload = unknown>(
     id: opts.id ?? `fab-shop-${++nextShopId}`,
     className: 'fab-ui fab-shop',
     theme: opts.theme,
+    kind: 'shop-page',
   });
   if (root.reentrant) {
     const existing = root.handle;

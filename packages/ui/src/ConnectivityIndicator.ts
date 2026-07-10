@@ -44,7 +44,10 @@ export function mountConnectivityIndicator(
     id: opts.id ?? `fab-connectivity-${++nextIndicatorId}`,
     className: ['fab-ui', 'fab-connectivity', opts.className].filter(Boolean).join(' '),
     theme: opts.theme,
+    kind: 'connectivity',
   });
+  // Kind-validated: a re-entrant handle here is guaranteed to be a live indicator;
+  // createUiRoot rejects incompatible owners before this cast can be reached.
   if (root.reentrant) return root.handle as ConnectivityIndicatorHandle;
 
   const dot = root.el;

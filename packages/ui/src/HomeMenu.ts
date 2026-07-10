@@ -63,6 +63,7 @@ export function mountHomeMenu(opts: HomeMenuOptions): UiHandle {
     id: opts.id ?? `fab-home-menu-${++nextHomeMenuId}`,
     className: 'fab-ui fab-home-menu',
     theme: opts.theme,
+    kind: 'home-menu',
   });
   if (root.reentrant) return root.handle;
 

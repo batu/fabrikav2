@@ -72,20 +72,20 @@ describe('mountButton', () => {
     expect(h.querySelector('#play')).toBeNull();
   });
 
-  it('same-id pre-existing button returns a complete ButtonHandle', () => {
+  it('same-id pre-existing button is rejected without modifying the foreign element', () => {
     const h = host();
     const existing = document.createElement('button');
     existing.id = 'play';
     existing.textContent = 'Existing';
     h.appendChild(existing);
 
-    const handle = mountButton({ mountInto: h, label: 'Play', onClick: () => {}, id: 'play' });
-    handle.setLabel('Again');
-    handle.setDisabled(true);
+    expect(() =>
+      mountButton({ mountInto: h, label: 'Play', onClick: () => {}, id: 'play' }),
+    ).toThrow(/id collision.*play.*button.*untracked/i);
 
-    expect(handle.el).toBe(existing);
-    expect(existing.textContent).toBe('Again');
-    expect(existing.disabled).toBe(true);
+    expect(h.querySelector('#play')).toBe(existing);
+    expect(existing.textContent).toBe('Existing');
+    expect(existing.disabled).toBe(false);
     expect(h.querySelectorAll('#play')).toHaveLength(1);
   });
 

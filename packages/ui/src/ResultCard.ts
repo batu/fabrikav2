@@ -1,4 +1,4 @@
-import { mountModalShell, type ModalAction } from './ModalShell.ts';
+import { mountModalShellWithKind, type ModalAction } from './ModalShell.ts';
 import { type ThemeTokens, type UiHandle } from './internal.ts';
 
 /**
@@ -66,55 +66,61 @@ function normalizeMessages(messages: ResultCardOptions['messages']): string[] {
 }
 
 export function mountResultCard(opts: ResultCardOptions): UiHandle {
-  const body = document.createElement('div');
-  body.className = 'fab-result-body';
+  return mountModalShellWithKind(
+    { mountInto: opts.mountInto, id: opts.id, theme: opts.theme },
+    'result-card',
+    () => {
+      const body = document.createElement('div');
+      body.className = 'fab-result-body';
 
-  if (opts.art) {
-    assertFreshSlot(opts.art);
-    opts.art.classList.add('fab-result-art');
-    body.appendChild(opts.art);
-  }
+      if (opts.art) {
+        assertFreshSlot(opts.art);
+        opts.art.classList.add('fab-result-art');
+        body.appendChild(opts.art);
+      }
 
-  const messages = normalizeMessages(opts.messages);
-  if (messages.length > 0) {
-    const messageWrap = document.createElement('div');
-    messageWrap.className = 'fab-result-messages';
-    for (const line of messages) {
-      const p = document.createElement('p');
-      p.className = 'fab-result-message';
-      p.textContent = line;
-      messageWrap.appendChild(p);
-    }
-    body.appendChild(messageWrap);
-  }
+      const messages = normalizeMessages(opts.messages);
+      if (messages.length > 0) {
+        const messageWrap = document.createElement('div');
+        messageWrap.className = 'fab-result-messages';
+        for (const line of messages) {
+          const p = document.createElement('p');
+          p.className = 'fab-result-message';
+          p.textContent = line;
+          messageWrap.appendChild(p);
+        }
+        body.appendChild(messageWrap);
+      }
 
-  if (opts.rewardDisplay) {
-    assertFreshSlot(opts.rewardDisplay);
-    opts.rewardDisplay.classList.add('fab-result-reward');
-    body.appendChild(opts.rewardDisplay);
-  }
-  if (opts.continueOffer) {
-    assertFreshSlot(opts.continueOffer);
-    opts.continueOffer.classList.add('fab-result-continue');
-    body.appendChild(opts.continueOffer);
-  }
+      if (opts.rewardDisplay) {
+        assertFreshSlot(opts.rewardDisplay);
+        opts.rewardDisplay.classList.add('fab-result-reward');
+        body.appendChild(opts.rewardDisplay);
+      }
+      if (opts.continueOffer) {
+        assertFreshSlot(opts.continueOffer);
+        opts.continueOffer.classList.add('fab-result-continue');
+        body.appendChild(opts.continueOffer);
+      }
 
-  return mountModalShell({
-    mountInto: opts.mountInto,
-    ribbon: {
-      title: opts.title,
-      eyebrow: opts.eyebrow,
-      image: opts.ribbonImage,
+      return {
+        mountInto: opts.mountInto,
+        ribbon: {
+          title: opts.title,
+          eyebrow: opts.eyebrow,
+          image: opts.ribbonImage,
+        },
+        body,
+        actions: opts.actions,
+        backdropDismiss: opts.backdropDismiss,
+        onDismiss: opts.onDismiss,
+        theme: opts.theme,
+        id: opts.id,
+        cardImage: opts.cardImage,
+        backplateImage: opts.backplateImage,
+        backplateClassName: opts.backplateClassName,
+        cardClassName: `fab-result-card fab-result-card--${opts.variant}`,
+      };
     },
-    body,
-    actions: opts.actions,
-    backdropDismiss: opts.backdropDismiss,
-    onDismiss: opts.onDismiss,
-    theme: opts.theme,
-    id: opts.id,
-    cardImage: opts.cardImage,
-    backplateImage: opts.backplateImage,
-    backplateClassName: opts.backplateClassName,
-    cardClassName: `fab-result-card fab-result-card--${opts.variant}`,
-  });
+  );
 }

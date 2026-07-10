@@ -180,6 +180,14 @@ describe('createGame', () => {
     expect(() => createGame({ name: '', repoRoot: root })).toThrow(/invalid game name/);
     expect(() => createGame({ name: '_template', repoRoot: root })).toThrow(/template/);
   });
+
+  it('refuses to resurrect a slug that is archived under archive/games', () => {
+    // A deprecated game's tree is preserved under archive/games/<name>. Scaffolding
+    // an active workspace with the same slug would silently resurrect it.
+    mkdirSync(join(root, 'archive', 'games', 'cameleon'), { recursive: true });
+    expect(() => createGame({ name: 'cameleon', repoRoot: root })).toThrow(/archived/);
+    expect(existsSync(join(root, 'games', 'cameleon'))).toBe(false);
+  });
 });
 
 describe('template manifest', () => {
@@ -189,5 +197,15 @@ describe('template manifest', () => {
     expect(manifest.states.map((state) => state.name)).toEqual(
       ['menu', 'level', 'settings', 'pause', 'win', 'fail'],
     );
+  });
+});
+
+describe('archive deprecation guardrail (repo-wide config)', () => {
+  it('root knip config ignores archive/** so archived games are not scanned', () => {
+    // Companion guardrail to createGame's archived-slug rejection: knip must not
+    // enumerate the preserved archive/ tree (unlisted deps, unresolved imports,
+    // unused exports) or the deprecation regresses at the repo-wide config layer.
+    const knip = JSON.parse(readFileSync(join(REPO, 'knip.json'), 'utf8'));
+    expect(knip.ignore).toContain('archive/**');
   });
 });

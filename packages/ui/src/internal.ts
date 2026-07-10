@@ -40,6 +40,12 @@ interface CreateUiRootOptions {
   theme?: ThemeTokens;
   /** Root tag name. Defaults to div for existing overlay components. */
   tagName?: 'button' | 'div';
+  /**
+   * Component identity for kind-validated re-entrant reuse. A mount reuses only
+   * a live root registered under the same kind. A different owned kind or an
+   * untracked element sharing the id is rejected without mutating either root.
+   */
+  kind: string;
 }
 
 export interface UiRootControls {
@@ -65,24 +71,47 @@ export type CreateUiRootResult =
 
 // Live handles keyed by their mounted root, so a re-entrant mount can return the
 // REAL handle (working dismiss / accurate dismissed) instead of a dead no-op.
+// The `kind` tags which component registered the root, so a kind-validated mount
+// can reject a handle whose methods belong to a different component.
 // WeakMap → entries clear when the element is GC'd; close() deletes eagerly.
-const MOUNTED = new WeakMap<HTMLElement, UiHandle>();
+interface MountRecord {
+  handle: UiHandle;
+  kind: string;
+}
+const MOUNTED = new WeakMap<HTMLElement, MountRecord>();
 
 export function createUiRoot(opts: CreateUiRootOptions): CreateUiRootResult {
   // Match by id among direct children — the root is always appendChild'd to
   // mountInto, so a children scan finds it. Avoids a CSS `#${id}` selector,
   // which would throw on ids with CSS-special chars (and CSS.escape isn't
   // available in every DOM env, e.g. jsdom).
-  const existing = Array.from(opts.mountInto.children).find(
-    (child): child is HTMLElement => child instanceof HTMLElement && child.id === opts.id,
+  const matches = Array.from(opts.mountInto.children).filter(
+    (child) => child.getAttribute('id') === opts.id,
   );
+  if (matches.length > 1) {
+    throw new Error(
+      `createUiRoot id collision for "${opts.id}": cannot mount kind "${opts.kind}"; ambiguous ${matches.length} matching direct children.`,
+    );
+  }
+  const existing = matches[0];
   if (existing) {
-    // Re-entrant: a root with this id is already open. Return its LIVE handle
-    // so the caller can actually dismiss it and `await dismissed` truthfully.
-    const live = MOUNTED.get(existing);
-    if (live) return { reentrant: true, handle: live };
-    // Fallback (element not ours / pre-existing): inert handle bound to it.
-    return { reentrant: true, handle: { el: existing, dismiss: () => {}, dismissed: Promise.resolve() } };
+    if (!(existing instanceof HTMLElement)) {
+      throw new Error(
+        `createUiRoot id collision for "${opts.id}": cannot mount kind "${opts.kind}" over non-HTMLElement <${existing.localName}>.`,
+      );
+    }
+    const record = MOUNTED.get(existing);
+    if (!record) {
+      throw new Error(
+        `createUiRoot id collision for "${opts.id}": cannot mount kind "${opts.kind}" over an untracked element.`,
+      );
+    }
+    if (record.kind !== opts.kind) {
+      throw new Error(
+        `createUiRoot id collision for "${opts.id}": cannot mount kind "${opts.kind}" over owned kind "${record.kind}".`,
+      );
+    }
+    return { reentrant: true, handle: record.handle };
   }
 
   const el = document.createElement(opts.tagName ?? 'div');
@@ -143,7 +172,7 @@ export function createUiRoot(opts: CreateUiRootOptions): CreateUiRootResult {
 
   const finalize = (override?: UiHandle): UiHandle => {
     const handle: UiHandle = override ?? { el, dismiss: close, dismissed };
-    MOUNTED.set(el, handle);
+    MOUNTED.set(el, { handle, kind: opts.kind });
     opts.mountInto.appendChild(el);
     return handle;
   };
