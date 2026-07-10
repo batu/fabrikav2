@@ -16,6 +16,43 @@ function templateShellCss(): string {
   return readFileSync(resolve(process.cwd(), "src/shell/template-shell.css"), "utf8");
 }
 
+interface ContractInstance {
+  readonly id: string;
+  readonly stateId: string;
+  readonly required: boolean;
+  readonly accessibility: {
+    readonly role: string;
+  };
+}
+
+function contractInstances(): readonly ContractInstance[] {
+  const contract = JSON.parse(
+    readFileSync(resolve(process.cwd(), "../../packages/kernel/contracts/shell-presentation.v1.json"), "utf8"),
+  ) as { readonly instances: readonly ContractInstance[] };
+  return contract.instances;
+}
+
+function effectiveRole(element: HTMLElement): string | null {
+  const explicitRole = element.getAttribute("role");
+  if (explicitRole) return explicitRole;
+  if (element instanceof HTMLButtonElement) return "button";
+  if (/^H[1-6]$/.test(element.tagName)) return "heading";
+  if (element instanceof HTMLImageElement && element.getAttribute("aria-hidden") !== "true") return "img";
+  return null;
+}
+
+function accessibleName(element: HTMLElement): string {
+  const labelledBy = element.getAttribute("aria-labelledby");
+  if (labelledBy) {
+    return labelledBy
+      .split(/\s+/)
+      .map((id) => document.getElementById(id)?.textContent?.trim() ?? "")
+      .filter(Boolean)
+      .join(" ");
+  }
+  return element.getAttribute("aria-label")?.trim() || (element instanceof HTMLImageElement ? element.alt.trim() : "") || element.textContent?.trim() || "";
+}
+
 beforeEach(() => {
   const entries = new Map<string, string>();
   vi.stubGlobal("localStorage", {
@@ -141,6 +178,7 @@ describe("template shell renderer and harness", () => {
     expect(css).toMatch(/\.template-shell \.fab-modal-card\.fab-pause-card\s*\{[^}]*background-color:\s*var\(--fab-seed-color-pause-surface\);/s);
     expect(css).toMatch(/\.template-shell \.fab-page-back\s*\{[^}]*background-color:\s*var\(--fab-color-accent\);/s);
     expect(css).toMatch(/\.template-shell \.fab-result-body\s*\{[^}]*background-color:\s*var\(--fab-color-gameplay-surface\);/s);
+    expect(css).toMatch(/\.template-shell \.fab-toggle-input\s*\{[^}]*width:\s*100%;[^}]*height:\s*100%;/s);
   });
 
   it("frames the required outcome controls as an intentional starter interaction", () => {
@@ -151,7 +189,7 @@ describe("template shell renderer and harness", () => {
     controller.startCurrent();
     shell.render();
 
-    const sample = shell.root.querySelector<HTMLElement>('[data-fab-instance="level.sample-outcomes"]');
+    const sample = shell.root.querySelector<HTMLElement>(".template-shell__sample-outcomes");
     expect(sample).not.toBeNull();
     expect(sample?.textContent).toContain("Sample outcome");
     expect(sample?.querySelector('[data-fab-action="test-win"]')?.textContent).toBe("Complete round");
@@ -187,6 +225,68 @@ describe("template shell renderer and harness", () => {
     expect(shell.root.querySelector('[data-fab-role="gameplay-region"]')).not.toBeNull();
     expect(shell.root.textContent).not.toContain("Shop");
     expect(shell.root.textContent).not.toContain("Ad");
+  });
+
+  it("maps each rendered semantic instance to the closed contract exactly once", async () => {
+    const instances = contractInstances();
+    const registeredIds = new Set(instances.map((instance) => instance.id));
+    const instancesById = new Map(instances.map((instance) => [instance.id, instance]));
+
+    for (const state of ["menu", "level", "settings", "pause", "win", "fail"] as const) {
+      const controller = createController();
+      const root = document.getElementById("app")!;
+      const shell = mountTemplateShell({ mountInto: root, controller });
+      const harness = createTemplateHarness({
+        buildVersion: "test",
+        packageId: "com.fabrikav2.template",
+        controller,
+      });
+
+      expect(await harness.driveTo!(state)).toBe(true);
+      shell.render();
+
+      const renderedIds = Array.from(shell.root.querySelectorAll<HTMLElement>("[data-fab-instance]"), (element) =>
+        element.dataset.fabInstance!,
+      );
+      const semanticOwners = Array.from(shell.root.querySelectorAll<HTMLElement>("[data-fab-instance]"));
+      const counts = new Map<string, number>();
+      for (const id of renderedIds) counts.set(id, (counts.get(id) ?? 0) + 1);
+
+      expect(renderedIds.filter((id) => !registeredIds.has(id)), `${state}: unregistered instance IDs`).toEqual([]);
+      expect(
+        Array.from(counts).filter(([, count]) => count !== 1),
+        `${state}: duplicate instance IDs`,
+      ).toEqual([]);
+
+      const missingRequired = instances
+        .filter((instance) => instance.stateId === state && instance.required)
+        .map((instance) => instance.id)
+        .filter((id) => !counts.has(id));
+      expect(missingRequired, `${state}: missing required instance IDs`).toEqual([]);
+
+      for (const owner of semanticOwners) {
+        const id = owner.dataset.fabInstance!;
+        const contractInstance = instancesById.get(id)!;
+        expect(owner.getAttribute("aria-hidden"), `${state}/${id}: semantic owner must be exposed`).not.toBe("true");
+        expect(effectiveRole(owner), `${state}/${id}: semantic owner role`).toBe(contractInstance.accessibility.role);
+        expect(accessibleName(owner), `${state}/${id}: semantic owner accessible name`).not.toBe("");
+      }
+
+      shell.dispose();
+    }
+  });
+
+  it.each([1, 3])("keeps one completed, current, and locked semantic node at progression level %s", (level) => {
+    const controller = createController();
+    const root = document.getElementById("app")!;
+    const shell = mountTemplateShell({ mountInto: root, controller });
+
+    controller.seedSave({ unlockedLevel: level });
+    shell.render();
+
+    expect(
+      Array.from(shell.root.querySelectorAll<HTMLElement>("[data-fab-node-state]"), (node) => node.dataset.fabInstance),
+    ).toEqual(["menu.node.completed", "menu.node.current", "menu.node.locked"]);
   });
 
   it("renders every canonical state and lets the deterministic tour drive the same controller", async () => {

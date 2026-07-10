@@ -8,15 +8,43 @@ import {
 } from "@fabrikav2/ui";
 import { assetUrls } from "../../design/assets.ts";
 import { copy } from "../../design/copy.ts";
-import { gameConfig } from "../../game.config.ts";
 import type { TemplateShellController, TemplateShellSnapshot } from "../core/TemplateShellController.ts";
 import type { TemplateSettingKey } from "../sdk/TemplateSdk.ts";
 
-const levelIds = Array.from({ length: gameConfig.saga.levels }, (_value, index) => index + 1);
+type ProgressionNodeState = "completed" | "current" | "locked";
 
-function levelNodeState(snapshot: TemplateShellSnapshot, level: number): "completed" | "current" | "locked" {
-  if (snapshot.completedLevels.includes(level)) return "completed";
-  return level === snapshot.currentLevel ? "current" : "locked";
+interface ProgressionNode {
+  readonly id: number;
+  readonly label: string;
+  readonly name: string;
+  readonly state: ProgressionNodeState;
+}
+
+function progressionNodes(snapshot: TemplateShellSnapshot): readonly ProgressionNode[] {
+  const completedLevel = snapshot.completedLevels[snapshot.completedLevels.length - 1];
+  return [
+    {
+      id: completedLevel ?? 0,
+      label: completedLevel === undefined ? "✓" : String(completedLevel),
+      name:
+        completedLevel === undefined
+          ? `${copy["menu.start"]}, ${copy["menu.node.completed"]}`
+          : `${copy["menu.level"]} ${completedLevel}, ${copy["menu.node.completed"]}`,
+      state: "completed",
+    },
+    {
+      id: snapshot.currentLevel,
+      label: String(snapshot.currentLevel),
+      name: `${copy["menu.level"]} ${snapshot.currentLevel}, ${copy["menu.node.current"]}`,
+      state: "current",
+    },
+    {
+      id: snapshot.currentLevel + 1,
+      label: String(snapshot.currentLevel + 1),
+      name: `${copy["menu.level"]} ${snapshot.currentLevel + 1}, ${copy["menu.node.locked"]}`,
+      state: "locked",
+    },
+  ];
 }
 
 export interface TemplateShellHandle {
@@ -30,14 +58,20 @@ export interface MountTemplateShellOptions {
   readonly controller: TemplateShellController;
 }
 
-function art(src: string, className: string, instance: string): HTMLImageElement {
+function art(src: string, className: string, instance?: string): HTMLImageElement {
   const image = document.createElement("img");
   image.className = className;
   image.src = src;
   image.alt = "";
   image.setAttribute("aria-hidden", "true");
-  image.dataset.fabInstance = instance;
+  if (instance) image.dataset.fabInstance = instance;
   return image;
+}
+
+function assignInstance(root: ParentNode, selector: string, instance: string): void {
+  const element = root.querySelector<HTMLElement>(selector);
+  if (!element) throw new Error(`Missing semantic instance owner for ${instance}: ${selector}`);
+  element.dataset.fabInstance = instance;
 }
 
 function iconAction(options: {
@@ -55,7 +89,7 @@ function iconAction(options: {
     onClick: options.onClick,
   });
   button.dataset.fabInstance = options.instance;
-  button.prepend(art(options.image, "template-shell__button-icon", options.instance));
+  button.prepend(art(options.image, "template-shell__button-icon"));
   return button;
 }
 
@@ -63,9 +97,10 @@ function currencyCounter(snapshot: TemplateShellSnapshot, instance: string): HTM
   const counter = document.createElement("div");
   counter.className = "template-shell__currency";
   counter.dataset.fabInstance = instance;
+  counter.setAttribute("role", "status");
   counter.setAttribute("aria-label", copy["currency.label"]);
   counter.append(
-    art(assetUrls.currency, "template-shell__currency-icon", instance),
+    art(assetUrls.currency, "template-shell__currency-icon"),
     Object.assign(document.createElement("span"), { textContent: String(snapshot.currency) }),
   );
   return counter;
@@ -93,8 +128,9 @@ function menuHeader(
 
   const heroStage = document.createElement("div");
   heroStage.className = "template-shell__hero-stage";
-  heroStage.dataset.fabInstance = "menu.hero-stage";
   const hero = art(assetUrls.heroArt, "template-shell__hero-art", "menu.hero");
+  hero.removeAttribute("aria-hidden");
+  hero.alt = copy["menu.hero"];
   hero.dataset.fabSlot = "hero-art";
   heroStage.appendChild(hero);
 
@@ -124,6 +160,7 @@ function renderMenu(
   controller: TemplateShellController,
   render: () => void,
 ): UiHandle {
+  const nodes = progressionNodes(snapshot);
   const handle = mountHomeMenu({
     mountInto,
     id: "template-home",
@@ -131,15 +168,7 @@ function renderMenu(
     saga: {
       id: "template-saga",
       state: {
-        nodes: levelIds.map((level) => {
-          const state = levelNodeState(snapshot, level);
-          return {
-            id: level,
-            label: String(level),
-            name: `${copy["menu.level"]} ${level}, ${copy[`menu.node.${state}`]}`,
-            state,
-          };
-        }),
+        nodes,
       },
       actions: {
         onSelectLevel: (level) => {
@@ -164,9 +193,15 @@ function renderMenu(
     ],
   });
 
-  for (const node of handle.el.querySelectorAll<HTMLButtonElement>(".fab-levelmap-node")) {
-    const level = Number(node.dataset.fabNodeId);
-    const state = levelNodeState(snapshot, level);
+  assignInstance(handle.el, ".fab-levelmap", "menu.progression-map");
+  const progressionMap = handle.el.querySelector<HTMLElement>('[data-fab-instance="menu.progression-map"]')!;
+  progressionMap.setAttribute("role", "group");
+  progressionMap.setAttribute("aria-label", copy["menu.progression"]);
+  assignInstance(handle.el, '.fab-home-menu-actions [data-fab-action="play"]', "menu.play");
+
+  for (const [index, node] of Array.from(handle.el.querySelectorAll<HTMLButtonElement>(".fab-levelmap-node")).entries()) {
+    const state = nodes[index]?.state;
+    if (!state) throw new Error(`Missing progression node model at index ${index}`);
     node.dataset.fabInstance = `menu.node.${state}`;
     node.dataset.fabNodeState = state;
     const status = document.createElement("span");
@@ -195,7 +230,7 @@ function renderLevel(
 
   const hud = document.createElement("header");
   hud.className = "template-shell__hud";
-  const label = document.createElement("p");
+  const label = document.createElement("h1");
   label.className = "template-shell__level-label";
   label.dataset.fabInstance = "level.label";
   label.textContent = `${copy["level.label"]} ${snapshot.currentLevel}`;
@@ -218,6 +253,7 @@ function renderLevel(
   gameplay.className = "template-shell__gameplay";
   gameplay.dataset.fabRole = "gameplay-region";
   gameplay.dataset.fabInstance = "level.gameplay-region";
+  gameplay.setAttribute("role", "group");
   gameplay.setAttribute("aria-label", copy["level.gameplay.label"]);
   const gameplayTitle = document.createElement("h2");
   gameplayTitle.textContent = copy["level.gameplay.title"];
@@ -226,12 +262,11 @@ function renderLevel(
   const gameplayEmblem = document.createElement("div");
   gameplayEmblem.className = "template-shell__gameplay-emblem";
   gameplayEmblem.setAttribute("aria-hidden", "true");
-  gameplayEmblem.append(art(assetUrls.gameplay, "template-shell__gameplay-art", "level.gameplay-region"));
+  gameplayEmblem.append(art(assetUrls.gameplay, "template-shell__gameplay-art"));
   gameplay.append(gameplayEmblem, gameplayTitle, gameplayBody);
 
   const sample = document.createElement("section");
   sample.className = "template-shell__sample-outcomes";
-  sample.dataset.fabInstance = "level.sample-outcomes";
   sample.setAttribute("aria-labelledby", "template-sample-outcomes-title");
   const sampleTitle = document.createElement("h2");
   sampleTitle.id = "template-sample-outcomes-title";
@@ -280,6 +315,7 @@ function renderSettings(
   isReplacingSurface: () => boolean,
 ): UiHandle {
   const title = document.createElement("h1");
+  title.id = "template-settings-title";
   title.textContent = copy["settings.title"];
   const page = mountSettingsPage({
     mountInto,
@@ -306,11 +342,16 @@ function renderSettings(
     },
   });
   page.el.dataset.fabInstance = "settings.panel";
+  page.el.setAttribute("role", "dialog");
+  page.el.setAttribute("aria-modal", "true");
+  page.el.setAttribute("aria-labelledby", title.id);
+  assignInstance(page.el, '[data-fab-action="back"]', "settings.back");
   for (const input of page.el.querySelectorAll<HTMLInputElement>("[data-fab-toggle-key] input")) {
     const key = input.closest<HTMLElement>("[data-fab-toggle-key]")?.dataset.fabToggleKey;
     if (!key) continue;
     input.dataset.fabAction = `settings-${key}`;
     input.dataset.fabInstance = `settings.${key}`;
+    input.setAttribute("role", "switch");
   }
   return page;
 }
@@ -344,7 +385,10 @@ function renderPause(
       quit: copy["pause.home"],
     },
   });
-  pause.el.dataset.fabInstance = "pause.panel";
+  assignInstance(pause.el, ".fab-modal-card", "pause.panel");
+  assignInstance(pause.el, '[data-fab-action="pause-resume"]', "pause.resume");
+  assignInstance(pause.el, '[data-fab-action="pause-settings"]', "pause.settings");
+  assignInstance(pause.el, '[data-fab-action="pause-quit"]', "pause.home");
   return pause;
 }
 
@@ -355,7 +399,7 @@ function renderResult(
   render: () => void,
 ): UiHandle {
   const win = snapshot.surface === "win";
-  const artInstance = win ? "win.panel" : "fail.panel";
+  const panelInstance = win ? "win.panel" : "fail.panel";
   const actions = win
     ? [
         {
@@ -408,11 +452,18 @@ function renderResult(
     title: win ? copy["win.title"] : copy["fail.title"],
     eyebrow: `${copy["level.label"]} ${snapshot.currentLevel}`,
     ribbonImage: win ? assetUrls.ribbonWin : assetUrls.ribbonFail,
-    art: art(win ? assetUrls.win : assetUrls.fail, "template-shell__result-art", artInstance),
+    art: art(win ? assetUrls.win : assetUrls.fail, "template-shell__result-art"),
     messages: win ? copy["win.message"] : copy["fail.message"],
     actions,
   });
-  result.el.dataset.fabInstance = artInstance;
+  assignInstance(result.el, ".fab-modal-card", panelInstance);
+  if (win) {
+    assignInstance(result.el, '[data-fab-action="result-next"]', "win.next");
+    assignInstance(result.el, '[data-fab-action="result-menu"]', "win.home");
+  } else {
+    assignInstance(result.el, '[data-fab-action="result-retry"]', "fail.retry");
+    assignInstance(result.el, '[data-fab-action="result-menu"]', "fail.home");
+  }
   return result;
 }
 

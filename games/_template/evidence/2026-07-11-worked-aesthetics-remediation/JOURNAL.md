@@ -8,7 +8,7 @@ it is not Android or iPhone device proof.
 
 ### Task Snapshot
 
-Status: active
+Status: passed
 
 The previous independent review found that the template met its behavioral
 contract but looked like a prototype: internal scaffold copy, weak visible use
@@ -162,3 +162,75 @@ any device-stage claim.
 
 - No code follow-up: Android/iPhone safe-area, touch feel, and performance stay
   explicitly unverified until the later in-situ stage.
+
+### Iteration 3 - Close the contract-to-DOM seam and prove the real flow
+
+#### Planned Result
+
+Every visible contract instance should have one accessible DOM owner, and the
+same 390 x 844 build should remain usable through the complete shell flow.
+
+#### Why This Iteration
+
+The matching capture exposed a seam that the root audit did not: decorative
+children duplicated semantic identities, several required action identities
+were absent, and the native settings inputs had a zero-sized box even though
+their painted switches were 64 x 48 px.
+
+#### Changes Made
+
+Semantic identities now live only on their interactive or accessible owner.
+Decorative artwork is hidden from assistive technology and carries no duplicate
+identity. Required menu, gameplay, settings, pause, win, and fail actions are
+registered exactly once; dialogs own their panel identities. Progression now
+renders one representative completed, current, and next-locked node at every
+supported save edge. The native settings inputs cover the visible switch, so
+automation, accessibility, and physical touch share the same 64 x 48 target.
+
+#### Post-Change Screenshots
+
+1. ![After menu](./after-menu.png)
+   Observation: the Trailhead hero, three labelled progression states, and
+   Continue action form one readable starter-game hierarchy.
+2. ![After level](./after-level.png)
+   Observation: the gameplay placeholder is explicit but game-like, and both
+   required outcomes remain visible as a compact sample interaction.
+3. ![After pause](./after-pause.png)
+   Observation: the pause surface uses the same cream, teal, and pastel system
+   while retaining Resume, Settings, and Home.
+4. ![After settings](./after-settings.png)
+   Observation: Back and all three switches are settled, readable, and at least
+   48 px high.
+5. ![After win](./after-win.png)
+   Observation: the success card has a variant ribbon and clear Next/Home paths.
+6. ![After fail](./after-fail.png)
+   Observation: the retry card remains settled with clear Retry/Home paths.
+
+The matching measurements are in `after-metrics.json`. The real-click tour in
+`after-flow-metrics.json` proves Menu -> Level -> Pause -> Settings -> Back ->
+Resume -> Win -> Home -> Level -> Fail, including a persisted Music toggle. All
+six settled states report a 390 x 844 document with zero body margin; visible
+actions are at least 48 px high.
+
+#### Verification
+
+- Typecheck, lint, build, 6 test files / 40 tests, and `git diff --check`: pass.
+- Approved-source audit: all 29 committed Kenney fixtures match source bytes.
+- Repository audit: pass with pre-existing warnings outside this change.
+- Repository-wide `knip`: still reports the existing cross-repository unused
+  files, exports, and dependencies; no finding points to this change.
+- Browser evidence is diagnostic only. No Android or iPhone device claim is
+  made for this U2 card.
+
+#### Decision
+
+passed
+
+#### Next Action
+
+Run the mandatory fresh independent aesthetics review against settled frames.
+
+#### Spawned Tasks
+
+- Sol performed a read-only contract-to-DOM census and identified the level 1
+  and level 3 progression edge cases; deterministic tests now cover both.

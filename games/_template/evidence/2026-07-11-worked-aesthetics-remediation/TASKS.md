@@ -4,7 +4,7 @@
 
 ### Status
 
-partial
+passed
 
 ### Goal
 
@@ -63,6 +63,14 @@ landmarks, and a calm pause card that feels part of the same world.
 
 - Matching 390 x 844 before/after screenshots from real rendered clicks.
 - Template typecheck, unit tests, lint, build, and the approved-source Kenney audit.
+
+### Result
+
+Passed at 390 x 844. Matching screenshots and metrics cover all six states, and
+the real-click tour covers Pause-origin Settings return, Resume, both outcomes,
+and a settings toggle. Contract identities now map one-to-one to accessible DOM
+owners, including level 1 and level 3 progression edges. Physical-device proof
+remains explicitly out of scope for U2.
 
 ### Spawn Rules
 
