@@ -315,3 +315,30 @@ partial
 The Aesthetics Reviewed worker must obtain fresh settled frames with the recipe
 above and perform the mandatory independent visual review. Android/iPhone safe
 areas, touch feel, fonts, and performance remain explicitly unverified.
+
+#### Conductor Capture and Independent Review
+
+The unrestricted conductor reran both diagnostic paths after commit `5814596a`.
+`u2-seam-remediation-metrics.json` records all six settled surfaces at 390 x
+844. `after-flow-metrics.json` records the real-click Menu -> Level -> Pause ->
+Settings -> Back -> Resume -> Win -> Home -> Level -> Fail path, including a
+Music switch change. Every visible action is at least 48 px high and no surface
+scrolls.
+
+A new 7.48-second Playwright reel supplied four distinct ffmpeg-sampled settled
+frames to blind Sol review session `019f4e71-6a97-7893-9656-777330a35fcf`.
+That review returned `fix-then-ship` with P1 findings: the HUD level identity is
+visibly truncated; the dashed mechanic region reads as prototype grey-box UI;
+the reused bullseye and completed-node lock language look provisional; and the
+fail ribbon/glyph lack readable contrast and visual continuity. Its P2 cluster
+also calls for a clearer dev-only diagnostics strip, tighter Pause hierarchy,
+and Retry as the sole primary fail action.
+
+#### Decision
+
+failed aesthetics gate; returned to Worked
+
+#### Next Action
+
+Resolve the bounded hierarchy, identity, placeholder, and fail-state seams;
+repeat the deterministic browser proof and a fresh blind aesthetics review.
