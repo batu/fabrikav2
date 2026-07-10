@@ -5,11 +5,18 @@ import {
 } from './storage.ts';
 import { OwnedAnalyticsQueryApi } from './query.ts';
 import {
-  ANALYTICS_ENVIRONMENTS,
+  GAME_ID_PATTERN,
+  authenticate,
+  authorizeEnvelope,
+  isAnalyticsEnvironment,
+  parseIngestCredentials,
+  type IngestCredential,
+} from './auth.ts';
+import {
   ownedAnalyticsWorkerSchema,
-  type AnalyticsEnvironment,
   type AnalyticsWorkerAbuseCounters,
   type AnalyticsWorkerEnv,
+  type AnalyticsWorkerError,
   type AnalyticsWorkerRequestContext,
   type AnalyticsWorkerStateSnapshot,
   type AnalyticsWorkerStorageMode,
@@ -28,7 +35,7 @@ interface AnalyticsWorkerDependencies {
 interface AnalyticsWorkerConfig {
   readonly enabled: boolean;
   readonly killSwitch: boolean;
-  readonly publicClientKeys: ReadonlySet<string>;
+  readonly credentials: ReadonlyMap<string, IngestCredential>;
   readonly allowedGameIds: ReadonlySet<string>;
   readonly maxBatchEvents: number;
   readonly maxBodyBytes: number;
@@ -39,17 +46,15 @@ interface AnalyticsWorkerConfig {
   readonly sampleRate: number;
 }
 
-interface WorkerError {
-  readonly code: string;
-  readonly message: string;
-}
-
 const DEFAULT_MAX_BATCH_EVENTS = 100;
 const DEFAULT_MAX_BODY_BYTES = 96_000;
 const DEFAULT_MAX_CLOCK_SKEW_SECONDS = 300;
 const DEFAULT_RATE_LIMIT_PER_MINUTE = 120;
 const DEFAULT_REPLAY_TTL_SECONDS = 600;
-const GAME_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,63}$/;
+const FORBIDDEN_SCOPE_ERROR: AnalyticsWorkerError = {
+  code: 'forbidden_scope',
+  message: 'Credential is not authorized for this analytics scope.',
+};
 
 export class OwnedAnalyticsIngestWorker {
   private readonly nowMs: () => number;
@@ -57,6 +62,8 @@ export class OwnedAnalyticsIngestWorker {
   private readonly rateLimiter: SlidingWindowRateLimiter;
   private abuseCounters = {
     unauthorized: 0,
+    forbiddenScopeGame: 0,
+    forbiddenScopeEnv: 0,
     malformed: 0,
     replayed: 0,
     rateLimited: 0,
@@ -71,7 +78,6 @@ export class OwnedAnalyticsIngestWorker {
   }
 
   async fetch(request: Request, dependencies: AnalyticsWorkerDependencies = {}): Promise<Response> {
-    const config = readAnalyticsWorkerConfig(this.env);
     const pathname = new URL(request.url).pathname;
     if (pathname === '/v1/query/funnel') {
       return new OwnedAnalyticsQueryApi(this.env, { nowMs: this.nowMs }).fetch(request);
@@ -83,10 +89,11 @@ export class OwnedAnalyticsIngestWorker {
       });
     }
     if (request.method !== 'POST') return jsonError(405, { code: 'method_not_allowed', message: 'Use POST /ingest.' });
+    const config = readAnalyticsWorkerConfig(this.env);
     if (!config.enabled) return jsonError(503, { code: 'ingest_disabled', message: 'Owned analytics ingest is disabled.' });
     if (config.killSwitch) return jsonError(503, { code: 'kill_switch', message: 'Owned analytics ingest kill switch is active.' });
 
-    const auth = authenticate(request, config);
+    const auth = authenticate(request, config.credentials);
     if (!auth.ok) {
       this.abuseCounters.unauthorized += 1;
       return jsonError(auth.status, auth.error);
@@ -110,13 +117,25 @@ export class OwnedAnalyticsIngestWorker {
       return jsonError(400, parsed.error);
     }
 
+    const scope = authorizeEnvelope(auth.credential, parsed.batch);
+    if (!scope.ok) {
+      if (scope.reason === 'game') this.abuseCounters.forbiddenScopeGame += 1;
+      else this.abuseCounters.forbiddenScopeEnv += 1;
+      console.warn({
+        game_id: parsed.batch.game_id,
+        env: parsed.batch.env,
+        scope_reason: scope.reason,
+      });
+      return jsonError(403, FORBIDDEN_SCOPE_ERROR);
+    }
+
     const now = this.nowMs();
     const appVersion = appVersionFor(request, parsed.batch);
     const context: AnalyticsWorkerRequestContext = {
       nowMs: now,
       gameId: parsed.batch.game_id,
       env: parsed.batch.env,
-      publicClientKey: auth.publicClientKey,
+      publicClientKey: auth.credential.key,
       clientIp: clientIpFor(request),
       appVersion,
       storageMode: config.storageMode,
@@ -129,7 +148,7 @@ export class OwnedAnalyticsIngestWorker {
       return jsonError(409, { code: 'duplicate_event_id', message: `Batch contains duplicate event_id ${duplicateEventId}.` });
     }
 
-    const rateKey = `${context.gameId}:${auth.publicClientKey}:${context.clientIp}`;
+    const rateKey = `${context.gameId}:${auth.credential.key}:${context.clientIp}`;
     const rate = this.rateLimiter.check(rateKey, now, 60_000, config.rateLimitPerMinute, parsed.batch.events.length);
     if (!rate.allowed) {
       this.abuseCounters.rateLimited += 1;
@@ -204,10 +223,11 @@ export class OwnedAnalyticsIngestWorker {
 
 export function readAnalyticsWorkerConfig(env: AnalyticsWorkerEnv): AnalyticsWorkerConfig {
   const storageMode = env.ANALYTICS_STORAGE_MODE === 'd1' ? 'd1' : 'analytics_engine';
+  const parsedCredentials = parseIngestCredentials(env);
   return {
     enabled: envFlag(env.ANALYTICS_INGEST_ENABLED, false),
     killSwitch: envFlag(env.ANALYTICS_KILL_SWITCH, false),
-    publicClientKeys: new Set(envList(env.ANALYTICS_PUBLIC_CLIENT_KEYS).filter((key) => key.length >= 16)),
+    credentials: parsedCredentials.credentials,
     allowedGameIds: new Set(envList(env.ANALYTICS_ALLOWED_GAME_IDS)),
     maxBatchEvents: envPositiveInt(env.ANALYTICS_MAX_BATCH_EVENTS, DEFAULT_MAX_BATCH_EVENTS),
     maxBodyBytes: envPositiveInt(env.ANALYTICS_MAX_BODY_BYTES, DEFAULT_MAX_BODY_BYTES),
@@ -223,7 +243,7 @@ export function parseOwnedAnalyticsBatch(
   bodyText: string,
   maxBatchEvents: number,
   allowedGameIds: ReadonlySet<string> = new Set(),
-): { readonly ok: true; readonly batch: OwnedAnalyticsWorkerBatch } | { readonly ok: false; readonly error: WorkerError } {
+): { readonly ok: true; readonly batch: OwnedAnalyticsWorkerBatch } | { readonly ok: false; readonly error: AnalyticsWorkerError } {
   let value: unknown;
   try {
     value = JSON.parse(bodyText);
@@ -301,22 +321,6 @@ function replayKey(gameId: string, eventId: string): string {
   return `${gameId}:${eventId}`;
 }
 
-function authenticate(request: Request, config: AnalyticsWorkerConfig): { readonly ok: true; readonly publicClientKey: string } | { readonly ok: false; readonly status: 401 | 403; readonly error: WorkerError } {
-  const authorization = request.headers.get('authorization');
-  if (authorization === null || !authorization.startsWith('Bearer ')) {
-    return { ok: false, status: 401, error: { code: 'missing_token', message: 'Missing bearer token.' } };
-  }
-  const publicClientKey = authorization.slice('Bearer '.length).trim();
-  if (!config.publicClientKeys.has(publicClientKey)) {
-    return { ok: false, status: 403, error: { code: 'invalid_token', message: 'Invalid public client token.' } };
-  }
-  return { ok: true, publicClientKey };
-}
-
-function isAnalyticsEnvironment(value: string): value is AnalyticsEnvironment {
-  return (ANALYTICS_ENVIRONMENTS as readonly string[]).includes(value);
-}
-
 function isOwnedAnalyticsWorkerEvent(value: unknown): value is OwnedAnalyticsWorkerEvent {
   if (!isObject(value)) return false;
   const enqueuedAt = value.enqueued_at;
@@ -331,7 +335,7 @@ function isOwnedAnalyticsWorkerEvent(value: unknown): value is OwnedAnalyticsWor
     && Object.values(value.params).every(isAnalyticsPrimitive);
 }
 
-function jsonError(status: number, error: WorkerError): Response {
+function jsonError(status: number, error: AnalyticsWorkerError): Response {
   return jsonResponse(status, { ok: false, error });
 }
 
@@ -368,7 +372,14 @@ function firstDuplicate(values: readonly string[]): string | null {
 }
 
 function totalAbuse(counters: AnalyticsWorkerAbuseCounters): number {
-  return counters.unauthorized + counters.malformed + counters.replayed + counters.rateLimited + counters.clockSkew + counters.oversized;
+  return counters.unauthorized
+    + counters.forbiddenScopeGame
+    + counters.forbiddenScopeEnv
+    + counters.malformed
+    + counters.replayed
+    + counters.rateLimited
+    + counters.clockSkew
+    + counters.oversized;
 }
 
 function envList(value: string | undefined): readonly string[] {

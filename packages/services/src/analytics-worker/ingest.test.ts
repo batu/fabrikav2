@@ -1,18 +1,43 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import workerEntrypoint from './index.ts';
 import { OwnedAnalyticsIngestWorker, parseOwnedAnalyticsBatch } from './ingest.ts';
 import type { AnalyticsEngineDataPoint, AnalyticsWorkerEnv, AnalyticsWorkerStore, AnalyticsWorkerWriteResult } from './contracts.ts';
 
 const publicKey = 'public-client-key-123456';
+const secondaryKey = 'secondary-client-key-123456';
+
+function scopedCredentials(
+  entries: readonly Record<string, unknown>[] = [{
+    key: publicKey,
+    games: ['marble_run', 'find_the_dog'],
+    envs: ['production', 'development', 'test'],
+  }],
+): string {
+  return JSON.stringify(entries);
+}
 
 function enabledEnv(overrides: Partial<AnalyticsWorkerEnv> = {}): AnalyticsWorkerEnv {
   return {
     ANALYTICS_INGEST_ENABLED: 'true',
-    ANALYTICS_PUBLIC_CLIENT_KEYS: publicKey,
+    ANALYTICS_INGEST_CREDENTIALS: scopedCredentials(),
     ANALYTICS_RATE_LIMIT_PER_MINUTE: '3',
     ANALYTICS_REPLAY_TTL_SECONDS: '60',
     ANALYTICS: {
       writeDataPoint: vi.fn(),
+    },
+    ...overrides,
+  };
+}
+
+function event(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+  return {
+    event_id: 'event-1',
+    enqueued_at: 1_000,
+    name: 'level_start',
+    params: {
+      app_version: '1.2.3',
+      platform: 'ios',
+      level_id: 'level-1',
     },
     ...overrides,
   };
@@ -23,22 +48,14 @@ function batch(eventOverrides: Record<string, unknown> = {}, batchOverrides: Rec
     schema: 'fabrika-owned-analytics-v1',
     game_id: 'marble_run',
     env: 'production',
-    events: [
-      {
-        event_id: 'event-1',
-        enqueued_at: 1_000,
-        name: 'level_start',
-        params: {
-          app_version: '1.2.3',
-          platform: 'ios',
-          level_id: 'level-1',
-        },
-        ...eventOverrides,
-      },
-    ],
+    events: [event(eventOverrides)],
     ...batchOverrides,
   });
 }
+
+afterEach((): void => {
+  vi.restoreAllMocks();
+});
 
 function request(body = batch(), headers: Record<string, string> = {}): Request {
   return new Request('https://analytics.example.com/ingest', {
@@ -140,6 +157,195 @@ describe('owned analytics worker ingest', (): void => {
     expect(writes).not.toHaveBeenCalled();
   });
 
+  it.each([
+    ['missing', undefined],
+    ['empty', ''],
+    ['whitespace', ' \n\t '],
+    ['malformed', '{'],
+    ['non-array', '{}'],
+  ] as const)('fails closed without a legacy runtime fallback when scoped config is %s', async (_label, scopedConfig): Promise<void> => {
+    const writes = vi.fn();
+    const worker = new OwnedAnalyticsIngestWorker(enabledEnv({
+      ANALYTICS_INGEST_CREDENTIALS: scopedConfig,
+      ANALYTICS_PUBLIC_CLIENT_KEYS: publicKey,
+      ANALYTICS_ALLOWED_GAME_IDS: 'marble_run,find_the_dog',
+      ANALYTICS: { writeDataPoint: writes },
+    }), { nowMs: () => 1_100 });
+
+    const response = await worker.fetch(request());
+
+    expect(response.status).toBe(403);
+    expect(await json(response)).toEqual({
+      ok: false,
+      error: { code: 'invalid_token', message: 'Invalid public client token.' },
+    });
+    expect(writes).not.toHaveBeenCalled();
+  });
+
+  it('returns one secret-safe scope denial while retaining sanitized internal reasons', async (): Promise<void> => {
+    const writes = vi.fn();
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const worker = new OwnedAnalyticsIngestWorker(enabledEnv({
+      ANALYTICS_INGEST_CREDENTIALS: scopedCredentials([{
+        key: publicKey,
+        games: ['marble_run'],
+        envs: ['production'],
+      }]),
+      ANALYTICS: { writeDataPoint: writes },
+    }), { nowMs: () => 1_100 });
+
+    const gameOnly = await worker.fetch(request(batch({}, { game_id: 'find_the_dog', env: 'production' })));
+    const envOnly = await worker.fetch(request(batch({}, { game_id: 'marble_run', env: 'development' })));
+    const both = await worker.fetch(request(batch({}, { game_id: 'find_the_dog', env: 'test' })));
+    const bodies = await Promise.all([gameOnly.text(), envOnly.text(), both.text()]);
+
+    expect([gameOnly.status, envOnly.status, both.status]).toEqual([403, 403, 403]);
+    expect(new Set(bodies).size).toBe(1);
+    expect(JSON.parse(bodies[0]!)).toEqual({
+      ok: false,
+      error: {
+        code: 'forbidden_scope',
+        message: 'Credential is not authorized for this analytics scope.',
+      },
+    });
+    expect(bodies[0]).not.toContain(publicKey);
+    expect(bodies[0]).not.toContain('scope_reason');
+    expect(bodies[0]).not.toContain('development');
+
+    expect(worker.stateSnapshot()).toEqual({
+      abuseCounters: {
+        unauthorized: 0,
+        forbiddenScopeGame: 2,
+        forbiddenScopeEnv: 1,
+        malformed: 0,
+        replayed: 0,
+        rateLimited: 0,
+        clockSkew: 0,
+        oversized: 0,
+      },
+      replayKeys: 0,
+      rateBuckets: 0,
+    });
+    expect(warn.mock.calls).toEqual([
+      [{ game_id: 'find_the_dog', env: 'production', scope_reason: 'game' }],
+      [{ game_id: 'marble_run', env: 'development', scope_reason: 'env' }],
+      [{ game_id: 'find_the_dog', env: 'test', scope_reason: 'game' }],
+    ]);
+    expect(JSON.stringify(warn.mock.calls)).not.toContain(publicKey);
+    expect(JSON.stringify(warn.mock.calls)).not.toContain('games');
+    expect(JSON.stringify(warn.mock.calls)).not.toContain('envs');
+    expect(writes).not.toHaveBeenCalled();
+
+    const accepted = await worker.fetch(request(batch({ event_id: 'accepted-after-denials' })));
+    expect(accepted.status).toBe(202);
+    expect(await json(accepted)).toMatchObject({ source_health: { abuse_counter: 3 } });
+  });
+
+  it('keeps production and development/test claims isolated per presenting credential', async (): Promise<void> => {
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const worker = new OwnedAnalyticsIngestWorker(enabledEnv({
+      ANALYTICS_INGEST_CREDENTIALS: scopedCredentials([
+        { key: publicKey, games: ['marble_run'], envs: ['production'] },
+        { key: secondaryKey, games: ['marble_run'], envs: ['development', 'test'] },
+      ]),
+    }), { nowMs: () => 1_100 });
+
+    const productionAccepted = await worker.fetch(request(batch({ event_id: 'production-accepted' })));
+    const developmentAccepted = await worker.fetch(request(
+      batch({ event_id: 'development-accepted' }, { env: 'development' }),
+      { authorization: `Bearer ${secondaryKey}` },
+    ));
+    expect([productionAccepted.status, developmentAccepted.status]).toEqual([202, 202]);
+
+    const denials = [
+      await worker.fetch(request(batch({ event_id: 'production-key-development-1' }, { env: 'development' }))),
+      await worker.fetch(request(batch({ event_id: 'production-key-development-2' }, { env: 'development' }))),
+      await worker.fetch(request(
+        batch({ event_id: 'development-key-production-1' }),
+        { authorization: `Bearer ${secondaryKey}` },
+      )),
+      await worker.fetch(request(
+        batch({ event_id: 'development-key-production-2' }),
+        { authorization: `Bearer ${secondaryKey}` },
+      )),
+    ];
+    const denialBodies = await Promise.all(denials.map(async (response) => await response.text()));
+
+    expect(denials.map((response) => response.status)).toEqual([403, 403, 403, 403]);
+    expect(new Set(denialBodies).size).toBe(1);
+    expect(JSON.parse(denialBodies[0]!)).toEqual({
+      ok: false,
+      error: {
+        code: 'forbidden_scope',
+        message: 'Credential is not authorized for this analytics scope.',
+      },
+    });
+    expect(worker.stateSnapshot().abuseCounters).toMatchObject({
+      unauthorized: 0,
+      forbiddenScopeGame: 0,
+      forbiddenScopeEnv: 4,
+    });
+  });
+
+  it('denies scope before duplicate, rate, skew, replay, and storage state can change', async (): Promise<void> => {
+    const writeBatch = vi.fn(async (): Promise<AnalyticsWorkerWriteResult> => ({
+      acceptedEvents: 1,
+      storageMode: 'analytics_engine',
+      storageWrites: 1,
+      d1Reads: 0,
+      d1Writes: 0,
+      d1QueryCount: 0,
+      d1DurationMs: 0,
+    }));
+    const store: AnalyticsWorkerStore = { writeBatch };
+    vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const worker = new OwnedAnalyticsIngestWorker(enabledEnv({
+      ANALYTICS_INGEST_CREDENTIALS: scopedCredentials([
+        { key: publicKey, games: ['marble_run'], envs: ['production'] },
+        { key: secondaryKey, games: ['find_the_dog'], envs: ['production'] },
+      ]),
+      ANALYTICS_RATE_LIMIT_PER_MINUTE: '1',
+      ANALYTICS_MAX_CLOCK_SKEW_SECONDS: '5',
+      ANALYTICS_ALLOWED_GAME_IDS: 'marble_run,find_the_dog',
+    }), { nowMs: () => 100_000 });
+
+    const seed = await worker.fetch(request(
+      batch({ event_id: 'replayed-event', enqueued_at: 100_000 }, { game_id: 'find_the_dog' }),
+      { authorization: `Bearer ${secondaryKey}` },
+    ), { store });
+    expect(seed.status).toBe(202);
+    const beforeSnapshot = worker.stateSnapshot();
+    const before = {
+      abuseCounters: { ...beforeSnapshot.abuseCounters },
+      replayKeys: beforeSnapshot.replayKeys,
+      rateBuckets: beforeSnapshot.rateBuckets,
+    };
+
+    const replayedEvent = event({ event_id: 'replayed-event', enqueued_at: 1_000 });
+    const composite = batch({}, {
+      game_id: 'find_the_dog',
+      events: [replayedEvent, { ...replayedEvent }],
+    });
+    const denied = await worker.fetch(request(composite), { store });
+    const after = worker.stateSnapshot();
+
+    expect(denied.status).toBe(403);
+    expect(await json(denied)).toEqual({
+      ok: false,
+      error: {
+        code: 'forbidden_scope',
+        message: 'Credential is not authorized for this analytics scope.',
+      },
+    });
+    expect(after.replayKeys).toBe(before.replayKeys);
+    expect(after.rateBuckets).toBe(before.rateBuckets);
+    expect(after.abuseCounters).toEqual({
+      ...before.abuseCounters,
+      forbiddenScopeGame: before.abuseCounters.forbiddenScopeGame + 1,
+    });
+    expect(writeBatch).toHaveBeenCalledTimes(1);
+  });
+
   it('rejects replayed dedupe keys without a second storage write', async (): Promise<void> => {
     const writes = vi.fn();
     const worker = new OwnedAnalyticsIngestWorker(enabledEnv({ ANALYTICS: { writeDataPoint: writes } }), { nowMs: () => 1_100 });
@@ -190,6 +396,11 @@ describe('owned analytics worker ingest', (): void => {
       ok: false,
       error: { code: 'rate_limited' },
       retry_after_seconds: 60,
+      abuse_counters: {
+        forbiddenScopeGame: 0,
+        forbiddenScopeEnv: 0,
+        rateLimited: 1,
+      },
     });
     expect(store.writeBatch).toHaveBeenCalledTimes(3);
   });
@@ -288,7 +499,11 @@ describe('owned analytics worker ingest', (): void => {
   it('keeps replay and rate state across the default Worker export requests', async (): Promise<void> => {
     const now = Date.now();
     const replayEnv = enabledEnv({
-      ANALYTICS_PUBLIC_CLIENT_KEYS: 'entrypoint-public-key-123456',
+      ANALYTICS_INGEST_CREDENTIALS: scopedCredentials([{
+        key: 'entrypoint-public-key-123456',
+        games: ['marble_run'],
+        envs: ['production'],
+      }]),
       ANALYTICS_RATE_LIMIT_PER_MINUTE: '10',
       ANALYTICS: { writeDataPoint: vi.fn() },
     });
@@ -307,7 +522,11 @@ describe('owned analytics worker ingest', (): void => {
     expect((await workerEntrypoint.fetch(makeRequest('entrypoint-event-1', '198.51.100.9', 'entrypoint-public-key-123456'), replayEnv)).status).toBe(409);
 
     const rateEnv = enabledEnv({
-      ANALYTICS_PUBLIC_CLIENT_KEYS: 'entrypoint-rate-key-123456',
+      ANALYTICS_INGEST_CREDENTIALS: scopedCredentials([{
+        key: 'entrypoint-rate-key-123456',
+        games: ['marble_run'],
+        envs: ['production'],
+      }]),
       ANALYTICS_RATE_LIMIT_PER_MINUTE: '1',
       ANALYTICS: { writeDataPoint: vi.fn() },
     });

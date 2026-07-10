@@ -3,8 +3,8 @@
 # This is a TEMPLATE, not a live config. Every `<...>` placeholder is Batu's to
 # fill at deploy time — v2 ships code + tests only (no account ids, no secrets,
 # no deploy). Copy to `wrangler.toml` outside the repo (or fill via CI secrets)
-# before `wrangler deploy`. Public client keys and the operator token are
-# SECRETS: set them with `wrangler secret put`, never inline here.
+# before `wrangler deploy`. Scoped ingest credentials and the operator token
+# are SECRETS: set them with `wrangler secret put`, never inline here.
 
 name = "<worker-name>"                      # e.g. fabrika-owned-analytics
 main = "src/analytics-worker/index.ts"
@@ -27,8 +27,9 @@ dataset = "<analytics-engine-dataset-name>"
 [vars]
 ANALYTICS_INGEST_ENABLED = "true"
 ANALYTICS_KILL_SWITCH = "false"
-# Comma-separated allow-list of game_ids served by this deployment. Empty
-# string accepts any well-formed game_id.
+# Coarse deployment-wide parser allow-list only; this does not grant a
+# credential access to a game and is never an authentication fallback. Empty
+# string lets the parser accept any well-formed game_id before scope auth.
 ANALYTICS_ALLOWED_GAME_IDS = "<game-a>,<game-b>"
 ANALYTICS_MAX_BATCH_EVENTS = "100"
 ANALYTICS_MAX_BODY_BYTES = "96000"
@@ -44,5 +45,9 @@ ANALYTICS_QUERY_TIMEOUT_MS = "750"
 ANALYTICS_QUERY_STALE_AFTER_MS = "900000"
 
 # --- secrets (DO NOT put values here) ---------------------------------------
-# wrangler secret put ANALYTICS_PUBLIC_CLIENT_KEYS   # comma-separated, each >= 16 chars
+# MANDATORY before enabling or deploying ingest. The value is a JSON array of
+# {"key":"<redacted>","games":["<game-id>"],"envs":["production"]}.
+# Set and verify it independently for development, test, and production.
+# wrangler secret put ANALYTICS_INGEST_CREDENTIALS
+# ANALYTICS_PUBLIC_CLIENT_KEYS is retired and ignored by runtime ingest auth.
 # wrangler secret put ANALYTICS_OPERATOR_TOKEN       # dashboard/query bearer token
