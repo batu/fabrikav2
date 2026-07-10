@@ -1,4 +1,4 @@
-import { mountModalShell, type ModalAction } from './ModalShell.ts';
+import { mountModalShellWithKind, type ModalAction } from './ModalShell.ts';
 import { type ThemeTokens, type UiHandle } from './internal.ts';
 
 /**
@@ -41,28 +41,49 @@ export interface PauseOverlayOptions {
 }
 
 export function mountPauseOverlay(opts: PauseOverlayOptions): UiHandle {
-  // Stable data-fab-action hooks so SharedShellDriver drives pause navigation
-  // for every game via real clicks (attribute-only, no markup change).
-  const actions: ModalAction[] = [
-    { label: opts.labels.resume, dataAction: 'pause-resume', onClick: () => opts.actions.onResume() },
-  ];
-  if (opts.actions.onSettings) {
-    if (opts.labels.settings === undefined) {
-      throw new Error('mountPauseOverlay: labels.settings is required when actions.onSettings is supplied.');
-    }
-    const onSettings = opts.actions.onSettings;
-    actions.push({ label: opts.labels.settings, dataAction: 'pause-settings', onClick: () => onSettings() });
-  }
-  actions.push({ label: opts.labels.quit, dataAction: 'pause-quit', onClick: () => opts.actions.onQuit() });
+  return mountModalShellWithKind(
+    { mountInto: opts.mountInto, id: opts.id, theme: opts.theme },
+    'pause-overlay',
+    () => {
+      // Stable data-fab-action hooks so SharedShellDriver drives pause
+      // navigation for every game via real clicks (attribute-only, no markup
+      // change).
+      const actions: ModalAction[] = [
+        {
+          label: opts.labels.resume,
+          dataAction: 'pause-resume',
+          onClick: () => opts.actions.onResume(),
+        },
+      ];
+      if (opts.actions.onSettings) {
+        if (opts.labels.settings === undefined) {
+          throw new Error(
+            'mountPauseOverlay: labels.settings is required when actions.onSettings is supplied.',
+          );
+        }
+        const onSettings = opts.actions.onSettings;
+        actions.push({
+          label: opts.labels.settings,
+          dataAction: 'pause-settings',
+          onClick: () => onSettings(),
+        });
+      }
+      actions.push({
+        label: opts.labels.quit,
+        dataAction: 'pause-quit',
+        onClick: () => opts.actions.onQuit(),
+      });
 
-  return mountModalShell({
-    mountInto: opts.mountInto,
-    title: opts.labels.title,
-    actions,
-    backdropDismiss: opts.backdropDismiss,
-    onDismiss: opts.onDismiss,
-    theme: opts.theme,
-    id: opts.id,
-    cardClassName: 'fab-pause-card',
-  });
+      return {
+        mountInto: opts.mountInto,
+        title: opts.labels.title,
+        actions,
+        backdropDismiss: opts.backdropDismiss,
+        onDismiss: opts.onDismiss,
+        theme: opts.theme,
+        id: opts.id,
+        cardClassName: 'fab-pause-card',
+      };
+    },
+  );
 }

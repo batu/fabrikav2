@@ -80,6 +80,7 @@ export function mountToggleRows(opts: ToggleRowsOptions): UiHandle {
     id: opts.id ?? `fab-toggle-rows-${++nextToggleRowsId}`,
     className: ['fab-ui', 'fab-toggle-rows', opts.className].filter(Boolean).join(' '),
     theme: opts.theme,
+    kind: 'toggle-rows',
   });
   if (root.reentrant) return root.handle;
 

@@ -1,5 +1,5 @@
 import { buildButtonElement } from './Button.ts';
-import { mountPageShell } from './PageShell.ts';
+import { mountPageShellWithKind } from './PageShell.ts';
 import { mountToggleRows, buildSettingsModel, type SettingsModelInput, type SettingKey } from './ToggleRow.ts';
 import { type ThemeTokens, type UiHandle } from './internal.ts';
 
@@ -117,29 +117,35 @@ export function mountSettingsPage(opts: SettingsPageOptions): UiHandle {
     body.push(buildPrivacySection(opts.privacyChoice));
   }
 
-  const page = mountPageShell({
-    mountInto: opts.mountInto,
-    header: opts.header,
-    body,
-    backIcon: opts.backIcon,
-    backLabel: opts.backLabel,
-    swipeDownDismiss: opts.swipeDownDismiss,
-    instant: opts.instant,
-    theme: opts.theme,
-    id: opts.id,
-    onDismiss: () => {
-      toggles.dismiss();
-      opts.onDismiss?.();
+  const page = mountPageShellWithKind(
+    {
+      mountInto: opts.mountInto,
+      header: opts.header,
+      body,
+      backIcon: opts.backIcon,
+      backLabel: opts.backLabel,
+      swipeDownDismiss: opts.swipeDownDismiss,
+      instant: opts.instant,
+      theme: opts.theme,
+      id: opts.id,
+      onDismiss: () => {
+        toggles?.dismiss();
+        opts.onDismiss?.();
+      },
     },
-  });
+    'settings-page',
+  );
 
-  // The toggle rows are mounted after the page is in the DOM so `mountInto` is
-  // connected. Their handle is disposed when the page closes (onDismiss above).
-  const toggles = mountToggleRows({
-    mountInto: togglesSection,
-    rows: buildSettingsModel(opts.settings).toggles,
-    onToggle: (key, next) => opts.onToggle(key as SettingKey, next),
-  });
+  // Toggle rows are mounted only when this call created the page and its body
+  // was adopted. A same-kind mount reuses the existing handle without creating
+  // a detached toggle tree.
+  const toggles = page.el.contains(togglesSection)
+    ? mountToggleRows({
+        mountInto: togglesSection,
+        rows: buildSettingsModel(opts.settings).toggles,
+        onToggle: (key, next) => opts.onToggle(key as SettingKey, next),
+      })
+    : undefined;
 
   return page;
 }

@@ -60,12 +60,14 @@ function readPxToken(el: HTMLElement, token: `--fab-${string}`, fallback: number
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
-export function mountPageShell(opts: PageShellOptions): UiHandle {
+/** Package-internal identity override for composed wrappers. Not re-exported. */
+export function mountPageShellWithKind(opts: PageShellOptions, kind: string): UiHandle {
   const root = createUiRoot({
     mountInto: opts.mountInto,
     id: opts.id ?? `fab-page-${++nextPageId}`,
     className: 'fab-ui fab-page',
     theme: opts.theme,
+    kind,
   });
   if (root.reentrant) return root.handle;
 
@@ -173,4 +175,8 @@ export function mountPageShell(opts: PageShellOptions): UiHandle {
     });
   }
   return handle;
+}
+
+export function mountPageShell(opts: PageShellOptions): UiHandle {
+  return mountPageShellWithKind(opts, 'page-shell');
 }

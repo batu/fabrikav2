@@ -117,15 +117,27 @@ function assertFreshSlot(el: HTMLElement): void {
   }
 }
 
-export function mountModalShell(opts: ModalShellOptions): UiHandle {
+/**
+ * Package-internal identity override for composed wrappers. The option builder
+ * runs only after the wrapper has claimed its root, so caller-owned slots are
+ * untouched when acquisition rejects or idempotently reuses a live handle.
+ * This helper is deliberately not re-exported from the package entry point.
+ */
+export function mountModalShellWithKind(
+  rootOptions: Pick<ModalShellOptions, 'mountInto' | 'id' | 'theme'>,
+  kind: string,
+  buildOptions: () => ModalShellOptions,
+): UiHandle {
   const root = createUiRoot({
-    mountInto: opts.mountInto,
-    id: opts.id ?? `fab-modal-${++nextModalId}`,
+    mountInto: rootOptions.mountInto,
+    id: rootOptions.id ?? `fab-modal-${++nextModalId}`,
     className: 'fab-ui fab-modal-backdrop',
-    theme: opts.theme,
+    theme: rootOptions.theme,
+    kind,
   });
   if (root.reentrant) return root.handle;
 
+  const opts = buildOptions();
   const { el, close } = root;
 
   // Dimmed backdrop scrim as its own (non-interactive) element so overlays float
@@ -228,6 +240,10 @@ export function mountModalShell(opts: ModalShellOptions): UiHandle {
 
   el.appendChild(card);
   return root.finalize();
+}
+
+export function mountModalShell(opts: ModalShellOptions): UiHandle {
+  return mountModalShellWithKind(opts, 'modal-shell', () => opts);
 }
 
 /**
