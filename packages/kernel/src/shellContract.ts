@@ -182,6 +182,8 @@ export interface ShellPresentationContract {
   neutralIdPolicy: { pattern: string; forbiddenTokens: string[] };
   publication: {
     publicationIdAlgorithm: string;
+    publicationIdDomain: string;
+    publicationIdFields: string[];
     requiredStates: ShellStateId[];
     canonicalComponentFields: string[];
     portableContentNetworkPolicy: string;
@@ -192,6 +194,8 @@ export interface ShellPresentationContract {
     immutableRevisionRoot: string;
     revisionDirectoryName: string;
     projectionIdAlgorithm: string;
+    projectionIdDomain: string;
+    projectionIdFields: string[];
     requiredArtifacts: string[];
     assetDirectory: string;
     artifactHashAlgorithm: string;
@@ -334,30 +338,26 @@ type JsonRecord = Record<string, unknown>;
 type JsonPrimitive = string | number | boolean | null;
 type CanonicalJson = JsonPrimitive | CanonicalJson[] | { [key: string]: CanonicalJson };
 
-const EXPECTED_STATES: readonly ShellStateId[] = [
-  'menu',
-  'level',
-  'settings',
-  'pause',
-  'win',
-  'fail',
-];
-
-const EXPECTED_ANCHORS: Readonly<Record<ShellAnchorId, readonly [number, number]>> = {
-  'top-left': [0, 0],
-  'top-center': [0.5, 0],
-  'top-right': [1, 0],
-  'center-left': [0, 0.5],
-  center: [0.5, 0.5],
-  'center-right': [1, 0.5],
-  'bottom-left': [0, 1],
-  'bottom-center': [0.5, 1],
-  'bottom-right': [1, 1],
-};
+const CANONICAL_STATE_IDS = Object.freeze(
+  rawShellPresentationContract.states.map((state) => state.id as ShellStateId),
+);
+const CANONICAL_ANCHORS = Object.freeze(
+  Object.fromEntries(
+    rawShellPresentationContract.anchors.map((anchor) => [
+      anchor.id,
+      Object.freeze([anchor.x, anchor.y] as const),
+    ]),
+  ),
+) as Readonly<Record<ShellAnchorId, readonly [number, number]>>;
+const CANONICAL_GAME_SCREEN_NAMES = Object.freeze(
+  rawShellPresentationContract.gameScreenNames.map((screenName) => screenName as GameScreenName),
+);
 
 const HASH_PATTERN = /^sha256-[a-f0-9]{64}$/;
 const COLOR_PATTERN = /^#[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?$/;
-const SAFE_ASSET_PATH_PATTERN = /^assets\/[a-z0-9][a-z0-9._/-]*\.(?:png|jpe?g|webp)$/;
+const SEMANTIC_ID_PATTERN = /^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$/u;
+const SAFE_ASSET_PATH_PATTERN =
+  /^assets\/(?:[a-z0-9][a-z0-9._-]*\/)*[a-z0-9][a-z0-9._-]*\.(?:png|jpe?g|webp)$/;
 const ALLOWED_COLOR_CHANNELS = new Set(['background', 'foreground', 'accent', 'border', 'shadow']);
 const VISUAL_FIELDS = new Set([
   'geometry',
@@ -369,6 +369,26 @@ const VISUAL_FIELDS = new Set([
   'opacity',
   'scale',
 ]);
+const FORBIDDEN_PRESENTATION_FIELDS = [
+  'css',
+  'html',
+  'url',
+  'href',
+  'src',
+  'style',
+  'attribute',
+  'attributes',
+  'script',
+  'handler',
+  'onClick',
+  'function',
+  'expression',
+  'source',
+] as const;
+const MAX_VALIDATION_ISSUES = 256;
+const MAX_COLLECTION_ITEMS = 4_096;
+const MAX_CANONICAL_DEPTH = 128;
+const MAX_CANONICAL_NODES = 100_000;
 
 function isRecord(value: unknown): value is JsonRecord {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -380,6 +400,15 @@ function addIssue(
   code: string,
   message: string,
 ): void {
+  if (issues.length >= MAX_VALIDATION_ISSUES) return;
+  if (issues.length === MAX_VALIDATION_ISSUES - 1) {
+    issues.push({
+      path: '$',
+      code: 'too-many-issues',
+      message: `Validation stopped after ${MAX_VALIDATION_ISSUES - 1} issues.`,
+    });
+    return;
+  }
   issues.push({ path, code, message });
 }
 
@@ -405,7 +434,15 @@ function asRecordArray(
     return [];
   }
   const result: JsonRecord[] = [];
-  value.forEach((item, index) => {
+  if (value.length > MAX_COLLECTION_ITEMS) {
+    addIssue(
+      issues,
+      path,
+      'collection-too-large',
+      `Collections may contain at most ${MAX_COLLECTION_ITEMS} items.`,
+    );
+  }
+  value.slice(0, MAX_COLLECTION_ITEMS).forEach((item, index) => {
     if (isRecord(item)) result.push(item);
     else addIssue(issues, `${path}[${index}]`, 'invalid-type', 'Expected an object.');
   });
@@ -422,7 +459,15 @@ function asStringArray(
     return [];
   }
   const result: string[] = [];
-  value.forEach((item, index) => {
+  if (value.length > MAX_COLLECTION_ITEMS) {
+    addIssue(
+      issues,
+      path,
+      'collection-too-large',
+      `Collections may contain at most ${MAX_COLLECTION_ITEMS} items.`,
+    );
+  }
+  value.slice(0, MAX_COLLECTION_ITEMS).forEach((item, index) => {
     if (typeof item === 'string') result.push(item);
     else addIssue(issues, `${path}[${index}]`, 'invalid-type', 'Expected a string.');
   });
@@ -558,6 +603,16 @@ function assertFiniteNonNegative(value: number, label: string): void {
   }
 }
 
+function assertGeometryCaps(caps: ShellGeometryCaps, label: string): void {
+  assertFiniteNonNegative(caps.minWidth, `${label}.minWidth`);
+  assertFiniteNonNegative(caps.maxWidth, `${label}.maxWidth`);
+  assertFiniteNonNegative(caps.minHeight, `${label}.minHeight`);
+  assertFiniteNonNegative(caps.maxHeight, `${label}.maxHeight`);
+  if (caps.maxWidth < caps.minWidth || caps.maxHeight < caps.minHeight) {
+    throw new RangeError(`${label} minimums must not exceed maximums.`);
+  }
+}
+
 function safeRectForViewport(viewport: ShellViewport): ShellRect {
   assertFiniteNonNegative(viewport.width, 'viewport.width');
   assertFiniteNonNegative(viewport.height, 'viewport.height');
@@ -604,7 +659,7 @@ function fitContent(bounds: ShellRect, fit: ShellFitMode, assetSize?: { width: n
 }
 
 export function projectShellGeometry(options: ProjectShellGeometryOptions): ProjectedShellGeometry {
-  const anchor = EXPECTED_ANCHORS[options.anchor];
+  const anchor = CANONICAL_ANCHORS[options.anchor];
   if (!anchor) throw new RangeError(`Unsupported shell anchor "${String(options.anchor)}".`);
   const { geometry } = options;
   for (const [label, value] of [
@@ -634,6 +689,7 @@ export function projectShellGeometry(options: ProjectShellGeometryOptions): Proj
   let width = geometry.size.width * safeRect.width;
   let height = geometry.size.height * safeRect.height;
   if (options.caps) {
+    assertGeometryCaps(options.caps, 'caps');
     width = clamp(width, options.caps.minWidth, options.caps.maxWidth);
     height = clamp(height, options.caps.minHeight, options.caps.maxHeight);
   }
@@ -667,7 +723,7 @@ export function projectShellGeometry(options: ProjectShellGeometryOptions): Proj
 }
 
 export function normalizeShellGeometry(options: NormalizeShellGeometryOptions): ShellNormalizedGeometry {
-  const anchor = EXPECTED_ANCHORS[options.anchor];
+  const anchor = CANONICAL_ANCHORS[options.anchor];
   if (!anchor) throw new RangeError(`Unsupported shell anchor "${String(options.anchor)}".`);
   const safeRect = safeRectForViewport(options.viewport);
   for (const [label, value] of [
@@ -713,7 +769,24 @@ function isRectInside(inner: ShellRect, outer: ShellRect): boolean {
   );
 }
 
-function canonicalValue(value: unknown, path: string, seen: WeakSet<object>): CanonicalJson {
+interface CanonicalBudget {
+  nodes: number;
+}
+
+function canonicalValue(
+  value: unknown,
+  path: string,
+  seen: WeakSet<object>,
+  depth: number,
+  budget: CanonicalBudget,
+): CanonicalJson {
+  if (depth > MAX_CANONICAL_DEPTH) {
+    throw new TypeError(`${path} exceeds the maximum JSON nesting depth of ${MAX_CANONICAL_DEPTH}.`);
+  }
+  budget.nodes += 1;
+  if (budget.nodes > MAX_CANONICAL_NODES) {
+    throw new TypeError(`JSON input exceeds the maximum node count of ${MAX_CANONICAL_NODES}.`);
+  }
   if (value === null || typeof value === 'string' || typeof value === 'boolean') return value;
   if (typeof value === 'number') {
     if (!Number.isFinite(value)) throw new TypeError(`${path} must contain only finite numbers.`);
@@ -726,15 +799,23 @@ function canonicalValue(value: unknown, path: string, seen: WeakSet<object>): Ca
   seen.add(value);
   try {
     if (Array.isArray(value)) {
-      return value.map((item, index) => canonicalValue(item, `${path}[${index}]`, seen));
+      return value.map((item, index) =>
+        canonicalValue(item, `${path}[${index}]`, seen, depth + 1, budget),
+      );
     }
     const prototype = Object.getPrototypeOf(value);
     if (prototype !== Object.prototype && prototype !== null) {
       throw new TypeError(`${path} must contain only plain JSON objects.`);
     }
-    const result: { [key: string]: CanonicalJson } = {};
+    const result = Object.create(null) as { [key: string]: CanonicalJson };
     for (const key of Object.keys(value).sort()) {
-      result[key] = canonicalValue((value as JsonRecord)[key], `${path}.${key}`, seen);
+      result[key] = canonicalValue(
+        (value as JsonRecord)[key],
+        `${path}.${key}`,
+        seen,
+        depth + 1,
+        budget,
+      );
     }
     return result;
   } finally {
@@ -743,7 +824,7 @@ function canonicalValue(value: unknown, path: string, seen: WeakSet<object>): Ca
 }
 
 export function canonicalizeJson(value: unknown): string {
-  return JSON.stringify(canonicalValue(value, '$', new WeakSet<object>()));
+  return JSON.stringify(canonicalValue(value, '$', new WeakSet<object>(), 0, { nodes: 0 }));
 }
 
 export async function hashCanonicalJson(value: unknown): Promise<string> {
@@ -754,6 +835,34 @@ export async function hashCanonicalJson(value: unknown): Promise<string> {
   const digest = await globalThis.crypto.subtle.digest('SHA-256', bytes);
   const hex = Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
   return `sha256-${hex}`;
+}
+
+export async function computeShellPublicationId(
+  revision: Omit<ShellPublishedRevision, 'publicationId'>,
+): Promise<string> {
+  const fields = Object.create(null) as JsonRecord;
+  const source = revision as unknown as JsonRecord;
+  for (const field of shellPresentationContract.publication.publicationIdFields) {
+    fields[field] = source[field];
+  }
+  return hashCanonicalJson({
+    domain: shellPresentationContract.publication.publicationIdDomain,
+    ...fields,
+  });
+}
+
+export async function computeShellProjectionId(
+  revision: Omit<ShellProjectionRevision, 'projectionId' | 'revisionPath'>,
+): Promise<string> {
+  const fields = Object.create(null) as JsonRecord;
+  const source = revision as unknown as JsonRecord;
+  for (const field of shellPresentationContract.projection.projectionIdFields) {
+    fields[field] = source[field];
+  }
+  return hashCanonicalJson({
+    domain: shellPresentationContract.projection.projectionIdDomain,
+    ...fields,
+  });
 }
 
 function validateGeometryCaps(
@@ -950,7 +1059,7 @@ function validateVisualPresentation(
   }
   if ('assetId' in visual) {
     const assetId = visual.assetId;
-    if (typeof assetId !== 'string' || !/^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$/u.test(assetId)) {
+    if (typeof assetId !== 'string' || !SEMANTIC_ID_PATTERN.test(assetId)) {
       addIssue(
         issues,
         `${path}.assetId`,
@@ -1002,6 +1111,14 @@ function validateAccessibility(
     traversalGroup: stringField(accessibility, 'traversalGroup', path, issues),
   };
   const allowedSemantics = new Set(['checked', 'current', 'disabled', 'pressed', 'selected']);
+  if (new Set(result.stateSemantics).size !== result.stateSemantics.length) {
+    addIssue(
+      issues,
+      `${path}.stateSemantics`,
+      'duplicate-id',
+      'Accessibility state semantics must be unique.',
+    );
+  }
   for (const semantic of result.stateSemantics) {
     if (!allowedSemantics.has(semantic)) {
       addIssue(
@@ -1015,13 +1132,138 @@ function validateAccessibility(
   return result;
 }
 
-function parseRegExp(pattern: unknown, fallback: RegExp): RegExp {
-  if (typeof pattern !== 'string') return fallback;
+function parseRegExp(
+  pattern: unknown,
+  path: string,
+  fallback: RegExp,
+  issues: ShellValidationIssue[],
+): RegExp {
+  if (typeof pattern !== 'string' || pattern.length === 0) {
+    addIssue(issues, path, 'invalid-pattern', 'Expected a non-empty regular expression pattern.');
+    return fallback;
+  }
   try {
     return new RegExp(pattern, 'u');
   } catch {
+    addIssue(issues, path, 'invalid-pattern', 'Regular expression pattern is invalid.');
     return fallback;
   }
+}
+
+function validateEditableAst(value: unknown, issues: ShellValidationIssue[]): void {
+  const path = '$.editableAst';
+  const ast = asRecord(value, path, issues);
+  if (!ast) return;
+  rejectUnsupportedFields(
+    ast,
+    new Set([
+      'astVersion',
+      'numberBounds',
+      'enums',
+      'colorFormats',
+      'copy',
+      'assetIds',
+      'allowedPresentationFields',
+      'forbiddenFields',
+    ]),
+    path,
+    issues,
+  );
+  if (numberField(ast, 'astVersion', path, issues) !== 1) {
+    addIssue(issues, `${path}.astVersion`, 'invalid-version', 'V1 requires editable AST version 1.');
+  }
+
+  const numberBounds = asRecord(ast.numberBounds, `${path}.numberBounds`, issues);
+  const expectedBounds: Record<string, JsonRecord> = {
+    offset: { minimum: -1, maximum: 1 },
+    normalizedSize: { minimumExclusive: 0, maximum: 1 },
+    order: { minimum: 0, maximum: 255, integer: true },
+    opacity: { minimum: 0, maximum: 1 },
+    scale: { minimum: 0.5, maximum: 2 },
+  };
+  if (numberBounds) {
+    validateExactKeys(
+      Object.keys(numberBounds),
+      Object.keys(expectedBounds),
+      `${path}.numberBounds`,
+      'missing-bound',
+      'bound',
+      issues,
+    );
+    for (const [key, expected] of Object.entries(expectedBounds)) {
+      const actual = asRecord(numberBounds[key], `${path}.numberBounds.${key}`, issues);
+      if (actual && !sameSemanticValue(actual, expected)) {
+        addIssue(
+          issues,
+          `${path}.numberBounds.${key}`,
+          'invalid-bound',
+          `Editable number bound "${key}" does not match V1.`,
+        );
+      }
+    }
+  }
+
+  const enums = asRecord(ast.enums, `${path}.enums`, issues);
+  if (enums) {
+    rejectUnsupportedFields(enums, new Set(['visibility', 'fit']), `${path}.enums`, issues);
+    if (
+      !sameSemanticValue(
+        asStringArray(enums.visibility, `${path}.enums.visibility`, issues),
+        ['visible', 'hidden'],
+      )
+    ) {
+      addIssue(issues, `${path}.enums.visibility`, 'invalid-enum', 'Visibility enum does not match V1.');
+    }
+    if (
+      !sameSemanticValue(
+        asStringArray(enums.fit, `${path}.enums.fit`, issues),
+        ['contain', 'cover'],
+      )
+    ) {
+      addIssue(issues, `${path}.enums.fit`, 'invalid-enum', 'Fit enum does not match V1.');
+    }
+  }
+
+  if (!sameSemanticValue(asStringArray(ast.colorFormats, `${path}.colorFormats`, issues), ['#RRGGBB', '#RRGGBBAA'])) {
+    addIssue(issues, `${path}.colorFormats`, 'invalid-color', 'Color formats do not match V1.');
+  }
+  const copy = asRecord(ast.copy, `${path}.copy`, issues);
+  if (copy) {
+    rejectUnsupportedFields(copy, new Set(['maximumCodePoints', 'allowNewlines']), `${path}.copy`, issues);
+    const maximumCodePoints = numberField(copy, 'maximumCodePoints', `${path}.copy`, issues);
+    if (!Number.isInteger(maximumCodePoints) || maximumCodePoints < 1) {
+      addIssue(issues, `${path}.copy.maximumCodePoints`, 'invalid-number', 'Copy limit must be a positive integer.');
+    }
+    if (booleanField(copy, 'allowNewlines', `${path}.copy`, issues) !== true) {
+      addIssue(issues, `${path}.copy.allowNewlines`, 'invalid-enum', 'V1 plain copy allows newlines.');
+    }
+  }
+  const assetIds = asRecord(ast.assetIds, `${path}.assetIds`, issues);
+  if (assetIds) {
+    rejectUnsupportedFields(assetIds, new Set(['pattern', 'mustExistInPublicationCatalog']), `${path}.assetIds`, issues);
+    if (stringField(assetIds, 'pattern', `${path}.assetIds`, issues) !== SEMANTIC_ID_PATTERN.source) {
+      addIssue(issues, `${path}.assetIds.pattern`, 'invalid-pattern', 'Asset ID pattern does not match V1.');
+    }
+    if (booleanField(assetIds, 'mustExistInPublicationCatalog', `${path}.assetIds`, issues) !== true) {
+      addIssue(issues, `${path}.assetIds.mustExistInPublicationCatalog`, 'unsafe-asset', 'Asset IDs must resolve through the publication catalog.');
+    }
+  }
+  validateExactKeys(
+    asStringArray(ast.allowedPresentationFields, `${path}.allowedPresentationFields`, issues),
+    [...VISUAL_FIELDS],
+    `${path}.allowedPresentationFields`,
+    'missing-field',
+    'presentation-field',
+    issues,
+  );
+  validateExactKeys(
+    asStringArray(ast.forbiddenFields, `${path}.forbiddenFields`, issues),
+    [...FORBIDDEN_PRESENTATION_FIELDS],
+    `${path}.forbiddenFields`,
+    'missing-field',
+    'forbidden-field',
+    issues,
+  );
 }
 
 export function parseShellPresentationContract(value: unknown): ShellPresentationContract {
@@ -1057,22 +1299,49 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
 
   const contractId = stringField(root, 'contractId', '$', issues);
   const contractVersion = stringField(root, 'contractVersion', '$', issues);
+  const schemaDialect = stringField(root, 'schemaDialect', '$', issues);
   if (!/^shell-presentation-v[1-9][0-9]*$/u.test(contractId)) {
     addIssue(issues, '$.contractId', 'invalid-id', 'Contract ID must use shell-presentation-vN.');
   }
   if (!/^\d+\.\d+\.\d+$/u.test(contractVersion)) {
     addIssue(issues, '$.contractVersion', 'invalid-version', 'Contract version must be semantic x.y.z.');
   }
+  if (schemaDialect !== 'https://json-schema.org/draft/2020-12/schema') {
+    addIssue(issues, '$.schemaDialect', 'invalid-schema', 'V1 schemas must use JSON Schema draft 2020-12.');
+  }
 
   const neutralPolicy = asRecord(root.neutralIdPolicy, '$.neutralIdPolicy', issues) ?? {};
-  const neutralPattern = parseRegExp(neutralPolicy.pattern, /^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$/u);
+  rejectUnsupportedFields(
+    neutralPolicy,
+    new Set(['pattern', 'forbiddenTokens']),
+    '$.neutralIdPolicy',
+    issues,
+  );
+  const neutralPattern = parseRegExp(
+    neutralPolicy.pattern,
+    '$.neutralIdPolicy.pattern',
+    SEMANTIC_ID_PATTERN,
+    issues,
+  );
   const forbiddenTokens = new Set(
     asStringArray(neutralPolicy.forbiddenTokens, '$.neutralIdPolicy.forbiddenTokens', issues),
   );
 
   const compatibility = asRecord(root.compatibility, '$.compatibility', issues);
   if (compatibility) {
+    rejectUnsupportedFields(
+      compatibility,
+      new Set(['compatibilityId', 'minimumReaderVersion', 'canonicalization', 'hashAlgorithm']),
+      '$.compatibility',
+      issues,
+    );
     const compatibilityId = stringField(compatibility, 'compatibilityId', '$.compatibility', issues);
+    const minimumReaderVersion = stringField(
+      compatibility,
+      'minimumReaderVersion',
+      '$.compatibility',
+      issues,
+    );
     if (compatibilityId !== contractId) {
       addIssue(
         issues,
@@ -1092,15 +1361,45 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
         'Only json-lexicographic-v1 is supported.',
       );
     }
+    if (!/^\d+\.\d+\.\d+$/u.test(minimumReaderVersion)) {
+      addIssue(
+        issues,
+        '$.compatibility.minimumReaderVersion',
+        'invalid-version',
+        'Minimum reader version must be semantic x.y.z.',
+      );
+    }
   }
 
   const canvas = asRecord(root.canonicalCanvas, '$.canonicalCanvas', issues);
   if (canvas) {
+    rejectUnsupportedFields(
+      canvas,
+      new Set(['width', 'height', 'baselineInsets', 'baselineSafeRect', 'minimumActionSize']),
+      '$.canonicalCanvas',
+      issues,
+    );
     const width = numberField(canvas, 'width', '$.canonicalCanvas', issues);
     const height = numberField(canvas, 'height', '$.canonicalCanvas', issues);
     const minimumActionSize = numberField(canvas, 'minimumActionSize', '$.canonicalCanvas', issues);
     const insets = asRecord(canvas.baselineInsets, '$.canonicalCanvas.baselineInsets', issues);
     const rect = asRecord(canvas.baselineSafeRect, '$.canonicalCanvas.baselineSafeRect', issues);
+    if (insets) {
+      rejectUnsupportedFields(
+        insets,
+        new Set(['top', 'right', 'bottom', 'left']),
+        '$.canonicalCanvas.baselineInsets',
+        issues,
+      );
+    }
+    if (rect) {
+      rejectUnsupportedFields(
+        rect,
+        new Set(['x', 'y', 'width', 'height']),
+        '$.canonicalCanvas.baselineSafeRect',
+        issues,
+      );
+    }
     if (width !== 390 || height !== 844 || minimumActionSize !== 48) {
       addIssue(
         issues,
@@ -1130,10 +1429,11 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
 
   const anchors = asRecordArray(root.anchors, '$.anchors', issues);
   const anchorIds = validateUniqueIds(anchors, '$.anchors', issues);
-  validateExactKeys([...anchorIds], Object.keys(EXPECTED_ANCHORS), '$.anchors', 'missing-anchor', 'anchor', issues);
+  validateExactKeys([...anchorIds], Object.keys(CANONICAL_ANCHORS), '$.anchors', 'missing-anchor', 'anchor', issues);
   anchors.forEach((anchor, index) => {
+    rejectUnsupportedFields(anchor, new Set(['id', 'x', 'y']), `$.anchors[${index}]`, issues);
     const id = anchor.id as ShellAnchorId;
-    const expected = EXPECTED_ANCHORS[id];
+    const expected = CANONICAL_ANCHORS[id];
     if (expected) {
       const x = numberField(anchor, 'x', `$.anchors[${index}]`, issues);
       const y = numberField(anchor, 'y', `$.anchors[${index}]`, issues);
@@ -1148,13 +1448,31 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
     }
   });
 
-  const screenNames = new Set(asStringArray(root.gameScreenNames, '$.gameScreenNames', issues));
+  const screenNameList = asStringArray(root.gameScreenNames, '$.gameScreenNames', issues);
+  validateExactKeys(
+    screenNameList,
+    CANONICAL_GAME_SCREEN_NAMES,
+    '$.gameScreenNames',
+    'missing-screen',
+    'screen',
+    issues,
+  );
+  if (new Set(screenNameList).size !== screenNameList.length) {
+    addIssue(issues, '$.gameScreenNames', 'duplicate-id', 'GameScreenName values must be unique.');
+  }
+  const screenNames = new Set(screenNameList);
   const states = asRecordArray(root.states, '$.states', issues);
   const stateIds = validateUniqueIds(states, '$.states', issues);
-  validateExactKeys([...stateIds], EXPECTED_STATES, '$.states', 'missing-state', 'state', issues);
+  validateExactKeys([...stateIds], CANONICAL_STATE_IDS, '$.states', 'missing-state', 'state', issues);
   const pageIds = new Set<string>();
   states.forEach((state, index) => {
     const path = `$.states[${index}]`;
+    rejectUnsupportedFields(
+      state,
+      new Set(['id', 'editorPageId', 'label', 'gameScreenNames']),
+      path,
+      issues,
+    );
     const pageId = stringField(state, 'editorPageId', path, issues);
     if (pageIds.has(pageId)) addIssue(issues, `${path}.editorPageId`, 'duplicate-id', `Duplicate page ID "${pageId}".`);
     pageIds.add(pageId);
@@ -1169,7 +1487,10 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
   const bindings = asRecordArray(root.bindings, '$.bindings', issues);
   const bindingIds = validateUniqueIds(bindings, '$.bindings', issues);
   const bindingKinds = new Set(['static', 'region', 'read', 'action', 'toggle']);
+  const bindingKindsById = new Map<string, string>();
   bindings.forEach((binding, index) => {
+    rejectUnsupportedFields(binding, new Set(['id', 'kind']), `$.bindings[${index}]`, issues);
+    bindingKindsById.set(String(binding.id), String(binding.kind));
     if (!bindingKinds.has(String(binding.kind))) {
       addIssue(issues, `$.bindings[${index}].kind`, 'invalid-enum', `Unknown binding kind "${String(binding.kind)}".`);
     }
@@ -1179,7 +1500,16 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
   const familyIds = validateUniqueIds(families, '$.stateFamilies', issues);
   families.forEach((family, index) => {
     const path = `$.stateFamilies[${index}]`;
+    rejectUnsupportedFields(
+      family,
+      new Set(['id', 'requiredVariants', 'base', 'variants']),
+      path,
+      issues,
+    );
     const requiredVariants = asStringArray(family.requiredVariants, `${path}.requiredVariants`, issues);
+    if (new Set(requiredVariants).size !== requiredVariants.length) {
+      addIssue(issues, `${path}.requiredVariants`, 'duplicate-id', 'Required variants must be unique.');
+    }
     const variants = asRecord(family.variants, `${path}.variants`, issues);
     validateVisualPresentation(family.base, `${path}.base`, issues, { requireBase: false });
     if (variants) {
@@ -1204,6 +1534,12 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
   const slotIds = validateUniqueIds(slots, '$.assetSlots', issues);
   slots.forEach((slot, index) => {
     const path = `$.assetSlots[${index}]`;
+    rejectUnsupportedFields(
+      slot,
+      new Set(['id', 'fit', 'compatibleRoleIds', 'geometry', 'alpha', 'provenanceRequired', 'mimeTypes']),
+      path,
+      issues,
+    );
     if (slot.fit !== 'contain' && slot.fit !== 'cover') {
       addIssue(issues, `${path}.fit`, 'invalid-enum', 'Asset slot fit must be contain or cover.');
     }
@@ -1223,6 +1559,21 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
   const rolesById = new Map(roles.map((role) => [String(role.id), role]));
   roles.forEach((role, index) => {
     const path = `$.roles[${index}]`;
+    rejectUnsupportedFields(
+      role,
+      new Set([
+        'id',
+        'anchor',
+        'stateFamilyId',
+        'assetSlotId',
+        'geometryCaps',
+        'minimumTouchTarget',
+        'requiredSafeBounds',
+        'editableProperties',
+      ]),
+      path,
+      issues,
+    );
     const id = stringField(role, 'id', path, issues);
     validateNeutralId(id, `${path}.id`, neutralPattern, forbiddenTokens, issues);
     if (!anchorIds.has(String(role.anchor))) {
@@ -1241,6 +1592,9 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
     }
     booleanField(role, 'requiredSafeBounds', path, issues);
     const properties = asStringArray(role.editableProperties, `${path}.editableProperties`, issues);
+    if (new Set(properties).size !== properties.length) {
+      addIssue(issues, `${path}.editableProperties`, 'duplicate-id', 'Editable properties must be unique.');
+    }
     for (const property of properties) {
       if (!VISUAL_FIELDS.has(property)) {
         addIssue(issues, `${path}.editableProperties`, 'unsupported-field', `Unknown editable property "${property}".`);
@@ -1267,6 +1621,23 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
   const actionInstanceIds = new Set<string>();
   instances.forEach((instance, index) => {
     const path = `$.instances[${index}]`;
+    rejectUnsupportedFields(
+      instance,
+      new Set([
+        'id',
+        'parentInstanceId',
+        'stateId',
+        'roleId',
+        'bindingId',
+        'stateFamilyId',
+        'required',
+        'actionId',
+        'accessibility',
+        'defaultPresentation',
+      ]),
+      path,
+      issues,
+    );
     const stateId = String(instance.stateId);
     const roleId = String(instance.roleId);
     const role = rolesById.get(roleId);
@@ -1337,7 +1708,21 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
         );
       }
     }
-    if (typeof instance.actionId === 'string') actionInstanceIds.add(String(instance.id));
+    if (instance.actionId !== undefined) {
+      if (typeof instance.actionId !== 'string' || !SEMANTIC_ID_PATTERN.test(instance.actionId)) {
+        addIssue(issues, `${path}.actionId`, 'invalid-id', 'Action identity must use the semantic ID grammar.');
+      } else {
+        actionInstanceIds.add(String(instance.id));
+      }
+      if (!['action', 'toggle'].includes(bindingKindsById.get(String(instance.bindingId)) ?? '')) {
+        addIssue(
+          issues,
+          `${path}.bindingId`,
+          'invalid-binding-kind',
+          'Action-bearing instances require an action or toggle binding.',
+        );
+      }
+    }
   });
 
   for (const instance of instances) {
@@ -1359,7 +1744,7 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
     }
   }
 
-  for (const stateId of EXPECTED_STATES) {
+  for (const stateId of CANONICAL_STATE_IDS) {
     if (!instances.some((instance) => instance.stateId === stateId)) {
       addIssue(issues, '$.instances', 'missing-state', `State "${stateId}" has no semantic instances.`);
     }
@@ -1370,19 +1755,36 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
   const coveredActionInstances = new Set<string>();
   actions.forEach((action, index) => {
     const path = `$.requiredActions[${index}]`;
+    rejectUnsupportedFields(
+      action,
+      new Set(['id', 'stateId', 'bindingId', 'actionHook', 'minimumCount', 'instanceIds']),
+      path,
+      issues,
+    );
     const id = String(action.id);
     const stateId = String(action.stateId);
     const bindingId = String(action.bindingId);
     if (!stateIds.has(stateId)) addIssue(issues, `${path}.stateId`, 'unknown-state', `Unknown state "${stateId}".`);
     if (!bindingIds.has(bindingId)) {
       addIssue(issues, `${path}.bindingId`, 'unknown-binding', `Unknown binding "${bindingId}".`);
+    } else if (!['action', 'toggle'].includes(bindingKindsById.get(bindingId) ?? '')) {
+      addIssue(
+        issues,
+        `${path}.bindingId`,
+        'invalid-binding-kind',
+        'Required actions must use an action or toggle binding.',
+      );
     }
     const minimumCount = numberField(action, 'minimumCount', path, issues);
     if (!Number.isInteger(minimumCount) || minimumCount < 1) {
       addIssue(issues, `${path}.minimumCount`, 'invalid-cardinality', 'Required action count must be a positive integer.');
     }
     const ids = asStringArray(action.instanceIds, `${path}.instanceIds`, issues);
-    if (ids.length < minimumCount) {
+    const uniqueIds = new Set(ids);
+    if (uniqueIds.size !== ids.length) {
+      addIssue(issues, `${path}.instanceIds`, 'duplicate-id', 'Required action instance IDs must be unique.');
+    }
+    if (uniqueIds.size < minimumCount) {
       addIssue(issues, `${path}.instanceIds`, 'invalid-cardinality', `Required action "${id}" lacks enough instances.`);
     }
     const hook = stringField(action, 'actionHook', path, issues);
@@ -1450,10 +1852,49 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
     }
   }
 
+  validateEditableAst(root.editableAst, issues);
+
   const publication = asRecord(root.publication, '$.publication', issues);
   if (publication) {
+    rejectUnsupportedFields(
+      publication,
+      new Set([
+        'publicationIdAlgorithm',
+        'publicationIdDomain',
+        'publicationIdFields',
+        'requiredStates',
+        'canonicalComponentFields',
+        'portableContentNetworkPolicy',
+        'mixedRevisionPolicy',
+      ]),
+      '$.publication',
+      issues,
+    );
+    if (publication.publicationIdAlgorithm !== 'sha256') {
+      addIssue(issues, '$.publication.publicationIdAlgorithm', 'unsupported-hash', 'Publication IDs must use sha256.');
+    }
+    if (publication.publicationIdDomain !== 'shell-publication-v1') {
+      addIssue(issues, '$.publication.publicationIdDomain', 'invalid-id', 'Publication IDs require the V1 domain separator.');
+    }
+    validateExactKeys(
+      asStringArray(publication.publicationIdFields, '$.publication.publicationIdFields', issues),
+      [
+        'contractId',
+        'contractVersion',
+        'projectJsonHash',
+        'portableExportHash',
+        'componentRecordsHash',
+        'assetCatalogHash',
+        'pageCount',
+        'states',
+      ],
+      '$.publication.publicationIdFields',
+      'missing-field',
+      'content-id-field',
+      issues,
+    );
     const requiredStates = asStringArray(publication.requiredStates, '$.publication.requiredStates', issues);
-    validateExactKeys(requiredStates, EXPECTED_STATES, '$.publication.requiredStates', 'missing-state', 'state', issues);
+    validateExactKeys(requiredStates, CANONICAL_STATE_IDS, '$.publication.requiredStates', 'missing-state', 'state', issues);
     if (publication.portableContentNetworkPolicy !== 'disabled') {
       addIssue(
         issues,
@@ -1465,10 +1906,40 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
     if (publication.mixedRevisionPolicy !== 'reject') {
       addIssue(issues, '$.publication.mixedRevisionPolicy', 'unsafe-revision', 'Mixed revisions must be rejected.');
     }
+    const componentFields = asStringArray(
+      publication.canonicalComponentFields,
+      '$.publication.canonicalComponentFields',
+      issues,
+    );
+    if (componentFields.length === 0 || new Set(componentFields).size !== componentFields.length) {
+      addIssue(
+        issues,
+        '$.publication.canonicalComponentFields',
+        'invalid-cardinality',
+        'Canonical component fields must be a non-empty unique list.',
+      );
+    }
   }
 
   const projection = asRecord(root.projection, '$.projection', issues);
   if (projection) {
+    rejectUnsupportedFields(
+      projection,
+      new Set([
+        'pointerPath',
+        'immutableRevisionRoot',
+        'revisionDirectoryName',
+        'projectionIdAlgorithm',
+        'projectionIdDomain',
+        'projectionIdFields',
+        'requiredArtifacts',
+        'assetDirectory',
+        'artifactHashAlgorithm',
+        'atomicPointerReplacement',
+      ]),
+      '$.projection',
+      issues,
+    );
     if (projection.pointerPath !== 'design/revision.json') {
       addIssue(issues, '$.projection.pointerPath', 'invalid-projection', 'Projection pointer must be design/revision.json.');
     }
@@ -1479,6 +1950,26 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
         'invalid-projection',
         'Immutable revisions must live under design/revisions.',
       );
+    }
+    if (projection.revisionDirectoryName !== '<projection-id>') {
+      addIssue(issues, '$.projection.revisionDirectoryName', 'invalid-projection', 'Revision directories must use the projection ID.');
+    }
+    if (projection.projectionIdAlgorithm !== 'sha256' || projection.artifactHashAlgorithm !== 'sha256') {
+      addIssue(issues, '$.projection', 'unsupported-hash', 'Projection and artifact hashes must use sha256.');
+    }
+    if (projection.projectionIdDomain !== 'shell-projection-v1') {
+      addIssue(issues, '$.projection.projectionIdDomain', 'invalid-id', 'Projection IDs require the V1 domain separator.');
+    }
+    validateExactKeys(
+      asStringArray(projection.projectionIdFields, '$.projection.projectionIdFields', issues),
+      ['contractId', 'contractVersion', 'compatibilityHash', 'sourcePublicationId', 'artifacts'],
+      '$.projection.projectionIdFields',
+      'missing-field',
+      'content-id-field',
+      issues,
+    );
+    if (projection.assetDirectory !== 'assets') {
+      addIssue(issues, '$.projection.assetDirectory', 'invalid-projection', 'Projected assets must live under assets/.');
     }
     const requiredArtifacts = asStringArray(projection.requiredArtifacts, '$.projection.requiredArtifacts', issues);
     validateExactKeys(
@@ -1504,6 +1995,29 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
       'schema',
       issues,
     );
+    for (const [schemaName, schemaValue] of Object.entries(schemas)) {
+      const schema = asRecord(schemaValue, `$.schemas.${schemaName}`, issues);
+      if (!schema) continue;
+      if (schema.$schema !== 'https://json-schema.org/draft/2020-12/schema') {
+        addIssue(
+          issues,
+          `$.schemas.${schemaName}.$schema`,
+          'invalid-schema',
+          'Embedded schemas must use JSON Schema draft 2020-12.',
+        );
+      }
+      if (typeof schema.$id !== 'string' || schema.$id.length === 0) {
+        addIssue(issues, `$.schemas.${schemaName}.$id`, 'invalid-schema', 'Embedded schemas need a stable ID.');
+      }
+      if (schema.type !== 'object' || schema.additionalProperties !== false) {
+        addIssue(
+          issues,
+          `$.schemas.${schemaName}`,
+          'invalid-schema',
+          'Embedded schemas must define closed object roots.',
+        );
+      }
+    }
   }
 
   if (issues.length > 0) throw new ShellContractValidationError('Shell presentation contract', issues);
@@ -1556,20 +2070,14 @@ export function parseShellAssetCatalog(value: unknown): ShellAssetCatalog {
       issues,
     );
     const id = stringField(asset, 'id', path, issues);
-    if (!/^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$/u.test(id)) {
+    if (!SEMANTIC_ID_PATTERN.test(id)) {
       addIssue(issues, `${path}.id`, 'invalid-id', 'Asset ID must be a semantic dot/kebab identifier.');
     }
     const slotId = stringField(asset, 'slotId', path, issues);
     const slot = slotsById.get(slotId);
     if (!slot) addIssue(issues, `${path}.slotId`, 'unknown-slot', `Unknown asset slot "${slotId}".`);
     const assetPath = stringField(asset, 'path', path, issues);
-    if (
-      !SAFE_ASSET_PATH_PATTERN.test(assetPath) ||
-      assetPath.includes('..') ||
-      assetPath.includes('//') ||
-      assetPath.includes('\\') ||
-      /^(?:https?|data|blob):/iu.test(assetPath)
-    ) {
+    if (!SAFE_ASSET_PATH_PATTERN.test(assetPath)) {
       addIssue(
         issues,
         `${path}.path`,
@@ -1632,7 +2140,7 @@ export function parseShellAssetCatalog(value: unknown): ShellAssetCatalog {
   return value as ShellAssetCatalog;
 }
 
-export function parseShellPublishedRevision(value: unknown): ShellPublishedRevision {
+export async function parseShellPublishedRevision(value: unknown): Promise<ShellPublishedRevision> {
   const issues: ShellValidationIssue[] = [];
   const root = asRecord(value, '$', issues);
   if (!root) throw new ShellContractValidationError('Shell published revision', issues);
@@ -1668,13 +2176,34 @@ export function parseShellPublishedRevision(value: unknown): ShellPublishedRevis
     const hash = stringField(root, field, '$', issues);
     if (!HASH_PATTERN.test(hash)) addIssue(issues, `$.${field}`, 'invalid-hash', `${field} must be SHA-256.`);
   }
-  if (root.pageCount !== EXPECTED_STATES.length) {
-    addIssue(issues, '$.pageCount', 'page-mismatch', `Publication must contain ${EXPECTED_STATES.length} pages.`);
+  if (root.pageCount !== CANONICAL_STATE_IDS.length) {
+    addIssue(issues, '$.pageCount', 'page-mismatch', `Publication must contain ${CANONICAL_STATE_IDS.length} pages.`);
   }
   const states = asStringArray(root.states, '$.states', issues);
-  validateExactKeys(states, EXPECTED_STATES, '$.states', 'missing-state', 'state', issues);
-  if (!sameSemanticValue(states, EXPECTED_STATES)) {
+  validateExactKeys(states, CANONICAL_STATE_IDS, '$.states', 'missing-state', 'state', issues);
+  if (!sameSemanticValue(states, CANONICAL_STATE_IDS)) {
     addIssue(issues, '$.states', 'non-canonical-order', 'Publication states must use canonical order.');
+  }
+  if (issues.length === 0) {
+    const publication = value as ShellPublishedRevision;
+    const expectedPublicationId = await computeShellPublicationId({
+      contractId: publication.contractId,
+      contractVersion: publication.contractVersion,
+      projectJsonHash: publication.projectJsonHash,
+      portableExportHash: publication.portableExportHash,
+      componentRecordsHash: publication.componentRecordsHash,
+      assetCatalogHash: publication.assetCatalogHash,
+      pageCount: publication.pageCount,
+      states: publication.states,
+    });
+    if (publication.publicationId !== expectedPublicationId) {
+      addIssue(
+        issues,
+        '$.publicationId',
+        'content-id-mismatch',
+        'Publication ID does not match its canonical constituent hashes.',
+      );
+    }
   }
   if (issues.length > 0) throw new ShellContractValidationError('Shell published revision', issues);
   return value as ShellPublishedRevision;
@@ -1682,6 +2211,59 @@ export function parseShellPublishedRevision(value: unknown): ShellPublishedRevis
 
 function sameSemanticValue(left: unknown, right: unknown): boolean {
   return canonicalizeJson(left) === canonicalizeJson(right);
+}
+
+interface ParsedPresentationInstance {
+  instance: JsonRecord;
+  prototype: ShellInstanceDefinition;
+  role: ShellRoleDefinition;
+  family: ShellStateFamilyDefinition;
+  presentation: ShellDefaultPresentation;
+  variants: Record<string, ShellVisualPresentation>;
+  path: string;
+}
+
+function resolveVisualPresentation(
+  family: ShellStateFamilyDefinition,
+  presentation: ShellDefaultPresentation,
+  variant: ShellVisualPresentation = {},
+): ShellDefaultPresentation {
+  const colors = {
+    ...(family.base.colors ?? {}),
+    ...(presentation.colors ?? {}),
+    ...(variant.colors ?? {}),
+  };
+  const resolved = {
+    ...family.base,
+    ...presentation,
+    ...variant,
+  } as ShellDefaultPresentation;
+  if (Object.keys(colors).length > 0) resolved.colors = colors;
+  return resolved;
+}
+
+function validateAssetCompatibility(
+  visual: ShellVisualPresentation,
+  path: string,
+  role: ShellRoleDefinition,
+  catalogById: ReadonlyMap<string, ShellAssetCatalogEntry>,
+  slotsById: ReadonlyMap<string, ShellAssetSlotDefinition>,
+  issues: ShellValidationIssue[],
+): void {
+  if (!visual.assetId) return;
+  const asset = catalogById.get(visual.assetId);
+  if (asset && role.assetSlotId !== asset.slotId) {
+    addIssue(
+      issues,
+      `${path}.assetId`,
+      'incompatible-asset',
+      `Asset "${asset.id}" targets slot "${asset.slotId}", not role slot "${String(role.assetSlotId)}".`,
+    );
+  }
+  const slot = role.assetSlotId ? slotsById.get(role.assetSlotId) : undefined;
+  if (!slot) {
+    addIssue(issues, `${path}.assetId`, 'incompatible-asset', 'This role has no replaceable asset slot.');
+  }
 }
 
 export interface ParseShellPresentationOptions {
@@ -1709,7 +2291,11 @@ export function parseShellPresentation(
     try {
       catalog = parseShellAssetCatalog(options.assetCatalog);
     } catch (error) {
-      if (error instanceof ShellContractValidationError) issues.push(...error.issues);
+      if (error instanceof ShellContractValidationError) {
+        for (const issue of error.issues) {
+          addIssue(issues, issue.path, issue.code, issue.message);
+        }
+      }
       else throw error;
     }
   }
@@ -1722,17 +2308,12 @@ export function parseShellPresentation(
   const slotsById = new Map(shellPresentationContract.assetSlots.map((slot) => [slot.id, slot]));
   const pages = asRecordArray(root.pages, '$.pages', issues);
   const pageStateIds = pages.map((page) => String(page.stateId));
-  validateExactKeys(pageStateIds, EXPECTED_STATES, '$.pages', 'missing-state', 'state', issues);
-  if (!sameSemanticValue(pageStateIds, EXPECTED_STATES)) {
+  validateExactKeys(pageStateIds, CANONICAL_STATE_IDS, '$.pages', 'missing-state', 'state', issues);
+  if (!sameSemanticValue(pageStateIds, CANONICAL_STATE_IDS)) {
     addIssue(issues, '$.pages', 'non-canonical-order', 'Presentation pages must use canonical state order.');
   }
 
-  const allInstances: Array<{
-    instance: JsonRecord;
-    prototype: ShellInstanceDefinition;
-    role: ShellRoleDefinition;
-    path: string;
-  }> = [];
+  const allInstances: ParsedPresentationInstance[] = [];
   const seenInstanceIds = new Set<string>();
 
   pages.forEach((page, pageIndex) => {
@@ -1771,7 +2352,7 @@ export function parseShellPresentation(
         issues,
       );
       const id = stringField(instance, 'id', path, issues);
-      if (!/^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$/u.test(id)) {
+      if (!SEMANTIC_ID_PATTERN.test(id)) {
         addIssue(issues, `${path}.id`, 'invalid-id', 'Instance identity must use the stable dot/kebab grammar.');
       }
       if (seenInstanceIds.has(id)) addIssue(issues, `${path}.id`, 'duplicate-id', `Duplicate instance ID "${id}".`);
@@ -1809,7 +2390,12 @@ export function parseShellPresentation(
       if ((instance.actionId ?? undefined) !== prototype.actionId) {
         addIssue(issues, `${path}.actionId`, 'semantic-drift', 'Non-editable action identity does not match its prototype.');
       }
-      if (!sameSemanticValue(instance.accessibility, prototype.accessibility)) {
+      const accessibility = validateAccessibility(
+        instance.accessibility,
+        `${path}.accessibility`,
+        issues,
+      );
+      if (accessibility && !sameSemanticValue(accessibility, prototype.accessibility)) {
         addIssue(
           issues,
           `${path}.accessibility`,
@@ -1817,7 +2403,6 @@ export function parseShellPresentation(
           'Non-editable accessibility metadata does not match its prototype.',
         );
       }
-      validateAccessibility(instance.accessibility, `${path}.accessibility`, issues);
       const allowedProperties = new Set(role.editableProperties);
       const presentation = validateVisualPresentation(instance.presentation, `${path}.presentation`, issues, {
         requireBase: true,
@@ -1827,6 +2412,7 @@ export function parseShellPresentation(
       });
       const family = familiesById.get(prototype.stateFamilyId);
       const variants = asRecord(instance.variants, `${path}.variants`, issues);
+      const parsedVariants: Record<string, ShellVisualPresentation> = {};
       if (family && variants) {
         validateExactKeys(
           Object.keys(variants),
@@ -1837,28 +2423,39 @@ export function parseShellPresentation(
           issues,
         );
         for (const [variant, visual] of Object.entries(variants)) {
-          validateVisualPresentation(visual, `${path}.variants.${variant}`, issues, {
+          const parsedVariant = validateVisualPresentation(
+            visual,
+            `${path}.variants.${variant}`,
+            issues,
+            {
             requireBase: false,
             allowedProperties,
             knownAssetIds,
             maximumCopyCodePoints: shellPresentationContract.editableAst.copy.maximumCodePoints,
-          });
+            },
+          );
+          if (parsedVariant) {
+            parsedVariants[variant] = parsedVariant;
+            validateAssetCompatibility(
+              parsedVariant,
+              `${path}.variants.${variant}`,
+              role,
+              catalogById,
+              slotsById,
+              issues,
+            );
+          }
         }
       }
-      if (presentation?.assetId) {
-        const asset = catalogById.get(presentation.assetId);
-        if (asset && role.assetSlotId !== asset.slotId) {
-          addIssue(
-            issues,
-            `${path}.presentation.assetId`,
-            'incompatible-asset',
-            `Asset "${asset.id}" targets slot "${asset.slotId}", not role slot "${String(role.assetSlotId)}".`,
-          );
-        }
-        const slot = role.assetSlotId ? slotsById.get(role.assetSlotId) : undefined;
-        if (!slot) {
-          addIssue(issues, `${path}.presentation.assetId`, 'incompatible-asset', 'This role has no replaceable asset slot.');
-        }
+      if (presentation) {
+        validateAssetCompatibility(
+          presentation,
+          `${path}.presentation`,
+          role,
+          catalogById,
+          slotsById,
+          issues,
+        );
       }
       const order = presentation?.order;
       if (typeof order === 'number') {
@@ -1867,7 +2464,17 @@ export function parseShellPresentation(
         }
         usedOrders.add(order);
       }
-      allInstances.push({ instance, prototype, role, path });
+      if (presentation && family && variants) {
+        allInstances.push({
+          instance,
+          prototype,
+          role,
+          family,
+          presentation: presentation as ShellDefaultPresentation,
+          variants: parsedVariants,
+          path,
+        });
+      }
     });
   });
 
@@ -1877,43 +2484,86 @@ export function parseShellPresentation(
     }
   }
 
-  const viewportProfiles = options.viewportProfiles ?? [
-    { width: 390, height: 844, insets: { top: 59, right: 0, bottom: 34, left: 0 } },
-    { width: 430, height: 932, insets: { top: 62, right: 8, bottom: 30, left: 12 } },
-  ];
+  const baselineViewport: ShellViewport = {
+    width: 390,
+    height: 844,
+    insets: { top: 59, right: 0, bottom: 34, left: 0 },
+  };
+  const representativeViewport: ShellViewport = {
+    width: 430,
+    height: 932,
+    insets: { top: 62, right: 8, bottom: 30, left: 12 },
+  };
+  const rawProfiles: unknown = options.viewportProfiles;
+  const suppliedProfiles = Array.isArray(rawProfiles)
+    ? (rawProfiles as ShellViewport[])
+    : undefined;
+  if (rawProfiles !== undefined && !suppliedProfiles) {
+    addIssue(
+      issues,
+      '$options.viewportProfiles',
+      'invalid-type',
+      'Runtime viewport profiles must be an array.',
+    );
+  }
+  if (suppliedProfiles?.length === 0) {
+    addIssue(
+      issues,
+      '$options.viewportProfiles',
+      'invalid-cardinality',
+      'At least one runtime viewport profile is required when profiles are supplied.',
+    );
+  }
+  const viewportProfiles = suppliedProfiles && suppliedProfiles.length > 0
+    ? [baselineViewport, ...suppliedProfiles]
+    : [baselineViewport, representativeViewport];
   for (const item of allInstances) {
-    const visual = item.instance.presentation as ShellDefaultPresentation;
-    if (item.instance.id === item.prototype.id && item.prototype.required && visual.visibility !== 'visible') {
-      addIssue(
-        issues,
-        `${item.path}.presentation.visibility`,
-        'missing-required-instance',
-        `Required semantic instance "${item.prototype.id}" cannot be hidden.`,
-      );
-    }
-    for (const viewport of viewportProfiles) {
-      try {
-        const projected = projectShellGeometry({
-          anchor: item.role.anchor,
-          geometry: visual.geometry,
-          viewport,
-          caps: item.role.geometryCaps,
-        });
-        if (item.role.requiredSafeBounds && !isRectInside(projected.bounds, projected.safeRect)) {
-          addIssue(
-            issues,
-            `${item.path}.presentation.geometry`,
-            'unsafe-overflow',
-            `Instance "${String(item.instance.id)}" is outside safe bounds.`,
-          );
-        }
-      } catch (error) {
+    const visualStates: Array<[string, ShellDefaultPresentation]> = [
+      ['presentation', resolveVisualPresentation(item.family, item.presentation)],
+      ...item.family.requiredVariants.map(
+        (variantId): [string, ShellDefaultPresentation] => [
+          `variants.${variantId}`,
+          resolveVisualPresentation(item.family, item.presentation, item.variants[variantId]),
+        ],
+      ),
+    ];
+    for (const [label, visual] of visualStates) {
+      if (
+        item.instance.id === item.prototype.id &&
+        item.prototype.required &&
+        (visual.visibility !== 'visible' || (visual.opacity ?? 1) === 0)
+      ) {
         addIssue(
           issues,
-          `${item.path}.presentation.geometry`,
-          'invalid-geometry',
-          error instanceof Error ? error.message : 'Invalid geometry.',
+          `${item.path}.${label}.visibility`,
+          'missing-required-instance',
+          `Required semantic instance "${item.prototype.id}" cannot be hidden.`,
         );
+      }
+      for (const viewport of viewportProfiles) {
+        try {
+          const projected = projectShellGeometry({
+            anchor: item.role.anchor,
+            geometry: visual.geometry,
+            viewport,
+            caps: item.role.geometryCaps,
+          });
+          if (item.role.requiredSafeBounds && !isRectInside(projected.bounds, projected.safeRect)) {
+            addIssue(
+              issues,
+              `${item.path}.${label}.geometry`,
+              'unsafe-overflow',
+              `Instance "${String(item.instance.id)}" is outside safe bounds.`,
+            );
+          }
+        } catch (error) {
+          addIssue(
+            issues,
+            `${item.path}.${label}.geometry`,
+            'invalid-geometry',
+            error instanceof Error ? error.message : 'Invalid geometry.',
+          );
+        }
       }
     }
   }
@@ -1923,51 +2573,80 @@ export function parseShellPresentation(
       (item) =>
         item.prototype.actionId === action.id &&
         item.prototype.stateId === action.stateId &&
-        item.prototype.bindingId === action.bindingId &&
-        (item.instance.presentation as ShellDefaultPresentation).visibility === 'visible',
+        item.prototype.bindingId === action.bindingId,
     );
-    if (matches.length < action.minimumCount) {
-      addIssue(
-        issues,
-        '$.pages',
-        'missing-required-action',
-        `Required action "${action.id}" needs at least ${action.minimumCount} visible instance(s).`,
+    const validateActionState = (
+      label: string,
+      effective: Array<{ item: ParsedPresentationInstance; visual: ShellDefaultPresentation }>,
+    ): void => {
+      const visible = effective.filter(
+        ({ visual }) => visual.visibility === 'visible' && (visual.opacity ?? 1) > 0,
       );
-    }
-    for (const item of matches) {
-      for (const viewport of viewportProfiles) {
-        try {
-          const projected = projectShellGeometry({
-            anchor: item.role.anchor,
-            geometry: (item.instance.presentation as ShellDefaultPresentation).geometry,
-            viewport,
-            caps: item.role.geometryCaps,
-          });
-          const minimum = Math.max(
-            shellPresentationContract.canonicalCanvas.minimumActionSize,
-            item.role.minimumTouchTarget,
-          );
-          if (
-            !isRectInside(projected.bounds, projected.safeRect) ||
-            projected.bounds.width < minimum ||
-            projected.bounds.height < minimum
-          ) {
+      if (visible.length < action.minimumCount) {
+        addIssue(
+          issues,
+          '$.pages',
+          'missing-required-action',
+          `Required action "${action.id}" needs at least ${action.minimumCount} visible instance(s) in ${label}.`,
+        );
+      }
+      for (const { item, visual } of visible) {
+        for (const viewport of viewportProfiles) {
+          try {
+            const projected = projectShellGeometry({
+              anchor: item.role.anchor,
+              geometry: visual.geometry,
+              viewport,
+              caps: item.role.geometryCaps,
+            });
+            const minimum = Math.max(
+              shellPresentationContract.canonicalCanvas.minimumActionSize,
+              item.role.minimumTouchTarget,
+            );
+            if (
+              !isRectInside(projected.bounds, projected.safeRect) ||
+              projected.bounds.width < minimum ||
+              projected.bounds.height < minimum
+            ) {
+              addIssue(
+                issues,
+                `${item.path}.${label}.geometry`,
+                'unsafe-overflow',
+                `Required action "${action.id}" must stay inside safe bounds and at least ${minimum} px.`,
+              );
+            }
+          } catch (error) {
             addIssue(
               issues,
-              `${item.path}.presentation.geometry`,
-              'unsafe-overflow',
-              `Required action "${action.id}" must stay inside safe bounds and at least ${minimum} px.`,
+              `${item.path}.${label}.geometry`,
+              'invalid-geometry',
+              error instanceof Error ? error.message : 'Invalid required action geometry.',
             );
           }
-        } catch (error) {
-          addIssue(
-            issues,
-            `${item.path}.presentation.geometry`,
-            'invalid-geometry',
-            error instanceof Error ? error.message : 'Invalid required action geometry.',
-          );
         }
       }
+    };
+
+    validateActionState(
+      'presentation',
+      matches.map((item) => ({
+        item,
+        visual: resolveVisualPresentation(item.family, item.presentation),
+      })),
+    );
+    const variantIds = new Set(matches.flatMap((item) => item.family.requiredVariants));
+    for (const variantId of variantIds) {
+      validateActionState(
+        `variants.${variantId}`,
+        matches.map((item) => ({
+          item,
+          visual: resolveVisualPresentation(
+            item.family,
+            item.presentation,
+            item.variants[variantId],
+          ),
+        })),
+      );
     }
   }
 
@@ -2013,7 +2692,7 @@ function validateProjectionArtifactPath(path: string): boolean {
   );
 }
 
-export function parseProjectionRevision(value: unknown): ShellProjectionRevision {
+export async function parseProjectionRevision(value: unknown): Promise<ShellProjectionRevision> {
   const issues: ShellValidationIssue[] = [];
   const root = asRecord(value, '$', issues);
   if (!root) throw new ShellContractValidationError('Shell projection revision', issues);
@@ -2065,12 +2744,7 @@ export function parseProjectionRevision(value: unknown): ShellProjectionRevision
       addIssue(issues, `${path}.path`, 'duplicate-id', `Duplicate artifact path "${artifactPath}".`);
     }
     paths.add(artifactPath);
-    if (
-      !validateProjectionArtifactPath(artifactPath) ||
-      artifactPath.includes('..') ||
-      artifactPath.includes('\\') ||
-      /^(?:https?|data|blob):/iu.test(artifactPath)
-    ) {
+    if (!validateProjectionArtifactPath(artifactPath)) {
       addIssue(
         issues,
         `${path}.path`,
@@ -2091,6 +2765,34 @@ export function parseProjectionRevision(value: unknown): ShellProjectionRevision
   for (const required of shellPresentationContract.projection.requiredArtifacts) {
     if (!paths.has(required)) {
       addIssue(issues, '$.artifacts', 'missing-artifact', `Missing required projection artifact "${required}".`);
+    }
+  }
+
+  if (issues.length === 0) {
+    const projection = value as ShellProjectionRevision;
+    const compatibilityHash = await hashShellPresentationContract();
+    if (projection.compatibilityHash !== compatibilityHash) {
+      addIssue(
+        issues,
+        '$.compatibilityHash',
+        'compatibility-mismatch',
+        'Projection compatibility hash does not match the canonical shell contract.',
+      );
+    }
+    const expectedProjectionId = await computeShellProjectionId({
+      contractId: projection.contractId,
+      contractVersion: projection.contractVersion,
+      compatibilityHash: projection.compatibilityHash,
+      sourcePublicationId: projection.sourcePublicationId,
+      artifacts: projection.artifacts,
+    });
+    if (projection.projectionId !== expectedProjectionId) {
+      addIssue(
+        issues,
+        '$.projectionId',
+        'content-id-mismatch',
+        'Projection ID does not match its canonical source and artifact hashes.',
+      );
     }
   }
 
@@ -2126,17 +2828,20 @@ export function parseAssetIdentityProjection(value: unknown): ShellAssetIdentity
     const path = `$.assets[${index}]`;
     rejectUnsupportedFields(asset, new Set(['instanceId', 'slotId', 'assetId', 'path', 'sha256']), path, issues);
     const instanceId = stringField(asset, 'instanceId', path, issues);
+    if (!SEMANTIC_ID_PATTERN.test(instanceId)) {
+      addIssue(issues, `${path}.instanceId`, 'invalid-id', 'Invalid semantic instance ID.');
+    }
     listedIds.push(instanceId);
     if (instanceIds.has(instanceId)) addIssue(issues, `${path}.instanceId`, 'duplicate-id', `Duplicate instance "${instanceId}".`);
     instanceIds.add(instanceId);
     const slotId = stringField(asset, 'slotId', path, issues);
     if (!slotIds.has(slotId)) addIssue(issues, `${path}.slotId`, 'unknown-slot', `Unknown asset slot "${slotId}".`);
     const assetId = stringField(asset, 'assetId', path, issues);
-    if (!/^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$/u.test(assetId)) {
+    if (!SEMANTIC_ID_PATTERN.test(assetId)) {
       addIssue(issues, `${path}.assetId`, 'invalid-id', 'Invalid semantic asset ID.');
     }
     const assetPath = stringField(asset, 'path', path, issues);
-    if (!SAFE_ASSET_PATH_PATTERN.test(assetPath) || assetPath.includes('..')) {
+    if (!SAFE_ASSET_PATH_PATTERN.test(assetPath)) {
       addIssue(issues, `${path}.path`, 'unsafe-asset', 'Asset identity path must be a local raster path.');
     }
     const hash = stringField(asset, 'sha256', path, issues);
@@ -2155,19 +2860,23 @@ export interface ShellPublicationCompatibility {
   compatibilityHash: string;
 }
 
-export function isShellPublicationCompatible(
-  publication: Pick<ShellPublicationCompatibility, 'contractId' | 'contractVersion'>,
-): boolean {
-  return (
-    publication.contractId === shellPresentationContract.contractId &&
-    publication.contractVersion === shellPresentationContract.contractVersion
-  );
+export async function isShellPublicationCompatible(
+  publication: ShellPublicationCompatibility,
+): Promise<boolean> {
+  if (
+    publication.contractId !== shellPresentationContract.contractId ||
+    publication.contractVersion !== shellPresentationContract.contractVersion ||
+    !HASH_PATTERN.test(publication.compatibilityHash)
+  ) {
+    return false;
+  }
+  return publication.compatibilityHash === (await hashShellPresentationContract());
 }
 
-export function assertShellPublicationCompatible(
-  publication: Pick<ShellPublicationCompatibility, 'contractId' | 'contractVersion'>,
-): void {
-  if (!isShellPublicationCompatible(publication)) {
+export async function assertShellPublicationCompatible(
+  publication: ShellPublicationCompatibility,
+): Promise<void> {
+  if (!(await isShellPublicationCompatible(publication))) {
     throw new ShellContractValidationError('Shell publication compatibility', [
       {
         path: '$',
