@@ -11,8 +11,8 @@ export const gameConfig = {
   // the actual title lives in design/copy.ts and a reskin edits it through the
   // design sheet. `satisfies CopyKey` fails typecheck if a literal is pasted here.
   title: "game.title" satisfies CopyKey,
-  screens: ["HomeMenu"],
-  saga: { levels: 1 },
+  screens: ["menu", "level", "settings", "pause", "win", "fail"],
+  saga: { levels: 3 },
   economy: { softCurrency: "coins" },
   adPlacements: [],
   productCatalog: [],

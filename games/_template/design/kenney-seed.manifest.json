@@ -1,0 +1,284 @@
+{
+  "schemaVersion": 1,
+  "seedKind": "behavior-neutral-semantic-fixtures",
+  "canonicalStates": ["menu", "level", "settings", "pause", "win", "fail"],
+  "sources": [
+    {
+      "id": "kenney-ui-pack-2.0",
+      "assetPage": "https://kenney.nl/assets/ui-pack",
+      "download": "https://kenney.nl/media/pages/assets/ui-pack/f651646eab-1718203990/kenney_ui-pack.zip",
+      "license": "CC0-1.0",
+      "licenseFile": "assets/LICENSE-KENNEY-UI-PACK.txt"
+    },
+    {
+      "id": "kenney-game-icons-1.0",
+      "assetPage": "https://kenney.nl/assets/game-icons",
+      "download": "https://kenney.nl/media/pages/assets/game-icons/1ebf9c14af-1677661579/kenney_game-icons.zip",
+      "license": "CC0-1.0",
+      "licenseFile": "assets/LICENSE-KENNEY-GAME-ICONS.txt"
+    }
+  ],
+  "assets": [
+    {
+      "id": "action.primary",
+      "file": "assets/action-primary.png",
+      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Green/Double/button_rectangle_depth_gradient.png" },
+      "dimensions": { "width": 384, "height": 128 },
+      "alpha": "required",
+      "compatibleRoles": ["bottom-primary-action"],
+      "sha256": "93318e40822c39a2ba6aec45a099d9da9bb101644198444a004cba3a354064bf"
+    },
+    {
+      "id": "action.secondary",
+      "file": "assets/action-secondary.png",
+      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Blue/Double/button_rectangle_depth_gradient.png" },
+      "dimensions": { "width": 384, "height": 128 },
+      "alpha": "required",
+      "compatibleRoles": ["bottom-secondary-action"],
+      "sha256": "5cb0ab21ffb2e35c31abcaeddcabc654775d88cc1b86c950341f42d98b503e7c"
+    },
+    {
+      "id": "action.test-win",
+      "file": "assets/action-test-win.png",
+      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Green/Double/button_rectangle_depth_flat.png" },
+      "dimensions": { "width": 384, "height": 128 },
+      "alpha": "required",
+      "compatibleRoles": ["bottom-left-test-action", "bottom-primary-action"],
+      "sha256": "01b8240b2cbf3af3bcabb8a7daf458a111bc4f139f8d415d255a334f50754c20"
+    },
+    {
+      "id": "action.test-lose",
+      "file": "assets/action-test-lose.png",
+      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Blue/Double/button_rectangle_depth_border.png" },
+      "dimensions": { "width": 384, "height": 128 },
+      "alpha": "required",
+      "compatibleRoles": ["bottom-right-test-action", "bottom-secondary-action", "result-panel"],
+      "sha256": "4d141ba650e066bb7c1291a1f5924ec6334ab4f3343dc657c5c109c0bb694351"
+    },
+    {
+      "id": "action.icon-surface",
+      "file": "assets/action-icon-surface.png",
+      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Blue/Double/button_square_depth_gradient.png" },
+      "dimensions": { "width": 128, "height": 128 },
+      "alpha": "required",
+      "compatibleRoles": ["top-icon-action"],
+      "sha256": "cb40b01ff701c9edc6f6814bfec3a3ccb1ab443ad044613909df53e3b6fc09bc"
+    },
+    {
+      "id": "node.current",
+      "file": "assets/node-current.png",
+      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Green/Double/button_round_depth_gradient.png" },
+      "dimensions": { "width": 128, "height": 128 },
+      "alpha": "required",
+      "compatibleRoles": ["progression-node"],
+      "sha256": "cf842ce49898e2de4c10ce248341f2fef6a75b3e027218fad9112a998b3d3573"
+    },
+    {
+      "id": "toggle.on",
+      "file": "assets/toggle-on.png",
+      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Blue/Double/check_round_color.png" },
+      "dimensions": { "width": 64, "height": 64 },
+      "alpha": "required",
+      "compatibleRoles": ["center-toggle-action"],
+      "sha256": "5f8830e27bc5b9dfa9a23ba584da4689c91e064e7156952a1bbfcfaf26b7ebe0"
+    },
+    {
+      "id": "toggle.off",
+      "file": "assets/toggle-off.png",
+      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Blue/Double/check_round_grey.png" },
+      "dimensions": { "width": 64, "height": 64 },
+      "alpha": "required",
+      "compatibleRoles": ["center-toggle-action"],
+      "sha256": "ac5fb8b346b7990deaa884015cee2a93ee2432d01305ac22a27400e0eacbb31e"
+    },
+    {
+      "id": "status.success",
+      "file": "assets/status-success.png",
+      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Blue/Double/icon_checkmark.png" },
+      "dimensions": { "width": 40, "height": 36 },
+      "alpha": "required",
+      "compatibleRoles": ["result-panel", "progression-node"],
+      "sha256": "b6d35f90b008a1e14e201c8ad07188ab783eb71ab84349f2fce7e2ffcb421fda"
+    },
+    {
+      "id": "status.failure",
+      "file": "assets/status-failure.png",
+      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Blue/Double/icon_cross.png" },
+      "dimensions": { "width": 36, "height": 36 },
+      "alpha": "required",
+      "compatibleRoles": ["result-panel"],
+      "sha256": "7ef55cfc752b0091a8d0c0e6dc73a57dc6f38cfe1fc9dd882bd86c6fbb8b57a6"
+    },
+    {
+      "id": "icon.play",
+      "file": "assets/icon-play.png",
+      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Extra/Double/icon_play_light.png" },
+      "dimensions": { "width": 60, "height": 68 },
+      "alpha": "required",
+      "compatibleRoles": ["bottom-primary-action"],
+      "sha256": "60b1a1812e2263e04e590fb6f0605428930f61b905e5744c99b4bfd854ecb8f5"
+    },
+    {
+      "id": "icon.retry",
+      "file": "assets/icon-retry.png",
+      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Extra/Double/icon_repeat_light.png" },
+      "dimensions": { "width": 82, "height": 72 },
+      "alpha": "required",
+      "compatibleRoles": ["bottom-primary-action"],
+      "sha256": "be08921888d54804b6f5bbf99e8e7a230f01895c33a39956a073301cdb45fa83"
+    },
+    {
+      "id": "divider.panel",
+      "file": "assets/divider-panel.png",
+      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Extra/Double/divider_edges.png" },
+      "dimensions": { "width": 128, "height": 8 },
+      "alpha": "required",
+      "compatibleRoles": ["modal-panel", "result-panel"],
+      "sha256": "30d67d76c1cbfa1fb4cbe21b8709c52e410ae6e1f5e6326865b6a70f20ee2976"
+    },
+    {
+      "id": "currency.primary",
+      "file": "assets/currency-primary.png",
+      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/star.png" },
+      "dimensions": { "width": 100, "height": 100 },
+      "alpha": "required",
+      "compatibleRoles": ["currency-counter"],
+      "sha256": "8e10578b82d6d46aff27a9939f4c1adccd1be6dc93c8302c9e28d281e126aae2"
+    },
+    {
+      "id": "hero.placeholder",
+      "file": "assets/hero-placeholder.png",
+      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/target.png" },
+      "dimensions": { "width": 100, "height": 100 },
+      "alpha": "required",
+      "compatibleRoles": ["hero-art", "gameplay-region"],
+      "sha256": "afd40325569fa91bfc690856dc4c70901bbd7c2e27dedc9fe3847258c61bbc81"
+    },
+    {
+      "id": "icon.settings",
+      "file": "assets/icon-settings.png",
+      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/gear.png" },
+      "dimensions": { "width": 100, "height": 100 },
+      "alpha": "required",
+      "compatibleRoles": ["top-icon-action"],
+      "sha256": "50b313ffe97db1733e529d5b0f5ac91eed5c0c8ffee1034bbb7766508e4f720c"
+    },
+    {
+      "id": "icon.pause",
+      "file": "assets/icon-pause.png",
+      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/pause.png" },
+      "dimensions": { "width": 100, "height": 100 },
+      "alpha": "required",
+      "compatibleRoles": ["top-icon-action"],
+      "sha256": "5c940ad60dd46b3252d4f991f24e9c21865722fe401947830228629baed28774"
+    },
+    {
+      "id": "icon.home",
+      "file": "assets/icon-home.png",
+      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/home.png" },
+      "dimensions": { "width": 100, "height": 100 },
+      "alpha": "required",
+      "compatibleRoles": ["bottom-secondary-action"],
+      "sha256": "1f6d39df47cb8849feb8f01aad329583f5f014c449c622b39aa154a3eca55160"
+    },
+    {
+      "id": "icon.next",
+      "file": "assets/icon-next.png",
+      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/next.png" },
+      "dimensions": { "width": 100, "height": 100 },
+      "alpha": "required",
+      "compatibleRoles": ["bottom-primary-action"],
+      "sha256": "d78a2548f8a2360f4496ed499ca280fa377f1e486510c6957b9703e597f550e6"
+    },
+    {
+      "id": "icon.back",
+      "file": "assets/icon-back.png",
+      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/previous.png" },
+      "dimensions": { "width": 100, "height": 100 },
+      "alpha": "required",
+      "compatibleRoles": ["bottom-primary-action", "top-icon-action"],
+      "sha256": "7a7a4b8f7ca76a1ecd518c736c71dc433044fe2ca7913619def152f2e8f1b938"
+    },
+    {
+      "id": "icon.return",
+      "file": "assets/icon-return.png",
+      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/return.png" },
+      "dimensions": { "width": 100, "height": 100 },
+      "alpha": "required",
+      "compatibleRoles": ["bottom-secondary-action"],
+      "sha256": "99b425ec6d8e49633ddcea55e7485adf44a4ca8614abf39e59b7a83602ee3866"
+    },
+    {
+      "id": "node.locked",
+      "file": "assets/node-locked.png",
+      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/locked.png" },
+      "dimensions": { "width": 100, "height": 100 },
+      "alpha": "required",
+      "compatibleRoles": ["progression-node"],
+      "sha256": "b83e9f3d17e94a054fa0add775e89eb6973052dca9185a4b5fface1d14cf9cd1"
+    },
+    {
+      "id": "node.completed",
+      "file": "assets/node-completed.png",
+      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/unlocked.png" },
+      "dimensions": { "width": 100, "height": 100 },
+      "alpha": "required",
+      "compatibleRoles": ["progression-node"],
+      "sha256": "fd9e8d852f72f9c315eadf3448515bbfba229ec6ded636f647855f5317da6a80"
+    },
+    {
+      "id": "result.win",
+      "file": "assets/result-win.png",
+      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/trophy.png" },
+      "dimensions": { "width": 100, "height": 100 },
+      "alpha": "required",
+      "compatibleRoles": ["result-panel"],
+      "sha256": "9525a3a01eb4ffddbb1c6dd9444ffa20876d18843d7ddd44e6c80d28744e8714"
+    },
+    {
+      "id": "result.fail",
+      "file": "assets/result-fail.png",
+      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/cross.png" },
+      "dimensions": { "width": 100, "height": 100 },
+      "alpha": "required",
+      "compatibleRoles": ["result-panel"],
+      "sha256": "8293e3758e7df2eb1c5bb8d6979cccc826e66c28f8c703e6cbb0a54a3c0efc33"
+    },
+    {
+      "id": "icon.music-on",
+      "file": "assets/icon-music-on.png",
+      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/musicOn.png" },
+      "dimensions": { "width": 100, "height": 100 },
+      "alpha": "required",
+      "compatibleRoles": ["center-toggle-action"],
+      "sha256": "9998567109c4ad007ad796091b4f1d7774779f6f96c8b4b615f215f7d74c5230"
+    },
+    {
+      "id": "icon.music-off",
+      "file": "assets/icon-music-off.png",
+      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/musicOff.png" },
+      "dimensions": { "width": 100, "height": 100 },
+      "alpha": "required",
+      "compatibleRoles": ["center-toggle-action"],
+      "sha256": "ee0901ab81572df6dd47400b5694c0c41d8ccb1c3bf24485b4414dfb4c1172ea"
+    },
+    {
+      "id": "icon.haptics",
+      "file": "assets/icon-haptics.png",
+      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/gamepad.png" },
+      "dimensions": { "width": 100, "height": 100 },
+      "alpha": "required",
+      "compatibleRoles": ["center-toggle-action"],
+      "sha256": "409ec081344f893b7103c98ec3aec00b1709a4ee74679e3da2b877d9fb0a2275"
+    },
+    {
+      "id": "icon.confirm",
+      "file": "assets/icon-confirm.png",
+      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/checkmark.png" },
+      "dimensions": { "width": 100, "height": 100 },
+      "alpha": "required",
+      "compatibleRoles": ["result-panel", "progression-node"],
+      "sha256": "00e3025322ddb4948598b7fb8d385762073de7b2b534d2cfd44372072608a92a"
+    }
+  ]
+}

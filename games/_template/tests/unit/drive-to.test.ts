@@ -8,9 +8,8 @@ import { createTemplateHarness } from "../../src/shell/harness.ts";
  * vFSI5FwY). Exercises the PURE `driveTo` against a fake deps object backed by
  * a tiny hand-rolled state machine (kernel `FlowStates` names) — this proves
  * `driveTo` actually REACHES and CONFIRMS each state a fake app can reach, and
- * honestly reports `false` for the ones the template's TODO(port) deps don't
- * wire up yet (settings/win/fail/pause never actually transition in a fresh
- * scaffold — see `../../src/shell/harness.ts`).
+ * honestly reports `false` when a supplied driver does not actually reach its
+ * target state.
  */
 
 const instantSleep = (): Promise<void> => Promise.resolve();
@@ -85,10 +84,9 @@ describe("_template driveTo — deterministic per-state navigation", () => {
   });
 
   it("returns false when the terminal driver never reaches the state (confirm-before-resolve)", async () => {
-    // A TODO(port) autoWin that never transitions (the template's actual
-    // current wiring — `createTemplateHarness`'s `winLevel` always returns
-    // `false`) must resolve `driveTo('win')` to an honest `false`, not a bare
-    // `true` — the whole point of the confirm poll.
+    // A terminal driver that never transitions must resolve `driveTo('win')`
+    // to an honest `false`, not a bare `true` — the whole point of the
+    // confirm poll.
     const { deps } = makeFakeDeps({ autoWin: async () => false });
     const reached = await driveTo(deps, "win", { pollMs: 0, maxPolls: 3, sleep: instantSleep });
     expect(reached).toBe(false);
@@ -150,7 +148,7 @@ describe("createTemplateHarness driveTo", () => {
     ["fail", "failed", false] as const,
     ["pause", "paused", false] as const,
     ["settings", "menu", true] as const,
-  ])("driveTo(%s) reaches + confirms it on the fresh placeholder harness", async (state, scene, settingsOpen) => {
+  ])("driveTo(%s) reaches + confirms it on the functional template harness", async (state, scene, settingsOpen) => {
     const harness = createTemplateHarness({ buildVersion: "test", packageId: "com.fabrikav2.template" });
 
     const reached = await harness.driveTo!(state);

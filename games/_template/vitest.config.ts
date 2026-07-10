@@ -1,7 +1,7 @@
 import { defineConfig } from "vitest/config";
 
 // Unit smoke test lives under tests/unit; co-located src *.test.ts are also
-// collected. happy-dom because the placeholder screen mounts real DOM.
+// collected. happy-dom mounts the functional DOM shell.
 export default defineConfig({
   test: {
     environment: "happy-dom",

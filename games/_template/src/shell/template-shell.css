@@ -1,0 +1,133 @@
+/* Template-shell layout stays token-only. The Kenney fixtures are injected by
+   design/assets.ts; this file only composes their semantic slots. */
+.template-shell {
+  min-height: 100dvh;
+  background: var(--fab-color-surface);
+  color: var(--fab-color-text);
+  font-family: var(--fab-font-family);
+}
+
+.template-shell .fab-home-menu,
+.template-shell__level {
+  box-sizing: border-box;
+  min-height: 100dvh;
+  padding: var(--fab-space-screen-padding);
+}
+
+.template-shell__menu-header,
+.template-shell__level {
+  display: grid;
+  gap: var(--fab-space-md);
+}
+
+.template-shell__utility,
+.template-shell__hud,
+.template-shell__test-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fab-space-sm);
+}
+
+.template-shell__currency {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--fab-btn-min-size);
+  gap: var(--fab-space-xs);
+  padding: var(--fab-space-xs) var(--fab-space-sm);
+  border-radius: var(--fab-radius-pill);
+  background: var(--fab-color-secondary-surface);
+  color: var(--fab-color-on-secondary);
+  font-weight: var(--fab-font-weight-bold);
+}
+
+.template-shell__currency-icon,
+.template-shell__button-icon {
+  width: var(--fab-icon-size);
+  height: var(--fab-icon-size);
+  object-fit: contain;
+}
+
+.template-shell__icon-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--fab-btn-min-size);
+  min-height: var(--fab-btn-min-size);
+  gap: var(--fab-space-xs);
+}
+
+.template-shell__title,
+.template-shell__level-label {
+  margin: 0;
+  color: var(--fab-color-text);
+  font-size: var(--fab-font-size-title);
+  font-weight: var(--fab-font-weight-bold);
+  text-align: center;
+}
+
+.template-shell__hero-art,
+.template-shell__gameplay-art,
+.template-shell__result-art {
+  display: block;
+  width: var(--fab-art-width);
+  max-width: 100%;
+  max-height: var(--fab-art-max-height);
+  margin-inline: auto;
+  object-fit: contain;
+}
+
+.template-shell__gameplay {
+  display: grid;
+  place-items: center;
+  min-height: var(--fab-gameplay-min-height);
+  padding: var(--fab-space-lg);
+  border: var(--fab-border-width) solid var(--fab-color-secondary-border);
+  border-radius: var(--fab-radius-md);
+  background: var(--fab-color-gameplay-surface);
+  color: var(--fab-color-text);
+  text-align: center;
+}
+
+.template-shell__gameplay h2,
+.template-shell__gameplay p {
+  margin: 0;
+}
+
+.template-shell__test-actions {
+  align-items: stretch;
+}
+
+.template-shell__test-action,
+.template-shell .fab-btn,
+.template-shell .fab-toggle-row,
+.template-shell .fab-page-back {
+  min-height: var(--fab-btn-min-size);
+}
+
+.template-shell .fab-toggle-switch {
+  width: var(--fab-toggle-action-width);
+  height: var(--fab-btn-min-size);
+}
+
+.template-shell .fab-toggle-slider::before {
+  width: var(--fab-toggle-thumb-size);
+  height: var(--fab-toggle-thumb-size);
+  left: var(--fab-toggle-thumb-inset);
+  bottom: var(--fab-toggle-thumb-inset);
+}
+
+.template-shell .fab-toggle-input:checked + .fab-toggle-slider::before {
+  transform: translateX(var(--fab-toggle-thumb-travel));
+}
+
+.template-shell__test-action {
+  flex: 1;
+}
+
+@media (max-width: 360px) {
+  .template-shell__currency,
+  .template-shell__icon-action {
+    font-size: var(--fab-font-size-sm);
+  }
+}
