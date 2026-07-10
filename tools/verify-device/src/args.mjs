@@ -39,6 +39,9 @@ Options:
                        provided-captures + DEVICE-PROVENANCE-UNVERIFIED and
                        excluded from strict device-pass semantics.
   --xcresult <path>    skip build/run; extract device captures from this .xcresult.
+                       Detached artifact: provenance is UNVERIFIED (we cannot prove
+                       it belongs to this run/commit/device), so it is strict-nonzero
+                       pending an AUDIT #7 run/commit/device attestation.
   --out <dir>          output dir (default docs/evidence/<date>-device-verify).
   --date <YYYY-MM-DD>  stamp used in the default --out and the HTML header.
   --content-inset-top <px>
@@ -65,11 +68,17 @@ Options:
                        and the registry (e.g. anthropic/claude-opus-4.1,
                        google/gemini-3.5-flash). A model that 404s is skipped w/ note.
   --panel-threshold <n> panel fidelity floor 0..100; a state FAILs below it or on a
-                       consensus blocker finding (default 85, advisory).
-  --skip-panel         skip the vision panel (phash-only verdict).
-  --strict             require a PASS verdict from a verified device lane; FAIL,
-                       browser, or provided-captures lanes exit non-zero
-                       (default: advisory).
+                       consensus blocker finding (default 85; primary fidelity gate under --strict).
+  --skip-panel         skip the vision panel. phash is ADVISORY only and can never
+                       be a verified pass, so a panel-skipped run is UNVERIFIED and
+                       exits non-zero under --strict (exit 0 only when advisory).
+  --strict             require a VERIFIED PASS: at least one applicable state with
+                       fresh live-device provenance AND a complete primary vision-
+                       panel pass, every required applicable state covered, no failed
+                       gate. Missing primary panel evidence, missing/skipped device
+                       capture, browser/provided-captures/detached-xcresult
+                       provenance, empty/skipped-only/no-reference runs, and
+                       --skip-device all exit non-zero. Default: advisory (exploratory).
   --allow-ungated      allow iOS runner *-MISSING inspection screenshots to be
                        processed without forcing a non-zero exit. Use only for
                        forensic replays; blind captures are still marked in the
@@ -106,7 +115,11 @@ Crops:
   required; device/current crops use judged-captures after content-inset cropping.
 
 The vision panel needs OPENROUTER_API_KEY (env or the sibling .env); without it
-the panel skips gracefully (exit 0) and on-device fidelity stays UNVERIFIED.
+the panel skips gracefully and on-device fidelity stays UNVERIFIED — advisory runs
+exit 0, but --strict treats a missing primary panel as UNVERIFIED and exits non-zero.
+
+Run verdict kinds (one typed verdict owns run status + exit): verified-pass (green,
+the only strict exit 0), verified-fail, unverified, skipped, no-applicable-evidence.
 `;
 
 /**

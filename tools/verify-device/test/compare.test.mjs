@@ -64,8 +64,13 @@ describe('buildRows + verdict (reuse path, offline)', () => {
     expect(menu.device.lane).toBe('browser');
     expect(menu.device.alt).toBe('menu browser');
     // default (no lane arg) still stamps 'device', so existing device-path callers are unaffected
-    const deviceRows = buildRows({ manifest, deviceCaptures }).rows;
+    const deviceRows = buildRows({
+      manifest,
+      deviceCaptures,
+      provenance: 'live-device',
+    }).rows;
     expect(deviceRows.find((r) => r.state === 'menu').device.lane).toBe('device');
+    expect(deviceRows.every((row) => row.device.provenance === 'live-device')).toBe(true);
   });
 
   it('a missing browser-lane capture is reported with a lane-specific gap message', () => {

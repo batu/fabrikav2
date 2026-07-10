@@ -97,9 +97,12 @@ function shortModel(id) {
  *   rawDir:string, judgedDir:string, crops?:object|null}} [params.captureArtifacts]
  * @param {'device'|'browser'|'provided-captures'} [params.lane] default 'device';
  *   non-device lanes render explicit unverified provenance banners.
+ * @param {object} [params.runVerdict] the typed run verdict (classifyRunVerdict).
+ *   When present it renders the AUTHORITATIVE run-status banner; panel/phash below
+ *   stay diagnostics. Optional so older callers/tests render unchanged.
  * @returns {string} full HTML document
  */
-export function buildGridHtml({ game, generatedAt, device, rows, verdict, panel, captureArtifacts, lane = 'device' }) {
+export function buildGridHtml({ game, generatedAt, device, rows, verdict, panel, captureArtifacts, lane = 'device', runVerdict = null }) {
   const statusByState = Object.fromEntries((verdict?.states || []).map((s) => [s.state, s]));
   const body = rows.map((row) => {
     const st = statusByState[row.state] || { status: 'unknown', reason: '' };
@@ -216,6 +219,7 @@ export function buildGridHtml({ game, generatedAt, device, rows, verdict, panel,
      The forcing function for AGENTS.md #8: a change to on-device rendering is not
      done until captured on-device and diffed here.</p>
   ${captureNote}
+  ${runVerdictBanner(runVerdict)}
   <p class="verdict ${primaryClass}">${esc(primaryLabel)}: ${esc(primary?.summary || 'no verdict')}</p>
   ${provenanceBanner}
   ${panelSection(panel)}
@@ -224,6 +228,16 @@ export function buildGridHtml({ game, generatedAt, device, rows, verdict, panel,
 </body>
 </html>
 `;
+}
+
+// The AUTHORITATIVE run-status banner: the typed run verdict that owns the process
+// exit. `verified-pass` is the ONLY green; every other kind (verified-fail,
+// unverified, skipped, no-applicable-evidence) is red so a non-pass is never
+// mistaken for a gate success.
+function runVerdictBanner(runVerdict) {
+  if (!runVerdict) return '';
+  const ok = runVerdict.kind === 'verified-pass' && runVerdict.exitCode === 0;
+  return `<p class="verdict ${ok ? 'ok' : 'bad'}">RUN VERDICT — ${esc(runVerdict.summary || runVerdict.kind)}</p>`;
 }
 
 function laneCaption(lane) {

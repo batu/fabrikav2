@@ -12,14 +12,19 @@ import { decodePng } from '../../refcap-compare/src/png.mjs';
 import { signature, digest } from '../../refcap-compare/src/phash.mjs';
 import { diffThumbnail } from '../../refcap-compare/src/diff.mjs';
 
-function deviceCell(state, absPath, lane) {
+function deviceCell(state, absPath, lane, provenance) {
   if (!absPath || !fs.existsSync(absPath)) {
-    return { gap: `no ${lane} capture for "${state}" — state missing from the tour`, lane };
+    return {
+      gap: `no ${lane} capture for "${state}" — state missing from the tour`,
+      lane,
+      provenance,
+    };
   }
   const buffer = fs.readFileSync(absPath);
   const img = decodePng(buffer);
   return {
     lane,
+    provenance,
     state,
     gap: null,
     source: absPath,
@@ -87,14 +92,16 @@ function referenceCell(gameDir, state, laneDef, refMeta, refsMeta) {
  * @param {'device'|'browser'|'provided-captures'} [params.lane] stamped onto
  *   every device-side cell (default 'device'; browser/provided-captures are
  *   unverified provenance lanes)
+ * @param {string|null} [params.provenance] capture provenance stamped onto every
+ *   device-side cell so verdict normalization can reject mixed evidence rows
  * @returns {{rows: Array}} one row per canonical state
  */
-export function buildRows({ manifest, deviceCaptures, lane = 'device' }) {
+export function buildRows({ manifest, deviceCaptures, lane = 'device', provenance = null }) {
   const { gameDir } = manifest;
   const rows = [];
   const refsMeta = manifest.refs && typeof manifest.refs === 'object' ? manifest.refs : {};
   for (const st of manifest.states) {
-    const device = deviceCell(st.name, deviceCaptures[st.name], lane);
+    const device = deviceCell(st.name, deviceCaptures[st.name], lane, provenance);
     const reference = referenceCell(gameDir, st.name, st.reference, manifest.reference, refsMeta);
     let diff = null;
     if (!device.gap && !reference.gap) {

@@ -1,5 +1,37 @@
 import { describe, it, expect } from 'vitest';
-import { parseArgs } from '../src/args.mjs';
+import { parseArgs, HELP } from '../src/args.mjs';
+
+// HELP is part of the proof contract (KTD9): the exported source string and the
+// executable (cli.test.mjs) must both describe the enforced verdict truthfully so
+// operator guidance cannot drift from behavior.
+describe('HELP proof contract', () => {
+  it('says a panel-skipped run is strict-nonzero and phash is advisory-only', () => {
+    expect(HELP).toMatch(/phash is ADVISORY only and can never\s+be a verified pass/);
+    expect(HELP).toMatch(/exits non-zero under --strict/);
+  });
+
+  it('marks detached --xcresult provenance unverified pending AUDIT #7 attestation', () => {
+    expect(HELP).toMatch(/Detached artifact: provenance is UNVERIFIED/);
+    expect(HELP).toContain('AUDIT #7');
+  });
+
+  it('describes strict as requiring a complete primary vision-panel pass with live provenance', () => {
+    expect(HELP).toMatch(/complete primary vision-\s*panel pass/);
+    expect(HELP).toContain('live-device provenance');
+  });
+
+  it('describes --panel-threshold as a primary strict fidelity gate, not advisory', () => {
+    const paragraph = HELP.slice(HELP.indexOf('--panel-threshold'), HELP.indexOf('--skip-panel'));
+    expect(paragraph).toContain('primary fidelity gate under --strict');
+    expect(paragraph).not.toContain('advisory');
+  });
+
+  it('names the typed run-verdict kinds', () => {
+    for (const kind of ['verified-pass', 'verified-fail', 'unverified', 'skipped', 'no-applicable-evidence']) {
+      expect(HELP).toContain(kind);
+    }
+  });
+});
 
 describe('parseArgs', () => {
   it('requires --game (unless --help)', () => {

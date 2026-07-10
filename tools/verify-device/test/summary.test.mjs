@@ -103,6 +103,44 @@ describe('buildSummary', () => {
     expect(summary.menu.capture).toEqual({ gated: true });
   });
 
+  it('attaches the typed run verdict as an additive __run member that is not a state', () => {
+    const summary = buildSummary({
+      panel: { states: [{ state: 'menu', score: 90, status: 'pass', consensus: [] }] },
+      phashVerdict: null,
+      runVerdict: {
+        kind: 'verified-pass',
+        enforcement: 'strict',
+        exitCode: 0,
+        applicableCount: 1,
+        fidelitySource: 'panel',
+        reason: 'ok',
+        summary: 'VERIFIED-PASS [STRICT] — ok',
+      },
+    });
+
+    expect(summary.__run).toEqual({
+      kind: 'verified-pass',
+      enforcement: 'strict',
+      exitCode: 0,
+      applicableCount: 1,
+      fidelitySource: 'panel',
+      reason: 'ok',
+      summary: 'VERIFIED-PASS [STRICT] — ok',
+    });
+    // __run must never be treated as a game state by any state iterator.
+    expect(Object.keys(normalizeSummary(summary))).toEqual(['menu']);
+    expect(ungatedCaptureStates(summary)).toEqual([]);
+    expect(formatSummaryTable(summary)).not.toContain('__run');
+  });
+
+  it('omits __run entirely when no run verdict is supplied (legacy behavior)', () => {
+    const summary = buildSummary({
+      panel: { states: [{ state: 'menu', score: 90, status: 'pass', consensus: [] }] },
+      phashVerdict: null,
+    });
+    expect(summary).not.toHaveProperty('__run');
+  });
+
   it('records indistinguishable-state integrity findings under both states', () => {
     const summary = buildSummary({
       panel: { states: [{ state: 'menu', score: 90, status: 'pass', consensus: [] }] },

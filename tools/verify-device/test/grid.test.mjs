@@ -146,6 +146,24 @@ describe('buildGridHtml', () => {
     expect(h).toContain('Secondary signal'); // phash demoted to advisory
   });
 
+  it('renders the typed run verdict as the authoritative banner when provided', () => {
+    const green = buildGridHtml({
+      game: 'g', generatedAt: 'd', device: 'd', rows: [], verdict: { pass: true, summary: 's', states: [] },
+      runVerdict: { kind: 'verified-pass', exitCode: 0, summary: 'VERIFIED-PASS [STRICT] — ok' },
+    });
+    expect(green).toContain('RUN VERDICT');
+    expect(green).toContain('VERIFIED-PASS [STRICT]');
+
+    const red = buildGridHtml({
+      game: 'g', generatedAt: 'd', device: 'd', rows: [], verdict: { pass: true, summary: 'phash ok', states: [] },
+      runVerdict: { kind: 'unverified', exitCode: 1, summary: 'UNVERIFIED [STRICT] — no live provenance' },
+    });
+    // A phash "pass" must NOT paint the run-status banner green when the run is unverified.
+    expect(red).toContain('RUN VERDICT');
+    expect(red).toContain('UNVERIFIED [STRICT]');
+    expect(red).toContain('verdict bad');
+  });
+
   it('stamps provided captures as device-provenance-unverified', () => {
     const h = buildGridHtml({
       game: 'g',
