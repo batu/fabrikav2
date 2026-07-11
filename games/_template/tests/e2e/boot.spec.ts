@@ -4,7 +4,9 @@ import { test, expect } from "@playwright/test";
 // verification. It keeps a real rendered input path available when needed.
 test("boots Progression Home and starts the current level", async ({ page }) => {
   await page.goto("/");
-  await expect(page.locator('#app [data-fab-action="play"]')).toBeVisible();
-  await page.locator('#app [data-fab-action="play"]').first().click();
+  const continueAction = page.locator('#app [data-fab-instance="menu.play"]');
+  await expect(continueAction).toBeVisible();
+  await continueAction.click();
+  await page.locator('#app .template-shell__sample-title').click();
   await expect(page.locator('#app [data-fab-action="test-win"]')).toBeVisible();
 });

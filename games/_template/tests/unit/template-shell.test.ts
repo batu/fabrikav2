@@ -218,7 +218,7 @@ describe("template shell renderer and harness", () => {
     );
   });
 
-  it("loads the committed Kenney display and body font pair", () => {
+  it("loads the committed Kenney display pair and keeps body copy on a readable rounded stack", () => {
     const tokens = templateTokensCss();
     const fontRoot = resolve(process.cwd(), "design/fonts");
 
@@ -232,7 +232,7 @@ describe("template shell renderer and harness", () => {
     expect(tokens).toMatch(
       /@font-face\s*\{[^}]*font-family:\s*"Kenney Future Narrow";[^}]*kenney-future-narrow\.ttf/s,
     );
-    expect(tokens).toMatch(/--fab-seed-font-family:\s*"Kenney Future", sans-serif;/);
+    expect(tokens).toMatch(/--fab-seed-font-family:\s*ui-rounded, "SF Pro Rounded", system-ui, sans-serif;/);
     expect(tokens).toMatch(/--fab-seed-font-family-display:\s*"Kenney Future Narrow", "Kenney Future", sans-serif;/);
     expect(templateShellCss()).toMatch(
       /\.template-shell__title,[\s\S]*?\.template-shell \.fab-btn\s*\{[^}]*font-family:\s*var\(--fab-font-family-display\);/s,
@@ -265,7 +265,8 @@ describe("template shell renderer and harness", () => {
     expect(backdrop?.hasAttribute("inert")).toBe(true);
     expect(backdrop?.querySelectorAll("[data-fab-action]")).toHaveLength(0);
     expect(backdrop?.querySelectorAll("[data-fab-instance]")).toHaveLength(0);
-    expect(backdrop?.querySelector(".template-shell__sample-outcomes")?.textContent).toContain("Demo outcomes");
+    expect(backdrop?.querySelector(".template-shell__sample-outcomes")?.textContent).toContain("Test outcomes");
+    expect(backdrop?.querySelector<HTMLDetailsElement>(".template-shell__sample-outcomes")?.hidden).toBe(true);
     expect(backdrop?.querySelectorAll(".template-shell__test-action")).toHaveLength(2);
     const visualPause = backdrop?.querySelector<HTMLButtonElement>(".template-shell__icon-action--hud");
     expect(visualPause).not.toBeNull();
@@ -281,11 +282,11 @@ describe("template shell renderer and harness", () => {
     expect(shell.root.querySelector('[data-fab-instance="pause.panel"]')).not.toBeNull();
     expect(css).toMatch(/\.template-shell__level--inert-backdrop\s*\{[^}]*pointer-events:\s*none;/s);
     expect(css).toMatch(
-      /\.template-shell__level--inert-backdrop \.template-shell__sample-outcomes\s*\{[^}]*opacity:\s*0\.14;/s,
+      /\.template-shell__level--inert-backdrop \.template-shell__sample-outcomes\s*\{[^}]*visibility:\s*hidden;/s,
     );
     expect(css).toContain('.template-shell[data-fab-state="pause"] .fab-modal-scrim,');
     expect(css).toMatch(
-      /\.template-shell \.fab-modal-card\.fab-pause-card\s*\{[^}]*padding:\s*var\(--fab-space-md\);/s,
+      /\.template-shell \.fab-modal-card\.fab-pause-card\s*\{[^}]*padding:\s*var\(--fab-space-md\) var\(--fab-space-md\) max\(var\(--fab-space-md\), env\(safe-area-inset-bottom\)\);/s,
     );
     expect(css).toMatch(
       /\.template-shell \.fab-modal-card\.fab-pause-card\s*\{[^}]*--fab-pause-action-gap:\s*var\(--fab-space-xs\);/s,
@@ -295,7 +296,7 @@ describe("template shell renderer and harness", () => {
     );
   });
 
-  it("frames the required outcome controls as a quiet diagnostic strip beside a player-facing trail clearing", () => {
+  it("keeps the required outcome controls in a closed native diagnostic disclosure", () => {
     const controller = createController();
     const root = document.getElementById("app")!;
     const shell = mountTemplateShell({ mountInto: root, controller });
@@ -306,7 +307,9 @@ describe("template shell renderer and harness", () => {
     const sample = shell.root.querySelector<HTMLElement>(".template-shell__sample-outcomes");
     expect(sample).not.toBeNull();
     expect(sample?.dataset.templateDiagnostic).toBe("outcomes");
-    expect(sample?.textContent).toContain("Demo outcomes");
+    expect(sample?.tagName).toBe("DETAILS");
+    expect((sample as HTMLDetailsElement | null)?.open).toBe(false);
+    expect(sample?.querySelector("summary")?.textContent).toBe("Test outcomes");
     expect(sample?.querySelector('[data-fab-action="test-win"]')?.textContent).toBe("Win");
     expect(sample?.querySelector('[data-fab-action="test-lose"]')?.textContent).toBe("Lose");
     expect(sample?.querySelector('[data-fab-action="test-win"]')?.classList.contains("template-shell__test-action--win")).toBe(true);
@@ -421,9 +424,7 @@ describe("template shell renderer and harness", () => {
 
     expect(ribbon?.textContent).toBe("Trail blocked");
     expect(shell.root.querySelector<HTMLImageElement>(".template-shell__result-art")?.src).toContain("result-fail.png");
-    expect(shell.root.querySelector(".fab-result-message")?.textContent).toBe(
-      "The trail closed before the marker. Look for a clearer step.",
-    );
+    expect(shell.root.querySelector(".fab-result-message")?.textContent).toBe("Choose a clearer step, then try again.");
     expect(backdrop?.dataset.templateBackdrop).toBe("result-level");
     expect(backdrop?.getAttribute("aria-hidden")).toBe("true");
     expect(backdrop?.querySelector(".template-shell__level-label")?.textContent).toBe("Trail 2");
@@ -431,7 +432,7 @@ describe("template shell renderer and harness", () => {
     expect(backdrop?.querySelectorAll("[data-fab-action]")).toHaveLength(0);
     expect(backdrop?.querySelectorAll("[data-fab-instance]")).toHaveLength(0);
     expect(retry?.classList.contains("template-shell__overlay-action--primary")).toBe(true);
-    expect(home?.classList.contains("template-shell__overlay-action--secondary")).toBe(true);
+    expect(home?.classList.contains("template-shell__overlay-action--tertiary")).toBe(true);
     expect(retry?.style.getPropertyValue("--fab-btn-sprite-image")).toBe("");
     expect(home?.style.getPropertyValue("--fab-btn-sprite-image")).toBe("");
     expect(css).toMatch(
@@ -450,7 +451,10 @@ describe("template shell renderer and harness", () => {
       /\.template-shell\[data-fab-state="fail"\] \.fab-modal-ribbon-image\s*\{[^}]*display:\s*none;/s,
     );
     expect(css).toMatch(
-      /\.template-shell\[data-fab-state="fail"\] \.template-shell__result-art\s*\{[^}]*width:\s*56px;[^}]*background-color:\s*var\(--fab-seed-color-fail-accent\);/s,
+      /\.template-shell\[data-fab-state="fail"\] \.template-shell__result-art\s*\{[^}]*display:\s*none;/s,
+    );
+    expect(css).toMatch(
+      /\.template-shell\[data-fab-state="fail"\] \.fab-result-body::before\s*\{[^}]*var\(--fab-seed-color-trail-surface\)/s,
     );
     expect(css).toContain('.template-shell[data-fab-state="fail"] .fab-modal-scrim');
   });
@@ -480,7 +484,7 @@ describe("template shell renderer and harness", () => {
       )!;
       const home = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="result-menu"]')!;
       expect(primary.classList.contains("template-shell__overlay-action--primary")).toBe(true);
-      expect(home.classList.contains("template-shell__overlay-action--secondary")).toBe(true);
+      expect(home.classList.contains("template-shell__overlay-action--tertiary")).toBe(true);
       expect([primary.disabled, home.disabled]).toEqual([false, false]);
       expect(primary.style.getPropertyValue("--fab-btn-sprite-image")).toBe("");
       expect(home.style.getPropertyValue("--fab-btn-sprite-image")).toBe("");
@@ -489,7 +493,7 @@ describe("template shell renderer and harness", () => {
     const css = templateShellCss();
     expect(css).toContain(".template-shell__overlay-action--primary");
     expect(css).toContain(".template-shell__overlay-action--secondary");
-    expect(css).not.toContain("template-shell__overlay-action--tertiary");
+    expect(css).toContain("template-shell__overlay-action--tertiary");
   });
 
   it("uses the state owner for rendered semantic actions and keeps locked nodes inert", () => {

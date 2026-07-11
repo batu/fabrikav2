@@ -1,8 +1,8 @@
 # Bootstrap fonts
 
 These CC0 font bytes come from the approved Kenney UI Pack and give the generic
-shell an intentional display/body pairing without creating another design
-authority.
+shell a narrow/regular display pairing without creating another design authority.
+Long-form body copy uses the platform rounded stack for readability.
 
 | File | Approved source path | SHA-256 |
 | --- | --- | --- |

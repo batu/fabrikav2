@@ -94,9 +94,15 @@ function iconAction(options: {
   return button;
 }
 
-function currencyCounter(snapshot: TemplateShellSnapshot, instance?: string): HTMLElement {
+function currencyCounter(snapshot: TemplateShellSnapshot, instance?: string, compact = false): HTMLElement {
   const counter = document.createElement("div");
-  counter.className = "template-shell__currency template-shell__currency--contrasted";
+  counter.className = [
+    "template-shell__currency",
+    "template-shell__currency--contrasted",
+    compact && "template-shell__currency--compact",
+  ]
+    .filter(Boolean)
+    .join(" ");
   if (instance) counter.dataset.fabInstance = instance;
   counter.setAttribute("role", "status");
   counter.setAttribute("aria-label", `${snapshot.currency} ${copy["currency.label"]}`);
@@ -232,11 +238,12 @@ function renderSampleOutcomes(
   render: () => void,
   backdrop: boolean,
 ): HTMLElement {
-  const sample = document.createElement("section");
+  const sample = document.createElement("details");
   sample.className = "template-shell__sample-outcomes";
   sample.dataset.templateDiagnostic = backdrop ? "outcomes-backdrop" : "outcomes";
+  sample.hidden = backdrop;
 
-  const sampleTitle = document.createElement("h2");
+  const sampleTitle = document.createElement("summary");
   sampleTitle.className = "template-shell__sample-title";
   sampleTitle.textContent = copy["level.sample.title"];
   const sampleBody = document.createElement("p");
@@ -308,7 +315,7 @@ function renderLevel(
   label.className = "template-shell__level-label template-shell__level-label--identity";
   if (!backdrop) label.dataset.fabInstance = "level.label";
   label.textContent = `${copy["level.label"]} ${options.displayedLevel ?? snapshot.currentLevel}`;
-  hud.append(currencyCounter(snapshot, backdrop ? undefined : "level.currency"), label);
+  hud.append(currencyCounter(snapshot, backdrop ? undefined : "level.currency", true), label);
   if (!backdrop) {
     hud.append(
       iconAction({
@@ -358,6 +365,7 @@ function renderLevel(
   gameplayLandscape.setAttribute("aria-hidden", "true");
   const gameplayMarker = document.createElement("span");
   gameplayMarker.className = "template-shell__gameplay-marker";
+  gameplayMarker.setAttribute("aria-hidden", "true");
   gameplayLandscape.appendChild(gameplayMarker);
   gameplayCopy.append(gameplayKicker, gameplayTitle, gameplayBody);
   gameplay.append(gameplayLandscape, gameplayCopy);
@@ -473,7 +481,7 @@ function renderResult(
         },
         {
           label: copy["win.home"],
-          className: "template-shell__overlay-action template-shell__overlay-action--secondary",
+          className: "template-shell__overlay-action template-shell__overlay-action--tertiary",
           dataAction: "result-menu",
           onClick: () => {
             controller.home();
@@ -493,7 +501,7 @@ function renderResult(
         },
         {
           label: copy["fail.home"],
-          className: "template-shell__overlay-action template-shell__overlay-action--secondary",
+          className: "template-shell__overlay-action template-shell__overlay-action--tertiary",
           dataAction: "result-menu",
           onClick: () => {
             controller.home();

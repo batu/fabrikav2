@@ -625,3 +625,65 @@ margin, an 844 px document/body, and every live action at least 48 px.
 
 passed for Worked; fresh unseen frames still own the independent visual gate.
 Browser-only evidence does not prove Android or iPhone rendering.
+
+### Iteration 6 - Separate the player shell from its test harness
+
+#### Why This Iteration
+
+Fresh blind Sol review `019f4ed4-b071-7210-a6a2-dd84ba46ca29` rejected five
+remaining P1 seams: the trail hero lacked a clear focal hierarchy, the level
+currency could collapse into an empty capsule, permanent Win/Lose controls read
+as player UI, Pause still resembled a centered web dialog, and failure guidance
+used the display face at an undersized body-copy scale. The same review also
+identified diagnostic residue under overlays, equal Pause action hierarchy, and
+a form-validation-style failure mark.
+
+#### Changes Made
+
+- Made the level HUD an explicit three-column grid and gave its currency a
+  compact visual variant. The DOM and accessible name still read `25 Coins`,
+  while the level surface shows only the star and value without an empty tail.
+- Replaced the permanent diagnostics row with a closed native `details`
+  disclosure. `Test outcomes` remains a 48 px affordance; Win and Lose retain
+  their exact semantic hooks and become visible only when explicitly opened.
+- Strengthened the existing non-interactive trail illustration instead of
+  reintroducing the rejected bullseye placeholder or extra state badges. The
+  open landscape, enlarged high-contrast flag, route art, and ARIA names remain
+  one editor-neutral hero slot.
+- Converted Pause into a full-width bottom sheet, named it `Trail paused`, kept
+  Resume primary and Settings secondary, and separated `Return home` as a plain
+  full-contrast tertiary action.
+- Hid test diagnostics, currency, and Pause chrome from inert overlay backdrops
+  while preserving the frozen level geometry and context.
+- Moved body copy to the platform rounded stack while retaining the committed
+  Kenney display pair. Failure guidance is now concise 16 px mixed-case copy;
+  a broken-trail illustration replaces the generic X, and all Result Home
+  actions use the same separated tertiary grammar.
+- Updated the browser smoke diagnostic to target the unique Continue instance
+  and explicitly open the test disclosure before requiring Win visibility.
+
+A read-only recovery pass by Halley caught three proposed regressions before
+commit: reusing the literal bullseye placeholder, restoring player-facing route
+badges, and replacing one exposed toolbar with a dark `DEV` toolbar. None of
+those changes remain in this iteration.
+
+#### Post-Change Screenshots
+
+`u2-disclosure-seam-pass-{menu,level,pause,settings,win,fail}.png` is the settled
+390 x 844 real-click browser set. The companion metrics report an 844 px
+document/body, zero body margin, and every visible live action at least 48 px.
+
+#### Deterministic Proof
+
+- Unit: 6 files / 48 tests passed.
+- Browser smoke: 1 Playwright test passed through Continue and the opened test
+  disclosure.
+- Typecheck, lint, production build, and `git diff --check`: passed.
+- Approved-source audit: 29 semantic PNG fixtures and both committed Kenney
+  fonts match the approved local source bytes.
+
+#### Decision
+
+passed for Worked; a fresh unseen reel and independent Sol verdict still own the
+Aesthetics Reviewed gate. These captures remain browser diagnostics only and do
+not claim Android or iPhone proof.

@@ -10,5 +10,5 @@ through the deterministic projector. Existing Design Sheets games retain their
 current generated-file contract until they are explicitly migrated; this template
 exception does not change their authority. `assets/` holds the committed fixture
 bytes indexed by semantic basename. `fonts/` holds the CC0 Kenney Future display
-and body pair copied from the same approved UI Pack; its license is retained at
-`assets/LICENSE-KENNEY-UI-PACK.txt`.
+pair copied from the same approved UI Pack; readable body copy uses the platform
+rounded stack. The font license is retained at `assets/LICENSE-KENNEY-UI-PACK.txt`.
