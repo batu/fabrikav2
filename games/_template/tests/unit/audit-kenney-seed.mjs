@@ -1,3 +1,4 @@
+import { Buffer } from "node:buffer";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -17,18 +18,60 @@ const approvedSourceRoot = path.resolve(approvedSourceRootValue);
 const manifest = JSON.parse(
   fs.readFileSync(path.join(templateRoot, "design/kenney-seed.manifest.json"), "utf8"),
 );
+const failures = [];
 
-function resolveWithin(root, ...segments) {
-  const resolved = path.resolve(root, ...segments);
-  const relative = path.relative(root, resolved);
-  if (relative === "" || (!relative.startsWith(`..${path.sep}`) && relative !== ".." && !path.isAbsolute(relative))) {
-    return resolved;
+function resolveRoot(root, label) {
+  try {
+    const stat = fs.statSync(root);
+    if (!stat.isDirectory()) throw new Error("is not a directory");
+    return fs.realpathSync(root);
+  } catch (error) {
+    throw new Error(`${label} cannot be audited: ${error.message}`);
   }
-  throw new Error(`Manifest path escapes its configured root: ${segments.join("/")}`);
+}
+
+const approvedSourceRootReal = resolveRoot(approvedSourceRoot, "Approved source root");
+const templateRootReal = resolveRoot(templateRoot, "Template root");
+
+function isWithin(root, candidate) {
+  const relative = path.relative(root, candidate);
+  return (
+    relative === "" ||
+    (!relative.startsWith(`..${path.sep}`) && relative !== ".." && !path.isAbsolute(relative))
+  );
+}
+
+function readRegularFileWithin(root, rootReal, segments, label) {
+  const candidate = path.resolve(root, ...segments);
+  if (!isWithin(root, candidate)) {
+    failures.push(`${label}: manifest path escapes its configured root`);
+    return undefined;
+  }
+
+  try {
+    const stat = fs.lstatSync(candidate);
+    if (stat.isSymbolicLink() || !stat.isFile()) {
+      failures.push(`${label}: expected a regular non-symlink file`);
+      return undefined;
+    }
+    const realPath = fs.realpathSync(candidate);
+    if (!isWithin(rootReal, realPath)) {
+      failures.push(`${label}: resolved path escapes its configured root`);
+      return undefined;
+    }
+    return { bytes: fs.readFileSync(realPath), realPath };
+  } catch (error) {
+    failures.push(`${label}: cannot read file (${error.code ?? error.message})`);
+    return undefined;
+  }
 }
 
 function sha256(bytes) {
   return createHash("sha256").update(bytes).digest("hex");
+}
+
+function prefixedSha256(bytes) {
+  return `sha256-${sha256(bytes)}`;
 }
 
 function canonicalText(bytes) {
@@ -41,16 +84,25 @@ function canonicalText(bytes) {
     .trim();
 }
 
-function dimensions(bytes) {
+function pngFacts(bytes) {
   const pngSignature = "89504e470d0a1a0a";
-  if (bytes.subarray(0, 8).toString("hex") !== pngSignature) {
-    throw new Error("Expected PNG bytes");
+  if (bytes.length < 26 || bytes.subarray(0, 8).toString("hex") !== pngSignature) {
+    throw new Error("expected PNG bytes");
   }
-  return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20) };
+  const colorType = bytes.readUInt8(25);
+  return {
+    width: bytes.readUInt32BE(16),
+    height: bytes.readUInt32BE(20),
+    hasAlpha: colorType === 4 || colorType === 6 || bytes.includes(Buffer.from("tRNS")),
+  };
 }
 
 const sources = new Map(manifest.sources.map((source) => [source.id, source]));
-const failures = [];
+const assets = manifest.assetCatalog?.assets;
+if (!Array.isArray(assets)) {
+  throw new Error("Kenney manifest must contain assetCatalog.assets");
+}
+
 const fontFixtures = [
   {
     id: "font.future",
@@ -69,62 +121,93 @@ const fontFixtures = [
 ];
 
 for (const source of manifest.sources) {
-  const sourceFile = resolveWithin(approvedSourceRoot, source.approvedSourcePath, source.licenseSourcePath);
-  const targetFile = resolveWithin(templateRoot, "design", source.licenseFile);
-  if (!fs.existsSync(sourceFile) || !fs.existsSync(targetFile)) {
-    failures.push(`${source.id}: approved source or committed license is missing`);
-    continue;
-  }
-  const sourceBytes = fs.readFileSync(sourceFile);
-  const targetBytes = fs.readFileSync(targetFile);
+  const sourceFile = readRegularFileWithin(
+    approvedSourceRoot,
+    approvedSourceRootReal,
+    [source.approvedSourcePath, source.licenseSourcePath],
+    `${source.id}: approved license`,
+  );
+  const targetFile = readRegularFileWithin(
+    templateRoot,
+    templateRootReal,
+    ["design", source.licenseFile],
+    `${source.id}: committed license`,
+  );
+  if (!sourceFile || !targetFile) continue;
+
   if (
-    sha256(sourceBytes) !== source.licenseSourceSha256 ||
-    sha256(targetBytes) !== source.licenseSha256 ||
-    canonicalText(sourceBytes) !== canonicalText(targetBytes)
+    sha256(sourceFile.bytes) !== source.licenseSourceSha256 ||
+    sha256(targetFile.bytes) !== source.licenseSha256 ||
+    canonicalText(sourceFile.bytes) !== canonicalText(targetFile.bytes)
   ) {
-    failures.push(`${source.id}: committed license text or pinned hashes differ from the approved source`);
+    failures.push(
+      `${source.id}: committed license text or pinned hashes differ from the approved source`,
+    );
   }
 }
 
-for (const asset of manifest.assets) {
-  const source = sources.get(asset.source.pack);
+for (const asset of assets) {
+  const source = sources.get(asset.provenance?.sourceId);
   if (!source) {
-    failures.push(`${asset.id}: unknown source pack ${asset.source.pack}`);
+    failures.push(`${asset.id}: unknown source pack ${asset.provenance?.sourceId}`);
     continue;
   }
 
-  const sourceFile = resolveWithin(
+  const sourceFile = readRegularFileWithin(
     approvedSourceRoot,
-    source.approvedSourcePath,
-    asset.source.path,
+    approvedSourceRootReal,
+    [source.approvedSourcePath, asset.provenance.sourcePath],
+    `${asset.id}: approved source`,
   );
-  const targetFile = resolveWithin(templateRoot, "design", asset.file);
-  if (!fs.existsSync(sourceFile)) {
-    failures.push(`${asset.id}: approved source file is missing`);
-    continue;
-  }
-  if (!fs.existsSync(targetFile)) {
-    failures.push(`${asset.id}: committed semantic fixture is missing`);
+  const targetFile = readRegularFileWithin(
+    templateRoot,
+    templateRootReal,
+    ["design", asset.path],
+    `${asset.id}: committed fixture`,
+  );
+  if (!sourceFile || !targetFile) continue;
+
+  let sourceFacts;
+  let targetFacts;
+  try {
+    sourceFacts = pngFacts(sourceFile.bytes);
+    targetFacts = pngFacts(targetFile.bytes);
+  } catch (error) {
+    failures.push(`${asset.id}: ${error.message}`);
     continue;
   }
 
-  const sourceBytes = fs.readFileSync(sourceFile);
-  const targetBytes = fs.readFileSync(targetFile);
-  const sourceHash = sha256(sourceBytes);
-  const targetHash = sha256(targetBytes);
-  const sourceDimensions = dimensions(sourceBytes);
-
-  if (!sourceBytes.equals(targetBytes)) {
+  const sourceHash = prefixedSha256(sourceFile.bytes);
+  const targetHash = prefixedSha256(targetFile.bytes);
+  if (!sourceFile.bytes.equals(targetFile.bytes)) {
     failures.push(`${asset.id}: committed bytes differ from the approved source`);
   }
-  if (asset.sha256 !== sourceHash || asset.sha256 !== targetHash) {
-    failures.push(`${asset.id}: manifest hash does not match approved and committed bytes`);
+  if (
+    asset.sha256 !== sourceHash ||
+    asset.sha256 !== targetHash ||
+    asset.provenance.sourceHash !== sourceHash
+  ) {
+    failures.push(`${asset.id}: catalog hashes do not match approved and committed bytes`);
   }
   if (
-    asset.dimensions.width !== sourceDimensions.width ||
-    asset.dimensions.height !== sourceDimensions.height
+    asset.width !== sourceFacts.width ||
+    asset.height !== sourceFacts.height ||
+    asset.width !== targetFacts.width ||
+    asset.height !== targetFacts.height
   ) {
-    failures.push(`${asset.id}: manifest dimensions do not match the approved source`);
+    failures.push(`${asset.id}: catalog dimensions do not match approved and committed bytes`);
+  }
+  if (asset.bytes !== sourceFile.bytes.byteLength || asset.bytes !== targetFile.bytes.byteLength) {
+    failures.push(`${asset.id}: catalog byte size does not match approved and committed bytes`);
+  }
+  if (asset.hasAlpha !== sourceFacts.hasAlpha || asset.hasAlpha !== targetFacts.hasAlpha) {
+    failures.push(`${asset.id}: catalog alpha fact does not match approved and committed bytes`);
+  }
+  if (asset.mimeType !== "image/png" || !asset.path.endsWith(".png")) {
+    failures.push(`${asset.id}: catalog MIME and committed extension must identify PNG bytes`);
+  }
+  if (asset.provenance.license !== source.license) {
+    failures.push(`${asset.id}: catalog license does not match its approved source pack`);
   }
 }
 
@@ -134,15 +217,21 @@ for (const font of fontFixtures) {
     failures.push(`${font.id}: unknown source pack ${font.sourcePack}`);
     continue;
   }
-  const sourceFile = resolveWithin(approvedSourceRoot, source.approvedSourcePath, font.sourcePath);
-  const targetFile = resolveWithin(templateRoot, font.targetPath);
-  if (!fs.existsSync(sourceFile) || !fs.existsSync(targetFile)) {
-    failures.push(`${font.id}: approved source or committed font is missing`);
-    continue;
-  }
-  const sourceBytes = fs.readFileSync(sourceFile);
-  const targetBytes = fs.readFileSync(targetFile);
-  if (!sourceBytes.equals(targetBytes) || sha256(sourceBytes) !== font.sha256) {
+  const sourceFile = readRegularFileWithin(
+    approvedSourceRoot,
+    approvedSourceRootReal,
+    [source.approvedSourcePath, font.sourcePath],
+    `${font.id}: approved source`,
+  );
+  const targetFile = readRegularFileWithin(
+    templateRoot,
+    templateRootReal,
+    [font.targetPath],
+    `${font.id}: committed fixture`,
+  );
+  if (!sourceFile || !targetFile) continue;
+
+  if (!sourceFile.bytes.equals(targetFile.bytes) || sha256(sourceFile.bytes) !== font.sha256) {
     failures.push(`${font.id}: committed bytes or hash differ from the approved source`);
   }
 }
@@ -153,5 +242,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `Kenney source audit passed: ${manifest.assets.length} semantic fixtures and ${fontFixtures.length} fonts match source bytes; ${manifest.sources.length} licenses match pinned source content`,
+  `Kenney source audit passed: ${assets.length} canonical fixtures and ${fontFixtures.length} fonts match source bytes; ${manifest.sources.length} licenses match pinned source content`,
 );

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "seedKind": "behavior-neutral-semantic-fixtures",
   "canonicalStates": ["menu", "level", "settings", "pause", "win", "fail"],
   "sources": [
@@ -26,267 +26,447 @@
       "licenseSha256": "4256c605887fe78b5382faba6ef2632a704de6a442fdcce26e338abcc7d193c7"
     }
   ],
-  "assets": [
-    {
-      "id": "action.primary",
-      "file": "assets/action-primary.png",
-      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Green/Double/button_rectangle_depth_gradient.png" },
-      "dimensions": { "width": 384, "height": 128 },
-      "alpha": "required",
-      "compatibleRoles": ["bottom-primary-action"],
-      "sha256": "93318e40822c39a2ba6aec45a099d9da9bb101644198444a004cba3a354064bf"
-    },
-    {
-      "id": "action.secondary",
-      "file": "assets/action-secondary.png",
-      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Blue/Double/button_rectangle_depth_gradient.png" },
-      "dimensions": { "width": 384, "height": 128 },
-      "alpha": "required",
-      "compatibleRoles": ["bottom-secondary-action"],
-      "sha256": "5cb0ab21ffb2e35c31abcaeddcabc654775d88cc1b86c950341f42d98b503e7c"
-    },
-    {
-      "id": "action.test-win",
-      "file": "assets/action-test-win.png",
-      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Green/Double/button_rectangle_depth_flat.png" },
-      "dimensions": { "width": 384, "height": 128 },
-      "alpha": "required",
-      "compatibleRoles": ["bottom-left-test-action", "bottom-primary-action"],
-      "sha256": "01b8240b2cbf3af3bcabb8a7daf458a111bc4f139f8d415d255a334f50754c20"
-    },
-    {
-      "id": "action.test-lose",
-      "file": "assets/action-test-lose.png",
-      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Blue/Double/button_rectangle_depth_border.png" },
-      "dimensions": { "width": 384, "height": 128 },
-      "alpha": "required",
-      "compatibleRoles": ["bottom-right-test-action", "bottom-secondary-action", "result-panel"],
-      "sha256": "4d141ba650e066bb7c1291a1f5924ec6334ab4f3343dc657c5c109c0bb694351"
-    },
-    {
-      "id": "action.icon-surface",
-      "file": "assets/action-icon-surface.png",
-      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Blue/Double/button_square_depth_gradient.png" },
-      "dimensions": { "width": 128, "height": 128 },
-      "alpha": "required",
-      "compatibleRoles": ["top-icon-action"],
-      "sha256": "cb40b01ff701c9edc6f6814bfec3a3ccb1ab443ad044613909df53e3b6fc09bc"
-    },
-    {
-      "id": "node.current",
-      "file": "assets/node-current.png",
-      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Green/Double/button_round_depth_gradient.png" },
-      "dimensions": { "width": 128, "height": 128 },
-      "alpha": "required",
-      "compatibleRoles": ["progression-node"],
-      "sha256": "cf842ce49898e2de4c10ce248341f2fef6a75b3e027218fad9112a998b3d3573"
-    },
-    {
-      "id": "toggle.on",
-      "file": "assets/toggle-on.png",
-      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Blue/Double/check_round_color.png" },
-      "dimensions": { "width": 64, "height": 64 },
-      "alpha": "required",
-      "compatibleRoles": ["center-toggle-action"],
-      "sha256": "5f8830e27bc5b9dfa9a23ba584da4689c91e064e7156952a1bbfcfaf26b7ebe0"
-    },
-    {
-      "id": "toggle.off",
-      "file": "assets/toggle-off.png",
-      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Blue/Double/check_round_grey.png" },
-      "dimensions": { "width": 64, "height": 64 },
-      "alpha": "required",
-      "compatibleRoles": ["center-toggle-action"],
-      "sha256": "ac5fb8b346b7990deaa884015cee2a93ee2432d01305ac22a27400e0eacbb31e"
-    },
-    {
-      "id": "status.success",
-      "file": "assets/status-success.png",
-      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Blue/Double/icon_checkmark.png" },
-      "dimensions": { "width": 40, "height": 36 },
-      "alpha": "required",
-      "compatibleRoles": ["result-panel", "progression-node"],
-      "sha256": "b6d35f90b008a1e14e201c8ad07188ab783eb71ab84349f2fce7e2ffcb421fda"
-    },
-    {
-      "id": "status.failure",
-      "file": "assets/status-failure.png",
-      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Blue/Double/icon_cross.png" },
-      "dimensions": { "width": 36, "height": 36 },
-      "alpha": "required",
-      "compatibleRoles": ["result-panel"],
-      "sha256": "7ef55cfc752b0091a8d0c0e6dc73a57dc6f38cfe1fc9dd882bd86c6fbb8b57a6"
-    },
-    {
-      "id": "icon.play",
-      "file": "assets/icon-play.png",
-      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Extra/Double/icon_play_light.png" },
-      "dimensions": { "width": 60, "height": 68 },
-      "alpha": "required",
-      "compatibleRoles": ["bottom-primary-action", "hero-art", "gameplay-region"],
-      "sha256": "60b1a1812e2263e04e590fb6f0605428930f61b905e5744c99b4bfd854ecb8f5"
-    },
-    {
-      "id": "icon.retry",
-      "file": "assets/icon-retry.png",
-      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Extra/Double/icon_repeat_light.png" },
-      "dimensions": { "width": 82, "height": 72 },
-      "alpha": "required",
-      "compatibleRoles": ["bottom-primary-action", "result-panel"],
-      "sha256": "be08921888d54804b6f5bbf99e8e7a230f01895c33a39956a073301cdb45fa83"
-    },
-    {
-      "id": "divider.panel",
-      "file": "assets/divider-panel.png",
-      "source": { "pack": "kenney-ui-pack-2.0", "path": "PNG/Extra/Double/divider_edges.png" },
-      "dimensions": { "width": 128, "height": 8 },
-      "alpha": "required",
-      "compatibleRoles": ["modal-panel", "result-panel"],
-      "sha256": "30d67d76c1cbfa1fb4cbe21b8709c52e410ae6e1f5e6326865b6a70f20ee2976"
-    },
-    {
-      "id": "currency.primary",
-      "file": "assets/currency-primary.png",
-      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/star.png" },
-      "dimensions": { "width": 100, "height": 100 },
-      "alpha": "required",
-      "compatibleRoles": ["currency-counter"],
-      "sha256": "cd4068a305467ff528cdc102b1ddfd8fd8c99c9f4c2e8dde403bfdda225876d7"
-    },
-    {
-      "id": "hero.placeholder",
-      "file": "assets/hero-placeholder.png",
-      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/target.png" },
-      "dimensions": { "width": 100, "height": 100 },
-      "alpha": "required",
-      "compatibleRoles": ["hero-art", "gameplay-region"],
-      "sha256": "e2a97aa75b234c276ba4ed5673c7cda04f76a4566dc042256e2fe41028516aa3"
-    },
-    {
-      "id": "icon.settings",
-      "file": "assets/icon-settings.png",
-      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/gear.png" },
-      "dimensions": { "width": 100, "height": 100 },
-      "alpha": "required",
-      "compatibleRoles": ["top-icon-action"],
-      "sha256": "d20dd95cb1f0d527671f10ff44259c84527705fcda8ed9d74c043960fca4bb27"
-    },
-    {
-      "id": "icon.pause",
-      "file": "assets/icon-pause.png",
-      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/pause.png" },
-      "dimensions": { "width": 100, "height": 100 },
-      "alpha": "required",
-      "compatibleRoles": ["top-icon-action"],
-      "sha256": "abce8cfa932b19bfd989a8917d41e3f33c5d9622b85476a2ea1aeef5bc22ec2e"
-    },
-    {
-      "id": "icon.home",
-      "file": "assets/icon-home.png",
-      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/home.png" },
-      "dimensions": { "width": 100, "height": 100 },
-      "alpha": "required",
-      "compatibleRoles": ["bottom-secondary-action"],
-      "sha256": "41c7b600a7a4a7dec13cb445288ebbecaa3ecdc69a86e1db794b3282c0e47721"
-    },
-    {
-      "id": "icon.next",
-      "file": "assets/icon-next.png",
-      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/next.png" },
-      "dimensions": { "width": 100, "height": 100 },
-      "alpha": "required",
-      "compatibleRoles": ["bottom-primary-action"],
-      "sha256": "93b1852e9bbd78a97a621b074a3512104b57f09bfcdd9f61371a9a2dbbe30b56"
-    },
-    {
-      "id": "icon.back",
-      "file": "assets/icon-back.png",
-      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/previous.png" },
-      "dimensions": { "width": 100, "height": 100 },
-      "alpha": "required",
-      "compatibleRoles": ["bottom-primary-action", "top-icon-action"],
-      "sha256": "e879a6424048aeca8e93d86074b81f2ce83267ad546ffd8f7682bf7788d76dfd"
-    },
-    {
-      "id": "icon.return",
-      "file": "assets/icon-return.png",
-      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/return.png" },
-      "dimensions": { "width": 100, "height": 100 },
-      "alpha": "required",
-      "compatibleRoles": ["bottom-secondary-action"],
-      "sha256": "d0e9fbbf5e4cb6847bc5961c8809fbddb0ca98447a2b67fb2daed5e3c67a7fcd"
-    },
-    {
-      "id": "node.locked",
-      "file": "assets/node-locked.png",
-      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/locked.png" },
-      "dimensions": { "width": 100, "height": 100 },
-      "alpha": "required",
-      "compatibleRoles": ["progression-node"],
-      "sha256": "de4f91e671256321313f68727817db3d6bfd9092f627f5790ddf24cf7a0a587f"
-    },
-    {
-      "id": "node.completed",
-      "file": "assets/node-completed.png",
-      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/unlocked.png" },
-      "dimensions": { "width": 100, "height": 100 },
-      "alpha": "required",
-      "compatibleRoles": ["progression-node"],
-      "sha256": "28a13bb7afe7fa7fd7004bb3dcbff40c078476c21e3d76246b2ee77400cb4599"
-    },
-    {
-      "id": "result.win",
-      "file": "assets/result-win.png",
-      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/trophy.png" },
-      "dimensions": { "width": 100, "height": 100 },
-      "alpha": "required",
-      "compatibleRoles": ["result-panel"],
-      "sha256": "505d5570aad9fb0478fcc1e5ec4b3bd2377f593a20013b2cff97c8e955abc515"
-    },
-    {
-      "id": "result.fail",
-      "file": "assets/result-fail.png",
-      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/cross.png" },
-      "dimensions": { "width": 100, "height": 100 },
-      "alpha": "required",
-      "compatibleRoles": ["result-panel"],
-      "sha256": "d2b55e81a6d972700e3373ed9178b935eee2e2d70b850a5a0a1905405cfdae16"
-    },
-    {
-      "id": "icon.music-on",
-      "file": "assets/icon-music-on.png",
-      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/musicOn.png" },
-      "dimensions": { "width": 100, "height": 100 },
-      "alpha": "required",
-      "compatibleRoles": ["center-toggle-action"],
-      "sha256": "b666a8892c785a5314b9c828affab3f5fc058e220907284f3e22a8b89088cee4"
-    },
-    {
-      "id": "icon.music-off",
-      "file": "assets/icon-music-off.png",
-      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/musicOff.png" },
-      "dimensions": { "width": 100, "height": 100 },
-      "alpha": "required",
-      "compatibleRoles": ["center-toggle-action"],
-      "sha256": "a8503490b458cf47b712f01a5b4d25a7c0279e886237a4434d6eb22935773e98"
-    },
-    {
-      "id": "icon.haptics",
-      "file": "assets/icon-haptics.png",
-      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/gamepad.png" },
-      "dimensions": { "width": 100, "height": 100 },
-      "alpha": "required",
-      "compatibleRoles": ["center-toggle-action"],
-      "sha256": "a7ad442bc5afb30a65acaed7996b864cc9de30797f9426512043b4b3f4c3314b"
-    },
-    {
-      "id": "icon.confirm",
-      "file": "assets/icon-confirm.png",
-      "source": { "pack": "kenney-game-icons-1.0", "path": "PNG/White/2x/checkmark.png" },
-      "dimensions": { "width": 100, "height": 100 },
-      "alpha": "required",
-      "compatibleRoles": ["result-panel", "progression-node"],
-      "sha256": "d7c1b640b57cfd8629266c010994dc58d7b64042fce50ac68959939a3dc510a4"
-    }
-  ]
+  "assetCatalog": {
+    "contractId": "shell-presentation-v1",
+    "contractVersion": "1.0.0",
+    "assets": [
+      {
+        "id": "button-surface.primary",
+        "name": "Primary action surface",
+        "description": "Green rounded rectangle surface used behind the template's primary shell action labels.",
+        "slotId": "button-surface",
+        "path": "assets/button-surface-primary.png",
+        "mimeType": "image/png",
+        "width": 384,
+        "height": 128,
+        "bytes": 1056,
+        "hasAlpha": true,
+        "sha256": "sha256-93318e40822c39a2ba6aec45a099d9da9bb101644198444a004cba3a354064bf",
+        "provenance": {
+          "sourceId": "kenney-ui-pack-2.0",
+          "sourcePath": "PNG/Green/Double/button_rectangle_depth_gradient.png",
+          "sourceHash": "sha256-93318e40822c39a2ba6aec45a099d9da9bb101644198444a004cba3a354064bf",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "button-surface.secondary",
+        "name": "Secondary action surface",
+        "description": "Blue rounded rectangle surface used behind the template's secondary shell action labels.",
+        "slotId": "button-surface",
+        "path": "assets/button-surface-secondary.png",
+        "mimeType": "image/png",
+        "width": 384,
+        "height": 128,
+        "bytes": 1080,
+        "hasAlpha": true,
+        "sha256": "sha256-5cb0ab21ffb2e35c31abcaeddcabc654775d88cc1b86c950341f42d98b503e7c",
+        "provenance": {
+          "sourceId": "kenney-ui-pack-2.0",
+          "sourcePath": "PNG/Blue/Double/button_rectangle_depth_gradient.png",
+          "sourceHash": "sha256-5cb0ab21ffb2e35c31abcaeddcabc654775d88cc1b86c950341f42d98b503e7c",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "button-surface.test-lose",
+        "name": "Test lose action surface",
+        "description": "Blue bordered rectangle surface used by the template's deterministic lose test action.",
+        "slotId": "button-surface",
+        "path": "assets/button-surface-test-lose.png",
+        "mimeType": "image/png",
+        "width": 384,
+        "height": 128,
+        "bytes": 819,
+        "hasAlpha": true,
+        "sha256": "sha256-4d141ba650e066bb7c1291a1f5924ec6334ab4f3343dc657c5c109c0bb694351",
+        "provenance": {
+          "sourceId": "kenney-ui-pack-2.0",
+          "sourcePath": "PNG/Blue/Double/button_rectangle_depth_border.png",
+          "sourceHash": "sha256-4d141ba650e066bb7c1291a1f5924ec6334ab4f3343dc657c5c109c0bb694351",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "button-surface.test-win",
+        "name": "Test win action surface",
+        "description": "Green flat rectangle surface used by the template's deterministic win test action.",
+        "slotId": "button-surface",
+        "path": "assets/button-surface-test-win.png",
+        "mimeType": "image/png",
+        "width": 384,
+        "height": 128,
+        "bytes": 785,
+        "hasAlpha": true,
+        "sha256": "sha256-01b8240b2cbf3af3bcabb8a7daf458a111bc4f139f8d415d255a334f50754c20",
+        "provenance": {
+          "sourceId": "kenney-ui-pack-2.0",
+          "sourcePath": "PNG/Green/Double/button_rectangle_depth_flat.png",
+          "sourceHash": "sha256-01b8240b2cbf3af3bcabb8a7daf458a111bc4f139f8d415d255a334f50754c20",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "counter-frame.primary-currency",
+        "name": "Primary currency marker",
+        "description": "White star glyph used inside the primary currency counter to identify its displayed value.",
+        "slotId": "counter-frame",
+        "path": "assets/counter-frame-primary-currency.png",
+        "mimeType": "image/png",
+        "width": 100,
+        "height": 100,
+        "bytes": 548,
+        "hasAlpha": true,
+        "sha256": "sha256-cd4068a305467ff528cdc102b1ddfd8fd8c99c9f4c2e8dde403bfdda225876d7",
+        "provenance": {
+          "sourceId": "kenney-game-icons-1.0",
+          "sourcePath": "PNG/White/2x/star.png",
+          "sourceHash": "sha256-cd4068a305467ff528cdc102b1ddfd8fd8c99c9f4c2e8dde403bfdda225876d7",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "icon-control.back",
+        "name": "Back icon",
+        "description": "White previous-arrow glyph used inside a shell icon control that navigates backward.",
+        "slotId": "icon-control",
+        "path": "assets/icon-control-back.png",
+        "mimeType": "image/png",
+        "width": 100,
+        "height": 100,
+        "bytes": 419,
+        "hasAlpha": true,
+        "sha256": "sha256-e879a6424048aeca8e93d86074b81f2ce83267ad546ffd8f7682bf7788d76dfd",
+        "provenance": {
+          "sourceId": "kenney-game-icons-1.0",
+          "sourcePath": "PNG/White/2x/previous.png",
+          "sourceHash": "sha256-e879a6424048aeca8e93d86074b81f2ce83267ad546ffd8f7682bf7788d76dfd",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "icon-control.confirm",
+        "name": "Confirm icon",
+        "description": "White checkmark glyph used inside a shell icon control to confirm a visible choice.",
+        "slotId": "icon-control",
+        "path": "assets/icon-control-confirm.png",
+        "mimeType": "image/png",
+        "width": 100,
+        "height": 100,
+        "bytes": 604,
+        "hasAlpha": true,
+        "sha256": "sha256-d7c1b640b57cfd8629266c010994dc58d7b64042fce50ac68959939a3dc510a4",
+        "provenance": {
+          "sourceId": "kenney-game-icons-1.0",
+          "sourcePath": "PNG/White/2x/checkmark.png",
+          "sourceHash": "sha256-d7c1b640b57cfd8629266c010994dc58d7b64042fce50ac68959939a3dc510a4",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "icon-control.haptics",
+        "name": "Haptics icon",
+        "description": "White gamepad glyph used inside a shell icon control for the haptics preference.",
+        "slotId": "icon-control",
+        "path": "assets/icon-control-haptics.png",
+        "mimeType": "image/png",
+        "width": 100,
+        "height": 100,
+        "bytes": 337,
+        "hasAlpha": true,
+        "sha256": "sha256-a7ad442bc5afb30a65acaed7996b864cc9de30797f9426512043b4b3f4c3314b",
+        "provenance": {
+          "sourceId": "kenney-game-icons-1.0",
+          "sourcePath": "PNG/White/2x/gamepad.png",
+          "sourceHash": "sha256-a7ad442bc5afb30a65acaed7996b864cc9de30797f9426512043b4b3f4c3314b",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "icon-control.home",
+        "name": "Home icon",
+        "description": "White house glyph used inside a shell icon control that returns to the home menu.",
+        "slotId": "icon-control",
+        "path": "assets/icon-control-home.png",
+        "mimeType": "image/png",
+        "width": 100,
+        "height": 100,
+        "bytes": 325,
+        "hasAlpha": true,
+        "sha256": "sha256-41c7b600a7a4a7dec13cb445288ebbecaa3ecdc69a86e1db794b3282c0e47721",
+        "provenance": {
+          "sourceId": "kenney-game-icons-1.0",
+          "sourcePath": "PNG/White/2x/home.png",
+          "sourceHash": "sha256-41c7b600a7a4a7dec13cb445288ebbecaa3ecdc69a86e1db794b3282c0e47721",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "icon-control.music-off",
+        "name": "Music off icon",
+        "description": "White muted-music glyph used inside a shell icon control for disabled music.",
+        "slotId": "icon-control",
+        "path": "assets/icon-control-music-off.png",
+        "mimeType": "image/png",
+        "width": 100,
+        "height": 100,
+        "bytes": 596,
+        "hasAlpha": true,
+        "sha256": "sha256-a8503490b458cf47b712f01a5b4d25a7c0279e886237a4434d6eb22935773e98",
+        "provenance": {
+          "sourceId": "kenney-game-icons-1.0",
+          "sourcePath": "PNG/White/2x/musicOff.png",
+          "sourceHash": "sha256-a8503490b458cf47b712f01a5b4d25a7c0279e886237a4434d6eb22935773e98",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "icon-control.music-on",
+        "name": "Music on icon",
+        "description": "White music glyph used inside a shell icon control for enabled background music.",
+        "slotId": "icon-control",
+        "path": "assets/icon-control-music-on.png",
+        "mimeType": "image/png",
+        "width": 100,
+        "height": 100,
+        "bytes": 475,
+        "hasAlpha": true,
+        "sha256": "sha256-b666a8892c785a5314b9c828affab3f5fc058e220907284f3e22a8b89088cee4",
+        "provenance": {
+          "sourceId": "kenney-game-icons-1.0",
+          "sourcePath": "PNG/White/2x/musicOn.png",
+          "sourceHash": "sha256-b666a8892c785a5314b9c828affab3f5fc058e220907284f3e22a8b89088cee4",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "icon-control.next",
+        "name": "Next icon",
+        "description": "White forward-arrow glyph used inside a shell icon control that advances to the next step.",
+        "slotId": "icon-control",
+        "path": "assets/icon-control-next.png",
+        "mimeType": "image/png",
+        "width": 100,
+        "height": 100,
+        "bytes": 422,
+        "hasAlpha": true,
+        "sha256": "sha256-93b1852e9bbd78a97a621b074a3512104b57f09bfcdd9f61371a9a2dbbe30b56",
+        "provenance": {
+          "sourceId": "kenney-game-icons-1.0",
+          "sourcePath": "PNG/White/2x/next.png",
+          "sourceHash": "sha256-93b1852e9bbd78a97a621b074a3512104b57f09bfcdd9f61371a9a2dbbe30b56",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "icon-control.pause",
+        "name": "Pause icon",
+        "description": "White pause glyph used inside the shell icon control that pauses active gameplay.",
+        "slotId": "icon-control",
+        "path": "assets/icon-control-pause.png",
+        "mimeType": "image/png",
+        "width": 100,
+        "height": 100,
+        "bytes": 269,
+        "hasAlpha": true,
+        "sha256": "sha256-abce8cfa932b19bfd989a8917d41e3f33c5d9622b85476a2ea1aeef5bc22ec2e",
+        "provenance": {
+          "sourceId": "kenney-game-icons-1.0",
+          "sourcePath": "PNG/White/2x/pause.png",
+          "sourceHash": "sha256-abce8cfa932b19bfd989a8917d41e3f33c5d9622b85476a2ea1aeef5bc22ec2e",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "icon-control.play",
+        "name": "Play icon",
+        "description": "Light play-arrow glyph used inside a shell icon control that starts or resumes play.",
+        "slotId": "icon-control",
+        "path": "assets/icon-control-play.png",
+        "mimeType": "image/png",
+        "width": 60,
+        "height": 68,
+        "bytes": 489,
+        "hasAlpha": true,
+        "sha256": "sha256-60b1a1812e2263e04e590fb6f0605428930f61b905e5744c99b4bfd854ecb8f5",
+        "provenance": {
+          "sourceId": "kenney-ui-pack-2.0",
+          "sourcePath": "PNG/Extra/Double/icon_play_light.png",
+          "sourceHash": "sha256-60b1a1812e2263e04e590fb6f0605428930f61b905e5744c99b4bfd854ecb8f5",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "icon-control.result-fail",
+        "name": "Failure result icon",
+        "description": "White cross glyph used inside the shell's failure result icon control.",
+        "slotId": "icon-control",
+        "path": "assets/icon-control-result-fail.png",
+        "mimeType": "image/png",
+        "width": 100,
+        "height": 100,
+        "bytes": 539,
+        "hasAlpha": true,
+        "sha256": "sha256-d2b55e81a6d972700e3373ed9178b935eee2e2d70b850a5a0a1905405cfdae16",
+        "provenance": {
+          "sourceId": "kenney-game-icons-1.0",
+          "sourcePath": "PNG/White/2x/cross.png",
+          "sourceHash": "sha256-d2b55e81a6d972700e3373ed9178b935eee2e2d70b850a5a0a1905405cfdae16",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "icon-control.result-win",
+        "name": "Victory result icon",
+        "description": "White trophy glyph used inside the shell's victory result icon control.",
+        "slotId": "icon-control",
+        "path": "assets/icon-control-result-win.png",
+        "mimeType": "image/png",
+        "width": 100,
+        "height": 100,
+        "bytes": 315,
+        "hasAlpha": true,
+        "sha256": "sha256-505d5570aad9fb0478fcc1e5ec4b3bd2377f593a20013b2cff97c8e955abc515",
+        "provenance": {
+          "sourceId": "kenney-game-icons-1.0",
+          "sourcePath": "PNG/White/2x/trophy.png",
+          "sourceHash": "sha256-505d5570aad9fb0478fcc1e5ec4b3bd2377f593a20013b2cff97c8e955abc515",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "icon-control.retry",
+        "name": "Retry icon",
+        "description": "Light repeat-arrow glyph used inside a shell icon control that restarts an attempt.",
+        "slotId": "icon-control",
+        "path": "assets/icon-control-retry.png",
+        "mimeType": "image/png",
+        "width": 82,
+        "height": 72,
+        "bytes": 733,
+        "hasAlpha": true,
+        "sha256": "sha256-be08921888d54804b6f5bbf99e8e7a230f01895c33a39956a073301cdb45fa83",
+        "provenance": {
+          "sourceId": "kenney-ui-pack-2.0",
+          "sourcePath": "PNG/Extra/Double/icon_repeat_light.png",
+          "sourceHash": "sha256-be08921888d54804b6f5bbf99e8e7a230f01895c33a39956a073301cdb45fa83",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "icon-control.return",
+        "name": "Return icon",
+        "description": "White return-arrow glyph used inside a shell icon control that leaves the current view.",
+        "slotId": "icon-control",
+        "path": "assets/icon-control-return.png",
+        "mimeType": "image/png",
+        "width": 100,
+        "height": 100,
+        "bytes": 629,
+        "hasAlpha": true,
+        "sha256": "sha256-d0e9fbbf5e4cb6847bc5961c8809fbddb0ca98447a2b67fb2daed5e3c67a7fcd",
+        "provenance": {
+          "sourceId": "kenney-game-icons-1.0",
+          "sourcePath": "PNG/White/2x/return.png",
+          "sourceHash": "sha256-d0e9fbbf5e4cb6847bc5961c8809fbddb0ca98447a2b67fb2daed5e3c67a7fcd",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "icon-control.settings",
+        "name": "Settings icon",
+        "description": "White gear glyph used inside the shell icon control that opens game settings.",
+        "slotId": "icon-control",
+        "path": "assets/icon-control-settings.png",
+        "mimeType": "image/png",
+        "width": 100,
+        "height": 100,
+        "bytes": 863,
+        "hasAlpha": true,
+        "sha256": "sha256-d20dd95cb1f0d527671f10ff44259c84527705fcda8ed9d74c043960fca4bb27",
+        "provenance": {
+          "sourceId": "kenney-game-icons-1.0",
+          "sourcePath": "PNG/White/2x/gear.png",
+          "sourceHash": "sha256-d20dd95cb1f0d527671f10ff44259c84527705fcda8ed9d74c043960fca4bb27",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "icon-control.surface",
+        "name": "Icon control surface",
+        "description": "Blue square button surface used behind a standalone top-bar shell icon control.",
+        "slotId": "icon-control",
+        "path": "assets/icon-control-surface.png",
+        "mimeType": "image/png",
+        "width": 128,
+        "height": 128,
+        "bytes": 956,
+        "hasAlpha": true,
+        "sha256": "sha256-cb40b01ff701c9edc6f6814bfec3a3ccb1ab443ad044613909df53e3b6fc09bc",
+        "provenance": {
+          "sourceId": "kenney-ui-pack-2.0",
+          "sourcePath": "PNG/Blue/Double/button_square_depth_gradient.png",
+          "sourceHash": "sha256-cb40b01ff701c9edc6f6814bfec3a3ccb1ab443ad044613909df53e3b6fc09bc",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "progression-node.completed",
+        "name": "Completed progression node",
+        "description": "White unlocked glyph used to identify a completed node in the shell's progression path.",
+        "slotId": "progression-node",
+        "path": "assets/progression-node-completed.png",
+        "mimeType": "image/png",
+        "width": 100,
+        "height": 100,
+        "bytes": 302,
+        "hasAlpha": true,
+        "sha256": "sha256-28a13bb7afe7fa7fd7004bb3dcbff40c078476c21e3d76246b2ee77400cb4599",
+        "provenance": {
+          "sourceId": "kenney-game-icons-1.0",
+          "sourcePath": "PNG/White/2x/unlocked.png",
+          "sourceHash": "sha256-28a13bb7afe7fa7fd7004bb3dcbff40c078476c21e3d76246b2ee77400cb4599",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "progression-node.current",
+        "name": "Current progression node",
+        "description": "Green round button surface used to identify the current node in the shell's progression path.",
+        "slotId": "progression-node",
+        "path": "assets/progression-node-current.png",
+        "mimeType": "image/png",
+        "width": 128,
+        "height": 128,
+        "bytes": 2661,
+        "hasAlpha": true,
+        "sha256": "sha256-cf842ce49898e2de4c10ce248341f2fef6a75b3e027218fad9112a998b3d3573",
+        "provenance": {
+          "sourceId": "kenney-ui-pack-2.0",
+          "sourcePath": "PNG/Green/Double/button_round_depth_gradient.png",
+          "sourceHash": "sha256-cf842ce49898e2de4c10ce248341f2fef6a75b3e027218fad9112a998b3d3573",
+          "license": "CC0-1.0"
+        }
+      },
+      {
+        "id": "progression-node.locked",
+        "name": "Locked progression node",
+        "description": "White lock glyph used to identify an unavailable node in the shell's progression path.",
+        "slotId": "progression-node",
+        "path": "assets/progression-node-locked.png",
+        "mimeType": "image/png",
+        "width": 100,
+        "height": 100,
+        "bytes": 295,
+        "hasAlpha": true,
+        "sha256": "sha256-de4f91e671256321313f68727817db3d6bfd9092f627f5790ddf24cf7a0a587f",
+        "provenance": {
+          "sourceId": "kenney-game-icons-1.0",
+          "sourcePath": "PNG/White/2x/locked.png",
+          "sourceHash": "sha256-de4f91e671256321313f68727817db3d6bfd9092f627f5790ddf24cf7a0a587f",
+          "license": "CC0-1.0"
+        }
+      }
+    ]
+  }
 }

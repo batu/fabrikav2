@@ -389,7 +389,7 @@ describe("template shell renderer and harness", () => {
     const visualPause = backdrop?.querySelector<HTMLButtonElement>(".template-shell__icon-action--hud");
     expect(visualPause).not.toBeNull();
     expect(visualPause?.tabIndex).toBe(-1);
-    expect(visualPause?.querySelector<HTMLImageElement>(".template-shell__button-icon")?.src).toContain("icon-pause.png");
+    expect(visualPause?.querySelector<HTMLImageElement>(".template-shell__button-icon")?.src).toContain("icon-control-pause.png");
     expect([
       backdrop?.querySelector(".template-shell__hud")?.className,
       visualPause?.className,
@@ -515,8 +515,8 @@ describe("template shell renderer and harness", () => {
     expect(route?.querySelector(".template-shell__route-line")).not.toBeNull();
     expect(completed?.getAttribute("data-fab-node-state")).toBe("completed");
     expect(locked?.getAttribute("data-fab-node-state")).toBe("locked");
-    expect(tokens).toMatch(/--fab-seed-levelmap-art-completed:\s*url\("\.\/assets\/icon-confirm\.png"\);/);
-    expect(tokens).toMatch(/--fab-seed-levelmap-art-locked:\s*url\("\.\/assets\/node-locked\.png"\);/);
+    expect(tokens).toMatch(/--fab-seed-levelmap-art-completed:\s*url\("\.\/assets\/icon-control-confirm\.png"\);/);
+    expect(tokens).toMatch(/--fab-seed-levelmap-art-locked:\s*url\("\.\/assets\/progression-node-locked\.png"\);/);
     expect(tokens).toMatch(/--fab-seed-levelmap-node-current-size:\s*88px;/);
     expect(templateShellCss()).toMatch(/\.template-shell__hero-stage\s*\{[^}]*box-shadow:\s*none;/s);
     expect(templateShellCss()).toMatch(/\.template-shell \.fab-levelmap-node:nth-child\(2\)\s*\{[^}]*--node-x:\s*32px;/s);
