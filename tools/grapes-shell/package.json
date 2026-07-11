@@ -1,0 +1,25 @@
+{
+  "name": "@fabrikav2/grapes-shell",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Constrained six-page GrapesJS shell editor and immutable portable publisher.",
+  "bin": {
+    "grapes-shell": "cli.mjs"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run",
+    "test:render": "vitest run --config vitest.render.config.ts",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@fabrikav2/kernel": "*",
+    "grapesjs": "^0.23.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "*"
+  }
+}

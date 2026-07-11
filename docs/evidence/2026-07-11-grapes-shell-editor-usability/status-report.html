@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Grapes Shell U3 · implementation handoff</title>
+  <style>
+    :root { color-scheme: light; font-family: Inter, ui-rounded, system-ui, sans-serif; color: #172c3b; background: #dfe9ef; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 40px 0 64px; }
+    header { display: grid; gap: 14px; padding: 30px; border: 1px solid #b8cbd6; border-radius: 22px; background: #f8fbfc; box-shadow: 0 20px 54px #17384d1f; }
+    .eyebrow { margin: 0; color: #0a7892; font: 800 11px/1 ui-monospace, monospace; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { max-width: 18ch; margin: 0; color: #112838; font-size: clamp(34px, 6vw, 68px); line-height: .98; letter-spacing: -.055em; }
+    .lead { max-width: 75ch; margin: 0; color: #496779; font-size: 17px; line-height: 1.55; }
+    .status { display: inline-flex; width: fit-content; align-items: center; gap: 9px; padding: 8px 12px; border: 1px solid #d59532; border-radius: 999px; background: #fff4da; color: #664712; font-size: 12px; font-weight: 800; }
+    .status::before { width: 9px; height: 9px; border-radius: 50%; background: #dc8c1e; content: ""; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }
+    section { padding: 24px; border: 1px solid #bed0db; border-radius: 18px; background: #f8fbfc; }
+    section h2 { margin: 0 0 15px; color: #17364a; font-size: 19px; letter-spacing: -.025em; }
+    ul, ol { margin: 0; padding-left: 20px; color: #3f6073; line-height: 1.58; }
+    li + li { margin-top: 7px; }
+    .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .metric { padding: 14px; border-radius: 12px; background: #eaf3f6; }
+    .metric strong { display: block; color: #0c7590; font-size: 25px; letter-spacing: -.04em; }
+    .metric span { color: #547184; font-size: 11px; line-height: 1.3; }
+    .blocker { border-color: #e0a45b; background: #fff9ed; }
+    .blocker h2 { color: #704814; }
+    .recommendation { margin-top: 15px; padding: 14px 16px; border-left: 4px solid #208967; background: #e8f6f0; color: #275e4c; line-height: 1.5; }
+    figure { grid-column: 1 / -1; margin: 0; padding: 18px; border: 1px solid #bed0db; border-radius: 18px; background: #f8fbfc; }
+    img { display: block; width: 100%; border-radius: 12px; box-shadow: 0 12px 30px #17384d24; }
+    figcaption { margin-top: 11px; color: #567385; font-size: 12px; line-height: 1.45; }
+    code { padding: 1px 5px; border-radius: 5px; background: #e7f0f4; color: #1d526b; font-family: ui-monospace, monospace; }
+    footer { margin-top: 18px; padding: 0 4px; color: #617c8c; font-size: 12px; line-height: 1.5; }
+    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } .metric-grid { grid-template-columns: 1fr; } figure { grid-column: auto; } header, section { padding: 20px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">Fabrikav2 · Grapes Shell 3/8 · U3 handoff</p>
+      <h1>The editor is built. The asset contract is not ready.</h1>
+      <p class="lead">All U3-owned editor, persistence, immutable-publication, render-safety, hierarchy, fidelity, and exact-state seams are implemented and green. The live A1 acceptance request is intentionally withheld because the upstream U2 Kenney inventory does not satisfy U1's authoritative slot contract.</p>
+      <span class="status">Blocked before live A1 · U4 not started</span>
+    </header>
+
+    <div class="grid">
+      <section>
+        <h2>Implemented and verified</h2>
+        <ul>
+          <li>Six-page constrained GrapesJS editor on the canonical 390×844 canvas.</li>
+          <li>Palette, copy, move, resize, sibling-subtree reorder, optional hide, duplicate, and curated asset controls.</li>
+          <li>Explicit unsaved, dirty, browser-saved, exported, and unpublished authority states.</li>
+          <li>Target-bound project JSON plus canonical SHA-256; publish requires the reviewed hash.</li>
+          <li>Atomic, content-addressed publication with exact regeneration and asset-byte tamper checks.</li>
+          <li>Playwright-only, network-blocked six-page renderer with no silent fallback.</li>
+          <li>Editor and portable geometry and asset appearance use shared implementations.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Current gates</h2>
+        <div class="metric-grid">
+          <div class="metric"><strong>20</strong><span>unit tests passing</span></div>
+          <div class="metric"><strong>2</strong><span>render tests passing</span></div>
+          <div class="metric"><strong>0 px</strong><span>asset fidelity delta</span></div>
+        </div>
+        <ol style="margin-top: 16px">
+          <li>Repair U2's slot-specific Kenney catalog.</li>
+          <li>Make U3 consume U1's parsed catalog directly.</li>
+          <li>Regenerate and post the A1 Portal view.</li>
+          <li>Batu accepts or rejects; only then may U4 start.</li>
+        </ol>
+      </section>
+
+      <section class="blocker">
+        <h2>Why A1 is withheld</h2>
+        <div class="metric-grid">
+          <div class="metric"><strong>39 / 40</strong><span>asset-role pairs violate U1 dimensions</span></div>
+          <div class="metric"><strong>7</strong><span>asset IDs span multiple U1 slots</span></div>
+          <div class="metric"><strong>33 / 33</strong><span>starter asset uses are dimension-invalid</span></div>
+        </div>
+        <p class="recommendation"><strong>Recommendation:</strong> preserve U1 as authority. Recurate U2 as true slot-specific fixtures with actual dimensions, alpha, MIME, provenance, and one slot per semantic identity. Do not weaken U1, relabel dimensions, or silently resize during publication.</p>
+      </section>
+
+      <section>
+        <h2>Exact handoff state</h2>
+        <ul>
+          <li>TWF card: <code>qrVosoLc</code>, column <code>Worked</code>.</li>
+          <li>Feature branch is isolated in its card worktree.</li>
+          <li>U3 source checks, lockfile repeatability, browser transport proof, and seam checks are green.</li>
+          <li>No live Portal verdict was submitted; no U4 files were started.</li>
+          <li>Browser evidence proves the editor and portable artifact only. It is not physical-device game proof.</li>
+        </ul>
+      </section>
+
+      <figure>
+        <img src="02_u3-v4-a1-local.png" alt="Local A1 review dialog over the complete Grapes Shell editor">
+        <figcaption>The exact A1 wrapper works locally: unsaved acceptance is rejected without a POST; save and reload preserve the edit; the 34,876-byte intercepted verdict carries all nine checks, six pages, target <code>shell_proof</code>, and a matching canonical project hash. This view is ready to publish after the asset-slot gate is repaired.</figcaption>
+      </figure>
+    </div>
+
+    <footer>Prepared from the live U3 worktree after independent Claude Opus, Codex Sol, and focused contract/usability review passes. Public repository baseline: github.com/batu/fabrikav2.</footer>
+  </main>
+</body>
+</html>

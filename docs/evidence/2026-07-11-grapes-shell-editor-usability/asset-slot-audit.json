@@ -1,0 +1,20 @@
+{
+  "source": "games/_template/design/kenney-seed.manifest.json",
+  "authority": "packages/kernel/contracts/shell-presentation.v1.json",
+  "assets": 29,
+  "rolePairs": 40,
+  "dimensionInvalidRolePairs": 39,
+  "crossSlotAssets": [
+    { "assetId": "action.test-lose", "slotIds": ["button-surface", "modal-frame"] },
+    { "assetId": "status.success", "slotIds": ["modal-frame", "progression-node"] },
+    { "assetId": "icon.play", "slotIds": ["button-surface", "gameplay-background", "hero-art"] },
+    { "assetId": "icon.retry", "slotIds": ["button-surface", "modal-frame"] },
+    { "assetId": "hero.placeholder", "slotIds": ["gameplay-background", "hero-art"] },
+    { "assetId": "icon.back", "slotIds": ["button-surface", "icon-control"] },
+    { "assetId": "icon.confirm", "slotIds": ["modal-frame", "progression-node"] }
+  ],
+  "starterUses": 33,
+  "dimensionInvalidStarterUses": 33,
+  "fitInvalidStarterUses": 0,
+  "result": "blocked"
+}
