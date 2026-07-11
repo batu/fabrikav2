@@ -195,10 +195,6 @@ describe('video-refs CLI', () => {
     assert.match(html, /function resetConfirm\(\) \{[\s\S]*state\.confirming = false;[\s\S]*clearTimeout\(confirmTimer\);[\s\S]*updateSubmitLabel\(\);[\s\S]*\}/);
     assert.match(html, /if \(!state\.confirming\) \{[\s\S]*state\.confirming = true;[\s\S]*Click Confirm to send, or make more edits\.[\s\S]*confirmTimer = setTimeout\(resetConfirm, 4000\);[\s\S]*return;[\s\S]*\}/);
     assert.match(html, /await fetch\('\/r\/' \+ encodeURIComponent\(reqId\) \+ '\/decide', \{[\s\S]*method: 'POST'[\s\S]*body: JSON\.stringify\(\{ payload: \{ frames: frames \} \}\)/);
-    assert.match(
-      html,
-      /\.map\(function \(m\) \{[\s\S]*return \{ t: m\.t, label: m\.label, source: m\.source \};[\s\S]*\}\);/,
-    );
     assert.match(html, /state\.submitted = true;[\s\S]*setStatus\('Submitted ' \+ frames\.length \+ ' frames\. Portal has your selection\.', 'success'\);[\s\S]*submitBtn\.textContent = '.*Submitted';/);
     assert.match(html, /catch \(err\) \{[\s\S]*setStatus\(err\.message, 'error'\);[\s\S]*submitBtn\.disabled = false;[\s\S]*updateSubmitLabel\(\);/);
 
@@ -437,15 +433,10 @@ describe('video-refs CLI', () => {
       ['shop', 'boss_intro', 'shop'],
     );
     assert.equal(submitted.payload.frames.some((frame) => frame.source === 'human' && frame.label === 'menu'), true);
-    assert.deepEqual(
-      submitted.payload.frames.map((frame) => Object.keys(frame)),
-      [
-        ['t', 'label', 'source'],
-        ['t', 'label', 'source'],
-        ['t', 'label', 'source'],
-        ['t', 'label', 'source'],
-      ],
-    );
+    assert.equal(submitted.payload.frames.length, 4);
+    for (const frame of submitted.payload.frames) {
+      assert.deepEqual(Object.keys(frame), ['t', 'label', 'source']);
+    }
     assert.match(window.document.querySelector('#status').textContent, /Submitted 4 frames/);
     window.close();
   });

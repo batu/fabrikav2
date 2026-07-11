@@ -139,8 +139,8 @@ the original for accurate still extraction.
 ]
 ```
 
-`extract` preserves an explicit frame `at-rest` boolean from a picker or judge.
-Picker verdicts may use either `atRest`/`notAtRestReason` or
+`extract` preserves an explicit frame `at-rest` boolean from an external judge
+or a legacy verdict. Those verdicts may use either `atRest`/`notAtRestReason` or
 `at-rest`/`not-at-rest-reason`; `extract` writes the fold-compatible kebab-case
 fields. An explicit false value without a supplied reason becomes
 `human-flagged mid-motion`. When the at-rest field is absent, the frame is
