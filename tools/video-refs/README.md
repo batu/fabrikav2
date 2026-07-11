@@ -70,9 +70,9 @@ the input without changing the candidate. Runtime labels created through
 `other...` appear on every card, in summary counts, and submit like configured
 labels.
 
-Candidate entries may include `atRest: true` or `atRest: false`. Missing
-`atRest` defaults to not trusted (`false`) in the picker. Each card shows an
-at-rest/moving toggle, and human edits are carried into the submitted verdict.
+The picker does not judge at-rest state. It ignores any incoming `atRest`
+metadata and submits only the selected frame time, label, and source; the
+downstream judge/compare layer owns at-rest classification.
 
 Portal posting recipe:
 
@@ -91,14 +91,8 @@ The view submits:
 {
   "payload": {
     "frames": [
-      { "t": 2, "label": "gameplay", "source": "agent", "atRest": true },
-      {
-        "t": 3.5,
-        "label": "shop",
-        "source": "agent",
-        "atRest": false,
-        "notAtRestReason": "human-flagged mid-motion"
-      }
+      { "t": 2, "label": "gameplay", "source": "agent" },
+      { "t": 3.5, "label": "shop", "source": "agent" }
     ]
   }
 }
@@ -199,7 +193,7 @@ Portal views are PC-first web pages — the browser IS their real environment,
 so Playwright screenshots are the sanctioned verification here (unlike mobile
 games, where a browser render is never evidence). The 2026-07-09 timeline-blob
 defect shipped precisely because density was never rendered and looked at.
-For label or at-rest picker changes, also exercise the page through a Portal-like
-stub URL so `/r/<reqId>/decide` receives the real POST payload, and inspect the
-captured JSON for configured labels, any runtime-added labels, `atRest`, and
-`notAtRestReason`.
+For picker changes, also exercise the page through a Portal-like stub URL so
+`/r/<reqId>/decide` receives the real POST payload. Inspect the captured JSON
+for configured labels, runtime-added labels, and the absence of picker-owned
+at-rest fields.

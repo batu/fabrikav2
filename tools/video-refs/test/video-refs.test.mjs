@@ -172,8 +172,10 @@ describe('video-refs CLI', () => {
     assert.match(html, /function makeOtherInput\(m\) \{[\s\S]*input\.className = 'other-label-input';[\s\S]*submitOtherLabel\(m, input\.value\);/);
     assert.doesNotMatch(html, /id="add-label"/);
     assert.doesNotMatch(html, /window\.prompt\('New label'\)/);
-    assert.match(html, /function toggleAtRest\(m\) \{[\s\S]*m\.atRest = !m\.atRest;[\s\S]*render\(false\);[\s\S]*\}/);
-    assert.match(html, /atRest\.className = 'restbtn' \+ \(m\.atRest \? ' is-rest' : ''\);/);
+    assert.doesNotMatch(
+      html,
+      /atRest|notAtRestReason|NOT_AT_REST_REASON|toggleAtRest|restbtn|rest-state|insp-rest/,
+    );
     assert.match(html, /<button class="submit" id="submit" type="button">Submit<\/button>/);
     assert.match(
       html,
@@ -193,7 +195,10 @@ describe('video-refs CLI', () => {
     assert.match(html, /function resetConfirm\(\) \{[\s\S]*state\.confirming = false;[\s\S]*clearTimeout\(confirmTimer\);[\s\S]*updateSubmitLabel\(\);[\s\S]*\}/);
     assert.match(html, /if \(!state\.confirming\) \{[\s\S]*state\.confirming = true;[\s\S]*Click Confirm to send, or make more edits\.[\s\S]*confirmTimer = setTimeout\(resetConfirm, 4000\);[\s\S]*return;[\s\S]*\}/);
     assert.match(html, /await fetch\('\/r\/' \+ encodeURIComponent\(reqId\) \+ '\/decide', \{[\s\S]*method: 'POST'[\s\S]*body: JSON\.stringify\(\{ payload: \{ frames: frames \} \}\)/);
-    assert.match(html, /\.map\(function \(m\) \{[\s\S]*var frame = \{ t: m\.t, label: m\.label, source: m\.source, atRest: m\.atRest === true \};[\s\S]*if \(!frame\.atRest\) frame\.notAtRestReason = NOT_AT_REST_REASON;[\s\S]*return frame;[\s\S]*\}\);/);
+    assert.match(
+      html,
+      /\.map\(function \(m\) \{[\s\S]*return \{ t: m\.t, label: m\.label, source: m\.source \};[\s\S]*\}\);/,
+    );
     assert.match(html, /state\.submitted = true;[\s\S]*setStatus\('Submitted ' \+ frames\.length \+ ' frames\. Portal has your selection\.', 'success'\);[\s\S]*submitBtn\.textContent = '.*Submitted';/);
     assert.match(html, /catch \(err\) \{[\s\S]*setStatus\(err\.message, 'error'\);[\s\S]*submitBtn\.disabled = false;[\s\S]*updateSubmitLabel\(\);/);
 
@@ -268,7 +273,8 @@ describe('video-refs CLI', () => {
       candidates: [
         { t: 0.5, file: 'frames/a.jpg', label: 'shop', atRest: true },
         { t: 1.5, file: 'frames/b.jpg', label: 'settings', atRest: false },
-        { t: 2.5, file: 'frames/c.jpg' },
+        { t: 2.5, file: 'frames/c.jpg', atRest: 'ignored producer metadata' },
+        { t: 3.5, file: 'frames/d.jpg' },
       ],
     });
 
@@ -285,14 +291,8 @@ describe('video-refs CLI', () => {
     ]);
     const model = generatedModel(fs.readFileSync(htmlPath, 'utf8'));
     assert.deepEqual(model.labels, ['menu', 'shop', 'boss_intro']);
-    assert.deepEqual(
-      model.markers.map((marker) => [marker.label, marker.atRest]),
-      [
-        ['shop', true],
-        ['menu', false],
-        ['menu', false],
-      ],
-    );
+    assert.deepEqual(model.markers.map((marker) => marker.label), ['shop', 'menu', 'menu', 'menu']);
+    assert.ok(model.markers.every((marker) => !Object.hasOwn(marker, 'atRest')));
 
     const overridePath = path.join(dir, 'override.html');
     sh(process.execPath, [
@@ -309,7 +309,8 @@ describe('video-refs CLI', () => {
     ]);
     const overrideModel = generatedModel(fs.readFileSync(overridePath, 'utf8'));
     assert.deepEqual(overrideModel.labels, ['menu', 'tutorial']);
-    assert.deepEqual(overrideModel.markers.map((marker) => marker.label), ['menu', 'menu', 'menu']);
+    assert.deepEqual(overrideModel.markers.map((marker) => marker.label), ['menu', 'menu', 'menu', 'menu']);
+    assert.ok(overrideModel.markers.every((marker) => !Object.hasOwn(marker, 'atRest')));
 
     assertCliFails([
       RUN,
@@ -424,15 +425,28 @@ describe('video-refs CLI', () => {
     );
     assert.ok(window.document.querySelector('.cand.focused .chip.active').textContent.includes('boss_intro'));
     assert.match(window.document.querySelector('#summary').textContent, /boss_intro\s+1/);
-    window.document.querySelector('.cand.focused .restbtn').click();
+    window.document.querySelector('#add').click();
+    await window.happyDOM.whenAsyncComplete();
+    assert.equal(window.document.querySelectorAll('.cand[data-source="human"]').length, 1);
     window.document.querySelector('#submit').click();
     window.document.querySelector('#submit').click();
     await window.happyDOM.whenAsyncComplete();
 
-    assert.deepEqual(submitted.payload.frames.map((frame) => frame.label), ['shop', 'boss_intro', 'shop']);
-    assert.deepEqual(submitted.payload.frames.map((frame) => frame.atRest), [true, true, true]);
-    assert.ok(submitted.payload.frames.every((frame) => !Object.hasOwn(frame, 'notAtRestReason')));
-    assert.match(window.document.querySelector('#status').textContent, /Submitted 3 frames/);
+    assert.deepEqual(
+      submitted.payload.frames.filter((frame) => frame.source === 'agent').map((frame) => frame.label),
+      ['shop', 'boss_intro', 'shop'],
+    );
+    assert.equal(submitted.payload.frames.some((frame) => frame.source === 'human' && frame.label === 'menu'), true);
+    assert.deepEqual(
+      submitted.payload.frames.map((frame) => Object.keys(frame)),
+      [
+        ['t', 'label', 'source'],
+        ['t', 'label', 'source'],
+        ['t', 'label', 'source'],
+        ['t', 'label', 'source'],
+      ],
+    );
+    assert.match(window.document.querySelector('#status').textContent, /Submitted 4 frames/);
     window.close();
   });
 

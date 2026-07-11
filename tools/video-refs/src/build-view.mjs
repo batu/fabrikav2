@@ -4,7 +4,6 @@ import { formatTimestamp } from './time.mjs';
 
 const DEFAULT_LABELS = ['menu', 'level', 'settings', 'pause', 'win', 'fail', 'gameplay'];
 const LABEL_TOKEN_RE = /^[a-z][a-z0-9_-]*$/;
-const NOT_AT_REST_REASON = 'human-flagged mid-motion';
 
 function escapeHtml(value) {
   return String(value)
@@ -44,14 +43,6 @@ function resolveLabels(labelInput, candidateLabels) {
   return DEFAULT_LABELS.slice();
 }
 
-function normalizeAtRest(candidate, index) {
-  if (!Object.hasOwn(candidate, 'atRest')) return false;
-  if (typeof candidate.atRest !== 'boolean') {
-    throw new Error(`candidate ${index} atRest must be a boolean`);
-  }
-  return candidate.atRest;
-}
-
 function readCandidates(candidatesFile, videoSrc, labelInput) {
   const abs = path.resolve(candidatesFile);
   const baseDir = path.dirname(abs);
@@ -71,7 +62,6 @@ function readCandidates(candidatesFile, videoSrc, labelInput) {
       // Preserve producer time exactly (millisecond precision) so seeks land frame-exact.
       t: Number(formatTimestamp(candidate.t)),
       label: labels.includes(candidate.label) ? candidate.label : labels[0],
-      atRest: normalizeAtRest(candidate, index),
       source: 'agent',
       keep: true,
       thumb: `data:image/jpeg;base64,${buffer.toString('base64')}`,
@@ -317,17 +307,6 @@ function buildHtml(model) {
       background: var(--amber); color: #201603;
     }
     .inspector.is-dropped .lab { background: var(--panel-3); color: var(--muted); }
-    .inspector .info .rest-state {
-      align-self: start;
-      font: 700 10px/1 var(--sans); letter-spacing: 0.4px;
-      padding: 4px 8px; border-radius: 7px;
-      background: rgba(255,85,115,0.12); color: var(--red);
-      border: 1px solid rgba(255,85,115,0.42);
-    }
-    .inspector .info .rest-state.is-rest {
-      background: rgba(52,211,180,0.13); color: var(--teal);
-      border-color: rgba(52,211,180,0.42);
-    }
 
     /* shortcuts legend */
     .legend {
@@ -474,18 +453,6 @@ function buildHtml(model) {
       background: transparent; color: var(--red);
       border-color: rgba(255,85,115,0.55);
     }
-    .restbtn {
-      display: inline-flex; align-items: center; gap: 5px;
-      min-height: 28px; padding: 0 9px;
-      border-radius: 8px; border: 1px solid rgba(255,85,115,0.38);
-      font: 750 11px/1 var(--sans); letter-spacing: 0.2px;
-      background: rgba(255,85,115,0.10); color: var(--red);
-    }
-    .restbtn.is-rest {
-      border-color: rgba(52,211,180,0.42);
-      background: rgba(52,211,180,0.12); color: var(--teal);
-    }
-
     .chips {
       display: flex; flex-wrap: wrap; gap: 6px;
       margin-top: auto;
@@ -612,7 +579,6 @@ function buildHtml(model) {
             <div class="lead">Focused candidate</div>
             <div class="headline" id="insp-head">—</div>
             <div class="lab" id="insp-lab">—</div>
-            <div class="rest-state" id="insp-rest">—</div>
           </div>
         </div>
         <div class="legend">
@@ -642,7 +608,6 @@ function buildHtml(model) {
     var MODEL = ${json};
     var LABELS = MODEL.labels.slice();
     var LABEL_RE = ${LABEL_TOKEN_RE.toString()};
-    var NOT_AT_REST_REASON = ${safeJsonForScript(NOT_AT_REST_REASON)};
     var FPS = MODEL.fps || null;
 
     var video = document.getElementById('video');
@@ -656,7 +621,6 @@ function buildHtml(model) {
     var inspThumb = document.getElementById('insp-thumb');
     var inspHead = document.getElementById('insp-head');
     var inspLab = document.getElementById('insp-lab');
-    var inspRest = document.getElementById('insp-rest');
     var inspector = document.getElementById('inspector');
     var labelHintKeys = document.getElementById('label-hint-keys');
     var legendLabelKeys = document.getElementById('legend-label-keys');
@@ -756,11 +720,6 @@ function buildHtml(model) {
 
     function toggleKeep(m) {
       m.keep = !m.keep;
-      if (state.confirming) resetConfirm();
-      render(false);
-    }
-    function toggleAtRest(m) {
-      m.atRest = !m.atRest;
       if (state.confirming) resetConfirm();
       render(false);
     }
@@ -978,14 +937,6 @@ function buildHtml(model) {
       srcTag.className = 'src-tag';
       srcTag.textContent = 'manual';
       top.appendChild(srcTag);
-      var atRest = document.createElement('button');
-      atRest.type = 'button';
-      atRest.className = 'restbtn' + (m.atRest ? ' is-rest' : '');
-      atRest.textContent = m.atRest ? 'At rest' : 'Moving';
-      atRest.setAttribute('aria-pressed', m.atRest ? 'true' : 'false');
-      atRest.title = m.atRest ? 'Marked at rest — click to mark moving' : 'Marked moving — click to mark at rest';
-      atRest.addEventListener('click', function (e) { e.stopPropagation(); toggleAtRest(m); });
-      top.appendChild(atRest);
       var keep = document.createElement('button');
       keep.type = 'button';
       keep.className = 'keepbtn';
@@ -1048,8 +999,6 @@ function buildHtml(model) {
       if (!m) {
         inspHead.textContent = '—';
         inspLab.textContent = '—';
-        inspRest.textContent = '—';
-        inspRest.classList.remove('is-rest');
         inspThumb.removeAttribute('src');
         return;
       }
@@ -1057,8 +1006,6 @@ function buildHtml(model) {
       var fr = frameNo(m.t);
       inspHead.textContent = clockAt(m.t) + (fr != null ? '  ·  frame #' + fr : '') + '  ·  ' + (m.keep ? 'kept' : 'dropped');
       inspLab.textContent = m.label;
-      inspRest.textContent = m.atRest ? 'At rest' : 'Moving';
-      inspRest.classList.toggle('is-rest', m.atRest);
     }
 
     function shortcutKeyForIndex(i) {
@@ -1132,7 +1079,6 @@ function buildHtml(model) {
         id: 'human-' + Date.now(),
         t: Math.round(video.currentTime * 1000) / 1000,
         label: LABELS[0],
-        atRest: false,
         source: 'human',
         keep: true,
       };
@@ -1174,9 +1120,7 @@ function buildHtml(model) {
         .slice()
         .sort(function (a, b) { return a.t - b.t; })
         .map(function (m) {
-          var frame = { t: m.t, label: m.label, source: m.source, atRest: m.atRest === true };
-          if (!frame.atRest) frame.notAtRestReason = NOT_AT_REST_REASON;
-          return frame;
+          return { t: m.t, label: m.label, source: m.source };
         });
 
       submitBtn.disabled = true;
