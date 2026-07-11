@@ -5,6 +5,7 @@ product_contract_source: legacy-requirements
 execution: code
 date: 2026-07-10
 deepened: 2026-07-10
+revised: 2026-07-11
 type: fix
 title: "Keep IAP Store Serialization Through Native Settlement - Plan"
 origin: docs/brainstorms/2026-07-10-iap-purchase-native-settlement-serialization-requirements.md
@@ -34,10 +35,12 @@ identity; no unsupported cancellation or idempotency input is invented.
 
 **Stop condition.** Stop and surface a blocker if the native plugin cannot provide transaction IDs,
 purchase tokens, and purchase dates through `getCustomerInfo()`, if the host cannot supply a
-crash-durable atomic journal, or if a restart leaves settlement indeterminate. An indeterminate
-purchase or restore record blocks every new native-store call; elapsed time, a journal read error,
-an empty CustomerInfo snapshot, and a successful unrelated `getCustomerInfo()` read are never
-treated as proof that the original native operation ended.
+crash-durable atomic journal, or if purchase restart leaves settlement indeterminate. An
+indeterminate purchase or same-process restore record blocks every new native-store call; elapsed
+time, a journal read error, and an empty CustomerInfo snapshot never clear it. The sole restore
+exception is a journal owner from a provably prior app process: after a successful read-only
+`getCustomerInfo()` refresh, persist an interrupted-restore terminal for handling, then release that
+dead process's owner. A failed refresh remains recovery-required.
 
 **Tail ownership.** The next TWF worker implements and verifies this plan in the card worktree; the
 conductor owns review and landing.
@@ -71,14 +74,17 @@ goal and no-overlapping-charge acceptance criterion are unchanged.
 
 - R1. **Serialization survives every elapsed-time boundary.** One authorized purchase or restore
   owns the shared native-store gate until its raw native promise reaches a provider-proven terminal
-  or operation-specific restart reconciliation proves a terminal. No watchdog releases that gate.
+  or operation-specific restart reconciliation proves a terminal. The only non-provider terminal is
+  KTD13's prior-process interrupted restore after successful read-only refresh. No watchdog releases
+  that gate.
 - R2. **Caller and native lifetimes are separate.** Preserve the caller-facing timeout and early
   return while retaining the raw native observer. A longer stall threshold emits diagnostics and a
   recovery-required state only; it never authorizes another store operation.
 - R3. **Ownership and outcomes are crash-durable.** Before invoking the provider, persist a
-  versioned journal record with operation kind, collision-resistant request identity, and the
-  operation's reconciliation baseline. Persist an actual purchase or restore terminal outcome
-  before releasing the gate or returning it.
+  versioned journal record with operation kind, collision-resistant request identity, stable
+  per-process owner identity, and the operation's reconciliation baseline. Persist an actual
+  provider terminal—or the narrowly allowed prior-process interrupted-restore terminal—before
+  releasing the gate or returning it.
 - R4. **Lock and error updates are owner-safe.** A terminal callback releases only its matching
   durable owner. Old outcomes remain deliverable but cannot clear, relabel, or overwrite the
   snapshot error of a newer owner.
@@ -99,10 +105,12 @@ goal and no-overlapping-charge acceptance criterion are unchanged.
 - R8. **Restart reconciliation is conservative and operation-specific.** For a purchase owner,
   compare full current non-subscription transaction history against the persisted pre-purchase
   baseline; only one unique matching transaction becomes a durable purchased result. For a restore
-  owner, CustomerInfo may recover entitlement data but cannot prove the original restore invocation
-  ended because RevenueCat exposes no restore operation identity/status. Unless the provider supplies
-  operation-specific terminal evidence, the restore remains recovery-required and keeps every
-  native-store call blocked.
+  owned by the current process, CustomerInfo cannot prove that its raw promise ended, so the owner
+  remains blocked without an operation-specific terminal. On a new app process, a mismatched stable
+  process identity proves the old bridge owner is dead; after one successful read-only CustomerInfo
+  refresh, persist a replayable interrupted-restore failure and release that old owner. CustomerInfo
+  data may refresh non-consumable entitlements but never fulfills consumables. If the refresh fails,
+  keep the restore recovery-required and retry the read-only refresh on a later lifecycle event.
 - R9. **Delivery is two-phase.** Completed results are peeked or claimed non-destructively and
   removed only after the consumer reports a durable disposition: fulfilled/duplicate for a
   purchase, or handled for cancellation, failure, and restore. Throws, rejections, dismissal, and
@@ -131,7 +139,8 @@ goal and no-overlapping-charge acceptance criterion are unchanged.
 - New shop copy, toasts, timers, or visual states.
 - Changing restore entitlement semantics or using restore CustomerInfo to fulfill consumables.
 - Treating customer-info updates as consumable fulfillment.
-- Releasing an indeterminate purchase or restore because a timer elapsed or a journal read failed.
+- Releasing an indeterminate purchase or same-process restore because a timer elapsed or a journal
+  read failed; only the R8 prior-process restore rule may clear without a provider terminal.
 - Claiming native correctness from Vitest, browser, or fake-provider evidence.
 
 **Deferred to follow-up work**
@@ -159,7 +168,9 @@ goal and no-overlapping-charge acceptance criterion are unchanged.
   across callback-first and CustomerInfo-first orderings.
 - AE7. Given `restorePurchases()` outlives its caller and diagnostic thresholds, purchase and second
   restore attempts remain unavailable with zero provider calls. Background/foreground and service
-  recreation retain the restore UUID; after process restart, CustomerInfo alone does not clear it.
+  recreation within the same process retain the restore UUID. After a true process restart, a
+  successful read-only CustomerInfo refresh persists an interrupted-restore result and releases the
+  dead process's owner; a failed refresh remains blocked.
 
 ---
 
@@ -170,17 +181,18 @@ goal and no-overlapping-charge acceptance criterion are unchanged.
 | ID | Decision | Rationale |
 |---|---|---|
 | KTD1 | Remove purchase and restore settlement-watchdog release. Keep each caller timeout, and use diagnostic stall thresholds that never clear shared ownership. | StoreKit, Play, and RevenueCat are not cancelled by a JavaScript timer; the existing restore settle bound can otherwise admit a purchase while restore remains live. |
-| KTD2 | Require a versioned, crash-durable settlement journal with atomic whole-record replacement and one typed `purchase`/`restore` active owner. Native initialization and every store operation fail closed when journal load or write fails. | In-memory purchase, restore, and FIFO state disappear on process death. Persisting before either provider call prevents a second operation from entering on recreation. |
+| KTD2 | Require a versioned, crash-durable settlement journal with atomic whole-record replacement and one typed `purchase`/`restore` active owner carrying a stable per-process instance ID. Native initialization and every store operation fail closed when journal load or write fails. | In-memory purchase, restore, and FIFO state disappear on process death. The process ID distinguishes same-process service recreation from a true relaunch without weakening purchase ownership. |
 | KTD3 | Use a persisted collision-resistant request ID generated from a cryptographic UUID source, with an injectable deterministic factory for tests. | A service-local counter resets and can alias an old callback after recreation. The request ID remains correlation only. |
 | KTD4 | Model provider outcomes as definitive success, definitive cancellation/failure, externally pending, or indeterminate. RevenueCat payment-pending and operation-in-progress errors do not release the gate. | A rejected JavaScript promise can still represent later store approval; the service must not confuse callback completion with financial finality. |
-| KTD5 | Persist a baseline set of transaction keys before purchase and reconcile purchase restart through `getCustomerInfo()` with complete non-subscription transaction ID, token, product, and purchase-date fields. Treat restore restart separately: a CustomerInfo snapshot can recover data but cannot prove the old restore call ended. | RevenueCat CustomerInfo contains transaction history but no identity or status for a particular `restorePurchases()` invocation. A unique new matching transaction can prove purchase success; snapshot availability cannot release a restore owner. |
-| KTD6 | Persist every actual terminal result before clearing its owner or returning it to the caller. Journal phases distinguish prepared, native-pending, recovery-required, and terminal-unacknowledged. | A crash in the callback-to-UI gap must not discard a paid consumable or a completed restore result. |
+| KTD5 | Persist a baseline set of transaction keys before purchase and reconcile purchase restart through `getCustomerInfo()` with complete non-subscription transaction ID, token, product, and purchase-date fields. Treat restore restart separately: CustomerInfo does not prove a live same-process restore terminal, but a successful read-only refresh is the recovery precondition after the owning process is proven dead. | RevenueCat CustomerInfo can recover entitlement truth but has no identity or status for a particular `restorePurchases()` invocation. Purchase still requires transaction proof; restore clearing relies on prior-process death plus a successful refresh, not the snapshot alone. |
+| KTD6 | Persist every provider terminal and KTD13 interrupted-restore result before clearing its owner or returning it to the caller. Journal phases distinguish prepared, native-pending, recovery-required, and terminal-unacknowledged. | A crash in the callback-to-UI gap must not discard a paid consumable or a completed/interrupted restore result. |
 | KTD7 | Replace destructive consumption with non-destructive claim/peek plus explicit acknowledgement. Acknowledgement is accepted only for the matching request after durable consumer processing, and an unacknowledged terminal keeps every store operation unavailable. | At-least-once delivery plus the wallet transaction ledger closes crashes before and after grant while preventing paid-but-unapplied backlog. |
 | KTD8 | Require all purchased-result consumers to use a persistent transaction/token ledger and acknowledge only `fulfilled` or `duplicate`; non-purchased terminals acknowledge only after their handler completes. | A crash after grant but before journal acknowledgement safely replays and dedupes instead of double-granting. |
 | KTD9 | Store error state on the operation record and publish global error state only from the current owner or newest completed request. | A stale callback must not relabel a newer operation. |
 | KTD10 | Widen `PurchaseProvider` with current-customer-info reconciliation and preserve full transaction metadata; do not add a fake request idempotency option. | The current Capacitor API supports `getCustomerInfo()` and transaction history but no client purchase idempotency key. |
-| KTD11 | Drive replay and operation-specific reconciliation from explicit application lifecycle refresh and initialization, with no polling timer. | Restart and foreground events are recovery clocks, but they never release a restore owner without operation-scoped terminal evidence. |
-| KTD12 | Treat ambiguous reconciliation as a surfaced recovery-required state, not an automatic retry or journal reset. | Zero or multiple candidate transactions cannot safely identify the original attempt. |
+| KTD11 | Drive replay and operation-specific reconciliation from explicit application lifecycle refresh and initialization, with no polling timer. | Foreground events never release a same-process owner. Initialization may apply KTD13 only when the persisted process identity differs from the current process. |
+| KTD12 | Treat ambiguous purchase reconciliation as a surfaced recovery-required state, not an automatic retry or journal reset. | Zero or multiple candidate transactions cannot safely identify the original purchase attempt. |
+| KTD13 | Give restore one narrow prior-process clearing rule: inject a process-instance UUID that is stable for all service instances in one app process and fresh only on process start. If a restore journal owner has a different process ID, perform a read-only CustomerInfo refresh; on success persist an `interrupted-by-process-death` restore failure before clearing the owner, and on failure remain recovery-required. | A dead app process cannot retain a live JavaScript/native bridge callback, and restore has no financial charge finality to dedupe. The refresh recovers current non-consumable entitlement truth; persisting a handled failure keeps delivery two-phase and owner-safe. This rule does not apply to purchase or same-process restore. |
 
 ### High-Level Technical Design
 
@@ -193,6 +205,7 @@ stateDiagram-v2
   NativePending --> TerminalUnacknowledged: persist proven terminal
   NativePending --> RecoveryRequired: process death or externally pending
   RecoveryRequired --> TerminalUnacknowledged: operation-specific terminal reconciled
+  RecoveryRequired --> TerminalUnacknowledged: prior-process restore + successful read-only refresh
   RecoveryRequired --> RecoveryRequired: absent or ambiguous evidence
   TerminalUnacknowledged --> Ready: durable disposition, then ack
 ```
@@ -230,7 +243,7 @@ sequenceDiagram
 |---|---|---|---|
 | Preflight, journal, or baseline read fails | `unavailable`, no provider call | No native call; failed prepared write remains recovery-required if its outcome is uncertain | Error is scoped to that attempted request. |
 | Purchase or restore call authorized | Pending | Typed prepared/native-pending owner is persisted before invocation | Exactly one provider call for the request UUID. |
-| Caller timeout or stall threshold wins | Timed-out/indeterminate caller result | Owner remains; purchase and restore stay blocked indefinitely | Diagnostic only; no synthetic terminal result. |
+| Caller timeout or stall threshold wins | Timed-out/indeterminate caller result | Owner remains; purchase and restore stay blocked for the life of that process and beyond unless a later allowed terminal occurs | Diagnostic only; no synthetic terminal result. |
 | Purchase native success | `purchased` when caller still waits | Persist terminal transaction, then release native owner | Result remains unacknowledged until durable fulfillment. |
 | Restore native terminal | `restored`/`failed` when caller still waits | Persist normalized restore result, then release its exact owner | Result remains unacknowledged until the restore handler completes. |
 | Proven cancellation/definitive failure | Cancelled/failed when caller still waits | Persist terminal, then release native owner | Failure is attached to this request; stale errors do not update newer state. |
@@ -238,7 +251,8 @@ sequenceDiagram
 | Process restart with one new matching transaction | No old caller | Persist reconstructed purchased result and release owner | Replay carries original request ID and store transaction identity. |
 | Purchase restart with zero or multiple candidates | Recovery-required | Owner and shared gate remain blocked | Surface support diagnostics; do not retry, restore, or clear automatically. |
 | Restore caller returns before raw promise | Timed-out/indeterminate | Durable restore owner remains across every timer and foreground event | Late raw terminal is persisted before release and replayed to the caller/consumer. |
-| Restore restart without operation-scoped terminal proof | Recovery-required | Restore owner and shared gate remain blocked even if `getCustomerInfo()` succeeds | Recovered CustomerInfo may update diagnostics/entitlements but cannot acknowledge or clear the old invocation. |
+| Same-process restore without operation-scoped terminal proof | Recovery-required | Restore owner and shared gate remain blocked even if `getCustomerInfo()` succeeds | The raw promise may still be live; CustomerInfo cannot acknowledge or clear it. |
+| Prior-process restore after successful read-only refresh | No old caller | Persist `interrupted-by-process-death`, release the dead process's owner, then offer the result for handling | CustomerInfo may refresh non-consumable entitlements; consumables are never granted. A failed refresh remains recovery-required. |
 | Handler throws, rejects, or app dies before ack | No acknowledgement | Terminal result remains durable | The same request is offered again. |
 | Wallet reports fulfilled or duplicate | Handled | Matching result is atomically acknowledged and removed | A crash before ack replays safely through wallet dedupe. |
 
@@ -250,9 +264,11 @@ sequenceDiagram
 - An empty CustomerInfo result cannot distinguish cancellation from an unfinished or unsynced charge and therefore never releases the gate.
 - This card covers process crash/restart for one installation. Server-side webhook redemption remains the follow-up for uninstall, cross-device, and local-storage loss.
 - Customer-info listeners may trigger reconciliation but never directly grant consumables. All grants flow through the transaction-bearing journal result.
-- A CustomerInfo request has no restore-operation correlation field. Restore recovery therefore
-  fails closed after restart unless the installed provider version exposes stronger terminal proof;
-  a snapshot, listener callback, or foreground event alone is insufficient.
+- A CustomerInfo request has no restore-operation correlation field. A same-process restore therefore
+  fails closed unless the installed provider version exposes stronger terminal proof. A prior-process
+  restore uses KTD13 only after a host-supplied process-instance mismatch and successful refresh.
+- The native host has one relevant application process. It injects one process-instance UUID shared
+  by every `IapService` recreation in that process and generates a fresh UUID only at process start.
 
 ### Sources and Research
 
@@ -276,8 +292,9 @@ sequenceDiagram
 - **Files:** `packages/sdk/src/iap/settlement-journal.ts`, `packages/sdk/src/iap/settlement-journal.test.ts`, `packages/sdk/src/iap/service.ts`, `packages/sdk/src/iap/service.test.ts`, `packages/sdk/src/iap/index.ts`.
 - **Approach:**
   - Define a versioned journal schema with a single typed `purchase`/`restore` owner, request UUID,
-    operation-specific baseline, prepared/native-pending/recovery-required phases, durable terminal
-    records, and an injected atomic storage port.
+    stable per-process instance UUID, operation-specific baseline,
+    prepared/native-pending/recovery-required phases, durable terminal records, and an injected
+    atomic storage port.
   - Load and validate the journal before the service becomes purchase-ready. Corrupt or unavailable native storage produces a recovery-required/unavailable snapshot rather than silently discarding ownership.
   - Generate UUID request identity for either operation, persist its owner and reconciliation
     baseline, then invoke the provider once. A synchronous throw is classified and journaled without
@@ -292,6 +309,9 @@ sequenceDiagram
   - Purchase caller/diagnostic timers expire: same-SKU, different-SKU, and restore attempts remain unavailable after arbitrary fake-clock advancement.
   - Restore caller/diagnostic timers expire: same/different-SKU purchases and a second restore remain unavailable while the first raw restore promise is unresolved.
   - Recreating the service over the same journal restores the purchase or restore request UUID and blocks all store operations.
+  - Recreating the service with the same process-instance UUID cannot clear a restore owner.
+  - A new process-instance UUID plus successful read-only CustomerInfo refresh persists an
+    interrupted-restore terminal before clearing; refresh failure stays recovery-required.
   - A late restore terminal persists before release; timeout, background/foreground, and a stale restore callback cannot clear a mismatched owner.
   - Corrupt/newer-schema journal data fails closed with actionable diagnostics.
   - An old callback cannot clear a recovered or newer owner, and cannot overwrite its error.
@@ -308,8 +328,10 @@ sequenceDiagram
   - Preserve the complete fields through purchase, listener, restore, and current-info mappings.
   - Add controllable deferred purchases, mutable transaction history, listener ordering, and `getCustomerInfo` failures to the fake provider.
   - On init and foreground refresh, branch by owner kind: diff current transaction keys for a
-    purchase owner, but keep a surviving restore owner recovery-required unless the provider returns
-    operation-scoped terminal proof. Never use a successful CustomerInfo read as a restore terminal.
+    purchase owner; keep a same-process restore owner recovery-required unless the provider returns
+    operation-scoped terminal proof; and apply KTD13 to a prior-process restore only after a
+    successful read-only refresh. The synthetic result is an interrupted restore failure, not a
+    CustomerInfo-proven native terminal.
   - Normalize payment-pending/operation-in-progress errors as nonterminal and keep the owner blocked until reconciliation.
 - **Test scenarios:**
   - Current-info before purchase creates the exact baseline stored in the journal.
@@ -317,8 +339,9 @@ sequenceDiagram
   - Zero candidates, two candidates, an alias ambiguity, and current-info failure all remain blocked.
   - Listener-before-promise and promise-before-listener persist one terminal result.
   - Payment-pending followed by a listener transaction transitions once; payment-pending alone never releases.
-  - Restart with a restore owner plus empty, unchanged, or changed CustomerInfo remains blocked;
-    foreground/listener updates cannot manufacture restore-operation completion.
+  - Same-process restore plus empty, unchanged, or changed CustomerInfo remains blocked.
+  - Prior-process restore plus successful CustomerInfo becomes one interrupted terminal result;
+    refresh failure remains blocked, and foreground/listener updates cannot bypass the process-ID rule.
 - **Verification:** Adapter tests round-trip official RevenueCat transaction fields without local shape conversion.
 
 ### U2. Make Result Delivery Acknowledged and Fulfillment Idempotent
@@ -409,9 +432,9 @@ sequenceDiagram
   - Relaunch and capture journal reconstruction, CustomerInfo reconciliation, transaction-bearing replay, wallet fulfillment, and acknowledgement.
   - Force one handler failure and one kill after wallet commit but before acknowledgement; prove replay and duplicate-ledger acknowledgement without a second grant.
   - Record callback-first and CustomerInfo-first orderings when the platform permits, plus any ordering that could not be forced.
-  - Kill the process during restore, relaunch, and prove the persisted restore UUID remains
-    recovery-required unless operation-specific native terminal evidence is actually available;
-    CustomerInfo success alone must not reopen the gate.
+  - Kill the process during restore, relaunch with a fresh process-instance UUID, and prove a
+    successful read-only CustomerInfo refresh persists an interrupted-restore terminal before the
+    dead owner releases. Repeat with refresh failure and prove the owner remains recovery-required.
 - **Verification:** Evidence includes device/build provenance, exact thresholds, journal transitions, provider logs, transaction-key hashes, and wallet counts. Screenshots alone do not prove call count or financial identity.
 
 ---
@@ -436,7 +459,8 @@ sequenceDiagram
 |---|---:|---|---:|---|---:|---|
 | Sheet held beyond caller and diagnostic thresholds | Yes | Foreground | 0 | Still native-pending | 0 | Owner retained |
 | Restore held beyond caller and diagnostic thresholds | Yes | Background/foreground + service recreation | 0 | Same restore remains native-pending | 0 | Restore owner retained |
-| Kill during restore | Yes | Relaunch | 0 | CustomerInfo does not prove restore completion | 0 | Restore recovery-required |
+| Kill during restore, refresh succeeds | Yes | Relaunch with new process ID | 0 | Interrupted restore persisted after read-only refresh | 0 | Terminal until handled/acknowledged |
+| Kill during restore, refresh fails | Yes | Relaunch with new process ID | 0 | No synthetic terminal | 0 | Restore recovery-required |
 | Kill while sheet or external approval is pending | Yes | Relaunch | 0 | No transaction or pending | 0 | Recovery-required |
 | Kill after store success before JavaScript callback | Yes | Relaunch | 0 | Unique transaction recovered | 1 | Terminal until ack |
 | CustomerInfo listener before/after purchase promise | Either | Background/foreground | 0 | Same transaction persisted once | 1 | Acknowledged |
@@ -447,7 +471,9 @@ sequenceDiagram
 
 ## Risks and Mitigations
 
-- **An indeterminate record can block purchases indefinitely.** This is the intentional safety posture. Surface recovery diagnostics and support metadata; never trade a possible duplicate charge for automatic availability.
+- **An indeterminate purchase can block purchases indefinitely; a restore can remain blocked until
+  KTD13's refresh succeeds.** Surface recovery diagnostics and support metadata; never trade a
+  possible duplicate charge for automatic purchase availability.
 - **Local journal or wallet storage can be lost on uninstall or device failure.** Keep this card scoped to process crash/restart and track authenticated RevenueCat webhook fulfillment as follow-up.
 - **CustomerInfo history can be stale, incomplete, or ambiguous.** Require complete transaction fields, compare against the persisted baseline, accept only one unambiguous candidate, and otherwise stay recovery-required.
 - **Provider error meanings can drift.** Normalize documented pending and in-progress codes in the RevenueCat adapter and cover unknown codes with fail-closed tests.
@@ -455,8 +481,10 @@ sequenceDiagram
 - **The public migration is broader than the original drain proposal.** Compile and test every constructor and purchase consumer, including both games, rather than hiding compatibility behind optional defaults.
 - **Lifecycle callbacks can race the original promise.** Serialize journal transitions by request and transaction key; listener-first and promise-first tests must converge on one record.
 - **RevenueCat exposes no restart identity/status for a restore invocation.** Persist restore ownership
-  before calling the plugin and keep it recovery-required after process death unless the installed
-  provider supplies operation-specific terminal proof. CustomerInfo is data recovery, not lock proof.
+  before calling the plugin and keep same-process recreation fail-closed. After a prior-process owner
+  is proven dead, KTD13 requires a successful read-only CustomerInfo refresh before persisting an
+  interrupted failure and releasing; refresh failure remains blocked. CustomerInfo is entitlement
+  recovery, not proof of the lost invocation's native terminal.
 - **The current games compose fake IAP even on native and Marble Run has no application foreground
   IAP hook.** Provision the real native RevenueCat adapter and bootstrap lifecycle wiring in U6;
   otherwise U4 is blocked and no device claim may be made.
@@ -466,11 +494,18 @@ sequenceDiagram
 
 ## Definition of Done
 
-- No caller timeout, diagnostic threshold, background event, restart, journal error, or reconciliation miss releases an unresolved native purchase or restore owner.
+- No caller timeout, diagnostic threshold, background event, same-process recreation, journal error,
+  or reconciliation miss releases an unresolved native purchase or restore owner. Only KTD13 may
+  close a prior-process restore after successful read-only refresh.
 - A typed durable journal record and cryptographic request ID are committed before the single provider purchase or restore invocation.
-- Purchase and restore remain unavailable while native-pending or recovery-required, regardless of elapsed time.
-- Native terminal outcomes are persisted before owner release and survive service/process recreation.
-- Purchase restart reconciliation uses full RevenueCat transaction identity and releases only on one proven matching transaction or a provider-proven definitive terminal; restore restart never releases from CustomerInfo alone.
+- Purchase and same-process restore remain unavailable while native-pending or recovery-required,
+  regardless of elapsed time; prior-process restore follows KTD13.
+- Provider terminal outcomes and KTD13's interrupted-restore outcome are persisted before owner
+  release and survive service/process recreation.
+- Purchase restart reconciliation uses full RevenueCat transaction identity and releases only on one
+  proven matching transaction or a provider-proven definitive terminal. Restore restart releases
+  without provider terminal only when process identity changed and a successful read-only
+  CustomerInfo refresh has been durably converted to an interrupted-restore result.
 - Payment-pending, operation-in-progress, empty history, ambiguous history, and reconciliation failure remain blocked.
 - Completed results are delivered non-destructively until matching acknowledgement follows durable fulfilled/duplicate purchase processing or handled restore/non-purchase processing.
 - A crash before fulfillment grants once on replay; a crash after wallet commit but before acknowledgement replays as duplicate and grants zero additional value.
