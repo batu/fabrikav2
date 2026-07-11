@@ -8,6 +8,13 @@
     "canonicalization": "json-lexicographic-v1",
     "hashAlgorithm": "sha256"
   },
+  "assetRasterPolicy": {
+    "maxEdge": 4096,
+    "maxAssets": 256,
+    "maxAssetBytes": 8388608,
+    "maxAggregateBytes": 67108864,
+    "maxDecodedPixels": 67108864
+  },
   "canonicalCanvas": {
     "width": 390,
     "height": 844,
@@ -159,7 +166,7 @@
       "id": "title-logo",
       "fit": "contain",
       "compatibleRoleIds": ["screen-title"],
-      "geometry": { "minWidth": 80, "maxWidth": 320, "minHeight": 40, "maxHeight": 120 },
+      "sourceRaster": { "minWidth": 80, "minHeight": 40, "aspectRatio": { "min": 0.6666666666666666, "max": 8 } },
       "alpha": "allowed",
       "provenanceRequired": true,
       "mimeTypes": ["image/png", "image/jpeg", "image/webp"]
@@ -168,7 +175,7 @@
       "id": "hero-art",
       "fit": "contain",
       "compatibleRoleIds": ["hero-art"],
-      "geometry": { "minWidth": 120, "maxWidth": 360, "minHeight": 120, "maxHeight": 360 },
+      "sourceRaster": { "minWidth": 120, "minHeight": 120, "aspectRatio": { "min": 0.3333333333333333, "max": 3 } },
       "alpha": "allowed",
       "provenanceRequired": true,
       "mimeTypes": ["image/png", "image/jpeg", "image/webp"]
@@ -177,7 +184,7 @@
       "id": "counter-frame",
       "fit": "contain",
       "compatibleRoleIds": ["currency-counter"],
-      "geometry": { "minWidth": 80, "maxWidth": 180, "minHeight": 48, "maxHeight": 80 },
+      "sourceRaster": { "minWidth": 80, "minHeight": 48, "aspectRatio": { "min": 1, "max": 3.75 } },
       "alpha": "allowed",
       "provenanceRequired": true,
       "mimeTypes": ["image/png", "image/jpeg", "image/webp"]
@@ -186,7 +193,7 @@
       "id": "icon-control",
       "fit": "contain",
       "compatibleRoleIds": ["top-icon-action"],
-      "geometry": { "minWidth": 48, "maxWidth": 72, "minHeight": 48, "maxHeight": 72 },
+      "sourceRaster": { "minWidth": 48, "minHeight": 48, "aspectRatio": { "min": 0.6666666666666666, "max": 1.5 } },
       "alpha": "required",
       "provenanceRequired": true,
       "mimeTypes": ["image/png", "image/webp"]
@@ -200,7 +207,7 @@
         "bottom-left-test-action",
         "bottom-right-test-action"
       ],
-      "geometry": { "minWidth": 72, "maxWidth": 300, "minHeight": 48, "maxHeight": 96 },
+      "sourceRaster": { "minWidth": 72, "minHeight": 48, "aspectRatio": { "min": 0.75, "max": 6.25 } },
       "alpha": "allowed",
       "provenanceRequired": true,
       "mimeTypes": ["image/png", "image/jpeg", "image/webp"]
@@ -209,7 +216,7 @@
       "id": "progression-node",
       "fit": "contain",
       "compatibleRoleIds": ["progression-node"],
-      "geometry": { "minWidth": 48, "maxWidth": 88, "minHeight": 48, "maxHeight": 88 },
+      "sourceRaster": { "minWidth": 48, "minHeight": 48, "aspectRatio": { "min": 0.5454545454545454, "max": 1.8333333333333333 } },
       "alpha": "required",
       "provenanceRequired": true,
       "mimeTypes": ["image/png", "image/webp"]
@@ -218,7 +225,7 @@
       "id": "gameplay-background",
       "fit": "cover",
       "compatibleRoleIds": ["gameplay-region"],
-      "geometry": { "minWidth": 200, "maxWidth": 390, "minHeight": 300, "maxHeight": 650 },
+      "sourceRaster": { "minWidth": 200, "minHeight": 300, "aspectRatio": { "min": 0.3076923076923077, "max": 1.3 } },
       "alpha": "allowed",
       "provenanceRequired": true,
       "mimeTypes": ["image/png", "image/jpeg", "image/webp"]
@@ -227,7 +234,7 @@
       "id": "modal-frame",
       "fit": "cover",
       "compatibleRoleIds": ["modal-panel", "result-panel"],
-      "geometry": { "minWidth": 280, "maxWidth": 370, "minHeight": 300, "maxHeight": 620 },
+      "sourceRaster": { "minWidth": 280, "minHeight": 300, "aspectRatio": { "min": 0.45161290322580644, "max": 1.2333333333333334 } },
       "alpha": "allowed",
       "provenanceRequired": true,
       "mimeTypes": ["image/png", "image/jpeg", "image/webp"]
@@ -236,7 +243,7 @@
       "id": "toggle-control",
       "fit": "contain",
       "compatibleRoleIds": ["center-toggle-action"],
-      "geometry": { "minWidth": 200, "maxWidth": 340, "minHeight": 48, "maxHeight": 72 },
+      "sourceRaster": { "minWidth": 200, "minHeight": 48, "aspectRatio": { "min": 2.7777777777777777, "max": 7.083333333333333 } },
       "alpha": "allowed",
       "provenanceRequired": true,
       "mimeTypes": ["image/png", "image/webp"]
@@ -957,26 +964,30 @@
         "contractVersion": { "const": "1.0.0" },
         "assets": {
           "type": "array",
-          "maxItems": 4096,
+          "maxItems": 256,
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "slotId", "path", "mimeType", "width", "height", "hasAlpha", "sha256", "provenance"],
+            "required": ["id", "name", "description", "slotId", "path", "mimeType", "width", "height", "bytes", "hasAlpha", "sha256", "provenance"],
             "properties": {
               "id": { "type": "string", "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$" },
+              "name": { "type": "string", "minLength": 1, "maxLength": 80, "pattern": "^(?=.*\\S)[^\\u0000-\\u001F\\u007F]+$" },
+              "description": { "type": "string", "minLength": 1, "maxLength": 320, "pattern": "^(?=.*\\S)[^\\u0000-\\u001F\\u007F]+$" },
               "slotId": { "type": "string" },
               "path": { "type": "string", "pattern": "^assets/(?:[a-z0-9][a-z0-9._-]*/)*[a-z0-9][a-z0-9._-]*\\.(?:png|jpe?g|webp)$" },
               "mimeType": { "enum": ["image/png", "image/jpeg", "image/webp"] },
-              "width": { "type": "integer", "minimum": 1 },
-              "height": { "type": "integer", "minimum": 1 },
+              "width": { "type": "integer", "minimum": 1, "maximum": 4096 },
+              "height": { "type": "integer", "minimum": 1, "maximum": 4096 },
+              "bytes": { "type": "integer", "minimum": 1, "maximum": 8388608 },
               "hasAlpha": { "type": "boolean" },
               "sha256": { "type": "string", "pattern": "^sha256-[a-f0-9]{64}$" },
               "provenance": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["sourceId", "sourceHash", "license"],
+                "required": ["sourceId", "sourcePath", "sourceHash", "license"],
                 "properties": {
                   "sourceId": { "type": "string", "minLength": 1 },
+              "sourcePath": { "type": "string", "pattern": "^(?!/)(?!\\.\\.?$)(?!\\.\\.?/)(?!.*\\/\\.\\.?(?:\\/|$))(?!.*[\\\\?#\\u0000-\\u001F\\u007F])[^/]+(?:/[^/]+)*$" },
                   "sourceHash": { "type": "string", "pattern": "^sha256-[a-f0-9]{64}$" },
                   "license": { "type": "string", "minLength": 1 }
                 }
