@@ -81,7 +81,8 @@ remains explicitly out of scope for U2.
 
 ### Status
 
-passed for Worked; pending independent Aesthetics Reviewed judgment
+passed for Worked after the second blind-review remediation; pending an
+independent Aesthetics Reviewed judgment
 
 ### Goal
 
@@ -158,3 +159,14 @@ metrics show the full HUD identity, solid playfield, distinct route landmarks,
 tighter preserved-level Pause surface, and a high-contrast Retry-first fail
 surface. Every recorded action is at least 48 px. This is browser diagnostic
 evidence only; Android/iPhone behavior remains unverified.
+
+### Second Blind-Review Remediation
+
+The next Sol gate found remaining player-facing component/scaffold language,
+Pause HUD reflow, and failure styling that still looked like a system-error
+dialog. Six focused assertions were added red-first. The final implementation
+keeps progression states in art plus accessibility metadata, uses neutral
+player copy, freezes Pause HUD geometry, and replaces the cross/beveled plaque
+with a retry glyph and soft `Try again` title surface. The focused suite now
+passes 18 tests; `u2-sol2-final-*` is the matching six-state browser capture
+set. Physical-device behavior remains outside U2.

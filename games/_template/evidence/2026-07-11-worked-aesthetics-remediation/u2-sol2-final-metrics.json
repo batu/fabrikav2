@@ -1,0 +1,140 @@
+{
+  "menu": {
+    "documentHeight": 844,
+    "bodyHeight": 844,
+    "bodyMargin": "0px",
+    "actions": [
+      {
+        "action": "settings",
+        "width": 48,
+        "height": 48
+      },
+      {
+        "action": "play",
+        "width": 116,
+        "height": 106
+      },
+      {
+        "action": "locked",
+        "width": 74,
+        "height": 64
+      },
+      {
+        "action": "play",
+        "width": 350,
+        "height": 50
+      }
+    ],
+    "text": "25SettingsTrailheadA small adventure begins with one clear move.123Continue"
+  },
+  "level": {
+    "documentHeight": 844,
+    "bodyHeight": 844,
+    "bodyMargin": "0px",
+    "actions": [
+      {
+        "action": "pause",
+        "width": 48,
+        "height": 48
+      },
+      {
+        "action": "test-win",
+        "width": 155,
+        "height": 48
+      },
+      {
+        "action": "test-lose",
+        "width": 155,
+        "height": 48
+      }
+    ],
+    "text": "25Trail 2PauseTrail clearingFind the next stepA calm path opens ahead.Outcome previewPreview the Win or Lose screen.Win previewLose preview"
+  },
+  "pause": {
+    "documentHeight": 844,
+    "bodyHeight": 844,
+    "bodyMargin": "0px",
+    "actions": [
+      {
+        "action": "pause-resume",
+        "width": 304.1875,
+        "height": 50
+      },
+      {
+        "action": "pause-settings",
+        "width": 304.1875,
+        "height": 50
+      },
+      {
+        "action": "pause-quit",
+        "width": 304.1875,
+        "height": 54
+      }
+    ],
+    "text": "25Trail 2Trail clearingFind the next stepA calm path opens ahead.Take a breatherResumeSettingsHome"
+  },
+  "settings": {
+    "documentHeight": 844,
+    "bodyHeight": 844,
+    "bodyMargin": "0px",
+    "actions": [
+      {
+        "action": "back",
+        "width": 48,
+        "height": 48
+      },
+      {
+        "action": "settings-music",
+        "width": 64,
+        "height": 48
+      },
+      {
+        "action": "settings-sfx",
+        "width": 64,
+        "height": 48
+      },
+      {
+        "action": "settings-haptics",
+        "width": 64,
+        "height": 48
+      }
+    ],
+    "text": "SettingsMusicSound effectsHaptics"
+  },
+  "win": {
+    "documentHeight": 844,
+    "bodyHeight": 844,
+    "bodyMargin": "0px",
+    "actions": [
+      {
+        "action": "result-next",
+        "width": 294,
+        "height": 50
+      },
+      {
+        "action": "result-menu",
+        "width": 294,
+        "height": 50
+      }
+    ],
+    "text": "Trail 3Trail completeA new path is ready to explore.NextHome"
+  },
+  "fail": {
+    "documentHeight": 844,
+    "bodyHeight": 844,
+    "bodyMargin": "0px",
+    "actions": [
+      {
+        "action": "result-retry",
+        "width": 294,
+        "height": 50
+      },
+      {
+        "action": "result-menu",
+        "width": 294,
+        "height": 50
+      }
+    ],
+    "text": "Trail 2Try againThe next step is still waiting.RetryHome"
+  }
+}

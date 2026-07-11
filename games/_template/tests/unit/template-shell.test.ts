@@ -185,7 +185,7 @@ describe("template shell renderer and harness", () => {
     expect(css).toMatch(/\.template-shell \.fab-toggle-input\s*\{[^}]*width:\s*100%;[^}]*height:\s*100%;/s);
   });
 
-  it("keeps Settings a quiet utility and the white currency star on a contrasted surface", () => {
+  it("keeps Settings as an icon-only utility and the white currency star on a contrasted surface", () => {
     const controller = createController();
     const root = document.getElementById("app")!;
     const shell = mountTemplateShell({ mountInto: root, controller });
@@ -195,12 +195,16 @@ describe("template shell renderer and harness", () => {
     const css = templateShellCss();
 
     expect(settings?.classList.contains("template-shell__icon-action--utility")).toBe(true);
+    expect(settings?.getAttribute("aria-label")).toBe("Settings");
     expect(currency?.classList.contains("template-shell__currency--contrasted")).toBe(true);
     expect(css).toMatch(
-      /\.template-shell__icon-action--utility\s*\{[^}]*background-color:\s*var\(--fab-seed-color-utility-surface\);[^}]*box-shadow:\s*none;/s,
+      /\.template-shell__icon-action--utility\s*\{[^}]*width:\s*var\(--fab-btn-min-size\);[^}]*padding:\s*0;[^}]*font-size:\s*0;[^}]*background-color:\s*var\(--fab-seed-color-utility-surface\);[^}]*box-shadow:\s*none;/s,
     );
     expect(css).toMatch(
       /\.template-shell__currency--contrasted\s*\{[^}]*background-color:\s*var\(--fab-seed-color-currency-surface\);[^}]*color:\s*var\(--fab-seed-color-currency-on-surface\);/s,
+    );
+    expect(css).toMatch(
+      /\.template-shell \.fab-page\s*\{[^}]*--fab-page-header-height:\s*calc\(var\(--fab-btn-min-size\) \+ var\(--fab-space-xs\)\);[^}]*--fab-page-body-gap:\s*var\(--fab-space-xs\);[^}]*--fab-page-padding:\s*var\(--fab-space-sm\);/s,
     );
   });
 
@@ -223,6 +227,7 @@ describe("template shell renderer and harness", () => {
     expect(backdrop?.querySelectorAll("[data-fab-action]")).toHaveLength(0);
     expect(backdrop?.querySelectorAll("[data-fab-instance]")).toHaveLength(0);
     expect(backdrop?.querySelector(".template-shell__sample-outcomes")).toBeNull();
+    expect(backdrop?.querySelector(".template-shell__hud-action-spacer")?.getAttribute("aria-hidden")).toBe("true");
     expect(shell.root.querySelector('[data-fab-instance="pause.panel"]')).not.toBeNull();
     expect(css).toMatch(/\.template-shell__level--paused-backdrop\s*\{[^}]*pointer-events:\s*none;/s);
     expect(css).toMatch(
@@ -234,9 +239,12 @@ describe("template shell renderer and harness", () => {
     expect(css).toMatch(
       /\.template-shell \.fab-modal-card\.fab-pause-card\s*\{[^}]*--fab-pause-action-gap:\s*var\(--fab-space-xs\);/s,
     );
+    expect(css).toMatch(
+      /\.template-shell \.fab-pause-card \[data-fab-action="pause-quit"\]\s*\{[^}]*background:\s*var\(--fab-color-secondary-surface\);[^}]*border:\s*var\(--fab-border-width\) solid var\(--fab-color-secondary-border\);[^}]*box-shadow:\s*none;/s,
+    );
   });
 
-  it("frames the required outcome controls as a quiet template-preview strip beside an intentional playfield", () => {
+  it("frames the required outcome controls as a quiet diagnostic strip beside a player-facing trail clearing", () => {
     const controller = createController();
     const root = document.getElementById("app")!;
     const shell = mountTemplateShell({ mountInto: root, controller });
@@ -247,22 +255,27 @@ describe("template shell renderer and harness", () => {
     const sample = shell.root.querySelector<HTMLElement>(".template-shell__sample-outcomes");
     expect(sample).not.toBeNull();
     expect(sample?.dataset.templateDiagnostic).toBe("outcomes");
-    expect(sample?.textContent).toContain("Template preview");
-    expect(sample?.querySelector('[data-fab-action="test-win"]')?.textContent).toBe("Preview win");
-    expect(sample?.querySelector('[data-fab-action="test-lose"]')?.textContent).toBe("Preview retry");
+    expect(sample?.textContent).toContain("Outcome preview");
+    expect(sample?.querySelector('[data-fab-action="test-win"]')?.textContent).toBe("Win preview");
+    expect(sample?.querySelector('[data-fab-action="test-lose"]')?.textContent).toBe("Lose preview");
     expect(sample?.querySelector('[data-fab-action="test-win"]')?.classList.contains("template-shell__test-action--win")).toBe(true);
     expect(sample?.querySelector('[data-fab-action="test-lose"]')?.classList.contains("template-shell__test-action--lose")).toBe(true);
     const socket = shell.root.querySelector<HTMLElement>('[data-fab-role="gameplay-region"]');
     expect(socket?.dataset.templateSocket).toBe("replaceable-mechanic");
     expect(socket?.classList.contains("template-shell__gameplay--trail")).toBe(true);
-    expect(socket?.querySelector(".template-shell__gameplay-kicker")?.textContent).toBe("Starter playfield");
+    expect(socket?.querySelector(".template-shell__gameplay-kicker")?.textContent).toBe("Trail clearing");
     expect(socket?.querySelector<HTMLImageElement>(".template-shell__gameplay-art")?.src).toContain("icon-play.png");
     expect(shell.root.textContent).not.toContain("Gameplay goes here");
+    expect(shell.root.textContent).not.toContain("Starter playfield");
+    expect(shell.root.textContent).not.toContain("add a mechanic");
     expect(templateShellCss()).toMatch(
       /\.template-shell__gameplay--trail\s*\{[^}]*border-style:\s*solid;[^}]*background:/s,
     );
     expect(templateShellCss()).toMatch(
       /\.template-shell__gameplay--trail\s*\{[^}]*grid-template-columns:\s*auto minmax\(0, 1fr\);/s,
+    );
+    expect(templateShellCss()).toMatch(
+      /\.template-shell__gameplay-emblem\s*\{[^}]*box-shadow:\s*none;/s,
     );
   });
 
@@ -287,6 +300,9 @@ describe("template shell renderer and harness", () => {
     expect(css).toMatch(
       /\.template-shell__icon-action--hud\s*\{[^}]*width:\s*var\(--fab-btn-min-size\);[^}]*font-size:\s*0;/s,
     );
+    expect(css).toMatch(
+      /\.template-shell__hud-action-spacer\s*\{[^}]*flex:\s*0 0 var\(--fab-btn-min-size\);[^}]*width:\s*var\(--fab-btn-min-size\);/s,
+    );
   });
 
   it("uses a trail-start marker and a success check instead of the bullseye and open-lock placeholder language", () => {
@@ -305,9 +321,27 @@ describe("template shell renderer and harness", () => {
     expect(locked?.getAttribute("data-fab-node-state")).toBe("locked");
     expect(tokens).toMatch(/--fab-seed-levelmap-art-completed:\s*url\("\.\/assets\/icon-confirm\.png"\);/);
     expect(tokens).toMatch(/--fab-seed-levelmap-art-locked:\s*url\("\.\/assets\/node-locked\.png"\);/);
+    expect(templateShellCss()).toMatch(/\.template-shell__hero-stage\s*\{[^}]*box-shadow:\s*none;/s);
   });
 
-  it("gives the fail card a high-contrast reset signal with Retry as its only primary action", () => {
+  it("keeps progression state in the landmark art and accessible names instead of player-facing component badges", () => {
+    const controller = createController();
+    const root = document.getElementById("app")!;
+    const shell = mountTemplateShell({ mountInto: root, controller });
+
+    const nodes = Array.from(shell.root.querySelectorAll<HTMLElement>("[data-fab-node-state]"));
+
+    expect(nodes).toHaveLength(3);
+    expect(nodes.map((node) => node.querySelector(".template-shell__node-status"))).toEqual([null, null, null]);
+    expect(nodes.map((node) => node.getAttribute("aria-label"))).toEqual([
+      "Trail 1, Complete",
+      "Trail 2, Current",
+      "Trail 3, Locked",
+    ]);
+    expect(templateShellCss()).not.toContain("template-shell__node-status");
+  });
+
+  it("gives the fail card a calm retry signal with Retry as its only primary action", () => {
     const controller = createController();
     const root = document.getElementById("app")!;
     const shell = mountTemplateShell({ mountInto: root, controller });
@@ -321,7 +355,8 @@ describe("template shell renderer and harness", () => {
     const home = shell.root.querySelector<HTMLElement>('[data-fab-action="result-menu"]');
     const css = templateShellCss();
 
-    expect(ribbon?.textContent).toBe("Trail reset");
+    expect(ribbon?.textContent).toBe("Try again");
+    expect(shell.root.querySelector<HTMLImageElement>(".template-shell__result-art")?.src).toContain("icon-retry.png");
     expect(retry?.classList.contains("template-shell__primary-action")).toBe(true);
     expect(home?.classList.contains("template-shell__fail-home-action")).toBe(true);
     expect(css).toMatch(
@@ -332,6 +367,15 @@ describe("template shell renderer and harness", () => {
     );
     expect(css).toMatch(
       /\.template-shell\[data-fab-state="fail"\] \.template-shell__fail-home-action\s*\{[^}]*background:\s*var\(--fab-color-secondary-surface\);[^}]*box-shadow:\s*none;/s,
+    );
+    expect(css).toMatch(
+      /\.template-shell\[data-fab-state="fail"\] \.fab-modal-ribbon\s*\{[^}]*aspect-ratio:\s*auto;[^}]*background-color:\s*var\(--fab-seed-color-pause-surface\);[^}]*box-shadow:\s*none;/s,
+    );
+    expect(css).toMatch(
+      /\.template-shell\[data-fab-state="fail"\] \.fab-modal-ribbon-image\s*\{[^}]*display:\s*none;/s,
+    );
+    expect(css).toMatch(
+      /\.template-shell\[data-fab-state="fail"\] \.template-shell__result-art\s*\{[^}]*width:\s*var\(--fab-fail-art-size\);[^}]*border-radius:\s*50%;/s,
     );
   });
 

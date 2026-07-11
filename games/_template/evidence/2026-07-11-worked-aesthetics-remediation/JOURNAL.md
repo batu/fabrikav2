@@ -499,3 +499,43 @@ worker still owns the visual-gate decision.
 Use this settled browser-only capture set for the independent frame review.
 Do not claim mobile-device evidence: Android/iPhone safe areas, touch, fonts,
 and performance remain unverified.
+
+### Iteration 3 - Remove scaffold language and unify the retry surface
+
+#### Why This Iteration
+
+A fresh blind Sol review (`019f4e97-c387-7541-8b93-0cdea9cd7526`) still found
+player-facing component labels, scaffold copy, Pause HUD reflow, and an
+arcade-styled failure surface. The card returned to Worked for one more bounded
+presentation pass; controller behavior and semantic action ownership stayed
+unchanged.
+
+#### Changes Made
+
+- Removed visible `Complete`, `Current`, and `Locked` badges while retaining
+  the same accessible node names and state hooks.
+- Replaced mechanic-authoring copy with a neutral Trail clearing and renamed
+  the required test-only controls to unambiguous Win/Lose previews.
+- Preserved the Pause HUD's right-hand geometry with an inert spacer, compacted
+  menu Settings to its icon, and kept Home visibly secondary but actionable.
+- Replaced the failure cross with the registered retry glyph and replaced the
+  beveled ribbon sprite with a local cream/pastel `Try again` title surface.
+- Removed button-like elevation from non-interactive hero/playfield art.
+
+#### Post-Change Screenshots
+
+The conductor captured the final six states from real rendered clicks at
+390 x 844: `u2-sol2-final-{menu,level,pause,settings,win,fail}.png`. The
+companion `u2-sol2-final-metrics.json` records an 844 px document/body, zero
+body margin, and a minimum visible action height of 48 px in every state.
+
+#### Deterministic Proof
+
+The focused renderer suite was red on six intended seams and then passed all
+18 tests. Full typecheck, unit, lint, build, approved-source audit, and the next
+blind frame review remain the Worked-stage closeout sequence.
+
+#### Decision
+
+passed for Worked; pending a fresh independent Aesthetics Reviewed verdict.
+The captures are browser diagnostic evidence only, not Android or iPhone proof.

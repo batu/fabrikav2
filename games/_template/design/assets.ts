@@ -71,7 +71,7 @@ export const assetUrls = {
   ribbonWin: assets.action.testWin,
   ribbonFail: assets.action.testLose,
   win: assets.result.win,
-  fail: assets.result.fail,
+  fail: assets.icon.retry,
 } as const;
 
 export type AssetSlotGroup = keyof typeof assets;

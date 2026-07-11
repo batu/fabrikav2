@@ -206,11 +206,6 @@ function renderMenu(
     if (!state) throw new Error(`Missing progression node model at index ${index}`);
     node.dataset.fabInstance = `menu.node.${state}`;
     node.dataset.fabNodeState = state;
-    const status = document.createElement("span");
-    status.className = "template-shell__node-status";
-    status.setAttribute("aria-hidden", "true");
-    status.textContent = copy[`menu.node.${state}`];
-    node.appendChild(status);
     if (state === "current") node.dataset.fabAction = "play";
     if (state === "locked") {
       node.dataset.fabAction = "locked";
@@ -260,6 +255,11 @@ function renderLevel(
         },
       }),
     );
+  } else {
+    const actionSpacer = document.createElement("span");
+    actionSpacer.className = "template-shell__hud-action-spacer";
+    actionSpacer.setAttribute("aria-hidden", "true");
+    hud.appendChild(actionSpacer);
   }
 
   const gameplay = document.createElement("section");
