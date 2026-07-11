@@ -32,6 +32,18 @@ An immutable content identity joining accepted authoring state with the portable
 
 An immutable generated artifact bundle derived from a Published Revision and selected for runtime consumption; it is never editable presentation authority.
 
+## Gameplay state
+
+### Active Attempt
+
+The transient identity of the level that is running or has just produced an outcome, distinct from the progression state selected for the next play session.
+
+### Durable Progression
+
+The save-backed record of unlocked and completed content plus earned resources that remains valid across attempts and application restarts.
+
+An Active Attempt may read Durable Progression when it begins. During normal play, only an accepted, previously unrewarded completion may advance it; explicit setup tools may seed or reset it. Result presentation and outcome events retain the Active Attempt identity even when that completion has already advanced Durable Progression.
+
 ## Relationships
 
 The Shell Presentation Contract defines the identities and compatibility rules that a Published Revision claims to satisfy. A Projection Revision names its source Published Revision and binds the generated artifacts that runtime consumers may select.
