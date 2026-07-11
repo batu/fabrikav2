@@ -850,3 +850,55 @@ retain an 844 px document/body and all visible actions at least 48 px high.
 
 passed for Worked; the refreshed clean player frames own the next independent
 Aesthetics Reviewed verdict. Browser evidence remains diagnostic only.
+
+### Iteration 11 - Close the calibrated Opus findings
+
+#### Why This Iteration
+
+Read-only Claude Opus session `a21af755-4f54-4c83-82c5-2ac059d8d7ba`
+returned zero P1s and four P2s. One P2 estimated the Settings target at roughly
+44 px, while the capture metrics prove it is 48 x 48; that finding was rejected
+as factually contradicted. The three remaining findings were local and valid:
+the Kenney display X read like H, the Pause Settings outline was faint, and the
+striped Fail mark needed explicit barrier structure.
+
+#### Changes Made
+
+- Kept the Kenney display pair for shell identity, but rendered the gameplay
+  objective and the critical Win Next action in the rounded readable stack with
+  uppercase weight and tracking. Both now show an unambiguous X.
+- Darkened the existing socket-border token so the mint Settings action reads
+  as available secondary UI rather than disabled UI.
+- Replaced the floating striped swatch with a semantic, decorative barrier
+  element whose striped rail has two visible support posts. It remains CSS-only
+  presentation and adds no asset or behavior authority.
+- Added unit contracts for readable critical-X surfaces and the explicit
+  barrier structure.
+
+#### Post-Change Screenshots
+
+`u2-opus-closure-pass-{menu,level,pause,settings,win,fail}.png` is the settled
+390 x 844 browser set. The companion metrics prove Settings and every other
+visible action remain at least 48 px, and all document/body heights remain
+844 px.
+
+#### Deterministic Proof
+
+- Unit: 6 files / 49 tests passed.
+- Browser smoke: 1 Playwright test passed.
+- Typecheck, lint, production build, approved-source audit (29 PNG fixtures and
+  2 fonts), and `git diff --check`: passed.
+
+#### Independent Gate
+
+Post-fix Claude Opus session `a015a454-0b3c-4676-aaaa-123558644f4a`
+returned zero P1, one P2, and eleven P3 observations with no detected
+anti-patterns. It explicitly confirmed connector continuity, the bottom-sheet
+and tertiary-action grammar, diagnostic-free player surfaces, readable copy,
+and the new barrier. Its one P2 is the minor sun/card overlap in the neutral
+playfield, within the unchanged zero-P1 / at-most-three-P2 gate.
+
+#### Decision
+
+passed for Aesthetics Reviewed at zero P1 / one P2. Browser evidence remains
+diagnostic only and does not claim physical-device proof.

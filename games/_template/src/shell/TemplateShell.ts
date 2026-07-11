@@ -69,6 +69,13 @@ function art(src: string, className: string, instance?: string): HTMLImageElemen
   return image;
 }
 
+function failureBarrier(): HTMLElement {
+  const barrier = document.createElement("div");
+  barrier.className = "template-shell__fail-barrier";
+  barrier.setAttribute("aria-hidden", "true");
+  return barrier;
+}
+
 function assignInstance(root: ParentNode, selector: string, instance: string): void {
   const element = root.querySelector<HTMLElement>(selector);
   if (!element) throw new Error(`Missing semantic instance owner for ${instance}: ${selector}`);
@@ -538,7 +545,7 @@ function renderResult(
     title: win ? copy["win.title"] : copy["fail.title"],
     eyebrow: `${copy["level.label"]} ${displayedLevel}`,
     ribbonImage: win ? assetUrls.ribbonWin : assetUrls.ribbonFail,
-    art: art(win ? assetUrls.win : assetUrls.fail, "template-shell__result-art"),
+    art: win ? art(assetUrls.win, "template-shell__result-art") : failureBarrier(),
     messages: win ? copy["win.message"] : copy["fail.message"],
     actions,
   });

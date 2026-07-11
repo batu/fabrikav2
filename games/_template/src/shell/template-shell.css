@@ -439,9 +439,12 @@ body {
 }
 
 .template-shell__gameplay-copy h2 {
+  font-family: var(--fab-font-family);
   font-size: var(--fab-font-size-lg);
+  font-weight: var(--fab-font-weight-bold);
   line-height: 1.15;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .template-shell__gameplay-copy > p:last-child {
@@ -612,19 +615,53 @@ body {
   display: none;
 }
 
-.template-shell[data-fab-state="fail"] .fab-result-body::before {
+.template-shell[data-fab-state="fail"] .template-shell__fail-barrier {
+  position: relative;
+  display: block;
+  width: 90px;
+  height: 64px;
+  flex: 0 0 64px;
+}
+
+.template-shell[data-fab-state="fail"] .template-shell__fail-barrier::before {
+  position: absolute;
+  top: 0;
+  left: 2px;
+  z-index: 1;
   width: 82px;
-  height: 48px;
+  height: 42px;
   border: 3px solid var(--fab-seed-color-fail-accent);
-  border-radius: 10px;
+  border-radius: 8px;
   background: repeating-linear-gradient(
     -45deg,
     var(--fab-seed-color-fail-accent) 0 12px,
     var(--fab-seed-color-trail-surface) 12px 24px
   );
-  box-shadow: 0 5px 0 rgba(169, 79, 70, 0.18);
+  box-shadow: 0 4px 0 rgba(169, 79, 70, 0.18);
   content: "";
   transform: rotate(-2deg);
+}
+
+.template-shell[data-fab-state="fail"] .template-shell__fail-barrier::after {
+  position: absolute;
+  bottom: 0;
+  left: 12px;
+  width: 66px;
+  height: 30px;
+  background: linear-gradient(
+    90deg,
+    var(--fab-seed-color-fail-accent) 0 8px,
+    transparent 8px 58px,
+    var(--fab-seed-color-fail-accent) 58px 66px
+  );
+  content: "";
+}
+
+.template-shell [data-fab-action="result-next"] {
+  font-family: var(--fab-font-family);
+  font-weight: var(--fab-font-weight-bold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .template-shell[data-fab-state="fail"] .fab-result-message {

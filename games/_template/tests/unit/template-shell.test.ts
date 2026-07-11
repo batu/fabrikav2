@@ -237,6 +237,12 @@ describe("template shell renderer and harness", () => {
     expect(templateShellCss()).toMatch(
       /\.template-shell__title,[\s\S]*?\.template-shell \.fab-btn\s*\{[^}]*font-family:\s*var\(--fab-font-family-display\);/s,
     );
+    expect(templateShellCss()).toMatch(
+      /\.template-shell__gameplay-copy h2\s*\{[^}]*font-family:\s*var\(--fab-font-family\);[^}]*text-transform:\s*uppercase;/s,
+    );
+    expect(templateShellCss()).toMatch(
+      /\.template-shell \[data-fab-action="result-next"\]\s*\{[^}]*font-family:\s*var\(--fab-font-family\);[^}]*text-transform:\s*uppercase;/s,
+    );
   });
 
   it("keeps the paused level visibly present without duplicating its live controls", () => {
@@ -441,7 +447,8 @@ describe("template shell renderer and harness", () => {
     const css = templateShellCss();
 
     expect(ribbon?.textContent).toBe("Trail blocked");
-    expect(shell.root.querySelector<HTMLImageElement>(".template-shell__result-art")?.src).toContain("result-fail.png");
+    expect(shell.root.querySelector(".template-shell__result-art")).toBeNull();
+    expect(shell.root.querySelector(".template-shell__fail-barrier")?.getAttribute("aria-hidden")).toBe("true");
     expect(shell.root.querySelector(".fab-result-message")?.textContent).toBe("Choose a clearer step, then try again.");
     expect(backdrop?.dataset.templateBackdrop).toBe("result-level");
     expect(backdrop?.getAttribute("aria-hidden")).toBe("true");
@@ -472,7 +479,10 @@ describe("template shell renderer and harness", () => {
       /\.template-shell\[data-fab-state="fail"\] \.template-shell__result-art\s*\{[^}]*display:\s*none;/s,
     );
     expect(css).toMatch(
-      /\.template-shell\[data-fab-state="fail"\] \.fab-result-body::before\s*\{[^}]*var\(--fab-seed-color-trail-surface\)/s,
+      /\.template-shell\[data-fab-state="fail"\] \.template-shell__fail-barrier::before\s*\{[^}]*var\(--fab-seed-color-trail-surface\)/s,
+    );
+    expect(css).toMatch(
+      /\.template-shell\[data-fab-state="fail"\] \.template-shell__fail-barrier::after\s*\{[^}]*linear-gradient\(/s,
     );
     expect(css).toMatch(
       /\.template-shell\[data-fab-state="fail"\] \.fab-modal-backdrop\s*\{[^}]*align-items:\s*flex-end;[^}]*padding:\s*0;/s,
