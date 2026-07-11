@@ -100,11 +100,25 @@ export interface ShellStateFamilyDefinition {
   variants: Record<string, ShellVisualPresentation>;
 }
 
+export interface ShellSourceRasterRequirements {
+  minWidth: number;
+  minHeight: number;
+  aspectRatio: { min: number; max: number };
+}
+
+export interface ShellAssetRasterPolicy {
+  maxEdge: number;
+  maxAssets: number;
+  maxAssetBytes: number;
+  maxAggregateBytes: number;
+  maxDecodedPixels: number;
+}
+
 export interface ShellAssetSlotDefinition {
   id: string;
   fit: ShellFitMode;
   compatibleRoleIds: string[];
-  geometry: ShellGeometryCaps;
+  sourceRaster: ShellSourceRasterRequirements;
   alpha: 'allowed' | 'required' | 'forbidden';
   provenanceRequired: boolean;
   mimeTypes: string[];
@@ -147,6 +161,7 @@ export interface ShellPresentationContract {
   contractId: string;
   contractVersion: string;
   schemaDialect: string;
+  assetRasterPolicy: ShellAssetRasterPolicy;
   compatibility: {
     compatibilityId: string;
     minimumReaderVersion: string;
@@ -231,17 +246,21 @@ export interface ShellPresentationDocument {
 
 export interface ShellAssetProvenance {
   sourceId: string;
+  sourcePath: string;
   sourceHash: string;
   license: string;
 }
 
 export interface ShellAssetCatalogEntry {
   id: string;
+  name: string;
+  description: string;
   slotId: string;
   path: string;
   mimeType: 'image/png' | 'image/jpeg' | 'image/webp';
   width: number;
   height: number;
+  bytes: number;
   hasAlpha: boolean;
   sha256: string;
   provenance: ShellAssetProvenance;
@@ -895,6 +914,102 @@ function validateGeometryCaps(
   return caps;
 }
 
+function isPositiveInteger(value: number): boolean {
+  return Number.isSafeInteger(value) && value > 0;
+}
+
+function validateAssetRasterPolicy(
+  value: unknown,
+  path: string,
+  issues: ShellValidationIssue[],
+): ShellAssetRasterPolicy | undefined {
+  const policy = asRecord(value, path, issues);
+  if (!policy) return undefined;
+  rejectUnsupportedFields(
+    policy,
+    new Set([
+      'maxEdge',
+      'maxAssets',
+      'maxAssetBytes',
+      'maxAggregateBytes',
+      'maxDecodedPixels',
+    ]),
+    path,
+    issues,
+  );
+  const parsed: ShellAssetRasterPolicy = {
+    maxEdge: numberField(policy, 'maxEdge', path, issues),
+    maxAssets: numberField(policy, 'maxAssets', path, issues),
+    maxAssetBytes: numberField(policy, 'maxAssetBytes', path, issues),
+    maxAggregateBytes: numberField(policy, 'maxAggregateBytes', path, issues),
+    maxDecodedPixels: numberField(policy, 'maxDecodedPixels', path, issues),
+  };
+  if (
+    !Object.values(parsed).every(isPositiveInteger) ||
+    parsed.maxAssets > MAX_COLLECTION_ITEMS ||
+    parsed.maxAssetBytes > parsed.maxAggregateBytes ||
+    parsed.maxEdge > Math.floor(Math.sqrt(parsed.maxDecodedPixels))
+  ) {
+    addIssue(
+      issues,
+      path,
+      'invalid-raster-policy',
+      'Raster limits must be positive integers with coherent per-asset and aggregate budgets.',
+    );
+  }
+  return parsed;
+}
+
+function validateSourceRasterRequirements(
+  value: unknown,
+  path: string,
+  policy: ShellAssetRasterPolicy | undefined,
+  issues: ShellValidationIssue[],
+): ShellSourceRasterRequirements | undefined {
+  const sourceRaster = asRecord(value, path, issues);
+  if (!sourceRaster) return undefined;
+  rejectUnsupportedFields(
+    sourceRaster,
+    new Set(['minWidth', 'minHeight', 'aspectRatio']),
+    path,
+    issues,
+  );
+  const aspectRatio = asRecord(sourceRaster.aspectRatio, `${path}.aspectRatio`, issues);
+  if (aspectRatio) {
+    rejectUnsupportedFields(aspectRatio, new Set(['min', 'max']), `${path}.aspectRatio`, issues);
+  }
+  const requirements: ShellSourceRasterRequirements = {
+    minWidth: numberField(sourceRaster, 'minWidth', path, issues),
+    minHeight: numberField(sourceRaster, 'minHeight', path, issues),
+    aspectRatio: {
+      min: aspectRatio
+        ? numberField(aspectRatio, 'min', `${path}.aspectRatio`, issues)
+        : Number.NaN,
+      max: aspectRatio
+        ? numberField(aspectRatio, 'max', `${path}.aspectRatio`, issues)
+        : Number.NaN,
+    },
+  };
+  if (
+    !isPositiveInteger(requirements.minWidth) ||
+    !isPositiveInteger(requirements.minHeight) ||
+    !Number.isFinite(requirements.aspectRatio.min) ||
+    !Number.isFinite(requirements.aspectRatio.max) ||
+    requirements.aspectRatio.min <= 0 ||
+    requirements.aspectRatio.max < requirements.aspectRatio.min ||
+    (policy !== undefined &&
+      (requirements.minWidth > policy.maxEdge || requirements.minHeight > policy.maxEdge))
+  ) {
+    addIssue(
+      issues,
+      path,
+      'invalid-source-raster',
+      'Source raster floors must be positive integers and aspect bounds must be finite, positive, and ordered.',
+    );
+  }
+  return requirements;
+}
+
 function validateNormalizedGeometry(
   value: unknown,
   path: string,
@@ -1277,6 +1392,7 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
       'contractVersion',
       'schemaDialect',
       'compatibility',
+      'assetRasterPolicy',
       'canonicalCanvas',
       'anchors',
       'gameScreenNames',
@@ -1309,6 +1425,11 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
   if (schemaDialect !== 'https://json-schema.org/draft/2020-12/schema') {
     addIssue(issues, '$.schemaDialect', 'invalid-schema', 'V1 schemas must use JSON Schema draft 2020-12.');
   }
+  const rasterPolicy = validateAssetRasterPolicy(
+    root.assetRasterPolicy,
+    '$.assetRasterPolicy',
+    issues,
+  );
 
   const neutralPolicy = asRecord(root.neutralIdPolicy, '$.neutralIdPolicy', issues) ?? {};
   rejectUnsupportedFields(
@@ -1536,14 +1657,22 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
     const path = `$.assetSlots[${index}]`;
     rejectUnsupportedFields(
       slot,
-      new Set(['id', 'fit', 'compatibleRoleIds', 'geometry', 'alpha', 'provenanceRequired', 'mimeTypes']),
+      new Set([
+        'id',
+        'fit',
+        'compatibleRoleIds',
+        'sourceRaster',
+        'alpha',
+        'provenanceRequired',
+        'mimeTypes',
+      ]),
       path,
       issues,
     );
     if (slot.fit !== 'contain' && slot.fit !== 'cover') {
       addIssue(issues, `${path}.fit`, 'invalid-enum', 'Asset slot fit must be contain or cover.');
     }
-    validateGeometryCaps(slot.geometry, `${path}.geometry`, issues);
+    validateSourceRasterRequirements(slot.sourceRaster, `${path}.sourceRaster`, rasterPolicy, issues);
     if (slot.alpha !== 'allowed' && slot.alpha !== 'required' && slot.alpha !== 'forbidden') {
       addIssue(issues, `${path}.alpha`, 'invalid-enum', 'Invalid alpha policy.');
     }
@@ -1611,7 +1740,30 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
           'unknown-role',
           `Unknown compatible role "${roleId}".`,
         );
+      } else if (rolesById.get(roleId)?.assetSlotId !== slot.id) {
+        addIssue(
+          issues,
+          `$.assetSlots[${index}].compatibleRoleIds`,
+          'compatibility-mismatch',
+          `Role "${roleId}" does not point back to asset slot "${String(slot.id)}".`,
+        );
       }
+    }
+  });
+
+  roles.forEach((role, index) => {
+    if (role.assetSlotId === null) return;
+    const slot = slots.find((candidate) => candidate.id === role.assetSlotId);
+    const compatibleRoleIds = slot
+      ? asStringArray(slot.compatibleRoleIds, `$.assetSlots.${String(role.assetSlotId)}.compatibleRoleIds`, issues)
+      : [];
+    if (slot && !compatibleRoleIds.includes(String(role.id))) {
+      addIssue(
+        issues,
+        `$.roles[${index}].assetSlotId`,
+        'compatibility-mismatch',
+        `Asset slot "${String(role.assetSlotId)}" does not include role "${String(role.id)}".`,
+      );
     }
   });
 
@@ -2031,6 +2183,53 @@ function mimeMatchesPath(mimeType: string, path: string): boolean {
   return false;
 }
 
+function boundedAssetMetadataField(
+  record: JsonRecord,
+  key: 'name' | 'description',
+  maximumCodePoints: number,
+  path: string,
+  issues: ShellValidationIssue[],
+): string {
+  const value = record[key];
+  const hasControlCharacter = typeof value === 'string' && Array.from(value).some((character) => {
+    const codePoint = character.codePointAt(0)!;
+    return codePoint < 32 || codePoint === 127;
+  });
+  if (
+    typeof value !== 'string' ||
+    value.trim().length === 0 ||
+    hasControlCharacter ||
+    Array.from(value).length > maximumCodePoints
+  ) {
+    addIssue(
+      issues,
+      `${path}.${key}`,
+      'invalid-asset-metadata',
+      `Asset ${key} must contain 1 to ${maximumCodePoints} printable Unicode code points.`,
+    );
+    return '';
+  }
+  return value;
+}
+
+function isNormalizedRelativeSourcePath(path: string): boolean {
+  const hasControlCharacter = Array.from(path).some((character) => {
+    const codePoint = character.codePointAt(0)!;
+    return codePoint < 32 || codePoint === 127;
+  });
+  if (
+    path.length === 0 ||
+    path.startsWith('/') ||
+    path.includes('\\') ||
+    path.includes('?') ||
+    path.includes('#') ||
+    hasControlCharacter
+  ) {
+    return false;
+  }
+  return path.split('/').every((segment) => segment !== '' && segment !== '.' && segment !== '..');
+}
+
 export function parseShellAssetCatalog(value: unknown): ShellAssetCatalog {
   const issues: ShellValidationIssue[] = [];
   const root = asRecord(value, '$', issues);
@@ -2043,6 +2242,15 @@ export function parseShellAssetCatalog(value: unknown): ShellAssetCatalog {
     addIssue(issues, '$.contractVersion', 'compatibility-mismatch', 'Asset catalog contract version is incompatible.');
   }
 
+  const rasterPolicy = shellPresentationContract.assetRasterPolicy;
+  if (Array.isArray(root.assets) && root.assets.length > rasterPolicy.maxAssets) {
+    addIssue(
+      issues,
+      '$.assets',
+      'asset-count-limit',
+      `Asset catalogs may contain at most ${rasterPolicy.maxAssets} entries.`,
+    );
+  }
   const slotsById = new Map(shellPresentationContract.assetSlots.map((slot) => [slot.id, slot]));
   const assets = asRecordArray(root.assets, '$.assets', issues);
   const assetIds = validateUniqueIds(assets, '$.assets', issues);
@@ -2051,17 +2259,22 @@ export function parseShellAssetCatalog(value: unknown): ShellAssetCatalog {
     addIssue(issues, '$.assets', 'non-canonical-order', 'Asset catalog entries must be sorted by ID.');
   }
 
+  let aggregateBytes = 0;
+  let aggregateDecodedPixels = 0;
   assets.forEach((asset, index) => {
     const path = `$.assets[${index}]`;
     rejectUnsupportedFields(
       asset,
       new Set([
         'id',
+        'name',
+        'description',
         'slotId',
         'path',
         'mimeType',
         'width',
         'height',
+        'bytes',
         'hasAlpha',
         'sha256',
         'provenance',
@@ -2073,6 +2286,8 @@ export function parseShellAssetCatalog(value: unknown): ShellAssetCatalog {
     if (!SEMANTIC_ID_PATTERN.test(id)) {
       addIssue(issues, `${path}.id`, 'invalid-id', 'Asset ID must be a semantic dot/kebab identifier.');
     }
+    boundedAssetMetadataField(asset, 'name', 80, path, issues);
+    boundedAssetMetadataField(asset, 'description', 320, path, issues);
     const slotId = stringField(asset, 'slotId', path, issues);
     const slot = slotsById.get(slotId);
     if (!slot) addIssue(issues, `${path}.slotId`, 'unknown-slot', `Unknown asset slot "${slotId}".`);
@@ -2094,19 +2309,68 @@ export function parseShellAssetCatalog(value: unknown): ShellAssetCatalog {
         'Asset MIME and extension must agree on PNG, JPEG, or WebP raster data.',
       );
     }
+    if (slot && !slot.mimeTypes.includes(mimeType)) {
+      addIssue(
+        issues,
+        `${path}.mimeType`,
+        'unsafe-asset',
+        `Asset MIME is incompatible with slot "${slotId}".`,
+      );
+    }
     const width = numberField(asset, 'width', path, issues);
     const height = numberField(asset, 'height', path, issues);
-    if (!Number.isInteger(width) || !Number.isInteger(height) || width <= 0 || height <= 0) {
+    const hasValidDimensions = isPositiveInteger(width) && isPositiveInteger(height);
+    if (!hasValidDimensions) {
       addIssue(issues, path, 'invalid-geometry', 'Asset dimensions must be positive integers.');
     }
-    if (
-      slot &&
-      (width < slot.geometry.minWidth ||
-        width > slot.geometry.maxWidth ||
-        height < slot.geometry.minHeight ||
-        height > slot.geometry.maxHeight)
-    ) {
-      addIssue(issues, path, 'invalid-geometry', `Asset dimensions are incompatible with slot "${slotId}".`);
+    if (hasValidDimensions) {
+      if (width > rasterPolicy.maxEdge || height > rasterPolicy.maxEdge) {
+        addIssue(
+          issues,
+          path,
+          'raster-edge-limit',
+          `Asset edges may not exceed ${rasterPolicy.maxEdge} pixels.`,
+        );
+      } else {
+        aggregateDecodedPixels += width * height;
+      }
+      if (
+        slot &&
+        (width < slot.sourceRaster.minWidth || height < slot.sourceRaster.minHeight)
+      ) {
+        addIssue(
+          issues,
+          path,
+          'source-raster-floor',
+          `Asset dimensions are below the source floor for slot "${slotId}".`,
+        );
+      }
+      const aspectRatio = width / height;
+      if (
+        slot &&
+        (aspectRatio < slot.sourceRaster.aspectRatio.min ||
+          aspectRatio > slot.sourceRaster.aspectRatio.max)
+      ) {
+        addIssue(
+          issues,
+          path,
+          'source-raster-aspect',
+          `Asset aspect ratio is incompatible with slot "${slotId}".`,
+        );
+      }
+    }
+    const bytes = numberField(asset, 'bytes', path, issues);
+    if (!isPositiveInteger(bytes)) {
+      addIssue(issues, `${path}.bytes`, 'invalid-number', 'Asset byte size must be a positive integer.');
+    } else if (bytes > rasterPolicy.maxAssetBytes) {
+      addIssue(
+        issues,
+        `${path}.bytes`,
+        'asset-byte-limit',
+        `Asset byte size may not exceed ${rasterPolicy.maxAssetBytes}.`,
+      );
+    } else {
+      aggregateBytes += bytes;
     }
     const hasAlpha = booleanField(asset, 'hasAlpha', path, issues);
     if (slot?.alpha === 'required' && !hasAlpha) {
@@ -2123,11 +2387,20 @@ export function parseShellAssetCatalog(value: unknown): ShellAssetCatalog {
     if (provenance) {
       rejectUnsupportedFields(
         provenance,
-        new Set(['sourceId', 'sourceHash', 'license']),
+        new Set(['sourceId', 'sourcePath', 'sourceHash', 'license']),
         `${path}.provenance`,
         issues,
       );
       stringField(provenance, 'sourceId', `${path}.provenance`, issues);
+      const sourcePath = stringField(provenance, 'sourcePath', `${path}.provenance`, issues);
+      if (!isNormalizedRelativeSourcePath(sourcePath)) {
+        addIssue(
+          issues,
+          `${path}.provenance.sourcePath`,
+          'unsafe-source-path',
+          'Provenance source path must be a normalized relative path with forward slashes.',
+        );
+      }
       const sourceHash = stringField(provenance, 'sourceHash', `${path}.provenance`, issues);
       if (!HASH_PATTERN.test(sourceHash)) {
         addIssue(issues, `${path}.provenance.sourceHash`, 'invalid-hash', 'Provenance source hash must be SHA-256.');
@@ -2135,6 +2408,23 @@ export function parseShellAssetCatalog(value: unknown): ShellAssetCatalog {
       stringField(provenance, 'license', `${path}.provenance`, issues);
     }
   });
+
+  if (aggregateBytes > rasterPolicy.maxAggregateBytes) {
+    addIssue(
+      issues,
+      '$.assets',
+      'aggregate-byte-limit',
+      `Aggregate encoded asset bytes may not exceed ${rasterPolicy.maxAggregateBytes}.`,
+    );
+  }
+  if (aggregateDecodedPixels > rasterPolicy.maxDecodedPixels) {
+    addIssue(
+      issues,
+      '$.assets',
+      'decoded-pixel-limit',
+      `Aggregate decoded pixels may not exceed ${rasterPolicy.maxDecodedPixels}.`,
+    );
+  }
 
   if (issues.length > 0) throw new ShellContractValidationError('Shell asset catalog', issues);
   return value as ShellAssetCatalog;
@@ -2263,6 +2553,13 @@ function validateAssetCompatibility(
   const slot = role.assetSlotId ? slotsById.get(role.assetSlotId) : undefined;
   if (!slot) {
     addIssue(issues, `${path}.assetId`, 'incompatible-asset', 'This role has no replaceable asset slot.');
+  } else if (asset && visual.geometry?.fit !== slot.fit) {
+    addIssue(
+      issues,
+      `${path}.geometry.fit`,
+      'incompatible-asset-fit',
+      `Asset slot "${slot.id}" requires ${slot.fit} fitting.`,
+    );
   }
 }
 
@@ -2434,10 +2731,23 @@ export function parseShellPresentation(
             maximumCopyCodePoints: shellPresentationContract.editableAst.copy.maximumCodePoints,
             },
           );
-          if (parsedVariant) {
-            parsedVariants[variant] = parsedVariant;
+          if (parsedVariant) parsedVariants[variant] = parsedVariant;
+        }
+      }
+      if (presentation) {
+        const basePresentation = presentation as ShellDefaultPresentation;
+        validateAssetCompatibility(
+          basePresentation,
+          `${path}.presentation`,
+          role,
+          catalogById,
+          slotsById,
+          issues,
+        );
+        if (family) {
+          for (const [variant, parsedVariant] of Object.entries(parsedVariants)) {
             validateAssetCompatibility(
-              parsedVariant,
+              resolveVisualPresentation(family, basePresentation, parsedVariant),
               `${path}.variants.${variant}`,
               role,
               catalogById,
@@ -2446,16 +2756,6 @@ export function parseShellPresentation(
             );
           }
         }
-      }
-      if (presentation) {
-        validateAssetCompatibility(
-          presentation,
-          `${path}.presentation`,
-          role,
-          catalogById,
-          slotsById,
-          issues,
-        );
       }
       const order = presentation?.order;
       if (typeof order === 'number') {
