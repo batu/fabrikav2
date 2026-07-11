@@ -242,7 +242,7 @@ describe("template shell renderer and harness", () => {
   it("keeps the paused level visibly present without duplicating its live controls", () => {
     const controller = createController();
     const root = document.getElementById("app")!;
-    const shell = mountTemplateShell({ mountInto: root, controller });
+    const shell = mountTemplateShell({ mountInto: root, controller, enableTestOutcomes: true });
 
     controller.startCurrent();
     shell.render();
@@ -296,10 +296,23 @@ describe("template shell renderer and harness", () => {
     );
   });
 
-  it("keeps the required outcome controls in a closed native diagnostic disclosure", () => {
+  it("keeps test outcomes off the player surface unless diagnostics are explicitly enabled", () => {
     const controller = createController();
     const root = document.getElementById("app")!;
     const shell = mountTemplateShell({ mountInto: root, controller });
+
+    controller.startCurrent();
+    shell.render();
+
+    expect(shell.root.querySelector(".template-shell__sample-outcomes")).toBeNull();
+    expect(shell.root.querySelector('[data-fab-action="test-win"]')).toBeNull();
+    expect(shell.root.querySelector('[data-fab-action="test-lose"]')).toBeNull();
+  });
+
+  it("keeps the required outcome controls in a closed native diagnostic disclosure", () => {
+    const controller = createController();
+    const root = document.getElementById("app")!;
+    const shell = mountTemplateShell({ mountInto: root, controller, enableTestOutcomes: true });
 
     controller.startCurrent();
     shell.render();
@@ -433,7 +446,7 @@ describe("template shell renderer and harness", () => {
     expect(backdrop?.dataset.templateBackdrop).toBe("result-level");
     expect(backdrop?.getAttribute("aria-hidden")).toBe("true");
     expect(backdrop?.querySelector(".template-shell__level-label")?.textContent).toBe("Trail 2");
-    expect(backdrop?.querySelector(".template-shell__sample-outcomes")).not.toBeNull();
+    expect(backdrop?.querySelector(".template-shell__sample-outcomes")).toBeNull();
     expect(backdrop?.querySelectorAll("[data-fab-action]")).toHaveLength(0);
     expect(backdrop?.querySelectorAll("[data-fab-instance]")).toHaveLength(0);
     expect(retry?.classList.contains("template-shell__overlay-action--primary")).toBe(true);
@@ -507,7 +520,7 @@ describe("template shell renderer and harness", () => {
   it("uses the state owner for rendered semantic actions and keeps locked nodes inert", () => {
     const controller = createController();
     const root = document.getElementById("app")!;
-    const shell = mountTemplateShell({ mountInto: root, controller });
+    const shell = mountTemplateShell({ mountInto: root, controller, enableTestOutcomes: true });
 
     const locked = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="locked"]');
     expect(locked).not.toBeNull();
@@ -542,7 +555,7 @@ describe("template shell renderer and harness", () => {
     for (const state of ["menu", "level", "settings", "pause", "win", "fail"] as const) {
       const controller = createController();
       const root = document.getElementById("app")!;
-      const shell = mountTemplateShell({ mountInto: root, controller });
+      const shell = mountTemplateShell({ mountInto: root, controller, enableTestOutcomes: true });
       const harness = createTemplateHarness({
         buildVersion: "test",
         packageId: "com.fabrikav2.template",
@@ -599,7 +612,7 @@ describe("template shell renderer and harness", () => {
   it("renders every canonical state and lets the deterministic tour drive the same controller", async () => {
     const controller = createController();
     const root = document.getElementById("app")!;
-    const shell = mountTemplateShell({ mountInto: root, controller });
+    const shell = mountTemplateShell({ mountInto: root, controller, enableTestOutcomes: true });
     const harness = createTemplateHarness({
       buildVersion: "test",
       packageId: "com.fabrikav2.template",

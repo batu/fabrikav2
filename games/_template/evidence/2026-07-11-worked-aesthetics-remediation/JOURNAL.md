@@ -811,3 +811,42 @@ settled 390 x 844 real-click browser set. The companion metrics retain an
 passed for Worked; a fresh unseen image review still owns the independent
 Aesthetics Reviewed threshold. Browser evidence remains diagnostic only and
 does not claim Android or iPhone proof.
+
+### Iteration 10 - Remove diagnostics from the player surface
+
+#### Why This Iteration
+
+Fresh image-only Sol session `019f504b-5fcf-7913-a5db-336a349de728`
+identified one P1: the closed `Test outcomes` disclosure was still visible to
+players. This was a valid seam against the plan's clearly test-only requirement
+and its release rule that placeholder outcome controls become unavailable.
+
+#### Changes Made
+
+- Made outcome diagnostics opt-in at the renderer boundary. Normal template
+  mounts contain no disclosure, Win action, or Lose action in the DOM.
+- Enabled the same deterministic controls only through an explicit mount option.
+  The development entry point accepts `?diagnostics=1`; automated test builds
+  can opt in with `VITE_ENABLE_TEST_OUTCOMES=true`.
+- Kept the controller and lifecycle paths unchanged, and updated the browser
+  diagnostic to request the explicit test surface.
+- Added a negative unit assertion for the player render and retained complete
+  semantic/action coverage under the explicit diagnostic mount.
+
+#### Post-Change Screenshots
+
+`u2-player-surface-pass-{menu,level,pause,settings,win,fail}.png` is the settled
+390 x 844 browser set. The normal Level capture contains only Pause as a live
+action; its text contains no test or developer copy. The companion metrics
+retain an 844 px document/body and all visible actions at least 48 px high.
+
+#### Deterministic Proof
+
+- Unit: 6 files / 49 tests passed, including player-absent and explicit-test
+  outcome-control cases.
+- Typecheck, lint, and `git diff --check`: passed after the boundary change.
+
+#### Decision
+
+passed for Worked; the refreshed clean player frames own the next independent
+Aesthetics Reviewed verdict. Browser evidence remains diagnostic only.

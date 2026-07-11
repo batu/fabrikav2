@@ -56,6 +56,7 @@ export interface TemplateShellHandle {
 export interface MountTemplateShellOptions {
   readonly mountInto: HTMLElement;
   readonly controller: TemplateShellController;
+  readonly enableTestOutcomes?: boolean;
 }
 
 function art(src: string, className: string, instance?: string): HTMLImageElement {
@@ -306,7 +307,11 @@ function renderLevel(
   snapshot: TemplateShellSnapshot,
   controller: TemplateShellController,
   render: () => void,
-  options: { readonly backdrop?: BackdropKind; readonly displayedLevel?: number } = {},
+  options: {
+    readonly backdrop?: BackdropKind;
+    readonly displayedLevel?: number;
+    readonly enableTestOutcomes?: boolean;
+  } = {},
 ): void {
   const backdrop = options.backdrop;
   const page = document.createElement("main");
@@ -384,7 +389,10 @@ function renderLevel(
   gameplayCopy.append(gameplayKicker, gameplayTitle, gameplayBody);
   gameplay.append(gameplayLandscape, gameplayCopy);
 
-  page.append(hud, gameplay, renderSampleOutcomes(controller, render, Boolean(backdrop)));
+  page.append(hud, gameplay);
+  if (options.enableTestOutcomes) {
+    page.append(renderSampleOutcomes(controller, render, Boolean(backdrop)));
+  }
   mountInto.appendChild(page);
 }
 
@@ -573,13 +581,18 @@ export function mountTemplateShell(options: MountTemplateShellOptions): Template
         surfaceHandle = renderMenu(root, snapshot, options.controller, render);
         break;
       case "level":
-        renderLevel(root, snapshot, options.controller, render);
+        renderLevel(root, snapshot, options.controller, render, {
+          enableTestOutcomes: options.enableTestOutcomes,
+        });
         break;
       case "settings":
         surfaceHandle = renderSettings(root, snapshot, options.controller, render, () => replacingSurface);
         break;
       case "pause":
-        renderLevel(root, snapshot, options.controller, render, { backdrop: "pause" });
+        renderLevel(root, snapshot, options.controller, render, {
+          backdrop: "pause",
+          enableTestOutcomes: options.enableTestOutcomes,
+        });
         surfaceHandle = renderPause(root, options.controller, render);
         break;
       case "win":
@@ -587,6 +600,7 @@ export function mountTemplateShell(options: MountTemplateShellOptions): Template
         renderLevel(root, snapshot, options.controller, render, {
           backdrop: "result",
           displayedLevel: snapshot.surface === "win" ? Math.max(1, snapshot.currentLevel - 1) : snapshot.currentLevel,
+          enableTestOutcomes: options.enableTestOutcomes,
         });
         surfaceHandle = renderResult(root, snapshot, options.controller, render);
         break;

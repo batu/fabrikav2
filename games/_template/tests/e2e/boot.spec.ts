@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 // Manual diagnostic only: browser proof is never a substitute for later device
 // verification. It keeps a real rendered input path available when needed.
 test("boots Progression Home and starts the current level", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/?diagnostics=1");
   const continueAction = page.locator('#app [data-fab-instance="menu.play"]');
   await expect(continueAction).toBeVisible();
   await continueAction.click();

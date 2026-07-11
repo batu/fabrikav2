@@ -7,9 +7,16 @@ import { createTemplateHarness } from "./shell/harness.ts";
 import { mountTemplateShell } from "./shell/TemplateShell.ts";
 
 /** Boot the editor-neutral functional shell and expose its state owner to tests. */
-export function bootGame(mountInto: HTMLElement) {
+export function bootGame(
+  mountInto: HTMLElement,
+  options: { readonly enableTestOutcomes?: boolean } = {},
+) {
   const controller = createTemplateShellController();
-  const shell = mountTemplateShell({ mountInto, controller });
+  const shell = mountTemplateShell({
+    mountInto,
+    controller,
+    enableTestOutcomes: options.enableTestOutcomes,
+  });
   return { machine: controller.machine, controller, shell, config: gameConfig };
 }
 
@@ -20,9 +27,13 @@ export function harnessWindowKeyForGame(gameId: string): string {
 const TEST_HARNESS_ENABLED: boolean =
   import.meta.env.MODE !== "production" || import.meta.env.VITE_ENABLE_TEST_HARNESS === "true";
 
+const TEST_OUTCOMES_ENABLED: boolean =
+  import.meta.env.VITE_ENABLE_TEST_OUTCOMES === "true" ||
+  (import.meta.env.DEV && new URLSearchParams(window.location.search).get("diagnostics") === "1");
+
 const appRoot = typeof document !== "undefined" ? document.getElementById("app") : null;
 if (appRoot) {
-  const game = bootGame(appRoot);
+  const game = bootGame(appRoot, { enableTestOutcomes: TEST_OUTCOMES_ENABLED });
   if (TEST_HARNESS_ENABLED) {
     const harness = createTemplateHarness({
       buildVersion: "dev",
