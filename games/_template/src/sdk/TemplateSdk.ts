@@ -1,23 +1,25 @@
-import { Mixer } from "@fabrikav2/sdk/audio";
+import { AUDIO_CHANNELS, Mixer, type AudioChannel } from "@fabrikav2/sdk/audio";
 import {
   createAnalytics,
   createRingBufferSink,
   type AnalyticsEvent,
   type RingBufferSink,
 } from "@fabrikav2/sdk/analytics";
-import { createHaptics } from "@fabrikav2/sdk/haptics";
+import { createHaptics, NotificationType } from "@fabrikav2/sdk/haptics";
 import { DisabledAdProvider } from "../../../../packages/sdk/src/ads/DisabledAdProvider.ts";
 import type { AdProvider } from "../../../../packages/sdk/src/ads/AdProvider.ts";
 
 export type TemplateSettingKey = "music" | "sfx" | "haptics";
+export type TemplateAudioSettings = Readonly<Record<AudioChannel, boolean>>;
 
 type TemplateAnalyticsEvent = "template_setting_changed" | "template_pause" | "template_resume";
 
 export interface TemplateSdk {
   readonly adProvider: AdProvider;
   readonly mixer: Mixer;
+  syncAudioSettings(settings: TemplateAudioSettings): void;
   levelStarted(levelId: number): void;
-  levelCompleted(levelId: number, currency: number): void;
+  levelCompleted(levelId: number, currency: number, rewardAmount: number): void;
   levelFailed(levelId: number): void;
   settingChanged(key: TemplateSettingKey, enabled: boolean): void;
   paused(): void;
@@ -27,6 +29,7 @@ export interface TemplateSdk {
 }
 
 export interface CreateTemplateSdkOptions {
+  readonly audioSettings: TemplateAudioSettings;
   readonly isHapticsEnabled: () => boolean;
   readonly now?: () => number;
 }
@@ -48,29 +51,38 @@ export function createTemplateSdk(options: CreateTemplateSdkOptions): TemplateSd
     now: options.now ?? (() => 0),
   });
   const mixer = new Mixer();
+  const syncAudioSettings = (settings: TemplateAudioSettings): void => {
+    for (const channel of AUDIO_CHANNELS) {
+      mixer.setMuted(channel, !settings[channel]);
+    }
+  };
+  syncAudioSettings(options.audioSettings);
   const haptics = createHaptics({ isEnabled: options.isHapticsEnabled });
   const adProvider = new DisabledAdProvider("template shell has no ad placements");
 
   return {
     adProvider,
     mixer,
+    syncAudioSettings,
     levelStarted(levelId: number): void {
       analytics.levelStart({ level_id: String(levelId), level_index: levelId });
     },
-    levelCompleted(levelId: number, currency: number): void {
+    levelCompleted(levelId: number, currency: number, rewardAmount: number): void {
       analytics.levelComplete({ level_id: String(levelId), level_index: levelId });
-      analytics.resourceChange({
-        currency: "coins",
-        amount: 5,
-        flow: "source",
-        reason: "template_level_reward",
-        balance: currency,
-      });
-      haptics.notification();
+      if (rewardAmount > 0) {
+        analytics.resourceChange({
+          currency: "coins",
+          amount: rewardAmount,
+          flow: "source",
+          reason: "template_level_reward",
+          balance: currency,
+        });
+      }
+      haptics.notification(NotificationType.Success);
     },
     levelFailed(levelId: number): void {
       analytics.levelFail({ level_id: String(levelId), level_index: levelId });
-      haptics.notification();
+      haptics.notification(NotificationType.Error);
     },
     settingChanged(key: TemplateSettingKey, enabled: boolean): void {
       if (key === "music" || key === "sfx") mixer.setMuted(key, !enabled);

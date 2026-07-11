@@ -31,6 +31,16 @@ function sha256(bytes) {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
+function canonicalText(bytes) {
+  return bytes
+    .toString("utf8")
+    .replace(/\r\n?/g, "\n")
+    .split("\n")
+    .map((line) => line.trim())
+    .join("\n")
+    .trim();
+}
+
 function dimensions(bytes) {
   const pngSignature = "89504e470d0a1a0a";
   if (bytes.subarray(0, 8).toString("hex") !== pngSignature) {
@@ -57,6 +67,24 @@ const fontFixtures = [
     sha256: "17e182587a3264dcf9e5b17c055715d5597187546ce81925c64e9184c26d597f",
   },
 ];
+
+for (const source of manifest.sources) {
+  const sourceFile = resolveWithin(approvedSourceRoot, source.approvedSourcePath, source.licenseSourcePath);
+  const targetFile = resolveWithin(templateRoot, "design", source.licenseFile);
+  if (!fs.existsSync(sourceFile) || !fs.existsSync(targetFile)) {
+    failures.push(`${source.id}: approved source or committed license is missing`);
+    continue;
+  }
+  const sourceBytes = fs.readFileSync(sourceFile);
+  const targetBytes = fs.readFileSync(targetFile);
+  if (
+    sha256(sourceBytes) !== source.licenseSourceSha256 ||
+    sha256(targetBytes) !== source.licenseSha256 ||
+    canonicalText(sourceBytes) !== canonicalText(targetBytes)
+  ) {
+    failures.push(`${source.id}: committed license text or pinned hashes differ from the approved source`);
+  }
+}
 
 for (const asset of manifest.assets) {
   const source = sources.get(asset.source.pack);
@@ -125,5 +153,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `Kenney source audit passed: ${manifest.assets.length} semantic fixtures and ${fontFixtures.length} fonts match approved source bytes`,
+  `Kenney source audit passed: ${manifest.assets.length} semantic fixtures and ${fontFixtures.length} fonts match source bytes; ${manifest.sources.length} licenses match pinned source content`,
 );

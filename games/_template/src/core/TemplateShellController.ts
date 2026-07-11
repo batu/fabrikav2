@@ -3,7 +3,6 @@ import {
   createFlowMachine,
   loadPersistedJson,
   savePersistedJson,
-  type FlowMachine,
 } from "@fabrikav2/kernel";
 import type { AnalyticsEvent } from "@fabrikav2/sdk/analytics";
 import type { HarnessSaveProfile } from "@fabrikav2/testkit/harness";
@@ -28,6 +27,7 @@ interface PersistedTemplateState {
 }
 
 export interface TemplateShellSnapshot extends PersistedTemplateState {
+  readonly activeLevel: number | null;
   readonly surface: TemplateSurface;
   readonly scene: string;
   readonly status: "idle" | "playing" | "paused" | "won" | "lost";
@@ -38,10 +38,10 @@ export interface TemplateShellSnapshot extends PersistedTemplateState {
 }
 
 export interface TemplateShellController {
-  readonly machine: FlowMachine;
   readonly sdk: TemplateSdk;
   snapshot(): TemplateShellSnapshot;
   startCurrent(): boolean;
+  startLevel(levelId: number): boolean;
   selectNode(levelId: number): boolean;
   pause(): boolean;
   resume(): boolean;
@@ -106,7 +106,13 @@ function isValidPersistedState(value: Partial<PersistedTemplateState>): boolean 
 }
 
 function normalizedCompleted(levels: readonly number[], currentLevel: number): number[] {
-  return [...new Set(levels.filter((level) => level >= 1 && level < currentLevel))].sort((a, b) => a - b);
+  return [
+    ...new Set(
+      levels.filter(
+        (level) => level >= 1 && (level < currentLevel || (currentLevel === LEVEL_COUNT && level === currentLevel)),
+      ),
+    ),
+  ].sort((a, b) => a - b);
 }
 
 /**
@@ -129,6 +135,7 @@ export function createTemplateShellController(
   let settingsOrigin: SettingsOrigin = null;
   const sdk = createTemplateSdk({
     now: options.now,
+    audioSettings: persisted.settings,
     isHapticsEnabled: () => persisted.settings.haptics,
   });
 
@@ -154,11 +161,20 @@ export function createTemplateShellController(
     savePersistedJson(storageKey, persisted);
   }
 
-  function enterCurrentLevel(): boolean {
+  function enterLevel(levelId: number): boolean {
     if (!machine.can("start")) return false;
-    machine.start(String(persisted.currentLevel));
-    sdk.levelStarted(persisted.currentLevel);
+    machine.start(String(levelId));
+    sdk.levelStarted(levelId);
     return true;
+  }
+
+  function enterCurrentLevel(): boolean {
+    return enterLevel(persisted.currentLevel);
+  }
+
+  function activeLevel(): number | null {
+    if (machine.state === FlowStates.Menu || machine.currentLevelId === undefined) return null;
+    return Number(machine.currentLevelId);
   }
 
   function status(): TemplateShellSnapshot["status"] {
@@ -167,6 +183,10 @@ export function createTemplateShellController(
     if (surface === "win") return "won";
     if (surface === "fail") return "lost";
     return "idle";
+  }
+
+  function isTerminalProgression(): boolean {
+    return persisted.currentLevel === LEVEL_COUNT && persisted.completedLevels.includes(persisted.currentLevel);
   }
 
   function home(): boolean {
@@ -229,31 +249,46 @@ export function createTemplateShellController(
 
   function win(): boolean {
     if (surface !== "level" || !machine.can("complete")) return false;
-    const completedLevel = persisted.currentLevel;
+    const completedLevel = activeLevel() ?? persisted.currentLevel;
+    const rewardAmount = persisted.completedLevels.includes(completedLevel) ? 0 : 5;
     const nextLevel = Math.min(LEVEL_COUNT, completedLevel + 1);
-    persisted = {
-      ...persisted,
-      currentLevel: nextLevel,
-      completedLevels: normalizedCompleted([...persisted.completedLevels, completedLevel], nextLevel),
-      currency: persisted.currency + 5,
-    };
-    persist();
-    sdk.levelCompleted(completedLevel, persisted.currency);
+    if (rewardAmount > 0) {
+      persisted = {
+        ...persisted,
+        currentLevel: nextLevel,
+        completedLevels: normalizedCompleted([...persisted.completedLevels, completedLevel], nextLevel),
+        currency: persisted.currency + rewardAmount,
+      };
+      persist();
+    }
+    sdk.levelCompleted(completedLevel, persisted.currency, rewardAmount);
     machine.complete();
     return true;
   }
 
   function lose(): boolean {
     if (surface !== "level" || !machine.can("fail")) return false;
-    sdk.levelFailed(persisted.currentLevel);
+    sdk.levelFailed(activeLevel() ?? persisted.currentLevel);
     machine.fail();
     return true;
   }
 
   function resetSave(): void {
     persisted = cloneDefaultState();
+    sdk.syncAudioSettings(persisted.settings);
     persist();
     home();
+  }
+
+  function startLevel(levelId: number): boolean {
+    if (!Number.isInteger(levelId) || levelId < 1 || levelId > LEVEL_COUNT || !home()) return false;
+    persisted = {
+      ...persisted,
+      currentLevel: levelId,
+      completedLevels: Array.from({ length: levelId - 1 }, (_value, index) => index + 1),
+    };
+    persist();
+    return enterCurrentLevel();
   }
 
   function snapshot(): TemplateShellSnapshot {
@@ -261,6 +296,7 @@ export function createTemplateShellController(
       ...persisted,
       completedLevels: [...persisted.completedLevels],
       settings: { ...persisted.settings },
+      activeLevel: activeLevel(),
       surface,
       scene: machine.state,
       status: status(),
@@ -282,13 +318,13 @@ export function createTemplateShellController(
   }
 
   return {
-    machine,
     sdk,
     snapshot,
     startCurrent(): boolean {
       if (surface !== "menu") return false;
       return enterCurrentLevel();
     },
+    startLevel,
     selectNode(levelId: number): boolean {
       if (surface !== "menu" || levelId !== persisted.currentLevel) return false;
       return enterCurrentLevel();
@@ -317,7 +353,9 @@ export function createTemplateShellController(
     win,
     lose,
     next(): boolean {
-      if (surface !== "win" || !machine.can("next")) return false;
+      if (surface !== "win") return false;
+      if (isTerminalProgression()) return home();
+      if (!machine.can("next")) return false;
       machine.next(String(persisted.currentLevel));
       sdk.levelStarted(persisted.currentLevel);
       return true;
@@ -325,7 +363,7 @@ export function createTemplateShellController(
     retry(): boolean {
       if (surface !== "fail" || !machine.can("retry")) return false;
       machine.retry();
-      sdk.levelStarted(persisted.currentLevel);
+      sdk.levelStarted(activeLevel() ?? persisted.currentLevel);
       return true;
     },
     home,
@@ -357,7 +395,7 @@ export function createTemplateShellController(
       return drive(state);
     },
     sagaNodes(): readonly number[] {
-      return [...new Set([1, persisted.currentLevel, Math.min(LEVEL_COUNT, persisted.currentLevel + 1)])];
+      return Array.from({ length: LEVEL_COUNT }, (_value, index) => index + 1);
     },
     unlockAll(): void {
       persisted = {
@@ -387,6 +425,7 @@ export function createTemplateShellController(
           haptics: profile.haptics ?? DEFAULT_STATE.settings.haptics,
         },
       };
+      sdk.syncAudioSettings(persisted.settings);
       persist();
       home();
     },

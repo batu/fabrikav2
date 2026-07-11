@@ -6,7 +6,6 @@ import { createTemplateShellController } from "./core/TemplateShellController.ts
 import { createTemplateHarness } from "./shell/harness.ts";
 import { mountTemplateShell } from "./shell/TemplateShell.ts";
 
-/** Boot the editor-neutral functional shell and expose its state owner to tests. */
 export function bootGame(
   mountInto: HTMLElement,
   options: { readonly enableTestOutcomes?: boolean } = {},
@@ -17,7 +16,7 @@ export function bootGame(
     controller,
     enableTestOutcomes: options.enableTestOutcomes,
   });
-  return { machine: controller.machine, controller, shell, config: gameConfig };
+  return { controller, shell, config: gameConfig };
 }
 
 export function harnessWindowKeyForGame(gameId: string): string {
@@ -25,11 +24,10 @@ export function harnessWindowKeyForGame(gameId: string): string {
 }
 
 const TEST_HARNESS_ENABLED: boolean =
-  import.meta.env.MODE !== "production" || import.meta.env.VITE_ENABLE_TEST_HARNESS === "true";
+  import.meta.env.DEV || import.meta.env.VITE_ENABLE_TEST_HARNESS === "true";
 
 const TEST_OUTCOMES_ENABLED: boolean =
-  import.meta.env.VITE_ENABLE_TEST_OUTCOMES === "true" ||
-  (import.meta.env.DEV && new URLSearchParams(window.location.search).get("diagnostics") === "1");
+  import.meta.env.DEV || import.meta.env.VITE_ENABLE_TEST_OUTCOMES === "true";
 
 const appRoot = typeof document !== "undefined" ? document.getElementById("app") : null;
 if (appRoot) {
@@ -39,6 +37,7 @@ if (appRoot) {
       buildVersion: "dev",
       packageId: `com.fabrikav2.${gameConfig.id}`,
       controller: game.controller,
+      render: game.shell.render,
     });
     assignWindowBindings(window as unknown as Record<string, unknown>, {
       [harnessWindowKeyForGame(gameConfig.id)]: harness,

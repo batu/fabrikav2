@@ -7,9 +7,12 @@ describe("_template smoke", () => {
     document.body.innerHTML = '<div id="app"></div>';
     const app = document.getElementById("app")!;
 
-    const { controller, config, shell } = bootGame(app);
+    const game = bootGame(app);
+    const { controller, config, shell } = game;
 
     expect(config).toBe(gameConfig);
+    expect("machine" in controller).toBe(false);
+    expect("machine" in game).toBe(false);
     expect(controller.snapshot()).toMatchObject({ surface: "menu", scene: "menu" });
     expect(app.contains(shell.root)).toBe(true);
     expect(shell.root.querySelector('[data-fab-action="play"]')).not.toBeNull();

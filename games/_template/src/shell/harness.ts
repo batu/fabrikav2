@@ -24,6 +24,8 @@ export interface CreateTemplateHarnessOptions {
   readonly buildVersion: string;
   readonly packageId: string;
   readonly controller?: TemplateShellController;
+  /** Render after a harness mutation so the tour's marker matches the page. */
+  readonly render?: () => void;
 }
 
 /**
@@ -35,6 +37,7 @@ export function createTemplateHarness(options: CreateTemplateHarnessOptions): Te
   const controller = options.controller ?? createTemplateShellController();
   const perf = createPerfRecorder();
   const states = seedStatesFromConfig(gameConfig);
+  const render = options.render ?? (() => undefined);
 
   return {
     gotoState(state: string): void {
@@ -42,9 +45,11 @@ export function createTemplateHarness(options: CreateTemplateHarnessOptions): Te
         throw new Error(`gotoState: "${state}" is not a declared gameConfig.screens state.`);
       }
       controller.gotoState(state);
+      render();
     },
-    startLevel(_id: number): void {
-      controller.gotoState("level");
+    startLevel(id: number): void {
+      controller.startLevel(id);
+      render();
     },
     snapshot(): TemplateShellSnapshot {
       return controller.snapshot();
@@ -54,31 +59,41 @@ export function createTemplateHarness(options: CreateTemplateHarnessOptions): Te
     },
     unlockAll(): void {
       controller.unlockAll();
+      render();
     },
     grantCoins(amount: number): void {
       controller.grantCoins(amount);
+      render();
     },
     resetSave(): void {
       controller.resetSave();
+      render();
     },
     seedSave(profile): void {
       controller.seedSave(profile);
+      render();
     },
     verbs: {},
     async winLevel(): Promise<boolean> {
       if (controller.snapshot().surface !== "level") {
         controller.gotoState("level");
       }
-      return controller.win() && controller.snapshot().scene === "complete";
+      const reached = controller.win() && controller.snapshot().scene === "complete";
+      render();
+      return reached;
     },
     async failLevel(): Promise<boolean> {
       if (controller.snapshot().surface !== "level") {
         controller.gotoState("level");
       }
-      return controller.lose() && controller.snapshot().scene === "failed";
+      const reached = controller.lose() && controller.snapshot().scene === "failed";
+      render();
+      return reached;
     },
-    driveTo(state: string): Promise<boolean> {
-      return controller.driveTo(state);
+    async driveTo(state: string): Promise<boolean> {
+      const reached = await controller.driveTo(state);
+      render();
+      return reached;
     },
     perf(): PerfSample {
       return perf.sample();

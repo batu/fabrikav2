@@ -18,7 +18,10 @@ interface SeedManifest {
     readonly id: string;
     readonly approvedSourcePath: string;
     readonly license: string;
+    readonly licenseSourcePath: string;
     readonly licenseFile: string;
+    readonly licenseSourceSha256: string;
+    readonly licenseSha256: string;
   }[];
   readonly assets: readonly SeedAsset[];
 }
@@ -44,7 +47,10 @@ describe("Kenney semantic seed manifest", () => {
       expect(source.license).toBe("CC0-1.0");
       expect(path.isAbsolute(source.approvedSourcePath)).toBe(false);
       expect(source.approvedSourcePath.split(/[\\/]/)).not.toContain("..");
-      expect(fs.existsSync(path.join(templateRoot, "design", source.licenseFile))).toBe(true);
+      expect(source.licenseSourcePath).toBe("License.txt");
+      expect(source.licenseSourceSha256).toMatch(/^[a-f0-9]{64}$/);
+      const licenseBytes = fs.readFileSync(path.join(templateRoot, "design", source.licenseFile));
+      expect(createHash("sha256").update(licenseBytes).digest("hex")).toBe(source.licenseSha256);
     }
     expect(manifest.assets).toHaveLength(29);
 

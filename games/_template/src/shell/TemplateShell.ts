@@ -8,6 +8,7 @@ import {
 } from "@fabrikav2/ui";
 import { assetUrls } from "../../design/assets.ts";
 import { copy } from "../../design/copy.ts";
+import { progressionRoute } from "../../design/presentation.ts";
 import type { TemplateShellController, TemplateShellSnapshot } from "../core/TemplateShellController.ts";
 import type { TemplateSettingKey } from "../sdk/TemplateSdk.ts";
 
@@ -18,9 +19,26 @@ interface ProgressionNode {
   readonly label: string;
   readonly name: string;
   readonly state: ProgressionNodeState;
+  readonly instance: ProgressionNodeState;
+  readonly disabled?: boolean;
 }
 
 function progressionNodes(snapshot: TemplateShellSnapshot): readonly ProgressionNode[] {
+  if (snapshot.completedLevels.includes(snapshot.currentLevel)) {
+    const firstLevel = Math.max(1, snapshot.currentLevel - 2);
+    return (["completed", "current", "locked"] as const).map((instance, index) => {
+      const id = firstLevel + index;
+      return {
+        id,
+        label: String(id),
+        name: `${copy["menu.level"]} ${id}, ${copy["menu.node.completed"]}`,
+        state: "completed",
+        instance,
+        disabled: true,
+      };
+    });
+  }
+
   const completedLevel = snapshot.completedLevels[snapshot.completedLevels.length - 1];
   return [
     {
@@ -31,18 +49,21 @@ function progressionNodes(snapshot: TemplateShellSnapshot): readonly Progression
           ? `${copy["menu.start"]}, ${copy["menu.node.completed"]}`
           : `${copy["menu.level"]} ${completedLevel}, ${copy["menu.node.completed"]}`,
       state: "completed",
+      instance: "completed",
     },
     {
       id: snapshot.currentLevel,
       label: String(snapshot.currentLevel),
       name: `${copy["menu.level"]} ${snapshot.currentLevel}, ${copy["menu.node.current"]}`,
       state: "current",
+      instance: "current",
     },
     {
       id: snapshot.currentLevel + 1,
       label: String(snapshot.currentLevel + 1),
       name: `${copy["menu.level"]} ${snapshot.currentLevel + 1}, ${copy["menu.node.locked"]}`,
       state: "locked",
+      instance: "locked",
     },
   ];
 }
@@ -225,26 +246,26 @@ function renderMenu(
   const progressionPath = progressionMap.querySelector<HTMLElement>(".fab-levelmap-path")!;
   const route = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   route.classList.add("template-shell__route");
-  route.setAttribute("viewBox", "0 0 270 272");
+  route.setAttribute("viewBox", progressionRoute.viewBox);
   route.setAttribute("preserveAspectRatio", "none");
   route.setAttribute("aria-hidden", "true");
   route.setAttribute("focusable", "false");
   for (const className of ["template-shell__route-track", "template-shell__route-line"]) {
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     path.classList.add(className);
-    path.setAttribute("d", "M101 34 C111 75 151 87 167 124 C166 165 129 190 111 235");
+    path.setAttribute("d", progressionRoute.path);
     route.appendChild(path);
   }
   progressionPath.prepend(route);
   assignInstance(handle.el, '.fab-home-menu-actions [data-fab-action="play"]', "menu.play");
 
   for (const [index, node] of Array.from(handle.el.querySelectorAll<HTMLButtonElement>(".fab-levelmap-node")).entries()) {
-    const state = nodes[index]?.state;
-    if (!state) throw new Error(`Missing progression node model at index ${index}`);
-    node.dataset.fabInstance = `menu.node.${state}`;
-    node.dataset.fabNodeState = state;
-    if (state === "current") node.dataset.fabAction = "play";
-    if (state === "locked") {
+    const model = nodes[index];
+    if (!model) throw new Error(`Missing progression node model at index ${index}`);
+    node.dataset.fabInstance = `menu.node.${model.instance}`;
+    node.dataset.fabNodeState = model.state;
+    if (model.instance === "current") node.dataset.fabAction = "play";
+    if (model.disabled || model.state === "locked") {
       node.dataset.fabAction = "locked";
       node.disabled = true;
       node.setAttribute("aria-disabled", "true");
@@ -260,12 +281,12 @@ function renderSampleOutcomes(
   render: () => void,
   backdrop: boolean,
 ): HTMLElement {
-  const sample = document.createElement("details");
+  const sample = document.createElement("section");
   sample.className = "template-shell__sample-outcomes";
   sample.dataset.templateDiagnostic = backdrop ? "outcomes-backdrop" : "outcomes";
   sample.hidden = backdrop;
 
-  const sampleTitle = document.createElement("summary");
+  const sampleTitle = document.createElement("p");
   sampleTitle.className = "template-shell__sample-title";
   sampleTitle.textContent = copy["level.sample.title"];
   const sampleBody = document.createElement("p");
@@ -316,7 +337,6 @@ function renderLevel(
   render: () => void,
   options: {
     readonly backdrop?: BackdropKind;
-    readonly displayedLevel?: number;
     readonly enableTestOutcomes?: boolean;
   } = {},
 ): void {
@@ -340,7 +360,7 @@ function renderLevel(
   const label = document.createElement("h1");
   label.className = "template-shell__level-label template-shell__level-label--identity";
   if (!backdrop) label.dataset.fabInstance = "level.label";
-  label.textContent = `${copy["level.label"]} ${options.displayedLevel ?? snapshot.currentLevel}`;
+  label.textContent = `${copy["level.label"]} ${snapshot.activeLevel ?? snapshot.currentLevel}`;
   hud.append(currencyCounter(snapshot, backdrop ? undefined : "level.currency", true), label);
   if (!backdrop) {
     hud.append(
@@ -495,7 +515,7 @@ function renderResult(
   render: () => void,
 ): UiHandle {
   const win = snapshot.surface === "win";
-  const displayedLevel = win ? Math.max(1, snapshot.currentLevel - 1) : snapshot.currentLevel;
+  const displayedLevel = snapshot.activeLevel ?? snapshot.currentLevel;
   const panelInstance = win ? "win.panel" : "fail.panel";
   const actions = win
     ? [
@@ -606,7 +626,6 @@ export function mountTemplateShell(options: MountTemplateShellOptions): Template
       case "fail":
         renderLevel(root, snapshot, options.controller, render, {
           backdrop: "result",
-          displayedLevel: snapshot.surface === "win" ? Math.max(1, snapshot.currentLevel - 1) : snapshot.currentLevel,
           enableTestOutcomes: options.enableTestOutcomes,
         });
         surfaceHandle = renderResult(root, snapshot, options.controller, render);

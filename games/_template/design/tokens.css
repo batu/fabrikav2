@@ -36,6 +36,7 @@
   --fab-seed-color-diagnostic-win-border: #72b58e;
   --fab-seed-color-diagnostic-lose-surface: #f3e2d9;
   --fab-seed-color-diagnostic-lose-border: #c98d76;
+  --fab-seed-color-diagnostic-wash: rgba(231, 238, 240, 0.32);
   --fab-seed-color-fail-border: #c97b65;
   --fab-seed-color-fail-accent: #a94f46;
   --fab-seed-color-fail-ribbon-text: #173042;
@@ -75,6 +76,8 @@
   --fab-seed-shadow-button-disabled: 0 1px 0 rgba(23, 48, 66, 0.12);
   --fab-seed-shadow-modal: 0 14px 32px rgba(23, 48, 66, 0.3);
   --fab-seed-shadow-current-node: 0 0 0 6px rgba(47, 159, 117, 0.2);
+  --fab-seed-shadow-bottom-sheet: 0 -14px 36px rgba(23, 48, 66, 0.32);
+  --fab-seed-shadow-fail-barrier: 0 4px 0 rgba(169, 79, 70, 0.18);
   --fab-seed-ribbon-title-size: 24px;
   --fab-seed-ribbon-eyebrow-size: 12px;
   --fab-seed-ribbon-eyebrow-top: 22%;

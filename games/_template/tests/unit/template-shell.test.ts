@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { maybeRunInsituTour } from "@fabrikav2/testkit/testing";
 import { createTemplateShellController } from "../../src/core/TemplateShellController.ts";
 import { createTemplateHarness } from "../../src/shell/harness.ts";
 import { mountTemplateShell } from "../../src/shell/TemplateShell.ts";
@@ -131,18 +132,76 @@ describe("template shell progression flow", () => {
     expect(controller.snapshot()).toMatchObject({ surface: "menu", currentLevel: 2, completedLevels: [1] });
     expect(controller.trace().map((event) => event.name)).toContain("level_fail");
   });
+
+  it("keeps final Next tappable and returns to a completed map without replaying rewards", () => {
+    const controller = createController();
+    const root = document.getElementById("app")!;
+    const shell = mountTemplateShell({ mountInto: root, controller });
+
+    controller.seedSave({ unlockedLevel: 3 });
+    expect(controller.startCurrent()).toBe(true);
+    expect(controller.win()).toBe(true);
+    expect(controller.snapshot()).toMatchObject({
+      surface: "win",
+      currentLevel: 3,
+      completedLevels: [1, 2, 3],
+    });
+    shell.render();
+    expect(shell.root.querySelector<HTMLButtonElement>('[data-fab-action="result-next"]')?.disabled).toBe(false);
+    expect(shell.root.querySelector(".fab-modal-ribbon-eyebrow")?.textContent).toBe("Trail 3");
+    expect(
+      shell.root.querySelector(".template-shell__level--result-backdrop .template-shell__level-label")?.textContent,
+    ).toBe("Trail 3");
+
+    expect(controller.next()).toBe(true);
+    shell.render();
+    expect(controller.snapshot()).toMatchObject({ surface: "menu", currentLevel: 3, currency: 30 });
+    expect(
+      Array.from(shell.root.querySelectorAll<HTMLElement>("[data-fab-node-state]"), (node) => node.dataset.fabNodeState),
+    ).toEqual(["completed", "completed", "completed"]);
+    expect(
+      Array.from(shell.root.querySelectorAll<HTMLButtonElement>("[data-fab-node-state]"), (node) => node.disabled),
+    ).toEqual([true, true, true]);
+    expect(controller.startCurrent()).toBe(true);
+    expect(controller.snapshot()).toMatchObject({
+      surface: "level",
+      activeLevel: 3,
+      currentLevel: 3,
+      completedLevels: [1, 2, 3],
+    });
+    expect(controller.win()).toBe(true);
+    expect(controller.snapshot()).toMatchObject({ surface: "win", currentLevel: 3, completedLevels: [1, 2, 3], currency: 30 });
+    expect(controller.trace().filter((event) => event.name === "resource_change")).toHaveLength(1);
+  });
+
+  it("starts the exact requested harness level and reports every configured saga node", () => {
+    const controller = createController();
+    const harness = createTemplateHarness({
+      buildVersion: "test",
+      packageId: "com.fabrikav2.template",
+      controller,
+    });
+
+    harness.startLevel(1);
+    expect(controller.snapshot()).toMatchObject({ surface: "level", currentLevel: 1, completedLevels: [] });
+    expect(harness.sagaNodes()).toEqual([1, 2, 3]);
+  });
 });
 
 describe("template shell settings and persistence", () => {
   it("returns Back to its Home or Pause origin and emits deterministic setting traces", () => {
     const controller = createController();
 
+    expect(controller.sdk.mixer.isMuted("music")).toBe(false);
+    expect(controller.sdk.mixer.isMuted("sfx")).toBe(false);
     controller.openSettings();
     expect(controller.snapshot()).toMatchObject({ surface: "settings", settingsOrigin: "menu" });
     controller.setSetting("music", false);
     controller.setSetting("sfx", false);
     controller.setSetting("haptics", false);
     expect(controller.snapshot().settings).toEqual({ music: false, sfx: false, haptics: false });
+    expect(controller.sdk.mixer.isMuted("music")).toBe(true);
+    expect(controller.sdk.mixer.isMuted("sfx")).toBe(true);
     expect(controller.backFromSettings()).toBe(true);
     expect(controller.snapshot().surface).toBe("menu");
 
@@ -155,7 +214,29 @@ describe("template shell settings and persistence", () => {
     expect(controller.resume()).toBe(true);
     expect(controller.snapshot()).toMatchObject({ surface: "level", scene: "playing" });
 
-    expect(controller.trace().filter((event) => event.name === "template_setting_changed")).toHaveLength(3);
+    expect(controller.trace().filter((event) => event.name === "template_setting_changed")).toEqual([
+      {
+        name: "template_setting_changed",
+        params: { setting: "music", enabled: false },
+        timestamp: 123,
+        sessionId: "template-shell",
+        env: "test",
+      },
+      {
+        name: "template_setting_changed",
+        params: { setting: "sfx", enabled: false },
+        timestamp: 123,
+        sessionId: "template-shell",
+        env: "test",
+      },
+      {
+        name: "template_setting_changed",
+        params: { setting: "haptics", enabled: false },
+        timestamp: 123,
+        sessionId: "template-shell",
+        env: "test",
+      },
+    ]);
   });
 
   it("persists only synthetic progression and settings state", () => {
@@ -172,7 +253,38 @@ describe("template shell settings and persistence", () => {
       completedLevels: [1, 2],
       settings: { music: false, sfx: true, haptics: true },
     });
+    expect(restored.sdk.mixer.isMuted("music")).toBe(true);
+    expect(restored.sdk.mixer.isMuted("sfx")).toBe(false);
     expect(restored.trace()).toEqual([]);
+  });
+
+  it("synchronizes seeded and reset audio preferences without synthetic setting traces", () => {
+    const controller = createController();
+
+    controller.seedSave({ music: false, sfx: false, haptics: false });
+    expect(controller.sdk.mixer.isMuted("music")).toBe(true);
+    expect(controller.sdk.mixer.isMuted("sfx")).toBe(true);
+    expect(controller.trace()).toEqual([]);
+
+    controller.resetSave();
+    expect(controller.sdk.mixer.isMuted("music")).toBe(false);
+    expect(controller.sdk.mixer.isMuted("sfx")).toBe(false);
+    expect(controller.trace()).toEqual([]);
+  });
+
+  it("uses distinct success and error notification haptics for terminal outcomes", () => {
+    const vibrate = vi.fn();
+    vi.stubGlobal("navigator", { vibrate });
+    const controller = createController();
+
+    controller.startCurrent();
+    controller.lose();
+    expect(vibrate).toHaveBeenLastCalledWith([36, 35, 36]);
+
+    controller.home();
+    controller.startCurrent();
+    controller.win();
+    expect(vibrate).toHaveBeenLastCalledWith([12, 40, 24]);
   });
 });
 
@@ -272,7 +384,7 @@ describe("template shell renderer and harness", () => {
     expect(backdrop?.querySelectorAll("[data-fab-action]")).toHaveLength(0);
     expect(backdrop?.querySelectorAll("[data-fab-instance]")).toHaveLength(0);
     expect(backdrop?.querySelector(".template-shell__sample-outcomes")?.textContent).toContain("Test outcomes");
-    expect(backdrop?.querySelector<HTMLDetailsElement>(".template-shell__sample-outcomes")?.hidden).toBe(true);
+    expect(backdrop?.querySelector<HTMLElement>(".template-shell__sample-outcomes")?.hidden).toBe(true);
     expect(backdrop?.querySelectorAll(".template-shell__test-action")).toHaveLength(2);
     const visualPause = backdrop?.querySelector<HTMLButtonElement>(".template-shell__icon-action--hud");
     expect(visualPause).not.toBeNull();
@@ -315,7 +427,7 @@ describe("template shell renderer and harness", () => {
     expect(shell.root.querySelector('[data-fab-action="test-lose"]')).toBeNull();
   });
 
-  it("keeps the required outcome controls in a closed native diagnostic disclosure", () => {
+  it("keeps the required outcome controls visible in an explicit diagnostic panel", () => {
     const controller = createController();
     const root = document.getElementById("app")!;
     const shell = mountTemplateShell({ mountInto: root, controller, enableTestOutcomes: true });
@@ -326,9 +438,8 @@ describe("template shell renderer and harness", () => {
     const sample = shell.root.querySelector<HTMLElement>(".template-shell__sample-outcomes");
     expect(sample).not.toBeNull();
     expect(sample?.dataset.templateDiagnostic).toBe("outcomes");
-    expect(sample?.tagName).toBe("DETAILS");
-    expect((sample as HTMLDetailsElement | null)?.open).toBe(false);
-    expect(sample?.querySelector("summary")?.textContent).toBe("Test outcomes");
+    expect(sample?.tagName).toBe("SECTION");
+    expect(sample?.querySelector(".template-shell__sample-title")?.textContent).toBe("Test outcomes");
     expect(sample?.querySelector('[data-fab-action="test-win"]')?.textContent).toBe("Win");
     expect(sample?.querySelector('[data-fab-action="test-lose"]')?.textContent).toBe("Lose");
     expect(sample?.querySelector('[data-fab-action="test-win"]')?.classList.contains("template-shell__test-action--win")).toBe(true);
@@ -353,7 +464,7 @@ describe("template shell renderer and harness", () => {
       /\.template-shell__gameplay-copy\s*\{[^}]*position:\s*absolute;[^}]*max-width:\s*228px;[^}]*background-color:\s*var\(--fab-seed-color-copy-surface\);/s,
     );
     expect(templateShellCss()).toMatch(
-      /\.template-shell__sample-outcomes\s*\{[^}]*border-top:\s*1px solid var\(--fab-seed-color-secondary-border\);[^}]*background:\s*linear-gradient\(/s,
+      /\.template-shell__sample-outcomes\s*\{[^}]*border:\s*1px solid var\(--fab-seed-color-secondary-border\);[^}]*background:\s*linear-gradient\(/s,
     );
   });
 
@@ -498,6 +609,7 @@ describe("template shell renderer and harness", () => {
       buildVersion: "test",
       packageId: "com.fabrikav2.template",
       controller,
+      render: shell.render,
     });
 
     expect(await harness.driveTo!("pause")).toBe(true);
@@ -627,6 +739,7 @@ describe("template shell renderer and harness", () => {
       buildVersion: "test",
       packageId: "com.fabrikav2.template",
       controller,
+      render: shell.render,
     });
 
     for (const [state, actions] of [
@@ -638,7 +751,6 @@ describe("template shell renderer and harness", () => {
       ["fail", ["result-retry", "result-menu"]],
     ] as const) {
       expect(await harness.driveTo!(state)).toBe(true);
-      shell.render();
       expect(shell.root.dataset.fabState).toBe(state);
       for (const action of actions) {
         const element = shell.root.querySelector<HTMLElement>(`[data-fab-action="${action}"]`);
@@ -650,12 +762,87 @@ describe("template shell renderer and harness", () => {
     expect(harness.snapshot()).toMatchObject({ scene: "failed", status: "lost" });
 
     await harness.driveTo!("settings");
-    shell.render();
     const music = shell.root.querySelector<HTMLInputElement>('[data-fab-action="settings-music"]');
     expect(music?.checked).toBe(true);
     music!.click();
     expect(controller.snapshot().settings.music).toBe(false);
     expect(harness.drainEvents!().map((event) => event.name)).toContain("level_start");
+  });
+
+  it("renders every settled all-states tour surface before its marker is published", async () => {
+    const controller = createController();
+    const root = document.getElementById("app")!;
+    const shell = mountTemplateShell({ mountInto: root, controller, enableTestOutcomes: true });
+    const harness = createTemplateHarness({
+      buildVersion: "test",
+      packageId: "com.fabrikav2.template",
+      controller,
+      render: shell.render,
+    });
+    const settledStates: Array<readonly [string, string | undefined]> = [];
+
+    await maybeRunInsituTour(harness, {
+      script: "allstates",
+      sleep: async () => {
+        settledStates.push([controller.snapshot().surface, shell.root.dataset.fabState]);
+      },
+    });
+
+    expect(settledStates.every(([surface, rendered]) => surface === rendered)).toBe(true);
+    expect([...new Set(settledStates.map(([surface]) => surface))]).toEqual([
+      "menu",
+      "level",
+      "settings",
+      "pause",
+      "win",
+      "fail",
+    ]);
+  });
+
+  it("wires Pause, Settings, and diagnostic outcome clicks through the rendered shell", () => {
+    const controller = createController();
+    const root = document.getElementById("app")!;
+    const shell = mountTemplateShell({ mountInto: root, controller, enableTestOutcomes: true });
+    const click = (action: string): void => {
+      const target = shell.root.querySelector<HTMLButtonElement>(`[data-fab-action="${action}"]`);
+      expect(target, `missing ${action}`).not.toBeNull();
+      target!.click();
+    };
+    const expectDiagnostics = (): void => {
+      const diagnostics = shell.root.querySelector<HTMLElement>(".template-shell__sample-outcomes");
+      expect(diagnostics).not.toBeNull();
+      expect(diagnostics!.tagName).toBe("SECTION");
+    };
+
+    shell.root.querySelector<HTMLButtonElement>('[data-fab-instance="menu.node.current"]')!.click();
+    expect(controller.snapshot().surface).toBe("level");
+    click("pause");
+    click("pause-settings");
+    expect(controller.snapshot()).toMatchObject({ surface: "settings", settingsOrigin: "pause" });
+    click("back");
+    expect(controller.snapshot().surface).toBe("pause");
+    click("pause-resume");
+    expect(controller.snapshot().surface).toBe("level");
+
+    expectDiagnostics();
+    click("test-win");
+    expect(controller.snapshot()).toMatchObject({ surface: "win", currentLevel: 3, completedLevels: [1, 2] });
+    click("result-next");
+    expect(controller.snapshot()).toMatchObject({ surface: "level", currentLevel: 3, completedLevels: [1, 2] });
+    click("pause");
+    click("pause-quit");
+    expect(controller.snapshot()).toMatchObject({ surface: "menu", currentLevel: 3, completedLevels: [1, 2] });
+
+    shell.root.querySelector<HTMLButtonElement>('[data-fab-instance="menu.node.current"]')!.click();
+    expectDiagnostics();
+    click("test-lose");
+    expect(controller.snapshot().surface).toBe("fail");
+    click("result-retry");
+    expect(controller.snapshot()).toMatchObject({ surface: "level", currentLevel: 3 });
+    expectDiagnostics();
+    click("test-lose");
+    click("result-menu");
+    expect(controller.snapshot()).toMatchObject({ surface: "menu", currentLevel: 3, completedLevels: [1, 2] });
   });
 
   it("keeps result actions in a readable shared card instead of stretching a button sprite into a panel", async () => {

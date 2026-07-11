@@ -7,6 +7,5 @@ test("boots Progression Home and starts the current level", async ({ page }) => 
   const continueAction = page.locator('#app [data-fab-instance="menu.play"]');
   await expect(continueAction).toBeVisible();
   await continueAction.click();
-  await page.locator('#app .template-shell__sample-title').click();
   await expect(page.locator('#app [data-fab-action="test-win"]')).toBeVisible();
 });
