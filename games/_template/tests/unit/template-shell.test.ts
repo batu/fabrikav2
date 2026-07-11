@@ -331,7 +331,7 @@ describe("template shell renderer and harness", () => {
       /\.template-shell__gameplay--trail\s*\{[^}]*grid-template-rows:\s*minmax\(0, 1fr\) auto;/s,
     );
     expect(templateShellCss()).toMatch(
-      /\.template-shell__gameplay-copy\s*\{[^}]*position:\s*absolute;[^}]*max-width:\s*236px;[^}]*background-color:\s*var\(--fab-seed-color-copy-surface\);/s,
+      /\.template-shell__gameplay-copy\s*\{[^}]*position:\s*absolute;[^}]*max-width:\s*228px;[^}]*background-color:\s*var\(--fab-seed-color-copy-surface\);/s,
     );
     expect(templateShellCss()).toMatch(
       /\.template-shell__sample-outcomes\s*\{[^}]*border:\s*0;[^}]*background:\s*transparent;/s,

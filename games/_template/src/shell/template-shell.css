@@ -428,9 +428,9 @@ body {
   z-index: 2;
   display: grid;
   gap: var(--fab-space-xs);
-  max-width: 236px;
+  max-width: 228px;
   margin: 0;
-  padding: var(--fab-space-sm);
+  padding: 10px var(--fab-space-sm);
   border-left: calc(var(--fab-border-width) * 2) solid var(--fab-seed-color-accent);
   border-radius: var(--fab-space-sm);
   background-color: var(--fab-seed-color-copy-surface);
@@ -548,6 +548,7 @@ body {
   border-bottom: 0;
   border-radius: 28px 28px 0 0;
   background-color: var(--fab-seed-color-pause-surface);
+  box-shadow: 0 -10px 28px rgba(23, 48, 66, 0.24);
 }
 
 .template-shell[data-fab-state="fail"] .fab-modal-backdrop {
@@ -597,15 +598,17 @@ body {
 
 .template-shell[data-fab-state="fail"] .fab-result-body::before {
   width: 96px;
-  height: 68px;
-  border: var(--fab-border-width) solid var(--fab-seed-color-fail-accent);
-  border-radius: 50%;
-  background:
-    linear-gradient(145deg, transparent 0 34%, var(--fab-seed-color-trail-surface) 35% 50%, transparent 51%) left / 44% 100% no-repeat,
-    linear-gradient(145deg, transparent 0 50%, var(--fab-seed-color-trail-surface) 51% 66%, transparent 67%) right / 44% 100% no-repeat,
-    var(--fab-seed-color-fail-accent);
-  box-shadow: inset 0 0 0 4px var(--fab-seed-color-pause-surface);
+  height: 56px;
+  border: 3px solid var(--fab-seed-color-fail-accent);
+  border-radius: 10px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--fab-seed-color-fail-accent) 0 12px,
+    var(--fab-seed-color-trail-surface) 12px 24px
+  );
+  box-shadow: 0 5px 0 rgba(169, 79, 70, 0.18);
   content: "";
+  transform: rotate(-2deg);
 }
 
 .template-shell[data-fab-state="fail"] .fab-result-message {
@@ -617,6 +620,10 @@ body {
   line-height: 1.4;
   letter-spacing: 0;
   text-transform: none;
+}
+
+.template-shell[data-fab-state="fail"] .fab-modal-actions {
+  margin-top: var(--fab-space-xs);
 }
 
 .template-shell__test-actions {
@@ -725,7 +732,7 @@ body {
   border-color: var(--fab-seed-color-pause-border);
   border-bottom: 0;
   border-radius: 28px 28px 0 0;
-  box-shadow: var(--fab-shadow-modal);
+  box-shadow: 0 -10px 28px rgba(23, 48, 66, 0.24);
 }
 
 .template-shell .fab-pause-card::before {

@@ -732,3 +732,39 @@ zero body margin, and every visible action at least 48 px; Fail Retry is 346 x
 
 passed for Worked; one fresh image-only review still owns the Aesthetics
 Reviewed gate. Browser evidence remains diagnostic only.
+
+### Iteration 8 - Resolve the remaining local P2 cluster
+
+#### Why This Iteration
+
+Fresh image-only Terra session `019f503c-b020-7383-85f5-232a0f3516cd`
+reported zero P1s but five P2s, exceeding the explicit three-P2 gate. One P2
+was the already accepted menu-route continuity follow-up; the other four were
+local to the objective and bottom sheets.
+
+#### Changes Made
+
+- Trimmed and softened the objective card so the replaceable mechanic socket
+  retains visual ownership without returning to cramped copy.
+- Chose the midpoint overlay scrim and added upward sheet elevation so Pause
+  keeps enough level context while still taking focus.
+- Replaced the ambiguous oval failure mark with a clear striped barricade.
+- Added breathing room before Retry while preserving the separate Home divider.
+
+#### Post-Change Screenshots
+
+`u2-aesthetic-gate-pass-{menu,level,pause,settings,win,fail}.png` is the settled
+390 x 844 real-click browser set. Its metrics retain an 844 px document/body,
+zero body margin, and visible targets at least 48 px high.
+
+#### Deterministic Proof
+
+- Unit: 6 files / 48 tests passed.
+- Browser smoke: 1 Playwright test passed.
+- Typecheck, lint, production build, approved-source audit, and
+  `git diff --check`: passed.
+
+#### Decision
+
+passed for Worked; final unseen frames still own the independent threshold.
+Browser evidence remains diagnostic only.
