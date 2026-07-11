@@ -22,7 +22,7 @@ The non-editable connection between a Semantic Instance and the runtime state re
 
 ### Asset Slot
 
-A semantic replacement socket whose role compatibility, geometry, fitting, alpha, format, and provenance rules constrain the local raster assets it accepts.
+A semantic replacement socket that owns role compatibility, fitting, source-raster eligibility, alpha, format, and provenance constraints for local raster assets subject to contract-wide resource limits; rendered geometry belongs to the Semantic Role.
 
 ### Published Revision
 

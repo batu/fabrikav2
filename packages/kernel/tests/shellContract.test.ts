@@ -100,24 +100,54 @@ function validAssetCatalog(): JsonRecord {
   return {
     contractId: SHELL_CONTRACT_ID,
     contractVersion: SHELL_CONTRACT_VERSION,
-    assets: [
-      {
-        id: 'asset.primary-action.default',
-        slotId: 'button-surface',
-        path: 'assets/primary-action.default.png',
-        mimeType: 'image/png',
-        width: 240,
-        height: 96,
-        hasAlpha: true,
-        sha256: `sha256-${'1'.repeat(64)}`,
-        provenance: {
-          sourceId: 'kenney-ui-pack',
-          sourceHash: `sha256-${'2'.repeat(64)}`,
-          license: 'CC0-1.0',
-        },
-      },
-    ],
+    assets: [validAssetCatalogEntry()],
   };
+}
+
+function validAssetCatalogEntry(overrides: JsonRecord = {}): JsonRecord {
+  return {
+    id: 'asset.primary-action.default',
+    name: 'Primary action button',
+    description: 'Wide button surface for primary and secondary shell actions.',
+    slotId: 'button-surface',
+    path: 'assets/primary-action.default.png',
+    mimeType: 'image/png',
+    width: 384,
+    height: 128,
+    bytes: 1_024,
+    hasAlpha: true,
+    sha256: `sha256-${'1'.repeat(64)}`,
+    provenance: {
+      sourceId: 'kenney-ui-pack',
+      sourcePath: 'UI/PNG/Blue/Default/button_primary.png',
+      sourceHash: `sha256-${'2'.repeat(64)}`,
+      license: 'CC0-1.0',
+    },
+    ...overrides,
+  };
+}
+
+function expectCatalogIssue(
+  mutate: (catalog: JsonRecord) => void,
+  expectedCode: string,
+  expectedPath?: string,
+): void {
+  const candidate = validAssetCatalog();
+  mutate(candidate);
+
+  try {
+    parseShellAssetCatalog(candidate);
+    throw new Error('expected asset catalog validation to fail');
+  } catch (error) {
+    expect(error).toBeInstanceOf(ShellContractValidationError);
+    const validationError = error as ShellContractValidationError;
+    expect(validationError.issues.map((issue) => issue.code)).toContain(expectedCode);
+    if (expectedPath) {
+      expect(validationError.issues.some(
+        (issue) => issue.code === expectedCode && issue.path === expectedPath,
+      )).toBe(true);
+    }
+  }
 }
 
 async function validProjectionRevision(): Promise<JsonRecord> {
@@ -269,6 +299,88 @@ describe('shell presentation contract', () => {
     expect(shellPresentationContract.schemas.publication.additionalProperties).toBe(false);
     expect(shellPresentationContract.schemas.projectionRevision.additionalProperties).toBe(false);
     expect(shellPresentationContract.schemas.assetIdentity.additionalProperties).toBe(false);
+  });
+
+  it('keeps rendered role geometry separate from source raster requirements', () => {
+    const buttonSlot = shellPresentationContract.assetSlots.find(
+      (slot) => slot.id === 'button-surface',
+    )!;
+    expect(record(buttonSlot).geometry).toBeUndefined();
+    expect(record(buttonSlot).sourceRaster).toEqual({
+      minWidth: 72,
+      minHeight: 48,
+      aspectRatio: { min: 0.75, max: 6.25 },
+    });
+    expect(shellPresentationContract.roles.find(
+      (role) => role.id === 'bottom-primary-action',
+    )?.geometryCaps).toEqual({
+      minWidth: 120,
+      maxWidth: 300,
+      minHeight: 48,
+      maxHeight: 96,
+    });
+    expect(record(shellPresentationContract).assetRasterPolicy).toEqual({
+      maxEdge: 4_096,
+      maxAssets: 256,
+      maxAssetBytes: 8_388_608,
+      maxAggregateBytes: 67_108_864,
+      maxDecodedPixels: 67_108_864,
+    });
+  });
+
+  it('rejects malformed source raster and raster policy contract metadata', () => {
+    expectContractIssue((candidate) => {
+      record(record(candidate).assetRasterPolicy).maxEdge = 0;
+    }, 'invalid-raster-policy');
+
+    expectContractIssue((candidate) => {
+      record(record(candidate).assetRasterPolicy).extraBudget = 1;
+    }, 'unsupported-field');
+
+    expectContractIssue((candidate) => {
+      const policy = record(record(candidate).assetRasterPolicy);
+      policy.maxAssetBytes = Number(policy.maxAggregateBytes) + 1;
+    }, 'invalid-raster-policy');
+
+    expectContractIssue((candidate) => {
+      record(record(candidate).assetRasterPolicy).maxAssets = 4_097;
+    }, 'invalid-raster-policy');
+
+    expectContractIssue((candidate) => {
+      record(record(candidate).assetRasterPolicy).maxEdge = 8_193;
+    }, 'invalid-raster-policy');
+
+    expectContractIssue((candidate) => {
+      const slot = records(record(candidate).assetSlots)[0]!;
+      record(record(slot).sourceRaster).minWidth = 0;
+    }, 'invalid-source-raster');
+
+    for (const dimension of ['minWidth', 'minHeight'] as const) {
+      expectContractIssue((candidate) => {
+        const slot = records(record(candidate).assetSlots)[0]!;
+        record(record(slot).sourceRaster)[dimension] = 4_097;
+      }, 'invalid-source-raster');
+    }
+
+    expectContractIssue((candidate) => {
+      const slot = records(record(candidate).assetSlots)[0]!;
+      record(record(record(slot).sourceRaster).aspectRatio).max = 0;
+    }, 'invalid-source-raster');
+
+    expectContractIssue((candidate) => {
+      const slot = records(record(candidate).assetSlots)[0]!;
+      slot.geometry = { minWidth: 1, maxWidth: 2, minHeight: 1, maxHeight: 2 };
+    }, 'unsupported-field');
+
+    expectContractIssue((candidate) => {
+      const slot = records(record(candidate).assetSlots).find((entry) => entry.id === 'button-surface')!;
+      slot.compatibleRoleIds = [];
+    }, 'compatibility-mismatch');
+
+    expectContractIssue((candidate) => {
+      const slot = records(record(candidate).assetSlots).find((entry) => entry.id === 'button-surface')!;
+      slot.compatibleRoleIds = ['top-icon-action'];
+    }, 'compatibility-mismatch');
   });
 
   it('reconstructs every 3x3 anchor for representative runtime insets', () => {
@@ -504,15 +616,19 @@ describe('shell presentation contract', () => {
     const source = validAssetCatalog();
     records(source.assets).push({
       id: 'asset.title.default',
+      name: 'Default title logo',
+      description: 'Logo surface used for the shell title.',
       slotId: 'title-logo',
       path: 'assets/title.default.png',
       mimeType: 'image/png',
       width: 240,
       height: 96,
+      bytes: 1_024,
       hasAlpha: true,
       sha256: `sha256-${'3'.repeat(64)}`,
       provenance: {
         sourceId: 'kenney-ui-pack',
+        sourcePath: 'UI/PNG/Blue/Default/title.png',
         sourceHash: `sha256-${'4'.repeat(64)}`,
         license: 'CC0-1.0',
       },
@@ -528,6 +644,28 @@ describe('shell presentation contract', () => {
     );
   });
 
+  it('requires an asset use to retain its slot fit in base and inherited variants', () => {
+    const catalog = parseShellAssetCatalog(validAssetCatalog());
+    const candidate = createDefaultShellPresentation();
+    const play = candidate.pages
+      .flatMap((page) => page.instances)
+      .find((instance) => instance.id === 'menu.play')!;
+    play.presentation.assetId = 'asset.primary-action.default';
+    play.presentation.geometry.fit = 'contain';
+    expect(() => parseShellPresentation(candidate, { assetCatalog: catalog })).toThrow(
+      /requires cover fitting/i,
+    );
+
+    play.presentation.geometry.fit = 'cover';
+    play.variants.pressed = {
+      ...play.variants.pressed,
+      geometry: { ...play.presentation.geometry, fit: 'contain' },
+    };
+    expect(() => parseShellPresentation(candidate, { assetCatalog: catalog })).toThrow(
+      /requires cover fitting/i,
+    );
+  });
+
   it('always returns structured validation errors for malformed authored instances', () => {
     for (const field of ['accessibility', 'presentation'] as const) {
       const candidate = createDefaultShellPresentation() as unknown as JsonRecord;
@@ -540,6 +678,122 @@ describe('shell presentation contract', () => {
         expect(error, field).toBeInstanceOf(ShellContractValidationError);
       }
     }
+  });
+
+  it('accepts high-resolution sources while enforcing slot floors, aspect, and edge safety', () => {
+    expect(() => parseShellAssetCatalog(validAssetCatalog())).not.toThrow();
+
+    const formerlyRenderedMax = validAssetCatalog();
+    Object.assign(records(formerlyRenderedMax.assets)[0]!, {
+      width: 4_096,
+      height: 1_024,
+    });
+    expect(() => parseShellAssetCatalog(formerlyRenderedMax)).not.toThrow();
+
+    expectCatalogIssue((candidate) => {
+      Object.assign(records(candidate.assets)[0]!, { width: 71, height: 48 });
+    }, 'source-raster-floor', '$.assets[0]');
+
+    expectCatalogIssue((candidate) => {
+      Object.assign(records(candidate.assets)[0]!, { width: 72, height: 97 });
+    }, 'source-raster-aspect', '$.assets[0]');
+
+    expectCatalogIssue((candidate) => {
+      Object.assign(records(candidate.assets)[0]!, { width: 4_097, height: 1_024 });
+    }, 'raster-edge-limit', '$.assets[0]');
+  });
+
+  it('bounds asset count, encoded bytes, and decoded pixel load deterministically', () => {
+    expectCatalogIssue((candidate) => {
+      records(candidate.assets)[0]!.bytes = 8_388_609;
+    }, 'asset-byte-limit', '$.assets[0].bytes');
+
+    expectCatalogIssue((candidate) => {
+      candidate.assets = Array.from({ length: 257 }, (_, index) =>
+        validAssetCatalogEntry({ id: `asset.primary-action.${String(index).padStart(3, '0')}` }),
+      );
+    }, 'asset-count-limit', '$.assets');
+
+    expectCatalogIssue((candidate) => {
+      candidate.assets = Array.from({ length: 9 }, (_, index) =>
+        validAssetCatalogEntry({
+          id: `asset.primary-action.${String(index).padStart(3, '0')}`,
+          bytes: 8_388_608,
+        }),
+      );
+    }, 'aggregate-byte-limit', '$.assets');
+
+    expectCatalogIssue((candidate) => {
+      candidate.assets = Array.from({ length: 17 }, (_, index) =>
+        validAssetCatalogEntry({
+          id: `asset.primary-action.${String(index).padStart(3, '0')}`,
+          width: 4_096,
+          height: 1_024,
+          bytes: 1,
+        }),
+      );
+    }, 'decoded-pixel-limit', '$.assets');
+  });
+
+  it('requires bounded semantic metadata and normalized provenance source paths', () => {
+    expectCatalogIssue((candidate) => {
+      records(candidate.assets)[0]!.name = '';
+    }, 'invalid-asset-metadata', '$.assets[0].name');
+
+    expectCatalogIssue((candidate) => {
+      records(candidate.assets)[0]!.name = '🎮'.repeat(81);
+    }, 'invalid-asset-metadata', '$.assets[0].name');
+
+    expectCatalogIssue((candidate) => {
+      records(candidate.assets)[0]!.description = 'a'.repeat(321);
+    }, 'invalid-asset-metadata', '$.assets[0].description');
+
+    for (const metadata of ['   ', `Button${String.fromCharCode(0)}surface`]) {
+      expectCatalogIssue((candidate) => {
+        records(candidate.assets)[0]!.description = metadata;
+      }, 'invalid-asset-metadata', '$.assets[0].description');
+    }
+
+    for (const sourcePath of [
+      '/UI/button.png',
+      './button.png',
+      '../button.png',
+      'UI\\button.png',
+      'UI//button.png',
+      'UI/./button.png',
+      'UI/../button.png',
+      'UI/button.png?raw=1',
+      'UI/button.png#fragment',
+      `UI/${String.fromCharCode(0)}button.png`,
+    ]) {
+      expectCatalogIssue((candidate) => {
+        record(records(candidate.assets)[0]!.provenance).sourcePath = sourcePath;
+      }, 'unsafe-source-path', '$.assets[0].provenance.sourcePath');
+    }
+  });
+
+  it('enforces slot MIME and alpha policies independently of file extensions', () => {
+    expectCatalogIssue((candidate) => {
+      Object.assign(records(candidate.assets)[0]!, {
+        id: 'asset.icon.default',
+        slotId: 'icon-control',
+        path: 'assets/icon.default.jpg',
+        mimeType: 'image/jpeg',
+        width: 100,
+        height: 100,
+      });
+    }, 'unsafe-asset', '$.assets[0].mimeType');
+
+    expectCatalogIssue((candidate) => {
+      Object.assign(records(candidate.assets)[0]!, {
+        id: 'asset.icon.default',
+        slotId: 'icon-control',
+        path: 'assets/icon.default.png',
+        width: 100,
+        height: 100,
+        hasAlpha: false,
+      });
+    }, 'invalid-alpha', '$.assets[0].hasAlpha');
   });
 
   it('accepts only known local raster assets and rejects SVG, URL, data, and blob inputs', () => {
@@ -626,6 +880,52 @@ describe('shell presentation contract', () => {
     expect(schemaAcceptsPath('assets/ui/button.png')).toBe(true);
     for (const unsafe of ['../presentation.ts', 'assets/a/../b.png', 'assets/a//b.png']) {
       expect(schemaAcceptsPath(unsafe), unsafe).toBe(false);
+    }
+
+    const assetCatalogSchema = record(shellPresentationContract.schemas.assetCatalog);
+    const assetCatalogProperties = record(assetCatalogSchema.properties);
+    const assets = record(assetCatalogProperties.assets);
+    expect(assets.maxItems).toBe(256);
+    const asset = record(assets.items);
+    expect(asset.required).toEqual([
+      'id',
+      'name',
+      'description',
+      'slotId',
+      'path',
+      'mimeType',
+      'width',
+      'height',
+      'bytes',
+      'hasAlpha',
+      'sha256',
+      'provenance',
+    ]);
+    const assetProperties = record(asset.properties);
+    expect(record(assetProperties.width).maximum).toBe(4_096);
+    expect(record(assetProperties.height).maximum).toBe(4_096);
+    expect(record(assetProperties.bytes).maximum).toBe(8_388_608);
+    expect(record(assetProperties.name).maxLength).toBe(80);
+    expect(record(assetProperties.description).maxLength).toBe(320);
+    const descriptionPattern = new RegExp(String(record(assetProperties.description).pattern), 'u');
+    expect(descriptionPattern.test('Primary button surface')).toBe(true);
+    expect(descriptionPattern.test('   ')).toBe(false);
+    expect(descriptionPattern.test(`Button${String.fromCharCode(0)}surface`)).toBe(false);
+    const provenance = record(assetProperties.provenance);
+    expect(provenance.required).toContain('sourcePath');
+    const sourcePath = record(record(provenance.properties).sourcePath);
+    const sourcePathPattern = new RegExp(String(sourcePath.pattern), 'u');
+    expect(sourcePathPattern.test('UI/PNG/Blue/button.png')).toBe(true);
+    for (const unsafe of [
+      '/UI/button.png',
+      './button.png',
+      '../button.png',
+      'UI\\button.png',
+      'UI//button.png',
+      'UI/../button.png',
+      'UI/button.png?raw=1',
+    ]) {
+      expect(sourcePathPattern.test(unsafe), unsafe).toBe(false);
     }
   });
 
