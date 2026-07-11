@@ -214,6 +214,20 @@ function renderMenu(
   const progressionMap = handle.el.querySelector<HTMLElement>('[data-fab-instance="menu.progression-map"]')!;
   progressionMap.setAttribute("role", "group");
   progressionMap.setAttribute("aria-label", copy["menu.progression"]);
+  const progressionPath = progressionMap.querySelector<HTMLElement>(".fab-levelmap-path")!;
+  const route = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  route.classList.add("template-shell__route");
+  route.setAttribute("viewBox", "0 0 270 272");
+  route.setAttribute("preserveAspectRatio", "none");
+  route.setAttribute("aria-hidden", "true");
+  route.setAttribute("focusable", "false");
+  for (const className of ["template-shell__route-track", "template-shell__route-line"]) {
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.classList.add(className);
+    path.setAttribute("d", "M101 34 C111 75 151 87 167 124 C166 165 129 190 111 235");
+    route.appendChild(path);
+  }
+  progressionPath.prepend(route);
   assignInstance(handle.el, '.fab-home-menu-actions [data-fab-action="play"]', "menu.play");
 
   for (const [index, node] of Array.from(handle.el.querySelectorAll<HTMLButtonElement>(".fab-levelmap-node")).entries()) {

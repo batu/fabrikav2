@@ -768,3 +768,46 @@ zero body margin, and visible targets at least 48 px high.
 
 passed for Worked; final unseen frames still own the independent threshold.
 Browser evidence remains diagnostic only.
+
+### Iteration 9 - Close repeated structural seams
+
+#### Why This Iteration
+
+Fresh image-only Terra session `019f503f-f1d4-7a62-bd6e-7f5533443f52`
+reported zero P1s but nine P2s. The exact cosmetic count varied between fresh
+reviews, so this pass addressed only the structural signals that repeated:
+route continuity, a deliberate hero boundary, attached diagnostics, and one
+shared mobile-sheet grammar. The empty mechanic region remains intentional;
+U2 supplies a functional shell and U3 owns specialization tooling.
+
+#### Changes Made
+
+- Replaced the disconnected route segments with one decorative, non-actionable
+  SVG path behind the three progression landmarks. Its two paths provide a
+  stable track and accent line without introducing another asset authority.
+- Gave the hero a deliberate rounded crop using the existing shell radius and
+  height tokens.
+- Attached the closed `Test outcomes` disclosure to the play surface with a
+  quiet rule and wash instead of leaving it as a floating text row.
+- Increased scrim and sheet separation slightly, then applied the same grabber,
+  upward elevation, and full-width bottom anchoring to Pause and Fail.
+- Added unit coverage for the route structure and attached diagnostic footer.
+
+#### Post-Change Screenshots
+
+`u2-structural-seam-pass-{menu,level,pause,settings,win,fail}.png` is the
+settled 390 x 844 real-click browser set. The companion metrics retain an
+844 px document/body, zero body margin, and visible targets at least 48 px.
+
+#### Deterministic Proof
+
+- Unit: 6 files / 48 tests passed.
+- Browser smoke: 1 Playwright test passed.
+- Typecheck, lint, production build, approved-source audit (29 PNG fixtures and
+  2 fonts), and `git diff --check`: passed.
+
+#### Decision
+
+passed for Worked; a fresh unseen image review still owns the independent
+Aesthetics Reviewed threshold. Browser evidence remains diagnostic only and
+does not claim Android or iPhone proof.

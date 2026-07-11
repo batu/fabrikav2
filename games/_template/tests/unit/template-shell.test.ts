@@ -334,7 +334,7 @@ describe("template shell renderer and harness", () => {
       /\.template-shell__gameplay-copy\s*\{[^}]*position:\s*absolute;[^}]*max-width:\s*228px;[^}]*background-color:\s*var\(--fab-seed-color-copy-surface\);/s,
     );
     expect(templateShellCss()).toMatch(
-      /\.template-shell__sample-outcomes\s*\{[^}]*border:\s*0;[^}]*background:\s*transparent;/s,
+      /\.template-shell__sample-outcomes\s*\{[^}]*border-top:\s*1px solid var\(--fab-seed-color-secondary-border\);[^}]*background:\s*linear-gradient\(/s,
     );
   });
 
@@ -370,6 +370,7 @@ describe("template shell renderer and harness", () => {
     const hero = shell.root.querySelector<HTMLElement>('[data-fab-instance="menu.hero"]');
     const completed = shell.root.querySelector<HTMLElement>('[data-fab-instance="menu.node.completed"]');
     const locked = shell.root.querySelector<HTMLElement>('[data-fab-instance="menu.node.locked"]');
+    const route = shell.root.querySelector<SVGElement>(".template-shell__route");
     const tokens = templateTokensCss();
 
     expect(hero?.classList.contains("template-shell__hero-stage")).toBe(true);
@@ -378,6 +379,10 @@ describe("template shell renderer and harness", () => {
     expect(hero?.dataset.fabSlot).toBe("hero-art");
     expect(hero?.querySelector("img")).toBeNull();
     expect(shell.root.querySelector(".template-shell__hero-marker")).not.toBeNull();
+    expect(route?.getAttribute("aria-hidden")).toBe("true");
+    expect(route?.querySelectorAll("path")).toHaveLength(2);
+    expect(route?.querySelector(".template-shell__route-track")).not.toBeNull();
+    expect(route?.querySelector(".template-shell__route-line")).not.toBeNull();
     expect(completed?.getAttribute("data-fab-node-state")).toBe("completed");
     expect(locked?.getAttribute("data-fab-node-state")).toBe("locked");
     expect(tokens).toMatch(/--fab-seed-levelmap-art-completed:\s*url\("\.\/assets\/icon-confirm\.png"\);/);
