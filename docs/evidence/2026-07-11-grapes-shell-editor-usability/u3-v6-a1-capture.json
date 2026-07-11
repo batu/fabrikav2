@@ -1,8 +1,7 @@
 {
   "schema": "fabrikav2-grapes-shell-a1-capture-v1",
   "sourceCommits": [
-    "c142f286",
-    "2f5ed0a2"
+    "469bdc6b3680d49ce6bd372953673665347658f3"
   ],
   "viewport": {
     "width": 1440,
@@ -13,7 +12,7 @@
     "status": "saved-unpublished",
     "targetGame": "shell_proof",
     "pageCount": 6,
-    "projectHash": "sha256-b7cc3468e88f73d5e87083c3d780218b503d1664ec8c680d52cf74139d45b501",
+    "projectHash": "sha256-4cc9e031266e95a86536031143035bcf3d86e5abc5a222fc04c0d09ed6463ae4",
     "assetCatalogHash": "sha256-5a0ce5186af8f07a1d6f7143fe10a5f7d273d39275bbfd74a9ab074f74fe652e"
   },
   "interaction": {
@@ -25,8 +24,8 @@
       "win",
       "fail"
     ],
-    "selectedInstance": "menu.settings",
-    "installedAsset": "icon-control.confirm",
+    "selectedInstance": "settings.back",
+    "installedAsset": "button-surface.secondary",
     "decisionSubmitted": false
   },
   "evidence": {
