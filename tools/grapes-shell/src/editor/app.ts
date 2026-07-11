@@ -16,7 +16,7 @@ import {
 } from "../shared/project.ts";
 import { createConstrainedGrapesCanvas } from "./grapes-canvas.ts";
 import { editorAssetUrl } from "./assets.ts";
-import { editorSeedManifest } from "./seed.ts";
+import { editorAssetCatalog } from "./seed.ts";
 
 import "grapesjs/dist/css/grapes.min.css";
 import "./editor.css";
@@ -101,7 +101,7 @@ export function loadBrowserProject(readStoredProject: () => string | null): Load
   }
   try {
     return {
-      project: validateProjectFile(JSON.parse(serialized) as unknown, editorSeedManifest, EDITOR_TARGET_GAME),
+      project: validateProjectFile(JSON.parse(serialized) as unknown, editorAssetCatalog, EDITOR_TARGET_GAME),
       status: "saved-unpublished",
       feedback: "Validated browser draft loaded. Raw HTML, CSS, and unsupported GrapesJS panels are unavailable.",
       feedbackTone: "neutral",
@@ -188,9 +188,9 @@ export function mountConstrainedEditor(root: HTMLElement): void {
     },
   });
   window.__FABRIKAV2_GRAPES_SHELL_EDITOR__ = {
-    getValidatedProject: () => structuredClone(validateProjectFile(project, editorSeedManifest, EDITOR_TARGET_GAME)),
+    getValidatedProject: () => structuredClone(validateProjectFile(project, editorAssetCatalog, EDITOR_TARGET_GAME)),
     getValidatedSnapshot: async () => {
-      const validated = structuredClone(validateProjectFile(project, editorSeedManifest, EDITOR_TARGET_GAME));
+      const validated = structuredClone(validateProjectFile(project, editorAssetCatalog, EDITOR_TARGET_GAME));
       const snapshotStatus = status;
       return { project: validated, projectHash: await hashCanonicalJson(validated), status: snapshotStatus };
     },
@@ -265,7 +265,7 @@ export function mountConstrainedEditor(root: HTMLElement): void {
         refresh();
       }, "editor-button editor-button--primary"),
       button("Export validated project", () => {
-        const validated = validateProjectFile(project, editorSeedManifest, EDITOR_TARGET_GAME);
+        const validated = validateProjectFile(project, editorAssetCatalog, EDITOR_TARGET_GAME);
         downloadProject(validated);
         feedback = "Validated project JSON exported for Fabrika handoff. No repository publication occurred.";
         feedbackTone = "success";
@@ -392,28 +392,28 @@ export function mountConstrainedEditor(root: HTMLElement): void {
       geometry.append(
         numericControl("X offset %", current.offset.x * 100, 1, (next) =>
           commit(
-            () => updateInstancePresentation(project, selectedId, { geometry: { ...current, offset: { ...current.offset, x: next / 100 } } }, editorSeedManifest),
+            () => updateInstancePresentation(project, selectedId, { geometry: { ...current, offset: { ...current.offset, x: next / 100 } } }, editorAssetCatalog),
             "Position updated in the safe authoring rectangle.",
           ),
           !editingBase,
         ),
         numericControl("Y offset %", current.offset.y * 100, 1, (next) =>
           commit(
-            () => updateInstancePresentation(project, selectedId, { geometry: { ...current, offset: { ...current.offset, y: next / 100 } } }, editorSeedManifest),
+            () => updateInstancePresentation(project, selectedId, { geometry: { ...current, offset: { ...current.offset, y: next / 100 } } }, editorAssetCatalog),
             "Position updated in the safe authoring rectangle.",
           ),
           !editingBase,
         ),
         numericControl("Width %", current.size.width * 100, 1, (next) =>
           commit(
-            () => updateInstancePresentation(project, selectedId, { geometry: { ...current, size: { ...current.size, width: next / 100 } } }, editorSeedManifest),
+            () => updateInstancePresentation(project, selectedId, { geometry: { ...current, size: { ...current.size, width: next / 100 } } }, editorAssetCatalog),
             "Width updated under the role geometry cap.",
           ),
           !editingBase,
         ),
         numericControl("Height %", current.size.height * 100, 1, (next) =>
           commit(
-            () => updateInstancePresentation(project, selectedId, { geometry: { ...current, size: { ...current.size, height: next / 100 } } }, editorSeedManifest),
+            () => updateInstancePresentation(project, selectedId, { geometry: { ...current, size: { ...current.size, height: next / 100 } } }, editorAssetCatalog),
             "Height updated under the role geometry cap.",
           ),
           !editingBase,
@@ -422,7 +422,7 @@ export function mountConstrainedEditor(root: HTMLElement): void {
     }
     if (roleAllows(instance, "copy")) {
       geometry.append(textControl("Copy", instance.presentation.copy ?? "", (next) =>
-        commit(() => updateInstancePresentation(project, selectedId, { copy: next }, editorSeedManifest), "Copy updated as inert plain text."),
+        commit(() => updateInstancePresentation(project, selectedId, { copy: next }, editorAssetCatalog), "Copy updated as inert plain text."),
       !editingBase,
       ));
     }
@@ -435,7 +435,7 @@ export function mountConstrainedEditor(root: HTMLElement): void {
       picker.value = instance.presentation.colors?.background?.slice(0, 7) ?? "#d9e7f1";
       picker.disabled = !editingBase;
       picker.addEventListener("change", () => commit(
-        () => updateInstancePresentation(project, selectedId, { colors: { ...instance.presentation.colors, background: picker.value } }, editorSeedManifest),
+        () => updateInstancePresentation(project, selectedId, { colors: { ...instance.presentation.colors, background: picker.value } }, editorAssetCatalog),
         "Background palette color updated through the U1 contract.",
       ));
       colorField.append(caption, picker);
@@ -444,7 +444,7 @@ export function mountConstrainedEditor(root: HTMLElement): void {
     if (roleAllows(instance, "visibility")) {
       const nextVisibility = instance.presentation.visibility === "visible" ? "hidden" : "visible";
       const visibilityRejection = editRejection(() =>
-        updateInstancePresentation(project, selectedId, { visibility: nextVisibility }, editorSeedManifest));
+        updateInstancePresentation(project, selectedId, { visibility: nextVisibility }, editorAssetCatalog));
       if (visibilityRejection) {
         const required = element("p", "editor-locked-note editor-locked-note--compact");
         text(required, `Visibility locked · ${visibilityRejection}`);
@@ -456,7 +456,7 @@ export function mountConstrainedEditor(root: HTMLElement): void {
         checkbox.checked = instance.presentation.visibility === "visible";
         checkbox.disabled = !editingBase;
         checkbox.addEventListener("change", () => commit(
-          () => updateInstancePresentation(project, selectedId, { visibility: checkbox.checked ? "visible" : "hidden" }, editorSeedManifest),
+          () => updateInstancePresentation(project, selectedId, { visibility: checkbox.checked ? "visible" : "hidden" }, editorAssetCatalog),
           checkbox.checked ? "Component shown." : "Component hidden.",
         ));
         visibility.append(checkbox);
@@ -500,7 +500,7 @@ export function mountConstrainedEditor(root: HTMLElement): void {
     const arrange = element("div", "editor-inline-actions");
     if (roleAllows(instance, "order")) {
       const backward = button("Send backward", () => commit(
-        () => reorderInstance(project, selectedId, "backward", editorSeedManifest),
+        () => reorderInstance(project, selectedId, "backward", editorAssetCatalog),
         "Layer order updated within its semantic sibling group.",
       ));
       backward.disabled = !editingBase || !canReorderInstance(project, selectedId, "backward");
@@ -510,7 +510,7 @@ export function mountConstrainedEditor(root: HTMLElement): void {
           : "Return to Base presentation before reordering.";
       }
       const forward = button("Bring forward", () => commit(
-        () => reorderInstance(project, selectedId, "forward", editorSeedManifest),
+        () => reorderInstance(project, selectedId, "forward", editorAssetCatalog),
         "Layer order updated within its semantic sibling group.",
       ));
       forward.disabled = !editingBase || !canReorderInstance(project, selectedId, "forward");
@@ -523,10 +523,10 @@ export function mountConstrainedEditor(root: HTMLElement): void {
     }
     const duplicateCandidate = duplicateInstance(project, selectedId);
     const duplicateRejection = editRejection(() =>
-      validateProjectFile(duplicateCandidate.project, editorSeedManifest, EDITOR_TARGET_GAME));
+      validateProjectFile(duplicateCandidate.project, editorAssetCatalog, EDITOR_TARGET_GAME));
     const duplicateControl = button("Duplicate", () => {
         const duplicate = duplicateInstance(project, selectedId);
-        project = validateProjectFile(duplicate.project, editorSeedManifest, EDITOR_TARGET_GAME);
+        project = validateProjectFile(duplicate.project, editorAssetCatalog, EDITOR_TARGET_GAME);
         selectedId = duplicate.instanceId;
         selectedVariant = "";
         status = "dirty";
@@ -542,7 +542,10 @@ export function mountConstrainedEditor(root: HTMLElement): void {
     const assetsHeading = element("h3", "editor-subheading");
     text(assetsHeading, "Curated asset tray");
     const assets = element("div", "editor-asset-tray");
-    const compatible = editorSeedManifest.assets.filter((asset) => asset.compatibleRoles.includes(instance.roleId));
+    const assetSlotId = shellPresentationContract.roles.find((role) => role.id === instance.roleId)?.assetSlotId ?? null;
+    const compatible = assetSlotId
+      ? editorAssetCatalog.assets.filter((asset) => asset.slotId === assetSlotId)
+      : [];
     if (compatible.length === 0) {
       const empty = element("p", "editor-empty");
       text(empty, "This role has no curated raster replacement.");
@@ -551,7 +554,7 @@ export function mountConstrainedEditor(root: HTMLElement): void {
     for (const asset of compatible) {
       const control = element("button", "editor-asset-card");
       control.type = "button";
-      control.title = `${titleCase(asset.id)} · ${asset.dimensions.width}×${asset.dimensions.height}px · ${asset.source.pack}`;
+      control.title = `${titleCase(asset.id)} · ${asset.width}×${asset.height}px · ${asset.provenance.sourceId}`;
       const installedAssetId = selectedVariant
         ? (instance.variants[selectedVariant]?.assetId ?? instance.presentation.assetId)
         : instance.presentation.assetId;
@@ -561,8 +564,8 @@ export function mountConstrainedEditor(root: HTMLElement): void {
       control.setAttribute("aria-pressed", String(installed));
       if (installed) control.classList.add("is-installed");
       control.addEventListener("click", () => commit(
-        () => updateInstancePresentation(project, selectedId, { assetId: asset.id }, editorSeedManifest),
-        `Installed ${titleCase(asset.id)} from the pinned ${asset.source.pack} seed.`,
+        () => updateInstancePresentation(project, selectedId, { assetId: asset.id }, editorAssetCatalog),
+        `Installed ${titleCase(asset.id)} from the pinned ${asset.provenance.sourceId} seed.`,
       ));
 
       const thumbnail = element("span", "editor-asset-thumbnail");
@@ -578,7 +581,7 @@ export function mountConstrainedEditor(root: HTMLElement): void {
       const id = element("code");
       text(id, asset.id);
       const provenance = element("span", "editor-asset-provenance");
-      text(provenance, `${asset.dimensions.width}×${asset.dimensions.height}px · ${asset.source.pack}`);
+      text(provenance, `${asset.width}×${asset.height}px · ${asset.provenance.sourceId}`);
       details.append(name, id, provenance);
 
       const state = element("span", "editor-asset-state");

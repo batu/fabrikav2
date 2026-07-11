@@ -1,7 +1,10 @@
+import { parseShellAssetCatalog, type ShellAssetCatalog } from "@fabrikav2/kernel";
+
 import rawSeedManifest from "../../../../games/_template/design/kenney-seed.manifest.json";
 
-import type { SeedManifest } from "../shared/project.ts";
-
-// This is the exact U2 manifest bundled as declarative data. The editor never
-// fetches its source URLs; it only uses the pinned semantic inventory below.
-export const editorSeedManifest = rawSeedManifest as unknown as SeedManifest;
+// The editor bundles the exact U2 manifest as declarative data and never fetches
+// its source URLs. Its single asset vocabulary is U1's canonical asset catalog,
+// validated here through the kernel so a malformed bundle fails at build/import.
+export const editorAssetCatalog: ShellAssetCatalog = parseShellAssetCatalog(
+  (rawSeedManifest as { assetCatalog: unknown }).assetCatalog,
+);

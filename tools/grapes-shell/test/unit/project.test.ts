@@ -95,13 +95,33 @@ describe("constrained GrapesJS project", () => {
     expect(() => validateProjectFile(pathEscape, seed)).toThrow(/unsafe|path/i);
   });
 
-  it("uses only the committed U2 manifest as its asset vocabulary", async () => {
+  it("fails closed when a curated asset targets a slot its semantic role does not own", async () => {
+    const seed = await manifest();
+    const source = createStarterProject();
+
+    const crossSlot = structuredClone(source.presentation);
+    // menu.play owns the button-surface slot; icon-control.settings targets icon-control.
+    crossSlot.pages
+      .find((page) => page.stateId === "menu")!
+      .instances.find((instance) => instance.id === "menu.play")!.presentation.assetId = "icon-control.settings";
+    const crossSlotProject = { ...source, presentation: crossSlot, grapesjs: createConstrainedGrapesProject(crossSlot) };
+    expect(() => validateProjectFile(crossSlotProject, seed)).toThrow(/targets slot|incompatible|slot/i);
+
+    const unknown = structuredClone(source.presentation);
+    unknown.pages
+      .find((page) => page.stateId === "menu")!
+      .instances.find((instance) => instance.id === "menu.play")!.presentation.assetId = "does.not.exist";
+    const unknownProject = { ...source, presentation: unknown, grapesjs: createConstrainedGrapesProject(unknown) };
+    expect(() => validateProjectFile(unknownProject, seed)).toThrow(/unknown/i);
+  });
+
+  it("uses only the committed U2 manifest's canonical U1 asset catalog as its vocabulary", async () => {
     const seed = await manifest();
     const raw = JSON.parse(await readFile(path.join(seedRoot, "kenney-seed.manifest.json"), "utf8")) as {
-      assets: Array<{ id: string }>;
+      assetCatalog: { assets: Array<{ id: string }> };
     };
 
-    expect(seed.assets.map((asset) => asset.id)).toEqual(raw.assets.map((asset) => asset.id));
+    expect(seed.assets.map((asset) => asset.id)).toEqual(raw.assetCatalog.assets.map((asset) => asset.id));
   });
 
   it("accepts only U1 color channels for palette edits", async () => {

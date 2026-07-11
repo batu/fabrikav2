@@ -88,11 +88,11 @@ async function initialize(context: CliContext): Promise<Record<string, unknown>>
 }
 
 async function validate(context: CliContext): Promise<Record<string, unknown>> {
-  const [raw, manifest] = await Promise.all([
+  const [raw, catalog] = await Promise.all([
     readFile(path.join(context.authoringDir, "project.json"), "utf8"),
     readSeedManifest(context.seedRoot),
   ]);
-  const project = validateProjectFile(JSON.parse(raw) as unknown, manifest, context.game);
+  const project = validateProjectFile(JSON.parse(raw) as unknown, catalog, context.game);
   return {
     operation: "validate",
     projectHash: await hashCanonicalJson(project),

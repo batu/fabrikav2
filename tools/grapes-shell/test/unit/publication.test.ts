@@ -123,9 +123,9 @@ describe("immutable GrapesJS publication", () => {
     const published = await publishAuthoringProject({ authoringDir, seedRoot, renderPreviews: previewRenderer("assets") });
     const publication = path.join(authoringDir, "publications", published.publicationId);
     const catalog = JSON.parse(await readFile(path.join(publication, "portable", "asset-catalog.json"), "utf8")) as {
-      assets: Array<{ file: string }>;
+      assets: Array<{ path: string }>;
     };
-    await writeFile(path.join(publication, catalog.assets[0]!.file), "tampered-raster-bytes", "utf8");
+    await writeFile(path.join(publication, catalog.assets[0]!.path), "tampered-raster-bytes", "utf8");
 
     await expect(verifyPublishedRevision({ authoringDir, publicationId: published.publicationId, seedRoot })).rejects.toThrow(
       /asset bytes diverge/i,

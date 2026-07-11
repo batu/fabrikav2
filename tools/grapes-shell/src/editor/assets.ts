@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-import type { SeedAsset } from "../shared/project.ts";
+import type { ShellAssetCatalogEntry } from "@fabrikav2/kernel";
 
 const bundledAssetUrls = import.meta.glob("../../../../games/_template/design/assets/*.png", {
   eager: true,
@@ -16,8 +16,8 @@ const urlByManifestPath = new Map<string, string>(
   }),
 );
 
-export function editorAssetUrl(asset: Pick<SeedAsset, "file" | "id">): string {
-  const url = urlByManifestPath.get(asset.file);
+export function editorAssetUrl(asset: Pick<ShellAssetCatalogEntry, "path" | "id">): string {
+  const url = urlByManifestPath.get(asset.path);
   if (!url) throw new Error(`Curated asset "${asset.id}" is not present in the bundled U2 seed.`);
   return url;
 }

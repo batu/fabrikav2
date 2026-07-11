@@ -6,8 +6,11 @@ import {
   canonicalizeJson,
   computeShellPublicationId,
   hashCanonicalJson,
+  parseShellAssetCatalog,
   parseShellPublishedRevision,
   shellPresentationContract,
+  type ShellAssetCatalog,
+  type ShellAssetCatalogEntry,
   type ShellPresentationDocument,
   type ShellPresentationInstance,
   type ShellPublishedRevision,
@@ -18,8 +21,6 @@ import {
   ProjectValidationError,
   validateProjectFile,
   type GrapesShellProject,
-  type SeedAsset,
-  type SeedManifest,
 } from "../shared/project.ts";
 import { readSeedAsset, readSeedManifest } from "../shared/seed.ts";
 import { projectSemanticLayout } from "../shared/layout.ts";
@@ -94,25 +95,12 @@ interface PortableRecords {
   readonly records: readonly PortableComponentRecord[];
 }
 
-interface PortableAssetCatalog {
-  readonly format: "grapes-shell-asset-catalog-v1";
-  readonly assets: readonly {
-    readonly id: string;
-    readonly file: string;
-    readonly sha256: string;
-    readonly width: number;
-    readonly height: number;
-    readonly compatibleRoles: readonly string[];
-    readonly source: { readonly pack: string; readonly path: string };
-  }[];
-}
-
 interface PortableBundle {
   readonly pages: readonly { readonly stateId: ShellStateId; readonly filename: string; readonly html: string }[];
   readonly styles: string;
   readonly records: PortableRecords;
-  readonly assetCatalog: PortableAssetCatalog;
-  readonly assets: readonly SeedAsset[];
+  readonly assetCatalog: ShellAssetCatalog;
+  readonly assets: readonly ShellAssetCatalogEntry[];
 }
 
 interface LatestPointer {
@@ -221,7 +209,7 @@ function assetUses(document: ShellPresentationDocument): Set<string> {
   return used;
 }
 
-function requiredAssets(document: ShellPresentationDocument, assets: readonly SeedAsset[]): SeedAsset[] {
+function requiredAssets(document: ShellPresentationDocument, assets: readonly ShellAssetCatalogEntry[]): ShellAssetCatalogEntry[] {
   const byId = new Map(assets.map((asset) => [asset.id, asset]));
   return [...assetUses(document)]
     .sort()
@@ -232,28 +220,25 @@ function requiredAssets(document: ShellPresentationDocument, assets: readonly Se
     });
 }
 
-function portableAssetCatalog(assets: readonly SeedAsset[]): PortableAssetCatalog {
-  return {
-    format: "grapes-shell-asset-catalog-v1",
+// The portable bundle carries U1's canonical asset catalog, narrowed to the
+// rasters the publication actually references. Re-parsing it asserts the emitted
+// asset-catalog.json is a valid, canonically ordered ShellAssetCatalog.
+function portableAssetCatalog(assets: readonly ShellAssetCatalogEntry[]): ShellAssetCatalog {
+  const catalog: ShellAssetCatalog = {
+    contractId: shellPresentationContract.contractId,
+    contractVersion: shellPresentationContract.contractVersion,
     assets: [...assets]
-      .sort((left, right) => left.id.localeCompare(right.id))
-      .map((asset) => ({
-        id: asset.id,
-        file: asset.file,
-        sha256: `sha256-${asset.sha256}`,
-        width: asset.dimensions.width,
-        height: asset.dimensions.height,
-        compatibleRoles: [...asset.compatibleRoles].sort(),
-        source: structuredClone(asset.source),
-      })),
+      .sort((left, right) => (left.id < right.id ? -1 : left.id > right.id ? 1 : 0))
+      .map((asset) => structuredClone(asset)),
   };
+  return parseShellAssetCatalog(catalog);
 }
 
-function componentMarkup(instance: ShellPresentationInstance, assetById: ReadonlyMap<string, SeedAsset>): string {
+function componentMarkup(instance: ShellPresentationInstance, assetById: ReadonlyMap<string, ShellAssetCatalogEntry>): string {
   const asset = instance.presentation.assetId ? assetById.get(instance.presentation.assetId) : undefined;
   const copy = instance.presentation.copy ?? instance.id;
   const assetMarkup = asset
-    ? `<img alt="" aria-hidden="true" src="../${escapeHtml(asset.file)}" data-asset-id="${escapeHtml(asset.id)}">`
+    ? `<img alt="" aria-hidden="true" src="../${escapeHtml(asset.path)}" data-asset-id="${escapeHtml(asset.id)}">`
     : "";
   const action = instance.actionId ? ` data-action-id="${escapeHtml(instance.actionId)}"` : "";
   const hidden = instance.presentation.visibility === "hidden" ? "true" : "false";
@@ -289,7 +274,7 @@ function portableStyles(document: ShellPresentationDocument): string {
   return `${PORTABLE_STYLE.trimStart()}\n${componentRules}\n`;
 }
 
-function pageMarkup(stateId: ShellStateId, instances: readonly ShellPresentationInstance[], assetById: ReadonlyMap<string, SeedAsset>): string {
+function pageMarkup(stateId: ShellStateId, instances: readonly ShellPresentationInstance[], assetById: ReadonlyMap<string, ShellAssetCatalogEntry>): string {
   const state = shellPresentationContract.states.find((candidate) => candidate.id === stateId);
   if (!state) throw new ProjectValidationError(`Unknown shell state "${stateId}".`);
   const components = [...instances]
@@ -313,8 +298,8 @@ function pageMarkup(stateId: ShellStateId, instances: readonly ShellPresentation
 </html>`;
 }
 
-function createPortableBundle(document: ShellPresentationDocument, manifestAssets: readonly SeedAsset[]): PortableBundle {
-  const assets = requiredAssets(document, manifestAssets);
+function createPortableBundle(document: ShellPresentationDocument, catalogAssets: readonly ShellAssetCatalogEntry[]): PortableBundle {
+  const assets = requiredAssets(document, catalogAssets);
   const byId = new Map(assets.map((asset) => [asset.id, asset]));
   const pages = document.pages.map((page) => ({
     stateId: page.stateId,
@@ -389,7 +374,7 @@ async function writePortableBundle(directory: string, bundle: PortableBundle, se
       writeJson(path.join(portable, "records.json"), bundle.records),
       writeJson(path.join(portable, "asset-catalog.json"), bundle.assetCatalog),
       ...bundle.pages.map((page) => writeFile(path.join(portable, page.filename), page.html, "utf8")),
-      ...bundle.assets.map(async (asset) => writeFile(path.join(directory, asset.file), await readSeedAsset(seedRoot, asset))),
+      ...bundle.assets.map(async (asset) => writeFile(path.join(directory, asset.path), await readSeedAsset(seedRoot, asset))),
     ],
   );
 }
@@ -498,18 +483,18 @@ async function writeLatestPointer(authoringDir: string, publicationId: string): 
   await rename(temporary, target);
 }
 
-async function loadProject(authoringDir: string, seedRoot: string): Promise<{ project: GrapesShellProject; manifest: SeedManifest }> {
-  const [raw, manifest] = await Promise.all([
+async function loadProject(authoringDir: string, seedRoot: string): Promise<{ project: GrapesShellProject; catalog: ShellAssetCatalog }> {
+  const [raw, catalog] = await Promise.all([
     readJson(path.join(authoringDir, "project.json")),
     readSeedManifest(seedRoot),
   ]);
-  return { project: validateProjectFile(raw, manifest, targetGameFromAuthoringDir(authoringDir)), manifest };
+  return { project: validateProjectFile(raw, catalog, targetGameFromAuthoringDir(authoringDir)), catalog };
 }
 
 export async function publishAuthoringProject(options: PublishAuthoringProjectOptions): Promise<PublicationResult> {
   const authoringDir = projectRoot(options.authoringDir);
-  const { project, manifest } = await loadProject(authoringDir, options.seedRoot);
-  const bundle = createPortableBundle(project.presentation, manifest.assets);
+  const { project, catalog } = await loadProject(authoringDir, options.seedRoot);
+  const bundle = createPortableBundle(project.presentation, catalog.assets);
   const [projectJsonHash, portableExportHash, componentRecordsHash, assetCatalogHash] = await Promise.all([
     hashCanonicalJson(project),
     hashCanonicalJson(portableHashPayload(bundle)),
@@ -588,12 +573,12 @@ async function verifyPublicationDirectory(
 
   const revision = await readJson(path.join(root, "publication.json"));
   await parseShellPublishedRevision(revision);
-  const [projectRaw, manifest] = await Promise.all([
+  const [projectRaw, catalog] = await Promise.all([
     readJson(path.join(root, "project.json")),
     readSeedManifest(seedRoot),
   ]);
-  const project = validateProjectFile(projectRaw, manifest, expectedTargetGame);
-  const bundle = createPortableBundle(project.presentation, manifest.assets);
+  const project = validateProjectFile(projectRaw, catalog, expectedTargetGame);
+  const bundle = createPortableBundle(project.presentation, catalog.assets);
   const portableDirectory = path.join(root, "portable");
 
   await assertDirectoryEntries(
@@ -608,7 +593,7 @@ async function verifyPublicationDirectory(
   await assertDirectoryEntries(
     path.join(root, "assets"),
     new Map<string, "file">(
-      bundle.assets.map((asset) => [path.basename(asset.file), "file"] as const),
+      bundle.assets.map((asset) => [path.basename(asset.path), "file"] as const),
     ),
   );
 
@@ -635,9 +620,8 @@ async function verifyPublicationDirectory(
   }
   await Promise.all(
     bundle.assets.map(async (asset) => {
-      const actualHash = hashBytes(await readFile(path.join(root, asset.file)));
-      const expectedHash = `sha256-${asset.sha256}`;
-      if (actualHash !== expectedHash) {
+      const actualHash = hashBytes(await readFile(path.join(root, asset.path)));
+      if (actualHash !== asset.sha256) {
         throw new ProjectValidationError(`Published asset bytes diverge for "${asset.id}".`);
       }
     }),

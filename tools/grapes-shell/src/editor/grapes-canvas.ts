@@ -15,7 +15,7 @@ import {
   semanticInstanceCss,
 } from "../shared/visual.ts";
 import { editorAssetUrl } from "./assets.ts";
-import { editorSeedManifest } from "./seed.ts";
+import { editorAssetCatalog } from "./seed.ts";
 
 const FRAME_CONTENT = `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'none'; connect-src 'none'; object-src 'none'; base-uri 'none'"></head><body></body></html>`;
 const FRAME_STYLE = `
@@ -64,7 +64,7 @@ function componentDefinition(
   const bounds = projectSemanticLayout(instance.roleId, geometry);
   const copy = presentation.copy ?? instance.presentation.copy ?? instance.id;
   const assetId = presentation.assetId ?? instance.presentation.assetId;
-  const asset = assetId ? editorSeedManifest.assets.find((candidate) => candidate.id === assetId) : undefined;
+  const asset = assetId ? editorAssetCatalog.assets.find((candidate) => candidate.id === assetId) : undefined;
   const assetUrl = asset ? editorAssetUrl(asset) : undefined;
   return {
     tagName: "section",

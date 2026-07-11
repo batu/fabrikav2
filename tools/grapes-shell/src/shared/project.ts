@@ -3,6 +3,7 @@ import {
   createDefaultShellPresentation,
   parseShellPresentation,
   shellPresentationContract,
+  type ShellAssetCatalog,
   type ShellPresentationDocument,
   type ShellPresentationInstance,
   type ShellStateId,
@@ -12,28 +13,6 @@ import {
 const PROJECT_FORMAT = "grapes-shell-project-v1";
 const PROJECT_VERSION = 1;
 const TARGET_GAME = /^[a-z][a-z0-9_]*$/u;
-
-export interface SeedAsset {
-  readonly id: string;
-  readonly file: string;
-  readonly source: { readonly pack: string; readonly path: string };
-  readonly dimensions: { readonly width: number; readonly height: number };
-  readonly alpha: "required";
-  readonly compatibleRoles: readonly string[];
-  readonly sha256: string;
-}
-
-export interface SeedManifest {
-  readonly schemaVersion: number;
-  readonly seedKind: string;
-  readonly canonicalStates: readonly ShellStateId[];
-  readonly sources: readonly {
-    readonly id: string;
-    readonly license: string;
-    readonly licenseSha256: string;
-  }[];
-  readonly assets: readonly SeedAsset[];
-}
 
 interface ConstrainedGrapesComponent {
   readonly id: string;
@@ -140,45 +119,6 @@ function assertInertJson(value: unknown, path = "$", depth = 0, count = { value:
   }
 }
 
-function withoutAssets(document: unknown): unknown {
-  const clone = structuredClone(document) as {
-    pages?: Array<{ instances?: Array<{ presentation?: Record<string, unknown>; variants?: Record<string, Record<string, unknown>> }> }>;
-  };
-  for (const page of clone.pages ?? []) {
-    for (const instance of page.instances ?? []) {
-      delete instance.presentation?.assetId;
-      for (const variant of Object.values(instance.variants ?? {})) delete variant.assetId;
-    }
-  }
-  return clone;
-}
-
-function assetUses(document: ShellPresentationDocument): Array<{ instance: ShellPresentationInstance; visual: ShellVisualPresentation }> {
-  const uses: Array<{ instance: ShellPresentationInstance; visual: ShellVisualPresentation }> = [];
-  for (const page of document.pages) {
-    for (const instance of page.instances) {
-      uses.push({ instance, visual: instance.presentation });
-      for (const visual of Object.values(instance.variants)) uses.push({ instance, visual });
-    }
-  }
-  return uses;
-}
-
-function validateManifestAssetUses(document: ShellPresentationDocument, manifest: SeedManifest): void {
-  const byId = new Map(manifest.assets.map((asset) => [asset.id, asset]));
-  const roleSlots = new Map(shellPresentationContract.roles.map((role) => [role.id, role.assetSlotId]));
-  for (const { instance, visual } of assetUses(document)) {
-    if (!visual.assetId) continue;
-    const asset = byId.get(visual.assetId);
-    if (!asset) throw new ProjectValidationError(`Unknown curated asset "${visual.assetId}".`);
-    if (!asset.compatibleRoles.includes(instance.roleId)) {
-      throw new ProjectValidationError(
-        `Asset "${visual.assetId}" is not compatible with semantic role "${instance.roleId}" (${String(roleSlots.get(instance.roleId))}).`,
-      );
-    }
-  }
-}
-
 function pageName(stateId: ShellStateId): string {
   return shellPresentationContract.states.find((state) => state.id === stateId)?.label ?? stateId;
 }
@@ -216,45 +156,36 @@ function rebuild(presentation: ShellPresentationDocument, targetGame: string): G
   };
 }
 
+// Starter raster assignments. Every ID resolves through U1's canonical asset
+// catalog and targets the slot its semantic role owns (role.assetSlotId ===
+// asset.slotId); slots with no curated raster (title, hero, gameplay, modal,
+// toggle) intentionally start without an asset.
 function assignStarterAssets(document: ShellPresentationDocument): ShellPresentationDocument {
   const assets: Record<string, string> = {
-    "menu.hero": "hero.placeholder",
-    "menu.currency": "currency.primary",
-    "menu.settings": "icon.settings",
-    "menu.play": "action.primary",
-    "menu.node.completed": "node.completed",
-    "menu.node.current": "node.current",
-    "menu.node.locked": "node.locked",
-    "level.currency": "currency.primary",
-    "level.pause": "icon.pause",
-    "level.gameplay-region": "hero.placeholder",
-    "level.test-win": "action.test-win",
-    "level.test-lose": "action.test-lose",
-    "settings.panel": "divider.panel",
-    "settings.music": "toggle.off",
-    "settings.sfx": "toggle.off",
-    "settings.haptics": "toggle.off",
-    "settings.back": "action.primary",
-    "pause.panel": "divider.panel",
-    "pause.resume": "action.primary",
-    "pause.settings": "action.secondary",
-    "pause.home": "action.secondary",
-    "win.panel": "result.win",
-    "win.next": "action.primary",
-    "win.home": "action.secondary",
-    "fail.panel": "result.fail",
-    "fail.retry": "action.primary",
-    "fail.home": "action.secondary",
+    "menu.currency": "counter-frame.primary-currency",
+    "menu.settings": "icon-control.settings",
+    "menu.play": "button-surface.primary",
+    "menu.node.completed": "progression-node.completed",
+    "menu.node.current": "progression-node.current",
+    "menu.node.locked": "progression-node.locked",
+    "level.currency": "counter-frame.primary-currency",
+    "level.pause": "icon-control.pause",
+    "level.test-win": "button-surface.test-win",
+    "level.test-lose": "button-surface.test-lose",
+    "settings.back": "button-surface.primary",
+    "pause.resume": "button-surface.primary",
+    "pause.settings": "button-surface.secondary",
+    "pause.home": "button-surface.secondary",
+    "win.next": "button-surface.primary",
+    "win.home": "button-surface.secondary",
+    "fail.retry": "button-surface.primary",
+    "fail.home": "button-surface.secondary",
   };
   const clone = structuredClone(document);
   for (const page of clone.pages) {
     for (const instance of page.instances) {
       const assetId = assets[instance.id];
       if (assetId) instance.presentation.assetId = assetId;
-      if (instance.roleId === "center-toggle-action") {
-        instance.variants.on = { ...instance.variants.on, assetId: "toggle.on" };
-        instance.variants.off = { ...instance.variants.off, assetId: "toggle.off" };
-      }
     }
   }
   return clone;
@@ -267,7 +198,7 @@ export function createStarterProject(targetGame = "shell_proof"): GrapesShellPro
 
 export function validateProjectFile(
   value: unknown,
-  manifest: SeedManifest,
+  assetCatalog: ShellAssetCatalog,
   expectedTargetGame?: string,
 ): GrapesShellProject {
   assertInertJson(value);
@@ -284,12 +215,14 @@ export function validateProjectFile(
     );
   }
 
+  // U1 is the only asset authority: it validates the closed AST and, given the
+  // canonical catalog, enforces that every referenced raster exists and targets
+  // the slot its semantic role owns (role.assetSlotId === asset.slotId).
   try {
-    parseShellPresentation(withoutAssets(root.presentation));
+    parseShellPresentation(root.presentation, { assetCatalog });
   } catch (error) {
     throw new ProjectValidationError(error instanceof Error ? error.message : "Closed AST validation failed.");
   }
-  validateManifestAssetUses(root.presentation as ShellPresentationDocument, manifest);
 
   const expected = createConstrainedGrapesProject(root.presentation as ShellPresentationDocument);
   if (canonicalizeJson(root.grapesjs) !== canonicalizeJson(expected)) {
@@ -333,14 +266,14 @@ export function updateInstancePresentation(
   project: GrapesShellProject,
   instanceId: string,
   update: Partial<ShellVisualPresentation>,
-  manifest: SeedManifest,
+  assetCatalog: ShellAssetCatalog,
 ): GrapesShellProject {
   const document = structuredClone(project.presentation);
   const { pageIndex, instanceIndex } = findInstance(document, instanceId);
   const instance = document.pages[pageIndex]!.instances[instanceIndex]!;
   instance.presentation = { ...instance.presentation, ...structuredClone(update) };
   const candidate = rebuild(document, project.targetGame);
-  return validateProjectFile(candidate, manifest);
+  return validateProjectFile(candidate, assetCatalog);
 }
 
 function siblingInstances(
@@ -395,7 +328,7 @@ export function reorderInstance(
   project: GrapesShellProject,
   instanceId: string,
   direction: ReorderDirection,
-  manifest: SeedManifest,
+  assetCatalog: ShellAssetCatalog,
 ): GrapesShellProject {
   const { pageIndex, instanceIndex } = findInstance(project.presentation, instanceId);
   const instance = project.presentation.pages[pageIndex]!.instances[instanceIndex]!;
@@ -410,5 +343,5 @@ export function reorderInstance(
   const page = document.pages[pageIndex]!;
   const byId = new Map(page.instances.map((candidate) => [candidate.id, candidate]));
   assignHierarchyOrder(page, reorderedIds.map((id) => byId.get(id)!), instance.parentInstanceId);
-  return validateProjectFile(rebuild(document, project.targetGame), manifest);
+  return validateProjectFile(rebuild(document, project.targetGame), assetCatalog);
 }
