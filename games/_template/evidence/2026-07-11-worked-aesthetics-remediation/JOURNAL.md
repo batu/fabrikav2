@@ -342,3 +342,160 @@ failed aesthetics gate; returned to Worked
 
 Resolve the bounded hierarchy, identity, placeholder, and fail-state seams;
 repeat the deterministic browser proof and a fresh blind aesthetics review.
+
+## Task T2 - Restore Trailhead hierarchy after blind review
+
+### Task Snapshot
+
+Status: active
+
+The functional shell remains behavior-green, but blind review caught a set of
+visible hierarchy regressions in its settled browser frames. This bounded pass
+keeps the shared UI, controller, six-state flow, and required outcome controls
+while repairing the exact HUD, socket, landmark, pause, and failure-state seams
+that made the starter feel provisional.
+
+### Task Acceptance Criteria
+
+- The active HUD shows the complete `Trail 2` identity without ellipsis or wrapping.
+- The bullseye placeholder is absent from the hero and mechanic socket; the socket remains visibly replaceable without reading as a grey-box prototype.
+- Completed, Current, and Locked route nodes use visibly distinct, semantically correct landmark language.
+- The failure ribbon title and glyph have decisive contrast, and Retry is visually the sole primary action.
+- Template-only outcome previews remain functional and subordinate; Pause retains the level under a tighter, lighter scrim.
+
+### Iteration 1 - Blind-review remediation baseline
+
+#### Planned Result
+
+The same Trailhead flow should become legible at a glance: a full level name,
+a purposefully framed mechanic region, progress landmarks that communicate
+status without lock ambiguity, and a failure card that directs the player to
+Retry.
+
+#### Why This Iteration
+
+The independent Sol review of the latest settled U2 reel returned
+`fix-then-ship`. Its P1 findings are directly visible in the matched browser
+frames, while its P2 findings are all local hierarchy adjustments that can be
+verified with the same real-click capture recipe.
+
+#### Capture Setup
+
+- Route: `/`
+- Viewport: 390 x 844 CSS pixels
+- Fixture: default synthetic save (Trail 2 current, Trail 1 complete, Trail 3 locked)
+- State: settled menu, level, pause, settings, win, and fail frames created by real rendered clicks.
+
+#### Pre-Change Screenshots
+
+1. ![T2 baseline menu](./u2-seam-remediation-menu.png)
+   What to look at: The central bullseye and the nearly identical open/closed-lock language on the route.
+   Observation: The target does not convey Trailhead, and the completed landmark still reads as a lock instead of a success mark.
+   Acceptance check: Placeholder removal fail; progression-icon distinction fail; current-node distinction pass.
+
+2. ![T2 baseline level](./u2-seam-remediation-level.png)
+   What to look at: The clipped `T…` header and large dashed socket.
+   Observation: The label loses the player’s location and the panel reads as an unfinished web placeholder rather than a starter-game playfield.
+   Acceptance check: Full HUD identity fail; solid game-like socket fail; preview controls remain functional but too prominent.
+
+3. ![T2 baseline pause](./u2-seam-remediation-pause.png)
+   What to look at: The card height and the opacity of the retained level beneath it.
+   Observation: The scene remains technically present, but the modal hierarchy is looser and darker than it needs to be.
+   Acceptance check: Preserved-level behavior pass; compact hierarchy partial; lighter contextual scrim partial.
+
+4. ![T2 baseline fail](./u2-seam-remediation-fail.png)
+   What to look at: The outlined title on the pale ribbon, white cross on a pale field, and similarly weighty Retry/Home buttons.
+   Observation: The card has all required actions but the failure signifier and hierarchy are visually inconsistent.
+   Acceptance check: Ribbon contrast fail; glyph contrast fail; Retry-only primary partial.
+
+#### Changes Made
+
+Pending proof-first tests and the scoped template-local visual corrections.
+
+#### Post-Change Screenshots
+
+Pending the matching `u3-hierarchy-remediation-*` capture set.
+
+#### Decision
+
+partial
+
+#### Next Action
+
+Strengthen the focused renderer regression test, observe its intended failure,
+then make only the T2 presentation and copy corrections.
+
+#### Spawned Tasks
+
+- None. Fresh independent aesthetics judgment remains the next-stage gate; browser evidence must not be relabelled as device proof.
+
+### Iteration 2 - Scoped hierarchy correction and conductor capture
+
+#### Planned Result
+
+Resolve each Sol P1/P2 seam without changing the template's controller or
+six-surface behavior: restore the complete HUD name, give the mechanic socket
+a purposeful trail treatment, clarify route landmarks, strengthen the fail
+surface, and keep template previews quiet.
+
+#### Why This Iteration
+
+The red focused renderer assertions showed the pre-change DOM and CSS lacked
+the requested identity, landmark, socket, preview, and fail-state hooks. The
+correction stays inside the existing shell and its seed-token seams.
+
+#### Changes Made
+
+- Made the 48 px HUD Pause lane icon-only so the centered `Trail 2` label is
+  fully visible, while retaining the accessible Pause name.
+- Replaced the bullseye-derived hero and playfield art with the registered
+  `icon.play` Kenney seed, a solid framed Trailhead playfield, and a quiet
+  `Template preview` strip.
+- Changed completed progress art to `icon.confirm`, retained the closed
+  `node.locked` art, and kept the current node distinct.
+- Tightened the shared Pause overlay through its supported action-gap token
+  and a lighter scrim, preserving the inert level underneath.
+- Rebuilt the fail treatment around a dark high-contrast field and ribbon,
+  with Retry as the primary action and Home neutral; outcome preview actions
+  remain functional but subordinate.
+
+#### Post-Change Screenshots
+
+Conductor-supplied, settled 390 x 844 real-click browser capture set:
+
+1. ![T2 corrected menu](./u2-conductor-fixed-menu.png)
+   Observation: the play emblem has replaced the bullseye; completed uses a
+   checkmark, current is green and numbered, and locked remains a closed lock.
+2. ![T2 corrected level](./u2-conductor-fixed-level.png)
+   Observation: `Trail 2` is fully visible, the playfield is solid and
+   purposeful, and the preview strip is visually quieter than the mechanic
+   area.
+3. ![T2 corrected pause](./u2-conductor-fixed-pause.png)
+   Observation: the retained level remains visible beneath a lighter scrim and
+   the cream card has a compact Resume-first hierarchy.
+4. ![T2 corrected fail](./u2-conductor-fixed-fail.png)
+   Observation: the `TRAIL RESET` ribbon and failure glyph are high contrast;
+   Retry is primary and Home is secondary.
+
+The companion [metrics](./u2-conductor-fixed-metrics.json) records an
+844 px document/body, zero body margin, and every action at least 48 px across
+menu, level, pause, settings, win, and fail. This is browser diagnostic
+evidence only, not Android or iPhone proof.
+
+#### Deterministic Proof
+
+The focused renderer suite first failed on five intended hierarchy assertions,
+then passed all 17 after the scoped corrections. The final template typecheck,
+unit suite, lint, build, and approved-source Kenney audit are recorded with
+the card handoff.
+
+#### Decision
+
+passed for the Worked remediation; a fresh independent Aesthetics Reviewed
+worker still owns the visual-gate decision.
+
+#### Next Action
+
+Use this settled browser-only capture set for the independent frame review.
+Do not claim mobile-device evidence: Android/iPhone safe areas, touch, fonts,
+and performance remain unverified.

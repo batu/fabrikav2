@@ -242,7 +242,7 @@ function renderLevel(
   const hud = document.createElement("header");
   hud.className = "template-shell__hud";
   const label = document.createElement("h1");
-  label.className = "template-shell__level-label template-shell__level-label--compact";
+  label.className = "template-shell__level-label template-shell__level-label--identity";
   if (!pausedBackdrop) label.dataset.fabInstance = "level.label";
   label.textContent = `${copy["level.label"]} ${snapshot.currentLevel}`;
   hud.append(currencyCounter(snapshot, pausedBackdrop ? undefined : "level.currency"), label);
@@ -253,6 +253,7 @@ function renderLevel(
         action: "pause",
         image: assetUrls.pause,
         instance: "level.pause",
+        className: "template-shell__icon-action--hud",
         onClick: () => {
           controller.pause();
           render();
@@ -262,7 +263,7 @@ function renderLevel(
   }
 
   const gameplay = document.createElement("section");
-  gameplay.className = "template-shell__gameplay";
+  gameplay.className = "template-shell__gameplay template-shell__gameplay--trail";
   if (!pausedBackdrop) {
     gameplay.dataset.fabRole = "gameplay-region";
     gameplay.dataset.fabInstance = "level.gameplay-region";
@@ -458,7 +459,7 @@ function renderResult(
         },
         {
           label: copy["fail.home"],
-          className: "template-shell__secondary-action",
+          className: "template-shell__secondary-action template-shell__fail-home-action",
           spriteImage: assetUrls.buttonSecondary,
           dataAction: "result-menu",
           onClick: () => {

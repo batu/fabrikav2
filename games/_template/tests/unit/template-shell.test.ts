@@ -16,6 +16,10 @@ function templateShellCss(): string {
   return readFileSync(resolve(process.cwd(), "src/shell/template-shell.css"), "utf8");
 }
 
+function templateTokensCss(): string {
+  return readFileSync(resolve(process.cwd(), "design/tokens.css"), "utf8");
+}
+
 interface ContractInstance {
   readonly id: string;
   readonly stateId: string;
@@ -224,9 +228,15 @@ describe("template shell renderer and harness", () => {
     expect(css).toMatch(
       /\.template-shell\[data-fab-state="pause"\] \.fab-modal-scrim\s*\{[^}]*background:\s*var\(--fab-seed-color-pause-scrim\);/s,
     );
+    expect(css).toMatch(
+      /\.template-shell \.fab-modal-card\.fab-pause-card\s*\{[^}]*padding:\s*var\(--fab-space-md\);/s,
+    );
+    expect(css).toMatch(
+      /\.template-shell \.fab-modal-card\.fab-pause-card\s*\{[^}]*--fab-pause-action-gap:\s*var\(--fab-space-xs\);/s,
+    );
   });
 
-  it("frames the required outcome controls as an intentional starter interaction", () => {
+  it("frames the required outcome controls as a quiet template-preview strip beside an intentional playfield", () => {
     const controller = createController();
     const root = document.getElementById("app")!;
     const shell = mountTemplateShell({ mountInto: root, controller });
@@ -237,18 +247,26 @@ describe("template shell renderer and harness", () => {
     const sample = shell.root.querySelector<HTMLElement>(".template-shell__sample-outcomes");
     expect(sample).not.toBeNull();
     expect(sample?.dataset.templateDiagnostic).toBe("outcomes");
-    expect(sample?.textContent).toContain("Template diagnostics");
-    expect(sample?.querySelector('[data-fab-action="test-win"]')?.textContent).toBe("Show win");
-    expect(sample?.querySelector('[data-fab-action="test-lose"]')?.textContent).toBe("Show retry");
+    expect(sample?.textContent).toContain("Template preview");
+    expect(sample?.querySelector('[data-fab-action="test-win"]')?.textContent).toBe("Preview win");
+    expect(sample?.querySelector('[data-fab-action="test-lose"]')?.textContent).toBe("Preview retry");
     expect(sample?.querySelector('[data-fab-action="test-win"]')?.classList.contains("template-shell__test-action--win")).toBe(true);
     expect(sample?.querySelector('[data-fab-action="test-lose"]')?.classList.contains("template-shell__test-action--lose")).toBe(true);
     const socket = shell.root.querySelector<HTMLElement>('[data-fab-role="gameplay-region"]');
     expect(socket?.dataset.templateSocket).toBe("replaceable-mechanic");
-    expect(socket?.querySelector(".template-shell__gameplay-kicker")?.textContent).toBe("Mechanic socket");
+    expect(socket?.classList.contains("template-shell__gameplay--trail")).toBe(true);
+    expect(socket?.querySelector(".template-shell__gameplay-kicker")?.textContent).toBe("Starter playfield");
+    expect(socket?.querySelector<HTMLImageElement>(".template-shell__gameplay-art")?.src).toContain("icon-play.png");
     expect(shell.root.textContent).not.toContain("Gameplay goes here");
+    expect(templateShellCss()).toMatch(
+      /\.template-shell__gameplay--trail\s*\{[^}]*border-style:\s*solid;[^}]*background:/s,
+    );
+    expect(templateShellCss()).toMatch(
+      /\.template-shell__gameplay--trail\s*\{[^}]*grid-template-columns:\s*auto minmax\(0, 1fr\);/s,
+    );
   });
 
-  it("keeps the in-level identity compact and on one line", () => {
+  it("keeps the full in-level Trail identity in an icon-only HUD lane", () => {
     const controller = createController();
     const root = document.getElementById("app")!;
     const shell = mountTemplateShell({ mountInto: root, controller });
@@ -257,11 +275,63 @@ describe("template shell renderer and harness", () => {
     shell.render();
 
     const label = shell.root.querySelector<HTMLElement>('[data-fab-instance="level.label"]');
+    const pause = shell.root.querySelector<HTMLElement>('[data-fab-action="pause"]');
     const css = templateShellCss();
 
-    expect(label?.classList.contains("template-shell__level-label--compact")).toBe(true);
+    expect(label?.textContent).toBe("Trail 2");
+    expect(label?.classList.contains("template-shell__level-label--identity")).toBe(true);
+    expect(pause?.classList.contains("template-shell__icon-action--hud")).toBe(true);
     expect(css).toMatch(
-      /\.template-shell__level-label--compact\s*\{[^}]*white-space:\s*nowrap;[^}]*overflow:\s*hidden;[^}]*text-overflow:\s*ellipsis;/s,
+      /\.template-shell__level-label--identity\s*\{[^}]*white-space:\s*nowrap;[^}]*overflow:\s*visible;[^}]*text-overflow:\s*clip;/s,
+    );
+    expect(css).toMatch(
+      /\.template-shell__icon-action--hud\s*\{[^}]*width:\s*var\(--fab-btn-min-size\);[^}]*font-size:\s*0;/s,
+    );
+  });
+
+  it("uses a trail-start marker and a success check instead of the bullseye and open-lock placeholder language", () => {
+    const controller = createController();
+    const root = document.getElementById("app")!;
+    const shell = mountTemplateShell({ mountInto: root, controller });
+
+    const hero = shell.root.querySelector<HTMLImageElement>('[data-fab-instance="menu.hero"]');
+    const completed = shell.root.querySelector<HTMLElement>('[data-fab-instance="menu.node.completed"]');
+    const locked = shell.root.querySelector<HTMLElement>('[data-fab-instance="menu.node.locked"]');
+    const tokens = templateTokensCss();
+
+    expect(hero?.src).toContain("icon-play.png");
+    expect(hero?.src).not.toContain("hero-placeholder.png");
+    expect(completed?.getAttribute("data-fab-node-state")).toBe("completed");
+    expect(locked?.getAttribute("data-fab-node-state")).toBe("locked");
+    expect(tokens).toMatch(/--fab-seed-levelmap-art-completed:\s*url\("\.\/assets\/icon-confirm\.png"\);/);
+    expect(tokens).toMatch(/--fab-seed-levelmap-art-locked:\s*url\("\.\/assets\/node-locked\.png"\);/);
+  });
+
+  it("gives the fail card a high-contrast reset signal with Retry as its only primary action", () => {
+    const controller = createController();
+    const root = document.getElementById("app")!;
+    const shell = mountTemplateShell({ mountInto: root, controller });
+
+    controller.startCurrent();
+    controller.lose();
+    shell.render();
+
+    const ribbon = shell.root.querySelector<HTMLElement>(".fab-modal-ribbon-title");
+    const retry = shell.root.querySelector<HTMLElement>('[data-fab-action="result-retry"]');
+    const home = shell.root.querySelector<HTMLElement>('[data-fab-action="result-menu"]');
+    const css = templateShellCss();
+
+    expect(ribbon?.textContent).toBe("Trail reset");
+    expect(retry?.classList.contains("template-shell__primary-action")).toBe(true);
+    expect(home?.classList.contains("template-shell__fail-home-action")).toBe(true);
+    expect(css).toMatch(
+      /\.template-shell\[data-fab-state="fail"\] \.fab-ui\s*\{[^}]*--fab-ribbon-title-color:\s*var\(--fab-seed-color-fail-ribbon-text\);/s,
+    );
+    expect(css).toMatch(
+      /\.template-shell\[data-fab-state="fail"\] \.fab-result-body\s*\{[^}]*background-color:\s*var\(--fab-seed-color-fail-surface\);/s,
+    );
+    expect(css).toMatch(
+      /\.template-shell\[data-fab-state="fail"\] \.template-shell__fail-home-action\s*\{[^}]*background:\s*var\(--fab-color-secondary-surface\);[^}]*box-shadow:\s*none;/s,
     );
   });
 
