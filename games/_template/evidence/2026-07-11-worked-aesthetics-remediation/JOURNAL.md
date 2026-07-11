@@ -687,3 +687,48 @@ document/body, zero body margin, and every visible live action at least 48 px.
 passed for Worked; a fresh unseen reel and independent Sol verdict still own the
 Aesthetics Reviewed gate. These captures remain browser diagnostics only and do
 not claim Android or iPhone proof.
+
+### Iteration 7 - Finish the mobile overlay hierarchy
+
+#### Why This Iteration
+
+The first fresh Sol run (`019f4eec-cc90-72b3-b3a4-34c0e3278c4b`) exhausted its
+account before producing a verdict and was discarded. A bounded image-only
+Terra review (`019f5037-5840-7463-ba65-a140928c8758`) then returned one P1 and
+eight P2 findings. Its blocking finding was precise: Fail still used the generic
+centered-web-modal pattern even though Pause had become a mobile bottom sheet.
+
+#### Changes Made
+
+- Converted Fail into a full-width bottom recovery sheet while retaining the
+  frozen level context, dominant Retry action, and separate Home action.
+- Removed the competing level eyebrow from Fail, enlarged the broken-trail mark,
+  and tightened the message group so the outcome reads before its recovery copy.
+- Added a standard grabber to Pause and lightened the shared overlay scrim so
+  the frozen level remains legible without reading as active.
+- Gave the gameplay instruction more breathing room and reduced its display
+  tracking; softened the mechanic-socket outline to avoid prototype-panel
+  framing.
+- Intentionally left Terra's two menu P2s for the next specialization surface:
+  the route can become more continuous and the hero crop can become more
+  game-specific without expanding this functional-template card. The visual
+  gate permits at most three P2s and still requires zero P1s.
+
+#### Post-Change Screenshots
+
+`u2-bottom-sheet-pass-{menu,level,pause,settings,win,fail}.png` is the settled
+390 x 844 real-click browser set. Its metrics report an 844 px document/body,
+zero body margin, and every visible action at least 48 px; Fail Retry is 346 x
+54 and its Home target is 346 x 48.
+
+#### Deterministic Proof
+
+- Unit: 6 files / 48 tests passed.
+- Browser smoke: 1 Playwright test passed.
+- Typecheck, lint, production build, approved-source audit, and
+  `git diff --check`: passed.
+
+#### Decision
+
+passed for Worked; one fresh image-only review still owns the Aesthetics
+Reviewed gate. Browser evidence remains diagnostic only.

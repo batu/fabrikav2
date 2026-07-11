@@ -379,7 +379,7 @@ body {
   gap: 0;
   min-height: var(--fab-gameplay-min-height);
   padding: 0;
-  border: var(--fab-border-width) solid var(--fab-seed-color-socket-border);
+  border: 1px solid var(--fab-seed-color-secondary-border);
   border-style: solid;
   border-radius: var(--fab-radius-md);
   background:
@@ -428,9 +428,9 @@ body {
   z-index: 2;
   display: grid;
   gap: var(--fab-space-xs);
-  max-width: 220px;
+  max-width: 236px;
   margin: 0;
-  padding: var(--fab-space-xs) var(--fab-space-sm);
+  padding: var(--fab-space-sm);
   border-left: calc(var(--fab-border-width) * 2) solid var(--fab-seed-color-accent);
   border-radius: var(--fab-space-sm);
   background-color: var(--fab-seed-color-copy-surface);
@@ -438,6 +438,8 @@ body {
 
 .template-shell__gameplay-copy h2 {
   font-size: var(--fab-font-size-lg);
+  line-height: 1.15;
+  letter-spacing: 0.02em;
 }
 
 .template-shell__gameplay-copy > p:last-child {
@@ -530,6 +532,7 @@ body {
 
 .template-shell[data-fab-state="fail"] .fab-result-body {
   align-items: center;
+  gap: 10px;
   padding: 0;
   border: 0;
   background: transparent;
@@ -537,11 +540,19 @@ body {
 
 .template-shell[data-fab-state="fail"] .fab-result-card {
   box-sizing: border-box;
-  width: min(82vw, 320px);
-  max-width: calc(100vw - 56px);
-  padding: var(--fab-space-md);
+  width: 100%;
+  min-width: 0;
+  max-width: 390px;
+  padding: var(--fab-space-md) var(--fab-space-md) max(var(--fab-space-md), env(safe-area-inset-bottom));
   border-color: var(--fab-seed-color-fail-border);
+  border-bottom: 0;
+  border-radius: 28px 28px 0 0;
   background-color: var(--fab-seed-color-pause-surface);
+}
+
+.template-shell[data-fab-state="fail"] .fab-modal-backdrop {
+  align-items: flex-end;
+  padding: 0;
 }
 
 .template-shell[data-fab-state="fail"] .fab-modal-ribbon {
@@ -572,6 +583,10 @@ body {
   transform: none;
 }
 
+.template-shell[data-fab-state="fail"] .fab-modal-ribbon-eyebrow {
+  display: none;
+}
+
 .template-shell[data-fab-state="fail"] .fab-modal-ribbon-title {
   color: var(--fab-seed-color-fail-accent);
 }
@@ -581,8 +596,8 @@ body {
 }
 
 .template-shell[data-fab-state="fail"] .fab-result-body::before {
-  width: 72px;
-  height: 56px;
+  width: 96px;
+  height: 68px;
   border: var(--fab-border-width) solid var(--fab-seed-color-fail-accent);
   border-radius: 50%;
   background:
@@ -704,13 +719,25 @@ body {
   width: 100%;
   min-width: 0;
   max-width: 390px;
-  padding: var(--fab-space-md) var(--fab-space-md) max(var(--fab-space-md), env(safe-area-inset-bottom));
+  padding: 28px var(--fab-space-md) max(var(--fab-space-md), env(safe-area-inset-bottom));
   --fab-pause-action-gap: var(--fab-space-xs);
   background-color: var(--fab-seed-color-pause-surface);
   border-color: var(--fab-seed-color-pause-border);
   border-bottom: 0;
   border-radius: 28px 28px 0 0;
   box-shadow: var(--fab-shadow-modal);
+}
+
+.template-shell .fab-pause-card::before {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 44px;
+  height: 4px;
+  border-radius: var(--fab-radius-pill);
+  background: var(--fab-seed-color-pause-border);
+  content: "";
+  transform: translateX(-50%);
 }
 
 .template-shell[data-fab-state="pause"] .fab-modal-backdrop {

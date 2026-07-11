@@ -286,7 +286,7 @@ describe("template shell renderer and harness", () => {
     );
     expect(css).toContain('.template-shell[data-fab-state="pause"] .fab-modal-scrim,');
     expect(css).toMatch(
-      /\.template-shell \.fab-modal-card\.fab-pause-card\s*\{[^}]*padding:\s*var\(--fab-space-md\) var\(--fab-space-md\) max\(var\(--fab-space-md\), env\(safe-area-inset-bottom\)\);/s,
+      /\.template-shell \.fab-modal-card\.fab-pause-card\s*\{[^}]*padding:\s*28px var\(--fab-space-md\) max\(var\(--fab-space-md\), env\(safe-area-inset-bottom\)\);/s,
     );
     expect(css).toMatch(
       /\.template-shell \.fab-modal-card\.fab-pause-card\s*\{[^}]*--fab-pause-action-gap:\s*var\(--fab-space-xs\);/s,
@@ -331,7 +331,7 @@ describe("template shell renderer and harness", () => {
       /\.template-shell__gameplay--trail\s*\{[^}]*grid-template-rows:\s*minmax\(0, 1fr\) auto;/s,
     );
     expect(templateShellCss()).toMatch(
-      /\.template-shell__gameplay-copy\s*\{[^}]*position:\s*absolute;[^}]*max-width:\s*220px;[^}]*background-color:\s*var\(--fab-seed-color-copy-surface\);/s,
+      /\.template-shell__gameplay-copy\s*\{[^}]*position:\s*absolute;[^}]*max-width:\s*236px;[^}]*background-color:\s*var\(--fab-seed-color-copy-surface\);/s,
     );
     expect(templateShellCss()).toMatch(
       /\.template-shell__sample-outcomes\s*\{[^}]*border:\s*0;[^}]*background:\s*transparent;/s,
@@ -455,6 +455,9 @@ describe("template shell renderer and harness", () => {
     );
     expect(css).toMatch(
       /\.template-shell\[data-fab-state="fail"\] \.fab-result-body::before\s*\{[^}]*var\(--fab-seed-color-trail-surface\)/s,
+    );
+    expect(css).toMatch(
+      /\.template-shell\[data-fab-state="fail"\] \.fab-modal-backdrop\s*\{[^}]*align-items:\s*flex-end;[^}]*padding:\s*0;/s,
     );
     expect(css).toContain('.template-shell[data-fab-state="fail"] .fab-modal-scrim');
   });
