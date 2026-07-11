@@ -549,11 +549,30 @@ export function mountConstrainedEditor(root: HTMLElement): void {
 
     const assetsHeading = element("h3", "editor-subheading");
     text(assetsHeading, "Curated asset tray");
-    const assets = element("div", "editor-asset-tray");
     const assetSlotId = shellPresentationContract.roles.find((role) => role.id === instance.roleId)?.assetSlotId ?? null;
     const compatible = assetSlotId
       ? editorAssetCatalog.assets.filter((asset) => asset.slotId === assetSlotId)
       : [];
+    const installedAssetId = selectedVariant
+      ? (instance.variants[selectedVariant]?.assetId ?? instance.presentation.assetId)
+      : instance.presentation.assetId;
+    const installedAsset = installedAssetId
+      ? editorAssetCatalog.assets.find((asset) => asset.id === installedAssetId)
+      : undefined;
+
+    const assetContext = element("dl", "editor-asset-context");
+    for (const [term, value] of [
+      ["Asset slot", assetSlotId ?? "None — this role has no raster"],
+      ["Current asset", installedAsset ? installedAsset.name : "No raster installed"],
+    ]) {
+      const dt = element("dt");
+      text(dt, term);
+      const dd = element("dd");
+      text(dd, value);
+      assetContext.append(dt, dd);
+    }
+
+    const assets = element("div", "editor-asset-tray");
     if (compatible.length === 0) {
       const empty = element("p", "editor-empty");
       text(empty, "This role has no curated raster replacement.");
@@ -562,10 +581,7 @@ export function mountConstrainedEditor(root: HTMLElement): void {
     for (const asset of compatible) {
       const control = element("button", "editor-asset-card");
       control.type = "button";
-      control.title = `${titleCase(asset.id)} · ${asset.width}×${asset.height}px · ${asset.provenance.sourceId}`;
-      const installedAssetId = selectedVariant
-        ? (instance.variants[selectedVariant]?.assetId ?? instance.presentation.assetId)
-        : instance.presentation.assetId;
+      control.title = `${asset.name} · ${asset.description}`;
       const installed = asset.id === installedAssetId;
       control.disabled = !editingBase;
       if (!editingBase) control.title = "Return to Base presentation before replacing an asset.";
@@ -573,7 +589,7 @@ export function mountConstrainedEditor(root: HTMLElement): void {
       if (installed) control.classList.add("is-installed");
       control.addEventListener("click", () => commit(
         () => updateInstancePresentation(project, selectedId, { assetId: asset.id }, editorAssetCatalog),
-        `Installed ${titleCase(asset.id)} from the pinned ${asset.provenance.sourceId} seed.`,
+        `Installed ${asset.name} from the pinned ${asset.provenance.sourceId} seed.`,
       ));
 
       const thumbnail = element("span", "editor-asset-thumbnail");
@@ -585,19 +601,17 @@ export function mountConstrainedEditor(root: HTMLElement): void {
 
       const details = element("span", "editor-asset-details");
       const name = element("strong");
-      text(name, titleCase(asset.id));
-      const id = element("code");
-      text(id, asset.id);
+      text(name, asset.name);
       const provenance = element("span", "editor-asset-provenance");
       text(provenance, `${asset.width}×${asset.height}px · ${asset.provenance.sourceId}`);
-      details.append(name, id, provenance);
+      details.append(name, provenance);
 
       const state = element("span", "editor-asset-state");
       text(state, installed ? "Installed" : "Use asset");
       control.append(thumbnail, details, state);
       assets.append(control);
     }
-    inspector.append(heading, identity, metadata, locked, geometry, variantHeading, variant, variantNote, arrange, assetsHeading, assets);
+    inspector.append(heading, identity, metadata, locked, geometry, variantHeading, variant, variantNote, arrange, assetsHeading, assetContext, assets);
   }
 
   function refreshFooter(): void {

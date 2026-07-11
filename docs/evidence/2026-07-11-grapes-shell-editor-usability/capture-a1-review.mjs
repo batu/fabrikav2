@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -60,10 +61,12 @@ await page.locator('.editor-layer-button[data-instance-id="settings.music"]').cl
 await page.waitForTimeout(450);
 await page.screenshot({ path: screenshotPaths.interaction, animations: "disabled", caret: "hide" });
 
-await page.getByRole("button", { name: "Progression Home", exact: true }).click();
-await page.locator('.editor-layer-button[data-instance-id="menu.settings"]').click();
+// Compatible asset replacement: restyle the Back button from the primary to the
+// secondary action surface. Both rasters live in the button-surface slot, so the
+// swap changes emphasis without ever putting a wrong icon on a labelled control.
+await page.locator('.editor-layer-button[data-instance-id="settings.back"]').click();
 await page.waitForTimeout(350);
-const replacementAsset = page.locator(".editor-asset-card").filter({ hasText: "Icon Control Confirm" });
+const replacementAsset = page.locator(".editor-asset-card").filter({ hasText: "Secondary action surface" });
 await replacementAsset.click();
 await page.waitForTimeout(400);
 await page.getByRole("button", { name: "Save browser draft", exact: true }).click();
@@ -101,9 +104,16 @@ if (temporaryVideoPath !== videoPath) await rm(temporaryVideoPath, { force: true
 await rm(temporaryVideoRoot, { recursive: true, force: true });
 await browser.close();
 
+let headCommit = "unknown";
+try {
+  headCommit = execFileSync("git", ["rev-parse", "HEAD"], { cwd: path.resolve(evidenceRoot, "../../.."), encoding: "utf8" }).trim();
+} catch {
+  headCommit = "unknown";
+}
+
 const manifest = {
   schema: "fabrikav2-grapes-shell-a1-capture-v1",
-  sourceCommits: ["c142f286", "2f5ed0a2"],
+  sourceCommits: [headCommit],
   viewport: { width: 1440, height: 900, deviceScaleFactor: 1 },
   reviewedState: {
     status: snapshot.status,
@@ -114,8 +124,8 @@ const manifest = {
   },
   interaction: {
     pagesVisited: ["menu", "gameplay", "settings", "pause", "win", "fail"],
-    selectedInstance: "menu.settings",
-    installedAsset: "icon-control.confirm",
+    selectedInstance: "settings.back",
+    installedAsset: "button-surface.secondary",
     decisionSubmitted: false,
   },
   evidence: {

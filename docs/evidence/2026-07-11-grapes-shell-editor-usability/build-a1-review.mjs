@@ -31,7 +31,10 @@ const reviewStyle = `
 .a1-review-header { position: sticky; z-index: 2; top: 0; display: flex; align-items: start; justify-content: space-between; gap: 18px; padding: 20px 22px 16px; border-bottom: 1px solid #c5d2dd; background: #f8fafcee; backdrop-filter: blur(8px); }
 .a1-review-eyebrow { margin: 0 0 5px; color: #0f7f98; font: 800 10px/1 ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase; }
 .a1-review-header h2 { margin: 0; color: #142636; font-size: 22px; letter-spacing: -.03em; }
-.a1-review-header p:last-child { margin: 7px 0 0; color: #587082; font-size: 12px; line-height: 1.45; }
+.a1-review-header > div > p:not(.a1-review-eyebrow) { margin: 7px 0 0; color: #587082; font-size: 12px; line-height: 1.45; }
+.a1-review-details { margin: 9px 0 0; }
+.a1-review-details summary { color: #3b5567; font: 800 10px/1 ui-monospace, monospace; letter-spacing: .06em; text-transform: uppercase; cursor: pointer; }
+.a1-review-details p { margin: 6px 0 0; }
 .a1-review-close { min-width: 38px; min-height: 38px; border: 1px solid #b8c8d3; border-radius: 9px; background: #fff; color: #395367; cursor: pointer; font-size: 20px; }
 .a1-review-form { padding: 18px 22px 22px; }
 .a1-review-checks { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 18px; padding: 0; border: 0; }
@@ -62,7 +65,11 @@ const reviewMarkup = `
     <div>
       <p class="a1-review-eyebrow">U3 usability gate</p>
       <h2 id="a1-review-title">Accept or reject the constrained editor</h2>
-      <p>Exercise the editor first. Your verdict carries the exact validated six-page project JSON plus its project and asset-catalog hashes for the future shell_proof target; Portal transports the decision but does not become design authority.</p>
+      <p>Exercise the editor first, then record your verdict. It carries the exact validated six-page project so U4 begins from what you accepted.</p>
+      <details class="a1-review-details">
+        <summary>Technical details</summary>
+        <p>The verdict also carries the saved project hash and the reviewed asset-catalog hash for the future shell_proof target. Portal transports the decision but never becomes the design authority.</p>
+      </details>
     </div>
     <button type="button" class="a1-review-close" id="a1-review-close" aria-label="Close review">×</button>
   </header>
@@ -80,10 +87,10 @@ const reviewMarkup = `
       <label class="a1-review-check"><input type="checkbox" name="check" value="save">Save the browser draft</label>
     </fieldset>
     <label class="a1-review-notes">Notes for Fabrika<textarea id="a1-review-notes" maxlength="4000" placeholder="What worked, what blocked you, or what must change before U4?"></textarea></label>
-    <p class="a1-review-status" id="a1-review-status">No decision has been sent. Accept requires every representative edit; Reject may be sent at any point.</p>
+    <p class="a1-review-status" id="a1-review-status">No decision sent yet. Accept unlocks once every representative edit is checked; Reject requires a written reason.</p>
     <div class="a1-review-actions">
-      <button type="button" class="a1-review-action a1-review-action--reject" data-decision="rejected">Reject U3</button>
-      <button type="button" class="a1-review-action a1-review-action--accept" data-decision="accepted">Accept U3</button>
+      <button type="button" class="a1-review-action a1-review-action--reject" data-decision="rejected" disabled>Reject U3</button>
+      <button type="button" class="a1-review-action a1-review-action--accept" data-decision="accepted" disabled>Accept U3</button>
     </div>
   </form>
 </dialog>`;
@@ -96,9 +103,23 @@ const reviewScript = `
   const form = document.getElementById("a1-review-form");
   const status = document.getElementById("a1-review-status");
   const notes = document.getElementById("a1-review-notes");
+  const checks = [...form.querySelectorAll('input[name="check"]')];
   const decisionButtons = [...document.querySelectorAll("[data-decision]")];
+  const accept = document.querySelector('[data-decision="accepted"]');
+  const reject = document.querySelector('[data-decision="rejected"]');
   launch.addEventListener("click", () => dialog.showModal());
   close.addEventListener("click", () => dialog.close());
+
+  // Accept stays disabled until every representative edit is checked; Reject
+  // stays disabled until a written reason exists. The buttons are the gate, not
+  // just an error after the click.
+  function updateGate() {
+    accept.disabled = !checks.every((input) => input.checked);
+    reject.disabled = notes.value.trim().length === 0;
+  }
+  checks.forEach((input) => input.addEventListener("change", updateGate));
+  notes.addEventListener("input", updateGate);
+  updateGate();
 
   function requestId() {
     return new URLSearchParams(location.search).get("request_id")
@@ -108,11 +129,15 @@ const reviewScript = `
   }
 
   async function decide(decision) {
-    const checked = Object.fromEntries([...form.querySelectorAll('input[name="check"]')]
-      .map((input) => [input.value, input.checked]));
+    const checked = Object.fromEntries(checks.map((input) => [input.value, input.checked]));
     if (decision === "accepted" && Object.values(checked).some((value) => !value)) {
       status.dataset.tone = "error";
       status.textContent = "Accept is blocked until every representative edit is checked.";
+      return;
+    }
+    if (decision === "rejected" && notes.value.trim().length === 0) {
+      status.dataset.tone = "error";
+      status.textContent = "Reject is blocked until you write the reason the editor must change.";
       return;
     }
     const editor = window.__FABRIKAV2_GRAPES_SHELL_EDITOR__;
@@ -170,7 +195,7 @@ const reviewScript = `
         ? "A1 accepted U3. Fabrika may close this checkpoint before starting U4."
         : "A1 rejected U3. Fabrika will keep U4 locked and reopen the named issues.";
     } catch (error) {
-      decisionButtons.forEach((button) => { button.disabled = false; });
+      updateGate();
       status.dataset.tone = "error";
       status.textContent = error instanceof Error ? error.message : "Decision submission failed.";
     }

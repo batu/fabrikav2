@@ -1,21 +1,466 @@
 {
-  "fixture": "starter project Menu base presentation",
-  "canonicalCanvas": { "width": 390, "height": 844, "insets": { "top": 59, "right": 0, "bottom": 34, "left": 0 } },
+  "publicationId": "sha256-a66ea82421c2a5d982d23fc68b6fb88d60272e9b79c46874d1d6a312dc3eca7f",
   "instanceCount": 9,
-  "browserQuantizationTolerancePx": 0.02,
-  "maximumDeltaPx": {
+  "tolerance": 0.02,
+  "maximumDelta": {
     "editorVsKernel": 0.015625,
     "portableVsKernel": 0.013750000000015916,
     "editorVsPortable": 0.015625
   },
   "assetFidelity": {
-    "assetCount": 7,
-    "geometryDeltaPx": 0,
-    "objectFitOpacityFilterMismatch": false
+    "geometryDelta": 0,
+    "styleMismatch": false,
+    "editor": [
+      {
+        "id": "menu.currency",
+        "insetX": 10.8125,
+        "insetY": 4.734375,
+        "width": 103.140625,
+        "height": 39.3125,
+        "objectFit": "contain",
+        "opacity": "1",
+        "filter": "drop-shadow(rgba(11, 23, 37, 0.4) 0px 2px 2px)"
+      },
+      {
+        "id": "menu.node.completed",
+        "insetX": 5.515625,
+        "insetY": 5.640625,
+        "width": 47.453125,
+        "height": 48.78125,
+        "objectFit": "contain",
+        "opacity": "1",
+        "filter": "drop-shadow(rgba(11, 23, 37, 0.4) 0px 2px 2px)"
+      },
+      {
+        "id": "menu.node.current",
+        "insetX": 5.515625,
+        "insetY": 5.640625,
+        "width": 47.453125,
+        "height": 48.78125,
+        "objectFit": "contain",
+        "opacity": "1",
+        "filter": "drop-shadow(rgba(11, 23, 37, 0.4) 0px 2px 2px)"
+      },
+      {
+        "id": "menu.node.locked",
+        "insetX": 5.515625,
+        "insetY": 5.640625,
+        "width": 47.453125,
+        "height": 48.78125,
+        "objectFit": "contain",
+        "opacity": "1",
+        "filter": "drop-shadow(rgba(11, 23, 37, 0.4) 0px 2px 2px)"
+      },
+      {
+        "id": "menu.play",
+        "insetX": 18,
+        "insetY": 5.9375,
+        "width": 178.5,
+        "height": 51.921875,
+        "objectFit": "cover",
+        "opacity": "1",
+        "filter": "drop-shadow(rgba(11, 23, 37, 0.4) 0px 2px 2px)"
+      },
+      {
+        "id": "menu.settings",
+        "insetX": 5.203125,
+        "insetY": 5.03125,
+        "width": 44.171875,
+        "height": 42.46875,
+        "objectFit": "contain",
+        "opacity": "1",
+        "filter": "drop-shadow(rgba(11, 23, 37, 0.4) 0px 2px 2px)"
+      }
+    ],
+    "portable": [
+      {
+        "id": "menu.currency",
+        "insetX": 10.8125,
+        "insetY": 4.734375,
+        "width": 103.140625,
+        "height": 39.3125,
+        "objectFit": "contain",
+        "opacity": "1",
+        "filter": "drop-shadow(rgba(11, 23, 37, 0.4) 0px 2px 2px)"
+      },
+      {
+        "id": "menu.node.completed",
+        "insetX": 5.515625,
+        "insetY": 5.640625,
+        "width": 47.453125,
+        "height": 48.78125,
+        "objectFit": "contain",
+        "opacity": "1",
+        "filter": "drop-shadow(rgba(11, 23, 37, 0.4) 0px 2px 2px)"
+      },
+      {
+        "id": "menu.node.current",
+        "insetX": 5.515625,
+        "insetY": 5.640625,
+        "width": 47.453125,
+        "height": 48.78125,
+        "objectFit": "contain",
+        "opacity": "1",
+        "filter": "drop-shadow(rgba(11, 23, 37, 0.4) 0px 2px 2px)"
+      },
+      {
+        "id": "menu.node.locked",
+        "insetX": 5.515625,
+        "insetY": 5.640625,
+        "width": 47.453125,
+        "height": 48.78125,
+        "objectFit": "contain",
+        "opacity": "1",
+        "filter": "drop-shadow(rgba(11, 23, 37, 0.4) 0px 2px 2px)"
+      },
+      {
+        "id": "menu.play",
+        "insetX": 18,
+        "insetY": 5.9375,
+        "width": 178.5,
+        "height": 51.921875,
+        "objectFit": "cover",
+        "opacity": "1",
+        "filter": "drop-shadow(rgba(11, 23, 37, 0.4) 0px 2px 2px)"
+      },
+      {
+        "id": "menu.settings",
+        "insetX": 5.203125,
+        "insetY": 5.03125,
+        "width": 44.171875,
+        "height": 42.46875,
+        "objectFit": "contain",
+        "opacity": "1",
+        "filter": "drop-shadow(rgba(11, 23, 37, 0.4) 0px 2px 2px)"
+      }
+    ]
   },
   "surfaceFidelity": {
-    "instanceCount": 9,
-    "backgroundColorInkBorderShadowMismatch": false
+    "styleMismatch": false,
+    "editor": [
+      {
+        "id": "menu.currency",
+        "backgroundColor": "rgb(217, 231, 241)",
+        "color": "rgb(22, 33, 43)",
+        "borderColor": "color(srgb 0.613333 0.816471 0.878039)",
+        "boxShadow": "color(srgb 0.721726 0.775373 0.817098) 0px 5px 0px 0px"
+      },
+      {
+        "id": "menu.hero",
+        "backgroundColor": "rgb(217, 231, 241)",
+        "color": "rgb(22, 33, 43)",
+        "borderColor": "color(srgb 0.613333 0.816471 0.878039)",
+        "boxShadow": "color(srgb 0.721726 0.775373 0.817098) 0px 5px 0px 0px"
+      },
+      {
+        "id": "menu.node.completed",
+        "backgroundColor": "rgb(217, 231, 241)",
+        "color": "rgb(22, 33, 43)",
+        "borderColor": "color(srgb 0.613333 0.816471 0.878039)",
+        "boxShadow": "color(srgb 0.721726 0.775373 0.817098) 0px 5px 0px 0px"
+      },
+      {
+        "id": "menu.node.current",
+        "backgroundColor": "rgb(217, 231, 241)",
+        "color": "rgb(22, 33, 43)",
+        "borderColor": "color(srgb 0.613333 0.816471 0.878039)",
+        "boxShadow": "color(srgb 0.721726 0.775373 0.817098) 0px 5px 0px 0px"
+      },
+      {
+        "id": "menu.node.locked",
+        "backgroundColor": "rgb(217, 231, 241)",
+        "color": "rgb(22, 33, 43)",
+        "borderColor": "color(srgb 0.613333 0.816471 0.878039)",
+        "boxShadow": "color(srgb 0.721726 0.775373 0.817098) 0px 5px 0px 0px"
+      },
+      {
+        "id": "menu.play",
+        "backgroundColor": "rgb(217, 231, 241)",
+        "color": "rgb(22, 33, 43)",
+        "borderColor": "color(srgb 0.613333 0.816471 0.878039)",
+        "boxShadow": "color(srgb 0.721726 0.775373 0.817098) 0px 5px 0px 0px"
+      },
+      {
+        "id": "menu.progression-map",
+        "backgroundColor": "rgb(217, 231, 241)",
+        "color": "rgb(22, 33, 43)",
+        "borderColor": "color(srgb 0.613333 0.816471 0.878039)",
+        "boxShadow": "color(srgb 0.721726 0.775373 0.817098) 0px 5px 0px 0px"
+      },
+      {
+        "id": "menu.settings",
+        "backgroundColor": "rgb(217, 231, 241)",
+        "color": "rgb(22, 33, 43)",
+        "borderColor": "color(srgb 0.613333 0.816471 0.878039)",
+        "boxShadow": "color(srgb 0.721726 0.775373 0.817098) 0px 5px 0px 0px"
+      },
+      {
+        "id": "menu.title",
+        "backgroundColor": "rgb(217, 231, 241)",
+        "color": "rgb(22, 33, 43)",
+        "borderColor": "color(srgb 0.613333 0.816471 0.878039)",
+        "boxShadow": "color(srgb 0.721726 0.775373 0.817098) 0px 5px 0px 0px"
+      }
+    ],
+    "portable": [
+      {
+        "id": "menu.currency",
+        "backgroundColor": "rgb(217, 231, 241)",
+        "color": "rgb(22, 33, 43)",
+        "borderColor": "color(srgb 0.613333 0.816471 0.878039)",
+        "boxShadow": "color(srgb 0.721726 0.775373 0.817098) 0px 5px 0px 0px"
+      },
+      {
+        "id": "menu.hero",
+        "backgroundColor": "rgb(217, 231, 241)",
+        "color": "rgb(22, 33, 43)",
+        "borderColor": "color(srgb 0.613333 0.816471 0.878039)",
+        "boxShadow": "color(srgb 0.721726 0.775373 0.817098) 0px 5px 0px 0px"
+      },
+      {
+        "id": "menu.node.completed",
+        "backgroundColor": "rgb(217, 231, 241)",
+        "color": "rgb(22, 33, 43)",
+        "borderColor": "color(srgb 0.613333 0.816471 0.878039)",
+        "boxShadow": "color(srgb 0.721726 0.775373 0.817098) 0px 5px 0px 0px"
+      },
+      {
+        "id": "menu.node.current",
+        "backgroundColor": "rgb(217, 231, 241)",
+        "color": "rgb(22, 33, 43)",
+        "borderColor": "color(srgb 0.613333 0.816471 0.878039)",
+        "boxShadow": "color(srgb 0.721726 0.775373 0.817098) 0px 5px 0px 0px"
+      },
+      {
+        "id": "menu.node.locked",
+        "backgroundColor": "rgb(217, 231, 241)",
+        "color": "rgb(22, 33, 43)",
+        "borderColor": "color(srgb 0.613333 0.816471 0.878039)",
+        "boxShadow": "color(srgb 0.721726 0.775373 0.817098) 0px 5px 0px 0px"
+      },
+      {
+        "id": "menu.play",
+        "backgroundColor": "rgb(217, 231, 241)",
+        "color": "rgb(22, 33, 43)",
+        "borderColor": "color(srgb 0.613333 0.816471 0.878039)",
+        "boxShadow": "color(srgb 0.721726 0.775373 0.817098) 0px 5px 0px 0px"
+      },
+      {
+        "id": "menu.progression-map",
+        "backgroundColor": "rgb(217, 231, 241)",
+        "color": "rgb(22, 33, 43)",
+        "borderColor": "color(srgb 0.613333 0.816471 0.878039)",
+        "boxShadow": "color(srgb 0.721726 0.775373 0.817098) 0px 5px 0px 0px"
+      },
+      {
+        "id": "menu.settings",
+        "backgroundColor": "rgb(217, 231, 241)",
+        "color": "rgb(22, 33, 43)",
+        "borderColor": "color(srgb 0.613333 0.816471 0.878039)",
+        "boxShadow": "color(srgb 0.721726 0.775373 0.817098) 0px 5px 0px 0px"
+      },
+      {
+        "id": "menu.title",
+        "backgroundColor": "rgb(217, 231, 241)",
+        "color": "rgb(22, 33, 43)",
+        "borderColor": "color(srgb 0.613333 0.816471 0.878039)",
+        "boxShadow": "color(srgb 0.721726 0.775373 0.817098) 0px 5px 0px 0px"
+      }
+    ]
   },
-  "result": "pass"
+  "expected": [
+    {
+      "id": "menu.currency",
+      "x": 15.6,
+      "y": 77.775,
+      "width": 124.8,
+      "height": 48.815
+    },
+    {
+      "id": "menu.hero",
+      "x": 48.75,
+      "y": 216.71,
+      "width": 292.5,
+      "height": 240.32
+    },
+    {
+      "id": "menu.node.completed",
+      "x": 72.15,
+      "y": 524.62,
+      "width": 58.5,
+      "height": 60.08
+    },
+    {
+      "id": "menu.node.current",
+      "x": 165.75,
+      "y": 554.66,
+      "width": 58.5,
+      "height": 60.08
+    },
+    {
+      "id": "menu.node.locked",
+      "x": 259.35,
+      "y": 524.62,
+      "width": 58.5,
+      "height": 60.08
+    },
+    {
+      "id": "menu.play",
+      "x": 87.75,
+      "y": 716.125,
+      "width": 214.5,
+      "height": 63.835
+    },
+    {
+      "id": "menu.progression-map",
+      "x": 19.5,
+      "y": 389.44,
+      "width": 351,
+      "height": 315.42
+    },
+    {
+      "id": "menu.settings",
+      "x": 319.8,
+      "y": 77.775,
+      "width": 54.6,
+      "height": 52.57
+    },
+    {
+      "id": "menu.title",
+      "x": 68.25,
+      "y": 74.02,
+      "width": 253.5,
+      "height": 60.08
+    }
+  ],
+  "editor": [
+    {
+      "id": "menu.currency",
+      "x": 15.59375,
+      "y": 77.78125,
+      "width": 124.796875,
+      "height": 48.8125
+    },
+    {
+      "id": "menu.hero",
+      "x": 48.75,
+      "y": 216.71875,
+      "width": 292.5,
+      "height": 240.3125
+    },
+    {
+      "id": "menu.node.completed",
+      "x": 72.140625,
+      "y": 524.625,
+      "width": 58.5,
+      "height": 60.078125
+    },
+    {
+      "id": "menu.node.current",
+      "x": 165.75,
+      "y": 554.671875,
+      "width": 58.5,
+      "height": 60.078125
+    },
+    {
+      "id": "menu.node.locked",
+      "x": 259.34375,
+      "y": 524.625,
+      "width": 58.5,
+      "height": 60.078125
+    },
+    {
+      "id": "menu.play",
+      "x": 87.75,
+      "y": 716.140625,
+      "width": 214.5,
+      "height": 63.828125
+    },
+    {
+      "id": "menu.progression-map",
+      "x": 19.5,
+      "y": 389.453125,
+      "width": 351,
+      "height": 315.40625
+    },
+    {
+      "id": "menu.settings",
+      "x": 319.796875,
+      "y": 77.78125,
+      "width": 54.59375,
+      "height": 52.5625
+    },
+    {
+      "id": "menu.title",
+      "x": 68.25,
+      "y": 74.03125,
+      "width": 253.5,
+      "height": 60.078125
+    }
+  ],
+  "portable": [
+    {
+      "id": "menu.currency",
+      "x": 15.59375,
+      "y": 77.765625,
+      "width": 124.796875,
+      "height": 48.8125
+    },
+    {
+      "id": "menu.hero",
+      "x": 48.75,
+      "y": 216.703125,
+      "width": 292.5,
+      "height": 240.3125
+    },
+    {
+      "id": "menu.node.completed",
+      "x": 72.140625,
+      "y": 524.609375,
+      "width": 58.5,
+      "height": 60.078125
+    },
+    {
+      "id": "menu.node.current",
+      "x": 165.75,
+      "y": 554.65625,
+      "width": 58.5,
+      "height": 60.078125
+    },
+    {
+      "id": "menu.node.locked",
+      "x": 259.34375,
+      "y": 524.609375,
+      "width": 58.5,
+      "height": 60.078125
+    },
+    {
+      "id": "menu.play",
+      "x": 87.75,
+      "y": 716.125,
+      "width": 214.5,
+      "height": 63.828125
+    },
+    {
+      "id": "menu.progression-map",
+      "x": 19.5,
+      "y": 389.4375,
+      "width": 351,
+      "height": 315.40625
+    },
+    {
+      "id": "menu.settings",
+      "x": 319.796875,
+      "y": 77.765625,
+      "width": 54.59375,
+      "height": 52.5625
+    },
+    {
+      "id": "menu.title",
+      "x": 68.25,
+      "y": 74.015625,
+      "width": 253.5,
+      "height": 60.078125
+    }
+  ]
 }

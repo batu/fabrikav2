@@ -71,6 +71,9 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 .editor-toggle { display: flex; gap: 7px; align-items: center; min-height: 32px; color: #395367; font-size: 12px; }
 .editor-subheading { margin: 17px 0 8px; color: #3b5567; font-size: 12px; }
 .editor-variant-select { margin-bottom: 10px; }
+.editor-asset-context { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; margin: 6px 0 2px; padding: 8px 10px; border: 1px solid #cfe0e6; border-radius: 8px; background: #eef7f9; font-size: 11px; }
+.editor-asset-context dt { color: #557084; font-weight: 700; }
+.editor-asset-context dd { margin: 0; color: #1d3e50; font-weight: 800; overflow-wrap: anywhere; }
 .editor-asset-tray { display: grid; gap: 7px; margin-top: 8px; }
 .editor-asset-card { position: relative; display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 9px; align-items: center; width: 100%; min-height: 68px; padding: 7px 66px 7px 7px; overflow: hidden; border: 1px solid #c6d4de; border-radius: 9px; background: #fff; color: #244356; cursor: pointer; text-align: left; }
 .editor-asset-card:hover { border-color: #0f9bb8; background: #f2fbfc; }

@@ -30,6 +30,14 @@ import {
   semanticDefaultInk,
   semanticDefaultSurface,
   semanticInstanceCss,
+  semanticPlaceholderCss,
+  semanticSwitchCss,
+  semanticSwitchDisabledCss,
+  semanticSwitchKnobCss,
+  semanticSwitchKnobOnCss,
+  semanticSwitchOnCss,
+  semanticTitleCss,
+  semanticToggleCss,
 } from "../shared/visual.ts";
 
 interface PreviewFingerprint {
@@ -110,6 +118,7 @@ interface LatestPointer {
 
 const PUBLICATION_ID = /^sha256-[a-f0-9]{64}$/u;
 const TARGET_GAME = /^[a-z][a-z0-9_]*$/u;
+const TOGGLE_ROLE = "center-toggle-action";
 
 const PORTABLE_STYLE = `
 :root { color-scheme: light; font-family: ui-rounded, system-ui, sans-serif; background: #e9edf2; color: #16212b; }
@@ -119,9 +128,17 @@ body { margin: 0; min-width: 390px; min-height: 844px; background: #e9edf2; }
 [data-safe-guide] { position: absolute; z-index: 255; left: 0; right: 0; height: 1px; pointer-events: none; background: repeating-linear-gradient(90deg, #0f9bb8 0 5px, transparent 5px 10px); opacity: .72; }
 [data-safe-guide="top"] { top: 59px; } [data-safe-guide="bottom"] { bottom: 34px; }
 [data-shell-instance] { position: absolute; z-index: var(--order); left: var(--x); top: var(--y); width: var(--w); height: var(--h); ${semanticInstanceCss} }
+[data-shell-instance][data-toggle="true"] { ${semanticToggleCss} }
 [data-shell-instance][data-hidden="true"] { visibility: hidden; }
 [data-shell-instance] img { ${semanticAssetCss} }
 [data-shell-copy] { ${semanticCopyCss} }
+[data-shell-title] { ${semanticTitleCss} }
+[data-shell-placeholder] { ${semanticPlaceholderCss} }
+[data-shell-switch] { ${semanticSwitchCss} }
+[data-shell-switch]::after { ${semanticSwitchKnobCss} }
+[data-shell-switch][data-toggle-state="on"] { ${semanticSwitchOnCss} }
+[data-shell-switch][data-toggle-state="on"]::after { ${semanticSwitchKnobOnCss} }
+[data-shell-switch][data-toggle-state="disabled"] { ${semanticSwitchDisabledCss} }
 `;
 
 function projectRoot(authoringDir: string): string {
@@ -235,15 +252,41 @@ function portableAssetCatalog(assets: readonly ShellAssetCatalogEntry[]): ShellA
   return parseShellAssetCatalog(catalog);
 }
 
-function componentMarkup(instance: ShellPresentationInstance, assetById: ReadonlyMap<string, ShellAssetCatalogEntry>): string {
+function humanRoleLabel(roleId: string): string {
+  return roleId.split(/[.-]/u).map((part) => part.slice(0, 1).toUpperCase() + part.slice(1)).join(" ");
+}
+
+function componentMarkup(
+  instance: ShellPresentationInstance,
+  assetById: ReadonlyMap<string, ShellAssetCatalogEntry>,
+  containerIds: ReadonlySet<string>,
+): string {
   const asset = instance.presentation.assetId ? assetById.get(instance.presentation.assetId) : undefined;
-  const copy = instance.presentation.copy ?? instance.id;
+  const copy = instance.presentation.copy;
+  const isContainer = containerIds.has(instance.id);
+  const isToggle = instance.roleId === TOGGLE_ROLE;
   const assetMarkup = asset
     ? `<img alt="" aria-hidden="true" src="../${escapeHtml(asset.path)}" data-asset-id="${escapeHtml(asset.id)}">`
     : "";
+
+  let content = "";
+  if (isContainer && copy) {
+    content += `<span data-shell-title>${escapeHtml(copy)}</span>`;
+  }
+  if (isToggle) {
+    if (copy) content += `<span data-shell-copy>${escapeHtml(copy)}</span>`;
+    content += `<span data-shell-switch data-toggle-state="on"></span>`;
+  } else if (copy && !isContainer) {
+    content += `<span data-shell-copy>${escapeHtml(copy)}</span>`;
+  } else if (!copy && !asset && !isContainer) {
+    content += `<span data-shell-placeholder>${escapeHtml(humanRoleLabel(instance.roleId))}</span>`;
+  }
+
+  const containerAttr = isContainer ? ` data-container="true"` : "";
+  const toggleAttr = isToggle ? ` data-toggle="true"` : "";
   const action = instance.actionId ? ` data-action-id="${escapeHtml(instance.actionId)}"` : "";
   const hidden = instance.presentation.visibility === "hidden" ? "true" : "false";
-  return `<section data-shell-instance="${escapeHtml(instance.id)}" data-role="${escapeHtml(instance.roleId)}" data-binding="${escapeHtml(instance.bindingId)}" data-hidden="${hidden}"${action}>${assetMarkup}<span data-shell-copy>${escapeHtml(copy)}</span></section>`;
+  return `<section data-shell-instance="${escapeHtml(instance.id)}" data-role="${escapeHtml(instance.roleId)}" data-binding="${escapeHtml(instance.bindingId)}" data-hidden="${hidden}"${containerAttr}${toggleAttr}${action}>${assetMarkup}${content}</section>`;
 }
 
 function componentStyle(instance: ShellPresentationInstance): string {
@@ -275,12 +318,17 @@ function portableStyles(document: ShellPresentationDocument): string {
   return `${PORTABLE_STYLE.trimStart()}\n${componentRules}\n`;
 }
 
-function pageMarkup(stateId: ShellStateId, instances: readonly ShellPresentationInstance[], assetById: ReadonlyMap<string, ShellAssetCatalogEntry>): string {
+function pageMarkup(
+  stateId: ShellStateId,
+  instances: readonly ShellPresentationInstance[],
+  assetById: ReadonlyMap<string, ShellAssetCatalogEntry>,
+  containerIds: ReadonlySet<string>,
+): string {
   const state = shellPresentationContract.states.find((candidate) => candidate.id === stateId);
   if (!state) throw new ProjectValidationError(`Unknown shell state "${stateId}".`);
   const components = [...instances]
     .sort((left, right) => left.presentation.order - right.presentation.order || left.id.localeCompare(right.id))
-    .map((instance) => componentMarkup(instance, assetById))
+    .map((instance) => componentMarkup(instance, assetById, containerIds))
     .join("");
   return `<!doctype html>
 <html lang="en">
@@ -302,10 +350,16 @@ function pageMarkup(stateId: ShellStateId, instances: readonly ShellPresentation
 function createPortableBundle(document: ShellPresentationDocument, catalogAssets: readonly ShellAssetCatalogEntry[]): PortableBundle {
   const assets = requiredAssets(document, catalogAssets);
   const byId = new Map(assets.map((asset) => [asset.id, asset]));
+  const containerIds = new Set(
+    document.pages
+      .flatMap((page) => page.instances)
+      .map((instance) => instance.parentInstanceId)
+      .filter((id): id is string => id !== null),
+  );
   const pages = document.pages.map((page) => ({
     stateId: page.stateId,
     filename: portableFilename(page.stateId),
-    html: pageMarkup(page.stateId, page.instances, byId),
+    html: pageMarkup(page.stateId, page.instances, byId, containerIds),
   }));
   return {
     pages,
