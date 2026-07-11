@@ -15,6 +15,7 @@ const manifestPath = path.join(evidenceRoot, "u3-v6-a1-capture.json");
 
 const screenshotPaths = {
   opening: path.join(screenshotRoot, "u3-v6-a1-opening.png"),
+  cleanPreview: path.join(screenshotRoot, "u3-v6-a1-clean-preview.png"),
   interaction: path.join(screenshotRoot, "u3-v6-a1-interaction.png"),
   slotSaved: path.join(screenshotRoot, "u3-v6-a1-slot-saved.png"),
   decision: path.join(screenshotRoot, "u3-v6-a1-decision.png"),
@@ -50,6 +51,15 @@ await page.waitForFunction(() => window.__FABRIKAV2_GRAPES_SHELL_EDITOR__ !== un
 await page.waitForTimeout(350);
 
 await page.screenshot({ path: screenshotPaths.opening, animations: "disabled", caret: "hide" });
+
+// Clean preview: hide the editor overlays and unfilled optional art so the phone
+// reads as an authored game, not an authoring slot map. Capture it, then return
+// to the author view where the representative edits are performed.
+await page.getByRole("button", { name: "Clean preview", exact: true }).click();
+await page.waitForTimeout(400);
+await page.screenshot({ path: screenshotPaths.cleanPreview, animations: "disabled", caret: "hide" });
+await page.getByRole("button", { name: "Author", exact: true }).click();
+await page.waitForTimeout(300);
 
 for (const pageName of ["Gameplay and HUD", "Settings", "Pause", "Win", "Fail", "Progression Home"]) {
   await page.getByRole("button", { name: pageName, exact: true }).click();
@@ -124,6 +134,7 @@ const manifest = {
   },
   interaction: {
     pagesVisited: ["menu", "gameplay", "settings", "pause", "win", "fail"],
+    cleanPreviewExercised: true,
     selectedInstance: "settings.back",
     installedAsset: "button-surface.secondary",
     decisionSubmitted: false,

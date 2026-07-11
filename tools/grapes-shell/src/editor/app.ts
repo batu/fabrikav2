@@ -164,6 +164,7 @@ export function mountConstrainedEditor(root: HTMLElement): void {
   let status: StoredState = loaded.status;
   let feedback = loaded.feedback;
   let feedbackTone: FeedbackTone = loaded.feedbackTone;
+  let previewMode: "author" | "clean" = "author";
 
   const shell = element("div", "editor-shell");
   const header = element("header", "editor-header");
@@ -172,13 +173,42 @@ export function mountConstrainedEditor(root: HTMLElement): void {
   const stage = element("main", "editor-stage");
   const inspector = element("aside", "editor-inspector");
   const footer = element("footer", "editor-footer");
+  const stageToolbar = element("div", "editor-stage-toolbar");
+  const modeSwitch = element("div", "editor-mode-switch");
+  modeSwitch.setAttribute("role", "group");
+  modeSwitch.setAttribute("aria-label", "Canvas view");
+  const authorModeButton = button("Author", () => setPreviewMode("author"), "editor-mode-button");
+  const cleanModeButton = button("Clean preview", () => setPreviewMode("clean"), "editor-mode-button");
+  modeSwitch.append(authorModeButton, cleanModeButton);
+  const modeHint = element("p", "editor-mode-hint");
+  stageToolbar.append(modeSwitch, modeHint);
   const canvasFrame = element("div", "editor-artboard-frame");
   const canvasHost = element("div", "editor-artboard");
   canvasFrame.append(canvasHost);
-  stage.append(canvasFrame);
+  stage.append(stageToolbar, canvasFrame);
   body.append(navigation, stage, inspector);
   shell.append(header, body, footer);
   root.replaceChildren(shell);
+
+  function setPreviewMode(mode: "author" | "clean"): void {
+    if (previewMode === mode) return;
+    previewMode = mode;
+    refresh();
+  }
+
+  function refreshStageToolbar(): void {
+    const clean = previewMode === "clean";
+    authorModeButton.classList.toggle("is-active", !clean);
+    authorModeButton.setAttribute("aria-pressed", String(!clean));
+    cleanModeButton.classList.toggle("is-active", clean);
+    cleanModeButton.setAttribute("aria-pressed", String(clean));
+    text(
+      modeHint,
+      clean
+        ? "Clean preview — authored pixels only. Editor guides, selection, and unfilled optional art are hidden."
+        : "Author view — selection outline, safe-area guides, and empty-slot labels help you compose.",
+    );
+  }
 
   const canvas = createConstrainedGrapesCanvas({
     container: canvasHost,
@@ -644,7 +674,8 @@ export function mountConstrainedEditor(root: HTMLElement): void {
     refreshHeader();
     refreshNavigation();
     refreshInspector();
-    canvas.render(project.presentation, selectedState, selectedId, selectedVariant);
+    refreshStageToolbar();
+    canvas.render(project.presentation, selectedState, selectedId, selectedVariant, previewMode === "clean");
     refreshFooter();
   }
 

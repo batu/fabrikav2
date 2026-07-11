@@ -44,14 +44,22 @@ const reviewStyle = `
 .a1-review-check input { width: 18px; height: 18px; accent-color: #2a9d72; }
 .a1-review-notes { display: grid; gap: 6px; margin-bottom: 16px; color: #3b5567; font-size: 11px; font-weight: 800; }
 .a1-review-notes textarea { min-height: 88px; resize: vertical; border: 1px solid #b8c8d3; border-radius: 9px; padding: 9px 10px; background: #fff; color: #1d3445; font: 400 13px/1.45 system-ui, sans-serif; }
+.a1-review-reject-hint { margin: -8px 0 14px; padding: 0 2px; color: #8a6d1f; font-size: 11px; font-weight: 700; }
+.a1-review-reject-hint[hidden] { display: none; }
 .a1-review-status { min-height: 36px; margin: 0 0 14px; padding: 8px 10px; border-left: 3px solid #0f9bb8; background: #edf9fb; color: #486778; font-size: 12px; line-height: 1.35; }
 .a1-review-status[data-tone="error"] { border-color: #c84b4b; background: #fff0f0; color: #7c2727; }
 .a1-review-status[data-tone="success"] { border-color: #2a9d72; background: #e8f7f0; color: #185d46; }
-.a1-review-actions { display: flex; justify-content: flex-end; gap: 9px; }
+.a1-review-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+.a1-review-lock { margin: 0 auto 0 0; display: inline-flex; align-items: center; gap: 7px; font: 800 11px/1.3 ui-monospace, monospace; letter-spacing: .02em; }
+.a1-review-lock::before { content: "\\25CF"; font-size: 11px; }
+.a1-review-lock[data-state="locked"] { color: #8a6d1f; }
+.a1-review-lock[data-state="ready"] { color: #185d46; }
 .a1-review-action { min-height: 40px; padding: 9px 14px; border: 1px solid #a9bac8; border-radius: 9px; background: #fff; color: #1d3445; cursor: pointer; font-size: 12px; font-weight: 800; }
 .a1-review-action--reject { border-color: #c84b4b; color: #8a3030; }
 .a1-review-action--accept { border-color: #167a5b; background: #2a9d72; color: #fff; }
-.a1-review-action:disabled { cursor: not-allowed; opacity: .55; }
+.a1-review-action:disabled { cursor: not-allowed; }
+/* A disabled decision reads as neutral, never a primed primary action. */
+.a1-review-action--accept:disabled, .a1-review-action--reject:disabled { border-color: #ccd6de; background: #eef2f5; color: #8595a1; }
 body > div[aria-hidden="true"][style*="height:44px"] ~ #app .editor-shell { height: calc(100dvh - 44px); }
 body > div[aria-hidden="true"][style*="height:44px"] ~ #app .editor-artboard-frame { --editor-artboard-scale: .75; }
 body > div[aria-hidden="true"][style*="height:44px"] ~ .a1-review-launch { top: 56px; }
@@ -87,8 +95,10 @@ const reviewMarkup = `
       <label class="a1-review-check"><input type="checkbox" name="check" value="save">Save the browser draft</label>
     </fieldset>
     <label class="a1-review-notes">Notes for Fabrika<textarea id="a1-review-notes" maxlength="4000" placeholder="What worked, what blocked you, or what must change before U4?"></textarea></label>
+    <p class="a1-review-reject-hint" id="a1-review-reject-hint">A written reason is required before Reject unlocks.</p>
     <p class="a1-review-status" id="a1-review-status">No decision sent yet. Accept unlocks once every representative edit is checked; Reject requires a written reason.</p>
     <div class="a1-review-actions">
+      <p class="a1-review-lock" id="a1-review-lock" data-state="locked" aria-live="polite">Accept locked · 0 of 9 checks</p>
       <button type="button" class="a1-review-action a1-review-action--reject" data-decision="rejected" disabled>Reject U3</button>
       <button type="button" class="a1-review-action a1-review-action--accept" data-decision="accepted" disabled>Accept U3</button>
     </div>
@@ -103,6 +113,8 @@ const reviewScript = `
   const form = document.getElementById("a1-review-form");
   const status = document.getElementById("a1-review-status");
   const notes = document.getElementById("a1-review-notes");
+  const lock = document.getElementById("a1-review-lock");
+  const rejectHint = document.getElementById("a1-review-reject-hint");
   const checks = [...form.querySelectorAll('input[name="check"]')];
   const decisionButtons = [...document.querySelectorAll("[data-decision]")];
   const accept = document.querySelector('[data-decision="accepted"]');
@@ -112,10 +124,19 @@ const reviewScript = `
 
   // Accept stays disabled until every representative edit is checked; Reject
   // stays disabled until a written reason exists. The buttons are the gate, not
-  // just an error after the click.
+  // just an error after the click. A disabled decision is styled neutral (never a
+  // primed green primary) and carries an explicit N-of-9 lock indicator so the
+  // remaining prerequisites are unmistakable before any click.
   function updateGate() {
-    accept.disabled = !checks.every((input) => input.checked);
+    const done = checks.filter((input) => input.checked).length;
+    const total = checks.length;
+    accept.disabled = done < total;
     reject.disabled = notes.value.trim().length === 0;
+    lock.dataset.state = accept.disabled ? "locked" : "ready";
+    lock.textContent = accept.disabled
+      ? "Accept locked · " + done + " of " + total + " checks"
+      : "All " + total + " checks complete · Accept unlocked";
+    rejectHint.hidden = !reject.disabled;
   }
   checks.forEach((input) => input.addEventListener("change", updateGate));
   notes.addEventListener("input", updateGate);

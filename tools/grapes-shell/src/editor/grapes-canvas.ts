@@ -1,6 +1,7 @@
 import grapesjs from "grapesjs";
 
 import {
+  shellPresentationContract,
   type ShellPresentationDocument,
   type ShellPresentationInstance,
   type ShellVisualPresentation,
@@ -27,8 +28,23 @@ import { editorAssetCatalog } from "./seed.ts";
 
 const TOGGLE_ROLE = "center-toggle-action";
 
+// Prototype instances the shell contract marks optional. In clean preview an
+// optional art region that the author never filled (no copy, no raster) is
+// omitted so the phone reads as an authored game rather than an empty slot map.
+const OPTIONAL_PROTOTYPE_IDS: ReadonlySet<string> = new Set(
+  shellPresentationContract.instances.filter((instance) => !instance.required).map((instance) => instance.id),
+);
+
 function humanRoleLabel(roleId: string): string {
   return roleId.split(/[.-]/u).map((part) => part.slice(0, 1).toUpperCase() + part.slice(1)).join(" ");
+}
+
+// An unfilled optional art region has no copy, no raster, and owns no children.
+// It is authoring scaffolding, not authored content, so clean preview hides it.
+function isUnfilledOptionalArt(instance: ShellPresentationInstance, containerIds: ReadonlySet<string>): boolean {
+  if (!OPTIONAL_PROTOTYPE_IDS.has(instance.prototypeInstanceId) || containerIds.has(instance.id)) return false;
+  const hasCopy = typeof instance.presentation.copy === "string" && instance.presentation.copy.length > 0;
+  return !hasCopy && !instance.presentation.assetId;
 }
 
 function toggleStateName(
@@ -91,6 +107,7 @@ function componentDefinition(
   selectedId: string,
   selectedVariant: string,
   containerIds: ReadonlySet<string>,
+  cleanPreview: boolean,
 ): Record<string, unknown> {
   const presentation = visiblePresentation(instance, selectedId, selectedVariant);
   const geometry = presentation.geometry ?? instance.presentation.geometry;
@@ -128,7 +145,9 @@ function componentDefinition(
     });
   } else if (copy && !isContainer) {
     children.push({ tagName: "span", attributes: { "data-semantic-copy": "true" }, content: copy, selectable: false });
-  } else if (!copy && !assetUrl && !isContainer) {
+  } else if (!copy && !assetUrl && !isContainer && !cleanPreview) {
+    // The muted role label is an authoring aid for an empty slot; clean preview
+    // drops it so an unfilled required region reads as a bare authored surface.
     children.push({
       tagName: "span",
       attributes: { "data-semantic-placeholder": "true" },
@@ -144,7 +163,7 @@ function componentDefinition(
       "data-role": instance.roleId,
       "data-binding": instance.bindingId,
       "data-hidden": presentation.visibility === "hidden" ? "true" : "false",
-      "data-selected": instance.id === selectedId ? "true" : "false",
+      "data-selected": !cleanPreview && instance.id === selectedId ? "true" : "false",
       ...(isContainer ? { "data-container": "true" } : {}),
       ...(isToggle ? { "data-toggle": "true" } : {}),
       "aria-label": `${instance.roleId}: ${instance.accessibility.nameKey}`,
@@ -172,7 +191,13 @@ function componentDefinition(
 }
 
 export interface ConstrainedGrapesCanvas {
-  render(document: ShellPresentationDocument, stateId: string, selectedId: string, selectedVariant: string): void;
+  render(
+    document: ShellPresentationDocument,
+    stateId: string,
+    selectedId: string,
+    selectedVariant: string,
+    cleanPreview: boolean,
+  ): void;
   destroy(): void;
 }
 
@@ -209,23 +234,38 @@ export function createConstrainedGrapesCanvas(options: CanvasOptions): Constrain
   });
 
   return {
-    render(document, stateId, selectedId, selectedVariant) {
+    render(document, stateId, selectedId, selectedVariant, cleanPreview) {
       const page = document.pages.find((candidate) => candidate.stateId === stateId);
       if (!page) return;
       const containerIds = new Set(
         page.instances.map((instance) => instance.parentInstanceId).filter((id): id is string => id !== null),
       );
+      // Clean preview strips the editor overlays (safe-area guides, selection
+      // outline) and unfilled optional art so authored pixels stand alone.
+      const overlayGuides = cleanPreview
+        ? []
+        : [
+            { tagName: "i", attributes: { "data-safe-guide": "top", "aria-hidden": "true" }, selectable: false },
+            { tagName: "i", attributes: { "data-safe-guide": "bottom", "aria-hidden": "true" }, selectable: false },
+          ];
+      const visibleInstances = cleanPreview
+        ? page.instances.filter((instance) => !isUnfilledOptionalArt(instance, containerIds))
+        : page.instances;
       const definitions: Record<string, unknown>[] = [
         {
           tagName: "main",
-          attributes: { "data-editor-page": stateId, "aria-label": `${stateId} editor artboard` },
+          attributes: {
+            "data-editor-page": stateId,
+            "data-clean-preview": cleanPreview ? "true" : "false",
+            "aria-label": `${stateId} ${cleanPreview ? "clean preview" : "editor artboard"}`,
+          },
           selectable: false,
           draggable: false,
           droppable: false,
           components: [
-            { tagName: "i", attributes: { "data-safe-guide": "top", "aria-hidden": "true" }, selectable: false },
-            { tagName: "i", attributes: { "data-safe-guide": "bottom", "aria-hidden": "true" }, selectable: false },
-            ...page.instances.map((instance) => componentDefinition(instance, selectedId, selectedVariant, containerIds)),
+            ...overlayGuides,
+            ...visibleInstances.map((instance) =>
+              componentDefinition(instance, selectedId, selectedVariant, containerIds, cleanPreview)),
           ],
         },
       ];
