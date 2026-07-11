@@ -20,10 +20,11 @@ interface CliContext {
   readonly authoringDir: string;
   readonly seedRoot: string;
   readonly expectedProjectHash?: string;
+  readonly expectedAssetCatalogHash?: string;
 }
 
 const GAME_NAME = /^[a-z][a-z0-9_]*$/u;
-const PROJECT_HASH = /^sha256-[a-f0-9]{64}$/u;
+const SHA256_HASH = /^sha256-[a-f0-9]{64}$/u;
 
 function repositoryRoot(): string {
   return path.resolve(fileURLToPath(new URL(".", import.meta.url)), "../../../..");
@@ -39,7 +40,7 @@ function parseContext(argv: readonly string[]): CliContext {
     if (!flag?.startsWith("--") || value === undefined || value.startsWith("--") || flags.has(flag)) {
       throw new Error("Flags must be unique --name value pairs.");
     }
-    if (!["--game", "--root", "--seed-root", "--expected-project-hash"].includes(flag)) {
+    if (!["--game", "--root", "--seed-root", "--expected-project-hash", "--expected-asset-catalog-hash"].includes(flag)) {
       throw new Error(`Unsupported flag "${flag}".`);
     }
     flags.set(flag, value);
@@ -47,11 +48,17 @@ function parseContext(argv: readonly string[]): CliContext {
   const game = flags.get("--game");
   if (!game || !GAME_NAME.test(game)) throw new Error("--game must use lowercase letters, digits, and underscores.");
   const expectedProjectHash = flags.get("--expected-project-hash");
-  if (command === "publish" && (!expectedProjectHash || !PROJECT_HASH.test(expectedProjectHash))) {
-    throw new Error("publish requires --expected-project-hash sha256-<64 lowercase hex> from the reviewed editor snapshot.");
-  }
-  if (command !== "publish" && expectedProjectHash) {
-    throw new Error("--expected-project-hash is accepted only by publish.");
+  const expectedAssetCatalogHash = flags.get("--expected-asset-catalog-hash");
+  if (command === "publish") {
+    if (!expectedProjectHash || !SHA256_HASH.test(expectedProjectHash)) {
+      throw new Error("publish requires --expected-project-hash sha256-<64 lowercase hex> from the reviewed editor snapshot.");
+    }
+    if (!expectedAssetCatalogHash || !SHA256_HASH.test(expectedAssetCatalogHash)) {
+      throw new Error("publish requires --expected-asset-catalog-hash sha256-<64 lowercase hex> from the reviewed editor snapshot.");
+    }
+  } else {
+    if (expectedProjectHash) throw new Error("--expected-project-hash is accepted only by publish.");
+    if (expectedAssetCatalogHash) throw new Error("--expected-asset-catalog-hash is accepted only by publish.");
   }
   const root = path.resolve(flags.get("--root") ?? repositoryRoot());
   return {
@@ -60,6 +67,7 @@ function parseContext(argv: readonly string[]): CliContext {
     authoringDir: path.join(root, "games", game, "authoring", "grapesjs"),
     seedRoot: path.resolve(flags.get("--seed-root") ?? path.join(root, "games/_template/design")),
     ...(expectedProjectHash ? { expectedProjectHash } : {}),
+    ...(expectedAssetCatalogHash ? { expectedAssetCatalogHash } : {}),
   };
 }
 
@@ -93,9 +101,14 @@ async function validate(context: CliContext): Promise<Record<string, unknown>> {
     readSeedManifest(context.seedRoot),
   ]);
   const project = validateProjectFile(JSON.parse(raw) as unknown, catalog, context.game);
+  const [projectHash, assetCatalogHash] = await Promise.all([
+    hashCanonicalJson(project),
+    hashCanonicalJson(catalog),
+  ]);
   return {
     operation: "validate",
-    projectHash: await hashCanonicalJson(project),
+    projectHash,
+    assetCatalogHash,
     pages: project.presentation.pages.map((page) => page.stateId),
     componentCount: project.presentation.pages.reduce((total, page) => total + page.instances.length, 0),
   };
@@ -117,6 +130,7 @@ export async function runCli(argv: readonly string[], dependencies: CliDependenc
           authoringDir: context.authoringDir,
           seedRoot: context.seedRoot,
           expectedProjectJsonHash: context.expectedProjectHash,
+          expectedAssetCatalogHash: context.expectedAssetCatalogHash,
           renderPreviews: dependencies.renderPreviews ?? renderPortablePreviews,
         });
         result = { operation: "publish", ...publication };

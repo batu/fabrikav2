@@ -4,7 +4,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { createStarterProject, updateInstancePresentation } from "../../src/shared/project.ts";
+import { hashCanonicalJson } from "@fabrikav2/kernel";
+
+import { createStarterProject, updateInstancePresentation, validateProjectFile } from "../../src/shared/project.ts";
 import { readSeedManifest } from "../../src/shared/seed.ts";
 import {
   publicationStatus,
@@ -103,6 +105,34 @@ describe("immutable GrapesJS publication", () => {
       latestPublicationId: published.publicationId,
       canApply: false,
     });
+  });
+
+  it("binds the reviewed asset-catalog hash and fails closed on divergence before any write", async () => {
+    const { authoringDir, manifest } = await fixture();
+    const projectJsonHash = await hashCanonicalJson(validateProjectFile(createStarterProject(), manifest, "shell_proof"));
+    const assetCatalogHash = await hashCanonicalJson(manifest);
+
+    // The project hash matches, but the reviewed asset inventory does not: fail closed.
+    await expect(
+      publishAuthoringProject({
+        authoringDir,
+        seedRoot,
+        expectedProjectJsonHash: projectJsonHash,
+        expectedAssetCatalogHash: `sha256-${"0".repeat(64)}`,
+        renderPreviews: previewRenderer("catalog"),
+      }),
+    ).rejects.toThrow(/asset catalog hash/i);
+    await expect(access(path.join(authoringDir, "publications"))).rejects.toMatchObject({ code: "ENOENT" });
+
+    // Both reviewed hashes matching publishes the immutable record.
+    const published = await publishAuthoringProject({
+      authoringDir,
+      seedRoot,
+      expectedProjectJsonHash: projectJsonHash,
+      expectedAssetCatalogHash: assetCatalogHash,
+      renderPreviews: previewRenderer("catalog"),
+    });
+    expect(published.publicationId).toMatch(/^sha256-[a-f0-9]{64}$/);
   });
 
   it("rejects mixed or divergent portable records instead of treating a tampered pair as portable evidence", async () => {

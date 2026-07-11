@@ -62,7 +62,7 @@ const reviewMarkup = `
     <div>
       <p class="a1-review-eyebrow">U3 usability gate</p>
       <h2 id="a1-review-title">Accept or reject the constrained editor</h2>
-      <p>Exercise the editor first. Your verdict carries the exact validated six-page project JSON and hash for the future shell_proof target; Portal transports the decision but does not become design authority.</p>
+      <p>Exercise the editor first. Your verdict carries the exact validated six-page project JSON plus its project and asset-catalog hashes for the future shell_proof target; Portal transports the decision but does not become design authority.</p>
     </div>
     <button type="button" class="a1-review-close" id="a1-review-close" aria-label="Close review">×</button>
   </header>
@@ -142,6 +142,7 @@ const reviewScript = `
       notes: notes.value.trim(),
       editorStatus: snapshot.status,
       projectHash: snapshot.projectHash,
+      assetCatalogHash: snapshot.assetCatalogHash,
       project: snapshot.project,
     };
     const encoded = JSON.stringify(payload);

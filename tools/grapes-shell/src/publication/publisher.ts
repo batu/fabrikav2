@@ -55,6 +55,7 @@ export interface PublishAuthoringProjectOptions {
   readonly authoringDir: string;
   readonly seedRoot: string;
   readonly expectedProjectJsonHash?: string;
+  readonly expectedAssetCatalogHash?: string;
   readonly renderPreviews?: PreviewRenderer;
 }
 
@@ -495,15 +496,26 @@ export async function publishAuthoringProject(options: PublishAuthoringProjectOp
   const authoringDir = projectRoot(options.authoringDir);
   const { project, catalog } = await loadProject(authoringDir, options.seedRoot);
   const bundle = createPortableBundle(project.presentation, catalog.assets);
-  const [projectJsonHash, portableExportHash, componentRecordsHash, assetCatalogHash] = await Promise.all([
-    hashCanonicalJson(project),
-    hashCanonicalJson(portableHashPayload(bundle)),
-    hashCanonicalJson(bundle.records),
-    hashCanonicalJson(bundle.assetCatalog),
-  ]);
+  const [projectJsonHash, portableExportHash, componentRecordsHash, assetCatalogHash, reviewedAssetCatalogHash] =
+    await Promise.all([
+      hashCanonicalJson(project),
+      hashCanonicalJson(portableHashPayload(bundle)),
+      hashCanonicalJson(bundle.records),
+      hashCanonicalJson(bundle.assetCatalog),
+      hashCanonicalJson(catalog),
+    ]);
+  // Fail closed before any publication write: the saved project AND the full
+  // canonical asset inventory it was reviewed against must both match the exact
+  // hashes A1 accepted. reviewedAssetCatalogHash covers the whole ShellAssetCatalog
+  // vocabulary, not the used-asset subset folded into the publication identity.
   if (options.expectedProjectJsonHash && options.expectedProjectJsonHash !== projectJsonHash) {
     throw new ProjectValidationError(
       `Saved project hash ${projectJsonHash} does not match the explicitly reviewed hash ${options.expectedProjectJsonHash}.`,
+    );
+  }
+  if (options.expectedAssetCatalogHash && options.expectedAssetCatalogHash !== reviewedAssetCatalogHash) {
+    throw new ProjectValidationError(
+      `Asset catalog hash ${reviewedAssetCatalogHash} does not match the explicitly reviewed hash ${options.expectedAssetCatalogHash}.`,
     );
   }
   const publicationId = await computeShellPublicationId({

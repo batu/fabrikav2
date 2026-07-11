@@ -1,7 +1,17 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
+import { hashCanonicalJson } from "@fabrikav2/kernel";
+
 import { loadBrowserProject, saveBrowserProject } from "../../src/editor/app.ts";
+import { editorAssetCatalog } from "../../src/editor/seed.ts";
 import { createStarterProject } from "../../src/shared/project.ts";
+import { readSeedManifest } from "../../src/shared/seed.ts";
+
+const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const repositoryRoot = path.resolve(workspaceRoot, "../..");
+const seedRoot = path.join(repositoryRoot, "games/_template/design");
 
 describe("editor browser persistence", () => {
   it("distinguishes a fresh starter from a saved browser draft and reloads the exact target", () => {
@@ -31,5 +41,17 @@ describe("editor browser persistence", () => {
 
   it("reports a failed storage write without claiming the draft was saved", () => {
     expect(saveBrowserProject(createStarterProject(), () => { throw new Error("quota"); })).toBe(false);
+  });
+
+  it("hashes the bundled editor asset catalog identically to the seed catalog the publisher enforces", async () => {
+    // The A1 snapshot/verdict binds hashCanonicalJson(editorAssetCatalog); publish
+    // enforces hashCanonicalJson(readSeedManifest(...)). If these diverged, every
+    // accepted A1 verdict would fail closed at publish.
+    const [browserHash, seedHash] = await Promise.all([
+      hashCanonicalJson(editorAssetCatalog),
+      hashCanonicalJson(await readSeedManifest(seedRoot)),
+    ]);
+    expect(browserHash).toMatch(/^sha256-[a-f0-9]{64}$/u);
+    expect(browserHash).toBe(seedHash);
   });
 });

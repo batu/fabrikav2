@@ -22,7 +22,10 @@ import "grapesjs/dist/css/grapes.min.css";
 import "./editor.css";
 
 const EDITOR_TARGET_GAME = "shell_proof";
-const STORAGE_KEY = `fabrikav2:grapes-shell:project-v1:${EDITOR_TARGET_GAME}`;
+// project-v2 supersedes project-v1: the U1/U2 asset-authority repair changed the
+// asset vocabulary, so any pre-repair draft stored under the v1 key is orphaned
+// and can never re-load as a "saved" project reviewed against the current catalog.
+const STORAGE_KEY = `fabrikav2:grapes-shell:project-v2:${EDITOR_TARGET_GAME}`;
 
 type StoredState = "unsaved" | "dirty" | "saved-unpublished";
 type FeedbackTone = "neutral" | "success" | "error";
@@ -37,6 +40,7 @@ export interface LoadedProject {
 interface ValidatedEditorSnapshot {
   readonly project: GrapesShellProject;
   readonly projectHash: string;
+  readonly assetCatalogHash: string;
   readonly status: StoredState;
 }
 
@@ -192,7 +196,11 @@ export function mountConstrainedEditor(root: HTMLElement): void {
     getValidatedSnapshot: async () => {
       const validated = structuredClone(validateProjectFile(project, editorAssetCatalog, EDITOR_TARGET_GAME));
       const snapshotStatus = status;
-      return { project: validated, projectHash: await hashCanonicalJson(validated), status: snapshotStatus };
+      const [projectHash, assetCatalogHash] = await Promise.all([
+        hashCanonicalJson(validated),
+        hashCanonicalJson(editorAssetCatalog),
+      ]);
+      return { project: validated, projectHash, assetCatalogHash, status: snapshotStatus };
     },
     getStatus: () => status,
   };
@@ -606,7 +614,7 @@ export function mountConstrainedEditor(root: HTMLElement): void {
     const handoffDetail = element("span");
     text(
       handoffDetail,
-      "An agent saves this exact hash-bound JSON, then runs one-shot publish with `--expected-project-hash`.",
+      "An agent saves this exact hash-bound JSON, then runs one-shot publish with `--expected-project-hash` and `--expected-asset-catalog-hash`.",
     );
     handoff.append(handoffTitle, handoffDetail);
     const apply = element("button", "editor-button editor-button--disabled") as HTMLButtonElement;
