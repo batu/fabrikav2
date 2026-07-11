@@ -338,9 +338,29 @@ describe('shell presentation contract', () => {
     }, 'unsupported-field');
 
     expectContractIssue((candidate) => {
+      const policy = record(record(candidate).assetRasterPolicy);
+      policy.maxAssetBytes = Number(policy.maxAggregateBytes) + 1;
+    }, 'invalid-raster-policy');
+
+    expectContractIssue((candidate) => {
+      record(record(candidate).assetRasterPolicy).maxAssets = 4_097;
+    }, 'invalid-raster-policy');
+
+    expectContractIssue((candidate) => {
+      record(record(candidate).assetRasterPolicy).maxEdge = 8_193;
+    }, 'invalid-raster-policy');
+
+    expectContractIssue((candidate) => {
       const slot = records(record(candidate).assetSlots)[0]!;
       record(record(slot).sourceRaster).minWidth = 0;
     }, 'invalid-source-raster');
+
+    for (const dimension of ['minWidth', 'minHeight'] as const) {
+      expectContractIssue((candidate) => {
+        const slot = records(record(candidate).assetSlots)[0]!;
+        record(record(slot).sourceRaster)[dimension] = 4_097;
+      }, 'invalid-source-raster');
+    }
 
     expectContractIssue((candidate) => {
       const slot = records(record(candidate).assetSlots)[0]!;
@@ -736,6 +756,8 @@ describe('shell presentation contract', () => {
 
     for (const sourcePath of [
       '/UI/button.png',
+      './button.png',
+      '../button.png',
       'UI\\button.png',
       'UI//button.png',
       'UI/./button.png',
@@ -896,6 +918,8 @@ describe('shell presentation contract', () => {
     expect(sourcePathPattern.test('UI/PNG/Blue/button.png')).toBe(true);
     for (const unsafe of [
       '/UI/button.png',
+      './button.png',
+      '../button.png',
       'UI\\button.png',
       'UI//button.png',
       'UI/../button.png',

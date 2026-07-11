@@ -1,9 +1,9 @@
-import { Buffer } from "node:buffer";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { pngFacts } from "./png-facts.mjs";
 
 const approvedSourceRootValue = process.env.KENNEY_APPROVED_SOURCE_ROOT;
 if (!approvedSourceRootValue) {
@@ -82,19 +82,6 @@ function canonicalText(bytes) {
     .map((line) => line.trim())
     .join("\n")
     .trim();
-}
-
-function pngFacts(bytes) {
-  const pngSignature = "89504e470d0a1a0a";
-  if (bytes.length < 26 || bytes.subarray(0, 8).toString("hex") !== pngSignature) {
-    throw new Error("expected PNG bytes");
-  }
-  const colorType = bytes.readUInt8(25);
-  return {
-    width: bytes.readUInt32BE(16),
-    height: bytes.readUInt32BE(20),
-    hasAlpha: colorType === 4 || colorType === 6 || bytes.includes(Buffer.from("tRNS")),
-  };
 }
 
 const sources = new Map(manifest.sources.map((source) => [source.id, source]));

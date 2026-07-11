@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseShellAssetCatalog } from "@fabrikav2/kernel";
 import { describe, expect, it } from "vitest";
+import { pngFacts } from "./png-facts.mjs";
 
 interface SeedSource {
   readonly id: string;
@@ -32,9 +33,25 @@ const manifestBytes = fs.readFileSync(
 );
 const manifest = JSON.parse(manifestBytes) as SeedManifest;
 
-function pngHasAlpha(bytes: Buffer): boolean {
-  const colorType = bytes.readUInt8(25);
-  return colorType === 4 || colorType === 6 || bytes.includes(Buffer.from("tRNS"));
+function pngChunk(type: string, data: Buffer): Buffer {
+  const length = Buffer.alloc(4);
+  length.writeUInt32BE(data.length);
+  return Buffer.concat([length, Buffer.from(type, "ascii"), data, Buffer.alloc(4)]);
+}
+
+function opaquePngWithTrnsText(): Buffer {
+  const header = Buffer.alloc(13);
+  header.writeUInt32BE(1, 0);
+  header.writeUInt32BE(1, 4);
+  header[8] = 8;
+  header[9] = 2;
+  return Buffer.concat([
+    Buffer.from("89504e470d0a1a0a", "hex"),
+    pngChunk("IHDR", header),
+    pngChunk("tEXt", Buffer.from("Comment\0contains tRNS text", "latin1")),
+    pngChunk("IDAT", Buffer.alloc(0)),
+    pngChunk("IEND", Buffer.alloc(0)),
+  ]);
 }
 
 describe("Kenney semantic seed manifest", () => {
@@ -110,13 +127,18 @@ describe("Kenney semantic seed manifest", () => {
       const bytes = fs.readFileSync(path.join(templateRoot, "design", asset.path));
       expect(asset.mimeType).toBe("image/png");
       expect(asset.hasAlpha).toBe(true);
-      expect(pngHasAlpha(bytes)).toBe(asset.hasAlpha);
-      expect(bytes.readUInt32BE(16)).toBe(asset.width);
-      expect(bytes.readUInt32BE(20)).toBe(asset.height);
+      const facts = pngFacts(bytes);
+      expect(facts.hasAlpha).toBe(asset.hasAlpha);
+      expect(facts.width).toBe(asset.width);
+      expect(facts.height).toBe(asset.height);
       expect(bytes.byteLength).toBe(asset.bytes);
       expect(`sha256-${createHash("sha256").update(bytes).digest("hex")}`).toBe(asset.sha256);
       expect(asset.provenance.sourceHash).toBe(asset.sha256);
       expect(asset.provenance.license).toBe("CC0-1.0");
     }
+  });
+
+  it("recognizes transparency only from a real PNG chunk", () => {
+    expect(pngFacts(opaquePngWithTrnsText()).hasAlpha).toBe(false);
   });
 });

@@ -1072,16 +1072,27 @@ function hasUnpairedSurrogate(value: string): boolean {
   return false;
 }
 
+function hasControlCharacter(
+  value: string,
+  options: { allowTabNewlineCr?: boolean } = {},
+): boolean {
+  return Array.from(value).some((character) => {
+    const codePoint = character.codePointAt(0)!;
+    if (codePoint === 127) return true;
+    if (codePoint >= 32) return false;
+    return !(
+      options.allowTabNewlineCr === true &&
+      (codePoint === 9 || codePoint === 10 || codePoint === 13)
+    );
+  });
+}
+
 function isPlainUnicodeCopy(value: string, maximumCodePoints: number): boolean {
   const htmlFragment = /<\/?[a-z][^>]*>/iu;
   const unsafeScheme = /(?:javascript|data|blob)\s*:/iu;
-  const hasForbiddenControl = Array.from(value).some((character) => {
-    const codePoint = character.codePointAt(0)!;
-    return (codePoint < 32 && codePoint !== 9 && codePoint !== 10 && codePoint !== 13) || codePoint === 127;
-  });
   return (
     Array.from(value).length <= maximumCodePoints &&
-    !hasForbiddenControl &&
+    !hasControlCharacter(value, { allowTabNewlineCr: true }) &&
     !htmlFragment.test(value) &&
     !unsafeScheme.test(value) &&
     !hasUnpairedSurrogate(value)
@@ -2191,14 +2202,10 @@ function boundedAssetMetadataField(
   issues: ShellValidationIssue[],
 ): string {
   const value = record[key];
-  const hasControlCharacter = typeof value === 'string' && Array.from(value).some((character) => {
-    const codePoint = character.codePointAt(0)!;
-    return codePoint < 32 || codePoint === 127;
-  });
   if (
     typeof value !== 'string' ||
     value.trim().length === 0 ||
-    hasControlCharacter ||
+    hasControlCharacter(value) ||
     Array.from(value).length > maximumCodePoints
   ) {
     addIssue(
@@ -2213,17 +2220,13 @@ function boundedAssetMetadataField(
 }
 
 function isNormalizedRelativeSourcePath(path: string): boolean {
-  const hasControlCharacter = Array.from(path).some((character) => {
-    const codePoint = character.codePointAt(0)!;
-    return codePoint < 32 || codePoint === 127;
-  });
   if (
     path.length === 0 ||
     path.startsWith('/') ||
     path.includes('\\') ||
     path.includes('?') ||
     path.includes('#') ||
-    hasControlCharacter
+    hasControlCharacter(path)
   ) {
     return false;
   }
