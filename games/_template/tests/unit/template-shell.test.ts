@@ -178,14 +178,16 @@ describe("template shell renderer and harness", () => {
     expect(css).toMatch(/body\s*\{[^}]*margin:\s*0;/s);
     expect(css).toMatch(/\.template-shell \.fab-ui\s*\{[^}]*--fab-color-accent:\s*var\(--fab-seed-color-accent\);/s);
     expect(css).toMatch(/\.template-shell__icon-action\s*\{[^}]*background-color:\s*var\(--fab-color-accent\);/s);
-    expect(css).toMatch(/\.template-shell \.fab-pause-card \[data-fab-action="pause-resume"\]\s*\{[^}]*background-color:\s*var\(--fab-color-accent\);/s);
+    expect(css).toMatch(
+      /\.template-shell \.fab-pause-card \[data-fab-action="pause-resume"\],[\s\S]*?\.template-shell__overlay-action--primary\s*\{[^}]*background-color:\s*var\(--fab-color-accent\);/s,
+    );
     expect(css).toMatch(/\.template-shell \.fab-modal-card\.fab-pause-card\s*\{[^}]*background-color:\s*var\(--fab-seed-color-pause-surface\);/s);
     expect(css).toMatch(/\.template-shell \.fab-page-back\s*\{[^}]*background-color:\s*var\(--fab-color-accent\);/s);
     expect(css).toMatch(/\.template-shell \.fab-result-body\s*\{[^}]*background-color:\s*var\(--fab-color-gameplay-surface\);/s);
     expect(css).toMatch(/\.template-shell \.fab-toggle-input\s*\{[^}]*width:\s*100%;[^}]*height:\s*100%;/s);
   });
 
-  it("keeps Settings as an icon-only utility and the white currency star on a contrasted surface", () => {
+  it("keeps Settings quiet and makes the seeded star explicitly read as currency", () => {
     const controller = createController();
     const root = document.getElementById("app")!;
     const shell = mountTemplateShell({ mountInto: root, controller });
@@ -197,6 +199,9 @@ describe("template shell renderer and harness", () => {
     expect(settings?.classList.contains("template-shell__icon-action--utility")).toBe(true);
     expect(settings?.getAttribute("aria-label")).toBe("Settings");
     expect(currency?.classList.contains("template-shell__currency--contrasted")).toBe(true);
+    expect(currency?.getAttribute("aria-label")).toBe("25 Coins");
+    expect(currency?.querySelector(".template-shell__currency-label")?.textContent).toBe("Coins");
+    expect(currency?.textContent).toContain("25Coins");
     expect(css).toMatch(
       /\.template-shell__icon-action--utility\s*\{[^}]*width:\s*var\(--fab-btn-min-size\);[^}]*padding:\s*0;[^}]*font-size:\s*0;[^}]*background-color:\s*var\(--fab-seed-color-utility-surface\);[^}]*box-shadow:\s*none;/s,
     );
@@ -214,25 +219,42 @@ describe("template shell renderer and harness", () => {
     const shell = mountTemplateShell({ mountInto: root, controller });
 
     controller.startCurrent();
+    shell.render();
+    const liveLayoutClasses = [
+      shell.root.querySelector(".template-shell__hud")?.className,
+      shell.root.querySelector(".template-shell__icon-action--hud")?.className,
+      shell.root.querySelector(".template-shell__gameplay")?.className,
+      shell.root.querySelector(".template-shell__sample-outcomes")?.className,
+      shell.root.querySelector(".template-shell__test-actions")?.className,
+    ];
     controller.pause();
     shell.render();
 
-    const backdrop = shell.root.querySelector<HTMLElement>(".template-shell__level--paused-backdrop");
+    const backdrop = shell.root.querySelector<HTMLElement>(".template-shell__level--pause-backdrop");
     const css = templateShellCss();
 
     expect(backdrop).not.toBeNull();
-    expect(backdrop?.dataset.templateBackdrop).toBe("paused-level");
+    expect(backdrop?.dataset.templateBackdrop).toBe("pause-level");
     expect(backdrop?.getAttribute("aria-hidden")).toBe("true");
     expect(backdrop?.hasAttribute("inert")).toBe(true);
     expect(backdrop?.querySelectorAll("[data-fab-action]")).toHaveLength(0);
     expect(backdrop?.querySelectorAll("[data-fab-instance]")).toHaveLength(0);
-    expect(backdrop?.querySelector(".template-shell__sample-outcomes")).toBeNull();
-    expect(backdrop?.querySelector(".template-shell__hud-action-spacer")?.getAttribute("aria-hidden")).toBe("true");
+    expect(backdrop?.querySelector(".template-shell__sample-outcomes")?.textContent).toContain("Template controls");
+    expect(backdrop?.querySelectorAll(".template-shell__test-action")).toHaveLength(2);
+    const visualPause = backdrop?.querySelector<HTMLButtonElement>(".template-shell__icon-action--hud");
+    expect(visualPause).not.toBeNull();
+    expect(visualPause?.tabIndex).toBe(-1);
+    expect(visualPause?.querySelector<HTMLImageElement>(".template-shell__button-icon")?.src).toContain("icon-pause.png");
+    expect([
+      backdrop?.querySelector(".template-shell__hud")?.className,
+      visualPause?.className,
+      backdrop?.querySelector(".template-shell__gameplay")?.className,
+      backdrop?.querySelector(".template-shell__sample-outcomes")?.className,
+      backdrop?.querySelector(".template-shell__test-actions")?.className,
+    ]).toEqual(liveLayoutClasses);
     expect(shell.root.querySelector('[data-fab-instance="pause.panel"]')).not.toBeNull();
-    expect(css).toMatch(/\.template-shell__level--paused-backdrop\s*\{[^}]*pointer-events:\s*none;/s);
-    expect(css).toMatch(
-      /\.template-shell\[data-fab-state="pause"\] \.fab-modal-scrim\s*\{[^}]*background:\s*var\(--fab-seed-color-pause-scrim\);/s,
-    );
+    expect(css).toMatch(/\.template-shell__level--inert-backdrop\s*\{[^}]*pointer-events:\s*none;/s);
+    expect(css).toContain('.template-shell[data-fab-state="pause"] .fab-modal-scrim,');
     expect(css).toMatch(
       /\.template-shell \.fab-modal-card\.fab-pause-card\s*\{[^}]*padding:\s*var\(--fab-space-md\);/s,
     );
@@ -240,7 +262,7 @@ describe("template shell renderer and harness", () => {
       /\.template-shell \.fab-modal-card\.fab-pause-card\s*\{[^}]*--fab-pause-action-gap:\s*var\(--fab-space-xs\);/s,
     );
     expect(css).toMatch(
-      /\.template-shell \.fab-pause-card \[data-fab-action="pause-quit"\]\s*\{[^}]*background:\s*var\(--fab-color-secondary-surface\);[^}]*border:\s*var\(--fab-border-width\) solid var\(--fab-color-secondary-border\);[^}]*box-shadow:\s*none;/s,
+      /\.template-shell \.fab-pause-card \[data-fab-action="pause-settings"\]\s*\{[^}]*background:\s*var\(--fab-seed-color-socket-surface\);[^}]*border:\s*var\(--fab-border-width\) solid var\(--fab-seed-color-socket-border\);[^}]*box-shadow:\s*none;/s,
     );
   });
 
@@ -255,16 +277,20 @@ describe("template shell renderer and harness", () => {
     const sample = shell.root.querySelector<HTMLElement>(".template-shell__sample-outcomes");
     expect(sample).not.toBeNull();
     expect(sample?.dataset.templateDiagnostic).toBe("outcomes");
-    expect(sample?.textContent).toContain("Outcome preview");
-    expect(sample?.querySelector('[data-fab-action="test-win"]')?.textContent).toBe("Win preview");
-    expect(sample?.querySelector('[data-fab-action="test-lose"]')?.textContent).toBe("Lose preview");
+    expect(sample?.textContent).toContain("Template controls");
+    expect(sample?.querySelector('[data-fab-action="test-win"]')?.textContent).toBe("Win");
+    expect(sample?.querySelector('[data-fab-action="test-lose"]')?.textContent).toBe("Lose");
     expect(sample?.querySelector('[data-fab-action="test-win"]')?.classList.contains("template-shell__test-action--win")).toBe(true);
     expect(sample?.querySelector('[data-fab-action="test-lose"]')?.classList.contains("template-shell__test-action--lose")).toBe(true);
     const socket = shell.root.querySelector<HTMLElement>('[data-fab-role="gameplay-region"]');
     expect(socket?.dataset.templateSocket).toBe("replaceable-mechanic");
     expect(socket?.classList.contains("template-shell__gameplay--trail")).toBe(true);
     expect(socket?.querySelector(".template-shell__gameplay-kicker")?.textContent).toBe("Trail clearing");
-    expect(socket?.querySelector<HTMLImageElement>(".template-shell__gameplay-art")?.src).toContain("icon-play.png");
+    expect(socket?.querySelector<HTMLImageElement>(".template-shell__gameplay-art")?.src).toContain("divider-panel.png");
+    expect(socket?.querySelector<HTMLImageElement>(".template-shell__gameplay-art")?.src).not.toContain("icon-play.png");
+    expect(socket?.querySelector(".template-shell__gameplay-landscape")).not.toBeNull();
+    expect(socket?.querySelector(".template-shell__gameplay-emblem")).toBeNull();
+    expect(socket?.querySelector("button, [data-fab-action]")).toBeNull();
     expect(shell.root.textContent).not.toContain("Gameplay goes here");
     expect(shell.root.textContent).not.toContain("Starter playfield");
     expect(shell.root.textContent).not.toContain("add a mechanic");
@@ -272,10 +298,10 @@ describe("template shell renderer and harness", () => {
       /\.template-shell__gameplay--trail\s*\{[^}]*border-style:\s*solid;[^}]*background:/s,
     );
     expect(templateShellCss()).toMatch(
-      /\.template-shell__gameplay--trail\s*\{[^}]*grid-template-columns:\s*auto minmax\(0, 1fr\);/s,
+      /\.template-shell__gameplay--trail\s*\{[^}]*grid-template-rows:\s*minmax\(0, 1fr\) auto;/s,
     );
     expect(templateShellCss()).toMatch(
-      /\.template-shell__gameplay-emblem\s*\{[^}]*box-shadow:\s*none;/s,
+      /\.template-shell__gameplay-copy\s*\{[^}]*background-color:\s*var\(--fab-seed-color-copy-surface\);/s,
     );
   });
 
@@ -300,28 +326,42 @@ describe("template shell renderer and harness", () => {
     expect(css).toMatch(
       /\.template-shell__icon-action--hud\s*\{[^}]*width:\s*var\(--fab-btn-min-size\);[^}]*font-size:\s*0;/s,
     );
-    expect(css).toMatch(
-      /\.template-shell__hud-action-spacer\s*\{[^}]*flex:\s*0 0 var\(--fab-btn-min-size\);[^}]*width:\s*var\(--fab-btn-min-size\);/s,
-    );
+    expect(css).not.toContain("template-shell__hud-action-spacer");
   });
 
-  it("uses a trail-start marker and a success check instead of the bullseye and open-lock placeholder language", () => {
+  it("uses a non-actionable trail illustration and spatial progression landmarks", () => {
     const controller = createController();
     const root = document.getElementById("app")!;
     const shell = mountTemplateShell({ mountInto: root, controller });
 
-    const hero = shell.root.querySelector<HTMLImageElement>('[data-fab-instance="menu.hero"]');
+    const hero = shell.root.querySelector<HTMLElement>('[data-fab-instance="menu.hero"]');
+    const heroDecoration = hero?.querySelector<HTMLImageElement>(".template-shell__hero-art");
     const completed = shell.root.querySelector<HTMLElement>('[data-fab-instance="menu.node.completed"]');
     const locked = shell.root.querySelector<HTMLElement>('[data-fab-instance="menu.node.locked"]');
     const tokens = templateTokensCss();
+    const manifest = JSON.parse(
+      readFileSync(resolve(process.cwd(), "design/kenney-seed.manifest.json"), "utf8"),
+    ) as { readonly assets: readonly { readonly id: string; readonly compatibleRoles: readonly string[] }[] };
+    const divider = manifest.assets.find((asset) => asset.id === "divider.panel");
 
-    expect(hero?.src).toContain("icon-play.png");
-    expect(hero?.src).not.toContain("hero-placeholder.png");
+    expect(hero?.classList.contains("template-shell__hero-stage")).toBe(true);
+    expect(hero?.getAttribute("role")).toBe("img");
+    expect(hero?.getAttribute("aria-label")).toBe("A winding trail through green hills");
+    expect(hero?.dataset.fabSlot).toBe("hero-art");
+    expect(heroDecoration?.src).toContain("divider-panel.png");
+    expect(heroDecoration?.getAttribute("aria-hidden")).toBe("true");
+    expect(heroDecoration?.hasAttribute("data-fab-instance")).toBe(false);
+    expect(heroDecoration?.hasAttribute("data-fab-slot")).toBe(false);
+    expect(heroDecoration?.src).not.toContain("icon-play.png");
+    expect(heroDecoration?.src).not.toContain("hero-placeholder.png");
+    expect(shell.root.querySelector(".template-shell__hero-marker")).not.toBeNull();
     expect(completed?.getAttribute("data-fab-node-state")).toBe("completed");
     expect(locked?.getAttribute("data-fab-node-state")).toBe("locked");
+    expect(divider?.compatibleRoles).toEqual(["modal-panel", "result-panel"]);
     expect(tokens).toMatch(/--fab-seed-levelmap-art-completed:\s*url\("\.\/assets\/icon-confirm\.png"\);/);
     expect(tokens).toMatch(/--fab-seed-levelmap-art-locked:\s*url\("\.\/assets\/node-locked\.png"\);/);
     expect(templateShellCss()).toMatch(/\.template-shell__hero-stage\s*\{[^}]*box-shadow:\s*none;/s);
+    expect(templateShellCss()).toMatch(/\.template-shell \.fab-levelmap-node:nth-child\(2\)\s*\{[^}]*--node-x:\s*32px;/s);
   });
 
   it("keeps progression state in the landmark art and accessible names instead of player-facing component badges", () => {
@@ -341,7 +381,7 @@ describe("template shell renderer and harness", () => {
     expect(templateShellCss()).not.toContain("template-shell__node-status");
   });
 
-  it("gives the fail card a calm retry signal with Retry as its only primary action", () => {
+  it("keeps failure over frozen gameplay with one retry signal and a restrained accent", () => {
     const controller = createController();
     const root = document.getElementById("app")!;
     const shell = mountTemplateShell({ mountInto: root, controller });
@@ -353,12 +393,21 @@ describe("template shell renderer and harness", () => {
     const ribbon = shell.root.querySelector<HTMLElement>(".fab-modal-ribbon-title");
     const retry = shell.root.querySelector<HTMLElement>('[data-fab-action="result-retry"]');
     const home = shell.root.querySelector<HTMLElement>('[data-fab-action="result-menu"]');
+    const backdrop = shell.root.querySelector<HTMLElement>(".template-shell__level--result-backdrop");
     const css = templateShellCss();
 
-    expect(ribbon?.textContent).toBe("Try again");
-    expect(shell.root.querySelector<HTMLImageElement>(".template-shell__result-art")?.src).toContain("icon-retry.png");
-    expect(retry?.classList.contains("template-shell__primary-action")).toBe(true);
-    expect(home?.classList.contains("template-shell__fail-home-action")).toBe(true);
+    expect(ribbon?.textContent).toBe("Trail blocked");
+    expect(shell.root.querySelector(".template-shell__result-art")).toBeNull();
+    expect(backdrop?.dataset.templateBackdrop).toBe("result-level");
+    expect(backdrop?.getAttribute("aria-hidden")).toBe("true");
+    expect(backdrop?.querySelector(".template-shell__level-label")?.textContent).toBe("Trail 2");
+    expect(backdrop?.querySelector(".template-shell__sample-outcomes")).not.toBeNull();
+    expect(backdrop?.querySelectorAll("[data-fab-action]")).toHaveLength(0);
+    expect(backdrop?.querySelectorAll("[data-fab-instance]")).toHaveLength(0);
+    expect(retry?.classList.contains("template-shell__overlay-action--primary")).toBe(true);
+    expect(home?.classList.contains("template-shell__overlay-action--tertiary")).toBe(true);
+    expect(retry?.style.getPropertyValue("--fab-btn-sprite-image")).toBe("");
+    expect(home?.style.getPropertyValue("--fab-btn-sprite-image")).toBe("");
     expect(css).toMatch(
       /\.template-shell\[data-fab-state="fail"\] \.fab-ui\s*\{[^}]*--fab-ribbon-title-color:\s*var\(--fab-seed-color-fail-ribbon-text\);/s,
     );
@@ -366,7 +415,7 @@ describe("template shell renderer and harness", () => {
       /\.template-shell\[data-fab-state="fail"\] \.fab-result-body\s*\{[^}]*background-color:\s*var\(--fab-seed-color-fail-surface\);/s,
     );
     expect(css).toMatch(
-      /\.template-shell\[data-fab-state="fail"\] \.template-shell__fail-home-action\s*\{[^}]*background:\s*var\(--fab-color-secondary-surface\);[^}]*box-shadow:\s*none;/s,
+      /\.template-shell \.fab-pause-card \[data-fab-action="pause-quit"\],[\s\S]*?\.template-shell__overlay-action--tertiary\s*\{[^}]*background:\s*var\(--fab-seed-color-pause-surface\);[^}]*color:\s*var\(--fab-color-text\);[^}]*box-shadow:\s*none;/s,
     );
     expect(css).toMatch(
       /\.template-shell\[data-fab-state="fail"\] \.fab-modal-ribbon\s*\{[^}]*aspect-ratio:\s*auto;[^}]*background-color:\s*var\(--fab-seed-color-pause-surface\);[^}]*box-shadow:\s*none;/s,
@@ -374,9 +423,43 @@ describe("template shell renderer and harness", () => {
     expect(css).toMatch(
       /\.template-shell\[data-fab-state="fail"\] \.fab-modal-ribbon-image\s*\{[^}]*display:\s*none;/s,
     );
-    expect(css).toMatch(
-      /\.template-shell\[data-fab-state="fail"\] \.template-shell__result-art\s*\{[^}]*width:\s*var\(--fab-fail-art-size\);[^}]*border-radius:\s*50%;/s,
-    );
+    expect(css).toContain('.template-shell[data-fab-state="fail"] .fab-modal-scrim');
+  });
+
+  it("uses one enabled action grammar across Pause, Win, and Fail overlays", async () => {
+    const controller = createController();
+    const root = document.getElementById("app")!;
+    const shell = mountTemplateShell({ mountInto: root, controller });
+    const harness = createTemplateHarness({
+      buildVersion: "test",
+      packageId: "com.fabrikav2.template",
+      controller,
+    });
+
+    expect(await harness.driveTo!("pause")).toBe(true);
+    shell.render();
+    const pauseResume = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="pause-resume"]')!;
+    const pauseSettings = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="pause-settings"]')!;
+    const pauseHome = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="pause-quit"]')!;
+    expect([pauseResume.disabled, pauseSettings.disabled, pauseHome.disabled]).toEqual([false, false, false]);
+
+    for (const state of ["win", "fail"] as const) {
+      expect(await harness.driveTo!(state)).toBe(true);
+      shell.render();
+      const primary = shell.root.querySelector<HTMLButtonElement>(
+        state === "win" ? '[data-fab-action="result-next"]' : '[data-fab-action="result-retry"]',
+      )!;
+      const home = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="result-menu"]')!;
+      expect(primary.classList.contains("template-shell__overlay-action--primary")).toBe(true);
+      expect(home.classList.contains("template-shell__overlay-action--tertiary")).toBe(true);
+      expect([primary.disabled, home.disabled]).toEqual([false, false]);
+      expect(primary.style.getPropertyValue("--fab-btn-sprite-image")).toBe("");
+      expect(home.style.getPropertyValue("--fab-btn-sprite-image")).toBe("");
+    }
+
+    const css = templateShellCss();
+    expect(css).toContain(".template-shell__overlay-action--primary");
+    expect(css).toContain(".template-shell__overlay-action--tertiary");
   });
 
   it("uses the state owner for rendered semantic actions and keeps locked nodes inert", () => {

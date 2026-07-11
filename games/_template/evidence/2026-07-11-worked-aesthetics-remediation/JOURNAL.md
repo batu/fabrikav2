@@ -539,3 +539,47 @@ blind frame review remain the Worked-stage closeout sequence.
 
 passed for Worked; pending a fresh independent Aesthetics Reviewed verdict.
 The captures are browser diagnostic evidence only, not Android or iPhone proof.
+
+### Iteration 4 - Close the final player-facing seams
+
+#### Why This Iteration
+
+Fresh blind Sol review `019f4ea9-cbd4-74b3-82c8-4b9f93603741` rejected four
+remaining P1 seams: the hero still looked like another Play action, the
+gameplay region remained a prototype-grey box with a false-button glyph, and
+the Fail surface removed the gameplay context. Its P2 cluster also identified
+the straight setup-stepper route, ambiguous currency, oversized diagnostics,
+Pause reflow, disabled-looking Home, and inconsistent overlay actions.
+
+#### Changes Made
+
+- Replaced the Play-shaped hero with one non-actionable composite trail scene;
+  the full scene owns `menu.hero`, while its Kenney divider remains decorative.
+- Staggered the route landmarks and split the connecting rail into two angled
+  sections so progression reads as a path rather than a setup wizard.
+- Made currency visibly and accessibly read `25 Coins` instead of relying on a
+  star alone.
+- Replaced the grey gameplay socket and raised Play glyph with a purposeful
+  trail landscape, a quiet player-facing instruction card, and no action hook.
+- Compacted the required Win/Lose diagnostics into a quarantined template
+  footer while preserving 48 px controls.
+- Reused the exact HUD, playfield, and diagnostic geometry beneath Pause, Win,
+  and Fail. The inert copies expose no action, role, or semantic-instance hooks.
+- Unified overlay actions: Resume/Next/Retry are primary, Settings is a
+  pale-green secondary, and every Home action is an enabled cream tertiary.
+- Removed result-button sprites and the duplicate retry glyph; `Trail blocked`
+  plus a restrained warm accent identifies failure while Retry owns the action.
+
+#### Post-Change Screenshots
+
+The final settled 390 x 844 real-click browser set is
+`u2-final-seam-pass-{menu,level,pause,settings,win,fail}.png`. Its companion
+`u2-final-seam-pass-metrics.json` records a document and body height of 844 px,
+zero body margin, and every live action at least 48 px. Level, Pause, and result
+captures visibly retain the same HUD, landscape, and diagnostic footer.
+
+#### Decision
+
+passed for Worked; a new unseen reel and fresh independent Sol verdict still
+own the Aesthetics Reviewed gate. This remains browser diagnostic evidence
+only and makes no Android or iPhone claim.
