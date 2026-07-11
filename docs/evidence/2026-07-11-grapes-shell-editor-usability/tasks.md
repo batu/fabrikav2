@@ -330,3 +330,88 @@ Independent Sol review found that U3 strips asset IDs before U1 presentation val
 ### Next Action
 
 Choose the recommended seam repair: reopen the U2 Kenney seed as slot-specific contract-valid fixtures, then make U3 consume U1's parsed catalog directly. Only after that gate is green should the live A1 request be posted.
+
+### Independent Aesthetics Decision
+
+FAILED / FIX-THEN-SHIP
+
+The repaired asset authority is necessary but not sufficient for A1. Independent review of the current capture found that the editor still reads as an implementation/debug surface rather than a trustworthy design handoff. Capture completeness passes; ship readiness does not.
+
+The current screenshots and 6.68-second video are retained as the pre-fix corpus. They must remain available for matched comparison after the repair.
+
+### Required Repair Before Recapture
+
+- Replace the debug/grey-box canvas presentation with a credible shell preview while keeping the constrained authoring boundaries intact.
+- Repair the Settings page and toggle composition so hierarchy, spacing, and state relationships read as intentional UI rather than stacked placeholders.
+- Make the editor WYSIWYG enough that an asset choice is semantically trustworthy: the tray choice, installed state, and canvas result must communicate the same role and visual meaning.
+- Disable A1 Accept until every required representative-edit checklist item is complete; handler-time rejection alone is not an honest visible gate.
+
+### Aesthetics Next Action
+
+Repair those four surfaces, then recapture the same opening, interaction, slot-filtered saved state, and A1 decision sequence against this preserved pre-fix corpus. Do not request A1 acceptance from the current artifact.
+
+## Task U3-V7 - Capture the repaired A1 decision flow
+
+### Status
+
+passed for capture evidence; human A1 decision pending
+
+### Goal
+
+Show the current constrained editor, repaired canonical asset authority, saved-unpublished boundary, and dual-hash A1 checkpoint in one reproducible visual sequence without submitting a verdict.
+
+### Why Now
+
+Commits `c142f286` and `2f5ed0a2` repaired the U1 asset-catalog seam and bound both the project hash and asset-catalog hash through the editor snapshot, A1 payload, CLI validation, and publication. The previously captured A1 view predates those repairs and cannot serve as current decision evidence.
+
+### User Lens
+
+A reviewer should be able to understand the six-page shell, select a constrained component, replace one compatible asset, save the exact browser draft, and reach an honest accept/reject checkpoint without confusing Portal transport with design authority.
+
+### Pre-Shot Targets
+
+- The prior local A1 screenshot, which was invalidated by the U1/U2 asset-authority mismatch.
+- The regenerated self-contained A1 view before any browser interaction.
+
+### Repro Setup
+
+- Artifact: self-contained `a1-review.html`
+- Viewport: 1440x900 desktop authoring surface at device scale factor 1
+- Fixture: current six-page `shell_proof` starter project and canonical U1 asset catalog
+- State sequence: fresh browser context, all six pages visited, `settings.music` selected, `menu.settings` selected, `icon-control.confirm` installed, browser draft saved, A1 dialog opened
+- Command: `node docs/evidence/2026-07-11-grapes-shell-editor-usability/capture-a1-review.mjs`
+
+### Acceptance Criteria
+
+- Opening and interaction frames keep the existing light, restrained, phone-centered Shell Studio and make all six pages plus the selected semantic component legible.
+- The asset frame shows a role-filtered canonical tray with semantic asset identity, intrinsic dimensions, provenance, installed state, and `Saved · unpublished` truthfully visible.
+- The A1 overlay explicitly says the verdict carries both the exact project hash and asset-catalog hash, exposes accept and reject symmetrically, and shows that no decision has been sent.
+- A 3-8 second Playwright recording reproduces the full interaction sequence with four stable PNG frames, zero external requests, zero browser errors, and no private paths, internal URLs, or device identifiers.
+
+### Expected Visual Result
+
+The sequence reads in order as editor orientation, constrained selection, canonical asset replacement plus local save, and a deliberate human decision boundary.
+
+### Constraints
+
+- Do not redesign product code or add motion.
+- Do not submit an A1 decision or imply human acceptance.
+- This desktop authoring capture is not mobile-game runtime or device verification.
+
+### Out of Scope
+
+- Portal publication, U4 projection/apply, mobile runtime testing, or any product-code fix.
+
+### Verification
+
+- Four visually inspected PNG frames and a 6.68-second WebM recording.
+- Capture manifest records six visited pages, `saved-unpublished`, both reviewed hashes, no submitted decision, zero external requests, and no browser errors or private-pattern matches.
+
+### Spawn Rules
+
+- Any product usability concern discovered in the capture becomes a separate task; it does not widen this evidence-only pass.
+- Human A1 acceptance remains a separate explicit decision.
+
+### TWF Reviewer Extraction
+
+Four independent reviewer frames were extracted from the 6.68-second WebM with ffmpeg at 0.25s, 3.25s, 4.75s, and 5.75s. They reproduce the opening, selected-component interaction, slot-filtered saved state, and untouched A1 decision state without relying on the separately captured PNGs.

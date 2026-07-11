@@ -458,3 +458,137 @@ The executable `cli.mjs` seam ran live in a fresh temporary repository root: `in
 ### Portal Handoff
 
 The final non-decision status report is live as Portal post `p_7ea850` in stream `grapes-shell-specialization`. Its HTML, 20-test metric, and sibling screenshot were loaded from the deployed Portal media route with no failed resources. The stable stream link was added to Trello card `qrVosoLc` and sent through Telegram. This is deliberately a report, not the A1 accept/reject request.
+
+## Task U3-V7 - Capture the repaired A1 decision flow
+
+### Task Snapshot
+
+Status: passed for capture evidence; human A1 decision pending
+
+The U1/U2 asset-authority repair and dual-hash binding are now present at commits `c142f286` and `2f5ed0a2`. This iteration regenerates the self-contained A1 view from those commits and records the smallest reproducible sequence that demonstrates the editor, constrained selection, canonical asset tray, saved-unpublished state, and untouched accept/reject boundary.
+
+### Iteration 1 - Regenerate and record the current checkpoint
+
+#### Planned Result
+
+A 3-8 second recording and four stable frames will show, in order, the six-page editor, a representative semantic selection, a slot-filtered asset replacement saved only in the browser, and the A1 dialog that binds the exact project and asset-catalog hashes without submitting a decision.
+
+#### Capture Setup
+
+- Artifact: self-contained `a1-review.html`
+- Viewport: 1440x900 at device scale factor 1
+- Browser state: fresh isolated Chromium context with empty storage
+- Fixture: current `shell_proof` starter project and U1 canonical asset catalog
+- Interaction sequence: visit all six pages; select `settings.music`; return to Menu; select `menu.settings`; install `icon-control.confirm`; save the browser draft; open the A1 dialog
+- Repro command: `node docs/evidence/2026-07-11-grapes-shell-editor-usability/capture-a1-review.mjs`
+
+#### Pre-Change Evidence
+
+1. ![Prior local A1 checkpoint before the authority repair](./screenshots/u3-v4-a1-local.png)
+   What to look at: The existing light, phone-centered editor and decision overlay composition.
+   Observation: This older frame established the desired interaction shape, but its underlying project used the now-rejected secondary asset vocabulary and did not carry the reviewed asset-catalog hash end to end.
+   Acceptance check: Visual composition remained suitable, but canonical-slot and dual-hash criteria were not current; this evidence was invalidated rather than cosmetically wrong.
+
+#### Changes Made
+
+No product code was redesigned. The current editor distribution was rebuilt, `build-a1-review.mjs` regenerated `a1-review.html`, and an evidence-only Playwright harness captured a deterministic static-state sequence. The artifact SHA-256 changed from `dc6dddefc928760c110bd26c21047fb3780bf3cdc57d9b4b4c6de37b9017006f` to `e20ef4a6a812a14472055b69b71cc35adad7d1da102fbab2ac1d18265d628fcf`.
+
+#### Post-Change Evidence
+
+1. ![Current A1 editor opening](./screenshots/u3-v6-a1-opening.png)
+   What to look at: The six-page navigation, centered 390x844 phone artboard, selected semantic layer, and truthful unsaved-unpublished header.
+   Observation: The restrained Shell Studio hierarchy is intact, all six page destinations are visible at once, and the editor begins from an explicitly local recovery state.
+   Acceptance check: Criterion 1 met; the opening orients a reviewer without adding new UI or motion.
+
+2. ![Representative constrained component selection](./screenshots/u3-v6-a1-interaction.png)
+   What to look at: Settings selected in the page rail, `settings.music` highlighted in the semantic tree and phone, and the matching constrained inspector fields.
+   Observation: Page switching and component selection remain synchronized across navigation, artboard, and inspector. Runtime binding and accessibility metadata stay visibly locked.
+   Acceptance check: Criterion 1 met; the representative interaction is legible and does not expose raw GrapesJS authoring controls.
+
+3. ![Canonical slot-filtered asset tray in saved state](./screenshots/u3-v6-a1-slot-saved.png)
+   What to look at: `menu.settings` selected, the tray narrowed to `icon-control.*` candidates, `icon-control.confirm` marked Installed, each visible candidate's dimensions and Kenney provenance, and `Saved · unpublished` in the header.
+   Observation: The selected top-icon role receives only canonical icon-control candidates. The exact replacement is visible on the phone and in the tray, while the header and footer state clearly say that saving did not publish or hand the project to Fabrika.
+   Acceptance check: Criterion 2 met; the compatible inventory, canonical semantic IDs, intrinsic metadata, provenance, installed state, and authority boundary are visible together.
+
+4. ![Dual-hash A1 decision state with no verdict sent](./screenshots/u3-v6-a1-decision.png)
+   What to look at: The overlay introduction, complete representative edit checklist, symmetrical Reject/Accept actions, and neutral status line.
+   Observation: The dialog explicitly says the verdict carries the exact six-page project JSON plus its project and asset-catalog hashes. The status says `No decision has been sent`, every checkbox remains clear, and neither action was invoked.
+   Acceptance check: Criterion 3 met; the two reviewed identities and the human decision boundary are explicit without claiming acceptance.
+
+[Reproducible 6.68-second interaction recording](./videos/u3-v6-a1-flow.webm) follows the same order as the four frames. [Capture manifest](./u3-v6-a1-capture.json) records project hash `sha256-b7cc3468e88f73d5e87083c3d780218b503d1664ec8c680d52cf74139d45b501`, asset-catalog hash `sha256-5a0ce5186af8f07a1d6f7143fe10a5f7d273d39275bbfd74a9ab074f74fe652e`, six visited pages, `saved-unpublished`, and `decisionSubmitted: false`.
+
+#### Isolation and Privacy Check
+
+The capture recorded zero external requests, zero console errors, and zero page errors. The regenerated HTML contains no private filesystem path, private/internal URL, RFC1918 address, or device-like identifier under the evidence scan. The only document request was the self-contained local artifact; no network resource was needed.
+
+#### Criterion-by-Criterion Judgment
+
+- Criterion 1: met. The opening and selection frames preserve the existing restrained, phone-centered editor and expose all six pages plus synchronized semantic selection.
+- Criterion 2: met. The saved asset frame shows the role-filtered canonical inventory, semantic IDs, dimensions, provenance, installed marker, rendered replacement, and local-only state.
+- Criterion 3: met. The overlay names both hashes, presents the complete checklist and both verdict paths, and explicitly records that no decision has been sent.
+- Criterion 4: met. The video duration is 6.68 seconds; all four PNGs are stable; the browser and privacy checks are clean.
+
+#### Decision
+
+passed for capture evidence only
+
+This does not accept U3. The actual A1 decision remains pending explicit human review.
+
+#### Next Action
+
+Present the regenerated artifact and visual evidence for Batu's explicit accept/reject decision; do not start U4 from this capture alone.
+
+#### Spawned Tasks
+
+- None. Any newly requested usability change should be tracked separately from this evidence-only capture.
+
+#### TWF Reviewer Frame Extraction
+
+The 6.68-second WebM was independently sampled with ffmpeg at 0.25s, 3.25s, 4.75s, and 5.75s. The extracted frames show the same four review states in sequence: opening, Settings component selection, canonical icon-control tray after browser save, and the untouched A1 dialog. This confirms the recording itself contains the evidence rather than merely linking to separately staged stills.
+
+## Task U3-V6 - Iteration 2 - Independent aesthetics gate
+
+### Task Snapshot
+
+Status: failed / fix-then-ship
+
+The deterministic U1/U2 authority repair closed the asset-contract blocker, but independent aesthetics review rejected the current A1 surface as a shipping candidate. This is not a reversal of the capture result: the evidence sequence is complete and reproducible, while the product surface shown by that evidence is not ready for A1 acceptance.
+
+### Pre-Fix Corpus
+
+- [Opening frame](./screenshots/u3-v6-a1-opening.png)
+- [Settings interaction frame](./screenshots/u3-v6-a1-interaction.png)
+- [Slot-filtered saved-state frame](./screenshots/u3-v6-a1-slot-saved.png)
+- [A1 decision frame](./screenshots/u3-v6-a1-decision.png)
+- [6.68-second interaction recording](./videos/u3-v6-a1-flow.webm)
+- [Dual-hash capture manifest](./u3-v6-a1-capture.json)
+
+These files are the immutable pre-change comparison set for the next visual iteration. They must not be replaced or described as accepted evidence.
+
+### Independent Aesthetics Judgment
+
+#### 1. Debug/grey-box canvas
+
+Failed. The phone preview is dominated by pale rectangles, internal semantic labels, and debug-like component treatments. It proves geometry, but it does not yet let a designer trust the shell as the game-facing result.
+
+#### 2. Settings and toggle composition
+
+Failed. The Settings frame reads as stacked placeholder rows inside a large undifferentiated panel. Toggle states and the page hierarchy do not yet communicate a deliberate, finished mobile shell composition.
+
+#### 3. WYSIWYG asset trust and semantic choice
+
+Failed. The tray accurately filters canonical inventory and records an installed choice, but the canvas result remains too abstract to establish that the chosen asset has the intended game-facing role and meaning. Contract validity alone is not sufficient visual trust.
+
+#### 4. A1 acceptance affordance
+
+Failed. Accept appears enabled before the representative checklist is complete and relies on rejection after activation. The visible control must remain disabled until every required edit is checked so the gate tells the truth before interaction.
+
+### Decision
+
+FAILED / FIX-THEN-SHIP
+
+No human A1 acceptance is recorded, and the current artifact must not be presented as ready to ship.
+
+### Next Action
+
+Repair the debug/grey-box canvas, Settings/toggle composition, WYSIWYG asset trust and semantic choice, and disabled-until-complete A1 Accept state; then reproduce the same four-frame and 3-8 second capture sequence against the preserved pre-fix corpus.
