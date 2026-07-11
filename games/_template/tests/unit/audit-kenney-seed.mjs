@@ -41,6 +41,22 @@ function dimensions(bytes) {
 
 const sources = new Map(manifest.sources.map((source) => [source.id, source]));
 const failures = [];
+const fontFixtures = [
+  {
+    id: "font.future",
+    sourcePack: "kenney-ui-pack-2.0",
+    sourcePath: "Font/Kenney Future.ttf",
+    targetPath: "design/fonts/kenney-future.ttf",
+    sha256: "7a55b07f5968fac872648a7c5e959bd2b93e06f63153b585d56e4d5298ddff61",
+  },
+  {
+    id: "font.future-narrow",
+    sourcePack: "kenney-ui-pack-2.0",
+    sourcePath: "Font/Kenney Future Narrow.ttf",
+    targetPath: "design/fonts/kenney-future-narrow.ttf",
+    sha256: "17e182587a3264dcf9e5b17c055715d5597187546ce81925c64e9184c26d597f",
+  },
+];
 
 for (const asset of manifest.assets) {
   const source = sources.get(asset.source.pack);
@@ -84,11 +100,30 @@ for (const asset of manifest.assets) {
   }
 }
 
+for (const font of fontFixtures) {
+  const source = sources.get(font.sourcePack);
+  if (!source) {
+    failures.push(`${font.id}: unknown source pack ${font.sourcePack}`);
+    continue;
+  }
+  const sourceFile = resolveWithin(approvedSourceRoot, source.approvedSourcePath, font.sourcePath);
+  const targetFile = resolveWithin(templateRoot, font.targetPath);
+  if (!fs.existsSync(sourceFile) || !fs.existsSync(targetFile)) {
+    failures.push(`${font.id}: approved source or committed font is missing`);
+    continue;
+  }
+  const sourceBytes = fs.readFileSync(sourceFile);
+  const targetBytes = fs.readFileSync(targetFile);
+  if (!sourceBytes.equals(targetBytes) || sha256(sourceBytes) !== font.sha256) {
+    failures.push(`${font.id}: committed bytes or hash differ from the approved source`);
+  }
+}
+
 if (failures.length > 0) {
   for (const failure of failures) console.error(`- ${failure}`);
   throw new Error(`Kenney source audit failed with ${failures.length} issue(s)`);
 }
 
 console.log(
-  `Kenney source audit passed: ${manifest.assets.length} semantic fixtures match approved source bytes`,
+  `Kenney source audit passed: ${manifest.assets.length} semantic fixtures and ${fontFixtures.length} fonts match approved source bytes`,
 );

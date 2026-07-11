@@ -1,5 +1,17 @@
 /* Generated seed tokens. Values are presentation data, not a hand-authored
    theme module; future applied presentation can replace this file. */
+@font-face {
+  font-family: "Kenney Future";
+  src: url("./fonts/kenney-future.ttf") format("truetype");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Kenney Future Narrow";
+  src: url("./fonts/kenney-future-narrow.ttf") format("truetype");
+  font-display: swap;
+}
+
 :root {
   --fab-seed-color-surface: #f7f6ef;
   --fab-seed-color-overlay-scrim: rgba(24, 42, 54, 0.72);
@@ -18,15 +30,12 @@
   --fab-seed-color-socket-surface: #d9eee2;
   --fab-seed-color-socket-border: #6b9c86;
   --fab-seed-color-socket-kicker: #2f6f59;
-  --fab-seed-color-preview-surface: #f1f5ed;
-  --fab-seed-color-preview-border: #c5d7c7;
   --fab-seed-color-pause-scrim: rgba(24, 42, 54, 0.42);
   --fab-seed-color-diagnostic-text: #173042;
   --fab-seed-color-diagnostic-win-surface: #d8efe1;
   --fab-seed-color-diagnostic-win-border: #72b58e;
   --fab-seed-color-diagnostic-lose-surface: #f3e2d9;
   --fab-seed-color-diagnostic-lose-border: #c98d76;
-  --fab-seed-color-fail-surface: #f4dfd6;
   --fab-seed-color-fail-border: #c97b65;
   --fab-seed-color-fail-accent: #a94f46;
   --fab-seed-color-fail-ribbon-text: #173042;
@@ -53,8 +62,8 @@
   --fab-seed-space-lg: 28px;
   --fab-seed-radius-md: 20px;
   --fab-seed-radius-pill: 999px;
-  --fab-seed-font-family: ui-rounded, "Avenir Next", sans-serif;
-  --fab-seed-font-size-xs: 11px;
+  --fab-seed-font-family: "Kenney Future", sans-serif;
+  --fab-seed-font-family-display: "Kenney Future Narrow", "Kenney Future", sans-serif;
   --fab-seed-font-size-sm: 14px;
   --fab-seed-font-size-md: 16px;
   --fab-seed-font-size-lg: 20px;
@@ -65,12 +74,18 @@
   --fab-seed-shadow-button-active: 0 1px 4px rgba(23, 48, 66, 0.24);
   --fab-seed-shadow-button-disabled: 0 1px 0 rgba(23, 48, 66, 0.12);
   --fab-seed-shadow-modal: 0 14px 32px rgba(23, 48, 66, 0.3);
+  --fab-seed-shadow-current-node: 0 0 0 6px rgba(47, 159, 117, 0.2);
+  --fab-seed-ribbon-title-size: 24px;
+  --fab-seed-ribbon-eyebrow-size: 12px;
+  --fab-seed-ribbon-eyebrow-top: 22%;
+  --fab-seed-ribbon-title-top: 60%;
+  --fab-seed-ribbon-text-max-width: 90%;
   --fab-seed-levelmap-path-width: min(270px, 76vw);
   --fab-seed-levelmap-path-min-height: 272px;
   --fab-seed-levelmap-node-size: 62px;
-  --fab-seed-levelmap-node-current-size: 104px;
+  --fab-seed-levelmap-node-current-size: 88px;
   --fab-seed-levelmap-node-font: 20px;
-  --fab-seed-levelmap-node-current-font: 40px;
+  --fab-seed-levelmap-node-current-font: 32px;
   --fab-color-surface: var(--fab-seed-color-surface);
   --fab-color-overlay-scrim: var(--fab-seed-color-overlay-scrim);
   --fab-color-text: var(--fab-seed-color-text);
@@ -89,6 +104,7 @@
   --fab-radius-md: var(--fab-seed-radius-md);
   --fab-radius-pill: var(--fab-seed-radius-pill);
   --fab-font-family: var(--fab-seed-font-family);
+  --fab-font-family-display: var(--fab-seed-font-family-display);
   --fab-font-size-sm: var(--fab-seed-font-size-sm);
   --fab-font-size-md: var(--fab-seed-font-size-md);
   --fab-font-size-lg: var(--fab-seed-font-size-lg);
@@ -112,8 +128,6 @@
   --fab-art-width: 180px;
   --fab-art-max-height: 180px;
   --fab-hero-stage-min-height: 164px;
-  --fab-hero-art-width: 194px;
-  --fab-gameplay-art-width: 190px;
   --fab-diagnostic-action-min-width: 76px;
   --fab-diagnostic-action-max-width: 94px;
   --fab-label-letter-spacing: 0.04em;

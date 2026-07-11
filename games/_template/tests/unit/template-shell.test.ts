@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -18,6 +19,10 @@ function templateShellCss(): string {
 
 function templateTokensCss(): string {
   return readFileSync(resolve(process.cwd(), "design/tokens.css"), "utf8");
+}
+
+function sha256(path: string): string {
+  return createHash("sha256").update(readFileSync(path)).digest("hex");
 }
 
 interface ContractInstance {
@@ -213,6 +218,27 @@ describe("template shell renderer and harness", () => {
     );
   });
 
+  it("loads the committed Kenney display and body font pair", () => {
+    const tokens = templateTokensCss();
+    const fontRoot = resolve(process.cwd(), "design/fonts");
+
+    expect(sha256(resolve(fontRoot, "kenney-future.ttf"))).toBe(
+      "7a55b07f5968fac872648a7c5e959bd2b93e06f63153b585d56e4d5298ddff61",
+    );
+    expect(sha256(resolve(fontRoot, "kenney-future-narrow.ttf"))).toBe(
+      "17e182587a3264dcf9e5b17c055715d5597187546ce81925c64e9184c26d597f",
+    );
+    expect(tokens).toMatch(/@font-face\s*\{[^}]*font-family:\s*"Kenney Future";[^}]*kenney-future\.ttf/s);
+    expect(tokens).toMatch(
+      /@font-face\s*\{[^}]*font-family:\s*"Kenney Future Narrow";[^}]*kenney-future-narrow\.ttf/s,
+    );
+    expect(tokens).toMatch(/--fab-seed-font-family:\s*"Kenney Future", sans-serif;/);
+    expect(tokens).toMatch(/--fab-seed-font-family-display:\s*"Kenney Future Narrow", "Kenney Future", sans-serif;/);
+    expect(templateShellCss()).toMatch(
+      /\.template-shell__title,[\s\S]*?\.template-shell \.fab-btn\s*\{[^}]*font-family:\s*var\(--fab-font-family-display\);/s,
+    );
+  });
+
   it("keeps the paused level visibly present without duplicating its live controls", () => {
     const controller = createController();
     const root = document.getElementById("app")!;
@@ -239,7 +265,7 @@ describe("template shell renderer and harness", () => {
     expect(backdrop?.hasAttribute("inert")).toBe(true);
     expect(backdrop?.querySelectorAll("[data-fab-action]")).toHaveLength(0);
     expect(backdrop?.querySelectorAll("[data-fab-instance]")).toHaveLength(0);
-    expect(backdrop?.querySelector(".template-shell__sample-outcomes")?.textContent).toContain("Template controls");
+    expect(backdrop?.querySelector(".template-shell__sample-outcomes")?.textContent).toContain("Demo outcomes");
     expect(backdrop?.querySelectorAll(".template-shell__test-action")).toHaveLength(2);
     const visualPause = backdrop?.querySelector<HTMLButtonElement>(".template-shell__icon-action--hud");
     expect(visualPause).not.toBeNull();
@@ -254,6 +280,9 @@ describe("template shell renderer and harness", () => {
     ]).toEqual(liveLayoutClasses);
     expect(shell.root.querySelector('[data-fab-instance="pause.panel"]')).not.toBeNull();
     expect(css).toMatch(/\.template-shell__level--inert-backdrop\s*\{[^}]*pointer-events:\s*none;/s);
+    expect(css).toMatch(
+      /\.template-shell__level--inert-backdrop \.template-shell__sample-outcomes\s*\{[^}]*opacity:\s*0\.14;/s,
+    );
     expect(css).toContain('.template-shell[data-fab-state="pause"] .fab-modal-scrim,');
     expect(css).toMatch(
       /\.template-shell \.fab-modal-card\.fab-pause-card\s*\{[^}]*padding:\s*var\(--fab-space-md\);/s,
@@ -262,7 +291,7 @@ describe("template shell renderer and harness", () => {
       /\.template-shell \.fab-modal-card\.fab-pause-card\s*\{[^}]*--fab-pause-action-gap:\s*var\(--fab-space-xs\);/s,
     );
     expect(css).toMatch(
-      /\.template-shell \.fab-pause-card \[data-fab-action="pause-settings"\]\s*\{[^}]*background:\s*var\(--fab-seed-color-socket-surface\);[^}]*border:\s*var\(--fab-border-width\) solid var\(--fab-seed-color-socket-border\);[^}]*box-shadow:\s*none;/s,
+      /\.template-shell \.fab-pause-card \[data-fab-action="pause-settings"\],[\s\S]*?\.template-shell__overlay-action--secondary\s*\{[^}]*background:\s*var\(--fab-seed-color-socket-surface\);[^}]*border:\s*var\(--fab-border-width\) solid var\(--fab-seed-color-socket-border\);[^}]*box-shadow:\s*none;/s,
     );
   });
 
@@ -277,7 +306,7 @@ describe("template shell renderer and harness", () => {
     const sample = shell.root.querySelector<HTMLElement>(".template-shell__sample-outcomes");
     expect(sample).not.toBeNull();
     expect(sample?.dataset.templateDiagnostic).toBe("outcomes");
-    expect(sample?.textContent).toContain("Template controls");
+    expect(sample?.textContent).toContain("Demo outcomes");
     expect(sample?.querySelector('[data-fab-action="test-win"]')?.textContent).toBe("Win");
     expect(sample?.querySelector('[data-fab-action="test-lose"]')?.textContent).toBe("Lose");
     expect(sample?.querySelector('[data-fab-action="test-win"]')?.classList.contains("template-shell__test-action--win")).toBe(true);
@@ -286,11 +315,9 @@ describe("template shell renderer and harness", () => {
     expect(socket?.dataset.templateSocket).toBe("replaceable-mechanic");
     expect(socket?.classList.contains("template-shell__gameplay--trail")).toBe(true);
     expect(socket?.querySelector(".template-shell__gameplay-kicker")?.textContent).toBe("Trail clearing");
-    expect(socket?.querySelector<HTMLImageElement>(".template-shell__gameplay-art")?.src).toContain("divider-panel.png");
-    expect(socket?.querySelector<HTMLImageElement>(".template-shell__gameplay-art")?.src).not.toContain("icon-play.png");
     expect(socket?.querySelector(".template-shell__gameplay-landscape")).not.toBeNull();
     expect(socket?.querySelector(".template-shell__gameplay-emblem")).toBeNull();
-    expect(socket?.querySelector("button, [data-fab-action]")).toBeNull();
+    expect(socket?.querySelector("img, button, [data-fab-action]")).toBeNull();
     expect(shell.root.textContent).not.toContain("Gameplay goes here");
     expect(shell.root.textContent).not.toContain("Starter playfield");
     expect(shell.root.textContent).not.toContain("add a mechanic");
@@ -301,7 +328,10 @@ describe("template shell renderer and harness", () => {
       /\.template-shell__gameplay--trail\s*\{[^}]*grid-template-rows:\s*minmax\(0, 1fr\) auto;/s,
     );
     expect(templateShellCss()).toMatch(
-      /\.template-shell__gameplay-copy\s*\{[^}]*background-color:\s*var\(--fab-seed-color-copy-surface\);/s,
+      /\.template-shell__gameplay-copy\s*\{[^}]*position:\s*absolute;[^}]*max-width:\s*220px;[^}]*background-color:\s*var\(--fab-seed-color-copy-surface\);/s,
+    );
+    expect(templateShellCss()).toMatch(
+      /\.template-shell__sample-outcomes\s*\{[^}]*border:\s*0;[^}]*background:\s*transparent;/s,
     );
   });
 
@@ -335,33 +365,26 @@ describe("template shell renderer and harness", () => {
     const shell = mountTemplateShell({ mountInto: root, controller });
 
     const hero = shell.root.querySelector<HTMLElement>('[data-fab-instance="menu.hero"]');
-    const heroDecoration = hero?.querySelector<HTMLImageElement>(".template-shell__hero-art");
     const completed = shell.root.querySelector<HTMLElement>('[data-fab-instance="menu.node.completed"]');
     const locked = shell.root.querySelector<HTMLElement>('[data-fab-instance="menu.node.locked"]');
     const tokens = templateTokensCss();
-    const manifest = JSON.parse(
-      readFileSync(resolve(process.cwd(), "design/kenney-seed.manifest.json"), "utf8"),
-    ) as { readonly assets: readonly { readonly id: string; readonly compatibleRoles: readonly string[] }[] };
-    const divider = manifest.assets.find((asset) => asset.id === "divider.panel");
 
     expect(hero?.classList.contains("template-shell__hero-stage")).toBe(true);
     expect(hero?.getAttribute("role")).toBe("img");
     expect(hero?.getAttribute("aria-label")).toBe("A winding trail through green hills");
     expect(hero?.dataset.fabSlot).toBe("hero-art");
-    expect(heroDecoration?.src).toContain("divider-panel.png");
-    expect(heroDecoration?.getAttribute("aria-hidden")).toBe("true");
-    expect(heroDecoration?.hasAttribute("data-fab-instance")).toBe(false);
-    expect(heroDecoration?.hasAttribute("data-fab-slot")).toBe(false);
-    expect(heroDecoration?.src).not.toContain("icon-play.png");
-    expect(heroDecoration?.src).not.toContain("hero-placeholder.png");
+    expect(hero?.querySelector("img")).toBeNull();
     expect(shell.root.querySelector(".template-shell__hero-marker")).not.toBeNull();
     expect(completed?.getAttribute("data-fab-node-state")).toBe("completed");
     expect(locked?.getAttribute("data-fab-node-state")).toBe("locked");
-    expect(divider?.compatibleRoles).toEqual(["modal-panel", "result-panel"]);
     expect(tokens).toMatch(/--fab-seed-levelmap-art-completed:\s*url\("\.\/assets\/icon-confirm\.png"\);/);
     expect(tokens).toMatch(/--fab-seed-levelmap-art-locked:\s*url\("\.\/assets\/node-locked\.png"\);/);
+    expect(tokens).toMatch(/--fab-seed-levelmap-node-current-size:\s*88px;/);
     expect(templateShellCss()).toMatch(/\.template-shell__hero-stage\s*\{[^}]*box-shadow:\s*none;/s);
     expect(templateShellCss()).toMatch(/\.template-shell \.fab-levelmap-node:nth-child\(2\)\s*\{[^}]*--node-x:\s*32px;/s);
+    expect(templateShellCss()).toMatch(
+      /\.template-shell \.fab-levelmap-node\.current \.fab-levelmap-node-dot\s*\{[^}]*box-shadow:\s*var\(--fab-seed-shadow-current-node\);/s,
+    );
   });
 
   it("keeps progression state in the landmark art and accessible names instead of player-facing component badges", () => {
@@ -397,7 +420,10 @@ describe("template shell renderer and harness", () => {
     const css = templateShellCss();
 
     expect(ribbon?.textContent).toBe("Trail blocked");
-    expect(shell.root.querySelector(".template-shell__result-art")).toBeNull();
+    expect(shell.root.querySelector<HTMLImageElement>(".template-shell__result-art")?.src).toContain("result-fail.png");
+    expect(shell.root.querySelector(".fab-result-message")?.textContent).toBe(
+      "The trail closed before the marker. Look for a clearer step.",
+    );
     expect(backdrop?.dataset.templateBackdrop).toBe("result-level");
     expect(backdrop?.getAttribute("aria-hidden")).toBe("true");
     expect(backdrop?.querySelector(".template-shell__level-label")?.textContent).toBe("Trail 2");
@@ -405,23 +431,26 @@ describe("template shell renderer and harness", () => {
     expect(backdrop?.querySelectorAll("[data-fab-action]")).toHaveLength(0);
     expect(backdrop?.querySelectorAll("[data-fab-instance]")).toHaveLength(0);
     expect(retry?.classList.contains("template-shell__overlay-action--primary")).toBe(true);
-    expect(home?.classList.contains("template-shell__overlay-action--tertiary")).toBe(true);
+    expect(home?.classList.contains("template-shell__overlay-action--secondary")).toBe(true);
     expect(retry?.style.getPropertyValue("--fab-btn-sprite-image")).toBe("");
     expect(home?.style.getPropertyValue("--fab-btn-sprite-image")).toBe("");
     expect(css).toMatch(
       /\.template-shell\[data-fab-state="fail"\] \.fab-ui\s*\{[^}]*--fab-ribbon-title-color:\s*var\(--fab-seed-color-fail-ribbon-text\);/s,
     );
     expect(css).toMatch(
-      /\.template-shell\[data-fab-state="fail"\] \.fab-result-body\s*\{[^}]*background-color:\s*var\(--fab-seed-color-fail-surface\);/s,
+      /\.template-shell\[data-fab-state="fail"\] \.fab-result-body\s*\{[^}]*padding:\s*0;[^}]*border:\s*0;[^}]*background:\s*transparent;/s,
     );
     expect(css).toMatch(
-      /\.template-shell \.fab-pause-card \[data-fab-action="pause-quit"\],[\s\S]*?\.template-shell__overlay-action--tertiary\s*\{[^}]*background:\s*var\(--fab-seed-color-pause-surface\);[^}]*color:\s*var\(--fab-color-text\);[^}]*box-shadow:\s*none;/s,
+      /\.template-shell \.fab-pause-card \[data-fab-action="pause-settings"\],[\s\S]*?\.template-shell__overlay-action--secondary\s*\{[^}]*background:\s*var\(--fab-seed-color-socket-surface\);[^}]*box-shadow:\s*none;/s,
     );
     expect(css).toMatch(
-      /\.template-shell\[data-fab-state="fail"\] \.fab-modal-ribbon\s*\{[^}]*aspect-ratio:\s*auto;[^}]*background-color:\s*var\(--fab-seed-color-pause-surface\);[^}]*box-shadow:\s*none;/s,
+      /\.template-shell\[data-fab-state="fail"\] \.fab-modal-ribbon\s*\{[^}]*aspect-ratio:\s*auto;[^}]*border:\s*0;[^}]*background:\s*transparent;[^}]*box-shadow:\s*none;/s,
     );
     expect(css).toMatch(
       /\.template-shell\[data-fab-state="fail"\] \.fab-modal-ribbon-image\s*\{[^}]*display:\s*none;/s,
+    );
+    expect(css).toMatch(
+      /\.template-shell\[data-fab-state="fail"\] \.template-shell__result-art\s*\{[^}]*width:\s*56px;[^}]*background-color:\s*var\(--fab-seed-color-fail-accent\);/s,
     );
     expect(css).toContain('.template-shell[data-fab-state="fail"] .fab-modal-scrim');
   });
@@ -451,7 +480,7 @@ describe("template shell renderer and harness", () => {
       )!;
       const home = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="result-menu"]')!;
       expect(primary.classList.contains("template-shell__overlay-action--primary")).toBe(true);
-      expect(home.classList.contains("template-shell__overlay-action--tertiary")).toBe(true);
+      expect(home.classList.contains("template-shell__overlay-action--secondary")).toBe(true);
       expect([primary.disabled, home.disabled]).toEqual([false, false]);
       expect(primary.style.getPropertyValue("--fab-btn-sprite-image")).toBe("");
       expect(home.style.getPropertyValue("--fab-btn-sprite-image")).toBe("");
@@ -459,7 +488,8 @@ describe("template shell renderer and harness", () => {
 
     const css = templateShellCss();
     expect(css).toContain(".template-shell__overlay-action--primary");
-    expect(css).toContain(".template-shell__overlay-action--tertiary");
+    expect(css).toContain(".template-shell__overlay-action--secondary");
+    expect(css).not.toContain("template-shell__overlay-action--tertiary");
   });
 
   it("uses the state owner for rendered semantic actions and keeps locked nodes inert", () => {

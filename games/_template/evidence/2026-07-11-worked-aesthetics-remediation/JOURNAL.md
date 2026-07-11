@@ -583,3 +583,45 @@ captures visibly retain the same HUD, landscape, and diagnostic footer.
 passed for Worked; a new unseen reel and fresh independent Sol verdict still
 own the Aesthetics Reviewed gate. This remains browser diagnostic evidence
 only and makes no Android or iPhone claim.
+
+### Iteration 5 - Remove content impostors and collapse the overlay grammar
+
+#### Why This Iteration
+
+Blind Sol review `019f4ec2-ccb7-7ce2-81e4-90f82dca7f1a` correctly caught that
+the previous trail scene stretched a 128 x 8 modal divider into hero and
+gameplay content. It also rejected the system font stack, boxed diagnostic
+toolbar, and nested Fail composition.
+
+#### Changes Made
+
+- Removed the divider from rendered hero and gameplay content. Both surfaces
+  now use their composite CSS trail illustration without pretending a panel
+  fixture is a focal asset; the semantic hero slot still owns the whole scene.
+- Added the approved CC0 Kenney Future/Future Narrow font bytes as a deliberate
+  body/display pair, with committed source paths, hashes, license pointer, unit
+  checks, and approved-source audit coverage.
+- Reduced the current route node from 104 px to 88 px and added a quiet halo so
+  emphasis no longer depends on oversized area.
+- Moved the objective to a compact corner treatment and changed the exposed
+  diagnostics to unboxed `Demo outcomes` pills. Inert backdrops retain their
+  geometry but suppress that rail to 14% opacity.
+- Flattened Continue and every overlay action into one grammar: solid primary
+  and pale-green secondary. Pause is laterally inset and Settings/Home no
+  longer resemble different enabled states.
+- Collapsed Fail to one warm frame: inline title, one concise failure mark,
+  plain actionable hint copy, Retry primary, and Home secondary. The nested
+  alert body and overlapping plaque are gone.
+- Adjusted the Win ribbon typography for the new font metrics so the eyebrow
+  and title no longer collide.
+
+#### Post-Change Screenshots
+
+`u2-simplified-seam-pass-{menu,level,pause,settings,win,fail}.png` is the fresh
+390 x 844 real-click browser set. The matching metrics JSON reports zero body
+margin, an 844 px document/body, and every live action at least 48 px.
+
+#### Decision
+
+passed for Worked; fresh unseen frames still own the independent visual gate.
+Browser-only evidence does not prove Android or iPhone rendering.

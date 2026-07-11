@@ -140,11 +140,10 @@ function menuHeader(
   heroStage.dataset.fabSlot = "hero-art";
   heroStage.setAttribute("role", "img");
   heroStage.setAttribute("aria-label", copy["menu.hero"]);
-  const hero = art(assetUrls.trailDecoration, "template-shell__hero-art");
   const heroMarker = document.createElement("span");
   heroMarker.className = "template-shell__hero-marker";
   heroMarker.setAttribute("aria-hidden", "true");
-  heroStage.append(hero, heroMarker);
+  heroStage.appendChild(heroMarker);
 
   const utility = document.createElement("div");
   utility.className = "template-shell__utility";
@@ -196,7 +195,6 @@ function renderMenu(
         label: copy["menu.play"],
         ariaLabel: copy["menu.play"],
         className: "template-shell__primary-action",
-        spriteImage: assetUrls.buttonPrimary,
         dataAction: "play",
         onClick: () => {
           controller.startCurrent();
@@ -360,7 +358,7 @@ function renderLevel(
   gameplayLandscape.setAttribute("aria-hidden", "true");
   const gameplayMarker = document.createElement("span");
   gameplayMarker.className = "template-shell__gameplay-marker";
-  gameplayLandscape.append(art(assetUrls.trailDecoration, "template-shell__gameplay-art"), gameplayMarker);
+  gameplayLandscape.appendChild(gameplayMarker);
   gameplayCopy.append(gameplayKicker, gameplayTitle, gameplayBody);
   gameplay.append(gameplayLandscape, gameplayCopy);
 
@@ -475,7 +473,7 @@ function renderResult(
         },
         {
           label: copy["win.home"],
-          className: "template-shell__overlay-action template-shell__overlay-action--tertiary",
+          className: "template-shell__overlay-action template-shell__overlay-action--secondary",
           dataAction: "result-menu",
           onClick: () => {
             controller.home();
@@ -495,7 +493,7 @@ function renderResult(
         },
         {
           label: copy["fail.home"],
-          className: "template-shell__overlay-action template-shell__overlay-action--tertiary",
+          className: "template-shell__overlay-action template-shell__overlay-action--secondary",
           dataAction: "result-menu",
           onClick: () => {
             controller.home();
@@ -510,7 +508,7 @@ function renderResult(
     title: win ? copy["win.title"] : copy["fail.title"],
     eyebrow: `${copy["level.label"]} ${displayedLevel}`,
     ribbonImage: win ? assetUrls.ribbonWin : assetUrls.ribbonFail,
-    art: win ? art(assetUrls.win, "template-shell__result-art") : undefined,
+    art: art(win ? assetUrls.win : assetUrls.fail, "template-shell__result-art"),
     messages: win ? copy["win.message"] : copy["fail.message"],
     actions,
   });

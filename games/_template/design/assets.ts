@@ -60,15 +60,14 @@ export const assets = {
 } as const;
 
 export const assetUrls = {
-  buttonPrimary: assets.action.primary,
   currency: assets.currency.primary,
   settings: assets.icon.settings,
   pause: assets.icon.pause,
-  trailDecoration: assets.decoration.dividerPanel,
   back: assets.icon.back,
   ribbonWin: assets.action.testWin,
   ribbonFail: assets.action.testLose,
   win: assets.result.win,
+  fail: assets.result.fail,
 } as const;
 
 export type AssetSlotGroup = keyof typeof assets;
