@@ -1,0 +1,11 @@
+{
+  "name": "@fabrikav2/grapes-shell",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "GrapesJS shell editor and portable publisher for the dual-design-frontends experiment (U3/U4 implement; U1 preseeds the lane workspace and dependency pins).",
+  "dependencies": {
+    "@fabrikav2/kernel": "*",
+    "grapesjs": "^0.23.2"
+  }
+}
