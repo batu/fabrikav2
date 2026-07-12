@@ -1,0 +1,42 @@
+{
+  "reviewer": "claude-fable-5",
+  "reviewedBase": "0a6f7c39e8633adf417c4880426b247faf0dd7e4",
+  "reviewedHead": "0810246ca74c4abc295b6f2144293abe8a778a5e",
+  "verdict": "pass",
+  "confidence": "high",
+  "summary": "U1 preserves v1 bytes, dispatches from the input contract id, validates v2 renderer profiles fail-closed, keeps the twin proof-game behavior frozen and identical, leaves explicit non-targets untouched, and records browser evidence without making a device claim.",
+  "findings": [
+    {
+      "severity": "P3",
+      "file": "tools/verify-device/src/evidenceProbe.mjs",
+      "line": 51,
+      "detail": "The host parser accepts a string sentinel that may not correspond to the revision.",
+      "repair": "When a revision exists, require the sentinel to equal its first eight digest characters; require null with a null revision."
+    },
+    {
+      "severity": "P3",
+      "file": "tools/verify-device/src/evidenceProbe.mjs",
+      "line": 17,
+      "detail": "The host parser keeps a fail-safe but hand-copied renderer-profile vocabulary.",
+      "repair": "Document the kernel contract as its authority or reconcile the set in the round-trip test."
+    },
+    {
+      "severity": "P3",
+      "file": "games/shell_proof_grapes/src/main.ts",
+      "line": 54,
+      "detail": "The seed readiness flag means the shell state is laid out, not that fonts and images have completed every post-paint step.",
+      "repair": "Let U10 own a post-ready capture delay or tighten readiness in a later integration card."
+    },
+    {
+      "severity": "P3",
+      "file": "games/shell_proof_phaser/docs/brief.md",
+      "line": 5,
+      "detail": "The proof-game README and brief retain generic scaffold contributor text.",
+      "repair": "Add a short experiment banner linking the protocol and file fences."
+    }
+  ],
+  "reviewLimits": [
+    "The reviewer sandbox denied direct test execution; the conductor independently ran and recorded the full project gate, lint, focused probe tests, and both production builds.",
+    "Physical-device proof is outside U1 and was not evaluated as a blocker."
+  ]
+}
