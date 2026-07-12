@@ -24,7 +24,9 @@ function stripTrailingWhitespace(source) {
 }
 
 const reviewStyle = `
-.a1-review-launch { position: fixed; z-index: 2147483600; top: 12px; left: 50%; min-height: 42px; padding: 9px 16px; transform: translateX(-50%); border: 1px solid #d7942e; border-radius: 999px; background: #fff8e9; color: #5d3e0c; box-shadow: 0 8px 24px #152b3a33; cursor: pointer; font: 800 12px/1 ui-rounded, system-ui, sans-serif; }
+.a1-review-rail { display: flex; align-items: center; justify-content: center; gap: 14px; height: 48px; padding: 0 24px; background: #fff8e9; border-bottom: 1px solid #e6c98a; }
+.a1-review-rail-label { color: #8a6d1f; font: 800 10px/1 ui-monospace, monospace; letter-spacing: .1em; text-transform: uppercase; }
+.a1-review-launch { min-height: 34px; padding: 8px 16px; border: 1px solid #d7942e; border-radius: 999px; background: #fff; color: #5d3e0c; box-shadow: 0 4px 12px #152b3a1f; cursor: pointer; font: 800 12px/1 ui-rounded, system-ui, sans-serif; }
 .a1-review-launch:hover { background: #f4ae49; color: #382306; }
 .a1-review-dialog { width: min(720px, calc(100vw - 40px)); max-height: calc(100dvh - 72px); padding: 0; overflow: auto; border: 1px solid #9db2c1; border-radius: 16px; background: #f8fafc; color: #1d3445; box-shadow: 0 28px 90px #0b172577; font-family: ui-rounded, system-ui, sans-serif; }
 .a1-review-dialog::backdrop { background: #102839aa; backdrop-filter: blur(5px); }
@@ -60,14 +62,24 @@ const reviewStyle = `
 .a1-review-action:disabled { cursor: not-allowed; }
 /* A disabled decision reads as neutral, never a primed primary action. */
 .a1-review-action--accept:disabled, .a1-review-action--reject:disabled { border-color: #ccd6de; background: #eef2f5; color: #8595a1; }
-body > div[aria-hidden="true"][style*="height:44px"] ~ #app .editor-shell { height: calc(100dvh - 44px); }
+/* The A1 rail sits in normal document flow before #app and reserves its own 48px
+   band, so the launcher never floats over the editor's publication-state card.
+   Shrink the editor shell by the rail height so its footer stays on-screen. */
+#app .editor-shell { height: calc(100dvh - 48px); }
+/* Portal injects its own 44px banner in flow before #app; stack it above the rail
+   (44px banner + 48px rail = 92px reserved). */
+body > div[aria-hidden="true"][style*="height:44px"] ~ #app .editor-shell { height: calc(100dvh - 92px); }
 body > div[aria-hidden="true"][style*="height:44px"] ~ #app .editor-artboard-frame { --editor-artboard-scale: .75; }
-body > div[aria-hidden="true"][style*="height:44px"] ~ .a1-review-launch { top: 56px; }
 @media (max-width: 760px) { .a1-review-checks { grid-template-columns: 1fr; } }
 `;
 
-const reviewMarkup = `
-<button type="button" class="a1-review-launch" id="a1-review-launch">Review A1 checkpoint</button>
+const reviewRail = `
+<div class="a1-review-rail">
+  <span class="a1-review-rail-label">U3 usability checkpoint</span>
+  <button type="button" class="a1-review-launch" id="a1-review-launch">Review A1 checkpoint</button>
+</div>`;
+
+const reviewDialog = `
 <dialog class="a1-review-dialog" id="a1-review-dialog" aria-labelledby="a1-review-title">
   <header class="a1-review-header">
     <div>
@@ -235,8 +247,9 @@ const html = `<!doctype html>
   <style>${escapeClosingTag(stripTrailingWhitespace(appStyle), "style")}\n${reviewStyle}</style>
 </head>
 <body>
+  ${reviewRail.trim()}
   <div id="app"></div>
-${reviewMarkup.trim()}
+  ${reviewDialog.trim()}
   <script type="module">${escapeClosingTag(stripTrailingWhitespace(appScript), "script")}</script>
   <script>${reviewScript}</script>
 </body>
