@@ -43,3 +43,17 @@ export {
   type FidelityPair,
   type FidelityGridOptions,
 } from './fidelityGrid.ts';
+export {
+  SHELL_EVIDENCE_PROBE_VERSION,
+  createShellEvidenceProbe,
+  evidenceProbeWindowKeyForGame,
+  readDomShellEvidenceActions,
+  readDomShellEvidenceViewport,
+  shellEvidenceSentinelForRevision,
+  type ShellEvidenceActionRect,
+  type ShellEvidenceProbe,
+  type ShellEvidenceProbeOptions,
+  type ShellEvidenceProbeReaders,
+  type ShellEvidenceProbeSnapshot,
+  type ShellEvidenceViewport,
+} from './evidenceProbe.ts';
