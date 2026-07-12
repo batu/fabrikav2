@@ -5,9 +5,9 @@
     "phaserEditor": "5.0.2",
     "phaser": "4.2.1"
   },
-  "generated": "2026-07-12T08:35:00Z",
-  "overall": "blocked",
-  "overallDetail": "Every off-device leg passed. Overall is blocked solely on the conductor-run physical Android WebView boot (acceptance android-webview-boot); when that leg records pass, R1-R11 are all pass.",
+  "generated": "2026-07-12T11:55:00Z",
+  "overall": "pass",
+  "overallDetail": "All seven acceptance legs pass, R1-R11 satisfied. The final leg — physical Android WebView boot — was run by the conductor per the plan's tail ownership and recorded under evidence/device/; every other leg passed off-device in the worker run.",
   "acceptance": {
     "identity-save-reopen-duplicate": {
       "verdict": "pass",
@@ -58,11 +58,13 @@
       ]
     },
     "android-webview-boot": {
-      "verdict": "blocked",
-      "blockedOn": "Physical Android device on the Ubuntu ADB host — this is the conductor-run leg per the plan's tail ownership; no device lane is reachable from this macOS worker. Wrapper config, fixed port, and runbook are prepared.",
+      "verdict": "pass",
+      "detail": "Conductor-run leg on the Ubuntu ADB host: locked install/build, Capacitor Android generation, Gradle assemble, adb reverse tcp:8843, install, launch, and host screencap all passed on a physical Pixel 6a (Android 16, WebView 149.0.7827.164). boot.png is content-only (Phaser canvas rendering PROBE-43QVBIH7, SAFE-TOP marker, sprites, hostile-string footer; no system bars, notifications, or identifiers). The PID-scoped logcat records only the localhost:8843 load, Capacitor start, and the Phaser v4.2.1 WebGL | Web Audio banner with no context failure; device-boot.json carries model/OS/WebView only, no serial.",
       "evidence": [
-        "scripts/device-boot.md",
-        "capacitor.config.ts"
+        "evidence/device/boot.png",
+        "evidence/device/device-boot.json",
+        "evidence/device/logcat-webgl.txt",
+        "scripts/device-boot.md"
       ]
     },
     "dependency-enumeration": {

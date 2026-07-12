@@ -4,12 +4,12 @@ Card `43Qvbih7` / goal-U2. Machine contract: `report.json` (schema:
 `report.schema.json`, byte binding: `hashes.json`). Prose here explains; the
 JSON is what goal-U1 imports.
 
-**Overall: `blocked` — on the physical Android leg only.** Every leg provable
-off-device passed. The seam is real: the pinned toolchain preserves stable
-semantic identity in editor-native state, generates deterministically,
-survives hostile input, publishes through typed gates, and rebuilds offline
-with zero editor footprint. The conductor owns the remaining Android WebView
-boot (`scripts/device-boot.md`).
+**Overall: `pass`.** All seven acceptance legs pass. The seam is real: the
+pinned toolchain preserves stable semantic identity in editor-native state,
+generates deterministically, survives hostile input, publishes through typed
+gates, rebuilds offline with zero editor footprint, and boots on a physical
+Android WebView. The Android leg was run by the conductor per the runbook
+(`scripts/device-boot.md`) and is recorded under `evidence/device/`.
 
 ## Verdicts (acceptance criteria)
 
@@ -20,7 +20,7 @@ boot (`scripts/device-boot.md`).
 | Unsafe cases inert or blocked | pass | Hostile copy + hostile component prop round-trip byte-exact inside string literals only; catalog/binding violations block with named codes, zero writes |
 | Deterministic generation | pass | Two CompileProject runs, outputs deleted in between: byte-identical Probe.ts + Semantic.ts (twice) |
 | Offline runtime build | pass | Clean copy, `npm ci`, network-blocked full verify: build from generated code + phaser only; sentinel in bundle; no editor markers |
-| Android WebView boot | **blocked** | Conductor-run leg; device unreachable from this worker. Wrapper + runbook ready |
+| Android WebView boot | pass | Physical Pixel 6a (Android 16, WebView 149.0.7827.164): sentinel `PROBE-43QVBIH7` rendered by the Phaser 4.2.1 WebGL canvas; content-only screenshot + PID-scoped logcat + identifier-free device profile in `evidence/device/` |
 | Dependency enumeration | pass | Exact pins, tools, artifact commit-worthiness, lockfile implications in `report.json` |
 
 ## The four decisive findings
