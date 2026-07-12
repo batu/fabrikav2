@@ -1,0 +1,57 @@
+{
+  "viewport": {
+    "width": 390,
+    "height": 844,
+    "deviceScaleFactor": 2
+  },
+  "floorCssPx": 48,
+  "controls": [
+    {
+      "control": "purchase-cta[available]",
+      "text": "$0.99",
+      "cssPxHeight": 48,
+      "cssPxWidth": 149
+    },
+    {
+      "control": "purchase-cta[owned]",
+      "text": "Owned",
+      "cssPxHeight": 48,
+      "cssPxWidth": 149
+    },
+    {
+      "control": "purchase-cta[locked]",
+      "text": "Unavailable",
+      "cssPxHeight": 48,
+      "cssPxWidth": 149
+    },
+    {
+      "control": "restore-cta",
+      "text": "Restore purchases",
+      "cssPxHeight": 48,
+      "cssPxWidth": 334
+    },
+    {
+      "control": "header-back",
+      "text": "Back",
+      "cssPxHeight": 48,
+      "cssPxWidth": 48
+    }
+  ],
+  "lockedCardPlacement": [
+    {
+      "variant": "available",
+      "leftInGrid": 0,
+      "widthFractionOfGrid": 0.484
+    },
+    {
+      "variant": "owned",
+      "leftInGrid": 189,
+      "widthFractionOfGrid": 0.484
+    },
+    {
+      "variant": "locked",
+      "leftInGrid": 0,
+      "widthFractionOfGrid": 0.484
+    }
+  ]
+}

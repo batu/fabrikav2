@@ -1,0 +1,11 @@
+{
+  "name": "@fabrikav2/phaser-shell",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Phaser Editor / Phaser-native shell tooling for the dual-design-frontends experiment (U5/U6 implement; U1 preseeds the lane workspace and the accepted phaser@4.2.1 pin).",
+  "dependencies": {
+    "@fabrikav2/kernel": "*",
+    "phaser": "4.2.1"
+  }
+}

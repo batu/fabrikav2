@@ -1,0 +1,21 @@
+accepted independent run 2026-07-12T09:50:59Z:
+  source: origin/trello-43Qvbih7-dual-u2-phaser-editor-phaser-4-feasibili
+  checkout: clean sparse clone; npm ci completed before isolation
+  [offline] commit=fe3a8aae
+  [offline] clean_sparse_checkout=yes
+  [offline] phaser_editor_present=no
+  [offline] host_os=Linux x86_64
+  [offline] node=v25.0.0 npm=11.6.2
+  isolation: systemd RestrictAddressFamilies=AF_UNIX
+  [offline] network_probe=blocked_by_AF_UNIX_only
+  npm run verify ->
+    [verify] typecheck              PASS
+    [verify] lint                   PASS
+    [verify] test:unit              PASS
+    [verify] determinism            PASS - 2 generated files identical across unchanged inputs
+    [verify] build                  PASS
+    [verify] bundle-checks          PASS - sentinel present, no editor imports
+    [verify] report-integrity       PASS - report.json schema-valid, evidence resolves, hashes match, privacy scan clean
+    [verify] 7 steps: 7 pass, 0 fail, 0 blocked
+  systemd result: success
+  post-run git status --porcelain: empty (generated node_modules/dist ignored)

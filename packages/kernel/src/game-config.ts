@@ -21,6 +21,7 @@
 export type GameScreenName =
   | 'HomeMenu'
   | 'SagaMap'
+  | 'Shop'
   | 'Settings'
   | 'ResultCard'
   | 'PauseOverlay'

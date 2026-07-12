@@ -129,11 +129,22 @@ export async function waitForAndroidTourRetire({
   return { status: 'timeout' };
 }
 
+// An unfiltered dump of a real device's main buffer exceeds execFileSync's
+// 1 MB default maxBuffer (ENOBUFS on the Pixel 6a), which silently demoted
+// marker reads to UIAutomator. Silence every tag except the Capacitor console
+// (where [insituTour] markers land) and bound the tail so repeated dumps stay
+// far under the child-process buffer; freshness filtering already discards
+// anything older than the app launch.
+const ANDROID_LOGCAT_TAIL_LINES = 2000;
+
 export function dumpAndroidLogcat({ adbPrefix, serial, shImpl = execCommandParts } = {}) {
   return String(shImpl(buildAdbCommandParts({
     adbPrefix,
     serial,
-    adbArgs: ['logcat', '-d', '-v', 'epoch'],
+    adbArgs: [
+      'logcat', '-d', '-v', 'epoch', '-t', String(ANDROID_LOGCAT_TAIL_LINES),
+      '-s', 'Capacitor/Console:I', '*:S',
+    ],
   })));
 }
 
