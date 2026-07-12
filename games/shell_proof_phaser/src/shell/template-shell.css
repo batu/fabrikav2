@@ -842,11 +842,15 @@ body {
    available/owned/locked contract variants map to explicit fills — never an
    opacity wash. The DOM never attaches an action hook to a card. */
 .template-shell__shop {
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  min-height: 100%;
+  height: 100dvh;
   gap: var(--fab-space-sm);
   padding: var(--fab-space-sm);
+  /* Shop is a custom page rather than a kit .fab-page, so consume the same
+     semantic safe-top token explicitly. Settings consumes it in ui.css. */
+  padding-top: calc(var(--fab-space-sm) + var(--fab-safe-top));
 }
 
 /* One page-title grammar for every full-page surface: a fixed Back slot, a
@@ -877,6 +881,14 @@ body {
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+/* Exactly two columns across every mobile width. The shared kit auto-fills a
+   third narrow column at the ~412 CSS-px phone width; the reviewed contract is
+   two columns, so the three sample items fill three cells and leave the fourth
+   naturally empty. Scoped to the proof shell — the kit default is unchanged. */
+.template-shell__shop .fab-shop-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
 
 .template-shell__shop .fab-shop-section-title {

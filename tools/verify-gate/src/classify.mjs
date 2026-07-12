@@ -234,12 +234,67 @@ function panelVerdictSummary(panel) {
   return `${panel.game || 'unknown'}: verdict ${verdict}${score}${summary}`;
 }
 
-function freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs }) {
+/** Game slugs with an ACCEPTED live-device observation. Acceptance (schema,
+ *  trusted lane/provenance, no-reference run kind, empty hard-integrity, gated
+ *  captures, exact source-hash recomputation) is decided upstream in
+ *  readObservationEvidence; this only reads the boolean. */
+function acceptedObservationGames(observationEvidence) {
+  const games = new Set();
+  for (const record of observationEvidence || []) {
+    if (record && record.accepted === true && typeof record.game === 'string') games.add(record.game);
+  }
+  return games;
+}
+
+/**
+ * Whole-diff coverage: is every affected game covered by a fresh device panel OR
+ * an accepted live-device observation? Panels remain the fidelity path; an
+ * observation only proves observation happened on the real device for a game
+ * with no trusted reference to score (never a fidelity pass).
+ *
+ * When no accepted observation is present the result is BYTE-IDENTICAL to the
+ * historic panel-only path, so reference-bearing/scored games are unaffected.
+ */
+function freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs, observationEvidence = [] }) {
   const panels = panelEvidence || panelMtimesMs || [];
   const affectedGames = gamesFromVisualFiles(visualFiles);
-  const ok = evidenceIsFresh(newestVisualMtimeMs, panels, affectedGames);
+  const observationGames = acceptedObservationGames(observationEvidence);
+
+  if (observationGames.size === 0) {
+    const ok = evidenceIsFresh(newestVisualMtimeMs, panels, affectedGames);
+    const details = ok ? freshEvidenceDetails(newestVisualMtimeMs, panels, affectedGames) : [];
+    return { ok, details, observationGames: [] };
+  }
+
+  // Combined coverage. Observation acceptance is mtime-independent (the input
+  // hash was recomputed against the checkout), so it does not read
+  // newestVisualMtimeMs; the panel portion keeps its null-mtime guard. ui-only
+  // diffs (no affected games) are covered by any fresh panel or any accepted
+  // observation — every observation's recomputed hash includes packages/ui.
+  const freshPanels = newestVisualMtimeMs == null ? [] : freshDevicePanels(newestVisualMtimeMs, panels);
+  const panelGames = new Set(freshPanels.map((p) => p.game));
+  const covered = (game) => panelGames.has(game) || observationGames.has(game);
+  const ok = affectedGames.length === 0
+    ? (freshPanels.length > 0 || observationGames.size > 0)
+    : affectedGames.every(covered);
+
   const details = ok ? freshEvidenceDetails(newestVisualMtimeMs, panels, affectedGames) : [];
-  return { ok, details };
+  const coveredObservations = !ok
+    ? []
+    : affectedGames.length === 0
+      ? [...observationGames]
+      : affectedGames.filter((game) => observationGames.has(game) && !panelGames.has(game));
+  return { ok, details, observationGames: coveredObservations };
+}
+
+/** Human detail for a passing coverage decision: panel verdict summaries plus
+ *  any game covered only by a no-reference live-device observation. */
+function coverDetail(fresh) {
+  const parts = (fresh.details || []).map(panelVerdictSummary);
+  for (const game of fresh.observationGames || []) {
+    parts.push(`${game}: no-reference live-device observation`);
+  }
+  return parts.length ? ` (${parts.join('; ')})` : '';
 }
 
 /**
@@ -255,6 +310,7 @@ export function decideStop({
   newestVisualMtimeMs,
   panelMtimesMs,
   panelEvidence,
+  observationEvidence,
   toolPresent,
   gamesDirPresent,
 }) {
@@ -279,12 +335,9 @@ export function decideStop({
     // Gate on the CLAIM, not the file: a refactor with no done-claim passes.
     return { action: 'pass', reason: 'visual change but no done-claim — not gated' };
   }
-  const fresh = freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs });
+  const fresh = freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs, observationEvidence });
   if (fresh.ok) {
-    const detail = fresh.details.length
-      ? ` (${fresh.details.map(panelVerdictSummary).join('; ')})`
-      : '';
-    return { action: 'pass', reason: `fresh verify-device evidence covers the change${detail}` };
+    return { action: 'pass', reason: `fresh verify-device evidence covers the change${coverDetail(fresh)}` };
   }
   return {
     action: 'block',
@@ -302,7 +355,8 @@ export function buildBlockMessage({ visualFiles, games }) {
   return [
     'BLOCKED (AGENTS.md #8): your final message claims the work is done/verified, but the diff',
     'changes on-device-rendered visual files and there is NO fresh verify-device evidence',
-    '(no panel.json newer than your changed files).',
+    '(no fresh panel.json, and no eligible no-reference live-device observation.json, newer than',
+    'your changed files).',
     '',
     'Changed visual files:',
     ...visualFiles.map((f) => `  - ${f}`),
@@ -329,6 +383,7 @@ export function decideMerge({
   newestVisualMtimeMs,
   panelMtimesMs,
   panelEvidence,
+  observationEvidence,
   ledgerEntryCount = 0,
   worktreeDirtyFiles = [],
   cardTitle = '',
@@ -358,16 +413,17 @@ export function decideMerge({
   if (visualFiles.length === 0) {
     return { ok: true, reason: 'no visual files in diff — merge gate not applicable' };
   }
-  const fresh = freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs });
+  const fresh = freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs, observationEvidence });
   if (fresh.ok) {
-    const detail = fresh.details.length
-      ? ` (${fresh.details.map(panelVerdictSummary).join('; ')})`
-      : '';
-    return { ok: true, reason: `fresh verify-device panel.json observed the visual change on device${detail}` };
+    return {
+      ok: true,
+      reason: `fresh verify-device evidence observed the visual change on device${coverDetail(fresh)}`,
+    };
   }
   const detail = ledgerEntryCount > 0
     ? `the only evidence is ${ledgerEntryCount} UNVERIFIED ledger ${ledgerEntryCount === 1 ? 'entry' : 'entries'} `
-      + '(escape hatch) — no panel.json newer than the changed visual files'
-    : 'no verify-device panel.json newer than the changed visual files, and no UNVERIFIED ledger entries';
+      + '(escape hatch) — no panel.json or eligible live-device observation.json newer than the changed visual files'
+    : 'no verify-device panel.json or eligible live-device observation.json covering the changed visual files, '
+      + 'and no UNVERIFIED ledger entries';
   return { ok: false, reason: `visual change cannot land: ${detail}`, visualFiles };
 }

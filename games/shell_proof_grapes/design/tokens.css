@@ -64,6 +64,11 @@
   --fab-seed-space-sm: 12px;
   --fab-seed-space-md: 20px;
   --fab-seed-space-lg: 28px;
+  /* Minimum top safe inset. Android reports env(safe-area-inset-top) as 0, so a
+     bare env() lets the status bar (~28 CSS px) overlap page/header content;
+     this floor clears it while iOS can still supply a larger notch inset. */
+  --fab-seed-safe-top-min: 32px;
+  --fab-safe-top: max(var(--fab-seed-safe-top-min), env(safe-area-inset-top));
   --fab-seed-radius-md: 20px;
   --fab-seed-radius-pill: 999px;
   --fab-seed-font-family: ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
@@ -106,7 +111,7 @@
   --fab-space-sm: var(--fab-seed-space-sm);
   --fab-space-md: var(--fab-seed-space-md);
   --fab-space-lg: var(--fab-seed-space-lg);
-  --fab-space-screen-padding: max(20px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
+  --fab-space-screen-padding: var(--fab-safe-top) 20px max(24px, env(safe-area-inset-bottom));
   --fab-radius-md: var(--fab-seed-radius-md);
   --fab-radius-pill: var(--fab-seed-radius-pill);
   --fab-font-family: var(--fab-seed-font-family);

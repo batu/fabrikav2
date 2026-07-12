@@ -16,6 +16,7 @@ import { execSync } from 'node:child_process';
 import { decideMerge, isVisualFile } from './src/classify.mjs';
 import { changedFilesVsMain, dirtyFiles } from './src/git.mjs';
 import { newestVisualChangeMs, readPanelEvidence } from './src/evidence.mjs';
+import { readObservationEvidence } from './src/observation-evidence.mjs';
 import { readLedger, LEDGER_PATH } from './src/ledger.mjs';
 
 function makeRunner(cwd) {
@@ -61,7 +62,7 @@ function decisionHint(decision) {
   if (decision.docsOnlyFiles) {
     return '  Fix: add the implementation diff, or make the card explicitly doc/research/spike-exempt by label or title prefix.\n';
   }
-  return '  Run: npm run verify-device -- --game <game>  (produces the panel.json this gate requires)\n';
+  return '  Run: npm run verify-device -- --game <game>  (produces the panel.json / observation.json this gate requires)\n';
 }
 
 function main() {
@@ -88,6 +89,7 @@ function main() {
   const visualFiles = changedFiles.filter(isVisualFile);
   const { newestChangeMs } = newestVisualChangeMs(visualFiles, projectDir, { run });
   const panels = readPanelEvidence(projectDir);
+  const observations = readObservationEvidence(projectDir);
   const ledger = readLedger(path.join(projectDir, LEDGER_PATH));
   const cardContext = readCardContext();
 
@@ -95,6 +97,7 @@ function main() {
     changedFiles,
     newestVisualMtimeMs: newestChangeMs,
     panelEvidence: panels,
+    observationEvidence: observations,
     ledgerEntryCount: ledger.length,
     worktreeDirtyFiles: dirty.files,
     cardTitle: cardContext.cardTitle,
