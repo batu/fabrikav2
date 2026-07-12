@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "fabrikav2.verify-device.observation/1",
+  "game": "shell_proof_grapes",
+  "lane": "device",
+  "platform": "android",
+  "provenance": "live-device",
+  "generatedAt": "2026-07-12T15:00:42.383Z",
+  "device": "Pixel 6a via ubuntu-server (serial redacted)",
+  "runKind": "no-applicable-evidence",
+  "captureFailure": null,
+  "hardIntegrity": [],
+  "requiredStates": [
+    "menu",
+    "level",
+    "shop",
+    "settings",
+    "pause",
+    "win",
+    "fail"
+  ],
+  "captures": [
+    {
+      "state": "menu",
+      "gated": true,
+      "file": "games/shell_proof_grapes/evidence/2026-07-12-u1-android-observation-90c8fd5b/raw-captures/menu.png",
+      "present": true,
+      "sha256": "cc4a6f6aff419183b957ba9cfdd551cde1e94caed603a4c4d423d35e8f8c3907"
+    },
+    {
+      "state": "level",
+      "gated": true,
+      "file": "games/shell_proof_grapes/evidence/2026-07-12-u1-android-observation-90c8fd5b/raw-captures/level.png",
+      "present": true,
+      "sha256": "86f6acb3f65e9fcc4b4110defeff6de144babac420b10d6f67e4e43f6a15c78e"
+    },
+    {
+      "state": "shop",
+      "gated": true,
+      "file": "games/shell_proof_grapes/evidence/2026-07-12-u1-android-observation-90c8fd5b/raw-captures/shop.png",
+      "present": true,
+      "sha256": "e441f00b9067294bddb9bd626e8fb0e260612202578c5b1694cfacfc0803d0d4"
+    },
+    {
+      "state": "settings",
+      "gated": true,
+      "file": "games/shell_proof_grapes/evidence/2026-07-12-u1-android-observation-90c8fd5b/raw-captures/settings.png",
+      "present": true,
+      "sha256": "3d78fa41d65c2819b5c774e15d56686fd205dc42ee8ae629865f81ed252a1245"
+    },
+    {
+      "state": "pause",
+      "gated": true,
+      "file": "games/shell_proof_grapes/evidence/2026-07-12-u1-android-observation-90c8fd5b/raw-captures/pause.png",
+      "present": true,
+      "sha256": "4f4dcf395f30fa2a37cfc4fb232a287aac55df4e72da0764c46f5a94189cd6ea"
+    },
+    {
+      "state": "win",
+      "gated": true,
+      "file": "games/shell_proof_grapes/evidence/2026-07-12-u1-android-observation-90c8fd5b/raw-captures/win.png",
+      "present": true,
+      "sha256": "c830a09ffedcd315d1386f438d3055e80d146aea779f1f66e1fca715b1111165"
+    },
+    {
+      "state": "fail",
+      "gated": true,
+      "file": "games/shell_proof_grapes/evidence/2026-07-12-u1-android-observation-90c8fd5b/raw-captures/fail.png",
+      "present": true,
+      "sha256": "a20c6314c6941df4d76984474664a8f0189d764e569d371e75d093d226accb1c"
+    }
+  ],
+  "inputs": {
+    "algorithm": "canonical-input-sha256/1",
+    "roots": [
+      "games/shell_proof_grapes/src",
+      "games/shell_proof_grapes/design",
+      "games/shell_proof_grapes/refs",
+      "packages/ui"
+    ],
+    "fileCount": 94,
+    "sha256": "8064e1b3e6c15df4485ab6be23170ff7a9470b7ac071d3f8bfe6562ffef19e2f"
+  }
+}
