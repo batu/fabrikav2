@@ -8,6 +8,17 @@ execution: code
 product_contract_source: ce-plan-bootstrap
 origin: docs/plans/2026-07-10-002-feat-grapesjs-shell-specialization-plan.md
 deepened: 2026-07-12
+trello_cards:
+  u2: https://trello.com/c/43Qvbih7
+  u1: https://trello.com/c/qWCv9tUo
+  u3: https://trello.com/c/qrVosoLc
+  u4: https://trello.com/c/orfV5tNV
+  u5: https://trello.com/c/gJtZP63y
+  u6: https://trello.com/c/s1P6oJI2
+  u7: https://trello.com/c/b4BZ6A8V
+  u10: https://trello.com/c/mg7iUQCQ
+  u8: https://trello.com/c/OGUQQGp3
+  u9: https://trello.com/c/R3jXoih6
 ---
 
 # Dual Design Frontends Evaluation - Plan
