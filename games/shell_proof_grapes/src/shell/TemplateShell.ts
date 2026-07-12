@@ -439,7 +439,7 @@ function renderLevel(
 function secondaryCurrencyCounter(snapshot: TemplateShellSnapshot): HTMLElement {
   const counter = document.createElement("div");
   counter.className =
-    "template-shell__currency template-shell__currency--contrasted template-shell__currency--compact";
+    "template-shell__currency template-shell__currency--contrasted template-shell__currency--secondary";
   counter.dataset.fabInstance = "shop.currency.secondary";
   counter.setAttribute("role", "status");
   counter.setAttribute(
@@ -452,7 +452,10 @@ function secondaryCurrencyCounter(snapshot: TemplateShellSnapshot): HTMLElement 
   const value = document.createElement("span");
   value.className = "template-shell__currency-value";
   value.textContent = String(snapshot.secondaryCurrency);
-  counter.append(art(assetUrls.currency, "template-shell__currency-icon"), value, label);
+  // No icon on purpose: the only seeded counter icon is the coin, and reusing
+  // it for gems would misstate the asset's identity. The visible unit label
+  // and the distinct pill fill carry the distinction instead.
+  counter.append(value, label);
   return counter;
 }
 
@@ -480,7 +483,7 @@ function renderShop(
       action: "back",
       image: assetUrls.back,
       instance: "shop.back",
-      className: "template-shell__icon-action--utility",
+      className: "template-shell__icon-action--page-back",
       onClick: () => {
         controller.backFromShop();
         render();
@@ -492,7 +495,7 @@ function renderShop(
 
   const balances = document.createElement("div");
   balances.className = "template-shell__shop-balances";
-  balances.append(currencyCounter(snapshot, "shop.currency", true), secondaryCurrencyCounter(snapshot));
+  balances.append(currencyCounter(snapshot, "shop.currency"), secondaryCurrencyCounter(snapshot));
 
   const catalogRegion = document.createElement("section");
   catalogRegion.className = "template-shell__shop-catalog";
@@ -537,13 +540,17 @@ function renderShop(
   });
 
   // Read-only semantic identity: each sample card maps to its contract
-  // instance through the controller's shop-item statuses. Cards stay inert —
-  // no data-fab-action is ever attached to a card. ShopPage rebuilds card DOM
-  // on every service refresh, so annotation re-runs on childList mutations.
+  // instance through the controller's shop-item statuses. The annotated card
+  // is the catalog wrapper — the element that visually bounds title, body,
+  // and CTA together — so variant fills cover the whole card. Cards stay
+  // inert — no data-fab-action is ever attached to a card. ShopPage rebuilds
+  // card DOM on every service refresh, so annotation re-runs on childList
+  // mutations.
   const annotate = (): void => {
     for (const item of snapshot.shopItems) {
-      const card = catalogHandle.el.querySelector<HTMLElement>(`[data-catalog-id="${item.id}"]`);
-      if (!card) continue;
+      const target = catalogHandle.el.querySelector<HTMLElement>(`[data-catalog-id="${item.id}"]`);
+      if (!target) continue;
+      const card = target.closest<HTMLElement>(".fab-shop-card-wrapper") ?? target;
       card.dataset.fabInstance = `shop.item.${item.status}`;
       card.dataset.fabVariant = item.status;
       card.setAttribute("role", "group");

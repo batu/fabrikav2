@@ -404,12 +404,16 @@ describe("template shell renderer and harness", () => {
       /\.template-shell__level--inert-backdrop \.template-shell__sample-outcomes\s*\{[^}]*visibility:\s*hidden;/s,
     );
     expect(css).toContain('.template-shell[data-fab-state="pause"] .fab-modal-scrim,');
+    // Pause is a compact centered dialog: full rounded corners, modal shadow,
+    // and no bottom-sheet affordances (no drag handle, no edge docking).
     expect(css).toMatch(
-      /\.template-shell \.fab-modal-card\.fab-pause-card\s*\{[^}]*padding:\s*28px var\(--fab-space-md\) max\(var\(--fab-space-md\), env\(safe-area-inset-bottom\)\);/s,
+      /\.template-shell \.fab-modal-card\.fab-pause-card\s*\{[^}]*max-width:\s*340px;[^}]*border-radius:\s*var\(--fab-radius-md\);[^}]*box-shadow:\s*var\(--fab-shadow-modal\);/s,
     );
     expect(css).toMatch(
       /\.template-shell \.fab-modal-card\.fab-pause-card\s*\{[^}]*--fab-pause-action-gap:\s*var\(--fab-space-xs\);/s,
     );
+    expect(css).not.toContain(".fab-pause-card::before");
+    expect(css).not.toMatch(/\.template-shell\[data-fab-state="pause"\] \.fab-modal-backdrop/);
     expect(css).toMatch(
       /\.template-shell \.fab-pause-card \[data-fab-action="pause-settings"\],[\s\S]*?\.template-shell__overlay-action--secondary\s*\{[^}]*background:\s*var\(--fab-seed-color-socket-surface\);[^}]*border:\s*var\(--fab-border-width\) solid var\(--fab-seed-color-socket-border\);[^}]*box-shadow:\s*none;/s,
     );

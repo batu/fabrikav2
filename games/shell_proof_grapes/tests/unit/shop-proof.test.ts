@@ -80,6 +80,14 @@ describe("seven-surface shop proof", () => {
     expect(secondary?.textContent).toContain(String(controller.snapshot().secondaryCurrency));
     expect(controller.snapshot().secondaryCurrency).toBe(12);
     expect(secondary?.getAttribute("role")).toBe("status");
+
+    // The two balances must be distinguishable: both show their unit label,
+    // the secondary pill has its own fill, and the coin icon never stands in
+    // for the gem balance.
+    expect(primary?.querySelector(".template-shell__currency-label")?.textContent).not.toBe("");
+    expect(secondary?.classList.contains("template-shell__currency--secondary")).toBe(true);
+    expect(secondary?.querySelector(".template-shell__currency-label")?.textContent).not.toBe("");
+    expect(secondary?.querySelector(".template-shell__currency-icon")).toBeNull();
   });
 
   it("renders three inert sample cards with available/owned/locked variants", async () => {
@@ -99,9 +107,12 @@ describe("seven-surface shop proof", () => {
       ["shop.item.owned", "owned"],
       ["shop.item.locked", "locked"],
     ]);
-    // Cards carry no action hook and taps never mutate shell state.
+    // Cards carry no action hook and taps never mutate shell state. Each
+    // card's CTA/status chip renders inside the annotated card element, not
+    // detached below it.
     for (const card of cards) {
       expect(card.dataset.fabAction).toBeUndefined();
+      expect(card.querySelector(".fab-shop-purchase-btn")).not.toBeNull();
       card.click();
     }
     expect(controller.snapshot()).toMatchObject({ surface: "shop", currency: currencyBefore });
@@ -143,6 +154,34 @@ describe("seven-surface shop proof", () => {
     );
     const catalogRule = css.slice(css.indexOf(".template-shell__shop-catalog"));
     expect(catalogRule).toContain("overflow-y: auto");
+  });
+
+  it("grounds every catalog card with explicit fills instead of opacity washes", () => {
+    const css = readFileSync(
+      resolve(process.cwd(), "src/shell/template-shell.css"),
+      "utf8",
+    );
+    // The wrapper is the visual card: bounded surface with the CTA inside.
+    expect(css).toMatch(
+      /\.template-shell__shop \.fab-shop-card-wrapper\s*\{[^}]*border:[^;]*;[^}]*background-color:\s*var\(--fab-seed-color-shop-card-surface\);/s,
+    );
+    // Enabled CTAs are accent-on-accent; disabled CTAs are legible muted
+    // chips at full opacity, never the kit's faded ghost.
+    expect(css).toMatch(
+      /\.template-shell__shop \.fab-shop-purchase-btn\s*\{[^}]*background-color:\s*var\(--fab-color-accent\);[^}]*color:\s*var\(--fab-color-on-accent\);/s,
+    );
+    expect(css).toMatch(
+      /\.template-shell__shop \.fab-shop-purchase-btn:disabled,[\s\S]*?\{[^}]*opacity:\s*1;[^}]*background-color:\s*var\(--fab-color-secondary-surface\);[^}]*color:\s*var\(--fab-color-text-muted\);/s,
+    );
+    // Locked is grounded by a muted dashed fill, not dimmed away.
+    expect(css).toMatch(
+      /\.template-shell__shop \[data-fab-variant="locked"\]\s*\{[^}]*background-color:\s*var\(--fab-color-secondary-surface\);[^}]*border-style:\s*dashed;/s,
+    );
+    expect(css).not.toMatch(/\[data-fab-variant="locked"\]\s*\{[^}]*opacity:/s);
+    // Restore is a real filled action over a bounded panel.
+    expect(css).toMatch(
+      /\.template-shell__shop \.fab-shop-restore-btn\s*\{[^}]*background-color:\s*var\(--fab-color-accent\);/s,
+    );
   });
 });
 

@@ -168,6 +168,13 @@ body {
   border: var(--fab-border-width) solid var(--fab-seed-color-currency-border);
 }
 
+/* The secondary (gem) balance keeps the primary pill's shape and typography
+   but reads as its own currency: a distinct fill and a visible unit label. */
+.template-shell__currency--secondary {
+  background-color: var(--fab-seed-color-currency-secondary-surface);
+  border-color: var(--fab-seed-color-currency-secondary-border);
+}
+
 .template-shell__currency-label {
   font-size: var(--fab-font-size-sm);
   font-weight: var(--fab-font-weight-normal);
@@ -204,6 +211,17 @@ body {
   width: var(--fab-btn-min-size);
   padding: 0;
   font-size: 0;
+}
+
+/* One Back affordance for every full-page surface: the Shop header Back and
+   the kit's Settings .fab-page-back share the accent treatment. */
+.template-shell__icon-action--page-back {
+  flex: 0 0 var(--fab-btn-min-size);
+  width: var(--fab-btn-min-size);
+  padding: 0;
+  font-size: 0;
+  background-color: var(--fab-color-accent);
+  box-shadow: var(--fab-shadow-button);
 }
 
 .template-shell .fab-page-back {
@@ -747,35 +765,21 @@ body {
   background: var(--fab-seed-color-pause-scrim);
 }
 
+/* Pause is a compact centered dialog over the frozen level — deliberately not
+   a bottom sheet: no drag handle, full rounded corners, modal shadow. The
+   full-page treatment belongs to Settings; the two must read differently in a
+   screenshot without the page label. */
 .template-shell .fab-modal-card.fab-pause-card {
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
-  max-width: 390px;
-  padding: 28px var(--fab-space-md) max(var(--fab-space-md), env(safe-area-inset-bottom));
+  max-width: 340px;
+  padding: var(--fab-space-md);
   --fab-pause-action-gap: var(--fab-space-xs);
   background-color: var(--fab-seed-color-pause-surface);
   border-color: var(--fab-seed-color-pause-border);
-  border-bottom: 0;
-  border-radius: 28px 28px 0 0;
-  box-shadow: var(--fab-seed-shadow-bottom-sheet);
-}
-
-.template-shell .fab-pause-card::before {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  width: 44px;
-  height: 4px;
-  border-radius: var(--fab-radius-pill);
-  background: var(--fab-seed-color-pause-border);
-  content: "";
-  transform: translateX(-50%);
-}
-
-.template-shell[data-fab-state="pause"] .fab-modal-backdrop {
-  align-items: flex-end;
-  padding: 0;
+  border-radius: var(--fab-radius-md);
+  box-shadow: var(--fab-shadow-modal);
 }
 
 .template-shell .fab-pause-card .fab-modal-title {
@@ -817,8 +821,10 @@ body {
 }
 
 /* Shop: a full-page surface — header back action, currency balances, and one
-   scrollable catalog region. Card dimming mirrors the shop-item contract
-   variants; the DOM never attaches an action hook to a card. */
+   scrollable catalog region. Each catalog wrapper is the visual item card:
+   surface, border, and CTA live inside one bounded card, and the
+   available/owned/locked contract variants map to explicit fills — never an
+   opacity wash. The DOM never attaches an action hook to a card. */
 .template-shell__shop {
   display: flex;
   flex-direction: column;
@@ -853,12 +859,111 @@ body {
   -webkit-overflow-scrolling: touch;
 }
 
+.template-shell__shop .fab-shop-section-title {
+  color: var(--fab-color-text);
+}
+
+.template-shell__shop .fab-shop-card-wrapper {
+  box-sizing: border-box;
+  gap: var(--fab-space-xs);
+  padding: var(--fab-space-sm);
+  border: var(--fab-border-width) solid var(--fab-seed-color-secondary-border);
+  border-radius: var(--fab-radius-md);
+  background-color: var(--fab-seed-color-shop-card-surface);
+}
+
+.template-shell__shop .fab-shop-card {
+  flex: 1 1 auto;
+  gap: var(--fab-space-xs);
+  padding: 0;
+  background: transparent;
+}
+
+.template-shell__shop .fab-shop-card-title {
+  color: var(--fab-color-text);
+}
+
+.template-shell__shop .fab-shop-card-desc {
+  color: var(--fab-color-text-muted);
+}
+
+/* Explicit CTA fills: an enabled price is accent-on-accent; a disabled CTA
+   (locked/unavailable/busy) is a legible muted chip, never a faded ghost.
+   CTA labels use the body stack — the display face's `$` glyph is unreadable
+   at price sizes (the same trade result-next already makes). */
+.template-shell__shop .fab-shop-purchase-btn,
+.template-shell__shop .fab-shop-restore-btn {
+  font-family: var(--fab-font-family);
+  font-size: var(--fab-font-size-md);
+  font-weight: var(--fab-font-weight-bold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.template-shell__shop .fab-shop-purchase-btn {
+  margin-top: auto;
+  min-height: var(--fab-btn-min-size);
+  padding: var(--fab-space-xs) var(--fab-space-sm);
+  background-color: var(--fab-color-accent);
+  color: var(--fab-color-on-accent);
+  border: var(--fab-border-width) solid var(--fab-color-accent);
+}
+
+.template-shell__shop .fab-shop-purchase-btn:disabled,
+.template-shell__shop .fab-shop-restore-btn:disabled {
+  opacity: 1;
+  filter: none;
+  background-color: var(--fab-color-secondary-surface);
+  color: var(--fab-color-text-muted);
+  border-color: var(--fab-color-secondary-border);
+  box-shadow: none;
+}
+
+/* Grounded locked state: a muted dashed card at full opacity, with the
+   status chip lifted back to the card surface so its label stays legible. */
 .template-shell__shop [data-fab-variant="locked"] {
-  opacity: 0.55;
+  background-color: var(--fab-color-secondary-surface);
+  border-style: dashed;
+}
+
+.template-shell__shop [data-fab-variant="locked"] .fab-shop-card-title,
+.template-shell__shop [data-fab-variant="locked"] .fab-shop-card-desc {
+  color: var(--fab-color-text-muted);
+}
+
+.template-shell__shop [data-fab-variant="locked"] .fab-shop-purchase-btn:disabled {
+  background-color: var(--fab-seed-color-shop-card-surface);
 }
 
 .template-shell__shop [data-fab-variant="owned"] {
-  outline: var(--fab-border-width) solid var(--fab-seed-color-accent);
+  border-color: var(--fab-seed-color-accent);
+}
+
+/* The restore panel stacks: copy above a full-width action, so the long
+   restore label never collides with the status copy at phone widths. */
+.template-shell__shop .fab-shop-restore {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--fab-space-xs);
+  border: var(--fab-border-width) solid var(--fab-seed-color-secondary-border);
+  border-radius: var(--fab-radius-md);
+  background-color: var(--fab-seed-color-shop-card-surface);
+}
+
+.template-shell__shop .fab-shop-restore-title {
+  color: var(--fab-color-text);
+}
+
+.template-shell__shop .fab-shop-restore-status {
+  color: var(--fab-color-text-muted);
+}
+
+.template-shell__shop .fab-shop-restore-btn {
+  min-height: var(--fab-btn-min-size);
+  padding: var(--fab-space-xs) var(--fab-space-sm);
+  background-color: var(--fab-color-accent);
+  color: var(--fab-color-on-accent);
+  border: var(--fab-border-width) solid var(--fab-color-accent);
 }
 
 @media (max-width: 360px) {
