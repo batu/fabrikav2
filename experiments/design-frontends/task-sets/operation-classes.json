@@ -1,0 +1,38 @@
+{
+  "taskSetId": "dual-design-frontends-operation-classes-v1",
+  "sealedBriefsOwner": "U10 session packet",
+  "operationClasses": [
+    {
+      "id": "palette-and-copy",
+      "description": "Change the global palette and visible title/button copy."
+    },
+    {
+      "id": "reposition-resize",
+      "description": "Reposition and resize a header element and primary action to match a target reference."
+    },
+    {
+      "id": "asset-replacement",
+      "description": "Replace at least two assets from the curated tray."
+    },
+    {
+      "id": "duplicate-second-currency",
+      "description": "Duplicate the currency counter into the optional second-currency socket (shop.currency.secondary)."
+    },
+    {
+      "id": "reorder-and-hide",
+      "description": "Reorder and hide an optional semantic instance."
+    },
+    {
+      "id": "settings-pause-distinct",
+      "description": "Make Settings and Pause visibly distinct."
+    },
+    {
+      "id": "shop-section-restyle",
+      "description": "Restyle one scrollable Shop product section."
+    },
+    {
+      "id": "publish-roundtrip-inspect",
+      "description": "Publish, close, reopen, apply, and inspect the installed result."
+    }
+  ]
+}

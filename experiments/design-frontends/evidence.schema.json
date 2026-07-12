@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dual-design-frontends/evidence-record",
+  "title": "Comparison evidence record",
+  "description": "Every comparison artifact carries renderer profile, lane, source revision, device provenance, timing partitions, and the intervention ledger (goal.md System-Wide Impact / R26). Missing evidence is 'blocked', never a pass.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "recordId",
+    "kind",
+    "lane",
+    "rendererProfile",
+    "capturedAt",
+    "provenance",
+    "buildMode",
+    "sourceRevision",
+    "outcome",
+    "artifacts",
+    "scrubbed"
+  ],
+  "properties": {
+    "recordId": { "type": "string", "minLength": 1 },
+    "kind": {
+      "enum": [
+        "parity-gate",
+        "publication-round-trip",
+        "apply-ledger",
+        "warm-propagation",
+        "real-tap-journey",
+        "runtime-measurement",
+        "unaided-session",
+        "assisted-session",
+        "shakedown"
+      ]
+    },
+    "lane": { "enum": ["grapes", "phaser", "shared"] },
+    "rendererProfile": { "enum": ["dom-css", "phaser-native", "none"] },
+    "capturedAt": { "type": "string", "format": "date-time" },
+    "provenance": { "enum": ["live-device", "browser", "unit", "blocked"] },
+    "buildMode": { "enum": ["dev-shell", "bundled-no-live-url", "not-applicable"] },
+    "sourceRevision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["publicationId", "projectionId"],
+      "properties": {
+        "publicationId": {
+          "anyOf": [{ "type": "string", "pattern": "^sha256-[a-f0-9]{64}$" }, { "type": "null" }]
+        },
+        "projectionId": {
+          "anyOf": [{ "type": "string", "pattern": "^sha256-[a-f0-9]{64}$" }, { "type": "null" }]
+        }
+      }
+    },
+    "device": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "androidVersion", "webviewVersion", "orientation"],
+      "properties": {
+        "model": { "type": "string", "minLength": 1 },
+        "androidVersion": { "type": "string", "minLength": 1 },
+        "webviewVersion": { "type": "string", "minLength": 1 },
+        "orientation": { "const": "portrait" }
+      }
+    },
+    "timings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "editorActiveSeconds": { "type": "number", "minimum": 0 },
+        "applySeconds": { "type": "number", "minimum": 0 },
+        "saveToDeviceSeconds": { "type": "number", "minimum": 0 },
+        "deviceObservationSeconds": { "type": "number", "minimum": 0 }
+      }
+    },
+    "sentinel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected", "hostVerified"],
+      "properties": {
+        "expected": { "anyOf": [{ "type": "string" }, { "type": "null" }] },
+        "hostVerified": { "type": "boolean" }
+      }
+    },
+    "outcome": {
+      "enum": [
+        "pass",
+        "fail",
+        "blocked",
+        "applied",
+        "no-op",
+        "blocked-drift",
+        "invalid-revision",
+        "unsupported-intent"
+      ]
+    },
+    "interventions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "scrubbed": { "const": true },
+    "notes": { "type": "string" }
+  }
+}

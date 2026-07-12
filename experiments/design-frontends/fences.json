@@ -1,0 +1,66 @@
+{
+  "fencesId": "dual-design-frontends-fences-v1",
+  "sharedSurfaces": {
+    "description": "Only conductor-owned integration cards may change these after the fork; both lanes rebase and rerun their gates afterwards.",
+    "paths": [
+      "packages/kernel/**",
+      "packages/testkit/**",
+      "packages/sdk/**",
+      "packages/ui/**",
+      "tools/verify-device/**",
+      "experiments/design-frontends/protocol.json",
+      "experiments/design-frontends/fences.json",
+      "experiments/design-frontends/baseline/**",
+      "package.json",
+      "package-lock.json"
+    ]
+  },
+  "nonTargets": {
+    "description": "Byte-identical to main for the whole experiment.",
+    "paths": ["games/_template/**", "tools/create-game/**"]
+  },
+  "frozenBehavior": {
+    "description": "Read-only lane inputs inside both proof games; hashes pinned in baseline/behavior-hashes.json and guarded by each game's frozen-behavior test.",
+    "dirs": ["src", "design", "content", "tests/unit"],
+    "identityExcluded": ["design/copy.ts"],
+    "identityFiles": [
+      "package.json",
+      "game.config.ts",
+      "index.html",
+      "vite.config.ts",
+      "capacitor.config.ts",
+      "README.md",
+      "docs/**",
+      "refs/manifest.yaml",
+      "native-resources/**"
+    ]
+  },
+  "lanes": {
+    "grapes": {
+      "writable": [
+        "tools/grapes-shell/**",
+        "games/shell_proof_grapes/authoring/**",
+        "games/shell_proof_grapes/design/revisions/**",
+        "games/shell_proof_grapes/design/revision.json",
+        "games/shell_proof_grapes/refs/**",
+        "games/shell_proof_grapes/evidence/**"
+      ],
+      "forbidden": ["games/shell_proof_phaser/**", "tools/phaser-shell/**"]
+    },
+    "phaser": {
+      "writable": [
+        "tools/phaser-shell/**",
+        "games/shell_proof_phaser/authoring/**",
+        "games/shell_proof_phaser/design/revisions/**",
+        "games/shell_proof_phaser/design/revision.json",
+        "games/shell_proof_phaser/refs/**",
+        "games/shell_proof_phaser/evidence/**"
+      ],
+      "forbidden": ["games/shell_proof_grapes/**", "tools/grapes-shell/**"]
+    }
+  },
+  "notes": [
+    "A lane replacing its renderer (U6) edits its own game's src/shell only through a conductor-acknowledged card that keeps controller/SDK/content bytes frozen; the frozen-behavior test defines the exact byte set.",
+    "The audit `structure` linter currently whitelists _template's top-level entries; adding games/<proof>/authoring/ in U3/U5 requires extending that whitelist through an integration card."
+  ]
+}

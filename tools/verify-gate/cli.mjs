@@ -17,6 +17,7 @@ import { execSync } from 'node:child_process';
 import { decideStop, buildBlockMessage, isVisualFile } from './src/classify.mjs';
 import { changedFilesVsMain } from './src/git.mjs';
 import { newestVisualChangeMs, readPanelEvidence } from './src/evidence.mjs';
+import { readObservationEvidence } from './src/observation-evidence.mjs';
 import { readLastAssistantText } from './src/transcript.mjs';
 import { appendLedgerEntry, LEDGER_PATH } from './src/ledger.mjs';
 
@@ -67,12 +68,14 @@ function main() {
   const visualFiles = changedFiles.filter(isVisualFile);
   const { newestChangeMs } = newestVisualChangeMs(visualFiles, projectDir, { run });
   const panels = readPanelEvidence(projectDir);
+  const observations = readObservationEvidence(projectDir);
 
   const decision = decideStop({
     message,
     changedFiles,
     newestVisualMtimeMs: newestChangeMs,
     panelEvidence: panels,
+    observationEvidence: observations,
     toolPresent,
     gamesDirPresent,
   });

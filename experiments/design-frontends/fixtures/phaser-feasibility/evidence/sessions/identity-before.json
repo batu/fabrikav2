@@ -1,0 +1,58 @@
+[
+  {
+    "id": "25324cfd-236d-40bc-8dad-cf57ea85bd79",
+    "label": "copyTitle",
+    "parentId": null,
+    "semanticId": "shell.copy.title",
+    "binding": "copy:title"
+  },
+  {
+    "id": "559d7248-97f5-4712-88ce-9c8c738f0eee",
+    "label": "copyHostile",
+    "parentId": null,
+    "semanticId": "shell.copy.hostile",
+    "binding": "copy:hostile"
+  },
+  {
+    "id": "6c04ce29-4d7d-4fc1-bcb5-b48b9f0828d7",
+    "label": "badgeBlue",
+    "parentId": null,
+    "semanticId": "shell.badge.catalog",
+    "binding": "asset:cat.badge.blue"
+  },
+  {
+    "id": "773ffa0d-b7a2-434c-8828-010f0035b103",
+    "label": "hudSafeTop",
+    "parentId": null,
+    "semanticId": "shell.hud.safeTop",
+    "binding": "copy:safeTop"
+  },
+  {
+    "id": "9f0473c0-0fd9-4290-b3dc-41d3847b08a6",
+    "label": "actionPlayPressed",
+    "parentId": "a21a037a-92ea-45d0-8694-c5180076e5c6",
+    "semanticId": "shell.action.play",
+    "binding": "action:play"
+  },
+  {
+    "id": "a21a037a-92ea-45d0-8694-c5180076e5c6",
+    "label": "panelRoot",
+    "parentId": null,
+    "semanticId": "shell.panel.root",
+    "binding": null
+  },
+  {
+    "id": "de8eeec5-e344-46e9-a5fa-aec0b54d6766",
+    "label": "actionPlay",
+    "parentId": "a21a037a-92ea-45d0-8694-c5180076e5c6",
+    "semanticId": "shell.action.play",
+    "binding": "action:play"
+  },
+  {
+    "id": "f6b34bd9-75ab-4631-a93e-b1f93e36c9af",
+    "label": "counterPrimary",
+    "parentId": "a21a037a-92ea-45d0-8694-c5180076e5c6",
+    "semanticId": "shell.counter.primary",
+    "binding": "currency:primary"
+  }
+]

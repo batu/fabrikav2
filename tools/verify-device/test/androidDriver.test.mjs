@@ -216,7 +216,7 @@ describe('Android adb capture driver', () => {
     ]);
   });
 
-  it('dumps logcat with epoch timestamps through the adb prefix', () => {
+  it('dumps a bounded, Capacitor-console-only epoch logcat through the adb prefix', () => {
     const calls = [];
     const logcat = dumpAndroidLogcat({
       adbPrefix: 'ssh ubuntu-server adb',
@@ -229,7 +229,8 @@ describe('Android adb capture driver', () => {
 
     expect(logcat).toBe('logcat');
     expect(calls[0]).toEqual([
-      'ssh', 'ubuntu-server', 'adb', '-s', '27091JEGR22183', 'logcat', '-d', '-v', 'epoch',
+      'ssh', 'ubuntu-server', 'adb', '-s', '27091JEGR22183',
+      'logcat', '-d', '-v', 'epoch', '-t', '2000', '-s', 'Capacitor/Console:I', '*:S',
     ]);
   });
 

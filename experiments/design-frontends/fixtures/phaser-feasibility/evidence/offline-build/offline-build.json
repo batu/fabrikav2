@@ -1,0 +1,26 @@
+{
+  "timestamp": "2026-07-12T09:50:59Z",
+  "method": "Clean sparse clone of the exact pushed card commit on the Ubuntu host; npm ci with network available; then the complete verifier ran in a systemd unit restricted to AF_UNIX after a curl negative control proved internet sockets were blocked. Phaser Editor was absent.",
+  "source": {
+    "branch": "trello-43Qvbih7-dual-u2-phaser-editor-phaser-4-feasibili",
+    "commit": "fe3a8aae",
+    "cleanCheckout": true,
+    "checkoutMode": "git sparse checkout from origin"
+  },
+  "environment": {
+    "node": "v25.0.0",
+    "npm": "11.6.2",
+    "platform": "linux x86_64",
+    "network": "blocked by systemd RestrictAddressFamilies=AF_UNIX during the complete verifier; curl negative control failed before verification",
+    "editorInstalled": false,
+    "editor": "Phaser Editor command absent; build imports generated scene code + phaser@4.2.1 only; bundle scan finds no editor-package markers"
+  },
+  "results": {
+    "build": "pass (vite production build inside the network-denied verifier)",
+    "sentinelInBundle": 1,
+    "editorMarkersInBundle": 0,
+    "unitTests": "pass (full Vitest suite inside the verifier)",
+    "finalRun": "2026-07-12T09:50:59Z — exact fe3a8aae clean checkout: full `npm run verify` with AF_INET/AF_INET6 unavailable, 7/7 steps PASS"
+  },
+  "transcript": "evidence/offline-build/transcript.txt"
+}

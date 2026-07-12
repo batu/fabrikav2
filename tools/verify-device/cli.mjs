@@ -73,6 +73,7 @@ import {
 } from './src/viewportMetrics.mjs';
 import * as steps from './src/steps.mjs';
 import { deliverReport } from './src/portal.mjs';
+import { tryWriteObservation } from './src/observation.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
@@ -418,6 +419,38 @@ async function main() {
     runVerdict,
   });
   const summaryFile = writeSummaryJson(outDir, summary);
+
+  // Vendor-neutral live-device OBSERVATION artifact (card qWCv9tUo). Written for
+  // EVERY completed non-skip run beside summary.json, using the already-resolved
+  // lane / provenance / platform / captures / run verdict / hard-integrity facts —
+  // never a backfill of old evidence. The producer module owns the schema and the
+  // canonical input hash; the merge/stop gate re-derives that hash from the
+  // landing checkout to accept only a no-reference live-device observation whose
+  // source still matches. runKind + hardIntegrity are COPIED from the one typed
+  // run verdict, so no divergent verdict is computed here.
+  const observationResult = tryWriteObservation(outDir, {
+    repoRoot: REPO_ROOT,
+    game: args.game,
+    lane,
+    provenance: resolved.provenance,
+    platform,
+    deviceLabel: resolved.deviceLabel,
+    generatedAt: new Date().toISOString(),
+    runKind: runVerdict.kind,
+    hardIntegrity: runVerdict.hardIntegrity,
+    captureFailure: resolved.captureFailure,
+    requiredStates: manifestStateNames(manifest),
+    captureByState: resolved.captureByState || {},
+    captureFilesByState: prepared.rawCaptures,
+  });
+  const { observation, file: observationFile } = observationResult;
+  if (observationResult.error) {
+    process.stderr.write(
+      `verify-device: observation skipped — ${observationResult.error.message}; `
+      + 'the capture verdict is unchanged, and no observation can satisfy the landing gate\n',
+    );
+  }
+
   let compareTable = '';
   if (args.compare) {
     const previous = loadRunSummary(args.compare);
@@ -459,6 +492,9 @@ async function main() {
     `  run verdict: ${runVerdict.summary}\n` +
     `  grid: ${path.relative(REPO_ROOT, outFile)}\n` +
     `  summary: ${path.relative(REPO_ROOT, summaryFile)}\n` +
+    (observation && observationFile
+      ? `  observation: ${path.relative(REPO_ROOT, observationFile)} (runKind ${observation.runKind}, inputs.sha256 ${observation.inputs.sha256.slice(0, 12)}…)\n`
+      : `  observation: SKIPPED — ${observationResult.error?.message || 'artifact unavailable'}\n`) +
     formatViewportMetricAssertions(viewportMetricAssertions) +
     formatSummaryTable(summary) +
     compareTable
@@ -474,7 +510,7 @@ async function main() {
       slug: portalStream,
       game: args.game,
       date,
-      files: [outFile, summaryFile],
+      files: [outFile, summaryFile, ...(observationFile ? [observationFile] : [])],
     });
   }
 

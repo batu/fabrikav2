@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "dual-design-frontends/implementation-ledger",
+  "title": "Implementation ledger entry",
+  "description": "Every U2-U6 handoff records one entry so cost-to-parity is reported separately from post-completion usability (goal.md R21).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "unit",
+    "cardShortId",
+    "lane",
+    "startingSha",
+    "endingSha",
+    "agentIdentity",
+    "model",
+    "activeElapsedMinutes",
+    "attempts",
+    "rework",
+    "humanInterventions",
+    "addedDependencies",
+    "addedTools",
+    "changedSurfaces",
+    "failedGates",
+    "inheritedWork"
+  ],
+  "properties": {
+    "unit": { "enum": ["U1", "U2", "U3", "U4", "U5", "U6", "U7", "U8", "U9", "U10"] },
+    "cardShortId": { "type": "string", "minLength": 1 },
+    "lane": { "enum": ["grapes", "phaser", "shared"] },
+    "startingSha": { "type": "string", "pattern": "^[0-9a-f]{7,40}$" },
+    "endingSha": { "type": "string", "pattern": "^[0-9a-f]{7,40}$" },
+    "agentIdentity": { "type": "string", "minLength": 1 },
+    "model": { "type": "string", "minLength": 1 },
+    "activeElapsedMinutes": { "type": "number", "minimum": 0 },
+    "attempts": { "type": "integer", "minimum": 1 },
+    "rework": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "humanInterventions": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "addedDependencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "version", "scope"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "version": { "type": "string", "minLength": 1 },
+          "scope": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "addedTools": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "changedSurfaces": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "failedGates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["gate", "outcome"],
+        "properties": {
+          "gate": { "type": "string", "minLength": 1 },
+          "outcome": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "inheritedWork": { "type": "string" }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "recordKind": "u1-device-profile",
+  "source": "experiments/design-frontends/fixtures/phaser-feasibility/evidence/device/device-boot.json (U2 conductor run)",
+  "device": {
+    "model": "Pixel 6a",
+    "androidVersion": "16",
+    "webviewVersion": "149.0.7827.164",
+    "orientation": "portrait"
+  },
+  "host": "Ubuntu ADB host over SSH",
+  "transportPattern": "adb reverse tcp:<lane-port>",
+  "lanePorts": { "grapes": 5301, "phaser": 5302 },
+  "canonicalViewport": { "width": 390, "height": 844, "minimumActionSize": 48 },
+  "rules": [
+    "Both lanes measure on this same device, OS, orientation, safe-area, and network profile.",
+    "Device or SSH loss yields comparison_blocked evidence, never a pass or a product defect.",
+    "Apple verification is a separate post-experiment adoption gate; the iPhone lane is disconnected."
+  ]
+}

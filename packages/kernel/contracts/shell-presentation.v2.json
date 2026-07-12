@@ -1,0 +1,3443 @@
+{
+  "contractId": "shell-presentation-v2",
+  "contractVersion": "2.0.0",
+  "schemaDialect": "https://json-schema.org/draft/2020-12/schema",
+  "compatibility": {
+    "compatibilityId": "shell-presentation-v2",
+    "minimumReaderVersion": "2.0.0",
+    "canonicalization": "json-lexicographic-v1",
+    "hashAlgorithm": "sha256"
+  },
+  "assetRasterPolicy": {
+    "maxEdge": 4096,
+    "maxAssets": 256,
+    "maxAssetBytes": 8388608,
+    "maxAggregateBytes": 67108864,
+    "maxDecodedPixels": 67108864
+  },
+  "canonicalCanvas": {
+    "width": 390,
+    "height": 844,
+    "baselineInsets": {
+      "top": 59,
+      "right": 0,
+      "bottom": 34,
+      "left": 0
+    },
+    "baselineSafeRect": {
+      "x": 0,
+      "y": 59,
+      "width": 390,
+      "height": 751
+    },
+    "minimumActionSize": 48
+  },
+  "anchors": [
+    {
+      "id": "top-left",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "top-center",
+      "x": 0.5,
+      "y": 0
+    },
+    {
+      "id": "top-right",
+      "x": 1,
+      "y": 0
+    },
+    {
+      "id": "center-left",
+      "x": 0,
+      "y": 0.5
+    },
+    {
+      "id": "center",
+      "x": 0.5,
+      "y": 0.5
+    },
+    {
+      "id": "center-right",
+      "x": 1,
+      "y": 0.5
+    },
+    {
+      "id": "bottom-left",
+      "x": 0,
+      "y": 1
+    },
+    {
+      "id": "bottom-center",
+      "x": 0.5,
+      "y": 1
+    },
+    {
+      "id": "bottom-right",
+      "x": 1,
+      "y": 1
+    }
+  ],
+  "gameScreenNames": [
+    "HomeMenu",
+    "SagaMap",
+    "Shop",
+    "Settings",
+    "ResultCard",
+    "PauseOverlay",
+    "Toast",
+    "ConnectivityIndicator"
+  ],
+  "states": [
+    {
+      "id": "menu",
+      "editorPageId": "progression-home",
+      "label": "Progression Home",
+      "gameScreenNames": [
+        "HomeMenu",
+        "SagaMap"
+      ]
+    },
+    {
+      "id": "level",
+      "editorPageId": "gameplay-hud",
+      "label": "Gameplay and HUD",
+      "gameScreenNames": []
+    },
+    {
+      "id": "shop",
+      "editorPageId": "shop",
+      "label": "Shop",
+      "gameScreenNames": [
+        "Shop"
+      ]
+    },
+    {
+      "id": "settings",
+      "editorPageId": "settings",
+      "label": "Settings",
+      "gameScreenNames": [
+        "Settings"
+      ]
+    },
+    {
+      "id": "pause",
+      "editorPageId": "pause",
+      "label": "Pause",
+      "gameScreenNames": [
+        "PauseOverlay"
+      ]
+    },
+    {
+      "id": "win",
+      "editorPageId": "win",
+      "label": "Win",
+      "gameScreenNames": [
+        "ResultCard"
+      ]
+    },
+    {
+      "id": "fail",
+      "editorPageId": "fail",
+      "label": "Fail",
+      "gameScreenNames": [
+        "ResultCard"
+      ]
+    }
+  ],
+  "bindings": [
+    {
+      "id": "presentation.static",
+      "kind": "static"
+    },
+    {
+      "id": "mechanic.mount",
+      "kind": "region"
+    },
+    {
+      "id": "state.primary-currency",
+      "kind": "read"
+    },
+    {
+      "id": "state.level-label",
+      "kind": "read"
+    },
+    {
+      "id": "state.progression",
+      "kind": "read"
+    },
+    {
+      "id": "flow.start-current",
+      "kind": "action"
+    },
+    {
+      "id": "flow.open-settings",
+      "kind": "action"
+    },
+    {
+      "id": "flow.pause",
+      "kind": "action"
+    },
+    {
+      "id": "flow.resume",
+      "kind": "action"
+    },
+    {
+      "id": "flow.settings-back",
+      "kind": "action"
+    },
+    {
+      "id": "flow.pause-home",
+      "kind": "action"
+    },
+    {
+      "id": "flow.test-win",
+      "kind": "action"
+    },
+    {
+      "id": "flow.test-lose",
+      "kind": "action"
+    },
+    {
+      "id": "flow.next",
+      "kind": "action"
+    },
+    {
+      "id": "flow.retry",
+      "kind": "action"
+    },
+    {
+      "id": "flow.result-home",
+      "kind": "action"
+    },
+    {
+      "id": "settings.music",
+      "kind": "toggle"
+    },
+    {
+      "id": "settings.sfx",
+      "kind": "toggle"
+    },
+    {
+      "id": "settings.haptics",
+      "kind": "toggle"
+    },
+    {
+      "id": "flow.open-shop",
+      "kind": "action"
+    },
+    {
+      "id": "flow.shop-back",
+      "kind": "action"
+    },
+    {
+      "id": "commerce.restore",
+      "kind": "action"
+    },
+    {
+      "id": "state.shop-items",
+      "kind": "read"
+    },
+    {
+      "id": "state.secondary-currency",
+      "kind": "read"
+    }
+  ],
+  "stateFamilies": [
+    {
+      "id": "static",
+      "requiredVariants": [
+        "default"
+      ],
+      "base": {
+        "opacity": 1,
+        "scale": 1
+      },
+      "variants": {
+        "default": {}
+      }
+    },
+    {
+      "id": "button",
+      "requiredVariants": [
+        "enabled",
+        "pressed",
+        "disabled"
+      ],
+      "base": {
+        "opacity": 1,
+        "scale": 1
+      },
+      "variants": {
+        "enabled": {},
+        "pressed": {
+          "scale": 0.96
+        },
+        "disabled": {
+          "opacity": 0.45
+        }
+      }
+    },
+    {
+      "id": "icon-button",
+      "requiredVariants": [
+        "enabled",
+        "pressed",
+        "disabled"
+      ],
+      "base": {
+        "opacity": 1,
+        "scale": 1
+      },
+      "variants": {
+        "enabled": {},
+        "pressed": {
+          "scale": 0.92
+        },
+        "disabled": {
+          "opacity": 0.45
+        }
+      }
+    },
+    {
+      "id": "progression-node",
+      "requiredVariants": [
+        "completed",
+        "current",
+        "locked"
+      ],
+      "base": {
+        "opacity": 1,
+        "scale": 1
+      },
+      "variants": {
+        "completed": {},
+        "current": {
+          "scale": 1.08
+        },
+        "locked": {
+          "opacity": 0.55
+        }
+      }
+    },
+    {
+      "id": "toggle",
+      "requiredVariants": [
+        "off",
+        "on",
+        "disabled"
+      ],
+      "base": {
+        "opacity": 1,
+        "scale": 1
+      },
+      "variants": {
+        "off": {},
+        "on": {},
+        "disabled": {
+          "opacity": 0.45
+        }
+      }
+    },
+    {
+      "id": "modal",
+      "requiredVariants": [
+        "default"
+      ],
+      "base": {
+        "opacity": 1,
+        "scale": 1
+      },
+      "variants": {
+        "default": {}
+      }
+    },
+    {
+      "id": "result",
+      "requiredVariants": [
+        "win",
+        "fail"
+      ],
+      "base": {
+        "opacity": 1,
+        "scale": 1
+      },
+      "variants": {
+        "win": {},
+        "fail": {}
+      }
+    },
+    {
+      "id": "shop-item",
+      "requiredVariants": [
+        "available",
+        "owned",
+        "locked"
+      ],
+      "base": {
+        "opacity": 1,
+        "scale": 1
+      },
+      "variants": {
+        "available": {},
+        "owned": {},
+        "locked": {
+          "opacity": 0.55
+        }
+      }
+    }
+  ],
+  "assetSlots": [
+    {
+      "id": "title-logo",
+      "fit": "contain",
+      "compatibleRoleIds": [
+        "screen-title"
+      ],
+      "sourceRaster": {
+        "minWidth": 80,
+        "minHeight": 40,
+        "aspectRatio": {
+          "min": 0.6666666666666666,
+          "max": 8
+        }
+      },
+      "alpha": "allowed",
+      "provenanceRequired": true,
+      "mimeTypes": [
+        "image/png",
+        "image/jpeg",
+        "image/webp"
+      ]
+    },
+    {
+      "id": "hero-art",
+      "fit": "contain",
+      "compatibleRoleIds": [
+        "hero-art"
+      ],
+      "sourceRaster": {
+        "minWidth": 120,
+        "minHeight": 120,
+        "aspectRatio": {
+          "min": 0.3333333333333333,
+          "max": 3
+        }
+      },
+      "alpha": "allowed",
+      "provenanceRequired": true,
+      "mimeTypes": [
+        "image/png",
+        "image/jpeg",
+        "image/webp"
+      ]
+    },
+    {
+      "id": "counter-frame",
+      "fit": "contain",
+      "compatibleRoleIds": [
+        "currency-counter"
+      ],
+      "sourceRaster": {
+        "minWidth": 80,
+        "minHeight": 48,
+        "aspectRatio": {
+          "min": 1,
+          "max": 3.75
+        }
+      },
+      "alpha": "allowed",
+      "provenanceRequired": true,
+      "mimeTypes": [
+        "image/png",
+        "image/jpeg",
+        "image/webp"
+      ]
+    },
+    {
+      "id": "icon-control",
+      "fit": "contain",
+      "compatibleRoleIds": [
+        "top-icon-action",
+        "header-back-action"
+      ],
+      "sourceRaster": {
+        "minWidth": 48,
+        "minHeight": 48,
+        "aspectRatio": {
+          "min": 0.6666666666666666,
+          "max": 1.5
+        }
+      },
+      "alpha": "required",
+      "provenanceRequired": true,
+      "mimeTypes": [
+        "image/png",
+        "image/webp"
+      ]
+    },
+    {
+      "id": "button-surface",
+      "fit": "cover",
+      "compatibleRoleIds": [
+        "bottom-primary-action",
+        "bottom-secondary-action",
+        "bottom-left-test-action",
+        "bottom-right-test-action"
+      ],
+      "sourceRaster": {
+        "minWidth": 72,
+        "minHeight": 48,
+        "aspectRatio": {
+          "min": 0.75,
+          "max": 6.25
+        }
+      },
+      "alpha": "allowed",
+      "provenanceRequired": true,
+      "mimeTypes": [
+        "image/png",
+        "image/jpeg",
+        "image/webp"
+      ]
+    },
+    {
+      "id": "progression-node",
+      "fit": "contain",
+      "compatibleRoleIds": [
+        "progression-node"
+      ],
+      "sourceRaster": {
+        "minWidth": 48,
+        "minHeight": 48,
+        "aspectRatio": {
+          "min": 0.5454545454545454,
+          "max": 1.8333333333333333
+        }
+      },
+      "alpha": "required",
+      "provenanceRequired": true,
+      "mimeTypes": [
+        "image/png",
+        "image/webp"
+      ]
+    },
+    {
+      "id": "gameplay-background",
+      "fit": "cover",
+      "compatibleRoleIds": [
+        "gameplay-region"
+      ],
+      "sourceRaster": {
+        "minWidth": 200,
+        "minHeight": 300,
+        "aspectRatio": {
+          "min": 0.3076923076923077,
+          "max": 1.3
+        }
+      },
+      "alpha": "allowed",
+      "provenanceRequired": true,
+      "mimeTypes": [
+        "image/png",
+        "image/jpeg",
+        "image/webp"
+      ]
+    },
+    {
+      "id": "modal-frame",
+      "fit": "cover",
+      "compatibleRoleIds": [
+        "modal-panel",
+        "result-panel"
+      ],
+      "sourceRaster": {
+        "minWidth": 280,
+        "minHeight": 300,
+        "aspectRatio": {
+          "min": 0.45161290322580644,
+          "max": 1.2333333333333334
+        }
+      },
+      "alpha": "allowed",
+      "provenanceRequired": true,
+      "mimeTypes": [
+        "image/png",
+        "image/jpeg",
+        "image/webp"
+      ]
+    },
+    {
+      "id": "toggle-control",
+      "fit": "contain",
+      "compatibleRoleIds": [
+        "center-toggle-action"
+      ],
+      "sourceRaster": {
+        "minWidth": 200,
+        "minHeight": 48,
+        "aspectRatio": {
+          "min": 2.7777777777777777,
+          "max": 7.083333333333333
+        }
+      },
+      "alpha": "allowed",
+      "provenanceRequired": true,
+      "mimeTypes": [
+        "image/png",
+        "image/webp"
+      ]
+    }
+  ],
+  "roles": [
+    {
+      "id": "screen-title",
+      "anchor": "top-center",
+      "stateFamilyId": "static",
+      "assetSlotId": "title-logo",
+      "geometryCaps": {
+        "minWidth": 80,
+        "maxWidth": 320,
+        "minHeight": 40,
+        "maxHeight": 120
+      },
+      "minimumTouchTarget": 0,
+      "requiredSafeBounds": true,
+      "editableProperties": [
+        "geometry",
+        "order",
+        "visibility",
+        "copy",
+        "colors",
+        "assetId"
+      ]
+    },
+    {
+      "id": "hero-art",
+      "anchor": "center",
+      "stateFamilyId": "static",
+      "assetSlotId": "hero-art",
+      "geometryCaps": {
+        "minWidth": 120,
+        "maxWidth": 360,
+        "minHeight": 120,
+        "maxHeight": 360
+      },
+      "minimumTouchTarget": 0,
+      "requiredSafeBounds": true,
+      "editableProperties": [
+        "geometry",
+        "order",
+        "visibility",
+        "assetId"
+      ]
+    },
+    {
+      "id": "currency-counter",
+      "anchor": "top-left",
+      "stateFamilyId": "static",
+      "assetSlotId": "counter-frame",
+      "geometryCaps": {
+        "minWidth": 80,
+        "maxWidth": 180,
+        "minHeight": 48,
+        "maxHeight": 80
+      },
+      "minimumTouchTarget": 0,
+      "requiredSafeBounds": true,
+      "editableProperties": [
+        "geometry",
+        "order",
+        "visibility",
+        "copy",
+        "colors",
+        "assetId"
+      ]
+    },
+    {
+      "id": "top-icon-action",
+      "anchor": "top-right",
+      "stateFamilyId": "icon-button",
+      "assetSlotId": "icon-control",
+      "geometryCaps": {
+        "minWidth": 48,
+        "maxWidth": 72,
+        "minHeight": 48,
+        "maxHeight": 72
+      },
+      "minimumTouchTarget": 48,
+      "requiredSafeBounds": true,
+      "editableProperties": [
+        "geometry",
+        "order",
+        "visibility",
+        "colors",
+        "assetId"
+      ]
+    },
+    {
+      "id": "bottom-primary-action",
+      "anchor": "bottom-center",
+      "stateFamilyId": "button",
+      "assetSlotId": "button-surface",
+      "geometryCaps": {
+        "minWidth": 120,
+        "maxWidth": 300,
+        "minHeight": 48,
+        "maxHeight": 96
+      },
+      "minimumTouchTarget": 48,
+      "requiredSafeBounds": true,
+      "editableProperties": [
+        "geometry",
+        "order",
+        "visibility",
+        "copy",
+        "colors",
+        "assetId"
+      ]
+    },
+    {
+      "id": "bottom-secondary-action",
+      "anchor": "bottom-center",
+      "stateFamilyId": "button",
+      "assetSlotId": "button-surface",
+      "geometryCaps": {
+        "minWidth": 120,
+        "maxWidth": 300,
+        "minHeight": 48,
+        "maxHeight": 80
+      },
+      "minimumTouchTarget": 48,
+      "requiredSafeBounds": true,
+      "editableProperties": [
+        "geometry",
+        "order",
+        "visibility",
+        "copy",
+        "colors",
+        "assetId"
+      ]
+    },
+    {
+      "id": "progression-map",
+      "anchor": "center",
+      "stateFamilyId": "static",
+      "assetSlotId": null,
+      "geometryCaps": {
+        "minWidth": 250,
+        "maxWidth": 390,
+        "minHeight": 260,
+        "maxHeight": 520
+      },
+      "minimumTouchTarget": 0,
+      "requiredSafeBounds": true,
+      "editableProperties": [
+        "geometry",
+        "order",
+        "visibility",
+        "colors"
+      ]
+    },
+    {
+      "id": "progression-node",
+      "anchor": "center",
+      "stateFamilyId": "progression-node",
+      "assetSlotId": "progression-node",
+      "geometryCaps": {
+        "minWidth": 48,
+        "maxWidth": 88,
+        "minHeight": 48,
+        "maxHeight": 88
+      },
+      "minimumTouchTarget": 48,
+      "requiredSafeBounds": true,
+      "editableProperties": [
+        "geometry",
+        "order",
+        "visibility",
+        "colors",
+        "assetId"
+      ]
+    },
+    {
+      "id": "level-label",
+      "anchor": "top-center",
+      "stateFamilyId": "static",
+      "assetSlotId": null,
+      "geometryCaps": {
+        "minWidth": 80,
+        "maxWidth": 220,
+        "minHeight": 40,
+        "maxHeight": 70
+      },
+      "minimumTouchTarget": 0,
+      "requiredSafeBounds": true,
+      "editableProperties": [
+        "geometry",
+        "order",
+        "visibility",
+        "copy",
+        "colors"
+      ]
+    },
+    {
+      "id": "gameplay-region",
+      "anchor": "center",
+      "stateFamilyId": "static",
+      "assetSlotId": "gameplay-background",
+      "geometryCaps": {
+        "minWidth": 200,
+        "maxWidth": 390,
+        "minHeight": 300,
+        "maxHeight": 650
+      },
+      "minimumTouchTarget": 0,
+      "requiredSafeBounds": true,
+      "editableProperties": [
+        "geometry",
+        "order",
+        "visibility",
+        "colors",
+        "assetId"
+      ]
+    },
+    {
+      "id": "bottom-left-test-action",
+      "anchor": "bottom-left",
+      "stateFamilyId": "button",
+      "assetSlotId": "button-surface",
+      "geometryCaps": {
+        "minWidth": 72,
+        "maxWidth": 150,
+        "minHeight": 48,
+        "maxHeight": 64
+      },
+      "minimumTouchTarget": 48,
+      "requiredSafeBounds": true,
+      "editableProperties": [
+        "geometry",
+        "order",
+        "visibility",
+        "copy",
+        "colors",
+        "assetId"
+      ]
+    },
+    {
+      "id": "bottom-right-test-action",
+      "anchor": "bottom-right",
+      "stateFamilyId": "button",
+      "assetSlotId": "button-surface",
+      "geometryCaps": {
+        "minWidth": 72,
+        "maxWidth": 150,
+        "minHeight": 48,
+        "maxHeight": 64
+      },
+      "minimumTouchTarget": 48,
+      "requiredSafeBounds": true,
+      "editableProperties": [
+        "geometry",
+        "order",
+        "visibility",
+        "copy",
+        "colors",
+        "assetId"
+      ]
+    },
+    {
+      "id": "modal-panel",
+      "anchor": "center",
+      "stateFamilyId": "modal",
+      "assetSlotId": "modal-frame",
+      "geometryCaps": {
+        "minWidth": 280,
+        "maxWidth": 370,
+        "minHeight": 300,
+        "maxHeight": 620
+      },
+      "minimumTouchTarget": 0,
+      "requiredSafeBounds": true,
+      "editableProperties": [
+        "geometry",
+        "order",
+        "visibility",
+        "copy",
+        "colors",
+        "assetId"
+      ]
+    },
+    {
+      "id": "center-toggle-action",
+      "anchor": "center",
+      "stateFamilyId": "toggle",
+      "assetSlotId": "toggle-control",
+      "geometryCaps": {
+        "minWidth": 200,
+        "maxWidth": 340,
+        "minHeight": 48,
+        "maxHeight": 72
+      },
+      "minimumTouchTarget": 48,
+      "requiredSafeBounds": true,
+      "editableProperties": [
+        "geometry",
+        "order",
+        "visibility",
+        "copy",
+        "colors",
+        "assetId"
+      ]
+    },
+    {
+      "id": "result-panel",
+      "anchor": "center",
+      "stateFamilyId": "result",
+      "assetSlotId": "modal-frame",
+      "geometryCaps": {
+        "minWidth": 280,
+        "maxWidth": 370,
+        "minHeight": 300,
+        "maxHeight": 620
+      },
+      "minimumTouchTarget": 0,
+      "requiredSafeBounds": true,
+      "editableProperties": [
+        "geometry",
+        "order",
+        "visibility",
+        "copy",
+        "colors",
+        "assetId"
+      ]
+    },
+    {
+      "id": "page-surface",
+      "anchor": "center",
+      "stateFamilyId": "static",
+      "assetSlotId": null,
+      "geometryCaps": {
+        "minWidth": 280,
+        "maxWidth": 430,
+        "minHeight": 400,
+        "maxHeight": 932
+      },
+      "minimumTouchTarget": 0,
+      "requiredSafeBounds": false,
+      "editableProperties": [
+        "geometry",
+        "order",
+        "visibility",
+        "colors"
+      ]
+    },
+    {
+      "id": "header-back-action",
+      "anchor": "top-left",
+      "stateFamilyId": "icon-button",
+      "assetSlotId": "icon-control",
+      "geometryCaps": {
+        "minWidth": 48,
+        "maxWidth": 72,
+        "minHeight": 48,
+        "maxHeight": 72
+      },
+      "minimumTouchTarget": 48,
+      "requiredSafeBounds": true,
+      "editableProperties": [
+        "geometry",
+        "order",
+        "visibility",
+        "colors",
+        "assetId"
+      ]
+    },
+    {
+      "id": "item-grid",
+      "anchor": "center",
+      "stateFamilyId": "static",
+      "assetSlotId": null,
+      "geometryCaps": {
+        "minWidth": 250,
+        "maxWidth": 390,
+        "minHeight": 200,
+        "maxHeight": 600
+      },
+      "minimumTouchTarget": 0,
+      "requiredSafeBounds": true,
+      "editableProperties": [
+        "geometry",
+        "order",
+        "visibility",
+        "colors"
+      ]
+    },
+    {
+      "id": "item-card",
+      "anchor": "center",
+      "stateFamilyId": "shop-item",
+      "assetSlotId": null,
+      "geometryCaps": {
+        "minWidth": 120,
+        "maxWidth": 200,
+        "minHeight": 120,
+        "maxHeight": 260
+      },
+      "minimumTouchTarget": 0,
+      "requiredSafeBounds": true,
+      "editableProperties": [
+        "geometry",
+        "order",
+        "visibility",
+        "copy",
+        "colors"
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "id": "menu.title",
+      "parentInstanceId": null,
+      "stateId": "menu",
+      "roleId": "screen-title",
+      "bindingId": "presentation.static",
+      "stateFamilyId": "static",
+      "required": true,
+      "accessibility": {
+        "role": "heading",
+        "nameKey": "shell.menu.title",
+        "stateSemantics": [],
+        "traversalGroup": "header"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": 0.02
+          },
+          "size": {
+            "width": 0.65,
+            "height": 0.08
+          },
+          "fit": "contain"
+        },
+        "order": 0,
+        "visibility": "visible",
+        "copy": "Game Title"
+      }
+    },
+    {
+      "id": "menu.hero",
+      "parentInstanceId": null,
+      "stateId": "menu",
+      "roleId": "hero-art",
+      "bindingId": "presentation.static",
+      "stateFamilyId": "static",
+      "required": false,
+      "accessibility": {
+        "role": "img",
+        "nameKey": "shell.menu.hero",
+        "stateSemantics": [],
+        "traversalGroup": "header"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": -0.13
+          },
+          "size": {
+            "width": 0.75,
+            "height": 0.32
+          },
+          "fit": "contain"
+        },
+        "order": 1,
+        "visibility": "visible"
+      }
+    },
+    {
+      "id": "menu.currency",
+      "parentInstanceId": null,
+      "stateId": "menu",
+      "roleId": "currency-counter",
+      "bindingId": "state.primary-currency",
+      "stateFamilyId": "static",
+      "required": true,
+      "accessibility": {
+        "role": "status",
+        "nameKey": "shell.currency.primary",
+        "stateSemantics": [],
+        "traversalGroup": "header"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0.04,
+            "y": 0.025
+          },
+          "size": {
+            "width": 0.32,
+            "height": 0.065
+          },
+          "fit": "contain"
+        },
+        "order": 2,
+        "visibility": "visible"
+      }
+    },
+    {
+      "id": "menu.settings",
+      "parentInstanceId": null,
+      "stateId": "menu",
+      "roleId": "top-icon-action",
+      "bindingId": "flow.open-settings",
+      "stateFamilyId": "icon-button",
+      "required": true,
+      "actionId": "menu.settings",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.settings",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "header"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": -0.04,
+            "y": 0.025
+          },
+          "size": {
+            "width": 0.14,
+            "height": 0.07
+          },
+          "fit": "contain"
+        },
+        "order": 3,
+        "visibility": "visible"
+      }
+    },
+    {
+      "id": "menu.play",
+      "parentInstanceId": null,
+      "stateId": "menu",
+      "roleId": "bottom-primary-action",
+      "bindingId": "flow.start-current",
+      "stateFamilyId": "button",
+      "required": true,
+      "actionId": "play",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.play",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "primary"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": -0.04
+          },
+          "size": {
+            "width": 0.55,
+            "height": 0.085
+          },
+          "fit": "cover"
+        },
+        "order": 20,
+        "visibility": "visible",
+        "copy": "Play"
+      }
+    },
+    {
+      "id": "menu.progression-map",
+      "parentInstanceId": null,
+      "stateId": "menu",
+      "roleId": "progression-map",
+      "bindingId": "state.progression",
+      "stateFamilyId": "static",
+      "required": true,
+      "accessibility": {
+        "role": "group",
+        "nameKey": "shell.progression.map",
+        "stateSemantics": [],
+        "traversalGroup": "progression"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": 0.15
+          },
+          "size": {
+            "width": 0.9,
+            "height": 0.42
+          },
+          "fit": "contain"
+        },
+        "order": 10,
+        "visibility": "visible"
+      }
+    },
+    {
+      "id": "menu.node.completed",
+      "parentInstanceId": "menu.progression-map",
+      "stateId": "menu",
+      "roleId": "progression-node",
+      "bindingId": "state.progression",
+      "stateFamilyId": "progression-node",
+      "required": true,
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.progression.completed",
+        "stateSemantics": [
+          "current",
+          "disabled"
+        ],
+        "traversalGroup": "progression"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": -0.24,
+            "y": 0.16
+          },
+          "size": {
+            "width": 0.15,
+            "height": 0.08
+          },
+          "fit": "contain"
+        },
+        "order": 11,
+        "visibility": "visible"
+      }
+    },
+    {
+      "id": "menu.node.current",
+      "parentInstanceId": "menu.progression-map",
+      "stateId": "menu",
+      "roleId": "progression-node",
+      "bindingId": "flow.start-current",
+      "stateFamilyId": "progression-node",
+      "required": true,
+      "actionId": "play",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.progression.current",
+        "stateSemantics": [
+          "current",
+          "disabled"
+        ],
+        "traversalGroup": "progression"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": 0.2
+          },
+          "size": {
+            "width": 0.15,
+            "height": 0.08
+          },
+          "fit": "contain"
+        },
+        "order": 12,
+        "visibility": "visible"
+      }
+    },
+    {
+      "id": "menu.node.locked",
+      "parentInstanceId": "menu.progression-map",
+      "stateId": "menu",
+      "roleId": "progression-node",
+      "bindingId": "state.progression",
+      "stateFamilyId": "progression-node",
+      "required": true,
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.progression.locked",
+        "stateSemantics": [
+          "current",
+          "disabled"
+        ],
+        "traversalGroup": "progression"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0.24,
+            "y": 0.16
+          },
+          "size": {
+            "width": 0.15,
+            "height": 0.08
+          },
+          "fit": "contain"
+        },
+        "order": 13,
+        "visibility": "visible"
+      }
+    },
+    {
+      "id": "menu.shop",
+      "parentInstanceId": null,
+      "stateId": "menu",
+      "roleId": "top-icon-action",
+      "bindingId": "flow.open-shop",
+      "stateFamilyId": "icon-button",
+      "required": true,
+      "actionId": "menu.shop",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.shop",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "header"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": -0.2,
+            "y": 0.025
+          },
+          "size": {
+            "width": 0.14,
+            "height": 0.07
+          },
+          "fit": "contain"
+        },
+        "order": 4,
+        "visibility": "visible"
+      }
+    },
+    {
+      "id": "level.currency",
+      "parentInstanceId": null,
+      "stateId": "level",
+      "roleId": "currency-counter",
+      "bindingId": "state.primary-currency",
+      "stateFamilyId": "static",
+      "required": true,
+      "accessibility": {
+        "role": "status",
+        "nameKey": "shell.currency.primary",
+        "stateSemantics": [],
+        "traversalGroup": "header"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0.04,
+            "y": 0.025
+          },
+          "size": {
+            "width": 0.32,
+            "height": 0.065
+          },
+          "fit": "contain"
+        },
+        "order": 0,
+        "visibility": "visible"
+      }
+    },
+    {
+      "id": "level.label",
+      "parentInstanceId": null,
+      "stateId": "level",
+      "roleId": "level-label",
+      "bindingId": "state.level-label",
+      "stateFamilyId": "static",
+      "required": true,
+      "accessibility": {
+        "role": "heading",
+        "nameKey": "shell.level.label",
+        "stateSemantics": [],
+        "traversalGroup": "header"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": 0.025
+          },
+          "size": {
+            "width": 0.32,
+            "height": 0.06
+          },
+          "fit": "contain"
+        },
+        "order": 1,
+        "visibility": "visible",
+        "copy": "Level"
+      }
+    },
+    {
+      "id": "level.pause",
+      "parentInstanceId": null,
+      "stateId": "level",
+      "roleId": "top-icon-action",
+      "bindingId": "flow.pause",
+      "stateFamilyId": "icon-button",
+      "required": true,
+      "actionId": "pause",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.pause",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "header"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": -0.04,
+            "y": 0.025
+          },
+          "size": {
+            "width": 0.14,
+            "height": 0.07
+          },
+          "fit": "contain"
+        },
+        "order": 2,
+        "visibility": "visible"
+      }
+    },
+    {
+      "id": "level.gameplay-region",
+      "parentInstanceId": null,
+      "stateId": "level",
+      "roleId": "gameplay-region",
+      "bindingId": "mechanic.mount",
+      "stateFamilyId": "static",
+      "required": true,
+      "accessibility": {
+        "role": "group",
+        "nameKey": "shell.gameplay.region",
+        "stateSemantics": [],
+        "traversalGroup": "gameplay"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "size": {
+            "width": 0.9,
+            "height": 0.68
+          },
+          "fit": "cover"
+        },
+        "order": 10,
+        "visibility": "visible"
+      }
+    },
+    {
+      "id": "level.test-win",
+      "parentInstanceId": null,
+      "stateId": "level",
+      "roleId": "bottom-left-test-action",
+      "bindingId": "flow.test-win",
+      "stateFamilyId": "button",
+      "required": true,
+      "actionId": "test-win",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.test-win",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "debug"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0.03,
+            "y": -0.02
+          },
+          "size": {
+            "width": 0.28,
+            "height": 0.07
+          },
+          "fit": "cover"
+        },
+        "order": 20,
+        "visibility": "visible",
+        "copy": "Test Win"
+      }
+    },
+    {
+      "id": "level.test-lose",
+      "parentInstanceId": null,
+      "stateId": "level",
+      "roleId": "bottom-right-test-action",
+      "bindingId": "flow.test-lose",
+      "stateFamilyId": "button",
+      "required": true,
+      "actionId": "test-lose",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.test-lose",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "debug"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": -0.03,
+            "y": -0.02
+          },
+          "size": {
+            "width": 0.28,
+            "height": 0.07
+          },
+          "fit": "cover"
+        },
+        "order": 21,
+        "visibility": "visible",
+        "copy": "Test Lose"
+      }
+    },
+    {
+      "id": "shop.page",
+      "parentInstanceId": null,
+      "stateId": "shop",
+      "roleId": "page-surface",
+      "bindingId": "presentation.static",
+      "stateFamilyId": "static",
+      "required": true,
+      "accessibility": {
+        "role": "region",
+        "nameKey": "shell.shop.title",
+        "stateSemantics": [],
+        "traversalGroup": "page"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "size": {
+            "width": 1,
+            "height": 1
+          },
+          "fit": "contain"
+        },
+        "order": 0,
+        "visibility": "visible"
+      }
+    },
+    {
+      "id": "shop.title",
+      "parentInstanceId": "shop.page",
+      "stateId": "shop",
+      "roleId": "screen-title",
+      "bindingId": "presentation.static",
+      "stateFamilyId": "static",
+      "required": true,
+      "accessibility": {
+        "role": "heading",
+        "nameKey": "shell.shop.title",
+        "stateSemantics": [],
+        "traversalGroup": "header"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": 0.02
+          },
+          "size": {
+            "width": 0.5,
+            "height": 0.07
+          },
+          "fit": "contain"
+        },
+        "order": 1,
+        "visibility": "visible",
+        "copy": "Shop"
+      }
+    },
+    {
+      "id": "shop.back",
+      "parentInstanceId": "shop.page",
+      "stateId": "shop",
+      "roleId": "header-back-action",
+      "bindingId": "flow.shop-back",
+      "stateFamilyId": "icon-button",
+      "required": true,
+      "actionId": "shop-back",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.back",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "header"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0.04,
+            "y": 0.025
+          },
+          "size": {
+            "width": 0.14,
+            "height": 0.07
+          },
+          "fit": "contain"
+        },
+        "order": 2,
+        "visibility": "visible"
+      }
+    },
+    {
+      "id": "shop.currency",
+      "parentInstanceId": "shop.page",
+      "stateId": "shop",
+      "roleId": "currency-counter",
+      "bindingId": "state.primary-currency",
+      "stateFamilyId": "static",
+      "required": true,
+      "accessibility": {
+        "role": "status",
+        "nameKey": "shell.currency.primary",
+        "stateSemantics": [],
+        "traversalGroup": "header"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0.04,
+            "y": 0.11
+          },
+          "size": {
+            "width": 0.32,
+            "height": 0.065
+          },
+          "fit": "contain"
+        },
+        "order": 3,
+        "visibility": "visible"
+      }
+    },
+    {
+      "id": "shop.currency.secondary",
+      "parentInstanceId": "shop.page",
+      "stateId": "shop",
+      "roleId": "currency-counter",
+      "bindingId": "state.secondary-currency",
+      "stateFamilyId": "static",
+      "required": false,
+      "accessibility": {
+        "role": "status",
+        "nameKey": "shell.currency.secondary",
+        "stateSemantics": [],
+        "traversalGroup": "header"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0.52,
+            "y": 0.11
+          },
+          "size": {
+            "width": 0.32,
+            "height": 0.065
+          },
+          "fit": "contain"
+        },
+        "order": 4,
+        "visibility": "visible"
+      }
+    },
+    {
+      "id": "shop.grid",
+      "parentInstanceId": "shop.page",
+      "stateId": "shop",
+      "roleId": "item-grid",
+      "bindingId": "state.shop-items",
+      "stateFamilyId": "static",
+      "required": true,
+      "accessibility": {
+        "role": "group",
+        "nameKey": "shell.shop.catalog",
+        "stateSemantics": [],
+        "traversalGroup": "catalog"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": 0.03
+          },
+          "size": {
+            "width": 0.9,
+            "height": 0.52
+          },
+          "fit": "contain"
+        },
+        "order": 10,
+        "visibility": "visible"
+      }
+    },
+    {
+      "id": "shop.item.available",
+      "parentInstanceId": "shop.grid",
+      "stateId": "shop",
+      "roleId": "item-card",
+      "bindingId": "state.shop-items",
+      "stateFamilyId": "shop-item",
+      "required": true,
+      "accessibility": {
+        "role": "group",
+        "nameKey": "shell.shop.item.available",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "catalog"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": -0.21,
+            "y": -0.1
+          },
+          "size": {
+            "width": 0.38,
+            "height": 0.22
+          },
+          "fit": "contain"
+        },
+        "order": 11,
+        "visibility": "visible",
+        "copy": "Item A"
+      }
+    },
+    {
+      "id": "shop.item.owned",
+      "parentInstanceId": "shop.grid",
+      "stateId": "shop",
+      "roleId": "item-card",
+      "bindingId": "state.shop-items",
+      "stateFamilyId": "shop-item",
+      "required": true,
+      "accessibility": {
+        "role": "group",
+        "nameKey": "shell.shop.item.owned",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "catalog"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0.21,
+            "y": -0.1
+          },
+          "size": {
+            "width": 0.38,
+            "height": 0.22
+          },
+          "fit": "contain"
+        },
+        "order": 12,
+        "visibility": "visible",
+        "copy": "Item B"
+      }
+    },
+    {
+      "id": "shop.item.locked",
+      "parentInstanceId": "shop.grid",
+      "stateId": "shop",
+      "roleId": "item-card",
+      "bindingId": "state.shop-items",
+      "stateFamilyId": "shop-item",
+      "required": true,
+      "accessibility": {
+        "role": "group",
+        "nameKey": "shell.shop.item.locked",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "catalog"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": -0.21,
+            "y": 0.14
+          },
+          "size": {
+            "width": 0.38,
+            "height": 0.22
+          },
+          "fit": "contain"
+        },
+        "order": 13,
+        "visibility": "visible",
+        "copy": "Item C"
+      }
+    },
+    {
+      "id": "shop.restore",
+      "parentInstanceId": "shop.page",
+      "stateId": "shop",
+      "roleId": "bottom-secondary-action",
+      "bindingId": "commerce.restore",
+      "stateFamilyId": "button",
+      "required": true,
+      "actionId": "shop-restore",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.restore",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "catalog"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": -0.02
+          },
+          "size": {
+            "width": 0.5,
+            "height": 0.07
+          },
+          "fit": "cover"
+        },
+        "order": 20,
+        "visibility": "visible",
+        "copy": "Restore"
+      }
+    },
+    {
+      "id": "settings.page",
+      "parentInstanceId": null,
+      "stateId": "settings",
+      "roleId": "page-surface",
+      "bindingId": "presentation.static",
+      "stateFamilyId": "static",
+      "required": true,
+      "accessibility": {
+        "role": "region",
+        "nameKey": "shell.settings.title",
+        "stateSemantics": [],
+        "traversalGroup": "page"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "size": {
+            "width": 1,
+            "height": 1
+          },
+          "fit": "contain"
+        },
+        "order": 0,
+        "visibility": "visible"
+      }
+    },
+    {
+      "id": "settings.title",
+      "parentInstanceId": "settings.page",
+      "stateId": "settings",
+      "roleId": "screen-title",
+      "bindingId": "presentation.static",
+      "stateFamilyId": "static",
+      "required": true,
+      "accessibility": {
+        "role": "heading",
+        "nameKey": "shell.settings.title",
+        "stateSemantics": [],
+        "traversalGroup": "header"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": 0.02
+          },
+          "size": {
+            "width": 0.5,
+            "height": 0.07
+          },
+          "fit": "contain"
+        },
+        "order": 1,
+        "visibility": "visible",
+        "copy": "Settings"
+      }
+    },
+    {
+      "id": "settings.back",
+      "parentInstanceId": "settings.page",
+      "stateId": "settings",
+      "roleId": "header-back-action",
+      "bindingId": "flow.settings-back",
+      "stateFamilyId": "icon-button",
+      "required": true,
+      "actionId": "settings-back",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.back",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "header"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0.04,
+            "y": 0.025
+          },
+          "size": {
+            "width": 0.14,
+            "height": 0.07
+          },
+          "fit": "contain"
+        },
+        "order": 2,
+        "visibility": "visible"
+      }
+    },
+    {
+      "id": "settings.music",
+      "parentInstanceId": "settings.page",
+      "stateId": "settings",
+      "roleId": "center-toggle-action",
+      "bindingId": "settings.music",
+      "stateFamilyId": "toggle",
+      "required": true,
+      "actionId": "settings.music",
+      "accessibility": {
+        "role": "switch",
+        "nameKey": "shell.settings.music",
+        "stateSemantics": [
+          "checked",
+          "disabled"
+        ],
+        "traversalGroup": "modal"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": -0.16
+          },
+          "size": {
+            "width": 0.7,
+            "height": 0.08
+          },
+          "fit": "contain"
+        },
+        "order": 3,
+        "visibility": "visible",
+        "copy": "Music"
+      }
+    },
+    {
+      "id": "settings.sfx",
+      "parentInstanceId": "settings.page",
+      "stateId": "settings",
+      "roleId": "center-toggle-action",
+      "bindingId": "settings.sfx",
+      "stateFamilyId": "toggle",
+      "required": true,
+      "actionId": "settings.sfx",
+      "accessibility": {
+        "role": "switch",
+        "nameKey": "shell.settings.sfx",
+        "stateSemantics": [
+          "checked",
+          "disabled"
+        ],
+        "traversalGroup": "modal"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": -0.06
+          },
+          "size": {
+            "width": 0.7,
+            "height": 0.08
+          },
+          "fit": "contain"
+        },
+        "order": 4,
+        "visibility": "visible",
+        "copy": "SFX"
+      }
+    },
+    {
+      "id": "settings.haptics",
+      "parentInstanceId": "settings.page",
+      "stateId": "settings",
+      "roleId": "center-toggle-action",
+      "bindingId": "settings.haptics",
+      "stateFamilyId": "toggle",
+      "required": true,
+      "actionId": "settings.haptics",
+      "accessibility": {
+        "role": "switch",
+        "nameKey": "shell.settings.haptics",
+        "stateSemantics": [
+          "checked",
+          "disabled"
+        ],
+        "traversalGroup": "modal"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": 0.04
+          },
+          "size": {
+            "width": 0.7,
+            "height": 0.08
+          },
+          "fit": "contain"
+        },
+        "order": 5,
+        "visibility": "visible",
+        "copy": "Haptics"
+      }
+    },
+    {
+      "id": "pause.panel",
+      "parentInstanceId": null,
+      "stateId": "pause",
+      "roleId": "modal-panel",
+      "bindingId": "presentation.static",
+      "stateFamilyId": "modal",
+      "required": true,
+      "accessibility": {
+        "role": "dialog",
+        "nameKey": "shell.pause.title",
+        "stateSemantics": [],
+        "traversalGroup": "modal"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "size": {
+            "width": 0.85,
+            "height": 0.62
+          },
+          "fit": "cover"
+        },
+        "order": 0,
+        "visibility": "visible",
+        "copy": "Paused"
+      }
+    },
+    {
+      "id": "pause.resume",
+      "parentInstanceId": "pause.panel",
+      "stateId": "pause",
+      "roleId": "bottom-primary-action",
+      "bindingId": "flow.resume",
+      "stateFamilyId": "button",
+      "required": true,
+      "actionId": "resume",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.resume",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "modal"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": -0.28
+          },
+          "size": {
+            "width": 0.55,
+            "height": 0.08
+          },
+          "fit": "cover"
+        },
+        "order": 1,
+        "visibility": "visible",
+        "copy": "Resume"
+      }
+    },
+    {
+      "id": "pause.settings",
+      "parentInstanceId": "pause.panel",
+      "stateId": "pause",
+      "roleId": "bottom-secondary-action",
+      "bindingId": "flow.open-settings",
+      "stateFamilyId": "button",
+      "required": true,
+      "actionId": "pause.settings",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.settings",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "modal"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": -0.18
+          },
+          "size": {
+            "width": 0.55,
+            "height": 0.08
+          },
+          "fit": "cover"
+        },
+        "order": 2,
+        "visibility": "visible",
+        "copy": "Settings"
+      }
+    },
+    {
+      "id": "pause.home",
+      "parentInstanceId": "pause.panel",
+      "stateId": "pause",
+      "roleId": "bottom-secondary-action",
+      "bindingId": "flow.pause-home",
+      "stateFamilyId": "button",
+      "required": true,
+      "actionId": "pause-home",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.home",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "modal"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": -0.08
+          },
+          "size": {
+            "width": 0.55,
+            "height": 0.08
+          },
+          "fit": "cover"
+        },
+        "order": 3,
+        "visibility": "visible",
+        "copy": "Home"
+      }
+    },
+    {
+      "id": "win.panel",
+      "parentInstanceId": null,
+      "stateId": "win",
+      "roleId": "result-panel",
+      "bindingId": "presentation.static",
+      "stateFamilyId": "result",
+      "required": true,
+      "accessibility": {
+        "role": "dialog",
+        "nameKey": "shell.win.title",
+        "stateSemantics": [],
+        "traversalGroup": "modal"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "size": {
+            "width": 0.85,
+            "height": 0.65
+          },
+          "fit": "cover"
+        },
+        "order": 0,
+        "visibility": "visible",
+        "copy": "You Win"
+      }
+    },
+    {
+      "id": "win.next",
+      "parentInstanceId": "win.panel",
+      "stateId": "win",
+      "roleId": "bottom-primary-action",
+      "bindingId": "flow.next",
+      "stateFamilyId": "button",
+      "required": true,
+      "actionId": "win-next",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.next",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "modal"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": -0.18
+          },
+          "size": {
+            "width": 0.55,
+            "height": 0.08
+          },
+          "fit": "cover"
+        },
+        "order": 1,
+        "visibility": "visible",
+        "copy": "Next"
+      }
+    },
+    {
+      "id": "win.home",
+      "parentInstanceId": "win.panel",
+      "stateId": "win",
+      "roleId": "bottom-secondary-action",
+      "bindingId": "flow.result-home",
+      "stateFamilyId": "button",
+      "required": true,
+      "actionId": "win-home",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.home",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "modal"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": -0.08
+          },
+          "size": {
+            "width": 0.55,
+            "height": 0.08
+          },
+          "fit": "cover"
+        },
+        "order": 2,
+        "visibility": "visible",
+        "copy": "Home"
+      }
+    },
+    {
+      "id": "fail.panel",
+      "parentInstanceId": null,
+      "stateId": "fail",
+      "roleId": "result-panel",
+      "bindingId": "presentation.static",
+      "stateFamilyId": "result",
+      "required": true,
+      "accessibility": {
+        "role": "dialog",
+        "nameKey": "shell.fail.title",
+        "stateSemantics": [],
+        "traversalGroup": "modal"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": 0
+          },
+          "size": {
+            "width": 0.85,
+            "height": 0.65
+          },
+          "fit": "cover"
+        },
+        "order": 0,
+        "visibility": "visible",
+        "copy": "Try Again"
+      }
+    },
+    {
+      "id": "fail.retry",
+      "parentInstanceId": "fail.panel",
+      "stateId": "fail",
+      "roleId": "bottom-primary-action",
+      "bindingId": "flow.retry",
+      "stateFamilyId": "button",
+      "required": true,
+      "actionId": "fail-retry",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.retry",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "modal"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": -0.18
+          },
+          "size": {
+            "width": 0.55,
+            "height": 0.08
+          },
+          "fit": "cover"
+        },
+        "order": 1,
+        "visibility": "visible",
+        "copy": "Retry"
+      }
+    },
+    {
+      "id": "fail.home",
+      "parentInstanceId": "fail.panel",
+      "stateId": "fail",
+      "roleId": "bottom-secondary-action",
+      "bindingId": "flow.result-home",
+      "stateFamilyId": "button",
+      "required": true,
+      "actionId": "fail-home",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.home",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "modal"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": -0.08
+          },
+          "size": {
+            "width": 0.55,
+            "height": 0.08
+          },
+          "fit": "cover"
+        },
+        "order": 2,
+        "visibility": "visible",
+        "copy": "Home"
+      }
+    }
+  ],
+  "requiredActions": [
+    {
+      "id": "play",
+      "stateId": "menu",
+      "bindingId": "flow.start-current",
+      "actionHook": "play",
+      "minimumCount": 2,
+      "instanceIds": [
+        "menu.node.current",
+        "menu.play"
+      ]
+    },
+    {
+      "id": "menu.settings",
+      "stateId": "menu",
+      "bindingId": "flow.open-settings",
+      "actionHook": "settings",
+      "minimumCount": 1,
+      "instanceIds": [
+        "menu.settings"
+      ]
+    },
+    {
+      "id": "pause",
+      "stateId": "level",
+      "bindingId": "flow.pause",
+      "actionHook": "pause",
+      "minimumCount": 1,
+      "instanceIds": [
+        "level.pause"
+      ]
+    },
+    {
+      "id": "test-win",
+      "stateId": "level",
+      "bindingId": "flow.test-win",
+      "actionHook": "test-win",
+      "minimumCount": 1,
+      "instanceIds": [
+        "level.test-win"
+      ]
+    },
+    {
+      "id": "test-lose",
+      "stateId": "level",
+      "bindingId": "flow.test-lose",
+      "actionHook": "test-lose",
+      "minimumCount": 1,
+      "instanceIds": [
+        "level.test-lose"
+      ]
+    },
+    {
+      "id": "settings.music",
+      "stateId": "settings",
+      "bindingId": "settings.music",
+      "actionHook": "settings-music",
+      "minimumCount": 1,
+      "instanceIds": [
+        "settings.music"
+      ]
+    },
+    {
+      "id": "settings.sfx",
+      "stateId": "settings",
+      "bindingId": "settings.sfx",
+      "actionHook": "settings-sfx",
+      "minimumCount": 1,
+      "instanceIds": [
+        "settings.sfx"
+      ]
+    },
+    {
+      "id": "settings.haptics",
+      "stateId": "settings",
+      "bindingId": "settings.haptics",
+      "actionHook": "settings-haptics",
+      "minimumCount": 1,
+      "instanceIds": [
+        "settings.haptics"
+      ]
+    },
+    {
+      "id": "settings-back",
+      "stateId": "settings",
+      "bindingId": "flow.settings-back",
+      "actionHook": "back",
+      "minimumCount": 1,
+      "instanceIds": [
+        "settings.back"
+      ]
+    },
+    {
+      "id": "resume",
+      "stateId": "pause",
+      "bindingId": "flow.resume",
+      "actionHook": "pause-resume",
+      "minimumCount": 1,
+      "instanceIds": [
+        "pause.resume"
+      ]
+    },
+    {
+      "id": "pause.settings",
+      "stateId": "pause",
+      "bindingId": "flow.open-settings",
+      "actionHook": "pause-settings",
+      "minimumCount": 1,
+      "instanceIds": [
+        "pause.settings"
+      ]
+    },
+    {
+      "id": "pause-home",
+      "stateId": "pause",
+      "bindingId": "flow.pause-home",
+      "actionHook": "pause-quit",
+      "minimumCount": 1,
+      "instanceIds": [
+        "pause.home"
+      ]
+    },
+    {
+      "id": "win-next",
+      "stateId": "win",
+      "bindingId": "flow.next",
+      "actionHook": "result-next",
+      "minimumCount": 1,
+      "instanceIds": [
+        "win.next"
+      ]
+    },
+    {
+      "id": "win-home",
+      "stateId": "win",
+      "bindingId": "flow.result-home",
+      "actionHook": "result-menu",
+      "minimumCount": 1,
+      "instanceIds": [
+        "win.home"
+      ]
+    },
+    {
+      "id": "fail-retry",
+      "stateId": "fail",
+      "bindingId": "flow.retry",
+      "actionHook": "result-retry",
+      "minimumCount": 1,
+      "instanceIds": [
+        "fail.retry"
+      ]
+    },
+    {
+      "id": "fail-home",
+      "stateId": "fail",
+      "bindingId": "flow.result-home",
+      "actionHook": "result-menu",
+      "minimumCount": 1,
+      "instanceIds": [
+        "fail.home"
+      ]
+    },
+    {
+      "id": "menu.shop",
+      "stateId": "menu",
+      "bindingId": "flow.open-shop",
+      "actionHook": "shop",
+      "minimumCount": 1,
+      "instanceIds": [
+        "menu.shop"
+      ]
+    },
+    {
+      "id": "shop-back",
+      "stateId": "shop",
+      "bindingId": "flow.shop-back",
+      "actionHook": "back",
+      "minimumCount": 1,
+      "instanceIds": [
+        "shop.back"
+      ]
+    },
+    {
+      "id": "shop-restore",
+      "stateId": "shop",
+      "bindingId": "commerce.restore",
+      "actionHook": "shop-restore",
+      "minimumCount": 1,
+      "instanceIds": [
+        "shop.restore"
+      ]
+    }
+  ],
+  "editableAst": {
+    "astVersion": 1,
+    "numberBounds": {
+      "offset": {
+        "minimum": -1,
+        "maximum": 1
+      },
+      "normalizedSize": {
+        "minimumExclusive": 0,
+        "maximum": 1
+      },
+      "order": {
+        "minimum": 0,
+        "maximum": 255,
+        "integer": true
+      },
+      "opacity": {
+        "minimum": 0,
+        "maximum": 1
+      },
+      "scale": {
+        "minimum": 0.5,
+        "maximum": 2
+      }
+    },
+    "enums": {
+      "visibility": [
+        "visible",
+        "hidden"
+      ],
+      "fit": [
+        "contain",
+        "cover"
+      ]
+    },
+    "colorFormats": [
+      "#RRGGBB",
+      "#RRGGBBAA"
+    ],
+    "copy": {
+      "maximumCodePoints": 512,
+      "allowNewlines": true
+    },
+    "assetIds": {
+      "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$",
+      "mustExistInPublicationCatalog": true
+    },
+    "allowedPresentationFields": [
+      "geometry",
+      "order",
+      "visibility",
+      "copy",
+      "colors",
+      "assetId",
+      "opacity",
+      "scale"
+    ],
+    "forbiddenFields": [
+      "css",
+      "html",
+      "url",
+      "href",
+      "src",
+      "style",
+      "attribute",
+      "attributes",
+      "script",
+      "handler",
+      "onClick",
+      "function",
+      "expression",
+      "source"
+    ]
+  },
+  "neutralIdPolicy": {
+    "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$",
+    "forbiddenTokens": [
+      "blue",
+      "green",
+      "red",
+      "gold",
+      "kenney",
+      "marble",
+      "dog",
+      "candy",
+      "wood",
+      "metal",
+      "neon",
+      "pixel",
+      "cartoon"
+    ]
+  },
+  "rendererProfiles": [
+    {
+      "id": "dom-css",
+      "label": "DOM/CSS shell runtime projection",
+      "editorSourceKinds": [
+        "component-records",
+        "portable-export",
+        "project-json"
+      ],
+      "requiredArtifacts": [
+        "tokens.css",
+        "copy.ts",
+        "assets.ts",
+        "presentation.ts",
+        "asset-identity.json"
+      ],
+      "allowedArtifactPatterns": [
+        "^assets/(?:[a-z0-9][a-z0-9._-]*/)*[a-z0-9][a-z0-9._-]*\\.(?:png|jpe?g|webp)$"
+      ]
+    },
+    {
+      "id": "phaser-native",
+      "label": "Phaser-native shell runtime projection",
+      "editorSourceKinds": [
+        "asset-pack",
+        "editor-config",
+        "scene",
+        "user-components"
+      ],
+      "requiredArtifacts": [
+        "scene-manifest.json",
+        "asset-pack.json",
+        "asset-identity.json"
+      ],
+      "allowedArtifactPatterns": [
+        "^assets/(?:[a-z0-9][a-z0-9._-]*/)*[a-z0-9][a-z0-9._-]*\\.(?:png|jpe?g|webp)$",
+        "^scenes/[a-z0-9][a-z0-9-]*\\.(?:ts|js)$"
+      ]
+    }
+  ],
+  "publication": {
+    "publicationIdAlgorithm": "sha256",
+    "publicationIdDomain": "shell-publication-v2",
+    "publicationIdFields": [
+      "contractId",
+      "contractVersion",
+      "rendererProfile",
+      "editorSources",
+      "assetCatalogHash",
+      "pageCount",
+      "states"
+    ],
+    "requiredStates": [
+      "menu",
+      "level",
+      "shop",
+      "settings",
+      "pause",
+      "win",
+      "fail"
+    ],
+    "canonicalComponentFields": [
+      "id",
+      "parentInstanceId",
+      "order",
+      "stateId",
+      "roleId",
+      "bindingId",
+      "stateFamilyId",
+      "actionId",
+      "accessibility",
+      "presentation",
+      "variants"
+    ],
+    "portableContentNetworkPolicy": "disabled",
+    "mixedRevisionPolicy": "reject"
+  },
+  "projection": {
+    "pointerPath": "design/revision.json",
+    "immutableRevisionRoot": "design/revisions",
+    "revisionDirectoryName": "<projection-id>",
+    "projectionIdAlgorithm": "sha256",
+    "projectionIdDomain": "shell-projection-v2",
+    "projectionIdFields": [
+      "contractId",
+      "contractVersion",
+      "rendererProfile",
+      "compatibilityHash",
+      "sourcePublicationId",
+      "artifacts"
+    ],
+    "assetDirectory": "assets",
+    "artifactHashAlgorithm": "sha256",
+    "atomicPointerReplacement": true
+  },
+  "schemas": {
+    "presentation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "shell-presentation-v2/presentation",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractId",
+        "contractVersion",
+        "pages"
+      ],
+      "properties": {
+        "contractId": {
+          "const": "shell-presentation-v2"
+        },
+        "contractVersion": {
+          "const": "2.0.0"
+        },
+        "pages": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "items": {
+            "$ref": "#/$defs/page"
+          }
+        }
+      },
+      "$defs": {
+        "number": {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        "geometry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "offset",
+            "size",
+            "fit"
+          ],
+          "properties": {
+            "offset": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "x",
+                "y"
+              ],
+              "properties": {
+                "x": {
+                  "$ref": "#/$defs/number"
+                },
+                "y": {
+                  "$ref": "#/$defs/number"
+                }
+              }
+            },
+            "size": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "width",
+                "height"
+              ],
+              "properties": {
+                "width": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 1
+                },
+                "height": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "maximum": 1
+                }
+              }
+            },
+            "fit": {
+              "enum": [
+                "contain",
+                "cover"
+              ]
+            }
+          }
+        },
+        "visual": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "geometry": {
+              "$ref": "#/$defs/geometry"
+            },
+            "order": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255
+            },
+            "visibility": {
+              "enum": [
+                "visible",
+                "hidden"
+              ]
+            },
+            "copy": {
+              "type": "string",
+              "maxLength": 512,
+              "pattern": "^(?![\\s\\S]*</?[A-Za-z][^>]*>)(?![\\s\\S]*(?:[Jj][Aa][Vv][Aa][Ss][Cc][Rr][Ii][Pp][Tt]|[Dd][Aa][Tt][Aa]|[Bb][Ll][Oo][Bb])\\s*:)(?![\\s\\S]*[\\u0000-\\u0008\\u000B\\u000C\\u000E-\\u001F\\u007F])(?:[^\\uD800-\\uDFFF]|[\\uD800-\\uDBFF][\\uDC00-\\uDFFF])*$"
+            },
+            "colors": {
+              "type": "object",
+              "propertyNames": {
+                "enum": [
+                  "background",
+                  "foreground",
+                  "accent",
+                  "border",
+                  "shadow"
+                ]
+              },
+              "additionalProperties": {
+                "type": "string",
+                "pattern": "^#[0-9A-Fa-f]{6}(?:[0-9A-Fa-f]{2})?$"
+              }
+            },
+            "assetId": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+            },
+            "opacity": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "scale": {
+              "type": "number",
+              "minimum": 0.5,
+              "maximum": 2
+            }
+          }
+        },
+        "defaultPresentation": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/visual"
+            },
+            {
+              "type": "object",
+              "required": [
+                "geometry",
+                "order",
+                "visibility"
+              ]
+            }
+          ]
+        },
+        "instance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "prototypeInstanceId",
+            "parentInstanceId",
+            "roleId",
+            "bindingId",
+            "stateFamilyId",
+            "accessibility",
+            "presentation",
+            "variants"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+            },
+            "prototypeInstanceId": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+            },
+            "parentInstanceId": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "roleId": {
+              "type": "string"
+            },
+            "bindingId": {
+              "type": "string"
+            },
+            "stateFamilyId": {
+              "type": "string"
+            },
+            "actionId": {
+              "type": "string"
+            },
+            "accessibility": {
+              "$ref": "#/$defs/accessibility"
+            },
+            "presentation": {
+              "$ref": "#/$defs/defaultPresentation"
+            },
+            "variants": {
+              "type": "object",
+              "additionalProperties": {
+                "$ref": "#/$defs/visual"
+              }
+            }
+          }
+        },
+        "accessibility": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "role",
+            "nameKey",
+            "stateSemantics",
+            "traversalGroup"
+          ],
+          "properties": {
+            "role": {
+              "type": "string",
+              "minLength": 1
+            },
+            "nameKey": {
+              "type": "string",
+              "minLength": 1
+            },
+            "stateSemantics": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "enum": [
+                  "checked",
+                  "current",
+                  "disabled",
+                  "pressed",
+                  "selected"
+                ]
+              }
+            },
+            "traversalGroup": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "page": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "stateId",
+            "editorPageId",
+            "instances"
+          ],
+          "properties": {
+            "stateId": {
+              "enum": [
+                "menu",
+                "level",
+                "shop",
+                "settings",
+                "pause",
+                "win",
+                "fail"
+              ]
+            },
+            "editorPageId": {
+              "type": "string"
+            },
+            "instances": {
+              "type": "array",
+              "maxItems": 4096,
+              "items": {
+                "$ref": "#/$defs/instance"
+              }
+            }
+          }
+        }
+      }
+    },
+    "assetCatalog": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "shell-presentation-v2/asset-catalog",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractId",
+        "contractVersion",
+        "assets"
+      ],
+      "properties": {
+        "contractId": {
+          "const": "shell-presentation-v2"
+        },
+        "contractVersion": {
+          "const": "2.0.0"
+        },
+        "assets": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "description",
+              "slotId",
+              "path",
+              "mimeType",
+              "width",
+              "height",
+              "bytes",
+              "hasAlpha",
+              "sha256",
+              "provenance"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80,
+                "pattern": "^(?=.*\\S)[^\\u0000-\\u001F\\u007F]+$"
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 320,
+                "pattern": "^(?=.*\\S)[^\\u0000-\\u001F\\u007F]+$"
+              },
+              "slotId": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string",
+                "pattern": "^assets/(?:[a-z0-9][a-z0-9._-]*/)*[a-z0-9][a-z0-9._-]*\\.(?:png|jpe?g|webp)$"
+              },
+              "mimeType": {
+                "enum": [
+                  "image/png",
+                  "image/jpeg",
+                  "image/webp"
+                ]
+              },
+              "width": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4096
+              },
+              "height": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 4096
+              },
+              "bytes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 8388608
+              },
+              "hasAlpha": {
+                "type": "boolean"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^sha256-[a-f0-9]{64}$"
+              },
+              "provenance": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "sourceId",
+                  "sourcePath",
+                  "sourceHash",
+                  "license"
+                ],
+                "properties": {
+                  "sourceId": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "sourcePath": {
+                    "type": "string",
+                    "pattern": "^(?!/)(?!\\.\\.?$)(?!\\.\\.?/)(?!.*\\/\\.\\.?(?:\\/|$))(?!.*[\\\\?#\\u0000-\\u001F\\u007F])[^/]+(?:/[^/]+)*$"
+                  },
+                  "sourceHash": {
+                    "type": "string",
+                    "pattern": "^sha256-[a-f0-9]{64}$"
+                  },
+                  "license": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "publication": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "shell-presentation-v2/publication",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractId",
+        "contractVersion",
+        "publicationId",
+        "rendererProfile",
+        "editorSources",
+        "assetCatalogHash",
+        "pageCount",
+        "states"
+      ],
+      "properties": {
+        "contractId": {
+          "const": "shell-presentation-v2"
+        },
+        "contractVersion": {
+          "const": "2.0.0"
+        },
+        "publicationId": {
+          "type": "string",
+          "pattern": "^sha256-[a-f0-9]{64}$"
+        },
+        "rendererProfile": {
+          "enum": [
+            "dom-css",
+            "phaser-native"
+          ]
+        },
+        "editorSources": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "sha256"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^sha256-[a-f0-9]{64}$"
+              }
+            }
+          }
+        },
+        "assetCatalogHash": {
+          "type": "string",
+          "pattern": "^sha256-[a-f0-9]{64}$"
+        },
+        "pageCount": {
+          "const": 7
+        },
+        "states": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "const": "menu"
+            },
+            {
+              "const": "level"
+            },
+            {
+              "const": "shop"
+            },
+            {
+              "const": "settings"
+            },
+            {
+              "const": "pause"
+            },
+            {
+              "const": "win"
+            },
+            {
+              "const": "fail"
+            }
+          ],
+          "items": false
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "rendererProfile": {
+              "const": "dom-css"
+            },
+            "editorSources": {
+              "items": {
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "component-records",
+                      "portable-export",
+                      "project-json"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "properties": {
+            "rendererProfile": {
+              "const": "phaser-native"
+            },
+            "editorSources": {
+              "items": {
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "asset-pack",
+                      "editor-config",
+                      "scene",
+                      "user-components"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "projectionRevision": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "shell-presentation-v2/projection-revision",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractId",
+        "contractVersion",
+        "rendererProfile",
+        "compatibilityHash",
+        "projectionId",
+        "sourcePublicationId",
+        "revisionPath",
+        "artifacts"
+      ],
+      "properties": {
+        "contractId": {
+          "const": "shell-presentation-v2"
+        },
+        "contractVersion": {
+          "const": "2.0.0"
+        },
+        "rendererProfile": {
+          "enum": [
+            "dom-css",
+            "phaser-native"
+          ]
+        },
+        "compatibilityHash": {
+          "type": "string",
+          "pattern": "^sha256-[a-f0-9]{64}$"
+        },
+        "projectionId": {
+          "type": "string",
+          "pattern": "^sha256-[a-f0-9]{64}$"
+        },
+        "sourcePublicationId": {
+          "type": "string",
+          "pattern": "^sha256-[a-f0-9]{64}$"
+        },
+        "revisionPath": {
+          "type": "string",
+          "pattern": "^design/revisions/sha256-[a-f0-9]{64}$"
+        },
+        "artifacts": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "path",
+              "sha256",
+              "bytes"
+            ],
+            "properties": {
+              "path": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "tokens.css",
+                      "copy.ts",
+                      "assets.ts",
+                      "presentation.ts",
+                      "asset-identity.json",
+                      "scene-manifest.json",
+                      "asset-pack.json"
+                    ]
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^assets/(?:[a-z0-9][a-z0-9._-]*/)*[a-z0-9][a-z0-9._-]*\\.(?:png|jpe?g|webp)$"
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^scenes/[a-z0-9][a-z0-9-]*\\.(?:ts|js)$"
+                  }
+                ]
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^sha256-[a-f0-9]{64}$"
+              },
+              "bytes": {
+                "type": "integer",
+                "minimum": 0
+              }
+            }
+          }
+        }
+      }
+    },
+    "assetIdentity": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "$id": "shell-presentation-v2/asset-identity",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contractId",
+        "contractVersion",
+        "projectionId",
+        "sourcePublicationId",
+        "assets"
+      ],
+      "properties": {
+        "contractId": {
+          "const": "shell-presentation-v2"
+        },
+        "contractVersion": {
+          "const": "2.0.0"
+        },
+        "projectionId": {
+          "type": "string",
+          "pattern": "^sha256-[a-f0-9]{64}$"
+        },
+        "sourcePublicationId": {
+          "type": "string",
+          "pattern": "^sha256-[a-f0-9]{64}$"
+        },
+        "assets": {
+          "type": "array",
+          "maxItems": 4096,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "instanceId",
+              "slotId",
+              "assetId",
+              "path",
+              "sha256"
+            ],
+            "properties": {
+              "instanceId": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+              },
+              "slotId": {
+                "type": "string"
+              },
+              "assetId": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+              },
+              "path": {
+                "type": "string",
+                "pattern": "^assets/(?:[a-z0-9][a-z0-9._-]*/)*[a-z0-9][a-z0-9._-]*\\.(?:png|jpe?g|webp)$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^sha256-[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
