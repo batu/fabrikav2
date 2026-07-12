@@ -20,7 +20,7 @@ reference:
 # V2 lane = this fabrikav2 port, driven by the game harness `driveTo(state)`
 # (`@fabrikav2/testkit/testing`, wired in `../src/shell/harness.ts`).
 v2:
-  package: com.fabrikav2.shell_proof_phaser   # create-game substitutes this to com.fabrikav2.<game>.
+  package: com.fabrika.shellproofphaser
   version: dev
   viewport: 390x844
 
