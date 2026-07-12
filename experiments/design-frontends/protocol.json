@@ -3,8 +3,18 @@
   "protocolVersion": "1.0.0",
   "plan": "goal.md",
   "freeze": {
-    "baselineCommit": null,
-    "note": "The conductor records the landed U1 integration SHA plus canonical hashes of protocol.json, fences.json, and baseline/* here at freeze. A null baselineCommit means the baseline is not sealed."
+    "baselineCommit": "9428c0626b22956b1da4406b822e97da3b776397",
+    "sealedStage": "U1",
+    "hashAlgorithm": "sha256",
+    "hashRule": "protocol.json is hashed over the SHA-256 of its parsed JSON with the top-level `freeze` key removed and the remaining keys recursively sorted, then serialized compactly — non-circular, because this freeze block that stores the hashes is excluded from its own input. fences.json and every baseline/* file are hashed over their exact on-disk bytes. `npm run freeze-gate` (tools/verify-gate/freeze-gate.mjs) recomputes and enforces these.",
+    "hashes": {
+      "protocol.json": "41456d77949a9b73013a33b269ca15773a6d8ae268b06204a5fad4926ee4557c",
+      "fences.json": "2e167cd546a64d1f4c355623126eeea345b48ad3b7a042354324802f2b035660",
+      "baseline/behavior-hashes.json": "fafab4ee9b190edc7f1621e2235b0be72586433bfeaa8ae6c008dd49f05ffc7c",
+      "baseline/dependencies.json": "34f13a11ab478ed362adf4971b0dbfb277bf4c4b73e26f3e7f0774f808131856",
+      "baseline/device-profile.json": "b65b51d8cb25930c1f4e90e352933d5da358c611543408d9549c6c7b9c6b27dd"
+    },
+    "note": "A non-null baselineCommit means the baseline IS sealed: the recorded commit is present and an ancestor of HEAD, and the frozen files match the hashes above. A null baselineCommit means NOT sealed. freeze-gate fails closed on a null/missing/inappropriate commit, a hash mismatch, or a missing/extra frozen file."
   },
   "contract": {
     "contractId": "shell-presentation-v2",

@@ -39,8 +39,28 @@ input for a proof game.
 
 ## Freeze record
 
-The conductor records the landed integration SHA and the canonical hashes of
-`protocol.json`, `fences.json`, and `baseline/*` in `protocol.json`'s
-`freeze` block when U1 lands. Until then `freeze.baselineCommit` is `null` —
-a null freeze means the baseline is NOT yet sealed and scored work cannot
-begin.
+`protocol.json`'s `freeze` block seals this baseline. It records the landed U1
+integration SHA (`baselineCommit`) plus the canonical SHA-256 of `protocol.json`,
+`fences.json`, and every `baseline/*` file. A `null` `baselineCommit` means the
+baseline is NOT sealed and scored work cannot begin; a non-null commit means it
+is sealed and the frozen bytes are pinned.
+
+**Canonical hash rule (deterministic, non-circular):**
+
+- `protocol.json` is hashed over the SHA-256 of its parsed JSON with the
+  top-level `freeze` key removed and the remaining keys recursively sorted, then
+  serialized compactly. Excluding the `freeze` block — which *stores* the hashes
+  — from its own input is what makes the rule non-circular: sealing the record
+  never changes the recorded protocol hash.
+- `fences.json` and every `baseline/*` file are hashed over their exact on-disk
+  bytes.
+- `hashAlgorithm` is `sha256`.
+
+**Verifier:** `npm run freeze-gate` (`tools/verify-gate/freeze-gate.mjs`) is the
+executable seal check. It fails closed on a `null`/malformed `baselineCommit`, a
+commit that is absent from the repo or not an ancestor of `HEAD`, a hash
+mismatch, or a missing/extra frozen file, and self-disables (SKIP) on branches
+without this baseline. It runs as part of `npm run project-gate`; its logic is
+unit-tested in `tools/verify-gate/test/freeze.test.mjs`. Re-seal after any
+authorized change to `protocol.json` (payload), `fences.json`, or `baseline/*`
+by recomputing the hashes and updating the `freeze` block.
