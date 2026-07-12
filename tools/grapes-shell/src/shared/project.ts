@@ -1,24 +1,25 @@
 import {
   canonicalizeJson,
-  createDefaultShellPresentation,
-  parseShellPresentation,
-  shellPresentationContract,
+  createDefaultShellPresentationV2,
+  parseShellPresentationV2,
+  shellPresentationContractV2,
   type ShellAssetCatalog,
-  type ShellPresentationDocument,
+  type ShellPresentationDocumentV2,
   type ShellPresentationInstance,
-  type ShellStateId,
+  type ShellStateIdV2,
   type ShellVisualPresentation,
 } from "@fabrikav2/kernel";
 
-const PROJECT_FORMAT = "grapes-shell-project-v1";
-const PROJECT_VERSION = 1;
+const PROJECT_FORMAT = "grapes-shell-project-v2";
+const PROJECT_VERSION = 2;
+export const GRAPES_TARGET_GAME = "shell_proof_grapes";
 const TARGET_GAME = /^[a-z][a-z0-9_]*$/u;
 
 interface ConstrainedGrapesComponent {
   readonly id: string;
   readonly prototypeInstanceId: string;
   readonly parentInstanceId: string | null;
-  readonly stateId: ShellStateId;
+  readonly stateId: ShellStateIdV2;
   readonly roleId: string;
   readonly bindingId: string;
   readonly stateFamilyId: string;
@@ -35,7 +36,7 @@ interface ConstrainedGrapesPage {
 }
 
 export interface ConstrainedGrapesProject {
-  readonly format: "grapesjs-constrained-project-v1";
+  readonly format: "grapesjs-constrained-project-v2";
   readonly pages: readonly ConstrainedGrapesPage[];
 }
 
@@ -43,7 +44,7 @@ export interface GrapesShellProject {
   readonly format: typeof PROJECT_FORMAT;
   readonly version: typeof PROJECT_VERSION;
   readonly targetGame: string;
-  readonly presentation: ShellPresentationDocument;
+  readonly presentation: ShellPresentationDocumentV2;
   readonly grapesjs: ConstrainedGrapesProject;
 }
 
@@ -119,13 +120,13 @@ function assertInertJson(value: unknown, path = "$", depth = 0, count = { value:
   }
 }
 
-function pageName(stateId: ShellStateId): string {
-  return shellPresentationContract.states.find((state) => state.id === stateId)?.label ?? stateId;
+function pageName(stateId: ShellStateIdV2): string {
+  return shellPresentationContractV2.states.find((state) => state.id === stateId)?.label ?? stateId;
 }
 
-export function createConstrainedGrapesProject(document: ShellPresentationDocument): ConstrainedGrapesProject {
+export function createConstrainedGrapesProject(document: ShellPresentationDocumentV2): ConstrainedGrapesProject {
   return {
-    format: "grapesjs-constrained-project-v1",
+    format: "grapesjs-constrained-project-v2",
     pages: document.pages.map((page) => ({
       id: page.editorPageId,
       name: pageName(page.stateId),
@@ -146,7 +147,7 @@ export function createConstrainedGrapesProject(document: ShellPresentationDocume
   };
 }
 
-function rebuild(presentation: ShellPresentationDocument, targetGame: string): GrapesShellProject {
+function rebuild(presentation: ShellPresentationDocumentV2, targetGame: string): GrapesShellProject {
   return {
     format: PROJECT_FORMAT,
     version: PROJECT_VERSION,
@@ -160,10 +161,11 @@ function rebuild(presentation: ShellPresentationDocument, targetGame: string): G
 // catalog and targets the slot its semantic role owns (role.assetSlotId ===
 // asset.slotId); slots with no curated raster (title, hero, gameplay, modal,
 // toggle) intentionally start without an asset.
-function assignStarterAssets(document: ShellPresentationDocument): ShellPresentationDocument {
+function assignStarterAssets(document: ShellPresentationDocumentV2): ShellPresentationDocumentV2 {
   const assets: Record<string, string> = {
     "menu.currency": "counter-frame.primary-currency",
     "menu.settings": "icon-control.settings",
+    "menu.shop": "icon-control.shop",
     "menu.play": "button-surface.primary",
     "menu.node.completed": "progression-node.completed",
     "menu.node.current": "progression-node.current",
@@ -172,7 +174,11 @@ function assignStarterAssets(document: ShellPresentationDocument): ShellPresenta
     "level.pause": "icon-control.pause",
     "level.test-win": "button-surface.test-win",
     "level.test-lose": "button-surface.test-lose",
-    "settings.back": "button-surface.primary",
+    "shop.back": "icon-control.back",
+    "shop.currency": "counter-frame.primary-currency",
+    "shop.currency.secondary": "counter-frame.primary-currency",
+    "shop.restore": "button-surface.secondary",
+    "settings.back": "icon-control.back",
     "pause.resume": "button-surface.primary",
     "pause.settings": "button-surface.secondary",
     "pause.home": "button-surface.secondary",
@@ -191,9 +197,9 @@ function assignStarterAssets(document: ShellPresentationDocument): ShellPresenta
   return clone;
 }
 
-export function createStarterProject(targetGame = "shell_proof"): GrapesShellProject {
+export function createStarterProject(targetGame = GRAPES_TARGET_GAME): GrapesShellProject {
   if (!TARGET_GAME.test(targetGame)) throw new ProjectValidationError(`Invalid target game "${targetGame}".`);
-  return rebuild(assignStarterAssets(createDefaultShellPresentation()), targetGame);
+  return rebuild(assignStarterAssets(createDefaultShellPresentationV2()), targetGame);
 }
 
 export function validateProjectFile(
@@ -219,19 +225,19 @@ export function validateProjectFile(
   // canonical catalog, enforces that every referenced raster exists and targets
   // the slot its semantic role owns (role.assetSlotId === asset.slotId).
   try {
-    parseShellPresentation(root.presentation, { assetCatalog });
+    parseShellPresentationV2(root.presentation, { assetCatalog });
   } catch (error) {
     throw new ProjectValidationError(error instanceof Error ? error.message : "Closed AST validation failed.");
   }
 
-  const expected = createConstrainedGrapesProject(root.presentation as ShellPresentationDocument);
+  const expected = createConstrainedGrapesProject(root.presentation as ShellPresentationDocumentV2);
   if (canonicalizeJson(root.grapesjs) !== canonicalizeJson(expected)) {
     throw new ProjectValidationError("GrapesJS data diverges from the canonical closed presentation AST.");
   }
-  return rebuild(root.presentation as ShellPresentationDocument, root.targetGame);
+  return rebuild(root.presentation as ShellPresentationDocumentV2, root.targetGame);
 }
 
-function findInstance(document: ShellPresentationDocument, instanceId: string): { pageIndex: number; instanceIndex: number } {
+function findInstance(document: ShellPresentationDocumentV2, instanceId: string): { pageIndex: number; instanceIndex: number } {
   for (const [pageIndex, page] of document.pages.entries()) {
     const instanceIndex = page.instances.findIndex((instance) => instance.id === instanceId);
     if (instanceIndex >= 0) return { pageIndex, instanceIndex };
@@ -239,7 +245,7 @@ function findInstance(document: ShellPresentationDocument, instanceId: string): 
   throw new ProjectValidationError(`Unknown semantic instance "${instanceId}".`);
 }
 
-function nextDuplicateId(document: ShellPresentationDocument, sourceId: string): string {
+function nextDuplicateId(document: ShellPresentationDocumentV2, sourceId: string): string {
   const existing = new Set(document.pages.flatMap((page) => page.instances.map((instance) => instance.id)));
   let index = 1;
   while (existing.has(`${sourceId}.copy-${index}`)) index += 1;
@@ -277,7 +283,7 @@ export function updateInstancePresentation(
 }
 
 function siblingInstances(
-  document: ShellPresentationDocument,
+  document: ShellPresentationDocumentV2,
   pageIndex: number,
   parentInstanceId: string | null,
 ): ShellPresentationInstance[] {
@@ -300,7 +306,7 @@ export function canReorderInstance(
 }
 
 function assignHierarchyOrder(
-  page: ShellPresentationDocument["pages"][number],
+  page: ShellPresentationDocumentV2["pages"][number],
   siblingOverride: readonly ShellPresentationInstance[],
   parentInstanceId: string | null,
 ): void {

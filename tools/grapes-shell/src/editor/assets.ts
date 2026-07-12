@@ -2,7 +2,7 @@
 
 import type { ShellAssetCatalogEntry } from "@fabrikav2/kernel";
 
-const bundledAssetUrls = import.meta.glob("../../../../games/_template/design/assets/*.png", {
+const bundledAssetUrls = import.meta.glob("../../../../games/shell_proof_grapes/design/assets/*.png", {
   eager: true,
   query: "?url",
   import: "default",

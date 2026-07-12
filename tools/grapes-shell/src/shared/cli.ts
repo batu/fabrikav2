@@ -65,7 +65,7 @@ function parseContext(argv: readonly string[]): CliContext {
     command,
     game,
     authoringDir: path.join(root, "games", game, "authoring", "grapesjs"),
-    seedRoot: path.resolve(flags.get("--seed-root") ?? path.join(root, "games/_template/design")),
+    seedRoot: path.resolve(flags.get("--seed-root") ?? path.join(root, "games", game, "design")),
     ...(expectedProjectHash ? { expectedProjectHash } : {}),
     ...(expectedAssetCatalogHash ? { expectedAssetCatalogHash } : {}),
   };

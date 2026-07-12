@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-import type { ShellStateId } from "@fabrikav2/kernel";
+import type { ShellStateIdV2 } from "@fabrikav2/kernel";
 
 import type { PreviewRenderer } from "./publisher.ts";
 
@@ -11,7 +11,7 @@ const FORBIDDEN_PORTABLE_CONTENT = /<script\b|\s(?:on[a-z]+|style)\s*=|(?:javasc
 const CANVAS_WIDTH = 390;
 const CANVAS_HEIGHT = 844;
 
-function assertPortableHtml(html: string, stateId: ShellStateId): void {
+function assertPortableHtml(html: string, stateId: ShellStateIdV2): void {
   if (FORBIDDEN_PORTABLE_CONTENT.test(html)) {
     throw new Error(`Portable ${stateId} page contains executable or networked content.`);
   }
@@ -49,7 +49,7 @@ export const renderPortablePreviews: PreviewRenderer = async ({ portableDirector
         }
         await route.continue();
       });
-      const pages: Array<{ stateId: ShellStateId; bytes: Uint8Array }> = [];
+      const pages: Array<{ stateId: ShellStateIdV2; bytes: Uint8Array }> = [];
       const browserViolations: string[] = [];
       page.on("console", (message) => {
         if (/content security policy|refused to/iu.test(message.text())) browserViolations.push(message.text());

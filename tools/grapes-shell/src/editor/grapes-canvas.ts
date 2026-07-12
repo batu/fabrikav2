@@ -1,9 +1,15 @@
-import grapesjs from "grapesjs";
+import grapesjs, {
+  type Component,
+  type ComponentDragEventData,
+  type ComponentResizeEventData,
+  type ComponentResizeEventUpdateProps,
+} from "grapesjs";
 
 import {
-  shellPresentationContract,
-  type ShellPresentationDocument,
+  shellPresentationContractV2,
+  type ShellPresentationDocumentV2,
   type ShellPresentationInstance,
+  type ShellRect,
   type ShellVisualPresentation,
 } from "@fabrikav2/kernel";
 
@@ -32,7 +38,7 @@ const TOGGLE_ROLE = "center-toggle-action";
 // optional art region that the author never filled (no copy, no raster) is
 // omitted so the phone reads as an authored game rather than an empty slot map.
 const OPTIONAL_PROTOTYPE_IDS: ReadonlySet<string> = new Set(
-  shellPresentationContract.instances.filter((instance) => !instance.required).map((instance) => instance.id),
+  shellPresentationContractV2.instances.filter((instance) => !instance.required).map((instance) => instance.id),
 );
 
 function humanRoleLabel(roleId: string): string {
@@ -83,6 +89,7 @@ const FRAME_STYLE = `
 interface CanvasOptions {
   readonly container: HTMLElement;
   readonly onSelect: (instanceId: string) => void;
+  readonly onGeometryCommit: (instanceId: string, bounds: ShellRect) => void;
 }
 
 function visiblePresentation(
@@ -118,6 +125,9 @@ function componentDefinition(
   const assetUrl = asset ? editorAssetUrl(asset) : undefined;
   const isContainer = containerIds.has(instance.id);
   const isToggle = instance.roleId === TOGGLE_ROLE;
+  const role = shellPresentationContractV2.roles.find((candidate) => candidate.id === instance.roleId);
+  const geometryEditable =
+    !cleanPreview && selectedVariant === "" && (role?.editableProperties.includes("geometry") ?? false);
 
   const children: Record<string, unknown>[] = [];
   if (assetUrl) {
@@ -180,8 +190,10 @@ function componentDefinition(
       "--surface": presentation.colors?.background ?? instance.presentation.colors?.background ?? semanticDefaultSurface,
       "--ink": presentation.colors?.foreground ?? instance.presentation.colors?.foreground ?? semanticDefaultInk,
     },
-    draggable: false,
-    resizable: false,
+    selectable: !cleanPreview,
+    draggable: geometryEditable,
+    droppable: false,
+    resizable: geometryEditable ? { minDim: 1, ratioDefault: false } : false,
     removable: false,
     copyable: false,
     stylable: false,
@@ -192,7 +204,7 @@ function componentDefinition(
 
 export interface ConstrainedGrapesCanvas {
   render(
-    document: ShellPresentationDocument,
+    document: ShellPresentationDocumentV2,
     stateId: string,
     selectedId: string,
     selectedVariant: string,
@@ -202,6 +214,9 @@ export interface ConstrainedGrapesCanvas {
 }
 
 export function createConstrainedGrapesCanvas(options: CanvasOptions): ConstrainedGrapesCanvas {
+  let rendering = false;
+  let pendingGeometryComponent: Component | undefined;
+  let pendingGeometryFrame = 0;
   const editor = grapesjs.init({
     container: options.container,
     fromElement: false,
@@ -228,9 +243,52 @@ export function createConstrainedGrapesCanvas(options: CanvasOptions): Constrain
     const frame = editor.Canvas.getFrameEl();
     frame.setAttribute("sandbox", "allow-same-origin");
   });
-  editor.on("component:selected", (component: { getAttributes(): Record<string, string> }) => {
+  editor.on("component:selected", (component: Component) => {
     const instanceId = component.getAttributes()["data-semantic-instance"];
-    if (instanceId) options.onSelect(instanceId);
+    if (!instanceId) return;
+    const frameDocument = editor.Canvas.getDocument();
+    const selectedElement = frameDocument?.querySelector<HTMLElement>(`[data-semantic-instance="${CSS.escape(instanceId)}"]`);
+    if (selectedElement?.closest('[data-clean-preview="false"]')) {
+      for (const candidate of frameDocument?.querySelectorAll<HTMLElement>('[data-semantic-instance][data-selected="true"]') ?? []) {
+        candidate.setAttribute("data-selected", "false");
+      }
+      selectedElement.setAttribute("data-selected", "true");
+    }
+    if (rendering) return;
+    options.onSelect(instanceId);
+  });
+
+  function scheduleRenderedGeometryCommit(component: Component | undefined): void {
+    if (!component) return;
+    pendingGeometryComponent = component;
+    if (pendingGeometryFrame) return;
+    // GrapesJS writes resize styles after its update event and restores drag
+    // selection in a zero-delay task. Reading on the next animation frame sees
+    // the final painted box and coalesces noisy pointer-move updates.
+    pendingGeometryFrame = window.requestAnimationFrame(() => {
+      pendingGeometryFrame = 0;
+      const current = pendingGeometryComponent;
+      pendingGeometryComponent = undefined;
+      const instanceId = current?.getAttributes()["data-semantic-instance"];
+      const rendered = current?.getEl();
+      if (!instanceId || !rendered) return;
+      options.onGeometryCommit(instanceId, {
+        x: rendered.offsetLeft,
+        y: rendered.offsetTop,
+        width: rendered.offsetWidth,
+        height: rendered.offsetHeight,
+      });
+    });
+  }
+
+  editor.on("component:drag:end", (event: ComponentDragEventData) => {
+    if (!event.cancelled) scheduleRenderedGeometryCommit(event.target);
+  });
+  editor.on("component:resize", (event: ComponentResizeEventData) => {
+    if (event.type === "end") scheduleRenderedGeometryCommit(event.component);
+  });
+  editor.on("component:resize:update", (event: ComponentResizeEventUpdateProps) => {
+    scheduleRenderedGeometryCommit(event.component);
   });
 
   return {
@@ -269,9 +327,27 @@ export function createConstrainedGrapesCanvas(options: CanvasOptions): Constrain
           ],
         },
       ];
-      editor.setComponents(definitions);
+      rendering = true;
+      try {
+        editor.setComponents(definitions);
+        if (!cleanPreview && selectedId) {
+          const selected = editor.getWrapper()?.find(`[data-semantic-instance="${selectedId}"]`)[0];
+          window.setTimeout(() => {
+            if (!selected?.getEl()) return;
+            rendering = true;
+            try {
+              editor.select(selected);
+            } finally {
+              rendering = false;
+            }
+          }, 0);
+        }
+      } finally {
+        rendering = false;
+      }
     },
     destroy() {
+      if (pendingGeometryFrame) window.cancelAnimationFrame(pendingGeometryFrame);
       editor.destroy();
     },
   };

@@ -1,19 +1,21 @@
 import {
   hashCanonicalJson,
-  shellPresentationContract,
+  shellPresentationContractV2,
   type ShellPresentationInstance,
-  type ShellStateId,
+  type ShellStateIdV2,
 } from "@fabrikav2/kernel";
 
 import {
   canReorderInstance,
   createStarterProject,
+  GRAPES_TARGET_GAME,
   duplicateInstance,
   reorderInstance,
   updateInstancePresentation,
   validateProjectFile,
   type GrapesShellProject,
 } from "../shared/project.ts";
+import { normalizeSemanticLayout } from "../shared/layout.ts";
 import { createConstrainedGrapesCanvas } from "./grapes-canvas.ts";
 import { editorAssetUrl } from "./assets.ts";
 import { editorAssetCatalog } from "./seed.ts";
@@ -21,7 +23,7 @@ import { editorAssetCatalog } from "./seed.ts";
 import "grapesjs/dist/css/grapes.min.css";
 import "./editor.css";
 
-const EDITOR_TARGET_GAME = "shell_proof";
+const EDITOR_TARGET_GAME = GRAPES_TARGET_GAME;
 // project-v2 supersedes project-v1: the U1/U2 asset-authority repair changed the
 // asset vocabulary, so any pre-repair draft stored under the v1 key is orphaned
 // and can never re-load as a "saved" project reviewed against the current catalog.
@@ -152,13 +154,13 @@ function instanceFor(project: GrapesShellProject, instanceId: string): ShellPres
 }
 
 function roleAllows(instance: ShellPresentationInstance, property: string): boolean {
-  return shellPresentationContract.roles.find((role) => role.id === instance.roleId)?.editableProperties.includes(property) ?? false;
+  return shellPresentationContractV2.roles.find((role) => role.id === instance.roleId)?.editableProperties.includes(property) ?? false;
 }
 
 export function mountConstrainedEditor(root: HTMLElement): void {
   const loaded = loadBrowserProject(() => localStorage.getItem(STORAGE_KEY));
   let project = loaded.project;
-  let selectedState: ShellStateId = "menu";
+  let selectedState: ShellStateIdV2 = "menu";
   let selectedId = project.presentation.pages.find((page) => page.stateId === selectedState)?.instances[0]?.id ?? "";
   let selectedVariant = "";
   let status: StoredState = loaded.status;
@@ -215,10 +217,31 @@ export function mountConstrainedEditor(root: HTMLElement): void {
     onSelect(instanceId) {
       const page = project.presentation.pages.find((candidate) => candidate.instances.some((item) => item.id === instanceId));
       if (!page) return;
+      const wasVariantPreview = selectedVariant !== "";
       selectedState = page.stateId;
       selectedId = instanceId;
       selectedVariant = "";
-      refresh();
+      // Rebuilding GrapesJS components from inside component:selected destroys
+      // the pointer target and prevents the same gesture from becoming a drag.
+      // Base selection updates editor chrome in place; a read-only variant
+      // still needs one full render to return its pixels to the base state.
+      if (wasVariantPreview) refresh();
+      else refreshEditorChrome();
+    },
+    onGeometryCommit(instanceId, bounds) {
+      const instance = instanceFor(project, instanceId);
+      if (!instance) return;
+      selectedId = instanceId;
+      selectedVariant = "";
+      commitCanvasGeometry(
+        () => updateInstancePresentation(
+          project,
+          instanceId,
+          { geometry: normalizeSemanticLayout(instance.roleId, bounds, instance.presentation.geometry.fit) },
+          editorAssetCatalog,
+        ),
+        "Canvas position and size saved as normalized semantic geometry.",
+      );
     },
   });
   window.__FABRIKAV2_GRAPES_SHELL_EDITOR__ = {
@@ -243,10 +266,14 @@ export function mountConstrainedEditor(root: HTMLElement): void {
     return instanceFor(project, selectedId) ?? currentPage().instances[0]!;
   }
 
-  function commit(action: () => GrapesShellProject, message: string): void {
+  function applyCommit(
+    action: () => GrapesShellProject,
+    message: string,
+    refreshAfter: () => void,
+  ): boolean {
     try {
       const next = action();
-      if (next === project) return;
+      if (next === project) return true;
       project = next;
       status = "dirty";
       feedback = message;
@@ -255,10 +282,38 @@ export function mountConstrainedEditor(root: HTMLElement): void {
       feedback = editErrorMessage(error);
       feedbackTone = "error";
     }
-    refresh();
+    refreshAfter();
+    return feedbackTone !== "error";
   }
 
-  function selectState(stateId: ShellStateId): void {
+  function commit(action: () => GrapesShellProject, message: string): void {
+    applyCommit(action, message, refresh);
+  }
+
+  function commitLive(action: () => GrapesShellProject, message: string): boolean {
+    return applyCommit(action, message, refreshLiveCanvas);
+  }
+
+  function commitCanvasGeometry(action: () => GrapesShellProject, message: string): void {
+    try {
+      const next = action();
+      if (next === project) return;
+      project = next;
+      status = "dirty";
+      feedback = message;
+      feedbackTone = "success";
+      // GrapesJS already painted the accepted pointer result. Preserve that
+      // component and its active resize handles while updating semantic chrome.
+      refreshEditorChrome();
+    } catch (error) {
+      feedback = editErrorMessage(error);
+      feedbackTone = "error";
+      // A rejected gesture must snap back to canonical project geometry.
+      refresh();
+    }
+  }
+
+  function selectState(stateId: ShellStateIdV2): void {
     selectedState = stateId;
     selectedId = currentPage().instances[0]?.id ?? "";
     selectedVariant = "";
@@ -316,9 +371,9 @@ export function mountConstrainedEditor(root: HTMLElement): void {
   function refreshNavigation(): void {
     navigation.replaceChildren();
     const pagesHeading = element("h2", "editor-panel-heading");
-    text(pagesHeading, "Six pages");
+    text(pagesHeading, "Seven surfaces");
     const pages = element("nav", "editor-page-switcher");
-    for (const state of shellPresentationContract.states) {
+    for (const state of shellPresentationContractV2.states) {
       const control = button(state.label, () => selectState(state.id), "editor-page-button");
       control.setAttribute("aria-current", state.id === selectedState ? "page" : "false");
       if (state.id === selectedState) control.classList.add("is-active");
@@ -382,7 +437,7 @@ export function mountConstrainedEditor(root: HTMLElement): void {
   function textControl(
     label: string,
     value: string,
-    onChange: (next: string) => void,
+    onChange: (next: string) => boolean,
     disabled = false,
   ): HTMLLabelElement {
     const field = element("label", "editor-field editor-field--wide");
@@ -392,7 +447,11 @@ export function mountConstrainedEditor(root: HTMLElement): void {
     input.type = "text";
     input.value = value;
     input.disabled = disabled;
-    input.addEventListener("change", () => onChange(input.value));
+    let acceptedValue = value;
+    input.addEventListener("input", () => {
+      if (onChange(input.value)) acceptedValue = input.value;
+      else input.value = acceptedValue;
+    });
     field.append(caption, input);
     return field;
   }
@@ -460,7 +519,7 @@ export function mountConstrainedEditor(root: HTMLElement): void {
     }
     if (roleAllows(instance, "copy")) {
       geometry.append(textControl("Copy", instance.presentation.copy ?? "", (next) =>
-        commit(() => updateInstancePresentation(project, selectedId, { copy: next }, editorAssetCatalog), "Copy updated as inert plain text."),
+        commitLive(() => updateInstancePresentation(project, selectedId, { copy: next }, editorAssetCatalog), "Copy updated as inert plain text."),
       !editingBase,
       ));
     }
@@ -531,7 +590,7 @@ export function mountConstrainedEditor(root: HTMLElement): void {
     text(
       variantNote,
       editingBase
-        ? "Choose a named variant to inspect it. V1 edits apply only to Base presentation."
+        ? "Choose a named variant to inspect it. Edits apply only to Base presentation."
         : `${titleCase(selectedVariant)} preview is read-only so a base edit cannot succeed invisibly.`,
     );
 
@@ -579,7 +638,7 @@ export function mountConstrainedEditor(root: HTMLElement): void {
 
     const assetsHeading = element("h3", "editor-subheading");
     text(assetsHeading, "Curated asset tray");
-    const assetSlotId = shellPresentationContract.roles.find((role) => role.id === instance.roleId)?.assetSlotId ?? null;
+    const assetSlotId = shellPresentationContractV2.roles.find((role) => role.id === instance.roleId)?.assetSlotId ?? null;
     const compatible = assetSlotId
       ? editorAssetCatalog.assets.filter((asset) => asset.slotId === assetSlotId)
       : [];
@@ -671,10 +730,20 @@ export function mountConstrainedEditor(root: HTMLElement): void {
   }
 
   function refresh(): void {
+    refreshEditorChrome();
+    canvas.render(project.presentation, selectedState, selectedId, selectedVariant, previewMode === "clean");
+  }
+
+  function refreshEditorChrome(): void {
     refreshHeader();
     refreshNavigation();
     refreshInspector();
     refreshStageToolbar();
+    refreshFooter();
+  }
+
+  function refreshLiveCanvas(): void {
+    refreshHeader();
     canvas.render(project.presentation, selectedState, selectedId, selectedVariant, previewMode === "clean");
     refreshFooter();
   }

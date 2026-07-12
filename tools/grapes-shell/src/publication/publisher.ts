@@ -4,17 +4,17 @@ import path from "node:path";
 
 import {
   canonicalizeJson,
-  computeShellPublicationId,
+  computeShellPublicationIdV2,
   hashCanonicalJson,
-  parseShellAssetCatalog,
-  parseShellPublishedRevision,
-  shellPresentationContract,
+  parseShellAssetCatalogDocument,
+  parseShellPublishedRevisionV2,
+  shellPresentationContractV2,
   type ShellAssetCatalog,
   type ShellAssetCatalogEntry,
-  type ShellPresentationDocument,
+  type ShellPresentationDocumentV2,
   type ShellPresentationInstance,
-  type ShellPublishedRevision,
-  type ShellStateId,
+  type ShellPublishedRevisionV2,
+  type ShellStateIdV2,
 } from "@fabrikav2/kernel";
 
 import {
@@ -52,10 +52,10 @@ interface PreviewFingerprint {
 export interface PreviewRenderer {
   (input: {
     readonly portableDirectory: string;
-    readonly states: readonly ShellStateId[];
+    readonly states: readonly ShellStateIdV2[];
   }): Promise<{
     readonly fingerprint: PreviewFingerprint;
-    readonly pages: readonly { stateId: ShellStateId; bytes: Uint8Array }[];
+    readonly pages: readonly { stateId: ShellStateIdV2; bytes: Uint8Array }[];
   }>;
 }
 
@@ -87,9 +87,10 @@ export interface VerifyPublishedRevisionOptions {
 
 interface PortableComponentRecord {
   readonly id: string;
+  readonly prototypeInstanceId: string;
   readonly parentInstanceId: string | null;
   readonly order: number;
-  readonly stateId: ShellStateId;
+  readonly stateId: ShellStateIdV2;
   readonly roleId: string;
   readonly bindingId: string;
   readonly stateFamilyId: string;
@@ -105,7 +106,7 @@ interface PortableRecords {
 }
 
 interface PortableBundle {
-  readonly pages: readonly { readonly stateId: ShellStateId; readonly filename: string; readonly html: string }[];
+  readonly pages: readonly { readonly stateId: ShellStateIdV2; readonly filename: string; readonly html: string }[];
   readonly styles: string;
   readonly records: PortableRecords;
   readonly assetCatalog: ShellAssetCatalog;
@@ -120,6 +121,10 @@ const PUBLICATION_ID = /^sha256-[a-f0-9]{64}$/u;
 const TARGET_GAME = /^[a-z][a-z0-9_]*$/u;
 const TOGGLE_ROLE = "center-toggle-action";
 
+function inlineCss(value: string): string {
+  return value.trim().split(/\r?\n/u).map((line) => line.trim()).filter(Boolean).join(" ");
+}
+
 const PORTABLE_STYLE = `
 :root { color-scheme: light; font-family: ui-rounded, system-ui, sans-serif; background: #e9edf2; color: #16212b; }
 * { box-sizing: border-box; }
@@ -127,15 +132,15 @@ body { margin: 0; min-width: 390px; min-height: 844px; background: #e9edf2; }
 [data-shell-page] { position: relative; isolation: isolate; width: 390px; height: 844px; overflow: hidden; background: #f8fafc; }
 [data-safe-guide] { position: absolute; z-index: 255; left: 0; right: 0; height: 1px; pointer-events: none; background: repeating-linear-gradient(90deg, #0f9bb8 0 5px, transparent 5px 10px); opacity: .72; }
 [data-safe-guide="top"] { top: 59px; } [data-safe-guide="bottom"] { bottom: 34px; }
-[data-shell-instance] { position: absolute; z-index: var(--order); left: var(--x); top: var(--y); width: var(--w); height: var(--h); ${semanticInstanceCss} }
-[data-shell-instance][data-toggle="true"] { ${semanticToggleCss} }
+[data-shell-instance] { position: absolute; z-index: var(--order); left: var(--x); top: var(--y); width: var(--w); height: var(--h); ${inlineCss(semanticInstanceCss)} }
+[data-shell-instance][data-toggle="true"] { ${inlineCss(semanticToggleCss)} }
 [data-shell-instance][data-hidden="true"] { visibility: hidden; }
-[data-shell-instance] img { ${semanticAssetCss} }
-[data-shell-copy] { ${semanticCopyCss} }
-[data-shell-title] { ${semanticTitleCss} }
-[data-shell-placeholder] { ${semanticPlaceholderCss} }
-[data-shell-switch] { ${semanticSwitchCss} }
-[data-shell-switch]::after { ${semanticSwitchKnobCss} }
+[data-shell-instance] img { ${inlineCss(semanticAssetCss)} }
+[data-shell-copy] { ${inlineCss(semanticCopyCss)} }
+[data-shell-title] { ${inlineCss(semanticTitleCss)} }
+[data-shell-placeholder] { ${inlineCss(semanticPlaceholderCss)} }
+[data-shell-switch] { ${inlineCss(semanticSwitchCss)} }
+[data-shell-switch]::after { ${inlineCss(semanticSwitchKnobCss)} }
 [data-shell-switch][data-toggle-state="on"] { ${semanticSwitchOnCss} }
 [data-shell-switch][data-toggle-state="on"]::after { ${semanticSwitchKnobOnCss} }
 [data-shell-switch][data-toggle-state="disabled"] { ${semanticSwitchDisabledCss} }
@@ -166,7 +171,7 @@ function publicationDirectory(authoringDir: string, publicationId: string): stri
   return path.join(publicationRoot(authoringDir), publicationId);
 }
 
-function portableFilename(state: ShellStateId): string {
+function portableFilename(state: ShellStateIdV2): string {
   return `${state}.html`;
 }
 
@@ -191,12 +196,13 @@ function finite(value: number): string {
   return Number(value.toFixed(6)).toString();
 }
 
-function componentRecords(document: ShellPresentationDocument): PortableRecords {
+function componentRecords(document: ShellPresentationDocumentV2): PortableRecords {
   const records: PortableComponentRecord[] = [];
   for (const page of document.pages) {
     for (const instance of page.instances) {
       records.push({
         id: instance.id,
+        prototypeInstanceId: instance.prototypeInstanceId,
         parentInstanceId: instance.parentInstanceId,
         order: instance.presentation.order,
         stateId: page.stateId,
@@ -214,7 +220,7 @@ function componentRecords(document: ShellPresentationDocument): PortableRecords 
   return { format: "grapes-shell-portable-records-v1", records };
 }
 
-function assetUses(document: ShellPresentationDocument): Set<string> {
+function assetUses(document: ShellPresentationDocumentV2): Set<string> {
   const used = new Set<string>();
   for (const page of document.pages) {
     for (const instance of page.instances) {
@@ -227,29 +233,28 @@ function assetUses(document: ShellPresentationDocument): Set<string> {
   return used;
 }
 
-function requiredAssets(document: ShellPresentationDocument, assets: readonly ShellAssetCatalogEntry[]): ShellAssetCatalogEntry[] {
+function assertReferencedAssetsExist(
+  document: ShellPresentationDocumentV2,
+  assets: readonly ShellAssetCatalogEntry[],
+): void {
   const byId = new Map(assets.map((asset) => [asset.id, asset]));
-  return [...assetUses(document)]
-    .sort()
-    .map((id) => {
-      const asset = byId.get(id);
-      if (!asset) throw new ProjectValidationError(`Published project references unknown asset "${id}".`);
-      return asset;
-    });
+  for (const id of [...assetUses(document)].sort()) {
+    if (!byId.has(id)) throw new ProjectValidationError(`Published project references unknown asset "${id}".`);
+  }
 }
 
-// The portable bundle carries U1's canonical asset catalog, narrowed to the
-// rasters the publication actually references. Re-parsing it asserts the emitted
-// asset-catalog.json is a valid, canonically ordered ShellAssetCatalog.
+// The portable bundle carries U1's complete reviewed asset catalog so its hash
+// binds the full editor vocabulary, including currently unused replacements.
+// Re-parsing asserts the emitted asset-catalog.json is canonically ordered.
 function portableAssetCatalog(assets: readonly ShellAssetCatalogEntry[]): ShellAssetCatalog {
   const catalog: ShellAssetCatalog = {
-    contractId: shellPresentationContract.contractId,
-    contractVersion: shellPresentationContract.contractVersion,
+    contractId: shellPresentationContractV2.contractId,
+    contractVersion: shellPresentationContractV2.contractVersion,
     assets: [...assets]
       .sort((left, right) => (left.id < right.id ? -1 : left.id > right.id ? 1 : 0))
       .map((asset) => structuredClone(asset)),
   };
-  return parseShellAssetCatalog(catalog);
+  return parseShellAssetCatalogDocument(catalog);
 }
 
 function humanRoleLabel(roleId: string): string {
@@ -309,7 +314,7 @@ function componentStyle(instance: ShellPresentationInstance): string {
   return `[data-shell-instance="${escapeCssString(instance.id)}"] { ${declarations}; }`;
 }
 
-function portableStyles(document: ShellPresentationDocument): string {
+function portableStyles(document: ShellPresentationDocumentV2): string {
   const componentRules = document.pages
     .flatMap((page) => page.instances)
     .sort((left, right) => left.id.localeCompare(right.id))
@@ -319,12 +324,12 @@ function portableStyles(document: ShellPresentationDocument): string {
 }
 
 function pageMarkup(
-  stateId: ShellStateId,
+  stateId: ShellStateIdV2,
   instances: readonly ShellPresentationInstance[],
   assetById: ReadonlyMap<string, ShellAssetCatalogEntry>,
   containerIds: ReadonlySet<string>,
 ): string {
-  const state = shellPresentationContract.states.find((candidate) => candidate.id === stateId);
+  const state = shellPresentationContractV2.states.find((candidate) => candidate.id === stateId);
   if (!state) throw new ProjectValidationError(`Unknown shell state "${stateId}".`);
   const components = [...instances]
     .sort((left, right) => left.presentation.order - right.presentation.order || left.id.localeCompare(right.id))
@@ -347,8 +352,9 @@ function pageMarkup(
 </html>`;
 }
 
-function createPortableBundle(document: ShellPresentationDocument, catalogAssets: readonly ShellAssetCatalogEntry[]): PortableBundle {
-  const assets = requiredAssets(document, catalogAssets);
+function createPortableBundle(document: ShellPresentationDocumentV2, catalogAssets: readonly ShellAssetCatalogEntry[]): PortableBundle {
+  assertReferencedAssetsExist(document, catalogAssets);
+  const assets = [...catalogAssets].sort((left, right) => left.id.localeCompare(right.id));
   const byId = new Map(assets.map((asset) => [asset.id, asset]));
   const containerIds = new Set(
     document.pages
@@ -434,23 +440,31 @@ async function writePortableBundle(directory: string, bundle: PortableBundle, se
   );
 }
 
-function revisionFrom(
-  publicationId: string,
-  hashes: {
-    projectJsonHash: string;
-    portableExportHash: string;
-    componentRecordsHash: string;
-    assetCatalogHash: string;
-  },
-): ShellPublishedRevision {
+interface PublicationHashes {
+  readonly projectJsonHash: string;
+  readonly portableExportHash: string;
+  readonly componentRecordsHash: string;
+  readonly assetCatalogHash: string;
+}
+
+function revisionIdentityFrom(hashes: PublicationHashes): Omit<ShellPublishedRevisionV2, "publicationId"> {
   return {
-    contractId: shellPresentationContract.contractId,
-    contractVersion: shellPresentationContract.contractVersion,
-    publicationId,
-    ...hashes,
-    pageCount: 6,
-    states: [...shellPresentationContract.publication.requiredStates],
+    contractId: shellPresentationContractV2.contractId,
+    contractVersion: shellPresentationContractV2.contractVersion,
+    rendererProfile: "dom-css",
+    editorSources: [
+      { kind: "component-records", sha256: hashes.componentRecordsHash },
+      { kind: "portable-export", sha256: hashes.portableExportHash },
+      { kind: "project-json", sha256: hashes.projectJsonHash },
+    ],
+    assetCatalogHash: hashes.assetCatalogHash,
+    pageCount: 7,
+    states: [...shellPresentationContractV2.publication.requiredStates],
   };
+}
+
+function revisionFrom(publicationId: string, hashes: PublicationHashes): ShellPublishedRevisionV2 {
+  return { ...revisionIdentityFrom(hashes), publicationId };
 }
 
 function previewManifest(rendered: Awaited<ReturnType<PreviewRenderer>>) {
@@ -498,11 +512,11 @@ async function renderPreviews(
 ): Promise<string> {
   const rendered = await renderer({
     portableDirectory,
-    states: shellPresentationContract.publication.requiredStates,
+    states: shellPresentationContractV2.publication.requiredStates,
   });
   const receivedStates = rendered.pages.map((page) => page.stateId);
-  if (canonicalizeJson(receivedStates) !== canonicalizeJson(shellPresentationContract.publication.requiredStates)) {
-    throw new ProjectValidationError("Preview renderer did not return all six canonical pages in order.");
+  if (canonicalizeJson(receivedStates) !== canonicalizeJson(shellPresentationContractV2.publication.requiredStates)) {
+    throw new ProjectValidationError("Preview renderer did not return all seven canonical pages in order.");
   }
   if (rendered.pages.some((page) => page.bytes.byteLength === 0)) {
     throw new ProjectValidationError("Preview renderer returned an empty raster preview.");
@@ -550,12 +564,11 @@ export async function publishAuthoringProject(options: PublishAuthoringProjectOp
   const authoringDir = projectRoot(options.authoringDir);
   const { project, catalog } = await loadProject(authoringDir, options.seedRoot);
   const bundle = createPortableBundle(project.presentation, catalog.assets);
-  const [projectJsonHash, portableExportHash, componentRecordsHash, assetCatalogHash, reviewedAssetCatalogHash] =
+  const [projectJsonHash, portableExportHash, componentRecordsHash, assetCatalogHash] =
     await Promise.all([
       hashCanonicalJson(project),
       hashCanonicalJson(portableHashPayload(bundle)),
       hashCanonicalJson(bundle.records),
-      hashCanonicalJson(bundle.assetCatalog),
       hashCanonicalJson(catalog),
     ]);
   // Fail closed before any publication write: the saved project AND the full
@@ -567,28 +580,20 @@ export async function publishAuthoringProject(options: PublishAuthoringProjectOp
       `Saved project hash ${projectJsonHash} does not match the explicitly reviewed hash ${options.expectedProjectJsonHash}.`,
     );
   }
-  if (options.expectedAssetCatalogHash && options.expectedAssetCatalogHash !== reviewedAssetCatalogHash) {
+  if (options.expectedAssetCatalogHash && options.expectedAssetCatalogHash !== assetCatalogHash) {
     throw new ProjectValidationError(
-      `Asset catalog hash ${reviewedAssetCatalogHash} does not match the explicitly reviewed hash ${options.expectedAssetCatalogHash}.`,
+      `Asset catalog hash ${assetCatalogHash} does not match the explicitly reviewed hash ${options.expectedAssetCatalogHash}.`,
     );
   }
-  const publicationId = await computeShellPublicationId({
-    contractId: shellPresentationContract.contractId,
-    contractVersion: shellPresentationContract.contractVersion,
+  const hashes = {
     projectJsonHash,
     portableExportHash,
     componentRecordsHash,
     assetCatalogHash,
-    pageCount: 6,
-    states: [...shellPresentationContract.publication.requiredStates],
-  });
-  const revision = revisionFrom(publicationId, {
-    projectJsonHash,
-    portableExportHash,
-    componentRecordsHash,
-    assetCatalogHash,
-  });
-  await parseShellPublishedRevision(revision);
+  } satisfies PublicationHashes;
+  const publicationId = await computeShellPublicationIdV2(revisionIdentityFrom(hashes));
+  const revision = revisionFrom(publicationId, hashes);
+  await parseShellPublishedRevisionV2(revision);
 
   const publications = publicationRoot(authoringDir);
   await mkdir(publications, { recursive: true });
@@ -638,7 +643,7 @@ async function verifyPublicationDirectory(
   );
 
   const revision = await readJson(path.join(root, "publication.json"));
-  await parseShellPublishedRevision(revision);
+  await parseShellPublishedRevisionV2(revision);
   const [projectRaw, catalog] = await Promise.all([
     readJson(path.join(root, "project.json")),
     readSeedManifest(seedRoot),
@@ -697,27 +702,24 @@ async function verifyPublicationDirectory(
     hashCanonicalJson(project),
     hashCanonicalJson(portableHashPayload(bundle)),
     hashCanonicalJson(bundle.records),
-    hashCanonicalJson(bundle.assetCatalog),
+    hashCanonicalJson(catalog),
   ]);
-  const typedRevision = revision as ShellPublishedRevision;
+  const typedRevision = revision as ShellPublishedRevisionV2;
+  const editorSources = new Map(typedRevision.editorSources.map((source) => [source.kind, source.sha256]));
   if (
-    typedRevision.projectJsonHash !== projectJsonHash ||
-    typedRevision.portableExportHash !== portableExportHash ||
-    typedRevision.componentRecordsHash !== componentRecordsHash ||
+    editorSources.get("project-json") !== projectJsonHash ||
+    editorSources.get("portable-export") !== portableExportHash ||
+    editorSources.get("component-records") !== componentRecordsHash ||
     typedRevision.assetCatalogHash !== assetCatalogHash
   ) {
     throw new ProjectValidationError("Immutable publication hashes diverge from its saved project or portable export.");
   }
-  const expectedPublicationId = await computeShellPublicationId({
-    contractId: shellPresentationContract.contractId,
-    contractVersion: shellPresentationContract.contractVersion,
+  const expectedPublicationId = await computeShellPublicationIdV2(revisionIdentityFrom({
     projectJsonHash,
     portableExportHash,
     componentRecordsHash,
     assetCatalogHash,
-    pageCount: 6,
-    states: [...shellPresentationContract.publication.requiredStates],
-  });
+  }));
   if (typedRevision.publicationId !== publicationId || expectedPublicationId !== publicationId) {
     throw new ProjectValidationError("Publication directory identity diverges from deterministic content identity.");
   }
@@ -759,9 +761,9 @@ export async function publicationStatus(options: {
   if (!latestPublicationId) return { state: "saved-unpublished", canApply: false };
   const revision = (await readJson(
     path.join(publicationRoot(authoringDir), latestPublicationId, "publication.json"),
-  )) as ShellPublishedRevision;
+  )) as ShellPublishedRevisionV2;
   const projectJsonHash = await hashCanonicalJson(project);
-  if (revision.projectJsonHash !== projectJsonHash) {
+  if (revision.editorSources.find((source) => source.kind === "project-json")?.sha256 !== projectJsonHash) {
     return { state: "saved-unpublished", latestPublicationId, canApply: false };
   }
   return { state: "published", latestPublicationId, canApply: false };

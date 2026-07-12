@@ -1,11 +1,12 @@
 import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { constants } from "node:fs";
+import { lstat, open, realpath } from "node:fs/promises";
 import path from "node:path";
 
 import {
   canonicalizeJson,
-  parseShellAssetCatalog,
-  shellPresentationContract,
+  parseShellAssetCatalogDocument,
+  shellPresentationContractV2,
   type ShellAssetCatalog,
   type ShellAssetCatalogEntry,
 } from "@fabrikav2/kernel";
@@ -15,15 +16,60 @@ import { asProjectRecord, ProjectValidationError } from "./project.ts";
 const HASH = /^[a-f0-9]{64}$/u;
 const SAFE_ASSET_PATH = /^assets\/[a-z0-9][a-z0-9._-]*\.(?:png|jpe?g|webp)$/u;
 const PNG_MAGIC = "89504e470d0a1a0a";
+const SEED_MANIFEST = "kenney-seed.manifest.json";
 
-function resolveSeedPath(seedRoot: string, relative: string): string {
-  if (!SAFE_ASSET_PATH.test(relative)) throw new ProjectValidationError(`Unsafe seed asset path "${relative}".`);
-  const resolved = path.resolve(seedRoot, relative);
-  const relativeToRoot = path.relative(seedRoot, resolved);
-  if (relativeToRoot.startsWith("..") || path.isAbsolute(relativeToRoot)) {
-    throw new ProjectValidationError(`Seed asset path escapes its root: "${relative}".`);
+function isWithinRoot(root: string, candidate: string): boolean {
+  const relativeToRoot = path.relative(root, candidate);
+  return (
+    relativeToRoot === "" ||
+    (!relativeToRoot.startsWith(`..${path.sep}`) && relativeToRoot !== ".." && !path.isAbsolute(relativeToRoot))
+  );
+}
+
+async function readSeedFile(seedRoot: string, relative: string, kind: "manifest" | "asset"): Promise<Buffer> {
+  if (kind === "asset" && !SAFE_ASSET_PATH.test(relative)) {
+    throw new ProjectValidationError(`Unsafe seed asset path "${relative}".`);
   }
-  return resolved;
+
+  const lexicalRoot = path.resolve(seedRoot);
+  const lexicalEntry = path.resolve(lexicalRoot, relative);
+  const label = kind === "manifest" ? "Seed manifest" : `Seed asset "${relative}"`;
+  if (!isWithinRoot(lexicalRoot, lexicalEntry)) {
+    throw new ProjectValidationError(`${label} path escapes its root.`);
+  }
+
+  const realRoot = await realpath(lexicalRoot);
+  const entry = await lstat(lexicalEntry);
+  if (entry.isSymbolicLink()) {
+    throw new ProjectValidationError(`${label} must not be a symbolic link.`);
+  }
+  if (!entry.isFile()) {
+    throw new ProjectValidationError(`${label} must be a regular file.`);
+  }
+
+  const realEntry = await realpath(lexicalEntry);
+  if (!isWithinRoot(realRoot, realEntry)) {
+    throw new ProjectValidationError(`${label} resolves outside the real seed root.`);
+  }
+  if (realEntry !== path.resolve(realRoot, relative)) {
+    throw new ProjectValidationError(`${label} resolves through a symbolic link.`);
+  }
+
+  let handle;
+  try {
+    handle = await open(realEntry, constants.O_RDONLY | constants.O_NOFOLLOW);
+    if (!(await handle.stat()).isFile()) {
+      throw new ProjectValidationError(`${label} must be a regular file.`);
+    }
+    return await handle.readFile();
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ELOOP") {
+      throw new ProjectValidationError(`${label} must not be a symbolic link.`);
+    }
+    throw error;
+  } finally {
+    await handle?.close();
+  }
 }
 
 // The U2 seed manifest embeds U1's canonical asset catalog as the single asset
@@ -32,7 +78,7 @@ function resolveSeedPath(seedRoot: string, relative: string): string {
 // the catalog identities. It returns the ShellAssetCatalog itself so the editor,
 // project loader, and publisher all consume one vocabulary.
 export async function readSeedManifest(seedRoot: string): Promise<ShellAssetCatalog> {
-  const raw = JSON.parse(await readFile(path.join(seedRoot, "kenney-seed.manifest.json"), "utf8")) as unknown;
+  const raw = JSON.parse((await readSeedFile(seedRoot, SEED_MANIFEST, "manifest")).toString("utf8")) as unknown;
   const root = asProjectRecord(raw, "seed manifest");
   if (root.schemaVersion !== 2 || root.seedKind !== "behavior-neutral-semantic-fixtures") {
     throw new ProjectValidationError("Unsupported Kenney seed manifest.");
@@ -40,7 +86,7 @@ export async function readSeedManifest(seedRoot: string): Promise<ShellAssetCata
   if (!Array.isArray(root.canonicalStates) || !Array.isArray(root.sources)) {
     throw new ProjectValidationError("Seed manifest is missing required collections.");
   }
-  if (canonicalizeJson(root.canonicalStates) !== canonicalizeJson(shellPresentationContract.publication.requiredStates)) {
+  if (canonicalizeJson(root.canonicalStates) !== canonicalizeJson(shellPresentationContractV2.publication.requiredStates)) {
     throw new ProjectValidationError("Seed manifest canonical states diverge from the U1 shell contract.");
   }
 
@@ -62,7 +108,7 @@ export async function readSeedManifest(seedRoot: string): Promise<ShellAssetCata
 
   let catalog: ShellAssetCatalog;
   try {
-    catalog = parseShellAssetCatalog(root.assetCatalog);
+    catalog = parseShellAssetCatalogDocument(root.assetCatalog);
   } catch (error) {
     throw new ProjectValidationError(error instanceof Error ? error.message : "Embedded asset catalog is invalid.");
   }
@@ -76,7 +122,7 @@ export async function readSeedManifest(seedRoot: string): Promise<ShellAssetCata
 
   await Promise.all(
     catalog.assets.map(async (asset) => {
-      const bytes = await readFile(resolveSeedPath(seedRoot, asset.path));
+      const bytes = await readSeedFile(seedRoot, asset.path, "asset");
       if (`sha256-${createHash("sha256").update(bytes).digest("hex")}` !== asset.sha256) {
         throw new ProjectValidationError(`Seed asset bytes do not match the catalog hash for "${asset.id}".`);
       }
@@ -93,5 +139,5 @@ export async function readSeedManifest(seedRoot: string): Promise<ShellAssetCata
 }
 
 export async function readSeedAsset(seedRoot: string, asset: Pick<ShellAssetCatalogEntry, "path">): Promise<Uint8Array> {
-  return readFile(resolveSeedPath(seedRoot, asset.path));
+  return readSeedFile(seedRoot, asset.path, "asset");
 }

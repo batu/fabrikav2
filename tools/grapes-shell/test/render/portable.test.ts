@@ -4,7 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { shellPresentationContract } from "@fabrikav2/kernel";
+import { shellPresentationContractV2 } from "@fabrikav2/kernel";
 
 import { publishAuthoringProject } from "../../src/publication/publisher.ts";
 import { renderPortablePreviews } from "../../src/publication/preview.ts";
@@ -12,7 +12,7 @@ import { createStarterProject } from "../../src/shared/project.ts";
 
 const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const repositoryRoot = path.resolve(workspaceRoot, "../..");
-const seedRoot = path.join(repositoryRoot, "games/_template/design");
+const seedRoot = path.join(repositoryRoot, "games/shell_proof_grapes/design");
 const temporaryRoots: string[] = [];
 
 afterEach(async () => {
@@ -20,10 +20,10 @@ afterEach(async () => {
 });
 
 describe("portable publication renderer", () => {
-  it("renders all six local portable pages with scripts and HTTP networking disabled", async () => {
+  it("renders all seven local portable pages with scripts and HTTP networking disabled", async () => {
     const root = await mkdtemp(path.join(os.tmpdir(), "grapes-shell-render-"));
     temporaryRoots.push(root);
-    const authoringDir = path.join(root, "games/shell_proof/authoring/grapesjs");
+    const authoringDir = path.join(root, "games/shell_proof_grapes/authoring/grapesjs");
     await mkdir(authoringDir, { recursive: true });
     await writeFile(path.join(authoringDir, "project.json"), JSON.stringify(createStarterProject()), "utf8");
 
@@ -34,7 +34,7 @@ describe("portable publication renderer", () => {
       pages: Array<{ stateId: string; filename: string; sha256: string }>;
     };
 
-    expect(manifest.pages.map((page) => page.stateId)).toEqual(["menu", "level", "settings", "pause", "win", "fail"]);
+    expect(manifest.pages.map((page) => page.stateId)).toEqual(["menu", "level", "shop", "settings", "pause", "win", "fail"]);
     expect(manifest.pages.every((page) => page.filename.endsWith(".png") && /^sha256-[a-f0-9]{64}$/.test(page.sha256))).toBe(true);
     expect(manifest.fingerprint).toMatchObject({
       renderer: expect.stringMatching(/^playwright-chromium-/),
@@ -48,7 +48,7 @@ describe("portable publication renderer", () => {
   it("rejects executable or networked portable markup before launching a browser", async () => {
     const root = await mkdtemp(path.join(os.tmpdir(), "grapes-shell-render-unsafe-"));
     temporaryRoots.push(root);
-    const authoringDir = path.join(root, "games/shell_proof/authoring/grapesjs");
+    const authoringDir = path.join(root, "games/shell_proof_grapes/authoring/grapesjs");
     await mkdir(authoringDir, { recursive: true });
     await writeFile(path.join(authoringDir, "project.json"), JSON.stringify(createStarterProject()), "utf8");
     const result = await publishAuthoringProject({ authoringDir, seedRoot });
@@ -58,7 +58,7 @@ describe("portable publication renderer", () => {
 
     await expect(renderPortablePreviews({
       portableDirectory,
-      states: shellPresentationContract.publication.requiredStates,
+      states: shellPresentationContractV2.publication.requiredStates,
     })).rejects.toThrow(/executable|networked/i);
   });
 });

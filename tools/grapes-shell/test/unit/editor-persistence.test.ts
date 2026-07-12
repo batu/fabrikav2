@@ -11,7 +11,7 @@ import { readSeedManifest } from "../../src/shared/seed.ts";
 
 const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const repositoryRoot = path.resolve(workspaceRoot, "../..");
-const seedRoot = path.join(repositoryRoot, "games/_template/design");
+const seedRoot = path.join(repositoryRoot, "games/shell_proof_grapes/design");
 
 describe("editor browser persistence", () => {
   it("distinguishes a fresh starter from a saved browser draft and reloads the exact target", () => {
@@ -19,12 +19,12 @@ describe("editor browser persistence", () => {
     expect(fresh).toMatchObject({ status: "unsaved", feedbackTone: "neutral" });
 
     let serialized = "";
-    expect(saveBrowserProject(createStarterProject("shell_proof"), (value) => { serialized = value; })).toBe(true);
+    expect(saveBrowserProject(createStarterProject("shell_proof_grapes"), (value) => { serialized = value; })).toBe(true);
     const reloaded = loadBrowserProject(() => serialized);
 
     expect(reloaded.status).toBe("saved-unpublished");
-    expect(reloaded.project.targetGame).toBe("shell_proof");
-    expect(reloaded.project.presentation.pages).toHaveLength(6);
+    expect(reloaded.project.targetGame).toBe("shell_proof_grapes");
+    expect(reloaded.project.presentation.pages).toHaveLength(7);
   });
 
   it("fails visibly to an unsaved starter for corrupt, invalid, or unavailable storage", () => {
@@ -35,7 +35,7 @@ describe("editor browser persistence", () => {
     for (const result of [corrupt, wrongTarget, unavailable]) {
       expect(result.status).toBe("unsaved");
       expect(result.feedbackTone).toBe("error");
-      expect(result.project.targetGame).toBe("shell_proof");
+      expect(result.project.targetGame).toBe("shell_proof_grapes");
     }
   });
 

@@ -16,14 +16,14 @@ import { readSeedManifest } from "../../src/shared/seed.ts";
 
 const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const repositoryRoot = path.resolve(workspaceRoot, "../..");
-const seedRoot = path.join(repositoryRoot, "games/_template/design");
+const seedRoot = path.join(repositoryRoot, "games/shell_proof_grapes/design");
 
 async function manifest() {
   return readSeedManifest(seedRoot);
 }
 
 describe("constrained GrapesJS project", () => {
-  it("validates a six-page starter project against U2's exact semantic asset manifest", async () => {
+  it("validates a seven-page V2 starter project against the frozen Grapes asset manifest", async () => {
     const project = createStarterProject();
     const seed = await manifest();
 
@@ -32,13 +32,14 @@ describe("constrained GrapesJS project", () => {
     expect(parsed.presentation.pages.map((page) => page.stateId)).toEqual([
       "menu",
       "level",
+      "shop",
       "settings",
       "pause",
       "win",
       "fail",
     ]);
     expect(parsed.presentation.pages.flatMap((page) => page.instances).some((instance) => instance.presentation.assetId)).toBe(true);
-    expect(parsed.targetGame).toBe("shell_proof");
+    expect(parsed.targetGame).toBe("shell_proof_grapes");
     expect(() => validateProjectFile(project, seed, "another_game")).toThrow(/targets game/i);
   });
 
@@ -155,7 +156,7 @@ describe("constrained GrapesJS project", () => {
     expect(play.presentation.order).toBeLessThan(originalOrder);
     expect(play.presentation.order).toBeLessThan(progression.presentation.order);
     expect(progressionChildren.every((child) => child.presentation.order > progression.presentation.order)).toBe(true);
-    expect(validateProjectFile(reordered, seed).presentation.pages).toHaveLength(6);
+    expect(validateProjectFile(reordered, seed).presentation.pages).toHaveLength(7);
   });
 
   it("never reorders a child across its parent boundary", async () => {

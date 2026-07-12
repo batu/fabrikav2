@@ -21,7 +21,7 @@ const previewRenderer: PreviewRenderer = async ({ states }) => ({
 
 const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const repositoryRoot = path.resolve(workspaceRoot, "../..");
-const seedRoot = path.join(repositoryRoot, "games/_template/design");
+const seedRoot = path.join(repositoryRoot, "games/shell_proof_grapes/design");
 const temporaryRoots: string[] = [];
 
 afterEach(async () => {
@@ -34,10 +34,10 @@ describe("grapes-shell CLI", () => {
     temporaryRoots.push(root);
     const output: string[] = [];
     const emit = (line: string) => output.push(line);
-    const common = ["--game", "shell_proof", "--root", root, "--seed-root", seedRoot];
+    const common = ["--game", "shell_proof_grapes", "--root", root, "--seed-root", seedRoot];
 
     await expect(runCli(["init", ...common], { emit })).resolves.toBe(0);
-    expect(JSON.parse(output.pop()!)).toMatchObject({ ok: true, operation: "init", pages: 6 });
+    expect(JSON.parse(output.pop()!)).toMatchObject({ ok: true, operation: "init", pages: 7 });
 
     await expect(runCli(["status", ...common], { emit })).resolves.toBe(0);
     expect(JSON.parse(output.pop()!)).toMatchObject({
@@ -56,7 +56,7 @@ describe("grapes-shell CLI", () => {
     });
 
     const zeroHash = `sha256-${"0".repeat(64)}`;
-    const publications = path.join(root, "games/shell_proof/authoring/grapesjs/publications");
+    const publications = path.join(root, "games/shell_proof_grapes/authoring/grapesjs/publications");
 
     // publish demands BOTH reviewed hashes before it will touch the filesystem.
     await expect(runCli(["publish", ...common], { emit })).resolves.toBe(1);

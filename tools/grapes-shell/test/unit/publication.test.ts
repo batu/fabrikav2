@@ -1,4 +1,4 @@
-import { access, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { access, cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -17,7 +17,7 @@ import {
 
 const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const repositoryRoot = path.resolve(workspaceRoot, "../..");
-const seedRoot = path.join(repositoryRoot, "games/_template/design");
+const seedRoot = path.join(repositoryRoot, "games/shell_proof_grapes/design");
 const temporaryRoots: string[] = [];
 
 afterEach(async () => {
@@ -41,7 +41,7 @@ function previewRenderer(fingerprint: string): PreviewRenderer {
 async function fixture() {
   const root = await mkdtemp(path.join(os.tmpdir(), "grapes-shell-publication-"));
   temporaryRoots.push(root);
-  const authoringDir = path.join(root, "games/shell_proof/authoring/grapesjs");
+  const authoringDir = path.join(root, "games/shell_proof_grapes/authoring/grapesjs");
   const manifest = await readSeedManifest(seedRoot);
   await mkdir(authoringDir, { recursive: true });
   await writeFile(path.join(authoringDir, "project.json"), JSON.stringify(createStarterProject()), "utf8");
@@ -68,9 +68,23 @@ describe("immutable GrapesJS publication", () => {
 
     const revision = JSON.parse(
       await readFile(path.join(authoringDir, "publications", first.publicationId, "publication.json"), "utf8"),
-    ) as { pageCount: number; states: string[] };
-    expect(revision.pageCount).toBe(6);
-    expect(revision.states).toEqual(["menu", "level", "settings", "pause", "win", "fail"]);
+    ) as {
+      pageCount: number;
+      states: string[];
+      rendererProfile: string;
+      editorSources: Array<{ kind: string; sha256: string }>;
+      assetCatalogHash: string;
+    };
+    expect(revision.pageCount).toBe(7);
+    expect(revision.states).toEqual(["menu", "level", "shop", "settings", "pause", "win", "fail"]);
+    expect(revision.rendererProfile).toBe("dom-css");
+    expect(revision.editorSources.map((source) => source.kind)).toEqual([
+      "component-records",
+      "portable-export",
+      "project-json",
+    ]);
+    expect(revision.editorSources.every((source) => /^sha256-[a-f0-9]{64}$/u.test(source.sha256))).toBe(true);
+    expect(revision.assetCatalogHash).toMatch(/^sha256-[a-f0-9]{64}$/u);
     const portableRoot = path.join(authoringDir, "publications", first.publicationId, "portable");
     const [menuHtml, styles] = await Promise.all([
       readFile(path.join(portableRoot, "menu.html"), "utf8"),
@@ -109,7 +123,7 @@ describe("immutable GrapesJS publication", () => {
 
   it("binds the reviewed asset-catalog hash and fails closed on divergence before any write", async () => {
     const { authoringDir, manifest } = await fixture();
-    const projectJsonHash = await hashCanonicalJson(validateProjectFile(createStarterProject(), manifest, "shell_proof"));
+    const projectJsonHash = await hashCanonicalJson(validateProjectFile(createStarterProject(), manifest, "shell_proof_grapes"));
     const assetCatalogHash = await hashCanonicalJson(manifest);
 
     // The project hash matches, but the reviewed asset inventory does not: fail closed.
@@ -135,12 +149,45 @@ describe("immutable GrapesJS publication", () => {
     expect(published.publicationId).toMatch(/^sha256-[a-f0-9]{64}$/);
   });
 
+  it("binds unused reviewed replacements into publication identity and copies the full catalog", async () => {
+    const { authoringDir, manifest } = await fixture();
+    const first = await publishAuthoringProject({ authoringDir, seedRoot });
+    const firstCatalog = JSON.parse(
+      await readFile(path.join(authoringDir, "publications", first.publicationId, "portable", "asset-catalog.json"), "utf8"),
+    ) as { assets: Array<{ id: string }> };
+    expect(firstCatalog.assets).toHaveLength(manifest.assets.length);
+
+    const changedRoot = await mkdtemp(path.join(os.tmpdir(), "grapes-shell-catalog-identity-"));
+    temporaryRoots.push(changedRoot);
+    const changedSeedRoot = path.join(changedRoot, "design");
+    await cp(seedRoot, changedSeedRoot, { recursive: true });
+    const changedManifestPath = path.join(changedSeedRoot, "kenney-seed.manifest.json");
+    const changedManifest = JSON.parse(await readFile(changedManifestPath, "utf8")) as {
+      assetCatalog: { assets: Array<{ id: string; description: string }> };
+    };
+    const usedAssets = new Set(
+      createStarterProject().presentation.pages.flatMap((page) => page.instances.flatMap((instance) => [
+        instance.presentation.assetId,
+        ...Object.values(instance.variants).map((variant) => variant.assetId),
+      ])).filter((id): id is string => Boolean(id)),
+    );
+    const unused = changedManifest.assetCatalog.assets.find((asset) => !usedAssets.has(asset.id));
+    expect(unused).toBeDefined();
+    unused!.description = `${unused!.description} Reviewed alternate.`;
+    await writeFile(changedManifestPath, JSON.stringify(changedManifest, null, 2), "utf8");
+
+    const second = await publishAuthoringProject({ authoringDir, seedRoot: changedSeedRoot });
+    expect(second.publicationId).not.toBe(first.publicationId);
+  });
+
   it("rejects mixed or divergent portable records instead of treating a tampered pair as portable evidence", async () => {
     const { authoringDir } = await fixture();
     const published = await publishAuthoringProject({ authoringDir, seedRoot, renderPreviews: previewRenderer("records") });
     const recordsPath = path.join(authoringDir, "publications", published.publicationId, "portable", "records.json");
-    const records = JSON.parse(await readFile(recordsPath, "utf8")) as { records: Array<{ presentation: { copy?: string } }> };
-    records.records[0]!.presentation.copy = "diverged";
+    const records = JSON.parse(await readFile(recordsPath, "utf8")) as {
+      records: Array<{ prototypeInstanceId: string; presentation: { copy?: string } }>;
+    };
+    records.records[0]!.prototypeInstanceId = "diverged.prototype";
     await writeFile(recordsPath, JSON.stringify(records), "utf8");
 
     await expect(verifyPublishedRevision({ authoringDir, publicationId: published.publicationId, seedRoot })).rejects.toThrow(
