@@ -592,3 +592,34 @@ No human A1 acceptance is recorded, and the current artifact must not be present
 ### Next Action
 
 Repair the debug/grey-box canvas, Settings/toggle composition, WYSIWYG asset trust and semantic choice, and disabled-until-complete A1 Accept state; then reproduce the same four-frame and 3-8 second capture sequence against the preserved pre-fix corpus.
+
+## Task U3-V8 - Close the independent aesthetics gate
+
+### Task Snapshot
+
+Status: passed for U3-owned pixels; human A1 decision pending
+
+The first current-frame review found one U3 P1: the fixed A1 checkpoint launcher occupied the same header space as the editor's publication-state card. The launcher now lives in its own 48px evidence rail. A second review found no P1 but more than three editor-owned P2 findings, so the card remained in Worked for one bounded clarity pass.
+
+That pass made the inspector's overflow discoverable and reachable, changed compact read-only constraints from warning yellow to neutral styling, and kept disabled Accept and Reject controls muted while preserving their positive and destructive meanings. It did not change the canonical Kenney-backed phone fixture, whose presentation is inherited from U2 rather than owned by the U3 editor.
+
+### Deterministic Visual Assertions
+
+The final capture is bound to source commit `396793e7fe5e17b443e059158e1beffa2aadec34`. Its manifest fails closed unless all of the following remain true at 1440x900:
+
+- The inspector has a 701px viewport, 1,153px scroll height, 452px reachable scroll range, and its final control is fully visible at the bottom.
+- Compact constraint notes render with neutral `rgb(241, 245, 248)` / `rgb(157, 178, 193)` treatment instead of the publication warning's `rgb(255, 245, 217)` / `rgb(224, 162, 59)` treatment.
+- Accept and Reject begin disabled but retain different computed backgrounds and borders.
+- The exact saved project remains `sha256-4cc9e031266e95a86536031143035bcf3d86e5abc5a222fc04c0d09ed6463ae4`, the canonical catalog remains `sha256-5a0ce5186af8f07a1d6f7143fe10a5f7d273d39275bbfd74a9ab074f74fe652e`, no verdict is submitted, and browser/privacy checks remain empty.
+
+### Final Independent Judgment
+
+Fable could not start because its provider quota returned HTTP 429 before reading a frame, so the recorded fallback sequence used fresh isolated Opus and Codex reviewers. The final scoped reviewer found zero U3 P1s, two U3 P2s, and recommended `ship`. Remaining U3 observations concern metadata text sizing and disabled-label contrast; both are non-blocking polish. Grey-box Home/Win composition and faint in-phone controls were recorded separately as inherited U2 fixture debt and were not misattributed to this editor card.
+
+### Evidence Correction
+
+The capture filenames in this directory are path-stable regenerated outputs, not immutable files. Earlier text calling those paths an immutable pre-change corpus was inaccurate; git history preserves the previous bytes, while the current paths intentionally hold the latest reviewed capture.
+
+### Decision
+
+The TWF aesthetics gate passes for U3-owned editor and checkpoint pixels. This does not record Batu's A1 usability acceptance and does not unlock U4 by itself.
