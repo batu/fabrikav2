@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Pre-implementation review ledger for the dual design frontends plan",
+  "recordedAt": "2026-07-12T06:32:26Z",
+  "agents": [
+    {
+      "agency": "claude-cli",
+      "model": "claude-fable-5",
+      "sessionId": "99ba5a94-131f-4f29-826b-ca175e1779c6",
+      "role": "experiment fairness reviewer",
+      "status": "completed",
+      "disposition": "findings incorporated",
+      "costUsd": null
+    },
+    {
+      "agency": "claude-cli",
+      "model": "claude-fable-5",
+      "sessionId": "3e0c52b5-4002-472f-b3d4-4685aec511ec",
+      "role": "architecture and authority reviewer",
+      "status": "completed",
+      "disposition": "findings incorporated",
+      "costUsd": null
+    },
+    {
+      "agency": "codex-collaboration",
+      "model": "runtime-managed Codex",
+      "agentId": "doc_coherence",
+      "agentName": "Euclid",
+      "role": "document coherence reviewer",
+      "status": "completed",
+      "disposition": "findings incorporated",
+      "costUsd": null
+    },
+    {
+      "agency": "codex-collaboration",
+      "model": "runtime-managed Codex",
+      "agentId": "doc_feasibility",
+      "agentName": "Jason",
+      "role": "implementation feasibility reviewer",
+      "status": "completed",
+      "disposition": "findings incorporated",
+      "costUsd": null
+    },
+    {
+      "agency": "claude-cli",
+      "model": "claude-fable-5",
+      "sessionId": "4026d19d-0c6a-402f-a0fa-22249a1dc631",
+      "role": "product, design workflow, and scope reviewer",
+      "status": "completed",
+      "findings": 5,
+      "disposition": "all findings incorporated",
+      "costUsd": 1.232445
+    },
+    {
+      "agency": "claude-cli",
+      "model": "claude-fable-5",
+      "sessionId": "3fde300c-b9e8-493c-b732-11e1cdaee3e9",
+      "role": "adversarial architecture, security, and operations reviewer",
+      "status": "completed",
+      "findings": 5,
+      "disposition": "all findings incorporated",
+      "costUsd": 1.47313
+    }
+  ],
+  "totals": {
+    "agents": 6,
+    "fableAgents": 4,
+    "knownCostUsd": 2.705575
+  }
+}
