@@ -1,7 +1,8 @@
 // R7/AE3: two unchanged generations must be byte-identical or normalize to an
 // identical canonical publication under the enumerated volatile registry.
 import { describe, it, expect } from "vitest";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -9,7 +10,7 @@ import { fileURLToPath } from "node:url";
 import { normalize, compareGenerations, VOLATILE_REGISTRY } from "../scripts/normalize.mjs";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - plain .mjs helper without type declarations
-import { validateRecordedGenerationPair } from "../scripts/lib.mjs";
+import { sha256, validateRecordedGenerationPair } from "../scripts/lib.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -66,5 +67,24 @@ describe("recorded double generation (R7, AE3)", () => {
     expect(result.generatedCount).toBeGreaterThan(0);
     expect(result.problems).toEqual([]);
     expect(VOLATILE_REGISTRY).toHaveLength(0);
+  });
+
+  it("rejects committed editor inputs that drift from the recorded generation", () => {
+    const scratch = mkdtempSync(join(tmpdir(), "phaser-feasibility-generation-"));
+    try {
+      const generated = "export const probe = true;\n";
+      const recordedInput = '{"label":"recorded"}\n';
+      writeFileSync(join(scratch, "Probe.ts"), generated);
+      writeFileSync(join(scratch, "Probe.scene"), '{"label":"drifted"}\n');
+      const files = {
+        "Probe.ts": sha256(generated),
+        "Probe.scene": sha256(recordedInput),
+      };
+      expect(validateRecordedGenerationPair({ files }, { files }, scratch).problems).toContain(
+        "committed editor input differs from recorded generation: Probe.scene"
+      );
+    } finally {
+      rmSync(scratch, { recursive: true, force: true });
+    }
   });
 });

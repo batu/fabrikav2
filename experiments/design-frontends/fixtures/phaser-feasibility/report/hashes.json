@@ -1,5 +1,5 @@
 {
-  "generated": "2026-07-12T09:57:20.021Z",
+  "generated": "2026-07-12T10:10:30.567Z",
   "algorithm": "sha256",
   "files": {
     "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
@@ -47,8 +47,8 @@
     "scripts/confine-audit.mjs": "4939e49dbcc05deee90ca86ed75c0413e905fe0e4bd9762722a0bfabd472a846",
     "scripts/device-boot.md": "addb31e5bec84683a99320f722614d35f81e9230c95937ee7e34b656e3a90b29",
     "scripts/editor-session.mjs": "95147a593560b7e5551cec5579ac5099dd2af99f2cf004c6d3af896d6b767ea1",
-    "scripts/hash.mjs": "f86196d87fc031df102d9b10b80c077c77d470a18d89e1d6373fa49dc3b4d10f",
-    "scripts/lib.mjs": "c91c23e2025d1b7d40b9493db78f90902b02dc853c0d88af3940feb24724ad39",
+    "scripts/hash.mjs": "f6d9e608711ad96d91863e189be63b85ca1d17e1533f2745fd752b1a7704a15d",
+    "scripts/lib.mjs": "c9bf91662e9543dc77c5477ab0c81a0e326be36304c7c141841b0f8efb83efe6",
     "scripts/make-assets.mjs": "380bb48337b69ea1be4bb2ca1d43c0e8f03f8f987630f2ca7c6ea18bad92bd3a",
     "scripts/normalize.mjs": "6068952ad2d37107c602cd59ffbb0c9eeeb52f23390605a1f6cd63b1586b2c8b",
     "scripts/publish-check.mjs": "9a95cec34915fed17180361a438b0fec818e595d4f3bb6286a69531210255e5a",
@@ -57,7 +57,7 @@
     "scripts/verify.mjs": "5a13f9bff0083fe47ae5a8f1ff452e78f731ccde951774cd3e699dc38e454a54",
     "tests/binding.test.ts": "7d265837785fa491fbb836ddc15ab1c93f22ec7809c9d21f06c07f7fb9603216",
     "tests/confinement.test.ts": "6be0c3b63482e2fd6fe0eb4b1b4d44e7c783e6700d528dd99b1ff0e984bfd6d3",
-    "tests/determinism.test.ts": "3120f5decbf4ccaae0c512c16f141039ac6e7c658dcfe0aaa55668f2c7f71251",
+    "tests/determinism.test.ts": "82d7fc71407bef3c1858cf37f08535fadf047c6020953e4d9d9e06cc2b22d9ee",
     "tests/hostile-strings.test.ts": "157a60b20e9e64461d9d0d0fab3c6bfbfeae51e19f197af3eaab9a35ffdb75d8",
     "tests/identity.test.ts": "ec797b9d4647156ef8dfb44d0f23e786417588e24b686b39793098f603810acd",
     "tests/lib.test.ts": "c9f70d6c2179b25e0bc1a98f582ba64b48e0b0eaa788070ebcfee5d2e56c3aeb",

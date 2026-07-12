@@ -3,6 +3,7 @@
 // recomputes and compares.
 import { writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 import { fixtureRoot, listFiles, sha256File } from "./lib.mjs";
 
 const COVERED_DIRS = [
@@ -42,7 +43,7 @@ export function buildManifest() {
   return manifest;
 }
 
-if (process.argv[1].endsWith("hash.mjs")) {
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   mkdirSync(join(fixtureRoot, "report"), { recursive: true });
   const manifest = buildManifest();
   writeFileSync(

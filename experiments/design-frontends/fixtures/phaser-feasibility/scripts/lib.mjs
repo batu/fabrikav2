@@ -95,6 +95,12 @@ export function validateRecordedGenerationPair(gen1, gen2, rootDir) {
   for (const file of inputs1) {
     if (gen1.files[file] !== gen2.files[file]) {
       problems.push(`editor input changed between generation runs: ${file}`);
+      continue;
+    }
+    const absolute = join(rootDir, file);
+    if (!existsSync(absolute)) problems.push(`recorded editor input missing: ${file}`);
+    else if (sha256File(absolute) !== gen1.files[file]) {
+      problems.push(`committed editor input differs from recorded generation: ${file}`);
     }
   }
 
