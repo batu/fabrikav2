@@ -1,0 +1,206 @@
+{
+  "card": "43Qvbih7",
+  "goalUnit": "goal-U2",
+  "pinned": {
+    "phaserEditor": "5.0.2",
+    "phaser": "4.2.1"
+  },
+  "generated": "2026-07-12T08:35:00Z",
+  "overall": "blocked",
+  "overallDetail": "Every off-device leg passed. Overall is blocked solely on the conductor-run physical Android WebView boot (acceptance android-webview-boot); when that leg records pass, R1-R11 are all pass.",
+  "acceptance": {
+    "identity-save-reopen-duplicate": {
+      "verdict": "pass",
+      "detail": "All scene-object UUIDs and semantic metadata survived editor save/close/reopen byte-stably; the editor duplicate received a fresh UUID in the same semantic parent with binding retained verbatim, then was explicitly retargeted to the second currency through the inspector; every observation is hash-bracketed in the session ledger and re-validated against committed bytes by tests.",
+      "evidence": [
+        "evidence/sessions/identity-before.json",
+        "evidence/sessions/identity-after.json",
+        "evidence/sessions/duplicate-result.json",
+        "evidence/sessions/retarget-result.json",
+        "evidence/sessions/session-ledger.json",
+        "tests/identity.test.ts"
+      ]
+    },
+    "live-copy-preview": {
+      "verdict": "pass",
+      "detail": "NOT native: inspector fields commit only on the change event (blur/Enter); three recorded keystrokes left the canvas byte-identical, the commit updated it. The smallest recorded plugin path (editor-plugins/live-copy-preview, loaded via the documented -plugins flag) forwards input events through the editor's own commit path: three keystrokes produced three distinct canvas states.",
+      "evidence": [
+        "evidence/sessions/live-typing-result.json",
+        "evidence/sessions/live-typing-plugin-result.json",
+        "editor-plugins/live-copy-preview/live-copy-preview.js",
+        "evidence/sessions/shots/live-typing-plugin-1.png"
+      ]
+    },
+    "unsafe-cases-inert-or-blocked": {
+      "verdict": "pass",
+      "detail": "Hostile copy and a hostile component property (quote, double quote, backtick, ${}, {}, newline, */, //, </script>) round-trip byte-exact into plain string literals; the compiler escapes </script> as <\\/script> (same runtime value); AST tests prove hostile content exists only inside string literals. Invalid catalog id, missing binding, missing/duplicate semantic id, and unknown texture block with named codes and zero writes.",
+      "evidence": [
+        "tests/hostile-strings.test.ts",
+        "tests/binding.test.ts",
+        "editor-project/src/scenes/Probe.ts",
+        "scripts/publish-check.mjs"
+      ]
+    },
+    "deterministic-generation": {
+      "verdict": "pass",
+      "detail": "Two CompileProject runs from unchanged editor state — with generated outputs deleted between runs — produced byte-identical Probe.ts and Semantic.ts (recorded twice: pre-duplicate scene and final scene). No normalization needed; volatile-field registry is empty.",
+      "evidence": [
+        "evidence/sessions/session-ledger.json",
+        "tests/determinism.test.ts"
+      ]
+    },
+    "offline-runtime-build": {
+      "verdict": "pass",
+      "detail": "Fresh copy of the fixture, npm ci, then full verify inside a network-blocked sandbox: build succeeds from generated scene code + phaser@4.2.1 only, bundle contains the probe sentinel and no editor-package markers, unit tests green. The Phaser Editor application is never referenced by the build.",
+      "evidence": [
+        "evidence/offline-build/offline-build.json",
+        "evidence/offline-build/transcript.txt"
+      ]
+    },
+    "android-webview-boot": {
+      "verdict": "blocked",
+      "blockedOn": "Physical Android device on the Ubuntu ADB host — this is the conductor-run leg per the plan's tail ownership; no device lane is reachable from this macOS worker. Wrapper config, fixed port, and runbook are prepared.",
+      "evidence": [
+        "scripts/device-boot.md",
+        "capacitor.config.ts"
+      ]
+    },
+    "dependency-enumeration": {
+      "verdict": "pass",
+      "detail": "Complete enumeration in the dependencies section: exact runtime/dev pins with lockfile-resolved versions, machine tools, editor artifacts with commit-worthiness, lockfile implications for the goal-U1 freeze, and the plugin verdict.",
+      "evidence": [
+        "package.json",
+        "package-lock.json"
+      ]
+    }
+  },
+  "feasibility": {
+    "identity_mechanism": {
+      "rung": "user-components",
+      "pluginRequired": false,
+      "ladder": [
+        {
+          "rung": "built-in-ids",
+          "verdict": "insufficient-alone",
+          "detail": "Scene JSON natively carries a stable per-object UUID (id) plus label, which survive save/reopen/duplicate — but there is no native field for role/binding/slot/variant, so built-ins cannot hold the full semantic contract."
+        },
+        {
+          "rung": "user-components",
+          "verdict": "accepted",
+          "detail": "A Semantic user component (fabSemanticId/fabRole/fabBinding/fabSlot/fabVariant string props) serializes into the scene JSON as flat 'Semantic.<prop>' keys, survives save/reopen/duplicate, is editable in the inspector, and compiles into runtime code as plain property assignments on a generated Semantic class (imports phaser only)."
+        }
+      ]
+    },
+    "headless_regen": {
+      "verdict": "unsupported",
+      "detail": "The scene compiler runs only inside the workbench browser client (product.all plugin). The server binary exposes a JSON API (POST /editor/api) for files/state but no compile command; the desktop MCP bridge (port 1902) forwards tool calls to a RUNNING GUI workbench; no CLI compile surface exists. Mitigations observed and recorded: the editor auto-compiles on save (scene save and generated output move together), and the full workbench is scriptable against the local server via HTTP + browser automation — that is automation of the GUI, not headless support, and is recorded as a vendor/automation cost for goal-U7."
+    },
+    "normalization": {
+      "volatileFields": [],
+      "detail": "Both recorded double-generations were byte-identical, so the volatile-field registry is empty and normalization is the identity function. Any future entry must arrive together with evidence per KTD8."
+    },
+    "confinement": {
+      "verdict": "clean",
+      "ktd11": "Worktree-safe. A stat manifest of the entire enclosing worktree outside the fixture (gitignored files included; .git/node_modules excluded) was identical before and after all editor sessions. The editor accepted the long dotted .twf-worktrees path. No duplicate-checkout environment is needed for the Phaser lane."
+    },
+    "live_preview": {
+      "native": "commit-only",
+      "pluginPath": "proven",
+      "detail": "Base editor: form fields (createStringField/createStringDialogField) commit exclusively on the native change event — no per-keystroke update; recorded with per-keystroke canvas hashes. Plugin path: a 26-line plugin loaded via the documented -plugins flag forwards input events on formText fields into the same commit path, giving true per-keystroke preview at the cost of one undo step per keystroke."
+    },
+    "command_surface": {
+      "validate": {
+        "verdict": "supported",
+        "detail": "Scriptable, deterministic, editor-free: publish-check.mjs parses editor-native scene JSON, catalog, and asset pack and returns named block codes.",
+        "outcomeMapping": "clean result is publishable; blocked-invalid-catalog-id / blocked-missing-binding / blocked-missing-semantic-id / blocked-duplicate-semantic-id / blocked-unknown-texture map onto unsupported-intent and invalid-revision shapes in the shared typed vocabulary."
+      },
+      "publish": {
+        "verdict": "supported",
+        "detail": "Editor-native sources plus committed editor-generated code are plain files; hashing them into an immutable revision is scriptable without editor or account. Caveat carried from headless_regen: generated code cannot be independently regenerated headlessly, so publish pins committed generated bytes by hash and relies on the editor's auto-compile-on-save pairing.",
+        "outcomeMapping": "success maps to applied; unchanged input maps to no-op (deterministic generation proven byte-identical)."
+      },
+      "preflight": {
+        "verdict": "supported",
+        "detail": "Validate plus hash comparison of scene/generated/catalog/assets in plain node.",
+        "outcomeMapping": "hash mismatch maps to blocked-drift; unknown or incomplete revision maps to invalid-revision."
+      },
+      "apply": {
+        "verdict": "supported",
+        "detail": "Applying an accepted revision is immutable file copy plus an atomic pointer flip; no editor involvement at apply time.",
+        "outcomeMapping": "applied / no-op / blocked-drift all derivable from content hashes."
+      },
+      "status": {
+        "verdict": "supported",
+        "detail": "Reading the pointer and recomputing hashes is plain node.",
+        "outcomeMapping": "reports the applied revision plus drift state in the typed vocabulary."
+      },
+      "proof": {
+        "verdict": "supported",
+        "detail": "Local proof (offline build + bundle sentinel scan) is scriptable and runs inside verify. Physical-device proof needs the Android lane; that is an environmental dependency, not a toolchain capability gap.",
+        "outcomeMapping": "local proof green/failed; the device leg stays three-state per its own evidence."
+      }
+    },
+    "license": {
+      "product": "Phaser Editor v5.0.2 desktop (Phaser Studio Inc), release date 2026-05-14",
+      "bundledPackageLicense": "MIT declared in the desktop app's bundled package.json",
+      "unlock": "The editor requires a phaser.io account login to unlock; the local install was pre-authenticated by the human before this card. The probe observed GetServerMode returning desktop:true unlocked:true without reading or exporting any credential.",
+      "authMaterialLocation": "user home configuration (never read, never committed, not in evidence)"
+    }
+  },
+  "dependencies": {
+    "runtime": {
+      "phaser": "4.2.1 (exact pin; lockfile-resolved 4.2.1)"
+    },
+    "dev": {
+      "typescript": "~5.7.2 (resolved 5.7.3)",
+      "vite": "^6.0.5 (resolved 6.4.3)",
+      "vitest": "^4.0.18 (resolved 4.1.10)",
+      "eslint": "^9.39.4 (resolved 9.39.5)",
+      "@eslint/js": "^9.39.4 (resolved 9.39.5)",
+      "typescript-eslint": "^8.58.2 (resolved 8.63.0)",
+      "@types/node": "^25.3.3 (resolved 25.9.5)",
+      "@capacitor/cli": "^8.4.1 (resolved 8.4.1; device leg only)",
+      "@capacitor/core": "^8.1.0 (resolved 8.4.1; device leg only)",
+      "@capacitor/android": "^8.4.1 (resolved 8.4.1; device leg only)",
+      "playwright-core": "^1.58.2 (resolved 1.58.2; GUI-evidence tooling only — verify never uses it)"
+    },
+    "tools": [
+      "Phaser Editor 5.0.2 desktop app — machine-local, human-authenticated; needed only to author scenes and (re)generate code; never needed to build, verify, or run",
+      "Chromium (playwright browser cache) — GUI-evidence sessions only",
+      "Node 26.3.0 / npm 11.16.0 used for the recorded runs; verify is plain node with no version-specific APIs"
+    ],
+    "editorArtifacts": [
+      { "path": "editor-project/src/scenes/Probe.scene", "kind": "committed authority (editor-native state)" },
+      { "path": "editor-project/src/components/Semantic.components", "kind": "committed authority (identity mechanism definition)" },
+      { "path": "editor-project/public/assets/asset-pack.json", "kind": "committed authority" },
+      { "path": "editor-project/phasereditor2d.config.json", "kind": "committed authority" },
+      { "path": "editor-project/src/scenes/Probe.ts", "kind": "committed derived output — editor-generated, hash-pinned, regenerable only via the editor GUI" },
+      { "path": "editor-project/src/components/Semantic.ts", "kind": "committed derived output — editor-generated, hash-pinned" },
+      { "path": "editor-plugins/live-copy-preview/", "kind": "committed probe plugin, loaded via the documented -plugins flag; not required for identity or publication" }
+    ],
+    "lockfileImplications": "The fixture is a standalone package with its own package-lock.json; root workspaces exclude experiments/** so nothing here can touch the root manifest or lockfile. For the goal-U1 freeze, the Phaser lane needs phaser@4.2.1 (exact) plus the toolchain above added to the frozen workspace state (tools/phaser-shell), or a standalone-package layout like this fixture. No editor package ships to the runtime: generated code imports phaser only.",
+    "pluginVerdict": "Identity, roles, bindings, slots, and variants need NO plugin — editor-supported user components suffice (rung b of the ladder). The only plugin justified is the smallest live-copy-preview forwarder for per-keystroke preview, because the base editor commits fields only on blur/Enter; it is probe-scoped, 26 lines, and loaded through the supported -plugins extension point."
+  },
+  "ledger": {
+    "startingSha": "5c2a0a32",
+    "endingSha": "db400d05",
+    "endingShaNote": "db400d05 is the implementation+evidence commit; this report lands in the immediately following commit on the same card branch.",
+    "agent": "claude/fable (Claude Fable 5), twf worker, Worked stage, card 43Qvbih7",
+    "attempts": 1,
+    "rework": [
+      "scene-editor duplicate was a silent no-op under automation until clipboard-read/write permissions were granted to the browser context (duplicate is clipboard-backed copy+paste)",
+      "inspector user-component fields are textareas, not inputs — the first retarget attempts searched inputs only",
+      "playwright-core browser revision mismatch on this machine: the matching Chromium was installed into the user cache and the full build selected via an env override"
+    ],
+    "humanInterventions": [
+      "none during execution; precondition: the Phaser Editor install was already human-authenticated before the card started"
+    ],
+    "addedDependencies": [
+      "standalone fixture package only (see dependencies); no root manifest or lockfile change"
+    ],
+    "changedSurface": "experiments/design-frontends/fixtures/phaser-feasibility/** (the plan document landed earlier in the Planned stage)",
+    "failedGates": [
+      "android-webview-boot: blocked — no device lane reachable from this worker; conductor runbook and throwaway wrapper prepared"
+    ]
+  }
+}

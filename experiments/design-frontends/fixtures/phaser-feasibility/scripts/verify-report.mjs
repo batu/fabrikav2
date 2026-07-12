@@ -66,8 +66,10 @@ export function validateReport() {
 
   // privacy scan over all text artifacts (R13)
   const PRIVACY = [
-    [/\/Users\/[a-z0-9_-]+/i, "home path"],
-    [/\/home\/[a-z0-9_-]+/i, "home path"],
+    // absolute home paths only: require a boundary before the leading slash so
+    // repo-relative segments like "ui/home/..." don't false-positive
+    [/(^|["'\s(=:])\/Users\/[a-z0-9_-]+/im, "home path"],
+    [/(^|["'\s(=:])\/home\/[a-z0-9_-]+\//im, "home path"],
     [/Bearer\s+[A-Za-z0-9._-]{10,}/, "bearer token"],
     [/(?:api[_-]?key|apikey)["']?\s*[:=]/i, "api key"],
     [/gh[pousr]_[A-Za-z0-9]{20,}/, "github token"],

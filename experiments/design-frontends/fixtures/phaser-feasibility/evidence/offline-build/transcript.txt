@@ -1,0 +1,22 @@
+preliminary run 2026-07-12T08:18:28Z (pre-report):
+  rsync fixture (excl node_modules,dist,android) -> scratch dir
+  npm ci  -> ok
+  [network-blocked sandbox]
+  npx vite build --logLevel info -> "built in 1.30s"
+  grep -c "PROBE-43QVBIH7" dist/assets/index-*.js -> 1
+  grep -c "phasereditor2d|@phaserjs/editor" dist/assets/index-*.js -> 0
+  npx vitest run -> 25 passed, 1 failed (report.test.ts: report.json not yet written)
+
+final run 2026-07-12T08:26:37Z (report + hashes present):
+  rsync fixture (excl node_modules,dist,android) -> scratch dir
+  npm ci  -> ok
+  [network-blocked sandbox]
+  npm run verify ->
+    [verify] typecheck              PASS
+    [verify] lint                   PASS
+    [verify] test:unit              PASS
+    [verify] determinism            PASS - 2 generated files identical across two runs
+    [verify] build                  PASS
+    [verify] bundle-checks          PASS - sentinel present, no editor imports
+    [verify] report-integrity      PASS - report.json schema-valid, evidence resolves, hashes match, privacy scan clean
+    [verify] 7 steps: 7 pass, 0 fail, 0 blocked
