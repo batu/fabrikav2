@@ -9,7 +9,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { fixtureRoot, sha256File, listFiles } from "./lib.mjs";
+import { fixtureRoot, listFiles, validateRecordedGenerationPair } from "./lib.mjs";
 
 const bin = (name) => join(fixtureRoot, "node_modules", ".bin", name);
 const results = [];
@@ -50,20 +50,9 @@ try {
   const gen1 = ledger.entries.filter((e) => e.step === "compile-1" && e.phase === "end").at(-1);
   const gen2 = ledger.entries.filter((e) => e.step === "compile-2" && e.phase === "end").at(-1);
   if (!gen1 || !gen2) throw new Error("missing compile-1/compile-2 end brackets in session ledger");
-  const generated = Object.keys(gen1.files).filter((f) => /\.(ts|js)$/.test(f));
-  if (generated.length === 0) throw new Error("no generated files recorded in compile-1 bracket");
-  const problems = [];
-  for (const f of generated) {
-    if (gen1.files[f] !== gen2.files[f]) {
-      problems.push(`generation drift between runs: ${f}`);
-      continue;
-    }
-    const abs = join(fixtureRoot, f);
-    if (!existsSync(abs)) problems.push(`recorded generated file missing: ${f}`);
-    else if (sha256File(abs) !== gen1.files[f]) problems.push(`committed bytes differ from recorded generation: ${f}`);
-  }
+  const { problems, generatedCount } = validateRecordedGenerationPair(gen1, gen2, fixtureRoot);
   if (problems.length > 0) report("determinism", "fail", problems.join("; "));
-  else report("determinism", "pass", `${generated.length} generated files identical across two runs`);
+  else report("determinism", "pass", `${generatedCount} generated files identical across unchanged inputs`);
 } catch (err) {
   report("determinism", "fail", String(err.message ?? err));
 }

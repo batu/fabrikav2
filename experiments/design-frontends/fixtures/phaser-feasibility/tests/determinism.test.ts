@@ -1,7 +1,7 @@
 // R7/AE3: two unchanged generations must be byte-identical or normalize to an
 // identical canonical publication under the enumerated volatile registry.
 import { describe, it, expect } from "vitest";
-import { readFileSync, existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import { normalize, compareGenerations, VOLATILE_REGISTRY } from "../scripts/normalize.mjs";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - plain .mjs helper without type declarations
-import { sha256File } from "../scripts/lib.mjs";
+import { validateRecordedGenerationPair } from "../scripts/lib.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -62,14 +62,9 @@ describe("recorded double generation (R7, AE3)", () => {
     const gen2 = ledger.entries.filter((e: { step: string; phase: string }) => e.step === "compile-2" && e.phase === "end").at(-1);
     expect(gen1, "compile-1 bracket missing").toBeDefined();
     expect(gen2, "compile-2 bracket missing").toBeDefined();
-    const generated = Object.keys(gen1.files).filter((f) => /\.(ts|js)$/.test(f));
-    expect(generated.length).toBeGreaterThan(0);
-    for (const f of generated) {
-      expect(gen2.files[f], `generation drift in ${f}`).toBe(gen1.files[f]);
-      const abs = join(root, f);
-      expect(existsSync(abs), `recorded generated file missing: ${f}`).toBe(true);
-      expect(sha256File(abs), `committed ${f} differs from recorded generation`).toBe(gen1.files[f]);
-    }
+    const result = validateRecordedGenerationPair(gen1, gen2, root);
+    expect(result.generatedCount).toBeGreaterThan(0);
+    expect(result.problems).toEqual([]);
     expect(VOLATILE_REGISTRY).toHaveLength(0);
   });
 });

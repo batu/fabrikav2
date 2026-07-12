@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { describe, it, expect } from "vitest";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - plain .mjs helper without type declarations
-import { validateReport } from "../scripts/verify-report.mjs";
+import { validateLiveCopyEvidence, validateReport } from "../scripts/verify-report.mjs";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore - plain .mjs helper without type declarations
 import { fixtureRoot } from "../scripts/lib.mjs";
@@ -47,5 +47,13 @@ describe("feasibility report integrity (R12-R15)", () => {
 
     const log = readFileSync(join(fixtureRoot, "evidence/device/logcat-webgl.txt"), "utf8");
     expect(log).toMatch(/Phaser v4\.2\.1 \(WebGL/);
+  });
+
+  it("live-copy-preview pass is bound to the recorded canvas frames", () => {
+    const report = JSON.parse(readFileSync(join(fixtureRoot, "report", "report.json"), "utf8"));
+    const leg = report.acceptance["live-copy-preview"];
+    if (leg.verdict !== "pass") return;
+
+    expect(validateLiveCopyEvidence(fixtureRoot)).toEqual([]);
   });
 });

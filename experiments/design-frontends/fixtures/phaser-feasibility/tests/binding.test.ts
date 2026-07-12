@@ -44,12 +44,20 @@ describe("typed publication gate (R6)", () => {
     expect(verdict.blocks.map((b: { code: string }) => b.code)).toContain("blocked-invalid-catalog-id");
   });
 
-  it("a missing required binding blocks with blocked-missing-binding", () => {
+  it("a missing required binding blocks with blocked-invalid-binding", () => {
     const scene = freshScene();
     firstAssetObj(scene)["Semantic.fabBinding"] = "";
     const verdict = checkScene(scene, catalog, pack);
     expect(verdict.result).toBe("blocked");
-    expect(verdict.blocks.map((b: { code: string }) => b.code)).toContain("blocked-missing-binding");
+    expect(verdict.blocks.map((b: { code: string }) => b.code)).toContain("blocked-invalid-binding");
+  });
+
+  it("a malformed asset binding blocks with blocked-invalid-binding", () => {
+    const scene = freshScene();
+    firstAssetObj(scene)["Semantic.fabBinding"] = "currency:primary";
+    const verdict = checkScene(scene, catalog, pack);
+    expect(verdict.result).toBe("blocked");
+    expect(verdict.blocks.map((b: { code: string }) => b.code)).toContain("blocked-invalid-binding");
   });
 
   it("a missing semantic id blocks with blocked-missing-semantic-id", () => {

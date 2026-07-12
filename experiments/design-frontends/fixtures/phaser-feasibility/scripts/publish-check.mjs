@@ -9,7 +9,7 @@ import { fixtureRoot } from "./lib.mjs";
 
 export const BLOCK_CODES = [
   "blocked-missing-semantic-id",
-  "blocked-missing-binding",
+  "blocked-invalid-binding",
   "blocked-invalid-catalog-id",
   "blocked-duplicate-semantic-id",
   "blocked-unknown-texture",
@@ -60,7 +60,7 @@ export function checkScene(sceneJson, catalogJson, packJson) {
     }
 
     if (BINDING_REQUIRED_ROLES.has(role) && !binding) {
-      blocks.push({ code: "blocked-missing-binding", object: label, detail: `role '${role}' requires a binding` });
+      blocks.push({ code: "blocked-invalid-binding", object: label, detail: `role '${role}' requires a binding` });
     }
 
     if (role === "asset") {
@@ -69,7 +69,7 @@ export function checkScene(sceneJson, catalogJson, packJson) {
         blocks.push({ code: "blocked-invalid-catalog-id", object: label, detail: `no catalog entry '${m[1]}'` });
       }
       if (binding && !m) {
-        blocks.push({ code: "blocked-missing-binding", object: label, detail: `asset role needs asset:<id> binding, got '${binding}'` });
+        blocks.push({ code: "blocked-invalid-binding", object: label, detail: `asset role needs asset:<id> binding, got '${binding}'` });
       }
     }
 

@@ -6,8 +6,9 @@ device from the macOS worktree; an unreachable device lane is recorded as
 
 ## Steps
 
-1. Sync this fixture directory to the Ubuntu host (rsync the fixture only;
-   `node_modules/`, `dist/`, `android/` excluded — they are regenerated).
+1. Check out the exact committed card/integration branch on the Ubuntu host;
+   record its SHA and confirm Phaser Editor is absent. Do not prove a commit
+   with an rsync of an uncommitted working tree.
 2. `npm ci` inside the fixture, then `npm run build` (dist/ appears).
 3. Serve the built bundle on the fixed probe port:
    `npx vite preview --port 8843 --strictPort`
@@ -44,5 +45,7 @@ device from the macOS worktree; an unreachable device lane is recorded as
 - The generated `android/` tree stays untracked (`git status` clean).
 
 After the run, update `report/report.json` acceptance
-`android-webview-boot` (pass with the two evidence pointers, or the honest
-`no-go`/`blocked`), re-run `node scripts/hash.mjs`, and re-run verify.
+`android-webview-boot` (pass with the evidence pointers, or the honest
+`no-go`/`blocked`), annotate any matching `ledger.failedGates` entry as
+resolved or still open, stamp `generated` with the real UTC finalization
+instant, re-run `node scripts/hash.mjs`, and re-run verify.

@@ -114,7 +114,7 @@
       "validate": {
         "verdict": "supported",
         "detail": "Scriptable, deterministic, editor-free: publish-check.mjs parses editor-native scene JSON, catalog, and asset pack and returns named block codes.",
-        "outcomeMapping": "clean result is publishable; blocked-invalid-catalog-id / blocked-missing-binding / blocked-missing-semantic-id / blocked-duplicate-semantic-id / blocked-unknown-texture map onto unsupported-intent and invalid-revision shapes in the shared typed vocabulary."
+        "outcomeMapping": "clean result is publishable; blocked-invalid-catalog-id / blocked-invalid-binding / blocked-missing-semantic-id / blocked-duplicate-semantic-id / blocked-unknown-texture map onto unsupported-intent and invalid-revision shapes in the shared typed vocabulary."
       },
       "publish": {
         "verdict": "supported",
@@ -186,7 +186,7 @@
   "ledger": {
     "startingSha": "5c2a0a32",
     "endingSha": "db400d05",
-    "endingShaNote": "db400d05 is the implementation+evidence commit; this report lands in the immediately following commit on the same card branch.",
+    "endingShaNote": "db400d05 is the worker implementation commit. GUI report/evidence followed in 8a8467ca and a99fba6a; the conductor Android finalization is f3f05a55. Later review repairs remain explicit in git history rather than rewriting the worker boundary.",
     "agent": "claude/fable (Claude Fable 5), twf worker, Worked stage, card 43Qvbih7",
     "attempts": 1,
     "rework": [
@@ -202,7 +202,7 @@
     ],
     "changedSurface": "experiments/design-frontends/fixtures/phaser-feasibility/** (the plan document landed earlier in the Planned stage)",
     "failedGates": [
-      "android-webview-boot: blocked — no device lane reachable from this worker; conductor runbook and throwaway wrapper prepared"
+      "android-webview-boot: blocked during the worker run because no device lane was reachable; resolved by the conductor proof in f3f05a55 under acceptance.android-webview-boot and evidence/device/"
     ]
   }
 }
