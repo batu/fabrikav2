@@ -23,6 +23,7 @@ import { listDirs, readText, rel } from './lib.js';
 /** Canonical top-level directories (the games/_template skeleton). */
 export const ALLOWED_DIRS = new Set([
   'src',
+  'authoring',
   'design',
   'content',
   'public',

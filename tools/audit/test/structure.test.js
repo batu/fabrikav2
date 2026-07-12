@@ -12,6 +12,13 @@ describe('structure', () => {
     expect(violations).toEqual([]);
   });
 
+  it('allows editable authoring state at the canonical game top level', () => {
+    const { violations } = lintStructure(fixture('pass'));
+    expect(violations).not.toContainEqual(
+      expect.objectContaining({ entry: 'authoring/' }),
+    );
+  });
+
   it('fails on the three banned top-level entries, each with a redirect home', () => {
     const { violations } = lintStructure(fixture('fail'));
 
