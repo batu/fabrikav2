@@ -6,8 +6,19 @@
     "width": 100,
     "height": 100
   },
-  "origin": "Pre-existing qWCv9tUo card-owned Kenney UI residue",
+  "origin": "Pre-existing qWCv9tUo card-owned Kenney residue, preserved byte-identically",
   "untrackedSourcePath": "games/_template/design/assets/icon-control-shop.png",
-  "licenseEvidence": "games/_template/design/assets/LICENSE-KENNEY-UI-PACK.txt",
+  "approvedSource": {
+    "sourceId": "kenney-game-icons-1.0",
+    "sourcePath": "PNG/White/2x/shoppingCart.png",
+    "verifiedAgainst": "KENNEY_APPROVED_SOURCE_ROOT/Icons/Game Icons/PNG/White/2x/shoppingCart.png",
+    "verifiedByteIdentical": true,
+    "license": "CC0-1.0",
+    "licenseEvidence": "games/shell_proof_grapes/design/assets/LICENSE-KENNEY-GAME-ICONS.txt"
+  },
+  "relocatedTo": [
+    "games/shell_proof_grapes/design/assets/icon-control-shop.png",
+    "games/shell_proof_phaser/design/assets/icon-control-shop.png"
+  ],
   "constraint": "Experiment input only; never land a games/_template change from this card"
 }

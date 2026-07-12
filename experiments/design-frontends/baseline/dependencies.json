@@ -1,0 +1,32 @@
+{
+  "recordKind": "u1-accepted-dependency-pins",
+  "source": "experiments/design-frontends/fixtures/phaser-feasibility/report/report.json (U2, accepted 2026-07-12)",
+  "runtime": {
+    "phaser": { "version": "4.2.1", "pin": "exact", "declaredIn": "tools/phaser-shell/package.json" },
+    "grapesjs": { "version": "^0.23.2", "pin": "caret", "declaredIn": "tools/grapes-shell/package.json" }
+  },
+  "editors": {
+    "phaserEditor": {
+      "version": "5.0.2",
+      "kind": "desktop application, human-authenticated, machine-local",
+      "neverInRepo": true
+    },
+    "grapesjs": { "version": "^0.23.2", "kind": "npm dependency of tools/grapes-shell" }
+  },
+  "toolchain": {
+    "typescript": "~5.7.2",
+    "vite": "^6.0.5",
+    "vitest": "^4.0.18",
+    "eslint": "^9.39.4",
+    "@types/node": "^25.3.3",
+    "@capacitor/core": "^8.1.0",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/android": "^8.4.1",
+    "playwright-core": "^1.58.2"
+  },
+  "workspaceFreeze": {
+    "rule": "The root package.json workspaces list and the single root package-lock.json are frozen shared surfaces after U1; a later dependency reopens the shared integration gate and invalidates downstream evidence.",
+    "laneWorkspaces": ["tools/grapes-shell", "tools/phaser-shell"],
+    "capacitorNote": "Capacitor packages are declared per-game only when U10 wires the dev-only Android shell; U1 freezes the accepted versions without adding game-level dependencies."
+  }
+}

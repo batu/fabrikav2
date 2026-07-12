@@ -1,0 +1,79 @@
+{
+  "protocolId": "dual-design-frontends-v1",
+  "protocolVersion": "1.0.0",
+  "plan": "goal.md",
+  "freeze": {
+    "baselineCommit": null,
+    "note": "The conductor records the landed U1 integration SHA plus canonical hashes of protocol.json, fences.json, and baseline/* here at freeze. A null baselineCommit means the baseline is not sealed."
+  },
+  "contract": {
+    "contractId": "shell-presentation-v2",
+    "contractVersion": "2.0.0",
+    "states": ["menu", "level", "shop", "settings", "pause", "win", "fail"],
+    "rendererProfiles": ["dom-css", "phaser-native"],
+    "canonicalViewport": { "width": 390, "height": 844, "minimumActionSize": 48 }
+  },
+  "lanes": [
+    {
+      "id": "grapes",
+      "game": "games/shell_proof_grapes",
+      "rendererProfile": "dom-css",
+      "editor": "GrapesJS",
+      "toolPackage": "tools/grapes-shell",
+      "devPort": 5301,
+      "appId": "com.fabrika.shellproofgrapes"
+    },
+    {
+      "id": "phaser",
+      "game": "games/shell_proof_phaser",
+      "rendererProfile": "phaser-native",
+      "editor": "Phaser Editor 5.0.2",
+      "toolPackage": "tools/phaser-shell",
+      "devPort": 5302,
+      "appId": "com.fabrika.shellproofphaser"
+    }
+  ],
+  "commandSurface": ["validate", "publish", "preflight", "apply", "status", "proof"],
+  "typedOutcomes": ["applied", "no-op", "blocked-drift", "invalid-revision", "unsupported-intent"],
+  "runVerdicts": ["comparison_ready", "comparison_no_go", "comparison_blocked"],
+  "sessions": {
+    "order": ["machine-parity", "neutral-rehearsal", "unaided-crossover", "assisted-crossover", "device-loop", "immediate-record"],
+    "unaidedBeforeAssisted": true,
+    "counterbalanced": true,
+    "scoredSessionCeilingMinutes": 45,
+    "assistedPolicy": {
+      "sameModelFamily": true,
+      "maximumImplementationAttempts": 3,
+      "clarificationRounds": 1
+    },
+    "timerBoundaries": {
+      "editorActiveTime": "brief reveal through editor-native publish",
+      "applyTime": "separate timer",
+      "deviceObservationTime": "separate timer"
+    },
+    "epochRule": "Any product, editor, tool, adapter, or runtime change after the first scored session invalidates the entire epoch; fresh matched briefs restart both lanes."
+  },
+  "deviceGates": {
+    "warmEditsPerLane": 5,
+    "warmPropagationTargetSeconds": 30,
+    "realTapJourneyStates": ["menu", "level", "shop", "settings", "pause", "win", "fail"],
+    "buildModes": { "warmPropagation": "dev-shell", "runtimeMeasurements": "bundled-no-live-url" },
+    "provenanceRequired": "live-device",
+    "hostVerifiedSentinel": true
+  },
+  "comparisonPriorityOrder": [
+    "day-to-day design usability",
+    "agent-assisted success and intervention cost",
+    "round-trip and authority integrity",
+    "device propagation and runtime behavior",
+    "implementation and maintenance cost",
+    "licensing and vendor exit"
+  ],
+  "integrity": {
+    "costToParityReportedSeparately": true,
+    "crossLanePixelEqualityForbidden": true,
+    "perRendererVisualReferences": true,
+    "captureAsOwnReferenceForbidden": true,
+    "sharedSurfaceChangeRequiresIntegrationCard": true
+  }
+}
