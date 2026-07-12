@@ -545,6 +545,11 @@ describe("template shell renderer and harness", () => {
       "Trail 3, Locked",
     ]);
     expect(templateShellCss()).not.toContain("template-shell__node-status");
+    // The padlock art is the whole locked signal: the numeral lives in the
+    // accessible name only and never ghosts through the icon.
+    expect(templateShellCss()).toMatch(
+      /\.template-shell \.fab-levelmap-node\.locked \.fab-levelmap-node-dot\s*\{[^}]*color:\s*transparent;/s,
+    );
   });
 
   it("keeps failure over frozen gameplay with one retry signal and a restrained accent", () => {

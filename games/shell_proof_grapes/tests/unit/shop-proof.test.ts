@@ -53,6 +53,16 @@ describe("seven-surface shop proof", () => {
     const shopButton = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="shop"]');
     expect(shopButton).not.toBeNull();
     expect(shopButton!.dataset.fabInstance).toBe("menu.shop");
+    // The Shop entry keeps the utility row's geometry but is visibly its own
+    // door: the accent fill separates it from the quiet Settings control.
+    expect(shopButton!.classList.contains("template-shell__icon-action--utility")).toBe(true);
+    expect(shopButton!.classList.contains("template-shell__icon-action--shop")).toBe(true);
+    const settingsButton = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="settings"]');
+    expect(settingsButton!.classList.contains("template-shell__icon-action--shop")).toBe(false);
+    const css = readFileSync(resolve(process.cwd(), "src/shell/template-shell.css"), "utf8");
+    expect(css).toMatch(
+      /\.template-shell__icon-action--shop\s*\{[^}]*background-color:\s*var\(--fab-color-accent\);/s,
+    );
     shopButton!.click();
     expect(controller.snapshot()).toMatchObject({ surface: "shop", shopOpen: true, scene: "menu" });
     expect(shell.root.dataset.fabState).toBe("shop");
@@ -122,6 +132,16 @@ describe("seven-surface shop proof", () => {
       .querySelector<HTMLElement>('[data-catalog-id="item_gamma"]')!
       .parentElement!.querySelector<HTMLButtonElement>("button");
     expect(lockedButton?.disabled).toBe(true);
+
+    // The owned sample never sells again: its live price CTA is replaced by
+    // an inert disabled OWNED state, never an active price.
+    const ownedCta = shell.root
+      .querySelector<HTMLElement>('[data-fab-instance="shop.item.owned"]')!
+      .querySelector<HTMLButtonElement>(".fab-shop-purchase-btn");
+    expect(ownedCta?.disabled).toBe(true);
+    expect(ownedCta?.textContent).toBe("Owned");
+    expect(ownedCta?.textContent).not.toContain("$");
+    expect(ownedCta?.getAttribute("aria-label")).toContain("Owned");
   });
 
   it("exposes a deterministic restore action through the fake provider seam", async () => {
@@ -182,6 +202,15 @@ describe("seven-surface shop proof", () => {
     expect(css).toMatch(
       /\.template-shell__shop \.fab-shop-restore-btn\s*\{[^}]*background-color:\s*var\(--fab-color-accent\);/s,
     );
+    // The owned chip has its own explicit fill: soft accent surface with a
+    // dark label — apart from both the live price and the muted locked chip.
+    expect(css).toMatch(
+      /\.template-shell__shop \[data-fab-variant="owned"\] \.fab-shop-purchase-btn:disabled\s*\{[^}]*background-color:\s*var\(--fab-seed-color-socket-surface\);[^}]*color:\s*var\(--fab-color-text\);/s,
+    );
+    // The lone locked sample spans the grid's second row — no orphaned cell.
+    expect(css).toMatch(
+      /\.template-shell__shop \.fab-shop-grid > \[data-fab-variant="locked"\]:last-child\s*\{[^}]*grid-column:\s*1 \/ -1;/s,
+    );
   });
 });
 
@@ -198,7 +227,16 @@ describe("settings page versus pause modal", () => {
     expect(page!.getAttribute("role")).toBe("region");
     expect(shell.root.querySelector("[aria-modal]")).toBeNull();
     expect(shell.root.querySelector(".fab-modal-scrim")).toBeNull();
-    expect(shell.root.querySelector('[data-fab-instance="settings.title"]')).not.toBeNull();
+    // The Settings title speaks the shared page-title grammar: the same
+    // display-face centered title Shop uses, over the same header grid.
+    const title = shell.root.querySelector<HTMLElement>('[data-fab-instance="settings.title"]');
+    expect(title).not.toBeNull();
+    expect(title!.classList.contains("template-shell__title")).toBe(true);
+    expect(title!.classList.contains("template-shell__page-title")).toBe(true);
+    const css = readFileSync(resolve(process.cwd(), "src/shell/template-shell.css"), "utf8");
+    expect(css).toMatch(
+      /\.template-shell__shop-header,\s*\.template-shell \.fab-page-header\s*\{[^}]*grid-template-columns:\s*var\(--fab-btn-min-size\) minmax\(0, 1fr\) var\(--fab-btn-min-size\);/s,
+    );
     expect(
       shell.root.querySelector<HTMLElement>('[data-fab-instance="settings.back"]'),
     ).not.toBeNull();
@@ -220,6 +258,18 @@ describe("settings page versus pause modal", () => {
     expect(shell.root.querySelector("[data-fab-toggle-key]")).toBeNull();
     const dialog = shell.root.querySelector('[role="dialog"]');
     expect(dialog).not.toBeNull();
+
+    // The quiet Home exit keeps a full-size hit target: the design-unit
+    // minimum is pinned at 48px and explicitly encoded on the Home row.
+    const home = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="pause-quit"]');
+    expect(home).not.toBeNull();
+    expect(home!.classList.contains("fab-btn")).toBe(true);
+    const tokens = readFileSync(resolve(process.cwd(), "design/tokens.css"), "utf8");
+    expect(tokens).toMatch(/--fab-btn-min-size:\s*48px;/);
+    const css = readFileSync(resolve(process.cwd(), "src/shell/template-shell.css"), "utf8");
+    expect(css).toMatch(
+      /\.template-shell \.fab-pause-card \[data-fab-action="pause-quit"\],\s*\.template-shell__overlay-action--tertiary\s*\{[^}]*min-height:\s*var\(--fab-btn-min-size\);/s,
+    );
   });
 });
 

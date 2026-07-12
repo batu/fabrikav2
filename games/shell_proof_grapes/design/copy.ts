@@ -31,6 +31,7 @@ export const copy = {
   "shop.back": "Back",
   "shop.catalog": "Shop items",
   "shop.items": "Featured items",
+  "shop.item.owned": "Owned",
   "currency.secondary.label": "Gems",
   "shop.purchase.pending": "Loading price",
   "shop.purchase.busy": "Please wait",

@@ -191,7 +191,7 @@ function menuHeader(
       action: "shop",
       image: assetUrls.shop,
       instance: "menu.shop",
-      className: "template-shell__icon-action--utility",
+      className: "template-shell__icon-action--utility template-shell__icon-action--shop",
       onClick: () => {
         controller.openShop();
         render();
@@ -474,7 +474,7 @@ function renderShop(
   header.className = "template-shell__shop-header";
   const title = document.createElement("h1");
   title.id = "template-shop-title";
-  title.className = "template-shell__title template-shell__shop-title";
+  title.className = "template-shell__title template-shell__page-title";
   title.dataset.fabInstance = "shop.title";
   title.textContent = copy["shop.title"];
   header.append(
@@ -543,9 +543,11 @@ function renderShop(
   // instance through the controller's shop-item statuses. The annotated card
   // is the catalog wrapper — the element that visually bounds title, body,
   // and CTA together — so variant fills cover the whole card. Cards stay
-  // inert — no data-fab-action is ever attached to a card. ShopPage rebuilds
-  // card DOM on every service refresh, so annotation re-runs on childList
-  // mutations.
+  // inert — no data-fab-action is ever attached to a card. The owned sample
+  // never sells again: its live price CTA is replaced by a disabled OWNED
+  // state. ShopPage rebuilds card DOM on every service refresh, so annotation
+  // re-runs on childList mutations; every write below is idempotent so the
+  // observer settles instead of retriggering itself.
   const annotate = (): void => {
     for (const item of snapshot.shopItems) {
       const target = catalogHandle.el.querySelector<HTMLElement>(`[data-catalog-id="${item.id}"]`);
@@ -554,6 +556,17 @@ function renderShop(
       card.dataset.fabInstance = `shop.item.${item.status}`;
       card.dataset.fabVariant = item.status;
       card.setAttribute("role", "group");
+      if (item.status === "owned") {
+        const cta = card.querySelector<HTMLButtonElement>(".fab-shop-purchase-btn");
+        if (cta) {
+          const label = copy["shop.item.owned"];
+          const itemTitle = card.querySelector(".fab-shop-card-title")?.textContent ?? "";
+          const name = [itemTitle, label].filter(Boolean).join(" ");
+          if (!cta.disabled) cta.disabled = true;
+          if (cta.textContent !== label) cta.textContent = label;
+          if (cta.getAttribute("aria-label") !== name) cta.setAttribute("aria-label", name);
+        }
+      }
     }
     const restore = catalogHandle.el.querySelector<HTMLElement>('[data-fab-action="shop-restore"]');
     if (restore) restore.dataset.fabInstance = "shop.restore";
@@ -589,6 +602,7 @@ function renderSettings(
 ): UiHandle {
   const title = document.createElement("h1");
   title.id = "template-settings-title";
+  title.className = "template-shell__title template-shell__page-title";
   title.textContent = copy["settings.title"];
   const page = mountSettingsPage({
     mountInto,

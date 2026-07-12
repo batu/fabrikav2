@@ -206,6 +206,13 @@ body {
   box-shadow: none;
 }
 
+/* The Shop entry is the menu's one commerce door: same utility geometry and
+   row, but the accent fill separates it from the quiet Settings control. */
+.template-shell__icon-action--shop {
+  background-color: var(--fab-color-accent);
+  box-shadow: var(--fab-shadow-button);
+}
+
 .template-shell__icon-action--hud {
   flex: 0 0 var(--fab-btn-min-size);
   width: var(--fab-btn-min-size);
@@ -330,6 +337,12 @@ body {
 
 .template-shell .fab-levelmap-node.current .fab-levelmap-node-dot {
   box-shadow: var(--fab-seed-shadow-current-node);
+}
+
+/* The padlock art is the whole locked signal: the level numeral stays in the
+   accessible name only and never ghosts through the icon. */
+.template-shell .fab-levelmap-node.locked .fab-levelmap-node-dot {
+  color: transparent;
 }
 
 .template-shell__hero-stage::after {
@@ -805,8 +818,11 @@ body {
   box-shadow: none;
 }
 
+/* Quiet exits keep a full-size hit target: the Home row is visually light but
+   never smaller than the 48px design-unit minimum. */
 .template-shell .fab-pause-card [data-fab-action="pause-quit"],
 .template-shell__overlay-action--tertiary {
+  min-height: var(--fab-btn-min-size);
   margin-top: var(--fab-space-xs);
   padding-block: var(--fab-space-xs);
   border: 0;
@@ -833,14 +849,18 @@ body {
   padding: var(--fab-space-sm);
 }
 
-.template-shell__shop-header {
+/* One page-title grammar for every full-page surface: a fixed Back slot, a
+   centered display-face title, and a mirrored empty slot keep the Shop and
+   Settings headers identical. */
+.template-shell__shop-header,
+.template-shell .fab-page-header {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) var(--fab-btn-min-size);
+  grid-template-columns: var(--fab-btn-min-size) minmax(0, 1fr) var(--fab-btn-min-size);
   align-items: center;
   gap: var(--fab-space-sm);
 }
 
-.template-shell__shop-title {
+.template-shell__page-title {
   margin: 0;
   text-align: center;
 }
@@ -935,7 +955,22 @@ body {
   background-color: var(--fab-seed-color-shop-card-surface);
 }
 
+/* The lone locked sample grounds the grid's second row deliberately: it spans
+   the full row instead of leaving an orphaned empty cell beside it. */
+.template-shell__shop .fab-shop-grid > [data-fab-variant="locked"]:last-child {
+  grid-column: 1 / -1;
+}
+
 .template-shell__shop [data-fab-variant="owned"] {
+  border-color: var(--fab-seed-color-accent);
+}
+
+/* The owned sample's CTA is a confirmation, not an invitation: an inert
+   disabled chip on the soft accent surface with a dark label — clearly apart
+   from both the live accent price and the muted locked chip. */
+.template-shell__shop [data-fab-variant="owned"] .fab-shop-purchase-btn:disabled {
+  background-color: var(--fab-seed-color-socket-surface);
+  color: var(--fab-color-text);
   border-color: var(--fab-seed-color-accent);
 }
 
