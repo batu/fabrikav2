@@ -24,7 +24,7 @@ v2:
   version: dev
   viewport: 390x844
 
-# Canonical states (tools/refcap-compare/src/manifest.mjs CANONICAL_STATES).
+# Seven experiment surfaces, in the frozen protocol order.
 # Each lane needs either "offline" (a committed PNG) or an explicit "gap".
 states:
   - name: menu
@@ -40,6 +40,13 @@ states:
     v2:
       gap: "no v2 capture yet"
       driveTo: level
+
+  - name: shop
+    reference:
+      gap: "no reference capture — fresh scaffold, nothing captured yet"
+    v2:
+      gap: "no v2 capture yet"
+      driveTo: shop
 
   - name: settings
     reference:
