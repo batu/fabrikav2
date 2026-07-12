@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "phaser-feasibility report",
+  "type": "object",
+  "required": ["card", "goalUnit", "pinned", "generated", "overall", "acceptance", "feasibility", "dependencies", "ledger"],
+  "properties": {
+    "card": { "const": "43Qvbih7" },
+    "goalUnit": { "const": "goal-U2" },
+    "pinned": {
+      "type": "object",
+      "required": ["phaserEditor", "phaser"],
+      "properties": {
+        "phaserEditor": { "type": "string" },
+        "phaser": { "type": "string" }
+      }
+    },
+    "generated": { "type": "string" },
+    "overall": { "enum": ["pass", "no-go", "blocked"] },
+    "acceptance": {
+      "type": "object",
+      "required": [
+        "identity-save-reopen-duplicate",
+        "live-copy-preview",
+        "unsafe-cases-inert-or-blocked",
+        "deterministic-generation",
+        "offline-runtime-build",
+        "android-webview-boot",
+        "dependency-enumeration"
+      ],
+      "additionalProperties": {
+        "type": "object",
+        "required": ["verdict"],
+        "properties": {
+          "verdict": { "enum": ["pass", "no-go", "blocked"] },
+          "evidence": { "type": "array", "items": { "type": "string" } },
+          "blockedOn": { "type": "string" },
+          "failedProperty": { "type": "string" },
+          "detail": { "type": "string" }
+        }
+      }
+    },
+    "feasibility": {
+      "type": "object",
+      "required": ["identity_mechanism", "headless_regen", "normalization", "confinement", "live_preview", "command_surface", "license"],
+      "properties": {
+        "command_surface": {
+          "type": "object",
+          "required": ["validate", "publish", "preflight", "apply", "status", "proof"],
+          "additionalProperties": {
+            "type": "object",
+            "required": ["verdict", "detail"],
+            "properties": {
+              "verdict": { "enum": ["supported", "unsupported", "blocked"] },
+              "detail": { "type": "string" },
+              "outcomeMapping": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "object",
+      "required": ["runtime", "dev", "tools", "editorArtifacts", "lockfileImplications", "pluginVerdict"],
+      "properties": {
+        "runtime": { "type": "object" },
+        "dev": { "type": "object" },
+        "tools": { "type": "array" },
+        "editorArtifacts": { "type": "array" },
+        "lockfileImplications": { "type": "string" },
+        "pluginVerdict": { "type": "string" }
+      }
+    },
+    "ledger": {
+      "type": "object",
+      "required": ["startingSha", "endingSha", "agent", "attempts", "rework", "humanInterventions", "addedDependencies", "changedSurface", "failedGates"],
+      "properties": {
+        "startingSha": { "type": "string" },
+        "endingSha": { "type": "string" },
+        "agent": { "type": "string" },
+        "attempts": { "type": "number" },
+        "rework": { "type": "array" },
+        "humanInterventions": { "type": "array" },
+        "addedDependencies": { "type": "array" },
+        "changedSurface": { "type": "string" },
+        "failedGates": { "type": "array" }
+      }
+    }
+  }
+}

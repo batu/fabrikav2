@@ -1,0 +1,188 @@
+{
+    "id": "a5ba7bf8-0498-46ba-bdac-ce93d27ea49f",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Probe",
+        "compilerOutputLanguage": "TYPE_SCRIPT",
+        "borderWidth": 720,
+        "borderHeight": 1280
+    },
+    "displayList": [
+        {
+            "type": "Text",
+            "id": "773ffa0d-b7a2-434c-8828-010f0035b103",
+            "label": "hudSafeTop",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shell.hud.safeTop",
+            "Semantic.fabRole": "hud",
+            "Semantic.fabBinding": "copy:safeTop",
+            "Semantic.fabSlot": "safe-area:top",
+            "x": 360,
+            "y": 40,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "SAFE-TOP",
+            "align": "center",
+            "fontFamily": "Arial",
+            "fontSize": "24px",
+            "color": "#9ad1ff"
+        },
+        {
+            "type": "Text",
+            "id": "25324cfd-236d-40bc-8dad-cf57ea85bd79",
+            "label": "copyTitle",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shell.copy.title",
+            "Semantic.fabRole": "copy",
+            "Semantic.fabBinding": "copy:title",
+            "x": 360,
+            "y": 140,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "PROBE-43QVBIH7",
+            "align": "center",
+            "fontFamily": "Arial",
+            "fontSize": "48px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Image",
+            "id": "6c04ce29-4d7d-4fc1-bcb5-b48b9f0828d7",
+            "label": "badgeBlue",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shell.badge.catalog",
+            "Semantic.fabRole": "asset",
+            "Semantic.fabBinding": "asset:cat.badge.blue",
+            "texture": {
+                "key": "badge_blue"
+            },
+            "x": 360,
+            "y": 260
+        },
+        {
+            "type": "Container",
+            "id": "a21a037a-92ea-45d0-8694-c5180076e5c6",
+            "label": "panelRoot",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shell.panel.root",
+            "Semantic.fabRole": "container",
+            "Semantic.fabSlot": "content",
+            "x": 360,
+            "y": 640,
+            "list": [
+                {
+                    "type": "Text",
+                    "id": "f6b34bd9-75ab-4631-a93e-b1f93e36c9af",
+                    "label": "counterPrimary",
+                    "components": [
+                        "Semantic"
+                    ],
+                    "Semantic.fabSemanticId": "shell.counter.primary",
+                    "Semantic.fabRole": "counter",
+                    "Semantic.fabBinding": "currency:primary",
+                    "y": -180,
+                    "originX": 0.5,
+                    "originY": 0.5,
+                    "text": "0",
+                    "align": "center",
+                    "fontFamily": "Arial",
+                    "fontSize": "40px",
+                    "color": "#ffe28a"
+                },
+                {
+                    "type": "Image",
+                    "id": "de8eeec5-e344-46e9-a5fa-aec0b54d6766",
+                    "label": "actionPlay",
+                    "components": [
+                        "Semantic"
+                    ],
+                    "Semantic.fabSemanticId": "shell.action.play",
+                    "Semantic.fabRole": "action",
+                    "Semantic.fabBinding": "action:play",
+                    "Semantic.fabVariant": "default",
+                    "texture": {
+                        "key": "button_play"
+                    }
+                },
+                {
+                    "type": "Image",
+                    "id": "9f0473c0-0fd9-4290-b3dc-41d3847b08a6",
+                    "label": "actionPlayPressed",
+                    "components": [
+                        "Semantic"
+                    ],
+                    "Semantic.fabSemanticId": "shell.action.play",
+                    "Semantic.fabRole": "action",
+                    "Semantic.fabBinding": "action:play",
+                    "Semantic.fabVariant": "pressed",
+                    "texture": {
+                        "key": "button_play"
+                    },
+                    "y": 140,
+                    "scaleX": 0.85,
+                    "scaleY": 0.85
+                },
+                {
+                    "type": "Text",
+                    "id": "ea21ef32-9b08-473a-bd57-51d8ade3a364",
+                    "label": "counterPrimary_1",
+                    "components": [
+                        "Semantic"
+                    ],
+                    "Semantic.fabSemanticId": "shell.counter.secondary",
+                    "Semantic.fabRole": "counter",
+                    "Semantic.fabBinding": "currency:secondary",
+                    "x": -360,
+                    "y": -820,
+                    "originX": 0.5,
+                    "originY": 0.5,
+                    "text": "0",
+                    "align": "center",
+                    "fontFamily": "Arial",
+                    "fontSize": "40px",
+                    "color": "#ffe28a"
+                }
+            ]
+        },
+        {
+            "type": "Text",
+            "id": "559d7248-97f5-4712-88ce-9c8c738f0eee",
+            "label": "copyHostile",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shell.copy.hostile",
+            "Semantic.fabRole": "copy",
+            "Semantic.fabBinding": "copy:hostile",
+            "Semantic.fabSlot": "slot'\"`${}*/-//-</script>",
+            "x": 360,
+            "y": 1120,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "H' H\" H` ${x} {y} */ // </script>\nline2",
+            "align": "center",
+            "fontFamily": "Arial",
+            "fontSize": "24px",
+            "color": "#ff9a9a"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}
