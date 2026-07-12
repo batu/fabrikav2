@@ -5,12 +5,12 @@ import {
   evidenceProbeWindowKeyForGame,
   readDomShellEvidenceActions,
   readDomShellEvidenceViewport,
-  seedStatesFromConfig,
 } from "@fabrikav2/testkit/harness";
-import { assignWindowBindings, maybeRunInsituTour } from "@fabrikav2/testkit/testing";
+import { assignWindowBindings } from "@fabrikav2/testkit/testing";
 import { gameConfig } from "../game.config.ts";
 import { createTemplateShellController } from "./core/TemplateShellController.ts";
 import { createTemplateHarness } from "./shell/harness.ts";
+import { maybeRunTemplateInsituTour } from "./shell/insituTour.ts";
 import { mountTemplateShell } from "./shell/TemplateShell.ts";
 
 export function bootGame(
@@ -69,8 +69,8 @@ if (appRoot) {
     assignWindowBindings(window as unknown as Record<string, unknown>, {
       [harnessWindowKeyForGame(gameConfig.id)]: harness,
     });
-    // Seven-state tour through the game's declared screen vocabulary; the
-    // testkit default state list stays six-state for legacy games.
-    void maybeRunInsituTour(harness, { states: [...seedStatesFromConfig(gameConfig)] });
+    // Seven-state tour: states AND the surface-grounded stability predicate
+    // live together in the production wrapper the regression suite exercises.
+    void maybeRunTemplateInsituTour(harness);
   }
 }
