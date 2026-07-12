@@ -52,18 +52,15 @@ export const proofCatalogProducts: CatalogProduct<ProofShopPayload>[] = [
   product("item_gamma", "consumable", 2, "$4.99", "Item C", "Sample locked item."),
 ];
 
-export const proofCatalog: Catalog<ProofShopPayload> = { products: proofCatalogProducts };
+const proofCatalog: Catalog<ProofShopPayload> = { products: proofCatalogProducts };
 
 // Fail fast at module eval if the fixture drifts out of schema.
 assertValidCatalog(proofCatalog);
 
-/** The stable catalog `id` list for game.config.ts `productCatalog`. */
-export const proofProductIds: readonly string[] = proofCatalogProducts.map((p) => p.id);
-
 /** The sample item whose owned state comes back through the restore seam. */
-export const OWNED_PRODUCT_ID = "item_beta";
+const OWNED_PRODUCT_ID = "item_beta";
 /** The sample item that ships no store metadata, so its card is unavailable. */
-export const LOCKED_PRODUCT_ID = "item_gamma";
+const LOCKED_PRODUCT_ID = "item_gamma";
 
 /**
  * Fake store metadata for every product except the locked sample: the shop
