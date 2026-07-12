@@ -5,7 +5,7 @@
     "phaserEditor": "5.0.2",
     "phaser": "4.2.1"
   },
-  "generated": "2026-07-12T11:55:00Z",
+  "generated": "2026-07-12T09:54:12Z",
   "overall": "pass",
   "overallDetail": "All seven acceptance legs pass, R1-R11 satisfied. The final leg — physical Android WebView boot — was run by the conductor per the plan's tail ownership and recorded under evidence/device/; every other leg passed off-device in the worker run.",
   "acceptance": {
@@ -51,7 +51,7 @@
     },
     "offline-runtime-build": {
       "verdict": "pass",
-      "detail": "Fresh copy of the fixture, npm ci, then full verify inside a network-blocked sandbox: build succeeds from generated scene code + phaser@4.2.1 only, bundle contains the probe sentinel and no editor-package markers, unit tests green. The Phaser Editor application is never referenced by the build.",
+      "detail": "Clean sparse checkout of exact pushed repair commit fe3a8aae on the Ubuntu host, npm ci, then the full verifier inside a systemd unit restricted to AF_UNIX: a curl negative control proved internet sockets unavailable before all 7/7 steps passed. Phaser Editor was absent; the build uses generated scene code + phaser@4.2.1 only, and the bundle contains the probe sentinel with no editor-package markers.",
       "evidence": [
         "evidence/offline-build/offline-build.json",
         "evidence/offline-build/transcript.txt"
@@ -59,7 +59,7 @@
     },
     "android-webview-boot": {
       "verdict": "pass",
-      "detail": "Conductor-run leg on the Ubuntu ADB host: locked install/build, Capacitor Android generation, Gradle assemble, adb reverse tcp:8843, install, launch, and host screencap all passed on a physical Pixel 6a (Android 16, WebView 149.0.7827.164). boot.png is content-only (Phaser canvas rendering PROBE-43QVBIH7, SAFE-TOP marker, sprites, hostile-string footer; no system bars, notifications, or identifiers). The PID-scoped logcat records only the localhost:8843 load, Capacitor start, and the Phaser v4.2.1 WebGL | Web Audio banner with no context failure; device-boot.json carries model/OS/WebView only, no serial.",
+      "detail": "Conductor-run leg from the same clean fe3a8aae Ubuntu checkout: locked install/build, Capacitor Android generation, Gradle assemble, an exact-checkout Vite preview with its working directory verified, adb reverse tcp:8843, install, launch, and host screencap all passed on a physical Pixel 6a (Android 16, WebView 149.0.7827.164). boot.png is content-only (Phaser canvas rendering PROBE-43QVBIH7, SAFE-TOP marker, sprites, hostile-string footer; no system bars, notifications, or identifiers). The scrubbed logcat records only localhost load/start and the Phaser v4.2.1 WebGL banner with no context failure; device-boot.json carries commit/model/OS/WebView only, no serial.",
       "evidence": [
         "evidence/device/boot.png",
         "evidence/device/device-boot.json",
@@ -169,7 +169,7 @@
     "tools": [
       "Phaser Editor 5.0.2 desktop app — machine-local, human-authenticated; needed only to author scenes and (re)generate code; never needed to build, verify, or run",
       "Chromium (playwright browser cache) — GUI-evidence sessions only",
-      "Node 26.3.0 / npm 11.16.0 used for the recorded runs; verify is plain node with no version-specific APIs"
+      "Node 26.3.0 / npm 11.16.0 on macOS for the editor sessions; Node 25.0.0 / npm 11.6.2 on Linux for the independent clean-checkout offline and device proof; verify is plain node with no version-specific APIs"
     ],
     "editorArtifacts": [
       { "path": "editor-project/src/scenes/Probe.scene", "kind": "committed authority (editor-native state)" },
@@ -186,13 +186,15 @@
   "ledger": {
     "startingSha": "5c2a0a32",
     "endingSha": "db400d05",
-    "endingShaNote": "db400d05 is the worker implementation commit. GUI report/evidence followed in 8a8467ca and a99fba6a; the conductor Android finalization is f3f05a55. Later review repairs remain explicit in git history rather than rewriting the worker boundary.",
-    "agent": "claude/fable (Claude Fable 5), twf worker, Worked stage, card 43Qvbih7",
+    "endingShaNote": "db400d05 is the worker implementation commit. GUI report/evidence followed in 8a8467ca and a99fba6a; initial conductor Android proof is f3f05a55; validated review repairs are fe3a8aae. The accepted clean Ubuntu offline/device proof was reproduced from fe3a8aae and finalized in the following evidence commit.",
+    "agent": "claude/fable worker for implementation and multi-lens review; Codex conductor for validated repairs, clean Ubuntu reproduction, and Android evidence; card 43Qvbih7",
     "attempts": 1,
     "rework": [
       "scene-editor duplicate was a silent no-op under automation until clipboard-read/write permissions were granted to the browser context (duplicate is clipboard-backed copy+paste)",
       "inspector user-component fields are textareas, not inputs — the first retarget attempts searched inputs only",
-      "playwright-core browser revision mismatch on this machine: the matching Chromium was installed into the user cache and the full build selected via an env override"
+      "playwright-core browser revision mismatch on this machine: the matching Chromium was installed into the user cache and the full build selected via an env override",
+      "systemd IPAddressDeny=any failed its curl negative control on the Ubuntu user manager, so that run was rejected; RestrictAddressFamilies=AF_UNIX then demonstrably blocked the network before verification",
+      "the first refreshed Android launch reached a stale older preview on port 8843, so its screenshot was rejected; the stale process was stopped and the accepted capture verified the preview working directory at fe3a8aae"
     ],
     "humanInterventions": [
       "none during execution; precondition: the Phaser Editor install was already human-authenticated before the card started"

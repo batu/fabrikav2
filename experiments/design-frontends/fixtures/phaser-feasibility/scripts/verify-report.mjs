@@ -91,14 +91,31 @@ export function validateEvidencePointers(acceptance, manifest, root) {
 export function validateOfflineEvidence(record, transcript) {
   const problems = [];
   const network = record?.environment?.network ?? "";
-  if (!/\bblocked\b/i.test(network) || /\bnot blocked\b/i.test(network)) {
+  if (!/RestrictAddressFamilies=AF_UNIX/.test(network)) {
     problems.push("offline evidence does not record a network-blocked verification run");
+  }
+  if (record?.source?.cleanCheckout !== true || !/^[0-9a-f]{8,40}$/.test(record?.source?.commit ?? "")) {
+    problems.push("offline evidence is not bound to a clean committed checkout");
+  }
+  if (record?.environment?.editorInstalled !== false) {
+    problems.push("offline evidence does not prove Phaser Editor was absent");
   }
   if (!/^pass/i.test(record?.results?.build ?? "")) {
     problems.push("offline evidence does not record a passing runtime build");
   }
+  if (!/^pass/i.test(record?.results?.unitTests ?? "")) {
+    problems.push("offline evidence does not record passing unit tests");
+  }
   if (!/7\/7 steps PASS/i.test(record?.results?.finalRun ?? "")) {
     problems.push("offline evidence does not record a passing final full verify");
+  }
+  for (const fact of [
+    `[offline] commit=${record?.source?.commit}`,
+    "[offline] clean_sparse_checkout=yes",
+    "[offline] phaser_editor_present=no",
+    "[offline] network_probe=blocked_by_AF_UNIX_only",
+  ]) {
+    if (!transcript.includes(fact)) problems.push(`offline transcript missing provenance fact: ${fact}`);
   }
   if (!/\[verify\]\s+7 steps: 7 pass, 0 fail, 0 blocked/.test(transcript)) {
     problems.push("offline transcript does not contain a zero-failure full verify summary");
@@ -184,6 +201,10 @@ export function validateReport() {
   const report = JSON.parse(readFileSync(reportPath, "utf8"));
   const schema = JSON.parse(readFileSync(schemaPath, "utf8"));
   problems.push(...validateAgainstSchema(report, schema));
+  const generated = Date.parse(report.generated);
+  if (!Number.isFinite(generated) || generated > Date.now() + 300_000) {
+    problems.push("report.generated must be a valid finalization time, not a future timestamp");
+  }
 
   for (const [name, entry] of Object.entries(report.acceptance ?? {})) {
     if (!VERDICTS.has(entry?.verdict)) problems.push(`acceptance.${name}: invalid verdict '${entry?.verdict}'`);

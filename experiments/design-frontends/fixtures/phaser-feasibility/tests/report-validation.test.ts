@@ -62,6 +62,12 @@ describe("machine report contract", () => {
     expect(validateOfflineEvidence(record, transcript.replace("7 pass, 0 fail", "6 pass, 1 fail"))).toContain(
       "offline transcript does not contain a zero-failure full verify summary"
     );
+    expect(validateOfflineEvidence({ ...record, source: { ...record.source, cleanCheckout: false } }, transcript)).toContain(
+      "offline evidence is not bound to a clean committed checkout"
+    );
+    expect(validateOfflineEvidence({ ...record, environment: { ...record.environment, editorInstalled: true } }, transcript)).toContain(
+      "offline evidence does not prove Phaser Editor was absent"
+    );
   });
 
   it("detects private paths in editor-writable text", () => {

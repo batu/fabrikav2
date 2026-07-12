@@ -37,9 +37,14 @@ describe("feasibility report integrity (R12-R15)", () => {
     expect(device.verdict).toBe("pass");
     expect(device.sentinelVisible).toBe(true);
     expect(device.webglContextCreated).toBe(true);
+    expect(device.source).toEqual({
+      commit: "fe3a8aae",
+      checkout: "clean sparse checkout from origin",
+      previewWorkingDirectoryVerified: true,
+    });
     expect(device.screenshot).toBe("evidence/device/boot.png");
     expect(device.logcat).toBe("evidence/device/logcat-webgl.txt");
-    // model/OS/WebView only — no device identifier may ride along
+    // Source provenance plus model/OS/WebView only — no device identifier may ride along.
     expect(JSON.stringify(device)).not.toMatch(/serial|imei|android[_-]?id/i);
 
     const png = readFileSync(join(fixtureRoot, "evidence/device/boot.png"));
