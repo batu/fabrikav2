@@ -1,0 +1,140 @@
+{
+  "menu": {
+    "documentHeight": 844,
+    "bodyHeight": 844,
+    "bodyMargin": "0px",
+    "actions": [
+      {
+        "action": "settings",
+        "width": 250.15625,
+        "height": 52
+      },
+      {
+        "action": "play",
+        "width": 116,
+        "height": 106
+      },
+      {
+        "action": "locked",
+        "width": 74,
+        "height": 64
+      },
+      {
+        "action": "play",
+        "width": 350,
+        "height": 50
+      }
+    ],
+    "text": "25SettingsTrailheadA small adventure begins with one clear move.1Complete2Current3LockedContinue"
+  },
+  "level": {
+    "documentHeight": 844,
+    "bodyHeight": 844,
+    "bodyMargin": "0px",
+    "actions": [
+      {
+        "action": "pause",
+        "width": 48,
+        "height": 48
+      },
+      {
+        "action": "test-win",
+        "width": 155,
+        "height": 48
+      },
+      {
+        "action": "test-lose",
+        "width": 155,
+        "height": 48
+      }
+    ],
+    "text": "25Trail 2PauseStarter playfieldChoose the next stepThis Trailhead panel makes room for your game’s playable mechanic.Template previewPreview the two outcome states before you add a mechanic.Preview winPreview retry"
+  },
+  "pause": {
+    "documentHeight": 844,
+    "bodyHeight": 844,
+    "bodyMargin": "0px",
+    "actions": [
+      {
+        "action": "pause-resume",
+        "width": 304.1875,
+        "height": 50
+      },
+      {
+        "action": "pause-settings",
+        "width": 304.1875,
+        "height": 50
+      },
+      {
+        "action": "pause-quit",
+        "width": 304.1875,
+        "height": 50
+      }
+    ],
+    "text": "25Trail 2Starter playfieldChoose the next stepThis Trailhead panel makes room for your game’s playable mechanic.Take a breatherResumeSettingsHome"
+  },
+  "settings": {
+    "documentHeight": 844,
+    "bodyHeight": 844,
+    "bodyMargin": "0px",
+    "actions": [
+      {
+        "action": "back",
+        "width": 48,
+        "height": 48
+      },
+      {
+        "action": "settings-music",
+        "width": 64,
+        "height": 48
+      },
+      {
+        "action": "settings-sfx",
+        "width": 64,
+        "height": 48
+      },
+      {
+        "action": "settings-haptics",
+        "width": 64,
+        "height": 48
+      }
+    ],
+    "text": "SettingsMusicSound effectsHaptics"
+  },
+  "win": {
+    "documentHeight": 844,
+    "bodyHeight": 844,
+    "bodyMargin": "0px",
+    "actions": [
+      {
+        "action": "result-next",
+        "width": 294,
+        "height": 50
+      },
+      {
+        "action": "result-menu",
+        "width": 294,
+        "height": 50
+      }
+    ],
+    "text": "Trail 3Trail completeA new path is ready to explore.NextHome"
+  },
+  "fail": {
+    "documentHeight": 844,
+    "bodyHeight": 844,
+    "bodyMargin": "0px",
+    "actions": [
+      {
+        "action": "result-retry",
+        "width": 294,
+        "height": 50
+      },
+      {
+        "action": "result-menu",
+        "width": 294,
+        "height": 50
+      }
+    ],
+    "text": "Trail 2Trail resetThe trail is ready for one more try.RetryHome"
+  }
+}
