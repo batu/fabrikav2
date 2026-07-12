@@ -85,6 +85,47 @@ await replacementAsset.scrollIntoViewIfNeeded();
 await page.waitForTimeout(300);
 await page.screenshot({ path: screenshotPaths.slotSaved, animations: "disabled", caret: "hide" });
 
+const inspectorMetrics = await page.locator(".editor-inspector").evaluate((inspector) => {
+  const previousScrollTop = inspector.scrollTop;
+  const maxScrollTop = inspector.scrollHeight - inspector.clientHeight;
+  inspector.scrollTop = maxScrollTop;
+  const inspectorBounds = inspector.getBoundingClientRect();
+  const lastChildBounds = inspector.lastElementChild?.getBoundingClientRect();
+  const lastVisibleAtBottom = lastChildBounds !== undefined
+    && lastChildBounds.top >= inspectorBounds.top - 1
+    && lastChildBounds.bottom <= inspectorBounds.bottom + 1;
+  inspector.scrollTop = previousScrollTop;
+  return {
+    clientHeight: inspector.clientHeight,
+    scrollHeight: inspector.scrollHeight,
+    maxScrollTop,
+    lastVisibleAtBottom,
+  };
+});
+if (inspectorMetrics.maxScrollTop <= 0 || !inspectorMetrics.lastVisibleAtBottom) {
+  throw new Error("The constrained inspector does not expose a reachable overflow region at 1440x900.");
+}
+
+const constraintStyleMetrics = await page.evaluate(() => {
+  const compact = document.querySelector(".editor-locked-note--compact");
+  const publication = document.querySelector(".editor-publication-state");
+  if (!compact || !publication) throw new Error("Expected constraint and publication-state elements.");
+  const compactStyle = getComputedStyle(compact);
+  const publicationStyle = getComputedStyle(publication);
+  return {
+    compactBackground: compactStyle.backgroundColor,
+    compactBorder: compactStyle.borderLeftColor,
+    publicationBackground: publicationStyle.backgroundColor,
+    publicationBorder: publicationStyle.borderLeftColor,
+  };
+});
+if (
+  constraintStyleMetrics.compactBackground === constraintStyleMetrics.publicationBackground
+  || constraintStyleMetrics.compactBorder === constraintStyleMetrics.publicationBorder
+) {
+  throw new Error("Read-only constraint notes still reuse the publication-warning treatment.");
+}
+
 const snapshot = await page.evaluate(() => window.__FABRIKAV2_GRAPES_SHELL_EDITOR__.getValidatedSnapshot());
 if (snapshot.status !== "saved-unpublished") {
   throw new Error(`Expected saved-unpublished snapshot, received ${snapshot.status}.`);
@@ -92,6 +133,31 @@ if (snapshot.status !== "saved-unpublished") {
 
 await page.getByRole("button", { name: "Review A1 checkpoint", exact: true }).click();
 await page.waitForTimeout(500);
+const decisionStyleMetrics = await page.evaluate(() => {
+  const accept = document.querySelector('[data-decision="accepted"]');
+  const reject = document.querySelector('[data-decision="rejected"]');
+  if (!(accept instanceof HTMLButtonElement) || !(reject instanceof HTMLButtonElement)) {
+    throw new Error("Expected A1 decision buttons.");
+  }
+  const acceptStyle = getComputedStyle(accept);
+  const rejectStyle = getComputedStyle(reject);
+  return {
+    acceptDisabled: accept.disabled,
+    rejectDisabled: reject.disabled,
+    acceptBackground: acceptStyle.backgroundColor,
+    acceptBorder: acceptStyle.borderColor,
+    rejectBackground: rejectStyle.backgroundColor,
+    rejectBorder: rejectStyle.borderColor,
+  };
+});
+if (
+  !decisionStyleMetrics.acceptDisabled
+  || !decisionStyleMetrics.rejectDisabled
+  || decisionStyleMetrics.acceptBackground === decisionStyleMetrics.rejectBackground
+  || decisionStyleMetrics.acceptBorder === decisionStyleMetrics.rejectBorder
+) {
+  throw new Error("Disabled A1 decisions do not retain distinct positive and destructive semantics.");
+}
 await page.screenshot({ path: screenshotPaths.decision, animations: "disabled", caret: "hide" });
 await page.waitForTimeout(500);
 
@@ -138,6 +204,11 @@ const manifest = {
     selectedInstance: "settings.back",
     installedAsset: "button-surface.secondary",
     decisionSubmitted: false,
+  },
+  visualAssertions: {
+    inspector: inspectorMetrics,
+    constraintStyles: constraintStyleMetrics,
+    decisionStyles: decisionStyleMetrics,
   },
   evidence: {
     screenshots: Object.fromEntries(Object.entries(screenshotPaths).map(([key, value]) => [key, path.relative(evidenceRoot, value)])),

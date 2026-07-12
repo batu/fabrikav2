@@ -137,9 +137,9 @@ const reviewScript = `
 
   // Accept stays disabled until every representative edit is checked; Reject
   // stays disabled until a written reason exists. The buttons are the gate, not
-  // just an error after the click. A disabled decision is styled neutral (never a
-  // primed green primary) and carries an explicit N-of-9 lock indicator so the
-  // remaining prerequisites are unmistakable before any click.
+  // just an error after the click. Disabled decisions remain muted while keeping
+  // their positive/destructive meaning, and the explicit N-of-9 lock indicator
+  // makes the remaining prerequisites unmistakable before any click.
   function updateGate() {
     const done = checks.filter((input) => input.checked).length;
     const total = checks.length;
