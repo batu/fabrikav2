@@ -207,9 +207,34 @@ describe("seven-surface shop proof", () => {
     expect(css).toMatch(
       /\.template-shell__shop \[data-fab-variant="owned"\] \.fab-shop-purchase-btn:disabled\s*\{[^}]*background-color:\s*var\(--fab-seed-color-socket-surface\);[^}]*color:\s*var\(--fab-color-text\);/s,
     );
-    // The lone locked sample spans the grid's second row — no orphaned cell.
+    // Two-column catalog contract: the lone locked sample stays one column
+    // wide and the fourth cell stays naturally empty — no full-row span.
+    expect(css).not.toMatch(
+      /\.fab-shop-grid > \[data-fab-variant="locked"\][^{]*\{[^}]*grid-column:/s,
+    );
+  });
+
+  it("keeps every Shop control and state chip at the 48px design-unit floor", () => {
+    const tokens = readFileSync(resolve(process.cwd(), "design/tokens.css"), "utf8");
+    expect(tokens).toMatch(/--fab-btn-min-size:\s*48px;/);
+    const css = readFileSync(
+      resolve(process.cwd(), "src/shell/template-shell.css"),
+      "utf8",
+    );
+    // Live price and Restore both carry the explicit floor.
     expect(css).toMatch(
-      /\.template-shell__shop \.fab-shop-grid > \[data-fab-variant="locked"\]:last-child\s*\{[^}]*grid-column:\s*1 \/ -1;/s,
+      /\.template-shell__shop \.fab-shop-purchase-btn\s*\{[^}]*min-height:\s*var\(--fab-btn-min-size\);/s,
+    );
+    expect(css).toMatch(
+      /\.template-shell__shop \.fab-shop-restore-btn\s*\{[^}]*min-height:\s*var\(--fab-btn-min-size\);/s,
+    );
+    // No state restyle may shrink it: the disabled, owned, and locked chip
+    // rules never touch height, so OWNED and UNAVAILABLE keep the same floor.
+    expect(css).not.toMatch(
+      /\.fab-shop-(?:purchase|restore)-btn:disabled[^{]*\{[^}]*height:/s,
+    );
+    expect(css).not.toMatch(
+      /\[data-fab-variant="(?:owned|locked)"\][^{]*\{[^}]*height:/s,
     );
   });
 });

@@ -955,12 +955,6 @@ body {
   background-color: var(--fab-seed-color-shop-card-surface);
 }
 
-/* The lone locked sample grounds the grid's second row deliberately: it spans
-   the full row instead of leaving an orphaned empty cell beside it. */
-.template-shell__shop .fab-shop-grid > [data-fab-variant="locked"]:last-child {
-  grid-column: 1 / -1;
-}
-
 .template-shell__shop [data-fab-variant="owned"] {
   border-color: var(--fab-seed-color-accent);
 }
