@@ -60,8 +60,9 @@ const reviewStyle = `
 .a1-review-action--reject { border-color: #c84b4b; color: #8a3030; }
 .a1-review-action--accept { border-color: #167a5b; background: #2a9d72; color: #fff; }
 .a1-review-action:disabled { cursor: not-allowed; }
-/* A disabled decision reads as neutral, never a primed primary action. */
-.a1-review-action--accept:disabled, .a1-review-action--reject:disabled { border-color: #ccd6de; background: #eef2f5; color: #8595a1; }
+/* Disabled decisions remain muted but retain their positive/destructive meaning. */
+.a1-review-action--accept:disabled { border-color: #b8d5cc; background: #edf7f3; color: #73978c; }
+.a1-review-action--reject:disabled { border-color: #e2c4c4; background: #fff7f7; color: #a27676; }
 /* The A1 rail sits in normal document flow before #app and reserves its own 48px
    band, so the launcher never floats over the editor's publication-state card.
    Shrink the editor shell by the rail height so its footer stays on-screen. */

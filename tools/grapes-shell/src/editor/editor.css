@@ -34,9 +34,9 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 .editor-button--disabled { cursor: not-allowed; border-color: #c5d2dd; background: #eaf0f4; color: #718799; }
 
 .editor-workspace { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(520px, 2.6fr) minmax(290px, 1.2fr); min-height: 0; overflow: hidden; }
-.editor-navigation, .editor-inspector { min-height: 0; overflow: auto; padding: 18px; background: #f8fafc; }
+.editor-navigation, .editor-inspector { min-height: 0; overflow: auto; padding: 18px; background: #f8fafc; scrollbar-color: #9eb1bf #edf2f6; scrollbar-gutter: stable; scrollbar-width: thin; }
 .editor-navigation { border-right: 1px solid #c5d2dd; }
-.editor-inspector { border-left: 1px solid #c5d2dd; }
+.editor-inspector { overflow-y: scroll; padding-bottom: 32px; border-left: 1px solid #c5d2dd; overscroll-behavior: contain; }
 .editor-panel-heading { margin-bottom: 10px; color: #3b5567; font: 800 10px/1 ui-monospace, SFMono-Regular, monospace; letter-spacing: .1em; text-transform: uppercase; }
 .editor-page-switcher, .editor-layer-tree { display: grid; gap: 5px; margin-bottom: 22px; }
 .editor-page-button, .editor-layer-button { width: 100%; min-height: 35px; padding: 8px 9px; border: 0; border-radius: 7px; background: transparent; color: #395367; cursor: pointer; text-align: left; font-size: 12px; }
@@ -67,7 +67,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 .editor-metadata dt { color: #698193; }
 .editor-metadata dd { min-width: 0; margin: 0; color: #244356; overflow-wrap: anywhere; }
 .editor-locked-note { margin: 0 0 13px; padding: 9px; border-left: 3px solid #0f9bb8; background: #edf9fb; color: #486778; font-size: 11px; line-height: 1.4; }
-.editor-locked-note--compact { grid-column: 1 / -1; margin: 0; border-color: #d7942e; background: #fff8e9; color: #6b4a16; }
+.editor-locked-note--compact { grid-column: 1 / -1; margin: 0; border-color: #9db2c1; background: #f1f5f8; color: #4b6577; }
 .editor-control-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px; }
 .editor-field { display: grid; gap: 4px; color: #587082; font-size: 10px; font-weight: 750; }
 .editor-field--wide { grid-column: 1 / -1; }
