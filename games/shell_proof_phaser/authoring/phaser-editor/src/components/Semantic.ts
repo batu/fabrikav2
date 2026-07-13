@@ -1,0 +1,41 @@
+
+// You can write more code here
+
+/* START OF COMPILED CODE */
+
+import Phaser from "phaser";
+/* START-USER-IMPORTS */
+/* END-USER-IMPORTS */
+
+export default class Semantic {
+
+	constructor(gameObject: Phaser.GameObjects.GameObject) {
+		this.gameObject = gameObject;
+		(gameObject as any)["__Semantic"] = this;
+
+		/* START-USER-CTR-CODE */
+		// Write your code here.
+		/* END-USER-CTR-CODE */
+	}
+
+	static getComponent(gameObject: Phaser.GameObjects.GameObject): Semantic {
+		return (gameObject as any)["__Semantic"];
+	}
+
+	private gameObject: Phaser.GameObjects.GameObject;
+	public fabSemanticId: string = "";
+	public fabRole: string = "";
+	public fabBinding: string = "";
+	public fabSlot: string = "";
+	public fabVariant: string = "";
+
+	/* START-USER-CODE */
+
+	// Write your code here.
+
+	/* END-USER-CODE */
+}
+
+/* END OF COMPILED CODE */
+
+// You can write more code here

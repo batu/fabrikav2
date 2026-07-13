@@ -19,6 +19,7 @@ export const BLOCK_CODES = [
   'blocked-non-raster-pack-entry',
   'blocked-guide-leak',
   'blocked-unexpected-file',
+  'blocked-drift',
   'blocked-unsafe-import',
   'blocked-user-code',
   'blocked-untrusted-plugin',
@@ -39,6 +40,7 @@ export interface Block {
 /** Map a lane block onto the shared typed outcome vocabulary (R16/R17). */
 export function outcomeForBlock(code: BlockCode): 'invalid-revision' | 'unsupported-intent' | 'blocked-drift' {
   switch (code) {
+    case 'blocked-drift':
     case 'blocked-unsafe-import':
     case 'blocked-user-code':
       return 'blocked-drift';

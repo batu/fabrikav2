@@ -1,0 +1,11 @@
+{
+  "description": "Exact id+content-hash allowlist for authoring-only Phaser Editor plugins (KTD-C, card comment 15 §10). Any plugin not listed here, or whose bytes differ, blocks (blocked-untrusted-plugin). Plugin source is additionally scanned for banned network/storage/eval APIs; GUI + proof sessions run loopback-only.",
+  "plugins": [
+    {
+      "id": "live-copy-preview",
+      "sha256": "sha256-a7bfec308b60115b70932b5dc0137eac3f68fa12548eb86ee6c4ca17ca6ebb0d",
+      "scope": "authoring",
+      "purpose": "per-keystroke copy-field preview, coalesced to one undo per typing burst"
+    }
+  ]
+}

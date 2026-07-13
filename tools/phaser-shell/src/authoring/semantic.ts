@@ -92,16 +92,6 @@ export function requiredVariants(stateFamilyId: string): readonly string[] {
   return familyRequiredVariants.get(stateFamilyId) ?? [];
 }
 
-/** The asset slot id a role targets, or null when the role carries no asset. */
-export function roleAssetSlotId(roleId: string): string | null {
-  return rolesById.get(roleId)?.assetSlotId ?? null;
-}
-
-/** True when the given role must carry an asset binding to a curated catalog slot. */
-export function roleRequiresAsset(roleId: string): boolean {
-  return roleAssetSlotId(roleId) !== null;
-}
-
 /** Read the five carrier strings off a raw scene object, defaulting missing to "". */
 export function readCarrier(obj: Record<string, unknown>): SemanticCarrier {
   const read = (field: CarrierField): string => {

@@ -9,8 +9,9 @@
     "test:unit": "vitest run",
     "lint": "eslint .",
     "build": "tsc --noEmit",
+    "validate": "tsx src/cli.mjs validate",
     "render": "playwright test --config playwright.config.ts",
-    "verify-authoring": "node src/cli.mjs verify-authoring"
+    "verify-authoring": "npm run typecheck && npm run test:unit && npm run lint && npm run validate"
   },
   "dependencies": {
     "@fabrikav2/kernel": "*",

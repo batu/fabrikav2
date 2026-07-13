@@ -1,0 +1,111 @@
+import { describe, it, expect } from 'vitest';
+import { parseSceneDoc } from '../src/authoring/sceneModel.ts';
+import {
+  verifyGeneratedModule,
+  extractGeneratedFacts,
+  isAllowedImport,
+} from '../src/authoring/astFacts.ts';
+
+/** A small two-object scene: a title Text and a primary-action Image. */
+function scene() {
+  return parseSceneDoc({
+    settings: { sceneKey: 'Menu', borderWidth: 390, borderHeight: 844 },
+    displayList: [
+      {
+        type: 'Text', id: 't1', label: 'menu.title', components: ['Semantic'],
+        'Semantic.fabSemanticId': 'menu.title', 'Semantic.fabRole': 'screen-title',
+        'Semantic.fabBinding': 'presentation.static', 'Semantic.fabSlot': 'title-logo',
+        'Semantic.fabVariant': 'default', x: 195, y: 60, text: 'Play',
+      },
+      {
+        type: 'Image', id: 'p1', label: 'menu.play', components: ['Semantic'],
+        'Semantic.fabSemanticId': 'menu.play', 'Semantic.fabRole': 'bottom-primary-action',
+        'Semantic.fabBinding': 'flow.start-current', 'Semantic.fabSlot': 'button-surface',
+        'Semantic.fabVariant': 'default', x: 195, y: 810, texture: { key: 'button_surface_primary' },
+      },
+    ],
+  });
+}
+
+const GENERATED = `
+import Phaser from "phaser";
+import Semantic from "../components/Semantic";
+export default class Menu extends Phaser.Scene {
+  editorCreate(): void {
+    const title = this.add.text(195, 60, "", {});
+    title.text = "Play";
+    const play = this.add.image(195, 810, "button_surface_primary");
+    const titleSemantic = new Semantic(title);
+    titleSemantic.fabSemanticId = "menu.title";
+    titleSemantic.fabRole = "screen-title";
+    titleSemantic.fabBinding = "presentation.static";
+    titleSemantic.fabSlot = "title-logo";
+    titleSemantic.fabVariant = "default";
+    const playSemantic = new Semantic(play);
+    playSemantic.fabSemanticId = "menu.play";
+    playSemantic.fabRole = "bottom-primary-action";
+    playSemantic.fabBinding = "flow.start-current";
+    playSemantic.fabSlot = "button-surface";
+    playSemantic.fabVariant = "default";
+  }
+}
+`;
+
+describe('P5 AST-fact parity over a closed generated-module graph', () => {
+  it('accepts generated code whose facts match the scene authority', () => {
+    expect(verifyGeneratedModule(GENERATED, scene())).toEqual([]);
+  });
+
+  it('extracts the per-object facts the editor emits', () => {
+    const { facts } = extractGeneratedFacts(GENERATED);
+    const play = facts.get('menu.play default')!;
+    expect(play.role).toBe('bottom-primary-action');
+    expect(play.textureKey).toBe('button_surface_primary');
+    const title = facts.get('menu.title default')!;
+    expect(title.copy).toBe('Play');
+  });
+
+  it('blocks generated code whose texture drifts from the scene (blocked-drift)', () => {
+    const drifted = GENERATED.replace('"button_surface_primary"', '"button_surface_secondary"');
+    const blocks = verifyGeneratedModule(drifted, scene());
+    expect(blocks.some((b) => b.code === 'blocked-drift')).toBe(true);
+  });
+
+  it('blocks generated code whose semantic role was hand-edited (blocked-drift)', () => {
+    const drifted = GENERATED.replace('"bottom-primary-action"', '"screen-title"');
+    const blocks = verifyGeneratedModule(drifted, scene());
+    expect(blocks.some((b) => b.code === 'blocked-drift')).toBe(true);
+  });
+
+  it('blocks a missing generated object (blocked-drift)', () => {
+    const missing = GENERATED.replace(/const play[\s\S]*?playSemantic.fabVariant = "default";/, '');
+    const blocks = verifyGeneratedModule(missing, scene());
+    expect(blocks.some((b) => b.code === 'blocked-drift')).toBe(true);
+  });
+
+  it('blocks a remote or bare-unexpected import (blocked-unsafe-import)', () => {
+    const remote = GENERATED.replace('import Phaser from "phaser";', 'import x from "https://evil.example.com/x.js";');
+    const blocks = verifyGeneratedModule(remote, scene());
+    expect(blocks.some((b) => b.code === 'blocked-unsafe-import')).toBe(true);
+  });
+
+  it('blocks an import that escapes the project root (blocked-unsafe-import)', () => {
+    const escaping = GENERATED.replace('import Semantic from "../components/Semantic";', 'import Semantic from "../../../../etc/secret";');
+    const blocks = verifyGeneratedModule(escaping, scene());
+    expect(blocks.some((b) => b.code === 'blocked-unsafe-import')).toBe(true);
+  });
+
+  it('accepts a legitimate local prefab import in the closed graph', () => {
+    expect(isAllowedImport('./prefabs/CounterPrefab')).toBe(true);
+    expect(isAllowedImport('../components/Semantic')).toBe(true);
+    expect(isAllowedImport('phaser')).toBe(true);
+    expect(isAllowedImport('node:fs')).toBe(false);
+    expect(isAllowedImport('../../../../etc/x')).toBe(false);
+  });
+
+  it('blocks hand-added user code that calls a banned API (blocked-user-code)', () => {
+    const withUserCode = GENERATED.replace('this.add.image(195, 810, "button_surface_primary")', 'this.add.image(195, 810, (fetch("http://x"), "button_surface_primary"))');
+    const blocks = verifyGeneratedModule(withUserCode, scene());
+    expect(blocks.some((b) => b.code === 'blocked-user-code')).toBe(true);
+  });
+});
