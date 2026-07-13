@@ -563,7 +563,11 @@ body {
   min-width: 0;
   max-width: 390px;
   gap: 10px;
-  padding: 30px var(--fab-space-md) max(var(--fab-space-md), env(safe-area-inset-bottom));
+  /* The rescue sheet is docked flush to the bottom edge, so the last control
+     (the bundle) must clear the device home indicator / gesture area. Floor the
+     bottom padding at space-lg above whatever the safe-area inset reports (0 on
+     Android), so the bundle never reaches the raw viewport bottom. */
+  padding: 30px var(--fab-space-md) max(var(--fab-space-lg), env(safe-area-inset-bottom));
   border-color: var(--fab-seed-color-fail-border);
   border-bottom: 0;
   border-radius: 28px 28px 0 0;
@@ -571,17 +575,10 @@ body {
   box-shadow: var(--fab-seed-shadow-bottom-sheet);
 }
 
-.template-shell[data-fab-state="fail"] .fab-result-card::before {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  width: 48px;
-  height: 5px;
-  border-radius: var(--fab-radius-pill);
-  background: var(--fab-seed-color-fail-border);
-  content: "";
-  transform: translateX(-50%);
-}
+/* The rescue sheet is docked to the bottom edge but is NOT draggable, so it
+   carries no grabber handle — a drag affordance the surface cannot honor would
+   be a false promise (card qWCv9tUo comment 57). The docked shape (rounded top,
+   flush bottom) stays; only the misleading handle is gone. */
 
 .template-shell[data-fab-state="fail"] .fab-modal-backdrop {
   align-items: flex-end;
@@ -1012,4 +1009,189 @@ body {
   .template-shell__icon-action:not(.template-shell__icon-action--hud):not(.template-shell__icon-action--utility) {
     font-size: var(--fab-font-size-sm);
   }
+}
+
+/* ------------------------------------------------------------------ *
+ * FTD structure rewire (card qWCv9tUo, 2026-07-13)
+ * ------------------------------------------------------------------ */
+
+/* Persistent bottom nav dock: shop (left), play (center + dominant), settings
+   (right). The dock is the mounted home-menu action row, re-laid as a 3-column
+   grid; play keeps the accent primary-action fill and the quiet icon+label
+   shop/settings flank it. */
+.template-shell .fab-home-menu-actions {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: end;
+  gap: var(--fab-space-sm);
+}
+
+.template-shell__nav-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--fab-space-xs);
+  min-height: var(--fab-btn-min-size);
+  padding: var(--fab-space-xs);
+  border: var(--fab-border-width) solid var(--fab-seed-color-socket-border);
+  border-radius: var(--fab-radius-md);
+  background: var(--fab-seed-color-utility-surface);
+  box-shadow: none;
+  /* The dark slate dock surface needs its labels on the light on-accent ink,
+     not the dark body text: dark-on-slate read at ~2.3:1 (fails AA). White at
+     ~5.8:1 passes AA for the 14px bold label and matches the white nav icons. */
+  color: var(--fab-seed-color-on-accent);
+  font-family: var(--fab-font-family);
+  font-size: var(--fab-font-size-sm);
+  font-weight: var(--fab-font-weight-bold);
+  text-shadow: none;
+}
+
+.template-shell__nav-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.template-shell__nav-action--shop {
+  justify-self: start;
+}
+
+.template-shell__nav-action--settings {
+  justify-self: end;
+}
+
+/* Play is the dominant center action: accent fill, a wider footprint, the
+   display face, and elevation. */
+.template-shell__nav-action--play {
+  justify-self: center;
+  min-width: 132px;
+  padding-block: var(--fab-space-sm);
+  border-color: var(--fab-color-accent);
+  background-color: var(--fab-color-accent);
+  color: var(--fab-color-on-accent);
+  box-shadow: var(--fab-shadow-button);
+  font-family: var(--fab-font-family-display);
+  font-size: var(--fab-font-size-md);
+}
+
+.template-shell__nav-action--play .template-shell__nav-icon {
+  width: 34px;
+  height: 34px;
+}
+
+/* Win reward readout: the earned coins, grounded on the currency fill so the
+   amount reads as coins before any claim. */
+/* The reward readout is a single wide line — icon, amount, and label never wrap —
+   so the earned coins read as one confident statement above the claim actions. */
+.template-shell__reward {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--fab-space-sm);
+  width: 100%;
+  box-sizing: border-box;
+  margin-inline: auto;
+  padding: var(--fab-space-sm) var(--fab-space-md);
+  border-radius: var(--fab-radius-md);
+  background: var(--fab-seed-color-currency-surface);
+  color: var(--fab-seed-color-currency-on-surface);
+  white-space: nowrap;
+}
+
+.template-shell__reward-icon {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+}
+
+.template-shell__reward-value {
+  font-family: var(--fab-font-family-display);
+  font-size: var(--fab-font-size-title);
+}
+
+.template-shell__reward-label {
+  font-size: var(--fab-font-size-md);
+}
+
+/* CLAIM 2x carries its explicit "Watch ad" sublabel on a second line, and an
+   accent border marks it as a live, interactive reward path (never a quiet or
+   disabled control) even though it sits on the neutral secondary fill. */
+.template-shell__claim-double {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  border-color: var(--fab-seed-color-accent);
+}
+
+.template-shell__claim-sub {
+  font-family: var(--fab-font-family);
+  font-size: var(--fab-font-size-sm);
+  text-transform: none;
+  opacity: 0.9;
+}
+
+/* Win claim and fail rescue action stacks. */
+.template-shell__result-actions {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: var(--fab-space-xs);
+}
+
+/* The Win action stack reserves its taller pre-claim height (Claim + the
+   two-line Claim 2x) and stays top-aligned, so swapping the claim actions for
+   Next + Home after a claim does not jump the surface vertically. */
+.template-shell__win-actions {
+  min-height: calc(2 * var(--fab-btn-min-size) + var(--fab-space-lg));
+  justify-content: flex-start;
+}
+
+/* Rescue/claim CTAs use the body face, not the display face: the display font's
+   "$" and "x" glyphs are illegible (they read as "S"/"H"), and these buttons
+   carry a price ($4.99) and the "2x" multiplier. Matches the shop CTA and
+   result-next decision. */
+.template-shell__result-actions .fab-btn {
+  font-family: var(--fab-font-family);
+}
+
+/* The rescue bundle is a complete, self-contained purchase card-button — a
+   bounded white surface with its own accent border and radius carrying the
+   visible price — clearly a purchasable control, never the borderless
+   quiet-exit row (that grammar belongs to Home/Resume). */
+.template-shell__fail-bundle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: var(--fab-btn-min-size);
+  /* Continue and Retry are the two immediate free/coin choices; the paid rescue
+     bundle sits below them behind a wider gap so it reads as a separate offer,
+     not a third free action. */
+  margin-top: var(--fab-space-md);
+  padding: var(--fab-space-xs) var(--fab-space-sm);
+  border: var(--fab-border-width) solid var(--fab-seed-color-accent);
+  border-radius: var(--fab-radius-md);
+  background: var(--fab-seed-color-shop-card-surface);
+  color: var(--fab-color-text);
+  box-shadow: none;
+}
+
+/* The rescue bundle's outcome disclosure ("Continue this level") on a quiet
+   second line, so the purchase states what it does, not only its price. */
+.template-shell__bundle-sub {
+  font-family: var(--fab-font-family);
+  font-size: var(--fab-font-size-sm);
+  text-transform: none;
+  opacity: 0.9;
+}
+
+/* Disabled result actions stay full-opacity with an explicit muted fill (never a
+   ghost wash), so a gated Next / unaffordable Continue / unavailable bundle
+   still reads as a real, legible control. */
+.template-shell__result-actions .fab-btn:disabled {
+  opacity: 1;
+  background: var(--fab-seed-color-socket-surface);
+  color: var(--fab-color-text-muted);
+  box-shadow: none;
 }

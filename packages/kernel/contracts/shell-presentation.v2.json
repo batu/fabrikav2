@@ -242,6 +242,26 @@
     {
       "id": "state.secondary-currency",
       "kind": "read"
+    },
+    {
+      "id": "state.reward-amount",
+      "kind": "read"
+    },
+    {
+      "id": "flow.claim",
+      "kind": "action"
+    },
+    {
+      "id": "flow.claim-double",
+      "kind": "action"
+    },
+    {
+      "id": "flow.continue-coins",
+      "kind": "action"
+    },
+    {
+      "id": "commerce.bundle",
+      "kind": "action"
     }
   ],
   "stateFamilies": [
@@ -741,6 +761,26 @@
       ]
     },
     {
+      "id": "bottom-nav",
+      "anchor": "bottom-center",
+      "stateFamilyId": "static",
+      "assetSlotId": null,
+      "geometryCaps": {
+        "minWidth": 200,
+        "maxWidth": 430,
+        "minHeight": 48,
+        "maxHeight": 160
+      },
+      "minimumTouchTarget": 0,
+      "requiredSafeBounds": false,
+      "editableProperties": [
+        "geometry",
+        "order",
+        "visibility",
+        "colors"
+      ]
+    },
+    {
       "id": "progression-node",
       "anchor": "center",
       "stateFamilyId": "progression-node",
@@ -1089,26 +1129,56 @@
       }
     },
     {
-      "id": "menu.settings",
+      "id": "menu.nav",
       "parentInstanceId": null,
       "stateId": "menu",
-      "roleId": "top-icon-action",
-      "bindingId": "flow.open-settings",
-      "stateFamilyId": "icon-button",
+      "roleId": "bottom-nav",
+      "bindingId": "presentation.static",
+      "stateFamilyId": "static",
       "required": true,
-      "actionId": "menu.settings",
       "accessibility": {
-        "role": "button",
-        "nameKey": "shell.action.settings",
-        "stateSemantics": [
-          "disabled"
-        ],
-        "traversalGroup": "header"
+        "role": "group",
+        "nameKey": "shell.nav",
+        "stateSemantics": [],
+        "traversalGroup": "nav"
       },
       "defaultPresentation": {
         "geometry": {
           "offset": {
-            "x": -0.04,
+            "x": 0,
+            "y": -0.02
+          },
+          "size": {
+            "width": 0.9,
+            "height": 0.1
+          },
+          "fit": "contain"
+        },
+        "order": 18,
+        "visibility": "visible"
+      }
+    },
+    {
+      "id": "menu.shop",
+      "parentInstanceId": "menu.nav",
+      "stateId": "menu",
+      "roleId": "top-icon-action",
+      "bindingId": "flow.open-shop",
+      "stateFamilyId": "icon-button",
+      "required": true,
+      "actionId": "menu.shop",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.shop",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "nav"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": -0.2,
             "y": 0.025
           },
           "size": {
@@ -1117,13 +1187,13 @@
           },
           "fit": "contain"
         },
-        "order": 3,
+        "order": 19,
         "visibility": "visible"
       }
     },
     {
       "id": "menu.play",
-      "parentInstanceId": null,
+      "parentInstanceId": "menu.nav",
       "stateId": "menu",
       "roleId": "bottom-primary-action",
       "bindingId": "flow.start-current",
@@ -1136,7 +1206,7 @@
         "stateSemantics": [
           "disabled"
         ],
-        "traversalGroup": "primary"
+        "traversalGroup": "nav"
       },
       "defaultPresentation": {
         "geometry": {
@@ -1153,6 +1223,39 @@
         "order": 20,
         "visibility": "visible",
         "copy": "Play"
+      }
+    },
+    {
+      "id": "menu.settings",
+      "parentInstanceId": "menu.nav",
+      "stateId": "menu",
+      "roleId": "top-icon-action",
+      "bindingId": "flow.open-settings",
+      "stateFamilyId": "icon-button",
+      "required": true,
+      "actionId": "menu.settings",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.settings",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "nav"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": -0.04,
+            "y": 0.025
+          },
+          "size": {
+            "width": 0.14,
+            "height": 0.07
+          },
+          "fit": "contain"
+        },
+        "order": 21,
+        "visibility": "visible"
       }
     },
     {
@@ -1282,39 +1385,6 @@
           "fit": "contain"
         },
         "order": 13,
-        "visibility": "visible"
-      }
-    },
-    {
-      "id": "menu.shop",
-      "parentInstanceId": null,
-      "stateId": "menu",
-      "roleId": "top-icon-action",
-      "bindingId": "flow.open-shop",
-      "stateFamilyId": "icon-button",
-      "required": true,
-      "actionId": "menu.shop",
-      "accessibility": {
-        "role": "button",
-        "nameKey": "shell.action.shop",
-        "stateSemantics": [
-          "disabled"
-        ],
-        "traversalGroup": "header"
-      },
-      "defaultPresentation": {
-        "geometry": {
-          "offset": {
-            "x": -0.2,
-            "y": 0.025
-          },
-          "size": {
-            "width": 0.14,
-            "height": 0.07
-          },
-          "fit": "contain"
-        },
-        "order": 4,
         "visibility": "visible"
       }
     },
@@ -2191,14 +2261,112 @@
       }
     },
     {
+      "id": "win.reward",
+      "parentInstanceId": "win.panel",
+      "stateId": "win",
+      "roleId": "level-label",
+      "bindingId": "state.reward-amount",
+      "stateFamilyId": "static",
+      "required": true,
+      "accessibility": {
+        "role": "status",
+        "nameKey": "shell.reward.amount",
+        "stateSemantics": [],
+        "traversalGroup": "modal"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": 0.025
+          },
+          "size": {
+            "width": 0.32,
+            "height": 0.06
+          },
+          "fit": "contain"
+        },
+        "order": 3,
+        "visibility": "visible",
+        "copy": "Reward"
+      }
+    },
+    {
+      "id": "win.claim",
+      "parentInstanceId": "win.panel",
+      "stateId": "win",
+      "roleId": "bottom-primary-action",
+      "bindingId": "flow.claim",
+      "stateFamilyId": "button",
+      "required": true,
+      "actionId": "win-claim",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.claim",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "modal"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": -0.18
+          },
+          "size": {
+            "width": 0.55,
+            "height": 0.08
+          },
+          "fit": "cover"
+        },
+        "order": 4,
+        "visibility": "visible",
+        "copy": "Claim"
+      }
+    },
+    {
+      "id": "win.claim-double",
+      "parentInstanceId": "win.panel",
+      "stateId": "win",
+      "roleId": "bottom-secondary-action",
+      "bindingId": "flow.claim-double",
+      "stateFamilyId": "button",
+      "required": true,
+      "actionId": "win-claim-double",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.claim-double",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "modal"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": -0.08
+          },
+          "size": {
+            "width": 0.55,
+            "height": 0.08
+          },
+          "fit": "cover"
+        },
+        "order": 5,
+        "visibility": "visible",
+        "copy": "Claim 2x"
+      }
+    },
+    {
       "id": "win.next",
       "parentInstanceId": "win.panel",
       "stateId": "win",
       "roleId": "bottom-primary-action",
       "bindingId": "flow.next",
       "stateFamilyId": "button",
-      "required": true,
-      "actionId": "win-next",
+      "required": false,
       "accessibility": {
         "role": "button",
         "nameKey": "shell.action.next",
@@ -2220,7 +2388,7 @@
           "fit": "cover"
         },
         "order": 1,
-        "visibility": "visible",
+        "visibility": "hidden",
         "copy": "Next"
       }
     },
@@ -2231,8 +2399,7 @@
       "roleId": "bottom-secondary-action",
       "bindingId": "flow.result-home",
       "stateFamilyId": "button",
-      "required": true,
-      "actionId": "win-home",
+      "required": false,
       "accessibility": {
         "role": "button",
         "nameKey": "shell.action.home",
@@ -2254,7 +2421,7 @@
           "fit": "cover"
         },
         "order": 2,
-        "visibility": "visible",
+        "visibility": "hidden",
         "copy": "Home"
       }
     },
@@ -2290,6 +2457,103 @@
       }
     },
     {
+      "id": "fail.currency",
+      "parentInstanceId": "fail.panel",
+      "stateId": "fail",
+      "roleId": "currency-counter",
+      "bindingId": "state.primary-currency",
+      "stateFamilyId": "static",
+      "required": true,
+      "accessibility": {
+        "role": "status",
+        "nameKey": "shell.currency.primary",
+        "stateSemantics": [],
+        "traversalGroup": "modal"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0.04,
+            "y": 0.11
+          },
+          "size": {
+            "width": 0.32,
+            "height": 0.065
+          },
+          "fit": "contain"
+        },
+        "order": 3,
+        "visibility": "visible"
+      }
+    },
+    {
+      "id": "fail.continue-coins",
+      "parentInstanceId": "fail.panel",
+      "stateId": "fail",
+      "roleId": "bottom-secondary-action",
+      "bindingId": "flow.continue-coins",
+      "stateFamilyId": "button",
+      "required": true,
+      "actionId": "fail-continue-coins",
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.continue-coins",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "modal"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": -0.28
+          },
+          "size": {
+            "width": 0.55,
+            "height": 0.08
+          },
+          "fit": "cover"
+        },
+        "order": 4,
+        "visibility": "visible",
+        "copy": "Continue"
+      }
+    },
+    {
+      "id": "fail.bundle",
+      "parentInstanceId": "fail.panel",
+      "stateId": "fail",
+      "roleId": "bottom-secondary-action",
+      "bindingId": "commerce.bundle",
+      "stateFamilyId": "button",
+      "required": false,
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.bundle",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "modal"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": -0.08
+          },
+          "size": {
+            "width": 0.55,
+            "height": 0.08
+          },
+          "fit": "cover"
+        },
+        "order": 5,
+        "visibility": "visible",
+        "copy": "Bundle"
+      }
+    },
+    {
       "id": "fail.retry",
       "parentInstanceId": "fail.panel",
       "stateId": "fail",
@@ -2321,40 +2585,6 @@
         "order": 1,
         "visibility": "visible",
         "copy": "Retry"
-      }
-    },
-    {
-      "id": "fail.home",
-      "parentInstanceId": "fail.panel",
-      "stateId": "fail",
-      "roleId": "bottom-secondary-action",
-      "bindingId": "flow.result-home",
-      "stateFamilyId": "button",
-      "required": true,
-      "actionId": "fail-home",
-      "accessibility": {
-        "role": "button",
-        "nameKey": "shell.action.home",
-        "stateSemantics": [
-          "disabled"
-        ],
-        "traversalGroup": "modal"
-      },
-      "defaultPresentation": {
-        "geometry": {
-          "offset": {
-            "x": 0,
-            "y": -0.08
-          },
-          "size": {
-            "width": 0.55,
-            "height": 0.08
-          },
-          "fit": "cover"
-        },
-        "order": 2,
-        "visibility": "visible",
-        "copy": "Home"
       }
     }
   ],
@@ -2481,23 +2711,33 @@
       ]
     },
     {
-      "id": "win-next",
+      "id": "win-claim",
       "stateId": "win",
-      "bindingId": "flow.next",
-      "actionHook": "result-next",
+      "bindingId": "flow.claim",
+      "actionHook": "claim",
       "minimumCount": 1,
       "instanceIds": [
-        "win.next"
+        "win.claim"
       ]
     },
     {
-      "id": "win-home",
+      "id": "win-claim-double",
       "stateId": "win",
-      "bindingId": "flow.result-home",
-      "actionHook": "result-menu",
+      "bindingId": "flow.claim-double",
+      "actionHook": "claim-double",
       "minimumCount": 1,
       "instanceIds": [
-        "win.home"
+        "win.claim-double"
+      ]
+    },
+    {
+      "id": "fail-continue-coins",
+      "stateId": "fail",
+      "bindingId": "flow.continue-coins",
+      "actionHook": "continue-coins",
+      "minimumCount": 1,
+      "instanceIds": [
+        "fail.continue-coins"
       ]
     },
     {
@@ -2508,16 +2748,6 @@
       "minimumCount": 1,
       "instanceIds": [
         "fail.retry"
-      ]
-    },
-    {
-      "id": "fail-home",
-      "stateId": "fail",
-      "bindingId": "flow.result-home",
-      "actionHook": "result-menu",
-      "minimumCount": 1,
-      "instanceIds": [
-        "fail.home"
       ]
     },
     {
@@ -3382,7 +3612,6 @@
       "required": [
         "contractId",
         "contractVersion",
-        "projectionId",
         "sourcePublicationId",
         "assets"
       ],
@@ -3392,10 +3621,6 @@
         },
         "contractVersion": {
           "const": "2.0.0"
-        },
-        "projectionId": {
-          "type": "string",
-          "pattern": "^sha256-[a-f0-9]{64}$"
         },
         "sourcePublicationId": {
           "type": "string",

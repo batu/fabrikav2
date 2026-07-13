@@ -48,4 +48,22 @@ describe('structure', () => {
       expect(v.home).toMatch(/native-resources|gitignore/);
     }
   });
+
+  // Lane authoring home (card qWCv9tUo): `authoring/` is an EXACT top-level
+  // allowance for the dual-design-frontends proof/lane games — not a broad
+  // relaxation. A game may carry an editor-native `authoring/` project…
+  it('allows the exact authoring/ lane-authoring directory', () => {
+    const { violations } = lintStructure(fixture('authoring-pass'));
+    expect(violations).toEqual([]);
+  });
+
+  // …but a near-miss name is still rejected, proving the allowance is a single
+  // literal entry and not a prefix/relaxed match.
+  it('still flags a near-miss authoring-* directory (exact allowance only)', () => {
+    const { violations } = lintStructure(fixture('authoring-fail'));
+    const entries = violations.map((v) => v.entry).sort();
+    expect(entries).toEqual(['authoring-plugins/']);
+    expect(violations[0].game).toBe('games/badgame');
+    expect(violations[0].home).toMatch(/not an allowed top-level game entry/);
+  });
 });

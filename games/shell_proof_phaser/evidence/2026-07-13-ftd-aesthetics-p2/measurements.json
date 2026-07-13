@@ -1,0 +1,26 @@
+{
+  "winPreclaim": {
+    "hasNext": false,
+    "hasHome": false,
+    "hasClaim": true,
+    "hasClaimDouble": true
+  },
+  "winPostclaim": {
+    "hasClaim": false,
+    "nextText": "Next",
+    "nextPrimary": true,
+    "nextHeightCss": 54,
+    "homeText": "Home",
+    "homeTertiary": true,
+    "homeHeightCss": 48
+  },
+  "fail": {
+    "bundleText": "Rescue bundle · $4.99Continue this level",
+    "bundleAria": "Rescue bundle, Continue this level, $4.99",
+    "bundleDisclosesOutcome": true,
+    "continueHeightCss": 54,
+    "retryHeightCss": 54,
+    "bundleHeightCss": 59,
+    "dragHandleContent": "none"
+  }
+}

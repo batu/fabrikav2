@@ -1,5 +1,10 @@
 {
   "fencesId": "dual-design-frontends-fences-v1",
+  "integration": {
+    "description": "Conductor-owned canonical integration branch identity. fence-gate resolves ONLY this local branch or its origin-tracking twin (<remote>/<branch>) and measures each lane from the merge-base of the lane HEAD and that ref. No env override (FENCE_GATE_INTEGRATION_REF / FENCE_GATE_BASE) may substitute a different ref or base — most dangerously HEAD — and collapse the merge-base into a false pass.",
+    "branch": "experiment/dual-design-frontends",
+    "remote": "origin"
+  },
   "sharedSurfaces": {
     "description": "Only conductor-owned integration cards may change these after the fork; both lanes rebase and rerun their gates afterwards.",
     "paths": [
@@ -20,9 +25,16 @@
     "paths": ["games/_template/**", "tools/create-game/**"]
   },
   "frozenBehavior": {
-    "description": "Read-only lane inputs inside both proof games; hashes pinned in baseline/behavior-hashes.json and guarded by each game's frozen-behavior test.",
+    "description": "Read-only lane inputs inside both proof games; hashes pinned in baseline/behavior-hashes.json and guarded by each game's frozen-behavior test. Every file under `dirs` is twin-identical and baseline-pinned EXCEPT the identity/laneOwned/declaredOutputs carve-outs below.",
     "dirs": ["src", "design", "content", "tests/unit"],
     "identityExcluded": ["design/copy.ts"],
+    "laneOwned": [
+      "src/main.ts",
+      "src/shell/TemplateShell.ts",
+      "src/shell/template-shell.css",
+      "src/shell/renderers/**"
+    ],
+    "declaredOutputs": ["design/revision.json", "design/revisions/**"],
     "identityFiles": [
       "package.json",
       "game.config.ts",
@@ -40,6 +52,11 @@
       "writable": [
         "tools/grapes-shell/**",
         "games/shell_proof_grapes/authoring/**",
+        "games/shell_proof_grapes/src/main.ts",
+        "games/shell_proof_grapes/src/shell/TemplateShell.ts",
+        "games/shell_proof_grapes/src/shell/template-shell.css",
+        "games/shell_proof_grapes/src/shell/renderers/**",
+        "games/shell_proof_grapes/tests/runtime/**",
         "games/shell_proof_grapes/design/revisions/**",
         "games/shell_proof_grapes/design/revision.json",
         "games/shell_proof_grapes/refs/**",
@@ -51,6 +68,11 @@
       "writable": [
         "tools/phaser-shell/**",
         "games/shell_proof_phaser/authoring/**",
+        "games/shell_proof_phaser/src/main.ts",
+        "games/shell_proof_phaser/src/shell/TemplateShell.ts",
+        "games/shell_proof_phaser/src/shell/template-shell.css",
+        "games/shell_proof_phaser/src/shell/renderers/**",
+        "games/shell_proof_phaser/tests/runtime/**",
         "games/shell_proof_phaser/design/revisions/**",
         "games/shell_proof_phaser/design/revision.json",
         "games/shell_proof_phaser/refs/**",
@@ -60,7 +82,10 @@
     }
   },
   "notes": [
-    "A lane replacing its renderer (U6) edits its own game's src/shell only through a conductor-acknowledged card that keeps controller/SDK/content bytes frozen; the frozen-behavior test defines the exact byte set.",
-    "The audit `structure` linter currently whitelists _template's top-level entries; adding games/<proof>/authoring/ in U3/U5 requires extending that whitelist through an integration card."
+    "A lane replacing its renderer (U6) edits ONLY its own game's src/main.ts, src/shell/TemplateShell.ts, src/shell/template-shell.css, and src/shell/renderers/** (plus renderer-only tests under tests/runtime/**), which the frozen-behavior test excludes from twin/baseline identity; src/core/**, src/sdk/**, src/game/**, src/shell/harness.ts, src/shell/insituTour.ts, content/**, and tests/unit/** stay frozen and twin-identical.",
+    "The audit `structure` linter now whitelists the exact top-level `authoring/` directory (card qWCv9tUo item 2), so a lane's editor-native authoring project is a legal top-level entry; near-miss names still fail.",
+    "Lane ownership is enforced by the executable fence verifier tools/verify-gate/fence-gate.mjs, measured from the trusted merge-base of the lane HEAD and the conductor-owned `integration.branch` above (or its origin twin), not from freeze.baselineCommit and not from any env-supplied ref/base — the seal commit necessarily follows the functional baseline and must not be attributed to any lane, and no override may collapse the base into HEAD.",
+    "Round-3 hardening (card qWCv9tUo comment 43): the policy that JUDGES a lane diff is loaded from the trusted BASE COMMIT (`git show base:fences.json`), never from the lane's working-tree bytes. The working-tree fences.json MUST byte-equal that canonical policy, so a lane cannot widen its own `writable` (e.g. to `**`), redirect `integration.branch` to its own branch (the base==HEAD collapse), or delete the policy to force a skip — all fail closed. A diverged branch with no FENCE_GATE_LANE also fails closed rather than silently skipping; only the integration tip (base==HEAD) or a conscious conductor FENCE_GATE_ALLOW_INTEGRATION acknowledgement skips.",
+    "The verifier reads changed paths NUL-safely from `git diff --raw -z -M -C --find-copies-harder` (name-status + modes): both the source and destination of a rename/copy are checked (`--find-copies-harder` exposes a pure copy from an UNCHANGED forbidden source that plain `-C` reports as a bare add), the deleted path is checked, and any changed tracked symlink (git mode 120000) is rejected even inside a writable glob."
   ]
 }

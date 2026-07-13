@@ -56,6 +56,7 @@ export const assetUrls = {
   currency: assets.currency.primary,
   settings: assets.icon.settings,
   shop: assets.icon.shop,
+  play: assets.icon.play,
   pause: assets.icon.pause,
   back: assets.icon.back,
   ribbonWin: assets.action.testWin,

@@ -53,15 +53,20 @@ describe("seven-surface shop proof", () => {
     const shopButton = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="shop"]');
     expect(shopButton).not.toBeNull();
     expect(shopButton!.dataset.fabInstance).toBe("menu.shop");
-    // The Shop entry keeps the utility row's geometry but is visibly its own
-    // door: the accent fill separates it from the quiet Settings control.
-    expect(shopButton!.classList.contains("template-shell__icon-action--utility")).toBe(true);
-    expect(shopButton!.classList.contains("template-shell__icon-action--shop")).toBe(true);
+    // Shop is the left action of the persistent bottom nav dock — a quiet nav
+    // control, distinct from the dominant accent Play in the center.
+    expect(shopButton!.classList.contains("template-shell__nav-action")).toBe(true);
+    expect(shopButton!.classList.contains("template-shell__nav-action--shop")).toBe(true);
+    expect(shopButton!.closest('[data-fab-instance="menu.nav"]')).not.toBeNull();
     const settingsButton = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="settings"]');
-    expect(settingsButton!.classList.contains("template-shell__icon-action--shop")).toBe(false);
+    expect(settingsButton!.classList.contains("template-shell__nav-action--settings")).toBe(true);
+    const playButton = shell.root.querySelector<HTMLButtonElement>(
+      '.fab-home-menu-actions [data-fab-action="play"]',
+    );
+    expect(playButton!.classList.contains("template-shell__nav-action--play")).toBe(true);
     const css = readFileSync(resolve(process.cwd(), "src/shell/template-shell.css"), "utf8");
     expect(css).toMatch(
-      /\.template-shell__icon-action--shop\s*\{[^}]*background-color:\s*var\(--fab-color-accent\);/s,
+      /\.template-shell__nav-action--play\s*\{[^}]*box-shadow:\s*var\(--fab-shadow-button\);/s,
     );
     shopButton!.click();
     expect(controller.snapshot()).toMatchObject({ surface: "shop", shopOpen: true, scene: "menu" });
