@@ -5,7 +5,12 @@
   "type": "module",
   "description": "Phaser Editor / Phaser-native shell tooling for the dual-design-frontends experiment (U5/U6 implement; U1 preseeds the lane workspace, the accepted phaser@4.2.1 pin, and the frozen toolchain U5/U6 will consume — those stages add scripts/source only, never dependencies).",
   "scripts": {
-    "test:unit": "vitest run"
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run",
+    "lint": "eslint .",
+    "build": "tsc --noEmit",
+    "render": "playwright test --config playwright.config.ts",
+    "verify-authoring": "node src/cli.mjs verify-authoring"
   },
   "dependencies": {
     "@fabrikav2/kernel": "*",
