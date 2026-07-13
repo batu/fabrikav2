@@ -15,6 +15,7 @@ import {
   type GrapesShellProject,
 } from "../../src/shared/project.ts";
 import { composeFactCopy, deriveEditableLabel } from "../../src/shared/facts.ts";
+import { projectSemanticLayout } from "../../src/shared/layout.ts";
 import { readSeedManifest } from "../../src/shared/seed.ts";
 
 const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -292,6 +293,29 @@ describe("constrained GrapesJS project", () => {
     expect(bundle).toContain("Rescue bundle");
     expect(bundle).toContain("$4.99");
     expect(bundle).toContain("Continue this level");
+  });
+
+  it("seats the balance pill clear of the result panel top on both the win and fail surfaces", () => {
+    const project = createStarterProject();
+    const boundsOf = (stateId: "win" | "fail", id: string) => {
+      const instance = project.presentation.pages
+        .find((page) => page.stateId === stateId)!
+        .instances.find((candidate) => candidate.id === id)!;
+      return projectSemanticLayout(instance.roleId, instance.presentation.geometry);
+    };
+
+    // The balance/reward pill must clear its result panel's top border; a pill
+    // flush on that border reads as an unintended collision (A1 aesthetics P1).
+    // win.reward already cleared with a gap; fail.currency sat flush on the panel
+    // top under U1's default and is lifted by the neutral seed to match it.
+    for (const [state, pill, panel] of [
+      ["win", "win.reward", "win.panel"],
+      ["fail", "fail.currency", "fail.panel"],
+    ] as const) {
+      const pillBounds = boundsOf(state, pill);
+      const panelBounds = boundsOf(state, panel);
+      expect(pillBounds.y + pillBounds.height).toBeLessThan(panelBounds.y);
+    }
   });
 
   it("fails closed when designer copy overwrites a binding-derived runtime/store fact", async () => {

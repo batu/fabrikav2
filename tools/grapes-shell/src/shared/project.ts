@@ -209,24 +209,34 @@ function assignStarterAssets(document: ShellPresentationDocumentV2): ShellPresen
 // Neutral-seed projection of the rewired U1 shell. U1's contract wires
 // menu.shop / menu.play / menu.settings under the menu.nav dock and defines the
 // win/fail result panels, but its default geometry still anchors Shop/Settings
-// as top-right icons and its default copy omits the concrete reward, balance,
+// as top-right icons, seats the fail balance pill flush against the result
+// panel's top border, and its default copy omits the concrete reward, balance,
 // cost, and price a player must read. These overrides seat the dock trio on the
-// menu.nav bar and surface those required source-grounded facts. They restyle
-// nothing (no colors, no fonts) and stay inside each role's geometry caps, safe
-// bounds, and copy limits; normalizeSemanticLayout re-derives the closed-AST
-// geometry from the target bounds so editor and portable project identically.
+// menu.nav bar, lift the fail balance pill clear of the fail.panel top, and
+// surface those required source-grounded facts. They restyle nothing (no colors,
+// no fonts, no resize) and stay inside each role's geometry caps, safe bounds,
+// and copy limits; normalizeSemanticLayout re-derives the closed-AST geometry
+// from the target bounds so editor and portable project identically.
 interface SeedBounds {
   readonly bounds: ShellRect;
   readonly fit: ShellFitMode;
 }
 
-// The menu.nav dock bar projects to x[19.5, 370.5], y[719.88, 794.98]. Shop sits
+// Seed geometry the neutral projection applies on top of U1's defaults.
+// The menu.nav dock bar projects to x[19.5, 370.5], y[719.88, 794.98]: Shop sits
 // at the leading edge, Play is centered and dominant, Settings at the trailing
 // edge — all seated on that bar so the phone reads as a real bottom dock.
-const DOCK_LAYOUT: Readonly<Record<string, SeedBounds>> = {
+// fail.currency: U1's default seats the 25-Coins balance pill with its bottom
+// flush on the fail.panel top border (y=141.61, bottom=190.43 == panel top), an
+// unintended collision the win balance pill (win.reward, bottom=122.84) does not
+// have. Lift it to the top HUD band (y=74, bottom≈122.8) so it clears the panel
+// with the same ~68px gap win.reward has; x, width, height, and fit are U1's
+// defaults for this instance — a pure vertical move, no restyle or resize.
+const SEED_GEOMETRY: Readonly<Record<string, SeedBounds>> = {
   "menu.shop": { bounds: { x: 30, y: 729, width: 56, height: 56 }, fit: "contain" },
   "menu.play": { bounds: { x: 100, y: 727, width: 190, height: 60 }, fit: "cover" },
   "menu.settings": { bounds: { x: 304, y: 729, width: 56, height: 56 }, fit: "contain" },
+  "fail.currency": { bounds: { x: 15.6, y: 74, width: 124.8, height: 48.815 }, fit: "contain" },
 };
 
 // Source-grounded win/fail facts come from the binding-fact registry (facts.ts),
@@ -238,8 +248,8 @@ function authorNeutralSeedProjection(document: ShellPresentationDocumentV2): She
   const clone = structuredClone(document);
   for (const page of clone.pages) {
     for (const instance of page.instances) {
-      const dock = DOCK_LAYOUT[instance.id];
-      if (dock) instance.presentation.geometry = normalizeSemanticLayout(instance.roleId, dock.bounds, dock.fit);
+      const seed = SEED_GEOMETRY[instance.id];
+      if (seed) instance.presentation.geometry = normalizeSemanticLayout(instance.roleId, seed.bounds, seed.fit);
       const fact = bindingFactForPrototype(instance.prototypeInstanceId);
       if (fact) instance.presentation.copy = composeFactCopy(instance.prototypeInstanceId, fact.defaultLabel);
     }
