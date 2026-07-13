@@ -10,6 +10,7 @@ import {
   createStarterProject,
   GRAPES_TARGET_GAME,
   duplicateInstance,
+  isContainerInstance,
   reorderInstance,
   updateInstancePresentation,
   validateProjectFile,
@@ -555,10 +556,21 @@ export function mountConstrainedEditor(root: HTMLElement): void {
     const locked = element("p", "editor-locked-note");
     text(locked, "Runtime binding and accessibility are visible contract data; they cannot be edited here.");
     const editingBase = selectedVariant === "";
+    // A semantic group owns child controls that carry their own absolute geometry;
+    // moving or copying the group alone would leave those controls behind, so both
+    // are locked until relative group transforms exist.
+    const isGroup = isContainerInstance(project, instance.id);
 
     const geometry = element("div", "editor-control-grid");
     const current = instance.presentation.geometry;
-    if (roleAllows(instance, "geometry")) {
+    if (roleAllows(instance, "geometry") && isGroup) {
+      const groupGeometryNote = element("p", "editor-locked-note editor-locked-note--compact");
+      text(
+        groupGeometryNote,
+        "Group geometry locked · move or resize the child components. A group move would leave its controls behind.",
+      );
+      geometry.append(groupGeometryNote);
+    } else if (roleAllows(instance, "geometry")) {
       geometry.append(
         numericControl("X offset %", current.offset.x * 100, 1, (next) =>
           commit(
@@ -717,9 +729,6 @@ export function mountConstrainedEditor(root: HTMLElement): void {
       }
       arrange.append(backward, forward);
     }
-    const duplicateCandidate = duplicateInstance(project, selectedId);
-    const duplicateRejection = editRejection(() =>
-      validateProjectFile(duplicateCandidate.project, editorAssetCatalog, EDITOR_TARGET_GAME));
     const duplicateControl = button("Duplicate", () => {
         const duplicate = duplicateInstance(project, selectedId);
         project = validateProjectFile(duplicate.project, editorAssetCatalog, EDITOR_TARGET_GAME);
@@ -730,9 +739,20 @@ export function mountConstrainedEditor(root: HTMLElement): void {
         feedbackTone = "success";
         refresh();
       }, "editor-button editor-button--accent");
-    duplicateControl.disabled = !editingBase || duplicateRejection !== undefined;
-    if (!editingBase) duplicateControl.title = "Return to Base presentation before duplicating.";
-    else if (duplicateRejection) duplicateControl.title = duplicateRejection;
+    if (isGroup) {
+      // duplicateInstance itself fails closed for a group; keep the button off so
+      // the disabled call is never made and the reason is discoverable.
+      duplicateControl.disabled = true;
+      duplicateControl.title =
+        "This semantic group cannot be duplicated · a group copy would not carry its child controls. Duplicate the child components instead.";
+    } else {
+      const duplicateCandidate = duplicateInstance(project, selectedId);
+      const duplicateRejection = editRejection(() =>
+        validateProjectFile(duplicateCandidate.project, editorAssetCatalog, EDITOR_TARGET_GAME));
+      duplicateControl.disabled = !editingBase || duplicateRejection !== undefined;
+      if (!editingBase) duplicateControl.title = "Return to Base presentation before duplicating.";
+      else if (duplicateRejection) duplicateControl.title = duplicateRejection;
+    }
     arrange.append(duplicateControl);
 
     const assetsHeading = element("h3", "editor-subheading");

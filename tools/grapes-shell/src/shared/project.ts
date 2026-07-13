@@ -310,6 +310,20 @@ function findInstance(document: ShellPresentationDocumentV2, instanceId: string)
   throw new ProjectValidationError(`Unknown semantic instance "${instanceId}".`);
 }
 
+// A semantic group: an instance that owns child instances (e.g. the menu.nav
+// dock owns Shop/Play/Settings). Children carry absolute geometry projected from
+// their own role anchors, so they are NOT nested under the group in the render —
+// they are flat siblings. Until relative group transforms exist, moving or
+// resizing a group would leave its child controls behind, and copying a group
+// would produce a childless orphan. Both edits are therefore locked for groups.
+function instanceIsContainer(document: ShellPresentationDocumentV2, instanceId: string): boolean {
+  return document.pages.some((page) => page.instances.some((instance) => instance.parentInstanceId === instanceId));
+}
+
+export function isContainerInstance(project: GrapesShellProject, instanceId: string): boolean {
+  return instanceIsContainer(project.presentation, instanceId);
+}
+
 function nextDuplicateId(document: ShellPresentationDocumentV2, sourceId: string): string {
   const existing = new Set(document.pages.flatMap((page) => page.instances.map((instance) => instance.id)));
   let index = 1;
@@ -320,6 +334,11 @@ function nextDuplicateId(document: ShellPresentationDocumentV2, sourceId: string
 export function duplicateInstance(project: GrapesShellProject, instanceId: string): DuplicateResult {
   const document = structuredClone(project.presentation);
   const { pageIndex, instanceIndex } = findInstance(document, instanceId);
+  if (instanceIsContainer(document, instanceId)) {
+    throw new ProjectValidationError(
+      `Semantic group "${instanceId}" cannot be duplicated: a group copy would not carry its child controls. Duplicate the child components instead.`,
+    );
+  }
   const page = document.pages[pageIndex]!;
   const source = page.instances[instanceIndex]!;
   const order = Math.max(...page.instances.map((instance) => instance.presentation.order), -1) + 1;
@@ -342,6 +361,11 @@ export function updateInstancePresentation(
   const document = structuredClone(project.presentation);
   const { pageIndex, instanceIndex } = findInstance(document, instanceId);
   const instance = document.pages[pageIndex]!.instances[instanceIndex]!;
+  if (update.geometry !== undefined && instanceIsContainer(document, instanceId)) {
+    throw new ProjectValidationError(
+      `Semantic group "${instanceId}" geometry is locked: moving or resizing a group would leave its child controls behind. Position the child components directly.`,
+    );
+  }
   instance.presentation = { ...instance.presentation, ...structuredClone(update) };
   const candidate = rebuild(document, project.targetGame);
   return validateProjectFile(candidate, assetCatalog);

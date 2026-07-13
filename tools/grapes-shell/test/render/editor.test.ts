@@ -130,4 +130,27 @@ describe("constrained editor pointer workflow", () => {
     expect(offOriginRequests).toEqual([]);
     await page.close();
   });
+
+  it("locks the menu.nav group from canvas resize and inspector duplication", async () => {
+    const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+    await page.goto(editorUrl, { waitUntil: "networkidle" });
+    await page.evaluate(() => localStorage.clear());
+    await page.reload({ waitUntil: "networkidle" });
+    await page.waitForFunction(() => Boolean(window.__FABRIKAV2_GRAPES_SHELL_EDITOR__));
+
+    // Selecting the group through the layer tree also selects it in the canvas.
+    await page.locator('[data-instance-id="menu.nav"]').click();
+    const canvas = page.frameLocator("iframe.gjs-frame");
+    await canvas.locator('[data-semantic-instance="menu.nav"][data-selected="true"]').waitFor();
+
+    // A leaf child (menu.play) would expose a resize handle when selected; the
+    // group exposes none, so it cannot be dragged/resized apart from its children.
+    expect(await page.locator(".gjs-resizer-h-br").isVisible()).toBe(false);
+
+    // The inspector discloses the lock and keeps Duplicate off for the group.
+    expect(await page.getByText(/Group geometry locked/i).isVisible()).toBe(true);
+    expect(await page.getByRole("button", { name: "Duplicate", exact: true }).isDisabled()).toBe(true);
+
+    await page.close();
+  });
 });

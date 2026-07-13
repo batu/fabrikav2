@@ -126,8 +126,11 @@ function componentDefinition(
   const isContainer = containerIds.has(instance.id);
   const isToggle = instance.roleId === TOGGLE_ROLE;
   const role = shellPresentationContractV2.roles.find((candidate) => candidate.id === instance.roleId);
+  // A group's children are flat absolute siblings, not nested under it, so a
+  // group drag/resize would move the group box alone and leave its controls
+  // behind. Lock group geometry until relative group transforms exist.
   const geometryEditable =
-    !cleanPreview && selectedVariant === "" && (role?.editableProperties.includes("geometry") ?? false);
+    !cleanPreview && selectedVariant === "" && !isContainer && (role?.editableProperties.includes("geometry") ?? false);
 
   const children: Record<string, unknown>[] = [];
   if (assetUrl) {

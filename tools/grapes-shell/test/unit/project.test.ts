@@ -8,6 +8,7 @@ import {
   createStarterProject,
   createConstrainedGrapesProject,
   duplicateInstance,
+  isContainerInstance,
   reorderInstance,
   updateInstancePresentation,
   validateProjectFile,
@@ -217,6 +218,51 @@ describe("constrained GrapesJS project", () => {
         .instances.filter((instance) => instance.parentInstanceId === "menu.nav")
         .every((instance) => instance.parentInstanceId === "menu.nav"),
     ).toBe(true);
+  });
+
+  it("identifies semantic groups by the children they own", async () => {
+    const project = createStarterProject();
+
+    // menu.nav owns the Shop/Play/Settings dock trio.
+    expect(isContainerInstance(project, "menu.nav")).toBe(true);
+    expect(isContainerInstance(project, "menu.progression-map")).toBe(true);
+    // Its children — and any leaf control — are not groups.
+    expect(isContainerInstance(project, "menu.play")).toBe(false);
+    expect(isContainerInstance(project, "menu.currency")).toBe(false);
+  });
+
+  it("locks group geometry so moving a container cannot leave its child controls behind", async () => {
+    const seed = await manifest();
+    const project = createStarterProject();
+    const navGeometry = project.presentation.pages
+      .find((page) => page.stateId === "menu")!
+      .instances.find((instance) => instance.id === "menu.nav")!.presentation.geometry;
+
+    // A group geometry edit fails closed — even one that only nudges the offset.
+    expect(() =>
+      updateInstancePresentation(
+        project,
+        "menu.nav",
+        { geometry: { ...navGeometry, offset: { ...navGeometry.offset, x: navGeometry.offset.x + 0.01 } } },
+        seed,
+      ),
+    ).toThrow(/group .*geometry is locked/i);
+
+    // A leaf child (menu.play) still accepts a geometry edit through the same path.
+    const playGeometry = project.presentation.pages
+      .find((page) => page.stateId === "menu")!
+      .instances.find((instance) => instance.id === "menu.play")!.presentation.geometry;
+    expect(() => updateInstancePresentation(project, "menu.play", { geometry: playGeometry }, seed)).not.toThrow();
+    // A group can still take non-geometry edits (color) without detaching children.
+    expect(() => updateInstancePresentation(project, "menu.nav", { colors: { background: "#223344" } }, seed)).not.toThrow();
+  });
+
+  it("locks group duplication so a container copy cannot orphan its child controls", async () => {
+    const project = createStarterProject();
+
+    expect(() => duplicateInstance(project, "menu.nav")).toThrow(/cannot be duplicated/i);
+    // A leaf child still duplicates.
+    expect(duplicateInstance(project, "menu.currency").instanceId).not.toBe("menu.currency");
   });
 
   it("seeds the source-grounded win/fail facts, including the rescue-bundle outcome", async () => {
