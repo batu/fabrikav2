@@ -1,3 +1,6 @@
+// Phaser lane authoring plugin (U5). Narrowed live-copy-preview forwarder
+// (copy fields; coalesced one-undo-per-typing-burst) — id+hash allowlisted in
+// editor-plugins/allowlist.json; runs loopback-only. Derived from U2 card 43Qvbih7.
 // Smallest recorded plugin path for goal R3 (live copy preview while typing).
 //
 // Finding: Phaser Editor 5.0.2 inspector string fields commit only on the

@@ -1,3 +1,6 @@
+// Phaser lane (shell_proof_phaser) Semantic user-component — the 5-field
+// identity carrier (fabSemanticId/Role/Binding/Slot/Variant). Authored for U5
+// from the U2 feasibility component (card 43Qvbih7); the editor auto-compiles it.
 
 // You can write more code here
 
