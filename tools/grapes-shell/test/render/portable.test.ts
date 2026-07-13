@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -43,6 +43,29 @@ describe("portable publication renderer", () => {
       loadBarrier: "portable-html-safety-images-fonts-and-render-marker",
       encoder: "playwright-png",
     });
+  });
+
+  it("carries the rescue-bundle name, price, and outcome into the portable fail projection", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "grapes-shell-bundle-"));
+    temporaryRoots.push(root);
+    const authoringDir = path.join(root, "games/shell_proof_grapes/authoring/grapesjs");
+    await mkdir(authoringDir, { recursive: true });
+    await writeFile(path.join(authoringDir, "project.json"), JSON.stringify(createStarterProject()), "utf8");
+
+    // No renderPreviews: publishing the portable bundle needs no browser.
+    const result = await publishAuthoringProject({ authoringDir, seedRoot });
+    const portableDirectory = path.join(authoringDir, "publications", result.publicationId, "portable");
+    const [failHtml, records] = await Promise.all([
+      readFile(path.join(portableDirectory, "fail.html"), "utf8"),
+      readFile(path.join(portableDirectory, "records.json"), "utf8"),
+    ]);
+
+    // The portable projection (not only the editor canvas) must disclose the
+    // bundle outcome the A1 review flagged missing, while preserving name + price.
+    for (const fact of ["Rescue bundle", "$4.99", "Continue this level"]) {
+      expect(failHtml).toContain(fact);
+      expect(records).toContain(fact);
+    }
   });
 
   it("rejects executable or networked portable markup before launching a browser", async () => {

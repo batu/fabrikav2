@@ -229,16 +229,21 @@ const DOCK_LAYOUT: Readonly<Record<string, SeedBounds>> = {
 };
 
 // Source-grounded win/fail facts, taken from the U1 Find-the-Dog shell reference
-// (games/shell_proof_grapes/evidence/2026-07-13-ftd-structure-rewire): the win
-// reward readout, the fail coin balance, the continue coin cost, the rewarded-ad
-// double-claim, and the priced rescue bundle. A middot separates the action label
-// from its value so the two facts read as distinct on one line.
+// (games/shell_proof_grapes/evidence/2026-07-13-ftd-structure-rewire) and the
+// shell_proof_phaser copy/product source: the win reward readout, the fail coin
+// balance, the continue coin cost, the rewarded-ad double-claim, and the priced
+// rescue bundle. The rescue bundle is a single leaf action, so — unlike the
+// two-line phaser button (fail.bundle label + fail.bundle.sub outcome) — its one
+// editable copy field must carry all three facts the player reads: the bundle
+// name, its price ($4.99 from proofShopCatalog rescue_bundle), and the outcome it
+// grants (fail.bundle.sub = "Continue this level"). A middot separates the facts
+// so they read as distinct on one line.
 const SEED_COPY: Readonly<Record<string, string>> = {
   "win.reward": "5 Coins earned",
   "win.claim-double": "Claim 2x · Watch ad",
   "fail.currency": "25 Coins",
   "fail.continue-coins": "Continue · 10 Coins",
-  "fail.bundle": "Rescue bundle · $4.99",
+  "fail.bundle": "Rescue bundle · $4.99 · Continue this level",
 };
 
 function authorNeutralSeedProjection(document: ShellPresentationDocumentV2): ShellPresentationDocumentV2 {

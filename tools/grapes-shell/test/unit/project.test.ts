@@ -188,4 +188,33 @@ describe("constrained GrapesJS project", () => {
 
     expect(reorderInstance(project, "menu.title", "backward", seed)).toBe(project);
   });
+
+  it("seeds the source-grounded win/fail facts, including the rescue-bundle outcome", async () => {
+    const seed = await manifest();
+    // Validate through the closed AST so the seeded copy is proven both present
+    // and contract-legal (copy length, plain-Unicode) — the editor projection.
+    const parsed = validateProjectFile(createStarterProject(), seed);
+    const copyOf = (id: string) =>
+      parsed.presentation.pages
+        .flatMap((page) => page.instances)
+        .find((instance) => instance.id === id)?.presentation.copy;
+
+    // The rewired U1 bottom dock trio is seated on the menu.nav dock.
+    const instanceIds = new Set(parsed.presentation.pages.flatMap((page) => page.instances).map((instance) => instance.id));
+    for (const id of ["menu.shop", "menu.play", "menu.settings"]) expect(instanceIds.has(id)).toBe(true);
+
+    // Concrete win/fail facts a player must read (shell_proof_phaser source).
+    expect(copyOf("win.reward")).toContain("5 Coins");
+    expect(copyOf("win.claim-double")).toContain("Watch ad");
+    expect(copyOf("fail.currency")).toContain("25 Coins");
+    expect(copyOf("fail.continue-coins")).toContain("10 Coins");
+
+    // The rescue bundle is one leaf action, so its single copy field must carry
+    // name + price + the outcome it grants. The outcome ("Continue this level")
+    // is the fact the A1 aesthetics review flagged as missing.
+    const bundle = copyOf("fail.bundle");
+    expect(bundle).toContain("Rescue bundle");
+    expect(bundle).toContain("$4.99");
+    expect(bundle).toContain("Continue this level");
+  });
 });
