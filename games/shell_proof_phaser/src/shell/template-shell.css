@@ -1013,3 +1013,136 @@ body {
     font-size: var(--fab-font-size-sm);
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * FTD structure rewire (card qWCv9tUo, 2026-07-13)
+ * ------------------------------------------------------------------ */
+
+/* Persistent bottom nav dock: shop (left), play (center + dominant), settings
+   (right). The dock is the mounted home-menu action row, re-laid as a 3-column
+   grid; play keeps the accent primary-action fill and the quiet icon+label
+   shop/settings flank it. */
+.template-shell .fab-home-menu-actions {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: end;
+  gap: var(--fab-space-sm);
+}
+
+.template-shell__nav-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--fab-space-xs);
+  min-height: var(--fab-btn-min-size);
+  padding: var(--fab-space-xs);
+  border: var(--fab-border-width) solid var(--fab-seed-color-socket-border);
+  border-radius: var(--fab-radius-md);
+  background: var(--fab-seed-color-utility-surface);
+  box-shadow: none;
+  color: var(--fab-color-text);
+  font-family: var(--fab-font-family);
+  font-size: var(--fab-font-size-sm);
+  text-shadow: none;
+}
+
+.template-shell__nav-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.template-shell__nav-action--shop {
+  justify-self: start;
+}
+
+.template-shell__nav-action--settings {
+  justify-self: end;
+}
+
+/* Play is the dominant center action: accent fill, a wider footprint, the
+   display face, and elevation. */
+.template-shell__nav-action--play {
+  justify-self: center;
+  min-width: 132px;
+  padding-block: var(--fab-space-sm);
+  border-color: var(--fab-color-accent);
+  background-color: var(--fab-color-accent);
+  color: var(--fab-color-on-accent);
+  box-shadow: var(--fab-shadow-button);
+  font-family: var(--fab-font-family-display);
+  font-size: var(--fab-font-size-md);
+}
+
+.template-shell__nav-action--play .template-shell__nav-icon {
+  width: 34px;
+  height: 34px;
+}
+
+/* Win reward readout: the earned coins, grounded on the currency fill so the
+   amount reads as coins before any claim. */
+.template-shell__reward {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--fab-space-xs);
+  margin-inline: auto;
+  padding: var(--fab-space-xs) var(--fab-space-sm);
+  border-radius: var(--fab-radius-md);
+  background: var(--fab-seed-color-currency-surface);
+  color: var(--fab-seed-color-currency-on-surface);
+}
+
+.template-shell__reward-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.template-shell__reward-value {
+  font-family: var(--fab-font-family-display);
+  font-size: var(--fab-font-size-lg);
+}
+
+.template-shell__reward-label {
+  font-size: var(--fab-font-size-sm);
+}
+
+/* CLAIM 2x carries its explicit "Watch ad" sublabel on a second line. */
+.template-shell__claim-double {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.template-shell__claim-sub {
+  font-family: var(--fab-font-family);
+  font-size: var(--fab-font-size-sm);
+  text-transform: none;
+  opacity: 0.9;
+}
+
+/* Win claim and fail rescue action stacks. */
+.template-shell__result-actions {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: var(--fab-space-xs);
+}
+
+/* Rescue/claim CTAs use the body face, not the display face: the display font's
+   "$" and "x" glyphs are illegible (they read as "S"/"H"), and these buttons
+   carry a price ($4.99) and the "2x" multiplier. Matches the shop CTA and
+   result-next decision. */
+.template-shell__result-actions .fab-btn {
+  font-family: var(--fab-font-family);
+}
+
+/* Disabled result actions stay full-opacity with an explicit muted fill (never a
+   ghost wash), so a gated Next / unaffordable Continue / unavailable bundle
+   still reads as a real, legible control. */
+.template-shell__result-actions .fab-btn:disabled {
+  opacity: 1;
+  background: var(--fab-seed-color-socket-surface);
+  color: var(--fab-color-text-muted);
+  box-shadow: none;
+}

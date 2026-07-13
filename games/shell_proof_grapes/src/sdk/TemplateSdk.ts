@@ -7,11 +7,11 @@ import {
 } from "@fabrikav2/sdk/analytics";
 import { createHaptics, NotificationType } from "@fabrikav2/sdk/haptics";
 import { FakePurchaseProvider, IapService } from "@fabrikav2/sdk/iap";
-import { DisabledAdProvider } from "../../../../packages/sdk/src/ads/DisabledAdProvider.ts";
-import type { AdProvider } from "../../../../packages/sdk/src/ads/AdProvider.ts";
+import type { AdProvider, RewardedAdResult } from "../../../../packages/sdk/src/ads/AdProvider.ts";
 import {
   fakeStoreProductsFromProofCatalog,
   proofCatalogProducts,
+  proofPurchaseResults,
   proofRestoreCustomerInfo,
   type ProofShopPayload,
 } from "./proofShopCatalog.ts";
@@ -21,17 +21,48 @@ export type TemplateAudioSettings = Readonly<Record<AudioChannel, boolean>>;
 
 type TemplateAnalyticsEvent = "template_setting_changed" | "template_pause" | "template_resume";
 
+/**
+ * Deterministic proof rewarded-ad seam: it grants iff `available`, so the win
+ * CLAIM 2x path is exercisable both ways (granted and "ad unavailable / try
+ * later") without a real ad SDK. Every method swallows errors and resolves to a
+ * safe value — an ad failure must never block gameplay, matching AdProvider.
+ */
+export class ProofRewardedAdProvider implements AdProvider {
+  readonly providerName = "proof-rewarded";
+  available = true;
+
+  async init(): Promise<void> {}
+  async preloadInterstitial(): Promise<void> {}
+  async maybeShowInterstitial(): Promise<boolean> {
+    return false;
+  }
+  async showBanner(): Promise<boolean> {
+    return false;
+  }
+  async hideBanner(): Promise<void> {}
+  async preloadRewarded(): Promise<void> {}
+  async showRewardedAd(): Promise<RewardedAdResult> {
+    return { granted: this.available };
+  }
+}
+
 export interface TemplateSdk {
   readonly adProvider: AdProvider;
   readonly iap: IapService<ProofShopPayload>;
   readonly mixer: Mixer;
   syncAudioSettings(settings: TemplateAudioSettings): void;
   levelStarted(levelId: number): void;
-  levelCompleted(levelId: number, currency: number, rewardAmount: number): void;
+  levelCompleted(levelId: number): void;
+  /** The win-claim grant seam: emitted when a claim path actually pays out. */
+  rewardClaimed(amount: number, balance: number, doubled: boolean): void;
+  /** The fail-rescue coin-continue seam: emitted when coins are spent to resume. */
+  continueUsed(cost: number, balance: number): void;
   levelFailed(levelId: number): void;
   settingChanged(key: TemplateSettingKey, enabled: boolean): void;
   paused(): void;
   resumed(): void;
+  isRewardedAdAvailable(): boolean;
+  setRewardedAdAvailable(available: boolean): void;
   trace(): readonly AnalyticsEvent[];
   drainTrace(): AnalyticsEvent[];
 }
@@ -44,11 +75,11 @@ export interface CreateTemplateSdkOptions {
 
 /**
  * The template's real SDK composition, deliberately kept deterministic:
- * analytics fan into a bounded in-memory RingBuffer and ads use the shared
- * disabled provider. The direct source import avoids the public ads barrel,
- * which eagerly re-exports optional native adapters the web template does not
- * install. No credentials, device identifiers, or transport setup are part of
- * this starter shell.
+ * analytics fan into a bounded in-memory RingBuffer, a deterministic proof
+ * rewarded-ad provider backs the win CLAIM 2x seam, and the real IapService over
+ * the seeded fake provider backs the shop restore and the fail-rescue bundle.
+ * No credentials, device identifiers, or transport setup are part of this
+ * starter shell, and no purchase is ever fulfilled.
  */
 export function createTemplateSdk(options: CreateTemplateSdkOptions): TemplateSdk {
   const traceSink: RingBufferSink = createRingBufferSink();
@@ -66,12 +97,14 @@ export function createTemplateSdk(options: CreateTemplateSdkOptions): TemplateSd
   };
   syncAudioSettings(options.audioSettings);
   const haptics = createHaptics({ isEnabled: options.isHapticsEnabled });
-  const adProvider = new DisabledAdProvider("template shell has no ad placements");
+  const adProvider = new ProofRewardedAdProvider();
   // Real IapService over the seeded fake provider: deterministic `ready`
-  // snapshots, live-looking prices, and a restore that recovers exactly the
-  // owned sample entitlement. No fulfillment — nothing is granted on purchase.
+  // snapshots, live-looking prices, a restore that recovers exactly the owned
+  // sample entitlement, and a priced rescue bundle. No fulfillment — nothing is
+  // granted on purchase.
   const fakePurchaseProvider = new FakePurchaseProvider({
     products: fakeStoreProductsFromProofCatalog(),
+    purchaseResults: proofPurchaseResults(),
     restoreCustomerInfo: proofRestoreCustomerInfo(),
   });
   const iap = new IapService<ProofShopPayload>({
@@ -94,18 +127,29 @@ export function createTemplateSdk(options: CreateTemplateSdkOptions): TemplateSd
     levelStarted(levelId: number): void {
       analytics.levelStart({ level_id: String(levelId), level_index: levelId });
     },
-    levelCompleted(levelId: number, currency: number, rewardAmount: number): void {
+    levelCompleted(levelId: number): void {
       analytics.levelComplete({ level_id: String(levelId), level_index: levelId });
-      if (rewardAmount > 0) {
-        analytics.resourceChange({
-          currency: "coins",
-          amount: rewardAmount,
-          flow: "source",
-          reason: "template_level_reward",
-          balance: currency,
-        });
-      }
       haptics.notification(NotificationType.Success);
+    },
+    rewardClaimed(amount: number, balance: number, doubled: boolean): void {
+      analytics.resourceChange({
+        currency: "coins",
+        amount,
+        flow: "source",
+        reason: doubled ? "template_reward_double" : "template_level_reward",
+        balance,
+      });
+      haptics.impact();
+    },
+    continueUsed(cost: number, balance: number): void {
+      analytics.resourceChange({
+        currency: "coins",
+        amount: cost,
+        flow: "sink",
+        reason: "template_level_continue",
+        balance,
+      });
+      haptics.impact();
     },
     levelFailed(levelId: number): void {
       analytics.levelFail({ level_id: String(levelId), level_index: levelId });
@@ -121,6 +165,12 @@ export function createTemplateSdk(options: CreateTemplateSdkOptions): TemplateSd
     },
     resumed(): void {
       analytics.track("template_resume");
+    },
+    isRewardedAdAvailable(): boolean {
+      return adProvider.available;
+    },
+    setRewardedAdAvailable(available: boolean): void {
+      adProvider.available = available;
     },
     trace(): readonly AnalyticsEvent[] {
       return traceSink.snapshot();

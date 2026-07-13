@@ -1,6 +1,6 @@
 {
   "recordKind": "u1-frozen-behavior-hashes",
-  "frozenAt": "2026-07-12",
+  "frozenAt": "2026-07-13",
   "comparedGames": [
     "shell_proof_grapes",
     "shell_proof_phaser"
@@ -26,16 +26,16 @@
   ],
   "files": {
     "src/README.md": "sha256-c2a06e0a7ca91e074e94021066d9f47ed6251c4c33241da940c6674b5c5855de",
-    "src/core/TemplateShellController.ts": "sha256-4b29519b13f302a741e82ccb4dd5f5b4fd16024d1747b0014dd3e4d7562f88d8",
+    "src/core/TemplateShellController.ts": "sha256-11e32cbb56d00b9b0f07cbddbdafe5a79a6e7b71cea1f88214f7ee1d92a70f93",
     "src/game/README.md": "sha256-4e021d4b6eb8a7134052e9a6f559b64846fd8778cd8dc57ea78671d93afb98c0",
-    "src/sdk/TemplateSdk.ts": "sha256-9db177bb5fed0692db1fdc01c391132f4b1d1cfcffba395bfa9196c3949f374e",
-    "src/sdk/proofShopCatalog.ts": "sha256-cf737c65c1737961bf47a4778bd47fc72f92dd60a8c1a1e625790737b82c67d5",
+    "src/sdk/TemplateSdk.ts": "sha256-75d4f9a79902601b1409cb32cacaddeff21adf17e5e4b165d9fef51bbf227be1",
+    "src/sdk/proofShopCatalog.ts": "sha256-d38e7e888278403c9a777c6a412ee50cd4ee4d355d3c72f56f82a96383cc53c0",
     "src/shell/README.md": "sha256-67df51f73960ab96b8cfbe1fd4b640161e3ba41b61217aaff51f5b0ea5506967",
     "src/shell/harness.ts": "sha256-fbdee12d0865770b7fda19f000a36679301a8ecc2c9499e09b1abfa5c21f04d1",
     "src/shell/insituTour.ts": "sha256-33262ab8f9aead59c924d5456661b49603211167743868e4f1b8afcbcab6b587",
     "src/vite-env.d.ts": "sha256-65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
     "design/README.md": "sha256-274db1fcbcc79eb08b23d2123aded08a07e5108864ac1d82470773ac3984d985",
-    "design/assets.ts": "sha256-a1da5aa1bde291b2d6232ba403fd7a8b0df322534bc19f9bb8a56290daaa4432",
+    "design/assets.ts": "sha256-9fea3ae25388098358b9302c28daa4b8fcf1423796d12b3b67cc43081b8d4586",
     "design/assets/LICENSE-KENNEY-GAME-ICONS.txt": "sha256-4256c605887fe78b5382faba6ef2632a704de6a442fdcce26e338abcc7d193c7",
     "design/assets/LICENSE-KENNEY-UI-PACK.txt": "sha256-4a50df05e366aa79488f797aa50e0cc9ef2bfad6eb59b5b026fab6ac10111e07",
     "design/assets/README.md": "sha256-c9c82d84398966572d5fb3e4be82266b15e12b8ea36bc40743f7f0acfe79b491",
@@ -82,8 +82,8 @@
     "tests/unit/png-facts.d.mts": "sha256-0cda41688546a62436cef6fb2e788baf69d966c6971b9f9b83830662b76ca69d",
     "tests/unit/png-facts.mjs": "sha256-b589c60da569fa0279c1fc18e4733f32b7a8b658715c9da499b9de594f59a13b",
     "tests/unit/production-tour.test.ts": "sha256-9dd4f87dfc9080d5925740006fe9778e659b503a439e817ec798d9b3273b7685",
-    "tests/unit/shop-proof.test.ts": "sha256-4f3330a728e7fb4ddbfc1c49ac3ca9398e1036e3161562d3cebcecc8729e67ac",
+    "tests/unit/shop-proof.test.ts": "sha256-ca5bfa5498e1024529938affe5b9c53d36ccb976ba9a400b5560c87d95255f5e",
     "tests/unit/smoke.test.ts": "sha256-788e457691a5feb9e8f5640da473696828791d8b6dd8f55310a848bda493c61e",
-    "tests/unit/template-shell.test.ts": "sha256-3bf333da2f7343728ec1c397d811fe6b9f3642d42dfa253888a1a1a17b481ec9"
+    "tests/unit/template-shell.test.ts": "sha256-bb7223da6ff7bc5aec6cf6c7dab4875530651ef4151d625109de43efccd3989a"
   }
 }

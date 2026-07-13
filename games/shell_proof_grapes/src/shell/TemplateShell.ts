@@ -92,13 +92,6 @@ function art(src: string, className: string, instance?: string): HTMLImageElemen
   return image;
 }
 
-function failureBarrier(): HTMLElement {
-  const barrier = document.createElement("div");
-  barrier.className = "template-shell__fail-barrier";
-  barrier.setAttribute("aria-hidden", "true");
-  return barrier;
-}
-
 function assignInstance(root: ParentNode, selector: string, instance: string): void {
   const element = root.querySelector<HTMLElement>(selector);
   if (!element) throw new Error(`Missing semantic instance owner for ${instance}: ${selector}`);
@@ -151,11 +144,7 @@ function currencyCounter(snapshot: TemplateShellSnapshot, instance?: string, com
   return counter;
 }
 
-function menuHeader(
-  snapshot: TemplateShellSnapshot,
-  controller: TemplateShellController,
-  render: () => void,
-): HTMLElement {
+function menuHeader(snapshot: TemplateShellSnapshot): HTMLElement {
   const header = document.createElement("header");
   header.className = "template-shell__menu-header";
 
@@ -182,33 +171,11 @@ function menuHeader(
   heroMarker.setAttribute("aria-hidden", "true");
   heroStage.appendChild(heroMarker);
 
+  // Shop and Settings leave the header for the persistent bottom nav dock; the
+  // header keeps only the currency balance.
   const utility = document.createElement("div");
   utility.className = "template-shell__utility";
-  utility.append(
-    currencyCounter(snapshot, "menu.currency"),
-    iconAction({
-      label: copy["menu.shop"],
-      action: "shop",
-      image: assetUrls.shop,
-      instance: "menu.shop",
-      className: "template-shell__icon-action--utility template-shell__icon-action--shop",
-      onClick: () => {
-        controller.openShop();
-        render();
-      },
-    }),
-    iconAction({
-      label: copy["menu.settings"],
-      action: "settings",
-      image: assetUrls.settings,
-      instance: "menu.settings",
-      className: "template-shell__icon-action--utility",
-      onClick: () => {
-        controller.openSettings();
-        render();
-      },
-    }),
-  );
+  utility.append(currencyCounter(snapshot, "menu.currency"));
 
   header.append(utility, heading, heroStage);
   return header;
@@ -224,7 +191,7 @@ function renderMenu(
   const handle = mountHomeMenu({
     mountInto,
     id: "template-home",
-    header: menuHeader(snapshot, controller, render),
+    header: menuHeader(snapshot),
     saga: {
       id: "template-saga",
       state: {
@@ -240,17 +207,53 @@ function renderMenu(
     },
     actions: [
       {
+        label: copy["menu.shop"],
+        ariaLabel: copy["menu.shop"],
+        className: "template-shell__nav-action template-shell__nav-action--shop",
+        dataAction: "shop",
+        onClick: () => {
+          controller.openShop();
+          render();
+        },
+      },
+      {
         label: copy["menu.play"],
         ariaLabel: copy["menu.play"],
-        className: "template-shell__primary-action",
+        className: "template-shell__nav-action template-shell__nav-action--play template-shell__primary-action",
         dataAction: "play",
         onClick: () => {
           controller.startCurrent();
           render();
         },
       },
+      {
+        label: copy["menu.settings"],
+        ariaLabel: copy["menu.settings"],
+        className: "template-shell__nav-action template-shell__nav-action--settings",
+        dataAction: "settings",
+        onClick: () => {
+          controller.openSettings();
+          render();
+        },
+      },
     ],
   });
+
+  // The persistent bottom dock: shop (left), play (center, dominant), settings
+  // (right), in shop < play < settings traversal order, matching the contract's
+  // menu.nav group and the observed FTD structure.
+  const dock = handle.el.querySelector<HTMLElement>(".fab-home-menu-actions")!;
+  dock.dataset.fabInstance = "menu.nav";
+  dock.setAttribute("role", "group");
+  dock.setAttribute("aria-label", copy["menu.nav"]);
+  handle.el.querySelector<HTMLButtonElement>('.fab-home-menu-actions [data-fab-action="shop"]')
+    ?.prepend(art(assetUrls.shop, "template-shell__nav-icon"));
+  handle.el.querySelector<HTMLButtonElement>('.fab-home-menu-actions [data-fab-action="play"]')
+    ?.prepend(art(assetUrls.play, "template-shell__nav-icon"));
+  handle.el.querySelector<HTMLButtonElement>('.fab-home-menu-actions [data-fab-action="settings"]')
+    ?.prepend(art(assetUrls.settings, "template-shell__nav-icon"));
+  assignInstance(handle.el, '.fab-home-menu-actions [data-fab-action="shop"]', "menu.shop");
+  assignInstance(handle.el, '.fab-home-menu-actions [data-fab-action="settings"]', "menu.settings");
 
   assignInstance(handle.el, ".fab-levelmap", "menu.progression-map");
   const progressionMap = handle.el.querySelector<HTMLElement>('[data-fab-instance="menu.progression-map"]')!;
@@ -681,6 +684,136 @@ function renderPause(
   return pause;
 }
 
+/** Win reward readout (win.reward): the earned coins, exposed before any claim. */
+function rewardReadout(snapshot: TemplateShellSnapshot): HTMLElement {
+  const readout = document.createElement("div");
+  readout.className = "template-shell__reward";
+  readout.dataset.fabInstance = "win.reward";
+  readout.setAttribute("role", "status");
+  readout.setAttribute(
+    "aria-label",
+    `${copy["win.reward"]} ${snapshot.rewardAmount} ${copy["currency.label"]}`,
+  );
+  const value = document.createElement("span");
+  value.className = "template-shell__reward-value";
+  value.textContent = String(snapshot.rewardAmount);
+  const label = document.createElement("span");
+  label.className = "template-shell__reward-label";
+  label.textContent = copy["win.reward"];
+  readout.append(art(assetUrls.currency, "template-shell__reward-icon"), value, label);
+  return readout;
+}
+
+/** The win claim surface: Claim + Claim-2x (Watch ad), with Next gated behind a
+ *  claim. All three are always present; only their disabled state changes. */
+function winActions(
+  snapshot: TemplateShellSnapshot,
+  controller: TemplateShellController,
+  render: () => void,
+): HTMLElement {
+  const slot = document.createElement("div");
+  slot.className = "template-shell__result-actions template-shell__win-actions";
+  const claimed = snapshot.rewardClaimed;
+
+  const claim = buildButtonElement({
+    label: copy["win.claim"],
+    ariaLabel: copy["win.claim"],
+    className: "template-shell__overlay-action template-shell__overlay-action--primary",
+    dataAction: "claim",
+    onClick: () => {
+      controller.claim();
+      render();
+    },
+  });
+  claim.dataset.fabInstance = "win.claim";
+  claim.disabled = claimed;
+
+  const claimDouble = buildButtonElement({
+    label: copy["win.claim-double"],
+    ariaLabel: `${copy["win.claim-double"]}, ${copy["win.claim-double.sub"]}`,
+    className: "template-shell__overlay-action template-shell__overlay-action--secondary template-shell__claim-double",
+    dataAction: "claim-double",
+    onClick: () => {
+      void controller.claimDouble().then(render);
+    },
+  });
+  claimDouble.dataset.fabInstance = "win.claim-double";
+  // The rewarded seam is inert once claimed and disabled when no ad is available.
+  claimDouble.disabled = claimed || !snapshot.adAvailable;
+  const adSub = document.createElement("span");
+  adSub.className = "template-shell__claim-sub";
+  adSub.textContent = copy["win.claim-double.sub"];
+  claimDouble.appendChild(adSub);
+
+  const next = buildButtonElement({
+    label: copy["win.next"],
+    ariaLabel: copy["win.next"],
+    className: "template-shell__overlay-action template-shell__overlay-action--primary template-shell__result-next",
+    dataAction: "result-next",
+    onClick: () => {
+      controller.next();
+      render();
+    },
+  });
+  next.dataset.fabInstance = "win.next";
+  next.disabled = !claimed;
+
+  slot.append(claim, claimDouble, next);
+  return slot;
+}
+
+/** The fail rescue surface: coin-continue (gated on affordability), free Retry,
+ *  and an optional IAP bundle carrying its real price/state. No Home. */
+function failActions(
+  snapshot: TemplateShellSnapshot,
+  controller: TemplateShellController,
+  render: () => void,
+): HTMLElement {
+  const slot = document.createElement("div");
+  slot.className = "template-shell__result-actions template-shell__fail-actions";
+
+  const continueCoins = buildButtonElement({
+    label: `${copy["fail.continue"]} · ${snapshot.continueCost} ${copy["currency.label"]}`,
+    ariaLabel: `${copy["fail.continue"]}, ${snapshot.continueCost} ${copy["currency.label"]}`,
+    className: "template-shell__overlay-action template-shell__overlay-action--primary",
+    dataAction: "continue-coins",
+    onClick: () => {
+      controller.continueCoins();
+      render();
+    },
+  });
+  continueCoins.dataset.fabInstance = "fail.continue-coins";
+  continueCoins.disabled = !snapshot.continueAffordable;
+
+  const retry = buildButtonElement({
+    label: copy["fail.retry"],
+    ariaLabel: copy["fail.retry"],
+    className: "template-shell__overlay-action template-shell__overlay-action--secondary",
+    dataAction: "result-retry",
+    onClick: () => {
+      controller.retry();
+      render();
+    },
+  });
+  retry.dataset.fabInstance = "fail.retry";
+
+  const priced = snapshot.bundleAvailable && snapshot.bundlePrice !== null;
+  const bundle = buildButtonElement({
+    label: `${copy["fail.bundle"]} · ${priced ? snapshot.bundlePrice : copy["fail.unavailable"]}`,
+    ariaLabel: `${copy["fail.bundle"]}, ${priced ? snapshot.bundlePrice : copy["fail.unavailable"]}`,
+    className: "template-shell__overlay-action template-shell__overlay-action--tertiary template-shell__fail-bundle",
+    dataAction: "bundle",
+    onClick: () => {
+      void controller.purchaseBundle().then(render);
+    },
+  });
+  bundle.dataset.fabInstance = "fail.bundle";
+  bundle.disabled = !snapshot.bundleAvailable;
+
+  slot.append(continueCoins, retry, bundle);
+  return slot;
+}
+
 function renderResult(
   mountInto: HTMLElement,
   snapshot: TemplateShellSnapshot,
@@ -689,48 +822,6 @@ function renderResult(
 ): UiHandle {
   const win = snapshot.surface === "win";
   const displayedLevel = snapshot.activeLevel ?? snapshot.currentLevel;
-  const panelInstance = win ? "win.panel" : "fail.panel";
-  const actions = win
-    ? [
-        {
-          label: copy["win.next"],
-          className: "template-shell__overlay-action template-shell__overlay-action--primary",
-          dataAction: "result-next",
-          onClick: () => {
-            controller.next();
-            render();
-          },
-        },
-        {
-          label: copy["win.home"],
-          className: "template-shell__overlay-action template-shell__overlay-action--tertiary",
-          dataAction: "result-menu",
-          onClick: () => {
-            controller.home();
-            render();
-          },
-        },
-      ]
-    : [
-        {
-          label: copy["fail.retry"],
-          className: "template-shell__overlay-action template-shell__overlay-action--primary",
-          dataAction: "result-retry",
-          onClick: () => {
-            controller.retry();
-            render();
-          },
-        },
-        {
-          label: copy["fail.home"],
-          className: "template-shell__overlay-action template-shell__overlay-action--tertiary",
-          dataAction: "result-menu",
-          onClick: () => {
-            controller.home();
-            render();
-          },
-        },
-      ];
   const result = mountResultCard({
     mountInto,
     id: win ? "template-win" : "template-fail",
@@ -738,18 +829,11 @@ function renderResult(
     title: win ? copy["win.title"] : copy["fail.title"],
     eyebrow: `${copy["level.label"]} ${displayedLevel}`,
     ribbonImage: win ? assetUrls.ribbonWin : assetUrls.ribbonFail,
-    art: win ? art(assetUrls.win, "template-shell__result-art") : failureBarrier(),
+    art: win ? rewardReadout(snapshot) : currencyCounter(snapshot, "fail.currency"),
     messages: win ? copy["win.message"] : copy["fail.message"],
-    actions,
+    actions: win ? winActions(snapshot, controller, render) : failActions(snapshot, controller, render),
   });
-  assignInstance(result.el, ".fab-modal-card", panelInstance);
-  if (win) {
-    assignInstance(result.el, '[data-fab-action="result-next"]', "win.next");
-    assignInstance(result.el, '[data-fab-action="result-menu"]', "win.home");
-  } else {
-    assignInstance(result.el, '[data-fab-action="result-retry"]', "fail.retry");
-    assignInstance(result.el, '[data-fab-action="result-menu"]', "fail.home");
-  }
+  assignInstance(result.el, ".fab-modal-card", win ? "win.panel" : "fail.panel");
   return result;
 }
 

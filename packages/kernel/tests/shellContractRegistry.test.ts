@@ -217,6 +217,59 @@ describe('shell-presentation-v2 contract document', () => {
     );
   });
 
+  it('models the FTD menu nav dock, win claim, and fail rescue (card qWCv9tUo 2026-07-13)', () => {
+    const instances = new Map(
+      shellPresentationContractV2.instances.map((instance) => [instance.id, instance]),
+    );
+    const roleIds = new Set(shellPresentationContractV2.roles.map((role) => role.id));
+    const bindingIds = new Set(shellPresentationContractV2.bindings.map((binding) => binding.id));
+    const actionIds = shellPresentationContractV2.requiredActions.map((action) => action.id);
+
+    // Menu: a persistent bottom nav GROUP parents shop, play, settings — and the
+    // three sit contiguously in shop < play < settings traversal order.
+    expect(roleIds.has('bottom-nav')).toBe(true);
+    expect(instances.get('menu.nav')?.roleId).toBe('bottom-nav');
+    for (const id of ['menu.shop', 'menu.play', 'menu.settings']) {
+      expect(instances.get(id)?.parentInstanceId).toBe('menu.nav');
+      expect(instances.get(id)?.accessibility.traversalGroup).toBe('nav');
+    }
+    const navChildOrder = shellPresentationContractV2.instances
+      .filter((instance) => instance.parentInstanceId === 'menu.nav')
+      .map((instance) => instance.id);
+    expect(navChildOrder).toEqual(['menu.shop', 'menu.play', 'menu.settings']);
+    // Play stays the dominant primary action of the dock.
+    expect(instances.get('menu.play')?.roleId).toBe('bottom-primary-action');
+
+    // Win: reward readout + claim + claim-double replace the initial Next/Home.
+    expect(bindingIds.has('state.reward-amount')).toBe(true);
+    expect(instances.get('win.reward')?.bindingId).toBe('state.reward-amount');
+    expect(instances.get('win.claim')?.bindingId).toBe('flow.claim');
+    expect(instances.get('win.claim')?.actionId).toBe('win-claim');
+    expect(instances.get('win.claim-double')?.bindingId).toBe('flow.claim-double');
+    expect(instances.get('win.claim-double')?.actionId).toBe('win-claim-double');
+    expect(instances.has('win.home')).toBe(false);
+    expect(instances.get('win.next')?.bindingId).toBe('flow.next'); // still present, runtime-gated
+    expect(actionIds).toEqual(expect.arrayContaining(['win-claim', 'win-claim-double', 'win-next']));
+    expect(actionIds).not.toContain('win-home');
+    const claimDouble = shellPresentationContractV2.requiredActions.find((a) => a.id === 'win-claim-double');
+    expect(claimDouble?.actionHook).toBe('claim-double');
+
+    // Fail: rescue surface — currency + continue-coins + retry + optional bundle,
+    // and NO Home on the required initial surface.
+    expect(instances.get('fail.currency')?.bindingId).toBe('state.primary-currency');
+    expect(instances.get('fail.continue-coins')?.bindingId).toBe('flow.continue-coins');
+    expect(instances.get('fail.continue-coins')?.actionId).toBe('fail-continue-coins');
+    expect(instances.get('fail.retry')?.actionId).toBe('fail-retry');
+    // The bundle is optional: an IAP-bound action instance carrying no required
+    // action identity, so a lane may omit or disable it without breaking Retry.
+    expect(instances.get('fail.bundle')?.bindingId).toBe('commerce.bundle');
+    expect(instances.get('fail.bundle')?.required).toBe(false);
+    expect(instances.get('fail.bundle')?.actionId).toBeUndefined();
+    expect(instances.has('fail.home')).toBe(false);
+    expect(actionIds).toEqual(expect.arrayContaining(['fail-continue-coins', 'fail-retry']));
+    expect(actionIds).not.toContain('fail-home');
+  });
+
   it('rejects a v2 contract whose renderer profiles are missing or indistinguishable', () => {
     const withoutProfiles = structuredClone(rawV2);
     delete withoutProfiles.rendererProfiles;
@@ -533,10 +586,14 @@ describe('v1 to v2 migration', () => {
     expect(report.carriedInstanceIds).toContain('menu.play');
     expect(report.carriedInstanceIds).toContain('settings.music');
     expect(report.resetInstanceIds).toEqual(['settings.back']);
-    expect(report.droppedInstanceIds).toEqual(['settings.panel']);
+    // The FTD structure rewire drops the header Home affordances from the win
+    // claim and fail rescue surfaces (card qWCv9tUo, 2026-07-13): initial win is
+    // reward + claim + claim-double, and the fail rescue has no Home.
+    expect(report.droppedInstanceIds).toEqual(['settings.panel', 'win.home', 'fail.home']);
     expect(report.addedInstanceIds).toEqual(
       expect.arrayContaining([
         'menu.shop',
+        'menu.nav',
         'shop.page',
         'shop.title',
         'shop.back',
@@ -549,6 +606,12 @@ describe('v1 to v2 migration', () => {
         'shop.restore',
         'settings.page',
         'settings.title',
+        'win.reward',
+        'win.claim',
+        'win.claim-double',
+        'fail.currency',
+        'fail.continue-coins',
+        'fail.bundle',
       ]),
     );
     expect(report.addedInstanceIds).not.toContain('settings.back');

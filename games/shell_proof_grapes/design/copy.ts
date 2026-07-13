@@ -27,6 +27,7 @@ export const copy = {
   "level.testWin": "Win",
   "level.testLose": "Lose",
   "menu.shop": "Shop",
+  "menu.nav": "Main navigation",
   "shop.title": "Shop",
   "shop.back": "Back",
   "shop.catalog": "Shop items",
@@ -59,12 +60,17 @@ export const copy = {
   "pause.home": "Return home",
   "win.title": "Trail complete",
   "win.message": "A new path is ready to explore.",
+  "win.reward": "Coins earned",
+  "win.claim": "Claim",
+  "win.claim-double": "Claim 2x",
+  "win.claim-double.sub": "Watch ad",
   "win.next": "Next",
-  "win.home": "Home",
   "fail.title": "Trail blocked",
   "fail.message": "Choose a clearer step, then try again.",
+  "fail.continue": "Continue",
   "fail.retry": "Retry",
-  "fail.home": "Home",
+  "fail.bundle": "Rescue bundle",
+  "fail.unavailable": "Unavailable",
 } as const;
 
 export type CopyKey = keyof typeof copy;
