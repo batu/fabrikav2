@@ -5,8 +5,10 @@ import {
   HASH_ALGORITHM,
   canonicalize,
   hashBytes,
-  hashProtocolPayload,
+  hashProtocolForIntegrity,
+  hashProtocolStripFreeze,
   sha256Hex,
+  verifyBaselineContent,
   verifyFreeze,
 } from '../src/freeze.mjs';
 import { gatherActualHashes, gitCommitFacts } from '../freeze-gate.mjs';
@@ -43,27 +45,144 @@ describe('canonicalize', () => {
   });
 });
 
-describe('hashProtocolPayload — non-circular', () => {
-  it('ignores the freeze block entirely', () => {
-    const unsealed = JSON.stringify({ contract: { states: ['menu'] }, freeze: { baselineCommit: null } });
-    const sealed = JSON.stringify({
+describe('hashProtocolForIntegrity — self-authenticating, non-circular', () => {
+  it('ignores ONLY freeze.hashes (the map that stores the value)', () => {
+    const a = JSON.stringify({
       contract: { states: ['menu'] },
       freeze: { baselineCommit: 'a'.repeat(40), hashes: { 'protocol.json': 'x' } },
     });
-    expect(hashProtocolPayload(sealed)).toBe(hashProtocolPayload(unsealed));
+    const b = JSON.stringify({
+      contract: { states: ['menu'] },
+      freeze: { baselineCommit: 'a'.repeat(40), hashes: { 'protocol.json': 'DIFFERENT' } },
+    });
+    expect(hashProtocolForIntegrity(a)).toBe(hashProtocolForIntegrity(b));
+  });
+  it('AUTHENTICATES the other freeze fields — each tamper changes the hash', () => {
+    const base = {
+      contract: { states: ['menu'] },
+      freeze: {
+        baselineCommit: 'a'.repeat(40),
+        sealedStage: 'U1',
+        hashAlgorithm: 'sha256',
+        hashRule: 'rule',
+        note: 'note',
+        hashes: { 'protocol.json': 'x' },
+      },
+    };
+    const baseHash = hashProtocolForIntegrity(JSON.stringify(base));
+    for (const field of ['baselineCommit', 'sealedStage', 'hashAlgorithm', 'hashRule', 'note']) {
+      const tampered = JSON.parse(JSON.stringify(base));
+      tampered.freeze[field] = `${tampered.freeze[field]}-tampered`;
+      expect(hashProtocolForIntegrity(JSON.stringify(tampered)), field).not.toBe(baseHash);
+    }
   });
   it('is independent of top-level key order outside freeze', () => {
-    const one = JSON.stringify({ a: 1, b: 2, freeze: {} });
-    const two = JSON.stringify({ b: 2, a: 1, freeze: { note: 'x' } });
-    expect(hashProtocolPayload(one)).toBe(hashProtocolPayload(two));
+    const one = JSON.stringify({ a: 1, b: 2, freeze: { hashes: {} } });
+    const two = JSON.stringify({ b: 2, a: 1, freeze: { hashes: {} } });
+    expect(hashProtocolForIntegrity(one)).toBe(hashProtocolForIntegrity(two));
   });
-  it('changes when a non-freeze field changes', () => {
-    const base = JSON.stringify({ contract: { states: ['menu'] }, freeze: {} });
-    const drifted = JSON.stringify({ contract: { states: ['menu', 'shop'] }, freeze: {} });
-    expect(hashProtocolPayload(base)).not.toBe(hashProtocolPayload(drifted));
+  it('changes when a non-freeze field drifts', () => {
+    const base = JSON.stringify({ contract: { states: ['menu'] }, freeze: { hashes: {} } });
+    const drifted = JSON.stringify({ contract: { states: ['menu', 'shop'] }, freeze: { hashes: {} } });
+    expect(hashProtocolForIntegrity(base)).not.toBe(hashProtocolForIntegrity(drifted));
   });
   it('throws on invalid JSON rather than passing silently', () => {
-    expect(() => hashProtocolPayload('{not json')).toThrow();
+    expect(() => hashProtocolForIntegrity('{not json')).toThrow();
+  });
+});
+
+describe('hashProtocolStripFreeze — whole-freeze-stripped, for A-vs-B only', () => {
+  it('ignores the entire freeze block (A predates the seal, B is the seal)', () => {
+    const commitA = JSON.stringify({
+      contract: { states: ['menu'] },
+      freeze: { baselineCommit: null },
+    });
+    const commitB = JSON.stringify({
+      contract: { states: ['menu'] },
+      freeze: { baselineCommit: 'a'.repeat(40), sealedStage: 'U1', hashes: { 'protocol.json': 'x' } },
+    });
+    expect(hashProtocolStripFreeze(commitA)).toBe(hashProtocolStripFreeze(commitB));
+  });
+  it('still detects non-freeze drift', () => {
+    const one = JSON.stringify({ contract: { states: ['menu'] }, freeze: { note: 'a' } });
+    const two = JSON.stringify({ contract: { states: ['shop'] }, freeze: { note: 'b' } });
+    expect(hashProtocolStripFreeze(one)).not.toBe(hashProtocolStripFreeze(two));
+  });
+});
+
+describe('verifyBaselineContent — A-vs-B content equality (comment 36 topology)', () => {
+  const protocolA = JSON.stringify({ contract: { states: ['menu'] }, freeze: { baselineCommit: null } });
+  const protocolB = JSON.stringify({
+    contract: { states: ['menu'] },
+    freeze: { baselineCommit: 'a'.repeat(40), hashes: { 'protocol.json': 'x' } },
+  });
+  const fences = Buffer.from('{"lanes":{}}');
+  const baseline = { 'behavior-hashes.json': Buffer.from('{"files":{}}') };
+
+  it('passes when A and B differ only in the freeze block', () => {
+    expect(
+      verifyBaselineContent({
+        protocolA,
+        protocolB,
+        fencesA: fences,
+        fencesB: fences,
+        baselineA: baseline,
+        baselineB: baseline,
+      }),
+    ).toEqual({ ok: true, errors: [] });
+  });
+
+  it('fails when the non-freeze protocol payload at A differs (older ancestor)', () => {
+    const staleA = JSON.stringify({ contract: { states: ['level'] }, freeze: {} });
+    const r = verifyBaselineContent({
+      protocolA: staleA,
+      protocolB,
+      fencesA: fences,
+      fencesB: fences,
+      baselineA: baseline,
+      baselineB: baseline,
+    });
+    expect(r.ok).toBe(false);
+    expect(r.errors.join('\n')).toMatch(/non-freeze protocol payload at the baseline commit differs/);
+  });
+
+  it('fails when fences.json at A differs', () => {
+    const r = verifyBaselineContent({
+      protocolA,
+      protocolB,
+      fencesA: Buffer.from('{"lanes":{"old":1}}'),
+      fencesB: fences,
+      baselineA: baseline,
+      baselineB: baseline,
+    });
+    expect(r.ok).toBe(false);
+    expect(r.errors.join('\n')).toMatch(/fences\.json at the baseline commit differs/);
+  });
+
+  it('fails when a baseline/* file at A differs in bytes', () => {
+    const r = verifyBaselineContent({
+      protocolA,
+      protocolB,
+      fencesA: fences,
+      fencesB: fences,
+      baselineA: { 'behavior-hashes.json': Buffer.from('{"files":{"old":1}}') },
+      baselineB: baseline,
+    });
+    expect(r.ok).toBe(false);
+    expect(r.errors.join('\n')).toMatch(/baseline\/behavior-hashes\.json at the baseline commit differs/);
+  });
+
+  it('fails when the baseline/* file set at A differs (extra/missing file)', () => {
+    const r = verifyBaselineContent({
+      protocolA,
+      protocolB,
+      fencesA: fences,
+      fencesB: fences,
+      baselineA: { ...baseline, 'extra.json': Buffer.from('1') },
+      baselineB: baseline,
+    });
+    expect(r.ok).toBe(false);
+    expect(r.errors.join('\n')).toMatch(/baseline\/\* file set at the baseline commit differs/);
   });
 });
 

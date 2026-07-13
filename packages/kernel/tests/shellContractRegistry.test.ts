@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
@@ -26,6 +27,7 @@ import {
   migrateShellPresentationV1ToV2,
   parseProjectionRevisionV2,
   parseShellAssetCatalogDocument,
+  parseShellAssetIdentityDocument,
   parseShellPresentationContractV2,
   parseShellPresentationDocument,
   parseShellPresentationV2,
@@ -405,6 +407,107 @@ describe('v2 projection revisions and profile isolation', () => {
     expect(await issueCodesAsync(() => parseShellProjectionRevisionDocument({ contractId: 'x' }))).toContain(
       'unknown-contract',
     );
+  });
+});
+
+describe('v2 phaser-native canonical bundled layout (card qWCv9tUo item 6)', () => {
+  // The runtime phaser-native profile is intentionally UNCHANGED here: these
+  // tests pin the decided bundled-artifact contract (lowercase scenes/*.js plus
+  // the three required manifests) and prove raw Phaser-Editor source paths are
+  // rejected. U5 owns the bundler that produces this layout; U1 only fences it.
+  it('accepts the lowercase bundled scene plus required manifests', async () => {
+    const bundled = await validProjectionV2('phaser-native', [
+      'scene-manifest.json',
+      'asset-pack.json',
+      'asset-identity.json',
+      'scenes/shell.js',
+      'assets/icon-control-shop.png',
+    ]);
+    expect((await parseProjectionRevisionV2(bundled)).rendererProfile).toBe('phaser-native');
+  });
+
+  it('rejects raw Phaser-Editor component/prefab/PascalCase source paths', async () => {
+    for (const raw of ['components/Button.ts', 'prefabs/Card.prefab', 'scenes/Shell.ts']) {
+      const projection = await validProjectionV2('phaser-native', [...PHASER_ARTIFACTS, raw]);
+      expect(await issueCodesAsync(() => parseProjectionRevisionV2(projection))).toContain(
+        'unsafe-artifact',
+      );
+    }
+  });
+});
+
+describe('v2 asset-identity breaks the projectionId cycle (card qWCv9tUo item 8)', () => {
+  // V1 embedded projectionId inside asset-identity.json while projectionId is
+  // ALSO hashed from the artifact set (asset-identity.json included) — no file
+  // could ever contain its own downstream hash. V2 drops the field; this proves
+  // a real, file-backed preimage now exists and an embedded id is rejected.
+  it('validates a file-backed asset-identity.json feeding a realizable projectionId', async () => {
+    const assetIdentity = {
+      contractId: SHELL_CONTRACT_V2_ID,
+      contractVersion: SHELL_CONTRACT_V2_VERSION,
+      sourcePublicationId: await hashCanonicalJson({ source: 'phaser-native' }),
+      assets: [
+        {
+          instanceId: 'menu.play',
+          slotId: 'button-surface',
+          assetId: 'asset.primary-action.default',
+          path: 'assets/primary-action.default.png',
+          sha256: await hashCanonicalJson({ raster: 'primary-action' }),
+        },
+      ],
+    };
+    // The file is valid on its own — no placeholder projectionId inside it.
+    expect(() => parseShellAssetIdentityDocument(assetIdentity)).not.toThrow();
+
+    const dir = mkdtempSync(join(tmpdir(), 'u1-asset-identity-'));
+    try {
+      const filePath = join(dir, 'asset-identity.json');
+      const bytes = Buffer.from(JSON.stringify(assetIdentity, null, 2), 'utf8');
+      writeFileSync(filePath, bytes);
+      // Hash the REAL on-disk bytes — the artifact hash that feeds projectionId.
+      const assetIdentitySha = `sha256-${createHash('sha256').update(readFileSync(filePath)).digest('hex')}`;
+
+      const artifacts = [
+        { path: 'asset-identity.json', sha256: assetIdentitySha, bytes: bytes.length },
+        { path: 'asset-pack.json', sha256: await hashCanonicalJson({ path: 'asset-pack.json' }), bytes: 64 },
+        { path: 'scene-manifest.json', sha256: await hashCanonicalJson({ path: 'scene-manifest.json' }), bytes: 64 },
+      ].sort((a, b) => (a.path < b.path ? -1 : 1));
+      const base = {
+        contractId: SHELL_CONTRACT_V2_ID,
+        contractVersion: SHELL_CONTRACT_V2_VERSION,
+        rendererProfile: 'phaser-native' as const,
+        compatibilityHash: await hashShellContractById(SHELL_CONTRACT_V2_ID),
+        sourcePublicationId: assetIdentity.sourcePublicationId,
+        artifacts,
+      };
+      const projectionId = await computeShellProjectionIdV2(base);
+      const projection = { ...base, projectionId, revisionPath: `design/revisions/${projectionId}` };
+      expect((await parseProjectionRevisionV2(projection)).projectionId).toBe(projectionId);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('rejects a v2 asset-identity.json that embeds a projectionId', async () => {
+    const embedded = {
+      contractId: SHELL_CONTRACT_V2_ID,
+      contractVersion: SHELL_CONTRACT_V2_VERSION,
+      projectionId: `sha256-${'a'.repeat(64)}`,
+      sourcePublicationId: await hashCanonicalJson({ source: 'x' }),
+      assets: [],
+    };
+    expect(issueCodes(() => parseShellAssetIdentityDocument(embedded))).toContain('unsupported-field');
+  });
+
+  it('still requires projectionId inside a frozen v1 asset-identity file', () => {
+    const v1WithoutId = {
+      contractId: SHELL_CONTRACT_ID,
+      contractVersion: SHELL_CONTRACT_VERSION,
+      sourcePublicationId: `sha256-${'b'.repeat(64)}`,
+      assets: [],
+    };
+    // Dispatches by contractId to the frozen v1 context, which still demands it.
+    expect(() => parseShellAssetIdentityDocument(v1WithoutId)).toThrow(ShellContractValidationError);
   });
 });
 

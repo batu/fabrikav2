@@ -28,7 +28,8 @@ import {
   BASELINE_DIR,
   COMMIT_RE,
   hashBytes,
-  hashProtocolPayload,
+  hashProtocolForIntegrity,
+  verifyBaselineContent,
   verifyFreeze,
 } from './src/freeze.mjs';
 
@@ -54,7 +55,7 @@ export function gatherActualHashes(root) {
   const actual = {};
   const protocolPath = path.join(root, PROTOCOL_FILE);
   if (fs.existsSync(protocolPath)) {
-    actual[PROTOCOL_FILE] = hashProtocolPayload(fs.readFileSync(protocolPath, 'utf8'));
+    actual[PROTOCOL_FILE] = hashProtocolForIntegrity(fs.readFileSync(protocolPath, 'utf8'));
   }
   const fencesPath = path.join(root, FENCES_FILE);
   if (fs.existsSync(fencesPath)) {
@@ -94,6 +95,60 @@ export function gitCommitFacts(run, sha) {
   return { present, inHistory };
 }
 
+/** Raw bytes of repo-relative `relPath` at commit `sha`; null if absent. */
+function gitShowBytes(cwd, sha, relPath) {
+  try {
+    return execSync(`git show ${sha}:${relPath}`, { cwd, stdio: ['ignore', 'pipe', 'ignore'] });
+  } catch {
+    return null;
+  }
+}
+
+/** Repo-relative file paths under `relDir` at commit `sha`. */
+function gitLsTree(cwd, sha, relDir) {
+  try {
+    const out = execSync(`git ls-tree -r --name-only ${sha} -- ${relDir}`, {
+      cwd,
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).toString();
+    return out.split('\n').map((l) => l.trim()).filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+/** Gather protocol/fences/baseline bytes for the experiment root AT commit `sha`. */
+export function gatherCommitContent(projectDir, sha) {
+  const protocolRel = `${EXPERIMENT_ROOT}/${PROTOCOL_FILE}`;
+  const fencesRel = `${EXPERIMENT_ROOT}/${FENCES_FILE}`;
+  const baselineRel = `${EXPERIMENT_ROOT}/${BASELINE_DIR}`;
+  const baseline = {};
+  for (const full of gitLsTree(projectDir, sha, baselineRel)) {
+    baseline[full.slice(baselineRel.length + 1)] = gitShowBytes(projectDir, sha, full);
+  }
+  return {
+    protocol: gitShowBytes(projectDir, sha, protocolRel),
+    fences: gitShowBytes(projectDir, sha, fencesRel),
+    baseline,
+  };
+}
+
+/** Gather protocol/fences/baseline bytes from the on-disk (HEAD/B) worktree. */
+export function gatherDiskContent(root) {
+  const baseline = {};
+  const baselineDir = path.join(root, BASELINE_DIR);
+  if (fs.existsSync(baselineDir)) {
+    for (const rel of listFilesRecursive(baselineDir)) {
+      baseline[rel.split(path.sep).join('/')] = fs.readFileSync(path.join(baselineDir, rel));
+    }
+  }
+  return {
+    protocol: fs.readFileSync(path.join(root, PROTOCOL_FILE)),
+    fences: fs.readFileSync(path.join(root, FENCES_FILE)),
+    baseline,
+  };
+}
+
 function main() {
   const projectDir = process.env.FREEZE_GATE_PROJECT_DIR || process.cwd();
   const root = path.join(projectDir, EXPERIMENT_ROOT);
@@ -112,16 +167,41 @@ function main() {
   const run = makeRunner(projectDir);
   const commit = gitCommitFacts(run, freeze && freeze.baselineCommit);
 
+  // 1. Current-worktree integrity (self-authenticating hash) + commit ancestry.
   const result = verifyFreeze({ freeze, actualHashes, commit });
-  if (result.ok) {
+  const errors = [...result.errors];
+
+  // 2. A-vs-B content equality: the recorded commit A must CONTAIN the sealed
+  //    bytes (freeze block stripped), not merely be an ancestor. Only runs when
+  //    the commit is present + in history, so git reads cannot fail spuriously.
+  if (commit && commit.present && commit.inHistory) {
+    const a = gatherCommitContent(projectDir, freeze.baselineCommit);
+    if (!a.protocol || !a.fences) {
+      errors.push(`cannot read experiment content at baseline commit ${freeze.baselineCommit}`);
+    } else {
+      const b = gatherDiskContent(root);
+      const content = verifyBaselineContent({
+        protocolA: a.protocol.toString('utf8'),
+        protocolB: b.protocol.toString('utf8'),
+        fencesA: a.fences,
+        fencesB: b.fences,
+        baselineA: a.baseline,
+        baselineB: b.baseline,
+      });
+      errors.push(...content.errors);
+    }
+  }
+
+  if (errors.length === 0) {
     process.stdout.write(
       `freeze-gate: PASS — baseline ${freeze.baselineCommit} sealed; `
-      + `${Object.keys(actualHashes).length} frozen file(s) hash-verified\n`,
+      + `${Object.keys(actualHashes).length} frozen file(s) hash-verified; `
+      + `A-vs-B content equal\n`,
     );
     return 0;
   }
   process.stderr.write('freeze-gate: FAIL — the U1 freeze record is not honestly sealed:\n');
-  for (const err of result.errors) process.stderr.write(`  - ${err}\n`);
+  for (const err of errors) process.stderr.write(`  - ${err}\n`);
   return 1;
 }
 

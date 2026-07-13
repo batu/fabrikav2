@@ -37,6 +37,40 @@ input for a proof game.
   integration card, updates both behavior copies atomically, and invalidates
   affected evidence (`fences.json` names the shared surfaces).
 
+## Lane fence verifier
+
+After the fork, each lane (`grapes`, `phaser`) may write ONLY inside its own
+`writable` set in `fences.json`. `npm run fence-gate`
+(`tools/verify-gate/fence-gate.mjs`) enforces this, measured over `base..HEAD`
+where `base` is the trusted merge-base of the lane `HEAD` and the conductor-owned
+`integration.branch` (or its origin twin) — never `freeze.baselineCommit`, and
+never a caller-supplied ref/base that could collapse the base into `HEAD`.
+
+Round-3 hardening (card `qWCv9tUo`, comment 43) closes four reproduced false
+passes:
+
+- **Canonical policy, not working-tree bytes.** The policy that *judges* the diff
+  is loaded from the trusted base commit (`git show base:fences.json`). The
+  working-tree `fences.json` is used only to bootstrap the candidate integration
+  branch name, and it MUST byte-equal the canonical policy — a lane cannot widen
+  its `writable` (e.g. to `**`) or redirect `integration.branch`.
+- **Missing policy is fatal.** On an experiment branch a deleted `fences.json`
+  fails closed; it is never a SKIP.
+- **Base cannot collapse to `HEAD`.** If the integration ref resolves to the lane
+  `HEAD` (e.g. `integration.branch` rewritten to the lane branch), the empty
+  `base..HEAD` diff is refused.
+- **Copies are chased.** The diff uses `git diff --raw -z -M -C --find-copies-harder`
+  so a pure copy from an UNCHANGED forbidden source into an allowed path is caught
+  by its forbidden source side.
+
+The no-lane invocation is lane-explicit / fail-closed: only the integration tip
+(`base == HEAD`) or a conscious conductor `FENCE_GATE_ALLOW_INTEGRATION=1`
+acknowledgement skips; a diverged branch with no `FENCE_GATE_LANE` fails closed
+rather than silently passing the fence. Logic is unit-tested in
+`tools/verify-gate/test/fence.test.mjs` and exercised against a real temp git repo
+(including all four exploits and the default invocation) in
+`tools/verify-gate/test/fence-gate.live.test.mjs`.
+
 ## Freeze record
 
 `protocol.json`'s `freeze` block seals this baseline. It records the landed U1
@@ -47,11 +81,14 @@ is sealed and the frozen bytes are pinned.
 
 **Canonical hash rule (deterministic, non-circular):**
 
-- `protocol.json` is hashed over the SHA-256 of its parsed JSON with the
-  top-level `freeze` key removed and the remaining keys recursively sorted, then
-  serialized compactly. Excluding the `freeze` block — which *stores* the hashes
-  — from its own input is what makes the rule non-circular: sealing the record
-  never changes the recorded protocol hash.
+- `protocol.json` is hashed over the SHA-256 of its parsed JSON with ONLY the
+  nested `freeze.hashes` map removed (not the whole `freeze` block) and the
+  remaining keys recursively sorted, then serialized compactly. Excluding only
+  the map that *stores* the hashes from its own input is what makes the rule
+  non-circular — sealing the record never changes the recorded protocol hash —
+  while `baselineCommit`, `sealedStage`, `hashAlgorithm`, `hashRule`, and `note`
+  all stay authenticated. (The *whole* `freeze` block is stripped only for the
+  separate A-vs-B two-commit content check, never for this integrity hash.)
 - `fences.json` and every `baseline/*` file are hashed over their exact on-disk
   bytes.
 - `hashAlgorithm` is `sha256`.

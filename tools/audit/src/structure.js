@@ -32,6 +32,12 @@ export const ALLOWED_DIRS = new Set([
   'docs',
   'evidence',
   '.work',
+  // Lane authoring home for the dual-design-frontends experiment (card qWCv9tUo,
+  // fences.json lane `writable` set). Added as an EXACT top-level entry — a
+  // proof/lane game keeps its editor-native authoring project under `authoring/`.
+  // This is a single named allowance, NOT a relaxation: near-miss names like
+  // `authoring-plugins/` or `Authoring/` still fail the whitelist below.
+  'authoring',
 ]);
 
 /** Canonical top-level files. */
