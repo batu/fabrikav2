@@ -1,0 +1,433 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The 87-Hour Conductor Session</title>
+<style>
+  :root {
+    --page: #f9f9f7; --surface: #fcfcfb;
+    --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --baseline: #c3c2b7; --ring: rgba(11,11,11,.10);
+    --seq: #2a78d6; --seq-soft: #9ec5f4; --seq-deep: #104281;
+    --human: #eb6834; --crit: #d03b3b; --good: #006300;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) { :root {
+    --page: #0d0d0d; --surface: #1a1a19;
+    --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --baseline: #383835; --ring: rgba(255,255,255,.10);
+    --seq: #3987e5; --seq-soft: #1c5cab; --seq-deep: #9ec5f4;
+    --human: #d95926; --crit: #d03b3b; --good: #0ca30c;
+  } }
+  :root[data-theme="dark"] {
+    --page: #0d0d0d; --surface: #1a1a19;
+    --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --baseline: #383835; --ring: rgba(255,255,255,.10);
+    --seq: #3987e5; --seq-soft: #1c5cab; --seq-deep: #9ec5f4;
+    --human: #d95926; --crit: #d03b3b; --good: #0ca30c;
+  }
+  :root[data-theme="light"] {
+    --page: #f9f9f7; --surface: #fcfcfb;
+    --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+    --grid: #e1e0d9; --baseline: #c3c2b7; --ring: rgba(11,11,11,.10);
+    --seq: #2a78d6; --seq-soft: #9ec5f4; --seq-deep: #104281;
+    --human: #eb6834; --crit: #d03b3b; --good: #006300;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--page); color: var(--ink); font-family: var(--sans);
+         margin: 0; line-height: 1.5; font-size: 15px; }
+  main { max-width: 1020px; margin: 0 auto; padding: 40px 24px 96px; }
+  .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .14em;
+             text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+  h1 { font-size: 30px; line-height: 1.15; margin: 0 0 12px; letter-spacing: -.01em;
+       font-weight: 650; text-wrap: balance; }
+  h3 { font-size: 15px; margin: 0 0 6px; font-weight: 600; }
+  .sub { color: var(--ink-2); max-width: 70ch; margin: 0; }
+  section { margin-top: 44px; }
+  .kicker { font-family: var(--mono); font-size: 11px; letter-spacing: .12em;
+            text-transform: uppercase; color: var(--muted); margin: 0 0 14px; }
+  .panel { background: var(--surface); border: 1px solid var(--ring); border-radius: 6px;
+           padding: 20px 22px; }
+  .verdict { border-left: 3px solid var(--seq); }
+  .verdict p { margin: 8px 0 0; max-width: 76ch; }
+  .verdict p:first-child { margin-top: 0; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+           gap: 10px; margin-top: 16px; }
+  .tile { background: var(--surface); border: 1px solid var(--ring); border-radius: 6px;
+          padding: 14px 16px 12px; }
+  .tile .v { font-size: 24px; font-weight: 650; letter-spacing: -.01em; }
+  .tile .v small { font-size: 13.5px; font-weight: 500; color: var(--ink-2); }
+  .tile .l { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em;
+             text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 12.5px;
+            color: var(--ink-2); margin: 12px 0 4px; align-items: center; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .sw { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .dotmark { width: 8px; height: 8px; border-radius: 50%; background: var(--human); display: inline-block; }
+  /* heatmap */
+  .heat { display: grid; grid-template-columns: max-content repeat(24, 1fr); gap: 3px;
+          margin-top: 16px; font-family: var(--mono); font-size: 10.5px; }
+  .heat .dlab { color: var(--muted); padding-right: 10px; align-self: center; }
+  .heat .cell { aspect-ratio: 1.15/1; border-radius: 2px; background: var(--grid);
+                position: relative; min-width: 0; }
+  .heat .cell .u { position: absolute; inset: 0; margin: auto; width: 7px; height: 7px;
+                   border-radius: 50%; background: var(--human);
+                   outline: 2px solid var(--surface); }
+  .heat .hlab { color: var(--muted); text-align: center; padding-top: 2px; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  th { text-align: left; font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em;
+       text-transform: uppercase; color: var(--muted); font-weight: 500;
+       border-bottom: 1px solid var(--baseline); padding: 6px 12px 6px 0; }
+  td { border-bottom: 1px solid var(--grid); padding: 7px 12px 7px 0; vertical-align: top; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  .flag { color: var(--crit); font-weight: 600; }
+  .ok { color: var(--good); font-weight: 600; }
+  .chip { font-family: var(--mono); font-size: 11px; background: var(--page);
+          border: 1px solid var(--ring); border-radius: 3px; padding: 1px 6px; white-space: nowrap; }
+  details { margin-top: 14px; }
+  summary { cursor: pointer; font-size: 13px; color: var(--ink-2); }
+  details[open] summary { margin-bottom: 8px; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 780px) { .two { grid-template-columns: 1fr; } .heat { font-size: 8px; } }
+  .hbars { display: grid; grid-template-columns: max-content 1fr max-content; gap: 7px 12px;
+           align-items: center; margin-top: 14px; }
+  .hbars .name { font-size: 13px; color: var(--ink-2); white-space: nowrap; }
+  .hbars .val { font-family: var(--mono); font-size: 12px; color: var(--ink);
+                font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .track { height: 14px; position: relative; }
+  .bar { position: absolute; inset: 0 auto 0 0; border-radius: 0 3px 3px 0; background: var(--seq); }
+  .bar.soft { background: var(--seq-soft); }
+  .grp { grid-column: 1 / -1; font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em;
+         text-transform: uppercase; color: var(--muted); margin-top: 10px;
+         border-bottom: 1px solid var(--grid); padding-bottom: 3px; }
+  .opt { counter-reset: opt; display: grid; gap: 10px; margin-top: 16px; padding: 0; list-style: none; }
+  .opt li { background: var(--surface); border: 1px solid var(--ring); border-radius: 6px;
+            padding: 14px 16px 13px 52px; position: relative; }
+  .opt li::before { counter-increment: opt; content: counter(opt);
+    position: absolute; left: 16px; top: 14px; width: 24px; height: 24px; border-radius: 4px;
+    background: var(--seq); color: #fff; font-family: var(--mono); font-size: 13px;
+    display: flex; align-items: center; justify-content: center; font-weight: 600; }
+  .opt .est { font-family: var(--mono); font-size: 11.5px; color: var(--muted); margin-top: 5px; }
+  .note { font-size: 13px; color: var(--ink-2); }
+  .scroll { overflow-x: auto; }
+  svg text { font-family: var(--mono); font-size: 10.5px; fill: var(--muted); }
+  #tip { position: fixed; pointer-events: none; background: var(--ink); color: var(--page);
+         font-family: var(--mono); font-size: 11.5px; padding: 5px 9px; border-radius: 4px;
+         opacity: 0; transition: opacity .1s; z-index: 10; white-space: nowrap; }
+  a { color: var(--seq); }
+  @media (prefers-reduced-motion: reduce) { #tip { transition: none; } }
+</style>
+
+<main>
+  <header>
+    <p class="eyebrow">Deep dive · thread 019f4847 · gpt-5.6-sol · companion to the <a href="2026-07-13-session-mining-time-tokens.html">fabrikav2 session-mining report</a></p>
+    <h1>The 87-hour conductor session</h1>
+    <p class="sub">One Codex TUI session, alive since Thu Jul 9, 22:08 — still running as of mining
+    (Mon 13:41). It is not one agent: it is a parent router plus <strong>115 named sub-agent forks</strong>
+    (Arendt, Fermat, Turing, Dewey…) that together consumed <strong>2.80B tokens</strong>.</p>
+  </header>
+
+  <section>
+    <div class="panel verdict">
+      <p><strong>Verdict: the parent thread is a pure router — 2.05B tokens in, 2.7M out, a 760:1
+      ratio — and 84% of its 11,315 tool calls are coordination.</strong> The product work happens in
+      the forks and the spawned workers. What makes this session expensive is not laziness but two
+      structural choices: it never resets (87 hours of accumulating history re-submitted at an average
+      of 176k tokens per request, ~12k times), and every fork inherits the full parent history before
+      doing its 5-minute job.</p>
+      <p>It is also genuinely impressive: it ran <strong>10 consecutive unattended hours on Sunday at
+      ~100% duty cycle</strong>, staged a six-fork document review swarm, ran the adversarial audit that
+      caught four false-passes, and prepared a "morning rehearsal packet" for your return. The autonomy
+      is warranted; the context economics are not.</p>
+    </div>
+    <div class="tiles">
+      <div class="tile"><div class="v">87.5<small> h</small></div><div class="l">wall span · still running</div></div>
+      <div class="tile"><div class="v">2.80<small> B</small></div><div class="l">tokens · parent + 115 forks</div></div>
+      <div class="tile"><div class="v">11,639</div><div class="l">parent requests · avg 176k</div></div>
+      <div class="tile"><div class="v">760:1</div><div class="l">parent in:out ratio</div></div>
+      <div class="tile"><div class="v">122</div><div class="l">steering msgs · 90 turns</div></div>
+      <div class="tile"><div class="v">100<small> %</small></div><div class="l">rate-window peak · 2 windows ≥95%</div></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="kicker">Rhythm · activity by hour, local time (+03)</p>
+    <div class="panel">
+      <div class="legend">
+        <span><i class="sw" style="background:var(--seq)"></i>active minutes per hour (darker = fuller)</span>
+        <span><i class="dotmark"></i>hour contains Batu messages</span>
+      </div>
+      <div class="heat" id="heat"></div>
+      <p class="note" style="margin-top:14px">The session works your off-hours: Thu night it ran two
+      8.5-hour fixer forks while you slept; <strong>Sunday 10:00–20:00 was a fully autonomous block —
+      ten hours, zero human messages, 58–60 active minutes every hour</strong>. Steering clusters at
+      your mornings (Fri 09–12, Sun 07–09, Mon 08–09). Overall: activity in 58 of 88 wall hours,
+      ≈48h active — a 55% duty cycle across four days.</p>
+      <details><summary>Hourly table (UTC)</summary><div class="scroll">
+        <table><tr><th>Hour (UTC)</th><th class="num">Active min</th><th class="num">Tool calls</th><th class="num">Batu msgs</th><th class="num">Avg context (k)</th></tr>
+        <tbody id="hourtab"></tbody></table>
+      </div></details>
+    </div>
+  </section>
+
+  <section>
+    <p class="kicker">Context · average input per request, by hour</p>
+    <div class="panel">
+      <svg id="ctx" viewBox="0 0 940 190" width="100%" role="img" aria-label="Average context size per request over the session"></svg>
+      <p class="note" style="margin-top:10px">The context rides between 130k and 280k against a 353k
+      window — it never gets cheap. Every one of the ~12k requests re-submits this; that is where the
+      2.05B parent input comes from. The dips are fresh-turn moments after summarization; the session
+      trends right back up within hours. Late Sunday it averaged 280k per request.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="kicker">Four days · what it actually worked on</p>
+    <div class="scroll panel">
+      <table>
+        <tr><th>Day</th><th>Focus</th><th>Notable</th></tr>
+        <tr><td><strong>Thu night<br>Jul 9→10</strong></td>
+            <td>Portal + fabrika merge-gate remediation</td>
+            <td>Born 22:08; ~15-fork review swarm by midnight (correctness / testing / standards / XSS);
+                then two overnight fixers — <span class="chip">Arendt</span> 113.7M and
+                <span class="chip">Fermat</span> 107.6M tokens, ~8.5h each, unattended.</td></tr>
+        <tr><td><strong>Fri Jul 10</strong></td>
+            <td>Dual-frontend era begins: U1 / U2, menu shell comparison</td>
+            <td>Morning steering burst (09–12). <span class="flag">Rate window pegged ≥95% at 04:11</span>.</td></tr>
+        <tr><td><strong>Sat Jul 11</strong></td>
+            <td>U2 feasibility verdict, U3 close-out, compounding</td>
+            <td>Four-fork compound-docs swarm in 3 minutes; Kenney asset catalog; GitHub publish
+                (<span class="chip">Pauli</span>). <span class="flag">Rate pegged again at 16:47</span>.</td></tr>
+        <tr><td><strong>Sun Jul 12</strong></td>
+            <td>The marathon: U1 contract review, U3 finals, U5/U6 plans</td>
+            <td>15.5h active incl. the 10-hour autonomous block; six-fork U6 doc review swarm
+                (scope / design / feasibility / security / adversarial / coherence); acceptance oracles;
+                a "morning rehearsal packet" for your return; 00:18 <span class="chip">Dewey</span>+<span class="chip">Sagan</span>
+                adversarial audit → <span class="ok">caught 4 false-passes</span>, card regressed honestly.</td></tr>
+        <tr><td><strong>Mon Jul 13</strong></td>
+            <td>Your test session: parity, FTD references, pixelsmith</td>
+            <td>08:22 "alright where are we?"; republication readiness (<span class="chip">Meitner</span>);
+                09:41 delegated the FTD structure rewire to an Opus worker; still running.</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <p class="kicker">The fork fleet · 115 spawns, 0.78B tokens of their own</p>
+    <div class="two">
+      <div class="panel">
+        <h3>Top forks by own spend</h3>
+        <div class="hbars">
+          <span class="name">Arendt · python gate fix (8.5h)</span><div class="track"><div class="bar" style="width:100%"></div></div><span class="val">113.7M</span>
+          <span class="name">Fermat · portal markup perf (8.7h)</span><div class="track"><div class="bar" style="width:94.6%"></div></div><span class="val">107.6M</span>
+          <span class="name">Copernicus · FTD gate final review</span><div class="track"><div class="bar" style="width:50.1%"></div></div><span class="val">57.0M</span>
+          <span class="name">Halley · U2 worked recovery</span><div class="track"><div class="bar" style="width:33.0%"></div></div><span class="val">37.5M</span>
+          <span class="name">Linnaeus · v2 correctness</span><div class="track"><div class="bar" style="width:32.6%"></div></div><span class="val">37.1M</span>
+          <span class="name">Lovelace · v2 testing</span><div class="track"><div class="bar" style="width:29.8%"></div></div><span class="val">33.9M</span>
+          <span class="name">Epicurus · integration reliability</span><div class="track"><div class="bar" style="width:24.3%"></div></div><span class="val">27.6M</span>
+          <span class="name">Hubble · U2 compound grounding</span><div class="track"><div class="bar" style="width:20.8%"></div></div><span class="val">23.6M</span>
+          <span class="name">109 more forks</span><div class="track"><div class="bar soft" style="width:30%"></div></div><span class="val">~344M</span>
+        </div>
+        <p class="note" style="margin-top:12px">Six forks account for half the fork spend — the
+        overnight fixers earned it (real repairs, unattended). The long tail is review swarms:
+        3–6 parallel philosophers per document or gate.</p>
+      </div>
+      <div class="panel">
+        <h3>What a fork costs before it starts</h3>
+        <p class="note" style="margin-top:0">Every fork <strong>inherits the parent's full
+        conversation history</strong>. By Sunday evening that means a fork opens at ~1.8B-counter
+        depth with ~200k+ of context on its very first request — for a job that often lasts
+        5 minutes and emits 30k tokens. The six-fork U6 doc swarm re-submitted that inheritance
+        six times over, in parallel.</p>
+        <p class="note">Side effect on disk: each fork rollout replays the parent history —
+        17–18MB per fork by Sunday, ~700MB of the 719MB conductor footprint is replay copies.</p>
+        <p class="note">Fork spawns by day: Thu 28 · Fri 21 · Sat 30 · Sun 31 · Mon 1.</p>
+      </div>
+    </div>
+    <div class="panel" style="margin-top:16px">
+      <h3>The Claude arm — 96 sessions spawned in the same window</h3>
+      <p class="note" style="margin-top:0">The Codex forks are only half the session's workforce. Inside
+      the same 87 hours it also drove <strong>90 Claude worker sessions</strong> (16.0 active hours,
+      3.55M output tokens) via <span class="chip">twf run-card</span> ×130 and headless
+      <span class="chip">claude -p</span> ×94, plus 6 read-only feasibility probes at the repo root.
+      Routing was deliberately model-matched: <strong>Opus 4.8 for implementation and repair</strong>
+      (53 sessions) and <strong>Fable 5 for reviews and feasibility</strong> (34 sessions) — the probes
+      run locked-down (<span class="chip">--permission-mode plan --allowedTools Read,Grep,Glob,Bash
+      --max-budget-usd</span>), which is better spawn hygiene than its own forks get.</p>
+      <div class="scroll" style="margin-top:10px">
+        <table>
+          <tr><th>Where they worked</th><th class="num">Sessions</th><th class="num">Active</th><th class="num">Output</th></tr>
+          <tr><td>GRAPES 2.5/8 seven-page shop (incl. Monday's structure rewire)</td><td class="num">20</td><td class="num">7.0 h</td><td class="num">1.64M</td></tr>
+          <tr><td>dual-design-frontends experiment worktree</td><td class="num">22</td><td class="num">1.5 h</td><td class="num">0.33M</td></tr>
+          <tr><td>GRAPES 3/8 constrained editor</td><td class="num">11</td><td class="num">2.4 h</td><td class="num">0.54M</td></tr>
+          <tr><td>DUAL U2 / U5 / U6</td><td class="num">12</td><td class="num">3.2 h</td><td class="num">0.69M</td></tr>
+          <tr><td>Audit cards (#4 #6 #10 #15 #21 #22 #28) + misc</td><td class="num">25</td><td class="num">1.9 h</td><td class="num">0.35M</td></tr>
+        </table>
+      </div>
+      <p class="note" style="margin-top:12px">Worth noticing: the Claude arm produced <strong>3.55M output
+      tokens — 30% more than the conductor's entire main thread wrote in 87 hours</strong> — for a small
+      fraction of the input bill. The conductor's economics problem is not its workers; it's what it
+      keeps in its own head.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="kicker">Parent anatomy · 11,315 tool calls</p>
+    <div class="two">
+      <div class="panel">
+        <div class="hbars">
+          <div class="grp">Coordination — 84%</div>
+          <span class="name">JS orchestration glue</span><div class="track"><div class="bar" style="width:100%"></div></div><span class="val">6,674</span>
+          <span class="name">board ceremony (twf/trello)</span><div class="track"><div class="bar" style="width:44.7%"></div></div><span class="val">2,985</span>
+          <div class="grp">Everything else — 16%</div>
+          <span class="name">reading files &amp; output</span><div class="track"><div class="bar soft" style="width:8.3%"></div></div><span class="val">554</span>
+          <span class="name">spawning / run-card</span><div class="track"><div class="bar soft" style="width:5.5%"></div></div><span class="val">366</span>
+          <span class="name">hands-on worktree patches</span><div class="track"><div class="bar soft" style="width:4.4%"></div></div><span class="val">293</span>
+          <span class="name">device / evidence</span><div class="track"><div class="bar soft" style="width:2.8%"></div></div><span class="val">185</span>
+          <span class="name">git / gh</span><div class="track"><div class="bar soft" style="width:2.6%"></div></div><span class="val">173</span>
+          <span class="name">tests &amp; builds</span><div class="track"><div class="bar soft" style="width:1.3%"></div></div><span class="val">85</span>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Its twf vocabulary</h3>
+        <p class="note" style="margin-top:0">Most-used verbs:
+        <span class="chip">ledger ×178</span> <span class="chip">comment ×140</span>
+        <span class="chip">run-card ×130</span> <span class="chip">status ×99</span>
+        <span class="chip">merge-card ×42</span> <span class="chip">orient ×32</span>
+        <span class="chip">--help ×20</span></p>
+        <p class="note">Two tells in there: <strong>ledger + comment (318 calls) outnumber run-card
+        2.4:1</strong> — it spends more verbs on writing telemetry and card commentary than on
+        delegating work. And it ran <strong>twf --help twenty times</strong> — after 87 hours,
+        200k of accumulated context still doesn't reliably retain the CLI's flags. The long
+        session isn't even buying memory.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <p class="kicker">Recommendations · specific to this session's shape</p>
+    <ol class="opt">
+      <li><strong>Give it a bedtime.</strong> The session already writes "morning rehearsal packets" —
+        make that the boundary: every night, emit the packet, kill the session, start fresh from the
+        packet at wake. Context drops from ~200k+ back to ~15k, and nothing of value is lost — the
+        packet <em>is</em> the value.
+        <div class="est">At Sunday's rate (~280k avg context), a daily reset is worth hundreds of millions of input tokens per week.</div></li>
+      <li><strong>Fork from a brief, not from the bloodline.</strong> Review-swarm forks don't need 87
+        hours of history to check a doc's security section — spawn them as fresh <span class="chip">codex exec</span>
+        with a 2-page brief. Reserve history-inheriting forks for work that genuinely needs the full
+        conversation (rare).
+        <div class="est">The U6 swarm alone re-submitted the inherited context ×6 in parallel; briefs would cut fork spend (0.78B) by an order of magnitude.</div></li>
+      <li><strong>Kill the abort-respawn storms, keep the reviewer diversity.</strong> (Revised
+        2026-07-13 after the rejection tribunal: the six-lens U6 swarm produced 17 real, traceably
+        applied corrections — reviewer count earned its keep. The waste was elsewhere: the WXWTI85W
+        morning fan-out respawned ~10 parallel reviewers into quota errors, timeouts, and routing
+        mismatches — 6 of its 11 empty rounds were infra aborts, not opinions.) Check quota before
+        fanning out; retry aborted reviewers serially, not in parallel; and record aborts as
+        <span class="chip">outcome_reason=abort</span>, never as verdicts.
+        <div class="est">Cuts the non-event rounds (30% of all recorded fails) without losing a single catch.</div></li>
+      <li><strong>Add a quota guard.</strong> It pegged the shared Codex rate window (≥95%) twice —
+        starving the spawned workers that share the account. Before launching a swarm, check
+        used_percent; defer bulk reviews above ~70%.
+        <div class="est">Prevents the Thu-night and Sat-afternoon stalls from recurring.</div></li>
+      <li><strong>Move ledger/comment writing out of band.</strong> 318 telemetry/commentary calls
+        composed in 200k-token context. A deterministic post-step (or a haiku-class scribe) can write
+        ledger entries from structured results.
+        <div class="est">Small tokens, but removes ~3% of calls and their results from premium history.</div></li>
+    </ol>
+    <p class="note" style="margin-top:14px">These slot into recommendations #1, #2 and #6 of the
+    <a href="2026-07-13-session-mining-time-tokens.html">main report</a>; this session is where most of
+    that leverage physically lives.</p>
+  </section>
+
+  <section>
+    <p class="kicker">Appendix · accounting notes &amp; corrections</p>
+    <div class="panel">
+      <details>
+        <summary>How fork spend was computed (and a correction to the main report)</summary>
+        <ul class="note">
+          <li>Fork rollout files replay the parent's history with <em>re-stamped</em> timestamps, and fork
+            token counters inherit the parent's cumulative value. Own spend per fork =
+            final counter − parent's counter at fork time (interpolated from the parent's series).</li>
+          <li>This corrects the main report's conductor line: the timestamp-dedup method over-counted
+            replayed events. Honest figures: <strong>2.80B tokens for this lineage</strong> (parent 2.013B +
+            forks 0.78B), 2.82B for the whole conductor era; <strong>5.7M output</strong>;
+            <strong>124 real human steering messages</strong> (earlier "2,886" counted replay copies).
+            Main-report tiles have been updated.</li>
+          <li>Parent stats (11,639 requests, 2.05B input, 2.7M output, call mix, twf verbs) come from the
+            parent rollout only — it contains no replays and its counter is monotone, so it is exact.</li>
+          <li>Heatmap/context series: parent-thread events only; forks run in parallel and are not in the
+            hourly minutes. Hours shown local (+03); table keeps UTC.</li>
+          <li>Session was still running at mining time (last event Jul 13 10:41Z); all figures are
+            as-of that moment.</li>
+        </ul>
+      </details>
+    </div>
+  </section>
+</main>
+
+<div id="tip" role="presentation"></div>
+<script>
+  // [day, utcHour, activeMin, calls, userMsgs, ctxMeanK]
+  const H = [["07-09",19,47,254,10,148],["07-09",20,54,237,1,223],["07-09",21,60,267,0,127],["07-09",22,60,215,0,131],["07-09",23,60,205,0,191],["07-10",0,60,202,0,235],["07-10",1,24,64,0,259],["07-10",6,43,205,6,93],["07-10",7,37,74,12,166],["07-10",8,41,102,11,186],["07-10",9,54,139,15,145],["07-10",10,50,211,5,185],["07-10",11,46,152,2,201],["07-10",12,60,220,0,172],["07-10",13,25,85,0,185],["07-10",15,55,189,2,186],["07-10",16,60,243,0,155],["07-10",17,36,148,0,150],["07-10",22,40,160,1,167],["07-10",23,60,256,0,171],["07-11",0,60,251,0,176],["07-11",1,59,250,0,170],["07-11",2,8,33,0,186],["07-11",8,57,242,3,160],["07-11",9,60,227,0,188],["07-11",10,59,294,3,147],["07-11",11,58,237,0,190],["07-11",12,59,263,1,179],["07-11",13,51,214,0,200],["07-11",16,55,247,2,181],["07-11",17,50,197,0,135],["07-11",19,38,132,8,97],["07-11",20,60,217,0,144],["07-11",21,49,163,0,201],["07-12",4,24,74,6,260],["07-12",5,44,149,8,160],["07-12",6,59,219,6,162],["07-12",7,60,188,0,207],["07-12",8,59,177,0,232],["07-12",9,58,284,0,153],["07-12",10,60,340,0,191],["07-12",11,60,273,0,255],["07-12",12,60,264,0,248],["07-12",13,59,267,0,203],["07-12",14,60,252,0,229],["07-12",15,60,213,0,163],["07-12",16,59,292,0,185],["07-12",17,58,205,5,168],["07-12",18,51,143,3,159],["07-12",19,57,224,1,208],["07-12",20,60,235,0,152],["07-12",21,19,71,0,280],["07-13",5,20,90,4,41],["07-13",6,56,206,7,110],["07-13",7,59,197,0,117],["07-13",8,53,176,0,165],["07-13",9,27,80,0,195],["07-13",10,33,101,0,196]];
+  const TZ = 3;
+  // --- heatmap (local time) ---
+  const dayNames = {"07-09":"Thu 9","07-10":"Fri 10","07-11":"Sat 11","07-12":"Sun 12","07-13":"Mon 13"};
+  const order = ["07-09","07-10","07-11","07-12","07-13"];
+  const grid = {};
+  for (const [d,h,am,calls,u,ctx] of H) {
+    let lh = h + TZ, ld = d;
+    if (lh >= 24) { lh -= 24; ld = order[order.indexOf(d)+1] || d; }
+    (grid[ld] = grid[ld] || {})[lh] = {am,calls,u,ctx};
+  }
+  const heat = document.getElementById("heat");
+  heat.insertAdjacentHTML("beforeend", "<div></div>" +
+    Array.from({length:24},(_,i)=>`<div class="hlab">${i%3===0?i:""}</div>`).join(""));
+  for (const d of order) {
+    heat.insertAdjacentHTML("beforeend", `<div class="dlab">${dayNames[d]}</div>`);
+    for (let hh=0; hh<24; hh++) {
+      const c = (grid[d]||{})[hh];
+      const cell = document.createElement("div"); cell.className = "cell";
+      if (c) {
+        cell.style.background = `color-mix(in srgb, var(--seq) ${Math.round(c.am/60*88)+12}%, var(--grid))`;
+        cell.dataset.tip = `${dayNames[d]} ${String(hh).padStart(2,"0")}:00 · ${c.am} min active · ${c.calls} calls` + (c.u?` · ${c.u} msgs from Batu`:"");
+        if (c.u) cell.insertAdjacentHTML("beforeend", '<span class="u"></span>');
+      }
+      heat.appendChild(cell);
+    }
+  }
+  // hourly table (UTC)
+  const ht = document.getElementById("hourtab");
+  for (const [d,h,am,calls,u,ctx] of H)
+    ht.insertAdjacentHTML("beforeend", `<tr><td>${d} ${String(h).padStart(2,"0")}:00</td><td class="num">${am}</td><td class="num">${calls}</td><td class="num">${u||""}</td><td class="num">${ctx}</td></tr>`);
+  // --- context line ---
+  const svg = document.getElementById("ctx");
+  const W=940, Ht=190, L=46, R=10, T=12, B=26;
+  const t0 = Date.parse("2026-07-09T19:00Z")/3.6e6;
+  const X = (d,h)=> L + ((Date.parse(`2026-${d}T${String(h).padStart(2,"0")}:00Z`)/3.6e6 - t0) / 88) * (W-L-R);
+  const Y = v => T + (1 - v/360) * (Ht-T-B);
+  let els = "";
+  for (const g of [0,100,200,300]) els += `<line x1="${L}" x2="${W-R}" y1="${Y(g)}" y2="${Y(g)}" stroke="var(--grid)" stroke-width="1"/><text x="${L-6}" y="${Y(g)+3}" text-anchor="end">${g}k</text>`;
+  els += `<line x1="${L}" x2="${W-R}" y1="${Y(353)}" y2="${Y(353)}" stroke="var(--baseline)" stroke-dasharray="4 4"/><text x="${W-R}" y="${Y(353)-5}" text-anchor="end">353k window</text>`;
+  let seg = [];
+  const flush = () => { if (seg.length>1) els += `<polyline points="${seg.join(" ")}" fill="none" stroke="var(--seq)" stroke-width="2" stroke-linejoin="round"/>`; seg=[]; };
+  let prev = null;
+  for (const [d,h,,,,ctx] of H) {
+    const t = Date.parse(`2026-${d}T${String(h).padStart(2,"0")}:00Z`)/3.6e6;
+    if (prev !== null && t - prev > 1.5) flush();
+    seg.push(`${X(d,h).toFixed(1)},${Y(ctx).toFixed(1)}`);
+    prev = t;
+  }
+  flush();
+  for (const d of order) els += `<text x="${X(d,12+0)}" y="${Ht-8}" text-anchor="middle">${dayNames[d]}</text>`;
+  els += `<line x1="${L}" x2="${W-R}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--baseline)"/>`;
+  svg.innerHTML = els;
+  // tooltip
+  const tip = document.getElementById("tip");
+  document.addEventListener("mousemove", e => {
+    const t = e.target.closest("[data-tip]");
+    if (t) { tip.textContent = t.dataset.tip; tip.style.opacity = 1;
+      tip.style.left = Math.min(e.clientX + 12, innerWidth - tip.offsetWidth - 8) + "px";
+      tip.style.top = (e.clientY - 32) + "px";
+    } else tip.style.opacity = 0;
+  });
+</script>
