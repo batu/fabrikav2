@@ -104,24 +104,36 @@ export function deriveEditableLabel(prototypeInstanceId: string, copy: string | 
   return text;
 }
 
-// The single rule the editor, CLI, and publisher all fail closed on: an instance
-// whose prototype carries a binding fact must still surface that exact fact.
-// Returns a human-readable violation message, or undefined when the fact is
-// intact. Keyed by prototype, so a duplicated fact instance is checked too.
+// The single rule the editor, CLI, and publisher all fail closed on: a copy value
+// belonging to a prototype that carries a binding fact must still surface that
+// exact fact. `copyLabel` names the offending surface for the error message (an
+// instance id, or `id#variant` for a named variant). Returns a human-readable
+// violation message, or undefined when the fact is intact.
+export function factCopyViolation(
+  prototypeInstanceId: string,
+  copyLabel: string,
+  copy: string | undefined,
+): string | undefined {
+  const spec = BINDING_FACTS[prototypeInstanceId];
+  if (!spec) return undefined;
+  const value = copy ?? "";
+  if (spec.labelEditable) {
+    const suffix = `${FACT_SEPARATOR}${spec.fact}`;
+    const intact = value === spec.fact || (value.endsWith(suffix) && value.length > suffix.length);
+    return intact
+      ? undefined
+      : `Instance "${copyLabel}" must keep its binding-derived ${spec.kind} "${spec.fact}"; that value is owned by binding "${spec.bindingId}", not editable copy.`;
+  }
+  return value === spec.fact
+    ? undefined
+    : `Instance "${copyLabel}" copy is the binding-derived ${spec.kind} owned by "${spec.bindingId}" and must read "${spec.fact}".`;
+}
+
+// The base-presentation fact check. Keyed by prototype, so a duplicated fact
+// instance is checked too. Named variants are checked separately by the caller
+// (a variant that leaves copy unset inherits the already-checked base copy).
 export function bindingFactCopyViolation(
   instance: Pick<ShellPresentationInstance, "id" | "prototypeInstanceId" | "presentation">,
 ): string | undefined {
-  const spec = BINDING_FACTS[instance.prototypeInstanceId];
-  if (!spec) return undefined;
-  const copy = instance.presentation.copy ?? "";
-  if (spec.labelEditable) {
-    const suffix = `${FACT_SEPARATOR}${spec.fact}`;
-    const intact = copy === spec.fact || (copy.endsWith(suffix) && copy.length > suffix.length);
-    return intact
-      ? undefined
-      : `Instance "${instance.id}" must keep its binding-derived ${spec.kind} "${spec.fact}"; that value is owned by binding "${spec.bindingId}", not editable copy.`;
-  }
-  return copy === spec.fact
-    ? undefined
-    : `Instance "${instance.id}" copy is the binding-derived ${spec.kind} owned by "${spec.bindingId}" and must read "${spec.fact}".`;
+  return factCopyViolation(instance.prototypeInstanceId, instance.id, instance.presentation.copy);
 }

@@ -379,4 +379,47 @@ describe("constrained GrapesJS project", () => {
     };
     expect(() => validateProjectFile(tamperedProject, seed)).toThrow(/binding-derived|owned by binding/i);
   });
+
+  it("fails closed when a named variant overrides copy to drop a binding-derived fact", async () => {
+    const seed = await manifest();
+    const project = createStarterProject();
+    const variantOf = (source: GrapesShellProject) =>
+      Object.keys(
+        source.presentation.pages
+          .flatMap((page) => page.instances)
+          .find((instance) => instance.id === "fail.continue-coins")!.variants,
+      )[0]!;
+    const variantName = variantOf(project);
+
+    // A variant that overrides copy must still surface the locked fact: records.json
+    // ships variants verbatim, so an unchecked variant could otherwise smuggle a
+    // divergent cost past the fact lock into a downstream runtime.
+    const tampered = structuredClone(project.presentation);
+    const tamperedTarget = tampered.pages
+      .flatMap((page) => page.instances)
+      .find((instance) => instance.id === "fail.continue-coins")!;
+    tamperedTarget.variants[variantName] = { ...tamperedTarget.variants[variantName], copy: "Continue" };
+    const tamperedProject = {
+      ...project,
+      presentation: tampered,
+      grapesjs: createConstrainedGrapesProject(tampered),
+    };
+    expect(() => validateProjectFile(tamperedProject, seed)).toThrow(/binding-derived|must keep/i);
+
+    // A variant that keeps the locked fact suffix is accepted.
+    const relabeled = structuredClone(project.presentation);
+    const relabeledTarget = relabeled.pages
+      .flatMap((page) => page.instances)
+      .find((instance) => instance.id === "fail.continue-coins")!;
+    relabeledTarget.variants[variantName] = {
+      ...relabeledTarget.variants[variantName],
+      copy: composeFactCopy("fail.continue-coins", "Keep going"),
+    };
+    const relabeledProject = {
+      ...project,
+      presentation: relabeled,
+      grapesjs: createConstrainedGrapesProject(relabeled),
+    };
+    expect(() => validateProjectFile(relabeledProject, seed)).not.toThrow();
+  });
 });

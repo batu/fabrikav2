@@ -121,6 +121,21 @@ describe("immutable GrapesJS publication", () => {
     });
   });
 
+  it("classifies a dangling latest-published pointer (deleted publication directory) as invalid", async () => {
+    const { authoringDir } = await fixture();
+    const published = await publishAuthoringProject({ authoringDir, seedRoot, renderPreviews: previewRenderer("stable") });
+
+    // Remove the immutable publication the pointer references, leaving it dangling.
+    // A fully-missing publication is corruption, not a clean pre-publish state, so
+    // status must surface it as invalid rather than saved-unpublished.
+    await rm(path.join(authoringDir, "publications", published.publicationId), { recursive: true, force: true });
+
+    await expect(publicationStatus({ authoringDir, seedRoot })).resolves.toMatchObject({
+      state: "invalid",
+      canApply: false,
+    });
+  });
+
   it("binds the reviewed asset-catalog hash and fails closed on divergence before any write", async () => {
     const { authoringDir, manifest } = await fixture();
     const projectJsonHash = await hashCanonicalJson(validateProjectFile(createStarterProject(), manifest, "shell_proof_grapes"));

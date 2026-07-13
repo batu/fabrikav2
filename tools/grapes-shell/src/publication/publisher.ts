@@ -125,6 +125,14 @@ function inlineCss(value: string): string {
   return value.trim().split(/\r?\n/u).map((line) => line.trim()).filter(Boolean).join(" ");
 }
 
+// Code-unit ordering for every array that serializes into a content-addressed
+// hash. Unlike String.localeCompare (locale/ICU-build dependent), this is stable
+// across machines and locales, so the same project always yields the same
+// publicationId regardless of where publish runs.
+function byCodeUnit(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
 const PORTABLE_STYLE = `
 :root { color-scheme: light; font-family: ui-rounded, system-ui, sans-serif; background: #e9edf2; color: #16212b; }
 * { box-sizing: border-box; }
@@ -216,7 +224,7 @@ function componentRecords(document: ShellPresentationDocumentV2): PortableRecord
       });
     }
   }
-  records.sort((left, right) => left.stateId.localeCompare(right.stateId) || left.order - right.order || left.id.localeCompare(right.id));
+  records.sort((left, right) => byCodeUnit(left.stateId, right.stateId) || left.order - right.order || byCodeUnit(left.id, right.id));
   return { format: "grapes-shell-portable-records-v1", records };
 }
 
@@ -317,7 +325,7 @@ function componentStyle(instance: ShellPresentationInstance): string {
 function portableStyles(document: ShellPresentationDocumentV2): string {
   const componentRules = document.pages
     .flatMap((page) => page.instances)
-    .sort((left, right) => left.id.localeCompare(right.id))
+    .sort((left, right) => byCodeUnit(left.id, right.id))
     .map(componentStyle)
     .join("\n");
   return `${PORTABLE_STYLE.trimStart()}\n${componentRules}\n`;
@@ -332,7 +340,7 @@ function pageMarkup(
   const state = shellPresentationContractV2.states.find((candidate) => candidate.id === stateId);
   if (!state) throw new ProjectValidationError(`Unknown shell state "${stateId}".`);
   const components = [...instances]
-    .sort((left, right) => left.presentation.order - right.presentation.order || left.id.localeCompare(right.id))
+    .sort((left, right) => left.presentation.order - right.presentation.order || byCodeUnit(left.id, right.id))
     .map((instance) => componentMarkup(instance, assetById, containerIds))
     .join("");
   return `<!doctype html>
@@ -354,7 +362,7 @@ function pageMarkup(
 
 function createPortableBundle(document: ShellPresentationDocumentV2, catalogAssets: readonly ShellAssetCatalogEntry[]): PortableBundle {
   assertReferencedAssetsExist(document, catalogAssets);
-  const assets = [...catalogAssets].sort((left, right) => left.id.localeCompare(right.id));
+  const assets = [...catalogAssets].sort((left, right) => byCodeUnit(left.id, right.id));
   const byId = new Map(assets.map((asset) => [asset.id, asset]));
   const containerIds = new Set(
     document.pages
@@ -741,16 +749,28 @@ export async function publicationStatus(options: {
 }): Promise<PublicationStatus> {
   const authoringDir = projectRoot(options.authoringDir);
   const pointerPath = path.join(authoringDir, "latest-published.json");
-  let latestPublicationId: string | undefined;
+  let pointer: LatestPointer | undefined;
   try {
-    const pointer = (await readJson(pointerPath)) as LatestPointer;
-    if (typeof pointer.publicationId !== "string") throw new ProjectValidationError("Invalid latest publication pointer.");
-    await verifyPublishedRevision({ authoringDir, publicationId: pointer.publicationId, seedRoot: options.seedRoot });
-    latestPublicationId = pointer.publicationId;
+    pointer = (await readJson(pointerPath)) as LatestPointer;
   } catch (error) {
+    // Only a missing pointer file means "not yet published"; a present-but-unreadable
+    // or non-JSON pointer is corruption and must surface as invalid.
     if (!(error instanceof Error && "code" in error && error.code === "ENOENT")) {
       return { state: "invalid", canApply: false };
     }
+  }
+  let latestPublicationId: string | undefined;
+  if (pointer) {
+    if (typeof pointer.publicationId !== "string") return { state: "invalid", canApply: false };
+    try {
+      await verifyPublishedRevision({ authoringDir, publicationId: pointer.publicationId, seedRoot: options.seedRoot });
+    } catch {
+      // A pointer that references a missing or tampered publication (e.g. its
+      // directory was deleted, raising ENOENT deep inside verification) is
+      // corruption, not a clean pre-publish state.
+      return { state: "invalid", canApply: false };
+    }
+    latestPublicationId = pointer.publicationId;
   }
   let project: GrapesShellProject;
   try {

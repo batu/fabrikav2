@@ -13,7 +13,7 @@ import {
 } from "@fabrikav2/kernel";
 
 import { normalizeSemanticLayout } from "./layout.ts";
-import { bindingFactCopyViolation, bindingFactForPrototype, composeFactCopy } from "./facts.ts";
+import { bindingFactCopyViolation, bindingFactForPrototype, composeFactCopy, factCopyViolation } from "./facts.ts";
 
 const PROJECT_FORMAT = "grapes-shell-project-v2";
 const PROJECT_VERSION = 2;
@@ -267,6 +267,20 @@ function assertBindingFacts(document: ShellPresentationDocumentV2): void {
     for (const instance of page.instances) {
       const violation = bindingFactCopyViolation(instance);
       if (violation) throw new ProjectValidationError(violation);
+      // A named variant that overrides copy must also surface the locked fact.
+      // A variant that leaves copy unset inherits the (already-checked) base copy,
+      // so only variants that explicitly set copy are checked here. records.json
+      // ships variants verbatim, so an unchecked variant could otherwise smuggle
+      // a divergent reward/balance/cost/price past the fact lock.
+      for (const [variantName, variant] of Object.entries(instance.variants)) {
+        if (variant.copy === undefined) continue;
+        const variantViolation = factCopyViolation(
+          instance.prototypeInstanceId,
+          `${instance.id}#${variantName}`,
+          variant.copy,
+        );
+        if (variantViolation) throw new ProjectValidationError(variantViolation);
+      }
     }
   }
 }
