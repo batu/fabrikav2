@@ -1,34 +1,32 @@
-// Launch the scratch P0 in the human-authenticated Phaser Editor session
-// (U5, KTD-J; vendor-gated). This module is a THIN, honest descriptor: opening a
-// real Editor GUI session is an environment/human step (P6), never repo
-// automation (R13). It returns the exact loopback-only commands the operator
-// runs — attaching to the already-running licensed Editor over the loopback CDP
-// endpoint — so the rehearsal + provenance capture never touch the landing worktree.
-export interface LaunchInstructions {
-  vendorGated: true;
-  boundary: string;
-  project: string;
-  steps: string[];
-  note: string;
+// Launch + capture real-Editor provenance for a scratch P0 (U5, KTD-J / P6 §6;
+// vendor-gated). This is the EXECUTABLE launch/provenance verb: it opens the
+// installed, human-authenticated Phaser Editor 5 session loopback-only against an
+// explicit scratch (never the landing worktree — R13) and runs the full provenance
+// protocol via the session seam, returning a nonzero exit on any block. Opening a
+// licensed GUI is a measured vendor cost (U2 finding 2); this driver performs it,
+// it never fakes it, and it emits only scrubbed hash-only evidence.
+import { captureProvenance, type CaptureResult } from './session/index.ts';
+
+export interface LaunchOutcome {
+  /** Process exit code: 0 when provenance is ok, nonzero when blocked. */
+  code: number;
+  result: CaptureResult;
 }
 
 /**
- * Return the loopback-only launch instructions for opening a scratch project in
- * the human-authenticated Phaser Editor 5.0.2 session.
+ * Parse `<scratch> [--out <path>] [--port <n>]` and run the provenance capture.
+ * Returns the scrubbed evidence and a 0/1 exit code (nonzero on block).
  */
-export function launchInstructions(scratchProjectDir?: string): LaunchInstructions {
-  const project = scratchProjectDir ?? '<run `cli reset` first to mint a scratch P0>';
-  return {
-    vendorGated: true,
-    boundary: 'loopback-only (outbound blocked except 127.0.0.1); scrub account/private paths from evidence',
-    project,
-    steps: [
-      'Confirm the licensed Phaser Editor 5.0.2 desktop session is running with --remote-debugging-port=9222.',
-      'Attach over CDP at http://127.0.0.1:9222 (never a remote host).',
-      `Open the SCRATCH project (never the landing worktree): open-project { project: "${project}" }.`,
-      'Author/refine the seven scenes; the editor auto-compiles generated code on save.',
-      'Record real-Editor provenance: delete generated output, CompileProject twice, compare hashes, save all seven scenes, then fully terminate/restart/reopen and re-verify.',
-    ],
-    note: 'Headless regeneration is unsupported (U2 finding 2); the generated code + P0/A/B publications are a measured vendor cost recorded in P6, not faked here.',
-  };
+export async function runLaunch(argv: readonly string[]): Promise<LaunchOutcome> {
+  const positional: string[] = [];
+  let output: string | undefined;
+  let port: number | undefined;
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
+    if (arg === '--out') output = argv[++i];
+    else if (arg === '--port') port = Number(argv[++i]);
+    else positional.push(arg);
+  }
+  const result = await captureProvenance({ scratch: positional[0], output, port });
+  return { code: result.result === 'ok' ? 0 : 1, result };
 }

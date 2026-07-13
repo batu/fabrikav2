@@ -9,7 +9,7 @@ import { status } from './publish/status.ts';
 import { offlineProof } from './publish/proof.ts';
 import { loadCommittedProject } from './loadProject.ts';
 import { resetToScratch } from './reset.ts';
-import { launchInstructions } from './launch.ts';
+import { runLaunch } from './launch.ts';
 
 function print(value) {
   process.stdout.write(JSON.stringify(value, null, 2) + '\n');
@@ -46,8 +46,14 @@ async function main(argv) {
       return 0;
     }
     case 'launch': {
-      print(launchInstructions(rest[0]));
-      return 0;
+      // Executes the real-Editor provenance protocol against an explicit scratch
+      // (vendor-gated); prints scrubbed hash-only evidence and returns nonzero on
+      // block. Usage: cli launch <scratch> [--out <path>] [--port <n>].
+      if (!rest[0]) { process.stderr.write('usage: cli launch <scratch> [--out <path>] [--port <n>]\n'); return 2; }
+      const { code, result } = await runLaunch(rest);
+      print(result.evidence);
+      process.stderr.write(`evidence: ${result.evidencePath}\n`);
+      return code;
     }
     case 'publish': {
       // Publishing requires the accepted GUI-compiled generated `.ts` + the

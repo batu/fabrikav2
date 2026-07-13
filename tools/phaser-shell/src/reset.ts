@@ -15,6 +15,8 @@ const AUTHORING = path.join(REPO_ROOT, 'games', 'shell_proof_phaser', 'authoring
 export interface ScratchResult {
   scratch: string;
   project: string;
+  /** The allowlisted editor plugins copied into the scratch (the provenance leg's `-plugins` path). */
+  plugins: string;
   p0Hash: string;
 }
 
@@ -41,8 +43,13 @@ async function projectHash(dir: string, rel = ''): Promise<Buffer> {
 export async function resetToScratch(dest?: string): Promise<ScratchResult> {
   const scratchRoot = dest ?? (await mkdtemp(path.join(os.tmpdir(), 'u5-scratch-')));
   const projectDir = path.join(scratchRoot, 'phaser-editor');
+  const pluginsDir = path.join(scratchRoot, 'editor-plugins');
   await cp(path.join(AUTHORING, 'phaser-editor'), projectDir, { recursive: true });
   await cp(path.join(AUTHORING, 'catalog'), path.join(scratchRoot, 'catalog'), { recursive: true });
+  // The allowlisted editor plugins ride with the scratch so the provenance leg
+  // can start the server with a scratch-local `-plugins` path (§10), never one
+  // inside the landing worktree.
+  await cp(path.join(AUTHORING, 'editor-plugins'), pluginsDir, { recursive: true });
   const p0Hash = `sha256-${(await projectHash(path.join(AUTHORING, 'phaser-editor'))).toString('hex')}`;
-  return { scratch: scratchRoot, project: projectDir, p0Hash };
+  return { scratch: scratchRoot, project: projectDir, plugins: pluginsDir, p0Hash };
 }

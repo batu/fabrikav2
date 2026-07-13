@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "build": "tsc --noEmit",
     "validate": "tsx src/cli.mjs validate",
+    "provenance": "tsx src/cli.mjs launch",
     "render": "playwright test --config playwright.config.ts",
     "verify-authoring": "npm run typecheck && npm run test:unit && npm run lint && npm run validate"
   },

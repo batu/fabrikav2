@@ -65,4 +65,14 @@ describe('P5 rehearsal reset (clean P0 scratch, never the landing worktree)', ()
     expect(b.p0Hash).toBe(a.p0Hash);
     expect(a.p0Hash).toMatch(/^sha256-[a-f0-9]{64}$/);
   });
+
+  it('copies the allowlisted editor-plugins into the scratch so the provenance -plugins path is scratch-local', async () => {
+    const scratch = tmp();
+    const a = await resetToScratch(scratch);
+    expect(a.plugins).toBe(path.join(scratch, 'editor-plugins'));
+    // The allowlist + the live-copy plugin ride with the scratch (never the worktree).
+    expect(existsSync(path.join(a.plugins, 'allowlist.json'))).toBe(true);
+    expect(existsSync(path.join(a.plugins, 'live-copy-preview', 'plugin.json'))).toBe(true);
+    expect(path.resolve(a.plugins).startsWith(path.resolve(REPO_ROOT))).toBe(false);
+  });
 });
