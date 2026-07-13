@@ -248,13 +248,19 @@ describe('shell-presentation-v2 contract document', () => {
     expect(instances.get('win.claim-double')?.bindingId).toBe('flow.claim-double');
     expect(instances.get('win.claim-double')?.actionId).toBe('win-claim-double');
     expect(instances.has('win.home')).toBe(false);
-    // win.next is a conditional POST-CLAIM navigation instance (required=false):
-    // the pre-claim surface shows only reward + claim + claim-double, then Next
-    // replaces them once a claim succeeds. It stays a declared advance action so
-    // any win publication still carries a visible flow.next control.
+    // win.next is a GENUINELY claimed-only POST-CLAIM navigation instance: it
+    // keeps its flow.next binding, bottom-primary-action role, and geometry so
+    // the runtime can reveal it after a claim, but it carries NO required action
+    // identity and defaults to hidden. An authored/published Win page therefore
+    // mandates only reward + claim + claim-double and never a dead pre-claim
+    // Next (card qWCv9tUo, comment 54).
     expect(instances.get('win.next')?.bindingId).toBe('flow.next');
+    expect(instances.get('win.next')?.roleId).toBe('bottom-primary-action');
     expect(instances.get('win.next')?.required).toBe(false);
-    expect(actionIds).toEqual(expect.arrayContaining(['win-claim', 'win-claim-double', 'win-next']));
+    expect(instances.get('win.next')?.actionId).toBeUndefined();
+    expect(instances.get('win.next')?.defaultPresentation.visibility).toBe('hidden');
+    expect(actionIds).toEqual(expect.arrayContaining(['win-claim', 'win-claim-double']));
+    expect(actionIds).not.toContain('win-next');
     expect(actionIds).not.toContain('win-home');
     const claimDouble = shellPresentationContractV2.requiredActions.find((a) => a.id === 'win-claim-double');
     expect(claimDouble?.actionHook).toBe('claim-double');
@@ -414,6 +420,57 @@ describe('v2 publication records', () => {
     };
     const codes = await issueCodesAsync(() => parseShellPublicationDocument(v1Style));
     expect(codes).toContain('unsupported-field');
+  });
+});
+
+describe('v2 claimed-only Win disclosure (card qWCv9tUo, comment 54)', () => {
+  const winPageOf = (document: ReturnType<typeof createDefaultShellPresentationV2>) =>
+    document.pages.find((page) => page.stateId === 'win')!;
+
+  it('defaults the Win page to a disclosed reward + claim + claim-double surface with a hidden, action-less Next', () => {
+    const document = createDefaultShellPresentationV2();
+    const byId = new Map(winPageOf(document).instances.map((instance) => [instance.id, instance]));
+    // The claim surface is the disclosed pre-claim state.
+    expect(byId.get('win.reward')?.presentation.visibility).toBe('visible');
+    expect(byId.get('win.claim')?.presentation.visibility).toBe('visible');
+    expect(byId.get('win.claim-double')?.presentation.visibility).toBe('visible');
+    // Next exists for the post-claim runtime reveal (role/binding retained) but
+    // is hidden by default and carries no action identity, so it is never a dead
+    // pre-claim control in an authored Win page.
+    const next = byId.get('win.next');
+    expect(next?.presentation.visibility).toBe('hidden');
+    expect(next?.actionId).toBeUndefined();
+    expect(next?.bindingId).toBe('flow.next');
+    expect(next?.roleId).toBe('bottom-primary-action');
+  });
+
+  it('accepts an unclaimed Win page that shows reward + claim + claim-double and omits Next entirely', () => {
+    const document = createDefaultShellPresentationV2();
+    const win = winPageOf(document);
+    win.instances = win.instances.filter((instance) => instance.id !== 'win.next');
+    // No missing-required-action for a claimed-only Next and no missing-instance
+    // for the absent (required=false) win.next: an unclaimed Win is fully valid.
+    expect(() => parseShellPresentationV2(document)).not.toThrow();
+  });
+
+  it('accepts an unclaimed Win page that keeps Next hidden', () => {
+    const document = createDefaultShellPresentationV2();
+    const next = winPageOf(document).instances.find((instance) => instance.id === 'win.next')!;
+    expect(next.presentation.visibility).toBe('hidden');
+    expect(() => parseShellPresentationV2(document)).not.toThrow();
+  });
+
+  it('still requires the claim and claim-double actions to be visible on the Win page', () => {
+    const hideClaim = createDefaultShellPresentationV2();
+    winPageOf(hideClaim).instances.find((instance) => instance.id === 'win.claim')!.presentation.visibility =
+      'hidden';
+    expect(issueCodes(() => parseShellPresentationV2(hideClaim))).toContain('missing-required-action');
+
+    const hideDouble = createDefaultShellPresentationV2();
+    winPageOf(hideDouble).instances.find(
+      (instance) => instance.id === 'win.claim-double',
+    )!.presentation.visibility = 'hidden';
+    expect(issueCodes(() => parseShellPresentationV2(hideDouble))).toContain('missing-required-action');
   });
 });
 

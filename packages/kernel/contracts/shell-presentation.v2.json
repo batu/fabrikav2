@@ -2367,7 +2367,6 @@
       "bindingId": "flow.next",
       "stateFamilyId": "button",
       "required": false,
-      "actionId": "win-next",
       "accessibility": {
         "role": "button",
         "nameKey": "shell.action.next",
@@ -2389,7 +2388,7 @@
           "fit": "cover"
         },
         "order": 1,
-        "visibility": "visible",
+        "visibility": "hidden",
         "copy": "Next"
       }
     },
@@ -2696,16 +2695,6 @@
       "minimumCount": 1,
       "instanceIds": [
         "win.claim-double"
-      ]
-    },
-    {
-      "id": "win-next",
-      "stateId": "win",
-      "bindingId": "flow.next",
-      "actionHook": "result-next",
-      "minimumCount": 1,
-      "instanceIds": [
-        "win.next"
       ]
     },
     {
