@@ -33,6 +33,17 @@ export function synthGeneratedSource(doc: SceneDoc): string {
     } else {
       lines.push(`    const ${v} = this.add.container(${x}, ${y});`);
     }
+    const { originX, originY, scaleX, scaleY, width, height } = obj.geometry;
+    if (originX !== 0.5 || originY !== 0.5) lines.push(`    ${v}.setOrigin(${originX}, ${originY});`);
+    if (scaleX !== 1) lines.push(`    ${v}.scaleX = ${scaleX};`);
+    if (scaleY !== 1) lines.push(`    ${v}.scaleY = ${scaleY};`);
+    if (width !== null) lines.push(`    ${v}.displayWidth = ${width};`);
+    if (height !== null) lines.push(`    ${v}.displayHeight = ${height};`);
+    if (!obj.visible) lines.push(`    ${v}.visible = false;`);
+    if (obj.color !== null) {
+      if (obj.type === 'Text') lines.push(`    ${v}.setStyle({ "color": ${JSON.stringify(obj.color)} });`);
+      else lines.push(`    ${v}.tint = ${JSON.stringify(obj.color)};`);
+    }
     const c = obj.carrier;
     lines.push(`    const ${v}Semantic = new Semantic(${v});`);
     lines.push(`    ${v}Semantic.fabSemanticId = ${JSON.stringify(c.fabSemanticId)};`);
@@ -40,6 +51,12 @@ export function synthGeneratedSource(doc: SceneDoc): string {
     if (c.fabBinding) lines.push(`    ${v}Semantic.fabBinding = ${JSON.stringify(c.fabBinding)};`);
     if (c.fabSlot) lines.push(`    ${v}Semantic.fabSlot = ${JSON.stringify(c.fabSlot)};`);
     if (c.fabVariant) lines.push(`    ${v}Semantic.fabVariant = ${JSON.stringify(c.fabVariant)};`);
+  });
+  const indexByUuid = new Map(doc.objects.map((obj, i) => [obj.uuid, i]));
+  doc.objects.forEach((obj, i) => {
+    if (obj.parentUuid === null) return;
+    const parent = indexByUuid.get(obj.parentUuid);
+    if (parent !== undefined) lines.push(`    o${parent}.add(o${i});`);
   });
   lines.push('  }', '}', '');
   return lines.join('\n');

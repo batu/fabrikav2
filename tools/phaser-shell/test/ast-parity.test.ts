@@ -15,13 +15,14 @@ function scene() {
         type: 'Text', id: 't1', label: 'menu.title', components: ['Semantic'],
         'Semantic.fabSemanticId': 'menu.title', 'Semantic.fabRole': 'screen-title',
         'Semantic.fabBinding': 'presentation.static', 'Semantic.fabSlot': 'title-logo',
-        'Semantic.fabVariant': 'default', x: 195, y: 60, text: 'Play',
+        'Semantic.fabVariant': 'default', x: 195, y: 60, text: 'Play', color: '#ffffff',
       },
       {
         type: 'Image', id: 'p1', label: 'menu.play', components: ['Semantic'],
         'Semantic.fabSemanticId': 'menu.play', 'Semantic.fabRole': 'bottom-primary-action',
         'Semantic.fabBinding': 'flow.start-current', 'Semantic.fabSlot': 'button-surface',
-        'Semantic.fabVariant': 'default', x: 195, y: 810, texture: { key: 'button_surface_primary' },
+        'Semantic.fabVariant': 'default', x: 195, y: 810, scaleX: 0.75, scaleY: 0.8,
+        tint: 0xabcdef, visible: false, texture: { key: 'button_surface_primary' },
       },
     ],
   });
@@ -33,8 +34,14 @@ import Semantic from "../components/Semantic";
 export default class Menu extends Phaser.Scene {
   editorCreate(): void {
     const title = this.add.text(195, 60, "", {});
+    title.setOrigin(0.5, 0.5);
     title.text = "Play";
+    title.setStyle({ "color": "#ffffff" });
     const play = this.add.image(195, 810, "button_surface_primary");
+    play.scaleX = 0.75;
+    play.scaleY = 0.8;
+    play.tint = 11259375;
+    play.visible = false;
     const titleSemantic = new Semantic(title);
     titleSemantic.fabSemanticId = "menu.title";
     titleSemantic.fabRole = "screen-title";
@@ -69,6 +76,54 @@ describe('P5 AST-fact parity over a closed generated-module graph', () => {
     const drifted = GENERATED.replace('"button_surface_primary"', '"button_surface_secondary"');
     const blocks = verifyGeneratedModule(drifted, scene());
     expect(blocks.some((b) => b.code === 'blocked-drift')).toBe(true);
+  });
+
+  it('blocks generated position drift', () => {
+    const drifted = GENERATED.replace('this.add.image(195, 810', 'this.add.image(205, 810');
+    const blocks = verifyGeneratedModule(drifted, scene());
+    expect(blocks.some((b) => b.code === 'blocked-drift' && b.detail.includes('x'))).toBe(true);
+  });
+
+  it('blocks generated scale drift', () => {
+    const drifted = GENERATED.replace('play.scaleX = 0.75', 'play.scaleX = 0.9');
+    const blocks = verifyGeneratedModule(drifted, scene());
+    expect(blocks.some((b) => b.code === 'blocked-drift' && b.detail.includes('scaleX'))).toBe(true);
+  });
+
+  it('blocks generated color drift', () => {
+    const drifted = GENERATED.replace('play.tint = 11259375', 'play.tint = 16711680');
+    const blocks = verifyGeneratedModule(drifted, scene());
+    expect(blocks.some((b) => b.code === 'blocked-drift' && b.detail.includes('color'))).toBe(true);
+  });
+
+  it('blocks generated visibility drift', () => {
+    const drifted = GENERATED.replace('play.visible = false', 'play.visible = true');
+    const blocks = verifyGeneratedModule(drifted, scene());
+    expect(blocks.some((b) => b.code === 'blocked-drift' && b.detail.includes('visible'))).toBe(true);
+  });
+
+  it('blocks generated object-type drift', () => {
+    const drifted = GENERATED.replace(
+      'this.add.image(195, 810, "button_surface_primary")',
+      'this.add.container(195, 810)',
+    );
+    const blocks = verifyGeneratedModule(drifted, scene());
+    expect(blocks.some((b) => b.code === 'blocked-drift' && b.detail.includes('type'))).toBe(true);
+  });
+
+  it('blocks root display-order drift', () => {
+    const titleBlock = `    const title = this.add.text(195, 60, "", {});
+    title.setOrigin(0.5, 0.5);
+    title.text = "Play";
+    title.setStyle({ "color": "#ffffff" });`;
+    const playBlock = `    const play = this.add.image(195, 810, "button_surface_primary");
+    play.scaleX = 0.75;
+    play.scaleY = 0.8;
+    play.tint = 11259375;
+    play.visible = false;`;
+    const drifted = GENERATED.replace(`${titleBlock}\n${playBlock}`, `${playBlock}\n${titleBlock}`);
+    const blocks = verifyGeneratedModule(drifted, scene());
+    expect(blocks.some((b) => b.code === 'blocked-drift' && b.detail.includes('order'))).toBe(true);
   });
 
   it('blocks generated code whose semantic role was hand-edited (blocked-drift)', () => {
