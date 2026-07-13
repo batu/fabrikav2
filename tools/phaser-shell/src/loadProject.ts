@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { parseSceneDoc, type SceneDoc } from './authoring/sceneModel.ts';
 import { parseCatalog, type Catalog } from './authoring/catalog.ts';
+import { loadEditorAssets } from './authoring/editorAssets.ts';
 import { STATE_IDS } from './authoring/extractV2.ts';
 import type { AuthoringProject } from './publish/validate.ts';
 import type { ShellStateIdV2 } from '@fabrikav2/kernel';
@@ -26,5 +27,12 @@ export function loadCommittedProject(): AuthoringProject {
     scenes.set(state, parseSceneDoc(raw));
   }
   const editorPack = JSON.parse(readFileSync(path.join(EDITOR, 'public', 'assets', 'asset-pack.json'), 'utf8'));
-  return { scenes, catalog, editorPack };
+  const assets = loadEditorAssets(path.join(EDITOR, 'public'), editorPack);
+  return {
+    scenes,
+    catalog,
+    editorPack,
+    editorAssetBytesByUrl: assets.bytesByUrl,
+    editorAssetSymlinks: assets.symlinkUrls,
+  };
 }

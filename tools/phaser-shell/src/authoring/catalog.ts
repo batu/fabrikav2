@@ -13,6 +13,7 @@
 // It also validates the editor `asset-pack.json`: pack keys correspond 1:1 to the
 // catalog, and the ONLY font entries are the two frozen hash-bound TTFs.
 import { shellPresentationContractV2 } from '@fabrikav2/kernel';
+import { createHash } from 'node:crypto';
 import type {
   ShellAssetCatalog,
   ShellAssetProvenance,
@@ -150,8 +151,50 @@ export function validateCatalog(
   return issues;
 }
 
-/** The exact font pack keys the editor asset-pack is allowed to declare (only these). */
-export const ALLOWED_EDITOR_FONT_KEYS: readonly string[] = ['kenney_future', 'kenney_future_narrow'];
+/** Exact raw-font declarations accepted by Phaser Editor 5's FontImporter. */
+export const ALLOWED_EDITOR_FONTS = [
+  {
+    key: 'kenney_future',
+    url: 'fonts/kenney-future.ttf',
+    type: 'font',
+    format: 'truetype',
+    sha256: 'sha256-7a55b07f5968fac872648a7c5e959bd2b93e06f63153b585d56e4d5298ddff61',
+  },
+  {
+    key: 'kenney_future_narrow',
+    url: 'fonts/kenney-future-narrow.ttf',
+    type: 'font',
+    format: 'truetype',
+    sha256: 'sha256-17e182587a3264dcf9e5b17c055715d5597187546ce81925c64e9184c26d597f',
+  },
+] as const;
+
+export interface EditorPackFile {
+  type?: unknown;
+  key?: unknown;
+  url?: unknown;
+  format?: unknown;
+  descriptors?: unknown;
+}
+
+/** Flatten every declared file from every non-meta asset-pack section. */
+export function editorPackFiles(pack: unknown): EditorPackFile[] {
+  if (pack === null || typeof pack !== 'object') return [];
+  const files: EditorPackFile[] = [];
+  for (const [section, value] of Object.entries(pack as Record<string, unknown>)) {
+    if (section === 'meta' || value === null || typeof value !== 'object') continue;
+    const sectionFiles = (value as Record<string, unknown>)['files'];
+    if (Array.isArray(sectionFiles)) files.push(...(sectionFiles as EditorPackFile[]));
+  }
+  return files;
+}
+
+function isEmptyRecord(value: unknown): boolean {
+  return value !== null
+    && typeof value === 'object'
+    && !Array.isArray(value)
+    && Object.keys(value as Record<string, unknown>).length === 0;
+}
 
 /**
  * Validate the editor `asset-pack.json`: every image key corresponds to a catalog
@@ -162,32 +205,101 @@ export function validateEditorPack(pack: unknown, catalog: Catalog): CatalogIssu
   if (pack === null || typeof pack !== 'object') {
     return [{ entry: '$', code: 'invalid-pack', detail: 'asset-pack must be an object' }];
   }
-  const packRecord = pack as Record<string, unknown>;
-  const files: Array<{ type?: unknown; key?: unknown }> = [];
-  for (const [section, value] of Object.entries(packRecord)) {
-    if (section === 'meta' || value === null || typeof value !== 'object') continue;
-    const sectionFiles = (value as Record<string, unknown>)['files'];
-    if (Array.isArray(sectionFiles)) files.push(...(sectionFiles as Array<Record<string, unknown>>));
-  }
-  const imageKeys = new Set(
-    files.filter((f) => f.type === 'image').map((f) => String(f.key)),
+  const files = editorPackFiles(pack);
+  const catalogByKey = new Map(catalog.entries.map((entry) => [entry.packKey, entry]));
+  const fontsByKey = new Map<string, (typeof ALLOWED_EDITOR_FONTS)[number]>(
+    ALLOWED_EDITOR_FONTS.map((font) => [font.key, font]),
   );
-  const fontKeys = files
-    .filter((f) => f.type !== 'image')
-    .map((f) => String(f.key));
+  const seen = new Set<string>();
+  const imageKeys = new Set<string>();
+  const fontKeys = new Set<string>();
+
+  for (const file of files) {
+    const key = String(file.key ?? '');
+    if (seen.has(key)) {
+      issues.push({ entry: key || '(missing)', code: 'duplicate-pack-key', detail: key });
+    }
+    seen.add(key);
+
+    const catalogEntry = catalogByKey.get(key);
+    if (catalogEntry) {
+      imageKeys.add(key);
+      if (file.type !== 'image' || file.url !== catalogEntry.path) {
+        issues.push({
+          entry: key,
+          code: 'pack-schema-drift',
+          detail: `expected image ${catalogEntry.path}`,
+        });
+      }
+      continue;
+    }
+
+    const font = fontsByKey.get(key);
+    if (font) {
+      fontKeys.add(key);
+      if (
+        file.type !== font.type
+        || file.url !== font.url
+        || file.format !== font.format
+        || !isEmptyRecord(file.descriptors)
+      ) {
+        issues.push({
+          entry: key,
+          code: 'font-schema-drift',
+          detail: `expected raw ${font.format} font at ${font.url}`,
+        });
+      }
+      continue;
+    }
+
+    if (file.type === 'image') {
+      issues.push({ entry: key, code: 'pack-key-orphan', detail: key });
+    } else {
+      issues.push({ entry: key, code: 'unexpected-font', detail: `${key} is not a frozen TTF` });
+    }
+  }
 
   for (const entry of catalog.entries) {
     if (!imageKeys.has(entry.packKey)) {
       issues.push({ entry: entry.id, code: 'pack-key-missing', detail: entry.packKey });
     }
   }
-  const catalogKeys = new Set(catalog.entries.map((e) => e.packKey));
-  for (const key of imageKeys) {
-    if (!catalogKeys.has(key)) issues.push({ entry: key, code: 'pack-key-orphan', detail: key });
+  for (const font of ALLOWED_EDITOR_FONTS) {
+    if (!fontKeys.has(font.key)) {
+      issues.push({ entry: font.key, code: 'pack-font-missing', detail: font.url });
+    }
   }
-  for (const key of fontKeys) {
-    if (!ALLOWED_EDITOR_FONT_KEYS.includes(key)) {
-      issues.push({ entry: key, code: 'unexpected-font', detail: `${key} is not a frozen TTF` });
+  return issues;
+}
+
+/**
+ * Validate the bytes resolved by the editor pack. The map is keyed by each
+ * pack-relative URL (for example `assets/icon-control-play.png`).
+ */
+export function validateEditorAssetBytes(
+  pack: unknown,
+  catalog: Catalog,
+  bytesByUrl: ReadonlyMap<string, Buffer>,
+): CatalogIssue[] {
+  const issues = validateEditorPack(pack, catalog);
+  const catalogByKey = new Map(catalog.entries.map((entry) => [entry.packKey, entry]));
+  const fontsByKey = new Map<string, (typeof ALLOWED_EDITOR_FONTS)[number]>(
+    ALLOWED_EDITOR_FONTS.map((font) => [font.key, font]),
+  );
+
+  for (const file of editorPackFiles(pack)) {
+    const key = String(file.key ?? '');
+    const url = String(file.url ?? '');
+    const bytes = bytesByUrl.get(url);
+    if (!bytes) {
+      issues.push({ entry: key || url, code: 'asset-file-missing', detail: url });
+      continue;
+    }
+    const expected = catalogByKey.get(key)?.sha256 ?? fontsByKey.get(key)?.sha256;
+    if (!expected) continue;
+    const actual = `sha256-${createHash('sha256').update(bytes).digest('hex')}`;
+    if (actual !== expected) {
+      issues.push({ entry: key, code: 'asset-hash-drift', detail: `${url} hash differs from frozen source` });
     }
   }
   return issues;

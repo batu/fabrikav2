@@ -51,6 +51,11 @@ export interface PublishInput {
   catalog: Catalog;
   editorPack: unknown;
   editorPackBytes: Buffer;
+  /** Exact payload bytes resolved by the editor pack, keyed by pack URL. */
+  editorAssetBytesByUrl: ReadonlyMap<string, Buffer>;
+  editorAssetSymlinks: readonly string[];
+  /** Zero-byte Phaser Editor marker that makes `public/` the project web root. */
+  publicRootMarkerBytes: Buffer;
   editorConfigBytes: Buffer;
   userComponentsBytes: Buffer;
   /** The accepted generated `scenes/shell.js` runtime bundle (GUI-compiled). */
@@ -95,7 +100,13 @@ export async function publish(input: PublishInput): Promise<PublishResult> {
   // 1. Validate the authoring project (kernel authority + lane block codes).
   const docScenes = new Map<ShellStateIdV2, SceneDoc>();
   for (const [state, s] of input.scenes) docScenes.set(state, s.doc);
-  const validation = validateProject({ scenes: docScenes, catalog: input.catalog, editorPack: input.editorPack });
+  const validation = validateProject({
+    scenes: docScenes,
+    catalog: input.catalog,
+    editorPack: input.editorPack,
+    editorAssetBytesByUrl: input.editorAssetBytesByUrl,
+    editorAssetSymlinks: input.editorAssetSymlinks,
+  });
   if (validation.result === 'blocked') return { result: 'blocked', blocks: validation.blocks };
   const blocks: Block[] = [];
 
@@ -151,6 +162,10 @@ export async function publish(input: PublishInput): Promise<PublishResult> {
   files.set('source/components/Semantic.ts', input.userComponentsBytes);
   files.set('source/phasereditor2d.config.json', input.editorConfigBytes);
   files.set('source/public/assets/asset-pack.json', input.editorPackBytes);
+  for (const [url, bytes] of [...input.editorAssetBytesByUrl].sort(([a], [b]) => (a < b ? -1 : 1))) {
+    files.set(`source/public/${url}`, bytes);
+  }
+  files.set('source/public/publicroot', input.publicRootMarkerBytes);
   // Canonical projection candidate.
   for (const artifact of bundle.artifacts) files.set(`projection/${artifact.path}`, artifact.content);
 

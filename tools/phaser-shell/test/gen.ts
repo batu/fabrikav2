@@ -4,6 +4,7 @@
 import { readFileSync } from 'node:fs';
 import { parseSceneDoc, type SceneDoc } from '../src/authoring/sceneModel.ts';
 import { parseCatalog, indexById, type Catalog } from '../src/authoring/catalog.ts';
+import { loadEditorAssets } from '../src/authoring/editorAssets.ts';
 import { STATE_IDS } from '../src/authoring/extractV2.ts';
 import type { PublishInput, SceneInput } from '../src/publish/publish.ts';
 import type { ShellStateIdV2 } from '@fabrikav2/kernel';
@@ -71,14 +72,21 @@ export function loadPublishInput(
     scenes.set(state, { doc, sceneBytes, generatedSource: synthGeneratedSource(doc) });
   }
   const assetBytesById = new Map<string, Buffer>();
+  const editorPackPath = repoPath(...EDITOR, 'public', 'assets', 'asset-pack.json');
+  const editorPack = JSON.parse(readFileSync(editorPackPath, 'utf8'));
+  const editorAssets = loadEditorAssets(repoPath(...EDITOR, 'public'), editorPack);
   for (const entry of indexById(catalog).values()) {
-    assetBytesById.set(entry.id, readFileSync(repoPath('games', 'shell_proof_phaser', 'design', entry.path)));
+    const bytes = editorAssets.bytesByUrl.get(entry.path);
+    if (bytes) assetBytesById.set(entry.id, bytes);
   }
   return {
     scenes,
     catalog,
-    editorPack: JSON.parse(readFileSync(repoPath(...EDITOR, 'public', 'assets', 'asset-pack.json'), 'utf8')),
-    editorPackBytes: readFileSync(repoPath(...EDITOR, 'public', 'assets', 'asset-pack.json')),
+    editorPack,
+    editorPackBytes: readFileSync(editorPackPath),
+    editorAssetBytesByUrl: editorAssets.bytesByUrl,
+    editorAssetSymlinks: editorAssets.symlinkUrls,
+    publicRootMarkerBytes: readFileSync(repoPath(...EDITOR, 'public', 'publicroot')),
     editorConfigBytes: readFileSync(repoPath(...EDITOR, 'phasereditor2d.config.json')),
     userComponentsBytes: readFileSync(repoPath(...EDITOR, 'src', 'components', 'Semantic.ts')),
     runtimeSceneJs: RUNTIME_SHELL_JS,

@@ -6,6 +6,7 @@ import { computeShellPublicationIdV2 } from '@fabrikav2/kernel';
 import { publish } from '../src/publish/publish.ts';
 import { sha256, canonicalJson, computeManifestDigest, type FileHash } from '../src/publish/manifest.ts';
 import { loadPublishInput } from './gen.ts';
+import { repoPath } from './helpers.ts';
 
 const tmps: string[] = [];
 function tmp(): string {
@@ -58,5 +59,19 @@ describe('P5 non-circular manifest preimages', () => {
       expect(sha256(bytes)).toBe(file.sha256);
       expect(bytes.length).toBe(file.bytes);
     }
+  });
+
+  it('retains every editor raster, frozen font, and public-root marker in the portable source manifest', async () => {
+    const r = await publish(loadPublishInput(tmp()));
+    const manifest = JSON.parse(readFileSync(path.join(r.dir!, 'manifest.json'), 'utf8')) as { files: FileHash[] };
+    const paths = new Set(manifest.files.map((file) => file.path));
+    const pack = JSON.parse(readFileSync(repoPath(
+      'games', 'shell_proof_phaser', 'authoring', 'phaser-editor', 'public', 'assets', 'asset-pack.json',
+    ), 'utf8')) as Record<string, { files: Array<{ url: string }> }>;
+
+    for (const file of pack['shell-authoring'].files) {
+      expect(paths.has(`source/public/${file.url}`), file.url).toBe(true);
+    }
+    expect(paths.has('source/public/publicroot')).toBe(true);
   });
 });

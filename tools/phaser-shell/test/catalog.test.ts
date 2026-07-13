@@ -1,15 +1,18 @@
 import { describe, it, expect } from 'vitest';
+import { createHash } from 'node:crypto';
+import { readFileSync, statSync } from 'node:fs';
 import { parseShellAssetCatalogDocument } from '@fabrikav2/kernel';
 import {
   parseCatalog,
   validateCatalog,
   validateEditorPack,
+  validateEditorAssetBytes,
   toShellAssetCatalog,
   indexById,
   type Catalog,
   type SeedAsset,
 } from '../src/authoring/catalog.ts';
-import { readJson } from './helpers.ts';
+import { readJson, repoPath } from './helpers.ts';
 
 const CATALOG_PATH = ['games', 'shell_proof_phaser', 'authoring', 'catalog', 'catalog.json'];
 const PACK_PATH = [
@@ -65,6 +68,62 @@ describe('P2 curated R9 catalog', () => {
     expect(issues).toEqual([]);
   });
 
+  it('ships every editor-pack byte at its declared URL with the frozen source hash', () => {
+    const pack = readJson(...PACK_PATH) as Record<string, { files: Array<Record<string, unknown>> }>;
+    const files = pack['shell-authoring'].files;
+    const expectedHashes = new Map(catalog.entries.map((entry) => [entry.path, entry.sha256]));
+    expectedHashes.set(
+      'fonts/kenney-future.ttf',
+      'sha256-7a55b07f5968fac872648a7c5e959bd2b93e06f63153b585d56e4d5298ddff61',
+    );
+    expectedHashes.set(
+      'fonts/kenney-future-narrow.ttf',
+      'sha256-17e182587a3264dcf9e5b17c055715d5597187546ce81925c64e9184c26d597f',
+    );
+
+    expect(files).toHaveLength(expectedHashes.size);
+    for (const file of files) {
+      const url = String(file['url']);
+      const bytes = readFileSync(repoPath(
+        'games', 'shell_proof_phaser', 'authoring', 'phaser-editor', 'public', url,
+      ));
+      const digest = `sha256-${createHash('sha256').update(bytes).digest('hex')}`;
+      expect(digest, url).toBe(expectedHashes.get(url));
+    }
+    expect(statSync(repoPath(
+      'games', 'shell_proof_phaser', 'authoring', 'phaser-editor', 'public', 'publicroot',
+    )).size).toBe(0);
+
+    const bytesByUrl = new Map(files.map((file) => {
+      const url = String(file['url']);
+      return [url, readFileSync(repoPath(
+        'games', 'shell_proof_phaser', 'authoring', 'phaser-editor', 'public', url,
+      ))];
+    }));
+    expect(validateEditorAssetBytes(pack, catalog, bytesByUrl)).toEqual([]);
+  });
+
+  it('declares raw TTFs with Phaser Editor 5 font-file metadata', () => {
+    const pack = readJson(...PACK_PATH) as Record<string, { files: Array<Record<string, unknown>> }>;
+    const fonts = pack['shell-authoring'].files.filter((file) => String(file['url']).endsWith('.ttf'));
+    expect(fonts).toEqual([
+      {
+        url: 'fonts/kenney-future.ttf',
+        type: 'font',
+        key: 'kenney_future',
+        format: 'truetype',
+        descriptors: {},
+      },
+      {
+        url: 'fonts/kenney-future-narrow.ttf',
+        type: 'font',
+        key: 'kenney_future_narrow',
+        format: 'truetype',
+        descriptors: {},
+      },
+    ]);
+  });
+
   describe('fails closed on drift', () => {
     it('rejects an entry pointing at a non-seed asset', () => {
       const mutated: Catalog = structuredClone(catalog);
@@ -89,9 +148,33 @@ describe('P2 curated R9 catalog', () => {
 
     it('rejects an editor pack that declares a non-frozen font', () => {
       const pack = readJson(...PACK_PATH) as Record<string, { files: Array<Record<string, unknown>> }>;
-      pack['shell-authoring'].files.push({ url: 'fonts/evil.ttf', type: 'bitmapFont', key: 'evil_font' });
+      pack['shell-authoring'].files.push({ url: 'fonts/evil.ttf', type: 'font', key: 'evil_font' });
       const issues = validateEditorPack(pack, catalog);
       expect(issues.some((i) => i.code === 'unexpected-font')).toBe(true);
+    });
+
+    it('rejects a frozen font declared with the wrong Phaser Editor asset type', () => {
+      const pack = readJson(...PACK_PATH) as Record<string, { files: Array<Record<string, unknown>> }>;
+      const font = pack['shell-authoring'].files.find((file) => file['key'] === 'kenney_future')!;
+      font['type'] = 'bitmapFont';
+      const issues = validateEditorPack(pack, catalog);
+      expect(issues.some((i) => i.code === 'font-schema-drift')).toBe(true);
+    });
+
+    it('rejects a missing or byte-drifted editor payload', () => {
+      const pack = readJson(...PACK_PATH) as Record<string, { files: Array<Record<string, unknown>> }>;
+      const files = pack['shell-authoring'].files;
+      const bytesByUrl = new Map(files.map((file) => {
+        const url = String(file['url']);
+        return [url, readFileSync(repoPath(
+          'games', 'shell_proof_phaser', 'authoring', 'phaser-editor', 'public', url,
+        ))];
+      }));
+      bytesByUrl.delete('fonts/kenney-future.ttf');
+      bytesByUrl.set('assets/icon-control-play.png', Buffer.from('tampered'));
+      const issues = validateEditorAssetBytes(pack, catalog, bytesByUrl);
+      expect(issues.some((i) => i.code === 'asset-file-missing')).toBe(true);
+      expect(issues.some((i) => i.code === 'asset-hash-drift')).toBe(true);
     });
   });
 

@@ -123,13 +123,17 @@
       },
       {
         "url": "fonts/kenney-future.ttf",
-        "type": "bitmapFont",
-        "key": "kenney_future"
+        "type": "font",
+        "key": "kenney_future",
+        "format": "truetype",
+        "descriptors": {}
       },
       {
         "url": "fonts/kenney-future-narrow.ttf",
-        "type": "bitmapFont",
-        "key": "kenney_future_narrow"
+        "type": "font",
+        "key": "kenney_future_narrow",
+        "format": "truetype",
+        "descriptors": {}
       }
     ]
   },

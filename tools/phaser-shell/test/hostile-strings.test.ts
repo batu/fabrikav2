@@ -1,10 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { parseSceneDoc, type SceneDoc } from '../src/authoring/sceneModel.ts';
 import { parseCatalog, type Catalog } from '../src/authoring/catalog.ts';
+import { loadEditorAssets } from '../src/authoring/editorAssets.ts';
 import { STATE_IDS } from '../src/authoring/extractV2.ts';
 import { validateProject } from '../src/publish/validate.ts';
 import { isActiveContent, isRemoteContent } from '../src/publish/safety.ts';
-import { readJson } from './helpers.ts';
+import { readJson, repoPath } from './helpers.ts';
 
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const scenePath = (state: string) => [
@@ -16,6 +17,9 @@ const catalog = parseCatalog(
 const pack = readJson(
   'games', 'shell_proof_phaser', 'authoring', 'phaser-editor', 'public', 'assets', 'asset-pack.json',
 );
+const assets = loadEditorAssets(repoPath(
+  'games', 'shell_proof_phaser', 'authoring', 'phaser-editor', 'public',
+), pack);
 
 /** Validate the committed project after setting menu.title copy to `copy`. */
 function validateWithTitleCopy(copy: string) {
@@ -28,7 +32,13 @@ function validateWithTitleCopy(copy: string) {
     }
     scenes.set(state, parseSceneDoc(raw));
   }
-  return validateProject({ scenes, catalog, editorPack: pack });
+  return validateProject({
+    scenes,
+    catalog,
+    editorPack: pack,
+    editorAssetBytesByUrl: assets.bytesByUrl,
+    editorAssetSymlinks: assets.symlinkUrls,
+  });
 }
 
 describe('P4 hostile strings — inert data passes, active/remote/markup blocks', () => {

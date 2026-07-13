@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { parseSceneDoc, type SceneDoc } from '../src/authoring/sceneModel.ts';
 import { parseCatalog, type Catalog } from '../src/authoring/catalog.ts';
+import { loadEditorAssets } from '../src/authoring/editorAssets.ts';
 import { STATE_IDS } from '../src/authoring/extractV2.ts';
 import { validateProject } from '../src/publish/validate.ts';
 import {
@@ -12,7 +13,7 @@ import {
   isGuideObject,
   outcomeForBlock,
 } from '../src/publish/safety.ts';
-import { readJson } from './helpers.ts';
+import { readJson, repoPath } from './helpers.ts';
 
 const CATALOG_PATH = ['games', 'shell_proof_phaser', 'authoring', 'catalog', 'catalog.json'];
 const PACK_PATH = [
@@ -27,16 +28,44 @@ type RawScene = Record<string, unknown>;
 type DisplayList = Array<Record<string, unknown>>;
 
 /** Fresh raw scenes + catalog + pack; mutators run against the raw before parse. */
-function loadRaw(): { rawByState: Map<(typeof STATE_IDS)[number], RawScene>; catalog: Catalog; pack: unknown } {
+function loadRaw(): {
+  rawByState: Map<(typeof STATE_IDS)[number], RawScene>;
+  catalog: Catalog;
+  pack: unknown;
+  assetBytes: Map<string, Buffer>;
+  assetSymlinks: string[];
+} {
   const rawByState = new Map<(typeof STATE_IDS)[number], RawScene>();
   for (const state of STATE_IDS) rawByState.set(state, readJson(...scenePath(state)) as RawScene);
-  return { rawByState, catalog: parseCatalog(readJson(...CATALOG_PATH)) as Catalog, pack: readJson(...PACK_PATH) };
+  const pack = readJson(...PACK_PATH);
+  const assets = loadEditorAssets(repoPath(
+    'games', 'shell_proof_phaser', 'authoring', 'phaser-editor', 'public',
+  ), pack);
+  return {
+    rawByState,
+    catalog: parseCatalog(readJson(...CATALOG_PATH)) as Catalog,
+    pack,
+    assetBytes: assets.bytesByUrl,
+    assetSymlinks: assets.symlinkUrls,
+  };
 }
 
-function build(rawByState: Map<(typeof STATE_IDS)[number], RawScene>, catalog: Catalog, pack: unknown) {
+function build(
+  rawByState: Map<(typeof STATE_IDS)[number], RawScene>,
+  catalog: Catalog,
+  pack: unknown,
+  assetBytes: ReadonlyMap<string, Buffer>,
+  assetSymlinks: readonly string[],
+) {
   const scenes = new Map<(typeof STATE_IDS)[number], SceneDoc>();
   for (const [state, raw] of rawByState) scenes.set(state, parseSceneDoc(raw));
-  return validateProject({ scenes, catalog, editorPack: pack });
+  return validateProject({
+    scenes,
+    catalog,
+    editorPack: pack,
+    editorAssetBytesByUrl: assetBytes,
+    editorAssetSymlinks: assetSymlinks,
+  });
 }
 
 function menuList(raw: Map<(typeof STATE_IDS)[number], RawScene>): DisplayList {
@@ -48,14 +77,18 @@ function find(list: DisplayList, id: string): Record<string, unknown> {
 
 describe('P4 typed validation gate (fail-closed, zero-write)', () => {
   it('the committed seven-scene project validates with zero blocks', () => {
-    const { rawByState, catalog, pack } = loadRaw();
-    expect(build(rawByState, catalog, pack).result).toBe('ok');
+    const ctx = loadRaw();
+    expect(build(
+      ctx.rawByState, ctx.catalog, ctx.pack, ctx.assetBytes, ctx.assetSymlinks,
+    ).result).toBe('ok');
   });
 
   const fires = (mutate: (ctx: ReturnType<typeof loadRaw>) => void, code: string) => () => {
     const ctx = loadRaw();
     mutate(ctx);
-    const result = build(ctx.rawByState, ctx.catalog, ctx.pack);
+    const result = build(
+      ctx.rawByState, ctx.catalog, ctx.pack, ctx.assetBytes, ctx.assetSymlinks,
+    );
     expect(result.result).toBe('blocked');
     expect(result.blocks.map((b) => b.code)).toContain(code);
   };
@@ -96,6 +129,10 @@ describe('P4 typed validation gate (fail-closed, zero-write)', () => {
     pack['shell-authoring'].files.push({ url: '../../../etc/passwd', type: 'image', key: 'escape_key' });
   }, 'blocked-unsafe-asset-path'));
 
+  it('blocked-symlink (declared editor payload resolves to a symlink)', fires((c) => {
+    c.assetSymlinks.push('assets/icon-control-play.png');
+  }, 'blocked-symlink'));
+
   it('blocked-guide-leak (safe-area guide carries a Semantic component)', fires((c) => {
     menuList(c.rawByState).push({
       type: 'Rectangle', id: 'guide-1', label: 'guide:safe-top', components: ['Semantic'],
@@ -112,7 +149,7 @@ describe('P4 typed validation gate (fail-closed, zero-write)', () => {
     const before = JSON.stringify([...ctx.rawByState.get('menu')!['displayList'] as DisplayList]);
     find(menuList(ctx.rawByState), 'menu.play')['Semantic.fabBinding'] = 'not-a-binding';
     const snapshot = JSON.stringify([...ctx.rawByState.get('menu')!['displayList'] as DisplayList]);
-    build(ctx.rawByState, ctx.catalog, ctx.pack);
+    build(ctx.rawByState, ctx.catalog, ctx.pack, ctx.assetBytes, ctx.assetSymlinks);
     // validateProject did not further mutate beyond the test's own edit.
     expect(JSON.stringify([...ctx.rawByState.get('menu')!['displayList'] as DisplayList])).toBe(snapshot);
     expect(snapshot).not.toBe(before);

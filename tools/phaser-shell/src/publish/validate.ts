@@ -17,7 +17,7 @@ import type { SceneDoc, SemanticObject } from '../authoring/sceneModel.ts';
 import { findDuplicateSemanticIds } from '../authoring/sceneModel.ts';
 import { BINDING_IDS, prototype } from '../authoring/semantic.ts';
 import { extractDocument } from '../authoring/extractV2.ts';
-import { toShellAssetCatalog, indexById } from '../authoring/catalog.ts';
+import { toShellAssetCatalog, indexById, validateEditorAssetBytes } from '../authoring/catalog.ts';
 import type { Catalog } from '../authoring/catalog.ts';
 import {
   isActiveContent,
@@ -36,6 +36,10 @@ export interface AuthoringProject {
   catalog: Catalog;
   /** Raw editor `asset-pack.json`. */
   editorPack: unknown;
+  /** Bytes resolved beneath the Editor project's public root, keyed by pack URL. */
+  editorAssetBytesByUrl: ReadonlyMap<string, Buffer>;
+  /** Declared pack URLs that resolve to symlinks instead of regular files. */
+  editorAssetSymlinks: readonly string[];
 }
 
 export interface ValidationResult {
@@ -135,6 +139,21 @@ export function validateProject(project: AuthoringProject): ValidationResult {
   const packKeyToId = new Map(
     [...indexById(project.catalog).values()].map((e) => [e.packKey, e.id]),
   );
+
+  for (const issue of validateEditorAssetBytes(
+    project.editorPack,
+    project.catalog,
+    project.editorAssetBytesByUrl,
+  )) {
+    blocks.push({
+      code: 'blocked-invalid-catalog-id',
+      where: `asset-pack:${issue.entry}`,
+      detail: `${issue.code}: ${issue.detail}`,
+    });
+  }
+  for (const url of project.editorAssetSymlinks) {
+    blocks.push({ code: 'blocked-symlink', where: `asset-pack:${url}`, detail: 'asset payload is a symlink' });
+  }
 
   // 1. Editor asset-pack path safety.
   if (project.editorPack && typeof project.editorPack === 'object') {
