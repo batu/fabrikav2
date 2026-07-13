@@ -34,7 +34,10 @@ export function synthGeneratedSource(doc: SceneDoc): string {
       lines.push(`    const ${v} = this.add.container(${x}, ${y});`);
     }
     const { originX, originY, scaleX, scaleY, width, height } = obj.geometry;
-    if (originX !== 0.5 || originY !== 0.5) lines.push(`    ${v}.setOrigin(${originX}, ${originY});`);
+    const defaultOrigin = obj.type === 'Text' || obj.type === 'BitmapText' ? 0 : 0.5;
+    if (originX !== defaultOrigin || originY !== defaultOrigin) {
+      lines.push(`    ${v}.setOrigin(${originX}, ${originY});`);
+    }
     if (scaleX !== 1) lines.push(`    ${v}.scaleX = ${scaleX};`);
     if (scaleY !== 1) lines.push(`    ${v}.scaleY = ${scaleY};`);
     if (width !== null) lines.push(`    ${v}.displayWidth = ${width};`);

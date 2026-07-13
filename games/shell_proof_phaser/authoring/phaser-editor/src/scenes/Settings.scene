@@ -24,14 +24,9 @@
             "Semantic.fabSemanticId": "settings.page",
             "Semantic.fabRole": "page-surface",
             "Semantic.fabBinding": "presentation.static",
-            "Semantic.fabSlot": "",
             "Semantic.fabVariant": "default",
             "x": 195,
-            "y": 422,
-            "originX": 0.5,
-            "originY": 0.5,
-            "width": 390,
-            "height": 844
+            "y": 422
         },
         {
             "type": "Text",
@@ -48,14 +43,13 @@
             "x": 195,
             "y": 16.88,
             "originX": 0.5,
-            "originY": 0.5,
             "text": "Settings",
             "fontFamily": "kenney_future",
             "fontSize": "28px",
             "color": "#ffffff"
         },
         {
-            "type": "Container",
+            "type": "Image",
             "id": "settings.back",
             "label": "settings.back",
             "components": [
@@ -66,12 +60,15 @@
             "Semantic.fabBinding": "flow.settings-back",
             "Semantic.fabSlot": "icon-control",
             "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "icon_control_back"
+            },
             "x": 15.6,
             "y": 21.1,
-            "originX": 0.5,
-            "originY": 0.5,
-            "width": 54.6,
-            "height": 59.08
+            "scaleX": 0.546,
+            "scaleY": 0.5908,
+            "originX": 0,
+            "originY": 0
         },
         {
             "type": "Text",

@@ -15,7 +15,7 @@
     },
     "displayList": [
         {
-            "type": "Container",
+            "type": "Image",
             "id": "level.currency",
             "label": "level.currency",
             "components": [
@@ -26,12 +26,15 @@
             "Semantic.fabBinding": "state.primary-currency",
             "Semantic.fabSlot": "counter-frame",
             "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "counter_frame_primary_currency"
+            },
             "x": 15.6,
             "y": 21.1,
-            "originX": 0.5,
-            "originY": 0.5,
-            "width": 124.8,
-            "height": 54.86
+            "scaleX": 1.248,
+            "scaleY": 0.5486,
+            "originX": 0,
+            "originY": 0
         },
         {
             "type": "Text",
@@ -43,19 +46,17 @@
             "Semantic.fabSemanticId": "level.label",
             "Semantic.fabRole": "level-label",
             "Semantic.fabBinding": "state.level-label",
-            "Semantic.fabSlot": "",
             "Semantic.fabVariant": "default",
             "x": 195,
             "y": 21.1,
             "originX": 0.5,
-            "originY": 0.5,
             "text": "Level",
             "fontFamily": "kenney_future",
             "fontSize": "28px",
             "color": "#ffffff"
         },
         {
-            "type": "Container",
+            "type": "Image",
             "id": "level.pause",
             "label": "level.pause",
             "components": [
@@ -66,12 +67,15 @@
             "Semantic.fabBinding": "flow.pause",
             "Semantic.fabSlot": "icon-control",
             "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "icon_control_pause"
+            },
             "x": 374.4,
             "y": 21.1,
-            "originX": 0.5,
-            "originY": 0.5,
-            "width": 54.6,
-            "height": 59.08
+            "scaleX": 0.546,
+            "scaleY": 0.5908,
+            "originX": 1,
+            "originY": 0
         },
         {
             "type": "Container",
@@ -86,11 +90,7 @@
             "Semantic.fabSlot": "gameplay-background",
             "Semantic.fabVariant": "default",
             "x": 195,
-            "y": 422,
-            "originX": 0.5,
-            "originY": 0.5,
-            "width": 351,
-            "height": 573.92
+            "y": 422
         },
         {
             "type": "Text",
@@ -106,8 +106,7 @@
             "Semantic.fabVariant": "default",
             "x": 11.7,
             "y": 827.12,
-            "originX": 0.5,
-            "originY": 0.5,
+            "originY": 1,
             "text": "Test Win",
             "fontFamily": "kenney_future",
             "fontSize": "28px",
@@ -127,8 +126,8 @@
             "Semantic.fabVariant": "default",
             "x": 378.3,
             "y": 827.12,
-            "originX": 0.5,
-            "originY": 0.5,
+            "originX": 1,
+            "originY": 1,
             "text": "Test Lose",
             "fontFamily": "kenney_future",
             "fontSize": "28px",

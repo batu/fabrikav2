@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseShellPresentationV2 } from '@fabrikav2/kernel';
+import { parseShellPresentationV2, shellPresentationContractV2 } from '@fabrikav2/kernel';
 import { parseSceneDoc, type SceneDoc } from '../src/authoring/sceneModel.ts';
 import { parseCatalog, toShellAssetCatalog, type Catalog } from '../src/authoring/catalog.ts';
 import {
@@ -72,6 +72,85 @@ describe('P3 kernel-v2 extraction', () => {
     expect(instance.roleId).toBe('top-icon-action');
     expect(instance.bindingId).toBe('flow.open-settings');
     expect(instance.actionId).toBe('menu.settings');
+  });
+
+  it('reflects Phaser Editor Image scale as normalized runtime geometry', () => {
+    const scenes = loadScenes();
+    const menu = scenes.get('menu')!;
+    const list = menu.raw['displayList'] as Array<Record<string, unknown>>;
+    const settings = list.find((o) => o['Semantic.fabSemanticId'] === 'menu.settings')!;
+    settings['scaleX'] = 0.7;
+    settings['scaleY'] = 0.8;
+    scenes.set('menu', parseSceneDoc(menu.raw));
+
+    const { document } = extractDocument(scenes, catalog);
+    const instance = document.pages
+      .find((p) => p.stateId === 'menu')!
+      .instances.find((i) => i.id === 'menu.settings')!;
+    expect(instance.presentation.geometry.size.width).toBeCloseTo(70 / 390);
+    expect(instance.presentation.geometry.size.height).toBeCloseTo(80 / 844);
+  });
+
+  it('preserves canonical size for the 128px current-node raster', () => {
+    const { document } = extractDocument(loadScenes(), catalog);
+    const current = document.pages
+      .find((p) => p.stateId === 'menu')!
+      .instances.find((i) => i.id === 'menu.node.current')!;
+    expect(current.presentation.geometry.size.width).toBeCloseTo(58.5 / 390);
+    expect(current.presentation.geometry.size.height).toBeCloseTo(67.52 / 844);
+  });
+
+  it('authors only runtime-representable Container sizes and asset objects', () => {
+    const assetSlots = new Set(['counter-frame', 'icon-control', 'progression-node']);
+    for (const scene of loadScenes().values()) {
+      for (const object of scene.objects) {
+        if (object.type === 'Container') {
+          expect(object.geometry.width, object.carrier.fabSemanticId).toBeNull();
+          expect(object.geometry.height, object.carrier.fabSemanticId).toBeNull();
+        }
+        if (assetSlots.has(object.carrier.fabSlot)) {
+          expect(object.type, object.carrier.fabSemanticId).toBe('Image');
+          expect(object.textureKey, object.carrier.fabSemanticId).not.toBeNull();
+        }
+      }
+    }
+  });
+
+  it('aligns every visible object origin with its contract anchor', () => {
+    const anchors = new Map(shellPresentationContractV2.anchors.map((anchor) => [anchor.id, anchor]));
+    const roles = new Map(shellPresentationContractV2.roles.map((role) => [role.id, role]));
+    for (const scene of loadScenes().values()) {
+      for (const object of scene.objects) {
+        if (object.type === 'Container') continue;
+        const role = roles.get(object.carrier.fabRole);
+        const anchor = role ? anchors.get(role.anchor) : undefined;
+        expect(anchor, object.carrier.fabSemanticId).toBeDefined();
+        expect(object.geometry.originX, object.carrier.fabSemanticId).toBe(anchor!.x);
+        expect(object.geometry.originY, object.carrier.fabSemanticId).toBe(anchor!.y);
+      }
+    }
+  });
+
+  it('uses Phaser Editor type-specific origin defaults after save normalization', () => {
+    const scenes = loadScenes();
+    const menu = scenes.get('menu')!;
+    const menuList = menu.raw['displayList'] as Array<Record<string, unknown>>;
+    const title = menuList.find((o) => o['Semantic.fabSemanticId'] === 'menu.title')!;
+    const node = menuList.find((o) => o['Semantic.fabSemanticId'] === 'menu.node.current')!;
+    delete title['originY']; // Text default serialized by Editor as omission.
+    delete node['originX']; // Image center defaults are omitted.
+    delete node['originY'];
+    const normalizedMenu = parseSceneDoc(menu.raw);
+    expect(normalizedMenu.objects.find((o) => o.carrier.fabSemanticId === 'menu.title')!.geometry.originY).toBe(0);
+    expect(normalizedMenu.objects.find((o) => o.carrier.fabSemanticId === 'menu.node.current')!.geometry.originX).toBe(0.5);
+    expect(normalizedMenu.objects.find((o) => o.carrier.fabSemanticId === 'menu.node.current')!.geometry.originY).toBe(0.5);
+
+    const level = scenes.get('level')!;
+    const levelList = level.raw['displayList'] as Array<Record<string, unknown>>;
+    const leftAction = levelList.find((o) => o['Semantic.fabSemanticId'] === 'level.test-win')!;
+    delete leftAction['originX']; // Text originX=0 is likewise omitted.
+    const normalizedLevel = parseSceneDoc(level.raw);
+    expect(normalizedLevel.objects.find((o) => o.carrier.fabSemanticId === 'level.test-win')!.geometry.originX).toBe(0);
   });
 
   it('keeps Pause and Settings as structurally distinct instance trees (R2)', () => {

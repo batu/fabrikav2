@@ -25,7 +25,7 @@ import type {
 } from '@fabrikav2/kernel';
 import { prototype, role as roleOf, requiredVariants } from './semantic.ts';
 import type { SceneDoc, SceneGeometry, SemanticObject } from './sceneModel.ts';
-import type { Catalog } from './catalog.ts';
+import type { Catalog, CatalogEntry } from './catalog.ts';
 import { indexById } from './catalog.ts';
 
 const contract = shellPresentationContractV2;
@@ -91,20 +91,27 @@ export function pixelToNormalizedGeometry(
   geo: SceneGeometry,
   roleId: string,
   base: ShellDefaultPresentation['geometry'],
+  sourceDimensions?: CatalogEntry['dimensions'],
 ): ShellDefaultPresentation['geometry'] {
   const anchor = anchorFor(roleId);
   const offset = {
     x: geo.x / CANVAS.width - anchor.x,
     y: geo.y / CANVAS.height - anchor.y,
   };
-  // Size is only overlaid when the scene carries an explicit display size;
-  // otherwise the canonical size is kept (Text objects author position, not size).
+  // Phaser Editor writes Image resizing as scale, not width/height. Resolve
+  // that scale against the curated source raster so a GUI resize survives
+  // extraction. Text and structural Containers retain the canonical size.
   const size =
     geo.width !== null && geo.height !== null
       ? {
           width: (geo.width * geo.scaleX) / CANVAS.width,
           height: (geo.height * geo.scaleY) / CANVAS.height,
         }
+      : sourceDimensions
+        ? {
+            width: (sourceDimensions.width * geo.scaleX) / CANVAS.width,
+            height: (sourceDimensions.height * geo.scaleY) / CANVAS.height,
+          }
       : base.size;
   return { offset, size, fit: base.fit };
 }
@@ -118,9 +125,10 @@ function overlayPresentation(
   const base = proto.defaultPresentation;
   const roleDef = roleOf(proto.roleId);
   const editable = new Set(roleDef?.editableProperties ?? []);
+  const assetEntry = resolveAssetEntry(obj, catalogIndex);
   const presentation: ShellDefaultPresentation = {
     geometry: editable.has('geometry')
-      ? pixelToNormalizedGeometry(obj.geometry, proto.roleId, base.geometry)
+      ? pixelToNormalizedGeometry(obj.geometry, proto.roleId, base.geometry, assetEntry?.dimensions)
       : base.geometry,
     order: base.order,
     visibility: obj.visible ? 'visible' : 'hidden',
@@ -131,7 +139,7 @@ function overlayPresentation(
     presentation.copy = base.copy;
   }
   if (editable.has('assetId')) {
-    const assetId = resolveAssetId(obj, catalogIndex);
+    const assetId = assetEntry?.id;
     if (assetId) presentation.assetId = assetId;
     else if (base.assetId !== undefined) presentation.assetId = base.assetId;
   } else if (base.assetId !== undefined) {
@@ -148,16 +156,16 @@ function overlayPresentation(
 }
 
 /** Resolve a scene object's asset id from an `asset:<id>` binding or a texture key. */
-function resolveAssetId(
+function resolveAssetEntry(
   obj: SemanticObject,
   catalogIndex: Map<string, ReturnType<Catalog['entries']['at']>>,
-): string | undefined {
+): CatalogEntry | undefined {
   const binding = obj.carrier.fabBinding;
   const m = /^asset:(.+)$/.exec(binding);
-  if (m && catalogIndex.has(m[1])) return m[1];
+  if (m) return catalogIndex.get(m[1]);
   if (obj.textureKey) {
-    for (const [id, entry] of catalogIndex) {
-      if (entry && entry.packKey === obj.textureKey) return id;
+    for (const entry of catalogIndex.values()) {
+      if (entry?.packKey === obj.textureKey) return entry;
     }
   }
   return undefined;

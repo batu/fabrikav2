@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { parseSceneDoc } from '../src/authoring/sceneModel.ts';
+import { STATE_IDS } from '../src/authoring/extractV2.ts';
+import { repoPath } from './helpers.ts';
 import {
   verifyGeneratedModule,
   extractGeneratedFacts,
@@ -15,7 +18,8 @@ function scene() {
         type: 'Text', id: 't1', label: 'menu.title', components: ['Semantic'],
         'Semantic.fabSemanticId': 'menu.title', 'Semantic.fabRole': 'screen-title',
         'Semantic.fabBinding': 'presentation.static', 'Semantic.fabSlot': 'title-logo',
-        'Semantic.fabVariant': 'default', x: 195, y: 60, text: 'Play', color: '#ffffff',
+        'Semantic.fabVariant': 'default', x: 195, y: 60, originX: 0.5, originY: 0.5,
+        text: 'Play', color: '#ffffff',
       },
       {
         type: 'Image', id: 'p1', label: 'menu.play', components: ['Semantic'],
@@ -59,6 +63,16 @@ export default class Menu extends Phaser.Scene {
 `;
 
 describe('P5 AST-fact parity over a closed generated-module graph', () => {
+  it('accepts the committed graph produced by the real Phaser Editor', () => {
+    for (const state of STATE_IDS) {
+      const name = state.charAt(0).toUpperCase() + state.slice(1);
+      const base = ['games', 'shell_proof_phaser', 'authoring', 'phaser-editor', 'src', 'scenes'];
+      const scene = parseSceneDoc(JSON.parse(readFileSync(repoPath(...base, `${name}.scene`), 'utf8')));
+      const generated = readFileSync(repoPath(...base, `${name}.ts`), 'utf8');
+      expect(verifyGeneratedModule(generated, scene), name).toEqual([]);
+    }
+  });
+
   it('accepts generated code whose facts match the scene authority', () => {
     expect(verifyGeneratedModule(GENERATED, scene())).toEqual([]);
   });

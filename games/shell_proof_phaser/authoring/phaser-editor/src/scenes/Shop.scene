@@ -24,14 +24,9 @@
             "Semantic.fabSemanticId": "shop.page",
             "Semantic.fabRole": "page-surface",
             "Semantic.fabBinding": "presentation.static",
-            "Semantic.fabSlot": "",
             "Semantic.fabVariant": "default",
             "x": 195,
-            "y": 422,
-            "originX": 0.5,
-            "originY": 0.5,
-            "width": 390,
-            "height": 844
+            "y": 422
         },
         {
             "type": "Text",
@@ -48,14 +43,13 @@
             "x": 195,
             "y": 16.88,
             "originX": 0.5,
-            "originY": 0.5,
             "text": "Shop",
             "fontFamily": "kenney_future",
             "fontSize": "28px",
             "color": "#ffffff"
         },
         {
-            "type": "Container",
+            "type": "Image",
             "id": "shop.back",
             "label": "shop.back",
             "components": [
@@ -66,15 +60,18 @@
             "Semantic.fabBinding": "flow.shop-back",
             "Semantic.fabSlot": "icon-control",
             "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "icon_control_back"
+            },
             "x": 15.6,
             "y": 21.1,
-            "originX": 0.5,
-            "originY": 0.5,
-            "width": 54.6,
-            "height": 59.08
+            "scaleX": 0.546,
+            "scaleY": 0.5908,
+            "originX": 0,
+            "originY": 0
         },
         {
-            "type": "Container",
+            "type": "Image",
             "id": "shop.currency",
             "label": "shop.currency",
             "components": [
@@ -85,15 +82,18 @@
             "Semantic.fabBinding": "state.primary-currency",
             "Semantic.fabSlot": "counter-frame",
             "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "counter_frame_primary_currency"
+            },
             "x": 15.6,
             "y": 92.84,
-            "originX": 0.5,
-            "originY": 0.5,
-            "width": 124.8,
-            "height": 54.86
+            "scaleX": 1.248,
+            "scaleY": 0.5486,
+            "originX": 0,
+            "originY": 0
         },
         {
-            "type": "Container",
+            "type": "Image",
             "id": "shop.currency.secondary",
             "label": "shop.currency.secondary",
             "components": [
@@ -104,12 +104,15 @@
             "Semantic.fabBinding": "state.secondary-currency",
             "Semantic.fabSlot": "counter-frame",
             "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "counter_frame_primary_currency"
+            },
             "x": 202.8,
             "y": 92.84,
-            "originX": 0.5,
-            "originY": 0.5,
-            "width": 124.8,
-            "height": 54.86
+            "scaleX": 1.248,
+            "scaleY": 0.5486,
+            "originX": 0,
+            "originY": 0
         },
         {
             "type": "Container",
@@ -121,14 +124,9 @@
             "Semantic.fabSemanticId": "shop.grid",
             "Semantic.fabRole": "item-grid",
             "Semantic.fabBinding": "state.shop-items",
-            "Semantic.fabSlot": "",
             "Semantic.fabVariant": "default",
             "x": 195,
-            "y": 447.32,
-            "originX": 0.5,
-            "originY": 0.5,
-            "width": 351,
-            "height": 438.88
+            "y": 447.32
         },
         {
             "type": "Text",
@@ -140,7 +138,6 @@
             "Semantic.fabSemanticId": "shop.item.available",
             "Semantic.fabRole": "item-card",
             "Semantic.fabBinding": "state.shop-items",
-            "Semantic.fabSlot": "",
             "Semantic.fabVariant": "default",
             "x": 113.1,
             "y": 337.6,
@@ -161,7 +158,6 @@
             "Semantic.fabSemanticId": "shop.item.owned",
             "Semantic.fabRole": "item-card",
             "Semantic.fabBinding": "state.shop-items",
-            "Semantic.fabSlot": "",
             "Semantic.fabVariant": "default",
             "x": 276.9,
             "y": 337.6,
@@ -182,7 +178,6 @@
             "Semantic.fabSemanticId": "shop.item.locked",
             "Semantic.fabRole": "item-card",
             "Semantic.fabBinding": "state.shop-items",
-            "Semantic.fabSlot": "",
             "Semantic.fabVariant": "default",
             "x": 113.1,
             "y": 540.16,
@@ -208,7 +203,7 @@
             "x": 195,
             "y": 827.12,
             "originX": 0.5,
-            "originY": 0.5,
+            "originY": 1,
             "text": "Restore",
             "fontFamily": "kenney_future",
             "fontSize": "28px",

@@ -36,7 +36,7 @@
             "color": "#ffffff"
         },
         {
-            "type": "Container",
+            "type": "Image",
             "id": "fail.currency",
             "label": "fail.currency",
             "components": [
@@ -47,12 +47,15 @@
             "Semantic.fabBinding": "state.primary-currency",
             "Semantic.fabSlot": "counter-frame",
             "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "counter_frame_primary_currency"
+            },
             "x": 15.6,
             "y": 92.84,
-            "originX": 0.5,
-            "originY": 0.5,
-            "width": 124.8,
-            "height": 54.86
+            "scaleX": 1.248,
+            "scaleY": 0.5486,
+            "originX": 0,
+            "originY": 0
         },
         {
             "type": "Text",
@@ -69,7 +72,7 @@
             "x": 195,
             "y": 607.68,
             "originX": 0.5,
-            "originY": 0.5,
+            "originY": 1,
             "text": "Continue",
             "fontFamily": "kenney_future",
             "fontSize": "28px",
@@ -90,7 +93,7 @@
             "x": 195,
             "y": 776.48,
             "originX": 0.5,
-            "originY": 0.5,
+            "originY": 1,
             "text": "Bundle",
             "fontFamily": "kenney_future",
             "fontSize": "28px",
@@ -111,7 +114,7 @@
             "x": 195,
             "y": 692.08,
             "originX": 0.5,
-            "originY": 0.5,
+            "originY": 1,
             "text": "Retry",
             "fontFamily": "kenney_future",
             "fontSize": "28px",

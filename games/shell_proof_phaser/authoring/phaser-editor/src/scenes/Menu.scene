@@ -29,7 +29,6 @@
             "x": 195,
             "y": 16.88,
             "originX": 0.5,
-            "originY": 0.5,
             "text": "Game Title",
             "fontFamily": "kenney_future",
             "fontSize": "28px",
@@ -48,14 +47,10 @@
             "Semantic.fabSlot": "hero-art",
             "Semantic.fabVariant": "default",
             "x": 195,
-            "y": 312.28,
-            "originX": 0.5,
-            "originY": 0.5,
-            "width": 292.5,
-            "height": 270.08
+            "y": 312.28
         },
         {
-            "type": "Container",
+            "type": "Image",
             "id": "menu.currency",
             "label": "menu.currency",
             "components": [
@@ -66,12 +61,15 @@
             "Semantic.fabBinding": "state.primary-currency",
             "Semantic.fabSlot": "counter-frame",
             "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "counter_frame_primary_currency"
+            },
             "x": 15.6,
             "y": 21.1,
-            "originX": 0.5,
-            "originY": 0.5,
-            "width": 124.8,
-            "height": 54.86
+            "scaleX": 1.248,
+            "scaleY": 0.5486,
+            "originX": 0,
+            "originY": 0
         },
         {
             "type": "Container",
@@ -83,17 +81,12 @@
             "Semantic.fabSemanticId": "menu.nav",
             "Semantic.fabRole": "bottom-nav",
             "Semantic.fabBinding": "presentation.static",
-            "Semantic.fabSlot": "",
             "Semantic.fabVariant": "default",
             "x": 195,
-            "y": 827.12,
-            "originX": 0.5,
-            "originY": 0.5,
-            "width": 351,
-            "height": 84.4
+            "y": 827.12
         },
         {
-            "type": "Container",
+            "type": "Image",
             "id": "menu.shop",
             "label": "menu.shop",
             "components": [
@@ -104,12 +97,15 @@
             "Semantic.fabBinding": "flow.open-shop",
             "Semantic.fabSlot": "icon-control",
             "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "icon_control_shop"
+            },
             "x": 312,
             "y": 21.1,
-            "originX": 0.5,
-            "originY": 0.5,
-            "width": 54.6,
-            "height": 59.08
+            "scaleX": 0.546,
+            "scaleY": 0.5908,
+            "originX": 1,
+            "originY": 0
         },
         {
             "type": "Text",
@@ -126,14 +122,14 @@
             "x": 195,
             "y": 810.24,
             "originX": 0.5,
-            "originY": 0.5,
+            "originY": 1,
             "text": "Play",
             "fontFamily": "kenney_future",
             "fontSize": "28px",
             "color": "#ffffff"
         },
         {
-            "type": "Container",
+            "type": "Image",
             "id": "menu.settings",
             "label": "menu.settings",
             "components": [
@@ -144,12 +140,15 @@
             "Semantic.fabBinding": "flow.open-settings",
             "Semantic.fabSlot": "icon-control",
             "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "icon_control_settings"
+            },
             "x": 374.4,
             "y": 21.1,
-            "originX": 0.5,
-            "originY": 0.5,
-            "width": 54.6,
-            "height": 59.08
+            "scaleX": 0.546,
+            "scaleY": 0.5908,
+            "originX": 1,
+            "originY": 0
         },
         {
             "type": "Container",
@@ -161,17 +160,12 @@
             "Semantic.fabSemanticId": "menu.progression-map",
             "Semantic.fabRole": "progression-map",
             "Semantic.fabBinding": "state.progression",
-            "Semantic.fabSlot": "",
             "Semantic.fabVariant": "default",
             "x": 195,
-            "y": 548.6,
-            "originX": 0.5,
-            "originY": 0.5,
-            "width": 351,
-            "height": 354.48
+            "y": 548.6
         },
         {
-            "type": "Container",
+            "type": "Image",
             "id": "menu.node.completed",
             "label": "menu.node.completed",
             "components": [
@@ -182,15 +176,16 @@
             "Semantic.fabBinding": "state.progression",
             "Semantic.fabSlot": "progression-node",
             "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "progression_node_completed"
+            },
             "x": 101.4,
             "y": 557.04,
-            "originX": 0.5,
-            "originY": 0.5,
-            "width": 58.5,
-            "height": 67.52
+            "scaleX": 0.585,
+            "scaleY": 0.6752
         },
         {
-            "type": "Container",
+            "type": "Image",
             "id": "menu.node.current",
             "label": "menu.node.current",
             "components": [
@@ -201,15 +196,16 @@
             "Semantic.fabBinding": "flow.start-current",
             "Semantic.fabSlot": "progression-node",
             "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "progression_node_current"
+            },
             "x": 195,
             "y": 590.8,
-            "originX": 0.5,
-            "originY": 0.5,
-            "width": 58.5,
-            "height": 67.52
+            "scaleX": 0.45703125,
+            "scaleY": 0.5275
         },
         {
-            "type": "Container",
+            "type": "Image",
             "id": "menu.node.locked",
             "label": "menu.node.locked",
             "components": [
@@ -220,12 +216,13 @@
             "Semantic.fabBinding": "state.progression",
             "Semantic.fabSlot": "progression-node",
             "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "progression_node_locked"
+            },
             "x": 288.6,
             "y": 557.04,
-            "originX": 0.5,
-            "originY": 0.5,
-            "width": 58.5,
-            "height": 67.52
+            "scaleX": 0.585,
+            "scaleY": 0.6752
         }
     ],
     "plainObjects": [],
