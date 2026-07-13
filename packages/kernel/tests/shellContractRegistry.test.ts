@@ -248,7 +248,12 @@ describe('shell-presentation-v2 contract document', () => {
     expect(instances.get('win.claim-double')?.bindingId).toBe('flow.claim-double');
     expect(instances.get('win.claim-double')?.actionId).toBe('win-claim-double');
     expect(instances.has('win.home')).toBe(false);
-    expect(instances.get('win.next')?.bindingId).toBe('flow.next'); // still present, runtime-gated
+    // win.next is a conditional POST-CLAIM navigation instance (required=false):
+    // the pre-claim surface shows only reward + claim + claim-double, then Next
+    // replaces them once a claim succeeds. It stays a declared advance action so
+    // any win publication still carries a visible flow.next control.
+    expect(instances.get('win.next')?.bindingId).toBe('flow.next');
+    expect(instances.get('win.next')?.required).toBe(false);
     expect(actionIds).toEqual(expect.arrayContaining(['win-claim', 'win-claim-double', 'win-next']));
     expect(actionIds).not.toContain('win-home');
     const claimDouble = shellPresentationContractV2.requiredActions.find((a) => a.id === 'win-claim-double');

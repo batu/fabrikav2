@@ -10,7 +10,7 @@ export const copy = {
   "menu.hero": "A winding trail through green hills",
   "menu.progression": "Trail progress",
   "menu.start": "Trail start",
-  "menu.play": "Continue",
+  "menu.play": "Play",
   "menu.loading": "Preparing trail",
   "menu.level": "Trail",
   "menu.node.completed": "Complete",

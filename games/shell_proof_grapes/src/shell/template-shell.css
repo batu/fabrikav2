@@ -563,7 +563,11 @@ body {
   min-width: 0;
   max-width: 390px;
   gap: 10px;
-  padding: 30px var(--fab-space-md) max(var(--fab-space-md), env(safe-area-inset-bottom));
+  /* The rescue sheet is docked flush to the bottom edge, so the last control
+     (the bundle) must clear the device home indicator / gesture area. Floor the
+     bottom padding at space-lg above whatever the safe-area inset reports (0 on
+     Android), so the bundle never reaches the raw viewport bottom. */
+  padding: 30px var(--fab-space-md) max(var(--fab-space-lg), env(safe-area-inset-bottom));
   border-color: var(--fab-seed-color-fail-border);
   border-bottom: 0;
   border-radius: 28px 28px 0 0;
@@ -1040,9 +1044,13 @@ body {
   border-radius: var(--fab-radius-md);
   background: var(--fab-seed-color-utility-surface);
   box-shadow: none;
-  color: var(--fab-color-text);
+  /* The dark slate dock surface needs its labels on the light on-accent ink,
+     not the dark body text: dark-on-slate read at ~2.3:1 (fails AA). White at
+     ~5.8:1 passes AA for the 14px bold label and matches the white nav icons. */
+  color: var(--fab-seed-color-on-accent);
   font-family: var(--fab-font-family);
   font-size: var(--fab-font-size-sm);
+  font-weight: var(--fab-font-weight-bold);
   text-shadow: none;
 }
 
@@ -1135,6 +1143,21 @@ body {
    result-next decision. */
 .template-shell__result-actions .fab-btn {
   font-family: var(--fab-font-family);
+}
+
+/* The rescue bundle is a complete, self-contained purchase card-button — a
+   bounded white surface with its own accent border and radius carrying the
+   visible price — clearly a purchasable control, never the borderless
+   quiet-exit row (that grammar belongs to Home/Resume). */
+.template-shell__fail-bundle {
+  min-height: var(--fab-btn-min-size);
+  margin-top: var(--fab-space-xs);
+  padding: var(--fab-space-xs) var(--fab-space-sm);
+  border: var(--fab-border-width) solid var(--fab-seed-color-accent);
+  border-radius: var(--fab-radius-md);
+  background: var(--fab-seed-color-shop-card-surface);
+  color: var(--fab-color-text);
+  box-shadow: none;
 }
 
 /* Disabled result actions stay full-opacity with an explicit muted fill (never a

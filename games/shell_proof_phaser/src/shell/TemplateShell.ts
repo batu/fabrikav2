@@ -704,8 +704,10 @@ function rewardReadout(snapshot: TemplateShellSnapshot): HTMLElement {
   return readout;
 }
 
-/** The win claim surface: Claim + Claim-2x (Watch ad), with Next gated behind a
- *  claim. All three are always present; only their disabled state changes. */
+/** The win claim surface. Pre-claim it shows ONLY the reward Claim + Claim-2x
+ *  (Watch ad); once a claim succeeds those two are REPLACED by the Next
+ *  navigation. Next is never disclosed as a disabled control before a claim, so
+ *  the reward is the surface's whole story until it is banked. */
 function winActions(
   snapshot: TemplateShellSnapshot,
   controller: TemplateShellController,
@@ -713,38 +715,44 @@ function winActions(
 ): HTMLElement {
   const slot = document.createElement("div");
   slot.className = "template-shell__result-actions template-shell__win-actions";
-  const claimed = snapshot.rewardClaimed;
 
-  const claim = buildButtonElement({
-    label: copy["win.claim"],
-    ariaLabel: copy["win.claim"],
-    className: "template-shell__overlay-action template-shell__overlay-action--primary",
-    dataAction: "claim",
-    onClick: () => {
-      controller.claim();
-      render();
-    },
-  });
-  claim.dataset.fabInstance = "win.claim";
-  claim.disabled = claimed;
+  if (!snapshot.rewardClaimed) {
+    const claim = buildButtonElement({
+      label: copy["win.claim"],
+      ariaLabel: copy["win.claim"],
+      className: "template-shell__overlay-action template-shell__overlay-action--primary",
+      dataAction: "claim",
+      onClick: () => {
+        controller.claim();
+        render();
+      },
+    });
+    claim.dataset.fabInstance = "win.claim";
 
-  const claimDouble = buildButtonElement({
-    label: copy["win.claim-double"],
-    ariaLabel: `${copy["win.claim-double"]}, ${copy["win.claim-double.sub"]}`,
-    className: "template-shell__overlay-action template-shell__overlay-action--secondary template-shell__claim-double",
-    dataAction: "claim-double",
-    onClick: () => {
-      void controller.claimDouble().then(render);
-    },
-  });
-  claimDouble.dataset.fabInstance = "win.claim-double";
-  // The rewarded seam is inert once claimed and disabled when no ad is available.
-  claimDouble.disabled = claimed || !snapshot.adAvailable;
-  const adSub = document.createElement("span");
-  adSub.className = "template-shell__claim-sub";
-  adSub.textContent = copy["win.claim-double.sub"];
-  claimDouble.appendChild(adSub);
+    const claimDouble = buildButtonElement({
+      label: copy["win.claim-double"],
+      ariaLabel: `${copy["win.claim-double"]}, ${copy["win.claim-double.sub"]}`,
+      className: "template-shell__overlay-action template-shell__overlay-action--secondary template-shell__claim-double",
+      dataAction: "claim-double",
+      onClick: () => {
+        void controller.claimDouble().then(render);
+      },
+    });
+    claimDouble.dataset.fabInstance = "win.claim-double";
+    // The rewarded seam is disabled when no ad is available (a try-later state).
+    claimDouble.disabled = !snapshot.adAvailable;
+    const adSub = document.createElement("span");
+    adSub.className = "template-shell__claim-sub";
+    adSub.textContent = copy["win.claim-double.sub"];
+    claimDouble.appendChild(adSub);
 
+    slot.append(claim, claimDouble);
+    return slot;
+  }
+
+  // Post-claim: the reward is banked, so Next replaces the claim actions as the
+  // single forward affordance (enabled — the controller only reaches here once a
+  // claim has succeeded).
   const next = buildButtonElement({
     label: copy["win.next"],
     ariaLabel: copy["win.next"],
@@ -756,9 +764,8 @@ function winActions(
     },
   });
   next.dataset.fabInstance = "win.next";
-  next.disabled = !claimed;
 
-  slot.append(claim, claimDouble, next);
+  slot.append(next);
   return slot;
 }
 
@@ -797,11 +804,15 @@ function failActions(
   });
   retry.dataset.fabInstance = "fail.retry";
 
+  // The bundle is a complete, self-contained purchase card/button — a bounded
+  // surface with its own border and an explicit price/state — not the borderless
+  // tertiary "quiet exit" grammar (that belongs to Home/Resume rows). It carries
+  // the real IAP price when ready and a legible unavailable state otherwise.
   const priced = snapshot.bundleAvailable && snapshot.bundlePrice !== null;
   const bundle = buildButtonElement({
     label: `${copy["fail.bundle"]} · ${priced ? snapshot.bundlePrice : copy["fail.unavailable"]}`,
     ariaLabel: `${copy["fail.bundle"]}, ${priced ? snapshot.bundlePrice : copy["fail.unavailable"]}`,
-    className: "template-shell__overlay-action template-shell__overlay-action--tertiary template-shell__fail-bundle",
+    className: "template-shell__overlay-action template-shell__fail-bundle",
     dataAction: "bundle",
     onClick: () => {
       void controller.purchaseBundle().then(render);

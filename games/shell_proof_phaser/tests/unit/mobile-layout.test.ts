@@ -51,6 +51,16 @@ describe("safe-top inset floor", () => {
       /\.template-shell__shop\s*\{[^}]*box-sizing:\s*border-box;[^}]*height:\s*100dvh;/s,
     );
   });
+
+  it("floors the docked fail rescue sheet bottom above the safe-area inset", () => {
+    // The fail rescue card is a bottom sheet docked flush to the viewport edge,
+    // so its last control (the bundle) must clear the device home indicator. The
+    // bottom padding floors at space-lg above env(safe-area-inset-bottom) (0 on
+    // Android) so the bundle never reaches the raw viewport bottom.
+    expect(templateShellCss()).toMatch(
+      /\.template-shell\[data-fab-state="fail"\] \.fab-result-card\s*\{[^}]*padding:[^;]*max\(var\(--fab-space-lg\), env\(safe-area-inset-bottom\)\);/s,
+    );
+  });
 });
 
 describe("shop grid two-column contract", () => {

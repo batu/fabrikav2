@@ -91,3 +91,46 @@ Recorded this as an architectural conflict for the conductor.
 **Next.** Commit A (functional: contract + proofs + hashes + refs + evidence),
 reseal the two-commit freeze as commit B, run the full project gate, capture
 web-canvas frames (device deferred to the conductor), hand off.
+
+---
+
+## Aesthetics round-1 P1 remediation (2026-07-13, reopened from aesthetics_reviewed)
+
+Fable's round-1 review returned FIX-THEN-SHIP with five P1 blockers; all five are
+closed in the v2 contract + both proof games (byte-identical frozen files),
+renderer/CSS only where possible.
+
+- **P1-1 Play copy.** `menu.play` was "Continue"; the FTD source hierarchy labels
+  the dominant center action **Play** (`HomeScene.ts` L559-574, aria "Play Level
+  N"). Changed the copy seed to "Play" in both games (frozen, twin-identical
+  apart from the title line).
+- **P1-2 dock contrast.** Shop/Settings dock labels were dark body text on the
+  dark slate dock surface (~2.3:1, fails AA). Moved the nav-action label ink to
+  the light on-accent token (~5.8:1, matches the white nav icons) and bumped it
+  to bold. Renderer CSS only (lane-owned).
+- **P1-3 pre/post-claim disclosure.** The pre-claim win surface no longer
+  discloses a disabled Next: it renders **only** reward + Claim + Claim 2x, then
+  swaps them for a single enabled **Next** after a claim. This required one
+  honest contract change — `win.next` is now `required: false` (a conditional
+  post-claim navigation instance, mirroring the already-optional `fail.bundle`):
+  with all of win.claim/win.claim-double/win.next `required`, no single rendered
+  surface could satisfy the contract-mapping test across the pre/post split. The
+  parser still accepts it (the `win-next` requiredAction is validated by
+  visibility, not the instance `required` flag; `required` only relaxes the
+  renderer's obligation). Controller/economy behavior is unchanged. Kernel green
+  (122); added a `win.next.required === false` assertion.
+- **P1-4 fail safe-area.** The docked rescue sheet floored its bottom padding at
+  space-md; bumped to `max(space-lg, env(safe-area-inset-bottom))` so the bundle
+  clears the device home indicator instead of reaching the raw viewport bottom.
+- **P1-5 bundle as card.** The bundle used the borderless tertiary quiet-exit
+  grammar and read as loose text; it is now a complete bounded purchase
+  card-button (white card surface + its own accent border) carrying the visible
+  price. Renderer class + CSS only.
+
+Strengthened frozen tests for each seam (Play copy + dock ink, pre/post
+disclosure with a dedicated test, bundle-is-a-card + no-tertiary, fail safe
+bottom). Both proof games: 95/95. Regenerated `baseline/behavior-hashes.json`
+(only the two changed test files). Web-canvas frames recaptured under
+`evidence/2026-07-13-ftd-aesthetics-p1/` in both games; device proof stays
+conductor-owned. `games/_template` code + `tools/create-game` + package-lock
+untouched.

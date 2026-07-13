@@ -157,11 +157,14 @@ describe("template shell progression flow", () => {
       rewardAmount: 5,
     });
     shell.render();
-    // Next is gated until claim; after the claim it is tappable and, on the
-    // terminal level, returns Home exactly once.
-    expect(shell.root.querySelector<HTMLButtonElement>('[data-fab-action="result-next"]')?.disabled).toBe(true);
+    // Pre-claim the win surface discloses only the reward claim actions; Next is
+    // not shown until a claim succeeds, then it is tappable and, on the terminal
+    // level, returns Home exactly once.
+    expect(shell.root.querySelector('[data-fab-action="result-next"]')).toBeNull();
+    expect(shell.root.querySelector('[data-fab-action="claim"]')).not.toBeNull();
     expect(controller.claim()).toBe(true);
     shell.render();
+    expect(shell.root.querySelector('[data-fab-action="claim"]')).toBeNull();
     expect(shell.root.querySelector<HTMLButtonElement>('[data-fab-action="result-next"]')?.disabled).toBe(false);
     expect(shell.root.querySelector(".fab-modal-ribbon-eyebrow")?.textContent).toBe("Trail 3");
     expect(
@@ -348,6 +351,17 @@ describe("template shell renderer and harness", () => {
     expect(currency?.textContent).toContain("25Coins");
     expect(css).toMatch(
       /\.template-shell__nav-action\s*\{[^}]*background:\s*var\(--fab-seed-color-utility-surface\);[^}]*box-shadow:\s*none;/s,
+    );
+    // The dominant center action reads "Play" (never "Continue"), and every dock
+    // label rides the light on-accent ink so it stays legible on the dark slate
+    // dock surface (dark body text failed contrast at device scale).
+    const play = shell.root.querySelector<HTMLButtonElement>('[data-fab-instance="menu.play"]');
+    expect(play?.textContent).toContain("Play");
+    expect(play?.textContent).not.toContain("Continue");
+    expect(play?.getAttribute("aria-label")).toBe("Play");
+    expect(play?.classList.contains("template-shell__nav-action--play")).toBe(true);
+    expect(css).toMatch(
+      /\.template-shell__nav-action\s*\{[^}]*color:\s*var\(--fab-seed-color-on-accent\);/s,
     );
     expect(css).toMatch(
       /\.template-shell__currency--contrasted\s*\{[^}]*background-color:\s*var\(--fab-seed-color-currency-surface\);[^}]*color:\s*var\(--fab-seed-color-currency-on-surface\);/s,
@@ -617,6 +631,10 @@ describe("template shell renderer and harness", () => {
     expect(bundle?.dataset.fabInstance).toBe("fail.bundle");
     expect(bundle?.textContent).toContain("$4.99"); // real IAP price/state
     expect(bundle?.disabled).toBe(false);
+    // The bundle is a complete, bounded purchase card-button, not the borderless
+    // tertiary quiet-exit grammar (that belongs to Home/Resume rows).
+    expect(bundle?.classList.contains("template-shell__fail-bundle")).toBe(true);
+    expect(bundle?.classList.contains("template-shell__overlay-action--tertiary")).toBe(false);
     expect(shell.root.querySelector('[data-fab-action="result-menu"]')).toBeNull();
     // Frozen gameplay stays visible behind the rescue, inert and unduplicated.
     expect(backdrop?.dataset.templateBackdrop).toBe("result-level");
@@ -636,6 +654,16 @@ describe("template shell renderer and harness", () => {
     // never a ghost opacity wash.
     expect(css).toMatch(
       /\.template-shell__result-actions \.fab-btn:disabled\s*\{[^}]*opacity:\s*1;[^}]*background:\s*var\(--fab-seed-color-socket-surface\);/s,
+    );
+    // The bundle card carries its own accent border on the white card surface so
+    // it reads as a purchasable control rather than loose text.
+    expect(css).toMatch(
+      /\.template-shell__fail-bundle\s*\{[^}]*border:\s*var\(--fab-border-width\) solid var\(--fab-seed-color-accent\);[^}]*background:\s*var\(--fab-seed-color-shop-card-surface\);/s,
+    );
+    // The docked rescue sheet floors its bottom padding above the safe-area inset
+    // so the bundle never reaches the raw viewport bottom.
+    expect(css).toMatch(
+      /\.template-shell\[data-fab-state="fail"\] \.fab-result-card\s*\{[^}]*padding:[^;]*max\(var\(--fab-space-lg\), env\(safe-area-inset-bottom\)\);/s,
     );
     expect(css).toContain('.template-shell[data-fab-state="fail"] .fab-modal-scrim');
   });
@@ -658,15 +686,15 @@ describe("template shell renderer and harness", () => {
     const pauseHome = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="pause-quit"]')!;
     expect([pauseResume.disabled, pauseSettings.disabled, pauseHome.disabled]).toEqual([false, false, false]);
 
-    // Win: the initial primary is CLAIM (enabled); Next is present but gated.
+    // Win: the initial primary is CLAIM (enabled); Next is NOT disclosed until a
+    // claim, so no disabled Next is shown on the pre-claim surface.
     expect(await harness.driveTo!("win")).toBe(true);
     shell.render();
     const claim = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="claim"]')!;
     const claimDouble = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="claim-double"]')!;
-    const winNext = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="result-next"]')!;
     expect(claim.classList.contains("template-shell__overlay-action--primary")).toBe(true);
     expect([claim.disabled, claimDouble.disabled]).toEqual([false, false]);
-    expect(winNext.disabled).toBe(true);
+    expect(shell.root.querySelector('[data-fab-action="result-next"]')).toBeNull();
     expect(claim.style.getPropertyValue("--fab-btn-sprite-image")).toBe("");
 
     // Fail: the initial primary is Continue (affordable → enabled); Retry is a
@@ -684,6 +712,40 @@ describe("template shell renderer and harness", () => {
     expect(css).toContain(".template-shell__overlay-action--primary");
     expect(css).toContain(".template-shell__overlay-action--secondary");
     expect(css).toContain("template-shell__overlay-action--tertiary");
+  });
+
+  it("discloses only reward + Claim + Claim 2x before a claim, then swaps them for Next", async () => {
+    const controller = createController();
+    const root = document.getElementById("app")!;
+    const shell = mountTemplateShell({ mountInto: root, controller });
+    const harness = createTemplateHarness({
+      buildVersion: "test",
+      packageId: "com.fabrikav2.template",
+      controller,
+      render: shell.render,
+    });
+
+    expect(await harness.driveTo!("win")).toBe(true);
+    shell.render();
+    // Pre-claim surface: the reward readout plus the two claim actions ONLY. The
+    // Next navigation is never disclosed (not even disabled) until a claim.
+    expect(shell.root.querySelector('[data-fab-instance="win.reward"]')).not.toBeNull();
+    expect(shell.root.querySelector('[data-fab-action="claim"]')).not.toBeNull();
+    expect(shell.root.querySelector('[data-fab-action="claim-double"]')).not.toBeNull();
+    expect(shell.root.querySelector('[data-fab-action="result-next"]')).toBeNull();
+    expect(shell.root.querySelector('[data-fab-instance="win.next"]')).toBeNull();
+
+    controller.claim();
+    shell.render();
+    // Post-claim surface: the claim actions are replaced by a single enabled
+    // Next, and the reward readout stays visible.
+    expect(shell.root.querySelector('[data-fab-action="claim"]')).toBeNull();
+    expect(shell.root.querySelector('[data-fab-action="claim-double"]')).toBeNull();
+    const next = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="result-next"]');
+    expect(next).not.toBeNull();
+    expect(next!.disabled).toBe(false);
+    expect(next!.dataset.fabInstance).toBe("win.next");
+    expect(shell.root.querySelector('[data-fab-instance="win.reward"]')).not.toBeNull();
   });
 
   it("uses the state owner for rendered semantic actions and keeps locked nodes inert", () => {
@@ -795,7 +857,7 @@ describe("template shell renderer and harness", () => {
       ["shop", ["back", "shop-restore"]],
       ["settings", ["settings-music", "settings-sfx", "settings-haptics", "back"]],
       ["pause", ["pause-resume", "pause-settings", "pause-quit"]],
-      ["win", ["claim", "claim-double", "result-next"]],
+      ["win", ["claim", "claim-double"]],
       ["fail", ["continue-coins", "result-retry", "bundle"]],
     ] as const) {
       expect(await harness.driveTo!(state)).toBe(true);
