@@ -4,11 +4,15 @@ import {
   parseShellPresentationV2,
   shellPresentationContractV2,
   type ShellAssetCatalog,
+  type ShellFitMode,
   type ShellPresentationDocumentV2,
   type ShellPresentationInstance,
+  type ShellRect,
   type ShellStateIdV2,
   type ShellVisualPresentation,
 } from "@fabrikav2/kernel";
+
+import { normalizeSemanticLayout } from "./layout.ts";
 
 const PROJECT_FORMAT = "grapes-shell-project-v2";
 const PROJECT_VERSION = 2;
@@ -201,9 +205,58 @@ function assignStarterAssets(document: ShellPresentationDocumentV2): ShellPresen
   return clone;
 }
 
+// Neutral-seed projection of the rewired U1 shell. U1's contract wires
+// menu.shop / menu.play / menu.settings under the menu.nav dock and defines the
+// win/fail result panels, but its default geometry still anchors Shop/Settings
+// as top-right icons and its default copy omits the concrete reward, balance,
+// cost, and price a player must read. These overrides seat the dock trio on the
+// menu.nav bar and surface those required source-grounded facts. They restyle
+// nothing (no colors, no fonts) and stay inside each role's geometry caps, safe
+// bounds, and copy limits; normalizeSemanticLayout re-derives the closed-AST
+// geometry from the target bounds so editor and portable project identically.
+interface SeedBounds {
+  readonly bounds: ShellRect;
+  readonly fit: ShellFitMode;
+}
+
+// The menu.nav dock bar projects to x[19.5, 370.5], y[719.88, 794.98]. Shop sits
+// at the leading edge, Play is centered and dominant, Settings at the trailing
+// edge — all seated on that bar so the phone reads as a real bottom dock.
+const DOCK_LAYOUT: Readonly<Record<string, SeedBounds>> = {
+  "menu.shop": { bounds: { x: 30, y: 729, width: 56, height: 56 }, fit: "contain" },
+  "menu.play": { bounds: { x: 100, y: 727, width: 190, height: 60 }, fit: "cover" },
+  "menu.settings": { bounds: { x: 304, y: 729, width: 56, height: 56 }, fit: "contain" },
+};
+
+// Source-grounded win/fail facts, taken from the U1 Find-the-Dog shell reference
+// (games/shell_proof_grapes/evidence/2026-07-13-ftd-structure-rewire): the win
+// reward readout, the fail coin balance, the continue coin cost, the rewarded-ad
+// double-claim, and the priced rescue bundle. A middot separates the action label
+// from its value so the two facts read as distinct on one line.
+const SEED_COPY: Readonly<Record<string, string>> = {
+  "win.reward": "5 Coins earned",
+  "win.claim-double": "Claim 2x · Watch ad",
+  "fail.currency": "25 Coins",
+  "fail.continue-coins": "Continue · 10 Coins",
+  "fail.bundle": "Rescue bundle · $4.99",
+};
+
+function authorNeutralSeedProjection(document: ShellPresentationDocumentV2): ShellPresentationDocumentV2 {
+  const clone = structuredClone(document);
+  for (const page of clone.pages) {
+    for (const instance of page.instances) {
+      const dock = DOCK_LAYOUT[instance.id];
+      if (dock) instance.presentation.geometry = normalizeSemanticLayout(instance.roleId, dock.bounds, dock.fit);
+      const copy = SEED_COPY[instance.id];
+      if (copy !== undefined) instance.presentation.copy = copy;
+    }
+  }
+  return clone;
+}
+
 export function createStarterProject(targetGame = GRAPES_TARGET_GAME): GrapesShellProject {
   if (!TARGET_GAME.test(targetGame)) throw new ProjectValidationError(`Invalid target game "${targetGame}".`);
-  return rebuild(assignStarterAssets(createDefaultShellPresentationV2()), targetGame);
+  return rebuild(authorNeutralSeedProjection(assignStarterAssets(createDefaultShellPresentationV2())), targetGame);
 }
 
 export function validateProjectFile(
