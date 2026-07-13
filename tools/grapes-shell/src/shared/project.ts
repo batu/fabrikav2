@@ -183,9 +183,13 @@ function assignStarterAssets(document: ShellPresentationDocumentV2): ShellPresen
     "pause.settings": "button-surface.secondary",
     "pause.home": "button-surface.secondary",
     "win.next": "button-surface.primary",
+    "win.claim": "button-surface.primary",
     "win.home": "button-surface.secondary",
+    "win.claim-double": "button-surface.secondary",
     "fail.retry": "button-surface.primary",
-    "fail.home": "button-surface.secondary",
+    "fail.currency": "counter-frame.primary-currency",
+    "fail.continue-coins": "button-surface.secondary",
+    "fail.bundle": "button-surface.secondary",
   };
   const clone = structuredClone(document);
   for (const page of clone.pages) {

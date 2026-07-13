@@ -144,17 +144,22 @@ describe("constrained GrapesJS project", () => {
   it("reorders sibling subtrees while keeping every child above its semantic parent", async () => {
     const seed = await manifest();
     const initial = createStarterProject();
+    // menu.nav (the v2 bottom dock) and menu.progression-map are both top-level
+    // instances that own child subtrees; reordering the dock backward past the
+    // map must move the whole dock while both subtrees stay contiguous.
     const originalOrder = initial.presentation.pages
       .find((candidate) => candidate.stateId === "menu")!
-      .instances.find((instance) => instance.id === "menu.play")!.presentation.order;
-    const reordered = reorderInstance(initial, "menu.play", "backward", seed);
+      .instances.find((instance) => instance.id === "menu.nav")!.presentation.order;
+    const reordered = reorderInstance(initial, "menu.nav", "backward", seed);
     const page = reordered.presentation.pages.find((candidate) => candidate.stateId === "menu")!;
-    const play = page.instances.find((instance) => instance.id === "menu.play")!;
+    const nav = page.instances.find((instance) => instance.id === "menu.nav")!;
     const progression = page.instances.find((instance) => instance.id === "menu.progression-map")!;
+    const navChildren = page.instances.filter((instance) => instance.parentInstanceId === nav.id);
     const progressionChildren = page.instances.filter((instance) => instance.parentInstanceId === progression.id);
 
-    expect(play.presentation.order).toBeLessThan(originalOrder);
-    expect(play.presentation.order).toBeLessThan(progression.presentation.order);
+    expect(nav.presentation.order).toBeLessThan(originalOrder);
+    expect(nav.presentation.order).toBeLessThan(progression.presentation.order);
+    expect(navChildren.every((child) => child.presentation.order > nav.presentation.order)).toBe(true);
     expect(progressionChildren.every((child) => child.presentation.order > progression.presentation.order)).toBe(true);
     expect(validateProjectFile(reordered, seed).presentation.pages).toHaveLength(7);
   });
