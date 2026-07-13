@@ -3,12 +3,12 @@
   "protocolVersion": "1.0.0",
   "plan": "goal.md",
   "freeze": {
-    "baselineCommit": "2ba355f150c571685d712a2a227f8de7f6491f35",
+    "baselineCommit": "086d645de659f06ab3950b234f9f5658aba4ab7d",
     "sealedStage": "U1",
     "hashAlgorithm": "sha256",
     "hashRule": "protocol.json is authenticated by the SHA-256 of its parsed JSON with ONLY the nested `freeze.hashes` map removed and remaining keys recursively sorted, then serialized compactly — self-authenticating (baselineCommit/sealedStage/hashAlgorithm/hashRule/note are all covered) and still non-circular (the hashes map that stores this value is the only thing excluded). fences.json and every baseline/* file are hashed over exact on-disk bytes. TWO-COMMIT topology: freeze.baselineCommit points at the functional commit A that carries these exact non-freeze protocol payload + fences.json + baseline/* bytes; this freeze-only commit B changes solely protocol.json.freeze. `npm run freeze-gate` recomputes the integrity hashes AND proves commit A contains the same bytes (whole freeze block stripped) as HEAD.",
     "hashes": {
-      "protocol.json": "fe5b1867ee622f41380db03812ba5bbd00039ac3bf0e1b40c3ec43cbbee0c082",
+      "protocol.json": "ce4c41ae793a2046cc8b5937110546bd23098fbd984d84eaa0a341809ec72b7a",
       "fences.json": "b4bed9cf784552a844495a0e7dedc4109f67563ec32487058b9d575a4daba4db",
       "baseline/behavior-hashes.json": "9be2790cad7af1e8dffdbdab2fe80828b02711476197ce7d9f139c28c0449240",
       "baseline/dependencies.json": "54137ec722d9d607a70011ea661fbfc7bffed6995ad21f99971df0e1c9e6b36c",
