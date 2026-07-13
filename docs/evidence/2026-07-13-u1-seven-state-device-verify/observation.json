@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "fabrikav2.verify-device.observation/1",
+  "game": "shell_proof_phaser",
+  "lane": "device",
+  "platform": "ios",
+  "provenance": "live-device",
+  "generatedAt": "2026-07-13T13:22:34.976Z",
+  "device": "physical iPhone (identifier redacted)",
+  "runKind": "no-applicable-evidence",
+  "captureFailure": null,
+  "hardIntegrity": [],
+  "requiredStates": [
+    "menu",
+    "level",
+    "shop",
+    "settings",
+    "pause",
+    "win",
+    "fail"
+  ],
+  "captures": [
+    {
+      "state": "menu",
+      "gated": true,
+      "file": "docs/evidence/2026-07-13-u1-seven-state-device-verify/raw-captures/menu.png",
+      "present": true,
+      "sha256": "f4aeacefdd8abd4332997493989c0654ba25fb65236cbb4474647084609f634e"
+    },
+    {
+      "state": "level",
+      "gated": true,
+      "file": "docs/evidence/2026-07-13-u1-seven-state-device-verify/raw-captures/level.png",
+      "present": true,
+      "sha256": "0afb7870f4311eff9c07c83fbaa60242f8123aa3790ecb6e2556b849b4d5b27c"
+    },
+    {
+      "state": "shop",
+      "gated": true,
+      "file": "docs/evidence/2026-07-13-u1-seven-state-device-verify/raw-captures/shop.png",
+      "present": true,
+      "sha256": "cf025b4e02429c406340929db3c1b11d71eea61f0f2bc297e3ae5358762f36d0"
+    },
+    {
+      "state": "settings",
+      "gated": true,
+      "file": "docs/evidence/2026-07-13-u1-seven-state-device-verify/raw-captures/settings.png",
+      "present": true,
+      "sha256": "059d67693a32a7949f37d2d9b8dd5d52dc41e116c72cdbd87d86824f35f3b95a"
+    },
+    {
+      "state": "pause",
+      "gated": true,
+      "file": "docs/evidence/2026-07-13-u1-seven-state-device-verify/raw-captures/pause.png",
+      "present": true,
+      "sha256": "d92edf612c08899a5174e88ce0877ca4b11f09490404f9976d248b2cdf9cc07e"
+    },
+    {
+      "state": "win",
+      "gated": true,
+      "file": "docs/evidence/2026-07-13-u1-seven-state-device-verify/raw-captures/win.png",
+      "present": true,
+      "sha256": "3ad00c04910bedb58647af4c9a5a242e6eb93c2eff181d3259a4595f19b2fd26"
+    },
+    {
+      "state": "fail",
+      "gated": true,
+      "file": "docs/evidence/2026-07-13-u1-seven-state-device-verify/raw-captures/fail.png",
+      "present": true,
+      "sha256": "91379091ed9e0c50abbe755c585c2a772a82e9915b18699371be91988a6a6c3f"
+    }
+  ],
+  "inputs": {
+    "algorithm": "canonical-input-sha256/1",
+    "roots": [
+      "games/shell_proof_phaser/src",
+      "games/shell_proof_phaser/design",
+      "games/shell_proof_phaser/refs",
+      "packages/ui"
+    ],
+    "fileCount": 94,
+    "sha256": "5325e07d0e767d57806deff25d7afbfb7b832936f2333168ad1e90bd5c141fc7"
+  }
+}

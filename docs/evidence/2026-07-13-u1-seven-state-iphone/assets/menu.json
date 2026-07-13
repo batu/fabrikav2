@@ -1,0 +1,287 @@
+{
+  "consensus": [
+    "layout",
+    "missing-element"
+  ],
+  "defects": [
+    {
+      "defect": "No game title banner with ribbon/scroll decoration; reference has a prominent 'Find the Dog' banner with red ribbon at top center",
+      "direction": "Add a styled title banner with decorative ribbon at the top of the content area",
+      "region": "header/top area, OURS 1",
+      "severity": "major"
+    },
+    {
+      "defect": "Missing the prominent 'Play Now' button above the bottom navigation dock",
+      "direction": "Add a primary 'Play Now' action button directly above the bottom navigation bar, matching the reference flow",
+      "region": "OURS 1, center",
+      "severity": "major"
+    },
+    {
+      "defect": "Dock items (Shop, Play, Settings) are rendered as equal-sized square buttons in a flat row rather than Play being a dominant central element that rises above the dock",
+      "direction": "Make the central Play button significantly larger and elevated above the dock baseline to match the reference's dominant Play treatment",
+      "region": "bottom dock, OURS 1",
+      "severity": "major"
+    },
+    {
+      "defect": "Title text reads 'SHELL PROOF PHASER' in all-caps spaced font instead of the game's actual title",
+      "direction": "Use the correct game title typography matching the reference banner style",
+      "region": "title area, OURS 1",
+      "severity": "minor"
+    },
+    {
+      "defect": "only one currency shown vs reference's two (coins + magnifier)",
+      "direction": "secondary currency is optional; no change required",
+      "region": "OURS 1 currency area",
+      "severity": "minor"
+    },
+    {
+      "defect": "No-ads button (circle with ADS crossed out) present in reference is absent in OURS",
+      "direction": "Add the no-ads shortcut button to the upper-left area",
+      "region": "top-left, OURS 1",
+      "severity": "minor"
+    },
+    {
+      "defect": "secondary currency placement differs but is optional per spec",
+      "direction": "acceptable; could align currency to upper region as reference",
+      "region": "OURS 1 top-left coin pill vs reference right-side coin",
+      "severity": "minor"
+    },
+    {
+      "defect": "Level path shows only 2 nodes (checkmark and level 2 + lock) versus reference's vertical chain of levels 2\u20135",
+      "direction": "Expand the level map to show more level nodes along the vertical path",
+      "region": "level map, OURS 1",
+      "severity": "minor"
+    },
+    {
+      "defect": "Currency display is placed in the top-left header instead of the top-right",
+      "direction": "Move the currency pill to the top-right of the screen to align with standard shell structure",
+      "region": "OURS 1, top left",
+      "severity": "minor"
+    },
+    {
+      "defect": "Shop icon is a shopping cart instead of a shopping bag as in the reference",
+      "direction": "Replace cart icon with a shopping bag icon to match reference",
+      "region": "bottom dock Shop button, OURS 1",
+      "severity": "minor"
+    },
+    {
+      "defect": "OURS shows a large landscape illustration/preview card that does not exist in the reference",
+      "direction": "Remove the scenic illustration card or replace with the level-map path structure",
+      "region": "upper content area, OURS 1",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "anthropic/claude-opus-4.8",
+    "anthropic/claude-sonnet-4.6",
+    "google/gemini-3.5-flash"
+  ],
+  "per_model": {
+    "anthropic/claude-opus-4.8": {
+      "defects": [
+        {
+          "defect": "secondary currency placement differs but is optional per spec",
+          "direction": "acceptable; could align currency to upper region as reference",
+          "key": "layout",
+          "region": "OURS 1 top-left coin pill vs reference right-side coin",
+          "severity": "minor"
+        },
+        {
+          "defect": "only one currency shown vs reference's two (coins + magnifier)",
+          "direction": "secondary currency is optional; no change required",
+          "key": "missing-element",
+          "region": "OURS 1 currency area",
+          "severity": "minor"
+        }
+      ],
+      "model": "anthropic/claude-opus-4.8",
+      "recurring_checks": [
+        {
+          "evidence": "menu title 'SHELL PROOF PHASER' rendered as text, no opaque banner box",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "menu dock uses distinct icons for shop/play/settings, template skin ignored per spec",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "menu Play button triangle centered ~570,2280; level '2' centered in circle",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "menu dock labels SHOP/PLAY/SETTINGS within button bounds ~210,2400",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "menu dock Play button (~center) larger than Shop/Settings \u2014 matches reference dominant-central-Play intent",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 88.0
+    },
+    "anthropic/claude-sonnet-4.6": {
+      "defects": [
+        {
+          "defect": "Dock items (Shop, Play, Settings) are rendered as equal-sized square buttons in a flat row rather than Play being a dominant central element that rises above the dock",
+          "direction": "Make the central Play button significantly larger and elevated above the dock baseline to match the reference's dominant Play treatment",
+          "key": "layout",
+          "region": "bottom dock, OURS 1",
+          "severity": "major"
+        },
+        {
+          "defect": "No game title banner with ribbon/scroll decoration; reference has a prominent 'Find the Dog' banner with red ribbon at top center",
+          "direction": "Add a styled title banner with decorative ribbon at the top of the content area",
+          "key": "missing-element",
+          "region": "header/top area, OURS 1",
+          "severity": "major"
+        },
+        {
+          "defect": "No-ads button (circle with ADS crossed out) present in reference is absent in OURS",
+          "direction": "Add the no-ads shortcut button to the upper-left area",
+          "key": "missing-element",
+          "region": "top-left, OURS 1",
+          "severity": "minor"
+        },
+        {
+          "defect": "OURS shows a large landscape illustration/preview card that does not exist in the reference",
+          "direction": "Remove the scenic illustration card or replace with the level-map path structure",
+          "key": "extra-element",
+          "region": "upper content area, OURS 1",
+          "severity": "minor"
+        },
+        {
+          "defect": "Level path shows only 2 nodes (checkmark and level 2 + lock) versus reference's vertical chain of levels 2\u20135",
+          "direction": "Expand the level map to show more level nodes along the vertical path",
+          "key": "layout",
+          "region": "level map, OURS 1",
+          "severity": "minor"
+        },
+        {
+          "defect": "Title text reads 'SHELL PROOF PHASER' in all-caps spaced font instead of the game's actual title",
+          "direction": "Use the correct game title typography matching the reference banner style",
+          "key": "typography",
+          "region": "title area, OURS 1",
+          "severity": "minor"
+        },
+        {
+          "defect": "Shop icon is a shopping cart instead of a shopping bag as in the reference",
+          "direction": "Replace cart icon with a shopping bag icon to match reference",
+          "key": "iconography",
+          "region": "bottom dock Shop button, OURS 1",
+          "severity": "minor"
+        }
+      ],
+      "model": "anthropic/claude-sonnet-4.6",
+      "recurring_checks": [
+        {
+          "evidence": "No ribbon/banner element present in OURS to evaluate; dock background is flat",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "Bottom dock uses shopping cart for Shop (~125,1490) vs reference shopping bag; Play icon is a triangle vs magnifying-glass dog asset",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "Level '2' glyph appears centered in its circular node at ~320,1020",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "Dock labels 'SHOP','PLAY','SETTINGS' contained within their button bounds at ~1490 row",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "Menu dock buttons: Shop and Settings are smaller than Play (~155px vs ~200px wide) \u2014 but this is intentional dominance; however they are not equal-sized siblings as a flat row, failing consistency check for equal-sibling expectation",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 62.0
+    },
+    "google/gemini-3.5-flash": {
+      "defects": [
+        {
+          "defect": "Missing the prominent 'Play Now' button above the bottom navigation dock",
+          "direction": "Add a primary 'Play Now' action button directly above the bottom navigation bar, matching the reference flow",
+          "key": "missing-element",
+          "region": "OURS 1, center",
+          "severity": "major"
+        },
+        {
+          "defect": "Currency display is placed in the top-left header instead of the top-right",
+          "direction": "Move the currency pill to the top-right of the screen to align with standard shell structure",
+          "key": "layout",
+          "region": "OURS 1, top left",
+          "severity": "minor"
+        }
+      ],
+      "model": "google/gemini-3.5-flash",
+      "recurring_checks": [
+        {
+          "evidence": "OURS 1",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "OURS 1",
+          "id": "asset-identity",
+          "pass": true
+        },
+        {
+          "evidence": "OURS 1, level node '2' at center",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "OURS 1, bottom navigation buttons",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "OURS 1, Shop and Settings buttons at bottom",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 85.0
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "menu title 'SHELL PROOF PHASER' rendered as text, no opaque banner box",
+      "id": "banner-transparency",
+      "pass": true
+    },
+    {
+      "evidence": "Bottom dock uses shopping cart for Shop (~125,1490) vs reference shopping bag; Play icon is a triangle vs magnifying-glass dog asset",
+      "id": "asset-identity",
+      "pass": false
+    },
+    {
+      "evidence": "menu Play button triangle centered ~570,2280; level '2' centered in circle",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "menu dock labels SHOP/PLAY/SETTINGS within button bounds ~210,2400",
+      "id": "content-containment",
+      "pass": true
+    },
+    {
+      "evidence": "menu dock Play button (~center) larger than Shop/Settings \u2014 matches reference dominant-central-Play intent",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 85.0,
+  "skipped": [],
+  "verdict": "pass"
+}
