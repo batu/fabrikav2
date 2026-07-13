@@ -247,18 +247,23 @@ describe('shell-presentation-v2 contract document', () => {
     expect(instances.get('win.claim')?.actionId).toBe('win-claim');
     expect(instances.get('win.claim-double')?.bindingId).toBe('flow.claim-double');
     expect(instances.get('win.claim-double')?.actionId).toBe('win-claim-double');
-    expect(instances.has('win.home')).toBe(false);
-    // win.next is a GENUINELY claimed-only POST-CLAIM navigation instance: it
-    // keeps its flow.next binding, bottom-primary-action role, and geometry so
-    // the runtime can reveal it after a claim, but it carries NO required action
+    // win.next (primary) and win.home (tertiary) are GENUINELY claimed-only
+    // POST-CLAIM navigation instances: each keeps its binding, role, and geometry
+    // so the runtime can reveal it after a claim, but carries NO required action
     // identity and defaults to hidden. An authored/published Win page therefore
-    // mandates only reward + claim + claim-double and never a dead pre-claim
-    // Next (card qWCv9tUo, comment 54).
+    // mandates only reward + claim + claim-double and never a dead pre-claim Next
+    // or Home; after a claim, task-pack D5 shows Next primary + Home tertiary
+    // (card qWCv9tUo, comments 54 + 57).
     expect(instances.get('win.next')?.bindingId).toBe('flow.next');
     expect(instances.get('win.next')?.roleId).toBe('bottom-primary-action');
     expect(instances.get('win.next')?.required).toBe(false);
     expect(instances.get('win.next')?.actionId).toBeUndefined();
     expect(instances.get('win.next')?.defaultPresentation.visibility).toBe('hidden');
+    expect(instances.get('win.home')?.bindingId).toBe('flow.result-home');
+    expect(instances.get('win.home')?.roleId).toBe('bottom-secondary-action');
+    expect(instances.get('win.home')?.required).toBe(false);
+    expect(instances.get('win.home')?.actionId).toBeUndefined();
+    expect(instances.get('win.home')?.defaultPresentation.visibility).toBe('hidden');
     expect(actionIds).toEqual(expect.arrayContaining(['win-claim', 'win-claim-double']));
     expect(actionIds).not.toContain('win-next');
     expect(actionIds).not.toContain('win-home');
@@ -444,12 +449,28 @@ describe('v2 claimed-only Win disclosure (card qWCv9tUo, comment 54)', () => {
     expect(next?.roleId).toBe('bottom-primary-action');
   });
 
-  it('accepts an unclaimed Win page that shows reward + claim + claim-double and omits Next entirely', () => {
+  it('reintroduces win.home as a claimed-only tertiary that defaults hidden with no action identity', () => {
+    const document = createDefaultShellPresentationV2();
+    const byId = new Map(winPageOf(document).instances.map((instance) => [instance.id, instance]));
+    // Home exists for the post-claim runtime reveal (task-pack D5: Next primary +
+    // Home tertiary after a claim) but is hidden by default and carries no action
+    // identity, so it is never a dead pre-claim control on an authored Win page.
+    const home = byId.get('win.home');
+    expect(home?.presentation.visibility).toBe('hidden');
+    expect(home?.actionId).toBeUndefined();
+    expect(home?.bindingId).toBe('flow.result-home');
+    expect(home?.roleId).toBe('bottom-secondary-action');
+  });
+
+  it('accepts an unclaimed Win page that shows reward + claim + claim-double and omits both Next and Home entirely', () => {
     const document = createDefaultShellPresentationV2();
     const win = winPageOf(document);
-    win.instances = win.instances.filter((instance) => instance.id !== 'win.next');
-    // No missing-required-action for a claimed-only Next and no missing-instance
-    // for the absent (required=false) win.next: an unclaimed Win is fully valid.
+    win.instances = win.instances.filter(
+      (instance) => instance.id !== 'win.next' && instance.id !== 'win.home',
+    );
+    // No missing-required-action for the claimed-only Next/Home and no
+    // missing-instance for the absent (required=false) win.next/win.home: an
+    // unclaimed Win is fully valid.
     expect(() => parseShellPresentationV2(document)).not.toThrow();
   });
 
@@ -647,11 +668,16 @@ describe('v1 to v2 migration', () => {
 
     expect(report.carriedInstanceIds).toContain('menu.play');
     expect(report.carriedInstanceIds).toContain('settings.music');
+    // win.home returns to v2 as a claimed-only post-claim tertiary with unchanged
+    // semantics (bottom-secondary-action / flow.result-home / button), so a legacy
+    // v1 Home carries forward rather than dropping (card qWCv9tUo comment 57). It
+    // stays optional and action-less at the v2 default; only its runtime reveal is
+    // gated behind a claim.
+    expect(report.carriedInstanceIds).toContain('win.home');
     expect(report.resetInstanceIds).toEqual(['settings.back']);
-    // The FTD structure rewire drops the header Home affordances from the win
-    // claim and fail rescue surfaces (card qWCv9tUo, 2026-07-13): initial win is
-    // reward + claim + claim-double, and the fail rescue has no Home.
-    expect(report.droppedInstanceIds).toEqual(['settings.panel', 'win.home', 'fail.home']);
+    // The FTD structure rewire still drops the header Home from the fail rescue
+    // surface (card qWCv9tUo, 2026-07-13): the fail rescue has no Home at all.
+    expect(report.droppedInstanceIds).toEqual(['settings.panel', 'fail.home']);
     expect(report.addedInstanceIds).toEqual(
       expect.arrayContaining([
         'menu.shop',

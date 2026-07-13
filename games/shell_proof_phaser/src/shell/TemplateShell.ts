@@ -750,9 +750,10 @@ function winActions(
     return slot;
   }
 
-  // Post-claim: the reward is banked, so Next replaces the claim actions as the
-  // single forward affordance (enabled — the controller only reaches here once a
-  // claim has succeeded).
+  // Post-claim: the reward is banked, so the claim actions are replaced by the
+  // forward Next (primary, advances once) plus a quiet Home tertiary — an
+  // always-reachable escape that, like Next, is a claimed-only disclosure and is
+  // never shown before a claim (task-pack D5, card qWCv9tUo comment 57).
   const next = buildButtonElement({
     label: copy["win.next"],
     ariaLabel: copy["win.next"],
@@ -765,7 +766,19 @@ function winActions(
   });
   next.dataset.fabInstance = "win.next";
 
-  slot.append(next);
+  const home = buildButtonElement({
+    label: copy["win.home"],
+    ariaLabel: copy["win.home"],
+    className: "template-shell__overlay-action template-shell__overlay-action--tertiary template-shell__result-home",
+    dataAction: "result-home",
+    onClick: () => {
+      controller.home();
+      render();
+    },
+  });
+  home.dataset.fabInstance = "win.home";
+
+  slot.append(next, home);
   return slot;
 }
 
@@ -809,9 +822,14 @@ function failActions(
   // tertiary "quiet exit" grammar (that belongs to Home/Resume rows). It carries
   // the real IAP price when ready and a legible unavailable state otherwise.
   const priced = snapshot.bundleAvailable && snapshot.bundlePrice !== null;
+  const bundlePrice = priced ? snapshot.bundlePrice : copy["fail.unavailable"];
   const bundle = buildButtonElement({
-    label: `${copy["fail.bundle"]} · ${priced ? snapshot.bundlePrice : copy["fail.unavailable"]}`,
-    ariaLabel: `${copy["fail.bundle"]}, ${priced ? snapshot.bundlePrice : copy["fail.unavailable"]}`,
+    // The bundle discloses its OUTCOME, not just a price: the name and price sit on
+    // the first line, and the second line spells out what the purchase does — it
+    // grants no coins and resumes the current level ("Continue this level") — so
+    // it is never an undisclosed charge (card qWCv9tUo comment 57).
+    label: `${copy["fail.bundle"]} · ${bundlePrice}`,
+    ariaLabel: `${copy["fail.bundle"]}, ${copy["fail.bundle.sub"]}, ${bundlePrice}`,
     className: "template-shell__overlay-action template-shell__fail-bundle",
     dataAction: "bundle",
     onClick: () => {
@@ -820,6 +838,10 @@ function failActions(
   });
   bundle.dataset.fabInstance = "fail.bundle";
   bundle.disabled = !snapshot.bundleAvailable;
+  const bundleSub = document.createElement("span");
+  bundleSub.className = "template-shell__bundle-sub";
+  bundleSub.textContent = copy["fail.bundle.sub"];
+  bundle.appendChild(bundleSub);
 
   slot.append(continueCoins, retry, bundle);
   return slot;

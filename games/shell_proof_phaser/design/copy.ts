@@ -65,11 +65,13 @@ export const copy = {
   "win.claim-double": "Claim 2x",
   "win.claim-double.sub": "Watch ad",
   "win.next": "Next",
+  "win.home": "Home",
   "fail.title": "Trail blocked",
   "fail.message": "Choose a clearer step, then try again.",
   "fail.continue": "Continue",
   "fail.retry": "Retry",
   "fail.bundle": "Rescue bundle",
+  "fail.bundle.sub": "Continue this level",
   "fail.unavailable": "Unavailable",
 } as const;
 

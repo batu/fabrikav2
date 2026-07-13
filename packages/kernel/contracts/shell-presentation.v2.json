@@ -2393,6 +2393,39 @@
       }
     },
     {
+      "id": "win.home",
+      "parentInstanceId": "win.panel",
+      "stateId": "win",
+      "roleId": "bottom-secondary-action",
+      "bindingId": "flow.result-home",
+      "stateFamilyId": "button",
+      "required": false,
+      "accessibility": {
+        "role": "button",
+        "nameKey": "shell.action.home",
+        "stateSemantics": [
+          "disabled"
+        ],
+        "traversalGroup": "modal"
+      },
+      "defaultPresentation": {
+        "geometry": {
+          "offset": {
+            "x": 0,
+            "y": -0.08
+          },
+          "size": {
+            "width": 0.55,
+            "height": 0.08
+          },
+          "fit": "cover"
+        },
+        "order": 2,
+        "visibility": "hidden",
+        "copy": "Home"
+      }
+    },
+    {
       "id": "fail.panel",
       "parentInstanceId": null,
       "stateId": "fail",

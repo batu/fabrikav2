@@ -575,17 +575,10 @@ body {
   box-shadow: var(--fab-seed-shadow-bottom-sheet);
 }
 
-.template-shell[data-fab-state="fail"] .fab-result-card::before {
-  position: absolute;
-  top: 10px;
-  left: 50%;
-  width: 48px;
-  height: 5px;
-  border-radius: var(--fab-radius-pill);
-  background: var(--fab-seed-color-fail-border);
-  content: "";
-  transform: translateX(-50%);
-}
+/* The rescue sheet is docked to the bottom edge but is NOT draggable, so it
+   carries no grabber handle — a drag affordance the surface cannot honor would
+   be a false promise (card qWCv9tUo comment 57). The docked shape (rounded top,
+   flush bottom) stays; only the misleading handle is gone. */
 
 .template-shell[data-fab-state="fail"] .fab-modal-backdrop {
   align-items: flex-end;
@@ -1088,38 +1081,47 @@ body {
 
 /* Win reward readout: the earned coins, grounded on the currency fill so the
    amount reads as coins before any claim. */
+/* The reward readout is a single wide line — icon, amount, and label never wrap —
+   so the earned coins read as one confident statement above the claim actions. */
 .template-shell__reward {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--fab-space-xs);
+  gap: var(--fab-space-sm);
+  width: 100%;
+  box-sizing: border-box;
   margin-inline: auto;
-  padding: var(--fab-space-xs) var(--fab-space-sm);
+  padding: var(--fab-space-sm) var(--fab-space-md);
   border-radius: var(--fab-radius-md);
   background: var(--fab-seed-color-currency-surface);
   color: var(--fab-seed-color-currency-on-surface);
+  white-space: nowrap;
 }
 
 .template-shell__reward-icon {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
 }
 
 .template-shell__reward-value {
   font-family: var(--fab-font-family-display);
-  font-size: var(--fab-font-size-lg);
+  font-size: var(--fab-font-size-title);
 }
 
 .template-shell__reward-label {
-  font-size: var(--fab-font-size-sm);
+  font-size: var(--fab-font-size-md);
 }
 
-/* CLAIM 2x carries its explicit "Watch ad" sublabel on a second line. */
+/* CLAIM 2x carries its explicit "Watch ad" sublabel on a second line, and an
+   accent border marks it as a live, interactive reward path (never a quiet or
+   disabled control) even though it sits on the neutral secondary fill. */
 .template-shell__claim-double {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
+  border-color: var(--fab-seed-color-accent);
 }
 
 .template-shell__claim-sub {
@@ -1137,6 +1139,14 @@ body {
   gap: var(--fab-space-xs);
 }
 
+/* The Win action stack reserves its taller pre-claim height (Claim + the
+   two-line Claim 2x) and stays top-aligned, so swapping the claim actions for
+   Next + Home after a claim does not jump the surface vertically. */
+.template-shell__win-actions {
+  min-height: calc(2 * var(--fab-btn-min-size) + var(--fab-space-lg));
+  justify-content: flex-start;
+}
+
 /* Rescue/claim CTAs use the body face, not the display face: the display font's
    "$" and "x" glyphs are illegible (they read as "S"/"H"), and these buttons
    carry a price ($4.99) and the "2x" multiplier. Matches the shop CTA and
@@ -1150,14 +1160,30 @@ body {
    visible price — clearly a purchasable control, never the borderless
    quiet-exit row (that grammar belongs to Home/Resume). */
 .template-shell__fail-bundle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
   min-height: var(--fab-btn-min-size);
-  margin-top: var(--fab-space-xs);
+  /* Continue and Retry are the two immediate free/coin choices; the paid rescue
+     bundle sits below them behind a wider gap so it reads as a separate offer,
+     not a third free action. */
+  margin-top: var(--fab-space-md);
   padding: var(--fab-space-xs) var(--fab-space-sm);
   border: var(--fab-border-width) solid var(--fab-seed-color-accent);
   border-radius: var(--fab-radius-md);
   background: var(--fab-seed-color-shop-card-surface);
   color: var(--fab-color-text);
   box-shadow: none;
+}
+
+/* The rescue bundle's outcome disclosure ("Continue this level") on a quiet
+   second line, so the purchase states what it does, not only its price. */
+.template-shell__bundle-sub {
+  font-family: var(--fab-font-family);
+  font-size: var(--fab-font-size-sm);
+  text-transform: none;
+  opacity: 0.9;
 }
 
 /* Disabled result actions stay full-opacity with an explicit muted fill (never a

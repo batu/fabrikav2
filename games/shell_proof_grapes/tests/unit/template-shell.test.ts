@@ -630,6 +630,15 @@ describe("template shell renderer and harness", () => {
     expect(retry?.disabled).toBe(false); // retry is always free
     expect(bundle?.dataset.fabInstance).toBe("fail.bundle");
     expect(bundle?.textContent).toContain("$4.99"); // real IAP price/state
+    // The bundle discloses its OUTCOME, not just a price: the proof bundle grants
+    // no currency and resumes the current level, so the label/aria states both the
+    // "Rescue bundle" name and the "Continue this level" outcome alongside the
+    // price (card qWCv9tUo comment 57).
+    expect(bundle?.textContent).toContain("Rescue bundle");
+    expect(bundle?.textContent).toContain("Continue this level");
+    expect(bundle?.getAttribute("aria-label")).toContain("Rescue bundle");
+    expect(bundle?.getAttribute("aria-label")).toContain("Continue this level");
+    expect(bundle?.getAttribute("aria-label")).toContain("$4.99");
     expect(bundle?.disabled).toBe(false);
     // The bundle is a complete, bounded purchase card-button, not the borderless
     // tertiary quiet-exit grammar (that belongs to Home/Resume rows).
@@ -734,18 +743,31 @@ describe("template shell renderer and harness", () => {
     expect(shell.root.querySelector('[data-fab-action="claim-double"]')).not.toBeNull();
     expect(shell.root.querySelector('[data-fab-action="result-next"]')).toBeNull();
     expect(shell.root.querySelector('[data-fab-instance="win.next"]')).toBeNull();
+    // Home is a claimed-only tertiary too: it is never disclosed pre-claim.
+    expect(shell.root.querySelector('[data-fab-instance="win.home"]')).toBeNull();
 
     controller.claim();
     shell.render();
-    // Post-claim surface: the claim actions are replaced by a single enabled
-    // Next, and the reward readout stays visible.
+    // Post-claim surface (task-pack D5): the claim actions are replaced by Next
+    // (primary, advances once) plus Home (tertiary, an always-reachable escape);
+    // the reward readout stays visible.
     expect(shell.root.querySelector('[data-fab-action="claim"]')).toBeNull();
     expect(shell.root.querySelector('[data-fab-action="claim-double"]')).toBeNull();
     const next = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="result-next"]');
     expect(next).not.toBeNull();
     expect(next!.disabled).toBe(false);
     expect(next!.dataset.fabInstance).toBe("win.next");
+    const home = shell.root.querySelector<HTMLButtonElement>('[data-fab-instance="win.home"]');
+    expect(home).not.toBeNull();
+    expect(home!.disabled).toBe(false);
+    // Home reads as the quiet tertiary exit, distinct from the primary Next.
+    expect(home!.classList.contains("template-shell__overlay-action--tertiary")).toBe(true);
+    expect(next!.classList.contains("template-shell__overlay-action--primary")).toBe(true);
     expect(shell.root.querySelector('[data-fab-instance="win.reward"]')).not.toBeNull();
+
+    // Home is a live escape: it returns to the menu without advancing the level.
+    home!.click();
+    expect(controller.snapshot().surface).toBe("menu");
   });
 
   it("uses the state owner for rendered semantic actions and keeps locked nodes inert", () => {
