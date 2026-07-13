@@ -21,8 +21,18 @@
     }
   },
   "twf_agents": {
-    "default": "claude/opus",
-    "stages": {}
+    "default": "claude/fable",
+    "stages": {
+      "brainstormed": "claude/fable",
+      "planned": "claude/fable",
+      "worked": "claude/opus",
+      "aesthetics_reviewed": "claude/fable",
+      "tested_insitu": "claude/sonnet",
+      "evidence_captured": "claude/sonnet",
+      "reviewed": "codex/gpt-5.6-sol@high",
+      "video_sent": "claude/sonnet",
+      "compounded": "claude/sonnet"
+    }
   },
   "twf_gate": {
     "pre": [
