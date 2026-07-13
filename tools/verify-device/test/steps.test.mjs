@@ -166,6 +166,7 @@ describe('runXcuiTestAndExport', () => {
       appBundleId: 'com.example.game',
       outDir,
       developmentTeam: 'TEAM123',
+      states: ['menu', 'level', 'shop', 'settings', 'pause', 'win', 'fail'],
       shImpl,
     });
 
@@ -180,6 +181,10 @@ describe('runXcuiTestAndExport', () => {
     expect(xcodebuild.args).toContain('DEVELOPMENT_TEAM=TEAM123');
     expect(xcodebuild.args.some((a) => a.startsWith('TEST_RUNNER_TARGET_BUNDLE_ID='))).toBe(false);
     expect(xcodebuild.opts.env.TEST_RUNNER_TARGET_BUNDLE_ID).toBe('com.example.game');
+    // The runner gates the ORDERED manifest vocabulary (Shop included), passed as
+    // a comma-separated env var — never a hardcoded six-state list (card qWCv9tUo).
+    expect(xcodebuild.args.some((a) => a.startsWith('TEST_RUNNER_TARGET_STATES='))).toBe(false);
+    expect(xcodebuild.opts.env.TEST_RUNNER_TARGET_STATES).toBe('menu,level,shop,settings,pause,win,fail');
     expect(exportCall.args.slice(0, 3)).toEqual(['xcresulttool', 'export', 'attachments']);
 
     fs.rmSync(runnerDir, { recursive: true, force: true });
@@ -209,11 +214,31 @@ describe('runXcuiTestAndExport', () => {
       deviceUdid: 'DEVICE',
       appBundleId: 'com.example.game',
       outDir,
+      states: ['menu', 'level', 'shop', 'settings', 'pause', 'win', 'fail'],
       shImpl,
     });
 
     const xcodebuild = calls.find((c) => c.file === 'xcodebuild');
     expect(xcodebuild.args.some((a) => a.startsWith('DEVELOPMENT_TEAM='))).toBe(false);
+
+    fs.rmSync(runnerDir, { recursive: true, force: true });
+    fs.rmSync(outDir, { recursive: true, force: true });
+  });
+
+  it('fails closed (never spawns xcodebuild) when the ordered state vocabulary is missing, empty, or comma-poisoned', () => {
+    const runnerDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vd-runner-'));
+    const outDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vd-out-'));
+    const calls = [];
+    const shImpl = (file, args, opts = {}) => { calls.push({ file, args, opts }); return ''; };
+    const base = { runnerDir, deviceUdid: 'DEVICE', appBundleId: 'com.example.game', outDir, shImpl };
+
+    for (const states of [undefined, [], 'menu,level', ['menu', ''], ['menu', 'a,b']]) {
+      expect(() => runXcuiTestAndExport({ ...base, states })).toThrow(
+        /non-empty ordered `states`|TEST_RUNNER_TARGET_STATES wire/,
+      );
+    }
+    // A fail-closed vocabulary error must NOT burn a device run.
+    expect(calls.some((c) => c.file === 'xcodebuild')).toBe(false);
 
     fs.rmSync(runnerDir, { recursive: true, force: true });
     fs.rmSync(outDir, { recursive: true, force: true });

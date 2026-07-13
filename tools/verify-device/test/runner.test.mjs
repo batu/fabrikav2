@@ -28,4 +28,22 @@ describe('VerifyDeviceRunner template', () => {
     expect(src.indexOf(String.raw`attachText("\(name)-viewportmetrics", metrics)`))
       .toBeLessThan(src.indexOf('shot(name)'));
   });
+
+  it('gates the ordered manifest vocabulary from TARGET_STATES, never a hardcoded state list — the seven-page Shop regression (card qWCv9tUo)', () => {
+    const src = fs.readFileSync(runnerSwift, 'utf8');
+    // The legacy hardcoded property is exactly what silently skipped Shop when the
+    // shell grew from six to seven pages; it must be gone, and no literal
+    // six-state array may remain.
+    expect(src).not.toMatch(/private let states\s*=\s*\[/);
+    expect(src).not.toMatch(/\[\s*"menu"\s*,\s*"level"\s*,\s*"settings"\s*,\s*"pause"\s*,\s*"win"\s*,\s*"fail"\s*\]/);
+    // The ordered vocabulary is injected by verify-device via TEST_RUNNER_TARGET_STATES,
+    // read here (prefix stripped) as TARGET_STATES and split on commas in order.
+    expect(src).toContain('ProcessInfo.processInfo.environment["TARGET_STATES"]');
+    expect(src).toMatch(/\.split\(separator:\s*","\)/);
+    // Absent/empty vocabulary is a loud failure (like TARGET_BUNDLE_ID), never a
+    // fallback to a stale default that could skip a state.
+    expect(src).toMatch(/guard\s+!states\.isEmpty\s+else\s*\{[\s\S]*XCTFail\([\s\S]*TARGET_STATES/);
+    // The capture loop iterates the injected states in their manifest order.
+    expect(src).toMatch(/for\s+\(index,\s*state\)\s+in\s+states\.enumerated\(\)/);
+  });
 });
