@@ -1,0 +1,153 @@
+{
+    "id": "shell-win",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [
+            "assets/asset-pack.json"
+        ],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Win",
+        "compilerOutputLanguage": "TYPE_SCRIPT",
+        "borderWidth": 390,
+        "borderHeight": 844
+    },
+    "displayList": [
+        {
+            "type": "Text",
+            "id": "win.panel",
+            "label": "win.panel",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "win.panel",
+            "Semantic.fabRole": "result-panel",
+            "Semantic.fabBinding": "presentation.static",
+            "Semantic.fabSlot": "modal-frame",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 422,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "You Win",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "win.reward",
+            "label": "win.reward",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "win.reward",
+            "Semantic.fabRole": "level-label",
+            "Semantic.fabBinding": "state.reward-amount",
+            "Semantic.fabSlot": "",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 21.1,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Reward",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "win.claim",
+            "label": "win.claim",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "win.claim",
+            "Semantic.fabRole": "bottom-primary-action",
+            "Semantic.fabBinding": "flow.claim",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 692.08,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Claim",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "win.claim-double",
+            "label": "win.claim-double",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "win.claim-double",
+            "Semantic.fabRole": "bottom-secondary-action",
+            "Semantic.fabBinding": "flow.claim-double",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 776.48,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Claim 2x",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "win.next",
+            "label": "win.next",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "win.next",
+            "Semantic.fabRole": "bottom-primary-action",
+            "Semantic.fabBinding": "flow.next",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 692.08,
+            "originX": 0.5,
+            "originY": 0.5,
+            "visible": false,
+            "text": "Next",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "win.home",
+            "label": "win.home",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "win.home",
+            "Semantic.fabRole": "bottom-secondary-action",
+            "Semantic.fabBinding": "flow.result-home",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 776.48,
+            "originX": 0.5,
+            "originY": 0.5,
+            "visible": false,
+            "text": "Home",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

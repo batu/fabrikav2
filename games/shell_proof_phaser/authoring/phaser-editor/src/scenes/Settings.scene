@@ -1,0 +1,147 @@
+{
+    "id": "shell-settings",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [
+            "assets/asset-pack.json"
+        ],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Settings",
+        "compilerOutputLanguage": "TYPE_SCRIPT",
+        "borderWidth": 390,
+        "borderHeight": 844
+    },
+    "displayList": [
+        {
+            "type": "Container",
+            "id": "settings.page",
+            "label": "settings.page",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "settings.page",
+            "Semantic.fabRole": "page-surface",
+            "Semantic.fabBinding": "presentation.static",
+            "Semantic.fabSlot": "",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 422,
+            "originX": 0.5,
+            "originY": 0.5,
+            "width": 390,
+            "height": 844
+        },
+        {
+            "type": "Text",
+            "id": "settings.title",
+            "label": "settings.title",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "settings.title",
+            "Semantic.fabRole": "screen-title",
+            "Semantic.fabBinding": "presentation.static",
+            "Semantic.fabSlot": "title-logo",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 16.88,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Settings",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Container",
+            "id": "settings.back",
+            "label": "settings.back",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "settings.back",
+            "Semantic.fabRole": "header-back-action",
+            "Semantic.fabBinding": "flow.settings-back",
+            "Semantic.fabSlot": "icon-control",
+            "Semantic.fabVariant": "default",
+            "x": 15.6,
+            "y": 21.1,
+            "originX": 0.5,
+            "originY": 0.5,
+            "width": 54.6,
+            "height": 59.08
+        },
+        {
+            "type": "Text",
+            "id": "settings.music",
+            "label": "settings.music",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "settings.music",
+            "Semantic.fabRole": "center-toggle-action",
+            "Semantic.fabBinding": "settings.music",
+            "Semantic.fabSlot": "toggle-control",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 286.96,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Music",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "settings.sfx",
+            "label": "settings.sfx",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "settings.sfx",
+            "Semantic.fabRole": "center-toggle-action",
+            "Semantic.fabBinding": "settings.sfx",
+            "Semantic.fabSlot": "toggle-control",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 371.36,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "SFX",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "settings.haptics",
+            "label": "settings.haptics",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "settings.haptics",
+            "Semantic.fabRole": "center-toggle-action",
+            "Semantic.fabBinding": "settings.haptics",
+            "Semantic.fabSlot": "toggle-control",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 455.76,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Haptics",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

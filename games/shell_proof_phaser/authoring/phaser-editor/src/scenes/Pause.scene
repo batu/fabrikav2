@@ -1,0 +1,109 @@
+{
+    "id": "shell-pause",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [
+            "assets/asset-pack.json"
+        ],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Pause",
+        "compilerOutputLanguage": "TYPE_SCRIPT",
+        "borderWidth": 390,
+        "borderHeight": 844
+    },
+    "displayList": [
+        {
+            "type": "Text",
+            "id": "pause.panel",
+            "label": "pause.panel",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "pause.panel",
+            "Semantic.fabRole": "modal-panel",
+            "Semantic.fabBinding": "presentation.static",
+            "Semantic.fabSlot": "modal-frame",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 422,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Paused",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "pause.resume",
+            "label": "pause.resume",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "pause.resume",
+            "Semantic.fabRole": "bottom-primary-action",
+            "Semantic.fabBinding": "flow.resume",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 607.68,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Resume",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "pause.settings",
+            "label": "pause.settings",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "pause.settings",
+            "Semantic.fabRole": "bottom-secondary-action",
+            "Semantic.fabBinding": "flow.open-settings",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 692.08,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Settings",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "pause.home",
+            "label": "pause.home",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "pause.home",
+            "Semantic.fabRole": "bottom-secondary-action",
+            "Semantic.fabBinding": "flow.pause-home",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 776.48,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Home",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

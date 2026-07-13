@@ -1,0 +1,128 @@
+{
+    "id": "shell-fail",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [
+            "assets/asset-pack.json"
+        ],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Fail",
+        "compilerOutputLanguage": "TYPE_SCRIPT",
+        "borderWidth": 390,
+        "borderHeight": 844
+    },
+    "displayList": [
+        {
+            "type": "Text",
+            "id": "fail.panel",
+            "label": "fail.panel",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "fail.panel",
+            "Semantic.fabRole": "result-panel",
+            "Semantic.fabBinding": "presentation.static",
+            "Semantic.fabSlot": "modal-frame",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 422,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Try Again",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Container",
+            "id": "fail.currency",
+            "label": "fail.currency",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "fail.currency",
+            "Semantic.fabRole": "currency-counter",
+            "Semantic.fabBinding": "state.primary-currency",
+            "Semantic.fabSlot": "counter-frame",
+            "Semantic.fabVariant": "default",
+            "x": 15.6,
+            "y": 92.84,
+            "originX": 0.5,
+            "originY": 0.5,
+            "width": 124.8,
+            "height": 54.86
+        },
+        {
+            "type": "Text",
+            "id": "fail.continue-coins",
+            "label": "fail.continue-coins",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "fail.continue-coins",
+            "Semantic.fabRole": "bottom-secondary-action",
+            "Semantic.fabBinding": "flow.continue-coins",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 607.68,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Continue",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "fail.bundle",
+            "label": "fail.bundle",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "fail.bundle",
+            "Semantic.fabRole": "bottom-secondary-action",
+            "Semantic.fabBinding": "commerce.bundle",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 776.48,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Bundle",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "fail.retry",
+            "label": "fail.retry",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "fail.retry",
+            "Semantic.fabRole": "bottom-primary-action",
+            "Semantic.fabBinding": "flow.retry",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 692.08,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Retry",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

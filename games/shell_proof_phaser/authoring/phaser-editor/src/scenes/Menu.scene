@@ -1,0 +1,238 @@
+{
+    "id": "shell-menu",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [
+            "assets/asset-pack.json"
+        ],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Menu",
+        "compilerOutputLanguage": "TYPE_SCRIPT",
+        "borderWidth": 390,
+        "borderHeight": 844
+    },
+    "displayList": [
+        {
+            "type": "Text",
+            "id": "menu.title",
+            "label": "menu.title",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.title",
+            "Semantic.fabRole": "screen-title",
+            "Semantic.fabBinding": "presentation.static",
+            "Semantic.fabSlot": "title-logo",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 16.88,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Game Title",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Container",
+            "id": "menu.hero",
+            "label": "menu.hero",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.hero",
+            "Semantic.fabRole": "hero-art",
+            "Semantic.fabBinding": "presentation.static",
+            "Semantic.fabSlot": "hero-art",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 312.28,
+            "originX": 0.5,
+            "originY": 0.5,
+            "width": 292.5,
+            "height": 270.08
+        },
+        {
+            "type": "Container",
+            "id": "menu.currency",
+            "label": "menu.currency",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.currency",
+            "Semantic.fabRole": "currency-counter",
+            "Semantic.fabBinding": "state.primary-currency",
+            "Semantic.fabSlot": "counter-frame",
+            "Semantic.fabVariant": "default",
+            "x": 15.6,
+            "y": 21.1,
+            "originX": 0.5,
+            "originY": 0.5,
+            "width": 124.8,
+            "height": 54.86
+        },
+        {
+            "type": "Container",
+            "id": "menu.nav",
+            "label": "menu.nav",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.nav",
+            "Semantic.fabRole": "bottom-nav",
+            "Semantic.fabBinding": "presentation.static",
+            "Semantic.fabSlot": "",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 827.12,
+            "originX": 0.5,
+            "originY": 0.5,
+            "width": 351,
+            "height": 84.4
+        },
+        {
+            "type": "Container",
+            "id": "menu.shop",
+            "label": "menu.shop",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.shop",
+            "Semantic.fabRole": "top-icon-action",
+            "Semantic.fabBinding": "flow.open-shop",
+            "Semantic.fabSlot": "icon-control",
+            "Semantic.fabVariant": "default",
+            "x": 312,
+            "y": 21.1,
+            "originX": 0.5,
+            "originY": 0.5,
+            "width": 54.6,
+            "height": 59.08
+        },
+        {
+            "type": "Text",
+            "id": "menu.play",
+            "label": "menu.play",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.play",
+            "Semantic.fabRole": "bottom-primary-action",
+            "Semantic.fabBinding": "flow.start-current",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 810.24,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Play",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Container",
+            "id": "menu.settings",
+            "label": "menu.settings",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.settings",
+            "Semantic.fabRole": "top-icon-action",
+            "Semantic.fabBinding": "flow.open-settings",
+            "Semantic.fabSlot": "icon-control",
+            "Semantic.fabVariant": "default",
+            "x": 374.4,
+            "y": 21.1,
+            "originX": 0.5,
+            "originY": 0.5,
+            "width": 54.6,
+            "height": 59.08
+        },
+        {
+            "type": "Container",
+            "id": "menu.progression-map",
+            "label": "menu.progression-map",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.progression-map",
+            "Semantic.fabRole": "progression-map",
+            "Semantic.fabBinding": "state.progression",
+            "Semantic.fabSlot": "",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 548.6,
+            "originX": 0.5,
+            "originY": 0.5,
+            "width": 351,
+            "height": 354.48
+        },
+        {
+            "type": "Container",
+            "id": "menu.node.completed",
+            "label": "menu.node.completed",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.node.completed",
+            "Semantic.fabRole": "progression-node",
+            "Semantic.fabBinding": "state.progression",
+            "Semantic.fabSlot": "progression-node",
+            "Semantic.fabVariant": "default",
+            "x": 101.4,
+            "y": 557.04,
+            "originX": 0.5,
+            "originY": 0.5,
+            "width": 58.5,
+            "height": 67.52
+        },
+        {
+            "type": "Container",
+            "id": "menu.node.current",
+            "label": "menu.node.current",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.node.current",
+            "Semantic.fabRole": "progression-node",
+            "Semantic.fabBinding": "flow.start-current",
+            "Semantic.fabSlot": "progression-node",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 590.8,
+            "originX": 0.5,
+            "originY": 0.5,
+            "width": 58.5,
+            "height": 67.52
+        },
+        {
+            "type": "Container",
+            "id": "menu.node.locked",
+            "label": "menu.node.locked",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.node.locked",
+            "Semantic.fabRole": "progression-node",
+            "Semantic.fabBinding": "state.progression",
+            "Semantic.fabSlot": "progression-node",
+            "Semantic.fabVariant": "default",
+            "x": 288.6,
+            "y": 557.04,
+            "originX": 0.5,
+            "originY": 0.5,
+            "width": 58.5,
+            "height": 67.52
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

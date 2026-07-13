@@ -1,0 +1,145 @@
+{
+    "id": "shell-level",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [
+            "assets/asset-pack.json"
+        ],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Level",
+        "compilerOutputLanguage": "TYPE_SCRIPT",
+        "borderWidth": 390,
+        "borderHeight": 844
+    },
+    "displayList": [
+        {
+            "type": "Container",
+            "id": "level.currency",
+            "label": "level.currency",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "level.currency",
+            "Semantic.fabRole": "currency-counter",
+            "Semantic.fabBinding": "state.primary-currency",
+            "Semantic.fabSlot": "counter-frame",
+            "Semantic.fabVariant": "default",
+            "x": 15.6,
+            "y": 21.1,
+            "originX": 0.5,
+            "originY": 0.5,
+            "width": 124.8,
+            "height": 54.86
+        },
+        {
+            "type": "Text",
+            "id": "level.label",
+            "label": "level.label",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "level.label",
+            "Semantic.fabRole": "level-label",
+            "Semantic.fabBinding": "state.level-label",
+            "Semantic.fabSlot": "",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 21.1,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Level",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Container",
+            "id": "level.pause",
+            "label": "level.pause",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "level.pause",
+            "Semantic.fabRole": "top-icon-action",
+            "Semantic.fabBinding": "flow.pause",
+            "Semantic.fabSlot": "icon-control",
+            "Semantic.fabVariant": "default",
+            "x": 374.4,
+            "y": 21.1,
+            "originX": 0.5,
+            "originY": 0.5,
+            "width": 54.6,
+            "height": 59.08
+        },
+        {
+            "type": "Container",
+            "id": "level.gameplay-region",
+            "label": "level.gameplay-region",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "level.gameplay-region",
+            "Semantic.fabRole": "gameplay-region",
+            "Semantic.fabBinding": "mechanic.mount",
+            "Semantic.fabSlot": "gameplay-background",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 422,
+            "originX": 0.5,
+            "originY": 0.5,
+            "width": 351,
+            "height": 573.92
+        },
+        {
+            "type": "Text",
+            "id": "level.test-win",
+            "label": "level.test-win",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "level.test-win",
+            "Semantic.fabRole": "bottom-left-test-action",
+            "Semantic.fabBinding": "flow.test-win",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 11.7,
+            "y": 827.12,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Test Win",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "level.test-lose",
+            "label": "level.test-lose",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "level.test-lose",
+            "Semantic.fabRole": "bottom-right-test-action",
+            "Semantic.fabBinding": "flow.test-lose",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 378.3,
+            "y": 827.12,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Test Lose",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

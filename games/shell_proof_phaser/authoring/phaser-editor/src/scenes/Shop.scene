@@ -1,0 +1,225 @@
+{
+    "id": "shell-shop",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [
+            "assets/asset-pack.json"
+        ],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Shop",
+        "compilerOutputLanguage": "TYPE_SCRIPT",
+        "borderWidth": 390,
+        "borderHeight": 844
+    },
+    "displayList": [
+        {
+            "type": "Container",
+            "id": "shop.page",
+            "label": "shop.page",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shop.page",
+            "Semantic.fabRole": "page-surface",
+            "Semantic.fabBinding": "presentation.static",
+            "Semantic.fabSlot": "",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 422,
+            "originX": 0.5,
+            "originY": 0.5,
+            "width": 390,
+            "height": 844
+        },
+        {
+            "type": "Text",
+            "id": "shop.title",
+            "label": "shop.title",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shop.title",
+            "Semantic.fabRole": "screen-title",
+            "Semantic.fabBinding": "presentation.static",
+            "Semantic.fabSlot": "title-logo",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 16.88,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Shop",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Container",
+            "id": "shop.back",
+            "label": "shop.back",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shop.back",
+            "Semantic.fabRole": "header-back-action",
+            "Semantic.fabBinding": "flow.shop-back",
+            "Semantic.fabSlot": "icon-control",
+            "Semantic.fabVariant": "default",
+            "x": 15.6,
+            "y": 21.1,
+            "originX": 0.5,
+            "originY": 0.5,
+            "width": 54.6,
+            "height": 59.08
+        },
+        {
+            "type": "Container",
+            "id": "shop.currency",
+            "label": "shop.currency",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shop.currency",
+            "Semantic.fabRole": "currency-counter",
+            "Semantic.fabBinding": "state.primary-currency",
+            "Semantic.fabSlot": "counter-frame",
+            "Semantic.fabVariant": "default",
+            "x": 15.6,
+            "y": 92.84,
+            "originX": 0.5,
+            "originY": 0.5,
+            "width": 124.8,
+            "height": 54.86
+        },
+        {
+            "type": "Container",
+            "id": "shop.currency.secondary",
+            "label": "shop.currency.secondary",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shop.currency.secondary",
+            "Semantic.fabRole": "currency-counter",
+            "Semantic.fabBinding": "state.secondary-currency",
+            "Semantic.fabSlot": "counter-frame",
+            "Semantic.fabVariant": "default",
+            "x": 202.8,
+            "y": 92.84,
+            "originX": 0.5,
+            "originY": 0.5,
+            "width": 124.8,
+            "height": 54.86
+        },
+        {
+            "type": "Container",
+            "id": "shop.grid",
+            "label": "shop.grid",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shop.grid",
+            "Semantic.fabRole": "item-grid",
+            "Semantic.fabBinding": "state.shop-items",
+            "Semantic.fabSlot": "",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 447.32,
+            "originX": 0.5,
+            "originY": 0.5,
+            "width": 351,
+            "height": 438.88
+        },
+        {
+            "type": "Text",
+            "id": "shop.item.available",
+            "label": "shop.item.available",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shop.item.available",
+            "Semantic.fabRole": "item-card",
+            "Semantic.fabBinding": "state.shop-items",
+            "Semantic.fabSlot": "",
+            "Semantic.fabVariant": "default",
+            "x": 113.1,
+            "y": 337.6,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Item A",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "shop.item.owned",
+            "label": "shop.item.owned",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shop.item.owned",
+            "Semantic.fabRole": "item-card",
+            "Semantic.fabBinding": "state.shop-items",
+            "Semantic.fabSlot": "",
+            "Semantic.fabVariant": "default",
+            "x": 276.9,
+            "y": 337.6,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Item B",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "shop.item.locked",
+            "label": "shop.item.locked",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shop.item.locked",
+            "Semantic.fabRole": "item-card",
+            "Semantic.fabBinding": "state.shop-items",
+            "Semantic.fabSlot": "",
+            "Semantic.fabVariant": "default",
+            "x": 113.1,
+            "y": 540.16,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Item C",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "shop.restore",
+            "label": "shop.restore",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shop.restore",
+            "Semantic.fabRole": "bottom-secondary-action",
+            "Semantic.fabBinding": "commerce.restore",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 827.12,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Restore",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}
