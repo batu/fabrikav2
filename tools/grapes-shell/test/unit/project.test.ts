@@ -11,7 +11,9 @@ import {
   reorderInstance,
   updateInstancePresentation,
   validateProjectFile,
+  type GrapesShellProject,
 } from "../../src/shared/project.ts";
+import { composeFactCopy, deriveEditableLabel } from "../../src/shared/facts.ts";
 import { readSeedManifest } from "../../src/shared/seed.ts";
 
 const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -189,6 +191,34 @@ describe("constrained GrapesJS project", () => {
     expect(reorderInstance(project, "menu.title", "backward", seed)).toBe(project);
   });
 
+  it("reorders the bottom-dock trio within its group without crossing the dock boundary", async () => {
+    const seed = await manifest();
+    const project = createStarterProject();
+
+    // Shop / Play / Settings are the menu.nav dock's semantic sibling group.
+    const dockOrder = (source = project) =>
+      source.presentation.pages
+        .find((page) => page.stateId === "menu")!
+        .instances.filter((instance) => instance.parentInstanceId === "menu.nav")
+        .sort((left, right) => left.presentation.order - right.presentation.order)
+        .map((instance) => instance.id);
+    expect(dockOrder()).toEqual(["menu.shop", "menu.play", "menu.settings"]);
+
+    // A dock child moves only among its dock siblings.
+    const moved = reorderInstance(project, "menu.shop", "forward", seed);
+    expect(dockOrder(moved)).toEqual(["menu.play", "menu.shop", "menu.settings"]);
+
+    // The dock group has hard ends: its first/last child cannot leave the group.
+    expect(canReorderInstance(project, "menu.shop", "backward")).toBe(false);
+    expect(canReorderInstance(project, "menu.settings", "forward")).toBe(false);
+    expect(
+      reorderInstance(moved, "menu.shop", "forward", seed).presentation.pages
+        .find((page) => page.stateId === "menu")!
+        .instances.filter((instance) => instance.parentInstanceId === "menu.nav")
+        .every((instance) => instance.parentInstanceId === "menu.nav"),
+    ).toBe(true);
+  });
+
   it("seeds the source-grounded win/fail facts, including the rescue-bundle outcome", async () => {
     const seed = await manifest();
     // Validate through the closed AST so the seeded copy is proven both present
@@ -216,5 +246,67 @@ describe("constrained GrapesJS project", () => {
     expect(bundle).toContain("Rescue bundle");
     expect(bundle).toContain("$4.99");
     expect(bundle).toContain("Continue this level");
+  });
+
+  it("fails closed when designer copy overwrites a binding-derived runtime/store fact", async () => {
+    const seed = await manifest();
+    const project = createStarterProject();
+
+    // A pure runtime/store read (reward, balance) is owned entirely by its
+    // binding: the whole copy value cannot be edited to lie about the store.
+    expect(() => updateInstancePresentation(project, "win.reward", { copy: "9999 Coins earned" }, seed)).toThrow(
+      /binding-derived|owned by binding/i,
+    );
+    expect(() => updateInstancePresentation(project, "fail.currency", { copy: "9999 Coins" }, seed)).toThrow(
+      /binding-derived|owned by binding/i,
+    );
+
+    // An action fact (cost, price, outcome, mechanic) keeps an editable label but
+    // its locked fact segment cannot be dropped or altered by designer copy.
+    expect(() => updateInstancePresentation(project, "fail.continue-coins", { copy: "Continue" }, seed)).toThrow(
+      /binding-derived|must keep/i,
+    );
+    expect(() =>
+      updateInstancePresentation(project, "fail.bundle", { copy: "Rescue bundle · $0.99 · Continue this level" }, seed),
+    ).toThrow(/binding-derived|must keep/i);
+    expect(() =>
+      updateInstancePresentation(project, "fail.bundle", { copy: "Rescue bundle · $4.99" }, seed),
+    ).toThrow(/binding-derived|must keep/i);
+  });
+
+  it("lets the designer restyle only the call-to-action label while the store fact stays locked", async () => {
+    const seed = await manifest();
+    const project = createStarterProject();
+
+    // The editor commits label edits as composeFactCopy(prototype, label).
+    const relabeled = updateInstancePresentation(
+      project,
+      "fail.continue-coins",
+      { copy: composeFactCopy("fail.continue-coins", "Keep going") },
+      seed,
+    );
+    const copyOf = (source: GrapesShellProject, id: string) =>
+      source.presentation.pages.flatMap((page) => page.instances).find((instance) => instance.id === id)?.presentation.copy;
+    expect(copyOf(relabeled, "fail.continue-coins")).toBe("Keep going · 10 Coins");
+    expect(deriveEditableLabel("fail.continue-coins", copyOf(relabeled, "fail.continue-coins"))).toBe("Keep going");
+  });
+
+  it("keeps the binding-fact lock on a duplicated fact instance so it is not an editable back door", async () => {
+    const seed = await manifest();
+    const duplicate = duplicateInstance(createStarterProject(), "fail.currency");
+    // The duplicate inherits fail.currency's prototype, so its copy is still owned
+    // by the balance binding — validation passes with the inherited fact intact.
+    expect(() => validateProjectFile(duplicate.project, seed)).not.toThrow();
+
+    const tampered = structuredClone(duplicate.project.presentation);
+    tampered.pages
+      .flatMap((page) => page.instances)
+      .find((instance) => instance.id === duplicate.instanceId)!.presentation.copy = "9999 Coins";
+    const tamperedProject = {
+      ...duplicate.project,
+      presentation: tampered,
+      grapesjs: createConstrainedGrapesProject(tampered),
+    };
+    expect(() => validateProjectFile(tamperedProject, seed)).toThrow(/binding-derived|owned by binding/i);
   });
 });

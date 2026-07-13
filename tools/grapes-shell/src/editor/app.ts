@@ -16,6 +16,12 @@ import {
   type GrapesShellProject,
 } from "../shared/project.ts";
 import { normalizeSemanticLayout } from "../shared/layout.ts";
+import {
+  bindingFactForPrototype,
+  composeFactCopy,
+  deriveEditableLabel,
+  type BindingFact,
+} from "../shared/facts.ts";
 import { createConstrainedGrapesCanvas } from "./grapes-canvas.ts";
 import { editorAssetUrl } from "./assets.ts";
 import { editorAssetCatalog } from "./seed.ts";
@@ -28,6 +34,19 @@ const EDITOR_TARGET_GAME = GRAPES_TARGET_GAME;
 // asset vocabulary, so any pre-repair draft stored under the v1 key is orphaned
 // and can never re-load as a "saved" project reviewed against the current catalog.
 const STORAGE_KEY = `fabrikav2:grapes-shell:project-v2:${EDITOR_TARGET_GAME}`;
+
+// Explicit draft revision/migration boundary. The stored payload is wrapped as
+// { draftRevision, project }; on load a draft whose revision is not the current
+// one — or a legacy bare-project payload that predates this wrapper — is orphaned
+// rather than reloaded as "saved". Bump this token whenever the seed or the
+// binding-fact contract changes so a pre-repair draft can never bypass the
+// source-grounded seed by appearing already saved.
+const DRAFT_REVISION = "u3-source-grounded-facts-2026-07-13";
+
+interface StoredDraft {
+  readonly draftRevision: string;
+  readonly project: GrapesShellProject;
+}
 
 type StoredState = "unsaved" | "dirty" | "saved-unpublished";
 type FeedbackTone = "neutral" | "success" | "error";
@@ -70,6 +89,30 @@ function titleCase(value: string): string {
   return value.split(/[.-]/u).map((part) => part.slice(0, 1).toUpperCase() + part.slice(1)).join(" ");
 }
 
+// A distinct, human semantic label for the layer tree and inspector. Derived from
+// the instance id minus its page prefix, so the bottom-dock trio reads as
+// "Shop" / "Play" / "Settings" instead of three identical "Top Icon Action" role
+// names, and a duplicate stays legible ("Shop Copy 1").
+function humanInstanceLabel(instance: ShellPresentationInstance): string {
+  const withoutState = instance.id.split(".").slice(1).join(".");
+  return titleCase(withoutState || instance.id);
+}
+
+// A read-only display for a binding-derived runtime/store fact. The value is owned
+// by the game binding (state + store), so the editor shows it but never lets the
+// designer type it.
+function bindingFactRow(fact: BindingFact): HTMLElement {
+  const row = element("div", "editor-binding-fact editor-field--wide");
+  const caption = element("span", "editor-binding-fact-caption");
+  text(caption, `Binding value · ${fact.kind}`);
+  const value = element("strong", "editor-binding-fact-value");
+  text(value, fact.fact);
+  const note = element("span", "editor-binding-fact-note");
+  text(note, `Owned by binding ${fact.bindingId} (game state · store). Not editable here.`);
+  row.append(caption, value, note);
+  return row;
+}
+
 function editErrorMessage(error: unknown): string {
   const message = error instanceof Error ? error.message : "The requested constrained edit was rejected.";
   const firstIssue = message.split("\n").map((line) => line.trim()).find((line) => line.startsWith("- "));
@@ -105,26 +148,49 @@ export function loadBrowserProject(readStoredProject: () => string | null): Load
       feedbackTone: "neutral",
     };
   }
+  const orphaned = (feedback: string): LoadedProject => ({
+    project: createStarterProject(EDITOR_TARGET_GAME),
+    status: "unsaved",
+    feedback,
+    feedbackTone: "error",
+  });
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(serialized);
+  } catch {
+    return orphaned("The stored browser draft was not valid JSON and was not loaded. The validated starter is open.");
+  }
+
+  const draft = parsed as Partial<StoredDraft>;
+  if (typeof draft?.draftRevision !== "string" || typeof draft.project !== "object" || draft.project === null) {
+    // A bare-project payload from before the revision boundary existed. Orphan it
+    // so a pre-repair draft cannot reappear as a trusted saved project.
+    return orphaned(
+      "A browser draft from an earlier editor revision was found and not loaded. The validated starter is open — re-author and save.",
+    );
+  }
+  if (draft.draftRevision !== DRAFT_REVISION) {
+    return orphaned(
+      `A browser draft from a superseded editor revision (${draft.draftRevision}) was found and not loaded. The validated starter is open — re-author and save.`,
+    );
+  }
   try {
     return {
-      project: validateProjectFile(JSON.parse(serialized) as unknown, editorAssetCatalog, EDITOR_TARGET_GAME),
+      project: validateProjectFile(draft.project as unknown, editorAssetCatalog, EDITOR_TARGET_GAME),
       status: "saved-unpublished",
       feedback: "Validated browser draft loaded. Raw HTML, CSS, and unsupported GrapesJS panels are unavailable.",
       feedbackTone: "neutral",
     };
   } catch {
-    return {
-      project: createStarterProject(EDITOR_TARGET_GAME),
-      status: "unsaved",
-      feedback: "The stored browser draft was invalid and was not loaded. Review and save the starter before handoff.",
-      feedbackTone: "error",
-    };
+    return orphaned("The stored browser draft failed validation and was not loaded. Review and save the starter before handoff.");
   }
 }
 
 export function saveBrowserProject(project: GrapesShellProject, writeStoredProject: (value: string) => void): boolean {
   try {
-    writeStoredProject(JSON.stringify(project));
+    const draft: StoredDraft = { draftRevision: DRAFT_REVISION, project };
+    writeStoredProject(JSON.stringify(draft));
     return true;
   } catch {
     return false;
@@ -394,15 +460,19 @@ export function mountConstrainedEditor(root: HTMLElement): void {
         parentId = byId.get(parentId)?.parentInstanceId ?? null;
       }
       const prefix = depth > 0 ? `${"↳ ".repeat(depth)}` : "";
-      const control = button(`${prefix}${titleCase(instance.roleId)} · ${instance.id}`, () => {
+      const control = button(`${prefix}${humanInstanceLabel(instance)} · ${instance.id}`, () => {
         selectedId = instance.id;
         selectedVariant = "";
         refresh();
       }, "editor-layer-button");
       control.dataset.instanceId = instance.id;
       control.dataset.depth = String(depth);
+      control.title = `${instance.id} · role ${titleCase(instance.roleId)}`;
       if (instance.parentInstanceId) {
-        control.setAttribute("aria-label", `${titleCase(instance.roleId)} ${instance.id}, child of ${instance.parentInstanceId}`);
+        control.setAttribute(
+          "aria-label",
+          `${humanInstanceLabel(instance)} (${instance.id}), in group ${instance.parentInstanceId}`,
+        );
       }
       control.setAttribute("aria-pressed", String(instance.id === selectedId));
       if (instance.id === selectedId) control.classList.add("is-selected");
@@ -463,12 +533,15 @@ export function mountConstrainedEditor(root: HTMLElement): void {
     text(heading, "Selected component");
     const identity = element("div", "editor-component-identity");
     const name = element("strong");
-    text(name, titleCase(instance.roleId));
+    text(name, humanInstanceLabel(instance));
     const id = element("code");
     text(id, instance.id);
     identity.append(name, id);
+    const parent = instance.parentInstanceId ? instanceFor(project, instance.parentInstanceId) : undefined;
     const metadata = element("dl", "editor-metadata");
     for (const [term, value] of [
+      ["Role", titleCase(instance.roleId)],
+      ...(parent ? [["Group", `${humanInstanceLabel(parent)} (${parent.id})`]] : []),
       ["Binding", instance.bindingId],
       ["Accessible name", instance.accessibility.nameKey],
       ["Traversal", instance.accessibility.traversalGroup],
@@ -518,10 +591,36 @@ export function mountConstrainedEditor(root: HTMLElement): void {
       );
     }
     if (roleAllows(instance, "copy")) {
-      geometry.append(textControl("Copy", instance.presentation.copy ?? "", (next) =>
-        commitLive(() => updateInstancePresentation(project, selectedId, { copy: next }, editorAssetCatalog), "Copy updated as inert plain text."),
-      !editingBase,
-      ));
+      const fact = bindingFactForPrototype(instance.prototypeInstanceId);
+      if (!fact) {
+        geometry.append(textControl("Copy", instance.presentation.copy ?? "", (next) =>
+          commitLive(() => updateInstancePresentation(project, selectedId, { copy: next }, editorAssetCatalog), "Copy updated as inert plain text."),
+        !editingBase,
+        ));
+      } else if (fact.labelEditable) {
+        // The store fact (cost, price, outcome, or mechanic) is binding-derived
+        // and stays locked; the designer edits only the call-to-action label in
+        // front of it, live per keystroke.
+        geometry.append(textControl(
+          "Button label",
+          deriveEditableLabel(instance.prototypeInstanceId, instance.presentation.copy),
+          (label) => commitLive(
+            () => updateInstancePresentation(
+              project,
+              selectedId,
+              { copy: composeFactCopy(instance.prototypeInstanceId, label) },
+              editorAssetCatalog,
+            ),
+            `Label updated. The binding-derived ${fact.kind} “${fact.fact}” stays locked.`,
+          ),
+          !editingBase,
+        ));
+        geometry.append(bindingFactRow(fact));
+      } else {
+        // A pure runtime/store read (reward, balance): the whole copy is the
+        // binding value, shown read-only and never as an editable field.
+        geometry.append(bindingFactRow(fact));
+      }
     }
     if (roleAllows(instance, "colors")) {
       const colorField = element("label", "editor-field");

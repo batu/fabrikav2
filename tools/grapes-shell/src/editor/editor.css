@@ -75,6 +75,10 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px s
 .editor-field input[type="color"] { padding: 2px; }
 .editor-field input:disabled, .editor-toggle input:disabled { cursor: not-allowed; opacity: .62; }
 .editor-toggle { display: flex; gap: 7px; align-items: center; min-height: 32px; color: #395367; font-size: 12px; }
+.editor-binding-fact { display: grid; gap: 3px; padding: 8px 10px; border: 1px solid #cdd9e2; border-left: 3px solid #7a8ea0; border-radius: 8px; background: #f2f5f8; }
+.editor-binding-fact-caption { color: #667e90; font-size: 10px; font-weight: 750; text-transform: uppercase; letter-spacing: .02em; }
+.editor-binding-fact-value { color: #22384a; font-size: 13px; overflow-wrap: anywhere; }
+.editor-binding-fact-note { color: #5c7284; font-size: 10px; line-height: 1.35; }
 .editor-subheading { margin: 17px 0 8px; color: #3b5567; font-size: 12px; }
 .editor-variant-select { margin-bottom: 10px; }
 .editor-asset-context { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; margin: 6px 0 2px; padding: 8px 10px; border: 1px solid #cfe0e6; border-radius: 8px; background: #eef7f9; font-size: 11px; }

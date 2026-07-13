@@ -43,6 +43,41 @@ describe("editor browser persistence", () => {
     expect(saveBrowserProject(createStarterProject(), () => { throw new Error("quota"); })).toBe(false);
   });
 
+  it("stamps saved drafts with an explicit revision so the migration boundary is real", () => {
+    let serialized = "";
+    saveBrowserProject(createStarterProject("shell_proof_grapes"), (value) => { serialized = value; });
+    const stored = JSON.parse(serialized) as { draftRevision?: unknown; project?: { format?: string } };
+
+    expect(typeof stored.draftRevision).toBe("string");
+    expect(stored.project?.format).toBe("grapes-shell-project-v2");
+    // The saved shape is a wrapper, not a bare project — a bare project has no
+    // draftRevision, which is exactly what the load path treats as orphaned.
+    expect((stored as { format?: string }).format).toBeUndefined();
+  });
+
+  it("orphans a legacy bare-project draft that predates the revision boundary", () => {
+    // Pre-repair drafts were persisted as the bare GrapesShellProject, with no
+    // revision stamp. They must not reload as "saved" and bypass the current seed.
+    const legacy = loadBrowserProject(() => JSON.stringify(createStarterProject("shell_proof_grapes")));
+
+    expect(legacy.status).toBe("unsaved");
+    expect(legacy.feedbackTone).toBe("error");
+    expect(legacy.feedback).toMatch(/earlier editor revision/i);
+    expect(legacy.project.targetGame).toBe("shell_proof_grapes");
+  });
+
+  it("orphans a stored draft stamped with a superseded editor revision", () => {
+    const stale = loadBrowserProject(() =>
+      JSON.stringify({ draftRevision: "u3-pre-repair-0000", project: createStarterProject("shell_proof_grapes") }),
+    );
+
+    expect(stale.status).toBe("unsaved");
+    expect(stale.feedbackTone).toBe("error");
+    expect(stale.feedback).toMatch(/superseded editor revision/i);
+    expect(stale.feedback).toContain("u3-pre-repair-0000");
+    expect(stale.project.targetGame).toBe("shell_proof_grapes");
+  });
+
   it("hashes the bundled editor asset catalog identically to the seed catalog the publisher enforces", async () => {
     // The A1 snapshot/verdict binds hashCanonicalJson(editorAssetCatalog); publish
     // enforces hashCanonicalJson(readSeedManifest(...)). If these diverged, every

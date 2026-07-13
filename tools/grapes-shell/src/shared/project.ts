@@ -13,6 +13,7 @@ import {
 } from "@fabrikav2/kernel";
 
 import { normalizeSemanticLayout } from "./layout.ts";
+import { bindingFactCopyViolation, bindingFactForPrototype, composeFactCopy } from "./facts.ts";
 
 const PROJECT_FORMAT = "grapes-shell-project-v2";
 const PROJECT_VERSION = 2;
@@ -228,35 +229,36 @@ const DOCK_LAYOUT: Readonly<Record<string, SeedBounds>> = {
   "menu.settings": { bounds: { x: 304, y: 729, width: 56, height: 56 }, fit: "contain" },
 };
 
-// Source-grounded win/fail facts, taken from the U1 Find-the-Dog shell reference
-// (games/shell_proof_grapes/evidence/2026-07-13-ftd-structure-rewire) and the
-// shell_proof_phaser copy/product source: the win reward readout, the fail coin
-// balance, the continue coin cost, the rewarded-ad double-claim, and the priced
-// rescue bundle. The rescue bundle is a single leaf action, so — unlike the
-// two-line phaser button (fail.bundle label + fail.bundle.sub outcome) — its one
-// editable copy field must carry all three facts the player reads: the bundle
-// name, its price ($4.99 from proofShopCatalog rescue_bundle), and the outcome it
-// grants (fail.bundle.sub = "Continue this level"). A middot separates the facts
-// so they read as distinct on one line.
-const SEED_COPY: Readonly<Record<string, string>> = {
-  "win.reward": "5 Coins earned",
-  "win.claim-double": "Claim 2x · Watch ad",
-  "fail.currency": "25 Coins",
-  "fail.continue-coins": "Continue · 10 Coins",
-  "fail.bundle": "Rescue bundle · $4.99 · Continue this level",
-};
-
+// Source-grounded win/fail facts come from the binding-fact registry (facts.ts),
+// which owns the reward, balance, cost, price, and outcome values and is the same
+// authority the editor, CLI, and publisher fail closed on. Seeding the copy here
+// through composeFactCopy keeps the neutral projection and the locked facts in one
+// place: the designer can restyle only the action labels, never the store facts.
 function authorNeutralSeedProjection(document: ShellPresentationDocumentV2): ShellPresentationDocumentV2 {
   const clone = structuredClone(document);
   for (const page of clone.pages) {
     for (const instance of page.instances) {
       const dock = DOCK_LAYOUT[instance.id];
       if (dock) instance.presentation.geometry = normalizeSemanticLayout(instance.roleId, dock.bounds, dock.fit);
-      const copy = SEED_COPY[instance.id];
-      if (copy !== undefined) instance.presentation.copy = copy;
+      const fact = bindingFactForPrototype(instance.prototypeInstanceId);
+      if (fact) instance.presentation.copy = composeFactCopy(instance.prototypeInstanceId, fact.defaultLabel);
     }
   }
   return clone;
+}
+
+// Every fact-bearing instance (including duplicates, matched by prototype) must
+// still surface its binding-derived fact. This is the fail-closed gate that stops
+// designer copy from owning a runtime/store value; it runs on every load, reload,
+// edit, CLI validate, and publish because they all funnel through
+// validateProjectFile.
+function assertBindingFacts(document: ShellPresentationDocumentV2): void {
+  for (const page of document.pages) {
+    for (const instance of page.instances) {
+      const violation = bindingFactCopyViolation(instance);
+      if (violation) throw new ProjectValidationError(violation);
+    }
+  }
 }
 
 export function createStarterProject(targetGame = GRAPES_TARGET_GAME): GrapesShellProject {
@@ -296,6 +298,7 @@ export function validateProjectFile(
   if (canonicalizeJson(root.grapesjs) !== canonicalizeJson(expected)) {
     throw new ProjectValidationError("GrapesJS data diverges from the canonical closed presentation AST.");
   }
+  assertBindingFacts(root.presentation as ShellPresentationDocumentV2);
   return rebuild(root.presentation as ShellPresentationDocumentV2, root.targetGame);
 }
 

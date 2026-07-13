@@ -8,7 +8,7 @@ import { shellPresentationContractV2 } from "@fabrikav2/kernel";
 
 import { publishAuthoringProject } from "../../src/publication/publisher.ts";
 import { renderPortablePreviews } from "../../src/publication/preview.ts";
-import { createStarterProject } from "../../src/shared/project.ts";
+import { createConstrainedGrapesProject, createStarterProject } from "../../src/shared/project.ts";
 
 const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const repositoryRoot = path.resolve(workspaceRoot, "../..");
@@ -66,6 +66,27 @@ describe("portable publication renderer", () => {
       expect(failHtml).toContain(fact);
       expect(records).toContain(fact);
     }
+  });
+
+  it("fails closed before writing any portable projection whose designer copy overwrites a binding fact", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "grapes-shell-fact-tamper-"));
+    temporaryRoots.push(root);
+    const authoringDir = path.join(root, "games/shell_proof_grapes/authoring/grapesjs");
+    await mkdir(authoringDir, { recursive: true });
+
+    // A canonically consistent project (grapes matches the AST) whose fail balance
+    // copy has been overwritten with a fabricated store value.
+    const tampered = createStarterProject();
+    const presentation = structuredClone(tampered.presentation);
+    presentation.pages
+      .flatMap((page) => page.instances)
+      .find((instance) => instance.id === "fail.currency")!.presentation.copy = "9999 Coins";
+    const tamperedProject = { ...tampered, presentation, grapesjs: createConstrainedGrapesProject(presentation) };
+    await writeFile(path.join(authoringDir, "project.json"), JSON.stringify(tamperedProject), "utf8");
+
+    await expect(publishAuthoringProject({ authoringDir, seedRoot })).rejects.toThrow(/binding-derived|owned by binding/i);
+    // Fail-closed means no immutable publication directory was ever created.
+    await expect(readFile(path.join(authoringDir, "publications"))).rejects.toThrow();
   });
 
   it("rejects executable or networked portable markup before launching a browser", async () => {
