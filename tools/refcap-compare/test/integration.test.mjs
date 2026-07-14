@@ -36,7 +36,7 @@ describe('offline grid build (marble_run manifest)', () => {
     expect(menu.reference.package).toBe('com.basegamelab.marblerun');
     expect(menu.reference.resolution).toBe('1080x2400');
     expect(menu.reference.sig).toMatch(/^[0-9a-f]{8}$/);
-    expect(menu.v2.package).toBe('com.fabrikav2.marble_run');
+    expect(menu.v2.package).toBe('com.appletolye.marblerun.dev');
   });
 
   it('renders a self-contained HTML grid with inlined images and gap placeholders', () => {
