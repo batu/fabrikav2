@@ -30,7 +30,6 @@
 // bytes are a `no-op`. U5 never mints the runtime projectionId (U6 owns it).
 import { mkdtemp, mkdir, writeFile, rename, rm, readFile, readdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import type { SceneDoc } from '../authoring/sceneModel.ts';
 import { extractDocument, STATE_IDS } from '../authoring/extractV2.ts';
@@ -282,8 +281,13 @@ export async function publish(input: PublishInput): Promise<PublishResult> {
     };
   }
 
-  // 5. Assemble the publication tree in a temp dir.
-  const staging = await mkdtemp(path.join(os.tmpdir(), 'u5-pub-'));
+  // 5. Assemble the publication tree in a staging dir ON THE SAME FILESYSTEM as
+  //    the destination, so the final placement is a single atomic rename. Staging
+  //    in os.tmpdir() would make rename() cross a mount boundary on any host where
+  //    /tmp is a separate device (tmpfs on Linux/CI, Docker) — fs.rename has no
+  //    copy fallback and throws EXDEV, producing no publication at all.
+  await mkdir(input.outputRoot, { recursive: true });
+  const staging = await mkdtemp(path.join(input.outputRoot, '.u5-pub-'));
   const files = new Map<string, Buffer>();
   files.set('revision.json', Buffer.from(JSON.stringify(revision, null, 2) + '\n', 'utf8'));
   // Retained raw editor sources.
@@ -336,7 +340,6 @@ export async function publish(input: PublishInput): Promise<PublishResult> {
         blocks: [{ code: 'blocked-publication-mismatch', where: finalDir, detail: 'existing publication bytes differ' }],
       };
     }
-    await mkdir(input.outputRoot, { recursive: true });
     await rename(staging, finalDir);
     return { result: 'ok', publicationId: revision.publicationId, dir: finalDir };
   } catch (error) {

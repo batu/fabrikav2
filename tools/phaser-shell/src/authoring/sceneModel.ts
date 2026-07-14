@@ -70,6 +70,11 @@ export interface SceneCreationFact {
   x: number;
   y: number;
   textureKey: string | null;
+  /** Editable copy string (Text objects), else null. */
+  copy: string | null;
+  /** Per-object color as an editor value (tint/fillColor/color), else null. */
+  color: number | string | null;
+  visible: boolean;
 }
 
 function num(value: unknown, fallback: number): number {
@@ -186,6 +191,9 @@ export function sceneCreationFacts(doc: SceneDoc): Map<string, SceneCreationFact
         x: geometry.x,
         y: geometry.y,
         textureKey,
+        copy: typeof raw['text'] === 'string' ? raw['text'] : null,
+        color: readColor(raw),
+        visible: raw['visible'] === false ? false : true,
       });
       visit(raw['list'], treePath);
     });

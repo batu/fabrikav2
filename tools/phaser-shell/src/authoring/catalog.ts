@@ -13,7 +13,7 @@
 // It also validates the editor `asset-pack.json`: pack keys correspond 1:1 to the
 // catalog, and the ONLY font entries are the two frozen hash-bound TTFs.
 import { shellPresentationContractV2 } from '@fabrikav2/kernel';
-import { createHash } from 'node:crypto';
+import { sha256 } from '../publish/manifest.ts';
 import type {
   ShellAssetCatalog,
   ShellAssetProvenance,
@@ -297,7 +297,7 @@ export function validateEditorAssetBytes(
     }
     const expected = catalogByKey.get(key)?.sha256 ?? fontsByKey.get(key)?.sha256;
     if (!expected) continue;
-    const actual = `sha256-${createHash('sha256').update(bytes).digest('hex')}`;
+    const actual = sha256(bytes);
     if (actual !== expected) {
       issues.push({ entry: key, code: 'asset-hash-drift', detail: `${url} hash differs from frozen source` });
     }

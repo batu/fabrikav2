@@ -41,16 +41,31 @@ export interface GraphHash {
   byPath: Record<string, string>;
 }
 
-/** Content hash the complete file set at `relPaths` under `projectDir`. */
-export async function hashGraph(projectDir: string, relPaths: readonly string[]): Promise<GraphHash> {
+/**
+ * Combine already-read `(rel, bytes)` pairs into the canonical graph hash: a
+ * per-path `sha256-…` content hash plus a `combined` `sha256-…` over
+ * `${rel}\0${bytes}` for every entry IN THE GIVEN ORDER. This is the single
+ * preimage definition; both the async {@link hashGraph} and the sync loader in
+ * `loadProject.ts` do their own (async vs symlink-rejecting) I/O and then call
+ * this, so the two paths can never drift.
+ */
+export function combineGraphHash(entries: Iterable<readonly [string, Buffer]>): GraphHash {
   const byPath: Record<string, string> = {};
   const combined = createHash('sha256');
-  for (const rel of relPaths) {
-    const bytes = await readFile(path.join(projectDir, rel));
+  for (const [rel, bytes] of entries) {
     byPath[rel] = `sha256-${createHash('sha256').update(bytes).digest('hex')}`;
     combined.update(`${rel}\0`).update(bytes);
   }
   return { combined: `sha256-${combined.digest('hex')}`, byPath };
+}
+
+/** Content hash the complete file set at `relPaths` under `projectDir`. */
+export async function hashGraph(projectDir: string, relPaths: readonly string[]): Promise<GraphHash> {
+  const entries: [string, Buffer][] = [];
+  for (const rel of relPaths) {
+    entries.push([rel, await readFile(path.join(projectDir, rel))]);
+  }
+  return combineGraphHash(entries);
 }
 
 /** True when every declared path exists under `projectDir`. */

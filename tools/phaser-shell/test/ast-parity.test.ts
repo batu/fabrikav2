@@ -98,6 +98,53 @@ describe('P5 AST-fact parity over a closed generated-module graph', () => {
     ]));
   });
 
+  it('blocks a non-semantic companion whose generated copy/color/visibility diverges from the scene', () => {
+    // Two pure companions (no Semantic carrier) — the surface the semantic-fact
+    // loop never sees. The generated module faithfully reproduces both.
+    const companionScene = parseSceneDoc({
+      settings: { sceneKey: 'Menu', borderWidth: 390, borderHeight: 844 },
+      displayList: [
+        { type: 'Text', id: 'c1', label: 'menu.fab.ad-copy', x: 20, y: 30, text: 'Watch ad', color: '#112233' },
+        { type: 'Rectangle', id: 'c2', label: 'menu.fab.card', x: 40, y: 50, width: 100, height: 60, fillColor: '#445566', visible: false },
+      ],
+    });
+    const faithful = `
+import Phaser from "phaser";
+import Semantic from "../components/Semantic";
+export default class Menu extends Phaser.Scene {
+  editorCreate(): void {
+    const c1 = this.add.text(20, 30, "", {});
+    c1.text = "Watch ad";
+    c1.setStyle({ "color": "#112233" });
+    const c2 = this.add.rectangle(40, 50, 100, 60);
+    c2.fillColor = 4478310;
+    c2.visible = false;
+  }
+}
+`;
+    // Faithful generation is accepted (proves the tightened check is not a false-block).
+    expect(verifyGeneratedModule(faithful, companionScene)).toEqual([]);
+
+    // Copy drift on the Text companion (the ".text" the finding named) is caught.
+    const copyDrift = faithful.replace('c1.text = "Watch ad";', 'c1.text = "Buy now";');
+    expect(verifyGeneratedModule(copyDrift, companionScene)).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'blocked-drift', where: 'Menu:menu.fab.ad-copy', detail: expect.stringContaining('generated copy') }),
+    ]));
+
+    // Color drift on the Rectangle companion (the ".tint"/fillColor the finding named) is caught,
+    // even though scene stores "#445566" and generation emits the decimal form.
+    const colorDrift = faithful.replace('c2.fillColor = 4478310;', 'c2.fillColor = 16711680;');
+    expect(verifyGeneratedModule(colorDrift, companionScene)).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'blocked-drift', where: 'Menu:menu.fab.card', detail: expect.stringContaining('generated color') }),
+    ]));
+
+    // Visibility drift (dropping the setter so the surface renders when the scene hides it) is caught.
+    const visibleDrift = faithful.replace('c2.visible = false;', '');
+    expect(verifyGeneratedModule(visibleDrift, companionScene)).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'blocked-drift', where: 'Menu:menu.fab.card', detail: expect.stringContaining('generated visible') }),
+    ]));
+  });
+
   it('uses container attachment order as the generated tree address', () => {
     const nestedScene = parseSceneDoc({
       settings: { sceneKey: 'Menu', borderWidth: 390, borderHeight: 844 },
