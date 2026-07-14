@@ -34,6 +34,19 @@ interface VisualFact extends GeometryFact {
   parent: string | null;
 }
 
+interface CreationAppearanceFact {
+  alpha: number | null;
+  fontFamily: string | null;
+  fontSize: number | string | null;
+  fillAlpha: number | null;
+  strokeColor: number | string | null;
+  strokeAlpha: number | null;
+  lineWidth: number | null;
+  isFilled: boolean | null;
+  isStroked: boolean | null;
+  rounded: number | null;
+}
+
 export interface GeneratedFact extends VisualFact {
   semanticId: string;
   role: string;
@@ -42,18 +55,16 @@ export interface GeneratedFact extends VisualFact {
   variant: string;
 }
 
-interface ObjectRecord extends Omit<VisualFact, 'order' | 'parent'> {
+interface ObjectRecord extends Omit<VisualFact, 'order' | 'parent'>, CreationAppearanceFact {
   created: number;
   attached: number | null;
   parentVar: string | null;
   order: number;
 }
 
-export interface GeneratedCreationFact {
+export interface GeneratedCreationFact extends GeometryFact, CreationAppearanceFact {
   path: string;
   type: string;
-  x: number;
-  y: number;
   textureKey: string | null;
   copy: string | null;
   color: number | string | null;
@@ -157,27 +168,41 @@ function addFactoryKind(call: ts.CallExpression): { kind: string; args: ts.NodeA
 }
 
 function recordForFactory(kind: string, args: ts.NodeArray<ts.Expression>, created: number): ObjectRecord {
-  return {
+  const record: ObjectRecord = {
     type: kind,
     x: numberLiteral(args[0]) ?? 0,
     y: numberLiteral(args[1]) ?? 0,
-    originX: 0.5,
-    originY: 0.5,
+    originX: kind === 'text' ? 0 : 0.5,
+    originY: kind === 'text' ? 0 : 0.5,
     scaleX: 1,
     scaleY: 1,
-    width: null,
-    height: null,
+    width: kind === 'rectangle' ? numberLiteral(args[2]) : null,
+    height: kind === 'rectangle' ? numberLiteral(args[3]) : null,
     textureKey: kind === 'image' || kind === 'sprite' || kind === 'nineslice'
       ? stringLiteral(args[2])
       : null,
-    copy: null,
+    copy: kind === 'text' ? stringLiteral(args[2]) : null,
     color: null,
     visible: true,
+    alpha: null,
+    fontFamily: null,
+    fontSize: null,
+    fillAlpha: null,
+    strokeColor: null,
+    strokeAlpha: null,
+    lineWidth: null,
+    isFilled: null,
+    isStroked: null,
+    rounded: null,
     created,
     attached: null,
     parentVar: null,
     order: -1,
   };
+  if (kind === 'text' && args[3] && ts.isObjectLiteralExpression(args[3])) {
+    applyTextStyle(record, args[3]);
+  }
+  return record;
 }
 
 function setNumeric(record: ObjectRecord, field: keyof GeometryFact, node: ts.Node): void {
@@ -201,10 +226,22 @@ function applyMethodCall(record: ObjectRecord, method: string, args: ts.NodeArra
   } else if (method === 'setTint') {
     const value = numberLiteral(args[0]);
     if (value !== null) record.color = value;
+  } else if (method === 'setRounded') {
+    const value = numberLiteral(args[0]);
+    if (value !== null) record.rounded = value;
   } else if (method === 'setStyle' && args[0] && ts.isObjectLiteralExpression(args[0])) {
-    const value = stringLiteral(objectProperty(args[0], 'color'));
-    if (value !== null) record.color = value;
+    applyTextStyle(record, args[0]);
   }
+}
+
+function applyTextStyle(record: ObjectRecord, style: ts.ObjectLiteralExpression): void {
+  const color = stringLiteral(objectProperty(style, 'color'));
+  if (color !== null) record.color = color;
+  const fontFamily = stringLiteral(objectProperty(style, 'fontFamily'));
+  if (fontFamily !== null) record.fontFamily = fontFamily;
+  const fontSizeNode = objectProperty(style, 'fontSize');
+  const fontSize = stringLiteral(fontSizeNode) ?? numberLiteral(fontSizeNode);
+  if (fontSize !== null) record.fontSize = fontSize;
 }
 
 function applyAssignment(record: ObjectRecord, prop: string, right: ts.Expression): void {
@@ -218,9 +255,27 @@ function applyAssignment(record: ObjectRecord, prop: string, right: ts.Expressio
     if (value !== null) record.visible = value;
     return;
   }
+  if (prop === 'isFilled' || prop === 'isStroked') {
+    const value = booleanLiteral(right);
+    if (value !== null) record[prop] = value;
+    return;
+  }
   if (prop === 'tint' || prop === 'fillColor') {
-    const value = numberLiteral(right);
+    const value = numberLiteral(right) ?? stringLiteral(right);
     if (value !== null) record.color = value;
+    return;
+  }
+  if (prop === 'strokeColor') {
+    const value = numberLiteral(right) ?? stringLiteral(right);
+    if (value !== null) record.strokeColor = value;
+    return;
+  }
+  const numericAppearanceField = {
+    alpha: 'alpha', fillAlpha: 'fillAlpha', strokeAlpha: 'strokeAlpha', lineWidth: 'lineWidth',
+  }[prop] as keyof Pick<CreationAppearanceFact, 'alpha' | 'fillAlpha' | 'strokeAlpha' | 'lineWidth'> | undefined;
+  if (numericAppearanceField) {
+    const value = numberLiteral(right);
+    if (value !== null) record[numericAppearanceField] = value;
     return;
   }
   const geometryField = {
@@ -363,10 +418,26 @@ export function extractGeneratedFacts(source: string): {
       type: record.type,
       x: record.x,
       y: record.y,
+      originX: record.originX,
+      originY: record.originY,
+      scaleX: record.scaleX,
+      scaleY: record.scaleY,
+      width: record.width,
+      height: record.height,
       textureKey: record.textureKey,
       copy: record.copy,
       color: record.color,
       visible: record.visible,
+      alpha: record.alpha,
+      fontFamily: record.fontFamily,
+      fontSize: record.fontSize,
+      fillAlpha: record.fillAlpha,
+      strokeColor: record.strokeColor,
+      strokeAlpha: record.strokeAlpha,
+      lineWidth: record.lineWidth,
+      isFilled: record.isFilled,
+      isStroked: record.isStroked,
+      rounded: record.rounded,
     });
   }
 
@@ -461,8 +532,9 @@ function callPath(call: ts.CallExpression): string {
 
 const GENERATED_FACTORIES = new Set(['container', 'image', 'rectangle', 'text']);
 const GENERATED_METHODS = new Set(['add', 'setOrigin', 'setRounded', 'setStyle']);
+const GENERATED_TEXT_STYLE_PROPERTIES = new Set(['color', 'fontFamily', 'fontSize']);
 const GENERATED_PROPERTIES = new Set([
-  'color', 'fabBinding', 'fabRole', 'fabSemanticId', 'fabSlot', 'fabVariant',
+  'alpha', 'fabBinding', 'fabRole', 'fabSemanticId', 'fabSlot', 'fabVariant',
   'fillAlpha', 'fillColor', 'isFilled', 'isStroked', 'lineWidth', 'scaleX',
   'scaleY', 'strokeAlpha', 'strokeColor', 'text', 'tint', 'visible',
 ]);
@@ -493,57 +565,129 @@ function validFactory(factory: { kind: string; args: ts.NodeArray<ts.Expression>
   if (factory.kind === 'rectangle') return args.length === 4 && args.every((arg) => numberLiteral(arg) !== null);
   return factory.kind === 'text' && args.length === 4
     && numberLiteral(args[0]) !== null && numberLiteral(args[1]) !== null
-    && stringLiteral(args[2]) !== null && ts.isObjectLiteralExpression(args[3]);
+    && stringLiteral(args[2]) !== null && ts.isObjectLiteralExpression(args[3])
+    && validTextStyle(args[3]);
 }
 
-function validGeneratedMethod(call: ts.CallExpression, declared: ReadonlySet<string>): boolean {
+function validTextStyle(style: ts.ObjectLiteralExpression): boolean {
+  const seen = new Set<string>();
+  return style.properties.every((property) => {
+    if (!ts.isPropertyAssignment(property)) return false;
+    const name = propertyName(property.name);
+    if (!name || seen.has(name) || !GENERATED_TEXT_STYLE_PROPERTIES.has(name)) return false;
+    seen.add(name);
+    return name === 'fontSize'
+      ? stringLiteral(property.initializer) !== null || numberLiteral(property.initializer) !== null
+      : stringLiteral(property.initializer) !== null;
+  });
+}
+
+function validGeneratedProperty(prop: string, value: ts.Expression, objectType: string | undefined): boolean {
+  if (CARRIER_PROPS.has(prop)) {
+    return objectType === undefined && stringLiteral(value) !== null;
+  }
+  if (prop === 'text') {
+    return objectType === 'text' && stringLiteral(value) !== null;
+  }
+  if (prop === 'tint') {
+    return objectType === 'image' && numberLiteral(value) !== null;
+  }
+  if (['fillAlpha', 'fillColor', 'isFilled', 'isStroked', 'lineWidth', 'strokeAlpha', 'strokeColor'].includes(prop)
+    && objectType !== 'rectangle') {
+    return false;
+  }
+  if (prop === 'scaleX' || prop === 'scaleY' || prop === 'alpha' || prop === 'visible') {
+    if (objectType === undefined) return false;
+  }
+  if (prop === 'isFilled' || prop === 'isStroked' || prop === 'visible') {
+    return booleanLiteral(value) !== null;
+  }
+  return numberLiteral(value) !== null;
+}
+
+function validGeneratedMethod(
+  call: ts.CallExpression,
+  declared: ReadonlySet<string>,
+  objectTypes: ReadonlyMap<string, string>,
+): boolean {
   if (!ts.isPropertyAccessExpression(call.expression)
     || !ts.isIdentifier(call.expression.expression)
     || !declared.has(call.expression.expression.text)
     || !GENERATED_METHODS.has(call.expression.name.text)
     ) return false;
+  const targetType = objectTypes.get(call.expression.expression.text);
   if (call.expression.name.text === 'add') {
     return call.arguments.length === 1
+      && targetType === 'container'
       && ts.isIdentifier(call.arguments[0])
-      && declared.has(call.arguments[0].text);
+      && objectTypes.has(call.arguments[0].text);
   }
   if (!call.arguments.every(isGeneratedData)) return false;
   if (call.expression.name.text === 'setOrigin') {
-    return call.arguments.length === 2 && call.arguments.every((arg) => numberLiteral(arg) !== null);
+    return targetType !== undefined
+      && ['image', 'rectangle', 'text'].includes(targetType)
+      && call.arguments.length === 2
+      && call.arguments.every((arg) => numberLiteral(arg) !== null);
   }
   if (call.expression.name.text === 'setRounded') {
-    return call.arguments.length === 1 && numberLiteral(call.arguments[0]) !== null;
+    return targetType === 'rectangle'
+      && call.arguments.length === 1
+      && numberLiteral(call.arguments[0]) !== null;
   }
-  return call.arguments.length === 1 && ts.isObjectLiteralExpression(call.arguments[0]);
+  return targetType === 'text'
+    && call.arguments.length === 1
+    && ts.isObjectLiteralExpression(call.arguments[0])
+    && validTextStyle(call.arguments[0]);
 }
 
 function verifyEditorCreateBody(body: ts.Block): Block[] {
   const blocks: Block[] = [];
   const declared = new Set<string>();
+  const objectTypes = new Map<string, string>();
+  const awakeIndexes = body.statements.flatMap((statement, index) => {
+    if (!ts.isExpressionStatement(statement) || !ts.isCallExpression(statement.expression)) return [];
+    return callPath(statement.expression) === 'this.events.emit'
+      && statement.expression.arguments.length === 1
+      && stringLiteral(statement.expression.arguments[0]) === 'scene-awake'
+      ? [index]
+      : [];
+  });
+  if (awakeIndexes.length !== 1 || awakeIndexes[0] !== body.statements.length - 1) {
+    blocks.push({ code: 'blocked-user-code', where: 'generated:editorCreate', detail: 'scene-awake must be emitted exactly once as the final statement' });
+  }
   for (const statement of body.statements) {
-    if (!ts.isVariableStatement(statement)) continue;
-    for (const declaration of statement.declarationList.declarations) {
-      if (!ts.isIdentifier(declaration.name) || !declaration.initializer) {
-        blocks.push({ code: 'blocked-user-code', where: 'generated:editorCreate', detail: 'unsupported generated declaration' });
+    // Validate and register declarations in source order. A second pass would
+    // incorrectly make later declarations visible to earlier assignments or
+    // container.add calls, admitting code that throws before the scene exists.
+    if (ts.isVariableStatement(statement)) {
+      if (statement.declarationList.flags !== ts.NodeFlags.Const) {
+        blocks.push({ code: 'blocked-user-code', where: 'generated:editorCreate', detail: 'generated declarations must use const' });
         continue;
       }
-      const init = declaration.initializer;
-      const factory = ts.isCallExpression(init) ? addFactoryKind(init) : null;
-      const semantic = ts.isNewExpression(init)
-        && ts.isIdentifier(init.expression)
-        && init.expression.text === 'Semantic'
-        && init.arguments?.length === 1
-        && ts.isIdentifier(init.arguments[0])
-        && declared.has(init.arguments[0].text);
-      if (!validFactory(factory) && !semantic) {
-        blocks.push({ code: 'blocked-user-code', where: 'generated:editorCreate', detail: `unsupported initializer for "${declaration.name.text}"` });
+      for (const declaration of statement.declarationList.declarations) {
+        if (!ts.isIdentifier(declaration.name) || !declaration.initializer
+          || declared.has(declaration.name.text)) {
+          blocks.push({ code: 'blocked-user-code', where: 'generated:editorCreate', detail: 'unsupported or duplicate generated declaration' });
+          continue;
+        }
+        const init = declaration.initializer;
+        const factory = ts.isCallExpression(init) ? addFactoryKind(init) : null;
+        const validObjectFactory = validFactory(factory);
+        const semantic = ts.isNewExpression(init)
+          && ts.isIdentifier(init.expression)
+          && init.expression.text === 'Semantic'
+          && init.arguments?.length === 1
+          && ts.isIdentifier(init.arguments[0])
+          && objectTypes.has(init.arguments[0].text);
+        if (!validObjectFactory && !semantic) {
+          blocks.push({ code: 'blocked-user-code', where: 'generated:editorCreate', detail: `unsupported initializer for "${declaration.name.text}"` });
+          continue;
+        }
+        if (factory && validObjectFactory) objectTypes.set(declaration.name.text, factory.kind);
+        declared.add(declaration.name.text);
       }
-      declared.add(declaration.name.text);
+      continue;
     }
-  }
-
-  for (const statement of body.statements) {
-    if (ts.isVariableStatement(statement)) continue;
     if (!ts.isExpressionStatement(statement)) {
       blocks.push({ code: 'blocked-user-code', where: 'generated:editorCreate', detail: 'unsupported generated statement' });
       continue;
@@ -555,7 +699,11 @@ function verifyEditorCreateBody(body: ts.Block): Block[] {
       && ts.isIdentifier(expression.left.expression)
       && declared.has(expression.left.expression.text)
       && GENERATED_PROPERTIES.has(expression.left.name.text)
-      && isGeneratedData(expression.right)) {
+      && validGeneratedProperty(
+        expression.left.name.text,
+        expression.right,
+        objectTypes.get(expression.left.expression.text),
+      )) {
       continue;
     }
     if (ts.isCallExpression(expression)) {
@@ -563,13 +711,23 @@ function verifyEditorCreateBody(body: ts.Block): Block[] {
       if ((path === 'this.events.emit'
           && expression.arguments.length === 1
           && stringLiteral(expression.arguments[0]) === 'scene-awake')
-        || validGeneratedMethod(expression, declared)) {
+        || validGeneratedMethod(expression, declared, objectTypes)) {
         continue;
       }
     }
     blocks.push({ code: 'blocked-user-code', where: 'generated:editorCreate', detail: 'statement is outside the Editor-generated grammar' });
   }
   return blocks;
+}
+
+function hasExactGeneratedMemberSignature(member: ts.MethodDeclaration | ts.ConstructorDeclaration): boolean {
+  if ((member.modifiers?.length ?? 0) !== 0 || member.parameters.length !== 0
+    || member.typeParameters !== undefined) return false;
+  if (ts.isConstructorDeclaration(member)) return true;
+  return member.asteriskToken === undefined
+    && member.questionToken === undefined
+    && member.exclamationToken === undefined
+    && (member.type === undefined || member.type.kind === ts.SyntaxKind.VoidKeyword);
 }
 
 /** Exact closed shape the current seven Editor-generated scene modules may use. */
@@ -592,15 +750,21 @@ export function verifyGeneratedModuleShape(source: string, expectedClass: string
     return blocks;
   }
   const cls = classes[0];
-  const isDefaultExport = cls.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.DefaultKeyword) === true
-    && cls.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword) === true;
-  const extendsPhaserScene = cls.heritageClauses?.some((clause) => clause.token === ts.SyntaxKind.ExtendsKeyword
-    && clause.types.length === 1
-    && ts.isPropertyAccessExpression(clause.types[0].expression)
-    && ts.isIdentifier(clause.types[0].expression.expression)
-    && clause.types[0].expression.expression.text === 'Phaser'
-    && clause.types[0].expression.name.text === 'Scene') === true;
-  if (cls.name?.text !== expectedClass || !isDefaultExport || !extendsPhaserScene) {
+  const modifierKinds = cls.modifiers?.map((modifier) => modifier.kind) ?? [];
+  const isDefaultExport = JSON.stringify(modifierKinds) === JSON.stringify([
+    ts.SyntaxKind.ExportKeyword,
+    ts.SyntaxKind.DefaultKeyword,
+  ]);
+  const extendsPhaserScene = cls.heritageClauses?.length === 1
+    && cls.heritageClauses[0].token === ts.SyntaxKind.ExtendsKeyword
+    && cls.heritageClauses[0].types.length === 1
+    && cls.heritageClauses[0].types[0].typeArguments === undefined
+    && ts.isPropertyAccessExpression(cls.heritageClauses[0].types[0].expression)
+    && ts.isIdentifier(cls.heritageClauses[0].types[0].expression.expression)
+    && cls.heritageClauses[0].types[0].expression.expression.text === 'Phaser'
+    && cls.heritageClauses[0].types[0].expression.name.text === 'Scene';
+  const hasExactClassSignature = isDefaultExport && cls.typeParameters === undefined && extendsPhaserScene;
+  if (cls.name?.text !== expectedClass || !hasExactClassSignature) {
     blocks.push({ code: 'blocked-drift', where: 'generated', detail: `expected default class ${expectedClass} extends Phaser.Scene` });
   }
   const allowedNames = new Set(['constructor', 'preload', 'editorCreate', 'create']);
@@ -617,6 +781,9 @@ export function verifyGeneratedModuleShape(source: string, expectedClass: string
       continue;
     }
     seenNames.add(name);
+    if (!hasExactGeneratedMemberSignature(member)) {
+      blocks.push({ code: 'blocked-user-code', where: `generated:${name}`, detail: `${name} has parameters, modifiers, or a non-void signature` });
+    }
     if (name === 'editorCreate') {
       blocks.push(...verifyEditorCreateBody(body));
       continue;
@@ -639,8 +806,9 @@ export function verifyGeneratedModuleShape(source: string, expectedClass: string
       blocks.push({ code: 'blocked-user-code', where: `generated:${name}`, detail: `${name} call differs from the Editor template` });
     }
   }
-  if (!seenNames.has('editorCreate')) {
-    blocks.push({ code: 'blocked-drift', where: 'generated', detail: 'scene module has no editorCreate method' });
+  const missingMethods = [...allowedNames].filter((name) => !seenNames.has(name));
+  if (missingMethods.length > 0) {
+    blocks.push({ code: 'blocked-drift', where: 'generated', detail: `scene module is missing Editor lifecycle methods: ${missingMethods.join(', ')}` });
   }
   return blocks;
 }
@@ -701,12 +869,17 @@ export function verifyGeneratedModule(source: string, scene: SceneDoc, moduleRel
     // Non-semantic companions carry no Semantic carrier, so the semantic-fact
     // loop below never sees them — yet the visible shell (backgrounds, cards,
     // result/shop copy, toggled surfaces) is built entirely from them. Compare
-    // the runtime-visible content fields here too, so a generated module whose
-    // companion copy/color/visibility diverges from its `.scene` is blocked as
+    // every accepted runtime-visible field here too, so a generated module
+    // whose companion appearance diverges from its `.scene` is blocked as
     // drift instead of being stripped verbatim into `scenes/shell.js`.
-    for (const field of ['x', 'y', 'textureKey', 'copy', 'color', 'visible'] as const) {
-      const gen = field === 'color' ? colorKey(generated.color) : (generated[field] ?? null);
-      const src = field === 'color' ? colorKey(raw.color) : (raw[field] ?? null);
+    for (const field of [
+      'x', 'y', 'originX', 'originY', 'scaleX', 'scaleY', 'width', 'height',
+      'textureKey', 'copy', 'color', 'visible', 'alpha', 'fontFamily', 'fontSize',
+      'fillAlpha', 'strokeColor', 'strokeAlpha', 'lineWidth', 'isFilled', 'isStroked', 'rounded',
+    ] as const) {
+      const colorField = field === 'color' || field === 'strokeColor';
+      const gen = colorField ? colorKey(generated[field]) : (generated[field] ?? null);
+      const src = colorField ? colorKey(raw[field]) : (raw[field] ?? null);
       if (gen !== src) {
         blocks.push({
           code: 'blocked-drift',

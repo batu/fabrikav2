@@ -8,6 +8,7 @@ import {
   extractGeneratedFacts,
   isAllowedImport,
 } from '../src/authoring/astFacts.ts';
+import { synthGeneratedSource } from './gen.ts';
 
 /** A small two-object scene: a title Text and a primary-action Image. */
 function scene() {
@@ -36,6 +37,8 @@ const GENERATED = `
 import Phaser from "phaser";
 import Semantic from "../components/Semantic";
 export default class Menu extends Phaser.Scene {
+  constructor() { super("Menu"); }
+  preload(): void { this.load.pack("asset-pack", "asset-pack.json"); }
   editorCreate(): void {
     const title = this.add.text(195, 60, "", {});
     title.setOrigin(0.5, 0.5);
@@ -58,7 +61,9 @@ export default class Menu extends Phaser.Scene {
     playSemantic.fabBinding = "flow.start-current";
     playSemantic.fabSlot = "button-surface";
     playSemantic.fabVariant = "default";
+    this.events.emit("scene-awake");
   }
+  create() { this.editorCreate(); }
 }
 `;
 
@@ -98,51 +103,148 @@ describe('P5 AST-fact parity over a closed generated-module graph', () => {
     ]));
   });
 
-  it('blocks a non-semantic companion whose generated copy/color/visibility diverges from the scene', () => {
+  it('blocks every accepted runtime-visible companion field when generated code diverges from the scene', () => {
     // Two pure companions (no Semantic carrier) — the surface the semantic-fact
     // loop never sees. The generated module faithfully reproduces both.
     const companionScene = parseSceneDoc({
       settings: { sceneKey: 'Menu', borderWidth: 390, borderHeight: 844 },
       displayList: [
-        { type: 'Text', id: 'c1', label: 'menu.fab.ad-copy', x: 20, y: 30, text: 'Watch ad', color: '#112233' },
-        { type: 'Rectangle', id: 'c2', label: 'menu.fab.card', x: 40, y: 50, width: 100, height: 60, fillColor: '#445566', visible: false },
+        {
+          type: 'Text', id: 'c1', label: 'menu.fab.ad-copy', x: 20, y: 30,
+          originX: 0.25, originY: 0.75, scaleX: 1.2, scaleY: 0.8,
+          text: 'Watch ad', color: '#112233', fontFamily: 'kenney_future', fontSize: 18, alpha: 0.9,
+        },
+        {
+          type: 'Rectangle', id: 'c2', label: 'menu.fab.card', x: 40, y: 50,
+          width: 100, height: 60, fillColor: '#445566', fillAlpha: 0.8, isFilled: true,
+          strokeColor: '#778899', strokeAlpha: 0.7, lineWidth: 3, isStroked: true,
+          rounded: 12, visible: false,
+        },
+        {
+          type: 'Image', id: 'c3', label: 'menu.fab.icon', x: 60, y: 70,
+          texture: { key: 'icon_control_confirm' }, tint: '#112233',
+        },
       ],
     });
     const faithful = `
 import Phaser from "phaser";
 import Semantic from "../components/Semantic";
 export default class Menu extends Phaser.Scene {
+  constructor() { super("Menu"); }
+  preload(): void { this.load.pack("asset-pack", "asset-pack.json"); }
   editorCreate(): void {
-    const c1 = this.add.text(20, 30, "", {});
+    const c1 = this.add.text(20, 30, "", { "fontSize": 18 });
+    c1.setOrigin(0.25, 0.75);
+    c1.scaleX = 1.2;
+    c1.scaleY = 0.8;
     c1.text = "Watch ad";
-    c1.setStyle({ "color": "#112233" });
+    c1.alpha = 0.9;
+    c1.setStyle({ "color": "#112233", "fontFamily": "kenney_future" });
     const c2 = this.add.rectangle(40, 50, 100, 60);
+    c2.isFilled = true;
     c2.fillColor = 4478310;
+    c2.fillAlpha = 0.8;
+    c2.isStroked = true;
+    c2.strokeColor = 7833753;
+    c2.strokeAlpha = 0.7;
+    c2.lineWidth = 3;
+    c2.setRounded(12);
     c2.visible = false;
+    const c3 = this.add.image(60, 70, "icon_control_confirm");
+    c3.tint = 1122867;
+    this.events.emit("scene-awake");
   }
+  create() { this.editorCreate(); }
 }
 `;
     // Faithful generation is accepted (proves the tightened check is not a false-block).
     expect(verifyGeneratedModule(faithful, companionScene)).toEqual([]);
 
-    // Copy drift on the Text companion (the ".text" the finding named) is caught.
-    const copyDrift = faithful.replace('c1.text = "Watch ad";', 'c1.text = "Buy now";');
-    expect(verifyGeneratedModule(copyDrift, companionScene)).toEqual(expect.arrayContaining([
-      expect.objectContaining({ code: 'blocked-drift', where: 'Menu:menu.fab.ad-copy', detail: expect.stringContaining('generated copy') }),
+    const drifts = [
+      ['copy', 'menu.fab.ad-copy', 'c1.text = "Watch ad";', 'c1.text = "Buy now";'],
+      ['y', 'menu.fab.ad-copy', 'text(20, 30, "",', 'text(20, 35, "",'],
+      ['originX', 'menu.fab.ad-copy', 'c1.setOrigin(0.25, 0.75);', 'c1.setOrigin(0.5, 0.75);'],
+      ['originY', 'menu.fab.ad-copy', 'c1.setOrigin(0.25, 0.75);', 'c1.setOrigin(0.25, 0.5);'],
+      ['scaleX', 'menu.fab.ad-copy', 'c1.scaleX = 1.2;', 'c1.scaleX = 2;'],
+      ['scaleY', 'menu.fab.ad-copy', 'c1.scaleY = 0.8;', 'c1.scaleY = 2;'],
+      ['alpha', 'menu.fab.ad-copy', 'c1.alpha = 0.9;', 'c1.alpha = 0.4;'],
+      ['fontFamily', 'menu.fab.ad-copy', '"fontFamily": "kenney_future"', '"fontFamily": "Arial"'],
+      ['fontSize', 'menu.fab.ad-copy', '"fontSize": 18', '"fontSize": 40'],
+      ['width', 'menu.fab.card', 'rectangle(40, 50, 100, 60)', 'rectangle(40, 50, 120, 60)'],
+      ['height', 'menu.fab.card', 'rectangle(40, 50, 100, 60)', 'rectangle(40, 50, 100, 90)'],
+      ['color', 'menu.fab.card', 'c2.fillColor = 4478310;', 'c2.fillColor = 16711680;'],
+      ['fillAlpha', 'menu.fab.card', 'c2.fillAlpha = 0.8;', 'c2.fillAlpha = 0.2;'],
+      ['isFilled', 'menu.fab.card', 'c2.isFilled = true;', 'c2.isFilled = false;'],
+      ['strokeColor', 'menu.fab.card', 'c2.strokeColor = 7833753;', 'c2.strokeColor = 16711680;'],
+      ['strokeAlpha', 'menu.fab.card', 'c2.strokeAlpha = 0.7;', 'c2.strokeAlpha = 0.1;'],
+      ['lineWidth', 'menu.fab.card', 'c2.lineWidth = 3;', 'c2.lineWidth = 9;'],
+      ['isStroked', 'menu.fab.card', 'c2.isStroked = true;', 'c2.isStroked = false;'],
+      ['rounded', 'menu.fab.card', 'c2.setRounded(12);', 'c2.setRounded(2);'],
+      ['visible', 'menu.fab.card', 'c2.visible = false;', 'c2.visible = true;'],
+    ] as const;
+    for (const [field, label, before, after] of drifts) {
+      expect(verifyGeneratedModule(faithful.replace(before, after), companionScene), field).toEqual(expect.arrayContaining([
+        expect.objectContaining({
+          code: 'blocked-drift',
+          where: `Menu:${label}`,
+          detail: expect.stringContaining(`generated ${field}`),
+        }),
+      ]));
+    }
+
+    // A non-rendering alias must not be able to overwrite the extracted proxy
+    // after the actual Rectangle fill has drifted. The generated grammar is
+    // type-specific: Rectangles accept fillColor, not ad-hoc color/tint aliases.
+    for (const alias of ['c2.color = "#445566";', 'c2.tint = 4478310;']) {
+      const maskedFillDrift = faithful.replace(
+        'c2.fillColor = 4478310;',
+        `c2.fillColor = 16711680;\n    ${alias}`,
+      );
+      expect(verifyGeneratedModule(maskedFillDrift, companionScene), alias).toEqual(expect.arrayContaining([
+        expect.objectContaining({ code: 'blocked-user-code', where: 'generated:editorCreate' }),
+      ]));
+    }
+
+    const maskedImageTint = faithful.replace(
+      'c3.tint = 1122867;',
+      'c3.tint = 16711680;\n    c3.fillColor = 1122867;',
+    );
+    expect(verifyGeneratedModule(maskedImageTint, companionScene)).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'blocked-user-code', where: 'generated:editorCreate' }),
     ]));
 
-    // Color drift on the Rectangle companion (the ".tint"/fillColor the finding named) is caught,
-    // even though scene stores "#445566" and generation emits the decimal form.
-    const colorDrift = faithful.replace('c2.fillColor = 4478310;', 'c2.fillColor = 16711680;');
-    expect(verifyGeneratedModule(colorDrift, companionScene)).toEqual(expect.arrayContaining([
-      expect.objectContaining({ code: 'blocked-drift', where: 'Menu:menu.fab.card', detail: expect.stringContaining('generated color') }),
+    // The authority side is type-specific too: a stray Image-style `tint`
+    // must not hide a Rectangle's changed canonical `fillColor`.
+    const aliasedAuthorityRaw = structuredClone(companionScene.raw);
+    const aliasedRectangle = (aliasedAuthorityRaw['displayList'] as Array<Record<string, unknown>>)[1];
+    aliasedRectangle['fillColor'] = '#ff0000';
+    aliasedRectangle['tint'] = '#445566';
+    expect(verifyGeneratedModule(faithful, parseSceneDoc(aliasedAuthorityRaw))).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        code: 'blocked-drift',
+        where: 'Menu:menu.fab.card',
+        detail: expect.stringContaining('generated color'),
+      }),
     ]));
 
-    // Visibility drift (dropping the setter so the surface renders when the scene hides it) is caught.
-    const visibleDrift = faithful.replace('c2.visible = false;', '');
-    expect(verifyGeneratedModule(visibleDrift, companionScene)).toEqual(expect.arrayContaining([
-      expect.objectContaining({ code: 'blocked-drift', where: 'Menu:menu.fab.card', detail: expect.stringContaining('generated visible') }),
+    const lowerCaseAuthorityRaw = structuredClone(companionScene.raw);
+    const lowerCaseRectangle = (lowerCaseAuthorityRaw['displayList'] as Array<Record<string, unknown>>)[1];
+    lowerCaseRectangle['type'] = 'rectangle';
+    lowerCaseRectangle['fillColor'] = '#ff0000';
+    const missingLowerCaseFill = faithful.replace('    c2.fillColor = 4478310;\n', '');
+    expect(verifyGeneratedModule(missingLowerCaseFill, parseSceneDoc(lowerCaseAuthorityRaw))).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        code: 'blocked-drift',
+        where: 'Menu:menu.fab.card',
+        detail: expect.stringContaining('generated color'),
+      }),
     ]));
+
+    // The shared publication fixture must preserve the numeric fontSize shape
+    // accepted by both scene parsing and the generated-module grammar.
+    const synthesized = synthGeneratedSource(companionScene);
+    expect(synthesized).toContain('"fontSize":18');
+    expect(verifyGeneratedModule(synthesized, companionScene)).toEqual([]);
   });
 
   it('uses container attachment order as the generated tree address', () => {
@@ -162,6 +264,8 @@ export default class Menu extends Phaser.Scene {
 import Phaser from "phaser";
 import Semantic from "../components/Semantic";
 export default class Menu extends Phaser.Scene {
+  constructor() { super("Menu"); }
+  preload(): void { this.load.pack("asset-pack", "asset-pack.json"); }
   editorCreate(): void {
     const root = this.add.container(10, 20);
     const a = this.add.image(1, 2, "a");
@@ -169,7 +273,9 @@ export default class Menu extends Phaser.Scene {
     const tail = this.add.rectangle(5, 6, 10, 12);
     root.add(a);
     root.add(b);
+    this.events.emit("scene-awake");
   }
+  create() { this.editorCreate(); }
 }
 `;
     expect(verifyGeneratedModule(nested, nestedScene)).toEqual([]);
@@ -177,6 +283,22 @@ export default class Menu extends Phaser.Scene {
     expect(verifyGeneratedModule(reordered, nestedScene)).toEqual(expect.arrayContaining([
       expect.objectContaining({ code: 'blocked-drift', where: 'Menu:child-a' }),
       expect.objectContaining({ code: 'blocked-drift', where: 'Menu:child-b' }),
+    ]));
+
+    const useBeforeDeclaration = nested.replace(
+      'const a = this.add.image(1, 2, "a");',
+      'root.add(a);\n    const a = this.add.image(1, 2, "a");',
+    );
+    expect(verifyGeneratedModule(useBeforeDeclaration, nestedScene)).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'blocked-user-code', where: 'generated:editorCreate' }),
+    ]));
+
+    const invalidContainerOrigin = nested.replace(
+      'const root = this.add.container(10, 20);',
+      'const root = this.add.container(10, 20);\n    root.setOrigin(0.5, 0.5);',
+    );
+    expect(verifyGeneratedModule(invalidContainerOrigin, nestedScene)).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'blocked-user-code', where: 'generated:editorCreate' }),
     ]));
   });
 
@@ -301,6 +423,24 @@ export default class Menu extends Phaser.Scene {
     expect(verifyGeneratedModule(arbitraryMethod, scene())).toEqual(expect.arrayContaining([
       expect.objectContaining({ code: 'blocked-user-code' }),
     ]));
+
+    const executableParameterDefault = GENERATED.replace(
+      'editorCreate(): void',
+      'editorCreate(_ = globalThis["eval"]("globalThis.__U5_AUDIT_PWNED__=true")): void',
+    );
+    expect(verifyGeneratedModule(executableParameterDefault, scene())).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'blocked-user-code', where: 'generated:editorCreate' }),
+    ]));
+
+    const staticMethod = GENERATED.replace('editorCreate(): void', 'static editorCreate(): void');
+    expect(verifyGeneratedModule(staticMethod, scene())).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'blocked-user-code', where: 'generated:editorCreate' }),
+    ]));
+
+    const disposableDeclaration = GENERATED.replace('const title =', 'using title =');
+    expect(verifyGeneratedModule(disposableDeclaration, scene())).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'blocked-user-code', where: 'generated:editorCreate' }),
+    ]));
   });
 
   it('blocks a renamed scene class and extra top-level side effects', () => {
@@ -312,6 +452,34 @@ export default class Menu extends Phaser.Scene {
     const sideEffect = `${GENERATED}\nglobalThis.compromised = true;\n`;
     expect(verifyGeneratedModule(sideEffect, scene())).toEqual(expect.arrayContaining([
       expect.objectContaining({ code: 'blocked-user-code' }),
+    ]));
+  });
+
+  it('requires the complete Editor lifecycle and one final scene-awake emission', () => {
+    const missingCreate = GENERATED.replace('  create() { this.editorCreate(); }\n', '');
+    expect(verifyGeneratedModule(missingCreate, scene())).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'blocked-drift', detail: expect.stringContaining('create') }),
+    ]));
+
+    const missingAwake = GENERATED.replace('    this.events.emit("scene-awake");\n', '');
+    expect(verifyGeneratedModule(missingAwake, scene())).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'blocked-user-code', detail: expect.stringContaining('scene-awake') }),
+    ]));
+
+    const earlyAwake = GENERATED.replace(
+      '    this.events.emit("scene-awake");',
+      '    this.events.emit("scene-awake");\n    play.visible = false;',
+    );
+    expect(verifyGeneratedModule(earlyAwake, scene())).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'blocked-user-code', detail: expect.stringContaining('scene-awake') }),
+    ]));
+
+    const duplicateAwake = GENERATED.replace(
+      '    this.events.emit("scene-awake");',
+      '    this.events.emit("scene-awake");\n    this.events.emit("scene-awake");',
+    );
+    expect(verifyGeneratedModule(duplicateAwake, scene())).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'blocked-user-code', detail: expect.stringContaining('scene-awake') }),
     ]));
   });
 

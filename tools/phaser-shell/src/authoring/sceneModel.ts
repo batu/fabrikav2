@@ -69,24 +69,53 @@ export interface SceneCreationFact {
   type: string;
   x: number;
   y: number;
+  originX: number;
+  originY: number;
+  scaleX: number;
+  scaleY: number;
+  width: number | null;
+  height: number | null;
   textureKey: string | null;
   /** Editable copy string (Text objects), else null. */
   copy: string | null;
   /** Per-object color as an editor value (tint/fillColor/color), else null. */
   color: number | string | null;
   visible: boolean;
+  alpha: number | null;
+  fontFamily: string | null;
+  fontSize: number | string | null;
+  fillAlpha: number | null;
+  strokeColor: number | string | null;
+  strokeAlpha: number | null;
+  lineWidth: number | null;
+  isFilled: boolean | null;
+  isStroked: boolean | null;
+  rounded: number | null;
 }
 
 function num(value: unknown, fallback: number): number {
   return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
 }
 
+function optionalNumber(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null;
+}
+
+function optionalBoolean(value: unknown): boolean | null {
+  return typeof value === 'boolean' ? value : null;
+}
+
 function readColor(obj: Record<string, unknown>): number | string | null {
-  for (const field of ['tint', 'fillColor', 'color'] as const) {
-    const value = obj[field];
-    if (typeof value === 'number' || typeof value === 'string') return value;
-  }
-  return null;
+  const type = typeof obj['type'] === 'string' ? obj['type'].toLowerCase() : '';
+  const field = type === 'rectangle'
+    ? 'fillColor'
+    : type === 'image'
+      ? 'tint'
+      : type === 'text'
+        ? 'color'
+        : null;
+  const value = field === null ? null : obj[field];
+  return typeof value === 'number' || typeof value === 'string' ? value : null;
 }
 
 function readGeometry(obj: Record<string, unknown>): SceneGeometry {
@@ -190,10 +219,30 @@ export function sceneCreationFacts(doc: SceneDoc): Map<string, SceneCreationFact
         type: typeof raw['type'] === 'string' ? raw['type'] : 'unknown',
         x: geometry.x,
         y: geometry.y,
+        originX: geometry.originX,
+        originY: geometry.originY,
+        scaleX: geometry.scaleX,
+        scaleY: geometry.scaleY,
+        width: geometry.width,
+        height: geometry.height,
         textureKey,
         copy: typeof raw['text'] === 'string' ? raw['text'] : null,
         color: readColor(raw),
         visible: raw['visible'] === false ? false : true,
+        alpha: optionalNumber(raw['alpha']),
+        fontFamily: typeof raw['fontFamily'] === 'string' ? raw['fontFamily'] : null,
+        fontSize: typeof raw['fontSize'] === 'string' || typeof raw['fontSize'] === 'number'
+          ? raw['fontSize']
+          : null,
+        fillAlpha: optionalNumber(raw['fillAlpha']),
+        strokeColor: typeof raw['strokeColor'] === 'string' || typeof raw['strokeColor'] === 'number'
+          ? raw['strokeColor']
+          : null,
+        strokeAlpha: optionalNumber(raw['strokeAlpha']),
+        lineWidth: optionalNumber(raw['lineWidth']),
+        isFilled: optionalBoolean(raw['isFilled']),
+        isStroked: optionalBoolean(raw['isStroked']),
+        rounded: optionalNumber(raw['rounded']),
       });
       visit(raw['list'], treePath);
     });
