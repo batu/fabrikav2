@@ -34,28 +34,45 @@ seven states in the browser suite, and has publication-keyed captures under
 - `npm run freeze-gate` passed.
 - `git diff --check` passed.
 
+## Real-Editor provenance (recovered and committed)
+
+The accepted P0/A/B chain was authored and published through the real,
+licensed, **desktop + unlocked** Phaser Editor 5.0.2 session on 2026-07-14 (the
+`f0879738` authoring pass, card comment 52). Durable, scrubbed provenance
+recovered from that session's actual `tool_result` records (card comments 55/56)
+is now committed under `authoring/publications/`:
+
+- `recovered-provenance.json` — the index. Records the accepted P0/A/B
+  publicationIds (validated **byte-identical** to `accepted.json`; 3 distinct
+  IDs, `A != B`, zero validation issues), the recovered `launch`/`publish`
+  result flags per role, and the matched-edit descriptors (A = `menu.title` →
+  "Morning Shell"; B = `menu.settings` texture → `icon_control_confirm`).
+- `provenance-b.full.json` — the complete `u5.phaser.provenance/1` record for the
+  **B** run, committed byte-for-byte, independently verifiable
+  (`shasum -a 256` → `e47181ddfee2c7d7883ef3625fd58f9637b4ddf6c44f29fdb8e6c871fe889676`).
+  It proves `CompileProject`-twice determinism (generation 1 == generation 2),
+  scene authority + generated graph byte-stable across a full
+  terminate / restart / reopen, and the loopback endpoint proven down between runs.
+
+**Evidence classes differ — stated honestly:**
+
+- **B is full hash-rich** (the complete `u5.phaser.provenance/1` file survives).
+- **P0 and A are reduced tool-output**: only their `launch`/`publish` result
+  flags survived in the recovered records (`result: ok`, `deterministic`,
+  `endpointDown`, `authStable`, `genStable` all true, plus the matching
+  `publicationId`). Their per-run full provenance files were written to a
+  disposable scratch **outside** the repo and are no longer available, so their
+  per-path hash detail cannot be re-committed. All three launch results were
+  `ok` with `deterministic`/`endpointDown`/`authStable`/`genStable` true, and the
+  recovered handoff validation reported 3 distinct IDs and zero issues.
+
+These records were captured during the authoring session, not this handoff
+worker's session. The raw session transcript (JSONL) is deliberately **not**
+committed — only scrubbed, hash-only facts are recorded, with no credentials,
+account owner, or absolute/home paths.
+
 ## Honest remaining gates
 
-- **Durable real-Editor provenance is NOT committed.** No scrubbed real-Editor
-  `CompileProject`-twice plus terminate/restart/reopen provenance record
-  (`u5.phaser.provenance/1`, emitted by `cli.mjs launch` /
-  `tools/phaser-shell/src/session/provenance.ts`) exists in this evidence
-  directory or anywhere under version control. This is the sole vendor-gated
-  step: the accepted P0/A/B chain is a deterministic derivation of the committed
-  editor-source authority and is fully reproducible offline, but the real-Editor
-  provenance is a separate measurement that must be run against a live,
-  licensed, desktop+unlocked Phaser Editor 5.0.2 session under the plan's
-  loopback-only boundary. It must NOT be inferred from the deterministic
-  tooling, the browser render proofs, or any device capture.
-- **The live Editor is not available in this worker environment.** No Phaser
-  Editor process is running, no CDP endpoint is reachable on 127.0.0.1:9222/9223,
-  and `/Applications/Phaser Editor 5.app` is not a runnable install here (only
-  the distribution DMG/zips under the recorded install location exist). Running
-  `cli.mjs launch` here therefore returns a typed `blocked` result (unavailable /
-  `server-mode`), not an `ok` provenance record — a `blocked` record is a record
-  of failure, not proof, so none was committed. The durable provenance leg is a
-  conductor/Batu-run vendor step for a session where the licensed Editor is
-  reachable (per card comments 24–30 / 34 / 51).
 - **Proof-game generated-code lint is a conductor-owned seam, not a lane fix.**
   `games/shell_proof_phaser/eslint.config.js` is outside the Phaser lane's
   writable fence (a U1-owned game identity file), so the earlier lane-added
