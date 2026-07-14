@@ -67,6 +67,22 @@ function overlaps(left: ActionRect, right: ActionRect): boolean {
 test("boots Progression Home and starts the current level through the Phaser hit area", async ({ page }) => {
   await page.goto("/");
   const menu = await waitForState(page, "menu");
+  const rendererReadiness = await page.evaluate(() => {
+    const canvas = document.querySelector("canvas");
+    const context = canvas?.getContext("webgl2") ?? canvas?.getContext("webgl");
+    const loadedFonts = Array.from(document.fonts)
+      .filter((face) => face.status === "loaded")
+      .map((face) => face.family.replace(/^['"]|['"]$/g, ""));
+    return {
+      preserveDrawingBuffer: context?.getContextAttributes()?.preserveDrawingBuffer ?? false,
+      loadedFonts,
+    };
+  });
+  expect(rendererReadiness.preserveDrawingBuffer).toBe(true);
+  expect(rendererReadiness.loadedFonts).toEqual(expect.arrayContaining([
+    "kenney_future",
+    "kenney_future_narrow",
+  ]));
   await tapAction(page, menu, "start-current");
   await expect.poll(async () => (await snapshot(page)).state).toBe("level");
 });

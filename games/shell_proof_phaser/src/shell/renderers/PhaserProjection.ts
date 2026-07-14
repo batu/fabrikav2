@@ -171,6 +171,40 @@ const SCENE_KEY: Readonly<Record<Surface, string>> = {
   fail: "Fail",
 };
 
+const REQUIRED_PROJECTION_FONTS = [
+  {
+    family: "kenney_future",
+    url: new URL("../../../design/fonts/kenney-future.ttf", import.meta.url).href,
+  },
+  {
+    family: "kenney_future_narrow",
+    url: new URL("../../../design/fonts/kenney-future-narrow.ttf", import.meta.url).href,
+  },
+] as const;
+
+function loadedProjectionFonts(): ReadonlySet<string> {
+  const loaded = new Set<string>();
+  for (const face of document.fonts) {
+    if (face.status !== "loaded") continue;
+    loaded.add(face.family.replace(/^['"]|['"]$/g, ""));
+  }
+  return loaded;
+}
+
+async function waitForProjectionFonts(): Promise<void> {
+  const faces = await Promise.all(REQUIRED_PROJECTION_FONTS.map(async ({ family, url }) => {
+    const face = new FontFace(family, `url(${JSON.stringify(url)})`);
+    document.fonts.add(face);
+    return face.load();
+  }));
+  await document.fonts.ready;
+  const loaded = loadedProjectionFonts();
+  if (faces.some((face) => face.status !== "loaded")
+    || REQUIRED_PROJECTION_FONTS.some(({ family }) => !loaded.has(family))) {
+    throw new Error("Selected Phaser projection could not load its required fonts.");
+  }
+}
+
 function settingForBinding(binding: string): TemplateSettingKey | undefined {
   if (binding === "settings.music") return "music";
   if (binding === "settings.sfx") return "sfx";
@@ -346,6 +380,7 @@ export async function mountPhaserProjection(options: {
   readonly identity: PhaserProjectionIdentity;
 }): Promise<PhaserProjectionHandle> {
   (globalThis as typeof globalThis & { Phaser?: typeof Phaser }).Phaser = Phaser;
+  await waitForProjectionFonts();
   const prepared = await prepareProjectionModule();
   const moduleUrl = URL.createObjectURL(new Blob([prepared.source], { type: "text/javascript" }));
   let projection: ProjectionModule;
@@ -367,6 +402,12 @@ export async function mountPhaserProjection(options: {
     width: 390,
     height: 844,
     backgroundColor: 0xf7f5ef,
+    render: {
+      // Screen recorders continuously read the WebGL canvas between Phaser
+      // frames. Preserve the last complete frame so evidence never observes a
+      // discarded backbuffer as opaque black regions.
+      preserveDrawingBuffer: true,
+    },
     scene: projection.states.map((state) => projection.scenes[state]),
     scale: {
       mode: Phaser.Scale.FIT,
@@ -453,7 +494,8 @@ export async function mountPhaserProjection(options: {
     ready(): boolean {
       return postRenderSeen
         && paintedGeneration === renderGeneration
-        && paintedSurface === options.controller.snapshot().surface;
+        && paintedSurface === options.controller.snapshot().surface
+        && REQUIRED_PROJECTION_FONTS.every(({ family }) => loadedProjectionFonts().has(family));
     },
     actions(): readonly PhaserProjectionAction[] {
       const scene = activeScene(game);
