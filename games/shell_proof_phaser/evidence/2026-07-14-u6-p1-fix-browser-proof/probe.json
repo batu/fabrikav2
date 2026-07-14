@@ -1,0 +1,77 @@
+{
+  "identityLog": [
+    "[fabrikav2:projection-ready] {\"gameId\":\"shell_proof_phaser\",\"publicationId\":\"sha256-132969b9fa15bbe89e91c9ee5900a2f3e953a76a1bb22e50f1d8972e196a7c56\",\"projectionId\":\"sha256-42f2a6ef36c7cde7dcd3a759a32832f786e346751091c8a12e09f6538f61c4ea\"}"
+  ],
+  "menu": {
+    "state": "menu",
+    "ready": true,
+    "revision": "sha256-42f2a6ef36c7cde7dcd3a759a32832f786e346751091c8a12e09f6538f61c4ea",
+    "sentinel": "42f2a6ef",
+    "viewport": {
+      "width": 390,
+      "height": 844,
+      "devicePixelRatio": 2
+    }
+  },
+  "level": {
+    "state": "level",
+    "ready": true,
+    "actions": [
+      "pause",
+      "test-lose",
+      "test-win"
+    ]
+  },
+  "winPreClaim": {
+    "state": "win",
+    "ready": true,
+    "actions": [
+      {
+        "id": "claim",
+        "v": true,
+        "d": false
+      },
+      {
+        "id": "claim-double",
+        "v": true,
+        "d": false
+      },
+      {
+        "id": "next",
+        "v": false,
+        "d": true
+      },
+      {
+        "id": "result-home",
+        "v": false,
+        "d": true
+      }
+    ]
+  },
+  "winPostClaim": {
+    "state": "win",
+    "ready": true,
+    "actions": [
+      {
+        "id": "claim",
+        "v": false,
+        "d": true
+      },
+      {
+        "id": "claim-double",
+        "v": false,
+        "d": true
+      },
+      {
+        "id": "next",
+        "v": true,
+        "d": false
+      },
+      {
+        "id": "result-home",
+        "v": true,
+        "d": false
+      }
+    ]
+  }
+}

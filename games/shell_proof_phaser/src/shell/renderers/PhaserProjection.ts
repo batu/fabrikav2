@@ -257,10 +257,6 @@ function authoredActionBounds(scene: Phaser.Scene, object: ProjectedObject): Pha
   return new Phaser.Geom.Rectangle(authored.centerX - width / 2, authored.centerY - height / 2, width, height);
 }
 
-function colorCss(value: number): string {
-  return Phaser.Display.Color.IntegerToColor(value).rgba;
-}
-
 function actionState(binding: string, snapshot: TemplateShellSnapshot): {
   readonly visible: boolean;
   readonly disabled: boolean;
@@ -323,20 +319,12 @@ export async function mountPhaserProjection(options: {
 
   let paintedSurface: Surface | undefined;
   let postRenderSeen = false;
-  const sentinelText = `PHASER · ${options.identity.projectionId.slice(7, 15)}`;
 
+  // Projection identity is carried nonvisually only — the boot log
+  // (`[fabrikav2:projection-ready]`) and the frozen evidence probe's
+  // `revision` reader. No identity badge is painted onto the shipping canvas.
   const wireScene = (scene: Phaser.Scene): void => {
     const objects = scene.children.list as ProjectedObject[];
-    if (!objects.some((object) => object.name === "fabrikav2-revision-sentinel")) {
-      const sentinel = scene.add.text(195, 18, sentinelText, {
-        color: colorCss(0x173042),
-        fontFamily: "monospace",
-        fontSize: "12px",
-        backgroundColor: colorCss(0xfff7c2),
-        padding: { x: 7, y: 4 },
-      }).setOrigin(0.5, 0).setDepth(10_000).setName("fabrikav2-revision-sentinel");
-      sentinel.setAlpha(0.96);
-    }
     const snapshot = options.controller.snapshot();
     for (const object of objects) {
       const semantic = object.__Semantic;

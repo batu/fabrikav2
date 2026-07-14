@@ -1,6 +1,5 @@
 html,
-body,
-#app {
+body {
   width: 100%;
   height: 100%;
   margin: 0;
@@ -9,11 +8,27 @@ body,
 }
 
 #app {
+  /* Inset the Phaser parent box itself rather than padding it: Phaser's FIT
+     scale mode measures the parent's border-box (getBoundingClientRect, which
+     INCLUDES padding), so padding reserves nothing and the canvas still fills
+     to the viewport edge. Android WebView draws edge-to-edge but does not
+     bridge window insets into env(safe-area-inset-*) (Capacitor default), so
+     the bottom gesture/nav bar reports 0 and overlapped the level Win/Lose row
+     on the Pixel 6a. Shrinking #app with inset makes FIT scale the authored
+     390x844 grid INTO the safe box — no authored coordinate moves. max() floors
+     the bottom clearance when the platform under-reports while still honouring a
+     larger real inset (e.g. the iOS home indicator). */
+  position: fixed;
+  inset: env(safe-area-inset-top) env(safe-area-inset-right)
+    max(env(safe-area-inset-bottom), 32px) env(safe-area-inset-left);
+  /* Neutralise the seed shell's `min-height: 100dvh` on #app: it floors the box
+     at full viewport height and would cancel the bottom inset above (min-height
+     wins over the resolved fixed height). */
+  min-height: 0;
   display: grid;
   place-items: center;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right)
-    env(safe-area-inset-bottom) env(safe-area-inset-left);
-  box-sizing: border-box;
+  overflow: hidden;
+  background: Canvas;
 }
 
 #app canvas {
