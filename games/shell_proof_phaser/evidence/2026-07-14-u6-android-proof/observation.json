@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "fabrikav2.verify-device.observation/1",
+  "game": "shell_proof_phaser",
+  "lane": "device",
+  "platform": "android",
+  "provenance": "live-device",
+  "generatedAt": "2026-07-14T07:34:58.589Z",
+  "device": "Android 27091JEGR22183 via adb",
+  "runKind": "no-applicable-evidence",
+  "captureFailure": null,
+  "hardIntegrity": [],
+  "requiredStates": [
+    "menu",
+    "level",
+    "shop",
+    "settings",
+    "pause",
+    "win",
+    "fail"
+  ],
+  "captures": [
+    {
+      "state": "menu",
+      "gated": true,
+      "file": "games/shell_proof_phaser/evidence/2026-07-14-u6-android-proof/raw-captures/menu.png",
+      "present": true,
+      "sha256": "1ced966a5ef3c635826b7bf72b7f05e919e4b31b5737959f26538a4b1d558b82"
+    },
+    {
+      "state": "level",
+      "gated": true,
+      "file": "games/shell_proof_phaser/evidence/2026-07-14-u6-android-proof/raw-captures/level.png",
+      "present": true,
+      "sha256": "d75d04667a69174231689b3c6b3238ec2ba82adefa12bc021e2992f2b9be4c4f"
+    },
+    {
+      "state": "shop",
+      "gated": true,
+      "file": "games/shell_proof_phaser/evidence/2026-07-14-u6-android-proof/raw-captures/shop.png",
+      "present": true,
+      "sha256": "68cf163676a5f8b0c96032a5baadcf23d6447fc8a904b0cf3bc464bd36b6fc12"
+    },
+    {
+      "state": "settings",
+      "gated": true,
+      "file": "games/shell_proof_phaser/evidence/2026-07-14-u6-android-proof/raw-captures/settings.png",
+      "present": true,
+      "sha256": "0d097c6e3168c272932d74ad9b7caf9cd537282622d5a9ad4cffa6b4dba245c7"
+    },
+    {
+      "state": "pause",
+      "gated": true,
+      "file": "games/shell_proof_phaser/evidence/2026-07-14-u6-android-proof/raw-captures/pause.png",
+      "present": true,
+      "sha256": "5958f8f45e4cccf2f07433b56b35fb28a95f53d4ff7b9ad8277df2b4cdcfff2e"
+    },
+    {
+      "state": "win",
+      "gated": true,
+      "file": "games/shell_proof_phaser/evidence/2026-07-14-u6-android-proof/raw-captures/win.png",
+      "present": true,
+      "sha256": "a5ec0f095f8c931987b91b5c9d7c12e257f86d7f4bf718f29f760f5384c7d84a"
+    },
+    {
+      "state": "fail",
+      "gated": true,
+      "file": "games/shell_proof_phaser/evidence/2026-07-14-u6-android-proof/raw-captures/fail.png",
+      "present": true,
+      "sha256": "abd435766e7fa83933d933042d67c3acdbd82f7d219130e93a4cc54a8d39013e"
+    }
+  ],
+  "inputs": {
+    "algorithm": "canonical-input-sha256/1",
+    "roots": [
+      "games/shell_proof_phaser/src",
+      "games/shell_proof_phaser/design",
+      "games/shell_proof_phaser/refs",
+      "packages/ui"
+    ],
+    "fileCount": 181,
+    "sha256": "073ba6428f5434e6fb938bae47be00054c6fc3364c82d6b4de92c4c595df1b79"
+  }
+}

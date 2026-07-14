@@ -3,15 +3,19 @@ import "./shell/template-shell.css";
 import {
   createShellEvidenceProbe,
   evidenceProbeWindowKeyForGame,
-  readDomShellEvidenceActions,
-  readDomShellEvidenceViewport,
 } from "@fabrikav2/testkit/harness";
 import { assignWindowBindings } from "@fabrikav2/testkit/testing";
 import { gameConfig } from "../game.config.ts";
 import { createTemplateShellController } from "./core/TemplateShellController.ts";
 import { createTemplateHarness } from "./shell/harness.ts";
 import { maybeRunTemplateInsituTour } from "./shell/insituTour.ts";
+import "./shell/renderers/phaser-projection.css";
 import { mountTemplateShell } from "./shell/TemplateShell.ts";
+
+declare const __FABRIKAV2_SELECTED_PROJECTION__: {
+  readonly publicationId: string;
+  readonly projectionId: string;
+};
 
 export function bootGame(
   mountInto: HTMLElement,
@@ -33,44 +37,53 @@ export function harnessWindowKeyForGame(gameId: string): string {
 const TEST_HARNESS_ENABLED: boolean =
   import.meta.env.DEV || import.meta.env.VITE_ENABLE_TEST_HARNESS === "true";
 
-const TEST_OUTCOMES_ENABLED: boolean =
-  import.meta.env.DEV || import.meta.env.VITE_ENABLE_TEST_OUTCOMES === "true";
-
 const appRoot = typeof document !== "undefined" ? document.getElementById("app") : null;
 if (appRoot) {
-  const game = bootGame(appRoot, { enableTestOutcomes: TEST_OUTCOMES_ENABLED });
-  // Renderer-neutral evidence probe: always bound (not harness-gated) so the
-  // device lane can read state, action rectangles, revision, and readiness
-  // from any running build. It is a tool — one snapshot query, no loops.
-  const evidenceProbe = createShellEvidenceProbe({
-    gameId: gameConfig.id,
-    contractId: "shell-presentation-v2",
-    rendererProfile: "dom-css",
-    readers: {
-      state: () => game.controller.snapshot().surface,
-      // The seed design ships with the game; no projection revision is
-      // selected until a lane publishes one.
-      revision: () => null,
-      ready: () => game.shell.root.dataset.fabState === game.controller.snapshot().surface,
-      viewport: () => readDomShellEvidenceViewport(window),
-      actions: () => readDomShellEvidenceActions(game.shell.root),
-    },
-  });
-  assignWindowBindings(window as unknown as Record<string, unknown>, {
-    [evidenceProbeWindowKeyForGame(gameConfig.id)]: evidenceProbe,
-  });
-  if (TEST_HARNESS_ENABLED) {
-    const harness = createTemplateHarness({
-      buildVersion: "dev",
-      packageId: `com.fabrikav2.${gameConfig.id}`,
-      controller: game.controller,
-      render: game.shell.render,
+  const controller = createTemplateShellController();
+  void import("./shell/renderers/PhaserProjection.ts").then(({ mountPhaserProjection }) => mountPhaserProjection({
+    mountInto: appRoot,
+    controller,
+    identity: __FABRIKAV2_SELECTED_PROJECTION__,
+  })).then((shell) => {
+    const evidenceProbe = createShellEvidenceProbe({
+      gameId: gameConfig.id,
+      contractId: "shell-presentation-v2",
+      rendererProfile: "phaser-native",
+      readers: {
+        state: () => controller.snapshot().surface,
+        revision: () => shell.identity.projectionId,
+        ready: shell.ready,
+        viewport: () => ({
+          width: window.innerWidth,
+          height: window.innerHeight,
+          devicePixelRatio: window.devicePixelRatio,
+        }),
+        actions: () => shell.actions().map((action) => ({
+          actionId: action.actionId,
+          instanceId: action.instanceId,
+          ...action.rect,
+          visible: action.visible,
+          disabled: action.disabled,
+        })),
+      },
     });
     assignWindowBindings(window as unknown as Record<string, unknown>, {
-      [harnessWindowKeyForGame(gameConfig.id)]: harness,
+      [evidenceProbeWindowKeyForGame(gameConfig.id)]: evidenceProbe,
     });
-    // Seven-state tour: states AND the surface-grounded stability predicate
-    // live together in the production wrapper the regression suite exercises.
-    void maybeRunTemplateInsituTour(harness);
-  }
+    if (TEST_HARNESS_ENABLED) {
+      const harness = createTemplateHarness({
+        buildVersion: shell.identity.projectionId.slice(7, 15),
+        packageId: `com.fabrikav2.${gameConfig.id}`,
+        controller,
+        render: shell.render,
+      });
+      assignWindowBindings(window as unknown as Record<string, unknown>, {
+        [harnessWindowKeyForGame(gameConfig.id)]: harness,
+      });
+      void maybeRunTemplateInsituTour(harness);
+    }
+  }).catch((error: unknown) => {
+    console.error("[fabrikav2:projection-failed]", error);
+    appRoot.textContent = error instanceof Error ? error.message : "Phaser projection failed to boot.";
+  });
 }

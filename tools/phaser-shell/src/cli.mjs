@@ -4,7 +4,8 @@
 // duplicates them. Run under tsx (imports the lane's .ts modules). `run(argv)` is
 // exported for tests; the module only self-executes when invoked directly.
 import process from 'node:process';
-import { pathToFileURL } from 'node:url';
+import path from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { validateProject } from './publish/validate.ts';
 import { preflight } from './publish/preflight.ts';
 import { status } from './publish/status.ts';
@@ -13,6 +14,10 @@ import { publish } from './publish/publish.ts';
 import { loadCommittedProject, loadScratchProject, COMMITTED_PUBLICATIONS_ROOT } from './loadProject.ts';
 import { resetToScratch } from './reset.ts';
 import { runLaunch } from './launch.ts';
+import { applyPublication, ApplicationError } from './application/projector.ts';
+
+const REPO_ROOT = fileURLToPath(new URL('../../../', import.meta.url));
+const DEFAULT_GAME_ROOT = path.join(REPO_ROOT, 'games', 'shell_proof_phaser');
 
 function print(value) {
   process.stdout.write(JSON.stringify(value, null, 2) + '\n');
@@ -34,6 +39,24 @@ function parsePublishArgs(rest) {
   }
   if (scratch === undefined) return null;
   return { scratch, outputRoot };
+}
+
+function parseApplyArgs(rest) {
+  let publicationId;
+  let publicationRoot = COMMITTED_PUBLICATIONS_ROOT;
+  let gameRoot = DEFAULT_GAME_ROOT;
+  let rendererProfile = 'phaser-native';
+  for (let i = 0; i < rest.length; i++) {
+    const value = rest[i];
+    if (value === '--publications') publicationRoot = rest[++i];
+    else if (value === '--game-root') gameRoot = rest[++i];
+    else if (value === '--renderer-profile') rendererProfile = rest[++i];
+    else if (publicationId === undefined) publicationId = value;
+    else return null;
+    if (publicationRoot === undefined || gameRoot === undefined || rendererProfile === undefined) return null;
+  }
+  if (publicationId === undefined) return null;
+  return { publicationId, publicationRoot, gameRoot, rendererProfile };
 }
 
 export async function run(argv) {
@@ -95,6 +118,22 @@ export async function run(argv) {
       print(result);
       return result.result === 'blocked' ? 1 : 0;
     }
+    case 'apply': {
+      const args = parseApplyArgs(rest);
+      if (!args) {
+        process.stderr.write('usage: cli apply <publicationId> [--publications <root>] [--game-root <root>] [--renderer-profile phaser-native]\n');
+        return 2;
+      }
+      try {
+        const result = await applyPublication(args);
+        print({ ok: true, operation: 'apply', ...result });
+        return 0;
+      } catch (error) {
+        const outcome = error instanceof ApplicationError ? error.outcome : 'invalid-revision';
+        print({ ok: false, operation: 'apply', outcome, error: error instanceof Error ? error.message : String(error) });
+        return 1;
+      }
+    }
     case 'verify-authoring': {
       // Editor-free card verification leg: validate the committed project. The
       // npm `verify-authoring` script chains typecheck + unit + lint around this.
@@ -103,7 +142,7 @@ export async function run(argv) {
       return result.result === 'ok' ? 0 : 1;
     }
     default:
-      process.stderr.write('usage: cli <validate|preflight|status|proof|reset|launch|publish|verify-authoring>\n');
+      process.stderr.write('usage: cli <validate|preflight|status|proof|reset|launch|publish|apply|verify-authoring>\n');
       return 2;
   }
 }

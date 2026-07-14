@@ -8,9 +8,9 @@ export default defineConfig(
     testDir: "tests/e2e",
     webServer: {
       command: "npm run dev",
-      port: 5199,
+      port: 5302,
       reuseExistingServer: !process.env.CI,
     },
-    use: { baseURL: "http://localhost:5199" },
+    use: { baseURL: "http://localhost:5302" },
   }),
 );

@@ -10,10 +10,11 @@ publications as immutable derived records. U1 preseeds this manifest with the
 accepted phaser 4.2.1 pin + the frozen toolchain; U5/U6 add scripts/source only,
 never dependencies. Lane fences: `experiments/design-frontends/fences.json`.
 
-U5 owns **authoring + publishing only**. The Phaser-native runtime, projection
-placement (`design/revisions/**`), the minted runtime `projectionId`, the
-`design/revision.json` pointer, and the A→B→B apply loop are **U6**
-(`src/application/**` — not created here).
+U5 owns **authoring + publishing**. U6's application slice consumes only the
+three publications named by `authoring/publications/accepted.json`, verifies
+their manifest and offline proof, deterministically mints a `phaser-native`
+`projectionId`, places immutable bytes under `design/revisions/**`, and swaps
+the single `design/revision.json` pointer.
 
 ## Layout
 
@@ -36,6 +37,8 @@ tools/phaser-shell/src/
     status.ts         # read a publication's state -> typed outcome
     handoff.ts        # accepted.json: the P0/A/B handoff to U6
     proof.ts          # offline, editor-free network/footprint/raster proof
+  application/
+    projector.ts      # accepted publication -> immutable projection + pointer
   loadProject.ts      # session-validated scratch / committed publish loaders (fail-closed graph)
   cli.mjs             # validate|preflight|status|proof|reset|launch|publish (U6 extends; adds apply)
   reset.ts            # rehearsal clean-P0 scratch reset (never the landing worktree; copies editor-plugins)
@@ -85,6 +88,24 @@ with **non-circular preimages**. The portable `manifest.json` additionally hashe
 projection). The default `--out` is the committed `authoring/publications` root,
 but a block **never** mutates it; the accepted **P0/A/B** set is published only in
 the vendor-gated P6 leg (below), not here.
+
+## Applying an accepted publication
+
+```sh
+npm --workspace @fabrikav2/phaser-shell run apply -- <publicationId>
+```
+
+`apply` accepts only a P0/A/B identity recorded by U5. It re-verifies the full
+publication manifest, v2 published revision, `phaser-native` offline proof, and
+projection bytes before computing the kernel projection ID. A new revision is
+staged and renamed into `design/revisions/<projectionId>/`; the final atomic
+rename of `design/revision.json` is the only selection commit. Reapplying the
+selected bytes is a true no-op, while selected-byte drift blocks before the
+pointer can move. Tests can target isolated roots with `--game-root` and
+`--publications`.
+
+This first vertical slice intentionally defers multi-process locking, orphan
+recovery/cleanup, and render-coupled readiness to the later U6 runtime units.
 
 ## Verification
 
