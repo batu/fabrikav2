@@ -47,6 +47,17 @@ export interface TemplateShellSnapshot extends PersistedTemplateState {
   /** Read-only sample catalog statuses (state.shop-items binding). */
   readonly shopItems: readonly TemplateShopItem[];
   readonly adProvider: string;
+  /** Win claim machine: earned reward (state.reward-amount) + claim idempotency. */
+  readonly rewardAmount: number;
+  readonly rewardClaimed: boolean;
+  readonly rewardClaimedDouble: boolean;
+  /** Whether the deterministic proof rewarded-ad seam can currently grant. */
+  readonly adAvailable: boolean;
+  /** Fail rescue machine: coin-continue cost/affordability + IAP bundle state. */
+  readonly continueCost: number;
+  readonly continueAffordable: boolean;
+  readonly bundleAvailable: boolean;
+  readonly bundlePrice: string | null;
 }
 
 export interface TemplateShellController {
@@ -64,8 +75,16 @@ export interface TemplateShellController {
   setSetting(key: TemplateSettingKey, enabled: boolean): void;
   win(): boolean;
   lose(): boolean;
+  /** Grant the earned reward once and unlock Next. No-op if already claimed. */
+  claim(): boolean;
+  /** Watch the deterministic rewarded ad; grant 2x once iff the ad is granted. */
+  claimDouble(): Promise<boolean>;
   next(): boolean;
   retry(): boolean;
+  /** Fail rescue: spend the configured coins to resume, once and only if affordable. */
+  continueCoins(): boolean;
+  /** Fail rescue: purchase the IAP bundle over the proof seam; resume on success. */
+  purchaseBundle(): Promise<boolean>;
   home(): boolean;
   driveTo(state: string): Promise<boolean>;
   gotoState(state: string): boolean;
@@ -88,6 +107,11 @@ const LEVEL_COUNT = gameConfig.saga.levels;
 const DRIVE_STATES = gameConfig.screens;
 /** Synthetic shared controller value behind the optional second currency counter. */
 const SECONDARY_CURRENCY_VALUE = 12;
+/** Deterministic proof economics for the win-claim and fail-rescue machines. */
+const REWARD_BASE = 5;
+const CONTINUE_COST = 10;
+/** Catalog id of the fail-rescue IAP bundle (a `rescue`-group proof product). */
+const BUNDLE_PRODUCT_ID = "rescue_bundle";
 /** Read-only sample shop items; ids match the proof catalog and never mutate. */
 const SHOP_ITEMS: readonly TemplateShopItem[] = Object.freeze([
   Object.freeze({ id: "item_alpha", status: "available" as const }),
@@ -156,6 +180,16 @@ export function createTemplateShellController(
   const machine = createFlowMachine({ optionalStates: [FlowStates.Paused] });
   let surface: TemplateSurface = "menu";
   let settingsOrigin: SettingsOrigin = null;
+  // Win-claim sub-state. Set when the win surface is entered; the reward is
+  // granted on claim, never on win, so Next stays gated until a claim succeeds
+  // and neither claim path can grant twice.
+  let rewardAmount = 0;
+  let rewardClaimed = false;
+  let rewardClaimedDouble = false;
+  // Re-entrancy guards for the two async seams (rewarded ad, IAP bundle) so a
+  // double tap cannot fire two grants/purchases before the first settles.
+  let claimPending = false;
+  let bundlePending = false;
   const sdk = createTemplateSdk({
     now: options.now,
     audioSettings: persisted.settings,
@@ -287,19 +321,60 @@ export function createTemplateShellController(
   function win(): boolean {
     if (surface !== "level" || !machine.can("complete")) return false;
     const completedLevel = activeLevel() ?? persisted.currentLevel;
-    const rewardAmount = persisted.completedLevels.includes(completedLevel) ? 0 : 5;
+    const alreadyCompleted = persisted.completedLevels.includes(completedLevel);
+    // The earned reward is exposed now but granted only on claim; a replay (or a
+    // final-level re-win) earns nothing, preserving reward idempotency.
+    rewardAmount = alreadyCompleted ? 0 : REWARD_BASE;
+    rewardClaimed = false;
+    rewardClaimedDouble = false;
+    claimPending = false;
     const nextLevel = Math.min(LEVEL_COUNT, completedLevel + 1);
-    if (rewardAmount > 0) {
+    // Progression advances on completion (the level is genuinely cleared); only
+    // the coin grant is deferred to the claim step.
+    if (!alreadyCompleted) {
       persisted = {
         ...persisted,
         currentLevel: nextLevel,
         completedLevels: normalizedCompleted([...persisted.completedLevels, completedLevel], nextLevel),
-        currency: persisted.currency + rewardAmount,
       };
       persist();
     }
-    sdk.levelCompleted(completedLevel, persisted.currency, rewardAmount);
+    sdk.levelCompleted(completedLevel);
     machine.complete();
+    return true;
+  }
+
+  function claim(): boolean {
+    if (surface !== "win" || rewardClaimed || claimPending) return false;
+    rewardClaimed = true;
+    if (rewardAmount > 0) {
+      persisted = { ...persisted, currency: persisted.currency + rewardAmount };
+      persist();
+      sdk.rewardClaimed(rewardAmount, persisted.currency, false);
+    }
+    return true;
+  }
+
+  async function claimDouble(): Promise<boolean> {
+    if (surface !== "win" || rewardClaimed || claimPending) return false;
+    claimPending = true;
+    let granted = false;
+    try {
+      granted = (await sdk.adProvider.showRewardedAd()).granted;
+    } finally {
+      claimPending = false;
+    }
+    // The surface may have changed while the ad was on screen; only grant if the
+    // player is still on an unclaimed win, and only if the ad actually granted.
+    if (surface !== "win" || rewardClaimed || !granted) return false;
+    rewardClaimed = true;
+    rewardClaimedDouble = true;
+    const doubled = rewardAmount * 2;
+    if (doubled > 0) {
+      persisted = { ...persisted, currency: persisted.currency + doubled };
+      persist();
+      sdk.rewardClaimed(doubled, persisted.currency, true);
+    }
     return true;
   }
 
@@ -329,6 +404,10 @@ export function createTemplateShellController(
   }
 
   function snapshot(): TemplateShellSnapshot {
+    const iapSnapshot = sdk.iap.snapshot();
+    const bundleEntry = iapSnapshot.products.find((entry) => entry.product.id === BUNDLE_PRODUCT_ID);
+    const bundleStore = bundleEntry?.storeProduct ?? null;
+    const bundleAvailable = iapSnapshot.state === "ready" && bundleStore !== null;
     return {
       ...persisted,
       completedLevels: [...persisted.completedLevels],
@@ -344,6 +423,14 @@ export function createTemplateShellController(
       secondaryCurrency: SECONDARY_CURRENCY_VALUE,
       shopItems: SHOP_ITEMS,
       adProvider: sdk.adProvider.providerName,
+      rewardAmount,
+      rewardClaimed,
+      rewardClaimedDouble,
+      adAvailable: sdk.isRewardedAdAvailable(),
+      continueCost: CONTINUE_COST,
+      continueAffordable: persisted.currency >= CONTINUE_COST,
+      bundleAvailable,
+      bundlePrice: bundleStore?.priceString ?? null,
     };
   }
 
@@ -399,8 +486,12 @@ export function createTemplateShellController(
     },
     win,
     lose,
+    claim,
+    claimDouble,
     next(): boolean {
-      if (surface !== "win") return false;
+      // Next is unavailable until a claim path has succeeded; then it advances
+      // exactly once (or returns Home on the terminal level).
+      if (surface !== "win" || !rewardClaimed) return false;
       if (isTerminalProgression()) return home();
       if (!machine.can("next")) return false;
       machine.next(String(persisted.currentLevel));
@@ -409,6 +500,38 @@ export function createTemplateShellController(
     },
     retry(): boolean {
       if (surface !== "fail" || !machine.can("retry")) return false;
+      machine.retry();
+      sdk.levelStarted(activeLevel() ?? persisted.currentLevel);
+      return true;
+    },
+    continueCoins(): boolean {
+      // Spend the configured coins to resume, once and only when affordable.
+      // After resume the surface leaves fail, so a second tap is a no-op.
+      if (surface !== "fail" || persisted.currency < CONTINUE_COST || !machine.can("retry")) return false;
+      persisted = { ...persisted, currency: persisted.currency - CONTINUE_COST };
+      persist();
+      machine.retry();
+      sdk.continueUsed(CONTINUE_COST, persisted.currency);
+      sdk.levelStarted(activeLevel() ?? persisted.currentLevel);
+      return true;
+    },
+    async purchaseBundle(): Promise<boolean> {
+      if (surface !== "fail" || bundlePending || !machine.can("retry")) return false;
+      // IapService.purchase keys on the store SKU, not the catalog id.
+      const storeProductId = sdk.iap
+        .snapshot()
+        .products.find((entry) => entry.product.id === BUNDLE_PRODUCT_ID)?.product.productId;
+      if (storeProductId === undefined) return false;
+      bundlePending = true;
+      let purchased = false;
+      try {
+        purchased = (await sdk.iap.purchase(storeProductId)).status === "purchased";
+      } finally {
+        bundlePending = false;
+      }
+      // The bundle grants no currency (proof scope); a successful purchase only
+      // resumes the level. An unavailable/failed purchase leaves Retry working.
+      if (surface !== "fail" || !purchased) return false;
       machine.retry();
       sdk.levelStarted(activeLevel() ?? persisted.currentLevel);
       return true;

@@ -1,0 +1,90 @@
+{
+  "components": [
+    {
+      "name": "Semantic",
+      "displayName": "Semantic",
+      "objectDisplayFormat": "",
+      "baseClass": "",
+      "gameObjectType": "Phaser.GameObjects.GameObject",
+      "generateGameObjectField": true,
+      "properties": [
+        {
+          "name": "fabSemanticId",
+          "label": "Semantic ID",
+          "tooltip": "Stable semantic instance id, unique per (id, variant).",
+          "defValue": "",
+          "defArrayValue": [],
+          "customDefinition": false,
+          "editorOnly": false,
+          "deprecated": false,
+          "type": {
+            "id": "string"
+          }
+        },
+        {
+          "name": "fabRole",
+          "label": "Role",
+          "tooltip": "Semantic role: container | action | copy | counter | asset | hud.",
+          "defValue": "",
+          "defArrayValue": [],
+          "customDefinition": false,
+          "editorOnly": false,
+          "deprecated": false,
+          "type": {
+            "id": "string"
+          }
+        },
+        {
+          "name": "fabBinding",
+          "label": "Binding",
+          "tooltip": "Typed binding, e.g. asset:cat.badge.blue, copy:title, action:play, currency:primary.",
+          "defValue": "",
+          "defArrayValue": [],
+          "customDefinition": false,
+          "editorOnly": false,
+          "deprecated": false,
+          "type": {
+            "id": "string"
+          }
+        },
+        {
+          "name": "fabSlot",
+          "label": "Slot",
+          "tooltip": "Layout slot, e.g. content or safe-area:top.",
+          "defValue": "",
+          "defArrayValue": [],
+          "customDefinition": false,
+          "editorOnly": false,
+          "deprecated": false,
+          "type": {
+            "id": "string"
+          }
+        },
+        {
+          "name": "fabVariant",
+          "label": "Variant",
+          "tooltip": "State variant, e.g. default or pressed.",
+          "defValue": "",
+          "defArrayValue": [],
+          "customDefinition": false,
+          "editorOnly": false,
+          "deprecated": false,
+          "type": {
+            "id": "string"
+          }
+        }
+      ],
+      "constraints": [],
+      "constraintsCondition": ""
+    }
+  ],
+  "meta": {
+    "app": "Phaser Editor 2D - User Components Editor",
+    "url": "https://phasereditor2d.com",
+    "contentType": "phasereditor2d.core.scene.UserComponents"
+  },
+  "outputLang": "TYPE_SCRIPT",
+  "exportClass": true,
+  "autoImport": true,
+  "_provenance": "phaser lane (U5); Semantic carrier component derived from U2 card 43Qvbih7"
+}

@@ -56,11 +56,10 @@ describe("frozen experiment records", () => {
       "games/shell_proof_phaser",
     ]);
     expect(new Set(protocol.lanes.map((lane) => lane.devPort)).size).toBe(2);
-    // Null until the conductor seals the freeze; never a truthy placeholder.
-    expect(
-      protocol.freeze.baselineCommit === null ||
-        /^[0-9a-f]{7,40}$/.test(String(protocol.freeze.baselineCommit)),
-    ).toBe(true);
+    // U1 is SEALED on this integration branch: the freeze must carry the real
+    // 40-hex baseline commit. A null (or any truthy placeholder) freeze is
+    // rejected here so U5/U6 cannot inherit an unsealed comparison epoch.
+    expect(String(protocol.freeze.baselineCommit)).toMatch(/^[0-9a-f]{40}$/);
   });
 
   it("keeps the embedded schemas closed-root JSON Schemas", () => {

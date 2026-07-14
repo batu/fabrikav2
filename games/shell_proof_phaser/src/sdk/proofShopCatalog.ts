@@ -15,6 +15,7 @@ import {
   type Catalog,
   type CatalogProduct,
   type CustomerInfoLike,
+  type PurchaseTransaction,
   type StoreProduct,
 } from "@fabrikav2/sdk/iap";
 
@@ -30,6 +31,7 @@ function product(
   displayPrice: string,
   title: string,
   description: string,
+  group = "items",
 ): CatalogProduct<ProofShopPayload> {
   return {
     id,
@@ -37,7 +39,7 @@ function product(
     title,
     description,
     kind,
-    group: "items",
+    group,
     tier,
     badges: [],
     displayPrice,
@@ -50,6 +52,10 @@ export const proofCatalogProducts: CatalogProduct<ProofShopPayload>[] = [
   product("item_alpha", "consumable", 0, "$0.99", "Item A", "Sample available item."),
   product("item_beta", "entitlement", 1, "$1.99", "Item B", "Sample owned item."),
   product("item_gamma", "consumable", 2, "$4.99", "Item C", "Sample locked item."),
+  // The fail-rescue bundle lives in its own group, so it never appears in the
+  // Shop's `items` grid; the Fail surface reads it straight from the IAP seam.
+  // It carries store metadata (below), so its card shows a real $4.99 price.
+  product("rescue_bundle", "consumable", 0, "$4.99", "Rescue Bundle", "Sample recovery bundle.", "rescue"),
 ];
 
 const proofCatalog: Catalog<ProofShopPayload> = { products: proofCatalogProducts };
@@ -77,6 +83,26 @@ export function fakeStoreProductsFromProofCatalog(): StoreProduct[] {
       priceString: catalogProduct.displayPrice,
       currencyCode: "USD",
     }));
+}
+
+/** Store SKU of the fail-rescue bundle — the one purchasable proof product. */
+export const BUNDLE_STORE_PRODUCT_ID = `${STORE_PREFIX}.rescue_bundle`;
+
+/**
+ * Scripted purchase results for the fake provider: only the fail-rescue bundle
+ * is purchasable. It resolves to a deterministic transaction that grants no
+ * entitlement (empty customerInfo) — the proof resumes the level but fulfils
+ * nothing. Every other card stays inert (unscripted, never purchased).
+ */
+export function proofPurchaseResults(): Record<string, PurchaseTransaction> {
+  return {
+    [BUNDLE_STORE_PRODUCT_ID]: {
+      productIdentifier: BUNDLE_STORE_PRODUCT_ID,
+      transactionId: "proof-rescue-bundle-tx",
+      purchaseToken: null,
+      customerInfo: { allPurchasedProductIdentifiers: [], nonSubscriptionTransactions: [] },
+    },
+  };
 }
 
 /** Deterministic restore result: exactly the owned entitlement comes back. */

@@ -166,6 +166,9 @@ function runIosDevicePath(args, manifest, date, deviceConfig = {}) {
   const { exportDir, testError } = steps.runXcuiTestAndExport({
     runnerDir: RUNNER_DIR, deviceUdid: device.udid, appBundleId, outDir,
     developmentTeam: process.env.DEVELOPMENT_TEAM,
+    // Gate exactly the ordered manifest vocabulary (seven states incl. Shop for
+    // the seven-page shell); the runner never hardcodes its own list.
+    states: manifestStateNames(manifest),
   });
   const { byState, captureByState, viewportMetrics } = extractFromExportDir(exportDir, manifestStateNames(manifest));
   return {

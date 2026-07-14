@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join, resolve } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
@@ -26,6 +27,7 @@ import {
   migrateShellPresentationV1ToV2,
   parseProjectionRevisionV2,
   parseShellAssetCatalogDocument,
+  parseShellAssetIdentityDocument,
   parseShellPresentationContractV2,
   parseShellPresentationDocument,
   parseShellPresentationV2,
@@ -215,6 +217,75 @@ describe('shell-presentation-v2 contract document', () => {
     );
   });
 
+  it('models the FTD menu nav dock, win claim, and fail rescue (card qWCv9tUo 2026-07-13)', () => {
+    const instances = new Map(
+      shellPresentationContractV2.instances.map((instance) => [instance.id, instance]),
+    );
+    const roleIds = new Set(shellPresentationContractV2.roles.map((role) => role.id));
+    const bindingIds = new Set(shellPresentationContractV2.bindings.map((binding) => binding.id));
+    const actionIds = shellPresentationContractV2.requiredActions.map((action) => action.id);
+
+    // Menu: a persistent bottom nav GROUP parents shop, play, settings — and the
+    // three sit contiguously in shop < play < settings traversal order.
+    expect(roleIds.has('bottom-nav')).toBe(true);
+    expect(instances.get('menu.nav')?.roleId).toBe('bottom-nav');
+    for (const id of ['menu.shop', 'menu.play', 'menu.settings']) {
+      expect(instances.get(id)?.parentInstanceId).toBe('menu.nav');
+      expect(instances.get(id)?.accessibility.traversalGroup).toBe('nav');
+    }
+    const navChildOrder = shellPresentationContractV2.instances
+      .filter((instance) => instance.parentInstanceId === 'menu.nav')
+      .map((instance) => instance.id);
+    expect(navChildOrder).toEqual(['menu.shop', 'menu.play', 'menu.settings']);
+    // Play stays the dominant primary action of the dock.
+    expect(instances.get('menu.play')?.roleId).toBe('bottom-primary-action');
+
+    // Win: reward readout + claim + claim-double replace the initial Next/Home.
+    expect(bindingIds.has('state.reward-amount')).toBe(true);
+    expect(instances.get('win.reward')?.bindingId).toBe('state.reward-amount');
+    expect(instances.get('win.claim')?.bindingId).toBe('flow.claim');
+    expect(instances.get('win.claim')?.actionId).toBe('win-claim');
+    expect(instances.get('win.claim-double')?.bindingId).toBe('flow.claim-double');
+    expect(instances.get('win.claim-double')?.actionId).toBe('win-claim-double');
+    // win.next (primary) and win.home (tertiary) are GENUINELY claimed-only
+    // POST-CLAIM navigation instances: each keeps its binding, role, and geometry
+    // so the runtime can reveal it after a claim, but carries NO required action
+    // identity and defaults to hidden. An authored/published Win page therefore
+    // mandates only reward + claim + claim-double and never a dead pre-claim Next
+    // or Home; after a claim, task-pack D5 shows Next primary + Home tertiary
+    // (card qWCv9tUo, comments 54 + 57).
+    expect(instances.get('win.next')?.bindingId).toBe('flow.next');
+    expect(instances.get('win.next')?.roleId).toBe('bottom-primary-action');
+    expect(instances.get('win.next')?.required).toBe(false);
+    expect(instances.get('win.next')?.actionId).toBeUndefined();
+    expect(instances.get('win.next')?.defaultPresentation.visibility).toBe('hidden');
+    expect(instances.get('win.home')?.bindingId).toBe('flow.result-home');
+    expect(instances.get('win.home')?.roleId).toBe('bottom-secondary-action');
+    expect(instances.get('win.home')?.required).toBe(false);
+    expect(instances.get('win.home')?.actionId).toBeUndefined();
+    expect(instances.get('win.home')?.defaultPresentation.visibility).toBe('hidden');
+    expect(actionIds).toEqual(expect.arrayContaining(['win-claim', 'win-claim-double']));
+    expect(actionIds).not.toContain('win-next');
+    expect(actionIds).not.toContain('win-home');
+    const claimDouble = shellPresentationContractV2.requiredActions.find((a) => a.id === 'win-claim-double');
+    expect(claimDouble?.actionHook).toBe('claim-double');
+
+    // Fail: rescue surface — currency + continue-coins + retry + optional bundle,
+    // and NO Home on the required initial surface.
+    expect(instances.get('fail.currency')?.bindingId).toBe('state.primary-currency');
+    expect(instances.get('fail.continue-coins')?.bindingId).toBe('flow.continue-coins');
+    expect(instances.get('fail.continue-coins')?.actionId).toBe('fail-continue-coins');
+    expect(instances.get('fail.retry')?.actionId).toBe('fail-retry');
+    // The bundle is optional: an IAP-bound action instance carrying no required
+    // action identity, so a lane may omit or disable it without breaking Retry.
+    expect(instances.get('fail.bundle')?.bindingId).toBe('commerce.bundle');
+    expect(instances.get('fail.bundle')?.required).toBe(false);
+    expect(instances.get('fail.bundle')?.actionId).toBeUndefined();
+    expect(instances.has('fail.home')).toBe(false);
+    expect(actionIds).toEqual(expect.arrayContaining(['fail-continue-coins', 'fail-retry']));
+    expect(actionIds).not.toContain('fail-home');
+  });
+
   it('rejects a v2 contract whose renderer profiles are missing or indistinguishable', () => {
     const withoutProfiles = structuredClone(rawV2);
     delete withoutProfiles.rendererProfiles;
@@ -357,6 +428,73 @@ describe('v2 publication records', () => {
   });
 });
 
+describe('v2 claimed-only Win disclosure (card qWCv9tUo, comment 54)', () => {
+  const winPageOf = (document: ReturnType<typeof createDefaultShellPresentationV2>) =>
+    document.pages.find((page) => page.stateId === 'win')!;
+
+  it('defaults the Win page to a disclosed reward + claim + claim-double surface with a hidden, action-less Next', () => {
+    const document = createDefaultShellPresentationV2();
+    const byId = new Map(winPageOf(document).instances.map((instance) => [instance.id, instance]));
+    // The claim surface is the disclosed pre-claim state.
+    expect(byId.get('win.reward')?.presentation.visibility).toBe('visible');
+    expect(byId.get('win.claim')?.presentation.visibility).toBe('visible');
+    expect(byId.get('win.claim-double')?.presentation.visibility).toBe('visible');
+    // Next exists for the post-claim runtime reveal (role/binding retained) but
+    // is hidden by default and carries no action identity, so it is never a dead
+    // pre-claim control in an authored Win page.
+    const next = byId.get('win.next');
+    expect(next?.presentation.visibility).toBe('hidden');
+    expect(next?.actionId).toBeUndefined();
+    expect(next?.bindingId).toBe('flow.next');
+    expect(next?.roleId).toBe('bottom-primary-action');
+  });
+
+  it('reintroduces win.home as a claimed-only tertiary that defaults hidden with no action identity', () => {
+    const document = createDefaultShellPresentationV2();
+    const byId = new Map(winPageOf(document).instances.map((instance) => [instance.id, instance]));
+    // Home exists for the post-claim runtime reveal (task-pack D5: Next primary +
+    // Home tertiary after a claim) but is hidden by default and carries no action
+    // identity, so it is never a dead pre-claim control on an authored Win page.
+    const home = byId.get('win.home');
+    expect(home?.presentation.visibility).toBe('hidden');
+    expect(home?.actionId).toBeUndefined();
+    expect(home?.bindingId).toBe('flow.result-home');
+    expect(home?.roleId).toBe('bottom-secondary-action');
+  });
+
+  it('accepts an unclaimed Win page that shows reward + claim + claim-double and omits both Next and Home entirely', () => {
+    const document = createDefaultShellPresentationV2();
+    const win = winPageOf(document);
+    win.instances = win.instances.filter(
+      (instance) => instance.id !== 'win.next' && instance.id !== 'win.home',
+    );
+    // No missing-required-action for the claimed-only Next/Home and no
+    // missing-instance for the absent (required=false) win.next/win.home: an
+    // unclaimed Win is fully valid.
+    expect(() => parseShellPresentationV2(document)).not.toThrow();
+  });
+
+  it('accepts an unclaimed Win page that keeps Next hidden', () => {
+    const document = createDefaultShellPresentationV2();
+    const next = winPageOf(document).instances.find((instance) => instance.id === 'win.next')!;
+    expect(next.presentation.visibility).toBe('hidden');
+    expect(() => parseShellPresentationV2(document)).not.toThrow();
+  });
+
+  it('still requires the claim and claim-double actions to be visible on the Win page', () => {
+    const hideClaim = createDefaultShellPresentationV2();
+    winPageOf(hideClaim).instances.find((instance) => instance.id === 'win.claim')!.presentation.visibility =
+      'hidden';
+    expect(issueCodes(() => parseShellPresentationV2(hideClaim))).toContain('missing-required-action');
+
+    const hideDouble = createDefaultShellPresentationV2();
+    winPageOf(hideDouble).instances.find(
+      (instance) => instance.id === 'win.claim-double',
+    )!.presentation.visibility = 'hidden';
+    expect(issueCodes(() => parseShellPresentationV2(hideDouble))).toContain('missing-required-action');
+  });
+});
+
 describe('v2 projection revisions and profile isolation', () => {
   it('accepts each profile with its own artifact set', async () => {
     const dom = await validProjectionV2('dom-css', [...DOM_ARTIFACTS, 'assets/icon-control-shop.png']);
@@ -408,6 +546,107 @@ describe('v2 projection revisions and profile isolation', () => {
   });
 });
 
+describe('v2 phaser-native canonical bundled layout (card qWCv9tUo item 6)', () => {
+  // The runtime phaser-native profile is intentionally UNCHANGED here: these
+  // tests pin the decided bundled-artifact contract (lowercase scenes/*.js plus
+  // the three required manifests) and prove raw Phaser-Editor source paths are
+  // rejected. U5 owns the bundler that produces this layout; U1 only fences it.
+  it('accepts the lowercase bundled scene plus required manifests', async () => {
+    const bundled = await validProjectionV2('phaser-native', [
+      'scene-manifest.json',
+      'asset-pack.json',
+      'asset-identity.json',
+      'scenes/shell.js',
+      'assets/icon-control-shop.png',
+    ]);
+    expect((await parseProjectionRevisionV2(bundled)).rendererProfile).toBe('phaser-native');
+  });
+
+  it('rejects raw Phaser-Editor component/prefab/PascalCase source paths', async () => {
+    for (const raw of ['components/Button.ts', 'prefabs/Card.prefab', 'scenes/Shell.ts']) {
+      const projection = await validProjectionV2('phaser-native', [...PHASER_ARTIFACTS, raw]);
+      expect(await issueCodesAsync(() => parseProjectionRevisionV2(projection))).toContain(
+        'unsafe-artifact',
+      );
+    }
+  });
+});
+
+describe('v2 asset-identity breaks the projectionId cycle (card qWCv9tUo item 8)', () => {
+  // V1 embedded projectionId inside asset-identity.json while projectionId is
+  // ALSO hashed from the artifact set (asset-identity.json included) — no file
+  // could ever contain its own downstream hash. V2 drops the field; this proves
+  // a real, file-backed preimage now exists and an embedded id is rejected.
+  it('validates a file-backed asset-identity.json feeding a realizable projectionId', async () => {
+    const assetIdentity = {
+      contractId: SHELL_CONTRACT_V2_ID,
+      contractVersion: SHELL_CONTRACT_V2_VERSION,
+      sourcePublicationId: await hashCanonicalJson({ source: 'phaser-native' }),
+      assets: [
+        {
+          instanceId: 'menu.play',
+          slotId: 'button-surface',
+          assetId: 'asset.primary-action.default',
+          path: 'assets/primary-action.default.png',
+          sha256: await hashCanonicalJson({ raster: 'primary-action' }),
+        },
+      ],
+    };
+    // The file is valid on its own — no placeholder projectionId inside it.
+    expect(() => parseShellAssetIdentityDocument(assetIdentity)).not.toThrow();
+
+    const dir = mkdtempSync(join(tmpdir(), 'u1-asset-identity-'));
+    try {
+      const filePath = join(dir, 'asset-identity.json');
+      const bytes = Buffer.from(JSON.stringify(assetIdentity, null, 2), 'utf8');
+      writeFileSync(filePath, bytes);
+      // Hash the REAL on-disk bytes — the artifact hash that feeds projectionId.
+      const assetIdentitySha = `sha256-${createHash('sha256').update(readFileSync(filePath)).digest('hex')}`;
+
+      const artifacts = [
+        { path: 'asset-identity.json', sha256: assetIdentitySha, bytes: bytes.length },
+        { path: 'asset-pack.json', sha256: await hashCanonicalJson({ path: 'asset-pack.json' }), bytes: 64 },
+        { path: 'scene-manifest.json', sha256: await hashCanonicalJson({ path: 'scene-manifest.json' }), bytes: 64 },
+      ].sort((a, b) => (a.path < b.path ? -1 : 1));
+      const base = {
+        contractId: SHELL_CONTRACT_V2_ID,
+        contractVersion: SHELL_CONTRACT_V2_VERSION,
+        rendererProfile: 'phaser-native' as const,
+        compatibilityHash: await hashShellContractById(SHELL_CONTRACT_V2_ID),
+        sourcePublicationId: assetIdentity.sourcePublicationId,
+        artifacts,
+      };
+      const projectionId = await computeShellProjectionIdV2(base);
+      const projection = { ...base, projectionId, revisionPath: `design/revisions/${projectionId}` };
+      expect((await parseProjectionRevisionV2(projection)).projectionId).toBe(projectionId);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('rejects a v2 asset-identity.json that embeds a projectionId', async () => {
+    const embedded = {
+      contractId: SHELL_CONTRACT_V2_ID,
+      contractVersion: SHELL_CONTRACT_V2_VERSION,
+      projectionId: `sha256-${'a'.repeat(64)}`,
+      sourcePublicationId: await hashCanonicalJson({ source: 'x' }),
+      assets: [],
+    };
+    expect(issueCodes(() => parseShellAssetIdentityDocument(embedded))).toContain('unsupported-field');
+  });
+
+  it('still requires projectionId inside a frozen v1 asset-identity file', () => {
+    const v1WithoutId = {
+      contractId: SHELL_CONTRACT_ID,
+      contractVersion: SHELL_CONTRACT_VERSION,
+      sourcePublicationId: `sha256-${'b'.repeat(64)}`,
+      assets: [],
+    };
+    // Dispatches by contractId to the frozen v1 context, which still demands it.
+    expect(() => parseShellAssetIdentityDocument(v1WithoutId)).toThrow(ShellContractValidationError);
+  });
+});
+
 describe('v1 to v2 migration', () => {
   it('migrates the neutral v1 default document to a fresh v2 identity', () => {
     const source = createDefaultShellPresentation();
@@ -429,11 +668,20 @@ describe('v1 to v2 migration', () => {
 
     expect(report.carriedInstanceIds).toContain('menu.play');
     expect(report.carriedInstanceIds).toContain('settings.music');
+    // win.home returns to v2 as a claimed-only post-claim tertiary with unchanged
+    // semantics (bottom-secondary-action / flow.result-home / button), so a legacy
+    // v1 Home carries forward rather than dropping (card qWCv9tUo comment 57). It
+    // stays optional and action-less at the v2 default; only its runtime reveal is
+    // gated behind a claim.
+    expect(report.carriedInstanceIds).toContain('win.home');
     expect(report.resetInstanceIds).toEqual(['settings.back']);
-    expect(report.droppedInstanceIds).toEqual(['settings.panel']);
+    // The FTD structure rewire still drops the header Home from the fail rescue
+    // surface (card qWCv9tUo, 2026-07-13): the fail rescue has no Home at all.
+    expect(report.droppedInstanceIds).toEqual(['settings.panel', 'fail.home']);
     expect(report.addedInstanceIds).toEqual(
       expect.arrayContaining([
         'menu.shop',
+        'menu.nav',
         'shop.page',
         'shop.title',
         'shop.back',
@@ -446,6 +694,12 @@ describe('v1 to v2 migration', () => {
         'shop.restore',
         'settings.page',
         'settings.title',
+        'win.reward',
+        'win.claim',
+        'win.claim-double',
+        'fail.currency',
+        'fail.continue-coins',
+        'fail.bundle',
       ]),
     );
     expect(report.addedInstanceIds).not.toContain('settings.back');

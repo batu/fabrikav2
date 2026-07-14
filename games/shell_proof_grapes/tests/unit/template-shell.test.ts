@@ -100,8 +100,16 @@ describe("template shell progression flow", () => {
       scene: "complete",
       currentLevel: 3,
       completedLevels: [1, 2],
+      rewardAmount: 5,
+      rewardClaimed: false,
     });
 
+    // Next is gated until a claim path succeeds; the ordinary claim grants the
+    // reward exactly once and unlocks Next, which then advances exactly once.
+    expect(controller.next()).toBe(false);
+    expect(controller.claim()).toBe(true);
+    expect(controller.claim()).toBe(false);
+    expect(controller.snapshot()).toMatchObject({ rewardClaimed: true, currency: 30 });
     expect(controller.next()).toBe(true);
     expect(controller.snapshot()).toMatchObject({ surface: "level", scene: "playing", currentLevel: 3 });
 
@@ -146,8 +154,17 @@ describe("template shell progression flow", () => {
       surface: "win",
       currentLevel: 3,
       completedLevels: [1, 2, 3],
+      rewardAmount: 5,
     });
     shell.render();
+    // Pre-claim the win surface discloses only the reward claim actions; Next is
+    // not shown until a claim succeeds, then it is tappable and, on the terminal
+    // level, returns Home exactly once.
+    expect(shell.root.querySelector('[data-fab-action="result-next"]')).toBeNull();
+    expect(shell.root.querySelector('[data-fab-action="claim"]')).not.toBeNull();
+    expect(controller.claim()).toBe(true);
+    shell.render();
+    expect(shell.root.querySelector('[data-fab-action="claim"]')).toBeNull();
     expect(shell.root.querySelector<HTMLButtonElement>('[data-fab-action="result-next"]')?.disabled).toBe(false);
     expect(shell.root.querySelector(".fab-modal-ribbon-eyebrow")?.textContent).toBe("Trail 3");
     expect(
@@ -170,8 +187,12 @@ describe("template shell progression flow", () => {
       currentLevel: 3,
       completedLevels: [1, 2, 3],
     });
+    // A replay of the completed final level earns nothing: claiming it grants no
+    // coins, so only the first claim ever moved the balance.
     expect(controller.win()).toBe(true);
-    expect(controller.snapshot()).toMatchObject({ surface: "win", currentLevel: 3, completedLevels: [1, 2, 3], currency: 30 });
+    expect(controller.snapshot()).toMatchObject({ surface: "win", currentLevel: 3, completedLevels: [1, 2, 3], currency: 30, rewardAmount: 0 });
+    expect(controller.claim()).toBe(true);
+    expect(controller.snapshot()).toMatchObject({ currency: 30 });
     expect(controller.trace().filter((event) => event.name === "resource_change")).toHaveLength(1);
   });
 
@@ -305,7 +326,7 @@ describe("template shell renderer and harness", () => {
     expect(css).toMatch(/\.template-shell \.fab-toggle-input\s*\{[^}]*width:\s*100%;[^}]*height:\s*100%;/s);
   });
 
-  it("keeps Settings quiet and makes the seeded star explicitly read as currency", () => {
+  it("keeps the currency in the header and Settings quiet inside the bottom nav dock", () => {
     const controller = createController();
     const root = document.getElementById("app")!;
     const shell = mountTemplateShell({ mountInto: root, controller });
@@ -314,14 +335,33 @@ describe("template shell renderer and harness", () => {
     const currency = shell.root.querySelector<HTMLElement>('[data-fab-instance="menu.currency"]');
     const css = templateShellCss();
 
-    expect(settings?.classList.contains("template-shell__icon-action--utility")).toBe(true);
+    // Settings left the header for the dock; it is a quiet nav action, not the
+    // dominant play action, and no longer a header utility icon.
+    expect(settings?.dataset.fabInstance).toBe("menu.settings");
+    expect(settings?.classList.contains("template-shell__nav-action")).toBe(true);
+    expect(settings?.classList.contains("template-shell__nav-action--settings")).toBe(true);
+    expect(settings?.classList.contains("template-shell__nav-action--play")).toBe(false);
     expect(settings?.getAttribute("aria-label")).toBe("Settings");
+    expect(settings?.closest('[data-fab-instance="menu.nav"]')).not.toBeNull();
+    // The currency balance stays in the header.
+    expect(currency?.closest(".template-shell__menu-header")).not.toBeNull();
     expect(currency?.classList.contains("template-shell__currency--contrasted")).toBe(true);
     expect(currency?.getAttribute("aria-label")).toBe("25 Coins");
     expect(currency?.querySelector(".template-shell__currency-label")?.textContent).toBe("Coins");
     expect(currency?.textContent).toContain("25Coins");
     expect(css).toMatch(
-      /\.template-shell__icon-action--utility\s*\{[^}]*width:\s*var\(--fab-btn-min-size\);[^}]*padding:\s*0;[^}]*font-size:\s*0;[^}]*background-color:\s*var\(--fab-seed-color-utility-surface\);[^}]*box-shadow:\s*none;/s,
+      /\.template-shell__nav-action\s*\{[^}]*background:\s*var\(--fab-seed-color-utility-surface\);[^}]*box-shadow:\s*none;/s,
+    );
+    // The dominant center action reads "Play" (never "Continue"), and every dock
+    // label rides the light on-accent ink so it stays legible on the dark slate
+    // dock surface (dark body text failed contrast at device scale).
+    const play = shell.root.querySelector<HTMLButtonElement>('[data-fab-instance="menu.play"]');
+    expect(play?.textContent).toContain("Play");
+    expect(play?.textContent).not.toContain("Continue");
+    expect(play?.getAttribute("aria-label")).toBe("Play");
+    expect(play?.classList.contains("template-shell__nav-action--play")).toBe(true);
+    expect(css).toMatch(
+      /\.template-shell__nav-action\s*\{[^}]*color:\s*var\(--fab-seed-color-on-accent\);/s,
     );
     expect(css).toMatch(
       /\.template-shell__currency--contrasted\s*\{[^}]*background-color:\s*var\(--fab-seed-color-currency-surface\);[^}]*color:\s*var\(--fab-seed-color-currency-on-surface\);/s,
@@ -552,61 +592,87 @@ describe("template shell renderer and harness", () => {
     );
   });
 
-  it("keeps failure over frozen gameplay with one retry signal and a restrained accent", () => {
+  it("models the fail rescue over frozen gameplay: coin-continue, free retry, and a priced bundle, no Home", async () => {
     const controller = createController();
     const root = document.getElementById("app")!;
     const shell = mountTemplateShell({ mountInto: root, controller });
+    const harness = createTemplateHarness({
+      buildVersion: "test",
+      packageId: "com.fabrikav2.template",
+      controller,
+      render: shell.render,
+    });
 
-    controller.startCurrent();
-    controller.lose();
+    // The IAP seam settles on the microtask queue; on device it is long `ready`
+    // before any fail, so await it here to observe the bundle's real price.
+    expect(await harness.driveTo!("fail")).toBe(true);
+    await controller.sdk.iap.init();
     shell.render();
 
     const ribbon = shell.root.querySelector<HTMLElement>(".fab-modal-ribbon-title");
-    const retry = shell.root.querySelector<HTMLElement>('[data-fab-action="result-retry"]');
-    const home = shell.root.querySelector<HTMLElement>('[data-fab-action="result-menu"]');
+    const currency = shell.root.querySelector<HTMLElement>('[data-fab-instance="fail.currency"]');
+    const continueCoins = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="continue-coins"]');
+    const retry = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="result-retry"]');
+    const bundle = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="bundle"]');
     const backdrop = shell.root.querySelector<HTMLElement>(".template-shell__level--result-backdrop");
     const css = templateShellCss();
 
     expect(ribbon?.textContent).toBe("Trail blocked");
-    expect(shell.root.querySelector(".template-shell__result-art")).toBeNull();
-    expect(shell.root.querySelector(".template-shell__fail-barrier")?.getAttribute("aria-hidden")).toBe("true");
-    expect(shell.root.querySelector(".fab-result-message")?.textContent).toBe("Choose a clearer step, then try again.");
+    // The rescue surface exposes the coin balance and the three rescue actions,
+    // and never a Home affordance.
+    expect(currency?.dataset.fabInstance).toBe("fail.currency");
+    expect(currency?.getAttribute("aria-label")).toBe("25 Coins");
+    expect(continueCoins?.dataset.fabInstance).toBe("fail.continue-coins");
+    expect(continueCoins?.textContent).toContain("Continue");
+    expect(continueCoins?.textContent).toContain("10");
+    expect(continueCoins?.disabled).toBe(false); // 25 coins affords the 10-coin cost
+    expect(retry?.dataset.fabInstance).toBe("fail.retry");
+    expect(retry?.disabled).toBe(false); // retry is always free
+    expect(bundle?.dataset.fabInstance).toBe("fail.bundle");
+    expect(bundle?.textContent).toContain("$4.99"); // real IAP price/state
+    // The bundle discloses its OUTCOME, not just a price: the proof bundle grants
+    // no currency and resumes the current level, so the label/aria states both the
+    // "Rescue bundle" name and the "Continue this level" outcome alongside the
+    // price (card qWCv9tUo comment 57).
+    expect(bundle?.textContent).toContain("Rescue bundle");
+    expect(bundle?.textContent).toContain("Continue this level");
+    expect(bundle?.getAttribute("aria-label")).toContain("Rescue bundle");
+    expect(bundle?.getAttribute("aria-label")).toContain("Continue this level");
+    expect(bundle?.getAttribute("aria-label")).toContain("$4.99");
+    expect(bundle?.disabled).toBe(false);
+    // The bundle is a complete, bounded purchase card-button, not the borderless
+    // tertiary quiet-exit grammar (that belongs to Home/Resume rows).
+    expect(bundle?.classList.contains("template-shell__fail-bundle")).toBe(true);
+    expect(bundle?.classList.contains("template-shell__overlay-action--tertiary")).toBe(false);
+    expect(shell.root.querySelector('[data-fab-action="result-menu"]')).toBeNull();
+    // Frozen gameplay stays visible behind the rescue, inert and unduplicated.
     expect(backdrop?.dataset.templateBackdrop).toBe("result-level");
     expect(backdrop?.getAttribute("aria-hidden")).toBe("true");
     expect(backdrop?.querySelector(".template-shell__level-label")?.textContent).toBe("Trail 2");
-    expect(backdrop?.querySelector(".template-shell__sample-outcomes")).toBeNull();
     expect(backdrop?.querySelectorAll("[data-fab-action]")).toHaveLength(0);
     expect(backdrop?.querySelectorAll("[data-fab-instance]")).toHaveLength(0);
-    expect(retry?.classList.contains("template-shell__overlay-action--primary")).toBe(true);
-    expect(home?.classList.contains("template-shell__overlay-action--tertiary")).toBe(true);
-    expect(retry?.style.getPropertyValue("--fab-btn-sprite-image")).toBe("");
-    expect(home?.style.getPropertyValue("--fab-btn-sprite-image")).toBe("");
+    expect(continueCoins?.classList.contains("template-shell__overlay-action--primary")).toBe(true);
+    expect(retry?.classList.contains("template-shell__overlay-action--secondary")).toBe(true);
     expect(css).toMatch(
       /\.template-shell\[data-fab-state="fail"\] \.fab-ui\s*\{[^}]*--fab-ribbon-title-color:\s*var\(--fab-seed-color-fail-ribbon-text\);/s,
     );
     expect(css).toMatch(
-      /\.template-shell\[data-fab-state="fail"\] \.fab-result-body\s*\{[^}]*padding:\s*0;[^}]*border:\s*0;[^}]*background:\s*transparent;/s,
-    );
-    expect(css).toMatch(
       /\.template-shell \.fab-pause-card \[data-fab-action="pause-settings"\],[\s\S]*?\.template-shell__overlay-action--secondary\s*\{[^}]*background:\s*var\(--fab-seed-color-socket-surface\);[^}]*box-shadow:\s*none;/s,
     );
+    // Gated/unaffordable/unavailable rescue controls keep an explicit muted fill,
+    // never a ghost opacity wash.
     expect(css).toMatch(
-      /\.template-shell\[data-fab-state="fail"\] \.fab-modal-ribbon\s*\{[^}]*aspect-ratio:\s*auto;[^}]*border:\s*0;[^}]*background:\s*transparent;[^}]*box-shadow:\s*none;/s,
+      /\.template-shell__result-actions \.fab-btn:disabled\s*\{[^}]*opacity:\s*1;[^}]*background:\s*var\(--fab-seed-color-socket-surface\);/s,
     );
+    // The bundle card carries its own accent border on the white card surface so
+    // it reads as a purchasable control rather than loose text.
     expect(css).toMatch(
-      /\.template-shell\[data-fab-state="fail"\] \.fab-modal-ribbon-image\s*\{[^}]*display:\s*none;/s,
+      /\.template-shell__fail-bundle\s*\{[^}]*border:\s*var\(--fab-border-width\) solid var\(--fab-seed-color-accent\);[^}]*background:\s*var\(--fab-seed-color-shop-card-surface\);/s,
     );
+    // The docked rescue sheet floors its bottom padding above the safe-area inset
+    // so the bundle never reaches the raw viewport bottom.
     expect(css).toMatch(
-      /\.template-shell\[data-fab-state="fail"\] \.template-shell__result-art\s*\{[^}]*display:\s*none;/s,
-    );
-    expect(css).toMatch(
-      /\.template-shell\[data-fab-state="fail"\] \.template-shell__fail-barrier::before\s*\{[^}]*var\(--fab-seed-color-trail-surface\)/s,
-    );
-    expect(css).toMatch(
-      /\.template-shell\[data-fab-state="fail"\] \.template-shell__fail-barrier::after\s*\{[^}]*linear-gradient\(/s,
-    );
-    expect(css).toMatch(
-      /\.template-shell\[data-fab-state="fail"\] \.fab-modal-backdrop\s*\{[^}]*align-items:\s*flex-end;[^}]*padding:\s*0;/s,
+      /\.template-shell\[data-fab-state="fail"\] \.fab-result-card\s*\{[^}]*padding:[^;]*max\(var\(--fab-space-lg\), env\(safe-area-inset-bottom\)\);/s,
     );
     expect(css).toContain('.template-shell[data-fab-state="fail"] .fab-modal-scrim');
   });
@@ -629,24 +695,79 @@ describe("template shell renderer and harness", () => {
     const pauseHome = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="pause-quit"]')!;
     expect([pauseResume.disabled, pauseSettings.disabled, pauseHome.disabled]).toEqual([false, false, false]);
 
-    for (const state of ["win", "fail"] as const) {
-      expect(await harness.driveTo!(state)).toBe(true);
-      shell.render();
-      const primary = shell.root.querySelector<HTMLButtonElement>(
-        state === "win" ? '[data-fab-action="result-next"]' : '[data-fab-action="result-retry"]',
-      )!;
-      const home = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="result-menu"]')!;
-      expect(primary.classList.contains("template-shell__overlay-action--primary")).toBe(true);
-      expect(home.classList.contains("template-shell__overlay-action--tertiary")).toBe(true);
-      expect([primary.disabled, home.disabled]).toEqual([false, false]);
-      expect(primary.style.getPropertyValue("--fab-btn-sprite-image")).toBe("");
-      expect(home.style.getPropertyValue("--fab-btn-sprite-image")).toBe("");
-    }
+    // Win: the initial primary is CLAIM (enabled); Next is NOT disclosed until a
+    // claim, so no disabled Next is shown on the pre-claim surface.
+    expect(await harness.driveTo!("win")).toBe(true);
+    shell.render();
+    const claim = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="claim"]')!;
+    const claimDouble = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="claim-double"]')!;
+    expect(claim.classList.contains("template-shell__overlay-action--primary")).toBe(true);
+    expect([claim.disabled, claimDouble.disabled]).toEqual([false, false]);
+    expect(shell.root.querySelector('[data-fab-action="result-next"]')).toBeNull();
+    expect(claim.style.getPropertyValue("--fab-btn-sprite-image")).toBe("");
+
+    // Fail: the initial primary is Continue (affordable → enabled); Retry is a
+    // free secondary. There is no Home.
+    expect(await harness.driveTo!("fail")).toBe(true);
+    shell.render();
+    const failContinue = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="continue-coins"]')!;
+    const failRetry = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="result-retry"]')!;
+    expect(failContinue.classList.contains("template-shell__overlay-action--primary")).toBe(true);
+    expect(failRetry.classList.contains("template-shell__overlay-action--secondary")).toBe(true);
+    expect([failContinue.disabled, failRetry.disabled]).toEqual([false, false]);
+    expect(shell.root.querySelector('[data-fab-action="result-menu"]')).toBeNull();
 
     const css = templateShellCss();
     expect(css).toContain(".template-shell__overlay-action--primary");
     expect(css).toContain(".template-shell__overlay-action--secondary");
     expect(css).toContain("template-shell__overlay-action--tertiary");
+  });
+
+  it("discloses only reward + Claim + Claim 2x before a claim, then swaps them for Next", async () => {
+    const controller = createController();
+    const root = document.getElementById("app")!;
+    const shell = mountTemplateShell({ mountInto: root, controller });
+    const harness = createTemplateHarness({
+      buildVersion: "test",
+      packageId: "com.fabrikav2.template",
+      controller,
+      render: shell.render,
+    });
+
+    expect(await harness.driveTo!("win")).toBe(true);
+    shell.render();
+    // Pre-claim surface: the reward readout plus the two claim actions ONLY. The
+    // Next navigation is never disclosed (not even disabled) until a claim.
+    expect(shell.root.querySelector('[data-fab-instance="win.reward"]')).not.toBeNull();
+    expect(shell.root.querySelector('[data-fab-action="claim"]')).not.toBeNull();
+    expect(shell.root.querySelector('[data-fab-action="claim-double"]')).not.toBeNull();
+    expect(shell.root.querySelector('[data-fab-action="result-next"]')).toBeNull();
+    expect(shell.root.querySelector('[data-fab-instance="win.next"]')).toBeNull();
+    // Home is a claimed-only tertiary too: it is never disclosed pre-claim.
+    expect(shell.root.querySelector('[data-fab-instance="win.home"]')).toBeNull();
+
+    controller.claim();
+    shell.render();
+    // Post-claim surface (task-pack D5): the claim actions are replaced by Next
+    // (primary, advances once) plus Home (tertiary, an always-reachable escape);
+    // the reward readout stays visible.
+    expect(shell.root.querySelector('[data-fab-action="claim"]')).toBeNull();
+    expect(shell.root.querySelector('[data-fab-action="claim-double"]')).toBeNull();
+    const next = shell.root.querySelector<HTMLButtonElement>('[data-fab-action="result-next"]');
+    expect(next).not.toBeNull();
+    expect(next!.disabled).toBe(false);
+    expect(next!.dataset.fabInstance).toBe("win.next");
+    const home = shell.root.querySelector<HTMLButtonElement>('[data-fab-instance="win.home"]');
+    expect(home).not.toBeNull();
+    expect(home!.disabled).toBe(false);
+    // Home reads as the quiet tertiary exit, distinct from the primary Next.
+    expect(home!.classList.contains("template-shell__overlay-action--tertiary")).toBe(true);
+    expect(next!.classList.contains("template-shell__overlay-action--primary")).toBe(true);
+    expect(shell.root.querySelector('[data-fab-instance="win.reward"]')).not.toBeNull();
+
+    // Home is a live escape: it returns to the menu without advancing the level.
+    home!.click();
+    expect(controller.snapshot().surface).toBe("menu");
   });
 
   it("uses the state owner for rendered semantic actions and keeps locked nodes inert", () => {
@@ -758,8 +879,8 @@ describe("template shell renderer and harness", () => {
       ["shop", ["back", "shop-restore"]],
       ["settings", ["settings-music", "settings-sfx", "settings-haptics", "back"]],
       ["pause", ["pause-resume", "pause-settings", "pause-quit"]],
-      ["win", ["result-next", "result-menu"]],
-      ["fail", ["result-retry", "result-menu"]],
+      ["win", ["claim", "claim-double"]],
+      ["fail", ["continue-coins", "result-retry", "bundle"]],
     ] as const) {
       expect(await harness.driveTo!(state)).toBe(true);
       expect(shell.root.dataset.fabState).toBe(state);
@@ -840,6 +961,8 @@ describe("template shell renderer and harness", () => {
     expectDiagnostics();
     click("test-win");
     expect(controller.snapshot()).toMatchObject({ surface: "win", currentLevel: 3, completedLevels: [1, 2] });
+    // Next is gated: claim first, then Next advances.
+    click("claim");
     click("result-next");
     expect(controller.snapshot()).toMatchObject({ surface: "level", currentLevel: 3, completedLevels: [1, 2] });
     click("pause");
@@ -854,7 +977,12 @@ describe("template shell renderer and harness", () => {
     expect(controller.snapshot()).toMatchObject({ surface: "level", currentLevel: 3 });
     expectDiagnostics();
     click("test-lose");
-    click("result-menu");
+    expect(controller.snapshot().surface).toBe("fail");
+    // The rescue resumes via coin-continue; there is no Home on the fail surface.
+    click("continue-coins");
+    expect(controller.snapshot()).toMatchObject({ surface: "level", currentLevel: 3 });
+    click("pause");
+    click("pause-quit");
     expect(controller.snapshot()).toMatchObject({ surface: "menu", currentLevel: 3, completedLevels: [1, 2] });
   });
 
@@ -872,7 +1000,100 @@ describe("template shell renderer and harness", () => {
     shell.render();
 
     expect(shell.root.querySelector(".fab-result-card.fab-modal-card--image")).toBeNull();
+    expect(shell.root.querySelector('[data-fab-action="continue-coins"]')).not.toBeNull();
     expect(shell.root.querySelector('[data-fab-action="result-retry"]')).not.toBeNull();
-    expect(shell.root.querySelector('[data-fab-action="result-menu"]')).not.toBeNull();
+    expect(shell.root.querySelector('[data-fab-action="bundle"]')).not.toBeNull();
+    expect(shell.root.querySelector('[data-fab-action="result-menu"]')).toBeNull();
+  });
+});
+
+describe("template shell reward and rescue machine", () => {
+  it("grants the ordinary claim exactly once and never double-grants", () => {
+    const controller = createController();
+    controller.startCurrent();
+    controller.win();
+    expect(controller.snapshot()).toMatchObject({ surface: "win", rewardAmount: 5, currency: 25, rewardClaimed: false });
+    expect(controller.claim()).toBe(true);
+    expect(controller.snapshot()).toMatchObject({ currency: 30, rewardClaimed: true, rewardClaimedDouble: false });
+    expect(controller.claim()).toBe(false);
+    expect(controller.snapshot().currency).toBe(30);
+    expect(controller.trace().filter((event) => event.name === "resource_change")).toHaveLength(1);
+  });
+
+  it("grants the 2x claim exactly once via the rewarded ad and locks out the ordinary claim", async () => {
+    const controller = createController();
+    controller.startCurrent();
+    controller.win();
+    expect(await controller.claimDouble()).toBe(true);
+    expect(controller.snapshot()).toMatchObject({ currency: 35, rewardClaimed: true, rewardClaimedDouble: true });
+    expect(await controller.claimDouble()).toBe(false);
+    expect(controller.claim()).toBe(false);
+    expect(controller.snapshot().currency).toBe(35);
+  });
+
+  it("treats an unavailable rewarded ad as try-later: no grant, ordinary claim still open", async () => {
+    const controller = createController();
+    controller.sdk.setRewardedAdAvailable(false);
+    controller.startCurrent();
+    controller.win();
+    expect(controller.snapshot().adAvailable).toBe(false);
+    expect(await controller.claimDouble()).toBe(false);
+    expect(controller.snapshot()).toMatchObject({ rewardClaimed: false, currency: 25 });
+    expect(controller.claim()).toBe(true);
+    expect(controller.snapshot().currency).toBe(30);
+  });
+
+  it("gates Next until a claim path succeeds", () => {
+    const controller = createController();
+    controller.startCurrent();
+    controller.win();
+    expect(controller.next()).toBe(false);
+    controller.claim();
+    expect(controller.next()).toBe(true);
+  });
+
+  it("spends coins to continue exactly once and only when affordable; retry stays free", () => {
+    const affordable = createController();
+    affordable.startCurrent();
+    affordable.lose();
+    expect(affordable.snapshot()).toMatchObject({ surface: "fail", currency: 25, continueCost: 10, continueAffordable: true });
+    expect(affordable.continueCoins()).toBe(true);
+    expect(affordable.snapshot()).toMatchObject({ surface: "level", currency: 15 });
+
+    const broke = createController();
+    broke.seedSave({ coins: 3, unlockedLevel: 2 });
+    broke.startCurrent();
+    broke.lose();
+    expect(broke.snapshot()).toMatchObject({ surface: "fail", currency: 3, continueAffordable: false });
+    expect(broke.continueCoins()).toBe(false);
+    expect(broke.snapshot()).toMatchObject({ surface: "fail", currency: 3 });
+    expect(broke.retry()).toBe(true);
+  });
+
+  it("purchases the rescue bundle over the IAP seam and resumes, granting no coins", async () => {
+    const controller = createController();
+    await controller.sdk.iap.init();
+    controller.startCurrent();
+    controller.lose();
+    expect(controller.snapshot()).toMatchObject({ surface: "fail", bundleAvailable: true, bundlePrice: "$4.99", currency: 25 });
+    expect(await controller.purchaseBundle()).toBe(true);
+    expect(controller.snapshot()).toMatchObject({ surface: "level", currency: 25 });
+  });
+
+  it("guards double-taps on the async claim and bundle seams against a second grant/purchase", async () => {
+    const winCtl = createController();
+    winCtl.startCurrent();
+    winCtl.win();
+    const claims = await Promise.all([winCtl.claimDouble(), winCtl.claimDouble()]);
+    expect(claims.filter(Boolean)).toHaveLength(1);
+    expect(winCtl.snapshot().currency).toBe(35);
+
+    const failCtl = createController();
+    await failCtl.sdk.iap.init();
+    failCtl.startCurrent();
+    failCtl.lose();
+    const buys = await Promise.all([failCtl.purchaseBundle(), failCtl.purchaseBundle()]);
+    expect(buys.filter(Boolean)).toHaveLength(1);
+    expect(failCtl.snapshot().surface).toBe("level");
   });
 });

@@ -350,7 +350,14 @@ export interface ShellAssetIdentityEntry {
 export interface ShellAssetIdentityProjection {
   contractId: string;
   contractVersion: string;
-  projectionId: string;
+  /**
+   * V1 asset-identity files embed the projection ID. V2 omits it: the enclosing
+   * projection revision owns the projectionId, and asset-identity.json is one of
+   * the artifacts whose byte hash FEEDS that projectionId, so embedding the ID
+   * inside the file has no realizable preimage (card qWCv9tUo item 8). Optional
+   * here so the shared model serves both the frozen V1 schema and the V2 schema.
+   */
+  projectionId?: string;
   sourcePublicationId: string;
   assets: ShellAssetIdentityEntry[];
 }
@@ -3356,19 +3363,26 @@ function parseAssetIdentityProjectionForContext(
   const issues: ShellValidationIssue[] = [];
   const root = asRecord(value, '$', issues);
   if (!root) throw new ShellContractValidationError('Shell asset identity projection', issues);
-  rejectUnsupportedFields(
-    root,
-    new Set(['contractId', 'contractVersion', 'projectionId', 'sourcePublicationId', 'assets']),
-    '$',
-    issues,
-  );
+  // V2 drops projectionId from the asset-identity file to break the cycle where
+  // projectionId is hashed FROM the artifacts (asset-identity.json included) yet
+  // the file's own schema demands the finished projectionId inside it — an
+  // impossible file-backed preimage (card qWCv9tUo item 8). V1 stays byte-frozen
+  // and keeps embedding projectionId, so this branch is version-scoped. Under V2
+  // an embedded projectionId is rejected as an unsupported field.
+  const embedsProjectionId = context.shape.version === 1;
+  const allowedFields = new Set(['contractId', 'contractVersion', 'sourcePublicationId', 'assets']);
+  if (embedsProjectionId) allowedFields.add('projectionId');
+  rejectUnsupportedFields(root, allowedFields, '$', issues);
   if (root.contractId !== context.contract.contractId) {
     addIssue(issues, '$.contractId', 'compatibility-mismatch', 'Asset identity contract ID is incompatible.');
   }
   if (root.contractVersion !== context.contract.contractVersion) {
     addIssue(issues, '$.contractVersion', 'compatibility-mismatch', 'Asset identity contract version is incompatible.');
   }
-  for (const field of ['projectionId', 'sourcePublicationId']) {
+  const requiredHashFields = embedsProjectionId
+    ? ['projectionId', 'sourcePublicationId']
+    : ['sourcePublicationId'];
+  for (const field of requiredHashFields) {
     const hash = stringField(root, field, '$', issues);
     if (!HASH_PATTERN.test(hash)) addIssue(issues, `$.${field}`, 'invalid-hash', `${field} must be SHA-256.`);
   }

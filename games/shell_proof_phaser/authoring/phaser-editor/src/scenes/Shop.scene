@@ -1,0 +1,822 @@
+{
+    "id": "shell-shop",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [
+            "assets/asset-pack.json"
+        ],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Shop",
+        "compilerOutputLanguage": "TYPE_SCRIPT",
+        "borderWidth": 390,
+        "borderHeight": 844
+    },
+    "displayList": [
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.backdrop",
+            "label": "shop.fab.backdrop",
+            "x": 195,
+            "y": 422,
+            "isFilled": true,
+            "fillColor": "#f7f6ef",
+            "width": 390,
+            "height": 844
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.header-band",
+            "label": "shop.fab.header-band",
+            "x": 195,
+            "y": 1,
+            "isFilled": true,
+            "fillColor": "#f7f6ef",
+            "fillAlpha": 0,
+            "width": 1,
+            "height": 1
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.counter-primary",
+            "label": "shop.fab.counter-primary",
+            "x": 16,
+            "y": 108,
+            "originX": 0,
+            "originY": 0,
+            "isFilled": true,
+            "fillColor": "#173042",
+            "strokeColor": "#365f70",
+            "strokeAlpha": 0.65,
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 172,
+            "height": 56,
+            "rounded": 28
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.counter-secondary",
+            "label": "shop.fab.counter-secondary",
+            "x": 202,
+            "y": 108,
+            "originX": 0,
+            "originY": 0,
+            "isFilled": true,
+            "fillColor": "#2f6f59",
+            "strokeColor": "#9bcfb1",
+            "strokeAlpha": 0.65,
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 172,
+            "height": 56,
+            "rounded": 28
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.grid-card",
+            "label": "shop.fab.grid-card",
+            "x": 195,
+            "y": 1,
+            "isFilled": true,
+            "fillColor": "#f7f6ef",
+            "fillAlpha": 0,
+            "width": 1,
+            "height": 1,
+            "rounded": 24
+        },
+        {
+            "type": "Text",
+            "id": "shop.fab.section-title",
+            "label": "shop.fab.section-title",
+            "x": 24,
+            "y": 202,
+            "originY": 0.5,
+            "text": "TRAIL SUPPLIES",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "20px",
+            "color": "#173042"
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.item-available-shadow",
+            "label": "shop.fab.item-available-shadow",
+            "x": 104,
+            "y": 330,
+            "isFilled": true,
+            "fillColor": "#173042",
+            "fillAlpha": 0.12,
+            "width": 160,
+            "height": 176,
+            "rounded": 20
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.item-owned-shadow",
+            "label": "shop.fab.item-owned-shadow",
+            "x": 286,
+            "y": 330,
+            "isFilled": true,
+            "fillColor": "#173042",
+            "fillAlpha": 0.12,
+            "width": 160,
+            "height": 176,
+            "rounded": 20
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.item-locked-shadow",
+            "label": "shop.fab.item-locked-shadow",
+            "x": 195,
+            "y": 530,
+            "isFilled": true,
+            "fillColor": "#173042",
+            "fillAlpha": 0.1,
+            "width": 160,
+            "height": 176,
+            "rounded": 20
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.item-available-card",
+            "label": "shop.fab.item-available-card",
+            "x": 104,
+            "y": 326,
+            "isFilled": true,
+            "fillColor": "#fff1c7",
+            "strokeColor": "#abc7cc",
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 160,
+            "height": 176,
+            "rounded": 20
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.item-owned-card",
+            "label": "shop.fab.item-owned-card",
+            "x": 286,
+            "y": 326,
+            "isFilled": true,
+            "fillColor": "#d8eee4",
+            "strokeColor": "#2f9f75",
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 160,
+            "height": 176,
+            "rounded": 20
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.item-locked-card",
+            "label": "shop.fab.item-locked-card",
+            "x": 195,
+            "y": 526,
+            "isFilled": true,
+            "fillColor": "#e7eef0",
+            "strokeColor": "#abc7cc",
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 160,
+            "height": 176,
+            "rounded": 20
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.item-fourth-card",
+            "label": "shop.fab.item-fourth-card",
+            "x": 1,
+            "y": 1,
+            "isFilled": true,
+            "fillColor": "#f7f6ef",
+            "fillAlpha": 0,
+            "width": 1,
+            "height": 1,
+            "rounded": 16
+        },
+        {
+            "type": "Text",
+            "id": "shop.fab.item-fourth-label",
+            "label": "shop.fab.item-fourth-label",
+            "x": 1,
+            "y": 1,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": " ",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "14px",
+            "color": "#f7f6ef"
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.back-control",
+            "label": "shop.fab.back-control",
+            "x": 44,
+            "y": 60,
+            "isFilled": true,
+            "fillColor": "#14724f",
+            "width": 56,
+            "height": 56,
+            "rounded": 18
+        },
+        {
+            "type": "Image",
+            "id": "shop.fab.back-surface",
+            "label": "shop.fab.back-surface",
+            "texture": {
+                "key": "icon_control_surface"
+            },
+            "x": 15.6,
+            "y": 52,
+            "scaleX": 0.01,
+            "scaleY": 0.01,
+            "originX": 0,
+            "originY": 0,
+            "visible": false
+        },
+        {
+            "type": "Image",
+            "id": "shop.fab.back-glyph",
+            "label": "shop.fab.back-glyph",
+            "texture": {
+                "key": "icon_control_return"
+            },
+            "x": 44,
+            "y": 60,
+            "scaleX": 0.38,
+            "scaleY": 0.38
+        },
+        {
+            "type": "Text",
+            "id": "shop.fab.primary-balance",
+            "label": "shop.fab.primary-balance",
+            "x": 127,
+            "y": 136,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "25 Coins",
+            "fontFamily": "kenney_future_narrow",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "shop.fab.secondary-gem",
+            "label": "shop.fab.secondary-gem",
+            "x": 224,
+            "y": 136,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "◆",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "23px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "shop.fab.secondary-balance",
+            "label": "shop.fab.secondary-balance",
+            "x": 316,
+            "y": 136,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "12 Gems",
+            "fontFamily": "kenney_future_narrow",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.item-available-coin-left",
+            "label": "shop.fab.item-available-coin-left",
+            "x": 88,
+            "y": 279,
+            "isFilled": true,
+            "fillColor": "#ffeda2",
+            "width": 30,
+            "height": 30,
+            "rounded": 15
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.item-available-coin-right",
+            "label": "shop.fab.item-available-coin-right",
+            "x": 120,
+            "y": 279,
+            "isFilled": true,
+            "fillColor": "#f1c75b",
+            "width": 30,
+            "height": 30,
+            "rounded": 15
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.item-available-icon-surface",
+            "label": "shop.fab.item-available-icon-surface",
+            "x": 104,
+            "y": 270,
+            "isFilled": true,
+            "fillColor": "#173042",
+            "width": 38,
+            "height": 38,
+            "rounded": 19
+        },
+        {
+            "type": "Image",
+            "id": "shop.fab.item-available-icon",
+            "label": "shop.fab.item-available-icon",
+            "texture": {
+                "key": "counter_frame_primary_currency"
+            },
+            "x": 104,
+            "y": 270,
+            "scaleX": 0.24,
+            "scaleY": 0.24
+        },
+        {
+            "type": "Text",
+            "id": "shop.fab.item-available-detail",
+            "label": "shop.fab.item-available-detail",
+            "x": 104,
+            "y": 351,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "500 Coins",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "15px",
+            "color": "#3d5968"
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.item-available-price-surface",
+            "label": "shop.fab.item-available-price-surface",
+            "x": 104,
+            "y": 386,
+            "isFilled": true,
+            "fillColor": "#14724f",
+            "width": 132,
+            "height": 48,
+            "rounded": 16
+        },
+        {
+            "type": "Text",
+            "id": "shop.fab.item-available-price",
+            "label": "shop.fab.item-available-price",
+            "x": 104,
+            "y": 386,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "PREVIEW",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "14px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.item-owned-ad-tile",
+            "label": "shop.fab.item-owned-ad-tile",
+            "x": 286,
+            "y": 280,
+            "isFilled": true,
+            "fillColor": "#ffffff",
+            "width": 58,
+            "height": 48,
+            "rounded": 12
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.item-owned-icon-surface",
+            "label": "shop.fab.item-owned-icon-surface",
+            "x": 1,
+            "y": 1,
+            "isFilled": true,
+            "fillColor": "#f7f6ef",
+            "fillAlpha": 0,
+            "width": 1,
+            "height": 1,
+            "rounded": 25
+        },
+        {
+            "type": "Text",
+            "id": "shop.fab.item-owned-ad-label",
+            "label": "shop.fab.item-owned-ad-label",
+            "x": 286,
+            "y": 280,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "AD",
+            "fontFamily": "kenney_future",
+            "fontSize": "15px",
+            "color": "#173042"
+        },
+        {
+            "type": "Image",
+            "id": "shop.fab.item-owned-icon",
+            "label": "shop.fab.item-owned-icon",
+            "texture": {
+                "key": "icon_control_confirm"
+            },
+            "x": 306,
+            "y": 262,
+            "scaleX": 0.22,
+            "scaleY": 0.22
+        },
+        {
+            "type": "Text",
+            "id": "shop.fab.item-owned-detail",
+            "label": "shop.fab.item-owned-detail",
+            "x": 1,
+            "y": 1,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": " ",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "15px",
+            "color": "#f7f6ef"
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.item-owned-status-surface",
+            "label": "shop.fab.item-owned-status-surface",
+            "x": 286,
+            "y": 386,
+            "isFilled": true,
+            "fillColor": "#bddbcb",
+            "strokeColor": "#2f9f75",
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 132,
+            "height": 48,
+            "rounded": 16
+        },
+        {
+            "type": "Text",
+            "id": "shop.fab.item-owned-status",
+            "label": "shop.fab.item-owned-status",
+            "x": 286,
+            "y": 386,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "OWNED",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "14px",
+            "color": "#1f765d"
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.item-locked-trophy",
+            "label": "shop.fab.item-locked-trophy",
+            "x": 195,
+            "y": 478,
+            "isFilled": true,
+            "fillColor": "#1f765d",
+            "width": 54,
+            "height": 48,
+            "rounded": 15
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.item-locked-icon-surface",
+            "label": "shop.fab.item-locked-icon-surface",
+            "x": 1,
+            "y": 1,
+            "isFilled": true,
+            "fillColor": "#f7f6ef",
+            "fillAlpha": 0,
+            "width": 1,
+            "height": 1,
+            "rounded": 25
+        },
+        {
+            "type": "Image",
+            "id": "shop.fab.item-locked-trophy-icon",
+            "label": "shop.fab.item-locked-trophy-icon",
+            "texture": {
+                "key": "icon_control_result_win"
+            },
+            "x": 195,
+            "y": 478,
+            "scaleX": 0.25,
+            "scaleY": 0.25
+        },
+        {
+            "type": "Image",
+            "id": "shop.fab.item-locked-icon",
+            "label": "shop.fab.item-locked-icon",
+            "texture": {
+                "key": "progression_node_locked"
+            },
+            "x": 217,
+            "y": 460,
+            "scaleX": 0.2,
+            "scaleY": 0.2
+        },
+        {
+            "type": "Text",
+            "id": "shop.fab.item-locked-detail",
+            "label": "shop.fab.item-locked-detail",
+            "x": 195,
+            "y": 551,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Coming later",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "15px",
+            "color": "#3d5968"
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.item-locked-status-surface",
+            "label": "shop.fab.item-locked-status-surface",
+            "x": 195,
+            "y": 586,
+            "isFilled": true,
+            "fillColor": "#d4dfe2",
+            "strokeColor": "#abc7cc",
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 132,
+            "height": 48,
+            "rounded": 16
+        },
+        {
+            "type": "Text",
+            "id": "shop.fab.item-locked-status",
+            "label": "shop.fab.item-locked-status",
+            "x": 195,
+            "y": 586,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "LOCKED",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "14px",
+            "color": "#3d5968"
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.restore-card",
+            "label": "shop.fab.restore-card",
+            "x": 195,
+            "y": 742,
+            "isFilled": true,
+            "fillColor": "#ffffff",
+            "strokeColor": "#abc7cc",
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 350,
+            "height": 148,
+            "rounded": 22
+        },
+        {
+            "type": "Text",
+            "id": "shop.fab.restore-title",
+            "label": "shop.fab.restore-title",
+            "x": 42,
+            "y": 688,
+            "originY": 0.5,
+            "text": "Purchases",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "17px",
+            "color": "#173042"
+        },
+        {
+            "type": "Text",
+            "id": "shop.fab.restore-copy",
+            "label": "shop.fab.restore-copy",
+            "x": 42,
+            "y": 714,
+            "originY": 0.5,
+            "text": "Restore previous purchases.",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "15px",
+            "color": "#3d5968"
+        },
+        {
+            "type": "Rectangle",
+            "id": "shop.fab.restore-control",
+            "label": "shop.fab.restore-control",
+            "x": 195,
+            "y": 775,
+            "isFilled": true,
+            "fillColor": "#14724f",
+            "width": 318,
+            "height": 54,
+            "rounded": 20
+        },
+        {
+            "type": "Image",
+            "id": "shop.fab.restore-surface",
+            "label": "shop.fab.restore-surface",
+            "texture": {
+                "key": "button_surface_secondary"
+            },
+            "x": 195,
+            "y": 790,
+            "scaleX": 0.01,
+            "scaleY": 0.01,
+            "originY": 1,
+            "visible": false
+        },
+        {
+            "type": "Container",
+            "id": "shop.page",
+            "label": "shop.page",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shop.page",
+            "Semantic.fabRole": "page-surface",
+            "Semantic.fabBinding": "presentation.static",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 422
+        },
+        {
+            "type": "Text",
+            "id": "shop.title",
+            "label": "shop.title",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shop.title",
+            "Semantic.fabRole": "screen-title",
+            "Semantic.fabBinding": "presentation.static",
+            "Semantic.fabSlot": "title-logo",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 40,
+            "originX": 0.5,
+            "text": "Shop",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#173042"
+        },
+        {
+            "type": "Image",
+            "id": "shop.back",
+            "label": "shop.back",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shop.back",
+            "Semantic.fabRole": "header-back-action",
+            "Semantic.fabBinding": "flow.shop-back",
+            "Semantic.fabSlot": "icon-control",
+            "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "icon_control_back"
+            },
+            "x": 20,
+            "y": 36,
+            "scaleX": 0.01,
+            "scaleY": 0.01,
+            "originX": 0,
+            "originY": 0
+        },
+        {
+            "type": "Image",
+            "id": "shop.currency",
+            "label": "shop.currency",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shop.currency",
+            "Semantic.fabRole": "currency-counter",
+            "Semantic.fabBinding": "state.primary-currency",
+            "Semantic.fabSlot": "counter-frame",
+            "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "counter_frame_primary_currency"
+            },
+            "x": 24,
+            "y": 118,
+            "scaleX": 0.32,
+            "scaleY": 0.32,
+            "originX": 0,
+            "originY": 0
+        },
+        {
+            "type": "Image",
+            "id": "shop.currency.secondary",
+            "label": "shop.currency.secondary",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shop.currency.secondary",
+            "Semantic.fabRole": "currency-counter",
+            "Semantic.fabBinding": "state.secondary-currency",
+            "Semantic.fabSlot": "counter-frame",
+            "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "counter_frame_primary_currency"
+            },
+            "x": 212,
+            "y": 118,
+            "scaleX": 0.01,
+            "scaleY": 0.01,
+            "originX": 0,
+            "originY": 0
+        },
+        {
+            "type": "Container",
+            "id": "shop.grid",
+            "label": "shop.grid",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shop.grid",
+            "Semantic.fabRole": "item-grid",
+            "Semantic.fabBinding": "state.shop-items",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 447.32
+        },
+        {
+            "type": "Text",
+            "id": "shop.item.available",
+            "label": "shop.item.available",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shop.item.available",
+            "Semantic.fabRole": "item-card",
+            "Semantic.fabBinding": "state.shop-items",
+            "Semantic.fabVariant": "default",
+            "x": 104,
+            "y": 321,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Coin Pack",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "18px",
+            "color": "#173042"
+        },
+        {
+            "type": "Text",
+            "id": "shop.item.owned",
+            "label": "shop.item.owned",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shop.item.owned",
+            "Semantic.fabRole": "item-card",
+            "Semantic.fabBinding": "state.shop-items",
+            "Semantic.fabVariant": "default",
+            "x": 286,
+            "y": 321,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "No Ads",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "18px",
+            "color": "#173042"
+        },
+        {
+            "type": "Text",
+            "id": "shop.item.locked",
+            "label": "shop.item.locked",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shop.item.locked",
+            "Semantic.fabRole": "item-card",
+            "Semantic.fabBinding": "state.shop-items",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 521,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "VIP Bundle",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "18px",
+            "color": "#173042"
+        },
+        {
+            "type": "Text",
+            "id": "shop.restore",
+            "label": "shop.restore",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "shop.restore",
+            "Semantic.fabRole": "bottom-secondary-action",
+            "Semantic.fabBinding": "commerce.restore",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 786,
+            "originX": 0.5,
+            "originY": 1,
+            "text": "Restore purchases",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "17px",
+            "color": "#ffffff"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

@@ -1,0 +1,328 @@
+{
+    "id": "shell-settings",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [
+            "assets/asset-pack.json"
+        ],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Settings",
+        "compilerOutputLanguage": "TYPE_SCRIPT",
+        "borderWidth": 390,
+        "borderHeight": 844
+    },
+    "displayList": [
+        {
+            "type": "Rectangle",
+            "id": "settings.fab.backdrop",
+            "label": "settings.fab.backdrop",
+            "x": 195,
+            "y": 422,
+            "isFilled": true,
+            "fillColor": "#f7f6ef",
+            "width": 390,
+            "height": 844
+        },
+        {
+            "type": "Rectangle",
+            "id": "settings.fab.header-band",
+            "label": "settings.fab.header-band",
+            "x": 195,
+            "y": 1,
+            "isFilled": true,
+            "fillColor": "#f7f6ef",
+            "fillAlpha": 0,
+            "width": 1,
+            "height": 1
+        },
+        {
+            "type": "Rectangle",
+            "id": "settings.fab.panel",
+            "label": "settings.fab.panel",
+            "x": 195,
+            "y": 366,
+            "isFilled": true,
+            "fillColor": "#ffffff",
+            "strokeColor": "#abc7cc",
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 350,
+            "height": 360,
+            "rounded": 26
+        },
+        {
+            "type": "Rectangle",
+            "id": "settings.fab.back-control",
+            "label": "settings.fab.back-control",
+            "x": 44,
+            "y": 60,
+            "isFilled": true,
+            "fillColor": "#14724f",
+            "width": 56,
+            "height": 56,
+            "rounded": 18
+        },
+        {
+            "type": "Image",
+            "id": "settings.fab.back-surface",
+            "label": "settings.fab.back-surface",
+            "texture": {
+                "key": "icon_control_surface"
+            },
+            "x": 15.6,
+            "y": 52,
+            "scaleX": 0.01,
+            "scaleY": 0.01,
+            "originX": 0,
+            "originY": 0,
+            "visible": false
+        },
+        {
+            "type": "Image",
+            "id": "settings.fab.back-glyph",
+            "label": "settings.fab.back-glyph",
+            "texture": {
+                "key": "icon_control_return"
+            },
+            "x": 44,
+            "y": 60,
+            "scaleX": 0.38,
+            "scaleY": 0.38
+        },
+        {
+            "type": "Text",
+            "id": "settings.fab.section-copy",
+            "label": "settings.fab.section-copy",
+            "x": 195,
+            "y": 158,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Sound and feel",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "15px",
+            "color": "#3d5968"
+        },
+        {
+            "type": "Rectangle",
+            "id": "settings.fab.divider-music",
+            "label": "settings.fab.divider-music",
+            "x": 195,
+            "y": 329,
+            "isFilled": true,
+            "fillColor": "#e7eef0",
+            "width": 300,
+            "height": 2
+        },
+        {
+            "type": "Rectangle",
+            "id": "settings.fab.divider-sfx",
+            "label": "settings.fab.divider-sfx",
+            "x": 195,
+            "y": 414,
+            "isFilled": true,
+            "fillColor": "#e7eef0",
+            "width": 300,
+            "height": 2
+        },
+        {
+            "type": "Rectangle",
+            "id": "settings.fab.toggle-music-track",
+            "label": "settings.fab.toggle-music-track",
+            "x": 322,
+            "y": 286.96,
+            "isFilled": true,
+            "fillColor": "#14724f",
+            "width": 58,
+            "height": 30,
+            "rounded": 15
+        },
+        {
+            "type": "Rectangle",
+            "id": "settings.fab.toggle-music-thumb",
+            "label": "settings.fab.toggle-music-thumb",
+            "x": 338,
+            "y": 286.96,
+            "isFilled": true,
+            "fillColor": "#ffffff",
+            "width": 22,
+            "height": 22,
+            "rounded": 11
+        },
+        {
+            "type": "Rectangle",
+            "id": "settings.fab.toggle-sfx-track",
+            "label": "settings.fab.toggle-sfx-track",
+            "x": 322,
+            "y": 371.36,
+            "isFilled": true,
+            "fillColor": "#14724f",
+            "width": 58,
+            "height": 30,
+            "rounded": 15
+        },
+        {
+            "type": "Rectangle",
+            "id": "settings.fab.toggle-sfx-thumb",
+            "label": "settings.fab.toggle-sfx-thumb",
+            "x": 338,
+            "y": 371.36,
+            "isFilled": true,
+            "fillColor": "#ffffff",
+            "width": 22,
+            "height": 22,
+            "rounded": 11
+        },
+        {
+            "type": "Rectangle",
+            "id": "settings.fab.toggle-haptics-track",
+            "label": "settings.fab.toggle-haptics-track",
+            "x": 322,
+            "y": 455.76,
+            "isFilled": true,
+            "fillColor": "#14724f",
+            "width": 58,
+            "height": 30,
+            "rounded": 15
+        },
+        {
+            "type": "Rectangle",
+            "id": "settings.fab.toggle-haptics-thumb",
+            "label": "settings.fab.toggle-haptics-thumb",
+            "x": 338,
+            "y": 455.76,
+            "isFilled": true,
+            "fillColor": "#ffffff",
+            "width": 22,
+            "height": 22,
+            "rounded": 11
+        },
+        {
+            "type": "Container",
+            "id": "settings.page",
+            "label": "settings.page",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "settings.page",
+            "Semantic.fabRole": "page-surface",
+            "Semantic.fabBinding": "presentation.static",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 422
+        },
+        {
+            "type": "Text",
+            "id": "settings.title",
+            "label": "settings.title",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "settings.title",
+            "Semantic.fabRole": "screen-title",
+            "Semantic.fabBinding": "presentation.static",
+            "Semantic.fabSlot": "title-logo",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 40,
+            "originX": 0.5,
+            "text": "Settings",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#173042"
+        },
+        {
+            "type": "Image",
+            "id": "settings.back",
+            "label": "settings.back",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "settings.back",
+            "Semantic.fabRole": "header-back-action",
+            "Semantic.fabBinding": "flow.settings-back",
+            "Semantic.fabSlot": "icon-control",
+            "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "icon_control_back"
+            },
+            "x": 20,
+            "y": 36,
+            "scaleX": 0.01,
+            "scaleY": 0.01,
+            "originX": 0,
+            "originY": 0
+        },
+        {
+            "type": "Text",
+            "id": "settings.music",
+            "label": "settings.music",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "settings.music",
+            "Semantic.fabRole": "center-toggle-action",
+            "Semantic.fabBinding": "settings.music",
+            "Semantic.fabSlot": "toggle-control",
+            "Semantic.fabVariant": "default",
+            "x": 160,
+            "y": 286.96,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Music",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "20px",
+            "color": "#173042"
+        },
+        {
+            "type": "Text",
+            "id": "settings.sfx",
+            "label": "settings.sfx",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "settings.sfx",
+            "Semantic.fabRole": "center-toggle-action",
+            "Semantic.fabBinding": "settings.sfx",
+            "Semantic.fabSlot": "toggle-control",
+            "Semantic.fabVariant": "default",
+            "x": 160,
+            "y": 371.36,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "SFX",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "20px",
+            "color": "#173042"
+        },
+        {
+            "type": "Text",
+            "id": "settings.haptics",
+            "label": "settings.haptics",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "settings.haptics",
+            "Semantic.fabRole": "center-toggle-action",
+            "Semantic.fabBinding": "settings.haptics",
+            "Semantic.fabSlot": "toggle-control",
+            "Semantic.fabVariant": "default",
+            "x": 160,
+            "y": 455.76,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Haptics",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "20px",
+            "color": "#173042"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

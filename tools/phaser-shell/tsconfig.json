@@ -1,0 +1,9 @@
+// Phaser lane authoring/publisher workspace tsconfig (extends the repo base).
+{
+  "extends": "../../configs/tsconfig.base.json",
+  "include": [
+    "src",
+    "test",
+    "playwright.config.ts"
+  ]
+}

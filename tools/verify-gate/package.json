@@ -10,6 +10,8 @@
     "land-gate": "land-gate.mjs",
     "check-claude-mirror": "check-claude-mirror.mjs",
     "project-gate": "project-gate.mjs",
+    "freeze-gate": "freeze-gate.mjs",
+    "fence-gate": "fence-gate.mjs",
     "verify-landed-gate": "landed-gate.mjs"
   },
   "scripts": {
@@ -17,6 +19,8 @@
     "land-gate": "node land-gate.mjs",
     "check-claude-mirror": "node check-claude-mirror.mjs",
     "project-gate": "node project-gate.mjs",
+    "freeze-gate": "node freeze-gate.mjs",
+    "fence-gate": "node fence-gate.mjs",
     "verify-landed-gate": "node landed-gate.mjs",
     "test:unit": "vitest run",
     "lint": "eslint ."
