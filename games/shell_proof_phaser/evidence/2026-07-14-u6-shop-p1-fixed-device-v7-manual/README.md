@@ -20,8 +20,9 @@ All seven state snapshots report `reached: true`, `ready: true`, and revision
 Bundle, locked third card, and trophy are absent. The other six screens remain
 distinct and reachable. `raw-captures/` preserves full 1080×2400 device frames;
 `judged-captures/` removes a 96 px status/debug-overlay inset and 96 px navigation
-inset; both are outside the 390×844 game canvas. `snapshots/` binds each image to
-its live controller and probe state.
+inset; both are outside the 390×844 game canvas. `captures.sha256` records every
+raw capture, judged capture, and matching live controller/probe snapshot so the
+three artifacts for each state can be checked together.
 
 This is physical-device reachability, identity, and state-integrity evidence.
 There are still no trusted reference images, so it is not a visual-fidelity PASS.

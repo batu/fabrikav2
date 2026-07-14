@@ -85,6 +85,9 @@ test("drives four distinct Phaser beats through live action rectangles", async (
   const winPreclaim = await waitForState(page, "win");
   const claim = liveAction(winPreclaim, "claim");
   const claimDouble = liveAction(winPreclaim, "claim-double");
+  expect(winPreclaim.actions.filter((action) =>
+    ["next", "result-home"].includes(action.actionId) && action.visible,
+  )).toHaveLength(0);
   const winPreclaimFrame = await page.screenshot();
   await tapAction(page, winPreclaim, "claim");
 
