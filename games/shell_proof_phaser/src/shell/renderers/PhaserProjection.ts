@@ -174,13 +174,39 @@ const SCENE_KEY: Readonly<Record<Surface, string>> = {
 const REQUIRED_PROJECTION_FONTS = [
   {
     family: "kenney_future",
-    url: new URL("../../../design/fonts/kenney-future.ttf", import.meta.url).href,
+    authoredFamily: "Kenney Future",
   },
   {
     family: "kenney_future_narrow",
-    url: new URL("../../../design/fonts/kenney-future-narrow.ttf", import.meta.url).href,
+    authoredFamily: "Kenney Future Narrow",
   },
 ] as const;
+
+function normalizedFontFamily(value: string): string {
+  return value.trim().replace(/^['"]|['"]$/g, "");
+}
+
+function authoredFontSource(family: string): string | undefined {
+  for (const sheet of document.styleSheets) {
+    let rules: CSSRuleList;
+    try {
+      rules = sheet.cssRules;
+    } catch {
+      continue;
+    }
+    for (const rule of rules) {
+      if (rule.type !== CSSRule.FONT_FACE_RULE) continue;
+      const fontRule = rule as CSSFontFaceRule;
+      if (normalizedFontFamily(fontRule.style.getPropertyValue("font-family")) !== family) continue;
+      const baseUrl = sheet.href ?? document.baseURI;
+      return fontRule.style.getPropertyValue("src").replace(
+        /url\((['"]?)(.*?)\1\)/g,
+        (_match, _quote: string, url: string) => `url(${JSON.stringify(new URL(url, baseUrl).href)})`,
+      );
+    }
+  }
+  return undefined;
+}
 
 function loadedProjectionFonts(): ReadonlySet<string> {
   const loaded = new Set<string>();
@@ -192,8 +218,10 @@ function loadedProjectionFonts(): ReadonlySet<string> {
 }
 
 async function waitForProjectionFonts(): Promise<void> {
-  const faces = await Promise.all(REQUIRED_PROJECTION_FONTS.map(async ({ family, url }) => {
-    const face = new FontFace(family, `url(${JSON.stringify(url)})`);
+  const faces = await Promise.all(REQUIRED_PROJECTION_FONTS.map(async ({ family, authoredFamily }) => {
+    const source = authoredFontSource(authoredFamily);
+    if (!source) throw new Error(`Selected Phaser projection is missing its ${authoredFamily} font source.`);
+    const face = new FontFace(family, source);
     document.fonts.add(face);
     return face.load();
   }));
