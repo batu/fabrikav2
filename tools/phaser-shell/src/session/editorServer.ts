@@ -6,6 +6,7 @@
 // terminates and PROVES the loopback endpoint is down before any restart.
 import { spawn, type ChildProcess } from 'node:child_process';
 import { existsSync } from 'node:fs';
+import { request as httpRequest } from 'node:http';
 import process from 'node:process';
 import type { ServerMode } from './evidence.ts';
 
@@ -30,9 +31,58 @@ export class ServerBlocked extends Error {
 
 const delay = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
 
-/** The loopback editor readiness URL for a port. */
-function editorUrl(port: number): string {
-  return `http://127.0.0.1:${port}/editor/`;
+interface LoopbackResponse {
+  statusCode: number;
+  body: Buffer;
+}
+
+/**
+ * Request the fixed loopback Editor endpoint without Node's bundled fetch.
+ * Node 26's Undici transport can throw an uncaught `setTypeOfService EINVAL`
+ * while opening a macOS loopback socket, outside the awaiting caller's catch.
+ * The basic HTTP client reports readiness failures through this promise instead.
+ */
+function requestEditor(
+  port: number,
+  pathname: string,
+  method: 'GET' | 'POST' = 'GET',
+  body?: string,
+): Promise<LoopbackResponse> {
+  return new Promise((resolve, reject) => {
+    const request = httpRequest(
+      {
+        host: '127.0.0.1',
+        port,
+        path: pathname,
+        method,
+        headers: body === undefined
+          ? undefined
+          : { 'content-type': 'application/json', 'content-length': Buffer.byteLength(body) },
+        timeout: 1_000,
+      },
+      (response) => {
+        const chunks: Buffer[] = [];
+        let byteLength = 0;
+        response.on('data', (chunk: Buffer | string) => {
+          const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+          byteLength += bytes.length;
+          if (byteLength > 1_048_576) {
+            response.destroy(new Error('Editor loopback response exceeded 1 MiB'));
+            return;
+          }
+          chunks.push(bytes);
+        });
+        response.once('error', reject);
+        response.once('end', () => resolve({
+          statusCode: response.statusCode ?? 0,
+          body: Buffer.concat(chunks),
+        }));
+      },
+    );
+    request.once('error', reject);
+    request.once('timeout', () => request.destroy(new Error('Editor loopback request timed out')));
+    request.end(body);
+  });
 }
 
 export interface StartOptions {
@@ -67,8 +117,8 @@ export async function startEditorServer(opts: StartOptions): Promise<ChildProces
       throw new ServerBlocked('server-exited', 'the editor server exited before becoming ready');
     }
     try {
-      const res = await fetch(editorUrl(opts.port));
-      if (res.ok) return proc;
+      const response = await requestEditor(opts.port, '/editor/');
+      if (response.statusCode >= 200 && response.statusCode < 300) return proc;
     } catch {
       /* not up yet */
     }
@@ -89,13 +139,14 @@ export async function getServerMode(port: number): Promise<ServerMode> {
   try {
     // Phaser Editor 5 mounts its JSON API under the editor base path. `/api`
     // redirects to `/editor` and would silently downgrade this gate to false.
-    const res = await fetch(`http://127.0.0.1:${port}/editor/api`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ method: 'GetServerMode' }),
-    });
-    if (!res.ok) return { desktop: false, unlocked: false };
-    const data = (await res.json()) as Record<string, unknown>;
+    const response = await requestEditor(
+      port,
+      '/editor/api',
+      'POST',
+      JSON.stringify({ method: 'GetServerMode' }),
+    );
+    if (response.statusCode < 200 || response.statusCode >= 300) return { desktop: false, unlocked: false };
+    const data = JSON.parse(response.body.toString('utf8')) as Record<string, unknown>;
     const desktop = data.desktop === true || data.desktopMode === true || data.isDesktop === true;
     const unlocked = data.unlocked === true || data.licensed === true || data.activated === true;
     return { desktop, unlocked };
@@ -120,7 +171,7 @@ export async function stopEditorServer(proc: ChildProcess, port: number): Promis
 async function proveEndpointDown(port: number, attempts = 20): Promise<boolean> {
   for (let i = 0; i < attempts; i++) {
     try {
-      await fetch(editorUrl(port));
+      await requestEditor(port, '/editor/');
     } catch {
       return true; // connection refused → endpoint down
     }

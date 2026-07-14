@@ -57,7 +57,10 @@ describe('P5 rehearsal reset (clean P0 scratch, never the landing worktree)', ()
     const scratch = tmp();
     const a = await resetToScratch(scratch);
     expect(a.scratch).toBe(scratch);
-    expect(existsSync(path.join(a.project, 'src', 'scenes', 'Menu.scene'))).toBe(true);
+    const scratchMenu = path.join(a.project, 'src', 'scenes', 'Menu.scene');
+    expect(existsSync(scratchMenu)).toBe(true);
+    // The scratch starts in the licensed Editor's own no-trailing-newline save form.
+    expect(readFileSync(scratchMenu, 'utf8').endsWith('\n')).toBe(false);
     // The scratch is NOT inside the landing worktree.
     expect(path.resolve(a.scratch).startsWith(path.resolve(REPO_ROOT))).toBe(false);
     // The recorded P0 hash is deterministic.

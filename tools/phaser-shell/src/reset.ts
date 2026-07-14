@@ -3,7 +3,7 @@
 // worktree and records the starting Phaser-specific P0 project hash. The human
 // editor session (P6) opens the scratch copy — the mutable landing worktree is
 // NEVER edited (card comments 2, 4). Unscored rehearsal only.
-import { cp, mkdtemp, readdir, readFile } from 'node:fs/promises';
+import { cp, mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import os from 'node:os';
@@ -35,6 +35,18 @@ async function projectHash(dir: string, rel = ''): Promise<Buffer> {
   return hash.digest();
 }
 
+/** Match the licensed Editor's deterministic JSON save form in the scratch. */
+async function normalizeSceneBytes(projectDir: string): Promise<void> {
+  const scenesDir = path.join(projectDir, 'src', 'scenes');
+  for (const entry of await readdir(scenesDir, { withFileTypes: true })) {
+    if (!entry.isFile() || !entry.name.endsWith('.scene')) continue;
+    const file = path.join(scenesDir, entry.name);
+    const bytes = await readFile(file, 'utf8');
+    const normalized = bytes.replace(/[\r\n]+$/, '');
+    if (normalized !== bytes) await writeFile(file, normalized, 'utf8');
+  }
+}
+
 /**
  * Copy the clean P0 to a unique scratch dir outside the worktree and return the
  * scratch path + the recorded Phaser-specific P0 hash. `dest` overrides the
@@ -45,11 +57,12 @@ export async function resetToScratch(dest?: string): Promise<ScratchResult> {
   const projectDir = path.join(scratchRoot, 'phaser-editor');
   const pluginsDir = path.join(scratchRoot, 'editor-plugins');
   await cp(path.join(AUTHORING, 'phaser-editor'), projectDir, { recursive: true });
+  await normalizeSceneBytes(projectDir);
   await cp(path.join(AUTHORING, 'catalog'), path.join(scratchRoot, 'catalog'), { recursive: true });
   // The allowlisted editor plugins ride with the scratch so the provenance leg
   // can start the server with a scratch-local `-plugins` path (§10), never one
   // inside the landing worktree.
   await cp(path.join(AUTHORING, 'editor-plugins'), pluginsDir, { recursive: true });
-  const p0Hash = `sha256-${(await projectHash(path.join(AUTHORING, 'phaser-editor'))).toString('hex')}`;
+  const p0Hash = `sha256-${(await projectHash(projectDir)).toString('hex')}`;
   return { scratch: scratchRoot, project: projectDir, plugins: pluginsDir, p0Hash };
 }

@@ -64,7 +64,7 @@ export interface EditorSources {
   editorConfig: Buffer;
   /** Concatenated canonical bytes of the seven `.scene` files (state-ordered). */
   scene: Buffer;
-  /** Concatenated bytes of the `Semantic` user-component sources. */
+  /** Bytes of the `Semantic.components` user-component DEFINITION authority. */
   userComponents: Buffer;
 }
 

@@ -7,7 +7,7 @@
 // sibling order. Any mismatch is blocked as drift; unsafe imports and user-code
 // calls are blocked separately.
 import ts from 'typescript';
-import type { SceneDoc, SemanticObject } from './sceneModel.ts';
+import { sceneCreationFacts, type SceneDoc, type SemanticObject } from './sceneModel.ts';
 import type { Block } from '../publish/safety.ts';
 
 const CARRIER_PROPS = new Set(['fabSemanticId', 'fabRole', 'fabBinding', 'fabSlot', 'fabVariant']);
@@ -44,8 +44,17 @@ export interface GeneratedFact extends VisualFact {
 
 interface ObjectRecord extends Omit<VisualFact, 'order' | 'parent'> {
   created: number;
+  attached: number | null;
   parentVar: string | null;
   order: number;
+}
+
+export interface GeneratedCreationFact {
+  path: string;
+  type: string;
+  x: number;
+  y: number;
+  textureKey: string | null;
 }
 
 /** Facts the scene authority declares, keyed by semantic id + variant. */
@@ -162,6 +171,7 @@ function recordForFactory(kind: string, args: ts.NodeArray<ts.Expression>, creat
     color: null,
     visible: true,
     created,
+    attached: null,
     parentVar: null,
     order: -1,
   };
@@ -221,6 +231,7 @@ function applyAssignment(record: ObjectRecord, prop: string, right: ts.Expressio
 /** Extract generated facts, import specifiers, and typed safety issues. */
 export function extractGeneratedFacts(source: string): {
   facts: Map<string, GeneratedFact>;
+  creationFacts: Map<string, GeneratedCreationFact>;
   imports: string[];
   issues: Block[];
 } {
@@ -231,6 +242,7 @@ export function extractGeneratedFacts(source: string): {
   const imports: string[] = [];
   const issues: Block[] = [];
   let created = 0;
+  let attached = 0;
 
   const visit = (node: ts.Node): void => {
     if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
@@ -241,7 +253,13 @@ export function extractGeneratedFacts(source: string): {
       const init = node.initializer;
       if (ts.isCallExpression(init)) {
         const factory = addFactoryKind(init);
-        if (factory) objects.set(varName, recordForFactory(factory.kind, factory.args, created++));
+        if (factory) {
+          if (objects.has(varName)) {
+            issues.push({ code: 'blocked-drift', where: `generated:${varName}`, detail: 'duplicate generated display variable' });
+          } else {
+            objects.set(varName, recordForFactory(factory.kind, factory.args, created++));
+          }
+        }
       }
       if (ts.isNewExpression(init) && ts.isIdentifier(init.expression) && init.expression.text === 'Semantic') {
         const arg = init.arguments?.[0];
@@ -278,7 +296,14 @@ export function extractGeneratedFacts(source: string): {
         if (record) applyMethodCall(record, method, node.arguments);
         if (method === 'add' && node.arguments[0] && ts.isIdentifier(node.arguments[0])) {
           const child = objects.get(node.arguments[0].text);
-          if (child && objects.has(target.text)) child.parentVar = target.text;
+          if (child && objects.has(target.text)) {
+            if (child.attached !== null || child.parentVar !== null) {
+              issues.push({ code: 'blocked-drift', where: `generated:${node.arguments[0].text}`, detail: 'display object attached more than once' });
+            } else {
+              child.parentVar = target.text;
+              child.attached = attached++;
+            }
+          }
         }
       }
     }
@@ -303,8 +328,40 @@ export function extractGeneratedFacts(source: string): {
     group.push(record);
     siblings.set(record.parentVar, group);
   }
-  for (const group of siblings.values()) {
-    group.sort((a, b) => a.created - b.created).forEach((record, order) => { record.order = order; });
+  for (const [parent, group] of siblings) {
+    group.sort((a, b) => parent === null
+      ? a.created - b.created
+      : (a.attached ?? Number.MAX_SAFE_INTEGER) - (b.attached ?? Number.MAX_SAFE_INTEGER))
+      .forEach((record, order) => { record.order = order; });
+  }
+
+  const pathFor = (variable: string, visiting = new Set<string>()): string | null => {
+    const record = objects.get(variable);
+    if (!record || visiting.has(variable) || record.order < 0) return null;
+    if (record.parentVar === null) return `${record.order}`;
+    visiting.add(variable);
+    const parentPath = pathFor(record.parentVar, visiting);
+    visiting.delete(variable);
+    return parentPath === null ? null : `${parentPath}/${record.order}`;
+  };
+  const creationFacts = new Map<string, GeneratedCreationFact>();
+  for (const [variable, record] of objects) {
+    const treePath = pathFor(variable);
+    if (treePath === null) {
+      issues.push({ code: 'blocked-drift', where: `generated:${variable}`, detail: 'display parent graph is cyclic or unresolved' });
+      continue;
+    }
+    if (creationFacts.has(treePath)) {
+      issues.push({ code: 'blocked-drift', where: `generated:${treePath}`, detail: 'duplicate generated display path' });
+      continue;
+    }
+    creationFacts.set(treePath, {
+      path: treePath,
+      type: record.type,
+      x: record.x,
+      y: record.y,
+      textureKey: record.textureKey,
+    });
   }
 
   const carrierKeyByObject = new Map<string, string>();
@@ -359,7 +416,7 @@ export function extractGeneratedFacts(source: string): {
     }
     facts.set(key, fact);
   }
-  return { facts, imports, issues };
+  return { facts, creationFacts, imports, issues };
 }
 
 /** True when an import specifier stays inside the closed local generated graph. */
@@ -379,6 +436,209 @@ export function isAllowedImport(specifier: string, moduleRelDir = 'scenes'): boo
   return true;
 }
 
+function methodName(member: ts.ClassElement): string | null {
+  const name = member.name;
+  return name && (ts.isIdentifier(name) || ts.isStringLiteralLike(name)) ? name.text : null;
+}
+
+function callPath(call: ts.CallExpression): string {
+  const parts: string[] = [];
+  let node: ts.Expression = call.expression;
+  while (ts.isPropertyAccessExpression(node)) {
+    parts.unshift(node.name.text);
+    node = node.expression;
+  }
+  if (node.kind === ts.SyntaxKind.ThisKeyword) parts.unshift('this');
+  else if (ts.isIdentifier(node)) parts.unshift(node.text);
+  return parts.join('.');
+}
+
+const GENERATED_FACTORIES = new Set(['container', 'image', 'rectangle', 'text']);
+const GENERATED_METHODS = new Set(['add', 'setOrigin', 'setRounded', 'setStyle']);
+const GENERATED_PROPERTIES = new Set([
+  'color', 'fabBinding', 'fabRole', 'fabSemanticId', 'fabSlot', 'fabVariant',
+  'fillAlpha', 'fillColor', 'isFilled', 'isStroked', 'lineWidth', 'scaleX',
+  'scaleY', 'strokeAlpha', 'strokeColor', 'text', 'tint', 'visible',
+]);
+
+/** Values the Editor emits as inert constructor/property data (never executable expressions). */
+function isGeneratedData(node: ts.Expression): boolean {
+  if (ts.isStringLiteralLike(node) || ts.isNumericLiteral(node)
+    || node.kind === ts.SyntaxKind.TrueKeyword || node.kind === ts.SyntaxKind.FalseKeyword
+    || node.kind === ts.SyntaxKind.NullKeyword) return true;
+  if (ts.isPrefixUnaryExpression(node)
+    && (node.operator === ts.SyntaxKind.MinusToken || node.operator === ts.SyntaxKind.PlusToken)
+    && ts.isNumericLiteral(node.operand)) return true;
+  if (ts.isArrayLiteralExpression(node)) return node.elements.every((item) => ts.isExpression(item) && isGeneratedData(item));
+  if (ts.isObjectLiteralExpression(node)) {
+    return node.properties.every((property) => ts.isPropertyAssignment(property)
+      && propertyName(property.name) !== null
+      && isGeneratedData(property.initializer));
+  }
+  return false;
+}
+
+function validFactory(factory: { kind: string; args: ts.NodeArray<ts.Expression> } | null): boolean {
+  if (!factory || !GENERATED_FACTORIES.has(factory.kind) || !factory.args.every(isGeneratedData)) return false;
+  const args = [...factory.args];
+  if (factory.kind === 'container') return args.length === 2 && args.every((arg) => numberLiteral(arg) !== null);
+  if (factory.kind === 'image') return args.length === 3
+    && numberLiteral(args[0]) !== null && numberLiteral(args[1]) !== null && stringLiteral(args[2]) !== null;
+  if (factory.kind === 'rectangle') return args.length === 4 && args.every((arg) => numberLiteral(arg) !== null);
+  return factory.kind === 'text' && args.length === 4
+    && numberLiteral(args[0]) !== null && numberLiteral(args[1]) !== null
+    && stringLiteral(args[2]) !== null && ts.isObjectLiteralExpression(args[3]);
+}
+
+function validGeneratedMethod(call: ts.CallExpression, declared: ReadonlySet<string>): boolean {
+  if (!ts.isPropertyAccessExpression(call.expression)
+    || !ts.isIdentifier(call.expression.expression)
+    || !declared.has(call.expression.expression.text)
+    || !GENERATED_METHODS.has(call.expression.name.text)
+    ) return false;
+  if (call.expression.name.text === 'add') {
+    return call.arguments.length === 1
+      && ts.isIdentifier(call.arguments[0])
+      && declared.has(call.arguments[0].text);
+  }
+  if (!call.arguments.every(isGeneratedData)) return false;
+  if (call.expression.name.text === 'setOrigin') {
+    return call.arguments.length === 2 && call.arguments.every((arg) => numberLiteral(arg) !== null);
+  }
+  if (call.expression.name.text === 'setRounded') {
+    return call.arguments.length === 1 && numberLiteral(call.arguments[0]) !== null;
+  }
+  return call.arguments.length === 1 && ts.isObjectLiteralExpression(call.arguments[0]);
+}
+
+function verifyEditorCreateBody(body: ts.Block): Block[] {
+  const blocks: Block[] = [];
+  const declared = new Set<string>();
+  for (const statement of body.statements) {
+    if (!ts.isVariableStatement(statement)) continue;
+    for (const declaration of statement.declarationList.declarations) {
+      if (!ts.isIdentifier(declaration.name) || !declaration.initializer) {
+        blocks.push({ code: 'blocked-user-code', where: 'generated:editorCreate', detail: 'unsupported generated declaration' });
+        continue;
+      }
+      const init = declaration.initializer;
+      const factory = ts.isCallExpression(init) ? addFactoryKind(init) : null;
+      const semantic = ts.isNewExpression(init)
+        && ts.isIdentifier(init.expression)
+        && init.expression.text === 'Semantic'
+        && init.arguments?.length === 1
+        && ts.isIdentifier(init.arguments[0])
+        && declared.has(init.arguments[0].text);
+      if (!validFactory(factory) && !semantic) {
+        blocks.push({ code: 'blocked-user-code', where: 'generated:editorCreate', detail: `unsupported initializer for "${declaration.name.text}"` });
+      }
+      declared.add(declaration.name.text);
+    }
+  }
+
+  for (const statement of body.statements) {
+    if (ts.isVariableStatement(statement)) continue;
+    if (!ts.isExpressionStatement(statement)) {
+      blocks.push({ code: 'blocked-user-code', where: 'generated:editorCreate', detail: 'unsupported generated statement' });
+      continue;
+    }
+    const expression = statement.expression;
+    if (ts.isBinaryExpression(expression)
+      && expression.operatorToken.kind === ts.SyntaxKind.EqualsToken
+      && ts.isPropertyAccessExpression(expression.left)
+      && ts.isIdentifier(expression.left.expression)
+      && declared.has(expression.left.expression.text)
+      && GENERATED_PROPERTIES.has(expression.left.name.text)
+      && isGeneratedData(expression.right)) {
+      continue;
+    }
+    if (ts.isCallExpression(expression)) {
+      const path = callPath(expression);
+      if ((path === 'this.events.emit'
+          && expression.arguments.length === 1
+          && stringLiteral(expression.arguments[0]) === 'scene-awake')
+        || validGeneratedMethod(expression, declared)) {
+        continue;
+      }
+    }
+    blocks.push({ code: 'blocked-user-code', where: 'generated:editorCreate', detail: 'statement is outside the Editor-generated grammar' });
+  }
+  return blocks;
+}
+
+/** Exact closed shape the current seven Editor-generated scene modules may use. */
+export function verifyGeneratedModuleShape(source: string, expectedClass: string): Block[] {
+  const sf = ts.createSourceFile('scene.ts', source, ts.ScriptTarget.ES2022, true);
+  const blocks: Block[] = [];
+  const parseDiagnostics = (sf as ts.SourceFile & { parseDiagnostics?: readonly ts.Diagnostic[] }).parseDiagnostics ?? [];
+  if (parseDiagnostics.length > 0) {
+    return [{ code: 'blocked-drift', where: 'generated', detail: 'generated module has parse diagnostics' }];
+  }
+  const imports = sf.statements.filter(ts.isImportDeclaration);
+  const classes = sf.statements.filter(ts.isClassDeclaration);
+  const extras = sf.statements.filter((statement) => !ts.isImportDeclaration(statement) && !ts.isClassDeclaration(statement));
+  const importSpecifiers = imports.map((statement) => stringLiteral(statement.moduleSpecifier)).filter((value): value is string => value !== null);
+  if (JSON.stringify(importSpecifiers) !== JSON.stringify(['phaser', '../components/Semantic'])) {
+    blocks.push({ code: 'blocked-unsafe-import', where: 'generated', detail: 'scene imports must be exactly phaser + Semantic' });
+  }
+  if (extras.length > 0 || classes.length !== 1) {
+    blocks.push({ code: 'blocked-user-code', where: 'generated', detail: 'scene module has extra top-level statements' });
+    return blocks;
+  }
+  const cls = classes[0];
+  const isDefaultExport = cls.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.DefaultKeyword) === true
+    && cls.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword) === true;
+  const extendsPhaserScene = cls.heritageClauses?.some((clause) => clause.token === ts.SyntaxKind.ExtendsKeyword
+    && clause.types.length === 1
+    && ts.isPropertyAccessExpression(clause.types[0].expression)
+    && ts.isIdentifier(clause.types[0].expression.expression)
+    && clause.types[0].expression.expression.text === 'Phaser'
+    && clause.types[0].expression.name.text === 'Scene') === true;
+  if (cls.name?.text !== expectedClass || !isDefaultExport || !extendsPhaserScene) {
+    blocks.push({ code: 'blocked-drift', where: 'generated', detail: `expected default class ${expectedClass} extends Phaser.Scene` });
+  }
+  const allowedNames = new Set(['constructor', 'preload', 'editorCreate', 'create']);
+  const seenNames = new Set<string>();
+  for (const member of cls.members) {
+    if (!ts.isMethodDeclaration(member) && !ts.isConstructorDeclaration(member)) {
+      blocks.push({ code: 'blocked-user-code', where: 'generated', detail: 'scene class has an unsupported member' });
+      continue;
+    }
+    const name = ts.isConstructorDeclaration(member) ? 'constructor' : methodName(member);
+    const body = member.body;
+    if (!name || !allowedNames.has(name) || seenNames.has(name) || !body) {
+      blocks.push({ code: 'blocked-user-code', where: 'generated', detail: 'scene class has an unsupported or duplicate member' });
+      continue;
+    }
+    seenNames.add(name);
+    if (name === 'editorCreate') {
+      blocks.push(...verifyEditorCreateBody(body));
+      continue;
+    }
+    const statements = body.statements;
+    if (statements.length !== 1 || !ts.isExpressionStatement(statements[0]) || !ts.isCallExpression(statements[0].expression)) {
+      blocks.push({ code: 'blocked-user-code', where: `generated:${name}`, detail: `${name} body differs from the Editor template` });
+      continue;
+    }
+    const call = statements[0].expression;
+    const expectedPath = name === 'constructor' ? 'super' : name === 'preload' ? 'this.load.pack' : 'this.editorCreate';
+    const observedPath = call.expression.kind === ts.SyntaxKind.SuperKeyword ? 'super' : callPath(call);
+    const expectedArgs = name === 'constructor'
+      ? [expectedClass]
+      : name === 'preload'
+        ? ['asset-pack', 'asset-pack.json']
+        : [];
+    const actualArgs = call.arguments.map((arg: ts.Expression) => stringLiteral(arg));
+    if (observedPath !== expectedPath || JSON.stringify(actualArgs) !== JSON.stringify(expectedArgs)) {
+      blocks.push({ code: 'blocked-user-code', where: `generated:${name}`, detail: `${name} call differs from the Editor template` });
+    }
+  }
+  if (!seenNames.has('editorCreate')) {
+    blocks.push({ code: 'blocked-drift', where: 'generated', detail: 'scene module has no editorCreate method' });
+  }
+  return blocks;
+}
+
 function sameType(generated: string, scene: string): boolean {
   return generated.toLowerCase() === scene.toLowerCase();
 }
@@ -386,12 +646,47 @@ function sameType(generated: string, scene: string): boolean {
 /** Diff a generated module against the scene authority, returning typed blocks. */
 export function verifyGeneratedModule(source: string, scene: SceneDoc, moduleRelDir = 'scenes'): Block[] {
   const blocks: Block[] = [];
-  const { facts, imports, issues } = extractGeneratedFacts(source);
+  blocks.push(...verifyGeneratedModuleShape(source, scene.sceneKey));
+  const { facts, creationFacts, imports, issues } = extractGeneratedFacts(source);
   blocks.push(...issues);
 
   for (const specifier of imports) {
     if (!isAllowedImport(specifier, moduleRelDir)) {
       blocks.push({ code: 'blocked-unsafe-import', where: 'generated', detail: `import "${specifier}"` });
+    }
+  }
+
+  const rawCreations = sceneCreationFacts(scene);
+  for (const [treePath, raw] of rawCreations) {
+    const generated = creationFacts.get(treePath);
+    if (!generated) {
+      blocks.push({
+        code: 'blocked-drift',
+        where: `${scene.sceneKey}:${raw.label}`,
+        detail: `generated display object missing at ${treePath}`,
+      });
+      continue;
+    }
+    if (!sameType(generated.type, raw.type)) {
+      blocks.push({
+        code: 'blocked-drift',
+        where: `${scene.sceneKey}:${raw.label}`,
+        detail: `generated type "${generated.type}" != scene "${raw.type}" at ${treePath}`,
+      });
+    }
+    for (const field of ['x', 'y', 'textureKey'] as const) {
+      if ((generated[field] ?? null) !== (raw[field] ?? null)) {
+        blocks.push({
+          code: 'blocked-drift',
+          where: `${scene.sceneKey}:${raw.label}`,
+          detail: `generated ${field} ${JSON.stringify(generated[field] ?? null)} != scene ${JSON.stringify(raw[field] ?? null)} at ${treePath}`,
+        });
+      }
+    }
+  }
+  for (const treePath of creationFacts.keys()) {
+    if (!rawCreations.has(treePath)) {
+      blocks.push({ code: 'blocked-drift', where: `generated:${treePath}`, detail: 'unexpected generated display object' });
     }
   }
 

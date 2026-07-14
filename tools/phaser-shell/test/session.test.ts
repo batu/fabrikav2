@@ -5,7 +5,7 @@
 // nonzero exit + scrubbed evidence outside the repo). The live GUI protocol
 // itself is the vendor-gated, conductor-run leg and is not exercised here.
 import { describe, it, expect, afterEach, beforeAll, afterAll } from 'vitest';
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync, readFileSync, existsSync, symlinkSync } from 'node:fs';
 import { createServer } from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
@@ -29,6 +29,7 @@ import {
 } from '../src/session/index.ts';
 import { runLaunch } from '../src/launch.ts';
 import { resetToScratch } from '../src/reset.ts';
+import { repoPath } from './helpers.ts';
 
 const tmps: string[] = [];
 function tmp(): string {
@@ -146,6 +147,33 @@ describe('session/paths — scratch + output guards (outside the repo)', () => {
     const layout = resolveScratch(scratch);
     expect(layout.project).toBe(path.join(scratch, 'phaser-editor'));
     expect(layout.plugins).toBe(path.join(scratch, 'editor-plugins'));
+    expect(layout.catalog).toBe(path.join(scratch, 'catalog'));
+  });
+
+  it('rejects symlinked scratch roots and reset-owned child directories', async () => {
+    const realScratch = tmp();
+    await resetToScratch(realScratch);
+    const parent = tmp();
+    const rootLink = path.join(parent, 'root-link');
+    symlinkSync(realScratch, rootLink, 'dir');
+    expect(() => resolveScratch(rootLink)).toThrow(expect.objectContaining({ code: 'scratch-symlink' }));
+
+    const childScratch = tmp();
+    await resetToScratch(childScratch);
+    rmSync(path.join(childScratch, 'catalog'), { recursive: true, force: true });
+    symlinkSync(repoPath('games', 'shell_proof_phaser', 'authoring', 'catalog'), path.join(childScratch, 'catalog'), 'dir');
+    expect(() => resolveScratch(childScratch)).toThrow(expect.objectContaining({ code: 'scratch-symlink' }));
+
+    const nestedScratch = tmp();
+    await resetToScratch(nestedScratch);
+    const scenes = path.join(nestedScratch, 'phaser-editor', 'src', 'scenes');
+    rmSync(scenes, { recursive: true, force: true });
+    symlinkSync(
+      repoPath('games', 'shell_proof_phaser', 'authoring', 'phaser-editor', 'src', 'scenes'),
+      scenes,
+      'dir',
+    );
+    expect(() => resolveScratch(nestedScratch)).toThrow(expect.objectContaining({ code: 'scratch-symlink' }));
   });
 
   it('defaults the output inside the scratch (outside the repo) and honors an explicit path', () => {
@@ -185,10 +213,15 @@ describe('session/provenance — executable block path (no editor binary)', () =
     await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
     const address = server.address();
     if (!address || typeof address === 'string') throw new Error('test server did not bind a TCP port');
+    const priorFetch = globalThis.fetch;
+    globalThis.fetch = async () => {
+      throw new Error('the Editor lifecycle must not use Node fetch/Undici');
+    };
     try {
       expect(await getServerMode(address.port)).toEqual({ desktop: true, unlocked: true });
       expect(requested).toBe('POST /editor/api');
     } finally {
+      globalThis.fetch = priorFetch;
       await new Promise<void>((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())));
     }
   });

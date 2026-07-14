@@ -1,13 +1,16 @@
 // The single Phaser authoring/publisher CLI (U5, KTD-H). U5 owns the base
-// verbs `validate` / `preflight` / `status` / `proof` / `reset` / `launch`
-// (and `publish`); U6 EXTENDS/composes these base handlers and adds `apply` —
-// it never duplicates them. Run under tsx (imports the lane's .ts modules).
+// verbs `validate` / `preflight` / `status` / `proof` / `reset` / `launch` and
+// `publish`; U6 EXTENDS/composes these base handlers and adds `apply` — it never
+// duplicates them. Run under tsx (imports the lane's .ts modules). `run(argv)` is
+// exported for tests; the module only self-executes when invoked directly.
 import process from 'node:process';
+import { pathToFileURL } from 'node:url';
 import { validateProject } from './publish/validate.ts';
 import { preflight } from './publish/preflight.ts';
 import { status } from './publish/status.ts';
 import { offlineProof } from './publish/proof.ts';
-import { loadCommittedProject } from './loadProject.ts';
+import { publish } from './publish/publish.ts';
+import { loadCommittedProject, loadScratchProject, COMMITTED_PUBLICATIONS_ROOT } from './loadProject.ts';
 import { resetToScratch } from './reset.ts';
 import { runLaunch } from './launch.ts';
 
@@ -15,7 +18,25 @@ function print(value) {
   process.stdout.write(JSON.stringify(value, null, 2) + '\n');
 }
 
-async function main(argv) {
+/** Parse `<scratch> [--out <publicationRoot>]`; returns null on a usage error. */
+function parsePublishArgs(rest) {
+  let scratch;
+  let outputRoot = COMMITTED_PUBLICATIONS_ROOT;
+  for (let i = 0; i < rest.length; i++) {
+    if (rest[i] === '--out') {
+      outputRoot = rest[++i];
+      if (outputRoot === undefined) return null;
+    } else if (scratch === undefined) {
+      scratch = rest[i];
+    } else {
+      return null;
+    }
+  }
+  if (scratch === undefined) return null;
+  return { scratch, outputRoot };
+}
+
+export async function run(argv) {
   const [command, ...rest] = argv;
   switch (command) {
     case 'validate': {
@@ -56,17 +77,23 @@ async function main(argv) {
       return code;
     }
     case 'publish': {
-      // Publishing requires the accepted GUI-compiled generated `.ts` + the
-      // runtime `scenes/shell.js` bundle, which are produced by the vendor-gated
-      // P6 leg. The editor-free `publish()` API is exercised by the unit suite
-      // with a synthesized bundle; the committed P0/A/B set is published in P6.
-      print({
-        result: 'unavailable',
-        detail:
-          'publish requires the GUI-compiled generated code + runtime bundle (P6, vendor-gated). '
-          + 'Use `validate` for editor-free checks; the publisher API is unit-tested (determinism/atomicity/manifest/handoff).',
-      });
-      return 0;
+      // Publish a session-validated scratch (minted by `reset`, GUI-compiled in
+      // P6) into an immutable publication. The scratch MUST be outside the landing
+      // worktree; the runtime bundle is DERIVED from the accepted generated graph,
+      // never supplied. A block (bad scratch / graph / validation) returns nonzero
+      // and writes NOTHING to the output root.
+      const args = parsePublishArgs(rest);
+      if (!args) { process.stderr.write('usage: cli publish <scratch> [--out <publicationRoot>]\n'); return 2; }
+      let input;
+      try {
+        input = loadScratchProject(args.scratch, args.outputRoot);
+      } catch (err) {
+        print({ result: 'blocked', code: err && err.code ? err.code : 'load-error', detail: err && err.message ? err.message : String(err) });
+        return 1;
+      }
+      const result = await publish(input);
+      print(result);
+      return result.result === 'blocked' ? 1 : 0;
     }
     case 'verify-authoring': {
       // Editor-free card verification leg: validate the committed project. The
@@ -81,7 +108,10 @@ async function main(argv) {
   }
 }
 
-main(process.argv.slice(2)).then((code) => process.exit(code)).catch((err) => {
-  process.stderr.write(`cli error: ${err && err.stack ? err.stack : err}\n`);
-  process.exit(1);
-});
+const invokedDirectly = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (invokedDirectly) {
+  run(process.argv.slice(2)).then((code) => process.exit(code)).catch((err) => {
+    process.stderr.write(`cli error: ${err && err.stack ? err.stack : err}\n`);
+    process.exit(1);
+  });
+}

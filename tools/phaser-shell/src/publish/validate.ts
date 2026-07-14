@@ -17,8 +17,8 @@ import type { SceneDoc, SemanticObject } from '../authoring/sceneModel.ts';
 import { findDuplicateSemanticIds } from '../authoring/sceneModel.ts';
 import { BINDING_IDS, prototype } from '../authoring/semantic.ts';
 import { extractDocument } from '../authoring/extractV2.ts';
-import { toShellAssetCatalog, indexById, validateEditorAssetBytes } from '../authoring/catalog.ts';
-import type { Catalog } from '../authoring/catalog.ts';
+import { toShellAssetCatalog, indexById, validateCatalog, validateEditorAssetBytes } from '../authoring/catalog.ts';
+import type { Catalog, SeedAsset } from '../authoring/catalog.ts';
 import {
   isActiveContent,
   isRemoteContent,
@@ -34,6 +34,8 @@ const contract = shellPresentationContractV2;
 export interface AuthoringProject {
   scenes: ReadonlyMap<ShellStateIdV2, SceneDoc>;
   catalog: Catalog;
+  /** Frozen seed manifest entries: external byte/metadata authority for catalog validation. */
+  seedAssets: readonly SeedAsset[];
   /** Raw editor `asset-pack.json`. */
   editorPack: unknown;
   /** Bytes resolved beneath the Editor project's public root, keyed by pack URL. */
@@ -84,6 +86,43 @@ function editorImageKeys(pack: unknown): Set<string> {
 function* stringValues(obj: Record<string, unknown>): Generator<{ field: string; value: string }> {
   for (const [field, value] of Object.entries(obj)) {
     if (typeof value === 'string') yield { field, value };
+  }
+}
+
+function* rawObjects(list: unknown): Generator<Record<string, unknown>> {
+  if (!Array.isArray(list)) return;
+  for (const value of list) {
+    if (!value || typeof value !== 'object') continue;
+    const object = value as Record<string, unknown>;
+    yield object;
+    yield* rawObjects(object['list']);
+  }
+}
+
+/** Non-semantic visual companions are render authority too: validate every texture. */
+function checkAllSceneTextures(
+  scene: SceneDoc,
+  imageKeys: ReadonlySet<string>,
+  packKeyToId: ReadonlyMap<string, string>,
+  blocks: Block[],
+): void {
+  for (const object of rawObjects(scene.raw['displayList'])) {
+    const type = typeof object['type'] === 'string' ? object['type'] : 'object';
+    const label = typeof object['label'] === 'string' ? object['label'] : String(object['id'] ?? type);
+    const texture = object['texture'];
+    const key = texture && typeof texture === 'object'
+      ? (texture as Record<string, unknown>)['key']
+      : undefined;
+    if (['Image', 'Sprite', 'NineSlice'].includes(type) && typeof key !== 'string') {
+      blocks.push({ code: 'blocked-unknown-texture', where: `${scene.sceneKey}:${label}`, detail: 'rendered image has no texture key' });
+      continue;
+    }
+    if (typeof key !== 'string') continue;
+    if (!imageKeys.has(key)) {
+      blocks.push({ code: 'blocked-unknown-texture', where: `${scene.sceneKey}:${label}`, detail: `texture "${key}" not in editor pack` });
+    } else if (!packKeyToId.has(key)) {
+      blocks.push({ code: 'blocked-invalid-catalog-id', where: `${scene.sceneKey}:${label}`, detail: `texture "${key}" is not a curated catalog asset` });
+    }
   }
 }
 
@@ -140,6 +179,14 @@ export function validateProject(project: AuthoringProject): ValidationResult {
     [...indexById(project.catalog).values()].map((e) => [e.packKey, e.id]),
   );
 
+  for (const issue of validateCatalog(project.catalog, project.seedAssets)) {
+    blocks.push({
+      code: 'blocked-invalid-catalog-id',
+      where: `catalog:${issue.entry}`,
+      detail: `${issue.code}: ${issue.detail}`,
+    });
+  }
+
   for (const issue of validateEditorAssetBytes(
     project.editorPack,
     project.catalog,
@@ -172,6 +219,7 @@ export function validateProject(project: AuthoringProject): ValidationResult {
 
   // 2. Per-scene carrier surface + duplicate detection.
   for (const scene of project.scenes.values()) {
+    checkAllSceneTextures(scene, imageKeys, packKeyToId, blocks);
     for (const obj of scene.objects) {
       checkSceneObject(scene, obj, imageKeys, packKeyToId, blocks);
     }

@@ -1,0 +1,409 @@
+{
+  "publicationId": "sha256-d7a7b49fd51d69c14a4fadea57d015389e4227e5a51fba16438ce067afc4ac64",
+  "contractId": "shell-presentation-v2",
+  "contractVersion": "2.0.0",
+  "rendererProfile": "phaser-native",
+  "digest": "sha256-d788b9ea29298c65289a0a715155085af9a0ff0482cee0ab9b2341bd4bbbc3cf",
+  "files": [
+    {
+      "path": "projection/asset-identity.json",
+      "sha256": "sha256-67008b5b040b3af9a74bb8f31c6cc92019ae809826097380475a23e81d9f60cc",
+      "bytes": 3735
+    },
+    {
+      "path": "projection/asset-pack.json",
+      "sha256": "sha256-17f899a1423ca08f3a351c15b67b7e28b969cbfd202c2251bd25290164787afa",
+      "bytes": 3413
+    },
+    {
+      "path": "projection/assets/button-surface-primary.png",
+      "sha256": "sha256-93318e40822c39a2ba6aec45a099d9da9bb101644198444a004cba3a354064bf",
+      "bytes": 1056
+    },
+    {
+      "path": "projection/assets/button-surface-secondary.png",
+      "sha256": "sha256-5cb0ab21ffb2e35c31abcaeddcabc654775d88cc1b86c950341f42d98b503e7c",
+      "bytes": 1080
+    },
+    {
+      "path": "projection/assets/button-surface-test-lose.png",
+      "sha256": "sha256-4d141ba650e066bb7c1291a1f5924ec6334ab4f3343dc657c5c109c0bb694351",
+      "bytes": 819
+    },
+    {
+      "path": "projection/assets/button-surface-test-win.png",
+      "sha256": "sha256-01b8240b2cbf3af3bcabb8a7daf458a111bc4f139f8d415d255a334f50754c20",
+      "bytes": 785
+    },
+    {
+      "path": "projection/assets/counter-frame-primary-currency.png",
+      "sha256": "sha256-cd4068a305467ff528cdc102b1ddfd8fd8c99c9f4c2e8dde403bfdda225876d7",
+      "bytes": 548
+    },
+    {
+      "path": "projection/assets/icon-control-back.png",
+      "sha256": "sha256-e879a6424048aeca8e93d86074b81f2ce83267ad546ffd8f7682bf7788d76dfd",
+      "bytes": 419
+    },
+    {
+      "path": "projection/assets/icon-control-confirm.png",
+      "sha256": "sha256-d7c1b640b57cfd8629266c010994dc58d7b64042fce50ac68959939a3dc510a4",
+      "bytes": 604
+    },
+    {
+      "path": "projection/assets/icon-control-haptics.png",
+      "sha256": "sha256-a7ad442bc5afb30a65acaed7996b864cc9de30797f9426512043b4b3f4c3314b",
+      "bytes": 337
+    },
+    {
+      "path": "projection/assets/icon-control-home.png",
+      "sha256": "sha256-41c7b600a7a4a7dec13cb445288ebbecaa3ecdc69a86e1db794b3282c0e47721",
+      "bytes": 325
+    },
+    {
+      "path": "projection/assets/icon-control-music-off.png",
+      "sha256": "sha256-a8503490b458cf47b712f01a5b4d25a7c0279e886237a4434d6eb22935773e98",
+      "bytes": 596
+    },
+    {
+      "path": "projection/assets/icon-control-music-on.png",
+      "sha256": "sha256-b666a8892c785a5314b9c828affab3f5fc058e220907284f3e22a8b89088cee4",
+      "bytes": 475
+    },
+    {
+      "path": "projection/assets/icon-control-next.png",
+      "sha256": "sha256-93b1852e9bbd78a97a621b074a3512104b57f09bfcdd9f61371a9a2dbbe30b56",
+      "bytes": 422
+    },
+    {
+      "path": "projection/assets/icon-control-pause.png",
+      "sha256": "sha256-abce8cfa932b19bfd989a8917d41e3f33c5d9622b85476a2ea1aeef5bc22ec2e",
+      "bytes": 269
+    },
+    {
+      "path": "projection/assets/icon-control-play.png",
+      "sha256": "sha256-60b1a1812e2263e04e590fb6f0605428930f61b905e5744c99b4bfd854ecb8f5",
+      "bytes": 489
+    },
+    {
+      "path": "projection/assets/icon-control-result-fail.png",
+      "sha256": "sha256-d2b55e81a6d972700e3373ed9178b935eee2e2d70b850a5a0a1905405cfdae16",
+      "bytes": 539
+    },
+    {
+      "path": "projection/assets/icon-control-result-win.png",
+      "sha256": "sha256-505d5570aad9fb0478fcc1e5ec4b3bd2377f593a20013b2cff97c8e955abc515",
+      "bytes": 315
+    },
+    {
+      "path": "projection/assets/icon-control-retry.png",
+      "sha256": "sha256-be08921888d54804b6f5bbf99e8e7a230f01895c33a39956a073301cdb45fa83",
+      "bytes": 733
+    },
+    {
+      "path": "projection/assets/icon-control-return.png",
+      "sha256": "sha256-d0e9fbbf5e4cb6847bc5961c8809fbddb0ca98447a2b67fb2daed5e3c67a7fcd",
+      "bytes": 629
+    },
+    {
+      "path": "projection/assets/icon-control-settings.png",
+      "sha256": "sha256-d20dd95cb1f0d527671f10ff44259c84527705fcda8ed9d74c043960fca4bb27",
+      "bytes": 863
+    },
+    {
+      "path": "projection/assets/icon-control-shop.png",
+      "sha256": "sha256-919a8e826f1dd6fda88671e6d8ff52691d93ca7dfa67868ee12a67b9290cc665",
+      "bytes": 529
+    },
+    {
+      "path": "projection/assets/icon-control-surface.png",
+      "sha256": "sha256-cb40b01ff701c9edc6f6814bfec3a3ccb1ab443ad044613909df53e3b6fc09bc",
+      "bytes": 956
+    },
+    {
+      "path": "projection/assets/progression-node-completed.png",
+      "sha256": "sha256-28a13bb7afe7fa7fd7004bb3dcbff40c078476c21e3d76246b2ee77400cb4599",
+      "bytes": 302
+    },
+    {
+      "path": "projection/assets/progression-node-current.png",
+      "sha256": "sha256-cf842ce49898e2de4c10ce248341f2fef6a75b3e027218fad9112a998b3d3573",
+      "bytes": 2661
+    },
+    {
+      "path": "projection/assets/progression-node-locked.png",
+      "sha256": "sha256-de4f91e671256321313f68727817db3d6bfd9092f627f5790ddf24cf7a0a587f",
+      "bytes": 295
+    },
+    {
+      "path": "projection/scene-manifest.json",
+      "sha256": "sha256-05d01592884f7ea04a766ebd196fa5a1391aea715a000988a682bd2d9428f8c4",
+      "bytes": 763
+    },
+    {
+      "path": "projection/scenes/shell.js",
+      "sha256": "sha256-5523f0c81f89179a2584fdcdb06af952a32e24008137bdcab942a69e6b05f646",
+      "bytes": 82548
+    },
+    {
+      "path": "revision.json",
+      "sha256": "sha256-a8d5d2f46a3043bfc1d8f50de4380072aa6b2eed009d86461e15d9cdd60537ad",
+      "bytes": 980
+    },
+    {
+      "path": "source/catalog/catalog.json",
+      "sha256": "sha256-fd67a40cc3ac652de1ed2d19d237d00b496abab73a13bf587016720bb71b8118",
+      "bytes": 23203
+    },
+    {
+      "path": "source/components/Semantic.components",
+      "sha256": "sha256-86f477d04a6caf056eb76571d501cc537d4e5f4e4f48263d624993bf0a1d0b37",
+      "bytes": 2579
+    },
+    {
+      "path": "source/components/Semantic.ts",
+      "sha256": "sha256-3994bfbda4ee5b313f75f4c1ccd5031f02488cd57b19dfeca86aaf6e0543999b",
+      "bytes": 1107
+    },
+    {
+      "path": "source/editor-plugins/allowlist.json",
+      "sha256": "sha256-db9d335427af97df76a05779fe055663603fb6d202ab5a5ac602fe67f1f372eb",
+      "bytes": 1062
+    },
+    {
+      "path": "source/editor-plugins/catalog-panel/catalog-panel.js",
+      "sha256": "sha256-b8ffffebb1a401c315c02ca27b534a59e347ef69fd43408a3b10295560641203",
+      "bytes": 19090
+    },
+    {
+      "path": "source/editor-plugins/catalog-panel/plugin.json",
+      "sha256": "sha256-87100876a121ffe15454274c8e7b5b4a4d18655c5dac7a04d80f0885634899fa",
+      "bytes": 115
+    },
+    {
+      "path": "source/editor-plugins/live-copy-preview/live-copy-preview.js",
+      "sha256": "sha256-86d273030203433f236ab65a328f033adaa2f8d64c8973ba8a21471738d315a8",
+      "bytes": 10661
+    },
+    {
+      "path": "source/editor-plugins/live-copy-preview/plugin.json",
+      "sha256": "sha256-475b7fab0a3297ad0658b24184c883bf85fbc9b3a673531bbe01fcdfaa94d930",
+      "bytes": 123
+    },
+    {
+      "path": "source/phasereditor2d.config.json",
+      "sha256": "sha256-1a879a76f2c658f652135e5bb98a61f9ccf1622c4b8accfdfbe5e69c874e8575",
+      "bytes": 277
+    },
+    {
+      "path": "source/public/assets/asset-pack.json",
+      "sha256": "sha256-8c6fa653fad73e1ad7509b8da6311c7256f9c3f6ae58e8c2091d4a6a7185b27d",
+      "bytes": 3771
+    },
+    {
+      "path": "source/public/assets/button-surface-primary.png",
+      "sha256": "sha256-93318e40822c39a2ba6aec45a099d9da9bb101644198444a004cba3a354064bf",
+      "bytes": 1056
+    },
+    {
+      "path": "source/public/assets/button-surface-secondary.png",
+      "sha256": "sha256-5cb0ab21ffb2e35c31abcaeddcabc654775d88cc1b86c950341f42d98b503e7c",
+      "bytes": 1080
+    },
+    {
+      "path": "source/public/assets/button-surface-test-lose.png",
+      "sha256": "sha256-4d141ba650e066bb7c1291a1f5924ec6334ab4f3343dc657c5c109c0bb694351",
+      "bytes": 819
+    },
+    {
+      "path": "source/public/assets/button-surface-test-win.png",
+      "sha256": "sha256-01b8240b2cbf3af3bcabb8a7daf458a111bc4f139f8d415d255a334f50754c20",
+      "bytes": 785
+    },
+    {
+      "path": "source/public/assets/counter-frame-primary-currency.png",
+      "sha256": "sha256-cd4068a305467ff528cdc102b1ddfd8fd8c99c9f4c2e8dde403bfdda225876d7",
+      "bytes": 548
+    },
+    {
+      "path": "source/public/assets/icon-control-back.png",
+      "sha256": "sha256-e879a6424048aeca8e93d86074b81f2ce83267ad546ffd8f7682bf7788d76dfd",
+      "bytes": 419
+    },
+    {
+      "path": "source/public/assets/icon-control-confirm.png",
+      "sha256": "sha256-d7c1b640b57cfd8629266c010994dc58d7b64042fce50ac68959939a3dc510a4",
+      "bytes": 604
+    },
+    {
+      "path": "source/public/assets/icon-control-haptics.png",
+      "sha256": "sha256-a7ad442bc5afb30a65acaed7996b864cc9de30797f9426512043b4b3f4c3314b",
+      "bytes": 337
+    },
+    {
+      "path": "source/public/assets/icon-control-home.png",
+      "sha256": "sha256-41c7b600a7a4a7dec13cb445288ebbecaa3ecdc69a86e1db794b3282c0e47721",
+      "bytes": 325
+    },
+    {
+      "path": "source/public/assets/icon-control-music-off.png",
+      "sha256": "sha256-a8503490b458cf47b712f01a5b4d25a7c0279e886237a4434d6eb22935773e98",
+      "bytes": 596
+    },
+    {
+      "path": "source/public/assets/icon-control-music-on.png",
+      "sha256": "sha256-b666a8892c785a5314b9c828affab3f5fc058e220907284f3e22a8b89088cee4",
+      "bytes": 475
+    },
+    {
+      "path": "source/public/assets/icon-control-next.png",
+      "sha256": "sha256-93b1852e9bbd78a97a621b074a3512104b57f09bfcdd9f61371a9a2dbbe30b56",
+      "bytes": 422
+    },
+    {
+      "path": "source/public/assets/icon-control-pause.png",
+      "sha256": "sha256-abce8cfa932b19bfd989a8917d41e3f33c5d9622b85476a2ea1aeef5bc22ec2e",
+      "bytes": 269
+    },
+    {
+      "path": "source/public/assets/icon-control-play.png",
+      "sha256": "sha256-60b1a1812e2263e04e590fb6f0605428930f61b905e5744c99b4bfd854ecb8f5",
+      "bytes": 489
+    },
+    {
+      "path": "source/public/assets/icon-control-result-fail.png",
+      "sha256": "sha256-d2b55e81a6d972700e3373ed9178b935eee2e2d70b850a5a0a1905405cfdae16",
+      "bytes": 539
+    },
+    {
+      "path": "source/public/assets/icon-control-result-win.png",
+      "sha256": "sha256-505d5570aad9fb0478fcc1e5ec4b3bd2377f593a20013b2cff97c8e955abc515",
+      "bytes": 315
+    },
+    {
+      "path": "source/public/assets/icon-control-retry.png",
+      "sha256": "sha256-be08921888d54804b6f5bbf99e8e7a230f01895c33a39956a073301cdb45fa83",
+      "bytes": 733
+    },
+    {
+      "path": "source/public/assets/icon-control-return.png",
+      "sha256": "sha256-d0e9fbbf5e4cb6847bc5961c8809fbddb0ca98447a2b67fb2daed5e3c67a7fcd",
+      "bytes": 629
+    },
+    {
+      "path": "source/public/assets/icon-control-settings.png",
+      "sha256": "sha256-d20dd95cb1f0d527671f10ff44259c84527705fcda8ed9d74c043960fca4bb27",
+      "bytes": 863
+    },
+    {
+      "path": "source/public/assets/icon-control-shop.png",
+      "sha256": "sha256-919a8e826f1dd6fda88671e6d8ff52691d93ca7dfa67868ee12a67b9290cc665",
+      "bytes": 529
+    },
+    {
+      "path": "source/public/assets/icon-control-surface.png",
+      "sha256": "sha256-cb40b01ff701c9edc6f6814bfec3a3ccb1ab443ad044613909df53e3b6fc09bc",
+      "bytes": 956
+    },
+    {
+      "path": "source/public/assets/progression-node-completed.png",
+      "sha256": "sha256-28a13bb7afe7fa7fd7004bb3dcbff40c078476c21e3d76246b2ee77400cb4599",
+      "bytes": 302
+    },
+    {
+      "path": "source/public/assets/progression-node-current.png",
+      "sha256": "sha256-cf842ce49898e2de4c10ce248341f2fef6a75b3e027218fad9112a998b3d3573",
+      "bytes": 2661
+    },
+    {
+      "path": "source/public/assets/progression-node-locked.png",
+      "sha256": "sha256-de4f91e671256321313f68727817db3d6bfd9092f627f5790ddf24cf7a0a587f",
+      "bytes": 295
+    },
+    {
+      "path": "source/public/fonts/kenney-future-narrow.ttf",
+      "sha256": "sha256-17e182587a3264dcf9e5b17c055715d5597187546ce81925c64e9184c26d597f",
+      "bytes": 34180
+    },
+    {
+      "path": "source/public/fonts/kenney-future.ttf",
+      "sha256": "sha256-7a55b07f5968fac872648a7c5e959bd2b93e06f63153b585d56e4d5298ddff61",
+      "bytes": 34160
+    },
+    {
+      "path": "source/public/publicroot",
+      "sha256": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "source/scenes/Fail.scene",
+      "sha256": "sha256-b14001eb80700766c69bd37943c62c31c527a3d797542db36f23cdd2d6795deb",
+      "bytes": 13525
+    },
+    {
+      "path": "source/scenes/Fail.ts",
+      "sha256": "sha256-9505bedd7bf9ddc7d71b0bb1c65d6d03053d3584b1e64fbce484b076bcdd4e0f",
+      "bytes": 10629
+    },
+    {
+      "path": "source/scenes/Level.scene",
+      "sha256": "sha256-1de48606ff4b86a765e858a93c93160830c173d56484e1fc4366063e836594c5",
+      "bytes": 14080
+    },
+    {
+      "path": "source/scenes/Level.ts",
+      "sha256": "sha256-82036186b683b07b0e0d0081df7966c1e93c79c41a08a80b091d5d278e9d8eff",
+      "bytes": 10924
+    },
+    {
+      "path": "source/scenes/Menu.scene",
+      "sha256": "sha256-349c4d84fc6f4dd192b347bc6a09d452df60e182acfbc78b10b2c06a9db7dc28",
+      "bytes": 21542
+    },
+    {
+      "path": "source/scenes/Menu.ts",
+      "sha256": "sha256-7a3bb680d37dd529686edcf3fc40755ca7aa6acfbf22eb023f62f529d49abf4e",
+      "bytes": 16725
+    },
+    {
+      "path": "source/scenes/Pause.scene",
+      "sha256": "sha256-8035c5c5e6dea390319c7aede6c8927acc39f76c900d5fd022eafe157b37cd38",
+      "bytes": 8557
+    },
+    {
+      "path": "source/scenes/Pause.ts",
+      "sha256": "sha256-87e6421e20f95648e31a0cf1e3c4f1bc38f39a427ad42e7568fa6da1b2afb34f",
+      "bytes": 6812
+    },
+    {
+      "path": "source/scenes/Settings.scene",
+      "sha256": "sha256-2a48730a6ae201ef794abd42633a190412f38f59b90cf3b50bb1a9054d4b6c56",
+      "bytes": 9811
+    },
+    {
+      "path": "source/scenes/Settings.ts",
+      "sha256": "sha256-b9b3712155d93ad1d2da0b2670af0f13907126b97498342e835c3a415326baff",
+      "bytes": 7796
+    },
+    {
+      "path": "source/scenes/Shop.scene",
+      "sha256": "sha256-93cde96c673a9537ab94b8b3de2378b26eb6a4b027b6479160b3390c464b1b94",
+      "bytes": 24385
+    },
+    {
+      "path": "source/scenes/Shop.ts",
+      "sha256": "sha256-74644092dfb8a21d6d1213c0a01605b5c4a65f5e886c089322c014bdae02bdde",
+      "bytes": 20081
+    },
+    {
+      "path": "source/scenes/Win.scene",
+      "sha256": "sha256-96c21fcae6d4414435df07adfdf22db6df831363bfff7e4bd0914d17437a576d",
+      "bytes": 15101
+    },
+    {
+      "path": "source/scenes/Win.ts",
+      "sha256": "sha256-2c7f7a221c4fcc88b48114ab892b005d908600842835b6db14ac42381ec17b3f",
+      "bytes": 11530
+    }
+  ]
+}

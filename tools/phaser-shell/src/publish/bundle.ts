@@ -32,9 +32,9 @@ export interface BundleInput {
   catalog: Catalog;
   /** The publication whose editor sources this bundle derives from. */
   sourcePublicationId: string;
-  /** The accepted generated `scenes/shell.js` bytes (GUI-compiled; fixture in tests). */
+  /** The `scenes/shell.js` bytes DERIVED from the accepted generated graph (never caller bytes). */
   runtimeSceneJs: Buffer;
-  /** Raster bytes for each catalog asset id used by the document. */
+  /** Raster bytes for every entry in the curated shell catalog. */
   assetBytesById: ReadonlyMap<string, Buffer>;
 }
 
@@ -86,12 +86,18 @@ function assetInstances(document: ShellPresentationDocumentV2): Array<{ instance
 export function buildBundle(input: BundleInput): BundleResult {
   const catalogIndex = indexById(input.catalog);
   const used = assetInstances(input.document);
-  const usedAssetIds = [...new Set(used.map((u) => u.assetId))].sort();
+  // The projection is a reusable pre-built shell, not a tree-shaken screenshot.
+  // Editor-native visual companions deliberately carry no Semantic component,
+  // so their textures do not appear in `asset-identity.json`. Retain the whole
+  // curated catalog in the runtime pack: every asset visible in the Editor is
+  // then available to the generated scene graph without inventing a second
+  // asset authority or overloading semantic carriers.
+  const runtimeAssetIds = input.catalog.entries.map((entry) => entry.id).sort();
 
   // Runtime asset-pack.json — RASTER ONLY (no fonts, no editor keys).
   const runtimePack = {
     'shell-runtime': {
-      files: usedAssetIds.map((assetId) => {
+      files: runtimeAssetIds.map((assetId) => {
         const entry = catalogIndex.get(assetId)!;
         return { url: entry.path, type: 'image', key: entry.packKey };
       }),
@@ -134,7 +140,7 @@ export function buildBundle(input: BundleInput): BundleResult {
     { path: 'asset-pack.json', content: json(runtimePack) },
     { path: 'asset-identity.json', content: json(assetIdentity) },
   ];
-  for (const assetId of usedAssetIds) {
+  for (const assetId of runtimeAssetIds) {
     const entry = catalogIndex.get(assetId)!;
     const bytes = input.assetBytesById.get(assetId);
     if (bytes) artifacts.push({ path: entry.path, content: bytes });
@@ -142,6 +148,11 @@ export function buildBundle(input: BundleInput): BundleResult {
   artifacts.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
 
   const layoutIssues = validateBundleLayout(artifacts.map((a) => a.path));
+  for (const assetId of runtimeAssetIds) {
+    if (!input.assetBytesById.has(assetId)) {
+      layoutIssues.push(`curated runtime asset ${assetId} has no payload bytes`);
+    }
+  }
 
   // Kernel-authority check on the de-cycled asset-identity shape (no projectionId).
   try {
@@ -149,7 +160,9 @@ export function buildBundle(input: BundleInput): BundleResult {
     // Byte-check the recorded raster hashes match the emitted asset bytes.
     for (const asset of parsed.assets) {
       const bytes = input.assetBytesById.get(asset.assetId);
-      if (bytes && sha256(bytes) !== asset.sha256) {
+      if (!bytes) {
+        layoutIssues.push(`semantic asset ${asset.assetId} has no payload bytes`);
+      } else if (sha256(bytes) !== asset.sha256) {
         layoutIssues.push(`asset ${asset.assetId} bytes do not match its recorded sha256`);
       }
     }

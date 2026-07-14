@@ -74,4 +74,41 @@ describe('P5 non-circular manifest preimages', () => {
     }
     expect(paths.has('source/public/publicroot')).toBe(true);
   });
+
+  it('ships the whole curated shell catalog in the runtime projection', async () => {
+    const r = await publish(loadPublishInput(tmp()));
+    const manifest = JSON.parse(readFileSync(path.join(r.dir!, 'manifest.json'), 'utf8')) as { files: FileHash[] };
+    const manifestPaths = new Set(manifest.files.map((file) => file.path));
+    const runtimePack = JSON.parse(readFileSync(
+      path.join(r.dir!, 'projection', 'asset-pack.json'),
+      'utf8',
+    )) as Record<string, { files: Array<{ key: string; url: string; type: string }> }>;
+    const catalog = JSON.parse(readFileSync(repoPath(
+      'games', 'shell_proof_phaser', 'authoring', 'catalog', 'catalog.json',
+    ), 'utf8')) as { entries: Array<{ id: string; packKey: string; path: string }> };
+
+    expect(runtimePack['shell-runtime'].files).toEqual(
+      [...catalog.entries]
+        .sort((a, b) => a.id.localeCompare(b.id))
+        .map((entry) => ({ url: entry.path, type: 'image', key: entry.packKey })),
+    );
+    for (const entry of catalog.entries) {
+      expect(manifestPaths.has(`projection/${entry.path}`), entry.path).toBe(true);
+    }
+  });
+
+  it('hashes every portable authoring input — Semantic.components, catalog, plugins, module graph', async () => {
+    const r = await publish(loadPublishInput(tmp()));
+    const manifest = JSON.parse(readFileSync(path.join(r.dir!, 'manifest.json'), 'utf8')) as { files: FileHash[] };
+    const paths = new Set(manifest.files.map((file) => file.path));
+    for (const p of [
+      'source/components/Semantic.components', // user-component authority
+      'source/components/Semantic.ts', // generated module graph
+      'source/catalog/catalog.json', // curated R9 catalog
+      'source/editor-plugins/allowlist.json', // plugin trust authority
+      'source/editor-plugins/live-copy-preview/live-copy-preview.js', // allowlisted plugin
+    ]) {
+      expect(paths.has(p), p).toBe(true);
+    }
+  });
 });

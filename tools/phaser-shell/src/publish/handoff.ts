@@ -10,6 +10,7 @@
 import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { status } from './status.ts';
 
 export type HandoffRole = 'p0' | 'a' | 'b';
 
@@ -64,6 +65,11 @@ export async function validateAcceptedHandoff(
     const manifestPath = path.join(dir, 'manifest.json');
     if (!existsSync(manifestPath)) {
       issues.push({ role, code: 'missing-publication', detail: `no publication on disk for ${entry.publicationId}` });
+      continue;
+    }
+    const verified = await status(dir);
+    if (verified.outcome !== 'ready') {
+      issues.push({ role, code: 'publication-tampered', detail: `publication status is ${verified.outcome}` });
       continue;
     }
     const manifest = JSON.parse(await readFile(manifestPath, 'utf8')) as {

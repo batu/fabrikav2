@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { mkdtempSync, rmSync, readFileSync } from 'node:fs';
+import { mkdtempSync, rmSync, readFileSync, appendFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { publish, type PublishResult } from '../src/publish/publish.ts';
@@ -10,6 +10,7 @@ import {
   type HandoffEntry,
 } from '../src/publish/handoff.ts';
 import { status } from '../src/publish/status.ts';
+import { startReviewServer } from '../src/reviewServer.ts';
 import { loadPublishInput } from './gen.ts';
 
 const tmps: string[] = [];
@@ -87,6 +88,34 @@ describe('P5 U5→U6 handoff (three accepted immutable publications P0/A/B)', ()
     });
     const issues = await validateAcceptedHandoff(handoff, root);
     expect(issues.some((i) => i.code === 'manifest-digest-drift')).toBe(true);
+  });
+
+  it('rejects a handoff after any accepted publication file is tampered on disk', async () => {
+    const root = tmp();
+    const { p0, a, b } = await publishP0AB(root);
+    const handoff = buildAcceptedHandoff({ p0: entryFor(p0), a: entryFor(a), b: entryFor(b) });
+    appendFileSync(path.join(p0.dir!, 'projection', 'scenes', 'shell.js'), '\n// tampered\n');
+    const issues = await validateAcceptedHandoff(handoff, root);
+    expect(issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({ role: 'p0', code: 'publication-tampered' }),
+    ]));
+    await expect(startReviewServer({ publicationDir: p0.dir! })).rejects.toThrow(/not immutable-ready/);
+  });
+
+  it('serves only the verified startup snapshot after post-start disk tampering', async () => {
+    const publication = await publish(loadPublishInput(tmp()));
+    expect(publication.result).toBe('ok');
+    const server = await startReviewServer({ publicationDir: publication.dir! });
+    try {
+      const before = await (await fetch(`${server.url}/shell.js`)).text();
+      appendFileSync(path.join(publication.dir!, 'projection', 'scenes', 'shell.js'), '\n// post-start-tamper\n');
+      expect((await status(publication.dir!)).outcome).toBe('tampered');
+      const after = await (await fetch(`${server.url}/shell.js`)).text();
+      expect(after).toBe(before);
+      expect(after).not.toContain('post-start-tamper');
+    } finally {
+      await server.close();
+    }
   });
 
   it('the accepted.json shape round-trips through the parser', () => {

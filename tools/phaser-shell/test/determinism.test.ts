@@ -45,7 +45,7 @@ describe('P5 deterministic publisher', () => {
     expect(second.publicationId).toBe(first.publicationId);
   });
 
-  it('an edited authoring state yields a different publicationId', async () => {
+  it('an edited authoring state yields a different publicationId and moves the derived shell.js', async () => {
     const p0 = await publish(loadPublishInput(tmp()));
     const edited = await publish(
       loadPublishInput(tmp(), (state, raw) => {
@@ -56,5 +56,9 @@ describe('P5 deterministic publisher', () => {
     );
     expect(edited.result).toBe('ok');
     expect(edited.publicationId).not.toBe(p0.publicationId);
+    // The runtime bundle is DERIVED from the generated graph, so the edit moves its bytes.
+    const shellOf = (dir: string): Buffer => readFileSync(path.join(dir, 'projection', 'scenes', 'shell.js'));
+    expect(shellOf(edited.dir!).equals(shellOf(p0.dir!))).toBe(false);
+    expect(shellOf(edited.dir!).toString('utf8')).toContain('Alpha Shell');
   });
 });

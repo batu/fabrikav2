@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { parseSceneDoc, type SceneDoc } from '../src/authoring/sceneModel.ts';
-import { parseCatalog, type Catalog } from '../src/authoring/catalog.ts';
+import { parseCatalog, type Catalog, type SeedAsset } from '../src/authoring/catalog.ts';
 import { loadEditorAssets } from '../src/authoring/editorAssets.ts';
 import { STATE_IDS } from '../src/authoring/extractV2.ts';
 import { validateProject } from '../src/publish/validate.ts';
@@ -19,6 +19,9 @@ const CATALOG_PATH = ['games', 'shell_proof_phaser', 'authoring', 'catalog', 'ca
 const PACK_PATH = [
   'games', 'shell_proof_phaser', 'authoring', 'phaser-editor', 'public', 'assets', 'asset-pack.json',
 ];
+const SEED_ASSETS = (readJson(
+  'games', 'shell_proof_phaser', 'design', 'kenney-seed.manifest.json',
+) as { assetCatalog: { assets: SeedAsset[] } }).assetCatalog.assets;
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 const scenePath = (state: string) => [
   'games', 'shell_proof_phaser', 'authoring', 'phaser-editor', 'src', 'scenes', `${cap(state)}.scene`,
@@ -62,6 +65,7 @@ function build(
   return validateProject({
     scenes,
     catalog,
+    seedAssets: SEED_ASSETS,
     editorPack: pack,
     editorAssetBytesByUrl: assetBytes,
     editorAssetSymlinks: assetSymlinks,
@@ -104,6 +108,13 @@ describe('P4 typed validation gate (fail-closed, zero-write)', () => {
   it('blocked-invalid-binding', fires((c) => { find(menuList(c.rawByState), 'menu.play')['Semantic.fabBinding'] = 'not-a-binding'; }, 'blocked-invalid-binding'));
 
   it('blocked-unknown-texture', fires((c) => { find(menuList(c.rawByState), 'menu.settings')['texture'] = { key: 'totally_unknown_key' }; }, 'blocked-unknown-texture'));
+
+  it('blocks an unknown texture on a non-semantic visual companion', fires((c) => {
+    menuList(c.rawByState).push({
+      type: 'Image', id: 'menu.fab.broken', label: 'menu.fab.broken',
+      x: 100, y: 100, texture: { key: 'definitely_missing' },
+    });
+  }, 'blocked-unknown-texture'));
 
   it('blocked-invalid-catalog-id', fires((c) => {
     // A pack key that exists in the pack but corresponds to no curated catalog id.

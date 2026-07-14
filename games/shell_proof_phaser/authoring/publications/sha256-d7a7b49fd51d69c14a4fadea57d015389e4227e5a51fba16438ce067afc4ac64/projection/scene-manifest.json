@@ -1,0 +1,37 @@
+{
+  "contractId": "shell-presentation-v2",
+  "contractVersion": "2.0.0",
+  "rendererProfile": "phaser-native",
+  "projection": "scenes/shell.js",
+  "sourcePublicationId": "sha256-d7a7b49fd51d69c14a4fadea57d015389e4227e5a51fba16438ce067afc4ac64",
+  "states": [
+    {
+      "stateId": "menu",
+      "editorPageId": "progression-home"
+    },
+    {
+      "stateId": "level",
+      "editorPageId": "gameplay-hud"
+    },
+    {
+      "stateId": "shop",
+      "editorPageId": "shop"
+    },
+    {
+      "stateId": "settings",
+      "editorPageId": "settings"
+    },
+    {
+      "stateId": "pause",
+      "editorPageId": "pause"
+    },
+    {
+      "stateId": "win",
+      "editorPageId": "win"
+    },
+    {
+      "stateId": "fail",
+      "editorPageId": "fail"
+    }
+  ]
+}

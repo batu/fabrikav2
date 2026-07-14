@@ -26,19 +26,21 @@ tools/phaser-shell/src/
     extractV2.ts    # scene set -> ShellPresentationDocumentV2 (kernel-validated)
     astFacts.ts     # TS-compiler-API AST-fact parity over generated modules
   publish/
-    validate.ts     # typed fail-closed gate (R10 + safety block codes, zero-write)
-    safety.ts       # reusable URL/path/plugin/string/guide guards
-    preflight.ts    # validate + prior-publication drift check
-    bundle.ts       # canonical scenes/shell.js + scene-manifest + runtime pack + asset-identity
-    manifest.ts     # publicationId + portable manifest (non-circular preimages)
-    publish.ts      # atomic temp+rename publisher (blocks differing publicationId)
-    status.ts       # read a publication's state -> typed outcome
-    handoff.ts      # accepted.json: the P0/A/B handoff to U6
-    proof.ts        # offline, editor-free network/footprint/raster proof
-  cli.mjs           # validate|preflight|status|proof|reset|launch|publish (U6 extends; adds apply)
-  reset.ts          # rehearsal clean-P0 scratch reset (never the landing worktree; copies editor-plugins)
-  launch.ts         # executable loopback-only provenance verb (parses <scratch>; vendor-gated)
-  session/          # reusable real-Editor provenance seam (server/workbench/graph/guards/evidence)
+    validate.ts       # typed fail-closed gate (R10 + safety block codes, zero-write)
+    safety.ts         # reusable URL/path/plugin/string/guide guards
+    preflight.ts      # validate + prior-publication drift check
+    deriveRuntime.ts  # DERIVE scenes/shell.js from the accepted generated .ts graph (TS-API)
+    bundle.ts         # canonical scenes/shell.js + scene-manifest + runtime pack + asset-identity
+    manifest.ts       # publicationId + portable manifest (non-circular preimages)
+    publish.ts        # atomic temp+rename publisher (derives bundle; plugin trust; blocks collision)
+    status.ts         # read a publication's state -> typed outcome
+    handoff.ts        # accepted.json: the P0/A/B handoff to U6
+    proof.ts          # offline, editor-free network/footprint/raster proof
+  loadProject.ts      # session-validated scratch / committed publish loaders (fail-closed graph)
+  cli.mjs             # validate|preflight|status|proof|reset|launch|publish (U6 extends; adds apply)
+  reset.ts            # rehearsal clean-P0 scratch reset (never the landing worktree; copies editor-plugins)
+  launch.ts           # executable loopback-only provenance verb (parses <scratch>; vendor-gated)
+  session/            # reusable real-Editor provenance seam (server/workbench/graph/guards/evidence)
 
 games/shell_proof_phaser/authoring/
   phaser-editor/    # editor project: 7 .scene (390x844), Semantic component, editor asset-pack, config
@@ -48,6 +50,42 @@ games/shell_proof_phaser/authoring/
   refs/authoring/   # per-renderer authoring references (refs/runtime/** is U6's)
 ```
 
+## Publishing (scratch → immutable publication)
+
+```
+tsx src/cli.mjs publish <scratch> [--out <publicationRoot>]
+```
+
+`publish` loads an **explicit, session-validated scratch** (minted by `reset`,
+GUI-compiled in P6, always **outside** the landing worktree) as a full
+`PublishInput`: the seven `.scene` authority + their accepted generated `.ts`,
+the `Semantic` user-component (`.components` authority + generated `.ts`), the
+curated `catalog.json`, the editor `asset-pack.json` + its raster/font payloads +
+`publicroot` + `phasereditor2d.config.json`, and the allowlisted `editor-plugins`.
+It **fails closed** (nonzero, zero writes) on a missing, symlinked, or unexpected
+generated-graph file, on any validation/AST-parity/plugin-trust block, and on a
+differing-bytes collision with an existing `publicationId`.
+
+The canonical runtime projection `scenes/shell.js` is **DERIVED** from the
+accepted generated `.ts` graph by `deriveRuntime.ts` (preseeded TypeScript
+compiler API): it strips the type annotations + Editor user-code marker comments,
+drops the per-module imports, renames the Editor `editorCreate` build method,
+inlines the `Semantic` component, and concatenates the classes into one ES module
+that binds Phaser from the runtime global/local contract (`globalThis.Phaser`)
+and exports a stable seven-state registry + `boot()` for the browser proof. The
+publisher **never accepts arbitrary caller bytes** — a source change necessarily
+moves the bundle, and the published bytes equal the independently-derived bytes.
+
+The `publicationId` authenticates the authoritative Editor sources — the editor
+asset-pack, editor config, the seven scenes, and the `Semantic.components`
+user-component authority — plus the curated catalog (via `assetCatalogHash`),
+with **non-circular preimages**. The portable `manifest.json` additionally hashes
+**every** retained file (the generated module graph, `Semantic.components`,
+`catalog.json`, the allowlisted plugins, all payloads/fonts, and the derived
+projection). The default `--out` is the committed `authoring/publications` root,
+but a block **never** mutates it; the accepted **P0/A/B** set is published only in
+the vendor-gated P6 leg (below), not here.
+
 ## Verification
 
 The card's authoritative command:
@@ -56,9 +94,13 @@ The card's authoritative command:
 npm --workspace @fabrikav2/phaser-shell run verify-authoring && npm run audit && npm run project-gate
 ```
 
-`verify-authoring` runs the **editor-free** health chain — `typecheck` +
-`test:unit` + `lint` + `validate` on the committed seven-scene project. It adds
-**scripts/config/source only**; `npm ci` leaves `package-lock.json`
+`verify-authoring` runs the complete **editor-free** health chain: tooling
+`typecheck` + unit tests + lint + validation + seven-state browser render +
+build, followed by the proof game's typecheck + unit tests + build. Editor-
+generated TypeScript and immutable publication snapshots are validated by the
+Phaser authoring AST/manifest gates rather than rewritten to satisfy the game
+workspace's runtime-source lint rules. It
+adds **scripts/config/source only**; `npm ci` leaves `package-lock.json`
 byte-identical (deps preseeded by the U1 head). Run `project-gate` /
 `fence-gate` for the phaser lane with `FENCE_GATE_LANE=phaser`.
 

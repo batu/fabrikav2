@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { parseSceneDoc, type SceneDoc } from '../src/authoring/sceneModel.ts';
-import { parseCatalog, type Catalog } from '../src/authoring/catalog.ts';
+import { parseCatalog, type Catalog, type SeedAsset } from '../src/authoring/catalog.ts';
 import { loadEditorAssets } from '../src/authoring/editorAssets.ts';
 import { STATE_IDS } from '../src/authoring/extractV2.ts';
 import { validateProject } from '../src/publish/validate.ts';
@@ -20,6 +20,9 @@ const pack = readJson(
 const assets = loadEditorAssets(repoPath(
   'games', 'shell_proof_phaser', 'authoring', 'phaser-editor', 'public',
 ), pack);
+const seedAssets = (readJson(
+  'games', 'shell_proof_phaser', 'design', 'kenney-seed.manifest.json',
+) as { assetCatalog: { assets: SeedAsset[] } }).assetCatalog.assets;
 
 /** Validate the committed project after setting menu.title copy to `copy`. */
 function validateWithTitleCopy(copy: string) {
@@ -35,6 +38,7 @@ function validateWithTitleCopy(copy: string) {
   return validateProject({
     scenes,
     catalog,
+    seedAssets,
     editorPack: pack,
     editorAssetBytesByUrl: assets.bytesByUrl,
     editorAssetSymlinks: assets.symlinkUrls,
