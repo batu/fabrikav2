@@ -214,7 +214,20 @@ function actionId(binding: string): string {
   return binding.startsWith("flow.") ? binding.slice(5) : binding;
 }
 
+const RESULT_ACTION_SURFACE_BINDING: Readonly<Record<string, string>> = Object.freeze({
+  "flow.next": "flow.claim",
+  "flow.result-home": "flow.claim-double",
+});
+
 function authoredActionBounds(scene: Phaser.Scene, object: ProjectedObject): Phaser.Geom.Rectangle | undefined {
+  const pairedBinding = object.__Semantic
+    ? RESULT_ACTION_SURFACE_BINDING[object.__Semantic.fabBinding]
+    : undefined;
+  if (pairedBinding) {
+    const pairedObject = (scene.children.list as ProjectedObject[])
+      .find((candidate) => candidate.__Semantic?.fabBinding === pairedBinding);
+    if (pairedObject) return authoredActionBounds(scene, pairedObject);
+  }
   const semanticBounds = object.getBounds?.();
   if (!semanticBounds) return undefined;
   const centerX = semanticBounds.centerX;
@@ -255,6 +268,52 @@ function authoredActionBounds(scene: Phaser.Scene, object: ProjectedObject): Pha
   const width = Math.max(48, authored.width);
   const height = Math.max(48, authored.height);
   return new Phaser.Geom.Rectangle(authored.centerX - width / 2, authored.centerY - height / 2, width, height);
+}
+
+function semanticObject(scene: Phaser.Scene, binding: string): ProjectedObject | undefined {
+  return (scene.children.list as ProjectedObject[]).find((object) => object.__Semantic?.fabBinding === binding);
+}
+
+/**
+ * The accepted Editor scene carries one primary and one secondary result
+ * control while exposing two mutually exclusive semantic label pairs. Bind the
+ * claimed labels to those authored controls and remove the pre-claim ad glyph
+ * from the reused secondary surface. Geometry, colours, fonts, and hit areas
+ * still come from the accepted publication; the runtime only selects which
+ * authored semantic pair owns them.
+ */
+function syncWinResultPresentation(scene: Phaser.Scene, snapshot: TemplateShellSnapshot): void {
+  if (scene.scene.key !== SCENE_KEY.win) return;
+  const claim = semanticObject(scene, "flow.claim");
+  const claimDouble = semanticObject(scene, "flow.claim-double");
+  const next = semanticObject(scene, "flow.next");
+  const home = semanticObject(scene, "flow.result-home");
+  if (!claim || !claimDouble || !next || !home) return;
+  if (!(claim instanceof Phaser.GameObjects.Text)
+    || !(claimDouble instanceof Phaser.GameObjects.Text)
+    || !(next instanceof Phaser.GameObjects.Text)
+    || !(home instanceof Phaser.GameObjects.Text)) return;
+  const primary = authoredActionBounds(scene, claim);
+  const secondary = authoredActionBounds(scene, claimDouble);
+  if (!primary || !secondary) return;
+
+  next.setPosition(primary.centerX, primary.centerY + (claim.y - primary.centerY));
+  next.setFontFamily(claim.style.fontFamily);
+  next.setFontSize(claim.style.fontSize);
+  next.setColor(claim.style.color);
+  home.setPosition(secondary.centerX, secondary.centerY + (claimDouble.y - secondary.centerY));
+  home.setFontFamily(claimDouble.style.fontFamily);
+  home.setFontSize(claimDouble.style.fontSize);
+  home.setColor(claimDouble.style.color);
+
+  for (const candidate of scene.children.list as ProjectedObject[]) {
+    if (candidate.__Semantic) continue;
+    const bounds = candidate.getBounds?.();
+    if (!bounds || !secondary.contains(bounds.centerX, bounds.centerY)) continue;
+    if (bounds.width >= secondary.width || bounds.height >= secondary.height) continue;
+    candidate.visible = !snapshot.rewardClaimed;
+    candidate.alpha = snapshot.rewardClaimed ? 0 : 1;
+  }
 }
 
 function actionState(binding: string, snapshot: TemplateShellSnapshot): {
@@ -319,6 +378,9 @@ export async function mountPhaserProjection(options: {
 
   let paintedSurface: Surface | undefined;
   let postRenderSeen = false;
+  let renderGeneration = 0;
+  let wiredGeneration = -1;
+  let paintedGeneration = -1;
 
   // Projection identity is carried nonvisually only — the boot log
   // (`[fabrikav2:projection-ready]`) and the frozen evidence probe's
@@ -326,6 +388,7 @@ export async function mountPhaserProjection(options: {
   const wireScene = (scene: Phaser.Scene): void => {
     const objects = scene.children.list as ProjectedObject[];
     const snapshot = options.controller.snapshot();
+    syncWinResultPresentation(scene, snapshot);
     for (const object of objects) {
       const semantic = object.__Semantic;
       if (!semantic || (!semantic.fabBinding.startsWith("flow.") && !semantic.fabBinding.startsWith("settings.") && semantic.fabBinding !== "commerce.bundle")) continue;
@@ -336,10 +399,15 @@ export async function mountPhaserProjection(options: {
   game.events.on(Phaser.Core.Events.POST_RENDER, () => {
     const scene = activeScene(game);
     if (!scene) return;
-    wireScene(scene);
     const expected = SCENE_KEY[options.controller.snapshot().surface];
     if (scene.scene.key === expected) {
+      if (wiredGeneration !== renderGeneration) {
+        wireScene(scene);
+        wiredGeneration = renderGeneration;
+        return;
+      }
       paintedSurface = options.controller.snapshot().surface;
+      paintedGeneration = renderGeneration;
       postRenderSeen = true;
     }
   });
@@ -366,6 +434,7 @@ export async function mountPhaserProjection(options: {
     game,
     identity: options.identity,
     render(): void {
+      renderGeneration += 1;
       const surface = options.controller.snapshot().surface;
       const key = SCENE_KEY[surface];
       postRenderSeen = false;
@@ -375,11 +444,16 @@ export async function mountPhaserProjection(options: {
       }
       else {
         const scene = activeScene(game);
-        if (scene) wireScene(scene);
+        if (scene) {
+          wireScene(scene);
+          wiredGeneration = renderGeneration;
+        }
       }
     },
     ready(): boolean {
-      return postRenderSeen && paintedSurface === options.controller.snapshot().surface;
+      return postRenderSeen
+        && paintedGeneration === renderGeneration
+        && paintedSurface === options.controller.snapshot().surface;
     },
     actions(): readonly PhaserProjectionAction[] {
       const scene = activeScene(game);

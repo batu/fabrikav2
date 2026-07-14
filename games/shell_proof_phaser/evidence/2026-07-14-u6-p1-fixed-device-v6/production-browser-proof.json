@@ -1,0 +1,120 @@
+{
+  "expectedPublication": "sha256-35690099c42593fc9811c2def04218957aa918111d110a174a2bfb9485e7bbb9",
+  "expectedProjection": "sha256-b861cff16366bd968fefce020224fa1d0deb4195fd9141e6b687e9539c33c5bd",
+  "claim": {
+    "actionId": "claim",
+    "instanceId": "win.claim",
+    "x": 57.06947115384615,
+    "y": 477.1943127962086,
+    "width": 282.84543269230767,
+    "height": 57.725118483412324,
+    "visible": true,
+    "disabled": false
+  },
+  "result": {
+    "probe": {
+      "probeVersion": 1,
+      "gameId": "shell_proof_phaser",
+      "contractId": "shell-presentation-v2",
+      "rendererProfile": "phaser-native",
+      "state": "win",
+      "revision": "sha256-b861cff16366bd968fefce020224fa1d0deb4195fd9141e6b687e9539c33c5bd",
+      "sentinel": "b861cff1",
+      "ready": true,
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "devicePixelRatio": 1
+      },
+      "actions": [
+        {
+          "actionId": "claim",
+          "instanceId": "win.claim",
+          "x": 57.06947115384615,
+          "y": 477.1943127962086,
+          "width": 282.84543269230767,
+          "height": 57.725118483412324,
+          "visible": false,
+          "disabled": true
+        },
+        {
+          "actionId": "claim-double",
+          "instanceId": "win.claim-double",
+          "x": 57.06947115384615,
+          "y": 550.3127962085308,
+          "width": 282.84543269230767,
+          "height": 69.2701421800948,
+          "visible": false,
+          "disabled": true
+        },
+        {
+          "actionId": "next",
+          "instanceId": "win.next",
+          "x": 57.06947115384615,
+          "y": 477.1943127962086,
+          "width": 282.84543269230767,
+          "height": 57.725118483412324,
+          "visible": true,
+          "disabled": false
+        },
+        {
+          "actionId": "result-home",
+          "instanceId": "win.home",
+          "x": 57.06947115384615,
+          "y": 550.3127962085308,
+          "width": 282.84543269230767,
+          "height": 69.2701421800948,
+          "visible": true,
+          "disabled": false
+        }
+      ]
+    },
+    "controller": {
+      "currentLevel": 3,
+      "completedLevels": [
+        1,
+        2
+      ],
+      "currency": 30,
+      "settings": {
+        "music": true,
+        "sfx": true,
+        "haptics": true
+      },
+      "activeLevel": 2,
+      "surface": "win",
+      "scene": "complete",
+      "status": "won",
+      "inputReady": false,
+      "settingsOpen": false,
+      "settingsOrigin": null,
+      "shopOpen": false,
+      "secondaryCurrency": 12,
+      "shopItems": [
+        {
+          "id": "item_alpha",
+          "status": "available"
+        },
+        {
+          "id": "item_beta",
+          "status": "owned"
+        },
+        {
+          "id": "item_gamma",
+          "status": "locked"
+        }
+      ],
+      "adProvider": "proof-rewarded",
+      "rewardAmount": 5,
+      "rewardClaimed": true,
+      "rewardClaimedDouble": false,
+      "adAvailable": true,
+      "continueCost": 10,
+      "continueAffordable": true,
+      "bundleAvailable": true,
+      "bundlePrice": "$4.99"
+    },
+    "canvasCount": 1,
+    "hasWebglContext": true
+  }
+}
