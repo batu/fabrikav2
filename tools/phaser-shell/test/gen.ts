@@ -32,6 +32,8 @@ export function synthGeneratedSource(doc: SceneDoc): string {
     'import Phaser from "phaser";',
     'import Semantic from "../components/Semantic";',
     `export default class ${doc.sceneKey} extends Phaser.Scene {`,
+    `  constructor() { super(${JSON.stringify(doc.sceneKey)}); }`,
+    '  preload(): void { this.load.pack("asset-pack", "asset-pack.json"); }',
     '  editorCreate(): void {',
   ];
   flat.forEach(({ raw }, i) => {
@@ -66,14 +68,17 @@ export function synthGeneratedSource(doc: SceneDoc): string {
       if (typeof raw['text'] === 'string') lines.push(`    ${v}.text = ${JSON.stringify(raw['text'])};`);
       const style = Object.fromEntries(
         ['color', 'fontFamily', 'fontSize']
-          .filter((key) => typeof raw[key] === 'string')
+          .filter((key) => typeof raw[key] === 'string'
+            || (key === 'fontSize' && typeof raw[key] === 'number' && Number.isFinite(raw[key])))
           .map((key) => [key, raw[key]]),
       );
       if (Object.keys(style).length > 0) lines.push(`    ${v}.setStyle(${JSON.stringify(style)});`);
     } else if (raw['tint'] !== undefined) {
       lines.push(`    ${v}.tint = ${JSON.stringify(colorNumber(raw['tint']))};`);
     }
-    for (const property of ['fillAlpha', 'fillColor', 'isFilled', 'isStroked', 'lineWidth', 'strokeColor'] as const) {
+    for (const property of [
+      'alpha', 'fillAlpha', 'fillColor', 'isFilled', 'isStroked', 'lineWidth', 'strokeAlpha', 'strokeColor',
+    ] as const) {
       if (raw[property] !== undefined) lines.push(`    ${v}.${property} = ${JSON.stringify(colorNumber(raw[property]))};`);
     }
     if (typeof raw['rounded'] === 'number') lines.push(`    ${v}.setRounded(${raw['rounded']});`);
@@ -92,7 +97,8 @@ export function synthGeneratedSource(doc: SceneDoc): string {
   flat.forEach((entry, i) => {
     if (entry.parent !== null) lines.push(`    o${entry.parent}.add(o${i});`);
   });
-  lines.push('  }', '}', '');
+  lines.push('    this.events.emit("scene-awake");');
+  lines.push('  }', '  create() { this.editorCreate(); }', '}', '');
   return lines.join('\n');
 }
 
