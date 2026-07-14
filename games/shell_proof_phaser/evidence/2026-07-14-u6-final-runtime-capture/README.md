@@ -8,7 +8,7 @@ a visual-fidelity verdict because no trusted reference image is configured.
 
 ## Build and target
 
-- Runtime commit: `cb19dcd83b525d780596cb2ce4b6fc2452ed6e35`
+- Runtime commit: `d3f8d2e389c0c57b1685ad976c2526066fe741f2`
 - Accepted publication B: `sha256-9b380659304aad012337a0e6a75a815c6d0a419f1116c04c1cf4e29de98c2980`
 - Selected projection: `sha256-8f2a0286b74bff896ddb760fd1d41360d31d727cbea64bb039622fb4b6aedd97`
 - Device: Pixel 6a `27091JEGR22183`
@@ -18,10 +18,9 @@ a visual-fidelity verdict because no trusted reference image is configured.
 
 ## Observations
 
-- `pixel6a-playthrough.mp4` is an 8.000 second physical-device ADB
-  screenrecord that drives through Menu → Level → Win pre-claim → Win
-  post-claim. The recording begins with the Home transition out of the prior
-  post-claim state; the four sampled frames preserve the stated sequence.
+- `pixel6a-playthrough.mp4` is a 7.991 second physical-device ADB
+  screenrecord of Menu → Level → Win pre-claim → Win post-claim; the four
+  sampled frames preserve that sequence.
 - The four sampled frames were reviewed independently and explicitly identify
   Claim + Watch Ad before the tap and Next + Home after it.
 - The previously observed recorder black-frame corruption is absent after the
