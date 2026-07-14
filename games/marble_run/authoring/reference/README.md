@@ -34,7 +34,12 @@ Author at 390 x 844 portrait. Preserve the declared parent/group and instance se
 From the repository root:
 
 ```sh
-shasum -a 256 games/marble_run/design/assets/* games/marble_run/design/assets/fonts/*
+set -eu
+for file in games/marble_run/design/assets/* games/marble_run/design/assets/fonts/*; do
+  if [ -f "$file" ]; then
+    shasum -a 256 "$file"
+  fi
+done
 ```
 
 The result must match `assets.yaml`. No regeneration, optimization, conversion, or substitution is permitted.
