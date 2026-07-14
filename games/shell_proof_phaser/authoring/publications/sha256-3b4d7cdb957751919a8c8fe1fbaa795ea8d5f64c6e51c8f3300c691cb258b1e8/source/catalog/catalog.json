@@ -1,0 +1,659 @@
+{
+  "contractId": "shell-presentation-v2",
+  "contractVersion": "2.0.0",
+  "description": "Curated raster tray for the Phaser Editor shell authoring lane. Every entry is a frozen design/assets/*.png source raster with full R9 metadata (name, purpose, slot compatibility, source dimensions, alpha policy, provenance). An asset binding may reference only an id present here. Generated from design/kenney-seed.manifest.json + the frozen kernel v2 contract.",
+  "entries": [
+    {
+      "id": "button-surface.primary",
+      "packKey": "button_surface_primary",
+      "name": "Primary action surface",
+      "purpose": "Green rounded rectangle surface used behind the template's primary shell action labels.",
+      "slotId": "button-surface",
+      "slotCompatibility": [
+        "bottom-primary-action",
+        "bottom-secondary-action",
+        "bottom-left-test-action",
+        "bottom-right-test-action"
+      ],
+      "dimensions": {
+        "width": 384,
+        "height": 128
+      },
+      "alphaPolicy": "allowed",
+      "path": "assets/button-surface-primary.png",
+      "mimeType": "image/png",
+      "bytes": 1056,
+      "hasAlpha": true,
+      "sha256": "sha256-93318e40822c39a2ba6aec45a099d9da9bb101644198444a004cba3a354064bf",
+      "provenance": {
+        "sourceId": "kenney-ui-pack-2.0",
+        "sourcePath": "PNG/Green/Double/button_rectangle_depth_gradient.png",
+        "sourceHash": "sha256-93318e40822c39a2ba6aec45a099d9da9bb101644198444a004cba3a354064bf",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "button-surface.secondary",
+      "packKey": "button_surface_secondary",
+      "name": "Secondary action surface",
+      "purpose": "Blue rounded rectangle surface used behind the template's secondary shell action labels.",
+      "slotId": "button-surface",
+      "slotCompatibility": [
+        "bottom-primary-action",
+        "bottom-secondary-action",
+        "bottom-left-test-action",
+        "bottom-right-test-action"
+      ],
+      "dimensions": {
+        "width": 384,
+        "height": 128
+      },
+      "alphaPolicy": "allowed",
+      "path": "assets/button-surface-secondary.png",
+      "mimeType": "image/png",
+      "bytes": 1080,
+      "hasAlpha": true,
+      "sha256": "sha256-5cb0ab21ffb2e35c31abcaeddcabc654775d88cc1b86c950341f42d98b503e7c",
+      "provenance": {
+        "sourceId": "kenney-ui-pack-2.0",
+        "sourcePath": "PNG/Blue/Double/button_rectangle_depth_gradient.png",
+        "sourceHash": "sha256-5cb0ab21ffb2e35c31abcaeddcabc654775d88cc1b86c950341f42d98b503e7c",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "button-surface.test-lose",
+      "packKey": "button_surface_test_lose",
+      "name": "Test lose action surface",
+      "purpose": "Blue bordered rectangle surface used by the template's deterministic lose test action.",
+      "slotId": "button-surface",
+      "slotCompatibility": [
+        "bottom-primary-action",
+        "bottom-secondary-action",
+        "bottom-left-test-action",
+        "bottom-right-test-action"
+      ],
+      "dimensions": {
+        "width": 384,
+        "height": 128
+      },
+      "alphaPolicy": "allowed",
+      "path": "assets/button-surface-test-lose.png",
+      "mimeType": "image/png",
+      "bytes": 819,
+      "hasAlpha": true,
+      "sha256": "sha256-4d141ba650e066bb7c1291a1f5924ec6334ab4f3343dc657c5c109c0bb694351",
+      "provenance": {
+        "sourceId": "kenney-ui-pack-2.0",
+        "sourcePath": "PNG/Blue/Double/button_rectangle_depth_border.png",
+        "sourceHash": "sha256-4d141ba650e066bb7c1291a1f5924ec6334ab4f3343dc657c5c109c0bb694351",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "button-surface.test-win",
+      "packKey": "button_surface_test_win",
+      "name": "Test win action surface",
+      "purpose": "Green flat rectangle surface used by the template's deterministic win test action.",
+      "slotId": "button-surface",
+      "slotCompatibility": [
+        "bottom-primary-action",
+        "bottom-secondary-action",
+        "bottom-left-test-action",
+        "bottom-right-test-action"
+      ],
+      "dimensions": {
+        "width": 384,
+        "height": 128
+      },
+      "alphaPolicy": "allowed",
+      "path": "assets/button-surface-test-win.png",
+      "mimeType": "image/png",
+      "bytes": 785,
+      "hasAlpha": true,
+      "sha256": "sha256-01b8240b2cbf3af3bcabb8a7daf458a111bc4f139f8d415d255a334f50754c20",
+      "provenance": {
+        "sourceId": "kenney-ui-pack-2.0",
+        "sourcePath": "PNG/Green/Double/button_rectangle_depth_flat.png",
+        "sourceHash": "sha256-01b8240b2cbf3af3bcabb8a7daf458a111bc4f139f8d415d255a334f50754c20",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "counter-frame.primary-currency",
+      "packKey": "counter_frame_primary_currency",
+      "name": "Primary currency marker",
+      "purpose": "White star glyph used inside the primary currency counter to identify its displayed value.",
+      "slotId": "counter-frame",
+      "slotCompatibility": [
+        "currency-counter"
+      ],
+      "dimensions": {
+        "width": 100,
+        "height": 100
+      },
+      "alphaPolicy": "allowed",
+      "path": "assets/counter-frame-primary-currency.png",
+      "mimeType": "image/png",
+      "bytes": 548,
+      "hasAlpha": true,
+      "sha256": "sha256-cd4068a305467ff528cdc102b1ddfd8fd8c99c9f4c2e8dde403bfdda225876d7",
+      "provenance": {
+        "sourceId": "kenney-game-icons-1.0",
+        "sourcePath": "PNG/White/2x/star.png",
+        "sourceHash": "sha256-cd4068a305467ff528cdc102b1ddfd8fd8c99c9f4c2e8dde403bfdda225876d7",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "icon-control.back",
+      "packKey": "icon_control_back",
+      "name": "Back icon",
+      "purpose": "White previous-arrow glyph used inside a shell icon control that navigates backward.",
+      "slotId": "icon-control",
+      "slotCompatibility": [
+        "top-icon-action",
+        "header-back-action"
+      ],
+      "dimensions": {
+        "width": 100,
+        "height": 100
+      },
+      "alphaPolicy": "required",
+      "path": "assets/icon-control-back.png",
+      "mimeType": "image/png",
+      "bytes": 419,
+      "hasAlpha": true,
+      "sha256": "sha256-e879a6424048aeca8e93d86074b81f2ce83267ad546ffd8f7682bf7788d76dfd",
+      "provenance": {
+        "sourceId": "kenney-game-icons-1.0",
+        "sourcePath": "PNG/White/2x/previous.png",
+        "sourceHash": "sha256-e879a6424048aeca8e93d86074b81f2ce83267ad546ffd8f7682bf7788d76dfd",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "icon-control.confirm",
+      "packKey": "icon_control_confirm",
+      "name": "Confirm icon",
+      "purpose": "White checkmark glyph used inside a shell icon control to confirm a visible choice.",
+      "slotId": "icon-control",
+      "slotCompatibility": [
+        "top-icon-action",
+        "header-back-action"
+      ],
+      "dimensions": {
+        "width": 100,
+        "height": 100
+      },
+      "alphaPolicy": "required",
+      "path": "assets/icon-control-confirm.png",
+      "mimeType": "image/png",
+      "bytes": 604,
+      "hasAlpha": true,
+      "sha256": "sha256-d7c1b640b57cfd8629266c010994dc58d7b64042fce50ac68959939a3dc510a4",
+      "provenance": {
+        "sourceId": "kenney-game-icons-1.0",
+        "sourcePath": "PNG/White/2x/checkmark.png",
+        "sourceHash": "sha256-d7c1b640b57cfd8629266c010994dc58d7b64042fce50ac68959939a3dc510a4",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "icon-control.haptics",
+      "packKey": "icon_control_haptics",
+      "name": "Haptics icon",
+      "purpose": "White gamepad glyph used inside a shell icon control for the haptics preference.",
+      "slotId": "icon-control",
+      "slotCompatibility": [
+        "top-icon-action",
+        "header-back-action"
+      ],
+      "dimensions": {
+        "width": 100,
+        "height": 100
+      },
+      "alphaPolicy": "required",
+      "path": "assets/icon-control-haptics.png",
+      "mimeType": "image/png",
+      "bytes": 337,
+      "hasAlpha": true,
+      "sha256": "sha256-a7ad442bc5afb30a65acaed7996b864cc9de30797f9426512043b4b3f4c3314b",
+      "provenance": {
+        "sourceId": "kenney-game-icons-1.0",
+        "sourcePath": "PNG/White/2x/gamepad.png",
+        "sourceHash": "sha256-a7ad442bc5afb30a65acaed7996b864cc9de30797f9426512043b4b3f4c3314b",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "icon-control.home",
+      "packKey": "icon_control_home",
+      "name": "Home icon",
+      "purpose": "White house glyph used inside a shell icon control that returns to the home menu.",
+      "slotId": "icon-control",
+      "slotCompatibility": [
+        "top-icon-action",
+        "header-back-action"
+      ],
+      "dimensions": {
+        "width": 100,
+        "height": 100
+      },
+      "alphaPolicy": "required",
+      "path": "assets/icon-control-home.png",
+      "mimeType": "image/png",
+      "bytes": 325,
+      "hasAlpha": true,
+      "sha256": "sha256-41c7b600a7a4a7dec13cb445288ebbecaa3ecdc69a86e1db794b3282c0e47721",
+      "provenance": {
+        "sourceId": "kenney-game-icons-1.0",
+        "sourcePath": "PNG/White/2x/home.png",
+        "sourceHash": "sha256-41c7b600a7a4a7dec13cb445288ebbecaa3ecdc69a86e1db794b3282c0e47721",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "icon-control.music-off",
+      "packKey": "icon_control_music_off",
+      "name": "Music off icon",
+      "purpose": "White muted-music glyph used inside a shell icon control for disabled music.",
+      "slotId": "icon-control",
+      "slotCompatibility": [
+        "top-icon-action",
+        "header-back-action"
+      ],
+      "dimensions": {
+        "width": 100,
+        "height": 100
+      },
+      "alphaPolicy": "required",
+      "path": "assets/icon-control-music-off.png",
+      "mimeType": "image/png",
+      "bytes": 596,
+      "hasAlpha": true,
+      "sha256": "sha256-a8503490b458cf47b712f01a5b4d25a7c0279e886237a4434d6eb22935773e98",
+      "provenance": {
+        "sourceId": "kenney-game-icons-1.0",
+        "sourcePath": "PNG/White/2x/musicOff.png",
+        "sourceHash": "sha256-a8503490b458cf47b712f01a5b4d25a7c0279e886237a4434d6eb22935773e98",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "icon-control.music-on",
+      "packKey": "icon_control_music_on",
+      "name": "Music on icon",
+      "purpose": "White music glyph used inside a shell icon control for enabled background music.",
+      "slotId": "icon-control",
+      "slotCompatibility": [
+        "top-icon-action",
+        "header-back-action"
+      ],
+      "dimensions": {
+        "width": 100,
+        "height": 100
+      },
+      "alphaPolicy": "required",
+      "path": "assets/icon-control-music-on.png",
+      "mimeType": "image/png",
+      "bytes": 475,
+      "hasAlpha": true,
+      "sha256": "sha256-b666a8892c785a5314b9c828affab3f5fc058e220907284f3e22a8b89088cee4",
+      "provenance": {
+        "sourceId": "kenney-game-icons-1.0",
+        "sourcePath": "PNG/White/2x/musicOn.png",
+        "sourceHash": "sha256-b666a8892c785a5314b9c828affab3f5fc058e220907284f3e22a8b89088cee4",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "icon-control.next",
+      "packKey": "icon_control_next",
+      "name": "Next icon",
+      "purpose": "White forward-arrow glyph used inside a shell icon control that advances to the next step.",
+      "slotId": "icon-control",
+      "slotCompatibility": [
+        "top-icon-action",
+        "header-back-action"
+      ],
+      "dimensions": {
+        "width": 100,
+        "height": 100
+      },
+      "alphaPolicy": "required",
+      "path": "assets/icon-control-next.png",
+      "mimeType": "image/png",
+      "bytes": 422,
+      "hasAlpha": true,
+      "sha256": "sha256-93b1852e9bbd78a97a621b074a3512104b57f09bfcdd9f61371a9a2dbbe30b56",
+      "provenance": {
+        "sourceId": "kenney-game-icons-1.0",
+        "sourcePath": "PNG/White/2x/next.png",
+        "sourceHash": "sha256-93b1852e9bbd78a97a621b074a3512104b57f09bfcdd9f61371a9a2dbbe30b56",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "icon-control.pause",
+      "packKey": "icon_control_pause",
+      "name": "Pause icon",
+      "purpose": "White pause glyph used inside the shell icon control that pauses active gameplay.",
+      "slotId": "icon-control",
+      "slotCompatibility": [
+        "top-icon-action",
+        "header-back-action"
+      ],
+      "dimensions": {
+        "width": 100,
+        "height": 100
+      },
+      "alphaPolicy": "required",
+      "path": "assets/icon-control-pause.png",
+      "mimeType": "image/png",
+      "bytes": 269,
+      "hasAlpha": true,
+      "sha256": "sha256-abce8cfa932b19bfd989a8917d41e3f33c5d9622b85476a2ea1aeef5bc22ec2e",
+      "provenance": {
+        "sourceId": "kenney-game-icons-1.0",
+        "sourcePath": "PNG/White/2x/pause.png",
+        "sourceHash": "sha256-abce8cfa932b19bfd989a8917d41e3f33c5d9622b85476a2ea1aeef5bc22ec2e",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "icon-control.play",
+      "packKey": "icon_control_play",
+      "name": "Play icon",
+      "purpose": "Light play-arrow glyph used inside a shell icon control that starts or resumes play.",
+      "slotId": "icon-control",
+      "slotCompatibility": [
+        "top-icon-action",
+        "header-back-action"
+      ],
+      "dimensions": {
+        "width": 60,
+        "height": 68
+      },
+      "alphaPolicy": "required",
+      "path": "assets/icon-control-play.png",
+      "mimeType": "image/png",
+      "bytes": 489,
+      "hasAlpha": true,
+      "sha256": "sha256-60b1a1812e2263e04e590fb6f0605428930f61b905e5744c99b4bfd854ecb8f5",
+      "provenance": {
+        "sourceId": "kenney-ui-pack-2.0",
+        "sourcePath": "PNG/Extra/Double/icon_play_light.png",
+        "sourceHash": "sha256-60b1a1812e2263e04e590fb6f0605428930f61b905e5744c99b4bfd854ecb8f5",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "icon-control.result-fail",
+      "packKey": "icon_control_result_fail",
+      "name": "Failure result icon",
+      "purpose": "White cross glyph used inside the shell's failure result icon control.",
+      "slotId": "icon-control",
+      "slotCompatibility": [
+        "top-icon-action",
+        "header-back-action"
+      ],
+      "dimensions": {
+        "width": 100,
+        "height": 100
+      },
+      "alphaPolicy": "required",
+      "path": "assets/icon-control-result-fail.png",
+      "mimeType": "image/png",
+      "bytes": 539,
+      "hasAlpha": true,
+      "sha256": "sha256-d2b55e81a6d972700e3373ed9178b935eee2e2d70b850a5a0a1905405cfdae16",
+      "provenance": {
+        "sourceId": "kenney-game-icons-1.0",
+        "sourcePath": "PNG/White/2x/cross.png",
+        "sourceHash": "sha256-d2b55e81a6d972700e3373ed9178b935eee2e2d70b850a5a0a1905405cfdae16",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "icon-control.result-win",
+      "packKey": "icon_control_result_win",
+      "name": "Victory result icon",
+      "purpose": "White trophy glyph used inside the shell's victory result icon control.",
+      "slotId": "icon-control",
+      "slotCompatibility": [
+        "top-icon-action",
+        "header-back-action"
+      ],
+      "dimensions": {
+        "width": 100,
+        "height": 100
+      },
+      "alphaPolicy": "required",
+      "path": "assets/icon-control-result-win.png",
+      "mimeType": "image/png",
+      "bytes": 315,
+      "hasAlpha": true,
+      "sha256": "sha256-505d5570aad9fb0478fcc1e5ec4b3bd2377f593a20013b2cff97c8e955abc515",
+      "provenance": {
+        "sourceId": "kenney-game-icons-1.0",
+        "sourcePath": "PNG/White/2x/trophy.png",
+        "sourceHash": "sha256-505d5570aad9fb0478fcc1e5ec4b3bd2377f593a20013b2cff97c8e955abc515",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "icon-control.retry",
+      "packKey": "icon_control_retry",
+      "name": "Retry icon",
+      "purpose": "Light repeat-arrow glyph used inside a shell icon control that restarts an attempt.",
+      "slotId": "icon-control",
+      "slotCompatibility": [
+        "top-icon-action",
+        "header-back-action"
+      ],
+      "dimensions": {
+        "width": 82,
+        "height": 72
+      },
+      "alphaPolicy": "required",
+      "path": "assets/icon-control-retry.png",
+      "mimeType": "image/png",
+      "bytes": 733,
+      "hasAlpha": true,
+      "sha256": "sha256-be08921888d54804b6f5bbf99e8e7a230f01895c33a39956a073301cdb45fa83",
+      "provenance": {
+        "sourceId": "kenney-ui-pack-2.0",
+        "sourcePath": "PNG/Extra/Double/icon_repeat_light.png",
+        "sourceHash": "sha256-be08921888d54804b6f5bbf99e8e7a230f01895c33a39956a073301cdb45fa83",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "icon-control.return",
+      "packKey": "icon_control_return",
+      "name": "Return icon",
+      "purpose": "White return-arrow glyph used inside a shell icon control that leaves the current view.",
+      "slotId": "icon-control",
+      "slotCompatibility": [
+        "top-icon-action",
+        "header-back-action"
+      ],
+      "dimensions": {
+        "width": 100,
+        "height": 100
+      },
+      "alphaPolicy": "required",
+      "path": "assets/icon-control-return.png",
+      "mimeType": "image/png",
+      "bytes": 629,
+      "hasAlpha": true,
+      "sha256": "sha256-d0e9fbbf5e4cb6847bc5961c8809fbddb0ca98447a2b67fb2daed5e3c67a7fcd",
+      "provenance": {
+        "sourceId": "kenney-game-icons-1.0",
+        "sourcePath": "PNG/White/2x/return.png",
+        "sourceHash": "sha256-d0e9fbbf5e4cb6847bc5961c8809fbddb0ca98447a2b67fb2daed5e3c67a7fcd",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "icon-control.settings",
+      "packKey": "icon_control_settings",
+      "name": "Settings icon",
+      "purpose": "White gear glyph used inside the shell icon control that opens game settings.",
+      "slotId": "icon-control",
+      "slotCompatibility": [
+        "top-icon-action",
+        "header-back-action"
+      ],
+      "dimensions": {
+        "width": 100,
+        "height": 100
+      },
+      "alphaPolicy": "required",
+      "path": "assets/icon-control-settings.png",
+      "mimeType": "image/png",
+      "bytes": 863,
+      "hasAlpha": true,
+      "sha256": "sha256-d20dd95cb1f0d527671f10ff44259c84527705fcda8ed9d74c043960fca4bb27",
+      "provenance": {
+        "sourceId": "kenney-game-icons-1.0",
+        "sourcePath": "PNG/White/2x/gear.png",
+        "sourceHash": "sha256-d20dd95cb1f0d527671f10ff44259c84527705fcda8ed9d74c043960fca4bb27",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "icon-control.shop",
+      "packKey": "icon_control_shop",
+      "name": "Shop icon",
+      "purpose": "White shopping-cart glyph used inside the shell icon control that opens the Shop page.",
+      "slotId": "icon-control",
+      "slotCompatibility": [
+        "top-icon-action",
+        "header-back-action"
+      ],
+      "dimensions": {
+        "width": 100,
+        "height": 100
+      },
+      "alphaPolicy": "required",
+      "path": "assets/icon-control-shop.png",
+      "mimeType": "image/png",
+      "bytes": 529,
+      "hasAlpha": true,
+      "sha256": "sha256-919a8e826f1dd6fda88671e6d8ff52691d93ca7dfa67868ee12a67b9290cc665",
+      "provenance": {
+        "sourceId": "kenney-game-icons-1.0",
+        "sourcePath": "PNG/White/2x/shoppingCart.png",
+        "sourceHash": "sha256-919a8e826f1dd6fda88671e6d8ff52691d93ca7dfa67868ee12a67b9290cc665",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "icon-control.surface",
+      "packKey": "icon_control_surface",
+      "name": "Icon control surface",
+      "purpose": "Blue square button surface used behind a standalone top-bar shell icon control.",
+      "slotId": "icon-control",
+      "slotCompatibility": [
+        "top-icon-action",
+        "header-back-action"
+      ],
+      "dimensions": {
+        "width": 128,
+        "height": 128
+      },
+      "alphaPolicy": "required",
+      "path": "assets/icon-control-surface.png",
+      "mimeType": "image/png",
+      "bytes": 956,
+      "hasAlpha": true,
+      "sha256": "sha256-cb40b01ff701c9edc6f6814bfec3a3ccb1ab443ad044613909df53e3b6fc09bc",
+      "provenance": {
+        "sourceId": "kenney-ui-pack-2.0",
+        "sourcePath": "PNG/Blue/Double/button_square_depth_gradient.png",
+        "sourceHash": "sha256-cb40b01ff701c9edc6f6814bfec3a3ccb1ab443ad044613909df53e3b6fc09bc",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "progression-node.completed",
+      "packKey": "progression_node_completed",
+      "name": "Completed progression node",
+      "purpose": "White unlocked glyph used to identify a completed node in the shell's progression path.",
+      "slotId": "progression-node",
+      "slotCompatibility": [
+        "progression-node"
+      ],
+      "dimensions": {
+        "width": 100,
+        "height": 100
+      },
+      "alphaPolicy": "required",
+      "path": "assets/progression-node-completed.png",
+      "mimeType": "image/png",
+      "bytes": 302,
+      "hasAlpha": true,
+      "sha256": "sha256-28a13bb7afe7fa7fd7004bb3dcbff40c078476c21e3d76246b2ee77400cb4599",
+      "provenance": {
+        "sourceId": "kenney-game-icons-1.0",
+        "sourcePath": "PNG/White/2x/unlocked.png",
+        "sourceHash": "sha256-28a13bb7afe7fa7fd7004bb3dcbff40c078476c21e3d76246b2ee77400cb4599",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "progression-node.current",
+      "packKey": "progression_node_current",
+      "name": "Current progression node",
+      "purpose": "Green round button surface used to identify the current node in the shell's progression path.",
+      "slotId": "progression-node",
+      "slotCompatibility": [
+        "progression-node"
+      ],
+      "dimensions": {
+        "width": 128,
+        "height": 128
+      },
+      "alphaPolicy": "required",
+      "path": "assets/progression-node-current.png",
+      "mimeType": "image/png",
+      "bytes": 2661,
+      "hasAlpha": true,
+      "sha256": "sha256-cf842ce49898e2de4c10ce248341f2fef6a75b3e027218fad9112a998b3d3573",
+      "provenance": {
+        "sourceId": "kenney-ui-pack-2.0",
+        "sourcePath": "PNG/Green/Double/button_round_depth_gradient.png",
+        "sourceHash": "sha256-cf842ce49898e2de4c10ce248341f2fef6a75b3e027218fad9112a998b3d3573",
+        "license": "CC0-1.0"
+      }
+    },
+    {
+      "id": "progression-node.locked",
+      "packKey": "progression_node_locked",
+      "name": "Locked progression node",
+      "purpose": "White lock glyph used to identify an unavailable node in the shell's progression path.",
+      "slotId": "progression-node",
+      "slotCompatibility": [
+        "progression-node"
+      ],
+      "dimensions": {
+        "width": 100,
+        "height": 100
+      },
+      "alphaPolicy": "required",
+      "path": "assets/progression-node-locked.png",
+      "mimeType": "image/png",
+      "bytes": 295,
+      "hasAlpha": true,
+      "sha256": "sha256-de4f91e671256321313f68727817db3d6bfd9092f627f5790ddf24cf7a0a587f",
+      "provenance": {
+        "sourceId": "kenney-game-icons-1.0",
+        "sourcePath": "PNG/White/2x/locked.png",
+        "sourceHash": "sha256-de4f91e671256321313f68727817db3d6bfd9092f627f5790ddf24cf7a0a587f",
+        "license": "CC0-1.0"
+      }
+    }
+  ]
+}

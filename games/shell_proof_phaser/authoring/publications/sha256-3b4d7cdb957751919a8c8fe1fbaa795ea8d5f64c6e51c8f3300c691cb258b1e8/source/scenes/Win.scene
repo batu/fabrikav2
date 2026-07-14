@@ -1,0 +1,523 @@
+{
+    "id": "shell-win",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [
+            "assets/asset-pack.json"
+        ],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Win",
+        "compilerOutputLanguage": "TYPE_SCRIPT",
+        "borderWidth": 390,
+        "borderHeight": 844
+    },
+    "displayList": [
+        {
+            "type": "Rectangle",
+            "id": "win.fab.backdrop",
+            "label": "win.fab.backdrop",
+            "x": 195,
+            "y": 422,
+            "isFilled": true,
+            "fillColor": "#f7f6ef",
+            "width": 390,
+            "height": 844
+        },
+        {
+            "type": "Rectangle",
+            "id": "win.fab.gameplay-card",
+            "label": "win.fab.gameplay-card",
+            "x": 195,
+            "y": 370,
+            "isFilled": true,
+            "fillColor": "#dceef0",
+            "width": 350,
+            "height": 620,
+            "rounded": 28
+        },
+        {
+            "type": "Text",
+            "id": "win.fab.context-level",
+            "label": "win.fab.context-level",
+            "x": 195,
+            "y": 84,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "TRAIL 2",
+            "fontFamily": "kenney_future",
+            "fontSize": "18px",
+            "color": "#173042"
+        },
+        {
+            "type": "Rectangle",
+            "id": "win.fab.context-prompt",
+            "label": "win.fab.context-prompt",
+            "x": 195,
+            "y": 180,
+            "isFilled": true,
+            "fillColor": "#ffffff",
+            "strokeColor": "#abc7cc",
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 300,
+            "height": 112,
+            "rounded": 22
+        },
+        {
+            "type": "Text",
+            "id": "win.fab.context-eyebrow",
+            "label": "win.fab.context-eyebrow",
+            "x": 72,
+            "y": 154,
+            "originY": 0.5,
+            "text": "NEXT STEP",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "14px",
+            "color": "#1f765d"
+        },
+        {
+            "type": "Text",
+            "id": "win.fab.context-copy",
+            "label": "win.fab.context-copy",
+            "x": 72,
+            "y": 194,
+            "originY": 0.5,
+            "text": "A calm path opens ahead.",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "15px",
+            "color": "#173042"
+        },
+        {
+            "type": "Rectangle",
+            "id": "win.fab.context-sun",
+            "label": "win.fab.context-sun",
+            "x": 306,
+            "y": 318,
+            "isFilled": true,
+            "fillColor": "#ffeda2",
+            "width": 48,
+            "height": 48,
+            "rounded": 24
+        },
+        {
+            "type": "Rectangle",
+            "id": "win.fab.context-hill",
+            "label": "win.fab.context-hill",
+            "x": 278,
+            "y": 590,
+            "isFilled": true,
+            "fillColor": "#5da77f",
+            "width": 188,
+            "height": 112,
+            "rounded": 56
+        },
+        {
+            "type": "Rectangle",
+            "id": "win.fab.scrim",
+            "label": "win.fab.scrim",
+            "x": 195,
+            "y": 422,
+            "isFilled": true,
+            "fillColor": "#182a36",
+            "fillAlpha": 0.52,
+            "width": 390,
+            "height": 844
+        },
+        {
+            "type": "Rectangle",
+            "id": "win.fab.card",
+            "label": "win.fab.card",
+            "x": 195,
+            "y": 450,
+            "isFilled": true,
+            "fillColor": "#fff6df",
+            "strokeColor": "#1f765d",
+            "strokeAlpha": 0.8,
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 354,
+            "height": 520,
+            "rounded": 28
+        },
+        {
+            "type": "Rectangle",
+            "id": "win.fab.header-shadow",
+            "label": "win.fab.header-shadow",
+            "x": 1,
+            "y": 1,
+            "isFilled": true,
+            "fillColor": "#f7f6ef",
+            "fillAlpha": 0,
+            "width": 1,
+            "height": 1,
+            "rounded": 22
+        },
+        {
+            "type": "Rectangle",
+            "id": "win.fab.header",
+            "label": "win.fab.header",
+            "x": 1,
+            "y": 1,
+            "isFilled": true,
+            "fillColor": "#f7f6ef",
+            "fillAlpha": 0,
+            "strokeColor": "#1f765d",
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 1,
+            "height": 1,
+            "rounded": 22
+        },
+        {
+            "type": "Image",
+            "id": "win.fab.result-icon-surface",
+            "label": "win.fab.result-icon-surface",
+            "texture": {
+                "key": "icon_control_surface"
+            },
+            "x": 195,
+            "y": 170,
+            "scaleX": 0.01,
+            "scaleY": 0.01,
+            "visible": false
+        },
+        {
+            "type": "Rectangle",
+            "id": "win.fab.result-medal",
+            "label": "win.fab.result-medal",
+            "x": 195,
+            "y": 260,
+            "isFilled": true,
+            "fillColor": "#1f765d",
+            "width": 56,
+            "height": 56,
+            "rounded": 28
+        },
+        {
+            "type": "Image",
+            "id": "win.fab.result-icon",
+            "label": "win.fab.result-icon",
+            "texture": {
+                "key": "icon_control_result_win"
+            },
+            "x": 195,
+            "y": 260,
+            "scaleX": 0.28,
+            "scaleY": 0.28
+        },
+        {
+            "type": "Rectangle",
+            "id": "win.fab.confetti-a",
+            "label": "win.fab.confetti-a",
+            "x": 68,
+            "y": 278,
+            "isFilled": true,
+            "fillColor": "#a94f46",
+            "width": 8,
+            "height": 18,
+            "rounded": 4
+        },
+        {
+            "type": "Rectangle",
+            "id": "win.fab.confetti-b",
+            "label": "win.fab.confetti-b",
+            "x": 102,
+            "y": 340,
+            "isFilled": true,
+            "fillColor": "#365f70",
+            "width": 8,
+            "height": 14,
+            "rounded": 4
+        },
+        {
+            "type": "Rectangle",
+            "id": "win.fab.confetti-c",
+            "label": "win.fab.confetti-c",
+            "x": 150,
+            "y": 270,
+            "isFilled": true,
+            "fillColor": "#ffeda2",
+            "width": 14,
+            "height": 8,
+            "rounded": 4
+        },
+        {
+            "type": "Rectangle",
+            "id": "win.fab.confetti-d",
+            "label": "win.fab.confetti-d",
+            "x": 248,
+            "y": 272,
+            "isFilled": true,
+            "fillColor": "#5da77f",
+            "width": 8,
+            "height": 16,
+            "rounded": 4
+        },
+        {
+            "type": "Rectangle",
+            "id": "win.fab.confetti-e",
+            "label": "win.fab.confetti-e",
+            "x": 286,
+            "y": 356,
+            "isFilled": true,
+            "fillColor": "#a94f46",
+            "width": 14,
+            "height": 8,
+            "rounded": 4
+        },
+        {
+            "type": "Rectangle",
+            "id": "win.fab.confetti-f",
+            "label": "win.fab.confetti-f",
+            "x": 332,
+            "y": 258,
+            "isFilled": true,
+            "fillColor": "#ffeda2",
+            "width": 8,
+            "height": 14,
+            "rounded": 4
+        },
+        {
+            "type": "Rectangle",
+            "id": "win.fab.reward-ribbon",
+            "label": "win.fab.reward-ribbon",
+            "x": 195,
+            "y": 425,
+            "isFilled": true,
+            "fillColor": "#dceef0",
+            "strokeColor": "#abc7cc",
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 294,
+            "height": 110,
+            "rounded": 22
+        },
+        {
+            "type": "Text",
+            "id": "win.fab.explainer",
+            "label": "win.fab.explainer",
+            "x": 195,
+            "y": 457,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "A new route is ready.",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "15px",
+            "color": "#3d5968"
+        },
+        {
+            "type": "Rectangle",
+            "id": "win.fab.claim-control",
+            "label": "win.fab.claim-control",
+            "x": 195,
+            "y": 526,
+            "isFilled": true,
+            "fillColor": "#14724f",
+            "width": 294,
+            "height": 60,
+            "rounded": 20
+        },
+        {
+            "type": "Rectangle",
+            "id": "win.fab.claim-double-control",
+            "label": "win.fab.claim-double-control",
+            "x": 195,
+            "y": 608,
+            "isFilled": true,
+            "fillColor": "#d8eee4",
+            "strokeColor": "#1f765d",
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 294,
+            "height": 72,
+            "rounded": 20
+        },
+        {
+            "type": "Rectangle",
+            "id": "win.fab.claim-double-icon-surface",
+            "label": "win.fab.claim-double-icon-surface",
+            "x": 74,
+            "y": 608,
+            "isFilled": true,
+            "fillColor": "#1f765d",
+            "width": 40,
+            "height": 40,
+            "rounded": 20
+        },
+        {
+            "type": "Image",
+            "id": "win.fab.claim-double-icon",
+            "label": "win.fab.claim-double-icon",
+            "texture": {
+                "key": "icon_control_play"
+            },
+            "x": 74,
+            "y": 608,
+            "scaleX": 0.26,
+            "scaleY": 0.26
+        },
+        {
+            "type": "Image",
+            "id": "win.fab.claim-surface",
+            "label": "win.fab.claim-surface",
+            "texture": {
+                "key": "button_surface_primary"
+            },
+            "x": 195,
+            "y": 650,
+            "scaleX": 0.01,
+            "scaleY": 0.01,
+            "originY": 1,
+            "visible": false
+        },
+        {
+            "type": "Image",
+            "id": "win.fab.claim-double-surface",
+            "label": "win.fab.claim-double-surface",
+            "texture": {
+                "key": "button_surface_secondary"
+            },
+            "x": 195,
+            "y": 738,
+            "scaleX": 0.01,
+            "scaleY": 0.01,
+            "originY": 1,
+            "visible": false
+        },
+        {
+            "type": "Text",
+            "id": "win.panel",
+            "label": "win.panel",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "win.panel",
+            "Semantic.fabRole": "result-panel",
+            "Semantic.fabBinding": "presentation.static",
+            "Semantic.fabSlot": "modal-frame",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 330,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Trail Complete",
+            "fontFamily": "kenney_future",
+            "fontSize": "22px",
+            "color": "#173042"
+        },
+        {
+            "type": "Text",
+            "id": "win.reward",
+            "label": "win.reward",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "win.reward",
+            "Semantic.fabRole": "level-label",
+            "Semantic.fabBinding": "state.reward-amount",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 399,
+            "originX": 0.5,
+            "text": "5 Coins earned",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "20px",
+            "color": "#173042"
+        },
+        {
+            "type": "Text",
+            "id": "win.claim",
+            "label": "win.claim",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "win.claim",
+            "Semantic.fabRole": "bottom-primary-action",
+            "Semantic.fabBinding": "flow.claim",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 540,
+            "originX": 0.5,
+            "originY": 1,
+            "text": "Claim",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "20px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "win.claim-double",
+            "label": "win.claim-double",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "win.claim-double",
+            "Semantic.fabRole": "bottom-secondary-action",
+            "Semantic.fabBinding": "flow.claim-double",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 218,
+            "y": 619,
+            "originX": 0.5,
+            "originY": 1,
+            "text": "Watch ad · Double Coins",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "14px",
+            "color": "#173042"
+        },
+        {
+            "type": "Text",
+            "id": "win.next",
+            "label": "win.next",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "win.next",
+            "Semantic.fabRole": "bottom-primary-action",
+            "Semantic.fabBinding": "flow.next",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 692.08,
+            "originX": 0.5,
+            "originY": 1,
+            "visible": false,
+            "text": "Next",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "win.home",
+            "label": "win.home",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "win.home",
+            "Semantic.fabRole": "bottom-secondary-action",
+            "Semantic.fabBinding": "flow.result-home",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 776.48,
+            "originX": 0.5,
+            "originY": 1,
+            "visible": false,
+            "text": "Home",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#ffffff"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

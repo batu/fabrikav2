@@ -1,0 +1,485 @@
+{
+    "id": "shell-level",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [
+            "assets/asset-pack.json"
+        ],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Level",
+        "compilerOutputLanguage": "TYPE_SCRIPT",
+        "borderWidth": 390,
+        "borderHeight": 844
+    },
+    "displayList": [
+        {
+            "type": "Rectangle",
+            "id": "level.fab.backdrop",
+            "label": "level.fab.backdrop",
+            "x": 195,
+            "y": 422,
+            "isFilled": true,
+            "fillColor": "#f7f6ef",
+            "width": 390,
+            "height": 844
+        },
+        {
+            "type": "Rectangle",
+            "id": "level.fab.header-band",
+            "label": "level.fab.header-band",
+            "x": 195,
+            "y": 52,
+            "isFilled": true,
+            "fillColor": "#e7eef0",
+            "width": 390,
+            "height": 104
+        },
+        {
+            "type": "Rectangle",
+            "id": "level.fab.counter",
+            "label": "level.fab.counter",
+            "x": 16,
+            "y": 28,
+            "originX": 0,
+            "originY": 0,
+            "isFilled": true,
+            "fillColor": "#173042",
+            "width": 120,
+            "height": 48,
+            "rounded": 24
+        },
+        {
+            "type": "Text",
+            "id": "level.fab.balance",
+            "label": "level.fab.balance",
+            "x": 92,
+            "y": 52,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "25 Coins",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "14px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Rectangle",
+            "id": "level.fab.gameplay-card",
+            "label": "level.fab.gameplay-card",
+            "x": 195,
+            "y": 394,
+            "isFilled": true,
+            "fillColor": "#dceef0",
+            "strokeColor": "#abc7cc",
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 350,
+            "height": 540,
+            "rounded": 28
+        },
+        {
+            "type": "Rectangle",
+            "id": "level.fab.sun",
+            "label": "level.fab.sun",
+            "x": 304,
+            "y": 208,
+            "isFilled": true,
+            "fillColor": "#ffeda2",
+            "width": 50,
+            "height": 50,
+            "rounded": 25
+        },
+        {
+            "type": "Rectangle",
+            "id": "level.fab.hill-far",
+            "label": "level.fab.hill-far",
+            "x": 118,
+            "y": 566,
+            "isFilled": true,
+            "fillColor": "#9bcfb1",
+            "width": 190,
+            "height": 86,
+            "rounded": 43
+        },
+        {
+            "type": "Rectangle",
+            "id": "level.fab.hill-near",
+            "label": "level.fab.hill-near",
+            "x": 284,
+            "y": 550,
+            "isFilled": true,
+            "fillColor": "#5da77f",
+            "width": 168,
+            "height": 118,
+            "rounded": 58
+        },
+        {
+            "type": "Text",
+            "id": "level.fab.gameplay-label",
+            "label": "level.fab.gameplay-label",
+            "x": 48,
+            "y": 170,
+            "originY": 0.5,
+            "text": "TRAIL CLEARING",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "14px",
+            "color": "#1f765d"
+        },
+        {
+            "type": "Text",
+            "id": "level.fab.gameplay-title",
+            "label": "level.fab.gameplay-title",
+            "x": 48,
+            "y": 202,
+            "originY": 0.5,
+            "text": "Find the next step",
+            "fontFamily": "kenney_future",
+            "fontSize": "20px",
+            "color": "#173042"
+        },
+        {
+            "type": "Text",
+            "id": "level.fab.gameplay-copy",
+            "label": "level.fab.gameplay-copy",
+            "x": 48,
+            "y": 236,
+            "originY": 0.5,
+            "text": "A calm path opens ahead.",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "15px",
+            "color": "#3d5968"
+        },
+        {
+            "type": "Rectangle",
+            "id": "level.fab.path-a",
+            "label": "level.fab.path-a",
+            "x": 130,
+            "y": 490,
+            "isFilled": true,
+            "fillColor": "#f4e4b7",
+            "width": 110,
+            "height": 10,
+            "rounded": 5
+        },
+        {
+            "type": "Rectangle",
+            "id": "level.fab.path-b",
+            "label": "level.fab.path-b",
+            "x": 185,
+            "y": 450,
+            "isFilled": true,
+            "fillColor": "#f4e4b7",
+            "width": 10,
+            "height": 90,
+            "rounded": 5
+        },
+        {
+            "type": "Rectangle",
+            "id": "level.fab.path-c",
+            "label": "level.fab.path-c",
+            "x": 240,
+            "y": 410,
+            "isFilled": true,
+            "fillColor": "#f4e4b7",
+            "width": 120,
+            "height": 10,
+            "rounded": 5
+        },
+        {
+            "type": "Rectangle",
+            "id": "level.fab.marker-start",
+            "label": "level.fab.marker-start",
+            "x": 75,
+            "y": 490,
+            "isFilled": true,
+            "fillColor": "#72b58e",
+            "width": 54,
+            "height": 54,
+            "rounded": 27
+        },
+        {
+            "type": "Image",
+            "id": "level.fab.marker-start-icon",
+            "label": "level.fab.marker-start-icon",
+            "texture": {
+                "key": "icon_control_confirm"
+            },
+            "x": 75,
+            "y": 490,
+            "scaleX": 0.3,
+            "scaleY": 0.3
+        },
+        {
+            "type": "Rectangle",
+            "id": "level.fab.marker-current-halo",
+            "label": "level.fab.marker-current-halo",
+            "x": 185,
+            "y": 450,
+            "isFilled": true,
+            "fillColor": "#d8eee4",
+            "width": 66,
+            "height": 66,
+            "rounded": 33
+        },
+        {
+            "type": "Image",
+            "id": "level.fab.marker-current",
+            "label": "level.fab.marker-current",
+            "texture": {
+                "key": "progression_node_current"
+            },
+            "x": 185,
+            "y": 450,
+            "scaleX": 0.34,
+            "scaleY": 0.34
+        },
+        {
+            "type": "Rectangle",
+            "id": "level.fab.marker-goal",
+            "label": "level.fab.marker-goal",
+            "x": 300,
+            "y": 410,
+            "isFilled": true,
+            "fillColor": "#1f765d",
+            "width": 54,
+            "height": 54,
+            "rounded": 27
+        },
+        {
+            "type": "Image",
+            "id": "level.fab.marker-goal-icon",
+            "label": "level.fab.marker-goal-icon",
+            "texture": {
+                "key": "icon_control_result_win"
+            },
+            "x": 300,
+            "y": 410,
+            "scaleX": 0.3,
+            "scaleY": 0.3
+        },
+        {
+            "type": "Rectangle",
+            "id": "level.fab.pause-control",
+            "label": "level.fab.pause-control",
+            "x": 354,
+            "y": 52,
+            "isFilled": true,
+            "fillColor": "#365f70",
+            "width": 48,
+            "height": 48,
+            "rounded": 16
+        },
+        {
+            "type": "Image",
+            "id": "level.fab.pause-surface",
+            "label": "level.fab.pause-surface",
+            "texture": {
+                "key": "icon_control_surface"
+            },
+            "x": 374.4,
+            "y": 52,
+            "scaleX": 0.01,
+            "scaleY": 0.01,
+            "originX": 1,
+            "originY": 0,
+            "visible": false
+        },
+        {
+            "type": "Text",
+            "id": "level.fab.outcome-label",
+            "label": "level.fab.outcome-label",
+            "x": 195,
+            "y": 708,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "CHOOSE OUTCOME",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "14px",
+            "color": "#3d5968"
+        },
+        {
+            "type": "Rectangle",
+            "id": "level.fab.test-win-control",
+            "label": "level.fab.test-win-control",
+            "x": 96,
+            "y": 772,
+            "isFilled": true,
+            "fillColor": "#14724f",
+            "width": 160,
+            "height": 56,
+            "rounded": 18
+        },
+        {
+            "type": "Rectangle",
+            "id": "level.fab.test-lose-control",
+            "label": "level.fab.test-lose-control",
+            "x": 294,
+            "y": 772,
+            "isFilled": true,
+            "fillColor": "#a94f46",
+            "strokeColor": "#a94f46",
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 160,
+            "height": 56,
+            "rounded": 18
+        },
+        {
+            "type": "Image",
+            "id": "level.fab.test-win-surface",
+            "label": "level.fab.test-win-surface",
+            "texture": {
+                "key": "button_surface_test_win"
+            },
+            "x": 8,
+            "y": 804,
+            "scaleX": 0.01,
+            "scaleY": 0.01,
+            "originX": 0,
+            "originY": 1,
+            "visible": false
+        },
+        {
+            "type": "Image",
+            "id": "level.fab.test-lose-surface",
+            "label": "level.fab.test-lose-surface",
+            "texture": {
+                "key": "button_surface_test_lose"
+            },
+            "x": 382,
+            "y": 804,
+            "scaleX": 0.01,
+            "scaleY": 0.01,
+            "originX": 1,
+            "originY": 1,
+            "visible": false
+        },
+        {
+            "type": "Image",
+            "id": "level.currency",
+            "label": "level.currency",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "level.currency",
+            "Semantic.fabRole": "currency-counter",
+            "Semantic.fabBinding": "state.primary-currency",
+            "Semantic.fabSlot": "counter-frame",
+            "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "counter_frame_primary_currency"
+            },
+            "x": 24,
+            "y": 38,
+            "scaleX": 0.28,
+            "scaleY": 0.28,
+            "originX": 0,
+            "originY": 0
+        },
+        {
+            "type": "Text",
+            "id": "level.label",
+            "label": "level.label",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "level.label",
+            "Semantic.fabRole": "level-label",
+            "Semantic.fabBinding": "state.level-label",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 52,
+            "originX": 0.5,
+            "text": "Trail 2",
+            "fontFamily": "kenney_future",
+            "fontSize": "22px",
+            "color": "#173042"
+        },
+        {
+            "type": "Image",
+            "id": "level.pause",
+            "label": "level.pause",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "level.pause",
+            "Semantic.fabRole": "top-icon-action",
+            "Semantic.fabBinding": "flow.pause",
+            "Semantic.fabSlot": "icon-control",
+            "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "icon_control_pause"
+            },
+            "x": 372,
+            "y": 34,
+            "scaleX": 0.36,
+            "scaleY": 0.36,
+            "originX": 1,
+            "originY": 0
+        },
+        {
+            "type": "Container",
+            "id": "level.gameplay-region",
+            "label": "level.gameplay-region",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "level.gameplay-region",
+            "Semantic.fabRole": "gameplay-region",
+            "Semantic.fabBinding": "mechanic.mount",
+            "Semantic.fabSlot": "gameplay-background",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 422
+        },
+        {
+            "type": "Text",
+            "id": "level.test-win",
+            "label": "level.test-win",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "level.test-win",
+            "Semantic.fabRole": "bottom-left-test-action",
+            "Semantic.fabBinding": "flow.test-win",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 36,
+            "y": 792,
+            "originY": 1,
+            "text": "Win",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "15px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "level.test-lose",
+            "label": "level.test-lose",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "level.test-lose",
+            "Semantic.fabRole": "bottom-right-test-action",
+            "Semantic.fabBinding": "flow.test-lose",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 354,
+            "y": 792,
+            "originX": 1,
+            "originY": 1,
+            "text": "Lose",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "15px",
+            "color": "#ffffff"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

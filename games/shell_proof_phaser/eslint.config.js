@@ -5,4 +5,18 @@
 // was a silent no-op (research 10 finding 4).
 import base from "../../configs/eslint.config.js";
 
-export default [...base];
+export default [
+  ...base,
+  {
+    // Phaser Editor-generated TypeScript (the live editor project graph) and the
+    // immutable U5 publication snapshots are validated by the phaser authoring
+    // AST/manifest + provenance gates in tools/phaser-shell, NOT rewritten to
+    // satisfy this game workspace's runtime-source lint rules (e.g. no-explicit-any
+    // on Editor-emitted component `.ts`). They are never hand-edited, so the
+    // publication snapshots in particular must never be modified to appease lint.
+    ignores: [
+      "authoring/phaser-editor/src/**/*.ts",
+      "authoring/publications/**",
+    ],
+  },
+];

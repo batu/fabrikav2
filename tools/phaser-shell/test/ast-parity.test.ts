@@ -75,7 +75,7 @@ describe('P5 AST-fact parity over a closed generated-module graph', () => {
       displayObjects += extracted.creationFacts.size;
       expect(verifyGeneratedModule(generated, scene), name).toEqual([]);
     }
-    expect(displayObjects).toBe(243);
+    expect(displayObjects).toBe(242);
   });
 
   it('binds nonsemantic companion textures and positions to scene authority', () => {

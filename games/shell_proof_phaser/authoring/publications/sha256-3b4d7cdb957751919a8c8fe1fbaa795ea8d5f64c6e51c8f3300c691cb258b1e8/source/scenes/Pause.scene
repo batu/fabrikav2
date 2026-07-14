@@ -1,0 +1,293 @@
+{
+    "id": "shell-pause",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [
+            "assets/asset-pack.json"
+        ],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Pause",
+        "compilerOutputLanguage": "TYPE_SCRIPT",
+        "borderWidth": 390,
+        "borderHeight": 844
+    },
+    "displayList": [
+        {
+            "type": "Rectangle",
+            "id": "pause.fab.backdrop",
+            "label": "pause.fab.backdrop",
+            "x": 195,
+            "y": 422,
+            "isFilled": true,
+            "fillColor": "#f7f6ef",
+            "width": 390,
+            "height": 844
+        },
+        {
+            "type": "Rectangle",
+            "id": "pause.fab.gameplay-card",
+            "label": "pause.fab.gameplay-card",
+            "x": 195,
+            "y": 370,
+            "isFilled": true,
+            "fillColor": "#dceef0",
+            "width": 350,
+            "height": 610,
+            "rounded": 28
+        },
+        {
+            "type": "Rectangle",
+            "id": "pause.fab.gameplay-sun",
+            "label": "pause.fab.gameplay-sun",
+            "x": 303,
+            "y": 190,
+            "isFilled": true,
+            "fillColor": "#ffeda2",
+            "width": 48,
+            "height": 48,
+            "rounded": 24
+        },
+        {
+            "type": "Rectangle",
+            "id": "pause.fab.gameplay-hill",
+            "label": "pause.fab.gameplay-hill",
+            "x": 264,
+            "y": 600,
+            "isFilled": true,
+            "fillColor": "#5da77f",
+            "width": 200,
+            "height": 112,
+            "rounded": 56
+        },
+        {
+            "type": "Rectangle",
+            "id": "pause.fab.scrim",
+            "label": "pause.fab.scrim",
+            "x": 195,
+            "y": 422,
+            "isFilled": true,
+            "fillColor": "#182a36",
+            "fillAlpha": 0.42,
+            "width": 390,
+            "height": 844
+        },
+        {
+            "type": "Rectangle",
+            "id": "pause.fab.card",
+            "label": "pause.fab.card",
+            "x": 195,
+            "y": 454,
+            "isFilled": true,
+            "fillColor": "#fff6df",
+            "strokeColor": "#1f765d",
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 340,
+            "height": 510,
+            "rounded": 28
+        },
+        {
+            "type": "Rectangle",
+            "id": "pause.fab.handle",
+            "label": "pause.fab.handle",
+            "x": 195,
+            "y": 222,
+            "isFilled": true,
+            "fillColor": "#1f765d",
+            "fillAlpha": 0.6,
+            "width": 48,
+            "height": 5,
+            "rounded": 3
+        },
+        {
+            "type": "Text",
+            "id": "pause.fab.explainer",
+            "label": "pause.fab.explainer",
+            "x": 195,
+            "y": 344,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Your run is safe.",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "15px",
+            "color": "#3d5968"
+        },
+        {
+            "type": "Rectangle",
+            "id": "pause.fab.resume-control",
+            "label": "pause.fab.resume-control",
+            "x": 195,
+            "y": 478,
+            "isFilled": true,
+            "fillColor": "#14724f",
+            "width": 292,
+            "height": 62,
+            "rounded": 20
+        },
+        {
+            "type": "Rectangle",
+            "id": "pause.fab.settings-control",
+            "label": "pause.fab.settings-control",
+            "x": 195,
+            "y": 564,
+            "isFilled": true,
+            "fillColor": "#d8eee4",
+            "strokeColor": "#1f765d",
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 292,
+            "height": 62,
+            "rounded": 20
+        },
+        {
+            "type": "Rectangle",
+            "id": "pause.fab.home-control",
+            "label": "pause.fab.home-control",
+            "x": 195,
+            "y": 650,
+            "isFilled": true,
+            "fillColor": "#ffffff",
+            "strokeColor": "#abc7cc",
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 292,
+            "height": 62,
+            "rounded": 20
+        },
+        {
+            "type": "Image",
+            "id": "pause.fab.resume-surface",
+            "label": "pause.fab.resume-surface",
+            "texture": {
+                "key": "button_surface_primary"
+            },
+            "x": 195,
+            "y": 607.68,
+            "scaleX": 0.01,
+            "scaleY": 0.01,
+            "originY": 1,
+            "visible": false
+        },
+        {
+            "type": "Image",
+            "id": "pause.fab.settings-surface",
+            "label": "pause.fab.settings-surface",
+            "texture": {
+                "key": "button_surface_secondary"
+            },
+            "x": 195,
+            "y": 692.08,
+            "scaleX": 0.01,
+            "scaleY": 0.01,
+            "originY": 1,
+            "visible": false
+        },
+        {
+            "type": "Image",
+            "id": "pause.fab.home-surface",
+            "label": "pause.fab.home-surface",
+            "texture": {
+                "key": "button_surface_secondary"
+            },
+            "x": 195,
+            "y": 776.48,
+            "scaleX": 0.01,
+            "scaleY": 0.01,
+            "originY": 1,
+            "visible": false
+        },
+        {
+            "type": "Text",
+            "id": "pause.panel",
+            "label": "pause.panel",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "pause.panel",
+            "Semantic.fabRole": "modal-panel",
+            "Semantic.fabBinding": "presentation.static",
+            "Semantic.fabSlot": "modal-frame",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 290,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Paused",
+            "fontFamily": "kenney_future",
+            "fontSize": "28px",
+            "color": "#173042"
+        },
+        {
+            "type": "Text",
+            "id": "pause.resume",
+            "label": "pause.resume",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "pause.resume",
+            "Semantic.fabRole": "bottom-primary-action",
+            "Semantic.fabBinding": "flow.resume",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 492,
+            "originX": 0.5,
+            "originY": 1,
+            "text": "Resume",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "20px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "pause.settings",
+            "label": "pause.settings",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "pause.settings",
+            "Semantic.fabRole": "bottom-secondary-action",
+            "Semantic.fabBinding": "flow.open-settings",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 578,
+            "originX": 0.5,
+            "originY": 1,
+            "text": "Settings",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "20px",
+            "color": "#173042"
+        },
+        {
+            "type": "Text",
+            "id": "pause.home",
+            "label": "pause.home",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "pause.home",
+            "Semantic.fabRole": "bottom-secondary-action",
+            "Semantic.fabBinding": "flow.pause-home",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 664,
+            "originX": 0.5,
+            "originY": 1,
+            "text": "Home",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "20px",
+            "color": "#173042"
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}
