@@ -1,0 +1,23 @@
+{
+  "editor": "Phaser Editor 5.0.2",
+  "action": "real SceneEditor object setPosition/setText + EditorPart.save",
+  "scenePath": "/private/tmp/realgame-u0-editor-proof/phaser/scratch/phaser-editor/src/scenes/Menu.scene",
+  "beforeHash": "sha256-349c4d84fc6f4dd192b347bc6a09d452df60e182acfbc78b10b2c06a9db7dc28",
+  "afterHash": "sha256-253c3758969d8d7f66d7169b7e5e19e4cdd66d406feeaea2a04d890a41275029",
+  "changed": true,
+  "mutation": {
+    "before": {
+      "id": "menu.fab.balance",
+      "x": 108,
+      "y": 62,
+      "text": "25 Coins"
+    },
+    "after": {
+      "id": "menu.fab.balance",
+      "x": 132,
+      "y": 62,
+      "text": "25 Coins · U0"
+    },
+    "dirtyAfterSave": false
+  }
+}

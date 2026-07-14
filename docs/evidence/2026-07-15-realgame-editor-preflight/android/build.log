@@ -1,0 +1,287 @@
+2026-07-14T22:36:36Z
+SOURCE=b53b9b04e7dbfdda9404f55cb12047e02af5af80
+
+> @fabrikav2/marble_run@0.0.0 build
+> vite build
+
+▲ [WARNING] Cannot find base config file "../../configs/tsconfig.base.json" [tsconfig.json]
+
+    tsconfig.json:2:13:
+      2 │   "extends": "../../configs/tsconfig.base.json",
+        ╵              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+✘ [ERROR] Could not resolve "../../configs/vite.base.ts"
+
+    vite.config.ts:3:31:
+      3 │ import { baseViteConfig } from '../../configs/vite.base.ts';
+        ╵                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+failed to load config from /home/batu/realgame-u0-b53b9b04-sparse-223602/games/marble_run/vite.config.ts
+error during build:
+Error: Build failed with 1 error:
+vite.config.ts:3:31: ERROR: Could not resolve "../../configs/vite.base.ts"
+    at failureErrorWithLog (/home/batu/realgame-u0-b53b9b04-sparse-223602/node_modules/esbuild/lib/main.js:1467:15)
+    at /home/batu/realgame-u0-b53b9b04-sparse-223602/node_modules/esbuild/lib/main.js:926:25
+    at runOnEndCallbacks (/home/batu/realgame-u0-b53b9b04-sparse-223602/node_modules/esbuild/lib/main.js:1307:45)
+    at buildResponseToResult (/home/batu/realgame-u0-b53b9b04-sparse-223602/node_modules/esbuild/lib/main.js:924:7)
+    at /home/batu/realgame-u0-b53b9b04-sparse-223602/node_modules/esbuild/lib/main.js:951:16
+    at responseCallbacks.<computed> (/home/batu/realgame-u0-b53b9b04-sparse-223602/node_modules/esbuild/lib/main.js:603:9)
+    at handleIncomingPacket (/home/batu/realgame-u0-b53b9b04-sparse-223602/node_modules/esbuild/lib/main.js:658:12)
+    at Socket.readFromStdout (/home/batu/realgame-u0-b53b9b04-sparse-223602/node_modules/esbuild/lib/main.js:581:7)
+    at Socket.emit (node:events:508:28)
+    at addChunk (node:internal/streams/readable:559:12)
+npm error Lifecycle script `build` failed with error:
+npm error code 1
+npm error path /home/batu/realgame-u0-b53b9b04-sparse-223602/games/marble_run
+npm error workspace @fabrikav2/marble_run@0.0.0
+npm error location /home/batu/realgame-u0-b53b9b04-sparse-223602/games/marble_run
+npm error command failed
+npm error command sh -c vite build
+2026-07-14T22:36:47Z
+SOURCE=b53b9b04e7dbfdda9404f55cb12047e02af5af80
+
+> @fabrikav2/marble_run@0.0.0 build
+> vite build
+
+vite v6.4.3 building for production...
+transforming...
+✓ 152 modules transformed.
+rendering chunks...
+[plugin vite:reporter] 
+(!) /home/batu/realgame-u0-b53b9b04-sparse-223602/node_modules/@capacitor/core/dist/index.js is dynamically imported by /home/batu/realgame-u0-b53b9b04-sparse-223602/packages/sdk/src/ads/AdMobProvider.ts, /home/batu/realgame-u0-b53b9b04-sparse-223602/packages/sdk/src/ads/AdMobProvider.ts but also statically imported by /home/batu/realgame-u0-b53b9b04-sparse-223602/games/marble_run/src/sdk/SdkContext.ts, /home/batu/realgame-u0-b53b9b04-sparse-223602/node_modules/@capacitor/haptics/dist/esm/index.js, /home/batu/realgame-u0-b53b9b04-sparse-223602/node_modules/@capacitor/haptics/dist/esm/web.js, /home/batu/realgame-u0-b53b9b04-sparse-223602/packages/sdk/src/ads/AppLovinMaxPlugin.ts, /home/batu/realgame-u0-b53b9b04-sparse-223602/packages/sdk/src/attribution/AdjustAttributionPlugin.ts, /home/batu/realgame-u0-b53b9b04-sparse-223602/packages/sdk/src/attribution/AttributionService.ts, /home/batu/realgame-u0-b53b9b04-sparse-223602/packages/sdk/src/haptics/index.ts, dynamic import will not move module into another chunk.
+
+[plugin vite:reporter] 
+(!) /home/batu/realgame-u0-b53b9b04-sparse-223602/games/marble_run/src/sdk/shims/capacitor-community-admob.ts is dynamically imported by /home/batu/realgame-u0-b53b9b04-sparse-223602/packages/sdk/src/ads/AdMobProvider.ts, /home/batu/realgame-u0-b53b9b04-sparse-223602/packages/sdk/src/ads/AdMobProvider.ts, /home/batu/realgame-u0-b53b9b04-sparse-223602/packages/sdk/src/ads/AdMobProvider.ts, /home/batu/realgame-u0-b53b9b04-sparse-223602/packages/sdk/src/ads/AdMobProvider.ts, /home/batu/realgame-u0-b53b9b04-sparse-223602/packages/sdk/src/ads/AdMobProvider.ts, /home/batu/realgame-u0-b53b9b04-sparse-223602/packages/sdk/src/ads/AdMobProvider.ts, /home/batu/realgame-u0-b53b9b04-sparse-223602/packages/sdk/src/ads/AdMobProvider.ts, /home/batu/realgame-u0-b53b9b04-sparse-223602/packages/sdk/src/ads/AdMobProvider.ts, /home/batu/realgame-u0-b53b9b04-sparse-223602/packages/sdk/src/ads/AdMobProvider.ts but also statically imported by /home/batu/realgame-u0-b53b9b04-sparse-223602/packages/sdk/src/ads/AdMobProvider.ts, dynamic import will not move module into another chunk.
+
+computing gzip size...
+dist/assets/frame-currency-CAtoGukU.png              7.84 kB
+dist/assets/level-node-locked-Cxu64nH7.webp          8.93 kB
+dist/assets/level-node-default-BOyUIe7H.webp         9.07 kB
+dist/assets/level-node-current-P6sZO_Rt.webp         9.36 kB
+dist/assets/level-node-completed-BsgGsIaK.webp       9.62 kB
+dist/assets/icon-coin-Dw60_rcO.png                   9.69 kB
+dist/assets/icon-settings-D67jpzog.png              10.60 kB
+dist/assets/button-orange-CIBvUWPP.png              13.18 kB
+dist/assets/button-green-DlMiLw0y.png               13.94 kB
+dist/assets/FredokaOne-CqP-Tvqc.woff2               15.60 kB
+dist/assets/button-booster-C9NTe3az.png             16.24 kB
+dist/assets/ribbon-failed-blank-DnIJvFZ8.png        20.01 kB
+dist/assets/ribbon-completed-blank-DJKEo0wu.png     20.11 kB
+dist/assets/ribbon-orange-DFjEB_pQ.png              22.85 kB
+dist/index.html                                     23.69 kB │ gzip:   5.13 kB
+dist/assets/LilitaOne-C6gfzYkI.ttf                  26.33 kB
+dist/assets/popup-card-kb1yAjuv.png                 26.55 kB
+dist/assets/marble-run-banner-ebjVlHJ4.webp         27.24 kB
+dist/assets/win-crown-DO-rOCR0.png                  37.50 kB
+dist/assets/marble-shadow-tile-CNwQUvCw.png         37.78 kB
+dist/assets/TitanOne-Dkp60vSx.ttf                   52.19 kB
+dist/assets/icon-replay-DEa_CwtA.png                74.43 kB
+dist/assets/app-icon-Bt7Z8_sg.png                1,855.75 kB
+dist/assets/index-Dd7D02Hm.css                      25.05 kB │ gzip:   5.38 kB
+dist/assets/web-O_tkg9pH.js                          0.94 kB │ gzip:   0.49 kB │ map:     3.10 kB
+dist/assets/index-DHEGGXHA.js                      743.19 kB │ gzip: 193.81 kB │ map: 3,609.76 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.62s
+[error] Could not find the android platform.
+        You must install it in your project first, e.g. w/ npm install @capacitor/android
+2026-07-14T22:37:17Z
+✔ Adding native android project in android in 19.43ms
+✔ add in 29.46ms
+✔ Copying web assets from dist to android/app/src/main/assets/public in 8.44ms
+✔ Creating capacitor.config.json in android/app/src/main/assets in 201.82μs
+✔ copy android in 12.53ms
+✔ Updating Android plugins in 716.96μs
+[info] Found 1 Capacitor plugin for android:
+       @capacitor/haptics@8.0.2
+✔ update android in 8.47ms
+✔ Syncing Gradle in 293.64μs
+[success] android platform added!
+Follow the Developer Workflow guide to get building:
+https://capacitorjs.com/docs/basics/workflow
+✔ Copying web assets from dist to android/app/src/main/assets/public in 12.08ms
+✔ Creating capacitor.config.json in android/app/src/main/assets in 323.48μs
+✔ copy android in 17.62ms
+✔ Updating Android plugins in 557.01μs
+[info] Found 1 Capacitor plugin for android:
+       @capacitor/haptics@8.0.2
+✔ update android in 10.98ms
+[info] Sync finished in 0.034s
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.14.3/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+
+> Configure project :app
+WARNING: Using flatDir should be avoided because it doesn't support any meta-data formats.
+
+> Configure project :capacitor-cordova-android-plugins
+WARNING: Using flatDir should be avoided because it doesn't support any meta-data formats.
+
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :capacitor-android:preBuild UP-TO-DATE
+> Task :capacitor-android:preDebugBuild UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:preBuild UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:preDebugBuild UP-TO-DATE
+> Task :app:javaPreCompileDebug
+> Task :capacitor-android:writeDebugAarMetadata
+> Task :capacitor-haptics:preBuild UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:writeDebugAarMetadata
+> Task :capacitor-haptics:preDebugBuild UP-TO-DATE
+> Task :capacitor-haptics:writeDebugAarMetadata
+> Task :capacitor-android:processDebugNavigationResources
+> Task :capacitor-cordova-android-plugins:processDebugNavigationResources
+> Task :capacitor-haptics:processDebugNavigationResources
+> Task :app:checkDebugAarMetadata
+> Task :app:processDebugNavigationResources
+> Task :app:generateDebugResValues
+> Task :capacitor-android:generateDebugResValues
+> Task :app:compileDebugNavigationResources
+> Task :capacitor-android:generateDebugResources
+> Task :capacitor-android:packageDebugResources
+> Task :capacitor-cordova-android-plugins:generateDebugResValues
+> Task :capacitor-cordova-android-plugins:generateDebugResources
+> Task :capacitor-cordova-android-plugins:packageDebugResources
+> Task :capacitor-haptics:generateDebugResValues
+> Task :capacitor-haptics:generateDebugResources
+> Task :capacitor-haptics:packageDebugResources
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:mergeDebugResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :capacitor-android:extractDeepLinksDebug
+> Task :capacitor-cordova-android-plugins:extractDeepLinksDebug
+> Task :capacitor-haptics:extractDeepLinksDebug
+> Task :capacitor-android:compileDebugLibraryResources
+> Task :capacitor-cordova-android-plugins:compileDebugLibraryResources
+> Task :capacitor-haptics:compileDebugLibraryResources
+> Task :capacitor-haptics:processDebugManifest
+> Task :capacitor-cordova-android-plugins:processDebugManifest
+> Task :capacitor-android:processDebugManifest
+> Task :capacitor-android:javaPreCompileDebug
+> Task :capacitor-android:parseDebugLocalResources
+> Task :capacitor-cordova-android-plugins:parseDebugLocalResources
+> Task :app:parseDebugLocalResources
+> Task :capacitor-haptics:parseDebugLocalResources
+> Task :app:processDebugMainManifest
+> Task :app:processDebugManifest
+> Task :capacitor-cordova-android-plugins:javaPreCompileDebug
+> Task :capacitor-haptics:javaPreCompileDebug
+> Task :app:mergeDebugShaders
+> Task :capacitor-cordova-android-plugins:generateDebugRFile
+> Task :capacitor-android:generateDebugRFile
+> Task :capacitor-haptics:generateDebugRFile
+> Task :app:compileDebugShaders NO-SOURCE
+
+> Task :capacitor-android:compileDebugJavaWithJavac
+Note: Some input files use unchecked or unsafe operations.
+Note: Recompile with -Xlint:unchecked for details.
+
+> Task :capacitor-cordova-android-plugins:compileDebugJavaWithJavac NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:bundleLibCompileToJarDebug
+> Task :capacitor-android:mergeDebugShaders
+> Task :app:processDebugManifestForPackage
+> Task :capacitor-android:bundleLibCompileToJarDebug
+> Task :capacitor-haptics:compileDebugJavaWithJavac
+> Task :capacitor-android:compileDebugShaders NO-SOURCE
+> Task :capacitor-android:generateDebugAssets UP-TO-DATE
+> Task :capacitor-haptics:bundleLibCompileToJarDebug
+> Task :capacitor-android:mergeDebugAssets
+> Task :capacitor-cordova-android-plugins:mergeDebugShaders
+> Task :capacitor-cordova-android-plugins:compileDebugShaders NO-SOURCE
+> Task :capacitor-cordova-android-plugins:generateDebugAssets UP-TO-DATE
+> Task :capacitor-cordova-android-plugins:mergeDebugAssets
+> Task :capacitor-haptics:mergeDebugShaders
+> Task :capacitor-haptics:compileDebugShaders NO-SOURCE
+> Task :capacitor-haptics:generateDebugAssets UP-TO-DATE
+> Task :capacitor-haptics:mergeDebugAssets
+> Task :app:mergeDebugAssets
+> Task :capacitor-haptics:bundleLibRuntimeToJarDebug
+> Task :capacitor-cordova-android-plugins:bundleLibRuntimeToJarDebug
+> Task :app:desugarDebugFileDependencies
+> Task :capacitor-android:bundleLibRuntimeToJarDebug
+> Task :app:processDebugJavaRes NO-SOURCE
+> Task :capacitor-android:processDebugJavaRes NO-SOURCE
+> Task :capacitor-cordova-android-plugins:processDebugJavaRes NO-SOURCE
+> Task :capacitor-haptics:processDebugJavaRes NO-SOURCE
+> Task :app:compressDebugAssets
+> Task :capacitor-haptics:bundleLibRuntimeToDirDebug
+> Task :capacitor-cordova-android-plugins:bundleLibRuntimeToDirDebug
+> Task :app:mergeDebugJniLibFolders
+> Task :capacitor-android:mergeDebugJniLibFolders
+> Task :app:checkDebugDuplicateClasses
+> Task :capacitor-android:bundleLibRuntimeToDirDebug
+> Task :capacitor-android:mergeDebugNativeLibs NO-SOURCE
+> Task :capacitor-android:copyDebugJniLibsProjectOnly
+> Task :app:processDebugResources
+> Task :capacitor-cordova-android-plugins:mergeDebugJniLibFolders
+> Task :app:mergeDebugJavaResource
+> Task :app:compileDebugJavaWithJavac
+> Task :app:dexBuilderDebug
+> Task :capacitor-cordova-android-plugins:mergeDebugNativeLibs NO-SOURCE
+> Task :capacitor-cordova-android-plugins:copyDebugJniLibsProjectOnly
+> Task :capacitor-haptics:mergeDebugJniLibFolders
+> Task :capacitor-haptics:mergeDebugNativeLibs NO-SOURCE
+> Task :capacitor-haptics:copyDebugJniLibsProjectOnly
+> Task :app:mergeProjectDexDebug
+> Task :app:validateSigningDebug
+> Task :app:mergeDebugNativeLibs NO-SOURCE
+> Task :app:stripDebugDebugSymbols NO-SOURCE
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
+> Task :capacitor-android:stripDebugDebugSymbols NO-SOURCE
+> Task :capacitor-android:checkDebugAarMetadata
+> Task :capacitor-android:copyDebugJniLibsProjectAndLocalJars
+> Task :capacitor-android:extractDebugAnnotations
+> Task :capacitor-android:extractDeepLinksForAarDebug
+> Task :capacitor-android:mergeDebugGeneratedProguardFiles
+> Task :capacitor-android:mergeDebugConsumerProguardFiles
+> Task :capacitor-android:prepareDebugArtProfile
+> Task :capacitor-android:mergeDebugJavaResource
+> Task :capacitor-android:prepareLintJarForPublish
+> Task :capacitor-cordova-android-plugins:checkDebugAarMetadata
+> Task :capacitor-android:syncDebugLibJars
+> Task :capacitor-android:bundleDebugAar
+> Task :capacitor-android:assembleDebug
+> Task :capacitor-cordova-android-plugins:stripDebugDebugSymbols NO-SOURCE
+> Task :capacitor-cordova-android-plugins:copyDebugJniLibsProjectAndLocalJars
+> Task :capacitor-cordova-android-plugins:extractDebugAnnotations
+> Task :capacitor-cordova-android-plugins:extractDeepLinksForAarDebug
+> Task :capacitor-cordova-android-plugins:mergeDebugGeneratedProguardFiles
+> Task :capacitor-cordova-android-plugins:mergeDebugConsumerProguardFiles
+> Task :capacitor-cordova-android-plugins:prepareDebugArtProfile
+> Task :capacitor-cordova-android-plugins:prepareLintJarForPublish
+> Task :capacitor-cordova-android-plugins:mergeDebugJavaResource
+> Task :capacitor-haptics:checkDebugAarMetadata
+> Task :capacitor-cordova-android-plugins:syncDebugLibJars
+> Task :capacitor-cordova-android-plugins:bundleDebugAar
+> Task :capacitor-cordova-android-plugins:assembleDebug
+> Task :capacitor-haptics:stripDebugDebugSymbols NO-SOURCE
+> Task :capacitor-haptics:copyDebugJniLibsProjectAndLocalJars
+> Task :capacitor-haptics:extractDebugAnnotations
+> Task :capacitor-haptics:extractDeepLinksForAarDebug
+> Task :capacitor-haptics:mergeDebugGeneratedProguardFiles
+> Task :capacitor-haptics:mergeDebugConsumerProguardFiles
+> Task :capacitor-haptics:prepareDebugArtProfile
+> Task :capacitor-haptics:prepareLintJarForPublish
+> Task :capacitor-haptics:mergeDebugJavaResource
+> Task :capacitor-haptics:syncDebugLibJars
+> Task :capacitor-haptics:bundleDebugAar
+> Task :capacitor-haptics:assembleDebug
+> Task :app:mergeDebugGlobalSynthetics
+> Task :app:mergeLibDexDebug
+> Task :app:mergeExtDexDebug
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+
+[Incubating] Problems report is available at: file:///home/batu/realgame-u0-b53b9b04-sparse-223602/games/marble_run/android/build/reports/problems/problems-report.html
+
+BUILD SUCCESSFUL in 11s
+123 actionable tasks: 123 executed

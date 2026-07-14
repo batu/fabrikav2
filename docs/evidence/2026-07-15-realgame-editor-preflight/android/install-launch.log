@@ -1,0 +1,73 @@
+2026-07-14T22:38:18Z
+SOURCE=b53b9b04e7dbfdda9404f55cb12047e02af5af80
+APK=/home/batu/realgame-u0-b53b9b04-sparse-223602/games/marble_run/android/app/build/outputs/apk/debug/app-debug.apk
+692b21d528e33a45fc3a3d08bd5bc5928eb28026f5528f8b9c9211854e696e30  /home/batu/realgame-u0-b53b9b04-sparse-223602/games/marble_run/android/app/build/outputs/apk/debug/app-debug.apk
+-rw-rw-r-- 1 batu batu 7641440 2026-07-14 15:37:29.444901457 -0700 /home/batu/realgame-u0-b53b9b04-sparse-223602/games/marble_run/android/app/build/outputs/apk/debug/app-debug.apk
+package: name='com.appletolye.marblerun.dev' versionCode='1' versionName='1.0' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'
+sdkVersion:'24'
+targetSdkVersion:'36'
+application-label:'Marble Run'
+device
+Google
+Pixel 6a
+16
+google/bluejay/bluejay:16/CP1A.260405.005/15001963:user/release-keys
+Physical size: 1080x2400
+Performing Streamed Install
+Success
+Success
+INSTALL_COMPLETE_UTC=2026-07-14T22:38:21Z
+    versionCode=1 minSdk=24 targetSdk=36
+    versionName=1.0
+    lastUpdateTime=2026-07-15 01:38:20
+      firstInstallTime=2026-07-15 01:38:20
+Starting: Intent { cmp=com.appletolye.marblerun.dev/.MainActivity }
+Status: ok
+LaunchState: COLD
+Activity: com.appletolye.marblerun.dev/.MainActivity
+TotalTime: 1461
+WaitTime: 1463
+Complete
+WAITING_FOR_DELAYED_UI=12s
+CAPTURE_UTC=2026-07-14T22:38:35Z
+11430
+  * Task{ef87f73 #58296 type=standard A=10325:com.appletolye.marblerun.dev U=0 visible=true visibleRequested=true mode=fullscreen translucent=false sz=1}
+    topResumedActivity=ActivityRecord{71651342 u0 com.appletolye.marblerun.dev/.MainActivity t58296}
+    * Hist  #0: ActivityRecord{71651342 u0 com.appletolye.marblerun.dev/.MainActivity t58296}
+      packageName=com.appletolye.marblerun.dev processName=com.appletolye.marblerun.dev
+      app=ProcessRecord{b0bb9c7 11430:com.appletolye.marblerun.dev/u0a325}
+      Intent { flg=0x10000000 xflg=0x5 cmp=com.appletolye.marblerun.dev/.MainActivity }
+      rootOfTask=true task=Task{ef87f73 #58296 type=standard A=10325:com.appletolye.marblerun.dev}
+      taskAffinity=10325:com.appletolye.marblerun.dev
+      mActivityComponent=com.appletolye.marblerun.dev/.MainActivity
+      baseDir=/data/app/~~2E2Mb4_2Mac3BWAMPrLuew==/com.appletolye.marblerun.dev-z2tZqHUtEjZh90nsYzKbXg==/base.apk
+      dataDir=/data/user/0/com.appletolye.marblerun.dev
+      windows=[Window{6561ec3 u0 com.appletolye.marblerun.dev/com.appletolye.marblerun.dev.MainActivity}]
+    Resumed: ActivityRecord{71651342 u0 com.appletolye.marblerun.dev/.MainActivity t58296}
+  ResumedActivity: ActivityRecord{71651342 u0 com.appletolye.marblerun.dev/.MainActivity t58296}
+  topDisplayFocusedRootTask=Task{ef87f73 #58296 type=standard A=10325:com.appletolye.marblerun.dev}
+  deepestLastOrientationSource=ActivityRecord{71651342 u0 com.appletolye.marblerun.dev/.MainActivity t58296}
+  mImeLayeringTarget=Window{6561ec3 u0 com.appletolye.marblerun.dev/com.appletolye.marblerun.dev.MainActivity}
+  mImeInputTarget=Window{6561ec3 u0 com.appletolye.marblerun.dev/com.appletolye.marblerun.dev.MainActivity}
+  mImeControlTarget=Window{6561ec3 u0 com.appletolye.marblerun.dev/com.appletolye.marblerun.dev.MainActivity}
+  mImeParent=ActivityRecord{71651342 u0 com.appletolye.marblerun.dev/.MainActivity t58296}
+  mCurrentFocus=Window{6561ec3 u0 com.appletolye.marblerun.dev/com.appletolye.marblerun.dev.MainActivity}
+  mFocusedApp=ActivityRecord{71651342 u0 com.appletolye.marblerun.dev/.MainActivity t58296}
+  mObscuringWindow=Window{6561ec3 u0 com.appletolye.marblerun.dev/com.appletolye.marblerun.dev.MainActivity}
+      mPreferredTopFocusableRootTask=Task{ef87f73 #58296 type=standard A=10325:com.appletolye.marblerun.dev}
+      mLastFocusedRootTask=Task{ef87f73 #58296 type=standard A=10325:com.appletolye.marblerun.dev}
+      * Task{ef87f73 #58296 type=standard A=10325:com.appletolye.marblerun.dev U=0 visible=true visibleRequested=true mode=fullscreen translucent=false sz=1}
+        * ActivityRecord{71651342 u0 com.appletolye.marblerun.dev/.MainActivity t58296}
+    mFocusedWindow=Window{6561ec3 u0 com.appletolye.marblerun.dev/com.appletolye.marblerun.dev.MainActivity}
+    mTopFullscreenOpaqueWindowState=Window{6561ec3 u0 com.appletolye.marblerun.dev/com.appletolye.marblerun.dev.MainActivity}
+    mSystemUiControllingWindow=Window{6561ec3 u0 com.appletolye.marblerun.dev/com.appletolye.marblerun.dev.MainActivity}
+    mSystemBarColorApps={ActivityRecord{71651342 u0 com.appletolye.marblerun.dev/.MainActivity t58296}}
+    mNavBarColorWindowCandidate=Window{6561ec3 u0 com.appletolye.marblerun.dev/com.appletolye.marblerun.dev.MainActivity}
+    mNavBarBackgroundWindowCandidate=Window{6561ec3 u0 com.appletolye.marblerun.dev/com.appletolye.marblerun.dev.MainActivity}
+      Window{6561ec3 u0 com.appletolye.marblerun.dev/com.appletolye.marblerun.dev.MainActivity}
+      Window{6561ec3 u0 com.appletolye.marblerun.dev/com.appletolye.marblerun.dev.MainActivity}:
+        mControlTarget=Window{6561ec3 u0 com.appletolye.marblerun.dev/com.appletolye.marblerun.dev.MainActivity}
+        mControlTarget=Window{6561ec3 u0 com.appletolye.marblerun.dev/com.appletolye.marblerun.dev.MainActivity}
+        mControlTarget=Window{6561ec3 u0 com.appletolye.marblerun.dev/com.appletolye.marblerun.dev.MainActivity}
+        (fullscreen) Task{ef87f73 #58296 type=standard A=10325:com.appletolye.marblerun.dev}
+  VisibleActivityProcess:[ ProcessRecord{b0bb9c7 11430:com.appletolye.marblerun.dev/u0a325}]

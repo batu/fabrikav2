@@ -1,0 +1,117 @@
+--------- beginning of main
+07-15 01:38:21.513 11430 11430 I Zygote  : Process 11430 created for com.appletolye.marblerun.dev
+07-15 01:38:21.513 11430 11430 I e.marblerun.dev: Late-enabling -Xcheck:jni
+07-15 01:38:21.543 11430 11430 I e.marblerun.dev: Using generational CollectorTypeCMC GC.
+07-15 01:38:21.581 11430 11430 D nativeloader: Load libframework-connectivity-tiramisu-jni.so using APEX ns com_android_tethering for caller /apex/com.android.tethering/javalib/framework-connectivity-t.jar: ok
+07-15 01:38:21.695 11430 11430 D nativeloader: Configuring clns-9 for other apk /data/app/~~2E2Mb4_2Mac3BWAMPrLuew==/com.appletolye.marblerun.dev-z2tZqHUtEjZh90nsYzKbXg==/base.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~2E2Mb4_2Mac3BWAMPrLuew==/com.appletolye.marblerun.dev-z2tZqHUtEjZh90nsYzKbXg==/lib/arm64, permitted_path=/data:/mnt/expand:/data/user/0/com.appletolye.marblerun.dev
+07-15 01:38:21.718 11430 11430 V GraphicsEnvironment: Currently set values for:
+07-15 01:38:21.718 11430 11430 V GraphicsEnvironment:   angle_gl_driver_selection_pkgs=[com.android.angle]
+07-15 01:38:21.718 11430 11430 V GraphicsEnvironment:   angle_gl_driver_selection_values=[angle]
+07-15 01:38:21.718 11430 11430 V GraphicsEnvironment: com.appletolye.marblerun.dev is not listed in per-application setting
+07-15 01:38:21.718 11430 11430 V GraphicsEnvironment: No special selections for ANGLE, returning default driver choice
+07-15 01:38:21.718 11430 11430 V GraphicsEnvironment: Neither updatable production driver nor prerelease driver is supported.
+--------- beginning of system
+07-15 01:38:21.820 11430 11477 I DisplayManager: Choreographer implicitly registered for the refresh rate.
+07-15 01:38:21.831 11430 11430 D DesktopExperienceFlags: Toggle override initialized to: false
+07-15 01:38:21.841 11430 11430 D AppCompatDelegate: Checking for metadata for AppLocalesMetadataHolderService : Service not found
+07-15 01:38:21.882 11430 11430 D CompatChangeReporter: Compat change id reported: 377864165; UID 10325; state: ENABLED
+07-15 01:38:21.882 11430 11430 D DesktopModeFlags: Toggle override initialized to: OVERRIDE_UNSET
+07-15 01:38:21.890 11430 11430 I e.marblerun.dev: hiddenapi: Accessing hidden method Landroid/view/ViewGroup;->makeOptionalFitsSystemWindows()V (runtime_flags=0, domain=platform, api=unsupported) from Landroidx/appcompat/widget/ViewUtils; (domain=app, TargetSdkVersion=36) using reflection: allowed
+07-15 01:38:21.900 11430 11430 I WebViewFactory: Loading com.google.android.webview version 149.0.7827.164 (code 782716403)
+07-15 01:38:21.904 11430 11430 V ResourcesManager: The following library key has been added: ResourcesKey{ mHash=23df9e97 mResDir=null mSplitDirs=[] mOverlayDirs=[] mLibDirs=[/data/app/~~H66BoAAULYOLBusuIpoYsQ==/com.google.android.webview-NSLu9ZqI6SG26jpFVbmiHA==/base.apk,/system/framework/android.test.base.jar,/system_ext/framework/androidx.window.extensions.jar] mDisplayId=0 mOverrideConfig=v36 mCompatInfo={420dpi always-compat} mLoaders=[]}
+07-15 01:38:21.908 11430 11430 D ApplicationLoaders: Returning zygote-cached class loader: /system/framework/android.test.base.jar
+07-15 01:38:21.908 11430 11430 D ApplicationLoaders: Returning zygote-cached class loader: /system_ext/framework/androidx.window.extensions.jar
+07-15 01:38:21.936 11430 11430 W e.marblerun.dev: Loading /data/app/~~H66BoAAULYOLBusuIpoYsQ==/com.google.android.webview-NSLu9ZqI6SG26jpFVbmiHA==/oat/arm64/base.odex non-executable as it requires an image which we failed to load
+07-15 01:38:21.939 11430 11430 D nativeloader: Configuring clns-10 for other apk /data/app/~~H66BoAAULYOLBusuIpoYsQ==/com.google.android.webview-NSLu9ZqI6SG26jpFVbmiHA==/base.apk. target_sdk_version=36, uses_libraries=, library_path=/data/app/~~H66BoAAULYOLBusuIpoYsQ==/com.google.android.webview-NSLu9ZqI6SG26jpFVbmiHA==/lib/arm64:/data/app/~~H66BoAAULYOLBusuIpoYsQ==/com.google.android.webview-NSLu9ZqI6SG26jpFVbmiHA==/base.apk!/lib/arm64-v8a, permitted_path=/data:/mnt/expand
+07-15 01:38:22.045 11430 11430 I cr_WVCFactoryProvider: version=149.0.7827.164 (782716403) minSdkVersion=29 multiprocess=true packageId=2 splits=<none>
+07-15 01:38:22.060 11430 11430 D nativeloader: Load /data/app/~~H66BoAAULYOLBusuIpoYsQ==/com.google.android.webview-NSLu9ZqI6SG26jpFVbmiHA==/base.apk!/lib/arm64-v8a/libwebviewchromium.so using class loader ns clns-10 (caller=/data/app/~~H66BoAAULYOLBusuIpoYsQ==/com.google.android.webview-NSLu9ZqI6SG26jpFVbmiHA==/base.apk): ok
+07-15 01:38:22.073 11430 11430 D nativeloader: Load /system/lib64/libwebviewchromium_plat_support.so using class loader ns clns-10 (caller=/data/app/~~H66BoAAULYOLBusuIpoYsQ==/com.google.android.webview-NSLu9ZqI6SG26jpFVbmiHA==/base.apk): ok
+07-15 01:38:22.083 11430 11507 I chromium: [0715/013822.079867:INFO:android_webview/browser/variations/variations_seed_loader.cc:67] Failed to open file for reading.: No such file or directory (2)
+07-15 01:38:22.083 11430 11507 I chromium: [0715/013822.083443:INFO:android_webview/browser/variations/variations_seed_loader.cc:67] Failed to open file for reading.: No such file or directory (2)
+07-15 01:38:22.099 11430 11430 I cr_LibraryLoader: Successfully loaded native library
+07-15 01:38:22.101 11430 11430 I cr_CachingUmaRecorder: Flushed 47 samples from 22 histograms, 0 samples were dropped.
+07-15 01:38:22.105 11430 11430 I cr_ChildProcLH: ScopedServiceBindingBatch.tryActivate: false
+07-15 01:38:22.106 11430 11430 I cr_CombinedPProvider: #registerProvider() provider:WV.wk@a1357c3 isPolicyCacheEnabled:false policyProvidersSize:0
+07-15 01:38:22.106 11430 11430 I cr_PolicyProvider: #setManagerAndSource() 0
+07-15 01:38:22.107 11430 11506 I cr_policy: registerReceiver succeeded after 0ms
+07-15 01:38:22.108 11430 11430 I cr_DisplayManager: Is Display Topology available: false
+07-15 01:38:22.147 11430 11430 I cr_CombinedPProvider: #linkNativeInternal() 1
+07-15 01:38:22.148 11430 11430 I cr_AppResProvider: #getApplicationRestrictionsFromUserManager() Bundle[EMPTY_PARCEL]
+07-15 01:38:22.148 11430 11430 I cr_PolicyProvider: #notifySettingsAvailable() 0
+07-15 01:38:22.148 11430 11430 I cr_CombinedPProvider: #onSettingsAvailable() 0
+07-15 01:38:22.148 11430 11430 I cr_CombinedPProvider: #flushPolicies()
+07-15 01:38:22.177 11430 11531 W chromium: [WARNING:net/dns/dns_config_service_android.cc:69] Failed to read DnsConfig.
+07-15 01:38:22.192 11430 11430 W chromium: [WARNING:android_webview/browser/network_service/net_helpers.cc:137] HTTP Cache size is: 20971520
+07-15 01:38:22.252 11430 11430 D Capacitor: Starting BridgeActivity
+07-15 01:38:22.269 11430 11430 D Capacitor: Registering plugin instance: CapacitorCookies
+07-15 01:38:22.273 11430 11430 D Capacitor: Registering plugin instance: WebView
+07-15 01:38:22.274 11430 11430 D Capacitor: Registering plugin instance: CapacitorHttp
+07-15 01:38:22.275 11430 11430 D Capacitor: Registering plugin instance: SystemBars
+07-15 01:38:22.277 11430 11430 D Capacitor: Registering plugin instance: Haptics
+07-15 01:38:22.303 11430 11430 W Capacitor: Unable to read file at path public/plugins
+07-15 01:38:22.310 11430 11430 D Capacitor: Loading app at https://localhost
+07-15 01:38:22.326 11430 11534 W cr_media: BLUETOOTH_CONNECT permission is missing.
+07-15 01:38:22.326 11430 11534 W cr_media: getBluetoothAdapter() requires BLUETOOTH permission
+07-15 01:38:22.326 11430 11534 W cr_media: registerBluetoothIntentsIfNeeded: Requires BLUETOOTH permission
+07-15 01:38:22.364 11430 11534 D AudioSystem: onNewService: media.audio_policy service obtained 0xb4000071fdecb140
+07-15 01:38:22.367 11430 11534 D AudioSystem: getService: IAudioPolicyService retrieved: 0xb4000071fdecb140  cached: 0xb4000071fdecb140
+07-15 01:38:22.371 11430 11526 D Capacitor: Handling local request: https://localhost/
+07-15 01:38:22.390 11430 11430 D Capacitor: App started
+07-15 01:38:22.391 11430 11430 D Capacitor: App resumed
+07-15 01:38:22.449 11430 11588 I CameraManagerGlobal: Connecting to camera service
+07-15 01:38:22.453 11430 11430 I cr_AppResProvider: #getApplicationRestrictionsFromUserManager() Bundle[EMPTY_PARCEL]
+07-15 01:38:22.453 11430 11430 I cr_PolicyProvider: #notifySettingsAvailable() 0
+07-15 01:38:22.453 11430 11430 I cr_CombinedPProvider: #onSettingsAvailable() 0
+07-15 01:38:22.453 11430 11430 I cr_CombinedPProvider: #flushPolicies()
+07-15 01:38:22.456 11430 11430 D WindowOnBackDispatcher: setTopOnBackInvokedCallback (unwrapped): android.app.Activity$$ExternalSyntheticLambda0@812292b
+07-15 01:38:22.458 11430 11430 D VRI[MainActivity]: WindowInsets changed: 1080x2400 statusBars:[0,132,0,0] navigationBars:[0,0,0,63] mandatorySystemGestures:[0,164,0,84] 
+07-15 01:38:22.535 11430 11437 I e.marblerun.dev: Compiler allocated 5116KB to compile void android.view.ViewRootImpl.performTraversals()
+07-15 01:38:22.597 11430 11526 D Capacitor: Handling local request: https://localhost/assets/index-DHEGGXHA.js
+07-15 01:38:22.597 11430 11531 D Capacitor: Handling local request: https://localhost/assets/index-Dd7D02Hm.css
+07-15 01:38:22.908 11430 11430 I e.marblerun.dev: hiddenapi: Accessing hidden field Landroid/graphics/Bitmap;->mNativePtr:J (runtime_flags=0, domain=platform, api=unsupported) from Lcom/android/webview/chromium/WebViewChromium; (domain=app, TargetSdkVersion=36) using JNI: allowed
+07-15 01:38:22.918 11430 11614 I HWUI    : Using FreeType backend (prop=Auto)
+07-15 01:38:22.929 11430 11430 I cr_A11yState: Enabled accessibility services list updated. [co.blocksite/.accessibility.AccessibilityWrapper, com.qqlabs.minimalistlauncher/.ui.accessibilityservice.MinimalistPhoneAccessibilityService]
+07-15 01:38:22.931 11430 11430 I cr_A11yState: Informing listeners of changes.
+07-15 01:38:22.931 11430 11430 I cr_A11yState: New AccessibilityState: State{isComplexUserInteractionServiceEnabled=true, isTouchExplorationEnabled=false, isPerformGesturesEnabled=true, isAnyAccessibilityServiceEnabled=true, isAccessibilityToolPresent=false, isTextShowPasswordEnabled=true, isOnlyAutofillRunning=false, isOnlyPasswordManagersEnabled=false, isKnownScreenReaderEnabled=false}
+07-15 01:38:22.936 11430 11430 D InsetsController: hide(ime())
+07-15 01:38:22.936 11430 11430 I ImeTracker: com.appletolye.marblerun.dev:9e2c2a4d: onCancelled at PHASE_CLIENT_ALREADY_HIDDEN
+07-15 01:38:23.148 11430 11534 D AudioSystem: onNewServiceWithAdapter: media.audio_flinger service obtained 0xb40000701dedf4e0
+07-15 01:38:23.157 11430 11534 D AudioSystem: getService: IAudioFlingerService retrieved: 0xb4000071fdebd1d0  IAudioFlinger cached: 0xb40000701dedf4e0
+07-15 01:38:23.167 11430 11534 I AAudio  : AAudioStreamBuilder_openStream() called ----------------------------------------
+07-15 01:38:23.168 11430 11534 I AudioStreamBuilder: rate   =  48000, channels  = 2, channelMask = 0x3, format   = 0x5, sharing = SH, dir = OUTPUT
+07-15 01:38:23.168 11430 11534 I AudioStreamBuilder: devices = AUDIO_PORT_HANDLE_NONE, sessionId = -1, perfMode = 12, callback: ON with frames = 128
+07-15 01:38:23.168 11430 11534 I AudioStreamBuilder: usage  =      1, contentType = 0, inputPreset = 0, allowedCapturePolicy = 0
+07-15 01:38:23.168 11430 11534 I AudioStreamBuilder: privacy sensitive = false, opPackageName = (null), attributionTag = (null)
+07-15 01:38:23.168 11430 11534 D AudioStreamBuilder: build, global mmap policy is 0
+07-15 01:38:23.169 11430 11534 D AudioStreamBuilder: build, system mmap policy is 2
+07-15 01:38:23.169 11430 11534 D AudioStreamBuilder: build, final mmap policy is 2
+07-15 01:38:23.169 11430 11534 D AudioStreamBuilder: build, system mmap exclusive policy is 2
+07-15 01:38:23.169 11430 11534 D AudioStreamBuilder: build, final mmap exclusive policy is 2
+07-15 01:38:23.175 11430 11534 D e.marblerun.dev: PlayerBase::PlayerBase()
+07-15 01:38:23.175 11430 11430 I Capacitor/Console: File: https://localhost/assets/index-DHEGGXHA.js - Line 1 - Msg: [analytics] session_start [object Object]
+07-15 01:38:23.291 11430 11534 D AudioStreamInternal_Client: configureDataInformation() original HW burst = 96, minMicros = 2000 => SW burst = 96
+07-15 01:38:23.291 11430 11534 D IsochronousClockModel: setFramesPerBurst() - mFramesPerBurst = 96 - mBurstPeriodNanos = 2000000
+07-15 01:38:23.291 11430 11534 D AAudioStream: setState(s#1) from 0 to 2
+07-15 01:38:23.291 11430 11534 D AAudioFlowGraph: configure() source format = 0x00000005, channels = 2, sample rate = 48000, sink format = 0x00000005, channels = 2, sample rate = 48000, useMonoBlend = 0, audioBalance = 0.000000, useVolumeRamps 0
+07-15 01:38:23.292 11430 11534 I AAudio  : AAudioStreamBuilder_openStream() got MMAP, devIds = [3], perf = LL, burst = 96
+07-15 01:38:23.292 11430 11534 I AAudio  : AAudioStreamBuilder_openStream() returns 0 = AAUDIO_OK for s#1 ----------------
+07-15 01:38:23.293 11430 11534 D AAudio  : AAudioStream_requestStart(s#1) called --------------
+07-15 01:38:23.293 11430 11534 D AAudioStream: setState(s#1) from 2 to 3
+07-15 01:38:23.339 11430 11534 D AAudio  : AAudioStream_requestStart(s#1) returned 0 ---------
+07-15 01:38:23.341 11430 11638 D AudioStreamInternalPlay_Client: callbackLoop() entering >>>>>>>>>>>>>>>
+07-15 01:38:23.341 11430 11638 D AudioStreamInternal_Client: onEventFromServer - got AAUDIO_SERVICE_EVENT_STARTED
+07-15 01:38:23.341 11430 11638 D AAudioStream: setState(s#1) from 3 to 4
+07-15 01:38:23.354 11430 11526 D Capacitor: Handling local request: https://localhost/assets/icon-settings-D67jpzog.png
+07-15 01:38:23.354 11430 11430 I Capacitor/Console: File: https://localhost/assets/index-DHEGGXHA.js - Line 3909 - Msg: [attribution:disabled] Adjust disabled on android platform
+07-15 01:38:23.354 11430 11527 D Capacitor: Handling local request: https://localhost/assets/marble-run-banner-ebjVlHJ4.webp
+07-15 01:38:23.354 11430 11525 D Capacitor: Handling local request: https://localhost/assets/icon-coin-Dw60_rcO.png
+07-15 01:38:23.355 11430 11430 I Capacitor/Console: File: https://localhost/assets/index-DHEGGXHA.js - Line 3909 - Msg: [ads:admob] initializing AdMob [object Object]
+07-15 01:38:23.355 11430 11430 W Capacitor/Console: File: https://localhost/assets/index-DHEGGXHA.js - Line 3909 - Msg: [ads:admob] AdMob initialization failed Error: @capacitor-community/admob is native-only (web stub)
+07-15 01:38:23.362 11430 11526 D Capacitor: Handling local request: https://localhost/assets/level-node-current-P6sZO_Rt.webp
+07-15 01:38:23.362 11430 11525 D Capacitor: Handling local request: https://localhost/assets/level-node-locked-Cxu64nH7.webp
+07-15 01:38:23.363 11430 11525 D Capacitor: Handling local request: https://localhost/assets/button-green-DlMiLw0y.png
+07-15 01:38:23.364 11430 11525 D Capacitor: Handling local request: https://localhost/assets/FredokaOne-CqP-Tvqc.woff2
+07-15 01:38:23.364 11430 11525 D Capacitor: Handling local request: https://localhost/assets/TitanOne-Dkp60vSx.ttf
+07-15 01:38:23.885 11430 11525 D Capacitor: Handling local request: https://localhost/assets/app-icon-Bt7Z8_sg.png
+07-15 01:38:24.289 11430 11525 D Capacitor: Handling local request: https://localhost/assets/app-icon-Bt7Z8_sg.png
+07-15 01:38:27.764 11430 11692 D ProfileInstaller: Installing profile for com.appletolye.marblerun.dev

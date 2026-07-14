@@ -1,0 +1,108 @@
+{
+  "schema": "u5.phaser.provenance/1",
+  "runId": "2026-07-14T22-31-48-273Z-589e8941",
+  "result": "ok",
+  "serverMode": {
+    "desktop": true,
+    "unlocked": true
+  },
+  "serverModeAfterRestart": {
+    "desktop": true,
+    "unlocked": true
+  },
+  "port": 19592,
+  "sceneOrder": [
+    "Menu",
+    "Level",
+    "Shop",
+    "Settings",
+    "Pause",
+    "Win",
+    "Fail"
+  ],
+  "generatedGraph": [
+    "src/scenes/Menu.ts",
+    "src/scenes/Level.ts",
+    "src/scenes/Shop.ts",
+    "src/scenes/Settings.ts",
+    "src/scenes/Pause.ts",
+    "src/scenes/Win.ts",
+    "src/scenes/Fail.ts",
+    "src/components/Semantic.ts"
+  ],
+  "sceneAuthority": [
+    "src/scenes/Menu.scene",
+    "src/scenes/Level.scene",
+    "src/scenes/Shop.scene",
+    "src/scenes/Settings.scene",
+    "src/scenes/Pause.scene",
+    "src/scenes/Win.scene",
+    "src/scenes/Fail.scene",
+    "src/components/Semantic.components"
+  ],
+  "compile": {
+    "generation1": {
+      "combined": "sha256-fa7bc6f67bf65e192a53e2654ddcb683f2ad63ffab9969ffd1c754d812fbc04a",
+      "byPath": {
+        "src/scenes/Menu.ts": "sha256-7a3bb680d37dd529686edcf3fc40755ca7aa6acfbf22eb023f62f529d49abf4e",
+        "src/scenes/Level.ts": "sha256-82036186b683b07b0e0d0081df7966c1e93c79c41a08a80b091d5d278e9d8eff",
+        "src/scenes/Shop.ts": "sha256-fe46cadb670e1f08e7dd5611f69e4d5f0274e91bdecb4da2ee6fbb7f032087a4",
+        "src/scenes/Settings.ts": "sha256-b9b3712155d93ad1d2da0b2670af0f13907126b97498342e835c3a415326baff",
+        "src/scenes/Pause.ts": "sha256-87e6421e20f95648e31a0cf1e3c4f1bc38f39a427ad42e7568fa6da1b2afb34f",
+        "src/scenes/Win.ts": "sha256-2c7f7a221c4fcc88b48114ab892b005d908600842835b6db14ac42381ec17b3f",
+        "src/scenes/Fail.ts": "sha256-9505bedd7bf9ddc7d71b0bb1c65d6d03053d3584b1e64fbce484b076bcdd4e0f",
+        "src/components/Semantic.ts": "sha256-3994bfbda4ee5b313f75f4c1ccd5031f02488cd57b19dfeca86aaf6e0543999b"
+      }
+    },
+    "generation2": {
+      "combined": "sha256-fa7bc6f67bf65e192a53e2654ddcb683f2ad63ffab9969ffd1c754d812fbc04a",
+      "byPath": {
+        "src/scenes/Menu.ts": "sha256-7a3bb680d37dd529686edcf3fc40755ca7aa6acfbf22eb023f62f529d49abf4e",
+        "src/scenes/Level.ts": "sha256-82036186b683b07b0e0d0081df7966c1e93c79c41a08a80b091d5d278e9d8eff",
+        "src/scenes/Shop.ts": "sha256-fe46cadb670e1f08e7dd5611f69e4d5f0274e91bdecb4da2ee6fbb7f032087a4",
+        "src/scenes/Settings.ts": "sha256-b9b3712155d93ad1d2da0b2670af0f13907126b97498342e835c3a415326baff",
+        "src/scenes/Pause.ts": "sha256-87e6421e20f95648e31a0cf1e3c4f1bc38f39a427ad42e7568fa6da1b2afb34f",
+        "src/scenes/Win.ts": "sha256-2c7f7a221c4fcc88b48114ab892b005d908600842835b6db14ac42381ec17b3f",
+        "src/scenes/Fail.ts": "sha256-9505bedd7bf9ddc7d71b0bb1c65d6d03053d3584b1e64fbce484b076bcdd4e0f",
+        "src/components/Semantic.ts": "sha256-3994bfbda4ee5b313f75f4c1ccd5031f02488cd57b19dfeca86aaf6e0543999b"
+      }
+    },
+    "deterministic": true
+  },
+  "authority": {
+    "beforeCombined": "sha256-872b29bd3a895b0db45b1108781a55598aafcba7b50b6f953bb23d86aa2f9e51",
+    "afterSaveCombined": "sha256-872b29bd3a895b0db45b1108781a55598aafcba7b50b6f953bb23d86aa2f9e51",
+    "reopenCombined": "sha256-872b29bd3a895b0db45b1108781a55598aafcba7b50b6f953bb23d86aa2f9e51",
+    "stableAcrossRestart": true,
+    "byPathAfterSave": {
+      "src/scenes/Menu.scene": "sha256-349c4d84fc6f4dd192b347bc6a09d452df60e182acfbc78b10b2c06a9db7dc28",
+      "src/scenes/Level.scene": "sha256-1de48606ff4b86a765e858a93c93160830c173d56484e1fc4366063e836594c5",
+      "src/scenes/Shop.scene": "sha256-f8187345ebb527d65f3b7b6eea87adac32f65e9654179e301b87f7b7dcef0aab",
+      "src/scenes/Settings.scene": "sha256-2a48730a6ae201ef794abd42633a190412f38f59b90cf3b50bb1a9054d4b6c56",
+      "src/scenes/Pause.scene": "sha256-8035c5c5e6dea390319c7aede6c8927acc39f76c900d5fd022eafe157b37cd38",
+      "src/scenes/Win.scene": "sha256-96c21fcae6d4414435df07adfdf22db6df831363bfff7e4bd0914d17437a576d",
+      "src/scenes/Fail.scene": "sha256-b14001eb80700766c69bd37943c62c31c527a3d797542db36f23cdd2d6795deb",
+      "src/components/Semantic.components": "sha256-86f477d04a6caf056eb76571d501cc537d4e5f4e4f48263d624993bf0a1d0b37"
+    }
+  },
+  "generated": {
+    "afterSaveCombined": "sha256-fa7bc6f67bf65e192a53e2654ddcb683f2ad63ffab9969ffd1c754d812fbc04a",
+    "reopenCombined": "sha256-fa7bc6f67bf65e192a53e2654ddcb683f2ad63ffab9969ffd1c754d812fbc04a",
+    "stableAcrossRestart": true,
+    "byPathAfterSave": {
+      "src/scenes/Menu.ts": "sha256-7a3bb680d37dd529686edcf3fc40755ca7aa6acfbf22eb023f62f529d49abf4e",
+      "src/scenes/Level.ts": "sha256-82036186b683b07b0e0d0081df7966c1e93c79c41a08a80b091d5d278e9d8eff",
+      "src/scenes/Shop.ts": "sha256-fe46cadb670e1f08e7dd5611f69e4d5f0274e91bdecb4da2ee6fbb7f032087a4",
+      "src/scenes/Settings.ts": "sha256-b9b3712155d93ad1d2da0b2670af0f13907126b97498342e835c3a415326baff",
+      "src/scenes/Pause.ts": "sha256-87e6421e20f95648e31a0cf1e3c4f1bc38f39a427ad42e7568fa6da1b2afb34f",
+      "src/scenes/Win.ts": "sha256-2c7f7a221c4fcc88b48114ab892b005d908600842835b6db14ac42381ec17b3f",
+      "src/scenes/Fail.ts": "sha256-9505bedd7bf9ddc7d71b0bb1c65d6d03053d3584b1e64fbce484b076bcdd4e0f",
+      "src/components/Semantic.ts": "sha256-3994bfbda4ee5b313f75f4c1ccd5031f02488cd57b19dfeca86aaf6e0543999b"
+    }
+  },
+  "restart": {
+    "endpointDownProven": true
+  },
+  "startedAt": "2026-07-14T22:31:48.274Z",
+  "endedAt": "2026-07-14T22:32:19.575Z"
+}

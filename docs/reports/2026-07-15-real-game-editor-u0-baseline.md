@@ -9,7 +9,7 @@ scope: preflight-only
 
 # Real-game editor U0 verified baseline
 
-This report freezes the starting point for the real-game UI round-trip goal. It does not prove a Marble Run editor round trip, publish an editor, build either device, or change any external service. Current observations below were rechecked on 2026-07-15 (Europe/Istanbul); historical editor claims are explicitly marked as prior work.
+This report freezes the starting point for the real-game UI round-trip goal. U0 now proves both native editor-persistence lanes and a fresh exact-SHA Android build/install/capture lane. It does **not** prove a Marble Run editor mapping or round trip, publish an editor, prove mobile fidelity, or change any external service. Current observations below were rechecked on 2026-07-15 (Europe/Istanbul); historical editor claims are explicitly marked as prior work.
 
 ## Source baseline
 
@@ -19,6 +19,18 @@ This report freezes the starting point for the real-game UI round-trip goal. It 
 | `origin/goal/real-game-ui-roundtrip` | `58f94d2f68d1a5bca7c886b7e047069822734097` | Governing goal document. |
 
 The card worktree contains a merge commit used only to reconcile the goal branch with the worktree. It is not a replacement baseline and is not evidence that any editor implementation landed on `origin/main`.
+
+## U0 proof result
+
+| Lane | Result | What is proven | What is not proven |
+| --- | --- | --- | --- |
+| Native GrapesJS persistence | **PASS** | Raw `editor.getProjectData()` remained the sole saved authority; stable component and semantic IDs, text, style, and project hash survived a complete browser/server stop and restart. | Mouse-drag usability, Marble mapping, Preview publication, reset, or device propagation. |
+| Licensed Phaser Editor persistence | **PASS** | Phaser Editor 5.0.2 saved a native `.scene`; stable object identity, position, copy, native-scene hash, and deterministic generated graph survived complete editor-server termination and reopen. | Manual-drag usability, Marble mapping, Preview publication, reset, or device propagation. |
+| Exact-SHA Android preflight | **PASS** | A fresh sparse clone at exact commit `b53b9b04e7dbfdda9404f55cb12047e02af5af80` built, installed, cold-launched, dwelled 12 seconds, and produced a live Pixel 6a menu capture tied to the installed APK hash. | Either editor's output on device, cross-editor parity, or a fidelity verdict. |
+
+Committed evidence is under [`docs/evidence/2026-07-15-realgame-editor-preflight`](../evidence/2026-07-15-realgame-editor-preflight/). The root [`SHA256SUMS`](../evidence/2026-07-15-realgame-editor-preflight/SHA256SUMS) binds every curated artifact. The evidence intentionally omits the 7.6 MB debug APK; its exact SHA-256, source SHA, build commands, package metadata, and install proof remain recorded in the Android report and logs.
+
+The editor proof used disposable projects only. GrapesJS was changed through its native component API and Phaser through the live licensed Scene Editor model/save method. Neither authority file was edited outside its editor. This establishes native persistence without falsely claiming manual designer ergonomics.
 
 ## Editor baseline and authority decision
 
@@ -53,7 +65,10 @@ The card worktree contains a merge commit used only to reconcile the goal branch
 - ADB must be invoked by absolute path: `/home/batu/android-sdk/platform-tools/adb`.
 - Device `27091JEGR22183` is currently in state `device`; it reports **Pixel 6a**, Android **16**.
 - The remote checkout at `/home/batu/Desktop/utolye/fabrikav2` is **not provenance-safe**: its `.git` file points to a Mac-local worktree path for old card `s1P6oJI2`. Existing remote files or the already installed Marble build therefore cannot attest a source SHA.
-- Before any device proof, sync a clean source snapshot, record its exact SHA separately, build from that snapshot, install it, and bind captures to the same SHA and editor revision.
+- U0 closed the clean-source preflight: a new disposable partial clone checked out exact commit `b53b9b04e7dbfdda9404f55cb12047e02af5af80`, built Marble Run, installed `com.appletolye.marblerun.dev`, cleared prior app data, cold-launched it, waited 12 seconds, and captured the rendered menu from the expected foreground activity.
+- The installed APK SHA-256 was `692b21d528e33a45fc3a3d08bd5bc5928eb28026f5528f8b9c9211854e696e30`; the 1080 x 2400 RGBA capture SHA-256 was `df4bb57bfdb651cb2bab725741ba71799a676a9d84c4593bcbe982a6f092754e`.
+- The build exposed a real seam: Marble Run does not itself declare `@capacitor/android`, so the exact tracked `games/arrow` workspace was included to make the lockfile-pinned package available without changing source or lockfile. Logcat also records the current AdMob native-only web-stub fallback. Neither issue invalidates the U0 build/install/capture proof, but neither is a production SDK proof.
+- Later editor/device gates must repeat this provenance discipline and additionally bind the installed build to the selected editor revision.
 
 ### iPhone opportunistic lane
 
@@ -92,10 +107,9 @@ These ledgers record who investigated what; they are not a substitute for commit
 
 ## Reproducible read-only checks
 
-Run from a Fabrikav2 checkout unless a command uses an absolute path. None of these commands changes an editor, device, service, branch, or lease.
+Run from a Fabrikav2 checkout unless a command uses an absolute path. None of these commands changes an editor, device, service, branch, or lease. Remote fetch is intentionally excluded because it mutates local remote-tracking refs.
 
 ```sh
-git fetch origin --prune
 git rev-parse origin/main
 git rev-parse origin/goal/real-game-ui-roundtrip
 defaults read '/Applications/Phaser Editor 5.app/Contents/Info' CFBundleShortVersionString
@@ -122,10 +136,18 @@ launchctl print "gui/$(id -u)/com.appletolye.gallery"
 
 sed -n '1,180p' /Users/base/dev/appletolye/pixelsmith/README.md
 twf capacity status
+
+test -f docs/evidence/2026-07-15-realgame-editor-preflight/SHA256SUMS
+(cd docs/evidence/2026-07-15-realgame-editor-preflight && shasum -a 256 -c SHA256SUMS)
+file docs/evidence/2026-07-15-realgame-editor-preflight/android/menu.png
+rg -n '"pass": true|"result": "ok"|"stableAcrossRestart": true' \
+  docs/evidence/2026-07-15-realgame-editor-preflight/editor-persistence
 ```
 
 Expected non-zero results are meaningful: the Marble search should find nothing, the ancestry check should exit 1, and `launchctl print` should fail while the service is not loaded. Do not turn those failures into success claims.
 
 ## Exit state and next gate
 
-U0 is ready to hand to the Marble inventory card when this report is committed and reviewed. The next unit must build the exact Marble state/asset inventory and fresh physical-Android reference baseline. Neither editor implementation may claim readiness until its own native edit, save/reopen, reset, accepted-revision Preview, clean-SHA device build, and complete primary-state capture gates pass.
+U0 is satisfied when this report and its curated evidence are committed and reviewed: both native persistence lanes pass, and the exact-`b53b9b04` Android build/install/capture preflight passes. This remains a preflight, not a Marble mapping claim.
+
+The next unit must build the exact Marble state/asset inventory and complete the fresh physical-Android primary-state reference baseline. Neither editor implementation may claim readiness until its own native edit, save/reopen, reset, accepted-revision Preview, clean-SHA device build, and complete primary-state capture gates pass.
