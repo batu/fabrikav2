@@ -18,10 +18,12 @@ a visual-fidelity verdict because no trusted reference image is configured.
 
 ## Observations
 
-- `pixel6a-playthrough.mp4` is a 7.997 second physical-device ADB
-  screenrecord of Menu → Level → Win pre-claim → Win post-claim.
-- The four sampled frames preserve the same sequence and were reviewed by the
-  required independent game-aesthetics reviewer.
+- `pixel6a-playthrough.mp4` is an 8.000 second physical-device ADB
+  screenrecord that drives through Menu → Level → Win pre-claim → Win
+  post-claim. The recording begins with the Home transition out of the prior
+  post-claim state; the four sampled frames preserve the stated sequence.
+- The four sampled frames were reviewed independently and explicitly identify
+  Claim + Watch Ad before the tap and Next + Home after it.
 - The previously observed recorder black-frame corruption is absent after the
   renderer preserved its WebGL drawing buffer.
 - Both exact Phaser Editor font aliases are loaded before runtime readiness;
@@ -45,4 +47,3 @@ a visual-fidelity verdict because no trusted reference image is configured.
 - Same-human timed authoring comparison between GrapesJS and Phaser Editor.
 - Trusted visual references and scored fidelity.
 - Production signing/trust, operational rollback, purchases, and iOS proof.
-
