@@ -1,0 +1,34 @@
+# project-gate / fence-gate ground-truth analysis (2026-07-14)
+
+## Bare project-gate (card command component)
+fence-gate FAIL: 'diverged branch with no FENCE_GATE_LANE — refusing to silently skip'
+  integration-ref=experiment/dual-design-frontends (9781e179) trusted-base=9781e179 diverged=true
+
+## Lane-scoped: FENCE_GATE_LANE=phaser npm run fence-gate
+fence-gate FAIL: lane 'phaser' range 9781e179..HEAD changed=703 symlinks=0
+  flagged (all copy-attribution sources, not writes):
+    non-target: games/_template/design/assets/*.png, fonts/*.ttf
+    out-of-fence: experiments/design-frontends/assets/icon-control-shop.png
+    out-of-fence: experiments/design-frontends/fixtures/phaser-feasibility/editor-project/public/publicroot
+
+## Topology (git, ground truth)
+merge-base(HEAD, integration): 9781e179bc4e89ef591a9241e2aaa33e0ea4436b
+9781e179 ancestor of HEAD: YES
+HEAD descends from sealed U1 baseline 89620259: YES
+integration 9781e179 descends from 89620259: YES
+commits in 9781e179..HEAD: 23
+
+## Definitive: plain content diff (NO copy detection), non-lane paths
+total content-changed files 9781e179..HEAD: 674
+of which within phaser lane (tools/phaser-shell, authoring, evidence): 674
+non-lane content-changed files: 0
+
+## Proof a flagged path is only a copy source (unchanged blob)
+experiments/design-frontends/assets/icon-control-shop.png @9781e179: bdadadc794f7c92f32e5f01d5afbf59fb3d2605f
+experiments/design-frontends/assets/icon-control-shop.png @HEAD:      bdadadc794f7c92f32e5f01d5afbf59fb3d2605f
+
+CONCLUSION: 0 real out-of-fence writes. fence-gate red = git --find-copies-harder
+attributing the lane's byte-identical Kenney asset/font copies (duplicated into
+immutable content-addressed publications) to their out-of-lane source blobs.
+Resolving the fence to green is a conductor landing step (advance/reseal integration
+so the shared-asset sources are in-base, or run the conductor merge allowance).

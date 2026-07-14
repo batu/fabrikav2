@@ -1,0 +1,93 @@
+
+> @fabrikav2/phaser-shell@0.0.0 verify-authoring
+> npm run typecheck && npm run test:unit && npm run lint && npm run validate && npm run render && npm run build && npm run typecheck -w @fabrikav2/shell_proof_phaser && npm run test:unit -w @fabrikav2/shell_proof_phaser && npm run build -w @fabrikav2/shell_proof_phaser
+
+
+> @fabrikav2/phaser-shell@0.0.0 typecheck
+> tsc --noEmit
+
+
+> @fabrikav2/phaser-shell@0.0.0 test:unit
+> vitest run
+
+
+ RUN  v4.1.9 <worktree>/tools/phaser-shell
+
+
+ Test Files  22 passed (22)
+      Tests  205 passed (205)
+   Start at  15:09:35
+   Duration  4.75s (transform 1.60s, setup 0ms, import 4.72s, tests 14.66s, environment 2ms)
+
+
+> @fabrikav2/phaser-shell@0.0.0 lint
+> eslint .
+
+
+> @fabrikav2/phaser-shell@0.0.0 validate
+> tsx src/cli.mjs validate
+
+{
+  "result": "ok",
+  "blocks": []
+}
+
+> @fabrikav2/phaser-shell@0.0.0 render
+> playwright test --config playwright.config.ts
+
+
+Running 6 tests using 1 worker
+
+(node:9343) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 test/render-proof.spec.ts:45:3 › U5 immutable Phaser publication render proof › the accepted P0/A/B handoff is present and byte-bound (35ms)
+  ✓  2 test/render-proof.spec.ts:56:3 › U5 immutable Phaser publication render proof › direct non-menu hash boots do not load the shared texture pack concurrently (1.6s)
+  ✓  3 test/render-proof.spec.ts:86:5 › U5 immutable Phaser publication render proof › p0 renders all seven states from sha256-c27be2bfce72bf8950347f28ddba6867ed36c65ebb54849b1f376ff5dc14b8b7 (1.6s)
+  ✓  4 test/render-proof.spec.ts:86:5 › U5 immutable Phaser publication render proof › a renders all seven states from sha256-3b4d7cdb957751919a8c8fe1fbaa795ea8d5f64c6e51c8f3300c691cb258b1e8 (1.6s)
+  ✓  5 test/render-proof.spec.ts:86:5 › U5 immutable Phaser publication render proof › b renders all seven states from sha256-35690099c42593fc9811c2def04218957aa918111d110a174a2bfb9485e7bbb9 (1.7s)
+  ✓  6 test/review-interaction.spec.ts:108:1 › sealed action rectangles drive the review journey without faking SDK outcomes (1.3s)
+
+  6 passed (8.5s)
+
+> @fabrikav2/phaser-shell@0.0.0 build
+> tsc --noEmit
+
+
+> @fabrikav2/shell_proof_phaser@0.0.0 typecheck
+> tsc --noEmit
+
+
+> @fabrikav2/shell_proof_phaser@0.0.0 test:unit
+> vitest run
+
+
+ RUN  v4.1.9 <worktree>/games/shell_proof_phaser
+
+(node:9464) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9468) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9466) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+ Test Files  11 passed (11)
+      Tests  95 passed (95)
+   Start at  15:09:53
+   Duration  1.02s (transform 1.52s, setup 0ms, import 2.28s, tests 310ms, environment 3.01s)
+
+
+> @fabrikav2/shell_proof_phaser@0.0.0 build
+> vite build
+
+vite v6.4.3 building for production...
+transforming...
+✓ 112 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                  0.42 kB │ gzip:  0.28 kB
+dist/assets/kenney-future-DVB-apiN.ttf          34.16 kB
+dist/assets/kenney-future-narrow-D0xvRwar.ttf   34.18 kB
+dist/assets/index-CmeZ-ctr.css                  60.90 kB │ gzip: 13.62 kB
+dist/assets/web-NQV5Xy9k.js                      0.94 kB │ gzip:  0.49 kB │ map:   3.10 kB
+dist/assets/index-YNGklW_H.js                  202.43 kB │ gzip: 50.45 kB │ map: 555.86 kB
+✓ built in 312ms
