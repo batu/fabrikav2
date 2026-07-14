@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "fabrikav2.verify-device.observation/1",
+  "game": "shell_proof_phaser",
+  "lane": "device",
+  "platform": "android",
+  "provenance": "live-device",
+  "generatedAt": "2026-07-14T16:00:57.642Z",
+  "device": "Android 27091JEGR22183 via adb",
+  "runKind": "no-applicable-evidence",
+  "captureFailure": null,
+  "hardIntegrity": [],
+  "requiredStates": [
+    "menu",
+    "level",
+    "shop",
+    "settings",
+    "pause",
+    "win",
+    "fail"
+  ],
+  "captures": [
+    {
+      "state": "menu",
+      "gated": true,
+      "file": "games/shell_proof_phaser/evidence/2026-07-14-u6-final-device-gate/raw-captures/menu.png",
+      "present": true,
+      "sha256": "e26885c345a212c2df1cba061e15380df3ce93e545f6ad1e50a1a7ed512de926"
+    },
+    {
+      "state": "level",
+      "gated": true,
+      "file": "games/shell_proof_phaser/evidence/2026-07-14-u6-final-device-gate/raw-captures/level.png",
+      "present": true,
+      "sha256": "027394c176c0ec9b0ce544d502605e9f610e34538b04f0805d49885e3208ab14"
+    },
+    {
+      "state": "shop",
+      "gated": true,
+      "file": "games/shell_proof_phaser/evidence/2026-07-14-u6-final-device-gate/raw-captures/shop.png",
+      "present": true,
+      "sha256": "3c1e97b104868ddc9cd188069c52238ba4e4a90df82afb04b8673d314ee8ea10"
+    },
+    {
+      "state": "settings",
+      "gated": true,
+      "file": "games/shell_proof_phaser/evidence/2026-07-14-u6-final-device-gate/raw-captures/settings.png",
+      "present": true,
+      "sha256": "a192580b25127ddb45176259fd7a331ff0bb7afc27f827e4f915db442e52f653"
+    },
+    {
+      "state": "pause",
+      "gated": true,
+      "file": "games/shell_proof_phaser/evidence/2026-07-14-u6-final-device-gate/raw-captures/pause.png",
+      "present": true,
+      "sha256": "9c03ddcdcb543627c9985e01bff1580e933c6588c5f73c47397dd6e43c6fd082"
+    },
+    {
+      "state": "win",
+      "gated": true,
+      "file": "games/shell_proof_phaser/evidence/2026-07-14-u6-final-device-gate/raw-captures/win.png",
+      "present": true,
+      "sha256": "455ed9654324cb8cd9d8dcebbb82118610f5d98bc270e999029309c1dcef22ff"
+    },
+    {
+      "state": "fail",
+      "gated": true,
+      "file": "games/shell_proof_phaser/evidence/2026-07-14-u6-final-device-gate/raw-captures/fail.png",
+      "present": true,
+      "sha256": "8f22a3e605db005166114e9f15fe3c461a18d7ca8e45e1ac593806ef7268b161"
+    }
+  ],
+  "inputs": {
+    "algorithm": "canonical-input-sha256/1",
+    "roots": [
+      "games/shell_proof_phaser/src",
+      "games/shell_proof_phaser/design",
+      "games/shell_proof_phaser/refs",
+      "packages/ui"
+    ],
+    "fileCount": 349,
+    "sha256": "e2d2742f1394aa4779b703040202774164710a310a8737dd59b4d9c9fcae69eb"
+  }
+}
