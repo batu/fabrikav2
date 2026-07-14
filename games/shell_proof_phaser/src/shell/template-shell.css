@@ -1,0 +1,1197 @@
+/* Template-shell layout stays token-only. The Kenney fixtures are injected by
+   design/assets.ts; this file only composes their semantic slots. */
+body {
+  min-height: 100dvh;
+  margin: 0;
+}
+
+#app {
+  min-height: 100dvh;
+}
+
+.template-shell {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  background: var(--fab-color-surface);
+  color: var(--fab-color-text);
+  font-family: var(--fab-font-family);
+}
+
+/* Shared primitives set neutral defaults on each .fab-ui root. Bridge every
+   rendered surface back to this committed seed without introducing a theme
+   module or changing package UI. */
+.template-shell .fab-ui {
+  --fab-color-surface: var(--fab-seed-color-surface);
+  --fab-color-overlay-scrim: var(--fab-seed-color-overlay-scrim);
+  --fab-color-text: var(--fab-seed-color-text);
+  --fab-color-text-muted: var(--fab-seed-color-text-muted);
+  --fab-color-accent: var(--fab-seed-color-accent);
+  --fab-color-on-accent: var(--fab-seed-color-on-accent);
+  --fab-color-secondary-surface: var(--fab-seed-color-secondary-surface);
+  --fab-color-on-secondary: var(--fab-seed-color-on-secondary);
+  --fab-color-secondary-border: var(--fab-seed-color-secondary-border);
+  --fab-color-gameplay-surface: var(--fab-seed-color-gameplay-surface);
+  --fab-modal-card-border: var(--fab-seed-color-surface);
+  --fab-page-overlay-bg: var(--fab-seed-color-surface);
+  --fab-space-sm: var(--fab-seed-space-sm);
+  --fab-space-md: var(--fab-seed-space-md);
+  --fab-space-lg: var(--fab-seed-space-lg);
+  --fab-radius-md: var(--fab-seed-radius-md);
+  --fab-radius-pill: var(--fab-seed-radius-pill);
+  --fab-font-family: var(--fab-seed-font-family);
+  --fab-font-family-display: var(--fab-seed-font-family-display);
+  --fab-font-size-sm: var(--fab-seed-font-size-sm);
+  --fab-font-size-md: var(--fab-seed-font-size-md);
+  --fab-font-size-lg: var(--fab-seed-font-size-lg);
+  --fab-font-weight-normal: var(--fab-seed-font-weight-normal);
+  --fab-font-weight-bold: var(--fab-seed-font-weight-bold);
+  --fab-btn-color: var(--fab-seed-color-on-accent);
+  --fab-shadow-button: var(--fab-seed-shadow-button);
+  --fab-shadow-button-active: var(--fab-seed-shadow-button-active);
+  --fab-shadow-button-disabled: var(--fab-seed-shadow-button-disabled);
+  --fab-shadow-modal: var(--fab-seed-shadow-modal);
+  --fab-pause-title-color: var(--fab-seed-color-text);
+  --fab-ribbon-title-color: var(--fab-seed-color-on-accent);
+  --fab-ribbon-eyebrow-color: var(--fab-seed-color-text);
+  --fab-ribbon-title-size: var(--fab-seed-ribbon-title-size);
+  --fab-ribbon-eyebrow-size: var(--fab-seed-ribbon-eyebrow-size);
+  --fab-ribbon-eyebrow-top: var(--fab-seed-ribbon-eyebrow-top);
+  --fab-ribbon-title-top: var(--fab-seed-ribbon-title-top);
+  --fab-ribbon-text-max-width: var(--fab-seed-ribbon-text-max-width);
+  --fab-result-reward-color: var(--fab-color-accent);
+  --fab-toggle-track-off: var(--fab-seed-color-toggle-track-off);
+  --fab-toggle-thumb: var(--fab-seed-color-on-accent);
+  --fab-levelmap-node-bg: var(--fab-seed-color-gameplay-surface);
+  --fab-levelmap-locked-bg: var(--fab-seed-color-levelmap-locked);
+  --fab-levelmap-completed-bg: var(--fab-seed-color-levelmap-completed);
+  --fab-levelmap-current-bg: var(--fab-seed-color-accent);
+  --fab-levelmap-node-color: var(--fab-seed-color-text);
+  --fab-levelmap-locked-color: var(--fab-seed-color-surface);
+  --fab-levelmap-completed-color: var(--fab-seed-color-on-accent);
+  --fab-levelmap-current-color: var(--fab-seed-color-on-accent);
+  --fab-levelmap-dot-color: var(--fab-seed-color-text);
+  --fab-levelmap-locked-dot-color: var(--fab-seed-color-surface);
+  --fab-levelmap-line-top: var(--fab-seed-color-levelmap-line-top);
+  --fab-levelmap-line-mid: var(--fab-seed-color-levelmap-locked);
+  --fab-levelmap-line-bottom: var(--fab-seed-color-accent);
+  --fab-levelmap-art-locked: var(--fab-seed-levelmap-art-locked);
+  --fab-levelmap-art-completed: var(--fab-seed-levelmap-art-completed);
+  --fab-levelmap-art-current: var(--fab-seed-levelmap-art-current);
+  --fab-levelmap-path-width: var(--fab-seed-levelmap-path-width);
+  --fab-levelmap-node-size: var(--fab-seed-levelmap-node-size);
+  --fab-levelmap-node-current-size: var(--fab-seed-levelmap-node-current-size);
+  --fab-levelmap-node-font: var(--fab-seed-levelmap-node-font);
+  --fab-levelmap-node-current-font: var(--fab-seed-levelmap-node-current-font);
+}
+
+/* Settings is a quiet, compact utility surface rather than a second menu CTA. */
+.template-shell .fab-page {
+  --fab-page-header-height: calc(var(--fab-btn-min-size) + var(--fab-space-xs));
+  --fab-page-body-gap: var(--fab-space-xs);
+  --fab-page-padding: var(--fab-space-sm);
+}
+
+.template-shell .fab-home-menu,
+.template-shell__level {
+  box-sizing: border-box;
+  min-height: 100dvh;
+  padding: var(--fab-space-screen-padding);
+}
+
+.template-shell__menu-header,
+.template-shell__level {
+  display: grid;
+  gap: var(--fab-space-md);
+}
+
+.template-shell__level {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+
+.template-shell__heading {
+  display: grid;
+  gap: var(--fab-space-xs);
+  text-align: center;
+}
+
+.template-shell__subtitle {
+  margin: 0;
+  color: var(--fab-color-text-muted);
+  font-size: var(--fab-font-size-md);
+  font-weight: var(--fab-font-weight-normal);
+}
+
+.template-shell__utility,
+.template-shell__hud,
+.template-shell__test-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fab-space-sm);
+}
+
+.template-shell__hud {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+}
+
+.template-shell__hud .template-shell__currency {
+  justify-self: start;
+  width: max-content;
+  min-width: 0;
+  padding-inline: var(--fab-space-xs);
+  white-space: nowrap;
+}
+
+.template-shell__currency--compact .template-shell__currency-label {
+  display: none;
+}
+
+.template-shell__hud .template-shell__icon-action--hud {
+  justify-self: end;
+}
+
+.template-shell__currency {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--fab-btn-min-size);
+  gap: var(--fab-space-xs);
+  padding: var(--fab-space-xs) var(--fab-space-sm);
+  border-radius: var(--fab-radius-pill);
+  font-weight: var(--fab-font-weight-bold);
+}
+
+.template-shell__currency--contrasted {
+  background-color: var(--fab-seed-color-currency-surface);
+  color: var(--fab-seed-color-currency-on-surface);
+  border: var(--fab-border-width) solid var(--fab-seed-color-currency-border);
+}
+
+/* The secondary (gem) balance keeps the primary pill's shape and typography
+   but reads as its own currency: a distinct fill and a visible unit label. */
+.template-shell__currency--secondary {
+  background-color: var(--fab-seed-color-currency-secondary-surface);
+  border-color: var(--fab-seed-color-currency-secondary-border);
+}
+
+.template-shell__currency-label {
+  font-size: var(--fab-font-size-sm);
+  font-weight: var(--fab-font-weight-normal);
+}
+
+.template-shell__currency-icon,
+.template-shell__button-icon {
+  width: var(--fab-icon-size);
+  height: var(--fab-icon-size);
+  object-fit: contain;
+}
+
+.template-shell__icon-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--fab-btn-min-size);
+  min-height: var(--fab-btn-min-size);
+  gap: var(--fab-space-xs);
+  background-color: var(--fab-color-accent);
+}
+
+.template-shell__icon-action--utility {
+  flex: 0 0 var(--fab-btn-min-size);
+  width: var(--fab-btn-min-size);
+  padding: 0;
+  font-size: 0;
+  background-color: var(--fab-seed-color-utility-surface);
+  box-shadow: none;
+}
+
+/* The Shop entry is the menu's one commerce door: same utility geometry and
+   row, but the accent fill separates it from the quiet Settings control. */
+.template-shell__icon-action--shop {
+  background-color: var(--fab-color-accent);
+  box-shadow: var(--fab-shadow-button);
+}
+
+.template-shell__icon-action--hud {
+  flex: 0 0 var(--fab-btn-min-size);
+  width: var(--fab-btn-min-size);
+  padding: 0;
+  font-size: 0;
+}
+
+/* One Back affordance for every full-page surface: the Shop header Back and
+   the kit's Settings .fab-page-back share the accent treatment. */
+.template-shell__icon-action--page-back {
+  flex: 0 0 var(--fab-btn-min-size);
+  width: var(--fab-btn-min-size);
+  padding: 0;
+  font-size: 0;
+  background-color: var(--fab-color-accent);
+  box-shadow: var(--fab-shadow-button);
+}
+
+.template-shell .fab-page-back {
+  background-color: var(--fab-color-accent);
+  box-shadow: var(--fab-shadow-button);
+}
+
+.template-shell__title,
+.template-shell__level-label {
+  margin: 0;
+  color: var(--fab-color-text);
+  font-weight: var(--fab-font-weight-bold);
+  text-align: center;
+}
+
+.template-shell__title,
+.template-shell__level-label,
+.template-shell__gameplay h2,
+.template-shell__sample-title,
+.template-shell .fab-modal-title,
+.template-shell .fab-modal-ribbon-title,
+.template-shell .fab-btn {
+  font-family: var(--fab-font-family-display);
+}
+
+.template-shell__title {
+  font-size: var(--fab-font-size-title);
+}
+
+.template-shell__level-label--identity {
+  flex: 0 0 auto;
+  color: var(--fab-color-text);
+  font-size: var(--fab-hud-level-font-size);
+  line-height: 1;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.template-shell__hero-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: var(--fab-hero-stage-min-height);
+  margin-inline: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--fab-radius-md);
+  background:
+    radial-gradient(circle at 78% 24%, var(--fab-seed-color-sun) 0 20px, transparent 21px),
+    radial-gradient(ellipse at 8% 112%, var(--fab-seed-color-hill-back) 0 148px, transparent 149px),
+    radial-gradient(ellipse at 92% 122%, var(--fab-seed-color-hill-front) 0 176px, transparent 177px),
+    var(--fab-seed-color-hero-surface);
+  box-shadow: none;
+}
+
+.template-shell .fab-levelmap-path {
+  min-height: var(--fab-seed-levelmap-path-min-height);
+}
+
+.template-shell .fab-levelmap-path::before,
+.template-shell .fab-levelmap-path::after {
+  display: none;
+}
+
+.template-shell__route {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.template-shell__route-track,
+.template-shell__route-line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.template-shell__route-track {
+  stroke: var(--fab-seed-color-secondary-border);
+  stroke-width: 13;
+  opacity: 0.52;
+}
+
+.template-shell__route-line {
+  stroke: var(--fab-seed-color-accent);
+  stroke-width: 7;
+  opacity: 0.86;
+}
+
+.template-shell .fab-levelmap-node:nth-child(1) {
+  --node-x: -34px;
+}
+
+.template-shell .fab-levelmap-node:nth-child(2) {
+  --node-x: 32px;
+}
+
+.template-shell .fab-levelmap-node:nth-child(3) {
+  --node-x: -24px;
+}
+
+.template-shell .fab-levelmap-node.current .fab-levelmap-node-dot {
+  box-shadow: var(--fab-seed-shadow-current-node);
+}
+
+/* The padlock art is the whole locked signal: the level numeral stays in the
+   accessible name only and never ghosts through the icon. */
+.template-shell .fab-levelmap-node.locked .fab-levelmap-node-dot {
+  color: transparent;
+}
+
+.template-shell__hero-stage::after {
+  position: absolute;
+  bottom: -54px;
+  left: 51%;
+  width: 94px;
+  height: 166px;
+  border-left: 28px solid var(--fab-seed-color-trail-surface);
+  border-radius: 50%;
+  content: "";
+  filter: drop-shadow(4px 0 0 var(--fab-seed-color-trail-shadow));
+  transform: rotate(28deg);
+}
+
+.template-shell__result-art {
+  display: block;
+  width: var(--fab-art-width);
+  max-width: 100%;
+  max-height: var(--fab-art-max-height);
+  margin-inline: auto;
+  object-fit: contain;
+}
+
+.template-shell__hero-marker,
+.template-shell__gameplay-marker {
+  position: absolute;
+  z-index: 3;
+  width: 5px;
+  height: 44px;
+  border-radius: var(--fab-radius-pill);
+  background-color: var(--fab-seed-color-text);
+}
+
+.template-shell__hero-marker {
+  right: 22%;
+  bottom: 26%;
+  width: 6px;
+  height: 58px;
+}
+
+.template-shell__hero-marker::after,
+.template-shell__gameplay-marker::after {
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 24px;
+  height: 17px;
+  border-radius: 2px 8px 8px 2px;
+  background-color: var(--fab-seed-color-accent);
+  content: "";
+}
+
+.template-shell__hero-marker::after {
+  width: 36px;
+  height: 22px;
+  border: 2px solid var(--fab-seed-color-text);
+  background-color: var(--fab-seed-color-sun);
+}
+
+.template-shell__gameplay--trail {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  align-items: stretch;
+  gap: 0;
+  min-height: var(--fab-gameplay-min-height);
+  padding: 0;
+  border: 1px solid var(--fab-seed-color-secondary-border);
+  border-style: solid;
+  border-radius: var(--fab-radius-md);
+  background:
+    radial-gradient(circle at 82% 18%, var(--fab-seed-color-sun) 0 24px, transparent 25px),
+    radial-gradient(ellipse at 4% 78%, var(--fab-seed-color-hill-back) 0 190px, transparent 191px),
+    radial-gradient(ellipse at 96% 84%, var(--fab-seed-color-hill-front) 0 230px, transparent 231px),
+    var(--fab-seed-color-hero-surface);
+  box-shadow: none;
+  color: var(--fab-color-text);
+  text-align: left;
+}
+
+.template-shell__gameplay--trail::before {
+  position: absolute;
+  right: 24%;
+  bottom: -96px;
+  width: 150px;
+  height: 390px;
+  border-left: 48px solid var(--fab-seed-color-trail-surface);
+  border-radius: 50%;
+  content: "";
+  filter: drop-shadow(6px 0 0 var(--fab-seed-color-trail-shadow));
+  transform: rotate(17deg);
+}
+
+.template-shell__gameplay-landscape {
+  position: relative;
+  z-index: 1;
+  min-height: 150px;
+}
+
+.template-shell__gameplay-marker {
+  top: 31%;
+  right: 28%;
+}
+
+.template-shell__gameplay h2,
+.template-shell__gameplay p {
+  margin: 0;
+}
+
+.template-shell__gameplay-copy {
+  position: absolute;
+  top: var(--fab-space-md);
+  left: var(--fab-space-md);
+  z-index: 2;
+  display: grid;
+  gap: var(--fab-space-xs);
+  max-width: 228px;
+  margin: 0;
+  padding: 10px var(--fab-space-sm);
+  border-left: calc(var(--fab-border-width) * 2) solid var(--fab-seed-color-accent);
+  border-radius: var(--fab-space-sm);
+  background-color: var(--fab-seed-color-copy-surface);
+}
+
+.template-shell__gameplay-copy h2 {
+  font-family: var(--fab-font-family);
+  font-size: var(--fab-font-size-lg);
+  font-weight: var(--fab-font-weight-bold);
+  line-height: 1.15;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.template-shell__gameplay-copy > p:last-child {
+  font-size: var(--fab-font-size-sm);
+}
+
+.template-shell__gameplay-kicker {
+  color: var(--fab-seed-color-socket-kicker);
+  font-size: var(--fab-font-size-sm);
+  font-weight: var(--fab-font-weight-bold);
+  letter-spacing: var(--fab-label-letter-spacing);
+  text-transform: uppercase;
+}
+
+.template-shell__sample-outcomes {
+  display: grid;
+  gap: var(--fab-space-xs);
+  padding: var(--fab-space-xs);
+  border: 1px solid var(--fab-seed-color-secondary-border);
+  border-radius: var(--fab-space-sm);
+  background: linear-gradient(180deg, var(--fab-seed-color-diagnostic-wash), transparent);
+  color: var(--fab-color-text-muted);
+  text-align: center;
+}
+
+.template-shell__sample-outcomes[hidden] {
+  display: none;
+}
+
+.template-shell__sample-title,
+.template-shell__sample-body {
+  margin: 0;
+}
+
+.template-shell__sample-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
+  padding: 0;
+  color: inherit;
+  font-family: var(--fab-font-family);
+  font-size: var(--fab-font-size-sm);
+  font-weight: var(--fab-font-weight-bold);
+  line-height: 1.2;
+}
+
+.template-shell__sample-body {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* The curated win/lose glyphs are white, so this stays a compact contrast layer
+   after the action sprite is removed from the card itself. */
+.template-shell .fab-result-body {
+  padding: var(--fab-space-md);
+  border: var(--fab-border-width) solid var(--fab-color-secondary-border);
+  border-radius: var(--fab-radius-md);
+  background-color: var(--fab-color-gameplay-surface);
+}
+
+.template-shell[data-fab-state="fail"] .fab-ui {
+  --fab-ribbon-title-color: var(--fab-seed-color-fail-ribbon-text);
+  --fab-ribbon-title-outline: transparent;
+  --fab-ribbon-eyebrow-color: var(--fab-seed-color-fail-ribbon-text);
+  --fab-ribbon-title-size: var(--fab-font-size-lg);
+  --fab-ribbon-text-max-width: 68%;
+}
+
+.template-shell[data-fab-state="fail"] .fab-result-body {
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.template-shell[data-fab-state="fail"] .fab-result-card {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 390px;
+  gap: 10px;
+  /* The rescue sheet is docked flush to the bottom edge, so the last control
+     (the bundle) must clear the device home indicator / gesture area. Floor the
+     bottom padding at space-lg above whatever the safe-area inset reports (0 on
+     Android), so the bundle never reaches the raw viewport bottom. */
+  padding: 30px var(--fab-space-md) max(var(--fab-space-lg), env(safe-area-inset-bottom));
+  border-color: var(--fab-seed-color-fail-border);
+  border-bottom: 0;
+  border-radius: 28px 28px 0 0;
+  background-color: var(--fab-seed-color-pause-surface);
+  box-shadow: var(--fab-seed-shadow-bottom-sheet);
+}
+
+/* The rescue sheet is docked to the bottom edge but is NOT draggable, so it
+   carries no grabber handle — a drag affordance the surface cannot honor would
+   be a false promise (card qWCv9tUo comment 57). The docked shape (rounded top,
+   flush bottom) stays; only the misleading handle is gone. */
+
+.template-shell[data-fab-state="fail"] .fab-modal-backdrop {
+  align-items: flex-end;
+  padding: 0;
+}
+
+.template-shell[data-fab-state="fail"] .fab-modal-ribbon {
+  display: grid;
+  width: 100%;
+  min-height: 0;
+  aspect-ratio: auto;
+  align-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 0 var(--fab-space-xs);
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.template-shell[data-fab-state="fail"] .fab-modal-ribbon-image {
+  display: none;
+}
+
+.template-shell[data-fab-state="fail"] .fab-modal-ribbon-eyebrow,
+.template-shell[data-fab-state="fail"] .fab-modal-ribbon-title {
+  position: static;
+  width: auto;
+  max-width: none;
+  margin: 0;
+  transform: none;
+}
+
+.template-shell[data-fab-state="fail"] .fab-modal-ribbon-eyebrow {
+  display: none;
+}
+
+.template-shell[data-fab-state="fail"] .fab-modal-ribbon-title {
+  color: var(--fab-seed-color-fail-accent);
+}
+
+.template-shell[data-fab-state="fail"] .template-shell__result-art {
+  display: none;
+}
+
+.template-shell[data-fab-state="fail"] .template-shell__fail-barrier {
+  position: relative;
+  display: block;
+  width: 90px;
+  height: 64px;
+  flex: 0 0 64px;
+}
+
+.template-shell[data-fab-state="fail"] .template-shell__fail-barrier::before {
+  position: absolute;
+  top: 0;
+  left: 2px;
+  z-index: 1;
+  width: 82px;
+  height: 42px;
+  border: 3px solid var(--fab-seed-color-fail-accent);
+  border-radius: 8px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--fab-seed-color-fail-accent) 0 12px,
+    var(--fab-seed-color-trail-surface) 12px 24px
+  );
+  box-shadow: var(--fab-seed-shadow-fail-barrier);
+  content: "";
+  transform: rotate(-2deg);
+}
+
+.template-shell[data-fab-state="fail"] .template-shell__fail-barrier::after {
+  position: absolute;
+  bottom: 0;
+  left: 12px;
+  width: 66px;
+  height: 30px;
+  background: linear-gradient(
+    90deg,
+    var(--fab-seed-color-fail-accent) 0 8px,
+    transparent 8px 58px,
+    var(--fab-seed-color-fail-accent) 58px 66px
+  );
+  content: "";
+}
+
+.template-shell [data-fab-action="result-next"] {
+  font-family: var(--fab-font-family);
+  font-weight: var(--fab-font-weight-bold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.template-shell[data-fab-state="fail"] .fab-result-message {
+  max-width: 26ch;
+  color: var(--fab-seed-color-text);
+  font-family: var(--fab-font-family);
+  font-size: var(--fab-font-size-md);
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.template-shell[data-fab-state="fail"] .fab-modal-actions {
+  margin-top: var(--fab-space-xs);
+}
+
+.template-shell__test-actions {
+  align-items: stretch;
+  justify-content: center;
+  flex-wrap: nowrap;
+  padding: 0;
+}
+
+.template-shell__test-action,
+.template-shell .fab-btn,
+.template-shell .fab-toggle-row,
+.template-shell .fab-page-back {
+  min-height: var(--fab-btn-min-size);
+}
+
+.template-shell .fab-toggle-switch {
+  width: var(--fab-toggle-action-width);
+  height: var(--fab-btn-min-size);
+}
+
+.template-shell .fab-toggle-input {
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.template-shell .fab-toggle-slider::before {
+  width: var(--fab-toggle-thumb-size);
+  height: var(--fab-toggle-thumb-size);
+  left: var(--fab-toggle-thumb-inset);
+  bottom: var(--fab-toggle-thumb-inset);
+}
+
+.template-shell .fab-toggle-input:checked + .fab-toggle-slider::before {
+  transform: translateX(var(--fab-toggle-thumb-travel));
+}
+
+.template-shell__test-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 var(--fab-diagnostic-action-min-width);
+  max-width: var(--fab-diagnostic-action-max-width);
+  min-height: var(--fab-btn-min-size);
+  padding: var(--fab-space-xs) var(--fab-space-sm);
+  font-size: var(--fab-font-size-sm);
+  border-radius: var(--fab-radius-pill);
+  box-shadow: none;
+}
+
+.template-shell__test-action--win {
+  background-color: var(--fab-seed-color-diagnostic-win-surface);
+  color: var(--fab-seed-color-diagnostic-text);
+  border: var(--fab-border-width) solid var(--fab-seed-color-diagnostic-win-border);
+}
+
+.template-shell__test-action--lose {
+  background-color: var(--fab-seed-color-diagnostic-lose-surface);
+  color: var(--fab-seed-color-diagnostic-text);
+  border: var(--fab-border-width) solid var(--fab-seed-color-diagnostic-lose-border);
+}
+
+.template-shell__level--inert-backdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.template-shell__level--inert-backdrop .template-shell__sample-outcomes {
+  visibility: hidden;
+}
+
+.template-shell__level--inert-backdrop .template-shell__currency,
+.template-shell__level--inert-backdrop .template-shell__icon-action--hud {
+  visibility: hidden;
+}
+
+.template-shell[data-fab-state="pause"] .fab-modal-scrim,
+.template-shell[data-fab-state="win"] .fab-modal-scrim,
+.template-shell[data-fab-state="fail"] .fab-modal-scrim {
+  background: var(--fab-seed-color-pause-scrim);
+}
+
+/* Pause is a compact centered dialog over the frozen level — deliberately not
+   a bottom sheet: no drag handle, full rounded corners, modal shadow. The
+   full-page treatment belongs to Settings; the two must read differently in a
+   screenshot without the page label. */
+.template-shell .fab-modal-card.fab-pause-card {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 340px;
+  padding: var(--fab-space-md);
+  --fab-pause-action-gap: var(--fab-space-xs);
+  background-color: var(--fab-seed-color-pause-surface);
+  border-color: var(--fab-seed-color-pause-border);
+  border-radius: var(--fab-radius-md);
+  box-shadow: var(--fab-shadow-modal);
+}
+
+.template-shell .fab-pause-card .fab-modal-title {
+  margin-bottom: var(--fab-space-xs);
+  color: var(--fab-seed-color-text);
+  text-align: center;
+}
+
+.template-shell .fab-pause-card [data-fab-action="pause-resume"],
+.template-shell__primary-action,
+.template-shell__overlay-action--primary {
+  background-color: var(--fab-color-accent);
+  color: var(--fab-color-on-accent);
+  border: var(--fab-border-width) solid var(--fab-color-accent);
+  box-shadow: var(--fab-shadow-button);
+}
+
+.template-shell .fab-pause-card [data-fab-action="pause-settings"],
+.template-shell__overlay-action--secondary {
+  background: var(--fab-seed-color-socket-surface);
+  color: var(--fab-color-text);
+  border: var(--fab-border-width) solid var(--fab-seed-color-socket-border);
+  box-shadow: none;
+}
+
+/* Quiet exits keep a full-size hit target: the Home row is visually light but
+   never smaller than the 48px design-unit minimum. */
+.template-shell .fab-pause-card [data-fab-action="pause-quit"],
+.template-shell__overlay-action--tertiary {
+  min-height: var(--fab-btn-min-size);
+  margin-top: var(--fab-space-xs);
+  padding-block: var(--fab-space-xs);
+  border: 0;
+  border-top: 1px solid var(--fab-seed-color-pause-border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--fab-color-text);
+  font-family: var(--fab-font-family);
+  font-size: var(--fab-font-size-md);
+  text-shadow: none;
+}
+
+/* Shop: a full-page surface — header back action, currency balances, and one
+   scrollable catalog region. Each catalog wrapper is the visual item card:
+   surface, border, and CTA live inside one bounded card, and the
+   available/owned/locked contract variants map to explicit fills — never an
+   opacity wash. The DOM never attaches an action hook to a card. */
+.template-shell__shop {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  gap: var(--fab-space-sm);
+  padding: var(--fab-space-sm);
+  /* Shop is a custom page rather than a kit .fab-page, so consume the same
+     semantic safe-top token explicitly. Settings consumes it in ui.css. */
+  padding-top: calc(var(--fab-space-sm) + var(--fab-safe-top));
+}
+
+/* One page-title grammar for every full-page surface: a fixed Back slot, a
+   centered display-face title, and a mirrored empty slot keep the Shop and
+   Settings headers identical. */
+.template-shell__shop-header,
+.template-shell .fab-page-header {
+  display: grid;
+  grid-template-columns: var(--fab-btn-min-size) minmax(0, 1fr) var(--fab-btn-min-size);
+  align-items: center;
+  gap: var(--fab-space-sm);
+}
+
+.template-shell__page-title {
+  margin: 0;
+  text-align: center;
+}
+
+.template-shell__shop-balances {
+  display: flex;
+  justify-content: flex-start;
+  gap: var(--fab-space-sm);
+}
+
+/* The catalog region is the single scrollable area of the Shop page. */
+.template-shell__shop-catalog {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Exactly two columns across every mobile width. The shared kit auto-fills a
+   third narrow column at the ~412 CSS-px phone width; the reviewed contract is
+   two columns, so the three sample items fill three cells and leave the fourth
+   naturally empty. Scoped to the proof shell — the kit default is unchanged. */
+.template-shell__shop .fab-shop-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.template-shell__shop .fab-shop-section-title {
+  color: var(--fab-color-text);
+}
+
+.template-shell__shop .fab-shop-card-wrapper {
+  box-sizing: border-box;
+  gap: var(--fab-space-xs);
+  padding: var(--fab-space-sm);
+  border: var(--fab-border-width) solid var(--fab-seed-color-secondary-border);
+  border-radius: var(--fab-radius-md);
+  background-color: var(--fab-seed-color-shop-card-surface);
+}
+
+.template-shell__shop .fab-shop-card {
+  flex: 1 1 auto;
+  gap: var(--fab-space-xs);
+  padding: 0;
+  background: transparent;
+}
+
+.template-shell__shop .fab-shop-card-title {
+  color: var(--fab-color-text);
+}
+
+.template-shell__shop .fab-shop-card-desc {
+  color: var(--fab-color-text-muted);
+}
+
+/* Explicit CTA fills: an enabled price is accent-on-accent; a disabled CTA
+   (locked/unavailable/busy) is a legible muted chip, never a faded ghost.
+   CTA labels use the body stack — the display face's `$` glyph is unreadable
+   at price sizes (the same trade result-next already makes). */
+.template-shell__shop .fab-shop-purchase-btn,
+.template-shell__shop .fab-shop-restore-btn {
+  font-family: var(--fab-font-family);
+  font-size: var(--fab-font-size-md);
+  font-weight: var(--fab-font-weight-bold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.template-shell__shop .fab-shop-purchase-btn {
+  margin-top: auto;
+  min-height: var(--fab-btn-min-size);
+  padding: var(--fab-space-xs) var(--fab-space-sm);
+  background-color: var(--fab-color-accent);
+  color: var(--fab-color-on-accent);
+  border: var(--fab-border-width) solid var(--fab-color-accent);
+}
+
+.template-shell__shop .fab-shop-purchase-btn:disabled,
+.template-shell__shop .fab-shop-restore-btn:disabled {
+  opacity: 1;
+  filter: none;
+  background-color: var(--fab-color-secondary-surface);
+  color: var(--fab-color-text-muted);
+  border-color: var(--fab-color-secondary-border);
+  box-shadow: none;
+}
+
+/* Grounded locked state: a muted dashed card at full opacity, with the
+   status chip lifted back to the card surface so its label stays legible. */
+.template-shell__shop [data-fab-variant="locked"] {
+  background-color: var(--fab-color-secondary-surface);
+  border-style: dashed;
+}
+
+.template-shell__shop [data-fab-variant="locked"] .fab-shop-card-title,
+.template-shell__shop [data-fab-variant="locked"] .fab-shop-card-desc {
+  color: var(--fab-color-text-muted);
+}
+
+.template-shell__shop [data-fab-variant="locked"] .fab-shop-purchase-btn:disabled {
+  background-color: var(--fab-seed-color-shop-card-surface);
+}
+
+.template-shell__shop [data-fab-variant="owned"] {
+  border-color: var(--fab-seed-color-accent);
+}
+
+/* The owned sample's CTA is a confirmation, not an invitation: an inert
+   disabled chip on the soft accent surface with a dark label — clearly apart
+   from both the live accent price and the muted locked chip. */
+.template-shell__shop [data-fab-variant="owned"] .fab-shop-purchase-btn:disabled {
+  background-color: var(--fab-seed-color-socket-surface);
+  color: var(--fab-color-text);
+  border-color: var(--fab-seed-color-accent);
+}
+
+/* The restore panel stacks: copy above a full-width action, so the long
+   restore label never collides with the status copy at phone widths. */
+.template-shell__shop .fab-shop-restore {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--fab-space-xs);
+  border: var(--fab-border-width) solid var(--fab-seed-color-secondary-border);
+  border-radius: var(--fab-radius-md);
+  background-color: var(--fab-seed-color-shop-card-surface);
+}
+
+.template-shell__shop .fab-shop-restore-title {
+  color: var(--fab-color-text);
+}
+
+.template-shell__shop .fab-shop-restore-status {
+  color: var(--fab-color-text-muted);
+}
+
+.template-shell__shop .fab-shop-restore-btn {
+  min-height: var(--fab-btn-min-size);
+  padding: var(--fab-space-xs) var(--fab-space-sm);
+  background-color: var(--fab-color-accent);
+  color: var(--fab-color-on-accent);
+  border: var(--fab-border-width) solid var(--fab-color-accent);
+}
+
+@media (max-width: 360px) {
+  .template-shell__currency,
+  .template-shell__icon-action:not(.template-shell__icon-action--hud):not(.template-shell__icon-action--utility) {
+    font-size: var(--fab-font-size-sm);
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * FTD structure rewire (card qWCv9tUo, 2026-07-13)
+ * ------------------------------------------------------------------ */
+
+/* Persistent bottom nav dock: shop (left), play (center + dominant), settings
+   (right). The dock is the mounted home-menu action row, re-laid as a 3-column
+   grid; play keeps the accent primary-action fill and the quiet icon+label
+   shop/settings flank it. */
+.template-shell .fab-home-menu-actions {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: end;
+  gap: var(--fab-space-sm);
+}
+
+.template-shell__nav-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--fab-space-xs);
+  min-height: var(--fab-btn-min-size);
+  padding: var(--fab-space-xs);
+  border: var(--fab-border-width) solid var(--fab-seed-color-socket-border);
+  border-radius: var(--fab-radius-md);
+  background: var(--fab-seed-color-utility-surface);
+  box-shadow: none;
+  /* The dark slate dock surface needs its labels on the light on-accent ink,
+     not the dark body text: dark-on-slate read at ~2.3:1 (fails AA). White at
+     ~5.8:1 passes AA for the 14px bold label and matches the white nav icons. */
+  color: var(--fab-seed-color-on-accent);
+  font-family: var(--fab-font-family);
+  font-size: var(--fab-font-size-sm);
+  font-weight: var(--fab-font-weight-bold);
+  text-shadow: none;
+}
+
+.template-shell__nav-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.template-shell__nav-action--shop {
+  justify-self: start;
+}
+
+.template-shell__nav-action--settings {
+  justify-self: end;
+}
+
+/* Play is the dominant center action: accent fill, a wider footprint, the
+   display face, and elevation. */
+.template-shell__nav-action--play {
+  justify-self: center;
+  min-width: 132px;
+  padding-block: var(--fab-space-sm);
+  border-color: var(--fab-color-accent);
+  background-color: var(--fab-color-accent);
+  color: var(--fab-color-on-accent);
+  box-shadow: var(--fab-shadow-button);
+  font-family: var(--fab-font-family-display);
+  font-size: var(--fab-font-size-md);
+}
+
+.template-shell__nav-action--play .template-shell__nav-icon {
+  width: 34px;
+  height: 34px;
+}
+
+/* Win reward readout: the earned coins, grounded on the currency fill so the
+   amount reads as coins before any claim. */
+/* The reward readout is a single wide line — icon, amount, and label never wrap —
+   so the earned coins read as one confident statement above the claim actions. */
+.template-shell__reward {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--fab-space-sm);
+  width: 100%;
+  box-sizing: border-box;
+  margin-inline: auto;
+  padding: var(--fab-space-sm) var(--fab-space-md);
+  border-radius: var(--fab-radius-md);
+  background: var(--fab-seed-color-currency-surface);
+  color: var(--fab-seed-color-currency-on-surface);
+  white-space: nowrap;
+}
+
+.template-shell__reward-icon {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+}
+
+.template-shell__reward-value {
+  font-family: var(--fab-font-family-display);
+  font-size: var(--fab-font-size-title);
+}
+
+.template-shell__reward-label {
+  font-size: var(--fab-font-size-md);
+}
+
+/* CLAIM 2x carries its explicit "Watch ad" sublabel on a second line, and an
+   accent border marks it as a live, interactive reward path (never a quiet or
+   disabled control) even though it sits on the neutral secondary fill. */
+.template-shell__claim-double {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  border-color: var(--fab-seed-color-accent);
+}
+
+.template-shell__claim-sub {
+  font-family: var(--fab-font-family);
+  font-size: var(--fab-font-size-sm);
+  text-transform: none;
+  opacity: 0.9;
+}
+
+/* Win claim and fail rescue action stacks. */
+.template-shell__result-actions {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: var(--fab-space-xs);
+}
+
+/* The Win action stack reserves its taller pre-claim height (Claim + the
+   two-line Claim 2x) and stays top-aligned, so swapping the claim actions for
+   Next + Home after a claim does not jump the surface vertically. */
+.template-shell__win-actions {
+  min-height: calc(2 * var(--fab-btn-min-size) + var(--fab-space-lg));
+  justify-content: flex-start;
+}
+
+/* Rescue/claim CTAs use the body face, not the display face: the display font's
+   "$" and "x" glyphs are illegible (they read as "S"/"H"), and these buttons
+   carry a price ($4.99) and the "2x" multiplier. Matches the shop CTA and
+   result-next decision. */
+.template-shell__result-actions .fab-btn {
+  font-family: var(--fab-font-family);
+}
+
+/* The rescue bundle is a complete, self-contained purchase card-button — a
+   bounded white surface with its own accent border and radius carrying the
+   visible price — clearly a purchasable control, never the borderless
+   quiet-exit row (that grammar belongs to Home/Resume). */
+.template-shell__fail-bundle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: var(--fab-btn-min-size);
+  /* Continue and Retry are the two immediate free/coin choices; the paid rescue
+     bundle sits below them behind a wider gap so it reads as a separate offer,
+     not a third free action. */
+  margin-top: var(--fab-space-md);
+  padding: var(--fab-space-xs) var(--fab-space-sm);
+  border: var(--fab-border-width) solid var(--fab-seed-color-accent);
+  border-radius: var(--fab-radius-md);
+  background: var(--fab-seed-color-shop-card-surface);
+  color: var(--fab-color-text);
+  box-shadow: none;
+}
+
+/* The rescue bundle's outcome disclosure ("Continue this level") on a quiet
+   second line, so the purchase states what it does, not only its price. */
+.template-shell__bundle-sub {
+  font-family: var(--fab-font-family);
+  font-size: var(--fab-font-size-sm);
+  text-transform: none;
+  opacity: 0.9;
+}
+
+/* Disabled result actions stay full-opacity with an explicit muted fill (never a
+   ghost wash), so a gated Next / unaffordable Continue / unavailable bundle
+   still reads as a real, legible control. */
+.template-shell__result-actions .fab-btn:disabled {
+  opacity: 1;
+  background: var(--fab-seed-color-socket-surface);
+  color: var(--fab-color-text-muted);
+  box-shadow: none;
+}

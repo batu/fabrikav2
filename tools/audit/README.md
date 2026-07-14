@@ -73,7 +73,9 @@ rather than reddening the gate. See the per-linter notes below.
    in `*.test.ts` via `@fabrikav2/kernel/flow`, correctly does **not** warn).
 
 4. **structure** — a `games/*` game's **top-level entries** must match the
-   canonical whitelist (the `games/_template` skeleton). Any extra top-level dir
+   canonical whitelist (the `games/_template` skeleton). Editable tool state
+   belongs under `authoring/`; generated runtime projections belong under
+   `design/`. Any extra top-level dir
    or file fails with a message naming the correct home
    (`games/<g>/marketing/ -> repo docs/marketing`), sourced from the conductor's
    approved ban list (card QzqGf6el) and `docs/research/09-game-folder-chaos-

@@ -1,0 +1,313 @@
+{
+  "consensus": [
+    "missing-element",
+    "iconography"
+  ],
+  "defects": [
+    {
+      "defect": "Title reads 'TRAIL COMPLETE' instead of 'LEVEL COMPLETE'",
+      "direction": "Change title text to 'LEVEL COMPLETE'",
+      "region": "completion title banner",
+      "severity": "blocker"
+    },
+    {
+      "defect": "Mascot character (detective dog in circular frame) is entirely absent",
+      "direction": "Add the mascot illustration in a circular frame above the reward section",
+      "region": "mascot area",
+      "severity": "blocker"
+    },
+    {
+      "defect": "Coins earned shows '5' instead of '45'",
+      "direction": "Update coin value to display 45",
+      "region": "coins earned display",
+      "severity": "major"
+    },
+    {
+      "defect": "'Great Find!' subtitle text is absent",
+      "direction": "Add 'Great Find!' label between mascot and coins earned box",
+      "region": "subtitle area",
+      "severity": "major"
+    },
+    {
+      "defect": "'Claim' and 'Claim 2x / Watch ad' buttons are stacked vertically instead of side-by-side horizontally",
+      "direction": "Place Claim and Claim 2x buttons in a single row side by side",
+      "region": "claim buttons",
+      "severity": "major"
+    },
+    {
+      "defect": "Pixel/mono title font differs from reference rounded font",
+      "direction": "Template skin difference, acceptable per spec",
+      "region": "OURS1 title banner",
+      "severity": "minor"
+    },
+    {
+      "defect": "No top-right coin balance badge present",
+      "direction": "Add a coin balance pill in the top-right corner",
+      "region": "OURS1 coin badge top-right",
+      "severity": "minor"
+    },
+    {
+      "defect": "'Coins earned' label is inside the dark pill alongside the count rather than as a separate header chip above the value",
+      "direction": "Restructure to show 'Coins earned' as a header chip and the coin+number below it",
+      "region": "coins earned box",
+      "severity": "minor"
+    },
+    {
+      "defect": "Missing the 'Ad' play icon inside the Claim 2x button",
+      "direction": "add an ad/play icon to the left of the 'Claim 2x' text inside the button",
+      "region": "OURS 1 (bottom right button)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Uses a star glyph instead of coin asset",
+      "direction": "Ignore per palette/mascot exclusion; source-flow intact",
+      "region": "OURS1 coins-earned row",
+      "severity": "minor"
+    },
+    {
+      "defect": "Star icon used instead of coin/paw icon next to coin count",
+      "direction": "Replace star with the coin (paw) icon matching the reference",
+      "region": "coins earned row",
+      "severity": "minor"
+    },
+    {
+      "defect": "Star icon used instead of a Coin icon for 'Coins earned'",
+      "direction": "replace the star icon with a coin icon to match the text label and reference",
+      "region": "OURS 1 (center reward box)",
+      "severity": "minor"
+    },
+    {
+      "defect": "Extra 'TRAIL 2' label and 'TRAIL CLEARING' header visible above the completion card",
+      "direction": "Remove extraneous trail context labels from the win modal",
+      "region": "top of modal",
+      "severity": "minor"
+    }
+  ],
+  "participated": [
+    "anthropic/claude-opus-4.8",
+    "anthropic/claude-sonnet-4.6",
+    "google/gemini-3.5-flash"
+  ],
+  "per_model": {
+    "anthropic/claude-opus-4.8": {
+      "defects": [
+        {
+          "defect": "No top-right coin balance badge present",
+          "direction": "Add a coin balance pill in the top-right corner",
+          "key": "missing-element",
+          "region": "OURS1 coin badge top-right",
+          "severity": "minor"
+        },
+        {
+          "defect": "Uses a star glyph instead of coin asset",
+          "direction": "Ignore per palette/mascot exclusion; source-flow intact",
+          "key": "iconography",
+          "region": "OURS1 coins-earned row",
+          "severity": "minor"
+        },
+        {
+          "defect": "Pixel/mono title font differs from reference rounded font",
+          "direction": "Template skin difference, acceptable per spec",
+          "key": "typography",
+          "region": "OURS1 title banner",
+          "severity": "minor"
+        }
+      ],
+      "model": "anthropic/claude-opus-4.8",
+      "recurring_checks": [
+        {
+          "evidence": "win: green TRAIL COMPLETE title banner sits on opaque solid box ~y560-900",
+          "id": "banner-transparency",
+          "pass": false
+        },
+        {
+          "evidence": "win: star glyph at x360,y1180 stands in for coin art",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "win: no circular/pill glyph buttons to fail",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "win: Claim/Claim 2x text within button bounds",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "win: Claim and Claim 2x buttons stacked, equal width",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 88.0
+    },
+    "anthropic/claude-sonnet-4.6": {
+      "defects": [
+        {
+          "defect": "Title reads 'TRAIL COMPLETE' instead of 'LEVEL COMPLETE'",
+          "direction": "Change title text to 'LEVEL COMPLETE'",
+          "key": "text-content",
+          "region": "completion title banner",
+          "severity": "blocker"
+        },
+        {
+          "defect": "Mascot character (detective dog in circular frame) is entirely absent",
+          "direction": "Add the mascot illustration in a circular frame above the reward section",
+          "key": "missing-element",
+          "region": "mascot area",
+          "severity": "blocker"
+        },
+        {
+          "defect": "Coins earned shows '5' instead of '45'",
+          "direction": "Update coin value to display 45",
+          "key": "text-content",
+          "region": "coins earned display",
+          "severity": "major"
+        },
+        {
+          "defect": "'Claim' and 'Claim 2x / Watch ad' buttons are stacked vertically instead of side-by-side horizontally",
+          "direction": "Place Claim and Claim 2x buttons in a single row side by side",
+          "key": "layout",
+          "region": "claim buttons",
+          "severity": "major"
+        },
+        {
+          "defect": "'Great Find!' subtitle text is absent",
+          "direction": "Add 'Great Find!' label between mascot and coins earned box",
+          "key": "missing-element",
+          "region": "subtitle area",
+          "severity": "major"
+        },
+        {
+          "defect": "Extra 'TRAIL 2' label and 'TRAIL CLEARING' header visible above the completion card",
+          "direction": "Remove extraneous trail context labels from the win modal",
+          "key": "extra-element",
+          "region": "top of modal",
+          "severity": "minor"
+        },
+        {
+          "defect": "Star icon used instead of coin/paw icon next to coin count",
+          "direction": "Replace star with the coin (paw) icon matching the reference",
+          "key": "iconography",
+          "region": "coins earned row",
+          "severity": "minor"
+        },
+        {
+          "defect": "'Coins earned' label is inside the dark pill alongside the count rather than as a separate header chip above the value",
+          "direction": "Restructure to show 'Coins earned' as a header chip and the coin+number below it",
+          "key": "missing-element",
+          "region": "coins earned box",
+          "severity": "minor"
+        }
+      ],
+      "model": "anthropic/claude-sonnet-4.6",
+      "recurring_checks": [
+        {
+          "evidence": "win modal banner composites over background without opaque box artifact",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "Mascot asset entirely missing; star icon used instead of coin/paw icon in coins row (~360,660)",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "Claim button text appears centered in pill",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "All text contained within button/chip bounds",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "Claim and Claim 2x buttons are different widths/heights due to vertical stacking instead of equal-width side-by-side layout",
+          "id": "sibling-size-consistency",
+          "pass": false
+        }
+      ],
+      "score": 52.0
+    },
+    "google/gemini-3.5-flash": {
+      "defects": [
+        {
+          "defect": "Star icon used instead of a Coin icon for 'Coins earned'",
+          "direction": "replace the star icon with a coin icon to match the text label and reference",
+          "key": "iconography",
+          "region": "OURS 1 (center reward box)",
+          "severity": "minor"
+        },
+        {
+          "defect": "Missing the 'Ad' play icon inside the Claim 2x button",
+          "direction": "add an ad/play icon to the left of the 'Claim 2x' text inside the button",
+          "key": "missing-element",
+          "region": "OURS 1 (bottom right button)",
+          "severity": "minor"
+        }
+      ],
+      "model": "google/gemini-3.5-flash",
+      "recurring_checks": [
+        {
+          "evidence": "win",
+          "id": "banner-transparency",
+          "pass": true
+        },
+        {
+          "evidence": "star icon instead of coin icon at [308, 456]",
+          "id": "asset-identity",
+          "pass": false
+        },
+        {
+          "evidence": "win",
+          "id": "glyph-centering",
+          "pass": true
+        },
+        {
+          "evidence": "win",
+          "id": "content-containment",
+          "pass": true
+        },
+        {
+          "evidence": "win",
+          "id": "sibling-size-consistency",
+          "pass": true
+        }
+      ],
+      "score": 85.0
+    }
+  },
+  "recurring_checks": [
+    {
+      "evidence": "win: green TRAIL COMPLETE title banner sits on opaque solid box ~y560-900",
+      "id": "banner-transparency",
+      "pass": false
+    },
+    {
+      "evidence": "win: star glyph at x360,y1180 stands in for coin art",
+      "id": "asset-identity",
+      "pass": false
+    },
+    {
+      "evidence": "win: no circular/pill glyph buttons to fail",
+      "id": "glyph-centering",
+      "pass": true
+    },
+    {
+      "evidence": "win: Claim/Claim 2x text within button bounds",
+      "id": "content-containment",
+      "pass": true
+    },
+    {
+      "evidence": "Claim and Claim 2x buttons are different widths/heights due to vertical stacking instead of equal-width side-by-side layout",
+      "id": "sibling-size-consistency",
+      "pass": false
+    }
+  ],
+  "score": 85.0,
+  "skipped": [],
+  "verdict": "pass"
+}

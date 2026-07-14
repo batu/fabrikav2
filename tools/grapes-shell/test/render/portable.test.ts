@@ -1,0 +1,108 @@
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { afterEach, describe, expect, it } from "vitest";
+
+import { shellPresentationContractV2 } from "@fabrikav2/kernel";
+
+import { publishAuthoringProject } from "../../src/publication/publisher.ts";
+import { renderPortablePreviews } from "../../src/publication/preview.ts";
+import { createConstrainedGrapesProject, createStarterProject } from "../../src/shared/project.ts";
+
+const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const repositoryRoot = path.resolve(workspaceRoot, "../..");
+const seedRoot = path.join(repositoryRoot, "games/shell_proof_grapes/design");
+const temporaryRoots: string[] = [];
+
+afterEach(async () => {
+  await Promise.all(temporaryRoots.splice(0).map((directory) => rm(directory, { recursive: true, force: true })));
+});
+
+describe("portable publication renderer", () => {
+  it("renders all seven local portable pages with scripts and HTTP networking disabled", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "grapes-shell-render-"));
+    temporaryRoots.push(root);
+    const authoringDir = path.join(root, "games/shell_proof_grapes/authoring/grapesjs");
+    await mkdir(authoringDir, { recursive: true });
+    await writeFile(path.join(authoringDir, "project.json"), JSON.stringify(createStarterProject()), "utf8");
+
+    const result = await publishAuthoringProject({ authoringDir, seedRoot, renderPreviews: renderPortablePreviews });
+    const manifestPath = path.join(authoringDir, "previews", result.publicationId, result.previewFingerprintId!, "preview.json");
+    const manifest = JSON.parse(await (await import("node:fs/promises")).readFile(manifestPath, "utf8")) as {
+      fingerprint: { deviceScaleFactor: number; animations: string; loadBarrier: string; encoder: string };
+      pages: Array<{ stateId: string; filename: string; sha256: string }>;
+    };
+
+    expect(manifest.pages.map((page) => page.stateId)).toEqual(["menu", "level", "shop", "settings", "pause", "win", "fail"]);
+    expect(manifest.pages.every((page) => page.filename.endsWith(".png") && /^sha256-[a-f0-9]{64}$/.test(page.sha256))).toBe(true);
+    expect(manifest.fingerprint).toMatchObject({
+      renderer: expect.stringMatching(/^playwright-chromium-/),
+      deviceScaleFactor: 1,
+      animations: "disabled",
+      loadBarrier: "portable-html-safety-images-fonts-and-render-marker",
+      encoder: "playwright-png",
+    });
+  });
+
+  it("carries the rescue-bundle name, price, and outcome into the portable fail projection", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "grapes-shell-bundle-"));
+    temporaryRoots.push(root);
+    const authoringDir = path.join(root, "games/shell_proof_grapes/authoring/grapesjs");
+    await mkdir(authoringDir, { recursive: true });
+    await writeFile(path.join(authoringDir, "project.json"), JSON.stringify(createStarterProject()), "utf8");
+
+    // No renderPreviews: publishing the portable bundle needs no browser.
+    const result = await publishAuthoringProject({ authoringDir, seedRoot });
+    const portableDirectory = path.join(authoringDir, "publications", result.publicationId, "portable");
+    const [failHtml, records] = await Promise.all([
+      readFile(path.join(portableDirectory, "fail.html"), "utf8"),
+      readFile(path.join(portableDirectory, "records.json"), "utf8"),
+    ]);
+
+    // The portable projection (not only the editor canvas) must disclose the
+    // bundle outcome the A1 review flagged missing, while preserving name + price.
+    for (const fact of ["Rescue bundle", "$4.99", "Continue this level"]) {
+      expect(failHtml).toContain(fact);
+      expect(records).toContain(fact);
+    }
+  });
+
+  it("fails closed before writing any portable projection whose designer copy overwrites a binding fact", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "grapes-shell-fact-tamper-"));
+    temporaryRoots.push(root);
+    const authoringDir = path.join(root, "games/shell_proof_grapes/authoring/grapesjs");
+    await mkdir(authoringDir, { recursive: true });
+
+    // A canonically consistent project (grapes matches the AST) whose fail balance
+    // copy has been overwritten with a fabricated store value.
+    const tampered = createStarterProject();
+    const presentation = structuredClone(tampered.presentation);
+    presentation.pages
+      .flatMap((page) => page.instances)
+      .find((instance) => instance.id === "fail.currency")!.presentation.copy = "9999 Coins";
+    const tamperedProject = { ...tampered, presentation, grapesjs: createConstrainedGrapesProject(presentation) };
+    await writeFile(path.join(authoringDir, "project.json"), JSON.stringify(tamperedProject), "utf8");
+
+    await expect(publishAuthoringProject({ authoringDir, seedRoot })).rejects.toThrow(/binding-derived|owned by binding/i);
+    // Fail-closed means no immutable publication directory was ever created.
+    await expect(readFile(path.join(authoringDir, "publications"))).rejects.toThrow();
+  });
+
+  it("rejects executable or networked portable markup before launching a browser", async () => {
+    const root = await mkdtemp(path.join(os.tmpdir(), "grapes-shell-render-unsafe-"));
+    temporaryRoots.push(root);
+    const authoringDir = path.join(root, "games/shell_proof_grapes/authoring/grapesjs");
+    await mkdir(authoringDir, { recursive: true });
+    await writeFile(path.join(authoringDir, "project.json"), JSON.stringify(createStarterProject()), "utf8");
+    const result = await publishAuthoringProject({ authoringDir, seedRoot });
+    const portableDirectory = path.join(authoringDir, "publications", result.publicationId, "portable");
+    const menu = path.join(portableDirectory, "menu.html");
+    await writeFile(menu, `${await (await import("node:fs/promises")).readFile(menu, "utf8")}<img src="https://attacker.invalid/x.png">`, "utf8");
+
+    await expect(renderPortablePreviews({
+      portableDirectory,
+      states: shellPresentationContractV2.publication.requiredStates,
+    })).rejects.toThrow(/executable|networked/i);
+  });
+});

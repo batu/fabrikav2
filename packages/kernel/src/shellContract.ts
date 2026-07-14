@@ -1,8 +1,11 @@
 import rawShellPresentationContract from '../contracts/shell-presentation.v1.json' with { type: 'json' };
+import rawShellPresentationContractV2 from '../contracts/shell-presentation.v2.json' with { type: 'json' };
 
 import type { GameScreenName } from './game-config.ts';
 
 export type ShellStateId = 'menu' | 'level' | 'settings' | 'pause' | 'win' | 'fail';
+export type ShellStateIdV2 = 'menu' | 'level' | 'shop' | 'settings' | 'pause' | 'win' | 'fail';
+export type ShellRendererProfileId = 'dom-css' | 'phaser-native';
 
 export type ShellAnchorId =
   | 'top-left'
@@ -81,8 +84,8 @@ export interface ShellDefaultPresentation extends ShellVisualPresentation {
   visibility: ShellVisibility;
 }
 
-export interface ShellStateDefinition {
-  id: ShellStateId;
+export interface ShellStateDefinition<TStateId extends string = ShellStateId> {
+  id: TStateId;
   editorPageId: string;
   label: string;
   gameScreenNames: GameScreenName[];
@@ -135,10 +138,10 @@ export interface ShellRoleDefinition {
   editableProperties: string[];
 }
 
-export interface ShellInstanceDefinition {
+export interface ShellInstanceDefinition<TStateId extends string = ShellStateId> {
   id: string;
   parentInstanceId: string | null;
-  stateId: ShellStateId;
+  stateId: TStateId;
   roleId: string;
   bindingId: string;
   stateFamilyId: string;
@@ -148,16 +151,16 @@ export interface ShellInstanceDefinition {
   defaultPresentation: ShellDefaultPresentation;
 }
 
-export interface ShellRequiredActionDefinition {
+export interface ShellRequiredActionDefinition<TStateId extends string = ShellStateId> {
   id: string;
-  stateId: ShellStateId;
+  stateId: TStateId;
   bindingId: string;
   actionHook: string;
   minimumCount: number;
   instanceIds: string[];
 }
 
-export interface ShellPresentationContract {
+export interface ShellPresentationContract<TStateId extends string = ShellStateId> {
   contractId: string;
   contractVersion: string;
   schemaDialect: string;
@@ -177,13 +180,13 @@ export interface ShellPresentationContract {
   };
   anchors: ShellAnchorDefinition[];
   gameScreenNames: GameScreenName[];
-  states: ShellStateDefinition[];
+  states: ShellStateDefinition<TStateId>[];
   bindings: ShellBindingDefinition[];
   stateFamilies: ShellStateFamilyDefinition[];
   assetSlots: ShellAssetSlotDefinition[];
   roles: ShellRoleDefinition[];
-  instances: ShellInstanceDefinition[];
-  requiredActions: ShellRequiredActionDefinition[];
+  instances: ShellInstanceDefinition<TStateId>[];
+  requiredActions: ShellRequiredActionDefinition<TStateId>[];
   editableAst: {
     astVersion: number;
     numberBounds: Record<string, Record<string, number | boolean>>;
@@ -199,7 +202,7 @@ export interface ShellPresentationContract {
     publicationIdAlgorithm: string;
     publicationIdDomain: string;
     publicationIdFields: string[];
-    requiredStates: ShellStateId[];
+    requiredStates: TStateId[];
     canonicalComponentFields: string[];
     portableContentNetworkPolicy: string;
     mixedRevisionPolicy: string;
@@ -232,16 +235,32 @@ export interface ShellPresentationInstance {
   variants: Record<string, ShellVisualPresentation>;
 }
 
-export interface ShellPresentationPage {
-  stateId: ShellStateId;
+export interface ShellPresentationPage<TStateId extends string = ShellStateId> {
+  stateId: TStateId;
   editorPageId: string;
   instances: ShellPresentationInstance[];
 }
 
-export interface ShellPresentationDocument {
+export interface ShellPresentationDocument<TStateId extends string = ShellStateId> {
   contractId: string;
   contractVersion: string;
-  pages: ShellPresentationPage[];
+  pages: ShellPresentationPage<TStateId>[];
+}
+
+export type ShellPresentationDocumentV2 = ShellPresentationDocument<ShellStateIdV2>;
+
+export interface ShellRendererProfileDefinition {
+  id: ShellRendererProfileId;
+  label: string;
+  editorSourceKinds: string[];
+  requiredArtifacts: string[];
+  allowedArtifactPatterns: string[];
+}
+
+export interface ShellPresentationContractV2
+  extends Omit<ShellPresentationContract<ShellStateIdV2>, 'projection'> {
+  rendererProfiles: ShellRendererProfileDefinition[];
+  projection: Omit<ShellPresentationContract['projection'], 'requiredArtifacts'>;
 }
 
 export interface ShellAssetProvenance {
@@ -284,6 +303,22 @@ export interface ShellPublishedRevision {
   states: ShellStateId[];
 }
 
+export interface ShellEditorSourceHash {
+  kind: string;
+  sha256: string;
+}
+
+export interface ShellPublishedRevisionV2 {
+  contractId: string;
+  contractVersion: string;
+  publicationId: string;
+  rendererProfile: ShellRendererProfileId;
+  editorSources: ShellEditorSourceHash[];
+  assetCatalogHash: string;
+  pageCount: 7;
+  states: ShellStateIdV2[];
+}
+
 export interface ShellProjectionArtifact {
   path: string;
   sha256: string;
@@ -300,6 +335,10 @@ export interface ShellProjectionRevision {
   artifacts: ShellProjectionArtifact[];
 }
 
+export interface ShellProjectionRevisionV2 extends ShellProjectionRevision {
+  rendererProfile: ShellRendererProfileId;
+}
+
 export interface ShellAssetIdentityEntry {
   instanceId: string;
   slotId: string;
@@ -311,7 +350,14 @@ export interface ShellAssetIdentityEntry {
 export interface ShellAssetIdentityProjection {
   contractId: string;
   contractVersion: string;
-  projectionId: string;
+  /**
+   * V1 asset-identity files embed the projection ID. V2 omits it: the enclosing
+   * projection revision owns the projectionId, and asset-identity.json is one of
+   * the artifacts whose byte hash FEEDS that projectionId, so embedding the ID
+   * inside the file has no realizable preimage (card qWCv9tUo item 8). Optional
+   * here so the shared model serves both the frozen V1 schema and the V2 schema.
+   */
+  projectionId?: string;
   sourcePublicationId: string;
   assets: ShellAssetIdentityEntry[];
 }
@@ -371,6 +417,122 @@ const CANONICAL_ANCHORS = Object.freeze(
 const CANONICAL_GAME_SCREEN_NAMES = Object.freeze(
   rawShellPresentationContract.gameScreenNames.map((screenName) => screenName as GameScreenName),
 );
+
+/**
+ * Version-shape descriptor: the per-contract facts every parser, hasher,
+ * publisher, and projector selects behavior from. V1 keeps its original
+ * literals byte-for-byte; V2 adds Shop and renderer profiles.
+ */
+interface ShellContractShape {
+  readonly version: 1 | 2;
+  readonly label: 'V1' | 'V2';
+  readonly contractId: string;
+  readonly stateIds: readonly string[];
+  readonly gameScreenNames: readonly string[];
+  readonly publicationIdDomain: string;
+  readonly publicationIdFields: readonly string[];
+  readonly projectionIdDomain: string;
+  readonly projectionIdFields: readonly string[];
+  /** Fixed artifact list for V1; null when profiles own artifact sets (V2). */
+  readonly projectionRequiredArtifacts: readonly string[] | null;
+  readonly rendererProfileIds: readonly string[];
+}
+
+const V1_CONTRACT_SHAPE: ShellContractShape = Object.freeze({
+  version: 1,
+  label: 'V1',
+  contractId: 'shell-presentation-v1',
+  stateIds: CANONICAL_STATE_IDS,
+  gameScreenNames: CANONICAL_GAME_SCREEN_NAMES,
+  publicationIdDomain: 'shell-publication-v1',
+  publicationIdFields: Object.freeze([
+    'contractId',
+    'contractVersion',
+    'projectJsonHash',
+    'portableExportHash',
+    'componentRecordsHash',
+    'assetCatalogHash',
+    'pageCount',
+    'states',
+  ]),
+  projectionIdDomain: 'shell-projection-v1',
+  projectionIdFields: Object.freeze([
+    'contractId',
+    'contractVersion',
+    'compatibilityHash',
+    'sourcePublicationId',
+    'artifacts',
+  ]),
+  projectionRequiredArtifacts: Object.freeze([
+    'tokens.css',
+    'copy.ts',
+    'assets.ts',
+    'presentation.ts',
+    'asset-identity.json',
+  ]),
+  rendererProfileIds: Object.freeze([]),
+});
+
+const CANONICAL_STATE_IDS_V2 = Object.freeze(
+  rawShellPresentationContractV2.states.map((state) => state.id as ShellStateIdV2),
+);
+const CANONICAL_GAME_SCREEN_NAMES_V2 = Object.freeze(
+  rawShellPresentationContractV2.gameScreenNames.map((screenName) => screenName as GameScreenName),
+);
+
+const V2_CONTRACT_SHAPE: ShellContractShape = Object.freeze({
+  version: 2,
+  label: 'V2',
+  contractId: 'shell-presentation-v2',
+  stateIds: CANONICAL_STATE_IDS_V2,
+  gameScreenNames: CANONICAL_GAME_SCREEN_NAMES_V2,
+  publicationIdDomain: 'shell-publication-v2',
+  publicationIdFields: Object.freeze([
+    'contractId',
+    'contractVersion',
+    'rendererProfile',
+    'editorSources',
+    'assetCatalogHash',
+    'pageCount',
+    'states',
+  ]),
+  projectionIdDomain: 'shell-projection-v2',
+  projectionIdFields: Object.freeze([
+    'contractId',
+    'contractVersion',
+    'rendererProfile',
+    'compatibilityHash',
+    'sourcePublicationId',
+    'artifacts',
+  ]),
+  projectionRequiredArtifacts: null,
+  rendererProfileIds: Object.freeze(['dom-css', 'phaser-native']),
+});
+
+/** Structural view over either contract version used by shared validators. */
+interface ShellContractLike {
+  contractId: string;
+  contractVersion: string;
+  assetRasterPolicy: ShellAssetRasterPolicy;
+  canonicalCanvas: ShellPresentationContract['canonicalCanvas'];
+  states: ShellStateDefinition<string>[];
+  stateFamilies: ShellStateFamilyDefinition[];
+  assetSlots: ShellAssetSlotDefinition[];
+  roles: ShellRoleDefinition[];
+  instances: ShellInstanceDefinition<string>[];
+  requiredActions: ShellRequiredActionDefinition<string>[];
+  editableAst: ShellPresentationContract['editableAst'];
+  publication: ShellPresentationContract<string>['publication'];
+  projection: Omit<ShellPresentationContract['projection'], 'requiredArtifacts'> & {
+    requiredArtifacts?: string[];
+  };
+  rendererProfiles?: ShellRendererProfileDefinition[];
+}
+
+interface ShellContractContext {
+  readonly shape: ShellContractShape;
+  readonly contract: ShellContractLike;
+}
 
 const HASH_PATTERN = /^sha256-[a-f0-9]{64}$/;
 const COLOR_PATTERN = /^#[0-9a-fA-F]{6}(?:[0-9a-fA-F]{2})?$/;
@@ -1393,36 +1555,41 @@ function validateEditableAst(value: unknown, issues: ShellValidationIssue[]): vo
 }
 
 export function parseShellPresentationContract(value: unknown): ShellPresentationContract {
+  return parseShellContractForShape(value, V1_CONTRACT_SHAPE) as ShellPresentationContract;
+}
+
+export function parseShellPresentationContractV2(value: unknown): ShellPresentationContractV2 {
+  return parseShellContractForShape(value, V2_CONTRACT_SHAPE) as ShellPresentationContractV2;
+}
+
+function parseShellContractForShape(value: unknown, shape: ShellContractShape): ShellContractLike {
   const issues: ShellValidationIssue[] = [];
   const root = asRecord(value, '$', issues);
   if (!root) throw new ShellContractValidationError('Shell presentation contract', issues);
-  rejectUnsupportedFields(
-    root,
-    new Set([
-      'contractId',
-      'contractVersion',
-      'schemaDialect',
-      'compatibility',
-      'assetRasterPolicy',
-      'canonicalCanvas',
-      'anchors',
-      'gameScreenNames',
-      'states',
-      'bindings',
-      'stateFamilies',
-      'assetSlots',
-      'roles',
-      'instances',
-      'requiredActions',
-      'editableAst',
-      'neutralIdPolicy',
-      'publication',
-      'projection',
-      'schemas',
-    ]),
-    '$',
-    issues,
-  );
+  const allowedRootFields = new Set([
+    'contractId',
+    'contractVersion',
+    'schemaDialect',
+    'compatibility',
+    'assetRasterPolicy',
+    'canonicalCanvas',
+    'anchors',
+    'gameScreenNames',
+    'states',
+    'bindings',
+    'stateFamilies',
+    'assetSlots',
+    'roles',
+    'instances',
+    'requiredActions',
+    'editableAst',
+    'neutralIdPolicy',
+    'publication',
+    'projection',
+    'schemas',
+  ]);
+  if (shape.version === 2) allowedRootFields.add('rendererProfiles');
+  rejectUnsupportedFields(root, allowedRootFields, '$', issues);
 
   const contractId = stringField(root, 'contractId', '$', issues);
   const contractVersion = stringField(root, 'contractVersion', '$', issues);
@@ -1434,7 +1601,7 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
     addIssue(issues, '$.contractVersion', 'invalid-version', 'Contract version must be semantic x.y.z.');
   }
   if (schemaDialect !== 'https://json-schema.org/draft/2020-12/schema') {
-    addIssue(issues, '$.schemaDialect', 'invalid-schema', 'V1 schemas must use JSON Schema draft 2020-12.');
+    addIssue(issues, '$.schemaDialect', 'invalid-schema', `${shape.label} schemas must use JSON Schema draft 2020-12.`);
   }
   const rasterPolicy = validateAssetRasterPolicy(
     root.assetRasterPolicy,
@@ -1537,7 +1704,7 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
         issues,
         '$.canonicalCanvas',
         'invalid-canvas',
-        'V1 requires a 390x844 canvas and a 48 px minimum action size.',
+        `${shape.label} requires a 390x844 canvas and a 48 px minimum action size.`,
       );
     }
     if (insets && rect) {
@@ -1583,7 +1750,7 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
   const screenNameList = asStringArray(root.gameScreenNames, '$.gameScreenNames', issues);
   validateExactKeys(
     screenNameList,
-    CANONICAL_GAME_SCREEN_NAMES,
+    shape.gameScreenNames,
     '$.gameScreenNames',
     'missing-screen',
     'screen',
@@ -1595,7 +1762,7 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
   const screenNames = new Set(screenNameList);
   const states = asRecordArray(root.states, '$.states', issues);
   const stateIds = validateUniqueIds(states, '$.states', issues);
-  validateExactKeys([...stateIds], CANONICAL_STATE_IDS, '$.states', 'missing-state', 'state', issues);
+  validateExactKeys([...stateIds], shape.stateIds, '$.states', 'missing-state', 'state', issues);
   const pageIds = new Set<string>();
   states.forEach((state, index) => {
     const path = `$.states[${index}]`;
@@ -1907,7 +2074,7 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
     }
   }
 
-  for (const stateId of CANONICAL_STATE_IDS) {
+  for (const stateId of shape.stateIds) {
     if (!instances.some((instance) => instance.stateId === stateId)) {
       addIssue(issues, '$.instances', 'missing-state', `State "${stateId}" has no semantic instances.`);
     }
@@ -2036,28 +2203,19 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
     if (publication.publicationIdAlgorithm !== 'sha256') {
       addIssue(issues, '$.publication.publicationIdAlgorithm', 'unsupported-hash', 'Publication IDs must use sha256.');
     }
-    if (publication.publicationIdDomain !== 'shell-publication-v1') {
-      addIssue(issues, '$.publication.publicationIdDomain', 'invalid-id', 'Publication IDs require the V1 domain separator.');
+    if (publication.publicationIdDomain !== shape.publicationIdDomain) {
+      addIssue(issues, '$.publication.publicationIdDomain', 'invalid-id', `Publication IDs require the ${shape.label} domain separator.`);
     }
     validateExactKeys(
       asStringArray(publication.publicationIdFields, '$.publication.publicationIdFields', issues),
-      [
-        'contractId',
-        'contractVersion',
-        'projectJsonHash',
-        'portableExportHash',
-        'componentRecordsHash',
-        'assetCatalogHash',
-        'pageCount',
-        'states',
-      ],
+      shape.publicationIdFields,
       '$.publication.publicationIdFields',
       'missing-field',
       'content-id-field',
       issues,
     );
     const requiredStates = asStringArray(publication.requiredStates, '$.publication.requiredStates', issues);
-    validateExactKeys(requiredStates, CANONICAL_STATE_IDS, '$.publication.requiredStates', 'missing-state', 'state', issues);
+    validateExactKeys(requiredStates, shape.stateIds, '$.publication.requiredStates', 'missing-state', 'state', issues);
     if (publication.portableContentNetworkPolicy !== 'disabled') {
       addIssue(
         issues,
@@ -2086,23 +2244,19 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
 
   const projection = asRecord(root.projection, '$.projection', issues);
   if (projection) {
-    rejectUnsupportedFields(
-      projection,
-      new Set([
-        'pointerPath',
-        'immutableRevisionRoot',
-        'revisionDirectoryName',
-        'projectionIdAlgorithm',
-        'projectionIdDomain',
-        'projectionIdFields',
-        'requiredArtifacts',
-        'assetDirectory',
-        'artifactHashAlgorithm',
-        'atomicPointerReplacement',
-      ]),
-      '$.projection',
-      issues,
-    );
+    const allowedProjectionFields = new Set([
+      'pointerPath',
+      'immutableRevisionRoot',
+      'revisionDirectoryName',
+      'projectionIdAlgorithm',
+      'projectionIdDomain',
+      'projectionIdFields',
+      'assetDirectory',
+      'artifactHashAlgorithm',
+      'atomicPointerReplacement',
+    ]);
+    if (shape.projectionRequiredArtifacts !== null) allowedProjectionFields.add('requiredArtifacts');
+    rejectUnsupportedFields(projection, allowedProjectionFields, '$.projection', issues);
     if (projection.pointerPath !== 'design/revision.json') {
       addIssue(issues, '$.projection.pointerPath', 'invalid-projection', 'Projection pointer must be design/revision.json.');
     }
@@ -2120,12 +2274,12 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
     if (projection.projectionIdAlgorithm !== 'sha256' || projection.artifactHashAlgorithm !== 'sha256') {
       addIssue(issues, '$.projection', 'unsupported-hash', 'Projection and artifact hashes must use sha256.');
     }
-    if (projection.projectionIdDomain !== 'shell-projection-v1') {
-      addIssue(issues, '$.projection.projectionIdDomain', 'invalid-id', 'Projection IDs require the V1 domain separator.');
+    if (projection.projectionIdDomain !== shape.projectionIdDomain) {
+      addIssue(issues, '$.projection.projectionIdDomain', 'invalid-id', `Projection IDs require the ${shape.label} domain separator.`);
     }
     validateExactKeys(
       asStringArray(projection.projectionIdFields, '$.projection.projectionIdFields', issues),
-      ['contractId', 'contractVersion', 'compatibilityHash', 'sourcePublicationId', 'artifacts'],
+      shape.projectionIdFields,
       '$.projection.projectionIdFields',
       'missing-field',
       'content-id-field',
@@ -2134,17 +2288,82 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
     if (projection.assetDirectory !== 'assets') {
       addIssue(issues, '$.projection.assetDirectory', 'invalid-projection', 'Projected assets must live under assets/.');
     }
-    const requiredArtifacts = asStringArray(projection.requiredArtifacts, '$.projection.requiredArtifacts', issues);
-    validateExactKeys(
-      requiredArtifacts,
-      ['tokens.css', 'copy.ts', 'assets.ts', 'presentation.ts', 'asset-identity.json'],
-      '$.projection.requiredArtifacts',
-      'missing-artifact',
-      'artifact',
-      issues,
-    );
+    if (shape.projectionRequiredArtifacts !== null) {
+      const requiredArtifacts = asStringArray(projection.requiredArtifacts, '$.projection.requiredArtifacts', issues);
+      validateExactKeys(
+        requiredArtifacts,
+        shape.projectionRequiredArtifacts,
+        '$.projection.requiredArtifacts',
+        'missing-artifact',
+        'artifact',
+        issues,
+      );
+    }
     if (projection.atomicPointerReplacement !== true) {
       addIssue(issues, '$.projection.atomicPointerReplacement', 'invalid-projection', 'Pointer replacement must be atomic.');
+    }
+  }
+
+  if (shape.version === 2) {
+    const profiles = asRecordArray(root.rendererProfiles, '$.rendererProfiles', issues);
+    const profileIds = validateUniqueIds(profiles, '$.rendererProfiles', issues);
+    validateExactKeys(
+      [...profileIds],
+      shape.rendererProfileIds,
+      '$.rendererProfiles',
+      'missing-profile',
+      'profile',
+      issues,
+    );
+    const artifactSetsByProfile = new Map<string, Set<string>>();
+    profiles.forEach((profile, index) => {
+      const path = `$.rendererProfiles[${index}]`;
+      rejectUnsupportedFields(
+        profile,
+        new Set(['id', 'label', 'editorSourceKinds', 'requiredArtifacts', 'allowedArtifactPatterns']),
+        path,
+        issues,
+      );
+      stringField(profile, 'label', path, issues);
+      const kinds = asStringArray(profile.editorSourceKinds, `${path}.editorSourceKinds`, issues);
+      if (kinds.length === 0 || new Set(kinds).size !== kinds.length) {
+        addIssue(issues, `${path}.editorSourceKinds`, 'invalid-cardinality', 'Editor source kinds must be a non-empty unique list.');
+      }
+      if (!sameSemanticValue(kinds, [...kinds].sort())) {
+        addIssue(issues, `${path}.editorSourceKinds`, 'non-canonical-order', 'Editor source kinds must be sorted.');
+      }
+      for (const kind of kinds) {
+        if (!/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/u.test(kind)) {
+          addIssue(issues, `${path}.editorSourceKinds`, 'invalid-id', `Editor source kind "${kind}" must be lower-kebab.`);
+        }
+      }
+      const artifacts = asStringArray(profile.requiredArtifacts, `${path}.requiredArtifacts`, issues);
+      if (artifacts.length === 0 || new Set(artifacts).size !== artifacts.length) {
+        addIssue(issues, `${path}.requiredArtifacts`, 'invalid-cardinality', 'Profile artifacts must be a non-empty unique list.');
+      }
+      for (const artifact of artifacts) {
+        if (!/^[a-z0-9][a-z0-9._-]*\.[a-z0-9]+$/u.test(artifact)) {
+          addIssue(issues, `${path}.requiredArtifacts`, 'unsafe-artifact', `Unsafe profile artifact name "${artifact}".`);
+        }
+      }
+      artifactSetsByProfile.set(String(profile.id), new Set(artifacts));
+      const patterns = asStringArray(profile.allowedArtifactPatterns, `${path}.allowedArtifactPatterns`, issues);
+      patterns.forEach((pattern, patternIndex) => {
+        parseRegExp(pattern, `${path}.allowedArtifactPatterns[${patternIndex}]`, SAFE_ASSET_PATH_PATTERN, issues);
+      });
+    });
+    const entries = [...artifactSetsByProfile.entries()];
+    for (let left = 0; left < entries.length; left += 1) {
+      for (let right = left + 1; right < entries.length; right += 1) {
+        if (sameSemanticValue([...entries[left][1]].sort(), [...entries[right][1]].sort())) {
+          addIssue(
+            issues,
+            '$.rendererProfiles',
+            'indistinguishable-profiles',
+            `Profiles "${entries[left][0]}" and "${entries[right][0]}" declare identical artifact sets.`,
+          );
+        }
+      }
     }
   }
 
@@ -2184,7 +2403,7 @@ export function parseShellPresentationContract(value: unknown): ShellPresentatio
   }
 
   if (issues.length > 0) throw new ShellContractValidationError('Shell presentation contract', issues);
-  return value as ShellPresentationContract;
+  return value as ShellContractLike;
 }
 
 function mimeMatchesPath(mimeType: string, path: string): boolean {
@@ -2234,18 +2453,22 @@ function isNormalizedRelativeSourcePath(path: string): boolean {
 }
 
 export function parseShellAssetCatalog(value: unknown): ShellAssetCatalog {
+  return parseShellAssetCatalogForContext(value, v1Context());
+}
+
+function parseShellAssetCatalogForContext(value: unknown, context: ShellContractContext): ShellAssetCatalog {
   const issues: ShellValidationIssue[] = [];
   const root = asRecord(value, '$', issues);
   if (!root) throw new ShellContractValidationError('Shell asset catalog', issues);
   rejectUnsupportedFields(root, new Set(['contractId', 'contractVersion', 'assets']), '$', issues);
-  if (root.contractId !== shellPresentationContract.contractId) {
+  if (root.contractId !== context.contract.contractId) {
     addIssue(issues, '$.contractId', 'compatibility-mismatch', 'Asset catalog contract ID is incompatible.');
   }
-  if (root.contractVersion !== shellPresentationContract.contractVersion) {
+  if (root.contractVersion !== context.contract.contractVersion) {
     addIssue(issues, '$.contractVersion', 'compatibility-mismatch', 'Asset catalog contract version is incompatible.');
   }
 
-  const rasterPolicy = shellPresentationContract.assetRasterPolicy;
+  const rasterPolicy = context.contract.assetRasterPolicy;
   if (Array.isArray(root.assets) && root.assets.length > rasterPolicy.maxAssets) {
     addIssue(
       issues,
@@ -2254,7 +2477,7 @@ export function parseShellAssetCatalog(value: unknown): ShellAssetCatalog {
       `Asset catalogs may contain at most ${rasterPolicy.maxAssets} entries.`,
     );
   }
-  const slotsById = new Map(shellPresentationContract.assetSlots.map((slot) => [slot.id, slot]));
+  const slotsById = new Map(context.contract.assetSlots.map((slot) => [slot.id, slot]));
   const assets = asRecordArray(root.assets, '$.assets', issues);
   const assetIds = validateUniqueIds(assets, '$.assets', issues);
   const listedIds = assets.map((asset) => String(asset.id));
@@ -2508,7 +2731,7 @@ function sameSemanticValue(left: unknown, right: unknown): boolean {
 
 interface ParsedPresentationInstance {
   instance: JsonRecord;
-  prototype: ShellInstanceDefinition;
+  prototype: ShellInstanceDefinition<string>;
   role: ShellRoleDefinition;
   family: ShellStateFamilyDefinition;
   presentation: ShellDefaultPresentation;
@@ -2575,21 +2798,36 @@ export function parseShellPresentation(
   value: unknown,
   options: ParseShellPresentationOptions = {},
 ): ShellPresentationDocument {
+  return parseShellPresentationForContext(value, options, v1Context()) as ShellPresentationDocument;
+}
+
+export function parseShellPresentationV2(
+  value: unknown,
+  options: ParseShellPresentationOptions = {},
+): ShellPresentationDocumentV2 {
+  return parseShellPresentationForContext(value, options, v2Context()) as ShellPresentationDocumentV2;
+}
+
+function parseShellPresentationForContext(
+  value: unknown,
+  options: ParseShellPresentationOptions,
+  context: ShellContractContext,
+): ShellPresentationDocument<string> {
   const issues: ShellValidationIssue[] = [];
   const root = asRecord(value, '$', issues);
   if (!root) throw new ShellContractValidationError('Shell presentation', issues);
   rejectUnsupportedFields(root, new Set(['contractId', 'contractVersion', 'pages']), '$', issues);
-  if (root.contractId !== shellPresentationContract.contractId) {
+  if (root.contractId !== context.contract.contractId) {
     addIssue(issues, '$.contractId', 'compatibility-mismatch', 'Presentation contract ID is incompatible.');
   }
-  if (root.contractVersion !== shellPresentationContract.contractVersion) {
+  if (root.contractVersion !== context.contract.contractVersion) {
     addIssue(issues, '$.contractVersion', 'compatibility-mismatch', 'Presentation contract version is incompatible.');
   }
 
   let catalog: ShellAssetCatalog | undefined;
   if (options.assetCatalog) {
     try {
-      catalog = parseShellAssetCatalog(options.assetCatalog);
+      catalog = parseShellAssetCatalogForContext(options.assetCatalog, context);
     } catch (error) {
       if (error instanceof ShellContractValidationError) {
         for (const issue of error.issues) {
@@ -2601,15 +2839,15 @@ export function parseShellPresentation(
   }
   const catalogById = new Map((catalog?.assets ?? []).map((asset) => [asset.id, asset]));
   const knownAssetIds = new Set(catalogById.keys());
-  const statesById = new Map(shellPresentationContract.states.map((state) => [state.id, state]));
-  const prototypesById = new Map(shellPresentationContract.instances.map((instance) => [instance.id, instance]));
-  const rolesById = new Map(shellPresentationContract.roles.map((role) => [role.id, role]));
-  const familiesById = new Map(shellPresentationContract.stateFamilies.map((family) => [family.id, family]));
-  const slotsById = new Map(shellPresentationContract.assetSlots.map((slot) => [slot.id, slot]));
+  const statesById = new Map(context.contract.states.map((state) => [state.id, state]));
+  const prototypesById = new Map(context.contract.instances.map((instance) => [instance.id, instance]));
+  const rolesById = new Map(context.contract.roles.map((role) => [role.id, role]));
+  const familiesById = new Map(context.contract.stateFamilies.map((family) => [family.id, family]));
+  const slotsById = new Map(context.contract.assetSlots.map((slot) => [slot.id, slot]));
   const pages = asRecordArray(root.pages, '$.pages', issues);
   const pageStateIds = pages.map((page) => String(page.stateId));
-  validateExactKeys(pageStateIds, CANONICAL_STATE_IDS, '$.pages', 'missing-state', 'state', issues);
-  if (!sameSemanticValue(pageStateIds, CANONICAL_STATE_IDS)) {
+  validateExactKeys(pageStateIds, context.shape.stateIds, '$.pages', 'missing-state', 'state', issues);
+  if (!sameSemanticValue(pageStateIds, context.shape.stateIds)) {
     addIssue(issues, '$.pages', 'non-canonical-order', 'Presentation pages must use canonical state order.');
   }
 
@@ -2708,7 +2946,7 @@ export function parseShellPresentation(
         requireBase: true,
         allowedProperties,
         knownAssetIds,
-        maximumCopyCodePoints: shellPresentationContract.editableAst.copy.maximumCodePoints,
+        maximumCopyCodePoints: context.contract.editableAst.copy.maximumCodePoints,
       });
       const family = familiesById.get(prototype.stateFamilyId);
       const variants = asRecord(instance.variants, `${path}.variants`, issues);
@@ -2731,7 +2969,7 @@ export function parseShellPresentation(
             requireBase: false,
             allowedProperties,
             knownAssetIds,
-            maximumCopyCodePoints: shellPresentationContract.editableAst.copy.maximumCodePoints,
+            maximumCopyCodePoints: context.contract.editableAst.copy.maximumCodePoints,
             },
           );
           if (parsedVariant) parsedVariants[variant] = parsedVariant;
@@ -2781,7 +3019,7 @@ export function parseShellPresentation(
     });
   });
 
-  for (const prototype of shellPresentationContract.instances.filter((instance) => instance.required)) {
+  for (const prototype of context.contract.instances.filter((instance) => instance.required)) {
     if (!seenInstanceIds.has(prototype.id)) {
       addIssue(issues, '$.pages', 'missing-instance', `Missing required semantic instance "${prototype.id}".`);
     }
@@ -2871,7 +3109,7 @@ export function parseShellPresentation(
     }
   }
 
-  for (const action of shellPresentationContract.requiredActions) {
+  for (const action of context.contract.requiredActions) {
     const matches = allInstances.filter(
       (item) =>
         item.prototype.actionId === action.id &&
@@ -2903,7 +3141,7 @@ export function parseShellPresentation(
               caps: item.role.geometryCaps,
             });
             const minimum = Math.max(
-              shellPresentationContract.canonicalCanvas.minimumActionSize,
+              context.contract.canonicalCanvas.minimumActionSize,
               item.role.minimumTouchTarget,
             );
             if (
@@ -2954,18 +3192,29 @@ export function parseShellPresentation(
   }
 
   if (issues.length > 0) throw new ShellContractValidationError('Shell presentation', issues);
-  return value as ShellPresentationDocument;
+  return value as ShellPresentationDocument<string>;
 }
 
 export function createDefaultShellPresentation(): ShellPresentationDocument {
-  const familiesById = new Map(shellPresentationContract.stateFamilies.map((family) => [family.id, family]));
+  return createDefaultShellPresentationForContext(v1Context()) as ShellPresentationDocument;
+}
+
+export function createDefaultShellPresentationV2(): ShellPresentationDocumentV2 {
+  return createDefaultShellPresentationForContext(v2Context()) as ShellPresentationDocumentV2;
+}
+
+function createDefaultShellPresentationForContext(
+  context: ShellContractContext,
+): ShellPresentationDocument<string> {
+  const contract = context.contract;
+  const familiesById = new Map(contract.stateFamilies.map((family) => [family.id, family]));
   return {
-    contractId: shellPresentationContract.contractId,
-    contractVersion: shellPresentationContract.contractVersion,
-    pages: shellPresentationContract.states.map((state) => ({
+    contractId: contract.contractId,
+    contractVersion: contract.contractVersion,
+    pages: contract.states.map((state) => ({
       stateId: state.id,
       editorPageId: state.editorPageId,
-      instances: shellPresentationContract.instances
+      instances: contract.instances
         .filter((instance) => instance.stateId === state.id)
         .map((instance) => {
           const family = familiesById.get(instance.stateFamilyId);
@@ -3104,29 +3353,43 @@ export async function parseProjectionRevision(value: unknown): Promise<ShellProj
 }
 
 export function parseAssetIdentityProjection(value: unknown): ShellAssetIdentityProjection {
+  return parseAssetIdentityProjectionForContext(value, v1Context());
+}
+
+function parseAssetIdentityProjectionForContext(
+  value: unknown,
+  context: ShellContractContext,
+): ShellAssetIdentityProjection {
   const issues: ShellValidationIssue[] = [];
   const root = asRecord(value, '$', issues);
   if (!root) throw new ShellContractValidationError('Shell asset identity projection', issues);
-  rejectUnsupportedFields(
-    root,
-    new Set(['contractId', 'contractVersion', 'projectionId', 'sourcePublicationId', 'assets']),
-    '$',
-    issues,
-  );
-  if (root.contractId !== shellPresentationContract.contractId) {
+  // V2 drops projectionId from the asset-identity file to break the cycle where
+  // projectionId is hashed FROM the artifacts (asset-identity.json included) yet
+  // the file's own schema demands the finished projectionId inside it — an
+  // impossible file-backed preimage (card qWCv9tUo item 8). V1 stays byte-frozen
+  // and keeps embedding projectionId, so this branch is version-scoped. Under V2
+  // an embedded projectionId is rejected as an unsupported field.
+  const embedsProjectionId = context.shape.version === 1;
+  const allowedFields = new Set(['contractId', 'contractVersion', 'sourcePublicationId', 'assets']);
+  if (embedsProjectionId) allowedFields.add('projectionId');
+  rejectUnsupportedFields(root, allowedFields, '$', issues);
+  if (root.contractId !== context.contract.contractId) {
     addIssue(issues, '$.contractId', 'compatibility-mismatch', 'Asset identity contract ID is incompatible.');
   }
-  if (root.contractVersion !== shellPresentationContract.contractVersion) {
+  if (root.contractVersion !== context.contract.contractVersion) {
     addIssue(issues, '$.contractVersion', 'compatibility-mismatch', 'Asset identity contract version is incompatible.');
   }
-  for (const field of ['projectionId', 'sourcePublicationId']) {
+  const requiredHashFields = embedsProjectionId
+    ? ['projectionId', 'sourcePublicationId']
+    : ['sourcePublicationId'];
+  for (const field of requiredHashFields) {
     const hash = stringField(root, field, '$', issues);
     if (!HASH_PATTERN.test(hash)) addIssue(issues, `$.${field}`, 'invalid-hash', `${field} must be SHA-256.`);
   }
   const assets = asRecordArray(root.assets, '$.assets', issues);
   const instanceIds = new Set<string>();
   const listedIds: string[] = [];
-  const slotIds = new Set(shellPresentationContract.assetSlots.map((slot) => slot.id));
+  const slotIds = new Set(context.contract.assetSlots.map((slot) => slot.id));
   assets.forEach((asset, index) => {
     const path = `$.assets[${index}]`;
     rejectUnsupportedFields(asset, new Set(['instanceId', 'slotId', 'assetId', 'path', 'sha256']), path, issues);
@@ -3222,4 +3485,566 @@ export async function createShellPublicationCompatibility(): Promise<ShellPublic
     contractVersion: SHELL_CONTRACT_VERSION,
     compatibilityHash: await hashShellPresentationContract(),
   };
+}
+
+// ---------------------------------------------------------------------------
+// V2 contract and the contract registry. V1 stays immutable above; every new
+// parser, hasher, publisher, and projector below selects behavior from the
+// input document's contractId instead of a process-wide latest-contract
+// singleton.
+// ---------------------------------------------------------------------------
+
+export const shellPresentationContractV2 = deepFreeze(
+  parseShellPresentationContractV2(rawShellPresentationContractV2),
+);
+
+export const SHELL_CONTRACT_V2_ID = shellPresentationContractV2.contractId;
+export const SHELL_CONTRACT_V2_VERSION = shellPresentationContractV2.contractVersion;
+export const SHELL_STATE_IDS_V2 = Object.freeze(
+  shellPresentationContractV2.states.map((state) => state.id),
+);
+export const SHELL_RENDERER_PROFILE_IDS = Object.freeze(
+  shellPresentationContractV2.rendererProfiles.map((profile) => profile.id),
+);
+export const SHELL_CONTRACT_IDS = Object.freeze([SHELL_CONTRACT_ID, SHELL_CONTRACT_V2_ID]);
+
+function v1Context(): ShellContractContext {
+  return {
+    shape: V1_CONTRACT_SHAPE,
+    contract: shellPresentationContract as unknown as ShellContractLike,
+  };
+}
+
+function v2Context(): ShellContractContext {
+  return {
+    shape: V2_CONTRACT_SHAPE,
+    contract: shellPresentationContractV2 as unknown as ShellContractLike,
+  };
+}
+
+function contextByContractId(contractId: unknown): ShellContractContext | undefined {
+  if (contractId === SHELL_CONTRACT_ID) return v1Context();
+  if (contractId === SHELL_CONTRACT_V2_ID) return v2Context();
+  return undefined;
+}
+
+function requireContextForDocument(value: unknown, scope: string): ShellContractContext {
+  const contractId = isRecord(value) ? value.contractId : undefined;
+  const context = contextByContractId(contractId);
+  if (!context) {
+    throw new ShellContractValidationError(scope, [
+      {
+        path: '$.contractId',
+        code: 'unknown-contract',
+        message: `Unknown shell contract "${String(contractId)}".`,
+      },
+    ]);
+  }
+  return context;
+}
+
+export function getShellContractById(
+  contractId: string,
+): ShellPresentationContract | ShellPresentationContractV2 {
+  const context = contextByContractId(contractId);
+  if (!context) {
+    throw new ShellContractValidationError('Shell contract registry', [
+      { path: '$.contractId', code: 'unknown-contract', message: `Unknown shell contract "${contractId}".` },
+    ]);
+  }
+  return context.contract as unknown as ShellPresentationContract | ShellPresentationContractV2;
+}
+
+export async function hashShellContractById(contractId: string): Promise<string> {
+  return hashCanonicalJson(getShellContractById(contractId));
+}
+
+export function parseShellPresentationDocument(
+  value: unknown,
+  options: ParseShellPresentationOptions = {},
+): ShellPresentationDocument | ShellPresentationDocumentV2 {
+  const context = requireContextForDocument(value, 'Shell presentation');
+  return parseShellPresentationForContext(value, options, context) as
+    | ShellPresentationDocument
+    | ShellPresentationDocumentV2;
+}
+
+export function parseShellAssetCatalogDocument(value: unknown): ShellAssetCatalog {
+  const context = requireContextForDocument(value, 'Shell asset catalog');
+  return parseShellAssetCatalogForContext(value, context);
+}
+
+export function parseShellAssetIdentityDocument(value: unknown): ShellAssetIdentityProjection {
+  const context = requireContextForDocument(value, 'Shell asset identity projection');
+  return parseAssetIdentityProjectionForContext(value, context);
+}
+
+export function createDefaultShellPresentationForContract(
+  contractId: string,
+): ShellPresentationDocument | ShellPresentationDocumentV2 {
+  const context = contextByContractId(contractId);
+  if (!context) {
+    throw new ShellContractValidationError('Shell presentation defaults', [
+      { path: '$.contractId', code: 'unknown-contract', message: `Unknown shell contract "${contractId}".` },
+    ]);
+  }
+  return createDefaultShellPresentationForContext(context) as
+    | ShellPresentationDocument
+    | ShellPresentationDocumentV2;
+}
+
+export async function parseShellPublicationDocument(
+  value: unknown,
+): Promise<ShellPublishedRevision | ShellPublishedRevisionV2> {
+  const context = requireContextForDocument(value, 'Shell published revision');
+  if (context.shape.version === 1) return parseShellPublishedRevision(value);
+  return parseShellPublishedRevisionV2(value);
+}
+
+export async function parseShellProjectionRevisionDocument(
+  value: unknown,
+): Promise<ShellProjectionRevision | ShellProjectionRevisionV2> {
+  const context = requireContextForDocument(value, 'Shell projection revision');
+  if (context.shape.version === 1) return parseProjectionRevision(value);
+  return parseProjectionRevisionV2(value);
+}
+
+export async function computeShellPublicationIdV2(
+  revision: Omit<ShellPublishedRevisionV2, 'publicationId'>,
+): Promise<string> {
+  const fields = Object.create(null) as JsonRecord;
+  const source = revision as unknown as JsonRecord;
+  for (const field of shellPresentationContractV2.publication.publicationIdFields) {
+    fields[field] = source[field];
+  }
+  return hashCanonicalJson({
+    domain: shellPresentationContractV2.publication.publicationIdDomain,
+    ...fields,
+  });
+}
+
+export async function computeShellProjectionIdV2(
+  revision: Omit<ShellProjectionRevisionV2, 'projectionId' | 'revisionPath'>,
+): Promise<string> {
+  const fields = Object.create(null) as JsonRecord;
+  const source = revision as unknown as JsonRecord;
+  for (const field of shellPresentationContractV2.projection.projectionIdFields) {
+    fields[field] = source[field];
+  }
+  return hashCanonicalJson({
+    domain: shellPresentationContractV2.projection.projectionIdDomain,
+    ...fields,
+  });
+}
+
+function resolveRendererProfile(
+  value: unknown,
+  path: string,
+  issues: ShellValidationIssue[],
+): ShellRendererProfileDefinition | undefined {
+  if (typeof value !== 'string') {
+    addIssue(issues, path, 'unknown-profile', 'A V2 revision must declare its renderer profile.');
+    return undefined;
+  }
+  const profile = shellPresentationContractV2.rendererProfiles.find(
+    (candidate) => candidate.id === value,
+  );
+  if (!profile) {
+    addIssue(issues, path, 'unknown-profile', `Unknown renderer profile "${value}".`);
+  }
+  return profile;
+}
+
+export async function parseShellPublishedRevisionV2(value: unknown): Promise<ShellPublishedRevisionV2> {
+  const issues: ShellValidationIssue[] = [];
+  const root = asRecord(value, '$', issues);
+  if (!root) throw new ShellContractValidationError('Shell published revision', issues);
+  rejectUnsupportedFields(
+    root,
+    new Set([
+      'contractId',
+      'contractVersion',
+      'publicationId',
+      'rendererProfile',
+      'editorSources',
+      'assetCatalogHash',
+      'pageCount',
+      'states',
+    ]),
+    '$',
+    issues,
+  );
+  if (root.contractId !== shellPresentationContractV2.contractId) {
+    addIssue(issues, '$.contractId', 'compatibility-mismatch', 'Publication contract ID is incompatible.');
+  }
+  if (root.contractVersion !== shellPresentationContractV2.contractVersion) {
+    addIssue(issues, '$.contractVersion', 'compatibility-mismatch', 'Publication contract version is incompatible.');
+  }
+  const profile = resolveRendererProfile(root.rendererProfile, '$.rendererProfile', issues);
+  for (const field of ['publicationId', 'assetCatalogHash']) {
+    const hash = stringField(root, field, '$', issues);
+    if (!HASH_PATTERN.test(hash)) addIssue(issues, `$.${field}`, 'invalid-hash', `${field} must be SHA-256.`);
+  }
+  const editorSources = asRecordArray(root.editorSources, '$.editorSources', issues);
+  const kinds: string[] = [];
+  editorSources.forEach((source, index) => {
+    const path = `$.editorSources[${index}]`;
+    rejectUnsupportedFields(source, new Set(['kind', 'sha256']), path, issues);
+    const kind = stringField(source, 'kind', path, issues);
+    kinds.push(kind);
+    const hash = stringField(source, 'sha256', path, issues);
+    if (!HASH_PATTERN.test(hash)) addIssue(issues, `${path}.sha256`, 'invalid-hash', 'Editor source hash must be SHA-256.');
+  });
+  if (new Set(kinds).size !== kinds.length) {
+    addIssue(issues, '$.editorSources', 'duplicate-id', 'Editor source kinds must be unique.');
+  }
+  if (!sameSemanticValue(kinds, [...kinds].sort())) {
+    addIssue(issues, '$.editorSources', 'non-canonical-order', 'Editor sources must be sorted by kind.');
+  }
+  if (profile) {
+    validateExactKeys(kinds, profile.editorSourceKinds, '$.editorSources', 'missing-editor-source', 'editor-source', issues);
+  }
+  if (root.pageCount !== CANONICAL_STATE_IDS_V2.length) {
+    addIssue(issues, '$.pageCount', 'page-mismatch', `Publication must contain ${CANONICAL_STATE_IDS_V2.length} pages.`);
+  }
+  const states = asStringArray(root.states, '$.states', issues);
+  validateExactKeys(states, CANONICAL_STATE_IDS_V2, '$.states', 'missing-state', 'state', issues);
+  if (!sameSemanticValue(states, CANONICAL_STATE_IDS_V2)) {
+    addIssue(issues, '$.states', 'non-canonical-order', 'Publication states must use canonical order.');
+  }
+  if (issues.length === 0) {
+    const publication = value as ShellPublishedRevisionV2;
+    const expectedPublicationId = await computeShellPublicationIdV2({
+      contractId: publication.contractId,
+      contractVersion: publication.contractVersion,
+      rendererProfile: publication.rendererProfile,
+      editorSources: publication.editorSources,
+      assetCatalogHash: publication.assetCatalogHash,
+      pageCount: publication.pageCount,
+      states: publication.states,
+    });
+    if (publication.publicationId !== expectedPublicationId) {
+      addIssue(
+        issues,
+        '$.publicationId',
+        'content-id-mismatch',
+        'Publication ID does not match its canonical constituent hashes.',
+      );
+    }
+  }
+  if (issues.length > 0) throw new ShellContractValidationError('Shell published revision', issues);
+  return value as ShellPublishedRevisionV2;
+}
+
+function profileAllowsArtifactPath(profile: ShellRendererProfileDefinition, path: string): boolean {
+  if (profile.requiredArtifacts.includes(path)) return true;
+  return profile.allowedArtifactPatterns.some((pattern) => new RegExp(pattern, 'u').test(path));
+}
+
+export async function parseProjectionRevisionV2(value: unknown): Promise<ShellProjectionRevisionV2> {
+  const issues: ShellValidationIssue[] = [];
+  const root = asRecord(value, '$', issues);
+  if (!root) throw new ShellContractValidationError('Shell projection revision', issues);
+  rejectUnsupportedFields(
+    root,
+    new Set([
+      'contractId',
+      'contractVersion',
+      'rendererProfile',
+      'compatibilityHash',
+      'projectionId',
+      'sourcePublicationId',
+      'revisionPath',
+      'artifacts',
+    ]),
+    '$',
+    issues,
+  );
+  if (root.contractId !== shellPresentationContractV2.contractId) {
+    addIssue(issues, '$.contractId', 'compatibility-mismatch', 'Projection contract ID is incompatible.');
+  }
+  if (root.contractVersion !== shellPresentationContractV2.contractVersion) {
+    addIssue(issues, '$.contractVersion', 'compatibility-mismatch', 'Projection contract version is incompatible.');
+  }
+  const profile = resolveRendererProfile(root.rendererProfile, '$.rendererProfile', issues);
+  for (const field of ['compatibilityHash', 'projectionId', 'sourcePublicationId']) {
+    const hash = stringField(root, field, '$', issues);
+    if (!HASH_PATTERN.test(hash)) {
+      addIssue(issues, `$.${field}`, 'invalid-hash', `${field} must be a SHA-256 content ID.`);
+    }
+  }
+  const expectedPath = `${shellPresentationContractV2.projection.immutableRevisionRoot}/${String(root.projectionId)}`;
+  if (root.revisionPath !== expectedPath) {
+    addIssue(issues, '$.revisionPath', 'invalid-projection', `Revision path must be "${expectedPath}".`);
+  }
+
+  const otherProfiles = shellPresentationContractV2.rendererProfiles.filter(
+    (candidate) => candidate.id !== profile?.id,
+  );
+  const artifacts = asRecordArray(root.artifacts, '$.artifacts', issues);
+  const paths = new Set<string>();
+  const listedPaths: string[] = [];
+  artifacts.forEach((artifact, index) => {
+    const path = `$.artifacts[${index}]`;
+    rejectUnsupportedFields(artifact, new Set(['path', 'sha256', 'bytes']), path, issues);
+    const artifactPath = stringField(artifact, 'path', path, issues);
+    listedPaths.push(artifactPath);
+    if (paths.has(artifactPath)) {
+      addIssue(issues, `${path}.path`, 'duplicate-id', `Duplicate artifact path "${artifactPath}".`);
+    }
+    paths.add(artifactPath);
+    if (profile && !profileAllowsArtifactPath(profile, artifactPath)) {
+      if (otherProfiles.some((candidate) => profileAllowsArtifactPath(candidate, artifactPath))) {
+        addIssue(
+          issues,
+          `${path}.path`,
+          'profile-mismatch',
+          `Artifact "${artifactPath}" belongs to a different renderer profile than "${profile.id}".`,
+        );
+      } else {
+        addIssue(issues, `${path}.path`, 'unsafe-artifact', `Unsafe or unsupported artifact path "${artifactPath}".`);
+      }
+    }
+    const hash = stringField(artifact, 'sha256', path, issues);
+    if (!HASH_PATTERN.test(hash)) addIssue(issues, `${path}.sha256`, 'invalid-hash', 'Artifact hash must be SHA-256.');
+    const bytes = numberField(artifact, 'bytes', path, issues);
+    if (!Number.isInteger(bytes) || bytes < 0) {
+      addIssue(issues, `${path}.bytes`, 'invalid-number', 'Artifact byte count must be a non-negative integer.');
+    }
+  });
+  if (!sameSemanticValue(listedPaths, [...listedPaths].sort())) {
+    addIssue(issues, '$.artifacts', 'non-canonical-order', 'Projection artifacts must be sorted by path.');
+  }
+  if (profile) {
+    for (const required of profile.requiredArtifacts) {
+      if (!paths.has(required)) {
+        addIssue(issues, '$.artifacts', 'missing-artifact', `Missing required projection artifact "${required}".`);
+      }
+    }
+  }
+
+  if (issues.length === 0) {
+    const projection = value as ShellProjectionRevisionV2;
+    const compatibilityHash = await hashShellContractById(SHELL_CONTRACT_V2_ID);
+    if (projection.compatibilityHash !== compatibilityHash) {
+      addIssue(
+        issues,
+        '$.compatibilityHash',
+        'compatibility-mismatch',
+        'Projection compatibility hash does not match the canonical shell contract.',
+      );
+    }
+    const expectedProjectionId = await computeShellProjectionIdV2({
+      contractId: projection.contractId,
+      contractVersion: projection.contractVersion,
+      rendererProfile: projection.rendererProfile,
+      compatibilityHash: projection.compatibilityHash,
+      sourcePublicationId: projection.sourcePublicationId,
+      artifacts: projection.artifacts,
+    });
+    if (projection.projectionId !== expectedProjectionId) {
+      addIssue(
+        issues,
+        '$.projectionId',
+        'content-id-mismatch',
+        'Projection ID does not match its canonical source and artifact hashes.',
+      );
+    }
+  }
+
+  if (issues.length > 0) throw new ShellContractValidationError('Shell projection revision', issues);
+  return value as ShellProjectionRevisionV2;
+}
+
+export async function createShellPublicationCompatibilityForContract(
+  contractId: string,
+): Promise<ShellPublicationCompatibility> {
+  const contract = getShellContractById(contractId);
+  return {
+    contractId: contract.contractId,
+    contractVersion: contract.contractVersion,
+    compatibilityHash: await hashShellContractById(contractId),
+  };
+}
+
+export async function isShellPublicationCompatibleForContract(
+  publication: ShellPublicationCompatibility,
+): Promise<boolean> {
+  const context = contextByContractId(publication.contractId);
+  if (!context) return false;
+  if (
+    publication.contractVersion !== context.contract.contractVersion ||
+    !HASH_PATTERN.test(publication.compatibilityHash)
+  ) {
+    return false;
+  }
+  return publication.compatibilityHash === (await hashShellContractById(publication.contractId));
+}
+
+export async function assertShellPublicationCompatibleForContract(
+  publication: ShellPublicationCompatibility,
+): Promise<void> {
+  if (!(await isShellPublicationCompatibleForContract(publication))) {
+    throw new ShellContractValidationError('Shell publication compatibility', [
+      {
+        path: '$',
+        code: 'compatibility-mismatch',
+        message: `Publication is not compatible with a registered shell contract.`,
+      },
+    ]);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// V1 -> V2 migration. Reads only validated V1 presentation state and emits a
+// fresh V2 identity: carried overrides where the prototype is semantically
+// unchanged, V2 defaults where the prototype changed or is new, and an
+// explicit report so a lane can show what the migration did. Feeding the
+// output back in fails closed because the input parser is V1-only.
+// ---------------------------------------------------------------------------
+
+export interface ShellPresentationMigrationReport {
+  carriedInstanceIds: string[];
+  resetInstanceIds: string[];
+  droppedInstanceIds: string[];
+  addedInstanceIds: string[];
+}
+
+export interface ShellPresentationMigrationV1ToV2 {
+  document: ShellPresentationDocumentV2;
+  report: ShellPresentationMigrationReport;
+}
+
+export interface MigrateShellPresentationOptions {
+  assetCatalogV1?: ShellAssetCatalog;
+  assetCatalogV2?: ShellAssetCatalog;
+}
+
+export function migrateShellPresentationV1ToV2(
+  value: unknown,
+  options: MigrateShellPresentationOptions = {},
+): ShellPresentationMigrationV1ToV2 {
+  const source = parseShellPresentation(
+    value,
+    options.assetCatalogV1 ? { assetCatalog: options.assetCatalogV1 } : {},
+  );
+  const v2 = shellPresentationContractV2;
+  const v1PrototypesById = new Map(shellPresentationContract.instances.map((i) => [i.id, i]));
+  const v2PrototypesById = new Map(v2.instances.map((i) => [i.id, i]));
+  const familiesById = new Map(v2.stateFamilies.map((family) => [family.id, family]));
+  const report: ShellPresentationMigrationReport = {
+    carriedInstanceIds: [],
+    resetInstanceIds: [],
+    droppedInstanceIds: [],
+    addedInstanceIds: [],
+  };
+
+  const sourceInstancesByState = new Map<string, ShellPresentationInstance[]>();
+  for (const page of source.pages) sourceInstancesByState.set(page.stateId, page.instances);
+
+  const defaultInstanceFor = (prototype: ShellInstanceDefinition<ShellStateIdV2>): ShellPresentationInstance => {
+    const family = familiesById.get(prototype.stateFamilyId);
+    if (!family) throw new Error(`Missing state family "${prototype.stateFamilyId}".`);
+    const semantic: ShellPresentationInstance = {
+      id: prototype.id,
+      prototypeInstanceId: prototype.id,
+      parentInstanceId: prototype.parentInstanceId,
+      roleId: prototype.roleId,
+      bindingId: prototype.bindingId,
+      stateFamilyId: prototype.stateFamilyId,
+      accessibility: structuredClone(prototype.accessibility),
+      presentation: structuredClone(prototype.defaultPresentation),
+      variants: structuredClone(family.variants),
+    };
+    if (prototype.actionId) semantic.actionId = prototype.actionId;
+    return semantic;
+  };
+
+  const pages = v2.states.map((state) => {
+    const migrated: ShellPresentationInstance[] = [];
+    const coveredPrototypeIds = new Set<string>();
+    const resetPrototypeIds = new Set<string>();
+
+    for (const instance of sourceInstancesByState.get(state.id) ?? []) {
+      const target = v2PrototypesById.get(instance.prototypeInstanceId);
+      const origin = v1PrototypesById.get(instance.prototypeInstanceId);
+      if (!target || !origin) {
+        report.droppedInstanceIds.push(instance.id);
+        continue;
+      }
+      const semanticallyUnchanged =
+        target.stateId === origin.stateId &&
+        target.roleId === origin.roleId &&
+        target.bindingId === origin.bindingId &&
+        target.stateFamilyId === origin.stateFamilyId;
+      if (!semanticallyUnchanged) {
+        if (instance.id === instance.prototypeInstanceId) {
+          report.resetInstanceIds.push(instance.id);
+          resetPrototypeIds.add(instance.id);
+        } else {
+          report.droppedInstanceIds.push(instance.id);
+        }
+        continue;
+      }
+      const carriedInstance: ShellPresentationInstance = {
+        id: instance.id,
+        prototypeInstanceId: instance.prototypeInstanceId,
+        parentInstanceId: target.parentInstanceId,
+        roleId: target.roleId,
+        bindingId: target.bindingId,
+        stateFamilyId: target.stateFamilyId,
+        accessibility: structuredClone(target.accessibility),
+        presentation: structuredClone(instance.presentation),
+        variants: structuredClone(instance.variants),
+      };
+      if (target.actionId) carriedInstance.actionId = target.actionId;
+      migrated.push(carriedInstance);
+      report.carriedInstanceIds.push(instance.id);
+      if (instance.id === target.id) coveredPrototypeIds.add(target.id);
+    }
+
+    const additions: ShellPresentationInstance[] = [];
+    for (const prototype of v2.instances.filter((instance) => instance.stateId === state.id)) {
+      if (coveredPrototypeIds.has(prototype.id)) continue;
+      const collision = migrated.findIndex(
+        (instance) => instance.id === prototype.id && instance.prototypeInstanceId !== prototype.id,
+      );
+      if (collision >= 0) {
+        const [removed] = migrated.splice(collision, 1);
+        report.droppedInstanceIds.push(removed.id);
+        report.carriedInstanceIds = report.carriedInstanceIds.filter((id) => id !== removed.id);
+      }
+      additions.push(defaultInstanceFor(prototype));
+      if (resetPrototypeIds.has(prototype.id)) continue;
+      report.addedInstanceIds.push(prototype.id);
+    }
+
+    const usedOrders = new Set(migrated.map((instance) => instance.presentation.order));
+    let nextOrder = usedOrders.size > 0 ? Math.max(...usedOrders) + 1 : 0;
+    for (const addition of additions) {
+      if (usedOrders.has(addition.presentation.order)) {
+        addition.presentation.order = nextOrder;
+        nextOrder += 1;
+      }
+      usedOrders.add(addition.presentation.order);
+      if (addition.presentation.order >= nextOrder) nextOrder = addition.presentation.order + 1;
+    }
+
+    return {
+      stateId: state.id,
+      editorPageId: state.editorPageId,
+      instances: [...migrated, ...additions],
+    };
+  });
+
+  const document: ShellPresentationDocumentV2 = {
+    contractId: v2.contractId,
+    contractVersion: v2.contractVersion,
+    pages,
+  };
+  parseShellPresentationV2(
+    document,
+    options.assetCatalogV2 ? { assetCatalog: options.assetCatalogV2 } : {},
+  );
+  return { document, report };
 }

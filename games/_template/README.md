@@ -18,3 +18,7 @@ message naming the correct home. The human seams — `refs/` (human inputs),
 `evidence/` (promoted artifacts), `.work/` (gitignored scratch) — are documented
 in their own READMEs and exist to keep agent output from silting up the tree the
 way v1 did (see `docs/research/09-game-folder-chaos-analysis.md`).
+
+Editable design-tool state lives under `authoring/`. Generated runtime inputs
+live under `design/`; they are projections and must not become a second editing
+authority.

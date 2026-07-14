@@ -1,0 +1,530 @@
+{
+  "entries": [
+    {
+      "step": "bootstrap",
+      "phase": "note",
+      "timestamp": "2026-07-12T07:43:10.388Z",
+      "treeHash": "374a063a17e55badadcee6b4e8b868e5cc6b008b10bf52d00613b95d78c99394",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/scenes/Probe.scene": "dcfc6db97e372b6e8b4525ac7d383189d5e26e5a90ad2574214003944a3c63d7"
+      },
+      "observation": "hand-authored probe project baseline before any editor session"
+    },
+    {
+      "step": "compile-1",
+      "phase": "begin",
+      "timestamp": "2026-07-12T07:56:25.548Z",
+      "treeHash": "374a063a17e55badadcee6b4e8b868e5cc6b008b10bf52d00613b95d78c99394",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/scenes/Probe.scene": "dcfc6db97e372b6e8b4525ac7d383189d5e26e5a90ad2574214003944a3c63d7"
+      }
+    },
+    {
+      "step": "compile-1",
+      "phase": "end",
+      "timestamp": "2026-07-12T07:56:27.391Z",
+      "treeHash": "0419e0ee9e5a7036967844c94b9c16d35998e0ab4edb2b638d5dd064c44158b7",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "dcfc6db97e372b6e8b4525ac7d383189d5e26e5a90ad2574214003944a3c63d7",
+        "editor-project/src/scenes/Probe.ts": "b27c5622a462a53ff0ceaa4b66f84c0988702f0ce775258afaa036f7cee67e9f"
+      },
+      "observation": "CompileProject produced Probe.ts and Semantic.ts"
+    },
+    {
+      "step": "compile-2",
+      "phase": "begin",
+      "timestamp": "2026-07-12T07:56:27.452Z",
+      "treeHash": "374a063a17e55badadcee6b4e8b868e5cc6b008b10bf52d00613b95d78c99394",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/scenes/Probe.scene": "dcfc6db97e372b6e8b4525ac7d383189d5e26e5a90ad2574214003944a3c63d7"
+      }
+    },
+    {
+      "step": "compile-2",
+      "phase": "end",
+      "timestamp": "2026-07-12T07:56:29.288Z",
+      "treeHash": "0419e0ee9e5a7036967844c94b9c16d35998e0ab4edb2b638d5dd064c44158b7",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "dcfc6db97e372b6e8b4525ac7d383189d5e26e5a90ad2574214003944a3c63d7",
+        "editor-project/src/scenes/Probe.ts": "b27c5622a462a53ff0ceaa4b66f84c0988702f0ce775258afaa036f7cee67e9f"
+      },
+      "observation": "second generation byte-identical to first (outputs deleted between runs)"
+    },
+    {
+      "step": "save-reopen",
+      "phase": "begin",
+      "timestamp": "2026-07-12T07:56:58.643Z",
+      "treeHash": "0419e0ee9e5a7036967844c94b9c16d35998e0ab4edb2b638d5dd064c44158b7",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "dcfc6db97e372b6e8b4525ac7d383189d5e26e5a90ad2574214003944a3c63d7",
+        "editor-project/src/scenes/Probe.ts": "b27c5622a462a53ff0ceaa4b66f84c0988702f0ce775258afaa036f7cee67e9f"
+      }
+    },
+    {
+      "step": "save-reopen",
+      "phase": "end",
+      "timestamp": "2026-07-12T07:57:08.779Z",
+      "treeHash": "0419e0ee9e5a7036967844c94b9c16d35998e0ab4edb2b638d5dd064c44158b7",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "dcfc6db97e372b6e8b4525ac7d383189d5e26e5a90ad2574214003944a3c63d7",
+        "editor-project/src/scenes/Probe.ts": "b27c5622a462a53ff0ceaa4b66f84c0988702f0ce775258afaa036f7cee67e9f"
+      },
+      "observation": "save/close/reopen/save: second save byte-stable; identity lists recorded"
+    },
+    {
+      "step": "duplicate",
+      "phase": "begin",
+      "timestamp": "2026-07-12T07:57:40.884Z",
+      "treeHash": "0419e0ee9e5a7036967844c94b9c16d35998e0ab4edb2b638d5dd064c44158b7",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "dcfc6db97e372b6e8b4525ac7d383189d5e26e5a90ad2574214003944a3c63d7",
+        "editor-project/src/scenes/Probe.ts": "b27c5622a462a53ff0ceaa4b66f84c0988702f0ce775258afaa036f7cee67e9f"
+      }
+    },
+    {
+      "step": "duplicate",
+      "phase": "begin",
+      "timestamp": "2026-07-12T07:58:19.920Z",
+      "treeHash": "0419e0ee9e5a7036967844c94b9c16d35998e0ab4edb2b638d5dd064c44158b7",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "dcfc6db97e372b6e8b4525ac7d383189d5e26e5a90ad2574214003944a3c63d7",
+        "editor-project/src/scenes/Probe.ts": "b27c5622a462a53ff0ceaa4b66f84c0988702f0ce775258afaa036f7cee67e9f"
+      }
+    },
+    {
+      "step": "duplicate",
+      "phase": "end",
+      "timestamp": "2026-07-12T07:58:26.634Z",
+      "treeHash": "0419e0ee9e5a7036967844c94b9c16d35998e0ab4edb2b638d5dd064c44158b7",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "dcfc6db97e372b6e8b4525ac7d383189d5e26e5a90ad2574214003944a3c63d7",
+        "editor-project/src/scenes/Probe.ts": "b27c5622a462a53ff0ceaa4b66f84c0988702f0ce775258afaa036f7cee67e9f"
+      },
+      "observation": "unexpected duplicate outcome: {\"added\":[],\"originalId\":\"f6b34bd9-75ab-4631-a93e-b1f93e36c9af\",\"beforeCount\":8,\"afterCount\":8}"
+    },
+    {
+      "step": "duplicate",
+      "phase": "begin",
+      "timestamp": "2026-07-12T08:01:11.444Z",
+      "treeHash": "0419e0ee9e5a7036967844c94b9c16d35998e0ab4edb2b638d5dd064c44158b7",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "dcfc6db97e372b6e8b4525ac7d383189d5e26e5a90ad2574214003944a3c63d7",
+        "editor-project/src/scenes/Probe.ts": "b27c5622a462a53ff0ceaa4b66f84c0988702f0ce775258afaa036f7cee67e9f"
+      }
+    },
+    {
+      "step": "duplicate",
+      "phase": "end",
+      "timestamp": "2026-07-12T08:01:18.139Z",
+      "treeHash": "aacfc920d8f1b2077e824d4879073e98e8c0d9ce0c333a3336d07e088a26874b",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "f428c1cdd70fb926dae2d775f1c30a8e84bc2b0f76ba9a17ddbcf94f1ea1ca5c",
+        "editor-project/src/scenes/Probe.ts": "6f47a507ad53baf5f77f9907902e590f4cb4feb96f8b49493d0602cc62e148fe"
+      },
+      "observation": "editor duplicate created new id ea21ef32-9b08-473a-bd57-51d8ade3a364 in same parent with binding retained"
+    },
+    {
+      "step": "retarget-duplicate",
+      "phase": "begin",
+      "timestamp": "2026-07-12T08:02:23.509Z",
+      "treeHash": "aacfc920d8f1b2077e824d4879073e98e8c0d9ce0c333a3336d07e088a26874b",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "f428c1cdd70fb926dae2d775f1c30a8e84bc2b0f76ba9a17ddbcf94f1ea1ca5c",
+        "editor-project/src/scenes/Probe.ts": "6f47a507ad53baf5f77f9907902e590f4cb4feb96f8b49493d0602cc62e148fe"
+      }
+    },
+    {
+      "step": "retarget-duplicate",
+      "phase": "begin",
+      "timestamp": "2026-07-12T08:05:06.230Z",
+      "treeHash": "aacfc920d8f1b2077e824d4879073e98e8c0d9ce0c333a3336d07e088a26874b",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "f428c1cdd70fb926dae2d775f1c30a8e84bc2b0f76ba9a17ddbcf94f1ea1ca5c",
+        "editor-project/src/scenes/Probe.ts": "6f47a507ad53baf5f77f9907902e590f4cb4feb96f8b49493d0602cc62e148fe"
+      }
+    },
+    {
+      "step": "retarget-duplicate",
+      "phase": "begin",
+      "timestamp": "2026-07-12T08:05:37.328Z",
+      "treeHash": "aacfc920d8f1b2077e824d4879073e98e8c0d9ce0c333a3336d07e088a26874b",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "f428c1cdd70fb926dae2d775f1c30a8e84bc2b0f76ba9a17ddbcf94f1ea1ca5c",
+        "editor-project/src/scenes/Probe.ts": "6f47a507ad53baf5f77f9907902e590f4cb4feb96f8b49493d0602cc62e148fe"
+      }
+    },
+    {
+      "step": "retarget-duplicate",
+      "phase": "begin",
+      "timestamp": "2026-07-12T08:07:10.366Z",
+      "treeHash": "aacfc920d8f1b2077e824d4879073e98e8c0d9ce0c333a3336d07e088a26874b",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "f428c1cdd70fb926dae2d775f1c30a8e84bc2b0f76ba9a17ddbcf94f1ea1ca5c",
+        "editor-project/src/scenes/Probe.ts": "6f47a507ad53baf5f77f9907902e590f4cb4feb96f8b49493d0602cc62e148fe"
+      }
+    },
+    {
+      "step": "retarget-duplicate",
+      "phase": "begin",
+      "timestamp": "2026-07-12T08:09:30.303Z",
+      "treeHash": "aacfc920d8f1b2077e824d4879073e98e8c0d9ce0c333a3336d07e088a26874b",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "f428c1cdd70fb926dae2d775f1c30a8e84bc2b0f76ba9a17ddbcf94f1ea1ca5c",
+        "editor-project/src/scenes/Probe.ts": "6f47a507ad53baf5f77f9907902e590f4cb4feb96f8b49493d0602cc62e148fe"
+      }
+    },
+    {
+      "step": "retarget-duplicate",
+      "phase": "begin",
+      "timestamp": "2026-07-12T08:11:17.494Z",
+      "treeHash": "aacfc920d8f1b2077e824d4879073e98e8c0d9ce0c333a3336d07e088a26874b",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "f428c1cdd70fb926dae2d775f1c30a8e84bc2b0f76ba9a17ddbcf94f1ea1ca5c",
+        "editor-project/src/scenes/Probe.ts": "6f47a507ad53baf5f77f9907902e590f4cb4feb96f8b49493d0602cc62e148fe"
+      }
+    },
+    {
+      "step": "retarget-duplicate",
+      "phase": "begin",
+      "timestamp": "2026-07-12T08:12:41.383Z",
+      "treeHash": "aacfc920d8f1b2077e824d4879073e98e8c0d9ce0c333a3336d07e088a26874b",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "f428c1cdd70fb926dae2d775f1c30a8e84bc2b0f76ba9a17ddbcf94f1ea1ca5c",
+        "editor-project/src/scenes/Probe.ts": "6f47a507ad53baf5f77f9907902e590f4cb4feb96f8b49493d0602cc62e148fe"
+      }
+    },
+    {
+      "step": "retarget-duplicate",
+      "phase": "end",
+      "timestamp": "2026-07-12T08:12:48.050Z",
+      "treeHash": "89534458f33e1337fa37e4065e0812bf125cbd8f60f5e3b56419fa9a20f776c1",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "290e0ddc206f8779bd52c706ae472e07dc263bf3e2fb0188562fe947fc21330e",
+        "editor-project/src/scenes/Probe.ts": "a84616112ea303b6c8f267daeb3405768e50dda71245d16c84ca74dad670456b"
+      },
+      "observation": "duplicate retargeted to shell.counter.secondary / currency:secondary via inspector fields"
+    },
+    {
+      "step": "live-typing",
+      "phase": "begin",
+      "timestamp": "2026-07-12T08:15:04.997Z",
+      "treeHash": "89534458f33e1337fa37e4065e0812bf125cbd8f60f5e3b56419fa9a20f776c1",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "290e0ddc206f8779bd52c706ae472e07dc263bf3e2fb0188562fe947fc21330e",
+        "editor-project/src/scenes/Probe.ts": "a84616112ea303b6c8f267daeb3405768e50dda71245d16c84ca74dad670456b"
+      }
+    },
+    {
+      "step": "live-typing",
+      "phase": "end",
+      "timestamp": "2026-07-12T08:15:15.563Z",
+      "treeHash": "89534458f33e1337fa37e4065e0812bf125cbd8f60f5e3b56419fa9a20f776c1",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "290e0ddc206f8779bd52c706ae472e07dc263bf3e2fb0188562fe947fc21330e",
+        "editor-project/src/scenes/Probe.ts": "a84616112ea303b6c8f267daeb3405768e50dda71245d16c84ca74dad670456b"
+      },
+      "observation": "base editor: per-keystroke canvas update=false, update on commit=true (typed 3 chars, no Enter/blur, then committed and restored)"
+    },
+    {
+      "step": "live-typing-plugin",
+      "phase": "begin",
+      "timestamp": "2026-07-12T08:15:32.103Z",
+      "treeHash": "89534458f33e1337fa37e4065e0812bf125cbd8f60f5e3b56419fa9a20f776c1",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "290e0ddc206f8779bd52c706ae472e07dc263bf3e2fb0188562fe947fc21330e",
+        "editor-project/src/scenes/Probe.ts": "a84616112ea303b6c8f267daeb3405768e50dda71245d16c84ca74dad670456b"
+      }
+    },
+    {
+      "step": "live-typing-plugin",
+      "phase": "end",
+      "timestamp": "2026-07-12T08:15:42.672Z",
+      "treeHash": "89534458f33e1337fa37e4065e0812bf125cbd8f60f5e3b56419fa9a20f776c1",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "290e0ddc206f8779bd52c706ae472e07dc263bf3e2fb0188562fe947fc21330e",
+        "editor-project/src/scenes/Probe.ts": "a84616112ea303b6c8f267daeb3405768e50dda71245d16c84ca74dad670456b"
+      },
+      "observation": "live-copy-preview plugin: per-keystroke canvas update=true, update on commit=false"
+    },
+    {
+      "step": "compile-1",
+      "phase": "begin",
+      "timestamp": "2026-07-12T08:16:05.975Z",
+      "treeHash": "89534458f33e1337fa37e4065e0812bf125cbd8f60f5e3b56419fa9a20f776c1",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "290e0ddc206f8779bd52c706ae472e07dc263bf3e2fb0188562fe947fc21330e",
+        "editor-project/src/scenes/Probe.ts": "a84616112ea303b6c8f267daeb3405768e50dda71245d16c84ca74dad670456b"
+      }
+    },
+    {
+      "step": "compile-1",
+      "phase": "end",
+      "timestamp": "2026-07-12T08:16:07.570Z",
+      "treeHash": "89534458f33e1337fa37e4065e0812bf125cbd8f60f5e3b56419fa9a20f776c1",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "290e0ddc206f8779bd52c706ae472e07dc263bf3e2fb0188562fe947fc21330e",
+        "editor-project/src/scenes/Probe.ts": "a84616112ea303b6c8f267daeb3405768e50dda71245d16c84ca74dad670456b"
+      },
+      "observation": "CompileProject produced Probe.ts and Semantic.ts"
+    },
+    {
+      "step": "compile-2",
+      "phase": "begin",
+      "timestamp": "2026-07-12T08:16:07.627Z",
+      "treeHash": "bcdd9867a01f710331cad49516cc592821655593e5e54f9527e78d3cdc607b7b",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/scenes/Probe.scene": "290e0ddc206f8779bd52c706ae472e07dc263bf3e2fb0188562fe947fc21330e"
+      }
+    },
+    {
+      "step": "compile-2",
+      "phase": "end",
+      "timestamp": "2026-07-12T08:16:09.475Z",
+      "treeHash": "89534458f33e1337fa37e4065e0812bf125cbd8f60f5e3b56419fa9a20f776c1",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "290e0ddc206f8779bd52c706ae472e07dc263bf3e2fb0188562fe947fc21330e",
+        "editor-project/src/scenes/Probe.ts": "a84616112ea303b6c8f267daeb3405768e50dda71245d16c84ca74dad670456b"
+      },
+      "observation": "second generation byte-identical to first (outputs deleted between runs)"
+    },
+    {
+      "step": "session-close",
+      "phase": "note",
+      "timestamp": "2026-07-12T08:16:27.041Z",
+      "treeHash": "89534458f33e1337fa37e4065e0812bf125cbd8f60f5e3b56419fa9a20f776c1",
+      "files": {
+        "editor-project/phasereditor2d.config.json": "093a0a51967c59a335b9ae1640050a411307728e3e8fab03a93cd2e983ee3357",
+        "editor-project/public/assets/asset-pack.json": "7b74fbf511a5ed5d6077e03855816592686f0c040e40073f748820b17c2a90f7",
+        "editor-project/public/assets/badge-amber.png": "f3ad836871fe184ded9b86ce414080168ddfff9c7485f9892f96659a6d80c4b6",
+        "editor-project/public/assets/badge-blue.png": "5072835fde59918971453901e98f7764ce1cea47e9197aaec68cc85c0e805dc8",
+        "editor-project/public/assets/button-play.png": "0aec710a776a1ddb2988e976b6633c84025d851817b4a7758b35e3708500e0b1",
+        "editor-project/public/publicroot": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "editor-project/src/components/Semantic.components": "844571937b8dd19b4bfe2c52601905743f294c69d94f58452e6c8faf0738ae9e",
+        "editor-project/src/components/Semantic.ts": "fbf7e8f3fd502c976cdc46159495cd637e0df4d2a3f18433a0f094724948535d",
+        "editor-project/src/scenes/Probe.scene": "290e0ddc206f8779bd52c706ae472e07dc263bf3e2fb0188562fe947fc21330e",
+        "editor-project/src/scenes/Probe.ts": "a84616112ea303b6c8f267daeb3405768e50dda71245d16c84ca74dad670456b"
+      },
+      "observation": "all GUI legs recorded: compile x2 (byte-identical, incl. forced regeneration), save/reopen (byte-stable), duplicate (new UUID same parent), retarget via inspector (secondary currency), live-typing base (commit-only) + plugin (per-keystroke). Editor auto-compiles on save."
+    }
+  ]
+}

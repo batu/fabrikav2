@@ -19,19 +19,32 @@ final class InsituTourTests: XCTestCase {
         case missing
     }
 
-    /// Per-state wait budget. The allstates tour drives menu->level->settings->
-    /// pause->win->fail with a long dwell on each and, on arrival, publishes an
-    /// accessibility element labelled `tourstate:<state>` (see
+    /// Per-state wait budget. The allstates tour drives the game's declared
+    /// states in manifest order with a long dwell on each and, on arrival,
+    /// publishes an accessibility element labelled `tourstate:<state>` (see
     /// @fabrikav2/testkit/testing maybeRunInsituTour, #__tourstate__). We WAIT for that
     /// label before shooting, so the frame we capture is guaranteed to BE the
     /// state we stamp it with — never the previous/next frame. Budget covers the
     /// tour's slowest transition (driveTo is variable-time) plus dwell.
     private let stateTimeout: TimeInterval = 25
 
-    /// Canonical states, tour order. The tour label is `tourstate:<state>`; the
-    /// attachment name keeps a "<n>-<state>" order prefix so the CLI's
-    /// states.mjs maps it back to the same canonical vocab as the reference lane.
-    private let states = ["menu", "level", "settings", "pause", "win", "fail"]
+    /// Ordered canonical states to capture, supplied per-run by verify-device —
+    /// NEVER hardcoded here. The CLI passes the game's manifest vocabulary (the
+    /// same ordered `states` the reference lane uses) as a comma-separated
+    /// TEST_RUNNER_TARGET_STATES; `xcodebuild test` forwards it with the
+    /// TEST_RUNNER_ prefix stripped, so we read TARGET_STATES. A hardcoded list
+    /// silently skipped Shop once the shell grew from six to seven pages (card
+    /// qWCv9tUo) — the runner MUST track the manifest, so an absent/empty value
+    /// is a loud failure, never a fallback to a stale default. The attachment
+    /// name keeps a "<n>-<state>" order prefix so the CLI's states.mjs maps it
+    /// back to the same canonical vocab as the reference lane.
+    private func targetStates() -> [String] {
+        guard let raw = ProcessInfo.processInfo.environment["TARGET_STATES"] else { return [] }
+        return raw
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .filter { !$0.isEmpty }
+    }
 
     private func shot(_ name: String) {
         let attachment = XCTAttachment(screenshot: XCUIScreen.main.screenshot())
@@ -105,6 +118,17 @@ final class InsituTourTests: XCTestCase {
     func testAllStates() {
         guard let bundleId = ProcessInfo.processInfo.environment["TARGET_BUNDLE_ID"], !bundleId.isEmpty else {
             XCTFail("TARGET_BUNDLE_ID not set — pass TEST_RUNNER_TARGET_BUNDLE_ID=<appId> to xcodebuild test")
+            return
+        }
+        // Ordered state vocabulary comes from verify-device (the game manifest),
+        // never a hardcoded list — a stale default silently skipped Shop when the
+        // shell grew to seven pages (card qWCv9tUo). An absent/empty vocabulary is
+        // a loud failure, not a fallback.
+        let states = targetStates()
+        guard !states.isEmpty else {
+            XCTFail("TARGET_STATES not set/empty — pass TEST_RUNNER_TARGET_STATES=<comma-separated ordered states> "
+                + "to xcodebuild test (verify-device supplies the game's manifest vocabulary). A hardcoded fallback "
+                + "silently skipped Shop once; a missing vocabulary is a loud failure, not a stale default.")
             return
         }
         let app = XCUIApplication(bundleIdentifier: bundleId)

@@ -302,12 +302,26 @@ export function buildAndInstallApp(
 
 /**
  * Step 3: generate + run the XCUITest runner against the device, export xcresult.
+ *
+ * `states` is the ORDERED manifest vocabulary (the same list the reference lane
+ * and phash/panel use). It is forwarded to the runner as
+ * TEST_RUNNER_TARGET_STATES so the runner gates exactly those states in order —
+ * the runner must never hardcode its own list, which silently skipped Shop once
+ * the shell grew to seven pages (card qWCv9tUo). Required and non-empty:
+ * gating an empty/unknown vocabulary is a fail-closed error, not a device run.
  * @returns {{exportDir:string, testError:Error|null}} exported attachments plus
  *   the xcodebuild test failure, if XCTest failed after writing device.xcresult
  */
 export function runXcuiTestAndExport({
-  runnerDir, deviceUdid, appBundleId, outDir, developmentTeam, shImpl = sh,
+  runnerDir, deviceUdid, appBundleId, outDir, developmentTeam, states, shImpl = sh,
 }) {
+  if (!Array.isArray(states) || states.length === 0) {
+    throw new Error('runXcuiTestAndExport requires a non-empty ordered `states` array (the game manifest vocabulary) to gate device capture');
+  }
+  const badState = states.find((s) => typeof s !== 'string' || s.length === 0 || s.includes(','));
+  if (badState !== undefined) {
+    throw new Error(`invalid state name for the comma-separated TEST_RUNNER_TARGET_STATES wire: ${JSON.stringify(badState)}`);
+  }
   const xcodeproj = path.join(runnerDir, 'VerifyDeviceRunner.xcodeproj');
   // The template ships project.yml; materialise the .xcodeproj every run so a
   // stale generated project cannot poison signing or runner settings.
@@ -323,7 +337,11 @@ export function runXcuiTestAndExport({
       '-resultBundlePath', xcresult,
       ...buildSettings,
     ], {
-      env: { ...process.env, TEST_RUNNER_TARGET_BUNDLE_ID: appBundleId },
+      env: {
+        ...process.env,
+        TEST_RUNNER_TARGET_BUNDLE_ID: appBundleId,
+        TEST_RUNNER_TARGET_STATES: states.join(','),
+      },
     });
   } catch (err) {
     testError = err;

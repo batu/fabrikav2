@@ -1,0 +1,27 @@
+{
+  "viewport": "1440x900",
+  "route": "/",
+  "operations": {
+    "moveXPercent": { "value": "1", "tone": "success" },
+    "moveYPercent": { "value": "-5", "tone": "success" },
+    "widthPercent": { "value": "50", "tone": "success" },
+    "heightPercent": { "value": "9", "tone": "success" },
+    "copy": { "value": "Launch", "tone": "success" },
+    "background": { "value": "#ff3355", "tone": "success" },
+    "reorder": { "feedback": "Layer order updated within this page.", "tone": "success" },
+    "duplicate": {
+      "instanceId": "menu.currency.copy-1",
+      "bindingId": "state.primary-currency",
+      "tone": "success"
+    },
+    "hideDuplicate": { "checked": false, "feedback": "Component hidden.", "tone": "success" }
+  },
+  "requiredVisibility": {
+    "editableControlCount": 0,
+    "note": "Visibility locked - Required semantic instance menu.play cannot be hidden."
+  },
+  "result": {
+    "projectState": "Dirty",
+    "documentHeight": 900
+  }
+}

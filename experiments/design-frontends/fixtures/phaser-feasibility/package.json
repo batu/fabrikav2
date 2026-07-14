@@ -1,0 +1,31 @@
+{
+  "name": "@fabrikav2-experiments/phaser-feasibility",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Disposable feasibility probe for the Phaser Editor 5.0.2 + Phaser 4.2.1 seam (Trello 43Qvbih7, goal-U2). Standalone package on purpose: not a root workspace member, lands no shared surface.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run",
+    "lint": "eslint .",
+    "verify": "node scripts/verify.mjs"
+  },
+  "dependencies": {
+    "phaser": "4.2.1"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.1.0",
+    "@eslint/js": "^9.39.4",
+    "@types/node": "^25.3.3",
+    "eslint": "^9.39.4",
+    "playwright-core": "^1.58.2",
+    "typescript": "~5.7.2",
+    "typescript-eslint": "^8.58.2",
+    "vite": "^6.0.5",
+    "vitest": "^4.0.18"
+  }
+}

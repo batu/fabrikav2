@@ -1,0 +1,19 @@
+{
+  "timestamp": "2026-07-12T09:53:10Z",
+  "source": {
+    "commit": "fe3a8aae",
+    "checkout": "clean sparse checkout from origin",
+    "previewWorkingDirectoryVerified": true
+  },
+  "deviceProfile": {
+    "model": "Pixel 6a",
+    "androidVersion": "16",
+    "webviewVersion": "149.0.7827.164"
+  },
+  "transport": "adb reverse tcp:8843",
+  "screenshot": "evidence/device/boot.png",
+  "logcat": "evidence/device/logcat-webgl.txt",
+  "sentinelVisible": true,
+  "webglContextCreated": true,
+  "verdict": "pass"
+}

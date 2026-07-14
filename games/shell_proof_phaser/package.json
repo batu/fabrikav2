@@ -1,0 +1,23 @@
+{
+  "name": "@fabrikav2/shell_proof_phaser",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "audit:kenney": "node tests/unit/audit-kenney-seed.mjs",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "phaser": "4.2.1"
+  },
+  "devDependencies": {
+    "@fabrikav2/kernel": "*",
+    "@fabrikav2/ui": "*",
+    "@fabrikav2/sdk": "*",
+    "@fabrikav2/testkit": "*"
+  }
+}

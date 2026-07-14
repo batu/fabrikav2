@@ -9,6 +9,8 @@
     "games/*",
     "tools/audit",
     "tools/create-game",
+    "tools/grapes-shell",
+    "tools/phaser-shell",
     "tools/refcap-compare",
     "tools/verify-device",
     "tools/verify-gate"
@@ -21,6 +23,8 @@
     "setup-lockfile-merge-driver": "node tools/verify-gate/setup-lockfile-merge-driver.mjs",
     "verify-merge-gate": "node tools/verify-gate/merge-gate.mjs",
     "check-claude-mirror": "node tools/verify-gate/check-claude-mirror.mjs",
+    "freeze-gate": "node tools/verify-gate/freeze-gate.mjs",
+    "fence-gate": "node tools/verify-gate/fence-gate.mjs",
     "project-gate": "node tools/verify-gate/project-gate.mjs",
     "lint": "npm run lint --workspaces --if-present",
     "audit": "node tools/audit/src/cli.js",

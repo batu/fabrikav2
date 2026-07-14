@@ -1,0 +1,51 @@
+{
+  "recordKind": "u1-accepted-dependency-pins",
+  "source": "experiments/design-frontends/fixtures/phaser-feasibility/report/report.json (U2, accepted 2026-07-12)",
+  "runtime": {
+    "phaser": {
+      "version": "4.2.1",
+      "pin": "exact",
+      "declaredIn": ["tools/phaser-shell/package.json", "games/shell_proof_phaser/package.json"],
+      "resolutionNote": "Legacy games/find_the_dog pins phaser ^3.90.0, hoisted to the ROOT node_modules. The phaser proof game pins exact 4.2.1 so it installs NESTED and wins resolution from both the proof runtime and its authoring/ project. Proven by tools/phaser-shell/test/phaser-resolution.test.mjs."
+    },
+    "grapesjs": { "version": "^0.23.2", "pin": "caret", "declaredIn": "tools/grapes-shell/package.json" }
+  },
+  "laneToolchainFrozen": {
+    "rule": "U1 preseeds the toolchain @fabrikav2/phaser-shell (and its U5/U6 authoring/bundling code) will consume, pinned to the existing root ranges so no lane may reopen the single root package-lock. U5/U6 add scripts/source ONLY — never dependencies. `phaser-shell` uses the TypeScript compiler API for AST work; no separate parser library is introduced.",
+    "declaredIn": "tools/phaser-shell/package.json",
+    "devDependencies": {
+      "@playwright/test": "^1.58.2",
+      "@types/node": "^25.3.3",
+      "eslint": "^9.39.4",
+      "tsx": "^4.21.0",
+      "typescript": "^5.7.2",
+      "typescript-eslint": "^8.58.2",
+      "vite": "^6.0.5",
+      "vitest": "^4.0.18"
+    }
+  },
+  "editors": {
+    "phaserEditor": {
+      "version": "5.0.2",
+      "kind": "desktop application, human-authenticated, machine-local",
+      "neverInRepo": true
+    },
+    "grapesjs": { "version": "^0.23.2", "kind": "npm dependency of tools/grapes-shell" }
+  },
+  "toolchain": {
+    "typescript": "~5.7.2",
+    "vite": "^6.0.5",
+    "vitest": "^4.0.18",
+    "eslint": "^9.39.4",
+    "@types/node": "^25.3.3",
+    "@capacitor/core": "^8.1.0",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/android": "^8.4.1",
+    "playwright-core": "^1.58.2"
+  },
+  "workspaceFreeze": {
+    "rule": "The root package.json workspaces list and the single root package-lock.json are frozen shared surfaces after U1; a later dependency reopens the shared integration gate and invalidates downstream evidence.",
+    "laneWorkspaces": ["tools/grapes-shell", "tools/phaser-shell"],
+    "capacitorNote": "Capacitor packages are declared per-game only when U10 wires the dev-only Android shell; U1 freezes the accepted versions without adding game-level dependencies."
+  }
+}

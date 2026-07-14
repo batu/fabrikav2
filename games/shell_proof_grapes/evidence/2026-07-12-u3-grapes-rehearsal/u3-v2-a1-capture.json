@@ -1,0 +1,79 @@
+{
+  "schema": "fabrikav2-grapes-shell-a1-capture-v2",
+  "sourceCommits": [
+    "406c496560cf2f5168475e67756f682ca21f03b2"
+  ],
+  "viewport": {
+    "width": 1440,
+    "height": 900,
+    "deviceScaleFactor": 1
+  },
+  "reviewedState": {
+    "status": "saved-unpublished",
+    "targetGame": "shell_proof_grapes",
+    "pageCount": 7,
+    "projectHash": "sha256-716c5462e8b5c7b2a754940ba27c5e171d9278b4d626a128105b1f8f87ace975",
+    "assetCatalogHash": "sha256-567fb5c6661910d22e498da0eaeca86d91e7b018c1d0b9ae0747d632a87de11e"
+  },
+  "interaction": {
+    "pagesVisited": [
+      "menu",
+      "level",
+      "shop",
+      "settings",
+      "pause",
+      "win",
+      "fail"
+    ],
+    "cleanPreviewExercised": true,
+    "directManipulation": {
+      "resizeChanged": true,
+      "dragChanged": true
+    },
+    "liveCopy": "Live V2 title!",
+    "duplicatedInstance": "menu.currency.copy-1",
+    "duplicateHidden": true,
+    "closeReopenProjectHash": "sha256-716c5462e8b5c7b2a754940ba27c5e171d9278b4d626a128105b1f8f87ace975",
+    "selectedInstance": "menu.settings",
+    "installedAsset": "icon-control.confirm",
+    "decisionSubmitted": false
+  },
+  "visualAssertions": {
+    "inspector": {
+      "clientHeight": 701,
+      "scrollHeight": 1995,
+      "maxScrollTop": 1294,
+      "lastEdgeVisibleAtBottom": true
+    },
+    "constraintStyles": {
+      "compactBackground": "rgb(241, 245, 248)",
+      "compactBorder": "rgb(157, 178, 193)",
+      "publicationBackground": "rgb(255, 245, 217)",
+      "publicationBorder": "rgb(224, 162, 59)"
+    },
+    "decisionStyles": {
+      "acceptDisabled": true,
+      "rejectDisabled": true,
+      "acceptBackground": "rgb(237, 247, 243)",
+      "acceptBorder": "rgb(184, 213, 204)",
+      "rejectBackground": "rgb(255, 247, 247)",
+      "rejectBorder": "rgb(226, 196, 196)"
+    }
+  },
+  "evidence": {
+    "screenshots": {
+      "opening": "screenshots/u3-v2-a1-opening.png",
+      "cleanPreview": "screenshots/u3-v2-a1-clean-preview.png",
+      "interaction": "screenshots/u3-v2-a1-interaction.png",
+      "slotSaved": "screenshots/u3-v2-a1-slot-saved.png",
+      "decision": "screenshots/u3-v2-a1-decision.png"
+    },
+    "video": "videos/u3-v2-a1-flow.webm"
+  },
+  "isolation": {
+    "externalRequestCount": 0,
+    "consoleErrors": [],
+    "pageErrors": [],
+    "privatePatternMatches": []
+  }
+}

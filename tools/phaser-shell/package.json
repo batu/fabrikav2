@@ -1,0 +1,24 @@
+{
+  "name": "@fabrikav2/phaser-shell",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Phaser Editor / Phaser-native shell tooling for the dual-design-frontends experiment (U5/U6 implement; U1 preseeds the lane workspace, the accepted phaser@4.2.1 pin, and the frozen toolchain U5/U6 will consume — those stages add scripts/source only, never dependencies).",
+  "scripts": {
+    "test:unit": "vitest run"
+  },
+  "dependencies": {
+    "@fabrikav2/kernel": "*",
+    "phaser": "4.2.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^25.3.3",
+    "eslint": "^9.39.4",
+    "tsx": "^4.21.0",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.58.2",
+    "vite": "^6.0.5",
+    "vitest": "^4.0.18"
+  }
+}

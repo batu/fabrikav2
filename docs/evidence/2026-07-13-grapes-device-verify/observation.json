@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "fabrikav2.verify-device.observation/1",
+  "game": "shell_proof_grapes",
+  "lane": "device",
+  "platform": "ios",
+  "provenance": "live-device",
+  "generatedAt": "2026-07-13T15:42:33.927Z",
+  "device": "physical iPhone (identifier redacted)",
+  "runKind": "no-applicable-evidence",
+  "captureFailure": null,
+  "hardIntegrity": [],
+  "requiredStates": [
+    "menu",
+    "level",
+    "shop",
+    "settings",
+    "pause",
+    "win",
+    "fail"
+  ],
+  "captures": [
+    {
+      "state": "menu",
+      "gated": true,
+      "file": "docs/evidence/2026-07-13-grapes-device-verify/raw-captures/menu.png",
+      "present": true,
+      "sha256": "44313bb99570ff5abe49442d98ea040218a2191842ce83cc23ad6748fb0f08b3"
+    },
+    {
+      "state": "level",
+      "gated": true,
+      "file": "docs/evidence/2026-07-13-grapes-device-verify/raw-captures/level.png",
+      "present": true,
+      "sha256": "9dee6f5ef378f65e9e403aa37d2210ccd7150cbbcba2491bc80f16f720379ab8"
+    },
+    {
+      "state": "shop",
+      "gated": true,
+      "file": "docs/evidence/2026-07-13-grapes-device-verify/raw-captures/shop.png",
+      "present": true,
+      "sha256": "3ebb9e8034577c1d69a877829dc29be9dbbb0c14609a1e463e53326229f5fe98"
+    },
+    {
+      "state": "settings",
+      "gated": true,
+      "file": "docs/evidence/2026-07-13-grapes-device-verify/raw-captures/settings.png",
+      "present": true,
+      "sha256": "ede182e9e35eaa4f419109de775dd8f126049ec4a0571ef146d676997039f878"
+    },
+    {
+      "state": "pause",
+      "gated": true,
+      "file": "docs/evidence/2026-07-13-grapes-device-verify/raw-captures/pause.png",
+      "present": true,
+      "sha256": "535c23fa0811e07adc3b9596cd9112d9535ecdc568fd71c6ba79a7ba644d10ba"
+    },
+    {
+      "state": "win",
+      "gated": true,
+      "file": "docs/evidence/2026-07-13-grapes-device-verify/raw-captures/win.png",
+      "present": true,
+      "sha256": "566e658502959a5c48244e04538b6e94c1f2dc01c008f9809abe7f501dabec61"
+    },
+    {
+      "state": "fail",
+      "gated": true,
+      "file": "docs/evidence/2026-07-13-grapes-device-verify/raw-captures/fail.png",
+      "present": true,
+      "sha256": "e2a3e5c0bb763864f6ee4b8030f585d10caefbbfd108d257b87816273c917112"
+    }
+  ],
+  "inputs": {
+    "algorithm": "canonical-input-sha256/1",
+    "roots": [
+      "games/shell_proof_grapes/src",
+      "games/shell_proof_grapes/design",
+      "games/shell_proof_grapes/refs",
+      "packages/ui"
+    ],
+    "fileCount": 94,
+    "sha256": "46808a89b7efffc3f9cb1ee34c5becde33496b7838f8caf7da66ca0a068db705"
+  }
+}
