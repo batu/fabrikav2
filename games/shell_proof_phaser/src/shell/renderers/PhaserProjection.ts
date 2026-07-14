@@ -100,6 +100,10 @@ function actionId(binding: string): string {
   return binding.startsWith("flow.") ? binding.slice(5) : binding;
 }
 
+function colorCss(value: number): string {
+  return Phaser.Display.Color.IntegerToColor(value).rgba;
+}
+
 function actionState(binding: string, snapshot: TemplateShellSnapshot): {
   readonly visible: boolean;
   readonly disabled: boolean;
@@ -151,7 +155,7 @@ export async function mountPhaserProjection(options: {
     parent: options.mountInto,
     width: 390,
     height: 844,
-    backgroundColor: "#f7f5ef",
+    backgroundColor: 0xf7f5ef,
     scene: projection.states.map((state) => projection.scenes[state]),
     scale: {
       mode: Phaser.Scale.FIT,
@@ -170,10 +174,10 @@ export async function mountPhaserProjection(options: {
     const objects = scene.children.list as ProjectedObject[];
     if (!objects.some((object) => object.name === "fabrikav2-revision-sentinel")) {
       const sentinel = scene.add.text(195, 18, sentinelText, {
-        color: "#173042",
+        color: colorCss(0x173042),
         fontFamily: "monospace",
         fontSize: "12px",
-        backgroundColor: "#fff7c2",
+        backgroundColor: colorCss(0xfff7c2),
         padding: { x: 7, y: 4 },
       }).setOrigin(0.5, 0).setDepth(10_000).setName("fabrikav2-revision-sentinel");
       sentinel.setAlpha(0.96);
