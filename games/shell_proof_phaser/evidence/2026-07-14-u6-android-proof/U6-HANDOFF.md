@@ -11,10 +11,12 @@ Date: 2026-07-14
 
 The real game directory was exercised through P0 -> A -> B -> B. The final B
 application returned `no-op`, leaving the pointer and projection bytes unchanged.
+Before boot, the runtime now fails closed unless the selected revision path,
+artifact coverage, byte counts, and SHA-256 hashes all match that pointer.
 
 ## Physical-device evidence
 
-`verify-device` built the Vite bundle, generated and synchronized the Capacitor
+`verify-device` built the production Vite bundle, synchronized the Capacitor
 Android project, assembled the debug APK, installed it on Pixel 6a
 `27091JEGR22183`, and captured all seven gated states: menu, level, shop,
 settings, pause, win, and fail. Raw screenshots are in `raw-captures/`.
@@ -28,22 +30,23 @@ Phaser v4.2.1 (WebGL | Web Audio)
 
 Every screenshot visibly carries `PHASER · 42f2a6ef`, independently tying the
 rendered pixels to the selected projection. The device verifier classified this
-run as `no-applicable-evidence`, not a fidelity pass, because this scaffold's
-manifest intentionally has no trusted reference images. That does not weaken
-the live-device runtime/application proof; it means no reference-comparison
-claim is made.
+run as `no-applicable-evidence`, not a fidelity pass, because this scaffold has
+no trusted reference images. This is live-device runtime proof, not a
+reference-comparison claim.
 
 ## Host verification
 
-- Phaser shell: typecheck and lint passed; 201 unit tests passed.
+- Phaser shell: typecheck passed; 202 unit tests passed.
 - Phaser proof game: typecheck passed; 95 unit tests passed.
-- Runtime-owned source lint passed. Full game lint still reports the inherited
-  Editor-generated `Semantic.ts` `any` declarations frozen into U5 publications.
-- Production Vite build passed.
-- Browser runtime drove all seven states with the matching probe state,
-  post-render `ready=true`, semantic action rectangles, renderer
-  `phaser-native`, and sentinel `42f2a6ef`.
-- Two Phaser 4.2.1 Playwright interaction proofs passed, including a real
-  pointer-driven Claim -> Next transition with state-dependent visibility and
-  disabled evidence.
+- Runtime-owned source lint and the repository audit passed. Full game lint
+  still reports inherited Editor-generated `Semantic.ts` `any` declarations.
+- Production Vite build and a served-dist boot passed with the exact immutable
+  publication/projection identity and one WebGL canvas.
+- Browser runtime drove all seven states with `ready=true` and exercised real
+  canvas pointer input at the edge of the full 294x60 Claim surface, then
+  exercised the 48px-minimum Next control and observed the controller transition.
+- Evidence action geometry reports the full authored Menu, Claim, Claim Double,
+  icon, and Settings-toggle surfaces rather than text-label bounds.
 - `git diff --check` passed.
+- Fence audit reports only inherited prerequisite/integration drift; U6's
+  earlier package, Playwright, e2e, and Vite config violations were removed.
