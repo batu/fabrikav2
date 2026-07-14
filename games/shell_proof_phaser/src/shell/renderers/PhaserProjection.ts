@@ -11,6 +11,7 @@ type Surface = "menu" | "level" | "shop" | "settings" | "pause" | "win" | "fail"
 interface SemanticCarrier {
   readonly fabSemanticId: string;
   readonly fabBinding: string;
+  readonly fabSlot?: string;
 }
 
 type ProjectedObject = Phaser.GameObjects.GameObject & {
@@ -35,6 +36,11 @@ type AssetPack = Record<string, unknown> & {
 };
 
 interface SelectedRevision {
+  readonly artifacts: readonly {
+    readonly bytes: number;
+    readonly path: string;
+    readonly sha256: string;
+  }[];
   readonly sourcePublicationId: string;
   readonly projectionId: string;
   readonly revisionPath: string;
@@ -62,21 +68,24 @@ export interface PhaserProjectionHandle {
   dispose(): void;
 }
 
-const selectionSources = import.meta.glob("../../../design/revision.{json}", {
+const selectionSources = import.meta.glob("../../../design/revision.*", {
   eager: true,
   import: "default",
-}) as Readonly<Record<string, SelectedRevision>>;
-const selectedRevision = Object.values(selectionSources)[0];
-if (!selectedRevision || Object.keys(selectionSources).length !== 1) {
+  query: "?raw",
+}) as Readonly<Record<string, string>>;
+const selectedRevisionSource = Object.values(selectionSources)[0];
+const parsedSelectedRevision = selectedRevisionSource ? JSON.parse(selectedRevisionSource) as SelectedRevision : undefined;
+if (!parsedSelectedRevision || Object.keys(selectionSources).length !== 1) {
   throw new Error("The Phaser runtime requires exactly one selected revision pointer.");
 }
+const selectedRevision = parsedSelectedRevision;
 const revisionPrefix = `../../../${selectedRevision.revisionPath}/`;
 const shellSources = import.meta.glob("../../../design/revisions/*/scenes/shell.js", {
   eager: true,
   import: "default",
   query: "?raw",
 }) as Readonly<Record<string, string>>;
-const assetPackSources = import.meta.glob("../../../design/revisions/*/asset-pack.{json}", {
+const revisionRootSources = import.meta.glob("../../../design/revisions/*/*.*", {
   eager: true,
   import: "default",
   query: "?raw",
@@ -99,9 +108,50 @@ function selectedArtifact<T>(artifacts: Readonly<Record<string, T>>, relativePat
   return artifact;
 }
 
-function prepareProjectionModule(): { readonly source: string; readonly assetPackUrl: string } {
+async function artifactBytes(path: string): Promise<Uint8Array> {
+  if (path.startsWith("assets/")) {
+    const response = await fetch(selectedArtifact(revisionAssetUrls, path));
+    if (!response.ok) throw new Error(`Selected Phaser projection could not read ${path}.`);
+    return new Uint8Array(await response.arrayBuffer());
+  }
+  const source = path === "scenes/shell.js"
+    ? selectedArtifact(shellSources, path)
+    : selectedArtifact(revisionRootSources, path);
+  return new TextEncoder().encode(source);
+}
+
+async function verifySelectedRevision(): Promise<void> {
+  const expectedRevisionPath = `design/revisions/${selectedRevision.projectionId}`;
+  if (selectedRevision.revisionPath !== expectedRevisionPath) {
+    throw new Error("Selected Phaser projection path does not match its projection id.");
+  }
+  const availablePaths = new Set(
+    [...Object.keys(revisionRootSources), ...Object.keys(shellSources), ...Object.keys(revisionAssetUrls)]
+      .filter((path) => path.startsWith(revisionPrefix))
+      .map((path) => path.slice(revisionPrefix.length)),
+  );
+  if (selectedRevision.artifacts.length !== availablePaths.size) {
+    throw new Error("Selected Phaser projection manifest does not cover every bundled artifact.");
+  }
+  const paths = new Set<string>();
+  for (const artifact of selectedRevision.artifacts) {
+    if (!availablePaths.has(artifact.path) || paths.has(artifact.path) || artifact.path.startsWith("/") || artifact.path.includes("..")) {
+      throw new Error(`Selected Phaser projection has an invalid artifact path: ${artifact.path}.`);
+    }
+    paths.add(artifact.path);
+    const bytes = await artifactBytes(artifact.path);
+    const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", Uint8Array.from(bytes).buffer));
+    const sha256 = `sha256-${Array.from(digest, (byte) => byte.toString(16).padStart(2, "0")).join("")}`;
+    if (bytes.byteLength !== artifact.bytes || sha256 !== artifact.sha256) {
+      throw new Error(`Selected Phaser projection failed integrity verification for ${artifact.path}.`);
+    }
+  }
+}
+
+async function prepareProjectionModule(): Promise<{ readonly source: string; readonly assetPackUrl: string }> {
+  await verifySelectedRevision();
   const packPath = ["asset-pack", "json"].join(".");
-  const pack = JSON.parse(selectedArtifact(assetPackSources, packPath)) as AssetPack;
+  const pack = JSON.parse(selectedArtifact(revisionRootSources, packPath)) as AssetPack;
   for (const file of pack["shell-runtime"].files) {
     file.url = selectedArtifact(revisionAssetUrls, file.url);
   }
@@ -164,6 +214,49 @@ function actionId(binding: string): string {
   return binding.startsWith("flow.") ? binding.slice(5) : binding;
 }
 
+function authoredActionBounds(scene: Phaser.Scene, object: ProjectedObject): Phaser.Geom.Rectangle | undefined {
+  const semanticBounds = object.getBounds?.();
+  if (!semanticBounds) return undefined;
+  const centerX = semanticBounds.centerX;
+  const centerY = semanticBounds.centerY;
+  const visibleBounds = (scene.children.list as ProjectedObject[]).flatMap((candidate) => {
+    if (candidate === object || candidate.__Semantic || candidate.visible === false || (candidate.alpha ?? 1) <= 0) return [];
+    const bounds = candidate.getBounds?.();
+    return bounds ? [bounds] : [];
+  });
+  if (object.__Semantic?.fabSlot === "toggle-control") {
+    const track = visibleBounds
+      .filter((bounds) => bounds.width >= 40 && bounds.width <= 100 && bounds.height >= 20 && bounds.height <= 60)
+      .filter((bounds) => Math.abs(bounds.centerY - centerY) <= 24)
+      .sort((left, right) => Math.abs(left.centerX - centerX) - Math.abs(right.centerX - centerX))[0];
+    if (track) {
+      const left = Math.min(semanticBounds.left, track.left);
+      const top = Math.min(semanticBounds.top, track.top);
+      const right = Math.max(semanticBounds.right, track.right);
+      const bottom = Math.max(semanticBounds.bottom, track.bottom);
+      const width = Math.max(48, right - left);
+      const height = Math.max(48, bottom - top);
+      return new Phaser.Geom.Rectangle((left + right - width) / 2, (top + bottom - height) / 2, width, height);
+    }
+  }
+  const containing = visibleBounds.filter((bounds) =>
+    bounds.contains(centerX, centerY)
+    && bounds.width >= semanticBounds.width
+    && bounds.height >= semanticBounds.height
+    && bounds.width <= 340
+    && bounds.height <= 120,
+  );
+  const authored = containing.reduce<Phaser.Geom.Rectangle | undefined>((closest, bounds) => {
+    if (!closest) return bounds;
+    const distance = (bounds.centerX - centerX) ** 2 + (bounds.centerY - centerY) ** 2;
+    const closestDistance = (closest.centerX - centerX) ** 2 + (closest.centerY - centerY) ** 2;
+    return distance <= closestDistance ? bounds : closest;
+  }, undefined) ?? semanticBounds;
+  const width = Math.max(48, authored.width);
+  const height = Math.max(48, authored.height);
+  return new Phaser.Geom.Rectangle(authored.centerX - width / 2, authored.centerY - height / 2, width, height);
+}
+
 function colorCss(value: number): string {
   return Phaser.Display.Color.IntegerToColor(value).rgba;
 }
@@ -198,7 +291,7 @@ export async function mountPhaserProjection(options: {
   readonly identity: PhaserProjectionIdentity;
 }): Promise<PhaserProjectionHandle> {
   (globalThis as typeof globalThis & { Phaser?: typeof Phaser }).Phaser = Phaser;
-  const prepared = prepareProjectionModule();
+  const prepared = await prepareProjectionModule();
   const moduleUrl = URL.createObjectURL(new Blob([prepared.source], { type: "text/javascript" }));
   let projection: ProjectionModule;
   try {
@@ -207,7 +300,10 @@ export async function mountPhaserProjection(options: {
     URL.revokeObjectURL(moduleUrl);
   }
   const missing = (Object.keys(SCENE_KEY) as Surface[]).filter((state) => !projection.scenes[state]);
-  if (missing.length > 0) throw new Error(`Selected Phaser projection is missing states: ${missing.join(", ")}`);
+  if (missing.length > 0) {
+    URL.revokeObjectURL(prepared.assetPackUrl);
+    throw new Error(`Selected Phaser projection is missing states: ${missing.join(", ")}`);
+  }
 
   options.mountInto.replaceChildren();
   const game = new Phaser.Game({
@@ -266,13 +362,13 @@ export async function mountPhaserProjection(options: {
     const canvasRect = game.canvas.getBoundingClientRect();
     const worldX = (event.clientX - canvasRect.left) * (390 / canvasRect.width);
     const worldY = (event.clientY - canvasRect.top) * (844 / canvasRect.height);
-    for (const object of scene.children.list as ProjectedObject[]) {
+    for (const object of [...scene.children.list].reverse() as ProjectedObject[]) {
       const semantic = object.__Semantic;
-      const bounds = object.getBounds?.();
+      const bounds = authoredActionBounds(scene, object);
       if (!semantic || !bounds || !bounds.contains(worldX, worldY)) continue;
       if (!semantic.fabBinding.startsWith("flow.") && !semantic.fabBinding.startsWith("settings.") && semantic.fabBinding !== "commerce.bundle") continue;
       const state = actionState(semantic.fabBinding, options.controller.snapshot());
-      if (!state.visible || state.disabled) return;
+      if (!state.visible || state.disabled) continue;
       void invokeBinding(options.controller, semantic.fabBinding).then(() => handle.render());
       return;
     }
@@ -306,7 +402,7 @@ export async function mountPhaserProjection(options: {
       const scaleY = canvasRect.height / 844;
       return (scene.children.list as ProjectedObject[]).flatMap((object) => {
         const semantic = object.__Semantic;
-        const bounds = object.getBounds?.();
+        const bounds = authoredActionBounds(scene, object);
         if (!semantic || !bounds || (!semantic.fabBinding.startsWith("flow.") && !semantic.fabBinding.startsWith("settings.") && semantic.fabBinding !== "commerce.bundle")) return [];
         const state = actionState(semantic.fabBinding, options.controller.snapshot());
         return [{
