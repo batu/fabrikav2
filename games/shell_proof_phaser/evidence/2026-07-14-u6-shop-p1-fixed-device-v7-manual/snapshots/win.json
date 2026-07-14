@@ -1,0 +1,106 @@
+{
+  "reached": true,
+  "probe": {
+    "probeVersion": 1,
+    "gameId": "shell_proof_phaser",
+    "contractId": "shell-presentation-v2",
+    "rendererProfile": "phaser-native",
+    "state": "win",
+    "revision": "sha256-8f2a0286b74bff896ddb760fd1d41360d31d727cbea64bb039622fb4b6aedd97",
+    "sentinel": "8f2a0286",
+    "ready": true,
+    "viewport": {
+      "width": 411,
+      "height": 914,
+      "devicePixelRatio": 2.625
+    },
+    "actions": [
+      {
+        "actionId": "claim",
+        "instanceId": "win.claim",
+        "x": 67.43095292311449,
+        "y": 539.528092370779,
+        "width": 289.56666776216946,
+        "height": 59.09614020614262,
+        "visible": true,
+        "disabled": false
+      },
+      {
+        "actionId": "claim-double",
+        "instanceId": "win.claim-double",
+        "x": 67.43095292311449,
+        "y": 614.3832032985597,
+        "width": 289.56666776216946,
+        "height": 70.91536824737115,
+        "visible": true,
+        "disabled": false
+      },
+      {
+        "actionId": "next",
+        "instanceId": "win.next",
+        "x": 67.43095292311449,
+        "y": 539.528092370779,
+        "width": 289.56666776216946,
+        "height": 59.09614020614262,
+        "visible": false,
+        "disabled": true
+      },
+      {
+        "actionId": "result-home",
+        "instanceId": "win.home",
+        "x": 67.43095292311449,
+        "y": 614.3832032985597,
+        "width": 289.56666776216946,
+        "height": 70.91536824737115,
+        "visible": false,
+        "disabled": true
+      }
+    ]
+  },
+  "controller": {
+    "currentLevel": 3,
+    "completedLevels": [
+      1,
+      2,
+      3
+    ],
+    "currency": 25,
+    "settings": {
+      "music": true,
+      "sfx": true,
+      "haptics": true
+    },
+    "activeLevel": 3,
+    "surface": "win",
+    "scene": "complete",
+    "status": "won",
+    "inputReady": false,
+    "settingsOpen": false,
+    "settingsOrigin": null,
+    "shopOpen": false,
+    "secondaryCurrency": 12,
+    "shopItems": [
+      {
+        "id": "item_alpha",
+        "status": "available"
+      },
+      {
+        "id": "item_beta",
+        "status": "owned"
+      },
+      {
+        "id": "item_gamma",
+        "status": "locked"
+      }
+    ],
+    "adProvider": "proof-rewarded",
+    "rewardAmount": 0,
+    "rewardClaimed": false,
+    "rewardClaimedDouble": false,
+    "adAvailable": true,
+    "continueCost": 10,
+    "continueAffordable": true,
+    "bundleAvailable": true,
+    "bundlePrice": "$4.99"
+  }
+}

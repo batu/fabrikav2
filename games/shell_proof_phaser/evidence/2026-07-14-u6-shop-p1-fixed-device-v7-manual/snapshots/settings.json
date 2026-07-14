@@ -1,0 +1,106 @@
+{
+  "reached": true,
+  "probe": {
+    "probeVersion": 1,
+    "gameId": "shell_proof_phaser",
+    "contractId": "shell-presentation-v2",
+    "rendererProfile": "phaser-native",
+    "state": "settings",
+    "revision": "sha256-8f2a0286b74bff896ddb760fd1d41360d31d727cbea64bb039622fb4b6aedd97",
+    "sentinel": "8f2a0286",
+    "ready": true,
+    "viewport": {
+      "width": 411,
+      "height": 914,
+      "devicePixelRatio": 2.625
+    },
+    "actions": [
+      {
+        "actionId": "settings-back",
+        "instanceId": "settings.back",
+        "x": 35.91349248641576,
+        "y": 82.51794144327607,
+        "width": 55.15555576422276,
+        "height": 55.15639752573311,
+        "visible": true,
+        "disabled": false
+      },
+      {
+        "actionId": "settings.haptics",
+        "instanceId": "settings.haptics",
+        "x": 143.7623024182442,
+        "y": 476.2558249234023,
+        "width": 222.09960401486128,
+        "height": 47.276912164914094,
+        "visible": true,
+        "disabled": false
+      },
+      {
+        "actionId": "settings.music",
+        "instanceId": "settings.music",
+        "x": 150.65674688877203,
+        "y": 309.99868381012107,
+        "width": 215.20515954433344,
+        "height": 47.276912164914094,
+        "visible": true,
+        "disabled": false
+      },
+      {
+        "actionId": "settings.sfx",
+        "instanceId": "settings.sfx",
+        "x": 160.01349295591697,
+        "y": 393.1272543667617,
+        "width": 205.8484134771885,
+        "height": 47.276912164914094,
+        "visible": true,
+        "disabled": false
+      }
+    ]
+  },
+  "controller": {
+    "currentLevel": 3,
+    "completedLevels": [
+      1,
+      2,
+      3
+    ],
+    "currency": 25,
+    "settings": {
+      "music": true,
+      "sfx": true,
+      "haptics": true
+    },
+    "activeLevel": null,
+    "surface": "settings",
+    "scene": "menu",
+    "status": "idle",
+    "inputReady": false,
+    "settingsOpen": true,
+    "settingsOrigin": "menu",
+    "shopOpen": false,
+    "secondaryCurrency": 12,
+    "shopItems": [
+      {
+        "id": "item_alpha",
+        "status": "available"
+      },
+      {
+        "id": "item_beta",
+        "status": "owned"
+      },
+      {
+        "id": "item_gamma",
+        "status": "locked"
+      }
+    ],
+    "adProvider": "proof-rewarded",
+    "rewardAmount": 5,
+    "rewardClaimed": false,
+    "rewardClaimedDouble": false,
+    "adAvailable": true,
+    "continueCost": 10,
+    "continueAffordable": true,
+    "bundleAvailable": true,
+    "bundlePrice": "$4.99"
+  }
+}

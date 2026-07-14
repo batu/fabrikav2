@@ -17,7 +17,7 @@ import {
   stopEditorServer,
   ServerBlocked,
 } from './editorServer.ts';
-import { closeWorkbench, openWorkbench, WorkbenchBlocked, type Workbench } from './workbench.ts';
+import { closeConnectedCdpBrowser, closeWorkbench, openWorkbench, WorkbenchBlocked, type Workbench } from './workbench.ts';
 import { assertNoLeaks, scrubText, type ProvenanceEvidence, type ServerMode } from './evidence.ts';
 import { PathBlocked, REPO_ROOT, resolveScratch } from './paths.ts';
 
@@ -311,6 +311,7 @@ export async function runEditorVariant(options: VariantRunOptions): Promise<Vari
     return result(options, scratch, project, evidencePath, evidence);
   } finally {
     await closeWorkbench(workbench);
+    await closeConnectedCdpBrowser();
     if (server) {
       try {
         await stopEditorServer(server, options.port);

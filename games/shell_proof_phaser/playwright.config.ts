@@ -7,10 +7,13 @@ export default defineConfig(
   basePlaywrightConfig({
     testDir: "tests/e2e",
     webServer: {
-      command: "npm run dev",
-      port: 5199,
+      command: "npm run build && npx vite preview --host 127.0.0.1 --port 5319",
+      port: 5319,
       reuseExistingServer: !process.env.CI,
     },
-    use: { baseURL: "http://localhost:5199" },
+    use: {
+      baseURL: "http://localhost:5319",
+      launchOptions: { executablePath: process.env.CHROMIUM_PATH || undefined },
+    },
   }),
 );

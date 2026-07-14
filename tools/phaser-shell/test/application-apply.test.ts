@@ -49,15 +49,17 @@ afterEach(async () => {
 });
 
 describe('phaser-native immutable application', () => {
-  it('applies accepted A then B and makes the second B a true filesystem no-op', async () => {
+  it('applies distinct accepted P0, A, and B projections and makes the second B a true filesystem no-op', async () => {
     const gameRoot = await tempGame();
     const common = { publicationRoot, gameRoot };
 
+    const p0 = await applyPublication({ ...common, publicationId: accepted.roles.p0.publicationId });
     const a = await applyPublication({ ...common, publicationId: accepted.roles.a.publicationId });
     const b = await applyPublication({ ...common, publicationId: accepted.roles.b.publicationId });
+    expect(p0).toMatchObject({ outcome: 'applied', publicationId: accepted.roles.p0.publicationId });
     expect(a).toMatchObject({ outcome: 'applied', publicationId: accepted.roles.a.publicationId });
     expect(b).toMatchObject({ outcome: 'applied', publicationId: accepted.roles.b.publicationId });
-    expect(a.projectionId).not.toBe(b.projectionId);
+    expect(new Set([p0.projectionId, a.projectionId, b.projectionId]).size).toBe(3);
 
     const before = await snapshot(path.join(gameRoot, 'design'));
     await new Promise((resolve) => setTimeout(resolve, 20));

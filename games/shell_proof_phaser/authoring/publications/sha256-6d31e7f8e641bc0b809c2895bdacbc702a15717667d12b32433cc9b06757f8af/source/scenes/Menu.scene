@@ -1,0 +1,737 @@
+{
+    "id": "shell-menu",
+    "sceneType": "SCENE",
+    "settings": {
+        "exportClass": true,
+        "autoImport": true,
+        "preloadPackFiles": [
+            "assets/asset-pack.json"
+        ],
+        "createMethodName": "editorCreate",
+        "sceneKey": "Menu",
+        "compilerOutputLanguage": "TYPE_SCRIPT",
+        "borderWidth": 390,
+        "borderHeight": 844
+    },
+    "displayList": [
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.backdrop",
+            "label": "menu.fab.backdrop",
+            "x": 195,
+            "y": 422,
+            "isFilled": true,
+            "fillColor": "#f7f6ef",
+            "width": 390,
+            "height": 844
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.header-band",
+            "label": "menu.fab.header-band",
+            "x": 195,
+            "y": 1,
+            "isFilled": true,
+            "fillColor": "#f7f6ef",
+            "fillAlpha": 0,
+            "width": 1,
+            "height": 1
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.counter",
+            "label": "menu.fab.counter",
+            "x": 20,
+            "y": 34,
+            "originX": 0,
+            "originY": 0,
+            "isFilled": true,
+            "fillColor": "#173042",
+            "strokeColor": "#365f70",
+            "strokeAlpha": 0.7,
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 144,
+            "height": 56,
+            "rounded": 28
+        },
+        {
+            "type": "Text",
+            "id": "menu.fab.balance",
+            "label": "menu.fab.balance",
+            "x": 108,
+            "y": 62,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "25 Coins",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "17px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "menu.fab.subtitle",
+            "label": "menu.fab.subtitle",
+            "x": 195,
+            "y": 155,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "A small adventure begins here.",
+            "fontFamily": "kenney_future_narrow",
+            "color": "#3d5968"
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.hero-card",
+            "label": "menu.fab.hero-card",
+            "x": 195,
+            "y": 300,
+            "isFilled": true,
+            "fillColor": "#d7ecec",
+            "strokeColor": "#abc7cc",
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 350,
+            "height": 210,
+            "rounded": 28
+        },
+        {
+            "type": "Text",
+            "id": "menu.fab.hero-label",
+            "label": "menu.fab.hero-label",
+            "x": 48,
+            "y": 242,
+            "originY": 0.5,
+            "text": "TRAIL 2",
+            "fontFamily": "kenney_future_narrow",
+            "color": "#3d5968"
+        },
+        {
+            "type": "Text",
+            "id": "menu.fab.hero-title",
+            "label": "menu.fab.hero-title",
+            "x": 48,
+            "y": 278,
+            "originY": 0.5,
+            "text": "Find the next step",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "20px",
+            "color": "#173042"
+        },
+        {
+            "type": "Text",
+            "id": "menu.fab.hero-copy",
+            "label": "menu.fab.hero-copy",
+            "x": 48,
+            "y": 320,
+            "originY": 0.5,
+            "text": "The trail is ready.",
+            "fontFamily": "kenney_future_narrow",
+            "color": "#3d5968"
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.hero-sun",
+            "label": "menu.fab.hero-sun",
+            "x": 318,
+            "y": 238,
+            "isFilled": true,
+            "fillColor": "#ffeda2",
+            "width": 48,
+            "height": 48,
+            "rounded": 24
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.hero-hill-far",
+            "label": "menu.fab.hero-hill-far",
+            "x": 274,
+            "y": 358,
+            "isFilled": true,
+            "fillColor": "#9bcfb1",
+            "width": 150,
+            "height": 54,
+            "rounded": 27
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.hero-hill-near",
+            "label": "menu.fab.hero-hill-near",
+            "x": 310,
+            "y": 362,
+            "isFilled": true,
+            "fillColor": "#5da77f",
+            "width": 86,
+            "height": 54,
+            "rounded": 27
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.hero-path",
+            "label": "menu.fab.hero-path",
+            "x": 260,
+            "y": 357,
+            "isFilled": true,
+            "fillColor": "#f4e4b7",
+            "width": 30,
+            "height": 56,
+            "rounded": 15
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.hero-node-halo",
+            "label": "menu.fab.hero-node-halo",
+            "x": 1,
+            "y": 1,
+            "isFilled": true,
+            "fillColor": "#f7f6ef",
+            "fillAlpha": 0,
+            "width": 1,
+            "height": 1,
+            "rounded": 38
+        },
+        {
+            "type": "Image",
+            "id": "menu.fab.hero-node",
+            "label": "menu.fab.hero-node",
+            "texture": {
+                "key": "progression_node_current"
+            },
+            "x": 1,
+            "y": 1,
+            "scaleX": 0.01,
+            "scaleY": 0.01,
+            "visible": false
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.hero-flag-pole",
+            "label": "menu.fab.hero-flag-pole",
+            "x": 309,
+            "y": 286,
+            "isFilled": true,
+            "fillColor": "#1f765d",
+            "width": 6,
+            "height": 78,
+            "rounded": 3
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.hero-flag",
+            "label": "menu.fab.hero-flag",
+            "x": 326,
+            "y": 260,
+            "isFilled": true,
+            "fillColor": "#14724f",
+            "width": 40,
+            "height": 28,
+            "rounded": 7
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.progression-card",
+            "label": "menu.fab.progression-card",
+            "x": 195,
+            "y": 560,
+            "isFilled": true,
+            "fillColor": "#ffffff",
+            "strokeColor": "#abc7cc",
+            "strokeAlpha": 0.8,
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 350,
+            "height": 220,
+            "rounded": 28
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.progress-path-left",
+            "label": "menu.fab.progress-path-left",
+            "x": 148,
+            "y": 569,
+            "isFilled": true,
+            "fillColor": "#14724f",
+            "width": 94,
+            "height": 8,
+            "rounded": 4
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.progress-path-right",
+            "label": "menu.fab.progress-path-right",
+            "x": 242,
+            "y": 569,
+            "isFilled": true,
+            "fillColor": "#d8eee4",
+            "width": 94,
+            "height": 8,
+            "rounded": 4
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.node-completed-surface",
+            "label": "menu.fab.node-completed-surface",
+            "x": 101,
+            "y": 557,
+            "isFilled": true,
+            "fillColor": "#72b58e",
+            "width": 64,
+            "height": 64,
+            "rounded": 32
+        },
+        {
+            "type": "Image",
+            "id": "menu.fab.node-completed-icon",
+            "label": "menu.fab.node-completed-icon",
+            "texture": {
+                "key": "icon_control_confirm"
+            },
+            "x": 101,
+            "y": 557,
+            "scaleX": 0.36,
+            "scaleY": 0.36
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.node-current-halo",
+            "label": "menu.fab.node-current-halo",
+            "x": 195,
+            "y": 591,
+            "isFilled": true,
+            "fillColor": "#d8eee4",
+            "width": 76,
+            "height": 76,
+            "rounded": 38
+        },
+        {
+            "type": "Text",
+            "id": "menu.fab.node-current-label",
+            "label": "menu.fab.node-current-label",
+            "x": 195,
+            "y": 632,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "CURRENT · 2",
+            "fontFamily": "kenney_future_narrow",
+            "color": "#1f765d"
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.node-locked-surface",
+            "label": "menu.fab.node-locked-surface",
+            "x": 289,
+            "y": 557,
+            "isFilled": true,
+            "fillColor": "#77939c",
+            "width": 64,
+            "height": 64,
+            "rounded": 32
+        },
+        {
+            "type": "Text",
+            "id": "menu.fab.progress-copy",
+            "label": "menu.fab.progress-copy",
+            "x": 195,
+            "y": 654,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "TRAIL PROGRESS",
+            "fontFamily": "kenney_future_narrow",
+            "color": "#1f765d"
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.dock",
+            "label": "menu.fab.dock",
+            "x": 195,
+            "y": 844,
+            "originY": 1,
+            "isFilled": true,
+            "fillColor": "#ffffff",
+            "width": 390,
+            "height": 144
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.shop-shadow",
+            "label": "menu.fab.shop-shadow",
+            "x": 63,
+            "y": 762,
+            "isFilled": true,
+            "fillColor": "#173042",
+            "fillAlpha": 0.14,
+            "width": 104,
+            "height": 86,
+            "rounded": 20
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.play-shadow",
+            "label": "menu.fab.play-shadow",
+            "x": 195,
+            "y": 758,
+            "isFilled": true,
+            "fillColor": "#173042",
+            "fillAlpha": 0.14,
+            "width": 154,
+            "height": 94,
+            "rounded": 24
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.settings-shadow",
+            "label": "menu.fab.settings-shadow",
+            "x": 327,
+            "y": 762,
+            "isFilled": true,
+            "fillColor": "#173042",
+            "fillAlpha": 0.14,
+            "width": 104,
+            "height": 86,
+            "rounded": 20
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.shop-control",
+            "label": "menu.fab.shop-control",
+            "x": 63,
+            "y": 758,
+            "isFilled": true,
+            "fillColor": "#365f70",
+            "strokeColor": "#1f765d",
+            "strokeAlpha": 0.55,
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 104,
+            "height": 86,
+            "rounded": 20
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.play-control",
+            "label": "menu.fab.play-control",
+            "x": 195,
+            "y": 754,
+            "isFilled": true,
+            "fillColor": "#14724f",
+            "width": 154,
+            "height": 94,
+            "rounded": 24
+        },
+        {
+            "type": "Rectangle",
+            "id": "menu.fab.settings-control",
+            "label": "menu.fab.settings-control",
+            "x": 327,
+            "y": 758,
+            "isFilled": true,
+            "fillColor": "#365f70",
+            "strokeColor": "#1f765d",
+            "strokeAlpha": 0.55,
+            "lineWidth": 2,
+            "isStroked": true,
+            "width": 104,
+            "height": 86,
+            "rounded": 20
+        },
+        {
+            "type": "Image",
+            "id": "menu.fab.play-surface",
+            "label": "menu.fab.play-surface",
+            "texture": {
+                "key": "button_surface_primary"
+            },
+            "x": 195,
+            "y": 798,
+            "scaleX": 0.01,
+            "scaleY": 0.01,
+            "originY": 1,
+            "visible": false
+        },
+        {
+            "type": "Image",
+            "id": "menu.fab.shop-surface",
+            "label": "menu.fab.shop-surface",
+            "texture": {
+                "key": "icon_control_surface"
+            },
+            "x": 100,
+            "y": 730,
+            "scaleX": 0.01,
+            "scaleY": 0.01,
+            "originX": 1,
+            "originY": 0,
+            "visible": false
+        },
+        {
+            "type": "Image",
+            "id": "menu.fab.settings-surface",
+            "label": "menu.fab.settings-surface",
+            "texture": {
+                "key": "icon_control_surface"
+            },
+            "x": 346,
+            "y": 730,
+            "scaleX": 0.01,
+            "scaleY": 0.01,
+            "originX": 1,
+            "originY": 0,
+            "visible": false
+        },
+        {
+            "type": "Image",
+            "id": "menu.fab.play-icon",
+            "label": "menu.fab.play-icon",
+            "texture": {
+                "key": "icon_control_play"
+            },
+            "x": 195,
+            "y": 744,
+            "scaleX": 0.4,
+            "scaleY": 0.4
+        },
+        {
+            "type": "Text",
+            "id": "menu.fab.shop-label",
+            "label": "menu.fab.shop-label",
+            "x": 63,
+            "y": 788,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Shop",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "14px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "menu.fab.settings-label",
+            "label": "menu.fab.settings-label",
+            "x": 327,
+            "y": 788,
+            "originX": 0.5,
+            "originY": 0.5,
+            "text": "Settings",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "14px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Text",
+            "id": "menu.title",
+            "label": "menu.title",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.title",
+            "Semantic.fabRole": "screen-title",
+            "Semantic.fabBinding": "presentation.static",
+            "Semantic.fabSlot": "title-logo",
+            "Semantic.fabVariant": "default",
+            "x": 207,
+            "y": 116,
+            "originX": 0.5,
+            "text": "Morning Shell",
+            "fontFamily": "kenney_future",
+            "fontSize": "24px",
+            "color": "#173042"
+        },
+        {
+            "type": "Container",
+            "id": "menu.hero",
+            "label": "menu.hero",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.hero",
+            "Semantic.fabRole": "hero-art",
+            "Semantic.fabBinding": "presentation.static",
+            "Semantic.fabSlot": "hero-art",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 312.28
+        },
+        {
+            "type": "Image",
+            "id": "menu.currency",
+            "label": "menu.currency",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.currency",
+            "Semantic.fabRole": "currency-counter",
+            "Semantic.fabBinding": "state.primary-currency",
+            "Semantic.fabSlot": "counter-frame",
+            "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "counter_frame_primary_currency"
+            },
+            "x": 28,
+            "y": 44,
+            "scaleX": 0.36,
+            "scaleY": 0.36,
+            "originX": 0,
+            "originY": 0
+        },
+        {
+            "type": "Container",
+            "id": "menu.nav",
+            "label": "menu.nav",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.nav",
+            "Semantic.fabRole": "bottom-nav",
+            "Semantic.fabBinding": "presentation.static",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 827.12
+        },
+        {
+            "type": "Image",
+            "id": "menu.shop",
+            "label": "menu.shop",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.shop",
+            "Semantic.fabRole": "top-icon-action",
+            "Semantic.fabBinding": "flow.open-shop",
+            "Semantic.fabSlot": "icon-control",
+            "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "icon_control_shop"
+            },
+            "x": 83,
+            "y": 738,
+            "scaleX": 0.4,
+            "scaleY": 0.4,
+            "originX": 1,
+            "originY": 0
+        },
+        {
+            "type": "Text",
+            "id": "menu.play",
+            "label": "menu.play",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.play",
+            "Semantic.fabRole": "bottom-primary-action",
+            "Semantic.fabBinding": "flow.start-current",
+            "Semantic.fabSlot": "button-surface",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 786,
+            "originX": 0.5,
+            "originY": 1,
+            "text": "Play",
+            "fontFamily": "kenney_future_narrow",
+            "fontSize": "18px",
+            "color": "#ffffff"
+        },
+        {
+            "type": "Image",
+            "id": "menu.settings",
+            "label": "menu.settings",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.settings",
+            "Semantic.fabRole": "top-icon-action",
+            "Semantic.fabBinding": "flow.open-settings",
+            "Semantic.fabSlot": "icon-control",
+            "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "icon_control_settings"
+            },
+            "x": 347,
+            "y": 738,
+            "scaleX": 0.4,
+            "scaleY": 0.4,
+            "originX": 1,
+            "originY": 0
+        },
+        {
+            "type": "Container",
+            "id": "menu.progression-map",
+            "label": "menu.progression-map",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.progression-map",
+            "Semantic.fabRole": "progression-map",
+            "Semantic.fabBinding": "state.progression",
+            "Semantic.fabVariant": "default",
+            "x": 195,
+            "y": 548.6
+        },
+        {
+            "type": "Image",
+            "id": "menu.node.completed",
+            "label": "menu.node.completed",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.node.completed",
+            "Semantic.fabRole": "progression-node",
+            "Semantic.fabBinding": "state.progression",
+            "Semantic.fabSlot": "progression-node",
+            "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "progression_node_completed"
+            },
+            "x": 101.4,
+            "y": 557.04,
+            "scaleX": 0.01,
+            "scaleY": 0.01
+        },
+        {
+            "type": "Image",
+            "id": "menu.node.current",
+            "label": "menu.node.current",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.node.current",
+            "Semantic.fabRole": "progression-node",
+            "Semantic.fabBinding": "flow.start-current",
+            "Semantic.fabSlot": "progression-node",
+            "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "progression_node_current"
+            },
+            "x": 195,
+            "y": 590.8,
+            "scaleX": 0.45703125,
+            "scaleY": 0.5275
+        },
+        {
+            "type": "Image",
+            "id": "menu.node.locked",
+            "label": "menu.node.locked",
+            "components": [
+                "Semantic"
+            ],
+            "Semantic.fabSemanticId": "menu.node.locked",
+            "Semantic.fabRole": "progression-node",
+            "Semantic.fabBinding": "state.progression",
+            "Semantic.fabSlot": "progression-node",
+            "Semantic.fabVariant": "default",
+            "texture": {
+                "key": "progression_node_locked"
+            },
+            "x": 288.6,
+            "y": 557.04,
+            "scaleX": 0.42,
+            "scaleY": 0.42
+        }
+    ],
+    "plainObjects": [],
+    "meta": {
+        "app": "Phaser Editor - Scene Editor",
+        "url": "https://phaser.io/editor",
+        "contentType": "phasereditor2d.core.scene.SceneContentType",
+        "version": 5
+    }
+}

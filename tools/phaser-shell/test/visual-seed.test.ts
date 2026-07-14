@@ -175,16 +175,50 @@ describe('session/visualSeed — deterministic companion recipe', () => {
     }
   });
 
-  it('uses accessible controls and clear trophy backings without changing action geometry', () => {
+  it('uses accessible controls without changing action geometry', () => {
     const level = planForScene('Level.scene')!;
     expect(level.companions).toEqual(expect.arrayContaining([
       expect.objectContaining({ id: 'level.fab.marker-goal', fillColor: '#1f765d' }),
       expect.objectContaining({ id: 'level.fab.test-win-control', width: 160, height: 56, fillColor: '#14724f' }),
       expect.objectContaining({ id: 'level.fab.test-lose-control', width: 160, height: 56, fillColor: '#a94f46' }),
     ]));
-    expect(planForScene('Shop.scene')!.companions).toContainEqual(
-      expect.objectContaining({ id: 'shop.fab.item-locked-trophy', fillColor: '#1f765d' }),
+  });
+
+  it('retires every player-visible surface of the third Shop card', () => {
+    const shop = planForScene('Shop.scene')!;
+    const retiredIds = [
+      'shop.fab.item-locked-shadow',
+      'shop.fab.item-locked-card',
+      'shop.fab.item-locked-trophy',
+      'shop.fab.item-locked-icon-surface',
+      'shop.fab.item-locked-trophy-icon',
+      'shop.fab.item-locked-detail',
+      'shop.fab.item-locked-status-surface',
+      'shop.fab.item-locked-status',
+    ];
+    const retired = shop.companions.filter((entry) => retiredIds.includes(entry.id));
+    expect(retired.map((entry) => entry.id)).toEqual(retiredIds);
+    for (const companion of retired) {
+      expect(companion.x, companion.id).toBe(1);
+      expect(companion.y, companion.id).toBe(1);
+      if (companion.kind === 'rect') {
+        expect(companion.fillAlpha, companion.id).toBe(0);
+        if (companion.id.endsWith('-card') || companion.id.endsWith('-status-surface')) {
+          expect(companion.strokeAlpha, companion.id).toBe(0);
+        }
+      }
+      if (companion.kind === 'image') expect(companion.visible, companion.id).toBe(false);
+      if (companion.kind === 'text') expect(companion.text, companion.id).toBe(' ');
+    }
+    expect(shop.semanticCopy).toContainEqual(
+      { semanticId: 'shop.item.locked', property: 'text', value: ' ' },
     );
+    expect(shop.semanticGeometry).toEqual(expect.arrayContaining([
+      { semanticId: 'shop.item.locked', property: 'x', value: 195 },
+      { semanticId: 'shop.item.locked', property: 'y', value: 526 },
+      { semanticId: 'shop.item.locked', property: 'scaleX', value: 0.01 },
+      { semanticId: 'shop.item.locked', property: 'scaleY', value: 0.01 },
+    ]));
   });
 
   it('keeps result actions above the mobile safe area and preserves tertiary hierarchy', () => {
@@ -213,7 +247,7 @@ describe('session/visualSeed — deterministic companion recipe', () => {
 
     const shop = planForScene('Shop.scene')!;
     expect(shop.companions).toEqual(expect.arrayContaining([
-      expect.objectContaining({ id: 'shop.fab.item-locked-card', x: 195 }),
+      expect.objectContaining({ id: 'shop.fab.item-locked-card', x: 1, y: 1, fillAlpha: 0 }),
       expect.objectContaining({ id: 'shop.fab.item-owned-detail', text: ' ' }),
     ]));
     expect(shop.semanticGeometry).toContainEqual(

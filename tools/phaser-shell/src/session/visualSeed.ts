@@ -37,7 +37,7 @@ import {
   stopEditorServer,
   ServerBlocked,
 } from './editorServer.ts';
-import { closeWorkbench, openWorkbench, WorkbenchBlocked, type Workbench } from './workbench.ts';
+import { closeConnectedCdpBrowser, closeWorkbench, openWorkbench, WorkbenchBlocked, type Workbench } from './workbench.ts';
 import { assertNoLeaks, scrubText, type ProvenanceEvidence, type ServerMode } from './evidence.ts';
 import { PathBlocked, REPO_ROOT, resolveScratch } from './paths.ts';
 
@@ -53,11 +53,12 @@ export const RESULT_COPY = {
   'fail.bundle': 'Rescue bundle · $4.99\nContinue this level',
 } as const;
 
-/** Structural placeholder shop copy; no checkout or real-price claim is implied. */
+/** Two-card structural placeholder shop copy; no checkout or real-price claim is implied. */
 export const SHOP_COPY = {
   'shop.item.available': 'Coin Pack',
   'shop.item.owned': 'No Ads',
-  'shop.item.locked': 'VIP Bundle',
+  // The schema-required third carrier is deliberately inert in the V1 shop.
+  'shop.item.locked': ' ',
   'shop.restore': 'Restore purchases',
 } as const;
 
@@ -488,17 +489,18 @@ export const VISUAL_SEED: readonly SceneVisualPlan[] = [
       rect('shop.fab.item-owned-shadow', 286, 330, 160, 176, COLOR.ink, {
         rounded: 20, fillAlpha: 0.12,
       }),
-      rect('shop.fab.item-locked-shadow', 195, 530, 160, 176, COLOR.ink, {
-        rounded: 20, fillAlpha: 0.1,
-      }),
+      // Retire the third/VIP card in place. The visual seed is an idempotent
+      // Editor upsert, so every previously persisted object must receive an
+      // explicit inert value or an older scene can keep rendering it.
+      rect('shop.fab.item-locked-shadow', 1, 1, 1, 1, COLOR.page, { fillAlpha: 0 }),
       rect('shop.fab.item-available-card', 104, 326, 160, 176, '#fff1c7', {
         rounded: 20,
       }),
       rect('shop.fab.item-owned-card', 286, 326, 160, 176, COLOR.accentSoft, {
         rounded: 20,
       }),
-      rect('shop.fab.item-locked-card', 195, 526, 160, 176, COLOR.header, {
-        rounded: 20,
+      rect('shop.fab.item-locked-card', 1, 1, 1, 1, COLOR.page, {
+        fillAlpha: 0, strokeColor: COLOR.page, strokeAlpha: 0, lineWidth: 0,
       }),
       rect('shop.fab.item-fourth-card', 1, 1, 1, 1, COLOR.page, { fillAlpha: 0 }),
       text('shop.fab.item-fourth-label', 1, 1, ' ', {
@@ -542,15 +544,17 @@ export const VISUAL_SEED: readonly SceneVisualPlan[] = [
       text('shop.fab.item-owned-status', 286, 386, 'OWNED', {
         fontFamily: BODY_FONT, fontSize: '14px', color: COLOR.accentDark,
       }),
-      rect('shop.fab.item-locked-trophy', 195, 478, 54, 48, COLOR.accentDark, { rounded: 15 }),
+      rect('shop.fab.item-locked-trophy', 1, 1, 1, 1, COLOR.page, { fillAlpha: 0 }),
       rect('shop.fab.item-locked-icon-surface', 1, 1, 1, 1, COLOR.page, { fillAlpha: 0 }),
-      img('shop.fab.item-locked-trophy-icon', 195, 478, 'icon_control_result_win', 0.25, 0.25, 0.5, 0.5),
-      text('shop.fab.item-locked-detail', 195, 551, 'Coming later', {
-        fontFamily: BODY_FONT, fontSize: '15px', color: COLOR.mutedInk,
+      img('shop.fab.item-locked-trophy-icon', 1, 1, 'icon_control_result_win', 0.01, 0.01, 0.5, 0.5, false),
+      text('shop.fab.item-locked-detail', 1, 1, ' ', {
+        fontFamily: BODY_FONT, fontSize: '15px', color: COLOR.page,
       }),
-      rect('shop.fab.item-locked-status-surface', 195, 586, 132, 48, '#d4dfe2', { rounded: 16 }),
-      text('shop.fab.item-locked-status', 195, 586, 'LOCKED', {
-        fontFamily: BODY_FONT, fontSize: '14px', color: COLOR.mutedInk,
+      rect('shop.fab.item-locked-status-surface', 1, 1, 1, 1, COLOR.page, {
+        fillAlpha: 0, strokeColor: COLOR.page, strokeAlpha: 0, lineWidth: 0,
+      }),
+      text('shop.fab.item-locked-status', 1, 1, ' ', {
+        fontFamily: BODY_FONT, fontSize: '14px', color: COLOR.page,
       }),
       rect('shop.fab.restore-card', 195, 742, 350, 148, COLOR.card, {
         rounded: 22, strokeColor: COLOR.border, strokeAlpha: 1, lineWidth: 2,
@@ -581,7 +585,7 @@ export const VISUAL_SEED: readonly SceneVisualPlan[] = [
       { semanticId: 'shop.item.owned', property: 'color', value: COLOR.ink },
       { semanticId: 'shop.item.locked', property: 'fontFamily', value: BODY_FONT },
       { semanticId: 'shop.item.locked', property: 'fontSize', value: '18px' },
-      { semanticId: 'shop.item.locked', property: 'color', value: COLOR.ink },
+      { semanticId: 'shop.item.locked', property: 'color', value: COLOR.page },
       { semanticId: 'shop.restore', property: 'fontFamily', value: BODY_FONT },
       { semanticId: 'shop.restore', property: 'fontSize', value: '17px' },
     ],
@@ -603,8 +607,12 @@ export const VISUAL_SEED: readonly SceneVisualPlan[] = [
       { semanticId: 'shop.item.available', property: 'y', value: 321 },
       { semanticId: 'shop.item.owned', property: 'x', value: 286 },
       { semanticId: 'shop.item.owned', property: 'y', value: 321 },
+      // Keep the schema carrier inside representable bounds while making it
+      // blank, page-coloured, and effectively zero-sized.
       { semanticId: 'shop.item.locked', property: 'x', value: 195 },
-      { semanticId: 'shop.item.locked', property: 'y', value: 521 },
+      { semanticId: 'shop.item.locked', property: 'y', value: 526 },
+      { semanticId: 'shop.item.locked', property: 'scaleX', value: 0.01 },
+      { semanticId: 'shop.item.locked', property: 'scaleY', value: 0.01 },
       { semanticId: 'shop.restore', property: 'y', value: 786 },
       { semanticId: 'shop.restore', property: 'originY', value: 1 },
     ],
@@ -1304,6 +1312,7 @@ export async function runVisualSeed(options: VisualSeedOptions): Promise<VisualS
     return { result: 'blocked', code: evidence.code, scratch, project, evidencePath, evidence };
   } finally {
     await closeWorkbench(workbench);
+    await closeConnectedCdpBrowser();
     if (server) {
       try {
         await stopEditorServer(server, port);

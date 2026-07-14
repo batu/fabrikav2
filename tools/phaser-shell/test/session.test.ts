@@ -30,6 +30,7 @@ import {
 import { runLaunch } from '../src/launch.ts';
 import { resetToScratch } from '../src/reset.ts';
 import { repoPath } from './helpers.ts';
+import { resolveCdpEndpoint, WorkbenchBlocked } from '../src/session/workbench.ts';
 
 const tmps: string[] = [];
 function tmp(): string {
@@ -39,6 +40,21 @@ function tmp(): string {
 }
 afterEach(() => {
   while (tmps.length) rmSync(tmps.pop()!, { recursive: true, force: true });
+});
+
+describe('session/workbench — optional SSH/CDP browser transport', () => {
+  it('accepts only explicit loopback HTTP(S) endpoints', () => {
+    expect(resolveCdpEndpoint(undefined)).toBeUndefined();
+    expect(resolveCdpEndpoint('  ')).toBeUndefined();
+    expect(resolveCdpEndpoint('http://127.0.0.1:19225')).toBe('http://127.0.0.1:19225/');
+    expect(resolveCdpEndpoint('https://localhost:19225/devtools')).toBe('https://localhost:19225/devtools');
+  });
+
+  it('rejects malformed, non-HTTP, and non-loopback CDP endpoints', () => {
+    for (const endpoint of ['not a url', 'ws://127.0.0.1:19225', 'http://example.com:19225']) {
+      expect(() => resolveCdpEndpoint(endpoint)).toThrow(WorkbenchBlocked);
+    }
+  });
 });
 
 // Guarantee no test can ever spawn the real installed editor: force a bogus

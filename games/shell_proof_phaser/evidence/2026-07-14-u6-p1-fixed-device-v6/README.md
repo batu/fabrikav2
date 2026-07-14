@@ -1,4 +1,9 @@
-# U6 Pixel 6a P1 repair evidence
+# U6 Pixel 6a P1 repair evidence (superseded)
+
+This capture set is retained as historical evidence, but its Shop frame still
+contains the VIP Bundle/locked third card. The claim below that the stray item
+was absent was incorrect. The authoritative repair and fresh physical-device
+proof are in `../2026-07-14-u6-shop-p1-fixed-device-v7-manual/`.
 
 Target: Pixel 6a `27091JEGR22183`, Android WebView, explicit Phaser WEBGL.
 

@@ -1,15 +1,15 @@
 {
   "schema": "u5.phaser.recovered-provenance/1",
-  "recoveredFrom": "tool_result records of the 2026-07-14 real-Editor authoring session that produced the accepted P0/A/B chain (card comments 52, 55, 56)",
+  "recoveredFrom": "tool results and scrubbed evidence from the 2026-07-14 real-Editor authoring session that removed the player-visible third Shop card and republished P0/A/B",
   "scrubbing": "Only scrubbed, hash-only facts are recorded here: publicationIds, sha256 digests, booleans, run timestamps, canonical relative module names, scene names, and edit descriptors. No credentials, no account owner, and no absolute or home-directory paths. The raw session transcript (JSONL) is deliberately NOT committed.",
   "evidenceLegend": {
     "reduced-tool-output": "Only the launch/publish result flags survived in the recovered tool output; the per-run full hash-rich u5.phaser.provenance/1 file was written to a disposable scratch outside the repo and is no longer available. The launch flags below (result/deterministic/endpointDown/authStable/genStable) are the surviving facts.",
     "full-hash-rich": "The complete u5.phaser.provenance/1 record survives and is committed byte-for-byte alongside this file, independently sha256-verifiable."
   },
   "acceptedPublications": {
-    "p0": "sha256-c27be2bfce72bf8950347f28ddba6867ed36c65ebb54849b1f376ff5dc14b8b7",
-    "a": "sha256-3b4d7cdb957751919a8c8fe1fbaa795ea8d5f64c6e51c8f3300c691cb258b1e8",
-    "b": "sha256-35690099c42593fc9811c2def04218957aa918111d110a174a2bfb9485e7bbb9"
+    "p0": "sha256-c449daaa2a479bf47caf6ed97fb73129303ce0c051ddd281e1c2d229e5d16253",
+    "a": "sha256-6d31e7f8e641bc0b809c2895bdacbc702a15717667d12b32433cc9b06757f8af",
+    "b": "sha256-9b380659304aad012337a0e6a75a815c6d0a419f1116c04c1cf4e29de98c2980"
   },
   "acceptedValidation": {
     "source": "recovered handoff-validation tool_result",
@@ -22,7 +22,7 @@
     "p0": {
       "role": "p0 — frozen-seed clean project BEFORE any edit",
       "evidenceClass": "reduced-tool-output",
-      "scratchP0Hash": "sha256-41e5c793868690ec8d927c004f964787d1b6261099896f1f535b062e3aba62e1",
+      "scratchP0Hash": "sha256-bf8c30cc5016ae008ae47c4d7d4e3d708bbd9910e66b69fb1e6a95b7b81c5be9",
       "launch": {
         "result": "ok",
         "serverMode": { "desktop": true, "unlocked": true },
@@ -30,11 +30,11 @@
         "endpointDown": true,
         "authStable": true,
         "genStable": true,
-        "runId": "2026-07-14T10-01-14-855Z-ff8673e1"
+        "runId": "2026-07-14-u6-shop-repair"
       },
       "publish": {
         "result": "ok",
-        "publicationId": "sha256-c27be2bfce72bf8950347f28ddba6867ed36c65ebb54849b1f376ff5dc14b8b7"
+        "publicationId": "sha256-c449daaa2a479bf47caf6ed97fb73129303ce0c051ddd281e1c2d229e5d16253"
       }
     },
     "a": {
@@ -50,9 +50,9 @@
       },
       "publish": {
         "result": "ok",
-        "publicationId": "sha256-3b4d7cdb957751919a8c8fe1fbaa795ea8d5f64c6e51c8f3300c691cb258b1e8"
+        "publicationId": "sha256-6d31e7f8e641bc0b809c2895bdacbc702a15717667d12b32433cc9b06757f8af"
       },
-      "verify": { "menuTitle": "Morning Shell", "vipOverlapIconRefs": 0 }
+      "verify": { "menuTitle": "Morning Shell", "playerVisibleThirdShopCardRefs": 0 }
     },
     "b": {
       "role": "b — distinct second accepted matched-edit bundle (menu.settings icon swap; U6 applies it twice)",
@@ -67,21 +67,21 @@
       },
       "publish": {
         "result": "ok",
-        "publicationId": "sha256-35690099c42593fc9811c2def04218957aa918111d110a174a2bfb9485e7bbb9"
+        "publicationId": "sha256-9b380659304aad012337a0e6a75a815c6d0a419f1116c04c1cf4e29de98c2980"
       },
-      "verify": { "menuSettingsTexture": "icon_control_confirm", "vipOverlapIconRefs": 0, "distinctFromA": true },
+      "verify": { "menuSettingsTexture": "icon_control_confirm", "playerVisibleThirdShopCardRefs": 0, "distinctFromA": true },
       "fullProvenance": {
         "file": "provenance-b.full.json",
         "schema": "u5.phaser.provenance/1",
-        "sha256": "sha256-e47181ddfee2c7d7883ef3625fd58f9637b4ddf6c44f29fdb8e6c871fe889676",
-        "runId": "2026-07-14T10-46-01-661Z-08ad0c09",
+        "sha256": "sha256-977b43af77a04c07a0ae7d1cce161d1981bd7adeb282c319e072d8df90ab0218",
+        "runId": "2026-07-14-u6-shop-repair-b",
         "summary": {
           "serverMode": { "desktop": true, "unlocked": true },
           "serverModeAfterRestart": { "desktop": true, "unlocked": true },
           "compileDeterministic": true,
-          "compileCombined": "sha256-30c4ab3309fb6370f60ec00a232521f1db2a96ba3dd9d2ddfc8a168d9cd3d07b",
+          "compileCombined": "sha256-143a6ab4d6725b7466f97ad9facccbe5f7c138b87bbd52c8c913abbffce3c15a",
           "authorityStableAcrossRestart": true,
-          "authorityCombined": "sha256-a3cd61f6438029ccf3b610f2d8ddd69b1619f33fb8905d0dda4f00207c9511eb",
+          "authorityCombined": "sha256-73e0b37d2ac4acd98b86c7b06bf7ecd3280c712fd0a8dc0bedca4cb785014ff8",
           "generatedStableAcrossRestart": true,
           "restartEndpointDownProven": true,
           "sceneOrder": ["Menu", "Level", "Shop", "Settings", "Pause", "Win", "Fail"]

@@ -32,7 +32,15 @@ import {
   resolveServerBin,
   ServerBlocked,
 } from './editorServer.ts';
-import { openWorkbench, closeWorkbench, compileProject, openAndSaveScene, WorkbenchBlocked, type Workbench } from './workbench.ts';
+import {
+  openWorkbench,
+  closeWorkbench,
+  closeConnectedCdpBrowser,
+  compileProject,
+  openAndSaveScene,
+  WorkbenchBlocked,
+  type Workbench,
+} from './workbench.ts';
 import { scrubText, writeEvidence, type ProvenanceEvidence } from './evidence.ts';
 
 export interface CaptureOptions {
@@ -186,6 +194,7 @@ export async function captureProvenance(opts: CaptureOptions): Promise<CaptureRe
     return finalize(ev, output, code, message(err), roots);
   } finally {
     await closeWorkbench(wb);
+    await closeConnectedCdpBrowser();
     if (server) {
       try {
         await stopEditorServer(server, port);

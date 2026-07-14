@@ -1,0 +1,96 @@
+{
+  "reached": true,
+  "probe": {
+    "probeVersion": 1,
+    "gameId": "shell_proof_phaser",
+    "contractId": "shell-presentation-v2",
+    "rendererProfile": "phaser-native",
+    "state": "pause",
+    "revision": "sha256-8f2a0286b74bff896ddb760fd1d41360d31d727cbea64bb039622fb4b6aedd97",
+    "sentinel": "8f2a0286",
+    "ready": true,
+    "viewport": {
+      "width": 411,
+      "height": 914,
+      "devicePixelRatio": 2.625
+    },
+    "actions": [
+      {
+        "actionId": "open-settings",
+        "instanceId": "pause.settings",
+        "x": 68.41587356176132,
+        "y": 575.970712164567,
+        "width": 287.5968264848758,
+        "height": 61.066011546347376,
+        "visible": true,
+        "disabled": false
+      },
+      {
+        "actionId": "pause-home",
+        "instanceId": "pause.home",
+        "x": 68.41587356176132,
+        "y": 660.6751797933714,
+        "width": 287.5968264848758,
+        "height": 61.066011546347376,
+        "visible": true,
+        "disabled": false
+      },
+      {
+        "actionId": "resume",
+        "instanceId": "pause.resume",
+        "x": 68.41587356176132,
+        "y": 491.26624453576255,
+        "width": 287.5968264848758,
+        "height": 61.066011546347376,
+        "visible": true,
+        "disabled": false
+      }
+    ]
+  },
+  "controller": {
+    "currentLevel": 3,
+    "completedLevels": [
+      1,
+      2,
+      3
+    ],
+    "currency": 25,
+    "settings": {
+      "music": true,
+      "sfx": true,
+      "haptics": true
+    },
+    "activeLevel": 3,
+    "surface": "pause",
+    "scene": "paused",
+    "status": "paused",
+    "inputReady": false,
+    "settingsOpen": false,
+    "settingsOrigin": null,
+    "shopOpen": false,
+    "secondaryCurrency": 12,
+    "shopItems": [
+      {
+        "id": "item_alpha",
+        "status": "available"
+      },
+      {
+        "id": "item_beta",
+        "status": "owned"
+      },
+      {
+        "id": "item_gamma",
+        "status": "locked"
+      }
+    ],
+    "adProvider": "proof-rewarded",
+    "rewardAmount": 5,
+    "rewardClaimed": false,
+    "rewardClaimedDouble": false,
+    "adAvailable": true,
+    "continueCost": 10,
+    "continueAffordable": true,
+    "bundleAvailable": true,
+    "bundlePrice": "$4.99"
+  }
+}

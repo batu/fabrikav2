@@ -7,7 +7,7 @@
 // finding 2). Chromium comes from this workspace's declared `@playwright/test`
 // (the render-proof spec's driver), loaded as a dynamic import so the module
 // stays loadable without a browser installed — no new dependency, lock unchanged.
-import type { Browser, Page } from '@playwright/test';
+import type { Browser, BrowserContext, Page } from '@playwright/test';
 import process from 'node:process';
 
 /** Workbench command ids (carried from the U2 editor-session driver). */
@@ -26,10 +26,28 @@ export class WorkbenchBlocked extends Error {
 }
 
 const LOOPBACK_HOSTS = new Set(['127.0.0.1', 'localhost', '::1', '[::1]']);
+let connectedCdpBrowser: Browser | null = null;
 
 export interface Workbench {
   browser: Browser;
+  context: BrowserContext;
   page: Page;
+  ownsBrowser: boolean;
+}
+
+/** Accept only a loopback CDP endpoint; the remote browser reaches the Editor through an SSH reverse tunnel. */
+export function resolveCdpEndpoint(raw: string | undefined): string | undefined {
+  if (!raw?.trim()) return undefined;
+  let endpoint: URL;
+  try {
+    endpoint = new URL(raw.trim());
+  } catch {
+    throw new WorkbenchBlocked('browser-cdp-endpoint', 'CHROMIUM_CDP_URL must be a valid loopback URL');
+  }
+  if (!['http:', 'https:'].includes(endpoint.protocol) || !LOOPBACK_HOSTS.has(endpoint.hostname)) {
+    throw new WorkbenchBlocked('browser-cdp-endpoint', 'CHROMIUM_CDP_URL must be an HTTP(S) loopback URL');
+  }
+  return endpoint.href;
 }
 
 /**
@@ -44,9 +62,15 @@ export async function openWorkbench(port: number): Promise<Workbench> {
     throw new WorkbenchBlocked('browser-driver-missing', 'the Chromium driver (@playwright/test) is unavailable');
   }
   const executablePath = process.env.CHROMIUM_PATH || undefined;
+  const cdpEndpoint = resolveCdpEndpoint(process.env.CHROMIUM_CDP_URL);
   let browser: Browser;
   try {
-    browser = await chromium.launch({ headless: true, executablePath });
+    if (cdpEndpoint) {
+      if (!connectedCdpBrowser?.isConnected()) connectedCdpBrowser = await chromium.connectOverCDP(cdpEndpoint);
+      browser = connectedCdpBrowser;
+    } else {
+      browser = await chromium.launch({ headless: true, executablePath });
+    }
   } catch {
     throw new WorkbenchBlocked('browser-launch-failed', 'a headless Chromium could not be launched');
   }
@@ -73,7 +97,19 @@ export async function openWorkbench(port: number): Promise<Workbench> {
     { timeout: 60_000 },
   );
   await page.waitForTimeout(3_000); // project scan / part restore
-  return { browser, page };
+  return { browser, context, page, ownsBrowser: cdpEndpoint === undefined };
+}
+
+/** End the optional external CDP session after a complete compile/restart protocol. */
+export async function closeConnectedCdpBrowser(): Promise<void> {
+  const browser = connectedCdpBrowser;
+  connectedCdpBrowser = null;
+  if (!browser) return;
+  try {
+    await browser.close();
+  } catch {
+    /* already disconnected */
+  }
 }
 
 /** Execute a workbench command by id. */
@@ -130,12 +166,19 @@ export async function openAndSaveScene(page: Page, sceneFileName: string): Promi
   await page.waitForTimeout(500);
 }
 
-/** Close the browser (best-effort). */
+/** Close this workbench; externally managed CDP browsers stay alive for restart/reopen. */
 export async function closeWorkbench(wb: Workbench | null): Promise<void> {
   if (!wb) return;
   try {
-    await wb.browser.close();
+    await wb.context.close();
   } catch {
     /* already gone */
+  }
+  if (wb.ownsBrowser) {
+    try {
+      await wb.browser.close();
+    } catch {
+      /* already gone */
+    }
   }
 }
