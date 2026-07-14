@@ -18,7 +18,7 @@ reference:
 # V2 lane = the fabrika v2 port, driven by the game harness driveTo(state).
 # Gated on the sibling harness card; until it lands the v2 lane is offline-only.
 v2:
-  package: com.fabrikav2.marble_run
+  package: com.appletolye.marblerun.dev
   version: dev
   viewport: 390x844
 
@@ -27,7 +27,11 @@ v2:
 # physical-pixel status area from device captures before phash + panel judging;
 # raw captures are still preserved in the evidence directory.
 verifyDevice:
+  platform: android
+  defaultDevice: 27091JEGR22183
   contentInsetTop: 130
+  androidContentInsetTop: 72
+  androidContentInsetBottom: 96
   regions:
     - name: gameplay_top_hud
       label: Gameplay top HUD hearts and settings band

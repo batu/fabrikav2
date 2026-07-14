@@ -1,0 +1,231 @@
+schema: fabrikav2-editor-reference-screens/v1
+game: marble_run
+source_sha: 4cb6f596
+authority: validation-facts-only
+canonical_viewport:
+  width_css_px: 390
+  height_css_px: 844
+  orientation: portrait
+  scale_contract: uniform-fit-to-other-portrait-sizes
+  safe_area:
+    viewport_fit: cover
+    top: "env(safe-area-inset-top) via --fab-safe-top"
+    bottom: "no game-owned bottom inset; retain device navigation area outside judged content"
+layer_order:
+  - { id: gameplay-canvas, z: 0, mount: "#scene" }
+  - { id: gameplay-hud, z: 1, mount: "#hud" }
+  - { id: lifecycle-ui, z: 2, mount: "#ui" }
+  - { id: modal-backdrop, z: 10, selector: ".fab-modal-backdrop" }
+  - { id: slide-page, z: 20, selector: ".fab-page" }
+excluded_mechanics:
+  - Three.js board and marbles
+  - puzzle physics and solver behavior
+  - gameplay camera and lighting
+  - economy, ads, purchases, and progression behavior
+excluded_transients:
+  - tutorial pointer and guidance
+  - connectivity and toast notifications
+  - coin-flight animation
+  - delayed fail/loading controls
+placeholder_gameplay_background:
+  required: true
+  contract: "neutral non-interactive field behind the exact gameplay HUD; no board, marbles, routes, camera, or fake mechanics"
+  color: "#6b568e"
+
+screens:
+  - id: menu
+    kind: primary
+    visible_when: "flow scene=menu and page stack empty"
+    root: { seed: menu.root, parent: lifecycle-ui, z: 0, render: "mountHomeMenu" }
+    elements:
+      - { role: ambient-confetti, seed: menu.confetti, parent: menu.header, z: 0, copy: null, render: "16 deterministic CSS spans; hidden for reduced motion", geometry: "fixed viewport inset 0", visibility: "motion preference allows" }
+      - { role: top-bar, seed: menu.topbar, parent: menu.header, z: 1, copy: null, render: DOM, geometry: "top calc(12px + safe-top), left/right 14px", visibility: always }
+      - { role: currency-button, seed: menu.currency, parent: menu.topbar, z: 0, copy: "live coin balance", render: "icon-coin.png + DOM text", geometry: "left top-bar pill", visibility: always }
+      - { role: settings-button, seed: menu.settings, parent: menu.topbar, z: 0, copy: Settings, render: "icon-settings.png", geometry: "right top-bar control", visibility: always }
+      - { role: brand-banner, seed: menu.banner, parent: menu.header, z: 0, copy: "Marble Run", render: "marble-run-banner.webp with DOM title overlay", geometry: "centered menu header", visibility: always }
+      - { role: saga-track, seed: menu.saga.track, parent: menu.content, z: 0, copy: null, render: "CSS 9px vertical rail", geometry: "centered, min-height min(455px,100%), translateY(-8px)", visibility: always }
+      - { role: completed-level-node, seed: "menu.saga.completed.{levelId}", parent: menu.saga.track, z: 1, copy: "level number", render: "level-node-completed.webp", geometry: "66x66 CSS px", visibility: "windowed save state" }
+      - { role: current-level-node, seed: "menu.saga.current.{levelId}", parent: menu.saga.track, z: 1, copy: "level number", render: "level-node-current.webp", geometry: "150x150 CSS px", visibility: exactly-one }
+      - { role: locked-level-node, seed: "menu.saga.locked.{levelId}", parent: menu.saga.track, z: 1, copy: "level number", render: "level-node-locked.webp", geometry: "66x66 CSS px", visibility: "windowed save state" }
+      - { role: start-level-button, seed: menu.level-cta, parent: menu.root, z: 0, copy: "Level {currentLevel}", render: "button-green.png sprite + DOM text", geometry: "single centered bottom CTA", visibility: always }
+
+  - id: gameplay-hud
+    kind: primary
+    visible_when: "flow scene=playing"
+    root: { seed: gameplay.hud, parent: gameplay-hud, z: 0, render: "GameController.buildHud DOM" }
+    elements:
+      - { role: placeholder-background, seed: gameplay.placeholder, parent: gameplay-canvas, z: 0, copy: null, render: "editor-only neutral primitive", geometry: "full 390x844", visibility: "editor reproduction only" }
+      - { role: lives-panel, seed: gameplay.lives, parent: gameplay.hud, z: 0, copy: null, render: "CSS panel + repeated inline heart SVG", geometry: "top-left, safe-top applied", visibility: always }
+      - { role: life-heart, seed: "gameplay.life.{index}", parent: gameplay.lives, z: 0, copy: null, render: "inline SVG tinted --fab-color-heart", geometry: "repeated within lives panel", visibility: "live/dead opacity by remaining hearts" }
+      - { role: pause-button, seed: gameplay.pause, parent: gameplay.hud, z: 0, copy: Pause, render: "icon-settings.png in CSS panel", geometry: "top-right, safe-top applied", visibility: always }
+      - { role: currency-counter, seed: gameplay.currency, parent: gameplay.hud, z: 0, copy: "live coin balance", render: "icon-coin.png + DOM text", geometry: "bottom-left", visibility: always }
+      - { role: hint-button, seed: gameplay.hint, parent: gameplay.hud, z: 0, copy: "HINT / {cost}", render: "CSS warm-tan tile + icon-coin.png", geometry: "bottom-right", visibility: always }
+
+  - id: pause
+    kind: primary
+    visible_when: "flow scene=paused and page stack empty"
+    root: { seed: pause.root, parent: lifecycle-ui, z: 10, render: mountPauseOverlay }
+    elements:
+      - { role: scrim, seed: pause.scrim, parent: pause.root, z: 0, copy: null, render: "CSS rgba overlay", geometry: "viewport inset 0", visibility: always }
+      - { role: card, seed: pause.card, parent: pause.root, z: 1, copy: Paused, render: "shared CSS modal card; no raster", geometry: "centered modal max-width token", visibility: always }
+      - { role: resume-button, seed: pause.resume, parent: pause.card, z: 0, copy: Resume, render: "shared CSS button", geometry: "modal action stack", visibility: always }
+      - { role: settings-button, seed: pause.settings, parent: pause.card, z: 0, copy: Settings, render: "shared CSS button", geometry: "modal action stack", visibility: always }
+      - { role: quit-button, seed: pause.quit, parent: pause.card, z: 0, copy: Quit, render: "shared CSS button", geometry: "modal action stack", visibility: always }
+
+  - id: settings-menu
+    kind: primary
+    visible_when: "settings modal pushed from menu"
+    root: { seed: settings-menu.root, parent: lifecycle-ui, z: 10, render: "mountModalShell + mountToggleRows" }
+    elements: &settings_common
+      - { role: scrim, seed: "{screen}.scrim", parent: "{screen}.root", z: 0, copy: null, render: "CSS overlay", geometry: "viewport inset 0", visibility: always }
+      - { role: board-backplate, seed: "{screen}.backplate", parent: "{screen}.root", z: 1, copy: null, render: "marble-shadow-tile.png", geometry: "settings board class", visibility: always }
+      - { role: popup-card, seed: "{screen}.card", parent: "{screen}.backplate", z: 1, copy: null, render: "popup-card.png", geometry: "centered settings card", visibility: always }
+      - { role: title-ribbon, seed: "{screen}.ribbon", parent: "{screen}.card", z: 2, copy: Settings, render: "ribbon-orange.png + DOM title", geometry: "overlaps card top", visibility: always }
+      - { role: close-button, seed: "{screen}.close", parent: "{screen}.card", z: 3, copy: X, render: "CSS circular button", geometry: "card top-right", visibility: always }
+      - { role: music-toggle, seed: "{screen}.toggle.music", parent: "{screen}.card", z: 1, copy: Music, render: "CSS row/switch", geometry: "66px min-height row", visibility: always }
+      - { role: sfx-toggle, seed: "{screen}.toggle.sfx", parent: "{screen}.card", z: 1, copy: "Sound Effects", render: "CSS row/switch", geometry: "66px min-height row", visibility: always }
+      - { role: haptics-toggle, seed: "{screen}.toggle.haptics", parent: "{screen}.card", z: 1, copy: Haptics, render: "CSS row/switch", geometry: "66px min-height row", visibility: always }
+      - { role: close-cta, seed: settings-menu.action.close, parent: settings-menu.card, z: 1, copy: Close, render: "button-green.png + DOM text", geometry: "menu action row", visibility: "settings-menu only" }
+      - { role: reset-cta, seed: settings-menu.action.reset, parent: settings-menu.card, z: 1, copy: "Reset Progress", render: "button-orange.png + DOM text", geometry: "menu action row", visibility: "settings-menu only" }
+
+  - id: settings-level
+    kind: primary
+    visible_when: "settings modal pushed from pause"
+    root: { seed: settings-level.root, parent: lifecycle-ui, z: 11, render: "mountModalShell + mountToggleRows" }
+    elements:
+      - { role: common-settings-chrome, seed: settings-level.common, parent: settings-level.root, z: 0, copy: "same title/toggles as settings-menu", render: "expand settings_common with screen=settings-level", geometry: "same settings card", visibility: always }
+      - { role: restart-cta, seed: settings-level.action.restart, parent: settings-level.card, z: 1, copy: Restart, render: "button-orange.png + DOM text", geometry: "in-level action row", visibility: always }
+      - { role: home-cta, seed: settings-level.action.home, parent: settings-level.card, z: 1, copy: Home, render: "button-green.png + DOM text", geometry: "in-level action row", visibility: always }
+
+  - id: win
+    kind: primary
+    visible_when: "flow scene=complete and completed level is not final"
+    root: { seed: win.root, parent: lifecycle-ui, z: 10, render: mountResultCard }
+    elements: &result_common
+      - { role: scrim, seed: "{screen}.scrim", parent: "{screen}.root", z: 0, copy: null, render: "CSS overlay", geometry: "viewport inset 0", visibility: always }
+      - { role: board-backplate, seed: "{screen}.backplate", parent: "{screen}.root", z: 1, copy: null, render: "marble-shadow-tile.png", geometry: "result board class", visibility: always }
+      - { role: popup-card, seed: "{screen}.card", parent: "{screen}.backplate", z: 1, copy: null, render: "popup-card.png", geometry: "centered result card", visibility: always }
+      - { role: title-ribbon, seed: "{screen}.ribbon", parent: "{screen}.card", z: 2, copy: "state title and optional Level N eyebrow", render: "blank state ribbon + DOM text", geometry: "overlaps card top", visibility: always }
+    state_elements:
+      - { role: crown, seed: win.crown, parent: win.card, z: 1, copy: null, render: "win-crown.png", geometry: "centered result art", visibility: always }
+      - { role: reward-label, seed: win.reward.label, parent: win.card, z: 1, copy: Reward, render: DOM, geometry: "centered reward stack", visibility: always }
+      - { role: reward-value, seed: win.reward.value, parent: win.card, z: 1, copy: "+{reward}", render: "icon-coin.png + DOM text", geometry: "centered reward row", visibility: always }
+      - { role: next-button, seed: win.next, parent: win.card, z: 1, copy: Next, render: "button-green.png + DOM text", geometry: "bottom action", visibility: always }
+
+  - id: fail
+    kind: primary
+    visible_when: "flow scene=failed"
+    root: { seed: fail.root, parent: lifecycle-ui, z: 10, render: mountResultCard }
+    elements:
+      - { role: common-result-chrome, seed: fail.common, parent: fail.root, z: 0, copy: "FAILED / Level N", render: "expand result_common with ribbon-failed-blank.png", geometry: "same result card", visibility: always }
+      - { role: fail-emoji, seed: fail.emoji, parent: fail.card, z: 1, copy: "sad face emoji", render: "platform emoji text", geometry: "centered result art", visibility: always }
+      - { role: message, seed: fail.message, parent: fail.card, z: 1, copy: "No hearts left! Watch an ad to continue.", render: DOM, geometry: "centered body copy", visibility: always }
+      - { role: watch-button, seed: fail.watch, parent: fail.card, z: 1, copy: Watch, render: "button-green.png + DOM text", geometry: "first bottom action", visibility: always }
+      - { role: retry-button, seed: fail.retry, parent: fail.card, z: 1, copy: Retry, render: "button-orange.png + DOM text", geometry: "second bottom action", visibility: always }
+
+  - id: finale
+    kind: primary
+    visible_when: "flow scene=complete and completed level is final"
+    root: { seed: finale.root, parent: lifecycle-ui, z: 10, render: mountResultCard }
+    elements:
+      - { role: common-result-chrome, seed: finale.common, parent: finale.root, z: 0, copy: "All Marbles Sorted", render: "expand result_common with ribbon-completed-blank.png", geometry: "same result card", visibility: always }
+      - { role: crown, seed: finale.crown, parent: finale.card, z: 1, copy: null, render: "win-crown.png", geometry: "centered result art", visibility: always }
+      - { role: message, seed: finale.message, parent: finale.card, z: 1, copy: "More levels are on the way!", render: DOM, geometry: "centered body copy", visibility: always }
+      - { role: menu-button, seed: finale.awesome, parent: finale.card, z: 1, copy: Awesome, render: "button-green.png + DOM text", geometry: "bottom action", visibility: always }
+
+  - id: shop
+    kind: primary
+    visible_when: "shop page pushed from menu currency button"
+    root: { seed: shop.root, parent: lifecycle-ui, z: 20, render: mountShopPage }
+    elements:
+      - { role: product-section, seed: shop.section.entitlements, parent: shop.root, z: 0, copy: null, render: "shared CSS featured grid", geometry: "full-width first section", visibility: always }
+      - { role: product-card, seed: shop.product.no_ads, parent: shop.section.entitlements, z: 0, copy: "Remove Ads / Turn off interstitial ads forever. / $2.99", render: "CSS card; no icon supplied", geometry: featured, visibility: always }
+      - { role: section-title, seed: shop.section.coins.title, parent: shop.section.coins, z: 0, copy: Coins, render: DOM, geometry: "above grid", visibility: always }
+      - { role: product-card, seed: shop.product.coins_small, parent: shop.section.coins, z: 0, copy: "Pouch of Coins / 500 coins / $0.99", render: "CSS card; no icon supplied", geometry: grid, visibility: always }
+      - { role: product-card, seed: shop.product.coins_medium, parent: shop.section.coins, z: 0, copy: "Bag of Coins / 1,500 coins / $1.99", render: "CSS card; Popular badge; no icon supplied", geometry: grid, visibility: always }
+      - { role: product-card, seed: shop.product.coins_large, parent: shop.section.coins, z: 0, copy: "Chest of Coins / 5,000 coins / $4.99", render: "CSS card; no icon supplied", geometry: grid, visibility: always }
+      - { role: restore-panel, seed: shop.restore, parent: shop.root, z: 0, copy: "Restore Purchases / Restore", render: "shared CSS panel/button", geometry: "after product sections", visibility: always }
+
+auxiliary_overlays:
+  - { id: connectivity, role: connectivity-indicator, copy: "Back online / You are offline", visibility: "network transition only", primary: false }
+  - { id: toaster, role: toast-message, copy: "route blocked, rewarded unavailable, or streak message", visibility: transient, primary: false }
+  - { id: coin-flight, role: economy-transfer, copy: null, visibility: "transient after win reward", primary: false }
+  - { id: gameplay-fail-delay, role: delayed-fail-control, copy: null, visibility: "transient before settled fail; never baseline-capture", primary: false }
+
+# Exact current-source consumers for every primary semantic role above. Shared
+# roles expand to the listed shared component plus the game-specific binding.
+# These are validation pointers, never an importable authoring model.
+source_consumers:
+  menu:
+    root: "games/marble_run/src/shell/App.ts:232-255; packages/ui/src/HomeMenu.ts:60-111"
+    ambient-confetti: "games/marble_run/src/shell/App.ts:305-335"
+    top-bar: "games/marble_run/src/shell/App.ts:258-303"
+    currency-button: "games/marble_run/src/shell/App.ts:265-283"
+    settings-button: "games/marble_run/src/shell/App.ts:285-299"
+    brand-banner: "games/marble_run/src/shell/App.ts:724-737"
+    saga-track: "packages/ui/src/SagaMap.ts:68-100"
+    completed-level-node: "games/marble_run/src/shell/saga.ts; packages/ui/src/SagaMap.ts:84-99"
+    current-level-node: "games/marble_run/src/shell/saga.ts; packages/ui/src/SagaMap.ts:84-99"
+    locked-level-node: "games/marble_run/src/shell/saga.ts; packages/ui/src/SagaMap.ts:84-99"
+    start-level-button: "games/marble_run/src/shell/App.ts:243-253; packages/ui/src/HomeMenu.ts:93-108"
+  gameplay-hud:
+    root: "games/marble_run/src/game/GameController.ts:640-675"
+    placeholder-background: "editor-only requirement; no runtime consumer"
+    lives-panel: "games/marble_run/src/game/GameController.ts:643-655"
+    life-heart: "games/marble_run/src/game/GameController.ts:643-655"
+    pause-button: "games/marble_run/src/game/GameController.ts:655,667-670"
+    currency-counter: "games/marble_run/src/game/GameController.ts:656,663-665"
+    hint-button: "games/marble_run/src/game/GameController.ts:657-659,666,671-674"
+  pause:
+    root: "games/marble_run/src/shell/App.ts:465-479; packages/ui/src/PauseOverlay.ts:43-89"
+    scrim: "packages/ui/src/ModalShell.ts"
+    card: "packages/ui/src/PauseOverlay.ts:77-86; packages/ui/src/ModalShell.ts"
+    resume-button: "packages/ui/src/PauseOverlay.ts:51-57"
+    settings-button: "packages/ui/src/PauseOverlay.ts:58-70"
+    quit-button: "packages/ui/src/PauseOverlay.ts:71-75"
+  settings-menu:
+    root: "games/marble_run/src/shell/App.ts:487-530"
+    scrim: "packages/ui/src/ModalShell.ts"
+    board-backplate: "games/marble_run/src/shell/App.ts:510-512"
+    popup-card: "games/marble_run/src/shell/App.ts:509-510"
+    title-ribbon: "games/marble_run/src/shell/App.ts:494-499"
+    close-button: "games/marble_run/src/shell/App.ts:500-505"
+    music-toggle: "games/marble_run/src/shell/App.ts:515-527; packages/ui/src/ToggleRow.ts"
+    sfx-toggle: "games/marble_run/src/shell/App.ts:515-527; packages/ui/src/ToggleRow.ts"
+    haptics-toggle: "games/marble_run/src/shell/App.ts:515-527; packages/ui/src/ToggleRow.ts"
+    close-cta: "games/marble_run/src/shell/App.ts:538-547"
+    reset-cta: "games/marble_run/src/shell/App.ts:538-548,571-579"
+  settings-level:
+    root: "games/marble_run/src/shell/App.ts:487-530"
+    common-settings-chrome: "games/marble_run/src/shell/App.ts:487-530; packages/ui/src/ModalShell.ts; packages/ui/src/ToggleRow.ts"
+    restart-cta: "games/marble_run/src/shell/App.ts:552-559"
+    home-cta: "games/marble_run/src/shell/App.ts:560-566"
+  win:
+    root: "games/marble_run/src/shell/App.ts:382-407; packages/ui/src/ResultCard.ts:68-125"
+    scrim: "packages/ui/src/ModalShell.ts"
+    board-backplate: "games/marble_run/src/shell/App.ts:399-401"
+    popup-card: "games/marble_run/src/shell/App.ts:399"
+    title-ribbon: "games/marble_run/src/shell/App.ts:393-400; packages/ui/src/ResultCard.ts:106-123"
+    crown: "games/marble_run/src/shell/App.ts:402,740-747"
+    reward-label: "games/marble_run/src/shell/App.ts:761-779"
+    reward-value: "games/marble_run/src/shell/App.ts:761-779"
+    next-button: "games/marble_run/src/shell/App.ts:383-390"
+  fail:
+    root: "games/marble_run/src/shell/App.ts:433-463; packages/ui/src/ResultCard.ts:68-125"
+    common-result-chrome: "games/marble_run/src/shell/App.ts:450-458; packages/ui/src/ResultCard.ts:106-123"
+    fail-emoji: "games/marble_run/src/shell/App.ts:459,749-754"
+    message: "games/marble_run/src/shell/App.ts:450-461; packages/ui/src/ResultCard.ts:82-93"
+    watch-button: "games/marble_run/src/shell/App.ts:434-441"
+    retry-button: "games/marble_run/src/shell/App.ts:442-448"
+  finale:
+    root: "games/marble_run/src/shell/App.ts:409-431; packages/ui/src/ResultCard.ts:68-125"
+    common-result-chrome: "games/marble_run/src/shell/App.ts:419-429; packages/ui/src/ResultCard.ts:106-123"
+    crown: "games/marble_run/src/shell/App.ts:427,740-747"
+    message: "games/marble_run/src/shell/App.ts:428; packages/ui/src/ResultCard.ts:82-93"
+    menu-button: "games/marble_run/src/shell/App.ts:410-417"
+  shop:
+    root: "games/marble_run/src/shell/App.ts:338-379; packages/ui/src/ShopPage.ts:153-428"
+    product-section: "games/marble_run/src/shell/App.ts:343-346; packages/ui/src/ShopPage.ts:180-197"
+    product-card: "packages/ui/src/ShopPage.ts:230-303; games/marble_run/src/sdk/catalog.ts"
+    section-title: "games/marble_run/src/shell/App.ts:343-346; packages/ui/src/ShopPage.ts"
+    restore-panel: "games/marble_run/src/shell/App.ts:353-370; packages/ui/src/ShopPage.ts"

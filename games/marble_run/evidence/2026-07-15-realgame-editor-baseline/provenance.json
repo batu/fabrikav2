@@ -1,0 +1,39 @@
+{
+  "schema": "fabrikav2-physical-device-capture/v1",
+  "captured_at_timezone": "Europe/Istanbul (+03:00)",
+  "intended_source_sha": "b53b9b04e7dbfdda9404f55cb12047e02af5af80",
+  "source_sha_embedded_in_apk": false,
+  "source_to_apk_binding": "external assertion only",
+  "device": {
+    "host": "ubuntu-server",
+    "serial": "27091JEGR22183",
+    "model": "Pixel 6a",
+    "android": "16",
+    "framebuffer": [1080, 2400],
+    "density": 420
+  },
+  "package": {
+    "name": "com.appletolye.marblerun.dev",
+    "version_name": "1.0",
+    "version_code": 1,
+    "last_update_time": "2026-07-15T01:38:20+03:00",
+    "debuggable": true,
+    "harness_exposed": false,
+    "apk_sha256": "692b21d528e33a45fc3a3d08bd5bc5928eb28026f5528f8b9c9211854e696e30"
+  },
+  "capture": {
+    "command": "/home/batu/android-sdk/platform-tools/adb -s 27091JEGR22183 exec-out screencap -p",
+    "settle_minimum_seconds": 4,
+    "foreground_guard": "mCurrentFocus must equal com.appletolye.marblerun.dev/.MainActivity before and after every action and screenshot"
+  },
+  "accepted": [
+    {"state":"menu","file":"captures/menu.png","captured":"2026-07-15T01:54:04+03:00","sha256":"81a3b39e8e2be82f86785fc922f1db0e40b68774ebd2ef60fabb4e7120ccacbf","reached_by":"force-stop, launcher monkey, settle"},
+    {"state":"settings-menu","file":"captures/settings-menu.png","captured":"2026-07-15T01:54:14+03:00","sha256":"5c6c4fa41e3bea28f66bdbe5beb4e564177949ef6a5b214770ce5e65f68460d2","reached_by":"menu gear, settle"},
+    {"state":"shop","file":"captures/shop.png","captured":"2026-07-15T01:54:31+03:00","sha256":"7a1719f06f4fe046202f5bae559822fa83e67548161ca2626eb80becf7781f67","reached_by":"close settings, menu currency pill, settle"},
+    {"state":"gameplay-hud","file":"captures/gameplay-hud.png","captured":"2026-07-15T01:58:42+03:00","sha256":"d05a5ace544fe9d32a3fada050d24a50ec0c3c3b44185de20a8e65b55d633747","reached_by":"fresh relaunch, Level 1 CTA, settle"},
+    {"state":"pause","file":"captures/pause.png","captured":"2026-07-15T01:59:01+03:00","sha256":"869ba60b68f3b949bdb02ac91206bab66594cf12873abb5b87bd65bf3fe819ac","reached_by":"in-level gear, settle"},
+    {"state":"settings-level","file":"captures/settings-level.png","captured":"2026-07-15T01:59:21+03:00","sha256":"4af895a74d6941957087f320f427b2572e19f39c9be248c6822793b77dfc258a","reached_by":"pause Settings, settle"}
+  ],
+  "blocked_required_targets": ["win", "fail", "finale"],
+  "omitted_cross_app_capture_package": "com.fabrika.shellproofphaser"
+}
