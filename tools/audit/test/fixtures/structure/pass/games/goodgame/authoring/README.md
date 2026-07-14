@@ -1,0 +1,1 @@
+# editor-native authoring fixture

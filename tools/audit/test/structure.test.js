@@ -7,7 +7,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const fixture = (name) => join(here, 'fixtures', 'structure', name);
 
 describe('structure', () => {
-  it('passes a canonical game dir (whitelist entries + gitignored .work)', () => {
+  it('passes a canonical game dir including optional editor-native authoring', () => {
     const { violations } = lintStructure(fixture('pass'));
     expect(violations).toEqual([]);
   });

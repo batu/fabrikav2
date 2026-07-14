@@ -31,6 +31,7 @@ export const ALLOWED_DIRS = new Set([
   'refs',
   'docs',
   'evidence',
+  'authoring',
   '.work',
 ]);
 
