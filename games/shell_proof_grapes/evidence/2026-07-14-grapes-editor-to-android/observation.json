@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "fabrikav2.verify-device.observation/1",
+  "game": "shell_proof_grapes",
+  "lane": "device",
+  "platform": "android",
+  "provenance": "live-device",
+  "generatedAt": "2026-07-14T06:24:58.564Z",
+  "device": "Android 27091JEGR22183 via adb",
+  "runKind": "no-applicable-evidence",
+  "captureFailure": null,
+  "hardIntegrity": [],
+  "requiredStates": [
+    "menu",
+    "level",
+    "shop",
+    "settings",
+    "pause",
+    "win",
+    "fail"
+  ],
+  "captures": [
+    {
+      "state": "menu",
+      "gated": true,
+      "file": "games/shell_proof_grapes/evidence/2026-07-14-grapes-editor-to-android/raw-captures/menu.png",
+      "present": true,
+      "sha256": "923b41608ff14f90a027a1545945a8283f5b52f69332cb890e9454132ff24447"
+    },
+    {
+      "state": "level",
+      "gated": true,
+      "file": "games/shell_proof_grapes/evidence/2026-07-14-grapes-editor-to-android/raw-captures/level.png",
+      "present": true,
+      "sha256": "920a60320aaff4fea564506153db07fd640f88713b1e7b6885154fc75b8a2c13"
+    },
+    {
+      "state": "shop",
+      "gated": true,
+      "file": "games/shell_proof_grapes/evidence/2026-07-14-grapes-editor-to-android/raw-captures/shop.png",
+      "present": true,
+      "sha256": "770b3d328913ef03f21a58bcc8d9fb203c1c549d67b78f2fed79b4ce72ef6264"
+    },
+    {
+      "state": "settings",
+      "gated": true,
+      "file": "games/shell_proof_grapes/evidence/2026-07-14-grapes-editor-to-android/raw-captures/settings.png",
+      "present": true,
+      "sha256": "c0964bbdad61d3356f5814603f3c79222f9b2521fe1a00b32bd73e056b683a94"
+    },
+    {
+      "state": "pause",
+      "gated": true,
+      "file": "games/shell_proof_grapes/evidence/2026-07-14-grapes-editor-to-android/raw-captures/pause.png",
+      "present": true,
+      "sha256": "d0be943d761dfe4eff6a8f3f61fb350da35c2fc8f3eca3c6a38b37682d043d37"
+    },
+    {
+      "state": "win",
+      "gated": true,
+      "file": "games/shell_proof_grapes/evidence/2026-07-14-grapes-editor-to-android/raw-captures/win.png",
+      "present": true,
+      "sha256": "d7202579199490fb8c124464b0be3f30d2dc1643e7ad58b8be8122c55ac851f0"
+    },
+    {
+      "state": "fail",
+      "gated": true,
+      "file": "games/shell_proof_grapes/evidence/2026-07-14-grapes-editor-to-android/raw-captures/fail.png",
+      "present": true,
+      "sha256": "af748d8a35ded761e84dc26e68ed894ea7abc8e482566a0a3b903bbeac9197bd"
+    }
+  ],
+  "inputs": {
+    "algorithm": "canonical-input-sha256/1",
+    "roots": [
+      "games/shell_proof_grapes/src",
+      "games/shell_proof_grapes/design",
+      "games/shell_proof_grapes/refs",
+      "packages/ui"
+    ],
+    "fileCount": 130,
+    "sha256": "93ed81add43818a16624e18f5ef8200235d782aeb8b4588a070159ae9817b7cb"
+  }
+}

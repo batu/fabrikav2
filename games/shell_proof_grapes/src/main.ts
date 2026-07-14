@@ -11,6 +11,7 @@ import { gameConfig } from "../game.config.ts";
 import { createTemplateShellController } from "./core/TemplateShellController.ts";
 import { createTemplateHarness } from "./shell/harness.ts";
 import { maybeRunTemplateInsituTour } from "./shell/insituTour.ts";
+import { loadSelectedGrapesProjection } from "./shell/renderers/GrapesProjection.ts";
 import { mountTemplateShell } from "./shell/TemplateShell.ts";
 
 export function bootGame(
@@ -18,12 +19,14 @@ export function bootGame(
   options: { readonly enableTestOutcomes?: boolean } = {},
 ) {
   const controller = createTemplateShellController();
+  const projection = loadSelectedGrapesProjection();
   const shell = mountTemplateShell({
     mountInto,
     controller,
     enableTestOutcomes: options.enableTestOutcomes,
+    afterRender: projection.apply,
   });
-  return { controller, shell, config: gameConfig };
+  return { controller, shell, projection, config: gameConfig };
 }
 
 export function harnessWindowKeyForGame(gameId: string): string {
@@ -39,6 +42,14 @@ const TEST_OUTCOMES_ENABLED: boolean =
 const appRoot = typeof document !== "undefined" ? document.getElementById("app") : null;
 if (appRoot) {
   const game = bootGame(appRoot, { enableTestOutcomes: TEST_OUTCOMES_ENABLED });
+  console.info(
+    "[fabrikav2:projection-ready]",
+    JSON.stringify({
+      gameId: gameConfig.id,
+      publicationId: game.projection.publicationId,
+      projectionId: game.projection.projectionId,
+    }),
+  );
   // Renderer-neutral evidence probe: always bound (not harness-gated) so the
   // device lane can read state, action rectangles, revision, and readiness
   // from any running build. It is a tool — one snapshot query, no loops.
@@ -48,10 +59,10 @@ if (appRoot) {
     rendererProfile: "dom-css",
     readers: {
       state: () => game.controller.snapshot().surface,
-      // The seed design ships with the game; no projection revision is
-      // selected until a lane publishes one.
-      revision: () => null,
-      ready: () => game.shell.root.dataset.fabState === game.controller.snapshot().surface,
+      revision: () => game.projection.projectionId,
+      ready: () =>
+        game.shell.root.dataset.fabState === game.controller.snapshot().surface &&
+        game.shell.root.dataset.fabProjection === game.projection.projectionId,
       viewport: () => readDomShellEvidenceViewport(window),
       actions: () => readDomShellEvidenceActions(game.shell.root),
     },

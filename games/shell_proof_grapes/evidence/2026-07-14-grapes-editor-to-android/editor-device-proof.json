@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "fabrikav2.editor-device-proof/1",
+  "editor": "grapesjs",
+  "platform": "android",
+  "device": "Pixel 6a (27091JEGR22183)",
+  "publicationId": "sha256-cae77f56aca5524134176909538073e0ccb6519fed09f0d8652326fbf64d639e",
+  "projectionId": "sha256-662ea1856c1aec7c0411b95fd46b9a1c8347346ea273c18891f4653dd24ba7ca",
+  "visibleSentinel": "PHONE PROOF · GRAPES",
+  "sentinelState": "menu",
+  "capture": "android-captures/menu.png",
+  "runtimeProbe": {
+    "source": "Capacitor/Console from the freshly installed physical-device build",
+    "file": "runtime-probe.log",
+    "sha256": "e36f979f30fd35bae259d4040014b505283173585a39d78111aed7926a0d2bcb",
+    "screenshot": "runtime-probe.png",
+    "screenshotSha256": "74204a5bfd331b0cc67d57c509d86b3d4419ddf64ecf9790cd42d160a6c6f70c"
+  },
+  "journeyStates": [
+    "menu",
+    "level",
+    "shop",
+    "settings",
+    "pause",
+    "win",
+    "fail"
+  ],
+  "notes": [
+    "The visible sentinel was authored through the Grapes editor UI and exported through its validated-project action.",
+    "The explicit immutable publication was applied to the selected DOM/CSS projection before the native build.",
+    "All seven captures were collected from the installed Capacitor app on the connected physical Android device.",
+    "A fresh post-hardening native install emitted the matching publication and projection identities through the runtime probe; its raw device log is retained beside this record.",
+    "No trusted visual references were configured, so verify-device reports exploratory no-reference results rather than a fidelity verdict."
+  ]
+}

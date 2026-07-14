@@ -1,10 +1,9 @@
 import { defineConfig } from "vitest/config";
 
-// Unit smoke test lives under tests/unit; co-located src *.test.ts are also
-// collected. happy-dom mounts the functional DOM shell.
+// Unit and runtime integration tests mount the functional DOM shell in happy-dom.
 export default defineConfig({
   test: {
     environment: "happy-dom",
-    include: ["tests/unit/**/*.test.ts", "src/**/*.test.ts"],
+    include: ["tests/unit/**/*.test.ts", "tests/runtime/**/*.test.ts", "src/**/*.test.ts"],
   },
 });

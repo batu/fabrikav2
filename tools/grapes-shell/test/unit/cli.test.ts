@@ -1,4 +1,4 @@
-import { access, mkdtemp, rm } from "node:fs/promises";
+import { access, mkdtemp, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -24,12 +24,26 @@ const repositoryRoot = path.resolve(workspaceRoot, "../..");
 const seedRoot = path.join(repositoryRoot, "games/shell_proof_grapes/design");
 const temporaryRoots: string[] = [];
 
+async function snapshotTree(root: string): Promise<ReadonlyArray<readonly [string, string, number]>> {
+  const snapshot: Array<readonly [string, string, number]> = [];
+  async function walk(directory: string, prefix = ""): Promise<void> {
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+      const target = path.join(directory, entry.name);
+      if (entry.isDirectory()) await walk(target, relative);
+      else if (entry.isFile()) snapshot.push([relative, await readFile(target, "utf8"), (await stat(target)).mtimeMs]);
+    }
+  }
+  await walk(root);
+  return snapshot.sort(([left], [right]) => left.localeCompare(right));
+}
+
 afterEach(async () => {
   await Promise.all(temporaryRoots.splice(0).map((directory) => rm(directory, { recursive: true, force: true })));
 });
 
 describe("grapes-shell CLI", () => {
-  it("uses one structured response per one-shot command and never exposes apply before U4", async () => {
+  it("publishes, preflights, applies, and no-ops one explicit immutable revision", async () => {
     const root = await mkdtemp(path.join(os.tmpdir(), "grapes-shell-cli-"));
     temporaryRoots.push(root);
     const output: string[] = [];
@@ -101,13 +115,68 @@ describe("grapes-shell CLI", () => {
         { emit, renderPreviews: previewRenderer },
       ),
     ).resolves.toBe(0);
-    expect(JSON.parse(output.pop()!)).toMatchObject({
+    const published = JSON.parse(output.pop()!) as { publicationId: string };
+    expect(published).toMatchObject({
       ok: true,
       operation: "publish",
       publicationId: expect.stringMatching(/^sha256-[a-f0-9]{64}$/u),
     });
 
+    await expect(runCli(["preflight", ...common, "--publication-id", published.publicationId], { emit })).resolves.toBe(0);
+    expect(JSON.parse(output.pop()!)).toMatchObject({
+      ok: true,
+      operation: "preflight",
+      outcome: "applied",
+      publicationId: published.publicationId,
+      projectionId: expect.stringMatching(/^sha256-[a-f0-9]{64}$/u),
+    });
+
     await expect(runCli(["apply", ...common], { emit })).resolves.toBe(1);
-    expect(JSON.parse(output.pop()!)).toMatchObject({ ok: false, error: expect.stringMatching(/unsupported/i) });
+    expect(JSON.parse(output.pop()!)).toMatchObject({ ok: false, error: expect.stringMatching(/publication-id/i) });
+
+    await expect(runCli(["apply", ...common, "--publication-id", published.publicationId], { emit })).resolves.toBe(0);
+    const firstApply = JSON.parse(output.pop()!) as { projectionId: string };
+    expect(firstApply).toMatchObject({
+      ok: true,
+      operation: "apply",
+      outcome: "applied",
+      publicationId: published.publicationId,
+      projectionId: expect.stringMatching(/^sha256-[a-f0-9]{64}$/u),
+    });
+
+    const selectedRoot = path.join(root, "games/shell_proof_grapes/design");
+    const beforeNoOp = await snapshotTree(selectedRoot);
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    await expect(runCli(["apply", ...common, "--publication-id", published.publicationId], { emit })).resolves.toBe(0);
+    expect(JSON.parse(output.pop()!)).toMatchObject({
+      ok: true,
+      operation: "apply",
+      outcome: "no-op",
+      projectionId: firstApply.projectionId,
+    });
+    expect(await snapshotTree(selectedRoot)).toEqual(beforeNoOp);
+
+    const pointer = JSON.parse(
+      await readFile(path.join(root, "games/shell_proof_grapes/design/revision.json"), "utf8"),
+    ) as { projectionId: string };
+    expect(pointer.projectionId).toBe(firstApply.projectionId);
+
+    await expect(runCli(["preflight", ...common, "--publication-id", zeroHash], { emit })).resolves.toBe(1);
+    expect(JSON.parse(output.pop()!)).toMatchObject({ ok: false, outcome: "invalid-revision" });
+
+    const copyPath = path.join(selectedRoot, "revisions", firstApply.projectionId, "copy.ts");
+    await writeFile(copyPath, "// tampered\n", "utf8");
+    const pointerBeforeBlockedApply = await readFile(path.join(selectedRoot, "revision.json"), "utf8");
+
+    await expect(runCli(["status", ...common], { emit })).resolves.toBe(0);
+    expect(JSON.parse(output.pop()!)).toMatchObject({
+      ok: true,
+      operation: "status",
+      status: { application: { state: "drifted" }, canApply: false },
+    });
+
+    await expect(runCli(["apply", ...common, "--publication-id", published.publicationId], { emit })).resolves.toBe(1);
+    expect(JSON.parse(output.pop()!)).toMatchObject({ ok: false, outcome: "blocked-drift" });
+    expect(await readFile(path.join(selectedRoot, "revision.json"), "utf8")).toBe(pointerBeforeBlockedApply);
   });
 });

@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=390, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; font-src 'none'; connect-src 'none'; script-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Gameplay and HUD</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main data-shell-page="level" data-render-ready="true" aria-label="Gameplay and HUD">
+    <i data-safe-guide="top" aria-hidden="true"></i><i data-safe-guide="bottom" aria-hidden="true"></i><section data-shell-instance="level.currency" data-role="currency-counter" data-binding="state.primary-currency" data-hidden="false"><img alt="" aria-hidden="true" src="../assets/counter-frame-primary-currency.png" data-asset-id="counter-frame.primary-currency"></section><section data-shell-instance="level.label" data-role="level-label" data-binding="state.level-label" data-hidden="false"><span data-shell-copy>Level</span></section><section data-shell-instance="level.pause" data-role="top-icon-action" data-binding="flow.pause" data-hidden="false" data-action-id="pause"><img alt="" aria-hidden="true" src="../assets/icon-control-pause.png" data-asset-id="icon-control.pause"></section><section data-shell-instance="level.gameplay-region" data-role="gameplay-region" data-binding="mechanic.mount" data-hidden="false"><span data-shell-placeholder>Gameplay Region</span></section><section data-shell-instance="level.test-win" data-role="bottom-left-test-action" data-binding="flow.test-win" data-hidden="false" data-action-id="test-win"><img alt="" aria-hidden="true" src="../assets/button-surface-test-win.png" data-asset-id="button-surface.test-win"><span data-shell-copy>Test Win</span></section><section data-shell-instance="level.test-lose" data-role="bottom-right-test-action" data-binding="flow.test-lose" data-hidden="false" data-action-id="test-lose"><img alt="" aria-hidden="true" src="../assets/button-surface-test-lose.png" data-asset-id="button-surface.test-lose"><span data-shell-copy>Test Lose</span></section>
+  </main>
+</body>
+</html>

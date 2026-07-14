@@ -80,6 +80,7 @@ export interface MountTemplateShellOptions {
   readonly mountInto: HTMLElement;
   readonly controller: TemplateShellController;
   readonly enableTestOutcomes?: boolean;
+  readonly afterRender?: (root: HTMLElement) => void;
 }
 
 function art(src: string, className: string, instance?: string): HTMLImageElement {
@@ -924,6 +925,7 @@ export function mountTemplateShell(options: MountTemplateShellOptions): Template
         surfaceHandle = renderResult(root, snapshot, options.controller, render);
         break;
     }
+    options.afterRender?.(root);
   };
 
   render();

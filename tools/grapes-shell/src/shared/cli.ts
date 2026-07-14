@@ -4,6 +4,12 @@ import { fileURLToPath } from "node:url";
 
 import { canonicalizeJson, hashCanonicalJson } from "@fabrikav2/kernel";
 
+import {
+  ApplicationError,
+  applyPublication,
+  preflightPublication,
+  readSelectedProjection,
+} from "../application/projector.ts";
 import { publicationStatus, publishAuthoringProject, type PreviewRenderer } from "../publication/publisher.ts";
 import { renderPortablePreviews } from "../publication/preview.ts";
 import { createStarterProject, validateProjectFile } from "./project.ts";
@@ -21,6 +27,7 @@ interface CliContext {
   readonly seedRoot: string;
   readonly expectedProjectHash?: string;
   readonly expectedAssetCatalogHash?: string;
+  readonly publicationId?: string;
 }
 
 const GAME_NAME = /^[a-z][a-z0-9_]*$/u;
@@ -32,7 +39,7 @@ function repositoryRoot(): string {
 
 function parseContext(argv: readonly string[]): CliContext {
   const [command, ...rawFlags] = argv;
-  if (!command) throw new Error("A one-shot command is required: init, validate, publish, or status.");
+  if (!command) throw new Error("A one-shot command is required: init, validate, publish, preflight, apply, or status.");
   const flags = new Map<string, string>();
   for (let index = 0; index < rawFlags.length; index += 2) {
     const flag = rawFlags[index];
@@ -40,7 +47,7 @@ function parseContext(argv: readonly string[]): CliContext {
     if (!flag?.startsWith("--") || value === undefined || value.startsWith("--") || flags.has(flag)) {
       throw new Error("Flags must be unique --name value pairs.");
     }
-    if (!["--game", "--root", "--seed-root", "--expected-project-hash", "--expected-asset-catalog-hash"].includes(flag)) {
+    if (!["--game", "--root", "--seed-root", "--expected-project-hash", "--expected-asset-catalog-hash", "--publication-id"].includes(flag)) {
       throw new Error(`Unsupported flag "${flag}".`);
     }
     flags.set(flag, value);
@@ -49,6 +56,7 @@ function parseContext(argv: readonly string[]): CliContext {
   if (!game || !GAME_NAME.test(game)) throw new Error("--game must use lowercase letters, digits, and underscores.");
   const expectedProjectHash = flags.get("--expected-project-hash");
   const expectedAssetCatalogHash = flags.get("--expected-asset-catalog-hash");
+  const publicationId = flags.get("--publication-id");
   if (command === "publish") {
     if (!expectedProjectHash || !SHA256_HASH.test(expectedProjectHash)) {
       throw new Error("publish requires --expected-project-hash sha256-<64 lowercase hex> from the reviewed editor snapshot.");
@@ -60,6 +68,13 @@ function parseContext(argv: readonly string[]): CliContext {
     if (expectedProjectHash) throw new Error("--expected-project-hash is accepted only by publish.");
     if (expectedAssetCatalogHash) throw new Error("--expected-asset-catalog-hash is accepted only by publish.");
   }
+  if (command === "preflight" || command === "apply") {
+    if (!publicationId || !SHA256_HASH.test(publicationId)) {
+      throw new Error(`${command} requires --publication-id sha256-<64 lowercase hex>.`);
+    }
+  } else if (publicationId) {
+    throw new Error("--publication-id is accepted only by preflight and apply.");
+  }
   const root = path.resolve(flags.get("--root") ?? repositoryRoot());
   return {
     command,
@@ -68,6 +83,7 @@ function parseContext(argv: readonly string[]): CliContext {
     seedRoot: path.resolve(flags.get("--seed-root") ?? path.join(root, "games", game, "design")),
     ...(expectedProjectHash ? { expectedProjectHash } : {}),
     ...(expectedAssetCatalogHash ? { expectedAssetCatalogHash } : {}),
+    ...(publicationId ? { publicationId } : {}),
   };
 }
 
@@ -136,16 +152,44 @@ export async function runCli(argv: readonly string[], dependencies: CliDependenc
         result = { operation: "publish", ...publication };
         break;
       }
-      case "status":
-        result = { operation: "status", status: await publicationStatus(context) };
+      case "preflight":
+        result = {
+          operation: "preflight",
+          ...(await preflightPublication({ ...context, publicationId: context.publicationId! })),
+        };
         break;
+      case "apply":
+        result = {
+          operation: "apply",
+          ...(await applyPublication({ ...context, publicationId: context.publicationId! })),
+        };
+        break;
+      case "status": {
+        const [authoring, application] = await Promise.all([
+          publicationStatus(context),
+          readSelectedProjection(context),
+        ]);
+        result = {
+          operation: "status",
+          status: {
+            ...authoring,
+            application,
+            canApply: authoring.state === "published" && application.state !== "drifted",
+          },
+        };
+        break;
+      }
       default:
-        throw new Error(`Unsupported command "${context.command}". U4 owns apply and preflight.`);
+        throw new Error(`Unsupported command "${context.command}".`);
     }
     emit(dependencies, { ok: true, ...result });
     return 0;
   } catch (error) {
-    emit(dependencies, { ok: false, error: safeError(error) });
+    emit(dependencies, {
+      ok: false,
+      ...(error instanceof ApplicationError ? { outcome: error.outcome } : {}),
+      error: safeError(error),
+    });
     return 1;
   }
 }
