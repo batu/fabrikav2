@@ -32,7 +32,7 @@ Primary artifacts:
 - `grapes/before-save.png`
 - `grapes/after-save.png`
 - `grapes/after-restart-reopen.png`
-- `grapes/app/project-data.json`
+- `grapes/project-data.json`
 
 ## Phaser Editor evidence
 
