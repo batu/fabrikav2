@@ -15,7 +15,6 @@
 // unexpected generated-graph file (requirement 1). They never fabricate or accept
 // a runtime bundle: `scenes/shell.js` is derived by the publisher from the
 // generated graph they carry.
-import { createHash } from 'node:crypto';
 import { readFileSync, lstatSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
@@ -26,7 +25,7 @@ import { STATE_IDS } from './authoring/extractV2.ts';
 import type { AuthoringProject } from './publish/validate.ts';
 import type { PublishInput, PluginFile, SceneInput } from './publish/publish.ts';
 import { resolveScratch } from './session/paths.ts';
-import { GENERATED_GRAPH, SCENE_AUTHORITY, SCENE_ORDER, type GraphHash } from './session/graph.ts';
+import { GENERATED_GRAPH, SCENE_AUTHORITY, SCENE_ORDER, combineGraphHash, type GraphHash } from './session/graph.ts';
 import type { ProvenanceEvidence } from './session/evidence.ts';
 import type { ShellStateIdV2 } from '@fabrikav2/kernel';
 
@@ -123,16 +122,11 @@ function collectPluginFiles(pluginsDir: string): PluginFile[] {
   return out.sort((a, b) => (a.rel < b.rel ? -1 : a.rel > b.rel ? 1 : 0));
 }
 
-/** Hash a declared project graph synchronously using the provenance preimage. */
+/** Hash a declared project graph synchronously using the shared preimage
+ *  (symlink-rejecting sync I/O + the canonical {@link combineGraphHash}). */
 function hashGraphSync(projectDir: string, relPaths: readonly string[]): GraphHash {
-  const byPath: Record<string, string> = {};
-  const combined = createHash('sha256');
-  for (const rel of relPaths) {
-    const bytes = readSolidFile(path.join(projectDir, rel), rel);
-    byPath[rel] = `sha256-${createHash('sha256').update(bytes).digest('hex')}`;
-    combined.update(`${rel}\0`).update(bytes);
-  }
-  return { combined: `sha256-${combined.digest('hex')}`, byPath };
+  const entries: [string, Buffer][] = relPaths.map((rel) => [rel, readSolidFile(path.join(projectDir, rel), rel)]);
+  return combineGraphHash(entries);
 }
 
 function sameRecord(left: Record<string, string> | null, right: Record<string, string>): boolean {

@@ -1,11 +1,9 @@
 // Deterministic P0/A/B authoring variants driven through the installed Phaser
 // Editor's own workbench + scene model. Every variant starts from an independent
 // reset scratch outside the repository. Canonical authoring bytes are read-only.
-import { spawn, type ChildProcess } from 'node:child_process';
+import type { ChildProcess } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import type { Page } from '@playwright/test';
@@ -15,6 +13,8 @@ import { SCENE_AUTHORITY, hashGraph } from './graph.ts';
 import {
   getServerMode,
   resolveServerBin,
+  startEditorServer,
+  stopEditorServer,
   ServerBlocked,
 } from './editorServer.ts';
 import { closeWorkbench, openWorkbench, WorkbenchBlocked, type Workbench } from './workbench.ts';
@@ -226,7 +226,7 @@ export async function runEditorVariant(options: VariantRunOptions): Promise<Vari
     if (recipe.length > 0) {
       const serverBin = resolveServerBin(options.serverBin);
       roots.push(serverBin);
-      server = await startVariantEditorServer({
+      server = await startEditorServer({
         projectDir: project,
         pluginsDir: layout.plugins,
         port: options.port,
@@ -255,7 +255,7 @@ export async function runEditorVariant(options: VariantRunOptions): Promise<Vari
       }
       await closeWorkbench(workbench);
       workbench = null;
-      evidence.editEndpointDownProven = await stopVariantEditorServer(server, options.port);
+      evidence.editEndpointDownProven = await stopEditorServer(server, options.port);
       server = null;
       if (!evidence.editEndpointDownProven) {
         throw new VariantBlocked('endpoint-not-down', 'the edit-session loopback endpoint did not go down');
@@ -313,7 +313,7 @@ export async function runEditorVariant(options: VariantRunOptions): Promise<Vari
     await closeWorkbench(workbench);
     if (server) {
       try {
-        await stopVariantEditorServer(server, options.port);
+        await stopEditorServer(server, options.port);
       } catch {
         // The typed blocked result has already captured the primary failure.
       }
@@ -327,86 +327,6 @@ class VariantBlocked extends Error {
     this.name = 'VariantBlocked';
   }
 }
-
-interface VariantServerOptions {
-  projectDir: string;
-  pluginsDir: string;
-  port: number;
-  serverBin: string;
-}
-
-/**
- * Start the short edit session with Node's basic HTTP client. Node 26's bundled
- * fetch/Undici can throw an uncaught `setTypeOfService EINVAL` while polling a
- * not-yet-bound loopback socket on macOS; a failed readiness probe must remain a
- * normal retry, never crash the evidence process.
- */
-async function startVariantEditorServer(options: VariantServerOptions): Promise<ChildProcess> {
-  if (!existsSync(options.serverBin)) {
-    throw new ServerBlocked('server-not-found', 'the licensed Phaser Editor 5 server binary was not found');
-  }
-  const process = spawn(
-    options.serverBin,
-    [
-      '-project', options.projectDir,
-      '-port', String(options.port),
-      '-disable-open-browser',
-      '-disable-check-for-updates',
-      '-plugins', options.pluginsDir,
-    ],
-    { stdio: ['ignore', 'pipe', 'pipe'] },
-  );
-  for (let attempt = 0; attempt < 60; attempt += 1) {
-    if (process.exitCode !== null) {
-      throw new ServerBlocked('server-exited', 'the editor server exited before becoming ready');
-    }
-    if (await probeEditorEndpoint(options.port)) return process;
-    await delay(250);
-  }
-  process.kill('SIGKILL');
-  throw new ServerBlocked('server-not-ready', 'the editor server did not become ready on the loopback endpoint');
-}
-
-async function stopVariantEditorServer(process: ChildProcess, port: number): Promise<boolean> {
-  process.kill('SIGTERM');
-  if (await waitForEditorEndpointDown(port)) return true;
-  process.kill('SIGKILL');
-  return waitForEditorEndpointDown(port);
-}
-
-async function waitForEditorEndpointDown(port: number): Promise<boolean> {
-  for (let attempt = 0; attempt < 20; attempt += 1) {
-    if (!(await probeEditorEndpoint(port))) return true;
-    await delay(250);
-  }
-  return false;
-}
-
-function probeEditorEndpoint(port: number): Promise<boolean> {
-  return new Promise((resolve) => {
-    let settled = false;
-    const finish = (reachable: boolean): void => {
-      if (settled) return;
-      settled = true;
-      resolve(reachable);
-    };
-    const request = http.get(
-      { host: '127.0.0.1', port, path: '/editor/', timeout: 1_000 },
-      (response) => {
-        response.resume();
-        finish(true);
-      },
-    );
-    request.once('error', () => finish(false));
-    request.once('timeout', () => {
-      request.destroy();
-      finish(false);
-    });
-  });
-}
-
-const delay = (milliseconds: number): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, milliseconds));
 
 /** Open each affected scene, add native undo/model operations, save, and close. */
 async function applyRecipeThroughWorkbench(page: Page, recipe: readonly VariantEdit[]): Promise<void> {

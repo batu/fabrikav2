@@ -55,6 +55,9 @@ export interface GeneratedCreationFact {
   x: number;
   y: number;
   textureKey: string | null;
+  copy: string | null;
+  color: number | string | null;
+  visible: boolean;
 }
 
 /** Facts the scene authority declares, keyed by semantic id + variant. */
@@ -361,6 +364,9 @@ export function extractGeneratedFacts(source: string): {
       x: record.x,
       y: record.y,
       textureKey: record.textureKey,
+      copy: record.copy,
+      color: record.color,
+      visible: record.visible,
     });
   }
 
@@ -643,6 +649,24 @@ function sameType(generated: string, scene: string): boolean {
   return generated.toLowerCase() === scene.toLowerCase();
 }
 
+/**
+ * Canonicalize an editor color for comparison. Two representations must fold to
+ * one key so equal colors compare equal while a real recolor still differs:
+ *  - Phaser Editor stores a shape's `fillColor`/`tint` as a `#rrggbb` string in
+ *    the `.scene` but emits the equivalent decimal in generated code
+ *    (`"#f7f6ef"` -> `16250607`).
+ *  - When the fill/tint IS the Phaser default (white), the Editor omits the
+ *    setter entirely, so the generated fact is `null` while the `.scene` still
+ *    records `"#ffffff"`. An unset color therefore means the white default.
+ */
+const DEFAULT_COLOR = 0xffffff;
+function colorKey(value: number | string | null): number | string {
+  if (typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value)) {
+    return Number.parseInt(value.slice(1), 16);
+  }
+  return value ?? DEFAULT_COLOR;
+}
+
 /** Diff a generated module against the scene authority, returning typed blocks. */
 export function verifyGeneratedModule(source: string, scene: SceneDoc, moduleRelDir = 'scenes'): Block[] {
   const blocks: Block[] = [];
@@ -674,8 +698,16 @@ export function verifyGeneratedModule(source: string, scene: SceneDoc, moduleRel
         detail: `generated type "${generated.type}" != scene "${raw.type}" at ${treePath}`,
       });
     }
-    for (const field of ['x', 'y', 'textureKey'] as const) {
-      if ((generated[field] ?? null) !== (raw[field] ?? null)) {
+    // Non-semantic companions carry no Semantic carrier, so the semantic-fact
+    // loop below never sees them — yet the visible shell (backgrounds, cards,
+    // result/shop copy, toggled surfaces) is built entirely from them. Compare
+    // the runtime-visible content fields here too, so a generated module whose
+    // companion copy/color/visibility diverges from its `.scene` is blocked as
+    // drift instead of being stripped verbatim into `scenes/shell.js`.
+    for (const field of ['x', 'y', 'textureKey', 'copy', 'color', 'visible'] as const) {
+      const gen = field === 'color' ? colorKey(generated.color) : (generated[field] ?? null);
+      const src = field === 'color' ? colorKey(raw.color) : (raw[field] ?? null);
+      if (gen !== src) {
         blocks.push({
           code: 'blocked-drift',
           where: `${scene.sceneKey}:${raw.label}`,

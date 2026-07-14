@@ -1,0 +1,98 @@
+{
+  "contractId": "shell-presentation-v2",
+  "contractVersion": "2.0.0",
+  "sourcePublicationId": "sha256-35690099c42593fc9811c2def04218957aa918111d110a174a2bfb9485e7bbb9",
+  "assets": [
+    {
+      "instanceId": "fail.currency",
+      "slotId": "counter-frame",
+      "assetId": "counter-frame.primary-currency",
+      "path": "assets/counter-frame-primary-currency.png",
+      "sha256": "sha256-cd4068a305467ff528cdc102b1ddfd8fd8c99c9f4c2e8dde403bfdda225876d7"
+    },
+    {
+      "instanceId": "level.currency",
+      "slotId": "counter-frame",
+      "assetId": "counter-frame.primary-currency",
+      "path": "assets/counter-frame-primary-currency.png",
+      "sha256": "sha256-cd4068a305467ff528cdc102b1ddfd8fd8c99c9f4c2e8dde403bfdda225876d7"
+    },
+    {
+      "instanceId": "level.pause",
+      "slotId": "icon-control",
+      "assetId": "icon-control.pause",
+      "path": "assets/icon-control-pause.png",
+      "sha256": "sha256-abce8cfa932b19bfd989a8917d41e3f33c5d9622b85476a2ea1aeef5bc22ec2e"
+    },
+    {
+      "instanceId": "menu.currency",
+      "slotId": "counter-frame",
+      "assetId": "counter-frame.primary-currency",
+      "path": "assets/counter-frame-primary-currency.png",
+      "sha256": "sha256-cd4068a305467ff528cdc102b1ddfd8fd8c99c9f4c2e8dde403bfdda225876d7"
+    },
+    {
+      "instanceId": "menu.node.completed",
+      "slotId": "progression-node",
+      "assetId": "progression-node.completed",
+      "path": "assets/progression-node-completed.png",
+      "sha256": "sha256-28a13bb7afe7fa7fd7004bb3dcbff40c078476c21e3d76246b2ee77400cb4599"
+    },
+    {
+      "instanceId": "menu.node.current",
+      "slotId": "progression-node",
+      "assetId": "progression-node.current",
+      "path": "assets/progression-node-current.png",
+      "sha256": "sha256-cf842ce49898e2de4c10ce248341f2fef6a75b3e027218fad9112a998b3d3573"
+    },
+    {
+      "instanceId": "menu.node.locked",
+      "slotId": "progression-node",
+      "assetId": "progression-node.locked",
+      "path": "assets/progression-node-locked.png",
+      "sha256": "sha256-de4f91e671256321313f68727817db3d6bfd9092f627f5790ddf24cf7a0a587f"
+    },
+    {
+      "instanceId": "menu.settings",
+      "slotId": "icon-control",
+      "assetId": "icon-control.confirm",
+      "path": "assets/icon-control-confirm.png",
+      "sha256": "sha256-d7c1b640b57cfd8629266c010994dc58d7b64042fce50ac68959939a3dc510a4"
+    },
+    {
+      "instanceId": "menu.shop",
+      "slotId": "icon-control",
+      "assetId": "icon-control.shop",
+      "path": "assets/icon-control-shop.png",
+      "sha256": "sha256-919a8e826f1dd6fda88671e6d8ff52691d93ca7dfa67868ee12a67b9290cc665"
+    },
+    {
+      "instanceId": "settings.back",
+      "slotId": "icon-control",
+      "assetId": "icon-control.back",
+      "path": "assets/icon-control-back.png",
+      "sha256": "sha256-e879a6424048aeca8e93d86074b81f2ce83267ad546ffd8f7682bf7788d76dfd"
+    },
+    {
+      "instanceId": "shop.back",
+      "slotId": "icon-control",
+      "assetId": "icon-control.back",
+      "path": "assets/icon-control-back.png",
+      "sha256": "sha256-e879a6424048aeca8e93d86074b81f2ce83267ad546ffd8f7682bf7788d76dfd"
+    },
+    {
+      "instanceId": "shop.currency",
+      "slotId": "counter-frame",
+      "assetId": "counter-frame.primary-currency",
+      "path": "assets/counter-frame-primary-currency.png",
+      "sha256": "sha256-cd4068a305467ff528cdc102b1ddfd8fd8c99c9f4c2e8dde403bfdda225876d7"
+    },
+    {
+      "instanceId": "shop.currency.secondary",
+      "slotId": "counter-frame",
+      "assetId": "counter-frame.primary-currency",
+      "path": "assets/counter-frame-primary-currency.png",
+      "sha256": "sha256-cd4068a305467ff528cdc102b1ddfd8fd8c99c9f4c2e8dde403bfdda225876d7"
+    }
+  ]
+}

@@ -1,13 +1,15 @@
-// Loopback-only Phaser Editor 5 server lifecycle for the provenance leg
-// (P6 §6/§10, KTD-C/KTD-F). Starts the INSTALLED editor server bound to the
+// Shared loopback-only Phaser Editor 5 lifecycle for provenance, visual seeding,
+// and P0/A/B variants (P6 §6/§10, KTD-C/KTD-F). Starts the installed server bound to the
 // scratch project with auto-open-browser + update checks DISABLED and only the
 // allowlisted scratch `editor-plugins` path loaded; connects strictly over
 // 127.0.0.1; gates on `GetServerMode` (desktop AND unlocked — fail-closed);
 // terminates and PROVES the loopback endpoint is down before any restart.
 import { spawn, type ChildProcess } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { request as httpRequest } from 'node:http';
+import path from 'node:path';
 import process from 'node:process';
+import { verifyPluginTrust, type PluginFile } from '../publish/publish.ts';
 import type { ServerMode } from './evidence.ts';
 
 /** Default install path of the licensed Phaser Editor 5 server (overridable). */
@@ -92,12 +94,52 @@ export interface StartOptions {
   serverBin: string;
 }
 
+/** Read the scratch-local plugin payload passed to the vendor process. */
+function pluginTrustInput(pluginsDir: string): { allowlist: Buffer; files: PluginFile[] } {
+  const files: PluginFile[] = [];
+  const walk = (dir: string, rel: string): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const childRel = rel ? `${rel}/${entry.name}` : entry.name;
+      const child = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(child, childRel);
+      else if (entry.isFile() && childRel !== 'allowlist.json') {
+        files.push({ rel: childRel, bytes: readFileSync(child) });
+      } else if (!entry.isFile()) {
+        throw new ServerBlocked('blocked-untrusted-plugin', `plugin trust gate blocked: unexpected payload ${childRel}`);
+      }
+    }
+  };
+  walk(pluginsDir, '');
+  return {
+    allowlist: readFileSync(path.join(pluginsDir, 'allowlist.json')),
+    files: files.sort((a, b) => a.rel.localeCompare(b.rel)),
+  };
+}
+
+/** Fail closed on plugin id/hash/API drift before the vendor process exists. */
+function assertPluginTrust(pluginsDir: string): void {
+  try {
+    const input = pluginTrustInput(pluginsDir);
+    const blocks = verifyPluginTrust(input.allowlist, input.files);
+    if (blocks.length > 0) {
+      throw new ServerBlocked(
+        'blocked-untrusted-plugin',
+        `plugin trust gate blocked: ${blocks.map((block) => `${block.where}: ${block.detail}`).join('; ')}`,
+      );
+    }
+  } catch (error) {
+    if (error instanceof ServerBlocked) throw error;
+    throw new ServerBlocked('blocked-untrusted-plugin', 'plugin trust gate blocked: scratch plugin payload is unreadable');
+  }
+}
+
 /**
  * Spawn the editor server loopback-only with browser/updates disabled and only
  * the allowlisted scratch plugins loaded, then wait until the loopback endpoint
  * answers. Blocks if the binary is absent or the server never becomes ready.
  */
 export async function startEditorServer(opts: StartOptions): Promise<ChildProcess> {
+  assertPluginTrust(opts.pluginsDir);
   if (!existsSync(opts.serverBin)) {
     throw new ServerBlocked('server-not-found', 'the licensed Phaser Editor 5 server binary was not found');
   }

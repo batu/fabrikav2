@@ -545,7 +545,6 @@ export const VISUAL_SEED: readonly SceneVisualPlan[] = [
       rect('shop.fab.item-locked-trophy', 195, 478, 54, 48, COLOR.accentDark, { rounded: 15 }),
       rect('shop.fab.item-locked-icon-surface', 1, 1, 1, 1, COLOR.page, { fillAlpha: 0 }),
       img('shop.fab.item-locked-trophy-icon', 195, 478, 'icon_control_result_win', 0.25, 0.25, 0.5, 0.5),
-      img('shop.fab.item-locked-icon', 217, 460, 'progression_node_locked', 0.2, 0.2, 0.5, 0.5),
       text('shop.fab.item-locked-detail', 195, 551, 'Coming later', {
         fontFamily: BODY_FONT, fontSize: '15px', color: COLOR.mutedInk,
       }),

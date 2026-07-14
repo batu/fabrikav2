@@ -1,0 +1,35 @@
+{
+  "contractId": "shell-presentation-v2",
+  "contractVersion": "2.0.0",
+  "rendererProfile": "phaser-native",
+  "editorSources": [
+    {
+      "kind": "asset-pack",
+      "sha256": "sha256-8c6fa653fad73e1ad7509b8da6311c7256f9c3f6ae58e8c2091d4a6a7185b27d"
+    },
+    {
+      "kind": "editor-config",
+      "sha256": "sha256-1a879a76f2c658f652135e5bb98a61f9ccf1622c4b8accfdfbe5e69c874e8575"
+    },
+    {
+      "kind": "scene",
+      "sha256": "sha256-470e7a02edce66699cac0a761b5ac23020ab8144988ad70b98c055b2ea9ebc85"
+    },
+    {
+      "kind": "user-components",
+      "sha256": "sha256-86f477d04a6caf056eb76571d501cc537d4e5f4e4f48263d624993bf0a1d0b37"
+    }
+  ],
+  "assetCatalogHash": "sha256-567fb5c6661910d22e498da0eaeca86d91e7b018c1d0b9ae0747d632a87de11e",
+  "pageCount": 7,
+  "states": [
+    "menu",
+    "level",
+    "shop",
+    "settings",
+    "pause",
+    "win",
+    "fail"
+  ],
+  "publicationId": "sha256-35690099c42593fc9811c2def04218957aa918111d110a174a2bfb9485e7bbb9"
+}

