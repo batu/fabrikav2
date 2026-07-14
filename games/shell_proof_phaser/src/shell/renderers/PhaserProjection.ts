@@ -25,6 +25,21 @@ interface ProjectionModule {
   readonly scenes: Readonly<Record<Surface, new () => Phaser.Scene>>;
 }
 
+interface AssetPackFile {
+  url: string;
+  readonly [key: string]: unknown;
+}
+
+type AssetPack = Record<string, unknown> & {
+  "shell-runtime": { readonly files: AssetPackFile[] };
+};
+
+interface SelectedRevision {
+  readonly sourcePublicationId: string;
+  readonly projectionId: string;
+  readonly revisionPath: string;
+}
+
 export interface PhaserProjectionIdentity {
   readonly publicationId: string;
   readonly projectionId: string;
@@ -45,6 +60,55 @@ export interface PhaserProjectionHandle {
   ready(): boolean;
   actions(): readonly PhaserProjectionAction[];
   dispose(): void;
+}
+
+const selectionSources = import.meta.glob("../../../design/revision.{json}", {
+  eager: true,
+  import: "default",
+}) as Readonly<Record<string, SelectedRevision>>;
+const selectedRevision = Object.values(selectionSources)[0];
+if (!selectedRevision || Object.keys(selectionSources).length !== 1) {
+  throw new Error("The Phaser runtime requires exactly one selected revision pointer.");
+}
+const revisionPrefix = `../../../${selectedRevision.revisionPath}/`;
+const shellSources = import.meta.glob("../../../design/revisions/*/scenes/shell.js", {
+  eager: true,
+  import: "default",
+  query: "?raw",
+}) as Readonly<Record<string, string>>;
+const assetPackSources = import.meta.glob("../../../design/revisions/*/asset-pack.{json}", {
+  eager: true,
+  import: "default",
+  query: "?raw",
+}) as Readonly<Record<string, string>>;
+const revisionAssetUrls = import.meta.glob("../../../design/revisions/*/assets/*", {
+  eager: true,
+  import: "default",
+  query: "?url",
+}) as Readonly<Record<string, string>>;
+
+export const selectedProjectionIdentity: PhaserProjectionIdentity = Object.freeze({
+  publicationId: selectedRevision.sourcePublicationId,
+  projectionId: selectedRevision.projectionId,
+});
+
+function selectedArtifact<T>(artifacts: Readonly<Record<string, T>>, relativePath: string): T {
+  const key = `${revisionPrefix}${relativePath}`;
+  const artifact = artifacts[key];
+  if (artifact === undefined) throw new Error(`Selected Phaser projection is missing ${relativePath}.`);
+  return artifact;
+}
+
+function prepareProjectionModule(): { readonly source: string; readonly assetPackUrl: string } {
+  const packPath = ["asset-pack", "json"].join(".");
+  const pack = JSON.parse(selectedArtifact(assetPackSources, packPath)) as AssetPack;
+  for (const file of pack["shell-runtime"].files) {
+    file.url = selectedArtifact(revisionAssetUrls, file.url);
+  }
+  const assetPackUrl = URL.createObjectURL(new Blob([JSON.stringify(pack)], { type: "application/json" }));
+  const source = selectedArtifact(shellSources, "scenes/shell.js")
+    .replaceAll('"asset-pack.json"', JSON.stringify(assetPackUrl));
+  return { source, assetPackUrl };
 }
 
 const SCENE_KEY: Readonly<Record<Surface, string>> = {
@@ -134,12 +198,8 @@ export async function mountPhaserProjection(options: {
   readonly identity: PhaserProjectionIdentity;
 }): Promise<PhaserProjectionHandle> {
   (globalThis as typeof globalThis & { Phaser?: typeof Phaser }).Phaser = Phaser;
-  // Vite deliberately refuses to import JavaScript from publicDir in dev.
-  // Fetching the immutable bytes ourselves keeps dev and Capacitor on the same
-  // publication path without asking Vite to transform the projection.
-  const response = await fetch("/scenes/shell.js", { cache: "no-store" });
-  if (!response.ok) throw new Error(`Selected Phaser projection could not be loaded (${response.status}).`);
-  const moduleUrl = URL.createObjectURL(new Blob([await response.text()], { type: "text/javascript" }));
+  const prepared = prepareProjectionModule();
+  const moduleUrl = URL.createObjectURL(new Blob([prepared.source], { type: "text/javascript" }));
   let projection: ProjectionModule;
   try {
     projection = await import(/* @vite-ignore */ moduleUrl) as unknown as ProjectionModule;
@@ -167,7 +227,6 @@ export async function mountPhaserProjection(options: {
 
   let paintedSurface: Surface | undefined;
   let postRenderSeen = false;
-  const wiredScenes = new WeakSet<Phaser.Scene>();
   const sentinelText = `PHASER · ${options.identity.projectionId.slice(7, 15)}`;
 
   const wireScene = (scene: Phaser.Scene): void => {
@@ -183,21 +242,6 @@ export async function mountPhaserProjection(options: {
       sentinel.setAlpha(0.96);
     }
     const snapshot = options.controller.snapshot();
-    if (!wiredScenes.has(scene)) {
-      scene.input.on("pointerup", (pointer: Phaser.Input.Pointer) => {
-        for (const object of scene.children.list as ProjectedObject[]) {
-          const semantic = object.__Semantic;
-          const bounds = object.getBounds?.();
-          if (!semantic || !bounds || !bounds.contains(pointer.worldX, pointer.worldY)) continue;
-          if (!semantic.fabBinding.startsWith("flow.") && !semantic.fabBinding.startsWith("settings.") && semantic.fabBinding !== "commerce.bundle") continue;
-          const state = actionState(semantic.fabBinding, options.controller.snapshot());
-          if (!state.visible || state.disabled) return;
-          void invokeBinding(options.controller, semantic.fabBinding).then(() => handle.render());
-          return;
-        }
-      });
-      wiredScenes.add(scene);
-    }
     for (const object of objects) {
       const semantic = object.__Semantic;
       if (!semantic || (!semantic.fabBinding.startsWith("flow.") && !semantic.fabBinding.startsWith("settings.") && semantic.fabBinding !== "commerce.bundle")) continue;
@@ -215,6 +259,24 @@ export async function mountPhaserProjection(options: {
       postRenderSeen = true;
     }
   });
+
+  const onCanvasPointerUp = (event: PointerEvent): void => {
+    const scene = activeScene(game);
+    if (!scene) return;
+    const canvasRect = game.canvas.getBoundingClientRect();
+    const worldX = (event.clientX - canvasRect.left) * (390 / canvasRect.width);
+    const worldY = (event.clientY - canvasRect.top) * (844 / canvasRect.height);
+    for (const object of scene.children.list as ProjectedObject[]) {
+      const semantic = object.__Semantic;
+      const bounds = object.getBounds?.();
+      if (!semantic || !bounds || !bounds.contains(worldX, worldY)) continue;
+      if (!semantic.fabBinding.startsWith("flow.") && !semantic.fabBinding.startsWith("settings.") && semantic.fabBinding !== "commerce.bundle") continue;
+      const state = actionState(semantic.fabBinding, options.controller.snapshot());
+      if (!state.visible || state.disabled) return;
+      void invokeBinding(options.controller, semantic.fabBinding).then(() => handle.render());
+      return;
+    }
+  };
 
   const handle: PhaserProjectionHandle = {
     game,
@@ -262,10 +324,13 @@ export async function mountPhaserProjection(options: {
       });
     },
     dispose(): void {
+      game.canvas.removeEventListener("pointerup", onCanvasPointerUp);
       game.destroy(true);
+      URL.revokeObjectURL(prepared.assetPackUrl);
       options.mountInto.replaceChildren();
     },
   };
+  game.canvas.addEventListener("pointerup", onCanvasPointerUp);
 
   await new Promise<void>((resolve) => {
     if (game.isBooted) resolve();

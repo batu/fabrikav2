@@ -9,7 +9,6 @@
     "audit:kenney": "node tests/unit/audit-kenney-seed.mjs",
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run",
-    "test:e2e": "playwright test --workers=1",
     "lint": "eslint ."
   },
   "dependencies": {

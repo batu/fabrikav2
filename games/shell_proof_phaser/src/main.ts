@@ -12,11 +12,6 @@ import { maybeRunTemplateInsituTour } from "./shell/insituTour.ts";
 import "./shell/renderers/phaser-projection.css";
 import { mountTemplateShell } from "./shell/TemplateShell.ts";
 
-declare const __FABRIKAV2_SELECTED_PROJECTION__: {
-  readonly publicationId: string;
-  readonly projectionId: string;
-};
-
 export function bootGame(
   mountInto: HTMLElement,
   options: { readonly enableTestOutcomes?: boolean } = {},
@@ -40,10 +35,10 @@ const TEST_HARNESS_ENABLED: boolean =
 const appRoot = typeof document !== "undefined" ? document.getElementById("app") : null;
 if (appRoot) {
   const controller = createTemplateShellController();
-  void import("./shell/renderers/PhaserProjection.ts").then(({ mountPhaserProjection }) => mountPhaserProjection({
+  void import("./shell/renderers/PhaserProjection.ts").then(({ mountPhaserProjection, selectedProjectionIdentity }) => mountPhaserProjection({
     mountInto: appRoot,
     controller,
-    identity: __FABRIKAV2_SELECTED_PROJECTION__,
+    identity: selectedProjectionIdentity,
   })).then((shell) => {
     const evidenceProbe = createShellEvidenceProbe({
       gameId: gameConfig.id,
