@@ -4,6 +4,6 @@ import { marbleAuthoringPlugin } from "./src/server.ts";
 
 export default defineConfig({
   plugins: [marbleAuthoringPlugin()],
-  server: { port: 5203, strictPort: true },
-  preview: { port: 5203, strictPort: true },
+  server: { host: "127.0.0.1", port: 5203, strictPort: true },
+  preview: { host: "127.0.0.1", port: 5203, strictPort: true },
 });

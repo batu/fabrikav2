@@ -51,7 +51,7 @@ Task snapshot: make incompleteness visible by capturing all nine saved Pages, no
 ### Iteration 1
 
 - **Planned result:** one stable screenshot per primary Page from the final baseline revision.
-- **Capture setup:** `/preview?revision=sha256-17a64c1f89fcfc1f589d4b8af123821ddb6e7d4a1c8bf77904d669bb1e144516&page=<id>`, direct page load, 1000-millisecond asset/font wait, screenshot of the 390 × 844 Grapes frame body.
+- **Capture setup:** `/preview?revision=sha256-17adbefdad1b45f1fc40be7553935f1c26d7b576f95d63e0a70605d41ce4e236&page=<id>`, direct page load, 1000-millisecond asset/font wait, screenshot of the 390 × 844 Grapes frame body.
 
 ![Menu](./screenshots/preview-menu.png)
 ![Gameplay HUD](./screenshots/preview-gameplay-hud.png)
@@ -81,9 +81,34 @@ Task snapshot: repair all ten findings from the rejected Aesthetics Reviewed pas
 - **Gameplay:** separated the texture and base-gradient sizing/repeat contract, removed the visible dashed placeholder scaffold, and restyled the coin/cost row so `125` is readable at 390 pixels.
 - **Settings:** rendered the exact popup-card asset into its declared tall card bounds so the ribbon overlaps it, anchored the close target to the card corner, and removed same-color shadows from all six toggle labels.
 - **Results:** rendered the exact popup-card asset into the declared result bounds, moved the win/fail eyebrow into the ribbon with sufficient contrast, and seam-matched the fail/finale card/ribbon composition.
-- **Publication:** `sha256-17a64c1f89fcfc1f589d4b8af123821ddb6e7d4a1c8bf77904d669bb1e144516`.
+- **Publication:** `sha256-17adbefdad1b45f1fc40be7553935f1c26d7b576f95d63e0a70605d41ce4e236`.
 - **Capture integrity:** every final `preview-<page>.png` was loaded directly from that revision, waited for images/fonts plus 1000 ms, and captured from the inner 390 × 844 frame body to avoid outer-iframe compositor artifacts.
 
 Visual inspection of the refreshed nine-page set confirms: a continuous quiet gameplay field, no visible placeholder label/border, legible hint cost, exact-size lower saga with visible colored confetti, tall unified settings popup/ribbon, clean settings labels, visible result eyebrows, and overlapping unified result chrome. Pause and shop were unchanged except for being recaptured from the final revision.
 
 - **Decision:** local repair pass complete; fresh independent Aesthetics Reviewed judgment is still required. Physical-device fidelity remains MR4 work and is not claimed here.
+
+## T5 — Publication and mutation authority hardening
+
+Task snapshot: close the independent MR2 review findings without changing the native Grapes layout or its repaired pixels.
+
+- **Network boundary:** the editor binds to `127.0.0.1`; Portal remains the authenticated remote boundary. Every save/reset/publish request must present the browser `Origin` matching the direct or forwarded host plus a 256-bit in-memory session capability. Live route probes returned `403` for missing or cross-origin authorization.
+- **Concurrency:** load returns the working revision. Save/reset require that revision as `If-Match`; a stale live probe returned `409` and preserved the newer working file.
+- **Exact replacement:** a real native Asset Manager round trip selected `menu.settings.icon`, replaced it with the exact coin byte, saved, fully reloaded, and retained synchronized source/role/hash metadata. Reset restored the exact settings asset and left protected baseline and working byte-identical.
+- **Immutable Preview:** the final publication owns `project.json`, `assets-manifest.json`, `tokens.css`, all fonts, and all exact manifest image bytes. Preview project URLs are deterministically rewritten to that revision's asset tree. The live probe loaded Preview project, token CSS, and exact coin bytes only from `sha256-17adbefdad1b45f1fc40be7553935f1c26d7b576f95d63e0a70605d41ce4e236`.
+- **Read integrity:** every publication read recomputes hashes from the stored raw project plus frozen dependency bytes and refuses a stale revision stamp after any tamper. Unit probes cover project and asset-read rejection. Project styles and token CSS also reject CSS escape syntax; regression probes cover escaped mutable-live and escaped remote `url()` spellings that Chromium would otherwise normalize after validation.
+- **Visual preservation:** all nine 390 × 844 frame-body captures were refreshed from the frozen final revision after fonts/images plus 1000 ms. They preserve the T4 repair; the new capture path also removes the black compositor bands visible in some prior PNGs.
+
+- **Decision:** authority repair locally verified. Physical-device fidelity remains MR4 work and is not claimed here.
+
+## T6 — Closed component-schema boundary
+
+Task snapshot: replace recursive string filtering as the primary trust boundary with an explicit schema for the native Marble component subset.
+
+- **Proof-first attack set:** the pre-fix validator accepted all reproduced structures: unknown component type/field, `style` and `script` tags, component `script`, `onclick`, `javascript:` link, iframe `srcdoc`, entity-encoded inline style, and unfrozen `poster`/`background` attributes.
+- **Closed schema:** every component reachable from every Page frame is validated before URL checks. Only Grapes `wrapper`, `default`, `image`, and `text` types; their observed implicit/`section`/`span` tags; operation-required fields; and type-specific attributes are accepted. Wrapper document/head metadata and editable background-property list are canonical. Unknown or scriptable structures fail closed.
+- **Native-operation compatibility:** a live Chromium session changed copy, toggled visibility, semantically duplicated `pause.card`, and saved through the real editor. The server returned `200`; copy, `display:none`, and `.copy-1` identities persisted. Reset returned `200`, restored baseline copy, and produced no page errors.
+- **Live negative boundary:** ten API mutations covering unsupported type/field, both executable tags, handler/link/srcdoc/entity-style vectors, and both media attributes each returned `400` with the component-schema error. The working revision remained unchanged.
+- **Frozen Preview:** baseline publish returned `200`; publication metadata, Preview project, token CSS, manifest, and exact coin bytes each loaded from revision `sha256-17adbefdad1b45f1fc40be7553935f1c26d7b576f95d63e0a70605d41ce4e236` with `200`.
+
+- **Decision:** the structural authority boundary and required native edits are locally verified. Portal authentication and physical-device fidelity remain downstream work and are not claimed here.

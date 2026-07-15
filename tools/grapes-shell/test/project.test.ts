@@ -1,12 +1,14 @@
-import { cp, mkdtemp, readFile, rm } from "node:fs/promises";
+import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { afterEach, describe, expect, it } from "vitest";
 
-import { publicationRevision, validateProjectData, verifyAssetBytes, type AssetManifest } from "../src/model.ts";
-import { MarbleProjectStore, type StorePaths } from "../src/store.ts";
+import { applyExactAssetReplacement } from "../src/asset-replacement.ts";
+import { publicationRevision, validateProjectData, validateTokenCss, verifyAssetBytes, workingRevision, type AssetManifest } from "../src/model.ts";
+import { mutationRequestFailure } from "../src/server.ts";
+import { MarbleProjectStore, RevisionConflictError, type StorePaths } from "../src/store.ts";
 
 const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const repositoryRoot = path.resolve(workspaceRoot, "../..");
@@ -65,11 +67,13 @@ async function temporaryStore(): Promise<{ store: MarbleProjectStore; paths: Sto
     latest: path.join(root, "latest.json"),
     manifest: path.join(root, "assets.json"),
     assetRoot,
+    tokens: path.join(root, "tokens.css"),
   };
   await Promise.all([
     cp(path.join(authoringRoot, "baseline/project.json"), paths.baseline),
     cp(path.join(authoringRoot, "working/project.json"), paths.working),
     cp(path.join(authoringRoot, "assets-manifest.json"), paths.manifest),
+    cp(path.join(repositoryRoot, "games/marble_run/design/tokens.css"), paths.tokens),
   ]);
   return { store: new MarbleProjectStore(paths), paths };
 }
@@ -155,6 +159,7 @@ describe("native Marble Run GrapesJS authority", () => {
   it("persists transforms, live copy, visibility, reorder, duplicate identity and asset bindings across a fresh store instance", async () => {
     const { store, paths } = await temporaryStore();
     const project = await store.readWorking();
+    const before = workingRevision(project);
     Object.assign(styleFor(project, "menu.currency.group"), { left: "23px", width: "88px" });
     findById(project, "menu.currency.value").content = "250";
     Object.assign(styleFor(project, "menu.settings.group"), { display: "none" });
@@ -166,7 +171,7 @@ describe("native Marble Run GrapesJS authority", () => {
     layers.push(source);
     layers.unshift(layers.splice(layers.findIndex((layer) => (layer.attributes as Record<string, unknown> | undefined)?.["data-fab-id"] === "menu.settings.group"), 1)[0]!);
 
-    await store.saveWorking(project);
+    await store.saveWorking(project, before);
     const afterRestart = await new MarbleProjectStore(paths).readWorking();
     expect(styleFor(afterRestart, "menu.currency.group").left).toBe("23px");
     expect(findById(afterRestart, "menu.currency.value").content).toBe("250");
@@ -179,21 +184,22 @@ describe("native Marble Run GrapesJS authority", () => {
     const { store, paths } = await temporaryStore();
     const baselineBefore = await readFile(paths.baseline, "utf8");
     const project = await store.readWorking();
+    const before = workingRevision(project);
     findById(project, "gameplay.hint.label").content = "FREE";
-    await store.saveWorking(project);
-    const reset = await store.reset();
+    const saved = await store.saveWorking(project, before);
+    const reset = await store.reset(saved.revision);
 
-    expect(findById(reset, "gameplay.hint.label").content).toBe("HINT");
+    expect(findById(reset.project, "gameplay.hint.label").content).toBe("HINT");
     expect(await readFile(paths.baseline, "utf8")).toBe(baselineBefore);
   });
 
   it("creates immutable revision-addressed previews directly from saved native project data", async () => {
     const { store } = await temporaryStore();
     const initial = await store.readWorking();
-    const first = await store.publish(initial);
+    const first = await store.publishWorking(workingRevision(initial));
     findById(initial, "pause.title").content = "Paused!";
-    await store.saveWorking(initial);
-    const second = await store.publish(initial);
+    const saved = await store.saveWorking(initial, workingRevision(await store.readWorking()));
+    const second = await store.publishWorking(saved.revision);
 
     expect(first.revision).toMatch(/^sha256-[a-f0-9]{64}$/u);
     expect(second.revision).not.toBe(first.revision);
@@ -218,12 +224,198 @@ describe("native Marble Run GrapesJS authority", () => {
     expect(() => validateProjectData(wrongHash, manifest)).toThrow(/Asset hash metadata diverges/u);
   });
 
-  it("hashes only native project data, exact assets and the fixed preview profile", async () => {
+  it("hashes native project data plus frozen rendered dependencies and the fixed preview profile", async () => {
     const project = await sourceJson("baseline/project.json");
     const manifest = await sourceJson("assets-manifest.json") as AssetManifest;
-    const first = publicationRevision(project, manifest);
+    const { store } = await temporaryStore();
+    const dependencies = await store.sourceDependenciesForTest();
+    const first = publicationRevision(project, manifest, dependencies.snapshot);
     const changed = structuredClone(project) as Record<string, unknown>;
     findById(changed, "shop.restore.button.label").content = "RESTORE";
-    expect(publicationRevision(changed, manifest)).not.toBe(first);
+    expect(publicationRevision(changed, manifest, dependencies.snapshot)).not.toBe(first);
+
+    const changedTokens = {
+      ...structuredClone(dependencies.snapshot),
+      tokens: { ...dependencies.snapshot.tokens, sha256: "f".repeat(64) },
+    };
+    expect(publicationRevision(project, manifest, changedTokens)).not.toBe(first);
+  });
+
+  it("fails closed on every uncurated image or CSS URL and missing page-root dimensions", async () => {
+    const project = await sourceJson("baseline/project.json") as Record<string, unknown>;
+    const manifest = await sourceJson("assets-manifest.json") as AssetManifest;
+
+    for (const source of ["https://example.invalid/icon.png", "data:image/png;base64,AA==", "/marble-assets/not-curated.png"]) {
+      const invalid = structuredClone(project);
+      const image = findById(invalid, "menu.currency.icon");
+      image.src = source;
+      (image.attributes as Record<string, unknown>).src = source;
+      expect(() => validateProjectData(invalid, manifest)).toThrow(/uncurated asset URL/u);
+    }
+
+    const cssRemote = structuredClone(project);
+    styleFor(cssRemote, "menu.currency.group").background = "url(https://example.invalid/pixel.png)";
+    expect(() => validateProjectData(cssRemote, manifest)).toThrow(/uncurated CSS URL/u);
+
+    for (const escaped of [
+      "u\\72l(\"/marble-assets/icon-coin.png\")",
+      "u\\72l(\"h\\74tps://attacker.invalid/pixel.png\")",
+    ]) {
+      const escapedCss = structuredClone(project);
+      styleFor(escapedCss, "menu.currency.group").background = escaped;
+      expect(() => validateProjectData(escapedCss, manifest)).toThrow(/CSS escapes are not supported/u);
+    }
+
+    const srcsetRemote = structuredClone(project);
+    (findById(srcsetRemote, "menu.currency.icon").attributes as Record<string, unknown>).srcset = "data:image/png;base64,AA== 2x";
+    expect(() => validateProjectData(srcsetRemote, manifest)).toThrow(/component schema/u);
+
+    const embeddedImage = structuredClone(project);
+    findById(embeddedImage, "pause.title").content = "<img src='/marble-assets/icon-coin.png'>";
+    expect(() => validateProjectData(embeddedImage, manifest)).toThrow(/component schema/u);
+
+    for (const content of [
+      "<style>.x { background: u\\72l('h\\74tps://attacker.invalid/pixel.png'); }</style>",
+      "&lt;div style=&quot;background:u&#92;72l('h&#92;74tps://attacker.invalid/pixel.png')&quot;&gt;x&lt;/div&gt;",
+    ]) {
+      const styleMarkup = structuredClone(project);
+      findById(styleMarkup, "pause.title").content = content;
+      expect(() => validateProjectData(styleMarkup, manifest)).toThrow(/component schema/u);
+    }
+
+    expect(() => validateTokenCss("@import url('https://example.invalid/theme.css');", manifest)).toThrow(/uncurated/u);
+    expect(() => validateTokenCss(".x { background: u\\72l('h\\74tps://attacker.invalid/pixel.png'); }", manifest))
+      .toThrow(/CSS escapes are not supported/u);
+
+    const noDimensions = structuredClone(project);
+    const root = pageRoot(noDimensions, 0);
+    delete root.style;
+    const rootId = (root.attributes as Record<string, unknown>).id;
+    const rootRule = records(noDimensions.styles).find((rule) => Array.isArray(rule.selectors) && rule.selectors.includes(`#${String(rootId)}`));
+    if (rootRule) delete (rootRule.style as Record<string, unknown>).width;
+    expect(() => validateProjectData(noDimensions, manifest)).toThrow(/must be 390x844/u);
+  });
+
+  it("rejects every component shape outside the explicit Marble authoring schema", async () => {
+    const project = await sourceJson("baseline/project.json") as Record<string, unknown>;
+    const manifest = await sourceJson("assets-manifest.json") as AssetManifest;
+    const attacks: Array<[string, (component: Record<string, unknown>) => void]> = [
+      ["unknown component type", (component) => { component.type = "video"; }],
+      ["unknown component field", (component) => { component.metadata = { executable: true }; }],
+      ["style tag", (component) => {
+        component.tagName = "style";
+        component.content = "body { background: u\\72l('h\\74tps://attacker.invalid/pixel.png'); }";
+      }],
+      ["script tag", (component) => {
+        component.tagName = "script";
+        component.content = "globalThis.pwned = true";
+      }],
+      ["component script", (component) => { component.script = "globalThis.pwned = true"; }],
+      ["event handler", (component) => {
+        (component.attributes as Record<string, unknown>).onclick = "globalThis.pwned = true";
+      }],
+      ["javascript link", (component) => {
+        (component.attributes as Record<string, unknown>).href = "javascript:globalThis.pwned=true";
+      }],
+      ["iframe srcdoc", (component) => {
+        component.tagName = "iframe";
+        (component.attributes as Record<string, unknown>).srcdoc = "<p>owned</p>";
+      }],
+      ["entity-encoded style", (component) => {
+        (component.attributes as Record<string, unknown>).style = "background:u&#92;72l(&quot;h&#92;74tps&colon;&#47;&#47;attacker.invalid/pixel.png&quot;)";
+      }],
+      ["poster asset", (component) => {
+        (component.attributes as Record<string, unknown>).poster = "/marble-assets/icon-coin.png";
+      }],
+      ["background asset", (component) => {
+        (component.attributes as Record<string, unknown>).background = "/marble-assets/icon-coin.png";
+      }],
+    ];
+
+    const schemaFailures: string[] = [];
+    for (const [label, attack] of attacks) {
+      const invalid = structuredClone(project);
+      attack(findById(invalid, "pause.card"));
+      try {
+        validateProjectData(invalid, manifest);
+        schemaFailures.push(`${label}: accepted`);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        if (!/component schema/u.test(message)) schemaFailures.push(`${label}: ${message}`);
+      }
+    }
+    expect(schemaFailures).toEqual([]);
+  });
+
+  it("replaces the selected image in one model update with synchronized exact metadata", async () => {
+    const manifest = await sourceJson("assets-manifest.json") as AssetManifest;
+    const calls: Record<string, unknown>[] = [];
+    const component = {
+      getAttributes: () => ({ "data-fab-id": "menu.settings.icon", "data-fab-role": "settings-icon", src: "/marble-assets/icon-settings.png" }),
+      set: (value: Record<string, unknown>) => { calls.push(value); },
+    };
+    const replacement = applyExactAssetReplacement(component, manifest, "/marble-assets/icon-coin.png");
+    expect(calls).toHaveLength(1);
+    expect(calls[0]).toMatchObject({
+      src: "/marble-assets/icon-coin.png",
+      attributes: {
+        src: "/marble-assets/icon-coin.png",
+        "data-asset-role": "coin-icon",
+        "data-asset-sha": "e77e5dbf6899c3d427d1a846bdab2bb693bb59a5693c31ea6e1ec0eda9076980",
+      },
+    });
+    expect(replacement.role).toBe("coin-icon");
+  });
+
+  it("requires same-origin and an unguessable session capability for every mutation", () => {
+    const capability = "x".repeat(43);
+    const headers = { host: "127.0.0.1:5203", origin: "http://127.0.0.1:5203", "x-fabrikav2-capability": capability };
+    expect(mutationRequestFailure(headers, capability)).toBeUndefined();
+    expect(mutationRequestFailure({ ...headers, origin: "https://attacker.invalid" }, capability)).toMatch(/same origin/u);
+    expect(mutationRequestFailure({ ...headers, "x-fabrikav2-capability": "wrong" }, capability)).toMatch(/capability/u);
+    expect(mutationRequestFailure({ host: "internal:5203", "x-forwarded-host": "portal.example", "x-forwarded-proto": "https", origin: "https://portal.example", "x-fabrikav2-capability": capability }, capability)).toBeUndefined();
+  });
+
+  it("rejects stale save and reset revisions with an explicit conflict", async () => {
+    const { store } = await temporaryStore();
+    const initial = await store.readWorkingState();
+    const changed = structuredClone(initial.project);
+    findById(changed, "pause.title").content = "First tab";
+    const saved = await store.saveWorking(changed, initial.revision);
+
+    await expect(store.saveWorking(initial.project, initial.revision)).rejects.toBeInstanceOf(RevisionConflictError);
+    await expect(store.reset(initial.revision)).rejects.toBeInstanceOf(RevisionConflictError);
+    expect((await store.readWorkingState()).revision).toBe(saved.revision);
+  });
+
+  it("serves only revision-owned bytes and rejects publication tampering under a stale stamp", async () => {
+    const { store, paths } = await temporaryStore();
+    const state = await store.readWorkingState();
+    const published = await store.publishWorking(state.revision);
+    const project = await store.readPublicationPreview(published.revision);
+    expect((findById(project, "menu.currency.icon").attributes as Record<string, unknown>).src)
+      .toBe(`/api/publications/${published.revision}/assets/icon-coin.png`);
+    expect(await store.readPublicationTokens(published.revision)).toContain("./assets/fonts/FredokaOne.woff2");
+
+    const publicationRoot = path.join(paths.publications, published.revision);
+    const publicationProject = path.join(publicationRoot, "project.json");
+    const originalProject = await readFile(publicationProject, "utf8");
+    const tampered = JSON.parse(originalProject) as Record<string, unknown>;
+    findById(tampered, "pause.title").content = "tampered";
+    await writeFile(publicationProject, `${JSON.stringify(tampered)}\n`);
+    await expect(store.readPublication(published.revision)).rejects.toThrow(/revision integrity/u);
+    await expect(store.readPublicationAsset(published.revision, "icon-coin.png")).rejects.toThrow(/revision integrity/u);
+
+    await writeFile(publicationProject, originalProject);
+    const tokenPath = path.join(publicationRoot, "tokens.css");
+    const originalTokens = await readFile(tokenPath);
+    await writeFile(tokenPath, Buffer.concat([originalTokens, Buffer.from("\n:root { --tampered: 1; }\n")]));
+    await expect(store.readPublication(published.revision)).rejects.toThrow(/revision integrity/u);
+
+    await writeFile(tokenPath, originalTokens);
+    const assetPath = path.join(publicationRoot, "assets/icon-coin.png");
+    const originalAsset = await readFile(assetPath);
+    await writeFile(assetPath, Buffer.concat([originalAsset, Buffer.from([0])]));
+    await expect(store.readPublication(published.revision)).rejects.toThrow(/revision integrity/u);
   });
 });

@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Native GrapesJS authoring and content-addressed preview for real Fabrika game UI.",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
+    "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run",

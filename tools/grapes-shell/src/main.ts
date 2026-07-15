@@ -1,13 +1,23 @@
-import grapesjs, { type Component, type Editor, type ProjectData } from "grapesjs";
+import grapesjs, { type Asset, type Component, type Editor, type ProjectData } from "grapesjs";
 
 import "grapesjs/dist/css/grapes.min.css";
 import "./editor.css";
 
+import { applyExactAssetReplacement } from "./asset-replacement.ts";
 import { REQUIRED_PAGES, type AssetManifest } from "./contract.ts";
 
 interface PublicationResult {
   readonly revision: string;
   readonly previewUrl: string;
+}
+
+interface WorkingState {
+  readonly project: ProjectData;
+  readonly revision: string;
+}
+
+interface AuthoringSession {
+  readonly capability: string;
 }
 
 declare global {
@@ -74,7 +84,7 @@ function setEditorReadonly(editor: Editor): void {
   }
 }
 
-function createEditor(container: HTMLElement, readonly: boolean): Editor {
+function createEditor(container: HTMLElement, readonly: boolean, canvasStyles = ["/marble-design/tokens.css"]): Editor {
   return grapesjs.init({
     container,
     height: "100%",
@@ -85,7 +95,7 @@ function createEditor(container: HTMLElement, readonly: boolean): Editor {
     dragMode: "absolute",
     nativeDnD: false,
     selectorManager: { componentFirst: true },
-    canvas: { styles: ["/marble-design/tokens.css"] },
+    canvas: { styles: canvasStyles },
     deviceManager: { devices: [{ id: "marble-390", name: "Marble 390 × 844", width: "390px", height: "844px" }] },
     panels: readonly ? { defaults: [] } : undefined,
     blockManager: { blocks: [] },
@@ -121,8 +131,8 @@ async function mountPreview(root: HTMLElement): Promise<void> {
   const canvas = node("div", "preview-canvas");
   shell.append(toolbar, canvas);
   root.replaceChildren(shell);
-  const editor = createEditor(canvas, true);
-  editor.loadProjectData(await request<ProjectData>(`/api/publications/${revision}/project`));
+  const editor = createEditor(canvas, true, [`/api/publications/${revision}/tokens.css`]);
+  editor.loadProjectData(await request<ProjectData>(`/api/publications/${revision}/preview-project`));
   editor.Devices.select("marble-390");
   labelComponents(editor);
   setEditorReadonly(editor);
@@ -138,9 +148,10 @@ async function mountPreview(root: HTMLElement): Promise<void> {
 }
 
 async function mountEditor(root: HTMLElement): Promise<void> {
-  const [project, manifest] = await Promise.all([
-    request<ProjectData>("/api/project"),
+  const [initialState, manifest, session] = await Promise.all([
+    request<WorkingState>("/api/project"),
     request<AssetManifest>("/api/assets"),
+    request<AuthoringSession>("/api/session"),
   ]);
   const shell = node("main", "authoring-shell");
   const toolbar = node("header", "authoring-toolbar");
@@ -168,8 +179,9 @@ async function mountEditor(root: HTMLElement): Promise<void> {
   root.replaceChildren(shell);
   const editor = createEditor(stage, false);
   let loading = true;
+  let workingRevision = initialState.revision;
   editor.AssetManager.add(assetSources(manifest));
-  editor.loadProjectData(project);
+  editor.loadProjectData(initialState.project);
   editor.Devices.select("marble-390");
   labelComponents(editor);
   for (const pageId of REQUIRED_PAGES) {
@@ -218,13 +230,28 @@ async function mountEditor(root: HTMLElement): Promise<void> {
   });
 
   const save = async () => {
-    await request("/api/project", { method: "PUT", headers: { "content-type": "application/json" }, body: JSON.stringify(editor.getProjectData()) });
-    feedback.textContent = "Saved to working/project.json";
+    const state = await request<WorkingState>("/api/project", {
+      method: "PUT",
+      headers: {
+        "content-type": "application/json",
+        "if-match": workingRevision,
+        "x-fabrikav2-capability": session.capability,
+      },
+      body: JSON.stringify(editor.getProjectData()),
+    });
+    workingRevision = state.revision;
+    feedback.textContent = `Saved ${workingRevision}`;
   };
   const saveButton = button("Save", save, true);
   const publish = async (): Promise<PublicationResult> => {
     await save();
-    const result = await request<PublicationResult>("/api/publish", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(editor.getProjectData()) });
+    const result = await request<PublicationResult>("/api/publish", {
+      method: "POST",
+      headers: {
+        "if-match": workingRevision,
+        "x-fabrikav2-capability": session.capability,
+      },
+    });
     feedback.textContent = result.revision;
     return result;
   };
@@ -234,14 +261,36 @@ async function mountEditor(root: HTMLElement): Promise<void> {
   });
   const resetButton = button("Reset baseline", async () => {
     if (!window.confirm("Replace the working project with the protected Marble baseline?")) return;
-    const reset = await request<ProjectData>("/api/reset", { method: "POST" });
+    const reset = await request<WorkingState>("/api/reset", {
+      method: "POST",
+      headers: {
+        "if-match": workingRevision,
+        "x-fabrikav2-capability": session.capability,
+      },
+    });
     loading = true;
-    editor.loadProjectData(reset);
+    editor.loadProjectData(reset.project);
+    workingRevision = reset.revision;
     labelComponents(editor);
     loading = false;
     feedback.textContent = "Working state reset from protected baseline";
   });
-  const assetsButton = button("Exact assets", () => { editor.runCommand("open-assets"); });
+  const assetsButton = button("Replace exact asset", () => {
+    const selected = editor.getSelected();
+    if (!selected || selected.get("type") !== "image") {
+      feedback.textContent = "Select an image layer before replacing its exact asset";
+      return;
+    }
+    editor.runCommand("open-assets", {
+      target: selected,
+      types: ["image"],
+      select(asset: Asset, complete: boolean) {
+        const replacement = applyExactAssetReplacement(selected, manifest, String(asset.getSrc()));
+        feedback.textContent = `Replaced with ${replacement.role} · save to persist`;
+        if (complete) editor.Modal.close();
+      },
+    });
+  });
   const duplicateButton = button("Duplicate", () => {
     const selected = editor.getSelected();
     const parent = selected?.parent();
