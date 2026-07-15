@@ -232,3 +232,38 @@ A small brown `LEVEL 3` eyebrow above a large centered white `COMPLETED` headlin
 ### Spawn Rules
 
 - Result-body polish beyond validated P1/P2 findings is deferred.
+
+## Task MR3-V5 - Match the level-3 saga window
+
+### Status
+
+passed
+
+### Goal
+
+Make the primary Menu progression rail use the same forward-fade window as the current game source.
+
+### Why Now
+
+Fresh independent review found that the repaired Menu still inverted progression by placing completed level 2 above current level 3 and locked level 4 below it.
+
+### User Lens
+
+The static editor state must faithfully represent the game's actual level-3 primary state, not merely resemble a generic level map.
+
+### Acceptance Criteria
+
+- Top-to-bottom labels are exactly 6, 5, 4, 3.
+- Levels 6, 5, and 4 are locked-ahead nodes above current level 3.
+- No completed level 2 appears.
+- Each node and label remains independently selectable and semantically stable.
+- Project and protected baseline remain byte-identical.
+
+### Verification
+
+- Inspect `screenshots/post/Menu.png` and `native-editor/Menu-native-editor.png`.
+- Run the native validator and authoring tests.
+
+### Out of Scope
+
+- Interactive progression or alternate save-state windows.

@@ -1,0 +1,29 @@
+{
+  "components": [
+    {
+      "name": "Semantic",
+      "displayName": "Fabrika Semantic Identity",
+      "objectDisplayFormat": "",
+      "baseClass": "",
+      "gameObjectType": "Phaser.GameObjects.GameObject",
+      "generateGameObjectField": true,
+      "properties": [
+        { "name": "fabSemanticId", "label": "Instance ID", "tooltip": "Stable unique instance identity.", "defValue": "", "defArrayValue": [], "customDefinition": false, "editorOnly": false, "deprecated": false, "type": { "id": "string" } },
+        { "name": "fabRole", "label": "Role", "tooltip": "Human-facing semantic role.", "defValue": "", "defArrayValue": [], "customDefinition": false, "editorOnly": false, "deprecated": false, "type": { "id": "string" } },
+        { "name": "fabBinding", "label": "Binding", "tooltip": "Exact asset, copy, state, or action binding.", "defValue": "", "defArrayValue": [], "customDefinition": false, "editorOnly": false, "deprecated": false, "type": { "id": "string" } },
+        { "name": "fabSlot", "label": "Slot", "tooltip": "Logical placement slot.", "defValue": "", "defArrayValue": [], "customDefinition": false, "editorOnly": false, "deprecated": false, "type": { "id": "string" } },
+        { "name": "fabVariant", "label": "Variant", "tooltip": "State variant retained by duplicates.", "defValue": "default", "defArrayValue": [], "customDefinition": false, "editorOnly": false, "deprecated": false, "type": { "id": "string" } }
+      ],
+      "constraints": [],
+      "constraintsCondition": ""
+    }
+  ],
+  "meta": {
+    "app": "Phaser Editor 2D - User Components Editor",
+    "url": "https://phaser.io/editor",
+    "contentType": "phasereditor2d.core.scene.UserComponents"
+  },
+  "outputLang": "TYPE_SCRIPT",
+  "exportClass": true,
+  "autoImport": true
+}

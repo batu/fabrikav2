@@ -690,43 +690,137 @@
         },
         {
           "type": "Image",
-          "id": "menu.saga.completed",
-          "label": "menu.saga.completed",
+          "id": "menu.saga.locked.6",
+          "label": "menu.saga.locked.6",
           "components": [
             "Semantic"
           ],
-          "Semantic.fabSemanticId": "menu.saga.completed",
-          "Semantic.fabRole": "completed-level-node",
-          "Semantic.fabBinding": "state:level-completed",
+          "Semantic.fabSemanticId": "menu.saga.locked.6",
+          "Semantic.fabRole": "locked-level-node",
+          "Semantic.fabBinding": "state:level-locked",
           "Semantic.fabSlot": "node",
-          "Semantic.fabVariant": "default",
+          "Semantic.fabVariant": "far",
           "texture": {
-            "key": "level_node_completed"
+            "key": "level_node_locked"
           },
           "x": 0,
-          "y": -125,
-          "scaleX": 0.26,
-          "scaleY": 0.26,
-          "binding": "state:level-completed",
+          "y": -150,
+          "scaleX": 0.2,
+          "scaleY": 0.2,
+          "alpha": 0.45,
+          "binding": "state:level-locked",
           "slot": "node"
         },
         {
           "type": "Text",
-          "id": "menu.saga.completed.label",
-          "label": "menu.saga.completed.label",
+          "id": "menu.saga.locked.6.label",
+          "label": "menu.saga.locked.6.label",
           "components": [
             "Semantic"
           ],
-          "Semantic.fabSemanticId": "menu.saga.completed.label",
+          "Semantic.fabSemanticId": "menu.saga.locked.6.label",
           "Semantic.fabRole": "level-number",
           "Semantic.fabBinding": "state:level-number",
           "Semantic.fabSlot": "node-label",
-          "Semantic.fabVariant": "default",
+          "Semantic.fabVariant": "far",
           "x": 0,
-          "y": -125,
+          "y": -150,
           "originX": 0.5,
           "originY": 0.5,
-          "text": "2",
+          "text": "6",
+          "fontFamily": "Fredoka One",
+          "fontSize": "18px",
+          "color": "#6a3016",
+          "alpha": 0.45,
+          "binding": "state:level-number",
+          "slot": "node-label"
+        },
+        {
+          "type": "Image",
+          "id": "menu.saga.locked.5",
+          "label": "menu.saga.locked.5",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "menu.saga.locked.5",
+          "Semantic.fabRole": "locked-level-node",
+          "Semantic.fabBinding": "state:level-locked",
+          "Semantic.fabSlot": "node",
+          "Semantic.fabVariant": "distant",
+          "texture": {
+            "key": "level_node_locked"
+          },
+          "x": 0,
+          "y": -60,
+          "scaleX": 0.23,
+          "scaleY": 0.23,
+          "alpha": 0.68,
+          "binding": "state:level-locked",
+          "slot": "node"
+        },
+        {
+          "type": "Text",
+          "id": "menu.saga.locked.5.label",
+          "label": "menu.saga.locked.5.label",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "menu.saga.locked.5.label",
+          "Semantic.fabRole": "level-number",
+          "Semantic.fabBinding": "state:level-number",
+          "Semantic.fabSlot": "node-label",
+          "Semantic.fabVariant": "distant",
+          "x": 0,
+          "y": -60,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "5",
+          "fontFamily": "Fredoka One",
+          "fontSize": "20px",
+          "color": "#6a3016",
+          "alpha": 0.68,
+          "binding": "state:level-number",
+          "slot": "node-label"
+        },
+        {
+          "type": "Image",
+          "id": "menu.saga.locked.4",
+          "label": "menu.saga.locked.4",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "menu.saga.locked.4",
+          "Semantic.fabRole": "locked-level-node",
+          "Semantic.fabBinding": "state:level-locked",
+          "Semantic.fabSlot": "node",
+          "Semantic.fabVariant": "near",
+          "texture": {
+            "key": "level_node_locked"
+          },
+          "x": 0,
+          "y": 35,
+          "scaleX": 0.26,
+          "scaleY": 0.26,
+          "binding": "state:level-locked",
+          "slot": "node"
+        },
+        {
+          "type": "Text",
+          "id": "menu.saga.locked.4.label",
+          "label": "menu.saga.locked.4.label",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "menu.saga.locked.4.label",
+          "Semantic.fabRole": "level-number",
+          "Semantic.fabBinding": "state:level-number",
+          "Semantic.fabSlot": "node-label",
+          "Semantic.fabVariant": "near",
+          "x": 0,
+          "y": 35,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "4",
           "fontFamily": "Fredoka One",
           "fontSize": "22px",
           "color": "#6a3016",
@@ -749,7 +843,7 @@
             "key": "level_node_current"
           },
           "x": 0,
-          "y": 0,
+          "y": 145,
           "scaleX": 0.58,
           "scaleY": 0.58,
           "binding": "action:start-current",
@@ -768,58 +862,13 @@
           "Semantic.fabSlot": "node-label",
           "Semantic.fabVariant": "default",
           "x": 0,
-          "y": 0,
+          "y": 145,
           "originX": 0.5,
           "originY": 0.5,
           "text": "3",
           "fontFamily": "Fredoka One",
           "fontSize": "52px",
           "color": "#ffffff",
-          "binding": "state:level-number",
-          "slot": "node-label"
-        },
-        {
-          "type": "Image",
-          "id": "menu.saga.locked",
-          "label": "menu.saga.locked",
-          "components": [
-            "Semantic"
-          ],
-          "Semantic.fabSemanticId": "menu.saga.locked",
-          "Semantic.fabRole": "locked-level-node",
-          "Semantic.fabBinding": "state:level-locked",
-          "Semantic.fabSlot": "node",
-          "Semantic.fabVariant": "default",
-          "texture": {
-            "key": "level_node_locked"
-          },
-          "x": 0,
-          "y": 140,
-          "scaleX": 0.26,
-          "scaleY": 0.26,
-          "binding": "state:level-locked",
-          "slot": "node"
-        },
-        {
-          "type": "Text",
-          "id": "menu.saga.locked.label",
-          "label": "menu.saga.locked.label",
-          "components": [
-            "Semantic"
-          ],
-          "Semantic.fabSemanticId": "menu.saga.locked.label",
-          "Semantic.fabRole": "level-number",
-          "Semantic.fabBinding": "state:level-number",
-          "Semantic.fabSlot": "node-label",
-          "Semantic.fabVariant": "default",
-          "x": 0,
-          "y": 140,
-          "originX": 0.5,
-          "originY": 0.5,
-          "text": "4",
-          "fontFamily": "Fredoka One",
-          "fontSize": "22px",
-          "color": "#6a3016",
           "binding": "state:level-number",
           "slot": "node-label"
         }

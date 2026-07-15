@@ -332,3 +332,42 @@ None for this task.
 - Repository audit passed with pre-existing warnings.
 - Full project gate inside `npm run land-gate` passed; its merge gate correctly deferred until this worker commit exists.
 - Verification boundary: these screenshots prove saved-scene projection and licensed-editor persistence. They do not claim physical-device runtime integration, which is outside this aesthetics repair.
+
+## Task MR3-V5 - Iteration 1 - Level-3 saga window corrected
+
+### Task Snapshot
+
+Status: passed
+
+Fresh independent review found one remaining P2 mismatch: the Menu authority placed completed level 2 above current level 3 and locked level 4 below it, reversing the source's forward-fade progression geometry.
+
+### Changes Made
+
+- Removed completed level 2 from the level-3 primary state.
+- Added locked-ahead levels 6, 5, and 4 above current level 3.
+- Ordered node and label semantics top-to-bottom as exactly 6, 5, 4, 3.
+- Applied progressive locked-node scale/alpha while preserving exact `level_node_locked` bytes.
+- Mirrored the corrected Menu scene into the protected baseline.
+- Added validator and test contracts that reject completed nodes, inverted order, wrong labels, or a current node outside the bottom position.
+
+### Post-Change Screenshot
+
+![Menu after saga-window repair](./screenshots/post/Menu.png)
+
+What to look at: Levels 6, 5, and 4 fade down the straight rail into the large current level 3 at the bottom.
+Observation: The static editor state now matches `MENU_SAGA_WINDOW` (`ahead: 3`, `behind: 0`) and `buildSagaNodes()` top-to-bottom ordering.
+Acceptance check: 6/5/4 locked above pass; current 3 bottom pass; completed 2 absent pass; exact assets pass.
+
+### Licensed-editor proof
+
+Phaser Editor v5.0.2 reopened the changed Menu.scene and rendered the new four-node hierarchy with zero browser or console errors. Evidence: `native-editor/Menu-native-editor.png`.
+
+### Decision
+
+passed
+
+### Latest repair-wide verification
+
+- Active immutable publication: `sha256-e7abb5068656524de73e55500287f0b87832889f970da21b2aa6bb2a1d32f1a8` (supersedes the earlier repair publication recorded above).
+- Native validation: 9 scenes, 220 semantic objects, 16 exact curated assets.
+- Physical-device runtime projection remains outside this aesthetics repair.

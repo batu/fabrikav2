@@ -9,7 +9,7 @@ const menuPath = join(PROJECT, 'src/scenes/Menu.scene');
 
 test('native project exposes all nine validated scenes and exact asset bindings', async () => {
   const result = await validate();
-  assert.deepEqual(result, { scenes: 9, semantics: 218, assets: 16 });
+  assert.deepEqual(result, { scenes: 9, semantics: 220, assets: 16 });
 });
 
 test('reviewed Marble fidelity invariants remain encoded in native scene authority', async () => {
@@ -20,6 +20,15 @@ test('reviewed Marble fidelity invariants remain encoded in native scene authori
   assert.equal(menu.filter((object) => object['Semantic.fabRole'] === 'confetti-piece').length, 16);
   assert.equal(menu.find((object) => object.id === 'menu.brand.title')?.text, 'Marble Run');
   assert.ok((menu.find((object) => object.id === 'menu.start.surface')?.scaleX ?? 0) * 435 >= 310);
+  const sagaNodes = menu
+    .filter((object) => ['locked-level-node', 'current-level-node'].includes(object['Semantic.fabRole']))
+    .sort((a, b) => a.y - b.y);
+  const byId = new Map(menu.map((object) => [object.id, object]));
+  assert.deepEqual(sagaNodes.map((node) => byId.get(`${node.id}.label`)?.text), ['6', '5', '4', '3']);
+  assert.deepEqual(sagaNodes.map((node) => node['Semantic.fabRole']), [
+    'locked-level-node', 'locked-level-node', 'locked-level-node', 'current-level-node',
+  ]);
+  assert.equal(menu.some((object) => object['Semantic.fabRole'] === 'completed-level-node'), false);
 
   const hud = flatten((await readScene('GameplayHud')).displayList);
   assert.equal(hud.filter((object) => object['Semantic.fabRole'] === 'life-heart' && object.type === 'Container').length, 3);

@@ -101,6 +101,19 @@ async function validateSceneSet(directory, label, manifestKeys) {
       if (title?.text !== 'Marble Run' || title?.color !== '#6a3016') errors.push(`${label}/${name}: banner title must be source Title Case brown copy`);
       const cta = objectsById.get('menu.start.surface');
       if ((cta?.scaleX ?? 0) * 435 < 310) errors.push(`${label}/${name}: primary CTA must remain near full width`);
+      const sagaNodes = [...objectsById.values()]
+        .filter((object) => ['locked-level-node', 'current-level-node'].includes(object['Semantic.fabRole']))
+        .sort((a, b) => a.y - b.y);
+      const sagaLabels = sagaNodes.map((node) => objectsById.get(`${node.id}.label`)?.text);
+      if (JSON.stringify(sagaLabels) !== JSON.stringify(['6', '5', '4', '3'])) {
+        errors.push(`${label}/${name}: level-3 primary saga must descend 6, 5, 4, 3 from top to bottom`);
+      }
+      if (sagaNodes.slice(0, 3).some((node) => node['Semantic.fabRole'] !== 'locked-level-node') || sagaNodes.at(-1)?.['Semantic.fabRole'] !== 'current-level-node') {
+        errors.push(`${label}/${name}: locked-ahead levels must sit above current level 3`);
+      }
+      if ([...objectsById.values()].some((object) => object['Semantic.fabRole'] === 'completed-level-node')) {
+        errors.push(`${label}/${name}: level-3 primary saga must not include completed level 2`);
+      }
     }
     if (name === 'GameplayHud.scene') {
       const hearts = [...objectsById.values()].filter((object) => object['Semantic.fabRole'] === 'life-heart');
