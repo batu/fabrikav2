@@ -1,0 +1,32 @@
+{
+  "schema": "fabrikav2-phaser-editor-native-open/v1",
+  "capturedAt": "2026-07-15T06:37:07+03:00",
+  "vendor": {
+    "application": "Phaser Editor",
+    "version": "5.0.2",
+    "desktop": true,
+    "unlocked": true,
+    "licenseOwnerReturned": ""
+  },
+  "launch": {
+    "project": "games/marble_run/authoring/phaser-editor/project",
+    "host": "127.0.0.1",
+    "port": 19593,
+    "browserAutoOpenDisabled": true,
+    "updateChecksDisabled": true
+  },
+  "observation": {
+    "scene": "src/scenes/Menu.scene",
+    "nativeSceneEditorCanvasVisible": true,
+    "allNineSceneFilesVisible": true,
+    "exactAssetBrowserVisible": true,
+    "pageErrors": 0,
+    "consoleErrors": 0,
+    "endpointDownAfterCapture": true
+  },
+  "sha256": {
+    "scene": "bdba1bff7c4f8a09d3d976d4ad2a899b87cfe257cb632fbb4dce990eea3f5b07",
+    "screenshot": "dfd352b342a12e717461910bb3fdd399b9f49f36c59ecf664c84c0ec38814ae8"
+  },
+  "claimBoundary": "Native open/render compatibility only; save-reopen and device fidelity remain unverified."
+}

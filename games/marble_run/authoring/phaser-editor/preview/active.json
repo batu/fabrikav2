@@ -1,0 +1,17 @@
+{
+  "schema": "fabrikav2-phaser-editor-preview-pointer/v1",
+  "revision": "sha256-d04c3181a399d6904b24fb5cc94c3a67d8a777890eb66dbc91d5d28275d212ea",
+  "publication": "../publications/sha256-d04c3181a399d6904b24fb5cc94c3a67d8a777890eb66dbc91d5d28275d212ea",
+  "defaultScene": "Menu",
+  "scenes": [
+    "Menu",
+    "GameplayHud",
+    "Pause",
+    "SettingsMenu",
+    "SettingsLevel",
+    "Shop",
+    "Win",
+    "Fail",
+    "Finale"
+  ]
+}

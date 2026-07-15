@@ -1,0 +1,614 @@
+{
+  "id": "marble-run-Menu",
+  "sceneType": "SCENE",
+  "settings": {
+    "exportClass": true,
+    "autoImport": true,
+    "preloadPackFiles": [
+      "assets/asset-pack.json"
+    ],
+    "createMethodName": "editorCreate",
+    "sceneKey": "Menu",
+    "compilerOutputLanguage": "TYPE_SCRIPT",
+    "borderWidth": 390,
+    "borderHeight": 844
+  },
+  "displayList": [
+    {
+      "type": "Rectangle",
+      "id": "menu.background",
+      "label": "menu.background",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "menu.background",
+      "Semantic.fabRole": "screen-background",
+      "Semantic.fabBinding": "presentation:primitive",
+      "Semantic.fabSlot": "background",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 422,
+      "width": 390,
+      "height": 844,
+      "isFilled": true,
+      "fillColor": "#8b6fbd",
+      "slot": "background"
+    },
+    {
+      "type": "Container",
+      "id": "menu.ambient",
+      "label": "menu.ambient",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "menu.ambient",
+      "Semantic.fabRole": "ambient-confetti",
+      "Semantic.fabBinding": "presentation:group",
+      "Semantic.fabSlot": "background-decoration",
+      "Semantic.fabVariant": "default",
+      "x": 0,
+      "y": 0,
+      "list": [
+        {
+          "type": "Rectangle",
+          "id": "menu.confetti.1",
+          "label": "menu.confetti.1",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "menu.confetti.1",
+          "Semantic.fabRole": "confetti-piece",
+          "Semantic.fabBinding": "presentation:primitive",
+          "Semantic.fabSlot": "content",
+          "Semantic.fabVariant": "default",
+          "x": 52,
+          "y": 186,
+          "width": 8,
+          "height": 20,
+          "isFilled": true,
+          "fillColor": "#ffcf4d",
+          "rotation": 0.2
+        },
+        {
+          "type": "Rectangle",
+          "id": "menu.confetti.2",
+          "label": "menu.confetti.2",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "menu.confetti.2",
+          "Semantic.fabRole": "confetti-piece",
+          "Semantic.fabBinding": "presentation:primitive",
+          "Semantic.fabSlot": "content",
+          "Semantic.fabVariant": "default",
+          "x": 332,
+          "y": 238,
+          "width": 8,
+          "height": 18,
+          "isFilled": true,
+          "fillColor": "#ff7a9c",
+          "rotation": -0.3
+        },
+        {
+          "type": "Rectangle",
+          "id": "menu.confetti.3",
+          "label": "menu.confetti.3",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "menu.confetti.3",
+          "Semantic.fabRole": "confetti-piece",
+          "Semantic.fabBinding": "presentation:primitive",
+          "Semantic.fabSlot": "content",
+          "Semantic.fabVariant": "default",
+          "x": 64,
+          "y": 610,
+          "width": 10,
+          "height": 10,
+          "isFilled": true,
+          "fillColor": "#5fd06a",
+          "rounded": 5
+        },
+        {
+          "type": "Rectangle",
+          "id": "menu.confetti.4",
+          "label": "menu.confetti.4",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "menu.confetti.4",
+          "Semantic.fabRole": "confetti-piece",
+          "Semantic.fabBinding": "presentation:primitive",
+          "Semantic.fabSlot": "content",
+          "Semantic.fabVariant": "default",
+          "x": 335,
+          "y": 638,
+          "width": 8,
+          "height": 20,
+          "isFilled": true,
+          "fillColor": "#6fdcff",
+          "rotation": 0.4
+        }
+      ],
+      "slot": "background-decoration"
+    },
+    {
+      "type": "Container",
+      "id": "menu.topbar",
+      "label": "menu.topbar",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "menu.topbar",
+      "Semantic.fabRole": "top-bar",
+      "Semantic.fabBinding": "presentation:group",
+      "Semantic.fabSlot": "safe-area:top",
+      "Semantic.fabVariant": "default",
+      "x": 0,
+      "y": 0,
+      "list": [
+        {
+          "type": "Container",
+          "id": "menu.currency",
+          "label": "menu.currency",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "menu.currency",
+          "Semantic.fabRole": "currency-counter",
+          "Semantic.fabBinding": "state:coins",
+          "Semantic.fabSlot": "counter",
+          "Semantic.fabVariant": "default",
+          "x": 82,
+          "y": 58,
+          "list": [
+            {
+              "type": "Rectangle",
+              "id": "menu.currency.panel",
+              "label": "menu.currency.panel",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "menu.currency.panel",
+              "Semantic.fabRole": "counter-panel",
+              "Semantic.fabBinding": "presentation:chrome",
+              "Semantic.fabSlot": "surface",
+              "Semantic.fabVariant": "default",
+              "x": 0,
+              "y": 0,
+              "width": 132,
+              "height": 54,
+              "isFilled": true,
+              "fillColor": "#3fc6ef",
+              "binding": "presentation:chrome",
+              "slot": "surface",
+              "rounded": 22,
+              "isStroked": true,
+              "strokeColor": "#212c48",
+              "lineWidth": 3
+            },
+            {
+              "type": "Image",
+              "id": "menu.currency.icon",
+              "label": "menu.currency.icon",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "menu.currency.icon",
+              "Semantic.fabRole": "currency-icon",
+              "Semantic.fabBinding": "asset:icon_coin",
+              "Semantic.fabSlot": "icon",
+              "Semantic.fabVariant": "default",
+              "texture": {
+                "key": "icon_coin"
+              },
+              "x": -42,
+              "y": 0,
+              "scaleX": 0.47,
+              "scaleY": 0.47,
+              "binding": "asset:icon_coin",
+              "slot": "icon"
+            },
+            {
+              "type": "Text",
+              "id": "menu.currency.value",
+              "label": "menu.currency.value",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "menu.currency.value",
+              "Semantic.fabRole": "currency-value",
+              "Semantic.fabBinding": "state:coins",
+              "Semantic.fabSlot": "value",
+              "Semantic.fabVariant": "default",
+              "x": 20,
+              "y": 0,
+              "originX": 0.5,
+              "originY": 0.5,
+              "text": "250",
+              "fontFamily": "Fredoka One",
+              "fontSize": "20px",
+              "color": "#ffffff",
+              "binding": "state:coins",
+              "slot": "value"
+            }
+          ],
+          "binding": "state:coins",
+          "slot": "counter"
+        },
+        {
+          "type": "Container",
+          "id": "menu.settings",
+          "label": "menu.settings",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "menu.settings",
+          "Semantic.fabRole": "settings-control",
+          "Semantic.fabBinding": "action:open-settings",
+          "Semantic.fabSlot": "top-control",
+          "Semantic.fabVariant": "default",
+          "x": 342,
+          "y": 58,
+          "list": [
+            {
+              "type": "Rectangle",
+              "id": "menu.settings.panel",
+              "label": "menu.settings.panel",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "menu.settings.panel",
+              "Semantic.fabRole": "control-panel",
+              "Semantic.fabBinding": "presentation:primitive",
+              "Semantic.fabSlot": "content",
+              "Semantic.fabVariant": "default",
+              "x": 0,
+              "y": 0,
+              "width": 58,
+              "height": 58,
+              "isFilled": true,
+              "fillColor": "#3fc6ef",
+              "rounded": 18,
+              "isStroked": true,
+              "strokeColor": "#212c48",
+              "lineWidth": 3
+            },
+            {
+              "type": "Image",
+              "id": "menu.settings.icon",
+              "label": "menu.settings.icon",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "menu.settings.icon",
+              "Semantic.fabRole": "settings-icon",
+              "Semantic.fabBinding": "action:open-settings",
+              "Semantic.fabSlot": "content",
+              "Semantic.fabVariant": "default",
+              "texture": {
+                "key": "icon_settings"
+              },
+              "x": 0,
+              "y": 0,
+              "scaleX": 0.46,
+              "scaleY": 0.4,
+              "binding": "action:open-settings"
+            }
+          ],
+          "binding": "action:open-settings",
+          "slot": "top-control"
+        }
+      ],
+      "slot": "safe-area:top"
+    },
+    {
+      "type": "Container",
+      "id": "menu.brand",
+      "label": "menu.brand",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "menu.brand",
+      "Semantic.fabRole": "brand-banner",
+      "Semantic.fabBinding": "presentation:group",
+      "Semantic.fabSlot": "brand",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 160,
+      "list": [
+        {
+          "type": "Image",
+          "id": "menu.brand.image",
+          "label": "menu.brand.image",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "menu.brand.image",
+          "Semantic.fabRole": "banner-image",
+          "Semantic.fabBinding": "asset:marble_run_banner",
+          "Semantic.fabSlot": "surface",
+          "Semantic.fabVariant": "default",
+          "texture": {
+            "key": "marble_run_banner"
+          },
+          "x": 0,
+          "y": 0,
+          "scaleX": 0.38,
+          "scaleY": 0.38,
+          "slot": "surface"
+        },
+        {
+          "type": "Text",
+          "id": "menu.brand.title",
+          "label": "menu.brand.title",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "menu.brand.title",
+          "Semantic.fabRole": "brand-title",
+          "Semantic.fabBinding": "copy:static",
+          "Semantic.fabSlot": "title",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 1,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "MARBLE RUN",
+          "fontFamily": "Fredoka One",
+          "fontSize": "31px",
+          "color": "#ffffff",
+          "slot": "title"
+        }
+      ],
+      "slot": "brand"
+    },
+    {
+      "type": "Container",
+      "id": "menu.saga",
+      "label": "menu.saga",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "menu.saga",
+      "Semantic.fabRole": "saga-track",
+      "Semantic.fabBinding": "state:progression",
+      "Semantic.fabSlot": "progression",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 445,
+      "list": [
+        {
+          "type": "Rectangle",
+          "id": "menu.saga.rail",
+          "label": "menu.saga.rail",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "menu.saga.rail",
+          "Semantic.fabRole": "progression-rail",
+          "Semantic.fabBinding": "state:progression",
+          "Semantic.fabSlot": "rail",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 0,
+          "width": 9,
+          "height": 390,
+          "isFilled": true,
+          "fillColor": "#c87845",
+          "rounded": 5,
+          "binding": "state:progression",
+          "slot": "rail"
+        },
+        {
+          "type": "Image",
+          "id": "menu.saga.completed",
+          "label": "menu.saga.completed",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "menu.saga.completed",
+          "Semantic.fabRole": "completed-level-node",
+          "Semantic.fabBinding": "state:level-completed",
+          "Semantic.fabSlot": "node",
+          "Semantic.fabVariant": "default",
+          "texture": {
+            "key": "level_node_completed"
+          },
+          "x": 0,
+          "y": -125,
+          "scaleX": 0.26,
+          "scaleY": 0.26,
+          "binding": "state:level-completed",
+          "slot": "node"
+        },
+        {
+          "type": "Text",
+          "id": "menu.saga.completed.label",
+          "label": "menu.saga.completed.label",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "menu.saga.completed.label",
+          "Semantic.fabRole": "level-number",
+          "Semantic.fabBinding": "state:level-number",
+          "Semantic.fabSlot": "node-label",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": -125,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "2",
+          "fontFamily": "Fredoka One",
+          "fontSize": "22px",
+          "color": "#6a3016",
+          "binding": "state:level-number",
+          "slot": "node-label"
+        },
+        {
+          "type": "Image",
+          "id": "menu.saga.current",
+          "label": "menu.saga.current",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "menu.saga.current",
+          "Semantic.fabRole": "current-level-node",
+          "Semantic.fabBinding": "action:start-current",
+          "Semantic.fabSlot": "node",
+          "Semantic.fabVariant": "default",
+          "texture": {
+            "key": "level_node_current"
+          },
+          "x": 0,
+          "y": 0,
+          "scaleX": 0.58,
+          "scaleY": 0.58,
+          "binding": "action:start-current",
+          "slot": "node"
+        },
+        {
+          "type": "Text",
+          "id": "menu.saga.current.label",
+          "label": "menu.saga.current.label",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "menu.saga.current.label",
+          "Semantic.fabRole": "level-number",
+          "Semantic.fabBinding": "state:level-number",
+          "Semantic.fabSlot": "node-label",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 0,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "3",
+          "fontFamily": "Fredoka One",
+          "fontSize": "52px",
+          "color": "#ffffff",
+          "binding": "state:level-number",
+          "slot": "node-label"
+        },
+        {
+          "type": "Image",
+          "id": "menu.saga.locked",
+          "label": "menu.saga.locked",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "menu.saga.locked",
+          "Semantic.fabRole": "locked-level-node",
+          "Semantic.fabBinding": "state:level-locked",
+          "Semantic.fabSlot": "node",
+          "Semantic.fabVariant": "default",
+          "texture": {
+            "key": "level_node_locked"
+          },
+          "x": 0,
+          "y": 140,
+          "scaleX": 0.26,
+          "scaleY": 0.26,
+          "binding": "state:level-locked",
+          "slot": "node"
+        },
+        {
+          "type": "Text",
+          "id": "menu.saga.locked.label",
+          "label": "menu.saga.locked.label",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "menu.saga.locked.label",
+          "Semantic.fabRole": "level-number",
+          "Semantic.fabBinding": "state:level-number",
+          "Semantic.fabSlot": "node-label",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 140,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "4",
+          "fontFamily": "Fredoka One",
+          "fontSize": "22px",
+          "color": "#6a3016",
+          "binding": "state:level-number",
+          "slot": "node-label"
+        }
+      ],
+      "binding": "state:progression",
+      "slot": "progression"
+    },
+    {
+      "type": "Container",
+      "id": "menu.start",
+      "label": "menu.start",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "menu.start",
+      "Semantic.fabRole": "action-group",
+      "Semantic.fabBinding": "action:start-current",
+      "Semantic.fabSlot": "action",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 765,
+      "list": [
+        {
+          "type": "Image",
+          "id": "menu.start.surface",
+          "label": "menu.start.surface",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "menu.start.surface",
+          "Semantic.fabRole": "button-surface",
+          "Semantic.fabBinding": "asset:button_green",
+          "Semantic.fabSlot": "surface",
+          "Semantic.fabVariant": "default",
+          "texture": {
+            "key": "button_green"
+          },
+          "x": 0,
+          "y": 0,
+          "scaleX": 0.5747126436781609,
+          "scaleY": 0.31,
+          "binding": "asset:button_green",
+          "slot": "surface"
+        },
+        {
+          "type": "Text",
+          "id": "menu.start.label",
+          "label": "menu.start.label",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "menu.start.label",
+          "Semantic.fabRole": "button-label",
+          "Semantic.fabBinding": "action:start-current",
+          "Semantic.fabSlot": "label",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 0,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "LEVEL 3",
+          "fontFamily": "Fredoka One",
+          "fontSize": "22px",
+          "color": "#ffffff",
+          "binding": "action:start-current",
+          "slot": "label"
+        }
+      ],
+      "binding": "action:start-current",
+      "slot": "action"
+    }
+  ],
+  "plainObjects": [],
+  "meta": {
+    "app": "Phaser Editor - Scene Editor",
+    "url": "https://phaser.io/editor",
+    "contentType": "phasereditor2d.core.scene.SceneContentType",
+    "version": 5
+  }
+}

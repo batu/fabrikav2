@@ -1,0 +1,300 @@
+{
+  "id": "marble-run-Finale",
+  "sceneType": "SCENE",
+  "settings": {
+    "exportClass": true,
+    "autoImport": true,
+    "preloadPackFiles": [
+      "assets/asset-pack.json"
+    ],
+    "createMethodName": "editorCreate",
+    "sceneKey": "Finale",
+    "compilerOutputLanguage": "TYPE_SCRIPT",
+    "borderWidth": 390,
+    "borderHeight": 844
+  },
+  "displayList": [
+    {
+      "type": "Rectangle",
+      "id": "finale.background",
+      "label": "finale.background",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "finale.background",
+      "Semantic.fabRole": "screen-background",
+      "Semantic.fabBinding": "presentation:primitive",
+      "Semantic.fabSlot": "background",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 422,
+      "width": 390,
+      "height": 844,
+      "isFilled": true,
+      "fillColor": "#8b6fbd",
+      "slot": "background"
+    },
+    {
+      "type": "Rectangle",
+      "id": "finale.scrim",
+      "label": "finale.scrim",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "finale.scrim",
+      "Semantic.fabRole": "modal-scrim",
+      "Semantic.fabBinding": "presentation:primitive",
+      "Semantic.fabSlot": "overlay",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 422,
+      "width": 390,
+      "height": 844,
+      "isFilled": true,
+      "fillColor": "#1f182e",
+      "fillAlpha": 0.82,
+      "slot": "overlay"
+    },
+    {
+      "type": "Image",
+      "id": "finale.backplate",
+      "label": "finale.backplate",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "finale.backplate",
+      "Semantic.fabRole": "modal-board-backplate",
+      "Semantic.fabBinding": "asset:marble_shadow_tile",
+      "Semantic.fabSlot": "modal-frame",
+      "Semantic.fabVariant": "default",
+      "texture": {
+        "key": "marble_shadow_tile"
+      },
+      "x": 195,
+      "y": 422,
+      "scaleX": 0.73,
+      "scaleY": 0.73,
+      "slot": "modal-frame"
+    },
+    {
+      "type": "Container",
+      "id": "finale.card",
+      "label": "finale.card",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "finale.card",
+      "Semantic.fabRole": "result-card",
+      "Semantic.fabBinding": "presentation:group",
+      "Semantic.fabSlot": "modal-card",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 440,
+      "list": [
+        {
+          "type": "Image",
+          "id": "finale.card.image",
+          "label": "finale.card.image",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "finale.card.image",
+          "Semantic.fabRole": "popup-card",
+          "Semantic.fabBinding": "asset:popup_card",
+          "Semantic.fabSlot": "surface",
+          "Semantic.fabVariant": "default",
+          "texture": {
+            "key": "popup_card"
+          },
+          "x": 0,
+          "y": 0,
+          "scaleX": 0.4,
+          "scaleY": 0.55,
+          "slot": "surface"
+        },
+        {
+          "type": "Image",
+          "id": "finale.ribbon",
+          "label": "finale.ribbon",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "finale.ribbon",
+          "Semantic.fabRole": "title-ribbon",
+          "Semantic.fabBinding": "asset:ribbon_completed_blank",
+          "Semantic.fabSlot": "title",
+          "Semantic.fabVariant": "default",
+          "texture": {
+            "key": "ribbon_completed_blank"
+          },
+          "x": 0,
+          "y": -225,
+          "scaleX": 0.37,
+          "scaleY": 0.37,
+          "slot": "title"
+        },
+        {
+          "type": "Text",
+          "id": "finale.eyebrow",
+          "label": "finale.eyebrow",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "finale.eyebrow",
+          "Semantic.fabRole": "level-label",
+          "Semantic.fabBinding": "state:level",
+          "Semantic.fabSlot": "title-eyebrow",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": -240,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "LEVEL 3",
+          "fontFamily": "Fredoka One",
+          "fontSize": "13px",
+          "color": "#6a3016",
+          "binding": "state:level",
+          "slot": "title-eyebrow"
+        },
+        {
+          "type": "Text",
+          "id": "finale.title",
+          "label": "finale.title",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "finale.title",
+          "Semantic.fabRole": "result-title",
+          "Semantic.fabBinding": "copy:static",
+          "Semantic.fabSlot": "title",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": -211,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "ALL MARBLES SORTED",
+          "fontFamily": "Fredoka One",
+          "fontSize": "28px",
+          "color": "#ffffff",
+          "slot": "title"
+        },
+        {
+          "type": "Image",
+          "id": "finale.crown",
+          "label": "finale.crown",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "finale.crown",
+          "Semantic.fabRole": "result-crown",
+          "Semantic.fabBinding": "asset:win_crown",
+          "Semantic.fabSlot": "result-art",
+          "Semantic.fabVariant": "default",
+          "texture": {
+            "key": "win_crown"
+          },
+          "x": 0,
+          "y": -78,
+          "scaleX": 0.46,
+          "scaleY": 0.46,
+          "slot": "result-art"
+        },
+        {
+          "type": "Text",
+          "id": "finale.message",
+          "label": "finale.message",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "finale.message",
+          "Semantic.fabRole": "result-message",
+          "Semantic.fabBinding": "copy:finale-message",
+          "Semantic.fabSlot": "message",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 34,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "More levels are on the way!",
+          "fontFamily": "Fredoka One",
+          "fontSize": "18px",
+          "color": "#6a3016",
+          "binding": "copy:finale-message",
+          "slot": "message"
+        },
+        {
+          "type": "Container",
+          "id": "finale.awesome",
+          "label": "finale.awesome",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "finale.awesome",
+          "Semantic.fabRole": "action-group",
+          "Semantic.fabBinding": "action:menu",
+          "Semantic.fabSlot": "action",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 150,
+          "list": [
+            {
+              "type": "Image",
+              "id": "finale.awesome.surface",
+              "label": "finale.awesome.surface",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "finale.awesome.surface",
+              "Semantic.fabRole": "button-surface",
+              "Semantic.fabBinding": "asset:button_green",
+              "Semantic.fabSlot": "surface",
+              "Semantic.fabVariant": "default",
+              "texture": {
+                "key": "button_green"
+              },
+              "x": 0,
+              "y": 0,
+              "scaleX": 0.5517241379310345,
+              "scaleY": 0.31,
+              "binding": "asset:button_green",
+              "slot": "surface"
+            },
+            {
+              "type": "Text",
+              "id": "finale.awesome.label",
+              "label": "finale.awesome.label",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "finale.awesome.label",
+              "Semantic.fabRole": "button-label",
+              "Semantic.fabBinding": "action:menu",
+              "Semantic.fabSlot": "label",
+              "Semantic.fabVariant": "default",
+              "x": 0,
+              "y": 0,
+              "originX": 0.5,
+              "originY": 0.5,
+              "text": "AWESOME",
+              "fontFamily": "Fredoka One",
+              "fontSize": "22px",
+              "color": "#ffffff",
+              "binding": "action:menu",
+              "slot": "label"
+            }
+          ],
+          "binding": "action:menu",
+          "slot": "action"
+        }
+      ],
+      "slot": "modal-card"
+    }
+  ],
+  "plainObjects": [],
+  "meta": {
+    "app": "Phaser Editor - Scene Editor",
+    "url": "https://phaser.io/editor",
+    "contentType": "phasereditor2d.core.scene.SceneContentType",
+    "version": 5
+  }
+}

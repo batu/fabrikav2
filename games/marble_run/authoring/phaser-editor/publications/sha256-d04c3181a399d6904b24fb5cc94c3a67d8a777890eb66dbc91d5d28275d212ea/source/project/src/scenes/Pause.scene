@@ -1,0 +1,321 @@
+{
+  "id": "marble-run-Pause",
+  "sceneType": "SCENE",
+  "settings": {
+    "exportClass": true,
+    "autoImport": true,
+    "preloadPackFiles": [
+      "assets/asset-pack.json"
+    ],
+    "createMethodName": "editorCreate",
+    "sceneKey": "Pause",
+    "compilerOutputLanguage": "TYPE_SCRIPT",
+    "borderWidth": 390,
+    "borderHeight": 844
+  },
+  "displayList": [
+    {
+      "type": "Rectangle",
+      "id": "pause.background",
+      "label": "pause.background",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "pause.background",
+      "Semantic.fabRole": "screen-background",
+      "Semantic.fabBinding": "presentation:primitive",
+      "Semantic.fabSlot": "background",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 422,
+      "width": 390,
+      "height": 844,
+      "isFilled": true,
+      "fillColor": "#8b6fbd",
+      "slot": "background"
+    },
+    {
+      "type": "Rectangle",
+      "id": "pause.scrim",
+      "label": "pause.scrim",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "pause.scrim",
+      "Semantic.fabRole": "modal-scrim",
+      "Semantic.fabBinding": "presentation:primitive",
+      "Semantic.fabSlot": "overlay",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 422,
+      "width": 390,
+      "height": 844,
+      "isFilled": true,
+      "fillColor": "#1f182e",
+      "fillAlpha": 0.82,
+      "slot": "overlay"
+    },
+    {
+      "type": "Container",
+      "id": "pause.card",
+      "label": "pause.card",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "pause.card",
+      "Semantic.fabRole": "pause-card",
+      "Semantic.fabBinding": "presentation:group",
+      "Semantic.fabSlot": "modal-card",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 422,
+      "list": [
+        {
+          "type": "Rectangle",
+          "id": "pause.card.surface",
+          "label": "pause.card.surface",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "pause.card.surface",
+          "Semantic.fabRole": "modal-card-surface",
+          "Semantic.fabBinding": "presentation:primitive",
+          "Semantic.fabSlot": "content",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 0,
+          "width": 320,
+          "height": 390,
+          "isFilled": true,
+          "fillColor": "#fff3d7",
+          "rounded": 28,
+          "isStroked": true,
+          "strokeColor": "#212c48",
+          "lineWidth": 3
+        },
+        {
+          "type": "Text",
+          "id": "pause.title",
+          "label": "pause.title",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "pause.title",
+          "Semantic.fabRole": "modal-title",
+          "Semantic.fabBinding": "copy:static",
+          "Semantic.fabSlot": "title",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": -135,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "PAUSED",
+          "fontFamily": "Fredoka One",
+          "fontSize": "34px",
+          "color": "#6a3016",
+          "slot": "title"
+        },
+        {
+          "type": "Container",
+          "id": "pause.resume",
+          "label": "pause.resume",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "pause.resume",
+          "Semantic.fabRole": "action-group",
+          "Semantic.fabBinding": "action:resume",
+          "Semantic.fabSlot": "action",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": -55,
+          "list": [
+            {
+              "type": "Image",
+              "id": "pause.resume.surface",
+              "label": "pause.resume.surface",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "pause.resume.surface",
+              "Semantic.fabRole": "button-surface",
+              "Semantic.fabBinding": "asset:button_green",
+              "Semantic.fabSlot": "surface",
+              "Semantic.fabVariant": "default",
+              "texture": {
+                "key": "button_green"
+              },
+              "x": 0,
+              "y": 0,
+              "scaleX": 0.5287356321839081,
+              "scaleY": 0.31,
+              "binding": "asset:button_green",
+              "slot": "surface"
+            },
+            {
+              "type": "Text",
+              "id": "pause.resume.label",
+              "label": "pause.resume.label",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "pause.resume.label",
+              "Semantic.fabRole": "button-label",
+              "Semantic.fabBinding": "action:resume",
+              "Semantic.fabSlot": "label",
+              "Semantic.fabVariant": "default",
+              "x": 0,
+              "y": 0,
+              "originX": 0.5,
+              "originY": 0.5,
+              "text": "RESUME",
+              "fontFamily": "Fredoka One",
+              "fontSize": "22px",
+              "color": "#ffffff",
+              "binding": "action:resume",
+              "slot": "label"
+            }
+          ],
+          "binding": "action:resume",
+          "slot": "action"
+        },
+        {
+          "type": "Container",
+          "id": "pause.settings",
+          "label": "pause.settings",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "pause.settings",
+          "Semantic.fabRole": "action-group",
+          "Semantic.fabBinding": "action:settings",
+          "Semantic.fabSlot": "action",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 35,
+          "list": [
+            {
+              "type": "Image",
+              "id": "pause.settings.surface",
+              "label": "pause.settings.surface",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "pause.settings.surface",
+              "Semantic.fabRole": "button-surface",
+              "Semantic.fabBinding": "asset:button_orange",
+              "Semantic.fabSlot": "surface",
+              "Semantic.fabVariant": "default",
+              "texture": {
+                "key": "button_orange"
+              },
+              "x": 0,
+              "y": 0,
+              "scaleX": 0.5287356321839081,
+              "scaleY": 0.31,
+              "binding": "asset:button_orange",
+              "slot": "surface"
+            },
+            {
+              "type": "Text",
+              "id": "pause.settings.label",
+              "label": "pause.settings.label",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "pause.settings.label",
+              "Semantic.fabRole": "button-label",
+              "Semantic.fabBinding": "action:settings",
+              "Semantic.fabSlot": "label",
+              "Semantic.fabVariant": "default",
+              "x": 0,
+              "y": 0,
+              "originX": 0.5,
+              "originY": 0.5,
+              "text": "SETTINGS",
+              "fontFamily": "Fredoka One",
+              "fontSize": "22px",
+              "color": "#ffffff",
+              "binding": "action:settings",
+              "slot": "label"
+            }
+          ],
+          "binding": "action:settings",
+          "slot": "action"
+        },
+        {
+          "type": "Container",
+          "id": "pause.quit",
+          "label": "pause.quit",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "pause.quit",
+          "Semantic.fabRole": "action-group",
+          "Semantic.fabBinding": "action:quit",
+          "Semantic.fabSlot": "action",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 125,
+          "list": [
+            {
+              "type": "Image",
+              "id": "pause.quit.surface",
+              "label": "pause.quit.surface",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "pause.quit.surface",
+              "Semantic.fabRole": "button-surface",
+              "Semantic.fabBinding": "asset:button_orange",
+              "Semantic.fabSlot": "surface",
+              "Semantic.fabVariant": "default",
+              "texture": {
+                "key": "button_orange"
+              },
+              "x": 0,
+              "y": 0,
+              "scaleX": 0.5287356321839081,
+              "scaleY": 0.31,
+              "binding": "asset:button_orange",
+              "slot": "surface"
+            },
+            {
+              "type": "Text",
+              "id": "pause.quit.label",
+              "label": "pause.quit.label",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "pause.quit.label",
+              "Semantic.fabRole": "button-label",
+              "Semantic.fabBinding": "action:quit",
+              "Semantic.fabSlot": "label",
+              "Semantic.fabVariant": "default",
+              "x": 0,
+              "y": 0,
+              "originX": 0.5,
+              "originY": 0.5,
+              "text": "QUIT",
+              "fontFamily": "Fredoka One",
+              "fontSize": "22px",
+              "color": "#ffffff",
+              "binding": "action:quit",
+              "slot": "label"
+            }
+          ],
+          "binding": "action:quit",
+          "slot": "action"
+        }
+      ],
+      "slot": "modal-card"
+    }
+  ],
+  "plainObjects": [],
+  "meta": {
+    "app": "Phaser Editor - Scene Editor",
+    "url": "https://phaser.io/editor",
+    "contentType": "phasereditor2d.core.scene.SceneContentType",
+    "version": 5
+  }
+}
