@@ -22,9 +22,14 @@ node games/marble_run/authoring/phaser-editor/tools.mjs validate
 node games/marble_run/authoring/phaser-editor/tools.mjs publish
 node games/marble_run/authoring/phaser-editor/tools.mjs status
 node games/marble_run/authoring/phaser-editor/tools.mjs reset
+node games/marble_run/authoring/phaser-editor/tools.mjs duplicate Menu menu.currency menu.currency.bonus
 ```
 
-`publish` hashes the saved config, component schema/code, all scenes, asset pack/manifest, and exact asset/font bytes. It creates an immutable `publications/sha256-*` snapshot and updates `preview/active.json`. The Preview visibly reports that revision and reads the scene snapshot directly. If working scenes change, `status` reports `fresh: false` until republished.
+`duplicate` is the native-scene duplication action. It clones the requested selectable hierarchy and atomically rewrites every cloned native `id`, `label`, and `Semantic.fabSemanticId`, including descendants, before inserting it beside the source. The explicit clone ID is required so an agent or designer can name the new semantic instance intentionally.
+
+`publish` hashes the saved config, component schema/code, all scenes, asset pack/manifest, and exact asset/font bytes. It creates an immutable `publications/sha256-*` snapshot, freezes the complete revision preimage as `authority.bin`, and updates `preview/active.json`. The Preview derives the publication path from the validated revision, verifies the complete preimage digest, and renders only those verified bytes. If working scenes change or any publication byte is modified, `status` reports `fresh: false`; an existing mismatched publication is never silently reused.
+
+The curated manifest and Phaser asset pack must equal the complete MR1 status-eligible set in `../reference/assets.yaml`: current live UI assets (excluding the favicon-only app icon) plus the live/fallback fonts. Adding an imported-unused or provenance-only asset to both mutable project files does not make it eligible.
 
 `reset` atomically restores the protected baseline config, Semantic component, and nine scene files. It does not touch publications or mutable editor preferences.
 

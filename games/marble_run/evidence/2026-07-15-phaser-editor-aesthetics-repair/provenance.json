@@ -18,6 +18,7 @@
     "pageErrors": 0,
     "consoleErrors": 0
   },
+  "supersededPersistenceClaim": "The unchanged-hash save proved deterministic reopen only. Real reversible mutation persistence is recorded in ../2026-07-15-phaser-editor-authority-repair/provenance.json.",
   "sha256": {
     "sceneMenu": "9e1f3a054f1ff1bb3390b74547bb6ebe8e8691ee5a912332bd877d86ef574657",
     "sceneGameplayHud": "543007be47abbe373b9a7835bb764dda0d1c63717f41d2e6eafa01511043c99e",
@@ -32,5 +33,5 @@
     "nativeWinSaved": "05d6a916d78a5663d75aff58c63c716752eeccb91bd0420916a9ffb80bdab249",
     "nativeWinAfterRestart": "05d6a916d78a5663d75aff58c63c716752eeccb91bd0420916a9ffb80bdab249"
   },
-  "claimBoundary": "Saved native-scene authority, immutable Preview projection, and licensed-editor persistence only; no physical-device runtime claim."
+  "claimBoundary": "Saved native-scene authority, immutable Preview projection, and deterministic licensed-editor reopen only; reversible mutation persistence is in the superseding authority-repair evidence; no physical-device runtime claim."
 }

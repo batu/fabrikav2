@@ -1,23 +1,82 @@
-/* global FontFace, ResizeObserver, URL, location, history, Option */
+/* global Blob, FontFace, ResizeObserver, URL, location, history, Option, crypto, TextDecoder */
 
 const picker = document.querySelector('#scene-picker');
 const sceneRoot = document.querySelector('#scene');
 const revisionNode = document.querySelector('#revision');
 const device = document.querySelector('.device');
 
+const expectedScenes = ['Menu', 'GameplayHud', 'Pause', 'SettingsMenu', 'SettingsLevel', 'Shop', 'Win', 'Fail', 'Finale'];
+const revisionPattern = /^sha256-[0-9a-f]{64}$/;
+const decoder = new TextDecoder();
 const active = await fetch('./active.json', { cache: 'no-store' }).then((response) => {
   if (!response.ok) throw new Error(`Preview is unpublished (${response.status}). Run tools.mjs publish.`);
   return response.json();
 });
-const revision = await fetch(`${active.publication}/revision.json`, { cache: 'no-store' }).then((response) => response.json());
-const assetManifest = await fetch(`${active.publication}/source/project/public/assets/asset-manifest.json`).then((response) => response.json());
+if (active.schema !== 'fabrikav2-phaser-editor-preview-pointer/v1' || !revisionPattern.test(active.revision)) {
+  throw new Error('Preview pointer has an invalid schema or revision');
+}
+if (active.publication !== `../publications/${active.revision}` || JSON.stringify(active.scenes) !== JSON.stringify(expectedScenes)) {
+  throw new Error('Preview pointer path or scene set does not match its revision');
+}
+const publication = `../publications/${active.revision}`;
+const revision = await fetch(`${publication}/revision.json`, { cache: 'no-store' }).then((response) => {
+  if (!response.ok) throw new Error(`Publication metadata is missing (${response.status})`);
+  return response.json();
+});
+if (revision.schema !== 'fabrikav2-phaser-editor-publication/v1' || revision.revision !== active.revision) {
+  throw new Error('Publication metadata does not match the active revision');
+}
+if (JSON.stringify(revision.scenes) !== JSON.stringify(expectedScenes) || !Array.isArray(revision.authorityPaths)) {
+  throw new Error('Publication scene or authority path set is invalid');
+}
+const authorityBytes = new Map();
+const preimageResponse = await fetch(`${publication}/authority.bin`, { cache: 'no-store' });
+if (!preimageResponse.ok) throw new Error(`Publication authority preimage is missing (${preimageResponse.status})`);
+const preimage = new Uint8Array(await preimageResponse.arrayBuffer());
+const actualDigest = [...new Uint8Array(await crypto.subtle.digest('SHA-256', preimage))]
+  .map((value) => value.toString(16).padStart(2, '0'))
+  .join('');
+if (`sha256-${actualDigest}` !== active.revision) throw new Error('Publication authority-byte digest does not match the revision stamp');
+let cursor = 0;
+const parsedPaths = [];
+function readUntilNull() {
+  const end = preimage.indexOf(0, cursor);
+  if (end < 0) throw new Error('Publication authority preimage is truncated');
+  const value = decoder.decode(preimage.slice(cursor, end));
+  cursor = end + 1;
+  return value;
+}
+while (cursor < preimage.length) {
+  const path = readUntilNull();
+  const lengthText = readUntilNull();
+  const length = Number(lengthText);
+  if (typeof path !== 'string' || path.startsWith('/') || path.includes('..') || !path.startsWith('project/') || !Number.isSafeInteger(length) || length < 0 || cursor + length > preimage.length) {
+    throw new Error(`Unsafe or invalid publication authority entry ${path}`);
+  }
+  authorityBytes.set(path, preimage.slice(cursor, cursor + length));
+  parsedPaths.push(path);
+  cursor += length;
+}
+if (JSON.stringify(parsedPaths) !== JSON.stringify(revision.authorityPaths)) throw new Error('Publication authority path order does not match metadata');
+
+function publishedJson(path) {
+  const content = authorityBytes.get(path);
+  if (!content) throw new Error(`Verified publication does not contain ${path}`);
+  return JSON.parse(decoder.decode(content));
+}
+
+const assetManifest = publishedJson('project/public/assets/asset-manifest.json');
 const assets = new Map(assetManifest.assets.map((asset) => [asset.key, asset]));
-const publicRoot = `${active.publication}/source/project/public/`;
+const assetUrls = new Map(assetManifest.assets.map((asset) => {
+  const content = authorityBytes.get(`project/public/${asset.url}`);
+  if (!content) throw new Error(`Verified publication does not contain asset ${asset.key}`);
+  return [asset.key, URL.createObjectURL(new Blob([content]))];
+}));
 
 for (const family of ['Fredoka One', 'Titan One']) {
   const asset = assets.get(family);
   if (!asset) throw new Error(`Published exact font ${family} is missing`);
-  const face = new FontFace(family, `url(${publicRoot}${asset.url})`, { style: 'normal', weight: '400' });
+  const face = new FontFace(family, `url(${assetUrls.get(family)})`, { style: 'normal', weight: '400' });
   await face.load();
   document.fonts.add(face);
 }
@@ -86,7 +145,7 @@ function renderObject(object, parent) {
     if (!asset) throw new Error(`Unpublished texture ${object.texture?.key}`);
     element = document.createElement('img');
     element.className = 'object image';
-    element.src = `${publicRoot}${asset.url}`;
+    element.src = assetUrls.get(asset.key);
     element.alt = object.label;
     element.draggable = false;
     const [sourceWidth = 1, sourceHeight = 1] = asset.dimensions ?? [1, 1];
@@ -98,9 +157,7 @@ function renderObject(object, parent) {
 }
 
 async function renderScene(name) {
-  const response = await fetch(`${active.publication}/source/project/src/scenes/${name}.scene`, { cache: 'no-store' });
-  if (!response.ok) throw new Error(`Scene ${name} missing from ${active.revision}`);
-  const scene = await response.json();
+  const scene = publishedJson(`project/src/scenes/${name}.scene`);
   sceneRoot.replaceChildren();
   sceneRoot.dataset.scene = name;
   for (const object of scene.displayList) renderObject(object, sceneRoot);

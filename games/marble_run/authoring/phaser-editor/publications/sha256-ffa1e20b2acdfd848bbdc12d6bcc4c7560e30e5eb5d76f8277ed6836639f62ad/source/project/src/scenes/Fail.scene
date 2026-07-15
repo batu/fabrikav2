@@ -1,0 +1,366 @@
+{
+  "id": "marble-run-Fail",
+  "sceneType": "SCENE",
+  "settings": {
+    "exportClass": true,
+    "autoImport": true,
+    "preloadPackFiles": [
+      "assets/asset-pack.json"
+    ],
+    "createMethodName": "editorCreate",
+    "sceneKey": "Fail",
+    "compilerOutputLanguage": "TYPE_SCRIPT",
+    "borderWidth": 390,
+    "borderHeight": 844
+  },
+  "displayList": [
+    {
+      "type": "Rectangle",
+      "id": "fail.background",
+      "label": "fail.background",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "fail.background",
+      "Semantic.fabRole": "screen-background",
+      "Semantic.fabBinding": "presentation:primitive",
+      "Semantic.fabSlot": "background",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 422,
+      "width": 390,
+      "height": 844,
+      "isFilled": true,
+      "fillColor": "#8b6fbd",
+      "slot": "background"
+    },
+    {
+      "type": "Rectangle",
+      "id": "fail.scrim",
+      "label": "fail.scrim",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "fail.scrim",
+      "Semantic.fabRole": "modal-scrim",
+      "Semantic.fabBinding": "presentation:primitive",
+      "Semantic.fabSlot": "overlay",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 422,
+      "width": 390,
+      "height": 844,
+      "isFilled": true,
+      "fillColor": "#1f182e",
+      "fillAlpha": 0.82,
+      "slot": "overlay"
+    },
+    {
+      "type": "Image",
+      "id": "fail.backplate",
+      "label": "fail.backplate",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "fail.backplate",
+      "Semantic.fabRole": "modal-board-backplate",
+      "Semantic.fabBinding": "asset:marble_shadow_tile",
+      "Semantic.fabSlot": "modal-frame",
+      "Semantic.fabVariant": "default",
+      "texture": {
+        "key": "marble_shadow_tile"
+      },
+      "x": 195,
+      "y": 422,
+      "scaleX": 0.73,
+      "scaleY": 0.73,
+      "slot": "modal-frame"
+    },
+    {
+      "type": "Container",
+      "id": "fail.card",
+      "label": "fail.card",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "fail.card",
+      "Semantic.fabRole": "result-card",
+      "Semantic.fabBinding": "presentation:group",
+      "Semantic.fabSlot": "modal-card",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 440,
+      "list": [
+        {
+          "type": "Image",
+          "id": "fail.card.image",
+          "label": "fail.card.image",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "fail.card.image",
+          "Semantic.fabRole": "popup-card",
+          "Semantic.fabBinding": "asset:popup_card",
+          "Semantic.fabSlot": "surface",
+          "Semantic.fabVariant": "default",
+          "texture": {
+            "key": "popup_card"
+          },
+          "x": 0,
+          "y": 0,
+          "scaleX": 0.4,
+          "scaleY": 0.55,
+          "slot": "surface"
+        },
+        {
+          "type": "Image",
+          "id": "fail.ribbon",
+          "label": "fail.ribbon",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "fail.ribbon",
+          "Semantic.fabRole": "title-ribbon",
+          "Semantic.fabBinding": "asset:ribbon_failed_blank",
+          "Semantic.fabSlot": "title",
+          "Semantic.fabVariant": "default",
+          "texture": {
+            "key": "ribbon_failed_blank"
+          },
+          "x": 0,
+          "y": -225,
+          "scaleX": 0.37,
+          "scaleY": 0.37,
+          "slot": "title"
+        },
+        {
+          "type": "Text",
+          "id": "fail.eyebrow",
+          "label": "fail.eyebrow",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "fail.eyebrow",
+          "Semantic.fabRole": "level-label",
+          "Semantic.fabBinding": "state:level",
+          "Semantic.fabSlot": "title-eyebrow",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": -244,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "LEVEL 3",
+          "fontFamily": "Titan One",
+          "fontSize": "13px",
+          "color": "#6a3016",
+          "binding": "state:level",
+          "slot": "title-eyebrow"
+        },
+        {
+          "type": "Text",
+          "id": "fail.title",
+          "label": "fail.title",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "fail.title",
+          "Semantic.fabRole": "result-title",
+          "Semantic.fabBinding": "copy:static",
+          "Semantic.fabSlot": "title",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": -206,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "FAILED",
+          "fontFamily": "Titan One",
+          "fontSize": "28px",
+          "color": "#ffffff",
+          "slot": "title"
+        },
+        {
+          "type": "Text",
+          "id": "fail.emoji",
+          "label": "fail.emoji",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "fail.emoji",
+          "Semantic.fabRole": "result-art",
+          "Semantic.fabBinding": "copy:static",
+          "Semantic.fabSlot": "result-art",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": -82,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "☹",
+          "fontFamily": "Fredoka One",
+          "fontSize": "64px",
+          "color": "#6a3016",
+          "slot": "result-art"
+        },
+        {
+          "type": "Text",
+          "id": "fail.message",
+          "label": "fail.message",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "fail.message",
+          "Semantic.fabRole": "result-message",
+          "Semantic.fabBinding": "copy:fail-message",
+          "Semantic.fabSlot": "message",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 4,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "No hearts left!\nWatch an ad to continue.",
+          "fontFamily": "Fredoka One",
+          "fontSize": "17px",
+          "color": "#6a3016",
+          "align": "center",
+          "binding": "copy:fail-message",
+          "slot": "message"
+        },
+        {
+          "type": "Container",
+          "id": "fail.watch",
+          "label": "fail.watch",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "fail.watch",
+          "Semantic.fabRole": "action-group",
+          "Semantic.fabBinding": "action:watch",
+          "Semantic.fabSlot": "action",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 105,
+          "list": [
+            {
+              "type": "Image",
+              "id": "fail.watch.surface",
+              "label": "fail.watch.surface",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "fail.watch.surface",
+              "Semantic.fabRole": "button-surface",
+              "Semantic.fabBinding": "asset:button_green",
+              "Semantic.fabSlot": "surface",
+              "Semantic.fabVariant": "default",
+              "texture": {
+                "key": "button_green"
+              },
+              "x": 0,
+              "y": 0,
+              "scaleX": 0.5287356321839081,
+              "scaleY": 0.31,
+              "binding": "asset:button_green",
+              "slot": "surface"
+            },
+            {
+              "type": "Text",
+              "id": "fail.watch.label",
+              "label": "fail.watch.label",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "fail.watch.label",
+              "Semantic.fabRole": "button-label",
+              "Semantic.fabBinding": "action:watch",
+              "Semantic.fabSlot": "label",
+              "Semantic.fabVariant": "default",
+              "x": 0,
+              "y": 0,
+              "originX": 0.5,
+              "originY": 0.5,
+              "text": "WATCH",
+              "fontFamily": "Titan One",
+              "fontSize": "22px",
+              "color": "#ffffff",
+              "binding": "action:watch",
+              "slot": "label"
+            }
+          ],
+          "binding": "action:watch",
+          "slot": "action"
+        },
+        {
+          "type": "Container",
+          "id": "fail.retry",
+          "label": "fail.retry",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "fail.retry",
+          "Semantic.fabRole": "action-group",
+          "Semantic.fabBinding": "action:retry",
+          "Semantic.fabSlot": "action",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 178,
+          "list": [
+            {
+              "type": "Image",
+              "id": "fail.retry.surface",
+              "label": "fail.retry.surface",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "fail.retry.surface",
+              "Semantic.fabRole": "button-surface",
+              "Semantic.fabBinding": "asset:button_orange",
+              "Semantic.fabSlot": "surface",
+              "Semantic.fabVariant": "default",
+              "texture": {
+                "key": "button_orange"
+              },
+              "x": 0,
+              "y": 0,
+              "scaleX": 0.5287356321839081,
+              "scaleY": 0.31,
+              "binding": "asset:button_orange",
+              "slot": "surface"
+            },
+            {
+              "type": "Text",
+              "id": "fail.retry.label",
+              "label": "fail.retry.label",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "fail.retry.label",
+              "Semantic.fabRole": "button-label",
+              "Semantic.fabBinding": "action:retry",
+              "Semantic.fabSlot": "label",
+              "Semantic.fabVariant": "default",
+              "x": 0,
+              "y": 0,
+              "originX": 0.5,
+              "originY": 0.5,
+              "text": "RETRY",
+              "fontFamily": "Titan One",
+              "fontSize": "22px",
+              "color": "#ffffff",
+              "binding": "action:retry",
+              "slot": "label"
+            }
+          ],
+          "binding": "action:retry",
+          "slot": "action"
+        }
+      ],
+      "slot": "modal-card"
+    }
+  ],
+  "plainObjects": [],
+  "meta": {
+    "app": "Phaser Editor - Scene Editor",
+    "url": "https://phaser.io/editor",
+    "contentType": "phasereditor2d.core.scene.SceneContentType",
+    "version": 5
+  }
+}

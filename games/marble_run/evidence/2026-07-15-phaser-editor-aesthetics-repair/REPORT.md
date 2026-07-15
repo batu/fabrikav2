@@ -1,6 +1,6 @@
 # Marble Run Phaser Editor aesthetics repair
 
-Status: **PASS for the nine independently reviewed visual defects and licensed-editor save/restart persistence.** Physical-device runtime projection remains outside this repair.
+Status: **PASS for the nine independently reviewed visual defects.** The original no-op save/restart observation below proved deterministic reopen only; it did not prove a changed property persisted. That gap is superseded by the real reversible mutation evidence in `../2026-07-15-phaser-editor-authority-repair/REPORT.md`. Physical-device runtime projection remains outside this repair.
 
 The native Phaser Editor authority was repaired against the current Marble Run source and captured device references. Menu now uses the source Title Case brown banner, a dominant exact green CTA, 16 deterministic semantic confetti pieces, and the real level-3 saga window: locked levels 6, 5, and 4 descend above current level 3, with no completed level 2 in this primary state. GameplayHud uses three procedural native heart groups rather than Unicode glyphs. Both Settings scenes use 66px rows with a single-line `Sound Effects` label. Win now separates `LEVEL 3` and current-source `COMPLETED` into readable bands.
 
@@ -10,7 +10,7 @@ The active content-addressed publication is:
 
 `sha256-e7abb5068656524de73e55500287f0b87832889f970da21b2aa6bb2a1d32f1a8`
 
-Licensed Phaser Editor v5.0.2 opened Menu, SettingsMenu, and Win without browser or console errors. A native `Meta+S` save left all nine scene hashes byte-identical. The editor server was then fully terminated, port closure was confirmed, and a fresh server reopened Win successfully. `native-editor/Win-native-editor-saved.png` and `native-editor/Win-native-editor-after-restart.png` are byte-identical, demonstrating deterministic persistence across the restart.
+Licensed Phaser Editor v5.0.2 opened Menu, SettingsMenu, and Win without browser or console errors. A native `Meta+S` save left all nine scene hashes byte-identical. The editor server was then fully terminated, port closure was confirmed, and a fresh server reopened Win successfully. These byte-identical screenshots demonstrate deterministic reopen, not mutation persistence. The follow-up authority repair changes `win.title.x` from 0 to 12 through the editor, observes the changed scene hash and value after a full restart, then resets and reopens the exact baseline.
 
 Verification:
 

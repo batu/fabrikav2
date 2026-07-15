@@ -1,0 +1,7 @@
+{
+  "schema": "fabrikav2-phaser-editor-action/v1",
+  "id": "duplicate-semantic-hierarchy",
+  "authority": "native-phaser-scene-json",
+  "implementation": "duplicate-semantic.mjs",
+  "contract": "Atomically rewrite native id, label, and Semantic.fabSemanticId for the clone root and every descendant before insertion."
+}

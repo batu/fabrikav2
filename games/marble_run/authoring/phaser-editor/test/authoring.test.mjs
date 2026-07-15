@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
+import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
-import { readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { cp, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import test from 'node:test';
-import { ACTIVE, PROJECT, PUBLICATIONS, currentRevision, publish, reset, status, validate } from '../tools.mjs';
+import { ACTIVE, PROJECT, PUBLICATIONS, currentRevision, duplicate, publish, reset, status, validate, verifyPublication } from '../tools.mjs';
 
 const menuPath = join(PROJECT, 'src/scenes/Menu.scene');
+const referenceAssetsPath = join(PROJECT, '../../reference/assets.yaml');
 
 test('native project exposes all nine validated scenes and exact asset bindings', async () => {
   const result = await validate();
@@ -72,6 +74,37 @@ test('publication is content-addressed, repeatable, and preview pointer is fresh
   await stat(join(PUBLICATIONS, first.revision, 'source/project/public/assets/icon-coin.png'));
 });
 
+test('tampered publication cannot remain fresh or be silently reused', async () => {
+  const publication = await publish();
+  const publishedMenu = join(PUBLICATIONS, publication.revision, 'source/project/src/scenes/Menu.scene');
+  const original = await readFile(publishedMenu);
+  try {
+    await writeFile(publishedMenu, Buffer.concat([original, Buffer.from('\n')]));
+    assert.equal((await status()).fresh, false);
+    await assert.rejects(verifyPublication(publication.revision), /frozen authority preimage|authority-byte digest mismatch/);
+    await assert.rejects(publish(), /frozen authority preimage|authority-byte digest mismatch/);
+  } finally {
+    await writeFile(publishedMenu, original);
+  }
+  await verifyPublication(publication.revision);
+});
+
+test('tampered frozen Preview preimage is rejected beneath its revision stamp', async () => {
+  const publication = await publish();
+  const preimagePath = join(PUBLICATIONS, publication.revision, 'authority.bin');
+  const original = await readFile(preimagePath);
+  try {
+    const tampered = Buffer.from(original);
+    tampered[tampered.length - 1] ^= 1;
+    await writeFile(preimagePath, tampered);
+    await assert.rejects(verifyPublication(publication.revision), /frozen authority preimage|authority-byte digest mismatch/);
+    assert.equal((await status()).fresh, false);
+  } finally {
+    await writeFile(preimagePath, original);
+  }
+  await verifyPublication(publication.revision);
+});
+
 test('saved scene changes make Preview stale until a new publication', async () => {
   const original = await readFile(menuPath, 'utf8');
   const originalRevision = await currentRevision();
@@ -103,6 +136,72 @@ test('validator rejects a texture outside the exact Marble tray', async () => {
     await assert.rejects(validate(), /uncurated texture generic_coin/);
   } finally {
     await writeFile(menuPath, original);
+  }
+});
+
+test('validator rejects a self-attested asset addition outside frozen MR1 eligibility', async () => {
+  const manifestPath = join(PROJECT, 'public/assets/asset-manifest.json');
+  const packPath = join(PROJECT, 'public/assets/asset-pack.json');
+  const replayPath = join(PROJECT, 'public/assets/icon-replay.png');
+  const originalManifest = await readFile(manifestPath, 'utf8');
+  const originalPack = await readFile(packPath, 'utf8');
+  try {
+    const manifest = JSON.parse(originalManifest);
+    manifest.assets.push({
+      key: 'icon_replay', role: 'replay-icon', url: 'assets/icon-replay.png', source: 'design/assets/icon-replay.png',
+      sha256: 'baf974eeaba7b82c17b0e748f87aaf2358251c2cdfdf464bfbc24b80980c7639', dimensions: [256, 256], alpha: true,
+    });
+    const pack = JSON.parse(originalPack);
+    pack['marble-run-exact-ui'].files.push({ url: 'assets/icon-replay.png', type: 'image', key: 'icon_replay' });
+    await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+    await writeFile(packPath, `${JSON.stringify(pack, null, 2)}\n`);
+    await cp(join(PROJECT, '../../../design/assets/icon-replay.png'), replayPath);
+    await assert.rejects(validate(), /complete status-eligible frozen MR1 contract/);
+  } finally {
+    await writeFile(manifestPath, originalManifest);
+    await writeFile(packPath, originalPack);
+    await rm(replayPath, { force: true });
+  }
+});
+
+test('validator rejects coordinated edits to the frozen MR1 asset contract', async () => {
+  const original = await readFile(referenceAssetsPath, 'utf8');
+  try {
+    await writeFile(referenceAssetsPath, `${original}\n`);
+    await assert.rejects(validate(), /frozen MR1 asset contract bytes changed/);
+  } finally {
+    await writeFile(referenceAssetsPath, original);
+  }
+});
+
+test('native duplicate action assigns unique native and semantic descendant identities atomically', async () => {
+  const original = await readFile(menuPath, 'utf8');
+  try {
+    await duplicate('Menu', 'menu.currency', 'menu.currency.bonus');
+    const scene = JSON.parse(await readFile(menuPath, 'utf8'));
+    const flatten = (objects) => objects.flatMap((object) => [object, ...(object.type === 'Container' ? flatten(object.list ?? []) : [])]);
+    const objects = flatten(scene.displayList);
+    const clone = objects.find((object) => object.id === 'menu.currency.bonus');
+    assert.ok(clone);
+    assert.deepEqual(clone.list.map((object) => object.id), [
+      'menu.currency.bonus.panel', 'menu.currency.bonus.icon', 'menu.currency.bonus.value',
+    ]);
+    assert.equal(clone.list.every((object) => object.id === object.label && object.id === object['Semantic.fabSemanticId']), true);
+    assert.equal(new Set(objects.map((object) => object.id)).size, objects.length);
+    assert.equal((await validate()).semantics, 224);
+  } finally {
+    await writeFile(menuPath, original);
+  }
+});
+
+test('validator rejects behavior injected into the inert Semantic carrier', async () => {
+  const semanticPath = join(PROJECT, 'src/components/Semantic.ts');
+  const original = await readFile(semanticPath, 'utf8');
+  try {
+    await writeFile(semanticPath, original.replace('public fabVariant', 'public updateLayout() { this.gameObject.setPosition(0, 0); }\n  public fabVariant'));
+    await assert.rejects(validate(), /canonical inert five-field carrier/);
+  } finally {
+    await writeFile(semanticPath, original);
   }
 });
 

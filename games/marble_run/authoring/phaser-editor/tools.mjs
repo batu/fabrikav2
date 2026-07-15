@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 /* global process */
+import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
 import { cp, mkdir, mkdtemp, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { duplicateSemanticHierarchy } from './project/editor-actions/duplicate-semantic.mjs';
 
 export const ROOT = dirname(fileURLToPath(import.meta.url));
 export const PROJECT = join(ROOT, 'project');
@@ -15,6 +17,30 @@ export const SCENES = Object.freeze([
 ]);
 const ALLOWED_TYPES = new Set(['Rectangle', 'Text', 'Image', 'Container']);
 const SEMANTIC_FIELDS = ['fabSemanticId', 'fabRole', 'fabBinding', 'fabSlot', 'fabVariant'];
+const REVISION_PATTERN = /^sha256-[0-9a-f]{64}$/;
+const FROZEN_REFERENCE_ASSETS_SHA256 = '6c3e2268d70d8af00e4269f56616d140ac58d4a803826f49cbcf29801d5c3388';
+const SEMANTIC_TS_CANONICAL = `// Native Phaser Editor user component. The Scene Editor owns the assignments.
+// This generated-compatible carrier deliberately contains no layout or behavior.
+import Phaser from "phaser";
+
+export default class Semantic {
+  constructor(gameObject: Phaser.GameObjects.GameObject) {
+    this.gameObject = gameObject;
+    (gameObject as Phaser.GameObjects.GameObject & { __Semantic?: Semantic }).__Semantic = this;
+  }
+
+  static getComponent(gameObject: Phaser.GameObjects.GameObject): Semantic | undefined {
+    return (gameObject as Phaser.GameObjects.GameObject & { __Semantic?: Semantic }).__Semantic;
+  }
+
+  private gameObject: Phaser.GameObjects.GameObject;
+  public fabSemanticId = "";
+  public fabRole = "";
+  public fabBinding = "";
+  public fabSlot = "";
+  public fabVariant = "default";
+}
+`;
 const FORBIDDEN = /kenney|trailbound|shell_proof|generic[ -]shell/i;
 const SCREEN_TO_SCENE = Object.freeze({
   menu: 'Menu',
@@ -42,6 +68,83 @@ async function json(path) {
 
 async function exists(path) {
   try { await stat(path); return true; } catch { return false; }
+}
+
+function parseInlineRecord(source) {
+  const body = source.trim().replace(/^-\s*\{/, '').replace(/\}\s*$/, '');
+  const fields = [];
+  let token = '';
+  let quote = false;
+  let depth = 0;
+  for (const character of body) {
+    if (character === '"') quote = !quote;
+    if (!quote && character === '[') depth += 1;
+    if (!quote && character === ']') depth -= 1;
+    if (!quote && depth === 0 && character === ',') {
+      fields.push(token);
+      token = '';
+    } else token += character;
+  }
+  fields.push(token);
+  return Object.fromEntries(fields.map((field) => {
+    const separator = field.indexOf(':');
+    const key = field.slice(0, separator).trim();
+    const raw = field.slice(separator + 1).trim();
+    let value;
+    if (raw.startsWith('"') || raw.startsWith('[')) value = JSON.parse(raw);
+    else if (raw === 'true' || raw === 'false') value = raw === 'true';
+    else value = raw;
+    return [key, value];
+  }));
+}
+
+async function frozenAssetContract() {
+  const referencePath = resolve(ROOT, '../reference/assets.yaml');
+  const sourceBytes = await bytes(referencePath);
+  if (sha256(sourceBytes) !== FROZEN_REFERENCE_ASSETS_SHA256) {
+    throw new Error('frozen MR1 asset contract bytes changed');
+  }
+  const source = sourceBytes.toString('utf8');
+  const records = [];
+  let section = null;
+  for (const line of source.split('\n')) {
+    if (line === 'assets:') section = 'image';
+    else if (line === 'fonts:') section = 'font';
+    else if (section && /^ {2}- \{/.test(line)) records.push({ ...parseInlineRecord(line.trim()), type: section });
+  }
+  const eligible = records.filter((record) => (
+    record.type === 'image'
+      ? record.status === 'live' && !/favicon only/i.test(record.consumer)
+      : ['live', 'loaded-fallback'].includes(record.status)
+  ));
+  return eligible.map((record) => {
+    const relative = record.path.replace(/^design\/assets\//, '');
+    const basename = relative.split('/').at(-1).replace(/\.[^.]+$/, '');
+    return {
+      key: record.family ?? basename.replaceAll('-', '_'),
+      source: record.path,
+      sha256: record.sha256,
+      dimensions: record.dimensions,
+      type: record.type,
+      url: `assets/${relative}`,
+    };
+  }).sort((a, b) => a.key.localeCompare(b.key));
+}
+
+function normalizedAssetContract(manifest, packFiles) {
+  const packByKey = new Map(packFiles.map((asset) => [asset.key, asset]));
+  return manifest.assets.map((asset) => ({
+    key: asset.key,
+    source: asset.source,
+    sha256: asset.sha256,
+    dimensions: asset.dimensions,
+    type: packByKey.get(asset.key)?.type,
+    url: asset.url,
+  })).sort((a, b) => a.key.localeCompare(b.key));
+}
+
+function sameJson(left, right) {
+  return JSON.stringify(left) === JSON.stringify(right);
 }
 
 function walkObjects(objects, visitor) {
@@ -158,11 +261,20 @@ export async function validate() {
   const properties = componentDoc.components?.[0]?.properties?.map((property) => property.name);
   if (JSON.stringify(properties) !== JSON.stringify(SEMANTIC_FIELDS)) errors.push('Semantic component must expose exactly five string fields');
   if (componentDoc.components?.[0]?.properties?.some((property) => property.type?.id !== 'string')) errors.push('Semantic component fields must all be strings');
+  const semanticSource = await readFile(join(PROJECT, 'src/components/Semantic.ts'), 'utf8');
+  const baselineSemanticSource = await readFile(join(BASELINE, 'Semantic.ts'), 'utf8');
+  if (semanticSource !== SEMANTIC_TS_CANONICAL) errors.push('Semantic.ts must remain the canonical inert five-field carrier');
+  if (baselineSemanticSource !== SEMANTIC_TS_CANONICAL) errors.push('protected baseline Semantic.ts must remain canonical');
 
   const manifestPath = join(PROJECT, 'public/assets/asset-manifest.json');
   const manifest = await json(manifestPath);
   const pack = await json(join(PROJECT, 'public/assets/asset-pack.json'));
   const packFiles = pack['marble-run-exact-ui']?.files ?? [];
+  const expectedAssetContract = await frozenAssetContract();
+  const actualAssetContract = normalizedAssetContract(manifest, packFiles);
+  if (!sameJson(actualAssetContract, expectedAssetContract)) {
+    errors.push('asset manifest/pack must equal the complete status-eligible frozen MR1 contract');
+  }
   const manifestKeys = new Set(manifest.assets.map((asset) => asset.key));
   const packKeys = new Set(packFiles.map((asset) => asset.key));
   if (manifestKeys.size !== manifest.assets.length) errors.push('asset manifest keys must be unique');
@@ -200,30 +312,63 @@ async function authorityPaths() {
     'project/public/publicroot',
     'project/src/components/Semantic.components',
     'project/src/components/Semantic.ts',
+    'project/editor-actions/duplicate-semantic.action.json',
+    'project/editor-actions/duplicate-semantic.mjs',
     'project/public/assets/asset-manifest.json',
     'project/public/assets/asset-pack.json',
     ...SCENES.map((name) => `project/src/scenes/${name}.scene`),
   ];
-  const manifest = await json(join(PROJECT, 'public/assets/asset-manifest.json'));
-  paths.push(...manifest.assets.map((asset) => `project/public/${asset.url}`));
+  paths.push(...(await frozenAssetContract()).map((asset) => `project/public/${asset.url}`));
   return [...new Set(paths)].sort();
 }
 
-export async function currentRevision() {
-  const hash = createHash('sha256');
+async function revisionAt(root) {
+  return `sha256-${sha256(await authorityPreimageAt(root))}`;
+}
+
+async function authorityPreimageAt(root) {
+  const parts = [];
   for (const relativePath of await authorityPaths()) {
-    const content = await bytes(join(ROOT, relativePath));
-    hash.update(`${relativePath}\0${content.length}\0`);
-    hash.update(content);
+    const content = await bytes(join(root, relativePath));
+    parts.push(Buffer.from(`${relativePath}\0${content.length}\0`), content);
   }
-  return `sha256-${hash.digest('hex')}`;
+  return Buffer.concat(parts);
+}
+
+export async function currentRevision() {
+  return revisionAt(ROOT);
+}
+
+export async function verifyPublication(revision) {
+  if (!REVISION_PATTERN.test(revision)) throw new Error(`invalid publication revision ${revision}`);
+  const publication = join(PUBLICATIONS, revision);
+  const revisionDoc = await json(join(publication, 'revision.json'));
+  const expectedPaths = await authorityPaths();
+  if (revisionDoc.schema !== 'fabrikav2-phaser-editor-publication/v1') throw new Error(`${revision}: invalid publication schema`);
+  if (revisionDoc.revision !== revision) throw new Error(`${revision}: embedded revision mismatch`);
+  if (!sameJson(revisionDoc.scenes, SCENES)) throw new Error(`${revision}: scene set mismatch`);
+  if (!sameJson(revisionDoc.authorityPaths, expectedPaths)) throw new Error(`${revision}: authority path set mismatch`);
+  const sourceRoot = join(publication, 'source');
+  const actualPreimage = await authorityPreimageAt(sourceRoot);
+  const frozenPreimage = await bytes(join(publication, 'authority.bin'));
+  if (!actualPreimage.equals(frozenPreimage)) throw new Error(`${revision}: frozen authority preimage does not match source bytes`);
+  const actualRevision = `sha256-${sha256(frozenPreimage)}`;
+  if (actualRevision !== revision) throw new Error(`${revision}: authority-byte digest mismatch (${actualRevision})`);
+  return revisionDoc;
 }
 
 export async function publish() {
   const validation = await validate();
   const revision = await currentRevision();
   const destination = join(PUBLICATIONS, revision);
-  if (!(await exists(destination))) {
+  if (await exists(destination)) {
+    if (!(await exists(join(destination, 'authority.bin')))) {
+      const sourceRevision = await revisionAt(join(destination, 'source'));
+      if (sourceRevision !== revision) throw new Error(`${revision}: cannot migrate a mismatched publication`);
+      await writeFile(join(destination, 'authority.bin'), await authorityPreimageAt(join(destination, 'source')), { flag: 'wx' });
+    }
+    await verifyPublication(revision);
+  } else {
     await mkdir(PUBLICATIONS, { recursive: true });
     const temporary = await mkdtemp(join(PUBLICATIONS, '.tmp-'));
     try {
@@ -232,6 +377,7 @@ export async function publish() {
         await mkdir(dirname(target), { recursive: true });
         await cp(join(ROOT, relativePath), target, { force: false });
       }
+      await writeFile(join(temporary, 'authority.bin'), await authorityPreimageAt(ROOT), { flag: 'wx' });
       const revisionDoc = {
         schema: 'fabrikav2-phaser-editor-publication/v1',
         revision,
@@ -241,6 +387,7 @@ export async function publish() {
         sceneCount: validation.scenes,
         semanticCount: validation.semantics,
         assetCount: validation.assets,
+        authorityPaths: await authorityPaths(),
       };
       await writeFile(join(temporary, 'revision.json'), `${JSON.stringify(revisionDoc, null, 2)}\n`);
       await rename(temporary, destination);
@@ -248,6 +395,7 @@ export async function publish() {
       await rm(temporary, { recursive: true, force: true });
       throw error;
     }
+    await verifyPublication(revision);
   }
   const active = {
     schema: 'fabrikav2-phaser-editor-preview-pointer/v1',
@@ -262,10 +410,17 @@ export async function publish() {
 
 export async function status() {
   const revision = await currentRevision();
-  if (!(await exists(ACTIVE))) return { revision, publishedRevision: null, fresh: false };
+  if (!(await exists(ACTIVE))) return { revision, publishedRevision: null, publicationValid: false, fresh: false };
   const active = await json(ACTIVE);
-  const publicationExists = await exists(join(PUBLICATIONS, active.revision, 'revision.json'));
-  return { revision, publishedRevision: active.revision, publicationExists, fresh: publicationExists && revision === active.revision };
+  let publicationValid = false;
+  try {
+    if (active.publication !== `../publications/${active.revision}` || !sameJson(active.scenes, SCENES)) throw new Error('invalid pointer');
+    await verifyPublication(active.revision);
+    publicationValid = true;
+  } catch {
+    publicationValid = false;
+  }
+  return { revision, publishedRevision: active.revision, publicationValid, fresh: publicationValid && revision === active.revision };
 }
 
 async function replaceFromBaseline(source, target) {
@@ -285,13 +440,25 @@ export async function reset() {
   return validate();
 }
 
+export async function duplicate(sceneName, sourceSemanticId, cloneSemanticId) {
+  if (!SCENES.includes(sceneName)) throw new Error(`unknown native scene ${sceneName}`);
+  const path = join(PROJECT, 'src/scenes', `${sceneName}.scene`);
+  const scene = await json(path);
+  const clone = duplicateSemanticHierarchy(scene, sourceSemanticId, cloneSemanticId);
+  const temporary = `${path}.duplicate-${process.pid}`;
+  await writeFile(temporary, `${JSON.stringify(scene, null, 2)}\n`, { flag: 'wx' });
+  await rename(temporary, path);
+  return { scene: sceneName, sourceSemanticId, cloneSemanticId: clone['Semantic.fabSemanticId'] };
+}
+
 async function main() {
   const command = process.argv[2];
   if (command === 'validate') console.log(JSON.stringify(await validate(), null, 2));
   else if (command === 'publish') console.log(JSON.stringify(await publish(), null, 2));
   else if (command === 'status') console.log(JSON.stringify(await status(), null, 2));
   else if (command === 'reset') console.log(JSON.stringify(await reset(), null, 2));
-  else throw new Error('usage: tools.mjs <validate|publish|status|reset>');
+  else if (command === 'duplicate') console.log(JSON.stringify(await duplicate(process.argv[3], process.argv[4], process.argv[5]), null, 2));
+  else throw new Error('usage: tools.mjs <validate|publish|status|reset|duplicate SCENE SOURCE_ID CLONE_ID>');
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
