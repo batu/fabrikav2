@@ -1,0 +1,419 @@
+{
+  "id": "marble-run-GameplayHud",
+  "sceneType": "SCENE",
+  "settings": {
+    "exportClass": true,
+    "autoImport": true,
+    "preloadPackFiles": [
+      "assets/asset-pack.json"
+    ],
+    "createMethodName": "editorCreate",
+    "sceneKey": "GameplayHud",
+    "compilerOutputLanguage": "TYPE_SCRIPT",
+    "borderWidth": 390,
+    "borderHeight": 844
+  },
+  "displayList": [
+    {
+      "type": "Rectangle",
+      "id": "gameplay.background",
+      "label": "gameplay.background",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "gameplay.background",
+      "Semantic.fabRole": "screen-background",
+      "Semantic.fabBinding": "presentation:primitive",
+      "Semantic.fabSlot": "background",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 422,
+      "width": 390,
+      "height": 844,
+      "isFilled": true,
+      "fillColor": "#6b568e",
+      "slot": "background"
+    },
+    {
+      "type": "Container",
+      "id": "gameplay.lives",
+      "label": "gameplay.lives",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "gameplay.lives",
+      "Semantic.fabRole": "lives-panel",
+      "Semantic.fabBinding": "state:lives",
+      "Semantic.fabSlot": "safe-area:top-left",
+      "Semantic.fabVariant": "default",
+      "x": 86,
+      "y": 55,
+      "list": [
+        {
+          "type": "Rectangle",
+          "id": "gameplay.lives.panel",
+          "label": "gameplay.lives.panel",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "gameplay.lives.panel",
+          "Semantic.fabRole": "hud-panel",
+          "Semantic.fabBinding": "presentation:primitive",
+          "Semantic.fabSlot": "surface",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 0,
+          "width": 140,
+          "height": 54,
+          "isFilled": true,
+          "fillColor": "#3fc6ef",
+          "rounded": 18,
+          "isStroked": true,
+          "strokeColor": "#212c48",
+          "lineWidth": 3,
+          "slot": "surface"
+        },
+        {
+          "type": "Text",
+          "id": "gameplay.life.1",
+          "label": "gameplay.life.1",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "gameplay.life.1",
+          "Semantic.fabRole": "life-heart",
+          "Semantic.fabBinding": "state:life-1",
+          "Semantic.fabSlot": "heart",
+          "Semantic.fabVariant": "default",
+          "x": -42,
+          "y": 0,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "♥",
+          "fontFamily": "Fredoka One",
+          "fontSize": "27px",
+          "color": "#ff5d6c",
+          "binding": "state:life-1",
+          "slot": "heart"
+        },
+        {
+          "type": "Text",
+          "id": "gameplay.life.2",
+          "label": "gameplay.life.2",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "gameplay.life.2",
+          "Semantic.fabRole": "life-heart",
+          "Semantic.fabBinding": "state:life-2",
+          "Semantic.fabSlot": "heart",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 0,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "♥",
+          "fontFamily": "Fredoka One",
+          "fontSize": "27px",
+          "color": "#ff5d6c",
+          "binding": "state:life-2",
+          "slot": "heart"
+        },
+        {
+          "type": "Text",
+          "id": "gameplay.life.3",
+          "label": "gameplay.life.3",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "gameplay.life.3",
+          "Semantic.fabRole": "life-heart",
+          "Semantic.fabBinding": "state:life-3",
+          "Semantic.fabSlot": "heart",
+          "Semantic.fabVariant": "default",
+          "x": 42,
+          "y": 0,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "♥",
+          "fontFamily": "Fredoka One",
+          "fontSize": "27px",
+          "color": "#ff5d6c",
+          "binding": "state:life-3",
+          "slot": "heart"
+        }
+      ],
+      "binding": "state:lives",
+      "slot": "safe-area:top-left"
+    },
+    {
+      "type": "Container",
+      "id": "gameplay.pause",
+      "label": "gameplay.pause",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "gameplay.pause",
+      "Semantic.fabRole": "pause-control",
+      "Semantic.fabBinding": "action:pause",
+      "Semantic.fabSlot": "safe-area:top-right",
+      "Semantic.fabVariant": "default",
+      "x": 342,
+      "y": 55,
+      "list": [
+        {
+          "type": "Rectangle",
+          "id": "gameplay.pause.panel",
+          "label": "gameplay.pause.panel",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "gameplay.pause.panel",
+          "Semantic.fabRole": "hud-panel",
+          "Semantic.fabBinding": "presentation:primitive",
+          "Semantic.fabSlot": "content",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 0,
+          "width": 58,
+          "height": 58,
+          "isFilled": true,
+          "fillColor": "#3fc6ef",
+          "rounded": 18,
+          "isStroked": true,
+          "strokeColor": "#212c48",
+          "lineWidth": 3
+        },
+        {
+          "type": "Image",
+          "id": "gameplay.pause.icon",
+          "label": "gameplay.pause.icon",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "gameplay.pause.icon",
+          "Semantic.fabRole": "pause-icon",
+          "Semantic.fabBinding": "action:pause",
+          "Semantic.fabSlot": "content",
+          "Semantic.fabVariant": "default",
+          "texture": {
+            "key": "icon_settings"
+          },
+          "x": 0,
+          "y": 0,
+          "scaleX": 0.46,
+          "scaleY": 0.4,
+          "binding": "action:pause"
+        }
+      ],
+      "binding": "action:pause",
+      "slot": "safe-area:top-right"
+    },
+    {
+      "type": "Container",
+      "id": "gameplay.currency",
+      "label": "gameplay.currency",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "gameplay.currency",
+      "Semantic.fabRole": "currency-counter",
+      "Semantic.fabBinding": "state:coins",
+      "Semantic.fabSlot": "counter",
+      "Semantic.fabVariant": "default",
+      "x": 82,
+      "y": 790,
+      "list": [
+        {
+          "type": "Rectangle",
+          "id": "gameplay.currency.panel",
+          "label": "gameplay.currency.panel",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "gameplay.currency.panel",
+          "Semantic.fabRole": "counter-panel",
+          "Semantic.fabBinding": "presentation:chrome",
+          "Semantic.fabSlot": "surface",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 0,
+          "width": 132,
+          "height": 54,
+          "isFilled": true,
+          "fillColor": "#3fc6ef",
+          "binding": "presentation:chrome",
+          "slot": "surface",
+          "rounded": 22,
+          "isStroked": true,
+          "strokeColor": "#212c48",
+          "lineWidth": 3
+        },
+        {
+          "type": "Image",
+          "id": "gameplay.currency.icon",
+          "label": "gameplay.currency.icon",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "gameplay.currency.icon",
+          "Semantic.fabRole": "currency-icon",
+          "Semantic.fabBinding": "asset:icon_coin",
+          "Semantic.fabSlot": "icon",
+          "Semantic.fabVariant": "default",
+          "texture": {
+            "key": "icon_coin"
+          },
+          "x": -42,
+          "y": 0,
+          "scaleX": 0.47,
+          "scaleY": 0.47,
+          "binding": "asset:icon_coin",
+          "slot": "icon"
+        },
+        {
+          "type": "Text",
+          "id": "gameplay.currency.value",
+          "label": "gameplay.currency.value",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "gameplay.currency.value",
+          "Semantic.fabRole": "currency-value",
+          "Semantic.fabBinding": "state:coins",
+          "Semantic.fabSlot": "value",
+          "Semantic.fabVariant": "default",
+          "x": 20,
+          "y": 0,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "250",
+          "fontFamily": "Fredoka One",
+          "fontSize": "20px",
+          "color": "#ffffff",
+          "binding": "state:coins",
+          "slot": "value"
+        }
+      ],
+      "binding": "state:coins",
+      "slot": "counter"
+    },
+    {
+      "type": "Container",
+      "id": "gameplay.hint",
+      "label": "gameplay.hint",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "gameplay.hint",
+      "Semantic.fabRole": "hint-control",
+      "Semantic.fabBinding": "action:hint",
+      "Semantic.fabSlot": "bottom-right",
+      "Semantic.fabVariant": "default",
+      "x": 326,
+      "y": 779,
+      "list": [
+        {
+          "type": "Rectangle",
+          "id": "gameplay.hint.panel",
+          "label": "gameplay.hint.panel",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "gameplay.hint.panel",
+          "Semantic.fabRole": "hint-panel",
+          "Semantic.fabBinding": "presentation:primitive",
+          "Semantic.fabSlot": "surface",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 0,
+          "width": 96,
+          "height": 82,
+          "isFilled": true,
+          "fillColor": "#d8a566",
+          "rounded": 20,
+          "isStroked": true,
+          "strokeColor": "#a9713c",
+          "lineWidth": 3,
+          "slot": "surface"
+        },
+        {
+          "type": "Text",
+          "id": "gameplay.hint.label",
+          "label": "gameplay.hint.label",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "gameplay.hint.label",
+          "Semantic.fabRole": "hint-label",
+          "Semantic.fabBinding": "action:hint",
+          "Semantic.fabSlot": "label",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": -13,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "HINT",
+          "fontFamily": "Fredoka One",
+          "fontSize": "18px",
+          "color": "#4a2a12",
+          "binding": "action:hint",
+          "slot": "label"
+        },
+        {
+          "type": "Image",
+          "id": "gameplay.hint.coin",
+          "label": "gameplay.hint.coin",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "gameplay.hint.coin",
+          "Semantic.fabRole": "hint-cost-icon",
+          "Semantic.fabBinding": "asset:icon_coin",
+          "Semantic.fabSlot": "cost-icon",
+          "Semantic.fabVariant": "default",
+          "texture": {
+            "key": "icon_coin"
+          },
+          "x": -12,
+          "y": 14,
+          "scaleX": 0.2,
+          "scaleY": 0.2,
+          "slot": "cost-icon"
+        },
+        {
+          "type": "Text",
+          "id": "gameplay.hint.cost",
+          "label": "gameplay.hint.cost",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "gameplay.hint.cost",
+          "Semantic.fabRole": "hint-cost",
+          "Semantic.fabBinding": "state:hint-cost",
+          "Semantic.fabSlot": "cost",
+          "Semantic.fabVariant": "default",
+          "x": 13,
+          "y": 14,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "25",
+          "fontFamily": "Fredoka One",
+          "fontSize": "13px",
+          "color": "#4a2a12",
+          "binding": "state:hint-cost",
+          "slot": "cost"
+        }
+      ],
+      "binding": "action:hint",
+      "slot": "bottom-right"
+    }
+  ],
+  "plainObjects": [],
+  "meta": {
+    "app": "Phaser Editor - Scene Editor",
+    "url": "https://phaser.io/editor",
+    "contentType": "phasereditor2d.core.scene.SceneContentType",
+    "version": 5
+  }
+}

@@ -1,0 +1,687 @@
+{
+  "id": "marble-run-SettingsMenu",
+  "sceneType": "SCENE",
+  "settings": {
+    "exportClass": true,
+    "autoImport": true,
+    "preloadPackFiles": [
+      "assets/asset-pack.json"
+    ],
+    "createMethodName": "editorCreate",
+    "sceneKey": "SettingsMenu",
+    "compilerOutputLanguage": "TYPE_SCRIPT",
+    "borderWidth": 390,
+    "borderHeight": 844
+  },
+  "displayList": [
+    {
+      "type": "Rectangle",
+      "id": "settings-menu.background",
+      "label": "settings-menu.background",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "settings-menu.background",
+      "Semantic.fabRole": "screen-background",
+      "Semantic.fabBinding": "presentation:primitive",
+      "Semantic.fabSlot": "background",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 422,
+      "width": 390,
+      "height": 844,
+      "isFilled": true,
+      "fillColor": "#8b6fbd",
+      "slot": "background"
+    },
+    {
+      "type": "Rectangle",
+      "id": "settings-menu.scrim",
+      "label": "settings-menu.scrim",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "settings-menu.scrim",
+      "Semantic.fabRole": "modal-scrim",
+      "Semantic.fabBinding": "presentation:primitive",
+      "Semantic.fabSlot": "overlay",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 422,
+      "width": 390,
+      "height": 844,
+      "isFilled": true,
+      "fillColor": "#1f182e",
+      "fillAlpha": 0.82,
+      "slot": "overlay"
+    },
+    {
+      "type": "Image",
+      "id": "settings-menu.backplate",
+      "label": "settings-menu.backplate",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "settings-menu.backplate",
+      "Semantic.fabRole": "modal-board-backplate",
+      "Semantic.fabBinding": "asset:marble_shadow_tile",
+      "Semantic.fabSlot": "modal-frame",
+      "Semantic.fabVariant": "default",
+      "texture": {
+        "key": "marble_shadow_tile"
+      },
+      "x": 195,
+      "y": 422,
+      "scaleX": 0.73,
+      "scaleY": 0.73,
+      "slot": "modal-frame"
+    },
+    {
+      "type": "Container",
+      "id": "settings-menu.card",
+      "label": "settings-menu.card",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "settings-menu.card",
+      "Semantic.fabRole": "settings-card",
+      "Semantic.fabBinding": "presentation:group",
+      "Semantic.fabSlot": "modal-card",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 430,
+      "list": [
+        {
+          "type": "Image",
+          "id": "settings-menu.card.image",
+          "label": "settings-menu.card.image",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "settings-menu.card.image",
+          "Semantic.fabRole": "popup-card",
+          "Semantic.fabBinding": "asset:popup_card",
+          "Semantic.fabSlot": "surface",
+          "Semantic.fabVariant": "default",
+          "texture": {
+            "key": "popup_card"
+          },
+          "x": 0,
+          "y": 0,
+          "scaleX": 0.4,
+          "scaleY": 0.55,
+          "slot": "surface"
+        },
+        {
+          "type": "Image",
+          "id": "settings-menu.ribbon",
+          "label": "settings-menu.ribbon",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "settings-menu.ribbon",
+          "Semantic.fabRole": "title-ribbon",
+          "Semantic.fabBinding": "asset:ribbon_orange",
+          "Semantic.fabSlot": "title",
+          "Semantic.fabVariant": "default",
+          "texture": {
+            "key": "ribbon_orange"
+          },
+          "x": 0,
+          "y": -225,
+          "scaleX": 0.37,
+          "scaleY": 0.37,
+          "slot": "title"
+        },
+        {
+          "type": "Text",
+          "id": "settings-menu.title",
+          "label": "settings-menu.title",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "settings-menu.title",
+          "Semantic.fabRole": "screen-title",
+          "Semantic.fabBinding": "copy:static",
+          "Semantic.fabSlot": "title",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": -220,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "SETTINGS",
+          "fontFamily": "Titan One",
+          "fontSize": "29px",
+          "color": "#ffffff",
+          "slot": "title"
+        },
+        {
+          "type": "Container",
+          "id": "settings-menu.close",
+          "label": "settings-menu.close",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "settings-menu.close",
+          "Semantic.fabRole": "close-control",
+          "Semantic.fabBinding": "action:close",
+          "Semantic.fabSlot": "close",
+          "Semantic.fabVariant": "default",
+          "x": 138,
+          "y": -176,
+          "list": [
+            {
+              "type": "Rectangle",
+              "id": "settings-menu.close.surface",
+              "label": "settings-menu.close.surface",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "settings-menu.close.surface",
+              "Semantic.fabRole": "close-surface",
+              "Semantic.fabBinding": "presentation:primitive",
+              "Semantic.fabSlot": "surface",
+              "Semantic.fabVariant": "default",
+              "x": 0,
+              "y": 0,
+              "width": 48,
+              "height": 48,
+              "isFilled": true,
+              "fillColor": "#ff695f",
+              "rounded": 24,
+              "isStroked": true,
+              "strokeColor": "#212c48",
+              "lineWidth": 3,
+              "slot": "surface"
+            },
+            {
+              "type": "Text",
+              "id": "settings-menu.close.label",
+              "label": "settings-menu.close.label",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "settings-menu.close.label",
+              "Semantic.fabRole": "close-label",
+              "Semantic.fabBinding": "action:close",
+              "Semantic.fabSlot": "label",
+              "Semantic.fabVariant": "default",
+              "x": 0,
+              "y": -1,
+              "originX": 0.5,
+              "originY": 0.5,
+              "text": "×",
+              "fontFamily": "Fredoka One",
+              "fontSize": "30px",
+              "color": "#ffffff",
+              "binding": "action:close",
+              "slot": "label"
+            }
+          ],
+          "binding": "action:close",
+          "slot": "close"
+        },
+        {
+          "type": "Container",
+          "id": "settings-menu.toggle.music",
+          "label": "settings-menu.toggle.music",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "settings-menu.toggle.music",
+          "Semantic.fabRole": "toggle-row",
+          "Semantic.fabBinding": "setting:music",
+          "Semantic.fabSlot": "settings-row",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": -98,
+          "list": [
+            {
+              "type": "Rectangle",
+              "id": "settings-menu.toggle.0.row",
+              "label": "settings-menu.toggle.0.row",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "settings-menu.toggle.0.row",
+              "Semantic.fabRole": "toggle-row-surface",
+              "Semantic.fabBinding": "presentation:primitive",
+              "Semantic.fabSlot": "content",
+              "Semantic.fabVariant": "default",
+              "x": 0,
+              "y": 0,
+              "width": 270,
+              "height": 66,
+              "isFilled": true,
+              "fillColor": "#ffe2bd",
+              "rounded": 18,
+              "isStroked": true,
+              "strokeColor": "#212c48",
+              "lineWidth": 2
+            },
+            {
+              "type": "Text",
+              "id": "settings-menu.toggle.0.label",
+              "label": "settings-menu.toggle.0.label",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "settings-menu.toggle.0.label",
+              "Semantic.fabRole": "toggle-label",
+              "Semantic.fabBinding": "copy:music",
+              "Semantic.fabSlot": "content",
+              "Semantic.fabVariant": "default",
+              "x": -105,
+              "y": 0,
+              "originX": 0,
+              "originY": 0.5,
+              "text": "Music",
+              "fontFamily": "Fredoka One",
+              "fontSize": "18px",
+              "color": "#6a3016",
+              "binding": "copy:music"
+            },
+            {
+              "type": "Rectangle",
+              "id": "settings-menu.toggle.0.track",
+              "label": "settings-menu.toggle.0.track",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "settings-menu.toggle.0.track",
+              "Semantic.fabRole": "toggle-track",
+              "Semantic.fabBinding": "setting:music",
+              "Semantic.fabSlot": "toggle",
+              "Semantic.fabVariant": "default",
+              "x": 91,
+              "y": 0,
+              "width": 58,
+              "height": 30,
+              "isFilled": true,
+              "fillColor": "#5fd06a",
+              "rounded": 15,
+              "binding": "setting:music",
+              "slot": "toggle"
+            },
+            {
+              "type": "Rectangle",
+              "id": "settings-menu.toggle.0.thumb",
+              "label": "settings-menu.toggle.0.thumb",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "settings-menu.toggle.0.thumb",
+              "Semantic.fabRole": "toggle-thumb",
+              "Semantic.fabBinding": "setting:music",
+              "Semantic.fabSlot": "toggle-thumb",
+              "Semantic.fabVariant": "default",
+              "x": 102,
+              "y": 0,
+              "width": 22,
+              "height": 22,
+              "isFilled": true,
+              "fillColor": "#ffffff",
+              "rounded": 11,
+              "binding": "setting:music",
+              "slot": "toggle-thumb"
+            }
+          ],
+          "binding": "setting:music",
+          "slot": "settings-row"
+        },
+        {
+          "type": "Container",
+          "id": "settings-menu.toggle.sound-effects",
+          "label": "settings-menu.toggle.sound-effects",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "settings-menu.toggle.sound-effects",
+          "Semantic.fabRole": "toggle-row",
+          "Semantic.fabBinding": "setting:sound effects",
+          "Semantic.fabSlot": "settings-row",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": -24,
+          "list": [
+            {
+              "type": "Rectangle",
+              "id": "settings-menu.toggle.1.row",
+              "label": "settings-menu.toggle.1.row",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "settings-menu.toggle.1.row",
+              "Semantic.fabRole": "toggle-row-surface",
+              "Semantic.fabBinding": "presentation:primitive",
+              "Semantic.fabSlot": "content",
+              "Semantic.fabVariant": "default",
+              "x": 0,
+              "y": 0,
+              "width": 270,
+              "height": 66,
+              "isFilled": true,
+              "fillColor": "#ffe2bd",
+              "rounded": 18,
+              "isStroked": true,
+              "strokeColor": "#212c48",
+              "lineWidth": 2
+            },
+            {
+              "type": "Text",
+              "id": "settings-menu.toggle.1.label",
+              "label": "settings-menu.toggle.1.label",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "settings-menu.toggle.1.label",
+              "Semantic.fabRole": "toggle-label",
+              "Semantic.fabBinding": "copy:sound effects",
+              "Semantic.fabSlot": "content",
+              "Semantic.fabVariant": "default",
+              "x": -105,
+              "y": 0,
+              "originX": 0,
+              "originY": 0.5,
+              "text": "Sound Effects",
+              "fontFamily": "Fredoka One",
+              "fontSize": "18px",
+              "color": "#6a3016",
+              "binding": "copy:sound effects"
+            },
+            {
+              "type": "Rectangle",
+              "id": "settings-menu.toggle.1.track",
+              "label": "settings-menu.toggle.1.track",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "settings-menu.toggle.1.track",
+              "Semantic.fabRole": "toggle-track",
+              "Semantic.fabBinding": "setting:sound effects",
+              "Semantic.fabSlot": "toggle",
+              "Semantic.fabVariant": "default",
+              "x": 91,
+              "y": 0,
+              "width": 58,
+              "height": 30,
+              "isFilled": true,
+              "fillColor": "#5fd06a",
+              "rounded": 15,
+              "binding": "setting:sound effects",
+              "slot": "toggle"
+            },
+            {
+              "type": "Rectangle",
+              "id": "settings-menu.toggle.1.thumb",
+              "label": "settings-menu.toggle.1.thumb",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "settings-menu.toggle.1.thumb",
+              "Semantic.fabRole": "toggle-thumb",
+              "Semantic.fabBinding": "setting:sound effects",
+              "Semantic.fabSlot": "toggle-thumb",
+              "Semantic.fabVariant": "default",
+              "x": 102,
+              "y": 0,
+              "width": 22,
+              "height": 22,
+              "isFilled": true,
+              "fillColor": "#ffffff",
+              "rounded": 11,
+              "binding": "setting:sound effects",
+              "slot": "toggle-thumb"
+            }
+          ],
+          "binding": "setting:sound effects",
+          "slot": "settings-row"
+        },
+        {
+          "type": "Container",
+          "id": "settings-menu.toggle.haptics",
+          "label": "settings-menu.toggle.haptics",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "settings-menu.toggle.haptics",
+          "Semantic.fabRole": "toggle-row",
+          "Semantic.fabBinding": "setting:haptics",
+          "Semantic.fabSlot": "settings-row",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 50,
+          "list": [
+            {
+              "type": "Rectangle",
+              "id": "settings-menu.toggle.2.row",
+              "label": "settings-menu.toggle.2.row",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "settings-menu.toggle.2.row",
+              "Semantic.fabRole": "toggle-row-surface",
+              "Semantic.fabBinding": "presentation:primitive",
+              "Semantic.fabSlot": "content",
+              "Semantic.fabVariant": "default",
+              "x": 0,
+              "y": 0,
+              "width": 270,
+              "height": 66,
+              "isFilled": true,
+              "fillColor": "#ffe2bd",
+              "rounded": 18,
+              "isStroked": true,
+              "strokeColor": "#212c48",
+              "lineWidth": 2
+            },
+            {
+              "type": "Text",
+              "id": "settings-menu.toggle.2.label",
+              "label": "settings-menu.toggle.2.label",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "settings-menu.toggle.2.label",
+              "Semantic.fabRole": "toggle-label",
+              "Semantic.fabBinding": "copy:haptics",
+              "Semantic.fabSlot": "content",
+              "Semantic.fabVariant": "default",
+              "x": -105,
+              "y": 0,
+              "originX": 0,
+              "originY": 0.5,
+              "text": "Haptics",
+              "fontFamily": "Fredoka One",
+              "fontSize": "18px",
+              "color": "#6a3016",
+              "binding": "copy:haptics"
+            },
+            {
+              "type": "Rectangle",
+              "id": "settings-menu.toggle.2.track",
+              "label": "settings-menu.toggle.2.track",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "settings-menu.toggle.2.track",
+              "Semantic.fabRole": "toggle-track",
+              "Semantic.fabBinding": "setting:haptics",
+              "Semantic.fabSlot": "toggle",
+              "Semantic.fabVariant": "default",
+              "x": 91,
+              "y": 0,
+              "width": 58,
+              "height": 30,
+              "isFilled": true,
+              "fillColor": "#5fd06a",
+              "rounded": 15,
+              "binding": "setting:haptics",
+              "slot": "toggle"
+            },
+            {
+              "type": "Rectangle",
+              "id": "settings-menu.toggle.2.thumb",
+              "label": "settings-menu.toggle.2.thumb",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "settings-menu.toggle.2.thumb",
+              "Semantic.fabRole": "toggle-thumb",
+              "Semantic.fabBinding": "setting:haptics",
+              "Semantic.fabSlot": "toggle-thumb",
+              "Semantic.fabVariant": "default",
+              "x": 102,
+              "y": 0,
+              "width": 22,
+              "height": 22,
+              "isFilled": true,
+              "fillColor": "#ffffff",
+              "rounded": 11,
+              "binding": "setting:haptics",
+              "slot": "toggle-thumb"
+            }
+          ],
+          "binding": "setting:haptics",
+          "slot": "settings-row"
+        },
+        {
+          "type": "Container",
+          "id": "settings-menu.closeCta",
+          "label": "settings-menu.closeCta",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "settings-menu.closeCta",
+          "Semantic.fabRole": "action-group",
+          "Semantic.fabBinding": "action:close",
+          "Semantic.fabSlot": "action",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 130,
+          "list": [
+            {
+              "type": "Image",
+              "id": "settings-menu.closeCta.surface",
+              "label": "settings-menu.closeCta.surface",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "settings-menu.closeCta.surface",
+              "Semantic.fabRole": "button-surface",
+              "Semantic.fabBinding": "asset:button_green",
+              "Semantic.fabSlot": "surface",
+              "Semantic.fabVariant": "default",
+              "texture": {
+                "key": "button_green"
+              },
+              "x": 0,
+              "y": 0,
+              "scaleX": 0.5057471264367817,
+              "scaleY": 0.31,
+              "binding": "asset:button_green",
+              "slot": "surface"
+            },
+            {
+              "type": "Text",
+              "id": "settings-menu.closeCta.label",
+              "label": "settings-menu.closeCta.label",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "settings-menu.closeCta.label",
+              "Semantic.fabRole": "button-label",
+              "Semantic.fabBinding": "action:close",
+              "Semantic.fabSlot": "label",
+              "Semantic.fabVariant": "default",
+              "x": 0,
+              "y": 0,
+              "originX": 0.5,
+              "originY": 0.5,
+              "text": "CLOSE",
+              "fontFamily": "Titan One",
+              "fontSize": "22px",
+              "color": "#ffffff",
+              "binding": "action:close",
+              "slot": "label"
+            }
+          ],
+          "binding": "action:close",
+          "slot": "action"
+        },
+        {
+          "type": "Container",
+          "id": "settings-menu.reset",
+          "label": "settings-menu.reset",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "settings-menu.reset",
+          "Semantic.fabRole": "action-group",
+          "Semantic.fabBinding": "action:reset-progress",
+          "Semantic.fabSlot": "action",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 200,
+          "list": [
+            {
+              "type": "Image",
+              "id": "settings-menu.reset.surface",
+              "label": "settings-menu.reset.surface",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "settings-menu.reset.surface",
+              "Semantic.fabRole": "button-surface",
+              "Semantic.fabBinding": "asset:button_orange",
+              "Semantic.fabSlot": "surface",
+              "Semantic.fabVariant": "default",
+              "texture": {
+                "key": "button_orange"
+              },
+              "x": 0,
+              "y": 0,
+              "scaleX": 0.5057471264367817,
+              "scaleY": 0.31,
+              "binding": "asset:button_orange",
+              "slot": "surface"
+            },
+            {
+              "type": "Text",
+              "id": "settings-menu.reset.label",
+              "label": "settings-menu.reset.label",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "settings-menu.reset.label",
+              "Semantic.fabRole": "button-label",
+              "Semantic.fabBinding": "action:reset-progress",
+              "Semantic.fabSlot": "label",
+              "Semantic.fabVariant": "default",
+              "x": 0,
+              "y": 0,
+              "originX": 0.5,
+              "originY": 0.5,
+              "text": "RESET PROGRESS",
+              "fontFamily": "Titan One",
+              "fontSize": "22px",
+              "color": "#ffffff",
+              "binding": "action:reset-progress",
+              "slot": "label"
+            }
+          ],
+          "binding": "action:reset-progress",
+          "slot": "action"
+        }
+      ],
+      "slot": "modal-card"
+    }
+  ],
+  "plainObjects": [],
+  "meta": {
+    "app": "Phaser Editor - Scene Editor",
+    "url": "https://phaser.io/editor",
+    "contentType": "phasereditor2d.core.scene.SceneContentType",
+    "version": 5
+  }
+}

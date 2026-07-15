@@ -8,7 +8,12 @@
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "authoring:phaser:validate": "node authoring/phaser-editor/tools.mjs validate",
+    "authoring:phaser:test": "node --test --test-concurrency=1 authoring/phaser-editor/test/*.test.mjs",
+    "authoring:phaser:publish": "node authoring/phaser-editor/tools.mjs publish",
+    "authoring:phaser:status": "node authoring/phaser-editor/tools.mjs status",
+    "authoring:phaser:reset": "node authoring/phaser-editor/tools.mjs reset"
   },
   "dependencies": {
     "@capacitor/core": "^8.1.0",

@@ -1,0 +1,23 @@
+{
+  "schema": "fabrikav2-phaser-exact-assets/v1",
+  "game": "marble_run",
+  "policy": "Only exact current-source bytes used by the mapped Marble UI.",
+  "assets": [
+    { "key": "button_green", "role": "primary-button-sprite", "url": "assets/button-green.png", "source": "design/assets/button-green.png", "sha256": "da5214069ecccef885d6e89b1c76adb596ad278fc421b65b68e974d93d070eea", "dimensions": [435, 200], "alpha": true },
+    { "key": "button_orange", "role": "secondary-button-sprite", "url": "assets/button-orange.png", "source": "design/assets/button-orange.png", "sha256": "5e4d40f245687694b1f4067a52986922f11ecf0f8137cf9e0ac1c4347ce33b27", "dimensions": [435, 200], "alpha": true },
+    { "key": "icon_coin", "role": "coin-icon", "url": "assets/icon-coin.png", "source": "design/assets/icon-coin.png", "sha256": "e77e5dbf6899c3d427d1a846bdab2bb693bb59a5693c31ea6e1ec0eda9076980", "dimensions": [68, 68], "alpha": true },
+    { "key": "icon_settings", "role": "settings-icon", "url": "assets/icon-settings.png", "source": "design/assets/icon-settings.png", "sha256": "2afc7b81986c221dbcbeb197296b5d245b0285aa7cb757c6db1275664175d897", "dimensions": [76, 87], "alpha": true },
+    { "key": "level_node_completed", "role": "level-node-completed", "url": "assets/level-node-completed.webp", "source": "design/assets/level-node-completed.webp", "sha256": "43789e207cb73548f2a73a120e41f4a28409effbda117c11c4db3c9cab263ac2", "dimensions": [256, 256], "alpha": true },
+    { "key": "level_node_current", "role": "level-node-current", "url": "assets/level-node-current.webp", "source": "design/assets/level-node-current.webp", "sha256": "18e2008ee70ea6b9e673b13375e21860bf55f12f40688d5df3902e01cefbcf7f", "dimensions": [256, 256], "alpha": true },
+    { "key": "level_node_locked", "role": "level-node-locked", "url": "assets/level-node-locked.webp", "source": "design/assets/level-node-locked.webp", "sha256": "f1dbb7ff6638d9668f5bcf8676f9fd0a759b1cc7735c6709756b5de6b3d6518d", "dimensions": [256, 256], "alpha": true },
+    { "key": "marble_run_banner", "role": "menu-banner", "url": "assets/marble-run-banner.webp", "source": "design/assets/marble-run-banner.webp", "sha256": "bdf97fe9f0bd4da04b0221f4a6fc898da3206bfa61df94673b0d52bdf3668011", "dimensions": [920, 279], "alpha": true },
+    { "key": "marble_shadow_tile", "role": "modal-board-texture", "url": "assets/marble-shadow-tile.png", "source": "design/assets/marble-shadow-tile.png", "sha256": "fa16caf097346547036be160b1765ec18a54fd8d4f9f43216853c6e9e9d47b10", "dimensions": [512, 512], "alpha": true },
+    { "key": "popup_card", "role": "popup-card", "url": "assets/popup-card.png", "source": "design/assets/popup-card.png", "sha256": "dc8a2528974fa4eaf76488df2caa128bbce4461907c083bbe30dfa58fa8d7070", "dimensions": [846, 1009], "alpha": true },
+    { "key": "ribbon_completed_blank", "role": "completed-ribbon-blank", "url": "assets/ribbon-completed-blank.png", "source": "design/assets/ribbon-completed-blank.png", "sha256": "ac7b65280c7af6fafdb6be35aea66e963a3747a5169feabdde7280faf8595e81", "dimensions": [898, 308], "alpha": true },
+    { "key": "ribbon_failed_blank", "role": "failed-ribbon-blank", "url": "assets/ribbon-failed-blank.png", "source": "design/assets/ribbon-failed-blank.png", "sha256": "2a0b4dbd4c7f6662e0d420cc22a8d7b1592df273e458e7693bad7e45ea3166e9", "dimensions": [898, 308], "alpha": true },
+    { "key": "ribbon_orange", "role": "settings-ribbon", "url": "assets/ribbon-orange.png", "source": "design/assets/ribbon-orange.png", "sha256": "a2fcf5ab0ffd6f6e7da3ae8d67ee8017194ceb1f85e9a5ba6a110689ced7280b", "dimensions": [898, 308], "alpha": true },
+    { "key": "win_crown", "role": "win-crown", "url": "assets/win-crown.png", "source": "design/assets/win-crown.png", "sha256": "063de379a2fb1b43d7fc3e87835935bf8dfabf6e3d07663e7e63f86ca5c005c3", "dimensions": [313, 278], "alpha": true },
+    { "key": "Fredoka One", "role": "primary-ui-font", "url": "assets/fonts/FredokaOne.woff2", "source": "design/assets/fonts/FredokaOne.woff2", "sha256": "e9986c62b19bce3791c4c103a4aa87c91d22d9e1c9f252f7f802ea26d3405769", "format": "woff2" },
+    { "key": "Titan One", "role": "fallback-display-font", "url": "assets/fonts/TitanOne.ttf", "source": "design/assets/fonts/TitanOne.ttf", "sha256": "c14c958677babb78649790ac2e998cea5cb940710aeb044e308cd79ee74a95bd", "format": "truetype" }
+  ]
+}

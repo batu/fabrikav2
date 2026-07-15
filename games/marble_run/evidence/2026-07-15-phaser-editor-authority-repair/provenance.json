@@ -1,0 +1,33 @@
+{
+  "schema": "fabrikav2-phaser-editor-authority-repair/v1",
+  "capturedAt": "2026-07-15T08:00:00+03:00",
+  "publicationRevision": "sha256-ffa1e20b2acdfd848bbdc12d6bcc4c7560e30e5eb5d76f8277ed6836639f62ad",
+  "vendor": {
+    "application": "Phaser Editor",
+    "version": "5.0.2",
+    "host": "127.0.0.1",
+    "port": 19594
+  },
+  "nativeMutation": {
+    "scene": "Win.scene",
+    "semanticId": "win.title",
+    "property": "x",
+    "before": 0,
+    "changed": 12,
+    "beforeSha256": "6227a28b9403903103e62c1d1add8b464771efbd8a53764d7daa31abcd1738cd",
+    "changedSha256": "ba65ee6f72732213814929d16e7398bc9c65c58562da41c58726ab3d2f458d3e",
+    "observedAfterFullRestart": 12,
+    "resetSha256": "6227a28b9403903103e62c1d1add8b464771efbd8a53764d7daa31abcd1738cd",
+    "observedAfterResetRestart": 0,
+    "pageErrors": 0,
+    "consoleErrors": 0
+  },
+  "sha256": {
+    "nativeChangedSaved": "ecc50a759e8e9ee25df8079e7177eb4fbb30f9bd0884c40ae17c2154a149fa46",
+    "nativeChangedAfterRestart": "373148e0be2f2dbe124f3857e0f12080e8a0bfd14015ef172e87571574ab69c1",
+    "nativeResetReopened": "ccbe5b091531aa6cc55288b48f990ae1ab070253a4e01a484a556fe537d0d2b6",
+    "previewIntegrityClean": "d84b24c54b98d56cec02d21c9daa8643ff6fa5e856d8e5880447e265190b9bc7",
+    "previewIntegrityTamperedRejected": "599781571453e8a689496a6964147b2420f45255696a31069bc0c33dadbaa3c5"
+  },
+  "claimBoundary": "Native saved-scene authority, publication integrity, Preview integrity, semantic duplication, and licensed-editor persistence only; physical-device runtime remains MR4."
+}

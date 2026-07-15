@@ -1,0 +1,28 @@
+{
+  "marble-run-exact-ui": {
+    "files": [
+      { "url": "assets/button-green.png", "type": "image", "key": "button_green" },
+      { "url": "assets/button-orange.png", "type": "image", "key": "button_orange" },
+      { "url": "assets/icon-coin.png", "type": "image", "key": "icon_coin" },
+      { "url": "assets/icon-settings.png", "type": "image", "key": "icon_settings" },
+      { "url": "assets/level-node-completed.webp", "type": "image", "key": "level_node_completed" },
+      { "url": "assets/level-node-current.webp", "type": "image", "key": "level_node_current" },
+      { "url": "assets/level-node-locked.webp", "type": "image", "key": "level_node_locked" },
+      { "url": "assets/marble-run-banner.webp", "type": "image", "key": "marble_run_banner" },
+      { "url": "assets/marble-shadow-tile.png", "type": "image", "key": "marble_shadow_tile" },
+      { "url": "assets/popup-card.png", "type": "image", "key": "popup_card" },
+      { "url": "assets/ribbon-completed-blank.png", "type": "image", "key": "ribbon_completed_blank" },
+      { "url": "assets/ribbon-failed-blank.png", "type": "image", "key": "ribbon_failed_blank" },
+      { "url": "assets/ribbon-orange.png", "type": "image", "key": "ribbon_orange" },
+      { "url": "assets/win-crown.png", "type": "image", "key": "win_crown" },
+      { "url": "assets/fonts/FredokaOne.woff2", "type": "font", "key": "Fredoka One", "format": "woff2", "descriptors": {} },
+      { "url": "assets/fonts/TitanOne.ttf", "type": "font", "key": "Titan One", "format": "truetype", "descriptors": {} }
+    ]
+  },
+  "meta": {
+    "app": "Phaser Editor 2D - Asset Pack Editor",
+    "contentType": "phasereditor2d.pack.core.AssetContentType",
+    "url": "https://phaser.io/editor",
+    "version": 2
+  }
+}

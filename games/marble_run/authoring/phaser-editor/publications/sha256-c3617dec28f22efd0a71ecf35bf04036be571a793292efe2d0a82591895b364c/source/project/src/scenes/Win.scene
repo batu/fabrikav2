@@ -1,0 +1,362 @@
+{
+  "id": "marble-run-Win",
+  "sceneType": "SCENE",
+  "settings": {
+    "exportClass": true,
+    "autoImport": true,
+    "preloadPackFiles": [
+      "assets/asset-pack.json"
+    ],
+    "createMethodName": "editorCreate",
+    "sceneKey": "Win",
+    "compilerOutputLanguage": "TYPE_SCRIPT",
+    "borderWidth": 390,
+    "borderHeight": 844
+  },
+  "displayList": [
+    {
+      "type": "Rectangle",
+      "id": "win.background",
+      "label": "win.background",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "win.background",
+      "Semantic.fabRole": "screen-background",
+      "Semantic.fabBinding": "presentation:primitive",
+      "Semantic.fabSlot": "background",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 422,
+      "width": 390,
+      "height": 844,
+      "isFilled": true,
+      "fillColor": "#8b6fbd",
+      "slot": "background"
+    },
+    {
+      "type": "Rectangle",
+      "id": "win.scrim",
+      "label": "win.scrim",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "win.scrim",
+      "Semantic.fabRole": "modal-scrim",
+      "Semantic.fabBinding": "presentation:primitive",
+      "Semantic.fabSlot": "overlay",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 422,
+      "width": 390,
+      "height": 844,
+      "isFilled": true,
+      "fillColor": "#1f182e",
+      "fillAlpha": 0.82,
+      "slot": "overlay"
+    },
+    {
+      "type": "Image",
+      "id": "win.backplate",
+      "label": "win.backplate",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "win.backplate",
+      "Semantic.fabRole": "modal-board-backplate",
+      "Semantic.fabBinding": "asset:marble_shadow_tile",
+      "Semantic.fabSlot": "modal-frame",
+      "Semantic.fabVariant": "default",
+      "texture": {
+        "key": "marble_shadow_tile"
+      },
+      "x": 195,
+      "y": 422,
+      "scaleX": 0.73,
+      "scaleY": 0.73,
+      "slot": "modal-frame"
+    },
+    {
+      "type": "Container",
+      "id": "win.card",
+      "label": "win.card",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "win.card",
+      "Semantic.fabRole": "result-card",
+      "Semantic.fabBinding": "presentation:group",
+      "Semantic.fabSlot": "modal-card",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 440,
+      "list": [
+        {
+          "type": "Image",
+          "id": "win.card.image",
+          "label": "win.card.image",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "win.card.image",
+          "Semantic.fabRole": "popup-card",
+          "Semantic.fabBinding": "asset:popup_card",
+          "Semantic.fabSlot": "surface",
+          "Semantic.fabVariant": "default",
+          "texture": {
+            "key": "popup_card"
+          },
+          "x": 0,
+          "y": 0,
+          "scaleX": 0.4,
+          "scaleY": 0.55,
+          "slot": "surface"
+        },
+        {
+          "type": "Image",
+          "id": "win.ribbon",
+          "label": "win.ribbon",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "win.ribbon",
+          "Semantic.fabRole": "title-ribbon",
+          "Semantic.fabBinding": "asset:ribbon_completed_blank",
+          "Semantic.fabSlot": "title",
+          "Semantic.fabVariant": "default",
+          "texture": {
+            "key": "ribbon_completed_blank"
+          },
+          "x": 0,
+          "y": -225,
+          "scaleX": 0.37,
+          "scaleY": 0.37,
+          "slot": "title"
+        },
+        {
+          "type": "Text",
+          "id": "win.eyebrow",
+          "label": "win.eyebrow",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "win.eyebrow",
+          "Semantic.fabRole": "level-label",
+          "Semantic.fabBinding": "state:level",
+          "Semantic.fabSlot": "title-eyebrow",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": -244,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "LEVEL 3",
+          "fontFamily": "Titan One",
+          "fontSize": "13px",
+          "color": "#6a3016",
+          "binding": "state:level",
+          "slot": "title-eyebrow"
+        },
+        {
+          "type": "Text",
+          "id": "win.title",
+          "label": "win.title",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "win.title",
+          "Semantic.fabRole": "result-title",
+          "Semantic.fabBinding": "copy:static",
+          "Semantic.fabSlot": "title",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": -206,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "COMPLETED",
+          "fontFamily": "Titan One",
+          "fontSize": "28px",
+          "color": "#ffffff",
+          "slot": "title"
+        },
+        {
+          "type": "Image",
+          "id": "win.crown",
+          "label": "win.crown",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "win.crown",
+          "Semantic.fabRole": "result-crown",
+          "Semantic.fabBinding": "asset:win_crown",
+          "Semantic.fabSlot": "result-art",
+          "Semantic.fabVariant": "default",
+          "texture": {
+            "key": "win_crown"
+          },
+          "x": 0,
+          "y": -85,
+          "scaleX": 0.46,
+          "scaleY": 0.46,
+          "slot": "result-art"
+        },
+        {
+          "type": "Text",
+          "id": "win.reward.label",
+          "label": "win.reward.label",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "win.reward.label",
+          "Semantic.fabRole": "reward-label",
+          "Semantic.fabBinding": "copy:static",
+          "Semantic.fabSlot": "reward",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 20,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "REWARD",
+          "fontFamily": "Fredoka One",
+          "fontSize": "18px",
+          "color": "#6a3016",
+          "slot": "reward"
+        },
+        {
+          "type": "Container",
+          "id": "win.reward.value",
+          "label": "win.reward.value",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "win.reward.value",
+          "Semantic.fabRole": "reward-value",
+          "Semantic.fabBinding": "state:reward",
+          "Semantic.fabSlot": "reward",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 58,
+          "list": [
+            {
+              "type": "Image",
+              "id": "win.reward.icon",
+              "label": "win.reward.icon",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "win.reward.icon",
+              "Semantic.fabRole": "currency-icon",
+              "Semantic.fabBinding": "asset:icon_coin",
+              "Semantic.fabSlot": "icon",
+              "Semantic.fabVariant": "default",
+              "texture": {
+                "key": "icon_coin"
+              },
+              "x": -35,
+              "y": 0,
+              "scaleX": 0.42,
+              "scaleY": 0.42,
+              "slot": "icon"
+            },
+            {
+              "type": "Text",
+              "id": "win.reward.amount",
+              "label": "win.reward.amount",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "win.reward.amount",
+              "Semantic.fabRole": "reward-amount",
+              "Semantic.fabBinding": "state:reward",
+              "Semantic.fabSlot": "value",
+              "Semantic.fabVariant": "default",
+              "x": 20,
+              "y": 0,
+              "originX": 0.5,
+              "originY": 0.5,
+              "text": "+50",
+              "fontFamily": "Fredoka One",
+              "fontSize": "27px",
+              "color": "#d97706",
+              "binding": "state:reward",
+              "slot": "value"
+            }
+          ],
+          "binding": "state:reward",
+          "slot": "reward"
+        },
+        {
+          "type": "Container",
+          "id": "win.next",
+          "label": "win.next",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "win.next",
+          "Semantic.fabRole": "action-group",
+          "Semantic.fabBinding": "action:next",
+          "Semantic.fabSlot": "action",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 165,
+          "list": [
+            {
+              "type": "Image",
+              "id": "win.next.surface",
+              "label": "win.next.surface",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "win.next.surface",
+              "Semantic.fabRole": "button-surface",
+              "Semantic.fabBinding": "asset:button_green",
+              "Semantic.fabSlot": "surface",
+              "Semantic.fabVariant": "default",
+              "texture": {
+                "key": "button_green"
+              },
+              "x": 0,
+              "y": 0,
+              "scaleX": 0.5287356321839081,
+              "scaleY": 0.31,
+              "binding": "asset:button_green",
+              "slot": "surface"
+            },
+            {
+              "type": "Text",
+              "id": "win.next.label",
+              "label": "win.next.label",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "win.next.label",
+              "Semantic.fabRole": "button-label",
+              "Semantic.fabBinding": "action:next",
+              "Semantic.fabSlot": "label",
+              "Semantic.fabVariant": "default",
+              "x": 0,
+              "y": 0,
+              "originX": 0.5,
+              "originY": 0.5,
+              "text": "NEXT",
+              "fontFamily": "Titan One",
+              "fontSize": "22px",
+              "color": "#ffffff",
+              "binding": "action:next",
+              "slot": "label"
+            }
+          ],
+          "binding": "action:next",
+          "slot": "action"
+        }
+      ],
+      "slot": "modal-card"
+    }
+  ],
+  "plainObjects": [],
+  "meta": {
+    "app": "Phaser Editor - Scene Editor",
+    "url": "https://phaser.io/editor",
+    "contentType": "phasereditor2d.core.scene.SceneContentType",
+    "version": 5
+  }
+}

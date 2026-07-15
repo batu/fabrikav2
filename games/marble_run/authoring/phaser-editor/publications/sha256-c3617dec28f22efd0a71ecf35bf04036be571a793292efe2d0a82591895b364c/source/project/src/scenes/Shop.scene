@@ -1,0 +1,693 @@
+{
+  "id": "marble-run-Shop",
+  "sceneType": "SCENE",
+  "settings": {
+    "exportClass": true,
+    "autoImport": true,
+    "preloadPackFiles": [
+      "assets/asset-pack.json"
+    ],
+    "createMethodName": "editorCreate",
+    "sceneKey": "Shop",
+    "compilerOutputLanguage": "TYPE_SCRIPT",
+    "borderWidth": 390,
+    "borderHeight": 844
+  },
+  "displayList": [
+    {
+      "type": "Rectangle",
+      "id": "shop.background",
+      "label": "shop.background",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "shop.background",
+      "Semantic.fabRole": "page-background",
+      "Semantic.fabBinding": "presentation:primitive",
+      "Semantic.fabSlot": "background",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 422,
+      "width": 390,
+      "height": 844,
+      "isFilled": true,
+      "fillColor": "#fff3d7",
+      "slot": "background"
+    },
+    {
+      "type": "Container",
+      "id": "shop.header",
+      "label": "shop.header",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "shop.header",
+      "Semantic.fabRole": "page-header",
+      "Semantic.fabBinding": "presentation:group",
+      "Semantic.fabSlot": "safe-area:top",
+      "Semantic.fabVariant": "default",
+      "x": 0,
+      "y": 0,
+      "list": [
+        {
+          "type": "Rectangle",
+          "id": "shop.header.surface",
+          "label": "shop.header.surface",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.header.surface",
+          "Semantic.fabRole": "header-surface",
+          "Semantic.fabBinding": "presentation:primitive",
+          "Semantic.fabSlot": "surface",
+          "Semantic.fabVariant": "default",
+          "x": 195,
+          "y": 48,
+          "width": 390,
+          "height": 96,
+          "isFilled": true,
+          "fillColor": "#ffe2bd",
+          "slot": "surface"
+        },
+        {
+          "type": "Text",
+          "id": "shop.title",
+          "label": "shop.title",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.title",
+          "Semantic.fabRole": "page-title",
+          "Semantic.fabBinding": "copy:static",
+          "Semantic.fabSlot": "title",
+          "Semantic.fabVariant": "default",
+          "x": 195,
+          "y": 51,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "SHOP",
+          "fontFamily": "Fredoka One",
+          "fontSize": "32px",
+          "color": "#6a3016",
+          "slot": "title"
+        },
+        {
+          "type": "Text",
+          "id": "shop.back",
+          "label": "shop.back",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.back",
+          "Semantic.fabRole": "back-control",
+          "Semantic.fabBinding": "action:back",
+          "Semantic.fabSlot": "back",
+          "Semantic.fabVariant": "default",
+          "x": 28,
+          "y": 50,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "‹",
+          "fontFamily": "Fredoka One",
+          "fontSize": "46px",
+          "color": "#6a3016",
+          "binding": "action:back",
+          "slot": "back"
+        }
+      ],
+      "slot": "safe-area:top"
+    },
+    {
+      "type": "Container",
+      "id": "shop.products",
+      "label": "shop.products",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "shop.products",
+      "Semantic.fabRole": "product-section",
+      "Semantic.fabBinding": "catalog:marble",
+      "Semantic.fabSlot": "products",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 240,
+      "list": [
+        {
+          "type": "Rectangle",
+          "id": "shop.no-ads.surface",
+          "label": "shop.no-ads.surface",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.no-ads.surface",
+          "Semantic.fabRole": "product-card-surface",
+          "Semantic.fabBinding": "presentation:primitive",
+          "Semantic.fabSlot": "content",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": -98,
+          "width": 340,
+          "height": 128,
+          "isFilled": true,
+          "fillColor": "#ffe2bd",
+          "rounded": 18,
+          "isStroked": true,
+          "strokeColor": "#212c48",
+          "lineWidth": 2
+        },
+        {
+          "type": "Text",
+          "id": "shop.no-ads.title",
+          "label": "shop.no-ads.title",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.no-ads.title",
+          "Semantic.fabRole": "product-title",
+          "Semantic.fabBinding": "product:no-ads",
+          "Semantic.fabSlot": "title",
+          "Semantic.fabVariant": "default",
+          "x": -145,
+          "y": -125,
+          "originX": 0,
+          "originY": 0.5,
+          "text": "REMOVE ADS",
+          "fontFamily": "Fredoka One",
+          "fontSize": "20px",
+          "color": "#6a3016",
+          "binding": "product:no-ads",
+          "slot": "title"
+        },
+        {
+          "type": "Text",
+          "id": "shop.no-ads.description",
+          "label": "shop.no-ads.description",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.no-ads.description",
+          "Semantic.fabRole": "product-description",
+          "Semantic.fabBinding": "product:no-ads",
+          "Semantic.fabSlot": "description",
+          "Semantic.fabVariant": "default",
+          "x": -145,
+          "y": -91,
+          "originX": 0,
+          "originY": 0.5,
+          "text": "Turn off interstitial ads forever.",
+          "fontFamily": "Fredoka One",
+          "fontSize": "13px",
+          "color": "#8a5a3d",
+          "binding": "product:no-ads",
+          "slot": "description"
+        },
+        {
+          "type": "Text",
+          "id": "shop.no-ads.price",
+          "label": "shop.no-ads.price",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.no-ads.price",
+          "Semantic.fabRole": "product-price",
+          "Semantic.fabBinding": "product:no-ads",
+          "Semantic.fabSlot": "price",
+          "Semantic.fabVariant": "default",
+          "x": 135,
+          "y": -60,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "$2.99",
+          "fontFamily": "Fredoka One",
+          "fontSize": "18px",
+          "color": "#5f7f38",
+          "binding": "product:no-ads",
+          "slot": "price"
+        },
+        {
+          "type": "Text",
+          "id": "shop.coins.title",
+          "label": "shop.coins.title",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.coins.title",
+          "Semantic.fabRole": "section-title",
+          "Semantic.fabBinding": "copy:static",
+          "Semantic.fabSlot": "section-title",
+          "Semantic.fabVariant": "default",
+          "x": -170,
+          "y": 0,
+          "originX": 0,
+          "originY": 0.5,
+          "text": "COINS",
+          "fontFamily": "Fredoka One",
+          "fontSize": "23px",
+          "color": "#6a3016",
+          "slot": "section-title"
+        },
+        {
+          "type": "Rectangle",
+          "id": "shop.coins.small.surface",
+          "label": "shop.coins.small.surface",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.coins.small.surface",
+          "Semantic.fabRole": "product-card-surface",
+          "Semantic.fabBinding": "product:coins-small",
+          "Semantic.fabSlot": "content",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 72,
+          "width": 340,
+          "height": 116,
+          "isFilled": true,
+          "fillColor": "#ffe2bd",
+          "rounded": 18,
+          "isStroked": true,
+          "strokeColor": "#212c48",
+          "lineWidth": 2,
+          "binding": "product:coins-small"
+        },
+        {
+          "type": "Image",
+          "id": "shop.coins.small.icon",
+          "label": "shop.coins.small.icon",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.coins.small.icon",
+          "Semantic.fabRole": "product-icon",
+          "Semantic.fabBinding": "product:coins-small",
+          "Semantic.fabSlot": "icon",
+          "Semantic.fabVariant": "default",
+          "texture": {
+            "key": "icon_coin"
+          },
+          "x": -130,
+          "y": 72,
+          "scaleX": 0.62,
+          "scaleY": 0.62,
+          "binding": "product:coins-small",
+          "slot": "icon"
+        },
+        {
+          "type": "Text",
+          "id": "shop.coins.small.title",
+          "label": "shop.coins.small.title",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.coins.small.title",
+          "Semantic.fabRole": "product-title",
+          "Semantic.fabBinding": "product:coins-small",
+          "Semantic.fabSlot": "title",
+          "Semantic.fabVariant": "default",
+          "x": -88,
+          "y": 52,
+          "originX": 0,
+          "originY": 0.5,
+          "text": "POUCH OF COINS",
+          "fontFamily": "Fredoka One",
+          "fontSize": "17px",
+          "color": "#6a3016",
+          "binding": "product:coins-small",
+          "slot": "title"
+        },
+        {
+          "type": "Text",
+          "id": "shop.coins.small.description",
+          "label": "shop.coins.small.description",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.coins.small.description",
+          "Semantic.fabRole": "product-description",
+          "Semantic.fabBinding": "product:coins-small",
+          "Semantic.fabSlot": "description",
+          "Semantic.fabVariant": "default",
+          "x": -88,
+          "y": 86,
+          "originX": 0,
+          "originY": 0.5,
+          "text": "500 coins",
+          "fontFamily": "Fredoka One",
+          "fontSize": "14px",
+          "color": "#8a5a3d",
+          "binding": "product:coins-small",
+          "slot": "description"
+        },
+        {
+          "type": "Text",
+          "id": "shop.coins.small.price",
+          "label": "shop.coins.small.price",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.coins.small.price",
+          "Semantic.fabRole": "product-price",
+          "Semantic.fabBinding": "product:coins-small",
+          "Semantic.fabSlot": "price",
+          "Semantic.fabVariant": "default",
+          "x": 130,
+          "y": 87,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "$0.99",
+          "fontFamily": "Fredoka One",
+          "fontSize": "16px",
+          "color": "#5f7f38",
+          "binding": "product:coins-small",
+          "slot": "price"
+        },
+        {
+          "type": "Rectangle",
+          "id": "shop.coins.medium.surface",
+          "label": "shop.coins.medium.surface",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.coins.medium.surface",
+          "Semantic.fabRole": "product-card-surface",
+          "Semantic.fabBinding": "product:coins-medium",
+          "Semantic.fabSlot": "content",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 208,
+          "width": 340,
+          "height": 116,
+          "isFilled": true,
+          "fillColor": "#ffe2bd",
+          "rounded": 18,
+          "isStroked": true,
+          "strokeColor": "#212c48",
+          "lineWidth": 2,
+          "binding": "product:coins-medium"
+        },
+        {
+          "type": "Image",
+          "id": "shop.coins.medium.icon",
+          "label": "shop.coins.medium.icon",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.coins.medium.icon",
+          "Semantic.fabRole": "product-icon",
+          "Semantic.fabBinding": "product:coins-medium",
+          "Semantic.fabSlot": "icon",
+          "Semantic.fabVariant": "default",
+          "texture": {
+            "key": "icon_coin"
+          },
+          "x": -130,
+          "y": 208,
+          "scaleX": 0.62,
+          "scaleY": 0.62,
+          "binding": "product:coins-medium",
+          "slot": "icon"
+        },
+        {
+          "type": "Text",
+          "id": "shop.coins.medium.title",
+          "label": "shop.coins.medium.title",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.coins.medium.title",
+          "Semantic.fabRole": "product-title",
+          "Semantic.fabBinding": "product:coins-medium",
+          "Semantic.fabSlot": "title",
+          "Semantic.fabVariant": "default",
+          "x": -88,
+          "y": 188,
+          "originX": 0,
+          "originY": 0.5,
+          "text": "BAG OF COINS",
+          "fontFamily": "Fredoka One",
+          "fontSize": "17px",
+          "color": "#6a3016",
+          "binding": "product:coins-medium",
+          "slot": "title"
+        },
+        {
+          "type": "Text",
+          "id": "shop.coins.medium.description",
+          "label": "shop.coins.medium.description",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.coins.medium.description",
+          "Semantic.fabRole": "product-description",
+          "Semantic.fabBinding": "product:coins-medium",
+          "Semantic.fabSlot": "description",
+          "Semantic.fabVariant": "default",
+          "x": -88,
+          "y": 222,
+          "originX": 0,
+          "originY": 0.5,
+          "text": "1,500 coins",
+          "fontFamily": "Fredoka One",
+          "fontSize": "14px",
+          "color": "#8a5a3d",
+          "binding": "product:coins-medium",
+          "slot": "description"
+        },
+        {
+          "type": "Text",
+          "id": "shop.coins.medium.price",
+          "label": "shop.coins.medium.price",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.coins.medium.price",
+          "Semantic.fabRole": "product-price",
+          "Semantic.fabBinding": "product:coins-medium",
+          "Semantic.fabSlot": "price",
+          "Semantic.fabVariant": "default",
+          "x": 130,
+          "y": 223,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "$1.99",
+          "fontFamily": "Fredoka One",
+          "fontSize": "16px",
+          "color": "#5f7f38",
+          "binding": "product:coins-medium",
+          "slot": "price"
+        },
+        {
+          "type": "Rectangle",
+          "id": "shop.coins.large.surface",
+          "label": "shop.coins.large.surface",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.coins.large.surface",
+          "Semantic.fabRole": "product-card-surface",
+          "Semantic.fabBinding": "product:coins-large",
+          "Semantic.fabSlot": "content",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 344,
+          "width": 340,
+          "height": 116,
+          "isFilled": true,
+          "fillColor": "#ffe2bd",
+          "rounded": 18,
+          "isStroked": true,
+          "strokeColor": "#212c48",
+          "lineWidth": 2,
+          "binding": "product:coins-large"
+        },
+        {
+          "type": "Image",
+          "id": "shop.coins.large.icon",
+          "label": "shop.coins.large.icon",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.coins.large.icon",
+          "Semantic.fabRole": "product-icon",
+          "Semantic.fabBinding": "product:coins-large",
+          "Semantic.fabSlot": "icon",
+          "Semantic.fabVariant": "default",
+          "texture": {
+            "key": "icon_coin"
+          },
+          "x": -130,
+          "y": 344,
+          "scaleX": 0.62,
+          "scaleY": 0.62,
+          "binding": "product:coins-large",
+          "slot": "icon"
+        },
+        {
+          "type": "Text",
+          "id": "shop.coins.large.title",
+          "label": "shop.coins.large.title",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.coins.large.title",
+          "Semantic.fabRole": "product-title",
+          "Semantic.fabBinding": "product:coins-large",
+          "Semantic.fabSlot": "title",
+          "Semantic.fabVariant": "default",
+          "x": -88,
+          "y": 324,
+          "originX": 0,
+          "originY": 0.5,
+          "text": "CHEST OF COINS",
+          "fontFamily": "Fredoka One",
+          "fontSize": "17px",
+          "color": "#6a3016",
+          "binding": "product:coins-large",
+          "slot": "title"
+        },
+        {
+          "type": "Text",
+          "id": "shop.coins.large.description",
+          "label": "shop.coins.large.description",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.coins.large.description",
+          "Semantic.fabRole": "product-description",
+          "Semantic.fabBinding": "product:coins-large",
+          "Semantic.fabSlot": "description",
+          "Semantic.fabVariant": "default",
+          "x": -88,
+          "y": 358,
+          "originX": 0,
+          "originY": 0.5,
+          "text": "5,000 coins",
+          "fontFamily": "Fredoka One",
+          "fontSize": "14px",
+          "color": "#8a5a3d",
+          "binding": "product:coins-large",
+          "slot": "description"
+        },
+        {
+          "type": "Text",
+          "id": "shop.coins.large.price",
+          "label": "shop.coins.large.price",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.coins.large.price",
+          "Semantic.fabRole": "product-price",
+          "Semantic.fabBinding": "product:coins-large",
+          "Semantic.fabSlot": "price",
+          "Semantic.fabVariant": "default",
+          "x": 130,
+          "y": 359,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "$4.99",
+          "fontFamily": "Fredoka One",
+          "fontSize": "16px",
+          "color": "#5f7f38",
+          "binding": "product:coins-large",
+          "slot": "price"
+        }
+      ],
+      "binding": "catalog:marble",
+      "slot": "products"
+    },
+    {
+      "type": "Container",
+      "id": "shop.restore",
+      "label": "shop.restore",
+      "components": [
+        "Semantic"
+      ],
+      "Semantic.fabSemanticId": "shop.restore",
+      "Semantic.fabRole": "restore-panel",
+      "Semantic.fabBinding": "action:restore",
+      "Semantic.fabSlot": "restore",
+      "Semantic.fabVariant": "default",
+      "x": 195,
+      "y": 760,
+      "list": [
+        {
+          "type": "Rectangle",
+          "id": "shop.restore.surface",
+          "label": "shop.restore.surface",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.restore.surface",
+          "Semantic.fabRole": "restore-panel-surface",
+          "Semantic.fabBinding": "presentation:primitive",
+          "Semantic.fabSlot": "content",
+          "Semantic.fabVariant": "default",
+          "x": 0,
+          "y": 0,
+          "width": 340,
+          "height": 90,
+          "isFilled": true,
+          "fillColor": "#ffe2bd",
+          "rounded": 18,
+          "isStroked": true,
+          "strokeColor": "#212c48",
+          "lineWidth": 2
+        },
+        {
+          "type": "Text",
+          "id": "shop.restore.title",
+          "label": "shop.restore.title",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.restore.title",
+          "Semantic.fabRole": "restore-title",
+          "Semantic.fabBinding": "copy:static",
+          "Semantic.fabSlot": "title",
+          "Semantic.fabVariant": "default",
+          "x": -145,
+          "y": -16,
+          "originX": 0,
+          "originY": 0.5,
+          "text": "RESTORE PURCHASES",
+          "fontFamily": "Fredoka One",
+          "fontSize": "16px",
+          "color": "#6a3016",
+          "slot": "title"
+        },
+        {
+          "type": "Text",
+          "id": "shop.restore.action",
+          "label": "shop.restore.action",
+          "components": [
+            "Semantic"
+          ],
+          "Semantic.fabSemanticId": "shop.restore.action",
+          "Semantic.fabRole": "restore-control",
+          "Semantic.fabBinding": "action:restore",
+          "Semantic.fabSlot": "action",
+          "Semantic.fabVariant": "default",
+          "x": 90,
+          "y": 15,
+          "originX": 0.5,
+          "originY": 0.5,
+          "text": "RESTORE",
+          "fontFamily": "Fredoka One",
+          "fontSize": "16px",
+          "color": "#5f7f38",
+          "binding": "action:restore",
+          "slot": "action"
+        }
+      ],
+      "binding": "action:restore",
+      "slot": "restore"
+    }
+  ],
+  "plainObjects": [],
+  "meta": {
+    "app": "Phaser Editor - Scene Editor",
+    "url": "https://phaser.io/editor",
+    "contentType": "phasereditor2d.core.scene.SceneContentType",
+    "version": 5
+  }
+}

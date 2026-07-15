@@ -1,0 +1,37 @@
+{
+  "schema": "fabrikav2-phaser-editor-aesthetics-repair/v1",
+  "capturedAt": "2026-07-15T07:31:21+03:00",
+  "publicationRevision": "sha256-e7abb5068656524de73e55500287f0b87832889f970da21b2aa6bb2a1d32f1a8",
+  "vendor": {
+    "application": "Phaser Editor",
+    "version": "5.0.2",
+    "host": "127.0.0.1",
+    "port": 19594
+  },
+  "observation": {
+    "previewViewport": [390, 845],
+    "nativeEditorViewport": [1600, 1000],
+    "nativeScenesOpened": ["Menu", "SettingsMenu", "Win"],
+    "nativeSaveSceneHashesUnchanged": true,
+    "editorFullyTerminatedBeforeRestart": true,
+    "endpointRefusedConnectionBeforeRestart": true,
+    "pageErrors": 0,
+    "consoleErrors": 0
+  },
+  "supersededPersistenceClaim": "The unchanged-hash save proved deterministic reopen only. Real reversible mutation persistence is recorded in ../2026-07-15-phaser-editor-authority-repair/provenance.json.",
+  "sha256": {
+    "sceneMenu": "9e1f3a054f1ff1bb3390b74547bb6ebe8e8691ee5a912332bd877d86ef574657",
+    "sceneGameplayHud": "543007be47abbe373b9a7835bb764dda0d1c63717f41d2e6eafa01511043c99e",
+    "sceneSettingsMenu": "acc557f34edefa7a8a1211c6fae5515619cef66fbc4cf6dc872623eb79683aa5",
+    "sceneWin": "6227a28b9403903103e62c1d1add8b464771efbd8a53764d7daa31abcd1738cd",
+    "previewMenu": "876e85ec9166d10ed134a7926b07131f848fe86f9e4f16a419b19382b16bb2e2",
+    "previewGameplayHud": "1e7b2e2a2f4acfc78d0b46f520f0e96a157944051094ded7bd4fb252b7fd79b0",
+    "previewSettingsMenu": "99e73edd714a04e65857008cf832d69803f32795aaa5ebcbe67400a5b74748e4",
+    "previewWin": "17add83f8f98b1f2f7dccb74bfb47ed1b192dbdbc227ed0ff67d59ef75cdd707",
+    "nativeMenu": "76926f22ba49be0f6e83d3b4b4e95b85f86a86056790200b7101181f65d977e3",
+    "nativeSettingsMenu": "48b4c2b9f2d1c665f8ec8a9a9591603a7388e3c41a6d9f810768985f072f5cf8",
+    "nativeWinSaved": "05d6a916d78a5663d75aff58c63c716752eeccb91bd0420916a9ffb80bdab249",
+    "nativeWinAfterRestart": "05d6a916d78a5663d75aff58c63c716752eeccb91bd0420916a9ffb80bdab249"
+  },
+  "claimBoundary": "Saved native-scene authority, immutable Preview projection, and deterministic licensed-editor reopen only; reversible mutation persistence is in the superseding authority-repair evidence; no physical-device runtime claim."
+}
