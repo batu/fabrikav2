@@ -101,6 +101,57 @@ describe("native Marble Run GrapesJS authority", () => {
     await expect(verifyAssetBytes(assetRoot, await sourceJson("assets-manifest.json") as AssetManifest)).resolves.toBeUndefined();
   });
 
+  it("locks the canonical P1/P2 visual-repair geometry into native project data", async () => {
+    const project = await sourceJson("baseline/project.json") as Record<string, unknown>;
+    const confetti = findById(project, "menu.confetti");
+    const completed = styleFor(project, "menu.saga.completed.4");
+    const current = styleFor(project, "menu.saga.current.1");
+
+    expect(records(confetti.components)).toHaveLength(16);
+    expect(records(confetti.components).map((fleck) => (fleck.attributes as Record<string, unknown>)["data-fab-id"]))
+      .toEqual(Array.from({ length: 16 }, (_, index) => `menu.confetti.${index + 1}`));
+    expect(completed).toMatchObject({ width: "66px", height: "66px" });
+    expect(Number.parseInt(String(completed.top), 10)).toBeGreaterThanOrEqual(300);
+    expect(current).toMatchObject({ width: "150px", height: "150px", "z-index": "5" });
+
+    expect(styleFor(project, "gameplay.background")).toMatchObject({
+      "background-size": "94px 94px, 100% 100%",
+      "background-repeat": "repeat, no-repeat",
+    });
+    expect(styleFor(project, "gameplay.placeholder")).toMatchObject({
+      background: "transparent",
+      border: "0",
+    });
+    expect(styleFor(project, "gameplay.placeholder.label").display).toBe("none");
+    expect(styleFor(project, "gameplay.hint.cost")["text-shadow"]).not.toBe("0 3px 0 #203050");
+
+    for (const screen of ["settings-menu", "settings-level"]) {
+      const card = styleFor(project, `${screen}.card`);
+      const ribbon = styleFor(project, `${screen}.ribbon`);
+      const close = styleFor(project, `${screen}.close`);
+      expect(card["object-fit"]).toBe("fill");
+      expect(Number.parseInt(String(ribbon.top), 10) + Number.parseInt(String(ribbon.height), 10))
+        .toBeGreaterThan(Number.parseInt(String(card.top), 10));
+      expect(close).toMatchObject({ left: "306px", top: card.top });
+      for (const row of ["music", "sfx", "haptics"]) {
+        expect(styleFor(project, `${screen}.toggle.${row}.label`)["text-shadow"]).toBe("none");
+      }
+    }
+
+    const winCard = styleFor(project, "win.card");
+    const winRibbon = styleFor(project, "win.ribbon");
+    const winEyebrow = styleFor(project, "win.eyebrow");
+    expect(winCard["object-fit"]).toBe("fill");
+    expect(Number.parseInt(String(winRibbon.top), 10) + Number.parseInt(String(winRibbon.height), 10))
+      .toBeGreaterThan(Number.parseInt(String(winCard.top), 10));
+    expect(Number.parseInt(String(winEyebrow.top), 10)).toBeGreaterThan(Number.parseInt(String(winRibbon.top), 10));
+    expect(winEyebrow.color).toBe("#572915");
+    expect(winEyebrow["text-shadow"]).not.toBe("0 3px 0 #203050");
+    for (const screen of ["fail", "finale"]) {
+      expect(styleFor(project, `${screen}.card`)["object-fit"]).toBe("fill");
+    }
+  });
+
   it("persists transforms, live copy, visibility, reorder, duplicate identity and asset bindings across a fresh store instance", async () => {
     const { store, paths } = await temporaryStore();
     const project = await store.readWorking();

@@ -51,7 +51,7 @@ Task snapshot: make incompleteness visible by capturing all nine saved Pages, no
 ### Iteration 1
 
 - **Planned result:** one stable screenshot per primary Page from the final baseline revision.
-- **Capture setup:** `/preview?revision=sha256-3038e49c37b6b3944cf91f795f5dd9233f85791580cd67d8d162bc2846b6a9be&page=<id>`, direct page load, 1000-millisecond asset/font wait, screenshot of the 390 × 844 Grapes iframe.
+- **Capture setup:** `/preview?revision=sha256-17a64c1f89fcfc1f589d4b8af123821ddb6e7d4a1c8bf77904d669bb1e144516&page=<id>`, direct page load, 1000-millisecond asset/font wait, screenshot of the 390 × 844 Grapes frame body.
 
 ![Menu](./screenshots/preview-menu.png)
 ![Gameplay HUD](./screenshots/preview-gameplay-hud.png)
@@ -64,8 +64,26 @@ Task snapshot: make incompleteness visible by capturing all nine saved Pages, no
 ![Shop](./screenshots/preview-shop.png)
 
 What to look at: exact Marble source art, separate settings contexts, separate win/fail/finale compositions, shop without invented product icons, and a neutral gameplay field.
-Observation: all nine Pages load from the committed native project. An initial 120-millisecond page-switch capture produced missing delayed images, so the evidence was recaptured through direct routes after a one-second wait. Toggle labels were corrected from a bad seed argument and re-published before these final screenshots.
+Observation: all nine Pages load from the committed native project. An initial 120-millisecond page-switch capture produced missing delayed images, so the evidence was recaptured through direct routes after a one-second wait. Capturing the outer iframe element also produced false compositor bands in the gameplay image; the final evidence captures the frame body itself, after computed background styles, images, and fonts are ready.
 Acceptance check: page completeness met; current copy met; exact-asset identity covered by hashes and byte verification; semantic editability covered by native layers/tests. Physical-device geometry and P1/P2 convergence are not proved here.
 
-- **Decision:** passed for MR2; the Marble Gate remains open.
-- **Next action:** independent editor usability review, device build, PixelSmith comparison, and P1/P2 repair under MR4.
+- **Decision:** superseded by the independent aesthetics regression recorded below.
+- **Next action:** repair every validated P1/P2 before fresh independent review.
+
+## T4 — Canonical aesthetics regression repair
+
+Task snapshot: repair all ten findings from the rejected Aesthetics Reviewed pass without introducing a second layout authority.
+
+### Iteration 1
+
+- **Project authority:** the protected and working files remain byte-identical raw `editor.getProjectData()` documents. No runtime-output patch or intermediate geometry model was added.
+- **Menu:** restored 66 × 66 completed nodes and the 150 × 150 current node, moved the saga lower, kept the current node in front of the CTA, and added 16 independently named deterministic confetti flecks using the exact runtime palette.
+- **Gameplay:** separated the texture and base-gradient sizing/repeat contract, removed the visible dashed placeholder scaffold, and restyled the coin/cost row so `125` is readable at 390 pixels.
+- **Settings:** rendered the exact popup-card asset into its declared tall card bounds so the ribbon overlaps it, anchored the close target to the card corner, and removed same-color shadows from all six toggle labels.
+- **Results:** rendered the exact popup-card asset into the declared result bounds, moved the win/fail eyebrow into the ribbon with sufficient contrast, and seam-matched the fail/finale card/ribbon composition.
+- **Publication:** `sha256-17a64c1f89fcfc1f589d4b8af123821ddb6e7d4a1c8bf77904d669bb1e144516`.
+- **Capture integrity:** every final `preview-<page>.png` was loaded directly from that revision, waited for images/fonts plus 1000 ms, and captured from the inner 390 × 844 frame body to avoid outer-iframe compositor artifacts.
+
+Visual inspection of the refreshed nine-page set confirms: a continuous quiet gameplay field, no visible placeholder label/border, legible hint cost, exact-size lower saga with visible colored confetti, tall unified settings popup/ribbon, clean settings labels, visible result eyebrows, and overlapping unified result chrome. Pause and shop were unchanged except for being recaptured from the final revision.
+
+- **Decision:** local repair pass complete; fresh independent Aesthetics Reviewed judgment is still required. Physical-device fidelity remains MR4 work and is not claimed here.

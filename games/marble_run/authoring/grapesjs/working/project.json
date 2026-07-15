@@ -169,8 +169,9 @@
         "height": "844px",
         "z-index": "0",
         "background": "radial-gradient(circle at 16px 16px,rgba(255,255,255,.08) 0 8px,transparent 9px),linear-gradient(#9b7bcd,#6b568e)",
-        "background-size": "94px 94px",
-        "overflow": "hidden"
+        "background-size": "94px 94px, 100% 100%",
+        "overflow": "hidden",
+        "background-repeat": "repeat, no-repeat"
       },
       "mediaText": "(max-width: 390px)",
       "atRuleType": "media"
@@ -335,9 +336,9 @@
       "style": {
         "position": "absolute",
         "left": "190px",
-        "top": "245px",
+        "top": "300px",
         "width": "10px",
-        "height": "415px",
+        "height": "420px",
         "z-index": "1",
         "background": "#cf844e",
         "border-left": "3px solid #ffe083",
@@ -352,10 +353,10 @@
       ],
       "style": {
         "position": "absolute",
-        "left": "166px",
-        "top": "256px",
-        "width": "58px",
-        "height": "58px",
+        "left": "162px",
+        "top": "315px",
+        "width": "66px",
+        "height": "66px",
         "z-index": "3",
         "object-fit": "contain"
       },
@@ -368,10 +369,10 @@
       ],
       "style": {
         "position": "absolute",
-        "left": "178px",
-        "top": "269px",
-        "width": "34px",
-        "height": "30px",
+        "left": "177px",
+        "top": "330px",
+        "width": "36px",
+        "height": "34px",
         "z-index": "4",
         "font-family": "'Fredoka One','Titan One',system-ui,sans-serif",
         "font-size": "23px",
@@ -394,10 +395,10 @@
       ],
       "style": {
         "position": "absolute",
-        "left": "166px",
-        "top": "325px",
-        "width": "58px",
-        "height": "58px",
+        "left": "162px",
+        "top": "388px",
+        "width": "66px",
+        "height": "66px",
         "z-index": "3",
         "object-fit": "contain"
       },
@@ -410,10 +411,10 @@
       ],
       "style": {
         "position": "absolute",
-        "left": "178px",
-        "top": "338px",
-        "width": "34px",
-        "height": "30px",
+        "left": "177px",
+        "top": "403px",
+        "width": "36px",
+        "height": "34px",
         "z-index": "4",
         "font-family": "'Fredoka One','Titan One',system-ui,sans-serif",
         "font-size": "23px",
@@ -436,10 +437,10 @@
       ],
       "style": {
         "position": "absolute",
-        "left": "166px",
-        "top": "394px",
-        "width": "58px",
-        "height": "58px",
+        "left": "162px",
+        "top": "461px",
+        "width": "66px",
+        "height": "66px",
         "z-index": "3",
         "object-fit": "contain"
       },
@@ -452,10 +453,10 @@
       ],
       "style": {
         "position": "absolute",
-        "left": "178px",
-        "top": "407px",
-        "width": "34px",
-        "height": "30px",
+        "left": "177px",
+        "top": "476px",
+        "width": "36px",
+        "height": "34px",
         "z-index": "4",
         "font-family": "'Fredoka One','Titan One',system-ui,sans-serif",
         "font-size": "23px",
@@ -478,11 +479,11 @@
       ],
       "style": {
         "position": "absolute",
-        "left": "130px",
-        "top": "470px",
-        "width": "130px",
-        "height": "130px",
-        "z-index": "3",
+        "left": "120px",
+        "top": "520px",
+        "width": "150px",
+        "height": "150px",
+        "z-index": "5",
         "object-fit": "contain"
       },
       "mediaText": "(max-width: 390px)",
@@ -494,13 +495,13 @@
       ],
       "style": {
         "position": "absolute",
-        "left": "166px",
-        "top": "505px",
-        "width": "58px",
-        "height": "55px",
-        "z-index": "4",
+        "left": "160px",
+        "top": "560px",
+        "width": "70px",
+        "height": "70px",
+        "z-index": "6",
         "font-family": "'Fredoka One','Titan One',system-ui,sans-serif",
-        "font-size": "37px",
+        "font-size": "54px",
         "font-weight": "400",
         "line-height": "1.05",
         "color": "#6a3016",
@@ -598,8 +599,9 @@
         "height": "844px",
         "z-index": "0",
         "background": "radial-gradient(circle at 16px 16px,rgba(255,255,255,.08) 0 8px,transparent 9px),linear-gradient(#9b7bcd,#6b568e)",
-        "background-size": "94px 94px",
-        "overflow": "hidden"
+        "background-size": "94px 94px, 100% 100%",
+        "overflow": "hidden",
+        "background-repeat": "repeat, no-repeat"
       },
       "mediaText": "(max-width: 390px)",
       "atRuleType": "media"
@@ -621,9 +623,9 @@
         "line-height": "1.05",
         "color": "rgba(255,255,255,.28)",
         "text-align": "center",
-        "text-shadow": "0 3px 0 #203050",
+        "text-shadow": "none",
         "white-space": "pre-line",
-        "display": "flex",
+        "display": "none",
         "align-items": "center",
         "justify-content": "center"
       },
@@ -636,14 +638,14 @@
       ],
       "style": {
         "position": "absolute",
-        "left": "25px",
-        "top": "250px",
-        "width": "340px",
-        "height": "335px",
+        "left": "0px",
+        "top": "0px",
+        "width": "390px",
+        "height": "844px",
         "z-index": "1",
-        "background": "#765f99",
-        "border": "2px dashed rgba(255,255,255,.18)",
-        "border-radius": "28px"
+        "background": "transparent",
+        "border": "0",
+        "border-radius": "0"
       },
       "mediaText": "(max-width: 390px)",
       "atRuleType": "media"
@@ -910,7 +912,7 @@
         "line-height": "1.05",
         "color": "#4a2a12",
         "text-align": "center",
-        "text-shadow": "0 3px 0 #203050",
+        "text-shadow": "0 1px 0 rgba(255,255,255,.55)",
         "white-space": "pre-line",
         "display": "flex",
         "align-items": "center",
@@ -925,10 +927,10 @@
       ],
       "style": {
         "position": "absolute",
-        "left": "18px",
-        "top": "48px",
-        "width": "22px",
-        "height": "22px",
+        "left": "17px",
+        "top": "49px",
+        "width": "20px",
+        "height": "20px",
         "z-index": "1",
         "object-fit": "contain"
       },
@@ -941,18 +943,18 @@
       ],
       "style": {
         "position": "absolute",
-        "left": "39px",
+        "left": "43px",
         "top": "46px",
-        "width": "43px",
+        "width": "38px",
         "height": "27px",
         "z-index": "2",
         "font-family": "'Fredoka One','Titan One',system-ui,sans-serif",
         "font-size": "16px",
-        "font-weight": "400",
+        "font-weight": "700",
         "line-height": "1.05",
         "color": "#4a2a12",
         "text-align": "center",
-        "text-shadow": "0 3px 0 #203050",
+        "text-shadow": "0 1px 0 rgba(255,255,255,.55)",
         "white-space": "pre-line",
         "display": "flex",
         "align-items": "center",
@@ -1282,7 +1284,7 @@
         "width": "334px",
         "height": "650px",
         "z-index": "10",
-        "object-fit": "contain"
+        "object-fit": "fill"
       },
       "mediaText": "(max-width: 390px)",
       "atRuleType": "media"
@@ -1361,8 +1363,8 @@
       ],
       "style": {
         "position": "absolute",
-        "left": "312px",
-        "top": "86px",
+        "left": "306px",
+        "top": "128px",
         "width": "55px",
         "height": "55px",
         "z-index": "14",
@@ -1391,7 +1393,7 @@
         "line-height": "1.05",
         "color": "#203050",
         "text-align": "center",
-        "text-shadow": "0 3px 0 #203050",
+        "text-shadow": "none",
         "white-space": "pre-line",
         "display": "flex",
         "align-items": "center",
@@ -1470,7 +1472,7 @@
         "line-height": "1.05",
         "color": "#203050",
         "text-align": "center",
-        "text-shadow": "0 3px 0 #203050",
+        "text-shadow": "none",
         "white-space": "pre-line",
         "display": "flex",
         "align-items": "center",
@@ -1549,7 +1551,7 @@
         "line-height": "1.05",
         "color": "#203050",
         "text-align": "center",
-        "text-shadow": "0 3px 0 #203050",
+        "text-shadow": "none",
         "white-space": "pre-line",
         "display": "flex",
         "align-items": "center",
@@ -1801,7 +1803,7 @@
         "width": "334px",
         "height": "650px",
         "z-index": "10",
-        "object-fit": "contain"
+        "object-fit": "fill"
       },
       "mediaText": "(max-width: 390px)",
       "atRuleType": "media"
@@ -1880,8 +1882,8 @@
       ],
       "style": {
         "position": "absolute",
-        "left": "312px",
-        "top": "86px",
+        "left": "306px",
+        "top": "128px",
         "width": "55px",
         "height": "55px",
         "z-index": "14",
@@ -1910,7 +1912,7 @@
         "line-height": "1.05",
         "color": "#203050",
         "text-align": "center",
-        "text-shadow": "0 3px 0 #203050",
+        "text-shadow": "none",
         "white-space": "pre-line",
         "display": "flex",
         "align-items": "center",
@@ -1989,7 +1991,7 @@
         "line-height": "1.05",
         "color": "#203050",
         "text-align": "center",
-        "text-shadow": "0 3px 0 #203050",
+        "text-shadow": "none",
         "white-space": "pre-line",
         "display": "flex",
         "align-items": "center",
@@ -2068,7 +2070,7 @@
         "line-height": "1.05",
         "color": "#203050",
         "text-align": "center",
-        "text-shadow": "0 3px 0 #203050",
+        "text-shadow": "none",
         "white-space": "pre-line",
         "display": "flex",
         "align-items": "center",
@@ -2320,7 +2322,7 @@
         "width": "334px",
         "height": "620px",
         "z-index": "10",
-        "object-fit": "contain"
+        "object-fit": "fill"
       },
       "mediaText": "(max-width: 390px)",
       "atRuleType": "media"
@@ -2348,7 +2350,7 @@
       "style": {
         "position": "absolute",
         "left": "55px",
-        "top": "107px",
+        "top": "119px",
         "width": "280px",
         "height": "52px",
         "z-index": "13",
@@ -2374,17 +2376,17 @@
       "style": {
         "position": "absolute",
         "left": "115px",
-        "top": "182px",
+        "top": "92px",
         "width": "160px",
-        "height": "30px",
+        "height": "24px",
         "z-index": "13",
         "font-family": "'Fredoka One','Titan One',system-ui,sans-serif",
-        "font-size": "16px",
+        "font-size": "15px",
         "font-weight": "400",
         "line-height": "1.05",
-        "color": "#203050",
+        "color": "#572915",
         "text-align": "center",
-        "text-shadow": "0 3px 0 #203050",
+        "text-shadow": "0 1px 0 rgba(255,255,255,.55)",
         "white-space": "pre-line",
         "display": "flex",
         "align-items": "center",
@@ -2625,7 +2627,7 @@
         "width": "334px",
         "height": "620px",
         "z-index": "10",
-        "object-fit": "contain"
+        "object-fit": "fill"
       },
       "mediaText": "(max-width: 390px)",
       "atRuleType": "media"
@@ -2653,7 +2655,7 @@
       "style": {
         "position": "absolute",
         "left": "55px",
-        "top": "107px",
+        "top": "119px",
         "width": "280px",
         "height": "52px",
         "z-index": "13",
@@ -2679,17 +2681,17 @@
       "style": {
         "position": "absolute",
         "left": "115px",
-        "top": "182px",
+        "top": "92px",
         "width": "160px",
-        "height": "30px",
+        "height": "24px",
         "z-index": "13",
         "font-family": "'Fredoka One','Titan One',system-ui,sans-serif",
-        "font-size": "16px",
+        "font-size": "15px",
         "font-weight": "400",
         "line-height": "1.05",
-        "color": "#203050",
+        "color": "#572915",
         "text-align": "center",
-        "text-shadow": "0 3px 0 #203050",
+        "text-shadow": "0 1px 0 rgba(255,255,255,.55)",
         "white-space": "pre-line",
         "display": "flex",
         "align-items": "center",
@@ -2940,7 +2942,7 @@
         "width": "334px",
         "height": "620px",
         "z-index": "10",
-        "object-fit": "contain"
+        "object-fit": "fill"
       },
       "mediaText": "(max-width: 390px)",
       "atRuleType": "media"
@@ -2968,7 +2970,7 @@
       "style": {
         "position": "absolute",
         "left": "55px",
-        "top": "107px",
+        "top": "119px",
         "width": "280px",
         "height": "52px",
         "z-index": "13",
@@ -3696,6 +3698,327 @@
       },
       "mediaText": "(max-width: 390px)",
       "atRuleType": "media"
+    },
+    {
+      "selectors": [
+        "#imrcf"
+      ],
+      "style": {
+        "position": "absolute",
+        "left": "0px",
+        "top": "0px",
+        "width": "390px",
+        "height": "844px",
+        "z-index": "1",
+        "overflow": "hidden",
+        "pointer-events": "none"
+      },
+      "mediaText": "(max-width: 390px)",
+      "atRuleType": "media"
+    },
+    {
+      "selectors": [
+        "#imrcf1"
+      ],
+      "style": {
+        "position": "absolute",
+        "left": "0%",
+        "top": "30px",
+        "width": "8px",
+        "height": "13px",
+        "z-index": "1",
+        "background": "#ffcf4d",
+        "border-radius": "2px",
+        "opacity": "0.85",
+        "transform": "rotate(0deg)"
+      },
+      "mediaText": "(max-width: 390px)",
+      "atRuleType": "media"
+    },
+    {
+      "selectors": [
+        "#imrcf2"
+      ],
+      "style": {
+        "position": "absolute",
+        "left": "61%",
+        "top": "103px",
+        "width": "8px",
+        "height": "13px",
+        "z-index": "1",
+        "background": "#ff7a9c",
+        "border-radius": "2px",
+        "opacity": "0.85",
+        "transform": "rotate(47deg)"
+      },
+      "mediaText": "(max-width: 390px)",
+      "atRuleType": "media"
+    },
+    {
+      "selectors": [
+        "#imrcf3"
+      ],
+      "style": {
+        "position": "absolute",
+        "left": "22%",
+        "top": "176px",
+        "width": "8px",
+        "height": "13px",
+        "z-index": "1",
+        "background": "#5fd06a",
+        "border-radius": "2px",
+        "opacity": "0.85",
+        "transform": "rotate(94deg)"
+      },
+      "mediaText": "(max-width: 390px)",
+      "atRuleType": "media"
+    },
+    {
+      "selectors": [
+        "#imrcf4"
+      ],
+      "style": {
+        "position": "absolute",
+        "left": "83%",
+        "top": "249px",
+        "width": "8px",
+        "height": "13px",
+        "z-index": "1",
+        "background": "#6fdcff",
+        "border-radius": "2px",
+        "opacity": "0.85",
+        "transform": "rotate(141deg)"
+      },
+      "mediaText": "(max-width: 390px)",
+      "atRuleType": "media"
+    },
+    {
+      "selectors": [
+        "#imrcf5"
+      ],
+      "style": {
+        "position": "absolute",
+        "left": "44%",
+        "top": "322px",
+        "width": "8px",
+        "height": "13px",
+        "z-index": "1",
+        "background": "#ffcf4d",
+        "border-radius": "2px",
+        "opacity": "0.85",
+        "transform": "rotate(8deg)"
+      },
+      "mediaText": "(max-width: 390px)",
+      "atRuleType": "media"
+    },
+    {
+      "selectors": [
+        "#imrcf6"
+      ],
+      "style": {
+        "position": "absolute",
+        "left": "5%",
+        "top": "395px",
+        "width": "8px",
+        "height": "13px",
+        "z-index": "1",
+        "background": "#ff7a9c",
+        "border-radius": "2px",
+        "opacity": "0.85",
+        "transform": "rotate(55deg)"
+      },
+      "mediaText": "(max-width: 390px)",
+      "atRuleType": "media"
+    },
+    {
+      "selectors": [
+        "#imrcf7"
+      ],
+      "style": {
+        "position": "absolute",
+        "left": "66%",
+        "top": "468px",
+        "width": "8px",
+        "height": "13px",
+        "z-index": "1",
+        "background": "#5fd06a",
+        "border-radius": "2px",
+        "opacity": "0.85",
+        "transform": "rotate(102deg)"
+      },
+      "mediaText": "(max-width: 390px)",
+      "atRuleType": "media"
+    },
+    {
+      "selectors": [
+        "#imrcf8"
+      ],
+      "style": {
+        "position": "absolute",
+        "left": "27%",
+        "top": "541px",
+        "width": "8px",
+        "height": "13px",
+        "z-index": "1",
+        "background": "#6fdcff",
+        "border-radius": "2px",
+        "opacity": "0.85",
+        "transform": "rotate(149deg)"
+      },
+      "mediaText": "(max-width: 390px)",
+      "atRuleType": "media"
+    },
+    {
+      "selectors": [
+        "#imrcf9"
+      ],
+      "style": {
+        "position": "absolute",
+        "left": "88%",
+        "top": "614px",
+        "width": "8px",
+        "height": "13px",
+        "z-index": "1",
+        "background": "#ffcf4d",
+        "border-radius": "2px",
+        "opacity": "0.85",
+        "transform": "rotate(16deg)"
+      },
+      "mediaText": "(max-width: 390px)",
+      "atRuleType": "media"
+    },
+    {
+      "selectors": [
+        "#imrcf10"
+      ],
+      "style": {
+        "position": "absolute",
+        "left": "49%",
+        "top": "687px",
+        "width": "8px",
+        "height": "13px",
+        "z-index": "1",
+        "background": "#ff7a9c",
+        "border-radius": "2px",
+        "opacity": "0.85",
+        "transform": "rotate(63deg)"
+      },
+      "mediaText": "(max-width: 390px)",
+      "atRuleType": "media"
+    },
+    {
+      "selectors": [
+        "#imrcf11"
+      ],
+      "style": {
+        "position": "absolute",
+        "left": "10%",
+        "top": "760px",
+        "width": "8px",
+        "height": "13px",
+        "z-index": "1",
+        "background": "#5fd06a",
+        "border-radius": "2px",
+        "opacity": "0.85",
+        "transform": "rotate(110deg)"
+      },
+      "mediaText": "(max-width: 390px)",
+      "atRuleType": "media"
+    },
+    {
+      "selectors": [
+        "#imrcf12"
+      ],
+      "style": {
+        "position": "absolute",
+        "left": "71%",
+        "top": "13px",
+        "width": "8px",
+        "height": "13px",
+        "z-index": "1",
+        "background": "#6fdcff",
+        "border-radius": "2px",
+        "opacity": "0.85",
+        "transform": "rotate(157deg)"
+      },
+      "mediaText": "(max-width: 390px)",
+      "atRuleType": "media"
+    },
+    {
+      "selectors": [
+        "#imrcf13"
+      ],
+      "style": {
+        "position": "absolute",
+        "left": "32%",
+        "top": "86px",
+        "width": "8px",
+        "height": "13px",
+        "z-index": "1",
+        "background": "#ffcf4d",
+        "border-radius": "2px",
+        "opacity": "0.85",
+        "transform": "rotate(24deg)"
+      },
+      "mediaText": "(max-width: 390px)",
+      "atRuleType": "media"
+    },
+    {
+      "selectors": [
+        "#imrcf14"
+      ],
+      "style": {
+        "position": "absolute",
+        "left": "93%",
+        "top": "159px",
+        "width": "8px",
+        "height": "13px",
+        "z-index": "1",
+        "background": "#ff7a9c",
+        "border-radius": "2px",
+        "opacity": "0.85",
+        "transform": "rotate(71deg)"
+      },
+      "mediaText": "(max-width: 390px)",
+      "atRuleType": "media"
+    },
+    {
+      "selectors": [
+        "#imrcf15"
+      ],
+      "style": {
+        "position": "absolute",
+        "left": "54%",
+        "top": "232px",
+        "width": "8px",
+        "height": "13px",
+        "z-index": "1",
+        "background": "#5fd06a",
+        "border-radius": "2px",
+        "opacity": "0.85",
+        "transform": "rotate(118deg)"
+      },
+      "mediaText": "(max-width: 390px)",
+      "atRuleType": "media"
+    },
+    {
+      "selectors": [
+        "#imrcf16"
+      ],
+      "style": {
+        "position": "absolute",
+        "left": "15%",
+        "top": "305px",
+        "width": "8px",
+        "height": "13px",
+        "z-index": "1",
+        "background": "#6fdcff",
+        "border-radius": "2px",
+        "opacity": "0.85",
+        "transform": "rotate(165deg)"
+      },
+      "mediaText": "(max-width: 390px)",
+      "atRuleType": "media"
     }
   ],
   "pages": [
@@ -3732,6 +4055,212 @@
                   "data-fab-label": "menu background",
                   "id": "ibiu"
                 }
+              },
+              {
+                "tagName": "section",
+                "type": "default",
+                "name": "Ambient confetti",
+                "resizable": true,
+                "attributes": {
+                  "data-fab-id": "menu.confetti",
+                  "data-fab-role": "ambient-confetti",
+                  "data-fab-label": "Ambient confetti",
+                  "id": "imrcf"
+                },
+                "components": [
+                  {
+                    "tagName": "span",
+                    "type": "default",
+                    "name": "Confetti fleck 1",
+                    "resizable": true,
+                    "attributes": {
+                      "data-fab-id": "menu.confetti.1",
+                      "data-fab-role": "confetti-fleck",
+                      "data-fab-label": "Confetti fleck 1",
+                      "id": "imrcf1"
+                    }
+                  },
+                  {
+                    "tagName": "span",
+                    "type": "default",
+                    "name": "Confetti fleck 2",
+                    "resizable": true,
+                    "attributes": {
+                      "data-fab-id": "menu.confetti.2",
+                      "data-fab-role": "confetti-fleck",
+                      "data-fab-label": "Confetti fleck 2",
+                      "id": "imrcf2"
+                    }
+                  },
+                  {
+                    "tagName": "span",
+                    "type": "default",
+                    "name": "Confetti fleck 3",
+                    "resizable": true,
+                    "attributes": {
+                      "data-fab-id": "menu.confetti.3",
+                      "data-fab-role": "confetti-fleck",
+                      "data-fab-label": "Confetti fleck 3",
+                      "id": "imrcf3"
+                    }
+                  },
+                  {
+                    "tagName": "span",
+                    "type": "default",
+                    "name": "Confetti fleck 4",
+                    "resizable": true,
+                    "attributes": {
+                      "data-fab-id": "menu.confetti.4",
+                      "data-fab-role": "confetti-fleck",
+                      "data-fab-label": "Confetti fleck 4",
+                      "id": "imrcf4"
+                    }
+                  },
+                  {
+                    "tagName": "span",
+                    "type": "default",
+                    "name": "Confetti fleck 5",
+                    "resizable": true,
+                    "attributes": {
+                      "data-fab-id": "menu.confetti.5",
+                      "data-fab-role": "confetti-fleck",
+                      "data-fab-label": "Confetti fleck 5",
+                      "id": "imrcf5"
+                    }
+                  },
+                  {
+                    "tagName": "span",
+                    "type": "default",
+                    "name": "Confetti fleck 6",
+                    "resizable": true,
+                    "attributes": {
+                      "data-fab-id": "menu.confetti.6",
+                      "data-fab-role": "confetti-fleck",
+                      "data-fab-label": "Confetti fleck 6",
+                      "id": "imrcf6"
+                    }
+                  },
+                  {
+                    "tagName": "span",
+                    "type": "default",
+                    "name": "Confetti fleck 7",
+                    "resizable": true,
+                    "attributes": {
+                      "data-fab-id": "menu.confetti.7",
+                      "data-fab-role": "confetti-fleck",
+                      "data-fab-label": "Confetti fleck 7",
+                      "id": "imrcf7"
+                    }
+                  },
+                  {
+                    "tagName": "span",
+                    "type": "default",
+                    "name": "Confetti fleck 8",
+                    "resizable": true,
+                    "attributes": {
+                      "data-fab-id": "menu.confetti.8",
+                      "data-fab-role": "confetti-fleck",
+                      "data-fab-label": "Confetti fleck 8",
+                      "id": "imrcf8"
+                    }
+                  },
+                  {
+                    "tagName": "span",
+                    "type": "default",
+                    "name": "Confetti fleck 9",
+                    "resizable": true,
+                    "attributes": {
+                      "data-fab-id": "menu.confetti.9",
+                      "data-fab-role": "confetti-fleck",
+                      "data-fab-label": "Confetti fleck 9",
+                      "id": "imrcf9"
+                    }
+                  },
+                  {
+                    "tagName": "span",
+                    "type": "default",
+                    "name": "Confetti fleck 10",
+                    "resizable": true,
+                    "attributes": {
+                      "data-fab-id": "menu.confetti.10",
+                      "data-fab-role": "confetti-fleck",
+                      "data-fab-label": "Confetti fleck 10",
+                      "id": "imrcf10"
+                    }
+                  },
+                  {
+                    "tagName": "span",
+                    "type": "default",
+                    "name": "Confetti fleck 11",
+                    "resizable": true,
+                    "attributes": {
+                      "data-fab-id": "menu.confetti.11",
+                      "data-fab-role": "confetti-fleck",
+                      "data-fab-label": "Confetti fleck 11",
+                      "id": "imrcf11"
+                    }
+                  },
+                  {
+                    "tagName": "span",
+                    "type": "default",
+                    "name": "Confetti fleck 12",
+                    "resizable": true,
+                    "attributes": {
+                      "data-fab-id": "menu.confetti.12",
+                      "data-fab-role": "confetti-fleck",
+                      "data-fab-label": "Confetti fleck 12",
+                      "id": "imrcf12"
+                    }
+                  },
+                  {
+                    "tagName": "span",
+                    "type": "default",
+                    "name": "Confetti fleck 13",
+                    "resizable": true,
+                    "attributes": {
+                      "data-fab-id": "menu.confetti.13",
+                      "data-fab-role": "confetti-fleck",
+                      "data-fab-label": "Confetti fleck 13",
+                      "id": "imrcf13"
+                    }
+                  },
+                  {
+                    "tagName": "span",
+                    "type": "default",
+                    "name": "Confetti fleck 14",
+                    "resizable": true,
+                    "attributes": {
+                      "data-fab-id": "menu.confetti.14",
+                      "data-fab-role": "confetti-fleck",
+                      "data-fab-label": "Confetti fleck 14",
+                      "id": "imrcf14"
+                    }
+                  },
+                  {
+                    "tagName": "span",
+                    "type": "default",
+                    "name": "Confetti fleck 15",
+                    "resizable": true,
+                    "attributes": {
+                      "data-fab-id": "menu.confetti.15",
+                      "data-fab-role": "confetti-fleck",
+                      "data-fab-label": "Confetti fleck 15",
+                      "id": "imrcf15"
+                    }
+                  },
+                  {
+                    "tagName": "span",
+                    "type": "default",
+                    "name": "Confetti fleck 16",
+                    "resizable": true,
+                    "attributes": {
+                      "data-fab-id": "menu.confetti.16",
+                      "data-fab-role": "confetti-fleck",
+                      "data-fab-label": "Confetti fleck 16",
+                      "id": "imrcf16"
+                    }
+                  }
+                ]
               },
               {
                 "tagName": "section",
