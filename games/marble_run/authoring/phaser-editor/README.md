@@ -31,7 +31,7 @@ node games/marble_run/authoring/phaser-editor/tools.mjs duplicate Menu menu.curr
 
 The curated manifest and Phaser asset pack must equal the complete MR1 status-eligible set in `../reference/assets.yaml`: current live UI assets (excluding the favicon-only app icon) plus the live/fallback fonts. Adding an imported-unused or provenance-only asset to both mutable project files does not make it eligible.
 
-`reset` stages the complete protected baseline config, Semantic component, and nine scene files before replacing anything. If any replacement fails, it rolls every changed target back from captured working bytes before reporting the failure. It does not touch publications or mutable editor preferences.
+`reset` stages the complete protected baseline config, Semantic component, and nine scene files as a full candidate project and validates that candidate before replacing anything. It retains captured working bytes until the installed generation passes the full validator; any replacement or final-validation failure rolls every changed target back before reporting the error. It does not touch publications or mutable editor preferences.
 
 Serve the repository through the normal Portal/static route and open `games/marble_run/authoring/phaser-editor/preview/`. A `?scene=GameplayHud` query selects a state. This surface is evidence/preview only and must never be presented as the Phaser Editor.
 

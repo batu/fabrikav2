@@ -8,6 +8,13 @@ import { ACTIVE, PROJECT, PUBLICATIONS, currentRevision, duplicate, publish, res
 
 const menuPath = join(PROJECT, 'src/scenes/Menu.scene');
 const referenceAssetsPath = join(PROJECT, '../../reference/assets.yaml');
+const resetTargets = [
+  join(PROJECT, 'phasereditor2d.config.json'),
+  join(PROJECT, 'src/components/Semantic.components'),
+  join(PROJECT, 'src/components/Semantic.ts'),
+  ...['Menu', 'GameplayHud', 'Pause', 'SettingsMenu', 'SettingsLevel', 'Shop', 'Win', 'Fail', 'Finale']
+    .map((name) => join(PROJECT, `src/scenes/${name}.scene`)),
+];
 
 test('native project exposes all nine validated scenes and exact asset bindings', async () => {
   const result = await validate();
@@ -275,13 +282,6 @@ test('reset restores protected native scene bytes and republishes cleanly', asyn
 });
 
 test('reset rolls back every working file when one staged replacement fails', async () => {
-  const resetTargets = [
-    join(PROJECT, 'phasereditor2d.config.json'),
-    join(PROJECT, 'src/components/Semantic.components'),
-    join(PROJECT, 'src/components/Semantic.ts'),
-    ...['Menu', 'GameplayHud', 'Pause', 'SettingsMenu', 'SettingsLevel', 'Shop', 'Win', 'Fail', 'Finale']
-      .map((name) => join(PROJECT, `src/scenes/${name}.scene`)),
-  ];
   const semanticPath = join(PROJECT, 'src/components/Semantic.components');
   const originalMenu = await readFile(menuPath, 'utf8');
   const originalSemantic = await readFile(semanticPath, 'utf8');
@@ -309,6 +309,34 @@ test('reset rolls back every working file when one staged replacement fails', as
   } finally {
     await writeFile(menuPath, originalMenu);
     await writeFile(semanticPath, originalSemantic);
+  }
+  await validate();
+});
+
+test('reset rejects a corrupt protected config before replacing any working file', async () => {
+  const baselineConfigPath = join(PROJECT, '../baseline/phasereditor2d.config.json');
+  const originalBaseline = await readFile(baselineConfigPath, 'utf8');
+  const workingGeneration = new Map(await Promise.all(resetTargets.map(async (path) => [path, await readFile(path)])));
+  try {
+    await writeFile(baselineConfigPath, originalBaseline.replace('"type": "phaser"', '"type": "corrupt"'));
+    await assert.rejects(reset(), /project config is not a native Phaser TypeScript project/);
+    for (const [path, expected] of workingGeneration) assert.deepEqual(await readFile(path), expected, path);
+  } finally {
+    await writeFile(baselineConfigPath, originalBaseline);
+  }
+  await validate();
+});
+
+test('reset keeps rollback state until post-replacement validation succeeds', async () => {
+  const originalMenu = await readFile(menuPath, 'utf8');
+  const dirtyMenu = originalMenu.replace('"text": "Marble Run"', '"text": "POST VALIDATION WORKING GENERATION"');
+  await writeFile(menuPath, dirtyMenu);
+  const workingGeneration = new Map(await Promise.all(resetTargets.map(async (path) => [path, await readFile(path)])));
+  try {
+    await assert.rejects(reset({ validateResult: async () => { throw new Error('injected post-replacement validation failure'); } }), /injected post-replacement validation failure/);
+    for (const [path, expected] of workingGeneration) assert.deepEqual(await readFile(path), expected, path);
+  } finally {
+    await writeFile(menuPath, originalMenu);
   }
   await validate();
 });

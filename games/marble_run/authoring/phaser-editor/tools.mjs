@@ -472,30 +472,32 @@ export async function status() {
   return { revision, publishedRevision: active.revision, publicationValid, fresh: publicationValid && revision === active.revision };
 }
 
-export async function reset({ replace = replaceFile } = {}) {
-  const manifestKeys = new Set((await json(join(PROJECT, 'public/assets/asset-manifest.json'))).assets.map((asset) => asset.key));
-  const baselineCheck = await validateSceneSet(join(BASELINE, 'scenes'), 'baseline', manifestKeys);
-  if (baselineCheck.errors.length > 0) throw new Error(`Protected baseline is invalid:\n- ${baselineCheck.errors.join('\n- ')}`);
+export async function reset({ replace = replaceFile, validateResult = validate } = {}) {
   const entries = [
-    [join(BASELINE, 'phasereditor2d.config.json'), join(PROJECT, 'phasereditor2d.config.json')],
-    [join(BASELINE, 'Semantic.components'), join(PROJECT, 'src/components/Semantic.components')],
-    [join(BASELINE, 'Semantic.ts'), join(PROJECT, 'src/components/Semantic.ts')],
-    ...SCENES.map((name) => [join(BASELINE, 'scenes', `${name}.scene`), join(PROJECT, 'src/scenes', `${name}.scene`)]),
+    { baseline: join(BASELINE, 'phasereditor2d.config.json'), relative: 'phasereditor2d.config.json' },
+    { baseline: join(BASELINE, 'Semantic.components'), relative: 'src/components/Semantic.components' },
+    { baseline: join(BASELINE, 'Semantic.ts'), relative: 'src/components/Semantic.ts' },
+    ...SCENES.map((name) => ({ baseline: join(BASELINE, 'scenes', `${name}.scene`), relative: `src/scenes/${name}.scene` })),
   ];
   const transaction = await mkdtemp(join(ROOT, '.reset-'));
   try {
     await mkdir(join(transaction, 'original'), { recursive: true });
-    await mkdir(join(transaction, 'next'), { recursive: true });
-    await Promise.all(entries.flatMap(([baselineSource, workingTarget], index) => [
-      cp(workingTarget, join(transaction, 'original', `${index}`)),
-      cp(baselineSource, join(transaction, 'next', `${index}`)),
+    const nextProject = join(transaction, 'next-project');
+    await cp(PROJECT, nextProject, { recursive: true });
+    await Promise.all(entries.flatMap(({ baseline, relative }, index) => [
+      cp(join(PROJECT, relative), join(transaction, 'original', `${index}`)),
+      cp(baseline, join(nextProject, relative), { force: true }),
     ]));
+    const candidate = await validateProjectAuthority(nextProject, 'reset candidate');
+    if (candidate.errors.length > 0) throw new Error(`Protected reset candidate is invalid:\n- ${candidate.errors.join('\n- ')}`);
     const replaced = [];
     try {
-      for (const [index, [, workingTarget]] of entries.entries()) {
-        await replace(join(transaction, 'next', `${index}`), workingTarget);
+      for (const [index, { relative }] of entries.entries()) {
+        const workingTarget = join(PROJECT, relative);
+        await replace(join(nextProject, relative), workingTarget);
         replaced.push([index, workingTarget]);
       }
+      return await validateResult();
     } catch (error) {
       const rollbackErrors = [];
       for (const [index, workingTarget] of replaced.reverse()) {
@@ -507,7 +509,6 @@ export async function reset({ replace = replaceFile } = {}) {
   } finally {
     await rm(transaction, { recursive: true, force: true });
   }
-  return validate();
 }
 
 export async function duplicate(sceneName, sourceSemanticId, cloneSemanticId) {
