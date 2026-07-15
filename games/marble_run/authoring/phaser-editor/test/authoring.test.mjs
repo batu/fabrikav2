@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import { Buffer } from 'node:buffer';
 import { createHash } from 'node:crypto';
-import { cp, readFile, rm, stat, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { cp, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
 import test from 'node:test';
 import { ACTIVE, PROJECT, PUBLICATIONS, currentRevision, duplicate, publish, reset, status, validate, verifyPublication } from '../tools.mjs';
 
@@ -127,6 +127,64 @@ test('saved scene changes make Preview stale until a new publication', async () 
   }
 });
 
+test('publication revision is derived from one immutable capture during a concurrent save', async () => {
+  const original = await readFile(menuPath, 'utf8');
+  const captured = original.replace('"text": "LEVEL 3"', '"text": "LEVEL 3 CAPTURED"');
+  const laterSave = original.replace('"text": "LEVEL 3"', '"text": "LEVEL 3 LATER SAVE"');
+  let transientRevision;
+  try {
+    await writeFile(menuPath, captured);
+    const publication = await publish({
+      afterCapture: async () => writeFile(menuPath, laterSave),
+    });
+    transientRevision = publication.revision;
+    assert.equal(await readFile(join(PUBLICATIONS, publication.revision, 'source/project/src/scenes/Menu.scene'), 'utf8'), captured);
+    assert.equal(await readFile(menuPath, 'utf8'), laterSave);
+    assert.notEqual(publication.revision, await currentRevision());
+    await verifyPublication(publication.revision);
+  } finally {
+    await writeFile(menuPath, original);
+    await publish();
+    if (transientRevision) await rm(join(PUBLICATIONS, transientRevision), { recursive: true, force: true });
+  }
+});
+
+test('failed post-rename verification removes the newly created publication', async () => {
+  const original = await readFile(menuPath, 'utf8');
+  const changed = original.replace('"text": "LEVEL 3"', '"text": "LEVEL 3 VERIFY FAILURE"');
+  let transientRevision;
+  try {
+    await writeFile(menuPath, changed);
+    transientRevision = await currentRevision();
+    await rm(join(PUBLICATIONS, transientRevision), { recursive: true, force: true });
+    await assert.rejects(publish({ verify: async () => { throw new Error('injected verification failure'); } }), /injected verification failure/);
+    await assert.rejects(stat(join(PUBLICATIONS, transientRevision)), { code: 'ENOENT' });
+  } finally {
+    await writeFile(menuPath, original);
+    await publish();
+  }
+});
+
+test('failed active-pointer replacement preserves the previous pointer atomically', async () => {
+  const original = await readFile(menuPath, 'utf8');
+  const previousPointer = await readFile(ACTIVE);
+  const changed = original.replace('"text": "LEVEL 3"', '"text": "LEVEL 3 POINTER FAILURE"');
+  let transientRevision;
+  try {
+    await writeFile(menuPath, changed);
+    transientRevision = await currentRevision();
+    await rm(join(PUBLICATIONS, transientRevision), { recursive: true, force: true });
+    await assert.rejects(publish({ replaceActive: async () => { throw new Error('injected pointer failure'); } }), /injected pointer failure/);
+    assert.deepEqual(await readFile(ACTIVE), previousPointer);
+    assert.deepEqual((await readdir(dirname(ACTIVE))).filter((name) => name.startsWith('active.json.write-')), []);
+    await verifyPublication(transientRevision);
+  } finally {
+    await writeFile(menuPath, original);
+    await publish();
+    if (transientRevision) await rm(join(PUBLICATIONS, transientRevision), { recursive: true, force: true });
+  }
+});
+
 test('validator rejects a texture outside the exact Marble tray', async () => {
   const original = await readFile(menuPath, 'utf8');
   try {
@@ -214,4 +272,43 @@ test('reset restores protected native scene bytes and republishes cleanly', asyn
   assert.equal(await readFile(menuPath, 'utf8'), baseline);
   await publish();
   assert.equal((await status()).fresh, true);
+});
+
+test('reset rolls back every working file when one staged replacement fails', async () => {
+  const resetTargets = [
+    join(PROJECT, 'phasereditor2d.config.json'),
+    join(PROJECT, 'src/components/Semantic.components'),
+    join(PROJECT, 'src/components/Semantic.ts'),
+    ...['Menu', 'GameplayHud', 'Pause', 'SettingsMenu', 'SettingsLevel', 'Shop', 'Win', 'Fail', 'Finale']
+      .map((name) => join(PROJECT, `src/scenes/${name}.scene`)),
+  ];
+  const semanticPath = join(PROJECT, 'src/components/Semantic.components');
+  const originalMenu = await readFile(menuPath, 'utf8');
+  const originalSemantic = await readFile(semanticPath, 'utf8');
+  const dirtyMenu = originalMenu.replace('"text": "Marble Run"', '"text": "WORKING GENERATION"');
+  const dirtySemantic = `${originalSemantic}\n`;
+  await writeFile(menuPath, dirtyMenu);
+  await writeFile(semanticPath, dirtySemantic);
+  const workingGeneration = new Map(await Promise.all(resetTargets.map(async (path) => [path, await readFile(path)])));
+  try {
+    const replaceWithFailure = async (source, target) => {
+      if (target.endsWith('/Pause.scene')) throw new Error('injected replacement failure');
+      const temporary = `${target}.injected-replacement`;
+      try {
+        await cp(source, temporary, { force: false });
+        await rename(temporary, target);
+      } finally {
+        await rm(temporary, { force: true });
+      }
+    };
+    await assert.rejects(
+      reset({ replace: replaceWithFailure }),
+      /injected replacement failure/,
+    );
+    for (const [path, expected] of workingGeneration) assert.deepEqual(await readFile(path), expected, path);
+  } finally {
+    await writeFile(menuPath, originalMenu);
+    await writeFile(semanticPath, originalSemantic);
+  }
+  await validate();
 });

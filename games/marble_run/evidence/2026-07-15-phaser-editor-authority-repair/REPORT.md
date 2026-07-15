@@ -6,6 +6,10 @@ Status: **PASS for the six independent code-review findings.** This report super
 
 The active saved-scene publication is `sha256-ffa1e20b2acdfd848bbdc12d6bcc4c7560e30e5eb5d76f8277ed6836639f62ad`. Its revision is computed over the complete ordered authority preimage. Publication reuse now recomputes and compares every source byte with the frozen preimage and its revision digest. `status` fails closed when either representation is modified.
 
+Publication is also transaction-safe against concurrent native-editor saves. It validates one isolated capture, derives both the destination revision and `authority.bin` from those exact staged bytes, atomically renames the capture, verifies the completed destination, and atomically replaces the active pointer. A regression test changes the live Menu scene immediately after capture and proves the immutable publication retains the captured scene, verifies under its own revision, and does not falsely claim the later working revision. Any newly renamed destination that fails verification is removed before the error escapes.
+
+Reset stages all twelve protected replacements plus all twelve working originals before touching the project. A forced failure after several replacements proves that rollback restores every target byte-for-byte to the same working generation rather than leaving config, component, and scene files partially reset.
+
 Preview validates the pointer schema, revision syntax, derived publication path, embedded revision, exact scene set, ordered authority paths, and the SHA-256 of `authority.bin` before parsing or rendering anything. Fonts, images, manifests, and scenes are read from those verified bytes. A clean Chromium run rendered Menu under the exact revision with zero errors (`preview-integrity-clean.png`). Flipping one byte in `authority.bin` produced `Publication authority-byte digest does not match the revision stamp` and rendered zero scene children (`preview-integrity-tampered-rejected.png`). The byte was restored immediately after the probe.
 
 ## Frozen asset contract and semantic safety
@@ -30,7 +34,7 @@ This is reversible native persistence evidence: a real editor-authored mutation 
 
 ## Verification
 
-- Native authoring tests: 13/13, including publication-source tamper, frozen-preimage tamper, MR1 imported-unused asset injection, coordinated frozen-contract mutation, semantic hierarchy duplication, and injected Semantic behavior.
+- Native authoring tests: 17/17, including publication-source tamper, frozen-preimage tamper, concurrent-save publication capture, post-rename cleanup, atomic-pointer failure, transactional reset rollback, MR1 imported-unused asset injection, coordinated frozen-contract mutation, semantic hierarchy duplication, and injected Semantic behavior.
 - Native validator: 9 scenes, 220 semantic objects, 16 exact eligible assets.
 - Preview clean/tamper browser integration: PASS at the active revision.
 - Licensed Phaser Editor v5.0.2 mutation/save/full-restart/reset/full-restart: PASS.

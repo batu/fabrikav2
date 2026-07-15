@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* global process */
 import { Buffer } from 'node:buffer';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { cp, mkdir, mkdtemp, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -241,34 +241,24 @@ async function validateSceneSet(directory, label, manifestKeys) {
   return { errors, semanticCount: seen.size };
 }
 
-export async function validate() {
+async function validateProjectAuthority(projectRoot, label) {
   const errors = [];
-  const referenceScreens = (await readFile(resolve(ROOT, '../reference/screens.yaml'), 'utf8'))
-    .split('\n')
-    .map((line) => line.match(/^ {2}- id: ([a-z0-9-]+)$/)?.[1])
-    .filter(Boolean);
-  const mappedScenes = referenceScreens.map((screen) => SCREEN_TO_SCENE[screen]).filter(Boolean).sort();
-  if (referenceScreens.some((screen) => !SCREEN_TO_SCENE[screen]) || JSON.stringify(mappedScenes) !== JSON.stringify([...SCENES].sort())) {
-    errors.push(`native scenes no longer match the MR1 primary-screen inventory: ${referenceScreens.join(', ')}`);
-  }
-  const config = await json(join(PROJECT, 'phasereditor2d.config.json'));
+  const config = await json(join(projectRoot, 'phasereditor2d.config.json'));
   if (config.type !== 'phaser' || config.sceneEditor?.outputLanguage !== 'TYPE_SCRIPT') errors.push('project config is not a native Phaser TypeScript project');
   if (FORBIDDEN.test(JSON.stringify(config))) errors.push('project config contains generic shell identity');
-  const projectPackage = await json(join(PROJECT, 'package.json'));
+  const projectPackage = await json(join(projectRoot, 'package.json'));
   if (projectPackage.dependencies?.phaser !== '^3.90.0') errors.push('native project must resolve the repository Phaser 3.90 runtime');
 
-  const componentDoc = await json(join(PROJECT, 'src/components/Semantic.components'));
+  const componentDoc = await json(join(projectRoot, 'src/components/Semantic.components'));
   const properties = componentDoc.components?.[0]?.properties?.map((property) => property.name);
   if (JSON.stringify(properties) !== JSON.stringify(SEMANTIC_FIELDS)) errors.push('Semantic component must expose exactly five string fields');
   if (componentDoc.components?.[0]?.properties?.some((property) => property.type?.id !== 'string')) errors.push('Semantic component fields must all be strings');
-  const semanticSource = await readFile(join(PROJECT, 'src/components/Semantic.ts'), 'utf8');
-  const baselineSemanticSource = await readFile(join(BASELINE, 'Semantic.ts'), 'utf8');
+  const semanticSource = await readFile(join(projectRoot, 'src/components/Semantic.ts'), 'utf8');
   if (semanticSource !== SEMANTIC_TS_CANONICAL) errors.push('Semantic.ts must remain the canonical inert five-field carrier');
-  if (baselineSemanticSource !== SEMANTIC_TS_CANONICAL) errors.push('protected baseline Semantic.ts must remain canonical');
 
-  const manifestPath = join(PROJECT, 'public/assets/asset-manifest.json');
+  const manifestPath = join(projectRoot, 'public/assets/asset-manifest.json');
   const manifest = await json(manifestPath);
-  const pack = await json(join(PROJECT, 'public/assets/asset-pack.json'));
+  const pack = await json(join(projectRoot, 'public/assets/asset-pack.json'));
   const packFiles = pack['marble-run-exact-ui']?.files ?? [];
   const expectedAssetContract = await frozenAssetContract();
   const actualAssetContract = normalizedAssetContract(manifest, packFiles);
@@ -283,25 +273,50 @@ export async function validate() {
     const packed = packFiles.find((asset) => asset.key === family);
     if (packed?.type !== 'font') errors.push(`asset pack must load exact ${family} bytes under the real font family name`);
   }
-
-  const gameRoot = resolve(ROOT, '../..');
   for (const asset of manifest.assets) {
-    const projectPath = join(PROJECT, 'public', asset.url);
-    const sourcePath = join(gameRoot, asset.source);
-    for (const [kind, path] of [['project', projectPath], ['source', sourcePath]]) {
-      if (!(await exists(path))) { errors.push(`${kind} asset missing: ${path}`); continue; }
-      const actual = sha256(await bytes(path));
-      if (actual !== asset.sha256) errors.push(`${kind} asset hash mismatch for ${asset.key}: ${actual}`);
-    }
+    const projectPath = join(projectRoot, 'public', asset.url);
+    if (!(await exists(projectPath))) { errors.push(`project asset missing: ${projectPath}`); continue; }
+    const actual = sha256(await bytes(projectPath));
+    if (actual !== asset.sha256) errors.push(`project asset hash mismatch for ${asset.key}: ${actual}`);
   }
 
-  const working = await validateSceneSet(join(PROJECT, 'src/scenes'), 'working', manifestKeys);
-  const baseline = await validateSceneSet(join(BASELINE, 'scenes'), 'baseline', manifestKeys);
-  errors.push(...working.errors, ...baseline.errors);
-  if (working.semanticCount < 120) errors.push(`working scenes expose only ${working.semanticCount} semantic objects; expected complete hierarchy`);
+  const scenes = await validateSceneSet(join(projectRoot, 'src/scenes'), label, manifestKeys);
+  errors.push(...scenes.errors);
+  if (scenes.semanticCount < 120) errors.push(`${label} scenes expose only ${scenes.semanticCount} semantic objects; expected complete hierarchy`);
+  return { errors, scenes: SCENES.length, semantics: scenes.semanticCount, assets: manifest.assets.length, manifest, manifestKeys };
+}
 
+export async function validate() {
+  const working = await validateProjectAuthority(PROJECT, 'working');
+  const errors = [...working.errors, ...(await validateProtectedInputs(working.manifest, working.manifestKeys))];
   if (errors.length > 0) throw new Error(`Phaser authoring validation failed:\n- ${errors.join('\n- ')}`);
-  return { scenes: SCENES.length, semantics: working.semanticCount, assets: manifest.assets.length };
+  return { scenes: working.scenes, semantics: working.semantics, assets: working.assets };
+}
+
+async function validateProtectedInputs(manifest, manifestKeys) {
+  const errors = [];
+  const referenceScreens = (await readFile(resolve(ROOT, '../reference/screens.yaml'), 'utf8'))
+    .split('\n')
+    .map((line) => line.match(/^ {2}- id: ([a-z0-9-]+)$/)?.[1])
+    .filter(Boolean);
+  const mappedScenes = referenceScreens.map((screen) => SCREEN_TO_SCENE[screen]).filter(Boolean).sort();
+  if (referenceScreens.some((screen) => !SCREEN_TO_SCENE[screen]) || JSON.stringify(mappedScenes) !== JSON.stringify([...SCENES].sort())) {
+    errors.push(`native scenes no longer match the MR1 primary-screen inventory: ${referenceScreens.join(', ')}`);
+  }
+
+  if (await readFile(join(BASELINE, 'Semantic.ts'), 'utf8') !== SEMANTIC_TS_CANONICAL) {
+    errors.push('protected baseline Semantic.ts must remain canonical');
+  }
+  const baseline = await validateSceneSet(join(BASELINE, 'scenes'), 'baseline', manifestKeys);
+  errors.push(...baseline.errors);
+  const gameRoot = resolve(ROOT, '../..');
+  for (const asset of manifest.assets) {
+    const sourcePath = join(gameRoot, asset.source);
+    if (!(await exists(sourcePath))) { errors.push(`source asset missing: ${sourcePath}`); continue; }
+    const actual = sha256(await bytes(sourcePath));
+    if (actual !== asset.sha256) errors.push(`source asset hash mismatch for ${asset.key}: ${actual}`);
+  }
+  return errors;
 }
 
 async function authorityPaths() {
@@ -335,6 +350,32 @@ async function authorityPreimageAt(root) {
   return Buffer.concat(parts);
 }
 
+async function validateCapturedAuthority(sourceRoot) {
+  const captured = await validateProjectAuthority(join(sourceRoot, 'project'), 'captured');
+  if (captured.errors.length > 0) throw new Error(`Captured Phaser authority is invalid:\n- ${captured.errors.join('\n- ')}`);
+  return captured;
+}
+
+async function replaceFile(source, target) {
+  const temporary = `${target}.replace-${randomUUID()}`;
+  try {
+    await cp(source, temporary, { force: false });
+    await rename(temporary, target);
+  } finally {
+    await rm(temporary, { force: true });
+  }
+}
+
+async function writeFileAtomically(target, content, replace = rename) {
+  const temporary = `${target}.write-${randomUUID()}`;
+  try {
+    await writeFile(temporary, content, { flag: 'wx' });
+    await replace(temporary, target);
+  } finally {
+    await rm(temporary, { force: true });
+  }
+}
+
 export async function currentRevision() {
   return revisionAt(ROOT);
 }
@@ -357,45 +398,53 @@ export async function verifyPublication(revision) {
   return revisionDoc;
 }
 
-export async function publish() {
-  const validation = await validate();
-  const revision = await currentRevision();
-  const destination = join(PUBLICATIONS, revision);
-  if (await exists(destination)) {
-    if (!(await exists(join(destination, 'authority.bin')))) {
-      const sourceRevision = await revisionAt(join(destination, 'source'));
-      if (sourceRevision !== revision) throw new Error(`${revision}: cannot migrate a mismatched publication`);
-      await writeFile(join(destination, 'authority.bin'), await authorityPreimageAt(join(destination, 'source')), { flag: 'wx' });
+export async function publish({ afterCapture, replaceActive, verify = verifyPublication } = {}) {
+  await mkdir(PUBLICATIONS, { recursive: true });
+  const temporary = await mkdtemp(join(PUBLICATIONS, '.tmp-'));
+  let createdDestination = false;
+  let revision;
+  let destination;
+  try {
+    const authorityPathSet = await authorityPaths();
+    for (const relativePath of authorityPathSet) {
+      const target = join(temporary, 'source', relativePath);
+      await mkdir(dirname(target), { recursive: true });
+      await cp(join(ROOT, relativePath), target, { force: false });
     }
-    await verifyPublication(revision);
-  } else {
-    await mkdir(PUBLICATIONS, { recursive: true });
-    const temporary = await mkdtemp(join(PUBLICATIONS, '.tmp-'));
+    const sourceRoot = join(temporary, 'source');
+    const validation = await validateCapturedAuthority(sourceRoot);
+    const protectedErrors = await validateProtectedInputs(validation.manifest, validation.manifestKeys);
+    if (protectedErrors.length > 0) throw new Error(`Protected Phaser inputs are invalid:\n- ${protectedErrors.join('\n- ')}`);
+    const frozenPreimage = await authorityPreimageAt(sourceRoot);
+    revision = `sha256-${sha256(frozenPreimage)}`;
+    destination = join(PUBLICATIONS, revision);
+    await writeFile(join(temporary, 'authority.bin'), frozenPreimage, { flag: 'wx' });
+    const revisionDoc = {
+      schema: 'fabrikav2-phaser-editor-publication/v1',
+      revision,
+      authority: 'saved-native-phaser-editor-scenes',
+      viewport: { width: 390, height: 844 },
+      scenes: SCENES,
+      sceneCount: validation.scenes,
+      semanticCount: validation.semantics,
+      assetCount: validation.assets,
+      authorityPaths: authorityPathSet,
+    };
+    await writeFile(join(temporary, 'revision.json'), `${JSON.stringify(revisionDoc, null, 2)}\n`, { flag: 'wx' });
+    if (afterCapture) await afterCapture({ revision });
+
     try {
-      for (const relativePath of await authorityPaths()) {
-        const target = join(temporary, 'source', relativePath);
-        await mkdir(dirname(target), { recursive: true });
-        await cp(join(ROOT, relativePath), target, { force: false });
-      }
-      await writeFile(join(temporary, 'authority.bin'), await authorityPreimageAt(ROOT), { flag: 'wx' });
-      const revisionDoc = {
-        schema: 'fabrikav2-phaser-editor-publication/v1',
-        revision,
-        authority: 'saved-native-phaser-editor-scenes',
-        viewport: { width: 390, height: 844 },
-        scenes: SCENES,
-        sceneCount: validation.scenes,
-        semanticCount: validation.semantics,
-        assetCount: validation.assets,
-        authorityPaths: await authorityPaths(),
-      };
-      await writeFile(join(temporary, 'revision.json'), `${JSON.stringify(revisionDoc, null, 2)}\n`);
       await rename(temporary, destination);
+      createdDestination = true;
     } catch (error) {
+      if (!['EEXIST', 'ENOTEMPTY'].includes(error.code)) throw error;
       await rm(temporary, { recursive: true, force: true });
-      throw error;
     }
-    await verifyPublication(revision);
+    await verify(revision);
+  } catch (error) {
+    await rm(temporary, { recursive: true, force: true });
+    if (createdDestination && destination) await rm(destination, { recursive: true, force: true });
+    throw error;
   }
   const active = {
     schema: 'fabrikav2-phaser-editor-preview-pointer/v1',
@@ -404,7 +453,7 @@ export async function publish() {
     defaultScene: 'Menu',
     scenes: SCENES,
   };
-  await writeFile(ACTIVE, `${JSON.stringify(active, null, 2)}\n`);
+  await writeFileAtomically(ACTIVE, `${JSON.stringify(active, null, 2)}\n`, replaceActive);
   return active;
 }
 
@@ -423,20 +472,41 @@ export async function status() {
   return { revision, publishedRevision: active.revision, publicationValid, fresh: publicationValid && revision === active.revision };
 }
 
-async function replaceFromBaseline(source, target) {
-  const temporary = `${target}.reset-${process.pid}`;
-  await cp(source, temporary, { force: true });
-  await rename(temporary, target);
-}
-
-export async function reset() {
+export async function reset({ replace = replaceFile } = {}) {
   const manifestKeys = new Set((await json(join(PROJECT, 'public/assets/asset-manifest.json'))).assets.map((asset) => asset.key));
   const baselineCheck = await validateSceneSet(join(BASELINE, 'scenes'), 'baseline', manifestKeys);
   if (baselineCheck.errors.length > 0) throw new Error(`Protected baseline is invalid:\n- ${baselineCheck.errors.join('\n- ')}`);
-  await replaceFromBaseline(join(BASELINE, 'phasereditor2d.config.json'), join(PROJECT, 'phasereditor2d.config.json'));
-  await replaceFromBaseline(join(BASELINE, 'Semantic.components'), join(PROJECT, 'src/components/Semantic.components'));
-  await replaceFromBaseline(join(BASELINE, 'Semantic.ts'), join(PROJECT, 'src/components/Semantic.ts'));
-  for (const name of SCENES) await replaceFromBaseline(join(BASELINE, 'scenes', `${name}.scene`), join(PROJECT, 'src/scenes', `${name}.scene`));
+  const entries = [
+    [join(BASELINE, 'phasereditor2d.config.json'), join(PROJECT, 'phasereditor2d.config.json')],
+    [join(BASELINE, 'Semantic.components'), join(PROJECT, 'src/components/Semantic.components')],
+    [join(BASELINE, 'Semantic.ts'), join(PROJECT, 'src/components/Semantic.ts')],
+    ...SCENES.map((name) => [join(BASELINE, 'scenes', `${name}.scene`), join(PROJECT, 'src/scenes', `${name}.scene`)]),
+  ];
+  const transaction = await mkdtemp(join(ROOT, '.reset-'));
+  try {
+    await mkdir(join(transaction, 'original'), { recursive: true });
+    await mkdir(join(transaction, 'next'), { recursive: true });
+    await Promise.all(entries.flatMap(([baselineSource, workingTarget], index) => [
+      cp(workingTarget, join(transaction, 'original', `${index}`)),
+      cp(baselineSource, join(transaction, 'next', `${index}`)),
+    ]));
+    const replaced = [];
+    try {
+      for (const [index, [, workingTarget]] of entries.entries()) {
+        await replace(join(transaction, 'next', `${index}`), workingTarget);
+        replaced.push([index, workingTarget]);
+      }
+    } catch (error) {
+      const rollbackErrors = [];
+      for (const [index, workingTarget] of replaced.reverse()) {
+        try { await replaceFile(join(transaction, 'original', `${index}`), workingTarget); } catch (rollbackError) { rollbackErrors.push(rollbackError); }
+      }
+      if (rollbackErrors.length > 0) throw new AggregateError([error, ...rollbackErrors], 'Reset failed and rollback was incomplete');
+      throw error;
+    }
+  } finally {
+    await rm(transaction, { recursive: true, force: true });
+  }
   return validate();
 }
 
