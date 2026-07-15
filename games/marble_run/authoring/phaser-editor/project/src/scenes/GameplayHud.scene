@@ -74,7 +74,7 @@
           "slot": "surface"
         },
         {
-          "type": "Text",
+          "type": "Container",
           "id": "gameplay.life.1",
           "label": "gameplay.life.1",
           "components": [
@@ -82,22 +82,85 @@
           ],
           "Semantic.fabSemanticId": "gameplay.life.1",
           "Semantic.fabRole": "life-heart",
-          "Semantic.fabBinding": "state:life-1",
+          "Semantic.fabBinding": "state:gameplay.life.1",
           "Semantic.fabSlot": "heart",
           "Semantic.fabVariant": "default",
           "x": -42,
           "y": 0,
-          "originX": 0.5,
-          "originY": 0.5,
-          "text": "♥",
-          "fontFamily": "Fredoka One",
-          "fontSize": "27px",
-          "color": "#ff5d6c",
-          "binding": "state:life-1",
+          "list": [
+            {
+              "type": "Rectangle",
+              "id": "gameplay.life.1.body",
+              "label": "gameplay.life.1.body",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "gameplay.life.1.body",
+              "Semantic.fabRole": "heart-body",
+              "Semantic.fabBinding": "gameplay.life.1:shape",
+              "Semantic.fabSlot": "heart-shape",
+              "Semantic.fabVariant": "default",
+              "x": 0,
+              "y": 3,
+              "width": 18,
+              "height": 18,
+              "isFilled": true,
+              "fillColor": "#ff5d6c",
+              "rotation": 0.7853981633974483,
+              "rounded": 3,
+              "binding": "gameplay.life.1:shape",
+              "slot": "heart-shape"
+            },
+            {
+              "type": "Rectangle",
+              "id": "gameplay.life.1.lobe-left",
+              "label": "gameplay.life.1.lobe-left",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "gameplay.life.1.lobe-left",
+              "Semantic.fabRole": "heart-lobe",
+              "Semantic.fabBinding": "gameplay.life.1:shape",
+              "Semantic.fabSlot": "heart-shape",
+              "Semantic.fabVariant": "default",
+              "x": -6,
+              "y": -4,
+              "width": 15,
+              "height": 15,
+              "isFilled": true,
+              "fillColor": "#ff5d6c",
+              "rounded": 8,
+              "binding": "gameplay.life.1:shape",
+              "slot": "heart-shape"
+            },
+            {
+              "type": "Rectangle",
+              "id": "gameplay.life.1.lobe-right",
+              "label": "gameplay.life.1.lobe-right",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "gameplay.life.1.lobe-right",
+              "Semantic.fabRole": "heart-lobe",
+              "Semantic.fabBinding": "gameplay.life.1:shape",
+              "Semantic.fabSlot": "heart-shape",
+              "Semantic.fabVariant": "default",
+              "x": 6,
+              "y": -4,
+              "width": 15,
+              "height": 15,
+              "isFilled": true,
+              "fillColor": "#ff5d6c",
+              "rounded": 8,
+              "binding": "gameplay.life.1:shape",
+              "slot": "heart-shape"
+            }
+          ],
+          "binding": "state:gameplay.life.1",
           "slot": "heart"
         },
         {
-          "type": "Text",
+          "type": "Container",
           "id": "gameplay.life.2",
           "label": "gameplay.life.2",
           "components": [
@@ -105,22 +168,85 @@
           ],
           "Semantic.fabSemanticId": "gameplay.life.2",
           "Semantic.fabRole": "life-heart",
-          "Semantic.fabBinding": "state:life-2",
+          "Semantic.fabBinding": "state:gameplay.life.2",
           "Semantic.fabSlot": "heart",
           "Semantic.fabVariant": "default",
           "x": 0,
           "y": 0,
-          "originX": 0.5,
-          "originY": 0.5,
-          "text": "♥",
-          "fontFamily": "Fredoka One",
-          "fontSize": "27px",
-          "color": "#ff5d6c",
-          "binding": "state:life-2",
+          "list": [
+            {
+              "type": "Rectangle",
+              "id": "gameplay.life.2.body",
+              "label": "gameplay.life.2.body",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "gameplay.life.2.body",
+              "Semantic.fabRole": "heart-body",
+              "Semantic.fabBinding": "gameplay.life.2:shape",
+              "Semantic.fabSlot": "heart-shape",
+              "Semantic.fabVariant": "default",
+              "x": 0,
+              "y": 3,
+              "width": 18,
+              "height": 18,
+              "isFilled": true,
+              "fillColor": "#ff5d6c",
+              "rotation": 0.7853981633974483,
+              "rounded": 3,
+              "binding": "gameplay.life.2:shape",
+              "slot": "heart-shape"
+            },
+            {
+              "type": "Rectangle",
+              "id": "gameplay.life.2.lobe-left",
+              "label": "gameplay.life.2.lobe-left",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "gameplay.life.2.lobe-left",
+              "Semantic.fabRole": "heart-lobe",
+              "Semantic.fabBinding": "gameplay.life.2:shape",
+              "Semantic.fabSlot": "heart-shape",
+              "Semantic.fabVariant": "default",
+              "x": -6,
+              "y": -4,
+              "width": 15,
+              "height": 15,
+              "isFilled": true,
+              "fillColor": "#ff5d6c",
+              "rounded": 8,
+              "binding": "gameplay.life.2:shape",
+              "slot": "heart-shape"
+            },
+            {
+              "type": "Rectangle",
+              "id": "gameplay.life.2.lobe-right",
+              "label": "gameplay.life.2.lobe-right",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "gameplay.life.2.lobe-right",
+              "Semantic.fabRole": "heart-lobe",
+              "Semantic.fabBinding": "gameplay.life.2:shape",
+              "Semantic.fabSlot": "heart-shape",
+              "Semantic.fabVariant": "default",
+              "x": 6,
+              "y": -4,
+              "width": 15,
+              "height": 15,
+              "isFilled": true,
+              "fillColor": "#ff5d6c",
+              "rounded": 8,
+              "binding": "gameplay.life.2:shape",
+              "slot": "heart-shape"
+            }
+          ],
+          "binding": "state:gameplay.life.2",
           "slot": "heart"
         },
         {
-          "type": "Text",
+          "type": "Container",
           "id": "gameplay.life.3",
           "label": "gameplay.life.3",
           "components": [
@@ -128,18 +254,81 @@
           ],
           "Semantic.fabSemanticId": "gameplay.life.3",
           "Semantic.fabRole": "life-heart",
-          "Semantic.fabBinding": "state:life-3",
+          "Semantic.fabBinding": "state:gameplay.life.3",
           "Semantic.fabSlot": "heart",
           "Semantic.fabVariant": "default",
           "x": 42,
           "y": 0,
-          "originX": 0.5,
-          "originY": 0.5,
-          "text": "♥",
-          "fontFamily": "Fredoka One",
-          "fontSize": "27px",
-          "color": "#ff5d6c",
-          "binding": "state:life-3",
+          "list": [
+            {
+              "type": "Rectangle",
+              "id": "gameplay.life.3.body",
+              "label": "gameplay.life.3.body",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "gameplay.life.3.body",
+              "Semantic.fabRole": "heart-body",
+              "Semantic.fabBinding": "gameplay.life.3:shape",
+              "Semantic.fabSlot": "heart-shape",
+              "Semantic.fabVariant": "default",
+              "x": 0,
+              "y": 3,
+              "width": 18,
+              "height": 18,
+              "isFilled": true,
+              "fillColor": "#ff5d6c",
+              "rotation": 0.7853981633974483,
+              "rounded": 3,
+              "binding": "gameplay.life.3:shape",
+              "slot": "heart-shape"
+            },
+            {
+              "type": "Rectangle",
+              "id": "gameplay.life.3.lobe-left",
+              "label": "gameplay.life.3.lobe-left",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "gameplay.life.3.lobe-left",
+              "Semantic.fabRole": "heart-lobe",
+              "Semantic.fabBinding": "gameplay.life.3:shape",
+              "Semantic.fabSlot": "heart-shape",
+              "Semantic.fabVariant": "default",
+              "x": -6,
+              "y": -4,
+              "width": 15,
+              "height": 15,
+              "isFilled": true,
+              "fillColor": "#ff5d6c",
+              "rounded": 8,
+              "binding": "gameplay.life.3:shape",
+              "slot": "heart-shape"
+            },
+            {
+              "type": "Rectangle",
+              "id": "gameplay.life.3.lobe-right",
+              "label": "gameplay.life.3.lobe-right",
+              "components": [
+                "Semantic"
+              ],
+              "Semantic.fabSemanticId": "gameplay.life.3.lobe-right",
+              "Semantic.fabRole": "heart-lobe",
+              "Semantic.fabBinding": "gameplay.life.3:shape",
+              "Semantic.fabSlot": "heart-shape",
+              "Semantic.fabVariant": "default",
+              "x": 6,
+              "y": -4,
+              "width": 15,
+              "height": 15,
+              "isFilled": true,
+              "fillColor": "#ff5d6c",
+              "rounded": 8,
+              "binding": "gameplay.life.3:shape",
+              "slot": "heart-shape"
+            }
+          ],
+          "binding": "state:gameplay.life.3",
           "slot": "heart"
         }
       ],

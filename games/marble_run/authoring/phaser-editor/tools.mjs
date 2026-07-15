@@ -1,7 +1,8 @@
 #!/usr/bin/env node
+/* global process */
 import { createHash } from 'node:crypto';
 import { cp, mkdir, mkdtemp, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const ROOT = dirname(fileURLToPath(import.meta.url));
@@ -86,11 +87,40 @@ async function validateSceneSet(directory, label, manifestKeys) {
     if (settings.sceneKey !== name.replace(/\.scene$/, '')) errors.push(`${label}/${name}: sceneKey mismatch`);
     if (scene.meta?.app !== 'Phaser Editor - Scene Editor' || scene.meta?.version !== 5) errors.push(`${label}/${name}: not Phaser Editor 5 scene content`);
     if (FORBIDDEN.test(JSON.stringify(scene))) errors.push(`${label}/${name}: generic/forbidden content detected`);
+    const objectsById = new Map();
     walkObjects(scene.displayList ?? [], (object) => {
+      objectsById.set(object.id, object);
       validateSemantic(object, seen, errors, `${label}/${name}`);
       if (object.type === 'Image' && !manifestKeys.has(object.texture?.key)) errors.push(`${label}/${name}: uncurated texture ${object.texture?.key}`);
-      if (object.type === 'Text' && !['Fredoka One', 'Titan One'].includes(object.fontFamily)) errors.push(`${label}/${name}: uncurated font ${object.fontFamily}`);
+      if (object.type === 'Text' && !manifestKeys.has(object.fontFamily)) errors.push(`${label}/${name}: unloaded or uncurated font ${object.fontFamily}`);
     });
+    if (name === 'Menu.scene') {
+      const pieces = [...objectsById.values()].filter((object) => object['Semantic.fabRole'] === 'confetti-piece');
+      if (pieces.length !== 16) errors.push(`${label}/${name}: expected exactly 16 deterministic confetti pieces, found ${pieces.length}`);
+      const title = objectsById.get('menu.brand.title');
+      if (title?.text !== 'Marble Run' || title?.color !== '#6a3016') errors.push(`${label}/${name}: banner title must be source Title Case brown copy`);
+      const cta = objectsById.get('menu.start.surface');
+      if ((cta?.scaleX ?? 0) * 435 < 310) errors.push(`${label}/${name}: primary CTA must remain near full width`);
+    }
+    if (name === 'GameplayHud.scene') {
+      const hearts = [...objectsById.values()].filter((object) => object['Semantic.fabRole'] === 'life-heart');
+      if (hearts.length !== 3 || hearts.some((heart) => heart.type !== 'Container' || heart.list?.length !== 3 || heart.list.some((part) => part.type !== 'Rectangle'))) {
+        errors.push(`${label}/${name}: lives must be three procedural three-piece native heart groups`);
+      }
+      if ([...objectsById.values()].some((object) => object.type === 'Text' && /[♥❤]/u.test(object.text ?? ''))) errors.push(`${label}/${name}: Unicode heart glyphs are forbidden`);
+    }
+    if (name === 'SettingsMenu.scene' || name === 'SettingsLevel.scene') {
+      const rows = [...objectsById.values()].filter((object) => object['Semantic.fabRole'] === 'toggle-row-surface');
+      if (rows.length !== 3 || rows.some((row) => row.height < 66)) errors.push(`${label}/${name}: all three toggle rows must be at least 66px tall`);
+      const sfx = [...objectsById.values()].find((object) => object.type === 'Text' && object.text === 'Sound Effects');
+      if (!sfx || /\n/u.test(sfx.text)) errors.push(`${label}/${name}: Sound Effects must remain a one-line label`);
+    }
+    if (name === 'Win.scene') {
+      const eyebrow = objectsById.get('win.eyebrow');
+      const title = objectsById.get('win.title');
+      if (title?.text !== 'COMPLETED' || /\n/u.test(title?.text ?? '')) errors.push(`${label}/${name}: result headline must be one-line current-source COMPLETED`);
+      if (!eyebrow || !title || Math.abs(eyebrow.y - title.y) < 30) errors.push(`${label}/${name}: result eyebrow and headline require distinct vertical bands`);
+    }
   }
   return { errors, semanticCount: seen.size };
 }
@@ -99,7 +129,7 @@ export async function validate() {
   const errors = [];
   const referenceScreens = (await readFile(resolve(ROOT, '../reference/screens.yaml'), 'utf8'))
     .split('\n')
-    .map((line) => line.match(/^  - id: ([a-z0-9-]+)$/)?.[1])
+    .map((line) => line.match(/^ {2}- id: ([a-z0-9-]+)$/)?.[1])
     .filter(Boolean);
   const mappedScenes = referenceScreens.map((screen) => SCREEN_TO_SCENE[screen]).filter(Boolean).sort();
   if (referenceScreens.some((screen) => !SCREEN_TO_SCENE[screen]) || JSON.stringify(mappedScenes) !== JSON.stringify([...SCENES].sort())) {
@@ -124,6 +154,10 @@ export async function validate() {
   const packKeys = new Set(packFiles.map((asset) => asset.key));
   if (manifestKeys.size !== manifest.assets.length) errors.push('asset manifest keys must be unique');
   if (JSON.stringify([...manifestKeys].sort()) !== JSON.stringify([...packKeys].sort())) errors.push('asset pack must contain exactly the curated manifest');
+  for (const family of ['Fredoka One', 'Titan One']) {
+    const packed = packFiles.find((asset) => asset.key === family);
+    if (packed?.type !== 'font') errors.push(`asset pack must load exact ${family} bytes under the real font family name`);
+  }
 
   const gameRoot = resolve(ROOT, '../..');
   for (const asset of manifest.assets) {

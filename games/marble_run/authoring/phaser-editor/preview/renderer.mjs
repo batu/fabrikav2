@@ -1,3 +1,5 @@
+/* global FontFace, ResizeObserver, URL, location, history, Option */
+
 const picker = document.querySelector('#scene-picker');
 const sceneRoot = document.querySelector('#scene');
 const revisionNode = document.querySelector('#revision');
@@ -12,8 +14,13 @@ const assetManifest = await fetch(`${active.publication}/source/project/public/a
 const assets = new Map(assetManifest.assets.map((asset) => [asset.key, asset]));
 const publicRoot = `${active.publication}/source/project/public/`;
 
-document.documentElement.style.setProperty('--fredoka-url', `url(${publicRoot}assets/fonts/FredokaOne.woff2)`);
-document.documentElement.style.setProperty('--titan-url', `url(${publicRoot}assets/fonts/TitanOne.ttf)`);
+for (const family of ['Fredoka One', 'Titan One']) {
+  const asset = assets.get(family);
+  if (!asset) throw new Error(`Published exact font ${family} is missing`);
+  const face = new FontFace(family, `url(${publicRoot}${asset.url})`, { style: 'normal', weight: '400' });
+  await face.load();
+  document.fonts.add(face);
+}
 revisionNode.textContent = `${revision.revision} · immutable saved-scene publication`;
 
 function scaleScene() {
@@ -72,6 +79,7 @@ function renderObject(object, parent) {
     element.style.color = object.color;
     element.style.textAlign = object.align ?? 'left';
     element.style.fontWeight = '400';
+    element.style.whiteSpace = 'pre';
     place(element, object);
   } else if (object.type === 'Image') {
     const asset = assets.get(object.texture?.key);

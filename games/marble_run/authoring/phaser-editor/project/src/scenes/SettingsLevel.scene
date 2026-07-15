@@ -150,7 +150,7 @@
           "originX": 0.5,
           "originY": 0.5,
           "text": "SETTINGS",
-          "fontFamily": "Fredoka One",
+          "fontFamily": "Titan One",
           "fontSize": "29px",
           "color": "#ffffff",
           "slot": "title"
@@ -234,7 +234,7 @@
           "Semantic.fabSlot": "settings-row",
           "Semantic.fabVariant": "default",
           "x": 0,
-          "y": -95,
+          "y": -98,
           "list": [
             {
               "type": "Rectangle",
@@ -251,7 +251,7 @@
               "x": 0,
               "y": 0,
               "width": 270,
-              "height": 54,
+              "height": 66,
               "isFilled": true,
               "fillColor": "#ffe2bd",
               "rounded": 18,
@@ -342,7 +342,7 @@
           "Semantic.fabSlot": "settings-row",
           "Semantic.fabVariant": "default",
           "x": 0,
-          "y": -29,
+          "y": -24,
           "list": [
             {
               "type": "Rectangle",
@@ -359,7 +359,7 @@
               "x": 0,
               "y": 0,
               "width": 270,
-              "height": 54,
+              "height": 66,
               "isFilled": true,
               "fillColor": "#ffe2bd",
               "rounded": 18,
@@ -450,7 +450,7 @@
           "Semantic.fabSlot": "settings-row",
           "Semantic.fabVariant": "default",
           "x": 0,
-          "y": 37,
+          "y": 50,
           "list": [
             {
               "type": "Rectangle",
@@ -467,7 +467,7 @@
               "x": 0,
               "y": 0,
               "width": 270,
-              "height": 54,
+              "height": 66,
               "isFilled": true,
               "fillColor": "#ffe2bd",
               "rounded": 18,
@@ -599,7 +599,7 @@
               "originX": 0.5,
               "originY": 0.5,
               "text": "RESTART",
-              "fontFamily": "Fredoka One",
+              "fontFamily": "Titan One",
               "fontSize": "22px",
               "color": "#ffffff",
               "binding": "action:restart",
@@ -663,7 +663,7 @@
               "originX": 0.5,
               "originY": 0.5,
               "text": "HOME",
-              "fontFamily": "Fredoka One",
+              "fontFamily": "Titan One",
               "fontSize": "22px",
               "color": "#ffffff",
               "binding": "action:home",
