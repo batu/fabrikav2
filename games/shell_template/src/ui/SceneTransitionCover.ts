@@ -14,7 +14,7 @@ export function showSceneTransitionCover(): void {
     cover.id = COVER_ID;
     cover.setAttribute('aria-hidden', 'true');
     cover.innerHTML = `
-      <img class="scene-transition-cover-avatar" src="/ui/mascots/dog-detective-openai.png" alt="">
+      <img class="scene-transition-cover-avatar scene-transition-spinner" src="/ui/loading-icon.png" alt="">
     `;
     container.appendChild(cover);
   }

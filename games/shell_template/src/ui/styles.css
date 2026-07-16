@@ -4552,3 +4552,9 @@
   margin: 0 auto;
   height: auto;
 }
+
+/* Generated loading icon (portal req_97aebf: loading=2) spins gently on the
+   scene transition cover — replaces the FTD mascot avatar. */
+.scene-transition-spinner { animation: loadingSpin 1.6s linear infinite; }
+@keyframes loadingSpin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .scene-transition-spinner { animation: none; } }
