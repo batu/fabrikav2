@@ -650,7 +650,7 @@ export class HomeScene extends Phaser.Scene {
     // map re-mounts; mid-sequence (the common case) these seed nodes are
     // identical to the real ones (same numbers + states), so there's no pop.
     if (this.levelIndex.length === 0) {
-      const offsets = Array.from({ length: 5 }, (_, index) => 5 - 1 - index);
+      const offsets = Array.from({ length: 4 }, (_, index) => 4 - 1 - index);
       return offsets.map((offset): LevelMapNode => {
         const logicalIndex = currentIndex + offset;
         const state: LevelNodeState = offset === 0 ? 'current' : 'locked';
@@ -664,7 +664,7 @@ export class HomeScene extends Phaser.Scene {
     }
 
     gameState.reconcileLevelOrder(this.levelIndex.map((entry) => entry.id));
-    const visibleCount = Math.min(5, this.levelIndex.length);
+    const visibleCount = Math.min(4, this.levelIndex.length);
     const offsets = Array.from({ length: visibleCount }, (_, index) => visibleCount - 1 - index);
 
     return offsets.map((offset): LevelMapNode => {

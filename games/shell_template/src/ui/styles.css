@@ -1461,7 +1461,7 @@
   z-index: 1;
   width: min(382px, 100%);
   border-radius: 30px;
-  padding: 92px 18px 18px;
+  padding: 20px 18px 18px;
   overflow: visible;
   background:
     radial-gradient(circle at 50% -8%, rgba(255, 232, 153, 0.98), rgba(255, 255, 255, 0.95) 43%),
@@ -1506,12 +1506,10 @@
 
 .fail-rescue-art {
   pointer-events: none;
-  position: absolute;
-  left: 50%;
-  top: -94px;
+  position: relative;
+  margin: 4px auto 8px;
   width: 190px;
   height: 176px;
-  transform: translateX(-50%);
   display: grid;
   place-items: center;
   isolation: isolate;
@@ -4547,7 +4545,7 @@
 
 /* "Out of Lives" title art (generated set) — mirrors the win card's title
    footprint; the h2 keeps the accessible name via the img alt. */
-#level-failed-overlay .level-failed-title-art { margin: 0 0 6px; }
+#level-failed-overlay .level-failed-title-art { margin: 0 0 2px; }
 #level-failed-overlay .level-failed-title-art img {
   display: block;
   width: min(78%, 340px);
