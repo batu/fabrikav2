@@ -124,23 +124,59 @@
       "expectation": "exact-bytes",
       "provenance": "2026-07-16 shop-art repair v2: the crossed-TV no-ads art from the original v1 generation batch (fabrika 37389ce70~1 shop_hint_pack_small.png bytes \u2014 the batch landed with no-ads and small-hint files swapped). 512px downscale."
     },
-    "design/assets/shop_hint_pack_blue_a.png": {
+    "design/assets/shop_coin_pack_1.png": {
+      "source": "public/ui/shop/shop_coin_pack_1.png",
+      "runtime": "public/ui/shop/shop_coin_pack_1.png",
+      "expectation": "exact-bytes",
+      "provenance": "2026-07-16: generic star-coin pack tier, generated (pixelsmith sheet, google/gemini-3.1-flash-image, pinned style-guide, regenerated from picked coin identity). Portal req_6c9995 verdict: coin_packs=accept."
+    },
+    "design/assets/shop_coin_pack_2.png": {
+      "source": "public/ui/shop/shop_coin_pack_2.png",
+      "runtime": "public/ui/shop/shop_coin_pack_2.png",
+      "expectation": "exact-bytes",
+      "provenance": "2026-07-16: generic star-coin pack tier, generated (pixelsmith sheet, google/gemini-3.1-flash-image, pinned style-guide, regenerated from picked coin identity). Portal req_6c9995 verdict: coin_packs=accept."
+    },
+    "design/assets/shop_coin_pack_3.png": {
+      "source": "public/ui/shop/shop_coin_pack_3.png",
+      "runtime": "public/ui/shop/shop_coin_pack_3.png",
+      "expectation": "exact-bytes",
+      "provenance": "2026-07-16: generic star-coin pack tier, generated (pixelsmith sheet, google/gemini-3.1-flash-image, pinned style-guide, regenerated from picked coin identity). Portal req_6c9995 verdict: coin_packs=accept."
+    },
+    "design/assets/shop_coin_pack_4.png": {
+      "source": "public/ui/shop/shop_coin_pack_4.png",
+      "runtime": "public/ui/shop/shop_coin_pack_4.png",
+      "expectation": "exact-bytes",
+      "provenance": "2026-07-16: generic star-coin pack tier, generated (pixelsmith sheet, google/gemini-3.1-flash-image, pinned style-guide, regenerated from picked coin identity). Portal req_6c9995 verdict: coin_packs=accept."
+    },
+    "design/assets/shop_coin_pack_5.png": {
+      "source": "public/ui/shop/shop_coin_pack_5.png",
+      "runtime": "public/ui/shop/shop_coin_pack_5.png",
+      "expectation": "exact-bytes",
+      "provenance": "2026-07-16: generic star-coin pack tier, generated (pixelsmith sheet, google/gemini-3.1-flash-image, pinned style-guide, regenerated from picked coin identity). Portal req_6c9995 verdict: coin_packs=accept."
+    },
+    "design/assets/shop_coin_pack_6.png": {
+      "source": "public/ui/shop/shop_coin_pack_6.png",
+      "runtime": "public/ui/shop/shop_coin_pack_6.png",
+      "expectation": "exact-bytes",
+      "provenance": "2026-07-16: generic star-coin pack tier, generated (pixelsmith sheet, google/gemini-3.1-flash-image, pinned style-guide, regenerated from picked coin identity). Portal req_6c9995 verdict: coin_packs=accept."
+    },
+    "design/assets/shop_hint_pack_small.png": {
       "source": "public/ui/shop/shop_hint_pack_small.png",
       "runtime": "public/ui/shop/shop_hint_pack_small.png",
-      "expectation": "intentionally-different",
-      "reason": "blue-generation alternate kept as design source; runtime slot holds the orange-paw blue magnifier (was misfiled as shop_no_ads) from the v1 1024px batch (fabrika 37389ce70~1), 512px downscale, slots un-swapped 2026-07-16."
+      "expectation": "exact-bytes",
+      "provenance": "2026-07-16: generic lightbulb hint pack tier, generated (pixelsmith sheet, google/gemini-3.1-flash-image, regenerated from picked hint identity). Portal req_6c9995 verdict: hint_packs=accept."
     },
-    "design/assets/shop_hint_pack_blue_b.png": {
+    "design/assets/shop_hint_pack_medium.png": {
       "source": "public/ui/shop/shop_hint_pack_medium.png",
       "runtime": "public/ui/shop/shop_hint_pack_medium.png",
-      "expectation": "intentionally-different",
-      "reason": "blue-generation alternate kept as design source; runtime slot holds the silver gold-paw magnifier from the v1 1024px batch (fabrika 37389ce70~1), 512px downscale, slots un-swapped 2026-07-16."
+      "expectation": "exact-bytes",
+      "provenance": "2026-07-16: generic lightbulb hint pack tier, generated (pixelsmith sheet, google/gemini-3.1-flash-image, regenerated from picked hint identity). Portal req_6c9995 verdict: hint_packs=accept."
     },
-    "design/assets/shop_hint_pack_blue_c.png": {
+    "design/assets/shop_hint_pack_large.png": {
       "source": "public/ui/shop/shop_hint_pack_large.png",
       "runtime": "public/ui/shop/shop_hint_pack_large.png",
-      "expectation": "intentionally-different",
-      "reason": "blue-generation alternate kept as design source; runtime slot holds the radiant gold magnifier from the v1 1024px batch (fabrika 37389ce70~1), 512px downscale, slots un-swapped 2026-07-16."
+      "expectation": "exact-bytes",
+      "provenance": "2026-07-16: generic lightbulb hint pack tier, generated (pixelsmith sheet, google/gemini-3.1-flash-image, regenerated from picked hint identity). Portal req_6c9995 verdict: hint_packs=accept."
     }
   }
 }
