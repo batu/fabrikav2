@@ -3318,15 +3318,18 @@
   left: 50%;
   top: 50%;
   z-index: 0;
-  width: calc(var(--fab-levelmap-node-current-size) * 1.5);
-  height: calc(var(--fab-levelmap-node-current-size) * 1.5);
+  /* Soft glow hugging the (square) calm tile — the old oversized circle read
+     as a pale disc poking out of the tile art. */
+  width: calc(var(--fab-levelmap-node-current-size) * 1.06);
+  height: calc(var(--fab-levelmap-node-current-size) * 1.06);
   transform: translate(-50%, -50%);
-  border-radius: 50%;
+  border-radius: 22%;
   pointer-events: none;
+  filter: blur(10px);
   background: radial-gradient(circle,
-    rgba(64, 210, 222, 0.5) 0%,
-    rgba(64, 210, 222, 0.28) 38%,
-    rgba(64, 210, 222, 0) 70%);
+    rgba(64, 210, 222, 0.42) 0%,
+    rgba(64, 210, 222, 0.22) 55%,
+    rgba(64, 210, 222, 0) 78%);
   animation: homeCurrentNodeHalo 2.6s ease-in-out infinite;
 }
 
