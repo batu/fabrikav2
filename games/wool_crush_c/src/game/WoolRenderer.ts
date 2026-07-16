@@ -181,11 +181,16 @@ export class WoolRenderer {
     const g = this.dragonGfx;
     g.clear();
     const { trackLength } = this.state.def;
-    const r = Math.max(9, this.W * 0.019);
+    const r = Math.max(11, this.W * 0.024);
     const visible = new Set(visibleIndices(this.state));
-    // Section i sits at headProgress - i (1 section-unit spacing).
+    // Body is CONTIGUOUS in pixels: convert the section diameter (with a
+    // slight overlap for the braided look) into track units, so sections
+    // trail the head like the reference's chunky body — the engine's
+    // 1-unit head positions stay authoritative for game logic.
+    const unitsPerPx = trackLength / this.path.getLength();
+    const spacing = Math.max(0.05, (r * 1.55) * unitsPerPx);
     for (let i = this.state.dragon.length - 1; i >= 0; i -= 1) {
-      const pos = this.state.headProgress - i;
+      const pos = this.state.headProgress - i * spacing;
       if (pos < 0 || pos > trackLength) continue;
       const p = this.path.getPoint(Math.min(1, Math.max(0, pos / trackLength)));
       const color = this.state.dragon[i];
