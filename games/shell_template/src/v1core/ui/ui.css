@@ -882,6 +882,13 @@
   .fab-complete-actions[data-visible="true"] {
     animation: fabCompleteActionsEnter 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
+  /* Buttons fly in from below the card with a springy overshoot, staggered. */
+  .fab-complete-actions[data-visible="true"] .fab-complete-claim-actions > * {
+    animation: fabCompleteBtnFlyIn 520ms cubic-bezier(0.18, 1.25, 0.35, 1) both;
+  }
+  .fab-complete-actions[data-visible="true"] .fab-complete-claim-actions > :nth-child(2) {
+    animation-delay: 90ms;
+  }
 
   .fab-complete-claim-actions {
     grid-area: 1 / 1;
@@ -1063,6 +1070,10 @@
     from { opacity: 0; transform: translateY(12px) scale(0.96); }
     to { opacity: 1; transform: translateY(0) scale(1); }
   }
+  @keyframes fabCompleteBtnFlyIn {
+    from { opacity: 0; transform: translateY(64px) scale(0.9); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
   @keyframes fabCompleteClaimActionsExit {
     from { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
     to { opacity: 0; transform: translateY(-8px) scale(0.92); filter: blur(2px); }
@@ -1106,7 +1117,8 @@
     .fab-complete-reward-zone::before,
     .fab-complete-claim-x2-btn,
     .fab-complete-claim-x2-btn::after,
-    .fab-complete-claim-x2-icon {
+    .fab-complete-claim-x2-icon,
+    .fab-complete-claim-actions > * {
       animation: none !important;
     }
     .fab-complete-reward {

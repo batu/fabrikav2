@@ -61,6 +61,7 @@ export function showLevelFailedOverlay(levelId: string, options: LevelFailedOver
   let backgroundPendingKind: PendingKind = null;
   let backgroundPendingSuperseded = false;
   let statusMessage = '';
+  let entranceApplied = false;
   let offerRefreshScheduled = false;
   let lastRenderSignature = '';
 
@@ -161,6 +162,15 @@ export function showLevelFailedOverlay(levelId: string, options: LevelFailedOver
       const button = buttonForOffer(offer, iapProducts, pendingKind, backgroundPendingKind);
       button.addEventListener('click', () => void runAction('egoOffer', offer, options.onEgoOffer));
       container.appendChild(button);
+    }
+    // Fly the options in on the FIRST paint only — later re-renders (price
+    // refresh, pending states) must not replay the entrance.
+    if (!entranceApplied) {
+      entranceApplied = true;
+      container.classList.add('fail-fly-in');
+      container.querySelectorAll<HTMLElement>('.fail-option').forEach((button, i) => {
+        button.style.setProperty('--fly-delay', `${i * 80}ms`);
+      });
     }
     focusPreferredAction();
   };
