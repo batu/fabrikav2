@@ -1,0 +1,38 @@
+{
+  "color_map": {
+    "coin_gold": ["#ffd65a", "#d6903b"],
+    "cta_green": ["#6cc24a", "#3e8f2e"],
+    "outline_ink": ["#815f2c"],
+    "panel": ["#fff7dc", "#ffffff"],
+    "shadow_tint": ["#815f2c"]
+  },
+  "palette": {
+    "accent": "#34c4b3",
+    "accent-strong": "#159481",
+    "reward": "#ffd65a",
+    "surface": "#fff7dc",
+    "surface-strong": "#ffffff",
+    "text": "#3d3d3d",
+    "warning": "#f17f47"
+  },
+  "phrases": {
+    "finish": "glossy but restrained premium finish; clean pure colors with subtle top-light sheen; no noise, no texture grain",
+    "lighting": "directional light from the top, clear highlights, soft contact shadow",
+    "rendering": "premium casual-game rendering: clean 3D-ish volumes with hand-painted baked lighting, readable silhouettes; neutral motifs only (stars, gems, ribbons, medals) — no species, no IP, no mascots",
+    "shape": "rounded chunky silhouettes with soft corners; simple readable shapes with a thin darker-shade outline"
+  },
+  "pinned": false,
+  "ref_palette": [
+    "#fbf2dd",
+    "#f3ce92",
+    "#989180",
+    "#d6903b",
+    "#815f2c"
+  ],
+  "sources": [
+    "design/refs/menu.png",
+    "design/refs/win.png",
+    "design/refs/settings.png"
+  ],
+  "version": 1
+}

@@ -1,10 +1,13 @@
 {
   "color_map": {
-    "coin_gold": ["#ffd65a", "#d6903b"],
-    "cta_green": ["#6cc24a", "#3e8f2e"],
-    "outline_ink": ["#815f2c"],
+    "coin_gold": ["#ffd65a", "#e8a83c", "#a06a1e"],
+    "cta_green": ["#6cc24a", "#3e8f2e", "#245c1a"],
+    "gem_teal": ["#48d8d4", "#159481"],
+    "outline_ink": ["#6b4a1e"],
     "panel": ["#fff7dc", "#ffffff"],
-    "shadow_tint": ["#815f2c"]
+    "ribbon_red": ["#e8574a", "#a83229"],
+    "shadow_tint": ["#815f2c"],
+    "sparkle": ["#ffffff", "#fff3bf"]
   },
   "palette": {
     "accent": "#34c4b3",
@@ -16,12 +19,12 @@
     "warning": "#f17f47"
   },
   "phrases": {
-    "finish": "glossy but restrained premium finish; clean pure colors with subtle top-light sheen; no noise, no texture grain",
-    "lighting": "directional light from the top, clear highlights, soft contact shadow",
-    "rendering": "premium casual-game rendering: clean 3D-ish volumes with hand-painted baked lighting, readable silhouettes; neutral motifs only (stars, gems, ribbons, medals) — no species, no IP, no mascots",
-    "shape": "rounded chunky silhouettes with soft corners; simple readable shapes with a thin darker-shade outline"
+    "finish": "glossy plastic-and-gold premium finish, restrained not gaudy; clean pure saturated colors; smooth airbrushed gradients; one crisp specular pop per object plus a subtle top sheen band; zero noise, zero texture grain, zero photorealism",
+    "lighting": "single key light from the top, strong clear highlights, gentle ambient occlusion in crevices, soft round contact shadow directly beneath the object",
+    "rendering": "premium mobile casual-game asset rendering: chunky 3D-ish volumes with hand-painted baked lighting (semi-painted, not photoreal 3D), bold readable silhouette that stays legible at 64px; subject matter strictly neutral premium motifs — stars, gems, coins, medals, ribbons, laurels, sparkles — absolutely no animals, characters, mascots, brands, or licensed shapes",
+    "shape": "rounded chunky silhouettes with large soft corners and slight squash; every object closed by a thin outline in a darker shade of its own fill color (never black); centered single subject with generous breathing room"
   },
-  "pinned": false,
+  "pinned": true,
   "ref_palette": [
     "#fbf2dd",
     "#f3ce92",
@@ -30,9 +33,7 @@
     "#815f2c"
   ],
   "sources": [
-    "design/refs/menu.png",
-    "design/refs/win.png",
-    "design/refs/settings.png"
+    "hand-authored gold standard 2026-07-16 (Batu-directed); design/style-guide.ingest-baseline.json holds the raw ingest output from design/refs/*.png for tool evaluation"
   ],
   "version": 1
 }
