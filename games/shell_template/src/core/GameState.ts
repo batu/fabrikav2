@@ -384,7 +384,9 @@ export class GameState {
     adsEnabled: true,
     ratePromptEnabled: true,
     tutorialEnabled: true,
-    gameMode: 'restoration',
+    // Shell template default: 'classic'. Restoration mode is an FTD gameplay
+    // mode that requires per-level bg assets the stub levels don't ship.
+    gameMode: 'classic',
   };
   penaltyCooldownUntil: number = 0;
   tutorialShown: boolean = false;

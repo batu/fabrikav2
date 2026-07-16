@@ -247,8 +247,27 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     );
     if (!buttonReady) return false;
 
-    const trigger = document.querySelector<HTMLElement>(HOME_PLAY_TRIGGER_SELECTOR);
-    if (trigger === null || !driveElementClick(trigger)) return false;
+    // The scene-transition cover swallows pointer input while it fades
+    // (~1.5-2.4s after boot). A single click racing that window hits the
+    // cover, not the Play button, and the level never starts — so wait the
+    // cover out and retry the click until the level predicate confirms.
+    await waitUntil(
+      () => document.getElementById('scene-transition-cover') === null,
+      HOME_READY_TARGET_POLL_MS,
+      HOME_READY_TARGET_MAX_POLLS,
+    );
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const trigger = document.querySelector<HTMLElement>(HOME_PLAY_TRIGGER_SELECTOR);
+      if (trigger !== null) driveElementClick(trigger);
+      const started = await waitUntil(
+        () => findTheDogDrivePredicates.level(driveSnapshot()),
+        START_LEVEL_TARGET_POLL_MS,
+        START_LEVEL_TARGET_MAX_POLLS / 3,
+      );
+      if (started) return true;
+      if (document.querySelector(HOME_PLAY_TRIGGER_SELECTOR) === null) break;
+    }
 
     return waitUntil(
       () => findTheDogDrivePredicates.level(driveSnapshot()),
