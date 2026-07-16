@@ -4,7 +4,7 @@
   "size": "512x512",
   "gen_size": "1920x640",
   "description": "Three tiers of the SAME hint token (a small clean glass lightbulb with a warm filament, ONE small golden four-point star spark at its top, green coiled screw base): one lightbulb; three lightbulbs fanned; five lightbulbs clustered. Richness scales with tier.",
-  "prompt_extra": "every cell repeats the identical lightbulb hint token \u2014 glass bulb, golden star spark on top, green screw base; NOT a coin, NOT a gem; only count and arrangement grow per tier",
+  "prompt_extra": "every cell repeats the identical lightbulb hint token from the reference; each subject stays small within its cell with wide empty margins on ALL sides \u2014 nothing may touch or cross a cell edge",
   "transparent": true,
   "models": [
     "google/gemini-3.1-flash-image"
@@ -21,19 +21,22 @@
   "variants": [
     {
       "name": "v1",
-      "prompt_extra": "balanced default composition"
+      "prompt_extra": "balanced staging"
     },
     {
       "name": "v2",
-      "prompt_extra": "slightly denser, richer staging"
+      "prompt_extra": "slightly tighter clusters"
     },
     {
       "name": "v3",
-      "prompt_extra": "slightly airier, more minimal staging"
+      "prompt_extra": "slightly airier fan arrangement"
     },
     {
       "name": "v4",
-      "prompt_extra": "a touch more sparkle and shine accents"
+      "prompt_extra": "a touch more glow on the large tier"
     }
+  ],
+  "anchors": [
+    "../../public/ui/menu-icons/icon_hint_magnifier.png"
   ]
 }
