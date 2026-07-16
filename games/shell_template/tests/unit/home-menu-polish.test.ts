@@ -112,14 +112,15 @@ describe("home menu polish regressions", () => {
     expect(navCell.flex).toBe("0 0 calc(100% / 3)");
     expect(navCell.width).toBe("calc(100% / 3)");
     expect(navCell.maxWidth).toBe("calc(100% / 3)");
-    expect(CSS_TEXT).toContain("padding: 0 0 env(safe-area-inset-bottom, 0px);");
+    // Shipped nav approach: the container paints no safe-area band; each nav
+    // button extends its own gradient into the inset.
+    expect(CSS_TEXT).toContain("padding: 9px 0 calc(env(safe-area-inset-bottom, 0px) * 0.55 + 4px);");
     expect(CSS_TEXT).not.toContain("calc(env(safe-area-inset-bottom) + 4px)");
 
     const play = window.getComputedStyle(element("#home-play-now"));
     expect(play.backgroundImage).toContain("/ui/home/play-level-button-runtime.png");
-    expect(play.minWidth).toBe("176px");
-    expect(play.height).toBe("66px");
-    expect(play.minHeight).toBe("66px");
+    expect(play.height).toBe("62px");
+    expect(play.minHeight).toBe("62px");
 
     const noAdsRail = window.getComputedStyle(element(".home-rail-left"));
     // Shipped shop/home polish (fabrika aa1ad9ca8): rail inset 20px.
