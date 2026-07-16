@@ -120,10 +120,11 @@ describe('pulling', () => {
     let s = createGame({ ...MINI, visibleWindow: 2 });
     s = tapThread(s, 'wall').state; // blue spool
     s = withDragon(s, ['red', 'green', 'blue', 'blue']);
+    const start = s.headProgress;
     const r = tick(s, 1000);
     // No visible blue → no pull; the dragon advanced instead, spool intact.
     expect(r.events).toEqual([]);
-    expect(r.state.headProgress).toBeCloseTo(1);
+    expect(r.state.headProgress).toBeCloseTo(start + 1);
     expect(r.state.slots.filter((x) => x !== null)).toHaveLength(1);
   });
 
@@ -151,8 +152,9 @@ describe('pulling', () => {
     let s = createGame(MINI);
     s = tapThread(s, 'wall').state; // blue spool matches head below
     s = { ...s, dragon: ['blue', 'red', 'red'] };
+    const start = s.headProgress;
     const r = tick(s, 500);
-    expect(r.state.headProgress).toBe(0); // held — shortened instead
+    expect(r.state.headProgress).toBe(start); // held — shortened instead
     expect(r.state.dragon).toEqual(['red', 'red']);
   });
 });

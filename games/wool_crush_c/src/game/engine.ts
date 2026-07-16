@@ -67,12 +67,15 @@ export function deriveDragon(def: WoolLevelDef): YarnColor[] {
 }
 
 export function createGame(def: WoolLevelDef): WoolState {
+  const dragon = deriveDragon(def);
   return {
     def,
     threads: def.threads.map((t) => ({ ...t })),
     slots: Array.from({ length: SLOT_COUNT }, () => null),
-    dragon: deriveDragon(def),
-    headProgress: 0,
+    dragon,
+    // Preroll: a few sections are already on the track at level start so the
+    // threat reads immediately (tail still feeds in from the top edge).
+    headProgress: Math.min(4, dragon.length - 1, def.trackLength * 0.25),
     pullAccum: 0,
     status: 'playing',
   };

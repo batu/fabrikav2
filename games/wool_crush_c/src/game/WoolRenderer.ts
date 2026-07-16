@@ -86,14 +86,25 @@ export class WoolRenderer {
     this.boardTop = Math.round(this.H * 0.60);
 
     // S-curve track across the top half, cat at the end (bottom-right).
-    const m = Math.round(this.W * 0.08);
-    const y1 = topPad + (trackBottom - topPad) * 0.18;
-    const y2 = topPad + (trackBottom - topPad) * 0.5;
-    const y3 = topPad + (trackBottom - topPad) * 0.85;
+    const m = Math.round(this.W * 0.12);
+    const y1 = topPad + (trackBottom - topPad) * 0.16;
+    const y2 = topPad + (trackBottom - topPad) * 0.52;
+    const y3 = topPad + (trackBottom - topPad) * 0.88;
+    const bend = (y2 - y1) * 0.75;
     this.path = new Phaser.Curves.Path(-40, y1);
-    this.path.cubicBezierTo(new Phaser.Math.Vector2(this.W - m, y1), new Phaser.Math.Vector2(this.W * 0.35, y1 - 18), new Phaser.Math.Vector2(this.W * 0.7, y1 + 8));
-    this.path.cubicBezierTo(new Phaser.Math.Vector2(m, y2), new Phaser.Math.Vector2(this.W + 30, y1 + (y2 - y1) * 0.6), new Phaser.Math.Vector2(-20, y2 - (y2 - y1) * 0.25));
-    this.path.cubicBezierTo(new Phaser.Math.Vector2(this.W - m * 1.4, y3), new Phaser.Math.Vector2(this.W * 0.6, y2 + 10), new Phaser.Math.Vector2(this.W * 0.9, y3 - 24));
+    this.path.lineTo(this.W - m * 2, y1);
+    this.path.cubicBezierTo(
+      new Phaser.Math.Vector2(this.W - m * 2, y2),
+      new Phaser.Math.Vector2(this.W - m * 2 + bend, y1),
+      new Phaser.Math.Vector2(this.W - m * 2 + bend, y2),
+    );
+    this.path.lineTo(m * 2, y2);
+    this.path.cubicBezierTo(
+      new Phaser.Math.Vector2(m * 2, y3),
+      new Phaser.Math.Vector2(m * 2 - bend, y2),
+      new Phaser.Math.Vector2(m * 2 - bend, y3),
+    );
+    this.path.lineTo(this.W - m * 1.6, y3);
 
     this.trackGfx = this.scene.add.graphics().setDepth(1);
     this.dragonGfx = this.scene.add.graphics().setDepth(3);
@@ -142,7 +153,7 @@ export class WoolRenderer {
   private drawTrack(): void {
     const g = this.trackGfx;
     g.clear();
-    g.lineStyle(Math.max(10, this.W * 0.02), 0xd9c9b2, 1);
+    g.lineStyle(Math.max(16, this.W * 0.034), 0xd9c2a0, 1);
     this.path.draw(g, 96);
     // Cat-end marker: subtle danger pad.
     const end = this.path.getPoint(1);
@@ -245,7 +256,7 @@ export class WoolRenderer {
   private buildBoard(): void {
     const { cols, rows } = this.state.def;
     const areaW = this.W * 0.9;
-    const areaH = this.H * 0.94 - this.boardTop;
+    const areaH = this.H * 0.885 - this.boardTop;
     this.cell = Math.floor(Math.min(areaW / cols, areaH / rows));
     this.boardX = Math.round((this.W - this.cell * cols) / 2);
 

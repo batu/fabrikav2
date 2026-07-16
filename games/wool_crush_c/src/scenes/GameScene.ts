@@ -229,13 +229,6 @@ export class GameScene extends Phaser.Scene {
 
   /** The wool gameplay: engine-driven board + dragon (src/game/). */
   private buildWoolUi(level: LevelData): void {
-    const scale = GAME.WIDTH / 1170; // 1170 = iPhone portrait reference width
-    this.add.text(GAME.WIDTH / 2, GAME.HEIGHT * 0.075, `Level ${gameState.currentLevelIndex + 1}`, {
-      fontFamily: 'Fredoka One, sans-serif',
-      fontSize: `${Math.round(56 * scale)}px`,
-      color: '#5b4a3f',
-    }).setOrigin(0.5).setDepth(6);
-
     this.wool = new WoolRenderer(this, level.id, {
       onWin: () => this.winLevel(),
       onFail: () => this.onDragonReachedCat(),

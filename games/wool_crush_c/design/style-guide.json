@@ -1,75 +1,53 @@
 {
   "color_map": {
-    "coin_gold": [
-      "#ffd65a",
-      "#e8a83c",
-      "#a06a1e"
-    ],
-    "cta_green": [
-      "#6cc24a",
-      "#3e8f2e",
-      "#245c1a"
-    ],
-    "gem_teal": [
-      "#48d8d4",
-      "#159481"
-    ],
-    "outline_ink": [
-      "#6b4a1e"
-    ],
-    "panel": [
-      "#fff7dc",
-      "#ffffff"
-    ],
-    "ribbon_red": [
-      "#e8574a",
-      "#a83229"
-    ],
-    "shadow_tint": [
-      "#815f2c"
-    ],
-    "sparkle": [
-      "#ffffff",
-      "#fff3bf"
-    ]
+    "yarn_red": ["#e5646e", "#b23c48"],
+    "yarn_blue": ["#5f9df7", "#3a70c4"],
+    "yarn_green": ["#7ac96f", "#519b47"],
+    "yarn_yellow": ["#f6c344", "#c79a1e"],
+    "yarn_purple": ["#8f5fd6", "#6a3fae"],
+    "yarn_orange": ["#f08a3c", "#c05f1a"],
+    "yarn_pink": ["#ef6fc0", "#c2438f"],
+    "coin_gold": ["#ffd65a", "#e8a83c", "#a06a1e"],
+    "cta_green": ["#8bc94a", "#5e9b2e", "#3d6b1c"],
+    "knit_field": ["#b8d98a", "#9cc46e"],
+    "board_cream": ["#f3e3c2", "#e6cf9f"],
+    "panel": ["#fff4dd", "#ffffff"],
+    "track_tan": ["#e0bf8a", "#c49b5e"],
+    "outline_ink": ["#6b4a2a"],
+    "shadow_tint": ["#8a6a3e"]
   },
   "negative": [
     "fine intricate detail that vanishes at small sizes",
     "clusters of tiny sparkles, dots or particles that read as noise on a phone",
-    "photorealism or realistic textures",
+    "photorealism or realistic fabric photography",
     "raw cold 3D render look",
-    "noise, grain or gritty texture",
+    "noise, grain or gritty texture beyond the knit stitch pattern itself",
     "washed-out pastel or muddy desaturated colors",
     "thin wire-like lines or black outlines",
+    "loose fraying fibers, fuzz halos or flyaway strands around silhouettes",
     "text or letters unless the description explicitly requests them",
     "watermark or signature",
     "extra objects or filled empty space beyond the described subject"
   ],
   "palette": {
-    "accent": "#34c4b3",
-    "accent-strong": "#159481",
+    "accent": "#8f5fd6",
+    "accent-strong": "#6a3fae",
     "reward": "#ffd65a",
-    "surface": "#fff7dc",
+    "surface": "#fff4dd",
     "surface-strong": "#ffffff",
-    "text": "#3d3d3d",
-    "warning": "#f17f47"
+    "text": "#5b4632",
+    "warning": "#f08a3c"
   },
   "phrases": {
-    "finish": "glossy sculpted finish with airbrushed polish and flawless smooth gradients \u2014 premium, satisfying, high-value feel, restrained not gaudy; clean pure solid colors; one crisp specular pop per object plus a subtle top sheen band; zero noise, zero texture grain; decorative particles are rationed: at most one or two LARGE sparkles, never a cloud of small ones",
-    "lighting": "single key light from the top with strong clear highlights, a bright thin rim light along the upper edges, gentle ambient occlusion in crevices, and a soft round contact shadow directly beneath the object",
-    "rendering": "premium mobile casual-game UI asset DESIGNED FOR SMALL PHONE SCREENS: it must read instantly at 48px \u2014 one big simple form, minimal interior detail, exaggerated size of the key feature, strong tonal contrast between the subject and its parts; semi-painted render with a stylized baked texture look \u2014 hand-painted lighting baked onto clean 3D-like volumes, bold chunky silhouette; subject matter strictly neutral premium motifs \u2014 stars, gems, coins, medals, ribbons, laurels, sparkles \u2014 absolutely no animals, characters, mascots, brands, or licensed shapes",
-    "shape": "rounded, hand-rolled chunky silhouettes with subtle asymmetry (never sterile mathematical geometry); smooth rounded outer edges with a few bold, crisp internal details (never many small ones); every object closed by a thin outline in a darker shade of its own fill color (never black); centered single subject with generous breathing room"
+    "finish": "plush knitted-yarn finish: every surface reads as chunky hand-knit wool with a CLEAN, LARGE stitch pattern (big V-shaped knit stitches, 4-8 stitches across the object, never fine weave); soft matte fibers with gentle sheen on stitch ridges; colors stay saturated and pure; decorative particles rationed: at most one or two LARGE felt flowers or buttons, never confetti clouds",
+    "lighting": "single warm key light from the top with soft highlights on stitch ridges, gentle ambient occlusion between stitches and in crevices, and a soft round contact shadow directly beneath the object",
+    "rendering": "premium mobile casual-game UI asset in a cozy AMIGURUMI / KNITTED CRAFT style, DESIGNED FOR SMALL PHONE SCREENS: it must read instantly at 48px — one big simple form, oversized stitch texture, exaggerated key feature, strong tonal contrast; hand-crafted toy-photography warmth baked onto clean rounded volumes, bold chunky silhouette",
+    "shape": "rounded, plump, hand-stuffed silhouettes like crocheted toys (never sterile geometry); smooth rounded outer edges with a few bold internal details; every object closed by a thin outline in a darker shade of its own yarn color (never black); centered single subject with generous breathing room"
   },
   "pinned": true,
-  "ref_palette": [
-    "#fbf2dd",
-    "#f3ce92",
-    "#989180",
-    "#d6903b",
-    "#815f2c"
-  ],
+  "ref_palette": ["#edddbd", "#b8d98a", "#f08a3c", "#8f5fd6", "#ffd65a"],
   "sources": [
-    "hand-authored gold standard 2026-07-16 (Batu-directed), grounded in ai_asset style_tokens (Casual Style Dictionary / Banana2) + web research in design/PROMPT-RESEARCH.md; design/style-guide.ingest-baseline.json holds the raw ingest output from design/refs/*.png for tool evaluation"
+    "hand-corrected 2026-07-17 from pixelsmith ingest of games/wool_crush/refs/art (menu-132, gameplay-8/20, win-120, fail-476, settings-128, other-144); knitted amigurumi identity read directly off the App Store frames: knit chevron dragon, wound yarn spools, purl-textured slide tiles, knit-field backdrop with stitched track, felt flowers, paw-coin currency"
   ],
   "version": 1
 }

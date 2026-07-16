@@ -4671,6 +4671,15 @@ html[data-scheme="mint"] {
   --sch-win-overlay-bg: linear-gradient(180deg, rgba(146, 226, 196, 0.60) 0%, rgba(58, 152, 120, 0.68) 100%);
   --sch-fail-overlay-bg: linear-gradient(180deg, rgba(52, 88, 78, 0.64) 0%, rgba(28, 54, 46, 0.76) 100%);
 }
+html[data-scheme="wool"] {
+  /* Knit-field greens + warm cream, from the wool refs (knitted backdrop,
+     stitched tan track, cream board). */
+  --sch-bg-top: #e9f4d2; --sch-bg-mid: #cde5a4; --sch-bg-bot: #aed184;
+  --sch-spot: rgba(255, 250, 232, 0.85); --sch-vig: rgba(74, 96, 38, 0.30);
+  --sch-nav-top: #7a5a36; --sch-nav-bot: #5a3f24; --sch-nav-border: rgba(240, 214, 160, 0.28);
+  --sch-win-overlay-bg: linear-gradient(180deg, rgba(196, 224, 150, 0.60) 0%, rgba(120, 158, 78, 0.68) 100%);
+  --sch-fail-overlay-bg: linear-gradient(180deg, rgba(84, 96, 58, 0.64) 0%, rgba(46, 54, 30, 0.76) 100%);
+}
 html[data-scheme="berry"] {
   --sch-bg-top: #ffeef3; --sch-bg-mid: #ffd2e0; --sch-bg-bot: #efaac2;
   --sch-spot: rgba(255, 244, 248, 0.85); --sch-vig: rgba(112, 24, 60, 0.32);
@@ -4723,6 +4732,54 @@ html[data-scheme="midnight"] {
 /* Shop surfaces per scheme — mint (portal req_53e5eb). Structural surfaces go
    mint/teal; gold stays on value elements (grids, prices, badges). The body
    pattern swaps the leftover paw motif for the star. */
+html[data-scheme="wool"] .home-page-shop {
+  --shop-header-stripes: repeating-linear-gradient(-45deg, #e0bf8a 0, #e0bf8a 32px, #b98a4e 32px, #b98a4e 64px);
+  --shop-header-border: #6b4a2a;
+  --shop-header-shadow: inset 0 -12px 18px rgba(84, 56, 24, 0.16), 0 7px 0 rgba(0, 0, 0, 0.16);
+  --shop-header-button-color: #4a3018;
+  --shop-header-button-border: rgba(64, 40, 18, 0.62);
+  --shop-header-button-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.34), 0 4px 0 rgba(94, 62, 30, 0.42);
+  --shop-title-color: #4a3018;
+  --shop-title-shadow: 0 2px 0 rgba(255, 250, 230, 0.30), 0 4px 8px rgba(70, 46, 18, 0.25);
+  --shop-balance-bg: rgba(84, 56, 24, 0.58);
+  --shop-balance-border: rgba(52, 32, 12, 0.64);
+  --shop-balance-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.20), 0 4px 0 rgba(74, 48, 20, 0.42), 0 7px 11px rgba(0, 0, 0, 0.16);
+  --shop-body-color: #f6f2df;
+  --shop-body-gradient: linear-gradient(180deg, #f4eed6 0%, #e5dab5 48%, #cfc093 100%);
+  --shop-body-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='86' height='86'%3E%3Ccircle cx='43' cy='43' r='26' fill='none' stroke='%23b98a4e' stroke-opacity='0.12' stroke-width='9'/%3E%3C/svg%3E");
+  --shop-card-desc-color: rgba(84, 58, 28, 0.82);
+  --shop-section-bg: linear-gradient(180deg, #8a6134 0%, #64431f 100%);
+  --shop-section-border: rgba(44, 28, 10, 0.78);
+  --shop-section-stroke: #2c1c0a;
+}
+html[data-scheme="wool"] .home-page-settings {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.58) 0 0),
+    radial-gradient(circle at 12% 9%, rgba(255, 255, 255, 0.92) 0 20px, transparent 21px),
+    radial-gradient(circle at 78% 13%, rgba(255, 255, 255, 0.72) 0 24px, transparent 25px),
+    linear-gradient(180deg, #e9f4d2 0%, #cde5a4 58%, #aed184 100%);
+}
+html[data-scheme="wool"] .home-page-settings .home-page-header {
+  border-bottom: 4px solid #6b4a2a;
+  background:
+    linear-gradient(180deg, rgba(255, 250, 232, 0.44) 0%, rgba(255, 255, 255, 0) 58%),
+    repeating-linear-gradient(-45deg, #e0bf8a 0, #e0bf8a 32px, #b98a4e 32px, #b98a4e 64px);
+  box-shadow:
+    inset 0 -22px 28px rgba(84, 56, 24, 0.22),
+    0 7px 0 rgba(0, 0, 0, 0.14);
+}
+html[data-scheme="wool"] .home-page-settings .home-page-header::after {
+  background: linear-gradient(180deg, rgba(70, 46, 18, 0), rgba(70, 46, 18, 0.2));
+}
+html[data-scheme="wool"] .home-page-settings .home-page-title {
+  color: #4a3018;
+  -webkit-text-stroke: 0.95px rgba(255, 248, 226, 0.7);
+  text-shadow:
+    0 2px 0 #fdf3da,
+    0 4px 0 rgba(56, 36, 12, 0.24),
+    0 7px 12px rgba(56, 36, 12, 0.22);
+}
+
 html[data-scheme="mint"] .home-page-shop {
   --shop-header-stripes: repeating-linear-gradient(-45deg, #7adfc4 0, #7adfc4 32px, #37a98a 32px, #37a98a 64px);
   --shop-header-border: #1f6b53;
