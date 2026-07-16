@@ -131,7 +131,7 @@ export function showLevelFailedOverlay(levelId: string, options: LevelFailedOver
           <span class="fail-rescue-halo"></span>
           <img class="fail-rescue-mascot" src="${FAIL_MASCOT_SRC}" alt="">
         </div>
-        <h2 id="level-failed-title">Out of Lives</h2>
+        <h2 id="level-failed-title" class="level-failed-title-art"><img src="/ui/level-complete/out-of-lives-title.png" alt="Out of Lives"></h2>
         <div id="fail-options" class="fail-options fail-rescue-options"></div>
         <p id="fail-continue-status" class="fail-status" aria-live="polite">${escapeHtml(statusMessage)}</p>
       </section>

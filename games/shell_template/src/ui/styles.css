@@ -2653,7 +2653,7 @@
   inset: -180px;
   z-index: 0;
   opacity: 0.28;
-  background-image: url("data:image/svg+xml,%3Csvg width='96' height='96' viewBox='0 0 96 96' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.9' transform='translate(48 48) rotate(-18) translate(-48 -48)'%3E%3Cellipse cx='48' cy='68' rx='19' ry='16'/%3E%3Cellipse cx='20' cy='45' rx='9' ry='12' transform='rotate(-20 20 45)'/%3E%3Cellipse cx='37' cy='34' rx='9' ry='12' transform='rotate(-7 37 34)'/%3E%3Cellipse cx='57' cy='34' rx='9' ry='12' transform='rotate(7 57 34)'/%3E%3Cellipse cx='74' cy='45' rx='9' ry='12' transform='rotate(20 74 45)'/%3E%3C/g%3E%3C/svg%3E");
+  background-image: url('/ui/home/pattern-motif.png');
   background-size: 74px 74px;
   transform: translate3d(-74px, -74px, 0);
   will-change: transform;
@@ -4543,4 +4543,14 @@
   .shop-grid-icon::before {
     animation: none;
   }
+}
+
+/* "Out of Lives" title art (generated set) — mirrors the win card's title
+   footprint; the h2 keeps the accessible name via the img alt. */
+#level-failed-overlay .level-failed-title-art { margin: 0 0 6px; }
+#level-failed-overlay .level-failed-title-art img {
+  display: block;
+  width: min(78%, 340px);
+  margin: 0 auto;
+  height: auto;
 }
