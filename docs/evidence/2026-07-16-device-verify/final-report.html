@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Wool Crush X — Codex Bakeoff Dossier</title>
+  <style>
+    :root { --ink:#30221d; --paper:#fff8e8; --cream:#f4e5c4; --coral:#ef665f; --teal:#198a82; --gold:#e7aa31; --muted:#705f55; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--ink); background:var(--paper); font:16px/1.55 Georgia, "Times New Roman", serif; }
+    nav { position:sticky; top:0; z-index:4; display:flex; gap:1rem; overflow:auto; padding:.75rem 5vw; background:rgba(255,248,232,.94); border-bottom:1px solid #d9c9a8; backdrop-filter:blur(10px); }
+    nav a { color:var(--ink); text-decoration:none; white-space:nowrap; font:700 .78rem/1.2 ui-monospace, monospace; text-transform:uppercase; letter-spacing:.08em; }
+    main { width:min(1180px,90vw); margin:auto; }
+    header { min-height:78vh; display:grid; align-content:center; grid-template-columns:1.25fr .75fr; gap:5vw; padding:8vh 0; }
+    .eyebrow,.status { font:700 .75rem/1.2 ui-monospace,monospace; letter-spacing:.12em; text-transform:uppercase; }
+    .eyebrow { color:var(--teal); }
+    h1 { max-width:800px; margin:.25rem 0 1rem; font-size:clamp(3.2rem,8vw,7.5rem); line-height:.83; letter-spacing:-.06em; }
+    .lede { max-width:650px; color:var(--muted); font-size:1.25rem; }
+    .verdict { border-left:8px solid var(--coral); padding:1rem 0 1rem 1.5rem; }
+    .score { display:block; color:var(--teal); font:700 clamp(4rem,9vw,8rem)/.8 ui-monospace,monospace; }
+    section { padding:8vh 0; border-top:1px solid #d9c9a8; }
+    h2 { margin:0 0 2rem; font-size:clamp(2rem,4vw,4rem); line-height:1; }
+    h3 { margin:.25rem 0; }
+    video { width:min(420px,100%); max-height:78vh; display:block; margin:auto; border:10px solid var(--ink); border-radius:2rem; background:#111; box-shadow:0 24px 70px #59472f44; }
+    .tour { display:grid; grid-template-columns:.8fr 1.2fr; gap:5vw; align-items:center; }
+    .gallery { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+    figure { margin:0; background:var(--cream); overflow:hidden; border-radius:1.25rem; }
+    figure img { width:100%; display:block; aspect-ratio:390/844; object-fit:cover; object-position:top; transition:transform .25s ease; }
+    figure:hover img { transform:scale(1.018); }
+    figcaption { padding:.8rem 1rem; font:700 .75rem/1.3 ui-monospace,monospace; text-transform:uppercase; }
+    table { width:100%; border-collapse:collapse; }
+    th,td { padding:.9rem .5rem; text-align:left; border-bottom:1px solid #d9c9a8; vertical-align:top; }
+    th { font:700 .75rem/1.2 ui-monospace,monospace; text-transform:uppercase; }
+    .ok,.gap { display:inline-block; border-radius:999px; padding:.25rem .65rem; font:700 .7rem/1.2 ui-monospace,monospace; text-transform:uppercase; }
+    .ok { color:white; background:var(--teal); } .gap { color:white; background:var(--coral); }
+    .chains { columns:2; padding:0; list-style:none; }
+    .chains li { break-inside:avoid; margin:0 0 .75rem; }
+    a { color:#0c6d68; }
+    details { margin:.75rem 0; padding:1rem 1.2rem; background:var(--cream); border-radius:.8rem; }
+    summary { cursor:pointer; font-weight:700; }
+    footer { padding:5rem 0; color:var(--muted); }
+    @media (prefers-reduced-motion:no-preference) { section { animation:rise .5s both; animation-timeline:view(); animation-range:entry 0 entry 22%; } @keyframes rise { from { opacity:.3; transform:translateY(18px); } } }
+    @media (max-width:760px) { header,.tour { grid-template-columns:1fr; } header { min-height:auto; } .gallery { grid-template-columns:repeat(2,1fr); } .chains { columns:1; } }
+  </style>
+</head>
+<body>
+  <nav aria-label="Report sections"><a href="#verdict">Verdict</a><a href="#tour">Device tour</a><a href="#screens">Screens</a><a href="#checks">Checks</a><a href="#assets">Assets</a><a href="#gaps">Gaps</a></nav>
+  <main>
+    <header id="verdict">
+      <div><p class="eyebrow">Codex lane · physical iPhone · 17 July 2026</p><h1>Wool Crush is playable.</h1><p class="lede">A three-level deterministic wool puzzle now runs inside the Fabrika mobile shell, with a bespoke yarn identity, real win/fail paths, and uncropped on-device evidence.</p></div>
+      <div class="verdict"><span class="status">Review verdict</span><span class="score">3.6/5</span><p>Strong shell identity and outcome surfaces. The mechanic is sound; tutorial choreography and move-level juice remain the main production gap.</p></div>
+    </header>
+
+    <section id="tour" class="tour"><div><p class="eyebrow">Primary proof</p><h2>Full device tour</h2><p>Uncropped recording from Batu’s iPhone: menu, level, settings, pause capture, win overlay, then fail overlay. Harness-directed transitions make every target state repeatable.</p><p><span class="ok">Observed on device</span></p></div><video controls playsinline preload="metadata"><source src="02_wool-crush-device-tour.mp4" type="video/mp4">Device tour video.</video></section>
+
+    <section id="screens"><p class="eyebrow">Raw evidence · 390 × 844 CSS px</p><h2>Every key screen</h2><div class="gallery">
+      <figure><img src="03_menu.png" alt="Wool Crush home and saga screen"><figcaption>Menu · gated</figcaption></figure>
+      <figure><img src="04_level.png" alt="Wool Crush level one gameplay"><figcaption>Level 1 · gated</figcaption></figure>
+      <figure><img src="05_settings.png" alt="Settings overlay"><figcaption>Settings · gated</figcaption></figure>
+      <figure><img src="06_pause.png" alt="Pause tour capture"><figcaption>Pause · same pixels as level</figcaption></figure>
+      <figure><img src="07_win.png" alt="Level complete overlay"><figcaption>Win · gated</figcaption></figure>
+      <figure><img src="08_fail.png" alt="Out of lives overlay"><figcaption>Fail · blind capture</figcaption></figure>
+    </div></section>
+
+    <section id="checks"><p class="eyebrow">Verification matrix</p><h2>What the evidence proves</h2><table><thead><tr><th>Surface</th><th>Status</th><th>Signal</th></tr></thead><tbody>
+      <tr><td>Core engine</td><td><span class="ok">Passed</span></td><td>53 unit tests passed, 1 skipped; conservation, matching, precedence, slots, win/fail, and solutions covered.</td></tr>
+      <tr><td>Type/build health</td><td><span class="ok">Passed</span></td><td>TypeScript check and production Vite build completed.</td></tr>
+      <tr><td>Physical device rendering</td><td><span class="ok">Observed</span></td><td>Six screenshots at 3× backing resolution plus the full uncropped recording.</td></tr>
+      <tr><td>Reference fidelity</td><td><span class="gap">Not scored</span></td><td>No trusted reference manifest was supplied; this is observational device evidence, not a pixel score.</td></tr>
+    </tbody></table></section>
+
+    <section id="assets"><p class="eyebrow">Human-inspected generation</p><h2>Asset decisions & spend</h2><p><strong>$4.20 conservative estimated total</strong> against a $15 cap. Billed cost was unavailable. Generation stopped on HTTP 402; the lowest-priority motif shipped as a hand-tuned CSS mask.</p><ul class="chains">
+      <li><a href="https://portal.basegamelab.com/c/req_ceb03d">Style guide chain</a></li><li><a href="https://portal.basegamelab.com/c/req_052816">Currency chain</a></li><li><a href="https://portal.basegamelab.com/c/req_0858f8">Hint chain</a></li><li><a href="https://portal.basegamelab.com/c/req_d8c3ba">Navigation chain</a></li><li><a href="https://portal.basegamelab.com/c/req_4641c3">Saga & title chain</a></li><li><a href="https://portal.basegamelab.com/c/req_c37ee0">Commerce & results chain</a></li>
+    </ul><details><summary>Cost composition</summary><p>$1.20 conservative allowance for failed alpha/matting attempts; $3.00 estimated successful generation across currency, hints, navigation, saga, title, commerce, results, and marks. Pattern motif attempt billed $0 after the insufficient-credit response.</p></details></section>
+
+    <section id="gaps"><p class="eyebrow">Honest handoff</p><h2>Not done / not verified</h2><table><tbody>
+      <tr><td><span class="gap">UX gap</span></td><td>No animated first-move tutorial, bespoke yarn-mesh motion, or tuned move-level audio/juice.</td></tr>
+      <tr><td><span class="gap">Runner quirk</span></td><td>Pause is pixel-identical to level; fail used the known blind timeout capture and was visually inspected.</td></tr>
+      <tr><td><span class="gap">Evidence gap</span></td><td>No trusted-reference diff. Tour outcomes are harness-directed, not a full finger-played solve.</td></tr>
+      <tr><td><span class="gap">Cost caveat</span></td><td>Provider billing was unavailable, so ledger values remain conservative estimates.</td></tr>
+    </tbody></table></section>
+    <footer>Wool Crush X · Codex bakeoff lane · branch <code>wool-crush-codex</code></footer>
+  </main>
+</body>
+</html>

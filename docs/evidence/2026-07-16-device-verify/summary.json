@@ -2,7 +2,7 @@
   "menu": {
     "score": null,
     "majorConsensusCount": 0,
-    "verdict": "unscored",
+    "verdict": "no-reference",
     "capture": {
       "gated": true
     },
@@ -29,7 +29,7 @@
   "level": {
     "score": null,
     "majorConsensusCount": 0,
-    "verdict": "unscored",
+    "verdict": "no-reference",
     "capture": {
       "gated": true
     },
@@ -56,9 +56,9 @@
       {
         "state": "pause",
         "status": "INDISTINGUISHABLE STATES",
-        "distance": 5.823,
+        "distance": 0,
         "threshold": 10,
-        "digest": "4f8ce661",
+        "digest": "f652d1da",
         "allowed": false,
         "reason": null
       }
@@ -67,7 +67,7 @@
   "settings": {
     "score": null,
     "majorConsensusCount": 0,
-    "verdict": "unscored",
+    "verdict": "no-reference",
     "capture": {
       "gated": true
     },
@@ -94,7 +94,7 @@
   "pause": {
     "score": null,
     "majorConsensusCount": 0,
-    "verdict": "unscored",
+    "verdict": "no-reference",
     "capture": {
       "gated": true
     },
@@ -121,9 +121,9 @@
       {
         "state": "level",
         "status": "INDISTINGUISHABLE STATES",
-        "distance": 5.823,
+        "distance": 0,
         "threshold": 10,
-        "digest": "91e6bd1c",
+        "digest": "f652d1da",
         "allowed": false,
         "reason": null
       }
@@ -132,7 +132,7 @@
   "win": {
     "score": null,
     "majorConsensusCount": 0,
-    "verdict": "unscored",
+    "verdict": "no-reference",
     "capture": {
       "gated": true
     },
@@ -159,7 +159,7 @@
   "fail": {
     "score": null,
     "majorConsensusCount": 0,
-    "verdict": "unscored",
+    "verdict": "no-reference",
     "capture": {
       "gated": false
     }
@@ -169,8 +169,8 @@
     "enforcement": "exploratory",
     "exitCode": 1,
     "applicableCount": 0,
-    "fidelitySource": "panel",
+    "fidelitySource": "phash",
     "reason": "no applicable evidence — 0 skipped, 6 no-reference, 0 with a trusted reference",
-    "summary": "NO-APPLICABLE-EVIDENCE [EXPLORATORY] — no applicable evidence — 0 skipped, 6 no-reference, 0 with a trusted reference (applicable 0, fidelity panel, exit nonzero) · hard integrity: capture runner failed: xcodebuild test failed: Command failed: xcodebuild test -project /Users/base/dev/appletolye/fabrikav2/tools/verify-device/runner/VerifyDeviceRunner.xcodeproj -scheme VerifyDeviceRunner -destination id=00008101-000410EC3EF9001E -allowProvisioningUpdates -resultBundlePath /Users/base/dev/appletolye/fabrikav2/docs/evidence/2026-07-16-device-verify/device.xcresult DEVELOPMENT_TEAM=42L77JAX72; blind (ungated) captures: fail; indistinguishable states: 1 pair(s)"
+    "summary": "NO-APPLICABLE-EVIDENCE [EXPLORATORY] — no applicable evidence — 0 skipped, 6 no-reference, 0 with a trusted reference (applicable 0, fidelity phash, exit nonzero) · hard integrity: capture runner failed: xcodebuild test failed: Command failed: xcodebuild test -project /Users/base/dev/appletolye/.codex-worktrees/wool-crush-codex/tools/verify-device/runner/VerifyDeviceRunner.xcodeproj -scheme VerifyDeviceRunner -destination id=00008101-000410EC3EF9001E -allowProvisioningUpdates -resultBundlePath /Users/base/dev/appletolye/.codex-worktrees/wool-crush-codex/docs/evidence/2026-07-16-device-verify/device.xcresult DEVELOPMENT_TEAM=42L77JAX72; blind (ungated) captures: fail; indistinguishable states: 1 pair(s)"
   }
 }
