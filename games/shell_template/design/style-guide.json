@@ -9,6 +9,16 @@
     "shadow_tint": ["#815f2c"],
     "sparkle": ["#ffffff", "#fff3bf"]
   },
+  "negative": [
+    "photorealism or realistic textures",
+    "raw cold 3D render look",
+    "noise, grain or gritty texture",
+    "washed-out pastel or muddy desaturated colors",
+    "thin wire-like lines or black outlines",
+    "text or letters unless the description explicitly requests them",
+    "watermark or signature",
+    "extra objects or filled empty space beyond the described subject"
+  ],
   "palette": {
     "accent": "#34c4b3",
     "accent-strong": "#159481",
@@ -19,10 +29,10 @@
     "warning": "#f17f47"
   },
   "phrases": {
-    "finish": "glossy plastic-and-gold premium finish, restrained not gaudy; clean pure saturated colors; smooth airbrushed gradients; one crisp specular pop per object plus a subtle top sheen band; zero noise, zero texture grain, zero photorealism",
-    "lighting": "single key light from the top, strong clear highlights, gentle ambient occlusion in crevices, soft round contact shadow directly beneath the object",
-    "rendering": "premium mobile casual-game asset rendering: chunky 3D-ish volumes with hand-painted baked lighting (semi-painted, not photoreal 3D), bold readable silhouette that stays legible at 64px; subject matter strictly neutral premium motifs — stars, gems, coins, medals, ribbons, laurels, sparkles — absolutely no animals, characters, mascots, brands, or licensed shapes",
-    "shape": "rounded chunky silhouettes with large soft corners and slight squash; every object closed by a thin outline in a darker shade of its own fill color (never black); centered single subject with generous breathing room"
+    "finish": "glossy sculpted finish with airbrushed polish and flawless smooth gradients — premium, satisfying, high-value feel, restrained not gaudy; clean pure solid colors; one crisp specular pop per object plus a subtle top sheen band; zero noise, zero texture grain",
+    "lighting": "single key light from the top with strong clear highlights, a bright thin rim light along the upper edges, gentle ambient occlusion in crevices, and a soft round contact shadow directly beneath the object",
+    "rendering": "modern vibrant mobile casual-game asset, semi-painted render with a stylized baked texture look — hand-painted lighting baked onto clean 3D-like volumes, bold readable silhouette that stays legible at 64px; subject matter strictly neutral premium motifs — stars, gems, coins, medals, ribbons, laurels, sparkles — absolutely no animals, characters, mascots, brands, or licensed shapes",
+    "shape": "rounded, hand-rolled chunky silhouettes with subtle asymmetry (never sterile mathematical geometry); smooth rounded outer edges with sharp crisp internal details; every object closed by a thin outline in a darker shade of its own fill color (never black); centered single subject with generous breathing room"
   },
   "pinned": true,
   "ref_palette": [
@@ -33,7 +43,7 @@
     "#815f2c"
   ],
   "sources": [
-    "hand-authored gold standard 2026-07-16 (Batu-directed); design/style-guide.ingest-baseline.json holds the raw ingest output from design/refs/*.png for tool evaluation"
+    "hand-authored gold standard 2026-07-16 (Batu-directed), grounded in ai_asset style_tokens (Casual Style Dictionary / Banana2) + web research in design/PROMPT-RESEARCH.md; design/style-guide.ingest-baseline.json holds the raw ingest output from design/refs/*.png for tool evaluation"
   ],
   "version": 1
 }
