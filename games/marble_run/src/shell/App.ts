@@ -62,7 +62,7 @@ import { music } from '../audio/Music';
 import { toggleClick } from '../audio/Sfx';
 import { pickByRoll, blockedMarbles } from './marbleVerbs';
 import { driveAutoWin, driveAutoFail } from '../testing/autoPlay';
-import type { Cell } from '../engine/types';
+import type { Cell, MarbleColor } from '../engine/types';
 
 /** The marble_run extra-verb union — the `GameHarness` extension point. */
 export type MarbleVerb = 'tapCell' | 'tapUnlockedMarble' | 'tapBlockedMarble';
@@ -80,6 +80,7 @@ export interface MarbleHarness extends GameHarness<MarbleVerb> {
   cellClientPoint(x: number, y: number): ClientPoint | null;
   setAnimationSpeed(multiplier: number): void;
   solveStep(): Cell | null;
+  movableCells(): Array<{ cell: Cell; color: MarbleColor }>;
   /** Deterministic solver-bound win: replays solveLevel().order. Resolves true if won. */
   autoWin(stepMs?: number): Promise<boolean>;
   /** Deterministic loss: taps genuinely-blocked marbles until hearts deplete. Resolves true if failed. */
@@ -838,6 +839,11 @@ export class App {
         const cell = movable[0].cell;
         this.controller.tapCell(cell);
         return cell;
+      },
+      movableCells: () => {
+        const engine = this.controller.engineRef();
+        if (!engine) return [];
+        return engine.movableMarbles().map((m) => ({ cell: m.cell, color: m.color }));
       },
 
       // ── DETERMINISTIC solver-bound auto-play (A-star search, never random) ─

@@ -43,13 +43,17 @@ export const W3D = {
 } as const;
 
 export const COLORS3D = {
+  // Vivid palette (locked in 2026-07-16): the original candy hues pushed +35%
+  // saturation / -8% lightness so marbles dominate the pale board. Single
+  // source of truth — the 3D scene, particles, and any DOM consumer all read
+  // these values.
   marble: {
-    red: 0xff4d6d,
-    blue: 0x38a3ff,
-    green: 0x44d164,
-    yellow: 0xffcc1f,
-    purple: 0xb266ff,
-    orange: 0xff8a3d,
+    red: 0xff3257,
+    blue: 0x1f97ff,
+    green: 0x17e847,
+    yellow: 0xffc708,
+    purple: 0xa449ff,
+    orange: 0xff7b24,
   } as Record<string, number>,
   woodTop: 0xffefd7,
   woodSide: 0xbb7650,

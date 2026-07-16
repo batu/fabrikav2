@@ -18,7 +18,6 @@ import {
 } from '../engine/types';
 import { rollTic, setRollingActive, spawnTick } from '../audio/Sfx';
 import boardTraySpec from './specs/sugar3d-board-tray.json';
-import dimpleCupSpec from './specs/sugar3d-dimple-cup.json';
 import edgeGateSpec from './specs/sugar3d-edge-gate.json';
 import marbleCoreSpec from './specs/sugar3d-marble-core.json';
 import plugCapSpec from './specs/sugar3d-plug-cap.json';
@@ -31,7 +30,6 @@ import {
 } from './ModelerSpec';
 
 const BOARD_TRAY_SPEC = boardTraySpec as unknown as ModelerSpec;
-const DIMPLE_CUP_SPEC = dimpleCupSpec as unknown as ModelerSpec;
 const EDGE_GATE_SPEC = edgeGateSpec as unknown as ModelerSpec;
 const MARBLE_CORE_SPEC = marbleCoreSpec as unknown as ModelerSpec;
 const PLUG_CAP_SPEC = plugCapSpec as unknown as ModelerSpec;
@@ -129,9 +127,9 @@ export class BoardScene {
   private spawns: SpawnAnim[] = [];
   private wobbles: Array<{ mesh: THREE.Object3D; t: number }> = [];
   private sparks: Array<{ pts: THREE.Points; vel: THREE.Vector3[]; t: number }> = [];
-  private trails: Array<{ pts: THREE.Points; vel: THREE.Vector3[]; t: number; life: number }> = [];
-  private trailDots: Array<{ mesh: THREE.Mesh; vel: THREE.Vector3; t: number; life: number }> = [];
   private trailRibbons: Array<{ mesh: THREE.Mesh; t: number; life: number }> = [];
+  /** Halves the ghost-afterimage emit cadence (see emitGhost). */
+  private ghostToggle = false;
   private impactRings: Array<{ mesh: THREE.Mesh; t: number; life: number }> = [];
   private collectRings: Array<{ mesh: THREE.Mesh; t: number; life: number; maxScale: number; opacity: number }> = [];
   private collectBursts: Array<{ pts: THREE.Points; vel: THREE.Vector3[]; t: number; life: number }> = [];
@@ -372,7 +370,7 @@ export class BoardScene {
         const id = part.id ?? '';
         if (id === 'play-recess') {
           return new THREE.MeshStandardMaterial({
-            color: COLORS3D.woodTop,
+            color: BOARD_SURFACE,
             map: softPanelTexture(),
             roughness: 0.58,
           });
@@ -405,11 +403,9 @@ export class BoardScene {
           this.root.add(this.buildBlockedPlug({ x, y }));
           continue;
         }
-        const dimple = buildModelerSpec(DIMPLE_CUP_SPEC, {
-          materialForPart: dimpleMaterial,
-        });
-        dimple.position.copy(this.cellToWorld({ x, y }, 0.095));
-        this.root.add(dimple);
+        const cellMarker = this.buildCellMarker();
+        cellMarker.position.copy(this.cellToWorld({ x, y }, 0.095));
+        this.root.add(cellMarker);
       }
     }
   }
@@ -497,6 +493,17 @@ export class BoardScene {
 
   private gatePrimaryMeshes(gate: THREE.Group): THREE.Mesh[] {
     return modelerMeshesBySwatch(gate, 'P5');
+  }
+
+  /** Empty-cell marker: a small flat dot on the pale surface. */
+  private buildCellMarker(): THREE.Object3D {
+    const marker = new THREE.Mesh(cellDotGeometry(), cellDotMaterial());
+    marker.rotation.x = -Math.PI / 2;
+    // Local offset must survive the caller's position.copy — wrap in a group.
+    marker.position.y = 0.065;
+    const holder = new THREE.Group();
+    holder.add(marker);
+    return holder;
   }
 
   // ── Marbles ──────────────────────────────────────────────────────
@@ -1031,79 +1038,31 @@ export class BoardScene {
     }
   }
 
-  private emitTrail(pos: THREE.Vector3, color: MarbleColor, dir: THREE.Vector3): void {
-    const n = 12;
-    const geo = new THREE.BufferGeometry();
-    const positions = new Float32Array(n * 3);
-    const vel: THREE.Vector3[] = [];
-    for (let i = 0; i < n; i += 1) {
-      positions[i * 3] = pos.x + (Math.random() - 0.5) * 0.22;
-      positions[i * 3 + 1] = pos.y - W3D.MARBLE_R * 0.45 + Math.random() * 0.12;
-      positions[i * 3 + 2] = pos.z + (Math.random() - 0.5) * 0.22;
-      vel.push(
-        new THREE.Vector3(
-          (Math.random() - 0.5) * 0.45,
-          0.35 + Math.random() * 0.55,
-          (Math.random() - 0.5) * 0.45,
-        ),
-      );
-    }
-    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    const roll = Math.random();
-    const sparkle = roll > 0.78 ? COLORS3D.marble[color] : roll > 0.25 ? 0xffd84f : 0xffffff;
-    const pts = new THREE.Points(
-      geo,
-      new THREE.PointsMaterial({
-        color: sparkle,
-        size: 0.28,
-        transparent: true,
-        opacity: 0.92,
-        depthWrite: false,
-      }),
-    );
-    this.root.add(pts);
-    this.trails.push({ pts, vel, t: 0, life: 0.8 });
-
-    const ribbonMat = new THREE.MeshBasicMaterial({
-      color: 0xfff0a6,
+  /**
+   * Roll trail (locked in 2026-07-16, "Ghost"): translucent afterimages of the
+   * marble itself, fading in place — inherently ball-colored and orientation-
+   * free, so corners never show stale streaks.
+   */
+  private emitTrail(pos: THREE.Vector3, color: MarbleColor): void {
+    // Half cadence keeps the ghosts readable as discrete copies.
+    this.ghostToggle = !this.ghostToggle;
+    if (this.ghostToggle) return;
+    const mat = new THREE.MeshBasicMaterial({
+      color: new THREE.Color(COLORS3D.marble[color]).lerp(new THREE.Color(0xffffff), 0.1),
       transparent: true,
-      opacity: 0.44,
+      opacity: 0.42,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
     });
-    const ribbon = new THREE.Mesh(new THREE.CircleGeometry(0.18, 22), ribbonMat);
-    ribbon.position.set(pos.x, pos.y - W3D.MARBLE_R * 0.62, pos.z);
-    ribbon.rotation.x = -Math.PI / 2;
-    ribbon.rotation.z = Math.atan2(dir.z, dir.x);
-    ribbon.scale.set(3.25, 0.7, 1);
-    this.root.add(ribbon);
-    this.trailRibbons.push({ mesh: ribbon, t: 0, life: 0.58 });
-
-    for (let i = 0; i < 4; i += 1) {
-      const mat = new THREE.MeshBasicMaterial({
-        color: i % 3 === 0 ? 0xffffff : 0xffd84f,
-        transparent: true,
-        opacity: 0.88,
-        depthWrite: false,
-      });
-      const dot = new THREE.Mesh(new THREE.SphereGeometry(0.055 + Math.random() * 0.04, 10, 8), mat);
-      dot.position.set(
-        pos.x + (Math.random() - 0.5) * 0.28,
-        pos.y - W3D.MARBLE_R * 0.32 + Math.random() * 0.18,
-        pos.z + (Math.random() - 0.5) * 0.28,
-      );
-      this.root.add(dot);
-      this.trailDots.push({
-        mesh: dot,
-        vel: new THREE.Vector3(
-          (Math.random() - 0.5) * 0.32,
-          0.26 + Math.random() * 0.42,
-          (Math.random() - 0.5) * 0.32,
-        ),
-        t: 0,
-        life: 0.78,
-      });
-    }
+    const ghost = new THREE.Mesh(ghostGeometry(), mat);
+    ghost.scale.setScalar(W3D.MARBLE_R * 0.92);
+    ghost.userData.unitScale = W3D.MARBLE_R * 0.92;
+    ghost.userData.sharedGeometry = true;
+    ghost.position.copy(pos);
+    ghost.userData.baseScale = { x: 1, y: 1 };
+    ghost.userData.baseOpacity = 0.42;
+    ghost.userData.shrink = true;
+    this.root.add(ghost);
+    this.trailRibbons.push({ mesh: ghost, t: 0, life: 0.65 });
   }
 
   // ── Frame tick ───────────────────────────────────────────────────
@@ -1222,7 +1181,7 @@ export class BoardScene {
       r.trailT += dt;
       while (r.trailT >= W3D.TRAIL_EMIT_S) {
         r.trailT -= W3D.TRAIL_EMIT_S;
-        this.emitTrail(pos, r.change.color, dir);
+        this.emitTrail(pos, r.change.color);
       }
 
       const cellsCrossed = Math.floor(dist / W3D.CELL);
@@ -1293,7 +1252,7 @@ export class BoardScene {
       r.trailT += dt;
       if (!r.returning && r.trailT >= W3D.TRAIL_EMIT_S * 1.2) {
         r.trailT = 0;
-        this.emitTrail(pos, r.color, dir);
+        this.emitTrail(pos, r.color);
       }
 
       if (!r.returning && r.t >= 1) {
@@ -1461,42 +1420,26 @@ export class BoardScene {
     }
     this.collectRings = this.collectRings.filter((ring) => ring.t <= ring.life);
 
-    // Magic trail dust behind rolling marbles.
-    for (const trail of this.trails) {
-      trail.t += dt;
-      const positions = trail.pts.geometry.getAttribute('position') as THREE.BufferAttribute;
-      for (let i = 0; i < trail.vel.length; i += 1) {
-        trail.vel[i].y -= dt * 2.2;
-        positions.setXYZ(
-          i,
-          positions.getX(i) + trail.vel[i].x * dt,
-          positions.getY(i) + trail.vel[i].y * dt,
-          positions.getZ(i) + trail.vel[i].z * dt,
-        );
-      }
-      positions.needsUpdate = true;
-      (trail.pts.material as THREE.PointsMaterial).opacity = Math.max(
-        0,
-        0.92 * (1 - trail.t / trail.life),
-      );
-      if (trail.t > trail.life) {
-        this.root.remove(trail.pts);
-        trail.pts.geometry.dispose();
-        (trail.pts.material as THREE.PointsMaterial).dispose();
-      }
-    }
-    this.trails = this.trails.filter((trail) => trail.t <= trail.life);
 
     for (const ribbon of this.trailRibbons) {
       ribbon.t += dt;
       const k = Math.min(ribbon.t / ribbon.life, 1);
-      ribbon.mesh.scale.x = 3.25 + k * 1.55;
-      ribbon.mesh.scale.y = 0.7 + k * 0.4;
+      const base = (ribbon.mesh.userData.baseScale as { x: number; y: number }) ?? { x: 1, y: 1 };
+      const baseOpacity = (ribbon.mesh.userData.baseOpacity as number) ?? 0.44;
+      if (ribbon.mesh.userData.shrink) {
+        const unit = (ribbon.mesh.userData.unitScale as number) ?? 1;
+        ribbon.mesh.scale.setScalar(unit * Math.max(0.05, 1 - k * 0.85));
+      } else if (ribbon.mesh.userData.grow) {
+        ribbon.mesh.scale.setScalar(1 + k * 2.1);
+      } else {
+        ribbon.mesh.scale.x = base.x + k * base.x * 0.48;
+        ribbon.mesh.scale.y = base.y + k * base.y * 0.57;
+      }
       ribbon.mesh.position.y -= dt * 0.035;
-      (ribbon.mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(0, 0.44 * (1 - k));
+      (ribbon.mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(0, baseOpacity * (1 - k));
       if (k >= 1) {
         this.root.remove(ribbon.mesh);
-        ribbon.mesh.geometry.dispose();
+        if (!ribbon.mesh.userData.sharedGeometry) ribbon.mesh.geometry.dispose();
         (ribbon.mesh.material as THREE.MeshBasicMaterial).dispose();
       }
     }
@@ -1517,20 +1460,6 @@ export class BoardScene {
     }
     this.impactRings = this.impactRings.filter((ring) => ring.t <= ring.life);
 
-    for (const dot of this.trailDots) {
-      dot.t += dt;
-      dot.vel.y -= dt * 1.8;
-      dot.mesh.position.addScaledVector(dot.vel, dt);
-      const k = Math.min(dot.t / dot.life, 1);
-      dot.mesh.scale.setScalar(1 + k * 0.55);
-      (dot.mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(0, 0.88 * (1 - k));
-      if (k >= 1) {
-        this.root.remove(dot.mesh);
-        dot.mesh.geometry.dispose();
-        (dot.mesh.material as THREE.MeshBasicMaterial).dispose();
-      }
-    }
-    this.trailDots = this.trailDots.filter((dot) => dot.t <= dot.life);
   }
 
   dispose(): void {
@@ -1564,28 +1493,6 @@ function disposeObject(object: THREE.Object3D): void {
   });
 }
 
-function dimpleMaterial(part: ModelerSpecPart, color: THREE.Color): THREE.Material {
-  if (part.id === 'inner-shadow') {
-    return new THREE.MeshStandardMaterial({
-      color: 0x5e2a40,
-      roughness: 0.92,
-      metalness: 0,
-    });
-  }
-  if (part.id === 'lower-lip') {
-    return new THREE.MeshStandardMaterial({
-      color,
-      roughness: 0.42,
-      emissive: color.clone().multiplyScalar(0.04),
-    });
-  }
-  return new THREE.MeshStandardMaterial({
-    color,
-    roughness: 0.68,
-    metalness: 0,
-  });
-}
-
 function plugMaterial(part: ModelerSpecPart, color: THREE.Color): THREE.Material {
   if (part.id === 'plug-shadow-ring') {
     return new THREE.MeshStandardMaterial({
@@ -1606,7 +1513,8 @@ function plugMaterial(part: ModelerSpecPart, color: THREE.Color): THREE.Material
     return new THREE.MeshBasicMaterial({
       color: 0x7ee9ff,
       transparent: true,
-      opacity: 0.44,
+      // Simplified style: the circular highlight dots are dropped everywhere.
+      opacity: 0,
       depthWrite: false,
     });
   }
@@ -1619,11 +1527,12 @@ function plugMaterial(part: ModelerSpecPart, color: THREE.Color): THREE.Material
 
 function gateMaterial(part: ModelerSpecPart, color: THREE.Color, primaryColor: number): THREE.Material {
   if (part.id === 'primary-cup') {
+    const cup = new THREE.Color(primaryColor);
     return new THREE.MeshStandardMaterial({
-      color: primaryColor,
+      color: cup,
       roughness: 0.16,
       metalness: 0.02,
-      emissive: new THREE.Color(primaryColor).multiplyScalar(0.08),
+      emissive: cup.clone().multiplyScalar(0.08),
     });
   }
   if (part.id === 'mouth-shadow') {
@@ -1634,12 +1543,8 @@ function gateMaterial(part: ModelerSpecPart, color: THREE.Color, primaryColor: n
     });
   }
   if (part.id?.includes('bolt')) {
-    return new THREE.MeshPhysicalMaterial({
-      color,
-      roughness: 0.18,
-      clearcoat: 0.55,
-      clearcoatRoughness: 0.2,
-    });
+    // Simplified style: the white candy-bolt dots on the targets stay hidden.
+    return new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false });
   }
   return new THREE.MeshStandardMaterial({
     color,
@@ -1651,18 +1556,19 @@ function gateMaterial(part: ModelerSpecPart, color: THREE.Color, primaryColor: n
 function marbleMaterial(part: ModelerSpecPart, color: THREE.Color, primaryColor: number): THREE.Material {
   if (part.id === 'core') {
     return new THREE.MeshPhysicalMaterial({
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.12,
+      clearcoat: 0.45,
+      clearcoatRoughness: 0.35,
       color: 0xffffff,
       map: marbleTexture(primaryColor),
-      roughness: 0.2,
+      roughness: 0.42,
       metalness: 0,
     });
   }
+  // gloss-spot: hidden — the simplified look has no painted highlight dot.
   return new THREE.MeshBasicMaterial({
     color,
     transparent: true,
-    opacity: 0.82,
+    opacity: 0,
     depthWrite: false,
   });
 }
@@ -1706,9 +1612,9 @@ function softPanelTexture(): THREE.CanvasTexture {
   c.height = 256;
   const g = c.getContext('2d')!;
   const bg = g.createRadialGradient(128, 72, 10, 128, 128, 180);
-  bg.addColorStop(0, '#fff8ed');
-  bg.addColorStop(0.62, '#ffe9d7');
-  bg.addColorStop(1, '#f0c5bc');
+  bg.addColorStop(0, BOARD_PANEL_STOPS[0]);
+  bg.addColorStop(0.62, BOARD_PANEL_STOPS[1]);
+  bg.addColorStop(1, BOARD_PANEL_STOPS[2]);
   g.fillStyle = bg;
   g.fillRect(0, 0, 256, 256);
   g.strokeStyle = 'rgba(141,78,91,0.08)';
@@ -1725,25 +1631,41 @@ function softPanelTexture(): THREE.CanvasTexture {
   return softPanelTex;
 }
 
+/**
+ * Locked-in visual style (chosen via the marble-run-simplification portal
+ * chain, 2026-07-16): "Vivid Marbled" balls — low-contrast swirl marbling on
+ * saturated candy colors, no painted shine — on the "Dots" board — pale
+ * neutral tray with small flat position dots instead of pink dimple cups.
+ */
+const BOARD_SURFACE = 0xf3efe9;
+const BOARD_PANEL_STOPS = ['#faf8f4', '#f2eee8', '#e4dcd4'] as const;
+const CELL_DOT_COLOR = 0xccc4b7;
+
+
+
 const marbleTex = new Map<number, THREE.CanvasTexture>();
 function marbleTexture(color: number): THREE.CanvasTexture {
   const existing = marbleTex.get(color);
   if (existing) return existing;
   const base = new THREE.Color(color);
-  const light = base.clone().lerp(new THREE.Color(0xffffff), 0.5);
-  const dark = base.clone().multiplyScalar(0.58);
   const c = document.createElement('canvas');
   c.width = 256;
   c.height = 128;
   const g = c.getContext('2d')!;
-  const bg = g.createLinearGradient(0, 0, 256, 128);
-  bg.addColorStop(0, `#${light.getHexString()}`);
-  bg.addColorStop(0.48, `#${base.getHexString()}`);
-  bg.addColorStop(1, `#${dark.getHexString()}`);
+  // Mostly-solid base with a gentle top-to-bottom shade so the sphere reads
+  // as round without competing surface detail.
+  const softLight = base.clone().lerp(new THREE.Color(0xffffff), 0.22);
+  const softDark = base.clone().multiplyScalar(0.8);
+  const bg = g.createLinearGradient(0, 0, 0, 128);
+  bg.addColorStop(0, `#${softLight.getHexString()}`);
+  bg.addColorStop(0.55, `#${base.getHexString()}`);
+  bg.addColorStop(1, `#${softDark.getHexString()}`);
   g.fillStyle = bg;
   g.fillRect(0, 0, 256, 128);
+  // The classic swirls at a fraction of the original contrast: enough texture
+  // to read as marbling without competing with the ball's base color.
   for (let i = 0; i < 5; i += 1) {
-    g.strokeStyle = i % 2 === 0 ? 'rgba(255,255,255,0.52)' : 'rgba(80,35,70,0.18)';
+    g.strokeStyle = i % 2 === 0 ? 'rgba(255,255,255,0.16)' : 'rgba(80,35,70,0.07)';
     g.lineWidth = i % 2 === 0 ? 13 : 8;
     g.beginPath();
     const y = 18 + i * 21;
@@ -1752,12 +1674,6 @@ function marbleTexture(color: number): THREE.CanvasTexture {
     g.bezierCurveTo(196, y - 22, 224, y + 18, 276, y - 10);
     g.stroke();
   }
-  const shine = g.createRadialGradient(72, 28, 4, 72, 28, 52);
-  shine.addColorStop(0, 'rgba(255,255,255,0.98)');
-  shine.addColorStop(0.42, 'rgba(255,255,255,0.38)');
-  shine.addColorStop(1, 'rgba(255,255,255,0)');
-  g.fillStyle = shine;
-  g.fillRect(0, 0, 150, 95);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.wrapS = THREE.RepeatWrapping;
@@ -1765,6 +1681,25 @@ function marbleTexture(color: number): THREE.CanvasTexture {
   tex.anisotropy = 4;
   marbleTex.set(color, tex);
   return tex;
+}
+
+let ghostGeo: THREE.SphereGeometry | null = null;
+/** Shared unit sphere for ghost afterimages (scaled per instance). */
+function ghostGeometry(): THREE.SphereGeometry {
+  if (!ghostGeo) ghostGeo = new THREE.SphereGeometry(1, 18, 14);
+  return ghostGeo;
+}
+
+let cellDotGeo: THREE.CircleGeometry | null = null;
+let cellDotMat: THREE.MeshStandardMaterial | null = null;
+/** All empty-cell dots share one geometry + material (static, identical). */
+function cellDotGeometry(): THREE.CircleGeometry {
+  if (!cellDotGeo) cellDotGeo = new THREE.CircleGeometry(0.15, 24);
+  return cellDotGeo;
+}
+function cellDotMaterial(): THREE.MeshStandardMaterial {
+  if (!cellDotMat) cellDotMat = new THREE.MeshStandardMaterial({ color: CELL_DOT_COLOR, roughness: 0.8 });
+  return cellDotMat;
 }
 
 function gateKey(gate: GateDef): string {
