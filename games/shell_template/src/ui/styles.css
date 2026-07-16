@@ -4563,3 +4563,84 @@
 .scene-transition-spinner { animation: loadingSpin 1.6s linear infinite; }
 @keyframes loadingSpin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .scene-transition-spinner { animation: none; } }
+
+
+/* ============================================================
+   COLOR SCHEME TOKENS (plan section C — real hex, no generation)
+   The div-painted surfaces read these vars; a palette swap is one
+   html[data-scheme] attribute. Generated ASSETS keep their baked
+   colors — palette-carrying assets get regenerated separately.
+   Defaults reproduce the shipped cream/amber look exactly.
+   ============================================================ */
+:root {
+  --sch-bg-top: #fff2cf;
+  --sch-bg-mid: #ffd79a;
+  --sch-bg-bot: #f1a957;
+  --sch-spot: rgba(255, 251, 232, 0.85);
+  --sch-vig: rgba(120, 62, 18, 0.34);
+  --sch-nav-top: #7a4a22;
+  --sch-nav-bot: #5c3414;
+  --sch-nav-border: rgba(255, 190, 80, 0.22);
+  --sch-cta-top: hsl(128deg 70% 52%);
+  --sch-cta-bottom: hsl(128deg 68% 40%);
+  --sch-cta-border: hsl(128deg 60% 24%);
+  --sch-cta-shadow: hsl(130deg 56% 22%);
+  /* Result overlays get real color (Batu: not pale/translucent). */
+  --sch-win-overlay-bg: linear-gradient(180deg, rgba(255, 205, 120, 0.62) 0%, rgba(214, 138, 52, 0.66) 55%, rgba(150, 84, 24, 0.72) 100%);
+  --sch-fail-overlay-bg: linear-gradient(180deg, rgba(64, 78, 108, 0.62) 0%, rgba(84, 66, 56, 0.66) 50%, rgba(56, 38, 26, 0.74) 100%);
+}
+html[data-scheme="mint"] {
+  --sch-bg-top: #ecfaf3; --sch-bg-mid: #cdeee0; --sch-bg-bot: #a3dcc4;
+  --sch-spot: rgba(244, 255, 250, 0.85); --sch-vig: rgba(22, 92, 70, 0.30);
+  --sch-nav-top: #33806a; --sch-nav-bot: #22594a; --sch-nav-border: rgba(160, 255, 215, 0.25);
+  --sch-win-overlay-bg: linear-gradient(180deg, rgba(146, 226, 196, 0.60) 0%, rgba(58, 152, 120, 0.68) 100%);
+  --sch-fail-overlay-bg: linear-gradient(180deg, rgba(52, 88, 78, 0.64) 0%, rgba(28, 54, 46, 0.76) 100%);
+}
+html[data-scheme="berry"] {
+  --sch-bg-top: #ffeef3; --sch-bg-mid: #ffd2e0; --sch-bg-bot: #efaac2;
+  --sch-spot: rgba(255, 244, 248, 0.85); --sch-vig: rgba(112, 24, 60, 0.32);
+  --sch-nav-top: #7d3053; --sch-nav-bot: #5a2038; --sch-nav-border: rgba(255, 170, 205, 0.25);
+  --sch-win-overlay-bg: linear-gradient(180deg, rgba(240, 160, 195, 0.60) 0%, rgba(168, 66, 110, 0.68) 100%);
+  --sch-fail-overlay-bg: linear-gradient(180deg, rgba(92, 52, 70, 0.64) 0%, rgba(54, 26, 40, 0.76) 100%);
+}
+html[data-scheme="ocean"] {
+  --sch-bg-top: #ebf5ff; --sch-bg-mid: #c9e3fa; --sch-bg-bot: #9dc7ef;
+  --sch-spot: rgba(244, 250, 255, 0.85); --sch-vig: rgba(20, 62, 110, 0.32);
+  --sch-nav-top: #2f5a7d; --sch-nav-bot: #1f3f5a; --sch-nav-border: rgba(150, 210, 255, 0.25);
+  --sch-win-overlay-bg: linear-gradient(180deg, rgba(140, 195, 245, 0.60) 0%, rgba(52, 110, 178, 0.68) 100%);
+  --sch-fail-overlay-bg: linear-gradient(180deg, rgba(48, 68, 96, 0.64) 0%, rgba(24, 36, 56, 0.76) 100%);
+}
+html[data-scheme="sunset"] {
+  --sch-bg-top: #fff0e0; --sch-bg-mid: #ffcfa4; --sch-bg-bot: #f0925c;
+  --sch-spot: rgba(255, 246, 234, 0.85); --sch-vig: rgba(122, 44, 16, 0.34);
+  --sch-nav-top: #8a4a26; --sch-nav-bot: #633016; --sch-nav-border: rgba(255, 180, 110, 0.25);
+  --sch-win-overlay-bg: linear-gradient(180deg, rgba(255, 178, 110, 0.62) 0%, rgba(198, 96, 40, 0.70) 100%);
+  --sch-fail-overlay-bg: linear-gradient(180deg, rgba(96, 58, 44, 0.64) 0%, rgba(58, 32, 22, 0.76) 100%);
+}
+html[data-scheme="midnight"] {
+  --sch-bg-top: #323761; --sch-bg-mid: #262b4e; --sch-bg-bot: #191d3a;
+  --sch-spot: rgba(120, 130, 200, 0.30); --sch-vig: rgba(0, 0, 0, 0.45);
+  --sch-nav-top: #171a33; --sch-nav-bot: #0d0f22; --sch-nav-border: rgba(140, 150, 230, 0.25);
+  --sch-win-overlay-bg: linear-gradient(180deg, rgba(70, 78, 140, 0.66) 0%, rgba(30, 34, 70, 0.80) 100%);
+  --sch-fail-overlay-bg: linear-gradient(180deg, rgba(44, 48, 84, 0.70) 0%, rgba(16, 18, 38, 0.84) 100%);
+}
+
+/* Surfaces re-pointed at scheme tokens (same specificity, later cascade). */
+#hud-overlay.home-mode {
+  background:
+    radial-gradient(118% 72% at 50% 7%, var(--sch-spot) 0%, transparent 52%),
+    radial-gradient(145% 118% at 50% 116%, var(--sch-vig) 0%, transparent 56%),
+    linear-gradient(180deg, var(--sch-bg-top) 0%, var(--sch-bg-mid) 48%, var(--sch-bg-bot) 100%);
+}
+#home-shell .home-nav-bar, .play-entry-home-shell .home-nav-bar, .home-nav-bar {
+  background: linear-gradient(180deg, var(--sch-nav-top) 0%, var(--sch-nav-bot) 100%);
+  border-top: 1.5px solid var(--sch-nav-border);
+}
+#home-play-now.home-play-now-btn {
+  --shop-price-top: var(--sch-cta-top);
+  --shop-price-bottom: var(--sch-cta-bottom);
+  --shop-price-border: var(--sch-cta-border);
+  --shop-price-shadow: var(--sch-cta-shadow);
+}
+#level-complete-overlay.fab-complete { background: var(--sch-win-overlay-bg); }
+#level-failed-overlay { background: var(--sch-fail-overlay-bg); }
