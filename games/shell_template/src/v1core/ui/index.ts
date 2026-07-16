@@ -432,9 +432,21 @@ function revealCompletionReward(
   }, revealMs);
 }
 
-/** Build + prepend the JS-driven side-confetti layer from the confetti art
- *  tokens, then schedule its self-removal. Plain `<img src>` (the decode-clone
- *  micro-opt is dropped; a game warms the HTTP cache before mount). */
+const CONFETTI_COLORS = [
+  '#f6c344', '#f2955c', '#e5646e', '#4fb8a5', '#7ac96f', '#5f9df7', '#f7e6b5', '#c98fe0',
+];
+
+/** Quadratic Bézier point: (1-t)²·p0 + 2(1-t)t·p1 + t²·p2. */
+function quadAt(t: number, p0: number, p1: number, p2: number): number {
+  const u = 1 - t;
+  return u * u * p0 + 2 * u * t * p1 + t * t * p2;
+}
+
+/** Build + prepend the JS-driven side-confetti layer: individual pieces, each
+ *  on its own random quadratic (parabolic) path with random size and a random
+ *  3D tumble axis. Paths are sampled into WAAPI keyframes interpolated
+ *  LINEARLY — the sample spacing carries the speed profile; never per-segment
+ *  easing (it pulses at waypoints; Batu's 2026-07-16 device verdict). */
 function addCompletionSideConfetti(
   overlay: HTMLElement,
   reducedMotion: boolean,
@@ -444,50 +456,73 @@ function addCompletionSideConfetti(
   layer.className = 'fab-complete-side-confetti';
   layer.setAttribute('aria-hidden', 'true');
 
-  const decodes: Promise<unknown>[] = [];
-  const gateOnDecode = (img: HTMLImageElement) => {
-    // Start the animation only once the bitmap is decoded and uploadable —
-    // decoding a large PNG mid-animation froze ~35 consecutive frames on
-    // device (measured 2026-07-16, 60fps screen recording).
-    img.style.animationPlayState = 'paused';
-    decodes.push(img.decode().catch(() => undefined));
-  };
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const durationMs = reducedMotion ? 900 : 3800;
+  const maxDelayMs = reducedMotion ? 0 : 600;
+  const count = reducedMotion ? 20 : 72;
+  const rand = (lo: number, hi: number): number => lo + Math.random() * (hi - lo);
+  const canAnimate = typeof layer.animate === 'function';
 
-  const fall = document.createElement('img');
-  fall.className = 'fab-complete-confetti-fall';
-  fall.alt = '';
-  fall.loading = 'eager';
-  fall.decoding = 'async';
-  fall.style.setProperty('--fab-confetti-delay', reducedMotion ? '0ms' : '500ms');
-  applyArtSrc(overlay, fall, '--fab-complete-confetti-fall-url');
-  gateOnDecode(fall);
-  layer.appendChild(fall);
+  for (let i = 0; i < count; i += 1) {
+    const piece = document.createElement('div');
+    piece.className = 'fab-confetti-piece';
+    piece.style.background = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
+    // Random size: base 6–14px, slightly rectangular so the 3D tumble reads.
+    piece.style.width = `${rand(6, 14).toFixed(1)}px`;
+    piece.style.height = `${rand(8, 18).toFixed(1)}px`;
+    layer.appendChild(piece);
+    if (!canAnimate) continue; // jsdom/legacy: static pieces, removed on cleanup
 
-  const bursts = reducedMotion
-    ? [{ side: 'left', delayMs: 0 }, { side: 'right', delayMs: 0 }]
-    : [{ side: 'left', delayMs: 0 }, { side: 'right', delayMs: 250 }];
-  const durationMs = reducedMotion ? 900 : 5200;
-  const maxDelayMs = reducedMotion ? 0 : 500;
+    // Launch lane: 40% left cannon, 40% right cannon, 20% top rain.
+    const lane = i % 5;
+    let x0: number, y0: number, x1: number, y1: number, x2: number, y2: number;
+    if (lane === 4) {
+      // Top rain: drift sideways while falling.
+      x0 = rand(0, w); y0 = -rand(0.05, 0.15) * h;
+      x2 = x0 + rand(-0.3, 0.3) * w; y2 = h * 1.1;
+      x1 = (x0 + x2) / 2 + rand(-0.2, 0.2) * w; y1 = rand(0.2, 0.5) * h;
+    } else {
+      // Side cannon: parabola from a bottom corner up across the screen.
+      const fromLeft = lane % 2 === 0;
+      x0 = fromLeft ? -rand(0, 0.06) * w : w + rand(0, 0.06) * w;
+      y0 = h * rand(0.95, 1.05);
+      const reach = rand(0.25, 0.95);
+      x2 = fromLeft ? x0 + reach * w : x0 - reach * w;
+      y2 = h * 1.1;
+      x1 = (x0 + x2) / 2 + rand(-0.08, 0.08) * w;
+      y1 = rand(0.08, 0.45) * h; // apex height — randomizes the arc
+    }
 
-  for (const burst of bursts) {
-    const img = document.createElement('img');
-    img.className = `fab-complete-confetti-burst ${burst.side}`;
-    img.alt = '';
-    img.loading = 'eager';
-    img.decoding = 'async';
-    img.style.setProperty('--fab-confetti-delay', `${burst.delayMs}ms`);
-    applyArtSrc(overlay, img, '--fab-complete-confetti-burst-url');
-    gateOnDecode(img);
-    layer.appendChild(img);
+    // Random 3D tumble: normalized random axis, 1–3 full turns either way.
+    const ax = rand(-1, 1), ay = rand(-1, 1), az = rand(-1, 1);
+    const norm = Math.hypot(ax, ay, az) || 1;
+    const turns = rand(1, 3) * (Math.random() < 0.5 ? -1 : 1);
+    const scale = rand(0.6, 1.3);
+
+    const steps = 22;
+    const frames: Keyframe[] = [];
+    for (let s = 0; s <= steps; s += 1) {
+      const t = s / steps;
+      const x = quadAt(t, x0, x1, x2);
+      const y = quadAt(t, y0, y1, y2);
+      frames.push({
+        transform: `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0) `
+          + `rotate3d(${(ax / norm).toFixed(3)}, ${(ay / norm).toFixed(3)}, ${(az / norm).toFixed(3)}, ${(turns * 360 * t).toFixed(0)}deg) `
+          + `scale(${scale.toFixed(2)})`,
+        opacity: t > 0.85 ? (1 - t) / 0.15 : 1,
+      });
+    }
+    piece.animate(frames, {
+      duration: durationMs * rand(0.8, 1.2),
+      delay: rand(0, maxDelayMs),
+      easing: 'linear',
+      fill: 'both',
+    });
   }
 
   overlay.prepend(layer);
-  void Promise.allSettled(decodes).then(() => {
-    for (const img of Array.from(layer.querySelectorAll('img'))) {
-      (img as HTMLElement).style.animationPlayState = 'running';
-    }
-  });
-  scheduleTimeout(() => layer.remove(), durationMs + maxDelayMs + 260);
+  scheduleTimeout(() => layer.remove(), durationMs * 1.2 + maxDelayMs + 260);
 }
 
 /** Build the 2x-button copy (label + sublabel) via createElement — never
