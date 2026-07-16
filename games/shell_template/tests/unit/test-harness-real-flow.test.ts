@@ -220,6 +220,20 @@ function createFakeGame() {
         overlay.appendChild(failed);
       }
     }),
+    winLevel: vi.fn(() => {
+      fakeGameScene.complete = true;
+      const complete = document.createElement("div");
+      complete.id = "level-complete-overlay";
+      overlay.appendChild(complete);
+    }),
+    loseLife: vi.fn(() => {
+      mocks.gameState.lives -= 1;
+      if (mocks.gameState.lives <= 0) {
+        const failed = document.createElement("div");
+        failed.id = "level-failed-overlay";
+        overlay.appendChild(failed);
+      }
+    }),
     getRevealedCellCount: vi.fn(() => 0),
     getDissolveCellCount: vi.fn(() => ({ active: 0, completed: 0 })),
     getLastRestorationDissolveBounds: vi.fn(() => null),
@@ -354,17 +368,15 @@ describe("find_the_dog TestHarness real-flow wiring", () => {
     });
   });
 
-  it("winLevel taps dog positions through the gameplay input boundary", async () => {
+  it("winLevel reports the win outcome through the stub scene seam", async () => {
     const { createFindTheDogHarness } = await import("../../src/testing/TestHarness");
     const fixture = createFakeGame();
     const harness = createFindTheDogHarness(fixture.game as never);
     await harness.verbs.startLevel.run();
-    mocks.driveInputAt.mockClear();
 
     await expect(harness.winLevel()).resolves.toBe(true);
 
-    expect(mocks.driveInputAt).toHaveBeenCalledTimes(2);
-    expect(fixture.fakeGameScene.taps.map((tap) => [tap.worldX, tap.worldY])).toEqual([[25, 25], [75, 75]]);
+    expect(fixture.fakeGameScene.winLevel).toHaveBeenCalledTimes(1);
     expect(harness.snapshot()).toMatchObject({
       activeScene: "GameScene",
       status: "complete",

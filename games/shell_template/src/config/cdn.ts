@@ -13,14 +13,17 @@ import { Capacitor } from '@capacitor/core';
  */
 
 /** The AB experiment that the cohort_bucket user property refers to. */
-export const EXPERIMENT_ID = 'ftd_levelset_v1';
+export const EXPERIMENT_ID = 'shell_template_levelset_v1';
 
 /** Number of cohort buckets. 100 gives percentage-point granularity. */
 export const COHORT_BUCKET_COUNT = 100;
 
 export type CdnRuntimeEnv = Record<string, string | boolean | undefined>;
 
-const DEFAULT_CDN_ORIGIN = 'https://ftd-level-origin.batuaytemiz.workers.dev';
+// Shell template default: no CDN origin. The remote level-streaming path
+// stays compiled-in and functional; a game turns it on by setting
+// VITE_CDN_ORIGIN_PROD / VITE_CDN_ORIGIN_DEV / VITE_CDN_ORIGIN_ANDROID.
+const DEFAULT_CDN_ORIGIN: string | null = null;
 
 function envString(value: string | boolean | undefined): string | null {
   if (typeof value !== 'string') return null;

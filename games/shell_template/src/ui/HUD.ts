@@ -14,6 +14,10 @@ import { getLegalLinks, type LegalLinks } from '../platform/LegalLinks';
 import { privacyConsentService } from '../privacy/PrivacyConsentService';
 import { rewardedAdIconMarkup } from './RewardedAdIcon';
 import { hideHomeMenuLayer } from './OverlayVisibility';
+import { gameConfig } from '../../game.config';
+
+/** Shell feature toggle: hides the hint pill (and its top-up "+") entirely. */
+const HINTS_ENABLED = gameConfig.features.hints;
 
 let hintCallback: (() => void) | null = null;
 
@@ -118,7 +122,7 @@ export function initHUD(): void {
         <path fill="currentColor" d="M19.35 10.04A7.49 7.49 0 0 0 12 4c-2.65 0-4.96 1.38-6.32 3.45l1.43 1.43A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 5.45 4.78l.2 1.45l1.46.11A2.5 2.5 0 0 1 21.5 15c0 1.1-.72 2.04-1.71 2.38l1.43 1.43A4.5 4.5 0 0 0 23 15a4.5 4.5 0 0 0-3.65-4.96zM3.71 3.12L2.29 4.54l2.1 2.1A6.01 6.01 0 0 0 1 12c0 2.45 1.47 4.55 3.58 5.48c.32.14.66.25 1.01.33L18.46 20.71l1.42-1.42z"/>
       </svg>
     </div>
-    <div class="hud-hint-wrap">
+    <div class="hud-hint-wrap" ${HINTS_ENABLED ? '' : 'hidden'}>
       <button id="hint-btn" class="hud-pill" data-economy-target="hints" type="button">
         <img class="hud-pill-icon" src="/ui/menu-icons/icon_hint_magnifier.png" alt="" aria-hidden="true" data-economy-anchor="hint">
         <span class="hint-count">${gameState.hintsRemaining}</span>

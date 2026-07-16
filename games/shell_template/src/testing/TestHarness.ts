@@ -2,8 +2,8 @@ import Phaser from 'phaser';
 import { driveInputAt, type ClientPoint, type GameHarness, type HarnessSaveProfile } from '@fabrikav2/testkit/harness';
 import { gameState, type CompletionTransaction, type GameSettings, type WalletSnapshot } from '../core/GameState';
 import { GAMEPLAY, TIMING } from '../core/Constants';
-import { GameScene, type ClassicRenderDiagnosticsSnapshot, type RuntimeTexturesSnapshot, type ViewportEffectSnapshot } from '../scenes/GameScene';
-import { loadLevel, packageCacheSnapshot as getPackageCacheSnapshot, runtimeSequenceSnapshot as getRuntimeSequenceSnapshot, type LevelData, type LevelDog } from '../data/levels';
+import { GameScene } from '../scenes/GameScene';
+import { loadLevel, packageCacheSnapshot as getPackageCacheSnapshot, runtimeSequenceSnapshot as getRuntimeSequenceSnapshot, type LevelData } from '../data/levels';
 import type { RuntimeSequenceResolution } from '../sequence/runtimeSequence';
 import type { planRollingPackageRetention } from '../data/levelPackageCache';
 import { remoteConfigService, type RemoteConfigSnapshot } from '../config/RemoteConfigService';
@@ -23,7 +23,7 @@ import {
   type ViewportMetricsSnapshot,
 } from '@fabrikav2/testkit/testing';
 
-type FindTheDogVerb = 'gotoHome' | 'startLevel' | 'openSettings' | 'pause' | 'winLevel' | 'failLevel' | 'tapSafeMiss';
+type ShellTemplateVerb = 'gotoHome' | 'startLevel' | 'openSettings' | 'pause' | 'winLevel' | 'failLevel';
 
 export const findTheDogDrivePredicates = {
   menu: (snapshot: DriveSnapshot): boolean => {
@@ -93,7 +93,7 @@ const START_LEVEL_TARGET_POLL_MS = 50;
 const START_LEVEL_TARGET_MAX_POLLS = 160;
 const TERMINAL_TARGET_POLL_MS = 50;
 const TERMINAL_TARGET_MAX_POLLS = 160;
-const WRONG_TAP_SETTLE_MS = TIMING.PENALTY_COOLDOWN_MS + 20;
+const LOSE_LIFE_SETTLE_MS = TIMING.PENALTY_COOLDOWN_MS + 20;
 
 const sleep = (ms: number): Promise<void> =>
   new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -143,36 +143,16 @@ export interface FindTheDogSnapshot {
   lifecycleSuspended: boolean;
   levelId: string;
   levelSize: { width: number; height: number };
-  dogPositions: Array<{ id: string; x: number; y: number; r: number; found: boolean }>;
-  foundDogIds: string[];
   totalDogs: number;
+  foundDogIds: string[];
   lives: number;
   hintsRemaining: number;
   wallet: WalletSnapshot;
   completionTransaction: CompletionTransaction | null;
   hintCircleActive: boolean;
   levelComplete: boolean;
-  revealedCellCount: number;
-  /** Restoration mode: dissolve cells in flight and completed. Zero in Classic mode. */
-  dissolveCells: { active: number; completed: number };
-  lastRestorationDissolveBounds: { left: number; top: number; right: number; bottom: number } | null;
-  /** Restoration mode: separated sprite fly-to-counter animations. */
-  pickupAnimations: { active: number; completed: number };
-  /** Runtime-only ambient motion layer; never tied to dog target positions. */
-  microAnimations: { activeObjects: number; activeTweens: number };
-  lastViewportEffect: ViewportEffectSnapshot | null;
-  /** True when setupLevel resolved the scene in Restoration mode. False during Classic mode and before setupLevel completes. */
-  isRestoration: boolean;
-  imgScale: number;
-  imgOffsetX: number;
-  imgOffsetY: number;
-  cameraZoom: number;
-  cameraScrollX: number;
-  cameraScrollY: number;
   gameSize: { width: number; height: number };
   viewportMetrics: ViewportMetricsSnapshot;
-  runtimeTextures: RuntimeTexturesSnapshot;
-  classicRenderDiagnostics: ClassicRenderDiagnosticsSnapshot | null;
   runtimeSequence: RuntimeSequenceResolution | null;
   packageCache: {
     catalogRevision: string | null;
@@ -181,22 +161,10 @@ export interface FindTheDogSnapshot {
     lastServingAttempt: LevelData['servingAttempt'] | null;
     lastKnownLiveListedStorageKey: string;
   };
-  /** Section state — null for portrait levels with no SectionController. */
-  section: {
-    currentIndex: number;
-    targetIndex: number | null;
-    isPanning: boolean;
-    isAfterMidpan: boolean;
-    tappableXStart: number;
-    tappableXEnd: number;
-    cameraScrollX: number;
-    cameraScrollY: number;
-    totalSections: number;
-  } | null;
   levelDataReady: boolean;
 }
 
-export interface FindTheDogHarness extends GameHarness<FindTheDogVerb> {
+export interface FindTheDogHarness extends GameHarness<ShellTemplateVerb> {
   readonly enabled: boolean;
   readonly verbs: {
     gotoHome: { run: () => Promise<boolean> };
@@ -205,19 +173,13 @@ export interface FindTheDogHarness extends GameHarness<FindTheDogVerb> {
     pause: { run: () => Promise<boolean> };
     winLevel: { run: () => Promise<boolean> };
     failLevel: { run: () => Promise<boolean> };
-    tapSafeMiss: { run: () => { hitDogId: string | null; penalty: boolean } };
   };
   gotoGameScene(levelId?: string): void;
   /**
    * Start GameScene with a synthetic LevelData payload. Test-only:
-   * skips the manifest + AssetCache entirely, so tests can exercise
-   * landscape / bgImageUrls combinations that don't ship as bundled
-   * levels (e.g. the landscape restoration branch — no shipping
-   * landscape has a full bg set yet; see todo 045).
+   * skips the manifest + AssetCache entirely.
    */
   gotoSyntheticLevel(levelData: LevelData): void;
-  findDog(dogId: string): { found: boolean; totalFound: number };
-  tapAtLevelCoords(x: number, y: number): { hitDogId: string | null; penalty: boolean };
   winLevel(): Promise<boolean>;
   failLevel(): Promise<boolean>;
   driveTo(state: DriveState): Promise<boolean>;
@@ -229,11 +191,8 @@ export interface FindTheDogHarness extends GameHarness<FindTheDogVerb> {
   grantRewardedHintForTest(): void;
   walletSnapshot(): WalletSnapshot;
   /**
-   * Mutate any subset of persisted settings. Used by e2e tests to
-   * flip `gameMode` (Classic / Restoration), toggle sound/haptics/ads,
-   * etc. without driving the DOM modal. `save()` persists to
-   * localStorage so the change survives the scene.restart callers
-   * typically fire next. Unknown keys are ignored.
+   * Mutate any subset of persisted settings. `save()` persists to
+   * localStorage so the change survives scene.restart. Unknown keys ignored.
    */
   setSettings(partial: Partial<GameSettings>): void;
   remoteConfigSnapshot(): RemoteConfigSnapshot;
@@ -245,14 +204,6 @@ export interface FindTheDogHarness extends GameHarness<FindTheDogVerb> {
   setRewardedAdResultForTest(result: RewardedAdResultForTest | null): void;
   setLifecycleForTest(state: 'active' | 'inactive'): void;
   setFailOverlayPendingRecoveryMsForTest(ms: number | null): void;
-  enableMicroAnimationsForTest(): void;
-  /**
-   * Directly set the main camera zoom. Test-only: simulates the outcome of a
-   * pinch gesture (multi-touch pinch is impractical to drive in Playwright)
-   * so the zoom-step of the first-time tutorial can be exercised.
-   */
-  setCameraZoomForTest(zoom: number): void;
-  restorationMaskAlphaAtLevelCoords(x: number, y: number): number | null;
   gotoHomeForTest(): void;
   snapshot(): FindTheDogSnapshot;
 }
@@ -328,26 +279,6 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     );
   }
 
-  function canvasClientPoint(canvasX: number, canvasY: number): ClientPoint | null {
-    const rect = game.canvas.getBoundingClientRect();
-    if (rect.width <= 0 || rect.height <= 0 || game.canvas.width <= 0 || game.canvas.height <= 0) return null;
-    return {
-      x: rect.left + (canvasX / game.canvas.width) * rect.width,
-      y: rect.top + (canvasY / game.canvas.height) * rect.height,
-    };
-  }
-
-  function tryDriveGameplayTap(scene: GameScene, canvasX: number, canvasY: number): boolean {
-    const point = canvasClientPoint(canvasX, canvasY);
-    if (point === null || typeof document.elementFromPoint !== 'function') {
-      scene.handleTap({ worldX: canvasX, worldY: canvasY, screenX: canvasX, screenY: canvasY });
-      return true;
-    }
-
-    const { hitTarget } = driveInputAt(point);
-    return hitTarget === game.canvas;
-  }
-
   async function pauseGame(): Promise<boolean> {
     setLifecycleForTest('inactive');
     return waitUntil(
@@ -357,37 +288,8 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     );
   }
 
-  function safeMissPoint(): { x: number; y: number } {
-    const snapshot = harnessSnapshot();
-    const width = Math.max(1, snapshot.levelSize.width);
-    const height = Math.max(1, snapshot.levelSize.height);
-    const candidates = [
-      { x: width * 0.05, y: height * 0.05 },
-      { x: width * 0.95, y: height * 0.05 },
-      { x: width * 0.05, y: height * 0.95 },
-      { x: width * 0.95, y: height * 0.95 },
-      { x: width * 0.5, y: height * 0.5 },
-    ];
-    return candidates.find((point) => snapshot.dogPositions.every((dog) => (
-      Math.hypot(dog.x - point.x, dog.y - point.y) > dog.r * 4
-    ))) ?? candidates[0];
-  }
-
-  function tapSafeMiss(): { hitDogId: string | null; penalty: boolean } {
-    const point = safeMissPoint();
-    return harness.tapAtLevelCoords(point.x, point.y);
-  }
-
   async function winLevel(): Promise<boolean> {
-    const before = harnessSnapshot();
-    for (const dog of before.dogPositions.filter((candidate) => !candidate.found)) {
-      harness.findDog(dog.id);
-      await waitUntil(
-        () => gameState.foundDogIds.has(dog.id),
-        TERMINAL_TARGET_POLL_MS,
-        TERMINAL_TARGET_MAX_POLLS,
-      );
-    }
+    getGameScene()?.winLevel();
     return waitUntil(
       () => findTheDogDrivePredicates.win(driveSnapshot()),
       TERMINAL_TARGET_POLL_MS,
@@ -398,9 +300,9 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
   async function failLevel(): Promise<boolean> {
     for (let i = 0; i < GAMEPLAY.LIVES_PER_LEVEL + 2; i += 1) {
       if (findTheDogDrivePredicates.fail(driveSnapshot())) return true;
-      tapSafeMiss();
+      getGameScene()?.loseLife();
       if (findTheDogDrivePredicates.fail(driveSnapshot())) return true;
-      await sleep(WRONG_TAP_SETTLE_MS);
+      await sleep(LOSE_LIFE_SETTLE_MS);
     }
     return waitUntil(
       () => findTheDogDrivePredicates.fail(driveSnapshot()),
@@ -448,7 +350,6 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     const activeScene = homeShellVisible ? 'HomeScene' : phaserActiveScene;
     const visibleGameScene = activeScene === 'GameScene';
     const level = scene?.getLevel();
-    const dogs: LevelDog[] = level?.dogs ?? [];
     const levelComplete = visibleGameScene && ((scene?.isLevelComplete() ?? false) || levelCompleteOverlayVisible);
     const levelFailed = visibleGameScene && (levelFailedOverlayVisible || gameState.lives <= 0);
 
@@ -471,46 +372,18 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       lifecycleSuspended: isGameSuspended(),
       levelId: level?.id ?? '',
       levelSize: { width: level?.width ?? 0, height: level?.height ?? 0 },
-      dogPositions: dogs.map((d) => ({
-        id: d.id,
-        x: d.x,
-        y: d.y,
-        r: d.r,
-        found: gameState.foundDogIds.has(d.id),
-      })),
+      totalDogs: level?.dogs.length ?? 0,
       foundDogIds: [...gameState.foundDogIds],
-      totalDogs: dogs.length,
       lives: gameState.lives,
       hintsRemaining: gameState.hintsRemaining,
       wallet: gameState.walletSnapshot(),
       completionTransaction: gameState.completionTransactionSnapshot(),
       hintCircleActive: gameState.hintCircleActive,
       levelComplete,
-      revealedCellCount: scene?.getRevealedCellCount() ?? 0,
-      dissolveCells: scene?.getDissolveCellCount() ?? { active: 0, completed: 0 },
-      lastRestorationDissolveBounds: scene?.getLastRestorationDissolveBounds() ?? null,
-      pickupAnimations: scene?.getPickupAnimationCount() ?? { active: 0, completed: 0 },
-      microAnimations: scene?.getMicroAnimationSnapshot() ?? { activeObjects: 0, activeTweens: 0 },
-      lastViewportEffect: scene?.getLastViewportEffectSnapshot() ?? null,
-      isRestoration: scene?.getIsRestoration() ?? false,
-      imgScale: scene?.imgScale ?? 0,
-      imgOffsetX: scene?.imgOffsetX ?? 0,
-      imgOffsetY: scene?.imgOffsetY ?? 0,
-      cameraZoom: scene?.getCameraZoom() ?? 1,
-      cameraScrollX: scene?.cameras.main.scrollX ?? 0,
-      cameraScrollY: scene?.cameras.main.scrollY ?? 0,
       gameSize: { width: game.canvas.width, height: game.canvas.height },
       viewportMetrics: readViewportMetrics(game.canvas),
-      runtimeTextures: scene?.getRuntimeTexturesSnapshot() ?? {
-        maxLongEdge: 0,
-        color: null,
-        bw: null,
-        bg: [],
-      },
-      classicRenderDiagnostics: scene?.getClassicRenderDiagnosticsSnapshot() ?? null,
       runtimeSequence: getRuntimeSequenceSnapshot(),
       packageCache: getPackageCacheSnapshot(),
-      section: scene?.getSectionSnapshot() ?? null,
       levelDataReady: scene?.isLevelDataReady() ?? false,
     };
   }
@@ -525,7 +398,6 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       pause: { run: pauseGame },
       winLevel: { run: winLevel },
       failLevel: { run: failLevel },
-      tapSafeMiss: { run: tapSafeMiss },
     },
 
     gotoState(state: string): void {
@@ -577,29 +449,6 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       else game.scene.start('GameScene', { levelData });
     },
 
-    setCameraZoomForTest(zoom: number): void {
-      const scene = getGameScene();
-      scene?.cameras.main.setZoom(zoom);
-    },
-
-    findDog(dogId: string): { found: boolean; totalFound: number } {
-      const scene = getGameScene();
-      const level = scene?.getLevel();
-      if (!scene || !level) return { found: false, totalFound: 0 };
-
-      const dog = level.dogs.find((d) => d.id === dogId);
-      if (!dog) return { found: false, totalFound: gameState.foundDogIds.size };
-
-      const canvasX = scene.imgOffsetX + dog.x * scene.imgScale;
-      const canvasY = scene.imgOffsetY + dog.y * scene.imgScale;
-      tryDriveGameplayTap(scene, canvasX, canvasY);
-
-      return {
-        found: gameState.foundDogIds.has(dogId),
-        totalFound: gameState.foundDogIds.size,
-      };
-    },
-
     winLevel,
 
     failLevel,
@@ -630,31 +479,6 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       if (typeof profile.sfx === 'boolean') gameState.settings.soundEffectsOn = profile.sfx;
       if (typeof profile.haptics === 'boolean') gameState.settings.hapticsOn = profile.haptics;
       gameState.save();
-    },
-
-    tapAtLevelCoords(x: number, y: number): { hitDogId: string | null; penalty: boolean } {
-      const scene = getGameScene();
-      if (!scene) return { hitDogId: null, penalty: false };
-
-      const livesBefore = gameState.lives;
-      const foundBefore = new Set(gameState.foundDogIds);
-
-      const canvasX = scene.imgOffsetX + x * scene.imgScale;
-      const canvasY = scene.imgOffsetY + y * scene.imgScale;
-      tryDriveGameplayTap(scene, canvasX, canvasY);
-
-      let hitDogId: string | null = null;
-      for (const id of gameState.foundDogIds) {
-        if (!foundBefore.has(id)) {
-          hitDogId = id;
-          break;
-        }
-      }
-
-      return {
-        hitDogId,
-        penalty: gameState.lives < livesBefore,
-      };
     },
 
     setState(partial: { lives?: number; hintsRemaining?: number; currentLevelIndex?: number }): void {
@@ -732,14 +556,6 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
 
     setFailOverlayPendingRecoveryMsForTest(ms: number | null): void {
       setFailOverlayPendingRecoveryMsForTest(ms);
-    },
-
-    enableMicroAnimationsForTest(): void {
-      getGameScene()?.enableMicroAnimationsForTest();
-    },
-
-    restorationMaskAlphaAtLevelCoords(x: number, y: number): number | null {
-      return getGameScene()?.getRestorationMaskAlphaAtLevelPoint(x, y) ?? null;
     },
 
     gotoHomeForTest(): void {

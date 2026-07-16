@@ -159,20 +159,14 @@ if (typeof window !== 'undefined') {
         console.warn('[insituTour] failed while running FTD tour', err);
       });
       if (String(import.meta.env.VITE_FTD_SIM_AUTOPLAY) === 'true') {
+        // Sim autoplay: enter the stub game scene and immediately win the level.
         window.setTimeout((): void => {
           harness.gotoGameScene();
           const poll = window.setInterval((): void => {
             const snapshot = harness.snapshot();
-            if (snapshot.activeScene !== 'GameScene' || snapshot.dogPositions.length === 0) return;
+            if (snapshot.activeScene !== 'GameScene' || !snapshot.levelDataReady) return;
             window.clearInterval(poll);
-            const centerX = snapshot.levelSize.width / 2;
-            const centerY = snapshot.levelSize.height / 2;
-            const target = snapshot.dogPositions.reduce((best, dog) => {
-              const bestDistance = Math.hypot(best.x - centerX, best.y - centerY);
-              const dogDistance = Math.hypot(dog.x - centerX, dog.y - centerY);
-              return dogDistance < bestDistance ? dog : best;
-            });
-            harness.findDog(target.id);
+            void harness.winLevel();
           }, 250);
         }, 250);
       }

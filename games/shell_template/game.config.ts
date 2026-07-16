@@ -12,7 +12,11 @@ export const gameConfig = {
   // design sheet. `satisfies CopyKey` fails typecheck if a literal is pasted here.
   title: "game.title" satisfies CopyKey,
   screens: ["HomeMenu", "SagaMap", "Shop", "Settings", "ResultCard", "PauseOverlay", "Toast", "ConnectivityIndicator"],
-  saga: { levels: 54 },
+  saga: { levels: 20 },
+  // Shell feature toggles. Hints are a shell-owned system (balance, boosters,
+  // shop offers, HUD pill); a game without a hint mechanic flips this off and
+  // the HUD hides the pill while the economy plumbing stays compiled-in.
+  features: { hints: true },
   economy: { softCurrency: "coins" },
   adPlacements: ["rewarded_hint", "level_complete_claim_x2", "interstitial_level", "banner_gameplay"],
   productCatalog: [
