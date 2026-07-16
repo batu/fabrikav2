@@ -4664,3 +4664,11 @@ html[data-scheme="mint"] .home-page-shop {
   --shop-section-border: rgba(6, 36, 27, 0.78);
   --shop-section-stroke: #06251b;
 }
+
+/* Square tile art: the kit's node-dot radius token defaults to a circle
+   (999px, legacy candy discs) which clipped the square tiles into discs and
+   drew the white outline as a ring. Match the calm tiles' corner radius. */
+.home-map-stage .fab-levelmap-node-dot {
+  --fab-levelmap-node-radius: 26px;
+  border-radius: 26px;
+}
