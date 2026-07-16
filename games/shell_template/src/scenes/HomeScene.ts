@@ -6,6 +6,7 @@ import { hideHomeMenuLayer, showHomeMenuLayer } from '../ui/OverlayVisibility';
 import { hideSceneTransitionCoverAfterPaint, showSceneTransitionCover } from '../ui/SceneTransitionCover';
 import { adService } from '../ads/Service';
 import { hapticWrong } from '../haptics/HapticsManager';
+import { configuredMenuVignetteFactory, type MenuVignette } from '../menu/MenuVignette';
 import { crossfadeTo as crossfadeAmbient, presetForLevel } from '../audio/AmbientManager';
 import { mountLevelMap, type LevelMapNode, type LevelNodeState, type ThemeTokens } from '../v1core/ui';
 import {
@@ -89,6 +90,9 @@ export class HomeScene extends Phaser.Scene {
   /** In-flight/completed background texture warm for the current level.
    *  `token.stale` flips to abort a warm the launch path has superseded. */
   private prewarm: { levelId: string; token: { stale: boolean }; promise: Promise<void> } | null = null;
+  private menuVignette: MenuVignette | null = null;
+  private menuVignettePoll: Phaser.Time.TimerEvent | null = null;
+  private menuVignettePaused = false;
 
   constructor() {
     super('HomeScene');
@@ -108,6 +112,7 @@ export class HomeScene extends Phaser.Scene {
     this.renderHomeScreen();
     this.scheduleHomeAmbient();
     this.registerLifecycleSuspendHooks();
+    this.startMenuVignette();
     // The level map paints real numbered nodes synchronously (buildLevelMapNodes
     // seeds from gameState.currentLevelIndex before the async index resolves),
     // so the home can reveal immediately without flashing a numberless
@@ -127,6 +132,7 @@ export class HomeScene extends Phaser.Scene {
     this.events.once('shutdown', () => {
       this.isShuttingDown = true;
       this.navigationGeneration += 1;
+      this.stopMenuVignette();
       this.cancelScheduledHomeAmbient();
       this.cancelScheduledPrewarm();
       // Abort any in-flight warm so it can't mutate shared textures after the
@@ -139,6 +145,45 @@ export class HomeScene extends Phaser.Scene {
       if (overlay.querySelector('#home-shell')) overlay.innerHTML = '';
       this.overlay = null;
     });
+  }
+
+  /**
+   * Optional ambient game vignette on the canvas behind the DOM shell (see
+   * src/menu/MenuVignette.ts). The shell owns the loop: paused on lifecycle
+   * suspend and while a page overlay (shop/settings) covers the home, torn
+   * down on scene shutdown. A 400ms poll decides overlay pause — cheap, and
+   * keeps openPage/closePage free of vignette coupling.
+   */
+  private startMenuVignette(): void {
+    const factory = configuredMenuVignetteFactory();
+    if (factory === null) return;
+    this.stopMenuVignette();
+    this.menuVignette = factory(this);
+    this.overlay?.classList.add('hud-vignette-active');
+    this.menuVignettePoll = this.time.addEvent({
+      delay: 400,
+      loop: true,
+      callback: () => {
+        if (this.menuVignette === null) return;
+        const covered = document.getElementById('home-page-overlay') !== null || isGameSuspended();
+        if (covered && !this.menuVignettePaused) {
+          this.menuVignette.pause();
+          this.menuVignettePaused = true;
+        } else if (!covered && this.menuVignettePaused) {
+          this.menuVignette.resume();
+          this.menuVignettePaused = false;
+        }
+      },
+    });
+  }
+
+  private stopMenuVignette(): void {
+    this.overlay?.classList.remove('hud-vignette-active');
+    this.menuVignettePoll?.remove();
+    this.menuVignettePoll = null;
+    this.menuVignette?.stop();
+    this.menuVignette = null;
+    this.menuVignettePaused = false;
   }
 
   private registerLifecycleSuspendHooks(): void {

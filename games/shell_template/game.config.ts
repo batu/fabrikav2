@@ -17,6 +17,10 @@ export const gameConfig = {
   // shop offers, HUD pill); a game without a hint mechanic flips this off and
   // the HUD hides the pill while the economy plumbing stays compiled-in.
   features: { hints: true },
+  // Optional ambient game scene rendered on the canvas behind the home shell
+  // (see src/menu/MenuVignette.ts). 'none' disables; 'demo' is the template's
+  // seam-proving drift animation; a game registers its own key.
+  menu: { vignette: 'demo' as 'none' | 'demo' },
   economy: { softCurrency: "coins" },
   adPlacements: ["rewarded_hint", "level_complete_claim_x2", "interstitial_level", "banner_gameplay"],
   productCatalog: [

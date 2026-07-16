@@ -2636,6 +2636,16 @@
     linear-gradient(180deg, #fff2cf 0%, #ffd79a 48%, #f1a957 100%);
 }
 
+/* Menu vignette active: the bottom linear layer goes translucent so the
+   ambient game scene on the canvas shows through; the spotlight + depth
+   vignette stay so the home keeps its lighting. */
+#hud-overlay.home-mode.hud-vignette-active {
+  background:
+    radial-gradient(118% 72% at 50% 7%, rgba(255, 251, 232, 0.85) 0%, rgba(255, 251, 232, 0) 52%),
+    radial-gradient(145% 118% at 50% 116%, rgba(120, 62, 18, 0.34) 0%, rgba(120, 62, 18, 0) 56%),
+    linear-gradient(180deg, rgba(255, 242, 207, 0.72) 0%, rgba(255, 215, 154, 0.66) 48%, rgba(241, 169, 87, 0.72) 100%);
+}
+
 #hud-overlay.home-mode::before {
   content: "";
   pointer-events: none;

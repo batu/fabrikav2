@@ -58,3 +58,14 @@ Shell systems referenced only by removed gameplay were deleted
 `GameState` still carries FTD-shaped fields (`foundDogIds`, `gameMode`,
 `voronoiReveal`) — de-branding those is step 2, since Settings/persistence
 reference them.
+
+## Menu vignette slot (added 2026-07-16)
+
+`game.config.ts` `menu.vignette` ('none' | 'demo' | game-registered key) →
+`src/menu/MenuVignette.ts`. HomeScene runs the configured factory on the
+Phaser canvas BEHIND the DOM shell (`hud-vignette-active` thins the home
+backdrop so the canvas shows through; the paw pattern + spotlight stay).
+Contract: draw-only (no input), ambient, reduced-motion aware; the shell
+pauses it on lifecycle suspend / page overlays and tears it down on
+shutdown. A game (e.g. marble_run) registers its own factory — a marble
+loop behind the saga map — in `vignetteFactories`.
