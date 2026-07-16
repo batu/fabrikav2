@@ -12,6 +12,8 @@ import { woolLevelForShellId } from './levels';
 import type { WoolEvent, WoolState, YarnColor } from './types';
 import { SLOT_COUNT } from './types';
 
+const AUTOPLAY = String(import.meta.env.VITE_WOOL_AUTOPLAY) === 'true';
+
 const YARN_HEX: Record<YarnColor, number> = {
   red: 0xe5646e,
   blue: 0x5f9df7,
@@ -133,6 +135,26 @@ export class WoolRenderer {
     this.state = r.state;
     for (const e of r.events) this.applyEvent(e);
     this.drawDragon();
+    if (AUTOPLAY) this.autoplayStep(deltaMs);
+  }
+
+  /** Demo autoplay (VITE_WOOL_AUTOPLAY=true builds only): plays the level the
+   *  way a careful player would — release a legal thread whose color is in
+   *  the visible window; otherwise only unblock when slots are mostly free.
+   *  Every move goes through the real tap path (tweens, sounds, engine). */
+  private autoplayCooldown = 0;
+  private autoplayStep(deltaMs: number): void {
+    this.autoplayCooldown -= deltaMs;
+    if (this.autoplayCooldown > 0) return;
+    this.autoplayCooldown = 1100;
+    const st = this.state;
+    if (!st.slots.some((x) => x === null)) return;
+    const visible = new Set(visibleIndices(st).map((i) => st.dragon[i]));
+    const releasable = st.threads.filter((t) => canRelease(st, t.id));
+    const freeCount = st.slots.filter((x) => x === null).length;
+    const pick = releasable.find((t) => visible.has(t.color))
+      ?? (freeCount >= 3 ? releasable[0] : undefined);
+    if (pick) this.onThreadTap(pick.id);
   }
 
   private applyEvent(e: WoolEvent): void {

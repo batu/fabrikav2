@@ -102,6 +102,35 @@ final class InsituTourTests: XCTestCase {
         return marker.exists ? marker.label : nil
     }
 
+    /// Record-only session: launch the app, tap the real Play button, and let
+    /// the (autoplay-flagged) game play itself while the screen recording rolls.
+    /// Gated on TEST_RUNNER_RECORD_SECONDS; ends with a deliberate XCTFail so
+    /// Xcode KEEPS the screen recording (recordings are discarded on success).
+    func testRecordSession() throws {
+        guard let secondsRaw = ProcessInfo.processInfo.environment["RECORD_SECONDS"],
+              let seconds = Double(secondsRaw), seconds > 0 else {
+            throw XCTSkip("RECORD_SECONDS not set — record-only session not requested")
+        }
+        guard let bundleId = ProcessInfo.processInfo.environment["TARGET_BUNDLE_ID"], !bundleId.isEmpty else {
+            XCTFail("TARGET_BUNDLE_ID not set")
+            return
+        }
+        let app = XCUIApplication(bundleIdentifier: bundleId)
+        app.launch()
+        dismissSystemAlerts()
+        // Let the menu settle, then tap the real Play button by its label.
+        Thread.sleep(forTimeInterval: 6)
+        let play = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Play Level'")).firstMatch
+        if play.waitForExistence(timeout: 10) {
+            play.tap()
+        } else {
+            let playNow = app.staticTexts["Play Now"].firstMatch
+            if playNow.waitForExistence(timeout: 5) { playNow.tap() }
+        }
+        Thread.sleep(forTimeInterval: seconds)
+        XCTFail("record-only session complete — failing on purpose so the screen recording is retained")
+    }
+
     func testAllStates() {
         guard let bundleId = ProcessInfo.processInfo.environment["TARGET_BUNDLE_ID"], !bundleId.isEmpty else {
             XCTFail("TARGET_BUNDLE_ID not set — pass TEST_RUNNER_TARGET_BUNDLE_ID=<appId> to xcodebuild test")
