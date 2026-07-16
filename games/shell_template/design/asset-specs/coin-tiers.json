@@ -3,10 +3,12 @@
   "kind": "icon",
   "size": "256x256",
   "gen_size": "1536x1024",
-  "description": "Six tiers of the SAME premium coin from the coin spec, richness scaling with tier: single coin, small pouch, coin stack, brimming chest, overflowing cart, gleaming vault pile.",
-  "prompt_extra": "every cell uses the identical coin design; only quantity and staging grow per tier",
+  "description": "Six tiers of the SAME gold coin: a glossy golden coin with an embossed five-point star and darker gold rim. Tiers: single coin; small tied pouch spilling star coins; neat tall stack of star coins; open wooden chest brimming ONLY with star coins; wooden cart heaped with star coins; huge gleaming pile of star coins.",
+  "prompt_extra": "every cell repeats the identical star coin design; ONLY star coins appear \u2014 no gems, no jewels, no other treasure; only quantity and staging grow per tier",
   "transparent": true,
-  "models": ["google/gemini-3.1-flash-image", "openai/gpt-5.4-image-2"],
+  "models": [
+    "google/gemini-3.1-flash-image"
+  ],
   "sheet": {
     "cols": 3,
     "rows": 2,
