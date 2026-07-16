@@ -20,7 +20,7 @@ export const gameConfig = {
   // Optional ambient game scene rendered on the canvas behind the home shell
   // (see src/menu/MenuVignette.ts). 'none' disables; 'demo' is the template's
   // seam-proving drift animation; a game registers its own key.
-  menu: { vignette: 'demo' as 'none' | 'demo' },
+  menu: { vignette: 'none' as 'none' | 'demo' },
   economy: { softCurrency: "coins" },
   adPlacements: ["rewarded_hint", "level_complete_claim_x2", "interstitial_level", "banner_gameplay"],
   productCatalog: [

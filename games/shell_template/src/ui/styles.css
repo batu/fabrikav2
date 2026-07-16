@@ -2875,15 +2875,14 @@
   margin: -40px auto 14px;
   /* Dedicated Play art (not the shop pill palette): richer green with gloss,
      baked highlights and outline — the pre-port shipped CTA look. */
-  width: min(58vw, 232px);
-  height: 72px;
-  min-height: 72px;
+  /* Shipped proportions: the art at its natural stretch (the baked white
+     outline reads as an intentional sticker edge at this size). */
+  width: min(46vw, 220px);
+  height: 66px;
+  min-height: 66px;
   border: 0;
   border-radius: 999px;
-  overflow: hidden;
-  /* Oversize + crop: the art carries a baked white outline that reads as a
-     dirty halo at small sizes; zooming the fill past the rounded clip hides it. */
-  background: url('/ui/home/play-level-button-runtime.png') center / 110% 122% no-repeat;
+  background: url('/ui/home/play-level-button-runtime.png') center / 100% 100% no-repeat;
   box-shadow: none;
   color: #fff;
   font-family: 'Nunito', sans-serif;
