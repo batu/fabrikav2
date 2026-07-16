@@ -13,7 +13,6 @@
     <link rel="preload" as="image" href="/ui/menu-icons/icon_hint_magnifier.png" />
     <link rel="preload" as="image" href="/ui/menu-icons/shop-icon-runtime.png" />
     <link rel="preload" as="image" href="/ui/menu-icons/settings-icon-runtime.png" />
-    <link rel="preload" as="image" href="/ui/menu-icons/magnifier-runtime.png" />
     <link rel="preload" as="image" href="/ui/home/no-ads-runtime.png" />
     <link rel="preload" as="image" href="/ui/home/play-level-button-runtime.png" />
     <link rel="preload" as="image" href="/ui/home/home-banner-mascot-runtime.png" />
@@ -56,11 +55,13 @@
         display: grid;
         place-items: center;
         pointer-events: auto;
-        background: linear-gradient(180deg, #fff7dc 0%, #ffdba5 48%, #f7b46c 100%);
+        background: linear-gradient(180deg, #ecfaf3 0%, #cdeee0 48%, #a3dcc4 100%);
         opacity: 1;
       }
+      @keyframes bootSpin { to { transform: rotate(360deg); } }
       .scene-transition-cover-avatar {
-        width: clamp(180px, 52vw, 260px);
+        animation: bootSpin 1.6s linear infinite;
+        width: clamp(140px, 38vw, 200px);
         height: auto;
         display: block;
         object-fit: contain;
@@ -73,7 +74,7 @@
   <body>
     <div id="game-container">
       <div id="scene-transition-cover" aria-hidden="true">
-        <img class="scene-transition-cover-avatar" src="/ui/mascots/dog-detective-openai.png" alt="" />
+        <img class="scene-transition-cover-avatar" src="/ui/loading-icon.png" alt="" />
       </div>
       <div id="hud-overlay"></div>
     </div>
