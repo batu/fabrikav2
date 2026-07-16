@@ -653,11 +653,11 @@
     left: 50%;
     top: 0;
     width: auto;
-    height: 118dvh;
+    height: 100dvh;
     max-width: none;
     object-fit: contain;
     opacity: 0;
-    transform: translate3d(-50%, -130dvh, 0) scale(1.02);
+    transform: translate3d(-50%, -130dvh, 0);
     backface-visibility: hidden;
     will-change: transform, opacity;
     animation: fabCompleteConfettiTopBlast 5200ms linear var(--fab-confetti-delay, 0ms) forwards;
@@ -666,7 +666,7 @@
   .fab-complete-confetti-burst {
     position: absolute;
     bottom: -8%;
-    width: min(76vw, 500px);
+    width: min(64vw, 420px);
     height: auto;
     opacity: 0;
     object-fit: contain;
@@ -1080,23 +1080,21 @@
     66% { opacity: 1; transform: translate(-50%, 4px) scale(1.04); }
     100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
   }
+  /* Eased segments: launch decelerates (ease-out), apex floats, fall
+     accelerates under gravity (ease-in) — the previous all-linear waypoints
+     produced visible velocity kinks at every stop. */
   @keyframes fabCompleteConfettiSideBlast {
-    0% { opacity: 1; transform: translate3d(var(--confetti-start-x), 10%, 0) scaleX(var(--confetti-flip)) scale(1.02) rotate(-8deg); }
-    10% { opacity: 1; transform: translate3d(var(--confetti-x-10), -16%, 0) scaleX(var(--confetti-flip)) scale(1.02) rotate(-4deg); }
-    20% { opacity: 1; transform: translate3d(var(--confetti-x-20), -32%, 0) scaleX(var(--confetti-flip)) scale(1.02) rotate(0deg); }
-    35% { opacity: 1; transform: translate3d(var(--confetti-x-35), -42%, 0) scaleX(var(--confetti-flip)) scale(1.02) rotate(6deg); }
-    50% { opacity: 1; transform: translate3d(var(--confetti-x-50), -30%, 0) scaleX(var(--confetti-flip)) scale(1.02) rotate(12deg); }
-    70% { opacity: 1; transform: translate3d(var(--confetti-x-70), 16dvh, 0) scaleX(var(--confetti-flip)) scale(1.02) rotate(20deg); }
-    100% { opacity: 1; transform: translate3d(var(--confetti-x-100), 150dvh, 0) scaleX(var(--confetti-flip)) scale(1.02) rotate(32deg); }
+    0% { opacity: 1; animation-timing-function: cubic-bezier(0.16, 0.6, 0.4, 1); transform: translate3d(var(--confetti-start-x), 10%, 0) scaleX(var(--confetti-flip)) rotate(-8deg); }
+    20% { opacity: 1; animation-timing-function: cubic-bezier(0.3, 0.6, 0.6, 1); transform: translate3d(var(--confetti-x-20), -32%, 0) scaleX(var(--confetti-flip)) rotate(0deg); }
+    35% { opacity: 1; animation-timing-function: cubic-bezier(0.45, 0, 0.65, 0.4); transform: translate3d(var(--confetti-x-35), -42%, 0) scaleX(var(--confetti-flip)) rotate(6deg); }
+    50% { opacity: 1; animation-timing-function: cubic-bezier(0.5, 0.1, 0.75, 0.5); transform: translate3d(var(--confetti-x-50), -30%, 0) scaleX(var(--confetti-flip)) rotate(12deg); }
+    70% { opacity: 1; animation-timing-function: cubic-bezier(0.55, 0.2, 0.85, 0.6); transform: translate3d(var(--confetti-x-70), 16dvh, 0) scaleX(var(--confetti-flip)) rotate(20deg); }
+    100% { opacity: 1; transform: translate3d(var(--confetti-x-100), 150dvh, 0) scaleX(var(--confetti-flip)) rotate(32deg); }
   }
   @keyframes fabCompleteConfettiTopBlast {
-    0% { opacity: 1; transform: translate3d(-50%, -120dvh, 0) scale(1.02); }
-    10% { opacity: 1; transform: translate3d(-50%, -103dvh, 0) scale(1.02); }
-    20% { opacity: 1; transform: translate3d(-50%, -78dvh, 0) scale(1.02); }
-    35% { opacity: 1; transform: translate3d(-50%, -34dvh, 0) scale(1.02); }
-    50% { opacity: 1; transform: translate3d(-50%, 16dvh, 0) scale(1.02); }
-    70% { opacity: 1; transform: translate3d(-50%, 78dvh, 0) scale(1.02); }
-    100% { opacity: 1; transform: translate3d(-50%, 150dvh, 0) scale(1.02); }
+    0% { opacity: 1; animation-timing-function: cubic-bezier(0.4, 0, 0.7, 0.3); transform: translate3d(-50%, -120dvh, 0); }
+    50% { opacity: 1; animation-timing-function: cubic-bezier(0.35, 0.4, 0.65, 0.7); transform: translate3d(-50%, 16dvh, 0); }
+    100% { opacity: 1; transform: translate3d(-50%, 150dvh, 0); }
   }
   @keyframes fabCompleteRewardReveal {
     0% { transform: translateY(14px) scale(0.54, 0.76); opacity: 0; }

@@ -25,3 +25,6 @@ schemes:
         VerifyDeviceRunner: [test]
     test:
       targets: [VerifyDeviceRunner]
+      testPlans:
+        - path: VerifyDeviceRunner.xctestplan
+          defaultPlan: true

@@ -444,6 +444,15 @@ function addCompletionSideConfetti(
   layer.className = 'fab-complete-side-confetti';
   layer.setAttribute('aria-hidden', 'true');
 
+  const decodes: Promise<unknown>[] = [];
+  const gateOnDecode = (img: HTMLImageElement) => {
+    // Start the animation only once the bitmap is decoded and uploadable —
+    // decoding a large PNG mid-animation froze ~35 consecutive frames on
+    // device (measured 2026-07-16, 60fps screen recording).
+    img.style.animationPlayState = 'paused';
+    decodes.push(img.decode().catch(() => undefined));
+  };
+
   const fall = document.createElement('img');
   fall.className = 'fab-complete-confetti-fall';
   fall.alt = '';
@@ -451,6 +460,7 @@ function addCompletionSideConfetti(
   fall.decoding = 'async';
   fall.style.setProperty('--fab-confetti-delay', reducedMotion ? '0ms' : '500ms');
   applyArtSrc(overlay, fall, '--fab-complete-confetti-fall-url');
+  gateOnDecode(fall);
   layer.appendChild(fall);
 
   const bursts = reducedMotion
@@ -467,10 +477,16 @@ function addCompletionSideConfetti(
     img.decoding = 'async';
     img.style.setProperty('--fab-confetti-delay', `${burst.delayMs}ms`);
     applyArtSrc(overlay, img, '--fab-complete-confetti-burst-url');
+    gateOnDecode(img);
     layer.appendChild(img);
   }
 
   overlay.prepend(layer);
+  void Promise.allSettled(decodes).then(() => {
+    for (const img of Array.from(layer.querySelectorAll('img'))) {
+      (img as HTMLElement).style.animationPlayState = 'running';
+    }
+  });
   scheduleTimeout(() => layer.remove(), durationMs + maxDelayMs + 260);
 }
 
