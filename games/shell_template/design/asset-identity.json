@@ -62,7 +62,7 @@
       "source": "public/ui/menu-icons/icon_coin.png",
       "runtime": "public/ui/menu-icons/icon_coin.png",
       "expectation": "exact-bytes",
-      "provenance": "2026-07-16: generic premium coin, generated (pixelsmith, google/gemini-3.1-flash-image, pinned style-guide). Portal req_547a87 verdict: coin=gemini."
+      "provenance": "2026-07-16: premium coin v2 (small-screen rules), pixelsmith openai/gpt-5.4-image-2 via OpenRouter, clean variant. Portal req_eb2795: coin=coin_4 (gpt-image clean)."
     },
     "design/assets/icon_heart.png": {
       "source": "public/ui/menu-icons/icon_heart.png",
@@ -74,7 +74,7 @@
       "source": "public/ui/menu-icons/icon_hint_magnifier.png",
       "runtime": "public/ui/menu-icons/icon_hint_magnifier.png",
       "expectation": "exact-bytes",
-      "provenance": "2026-07-16: generic premium hint token, generated (pixelsmith, google/gemini-3.1-flash-image, pinned style-guide). Portal req_547a87 verdict: hint=gemini."
+      "provenance": "2026-07-16: lightbulb hint v2 (small-screen + particle-ration rules), pixelsmith google/gemini-3.1-flash-image, clean variant. Portal req_eb2795: hint=hint_2 (gemini clean)."
     },
     "design/assets/settings-icon-runtime.png": {
       "source": "public/ui/menu-icons/settings-icon-runtime.png",

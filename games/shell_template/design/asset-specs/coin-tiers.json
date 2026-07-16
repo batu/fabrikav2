@@ -3,11 +3,11 @@
   "kind": "icon",
   "size": "256x256",
   "gen_size": "1536x1024",
-  "description": "Six tiers of the SAME gold coin, escalating value staging: 1) a single neat stack of coins; 2) three stacks of coins side by side; 3) a tied pouch of coins; 4) an open wooden box filled with coins; 5) a wooden cart heaped with coins; 6) a treasure chest overflowing with coins on top of a large coin pile.",
+  "description": "Six tiers of the SAME gold coin (a bright glossy gold coin with a smooth embossed five-point star and a darker gold rim, one small sparkle at most), escalating value staging: 1) a single neat stack of coins; 2) three stacks of coins side by side; 3) a tied pouch of coins; 4) an open wooden box filled with coins; 5) a wooden cart heaped with coins; 6) a treasure chest overflowing with coins on top of a large coin pile.",
   "prompt_extra": "every cell repeats the identical star coin design; ONLY star coins appear \u2014 no gems, no jewels, no other treasure; only quantity and staging grow per tier",
   "transparent": true,
   "models": [
-    "google/gemini-3.1-flash-image"
+    "openai/gpt-5.4-image-2"
   ],
   "sheet": {
     "cols": 3,
