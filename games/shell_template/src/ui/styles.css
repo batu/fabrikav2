@@ -3263,11 +3263,6 @@
 }
 
 .home-map-stage .fab-levelmap-node.current .fab-levelmap-node-dot {
-  /* The ornate current tile's crown occupies the top ~18% of the art, so the
-     visual face center sits below the box center — pad the grid-centered
-     number down to land on the face. */
-  box-sizing: border-box;
-  padding-top: 18%;
   /* Extra outline ring + depth shadow for the playable tile only. Locked tiles
      keep their source art edges without the white halo. */
   filter:
