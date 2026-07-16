@@ -239,20 +239,31 @@ export class GameScene extends Phaser.Scene {
       color: '#8a7a6e',
     }).setOrigin(0.5);
 
-    this.makeStubButton(cx, cy - 120 * scale, 0x4caf50, 'WIN', scale, () => this.winLevel());
-    this.makeStubButton(cx, cy + 160 * scale, 0xef5350, 'LOSE', scale, () => this.loseLife());
+    const buildButtons = () => {
+      if (this.isShuttingDown) return;
+      this.makeStubButton(cx, cy - 160 * scale, 'stub-win-medal', 'WIN', scale, () => this.winLevel());
+      this.makeStubButton(cx, cy + 260 * scale, 'stub-lose-medal', 'LOSE', scale, () => this.loseLife());
+    };
+    if (this.textures.exists('stub-win-medal') && this.textures.exists('stub-lose-medal')) {
+      buildButtons();
+    } else {
+      this.load.image('stub-win-medal', '/ui/gameplay/btn-win.png');
+      this.load.image('stub-lose-medal', '/ui/gameplay/btn-lose.png');
+      this.load.once(Phaser.Loader.Events.COMPLETE, buildButtons);
+      this.load.start();
+    }
   }
 
-  private makeStubButton(x: number, y: number, color: number, label: string, scale: number, onTap: () => void): void {
-    const width = 620 * scale;
-    const height = 200 * scale;
-    const button = this.add.rectangle(x, y, width, height, color)
-      .setStrokeStyle(6 * scale, 0xffffff)
+  /** Scenic medal button: generated art (sunburst / rain-cloud medal) + label. */
+  private makeStubButton(x: number, y: number, texture: string, label: string, scale: number, onTap: () => void): void {
+    const size = 340 * scale;
+    const button = this.add.image(x, y, texture)
+      .setDisplaySize(size, size)
       .setInteractive({ useHandCursor: true });
-    const text = this.add.text(x, y, label, {
+    const text = this.add.text(x, y + size / 2 + 44 * scale, label, {
       fontFamily: 'Fredoka One, sans-serif',
-      fontSize: `${Math.round(80 * scale)}px`,
-      color: '#ffffff',
+      fontSize: `${Math.round(56 * scale)}px`,
+      color: '#5b4a3f',
     }).setOrigin(0.5);
 
     button.on('pointerdown', () => {
