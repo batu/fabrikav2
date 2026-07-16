@@ -185,6 +185,18 @@
       "runtime": "ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png",
       "expectation": "exact-bytes",
       "provenance": "2026-07-16: Test Game app icon, gpt-image warm (opaque RGB). Portal req_97aebf: app_icon=3."
+    },
+    "design/assets/btn-win.png": {
+      "source": "public/ui/gameplay/btn-win.png",
+      "runtime": "public/ui/gameplay/btn-win.png",
+      "expectation": "exact-bytes",
+      "provenance": "2026-07-16: gameplay stub WIN/LOSE jewel buttons (emerald star / ruby cracked heart), gpt-image warm \u2014 dedicated art per Batu (not the medals); 4 candidates inspected, gemini pair broke its grid."
+    },
+    "design/assets/btn-lose.png": {
+      "source": "public/ui/gameplay/btn-lose.png",
+      "runtime": "public/ui/gameplay/btn-lose.png",
+      "expectation": "exact-bytes",
+      "provenance": "2026-07-16: gameplay stub WIN/LOSE jewel buttons (emerald star / ruby cracked heart), gpt-image warm \u2014 dedicated art per Batu (not the medals); 4 candidates inspected, gemini pair broke its grid."
     }
   }
 }
