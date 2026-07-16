@@ -251,10 +251,17 @@ function playNoise(
   source.stop(now + duration);
 }
 
+/** Random pitch factor applied per play to UI one-shots so repeats don't sound
+ *  machine-identical. 0.8–1.2 per Batu's spec (2026-07-16). */
+function uiPitchVariance(): number {
+  return 0.8 + Math.random() * 0.4;
+}
+
 function playVoiceBlip(): void {
   const ctx = getAudioContext();
   if (ctx.state === 'suspended') void ctx.resume();
 
+  const rate = uiPitchVariance();
   const now = ctx.currentTime;
   const variants = [
     { start: 420, end: 620, f1: 760, f2: 1320, duration: 0.085 },
@@ -267,8 +274,8 @@ function playVoiceBlip(): void {
 
   const osc = ctx.createOscillator();
   osc.type = 'sawtooth';
-  osc.frequency.setValueAtTime(voice.start, now);
-  osc.frequency.exponentialRampToValueAtTime(voice.end, now + voice.duration);
+  osc.frequency.setValueAtTime(voice.start * rate, now);
+  osc.frequency.exponentialRampToValueAtTime(voice.end * rate, now + voice.duration);
 
   const body = ctx.createGain();
   body.gain.setValueAtTime(0, now);
@@ -277,12 +284,12 @@ function playVoiceBlip(): void {
 
   const formantA = ctx.createBiquadFilter();
   formantA.type = 'bandpass';
-  formantA.frequency.value = voice.f1;
+  formantA.frequency.value = voice.f1 * rate;
   formantA.Q.value = 5;
 
   const formantB = ctx.createBiquadFilter();
   formantB.type = 'bandpass';
-  formantB.frequency.value = voice.f2;
+  formantB.frequency.value = voice.f2 * rate;
   formantB.Q.value = 7;
 
   osc.connect(formantA);
@@ -308,7 +315,7 @@ export function playFind(): void {
       const buffer = buffers[Math.floor(Math.random() * buffers.length)];
       const source = ctx.createBufferSource();
       source.buffer = buffer;
-      source.playbackRate.value = 0.9 + Math.random() * 0.2;
+      source.playbackRate.value = uiPitchVariance();
       source.connect(getSoundEffectsOutput());
       source.start(ctx.currentTime);
     })
@@ -321,7 +328,8 @@ export function playWrongTap(): void {
   // Soft descending two-note "nuh-uh" boop — a playful "not there" rather than
   // a punishing thud. Triangle waves at low gain keep it gentle, and the whole
   // cue is shorter and quieter than playFind so a miss feels lighter than a find.
-  playNotes([392, 294], 'triangle', 0.1, 0.035, 0.16);
+  const rate = uiPitchVariance();
+  playNotes([392 * rate, 294 * rate], 'triangle', 0.1, 0.035, 0.16);
 }
 
 export function playLevelComplete(): void {
@@ -353,7 +361,7 @@ export function playLevelFail(): void {
 }
 
 export function playHint(): void {
-  playNoise(0.3, 0.15, 3000);
+  playNoise(0.3, 0.15, 3000 * uiPitchVariance());
 }
 
 export function playUITap(): void {
