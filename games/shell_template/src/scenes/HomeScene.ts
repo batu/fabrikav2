@@ -70,6 +70,8 @@ const FTD_LEVELMAP_THEME: ThemeTokens = {
   '--fab-levelmap-node-gap': '46px',
   '--fab-levelmap-far-opacity': '1',
   '--fab-levelmap-distant-opacity': '1',
+  '--fab-levelmap-dot-color': '#5b5652',
+  '--fab-levelmap-locked-dot-color': '#5b5652',
 };
 
 export class HomeScene extends Phaser.Scene {
@@ -216,6 +218,12 @@ export class HomeScene extends Phaser.Scene {
 
     overlay.querySelector<HTMLButtonElement>('#home-nav-play')?.addEventListener('click', (e) => {
       startCurrentLevel(e.currentTarget as HTMLButtonElement);
+    });
+
+    // Prominent primary CTA — same destination as the small nav Play button
+    // (the current level), just the clearer entry point for new players.
+    overlay.querySelector<HTMLButtonElement>('#home-play-now')?.addEventListener('click', () => {
+      void this.startLevelFromMap(gameState.currentLevelIndex);
     });
 
     this.mountHomeLevelMap();
@@ -558,9 +566,9 @@ export class HomeScene extends Phaser.Scene {
           </aside>
         </div>
 
-        <div class="home-play-dock">
-          <button id="home-play-now" class="home-play-btn" type="button" aria-label="Play Level ${currentLevel} Now">Play Now</button>
-        </div>
+        <button id="home-play-now" class="home-play-now-btn shop-grid-price-btn" type="button" aria-label="Play Level ${currentLevel}">
+          <span class="home-play-now-label">Play Now</span>
+        </button>
 
         <nav class="home-nav-bar" aria-label="Main navigation">
           <button id="home-nav-shop" class="home-nav-btn" type="button" aria-label="Open shop">

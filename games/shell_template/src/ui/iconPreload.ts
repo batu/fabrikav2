@@ -35,6 +35,7 @@ const ICON_URLS: readonly string[] = [
   '/ui/settings/settings_icon_music.png',
   '/ui/settings/settings_icon_sound.png',
   '/ui/settings/settings_icon_vibration.png',
+  '/ui/settings/settings_icon_home.png',
 ];
 
 let warmed = false;

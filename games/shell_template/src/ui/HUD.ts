@@ -467,6 +467,8 @@ export function openPage(
   if (id === 'settings') {
     page.classList.add('home-page-settings');
     wireSettingsPageListeners(page);
+    // Restore Purchases now lives in Settings (moved out of the Shop footer).
+    configureRestorePurchasesControl(page);
   }
   if (id === 'shop') page.classList.add('home-page-shop');
   // Deep-link opens jump to a section, so skip the staggered content entrance
@@ -476,7 +478,6 @@ export function openPage(
   overlay.appendChild(page);
   if (id === 'shop') {
     renderPageShopProducts(page);
-    configureRestorePurchasesControl(page);
     schedulePageShopProductsRefresh(page);
     if (opts.scrollTo) {
       // Deep-link: jump the shop straight to the requested section (the home
@@ -549,15 +550,6 @@ function renderShopPageBody(): string {
       <div class="shop-new-section-header">Coin Packs</div>
       <div class="shop-new-grid" id="shop-coins-grid"></div>
     </div>
-    <div class="shop-restore-footer" id="shop-page-restore-footer">
-      <div class="shop-restore-panel" id="shop-restore-panel">
-        <div class="shop-restore-copy">
-          <strong>Restore Purchases</strong>
-          <small id="shop-restore-status">Restore No Ads purchases on this device.</small>
-        </div>
-        <button id="shop-restore-btn" class="btn-secondary shop-restore-btn" type="button">Restore</button>
-      </div>
-    </div>
   `;
 }
 
@@ -584,6 +576,25 @@ function shopPackAmount(product: ShopCatalogProduct): string {
   return '';
 }
 
+/** Star-sparkle positions (% centre) + px sizes, reused across badges + icon. */
+/** Append `count` twinkling sparkle stars to `el` (must be position relative/
+ *  absolute). Position, size and twinkle phase are randomized on every call, so
+ *  the scatter differs each render. `gold` switches white star to the premium
+ *  tint and triples the size. */
+function addSparkles(el: HTMLElement, count: number, gold = false): void {
+  for (let i = 0; i < count; i += 1) {
+    const size = (6 + Math.random() * 7) * (gold ? 3 : 1); // white 6..13px; gold ×3
+    const star = document.createElement('span');
+    star.className = gold ? 'shop-sparkle shop-sparkle--gold' : 'shop-sparkle';
+    star.style.left = `${(4 + Math.random() * 92).toFixed(1)}%`;
+    star.style.top = `${(6 + Math.random() * 88).toFixed(1)}%`;
+    star.style.width = `${size.toFixed(1)}px`;
+    star.style.height = `${size.toFixed(1)}px`;
+    star.style.animationDelay = `${(Math.random() * 1700).toFixed(0)}ms`;
+    el.appendChild(star);
+  }
+}
+
 function renderFeaturedCard(
   product: ShopCatalogProduct,
   storeProduct: IapStoreProductSnapshot | null,
@@ -597,8 +608,8 @@ function renderFeaturedCard(
   card.className = `shop-featured-card ${isVip ? 'vip' : 'no-ads'}`;
   card.dataset.catalogId = product.id;
 
-  const iconSrc = isVip ? '/ui/shop/shop_vip_bundle.png' : '/ui/shop/shop_no_ads.png';
-  const badgeText = shopProductBadge(product);
+  const iconSrc = isVip ? '/ui/shop/shop_no_ads_premium.png' : '/ui/shop/shop_no_ads.png';
+  const badgeAsset = shopProductBadgeAsset(product);
   const price = storeProduct?.priceString ?? product.displayPrice;
 
   const iconEl = document.createElement('div');
@@ -618,7 +629,10 @@ function renderFeaturedCard(
 
   const priceBtn = document.createElement('button');
   priceBtn.type = 'button';
-  priceBtn.className = 'shop-featured-price-btn shop-purchase-btn';
+  // Use the grid (hint/coin) button style so every shop purchase button is
+  // visually identical. .shop-featured-card scopes a layout override in CSS so
+  // the grid pill sits correctly in the horizontal featured row.
+  priceBtn.className = 'shop-grid-price-btn shop-purchase-btn';
   priceBtn.dataset.catalogId = product.id;
   applyShopPurchaseButtonState(
     product, priceBtn, iapSnapshot.state, storeProduct, price,
@@ -629,12 +643,23 @@ function renderFeaturedCard(
   card.appendChild(iconEl);
   card.appendChild(copyEl);
   card.appendChild(priceBtn);
+  // Gold sparkles spread across the whole VIP "No Ads + hints" bar.
+  if (isVip) addSparkles(card, 10, true);
 
-  if (badgeText !== null) {
+  if (badgeAsset !== null) {
     const badge = document.createElement('div');
-    const badgeKind = badgeText === 'Best Value' ? 'best-value' : 'one-time';
+    const badgeKind = badgeAsset.label === 'Best Value' ? 'best-value' : 'popular';
     badge.className = `shop-featured-badge shop-featured-badge--${badgeKind}`;
-    badge.textContent = badgeText;
+    badge.setAttribute('aria-label', badgeAsset.label);
+    const badgeImg = document.createElement('img');
+    badgeImg.src = badgeAsset.src;
+    badgeImg.alt = '';
+    badgeImg.loading = 'eager';
+    badgeImg.decoding = 'async';
+    // Offset each Best Value badge's shake so they don't wiggle in unison.
+    if (badgeAsset.label === 'Best Value') badgeImg.style.animationDelay = `${(Math.random() * 5000).toFixed(0)}ms`;
+    badge.appendChild(badgeImg);
+    addSparkles(badge, badgeAsset.label === 'Best Value' ? 10 : 8);
     wrapper.appendChild(badge);
   }
 
@@ -668,7 +693,9 @@ function renderGridCard(
   img.loading = 'lazy';
   img.decoding = 'async';
   iconDiv.style.setProperty('--icon-src', `url('${iconSrc}')`);
-  iconDiv.appendChild(img);
+  const shineMask = document.createElement('span');
+  shineMask.className = 'shop-grid-icon-shine-mask';
+  iconDiv.append(img, shineMask);
 
   const amountEl = document.createElement('div');
   amountEl.className = 'shop-grid-amount';
@@ -686,11 +713,20 @@ function renderGridCard(
   priceBtn.addEventListener('click', () => { void purchaseShopProduct(product, priceBtn, price); });
 
   // Badge sits above the card as an absolute overlay
-  const badgeText = shopProductBadge(product);
-  if (badgeText !== null) {
+  const badgeAsset = shopProductBadgeAsset(product);
+  if (badgeAsset !== null) {
     const badge = document.createElement('div');
-    badge.className = `shop-grid-badge${badgeText === 'Best Value' ? ' best-value' : ''}`;
-    badge.textContent = badgeText;
+    badge.className = `shop-grid-badge${badgeAsset.label === 'Best Value' ? ' best-value' : ''}`;
+    badge.setAttribute('aria-label', badgeAsset.label);
+    const badgeImg = document.createElement('img');
+    badgeImg.src = badgeAsset.src;
+    badgeImg.alt = '';
+    badgeImg.loading = 'lazy';
+    badgeImg.decoding = 'async';
+    // Offset each Best Value badge's shake so they don't wiggle in unison.
+    if (badgeAsset.label === 'Best Value') badgeImg.style.animationDelay = `${(Math.random() * 5000).toFixed(0)}ms`;
+    badge.appendChild(badgeImg);
+    addSparkles(badge, badgeAsset.label === 'Best Value' ? 10 : 8);
     wrapper.appendChild(badge);
   }
 
@@ -763,17 +799,9 @@ function schedulePageShopProductsRefresh(page: HTMLElement): void {
 }
 
 function renderSettingsPageBody(): string {
-  // Gameplay context = the home shell is not mounted. Only then does the
-  // settings page offer an exit back to the saga map.
-  const inGameplay = document.querySelector('#home-shell') === null && homeCallback !== null;
   return `
     <div class="settings-page-card">
       ${renderSettingsRows()}
-      ${inGameplay ? `
-      <button id="settings-home-btn" class="settings-row settings-home-btn" type="button" aria-label="Leave level and return home">
-        <span class="settings-row-label">🏠&ensp;Home</span>
-      </button>
-      ` : ''}
     </div>
   `;
 }
@@ -811,8 +839,17 @@ function renderSettingsRows(): string {
           <span class="toggle-slider"></span>
         </label>
       </div>
+      <button id="settings-home-btn" class="modal-row settings-row settings-home-btn" type="button" aria-label="Go to home screen">
+        <span class="settings-row-left">
+          <img class="settings-row-icon" src="/ui/settings/settings_icon_home.png" alt="" aria-hidden="true">
+          <span class="settings-row-label">Home</span>
+        </span>
+        <span class="settings-home-arrow" aria-hidden="true"></span>
+      </button>
       <div class="settings-legal-footer" aria-label="Privacy, legal, and support links">
         <button id="privacy-choices-btn" class="settings-footer-link settings-footer-action" type="button" aria-label="Privacy choices, opens consent options">Privacy choices</button>
+        <button id="settings-restore-btn" class="settings-footer-link settings-footer-action settings-restore-btn" type="button" aria-describedby="settings-restore-status">Restore Purchases</button>
+        <span id="settings-restore-status" class="settings-restore-status" aria-live="polite">Restore No Ads purchases on this device.</span>
         <div class="settings-legal-links">
           <button id="privacy-policy-link-btn" class="settings-footer-link" type="button" aria-label="Privacy Policy, opens in browser">Privacy</button>
           <span class="settings-footer-separator" aria-hidden="true">•</span>
@@ -833,21 +870,6 @@ function wireSettingsPageListeners(page: HTMLElement): void {
     goHome?.();
   });
 
-  page.querySelector('#privacy-policy-link-btn')?.addEventListener('click', () => {
-    playUITap();
-    openLegalLink('privacyPolicyUrl');
-  });
-
-  page.querySelector('#terms-link-btn')?.addEventListener('click', () => {
-    playUITap();
-    openLegalLink('termsUrl');
-  });
-
-  page.querySelector('#support-link-btn')?.addEventListener('click', () => {
-    playUITap();
-    openLegalLink('supportUrl');
-  });
-
   const privacyChoicesButton = page.querySelector<HTMLButtonElement>('#privacy-choices-btn');
   privacyChoicesButton?.addEventListener('click', () => {
     if (privacyChoicesButton.disabled) return;
@@ -865,6 +887,21 @@ function wireSettingsPageListeners(page: HTMLElement): void {
         privacyChoicesButton.disabled = false;
         privacyChoicesButton.textContent = 'Privacy choices';
       });
+  });
+
+  page.querySelector('#privacy-policy-link-btn')?.addEventListener('click', () => {
+    playUITap();
+    openLegalLink('privacyPolicyUrl');
+  });
+
+  page.querySelector('#terms-link-btn')?.addEventListener('click', () => {
+    playUITap();
+    openLegalLink('termsUrl');
+  });
+
+  page.querySelector('#support-link-btn')?.addEventListener('click', () => {
+    playUITap();
+    openLegalLink('supportUrl');
   });
 
   page.querySelector('#toggle-music')?.addEventListener('change', (event) => {
@@ -909,11 +946,11 @@ function configureRestorePurchasesControl(modal: HTMLElement): void {
   scheduleRestoreControlRefresh(modal);
 }
 
-function shopRestoreControls(modal: HTMLElement): { button: HTMLButtonElement; status: HTMLElement } {
-  const button = modal.querySelector<HTMLButtonElement>('#shop-restore-btn');
-  const status = modal.querySelector<HTMLElement>('#shop-restore-status');
+function shopRestoreControls(page: HTMLElement): { button: HTMLButtonElement; status: HTMLElement } {
+  const button = page.querySelector<HTMLButtonElement>('#settings-restore-btn');
+  const status = page.querySelector<HTMLElement>('#settings-restore-status');
   if (button === null || status === null) {
-    throw new Error('shop restore controls are missing from the shop modal');
+    throw new Error('restore controls are missing from the settings page');
   }
   return { button, status };
 }
@@ -980,7 +1017,7 @@ function renderRestoreControl(controls: { button: HTMLButtonElement; status: HTM
   controls.status.textContent = restoreStatusText(state);
   controls.status.dataset.restoreState = state;
   controls.button.dataset.restoreState = state;
-  controls.button.textContent = state === 'pending' ? 'Restoring…' : state === 'restored' ? 'Restored' : 'Restore';
+  controls.button.textContent = state === 'pending' ? 'Restoring…' : state === 'restored' ? 'Restored' : 'Restore Purchases';
   controls.button.disabled = nativeOperationInProgress
     || state === 'pending'
     || state === 'restored'
@@ -993,20 +1030,25 @@ function currentShopModal(): HTMLElement | null {
   return document.querySelector<HTMLElement>('#home-page-overlay.home-page-shop') ?? null;
 }
 
+/** Restore Purchases lives on the Settings page now (moved out of the Shop). */
+function currentRestorePage(): HTMLElement | null {
+  return document.querySelector<HTMLElement>('#home-page-overlay.home-page-settings') ?? null;
+}
+
 function renderCurrentRestoreControl(): void {
-  const modal = currentShopModal();
-  if (modal === null) return;
-  renderRestoreControl(shopRestoreControls(modal), restoreUiState);
+  const page = currentRestorePage();
+  if (page === null) return;
+  renderRestoreControl(shopRestoreControls(page), restoreUiState);
 }
 
 function refreshCurrentRestoreControl(): void {
-  const modal = currentShopModal();
-  if (modal === null) return;
+  const page = currentRestorePage();
+  if (page === null) return;
   if (restoreUiState !== 'pending' && restoreUiState !== 'restored') {
     restoreUiState = nextRestoreUiStateFromIap();
   }
-  renderRestoreControl(shopRestoreControls(modal), restoreUiState);
-  scheduleRestoreControlRefresh(modal);
+  renderRestoreControl(shopRestoreControls(page), restoreUiState);
+  scheduleRestoreControlRefresh(page);
 }
 
 function scheduleRestoreControlRefresh(modal: HTMLElement): void {
@@ -1050,8 +1092,8 @@ async function restorePurchasesFromShop(): Promise<void> {
     activeRestorePromise = null;
     renderCurrentRestoreControl();
     renderCurrentShopPurchaseControls();
-    const modal = currentShopModal();
-    if (modal !== null) scheduleRestoreControlRefresh(modal);
+    const page = currentRestorePage();
+    if (page !== null) scheduleRestoreControlRefresh(page);
   }
 }
 
@@ -1087,15 +1129,20 @@ function applyShopPurchaseButtonState(
   iapState: IapServiceState,
   storeProduct: IapStoreProductSnapshot | null,
   fallbackPrice: string,
-  purchaseInProgress: boolean,
+  _purchaseInProgress: boolean,
   pendingPurchaseProductIds: readonly string[],
 ): void {
   const price = storeProduct?.priceString ?? fallbackPrice;
   const isPendingProduct = pendingPurchaseProductIds.includes(product.productId);
-  const canPurchase = iapState === 'ready' && storeProduct !== null && !purchaseInProgress;
-  action.disabled = !canPurchase;
-  action.textContent = canPurchase ? price : isPendingProduct ? 'Purchasing…' : purchaseInProgress ? 'Please wait' : 'Unavailable';
-  action.setAttribute('aria-label', `${product.title} ${price}. ${canPurchase ? 'Purchase' : 'Unavailable'}.`);
+  const isAvailable = iapState === 'ready' && storeProduct !== null;
+  // During a purchase ONLY the tapped product goes busy (greyscale + pressed).
+  // Every other button keeps its price and stays un-greyed, so an in-flight
+  // purchase never reflows the shop. Concurrency is guarded in
+  // purchaseShopProduct via nativeOperationInProgress.
+  action.disabled = !isAvailable;
+  action.classList.toggle('shop-btn-purchasing', isPendingProduct);
+  action.textContent = isAvailable ? price : 'Unavailable';
+  action.setAttribute('aria-label', `${product.title} ${price}. ${isAvailable ? (isPendingProduct ? 'Purchasing' : 'Purchase') : 'Unavailable'}.`);
 }
 
 function currentStoreProductFor(product: ShopCatalogProduct): IapStoreProductSnapshot | null {
@@ -1158,16 +1205,19 @@ async function purchaseShopProduct(
   action: HTMLButtonElement,
   price: string,
 ): Promise<void> {
-  if (action.disabled) return;
+  if (action.disabled || iapService.snapshot().nativeOperationInProgress) return;
   playUITap();
   action.disabled = true;
-  action.textContent = 'Purchasing…';
+  // Busy = greyscale + pressed look on THIS button only (price text/width
+  // unchanged). The render pass re-enables it; concurrency stays guarded above.
+  action.classList.add('shop-btn-purchasing');
 
   try {
     const purchasePromise = iapService.purchase(product.productId);
     renderCurrentShopPurchaseControls();
     refreshCurrentRestoreControl();
     const purchase = await purchasePromise;
+    action.classList.remove('shop-btn-purchasing');
     if (purchase.status !== 'purchased') {
       action.textContent = purchase.status === 'cancelled' ? 'Cancelled' : 'Unavailable';
       return;
@@ -1242,12 +1292,27 @@ function shopPurchaseSuccessText(product: ShopCatalogProduct): string {
 }
 
 function shopProductBadge(product: ShopCatalogProduct): string | null {
-  if (product.kind === 'noAds') return 'One-time';
+  if (product.kind === 'noAds') return null;
   if (product.kind === 'noAdsPremium') return 'Best Value';
   if (product.kind === 'hintPack' && product.hintAmount === 25) return 'Popular';
-  if (product.kind === 'coinPack' && product.coinAmount === 10000) return 'Popular';
-  if (product.kind === 'coinPack' && product.coinAmount >= 50000) return 'Best Value';
+  if (product.kind === 'hintPack' && product.hintAmount === 50) return 'Best Value';
+  // Coin-pack badges key on the stable product id, not coinAmount — remote-config
+  // bonus multipliers can change the amount but never the id, so the badge stays
+  // pinned to the intended tier (one Popular, one Best Value, rest unbadged).
+  if (product.kind === 'coinPack') {
+    if (product.id === 'coin-pack-5000') return 'Popular';
+    if (product.id === 'coin-pack-100000') return 'Best Value';
+    return null;
+  }
   if (product.kind === 'egoOffer') return 'Continue';
+  return null;
+}
+
+function shopProductBadgeAsset(product: ShopCatalogProduct): { label: string; src: string } | null {
+  const label = shopProductBadge(product);
+  if (label === null) return null;
+  if (label === 'Best Value') return { label, src: '/ui/shop/badges/best-value-2-mint-rose-ticket.png' };
+  if (label === 'Popular') return { label, src: '/ui/shop/badges/popular-3-gold-candy-tab.png' };
   return null;
 }
 

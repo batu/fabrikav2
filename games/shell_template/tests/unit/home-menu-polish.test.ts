@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
 import { HOME_NO_ADS_BADGE_SRC } from "../../src/ui/iconPreload";
 
-const NO_ADS_SHA256 = "ba4bba67bed79199645c6e1e568ec26589a3e1a799a8c2cb5ace66ed2f292722";
+const NO_ADS_SHA256 = "1c25ea20b8f78279374bb8d4eec1aa0b404e6d7794d1101514b937809b7ed8e9";
 const PLAY_BUTTON_SHA256 = "41876ebb627203339a81a78ec1fbe30964642881c124383627e0e0a58fbfc5c7";
 const CSS_TEXT = readFileSync(join(process.cwd(), "src/ui/styles.css"), "utf8");
 
@@ -121,16 +121,17 @@ describe("home menu polish regressions", () => {
     expect(play.minHeight).toBe("66px");
 
     const noAdsRail = window.getComputedStyle(element(".home-rail-left"));
-    expect(noAdsRail.left).toBe("0px");
+    // Shipped shop/home polish (fabrika aa1ad9ca8): rail inset 20px.
+    expect(noAdsRail.left).toBe("20px");
     expect(noAdsRail.top).toBe("116px");
 
     const noAdsButton = window.getComputedStyle(element(".home-no-ads-btn"));
-    expect(noAdsButton.width).toBe("62px");
+    expect(noAdsButton.width).toBe("58px");
 
     const noAdsArt = element(".home-no-ads-art") as HTMLImageElement;
     expect(noAdsArt.getAttribute("src")).toBe(HOME_NO_ADS_BADGE_SRC);
-    expect(window.getComputedStyle(noAdsArt).width).toBe("62px");
-    expect(window.getComputedStyle(noAdsArt).height).toBe("62px");
+    expect(window.getComputedStyle(noAdsArt).width).toBe("58px");
+    expect(window.getComputedStyle(noAdsArt).height).toBe("58px");
     expect(sha256File(publicPathForSrc(noAdsArt.getAttribute("src") ?? ""))).toBe(NO_ADS_SHA256);
   });
 });
