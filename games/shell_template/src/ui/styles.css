@@ -2764,29 +2764,6 @@
   transform: translateY(-38px);
 }
 
-.home-play-btn {
-  justify-self: center;
-  width: min(46vw, 220px);
-  min-width: 176px;
-  height: 66px;
-  min-height: 66px;
-  border: 0;
-  border-radius: 999px;
-  background: url('/ui/home/play-level-button-runtime.png') center / 100% 100% no-repeat;
-  box-shadow: none;
-  color: #fff;
-  font-family: 'Nunito', sans-serif;
-  font-size: 25px;
-  font-weight: 900;
-  line-height: 1;
-  text-shadow:
-    0 2px 0 rgba(0, 0, 0, 0.32),
-    0 0 3px rgba(0, 0, 0, 0.55);
-  transform-origin: 50% 58%;
-  will-change: transform;
-  animation: homePlayButtonIdle 1650ms ease-in-out infinite;
-  cursor: pointer;
-}
 
 .home-brand-banner {
   position: relative;
@@ -2828,8 +2805,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   #hud-overlay.home-mode::before,
-  .home-brand-art,
-  .home-play-btn {
+  .home-brand-art {
     animation-duration: 1ms;
     animation-delay: 0ms;
   }
@@ -2873,27 +2849,18 @@
      Keep the layout footprint close to the old play-dock so the saga column
      doesn't sink: net height ~56px (62 - 24 + 18). */
   margin: -40px auto 14px;
-  /* Dedicated Play art (not the shop pill palette): richer green with gloss,
-     baked highlights and outline — the pre-port shipped CTA look. */
-  /* Shipped proportions: the art at its natural stretch (the baked white
-     outline reads as an intentional sticker edge at this size). */
-  width: min(46vw, 220px);
-  height: 66px;
-  min-height: 66px;
-  border: 0;
-  border-radius: 999px;
-  background: url('/ui/home/play-level-button-runtime.png') center / 100% 100% no-repeat;
-  box-shadow: none;
-  color: #fff;
-  font-family: 'Nunito', sans-serif;
-  font-size: 25px;
-  font-weight: 900;
-  line-height: 1;
+  /* App Store CTA: the unified shop pill in the rich Play greens (verified
+     against the build-14 marketing still — NOT the old art PNG, whose baked
+     white edge is the pre-polish look). */
+  font-size: 26px;
   letter-spacing: 0.02em;
-  padding: 0;
-  text-shadow:
-    0 2px 0 rgba(0, 0, 0, 0.32),
-    0 0 3px rgba(0, 0, 0, 0.55);
+  padding: 13px 0;
+  /* See .settings-home-btn: the shared pill colours live on --shop-price-* which
+     are scoped to .home-page-shop, so re-declare them on the Home CTA. */
+  --shop-price-top: hsl(128deg 70% 52%);
+  --shop-price-bottom: hsl(128deg 68% 40%);
+  --shop-price-border: hsl(128deg 60% 24%);
+  --shop-price-shadow: hsl(130deg 56% 22%);
 }
 
 .home-nav-btn {

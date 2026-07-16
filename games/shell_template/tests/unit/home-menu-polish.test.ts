@@ -63,7 +63,7 @@ describe("home menu polish regressions", () => {
           <img alt="">
           <button class="home-pill-plus" type="button">+</button>
         </div>
-        <button id="home-play-now" class="home-play-btn" type="button">Play Now</button>
+        <button id="home-play-now" class="home-play-now-btn shop-grid-price-btn" type="button"><span class="home-play-now-label">Play Now</span></button>
         <aside class="home-rail home-rail-left">
           <button id="home-no-ads" class="home-side-btn home-no-ads-btn" type="button">
             <img class="home-no-ads-art" src="${HOME_NO_ADS_BADGE_SRC}" alt="">
@@ -118,9 +118,8 @@ describe("home menu polish regressions", () => {
     expect(CSS_TEXT).not.toContain("calc(env(safe-area-inset-bottom) + 4px)");
 
     const play = window.getComputedStyle(element("#home-play-now"));
-    expect(play.backgroundImage).toContain("/ui/home/play-level-button-runtime.png");
-    expect(play.height).toBe("66px");
-    expect(play.minHeight).toBe("66px");
+    // App Store CTA: unified shop pill (CSS greens), not the legacy art PNG.
+    expect(play.backgroundImage).not.toContain("play-level-button-runtime.png");
 
     const noAdsRail = window.getComputedStyle(element(".home-rail-left"));
     // Shipped shop/home polish (fabrika aa1ad9ca8): rail inset 20px.
