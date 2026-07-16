@@ -460,7 +460,7 @@ function addCompletionSideConfetti(
   const h = window.innerHeight;
   const durationMs = reducedMotion ? 900 : 3800;
   const maxDelayMs = reducedMotion ? 0 : 600;
-  const count = reducedMotion ? 20 : 72;
+  const count = reducedMotion ? 20 : 360;
   const rand = (lo: number, hi: number): number => lo + Math.random() * (hi - lo);
   const canAnimate = typeof layer.animate === 'function';
 
