@@ -127,11 +127,11 @@ export function showLevelFailedOverlay(levelId: string, options: LevelFailedOver
         <span>${coinBalance.toLocaleString('en-US')}</span>
       </div>
       <section class="fail-card fail-rescue-card" aria-describedby="fail-continue-status">
+        <h2 id="level-failed-title" class="level-failed-title-art"><img src="/ui/level-complete/out-of-lives-title.png" alt="Out of Lives"></h2>
         <div class="fail-rescue-art" aria-hidden="true">
           <span class="fail-rescue-halo"></span>
           <img class="fail-rescue-mascot" src="${FAIL_MASCOT_SRC}" alt="">
         </div>
-        <h2 id="level-failed-title" class="level-failed-title-art"><img src="/ui/level-complete/out-of-lives-title.png" alt="Out of Lives"></h2>
         <div id="fail-options" class="fail-options fail-rescue-options"></div>
         <p id="fail-continue-status" class="fail-status" aria-live="polite">${escapeHtml(statusMessage)}</p>
       </section>
