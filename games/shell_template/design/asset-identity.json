@@ -122,7 +122,25 @@
       "source": "public/ui/shop/shop_no_ads.png",
       "runtime": "public/ui/shop/shop_no_ads.png",
       "expectation": "exact-bytes",
-      "provenance": "Copied from v1 find_the_dog public UI art."
+      "provenance": "2026-07-16 shop-art repair: replaced misfiled hint-magnifier bytes with the current gold ADS badge (same art as no-ads-runtime.png). Old bytes were a hint icon shipped under the no-ads slot."
+    },
+    "design/assets/shop_hint_pack_blue_a.png": {
+      "source": "public/ui/shop/shop_hint_pack_small.png",
+      "runtime": "public/ui/shop/shop_hint_pack_small.png",
+      "expectation": "perceptual",
+      "provenance": "2026-07-16 shop-art repair: shop_hint_pack_small.png is a 512px sips downscale of this blue-generation source. Replaced stale gold-magnifier / misfiled no-ads-TV bytes."
+    },
+    "design/assets/shop_hint_pack_blue_b.png": {
+      "source": "public/ui/shop/shop_hint_pack_medium.png",
+      "runtime": "public/ui/shop/shop_hint_pack_medium.png",
+      "expectation": "perceptual",
+      "provenance": "2026-07-16 shop-art repair: shop_hint_pack_medium.png is a 512px sips downscale of this blue-generation source. Replaced stale gold-magnifier / misfiled no-ads-TV bytes."
+    },
+    "design/assets/shop_hint_pack_blue_c.png": {
+      "source": "public/ui/shop/shop_hint_pack_large.png",
+      "runtime": "public/ui/shop/shop_hint_pack_large.png",
+      "expectation": "perceptual",
+      "provenance": "2026-07-16 shop-art repair: shop_hint_pack_large.png is a 512px sips downscale of this blue-generation source. Replaced stale gold-magnifier / misfiled no-ads-TV bytes."
     }
   }
 }
