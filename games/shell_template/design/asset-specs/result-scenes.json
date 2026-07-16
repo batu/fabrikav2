@@ -1,0 +1,32 @@
+{
+  "name": "result_scenes",
+  "kind": "badge",
+  "size": "492x512",
+  "gen_size": "1536x768",
+  "description": "Two rich result scene illustrations, one family, each a self-contained vignette on a soft circular scenic backdrop: WIN \u2014 the radiant gold burst medal with laurel, star shining, in front of a soft teal-mint sunburst backdrop with gentle confetti and two large sparkles; FAIL \u2014 the same medal cracked and dimmed to pewter, slumped slightly, in front of a muted slate-blue backdrop with a small rain cloud and soft falling drops.",
+  "prompt_extra": "the scenic backdrop is a soft-edged circle BEHIND the medal, fully inside the cell; one clear silhouette per cell; same medal design in both cells",
+  "transparent": true,
+  "glow": true,
+  "models": [
+    "google/gemini-3.1-flash-image",
+    "openai/gpt-5.4-image-2"
+  ],
+  "variants": [
+    {
+      "name": "warm",
+      "prompt_extra": "richer light rays and warmth"
+    },
+    {
+      "name": "clean",
+      "prompt_extra": "flatter, simpler backdrop"
+    }
+  ],
+  "sheet": {
+    "cols": 2,
+    "rows": 1,
+    "names": [
+      "scene_win",
+      "scene_fail"
+    ]
+  }
+}

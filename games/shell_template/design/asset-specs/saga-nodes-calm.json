@@ -1,0 +1,33 @@
+{
+  "name": "saga_nodes_calm",
+  "kind": "node",
+  "size": "320x320",
+  "gen_size": "1024x1024",
+  "description": "Four calm, minimal level-map node tiles, one family: CURRENT \u2014 softly glowing teal rounded-square tile with a thin gold rim; DEFAULT \u2014 plain cream rounded-square tile with a thin gold rim; LOCKED \u2014 the cream tile with one small simple gold padlock resting on its lower edge; COMPLETE \u2014 the cream tile with one modest gold star in the center.",
+  "prompt_extra": "restrained and clean, thin rims, no carved ornament, no laurels, no crowns, no chains; tile faces stay empty (numbers render on top); identical geometry in all four cells; solid closed silhouettes",
+  "transparent": true,
+  "models": [
+    "google/gemini-3.1-flash-image",
+    "openai/gpt-5.4-image-2"
+  ],
+  "variants": [
+    {
+      "name": "warm",
+      "prompt_extra": "slightly warmer cream"
+    },
+    {
+      "name": "clean",
+      "prompt_extra": "flatter, most minimal"
+    }
+  ],
+  "sheet": {
+    "cols": 2,
+    "rows": 2,
+    "names": [
+      "node_current",
+      "node_default",
+      "node_locked",
+      "node_complete"
+    ]
+  }
+}

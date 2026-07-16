@@ -1,0 +1,31 @@
+{
+  "name": "result_marks",
+  "kind": "badge",
+  "size": "512x512",
+  "gen_size": "1536x768",
+  "description": "Two iconographic result marks, one family: SUCCESS \u2014 a radiant gold burst medal with a laurel and a shining star center; FAILURE \u2014 the same medal design but cracked down the middle, dimmed to pewter grey-gold, star dulled.",
+  "prompt_extra": "same medal silhouette in both cells; only the emotional state changes (radiant vs cracked-and-dim)",
+  "transparent": true,
+  "models": [
+    "google/gemini-3.1-flash-image",
+    "openai/gpt-5.4-image-2"
+  ],
+  "sheet": {
+    "cols": 2,
+    "rows": 1,
+    "names": [
+      "mark_success",
+      "mark_failure"
+    ]
+  },
+  "variants": [
+    {
+      "name": "warm",
+      "prompt_extra": "slightly warmer, richer gold tones and a touch more ornament"
+    },
+    {
+      "name": "clean",
+      "prompt_extra": "slightly cooler, simpler and more minimal composition"
+    }
+  ]
+}

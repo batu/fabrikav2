@@ -1,0 +1,26 @@
+{
+  "configurations" : [
+    {
+      "id" : "6D9A3C10-0000-4000-8000-000000000001",
+      "name" : "Recording",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "preferredScreenCaptureFormat" : "screenRecording",
+    "systemAttachmentLifetime" : "keepAlways",
+    "userAttachmentLifetime" : "keepAlways"
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:VerifyDeviceRunner.xcodeproj",
+        "identifier" : "VerifyDeviceRunner",
+        "name" : "VerifyDeviceRunner"
+      }
+    }
+  ],
+  "version" : 1
+}

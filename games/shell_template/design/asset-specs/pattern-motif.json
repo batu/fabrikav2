@@ -1,0 +1,23 @@
+{
+  "name": "pattern_motif",
+  "kind": "motif",
+  "size": "256x256",
+  "gen_size": "1024x1024",
+  "description": "One flat solid-white four-point sparkle-star silhouette, perfectly simple and smooth, designed to repeat as a subtle background wallpaper pattern (replaces a paw-print motif).",
+  "prompt_extra": "single flat shape, one solid color (white), no gradient, no outline, no shading \u2014 pure silhouette",
+  "transparent": true,
+  "models": [
+    "google/gemini-3.1-flash-image",
+    "openai/gpt-5.4-image-2"
+  ],
+  "variants": [
+    {
+      "name": "warm",
+      "prompt_extra": "slightly warmer, richer gold tones and a touch more ornament"
+    },
+    {
+      "name": "clean",
+      "prompt_extra": "slightly cooler, simpler and more minimal composition"
+    }
+  ]
+}

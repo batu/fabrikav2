@@ -1,0 +1,176 @@
+{
+  "menu": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "unscored",
+    "capture": {
+      "gated": true
+    },
+    "viewportMetrics": {
+      "markerState": "tourstate:menu",
+      "windowInnerWidth": 390,
+      "windowInnerHeight": 844,
+      "visualViewportWidth": 390,
+      "visualViewportHeight": 844,
+      "visualViewportScale": 1,
+      "screenWidth": 390,
+      "screenHeight": 844,
+      "safeAreaInsetTop": 47,
+      "safeAreaInsetRight": 0,
+      "safeAreaInsetBottom": 34,
+      "safeAreaInsetLeft": 0,
+      "canvasCssWidth": 390,
+      "canvasCssHeight": 844,
+      "canvasBackingWidth": 1170,
+      "canvasBackingHeight": 2532,
+      "devicePixelRatio": 3
+    }
+  },
+  "level": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "unscored",
+    "capture": {
+      "gated": true
+    },
+    "viewportMetrics": {
+      "markerState": "tourstate:level",
+      "windowInnerWidth": 390,
+      "windowInnerHeight": 844,
+      "visualViewportWidth": 390,
+      "visualViewportHeight": 844,
+      "visualViewportScale": 1,
+      "screenWidth": 390,
+      "screenHeight": 844,
+      "safeAreaInsetTop": 47,
+      "safeAreaInsetRight": 0,
+      "safeAreaInsetBottom": 34,
+      "safeAreaInsetLeft": 0,
+      "canvasCssWidth": 390,
+      "canvasCssHeight": 844,
+      "canvasBackingWidth": 1170,
+      "canvasBackingHeight": 2532,
+      "devicePixelRatio": 3
+    },
+    "indistinguishableStates": [
+      {
+        "state": "pause",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 5.823,
+        "threshold": 10,
+        "digest": "4f8ce661",
+        "allowed": false,
+        "reason": null
+      }
+    ]
+  },
+  "settings": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "unscored",
+    "capture": {
+      "gated": true
+    },
+    "viewportMetrics": {
+      "markerState": "tourstate:settings",
+      "windowInnerWidth": 390,
+      "windowInnerHeight": 844,
+      "visualViewportWidth": 390,
+      "visualViewportHeight": 844,
+      "visualViewportScale": 1,
+      "screenWidth": 390,
+      "screenHeight": 844,
+      "safeAreaInsetTop": 47,
+      "safeAreaInsetRight": 0,
+      "safeAreaInsetBottom": 34,
+      "safeAreaInsetLeft": 0,
+      "canvasCssWidth": 390,
+      "canvasCssHeight": 844,
+      "canvasBackingWidth": 1170,
+      "canvasBackingHeight": 2532,
+      "devicePixelRatio": 3
+    }
+  },
+  "pause": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "unscored",
+    "capture": {
+      "gated": true
+    },
+    "viewportMetrics": {
+      "markerState": "tourstate:pause",
+      "windowInnerWidth": 390,
+      "windowInnerHeight": 844,
+      "visualViewportWidth": 390,
+      "visualViewportHeight": 844,
+      "visualViewportScale": 1,
+      "screenWidth": 390,
+      "screenHeight": 844,
+      "safeAreaInsetTop": 47,
+      "safeAreaInsetRight": 0,
+      "safeAreaInsetBottom": 34,
+      "safeAreaInsetLeft": 0,
+      "canvasCssWidth": 390,
+      "canvasCssHeight": 844,
+      "canvasBackingWidth": 1170,
+      "canvasBackingHeight": 2532,
+      "devicePixelRatio": 3
+    },
+    "indistinguishableStates": [
+      {
+        "state": "level",
+        "status": "INDISTINGUISHABLE STATES",
+        "distance": 5.823,
+        "threshold": 10,
+        "digest": "91e6bd1c",
+        "allowed": false,
+        "reason": null
+      }
+    ]
+  },
+  "win": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "unscored",
+    "capture": {
+      "gated": true
+    },
+    "viewportMetrics": {
+      "markerState": "tourstate:win",
+      "windowInnerWidth": 390,
+      "windowInnerHeight": 844,
+      "visualViewportWidth": 390,
+      "visualViewportHeight": 844,
+      "visualViewportScale": 1,
+      "screenWidth": 390,
+      "screenHeight": 844,
+      "safeAreaInsetTop": 47,
+      "safeAreaInsetRight": 0,
+      "safeAreaInsetBottom": 34,
+      "safeAreaInsetLeft": 0,
+      "canvasCssWidth": 390,
+      "canvasCssHeight": 844,
+      "canvasBackingWidth": 1170,
+      "canvasBackingHeight": 2532,
+      "devicePixelRatio": 3
+    }
+  },
+  "fail": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "unscored",
+    "capture": {
+      "gated": false
+    }
+  },
+  "__run": {
+    "kind": "no-applicable-evidence",
+    "enforcement": "exploratory",
+    "exitCode": 1,
+    "applicableCount": 0,
+    "fidelitySource": "panel",
+    "reason": "no applicable evidence — 0 skipped, 6 no-reference, 0 with a trusted reference",
+    "summary": "NO-APPLICABLE-EVIDENCE [EXPLORATORY] — no applicable evidence — 0 skipped, 6 no-reference, 0 with a trusted reference (applicable 0, fidelity panel, exit nonzero) · hard integrity: capture runner failed: xcodebuild test failed: Command failed: xcodebuild test -project /Users/base/dev/appletolye/fabrikav2/tools/verify-device/runner/VerifyDeviceRunner.xcodeproj -scheme VerifyDeviceRunner -destination id=00008101-000410EC3EF9001E -allowProvisioningUpdates -resultBundlePath /Users/base/dev/appletolye/fabrikav2/docs/evidence/2026-07-16-device-verify/device.xcresult DEVELOPMENT_TEAM=42L77JAX72; blind (ungated) captures: fail; indistinguishable states: 1 pair(s)"
+  }
+}

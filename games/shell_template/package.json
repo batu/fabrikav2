@@ -1,0 +1,26 @@
+{
+  "name": "@fabrikav2/shell_template",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@capacitor/core": "^8.1.0",
+    "@capacitor/haptics": "^8.0.2",
+    "@fabrikav2/kernel": "*",
+    "@fabrikav2/sdk": "*",
+    "@fabrikav2/ui": "*",
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/ios": "^8.4.1",
+    "@fabrikav2/testkit": "*"
+  }
+}
