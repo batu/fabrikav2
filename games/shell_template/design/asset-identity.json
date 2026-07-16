@@ -7,17 +7,13 @@
       "source": "public/ui/home/home-banner-mascot-runtime.png",
       "runtime": "public/ui/home/home-banner-mascot-runtime.png",
       "expectation": "exact-bytes",
-      "provenance": "Copied from v1 find_the_dog public UI art."
+      "provenance": "2026-07-16: Test Game title card, gemini clean variant. Portal req_c19668 (Test Game full set, 9 picks): title_card=4."
     },
     "design/assets/no-ads-runtime.png": {
       "source": "public/ui/home/no-ads-runtime.png",
       "runtime": "public/ui/home/no-ads-runtime.png",
       "expectation": "exact-bytes",
-      "sha256": "1c25ea20b8f78279374bb8d4eec1aa0b404e6d7794d1101514b937809b7ed8e9",
-      "sourceSha256": "1c25ea20b8f78279374bb8d4eec1aa0b404e6d7794d1101514b937809b7ed8e9",
-      "v1Source": "fabrika aa1ad9ca8:games/find_the_dog/public/ui/home/no-ads-runtime.png",
-      "v1Sha256": "1c25ea20b8f78279374bb8d4eec1aa0b404e6d7794d1101514b937809b7ed8e9",
-      "provenance": "2026-07-16: replaced with the shipped shop/home polish no-ads badge (fabrika aa1ad9ca8, TestFlight build 11)."
+      "provenance": "2026-07-16: generic crossed-ADS badge, gpt-image. Portal req_c19668 (Test Game full set, 9 picks): no_ads=3."
     },
     "design/assets/play-level-button-runtime.png": {
       "source": "public/ui/home/play-level-button-runtime.png",
@@ -32,13 +28,13 @@
       "source": "public/ui/home/level-node-locked-runtime.png",
       "runtime": "public/ui/home/level-node-locked-runtime.png",
       "expectation": "exact-bytes",
-      "provenance": "Copied from v1 find_the_dog public UI art."
+      "provenance": "2026-07-16: saga default node, gpt-image warm. Portal req_c19668 (Test Game full set, 9 picks): saga_nodes=3."
     },
     "design/assets/level-node-locked-bones-runtime.png": {
       "source": "public/ui/home/level-node-locked-bones-runtime.png",
       "runtime": "public/ui/home/level-node-locked-bones-runtime.png",
       "expectation": "exact-bytes",
-      "provenance": "Copied from v1 find_the_dog public UI art."
+      "provenance": "2026-07-16: saga locked node (padlock), gpt-image warm. Portal req_c19668 (Test Game full set, 9 picks): saga_nodes=3."
     },
     "design/assets/node-current-candy.png": {
       "source": "public/ui/home/node-current-candy.png",
@@ -56,7 +52,7 @@
       "source": "public/ui/home/level-node-complete-runtime.png",
       "runtime": "public/ui/home/level-node-complete-runtime.png",
       "expectation": "exact-bytes",
-      "provenance": "Copied from v1 find_the_dog public UI art."
+      "provenance": "2026-07-16: saga complete node (star), gpt-image warm. Portal req_c19668 (Test Game full set, 9 picks): saga_nodes=3."
     },
     "design/assets/icon_coin.png": {
       "source": "public/ui/menu-icons/icon_coin.png",
@@ -80,13 +76,13 @@
       "source": "public/ui/menu-icons/settings-icon-runtime.png",
       "runtime": "public/ui/menu-icons/settings-icon-runtime.png",
       "expectation": "exact-bytes",
-      "provenance": "Copied from v1 find_the_dog public UI art."
+      "provenance": "2026-07-16: generic nav gear, gpt-image clean. Portal req_c19668 (Test Game full set, 9 picks): nav_icons=4."
     },
     "design/assets/shop-icon-runtime.png": {
       "source": "public/ui/menu-icons/shop-icon-runtime.png",
       "runtime": "public/ui/menu-icons/shop-icon-runtime.png",
       "expectation": "exact-bytes",
-      "provenance": "Copied from v1 find_the_dog public UI art."
+      "provenance": "2026-07-16: generic nav shop bag, gpt-image clean. Portal req_c19668 (Test Game full set, 9 picks): nav_icons=4."
     },
     "design/assets/back_button.png": {
       "source": "public/ui/page-header/back_button.png",
@@ -98,13 +94,13 @@
       "source": "public/ui/level-complete/dog-detective-complete.png",
       "runtime": "public/ui/level-complete/dog-detective-complete.png",
       "expectation": "exact-bytes",
-      "provenance": "Copied from v1 find_the_dog public UI art."
+      "provenance": "2026-07-16: iconographic success medal, gpt-image. Portal req_c19668 (Test Game full set, 9 picks): winfail=2 (medals)."
     },
     "design/assets/dog-detective-crying.png": {
       "source": "public/ui/level-complete/dog-detective-crying.png",
       "runtime": "public/ui/level-complete/dog-detective-crying.png",
       "expectation": "exact-bytes",
-      "provenance": "Copied from v1 find_the_dog public UI art."
+      "provenance": "2026-07-16: iconographic failure medal (cracked), gpt-image. Portal req_c19668 (Test Game full set, 9 picks): winfail=2 (medals)."
     },
     "design/assets/level-complete-title.png": {
       "source": "public/ui/level-complete/level-complete-title.png",
@@ -128,55 +124,55 @@
       "source": "public/ui/shop/shop_coin_pack_1.png",
       "runtime": "public/ui/shop/shop_coin_pack_1.png",
       "expectation": "exact-bytes",
-      "provenance": "2026-07-16: generic star-coin pack tier, generated (pixelsmith sheet, google/gemini-3.1-flash-image, pinned style-guide, regenerated from picked coin identity). Portal req_6c9995 verdict: coin_packs=accept."
+      "provenance": "2026-07-16: star-coin pack tier (Batu sequence), gpt-image airier variant, anchored regen. Portal req_c19668 (Test Game full set, 9 picks): coin_packs=3."
     },
     "design/assets/shop_coin_pack_2.png": {
       "source": "public/ui/shop/shop_coin_pack_2.png",
       "runtime": "public/ui/shop/shop_coin_pack_2.png",
       "expectation": "exact-bytes",
-      "provenance": "2026-07-16: generic star-coin pack tier, generated (pixelsmith sheet, google/gemini-3.1-flash-image, pinned style-guide, regenerated from picked coin identity). Portal req_6c9995 verdict: coin_packs=accept."
+      "provenance": "2026-07-16: star-coin pack tier (Batu sequence), gpt-image airier variant, anchored regen. Portal req_c19668 (Test Game full set, 9 picks): coin_packs=3."
     },
     "design/assets/shop_coin_pack_3.png": {
       "source": "public/ui/shop/shop_coin_pack_3.png",
       "runtime": "public/ui/shop/shop_coin_pack_3.png",
       "expectation": "exact-bytes",
-      "provenance": "2026-07-16: generic star-coin pack tier, generated (pixelsmith sheet, google/gemini-3.1-flash-image, pinned style-guide, regenerated from picked coin identity). Portal req_6c9995 verdict: coin_packs=accept."
+      "provenance": "2026-07-16: star-coin pack tier (Batu sequence), gpt-image airier variant, anchored regen. Portal req_c19668 (Test Game full set, 9 picks): coin_packs=3."
     },
     "design/assets/shop_coin_pack_4.png": {
       "source": "public/ui/shop/shop_coin_pack_4.png",
       "runtime": "public/ui/shop/shop_coin_pack_4.png",
       "expectation": "exact-bytes",
-      "provenance": "2026-07-16: generic star-coin pack tier, generated (pixelsmith sheet, google/gemini-3.1-flash-image, pinned style-guide, regenerated from picked coin identity). Portal req_6c9995 verdict: coin_packs=accept."
+      "provenance": "2026-07-16: star-coin pack tier (Batu sequence), gpt-image airier variant, anchored regen. Portal req_c19668 (Test Game full set, 9 picks): coin_packs=3."
     },
     "design/assets/shop_coin_pack_5.png": {
       "source": "public/ui/shop/shop_coin_pack_5.png",
       "runtime": "public/ui/shop/shop_coin_pack_5.png",
       "expectation": "exact-bytes",
-      "provenance": "2026-07-16: generic star-coin pack tier, generated (pixelsmith sheet, google/gemini-3.1-flash-image, pinned style-guide, regenerated from picked coin identity). Portal req_6c9995 verdict: coin_packs=accept."
+      "provenance": "2026-07-16: star-coin pack tier (Batu sequence), gpt-image airier variant, anchored regen. Portal req_c19668 (Test Game full set, 9 picks): coin_packs=3."
     },
     "design/assets/shop_coin_pack_6.png": {
       "source": "public/ui/shop/shop_coin_pack_6.png",
       "runtime": "public/ui/shop/shop_coin_pack_6.png",
       "expectation": "exact-bytes",
-      "provenance": "2026-07-16: generic star-coin pack tier, generated (pixelsmith sheet, google/gemini-3.1-flash-image, pinned style-guide, regenerated from picked coin identity). Portal req_6c9995 verdict: coin_packs=accept."
+      "provenance": "2026-07-16: star-coin pack tier (Batu sequence), gpt-image airier variant, anchored regen. Portal req_c19668 (Test Game full set, 9 picks): coin_packs=3."
     },
     "design/assets/shop_hint_pack_small.png": {
       "source": "public/ui/shop/shop_hint_pack_small.png",
       "runtime": "public/ui/shop/shop_hint_pack_small.png",
       "expectation": "exact-bytes",
-      "provenance": "2026-07-16: generic lightbulb hint pack tier, generated (pixelsmith sheet, google/gemini-3.1-flash-image, regenerated from picked hint identity). Portal req_6c9995 verdict: hint_packs=accept."
+      "provenance": "2026-07-16: lightbulb hint pack tier, gemini balanced variant, anchored regen. Portal req_c19668 (Test Game full set, 9 picks): hint_packs=1."
     },
     "design/assets/shop_hint_pack_medium.png": {
       "source": "public/ui/shop/shop_hint_pack_medium.png",
       "runtime": "public/ui/shop/shop_hint_pack_medium.png",
       "expectation": "exact-bytes",
-      "provenance": "2026-07-16: generic lightbulb hint pack tier, generated (pixelsmith sheet, google/gemini-3.1-flash-image, regenerated from picked hint identity). Portal req_6c9995 verdict: hint_packs=accept."
+      "provenance": "2026-07-16: lightbulb hint pack tier, gemini balanced variant, anchored regen. Portal req_c19668 (Test Game full set, 9 picks): hint_packs=1."
     },
     "design/assets/shop_hint_pack_large.png": {
       "source": "public/ui/shop/shop_hint_pack_large.png",
       "runtime": "public/ui/shop/shop_hint_pack_large.png",
       "expectation": "exact-bytes",
-      "provenance": "2026-07-16: generic lightbulb hint pack tier, generated (pixelsmith sheet, google/gemini-3.1-flash-image, regenerated from picked hint identity). Portal req_6c9995 verdict: hint_packs=accept."
+      "provenance": "2026-07-16: lightbulb hint pack tier, gemini balanced variant, anchored regen. Portal req_c19668 (Test Game full set, 9 picks): hint_packs=1."
     }
   }
 }

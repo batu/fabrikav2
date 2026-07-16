@@ -4,7 +4,8 @@ import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
 import { HOME_NO_ADS_BADGE_SRC } from "../../src/ui/iconPreload";
 
-const NO_ADS_SHA256 = "1c25ea20b8f78279374bb8d4eec1aa0b404e6d7794d1101514b937809b7ed8e9";
+// Generic crossed-ADS badge, generated 2026-07-16 (portal req_c19668: no_ads=3).
+const NO_ADS_SHA256 = "3f20c41251f8e31e9afa49ec6f21b6141b9e00798e02e726ad19caf1016982e5";
 const PLAY_BUTTON_SHA256 = "41876ebb627203339a81a78ec1fbe30964642881c124383627e0e0a58fbfc5c7";
 const CSS_TEXT = readFileSync(join(process.cwd(), "src/ui/styles.css"), "utf8");
 
@@ -42,12 +43,11 @@ describe("home menu polish regressions", () => {
 
     expect(sha256File(join(process.cwd(), "public/ui/home/no-ads-runtime.png"))).toBe(NO_ADS_SHA256);
     expect(sha256File(join(process.cwd(), "design/assets/no-ads-runtime.png"))).toBe(NO_ADS_SHA256);
-    expect(noAdsManifest.sha256).toBe(NO_ADS_SHA256);
-    expect(noAdsManifest.sourceSha256).toBe(NO_ADS_SHA256);
-    expect(noAdsManifest.v1Sha256).toBe(NO_ADS_SHA256);
+    // Generated asset: provenance carries the portal verdict; no v1 lineage.
+    expect(noAdsManifest.sha256).toBeUndefined();
     document.body.innerHTML = `<img class="home-no-ads-art" src="${HOME_NO_ADS_BADGE_SRC}" alt="">`;
     const renderedBadgeSrc = element(".home-no-ads-art").getAttribute("src") ?? "";
-    expect(sha256File(publicPathForSrc(renderedBadgeSrc))).toBe(noAdsManifest.sha256);
+    expect(sha256File(publicPathForSrc(renderedBadgeSrc))).toBe(NO_ADS_SHA256);
     expect(sha256File(join(process.cwd(), "public/ui/home/play-level-button-runtime.png"))).toBe(
       PLAY_BUTTON_SHA256,
     );
