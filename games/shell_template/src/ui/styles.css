@@ -4642,3 +4642,27 @@ html[data-scheme="midnight"] {
 }
 #level-complete-overlay.fab-complete { background: var(--sch-win-overlay-bg); }
 #level-failed-overlay { background: var(--sch-fail-overlay-bg); }
+
+/* Shop surfaces per scheme — mint (portal req_53e5eb). Structural surfaces go
+   mint/teal; gold stays on value elements (grids, prices, badges). The body
+   pattern swaps the leftover paw motif for the star. */
+html[data-scheme="mint"] .home-page-shop {
+  --shop-header-stripes: repeating-linear-gradient(-45deg, #7adfc4 0, #7adfc4 32px, #37a98a 32px, #37a98a 64px);
+  --shop-header-border: #1f6b53;
+  --shop-header-shadow: inset 0 -12px 18px rgba(10, 74, 56, 0.16), 0 7px 0 rgba(0, 0, 0, 0.16);
+  --shop-header-button-color: #0f3a2c;
+  --shop-header-button-border: rgba(8, 52, 38, 0.62);
+  --shop-header-button-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.34), 0 4px 0 rgba(12, 74, 54, 0.42);
+  --shop-title-color: #0f3a2c;
+  --shop-title-shadow: 0 2px 0 rgba(255, 255, 255, 0.24), 0 4px 8px rgba(8, 60, 42, 0.25);
+  --shop-balance-bg: rgba(14, 70, 54, 0.58);
+  --shop-balance-border: rgba(4, 38, 28, 0.64);
+  --shop-balance-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.20), 0 4px 0 rgba(10, 62, 46, 0.42), 0 7px 11px rgba(0, 0, 0, 0.16);
+  --shop-body-color: #ecfaf3;
+  --shop-body-gradient: linear-gradient(180deg, #ecfaf3 0%, #cdeee0 48%, #a3dcc4 100%);
+  --shop-body-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='86' height='86'%3E%3Cpath d='M43 12l7 24 24 7-24 7-7 24-7-24-24-7 24-7z' fill='%2337a98a' fill-opacity='0.10'/%3E%3C/svg%3E");
+  --shop-card-desc-color: rgba(16, 66, 50, 0.82);
+  --shop-section-bg: linear-gradient(180deg, #2e7d64 0%, #1d5847 100%);
+  --shop-section-border: rgba(6, 36, 27, 0.78);
+  --shop-section-stroke: #06251b;
+}
