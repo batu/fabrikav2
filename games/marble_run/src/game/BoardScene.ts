@@ -497,10 +497,7 @@ export class BoardScene {
 
   /** Empty-cell marker: a small flat dot on the pale surface. */
   private buildCellMarker(): THREE.Object3D {
-    const marker = new THREE.Mesh(
-      new THREE.CircleGeometry(0.15, 24),
-      new THREE.MeshStandardMaterial({ color: CELL_DOT_COLOR, roughness: 0.8 }),
-    );
+    const marker = new THREE.Mesh(cellDotGeometry(), cellDotMaterial());
     marker.rotation.x = -Math.PI / 2;
     // Local offset must survive the caller's position.copy — wrap in a group.
     marker.position.y = 0.065;
@@ -1056,7 +1053,10 @@ export class BoardScene {
       opacity: 0.42,
       depthWrite: false,
     });
-    const ghost = new THREE.Mesh(new THREE.SphereGeometry(W3D.MARBLE_R * 0.92, 18, 14), mat);
+    const ghost = new THREE.Mesh(ghostGeometry(), mat);
+    ghost.scale.setScalar(W3D.MARBLE_R * 0.92);
+    ghost.userData.unitScale = W3D.MARBLE_R * 0.92;
+    ghost.userData.sharedGeometry = true;
     ghost.position.copy(pos);
     ghost.userData.baseScale = { x: 1, y: 1 };
     ghost.userData.baseOpacity = 0.42;
@@ -1427,7 +1427,8 @@ export class BoardScene {
       const base = (ribbon.mesh.userData.baseScale as { x: number; y: number }) ?? { x: 1, y: 1 };
       const baseOpacity = (ribbon.mesh.userData.baseOpacity as number) ?? 0.44;
       if (ribbon.mesh.userData.shrink) {
-        ribbon.mesh.scale.setScalar(Math.max(0.05, 1 - k * 0.85));
+        const unit = (ribbon.mesh.userData.unitScale as number) ?? 1;
+        ribbon.mesh.scale.setScalar(unit * Math.max(0.05, 1 - k * 0.85));
       } else if (ribbon.mesh.userData.grow) {
         ribbon.mesh.scale.setScalar(1 + k * 2.1);
       } else {
@@ -1438,7 +1439,7 @@ export class BoardScene {
       (ribbon.mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(0, baseOpacity * (1 - k));
       if (k >= 1) {
         this.root.remove(ribbon.mesh);
-        ribbon.mesh.geometry.dispose();
+        if (!ribbon.mesh.userData.sharedGeometry) ribbon.mesh.geometry.dispose();
         (ribbon.mesh.material as THREE.MeshBasicMaterial).dispose();
       }
     }
@@ -1680,6 +1681,25 @@ function marbleTexture(color: number): THREE.CanvasTexture {
   tex.anisotropy = 4;
   marbleTex.set(color, tex);
   return tex;
+}
+
+let ghostGeo: THREE.SphereGeometry | null = null;
+/** Shared unit sphere for ghost afterimages (scaled per instance). */
+function ghostGeometry(): THREE.SphereGeometry {
+  if (!ghostGeo) ghostGeo = new THREE.SphereGeometry(1, 18, 14);
+  return ghostGeo;
+}
+
+let cellDotGeo: THREE.CircleGeometry | null = null;
+let cellDotMat: THREE.MeshStandardMaterial | null = null;
+/** All empty-cell dots share one geometry + material (static, identical). */
+function cellDotGeometry(): THREE.CircleGeometry {
+  if (!cellDotGeo) cellDotGeo = new THREE.CircleGeometry(0.15, 24);
+  return cellDotGeo;
+}
+function cellDotMaterial(): THREE.MeshStandardMaterial {
+  if (!cellDotMat) cellDotMat = new THREE.MeshStandardMaterial({ color: CELL_DOT_COLOR, roughness: 0.8 });
+  return cellDotMat;
 }
 
 function gateKey(gate: GateDef): string {
