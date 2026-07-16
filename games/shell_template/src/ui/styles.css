@@ -796,6 +796,20 @@
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.68);
 }
 
+/* Gameplay-only exit row: a full-width settings-row button back to home. */
+.settings-home-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  cursor: pointer;
+  font: inherit;
+}
+
+.settings-home-btn:active {
+  transform: translateY(2px);
+}
+
 .settings-action-btn {
   min-width: 82px;
   min-height: 44px;

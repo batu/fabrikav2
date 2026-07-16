@@ -181,8 +181,15 @@ export function setLevelSelectCallback(_cb: (levelId: string) => void): void {
   // Kept for copied scene compatibility; level selection is owned by the home saga rail.
 }
 
-export function setHomeCallback(_cb: (() => void) | null): void {
-  // Kept for copied scene compatibility; HomeScene owns home re-rendering directly.
+/**
+ * Exit-to-home seam. GameScene registers a callback on create; the gameplay
+ * settings page shows a Home row that invokes it (leave the level, back to the
+ * saga map). On the home screen the row is hidden — there is nowhere to exit to.
+ */
+let homeCallback: (() => void) | null = null;
+
+export function setHomeCallback(cb: (() => void) | null): void {
+  homeCallback = cb;
 }
 
 /** Restart the active level when Classic / Restoration toggles in settings. */
@@ -756,9 +763,17 @@ function schedulePageShopProductsRefresh(page: HTMLElement): void {
 }
 
 function renderSettingsPageBody(): string {
+  // Gameplay context = the home shell is not mounted. Only then does the
+  // settings page offer an exit back to the saga map.
+  const inGameplay = document.querySelector('#home-shell') === null && homeCallback !== null;
   return `
     <div class="settings-page-card">
       ${renderSettingsRows()}
+      ${inGameplay ? `
+      <button id="settings-home-btn" class="settings-row settings-home-btn" type="button" aria-label="Leave level and return home">
+        <span class="settings-row-label">🏠&ensp;Home</span>
+      </button>
+      ` : ''}
     </div>
   `;
 }
@@ -811,6 +826,13 @@ function renderSettingsRows(): string {
 }
 
 function wireSettingsPageListeners(page: HTMLElement): void {
+  page.querySelector('#settings-home-btn')?.addEventListener('click', () => {
+    playUITap();
+    const goHome = homeCallback;
+    closePage();
+    goHome?.();
+  });
+
   page.querySelector('#privacy-policy-link-btn')?.addEventListener('click', () => {
     playUITap();
     openLegalLink('privacyPolicyUrl');
