@@ -27,9 +27,14 @@ line appended to the shared prompt template (see PIPELINE below).
 | 8 | Shop icon | `menu-icons/icon_shop_cart.png` 256², `menu-icons/shop-icon-runtime.png` 250×300 | see files | 1024² | Bottom-nav shop identity. |
 | 9 | Play icon | `menu-icons/nav_play_btn.png` | ≤512² (regen; FTD ships 1254²) | 1024² | Bottom-nav center play mark. (Home Play CTA itself is the CSS pill — not art.) |
 | 10 | Settings icon | `menu-icons/icon_settings_gear.png` 256², `menu-icons/settings-icon-runtime.png` ~302² | see files | 1024² | Bottom-nav gear + settings Home row reuses `settings/settings_icon_home.png` (generic, keep). |
-| 11 | Saga node: active | `home/level-node-current-teal-runtime.png` | 320×300 | 1024² | Glowing current-level button. |
-| 12a | Saga node: locked | `home/level-node-locked-runtime.png` | 320×300 | 1024² | Muted padlock node, same family as #11. |
-| 12b | Saga node: complete | `home/level-node-complete-runtime.png` | 320×320 | 1024² | Checked/harvested node, same family. |
+| 11 | Saga node: current | `home/node-current-candy.png` (wired as `--fab-levelmap-art-current`, HomeScene.ts:65; NOT the teal file, which is unused) | 384² | 1024² | Glowing current-level button. |
+| 12a | Saga node: upcoming/default | `home/level-node-locked-runtime.png` (`--fab-levelmap-art-default`) | 320×300 | 1024² | Muted not-yet-reached node, same family as #11. |
+| 12b | Saga node: locked | `home/level-node-locked-bones-runtime.png` (`--fab-levelmap-art-locked`) | 320×343 | 1024² | Hard-locked node — FTD ships BONES art here, unmistakably branded; every game regenerates it. |
+| 12c | Saga node: complete | `home/level-node-complete-runtime.png` (`--fab-levelmap-art-completed`) | 320×320 | 1024² | Checked/cleared node, same family. |
+
+The saga map is these FOUR node states + a pure-CSS path connector
+(`.fab-levelmap-path` — no asset). `level-node-current-teal-runtime.png` is a
+dead file; delete on cleanup.
 | 13 | Background pattern motif | inline SVG in `styles.css` `#hud-overlay.home-mode::before` (FTD: paw) | 96×96 SVG tile | vector/SVG | ONE simple silhouette motif (paw → marble, star, gem…). Generated as a shape, hand-tuned into the tiling SVG. Must tile seamlessly; color comes from the scheme, not the asset. |
 
 Optional per game (defaults are fine): shop badge ribbons
@@ -64,14 +69,38 @@ Today a palette change is not possible: `tokens.css` defines 7 colors but
    or CSS `mask-image` + `background-color` trick so recoloring is one var.
 4. Prove it with one alternate scheme ("mint" or "berry") toggled on device.
 
-## PIPELINE (per slot)
+## PIPELINE (per slot) — adopts `~/dev/appletolye/ai_asset` (studio_primer v2.1.2)
 
-`{style anchor (design/style-anchor.md)} + {slot brief} + {composition: single
-subject, centered, transparent/plain bg, no text unless the slot IS text} +
-{gen size}` → generate 2–4 candidates → remove-bg → trim → downscale to ship
-size (sips) → install to runtime path + `design/assets/` source → record in
-`design/asset-identity.json` → browser pass (home/shop/win/fail) → device
-capture. Each step a tool call; the agent owns pick/retry/stop.
+The style anchor is not loose prose: it is a **`style_guide.yaml`** in the
+ai_asset schema (enums + palette + per-surface `color_map` hex — the COLOR
+LOCK). Prompts are synthesized from it per slot via the primer's dictionary,
+so every slot's prompt carries the identical style sentences + pinned hex.
+
+1. **STYLE** — build `design/style_guide.yaml` from reference images
+   (existing shell captures / App Store stills, or fresh moodboard).
+   Eyedropper-verify palette + color_map hex — these come straight from the
+   scheme tokens (section C), so the color lock and the CSS scheme share one
+   source of truth.
+2. **Prompt sheet** — one prompt per slot: primer context-starter +
+   §2-translated style sentences + the slot Brief above + composition
+   (single subject, centered, transparent bg, generous padding) + "Avoid:"
+   negatives. Checked in as `design/prompt-sheet.md` for reproducibility.
+   **Sheet trick for sets that must match**: coin tiers ×6, hint tiers ×3,
+   nav icons ×3, saga nodes ×4 are each generated as ONE consistent asset
+   sheet (N columns × M rows, "consistent items") and sliced — the strongest
+   anti-drift device.
+3. **Generate** — image model of choice, 2–4 candidates per slot/sheet.
+4. **CHECK loop** — first asset of each type goes back through the primer's
+   CHECK (strict palette-hex + edge-sharpness conformance → one consolidated
+   TWEAK line) before mass-producing.
+5. **Post-process** — remove-bg → trim → slice sheets → downscale to ship
+   size (sips) → sRGB PNG.
+6. **Install** — runtime path + `design/assets/` source, record in
+   `design/asset-identity.json` (perceptual for derived downscales).
+7. **Verify** — browser pass (home/shop/win/fail), then device capture.
+
+Each step a tool call; the agent owns pick/retry/stop (the toolkit itself
+stops at the prompt — generator-neutral, no autonomous batch machine).
 
 ## Generation order for the generic set
 
