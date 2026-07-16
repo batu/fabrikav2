@@ -1,6 +1,6 @@
 import { gameState } from '../core/GameState';
 import type { LevelData } from '../data/levels';
-import { playLevelComplete, playUITap } from '../audio/AudioManager';
+import { playClaim, playLevelComplete, playUITap } from '../audio/AudioManager';
 import { scaffoldEvents } from '../core/ScaffoldEvents';
 import { showRatePromptWithHandle, type RatePromptHandle } from './RatePrompt';
 import { animateCoinsToBalance } from './EconomyTransfer';
@@ -204,6 +204,7 @@ export function showLevelCompleteOverlay(
     },
     actions: {
       onClaim: async (transfer: CoinTransfer): Promise<void> => {
+        playClaim();
         await animateCoinsToBalance({
           amount: transfer.amount,
           source: transfer.source,
@@ -215,7 +216,12 @@ export function showLevelCompleteOverlay(
           reducedMotion: transfer.reducedMotion,
         });
       },
-      onClaimDouble: options.onClaimX2,
+      onClaimDouble: options.onClaimX2 === undefined
+        ? undefined
+        : async (): Promise<{ granted: boolean; coinBalance: number }> => {
+            playClaim();
+            return options.onClaimX2!();
+          },
       onNext: async (signal: AbortSignal): Promise<void> => {
         nextClicked = true;
 

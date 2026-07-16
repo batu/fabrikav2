@@ -257,6 +257,54 @@ function uiPitchVariance(): number {
   return 0.8 + Math.random() * 0.4;
 }
 
+// ---- File-backed UI sfx (design/AUDIO-LIST.md) ------------------------------
+// Winners picked on portal live under /audio/sfx/<key>.wav. Each play falls
+// back to the original synthesized cue if the file is missing or fails to
+// decode, so a game without generated audio still makes sound.
+type UiSfxKey = 'ui-tap' | 'ui-reject' | 'level-win-sting' | 'level-fail-sting' | 'claim-thunk' | 'hint-cast';
+const uiSfxBufferPromises = new Map<UiSfxKey, Promise<AudioBuffer>>();
+
+function loadUiSfxBuffer(key: UiSfxKey): Promise<AudioBuffer> {
+  const ctx = getAudioContext();
+  let promise = uiSfxBufferPromises.get(key);
+  if (promise === undefined) {
+    promise = fetch(`/audio/sfx/${key}.wav`)
+      .then((response: Response): Promise<ArrayBuffer> => {
+        // capacitor://localhost returns status 0 on success — see
+        // preloadDogFoundSounds for the full story.
+        if (!response.ok && response.status !== 0) {
+          throw new Error(`Failed to load sfx ${key}: ${response.status}`);
+        }
+        return response.arrayBuffer();
+      })
+      .then((data: ArrayBuffer): Promise<AudioBuffer> => ctx.decodeAudioData(data))
+      .catch((error: unknown): never => {
+        // Clear the memo so a later play retries rather than staying silent.
+        uiSfxBufferPromises.delete(key);
+        throw error;
+      });
+    uiSfxBufferPromises.set(key, promise);
+  }
+  return promise;
+}
+
+/** Play a file-backed UI sfx; on any failure run the synth fallback instead.
+ *  `vary` applies the 0.8–1.2 pitch variance (off for musical stings). */
+function playUiSfx(key: UiSfxKey, fallback: () => void, vary: boolean = true): void {
+  void Promise.all([ensureAudioUnlocked(), loadUiSfxBuffer(key)])
+    .then(([, buffer]: [void, AudioBuffer]): void => {
+      const ctx = getAudioContext();
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      if (vary) source.playbackRate.value = uiPitchVariance();
+      source.connect(getSoundEffectsOutput());
+      source.start(ctx.currentTime);
+    })
+    .catch((): void => {
+      fallback();
+    });
+}
+
 function playVoiceBlip(): void {
   const ctx = getAudioContext();
   if (ctx.state === 'suspended') void ctx.resume();
@@ -325,18 +373,31 @@ export function playFind(): void {
 }
 
 export function playWrongTap(): void {
-  // Soft descending two-note "nuh-uh" boop — a playful "not there" rather than
-  // a punishing thud. Triangle waves at low gain keep it gentle, and the whole
-  // cue is shorter and quieter than playFind so a miss feels lighter than a find.
-  const rate = uiPitchVariance();
-  playNotes([392 * rate, 294 * rate], 'triangle', 0.1, 0.035, 0.16);
+  playUiSfx('ui-reject', (): void => {
+    // Synth fallback: soft descending two-note "nuh-uh" boop.
+    const rate = uiPitchVariance();
+    playNotes([392 * rate, 294 * rate], 'triangle', 0.1, 0.035, 0.16);
+  });
 }
 
 export function playLevelComplete(): void {
-  playNotes([523, 659, 784, 1047], 'triangle', 0.12, 0.06, 0.3);
+  playUiSfx('level-win-sting', (): void => {
+    playNotes([523, 659, 784, 1047], 'triangle', 0.12, 0.06, 0.3);
+  }, false);
+}
+
+/** Reward banked — CLAIM / CLAIM 2x press on the win overlay. */
+export function playClaim(): void {
+  playUiSfx('claim-thunk', (): void => {
+    playNotes([262, 523], 'triangle', 0.08, 0.02, 0.25);
+  });
 }
 
 export function playLevelFail(): void {
+  playUiSfx('level-fail-sting', playLevelFailSynth, false);
+}
+
+function playLevelFailSynth(): void {
   const ctx = getAudioContext();
   const now = ctx.currentTime;
   const osc = ctx.createOscillator();
@@ -361,14 +422,16 @@ export function playLevelFail(): void {
 }
 
 export function playHint(): void {
-  playNoise(0.3, 0.15, 3000 * uiPitchVariance());
+  playUiSfx('hint-cast', (): void => {
+    playNoise(0.3, 0.15, 3000 * uiPitchVariance());
+  });
 }
 
 export function playUITap(): void {
   const now = performance.now();
   if (now - lastUiTapAt < 45) return;
   lastUiTapAt = now;
-  playVoiceBlip();
+  playUiSfx('ui-tap', playVoiceBlip);
 }
 
 export function installButtonVoiceEffects(): void {
