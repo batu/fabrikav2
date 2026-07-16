@@ -1,0 +1,22 @@
+{
+  "name": "icon_hint",
+  "kind": "icon",
+  "size": "256x256",
+  "gen_size": "1024x1024",
+  "description": "The consumable booster identity: a premium glass lightbulb hint token with a warm glowing filament and ONE large golden four-point star spark at its top, green coiled screw base. Single object, glossy but restrained (no species, no letters, no small particles).",
+  "transparent": true,
+  "models": [
+    "google/gemini-3.1-flash-image",
+    "openai/gpt-5.4-image-2"
+  ],
+  "variants": [
+    {
+      "name": "warm",
+      "prompt_extra": "slightly warmer, richer gold tones and a touch more ornament"
+    },
+    {
+      "name": "clean",
+      "prompt_extra": "slightly cooler, simpler and more minimal composition"
+    }
+  ]
+}

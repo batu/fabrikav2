@@ -1,0 +1,31 @@
+{
+  "name": "gameplay_buttons",
+  "kind": "icon",
+  "size": "512x512",
+  "gen_size": "1536x768",
+  "description": "Two big tappable game buttons, one family, chunky rounded-square jewel buttons with thick gold rims: WIN \u2014 glossy emerald-green jewel button face with a radiant gold star emblem and one big sparkle; LOSE \u2014 identical button geometry with a muted slate-red jewel face and a cracked dark heart emblem.",
+  "prompt_extra": "juicy, pressable, toy-like depth; identical silhouette and rim in both cells; emblem large and readable at 60px",
+  "transparent": true,
+  "models": [
+    "google/gemini-3.1-flash-image",
+    "openai/gpt-5.4-image-2"
+  ],
+  "variants": [
+    {
+      "name": "warm",
+      "prompt_extra": "richer gloss and warmth"
+    },
+    {
+      "name": "clean",
+      "prompt_extra": "flatter and bolder"
+    }
+  ],
+  "sheet": {
+    "cols": 2,
+    "rows": 1,
+    "names": [
+      "btn_win",
+      "btn_lose"
+    ]
+  }
+}
