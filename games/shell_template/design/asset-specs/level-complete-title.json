@@ -1,0 +1,11 @@
+{
+  "name": "level_complete_title",
+  "kind": "lettering",
+  "size": "1100x469",
+  "gen_size": "2200x938",
+  "description": "Display lettering reading exactly \"Level Complete\" — arched, chunky, celebratory win-card title art. The words \"Level Complete\" are the requested text.",
+  "prompt_extra": "gently arched baseline; thick friendly letterforms with subtle outline and top-light gloss",
+  "transparent": true,
+  "glow": true,
+  "models": ["google/gemini-3.1-flash-image", "openai/gpt-5.4-image-2"]
+}

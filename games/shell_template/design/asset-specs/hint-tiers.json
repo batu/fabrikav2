@@ -1,0 +1,15 @@
+{
+  "name": "shop_hint_packs",
+  "kind": "icon",
+  "size": "512x512",
+  "gen_size": "1920x640",
+  "description": "Three tiers of the SAME hint token from the hint spec: one token; three tokens fanned; five tokens in a gleaming cluster. Richness scales with tier.",
+  "prompt_extra": "every cell uses the identical hint-token design; only count and arrangement grow per tier",
+  "transparent": true,
+  "models": ["google/gemini-3.1-flash-image", "openai/gpt-5.4-image-2"],
+  "sheet": {
+    "cols": 3,
+    "rows": 1,
+    "names": ["shop_hint_pack_small", "shop_hint_pack_medium", "shop_hint_pack_large"]
+  }
+}

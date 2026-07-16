@@ -1,0 +1,22 @@
+{
+  "name": "shop_coin_packs",
+  "kind": "icon",
+  "size": "256x256",
+  "gen_size": "1536x1024",
+  "description": "Six tiers of the SAME premium coin from the coin spec, richness scaling with tier: single coin, small pouch, coin stack, brimming chest, overflowing cart, gleaming vault pile.",
+  "prompt_extra": "every cell uses the identical coin design; only quantity and staging grow per tier",
+  "transparent": true,
+  "models": ["google/gemini-3.1-flash-image", "openai/gpt-5.4-image-2"],
+  "sheet": {
+    "cols": 3,
+    "rows": 2,
+    "names": [
+      "shop_coin_pack_1",
+      "shop_coin_pack_2",
+      "shop_coin_pack_3",
+      "shop_coin_pack_4",
+      "shop_coin_pack_5",
+      "shop_coin_pack_6"
+    ]
+  }
+}
