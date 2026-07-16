@@ -69,38 +69,44 @@ Today a palette change is not possible: `tokens.css` defines 7 colors but
    or CSS `mask-image` + `background-color` trick so recoloring is one var.
 4. Prove it with one alternate scheme ("mint" or "berry") toggled on device.
 
-## PIPELINE (per slot) — adopts `~/dev/appletolye/ai_asset` (studio_primer v2.1.2)
+## PIPELINE (as built 2026-07-16 — pixelsmith + portal; learned from ai_asset)
 
-The style anchor is not loose prose: it is a **`style_guide.yaml`** in the
-ai_asset schema (enums + palette + per-surface `color_map` hex — the COLOR
-LOCK). Prompts are synthesized from it per slot via the primer's dictionary,
-so every slot's prompt carries the identical style sentences + pinned hex.
+Machine truth: `design/style-guide.json` (pinned style) + `design/asset-specs/*.json`
+(one per slot; sheets carry `sheet: {cols, rows, names[]}`). Full plan:
+`docs/plans/2026-07-16-001-feat-pixelsmith-hitl-asset-pipeline-plan.md`.
 
-1. **STYLE** — build `design/style_guide.yaml` from reference images
-   (existing shell captures / App Store stills, or fresh moodboard).
-   Eyedropper-verify palette + color_map hex — these come straight from the
-   scheme tokens (section C), so the color lock and the CSS scheme share one
-   source of truth.
-2. **Prompt sheet** — one prompt per slot: primer context-starter +
-   §2-translated style sentences + the slot Brief above + composition
-   (single subject, centered, transparent bg, generous padding) + "Avoid:"
-   negatives. Checked in as `design/prompt-sheet.md` for reproducibility.
-   **Sheet trick for sets that must match**: coin tiers ×6, hint tiers ×3,
-   nav icons ×3, saga nodes ×4 are each generated as ONE consistent asset
-   sheet (N columns × M rows, "consistent items") and sliced — the strongest
-   anti-drift device.
-3. **Generate** — image model of choice, 2–4 candidates per slot/sheet.
-4. **CHECK loop** — first asset of each type goes back through the primer's
-   CHECK (strict palette-hex + edge-sharpness conformance → one consolidated
-   TWEAK line) before mass-producing.
-5. **Post-process** — remove-bg → trim → slice sheets → downscale to ship
-   size (sips) → sRGB PNG.
-6. **Install** — runtime path + `design/assets/` source, record in
-   `design/asset-identity.json` (perceptual for derived downscales).
-7. **Verify** — browser pass (home/shop/win/fail), then device capture.
+1. **Ingest (once per game):**
+   `uv run pixelsmith ingest <refs...> --game-root games/<game>` (run in the
+   pixelsmith checkout) writes `design/style-guide.json` — phrase tokens +
+   ref palette from the reference images, palette ROLES read from
+   `design/tokens.css` (tokens keep color authority; the unit test
+   `tests/unit/style-guide-alignment.test.ts` fails on drift). Post the guide
+   + refs to portal as an `approve` request; hand-apply corrections (incl.
+   the per-surface `color_map`), set `pinned: true`. `generate` warns on an
+   unpinned guide; ingest refuses to overwrite a pinned one without `--force`.
+2. **Generate (per slot batch):**
+   `uv run pixelsmith generate --spec design/asset-specs/<slot>.json --out <path> --game-root games/<game> --max-cost <usd>`
+   — fans out one call per model in the spec (default gemini-3.1-flash-image
+   + gpt-5.4-image-2; `--model` overrides; multi-model outputs get a model
+   slug suffix). Prompts are deterministic from style-guide + spec
+   (`prompt_extra` for composition notes). Budget is enforced across the
+   fan-out. Sheets: `--out` is a directory; cells land as `<name>.png`.
+3. **Transparency is automatic:** native alpha (OpenAI `background:
+   transparent`) or prompt-requested; outputs without real alpha are matted
+   via the pinned ONNX model (`PIXELSMITH_MATTING_MODEL=<path>.onnx`) and
+   defringed; every transparent asset must pass the halo-QA gate (specs with
+   intentional glow set `"glow": true`). Post-process fits to ship size —
+   never stretches — and records provenance + `design/asset-identity.json`.
+4. **Review (portal):** post candidates per batch —
+   `portal post --stream <game>-assets --kind pick-one --before <current-asset> --manifest <captions>` —
+   captions carry model + cost. Keep generating later batches while picks are
+   open. Feedback → adjust spec/`prompt_extra`, repost with
+   `--supersedes <req> --feedback "<their words>"`.
+5. **Install + close:** install the winner to the runtime path, commit
+   quoting the portal request id + verdict, then post the on-device capture
+   (`verify-device` / `pixelsmith capture`) into the same chain.
 
-Each step a tool call; the agent owns pick/retry/stop (the toolkit itself
-stops at the prompt — generator-neutral, no autonomous batch machine).
+The agent owns pick/retry/stop; every pixelsmith/portal invocation returns.
 
 ## Generation order for the generic set
 
