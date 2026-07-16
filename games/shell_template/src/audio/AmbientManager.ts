@@ -23,12 +23,12 @@ let desiredPresetKey: string | null = null;
 let desiredFadeMs = 500;
 let ambientUnlockArmed = false;
 let wasActiveBeforeLifecycleSuspend = false;
-const DEFAULT_BACKGROUND_PRESET = 'velvet_ii_v';
-const VELVET_II_V_URL = '/audio/velvet-ii-v.mp3';
-let velvetIiVBufferPromise: Promise<AudioBuffer> | null = null;
+const DEFAULT_BACKGROUND_PRESET = 'background_music';
+const BACKGROUND_MUSIC_URL = '/audio/background-music.mp3';
+let backgroundMusicBufferPromise: Promise<AudioBuffer> | null = null;
 
-function loadVelvetIiVBuffer(ctx: AudioContext): Promise<AudioBuffer> {
-  velvetIiVBufferPromise ??= fetch(VELVET_II_V_URL)
+function loadBackgroundMusicBuffer(ctx: AudioContext): Promise<AudioBuffer> {
+  backgroundMusicBufferPromise ??= fetch(BACKGROUND_MUSIC_URL)
     .then((response: Response): Promise<ArrayBuffer> => {
       // iOS Capacitor serves app assets from the capacitor://localhost custom
       // scheme, whose handler returns status 0 (not 200) even on success — so
@@ -43,11 +43,11 @@ function loadVelvetIiVBuffer(ctx: AudioContext): Promise<AudioBuffer> {
     .catch((error: unknown): never => {
       // Clear the memo so a later crossfade can retry rather than being
       // permanently silent after one transient load/decode failure.
-      velvetIiVBufferPromise = null;
+      backgroundMusicBufferPromise = null;
       throw error;
     });
 
-  return velvetIiVBufferPromise;
+  return backgroundMusicBufferPromise;
 }
 
 // ---- Small helpers for preset graphs ----
@@ -357,7 +357,7 @@ const buildNightHarbor: PresetBuilder = (ctx) => {
   };
 };
 
-const buildVelvetIiV: PresetBuilder = (ctx) => {
+const buildBackgroundMusic: PresetBuilder = (ctx) => {
   const out = ctx.createGain();
   out.gain.value = 0.32;
   let source: AudioBufferSourceNode | null = null;
@@ -366,7 +366,7 @@ const buildVelvetIiV: PresetBuilder = (ctx) => {
   // Wait for the iOS unlock as well as the decode — a buffer source started
   // on a suspended context never produces sound on iOS WKWebView, and this
   // preset is built at scene load, before the first user gesture.
-  void Promise.all([loadVelvetIiVBuffer(ctx), ensureAudioUnlocked()])
+  void Promise.all([loadBackgroundMusicBuffer(ctx), ensureAudioUnlocked()])
     .then(([buffer]: [AudioBuffer, void]): void => {
       if (cancelled) return;
       source = ctx.createBufferSource();
@@ -392,7 +392,7 @@ const buildVelvetIiV: PresetBuilder = (ctx) => {
 };
 
 const BUILDERS: Record<string, PresetBuilder> = {
-  velvet_ii_v: buildVelvetIiV,
+  background_music: buildBackgroundMusic,
   morning_market: buildMorningMarket,
   temple_garden: buildTempleGarden,
   river_bridge: buildRiverBridge,
@@ -483,7 +483,7 @@ function armAmbientUnlock(): void {
     // gated (e.g. home BGM scheduled before the first tap) would stay armed
     // forever and the menu would be silent. Defer past ensureAudioUnlocked() so
     // the AudioContext is actually running before a builder might start a source
-    // synchronously (velvet_ii_v already awaits unlock internally; this keeps the
+    // synchronously (background_music already awaits unlock internally; this keeps the
     // path correct for any future synthesized home preset). desiredPresetKey is
     // re-read at resolve time, so it reflects the most recent requested preset.
     void ensureAudioUnlocked().then((): void => {
