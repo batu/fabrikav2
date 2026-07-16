@@ -71,10 +71,43 @@ function writeTemplate(root) {
   writeFileSync(join(tpl, 'node_modules', 'junk', 'index.js'), 'module.exports = 1;\n');
 }
 
+// Minimal fake shell_template mirroring the identity anchors the shell-stamp
+// path rewrites (Test Game title, com.basegamelab ids, pinned smoke test).
+function writeShellTemplate(root) {
+  const tpl = join(root, 'games', 'shell_template');
+  mkdirSync(join(tpl, 'design'), { recursive: true });
+  mkdirSync(join(tpl, 'tests', 'unit'), { recursive: true });
+  mkdirSync(join(tpl, 'native-resources', 'ios', 'App', 'App'), { recursive: true });
+  mkdirSync(join(tpl, 'ios', 'App'), { recursive: true }); // cap-generated: must be skipped
+  mkdirSync(join(tpl, 'evidence'), { recursive: true });
+  writeFileSync(join(tpl, 'evidence', 'old-proof.txt'), 'test game evidence\n');
+  writeFileSync(join(tpl, 'ios', 'App', 'generated.txt'), 'generated\n');
+  writeFileSync(
+    join(tpl, 'package.json'),
+    JSON.stringify({ name: '@fabrikav2/shell_template', private: true, scripts: {}, devDependencies: {} }, null, 2),
+  );
+  writeFileSync(join(tpl, 'game.config.ts'), 'export const gameConfig = { id: "shell_template", title: "game.title" };\n');
+  writeFileSync(join(tpl, 'design', 'copy.ts'), 'export const copy = { "game.title": "Test Game" };\n');
+  writeFileSync(join(tpl, 'index.html'), '<html><head><title>Test Game</title></head></html>\n');
+  writeFileSync(
+    join(tpl, 'capacitor.config.ts'),
+    'const config = { appId: "com.basegamelab.shell_template.dev", appName: "Shell Template" };\nexport default config;\n',
+  );
+  writeFileSync(
+    join(tpl, 'native-resources', 'ios', 'App', 'App', 'Info.plist'),
+    '<plist><string>Shell Template</string><string>com.basegamelab.shell_template.dev</string></plist>\n',
+  );
+  writeFileSync(
+    join(tpl, 'tests', 'unit', 'smoke.test.ts'),
+    'describe("shell_template config", () => { expect(gameConfig.id).toBe("shell_template"); });\n',
+  );
+}
+
 let root;
 beforeAll(() => {
   root = mkdtempSync(join(tmpdir(), 'create-game-'));
   writeTemplate(root);
+  writeShellTemplate(root);
 });
 afterAll(() => {
   if (root) rmSync(root, { recursive: true, force: true });
@@ -169,6 +202,32 @@ describe('createGame', () => {
     expect(existsSync(join(dir, 'src', 'main.ts'))).toBe(true);
     expect(existsSync(join(dir, '.work', 'README.md'))).toBe(true);
     expect(existsSync(join(dir, 'node_modules'))).toBe(false);
+  });
+
+  it('stamps a game from shell_template with shell identity rewritten', () => {
+    const { targetDir, packageName, title } = createGame({ name: 'wool_probe', repoRoot: root, from: 'shell_template' });
+    expect(packageName).toBe('@fabrikav2/wool_probe');
+    expect(title).toBe('Wool Probe');
+    expect(readFileSync(join(targetDir, 'game.config.ts'), 'utf8')).toContain('id: "wool_probe"');
+    expect(readFileSync(join(targetDir, 'design', 'copy.ts'), 'utf8')).toContain('"game.title": "Wool Probe"');
+    expect(readFileSync(join(targetDir, 'index.html'), 'utf8')).toContain('<title>Wool Probe</title>');
+    const cap = readFileSync(join(targetDir, 'capacitor.config.ts'), 'utf8');
+    expect(cap).toContain('appId: "com.basegamelab.woolprobe.dev"');
+    expect(cap).toContain('appName: "Wool Probe"');
+    const plist = readFileSync(join(targetDir, 'native-resources', 'ios', 'App', 'App', 'Info.plist'), 'utf8');
+    expect(plist).toContain('<string>Wool Probe</string>');
+    expect(plist).toContain('com.basegamelab.woolprobe.dev');
+    expect(readFileSync(join(targetDir, 'tests', 'unit', 'smoke.test.ts'), 'utf8')).toContain('toBe("wool_probe")');
+    // cap-generated ios/ and the source game's evidence/ must not travel;
+    // native-resources/ios (the committed recipe) must.
+    expect(existsSync(join(targetDir, 'ios'))).toBe(false);
+    expect(existsSync(join(targetDir, 'evidence', 'old-proof.txt'))).toBe(false);
+    expect(existsSync(join(targetDir, 'evidence'))).toBe(true);
+    expect(existsSync(join(targetDir, 'native-resources', 'ios', 'App', 'App', 'Info.plist'))).toBe(true);
+  });
+
+  it('rejects an unknown template', () => {
+    expect(() => createGame({ name: 'whatever', repoRoot: root, from: 'nope' })).toThrow(/unknown template/);
   });
 
   it('refuses to overwrite an existing game', () => {

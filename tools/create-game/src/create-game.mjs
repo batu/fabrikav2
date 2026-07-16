@@ -5,11 +5,13 @@
 //
 // Usage (from repo root):  npm run create-game -- <name>
 
-import { cpSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const TEMPLATE_NAME = '_template';
+const SHELL_TEMPLATE_NAME = 'shell_template';
+const TEMPLATE_CHOICES = [TEMPLATE_NAME, SHELL_TEMPLATE_NAME];
 const NAME_RE = /^[a-z][a-z0-9_]*$/;
 const SHARED_WORKSPACE_DEV_DEPS = [
   '@fabrikav2/kernel',
@@ -20,6 +22,10 @@ const SHARED_WORKSPACE_DEV_DEPS = [
 
 // Never copied into a new game (build/install artifacts).
 const SKIP_ENTRIES = new Set(['node_modules', 'dist', 'coverage', '.DS_Store']);
+// Skipped only at the template ROOT: `ios`/`android` are cap-generated native
+// shells (12k+ files, gitignored — NOT native-resources/ios, which is the
+// committed recipe input); `evidence` is the source game's proof trail.
+const SKIP_TOP_LEVEL_ENTRIES = new Set(['ios', 'android', 'evidence']);
 
 /** Repo root, inferred from this file (tools/create-game/src/create-game.mjs). */
 export function repoRootFrom(metaUrl) {
@@ -107,21 +113,26 @@ contributor must not break.
 }
 
 /**
- * Scaffold games/<name>/ from games/_template.
- * @param {{name:string, repoRoot:string}} opts
+ * Scaffold games/<name>/ from a template (games/_template by default, or
+ * games/shell_template via `from: 'shell_template'` — the playable generic
+ * shell with menu/saga/shop/settings/win/fail and the pixelsmith design seam).
+ * @param {{name:string, repoRoot:string, from?:string}} opts
  * @returns {{targetDir:string, packageName:string, title:string}}
  */
-export function createGame({ name, repoRoot }) {
+export function createGame({ name, repoRoot, from = TEMPLATE_NAME }) {
   if (!name || !NAME_RE.test(name)) {
     throw new Error(
       `invalid game name ${JSON.stringify(name)} — use lowercase letters, digits, and _ (must start with a letter), e.g. "marble_run"`,
     );
   }
-  if (name === TEMPLATE_NAME) {
-    throw new Error(`"${TEMPLATE_NAME}" is the template itself — pick a game name`);
+  if (!TEMPLATE_CHOICES.includes(from)) {
+    throw new Error(`unknown template "${from}" — choose one of: ${TEMPLATE_CHOICES.join(', ')}`);
+  }
+  if (TEMPLATE_CHOICES.includes(name)) {
+    throw new Error(`"${name}" is a template — pick a game name`);
   }
 
-  const templateDir = join(repoRoot, 'games', TEMPLATE_NAME);
+  const templateDir = join(repoRoot, 'games', from);
   const targetDir = join(repoRoot, 'games', name);
   const archivedDir = join(repoRoot, 'archive', 'games', name);
   if (!existsSync(templateDir)) {
@@ -141,12 +152,15 @@ export function createGame({ name, repoRoot }) {
 
   cpSync(templateDir, targetDir, {
     recursive: true,
-    filter: (src) => !SKIP_ENTRIES.has(basename(src)),
+    filter: (src) => {
+      if (SKIP_ENTRIES.has(basename(src))) return false;
+      const rel = src.slice(templateDir.length).replace(/^\/+/, '');
+      return !(rel !== '' && !rel.includes('/') && SKIP_TOP_LEVEL_ENTRIES.has(rel));
+    },
   });
 
   const title = titleCase(name);
   const packageName = `@fabrikav2/${name}`;
-  const appId = `com.fabrika.${appIdSegment(name)}`;
 
   // package.json: bump the name (JSON, so rewrite the field precisely).
   const pkgPath = join(targetDir, 'package.json');
@@ -156,6 +170,43 @@ export function createGame({ name, repoRoot }) {
   pkg.devDependencies = gameDevDependencies(pkg.devDependencies);
   writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
 
+  if (from === SHELL_TEMPLATE_NAME) {
+    // Shell-stamp path: the shell ships as the playable "Test Game"
+    // (com.basegamelab ids); rewrite that identity in place. Kept anchored so
+    // a drifted shell fails loudly (substitute() skips missing files but the
+    // smoke test below pins the id).
+    const appId = `com.basegamelab.${appIdSegment(name)}.dev`;
+    substitute(join(targetDir, 'game.config.ts'), [['id: "shell_template"', `id: "${name}"`]]);
+    substitute(join(targetDir, 'design', 'copy.ts'), [
+      ['"game.title": "Test Game"', `"game.title": "${title}"`],
+    ]);
+    substitute(join(targetDir, 'index.html'), [
+      ['<title>Find the Dog</title>', `<title>${title}</title>`],
+      ['<title>Test Game</title>', `<title>${title}</title>`],
+    ]);
+    substitute(join(targetDir, 'capacitor.config.ts'), [
+      ['appId: "com.basegamelab.shell_template.dev"', `appId: "${appId}"`],
+      ['appName: "Shell Template"', `appName: "${title}"`],
+    ]);
+    substitute(join(targetDir, 'native-resources', 'ios', 'App', 'App', 'Info.plist'), [
+      ['<string>Shell Template</string>', `<string>${title}</string>`],
+    ]);
+    substitute(join(targetDir, 'native-resources', 'ios', 'App', 'App', 'Info.plist'), [
+      ['com.basegamelab.shell_template.dev', appId],
+    ]);
+    substitute(join(targetDir, 'tests', 'unit', 'smoke.test.ts'), [
+      ['"shell_template"', `"${name}"`],
+      ['describe("shell_template config"', `describe("${name} config"`],
+    ]);
+    substitute(join(targetDir, 'refs', 'manifest.yaml'), [
+      ['game: shell_template', `game: ${name}`],
+    ]);
+    mkdirSync(join(targetDir, 'evidence'), { recursive: true });
+    writeFileSync(join(targetDir, 'README.md'), generatedReadme({ name, packageName, title }));
+    return { targetDir, packageName, title };
+  }
+
+  const appId = `com.fabrika.${appIdSegment(name)}`;
   // Anchored text substitutions across config + titles. The game title is a
   // copy KEY in game.config.ts; the human title lives in design/copy.ts, so we
   // substitute the "game.title" copy value there (not a literal in the config).
@@ -186,11 +237,15 @@ export function createGame({ name, repoRoot }) {
 }
 
 function main() {
-  const name = process.argv[2];
+  const args = process.argv.slice(2);
+  const fromIdx = args.indexOf('--from');
+  const from = fromIdx >= 0 ? args[fromIdx + 1] : undefined;
+  const positional = args.filter((a, i) => a !== '--from' && i !== fromIdx + 1);
+  const name = positional[0];
   const repoRoot = repoRootFrom(import.meta.url);
   let result;
   try {
-    result = createGame({ name, repoRoot });
+    result = createGame({ name, repoRoot, ...(from ? { from } : {}) });
   } catch (err) {
     console.error(`create-game: ${err.message}`);
     process.exit(1);
