@@ -1,0 +1,1269 @@
+/*
+ * @fabrika/core/ui base stylesheet (A-UI0).
+ *
+ * Structure/layout/animation live here, driven by `--fab-*` semantic tokens
+ * scoped to `.fab-ui`. A consuming game overrides ONLY the semantic tokens
+ * (via applyTheme or its own theme.css) — never the rules — so reskinning needs
+ * zero structural CSS. Wrapped in @layer so a consumer's unlayered token
+ * override always wins without specificity/!important wars.
+ *
+ * Consumers: `import '@fabrika/core/ui.css'`.
+ */
+
+@layer fab.tokens, fab.components;
+
+/* Tier-2 semantic tokens (the override contract). Defaults are Fabrika-neutral;
+   a game's applyTheme()/theme.css re-sets these. Namespaced + scoped to .fab-ui
+   so they never leak into or collide with a host page's :root. */
+@layer fab.tokens {
+  .fab-ui {
+    --fab-color-surface: #ffffff;
+    --fab-color-overlay-scrim: rgba(0, 0, 0, 0.4);
+    --fab-color-text: #3d3d3d;
+    --fab-color-text-muted: #555555;
+    --fab-color-accent: #6b7280;
+    --fab-color-on-accent: #ffffff;
+    --fab-color-secondary-surface: #f0f0f0;
+    --fab-color-on-secondary: #333333;
+    --fab-color-secondary-border: #cccccc;
+
+    --fab-space-sm: 8px;
+    --fab-space-md: 20px;
+    --fab-space-lg: 24px;
+
+    --fab-radius-sm: 8px;
+    --fab-radius-md: 16px;
+    --fab-radius-pill: 28px;
+
+    /* Canonical stack lives in `fonts.ts::FONT_STACK`; keep this value
+       byte-identical (a unit test guards the two). No self-hosted @font-face
+       here on purpose — Nunito ships via each game's CDN <link>, and a
+       shadowing @font-face would change the live/frozen games' render. */
+    --fab-font-family: 'Nunito', sans-serif;
+    --fab-font-size-sm: 15px;
+    --fab-font-size-md: 14px;
+    --fab-font-size-lg: 18px;
+    --fab-font-weight-normal: 500;
+    --fab-font-weight-bold: 800;
+
+    --fab-duration-fast: 80ms;
+
+    --fab-shadow-modal: 0 8px 32px rgba(0, 0, 0, 0.2);
+    --fab-shadow-button:
+      inset 0 2px 0 rgba(255, 255, 255, 0.32),
+      0 3px 0 rgba(107, 114, 128, 0.16),
+      0 9px 18px rgba(17, 24, 39, 0.17);
+    --fab-shadow-button-active:
+      inset 0 2px 0 rgba(255, 255, 255, 0.26),
+      0 1px 0 rgba(107, 114, 128, 0.16),
+      0 5px 11px rgba(17, 24, 39, 0.16);
+    --fab-shadow-button-disabled:
+      inset 0 1px 0 rgba(255, 255, 255, 0.32),
+      0 1px 0 rgba(107, 114, 128, 0.08);
+    --fab-btn-secondary-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.46),
+      0 1px 0 rgba(107, 114, 128, 0.08),
+      0 5px 10px rgba(17, 24, 39, 0.09);
+    --fab-btn-icon-color: #6b7280;
+    --fab-btn-icon-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.42),
+      0 1px 0 rgba(107, 114, 128, 0.06),
+      0 3px 7px rgba(17, 24, 39, 0.06);
+    --fab-btn-min-size: 48px;
+    --fab-btn-primary-padding: 14px 28px;
+    --fab-btn-secondary-padding: 10px 18px;
+    --fab-btn-icon-size: 48px;
+    --fab-btn-disabled-opacity: 0.5;
+    --fab-btn-line-height: 1.1;
+
+    /* Modal shell surfaces (chromatic layers a game re-skins; the shell's
+       structure stays fixed). Defaults are brand-neutral grays. */
+    --fab-modal-backdrop-padding: calc(env(safe-area-inset-top, 0px) + 18px) 18px calc(env(safe-area-inset-bottom, 0px) + 18px);
+    --fab-modal-backdrop-bg:
+      radial-gradient(circle at 50% 42%, rgba(243, 244, 246, 0.2), transparent 36%),
+      linear-gradient(180deg, rgba(17, 24, 39, 0.02), rgba(17, 24, 39, 0.12)),
+      var(--fab-color-overlay-scrim);
+    --fab-modal-card-bg:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(249, 250, 251, 0.96)),
+      var(--fab-color-surface);
+    --fab-modal-card-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, 0.76),
+      0 5px 0 rgba(107, 114, 128, 0.12),
+      var(--fab-shadow-modal);
+    /* Entrance animations. A completed fill-mode:both animation leaves an
+       identity transform on the element, which re-rasterizes it as a
+       composited layer — so a game that must be pixel-frozen sets these to
+       `none` rather than zeroing durations. */
+    --fab-modal-backdrop-animation: fabModalBackdropIn 140ms ease-out both;
+    --fab-modal-card-animation: fabModalCardIn 180ms cubic-bezier(0.16, 1.05, 0.22, 1.12) both;
+
+    /* Level-map rail tokens (A-UI1). Node art is per-game (image URLs); sizes/
+       offset/fades are re-skinnable; structure stays fixed CSS. */
+    --fab-levelmap-path-width: min(265px, 76vw);
+    --fab-levelmap-node-gap: 9px;
+    --fab-levelmap-offset: 57px;
+    --fab-levelmap-node-size: 64px;
+    --fab-levelmap-node-current-size: 138px;
+    --fab-levelmap-node-font: 21px;
+    --fab-levelmap-node-current-font: 53px;
+    --fab-levelmap-far-opacity: 0.66;
+    --fab-levelmap-far-scale: 0.93;
+    --fab-levelmap-distant-opacity: 0.46;
+    --fab-levelmap-distant-scale: 0.86;
+    --fab-levelmap-node-color: #374151;
+    --fab-levelmap-dot-color: #4b5563;
+    --fab-levelmap-locked-color: #9ca3af;
+    --fab-levelmap-locked-dot-color: #6b7280;
+    --fab-levelmap-completed-color: #111827;
+    --fab-levelmap-current-color: #ffffff;
+    --fab-levelmap-line: linear-gradient(180deg, rgba(156, 163, 175, 0.3), #9ca3af 28%, #6b7280 100%);
+    --fab-levelmap-line-glow: 0 0 0 3px rgba(255, 255, 255, 0.26), 0 0 18px rgba(107, 114, 128, 0.24);
+    --fab-levelmap-loading-bg: rgba(255, 255, 255, 0.56);
+    --fab-levelmap-loading-border: rgba(209, 213, 219, 0.7);
+    --fab-levelmap-loading-shadow: 0 8px 18px rgba(75, 85, 99, 0.12);
+    --fab-levelmap-loading-current-bg: rgba(107, 114, 128, 0.4);
+    /* Node art — per-game image URLs. Defaults left empty; a game's theme sets
+       them (an un-themed rail shows empty dots, not broken layout). */
+    --fab-levelmap-art-default: none;
+    --fab-levelmap-art-locked: none;
+    --fab-levelmap-art-completed: none;
+    --fab-levelmap-art-current: none;
+
+    /* Level-complete celebration tokens (A-UI2).
+       Timings: the JS reads these via getComputedStyle to drive its beats AND
+       the CSS animation durations reference them. Defaults are brand-neutral;
+       a game injects its production / fast-E2E timings via its theme. */
+    --fab-complete-entrance-ms: 560ms;
+    --fab-complete-reward-reveal-delay-ms: 1200ms;
+    --fab-complete-reward-reveal-ms: 860ms;
+    --fab-complete-actions-delay-ms: 260ms;
+    --fab-complete-coin-count-ms: 760ms;
+    --fab-complete-message-interval-ms: 1600ms;
+    /* Art — per-game image URLs (default none → un-themed shows no art, not
+       broken layout). The ad icon is a token-driven <img src>, replacing the
+       old innerHTML markup (keeps injection-safety). */
+    --fab-complete-title-url: none;
+    --fab-complete-mascot-url: none;
+    --fab-complete-coin-icon-url: none;
+    --fab-complete-confetti-burst-url: none;
+    --fab-complete-confetti-fall-url: none;
+    --fab-complete-adicon-url: none;
+    /* Colors a game re-skins. Structural values (sizes/radii/positioning) stay
+       fixed in the base rules; chromatic surfaces, shadows, and button skins
+       are tokenized so the default theme stays brand-neutral. */
+    --fab-complete-card-bg:
+      radial-gradient(circle at 50% -6%, rgba(243, 244, 246, 0.98), rgba(255, 255, 255, 0.94) 42%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(243, 244, 246, 0.96));
+    --fab-complete-card-text: #1f2937;
+    --fab-complete-reward-bg:
+      radial-gradient(circle at 50% 0%, rgba(229, 231, 235, 0.8), transparent 58%),
+      linear-gradient(180deg, #ffffff, #f3f4f6);
+    --fab-complete-reward-border: #d1d5db;
+    --fab-complete-reward-text: #1f2937;
+    --fab-complete-message-color: #111827;
+
+    --fab-rate-card-border: rgba(209, 213, 219, 0.9);
+    --fab-rate-card-bg:
+      radial-gradient(circle at 50% -18%, rgba(243, 244, 246, 0.98), rgba(255, 255, 255, 0.98) 52%),
+      linear-gradient(180deg, #ffffff 0%, #f3f4f6 100%);
+    --fab-rate-card-shadow:
+      inset 0 2px 0 rgba(255, 255, 255, 0.86),
+      0 8px 0 rgba(107, 114, 128, 0.18),
+      0 22px 44px rgba(17, 24, 39, 0.28);
+    --fab-rate-title-color: #1f2937;
+    --fab-rate-subtitle-color: rgba(31, 41, 55, 0.72);
+    --fab-rate-primary-border: rgba(229, 231, 235, 0.95);
+    --fab-rate-primary-bg:
+      radial-gradient(circle at 30% 12%, rgba(255, 255, 255, 0.36), transparent 30%),
+      linear-gradient(180deg, #9ca3af 0%, #6b7280 100%);
+    --fab-rate-primary-shadow:
+      inset 0 3px 0 rgba(255, 255, 255, 0.34),
+      0 5px 0 rgba(75, 85, 99, 0.3),
+      0 12px 22px rgba(75, 85, 99, 0.24);
+    --fab-rate-primary-text: #ffffff;
+    --fab-rate-secondary-border: rgba(156, 163, 175, 0.62);
+    --fab-rate-secondary-bg:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(243, 244, 246, 0.7));
+    --fab-rate-secondary-shadow:
+      inset 0 3px 0 rgba(255, 255, 255, 0.78),
+      0 4px 0 rgba(107, 114, 128, 0.12);
+    --fab-rate-secondary-text: rgba(31, 41, 55, 0.82);
+
+    --fab-complete-overlay-bg:
+      radial-gradient(circle at 50% 45%, rgba(229, 231, 235, 0.26), transparent 34%),
+      rgba(17, 24, 39, 0.52);
+    --fab-complete-balance-text: #374151;
+    --fab-complete-balance-bg: rgba(255, 255, 255, 0.9);
+    --fab-complete-balance-border: rgba(255, 255, 255, 0.74);
+    --fab-complete-balance-shadow: 0 10px 24px rgba(17, 24, 39, 0.2);
+    --fab-complete-balance-icon-filter: drop-shadow(0 2px 2px rgba(31, 41, 55, 0.14));
+    --fab-complete-title-filter: drop-shadow(0 10px 10px rgba(31, 41, 55, 0.22));
+    --fab-complete-card-border: rgba(255, 255, 255, 0.9);
+    --fab-complete-card-shadow:
+      inset 0 5px 0 rgba(255, 255, 255, 0.62),
+      0 9px 0 rgba(107, 114, 128, 0.2),
+      0 24px 70px rgba(17, 24, 39, 0.28);
+    --fab-complete-mascot-filter: drop-shadow(0 18px 28px rgba(31, 41, 55, 0.18));
+    --fab-complete-reward-burst-bg:
+      repeating-conic-gradient(from 10deg, rgba(156, 163, 175, 0.5) 0 8deg, transparent 8deg 18deg),
+      radial-gradient(circle, rgba(255, 255, 255, 0.72), rgba(209, 213, 219, 0.3) 44%, rgba(156, 163, 175, 0.1) 64%, transparent 76%);
+    --fab-complete-reward-shadow:
+      inset 0 3px 0 rgba(255, 255, 255, 0.7),
+      0 7px 0 rgba(107, 114, 128, 0.18),
+      0 14px 30px rgba(75, 85, 99, 0.18);
+    --fab-complete-reward-label-text: #374151;
+    --fab-complete-reward-label-bg: rgba(229, 231, 235, 0.5);
+    --fab-complete-reward-label-border: rgba(156, 163, 175, 0.42);
+    --fab-complete-reward-icon-filter: drop-shadow(0 4px 8px rgba(75, 85, 99, 0.18));
+    --fab-complete-next-text: #ffffff;
+    --fab-complete-next-border: rgba(229, 231, 235, 0.9);
+    --fab-complete-next-bg:
+      radial-gradient(circle at 28% 10%, rgba(255, 255, 255, 0.34), transparent 30%),
+      linear-gradient(180deg, #9ca3af 0%, #6b7280 48%, #4b5563 100%);
+    --fab-complete-next-shadow:
+      inset 0 4px 0 rgba(255, 255, 255, 0.34),
+      inset 0 -4px 0 rgba(55, 65, 81, 0.18),
+      0 6px 0 rgba(75, 85, 99, 0.34),
+      0 15px 26px rgba(75, 85, 99, 0.24);
+    --fab-complete-next-text-shadow: 0 2px 0 rgba(55, 65, 81, 0.22);
+    --fab-complete-next-disabled-text: #f9fafb;
+    --fab-complete-next-disabled-bg:
+      radial-gradient(circle at 28% 10%, rgba(255, 255, 255, 0.28), transparent 30%),
+      linear-gradient(180deg, #9ca3af 0%, #6b7280 48%, #4b5563 100%);
+    --fab-complete-next-disabled-shadow:
+      inset 0 4px 0 rgba(255, 255, 255, 0.24),
+      inset 0 -4px 0 rgba(55, 65, 81, 0.18),
+      0 6px 0 rgba(75, 85, 99, 0.3),
+      0 14px 24px rgba(75, 85, 99, 0.2);
+    --fab-complete-claim-text: #ffffff;
+    --fab-complete-claim-bg:
+      radial-gradient(circle at 30% 12%, rgba(255, 255, 255, 0.34), transparent 30%),
+      linear-gradient(180deg, #9ca3af 0%, #6b7280 100%);
+    --fab-complete-claim-border: rgba(229, 231, 235, 0.9);
+    --fab-complete-claim-shadow:
+      inset 0 3px 0 rgba(255, 255, 255, 0.3),
+      0 5px 0 rgba(75, 85, 99, 0.34),
+      0 12px 24px rgba(75, 85, 99, 0.22);
+    --fab-complete-claim-x2-text: #374151;
+    --fab-complete-claim-x2-bg:
+      radial-gradient(circle at 28% 8%, rgba(255, 255, 255, 0.78), transparent 28%),
+      linear-gradient(180deg, #f9fafb 0%, #d1d5db 54%, #9ca3af 100%);
+    --fab-complete-claim-x2-border: rgba(243, 244, 246, 0.95);
+    --fab-complete-claim-x2-shadow:
+      inset 0 3px 0 rgba(255, 255, 255, 0.54),
+      0 5px 0 rgba(75, 85, 99, 0.34),
+      0 12px 24px rgba(75, 85, 99, 0.24);
+    --fab-complete-claim-x2-inner-border: rgba(255, 255, 255, 0.46);
+    --fab-complete-claim-x2-subtext: rgba(55, 65, 81, 0.76);
+    --fab-complete-claim-x2-pulse-shadow:
+      inset 0 3px 0 rgba(255, 255, 255, 0.54),
+      0 5px 0 rgba(75, 85, 99, 0.34),
+      0 12px 24px rgba(75, 85, 99, 0.24);
+    --fab-complete-claim-x2-pulse-shadow-peak:
+      inset 0 3px 0 rgba(255, 255, 255, 0.6),
+      0 7px 0 rgba(75, 85, 99, 0.28),
+      0 16px 30px rgba(75, 85, 99, 0.28),
+      0 0 0 7px rgba(156, 163, 175, 0.18);
+
+    /* Scene-transition cover (mountTransitionCover). Brand-neutral defaults; a
+       game pins its own panel colour/art/motion via these tokens. Per the A1
+       token discipline, "off" motion is expressed as `none`, never `0ms`. */
+    --fab-transition-cover-z: 20;
+    --fab-transition-cover-bg: #ffffff;
+    --fab-transition-cover-fade-ms: 180ms;
+    --fab-transition-cover-image-size: clamp(180px, 52vw, 260px);
+    --fab-transition-cover-image-filter:
+      drop-shadow(0 18px 32px rgba(0, 0, 0, 0.22)) drop-shadow(0 6px 14px rgba(0, 0, 0, 0.16));
+    --fab-transition-cover-animation: fab-transition-cover-bob 720ms ease-in-out infinite;
+    /* HUD frame (mountHudFrame) — top-bar slots + the env(safe-area-inset-*)
+       padding recipe. `--fab-hud-pad-*` is the base inset that clears the HUD
+       chrome; `--fab-hud-safe-*` defaults to the platform notch inset via
+       env(). The recipe is calc(safe + pad), so on a non-notch device the safe
+       term is 0 and padding equals the base. A consumer (or the test harness)
+       can override --fab-hud-safe-* with a fixed value to simulate/force an
+       inset without a notch device. Achromatic — the frame carries no hue. */
+    --fab-hud-pad-top: 16px;
+    --fab-hud-pad-left: 16px;
+    --fab-hud-pad-right: 16px;
+    --fab-hud-gap: 8px;
+    --fab-hud-safe-top: env(safe-area-inset-top, 0px);
+    --fab-hud-safe-left: env(safe-area-inset-left, 0px);
+    --fab-hud-safe-right: env(safe-area-inset-right, 0px);
+  }
+}
+
+@layer fab.components {
+  /* ---- Modal primitive shell ----
+     Generic modal scaffold (fresh .fab-* names — does not touch a game's own
+     .modal-* classes). */
+  .fab-modal-backdrop {
+    pointer-events: auto;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--fab-modal-backdrop-padding);
+    z-index: 10;
+    background: var(--fab-modal-backdrop-bg);
+    font-family: var(--fab-font-family);
+    color: var(--fab-color-text);
+    animation: var(--fab-modal-backdrop-animation);
+  }
+
+  .fab-modal-card {
+    width: min(78vw, 360px);
+    min-width: 260px;
+    max-width: calc(100vw - 36px);
+    padding: var(--fab-space-lg);
+    border: 2px solid rgba(255, 255, 255, 0.72);
+    border-radius: var(--fab-radius-md);
+    background: var(--fab-modal-card-bg);
+    box-shadow: var(--fab-modal-card-shadow);
+    transform-origin: 50% 54%;
+    animation: var(--fab-modal-card-animation);
+  }
+
+  /* h2 keeps its UA size/weight (1.5em bold) AND its UA top margin — the source
+     .modal-card h2 only overrode margin-bottom, so leave margin-top untouched
+     (zeroing it shrinks the card ~18px and shifts everything). */
+  .fab-modal-title {
+    margin-bottom: var(--fab-space-sm);
+    color: var(--fab-color-text);
+  }
+
+  /* Matches the source .rate-sub computed box (its <p> UA top margin collapsed
+     against the title): zero top, md bottom. */
+  .fab-modal-subtitle {
+    margin: 0 0 var(--fab-space-md) 0;
+    color: var(--fab-color-text-muted);
+    font-size: var(--fab-font-size-sm);
+    font-weight: var(--fab-font-weight-normal);
+  }
+
+  .fab-modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    align-items: stretch;
+  }
+
+  /* ---- Button primitive ---- */
+  .fab-btn {
+    pointer-events: auto;
+    cursor: pointer;
+    width: 100%;
+    min-width: var(--fab-btn-min-size);
+    min-height: var(--fab-btn-min-size);
+    border: 0;
+    font-family: var(--fab-font-family);
+    box-shadow: var(--fab-shadow-button);
+    line-height: var(--fab-btn-line-height);
+    touch-action: manipulation;
+    transition:
+      filter var(--fab-duration-fast) ease,
+      opacity var(--fab-duration-fast) ease,
+      transform var(--fab-duration-fast) ease;
+  }
+  .fab-btn:hover:not(:disabled) {
+    filter: brightness(1.03);
+  }
+  .fab-btn:active:not(:disabled) {
+    filter: brightness(0.98);
+    transform: translateY(2px) scale(0.985);
+    box-shadow: var(--fab-shadow-button-active);
+  }
+
+  .fab-btn:disabled,
+  .fab-btn[data-disabled='true'] {
+    cursor: not-allowed;
+    opacity: var(--fab-btn-disabled-opacity);
+    filter: grayscale(0.28) saturate(0.42);
+    box-shadow: var(--fab-shadow-button-disabled);
+    transform: none;
+  }
+
+  .fab-btn-primary {
+    background:
+      radial-gradient(circle at 30% 12%, rgba(255, 255, 255, 0.24), transparent 32%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent),
+      var(--fab-color-accent);
+    color: var(--fab-color-on-accent);
+    padding: var(--fab-btn-primary-padding);
+    border-radius: var(--fab-radius-pill);
+    font-size: var(--fab-font-size-lg);
+    font-weight: var(--fab-font-weight-bold);
+  }
+
+  .fab-btn-secondary {
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.48)),
+      var(--fab-color-secondary-surface);
+    color: var(--fab-color-on-secondary);
+    border: 2px solid var(--fab-color-secondary-border);
+    box-shadow: var(--fab-btn-secondary-shadow);
+    padding: var(--fab-btn-secondary-padding);
+    border-radius: calc(var(--fab-radius-sm) + 6px);
+    font-size: var(--fab-font-size-md);
+    font-weight: var(--fab-font-weight-bold);
+  }
+
+  .fab-btn-icon {
+    width: var(--fab-btn-icon-size);
+    min-width: var(--fab-btn-icon-size);
+    min-height: var(--fab-btn-icon-size);
+    padding: 0;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.52), transparent 32%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.36)),
+      var(--fab-color-secondary-surface);
+    color: var(--fab-btn-icon-color);
+    border: 1px solid var(--fab-color-secondary-border);
+    box-shadow: var(--fab-btn-icon-shadow);
+    font-size: var(--fab-font-size-lg);
+    font-weight: var(--fab-font-weight-bold);
+  }
+
+  .fab-modal-actions .fab-btn-secondary {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    color: var(--fab-color-text-muted);
+    margin-top: -2px;
+  }
+
+  @keyframes fabModalBackdropIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes fabModalCardIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.975);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* Rate prompt content composition (centered, narrow). */
+  .fab-rate-card {
+    width: min(84vw, 460px);
+    max-width: calc(100vw - 48px);
+    min-width: 0;
+    padding: 30px 26px 24px;
+    text-align: center;
+    border: 2px solid var(--fab-rate-card-border);
+    border-radius: 30px;
+    background: var(--fab-rate-card-bg);
+    box-shadow: var(--fab-rate-card-shadow);
+  }
+
+  .fab-rate-card .fab-modal-title {
+    margin: 0 auto 10px;
+    max-width: 390px;
+    color: var(--fab-rate-title-color);
+    font-size: clamp(25px, 5.6vw, 33px);
+    font-weight: 1000;
+    line-height: 1.06;
+    letter-spacing: 0;
+  }
+
+  .fab-rate-card .fab-modal-subtitle {
+    max-width: 340px;
+    margin: 0 auto 22px;
+    color: var(--fab-rate-subtitle-color);
+    font-size: clamp(15px, 3.7vw, 17px);
+    font-weight: 800;
+    line-height: 1.25;
+  }
+
+  .fab-rate-card .fab-modal-actions {
+    gap: 13px;
+  }
+
+  .fab-rate-card .fab-btn-primary {
+    min-height: 64px;
+    padding: 14px 20px;
+    border: 2px solid var(--fab-rate-primary-border);
+    border-radius: 999px;
+    background: var(--fab-rate-primary-bg);
+    box-shadow: var(--fab-rate-primary-shadow);
+    color: var(--fab-rate-primary-text);
+    font-size: clamp(18px, 4.5vw, 21px);
+    font-weight: 1000;
+    letter-spacing: 0;
+  }
+
+  .fab-rate-card .fab-btn-secondary {
+    /* Cancel the generic ghost-secondary nudge — the rate composition's own
+       geometry (ported 1:1 from FTD) has no offset. */
+    margin-top: 0;
+    min-height: 56px;
+    padding: 11px 18px;
+    border: 2px solid var(--fab-rate-secondary-border);
+    border-radius: 22px;
+    background: var(--fab-rate-secondary-bg);
+    box-shadow: var(--fab-rate-secondary-shadow);
+    color: var(--fab-rate-secondary-text);
+    font-size: clamp(15px, 3.8vw, 17px);
+    font-weight: 900;
+    text-align: center;
+  }
+
+  /* ---- Level-map rail (A-UI1) ---- */
+  .fab-levelmap-path {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--fab-levelmap-node-gap);
+    width: var(--fab-levelmap-path-width);
+    min-height: min(455px, 100%);
+    padding: 0;
+    transform: translateY(-8px);
+  }
+  .fab-levelmap-path::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 6px;
+    bottom: 38px;
+    width: 9px;
+    border-radius: 999px;
+    transform: translateX(-50%);
+    background: var(--fab-levelmap-line);
+    opacity: 0.9;
+    box-shadow: var(--fab-levelmap-line-glow);
+  }
+
+  .fab-levelmap-node {
+    pointer-events: auto;
+    position: relative;
+    z-index: 1;
+    --node-x: 0px;
+    --node-scale: 1;
+    min-height: 61px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 0;
+    background: transparent;
+    color: var(--fab-levelmap-node-color);
+    font-family: var(--fab-font-family);
+    font-weight: 760;
+    text-align: center;
+    cursor: pointer;
+    transform: translateX(var(--node-x)) scale(var(--node-scale));
+  }
+  .fab-levelmap-node:nth-child(odd) { --node-x: calc(-1 * var(--fab-levelmap-offset)); }
+  .fab-levelmap-node:nth-child(even) { --node-x: var(--fab-levelmap-offset); }
+  .fab-levelmap-node.current { --node-x: 0px; }
+
+  .fab-levelmap-node-dot {
+    z-index: 1;
+    width: var(--fab-levelmap-node-size);
+    height: var(--fab-levelmap-node-size);
+    display: grid;
+    place-items: center;
+    border: 0;
+    background: var(--fab-levelmap-art-default) center / contain no-repeat;
+    font-size: var(--fab-levelmap-node-font);
+    font-weight: 760;
+    color: var(--fab-levelmap-dot-color);
+  }
+  .fab-levelmap-node.locked { color: var(--fab-levelmap-locked-color); }
+  .fab-levelmap-node.locked .fab-levelmap-node-dot {
+    background-image: var(--fab-levelmap-art-locked);
+    color: var(--fab-levelmap-locked-dot-color);
+    font-weight: 720;
+  }
+  .fab-levelmap-node.completed .fab-levelmap-node-dot {
+    background-image: var(--fab-levelmap-art-completed);
+    color: var(--fab-levelmap-completed-color);
+  }
+  .fab-levelmap-node.current .fab-levelmap-node-dot {
+    width: var(--fab-levelmap-node-current-size);
+    height: var(--fab-levelmap-node-current-size);
+    background-image: var(--fab-levelmap-art-current);
+    color: var(--fab-levelmap-current-color);
+    font-size: var(--fab-levelmap-node-current-font);
+    font-weight: 900;
+  }
+  .fab-levelmap[data-fab-node-disc='none'] .fab-levelmap-node-dot,
+  .fab-levelmap[data-fab-node-disc='none'] .fab-levelmap-node.locked .fab-levelmap-node-dot,
+  .fab-levelmap[data-fab-node-disc='none'] .fab-levelmap-node.completed .fab-levelmap-node-dot,
+  .fab-levelmap[data-fab-node-disc='none'] .fab-levelmap-node.current .fab-levelmap-node-dot {
+    background-color: transparent;
+  }
+  .fab-levelmap-node.far { opacity: var(--fab-levelmap-far-opacity); --node-scale: var(--fab-levelmap-far-scale); }
+  .fab-levelmap-node.distant { opacity: var(--fab-levelmap-distant-opacity); --node-scale: var(--fab-levelmap-distant-scale); }
+
+  .fab-levelmap-loading-node {
+    z-index: 1;
+    width: 62px;
+    height: 62px;
+    border-radius: 16px;
+    background: var(--fab-levelmap-loading-bg);
+    border: 4px solid var(--fab-levelmap-loading-border);
+    box-shadow: var(--fab-levelmap-loading-shadow);
+  }
+  .fab-levelmap-loading-node.current {
+    width: 92px;
+    height: 92px;
+    border-radius: 24px;
+    background: var(--fab-levelmap-loading-current-bg);
+  }
+
+  /* ---- Level-complete celebration (A-UI2) ----
+     Ported from FTD styles.css completion-* rules with .fab-complete-* names +
+     --fab-complete-* tokens. Structure (sizes/shadows/button gradients) is
+     hardcoded; the handful of surfaces/colors FTD re-skins are tokenized. */
+  .fab-complete {
+    pointer-events: auto;
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: calc(env(safe-area-inset-top, 0px) + 16px) 18px calc(env(safe-area-inset-bottom, 0px) + 16px);
+    background: var(--fab-complete-overlay-bg);
+    font-family: var(--fab-font-family);
+    animation: fabCompleteOverlayFadeIn 180ms ease-out both;
+  }
+
+  .fab-complete-side-confetti {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    z-index: 9;
+    overflow: hidden;
+    contain: layout paint style;
+    transform: translateZ(0);
+  }
+
+  .fab-complete-confetti-fall {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: auto;
+    height: 118dvh;
+    max-width: none;
+    object-fit: contain;
+    opacity: 0;
+    transform: translate3d(-50%, -130dvh, 0) scale(1.02);
+    backface-visibility: hidden;
+    will-change: transform, opacity;
+    animation: fabCompleteConfettiTopBlast 5200ms linear var(--fab-confetti-delay, 0ms) forwards;
+  }
+
+  .fab-complete-confetti-burst {
+    position: absolute;
+    bottom: -8%;
+    width: min(76vw, 500px);
+    height: auto;
+    opacity: 0;
+    object-fit: contain;
+    backface-visibility: hidden;
+    will-change: transform, opacity;
+    animation: fabCompleteConfettiSideBlast 5200ms linear var(--fab-confetti-delay, 0ms) forwards;
+  }
+  .fab-complete-confetti-burst.left {
+    left: 0;
+    --confetti-flip: 1;
+    --confetti-start-x: -132%;
+    --confetti-x-10: -103%;
+    --confetti-x-20: -74%;
+    --confetti-x-35: -31%;
+    --confetti-x-50: 13%;
+    --confetti-x-70: 71%;
+    --confetti-x-100: 158%;
+  }
+  .fab-complete-confetti-burst.right {
+    right: 0;
+    --confetti-flip: -1;
+    --confetti-start-x: 132%;
+    --confetti-x-10: 103%;
+    --confetti-x-20: 74%;
+    --confetti-x-35: 31%;
+    --confetti-x-50: -13%;
+    --confetti-x-70: -71%;
+    --confetti-x-100: -158%;
+  }
+
+  .fab-complete-balance {
+    pointer-events: none;
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 18px);
+    right: calc(env(safe-area-inset-right, 0px) + 18px);
+    z-index: 2;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 15px;
+    border-radius: 999px;
+    color: var(--fab-complete-balance-text);
+    font-size: 17px;
+    font-weight: 900;
+    background: var(--fab-complete-balance-bg);
+    border: 2px solid var(--fab-complete-balance-border);
+    box-shadow: var(--fab-complete-balance-shadow);
+  }
+  .fab-complete-balance-icon {
+    display: block;
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+    filter: var(--fab-complete-balance-icon-filter);
+  }
+
+  .fab-complete-stage {
+    position: relative;
+    z-index: 2;
+    width: min(88vw, 380px);
+    display: grid;
+    justify-items: center;
+    padding-top: 78px;
+  }
+
+  .fab-complete-title {
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    z-index: 4;
+    width: min(90vw, 360px);
+    height: auto;
+    transform: translate(-50%, 0);
+    transform-origin: 50% 54%;
+    filter: var(--fab-complete-title-filter);
+    animation: fabCompleteTitleDrop 560ms 60ms cubic-bezier(0.16, 1.05, 0.22, 1.16) both;
+  }
+
+  .fab-complete-card {
+    pointer-events: auto;
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    min-height: min(58dvh, 590px);
+    max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 32px);
+    overflow: visible;
+    transform-origin: 50% 54%;
+    padding: 54px 34px 24px;
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    border-radius: 28px;
+    text-align: center;
+    color: var(--fab-complete-card-text);
+    background: var(--fab-complete-card-bg);
+    border: 4px solid var(--fab-complete-card-border);
+    box-shadow: var(--fab-complete-card-shadow);
+    animation: fabCompleteCardEnter var(--fab-complete-entrance-ms, 560ms) cubic-bezier(0.16, 1.08, 0.22, 1.18) both;
+  }
+
+  .fab-complete-mascot {
+    width: min(54vw, 220px);
+    height: auto;
+    justify-self: center;
+    margin: 0 0 14px;
+    display: block;
+    object-fit: contain;
+    filter: var(--fab-complete-mascot-filter);
+    animation: fabCompleteMascotPop 520ms 120ms cubic-bezier(0.16, 1.12, 0.22, 1.22) both;
+  }
+
+  .fab-complete-reward-zone {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    justify-items: center;
+    margin-top: 0;
+    padding: 0;
+  }
+  .fab-complete-reward-zone::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: calc(100% - 40px);
+    width: min(330px, 88vw);
+    height: 210px;
+    z-index: 0;
+    border-radius: 999px;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.25) rotate(0deg);
+    background: var(--fab-complete-reward-burst-bg);
+    mask-image: radial-gradient(ellipse at center, #000 0 48%, rgba(0, 0, 0, 0.56) 64%, transparent 82%);
+    -webkit-mask-image: radial-gradient(ellipse at center, #000 0 48%, rgba(0, 0, 0, 0.56) 64%, transparent 82%);
+  }
+  .fab-complete-reward-zone:has(.fab-complete-reward.is-revealing)::before {
+    animation: fabCompleteRewardBurst 680ms ease-out both;
+  }
+  .fab-complete-reward-zone:has(.fab-complete-reward.is-complete:not(.is-collecting):not(.is-collected))::before {
+    opacity: 0.76;
+    transform: translate(-50%, -50%) scale(1.16) rotate(10deg);
+    animation: fabCompleteRewardBurstHold 1500ms ease-in-out infinite;
+  }
+  .fab-complete-reward-zone:has(.fab-complete-reward.is-collecting)::before,
+  .fab-complete-reward-zone:has(.fab-complete-reward.is-collected)::before {
+    opacity: 0;
+    animation: none;
+  }
+
+  .fab-complete-message {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    color: var(--fab-complete-message-color);
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1.05;
+  }
+
+  .fab-complete-reward {
+    pointer-events: none;
+    position: relative;
+    isolation: isolate;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    width: min(304px, 100%);
+    margin: 10px auto 0;
+    padding: 14px 22px;
+    min-width: 260px;
+    border-radius: 22px;
+    background: var(--fab-complete-reward-bg);
+    border: 3px solid var(--fab-complete-reward-border);
+    font-family: var(--fab-font-family);
+    text-align: center;
+    cursor: default;
+    box-shadow: var(--fab-complete-reward-shadow);
+    opacity: 0;
+    transform: translateY(10px) scale(0.72, 0.86);
+  }
+  .fab-complete-reward.is-revealing,
+  .fab-complete-reward.is-complete {
+    opacity: 1;
+    color: var(--fab-complete-reward-text);
+  }
+  .fab-complete-reward.is-revealing {
+    animation: fabCompleteRewardReveal var(--fab-complete-reward-reveal-ms, 860ms) cubic-bezier(0.16, 1.12, 0.22, 1.15) both;
+  }
+  .fab-complete-reward.is-complete {
+    transform: translateY(0) scale(1);
+  }
+  .fab-complete-reward.is-collecting {
+    pointer-events: none;
+    transform: translateY(0) scale(0.98);
+    filter: brightness(1.04);
+  }
+  .fab-complete-reward.is-collected {
+    pointer-events: none;
+    opacity: 0.76;
+    transform: translateY(0) scale(0.96);
+  }
+
+  .fab-complete-reward-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 22px;
+    padding: 2px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    color: var(--fab-complete-reward-label-text);
+    font-weight: 1000;
+    letter-spacing: 0.08em;
+    background: var(--fab-complete-reward-label-bg);
+    border: 1px solid var(--fab-complete-reward-label-border);
+  }
+  .fab-complete-reward-coins {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    font-size: 24px;
+    color: var(--fab-complete-reward-text);
+    font-weight: 900;
+  }
+  .fab-complete-reward-icon {
+    width: 32px;
+    height: 32px;
+    display: block;
+    object-fit: contain;
+    filter: var(--fab-complete-reward-icon-filter);
+  }
+
+  .fab-complete-actions {
+    pointer-events: auto;
+    position: relative;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    min-height: 66px;
+    margin: 18px auto 0;
+    padding: 0;
+  }
+  .fab-complete-actions[data-visible="false"] {
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  .fab-complete-actions[data-visible="true"] {
+    animation: fabCompleteActionsEnter 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .fab-complete-claim-actions {
+    grid-area: 1 / 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+    align-items: stretch;
+    justify-content: center;
+    width: 100%;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  .fab-complete-claim-actions:has(.fab-complete-claim-x2-btn) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr);
+  }
+
+  .fab-complete-actions.show-next .fab-complete-claim-actions {
+    pointer-events: none;
+    animation: fabCompleteClaimActionsExit 260ms ease-in both;
+  }
+
+  .fab-complete-next-btn {
+    grid-area: 1 / 1;
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(10px) scale(0.9);
+    min-height: 66px;
+    padding: 14px 32px;
+    border: 2px solid var(--fab-complete-next-border);
+    border-radius: 999px;
+    color: var(--fab-complete-next-text);
+    background: var(--fab-complete-next-bg);
+    box-shadow: var(--fab-complete-next-shadow);
+    font-weight: 1000;
+    text-shadow: var(--fab-complete-next-text-shadow);
+  }
+  .fab-complete-actions.show-next .fab-complete-next-btn {
+    pointer-events: auto;
+    visibility: visible;
+    animation: fabCompleteNextButtonEnter 360ms 110ms cubic-bezier(0.16, 1.12, 0.22, 1.18) both;
+  }
+
+  .fab-complete-next-btn:disabled {
+    color: var(--fab-complete-next-disabled-text) !important;
+    -webkit-text-fill-color: var(--fab-complete-next-disabled-text) !important;
+    opacity: 1;
+    background: var(--fab-complete-next-disabled-bg);
+    filter: saturate(0.96);
+    box-shadow: var(--fab-complete-next-disabled-shadow);
+  }
+
+  .fab-complete-next-btn,
+  .fab-complete-claim-btn,
+  .fab-complete-claim-x2-btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .fab-complete-claim-btn {
+    color: var(--fab-complete-claim-text);
+    background: var(--fab-complete-claim-bg);
+    min-height: 62px;
+    padding: 12px 14px;
+    border: 2px solid var(--fab-complete-claim-border);
+    border-radius: 999px;
+    box-shadow: var(--fab-complete-claim-shadow);
+    letter-spacing: 0.04em;
+  }
+  .fab-complete-claim-btn[hidden] {
+    display: none;
+  }
+
+  .fab-complete-claim-x2-btn {
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    overflow: hidden;
+    min-height: 62px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    color: var(--fab-complete-claim-x2-text);
+    background: var(--fab-complete-claim-x2-bg);
+    border: 2px solid var(--fab-complete-claim-x2-border);
+    box-shadow: var(--fab-complete-claim-x2-shadow);
+    animation: fabCompleteClaimX2IdlePulse 1500ms ease-in-out infinite;
+  }
+  .fab-complete-claim-x2-btn::after {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    z-index: -1;
+    border-radius: 999px;
+    border: 1px solid var(--fab-complete-claim-x2-inner-border);
+    animation: fabCompleteClaimX2InnerShine 1800ms ease-in-out infinite;
+  }
+  .fab-complete-claim-x2-btn[hidden] {
+    display: none;
+  }
+  .fab-complete-claim-x2-btn:disabled {
+    animation: none;
+  }
+  .fab-complete-claim-x2-btn:disabled::after,
+  .fab-complete-claim-x2-btn:disabled .fab-complete-claim-x2-icon {
+    animation: none;
+  }
+
+  .fab-complete-claim-x2-icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    animation: fabCompleteClaimX2AdIconPulse 1100ms ease-in-out infinite;
+  }
+  .fab-complete-claim-x2-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    line-height: 1;
+  }
+  .fab-complete-claim-x2-copy strong {
+    font-size: 15px;
+    font-weight: 1000;
+    letter-spacing: 0.04em;
+  }
+  .fab-complete-claim-x2-copy small {
+    margin-top: 3px;
+    color: var(--fab-complete-claim-x2-subtext);
+    font-size: 10px;
+    font-weight: 900;
+  }
+
+  @keyframes fabCompleteOverlayFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes fabCompleteCardEnter {
+    0% { transform: translateY(30px) scale(0.82); opacity: 0; }
+    64% { transform: translateY(-7px) scale(1.035); opacity: 1; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  @keyframes fabCompleteMascotPop {
+    0% { transform: translateY(8px) scale(0.4) rotate(-7deg); opacity: 0; }
+    68% { transform: translateY(-3px) scale(1.12) rotate(2deg); opacity: 1; }
+    100% { transform: translateY(0) scale(1) rotate(0); opacity: 1; }
+  }
+  @keyframes fabCompleteMessageEnter {
+    0% { opacity: 0; transform: translateY(14px) scale(0.94); }
+    72% { opacity: 1; transform: translateY(-2px) scale(1.03); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes fabCompleteTitleDrop {
+    0% { opacity: 0; transform: translate(-50%, -28px) scale(0.86); }
+    66% { opacity: 1; transform: translate(-50%, 4px) scale(1.04); }
+    100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  }
+  @keyframes fabCompleteConfettiSideBlast {
+    0% { opacity: 1; transform: translate3d(var(--confetti-start-x), 10%, 0) scaleX(var(--confetti-flip)) scale(1.02) rotate(-8deg); }
+    10% { opacity: 1; transform: translate3d(var(--confetti-x-10), -16%, 0) scaleX(var(--confetti-flip)) scale(1.02) rotate(-4deg); }
+    20% { opacity: 1; transform: translate3d(var(--confetti-x-20), -32%, 0) scaleX(var(--confetti-flip)) scale(1.02) rotate(0deg); }
+    35% { opacity: 1; transform: translate3d(var(--confetti-x-35), -42%, 0) scaleX(var(--confetti-flip)) scale(1.02) rotate(6deg); }
+    50% { opacity: 1; transform: translate3d(var(--confetti-x-50), -30%, 0) scaleX(var(--confetti-flip)) scale(1.02) rotate(12deg); }
+    70% { opacity: 1; transform: translate3d(var(--confetti-x-70), 16dvh, 0) scaleX(var(--confetti-flip)) scale(1.02) rotate(20deg); }
+    100% { opacity: 1; transform: translate3d(var(--confetti-x-100), 150dvh, 0) scaleX(var(--confetti-flip)) scale(1.02) rotate(32deg); }
+  }
+  @keyframes fabCompleteConfettiTopBlast {
+    0% { opacity: 1; transform: translate3d(-50%, -120dvh, 0) scale(1.02); }
+    10% { opacity: 1; transform: translate3d(-50%, -103dvh, 0) scale(1.02); }
+    20% { opacity: 1; transform: translate3d(-50%, -78dvh, 0) scale(1.02); }
+    35% { opacity: 1; transform: translate3d(-50%, -34dvh, 0) scale(1.02); }
+    50% { opacity: 1; transform: translate3d(-50%, 16dvh, 0) scale(1.02); }
+    70% { opacity: 1; transform: translate3d(-50%, 78dvh, 0) scale(1.02); }
+    100% { opacity: 1; transform: translate3d(-50%, 150dvh, 0) scale(1.02); }
+  }
+  @keyframes fabCompleteRewardReveal {
+    0% { transform: translateY(14px) scale(0.54, 0.76); opacity: 0; }
+    36% { transform: translateY(-5px) scale(1.14, 0.9); opacity: 1; }
+    62% { transform: translateY(2px) scale(0.96, 1.08); opacity: 1; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  @keyframes fabCompleteRewardBurst {
+    0% { transform: translate(-50%, -50%) scale(0.25) rotate(0deg); opacity: 0; }
+    35% { opacity: 0.9; }
+    100% { transform: translate(-50%, -50%) scale(1.16) rotate(10deg); opacity: 0.76; }
+  }
+  @keyframes fabCompleteRewardBurstHold {
+    0%, 100% { transform: translate(-50%, -50%) scale(1.12) rotate(8deg); opacity: 0.58; }
+    50% { transform: translate(-50%, -50%) scale(1.24) rotate(14deg); opacity: 0.88; }
+  }
+  @keyframes fabCompleteActionsEnter {
+    from { opacity: 0; transform: translateY(12px) scale(0.96); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes fabCompleteClaimActionsExit {
+    from { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+    to { opacity: 0; transform: translateY(-8px) scale(0.92); filter: blur(2px); }
+  }
+  @keyframes fabCompleteNextButtonEnter {
+    0% { opacity: 0; transform: translateY(10px) scale(0.9); }
+    70% { opacity: 1; transform: translateY(-2px) scale(1.04); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes fabCompleteClaimX2IdlePulse {
+    0%, 100% {
+      transform: translateY(0) scale(1);
+      filter: brightness(1);
+      box-shadow: var(--fab-complete-claim-x2-pulse-shadow);
+    }
+    50% {
+      transform: translateY(-2px) scale(1.035);
+      filter: brightness(1.06);
+      box-shadow: var(--fab-complete-claim-x2-pulse-shadow-peak);
+    }
+  }
+  @keyframes fabCompleteClaimX2InnerShine {
+    0%, 100% { opacity: 0.44; }
+    50% { opacity: 0.9; }
+  }
+  @keyframes fabCompleteClaimX2AdIconPulse {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-1px) scale(1.05); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fab-btn {
+      transition: none;
+    }
+
+    .fab-complete,
+    .fab-complete-title,
+    .fab-complete-card,
+    .fab-complete-mascot,
+    .fab-complete-confetti-fall,
+    .fab-complete-confetti-burst,
+    .fab-complete-reward,
+    .fab-complete-reward-zone::before,
+    .fab-complete-claim-x2-btn,
+    .fab-complete-claim-x2-btn::after,
+    .fab-complete-claim-x2-icon {
+      animation: none !important;
+    }
+    .fab-complete-reward {
+      opacity: 1;
+      transform: none;
+    }
+    .fab-complete-actions[data-visible="true"] {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* ---- Scene-transition cover ----
+     Full-bleed panel that masks a screen-to-screen swap. It is an input SHIELD
+     (pointer-events: auto), NOT a focus-trapping modal. All colour/art/motion is
+     token-driven; the artwork <img> comes from the content slot. */
+  .fab-transition-cover {
+    position: absolute;
+    inset: 0;
+    z-index: var(--fab-transition-cover-z);
+    display: grid;
+    place-items: center;
+    pointer-events: auto;
+    background: var(--fab-transition-cover-bg);
+    opacity: 1;
+    transition: opacity var(--fab-transition-cover-fade-ms) ease;
+  }
+
+  .fab-transition-cover.hiding {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .fab-transition-cover-image {
+    width: var(--fab-transition-cover-image-size);
+    height: auto;
+    display: block;
+    object-fit: contain;
+    filter: var(--fab-transition-cover-image-filter);
+    animation: var(--fab-transition-cover-animation);
+  }
+
+  @keyframes fab-transition-cover-bob {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-5px) scale(1.03); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fab-transition-cover {
+      transition: none;
+    }
+    .fab-transition-cover-image {
+      animation: none;
+    }
+  }
+  /* ---- HUD frame primitive (mountHudFrame) ----
+     Slot-based top bar (left / center / right) that owns the safe-area padding
+     recipe once. Copied read-only from FTD `.hud-top-bar` (row +
+     calc(env(safe-area-inset-*) + 16px) padding) and the marble donor, then
+     generalized to three slots. The frame is a flow element (no fixed
+     positioning) — the caller owns placement. Fresh `.fab-hud-*` names only;
+     no game selector is touched.
+
+     Layout is a 3-column grid `1fr auto 1fr`: the equal-width side columns
+     force the center column to the container's TRUE center, independent of how
+     wide the left/right slots are. (Plain `space-between` centers the middle
+     item only between its neighbors' inner edges, so it drifts off-center for
+     asymmetric bars — a hearts+coins left vs a lone gear right.) The two-slot
+     donor case (left + right, empty center) is visually identical to the old
+     space-between row: the center column collapses to zero width, left stays
+     flush-left, right flush-right. `minmax(0, 1fr)` lets an over-wide side slot
+     shrink/ellipsize rather than blow out the track. */
+  .fab-hud-frame {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: start;
+    gap: var(--fab-hud-gap);
+    padding-top: calc(var(--fab-hud-safe-top) + var(--fab-hud-pad-top));
+    padding-left: calc(var(--fab-hud-safe-left) + var(--fab-hud-pad-left));
+    padding-right: calc(var(--fab-hud-safe-right) + var(--fab-hud-pad-right));
+  }
+
+  .fab-hud-left,
+  .fab-hud-center,
+  .fab-hud-right {
+    display: flex;
+    align-items: center;
+    gap: var(--fab-hud-gap);
+  }
+
+  .fab-hud-left {
+    min-width: 0;
+    justify-content: flex-start;
+  }
+
+  .fab-hud-center {
+    justify-content: center;
+  }
+
+  .fab-hud-right {
+    flex: 0 0 auto;
+    justify-content: flex-end;
+  }
+}
