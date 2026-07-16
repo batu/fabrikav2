@@ -17,3 +17,4 @@
   native-resources recipe.
 - Fail screen restyle to win-card structure rides with GENERATION-LIST #7
   ("Out of Lives" title art).
+- verify-device pause==level indistinguishable-capture anomaly (2026-07-16 run): pause overlay may not have engaged during the tour; investigate marker/overlay timing.
