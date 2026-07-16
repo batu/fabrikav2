@@ -459,8 +459,10 @@ function addCompletionSideConfetti(
   const w = window.innerWidth;
   const h = window.innerHeight;
   const durationMs = reducedMotion ? 900 : 3800;
-  const maxDelayMs = reducedMotion ? 0 : 600;
-  const count = reducedMotion ? 20 : 360;
+  // Long emission window: pieces keep launching across ~2.4s so the cannons
+  // read as a sustained squirt rather than one dump.
+  const maxDelayMs = reducedMotion ? 0 : 2400;
+  const count = reducedMotion ? 20 : 1080;
   const rand = (lo: number, hi: number): number => lo + Math.random() * (hi - lo);
   const canAnimate = typeof layer.animate === 'function';
 
