@@ -2872,7 +2872,7 @@
   /* Pulled up toward the current level node (anchored low in the map stage).
      Keep the layout footprint close to the old play-dock so the saga column
      doesn't sink: net height ~56px (62 - 24 + 18). */
-  margin: -40px auto 26px;
+  margin: -40px auto 14px;
   /* Dedicated Play art (not the shop pill palette): richer green with gloss,
      baked highlights and outline — the pre-port shipped CTA look. */
   height: 62px;

@@ -68,7 +68,7 @@ const FTD_LEVELMAP_THEME: ThemeTokens = {
   // is shadowed. `--fab-levelmap-node-gap` is the tile-spacing knob — raise it to
   // push the upper tiles up toward the banner (current tile stays anchored by the
   // stage's padding-bottom). Opacity forced to 1 → no depth fade, solid tiles.
-  '--fab-levelmap-node-gap': '46px',
+  '--fab-levelmap-node-gap': '64px',
   '--fab-levelmap-far-opacity': '1',
   '--fab-levelmap-distant-opacity': '1',
   '--fab-levelmap-dot-color': '#5b5652',
