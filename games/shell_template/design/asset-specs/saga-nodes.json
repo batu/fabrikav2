@@ -1,0 +1,33 @@
+{
+  "name": "saga_nodes",
+  "kind": "node",
+  "size": "320x320",
+  "gen_size": "1024x1024",
+  "description": "Four level-map node buttons, one family: CURRENT \u2014 glowing teal rounded-square tile with a bright rim; DEFAULT \u2014 cream rounded-square tile, calm and unlit; LOCKED \u2014 the cream tile with a small gold padlock on its lower edge; COMPLETE \u2014 the cream tile with a gold star stamped in its center.",
+  "prompt_extra": "identical tile shape, corner radius, outline and lighting across all four cells; no numbers or letters on the tiles",
+  "transparent": true,
+  "models": [
+    "google/gemini-3.1-flash-image",
+    "openai/gpt-5.4-image-2"
+  ],
+  "sheet": {
+    "cols": 2,
+    "rows": 2,
+    "names": [
+      "node_current",
+      "node_default",
+      "node_locked",
+      "node_complete"
+    ]
+  },
+  "variants": [
+    {
+      "name": "warm",
+      "prompt_extra": "slightly warmer, richer gold tones and a touch more ornament"
+    },
+    {
+      "name": "clean",
+      "prompt_extra": "slightly cooler, simpler and more minimal composition"
+    }
+  ]
+}

@@ -17,5 +17,23 @@
       "shop_hint_pack_medium",
       "shop_hint_pack_large"
     ]
-  }
+  },
+  "variants": [
+    {
+      "name": "v1",
+      "prompt_extra": "balanced default composition"
+    },
+    {
+      "name": "v2",
+      "prompt_extra": "slightly denser, richer staging"
+    },
+    {
+      "name": "v3",
+      "prompt_extra": "slightly airier, more minimal staging"
+    },
+    {
+      "name": "v4",
+      "prompt_extra": "a touch more sparkle and shine accents"
+    }
+  ]
 }

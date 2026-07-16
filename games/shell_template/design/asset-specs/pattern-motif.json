@@ -1,9 +1,10 @@
 {
-  "name": "icon_coin",
-  "kind": "icon",
+  "name": "pattern_motif",
+  "kind": "motif",
   "size": "256x256",
   "gen_size": "1024x1024",
-  "description": "The game's soft-currency identity: a single premium coin, front-facing, glossy with restrained shine, embossed neutral star motif (no species, no letters).",
+  "description": "One flat solid-white four-point sparkle-star silhouette, perfectly simple and smooth, designed to repeat as a subtle background wallpaper pattern (replaces a paw-print motif).",
+  "prompt_extra": "single flat shape, one solid color (white), no gradient, no outline, no shading \u2014 pure silhouette",
   "transparent": true,
   "models": [
     "google/gemini-3.1-flash-image",

@@ -1,9 +1,10 @@
 {
-  "name": "icon_coin",
-  "kind": "icon",
-  "size": "256x256",
+  "name": "shop_no_ads",
+  "kind": "badge",
+  "size": "512x512",
   "gen_size": "1024x1024",
-  "description": "The game's soft-currency identity: a single premium coin, front-facing, glossy with restrained shine, embossed neutral star motif (no species, no letters).",
+  "description": "A premium NO-ADS badge: a glossy rounded burst shield with the word \"ADS\" in chunky gold letters crossed by a bold red diagonal slash inside a red prohibition ring. The word \"ADS\" is the requested text.",
+  "prompt_extra": "the red slash and ring sit on top of the gold ADS lettering; readable at 64px",
   "transparent": true,
   "models": [
     "google/gemini-3.1-flash-image",

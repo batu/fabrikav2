@@ -4,7 +4,7 @@
 export const copyLocale = "en";
 
 export const copy = {
-  "game.title": "Find The Dog",
+  "game.title": "Test Game",
   "app.title": "Find the Dog",
   "menu.play": "Play",
   "menu.noAds": "No Ads",

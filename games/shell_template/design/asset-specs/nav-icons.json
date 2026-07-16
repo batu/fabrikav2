@@ -1,0 +1,32 @@
+{
+  "name": "nav_icons",
+  "kind": "icon",
+  "size": "384x384",
+  "gen_size": "1536x512",
+  "description": "Three bottom-navigation icons sharing one identity: a cream shopping bag with a teal ribbon bow (shop); a glossy green rounded play-button badge with a white triangle (play); a warm golden gear (settings).",
+  "prompt_extra": "identical rendering, outline and lighting across all three; each icon fully fills its cell height",
+  "transparent": true,
+  "models": [
+    "google/gemini-3.1-flash-image",
+    "openai/gpt-5.4-image-2"
+  ],
+  "sheet": {
+    "cols": 3,
+    "rows": 1,
+    "names": [
+      "nav_shop",
+      "nav_play",
+      "nav_settings"
+    ]
+  },
+  "variants": [
+    {
+      "name": "warm",
+      "prompt_extra": "slightly warmer, richer gold tones and a touch more ornament"
+    },
+    {
+      "name": "clean",
+      "prompt_extra": "slightly cooler, simpler and more minimal composition"
+    }
+  ]
+}

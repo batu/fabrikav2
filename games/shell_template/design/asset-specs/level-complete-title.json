@@ -3,9 +3,22 @@
   "kind": "lettering",
   "size": "1100x469",
   "gen_size": "2200x938",
-  "description": "Display lettering reading exactly \"Level Complete\" — arched, chunky, celebratory win-card title art. The words \"Level Complete\" are the requested text.",
+  "description": "Display lettering reading exactly \"Level Complete\" \u2014 arched, chunky, celebratory win-card title art. The words \"Level Complete\" are the requested text.",
   "prompt_extra": "gently arched baseline; thick friendly letterforms with subtle outline and top-light gloss",
   "transparent": true,
   "glow": true,
-  "models": ["google/gemini-3.1-flash-image", "openai/gpt-5.4-image-2"]
+  "models": [
+    "google/gemini-3.1-flash-image",
+    "openai/gpt-5.4-image-2"
+  ],
+  "variants": [
+    {
+      "name": "warm",
+      "prompt_extra": "slightly warmer, richer gold tones and a touch more ornament"
+    },
+    {
+      "name": "clean",
+      "prompt_extra": "slightly cooler, simpler and more minimal composition"
+    }
+  ]
 }

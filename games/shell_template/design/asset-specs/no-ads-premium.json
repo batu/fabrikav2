@@ -1,0 +1,23 @@
+{
+  "name": "shop_no_ads_premium",
+  "kind": "badge",
+  "size": "512x512",
+  "gen_size": "1024x1024",
+  "description": "Premium VIP variant of the NO-ADS badge: the same crossed-out \"ADS\" burst shield, now crowned with a small gold crown and garnished with a star coin and a teal gem at its base. The word \"ADS\" is the requested text.",
+  "prompt_extra": "same badge design language as the standard no-ads badge; richer, more royal",
+  "transparent": true,
+  "models": [
+    "google/gemini-3.1-flash-image",
+    "openai/gpt-5.4-image-2"
+  ],
+  "variants": [
+    {
+      "name": "warm",
+      "prompt_extra": "slightly warmer, richer gold tones and a touch more ornament"
+    },
+    {
+      "name": "clean",
+      "prompt_extra": "slightly cooler, simpler and more minimal composition"
+    }
+  ]
+}
