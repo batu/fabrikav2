@@ -7,17 +7,28 @@
   "prompt_extra": "two-element overlap composition, hint token in front reads largest; same badge design language as the standard no-ads badge",
   "transparent": true,
   "models": [
-    "google/gemini-3.1-flash-image",
     "openai/gpt-5.4-image-2"
   ],
   "variants": [
     {
-      "name": "warm",
-      "prompt_extra": "slightly warmer, richer gold tones and a touch more ornament"
+      "name": "v1",
+      "prompt_extra": "balanced default composition"
     },
     {
-      "name": "clean",
-      "prompt_extra": "slightly cooler, simpler and more minimal composition"
+      "name": "v2",
+      "prompt_extra": "hint token noticeably larger than the badge"
+    },
+    {
+      "name": "v3",
+      "prompt_extra": "tighter overlap, compact emblem feel"
+    },
+    {
+      "name": "v4",
+      "prompt_extra": "a touch more shine and one large sparkle"
     }
+  ],
+  "anchors": [
+    "../../public/ui/shop/shop_no_ads.png",
+    "../../public/ui/menu-icons/icon_hint_magnifier.png"
   ]
 }

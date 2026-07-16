@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { HOME_NO_ADS_BADGE_SRC } from "../../src/ui/iconPreload";
 
 // Generic crossed-ADS badge, generated 2026-07-16 (portal req_c19668: no_ads=3).
-const NO_ADS_SHA256 = "3f20c41251f8e31e9afa49ec6f21b6141b9e00798e02e726ad19caf1016982e5";
+const NO_ADS_SHA256 = "8558d93d5c40ea3cf9fed241f36baa558084a5e0dc86bbc1c6a3da25fd981e11";
 const PLAY_BUTTON_SHA256 = "41876ebb627203339a81a78ec1fbe30964642881c124383627e0e0a58fbfc5c7";
 const CSS_TEXT = readFileSync(join(process.cwd(), "src/ui/styles.css"), "utf8");
 
