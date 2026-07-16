@@ -1,0 +1,16 @@
+{
+  "name": "wool_saga_nodes",
+  "kind": "node",
+  "size": "320x320",
+  "gen_size": "1024x1024",
+  "description": "Four Wool Crush saga-map node states sharing one thick spool-button geometry. CURRENT: a bright turquoise yarn spool with a warm golden rim and soft glow. UPCOMING: a cream yarn spool with a muted tan rim. LOCKED: the cream spool tightly tied across its middle by a simple raspberry yarn knot. COMPLETE: the cream spool with a bold golden stitched check mark on its center.",
+  "prompt_extra": "strict 2 by 2 sheet; identical squat spool silhouette, size, center face and lighting in all cells; center stays open enough for level numbers except the explicit lock knot/check state; no letters, crowns, chains or unrelated symbols",
+  "transparent": true,
+  "glow": true,
+  "models": ["google/gemini-3.1-flash-image", "openai/gpt-5.4-image-2"],
+  "sheet": {"cols": 2, "rows": 2, "names": ["node-current-candy", "level-node-locked-runtime", "level-node-locked-bones-runtime", "level-node-complete-runtime"]},
+  "variants": [
+    {"name": "spool", "prompt_extra": "classic wooden spool ends wrapped with soft yarn"},
+    {"name": "cushion", "prompt_extra": "softer rounded spool-button with simpler yarn bands"}
+  ]
+}

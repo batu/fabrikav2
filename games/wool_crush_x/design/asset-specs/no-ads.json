@@ -1,0 +1,14 @@
+{
+  "name": "wool_no_ads",
+  "kind": "badge",
+  "size": "512x512",
+  "gen_size": "1024x1024",
+  "description": "A Wool Crush no-ads badge: the exact letters \"ADS\" stitched in chunky dark-brown yarn on a cream felt patch, crossed by a bold coral-red prohibition ring and diagonal slash, framed by a small turquoise yarn loop.",
+  "prompt_extra": "requested text is exactly ADS; slash and ring sit clearly above the letters; readable at 64px; no other text",
+  "transparent": true,
+  "models": ["google/gemini-3.1-flash-image", "openai/gpt-5.4-image-2"],
+  "variants": [
+    {"name": "felt", "prompt_extra": "soft cream felt patch with stitched edge"},
+    {"name": "yarn", "prompt_extra": "more prominent turquoise yarn-loop frame, simpler patch"}
+  ]
+}

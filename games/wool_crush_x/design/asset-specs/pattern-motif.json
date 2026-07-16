@@ -1,0 +1,14 @@
+{
+  "name": "wool_pattern_motif_reference",
+  "kind": "motif",
+  "size": "96x96",
+  "gen_size": "1024x1024",
+  "description": "One extremely simple flat solid-white yarn-ball silhouette: a round ball crossed by exactly three broad curved strand bands and one short tucked tail. It is a shape reference for hand-tuning into a seamless monochrome SVG tile.",
+  "prompt_extra": "single solid silhouette, one color only, no gradient, outline, texture, shading, shadow, needles, letters or extra objects; centered with generous padding; color will come from CSS",
+  "transparent": true,
+  "models": ["google/gemini-3.1-flash-image", "openai/gpt-5.4-image-2"],
+  "variants": [
+    {"name": "round", "prompt_extra": "nearly circular classic yarn-ball silhouette"},
+    {"name": "tilted", "prompt_extra": "slightly tilted hand-wound silhouette while remaining simple"}
+  ]
+}

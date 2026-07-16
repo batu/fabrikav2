@@ -1,0 +1,15 @@
+{
+  "name": "wool_level_complete_title",
+  "kind": "lettering",
+  "size": "1100x469",
+  "gen_size": "2200x938",
+  "description": "Display lettering reading exactly \"Level Complete\" in chunky cream felt letters edged with golden yarn stitching, arched over a turquoise knitted ribbon, with one neatly wound celebratory yarn rosette above.",
+  "prompt_extra": "requested text exactly Level Complete; win-card wide composition; cheerful, plush and highly legible; no extra words",
+  "transparent": true,
+  "glow": true,
+  "models": ["google/gemini-3.1-flash-image", "openai/gpt-5.4-image-2"],
+  "variants": [
+    {"name": "rosette", "prompt_extra": "larger yarn rosette and richer stitched edging"},
+    {"name": "clean", "prompt_extra": "simpler ribbon and bolder lettering for phone readability"}
+  ]
+}

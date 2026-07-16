@@ -1,0 +1,16 @@
+{
+  "name": "crochet_hook_hint_packs",
+  "kind": "icon",
+  "size": "512x512",
+  "gen_size": "1920x640",
+  "description": "Three tiers of the identical turquoise crochet-hook-and-golden-yarn-loop hint token: one token; three tokens in a tidy fan; five tokens in a rich compact cluster. Quantity is unmistakable and richness scales.",
+  "prompt_extra": "strict 3 by 1 sheet; identical token design in every cell; each cluster remains fully inside its cell with wide transparent margins; no text or count labels",
+  "transparent": true,
+  "glow": true,
+  "models": ["google/gemini-3.1-flash-image", "openai/gpt-5.4-image-2"],
+  "sheet": {"cols": 3, "rows": 1, "names": ["shop_hint_pack_small", "shop_hint_pack_medium", "shop_hint_pack_large"]},
+  "variants": [
+    {"name": "fan", "prompt_extra": "orderly fan arrangements with clear individual silhouettes"},
+    {"name": "bundle", "prompt_extra": "cozier bundled arrangements tied by one short cream yarn strand"}
+  ]
+}

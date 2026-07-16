@@ -1,0 +1,16 @@
+{
+  "name": "wool_result_marks",
+  "kind": "badge",
+  "size": "492x512",
+  "gen_size": "1536x768",
+  "description": "Two iconographic Wool Crush result marks in one family. SUCCESS: a neat rainbow yarn ball completely wound into a radiant rosette, two knitting needles crossed behind it, with one large sparkle. FAILURE: the same yarn ball unraveled into a loose tangled knot with one bent needle and a small drooping strand.",
+  "prompt_extra": "same yarn colors and chunky silhouette in both cells; emotional state reads without faces or text; transparent background; no cat or dragon mascot",
+  "transparent": true,
+  "glow": true,
+  "models": ["google/gemini-3.1-flash-image", "openai/gpt-5.4-image-2"],
+  "sheet": {"cols": 2, "rows": 1, "names": ["wool_crush_x-complete", "wool_crush_x-crying"]},
+  "variants": [
+    {"name": "plush", "prompt_extra": "soft plush wool fibers and warm highlights"},
+    {"name": "graphic", "prompt_extra": "bolder simpler shapes with very clear wound-versus-tangled contrast"}
+  ]
+}

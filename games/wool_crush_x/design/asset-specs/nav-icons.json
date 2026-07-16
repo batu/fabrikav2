@@ -1,0 +1,15 @@
+{
+  "name": "wool_nav_icons",
+  "kind": "icon",
+  "size": "384x384",
+  "gen_size": "1536x512",
+  "description": "Three Wool Crush bottom-navigation icons in one family: SHOP, a cream woven yarn basket holding three bright yarn balls; PLAY, a plump turquoise yarn ball with a bold cream triangular play cutout on its face; SETTINGS, a chunky raspberry gear whose outer teeth look like knitted loops around a cream center.",
+  "prompt_extra": "strict 3 by 1 sheet; same plush tactile rendering, dark self-colored outline and top lighting; each symbol is centered and immediately readable at 48px; no letters",
+  "transparent": true,
+  "models": ["google/gemini-3.1-flash-image", "openai/gpt-5.4-image-2"],
+  "sheet": {"cols": 3, "rows": 1, "names": ["icon_shop_cart", "nav_play_btn", "icon_settings_gear"]},
+  "variants": [
+    {"name": "plush", "prompt_extra": "more tactile wool loops and woven basket texture"},
+    {"name": "graphic", "prompt_extra": "bolder cleaner silhouettes and minimal texture"}
+  ]
+}

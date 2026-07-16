@@ -1,0 +1,33 @@
+{
+  "name": "saga_nodes_fancy",
+  "kind": "node",
+  "size": "320x320",
+  "gen_size": "1024x1024",
+  "description": "Four ornate level-map node buttons, one premium family with carved gold frames: CURRENT \u2014 radiant teal gem tile in a gold ornament frame with a glowing rim and tiny crown on top; DEFAULT \u2014 cream porcelain tile in a simple gold frame; LOCKED \u2014 the cream tile with a chunky gold padlock resting on its lower edge; COMPLETE \u2014 the cream tile with an embedded gold star and laurel corners.",
+  "prompt_extra": "the tile face stays plain and empty in the center (a level number is rendered over it by the game); identical tile geometry across all four cells; SOLID CLOSED silhouettes only \u2014 no see-through gaps, no openwork, no chains, every ornament attached flush to the tile edge",
+  "transparent": true,
+  "models": [
+    "google/gemini-3.1-flash-image",
+    "openai/gpt-5.4-image-2"
+  ],
+  "variants": [
+    {
+      "name": "warm",
+      "prompt_extra": "richer ornament"
+    },
+    {
+      "name": "clean",
+      "prompt_extra": "restrained ornament, chunkier shapes"
+    }
+  ],
+  "sheet": {
+    "cols": 2,
+    "rows": 2,
+    "names": [
+      "node_current",
+      "node_default",
+      "node_locked",
+      "node_complete"
+    ]
+  }
+}

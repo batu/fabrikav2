@@ -1,0 +1,15 @@
+{
+  "name": "crochet_hook_hint",
+  "kind": "icon",
+  "size": "256x256",
+  "gen_size": "1024x1024",
+  "description": "Wool Crush consumable hint: one chunky turquoise crochet hook looping through a short golden yarn curl, with one large cream sparkle beside the hook tip. The hook and loop form a compact magnifier-like circle while remaining clearly a crochet tool.",
+  "prompt_extra": "single centered object, bold silhouette, soft toy-like materials, no text, no actual magnifying glass, no scissors, no animal",
+  "transparent": true,
+  "glow": true,
+  "models": ["google/gemini-3.1-flash-image", "openai/gpt-5.4-image-2"],
+  "variants": [
+    {"name": "loop", "prompt_extra": "larger circular yarn loop and compact hook"},
+    {"name": "hook", "prompt_extra": "larger hook tip and simpler short yarn loop"}
+  ]
+}

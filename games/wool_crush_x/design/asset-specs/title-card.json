@@ -1,0 +1,15 @@
+{
+  "name": "wool_crush_title_card",
+  "kind": "lettering",
+  "size": "966x429",
+  "gen_size": "1932x858",
+  "description": "Game title artwork reading exactly \"Wool Crush\": chunky friendly letters built from thick plush strands of yarn, with visible soft twisted fibers, rounded stitched edges, and two small crossed knitting needles tucked behind the words. The requested text is exactly \"Wool Crush\".",
+  "prompt_extra": "wide home banner composition; Wool on the upper arc and Crush below; bold legibility before texture; coral, sunflower yellow, turquoise and raspberry yarn with a warm cream highlight; no extra words",
+  "transparent": true,
+  "glow": true,
+  "models": ["google/gemini-3.1-flash-image", "openai/gpt-5.4-image-2"],
+  "variants": [
+    {"name": "plush", "prompt_extra": "extra plush looped-yarn volume and tactile softness"},
+    {"name": "stitched", "prompt_extra": "cleaner stitched lettering, fewer fiber details, strongest phone-size readability"}
+  ]
+}

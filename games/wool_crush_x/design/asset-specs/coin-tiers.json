@@ -1,0 +1,15 @@
+{
+  "name": "yarn_ball_coin_packs",
+  "kind": "icon",
+  "size": "256x256",
+  "gen_size": "1536x1024",
+  "description": "Six shop tiers built only from the identical golden-yellow yarn-ball currency: 1) one yarn ball; 2) three yarn balls; 3) a small cream drawstring knitting pouch filled with yarn balls; 4) a woven basket filled with yarn balls; 5) a wooden yarn cart heaped with yarn balls; 6) an open cedar craft chest overflowing with yarn balls.",
+  "prompt_extra": "strict 3 by 2 sheet; richness grows clearly while the same golden yarn ball repeats; no metal coins, gems, stars, letters or unrelated treasure; keep every cell isolated with generous margins",
+  "transparent": true,
+  "models": ["google/gemini-3.1-flash-image", "openai/gpt-5.4-image-2"],
+  "sheet": {"cols": 3, "rows": 2, "names": ["shop_coin_pack_1", "shop_coin_pack_2", "shop_coin_pack_3", "shop_coin_pack_4", "shop_coin_pack_5", "shop_coin_pack_6"]},
+  "variants": [
+    {"name": "cozy", "prompt_extra": "cozy craft-room staging, cream canvas and warm wood containers"},
+    {"name": "clean", "prompt_extra": "simpler isolated product staging with maximum small-size clarity"}
+  ]
+}

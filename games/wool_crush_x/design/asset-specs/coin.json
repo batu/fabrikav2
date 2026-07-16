@@ -1,0 +1,14 @@
+{
+  "name": "yarn_ball_coin",
+  "kind": "icon",
+  "size": "256x256",
+  "gen_size": "1024x1024",
+  "description": "Wool Crush soft currency: one compact golden-yellow ball of yarn wound into a clean round coin-like silhouette, with three broad curved strand bands, a short tucked yarn tail, and a small warm-gold rim glow. It is unmistakably yarn, not a metal coin.",
+  "prompt_extra": "single centered object; tactile plush wool with restrained fiber texture; readable at 48px; no star, letters, face, animal, needle, or loose clutter",
+  "transparent": true,
+  "models": ["google/gemini-3.1-flash-image", "openai/gpt-5.4-image-2"],
+  "variants": [
+    {"name": "sunny", "prompt_extra": "sunflower-yellow yarn, round and cheerful"},
+    {"name": "premium", "prompt_extra": "deeper honey-gold yarn with one crisp top highlight"}
+  ]
+}

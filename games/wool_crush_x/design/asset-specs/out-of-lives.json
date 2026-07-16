@@ -1,0 +1,14 @@
+{
+  "name": "wool_out_of_lives_title",
+  "kind": "lettering",
+  "size": "1100x469",
+  "gen_size": "2200x938",
+  "description": "Display lettering reading exactly \"Out of Lives\" in the same chunky cream felt and yarn-stitched family as the win title, arched over a muted dusty-blue knitted ribbon, with one small tangled yarn knot and a drooping loose strand above.",
+  "prompt_extra": "requested text exactly Out of Lives; somber but cozy and never frightening; wide fail-card composition; no extra words",
+  "transparent": true,
+  "models": ["google/gemini-3.1-flash-image", "openai/gpt-5.4-image-2"],
+  "variants": [
+    {"name": "tangle", "prompt_extra": "tangled knot clearly visible, cool muted ribbon"},
+    {"name": "clean", "prompt_extra": "simpler loose strand motif and strongest lettering readability"}
+  ]
+}

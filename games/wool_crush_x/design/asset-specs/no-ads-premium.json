@@ -1,0 +1,15 @@
+{
+  "name": "wool_no_ads_premium",
+  "kind": "badge",
+  "size": "727x727",
+  "gen_size": "1024x1024",
+  "description": "Premium Wool Crush bundle: the cream felt ADS prohibition patch crowned by two crossed golden knitting needles, garnished with one golden yarn-ball currency and one turquoise crochet-hook hint token, all tied together by a raspberry ribbon bow.",
+  "prompt_extra": "one compact premium crest; requested text is exactly ADS; the three product identities stay individually readable; no gems, metal coins, extra words or count labels",
+  "transparent": true,
+  "glow": true,
+  "models": ["google/gemini-3.1-flash-image", "openai/gpt-5.4-image-2"],
+  "variants": [
+    {"name": "crest", "prompt_extra": "balanced symmetric crest composition"},
+    {"name": "bundle", "prompt_extra": "slightly looser cozy craft bundle with larger product icons"}
+  ]
+}

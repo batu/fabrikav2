@@ -1,0 +1,70 @@
+# refcap-compare manifest for the shell template. The template has no
+# third-party reference app — every reference-lane entry is a permanent gap.
+# The v2 lane drives the shell states through the harness `driveTo(state)`
+# (`../src/testing/TestHarness.ts`); the win/fail states are reached through
+# the stub scene's Win/Lose outcome seam.
+game: wool_crush_x
+
+reference:
+  package: none.shell_template.has.no.reference
+  version: none
+  device: none
+  host: ubuntu-server
+  adb: /home/batu/android-sdk/platform-tools/adb
+  serial: null
+
+v2:
+  package: com.basegamelab.shell_template.dev
+  version: dev
+  viewport: 390x844
+
+verifyDevice:
+  indistinguishableStates:
+    allow:
+      - states: [level, pause]
+        reason: "The shell pauses the live canvas in place without adding a visual modal; lifecycle suspension is the state difference."
+  platform: ios
+  contentInsetTop: 130
+
+states:
+  - name: menu
+    reference:
+      gap: "shell template — no reference app"
+    v2:
+      gap: "no v2 capture yet"
+      driveTo: menu
+
+  - name: level
+    reference:
+      gap: "shell template — no reference app"
+    v2:
+      gap: "no v2 capture yet"
+      driveTo: level
+
+  - name: settings
+    reference:
+      gap: "shell template — no reference app"
+    v2:
+      gap: "no v2 capture yet"
+      driveTo: settings
+
+  - name: pause
+    reference:
+      gap: "shell template — no reference app"
+    v2:
+      gap: "no v2 capture yet"
+      driveTo: pause
+
+  - name: win
+    reference:
+      gap: "shell template — no reference app"
+    v2:
+      gap: "no v2 capture yet"
+      driveTo: win
+
+  - name: fail
+    reference:
+      gap: "shell template — no reference app"
+    v2:
+      gap: "no v2 capture yet"
+      driveTo: fail
