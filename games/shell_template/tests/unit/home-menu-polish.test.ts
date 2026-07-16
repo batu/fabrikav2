@@ -119,8 +119,8 @@ describe("home menu polish regressions", () => {
 
     const play = window.getComputedStyle(element("#home-play-now"));
     expect(play.backgroundImage).toContain("/ui/home/play-level-button-runtime.png");
-    expect(play.height).toBe("62px");
-    expect(play.minHeight).toBe("62px");
+    expect(play.height).toBe("72px");
+    expect(play.minHeight).toBe("72px");
 
     const noAdsRail = window.getComputedStyle(element(".home-rail-left"));
     // Shipped shop/home polish (fabrika aa1ad9ca8): rail inset 20px.
