@@ -88,8 +88,9 @@ describe("home menu polish regressions", () => {
 
     const pill = window.getComputedStyle(element(".home-balance-pill"));
     expect(pill.boxSizing).toBe("border-box");
-    expect(pill.width).toBe("124px");
-    expect(pill.height).toBe("46px");
+    // Shipped polish: pills hug content (no fixed width), floor 96x42.
+    expect(pill.minWidth).toBe("96px");
+    expect(pill.minHeight).toBe("42px");
     expect(pill.lineHeight).toBe("1");
 
     const pillValue = window.getComputedStyle(element(".home-balance-pill span"));

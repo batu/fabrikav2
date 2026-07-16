@@ -2859,10 +2859,10 @@
   /* 5px nudge via relative offset (not margin) so the saga doesn't reflow. */
   top: 5px;
   width: min(100%, 180px);
-  /* Pulled up into the current level node (anchored low in the map stage).
-     Bottom margin opens space above the nav bar; the flex:1 map region lifts the
-     saga up with the button. */
-  margin: -82px auto 17px;
+  /* Pulled up toward the current level node (anchored low in the map stage).
+     Keep the layout footprint close to the old play-dock so the saga column
+     doesn't sink: net height ~56px (62 - 24 + 18). */
+  margin: -40px auto 26px;
   font-size: 26px;
   letter-spacing: 0.02em;
   padding: 13px 0;
@@ -2961,11 +2961,9 @@
   align-items: center;
   justify-content: flex-end;
   box-sizing: border-box;
-  gap: 7px;
-  width: 124px;
-  min-width: 124px;
-  height: 46px;
-  min-height: 46px;
+  gap: 6px;
+  min-width: 96px;
+  min-height: 42px;
   padding: 5px 14px 5px 34px;
   border-radius: 999px;
   background: linear-gradient(180deg, #fffaf0 0%, #ffe7b6 100%);
@@ -3072,7 +3070,7 @@
   /* padding-bottom lifts the whole saga up so the current node sits just above
      the Play Now CTA. Raise --fab-levelmap-node-gap to push the UPPER tiles
      toward the banner. */
-  padding: 6px 0 60px;
+  padding: 6px 0 40px;
 }
 
 .home-play-dock {
@@ -3399,7 +3397,7 @@
   justify-content: center;
   gap: 2px;
   min-width: 0;
-  padding: 3px 0 calc(env(safe-area-inset-bottom, 0px) * 0.45);
+  padding: 9px 0 4px;
   border-radius: 0;
   background: transparent;
   overflow: visible;
@@ -3436,7 +3434,7 @@
   gap: 2px;
   margin-top: 0;
   min-width: 0;
-  padding: 3px 0 calc(env(safe-area-inset-bottom, 0px) * 0.45);
+  padding: 9px 0 4px;
   background: linear-gradient(180deg, #ffe3a6 0%, #f3bf68 100%);
   border: 0;
   border-radius: 0;
