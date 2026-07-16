@@ -4672,3 +4672,33 @@ html[data-scheme="mint"] .home-page-shop {
   --fab-levelmap-node-radius: 26px;
   border-radius: 26px;
 }
+
+/* Settings page per scheme — mint (structural surfaces only; cards stay warm
+   cream like the rest of the mint look). */
+html[data-scheme="mint"] .home-page-settings {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.58) 0 0),
+    radial-gradient(circle at 12% 9%, rgba(255, 255, 255, 0.92) 0 20px, transparent 21px),
+    radial-gradient(circle at 78% 13%, rgba(255, 255, 255, 0.72) 0 24px, transparent 25px),
+    linear-gradient(180deg, #ecfaf3 0%, #cdeee0 58%, #a3dcc4 100%);
+}
+html[data-scheme="mint"] .home-page-settings .home-page-header {
+  border-bottom: 4px solid #1f6b53;
+  background:
+    linear-gradient(180deg, rgba(235, 255, 247, 0.44) 0%, rgba(255, 255, 255, 0) 58%),
+    repeating-linear-gradient(-45deg, #7adfc4 0, #7adfc4 32px, #37a98a 32px, #37a98a 64px);
+  box-shadow:
+    inset 0 -22px 28px rgba(10, 74, 56, 0.22),
+    0 7px 0 rgba(0, 0, 0, 0.14);
+}
+html[data-scheme="mint"] .home-page-settings .home-page-header::after {
+  background: linear-gradient(180deg, rgba(10, 60, 44, 0), rgba(10, 60, 44, 0.2));
+}
+html[data-scheme="mint"] .home-page-settings .home-page-title {
+  color: #0f3a2c;
+  -webkit-text-stroke: 0.95px rgba(235, 255, 247, 0.7);
+  text-shadow:
+    0 2px 0 #eafff6,
+    0 4px 0 rgba(6, 44, 32, 0.24),
+    0 7px 12px rgba(6, 44, 32, 0.22);
+}
