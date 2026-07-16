@@ -122,25 +122,25 @@
       "source": "public/ui/shop/shop_no_ads.png",
       "runtime": "public/ui/shop/shop_no_ads.png",
       "expectation": "exact-bytes",
-      "provenance": "2026-07-16 shop-art repair: replaced misfiled hint-magnifier bytes with the current gold ADS badge (same art as no-ads-runtime.png). Old bytes were a hint icon shipped under the no-ads slot."
+      "provenance": "2026-07-16 shop-art repair v2: the crossed-TV no-ads art from the original v1 generation batch (fabrika 37389ce70~1 shop_hint_pack_small.png bytes \u2014 the batch landed with no-ads and small-hint files swapped). 512px downscale."
     },
     "design/assets/shop_hint_pack_blue_a.png": {
       "source": "public/ui/shop/shop_hint_pack_small.png",
       "runtime": "public/ui/shop/shop_hint_pack_small.png",
-      "expectation": "perceptual",
-      "provenance": "2026-07-16 shop-art repair: shop_hint_pack_small.png is a 512px sips downscale of this blue-generation source. Replaced stale gold-magnifier / misfiled no-ads-TV bytes."
+      "expectation": "intentionally-different",
+      "provenance": "blue-generation alternate kept as design source; runtime slot holds the orange-paw blue magnifier (was misfiled as shop_no_ads) from the v1 1024px batch (fabrika 37389ce70~1), 512px downscale, slots un-swapped 2026-07-16."
     },
     "design/assets/shop_hint_pack_blue_b.png": {
       "source": "public/ui/shop/shop_hint_pack_medium.png",
       "runtime": "public/ui/shop/shop_hint_pack_medium.png",
-      "expectation": "perceptual",
-      "provenance": "2026-07-16 shop-art repair: shop_hint_pack_medium.png is a 512px sips downscale of this blue-generation source. Replaced stale gold-magnifier / misfiled no-ads-TV bytes."
+      "expectation": "intentionally-different",
+      "provenance": "blue-generation alternate kept as design source; runtime slot holds the silver gold-paw magnifier from the v1 1024px batch (fabrika 37389ce70~1), 512px downscale, slots un-swapped 2026-07-16."
     },
     "design/assets/shop_hint_pack_blue_c.png": {
       "source": "public/ui/shop/shop_hint_pack_large.png",
       "runtime": "public/ui/shop/shop_hint_pack_large.png",
-      "expectation": "perceptual",
-      "provenance": "2026-07-16 shop-art repair: shop_hint_pack_large.png is a 512px sips downscale of this blue-generation source. Replaced stale gold-magnifier / misfiled no-ads-TV bytes."
+      "expectation": "intentionally-different",
+      "provenance": "blue-generation alternate kept as design source; runtime slot holds the radiant gold magnifier from the v1 1024px batch (fabrika 37389ce70~1), 512px downscale, slots un-swapped 2026-07-16."
     }
   }
 }
