@@ -1,23 +1,23 @@
 {
-  "name": "loading_icon",
-  "kind": "icon",
-  "size": "256x256",
-  "gen_size": "1024x1024",
-  "description": "A loading spinner icon: the game's gold four-point sparkle star inside a circular teal swirl trail that implies rotation, perfectly centered and radially balanced so it can spin smoothly as a loading indicator.",
-  "prompt_extra": "radially symmetric enough to rotate without wobble; no text",
-  "transparent": true,
-  "models": [
-    "google/gemini-3.1-flash-image",
-    "openai/gpt-5.4-image-2"
-  ],
-  "variants": [
-    {
-      "name": "warm",
-      "prompt_extra": "golden trail"
-    },
-    {
-      "name": "clean",
-      "prompt_extra": "thin elegant trail"
-    }
-  ]
+ "name": "loading_icon",
+ "kind": "icon",
+ "size": "256x256",
+ "gen_size": "1024x1024",
+ "description": "A single plump ball of yarn, bright teal with visible chunky wound strands and a short trailing thread, centered, reads instantly as a spinner icon.",
+ "prompt_extra": "radially symmetric enough to rotate without wobble; no text",
+ "transparent": true,
+ "models": [
+  "google/gemini-3.1-flash-image",
+  "openai/gpt-5.4-image-2"
+ ],
+ "variants": [
+  {
+   "name": "warm",
+   "prompt_extra": "slightly warmer, cozier tones and a touch more craft detail"
+  },
+  {
+   "name": "clean",
+   "prompt_extra": "slightly simpler, more minimal composition with bolder shapes"
+  }
+ ]
 }

@@ -1,24 +1,24 @@
 {
-  "name": "out_of_lives_title",
-  "kind": "lettering",
-  "size": "1100x469",
-  "gen_size": "2200x938",
-  "description": "Display lettering reading exactly \"Out of Lives\" \u2014 same chunky arched letterform family as a celebratory win title, but in a somber register: cool slate-blue and dulled silver letters, a cracked heart motif at the top center, muted teal ribbon behind. The words \"Out of Lives\" are the requested text.",
-  "prompt_extra": "gently arched baseline; thick friendly letterforms with subtle outline; somber but not scary",
-  "transparent": true,
-  "glow": true,
-  "models": [
-    "google/gemini-3.1-flash-image",
-    "openai/gpt-5.4-image-2"
-  ],
-  "variants": [
-    {
-      "name": "warm",
-      "prompt_extra": "slightly warmer, richer gold tones and a touch more ornament"
-    },
-    {
-      "name": "clean",
-      "prompt_extra": "slightly cooler, simpler and more minimal composition"
-    }
-  ]
+ "name": "out_of_lives_title",
+ "kind": "lettering",
+ "size": "1100x469",
+ "gen_size": "2200x938",
+ "description": "Display lettering: the words \"Out of Lives\" in exactly that spelling, gentle arch, chunky knitted-yarn letters in muted blue-grey wool with a small drooping red felt heart, somber but soft. No other text.",
+ "prompt_extra": "gently arched baseline; thick friendly letterforms with subtle outline; somber but not scary",
+ "transparent": true,
+ "glow": true,
+ "models": [
+  "google/gemini-3.1-flash-image",
+  "openai/gpt-5.4-image-2"
+ ],
+ "variants": [
+  {
+   "name": "warm",
+   "prompt_extra": "slightly warmer, cozier tones and a touch more craft detail"
+  },
+  {
+   "name": "clean",
+   "prompt_extra": "slightly simpler, more minimal composition with bolder shapes"
+  }
+ ]
 }

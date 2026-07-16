@@ -1,24 +1,24 @@
 {
-  "name": "title_card",
-  "kind": "lettering",
-  "size": "966x429",
-  "gen_size": "1932x858",
-  "description": "Game title card artwork reading exactly \"Test Game\" \u2014 chunky arched premium display lettering in warm gold and cream with a teal ribbon banner behind, crowned by a radiant gold star with small sparkles. The words \"Test Game\" are the requested text.",
-  "prompt_extra": "gently arched baseline; thick friendly letterforms with darker-gold outline and glossy bevel; composition sized for a wide home-screen banner",
-  "transparent": true,
-  "glow": true,
-  "models": [
-    "google/gemini-3.1-flash-image",
-    "openai/gpt-5.4-image-2"
-  ],
-  "variants": [
-    {
-      "name": "warm",
-      "prompt_extra": "slightly warmer, richer gold tones and a touch more ornament"
-    },
-    {
-      "name": "clean",
-      "prompt_extra": "slightly cooler, simpler and more minimal composition"
-    }
-  ]
+ "name": "title_card",
+ "kind": "lettering",
+ "size": "966x429",
+ "gen_size": "1932x858",
+ "description": "Game-name display lettering: the words \"Wool Crush\" in exactly that spelling, chunky rounded letters that look hand-knitted from yarn with visible stitch texture, warm cream-and-orange yarn colors on transparent background, a small yarn ball dotting the i or tucked at the baseline. No other text.",
+ "prompt_extra": "gently arched baseline; thick friendly letterforms with darker-gold outline and glossy bevel; composition sized for a wide home-screen banner",
+ "transparent": true,
+ "glow": true,
+ "models": [
+  "google/gemini-3.1-flash-image",
+  "openai/gpt-5.4-image-2"
+ ],
+ "variants": [
+  {
+   "name": "warm",
+   "prompt_extra": "slightly warmer, cozier tones and a touch more craft detail"
+  },
+  {
+   "name": "clean",
+   "prompt_extra": "slightly simpler, more minimal composition with bolder shapes"
+  }
+ ]
 }

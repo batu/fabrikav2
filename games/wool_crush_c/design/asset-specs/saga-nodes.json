@@ -1,33 +1,33 @@
 {
-  "name": "saga_nodes",
-  "kind": "node",
-  "size": "320x320",
-  "gen_size": "1024x1024",
-  "description": "Four level-map node buttons, one family: CURRENT \u2014 glowing teal rounded-square tile with a bright rim; DEFAULT \u2014 cream rounded-square tile, calm and unlit; LOCKED \u2014 the cream tile with a small gold padlock on its lower edge; COMPLETE \u2014 the cream tile with a gold star stamped in its center.",
-  "prompt_extra": "identical tile shape, corner radius, outline and lighting across all four cells; no numbers or letters on the tiles",
-  "transparent": true,
-  "models": [
-    "google/gemini-3.1-flash-image",
-    "openai/gpt-5.4-image-2"
-  ],
-  "sheet": {
-    "cols": 2,
-    "rows": 2,
-    "names": [
-      "node_current",
-      "node_default",
-      "node_locked",
-      "node_complete"
-    ]
-  },
-  "variants": [
-    {
-      "name": "warm",
-      "prompt_extra": "slightly warmer, richer gold tones and a touch more ornament"
-    },
-    {
-      "name": "clean",
-      "prompt_extra": "slightly cooler, simpler and more minimal composition"
-    }
+ "name": "saga_nodes",
+ "kind": "node",
+ "size": "320x320",
+ "gen_size": "1024x1024",
+ "description": "Saga-map level tile set, knitted square tiles with soft rounded corners, same family, in this cell order: 1) CURRENT = glowing green knitted tile with gentle rim light; 2) DEFAULT = plain cream knitted tile; 3) LOCKED = muted grey-cream knitted tile with a small stitched felt padlock; 4) COMPLETE = warm gold knitted tile with a felt star patch. Solid closed silhouettes, no chains, no baked numbers.",
+ "prompt_extra": "identical tile shape, corner radius, outline and lighting across all four cells; no numbers or letters on the tiles",
+ "transparent": true,
+ "models": [
+  "google/gemini-3.1-flash-image",
+  "openai/gpt-5.4-image-2"
+ ],
+ "sheet": {
+  "cols": 2,
+  "rows": 2,
+  "names": [
+   "node_current",
+   "node_default",
+   "node_locked",
+   "node_complete"
   ]
+ },
+ "variants": [
+  {
+   "name": "warm",
+   "prompt_extra": "slightly warmer, cozier tones and a touch more craft detail"
+  },
+  {
+   "name": "clean",
+   "prompt_extra": "slightly simpler, more minimal composition with bolder shapes"
+  }
+ ]
 }

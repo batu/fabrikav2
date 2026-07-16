@@ -1,42 +1,32 @@
 {
-  "name": "shop_hint_packs",
-  "kind": "icon",
-  "size": "512x512",
-  "gen_size": "1920x640",
-  "description": "Three tiers of the SAME hint token (a small clean glass lightbulb with a warm filament, ONE small golden four-point star spark at its top, green coiled screw base): one lightbulb; three lightbulbs fanned; five lightbulbs clustered. Richness scales with tier.",
-  "prompt_extra": "every cell repeats the identical lightbulb hint token from the reference; each subject stays small within its cell with wide empty margins on ALL sides \u2014 nothing may touch or cross a cell edge",
-  "transparent": true,
-  "models": [
-    "google/gemini-3.1-flash-image"
-  ],
-  "sheet": {
-    "cols": 3,
-    "rows": 1,
-    "names": [
-      "shop_hint_pack_small",
-      "shop_hint_pack_medium",
-      "shop_hint_pack_large"
-    ]
-  },
-  "variants": [
-    {
-      "name": "v1",
-      "prompt_extra": "balanced staging"
-    },
-    {
-      "name": "v2",
-      "prompt_extra": "slightly tighter clusters"
-    },
-    {
-      "name": "v3",
-      "prompt_extra": "slightly airier fan arrangement"
-    },
-    {
-      "name": "v4",
-      "prompt_extra": "a touch more glow on the large tier"
-    }
-  ],
-  "anchors": [
-    "../../public/ui/menu-icons/icon_hint_magnifier.png"
+ "name": "shop_hint_packs",
+ "kind": "icon",
+ "size": "512x512",
+ "gen_size": "1920x640",
+ "description": "Three escalating booster packs of the SAME crochet hook: small = one hook; medium = three hooks fanned; large = five hooks fanned with a yarn ball at the base. Richness scales.",
+ "prompt_extra": "every cell repeats the identical lightbulb hint token from the reference; each subject stays small within its cell with wide empty margins on ALL sides \u2014 nothing may touch or cross a cell edge",
+ "transparent": true,
+ "models": [
+  "google/gemini-3.1-flash-image",
+  "openai/gpt-5.4-image-2"
+ ],
+ "sheet": {
+  "cols": 3,
+  "rows": 1,
+  "names": [
+   "shop_hint_pack_small",
+   "shop_hint_pack_medium",
+   "shop_hint_pack_large"
   ]
+ },
+ "variants": [
+  {
+   "name": "warm",
+   "prompt_extra": "slightly warmer, cozier tones and a touch more craft detail"
+  },
+  {
+   "name": "clean",
+   "prompt_extra": "slightly simpler, more minimal composition with bolder shapes"
+  }
+ ]
 }

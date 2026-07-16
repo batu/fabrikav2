@@ -181,7 +181,7 @@ export function showLevelCompleteOverlay(
     id: OVERLAY_ID,
     theme: { ...FTD_UI_THEME, ...FTD_COMPLETE_THEME },
     content: {
-      messages: ['Level Clear!', 'Great Find!', 'Nice Work!'],
+      messages: ['Dragon Unraveled!', 'Cozy Work!', 'Purr-fect Pull!'],
       rewardLabel: 'Coins earned',
       rewardAmount: options.baseCoins,
       balanceBefore,

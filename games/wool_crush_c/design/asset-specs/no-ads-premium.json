@@ -1,34 +1,27 @@
 {
-  "name": "shop_no_ads_premium",
-  "kind": "badge",
-  "size": "512x512",
-  "gen_size": "1024x1024",
-  "description": "Premium bundle badge composed like a shop hero: the crossed-out \"ADS\" burst badge sits behind and to the upper right; overlapping it in front on the lower left is the game's hint token (glass lightbulb with golden star spark and green screw base) with chunky gold-outlined \"5x\" lettering across its lower edge. The words \"ADS\" and \"5x\" are the requested text.",
-  "prompt_extra": "two-element overlap composition, hint token in front reads largest; same badge design language as the standard no-ads badge",
-  "transparent": true,
-  "models": [
-    "openai/gpt-5.4-image-2"
-  ],
-  "variants": [
-    {
-      "name": "v1",
-      "prompt_extra": "balanced default composition"
-    },
-    {
-      "name": "v2",
-      "prompt_extra": "hint token noticeably larger than the badge"
-    },
-    {
-      "name": "v3",
-      "prompt_extra": "tighter overlap, compact emblem feel"
-    },
-    {
-      "name": "v4",
-      "prompt_extra": "a touch more shine and one large sparkle"
-    }
-  ],
-  "anchors": [
-    "../../public/ui/shop/shop_no_ads.png",
-    "../../public/ui/menu-icons/icon_hint_magnifier.png"
-  ]
+ "name": "shop_no_ads_premium",
+ "kind": "badge",
+ "size": "512x512",
+ "gen_size": "1024x1024",
+ "description": "Premium no-ads / VIP bundle art: the knitted ADS-slash badge wearing a small gold crown, garnished with a paw coin and a crochet hook at its base, richer and more celebratory than the plain badge.",
+ "prompt_extra": "two-element overlap composition, hint token in front reads largest; same badge design language as the standard no-ads badge",
+ "transparent": true,
+ "models": [
+  "google/gemini-3.1-flash-image",
+  "openai/gpt-5.4-image-2"
+ ],
+ "variants": [
+  {
+   "name": "warm",
+   "prompt_extra": "slightly warmer, cozier tones and a touch more craft detail"
+  },
+  {
+   "name": "clean",
+   "prompt_extra": "slightly simpler, more minimal composition with bolder shapes"
+  }
+ ],
+ "anchors": [
+  "../../public/ui/shop/shop_no_ads.png",
+  "../../public/ui/menu-icons/icon_hint_magnifier.png"
+ ]
 }

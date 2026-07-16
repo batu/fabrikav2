@@ -4,8 +4,8 @@
 export const copyLocale = "en";
 
 export const copy = {
-  "game.title": "Wool Crush C",
-  "app.title": "Find the Dog",
+  "game.title": "Wool Crush",
+  "app.title": "Wool Crush",
   "menu.play": "Play",
   "menu.noAds": "No Ads",
   "menu.shop": "Shop",

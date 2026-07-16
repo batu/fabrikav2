@@ -1,23 +1,23 @@
 {
-  "name": "shop_no_ads",
-  "kind": "badge",
-  "size": "512x512",
-  "gen_size": "1024x1024",
-  "description": "A premium NO-ADS badge: a glossy rounded burst shield with the word \"ADS\" in chunky gold letters crossed by a bold red diagonal slash inside a red prohibition ring. The word \"ADS\" is the requested text.",
-  "prompt_extra": "the red slash and ring sit on top of the gold ADS lettering; readable at 64px",
-  "transparent": true,
-  "models": [
-    "google/gemini-3.1-flash-image",
-    "openai/gpt-5.4-image-2"
-  ],
-  "variants": [
-    {
-      "name": "warm",
-      "prompt_extra": "slightly warmer, richer gold tones and a touch more ornament"
-    },
-    {
-      "name": "clean",
-      "prompt_extra": "slightly cooler, simpler and more minimal composition"
-    }
-  ]
+ "name": "shop_no_ads",
+ "kind": "badge",
+ "size": "512x512",
+ "gen_size": "1024x1024",
+ "description": "A no-ads badge: a plump knitted round burst badge, the letters \"ADS\" in exactly that spelling on it with a bold red diagonal slash across, framed by yarn-texture ring.",
+ "prompt_extra": "the red slash and ring sit on top of the gold ADS lettering; readable at 64px",
+ "transparent": true,
+ "models": [
+  "google/gemini-3.1-flash-image",
+  "openai/gpt-5.4-image-2"
+ ],
+ "variants": [
+  {
+   "name": "warm",
+   "prompt_extra": "slightly warmer, cozier tones and a touch more craft detail"
+  },
+  {
+   "name": "clean",
+   "prompt_extra": "slightly simpler, more minimal composition with bolder shapes"
+  }
+ ]
 }
