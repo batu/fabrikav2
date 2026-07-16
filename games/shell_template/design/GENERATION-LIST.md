@@ -106,6 +106,17 @@ Machine truth: `design/style-guide.json` (pinned style) + `design/asset-specs/*.
    quoting the portal request id + verdict, then post the on-device capture
    (`verify-device` / `pixelsmith capture`) into the same chain.
 
+6. **Anchored + varied generation (added during the live run):** specs may
+   carry `anchors` (paths to picked identity assets — attached as image
+   references via the edit path, identity-locked) and `variants` (named
+   prompt nudges; the CLI fans out models x variants concurrently). Policy:
+   ~4 options per slot — fresh slots 2 models x 2 variants; anchored slots
+   4 variants on the winning model.
+7. **Color schemes are CSS, not generation:** `--sch-*` tokens in
+   styles.css with `html[data-scheme]` palette sets (shop tokens scoped on
+   `.home-page-shop`). Scheme previews render the live game per scheme;
+   palette-carrying assets regenerate anchored if the scheme demands it.
+
 The agent owns pick/retry/stop; every pixelsmith/portal invocation returns.
 
 ## Generation order for the generic set
