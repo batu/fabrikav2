@@ -28,6 +28,8 @@ import { buildShopCatalog } from '../shop/ProductCatalog';
 import { fulfillVerifiedPurchaseOnce, makePurchaseRestoreRetry, reportUnfulfilledPurchase } from '../shop/PurchaseFulfillment';
 import { hasUserActivated, runWhenVisibleAndIdle, type CancelScheduledIdleWork } from '../platform/browserScheduling';
 import { registerLifecycleHooks } from '../platform/gameLifecycle';
+import { playUITap, playWrongTap } from '../audio/AudioManager';
+import { WoolRenderer } from '../game/WoolRenderer';
 
 export interface GameSceneData {
   levelId?: string;
@@ -68,6 +70,7 @@ export class GameScene extends Phaser.Scene {
   private unregisterLifecycleHooks: (() => void) | null = null;
   private wasClockPausedBeforeLifecycleSuspend: boolean = false;
   private wasTweenManagerPausedBeforeLifecycleSuspend: boolean = false;
+  private wool: WoolRenderer | null = null;
 
   constructor() {
     super('GameScene');
@@ -111,7 +114,7 @@ export class GameScene extends Phaser.Scene {
       void this.loadLevelAndRestart();
       return;
     }
-    this.setupStub();
+    this.setupWoolGame();
     this.scheduleNonCriticalPreloads();
   }
 
@@ -163,9 +166,9 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  // ── stub scene body ──────────────────────────────────────────────────────
+  // ── wool gameplay scene body ─────────────────────────────────────────────
 
-  private setupStub(): void {
+  private setupWoolGame(): void {
     if (!this.level) return;
     const level = this.level;
 
@@ -178,7 +181,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.cameras.main.setBounds(0, 0, GAME.WIDTH, GAME.HEIGHT);
-    this.buildStubUi(level);
+    this.buildWoolUi(level);
 
     setHintCallback(() => this.onHintRequested());
     setDebugOverlayCallback(() => { /* stub has no debug overlay */ });
@@ -205,6 +208,8 @@ export class GameScene extends Phaser.Scene {
 
     this.events.once('shutdown', () => {
       this.isShuttingDown = true;
+      this.wool?.destroy();
+      this.wool = null;
       this.cancelNonCriticalPreloadSchedule?.();
       this.cancelNonCriticalPreloadSchedule = null;
       this.unregisterLifecycleHooks?.();
@@ -222,55 +227,51 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  /** Two big canvas buttons: WIN and LOSE. The whole inner game, for now. */
-  private buildStubUi(level: LevelData): void {
-    const cx = GAME.WIDTH / 2;
-    const cy = GAME.HEIGHT / 2;
+  /** The wool gameplay: engine-driven board + dragon (src/game/). */
+  private buildWoolUi(level: LevelData): void {
     const scale = GAME.WIDTH / 1170; // 1170 = iPhone portrait reference width
-
-    this.add.text(cx, cy - 420 * scale, `Level ${gameState.currentLevelIndex + 1}`, {
-      fontFamily: 'Fredoka One, sans-serif',
-      fontSize: `${Math.round(72 * scale)}px`,
-      color: '#5b4a3f',
-    }).setOrigin(0.5);
-    this.add.text(cx, cy - 330 * scale, level.id, {
-      fontFamily: 'sans-serif',
-      fontSize: `${Math.round(34 * scale)}px`,
-      color: '#8a7a6e',
-    }).setOrigin(0.5);
-
-    const buildButtons = () => {
-      if (this.isShuttingDown) return;
-      this.makeStubButton(cx, cy - 160 * scale, 'stub-win-medal', 'WIN', scale, () => this.winLevel());
-      this.makeStubButton(cx, cy + 260 * scale, 'stub-lose-medal', 'LOSE', scale, () => this.loseLife());
-    };
-    if (this.textures.exists('stub-win-medal') && this.textures.exists('stub-lose-medal')) {
-      buildButtons();
-    } else {
-      this.load.image('stub-win-medal', '/ui/gameplay/btn-win.png');
-      this.load.image('stub-lose-medal', '/ui/gameplay/btn-lose.png');
-      this.load.once(Phaser.Loader.Events.COMPLETE, buildButtons);
-      this.load.start();
-    }
-  }
-
-  /** Scenic medal button: generated art (sunburst / rain-cloud medal) + label. */
-  private makeStubButton(x: number, y: number, texture: string, label: string, scale: number, onTap: () => void): void {
-    const size = 340 * scale;
-    const button = this.add.image(x, y, texture)
-      .setDisplaySize(size, size)
-      .setInteractive({ useHandCursor: true });
-    const text = this.add.text(x, y + size / 2 + 44 * scale, label, {
+    this.add.text(GAME.WIDTH / 2, GAME.HEIGHT * 0.075, `Level ${gameState.currentLevelIndex + 1}`, {
       fontFamily: 'Fredoka One, sans-serif',
       fontSize: `${Math.round(56 * scale)}px`,
       color: '#5b4a3f',
-    }).setOrigin(0.5);
+    }).setOrigin(0.5).setDepth(6);
 
-    button.on('pointerdown', () => {
-      if (this.levelComplete || this.isShuttingDown) return;
-      this.tweens.add({ targets: [button, text], scale: 0.94, duration: 60, yoyo: true });
-      onTap();
+    this.wool = new WoolRenderer(this, level.id, {
+      onWin: () => this.winLevel(),
+      onFail: () => this.onDragonReachedCat(),
+      onBlockedTap: () => {
+        hapticWrong();
+        playWrongTap();
+      },
+      onRelease: () => {
+        playUITap();
+      },
     });
+    this.wool.mount();
+  }
+
+  override update(_time: number, delta: number): void {
+    this.wool?.update(delta);
+  }
+
+  /** The dragon reached the cat: the attempt is lost. Spend a heart via the
+   *  shell seam; with lives remaining, restart the attempt on the same level
+   *  (fresh board + fresh dragon shuffle keeps it fair); at 0 the shell's
+   *  fail overlay takes over inside loseLife(). */
+  private onDragonReachedCat(): void {
+    if (!this.level || this.levelComplete || this.isShuttingDown) return;
+    // Bypass the wrong-tap penalty cooldown: an attempt loss is never rate-limited.
+    gameState.penaltyCooldownUntil = 0;
+    this.loseLife();
+    if (gameState.lives > 0) {
+      const retryLevel = this.level;
+      showSceneTransitionCover();
+      this.time.delayedCall(350, () => {
+        if (this.isShuttingDown) return;
+        this.preserveLevelUrlsOnShutdown = true;
+        this.scene.restart({ levelData: retryLevel });
+      });
+    }
   }
 
   // ── outcome seam: WIN ─────────────────────────────────────────────────────
@@ -640,6 +641,7 @@ export class GameScene extends Phaser.Scene {
         this.wasTweenManagerPausedBeforeLifecycleSuspend = this.tweens.paused;
         this.time.paused = true;
         this.tweens.pauseAll();
+        this.wool?.setPaused(true);
       },
       onResume: (): void => {
         if (this.isShuttingDown || !this.sys.isActive()) return;
@@ -647,6 +649,7 @@ export class GameScene extends Phaser.Scene {
         if (!this.wasTweenManagerPausedBeforeLifecycleSuspend) this.tweens.resumeAll();
         this.wasClockPausedBeforeLifecycleSuspend = false;
         this.wasTweenManagerPausedBeforeLifecycleSuspend = false;
+        this.wool?.setPaused(false);
       },
     });
   }
