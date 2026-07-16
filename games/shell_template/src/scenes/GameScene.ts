@@ -20,7 +20,7 @@ import {
 import { preloadLevelCompleteAssets, showLevelCompleteOverlay, dismissLevelCompleteOverlay } from '../ui/LevelCompleteOverlay';
 import type { RatePromptHandle } from '../ui/RatePrompt';
 import { showLevelFailedOverlay, type FailContinueActionContext } from '../ui/LevelFailedOverlay';
-import { hideSceneTransitionCoverAfterPaint, hideSceneTransitionCoverAfterSceneRender, showSceneTransitionCover } from '../ui/SceneTransitionCover';
+import { hidePlayEntryTransitionCoverAfterSceneRender, hideSceneTransitionCoverAfterPaint, showSceneTransitionCover } from '../ui/SceneTransitionCover';
 import { remoteConfigService } from '../config/RemoteConfigService';
 import { buildFailContinueOffers, type FailContinueOfferSet, type FailContinueOption } from '../shop/FailContinueOffers';
 import { iapService } from '../shop/IapService';
@@ -200,7 +200,7 @@ export class GameScene extends Phaser.Scene {
     updateHUD(level.dogs.length, false);
     this.levelDataReady = true;
 
-    hideSceneTransitionCoverAfterSceneRender(this);
+    hidePlayEntryTransitionCoverAfterSceneRender(this);
     this.registerLifecycleSuspendHooks();
 
     this.events.once('shutdown', () => {

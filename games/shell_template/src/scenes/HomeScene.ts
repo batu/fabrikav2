@@ -3,7 +3,7 @@ import { gameState } from '../core/GameState';
 import { getLevelIndex, loadLevel, loadLevelForProgression, type LevelData, type LevelIndexEntry } from '../data/levels';
 import { initHUD, openPage, setHomeCallback } from '../ui/HUD';
 import { hideHomeMenuLayer, showHomeMenuLayer } from '../ui/OverlayVisibility';
-import { hideSceneTransitionCoverAfterPaint, showSceneTransitionCover } from '../ui/SceneTransitionCover';
+import { hideSceneTransitionCoverAfterPaint, showPlayEntryTransitionCover } from '../ui/SceneTransitionCover';
 import { adService } from '../ads/Service';
 import { hapticWrong } from '../haptics/HapticsManager';
 import { configuredMenuVignetteFactory, type MenuVignette } from '../menu/MenuVignette';
@@ -307,7 +307,9 @@ export class HomeScene extends Phaser.Scene {
 
   private startGameScene(levelData?: LevelData): void {
     const overlay = this.overlay;
-    showSceneTransitionCover();
+    // Clone the live home into the cover BEFORE the overlay is torn down —
+    // the play-entry transition flies the cloned pieces off-screen.
+    showPlayEntryTransitionCover();
     this.cancelScheduledHomeAmbient();
     this.clearBannerVideoReplay();
     if (overlay) {

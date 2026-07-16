@@ -604,6 +604,72 @@
   transition: opacity 180ms ease;
 }
 
+#scene-transition-cover.scene-transition-cover--play-entry {
+  display: block;
+  overflow: hidden;
+  background: transparent;
+  transition: opacity 180ms ease;
+}
+
+#scene-transition-cover.scene-transition-cover--play-entry .play-entry-home-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(118% 72% at 50% 7%, var(--sch-spot) 0%, transparent 52%),
+    radial-gradient(145% 118% at 50% 116%, var(--sch-vig) 0%, transparent 56%),
+    linear-gradient(180deg, var(--sch-bg-top) 0%, var(--sch-bg-mid) 48%, var(--sch-bg-bot) 100%);
+  opacity: 1;
+  transition: opacity 900ms cubic-bezier(0.33, 0, 0.67, 1);
+}
+
+/* Replicate the home motif layer (#hud-overlay.home-mode::before) so the
+   pattern doesn't drop out the instant this backdrop paints over the real
+   home. Runs the SAME homePawDrift animation, phase-aligned to the live home
+   via a negative animation-delay (--home-paw-delay, set in
+   showPlayEntryTransitionCover) so the drift continues seamlessly with no jump
+   at the handoff. It fades out with the backdrop. */
+#scene-transition-cover.scene-transition-cover--play-entry .play-entry-home-backdrop::before {
+  content: "";
+  position: absolute;
+  inset: -180px;
+  pointer-events: none;
+  opacity: 0.28;
+  background-image: url('/ui/home/pattern-motif.png');
+  background-size: 74px 74px;
+  transform: translate3d(-74px, -74px, 0);
+  will-change: transform;
+  animation: homePawDrift 24s linear infinite;
+  animation-delay: var(--home-paw-delay, 0ms);
+}
+
+#scene-transition-cover.scene-transition-cover--play-entry .play-entry-transition-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(20, 18, 15, 0.88) 0 30%, rgba(5, 4, 3, 0.98) 72%, #050403 100%),
+    #050403;
+  opacity: 0;
+  transition: opacity 420ms cubic-bezier(0.33, 0, 0.67, 1);
+}
+
+#scene-transition-cover.scene-transition-cover--play-entry[data-transition-state="holding"] .play-entry-transition-veil {
+  opacity: 1;
+}
+
+#scene-transition-cover.scene-transition-cover--play-entry[data-transition-state="revealing"] .play-entry-transition-veil,
+#scene-transition-cover.scene-transition-cover--play-entry[data-transition-state="clearing"] .play-entry-transition-veil {
+  opacity: 0;
+  transition-duration: 900ms;
+  transition-timing-function: cubic-bezier(0.33, 0, 0.67, 1);
+}
+
+#scene-transition-cover.scene-transition-cover--play-entry[data-transition-state="revealing"] .play-entry-home-backdrop,
+#scene-transition-cover.scene-transition-cover--play-entry[data-transition-state="clearing"] .play-entry-home-backdrop {
+  opacity: 0;
+}
+
 #scene-transition-cover.hiding {
   opacity: 0;
   pointer-events: none;
