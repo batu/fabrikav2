@@ -1,0 +1,3 @@
+# Real mode-local configuration remains covered by the root `.env.*` rule.
+# The placeholder-only contract is deliberately tracked despite that rule.
+!.env.example

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { lintStructure } from '../src/structure.js';
+import { ALLOWED_FILES, lintStructure } from '../src/structure.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const fixture = (name) => join(here, 'fixtures', 'structure', name);
@@ -10,6 +10,7 @@ describe('structure', () => {
   it('passes a canonical game dir (whitelist entries + gitignored .work)', () => {
     const { violations } = lintStructure(fixture('pass'));
     expect(violations).toEqual([]);
+    expect(ALLOWED_FILES.has('.env.example')).toBe(true);
   });
 
   it('fails on the three banned top-level entries, each with a redirect home', () => {
