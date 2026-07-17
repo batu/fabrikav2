@@ -47,6 +47,8 @@ export const ALLOWED_FILES = new Set([
   'eslint.config.js',
   'README.md',
   '.gitignore',
+  // Placeholder-only env contracts are tracked; every real env file remains forbidden.
+  '.env.example',
 ]);
 
 // Build/tooling artifacts that are gitignored and never committed. Their local
