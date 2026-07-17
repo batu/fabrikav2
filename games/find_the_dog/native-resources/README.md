@@ -29,3 +29,15 @@ VITE_INSITU_TOUR=allstates`; the off-screen `#__viewportmetrics__` accessibility
 marker publishes `window.innerHeight`, `visualViewport.height`, `screen.height`,
 CSS `env(safe-area-inset-*)`, DPR, and canvas height for the conductor's device
 capture.
+
+## iOS native-shell recipe
+
+Durable app files live in `ios/App/`; `tools/verify-device` copies that directory
+into the generated `ios/App/App/` tree. The sibling `ios/shell-manifest.json` and
+AppLovin SKAdNetwork catalog are patch inputs, not bundle resources.
+
+After `cap sync ios`, run the shared `tools/native-shell/apply.mjs` command from
+the game package, then `tools/native-shell/validate.mjs`. The apply command also
+copies `ios/App/`, replaces the generated Swift package graph, stamps the iOS
+identity, merges plist policy, and wires Xcode references. Both commands tolerate
+an absent gitignored Firebase plist; any plist that is present is identity-checked.
