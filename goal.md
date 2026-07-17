@@ -1,421 +1,285 @@
 ---
-title: Faithful Real-Game UI Round-Trip Evaluation in GrapesJS and Phaser Editor
+title: Marble Run Exact-Asset Pixel-Fidelity Round Trip
 type: feat
 date: 2026-07-15
-deadline: 2026-07-16T09:00:00+03:00
 artifact_contract: ce-unified-plan/v1
 artifact_readiness: implementation-ready
-product_contract_source: ce-plan-bootstrap
 execution: code
 ---
 
-# Faithful Real-Game UI Round-Trip Evaluation
+# Marble Run Exact-Asset Pixel-Fidelity Round Trip
 
 ## Goal Capsule
 
-- **Objective:** Prove whether a real FabrikaV2 game's existing mobile UI can be represented faithfully in two genuine authoring environments—GrapesJS and the licensed Phaser Editor—then edited by Batu, saved, previewed, and propagated by an agent into a physical-phone build without inventing a competing design authority.
-- **Immediate experiment:** Reproduce Marble Run's complete primary UI surface in both editors first. Only after both Marble Run implementations pass the Marble Gate may the same work begin for Find the Dog (FTD).
-- **Morning outcome:** By **09:00 Europe/Istanbul on 2026-07-16**, Portal should expose the strongest honest testable result: ideally four real editor projects (two games × two editors), but never at the cost of leaving Marble Run half-finished. One complete, comparable Marble Run pair is more valuable than four incomplete shells.
-- **Product frame:** Fabrika is a game factory, not an editor demo. The experiment tests the missing specialization seam: existing/reference game → exact asset and UI inventory → editor-native presentation authority → saved revision → deterministic runtime preview → agent application → physical-device proof.
-- **Question being answered:** Which authoring model is better at ingesting, preserving, and modifying a real game's UI: DOM/component authoring in GrapesJS or native Phaser scene authoring in Phaser Editor?
-- **Not the goal:** Finishing two generic editors, rebuilding mechanics, generating art, reviving FabrikaV1, or proving that a custom Phaser web canvas can imitate an editor.
-- **Execution profile:** TWF-conducted work in card worktrees, with independent subagent reviews, a per-agent ledger, PixelSmith-assisted inventory/diff work, live-device proof, and explicit handoffs. Never implement on the root/default branch.
-- **Hard stops:** Do not start FTD until Marble Run passes. Do not call a lane Phaser Editor unless it is actually authored and editable in the licensed Phaser Editor. Do not claim mobile fidelity from a browser/editor render. Do not conceal unsupported edits by patching generated runtime output behind the editor.
-- **Tail ownership:** Batu performs the final freeform evaluation. Agents prepare, verify, expose, and propagate projects; they do not replace Batu's judgment with a scripted score.
+- **Objective:** Make Marble Run's UI a faithful, editable, one-to-one mapping in both the real GrapesJS project and the licensed native Phaser Editor project, then prove that saved edits can be previewed and propagated to a physical phone.
+- **Only game in scope:** Marble Run in FabrikaV2. Do not start, prepare, or improve Find the Dog. Do not touch FabrikaV1.
+- **Highest priority:** Exact original asset identity. A visually similar, procedurally recreated, regenerated, generic, or conveniently substituted asset is wrong even when the surrounding layout looks good.
+- **Second priority:** Pixel fidelity on physical-device output: geometry, scale, safe area, copy, font, color, hierarchy, and visibility.
+- **Known blockers:** GrapesJS currently uses the wrong saga tiles. Phaser currently renders shapes that are not the original hearts. Both are P1 failures and must be corrected before lower-salience polish.
+- **Evaluation target:** Batu can open both real editors, freely move or edit Marble UI, save, reopen, preview the same revision, and have an agent propagate that revision to the phone.
+- **Product frame:** This is not an editor demo or a generic game shell. It is a proof that FabrikaV2 can specialize an already implemented real game's UI without losing asset identity or visual fidelity.
+
+## Authority and Scope
 
 ### Authority hierarchy
 
-1. Current FabrikaV2 game source is authoritative for UI structure, state vocabulary, copy, asset usage, and behavior boundaries.
-2. Fresh physical-device captures of current FabrikaV2 builds are authoritative for rendering, safe areas, fonts, scale, and placement.
-3. Source code explains hidden states, semantic grouping, and asset bindings that screenshots cannot.
-4. Each editor-native project independently authors its reproduction. Neither is generated from a third editable layout model.
-5. PixelSmith may inventory, match, crop, measure, compare, and report. It is never an art generator or design authority here.
-6. Runtime previews and phone builds are derived evidence, not hidden authoring surfaces.
+1. Current FabrikaV2 Marble Run source and its actual asset consumers define which assets, copy, states, fonts, primitives, and hierarchy are correct.
+2. Fresh physical-device captures of that same current source define rendered placement, scale, safe areas, and appearance.
+3. Exact asset bytes in the current Marble Run dependency graph are immutable authorities. Filename similarity or visual resemblance is never enough.
+4. GrapesJS project data is the Grapes lane's editable presentation authority.
+5. Native Phaser Editor `.scene` files are the Phaser lane's editable presentation authority.
+6. Shared manifests may validate identity and semantics but must not become a third editable layout authority.
+7. Browser previews are authoring aids. Physical-device captures are final rendering evidence.
+
+### Included
+
+- Marble Run menu/home and saga progression surface.
+- Gameplay HUD over a neutral placeholder background.
+- Pause.
+- Menu settings and level settings where they are distinct.
+- Shop.
+- Win.
+- Fail.
+- Finale/completion surface if it is part of the current primary UI.
+- Every visible shell/HUD element used by those primary states: title/banner, saga tiles and nodes, hearts/lives, coin and other counters, buttons, icons, panels, badges, labels, progress, settings controls, navigation, and decoration.
+- Real GrapesJS authoring, real licensed Phaser Editor authoring, persistence, reset, revision preview, Portal access, Android proof, and optional iPhone corroboration.
+
+### Excluded
+
+- Find the Dog and every other game.
+- FabrikaV1.
+- Marble physics, marbles, board logic, level mechanics, win calculation, or playable gameplay.
+- The board, marbles, routes, and gameplay preview may use the neutral placeholder in every state, including Menu, Shop, and modal underlays. Reviewers must exclude only those regions while still judging every shell, HUD, saga, and menu UI element.
+- New or regenerated art.
+- Generic shells or generic Kenney substitutions unless the current Marble source actually consumes that exact file for that exact role.
+- The custom Phaser web shell as an authoring frontend.
+- A shared editable layout schema between GrapesJS and Phaser Editor.
+- Functional navigation or economy unless trivial and non-blocking.
 
 ## Product Contract
 
-### Summary
+### R1. Exact asset identity is a hard gate
 
-Create one project per game per frontend:
+- Every visible raster image in both editors must map to an exact asset used by current Marble source.
+- Record for every binding: semantic role, source consumer, source-relative path, SHA-256, byte size, pixel dimensions, alpha status, and the editor object/component that uses it.
+- Validate the bytes used by each editor against the source SHA-256. Do not validate only filenames or copied paths.
+- If current source uses an atlas region, preserve the exact atlas image and exact frame/region identity.
+- If current source constructs an element from primitives, text, CSS, or Phaser graphics, reproduce that construction with equivalent native primitives. This exception applies only after source inspection proves no raster/vector asset owns the visible element.
+- Never replace an existing asset with an approximation because it is easier to scale, tint, crop, select, or animate.
+- Never regenerate, redraw, trace, restyle, reinterpret, or procedurally imitate an existing source asset.
+- Do not split a composite source asset into invented pieces merely to increase editability.
+- Membership in the Marble inventory or curated tray is necessary but not sufficient. Every visible image, vector, atlas frame, font, and source-native primitive must match the exact current-source consumer for that semantic role. An asset used elsewhere in Marble Run is still a prohibited substitute when bound to the wrong role.
+- Font identity is part of the exact-asset gate. Each text object must use the family that current source resolves in the proven capture environment; packaging a fallback does not authorize using it while the higher-priority source family is available.
 
-| Game | GrapesJS | Phaser Editor |
-|---|---|---|
-| Marble Run | Real GrapesJS project with editable pages/components | Real licensed Phaser Editor project with editable `.scene` authority |
-| Find the Dog | Real GrapesJS project with editable pages/components | Real licensed Phaser Editor project with editable `.scene` authority |
+### R2. Asset selection must be consumer-traced
 
-Each project reproduces the game's complete primary UI states, uses the exact existing game assets, exposes meaningful UI elements for direct manipulation, survives save/reopen, offers a runtime preview, and can feed an agent-mediated physical-device build. Gameplay mechanics may be replaced by a neutral placeholder background.
+- Start from current code consumers and runtime bindings, not asset filenames.
+- Build a complete visible-element inventory for every included state before declaring either lane faithful.
+- Similar assets must be disambiguated by the code path that renders them, state conditions, dimensions, and hash.
+- The curated GrapesJS tray and Phaser asset pack must expose only approved exact Marble assets for this project, with semantic labels and descriptions.
+- An asset is not approved until the inventory identifies its real source consumer.
+- Add a deterministic audit that fails on unknown, missing, substituted, regenerated, or hash-mismatched visible assets.
+- Require a closed-world mapping: every source-derived visible inventory entry maps to the named editor object(s) with explicit cardinality, and every visible editor object maps back to one approved inventory entry or proven source-native primitive.
+- Record the full 40-character source commit and digests of all relevant consumer files. Validation must fail when the reviewed source snapshot, consumer digests, or recorded runtime selection drift.
+- Every approved binding must declare `game: marble_run` and resolve beneath `games/marble_run`, or to a shared file proven by a current Marble consumer. Other-game, generic-pack, generated, remote, data-URL, and unproven shared origins fail even if copied into a Marble directory.
 
-### Problem frame
+### R3. Known wrong assets are P1 blockers
 
-FabrikaV2 can build games, but presentation authority is fragmented across source UI, templates, projections, earlier Design Sheets work, ad hoc asset bindings, and experimental editor shells. Agents then pick wrong assets, substitute visuals, or struggle to implement precise feedback such as “move this five pixels right.” Designers need an approachable visual authoring environment while FabrikaV2 remains the behavior and runtime authority.
+- Replace the wrong GrapesJS saga tiles with the exact tiles/frames consumed by current Marble source.
+- Replace the Phaser pseudo-hearts/primitives with the exact heart/life asset or exact source construction proven by current Marble consumers.
+- Audit both lanes for the same failure class after those repairs; do not assume only the two reported elements are wrong.
+- No geometry or polish pass may declare success while either known blocker or another wrong-asset finding remains.
 
-The bottleneck is faithful round-trip specialization of the shell and HUD:
+### R4. Complete primary-state mapping
 
-1. ingest a real implemented game's UI and assets;
-2. expose it in an actual editor at useful semantic granularity;
-3. let a human make normal visual edits;
-4. preserve edits through save/reopen and preview;
-5. let an agent propagate the saved editor state to the mobile game;
-6. prove it on a physical device;
-7. compare both authoring approaches honestly.
+- Both lanes must represent the same source-derived primary state list.
+- One separately selectable GrapesJS page and one separately selectable native Phaser scene per primary state is acceptable for V0.
+- UI may be static and manually selected.
+- Gameplay uses a neutral placeholder background, but every shell/HUD element must remain source-faithful and editable.
+- Do not omit a primary surface merely because current reference capture is missing; source inventory determines required coverage.
 
-Previously built generic shells and the custom Phaser web editor/runtime are infrastructure clues only. They are not the evaluation target and do not prove this goal.
+### R5. Pixel fidelity
 
-### Actors
+- Author at canonical 390 x 844 portrait with current-source safe-area behavior.
+- Match exact asset scale/crop, position, anchor/origin, z-order, visibility, copy, font, weight, size, line height, color, panel geometry, and grouping.
+- Target approximately two physical pixels of geometric difference after device projection.
+- Wrong asset identity, missing elements, wrong font, major scale, crop, safe-area, hierarchy, or state errors are P1.
+- Visible geometry, typography, color, copy, alignment, and grouping errors are P2.
+- Only antialiasing, shadow, or sub-two-pixel residuals may remain as documented P3s.
+- Iterate breadth-first: correct asset identity and complete all states, repair major geometry/type/safe-area issues across the set, then polish residuals. Do not spend hours on one tiny pixel while another state contains wrong assets.
 
-- **A1 — Batu:** Opens each editor through Portal, freely edits UI, saves, previews, and judges which authoring experience works better.
-- **A2 — Conductor:** Maintains goal discipline, TWF sequencing, agent ledger, worktree hygiene, review gates, Portal handoff, and honest status.
-- **A3 — Workers/reviewers:** Implement isolated units, inspect source, and independently review fidelity/usability without changing scope.
-- **A4 — PixelSmith:** Performs asset inventory, measurement, screenshot comparison, and discrepancy reporting with existing assets only.
-- **A5 — FabrikaV2 runtime:** Owns behavior, SDKs, packaging, native shells, and target mobile output.
-- **A6 — Portal:** Provides secure links and evidence transport, never design authority.
+### R6. Native authoring integrity
 
-### Requirements
+- GrapesJS must use actual GrapesJS pages/components/project persistence.
+- Phaser must open and edit in the installed licensed Phaser Editor; native `.scene` files and supported project metadata are authority.
+- The custom Phaser web editor does not count.
+- Meaningful UI elements must be selectable through canvas and semantic layer/hierarchy.
+- Support move/drag, resize, reorder, show/hide, duplicate, live copy editing, supported color changes, and replacement from the exact approved Marble asset set.
+- Logical groups may move together, but important children such as hearts/lives, coin counter, saga nodes/tiles, labels, and buttons must remain independently accessible.
+- Duplicates require stable unique instance IDs without changing semantic role.
 
-#### Sequence and scope
+### R7. Persistence, reset, and preview
 
-- **R1.** Work only in `/Users/base/dev/appletolye/fabrikav2`. Leave FabrikaV1 behind completely.
-- **R2.** Finish Marble Run in both frontends before starting FTD. This is a hard gate.
-- **R3.** Prefer one complete Marble pair to four shallow projects. Done beats theoretical perfection, but material defects still block completion.
-- **R4.** Use one independent editor project per game per frontend. Within it, expose primary screens as separately selectable pages/scenes. Manual selection is enough for V0.
-- **R5.** Reproduce the complete game-owned primary UI: menu/home, HUD, pause, settings, shop where present, win, fail, counters, health/lives, currency, hints, ads affordances, progression, modal framing, lower navigation, and any other primary surface found in current source.
-- **R6.** Exclude Marble board/marbles/physics/levels and FTD searchable scenes/dogs/zoom/mechanics. Put a neutral placeholder behind gameplay HUD.
-- **R7.** V0 needs one canonical primary state per surface, not every temporal/error/ad variant. Wait for delayed UI/assets before baseline capture.
-- **R8.** UI may be static. Buttons need not navigate or function. Trivial interactions are acceptable only if they do not delay mapping and editability.
-- **R9.** The source inventory—not an assumed screen list—determines actual required primary states.
+- Save, close, and reopen must preserve hierarchy, transforms, copy, color, visibility, order, duplicates, and exact asset bindings.
+- Both lanes require a protected exact baseline and a deterministic reset-to-baseline path.
+- Preview must be regenerated from the saved native authority and visibly identify the exact editor revision.
+- Stale Preview must fail visibly.
+- Agents may mediate save/publish/apply/build steps but may not patch runtime visuals to fake editor support.
 
-#### Exact assets
+### R8. Device truth and visual proof
 
-- **R10.** Use only assets already present in the corresponding current V2 game. Preserve exact bytes, dimensions, alpha, and identity.
-- **R11.** Never regenerate, redraw, restyle, substitute, or reinterpret an asset. Do not use generic Kenney unless the game source uses that exact file for that element.
-- **R12.** Reproduce procedural CSS/shapes/gradients/text/Phaser primitives with equivalent primitives, not invented raster art.
-- **R13.** Every asset needs stable semantic role, source-relative path, content hash, dimensions, alpha status, and source consumer(s).
-- **R14.** Curated trays show semantic names and descriptions so visually similar files—such as hints and no-ads—cannot be confused.
-- **R15.** PixelSmith may locate and verify source assets but may not generate or alter any image.
+- Ubuntu-connected Android is the primary proof device. Use the connected iPhone as corroboration when available without letting signing block Android proof.
+- Build each lane from its exact saved revision and embed source SHA, lane, editor revision, publication digest, and package identity.
+- Capture every primary state for current source, GrapesJS output, and Phaser output.
+- Record APK/app hash, installed package identity, device identity, foreground activity, state marker, capture hash, and timestamp.
+- PixelSmith compares each editor-derived device capture to the corresponding fresh current-source device reference.
+- PixelSmith may judge, measure, crop, and compose comparisons. It may not generate or repair assets.
+- Browser/editor screenshots cannot close the mobile fidelity gate.
 
-#### Real editor integrity
+### R9. Portal and human evaluation
 
-- **R16.** GrapesJS must be a real GrapesJS project whose saved pages/components/project data are that lane's presentation authority.
-- **R17.** Phaser must be a native project opened in the licensed Phaser Editor application. Scene files and editor-supported project data are authority; Batu uses its scene canvas, hierarchy, properties, asset browser, transforms, and save flow.
-- **R18.** The custom Phaser-based web editor/runtime does **not** count. Reuse it only as invisible validated publish/preview/device plumbing.
-- **R19.** Preserve each frontend's native UX. Standardize baseline, tasks, semantics, evidence, and outputs—not editor chrome.
-- **R20.** Do not introduce a shared editable layout spec. Semantic IDs, exact asset manifests, references, and validation rules may be shared read-only facts.
+- Portal must securely link both real editors, their revision previews, exact-asset inventory, device comparisons, known findings, baseline/reset instructions, and agent-mediated phone application action.
+- No localhost knowledge or SSH tunnel should be required for Batu's normal test path.
+- Batu performs freeform edits; the system observes clarity, speed, persistence, fidelity, propagation effort, and unsupported operations without steering toward a predetermined winner.
 
-#### Required editability
+### R10. Execution discipline
 
-- **R21.** Select meaningful elements through both canvas and semantic layer/hierarchy.
-- **R22.** Support move/drag, resize, reorder, show/hide, duplicate, live copy editing, supported colors, and replacement from the exact-game curated tray.
-- **R23.** Duplicates get stable unique instance IDs while preserving semantic role and independent selection.
-- **R24.** Meaningful buttons, labels, icons, counters, badges, progress elements, modal panels, and HUD controls are individually selectable.
-- **R25.** Existing composite/decorative artwork stays one asset. Do not split it to manufacture edit granularity.
-- **R26.** Logical groups may move together, but meaningful children remain accessible. Batu must be able to reposition health/lives, coins/currency, hints, and similar HUD counters.
-- **R27.** Editing one screen must not corrupt another or alter behavior-owned bindings.
-
-#### Layout and fidelity
-
-- **R28.** Author at canonical **390 × 844 portrait**, representing actual source safe-area behavior.
-- **R29.** V0 scales composition to other portrait sizes while preserving relative geometry/safe areas; responsive reflow is out of scope.
-- **R30.** Faithful means exact assets, copy, visible states, colors, fonts where available, hierarchy, dimensions, and placement; no missing primary UI; target geometry within about two physical pixels after device projection.
-- **R31.** DOM/canvas antialiasing differences may be documented only when identity, font, color, geometry, and hierarchy are correct. They cannot excuse wrong assets, fonts, scale, or position.
-- **R32.** Converge iteratively: complete all screens; fix wrong/missing assets and high-salience geometry/type/color/safe-area issues; then polish material residuals.
-- **R33.** Timebox tiny pixel loops. Record imperceptible AA/shadow residuals instead of spending hours after material defects are closed.
-- **R34.** Mobile fidelity is judged from current physical-device captures. Editor/browser previews are authoring aids only.
-
-#### Persistence, preview, propagation
-
-- **R35.** Save/reopen must preserve selection structure, hierarchy, transforms, copy, color, visibility, duplicates, and asset bindings.
-- **R36.** Each project has a protected baseline, editable working state, and simple reset-to-baseline operation.
-- **R37.** Each lane provides a runtime Preview derived from saved editor-native authority, without manually recreating edits.
-- **R38.** Saved/published/previewed revisions are visibly identifiable; stale Preview cannot masquerade as current.
-- **R39.** An agent may perform supported save/publish/apply/build steps. Full hot reload is unnecessary for V0.
-- **R40.** The propagation agent must not patch runtime presentation to fake editor support. Unsupported edits remain visibly unsupported until capability is added and the edit is re-authored in the editor.
-
-#### Device, Portal, evaluation
-
-- **R41.** Ubuntu-connected Android is primary. Use the connected iPhone opportunistically after higher-priority proof, without letting signing/transport block the experiment.
-- **R42.** Baseline capture and mobile visual convergence use live devices from the start. A later Batu-authored edit-to-phone demonstration is a distinct final workflow.
-- **R43.** Portal securely links each ready editor, Preview, references/comparisons, reset instructions, status, and the agent-mediated device request. Localhost-only is not a handoff.
-- **R44.** By 09:00, claimed-ready services must be running and links tested through Batu's actual route.
-- **R45.** Batu evaluates with freeform exploratory edits, not a forced script or synthetic scoring ceremony.
-- **R46.** Observe the same capability categories in both lanes: selection, transforms, copy/color, exact asset replacement, duplication/identity, persistence, preview freshness, and propagation feasibility.
-- **R47.** Report unsupported operations, fidelity defects, delays, crashes, stale previews, asset mistakes, and manual repairs. Do not hide friction.
-- **R48.** Recommend one presentation authority after evaluation; do not maintain two production authorities for one game.
-
-#### Source modification boundary
-
-- **R49.** Treat current Marble and FTD source as immutable baselines. Prefer thin adapters and editor organization outside game runtime.
-- **R50.** Reorganize source only as last resort when it genuinely simplifies both mappings. Prove visual/behavioral neutrality on device and land it separately.
-- **R51.** Do not refactor shared UI, mechanics, SDKs, or unrelated games opportunistically.
-
-### Acceptance examples
-
-- **AE1:** Batu moves Marble's coin counter in GrapesJS, saves, previews, reopens, and sees the same move; an agent can apply that revision without hand-editing runtime UI.
-- **AE2:** Batu opens the actual Marble Phaser Editor project, selects lives/health in the native hierarchy, moves/resizes it, saves `.scene`, and sees the derived Preview update.
-- **AE3:** An asset replacement uses an exact source asset and retains its content hash—not a generated or similarly named substitute.
-- **AE4:** Copy edits visibly update through normal editor feedback, without Enter as a hidden publish gesture.
-- **AE5:** A duplicate persists after reopen, remains independently selectable, and has a unique stable instance identity.
-- **AE6:** An unsupported change is reported; no agent secretly patches runtime output and claims support.
-- **AE7:** Device captures of every inventoried Marble primary surface show no material missing/wrong asset, geometry, hierarchy, color, or copy defect. PixelSmith and independent reviewers agree.
-- **AE8:** Batu can reset destructive experiments to the protected canonical baseline without recloning.
-- **AE9:** Portal access requires no localhost knowledge or terminal setup and clearly distinguishes editor, Preview, baseline, and working state.
-- **AE10:** FTD work starts only after AE1–AE9 pass for Marble, except non-game-specific Portal/device plumbing may be prepared in parallel.
-
-### Non-goals
-
-- Mechanics or playable content; functional economy/ads/navigation; every transient variant; landscape/tablet responsive design; new/generated art; a shared layout authority; FabrikaV1 migration; generic shell perfection; identical editor chrome; or choosing a winner before Batu tests.
-
-## Planning Contract
-
-### Key technical decisions
-
-- **KTD1:** Start from real game source and fresh device evidence, never generic shell assumptions.
-- **KTD2:** GrapesJS and Phaser Editor independently encode the baseline; shared metadata validates but does not author layout.
-- **KTD3:** Actual Phaser Editor or no valid Phaser lane.
-- **KTD4:** Exact immutable assets; hash every binding.
-- **KTD5:** One static page/scene per primary state; placeholder mechanics.
-- **KTD6:** Stable semantic roles plus unique instances expose meaningful edit granularity.
-- **KTD7:** Fixed 390 × 844 authoring with deterministic device safe-area/scale projection.
-- **KTD8:** Native editor save is canonical; Preview is a regenerated, revision-stamped projection.
-- **KTD9:** Live Android is rendering truth; iPhone is secondary while available.
-- **KTD10:** Completeness before polish; timebox low-salience differences.
-- **KTD11:** Strict Marble Gate before FTD.
-- **KTD12:** Agent mediation is permitted, hidden visual patching is forbidden.
-- **KTD13:** Portal is a review hub, not authority.
-- **KTD14:** Source refactors are exceptional and independently proven.
-- **KTD15:** At deadline, expose the best honest result. Never weaken Marble or overclaim FTD to show four links.
-
-### End-to-end flow
-
-```text
-current V2 source + fresh device captures
-                 |
-        exact UI/asset inventory
-                 |
-         +-------+-------+
-         |               |
-  GrapesJS project   Phaser Editor project
-  pages/components   .scene/hierarchy
-         |               |
-       native edit + save/reopen/reset
-         |               |
-       revision-stamped runtime Preview
-         |               |
-       supported agent apply/build
-         +-------+-------+
-                 |
-    physical Android capture + PixelSmith/reviewer diff
-                 |
-             Marble Gate
-                 |
-           repeat for FTD
-                 |
-      Portal test hub + Batu evaluation
-```
-
-### Coordination discipline
-
-- Run `twf orient` and reconcile live board/worktree state before trusting handoffs.
-- Execute via TWF cards in isolated card worktrees; never edit/merge from root main.
-- Keep a ledger per agent/model/card/unit: worktree, branch, files owned, start/end, commands, evidence, findings, disposition.
-- Parallelize only independent, non-overlapping work. The Marble product gate still applies.
-- Workers do not self-certify visual lanes. Use independent source/asset, editor-usability, and device-fidelity reviews.
-- Verify every landing SHA exists on the integration branch before downstream/device work consumes it.
-- Preserve unrelated dirty files and worktrees. Report tool/device/capacity blockers; never silently substitute browser proof.
-
-### Risks and mitigations
-
-| Risk | Mitigation |
-|---|---|
-| Generic work mistaken for deliverable | Require real-game source inventory, names, assets, and screens |
-| Custom Phaser web UI presented again | Native app/project/`.scene` evidence in preflight and gate |
-| Misleading asset names | Consumer trace, hashes, semantic descriptions, review |
-| DOM/canvas rendering differences | Hold identity/geometry/font/color constant; document AA-only residuals |
-| One screen consumes schedule | Complete all states before polish; timebox P3 loops |
-| Save/Preview drift | Revision stamps plus save/close/reopen tests |
-| Agent masks unsupported edits | No runtime visual patching; visibly fail unsupported operation |
-| Android/Phaser/Portal unavailable | Preflight all three before scene work and fail visibly |
-| Deadline during FTD | Stabilize/publish Marble and report exact FTD partial state |
+- Work through current TWF card worktrees, not root/main.
+- Reconcile live board, worktree, integration branch, and `origin/main` before acting.
+- Keep a per-agent ledger with agent/model, card/unit, branch/worktree, owned files, commands, evidence, findings, and disposition.
+- Use independent source/asset and editor-usability reviewers; implementers do not self-certify.
+- Verify every landing SHA on the integration branch before downstream/device work consumes it.
+- Do not begin or prepare FTD after Marble passes; this goal ends with Marble Run.
 
 ## Implementation Units
 
-### U0. Live orientation and preflight
+### U0. Reorient and freeze scope
 
-Read this file in full, root/nearby `AGENTS.md`, live TWF/board/worktrees, `origin/main`, current Marble/FTD source, existing editor artifacts, `/Users/base/dev/appletolye/phasers`, Portal routes, `tools/verify-device`, and Android/iPhone state. Classify prior artifacts as reusable infrastructure, real-game mapping, invalid custom frontend, obsolete, or unknown. Prove actual Phaser Editor launch/open/edit/save/reopen on a disposable scene, real Grapes project save/reopen, Portal access, and Android SSH/ADB/build/capture. Create cards/worktrees and ledger.
+- Read this file in full and run `twf orient`.
+- Reconcile live board/cards/worktrees, integration branch, `origin/main`, services, Portal, Android, iPhone, and editor processes.
+- Mark every FTD card or workstream out of scope for this goal.
+- Preserve the currently live Portal service; do not let deployment cleanup displace Marble fidelity work.
 
-**Done:** authoritative commits/paths and reusable/invalid artifacts are recorded; both real editor persistence paths work; Portal and Android are proven or visibly blocking.
+**Done:** one authoritative Marble worktree/branch chain and agent ledger are identified; no FTD worker is active.
 
-### U1. Marble source, screen, asset, and reference inventory
+### U1. Exact source/asset audit
 
-Trace `games/marble_run` entry points and actual shared consumers. Enumerate every primary surface/element with semantic role, instance, parent, z-order, copy, source/render method, dimensions, state visibility, and exact asset hash. Disambiguate similar assets through consumers. Capture fresh current V2 physical-device references after delayed UI loads. Define excluded mechanics and placeholder background.
+- Trace every included visible element from current Marble source to actual asset or proven source primitive construction.
+- Produce the canonical screen/element/asset inventory with hashes and consumers.
+- Compare both existing editor projects against it.
+- Emit a discrepancy list headed by wrong saga tiles and wrong Phaser hearts, then every other wrong, unknown, missing, or untraceable binding.
+- Add deterministic exact-asset validation.
 
-**Done:** every required screen/element has traceable source and current reference; no selection rests on filename or visual guessing.
+**Done:** every visible element in every included state is either hash-bound to its exact source asset or explicitly proven to be source-native text/primitives; zero ambiguous bindings remain.
 
-### U2. Marble in native GrapesJS
+### U2. GrapesJS asset and fidelity repair
 
-Create a Marble-specific Grapes project with one 390 × 844 page per primary state. Rebuild exact hierarchy/geometry/assets/primitives; stable semantic roles and unique instances; canvas and layer selection; exact curated asset tray; required edits; protected baseline/working state/reset; save/reopen; revision-stamped Preview. Complete all screens before fidelity polish.
+- Repair wrong saga tiles first.
+- Repair every other exact-asset audit failure.
+- Complete missing primary elements/states.
+- Converge high-salience geometry, typography, safe area, and hierarchy.
+- Verify required edit operations, save/reopen, reset, and revision preview.
 
-**Done:** complete recognizable Marble UI, persistent required edits, and Preview derived from saved Grapes authority.
+**Done:** GrapesJS passes exact-asset audit and has no unresolved P1/P2 across the complete primary-state set.
 
-### U3. Marble in actual Phaser Editor
+### U3. Phaser Editor asset and fidelity repair
 
-Create a Marble-specific licensed Phaser Editor project with one native scene per primary state (or native equivalent preserving independent selection). Use scene objects, containers, text/primitives/images, hierarchy, properties, and asset browser. Expose semantic roles/instances using editor-supported metadata; keep children selectable; provide required edits, baseline/reset, save/reopen, and revision-stamped Preview. Reuse custom Phaser work only as invisible plumbing.
+- Replace fake/non-source hearts first using the exact source heart/life binding or exact source construction established by U1.
+- Repair every other exact-asset audit failure.
+- Complete missing primary elements/states in native `.scene` authority.
+- Converge high-salience geometry, typography, safe area, and hierarchy.
+- Verify required edit operations, save/reopen, reset, and revision preview inside the licensed editor.
 
-**Done:** Batu can author through native Phaser Editor controls, persist changes, and see saved scenes in Preview; no custom web editor is presented.
+**Done:** native Phaser Editor passes exact-asset audit and has no unresolved P1/P2 across the complete primary-state set.
 
-### U4. Marble convergence and hard gate
+### U4. Revision-bound Android proof
 
-Run source completeness and asset-hash checks. Independent reviewers exercise selection, transforms, copy/color, replacement, duplication, save/reopen, reset, and Preview freshness. Build both saved baselines to live Android and capture every state. PixelSmith compares them to fresh references. Repair high-salience defects across the complete set; document AA/shadow-only residuals.
+- Project current source, GrapesJS revision, and Phaser revision into deterministic state tours.
+- Build/install each exact revision on Android and capture all states with provenance.
+- Run PixelSmith comparisons and independent reviews.
+- Repair and recapture all P1/P2 findings.
 
-**Marble Gate requires:** actual named frontends; every primary screen; exact assets/copy; all required edits at meaningful granularity; stable duplication; save/reopen/reset; current revision Preview; live Android captures for both; no P1/P2 material defect; resolved/accepted independent findings; usable Portal entry.
+**Done:** complete revision-bound source/Grapes/Phaser device sets exist and reviewers report no unresolved P1/P2.
 
-**Done:** durable PASS evidence. Without PASS, FTD stays blocked.
+### U5. HITL edit-to-phone round trip
 
-### U5. FTD inventory
+- Publish the Marble-only Portal test hub.
+- Batu edits both projects freely.
+- Record each saved revision and propagate it through the supported agent path to the phone.
+- Capture the edited result and record friction or unsupported operations honestly.
 
-**Dependency: U4 PASS.** Repeat U1 for `games/find_the_dog`, carefully separating shell/HUD from excluded searchable gameplay. Include current-source menu lower bar, health/lives, coins, hints, no-ads/ad affordances, settings, pause, shop, win, fail, and other primary surfaces. Wait for delayed result controls before capture.
+**Done:** Batu can compare the two real authoring models using the same faithful Marble baseline and see supported saved edits on the phone.
 
-### U6. FTD in native GrapesJS
+### U6. Marble-only decision handoff
 
-**Dependency: U5.** Repeat U2 with exact FTD source/assets and no Marble/generic substitutions.
-
-### U7. FTD in actual Phaser Editor
-
-**Dependency: U5.** Repeat U3 in the licensed editor with exact FTD source/assets.
-
-### U8. FTD convergence gate
-
-**Dependencies: U6, U7.** Repeat U4's completeness, exact-assets, editability, persistence, Preview, PixelSmith, independent-review, and live-device gate. If time expires, publish exact partial status and leave the gate failed.
-
-### U9. Portal morning test hub
-
-Link every ready editor and separate Preview; label baseline/working and saved revision; link references/device comparisons and discrepancies; document reset and agent-mediated phone application; test every link through Batu's route. Keep complete Marble prominent if FTD is partial.
-
-**Done:** Batu can begin testing without terminal access, localhost knowledge, or authority guesswork.
-
-### U10. Batu-authored edit propagation
-
-After mappings are secure, record Batu's saved revision, run supported apply/build through Ubuntu Android, and capture the edited state tied to that revision. Try iPhone only if healthy and non-displacing. If unsupported, document it; never patch runtime visuals to fake success.
-
-### U11. Comparative decision handoff
-
-After Batu's freeform testing, compare fidelity, ingestion time, discoverability, semantic clarity, transform/copy/asset ergonomics, duplication, persistence, Preview freshness, propagation effort, unsupported changes, source coupling, vendor lock-in/portability, agent labor, failure visibility, and device friction. Recommend one future authority and what infrastructure to keep/retire.
+- Compare exact fidelity, asset safety, edit ergonomics, semantic clarity, persistence, preview freshness, propagation effort, vendor lock-in, and agent labor.
+- Recommend one presentation-authority direction and what infrastructure to keep or retire.
+- End the goal. Do not continue into FTD.
 
 ## Verification Contract
 
-### Required proof per project
+### Hard automated gates
 
-1. Open native project from clean editor launch.
-2. Match all pages/scenes to source inventory.
-3. Select nested elements by canvas and semantic hierarchy.
-4. Move/resize a HUD element.
-5. Edit copy and supported color with immediate feedback.
-6. Hide/show and reorder an element.
-7. Replace from exact-game tray and verify hash.
-8. Duplicate and verify unique stable identity.
-9. Save, close, reopen, and verify persistence.
-10. Reset and verify baseline restoration.
-11. Publish/save revision, open Preview, verify revision/result.
-12. Build baseline to Android and capture every primary state.
-13. PixelSmith and independent reviewers compare against fresh source references.
+1. The source-derived screen inventory is complete.
+2. Every visible raster binding in both lanes has an approved source path and matching SHA-256.
+3. No visible binding resolves to a generated, generic, substituted, unknown, or unconsumed asset.
+4. Saga tile bindings match current source consumers exactly.
+5. Heart/life bindings match current source consumers exactly.
+6. Both projects reopen with exact bindings and saved edits intact.
+7. Preview revision equals saved editor revision.
+8. Android build provenance equals the reviewed saved revision.
+9. Every primary state has source, GrapesJS, and Phaser device captures.
+10. PixelSmith and independent review contain zero unresolved P1/P2.
+11. The inventory's full source commit and consumer-file digests equal the reviewed checkout.
+12. Every semantic role passes an exact role-to-asset/frame/font/primitive compatibility map; curated-set membership alone does not pass.
+13. Inventory-to-editor coverage is closed-world with explicit repeat counts; no required visible element is missing and no visible object is unowned.
+14. Fallback-only, imported-unused, or provenance-only assets are ineligible as active baseline bindings or replacement choices.
+15. Both manifests validate `game: marble_run`, canonical source roots, and the absence of other-game, generic, generated, remote, or unproven origins.
 
-### Repository checks
+### Required HITL checks in each editor
 
-Run narrow applicable workspace checks, plus repo-wide gates when touched scope warrants them:
-
-```sh
-npm run typecheck --workspace=<workspace>
-npm run test:unit --workspace=<workspace>
-npm run lint --workspace=<workspace>
-npm run audit
-npm run land-gate
-```
-
-Use `tools/verify-device` in strict live-device mode for mobile claims. Browser/Playwright may diagnose editor/Portal behavior but cannot close mobile fidelity. Discover and record actual Phaser/Grapes/Portal commands in U0 rather than inventing them here.
-
-### Severity
-
-- **P1 blocker:** wrong/missing primary screen, wrong/regenerated asset, invalid editor frontend, save loss, stale/misrepresented Preview, major safe-area/scale/hierarchy error, hidden runtime patch, or no device proof.
-- **P2 material:** visible wrong geometry, typography, color, copy, alignment, missing affordance, broken grouping/selectability, or broken required edit.
-- **P3 residual:** small AA/shadow/sub-two-pixel difference with otherwise correct identity and geometry; document and stop iterating when diminishing returns are clear.
-
-### Independent review
-
-The implementer is not sole approver. Use at least one independent source/asset reviewer, one editor-usability/persistence reviewer, PixelSmith for comparison, and conductor inspection of live captures. Batu owns final product judgment.
+1. Select saga tile/node, hearts/lives, coin counter, primary CTA, and modal content through canvas and hierarchy.
+2. Move/resize one HUD element.
+3. Edit copy and a supported color with immediate feedback.
+4. Hide/show and reorder an element.
+5. Replace an image only from the approved exact Marble asset set and verify its hash.
+6. Duplicate an element and verify independent stable identity.
+7. Save, close, reopen, and confirm persistence.
+8. Open revision-matched Preview.
+9. Reset to the protected exact baseline.
+10. Propagate a saved Batu edit to the phone through the agent-mediated path.
 
 ## Definition of Done
 
-- [ ] Only FabrikaV2 was used; no new FabrikaV1 work.
-- [ ] Marble has complete real GrapesJS and licensed Phaser Editor projects.
-- [ ] Marble primary UI is fully inventoried and mapped with exact assets.
-- [ ] Both Marble projects pass editability, semantic granularity, save/reopen/reset, and Preview checks.
-- [ ] Both Marble outputs have current live Android proof and no P1/P2 fidelity issue.
-- [ ] Durable Marble Gate PASS exists before any FTD implementation.
-- [ ] FTD reaches the same standard in both editors, or exact partial state is reported without weakening Marble.
-- [ ] Portal exposes every claimed-ready editor, Preview, reference, reset path, evidence, and propagation request securely.
-- [ ] At least one honest editor-revision-to-device propagation is proven, preferably from a Batu edit, or the exact unsupported seam is documented.
-- [ ] Batu can conduct freeform comparison without terminal help.
-- [ ] Evidence supports a recommendation for one future presentation authority.
-- [ ] TWF cards/worktrees, agent ledger, handoffs, and landing SHAs are reconciled.
-- [ ] Abandoned code introduced during the goal is removed or isolated; no secret, generated build output, unexplained dirt, or fake proof is committed.
+- [ ] Only Marble Run in FabrikaV2 was worked.
+- [ ] GrapesJS saga tiles are the exact current-source assets/frames.
+- [ ] Phaser hearts/lives are the exact current-source asset/construction, not approximations.
+- [ ] Every visible element in both lanes has deterministic source provenance.
+- [ ] Both lanes contain the complete source-derived primary UI state set.
+- [ ] Both lanes use real native authoring authority and support required edits.
+- [ ] Save/reopen/reset and revision previews are proven.
+- [ ] Source, GrapesJS, and Phaser have complete revision-bound physical-device captures.
+- [ ] PixelSmith and independent reviewers report no unresolved P1/P2.
+- [ ] Portal exposes a Marble-only test hub without terminal setup.
+- [ ] Batu can make edits in both editors and see supported saved revisions propagated to the phone.
+- [ ] A Marble-only comparative recommendation is delivered.
+- [ ] No FTD work was started or prepared under this goal.
 
-### Deadline handoff at 09:00
+## Mandatory First Reads and End Order
 
-1. Expose the complete Marble pair if passed.
-2. Expose FTD only to the degree genuinely ready, with exact missing items.
-3. Keep services alive and Portal links tested.
-4. Give a concise test sequence and reset path.
-5. State which claims have current live-device evidence.
-6. Do not spend the final window on P3 pixels while a screen, persistence, Preview, Portal, or required edit is missing.
+Before implementation, read this file in full, then root and nearest `AGENTS.md`, live TWF orientation/board/worktrees, the current Marble source and all actual asset consumers, existing Marble editor authorities/publications/evidence, Portal routing, PixelSmith workflow, and live device paths. Trust current source and live board state over stale handoffs.
 
-### Required final handoff contents
+Execute in this order:
 
-- Portal URLs for editors and Previews;
-- exact project/baseline paths;
-- integration/main SHAs and landed cards;
-- screen/capability matrix for all four intended projects;
-- live-device evidence and provenance;
-- reset instructions and phone propagation instruction;
-- unresolved P1/P2/P3 issues separated;
-- per-agent ledger summary;
-- honest unfinished/unverified list;
-- first action Batu should take when testing.
-
-## Appendix
-
-### Mandatory first reads for any executor
-
-Before implementation, read **this file in full**, then inspect:
-
-1. root and nearest `AGENTS.md`;
-2. live `twf orient`, board/cards, worktrees, and `origin/main`;
-3. `games/marble_run/**` source, refs, evidence, manifests, and actual shared consumers;
-4. after Marble Gate only, `games/find_the_dog/**` equivalents;
-5. existing GrapesJS/Phaser branches and artifacts, distinguishing native projects from generic/custom prototypes;
-6. `/Users/base/dev/appletolye/phasers` for Phaser Editor/license/project context;
-7. Portal secure routing conventions;
-8. `tools/verify-device`, device registry, Ubuntu SSH/ADB, and current iPhone state;
-9. relevant project-local visual/device skills and PixelSmith workflow;
-10. prior handoffs only after checking them against live state.
-
-If this file conflicts with live board state about ownership/landing, trust the board and report it. If old handoffs conflict with current behavior, trust current source and device evidence. If a shortcut conflicts with this Product Contract, stop and raise it rather than silently changing the goal.
-
-### End steps in strict order
-
-1. Orient TWF; establish clean card worktrees and agent ledger.
-2. Prove actual GrapesJS, licensed Phaser Editor, Portal, and Android paths.
-3. Inventory Marble source, primary screens, exact assets, and semantic elements.
-4. Capture fresh current Marble references on device after delayed UI loads.
-5. Build complete Marble Grapes pages with exact assets and editing.
-6. Build complete Marble native Phaser Editor scenes likewise.
-7. Verify save/reopen, baseline/reset, and revision-stamped Preview in both.
-8. Run completeness and exact-asset checks.
-9. Build both baselines to Android and capture every primary state.
-10. Run PixelSmith and independent reviews; repair P1/P2 defects across the screen set.
-11. Record Marble Gate PASS; otherwise continue Marble and do not start FTD.
-12. Inventory and freshly capture FTD.
-13. Build FTD in GrapesJS and Phaser Editor.
-14. Run FTD persistence, Preview, device, PixelSmith, and independent-review gate.
-15. Publish/test Portal links, evidence, reset instructions, and honest status by 09:00.
-16. After mappings are secure, propagate a Batu-authored edit to Android; try iPhone opportunistically.
-17. Observe Batu's freeform evaluation without steering toward a predetermined winner.
-18. Recommend one future authority and what to keep, change, or retire.
+1. Reorient TWF and freeze scope to Marble only.
+2. Build the exact source consumer and asset-hash inventory.
+3. Audit both current lanes against that inventory.
+4. Fix GrapesJS saga tiles and all other asset-identity failures.
+5. Fix Phaser hearts and all other asset-identity failures.
+6. Complete and converge all primary states across both lanes.
+7. Verify editor operations, save/reopen/reset, and revision previews.
+8. Build revision-bound source/Grapes/Phaser Android tours.
+9. Capture all states, run PixelSmith and independent review, and repair all P1/P2.
+10. Publish the Marble-only Portal hub.
+11. Run Batu's freeform edit-to-phone evaluation in both lanes.
+12. Deliver the Marble-only recommendation and stop.
