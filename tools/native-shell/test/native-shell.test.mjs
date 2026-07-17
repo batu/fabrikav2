@@ -115,7 +115,12 @@ describe('native shell transforms', () => {
     const rendered = renderPackageSwift(manifest());
     expect(rendered).toContain('// swift-tools-version: 6.1');
     expect(rendered).toContain('platforms: [.iOS(.v15)]');
-    expect(rendered).toContain('exact: "8.4.1"');
+    expect(rendered).toContain('.package(url: "https://github.com/ionic-team/capacitor-swift-pm.git", exact: "8.4.1")');
+    expect(rendered).toContain('.package(name: "AppLovinSDK", url: "https://example.invalid/applovin.git", from: "13.6.2")');
+    // the exact: overload has no name label in Swift 6.1 — only exact-pinned
+    // packages must drop it (from:-pinned keep name so product refs resolve)
+    expect(rendered).not.toMatch(/\.package\(name: [^,]+, url: [^,]+, exact:/);
+    expect(rendered).toContain('.package(name: "CapacitorApp", path: "../../../../../node_modules/@capacitor/app")');
     expect(rendered).toContain('traits: ["AnalyticsWithoutAdIdSupport"]');
     expect(rendered).not.toContain('Admob');
     expect(renderPackageSwift(manifest())).toBe(rendered);

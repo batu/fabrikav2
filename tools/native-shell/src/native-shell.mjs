@@ -308,7 +308,12 @@ export function patchInfoPlist(content, manifest, skAdIds) {
 export function renderPackageSwift(manifest) {
   const dependencies = [
     ...manifest.ios.remotePackages.map((pkg) =>
-      `        .package(name: "${pkg.name}", url: "${pkg.url}", ${pkg.requirement}: "${pkg.version}")`),
+      // Swift 6.1 SPM: the name: label is only valid with from:/branch:/revision:
+      // requirements (v1-proven: AppLovin/Adjust/UMP need it so .product(package:)
+      // refs resolve); the exact: overload has no name variant (capacitor pin).
+      pkg.requirement === 'exact'
+        ? `        .package(url: "${pkg.url}", exact: "${pkg.version}")`
+        : `        .package(name: "${pkg.name}", url: "${pkg.url}", ${pkg.requirement}: "${pkg.version}")`),
     ...manifest.ios.localPackages.map((pkg) => {
       const traits = pkg.traits?.length ? `, traits: [${pkg.traits.map((trait) => `"${trait}"`).join(', ')}]` : '';
       return `        .package(name: "${pkg.name}", path: "${pkg.path}"${traits})`;
