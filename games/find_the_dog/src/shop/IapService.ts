@@ -8,6 +8,7 @@ import {
   type IapRestoreResult,
   type IapServiceState,
   type PurchaseTransaction,
+  type PurchaseProvider,
   type StoreProduct,
 } from '@fabrikav2/sdk/iap';
 import { buildShopCatalog, type ShopCatalogProduct } from './ProductCatalog';
@@ -62,7 +63,14 @@ interface FtdIapGrant {
 
 const SANDBOX_API_KEY = 'test_find_the_dog_sandbox';
 
-function catalogProduct(product: ShopCatalogProduct, tier: number): CatalogProduct<FtdIapGrant> {
+export interface FindTheDogIapComposition {
+  readonly isNativePlatform: () => boolean;
+  readonly platform: () => 'android' | 'ios' | 'web';
+  readonly apiKey: () => string | null;
+  readonly provider: () => PurchaseProvider | Promise<PurchaseProvider>;
+}
+
+export function ftdCatalogProduct(product: ShopCatalogProduct, tier: number): CatalogProduct<FtdIapGrant> {
   return {
     id: product.id,
     productId: product.productId,
@@ -78,7 +86,7 @@ function catalogProduct(product: ShopCatalogProduct, tier: number): CatalogProdu
   };
 }
 
-function defaultStoreProduct(product: ShopCatalogProduct): StoreProduct {
+export function ftdDefaultStoreProduct(product: ShopCatalogProduct): StoreProduct {
   return {
     productId: product.productId,
     title: product.title,
@@ -108,8 +116,26 @@ function toPurchaseTransaction(result: IapPurchaseResult): PurchaseTransaction {
 
 export class FindTheDogIapService {
   private readonly fakeProvider = new FakePurchaseProvider();
-  private service = this.createSdkService();
+  private composition: FindTheDogIapComposition;
+  private service: SdkIapService<FtdIapGrant>;
   private initPromise: Promise<void> | null = null;
+  private usesInternalFakeProvider = true;
+
+  constructor(composition?: FindTheDogIapComposition) {
+    this.composition = composition ?? this.fakeComposition();
+    this.service = this.createSdkService();
+  }
+
+  /** Install the root-selected provider before init. Existing callers keep the
+   * singleton import while provider ownership stays in SdkContext. */
+  configureComposition(composition: FindTheDogIapComposition): void {
+    if (this.initPromise !== null) {
+      throw new Error('IAP composition must be configured before init');
+    }
+    this.composition = composition;
+    this.usesInternalFakeProvider = false;
+    this.service = this.createSdkService();
+  }
 
   get initPromiseValue(): Promise<void> | null {
     return this.initPromise;
@@ -117,7 +143,7 @@ export class FindTheDogIapService {
 
   init(): void {
     if (this.initPromise === null) {
-      this.configureFakeProducts();
+      if (this.usesInternalFakeProvider) this.configureFakeProducts();
       this.initPromise = this.service.init();
     }
   }
@@ -141,6 +167,11 @@ export class FindTheDogIapService {
         : undefined,
       hangRestore: state.pendingRestore,
     });
+    if (this.initPromise === null) {
+      this.composition = this.fakeComposition();
+      this.usesInternalFakeProvider = true;
+      this.service = this.createSdkService();
+    }
     if (this.initPromise === null) this.init();
   }
 
@@ -169,11 +200,11 @@ export class FindTheDogIapService {
 
   private createSdkService(): SdkIapService<FtdIapGrant> {
     return new SdkIapService<FtdIapGrant>({
-      isNativePlatform: () => true,
-      platform: () => 'ios',
-      apiKey: () => SANDBOX_API_KEY,
-      catalogProducts: () => buildShopCatalog().products.map(catalogProduct),
-      provider: () => this.fakeProvider,
+      isNativePlatform: this.composition.isNativePlatform,
+      platform: this.composition.platform,
+      apiKey: this.composition.apiKey,
+      catalogProducts: () => buildShopCatalog().products.map(ftdCatalogProduct),
+      provider: this.composition.provider,
       operationTimeoutMs: () => 15_000,
       purchaseTimeoutMs: () => 60_000,
       onEvent: (event) => {
@@ -186,8 +217,17 @@ export class FindTheDogIapService {
     });
   }
 
+  private fakeComposition(): FindTheDogIapComposition {
+    return {
+      isNativePlatform: () => true,
+      platform: () => 'ios',
+      apiKey: () => SANDBOX_API_KEY,
+      provider: () => this.fakeProvider,
+    };
+  }
+
   private defaultStoreProducts(): StoreProduct[] {
-    return buildShopCatalog().products.map(defaultStoreProduct);
+    return buildShopCatalog().products.map(ftdDefaultStoreProduct);
   }
 
   private configureFakeProducts(): void {

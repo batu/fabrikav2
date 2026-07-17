@@ -1,65 +1,56 @@
+import {
+  AttributionService as SdkAttributionService,
+  createAttributionProvider,
+  type AttributionServiceOptions,
+} from '@fabrikav2/sdk/attribution';
 import { Capacitor } from '@capacitor/core';
-import { AdjustAttributionProvider } from './AdjustAttributionProvider';
 import { readAdjustIosConfig, type AdjustConfigResult } from './AdjustConfig';
-import type { AttributionEventName, AttributionParams, AttributionProvider } from './AttributionProvider';
-import { DisabledAttributionProvider } from './DisabledAttributionProvider';
+import type { AttributionParams, AttributionProvider } from './AttributionProvider';
 
 export interface AttributionProviderFactories {
   createAdjustProvider: (config: Extract<AdjustConfigResult, { enabled: true }>['config']) => AttributionProvider;
   createDisabledProvider: (reason: string) => AttributionProvider;
 }
 
-const defaultAttributionProviderFactories: AttributionProviderFactories = {
-  createAdjustProvider: (config): AttributionProvider => new AdjustAttributionProvider(config),
-  createDisabledProvider: (reason: string): AttributionProvider => new DisabledAttributionProvider(reason),
-};
-
-let attributionStartupGate: Promise<void> = Promise.resolve();
-
-export function configureAttributionStartupGate(gate: Promise<void>): void {
-  attributionStartupGate = gate.catch((err: unknown): void => {
-    console.warn('[attribution] startup gate failed; continuing with attribution fallback', err);
-  });
-}
-
-export function resetAttributionStartupGateForTest(): void {
-  attributionStartupGate = Promise.resolve();
-}
-
 export function createFindTheDogAttributionProvider(
   platform: string = Capacitor.getPlatform(),
   adjustConfig: AdjustConfigResult = readAdjustIosConfig(),
-  factories: AttributionProviderFactories = defaultAttributionProviderFactories,
+  factories?: AttributionProviderFactories,
 ): AttributionProvider {
-  if (platform !== 'ios') {
-    return factories.createDisabledProvider(`Adjust disabled on ${platform || 'web'} platform`);
-  }
-
-  if (!adjustConfig.enabled) {
-    return factories.createDisabledProvider(`iOS Adjust unavailable: ${adjustConfig.reason}`);
-  }
-
-  return factories.createAdjustProvider(adjustConfig.config);
+  return createAttributionProvider(platform, adjustConfig, factories) as AttributionProvider;
 }
 
+/** Compatibility delegate retaining FTD's public vocabulary while the package
+ * service owns startup-gate timeout and event dispatch. */
 export class AttributionService {
-  constructor(private readonly provider: AttributionProvider = createFindTheDogAttributionProvider()) {}
+  private delegate: SdkAttributionService;
 
-  async init(): Promise<void> {
-    await attributionStartupGate;
-    return this.provider.init();
+  constructor(
+    provider: AttributionProvider = createFindTheDogAttributionProvider(),
+    options: AttributionServiceOptions = {},
+  ) {
+    this.delegate = new SdkAttributionService(provider, options);
+  }
+
+  install(service: SdkAttributionService): void {
+    this.delegate = service;
+  }
+
+  configureStartupGate(gate: Promise<void>): void {
+    this.delegate.configureStartupGate(gate);
+  }
+
+  init(): Promise<void> {
+    return this.delegate.init();
   }
 
   appOpen(cohortBucket: number | null = null): Promise<void> {
-    const params: AttributionParams = {};
-    if (cohortBucket !== null) {
-      params.cohort_bucket = cohortBucket;
-    }
-    return this.trackAfterStartupGate('appOpen', params);
+    const params: AttributionParams = cohortBucket === null ? {} : { cohort_bucket: cohortBucket };
+    return this.delegate.appOpen(params);
   }
 
   levelStart(params: { level_id: string; level_name: string }): Promise<void> {
-    return this.trackAfterStartupGate('levelStart', params);
+    return this.delegate.levelStart(params);
   }
 
   levelComplete(params: {
@@ -68,21 +59,28 @@ export class AttributionService {
     hints_used: number;
     wrong_taps: number;
   }): Promise<void> {
-    return this.trackAfterStartupGate('levelComplete', params);
+    return this.delegate.levelComplete(params);
   }
 
   levelFailed(params: { level_id: string; dogs_found: number }): Promise<void> {
-    return this.trackAfterStartupGate('levelFailed', params);
+    return this.delegate.levelFailed(params);
   }
 
   rewardedWatched(params: { placement: string }): Promise<void> {
-    return this.trackAfterStartupGate('rewardedWatched', params);
-  }
-
-  private async trackAfterStartupGate(eventName: AttributionEventName, params: AttributionParams): Promise<void> {
-    await attributionStartupGate;
-    return this.provider.track(eventName, params);
+    return this.delegate.rewardedWatched(params);
   }
 }
 
 export const attribution = new AttributionService();
+
+export function configureAttributionService(service: SdkAttributionService): void {
+  attribution.install(service);
+}
+
+export function configureAttributionStartupGate(gate: Promise<void>): void {
+  attribution.configureStartupGate(gate);
+}
+
+export function resetAttributionStartupGateForTest(): void {
+  attribution.configureStartupGate(Promise.resolve());
+}

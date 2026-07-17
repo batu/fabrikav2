@@ -2,12 +2,71 @@ import { setMusicPausedForAd } from '../audio/AudioManager';
 import type { AdProvider } from './AdProvider';
 import { DisabledAdProvider } from './DisabledAdProvider';
 
+type ComposedAdProvider = Omit<AdProvider, 'enabled'> & { readonly enabled?: boolean };
+
 export interface RewardedAdResultForTest {
   granted: boolean;
   delayMs?: number;
 }
 
-export const adService: AdProvider = new DisabledAdProvider('v2 port uses package SDK ad seam; native providers require device-stage wiring');
+class CompatibleAdProvider implements AdProvider {
+  private delegate: ComposedAdProvider = new DisabledAdProvider('SdkContext has not installed an ad provider');
+  private bannerVisible = false;
+
+  get providerName(): string {
+    return this.delegate.providerName;
+  }
+
+  get enabled(): boolean {
+    return this.delegate.enabled ?? this.delegate.providerName !== 'disabled';
+  }
+
+  install(provider: ComposedAdProvider): void {
+    this.delegate = provider;
+    this.bannerVisible = false;
+  }
+
+  init(): Promise<void> {
+    return this.delegate.init();
+  }
+
+  preloadInterstitial(): Promise<void> {
+    return this.delegate.preloadInterstitial();
+  }
+
+  maybeShowInterstitial(options?: Parameters<AdProvider['maybeShowInterstitial']>[0]): Promise<boolean> {
+    return this.delegate.maybeShowInterstitial(options);
+  }
+
+  async showBanner(): Promise<boolean> {
+    if (this.bannerVisible) return true;
+    this.bannerVisible = await this.delegate.showBanner();
+    return this.bannerVisible;
+  }
+
+  async hideBanner(): Promise<void> {
+    await this.delegate.hideBanner();
+    this.bannerVisible = false;
+  }
+
+  preloadRewarded(): Promise<void> {
+    return this.delegate.preloadRewarded();
+  }
+
+  showRewardedAd(): Promise<{ granted: boolean }> {
+    return this.delegate.showRewardedAd();
+  }
+
+  showPrivacyOptions(): Promise<boolean> {
+    return this.delegate.showPrivacyOptions?.() ?? Promise.resolve(false);
+  }
+}
+
+export const adService = new CompatibleAdProvider();
+
+export function configureAdService(provider: ComposedAdProvider): void {
+  adService.install(provider);
+}
 
 let rewardedAdResultForTest: RewardedAdResultForTest | null = null;
 

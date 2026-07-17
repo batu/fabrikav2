@@ -37,15 +37,14 @@ export function readOwnedAnalyticsMirrorConfigFromImportMetaEnv(): OwnedAnalytic
 }
 
 export function readOwnedAnalyticsMirrorConfig(env: ViteEnv): OwnedAnalyticsMirrorConfigResult {
-  const enabled = envFlag(env.VITE_FTD_OWNED_ANALYTICS_MIRROR_ENABLED);
   const endpointUrl = envString(env.VITE_FTD_OWNED_ANALYTICS_MIRROR_URL);
   const publicClientKey = envString(env.VITE_FTD_OWNED_ANALYTICS_MIRROR_PUBLIC_CLIENT_KEY);
   const missingKeys: string[] = [];
   const invalidKeys: string[] = [];
 
-  if (!enabled) {
+  if (endpointUrl === null && publicClientKey === null) {
     return {
-      config: disabledConfig('VITE_FTD_OWNED_ANALYTICS_MIRROR_ENABLED is not true'),
+      config: disabledConfig('owned analytics mirror URL and public client key are absent'),
       missingKeys,
       invalidKeys,
     };
@@ -118,10 +117,6 @@ function envString(value: string | boolean | undefined): string | null {
   if (typeof value !== 'string') return null;
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : null;
-}
-
-function envFlag(value: string | boolean | undefined): boolean {
-  return value === true || (typeof value === 'string' && value.trim().toLowerCase() === 'true');
 }
 
 function envPositiveInt(value: string | boolean | undefined, fallback: number): number {

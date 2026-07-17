@@ -18,6 +18,7 @@ const mockedModules = [
   "../../src/platform/portraitOrientation",
   "../../src/platform/gameLifecycle",
   "../../src/audio/AudioManager",
+  "../../src/sdk/SdkContext",
   "../../src/ui/iconPreload",
   "../../src/testing/TestHarness",
   "../../src/audio/AmbientManager",
@@ -114,6 +115,7 @@ describe("find_the_dog bootstrap insitu tour wiring", () => {
       installAudioUnlock: vi.fn(),
       installButtonVoiceEffects: vi.fn(),
     }));
+    vi.doMock("../../src/sdk/SdkContext", () => ({ getSdkContext: vi.fn() }));
     vi.doMock("../../src/ui/iconPreload", () => ({ preloadIcons: vi.fn() }));
     vi.doMock("../../src/testing/TestHarness", () => ({
       createFindTheDogHarness,

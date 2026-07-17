@@ -15,11 +15,16 @@ import { buildFullShopCatalog } from './shop/ProductCatalog';
 import { installPortraitOrientationLock } from './platform/portraitOrientation';
 import { installGameLifecycle } from './platform/gameLifecycle';
 import { installAudioUnlock, installButtonVoiceEffects } from './audio/AudioManager';
+import { getSdkContext } from './sdk/SdkContext';
 import { preloadIcons } from './ui/iconPreload';
 import '@fabrikav2/ui/ui.css';
 import '../design/tokens.css';
 import './v1core/ui/ui.css';
 import './ui/styles.css';
+
+// One production composition root installs every provider before any service
+// init or game-facing call can observe it.
+getSdkContext();
 
 installPortraitOrientationLock();
 installAudioUnlock();

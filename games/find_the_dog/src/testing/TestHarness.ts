@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import type { AnalyticsEvent } from '@fabrikav2/sdk/analytics';
 import { driveInputAt, type ClientPoint, type GameHarness, type HarnessSaveProfile } from '@fabrikav2/testkit/harness';
 import { gameState, type CompletionTransaction, type GameSettings, type WalletSnapshot } from '../core/GameState';
 import { GAMEPLAY, TIMING } from '../core/Constants';
@@ -12,6 +13,7 @@ import { setRewardedAdResultForTest, type RewardedAdResultForTest } from '../ads
 import { isGameSuspended, setLifecycleForTest } from '../platform/gameLifecycle';
 import { initHUD, openPage } from '../ui/HUD';
 import { setFailOverlayPendingRecoveryMsForTest } from '../ui/LevelFailedOverlay';
+import { getSdkContext } from '../sdk/SdkContext';
 import {
   driveTo,
   isDriveState,
@@ -244,6 +246,7 @@ export interface FindTheDogHarness extends GameHarness<FindTheDogVerb> {
   setRemoteConfigValuesForTest(values: Parameters<typeof remoteConfigService.setValuesForTest>[0]): void;
   setRewardedAdResultForTest(result: RewardedAdResultForTest | null): void;
   setLifecycleForTest(state: 'active' | 'inactive'): void;
+  drainEvents(): AnalyticsEvent[];
   setFailOverlayPendingRecoveryMsForTest(ms: number | null): void;
   enableMicroAnimationsForTest(): void;
   /**
@@ -728,6 +731,10 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
 
     setLifecycleForTest(state: 'active' | 'inactive'): void {
       setLifecycleForTest(state);
+    },
+
+    drainEvents() {
+      return getSdkContext().analyticsRing.drain();
     },
 
     setFailOverlayPendingRecoveryMsForTest(ms: number | null): void {

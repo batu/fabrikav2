@@ -1,3 +1,10 @@
+import {
+  booleanField,
+  numberField,
+  stringField,
+  type ConfigFieldDefinition,
+} from '@fabrikav2/services/remote-config';
+
 export type RemoteConfigValueType = 'boolean' | 'number' | 'string';
 export type RemoteConfigPrimitive = boolean | number | string;
 
@@ -212,6 +219,46 @@ export const REMOTE_CONFIG_DEFINITIONS_BY_KEY: {
 export const REMOTE_CONFIG_DEFINITIONS: readonly RemoteConfigDefinition[] = Object.values(
   REMOTE_CONFIG_DEFINITIONS_BY_KEY,
 );
+
+export type FtdRemoteConfigSchema = {
+  readonly [TKey in RemoteConfigValueKey]: ConfigFieldDefinition<RemoteConfigValues[TKey]>;
+};
+
+function validRemoteNumber(value: number): boolean {
+  return Number.isSafeInteger(value) && value >= 0;
+}
+
+function validRemoteString(value: string): boolean {
+  return value.trim().length > 0;
+}
+
+function sharedFieldFor(
+  definition: RemoteConfigDefinition,
+): ConfigFieldDefinition {
+  const options = {
+    remoteKey: definition.remoteKey,
+    description: definition.description,
+  };
+  const defaultValue = REMOTE_CONFIG_DEFAULTS[definition.key];
+  if (definition.type === 'boolean') {
+    return booleanField(defaultValue as boolean, options);
+  }
+  if (definition.type === 'number') {
+    return numberField(defaultValue as number, {
+      ...options,
+      validate: validRemoteNumber,
+    });
+  }
+  return stringField(defaultValue as string, {
+    ...options,
+    validate: validRemoteString,
+  });
+}
+
+/** The game-owned schema consumed by @fabrikav2/services/remote-config. */
+export const ftdRemoteConfigSchema = Object.fromEntries(
+  REMOTE_CONFIG_DEFINITIONS.map((definition) => [definition.key, sharedFieldFor(definition)]),
+) as FtdRemoteConfigSchema;
 
 export function mapRemoteConfigValues(
   read: <TKey extends RemoteConfigValueKey>(key: TKey) => RemoteConfigValues[TKey],

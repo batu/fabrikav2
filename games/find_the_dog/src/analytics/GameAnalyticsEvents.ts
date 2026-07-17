@@ -119,6 +119,26 @@ export function adEvent(
   };
 }
 
+/** Exact GameAnalytics design identifiers for canonical FTD envelopes. Dynamic
+ * segments stay in the existing mapper layer instead of a second sink-local
+ * naming convention. */
+export function gameAnalyticsDesignEventId(
+  eventName: string,
+  fields: GameAnalyticsCustomFields,
+): string {
+  if (eventName === 'app_open') return 'app:open';
+  if (eventName === 'app_background') return 'app:background';
+  if (eventName === 'app_foreground') return 'app:foreground';
+  if (eventName === 'dog_found') return 'dog:found';
+  if (eventName === 'hint_used') return 'hint:used';
+  if (eventName === 'product_tapped') return 'store:product_tap';
+  if (eventName === 'purchase_sheet_shown') return 'purchase:sheet_shown';
+  if (eventName === 'iap_state_changed') return 'iap:state_changed';
+  if (eventName === 'ad_revenue_paid') return 'ad:revenue';
+  if (eventName === 'settings_changed') return `settings:${String(fields.setting_name ?? 'unknown')}`;
+  return eventName.replace(/_/g, ':');
+}
+
 function eventPath(value: string): string {
   return value
     .split(':')

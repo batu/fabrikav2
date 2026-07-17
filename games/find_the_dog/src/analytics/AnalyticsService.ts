@@ -10,7 +10,7 @@ import { adService } from '../ads/Service';
 import type { PurchaseUnfulfilledOutcome } from '../shop/PurchaseFulfillment';
 import type { AnalyticsLevelAttribution } from './AnalyticsEventContract';
 
-type FtdEvent =
+export type FtdEvent =
   | 'app_open'
   | 'app_background'
   | 'app_foreground'
@@ -162,7 +162,7 @@ export interface OwnedAnalyticsMirrorStats {
   disabledReason: string | null;
 }
 
-function sessionId(): string {
+export function createFtdSessionId(): string {
   return crypto.randomUUID?.() ?? `ftd-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
@@ -181,29 +181,49 @@ function levelIndex(params: LevelAttributionParams): number | undefined {
   return params.sequence_slot === undefined ? undefined : params.sequence_slot - 1;
 }
 
-function providerName(): string {
-  return adService.providerName;
-}
-
 /** Build provenance for every event — the v2 analog of GA's configureBuild().
  * `<version>+<sha>` (with a `-dirty` marker) makes any bundle traceable to its
  * commit; the shipped 1.0.2 drifted-worktree bundle was not. */
-function buildStamp(): string | null {
+export function buildStamp(): string | null {
   if (typeof __BUILD_INFO__ === 'undefined' || __BUILD_INFO__ === undefined) return null;
   return `${__BUILD_INFO__.version}+${__BUILD_INFO__.sha}${__BUILD_INFO__.dirty ? '-dirty' : ''}`;
 }
 
-class AnalyticsService {
-  private readonly sdk: Analytics<FtdEvent>;
+export interface AnalyticsServiceComposition {
+  readonly sdk: Analytics<FtdEvent>;
+  readonly attribution?: typeof attribution;
+  readonly providerName?: () => string;
+  readonly ownedMirrorStats?: () => OwnedAnalyticsMirrorStats;
+}
+
+export class AnalyticsService {
+  private sdk: Analytics<FtdEvent>;
+  private attributionPort: typeof attribution = attribution;
+  private providerNamePort: () => string = () => adService.providerName;
+  private ownedMirrorStatsPort: () => OwnedAnalyticsMirrorStats = () => ({
+    queued: 0,
+    dropped: 0,
+    sent: 0,
+    failed: 0,
+    disabledReason: 'sdk-console-sink-only',
+  });
   private cohortBucket: number | null = null;
 
-  constructor() {
-    this.sdk = createAnalytics<FtdEvent>({
+  constructor(composition?: AnalyticsServiceComposition) {
+    this.sdk = composition?.sdk ?? createAnalytics<FtdEvent>({
       env: import.meta.env.PROD ? 'production' : 'development',
-      sessionId: sessionId(),
+      sessionId: createFtdSessionId(),
       sinks: import.meta.env.DEV ? [createConsoleSink()] : [],
       globalParams: { game: 'find_the_dog', build: buildStamp() },
     });
+    if (composition !== undefined) this.configureComposition(composition);
+  }
+
+  configureComposition(composition: AnalyticsServiceComposition): void {
+    this.sdk = composition.sdk;
+    this.attributionPort = composition.attribution ?? attribution;
+    this.providerNamePort = composition.providerName ?? (() => adService.providerName);
+    this.ownedMirrorStatsPort = composition.ownedMirrorStats ?? this.ownedMirrorStatsPort;
   }
 
   async init(): Promise<void> {
@@ -230,17 +250,17 @@ class AnalyticsService {
   }
 
   ownedMirrorStats(): OwnedAnalyticsMirrorStats {
-    return { queued: 0, dropped: 0, sent: 0, failed: 0, disabledReason: 'sdk-console-sink-only' };
+    return this.ownedMirrorStatsPort();
   }
 
   appOpen(): Promise<void> {
-    void attribution.appOpen(this.cohortBucket);
+    void this.attributionPort.appOpen(this.cohortBucket);
     this.sdk.track('app_open', compactParams({ cohort_bucket: this.cohortBucket }));
     return Promise.resolve();
   }
 
   levelStart(params: LevelStartParams): Promise<void> {
-    void attribution.levelStart({ level_id: params.level_id, level_name: params.level_name });
+    void this.attributionPort.levelStart({ level_id: params.level_id, level_name: params.level_name });
     this.sdk.levelStart({
       level_id: params.level_id,
       level_index: levelIndex(params),
@@ -249,7 +269,7 @@ class AnalyticsService {
   }
 
   levelComplete(params: LevelCompleteParams): Promise<void> {
-    void attribution.levelComplete({
+    void this.attributionPort.levelComplete({
       level_id: params.level_id,
       time_seconds: params.time_seconds,
       hints_used: params.hints_used,
@@ -264,7 +284,7 @@ class AnalyticsService {
   }
 
   levelFailed(params: LevelFailedParams): Promise<void> {
-    void attribution.levelFailed({ level_id: params.level_id, dogs_found: params.dogs_found });
+    void this.attributionPort.levelFailed({ level_id: params.level_id, dogs_found: params.dogs_found });
     this.sdk.levelFail({
       level_id: params.level_id,
       level_index: levelIndex(params),
@@ -298,7 +318,7 @@ class AnalyticsService {
     this.sdk.adImpression({
       ad_format: params.ad_type === 'interstitial' ? 'interstitial' : 'banner',
       placement: params.placement,
-      provider: providerName(),
+      provider: this.providerNamePort(),
     });
     this.sdk.track('ad_shown', compactParams(params));
     return Promise.resolve();
@@ -376,7 +396,7 @@ class AnalyticsService {
     this.sdk.adReward({
       ad_format: 'rewarded',
       placement: params.placement,
-      provider: providerName(),
+      provider: this.providerNamePort(),
       reward_type: params.placement,
     });
     this.sdk.track('rewarded_ad_granted', compactParams(params));

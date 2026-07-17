@@ -1,70 +1,123 @@
 import {
+  createRemoteConfigService,
+  type RemoteConfigProvider,
+  type RemoteConfigService as SharedRemoteConfigService,
+} from '@fabrikav2/services/remote-config';
+import {
   REMOTE_CONFIG_DEFAULTS,
+  ftdRemoteConfigSchema,
+  mapRemoteConfigSources,
   mapRemoteConfigValues,
+  type FtdRemoteConfigSchema,
   type RemoteConfigValues,
   type RemoteConfigValueKey,
 } from './remoteConfigSchema';
 
-export type RemoteConfigServiceState = 'local-only' | 'ready' | 'fetch-failed';
+export type RemoteConfigServiceState = 'local-only' | 'fetching' | 'ready' | 'fetch-failed';
 export type RemoteConfigValueSource = 'default' | 'remote' | 'local';
+export type RemoteConfigFetchStatus = 'unavailable' | 'success' | 'failure';
 
 export interface RemoteConfigSnapshot {
   state: RemoteConfigServiceState;
   defaults: RemoteConfigValues;
   active: RemoteConfigValues;
   sources: Record<RemoteConfigValueKey, RemoteConfigValueSource>;
-  lastFetchStatus: 'unavailable' | 'success' | 'failure';
+  lastFetchStatus: RemoteConfigFetchStatus;
   fetchTimeMillis: number;
   lastErrorMessage: string | null;
 }
 
+export interface RemoteConfigProviderSnapshot {
+  lastFetchStatus: RemoteConfigFetchStatus;
+  fetchTimeMillis: number;
+  lastErrorMessage: string | null;
+}
+
+/** Optional side channel for provider-specific fetch diagnostics. */
+export interface RemoteConfigProviderMetadata {
+  snapshot(): RemoteConfigProviderSnapshot;
+}
+
 function readLocalTestOverrides(): Partial<RemoteConfigValues> {
-  if (typeof window === 'undefined') return {};
+  if (typeof window === 'undefined' || typeof document === 'undefined') return {};
   if (import.meta.env.DEV !== true) return {};
-  const raw = window.localStorage.getItem('ftd_remote_config_test_overrides');
+  const storage = window.localStorage;
+  if (storage === undefined) return {};
+  const raw = storage.getItem('ftd_remote_config_test_overrides');
   if (raw === null) return {};
   return JSON.parse(raw) as Partial<RemoteConfigValues>;
 }
 
 export class RemoteConfigService {
-  private state: RemoteConfigServiceState = 'local-only';
-  private testOverrides: Partial<RemoteConfigValues> = readLocalTestOverrides();
-  private lastErrorMessage: string | null = null;
-  private fetchTimeMillis = -1;
+  private readonly shared: SharedRemoteConfigService<FtdRemoteConfigSchema>;
+  private initPromise: Promise<void> | null = null;
+  private testOverrides: Partial<RemoteConfigValues> = {};
+  private localOverridesLoaded = false;
+  private installedService: RemoteConfigService | null = null;
+
+  constructor(
+    provider?: RemoteConfigProvider,
+    private readonly providerMetadata?: RemoteConfigProviderMetadata,
+  ) {
+    this.shared = createRemoteConfigService(ftdRemoteConfigSchema, { provider });
+  }
 
   init(): void {
-    this.state = 'ready';
+    if (this.installedService !== null) {
+      this.installedService.init();
+      return;
+    }
+    if (this.initPromise !== null) return;
+    this.initPromise = this.shared.refresh();
   }
 
-  async initAndWait(): Promise<void> {
+  initAndWait(): Promise<void> {
+    if (this.installedService !== null) return this.installedService.initAndWait();
     this.init();
+    return this.initPromise ?? Promise.resolve();
   }
 
-  async initAndWaitForTest(): Promise<void> {
-    await this.initAndWait();
+  initAndWaitForTest(): Promise<void> {
+    if (this.installedService !== null) return this.installedService.initAndWaitForTest();
+    return this.initAndWait();
   }
 
   value<TKey extends RemoteConfigValueKey>(key: TKey): RemoteConfigValues[TKey] {
+    if (this.installedService !== null) return this.installedService.value(key);
+    this.ensureLocalOverridesLoaded();
     const override = this.testOverrides[key];
     if (override !== undefined) return override as RemoteConfigValues[TKey];
-    return REMOTE_CONFIG_DEFAULTS[key];
+    return this.shared.value(key) as RemoteConfigValues[TKey];
   }
 
   setValuesForTest(values: Partial<RemoteConfigValues>): void {
+    if (this.installedService !== null) {
+      this.installedService.setValuesForTest(values);
+      return;
+    }
+    this.ensureLocalOverridesLoaded();
     this.testOverrides = { ...this.testOverrides, ...values };
-    this.state = 'ready';
   }
 
   snapshot(): RemoteConfigSnapshot {
-    const active = this.activeValues();
+    if (this.installedService !== null) return this.installedService.snapshot();
+    const sharedSnapshot = this.shared.snapshot();
+    const providerSnapshot = this.providerMetadata?.snapshot();
+    const lastFetchStatus = providerSnapshot?.lastFetchStatus
+      ?? (sharedSnapshot.state === 'ready'
+        ? 'success'
+        : sharedSnapshot.state === 'fetch-failed'
+          ? 'failure'
+          : 'unavailable');
+
     return {
-      state: this.state,
+      state: lastFetchStatus === 'failure' ? 'fetch-failed' : sharedSnapshot.state,
       defaults: { ...REMOTE_CONFIG_DEFAULTS },
-      active,
-      sources: this.valueSources(),
-      lastFetchStatus: this.state === 'fetch-failed' ? 'failure' : 'unavailable',
-      fetchTimeMillis: this.fetchTimeMillis,
-      lastErrorMessage: this.lastErrorMessage,
+      active: this.activeValues(),
+      sources: this.valueSources(sharedSnapshot.origins),
+      lastFetchStatus,
+      fetchTimeMillis: providerSnapshot?.fetchTimeMillis ?? sharedSnapshot.lastFetchAtMs ?? -1,
+      lastErrorMessage: providerSnapshot?.lastErrorMessage ?? sharedSnapshot.lastErrorMessage,
     };
   }
 
@@ -72,13 +125,37 @@ export class RemoteConfigService {
     return mapRemoteConfigValues((key) => this.value(key));
   }
 
-  private valueSources(): Record<RemoteConfigValueKey, RemoteConfigValueSource> {
-    const sources = {} as Record<RemoteConfigValueKey, RemoteConfigValueSource>;
-    for (const key of Object.keys(REMOTE_CONFIG_DEFAULTS) as RemoteConfigValueKey[]) {
-      sources[key] = this.testOverrides[key] === undefined ? 'default' : 'remote';
-    }
-    return sources;
+  private ensureLocalOverridesLoaded(): void {
+    if (this.localOverridesLoaded) return;
+    this.localOverridesLoaded = true;
+    this.testOverrides = readLocalTestOverrides();
+  }
+
+  /** Repoint the stable compatibility singleton at the composition-owned service. */
+  install(service: RemoteConfigService): void {
+    if (service === this) return;
+    this.installedService = service;
+  }
+
+  private valueSources(
+    origins: Record<RemoteConfigValueKey, 'default' | 'remote'>,
+  ): Record<RemoteConfigValueKey, RemoteConfigValueSource> {
+    return mapRemoteConfigSources((key) => (
+      this.testOverrides[key] === undefined ? origins[key] : 'local'
+    ));
   }
 }
 
-export const remoteConfigService = new RemoteConfigService();
+export function createFtdRemoteConfigService(
+  provider?: RemoteConfigProvider,
+  metadata?: RemoteConfigProviderMetadata,
+): RemoteConfigService {
+  return new RemoteConfigService(provider, metadata);
+}
+
+/** Web/CI default: no provider means static validated defaults by construction. */
+export const remoteConfigService = createFtdRemoteConfigService();
+
+export function configureRemoteConfigService(service: RemoteConfigService): void {
+  remoteConfigService.install(service);
+}

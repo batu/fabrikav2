@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-// RemoteConfigService touches localStorage at module scope (known landmine —
-// every unit test that transitively imports it mocks it the same way).
+// Keep purchase-funnel coverage focused on analytics; the real remote-config
+// composition and storage guards have dedicated coverage.
 vi.mock('../../src/config/RemoteConfigService', async () => {
   const { REMOTE_CONFIG_DEFAULTS } = await import('../../src/config/remoteConfigSchema');
   return {

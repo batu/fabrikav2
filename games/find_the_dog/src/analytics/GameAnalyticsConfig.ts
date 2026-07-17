@@ -27,14 +27,6 @@ export function readGameAnalyticsIosConfig(
   env: GameAnalyticsEnv,
   isProductionBuild: boolean = false,
 ): GameAnalyticsConfigResult {
-  if (!parseBooleanEnv(env.VITE_GAMEANALYTICS_IOS_ENABLED, false)) {
-    return {
-      enabled: false,
-      reason: 'VITE_GAMEANALYTICS_IOS_ENABLED is not true',
-      missingKeys: [],
-    };
-  }
-
   const values = {
     VITE_GAMEANALYTICS_IOS_GAME_KEY: envString(env.VITE_GAMEANALYTICS_IOS_GAME_KEY),
     VITE_GAMEANALYTICS_IOS_SECRET_KEY: envString(env.VITE_GAMEANALYTICS_IOS_SECRET_KEY),
