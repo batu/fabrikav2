@@ -185,6 +185,14 @@ function providerName(): string {
   return adService.providerName;
 }
 
+/** Build provenance for every event — the v2 analog of GA's configureBuild().
+ * `<version>+<sha>` (with a `-dirty` marker) makes any bundle traceable to its
+ * commit; the shipped 1.0.2 drifted-worktree bundle was not. */
+function buildStamp(): string | null {
+  if (typeof __BUILD_INFO__ === 'undefined' || __BUILD_INFO__ === undefined) return null;
+  return `${__BUILD_INFO__.version}+${__BUILD_INFO__.sha}${__BUILD_INFO__.dirty ? '-dirty' : ''}`;
+}
+
 class AnalyticsService {
   private readonly sdk: Analytics<FtdEvent>;
   private cohortBucket: number | null = null;
@@ -194,7 +202,7 @@ class AnalyticsService {
       env: import.meta.env.PROD ? 'production' : 'development',
       sessionId: sessionId(),
       sinks: import.meta.env.DEV ? [createConsoleSink()] : [],
-      globalParams: { game: 'find_the_dog' },
+      globalParams: { game: 'find_the_dog', build: buildStamp() },
     });
   }
 

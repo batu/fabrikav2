@@ -1,5 +1,10 @@
 /// <reference types="vite/client" />
 
+/** Build provenance stamped by configs/vite.base.ts (undefined under vitest). */
+declare const __BUILD_INFO__:
+  | { sha: string; dirty: boolean; version: string; builtAt: string }
+  | undefined;
+
 interface ImportMetaEnv {
   readonly VITE_ENABLE_TEST_HARNESS?: string;
   readonly VITE_FTD_FORCE_CANVAS?: string;
