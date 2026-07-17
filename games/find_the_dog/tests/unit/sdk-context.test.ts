@@ -60,6 +60,9 @@ describe('FTD SdkContext composition matrix', () => {
         VITE_APPLOVIN_IOS_ENABLED: 'true',
         VITE_APPLOVIN_IOS_GENERAL_AUDIENCE_ONLY: 'true',
         VITE_APPLOVIN_IOS_SDK_KEY: 'public-applovin-sdk-key',
+        VITE_FIREBASE_API_KEY: 'firebase-api-key',
+        VITE_FIREBASE_PROJECT_ID: 'firebase-project-id',
+        VITE_FIREBASE_APP_ID: 'firebase-app-id',
       },
       firebaseAnalyticsLoader: firebase,
       revenueCatLoader: revenuecat,
@@ -87,11 +90,16 @@ describe('FTD SdkContext composition matrix', () => {
     const context = createSdkContext({
       buildEnv: 'development',
       platform: 'ios',
-      isNativePlatform: false,
-      env: {},
+      isNativePlatform: true,
+      env: {
+        VITE_FIREBASE_API_KEY: 'firebase-api-key',
+        VITE_FIREBASE_PROJECT_ID: 'firebase-project-id',
+        VITE_FIREBASE_APP_ID: 'firebase-app-id',
+      },
       firebaseAnalyticsLoader: loader,
     });
 
+    expect(context.selection.analyticsSinks).toContain('firebase');
     context.analytics.track('dog_found', { dog_index: 0, no_ads: false });
     await vi.waitFor(() => expect(logEvent).toHaveBeenCalled());
     expect(loader).toHaveBeenCalledTimes(1);
@@ -99,6 +107,61 @@ describe('FTD SdkContext composition matrix', () => {
       name: 'dog_found',
       params: expect.objectContaining({ dog_index: 0, no_ads: 'false' }),
     }));
+  });
+
+  it('omits the Firebase sink and never touches the plugin when config is absent on native iOS', async () => {
+    const logEvent = vi.fn(async () => undefined);
+    const loader = vi.fn(async () => ({ FirebaseAnalytics: { logEvent } }));
+    const context = createSdkContext({
+      buildEnv: 'development',
+      platform: 'ios',
+      isNativePlatform: true,
+      env: {},
+      firebaseAnalyticsLoader: loader,
+    });
+
+    expect(context.selection.analyticsSinks).not.toContain('firebase');
+    // Even after emitting an event, the gated-out loader must never run — zero
+    // native @capacitor-firebase plugin touches, so no +[FIRApp configure].
+    context.analytics.track('dog_found', { dog_index: 0, no_ads: false });
+    await Promise.resolve();
+    expect(loader).not.toHaveBeenCalled();
+    expect(logEvent).not.toHaveBeenCalled();
+  });
+
+  it('omits the Firebase sink when config is partial (missing APP_ID)', () => {
+    const loader = vi.fn(async () => ({ FirebaseAnalytics: { logEvent: vi.fn() } }));
+    const context = createSdkContext({
+      buildEnv: 'development',
+      platform: 'ios',
+      isNativePlatform: true,
+      env: {
+        VITE_FIREBASE_API_KEY: 'firebase-api-key',
+        VITE_FIREBASE_PROJECT_ID: 'firebase-project-id',
+      },
+      firebaseAnalyticsLoader: loader,
+    });
+
+    expect(context.selection.analyticsSinks).not.toContain('firebase');
+    expect(loader).not.toHaveBeenCalled();
+  });
+
+  it('omits the Firebase sink on non-native iOS even with complete config', () => {
+    const loader = vi.fn(async () => ({ FirebaseAnalytics: { logEvent: vi.fn() } }));
+    const context = createSdkContext({
+      buildEnv: 'development',
+      platform: 'ios',
+      isNativePlatform: false,
+      env: {
+        VITE_FIREBASE_API_KEY: 'firebase-api-key',
+        VITE_FIREBASE_PROJECT_ID: 'firebase-project-id',
+        VITE_FIREBASE_APP_ID: 'firebase-app-id',
+      },
+      firebaseAnalyticsLoader: loader,
+    });
+
+    expect(context.selection.analyticsSinks).not.toContain('firebase');
+    expect(loader).not.toHaveBeenCalled();
   });
 
   it('keeps every game.config analytics id emittable through the root facade', () => {
