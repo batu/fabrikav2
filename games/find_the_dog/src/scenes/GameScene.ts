@@ -2043,8 +2043,20 @@ export class GameScene extends Phaser.Scene {
 
   private async continueWithEgoOffer(option: FailContinueOption, context: FailContinueActionContext): Promise<{ resumed: boolean; message?: string }> {
     if (option.productId === null) return { resumed: false, message: 'Purchase unavailable.' };
+    void analytics.purchaseInitiated({ product_id: option.productId, surface: 'fail_continue' });
     const purchase = await iapService.purchase(option.productId);
     if (purchase.status !== 'purchased') {
+      if (purchase.status === 'cancelled') {
+        void analytics.purchaseCancelled({ product_id: option.productId, surface: 'fail_continue' });
+      } else {
+        void analytics.purchaseFailed({
+          product_id: option.productId,
+          surface: 'fail_continue',
+          reason: purchase.status,
+          failure_kind: purchase.failureKind,
+          error_message: purchase.errorMessage,
+        });
+      }
       return { resumed: false, message: purchase.status === 'cancelled' ? 'Purchase cancelled.' : 'Purchase unavailable.' };
     }
     const fulfillment = fulfillVerifiedPurchaseOnce(purchase, buildShopCatalog().products, gameState);

@@ -1134,6 +1134,8 @@ async function purchaseShopProduct(
 ): Promise<void> {
   if (action.disabled) return;
   playUITap();
+  void analytics.productTapped({ product_id: product.productId });
+  void analytics.purchaseInitiated({ product_id: product.productId, surface: 'shop' });
   action.disabled = true;
   action.textContent = 'Purchasing…';
 
@@ -1144,6 +1146,17 @@ async function purchaseShopProduct(
     const purchase = await purchasePromise;
     if (purchase.status !== 'purchased') {
       action.textContent = purchase.status === 'cancelled' ? 'Cancelled' : 'Unavailable';
+      if (purchase.status === 'cancelled') {
+        void analytics.purchaseCancelled({ product_id: product.productId, surface: 'shop' });
+      } else {
+        void analytics.purchaseFailed({
+          product_id: product.productId,
+          surface: 'shop',
+          reason: purchase.status,
+          failure_kind: purchase.failureKind,
+          error_message: purchase.errorMessage,
+        });
+      }
       return;
     }
 

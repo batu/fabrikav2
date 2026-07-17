@@ -17,8 +17,14 @@ type FtdEvent =
   | 'ad_shown'
   | 'ad_revenue_paid'
   | 'resource_changed'
+  | 'product_tapped'
+  | 'purchase_initiated'
+  | 'purchase_sheet_shown'
+  | 'purchase_cancelled'
+  | 'purchase_failed'
   | 'purchase_fulfilled'
   | 'purchase_unfulfilled'
+  | 'iap_state_changed'
   | 'rewarded_ad_granted';
 
 type LevelAttributionParams = Partial<AnalyticsLevelAttribution>;
@@ -81,6 +87,42 @@ interface ResourceChangedParams {
   level_id?: string;
   transaction_id?: string;
   event_occurrence_id?: string;
+}
+
+/** Which UI surface hosted the purchase attempt. */
+export type PurchaseSurface = 'shop' | 'fail_continue';
+
+interface ProductTappedParams {
+  product_id: string;
+}
+
+interface PurchaseInitiatedParams {
+  product_id: string;
+  surface: PurchaseSurface;
+}
+
+interface PurchaseSheetShownParams {
+  product_id: string;
+}
+
+interface PurchaseCancelledParams {
+  product_id: string;
+  surface: PurchaseSurface;
+}
+
+interface PurchaseFailedParams {
+  product_id: string;
+  surface: PurchaseSurface;
+  /** The IapPurchaseResult status that ended the attempt: 'failed' | 'unavailable'. */
+  reason: string;
+  /** Only for status 'failed': our timeout vs a store rejection. */
+  failure_kind?: string;
+  error_message?: string | null;
+}
+
+interface IapStateChangedParams {
+  state: string;
+  reason?: string | null;
 }
 
 interface PurchaseFulfilledParams {
@@ -243,6 +285,41 @@ class AnalyticsService {
       balance: undefined,
     });
     this.sdk.track('resource_changed', compactParams(params));
+    return Promise.resolve();
+  }
+
+  productTapped(params: ProductTappedParams): Promise<void> {
+    this.sdk.track('product_tapped', compactParams(params));
+    return Promise.resolve();
+  }
+
+  purchaseInitiated(params: PurchaseInitiatedParams): Promise<void> {
+    this.sdk.track('purchase_initiated', compactParams(params));
+    return Promise.resolve();
+  }
+
+  purchaseSheetShown(params: PurchaseSheetShownParams): Promise<void> {
+    this.sdk.track('purchase_sheet_shown', compactParams(params));
+    return Promise.resolve();
+  }
+
+  purchaseCancelled(params: PurchaseCancelledParams): Promise<void> {
+    this.sdk.track('purchase_cancelled', compactParams(params));
+    return Promise.resolve();
+  }
+
+  purchaseFailed(params: PurchaseFailedParams): Promise<void> {
+    this.sdk.track('purchase_failed', compactParams({
+      ...params,
+      // Cap free-text store errors so a giant native message can't blow the
+      // param-size budget of any sink.
+      error_message: params.error_message?.slice(0, 96),
+    }));
+    return Promise.resolve();
+  }
+
+  iapStateChanged(params: IapStateChangedParams): Promise<void> {
+    this.sdk.track('iap_state_changed', compactParams(params));
     return Promise.resolve();
   }
 

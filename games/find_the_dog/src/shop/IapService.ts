@@ -11,6 +11,7 @@ import {
   type StoreProduct,
 } from '@fabrikav2/sdk/iap';
 import { buildShopCatalog, type ShopCatalogProduct } from './ProductCatalog';
+import { analytics } from '../analytics/AnalyticsService';
 
 export type {
   IapPurchaseResult,
@@ -175,6 +176,13 @@ export class FindTheDogIapService {
       provider: () => this.fakeProvider,
       operationTimeoutMs: () => 15_000,
       purchaseTimeoutMs: () => 60_000,
+      onEvent: (event) => {
+        if (event.type === 'state_changed') {
+          void analytics.iapStateChanged({ state: event.state, reason: event.reason });
+        } else if (event.type === 'purchase_dispatched') {
+          void analytics.purchaseSheetShown({ product_id: event.productId });
+        }
+      },
     });
   }
 
