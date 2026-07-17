@@ -29,7 +29,9 @@ export function formatCommand(file, args, { redact = [] } = {}) {
 function sh(file, args, opts = {}) {
   const { redact = [], ...execOpts } = opts;
   process.stderr.write(`  ${formatCommand(file, args, { redact })}\n`);
-  return execFileSync(file, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'], ...execOpts });
+  // 64MB: xcodebuild on a full native shell emits >1MB (Node's default), which
+  // aborted a device verify mid-build with ENOBUFS.
+  return execFileSync(file, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'], maxBuffer: 64 * 1024 * 1024, ...execOpts });
 }
 
 const ANDROID_BUILD_ENV_KEYS = [
