@@ -5,12 +5,15 @@ import {
   type AnalyticsParamValue,
 } from '@fabrikav2/sdk/analytics';
 import { attribution } from '../attribution/AttributionService';
+import { registerLifecycleHooks } from '../platform/gameLifecycle';
 import { adService } from '../ads/Service';
 import type { PurchaseUnfulfilledOutcome } from '../shop/PurchaseFulfillment';
 import type { AnalyticsLevelAttribution } from './AnalyticsEventContract';
 
 type FtdEvent =
   | 'app_open'
+  | 'app_background'
+  | 'app_foreground'
   | 'dog_found'
   | 'hint_used'
   | 'settings_changed'
@@ -190,6 +193,21 @@ class AnalyticsService {
 
   async init(): Promise<void> {
     this.sdk.sessionStart({ first_open: false });
+    // 33% of UA-test sessions never delivered a session end: nothing flushed
+    // analytics when the app backgrounded, and a killed WKWebView never fires
+    // beforeunload. Flush every buffering sink the moment we suspend — the
+    // background grace window is the last reliable execution slot.
+    registerLifecycleHooks('analytics-flush', {
+      onSuspend: (): void => {
+        this.sdk.track('app_background');
+        this.sdk.sessionEnd();
+        void this.sdk.flush();
+      },
+      onResume: (): void => {
+        this.sdk.track('app_foreground');
+        this.sdk.sessionStart({ first_open: false });
+      },
+    });
   }
 
   setCohortBucket(bucket: number): void {

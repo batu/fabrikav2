@@ -70,7 +70,7 @@ export const canonicalAnalyticsEvents = [
     panel: 'retention',
     question: 'Return-to-session frequency after backgrounding.',
     primaryDimensions: [],
-    instrumentationStatus: 'contract',
+    instrumentationStatus: 'runtime',
     successBoundary: 'App lifecycle foreground transition is observed.',
   },
   {
@@ -81,7 +81,7 @@ export const canonicalAnalyticsEvents = [
     panel: 'retention',
     question: 'Foreground segment depth before players leave.',
     primaryDimensions: ['levels_played'],
-    instrumentationStatus: 'contract',
+    instrumentationStatus: 'runtime',
     successBoundary: 'App lifecycle background transition is observed.',
   },
   {

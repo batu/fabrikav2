@@ -42,6 +42,12 @@ export function installGameLifecycle(phaserGame: Phaser.Game): void {
     if (document.hidden) suspendGame('visibility');
     else resumeGame('visibility');
   });
+  // WKWebView fires pagehide (never beforeunload) when the WebView is about to
+  // be torn down; treat it as a suspend so onSuspend hooks (analytics flush)
+  // get their last chance to persist before an app kill.
+  window.addEventListener('pagehide', (): void => {
+    suspendGame('visibility');
+  });
 }
 
 export function suspendGame(_reason: SuspendReason): void {
