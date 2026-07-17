@@ -11,7 +11,9 @@
     "tools/create-game",
     "tools/refcap-compare",
     "tools/verify-device",
-    "tools/verify-gate"
+    "tools/verify-gate",
+    "tools/game-env",
+    "tools/native-shell"
   ],
   "scripts": {
     "typecheck": "npm run typecheck --workspaces --if-present",

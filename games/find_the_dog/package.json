@@ -8,7 +8,11 @@
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "build:ios": "node ../../tools/game-env/validate.mjs --game find_the_dog --mode ios && vite build --mode ios",
+    "build:android": "node ../../tools/game-env/validate.mjs --game find_the_dog --mode android && vite build --mode android",
+    "dev:ios": "vite --mode ios",
+    "ios:sync": "cap sync ios && node ../../tools/native-shell/apply.mjs --game find_the_dog && node ../../tools/native-shell/validate.mjs --game find_the_dog"
   },
   "dependencies": {
     "@capacitor/app": "^8.1.0",
