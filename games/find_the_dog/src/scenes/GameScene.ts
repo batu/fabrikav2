@@ -682,8 +682,13 @@ export class GameScene extends Phaser.Scene {
 
     if (gameState.settings.adsEnabled) {
       void adService.showBanner().then((shown: boolean): void => {
-        if (shown && this.level) {
+        if (!this.level) return;
+        if (shown) {
           void analytics.adShown({ ad_type: 'banner', placement: 'gameplay' });
+        } else if (adService.enabled) {
+          // 38% of banner shows in the UA test failed invisibly — GA's native
+          // integration saw them, our owned funnel did not. Count them here.
+          void analytics.adShowFailed({ ad_type: 'banner', placement: 'gameplay', reason: 'not_shown' });
         }
       });
     }
@@ -1736,6 +1741,8 @@ export class GameScene extends Phaser.Scene {
             .then((shown: boolean): void => {
               if (shown) {
                 void analytics.adShown({ ad_type: 'interstitial', placement: 'between_levels' });
+              } else if (adService.enabled) {
+                void analytics.adShowFailed({ ad_type: 'interstitial', placement: 'between_levels', reason: 'not_shown' });
               }
             })
             .finally(restartToNextLevel);

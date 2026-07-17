@@ -2,6 +2,7 @@ import type { AdProvider, RewardedAdResult } from './AdProvider';
 
 export class DisabledAdProvider implements AdProvider {
   readonly providerName = 'disabled';
+  readonly enabled = false;
   private didLogReason = false;
 
   constructor(private readonly reason: string) {}

@@ -414,7 +414,7 @@ export const canonicalAnalyticsEvents = [
     panel: 'ads',
     question: 'Loaded ads that could not show.',
     primaryDimensions: ['ad_type', 'placement', 'reason'],
-    instrumentationStatus: 'contract',
+    instrumentationStatus: 'runtime',
     successBoundary: 'Show is requested after load, but provider reports failure.',
     alertWhen: 'Repeated show failures on rewarded placements.',
   },

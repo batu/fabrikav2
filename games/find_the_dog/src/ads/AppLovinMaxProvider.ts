@@ -46,6 +46,7 @@ export interface NormalizedAppLovinAdRevenuePaidEvent {
 
 export class AppLovinMaxProvider implements AdProvider {
   readonly providerName = 'applovin-max';
+  readonly enabled = true;
   private readonly plugin: AppLovinMaxPlugin;
   private readonly now: () => number;
   private readonly logger: Pick<Console, 'info' | 'warn'>;
@@ -212,7 +213,10 @@ export class AppLovinMaxProvider implements AdProvider {
   async showBanner(): Promise<boolean> {
     await this.init();
     if (!this.initialized) return false;
-    if (this.bannerVisible || this.bannerRequestInFlight) return false;
+    // An already-visible persistent banner IS shown — returning false here
+    // would make the caller log a phantom ad_show_failed on every level start.
+    if (this.bannerVisible) return true;
+    if (this.bannerRequestInFlight) return false;
 
     this.bannerRequestInFlight = true;
     try {

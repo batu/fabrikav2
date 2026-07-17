@@ -50,7 +50,18 @@ export interface AppLovinAdRevenuePaidEvent {
 
 export interface AppLovinMaxPlugin {
   initialize: (options: AppLovinInitializeOptions) => Promise<AppLovinBooleanResult>;
+  /**
+   * PERSISTENT-BANNER CONTRACT (2026-07 purchase/ads audit): the native
+   * implementation must create ONE MAAdView on first call and reuse it for
+   * every later show — never a fresh MAAdView+loadAd per call. The v1 iOS
+   * plugin created a new ad view per show, so every no-fill at level start
+   * surfaced as a failed show (1,028 of 2,912 ad events in the 2026-06 UA
+   * test, ~38%). Reloading between shows is the MAX SDK auto-refresh's job.
+   * `shown: false` therefore means "banner is not currently displayable",
+   * not "this attempt's fresh load failed".
+   */
   showBanner: (options: AppLovinAdUnitOptions) => Promise<AppLovinShowResult>;
+  /** Hides the persistent banner. Must NOT destroy the underlying MAAdView. */
   hideBanner: () => Promise<void>;
   preloadInterstitial: (options: AppLovinAdUnitOptions) => Promise<AppLovinLoadResult>;
   showInterstitial: (options: AppLovinFullscreenAdOptions) => Promise<AppLovinShowResult>;

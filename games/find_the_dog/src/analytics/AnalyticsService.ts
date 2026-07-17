@@ -18,6 +18,7 @@ type FtdEvent =
   | 'hint_used'
   | 'settings_changed'
   | 'ad_shown'
+  | 'ad_show_failed'
   | 'ad_revenue_paid'
   | 'resource_changed'
   | 'product_tapped'
@@ -68,6 +69,12 @@ interface SettingsChangedParams {
 interface AdShownParams {
   ad_type: 'banner' | 'interstitial';
   placement: string;
+}
+
+interface AdShowFailedParams {
+  ad_type: 'banner' | 'interstitial' | 'rewarded';
+  placement: string;
+  reason: string;
 }
 
 interface AdRevenuePaidParams {
@@ -286,6 +293,11 @@ class AnalyticsService {
       provider: providerName(),
     });
     this.sdk.track('ad_shown', compactParams(params));
+    return Promise.resolve();
+  }
+
+  adShowFailed(params: AdShowFailedParams): Promise<void> {
+    this.sdk.track('ad_show_failed', compactParams(params));
     return Promise.resolve();
   }
 
