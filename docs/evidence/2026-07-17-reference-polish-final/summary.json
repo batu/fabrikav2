@@ -1,0 +1,41 @@
+{
+  "menu": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "missing"
+  },
+  "level": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "missing"
+  },
+  "settings": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "missing"
+  },
+  "pause": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "missing"
+  },
+  "win": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "missing"
+  },
+  "fail": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "missing"
+  },
+  "__run": {
+    "kind": "unverified",
+    "enforcement": "exploratory",
+    "exitCode": 1,
+    "applicableCount": 5,
+    "fidelitySource": "phash",
+    "reason": "primary vision panel did not score this run (panel disabled by --skip-panel); phash is advisory only",
+    "summary": "UNVERIFIED [EXPLORATORY] — primary vision panel did not score this run (panel disabled by --skip-panel); phash is advisory only (applicable 5, fidelity phash, exit nonzero) · hard integrity: capture runner failed: xcodebuild test failed: Command failed: xcodebuild test -project /Users/base/dev/appletolye/.codex-worktrees/wool-crush-codex/tools/verify-device/runner/VerifyDeviceRunner.xcodeproj -scheme VerifyDeviceRunner -destination id=00008101-000410EC3EF9001E -allowProvisioningUpdates -resultBundlePath /Users/base/dev/appletolye/.codex-worktrees/wool-crush-codex/docs/evidence/2026-07-17-reference-polish-final/device.xcresult DEVELOPMENT_TEAM=42L77JAX72"
+  }
+}
