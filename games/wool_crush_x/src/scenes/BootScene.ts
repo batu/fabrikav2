@@ -8,6 +8,12 @@ export class BootScene extends Phaser.Scene {
     super('BootScene');
   }
 
+  preload(): void {
+    this.load.image('wool-kitten', '/ui/gameplay/kitten-yarn-v2.png');
+    this.load.image('wool-dragon-head', '/ui/gameplay/dragon-head-yarn-v2.png');
+    this.load.image('wool-block', '/ui/gameplay/yarn-block-white-v2.png');
+  }
+
   create(): void {
     this.isShuttingDown = false;
     this.events.once('shutdown', () => {

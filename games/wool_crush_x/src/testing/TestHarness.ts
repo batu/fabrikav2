@@ -90,6 +90,8 @@ const START_LEVEL_TARGET_MAX_POLLS = 160;
 const TERMINAL_TARGET_POLL_MS = 50;
 const TERMINAL_TARGET_MAX_POLLS = 160;
 const LOSE_LIFE_SETTLE_MS = TIMING.PENALTY_COOLDOWN_MS + 20;
+const WIN_CAPTURE_SETTLE_MS = import.meta.env.MODE === 'test' ? 0 : 5_400;
+const FAIL_CAPTURE_SETTLE_MS = import.meta.env.MODE === 'test' ? 0 : 700;
 
 const sleep = (ms: number): Promise<void> =>
   new Promise((resolve) => window.setTimeout(resolve, ms));
@@ -305,25 +307,35 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
 
   async function winLevel(): Promise<boolean> {
     getGameScene()?.winLevel();
-    return waitUntil(
+    const reached = await waitUntil(
       () => findTheDogDrivePredicates.win(driveSnapshot()),
       TERMINAL_TARGET_POLL_MS,
       TERMINAL_TARGET_MAX_POLLS,
     );
+    if (reached) await sleep(WIN_CAPTURE_SETTLE_MS);
+    return reached;
   }
 
   async function failLevel(): Promise<boolean> {
     for (let i = 0; i < GAMEPLAY.LIVES_PER_LEVEL + 2; i += 1) {
-      if (findTheDogDrivePredicates.fail(driveSnapshot())) return true;
+      if (findTheDogDrivePredicates.fail(driveSnapshot())) {
+        await sleep(FAIL_CAPTURE_SETTLE_MS);
+        return true;
+      }
       getGameScene()?.loseLife();
-      if (findTheDogDrivePredicates.fail(driveSnapshot())) return true;
+      if (findTheDogDrivePredicates.fail(driveSnapshot())) {
+        await sleep(FAIL_CAPTURE_SETTLE_MS);
+        return true;
+      }
       await sleep(LOSE_LIFE_SETTLE_MS);
     }
-    return waitUntil(
+    const reached = await waitUntil(
       () => findTheDogDrivePredicates.fail(driveSnapshot()),
       TERMINAL_TARGET_POLL_MS,
       TERMINAL_TARGET_MAX_POLLS,
     );
+    if (reached) await sleep(FAIL_CAPTURE_SETTLE_MS);
+    return reached;
   }
 
   function driveSnapshot(): DriveSnapshot {

@@ -1,20 +1,18 @@
-# refcap-compare manifest for the shell template. The template has no
-# third-party reference app — every reference-lane entry is a permanent gap.
-# The v2 lane drives the shell states through the harness `driveTo(state)`
-# (`../src/testing/TestHarness.ts`); the win/fail states are reached through
-# the stub scene's Win/Lose outcome seam.
+# Reference comparison for the Codex Wool Crush lane. Human-provided video
+# extracts live in the sibling `games/wool_crush/refs` input surface; this game
+# consumes them in place and never ships or rewrites them.
 game: wool_crush_x
 
 reference:
-  package: none.shell_template.has.no.reference
-  version: none
-  device: none
+  package: com.example.woolcrush
+  version: video-extract-2026-07-09
+  device: source-video
   host: ubuntu-server
   adb: /home/batu/android-sdk/platform-tools/adb
   serial: null
 
 v2:
-  package: com.basegamelab.shell_template.dev
+  package: com.basegamelab.woolcrushx.dev
   version: dev
   viewport: 390x844
 
@@ -29,42 +27,42 @@ verifyDevice:
 states:
   - name: menu
     reference:
-      gap: "shell template — no reference app"
+      offline: ../wool_crush/refs/art/menu-132.png
     v2:
       gap: "no v2 capture yet"
       driveTo: menu
 
   - name: level
     reference:
-      gap: "shell template — no reference app"
+      offline: ../wool_crush/refs/art/gameplay-20.png
     v2:
       gap: "no v2 capture yet"
       driveTo: level
 
   - name: settings
     reference:
-      gap: "shell template — no reference app"
+      offline: ../wool_crush/refs/art/settings-128.png
     v2:
       gap: "no v2 capture yet"
       driveTo: settings
 
   - name: pause
     reference:
-      gap: "shell template — no reference app"
+      gap: "No paused reference frame was extracted from the source video."
     v2:
       gap: "no v2 capture yet"
       driveTo: pause
 
   - name: win
     reference:
-      gap: "shell template — no reference app"
+      offline: ../wool_crush/refs/art/win-120.png
     v2:
       gap: "no v2 capture yet"
       driveTo: win
 
   - name: fail
     reference:
-      gap: "shell template — no reference app"
+      offline: ../wool_crush/refs/art/fail-448.png
     v2:
       gap: "no v2 capture yet"
       driveTo: fail

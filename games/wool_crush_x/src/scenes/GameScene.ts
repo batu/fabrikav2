@@ -73,6 +73,7 @@ export class GameScene extends Phaser.Scene {
   private woolState: WoolCrushState | null = null;
   private woolRoot: Phaser.GameObjects.Container | null = null;
   private woolTick: Phaser.Time.TimerEvent | null = null;
+  private woolPlayerStarted: boolean = false;
 
   constructor() {
     super('GameScene');
@@ -234,13 +235,14 @@ export class GameScene extends Phaser.Scene {
   private startWoolAttempt(): void {
     const level = WOOL_CRUSH_LEVELS[gameState.currentLevelIndex % WOOL_CRUSH_LEVELS.length];
     this.woolState = createGame(level);
+    this.woolPlayerStarted = false;
     this.woolTick?.destroy();
     this.woolTick = this.time.addEvent({ delay: 560, loop: true, callback: () => this.advanceWool() });
     this.renderWool();
   }
 
   private advanceWool(): void {
-    if (!this.woolState || this.levelComplete || this.isShuttingDown) return;
+    if (!this.woolState || !this.woolPlayerStarted || this.levelComplete || this.isShuttingDown) return;
     this.woolState = advance(this.woolState);
     this.renderWool();
     if (this.woolState.status === 'won') this.winLevel();
@@ -257,6 +259,7 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     this.woolState = result.state;
+    this.woolPlayerStarted = true;
     hapticFound();
     this.renderWool();
   }
@@ -264,6 +267,7 @@ export class GameScene extends Phaser.Scene {
   private renderWool(): void {
     const state = this.woolState;
     if (!state) return;
+    if (this.woolRoot) this.tweens.killTweensOf(this.woolRoot.list);
     this.woolRoot?.destroy(true);
     const root = this.add.container(0, 0).setDepth(2);
     this.woolRoot = root;
@@ -276,71 +280,125 @@ export class GameScene extends Phaser.Scene {
     };
     const yarnColor = (color: string): number => colorHex[color] ?? 0xd29e38;
 
-    const bg = this.add.graphics().fillStyle(0xf4e6c8, 1).fillRoundedRect(0, 0, GAME.WIDTH, GAME.HEIGHT, 36 * sx);
-    root.add(bg);
-    root.add(this.add.text(585 * sx, 118 * sy, `LEVEL ${gameState.currentLevelIndex + 1}`, {
-      fontFamily: font, fontSize: `${54 * sx}px`, color: '#40364a', stroke: '#fff7dc', strokeThickness: 8 * sx,
-    }).setOrigin(0.5));
-    root.add(this.add.text(585 * sx, 190 * sy, 'Save the kitten — free the right yarn!', {
-      fontFamily: font, fontSize: `${31 * sx}px`, color: '#735b79',
-    }).setOrigin(0.5));
+    const add = <T extends Phaser.GameObjects.GameObject>(item: T): T => {
+      root.add(item);
+      return item;
+    };
+    const knit = this.add.graphics().fillStyle(0xdff2cf, 1).fillRect(0, 0, GAME.WIDTH, GAME.HEIGHT);
+    knit.lineStyle(3 * sx, 0x8fcf91, 0.16);
+    for (let y = 12; y < 2532; y += 34) {
+      for (let x = -12; x < 1182; x += 32) {
+        knit.beginPath().moveTo(x * sx, y * sy).lineTo((x + 16) * sx, (y + 14) * sy).lineTo((x + 32) * sx, y * sy).strokePath();
+      }
+    }
+    add(knit);
+    const flower = (x: number, y: number, color: number, scale = 1): void => {
+      for (let i = 0; i < 6; i += 1) {
+        const angle = i * Math.PI / 3;
+        add(this.add.ellipse((x + Math.cos(angle) * 24 * scale) * sx, (y + Math.sin(angle) * 24 * scale) * sy, 30 * scale * sx, 42 * scale * sy, color, 0.72).setRotation(angle));
+      }
+      add(this.add.circle(x * sx, y * sy, 12 * scale * sx, 0xf6c95e, 0.9));
+    };
+    flower(1040, 430, 0xf3a3a0, 1.05); flower(150, 720, 0x8dc9e8, 0.8); flower(1030, 1050, 0xf6d078, 0.72);
 
-    const track = this.add.graphics().lineStyle(46 * sx, 0x9d7a67, 1).beginPath();
-    const trackPoints = [
-      [95, 330], [965, 330], [1040, 470], [180, 580], [120, 730], [930, 830], [1015, 985], [250, 1100],
-    ] as const;
-    track.moveTo(trackPoints[0][0] * sx, trackPoints[0][1] * sy);
-    for (let i = 1; i < trackPoints.length; i += 1) track.lineTo(trackPoints[i][0] * sx, trackPoints[i][1] * sy);
-    track.strokePath();
-    root.add(track);
-    root.add(this.add.text(164 * sx, 1092 * sy, '🐱', { fontSize: `${98 * sx}px` }).setOrigin(0.5));
-
-    const dragonStartX = 260 + (1 - state.headDistance / state.level.catDistance) * 640;
-    state.dragon.slice(0, 11).forEach((color, index) => {
-      const x = (dragonStartX - index * 58) * sx;
-      const y = (985 - Math.sin(index * 0.72) * 30) * sy;
-      const section = this.add.circle(x, y, 34 * sx, yarnColor(color)).setStrokeStyle(8 * sx, 0xffffff, 0.42);
-      root.add(section);
+    const trackPoints = [[90, 350], [990, 350], [1045, 500], [175, 610], [115, 770], [930, 860], [1015, 1020], [205, 1135]] as const;
+    const path = this.add.graphics();
+    const drawPath = (width: number, color: number, alpha = 1): void => {
+      path.lineStyle(width * sx, color, alpha).beginPath().moveTo(trackPoints[0][0] * sx, trackPoints[0][1] * sy);
+      for (let i = 1; i < trackPoints.length; i += 1) path.lineTo(trackPoints[i][0] * sx, trackPoints[i][1] * sy);
+      path.strokePath();
+      for (const [x, y] of trackPoints) path.fillStyle(color, alpha).fillCircle(x * sx, y * sy, width * sx / 2);
+    };
+    drawPath(88, 0x8c6545, 0.24);
+    drawPath(70, 0xe6b86f);
+    drawPath(56, 0xf1c985);
+    add(path);
+    trackPoints.slice(0, -1).forEach(([x, y], index) => {
+      const [nx, ny] = trackPoints[index + 1];
+      for (let step = 0.08; step < 1; step += 0.12) {
+        add(this.add.circle((x + (nx - x) * step) * sx, (y + (ny - y) * step) * sy, 3.3 * sx, 0x9a6d47, 0.62));
+      }
     });
-    if (state.dragon.length > 0) root.add(this.add.text(dragonStartX * sx, 920 * sy, '🐉', { fontSize: `${82 * sx}px` }).setOrigin(0.5));
+    const levelBadge = this.add.graphics().fillStyle(0xffffff, 0.88).fillRoundedRect(52 * sx, 250 * sy, 225 * sx, 72 * sy, 30 * sx)
+      .lineStyle(5 * sx, 0xe5b46d, 0.9).strokeRoundedRect(52 * sx, 250 * sy, 225 * sx, 72 * sy, 30 * sx);
+    add(levelBadge);
+    add(this.add.text(165 * sx, 286 * sy, `LEVEL ${gameState.currentLevelIndex + 1}`, {
+      fontFamily: font, fontSize: `${34 * sx}px`, color: '#6c3b21', stroke: '#fff8df', strokeThickness: 6 * sx,
+    }).setOrigin(0.5));
 
-    root.add(this.add.text(585 * sx, 1205 * sy, 'YOUR SPOOLS', { fontFamily: font, fontSize: `${34 * sx}px`, color: '#40364a' }).setOrigin(0.5));
+    const catX = 175; const catY = 1110;
+    add(this.add.ellipse(catX * sx, (catY + 60) * sy, 174 * sx, 48 * sy, 0x6c4a35, 0.22));
+    add(this.add.image(catX * sx, (catY - 7) * sy, 'wool-kitten').setDisplaySize(170 * sx, 208 * sy));
+    add(this.add.text(catX * sx, (catY - 154) * sy, '♥', { fontFamily: font, fontSize: `${46 * sx}px`, color: '#ef5e66', stroke: '#fff5d9', strokeThickness: 6 * sx }).setOrigin(0.5));
+
+    const dragonStartX = 320 + (1 - state.headDistance / state.level.catDistance) * 570;
+    state.dragon.slice(0, 13).forEach((color, index) => {
+      const x = dragonStartX - index * 62;
+      const y = 1020 - Math.sin(index * 0.62) * 25;
+      add(this.add.ellipse(x * sx, y * sy, 96 * sx, 68 * sy, 0x513227, 0.22));
+      add(this.add.image(x * sx, (y - 7) * sy, 'wool-block').setDisplaySize(98 * sx, 68 * sy).setTint(yarnColor(color)).setRotation(-0.08 + Math.sin(index * 0.7) * 0.12));
+    });
+    if (state.dragon.length > 0) {
+      const hx = dragonStartX + 35; const hy = 982;
+      add(this.add.ellipse((hx + 28) * sx, (hy + 74) * sy, 230 * sx, 62 * sy, 0x513227, 0.22));
+      add(this.add.image((hx + 22) * sx, (hy + 36) * sy, 'wool-dragon-head').setDisplaySize(224 * sx, 224 * sy));
+    }
+
+    const tray = this.add.graphics().fillStyle(0x9b6a44, 0.18).fillRoundedRect(65 * sx, 1190 * sy, 1040 * sx, 250 * sy, 54 * sx)
+      .fillStyle(0xf5d7a4, 1).fillRoundedRect(65 * sx, 1175 * sy, 1040 * sx, 240 * sy, 54 * sx)
+      .lineStyle(7 * sx, 0xffffff, 0.62).strokeRoundedRect(65 * sx, 1175 * sy, 1040 * sx, 240 * sy, 54 * sx);
+    add(tray);
+    add(this.add.text(585 * sx, 1212 * sy, 'SPOOL RACK', { fontFamily: font, fontSize: `${29 * sx}px`, color: '#81532f' }).setOrigin(0.5));
     state.spools.forEach((spool, slot) => {
-      const x = (245 + slot * 225) * sx;
-      const slotBg = this.add.circle(x, 1320 * sy, 74 * sx, spool ? yarnColor(spool.color) : 0xd8c9ad, spool ? 1 : 0.55)
-        .setStrokeStyle(10 * sx, 0xffffff, 0.72);
-      root.add(slotBg);
-      root.add(this.add.text(x, 1320 * sy, spool ? `${spool.remaining}` : '+', {
-        fontFamily: font, fontSize: `${48 * sx}px`, color: spool ? '#ffffff' : '#9a876d',
-      }).setOrigin(0.5));
+      const x = 205 + slot * 253;
+      add(this.add.rectangle(x * sx, 1321 * sy, 174 * sx, 112 * sy, 0xc7955c, 0.34).setStrokeStyle(5 * sx, 0xffffff, 0.55));
+      add(this.add.rectangle(x * sx, 1321 * sy, 126 * sx, 72 * sy, spool ? yarnColor(spool.color) : 0xe7cfaa, 1));
+      add(this.add.ellipse((x - 68) * sx, 1321 * sy, 28 * sx, 100 * sy, 0x9c6338));
+      add(this.add.ellipse((x + 68) * sx, 1321 * sy, 28 * sx, 100 * sy, 0x9c6338));
+      for (let stripe = -42; stripe <= 42; stripe += 21) add(this.add.rectangle((x + stripe) * sx, 1321 * sy, 4 * sx, 68 * sy, 0xffffff, spool ? 0.18 : 0.1).setRotation(0.28));
+      add(this.add.text(x * sx, 1321 * sy, spool ? `${spool.remaining}` : '·', { fontFamily: font, fontSize: `${43 * sx}px`, color: spool ? '#ffffff' : '#aa8662', stroke: '#6c432c', strokeThickness: spool ? 5 * sx : 0 }).setOrigin(0.5));
     });
 
-    const cellSize = Math.min(142 * sx, 130 * sy);
-    const boardTop = 1510 * sy;
+    const cellSize = Math.min((GAME.WIDTH - 180 * sx) / state.level.width, 214 * sx, 204 * sy);
+    const boardTop = 1535 * sy;
     const boardLeft = (GAME.WIDTH - state.level.width * cellSize) / 2;
-    const board = this.add.graphics().fillStyle(0xead8b4, 0.8)
-      .fillRoundedRect(boardLeft - 30 * sx, boardTop - 35 * sy, state.level.width * cellSize + 60 * sx, state.level.height * cellSize + 70 * sy, 38 * sx);
-    root.add(board);
+    const boardWidth = state.level.width * cellSize;
+    const boardHeight = state.level.height * cellSize;
+    const board = this.add.graphics().fillStyle(0x6a4932, 0.17)
+      .fillRoundedRect(boardLeft - 44 * sx, boardTop - 19 * sy, boardWidth + 88 * sx, boardHeight + 88 * sy, 52 * sx)
+      .fillStyle(0xffefd0, 0.97).fillRoundedRect(boardLeft - 44 * sx, boardTop - 35 * sy, boardWidth + 88 * sx, boardHeight + 88 * sy, 52 * sx)
+      .lineStyle(7 * sx, 0xe5b46d, 1).strokeRoundedRect(boardLeft - 44 * sx, boardTop - 35 * sy, boardWidth + 88 * sx, boardHeight + 88 * sy, 52 * sx);
+    add(board);
+    const untouched = !this.woolPlayerStarted && state.spools.every((spool) => spool === null);
+    if (untouched) add(this.add.text(585 * sx, 1468 * sy, 'Tap a loose yarn to wind it up', { fontFamily: font, fontSize: `${34 * sx}px`, color: '#7d4b29', stroke: '#fff7df', strokeThickness: 6 * sx }).setOrigin(0.5));
+    const clearCenters: Array<{ x: number; y: number }> = [];
     state.threads.forEach((thread) => {
       const clear = isThreadClear(state, thread.id) && state.spools.some((spool) => spool === null);
       const minX = Math.min(...thread.cells.map((cell) => cell.x));
       const maxX = Math.max(...thread.cells.map((cell) => cell.x));
       const minY = Math.min(...thread.cells.map((cell) => cell.y));
-      const maxY = Math.max(...thread.cells.map((cell) => cell.y));
-      const x = boardLeft + minX * cellSize + cellSize * 0.12;
-      const y = boardTop + minY * cellSize + cellSize * 0.24;
-      const width = (maxX - minX + 1) * cellSize - cellSize * 0.24;
-      const height = (maxY - minY + 1) * cellSize - cellSize * 0.48;
-      const strand = this.add.rectangle(x + width / 2, y + height / 2, width, Math.max(height, 46 * sx), yarnColor(thread.color))
-        .setStrokeStyle(8 * sx, 0xffffff, clear ? 0.72 : 0.28)
+      const x = boardLeft + minX * cellSize + cellSize * 0.08;
+      const y = boardTop + minY * cellSize + cellSize * 0.19;
+      const width = (maxX - minX + 1) * cellSize - cellSize * 0.16;
+      const height = Math.max(cellSize * 0.62, 72 * sy);
+      const centerX = x + width / 2; const centerY = y + height / 2;
+      add(this.add.rectangle((centerX + 7 * sx), (centerY + 11 * sy), width, height, 0x4e2e24, 0.22).setOrigin(0.5));
+      add(this.add.image(centerX, centerY, 'wool-block').setDisplaySize(width, height * 1.05).setTint(yarnColor(thread.color)).setAlpha(clear ? 1 : 0.74));
+      const strand = this.add.rectangle(centerX, centerY, width, height, 0xffffff, 0.001)
         .setInteractive({ useHandCursor: true });
       strand.on('pointerdown', () => this.releaseWoolThread(thread.id));
-      root.add(strand);
-      const arrow = thread.exit.x > 0 ? '›' : thread.exit.x < 0 ? '‹' : thread.exit.y > 0 ? '⌄' : '⌃';
-      root.add(this.add.text(x + width / 2, y + height / 2, arrow, {
-        fontFamily: font, fontSize: `${50 * sx}px`, color: '#ffffff',
-      }).setOrigin(0.5));
+      add(strand);
+      const arrow = thread.exit.x > 0 ? '➜' : thread.exit.x < 0 ? '⬅' : thread.exit.y > 0 ? '⬇' : '⬆';
+      add(this.add.text(centerX, centerY, arrow, { fontFamily: font, fontSize: `${54 * sx}px`, color: '#ffffff', stroke: '#573527', strokeThickness: 8 * sx }).setOrigin(0.5));
+      if (clear) clearCenters.push({ x: centerX, y: centerY });
     });
+    const firstClearCenter = clearCenters[0];
+    if (untouched && firstClearCenter) {
+      const cue = add(this.add.text(firstClearCenter.x, firstClearCenter.y - 88 * sy, '▼', { fontFamily: font, fontSize: `${48 * sx}px`, color: '#ffffff', stroke: '#7d4b29', strokeThickness: 8 * sx }).setOrigin(0.5));
+      this.tweens.add({ targets: cue, y: cue.y - 18 * sy, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.InOut' });
+    }
+    const tipY = Math.min(2375 * sy, boardTop + boardHeight + 145 * sy);
+    add(this.add.text(585 * sx, tipY, 'Match the yarn at the dragon’s head', { fontFamily: font, fontSize: `${31 * sx}px`, color: '#9a704c', stroke: '#e3f2d1', strokeThickness: 5 * sx }).setOrigin(0.5));
   }
 
   // ── outcome seam: WIN ─────────────────────────────────────────────────────
