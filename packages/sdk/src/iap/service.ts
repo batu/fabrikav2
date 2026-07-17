@@ -17,7 +17,7 @@
  * VERBATIM. It is subtle and battle-tested; do not "simplify" it.
  */
 import { assertUniqueCatalogProductIds, type CatalogProduct } from './catalog.ts';
-import { withTimeout } from '../with-timeout.ts';
+import { isTimeoutError, withTimeout } from '../with-timeout.ts';
 
 export type IapServiceState =
   | 'idle'
@@ -29,6 +29,26 @@ export type IapServiceState =
 
 export type IapPurchaseStatus = 'purchased' | 'cancelled' | 'unavailable' | 'failed';
 export type IapRestoreStatus = 'restored' | 'unavailable' | 'failed';
+
+/**
+ * Classification of a `failed` purchase: OUR `withTimeout` firing (`timeout`)
+ * vs the store/provider rejecting (`store-error`). The 2026-06 UA test lost
+ * 124/124 purchase attempts with no way to tell these apart — analytics must
+ * carry the distinction, so the service classifies at the throw site where the
+ * error type is still known.
+ */
+export type IapFailureKind = 'timeout' | 'store-error';
+
+/**
+ * Observability events for the purchase pipeline. Emitted synchronously via the
+ * optional `onEvent` dependency; a throwing listener is swallowed (telemetry
+ * must never break a purchase). `purchase_dispatched` fires immediately before
+ * the provider purchase call — i.e. when the native payment sheet is requested —
+ * so a funnel can separate "user tapped" from "sheet actually dispatched".
+ */
+export type IapServiceEvent =
+  | { type: 'state_changed'; state: IapServiceState; reason: string | null }
+  | { type: 'purchase_dispatched'; productId: string };
 
 /**
  * Minimal structural view of a RevenueCat `CustomerInfo` — only the two fields
@@ -102,6 +122,8 @@ export interface IapPurchaseResult {
   purchaseToken: string | null;
   customerInfo: CustomerInfoLike | null;
   errorMessage: string | null;
+  /** Present only when `status === 'failed'`: timeout vs store rejection. */
+  failureKind?: IapFailureKind;
 }
 
 export interface IapRestoreResult {
@@ -121,6 +143,9 @@ export interface IapServiceDependencies<TPayload = unknown> {
   provider: () => PurchaseProvider | Promise<PurchaseProvider>;
   operationTimeoutMs: () => number;
   purchaseTimeoutMs?: () => number;
+  /** Optional purchase-pipeline observer (analytics). Must not throw; a throw is
+   *  swallowed so telemetry can never break a purchase or init. */
+  onEvent?: (event: IapServiceEvent) => void;
 }
 
 export const DEFAULT_OPERATION_TIMEOUT_MS = 15_000;
@@ -201,6 +226,20 @@ export class IapService<TPayload = unknown> {
     return this.dependencies.purchaseTimeoutMs?.() ?? DEFAULT_PURCHASE_TIMEOUT_MS;
   }
 
+  private emitEvent(event: IapServiceEvent): void {
+    try {
+      this.dependencies.onEvent?.(event);
+    } catch {
+      // Telemetry must never break the purchase pipeline.
+    }
+  }
+
+  private setState(state: IapServiceState, reason: string | null): void {
+    if (this.state === state) return;
+    this.state = state;
+    this.emitEvent({ type: 'state_changed', state, reason });
+  }
+
   /** Idempotent. Returns the in-flight (or resolved) init promise so callers —
    * and tests — can await readiness. A prior `load-failed` init is retried on the
    * next call (gated on state, not a promise-null race, so it survives a
@@ -254,6 +293,7 @@ export class IapService<TPayload = unknown> {
     }
 
     this.activePurchaseProductId = productId;
+    this.emitEvent({ type: 'purchase_dispatched', productId });
     try {
       const transaction = await withTimeout(
         provider.purchaseProduct(productId),
@@ -272,13 +312,17 @@ export class IapService<TPayload = unknown> {
     } catch (err) {
       const message = errorMessage(err);
       this.lastErrorMessage = message;
+      if (isUserCancelled(err)) {
+        return { status: 'cancelled', productId, purchaseId: null, purchaseToken: null, customerInfo: null, errorMessage: message };
+      }
       return {
-        status: isUserCancelled(err) ? 'cancelled' : 'failed',
+        status: 'failed',
         productId,
         purchaseId: null,
         purchaseToken: null,
         customerInfo: null,
         errorMessage: message,
+        failureKind: isTimeoutError(err) ? 'timeout' : 'store-error',
       };
     } finally {
       // Clear even on throw so a failed purchase never wedges the service.
@@ -391,21 +435,21 @@ export class IapService<TPayload = unknown> {
 
   private async initAsync(): Promise<void> {
     if (!this.dependencies.isNativePlatform()) {
-      this.state = 'unsupported-platform';
+      this.setState('unsupported-platform', 'not a native platform');
       return;
     }
     const platform = this.dependencies.platform();
     if (platform === 'web') {
-      this.state = 'unsupported-platform';
+      this.setState('unsupported-platform', 'web platform');
       return;
     }
     const apiKey = this.dependencies.apiKey();
     if (apiKey === null) {
-      this.state = 'missing-api-key';
+      this.setState('missing-api-key', 'no store API key configured');
       return;
     }
 
-    this.state = 'initializing';
+    this.setState('initializing', null);
     try {
       const providerOrPromise = resolveProvider(
         this.dependencies.provider(),
@@ -427,14 +471,14 @@ export class IapService<TPayload = unknown> {
       );
       this.provider = provider;
       this.storeProductsById = new Map(storeProducts.map((product) => [product.productId, product]));
-      this.state = 'ready';
       this.lastErrorMessage = null;
+      this.setState('ready', storeProducts.length === 0 ? 'ready with zero store products' : null);
       this.registerCustomerInfoListener(provider);
     } catch (err) {
       this.lastErrorMessage = errorMessage(err);
       // A later init() retries because it is gated on this state (matches v1's
       // retry intent).
-      this.state = 'load-failed';
+      this.setState('load-failed', this.lastErrorMessage);
     }
   }
 }

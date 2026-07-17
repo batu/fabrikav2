@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { IapService, type IapServiceDependencies, type StoreProduct } from './service.ts';
+import { IapService, type IapServiceDependencies, type IapServiceEvent, type StoreProduct } from './service.ts';
 import { FakePurchaseProvider, type FakePurchaseProviderConfig } from './fake-provider.ts';
 import { ftdCatalogProducts, type FtdGrant } from './ftd-fixture.ts';
 
@@ -203,5 +203,84 @@ describe('IapService.restore — late-settle machine', () => {
     const second = await service.restore();
     expect(second.status).toBe('restored');
     expect(second.ownedProductIds).toContain(NO_ADS);
+  });
+});
+
+describe('IapService.onEvent — purchase-pipeline observability', () => {
+  it('emits state transitions through init with reasons', async () => {
+    const events: IapServiceEvent[] = [];
+    await readyService({}, { onEvent: (event) => events.push(event) });
+    expect(events).toEqual([
+      { type: 'state_changed', state: 'initializing', reason: null },
+      { type: 'state_changed', state: 'ready', reason: null },
+    ]);
+  });
+
+  it('emits load-failed with the error message as reason', async () => {
+    const events: IapServiceEvent[] = [];
+    const { deps } = makeDeps({}, { onEvent: (event) => events.push(event) });
+    const service = new IapService({ ...deps, provider: () => { throw new Error('provider boom'); } });
+    await service.init();
+    expect(events.at(-1)).toEqual({ type: 'state_changed', state: 'load-failed', reason: 'provider boom' });
+  });
+
+  it('emits purchase_dispatched immediately before the provider purchase call', async () => {
+    const events: IapServiceEvent[] = [];
+    const { service } = await readyService(
+      { purchaseErrors: { [NO_ADS]: new Error('store down') } },
+      { onEvent: (event) => events.push(event) },
+    );
+    await service.purchase(NO_ADS);
+    expect(events).toContainEqual({ type: 'purchase_dispatched', productId: NO_ADS });
+  });
+
+  it('does NOT emit purchase_dispatched when the purchase short-circuits before the provider', async () => {
+    const events: IapServiceEvent[] = [];
+    const { service } = await readyService({}, { onEvent: (event) => events.push(event) });
+    await service.purchase('nonexistent.product');
+    expect(events.filter((event) => event.type === 'purchase_dispatched')).toHaveLength(0);
+  });
+
+  it('a throwing onEvent listener does not break the purchase', async () => {
+    const { service } = await readyService(
+      {
+        purchaseResults: {
+          [NO_ADS]: {
+            productIdentifier: NO_ADS, transactionId: 't', purchaseToken: null,
+            customerInfo: { allPurchasedProductIdentifiers: [], nonSubscriptionTransactions: [{ productIdentifier: NO_ADS }] },
+          },
+        },
+      },
+      { onEvent: () => { throw new Error('listener boom'); } },
+    );
+    const result = await service.purchase(NO_ADS);
+    expect(result.status).toBe('purchased');
+  });
+});
+
+describe('IapService.purchase — failureKind classification', () => {
+  it('classifies OUR timeout as failureKind timeout', async () => {
+    const { service } = await readyService(
+      { hangingPurchaseProductIds: [NO_ADS] },
+      { purchaseTimeoutMs: () => 20 },
+    );
+    const result = await service.purchase(NO_ADS);
+    expect(result.status).toBe('failed');
+    expect(result.failureKind).toBe('timeout');
+    expect(result.errorMessage).toContain('timed out');
+  });
+
+  it('classifies a provider rejection as failureKind store-error', async () => {
+    const { service } = await readyService({ purchaseErrors: { [NO_ADS]: new Error('storekit says no') } });
+    const result = await service.purchase(NO_ADS);
+    expect(result.status).toBe('failed');
+    expect(result.failureKind).toBe('store-error');
+  });
+
+  it('a user cancel carries no failureKind', async () => {
+    const { service } = await readyService({ purchaseErrors: { [NO_ADS]: { userCancelled: true } } });
+    const result = await service.purchase(NO_ADS);
+    expect(result.status).toBe('cancelled');
+    expect(result.failureKind).toBeUndefined();
   });
 });
