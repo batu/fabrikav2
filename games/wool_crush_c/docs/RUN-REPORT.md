@@ -32,7 +32,7 @@ Branch `wool-crush-claude`, game `games/wool_crush_c`, worktree
   "Dragon Unraveled!" win. Full 6-state tour captured (menu/level/settings/
   pause/win/fail).
 
-## THE BLOCKER — image generation (honest ledger)
+## Generation ledger (RESOLVED morning of 07-17)
 
 **$0.00 of the $15 budget spent — every provider is credit-dead:**
 - OpenRouter: balance exhausted (630.11 used / 630 credits) → 402 on all
@@ -80,3 +80,19 @@ Mitigations shipped:
   OFF in normal builds; used only to produce the real-run evidence video.
 - Runner gained `testRecordSession` (env-gated record-only session) — lands
   on this branch, generally useful.
+
+
+## Morning update (2026-07-17, Batu directive: "use codex imagen")
+
+The credit blocker was resolved by driving the codex CLI's image tool as the
+generation backend. 32 images generated (30 slots + 2 saga-tile regens after
+eyeball rejection for baked face iconography); prompts carried the pinned
+style-guide phrases + negatives. Post-processing: pixelsmith alpha pipeline
+(ONNX matting, interior hardening, halo QA), content trim, never-stretch fit.
+Installed across every runtime slot incl. app icon. Three install defects
+found by eye on device captures and fixed: play-nav consumes
+magnifier-runtime.png (Test Game trap), locked saga tile reverted to the
+plain cream art (baked padlock fought the DOM badge + number), banner
+fitted at 74% (content-crop oversizing). Cash spend: still $0.00 of $15 —
+generation ran on the codex subscription per Batu's directive.
+Final evidence: portal req_dbc13c (real played run with full wool identity).
