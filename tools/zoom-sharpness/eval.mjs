@@ -103,8 +103,10 @@ async function main() {
     page.on('pageerror', (error) => console.error(`[page] ${error}`));
     await page.goto(hosted.url, { waitUntil: 'networkidle' });
     await page.waitForFunction(() => typeof window.__zoomEval === 'function', null, { timeout: 30_000 });
-    // The first-time tutorial draws a hint ring over the scene, contaminating captures.
-    await page.evaluate(() => window.__FIND_DOG_HARNESS__.setSettings({ tutorialEnabled: false }));
+    // Classic mode + no tutorial: restoration mode re-lays-out the scene as its
+    // reveal progresses (timing-dependent imgScale) and the tutorial draws a
+    // hint ring over the scene — both contaminate deterministic captures.
+    await page.evaluate(() => window.__FIND_DOG_HARNESS__.setSettings({ gameMode: 'classic', tutorialEnabled: false }));
     await fs.rm(output, { recursive: true, force: true });
     await fs.mkdir(path.join(output, 'pairs'), { recursive: true });
     const perLevel = [];

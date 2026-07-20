@@ -71,11 +71,40 @@ export function installZoomEvalHook(game: Phaser.Game, harness: FindTheDogHarnes
     }
     await waitForLevel(harness, pose.levelId);
     const scene = game.scene.getScene('GameScene');
+    // Freeze sprite animations and tweens AT A FIXED PHASE so repeated
+    // captures of the same pose are bit-comparable (animated dogs frozen at
+    // an arbitrary frame otherwise add run-to-run variance).
+    scene.anims.pauseAll();
+    for (const child of scene.children.list) {
+      const sprite = child as Phaser.GameObjects.Sprite;
+      const currentAnim = sprite.anims?.currentAnim;
+      if (currentAnim && currentAnim.frames.length > 0) {
+        sprite.anims.pause();
+        sprite.anims.setCurrentFrame(currentAnim.frames[0]);
+      }
+    }
+    for (const tween of scene.tweens.getTweens()) {
+      tween.pause();
+      tween.seek(0);
+    }
     const camera = scene.cameras.main;
     camera.setZoom(pose.zoom);
     camera.setScroll(pose.scrollX, pose.scrollY);
-    await nextFrame();
-    await nextFrame();
+    // Bounds clamping applies in a later preRender pass, so wait until the
+    // effective camera values are identical across two consecutive frames —
+    // otherwise the pixel snapshot can catch a half-clamped frame that does
+    // not match the metadata returned below.
+    {
+      const deadline = performance.now() + TIMEOUT_MS;
+      let previous = { zoom: NaN, x: NaN, y: NaN };
+      for (;;) {
+        await nextFrame();
+        const current = { zoom: camera.zoom, x: camera.scrollX, y: camera.scrollY };
+        if (current.zoom === previous.zoom && current.x === previous.x && current.y === previous.y) break;
+        if (performance.now() > deadline) throw new Error(`[zoom-eval ${pose.levelId}] camera never stabilized`);
+        previous = current;
+      }
+    }
     const snapshot = await waitForLevel(harness, pose.levelId);
     // Scroll is intentionally not checked: camera bounds clamp it and
     // roundPixels quantizes it — both are real renderer behavior, and the
@@ -85,10 +114,23 @@ export function installZoomEvalHook(game: Phaser.Game, harness: FindTheDogHarnes
     }
     // renderer.snapshot reads pixels during the render pass — canvas.toDataURL
     // races the WebGL buffer clear (no preserveDrawingBuffer) and returns
-    // intermittent black frames, especially with the 30fps limiter.
-    const snapshotImage = await new Promise<HTMLImageElement>((resolve) => {
-      game.renderer.snapshot((image) => resolve(image as HTMLImageElement));
+    // intermittent black frames, especially with the 30fps limiter. Camera
+    // metadata is read INSIDE the callback (post-render of the captured
+    // frame): the render loop runs at 30fps while this async code runs at
+    // rAF cadence, so values read outside the callback can describe a
+    // different frame than the captured pixels.
+    const captured = await new Promise<{ image: HTMLImageElement; zoom: number; scrollX: number; scrollY: number }>((resolve) => {
+      game.renderer.snapshot((image) => resolve({
+        image: image as HTMLImageElement,
+        zoom: camera.zoom,
+        scrollX: camera.scrollX,
+        scrollY: camera.scrollY,
+      }));
     });
+    if (Math.abs(captured.zoom - pose.zoom) > EPSILON) {
+      throw new Error(`[zoom-eval ${pose.levelId}] captured frame zoom mismatch: requested ${pose.zoom}, rendered ${captured.zoom}`);
+    }
+    const snapshotImage = captured.image;
     const offscreen = document.createElement('canvas');
     offscreen.width = snapshotImage.width;
     offscreen.height = snapshotImage.height;
@@ -102,9 +144,9 @@ export function installZoomEvalHook(game: Phaser.Game, harness: FindTheDogHarnes
     return Object.freeze({
       levelId: pose.levelId,
       pngDataUrl,
-      zoom: snapshot.cameraZoom,
-      scrollX: snapshot.cameraScrollX,
-      scrollY: snapshot.cameraScrollY,
+      zoom: captured.zoom,
+      scrollX: captured.scrollX,
+      scrollY: captured.scrollY,
       canvasWidth: game.canvas.width,
       canvasHeight: game.canvas.height,
       levelWidth: snapshot.levelSize.width,

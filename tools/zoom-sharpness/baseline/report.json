@@ -1,0 +1,3014 @@
+{
+  "metadata": {
+    "tier": "chromium-fast-tier-not-device",
+    "levels": [
+      "mexico_oaxaca_market_dog_53f5",
+      "alpine_meadow_snowmelt_creek_bridges_dog_89a8",
+      "playground_park_picnic_play_lawn_dog_4b41",
+      "circus_fairground_acrobat_props_yard_dog_718c",
+      "nordic_cold_icelandic_geothermal_town_dog_04a4",
+      "japan_festival_grounds_dog_3f7c",
+      "uk_cotswolds_village_dog_b486",
+      "hawaii_luau_sunset_courtyard_dog_fbf2",
+      "spaceship_habitat_starship_common_room_dog_8e43",
+      "italy_venice_canal_morning_dog_d570",
+      "playground_park_treehouse_rope_play_dog_88c7",
+      "spaceship_habitat_asteroid_research_nook_dog_8c9d",
+      "france_provence_lavender_village_dog_cbbe",
+      "hawaii_hidden_easy_phone",
+      "france_alsace_wine_village_dog_f12c"
+    ],
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "deviceScaleFactor": 1,
+    "maxZoom": 2.5,
+    "seed": 1511506142,
+    "revision": "b0907b05f86d8a698e7899b41258caa2982f59f9",
+    "evaluatorHash": "856cb57eca31bc4702f66c31b3dc49456d4f29fcaae5f0f985c2e95a6da33dd0",
+    "metrics": {
+      "formula": "100 * (0.5 * MS-SSIM + 0.3 * capped edge-energy ratio + 0.2 * PSNR band)",
+      "msSsimWeights": [
+        0.0448,
+        0.2856,
+        0.3001,
+        0.2363,
+        0.1333
+      ],
+      "psnrBandDb": [
+        20,
+        40
+      ],
+      "lanczosLobes": 3
+    },
+    "availableAspectClasses": [
+      "portrait"
+    ]
+  },
+  "perLevel": [
+    {
+      "levelId": "mexico_oaxaca_market_dog_53f5",
+      "aspectClass": "portrait",
+      "poses": [
+        {
+          "name": "dog",
+          "center": {
+            "x": 1915,
+            "y": 2731.979487
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/mexico_oaxaca_market_dog_53f5--dog--maxZoom--candidate.png",
+              "reference": "pairs/mexico_oaxaca_market_dog_53f5--dog--maxZoom--reference.png",
+              "candidateHash": "eb03c89b022b60f8e03dbc88f0aac93dbccd5a7108bcc31aa15e04ec958578ef",
+              "referenceHash": "7abd9eac9ef0246034fda2de59060f4aadb0e24ef7f4750a5daddc9390f11275",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 1398.153846,
+                "y": 1619.364103,
+                "width": 1024,
+                "height": 2216.041026
+              },
+              "score": {
+                "msSsim": 0.976961,
+                "edgeEnergyRatio": 0.905264,
+                "candidateEdgeEnergy": 81.857025,
+                "referenceEdgeEnergy": 90.423341,
+                "psnrDb": 15.911723,
+                "psnrBand": 0,
+                "composite": 76.00599
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/mexico_oaxaca_market_dog_53f5--dog--zoom1--candidate.png",
+              "reference": "pairs/mexico_oaxaca_market_dog_53f5--dog--zoom1--reference.png",
+              "candidateHash": "865b559fda549c4ad6138a6a43fe9b29a2ed20cddd46f9a68e01c650b7672745",
+              "referenceHash": "b12fd98e2dd8f1c259781431fa917417bdc240f23ffabeb8daed7148130b4a2a",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 3840
+              },
+              "score": {
+                "msSsim": 0.973837,
+                "edgeEnergyRatio": 0.913715,
+                "candidateEdgeEnergy": 111.83706,
+                "referenceEdgeEnergy": 122.398166,
+                "psnrDb": 14.516637,
+                "psnrBand": 0,
+                "composite": 76.103298
+              }
+            }
+          ]
+        },
+        {
+          "name": "dense",
+          "center": {
+            "x": 992,
+            "y": 1908.020513
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/mexico_oaxaca_market_dog_53f5--dense--maxZoom--candidate.png",
+              "reference": "pairs/mexico_oaxaca_market_dog_53f5--dense--maxZoom--reference.png",
+              "candidateHash": "46cda619e6cf04082d127099ef3a8be2c09b6aebf554bd405b7a6547ebbce557",
+              "referenceHash": "16c2505d31dc27f75241e3a25b652286de81079f08e9dd6fae37a713157565a4",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 479.179487,
+                "y": 798.851282,
+                "width": 1024,
+                "height": 2216.041026
+              },
+              "score": {
+                "msSsim": 0.9705,
+                "edgeEnergyRatio": 0.901125,
+                "candidateEdgeEnergy": 101.772938,
+                "referenceEdgeEnergy": 112.939912,
+                "psnrDb": 14.102278,
+                "psnrBand": 0,
+                "composite": 75.558735
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/mexico_oaxaca_market_dog_53f5--dense--zoom1--candidate.png",
+              "reference": "pairs/mexico_oaxaca_market_dog_53f5--dense--zoom1--reference.png",
+              "candidateHash": "865b559fda549c4ad6138a6a43fe9b29a2ed20cddd46f9a68e01c650b7672745",
+              "referenceHash": "b12fd98e2dd8f1c259781431fa917417bdc240f23ffabeb8daed7148130b4a2a",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 3840
+              },
+              "score": {
+                "msSsim": 0.973837,
+                "edgeEnergyRatio": 0.913715,
+                "candidateEdgeEnergy": 111.83706,
+                "referenceEdgeEnergy": 122.398166,
+                "psnrDb": 14.516637,
+                "psnrBand": 0,
+                "composite": 76.103298
+              }
+            }
+          ]
+        },
+        {
+          "name": "random",
+          "center": {
+            "x": 952.401532,
+            "y": 1867.883042
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/mexico_oaxaca_market_dog_53f5--random--maxZoom--candidate.png",
+              "reference": "pairs/mexico_oaxaca_market_dog_53f5--random--maxZoom--reference.png",
+              "candidateHash": "f402e13965521d8520b78f18144be55622ee5bdc9fb5415bb56f9a98d4e8530e",
+              "referenceHash": "ea3153dba76a31862b268b2dfdffe2193fa0e71b3979064a179f412c5947307f",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 439.794872,
+                "y": 759.466667,
+                "width": 1024,
+                "height": 2216.041026
+              },
+              "score": {
+                "msSsim": 0.970603,
+                "edgeEnergyRatio": 0.902709,
+                "candidateEdgeEnergy": 102.459002,
+                "referenceEdgeEnergy": 113.501694,
+                "psnrDb": 14.110863,
+                "psnrBand": 0,
+                "composite": 75.611436
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/mexico_oaxaca_market_dog_53f5--random--zoom1--candidate.png",
+              "reference": "pairs/mexico_oaxaca_market_dog_53f5--random--zoom1--reference.png",
+              "candidateHash": "865b559fda549c4ad6138a6a43fe9b29a2ed20cddd46f9a68e01c650b7672745",
+              "referenceHash": "b12fd98e2dd8f1c259781431fa917417bdc240f23ffabeb8daed7148130b4a2a",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 3840
+              },
+              "score": {
+                "msSsim": 0.973837,
+                "edgeEnergyRatio": 0.913715,
+                "candidateEdgeEnergy": 111.83706,
+                "referenceEdgeEnergy": 122.398166,
+                "psnrDb": 14.516637,
+                "psnrBand": 0,
+                "composite": 76.103298
+              }
+            }
+          ]
+        }
+      ],
+      "maxZoom": 75.725387,
+      "zoom1": 76.103298
+    },
+    {
+      "levelId": "alpine_meadow_snowmelt_creek_bridges_dog_89a8",
+      "aspectClass": "portrait",
+      "poses": [
+        {
+          "name": "dog",
+          "center": {
+            "x": 1532,
+            "y": 3227
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/alpine_meadow_snowmelt_creek_bridges_dog_89a8--dog--maxZoom--candidate.png",
+              "reference": "pairs/alpine_meadow_snowmelt_creek_bridges_dog_89a8--dog--maxZoom--reference.png",
+              "candidateHash": "9e1a0382decefe20099a2c96e9f144ae02a8e17034329e6065f45c85e3134fee",
+              "referenceHash": "d13a094718e05f14ae8cb46019e920c5225649ed4d0748c3f0aa6174ea0f9787",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 1007.962085,
+                "y": 2104.64455,
+                "width": 1035.07109,
+                "height": 2240
+              },
+              "score": {
+                "msSsim": 0.994867,
+                "edgeEnergyRatio": 0.871672,
+                "candidateEdgeEnergy": 95.888847,
+                "referenceEdgeEnergy": 110.005686,
+                "psnrDb": 16.019277,
+                "psnrBand": 0,
+                "composite": 75.893487
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/alpine_meadow_snowmelt_creek_bridges_dog_89a8--dog--zoom1--candidate.png",
+              "reference": "pairs/alpine_meadow_snowmelt_creek_bridges_dog_89a8--dog--zoom1--reference.png",
+              "candidateHash": "bd5007cb22247a73d412e747b4a558d8f51dac6425556cf89a2ab60c20a67717",
+              "referenceHash": "eb9d3f3d5e79e234beaad784f2166cddca20ec479ff925a380c235019eafe4b5",
+              "dimensions": {
+                "width": 386,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 5600
+              },
+              "score": {
+                "msSsim": 0.995174,
+                "edgeEnergyRatio": 0.904988,
+                "candidateEdgeEnergy": 100.680369,
+                "referenceEdgeEnergy": 111.250502,
+                "psnrDb": 16.550688,
+                "psnrBand": 0,
+                "composite": 76.908339
+              }
+            }
+          ]
+        },
+        {
+          "name": "dense",
+          "center": {
+            "x": 901.535545,
+            "y": 2176
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/alpine_meadow_snowmelt_creek_bridges_dog_89a8--dense--maxZoom--candidate.png",
+              "reference": "pairs/alpine_meadow_snowmelt_creek_bridges_dog_89a8--dense--maxZoom--reference.png",
+              "candidateHash": "2fa217081c0164a0be1834134f7994f4fe59fb7d3abbd49c0838b3cf2c21ad62",
+              "referenceHash": "6b584df096880521e03b07168f848fe58ae4da20c65dbb974dd4fc8c0fd9c5c3",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 377.630332,
+                "y": 1049.668246,
+                "width": 1035.07109,
+                "height": 2240
+              },
+              "score": {
+                "msSsim": 0.994572,
+                "edgeEnergyRatio": 0.867732,
+                "candidateEdgeEnergy": 104.016678,
+                "referenceEdgeEnergy": 119.871843,
+                "psnrDb": 15.898546,
+                "psnrBand": 0,
+                "composite": 75.760585
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/alpine_meadow_snowmelt_creek_bridges_dog_89a8--dense--zoom1--candidate.png",
+              "reference": "pairs/alpine_meadow_snowmelt_creek_bridges_dog_89a8--dense--zoom1--reference.png",
+              "candidateHash": "bd5007cb22247a73d412e747b4a558d8f51dac6425556cf89a2ab60c20a67717",
+              "referenceHash": "eb9d3f3d5e79e234beaad784f2166cddca20ec479ff925a380c235019eafe4b5",
+              "dimensions": {
+                "width": 386,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 5600
+              },
+              "score": {
+                "msSsim": 0.995174,
+                "edgeEnergyRatio": 0.904988,
+                "candidateEdgeEnergy": 100.680369,
+                "referenceEdgeEnergy": 111.250502,
+                "psnrDb": 16.550688,
+                "psnrBand": 0,
+                "composite": 76.908339
+              }
+            }
+          ]
+        },
+        {
+          "name": "random",
+          "center": {
+            "x": 768.603408,
+            "y": 3413.091798
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/alpine_meadow_snowmelt_creek_bridges_dog_89a8--random--maxZoom--candidate.png",
+              "reference": "pairs/alpine_meadow_snowmelt_creek_bridges_dog_89a8--random--maxZoom--reference.png",
+              "candidateHash": "2ab96f15073f33e93ac3c611c752436a7e3c1f5fa9a2281fa86b09b628136597",
+              "referenceHash": "66a24f19657f7b263d0f13a48dd43bcf1d5f123ddb737631116f499bfb4db272",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 244.92891,
+                "y": 2290.42654,
+                "width": 1035.07109,
+                "height": 2240
+              },
+              "score": {
+                "msSsim": 0.99449,
+                "edgeEnergyRatio": 0.874906,
+                "candidateEdgeEnergy": 93.642812,
+                "referenceEdgeEnergy": 107.031804,
+                "psnrDb": 16.394947,
+                "psnrBand": 0,
+                "composite": 75.971688
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/alpine_meadow_snowmelt_creek_bridges_dog_89a8--random--zoom1--candidate.png",
+              "reference": "pairs/alpine_meadow_snowmelt_creek_bridges_dog_89a8--random--zoom1--reference.png",
+              "candidateHash": "bd5007cb22247a73d412e747b4a558d8f51dac6425556cf89a2ab60c20a67717",
+              "referenceHash": "eb9d3f3d5e79e234beaad784f2166cddca20ec479ff925a380c235019eafe4b5",
+              "dimensions": {
+                "width": 386,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 5600
+              },
+              "score": {
+                "msSsim": 0.995174,
+                "edgeEnergyRatio": 0.904988,
+                "candidateEdgeEnergy": 100.680369,
+                "referenceEdgeEnergy": 111.250502,
+                "psnrDb": 16.550688,
+                "psnrBand": 0,
+                "composite": 76.908339
+              }
+            }
+          ]
+        }
+      ],
+      "maxZoom": 75.875253,
+      "zoom1": 76.908339
+    },
+    {
+      "levelId": "playground_park_picnic_play_lawn_dog_4b41",
+      "aspectClass": "portrait",
+      "poses": [
+        {
+          "name": "dog",
+          "center": {
+            "x": 568,
+            "y": 2327
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/playground_park_picnic_play_lawn_dog_4b41--dog--maxZoom--candidate.png",
+              "reference": "pairs/playground_park_picnic_play_lawn_dog_4b41--dog--maxZoom--reference.png",
+              "candidateHash": "9313232f289839d339e74d003671be49c0b4e4a5f0f584a2ac8760044e7e3f41",
+              "referenceHash": "7769dcb83b69e7d68dca4a26b6da2e2602e7aac93cba36024b3d135938cc87cd",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 45.876777,
+                "y": 1202.274882,
+                "width": 1035.07109,
+                "height": 2240
+              },
+              "score": {
+                "msSsim": 0.995987,
+                "edgeEnergyRatio": 0.867341,
+                "candidateEdgeEnergy": 87.015879,
+                "referenceEdgeEnergy": 100.324851,
+                "psnrDb": 14.153625,
+                "psnrBand": 0,
+                "composite": 75.819596
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/playground_park_picnic_play_lawn_dog_4b41--dog--zoom1--candidate.png",
+              "reference": "pairs/playground_park_picnic_play_lawn_dog_4b41--dog--zoom1--reference.png",
+              "candidateHash": "83c38e4b0b700ccd78e3ed38e6217b57fa70930bba34e2f8f9b3bf0918aa71c5",
+              "referenceHash": "4fb43e4a643371d8e47bc18da51449059487442383289b11182f9fcb6d9c9c39",
+              "dimensions": {
+                "width": 386,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 5600
+              },
+              "score": {
+                "msSsim": 0.995916,
+                "edgeEnergyRatio": 0.900624,
+                "candidateEdgeEnergy": 84.420755,
+                "referenceEdgeEnergy": 93.735878,
+                "psnrDb": 13.908402,
+                "psnrBand": 0,
+                "composite": 76.814517
+              }
+            }
+          ]
+        },
+        {
+          "name": "dense",
+          "center": {
+            "x": 773.535545,
+            "y": 2688
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/playground_park_picnic_play_lawn_dog_4b41--dense--maxZoom--candidate.png",
+              "reference": "pairs/playground_park_picnic_play_lawn_dog_4b41--dense--maxZoom--reference.png",
+              "candidateHash": "e6e876e890290fc0fbeeb26344b4ceccda1e46c14efdfd35e9d448f2501e0405",
+              "referenceHash": "f5b0dcee7b8006c693aa94bc94bf39dccb762ab808013274465f3b6c3bca2799",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 251.563981,
+                "y": 1567.203791,
+                "width": 1035.07109,
+                "height": 2240
+              },
+              "score": {
+                "msSsim": 0.995512,
+                "edgeEnergyRatio": 0.861363,
+                "candidateEdgeEnergy": 88.201458,
+                "referenceEdgeEnergy": 102.397576,
+                "psnrDb": 13.767007,
+                "psnrBand": 0,
+                "composite": 75.616494
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/playground_park_picnic_play_lawn_dog_4b41--dense--zoom1--candidate.png",
+              "reference": "pairs/playground_park_picnic_play_lawn_dog_4b41--dense--zoom1--reference.png",
+              "candidateHash": "83c38e4b0b700ccd78e3ed38e6217b57fa70930bba34e2f8f9b3bf0918aa71c5",
+              "referenceHash": "4fb43e4a643371d8e47bc18da51449059487442383289b11182f9fcb6d9c9c39",
+              "dimensions": {
+                "width": 386,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 5600
+              },
+              "score": {
+                "msSsim": 0.995916,
+                "edgeEnergyRatio": 0.900624,
+                "candidateEdgeEnergy": 84.420755,
+                "referenceEdgeEnergy": 93.735878,
+                "psnrDb": 13.908402,
+                "psnrBand": 0,
+                "composite": 76.814517
+              }
+            }
+          ]
+        },
+        {
+          "name": "random",
+          "center": {
+            "x": 1799.378386,
+            "y": 1286.11568
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/playground_park_picnic_play_lawn_dog_4b41--random--maxZoom--candidate.png",
+              "reference": "pairs/playground_park_picnic_play_lawn_dog_4b41--random--maxZoom--reference.png",
+              "candidateHash": "899a40c3f91b36f1c36bc3936f34046dc396cf6a02c22b883804baa8f12587bb",
+              "referenceHash": "b6a99b8d49266b6ab484b0de6912098388a5fe3956cb2c1f635e7e84e9af1bf2",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 1280,
+                "y": 160.56872,
+                "width": 1035.07109,
+                "height": 2240
+              },
+              "score": {
+                "msSsim": 0.996895,
+                "edgeEnergyRatio": 0.861457,
+                "candidateEdgeEnergy": 52.744113,
+                "referenceEdgeEnergy": 61.22665,
+                "psnrDb": 13.525696,
+                "psnrBand": 0,
+                "composite": 75.688472
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/playground_park_picnic_play_lawn_dog_4b41--random--zoom1--candidate.png",
+              "reference": "pairs/playground_park_picnic_play_lawn_dog_4b41--random--zoom1--reference.png",
+              "candidateHash": "83c38e4b0b700ccd78e3ed38e6217b57fa70930bba34e2f8f9b3bf0918aa71c5",
+              "referenceHash": "4fb43e4a643371d8e47bc18da51449059487442383289b11182f9fcb6d9c9c39",
+              "dimensions": {
+                "width": 386,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 5600
+              },
+              "score": {
+                "msSsim": 0.995916,
+                "edgeEnergyRatio": 0.900624,
+                "candidateEdgeEnergy": 84.420755,
+                "referenceEdgeEnergy": 93.735878,
+                "psnrDb": 13.908402,
+                "psnrBand": 0,
+                "composite": 76.814517
+              }
+            }
+          ]
+        }
+      ],
+      "maxZoom": 75.708187,
+      "zoom1": 76.814517
+    },
+    {
+      "levelId": "circus_fairground_acrobat_props_yard_dog_718c",
+      "aspectClass": "portrait",
+      "poses": [
+        {
+          "name": "dog",
+          "center": {
+            "x": 2042.464455,
+            "y": 3546
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/circus_fairground_acrobat_props_yard_dog_718c--dog--maxZoom--candidate.png",
+              "reference": "pairs/circus_fairground_acrobat_props_yard_dog_718c--dog--maxZoom--reference.png",
+              "candidateHash": "513750c797ee891eeade579cc04be2754898ccd79862037ea53511f47e912ddb",
+              "referenceHash": "b1c7f9384d9b59ac4ba6a91cf9cbd7c41db6a8b6aa76cce2547766f427138cb2",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 1518.862559,
+                "y": 2423.127962,
+                "width": 1035.07109,
+                "height": 2240
+              },
+              "score": {
+                "msSsim": 0.995391,
+                "edgeEnergyRatio": 0.865366,
+                "candidateEdgeEnergy": 75.308983,
+                "referenceEdgeEnergy": 87.025628,
+                "psnrDb": 15.631628,
+                "psnrBand": 0,
+                "composite": 75.73053
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/circus_fairground_acrobat_props_yard_dog_718c--dog--zoom1--candidate.png",
+              "reference": "pairs/circus_fairground_acrobat_props_yard_dog_718c--dog--zoom1--reference.png",
+              "candidateHash": "c3950d5a1377a10724f705d96704b6c88455fb1412f1dc914899dcf741682bd6",
+              "referenceHash": "cf45b59dc4478ea8745ec84982ffd56389dbe2f93512f396ec544a45f1855c62",
+              "dimensions": {
+                "width": 386,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 5600
+              },
+              "score": {
+                "msSsim": 0.995681,
+                "edgeEnergyRatio": 0.888924,
+                "candidateEdgeEnergy": 87.995903,
+                "referenceEdgeEnergy": 98.991466,
+                "psnrDb": 15.542931,
+                "psnrBand": 0,
+                "composite": 76.451796
+              }
+            }
+          ]
+        },
+        {
+          "name": "dense",
+          "center": {
+            "x": 1221.535545,
+            "y": 2112
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/circus_fairground_acrobat_props_yard_dog_718c--dense--maxZoom--candidate.png",
+              "reference": "pairs/circus_fairground_acrobat_props_yard_dog_718c--dense--maxZoom--reference.png",
+              "candidateHash": "fb97532da8b41bc730b652b546df6b4c87c29f88837b0f4fb82c633781359975",
+              "referenceHash": "a4e35938e33761077ee8fb9be4c5ffa7b9257cff1ab3ad7049e9a6cbf929e360",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 702.748815,
+                "y": 989.952607,
+                "width": 1035.07109,
+                "height": 2240
+              },
+              "score": {
+                "msSsim": 0.995363,
+                "edgeEnergyRatio": 0.857389,
+                "candidateEdgeEnergy": 89.704556,
+                "referenceEdgeEnergy": 104.62521,
+                "psnrDb": 14.872526,
+                "psnrBand": 0,
+                "composite": 75.48981
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/circus_fairground_acrobat_props_yard_dog_718c--dense--zoom1--candidate.png",
+              "reference": "pairs/circus_fairground_acrobat_props_yard_dog_718c--dense--zoom1--reference.png",
+              "candidateHash": "c3950d5a1377a10724f705d96704b6c88455fb1412f1dc914899dcf741682bd6",
+              "referenceHash": "cf45b59dc4478ea8745ec84982ffd56389dbe2f93512f396ec544a45f1855c62",
+              "dimensions": {
+                "width": 386,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 5600
+              },
+              "score": {
+                "msSsim": 0.995681,
+                "edgeEnergyRatio": 0.888924,
+                "candidateEdgeEnergy": 87.995903,
+                "referenceEdgeEnergy": 98.991466,
+                "psnrDb": 15.542931,
+                "psnrBand": 0,
+                "composite": 76.451796
+              }
+            }
+          ]
+        },
+        {
+          "name": "random",
+          "center": {
+            "x": 1629.713013,
+            "y": 4217.136905
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/circus_fairground_acrobat_props_yard_dog_718c--random--maxZoom--candidate.png",
+              "reference": "pairs/circus_fairground_acrobat_props_yard_dog_718c--random--maxZoom--reference.png",
+              "candidateHash": "dc5a347c7e02eac6212a49734c97d98b7c595939f1dc0b3af8aca1eb0a0493d9",
+              "referenceHash": "82cc0d3900ab127c6f65ac78e2c83183a730e8b1e255fbef0cb74cd161c1d4b3",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 1107.488152,
+                "y": 3093.270142,
+                "width": 1035.07109,
+                "height": 2240
+              },
+              "score": {
+                "msSsim": 0.996935,
+                "edgeEnergyRatio": 0.864253,
+                "candidateEdgeEnergy": 58.289278,
+                "referenceEdgeEnergy": 67.444673,
+                "psnrDb": 15.005084,
+                "psnrBand": 0,
+                "composite": 75.774373
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/circus_fairground_acrobat_props_yard_dog_718c--random--zoom1--candidate.png",
+              "reference": "pairs/circus_fairground_acrobat_props_yard_dog_718c--random--zoom1--reference.png",
+              "candidateHash": "c3950d5a1377a10724f705d96704b6c88455fb1412f1dc914899dcf741682bd6",
+              "referenceHash": "cf45b59dc4478ea8745ec84982ffd56389dbe2f93512f396ec544a45f1855c62",
+              "dimensions": {
+                "width": 386,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 5600
+              },
+              "score": {
+                "msSsim": 0.995681,
+                "edgeEnergyRatio": 0.888924,
+                "candidateEdgeEnergy": 87.995903,
+                "referenceEdgeEnergy": 98.991466,
+                "psnrDb": 15.542931,
+                "psnrBand": 0,
+                "composite": 76.451796
+              }
+            }
+          ]
+        }
+      ],
+      "maxZoom": 75.664904,
+      "zoom1": 76.451796
+    },
+    {
+      "levelId": "nordic_cold_icelandic_geothermal_town_dog_04a4",
+      "aspectClass": "portrait",
+      "poses": [
+        {
+          "name": "dog",
+          "center": {
+            "x": 1555,
+            "y": 2107
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/nordic_cold_icelandic_geothermal_town_dog_04a4--dog--maxZoom--candidate.png",
+              "reference": "pairs/nordic_cold_icelandic_geothermal_town_dog_04a4--dog--maxZoom--reference.png",
+              "candidateHash": "c3fbc0e53ca7acb3b65132e30a15731a79c43076756698f0a81bb01f32914b2b",
+              "referenceHash": "72776edc3c59a0bb20a702c1ced28f42121a4f61e34cfda427b178d6ff6e9688",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 1037.128205,
+                "y": 995.774359,
+                "width": 1024,
+                "height": 2216.041026
+              },
+              "score": {
+                "msSsim": 0.931116,
+                "edgeEnergyRatio": 0.924046,
+                "candidateEdgeEnergy": 95.908763,
+                "referenceEdgeEnergy": 103.792144,
+                "psnrDb": 16.996418,
+                "psnrBand": 0,
+                "composite": 74.277203
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/nordic_cold_icelandic_geothermal_town_dog_04a4--dog--zoom1--candidate.png",
+              "reference": "pairs/nordic_cold_icelandic_geothermal_town_dog_04a4--dog--zoom1--reference.png",
+              "candidateHash": "257bfc2fa6e78556d2e7f4d8114f4e3d0945ce4c0f4c9e3e7dbc8d5b89302769",
+              "referenceHash": "48f299ade7fbce8d9041d36cac351fed94ab2ab2fce76458a29b0b25ab70e4db",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 3840
+              },
+              "score": {
+                "msSsim": 0.926922,
+                "edgeEnergyRatio": 0.937725,
+                "candidateEdgeEnergy": 105.061714,
+                "referenceEdgeEnergy": 112.038885,
+                "psnrDb": 15.981434,
+                "psnrBand": 0,
+                "composite": 74.477865
+              }
+            }
+          ]
+        },
+        {
+          "name": "dense",
+          "center": {
+            "x": 768,
+            "y": 1556.020513
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/nordic_cold_icelandic_geothermal_town_dog_04a4--dense--maxZoom--candidate.png",
+              "reference": "pairs/nordic_cold_icelandic_geothermal_town_dog_04a4--dense--maxZoom--reference.png",
+              "candidateHash": "19db6ab3e7d4f3638a58717859a6cda349ae65141defcb7276f9a4eb2c6d0e5f",
+              "referenceHash": "daa2c86609ec481cf771c38f9be98e7d37264a83ae9ec5c1bb30ce2bd414f6ca",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 256,
+                "y": 444.389744,
+                "width": 1024,
+                "height": 2216.041026
+              },
+              "score": {
+                "msSsim": 0.942301,
+                "edgeEnergyRatio": 0.914885,
+                "candidateEdgeEnergy": 104.818929,
+                "referenceEdgeEnergy": 114.570605,
+                "psnrDb": 16.470512,
+                "psnrBand": 0,
+                "composite": 74.561592
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/nordic_cold_icelandic_geothermal_town_dog_04a4--dense--zoom1--candidate.png",
+              "reference": "pairs/nordic_cold_icelandic_geothermal_town_dog_04a4--dense--zoom1--reference.png",
+              "candidateHash": "257bfc2fa6e78556d2e7f4d8114f4e3d0945ce4c0f4c9e3e7dbc8d5b89302769",
+              "referenceHash": "48f299ade7fbce8d9041d36cac351fed94ab2ab2fce76458a29b0b25ab70e4db",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 3840
+              },
+              "score": {
+                "msSsim": 0.926922,
+                "edgeEnergyRatio": 0.937725,
+                "candidateEdgeEnergy": 105.061714,
+                "referenceEdgeEnergy": 112.038885,
+                "psnrDb": 15.981434,
+                "psnrBand": 0,
+                "composite": 74.477865
+              }
+            }
+          ]
+        },
+        {
+          "name": "random",
+          "center": {
+            "x": 1666.331611,
+            "y": 1607.675901
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/nordic_cold_icelandic_geothermal_town_dog_04a4--random--maxZoom--candidate.png",
+              "reference": "pairs/nordic_cold_icelandic_geothermal_town_dog_04a4--random--maxZoom--reference.png",
+              "candidateHash": "ce74b2722a7f5fccda017a9ef1bab1520e9f2e2d02050688c575a4dcc1feee8b",
+              "referenceHash": "a924abad49524861d29c14712ab808386d8b3997af62ad66922fb784cff95294",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 1148.717949,
+                "y": 496.902564,
+                "width": 1024,
+                "height": 2216.041026
+              },
+              "score": {
+                "msSsim": 0.928187,
+                "edgeEnergyRatio": 0.925654,
+                "candidateEdgeEnergy": 97.376407,
+                "referenceEdgeEnergy": 105.197406,
+                "psnrDb": 16.695465,
+                "psnrBand": 0,
+                "composite": 74.17896
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/nordic_cold_icelandic_geothermal_town_dog_04a4--random--zoom1--candidate.png",
+              "reference": "pairs/nordic_cold_icelandic_geothermal_town_dog_04a4--random--zoom1--reference.png",
+              "candidateHash": "257bfc2fa6e78556d2e7f4d8114f4e3d0945ce4c0f4c9e3e7dbc8d5b89302769",
+              "referenceHash": "48f299ade7fbce8d9041d36cac351fed94ab2ab2fce76458a29b0b25ab70e4db",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 3840
+              },
+              "score": {
+                "msSsim": 0.926922,
+                "edgeEnergyRatio": 0.937725,
+                "candidateEdgeEnergy": 105.061714,
+                "referenceEdgeEnergy": 112.038885,
+                "psnrDb": 15.981434,
+                "psnrBand": 0,
+                "composite": 74.477865
+              }
+            }
+          ]
+        }
+      ],
+      "maxZoom": 74.339252,
+      "zoom1": 74.477865
+    },
+    {
+      "levelId": "japan_festival_grounds_dog_3f7c",
+      "aspectClass": "portrait",
+      "poses": [
+        {
+          "name": "dog",
+          "center": {
+            "x": 682,
+            "y": 1108.020513
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/japan_festival_grounds_dog_3f7c--dog--maxZoom--candidate.png",
+              "reference": "pairs/japan_festival_grounds_dog_3f7c--dog--maxZoom--reference.png",
+              "candidateHash": "ac1fa6f3e7aeb738df3024632f6277a94c67926308d6caa6e65d77334d8c38b6",
+              "referenceHash": "6f542d14c112dc51e8578303d1d49e84677d5cccb622a6129c8222b2ce359165",
+              "dimensions": {
+                "width": 390,
+                "height": 843
+              },
+              "crop": {
+                "x": 164.102564,
+                "y": 0,
+                "width": 1024,
+                "height": 2214.071795
+              },
+              "score": {
+                "msSsim": 0.956564,
+                "edgeEnergyRatio": 0.91756,
+                "candidateEdgeEnergy": 95.384005,
+                "referenceEdgeEnergy": 103.953957,
+                "psnrDb": 14.992561,
+                "psnrBand": 0,
+                "composite": 75.355001
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/japan_festival_grounds_dog_3f7c--dog--zoom1--candidate.png",
+              "reference": "pairs/japan_festival_grounds_dog_3f7c--dog--zoom1--reference.png",
+              "candidateHash": "df1186299551edad570e00a77cfcc42f783581ca6df5db2982d076bb3b07c981",
+              "referenceHash": "2864ade62a6269b6c6991fac86544e6098c8936b734d7b6605632fb976fc3968",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 3840
+              },
+              "score": {
+                "msSsim": 0.958261,
+                "edgeEnergyRatio": 0.927163,
+                "candidateEdgeEnergy": 119.612225,
+                "referenceEdgeEnergy": 129.008865,
+                "psnrDb": 14.813782,
+                "psnrBand": 0,
+                "composite": 75.727917
+              }
+            }
+          ]
+        },
+        {
+          "name": "dense",
+          "center": {
+            "x": 1504,
+            "y": 1908.020513
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/japan_festival_grounds_dog_3f7c--dense--maxZoom--candidate.png",
+              "reference": "pairs/japan_festival_grounds_dog_3f7c--dense--maxZoom--reference.png",
+              "candidateHash": "f05780ff269e4514c84a2cfe360d625de62d02a8103262365b78aa291022a8b2",
+              "referenceHash": "5d4a48e2d78222bea151006b2046a626df8abf4d6f300e89ddb92ec2d33079e7",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 991.179487,
+                "y": 798.851282,
+                "width": 1024,
+                "height": 2216.041026
+              },
+              "score": {
+                "msSsim": 0.956536,
+                "edgeEnergyRatio": 0.909524,
+                "candidateEdgeEnergy": 105.882107,
+                "referenceEdgeEnergy": 116.414803,
+                "psnrDb": 14.583001,
+                "psnrBand": 0,
+                "composite": 75.112514
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/japan_festival_grounds_dog_3f7c--dense--zoom1--candidate.png",
+              "reference": "pairs/japan_festival_grounds_dog_3f7c--dense--zoom1--reference.png",
+              "candidateHash": "df1186299551edad570e00a77cfcc42f783581ca6df5db2982d076bb3b07c981",
+              "referenceHash": "2864ade62a6269b6c6991fac86544e6098c8936b734d7b6605632fb976fc3968",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 3840
+              },
+              "score": {
+                "msSsim": 0.958261,
+                "edgeEnergyRatio": 0.927163,
+                "candidateEdgeEnergy": 119.612225,
+                "referenceEdgeEnergy": 129.008865,
+                "psnrDb": 14.813782,
+                "psnrBand": 0,
+                "composite": 75.727917
+              }
+            }
+          ]
+        },
+        {
+          "name": "random",
+          "center": {
+            "x": 1569.012354,
+            "y": 1241.91195
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/japan_festival_grounds_dog_3f7c--random--maxZoom--candidate.png",
+              "reference": "pairs/japan_festival_grounds_dog_3f7c--random--maxZoom--reference.png",
+              "candidateHash": "ac34c812da8459d896dba185982964405ab72aa95182a9eb31435300f21d6da5",
+              "referenceHash": "4a54b0ee2ac057fb0e81865a5fddbd2c632f4ae5e884ae8af43c0308d59d3c9d",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 1056.820513,
+                "y": 129.312821,
+                "width": 1024,
+                "height": 2216.041026
+              },
+              "score": {
+                "msSsim": 0.959792,
+                "edgeEnergyRatio": 0.915373,
+                "candidateEdgeEnergy": 103.992667,
+                "referenceEdgeEnergy": 113.60688,
+                "psnrDb": 14.496685,
+                "psnrBand": 0,
+                "composite": 75.450803
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/japan_festival_grounds_dog_3f7c--random--zoom1--candidate.png",
+              "reference": "pairs/japan_festival_grounds_dog_3f7c--random--zoom1--reference.png",
+              "candidateHash": "df1186299551edad570e00a77cfcc42f783581ca6df5db2982d076bb3b07c981",
+              "referenceHash": "2864ade62a6269b6c6991fac86544e6098c8936b734d7b6605632fb976fc3968",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 3840
+              },
+              "score": {
+                "msSsim": 0.958261,
+                "edgeEnergyRatio": 0.927163,
+                "candidateEdgeEnergy": 119.612225,
+                "referenceEdgeEnergy": 129.008865,
+                "psnrDb": 14.813782,
+                "psnrBand": 0,
+                "composite": 75.727917
+              }
+            }
+          ]
+        }
+      ],
+      "maxZoom": 75.306106,
+      "zoom1": 75.727917
+    },
+    {
+      "levelId": "uk_cotswolds_village_dog_b486",
+      "aspectClass": "portrait",
+      "poses": [
+        {
+          "name": "dog",
+          "center": {
+            "x": 1033,
+            "y": 1315
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/uk_cotswolds_village_dog_b486--dog--maxZoom--candidate.png",
+              "reference": "pairs/uk_cotswolds_village_dog_b486--dog--maxZoom--reference.png",
+              "candidateHash": "c9a1087654176127f7ec3137825bdaabf87cf8008bb3c0bff8952ca61726af5a",
+              "referenceHash": "17546dd7b332fbfad398d889f5609811ac304cf927be0c5224e918dc2e9f0f5e",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 518.564103,
+                "y": 201.517949,
+                "width": 1024,
+                "height": 2216.041026
+              },
+              "score": {
+                "msSsim": 0.9552,
+                "edgeEnergyRatio": 0.922319,
+                "candidateEdgeEnergy": 117.459062,
+                "referenceEdgeEnergy": 127.351922,
+                "psnrDb": 14.526133,
+                "psnrBand": 0,
+                "composite": 75.429539
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/uk_cotswolds_village_dog_b486--dog--zoom1--candidate.png",
+              "reference": "pairs/uk_cotswolds_village_dog_b486--dog--zoom1--reference.png",
+              "candidateHash": "9c8b8332367a188903c5da9bb91a52a472143bfedb00866e629152091f503028",
+              "referenceHash": "362c0baec59d42c498329344bf869363ffe4f5a61d9cf1806b246fd404cb8062",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 3840
+              },
+              "score": {
+                "msSsim": 0.951327,
+                "edgeEnergyRatio": 0.916443,
+                "candidateEdgeEnergy": 133.919709,
+                "referenceEdgeEnergy": 146.12993,
+                "psnrDb": 13.834818,
+                "psnrBand": 0,
+                "composite": 75.059653
+              }
+            }
+          ]
+        },
+        {
+          "name": "dense",
+          "center": {
+            "x": 1760,
+            "y": 1588.020513
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/uk_cotswolds_village_dog_b486--dense--maxZoom--candidate.png",
+              "reference": "pairs/uk_cotswolds_village_dog_b486--dense--maxZoom--reference.png",
+              "candidateHash": "e92ed7d7097fbb29490f4a936c5a8f389767ca59c724d14ef9d690acc865f3b0",
+              "referenceHash": "8cd3e3d6ac046264f6cba06f4aeec50eb64f2197e3a4d52f0b23768bc4736d71",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 1247.179487,
+                "y": 477.210256,
+                "width": 1024,
+                "height": 2216.041026
+              },
+              "score": {
+                "msSsim": 0.945586,
+                "edgeEnergyRatio": 0.922713,
+                "candidateEdgeEnergy": 132.027904,
+                "referenceEdgeEnergy": 143.086682,
+                "psnrDb": 13.844503,
+                "psnrBand": 0,
+                "composite": 74.9607
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/uk_cotswolds_village_dog_b486--dense--zoom1--candidate.png",
+              "reference": "pairs/uk_cotswolds_village_dog_b486--dense--zoom1--reference.png",
+              "candidateHash": "9c8b8332367a188903c5da9bb91a52a472143bfedb00866e629152091f503028",
+              "referenceHash": "362c0baec59d42c498329344bf869363ffe4f5a61d9cf1806b246fd404cb8062",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 3840
+              },
+              "score": {
+                "msSsim": 0.951327,
+                "edgeEnergyRatio": 0.916443,
+                "candidateEdgeEnergy": 133.919709,
+                "referenceEdgeEnergy": 146.12993,
+                "psnrDb": 13.834818,
+                "psnrBand": 0,
+                "composite": 75.059653
+              }
+            }
+          ]
+        },
+        {
+          "name": "random",
+          "center": {
+            "x": 2045.281847,
+            "y": 2051.917203
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/uk_cotswolds_village_dog_b486--random--maxZoom--candidate.png",
+              "reference": "pairs/uk_cotswolds_village_dog_b486--random--maxZoom--reference.png",
+              "candidateHash": "b096d9184224757c0c0e225d935dd38126e73f29470020f582017b5c72635564",
+              "referenceHash": "47fcda9b6c7af7cbdd1039e4052b07763eb4b76d46d19ef522bcd099c8446ec3",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 1529.435897,
+                "y": 943.261538,
+                "width": 1024,
+                "height": 2216.041026
+              },
+              "score": {
+                "msSsim": 0.947055,
+                "edgeEnergyRatio": 0.914131,
+                "candidateEdgeEnergy": 119.045502,
+                "referenceEdgeEnergy": 130.228019,
+                "psnrDb": 13.9314,
+                "psnrBand": 0,
+                "composite": 74.776666
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/uk_cotswolds_village_dog_b486--random--zoom1--candidate.png",
+              "reference": "pairs/uk_cotswolds_village_dog_b486--random--zoom1--reference.png",
+              "candidateHash": "9c8b8332367a188903c5da9bb91a52a472143bfedb00866e629152091f503028",
+              "referenceHash": "362c0baec59d42c498329344bf869363ffe4f5a61d9cf1806b246fd404cb8062",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 3840
+              },
+              "score": {
+                "msSsim": 0.951327,
+                "edgeEnergyRatio": 0.916443,
+                "candidateEdgeEnergy": 133.919709,
+                "referenceEdgeEnergy": 146.12993,
+                "psnrDb": 13.834818,
+                "psnrBand": 0,
+                "composite": 75.059653
+              }
+            }
+          ]
+        }
+      ],
+      "maxZoom": 75.055635,
+      "zoom1": 75.059653
+    },
+    {
+      "levelId": "hawaii_luau_sunset_courtyard_dog_fbf2",
+      "aspectClass": "portrait",
+      "poses": [
+        {
+          "name": "dog",
+          "center": {
+            "x": 2011,
+            "y": 1623
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/hawaii_luau_sunset_courtyard_dog_fbf2--dog--maxZoom--candidate.png",
+              "reference": "pairs/hawaii_luau_sunset_courtyard_dog_fbf2--dog--maxZoom--reference.png",
+              "candidateHash": "8b88d06f1ab6c60a052024da7583f5951871154a3d26451cff5eeded3b637427",
+              "referenceHash": "acf02f66b01e9c4e8f9ce16d3e02cf7e625c6efaf8d448ac556a01807f2ae960",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 1496.615385,
+                "y": 510.030769,
+                "width": 1024,
+                "height": 2216.041026
+              },
+              "score": {
+                "msSsim": 0.968093,
+                "edgeEnergyRatio": 0.925821,
+                "candidateEdgeEnergy": 94.658025,
+                "referenceEdgeEnergy": 102.242283,
+                "psnrDb": 13.664407,
+                "psnrBand": 0,
+                "composite": 76.179277
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/hawaii_luau_sunset_courtyard_dog_fbf2--dog--zoom1--candidate.png",
+              "reference": "pairs/hawaii_luau_sunset_courtyard_dog_fbf2--dog--zoom1--reference.png",
+              "candidateHash": "f3051f8246bd427624e2d67ab88a4f9148b365a9609ad1fc4f3f9e23e8721d6d",
+              "referenceHash": "16a43a62cd1580cc757bff8429a56caaaba88766061c26b418a8841dcc13d2fa",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 3840
+              },
+              "score": {
+                "msSsim": 0.966308,
+                "edgeEnergyRatio": 0.9387,
+                "candidateEdgeEnergy": 118.494634,
+                "referenceEdgeEnergy": 126.232667,
+                "psnrDb": 13.101245,
+                "psnrBand": 0,
+                "composite": 76.476416
+              }
+            }
+          ]
+        },
+        {
+          "name": "dense",
+          "center": {
+            "x": 1632,
+            "y": 1972.020513
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/hawaii_luau_sunset_courtyard_dog_fbf2--dense--maxZoom--candidate.png",
+              "reference": "pairs/hawaii_luau_sunset_courtyard_dog_fbf2--dense--maxZoom--reference.png",
+              "candidateHash": "6af62c91e7b17ae916b37767dba74bc6d3a91ef548b4de22a66e272032604686",
+              "referenceHash": "bda2081e90967b82e3ab373a35c8f78c316558c793fbfdf5c96690ecbc87cb1f",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 1115.897436,
+                "y": 857.928205,
+                "width": 1024,
+                "height": 2216.041026
+              },
+              "score": {
+                "msSsim": 0.964714,
+                "edgeEnergyRatio": 0.919655,
+                "candidateEdgeEnergy": 99.595506,
+                "referenceEdgeEnergy": 108.296598,
+                "psnrDb": 13.672146,
+                "psnrBand": 0,
+                "composite": 75.82535
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/hawaii_luau_sunset_courtyard_dog_fbf2--dense--zoom1--candidate.png",
+              "reference": "pairs/hawaii_luau_sunset_courtyard_dog_fbf2--dense--zoom1--reference.png",
+              "candidateHash": "f3051f8246bd427624e2d67ab88a4f9148b365a9609ad1fc4f3f9e23e8721d6d",
+              "referenceHash": "16a43a62cd1580cc757bff8429a56caaaba88766061c26b418a8841dcc13d2fa",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 3840
+              },
+              "score": {
+                "msSsim": 0.966308,
+                "edgeEnergyRatio": 0.9387,
+                "candidateEdgeEnergy": 118.494634,
+                "referenceEdgeEnergy": 126.232667,
+                "psnrDb": 13.101245,
+                "psnrBand": 0,
+                "composite": 76.476416
+              }
+            }
+          ]
+        },
+        {
+          "name": "random",
+          "center": {
+            "x": 1906.407778,
+            "y": 2520.695761
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/hawaii_luau_sunset_courtyard_dog_fbf2--random--maxZoom--candidate.png",
+              "reference": "pairs/hawaii_luau_sunset_courtyard_dog_fbf2--random--maxZoom--reference.png",
+              "candidateHash": "eabbf1e6c6884ccdc88be678969c2857cf16d22f0a263d312d5126f53206adcf",
+              "referenceHash": "94d4aa778c65d7f65137c1c135f08a8c8d9669bb12e8bd3300d6368cc7ad3500",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 1391.589744,
+                "y": 1409.312821,
+                "width": 1024,
+                "height": 2216.041026
+              },
+              "score": {
+                "msSsim": 0.970293,
+                "edgeEnergyRatio": 0.921329,
+                "candidateEdgeEnergy": 95.093609,
+                "referenceEdgeEnergy": 103.213513,
+                "psnrDb": 13.513098,
+                "psnrBand": 0,
+                "composite": 76.154506
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/hawaii_luau_sunset_courtyard_dog_fbf2--random--zoom1--candidate.png",
+              "reference": "pairs/hawaii_luau_sunset_courtyard_dog_fbf2--random--zoom1--reference.png",
+              "candidateHash": "f3051f8246bd427624e2d67ab88a4f9148b365a9609ad1fc4f3f9e23e8721d6d",
+              "referenceHash": "16a43a62cd1580cc757bff8429a56caaaba88766061c26b418a8841dcc13d2fa",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 3840
+              },
+              "score": {
+                "msSsim": 0.966308,
+                "edgeEnergyRatio": 0.9387,
+                "candidateEdgeEnergy": 118.494634,
+                "referenceEdgeEnergy": 126.232667,
+                "psnrDb": 13.101245,
+                "psnrBand": 0,
+                "composite": 76.476416
+              }
+            }
+          ]
+        }
+      ],
+      "maxZoom": 76.053044,
+      "zoom1": 76.476416
+    },
+    {
+      "levelId": "spaceship_habitat_starship_common_room_dog_8e43",
+      "aspectClass": "portrait",
+      "poses": [
+        {
+          "name": "dog",
+          "center": {
+            "x": 1459,
+            "y": 2822
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/spaceship_habitat_starship_common_room_dog_8e43--dog--maxZoom--candidate.png",
+              "reference": "pairs/spaceship_habitat_starship_common_room_dog_8e43--dog--maxZoom--reference.png",
+              "candidateHash": "99174fc66620244be7e9a1a0b4e0c82fe41c7a7196b1ea1c91c509476a7552c4",
+              "referenceHash": "8e7c509eca307f99ecfbd0a586c95a96713c6f3fdc63a8a6facca4baf5211301",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 934.976303,
+                "y": 1699.905213,
+                "width": 1035.07109,
+                "height": 2240
+              },
+              "score": {
+                "msSsim": 0.995855,
+                "edgeEnergyRatio": 0.844487,
+                "candidateEdgeEnergy": 62.635093,
+                "referenceEdgeEnergy": 74.169418,
+                "psnrDb": 19.649862,
+                "psnrBand": 0,
+                "composite": 75.12735
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/spaceship_habitat_starship_common_room_dog_8e43--dog--zoom1--candidate.png",
+              "reference": "pairs/spaceship_habitat_starship_common_room_dog_8e43--dog--zoom1--reference.png",
+              "candidateHash": "7fa5ecf74ebfca0da1efba8571d8004ccb8f8b4ccc338760215474e47c5cc400",
+              "referenceHash": "66c81058ce9a43d1bbac835253b1136a17be7d1b20c725e692fa219a8385e42b",
+              "dimensions": {
+                "width": 386,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 5600
+              },
+              "score": {
+                "msSsim": 0.995216,
+                "edgeEnergyRatio": 0.861089,
+                "candidateEdgeEnergy": 70.909515,
+                "referenceEdgeEnergy": 82.348641,
+                "psnrDb": 20.331814,
+                "psnrBand": 0.016591,
+                "composite": 75.925296
+              }
+            }
+          ]
+        },
+        {
+          "name": "dense",
+          "center": {
+            "x": 645.535545,
+            "y": 1952
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/spaceship_habitat_starship_common_room_dog_8e43--dense--maxZoom--candidate.png",
+              "reference": "pairs/spaceship_habitat_starship_common_room_dog_8e43--dense--maxZoom--reference.png",
+              "candidateHash": "fc8d3bb3a2b89d3627367b07b5cec5f32a5fa391787dfc74362e2c7ffed37ecc",
+              "referenceHash": "9b7afdee339963eb1b1b269ddd3c33c72b850fab7afc55bd7722ad99c0c37c81",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 125.49763,
+                "y": 830.7109,
+                "width": 1035.07109,
+                "height": 2240
+              },
+              "score": {
+                "msSsim": 0.996179,
+                "edgeEnergyRatio": 0.853163,
+                "candidateEdgeEnergy": 71.509965,
+                "referenceEdgeEnergy": 83.817497,
+                "psnrDb": 17.986432,
+                "psnrBand": 0,
+                "composite": 75.403835
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/spaceship_habitat_starship_common_room_dog_8e43--dense--zoom1--candidate.png",
+              "reference": "pairs/spaceship_habitat_starship_common_room_dog_8e43--dense--zoom1--reference.png",
+              "candidateHash": "7fa5ecf74ebfca0da1efba8571d8004ccb8f8b4ccc338760215474e47c5cc400",
+              "referenceHash": "66c81058ce9a43d1bbac835253b1136a17be7d1b20c725e692fa219a8385e42b",
+              "dimensions": {
+                "width": 386,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 5600
+              },
+              "score": {
+                "msSsim": 0.995216,
+                "edgeEnergyRatio": 0.861089,
+                "candidateEdgeEnergy": 70.909515,
+                "referenceEdgeEnergy": 82.348641,
+                "psnrDb": 20.331814,
+                "psnrBand": 0.016591,
+                "composite": 75.925296
+              }
+            }
+          ]
+        },
+        {
+          "name": "random",
+          "center": {
+            "x": 1013.891972,
+            "y": 3839.186891
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/spaceship_habitat_starship_common_room_dog_8e43--random--maxZoom--candidate.png",
+              "reference": "pairs/spaceship_habitat_starship_common_room_dog_8e43--random--maxZoom--reference.png",
+              "candidateHash": "a9ad2e9d68cd67d2e3ab07daa8a6cefe27cacef29e391589e2472d00d0424f11",
+              "referenceHash": "94b159f860bca087fabec8abca2a8517e9f83a47b3e9249185efb278b9f0d596",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 490.42654,
+                "y": 2715.07109,
+                "width": 1035.07109,
+                "height": 2240
+              },
+              "score": {
+                "msSsim": 0.995546,
+                "edgeEnergyRatio": 0.842611,
+                "candidateEdgeEnergy": 57.078497,
+                "referenceEdgeEnergy": 67.740013,
+                "psnrDb": 19.415903,
+                "psnrBand": 0,
+                "composite": 75.055625
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/spaceship_habitat_starship_common_room_dog_8e43--random--zoom1--candidate.png",
+              "reference": "pairs/spaceship_habitat_starship_common_room_dog_8e43--random--zoom1--reference.png",
+              "candidateHash": "7fa5ecf74ebfca0da1efba8571d8004ccb8f8b4ccc338760215474e47c5cc400",
+              "referenceHash": "66c81058ce9a43d1bbac835253b1136a17be7d1b20c725e692fa219a8385e42b",
+              "dimensions": {
+                "width": 386,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 5600
+              },
+              "score": {
+                "msSsim": 0.995216,
+                "edgeEnergyRatio": 0.861089,
+                "candidateEdgeEnergy": 70.909515,
+                "referenceEdgeEnergy": 82.348641,
+                "psnrDb": 20.331814,
+                "psnrBand": 0.016591,
+                "composite": 75.925296
+              }
+            }
+          ]
+        }
+      ],
+      "maxZoom": 75.195603,
+      "zoom1": 75.925296
+    },
+    {
+      "levelId": "italy_venice_canal_morning_dog_d570",
+      "aspectClass": "portrait",
+      "poses": [
+        {
+          "name": "dog",
+          "center": {
+            "x": 660,
+            "y": 1604
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/italy_venice_canal_morning_dog_d570--dog--maxZoom--candidate.png",
+              "reference": "pairs/italy_venice_canal_morning_dog_d570--dog--maxZoom--reference.png",
+              "candidateHash": "43bed996b83964795c9ce7cdbae10063f7d2d6a66ad8234bb000e1baaace3a05",
+              "referenceHash": "2eb3b58111bf3237f4b5276418d812c1a322b32535995b1b2260d8ebe905e88d",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 138.767773,
+                "y": 479.052133,
+                "width": 1035.07109,
+                "height": 2240
+              },
+              "score": {
+                "msSsim": 0.993906,
+                "edgeEnergyRatio": 0.828993,
+                "candidateEdgeEnergy": 78.413672,
+                "referenceEdgeEnergy": 94.589007,
+                "psnrDb": 16.042321,
+                "psnrBand": 0,
+                "composite": 74.565093
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/italy_venice_canal_morning_dog_d570--dog--zoom1--candidate.png",
+              "reference": "pairs/italy_venice_canal_morning_dog_d570--dog--zoom1--reference.png",
+              "candidateHash": "2ec7c0b1a0340672e714e078081bb7c01cf850d8bc91ee39dd57f0841141c43f",
+              "referenceHash": "512be90d4f48d33fadc135dd4f195196e7a93c9fbeced4e93f4a3ab6bd6618d9",
+              "dimensions": {
+                "width": 386,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 5600
+              },
+              "score": {
+                "msSsim": 0.993752,
+                "edgeEnergyRatio": 0.857729,
+                "candidateEdgeEnergy": 83.820906,
+                "referenceEdgeEnergy": 97.724219,
+                "psnrDb": 16.610112,
+                "psnrBand": 0,
+                "composite": 75.41949
+              }
+            }
+          ]
+        },
+        {
+          "name": "dense",
+          "center": {
+            "x": 2021.535545,
+            "y": 2048
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/italy_venice_canal_morning_dog_d570--dense--maxZoom--candidate.png",
+              "reference": "pairs/italy_venice_canal_morning_dog_d570--dense--maxZoom--reference.png",
+              "candidateHash": "b26c9dd0a02d9fb478790fca10572017b7a683055b47fc8e3974825f270a05f1",
+              "referenceHash": "28185d0e2dfe73fc21a1e9a5c6b18456c2111a69564b7afe06dea201fde2414a",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 1498.957346,
+                "y": 923.601896,
+                "width": 1035.07109,
+                "height": 2240
+              },
+              "score": {
+                "msSsim": 0.993558,
+                "edgeEnergyRatio": 0.847146,
+                "candidateEdgeEnergy": 95.028056,
+                "referenceEdgeEnergy": 112.17436,
+                "psnrDb": 14.569278,
+                "psnrBand": 0,
+                "composite": 75.092271
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/italy_venice_canal_morning_dog_d570--dense--zoom1--candidate.png",
+              "reference": "pairs/italy_venice_canal_morning_dog_d570--dense--zoom1--reference.png",
+              "candidateHash": "2ec7c0b1a0340672e714e078081bb7c01cf850d8bc91ee39dd57f0841141c43f",
+              "referenceHash": "512be90d4f48d33fadc135dd4f195196e7a93c9fbeced4e93f4a3ab6bd6618d9",
+              "dimensions": {
+                "width": 386,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 5600
+              },
+              "score": {
+                "msSsim": 0.993752,
+                "edgeEnergyRatio": 0.857729,
+                "candidateEdgeEnergy": 83.820906,
+                "referenceEdgeEnergy": 97.724219,
+                "psnrDb": 16.610112,
+                "psnrBand": 0,
+                "composite": 75.41949
+              }
+            }
+          ]
+        },
+        {
+          "name": "random",
+          "center": {
+            "x": 1772.890734,
+            "y": 4229.406239
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/italy_venice_canal_morning_dog_d570--random--maxZoom--candidate.png",
+              "reference": "pairs/italy_venice_canal_morning_dog_d570--random--maxZoom--reference.png",
+              "candidateHash": "155dd736444f0c143c595a2e7ca00100aa990b9df4b90c90436258f805fda62d",
+              "referenceHash": "091aab8e27ed041f37177611f5a10b7364e9cf12fd662500b7eec44770f095b8",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 1253.459716,
+                "y": 3106.540284,
+                "width": 1035.07109,
+                "height": 2240
+              },
+              "score": {
+                "msSsim": 0.996815,
+                "edgeEnergyRatio": 0.843651,
+                "candidateEdgeEnergy": 34.942683,
+                "referenceEdgeEnergy": 41.418397,
+                "psnrDb": 17.303788,
+                "psnrBand": 0,
+                "composite": 75.150279
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/italy_venice_canal_morning_dog_d570--random--zoom1--candidate.png",
+              "reference": "pairs/italy_venice_canal_morning_dog_d570--random--zoom1--reference.png",
+              "candidateHash": "2ec7c0b1a0340672e714e078081bb7c01cf850d8bc91ee39dd57f0841141c43f",
+              "referenceHash": "512be90d4f48d33fadc135dd4f195196e7a93c9fbeced4e93f4a3ab6bd6618d9",
+              "dimensions": {
+                "width": 386,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 5600
+              },
+              "score": {
+                "msSsim": 0.993752,
+                "edgeEnergyRatio": 0.857729,
+                "candidateEdgeEnergy": 83.820906,
+                "referenceEdgeEnergy": 97.724219,
+                "psnrDb": 16.610112,
+                "psnrBand": 0,
+                "composite": 75.41949
+              }
+            }
+          ]
+        }
+      ],
+      "maxZoom": 74.935881,
+      "zoom1": 75.41949
+    },
+    {
+      "levelId": "playground_park_treehouse_rope_play_dog_88c7",
+      "aspectClass": "portrait",
+      "poses": [
+        {
+          "name": "dog",
+          "center": {
+            "x": 675,
+            "y": 2373
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/playground_park_treehouse_rope_play_dog_88c7--dog--maxZoom--candidate.png",
+              "reference": "pairs/playground_park_treehouse_rope_play_dog_88c7--dog--maxZoom--reference.png",
+              "candidateHash": "d681b1577cce5d4e5cf4c011fdc5a0620a15c1cc2cff7d98d7f2e3f1b1bda9a5",
+              "referenceHash": "2923fc9fd10fe8539a909ddaaac2eed8e9696419166a6e349b7f78e3205813e3",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 152.037915,
+                "y": 1248.720379,
+                "width": 1035.07109,
+                "height": 2240
+              },
+              "score": {
+                "msSsim": 0.993813,
+                "edgeEnergyRatio": 0.86193,
+                "candidateEdgeEnergy": 101.69471,
+                "referenceEdgeEnergy": 117.984867,
+                "psnrDb": 15.075527,
+                "psnrBand": 0,
+                "composite": 75.548548
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/playground_park_treehouse_rope_play_dog_88c7--dog--zoom1--candidate.png",
+              "reference": "pairs/playground_park_treehouse_rope_play_dog_88c7--dog--zoom1--reference.png",
+              "candidateHash": "46a10a7adf562952a82e5072584c02bcb3b200a11611b317932c92f4478f0ce9",
+              "referenceHash": "c782cbd7d9b0278b84db2c68eb86a68ff67f36a5458c483440661ee9e9001899",
+              "dimensions": {
+                "width": 386,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 5600
+              },
+              "score": {
+                "msSsim": 0.996399,
+                "edgeEnergyRatio": 0.888853,
+                "candidateEdgeEnergy": 97.148112,
+                "referenceEdgeEnergy": 109.296023,
+                "psnrDb": 15.364137,
+                "psnrBand": 0,
+                "composite": 76.485529
+              }
+            }
+          ]
+        },
+        {
+          "name": "dense",
+          "center": {
+            "x": 1669.535545,
+            "y": 2464
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/playground_park_treehouse_rope_play_dog_88c7--dense--maxZoom--candidate.png",
+              "reference": "pairs/playground_park_treehouse_rope_play_dog_88c7--dense--maxZoom--reference.png",
+              "candidateHash": "2144c54e8b43e5cdc3f0154837d5a103f780a88b8e1242057b8a29738f02b3f5",
+              "referenceHash": "abfc284543ac77ba2c4548abfa3fede80c3ffd7b882b7c560f3cf55b09c3b612",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 1147.298578,
+                "y": 1341.611374,
+                "width": 1035.07109,
+                "height": 2240
+              },
+              "score": {
+                "msSsim": 0.993325,
+                "edgeEnergyRatio": 0.852033,
+                "candidateEdgeEnergy": 107.949518,
+                "referenceEdgeEnergy": 126.696421,
+                "psnrDb": 14.430812,
+                "psnrBand": 0,
+                "composite": 75.227248
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/playground_park_treehouse_rope_play_dog_88c7--dense--zoom1--candidate.png",
+              "reference": "pairs/playground_park_treehouse_rope_play_dog_88c7--dense--zoom1--reference.png",
+              "candidateHash": "46a10a7adf562952a82e5072584c02bcb3b200a11611b317932c92f4478f0ce9",
+              "referenceHash": "c782cbd7d9b0278b84db2c68eb86a68ff67f36a5458c483440661ee9e9001899",
+              "dimensions": {
+                "width": 386,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 5600
+              },
+              "score": {
+                "msSsim": 0.996399,
+                "edgeEnergyRatio": 0.888853,
+                "candidateEdgeEnergy": 97.148112,
+                "referenceEdgeEnergy": 109.296023,
+                "psnrDb": 15.364137,
+                "psnrBand": 0,
+                "composite": 76.485529
+              }
+            }
+          ]
+        },
+        {
+          "name": "random",
+          "center": {
+            "x": 1793.787105,
+            "y": 4386.229709
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/playground_park_treehouse_rope_play_dog_88c7--random--maxZoom--candidate.png",
+              "reference": "pairs/playground_park_treehouse_rope_play_dog_88c7--random--maxZoom--reference.png",
+              "candidateHash": "5d83eb0afa0f3d2c9594413f01317a1de7f9c286e391d88b7cb101f82b1f3e05",
+              "referenceHash": "09c050ca689d9e1be9337e6f17f8ad8ef7b378d326e43d8d311a8705759b1b64",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 1273.364929,
+                "y": 3265.781991,
+                "width": 1035.07109,
+                "height": 2240
+              },
+              "score": {
+                "msSsim": 0.996413,
+                "edgeEnergyRatio": 0.859247,
+                "candidateEdgeEnergy": 67.121175,
+                "referenceEdgeEnergy": 78.116308,
+                "psnrDb": 14.702155,
+                "psnrBand": 0,
+                "composite": 75.59803
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/playground_park_treehouse_rope_play_dog_88c7--random--zoom1--candidate.png",
+              "reference": "pairs/playground_park_treehouse_rope_play_dog_88c7--random--zoom1--reference.png",
+              "candidateHash": "46a10a7adf562952a82e5072584c02bcb3b200a11611b317932c92f4478f0ce9",
+              "referenceHash": "c782cbd7d9b0278b84db2c68eb86a68ff67f36a5458c483440661ee9e9001899",
+              "dimensions": {
+                "width": 386,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 5600
+              },
+              "score": {
+                "msSsim": 0.996399,
+                "edgeEnergyRatio": 0.888853,
+                "candidateEdgeEnergy": 97.148112,
+                "referenceEdgeEnergy": 109.296023,
+                "psnrDb": 15.364137,
+                "psnrBand": 0,
+                "composite": 76.485529
+              }
+            }
+          ]
+        }
+      ],
+      "maxZoom": 75.457942,
+      "zoom1": 76.485529
+    },
+    {
+      "levelId": "spaceship_habitat_asteroid_research_nook_dog_8c9d",
+      "aspectClass": "portrait",
+      "poses": [
+        {
+          "name": "dog",
+          "center": {
+            "x": 1654,
+            "y": 2405
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/spaceship_habitat_asteroid_research_nook_dog_8c9d--dog--maxZoom--candidate.png",
+              "reference": "pairs/spaceship_habitat_asteroid_research_nook_dog_8c9d--dog--maxZoom--reference.png",
+              "candidateHash": "1d9267461b1c9bf0882c536425b19a580df73ff81e19b13a6cdbb396cc85f900",
+              "referenceHash": "7359cb4d15c380a4aef2702f88e3f857e2ceba23733ec572ee0c0fe0f57c9352",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 1134.028436,
+                "y": 1281.895735,
+                "width": 1035.07109,
+                "height": 2240
+              },
+              "score": {
+                "msSsim": 0.995649,
+                "edgeEnergyRatio": 0.868918,
+                "candidateEdgeEnergy": 113.032603,
+                "referenceEdgeEnergy": 130.084389,
+                "psnrDb": 18.24392,
+                "psnrBand": 0,
+                "composite": 75.849997
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/spaceship_habitat_asteroid_research_nook_dog_8c9d--dog--zoom1--candidate.png",
+              "reference": "pairs/spaceship_habitat_asteroid_research_nook_dog_8c9d--dog--zoom1--reference.png",
+              "candidateHash": "30a407349383e466ced2884b5d88ff2f381a7b17b7087eb9643ac3d41fc23e21",
+              "referenceHash": "dee213725d6eb4ba3159e47d1b78019d76b980470a9ff2e36d33f89aa6ee6be5",
+              "dimensions": {
+                "width": 386,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 5600
+              },
+              "score": {
+                "msSsim": 0.996544,
+                "edgeEnergyRatio": 0.893082,
+                "candidateEdgeEnergy": 98.681226,
+                "referenceEdgeEnergy": 110.495192,
+                "psnrDb": 20.792203,
+                "psnrBand": 0.03961,
+                "composite": 77.41185
+              }
+            }
+          ]
+        },
+        {
+          "name": "dense",
+          "center": {
+            "x": 1573.535545,
+            "y": 2080
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/spaceship_habitat_asteroid_research_nook_dog_8c9d--dense--maxZoom--candidate.png",
+              "reference": "pairs/spaceship_habitat_asteroid_research_nook_dog_8c9d--dense--maxZoom--reference.png",
+              "candidateHash": "4aeabfe9d822bc65d46368452009bc4e6eea786126af22e99561fe23f4ac25f7",
+              "referenceHash": "8526341188aca8e88570547288ce5ee84185b30d0aa466556e9971d48d063644",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 1054.407583,
+                "y": 956.777251,
+                "width": 1035.07109,
+                "height": 2240
+              },
+              "score": {
+                "msSsim": 0.99565,
+                "edgeEnergyRatio": 0.869145,
+                "candidateEdgeEnergy": 116.105347,
+                "referenceEdgeEnergy": 133.58575,
+                "psnrDb": 18.10106,
+                "psnrBand": 0,
+                "composite": 75.856859
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/spaceship_habitat_asteroid_research_nook_dog_8c9d--dense--zoom1--candidate.png",
+              "reference": "pairs/spaceship_habitat_asteroid_research_nook_dog_8c9d--dense--zoom1--reference.png",
+              "candidateHash": "30a407349383e466ced2884b5d88ff2f381a7b17b7087eb9643ac3d41fc23e21",
+              "referenceHash": "dee213725d6eb4ba3159e47d1b78019d76b980470a9ff2e36d33f89aa6ee6be5",
+              "dimensions": {
+                "width": 386,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 5600
+              },
+              "score": {
+                "msSsim": 0.996544,
+                "edgeEnergyRatio": 0.893082,
+                "candidateEdgeEnergy": 98.681226,
+                "referenceEdgeEnergy": 110.495192,
+                "psnrDb": 20.792203,
+                "psnrBand": 0.03961,
+                "composite": 77.41185
+              }
+            }
+          ]
+        },
+        {
+          "name": "random",
+          "center": {
+            "x": 2025.073483,
+            "y": 3336.211734
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/spaceship_habitat_asteroid_research_nook_dog_8c9d--random--maxZoom--candidate.png",
+              "reference": "pairs/spaceship_habitat_asteroid_research_nook_dog_8c9d--random--maxZoom--reference.png",
+              "candidateHash": "1a9e4c34e8bc7d1f2c1be021adc0beda957ffe5bf8f755ee73c8ded99f52a1e4",
+              "referenceHash": "d879476d3a12f2b4eeb43eb85df57eafbbfaf804f1b60d2dc1f6b836ce502da5",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 1505.592417,
+                "y": 2210.805687,
+                "width": 1035.07109,
+                "height": 2240
+              },
+              "score": {
+                "msSsim": 0.996332,
+                "edgeEnergyRatio": 0.867399,
+                "candidateEdgeEnergy": 92.865846,
+                "referenceEdgeEnergy": 107.062384,
+                "psnrDb": 19.746947,
+                "psnrBand": 0,
+                "composite": 75.838597
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/spaceship_habitat_asteroid_research_nook_dog_8c9d--random--zoom1--candidate.png",
+              "reference": "pairs/spaceship_habitat_asteroid_research_nook_dog_8c9d--random--zoom1--reference.png",
+              "candidateHash": "30a407349383e466ced2884b5d88ff2f381a7b17b7087eb9643ac3d41fc23e21",
+              "referenceHash": "dee213725d6eb4ba3159e47d1b78019d76b980470a9ff2e36d33f89aa6ee6be5",
+              "dimensions": {
+                "width": 386,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 5600
+              },
+              "score": {
+                "msSsim": 0.996544,
+                "edgeEnergyRatio": 0.893082,
+                "candidateEdgeEnergy": 98.681226,
+                "referenceEdgeEnergy": 110.495192,
+                "psnrDb": 20.792203,
+                "psnrBand": 0.03961,
+                "composite": 77.41185
+              }
+            }
+          ]
+        }
+      ],
+      "maxZoom": 75.848484,
+      "zoom1": 77.41185
+    },
+    {
+      "levelId": "france_provence_lavender_village_dog_cbbe",
+      "aspectClass": "portrait",
+      "poses": [
+        {
+          "name": "dog",
+          "center": {
+            "x": 512,
+            "y": 2052
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/france_provence_lavender_village_dog_cbbe--dog--maxZoom--candidate.png",
+              "reference": "pairs/france_provence_lavender_village_dog_cbbe--dog--maxZoom--reference.png",
+              "candidateHash": "a230273a0dbbab1ea047db04115de97d23b04d906d521b1422ceaae9031a2e57",
+              "referenceHash": "68a7caed45a26905d6199ff8528ac66409bce6818d3e745994466d06f42458e6",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 0,
+                "y": 943.261538,
+                "width": 1024,
+                "height": 2216.041026
+              },
+              "score": {
+                "msSsim": 0.956312,
+                "edgeEnergyRatio": 0.90523,
+                "candidateEdgeEnergy": 107.555954,
+                "referenceEdgeEnergy": 118.816144,
+                "psnrDb": 14.114017,
+                "psnrBand": 0,
+                "composite": 74.972516
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/france_provence_lavender_village_dog_cbbe--dog--zoom1--candidate.png",
+              "reference": "pairs/france_provence_lavender_village_dog_cbbe--dog--zoom1--reference.png",
+              "candidateHash": "f896da83649d305a704015c8aac7b8d9b4b28fec727a43930abf8e08abbb3d8c",
+              "referenceHash": "f62e8917c3b5a1495223ed438f5d10a7b222c40c29d1e749ef5523fd3eecdf3e",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 3840
+              },
+              "score": {
+                "msSsim": 0.959356,
+                "edgeEnergyRatio": 0.906685,
+                "candidateEdgeEnergy": 125.855717,
+                "referenceEdgeEnergy": 138.808664,
+                "psnrDb": 13.920137,
+                "psnrBand": 0,
+                "composite": 75.168371
+              }
+            }
+          ]
+        },
+        {
+          "name": "dense",
+          "center": {
+            "x": 672,
+            "y": 1652.020513
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/france_provence_lavender_village_dog_cbbe--dense--maxZoom--candidate.png",
+              "reference": "pairs/france_provence_lavender_village_dog_cbbe--dense--maxZoom--reference.png",
+              "candidateHash": "33ed63b4b37ac251b3e7a95861a5e6260359bee9c380d511908ffa4e2b1e5b98",
+              "referenceHash": "19f20e30eb5c4be40d7edfccfd005f3ce01d167068922e24319af7b8acaae1bf",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 157.538462,
+                "y": 542.851282,
+                "width": 1024,
+                "height": 2216.041026
+              },
+              "score": {
+                "msSsim": 0.955227,
+                "edgeEnergyRatio": 0.901965,
+                "candidateEdgeEnergy": 110.142999,
+                "referenceEdgeEnergy": 122.114488,
+                "psnrDb": 14.023767,
+                "psnrBand": 0,
+                "composite": 74.820318
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/france_provence_lavender_village_dog_cbbe--dense--zoom1--candidate.png",
+              "reference": "pairs/france_provence_lavender_village_dog_cbbe--dense--zoom1--reference.png",
+              "candidateHash": "f896da83649d305a704015c8aac7b8d9b4b28fec727a43930abf8e08abbb3d8c",
+              "referenceHash": "f62e8917c3b5a1495223ed438f5d10a7b222c40c29d1e749ef5523fd3eecdf3e",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 3840
+              },
+              "score": {
+                "msSsim": 0.959356,
+                "edgeEnergyRatio": 0.906685,
+                "candidateEdgeEnergy": 125.855717,
+                "referenceEdgeEnergy": 138.808664,
+                "psnrDb": 13.920137,
+                "psnrBand": 0,
+                "composite": 75.168371
+              }
+            }
+          ]
+        },
+        {
+          "name": "random",
+          "center": {
+            "x": 913.052925,
+            "y": 2271.449929
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/france_provence_lavender_village_dog_cbbe--random--maxZoom--candidate.png",
+              "reference": "pairs/france_provence_lavender_village_dog_cbbe--random--maxZoom--reference.png",
+              "candidateHash": "67c5cf6959d276d810f4f6e0bf96bbf2666b367b0c75aaa38c758e1bcf80d5dc",
+              "referenceHash": "d208b1c22f651a9b91e828e4fc4459d3870217d6cb036364cae16926080d695c",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 400.410256,
+                "y": 1159.876923,
+                "width": 1024,
+                "height": 2216.041026
+              },
+              "score": {
+                "msSsim": 0.965855,
+                "edgeEnergyRatio": 0.900475,
+                "candidateEdgeEnergy": 104.295604,
+                "referenceEdgeEnergy": 115.822922,
+                "psnrDb": 14.576761,
+                "psnrBand": 0,
+                "composite": 75.307014
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/france_provence_lavender_village_dog_cbbe--random--zoom1--candidate.png",
+              "reference": "pairs/france_provence_lavender_village_dog_cbbe--random--zoom1--reference.png",
+              "candidateHash": "f896da83649d305a704015c8aac7b8d9b4b28fec727a43930abf8e08abbb3d8c",
+              "referenceHash": "f62e8917c3b5a1495223ed438f5d10a7b222c40c29d1e749ef5523fd3eecdf3e",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 3840
+              },
+              "score": {
+                "msSsim": 0.959356,
+                "edgeEnergyRatio": 0.906685,
+                "candidateEdgeEnergy": 125.855717,
+                "referenceEdgeEnergy": 138.808664,
+                "psnrDb": 13.920137,
+                "psnrBand": 0,
+                "composite": 75.168371
+              }
+            }
+          ]
+        }
+      ],
+      "maxZoom": 75.033283,
+      "zoom1": 75.168371
+    },
+    {
+      "levelId": "hawaii_hidden_easy_phone",
+      "aspectClass": "portrait",
+      "poses": [
+        {
+          "name": "dog",
+          "center": {
+            "x": 703,
+            "y": 443.208205
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/hawaii_hidden_easy_phone--dog--maxZoom--candidate.png",
+              "reference": "pairs/hawaii_hidden_easy_phone--dog--maxZoom--reference.png",
+              "candidateHash": "51661881c1958acff15ab3b005598681c18fee2fa5298669937885ab4726047f",
+              "referenceHash": "029d13b1db3e4411325a072446fe4b38eefe6b211f08c128d66fb999af30d7dd",
+              "dimensions": {
+                "width": 390,
+                "height": 843
+              },
+              "crop": {
+                "x": 496.246154,
+                "y": 0,
+                "width": 409.6,
+                "height": 885.628718
+              },
+              "score": {
+                "msSsim": 0.967312,
+                "edgeEnergyRatio": 0.901526,
+                "candidateEdgeEnergy": 95.626655,
+                "referenceEdgeEnergy": 106.07193,
+                "psnrDb": 15.783537,
+                "psnrBand": 0,
+                "composite": 75.411399
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/hawaii_hidden_easy_phone--dog--zoom1--candidate.png",
+              "reference": "pairs/hawaii_hidden_easy_phone--dog--zoom1--reference.png",
+              "candidateHash": "2b3c86b35a41c64a2a684e4e763982cf62f146b2099396eaa902467601ed3839",
+              "referenceHash": "46aaa1680b8db789b443b467c672d290529f5fb680ee9d1e34ac18b432af00cd",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 1024,
+                "height": 1536
+              },
+              "score": {
+                "msSsim": 0.953235,
+                "edgeEnergyRatio": 0.952613,
+                "candidateEdgeEnergy": 126.929554,
+                "referenceEdgeEnergy": 133.243528,
+                "psnrDb": 15.08826,
+                "psnrBand": 0,
+                "composite": 76.240166
+              }
+            }
+          ]
+        },
+        {
+          "name": "dense",
+          "center": {
+            "x": 240.8,
+            "y": 1067.208205
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/hawaii_hidden_easy_phone--dense--maxZoom--candidate.png",
+              "reference": "pairs/hawaii_hidden_easy_phone--dense--maxZoom--reference.png",
+              "candidateHash": "ab42bd0324c944ce6cc62c23c8e0203b594a1982b53ee7ab30545a2ba77543de",
+              "referenceHash": "95f65de23cd060228212bd600a01dcc2d8b94e62bb7d2c04e1c30d21031410bd",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 34.133333,
+                "y": 621.489231,
+                "width": 409.6,
+                "height": 886.41641
+              },
+              "score": {
+                "msSsim": 0.943656,
+                "edgeEnergyRatio": 0.8945,
+                "candidateEdgeEnergy": 102.453225,
+                "referenceEdgeEnergy": 114.536914,
+                "psnrDb": 15.91203,
+                "psnrBand": 0,
+                "composite": 74.017809
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/hawaii_hidden_easy_phone--dense--zoom1--candidate.png",
+              "reference": "pairs/hawaii_hidden_easy_phone--dense--zoom1--reference.png",
+              "candidateHash": "2b3c86b35a41c64a2a684e4e763982cf62f146b2099396eaa902467601ed3839",
+              "referenceHash": "46aaa1680b8db789b443b467c672d290529f5fb680ee9d1e34ac18b432af00cd",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 1024,
+                "height": 1536
+              },
+              "score": {
+                "msSsim": 0.953235,
+                "edgeEnergyRatio": 0.952613,
+                "candidateEdgeEnergy": 126.929554,
+                "referenceEdgeEnergy": 133.243528,
+                "psnrDb": 15.08826,
+                "psnrBand": 0,
+                "composite": 76.240166
+              }
+            }
+          ]
+        },
+        {
+          "name": "random",
+          "center": {
+            "x": 267.718563,
+            "y": 1067.944473
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/hawaii_hidden_easy_phone--random--maxZoom--candidate.png",
+              "reference": "pairs/hawaii_hidden_easy_phone--random--maxZoom--reference.png",
+              "candidateHash": "e3ac0ac91f4176074b261168faaef01fd6fc4c3fa2bdb0764687a5f3bd6145d1",
+              "referenceHash": "7fc93529d02d82285cb17379808550d0a621ea488e131d9155c959d60df12d7c",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 60.389744,
+                "y": 624.114872,
+                "width": 409.6,
+                "height": 886.41641
+              },
+              "score": {
+                "msSsim": 0.943862,
+                "edgeEnergyRatio": 0.89451,
+                "candidateEdgeEnergy": 101.895793,
+                "referenceEdgeEnergy": 113.912438,
+                "psnrDb": 15.948448,
+                "psnrBand": 0,
+                "composite": 74.02838
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/hawaii_hidden_easy_phone--random--zoom1--candidate.png",
+              "reference": "pairs/hawaii_hidden_easy_phone--random--zoom1--reference.png",
+              "candidateHash": "2b3c86b35a41c64a2a684e4e763982cf62f146b2099396eaa902467601ed3839",
+              "referenceHash": "46aaa1680b8db789b443b467c672d290529f5fb680ee9d1e34ac18b432af00cd",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 1024,
+                "height": 1536
+              },
+              "score": {
+                "msSsim": 0.953235,
+                "edgeEnergyRatio": 0.952613,
+                "candidateEdgeEnergy": 126.929554,
+                "referenceEdgeEnergy": 133.243528,
+                "psnrDb": 15.08826,
+                "psnrBand": 0,
+                "composite": 76.240166
+              }
+            }
+          ]
+        }
+      ],
+      "maxZoom": 74.485863,
+      "zoom1": 76.240166
+    },
+    {
+      "levelId": "france_alsace_wine_village_dog_f12c",
+      "aspectClass": "portrait",
+      "poses": [
+        {
+          "name": "dog",
+          "center": {
+            "x": 1864,
+            "y": 2319
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/france_alsace_wine_village_dog_f12c--dog--maxZoom--candidate.png",
+              "reference": "pairs/france_alsace_wine_village_dog_f12c--dog--maxZoom--reference.png",
+              "candidateHash": "c18679f4aa8818209d0416647204f137921c296c6f84fad9310d0c2b1dc59d0d",
+              "referenceHash": "acf61563450845e2a78e158c003069594e9df341ad6815e3c4743e4a2bf58b01",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 1345.641026,
+                "y": 1205.825641,
+                "width": 1024,
+                "height": 2216.041026
+              },
+              "score": {
+                "msSsim": 0.964772,
+                "edgeEnergyRatio": 0.919865,
+                "candidateEdgeEnergy": 89.147895,
+                "referenceEdgeEnergy": 96.914095,
+                "psnrDb": 16.202465,
+                "psnrBand": 0,
+                "composite": 75.834533
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/france_alsace_wine_village_dog_f12c--dog--zoom1--candidate.png",
+              "reference": "pairs/france_alsace_wine_village_dog_f12c--dog--zoom1--reference.png",
+              "candidateHash": "82da1c64ba403dfc68613920e740f207b2ca08f4a0bcf170bbbdeb0c7e202d31",
+              "referenceHash": "8d0dabd32f4aaabd2b6e2b1c300549fccb80f06ae0c2794a0a8e56520fc04e58",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 3840
+              },
+              "score": {
+                "msSsim": 0.969063,
+                "edgeEnergyRatio": 0.922738,
+                "candidateEdgeEnergy": 119.837384,
+                "referenceEdgeEnergy": 129.871467,
+                "psnrDb": 15.660515,
+                "psnrBand": 0,
+                "composite": 76.135316
+              }
+            }
+          ]
+        },
+        {
+          "name": "dense",
+          "center": {
+            "x": 1056,
+            "y": 1588.020513
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/france_alsace_wine_village_dog_f12c--dense--maxZoom--candidate.png",
+              "reference": "pairs/france_alsace_wine_village_dog_f12c--dense--maxZoom--reference.png",
+              "candidateHash": "4983738159ba1f9584241f819fd71e5f8472bd0c2250649dca8d7541bd143cc3",
+              "referenceHash": "4d7affd12d0a8a47269aa658e832a60b082c298a19863a71a22f1320bdbcc29d",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 538.25641,
+                "y": 477.210256,
+                "width": 1024,
+                "height": 2216.041026
+              },
+              "score": {
+                "msSsim": 0.970535,
+                "edgeEnergyRatio": 0.917367,
+                "candidateEdgeEnergy": 98.062,
+                "referenceEdgeEnergy": 106.895104,
+                "psnrDb": 15.982745,
+                "psnrBand": 0,
+                "composite": 76.047749
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/france_alsace_wine_village_dog_f12c--dense--zoom1--candidate.png",
+              "reference": "pairs/france_alsace_wine_village_dog_f12c--dense--zoom1--reference.png",
+              "candidateHash": "82da1c64ba403dfc68613920e740f207b2ca08f4a0bcf170bbbdeb0c7e202d31",
+              "referenceHash": "8d0dabd32f4aaabd2b6e2b1c300549fccb80f06ae0c2794a0a8e56520fc04e58",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 3840
+              },
+              "score": {
+                "msSsim": 0.969063,
+                "edgeEnergyRatio": 0.922738,
+                "candidateEdgeEnergy": 119.837384,
+                "referenceEdgeEnergy": 129.871467,
+                "psnrDb": 15.660515,
+                "psnrBand": 0,
+                "composite": 76.135316
+              }
+            }
+          ]
+        },
+        {
+          "name": "random",
+          "center": {
+            "x": 1471.72223,
+            "y": 1905.555846
+          },
+          "captures": [
+            {
+              "zoomLabel": "maxZoom",
+              "zoom": 2.5,
+              "candidate": "pairs/france_alsace_wine_village_dog_f12c--random--maxZoom--candidate.png",
+              "reference": "pairs/france_alsace_wine_village_dog_f12c--random--maxZoom--reference.png",
+              "candidateHash": "dc745e15c47d61764c1fe65f52a34129e305259b1bf603a2258da7013f854216",
+              "referenceHash": "43ea950df17fd6ee8ba186f7a7a4a099270bbb709ad89f82aa76517befd05286",
+              "dimensions": {
+                "width": 390,
+                "height": 844
+              },
+              "crop": {
+                "x": 958.358974,
+                "y": 792.287179,
+                "width": 1024,
+                "height": 2216.041026
+              },
+              "score": {
+                "msSsim": 0.97124,
+                "edgeEnergyRatio": 0.916297,
+                "candidateEdgeEnergy": 91.024981,
+                "referenceEdgeEnergy": 99.340044,
+                "psnrDb": 16.518363,
+                "psnrBand": 0,
+                "composite": 76.050899
+              }
+            },
+            {
+              "zoomLabel": "zoom1",
+              "zoom": 1,
+              "candidate": "pairs/france_alsace_wine_village_dog_f12c--random--zoom1--candidate.png",
+              "reference": "pairs/france_alsace_wine_village_dog_f12c--random--zoom1--reference.png",
+              "candidateHash": "82da1c64ba403dfc68613920e740f207b2ca08f4a0bcf170bbbdeb0c7e202d31",
+              "referenceHash": "8d0dabd32f4aaabd2b6e2b1c300549fccb80f06ae0c2794a0a8e56520fc04e58",
+              "dimensions": {
+                "width": 390,
+                "height": 585
+              },
+              "crop": {
+                "x": 0,
+                "y": 0,
+                "width": 2560,
+                "height": 3840
+              },
+              "score": {
+                "msSsim": 0.969063,
+                "edgeEnergyRatio": 0.922738,
+                "candidateEdgeEnergy": 119.837384,
+                "referenceEdgeEnergy": 129.871467,
+                "psnrDb": 15.660515,
+                "psnrBand": 0,
+                "composite": 76.135316
+              }
+            }
+          ]
+        }
+      ],
+      "maxZoom": 75.977727,
+      "zoom1": 76.135316
+    }
+  ],
+  "median": {
+    "maxZoom": 75.457942,
+    "zoom1": 76.135316
+  },
+  "worstDecile": {
+    "maxZoom": 74.412557,
+    "zoom1": 74.768759
+  }
+}
