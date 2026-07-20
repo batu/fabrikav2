@@ -461,14 +461,17 @@ export function openPage(
     wireSettingsPageListeners(page);
   }
   if (id === 'shop') page.classList.add('home-page-shop');
+  if (id === 'settings') page.classList.add('home-page-settings');
   // Deep-link opens jump to a section, so skip the staggered content entrance
   // (otherwise the scrolled-to section sits empty then pops in after its delay).
   if (opts.scrollTo) page.classList.add('home-page-overlay--instant');
 
   overlay.appendChild(page);
+  if (id === 'settings') {
+    configureRestorePurchasesControl(page);
+  }
   if (id === 'shop') {
     renderPageShopProducts(page);
-    configureRestorePurchasesControl(page);
     schedulePageShopProductsRefresh(page);
     if (opts.scrollTo) {
       // Deep-link: jump the shop straight to the requested section (the home
@@ -540,15 +543,6 @@ function renderShopPageBody(): string {
     <div class="shop-new-section" id="shop-page-coins">
       <div class="shop-new-section-header">Coin Packs</div>
       <div class="shop-new-grid" id="shop-coins-grid"></div>
-    </div>
-    <div class="shop-restore-footer" id="shop-page-restore-footer">
-      <div class="shop-restore-panel" id="shop-restore-panel">
-        <div class="shop-restore-copy">
-          <strong>Restore Purchases</strong>
-          <small id="shop-restore-status">Restore No Ads purchases on this device.</small>
-        </div>
-        <button id="shop-restore-btn" class="btn-secondary shop-restore-btn" type="button">Restore</button>
-      </div>
     </div>
   `;
 }
@@ -840,6 +834,8 @@ function renderSettingsRows(): string {
         <span class="settings-home-arrow" aria-hidden="true"></span>
       </button>
       <div class="settings-legal-footer" aria-label="Privacy, legal, and support links">
+        <button id="settings-restore-btn" class="settings-footer-link settings-footer-action settings-restore-btn" type="button" aria-describedby="settings-restore-status">Restore Purchases</button>
+        <span id="settings-restore-status" class="settings-restore-status" aria-live="polite">Restore No Ads purchases on this device.</span>
         <button id="privacy-choices-btn" class="settings-footer-link settings-footer-action" type="button" aria-label="Privacy choices, opens consent options">Privacy choices</button>
         <div class="settings-legal-links">
           <button id="privacy-policy-link-btn" class="settings-footer-link" type="button" aria-label="Privacy Policy, opens in browser">Privacy</button>
@@ -937,10 +933,10 @@ function configureRestorePurchasesControl(modal: HTMLElement): void {
 }
 
 function shopRestoreControls(modal: HTMLElement): { button: HTMLButtonElement; status: HTMLElement } {
-  const button = modal.querySelector<HTMLButtonElement>('#shop-restore-btn');
-  const status = modal.querySelector<HTMLElement>('#shop-restore-status');
+  const button = modal.querySelector<HTMLButtonElement>('#settings-restore-btn');
+  const status = modal.querySelector<HTMLElement>('#settings-restore-status');
   if (button === null || status === null) {
-    throw new Error('shop restore controls are missing from the shop modal');
+    throw new Error('restore controls are missing from the settings page');
   }
   return { button, status };
 }
@@ -1020,14 +1016,18 @@ function currentShopModal(): HTMLElement | null {
   return document.querySelector<HTMLElement>('#home-page-overlay.home-page-shop') ?? null;
 }
 
+function currentSettingsPage(): HTMLElement | null {
+  return document.querySelector<HTMLElement>('#home-page-overlay.home-page-settings') ?? null;
+}
+
 function renderCurrentRestoreControl(): void {
-  const modal = currentShopModal();
+  const modal = currentSettingsPage();
   if (modal === null) return;
   renderRestoreControl(shopRestoreControls(modal), restoreUiState);
 }
 
 function refreshCurrentRestoreControl(): void {
-  const modal = currentShopModal();
+  const modal = currentSettingsPage();
   if (modal === null) return;
   if (restoreUiState !== 'pending' && restoreUiState !== 'restored') {
     restoreUiState = nextRestoreUiStateFromIap();
