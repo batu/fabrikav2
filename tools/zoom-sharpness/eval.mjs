@@ -98,7 +98,7 @@ async function main() {
     await makeManifest(dist);
     const hosted = await serve(dist); server = hosted.server;
     browser = await chromium.launch({ headless: true });
-    const page = await browser.newPage({ viewport, deviceScaleFactor: 1 });
+    const page = await browser.newPage({ viewport, deviceScaleFactor: 3 });
     page.on('console', (message) => { if (message.type() === 'error') console.error(`[page] ${message.text()}`); });
     page.on('pageerror', (error) => console.error(`[page] ${error}`));
     await page.goto(hosted.url, { waitUntil: 'networkidle' });
@@ -146,7 +146,7 @@ async function main() {
       child.stdout.on('data', (value) => { out += value; });
       child.once('exit', (code) => code === 0 ? resolve(out.trim()) : reject(new Error('git revision failed')));
     });
-    const report = { metadata: { tier: 'chromium-fast-tier-not-device', levels: levelIds, viewport, deviceScaleFactor: 1, maxZoom: MAX_ZOOM, seed: SEED, revision, evaluatorHash: crypto.createHash('sha256').update(await fs.readFile(fileURLToPath(import.meta.url))).update(await fs.readFile(new URL('./lib.mjs', import.meta.url))).digest('hex'), metrics: { formula: '100 * (0.5 * MS-SSIM + 0.3 * capped edge-energy ratio + 0.2 * PSNR band)', msSsimWeights: MS_SSIM_WEIGHTS, psnrBandDb: [20, 40], lanczosLobes: 3 }, availableAspectClasses: [...new Set(perLevel.map((level) => level.aspectClass))] }, perLevel, median: { maxZoom: rounded(median(perLevel.map((level) => level.maxZoom))), zoom1: rounded(median(perLevel.map((level) => level.zoom1))) }, worstDecile: { maxZoom: rounded(worstDecile(perLevel.map((level) => level.maxZoom))), zoom1: rounded(worstDecile(perLevel.map((level) => level.zoom1))) } };
+    const report = { metadata: { tier: 'chromium-fast-tier-not-device', levels: levelIds, viewport, deviceScaleFactor: 3, maxZoom: MAX_ZOOM, seed: SEED, revision, evaluatorHash: crypto.createHash('sha256').update(await fs.readFile(fileURLToPath(import.meta.url))).update(await fs.readFile(new URL('./lib.mjs', import.meta.url))).digest('hex'), metrics: { formula: '100 * (0.5 * MS-SSIM + 0.3 * capped edge-energy ratio + 0.2 * PSNR band)', msSsimWeights: MS_SSIM_WEIGHTS, psnrBandDb: [20, 40], lanczosLobes: 3 }, availableAspectClasses: [...new Set(perLevel.map((level) => level.aspectClass))] }, perLevel, median: { maxZoom: rounded(median(perLevel.map((level) => level.maxZoom))), zoom1: rounded(median(perLevel.map((level) => level.zoom1))) }, worstDecile: { maxZoom: rounded(worstDecile(perLevel.map((level) => level.maxZoom))), zoom1: rounded(worstDecile(perLevel.map((level) => level.zoom1))) } };
     await fs.writeFile(path.join(output, 'report.json'), `${JSON.stringify(report, null, 2)}\n`);
     await fs.writeFile(path.join(output, 'index.html'), reportHtml(report));
     console.log(`wrote ${output}`);
