@@ -166,7 +166,17 @@ function installElementFromPoint(): void {
   });
 }
 
-function createFakeGame() {
+function captureTourMarkerHistory(): string[] {
+  const history: string[] = [];
+  const originalSetAttribute = HTMLElement.prototype.setAttribute;
+  vi.spyOn(HTMLElement.prototype, "setAttribute").mockImplementation(function (this: HTMLElement, name: string, value: string): void {
+    originalSetAttribute.call(this, name, value);
+    if (this.id === "__tourstate__" && name === "aria-label") history.push(value);
+  });
+  return history;
+}
+
+function createFakeGame(options: { deferHomeRender?: boolean } = {}) {
   let activeScene = "HomeScene";
   let playClicks = 0;
   const canvas = document.createElement("canvas");
@@ -250,6 +260,7 @@ function createFakeGame() {
     setRect(play, { left: 10, top: 10, width: 40, height: 20 });
     setRect(settings, { left: 60, top: 10, width: 30, height: 20 });
     play.addEventListener("click", () => {
+      if (overlay.querySelector("#home-page-overlay") !== null) return;
       playClicks += 1;
       mocks.initHUD();
       overlay.innerHTML = "";
@@ -271,7 +282,11 @@ function createFakeGame() {
     canvas,
     scene: {
       start: vi.fn((key: string) => {
-        if (key === "HomeScene") renderHome();
+        if (key === "HomeScene") {
+          activeScene = "HomeScene";
+          if (options.deferHomeRender === true) window.setTimeout(renderHome, 10);
+          else renderHome();
+        }
         if (key === "GameScene") {
           overlay.innerHTML = "";
           activeScene = "GameScene";
@@ -279,7 +294,10 @@ function createFakeGame() {
         }
       }),
       stop: vi.fn((key: string) => {
-        if (activeScene === key) activeScene = "unknown";
+        if (activeScene === key) {
+          activeScene = "unknown";
+          if (key === "HomeScene") overlay.innerHTML = "";
+        }
       }),
       getScene: vi.fn((key: string) => (key === "GameScene" ? fakeGameScene : null)),
       isActive: vi.fn((key: string) => activeScene === key),
@@ -339,6 +357,17 @@ describe("find_the_dog TestHarness real-flow wiring", () => {
     expect(snapshotMatchesFindTheDogDriveState("menu", snapshot)).toBe(true);
   });
 
+  it("gotoHome waits for the home UI instead of Phaser activation alone", async () => {
+    const { createFindTheDogHarness } = await import("../../src/testing/TestHarness");
+    const fixture = createFakeGame({ deferHomeRender: true });
+    const harness = createFindTheDogHarness(fixture.game as never);
+    await harness.verbs.startLevel.run();
+
+    await expect(harness.verbs.gotoHome.run()).resolves.toBe(true);
+
+    expect(harness.snapshot().homeShellVisible).toBe(true);
+  });
+
   it("openSettings drives the mounted settings control and confirms the page", async () => {
     const { createFindTheDogHarness } = await import("../../src/testing/TestHarness");
     const fixture = createFakeGame();
@@ -351,6 +380,22 @@ describe("find_the_dog TestHarness real-flow wiring", () => {
       activeScene: "HomeScene",
       settingsOpen: true,
       homeShellVisible: true,
+    });
+  });
+
+  it("startLevel clears an open settings page before driving Play", async () => {
+    const { createFindTheDogHarness } = await import("../../src/testing/TestHarness");
+    const fixture = createFakeGame();
+    const harness = createFindTheDogHarness(fixture.game as never);
+    await harness.verbs.openSettings.run();
+
+    await expect(harness.verbs.startLevel.run()).resolves.toBe(true);
+
+    expect(fixture.playClicks).toBe(1);
+    expect(harness.snapshot()).toMatchObject({
+      activeScene: "GameScene",
+      settingsOpen: false,
+      status: "playing",
     });
   });
 
@@ -371,5 +416,67 @@ describe("find_the_dog TestHarness real-flow wiring", () => {
       levelComplete: true,
       levelCompleteOverlayVisible: true,
     });
+  });
+
+  it("publishes every canonical tour marker in order through the real harness", async () => {
+    const { maybeRunInsituTour } = await import("@fabrikav2/testkit/testing");
+    const { createFindTheDogHarness, snapshotMatchesFindTheDogDriveState } = await import("../../src/testing/TestHarness");
+    const fixture = createFakeGame({ deferHomeRender: true });
+    const harness = createFindTheDogHarness(fixture.game as never);
+    const ariaHistory = captureTourMarkerHistory();
+
+    await maybeRunInsituTour(harness, {
+      script: "allstates",
+      dwellMs: 0,
+      markSettleRecheckMs: 0,
+      sleep: async (): Promise<void> => {},
+      snapshotMatchesState: snapshotMatchesFindTheDogDriveState,
+    });
+
+    expect(ariaHistory).toEqual([
+      "tourstate:menu",
+      "tourstate:menu-DONE",
+      "tourstate:level",
+      "tourstate:level-DONE",
+      "tourstate:settings",
+      "tourstate:settings-DONE",
+      "tourstate:pause",
+      "tourstate:pause-DONE",
+      "tourstate:win",
+      "tourstate:win-DONE",
+      "tourstate:fail",
+      "tourstate:fail-DONE",
+      "tourstate:done",
+    ]);
+  }, 15_000);
+
+  it("marks a lost real-harness state FAILED and continues to the next state", async () => {
+    const { maybeRunInsituTour } = await import("@fabrikav2/testkit/testing");
+    const { createFindTheDogHarness, snapshotMatchesFindTheDogDriveState } = await import("../../src/testing/TestHarness");
+    const fixture = createFakeGame({ deferHomeRender: true });
+    const harness = createFindTheDogHarness(fixture.game as never);
+    const ariaHistory = captureTourMarkerHistory();
+    let settingsChecks = 0;
+
+    await maybeRunInsituTour(harness, {
+      script: "allstates",
+      states: ["settings", "pause"],
+      dwellMs: 0,
+      markSettleRecheckMs: 0,
+      sleep: async (): Promise<void> => {},
+      snapshotMatchesState: (state, snapshot): boolean => (
+        state !== "settings"
+          ? snapshotMatchesFindTheDogDriveState(state, snapshot)
+          : ++settingsChecks === 1 && snapshotMatchesFindTheDogDriveState(state, snapshot)
+      ),
+    });
+
+    expect(ariaHistory).toEqual([
+      "tourstate:settings",
+      "tourstate:settings-FAILED",
+      "tourstate:pause",
+      "tourstate:pause-DONE",
+      "tourstate:done",
+    ]);
   });
 });

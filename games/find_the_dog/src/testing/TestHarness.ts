@@ -274,9 +274,10 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
   async function gotoHome(): Promise<boolean> {
     setLifecycleForTest('active');
     game.scene.stop('GameScene');
+    game.scene.stop('HomeScene');
     game.scene.start('HomeScene');
     return waitUntil(
-      () => findTheDogDrivePredicates.menu(driveSnapshot()),
+      () => driveSnapshot().homeShellVisible === true,
       HOME_READY_TARGET_POLL_MS,
       HOME_READY_TARGET_MAX_POLLS,
     );
@@ -289,7 +290,8 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       gameState.save();
     }
 
-    const atMenu = await gotoHome();
+    const menuSnapshot = driveSnapshot();
+    const atMenu = (menuSnapshot.homeShellVisible === true && menuSnapshot.settingsOpen !== true) || await gotoHome();
     if (!atMenu) return false;
 
     const buttonReady = await waitUntil(
