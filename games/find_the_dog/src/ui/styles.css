@@ -611,6 +611,18 @@
   transition: opacity 180ms ease;
 }
 
+:root {
+  /* Home background tokens (shipped cream/amber values, from shell_template's
+     scheme layer). FTD ships one palette; the full data-scheme system stays in
+     shell_template. */
+  --sch-bg-top: #fff2cf;
+  --sch-bg-mid: #ffd79a;
+  --sch-bg-bot: #f1a957;
+  --sch-spot: rgba(255, 251, 232, 0.85);
+  --sch-vig: rgba(120, 62, 18, 0.34);
+}
+
+
 #scene-transition-cover.scene-transition-cover--play-entry .play-entry-home-backdrop {
   position: absolute;
   inset: 0;
