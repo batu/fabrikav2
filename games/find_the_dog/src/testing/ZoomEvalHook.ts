@@ -62,7 +62,13 @@ function validatePose(pose: ZoomEvalPose): void {
 export function installZoomEvalHook(game: Phaser.Game, harness: FindTheDogHarness): () => void {
   const capture = async (pose: ZoomEvalPose): Promise<ZoomEvalCapture> => {
     validatePose(pose);
-    harness.gotoGameScene(pose.levelId);
+    // Only (re)start the scene on a level change: gotoGameScene restarts
+    // GameScene, and a restart between pose captures would race the settled
+    // check (the stale snapshot still reports ready) then reset the camera.
+    const current = harness.snapshot();
+    if (current.levelId !== pose.levelId || !current.levelDataReady || current.activeScene !== 'GameScene') {
+      harness.gotoGameScene(pose.levelId);
+    }
     await waitForLevel(harness, pose.levelId);
     const scene = game.scene.getScene('GameScene');
     const camera = scene.cameras.main;
@@ -71,12 +77,25 @@ export function installZoomEvalHook(game: Phaser.Game, harness: FindTheDogHarnes
     await nextFrame();
     await nextFrame();
     const snapshot = await waitForLevel(harness, pose.levelId);
-    if (Math.abs(snapshot.cameraZoom - pose.zoom) > EPSILON
-      || Math.abs(snapshot.cameraScrollX - pose.scrollX) > EPSILON
-      || Math.abs(snapshot.cameraScrollY - pose.scrollY) > EPSILON) {
-      throw new Error(`[zoom-eval ${pose.levelId}] effective pose mismatch: requested ${JSON.stringify(pose)}, got ${JSON.stringify({ zoom: snapshot.cameraZoom, scrollX: snapshot.cameraScrollX, scrollY: snapshot.cameraScrollY })}`);
+    // Scroll is intentionally not checked: camera bounds clamp it and
+    // roundPixels quantizes it — both are real renderer behavior, and the
+    // capture below reports the EFFECTIVE scroll for downstream crop mapping.
+    if (Math.abs(snapshot.cameraZoom - pose.zoom) > EPSILON) {
+      throw new Error(`[zoom-eval ${pose.levelId}] effective zoom mismatch: requested ${pose.zoom}, got ${snapshot.cameraZoom}`);
     }
-    const pngDataUrl = game.canvas.toDataURL('image/png');
+    // renderer.snapshot reads pixels during the render pass — canvas.toDataURL
+    // races the WebGL buffer clear (no preserveDrawingBuffer) and returns
+    // intermittent black frames, especially with the 30fps limiter.
+    const snapshotImage = await new Promise<HTMLImageElement>((resolve) => {
+      game.renderer.snapshot((image) => resolve(image as HTMLImageElement));
+    });
+    const offscreen = document.createElement('canvas');
+    offscreen.width = snapshotImage.width;
+    offscreen.height = snapshotImage.height;
+    const context = offscreen.getContext('2d');
+    if (context === null) throw new Error(`[zoom-eval ${pose.levelId}] 2d context unavailable`);
+    context.drawImage(snapshotImage, 0, 0);
+    const pngDataUrl = offscreen.toDataURL('image/png');
     if (!pngDataUrl.startsWith('data:image/png;base64,') || pngDataUrl.length < 100) {
       throw new Error(`[zoom-eval ${pose.levelId}] canvas serialization was blank`);
     }

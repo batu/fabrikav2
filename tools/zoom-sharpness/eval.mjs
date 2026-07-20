@@ -46,7 +46,15 @@ async function makeManifest(distDir) {
       const bytes = await fs.readFile(path.join(gameRoot, 'public', relativePath));
       return { hash: hashBytes(bytes), size: bytes.length, path: relativePath };
     };
-    levels.push({ id, name: level.name ?? id, width: level.width, height: level.height, cohort_buckets: ['all'], bundled: true, assets: { levelJson: await asset(`levels/${id}/level.json`), colorImage: await asset(`levels/${id}/color.webp`), bgImages: [], dogSprites: [] } });
+    const levelDir = path.join(levelsRoot, id);
+    const bgNames = (await fs.readdir(levelDir)).filter((name) => /^bg_\d+\.webp$/.test(name)).sort();
+    const dogSprites = [];
+    for (const dogDir of (await fs.readdir(path.join(levelDir, 'dogs'), { withFileTypes: true }).catch(() => [])).filter((entry) => entry.isDirectory())) {
+      for (const sprite of (await fs.readdir(path.join(levelDir, 'dogs', dogDir.name))).filter((name) => name.endsWith('.png')).sort()) {
+        dogSprites.push(await asset(`levels/${id}/dogs/${dogDir.name}/${sprite}`));
+      }
+    }
+    levels.push({ id, name: level.name ?? id, width: level.width, height: level.height, cohort_buckets: ['all'], bundled: true, assets: { levelJson: await asset(`levels/${id}/level.json`), colorImage: await asset(`levels/${id}/color.webp`), bgImages: await Promise.all(bgNames.map((name) => asset(`levels/${id}/${name}`))), dogSprites } });
   }
   await fs.writeFile(path.join(distDir, 'levels/bundled-manifest.json'), JSON.stringify({ version: 1, generatedAt: 'zoom-eval', manifestRevision: 'zoom-eval', experimentId: 'zoom-eval', levels }));
 }
@@ -91,8 +99,12 @@ async function main() {
     const hosted = await serve(dist); server = hosted.server;
     browser = await chromium.launch({ headless: true });
     const page = await browser.newPage({ viewport, deviceScaleFactor: 1 });
+    page.on('console', (message) => { if (message.type() === 'error') console.error(`[page] ${message.text()}`); });
+    page.on('pageerror', (error) => console.error(`[page] ${error}`));
     await page.goto(hosted.url, { waitUntil: 'networkidle' });
     await page.waitForFunction(() => typeof window.__zoomEval === 'function', null, { timeout: 30_000 });
+    // The first-time tutorial draws a hint ring over the scene, contaminating captures.
+    await page.evaluate(() => window.__FIND_DOG_HARNESS__.setSettings({ tutorialEnabled: false }));
     await fs.rm(output, { recursive: true, force: true });
     await fs.mkdir(path.join(output, 'pairs'), { recursive: true });
     const perLevel = [];
