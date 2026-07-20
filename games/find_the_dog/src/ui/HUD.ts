@@ -796,6 +796,14 @@ function renderSettingsPageBody(): string {
 function renderSettingsRows(): string {
   return `
     <div class="settings-rows">
+      <button id="settings-home-btn" class="modal-row settings-row settings-home-btn" type="button" aria-label="Go to home screen">
+        <span class="settings-row-left">
+          <img class="settings-row-icon" src="/ui/settings/settings_icon_home.png" alt="" aria-hidden="true">
+          <span class="settings-row-label">Home</span>
+        </span>
+        <span class="settings-home-arrow" aria-hidden="true"></span>
+      </button>
+      <div class="settings-section-divider" aria-hidden="true"><span class="settings-section-divider-label">Settings</span></div>
       <div class="modal-row settings-row">
         <div class="settings-row-left">
           <img class="settings-row-icon" src="/ui/settings/settings_icon_music.png" alt="" aria-hidden="true">
@@ -826,13 +834,6 @@ function renderSettingsRows(): string {
           <span class="toggle-slider"></span>
         </label>
       </div>
-      <button id="settings-home-btn" class="modal-row settings-row settings-home-btn" type="button" aria-label="Go to home screen">
-        <span class="settings-row-left">
-          <img class="settings-row-icon" src="/ui/settings/settings_icon_home.png" alt="" aria-hidden="true">
-          <span class="settings-row-label">Home</span>
-        </span>
-        <span class="settings-home-arrow" aria-hidden="true"></span>
-      </button>
       <div class="settings-legal-footer" aria-label="Privacy, legal, and support links">
         <button id="settings-restore-btn" class="settings-footer-link settings-footer-action settings-restore-btn" type="button" aria-describedby="settings-restore-status">Restore Purchases</button>
         <span id="settings-restore-status" class="settings-restore-status" aria-live="polite">Restore No Ads purchases on this device.</span>
