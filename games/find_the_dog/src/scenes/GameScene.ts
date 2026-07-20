@@ -24,7 +24,11 @@ import { showTutorialOverlay, phaserPointToCssPoint, type TutorialHandle } from 
 import { preloadLevelCompleteAssets, showLevelCompleteOverlay, dismissLevelCompleteOverlay } from '../ui/LevelCompleteOverlay';
 import type { RatePromptHandle } from '../ui/RatePrompt';
 import { showLevelFailedOverlay, type FailContinueActionContext } from '../ui/LevelFailedOverlay';
-import { hideSceneTransitionCoverAfterPaint, hideSceneTransitionCoverAfterSceneRender, showSceneTransitionCover } from '../ui/SceneTransitionCover';
+import {
+  hidePlayEntryTransitionCoverAfterSceneRender,
+  hideSceneTransitionCoverAfterPaint,
+  showSceneTransitionCover,
+} from '../ui/SceneTransitionCover';
 import { remoteConfigService } from '../config/RemoteConfigService';
 import { buildFailContinueOffers, type FailContinueOfferSet, type FailContinueOption } from '../shop/FailContinueOffers';
 import { iapService } from '../shop/IapService';
@@ -900,7 +904,6 @@ export class GameScene extends Phaser.Scene {
 
     this.createPawTexture();
     this.createDustTexture();
-    this.createConfettiTextures();
 
     const pointerDownHandler = (pointer: Phaser.Input.Pointer): void => {
       this.pointerDownAt = { x: pointer.x, y: pointer.y };
@@ -999,7 +1002,7 @@ export class GameScene extends Phaser.Scene {
     // keep the overlay on across scene restarts.
     if (gameState.settings.showDebugOverlay) this.showDebugOverlay();
 
-    hideSceneTransitionCoverAfterSceneRender(this);
+    hidePlayEntryTransitionCoverAfterSceneRender(this);
     this.registerLifecycleSuspendHooks();
 
     // First-time tutorial — anchor the first bubble at an actual dog
@@ -1043,6 +1046,7 @@ export class GameScene extends Phaser.Scene {
 
       this.input.off('pointerdown', pointerDownHandler);
       this.input.off('pointerup', tapHandler);
+      setHomeCallback(null);
       setGameModeChangeCallback(null);
       this.bwImage = null;
       this.colorImage = null;
@@ -1652,7 +1656,6 @@ export class GameScene extends Phaser.Scene {
 
     this.time.delayedCall(TIMING.LEVEL_COMPLETE_DELAY_MS, () => {
       hapticLevelComplete();
-      this.emitConfettiBurst();
       void adService.hideBanner();
 
       const claimX2Available =
@@ -3150,76 +3153,6 @@ export class GameScene extends Phaser.Scene {
       reducedMotion ? TIMING.MISS_SHAKE_MS_REDUCED : TIMING.MISS_SHAKE_MS,
       reducedMotion ? GAMEPLAY.MISS_SHAKE_INTENSITY_REDUCED : GAMEPLAY.MISS_SHAKE_INTENSITY,
     );
-  }
-
-  // ---- Level complete confetti ----
-
-  private createConfettiTextures(): void {
-    if (this.textures.exists('confetti_square')) return;
-    const gfx = this.add.graphics();
-    gfx.fillStyle(0xffffff);
-    gfx.fillRect(0, 0, 10, 10);
-    gfx.generateTexture('confetti_square', 10, 10);
-    gfx.destroy();
-  }
-
-  private emitConfettiBurst(): void {
-    const reduced = this.prefersReducedMotion();
-    const particleCountPerSide = reduced ? 10 : 40;
-    const lifespan = reduced ? 900 : 2000;
-    const bottomY = this.scale.height + 20;
-
-    // Match Arrow's calmer win confetti: square pieces launch from the bottom
-    // corners, drift up and inward, then fall/fade. This keeps the reward card
-    // and CTAs readable instead of exploding over the center of the screen.
-    this.emitArrowStyleConfettiPieces({ count: particleCountPerSide * 2, bottomY, lifespan });
-  }
-
-  private emitArrowStyleConfettiPieces(opts: { count: number; bottomY: number; lifespan: number }): void {
-    const palette = [0x20214a, 0xb8a7ff, 0xd9d9e6, 0x8ba7f7];
-    const durationSeconds = opts.lifespan / 1000;
-    const gravity = 360;
-
-    for (let i = 0; i < opts.count; i += 1) {
-      const fromLeft = i % 2 === 0;
-      const startX = fromLeft ? 0 : this.scale.width;
-      const startY = opts.bottomY;
-      const aim = fromLeft
-        ? -Math.PI / 2 + Math.random() * 0.35
-        : -Math.PI / 2 - Math.random() * 0.35;
-      const speed = 400 + Math.random() * 260;
-      const vx = Math.cos(aim) * speed;
-      const vy = Math.sin(aim) * speed;
-      const size = 4 + Math.random() * 6;
-      const startRotation = Math.random() * Math.PI * 2;
-      const spin = (Math.random() - 0.5) * 10;
-      const piece = this.add.rectangle(
-        startX,
-        startY,
-        size,
-        size,
-        palette[Math.floor(Math.random() * palette.length)] ?? 0x20214a,
-        1,
-      );
-      piece.setDepth(100);
-      piece.setScrollFactor(0);
-      piece.setRotation(startRotation);
-
-      const progress = { t: 0 };
-      this.tweens.add({
-        targets: progress,
-        t: 1,
-        duration: opts.lifespan,
-        ease: 'Linear',
-        onUpdate: () => {
-          const seconds = progress.t * durationSeconds;
-          piece.setPosition(startX + vx * seconds, startY + vy * seconds + 0.5 * gravity * seconds * seconds);
-          piece.setRotation(startRotation + spin * seconds);
-          piece.setAlpha(1 - progress.t);
-        },
-        onComplete: () => piece.destroy(),
-      });
-    }
   }
 
   // ---- Hint circle ----

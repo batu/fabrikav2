@@ -3,7 +3,7 @@ import { gameState } from '../core/GameState';
 import { getLevelIndex, loadLevel, loadLevelForProgression, type LevelData, type LevelIndexEntry } from '../data/levels';
 import { initHUD, openPage, setHomeCallback } from '../ui/HUD';
 import { hideHomeMenuLayer, showHomeMenuLayer } from '../ui/OverlayVisibility';
-import { hideSceneTransitionCoverAfterPaint, showSceneTransitionCover } from '../ui/SceneTransitionCover';
+import { hideSceneTransitionCoverAfterPaint, showPlayEntryTransitionCover } from '../ui/SceneTransitionCover';
 import { adService } from '../ads/Service';
 import { hapticWrong } from '../haptics/HapticsManager';
 import { crossfadeTo as crossfadeAmbient, presetForLevel } from '../audio/AmbientManager';
@@ -70,6 +70,8 @@ const FTD_LEVELMAP_THEME: ThemeTokens = {
   '--fab-levelmap-node-gap': '46px',
   '--fab-levelmap-far-opacity': '1',
   '--fab-levelmap-distant-opacity': '1',
+  '--fab-levelmap-dot-color': '#5b5652',
+  '--fab-levelmap-locked-dot-color': '#5b5652',
 };
 
 export class HomeScene extends Phaser.Scene {
@@ -133,6 +135,7 @@ export class HomeScene extends Phaser.Scene {
       this.clearBannerVideoReplay();
       this.unregisterLifecycleHooks?.();
       this.unregisterLifecycleHooks = null;
+      setHomeCallback(null);
       hideHomeMenuLayer(overlay);
       if (overlay.querySelector('#home-shell')) overlay.innerHTML = '';
       this.overlay = null;
@@ -254,7 +257,7 @@ export class HomeScene extends Phaser.Scene {
 
   private startGameScene(levelData?: LevelData): void {
     const overlay = this.overlay;
-    showSceneTransitionCover();
+    showPlayEntryTransitionCover();
     this.cancelScheduledHomeAmbient();
     this.clearBannerVideoReplay();
     if (overlay) {
@@ -559,7 +562,9 @@ export class HomeScene extends Phaser.Scene {
         </div>
 
         <div class="home-play-dock">
-          <button id="home-play-now" class="home-play-btn" type="button" aria-label="Play Level ${currentLevel} Now">Play Now</button>
+          <button id="home-play-now" class="home-play-btn home-play-now-btn" type="button" aria-label="Play Level ${currentLevel} Now">
+            <span class="home-play-now-label">Play Now</span>
+          </button>
         </div>
 
         <nav class="home-nav-bar" aria-label="Main navigation">

@@ -32,6 +32,7 @@ const ICON_URLS: readonly string[] = [
   '/ui/shop/shop_coin_pack_4.png',
   '/ui/shop/shop_coin_pack_5.png',
   '/ui/shop/shop_coin_pack_6.png',
+  '/ui/settings/settings_icon_home.png',
   '/ui/settings/settings_icon_music.png',
   '/ui/settings/settings_icon_sound.png',
   '/ui/settings/settings_icon_vibration.png',

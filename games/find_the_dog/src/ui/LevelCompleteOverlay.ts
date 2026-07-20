@@ -31,8 +31,6 @@ export interface LevelCompleteOverlayResult {
   nextLevelData: LevelData | null;
 }
 
-const COMPLETION_CONFETTI_SRC = '/ui/effects/confetti-side-burst.png';
-const COMPLETION_CONFETTI_FALL_SRC = '/ui/effects/confetti-fall.png';
 const COMPLETION_TITLE_SRC = '/ui/level-complete/level-complete-title.png';
 const COMPLETION_MASCOT_SRC = '/ui/level-complete/dog-detective-complete.png';
 const COMPLETION_COIN_ICON_SRC = '/ui/menu-icons/icon_coin.png';
@@ -69,8 +67,6 @@ const FTD_COMPLETE_THEME: ThemeTokens = {
   '--fab-complete-title-url': `url('${COMPLETION_TITLE_SRC}')`,
   '--fab-complete-mascot-url': `url('${COMPLETION_MASCOT_SRC}')`,
   '--fab-complete-coin-icon-url': `url('${COMPLETION_COIN_ICON_SRC}')`,
-  '--fab-complete-confetti-burst-url': `url('${COMPLETION_CONFETTI_SRC}')`,
-  '--fab-complete-confetti-fall-url': `url('${COMPLETION_CONFETTI_FALL_SRC}')`,
   '--fab-complete-adicon-url': `url('${COMPLETION_AD_BADGE_SRC}')`,
   '--fab-complete-entrance-ms': `${LEVEL_COMPLETE_ENTRANCE_MS}ms`,
   '--fab-complete-reward-reveal-delay-ms': `${fastE2EUi ? 80 : 4200}ms`,
@@ -109,8 +105,6 @@ let completionAssetsReady: Promise<void> | null = null;
  */
 export function preloadLevelCompleteAssets(): Promise<void> {
   completionAssetsReady ??= Promise.all([
-    preloadCompletionImage(COMPLETION_CONFETTI_SRC),
-    preloadCompletionImage(COMPLETION_CONFETTI_FALL_SRC),
     preloadCompletionImage(COMPLETION_TITLE_SRC),
     preloadCompletionImage(COMPLETION_MASCOT_SRC),
   ]).then(() => undefined);

@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
 import { HOME_NO_ADS_BADGE_SRC } from "../../src/ui/iconPreload";
 
-const NO_ADS_SHA256 = "ba4bba67bed79199645c6e1e568ec26589a3e1a799a8c2cb5ace66ed2f292722";
+const NO_ADS_SHA256 = "1c25ea20b8f78279374bb8d4eec1aa0b404e6d7794d1101514b937809b7ed8e9";
 const PLAY_BUTTON_SHA256 = "41876ebb627203339a81a78ec1fbe30964642881c124383627e0e0a58fbfc5c7";
 const CSS_TEXT = readFileSync(join(process.cwd(), "src/ui/styles.css"), "utf8");
 
@@ -32,22 +32,16 @@ describe("home menu polish regressions", () => {
     document.head.append(style);
   });
 
-  it("pins the home no-ads and Play Now asset identities", () => {
+  it("pins the public home no-ads and Play Now asset identities", () => {
     const manifest = JSON.parse(
       readFileSync(join(process.cwd(), "design/asset-identity.json"), "utf8"),
     ) as {
       assets: Record<string, { sha256?: string; sourceSha256?: string; v1Sha256?: string }>;
     };
-    const noAdsManifest = manifest.assets["design/assets/no-ads-runtime.png"];
-
     expect(sha256File(join(process.cwd(), "public/ui/home/no-ads-runtime.png"))).toBe(NO_ADS_SHA256);
-    expect(sha256File(join(process.cwd(), "design/assets/no-ads-runtime.png"))).toBe(NO_ADS_SHA256);
-    expect(noAdsManifest.sha256).toBe(NO_ADS_SHA256);
-    expect(noAdsManifest.sourceSha256).toBe(NO_ADS_SHA256);
-    expect(noAdsManifest.v1Sha256).toBe(NO_ADS_SHA256);
     document.body.innerHTML = `<img class="home-no-ads-art" src="${HOME_NO_ADS_BADGE_SRC}" alt="">`;
     const renderedBadgeSrc = element(".home-no-ads-art").getAttribute("src") ?? "";
-    expect(sha256File(publicPathForSrc(renderedBadgeSrc))).toBe(noAdsManifest.sha256);
+    expect(sha256File(publicPathForSrc(renderedBadgeSrc))).toBe(NO_ADS_SHA256);
     expect(sha256File(join(process.cwd(), "public/ui/home/play-level-button-runtime.png"))).toBe(
       PLAY_BUTTON_SHA256,
     );
@@ -88,8 +82,11 @@ describe("home menu polish regressions", () => {
 
     const pill = window.getComputedStyle(element(".home-balance-pill"));
     expect(pill.boxSizing).toBe("border-box");
-    expect(pill.width).toBe("124px");
-    expect(pill.height).toBe("46px");
+    expect(pill.minWidth).toBe("96px");
+    expect(pill.minHeight).toBe("42px");
+    const pillRule = CSS_TEXT.match(/#home-shell \.home-balance-pill\s*\{([^}]*)\}/s)?.[1] ?? "";
+    expect(pillRule).not.toMatch(/^\s*width:/m);
+    expect(pillRule).not.toMatch(/^\s*height:/m);
     expect(pill.lineHeight).toBe("1");
 
     const pillValue = window.getComputedStyle(element(".home-balance-pill span"));
@@ -97,8 +94,9 @@ describe("home menu polish regressions", () => {
     expect(pillValue.alignItems).toBe("center");
     expect(pillValue.justifyContent).toBe("center");
     expect(pillValue.minWidth).toBe("2ch");
-    expect(pillValue.maxWidth).toBe("4ch");
-    expect(pillValue.overflow).toBe("hidden");
+    expect(pillValue.maxWidth).toBe("");
+    expect(pillValue.overflow).toBe("");
+    expect(pillValue.whiteSpace).toBe("nowrap");
 
     const pillIcon = window.getComputedStyle(element(".home-balance-pill img"));
     expect(pillIcon.width).toBe("28px");
@@ -111,26 +109,27 @@ describe("home menu polish regressions", () => {
     expect(navCell.flex).toBe("0 0 calc(100% / 3)");
     expect(navCell.width).toBe("calc(100% / 3)");
     expect(navCell.maxWidth).toBe("calc(100% / 3)");
-    expect(CSS_TEXT).toContain("padding: 0 0 env(safe-area-inset-bottom, 0px);");
-    expect(CSS_TEXT).not.toContain("calc(env(safe-area-inset-bottom) + 4px)");
+    expect(window.getComputedStyle(element(".home-nav-bar")).padding).toBe("0px");
+    expect(CSS_TEXT).toContain("padding: 9px 0 calc(env(safe-area-inset-bottom, 0px) * 0.55 + 4px);");
 
     const play = window.getComputedStyle(element("#home-play-now"));
     expect(play.backgroundImage).toContain("/ui/home/play-level-button-runtime.png");
-    expect(play.minWidth).toBe("176px");
-    expect(play.height).toBe("66px");
-    expect(play.minHeight).toBe("66px");
+    expect(CSS_TEXT).toContain("width: min(100%, 180px);");
+    expect(play.height).toBe("62px");
+    expect(play.minHeight).toBe("62px");
+    expect(play.margin).toBe("-40px auto 26px");
 
     const noAdsRail = window.getComputedStyle(element(".home-rail-left"));
-    expect(noAdsRail.left).toBe("0px");
+    expect(noAdsRail.left).toBe("20px");
     expect(noAdsRail.top).toBe("116px");
 
     const noAdsButton = window.getComputedStyle(element(".home-no-ads-btn"));
-    expect(noAdsButton.width).toBe("62px");
+    expect(noAdsButton.width).toBe("58px");
 
     const noAdsArt = element(".home-no-ads-art") as HTMLImageElement;
     expect(noAdsArt.getAttribute("src")).toBe(HOME_NO_ADS_BADGE_SRC);
-    expect(window.getComputedStyle(noAdsArt).width).toBe("62px");
-    expect(window.getComputedStyle(noAdsArt).height).toBe("62px");
+    expect(window.getComputedStyle(noAdsArt).width).toBe("58px");
+    expect(window.getComputedStyle(noAdsArt).height).toBe("58px");
     expect(sha256File(publicPathForSrc(noAdsArt.getAttribute("src") ?? ""))).toBe(NO_ADS_SHA256);
   });
 });

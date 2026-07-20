@@ -145,8 +145,6 @@
     --fab-complete-title-url: none;
     --fab-complete-mascot-url: none;
     --fab-complete-coin-icon-url: none;
-    --fab-complete-confetti-burst-url: none;
-    --fab-complete-confetti-fall-url: none;
     --fab-complete-adicon-url: none;
     /* Colors a game re-skins. Structural values (sizes/radii/positioning) stay
        fixed in the base rules; chromatic surfaces, shadows, and button skins
@@ -648,53 +646,14 @@
     transform: translateZ(0);
   }
 
-  .fab-complete-confetti-fall {
+  .fab-confetti-piece {
     position: absolute;
-    left: 50%;
-    top: 0;
-    width: auto;
-    height: 118dvh;
-    max-width: none;
-    object-fit: contain;
-    opacity: 0;
-    transform: translate3d(-50%, -130dvh, 0) scale(1.02);
-    backface-visibility: hidden;
-    will-change: transform, opacity;
-    animation: fabCompleteConfettiTopBlast 5200ms linear var(--fab-confetti-delay, 0ms) forwards;
-  }
-
-  .fab-complete-confetti-burst {
-    position: absolute;
-    bottom: -8%;
-    width: min(76vw, 500px);
-    height: auto;
-    opacity: 0;
-    object-fit: contain;
-    backface-visibility: hidden;
-    will-change: transform, opacity;
-    animation: fabCompleteConfettiSideBlast 5200ms linear var(--fab-confetti-delay, 0ms) forwards;
-  }
-  .fab-complete-confetti-burst.left {
     left: 0;
-    --confetti-flip: 1;
-    --confetti-start-x: -132%;
-    --confetti-x-10: -103%;
-    --confetti-x-20: -74%;
-    --confetti-x-35: -31%;
-    --confetti-x-50: 13%;
-    --confetti-x-70: 71%;
-    --confetti-x-100: 158%;
-  }
-  .fab-complete-confetti-burst.right {
-    right: 0;
-    --confetti-flip: -1;
-    --confetti-start-x: 132%;
-    --confetti-x-10: 103%;
-    --confetti-x-20: 74%;
-    --confetti-x-35: 31%;
-    --confetti-x-50: -13%;
-    --confetti-x-70: -71%;
-    --confetti-x-100: -158%;
+    top: 0;
+    border-radius: 2px;
+    opacity: 0;
+    transform: translate3d(-50px, -50px, 0);
+    will-change: transform, opacity;
   }
 
   .fab-complete-balance {
@@ -1080,24 +1039,6 @@
     66% { opacity: 1; transform: translate(-50%, 4px) scale(1.04); }
     100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
   }
-  @keyframes fabCompleteConfettiSideBlast {
-    0% { opacity: 1; transform: translate3d(var(--confetti-start-x), 10%, 0) scaleX(var(--confetti-flip)) scale(1.02) rotate(-8deg); }
-    10% { opacity: 1; transform: translate3d(var(--confetti-x-10), -16%, 0) scaleX(var(--confetti-flip)) scale(1.02) rotate(-4deg); }
-    20% { opacity: 1; transform: translate3d(var(--confetti-x-20), -32%, 0) scaleX(var(--confetti-flip)) scale(1.02) rotate(0deg); }
-    35% { opacity: 1; transform: translate3d(var(--confetti-x-35), -42%, 0) scaleX(var(--confetti-flip)) scale(1.02) rotate(6deg); }
-    50% { opacity: 1; transform: translate3d(var(--confetti-x-50), -30%, 0) scaleX(var(--confetti-flip)) scale(1.02) rotate(12deg); }
-    70% { opacity: 1; transform: translate3d(var(--confetti-x-70), 16dvh, 0) scaleX(var(--confetti-flip)) scale(1.02) rotate(20deg); }
-    100% { opacity: 1; transform: translate3d(var(--confetti-x-100), 150dvh, 0) scaleX(var(--confetti-flip)) scale(1.02) rotate(32deg); }
-  }
-  @keyframes fabCompleteConfettiTopBlast {
-    0% { opacity: 1; transform: translate3d(-50%, -120dvh, 0) scale(1.02); }
-    10% { opacity: 1; transform: translate3d(-50%, -103dvh, 0) scale(1.02); }
-    20% { opacity: 1; transform: translate3d(-50%, -78dvh, 0) scale(1.02); }
-    35% { opacity: 1; transform: translate3d(-50%, -34dvh, 0) scale(1.02); }
-    50% { opacity: 1; transform: translate3d(-50%, 16dvh, 0) scale(1.02); }
-    70% { opacity: 1; transform: translate3d(-50%, 78dvh, 0) scale(1.02); }
-    100% { opacity: 1; transform: translate3d(-50%, 150dvh, 0) scale(1.02); }
-  }
   @keyframes fabCompleteRewardReveal {
     0% { transform: translateY(14px) scale(0.54, 0.76); opacity: 0; }
     36% { transform: translateY(-5px) scale(1.14, 0.9); opacity: 1; }
@@ -1156,8 +1097,6 @@
     .fab-complete-title,
     .fab-complete-card,
     .fab-complete-mascot,
-    .fab-complete-confetti-fall,
-    .fab-complete-confetti-burst,
     .fab-complete-reward,
     .fab-complete-reward-zone::before,
     .fab-complete-claim-x2-btn,
