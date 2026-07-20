@@ -16,7 +16,7 @@ trello: https://trello.com/c/O4D2Yojr
 
 - **Objective:** Improve Find the Dog's fully zoomed-in fidelity until two consecutive accepted iterations each gain less than one composite point, while preserving zoom-1 quality and the load, memory, and 30fps guardrails.
 - **Authority:** `tools/zoom-sharpness/GOAL.md`, the preserved Product Contract below, then this Planning Contract.
-- **Execution profile:** Instrument once, change one lever at a time in expected-impact order, evaluate with the locked ZOOM-1 corpus, and confirm the winning policy on a physical iPhone plus a separate landscape cohort.
+- **Execution profile:** Change one lever at a time in expected-impact order and use the locked ZOOM-1 Chromium fast tier for every iteration. The conductor runs the physical-iPhone tier only once the fast-tier plateau fires.
 - **Stop conditions:** Reject any iteration that regresses zoom 1, lowers the max-zoom or zoom-1 worst-decile aggregate by more than the measured evaluator repeatability epsilon, exceeds either +15% resource allowance, fails allocation, or misses the physical-device 30fps budget. Stop after the plateau rule and at most one justified source-art escalation round.
 - **Tail ownership:** This card owns the complete experiment ledger and winning implementation; it does not generalize the evaluator, asset system, or performance tooling.
 
@@ -36,14 +36,14 @@ The locked 15-level Chromium baseline reports max-zoom median `75.457942`, max-z
 
 - A1. Iteration worker selects one hypothesis, implements the smallest experiment, runs the locked evaluator and guardrails, and records the disposition.
 - A2. ZOOM-1 harness supplies deterministic max-zoom and zoom-1 fitness scores.
-- A3. Physical iPhone supplies authoritative GPU capability, loading, memory, frame-pacing, and visual evidence.
+- A3. At plateau, the conductor uses the physical iPhone for authoritative frame-pacing and visual confirmation.
 - A4. Reviewer confirms the plateau and remaining-ceiling diagnosis from paired crops and the iteration ledger.
 
 ### Requirements
 
 **Baseline and experiment discipline**
 
-- R1. Lock comparable score, load-time, texture-memory, and physical-device frame-pacing baselines before changing rendering.
+- R1. Use the committed ZOOM-1 score baseline and record comparable fast-tier guardrails for each rendering iteration.
 - R2. Record every hypothesis, changed lever, expected fidelity effect, and expected resource effect before evaluation.
 - R3. Change only one lever or one inseparable lever set per iteration.
 - R4. Try candidate levers in expected-impact order unless recorded measurements or platform limits justify reordering.
@@ -60,7 +60,7 @@ The locked 15-level Chromium baseline reports max-zoom median `75.457942`, max-z
 **Resource and device guardrails**
 
 - R11. Keep level load time and texture memory within +15% of their locked baselines under identical conditions.
-- R12. Sustain the existing 30fps budget at max zoom on the physical iPhone during a fixed representative interaction window.
+- R12. Sustain the existing 30fps budget at max zoom when the conductor runs the device tier at plateau.
 - R13. Derive runtime texture policy from actual graphics capability.
 - R14. Preserve a lower Android guard wherever measured Android capability requires it.
 - R15. Reject a Chromium-passing candidate that fails iPhone fidelity, loading, allocation, memory, or frame pacing.
@@ -83,7 +83,7 @@ The locked 15-level Chromium baseline reports max-zoom median `75.457942`, max-z
 - R26. At plateau, inspect paired device/reference crops for visibly soft source art.
 - R27. If source art is the ceiling, allow one escalation round, re-anchor affected references to the new source identity, and resume the same loop.
 - R28. Stop after a non-source ceiling or the one escalation round, recording final scores, resources, evidence, accepted/rejected changes, and remaining ceiling.
-- R29. Apply the winning policy across playable levels, retaining the locked headline corpus and evaluating a separate deterministic landscape cohort.
+- R29. Apply the winning policy across playable levels represented by the committed 15-level headline corpus; do not add a new catalog prerequisite.
 
 ### Key Flows
 
@@ -99,7 +99,7 @@ The locked 15-level Chromium baseline reports max-zoom median `75.457942`, max-z
 - AE4. Accepted gains of `0.8` and `0.6` trigger device confirmation; intervening rejected attempts do not alter the streak.
 - AE5. Accepted gains of `0.7` then `1.2` do not satisfy the plateau rule.
 - AE6. Visibly soft paired references permit exactly one source-art escalation round.
-- AE7. The final policy retains the portrait headline score and separately proves deterministic wide-level coverage.
+- AE7. The final policy retains the locked headline corpus and reports its existing aspect-class coverage without inventing levels.
 
 ### Scope Boundaries
 
@@ -125,8 +125,8 @@ Product Contract unchanged. R1-R29, F1-F3, and AE1-AE7 preserve `docs/brainstorm
 - KTD4. **Make the first quality experiment a capability-aware cap plus higher-resolution evaluation input.** Query `MAX_TEXTURE_SIZE` from the active Phaser WebGL context after renderer creation; select the largest requested long edge no greater than the measured limit and source dimensions, with the current 2560 fallback for Canvas/unknown contexts. Keep this separate from `games/find_the_dog/src/core/Constants.ts`'s existing `MAX_RENDERBUFFER_SIZE`/DPR safety calculation, which protects render targets and must not change. For this experiment, point the evaluator's temporary manifest at the existing higher-resolution `color.png`; raising the cap against the shipped 2560-long-edge WebP alone is a no-op. Treat these as one inseparable causal lever set: higher-resolution input makes pixels available and the capability policy prevents premature downscaling. The texture policy is capability-derived for both iOS and Android; a lower measured Android limit naturally retains its guard.
 - KTD5. **Keep color and grayscale at one effective resolution.** `capTextureLongEdge` and `generateGrayscaleTexture` consume one resolved per-scene cap. The grayscale layer is generated at the capped color resolution and displayed at logical level dimensions, avoiding the current upscale-to-logical-size allocation and preventing mismatched reveal detail. Background layers use the same safety resolver only when their source exceeds the selected limit.
 - KTD6. **Escalate one lever at a time after the cap experiment.** If KTD4 is accepted, next test higher-resolution packaged WebP delivery while keeping runtime policy fixed; only then test filtering/mipmap changes, and only then vary `PINCH.maxZoom`. Add zoom-threshold loading only if eager high-resolution delivery breaches a resource guardrail and measurements show deferred delivery can recover it. Do not retain rejected code between experiments.
-- KTD7. **Device frame pacing uses a fixed 10-second max-zoom interaction window through the existing in-situ tour.** Add one Find the Dog harness state that loads the fixed confirmation level, applies a fixed partial reveal, settles at max zoom, and then performs a deterministic back-and-forth pan while collecting `requestAnimationFrame` timestamps. The first second is warm-up; during the measured nine seconds the path triggers one deterministic classic reveal at a named timestamp so CPU-composite cost is included. Require median frame interval at or below 33.33ms and no one-second bucket below 30 delivered frames. The state ends at rest with a small diagnostic overlay containing device/build identity, renderer, GL limit, level/path identity, sample count, median, p95, worst bucket, reveal diagnostics, load, and texture bytes; the existing harness-enabled `allstates` build and XCUITest screenshot lane capture that overlay without adding autonomy to `verify-device`. The action returns once; the worker owns repetition and judgment.
-- KTD8. **Landscape coverage is an explicit upstream prerequisite.** The current bundled catalog contains zero playable `width > height` levels, so this plan must not invent a cohort or claim executable wide coverage. Before U4, an approved upstream catalog change must provide at least three checked-in playable wide levels. Once present, select the first three in stable bundled-manifest order, record their IDs in the ledger header, and evaluate the same dog/dense/random poses at zoom 1 and max zoom. If the prerequisite is still absent, park finalization with that evidence; do not create unrelated levels inside this card. Landscape results remain a separate table and never enter the locked headline aggregate.
+- KTD7. **Device confirmation is a plateau-only conductor duty.** Workers use `node tools/zoom-sharpness/eval.mjs` as the fitness function and must not add diagnostic states, registries, or device prerequisites. Once the plateau rule fires, hand the winning revision and exact device verification request to the conductor.
+- KTD8. **The committed 15-level corpus is complete for this card.** Its two shipping image shapes are the accepted catalog reality. Do not require or manufacture width-greater-than-height levels, and do not change the headline corpus during iteration.
 - KTD9. **Source-ceiling diagnosis is paired and conservative.** At provisional plateau, export iPhone captures for the worst three max-zoom pairs plus one median pair. Compare each with the evaluator's exact source reference and a 1:1 source crop. Classify source art as the ceiling only when the reference and 1:1 crop are themselves visibly soft in the same region while runtime/reference alignment is correct; otherwise attribute the ceiling to runtime delivery/filtering/device capability. Any source refresh records new asset hashes and starts a new, explicitly labeled reference generation rather than overwriting the original baseline identity. The new generation establishes a fresh accepted baseline and resets the sub-1.0 streak; gains are never compared across reference identities.
 
 ### High-Level Technical Design
@@ -146,7 +146,7 @@ flowchart LR
 
 ### Sequencing
 
-U1 locks guardrail definitions and baseline evidence before rendering changes. U2 implements and evaluates the capability-aware cap as the first hypothesis. U3 owns later experiments in strict expected-impact order and keeps only accepted changes. U4 confirms the plateau on iPhone, runs landscape coverage, and writes the final diagnosis.
+U1 locks fast-tier baseline evidence before rendering changes. U2 implements and evaluates the capability-aware cap as the first hypothesis. U3 owns later experiments in strict expected-impact order and keeps only accepted changes. U4 hands the plateau candidate to the conductor for iPhone confirmation and writes the final diagnosis.
 
 ### Risks and Mitigations
 
@@ -164,16 +164,16 @@ U1 locks guardrail definitions and baseline evidence before rendering changes. U
 
 ## Implementation Units
 
-### U1. Add iteration guardrails and lock baselines
+### U1. Lock the fast-tier iteration baseline
 
-- **Goal:** Make score, load, memory, repeatability, and device-frame acceptance reproducible before changing rendering.
+- **Goal:** Treat the committed ZOOM-1 report as the fitness baseline and create the iteration ledger before changing rendering.
 - **Requirements:** R1-R3, R6-R12, R16, R22; F1-F2; AE1-AE2.
 - **Dependencies:** None.
-- **Files:** `games/find_the_dog/src/testing/ZoomEvalHook.ts` (modify), `games/find_the_dog/src/testing/ZoomEvalHook.test.ts` (modify), `games/find_the_dog/src/testing/TestHarness.ts` and `games/find_the_dog/tests/unit/insitu-tour.test.ts` (modify for the device state/overlay), `games/find_the_dog/src/scenes/GameScene.ts` (diagnostic snapshot only), `games/find_the_dog/refs/manifest.yaml` (add the named at-rest evidence state), `tools/zoom-sharpness/lib.mjs` (modify), `tools/zoom-sharpness/eval.mjs` (modify), `tools/zoom-sharpness/eval.test.mjs` (modify), `tools/zoom-sharpness/iterations.md` (new).
-- **Approach:** Add settled load duration, capability facts, runtime texture byte estimates, and the bounded frame-sampling action described by KTD1-KTD3/KTD7. Extend JSON output without changing score inputs or aggregation. Reuse the harness-enabled `allstates` device build and exact `tourstate` marker/capture lifecycle; make the new state publish only after its one-shot path completes and its diagnostics overlay is stable. Create the ledger with immutable baseline metadata, locked corpus/hash, resource samples, repeatability epsilon, device identity/window, landscape prerequisite/status, and a row schema for every attempt.
+- **Files:** `tools/zoom-sharpness/baseline/report.json` (read-only authority) and `tools/zoom-sharpness/iterations.md` (new).
+- **Approach:** Create the ledger from the committed baseline, record each one-lever hypothesis and fast-tier result, and leave device-only facts explicitly pending until plateau. Do not add diagnostics states or registries.
 - **Patterns to follow:** Existing request/settle/capture lifecycle in `games/find_the_dog/src/testing/ZoomEvalHook.ts`, `getRuntimeTexturesSnapshot()` and `getClassicRenderDiagnosticsSnapshot()` in `games/find_the_dog/src/scenes/GameScene.ts`, and deterministic aggregation in `tools/zoom-sharpness/lib.mjs`.
 - **Test scenarios:** (1) five recorded samples produce the documented median and +15% pass/fail boundary; (2) byte estimates include exactly the live texture snapshot entries and reject invalid dimensions; (3) repeatability epsilon is derived from matching corpus/reference identities and fails on drift; (4) a worst-decile regression beyond epsilon rejects despite median improvement, while per-level deltas remain diagnostic; (5) the frame state follows the fixed warm-up/pan/reveal window, returns statistics once, publishes its marker only after the overlay is stable, and does not loop autonomously; (6) ordinary builds still omit the evaluation hook/state; (7) ledger/report serialization is deterministic and records rejected attempts without changing accepted-base or streak state.
-- **Verification:** Run zoom-sharpness unit tests, Find the Dog unit tests/typecheck, two unchanged fast-tier runs, and one physical-iPhone baseline frame window. The baseline is not locked until the worker has inspected the live device output.
+- **Verification:** Run zoom-sharpness unit tests, Find the Dog unit tests/typecheck, and the locked fast-tier evaluator when the environment permits; otherwise hand the exact evaluator command to the conductor.
 
 ### U2. Evaluate the capability-aware runtime texture policy
 
@@ -193,17 +193,17 @@ U1 locks guardrail definitions and baseline evidence before rendering changes. U
 - **Files:** `tools/zoom-sharpness/iterations.md` (append every attempt); only the minimal relevant files among `games/find_the_dog/src/scenes/GameScene.ts`, `games/find_the_dog/src/scenes/PinchZoom.ts`, `games/find_the_dog/src/testing/ZoomEvalHook.ts`, `tools/zoom-sharpness/eval.mjs`, the level publishing source discovered by the implementer, and generated `games/find_the_dog/public/levels/**` assets for an accepted delivery experiment.
 - **Approach:** Follow KTD6. If U2 is accepted, inventory source/shipped dimensions and hashes and add a deterministic higher-resolution WebP export because no checked-in Find the Dog WebP generator currently exists. Introduce threshold loading only if eager delivery alone fails a resource gate. Then test texture filtering/mipmaps, then max zoom. Each attempt begins from the last accepted state, records its hypothesis before execution, runs the identical suite, and either lands alone or is removed before the next hypothesis.
 - **Test scenarios:** (1) every attempted lever produces a complete accepted/rejected ledger row; (2) rejected attempts leave runtime/assets identical to the last accepted state; (3) higher-resolution assets preserve dimensions, dog/reveal alignment, cache/manifest identity, and color/grayscale parity; (4) a threshold swap, if required, crosses both directions after the same fixed partial reveal while physical-iPhone captures immediately before, during, and after prove no flash, camera jump, reveal-state change, detail mismatch, stale replacement, or URL leak; (5) filtering/mipmap changes have deterministic texture configuration and improve the locked composite; (6) a max-zoom change updates the evaluated max consistently and remains gesture-reachable; (7) plateau streak advances only for consecutive accepted gains below 1.0 and uses the previous accepted score.
-- **Verification:** For every attempt, run unit/type/audit checks, the full locked evaluator, resource comparison, and ledger validation. Run iPhone checks for every provisionally accepted policy that changes texture allocation/loading or frame behavior.
+- **Verification:** For every attempt, run unit/type/audit checks, the full locked evaluator, resource comparison, and ledger validation. The conductor runs the iPhone check only after the plateau rule fires.
 
 ### U4. Confirm the winning plateau and diagnose the ceiling
 
-- **Goal:** Produce authoritative device evidence, landscape coverage, and the final stop/escalation decision.
+- **Goal:** Produce authoritative plateau device evidence and the final stop/escalation decision.
 - **Requirements:** R15-R16, R25-R29; F3; AE2, AE6-AE7.
-- **Dependencies:** U3 has two consecutive accepted sub-1.0 gains, and an approved upstream catalog revision provides at least three playable wide levels; otherwise finalization parks on the documented landscape prerequisite.
+- **Dependencies:** U3 has two consecutive accepted sub-1.0 gains.
 - **Files:** `tools/zoom-sharpness/iterations.md` (finalize), `tools/zoom-sharpness/baseline/` (do not overwrite; read as original authority), a new generation-scoped output under `tools/zoom-sharpness/` only if KTD9 authorizes source escalation, and accepted source/published assets only if that escalation wins.
-- **Approach:** Run the winning candidate through the live iPhone max-zoom capture/frame window and deterministic landscape cohort. If a device gate rejects it, mark it rejected, restore the last device-confirmed accepted base, reset the provisional streak, and return to U3. Review worst-three plus median paired crops using KTD9. If source art is demonstrably soft, perform exactly one isolated source refresh, establish that generation's fresh accepted baseline and empty plateau streak, and resume U3's same acceptance loop; otherwise stop. Summarize the winning changes, all rejected hypotheses, final deltas, device evidence paths, catalog coverage, and whether runtime delivery, device capability, or source art is the remaining ceiling.
-- **Test scenarios:** (1) live-device provenance, identity, GL capability, allocation proxy, load samples, frame statistics, reveal diagnostics, and captures are all present; (2) any device guard failure rejects the candidate despite Chromium scores; (3) landscape IDs come from an approved checked-in revision, are stable, and report separately from the headline corpus, or the card parks before finalization with zero-wide-level evidence; (4) source escalation cannot start without matching soft reference/1:1 evidence and cannot occur twice; (5) original and escalated reference identities remain distinguishable; (6) final ledger identifies exactly one winning accepted state and a justified remaining ceiling.
-- **Verification:** Inspect the real iPhone captures and frame report, run the full headline and landscape evaluations, validate final asset/manifest hashes, and confirm the ledger's plateau arithmetic from accepted rows only.
+- **Approach:** Hand the winning candidate to the conductor for the live iPhone max-zoom capture/frame check. If a device gate rejects it, record the rejection and return to U3. Review worst-three plus median paired crops using KTD9, then stop or perform the one allowed source-art escalation.
+- **Test scenarios:** (1) live-device provenance, identity, GL capability, frame statistics, and captures are present at plateau; (2) any device guard failure rejects the candidate despite Chromium scores; (3) source escalation cannot start without matching soft reference/1:1 evidence and cannot occur twice; (4) original and escalated reference identities remain distinguishable; (5) final ledger identifies exactly one winning accepted state and a justified remaining ceiling.
+- **Verification:** Inspect the real iPhone captures and frame report, rerun the full headline evaluation, validate final asset/manifest hashes, and confirm the ledger's plateau arithmetic from accepted rows only.
 
 ---
 
@@ -214,17 +214,17 @@ U1 locks guardrail definitions and baseline evidence before rendering changes. U
 - **Resources:** Compare recorded warm-process load samples and decoded resident-byte estimates against the U1 baseline; both aggregate ratios must be `<= 1.15`.
 - **Tail:** Neither locked worst-decile aggregate may regress beyond the recorded repeatability epsilon; retain per-level/pose deltas as diagnostic evidence.
 - **Device:** A current live physical-iPhone `allstates` run must capture the named KTD7 at-rest diagnostics state after its deterministic partial reveal, pan, and timed reveal path; the overlay must show selected texture capability, successful allocation/loading, frame and reveal diagnostics, and resource values. A skipped, browser, simulator, or detached-capture lane is unverified. If threshold loading is tested, add the before/during/after crossing sequence in both directions after partial reveal.
-- **Coverage:** The locked corpus remains the only headline aggregate; the three stable landscape levels report separately and must pass the same no-regression/resource/device policy.
+- **Coverage:** The committed 15-level corpus remains the only headline aggregate and no additional catalog cohort blocks completion.
 - **Ledger integrity:** Every attempt, including removed/rejected code, has a complete row and evidence path; plateau arithmetic uses accepted rows only.
 
 ## Definition of Done
 
-- Score/resource/device baselines and repeatability epsilon are recorded before the first rendering experiment.
+- The committed score baseline and iteration ledger are recorded before the first rendering experiment; device confirmation remains pending until plateau.
 - Every experiment is attributable, ordered or explicitly justified, and recorded in `tools/zoom-sharpness/iterations.md`.
 - The retained implementation is the highest-scoring candidate that passes zoom-1, tail, load, memory, allocation, and physical-iPhone 30fps gates.
 - Two consecutive accepted gains below `1.0` are present and correctly calculated against previous accepted results.
 - Current physical-iPhone captures and frame statistics prove the winning state; browser evidence is labeled only as fast-tier fitness.
-- An approved three-level landscape cohort passes without changing the locked headline corpus; if no such levels have landed, the card is explicitly parked rather than falsely finalized.
+- The committed 15-level corpus remains unchanged throughout the iteration loop.
 - The final ledger states the remaining ceiling and, if source art was escalated, proves only one isolated reference generation occurred.
 - No rejected experiment code, unrelated refactor, new framework, or unapproved dependency remains.
 

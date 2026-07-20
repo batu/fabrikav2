@@ -46,6 +46,7 @@ import type { Point } from '../utils/voronoi';
 import { SectionController } from './SectionController';
 import { PinchZoom, PINCH } from './PinchZoom';
 import { MicroAnimationLayer, type MicroAnimationSnapshot } from '../effects/MicroAnimationLayer';
+import { FALLBACK_RUNTIME_TEXTURE_LONG_EDGE, resolveRuntimeTextureLongEdge } from './RuntimeTexturePolicy';
 
 export interface GameSceneData {
   levelId?: string;
@@ -65,7 +66,6 @@ interface RevealContext {
 
 type HitboxVisibilityWarning = 'clipped' | 'near border' | 'HUD' | 'AD' | 'SAFE_L' | 'SAFE_R';
 
-const MAX_RUNTIME_TEXTURE_LONG_EDGE = 2560;
 const CLASSIC_REVEAL_EDGE_FEATHER_PX = 10;
 const RESTORATION_CLEANUP_FOOTPRINT_SCALE = 2;
 const FAST_E2E_UI = String(import.meta.env.VITE_FTD_FAST_E2E_UI) === 'true';
@@ -150,6 +150,7 @@ export class GameScene extends Phaser.Scene {
   private level: LevelData | null = null;
   private bwImage: Phaser.GameObjects.Image | null = null;
   private colorImage: Phaser.GameObjects.Image | null = null;
+  private runtimeTextureLongEdge = FALLBACK_RUNTIME_TEXTURE_LONG_EDGE;
 
   // Canvas-based mask. Classic mode composites bw + masked color on CPU
   // (BitmapMask is unreliable on iOS WKWebView). Restoration keeps BitmapMask.
@@ -736,6 +737,7 @@ export class GameScene extends Phaser.Scene {
       throw new Error(`Restoration level ${this.level.id} is missing loaded dog sprite textures`);
     }
     const isRestoration = this.isRestoration;
+    this.runtimeTextureLongEdge = this.resolveRuntimeTextureLongEdge();
     this.capTextureLongEdge('color');
     if (isRestoration) {
       if (this.textures.exists('bw_generated')) this.textures.remove('bw_generated');
@@ -3021,9 +3023,9 @@ export class GameScene extends Phaser.Scene {
     const width = Number(source.width);
     const height = Number(source.height);
     const sourceLongEdge = Math.max(width, height);
-    if (!Number.isFinite(sourceLongEdge) || sourceLongEdge <= MAX_RUNTIME_TEXTURE_LONG_EDGE) return;
+    if (!Number.isFinite(sourceLongEdge) || sourceLongEdge <= this.runtimeTextureLongEdge) return;
 
-    const ratio = MAX_RUNTIME_TEXTURE_LONG_EDGE / sourceLongEdge;
+    const ratio = this.runtimeTextureLongEdge / sourceLongEdge;
     const canvas = document.createElement('canvas');
     canvas.width = Math.max(1, Math.round(width * ratio));
     canvas.height = Math.max(1, Math.round(height * ratio));
@@ -3393,7 +3395,7 @@ export class GameScene extends Phaser.Scene {
 
   getRuntimeTexturesSnapshot(): RuntimeTexturesSnapshot {
     return {
-      maxLongEdge: MAX_RUNTIME_TEXTURE_LONG_EDGE,
+      maxLongEdge: this.runtimeTextureLongEdge,
       color: this.getRuntimeTextureSnapshot('color', this.colorImage),
       bw: this.getRuntimeTextureSnapshot('bw_generated', this.bwImage),
       bg: this.bgLayers
@@ -3416,6 +3418,12 @@ export class GameScene extends Phaser.Scene {
       probes: { ...this.classicRenderProbes },
       lastReveal: { ...this.lastRevealDiagnostics },
     };
+  }
+
+  private resolveRuntimeTextureLongEdge(): number {
+    if (this.getRendererKind() !== 'webgl') return resolveRuntimeTextureLongEdge(null);
+    const gl = (this.game.renderer as Phaser.Renderer.WebGL.WebGLRenderer).gl;
+    return resolveRuntimeTextureLongEdge(Number(gl?.getParameter(gl.MAX_TEXTURE_SIZE)));
   }
 
   private getRuntimeTextureSnapshot(
