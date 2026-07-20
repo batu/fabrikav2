@@ -4616,3 +4616,63 @@
     animation: none;
   }
 }
+
+/* ============================================================
+   Settings: Home action button (top) + labeled ribbon divider.
+   Round 3 (pixelsmith-panel fixes): v1 green circle chevron kept
+   (override that corrupted it removed); home icon warmed to match
+   the icon set; house bottom-ledge added WITHOUT changing row
+   geometry. Options via html[data-home-opt="1|2|3"].
+   ============================================================ */
+.settings-home-btn .settings-row-icon {
+  /* settings_icon_home.png ships a cold blue badge; warm it toward the
+     gold/amber icon set (panel defect: reads as a foreign asset). */
+  filter: sepia(0.45) saturate(1.3) hue-rotate(-18deg);
+}
+.settings-home-btn {
+  transition: transform 90ms ease, box-shadow 90ms ease;
+}
+.settings-home-btn:active { transform: translateY(3px); }
+.settings-section-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 4px 12px;
+}
+.settings-section-divider::before,
+.settings-section-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(120, 62, 18, 0.22);
+}
+.settings-section-divider-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(120, 62, 18, 0.55);
+}
+
+/* Chosen treatment (portal req_ac4f85, pick 1): warm amber gradient row +
+   deep house ledge, geometry unchanged. */
+.settings-home-btn {
+  background: linear-gradient(180deg, #ffe2a1 0%, #f5b95c 55%, #e69b35 100%);
+  border: 2px solid rgba(140, 78, 20, 0.7);
+  border-radius: 18px;
+  box-shadow:
+    inset 0 3px 0 rgba(255, 255, 255, 0.65),
+    0 8px 0 #a8641e,
+    0 14px 20px rgba(91, 48, 12, 0.2);
+}
+.settings-home-btn:active {
+  box-shadow:
+    inset 0 3px 0 rgba(255, 255, 255, 0.65),
+    0 3px 0 #a8641e,
+    0 8px 12px rgba(91, 48, 12, 0.16);
+}
+.settings-home-btn .settings-row-label {
+  color: #5c3414;
+  font-weight: 800;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+}
