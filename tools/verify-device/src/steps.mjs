@@ -158,6 +158,14 @@ export function buildHarnessBundle(gameDir, { shImpl = sh } = {}) {
   if (applied.length) {
     process.stderr.write(`  native-resources ios recipe applied: ${applied.join(', ')}\n`);
   }
+  // Games with a native-shell manifest need the SPM/pbxproj patch pass after
+  // every cap sync (sync regenerates Package.swift, dropping AppLovin/Adjust/
+  // RevenueCat pods the recipe's Swift plugins import).
+  const shellManifest = path.join(gameDir, 'native-resources', 'ios', 'shell-manifest.json');
+  if (fs.existsSync(shellManifest)) {
+    const applyCli = path.join(gameDir, '..', '..', 'tools', 'native-shell', 'apply.mjs');
+    sh('node', [applyCli, '--game', path.basename(gameDir)], { cwd: path.join(gameDir, '..', '..') });
+  }
 }
 
 export function resolveAndroidSdkRoot(androidSdk) {
