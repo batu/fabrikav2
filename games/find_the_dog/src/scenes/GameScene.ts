@@ -46,7 +46,11 @@ import type { Point } from '../utils/voronoi';
 import { SectionController } from './SectionController';
 import { PinchZoom, PINCH } from './PinchZoom';
 import { MicroAnimationLayer, type MicroAnimationSnapshot } from '../effects/MicroAnimationLayer';
-import { FALLBACK_RUNTIME_TEXTURE_LONG_EDGE, resolveRuntimeTextureLongEdge } from './RuntimeTexturePolicy';
+import {
+  FALLBACK_RUNTIME_TEXTURE_LONG_EDGE,
+  resolveRuntimeTextureLongEdge,
+  selectRuntimeColorImageUrl,
+} from './RuntimeTexturePolicy';
 
 export interface GameSceneData {
   levelId?: string;
@@ -417,7 +421,13 @@ export class GameScene extends Phaser.Scene {
         if (this.textures.exists(key)) this.textures.remove(key);
       }
       GameScene.lastLoadedSpriteTextureKeys = [];
-      this.load.image('color', level.colorImage);
+      const runtimeTextureLongEdge = GameScene.resolveRuntimeTextureLongEdge(this.game.renderer);
+      this.load.image('color', selectRuntimeColorImageUrl(
+        level.colorImage,
+        level.width,
+        level.height,
+        runtimeTextureLongEdge,
+      ));
     }
 
     // Restoration mode: load either one full-level bg or one bg texture per
@@ -481,7 +491,16 @@ export class GameScene extends Phaser.Scene {
     level: LevelData,
     isStale: () => boolean,
   ): Promise<void> {
-    const targets: Array<{ key: string; url: string }> = [{ key: 'color', url: level.colorImage }];
+    const runtimeTextureLongEdge = GameScene.resolveRuntimeTextureLongEdge(textures.game.renderer);
+    const targets: Array<{ key: string; url: string }> = [{
+      key: 'color',
+      url: selectRuntimeColorImageUrl(
+        level.colorImage,
+        level.width,
+        level.height,
+        runtimeTextureLongEdge,
+      ),
+    }];
     for (let i = 0; i < (level.bgImageUrls?.length ?? 0); i++) {
       targets.push({ key: `bg_${i}`, url: level.bgImageUrls![i] });
     }
@@ -737,7 +756,7 @@ export class GameScene extends Phaser.Scene {
       throw new Error(`Restoration level ${this.level.id} is missing loaded dog sprite textures`);
     }
     const isRestoration = this.isRestoration;
-    this.runtimeTextureLongEdge = this.resolveRuntimeTextureLongEdge();
+    this.runtimeTextureLongEdge = GameScene.resolveRuntimeTextureLongEdge(this.game.renderer);
     this.capTextureLongEdge('color');
     if (isRestoration) {
       if (this.textures.exists('bw_generated')) this.textures.remove('bw_generated');
@@ -3420,9 +3439,9 @@ export class GameScene extends Phaser.Scene {
     };
   }
 
-  private resolveRuntimeTextureLongEdge(): number {
-    if (this.getRendererKind() !== 'webgl') return resolveRuntimeTextureLongEdge(null);
-    const gl = (this.game.renderer as Phaser.Renderer.WebGL.WebGLRenderer).gl;
+  private static resolveRuntimeTextureLongEdge(renderer: Phaser.Renderer.Canvas.CanvasRenderer | Phaser.Renderer.WebGL.WebGLRenderer): number {
+    if ((renderer as { type?: number }).type !== Phaser.WEBGL) return resolveRuntimeTextureLongEdge(null);
+    const gl = (renderer as Phaser.Renderer.WebGL.WebGLRenderer).gl;
     return resolveRuntimeTextureLongEdge(Number(gl?.getParameter(gl.MAX_TEXTURE_SIZE)));
   }
 
