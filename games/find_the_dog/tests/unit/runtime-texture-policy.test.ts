@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  resolvePrefilteredTextureSize,
+  resolvePrefilterSwitchZoom,
   resolveRuntimeTextureLongEdge,
   selectRuntimeColorImageUrl,
 } from '../../src/scenes/RuntimeTexturePolicy';
@@ -41,5 +43,26 @@ describe('selectRuntimeColorImageUrl', () => {
       .toBe('blob:https://cdn.example/asset');
     expect(selectRuntimeColorImageUrl('levels/level-a/color.webp', 1706, 2560, 8192))
       .toBe('levels/level-a/color.webp');
+  });
+});
+
+describe('zoom prefilter policy', () => {
+  it('sizes one aspect-preserving tier to the zoom-1 display footprint', () => {
+    expect(resolvePrefilteredTextureSize(2560, 5600, 1157, 2532, 8192))
+      .toEqual({ width: 1157, height: 2532 });
+    expect(resolvePrefilteredTextureSize(2560, 3840, 1688, 2532, 8192))
+      .toEqual({ width: 1688, height: 2532 });
+  });
+
+  it('does not upscale or exceed the measured texture limit', () => {
+    expect(resolvePrefilteredTextureSize(1000, 2000, 1500, 3000, 8192))
+      .toEqual({ width: 1000, height: 2000 });
+    expect(resolvePrefilteredTextureSize(2560, 5600, 1157, 2532, 2048))
+      .toEqual({ width: 936, height: 2048 });
+  });
+
+  it('switches at the geometric midpoint between the prefiltered and source tiers', () => {
+    expect(resolvePrefilterSwitchZoom(5600, 2532)).toBeCloseTo(1.4872, 3);
+    expect(resolvePrefilterSwitchZoom(2532, 2532)).toBe(1);
   });
 });

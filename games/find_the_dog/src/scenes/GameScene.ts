@@ -48,6 +48,8 @@ import { PinchZoom, PINCH } from './PinchZoom';
 import { MicroAnimationLayer, type MicroAnimationSnapshot } from '../effects/MicroAnimationLayer';
 import {
   FALLBACK_RUNTIME_TEXTURE_LONG_EDGE,
+  resolvePrefilteredTextureSize,
+  resolvePrefilterSwitchZoom,
   resolveRuntimeTextureLongEdge,
   selectRuntimeColorImageUrl,
 } from './RuntimeTexturePolicy';
@@ -82,6 +84,8 @@ const NONCRITICAL_PRELOAD_DELAY_MS = 1_500;
 const NONCRITICAL_PRELOAD_IDLE_TIMEOUT_MS = 5_000;
 const AMBIENT_START_DELAY_MS = 1_500;
 const AMBIENT_IDLE_TIMEOUT_MS = 3_000;
+const COLOR_PREFILTERED_TEXTURE_KEY = 'color_prefiltered';
+const BW_PREFILTERED_TEXTURE_KEY = 'bw_prefiltered';
 
 type ClassicRenderPath = 'bitmap-mask' | 'cpu-composite' | 'patch-composite' | 'restoration-bitmap-mask';
 
@@ -155,6 +159,8 @@ export class GameScene extends Phaser.Scene {
   private bwImage: Phaser.GameObjects.Image | null = null;
   private colorImage: Phaser.GameObjects.Image | null = null;
   private runtimeTextureLongEdge = FALLBACK_RUNTIME_TEXTURE_LONG_EDGE;
+  private zoomPrefilterSwitch: number = PINCH.minZoom;
+  private usingPrefilteredLevelTextures = false;
 
   // Canvas-based mask. Classic mode composites bw + masked color on CPU
   // (BitmapMask is unreliable on iOS WKWebView). Restoration keeps BitmapMask.
@@ -416,7 +422,9 @@ export class GameScene extends Phaser.Scene {
     const levelChanged = GameScene.lastLoadedLevelId !== level.id;
     if (levelChanged) {
       if (this.textures.exists('color')) this.textures.remove('color');
+      if (this.textures.exists(COLOR_PREFILTERED_TEXTURE_KEY)) this.textures.remove(COLOR_PREFILTERED_TEXTURE_KEY);
       if (this.textures.exists('bw_generated')) this.textures.remove('bw_generated');
+      if (this.textures.exists(BW_PREFILTERED_TEXTURE_KEY)) this.textures.remove(BW_PREFILTERED_TEXTURE_KEY);
       for (const key of GameScene.lastLoadedSpriteTextureKeys) {
         if (this.textures.exists(key)) this.textures.remove(key);
       }
@@ -524,7 +532,9 @@ export class GameScene extends Phaser.Scene {
     if (GameScene.lastLoadedLevelId !== level.id) {
       GameScene.lastLoadedLevelId = null;
       if (textures.exists('color')) textures.remove('color');
+      if (textures.exists(COLOR_PREFILTERED_TEXTURE_KEY)) textures.remove(COLOR_PREFILTERED_TEXTURE_KEY);
       if (textures.exists('bw_generated')) textures.remove('bw_generated');
+      if (textures.exists(BW_PREFILTERED_TEXTURE_KEY)) textures.remove(BW_PREFILTERED_TEXTURE_KEY);
       for (const key of GameScene.lastLoadedSpriteTextureKeys) {
         if (textures.exists(key)) textures.remove(key);
       }
@@ -581,6 +591,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   override update(): void {
+    this.updateZoomTextureTier();
+
     // Final tutorial step: complete once the player zooms in beyond the level
     // captured when the step began. Polling here (rather than an event) keeps
     // PinchZoom free of tutorial coupling — it already owns the camera zoom; we
@@ -758,12 +770,14 @@ export class GameScene extends Phaser.Scene {
     const isRestoration = this.isRestoration;
     this.runtimeTextureLongEdge = GameScene.resolveRuntimeTextureLongEdge(this.game.renderer);
     this.capTextureLongEdge('color');
+    this.createZoomPrefilteredTexture('color', COLOR_PREFILTERED_TEXTURE_KEY);
     if (isRestoration) {
       if (this.textures.exists('bw_generated')) this.textures.remove('bw_generated');
       const bgCount = this.level.bgImageUrls?.length ?? 0;
       for (let i = 0; i < bgCount; i += 1) this.capTextureLongEdge(`bg_${i}`);
     } else {
-      this.generateGrayscaleTexture();
+      this.generateGrayscaleTexture('color', 'bw_generated');
+      this.generateGrayscaleTexture(COLOR_PREFILTERED_TEXTURE_KEY, BW_PREFILTERED_TEXTURE_KEY);
     }
     this.classicRenderProbes = {
       ...this.classicRenderProbes,
@@ -812,17 +826,18 @@ export class GameScene extends Phaser.Scene {
     // Restoration mode skips the grayscale texture entirely: the bg layer is
     // the default view and the color layer (with dogs) dissolves away on find.
     if (!isRestoration) {
-      this.bwImage = this.add.image(0, 0, 'bw_generated');
+      this.bwImage = this.add.image(0, 0, BW_PREFILTERED_TEXTURE_KEY);
       this.bwImage.setOrigin(0, 0);
       this.bwImage.setPosition(this.imgOffsetX, this.imgOffsetY);
       this.bwImage.setDisplaySize(this.level.width * this.imgScale, this.level.height * this.imgScale);
     }
 
     // Color layer (full color with dogs)
-    this.colorImage = this.add.image(0, 0, 'color');
+    this.colorImage = this.add.image(0, 0, COLOR_PREFILTERED_TEXTURE_KEY);
     this.colorImage.setOrigin(0, 0);
     this.colorImage.setPosition(this.imgOffsetX, this.imgOffsetY);
     this.colorImage.setDisplaySize(this.level.width * this.imgScale, this.level.height * this.imgScale);
+    this.usingPrefilteredLevelTextures = true;
 
     // Fill the contain-scale letterbox margin with a flipped copy of the clean
     // bg so edges look like the scene continues. Restoration uses bg_0 (no
@@ -3059,21 +3074,60 @@ export class GameScene extends Phaser.Scene {
     this.refreshCanvasTexture(textureKey);
   }
 
-  /** Generate grayscale texture from the capped color texture at logical level size. */
-  private generateGrayscaleTexture(): void {
-    if (this.textures.exists('bw_generated')) return;
+  private createZoomPrefilteredTexture(sourceKey: string, targetKey: string): void {
+    if (this.textures.exists(targetKey)) return;
+    const source = this.getCanvasSourceImage(sourceKey);
+    if (!source || !this.level) return;
+    const sourceWidth = Number((source as { width?: number }).width);
+    const sourceHeight = Number((source as { height?: number }).height);
+    const size = resolvePrefilteredTextureSize(
+      sourceWidth,
+      sourceHeight,
+      this.level.width * this.imgScale,
+      this.level.height * this.imgScale,
+      this.runtimeTextureLongEdge,
+    );
+    const canvas = document.createElement('canvas');
+    canvas.width = size.width;
+    canvas.height = size.height;
+    const ctx = canvas.getContext('2d')!;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(source, 0, 0, sourceWidth, sourceHeight, 0, 0, size.width, size.height);
+    this.textures.addCanvas(targetKey, canvas);
+    this.refreshCanvasTexture(targetKey);
+    this.zoomPrefilterSwitch = resolvePrefilterSwitchZoom(
+      Math.max(sourceWidth, sourceHeight),
+      Math.max(size.width, size.height),
+    );
+  }
 
-    const source = this.getCanvasSourceImage('color');
+  private updateZoomTextureTier(): void {
+    if (!this.colorImage || !this.textures.exists(COLOR_PREFILTERED_TEXTURE_KEY)) return;
+    const usePrefiltered = this.cameras.main.zoom < this.zoomPrefilterSwitch;
+    if (usePrefiltered === this.usingPrefilteredLevelTextures) return;
+    this.colorImage.setTexture(usePrefiltered ? COLOR_PREFILTERED_TEXTURE_KEY : 'color');
+    if (this.bwImage && this.textures.exists(BW_PREFILTERED_TEXTURE_KEY)) {
+      this.bwImage.setTexture(usePrefiltered ? BW_PREFILTERED_TEXTURE_KEY : 'bw_generated');
+    }
+    this.usingPrefilteredLevelTextures = usePrefiltered;
+  }
+
+  /** Generate grayscale at the source tier's exact dimensions. */
+  private generateGrayscaleTexture(sourceKey: string, targetKey: string): void {
+    if (this.textures.exists(targetKey)) return;
+
+    const source = this.getCanvasSourceImage(sourceKey);
     if (!source) return;
 
     const sourceWidth = Number((source as { width?: number }).width);
     const sourceHeight = Number((source as { height?: number }).height);
     const canvas = document.createElement('canvas');
-    canvas.width = this.level?.width ?? sourceWidth;
-    canvas.height = this.level?.height ?? sourceHeight;
+    canvas.width = sourceWidth;
+    canvas.height = sourceHeight;
 
-    // Desaturate at capped source resolution, then scale up — avoids a
-    // multi-megapixel getImageData pass on 4K logical level dimensions.
+    // Desaturate at this tier's source resolution so color and grayscale keep
+    // identical sampling footprints when the zoom policy switches both.
     const scratch = document.createElement('canvas');
     scratch.width = sourceWidth;
     scratch.height = sourceHeight;
@@ -3088,8 +3142,8 @@ export class GameScene extends Phaser.Scene {
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(scratch, 0, 0, canvas.width, canvas.height);
 
-    this.textures.addCanvas('bw_generated', canvas);
-    this.refreshCanvasTexture('bw_generated');
+    this.textures.addCanvas(targetKey, canvas);
+    this.refreshCanvasTexture(targetKey);
   }
 
   private createPawTexture(): void {

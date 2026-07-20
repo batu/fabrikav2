@@ -22,3 +22,27 @@ export function selectRuntimeColorImageUrl(
   if (!/^levels\/[^/]+\/color\.webp$/.test(fallbackUrl)) return fallbackUrl;
   return fallbackUrl.replace(/color\.webp$/, 'color.png');
 }
+
+/** Size one high-quality prefiltered tier to the zoom-1 screen footprint. */
+export function resolvePrefilteredTextureSize(
+  sourceWidth: number,
+  sourceHeight: number,
+  displayWidth: number,
+  displayHeight: number,
+  runtimeTextureLongEdge: number,
+): { width: number; height: number } {
+  const sourceLongEdge = Math.max(sourceWidth, sourceHeight);
+  const displayLongEdge = Math.max(displayWidth, displayHeight);
+  const targetLongEdge = Math.max(1, Math.min(sourceLongEdge, displayLongEdge, runtimeTextureLongEdge));
+  const ratio = targetLongEdge / sourceLongEdge;
+  return {
+    width: Math.max(1, Math.round(sourceWidth * ratio)),
+    height: Math.max(1, Math.round(sourceHeight * ratio)),
+  };
+}
+
+/** Balance sampling error between the prefiltered tier and its full source. */
+export function resolvePrefilterSwitchZoom(sourceLongEdge: number, prefilteredLongEdge: number): number {
+  if (prefilteredLongEdge <= 0 || sourceLongEdge <= prefilteredLongEdge) return 1;
+  return Math.sqrt(sourceLongEdge / prefilteredLongEdge);
+}
