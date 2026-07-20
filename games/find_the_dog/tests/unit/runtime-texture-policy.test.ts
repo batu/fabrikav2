@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  setTexturePreservingDisplaySize,
   resolvePrefilteredTextureSize,
   resolvePrefilterSwitchZoom,
   resolveRuntimeTextureLongEdge,
@@ -47,6 +48,25 @@ describe('selectRuntimeColorImageUrl', () => {
 });
 
 describe('zoom prefilter policy', () => {
+  it('keeps level-space display geometry invariant across resident texture tiers', () => {
+    const image = {
+      displayWidth: 1157,
+      displayHeight: 2532,
+      setTexture(): void {
+        this.displayWidth = 2560;
+        this.displayHeight = 5600;
+      },
+      setDisplaySize(width: number, height: number): void {
+        this.displayWidth = width;
+        this.displayHeight = height;
+      },
+    };
+
+    setTexturePreservingDisplaySize(image, 'color');
+
+    expect(image).toMatchObject({ displayWidth: 1157, displayHeight: 2532 });
+  });
+
   it('sizes one aspect-preserving tier to the zoom-1 display footprint', () => {
     expect(resolvePrefilteredTextureSize(2560, 5600, 1157, 2532, 8192))
       .toEqual({ width: 1157, height: 2532 });

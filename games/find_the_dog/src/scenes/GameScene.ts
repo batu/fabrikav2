@@ -51,6 +51,7 @@ import {
   resolvePrefilteredTextureSize,
   resolvePrefilterSwitchZoom,
   resolveRuntimeTextureLongEdge,
+  setTexturePreservingDisplaySize,
   selectRuntimeColorImageUrl,
 } from './RuntimeTexturePolicy';
 
@@ -3106,9 +3107,15 @@ export class GameScene extends Phaser.Scene {
     if (!this.colorImage || !this.textures.exists(COLOR_PREFILTERED_TEXTURE_KEY)) return;
     const usePrefiltered = this.cameras.main.zoom < this.zoomPrefilterSwitch;
     if (usePrefiltered === this.usingPrefilteredLevelTextures) return;
-    this.colorImage.setTexture(usePrefiltered ? COLOR_PREFILTERED_TEXTURE_KEY : 'color');
+    setTexturePreservingDisplaySize(
+      this.colorImage,
+      usePrefiltered ? COLOR_PREFILTERED_TEXTURE_KEY : 'color',
+    );
     if (this.bwImage && this.textures.exists(BW_PREFILTERED_TEXTURE_KEY)) {
-      this.bwImage.setTexture(usePrefiltered ? BW_PREFILTERED_TEXTURE_KEY : 'bw_generated');
+      setTexturePreservingDisplaySize(
+        this.bwImage,
+        usePrefiltered ? BW_PREFILTERED_TEXTURE_KEY : 'bw_generated',
+      );
     }
     this.usingPrefilteredLevelTextures = usePrefiltered;
   }

@@ -1,5 +1,19 @@
 export const FALLBACK_RUNTIME_TEXTURE_LONG_EDGE = 2560;
 
+type DisplaySizedTexture = {
+  displayWidth: number;
+  displayHeight: number;
+  setTexture(textureKey: string): unknown;
+  setDisplaySize(width: number, height: number): unknown;
+};
+
+/** Phaser resets frame-derived display dimensions when a different-sized texture is installed. */
+export function setTexturePreservingDisplaySize(image: DisplaySizedTexture, textureKey: string): void {
+  const { displayWidth, displayHeight } = image;
+  image.setTexture(textureKey);
+  image.setDisplaySize(displayWidth, displayHeight);
+}
+
 /** Use the renderer's real allocation limit; retain the shipped guard without WebGL capability. */
 export function resolveRuntimeTextureLongEdge(maxTextureSize: number | null): number {
   if (!Number.isFinite(maxTextureSize) || (maxTextureSize ?? 0) <= 0) {
