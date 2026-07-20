@@ -21,4 +21,14 @@ All scores below are at deviceScaleFactor 3 (iPhone geometry); the eval was corr
 | 3b | Keep iteration 3's prefiltered tiers, but preserve the level-derived display width and height across each color/grayscale texture swap so resident resolution is transparent to world coordinates. | 82.93 | 79.72 | not reported | not reported | same as 3a; pending measurement | same as 3a; pending decoded-residency guard | deferred to plateau | REJECTED — geometry and max-zoom matched iteration 2, but zoom-1 regressed on every 2560x3840 level because the light-minification class was downscaled and then resampled |
 | 3c | Size the zoom-1 prefilter from each level's source dimensions and exact level-derived display footprint, never below that footprint; create and use it only for the heavily minified 2560x5600 class, while the lightly minified 2560x3840 class remains on the source tier. | pending conductor scoring | pending conductor scoring | pending conductor scoring | pending conductor scoring | one extra prefilter only for qualifying heavily minified levels; pending measurement | removes the extra color+grayscale pair for non-qualifying levels; pending decoded-residency guard | deferred to plateau | PENDING — conductor runs `node tools/zoom-sharpness/eval.mjs --out /tmp/zoom-2-iteration-3c` |
 
+### Colored-capture re-anchor (final metric: colored, DSF 3)
+
+base 79.98/78.17(wd) -> iter1 82.93 (+2.95) -> iter2 82.93 median / 79.72 wd (+1.55 wd). Authority for all decisions below.
+
+| 3a `0ca78a6c` | zoom-band prefilter | REJECTED — 20.20 median: texture-tier swap broke the level-coordinate space (candidate/reference showed different regions) |
+| 3b `b47b6065` | + geometry-preserving swap | REJECTED — maxZoom identical to iter2; zoom-1 worst-decile 78.42->74.23 (2560x3840 class -3..4 from double-resample) |
+| 3c `a7435aa1` | + per-class gating | REJECTED — regressions spread to all classes; hawaii_hidden_easy_phone collapsed (-79 zoom1 / -85 maxZoom) |
+
+**LEVER CLOSED (prefilter/mipmap family):** WebGL1 NPOT rules out true mipmaps; three prefilter attempts were net-negative; commits reverted, tree restored to iter2 behavior. Remaining levers: PINCH.maxZoom (product decision) and source-art escalation (reference is not the current bottleneck — max-zoom renders at ~1.13x of source). Fast-tier plateau declared at iter2 by conductor judgment (strict rule wants two accepted sub-1.0 iterations; the sole remaining code lever instead produced three consecutive rejections). Device tier next.
+
 Rejected attempts do not update the accepted comparison base or the sub-1.0 plateau streak. Device results remain pending until the fast-tier plateau fires.
