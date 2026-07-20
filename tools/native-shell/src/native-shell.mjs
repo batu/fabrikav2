@@ -546,16 +546,26 @@ function collectRecipeIssues(gameDir, recipeDir, manifest, ids) {
 
 function copyRecipeApp(recipeDir, iosRoot, changed) {
   const sourceRoot = path.join(recipeDir, 'App');
-  for (const entry of fs.readdirSync(sourceRoot, { withFileTypes: true })) {
-    if (!entry.isFile()) throw new Error(`native recipe App/ must contain files only: ${entry.name}`);
-    const source = path.join(sourceRoot, entry.name);
-    const target = path.join(iosRoot, 'App', entry.name);
+  // Recurse: recipe inputs include directories (Assets.xcassets app icon/splash),
+  // matching verify-device's applyNativeRecipe copier.
+  const files = [];
+  const walk = (dir) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.isFile()) files.push(full);
+    }
+  };
+  walk(sourceRoot);
+  for (const source of files) {
+    const relative = path.relative(sourceRoot, source);
+    const target = path.join(iosRoot, 'App', relative);
     const content = fs.readFileSync(source);
     const current = fs.existsSync(target) ? fs.readFileSync(target) : null;
     if (current?.equals(content)) continue;
     fs.mkdirSync(path.dirname(target), { recursive: true });
     fs.writeFileSync(target, content);
-    changed.push(`App/${entry.name}`);
+    changed.push(`App/${relative.split(path.sep).join('/')}`);
   }
 }
 
