@@ -152,12 +152,23 @@ if (typeof window !== 'undefined') {
     ]).then(([{ createFindTheDogHarness, snapshotMatchesFindTheDogDriveState }, ambient]): void => {
       const harness = createFindTheDogHarness(game);
       releaseTestBindings?.();
-      releaseTestBindings = assignWindowBindings(window as unknown as Record<string, unknown>, {
+      const releaseHarnessBindings = assignWindowBindings(window as unknown as Record<string, unknown>, {
         __FIND_DOG_GAME__: game,
         __FIND_DOG_STATE__: gameState,
         __FIND_DOG_HARNESS__: harness,
         __FIND_DOG_AMBIENT__: ambient.__ambientDebugSnapshot,
       });
+      if (import.meta.env.MODE === 'zoom-eval' && String(import.meta.env.VITE_ENABLE_TEST_HARNESS) === 'true') {
+        void import('./testing/ZoomEvalHook').then(({ installZoomEvalHook }): void => {
+          const releaseZoomEval = installZoomEvalHook(game, harness);
+          releaseTestBindings = (): void => {
+            releaseZoomEval();
+            releaseHarnessBindings();
+          };
+        });
+      } else {
+        releaseTestBindings = releaseHarnessBindings;
+      }
       void maybeRunInsituTour(harness, {
         snapshotMatchesState: snapshotMatchesFindTheDogDriveState,
       }).catch((err: unknown): void => {
