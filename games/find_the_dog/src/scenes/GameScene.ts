@@ -3088,6 +3088,10 @@ export class GameScene extends Phaser.Scene {
       this.level.height * this.imgScale,
       this.runtimeTextureLongEdge,
     );
+    if (!size) {
+      this.zoomPrefilterSwitch = PINCH.minZoom;
+      return;
+    }
     const canvas = document.createElement('canvas');
     canvas.width = size.width;
     canvas.height = size.height;

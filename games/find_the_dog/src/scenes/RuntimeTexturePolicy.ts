@@ -1,4 +1,7 @@
 export const FALLBACK_RUNTIME_TEXTURE_LONG_EDGE = 2560;
+// The two shipped portrait classes land at ~2.21x and ~1.52x minification.
+// Only the former benefited from a zoom-1 prefilter in the locked fast tier.
+const MIN_PREFILTER_DOWNSAMPLE_RATIO = 1.6;
 
 type DisplaySizedTexture = {
   displayWidth: number;
@@ -44,14 +47,14 @@ export function resolvePrefilteredTextureSize(
   displayWidth: number,
   displayHeight: number,
   runtimeTextureLongEdge: number,
-): { width: number; height: number } {
+): { width: number; height: number } | null {
   const sourceLongEdge = Math.max(sourceWidth, sourceHeight);
   const displayLongEdge = Math.max(displayWidth, displayHeight);
-  const targetLongEdge = Math.max(1, Math.min(sourceLongEdge, displayLongEdge, runtimeTextureLongEdge));
-  const ratio = targetLongEdge / sourceLongEdge;
+  if (sourceLongEdge / displayLongEdge < MIN_PREFILTER_DOWNSAMPLE_RATIO) return null;
+  if (displayLongEdge > runtimeTextureLongEdge) return null;
   return {
-    width: Math.max(1, Math.round(sourceWidth * ratio)),
-    height: Math.max(1, Math.round(sourceHeight * ratio)),
+    width: Math.max(1, Math.ceil(displayWidth)),
+    height: Math.max(1, Math.ceil(displayHeight)),
   };
 }
 

@@ -71,14 +71,14 @@ describe('zoom prefilter policy', () => {
     expect(resolvePrefilteredTextureSize(2560, 5600, 1157, 2532, 8192))
       .toEqual({ width: 1157, height: 2532 });
     expect(resolvePrefilteredTextureSize(2560, 3840, 1688, 2532, 8192))
-      .toEqual({ width: 1688, height: 2532 });
+      .toBeNull();
   });
 
   it('does not upscale or exceed the measured texture limit', () => {
     expect(resolvePrefilteredTextureSize(1000, 2000, 1500, 3000, 8192))
-      .toEqual({ width: 1000, height: 2000 });
+      .toBeNull();
     expect(resolvePrefilteredTextureSize(2560, 5600, 1157, 2532, 2048))
-      .toEqual({ width: 936, height: 2048 });
+      .toBeNull();
   });
 
   it('switches at the geometric midpoint between the prefiltered and source tiers', () => {
