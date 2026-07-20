@@ -87,6 +87,18 @@ export function installZoomEvalHook(game: Phaser.Game, harness: FindTheDogHarnes
       tween.pause();
       tween.seek(0);
     }
+    // Reveal the full color layer: classic mode starts grayscale and colors in
+    // per found dog, but the eval measures the color texture path (the
+    // reference is the colored source art). Painting the reveal mask white is
+    // the same mechanism gameplay uses, just all at once.
+    const revealMask = scene.textures.exists('reveal_mask')
+      ? (scene.textures.get('reveal_mask') as Phaser.Textures.CanvasTexture)
+      : null;
+    if (revealMask?.context && typeof revealMask.refresh === 'function') {
+      revealMask.context.fillStyle = 'white';
+      revealMask.context.fillRect(0, 0, revealMask.width, revealMask.height);
+      revealMask.refresh();
+    }
     const camera = scene.cameras.main;
     camera.setZoom(pose.zoom);
     camera.setScroll(pose.scrollX, pose.scrollY);
