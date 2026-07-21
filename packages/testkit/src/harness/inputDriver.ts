@@ -50,6 +50,12 @@ export function driveInputAt(point: ClientPoint): DriveInputResult {
     target.dispatchEvent(new PointerEvent('pointerdown', { ...shared, pointerType: 'touch', isPrimary: true }));
     target.dispatchEvent(new PointerEvent('pointerup', { ...shared, pointerType: 'touch', isPrimary: true }));
   }
+  // A real tap also produces compatibility mouse events, and canvas engines
+  // (Phaser's input manager included) subscribe to mouse/touch events, not
+  // pointer events — synthetic pointer events alone never reach them. Dispatch
+  // the mouse pair so the sequence matches a genuine user gesture end to end.
+  target.dispatchEvent(new MouseEvent('mousedown', { ...shared, button: 0, buttons: 1 }));
+  target.dispatchEvent(new MouseEvent('mouseup', { ...shared, button: 0, buttons: 0 }));
   // A `click` always follows a real tap; dispatch it so click-only listeners
   // (the common menu-button case) fire without an `el.click()` shortcut.
   target.dispatchEvent(new MouseEvent('click', shared));

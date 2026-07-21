@@ -26,7 +26,11 @@ final class InsituTourTests: XCTestCase {
     /// label before shooting, so the frame we capture is guaranteed to BE the
     /// state we stamp it with — never the previous/next frame. Budget covers the
     /// tour's slowest transition (driveTo is variable-time) plus dwell.
-    private let stateTimeout: TimeInterval = 25
+    /// 40s, not 25: the wait for state N starts as soon as state N-1 is shot
+    /// (early in N-1's dwell), so the budget must absorb the REMAINDER of that
+    /// dwell (~11s) plus the slowest drive (fail: home → level load → taps),
+    /// which overran 25s on a cold simulator.
+    private let stateTimeout: TimeInterval = 40
 
     /// Canonical states, tour order. The tour label is `tourstate:<state>`; the
     /// attachment name keeps a "<n>-<state>" order prefix so the CLI's
