@@ -538,6 +538,18 @@ Cards are strictly dependency-linked in this order. A later card is not spawned 
 - U9 rehearses only; its worker must leave live v1 and Factory2 authority unchanged. The post-unit activation gate is not inferred from card completion and needs fresh human approval after the LFG tail is green.
 - Do not release `scratch-2` at initiative completion; it contains unrelated project history and release would archive the whole board.
 
+| Unit | Card | Depends on |
+| --- | --- | --- |
+| U1 | [hIcIoEhL](https://trello.com/c/hIcIoEhL) | — |
+| U2 | [axYZSiiH](https://trello.com/c/axYZSiiH) | hIcIoEhL |
+| U3 | [hu49JHmR](https://trello.com/c/hu49JHmR) | axYZSiiH |
+| U4 | [e1tkuJVt](https://trello.com/c/e1tkuJVt) | hu49JHmR |
+| U5 | [Q83flyGY](https://trello.com/c/Q83flyGY) | e1tkuJVt |
+| U6 | [cMHI3PVc](https://trello.com/c/cMHI3PVc) | Q83flyGY |
+| U7 | [QHlpqoFF](https://trello.com/c/QHlpqoFF) | cMHI3PVc |
+| U8 | [VuPS0Z3R](https://trello.com/c/VuPS0Z3R) | QHlpqoFF |
+| U9 | [JZly7JC5](https://trello.com/c/JZly7JC5) | VuPS0Z3R |
+
 ---
 
 ## Definition of Done
