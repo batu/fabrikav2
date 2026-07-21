@@ -1,7 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GameState } from '../../src/core/GameState';
 import { analytics } from '../../src/analytics/AnalyticsService';
-import type { AchievementRecord } from '../../src/achievements/AchievementSystem';
+import {
+  ACHIEVEMENT_RECORD_VERSION,
+  type AchievementRecord,
+} from '../../src/achievements/AchievementSystem';
 
 const K = {
   COINS: 'ftd_wallet_coins',
@@ -111,10 +114,12 @@ function writeTornState(opts: {
   after: { coins: number; hints: number; counters: object };
 }): void {
   const record: AchievementRecord = {
-    version: 1,
+    version: ACHIEVEMENT_RECORD_VERSION,
     progress: {},
     masteredLevelIds: [],
     unlocked: ['first_completion'],
+    migrationRewardIneligibleAchievementIds: [],
+    legacyRewardProvenanceUnknownAchievementIds: [],
     processedOccurrenceIds: ['occ-r'],
     pendingSettlement: {
       occurrenceId: 'occ-r',
@@ -324,6 +329,10 @@ describe('in-process retry after record-write throw (corrections 4/8)', () => {
     // Wallet already at `after`; a same-fact retry recovers pending then dedupes.
     const rec = gs.achievementRecordSnapshot();
     expect(rec.pendingSettlement).not.toBeNull();
+    expect(gs.achievementReadProjection()).toEqual({
+      status: 'unavailable',
+      reason: 'settlement-pending',
+    });
     const retry = gs.applyAchievementFact({
       kind: 'level-completion',
       occurrenceId: rec.pendingSettlement!.occurrenceId,
@@ -334,6 +343,7 @@ describe('in-process retry after record-write throw (corrections 4/8)', () => {
     expect(retry.rewards).toHaveLength(0); // deduped, no second grant
     expect(gs.coinBalance).toBe(90);
     expect(gs.achievementRecordSnapshot().pendingSettlement).toBeNull();
+    expect(gs.achievementReadProjection().status).toBe('ready');
   });
 
   it('checkpoint-1 throw then retry grants exactly once (occurrence rolled back)', () => {
@@ -370,14 +380,18 @@ describe('persistence-unavailable degradation (final correction)', () => {
     expect(gs.achievementRecordSnapshot().unlocked).toHaveLength(0);
   });
 
-  it('does not overwrite a valid achievement journal when load fails before reading it', () => {
+  it('fails the read projection closed without overwriting a journal that cannot be read', () => {
     const original = new GameState();
     original.recordDogFound('lvl-a', 'dog-a');
     const durableJournal = localStorage.getItem(K.ACHIEVEMENTS);
     expect(durableJournal).not.toBeNull();
 
-    throwOnGetKey(K.HINTS);
+    throwOnGetKey(K.ACHIEVEMENTS);
     const degraded = new GameState();
+    expect(degraded.achievementReadProjection()).toEqual({
+      status: 'unavailable',
+      reason: 'persistence-unavailable',
+    });
     vi.restoreAllMocks();
     degraded.grantCoins(1, 'test');
     expect(degraded.recordDogFound('lvl-b', 'dog-b')).toBeNull();
@@ -400,6 +414,13 @@ describe('persistence-unavailable degradation (final correction)', () => {
     localStorage.setItem(K.ACHIEVEMENTS, durableJournal);
 
     const degraded = new GameState();
+    expect(degraded.achievementReadProjection()).toEqual({
+      status: 'unavailable',
+      reason: 'persistence-unavailable',
+    });
+    expect(
+      degraded.allocateAchievementViewEvent({ name: 'achievement_page_viewed' }),
+    ).toBeNull();
     degraded.grantCoins(1, 'test');
     expect(degraded.recordDogFound('lvl-a', 'dog-a')).toBeNull();
     expect(localStorage.getItem(K.ACHIEVEMENTS)).toBe(durableJournal);
@@ -427,7 +448,7 @@ describe('persistence-unavailable degradation (final correction)', () => {
 describe('reward cap and analytics retry', () => {
   it('records only the actually applied hint reward at the wallet cap', () => {
     const seeded: AchievementRecord = {
-      version: 1,
+      version: ACHIEVEMENT_RECORD_VERSION,
       progress: {
         first_completion: 49,
         completions_10: 49,
@@ -437,7 +458,9 @@ describe('reward cap and analytics retry', () => {
       },
       masteredLevelIds: [],
       unlocked: ['first_completion', 'completions_10', 'completions_25', 'first_best'],
-      processedOccurrenceIds: ['migration:v1'],
+      migrationRewardIneligibleAchievementIds: [],
+      legacyRewardProvenanceUnknownAchievementIds: [],
+      processedOccurrenceIds: [`migration:v${ACHIEVEMENT_RECORD_VERSION}`],
       pendingSettlement: null,
       analyticsOutbox: [],
       nextAnalyticsEventSequence: 0,
@@ -473,6 +496,91 @@ describe('reward cap and analytics retry', () => {
     recovered.drainAnalyticsOutbox();
     expect(retry).toHaveBeenCalledTimes(1);
     expect(recovered.achievementRecordSnapshot().analyticsOutbox).toHaveLength(0);
+  });
+});
+
+describe('ACH-2 read and view-event contract', () => {
+  it('exposes the canonical projection and persists unique UI analytics allocations across reload', () => {
+    const gs = new GameState();
+    const projection = gs.achievementReadProjection();
+    expect(projection.status).toBe('ready');
+    if (projection.status !== 'ready') throw new Error('achievement projection unavailable');
+    expect(projection.achievements[0]).toMatchObject({
+      id: 'first_completion',
+      rewardStatus: 'locked',
+    });
+
+    const viewed = gs.allocateAchievementViewEvent({
+      name: 'achievement_viewed',
+      achievementId: 'first_completion',
+    });
+    const page = gs.allocateAchievementViewEvent({ name: 'achievement_page_viewed' });
+    expect(viewed?.payload).toMatchObject({ achievement_id: 'first_completion' });
+    expect(page?.payload).toEqual({ event_id: page?.eventId });
+
+    const reloaded = new GameState();
+    const viewedAgain = reloaded.allocateAchievementViewEvent({
+      name: 'achievement_viewed',
+      achievementId: 'first_completion',
+    });
+    const ids = [viewed?.eventId, page?.eventId, viewedAgain?.eventId];
+    expect(new Set(ids).size).toBe(3);
+    expect(reloaded.achievementRecordSnapshot().nextAnalyticsEventSequence).toBe(32);
+  });
+
+  it('returns no event and restores the durable sequence when allocation persistence fails', () => {
+    const gs = new GameState();
+    throwAlwaysOnKey(K.ACHIEVEMENTS);
+    expect(
+      gs.allocateAchievementViewEvent({
+        name: 'achievement_viewed',
+        achievementId: 'first_completion',
+      }),
+    ).toBeNull();
+    expect(gs.achievementRecordSnapshot().nextAnalyticsEventSequence).toBe(0);
+
+    vi.restoreAllMocks();
+    const retry = gs.allocateAchievementViewEvent({
+      name: 'achievement_viewed',
+      achievementId: 'first_completion',
+    });
+    expect(retry?.eventId).toBe('ach:0:viewed:first_completion');
+  });
+
+  it('keeps reserved UI ids disjoint from interleaved domain outbox ids', () => {
+    const gs = new GameState();
+    const viewed = gs.allocateAchievementViewEvent({
+      name: 'achievement_viewed',
+      achievementId: 'first_completion',
+    });
+
+    gs.recordDogFound('level-a', 'dog-a');
+    const domainIds = gs.achievementRecordSnapshot().analyticsOutbox.map((event) => event.eventId);
+    const page = gs.allocateAchievementViewEvent({ name: 'achievement_page_viewed' });
+
+    expect(viewed?.eventId).toBe('ach:0:viewed:first_completion');
+    expect(page?.eventId).toBe('ach:1:page:achievement_system');
+    expect(domainIds.length).toBeGreaterThan(0);
+    expect(domainIds.every((id) => Number(id.split(':')[1]) >= 16)).toBe(true);
+    expect(new Set([viewed?.eventId, page?.eventId, ...domainIds]).size).toBe(
+      domainIds.length + 2,
+    );
+  });
+
+  it('retries the next reservation boundary without consuming an id', () => {
+    const gs = new GameState();
+    const allocated = Array.from({ length: 16 }, () =>
+      gs.allocateAchievementViewEvent({ name: 'achievement_page_viewed' }),
+    );
+    expect(allocated.at(-1)?.eventId).toBe('ach:15:page:achievement_system');
+
+    throwAlwaysOnKey(K.ACHIEVEMENTS);
+    expect(gs.allocateAchievementViewEvent({ name: 'achievement_page_viewed' })).toBeNull();
+    vi.restoreAllMocks();
+
+    expect(gs.allocateAchievementViewEvent({ name: 'achievement_page_viewed' })?.eventId).toBe(
+      'ach:16:page:achievement_system',
+    );
   });
 });
 

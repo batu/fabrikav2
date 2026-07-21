@@ -16,6 +16,7 @@ import type {
   AchievementRewardGrantedPayload,
   AchievementUnlockedPayload,
   AchievementViewedPayload,
+  AchievementViewEvent,
   PendingAnalyticsEvent,
 } from '../achievements/AchievementAnalytics';
 
@@ -444,13 +445,10 @@ export class AnalyticsService {
   }
 
   /**
-   * The ONE public dispatch entry point for the achievement outbox (correction 1).
-   * `GameState.drainAnalyticsOutbox()` calls only this — never the private `sdk` or
-   * a dynamic `analytics[name]`. The `switch` narrows the discriminated union's
-   * payload per `name`; the `never` default fails to compile if an emitted event
-   * name is added without an arm.
+   * The public exhaustive dispatcher for durable domain events and allocated UI
+   * view events. Callers never access the private SDK or dynamically index methods.
    */
-  dispatchAchievementEvent(event: PendingAnalyticsEvent): void {
+  dispatchAchievementEvent(event: PendingAnalyticsEvent | AchievementViewEvent): void {
     switch (event.name) {
       case 'achievement_progress':
         this.achievementProgress(event.payload);
@@ -463,6 +461,12 @@ export class AnalyticsService {
         return;
       case 'achievement_reconciliation_anomaly':
         this.achievementReconciliationAnomaly(event.payload);
+        return;
+      case 'achievement_viewed':
+        this.achievementViewed(event.payload);
+        return;
+      case 'achievement_page_viewed':
+        this.achievementPageViewed(event.payload);
         return;
       default: {
         const exhaustive: never = event;

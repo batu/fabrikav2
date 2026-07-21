@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import {
   apply,
   applyDeltaToRecord,
+  buildAchievementReadProjection,
   emptyAchievementRecord,
+  migrate,
   orderedAchievements,
   type AchievementRecord,
   type DogFoundFact,
@@ -129,6 +131,69 @@ describe('applyDeltaToRecord (correction 3)', () => {
     }
     expect(record.progress['dogs_25']).toBe(25);
     expect(record.unlocked).toContain('dogs_25');
+  });
+});
+
+describe('canonical achievement read projection (ACH-2 dependency)', () => {
+  it('returns every catalog entry in display order with locked and in-progress states', () => {
+    const record: AchievementRecord = {
+      ...emptyAchievementRecord(),
+      progress: { completions_10: 4 },
+    };
+    const projection = buildAchievementReadProjection(record);
+
+    expect(projection.map((entry) => entry.id)).toEqual(orderedAchievements().map((entry) => entry.id));
+    expect(projection.find((entry) => entry.id === 'first_completion')).toMatchObject({
+      progress: 0,
+      threshold: 1,
+      rewardStatus: 'locked',
+    });
+    expect(projection.find((entry) => entry.id === 'completions_10')).toMatchObject({
+      progress: 4,
+      threshold: 10,
+      rewardStatus: 'in-progress',
+    });
+  });
+
+  it('distinguishes live settled rewards from migration-unlocked reward-ineligible entries', () => {
+    const liveDelta = apply(completion(), emptyAchievementRecord());
+    const live = buildAchievementReadProjection(applyDeltaToRecord(emptyAchievementRecord(), liveDelta));
+    expect(live.find((entry) => entry.id === 'first_completion')?.rewardStatus).toBe(
+      'live-reward-settled',
+    );
+
+    const migrated = buildAchievementReadProjection(migrate({ totalCompletions: 12, streakDays: 3 }));
+    expect(migrated.find((entry) => entry.id === 'first_completion')).toMatchObject({
+      progress: 1,
+      rewardStatus: 'migration-unlocked-reward-ineligible',
+    });
+    expect(migrated.find((entry) => entry.id === 'completions_10')?.rewardStatus).toBe(
+      'migration-unlocked-reward-ineligible',
+    );
+  });
+
+  it('keeps unknowable legacy reward provenance distinct from both settled states', () => {
+    const record: AchievementRecord = {
+      ...emptyAchievementRecord(),
+      progress: { completions_10: 12 },
+      unlocked: ['completions_10'],
+      legacyRewardProvenanceUnknownAchievementIds: ['completions_10'],
+    };
+
+    expect(
+      buildAchievementReadProjection(record).find((entry) => entry.id === 'completions_10')
+        ?.rewardStatus,
+    ).toBe('legacy-unlocked-reward-provenance-unknown');
+  });
+
+  it('clamps malformed and over-threshold progress in the read projection', () => {
+    const projection = buildAchievementReadProjection({
+      ...emptyAchievementRecord(),
+      progress: { first_completion: -4, completions_10: 999 },
+    });
+
+    expect(projection.find((entry) => entry.id === 'first_completion')?.progress).toBe(0);
+    expect(projection.find((entry) => entry.id === 'completions_10')?.progress).toBe(10);
   });
 });
 

@@ -3,11 +3,13 @@ import {
   ACHIEVEMENT_RECORD_VERSION,
   apply as applyAchievement,
   applyDeltaToRecord,
+  buildAchievementReadProjection,
   emptyAchievementRecord,
   migrate as migrateAchievements,
   sanitizeSequence,
   type AchievementFact,
   type AchievementRecord,
+  type AchievementReadProjectionResult,
   type CommittedAchievementDelta,
   type DogFoundFact,
   type GrantedReward,
@@ -16,10 +18,13 @@ import {
   type SettlementSnapshot,
 } from '../achievements/AchievementSystem';
 import {
+  allocateAchievementViewEvent as allocateAchievementViewEventPayload,
   buildReconciliationAnomalyEvent,
   deltaToEvents,
   parsePendingAnalyticsEvent,
   type PendingAnalyticsEvent,
+  type AchievementViewEvent,
+  type AchievementViewEventRequest,
 } from '../achievements/AchievementAnalytics';
 import { analytics } from '../analytics/AnalyticsService';
 
@@ -475,6 +480,12 @@ function parseAchievementRecord(value: string | null): AchievementRecord | null 
     progress,
     masteredLevelIds: stringArray(record.masteredLevelIds),
     unlocked: stringArray(record.unlocked),
+    migrationRewardIneligibleAchievementIds: stringArray(
+      record.migrationRewardIneligibleAchievementIds,
+    ),
+    legacyRewardProvenanceUnknownAchievementIds: stringArray(
+      record.legacyRewardProvenanceUnknownAchievementIds,
+    ),
     processedOccurrenceIds: stringArray(record.processedOccurrenceIds),
     pendingSettlement: parsePendingSettlement(record.pendingSettlement),
     analyticsOutbox: outbox,
@@ -512,6 +523,10 @@ const WALLET_COUNTER_KEYS: readonly (keyof WalletCounters)[] = [
   'levelCompleteCoinGrants',
   'rewardedHintGrants',
 ];
+
+/** Persist UI analytics sequences in small blocks to avoid a journal rewrite for
+ *  every achievement row view. Unused IDs after a crash are safe gaps. */
+const ACHIEVEMENT_VIEW_SEQUENCE_RESERVATION_SIZE = 16;
 
 function sequenceFromCompletionId(id: string): number {
   const match = /^completion:(\d+):/.exec(id);
@@ -585,6 +600,9 @@ export class GameState {
    *  and reconciled. Broad saves and live facts must not overwrite an unknown
    *  durable record with constructor defaults after a transient storage error. */
   private _achievementPersistenceReady: boolean = false;
+  /** Session-local cursor inside the durably reserved UI analytics ID block. */
+  private _nextAchievementViewEventSequence: number = 0;
+  private _achievementViewEventSequenceLimit: number = 0;
 
   get hintsRemaining(): number {
     return this._hintBalance;
@@ -1395,6 +1413,56 @@ export class GameState {
   /** Test/inspection read of the current durable achievement record. */
   achievementRecordSnapshot(): AchievementRecord {
     return this._achievementRecord;
+  }
+
+  /** Canonical catalog + durable player-state projection for achievement UI. */
+  achievementReadProjection(): AchievementReadProjectionResult {
+    if (!this._achievementPersistenceReady) {
+      return { status: 'unavailable', reason: 'persistence-unavailable' };
+    }
+    if (this._achievementRecord.pendingSettlement !== null) {
+      return { status: 'unavailable', reason: 'settlement-pending' };
+    }
+    return {
+      status: 'ready',
+      achievements: buildAchievementReadProjection(this._achievementRecord),
+    };
+  }
+
+  /**
+   * Return a UI-ready event from a durably reserved shared sequence block. A failed
+   * reservation returns null and restores the durable counter; unused reserved IDs
+   * become harmless gaps after relaunch.
+   */
+  allocateAchievementViewEvent(
+    request: AchievementViewEventRequest,
+  ): AchievementViewEvent | null {
+    if (!this._achievementPersistenceReady) return null;
+    const needsReservation =
+      this._nextAchievementViewEventSequence >= this._achievementViewEventSequenceLimit;
+    const startSequence = needsReservation
+      ? this._achievementRecord.nextAnalyticsEventSequence
+      : this._nextAchievementViewEventSequence;
+    const allocation = allocateAchievementViewEventPayload(
+      request,
+      startSequence,
+    );
+    if (allocation === null) return null;
+    if (needsReservation) {
+      const reservationLimit =
+        startSequence + ACHIEVEMENT_VIEW_SEQUENCE_RESERVATION_SIZE;
+      try {
+        this.commitRecord({
+          ...this._achievementRecord,
+          nextAnalyticsEventSequence: reservationLimit,
+        });
+      } catch {
+        return null;
+      }
+      this._achievementViewEventSequenceLimit = reservationLimit;
+    }
+    this._nextAchievementViewEventSequence = allocation.nextSequence;
+    return allocation.event;
   }
 
   save(): void {

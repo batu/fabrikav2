@@ -46,11 +46,33 @@ export interface AchievementReconciliationAnomalyPayload extends AchievementAnal
   readonly wallet_component: string;
 }
 
-/** Typed discovery/view contracts owned here for the dependent ACH-2 UI card. */
+/** Typed discovery/view contracts owned by the achievement domain. */
 export interface AchievementViewedPayload extends AchievementAnalyticsBase {}
 
 export interface AchievementPageViewedPayload {
   readonly event_id: string;
+}
+
+export type AchievementViewEventRequest =
+  | { readonly name: 'achievement_viewed'; readonly achievementId: string }
+  | { readonly name: 'achievement_page_viewed' };
+
+/** UI-ready event returned by the owned allocator; no payload adaptation needed. */
+export type AchievementViewEvent =
+  | {
+      readonly eventId: string;
+      readonly name: 'achievement_viewed';
+      readonly payload: AchievementViewedPayload;
+    }
+  | {
+      readonly eventId: string;
+      readonly name: 'achievement_page_viewed';
+      readonly payload: AchievementPageViewedPayload;
+    };
+
+export interface AchievementViewEventAllocation {
+  readonly event: AchievementViewEvent;
+  readonly nextSequence: number;
 }
 
 export type AchievementAnalyticsPayload =
@@ -150,6 +172,41 @@ function categoryFor(achievementId: string): string {
 
 function eventId(sequence: number, kind: string, achievementId: string): string {
   return `ach:${sequence}:${kind}:${achievementId}`;
+}
+
+/**
+ * Pure half of the UI analytics allocator. GameState persists `nextSequence`
+ * before returning the event, making IDs collision-free across relaunches and
+ * shared with domain/outbox IDs. Unknown catalog IDs consume no sequence.
+ */
+export function allocateAchievementViewEvent(
+  request: AchievementViewEventRequest,
+  startSequence: number,
+): AchievementViewEventAllocation | null {
+  if (request.name === 'achievement_page_viewed') {
+    const id = eventId(startSequence, 'page', ACHIEVEMENT_SYSTEM_ID);
+    return {
+      event: { eventId: id, name: request.name, payload: { event_id: id } },
+      nextSequence: startSequence + 1,
+    };
+  }
+
+  const category = CATEGORY_BY_ID.get(request.achievementId);
+  if (category === undefined) return null;
+  const id = eventId(startSequence, 'viewed', request.achievementId);
+  return {
+    event: {
+      eventId: id,
+      name: request.name,
+      payload: {
+        event_id: id,
+        achievement_id: request.achievementId,
+        occurrence_id: id,
+        category,
+      },
+    },
+    nextSequence: startSequence + 1,
+  };
 }
 
 /**

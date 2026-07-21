@@ -1,4 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import {
+  ACHIEVEMENT_RECORD_VERSION,
+  buildAchievementReadProjection,
+} from '../../src/achievements/AchievementSystem';
 import { GameState } from '../../src/core/GameState';
 
 const K = {
@@ -57,7 +61,10 @@ describe('migration / backfill (AC4/AC5/KTD5)', () => {
     expect(rec.progress['completions_10']).toBe(12);
     // No retroactive reward — wallet untouched by migration.
     expect(gs.coinBalance).toBe(0);
-    expect(rec.processedOccurrenceIds).toContain('migration:v1');
+    expect(rec.processedOccurrenceIds).toContain(`migration:v${ACHIEVEMENT_RECORD_VERSION}`);
+    expect(rec.migrationRewardIneligibleAchievementIds).toEqual(
+      expect.arrayContaining(['first_completion', 'completions_10', 'streak_3']),
+    );
   });
 
   it('sanitizes malformed legacy counters (negative → 0, no spurious unlock)', () => {
@@ -121,8 +128,53 @@ describe('migration / backfill (AC4/AC5/KTD5)', () => {
     );
     const gs = new GameState();
     const rec = gs.achievementRecordSnapshot();
-    expect(rec.version).toBe(1);
+    expect(rec.version).toBe(ACHIEVEMENT_RECORD_VERSION);
     expect(rec.unlocked).toContain('first_completion');
     expect(rec.unlocked).toContain('completions_10'); // newly derivable at total 12
+  });
+
+  it('keeps already-unlocked v1 migration entries explicitly provenance-unknown', () => {
+    localStorage.setItem(K.TOTAL, '12');
+    localStorage.setItem(
+      K.ACHIEVEMENTS,
+      JSON.stringify({
+        version: 1,
+        progress: { first_completion: 1 },
+        masteredLevelIds: [],
+        unlocked: ['first_completion'],
+        processedOccurrenceIds: ['migration:v1'],
+        pendingSettlement: null,
+        analyticsOutbox: [],
+        nextAnalyticsEventSequence: 0,
+      }),
+    );
+
+    const gs = new GameState();
+    const rec = gs.achievementRecordSnapshot();
+    expect(rec.version).toBe(ACHIEVEMENT_RECORD_VERSION);
+    expect(rec.migrationRewardIneligibleAchievementIds).toContain('completions_10');
+    expect(rec.migrationRewardIneligibleAchievementIds).not.toContain('first_completion');
+    expect(rec.legacyRewardProvenanceUnknownAchievementIds).toEqual(['first_completion']);
+    expect(
+      buildAchievementReadProjection(rec).find((entry) => entry.id === 'first_completion')
+        ?.rewardStatus,
+    ).toBe('legacy-unlocked-reward-provenance-unknown');
+    expect(
+      buildAchievementReadProjection(rec).find((entry) => entry.id === 'completions_10')
+        ?.rewardStatus,
+    ).toBe('migration-unlocked-reward-ineligible');
+
+    const reloaded = new GameState();
+    const reloadedProjection = reloaded.achievementReadProjection();
+    expect(reloadedProjection.status).toBe('ready');
+    if (reloadedProjection.status !== 'ready') throw new Error('projection unavailable');
+    expect(
+      reloadedProjection.achievements.find((entry) => entry.id === 'first_completion')
+        ?.rewardStatus,
+    ).toBe('legacy-unlocked-reward-provenance-unknown');
+    expect(
+      reloadedProjection.achievements.find((entry) => entry.id === 'completions_10')
+        ?.rewardStatus,
+    ).toBe('migration-unlocked-reward-ineligible');
   });
 });

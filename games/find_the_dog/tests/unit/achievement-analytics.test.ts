@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
+  allocateAchievementViewEvent,
   buildReconciliationAnomalyEvent,
   deltaToEvents,
   parsePendingAnalyticsEvent,
@@ -82,6 +83,44 @@ describe('deltaToEvents (AC7)', () => {
   });
 });
 
+describe('achievement UI view-event allocation (ACH-2 dependency)', () => {
+  it('allocates collision-free, bounded, typed payloads from the owned sequence', () => {
+    const viewed = allocateAchievementViewEvent(
+      { name: 'achievement_viewed', achievementId: 'first_completion' },
+      20,
+    );
+    expect(viewed).toEqual({
+      event: {
+        eventId: 'ach:20:viewed:first_completion',
+        name: 'achievement_viewed',
+        payload: {
+          event_id: 'ach:20:viewed:first_completion',
+          achievement_id: 'first_completion',
+          occurrence_id: 'ach:20:viewed:first_completion',
+          category: 'completion',
+        },
+      },
+      nextSequence: 21,
+    });
+
+    const page = allocateAchievementViewEvent({ name: 'achievement_page_viewed' }, viewed!.nextSequence);
+    expect(page?.event).toEqual({
+      eventId: 'ach:21:page:achievement_system',
+      name: 'achievement_page_viewed',
+      payload: { event_id: 'ach:21:page:achievement_system' },
+    });
+    expect(page?.nextSequence).toBe(22);
+    expect(new Set([viewed?.event.eventId, page?.event.eventId]).size).toBe(2);
+    expect(page?.event.eventId.length).toBeLessThanOrEqual(96);
+  });
+
+  it('rejects unknown achievement ids without consuming a sequence', () => {
+    expect(
+      allocateAchievementViewEvent({ name: 'achievement_viewed', achievementId: 'not-in-catalog' }, 9),
+    ).toBeNull();
+  });
+});
+
 describe('dispatchAchievementEvent (correction 1)', () => {
   it('routes each achievement event to its typed sdk.track name', () => {
     const spy = trackSpy();
@@ -114,6 +153,19 @@ describe('dispatchAchievementEvent (correction 1)', () => {
     analytics.achievementPageViewed({ event_id: 'ach:21:page:achievement_system' });
     expect(spy).toHaveBeenCalledWith('achievement_viewed', expect.objectContaining({ achievement_id: 'first_completion' }));
     expect(spy).toHaveBeenCalledWith('achievement_page_viewed', { event_id: 'ach:21:page:achievement_system' });
+  });
+
+  it('dispatches allocated view events without payload adaptation', () => {
+    const spy = trackSpy();
+    const viewed = allocateAchievementViewEvent(
+      { name: 'achievement_viewed', achievementId: 'first_completion' },
+      30,
+    );
+    const page = allocateAchievementViewEvent({ name: 'achievement_page_viewed' }, 31);
+    analytics.dispatchAchievementEvent(viewed!.event);
+    analytics.dispatchAchievementEvent(page!.event);
+    expect(spy).toHaveBeenCalledWith('achievement_viewed', viewed!.event.payload);
+    expect(spy).toHaveBeenCalledWith('achievement_page_viewed', page!.event.payload);
   });
 });
 
