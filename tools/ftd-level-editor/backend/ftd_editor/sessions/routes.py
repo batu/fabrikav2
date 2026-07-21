@@ -11,7 +11,9 @@ from .dogs import StableDogNotFound
 from .model import AuthoringSession
 from .store import (
     SessionAlreadyExists,
+    SessionCommitIndeterminate,
     SessionNotFound,
+    SessionReadError,
     SessionRevisionConflict,
     SessionSnapshot,
     SessionStore,
@@ -90,25 +92,42 @@ class SessionRevisionConflictResponse(BaseModel):
     detail: SessionRevisionConflictDetail
 
 
+class SessionUnavailableResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    detail: str
+
+
+_UNAVAILABLE_RESPONSE = {503: {"model": SessionUnavailableResponse}}
+
+
 def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRouter:
     router = APIRouter(prefix="/api/sessions", dependencies=dependencies)
+
+    def unavailable(error: SessionReadError) -> HTTPException:
+        return HTTPException(status_code=503, detail="session storage unavailable")
 
     @router.get(
         "",
         operation_id="listCurrentSessions",
         response_model=list[GallerySessionResponse],
+        responses=_UNAVAILABLE_RESPONSE,
     )
     def list_current_sessions() -> list[GallerySessionResponse]:
-        return [
-            GallerySessionResponse.model_validate(item)
-            for item in store.list_gallery()
-        ]
+        try:
+            return [
+                GallerySessionResponse.model_validate(item)
+                for item in store.list_gallery()
+            ]
+        except SessionReadError as error:
+            raise unavailable(error) from error
 
     @router.post(
         "",
         status_code=201,
         operation_id="createCurrentSession",
         response_model=SessionSnapshotResponse,
+        responses=_UNAVAILABLE_RESPONSE,
     )
     def create_current_session(body: CreateSessionRequest) -> SessionSnapshotResponse:
         try:
@@ -120,11 +139,19 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
             ) from error
         except ValueError as error:
             raise HTTPException(status_code=422, detail=str(error)) from error
+        except SessionReadError as error:
+            raise unavailable(error) from error
+        except SessionCommitIndeterminate as error:
+            raise HTTPException(
+                status_code=503,
+                detail="session commit outcome indeterminate",
+            ) from error
 
     @router.get(
         "/{session_id}",
         operation_id="getCurrentSession",
         response_model=SessionSnapshotResponse,
+        responses=_UNAVAILABLE_RESPONSE,
     )
     def get_current_session(session_id: str) -> SessionSnapshotResponse:
         try:
@@ -133,6 +160,8 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
             raise HTTPException(status_code=404, detail="session not found") from error
         except ValueError as error:
             raise HTTPException(status_code=422, detail=str(error)) from error
+        except SessionReadError as error:
+            raise unavailable(error) from error
 
     def apply(action: Any) -> SessionSnapshotResponse:
         try:
@@ -152,12 +181,22 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
             raise HTTPException(status_code=404, detail=str(error)) from error
         except ValueError as error:
             raise HTTPException(status_code=422, detail=str(error)) from error
+        except SessionReadError as error:
+            raise unavailable(error) from error
+        except SessionCommitIndeterminate as error:
+            raise HTTPException(
+                status_code=503,
+                detail="session commit outcome indeterminate",
+            ) from error
 
     @router.post(
         "/{session_id}/dogs/{dog_id}/active-variant",
         operation_id="setCurrentSessionDogActiveVariant",
         response_model=SessionSnapshotResponse,
-        responses={409: {"model": SessionRevisionConflictResponse}},
+        responses={
+            409: {"model": SessionRevisionConflictResponse},
+            **_UNAVAILABLE_RESPONSE,
+        },
     )
     def set_current_session_dog_active_variant(
         session_id: str, dog_id: str, body: SetDogActiveVariantRequest
@@ -175,7 +214,10 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
         "/{session_id}/gallery-metadata",
         operation_id="updateCurrentSessionGalleryMetadata",
         response_model=SessionSnapshotResponse,
-        responses={409: {"model": SessionRevisionConflictResponse}},
+        responses={
+            409: {"model": SessionRevisionConflictResponse},
+            **_UNAVAILABLE_RESPONSE,
+        },
     )
     def update_current_session_gallery_metadata(
         session_id: str, body: UpdateGalleryMetadataRequest

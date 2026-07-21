@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import errno
+
+import pytest
 from fastapi.testclient import TestClient
 
 from ftd_editor.app import (
@@ -10,7 +13,12 @@ from ftd_editor.app import (
     create_app,
 )
 from ftd_editor.security import CompositionSecrets, SecretRedactor
-from ftd_editor.sessions.store import SessionStore
+import ftd_editor.sessions.store as session_store_module
+from ftd_editor.sessions.store import (
+    SessionCommitIndeterminate,
+    SessionReadError,
+    SessionStore,
+)
 
 
 def _session_app(editor_settings):
@@ -125,6 +133,133 @@ def test_revision_conflict_response_is_declared_in_openapi(editor_settings) -> N
         operation["responses"]["409"]["content"]["application/json"]["schema"]["$ref"]
         == "#/components/schemas/SessionRevisionConflictResponse"
     )
+
+
+def test_transient_session_failures_are_typed_retriable_responses(
+    editor_settings,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    app = _session_app(editor_settings)
+    headers = _headers(app)
+
+    def unavailable(*_args, **_kwargs):
+        raise SessionReadError("simulated storage failure")
+
+    monkeypatch.setattr(SessionStore, "load", unavailable)
+    with TestClient(app, raise_server_exceptions=False) as client:
+        response = client.get("/api/sessions/session-a", headers=headers)
+
+    assert response.status_code == 503
+    assert response.json() == {"detail": "session storage unavailable"}
+
+
+def test_gallery_enumeration_failure_is_a_typed_retriable_response(
+    editor_settings,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    app = _session_app(editor_settings)
+    headers = _headers(app)
+    original_open = session_store_module.os.open
+
+    def fail_authoring_root(path, flags, mode=0o777, *, dir_fd=None):
+        if path == editor_settings.workspace.authoring:
+            raise OSError(errno.EIO, "simulated gallery enumeration failure")
+        return original_open(path, flags, mode, dir_fd=dir_fd)
+
+    monkeypatch.setattr(session_store_module.os, "open", fail_authoring_root)
+    with TestClient(app, raise_server_exceptions=False) as client:
+        response = client.get("/api/sessions", headers=headers)
+
+    assert response.status_code == 503
+    assert response.json() == {"detail": "session storage unavailable"}
+
+
+def test_indeterminate_create_commit_is_a_typed_retriable_response(
+    editor_settings,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    app = _session_app(editor_settings)
+    headers = _headers(app)
+
+    def indeterminate(*_args, **_kwargs):
+        raise SessionCommitIndeterminate("session-a")
+
+    monkeypatch.setattr(SessionStore, "create", indeterminate)
+    with TestClient(app, raise_server_exceptions=False) as client:
+        response = client.post(
+            "/api/sessions",
+            headers=headers,
+            json={"session": {"id": "session-a", "dogs": []}},
+        )
+
+    assert response.status_code == 503
+    assert response.json() == {"detail": "session commit outcome indeterminate"}
+
+
+def test_indeterminate_mutation_commit_is_a_typed_retriable_response(
+    editor_settings,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    app = _session_app(editor_settings)
+    headers = _headers(app)
+    original_assert = SessionStore._assert_session_link
+    checks = 0
+
+    def fail_after_replace(authoring_fd, session_id, opened):
+        nonlocal checks
+        checks += 1
+        if checks == 3:
+            error = OSError(errno.EIO, "simulated post-commit verification failure")
+            raise SessionReadError("could not verify published session") from error
+        original_assert(authoring_fd, session_id, opened)
+
+    with TestClient(app, raise_server_exceptions=False) as client:
+        created = client.post(
+            "/api/sessions",
+            headers=headers,
+            json={"session": {"id": "session-a", "dogs": []}},
+        ).json()
+        monkeypatch.setattr(
+            SessionStore,
+            "_assert_session_link",
+            staticmethod(fail_after_replace),
+        )
+        response = client.post(
+            "/api/sessions/session-a/gallery-metadata",
+            headers=headers,
+            json={"revision": created["revision"], "tags": ["pending"]},
+        )
+        monkeypatch.setattr(
+            SessionStore,
+            "_assert_session_link",
+            staticmethod(original_assert),
+        )
+        reloaded = client.get("/api/sessions/session-a", headers=headers)
+
+    assert response.status_code == 503
+    assert response.json() == {"detail": "session commit outcome indeterminate"}
+    assert reloaded.status_code == 200
+    assert reloaded.json()["session"]["tags"] == ["pending"]
+
+
+def test_session_unavailable_response_is_declared_in_openapi(editor_settings) -> None:
+    app = _session_app(editor_settings)
+    paths = app.openapi()["paths"]
+
+    for path, method in (
+        ("/api/sessions", "get"),
+        ("/api/sessions", "post"),
+        ("/api/sessions/{session_id}", "get"),
+        (
+            "/api/sessions/{session_id}/dogs/{dog_id}/active-variant",
+            "post",
+        ),
+        ("/api/sessions/{session_id}/gallery-metadata", "post"),
+    ):
+        schema = paths[path][method]["responses"]["503"]["content"][
+            "application/json"
+        ]["schema"]
+        assert schema["$ref"] == "#/components/schemas/SessionUnavailableResponse"
 
 
 def test_gallery_metadata_action_updates_shared_session_listing(editor_settings) -> None:

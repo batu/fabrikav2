@@ -33,14 +33,33 @@ ledger.
 - `AuthoringSession` preserves unknown fields, missing versus null, and null versus
   variant `0`; an unchanged parse/serialize round trip returns the original bytes.
 - `SessionStore` is the only current-session writer. Every existing-session mutation
-  requires a whole-directory revision, so direct filesystem drift and stale writers
-  produce a conflict containing the current typed snapshot.
+  requires a collision-framed whole-directory revision that includes empty folders,
+  symlinks, and special entries. Descriptor-relative no-follow reads and atomic
+  writes prevent session-path swaps from escaping the approved root; direct drift
+  and stale writers produce a conflict containing the current typed snapshot.
+- New sessions are fully staged before one durable destination-absence rename, and
+  startup removes abandoned creation stages. A failure after that rename is exposed
+  as an indeterminate commit instead of a false rollback. Dog-bundle builders are
+  preflighted against one stable dog and source revision, then the revision is
+  checked again under the session lock before work starts and before selection. The
+  builder's session payload must preserve the exact source mapping and change only
+  the allocated dog's active variant.
+- Every supported live writer must use `SessionStore` locks. Raw/manual filesystem
+  edits are an offline-only operation: stop the editor first, edit, then restart so
+  the next revision is computed from a stable tree. No compare-and-swap protocol can
+  make arbitrary non-cooperating filesystem writes atomic.
+- A durability failure after any atomic session replacement is returned as an
+  indeterminate commit; clients must reload the current snapshot before deciding
+  whether to reapply pending intent.
 - Current-session routes are named FTD actions. Stable dog IDs, rather than array
   indexes or a generic patch endpoint, address dog mutations. UI conflict state keeps
   the rejected intent inert until the author explicitly reapplies or discards it.
 - `sessions/legacy_identity.py` accepts only an explicit corpus root and returns an
-  in-memory checksummed stable/rebindable/ambiguous/unsupported census. It never
-  repairs, imports, quarantines, or writes the source corpus.
+  in-memory checksummed stable/rebindable/ambiguous/unsupported census. It records
+  live and tombstone dog-folder inventory, active/fallback variant provenance,
+  positional permutations, dangling entries, target-ID mismatches, and referenced
+  artifacts without following symlinks. It never repairs, imports, quarantines, or
+  writes the source corpus.
 - Providers fail closed unless composition installs a scripted adapter. The current
   worker advances only when a test or caller invokes `step()`.
 - `/bootstrap` delivers one per-app launch credential after exact Host/Origin

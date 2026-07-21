@@ -6,7 +6,9 @@ from .store import (
     DogBundlePublication,
     ReservationRejected,
     SessionAlreadyExists,
+    SessionCommitIndeterminate,
     SessionRevisionConflict,
+    SessionReadError,
     SessionSnapshot,
     SessionStore,
 )
@@ -18,7 +20,9 @@ __all__ = [
     "DogBundlePublication",
     "ReservationRejected",
     "SessionAlreadyExists",
+    "SessionCommitIndeterminate",
     "SessionRevisionConflict",
+    "SessionReadError",
     "SessionSnapshot",
     "SessionStore",
 ]

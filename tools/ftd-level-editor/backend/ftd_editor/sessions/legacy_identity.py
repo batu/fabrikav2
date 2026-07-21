@@ -4,26 +4,41 @@ from __future__ import annotations
 
 import hashlib
 import heapq
+import io
 import json
 import math
 import os
+import re
+import stat
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import asdict, dataclass
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any, Literal
 
 
 IdentityClassification = Literal["stable", "rebindable", "ambiguous", "unsupported"]
+LegacyBoxSource = Literal[
+    "active", "fallback_variant_000", "fallback_first_available", "unavailable"
+]
 LegacyIssueCode = Literal[
     "ambiguous_distance",
     "ambiguous_identity",
+    "dangling_dog_entry",
     "duplicate_stable_ids",
+    "fallback_variant_box",
     "incomplete_binding",
     "invalid_variant_box",
     "missing_artifact",
     "partial_stable_identity",
+    "positional_permutation",
+    "session_id_mismatch",
     "stable_id_mismatch",
     "unbound_dog",
     "unsafe_artifact",
+    "unsafe_dog_folder",
+    "unsafe_session_entry",
+    "unexpected_dog_folder",
     "unsupported_active_variant",
     "unsupported_dog_index",
     "unsupported_hitbox",
@@ -38,6 +53,10 @@ _UNSUPPORTED_CODES: frozenset[LegacyIssueCode] = frozenset(
         "invalid_variant_box",
         "missing_artifact",
         "unsafe_artifact",
+        "unsafe_dog_folder",
+        "unsafe_session_entry",
+        "session_id_mismatch",
+        "unexpected_dog_folder",
     }
 )
 _AMBIGUOUS_CODES: frozenset[LegacyIssueCode] = frozenset(
@@ -49,9 +68,17 @@ _AMBIGUOUS_CODES: frozenset[LegacyIssueCode] = frozenset(
         "ambiguous_identity",
         "unbound_dog",
         "incomplete_binding",
+        "dangling_dog_entry",
+        "fallback_variant_box",
+        "positional_permutation",
     }
 )
 _KNOWN_CODES = _UNSUPPORTED_CODES | _AMBIGUOUS_CODES
+_DOG_FOLDER_RE = re.compile(r"^dog_(\d+)$")
+_DOG_TOMBSTONE_RE = re.compile(r"^deleted_dog_(\d+)\.[A-Za-z0-9_-]{8}$")
+_VARIANT_RE = re.compile(r"^variant_(\d{3})\.png$")
+_DIRECTORY_FLAGS = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
+_FILE_FLAGS = os.O_RDONLY | os.O_NOFOLLOW
 
 
 @dataclass(frozen=True, slots=True)
@@ -62,11 +89,23 @@ class LegacyArtifact:
 
 
 @dataclass(frozen=True, slots=True)
+class LegacyBindingProvenance:
+    dog_index: int
+    hitbox_index: int | None
+    folder_name: str
+    variant_index: int
+    box_source: LegacyBoxSource
+
+
+@dataclass(frozen=True, slots=True)
 class LegacySessionCensus:
     session_id: str
     classification: IdentityClassification
     issue_codes: tuple[LegacyIssueCode, ...]
     bindings: tuple[tuple[int, int], ...]
+    binding_provenance: tuple[LegacyBindingProvenance, ...]
+    live_dog_folders: tuple[str, ...]
+    tombstone_dog_folders: tuple[str, ...]
     artifacts: tuple[LegacyArtifact, ...]
     session_checksum: str
 
@@ -83,38 +122,156 @@ def _digest_bytes(content: bytes) -> str:
     return f"sha256:{hashlib.sha256(content).hexdigest()}"
 
 
-def _update_digest_from_file(digest: Any, path: Path) -> int:
-    size = 0
-    with path.open("rb") as stream:
-        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
-            size += len(chunk)
-            digest.update(chunk)
-    return size
+def _digest_frame(digest: Any, *parts: str | bytes | int) -> None:
+    for part in parts:
+        encoded = part if isinstance(part, bytes) else str(part).encode("utf-8")
+        digest.update(len(encoded).to_bytes(8, "big"))
+        digest.update(encoded)
 
 
 def _tree_checksum(root: Path) -> str:
     digest = hashlib.sha256()
     if not root.exists():
         return f"sha256:{digest.hexdigest()}"
-    for path in sorted(root.rglob("*")):
-        relative = path.relative_to(root).as_posix()
-        if path.is_symlink():
-            digest.update(
-                b"symlink\0"
-                + relative.encode()
-                + b"\0"
-                + os.readlink(path).encode()
-            )
-        elif path.is_file():
-            digest.update(relative.encode())
-            _update_digest_from_file(digest, path)
+    root_fd = os.open(root, _DIRECTORY_FLAGS)
+    try:
+        def walk(directory_fd: int, prefix: str) -> None:
+            with os.scandir(directory_fd) as iterator:
+                entries = sorted(iterator, key=lambda entry: entry.name)
+            for entry in entries:
+                relative = f"{prefix}/{entry.name}" if prefix else entry.name
+                metadata = entry.stat(follow_symlinks=False)
+                if stat.S_ISLNK(metadata.st_mode):
+                    _digest_frame(
+                        digest,
+                        "symlink",
+                        relative,
+                        os.readlink(entry.name, dir_fd=directory_fd),
+                    )
+                elif stat.S_ISDIR(metadata.st_mode):
+                    _digest_frame(digest, "directory", relative)
+                    child_fd = os.open(
+                        entry.name,
+                        _DIRECTORY_FLAGS,
+                        dir_fd=directory_fd,
+                    )
+                    try:
+                        opened = os.fstat(child_fd)
+                        if (opened.st_dev, opened.st_ino) != (
+                            metadata.st_dev,
+                            metadata.st_ino,
+                        ):
+                            raise RuntimeError(
+                                "legacy corpus changed while opening directory"
+                            )
+                        walk(child_fd, relative)
+                    finally:
+                        os.close(child_fd)
+                elif stat.S_ISREG(metadata.st_mode):
+                    file_fd = os.open(entry.name, _FILE_FLAGS, dir_fd=directory_fd)
+                    try:
+                        opened = os.fstat(file_fd)
+                        if (opened.st_dev, opened.st_ino) != (
+                            metadata.st_dev,
+                            metadata.st_ino,
+                        ):
+                            raise RuntimeError(
+                                "legacy corpus changed while opening file"
+                            )
+                        content_digest = hashlib.sha256()
+                        size = 0
+                        while chunk := os.read(file_fd, 1024 * 1024):
+                            size += len(chunk)
+                            content_digest.update(chunk)
+                    finally:
+                        os.close(file_fd)
+                    _digest_frame(
+                        digest,
+                        "file",
+                        relative,
+                        size,
+                        content_digest.digest(),
+                    )
+                else:
+                    _digest_frame(
+                        digest,
+                        "special",
+                        relative,
+                        stat.S_IFMT(metadata.st_mode),
+                        metadata.st_rdev,
+                        metadata.st_size,
+                    )
+
+        walk(root_fd, "")
+    finally:
+        os.close(root_fd)
     return f"sha256:{digest.hexdigest()}"
 
 
-def _read_json(path: Path) -> Any:
-    if not path.is_file() or path.is_symlink():
-        raise ValueError(f"unsafe or missing JSON file: {path.name}")
-    return json.loads(path.read_bytes())
+@contextmanager
+def _open_regular_under(root: Path, relative: str) -> Iterator[int]:
+    candidate = PurePosixPath(relative)
+    if (
+        candidate.is_absolute()
+        or not candidate.parts
+        or any(part in ("", ".", "..") for part in candidate.parts)
+    ):
+        raise ValueError(f"unsafe relative path: {relative}")
+    descriptors: list[int] = []
+    try:
+        active_fd = os.open(root, _DIRECTORY_FLAGS)
+        descriptors.append(active_fd)
+        for component in candidate.parts[:-1]:
+            active_fd = os.open(component, _DIRECTORY_FLAGS, dir_fd=active_fd)
+            descriptors.append(active_fd)
+        file_fd = os.open(candidate.parts[-1], _FILE_FLAGS, dir_fd=active_fd)
+        descriptors.append(file_fd)
+        metadata = os.fstat(file_fd)
+        if not stat.S_ISREG(metadata.st_mode):
+            raise ValueError(f"unsafe or missing file: {relative}")
+        yield file_fd
+    finally:
+        for descriptor in reversed(descriptors):
+            os.close(descriptor)
+
+
+def _read_regular_under(root: Path, relative: str) -> bytes:
+    with _open_regular_under(root, relative) as descriptor:
+        return io.FileIO(descriptor, "rb", closefd=False).readall()
+
+
+def _read_json(session_dir: Path, relative: str) -> Any:
+    return json.loads(_read_regular_under(session_dir, relative))
+
+
+def _scan_directory_under(root: Path, relative: str) -> tuple[tuple[str, int], ...]:
+    candidate = PurePosixPath(relative)
+    if (
+        candidate.is_absolute()
+        or not candidate.parts
+        or any(part in ("", ".", "..") for part in candidate.parts)
+    ):
+        raise ValueError(f"unsafe relative path: {relative}")
+    descriptors: list[int] = []
+    try:
+        active_fd = os.open(root, _DIRECTORY_FLAGS)
+        descriptors.append(active_fd)
+        for component in candidate.parts:
+            active_fd = os.open(component, _DIRECTORY_FLAGS, dir_fd=active_fd)
+            descriptors.append(active_fd)
+        with os.scandir(active_fd) as iterator:
+            return tuple(
+                sorted(
+                    (
+                        (entry.name, entry.stat(follow_symlinks=False).st_mode)
+                        for entry in iterator
+                    ),
+                    key=lambda item: item[0],
+                )
+            )
+    finally:
+        for descriptor in reversed(descriptors):
+            os.close(descriptor)
 
 
 def _artifact(
@@ -124,22 +281,23 @@ def _artifact(
     *,
     return_content: bool = False,
 ) -> tuple[LegacyArtifact | None, bytes | None]:
-    candidate = session_dir / relative
-    if candidate.is_symlink() or not candidate.is_file():
-        issues.add("unsafe_artifact" if candidate.is_symlink() else "missing_artifact")
+    try:
+        with _open_regular_under(session_dir, relative) as descriptor:
+            digest = hashlib.sha256()
+            size = 0
+            content_buffer = bytearray() if return_content else None
+            while chunk := os.read(descriptor, 1024 * 1024):
+                size += len(chunk)
+                digest.update(chunk)
+                if content_buffer is not None:
+                    content_buffer.extend(chunk)
+    except FileNotFoundError:
+        issues.add("missing_artifact")
         return None, None
-    resolved = candidate.resolve()
-    root = session_dir.resolve()
-    if not resolved.is_relative_to(root):
+    except (OSError, ValueError):
         issues.add("unsafe_artifact")
         return None, None
-    digest = hashlib.sha256()
-    content = candidate.read_bytes() if return_content else None
-    if content is None:
-        size = _update_digest_from_file(digest, candidate)
-    else:
-        size = len(content)
-        digest.update(content)
+    content = bytes(content_buffer) if content_buffer is not None else None
     return (
         LegacyArtifact(relative, f"sha256:{digest.hexdigest()}", size),
         content,
@@ -156,6 +314,8 @@ def _box_center(
         if not isinstance(box, list) or len(box) != 4:
             raise ValueError
         numbers = tuple(float(item) for item in box)
+        if any(not math.isfinite(item) for item in numbers):
+            raise ValueError
     except (ValueError, TypeError, json.JSONDecodeError):
         issues.add("invalid_variant_box")
         return None
@@ -285,39 +445,145 @@ def _minimum_cost_assignment(costs: list[list[float]]) -> tuple[tuple[int, int],
 def _unsupported_session(
     session_dir: Path,
     raw_bytes: bytes,
+    *,
+    issue_codes: tuple[LegacyIssueCode, ...] = ("unsupported_shape",),
+    live_dog_folders: tuple[str, ...] = (),
+    tombstone_dog_folders: tuple[str, ...] = (),
 ) -> LegacySessionCensus:
     return LegacySessionCensus(
         session_id=session_dir.name,
         classification="unsupported",
-        issue_codes=("unsupported_shape",),
+        issue_codes=issue_codes,
         bindings=(),
+        binding_provenance=(),
+        live_dog_folders=live_dog_folders,
+        tombstone_dog_folders=tombstone_dog_folders,
         artifacts=(),
         session_checksum=_digest_bytes(raw_bytes),
     )
 
 
+def _dog_folder_inventory(
+    session_dir: Path,
+    issues: set[LegacyIssueCode],
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    try:
+        entries = _scan_directory_under(session_dir, "dogs")
+    except FileNotFoundError:
+        return (), ()
+    except (OSError, ValueError):
+        issues.add("unsafe_dog_folder")
+        return (), ()
+    live: list[str] = []
+    tombstones: list[str] = []
+    for name, mode in entries:
+        if stat.S_ISLNK(mode):
+            issues.add("unsafe_dog_folder")
+        elif stat.S_ISDIR(mode) and _DOG_FOLDER_RE.fullmatch(name):
+            live.append(name)
+        elif stat.S_ISDIR(mode) and _DOG_TOMBSTONE_RE.fullmatch(name):
+            tombstones.append(name)
+        elif stat.S_ISDIR(mode):
+            issues.add("unexpected_dog_folder")
+        else:
+            issues.add("dangling_dog_entry")
+    return tuple(live), tuple(tombstones)
+
+
+def _folder_center(
+    session_dir: Path,
+    folder_name: str,
+    dog: dict[str, Any] | None,
+    issues: set[LegacyIssueCode],
+    artifacts: list[LegacyArtifact],
+) -> tuple[tuple[float, float] | None, int, LegacyBoxSource]:
+    available: list[int] = []
+    try:
+        entries = _scan_directory_under(session_dir, f"dogs/{folder_name}")
+    except (OSError, ValueError):
+        issues.add("unsafe_dog_folder")
+        return None, -1, "unavailable"
+    for name, mode in entries:
+        match = _VARIANT_RE.fullmatch(name)
+        if match and stat.S_ISLNK(mode):
+            issues.add("unsafe_artifact")
+        elif match and stat.S_ISREG(mode):
+            available.append(int(match.group(1)))
+    active = dog.get("activeVariant") if isinstance(dog, dict) else None
+    available_set = set(available)
+    candidates: list[tuple[int, LegacyBoxSource]] = []
+    candidate_indices: set[int] = set()
+    if isinstance(active, int) and not isinstance(active, bool) and active >= 0:
+        candidates.append((active, "active"))
+        candidate_indices.add(active)
+    if 0 not in candidate_indices:
+        candidates.append((0, "fallback_variant_000"))
+        candidate_indices.add(0)
+    for index in available:
+        if index not in candidate_indices:
+            candidates.append((index, "fallback_first_available"))
+            candidate_indices.add(index)
+    for variant_index, source in candidates:
+        if variant_index not in available_set:
+            continue
+        image_relative = f"dogs/{folder_name}/variant_{variant_index:03d}.png"
+        image, _ = _artifact(session_dir, image_relative, issues)
+        box_relative = f"dogs/{folder_name}/variant_{variant_index:03d}.box.json"
+        box_artifact, box_content = _artifact(
+            session_dir,
+            box_relative,
+            issues,
+            return_content=True,
+        )
+        center = _box_center(box_content, issues)
+        if image is None or box_artifact is None or center is None:
+            continue
+        artifacts.extend((image, box_artifact))
+        if source != "active":
+            issues.add("fallback_variant_box")
+        return center, variant_index, source
+    issues.add("missing_artifact")
+    return None, -1, "unavailable"
+
+
 def _classify(session_dir: Path, *, max_bind_distance: float) -> LegacySessionCensus:
     issues: set[LegacyIssueCode] = set()
     artifacts: list[LegacyArtifact] = []
-    session_path = session_dir / "session.json"
     raw_bytes = b""
+    if session_dir.is_symlink():
+        return _unsupported_session(
+            session_dir,
+            raw_bytes,
+            issue_codes=("unsafe_session_entry",),
+        )
+    live_dog_folders, tombstone_dog_folders = _dog_folder_inventory(
+        session_dir, issues
+    )
+
+    def unsupported() -> LegacySessionCensus:
+        return _unsupported_session(
+            session_dir,
+            raw_bytes,
+            issue_codes=tuple(sorted(issues | {"unsupported_shape"})),
+            live_dog_folders=live_dog_folders,
+            tombstone_dog_folders=tombstone_dog_folders,
+        )
+
     try:
-        if session_dir.is_symlink():
-            raise ValueError("unsafe session directory")
-        if session_path.is_symlink() or not session_path.is_file():
-            raise ValueError("unsafe or missing session JSON")
-        raw_bytes = session_path.read_bytes()
+        raw_bytes = _read_regular_under(session_dir, "session.json")
         raw = json.loads(raw_bytes)
-        hitboxes = _read_json(session_dir / "hitboxes.json")
+        hitboxes = _read_json(session_dir, "hitboxes.json")
     except (OSError, ValueError, json.JSONDecodeError):
-        return _unsupported_session(session_dir, raw_bytes)
+        return unsupported()
     if (
         not isinstance(raw, dict)
         or not isinstance(raw.get("dogs", []), list)
         or not isinstance(hitboxes, list)
     ):
-        return _unsupported_session(session_dir, raw_bytes)
+        return unsupported()
     dogs = raw.get("dogs", [])
+    if raw.get("id") != session_dir.name:
+        issues.add("session_id_mismatch")
     if any(not isinstance(dog, dict) for dog in dogs) or any(
         not isinstance(hitbox, dict) for hitbox in hitboxes
     ):
@@ -341,7 +607,7 @@ def _classify(session_dir: Path, *, max_bind_distance: float) -> LegacySessionCe
             if artifact is not None:
                 artifacts.append(artifact)
 
-    centers: list[tuple[int, tuple[float, float]]] = []
+    dog_by_index: dict[int, dict[str, Any]] = {}
     for dog in dogs:
         if not isinstance(dog, dict):
             continue
@@ -350,27 +616,41 @@ def _classify(session_dir: Path, *, max_bind_distance: float) -> LegacySessionCe
         if not isinstance(index, int) or isinstance(index, bool):
             issues.add("unsupported_dog_index")
             continue
+        if index in dog_by_index:
+            issues.add("ambiguous_identity")
+        dog_by_index[index] = dog
         if active is None:
             continue
         if not isinstance(active, int) or isinstance(active, bool) or active < 0:
             issues.add("unsupported_active_variant")
-            continue
-        image_relative = f"dogs/dog_{index:02d}/variant_{active:03d}.png"
-        artifact, _ = _artifact(session_dir, image_relative, issues)
-        if artifact is not None:
-            artifacts.append(artifact)
-        box_relative = f"dogs/dog_{index:02d}/variant_{active:03d}.box.json"
-        box_artifact, box_content = _artifact(
+        expected_folder = f"dog_{index:02d}"
+        if active is not None and expected_folder not in live_dog_folders:
+            issues.add("dangling_dog_entry")
+            issues.add("missing_artifact")
+
+    centers: list[tuple[int, tuple[float, float]]] = []
+    folder_sources: list[tuple[int, str, int, LegacyBoxSource]] = []
+    seen_folder_indices: set[int] = set()
+    for folder_name in live_dog_folders:
+        match = _DOG_FOLDER_RE.fullmatch(folder_name)
+        assert match is not None
+        dog_index = int(match.group(1))
+        duplicate_folder_index = dog_index in seen_folder_indices
+        if duplicate_folder_index:
+            issues.add("ambiguous_identity")
+        seen_folder_indices.add(dog_index)
+        if dog_index not in dog_by_index:
+            issues.add("dangling_dog_entry")
+        center, variant_index, box_source = _folder_center(
             session_dir,
-            box_relative,
+            folder_name,
+            dog_by_index.get(dog_index),
             issues,
-            return_content=True,
+            artifacts,
         )
-        if box_artifact is not None:
-            artifacts.append(box_artifact)
-        center = _box_center(box_content, issues)
-        if center is not None:
-            centers.append((index, center))
+        folder_sources.append((dog_index, folder_name, variant_index, box_source))
+        if center is not None and not duplicate_folder_index:
+            centers.append((dog_index, center))
 
     dog_ids = [dog.get("id") for dog in dogs if isinstance(dog, dict)]
     hitbox_ids = [hitbox.get("id") for hitbox in hitboxes if isinstance(hitbox, dict)]
@@ -409,6 +689,20 @@ def _classify(session_dir: Path, *, max_bind_distance: float) -> LegacySessionCe
             max_bind_distance=max_bind_distance,
             issues=issues,
         )
+        if any(dog_index != hitbox_index for dog_index, hitbox_index in bindings):
+            issues.add("positional_permutation")
+
+    hitbox_by_dog = dict(bindings)
+    binding_provenance = tuple(
+        LegacyBindingProvenance(
+            dog_index=dog_index,
+            hitbox_index=hitbox_by_dog.get(dog_index),
+            folder_name=folder_name,
+            variant_index=variant_index,
+            box_source=box_source,
+        )
+        for dog_index, folder_name, variant_index, box_source in sorted(folder_sources)
+    )
 
     if issues & _UNSUPPORTED_CODES:
         classification: IdentityClassification = "unsupported"
@@ -423,6 +717,9 @@ def _classify(session_dir: Path, *, max_bind_distance: float) -> LegacySessionCe
         classification=classification,
         issue_codes=tuple(sorted(issues)),
         bindings=bindings,
+        binding_provenance=binding_provenance,
+        live_dog_folders=live_dog_folders,
+        tombstone_dog_folders=tombstone_dog_folders,
         artifacts=tuple(sorted(artifacts, key=lambda artifact: artifact.relative_path)),
         session_checksum=_digest_bytes(raw_bytes),
     )
@@ -439,7 +736,7 @@ def census_legacy_sessions(
     sessions = tuple(
         _classify(path, max_bind_distance=max_bind_distance)
         for path in sorted(levels_root.iterdir() if levels_root.exists() else ())
-        if path.is_dir()
+        if path.is_symlink() or path.is_dir()
     )
     unexplained_count = sum(
         len(set(session.issue_codes) - _KNOWN_CODES) for session in sessions

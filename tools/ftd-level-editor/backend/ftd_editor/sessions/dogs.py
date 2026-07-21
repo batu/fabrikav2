@@ -24,19 +24,29 @@ def set_active_variant(
     if active_variant is not None and active_variant < 0:
         raise ValueError("active variant must be null or a non-negative integer")
     mapping = session.to_mapping()
+    dog = require_stable_dog(mapping, dog_id)
+    if "activeVariant" in dog and dog["activeVariant"] == active_variant:
+        return session
+    dog["activeVariant"] = active_variant
+    return session.with_mapping(mapping)
+
+
+def require_stable_dog(
+    session: AuthoringSession | Mapping[str, Any],
+    dog_id: str,
+) -> dict[str, Any]:
+    """Return the one raw dog mapping addressed by a unique stable ID."""
+
+    mapping = session.to_mapping() if isinstance(session, AuthoringSession) else session
     dogs = mapping.get("dogs")
     if not isinstance(dogs, list):
         raise StableDogNotFound(f"stable dog id {dog_id!r} was not found")
-    matches = [dog for dog in dogs if isinstance(dog, dict) and dog.get("id") == dog_id]
+    matches = [
+        dog for dog in dogs if isinstance(dog, dict) and dog.get("id") == dog_id
+    ]
     if len(matches) != 1:
         raise StableDogNotFound(f"stable dog id {dog_id!r} did not resolve uniquely")
-    if (
-        "activeVariant" in matches[0]
-        and matches[0]["activeVariant"] == active_variant
-    ):
-        return session
-    matches[0]["activeVariant"] = active_variant
-    return session.with_mapping(mapping)
+    return matches[0]
 
 
 @dataclass(frozen=True, slots=True)
@@ -57,6 +67,7 @@ class DogBundlePayload:
         session_id: str,
         dog_key: str,
         variant_index: int,
+        session_json_bytes: bytes,
     ) -> RawBundle:
         artifact = PurePosixPath(self.job_artifact_name)
         if artifact.name != self.job_artifact_name or artifact.name in ("", ".", ".."):
@@ -69,7 +80,7 @@ class DogBundlePayload:
                 (f"{prefix}/variant_{variant_index:03d}.box.json", encode_json(dict(self.box))),
                 (f"{prefix}/sprite_{variant_index:03d}.png", self.sprite_image),
                 (f"{prefix}/sprite_{variant_index:03d}.json", encode_json(dict(self.sprite_metadata))),
-                ("session.json", encode_json(dict(self.session_json))),
+                ("session.json", session_json_bytes),
                 (f"artifacts/{artifact.name}", self.job_artifact),
             ),
             metadata={

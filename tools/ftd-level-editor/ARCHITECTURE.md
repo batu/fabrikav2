@@ -53,17 +53,38 @@ install, and selector commit all occur inside that reservation. This is delibera
 one FTD store rather than a second projection. Construction probes the approved
 filesystem before any startup recovery may reconcile files.
 
-The current-session revision hashes the complete session directory, including
-unmanaged direct filesystem changes. Loads preserve exact source bytes and expose
-typed known fields without expanding absent defaults. Existing-session writes use
-compare-and-swap and return the current snapshot on conflict; creation separately
-requires destination absence. Stable dog actions and gallery metadata mutations are
-named operations, never a generic raw patch.
+The current-session revision uses framed entry records and hashes the complete
+session directory, including empty directories, symlinks, special entries, and
+unmanaged direct filesystem changes. Directory/file descriptors pin no-follow
+session reads and writes so a path swap cannot redirect access outside the approved
+authoring root. Loads preserve exact source bytes and expose typed known fields
+without expanding absent defaults or coercing legacy scalar representations.
+Existing-session writes use compare-and-swap and return the current snapshot on
+conflict. Creation stages a complete session and durably renames it only while the
+destination is absent; startup removes abandoned stages, and a post-rename
+durability failure is reported as an indeterminate commit. Stable dog actions and
+gallery metadata mutations are named operations, never a generic raw patch.
+
+Dog-bundle work preflights the source revision and one stable dog before invoking
+the builder, then rechecks both after reservation and before selector publication.
+The builder must return the exact source session mapping with only the allocated
+dog variant selected; dropping unrelated legacy or future fields is rejected. All
+supported live writers share these locks. Arbitrary manual/raw
+filesystem changes are offline-only because no cooperative CAS can atomically
+exclude a non-cooperating writer; once the editor restarts, the full-tree revision
+detects the changed state.
+
+Any failure after an atomic session replacement crosses its commit point is exposed
+as an indeterminate commit. The caller reloads the current snapshot before making
+an explicit reapply or discard decision.
 
 Legacy identity analysis is a separate read-only leaf. It accepts an explicit
-corpus root, resolves referenced artifacts without following symlinks, classifies
-stable/rebindable/ambiguous/unsupported sessions, and checks that the source tree
-checksum did not change. It exposes no import or repair action.
+corpus root, inventories live and tombstone dog folders, records active/fallback
+variant-box provenance, quarantines positional permutations and dangling or
+mismatched identities, resolves referenced artifacts with descriptor-relative
+no-follow opens, classifies stable/rebindable/ambiguous/unsupported sessions, and
+checks that the source tree checksum did not change. It exposes no import or repair
+action.
 
 `AppComponents` carries the injected store registry, worker, provider registry, and
 central redactor. The default U1 test composition uses:
