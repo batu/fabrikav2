@@ -4,12 +4,12 @@
 
 The editor is one FTD-owned modular monolith: one FastAPI process, one React UI,
 one deliberately single-owner in-process worker, one filesystem authoring authority,
-and one SQLite job ledger. U2 now installs the operational filesystem and raw
-`SessionStore` shell; typed sessions and the job ledger are still absent.
+and one SQLite job ledger. U3 now installs the lossless, revisioned current-session
+boundary; the durable job ledger is still absent.
 
 ```text
 React feature -> same-origin HTTP action -> thin FastAPI route
-                                           |-> SessionStore (raw bundles in U2)
+                                           |-> SessionStore (typed CAS + raw bundles)
                                            |-> durable jobs (later unit) -> provider adapter
                                            `-> pure FTD domain/prompt code
 
@@ -47,11 +47,23 @@ and linked durably before a selector can become committed. Publication holds a
 shared lifecycle lock; recovery takes the exclusive side so startup never treats an
 active transaction as crash residue.
 
-`SessionStore` owns the same-dog process lock plus filesystem lock. Allocation,
+`SessionStore` owns current-session and same-dog process locks plus filesystem locks. Allocation,
 dog image, crop box, sprite image/metadata, raw session bytes, job artifact, bundle
 install, and selector commit all occur inside that reservation. This is deliberately
-not U3's typed session/revision contract. Construction probes the approved
+one FTD store rather than a second projection. Construction probes the approved
 filesystem before any startup recovery may reconcile files.
+
+The current-session revision hashes the complete session directory, including
+unmanaged direct filesystem changes. Loads preserve exact source bytes and expose
+typed known fields without expanding absent defaults. Existing-session writes use
+compare-and-swap and return the current snapshot on conflict; creation separately
+requires destination absence. Stable dog actions and gallery metadata mutations are
+named operations, never a generic raw patch.
+
+Legacy identity analysis is a separate read-only leaf. It accepts an explicit
+corpus root, resolves referenced artifacts without following symlinks, classifies
+stable/rebindable/ambiguous/unsupported sessions, and checks that the source tree
+checksum did not change. It exposes no import or repair action.
 
 `AppComponents` carries the injected store registry, worker, provider registry, and
 central redactor. The default U1 test composition uses:
@@ -104,7 +116,6 @@ specific even where reliability infrastructure becomes reusable inside this tool
 
 ## Deferred boundaries
 
-- U3 adds the lossless revisioned `SessionStore`.
 - U4 adds the durable SQLite attempt ledger and single-owner worker.
 - U5-U7 add named FTD handlers and direct feature modules.
 - U8 adds publishing/schema/CI ownership.

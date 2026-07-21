@@ -1,11 +1,24 @@
-"""Raw FTD authoring bundle boundaries; typed sessions arrive in U3."""
+"""Lossless, revisioned FTD authoring-session boundaries."""
 
 from .dogs import DogBundlePayload
-from .store import DogBundlePublication, ReservationRejected, SessionStore
+from .model import AuthoringDog, AuthoringSession
+from .store import (
+    DogBundlePublication,
+    ReservationRejected,
+    SessionAlreadyExists,
+    SessionRevisionConflict,
+    SessionSnapshot,
+    SessionStore,
+)
 
 __all__ = [
+    "AuthoringDog",
+    "AuthoringSession",
     "DogBundlePayload",
     "DogBundlePublication",
     "ReservationRejected",
+    "SessionAlreadyExists",
+    "SessionRevisionConflict",
+    "SessionSnapshot",
     "SessionStore",
 ]

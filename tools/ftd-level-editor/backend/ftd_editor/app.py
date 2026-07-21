@@ -25,6 +25,7 @@ from .security import (
     SecretRedactor,
 )
 from .settings import EditorSettings
+from .sessions.store import SessionStore
 
 
 class FailClosedProviderError(RuntimeError):
@@ -44,6 +45,9 @@ class ProviderRegistry(Protocol):
 
 
 class StoreRegistry(Protocol):
+    @property
+    def sessions(self) -> SessionStore | None: ...
+
     def names(self) -> tuple[str, ...]: ...
 
 
@@ -83,6 +87,10 @@ class FailClosedProviders:
 @dataclass(frozen=True, slots=True)
 class EmptyStores:
     """U1 store registry: no ledger or authoring store exists yet."""
+
+    @property
+    def sessions(self) -> None:
+        return None
 
     def names(self) -> tuple[str, ...]:
         return ()
@@ -217,5 +225,15 @@ def create_app(settings: EditorSettings, components: AppComponents) -> FastAPI:
     )
     def openapi_document() -> dict[str, Any]:
         return application.openapi()
+
+    if components.stores.sessions is not None:
+        from .sessions.routes import build_session_router
+
+        application.include_router(
+            build_session_router(
+                components.stores.sessions,
+                protected_dependencies,
+            )
+        )
 
     return application

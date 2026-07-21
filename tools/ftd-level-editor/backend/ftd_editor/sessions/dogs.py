@@ -7,6 +7,36 @@ from pathlib import PurePosixPath
 from typing import Any, Mapping
 
 from ..fs import FilesystemContractError, RawBundle, encode_json
+from .model import AuthoringSession
+
+
+class StableDogNotFound(LookupError):
+    """A named dog action could not resolve one unique stable authoring ID."""
+
+
+def set_active_variant(
+    session: AuthoringSession,
+    dog_id: str,
+    active_variant: int | None,
+) -> AuthoringSession:
+    """Return one lossless FTD session mutation addressed only by stable dog ID."""
+
+    if active_variant is not None and active_variant < 0:
+        raise ValueError("active variant must be null or a non-negative integer")
+    mapping = session.to_mapping()
+    dogs = mapping.get("dogs")
+    if not isinstance(dogs, list):
+        raise StableDogNotFound(f"stable dog id {dog_id!r} was not found")
+    matches = [dog for dog in dogs if isinstance(dog, dict) and dog.get("id") == dog_id]
+    if len(matches) != 1:
+        raise StableDogNotFound(f"stable dog id {dog_id!r} did not resolve uniquely")
+    if (
+        "activeVariant" in matches[0]
+        and matches[0]["activeVariant"] == active_variant
+    ):
+        return session
+    matches[0]["activeVariant"] = active_variant
+    return session.with_mapping(mapping)
 
 
 @dataclass(frozen=True, slots=True)

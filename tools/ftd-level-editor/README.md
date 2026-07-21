@@ -1,10 +1,11 @@
 # Find the Dog Level Editor
 
 This workspace is the Factory2 home for the Find the Dog authoring tool. U1
-established its hermetic composition and local-request boundary. U2 adds approved
-operational roots, small durable atomic writers, recoverable raw bundles, and one
-same-dog reservation boundary. It does **not** make Factory2 a writable authoring
-authority yet.
+established its hermetic composition and local-request boundary. U2 added approved
+operational roots, durable atomic writers, recoverable raw bundles, and one
+same-dog reservation boundary. U3 adds the target's lossless current-session and
+optimistic-revision contract. It does **not** activate Factory2 as the live
+authoring authority.
 
 The legacy editor under the Fabrika checkout is read-only prior art and fixture
 input. Target runtime code never imports it, locates it, or shares its roots or
@@ -29,7 +30,18 @@ ledger.
   through selector commit, yielding distinct complete bundles or an explicit reject.
   It approves the filesystem before recovery; publication holds a shared store
   lifecycle lock while startup recovery takes the exclusive side.
-- Providers fail closed unless composition installs a scripted adapter. The U1
+- `AuthoringSession` preserves unknown fields, missing versus null, and null versus
+  variant `0`; an unchanged parse/serialize round trip returns the original bytes.
+- `SessionStore` is the only current-session writer. Every existing-session mutation
+  requires a whole-directory revision, so direct filesystem drift and stale writers
+  produce a conflict containing the current typed snapshot.
+- Current-session routes are named FTD actions. Stable dog IDs, rather than array
+  indexes or a generic patch endpoint, address dog mutations. UI conflict state keeps
+  the rejected intent inert until the author explicitly reapplies or discards it.
+- `sessions/legacy_identity.py` accepts only an explicit corpus root and returns an
+  in-memory checksummed stable/rebindable/ambiguous/unsupported census. It never
+  repairs, imports, quarantines, or writes the source corpus.
+- Providers fail closed unless composition installs a scripted adapter. The current
   worker advances only when a test or caller invokes `step()`.
 - `/bootstrap` delivers one per-app launch credential after exact Host/Origin
   checks. `/api`, `/assets`, and `/downloads` require that credential in the
@@ -37,8 +49,8 @@ ledger.
 - `ui/` builds against an exact fail-closed fixture. Unmatched protected requests
   throw instead of proxying to localhost.
 
-Feature handlers, persistent stores, static mounting, and writable authoring
-operations intentionally arrive in later migration units.
+Paid feature handlers, the durable job ledger/worker, static mounting, publishing,
+and live-authority activation intentionally arrive in later migration units.
 
 ## Checks
 
@@ -55,6 +67,17 @@ UV_CACHE_DIR=/private/tmp/ftd-editor-uv-cache \
   tools/ftd-level-editor/tests/contracts/test_atomic_publication.py \
   tools/ftd-level-editor/tests/contracts/test_bundle_recovery.py \
   tools/ftd-level-editor/tests/contracts/test_variant_reservation.py
+
+UV_CACHE_DIR=/private/tmp/ftd-editor-uv-cache \
+  uv run --project tools/ftd-level-editor pytest \
+  tools/ftd-level-editor/tests/contracts/test_session_roundtrip.py \
+  tools/ftd-level-editor/tests/contracts/test_session_revision.py \
+  tools/ftd-level-editor/tests/contracts/test_session_drift.py \
+  tools/ftd-level-editor/tests/contracts/test_session_actions.py
+
+UV_CACHE_DIR=/private/tmp/ftd-editor-uv-cache \
+  uv run --project tools/ftd-level-editor pytest \
+  tools/ftd-level-editor/tests -m legacy_census
 
 UV_CACHE_DIR=/private/tmp/ftd-editor-uv-cache \
   uv run --project tools/ftd-level-editor pytest \
