@@ -18,62 +18,26 @@ import {
   readViewportMetrics,
   type DriveSnapshot,
   type DriveState,
-  type DriveStatePredicates,
   type DriveToDeps,
   type ViewportMetricsSnapshot,
 } from '@fabrikav2/testkit/testing';
+import { marbleRunDrivePredicates, snapshotMatchesMarbleRunDriveState } from './drivePredicates';
+import {
+  PIXELSMITH_STATE_LEVELS,
+  isGameplayState,
+  isPixelsmithState,
+  pixelsmithStatePredicates,
+  type PixelsmithState,
+} from './pixelsmithStates';
 
 type MarbleRunVerb = 'gotoHome' | 'startLevel' | 'openSettings' | 'pause' | 'winLevel' | 'failLevel';
 
-export const marbleRunDrivePredicates = {
-  menu: (snapshot: DriveSnapshot): boolean => {
-    const scene = String(snapshot.scene ?? snapshot.activeScene ?? '');
-    return scene === 'menu' || scene === 'HomeScene' || snapshot.homeShellVisible === true;
-  },
-  level: (snapshot: DriveSnapshot): boolean => {
-    const scene = String(snapshot.scene ?? snapshot.activeScene ?? '');
-    const status = String(snapshot.status ?? '');
-    const ready = snapshot.inputReady !== false && snapshot.levelDataReady !== false;
-    return ready
-      && (scene === 'playing' || scene === 'GameScene')
-      && snapshot.levelComplete !== true
-      && snapshot.lifecycleSuspended !== true
-      && snapshot.homeShellVisible !== true
-      && snapshot.levelCompleteOverlayVisible !== true
-      && snapshot.levelFailedOverlayVisible !== true
-      && status !== 'paused'
-      && status !== 'complete'
-      && status !== 'failed'
-      && snapshot.lives !== 0;
-  },
-  settings: (snapshot: DriveSnapshot): boolean => snapshot.settingsOpen === true,
-  pause: (snapshot: DriveSnapshot): boolean => {
-    const scene = String(snapshot.scene ?? snapshot.activeScene ?? '');
-    const status = String(snapshot.status ?? '');
-    return scene === 'paused' || (scene === 'GameScene' && (status === 'paused' || snapshot.lifecycleSuspended === true));
-  },
-  win: (snapshot: DriveSnapshot): boolean => {
-    const scene = String(snapshot.scene ?? snapshot.activeScene ?? '');
-    const status = String(snapshot.status ?? '');
-    const gameplayVisible = snapshot.homeShellVisible !== true;
-    return gameplayVisible && (scene === 'complete'
-      || snapshot.levelCompleteOverlayVisible === true
-      || (scene === 'GameScene' && (status === 'complete' || snapshot.levelComplete === true)));
-  },
-  fail: (snapshot: DriveSnapshot): boolean => {
-    const scene = String(snapshot.scene ?? snapshot.activeScene ?? '');
-    const status = String(snapshot.status ?? '');
-    const gameplayVisible = snapshot.homeShellVisible !== true;
-    return gameplayVisible && (scene === 'failed'
-      || snapshot.levelFailedOverlayVisible === true
-      || (scene === 'GameScene' && (status === 'failed' || snapshot.lives === 0)));
-  },
-} satisfies DriveStatePredicates;
+export type MarbleRunDriveState = DriveState | PixelsmithState;
 
-export function snapshotMatchesMarbleRunDriveState(state: DriveState, raw: unknown): boolean {
-  const snapshot = (raw ?? {}) as DriveSnapshot;
-  return marbleRunDrivePredicates[state](snapshot);
-}
+// Re-exported so existing consumers (bootstrap, tests) keep importing the drive
+// predicates from TestHarness; the definitions now live in the Phaser-free
+// drivePredicates module (shared with pixelsmithStates).
+export { marbleRunDrivePredicates, snapshotMatchesMarbleRunDriveState };
 
 const SETTINGS_PAGE_SELECTOR = [
   '#home-page-overlay.home-page-settings',
@@ -83,6 +47,8 @@ const SETTINGS_PAGE_SELECTOR = [
   '#settings-page',
 ].join(', ');
 
+const SHOP_PAGE_SELECTOR = '#home-page-overlay.home-page-shop';
+const LEVELMAP_NODE_SELECTOR = '.fab-levelmap-node';
 const SETTINGS_OPEN_TRIGGER_SELECTOR = '#home-nav-settings, #settings-btn';
 const SETTINGS_OPEN_TARGET_POLL_MS = 50;
 const SETTINGS_OPEN_TARGET_MAX_POLLS = 40;
@@ -137,6 +103,8 @@ export interface MarbleRunSnapshot {
   phaserActiveScene: string;
   status: 'playing' | 'paused' | 'complete' | 'failed' | undefined;
   settingsOpen: boolean;
+  shopOpen: boolean;
+  levelMapVisible: boolean;
   homeShellVisible: boolean;
   levelCompleteOverlayVisible: boolean;
   levelFailedOverlayVisible: boolean;
@@ -182,7 +150,7 @@ export interface MarbleRunHarness extends GameHarness<MarbleRunVerb> {
   gotoSyntheticLevel(levelData: LevelData): void;
   winLevel(): Promise<boolean>;
   failLevel(): Promise<boolean>;
-  driveTo(state: DriveState): Promise<boolean>;
+  driveTo(state: MarbleRunDriveState): Promise<boolean>;
   resetSave(): void;
   seedSave(profile: HarnessSaveProfile): void;
   setState(partial: { lives?: number; hintsRemaining?: number; currentLevelIndex?: number }): void;
@@ -298,6 +266,41 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
     );
   }
 
+  async function openShopFromUi(): Promise<boolean> {
+    const atHome = marbleRunDrivePredicates.menu(driveSnapshot()) || await gotoHome();
+    if (!atHome) return false;
+    if (document.querySelector(SHOP_PAGE_SELECTOR) === null) openPage('shop');
+    return waitUntil(
+      () => pixelsmithStatePredicates.shop(driveSnapshot()),
+      SETTINGS_OPEN_TARGET_POLL_MS,
+      SETTINGS_OPEN_TARGET_MAX_POLLS,
+    );
+  }
+
+  async function driveToPixelsmithState(state: PixelsmithState): Promise<boolean> {
+    if (state === 'home-fresh') {
+      harness.resetSave();
+      const atHome = await gotoHome();
+      return atHome && pixelsmithStatePredicates['home-fresh'](driveSnapshot());
+    }
+    if (state === 'level-map') {
+      const atHome = await gotoHome();
+      if (!atHome) return false;
+      return waitUntil(
+        () => pixelsmithStatePredicates['level-map'](driveSnapshot()),
+        HOME_READY_TARGET_POLL_MS,
+        HOME_READY_TARGET_MAX_POLLS,
+      );
+    }
+    if (state === 'shop') return openShopFromUi();
+    if (isGameplayState(state)) {
+      const started = await startLevel(PIXELSMITH_STATE_LEVELS[state]);
+      return started && marbleRunDrivePredicates.level(driveSnapshot());
+    }
+    // win / pause / settings alias existing drive states.
+    return harness.driveTo(state);
+  }
+
   async function pauseGame(): Promise<boolean> {
     setLifecycleForTest('inactive');
     return waitUntil(
@@ -337,6 +340,8 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
       phaserActiveScene: snapshot.phaserActiveScene,
       inputReady: snapshot.levelDataReady,
       settingsOpen: snapshot.settingsOpen,
+      shopOpen: snapshot.shopOpen,
+      levelMapVisible: snapshot.levelMapVisible,
       homeShellVisible: snapshot.homeShellVisible,
       levelCompleteOverlayVisible: snapshot.levelCompleteOverlayVisible,
       levelFailedOverlayVisible: snapshot.levelFailedOverlayVisible,
@@ -364,6 +369,8 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
     const phaserActiveScene = game.scene.getScenes(true)[0]?.scene.key ?? 'unknown';
     const homeShellVisible = document.querySelector('#home-shell') !== null;
     const settingsOpen = document.querySelector(SETTINGS_PAGE_SELECTOR) !== null;
+    const shopOpen = document.querySelector(SHOP_PAGE_SELECTOR) !== null;
+    const levelMapVisible = document.querySelector(LEVELMAP_NODE_SELECTOR) !== null;
     const levelCompleteOverlayVisible = document.getElementById('level-complete-overlay') !== null;
     const levelFailedOverlayVisible = document.getElementById('level-failed-overlay') !== null;
     const activeScene = homeShellVisible ? 'HomeScene' : phaserActiveScene;
@@ -385,6 +392,8 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
               ? 'playing'
               : undefined,
       settingsOpen,
+      shopOpen,
+      levelMapVisible,
       homeShellVisible,
       levelCompleteOverlayVisible,
       levelFailedOverlayVisible,
@@ -420,7 +429,9 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
     },
 
     gotoState(state: string): void {
-      if (isDriveState(state)) void harness.driveTo(state);
+      if (isDriveState(state) || isPixelsmithState(state)) {
+        void harness.driveTo(state as MarbleRunDriveState);
+      }
     },
 
     startLevel(id: number): void {
@@ -472,7 +483,10 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
 
     failLevel,
 
-    driveTo(state: DriveState): Promise<boolean> {
+    driveTo(state: MarbleRunDriveState): Promise<boolean> {
+      if (isPixelsmithState(state) && !isDriveState(state)) {
+        return driveToPixelsmithState(state);
+      }
       return driveTo(driveDeps(), state, {
         predicates: marbleRunDrivePredicates,
         playingReady: marbleRunDrivePredicates.level,

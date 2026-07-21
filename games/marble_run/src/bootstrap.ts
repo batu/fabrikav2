@@ -153,8 +153,13 @@ if (typeof window !== 'undefined') {
   if (TEST_HARNESS_ENABLED) {
     void Promise.all([
       import('./testing/TestHarness'),
+      import('./testing/pixelsmithStates'),
       import('./audio/AmbientManager'),
-    ]).then(([{ createMarbleRunHarness, snapshotMatchesMarbleRunDriveState }, ambient]): void => {
+    ]).then(([
+      { createMarbleRunHarness, snapshotMatchesMarbleRunDriveState },
+      { isPixelsmithState, snapshotMatchesPixelsmithState },
+      ambient,
+    ]): void => {
       const harness = createMarbleRunHarness(game);
       releaseTestBindings?.();
       releaseTestBindings = assignWindowBindings(window as unknown as Record<string, unknown>, {
@@ -163,9 +168,28 @@ if (typeof window !== 'undefined') {
         __FIND_DOG_HARNESS__: harness,
         __FIND_DOG_AMBIENT__: ambient.__ambientDebugSnapshot,
       });
-      void maybeRunInsituTour(harness, {
-        snapshotMatchesState: snapshotMatchesMarbleRunDriveState,
-      }).catch((err: unknown): void => {
+      // Pixelsmith launches the installed app with no args and waits ≤25s for a
+      // `tourstate:<state>` marker, so the target state is baked at build time
+      // (VITE_INSITU_TOUR=<state> or ?insituTour=<state>) and driven directly —
+      // a sequential multi-state walk can never surface a late state inside 25s.
+      // When the request names one of the ten Pixelsmith states, run the tour
+      // over just that state; `allstates` and the default keep the six-state
+      // verify-device walk verbatim. Same marker path as find_the_dog.
+      const requestedTour = (import.meta.env.VITE_INSITU_TOUR as string | undefined)
+        ?? new URLSearchParams(window.location.search).get('insituTour');
+      const insituTour = requestedTour !== null && requestedTour !== undefined && isPixelsmithState(requestedTour)
+        ? maybeRunInsituTour(harness, {
+            script: 'allstates',
+            states: [requestedTour],
+            snapshotMatchesState: snapshotMatchesPixelsmithState,
+            // home-fresh's identity IS an untouched save; seeding the default
+            // progress profile would fake progress before the drive resets it.
+            saveProfile: requestedTour === 'home-fresh' ? null : undefined,
+          })
+        : maybeRunInsituTour(harness, {
+            snapshotMatchesState: snapshotMatchesMarbleRunDriveState,
+          });
+      void insituTour.catch((err: unknown): void => {
         console.warn('[insituTour] failed while running FTD tour', err);
       });
       if (String(import.meta.env.VITE_FTD_SIM_AUTOPLAY) === 'true') {
