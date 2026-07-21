@@ -3951,7 +3951,12 @@
 .achievement-card progress::-webkit-progress-value {
   background: linear-gradient(180deg, #63c98a, #3d9c62);
   border-radius: 999px;
+  /* Near-zero progress (e.g. 2/50) otherwise renders narrower than its own
+     radius and reads as a dot / the not-started state. */
+  min-width: 12px;
 }
+/* …but a genuinely empty bar must stay empty. */
+.achievement-card progress[value='0']::-webkit-progress-value { min-width: 0; }
 .achievement-progress-text, .achievement-reward-status { font-weight: 800; }
 .achievement-unavailable { padding: 18px; border-radius: 18px; background: #fffaf0; color: #3d2b1f; }
 .home-page-overlay :focus-visible { outline: 4px solid #246cb3; outline-offset: 3px; }

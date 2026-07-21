@@ -1,2 +1,4 @@
 proof1: ok=true achOpen=true cards=11
-proof2: ok=true callout=true toast=true found=26/26 complete=true
+proof2: ok=true callout=true toastDuringCallout=false found=26/26 complete=true
+proof3: replay=false home=visible dwell=6s cleanBuild=true
+proof4: claim-tapped-at=+6.3s-after-callout

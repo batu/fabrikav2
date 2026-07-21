@@ -174,7 +174,11 @@ export function attachAchievementUnlockCallout(
     guidance.textContent = 'Saved to your Achievements';
     callout.append(medal, heading, summary, guidance);
     card.insertBefore(callout, actions);
-    showAchievementUnlockToast(unlocked);
+    // The toast fires when the completion overlay closes, not alongside the
+    // in-card callout — announcing the same unlock twice at the same instant
+    // split attention right at the CLAIM decision (review rounds 1/2/4). As a
+    // dismissal follow-up it carries the unlock onto the next surface instead.
+    signal.addEventListener('abort', () => showAchievementUnlockToast(unlocked), { once: true });
 
     hapticFound();
     playUITap();

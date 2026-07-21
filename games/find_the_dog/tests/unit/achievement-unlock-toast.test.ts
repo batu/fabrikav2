@@ -91,13 +91,16 @@ describe('achievement unlock toast', () => {
     expect(document.getElementById('achievement-unlock-toast')).toBeNull();
   });
 
-  it('fires alongside the completion callout on reward reveal and never replays the occurrence', async () => {
+  it('fires on completion-overlay dismissal, not alongside the callout, and never replays', async () => {
     const { root, abort } = fixture();
     attachAchievementUnlockCallout(root, delta(), abort.signal);
-    expect(document.getElementById('achievement-unlock-toast')).toBeNull();
-
     root.dataset.rewardReveal = 'complete';
     await Promise.resolve();
+    // While the in-card callout is visible there is no simultaneous toast.
+    expect(root.querySelector('.achievement-unlock-callout')).not.toBeNull();
+    expect(document.getElementById('achievement-unlock-toast')).toBeNull();
+
+    abort.abort();
     expect(document.getElementById('achievement-unlock-toast')).not.toBeNull();
 
     vi.advanceTimersByTime(6000);
@@ -107,6 +110,7 @@ describe('achievement unlock toast', () => {
     attachAchievementUnlockCallout(again.root, delta(), again.abort.signal);
     again.root.dataset.rewardReveal = 'complete';
     await Promise.resolve();
+    again.abort.abort();
     expect(document.getElementById('achievement-unlock-toast')).toBeNull();
   });
 });
