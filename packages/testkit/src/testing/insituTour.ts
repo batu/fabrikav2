@@ -72,28 +72,54 @@ export async function maybeRunInsituTour<State extends string = DriveState>(
   }
 
   for (const state of states) {
-    const ok = await driveTourStateWithTimeout(state, (target) => driveTo(target), {
-      timeoutMs: driveTimeoutMs,
-      onTimeout: (target) => log(`driveTo(${String(target)}) timed out after ${driveTimeoutMs}ms`),
-    });
+    // A drive (or the snapshot it polls) can throw — e.g. an engine object not
+    // ready on a slow device. One state's exception must publish that state as
+    // FAILED and let the tour continue, never silently kill the remaining
+    // states: a dead tour reads as "missing" markers with zero diagnostics.
+    let ok = false;
+    try {
+      ok = await driveTourStateWithTimeout(state, (target) => driveTo(target), {
+        timeoutMs: driveTimeoutMs,
+        onTimeout: (target) => log(`driveTo(${String(target)}) timed out after ${driveTimeoutMs}ms`),
+      });
+    } catch (error) {
+      log(`driveTo(${String(state)}) threw: ${String(error)}`);
+    }
     let stable = false;
     if (ok) {
       await sleep(markSettleRecheckMs);
-      stable = matches(state, snapshot());
+      try {
+        stable = matches(state, snapshot());
+      } catch (error) {
+        log(`snapshot after ${String(state)} threw: ${String(error)}`);
+      }
     }
 
+    const safeSnapshot = (): Record<string, unknown> => {
+      try {
+        return toRecord(snapshot());
+      } catch {
+        return {};
+      }
+    };
     publishTourMarker(stable ? state : `${state}-FAILED`, {
       publishMetrics: stable,
       log,
-      snapshot: () => toRecord(snapshot()),
+      snapshot: safeSnapshot,
     });
     await sleep(dwellMs);
 
     if (stable) {
-      publishTourMarker(matches(state, snapshot()) ? `${state}-DONE` : `${state}-FAILED`, {
+      let stillMatches = false;
+      try {
+        stillMatches = matches(state, snapshot());
+      } catch (error) {
+        log(`snapshot after ${String(state)} dwell threw: ${String(error)}`);
+      }
+      publishTourMarker(stillMatches ? `${state}-DONE` : `${state}-FAILED`, {
         publishMetrics: false,
         log,
-        snapshot: () => toRecord(snapshot()),
+        snapshot: safeSnapshot,
       });
     }
   }
@@ -101,7 +127,13 @@ export async function maybeRunInsituTour<State extends string = DriveState>(
   publishTourMarker('done', {
     publishMetrics: false,
     log,
-    snapshot: () => toRecord(snapshot()),
+    snapshot: () => {
+      try {
+        return toRecord(snapshot());
+      } catch {
+        return {};
+      }
+    },
   });
 }
 

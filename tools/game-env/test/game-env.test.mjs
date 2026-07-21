@@ -116,6 +116,23 @@ describe('environment validation', () => {
     expect(validateEnvironment({ gameRoot: root, mode: 'ios', policy, environment: {} }).ok).toBe(true);
   });
 
+  it('rejects a persisted VITE_INSITU_TOUR value (capture flags are shell-env only)', () => {
+    const root = makeGameRoot();
+    write(root, '.env.ios.local', [
+      'VITE_FTD_DISABLE_REMOTE_CONFIG=false',
+      'VITE_GAMEANALYTICS_IOS_ENABLED=false',
+      'VITE_ADJUST_IOS_ENABLED=false',
+      'VITE_APPLOVIN_IOS_ENABLED=false',
+      'VITE_CDN_ENABLED=false',
+      'VITE_INSITU_TOUR=allstates',
+      '',
+    ].join('\n'));
+
+    const result = validateEnvironment({ gameRoot: root, mode: 'ios', policy, environment: {} });
+    expect(result.ok).toBe(false);
+    expect(result.invalidKeys).toContain('VITE_INSITU_TOUR');
+  });
+
   it.each([
     {
       mode: 'ios',

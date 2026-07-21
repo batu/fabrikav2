@@ -75,6 +75,14 @@ function intentKeys(mode) {
 }
 
 function validateConditional({ values, mode, booleanValue, requireValue, invalidKeys }) {
+  // Capture-tour flags are build-time shell env set by verify-device, never a
+  // persisted env value: a committed/local VITE_INSITU_TOUR would silently ship
+  // the allstates tour in any build that also enables the test harness.
+  const insituTour = values.get('VITE_INSITU_TOUR');
+  if (insituTour !== undefined && insituTour !== '' && !/^__[-A-Z0-9_]+__$/.test(insituTour.trim())) {
+    invalidKeys.push('VITE_INSITU_TOUR');
+  }
+
   if (mode === 'ios' && booleanValue(values.get('VITE_GAMEANALYTICS_IOS_ENABLED')) === true) {
     requireValue('VITE_GAMEANALYTICS_IOS_GAME_KEY');
     requireValue('VITE_GAMEANALYTICS_IOS_SECRET_KEY');

@@ -339,6 +339,23 @@ describe("find_the_dog TestHarness real-flow wiring", () => {
     });
   });
 
+  it("snapshot degrades instead of throwing while GameScene cameras are not ready", async () => {
+    const { createFindTheDogHarness } = await import("../../src/testing/TestHarness");
+    const fixture = createFakeGame();
+    const harness = createFindTheDogHarness(fixture.game as never);
+    await harness.verbs.startLevel.run();
+
+    const scene = fixture.fakeGameScene as { cameras: unknown };
+    const savedCameras = scene.cameras;
+    try {
+      scene.cameras = {};
+      expect(() => harness.snapshot()).not.toThrow();
+      expect(harness.snapshot()).toMatchObject({ cameraZoom: 1, cameraScrollX: 0, cameraScrollY: 0 });
+    } finally {
+      scene.cameras = savedCameras;
+    }
+  });
+
   it("snapshot does not report level while the home shell is still visible", async () => {
     const { createFindTheDogHarness, snapshotMatchesFindTheDogDriveState } = await import("../../src/testing/TestHarness");
     const fixture = createFakeGame();

@@ -1,3 +1,5 @@
+import { ensureHostedMarker } from './markerHost.ts';
+
 export interface ViewportMetricsSnapshot {
   windowInnerWidth: number;
   windowInnerHeight: number;
@@ -124,21 +126,7 @@ function parseCssPx(value: string): number | null {
 }
 
 function ensureViewportMetricsMarker(): HTMLElement {
-  const existing = document.getElementById(VIEWPORT_METRICS_MARKER_ID);
-  const marker = existing ?? document.createElement('div');
-  if (existing === null) {
-    marker.id = VIEWPORT_METRICS_MARKER_ID;
-    marker.setAttribute('role', 'text');
-    marker.style.cssText = 'position:fixed;left:-9999px;top:0;width:1px;height:1px;overflow:hidden;pointer-events:none;';
-  }
-
-  // Same aria-modal pruning workaround as the tourstate marker: an open modal
-  // hides body-level siblings from the accessibility tree, so publish inside
-  // the topmost open modal when one exists.
-  const modal = document.querySelector<HTMLElement>('[aria-modal="true"]');
-  const host = modal ?? document.body;
-  if (marker.parentElement !== host) host.appendChild(marker);
-  return marker;
+  return ensureHostedMarker(VIEWPORT_METRICS_MARKER_ID);
 }
 
 function formatViewportMetricsLabel(metrics: ViewportMetricsSnapshot, state?: string): string {

@@ -668,10 +668,11 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       if (typeof profile.music === 'boolean') gameState.settings.musicOn = profile.music;
       if (typeof profile.sfx === 'boolean') gameState.settings.soundEffectsOn = profile.sfx;
       if (typeof profile.haptics === 'boolean') gameState.settings.hapticsOn = profile.haptics;
-      // A seeded save is by definition not a first run. Leaving the tutorial
-      // armed swallows wrong-tap penalties and non-target finds (handleTap's
+      // A seeded save defaults to not-first-run: leaving the tutorial armed
+      // swallows wrong-tap penalties and non-target finds (handleTap's
       // tutorial gate), which deadlocks the insitu tour's fail drive.
-      gameState.tutorialShown = true;
+      // Tutorial-focused tests can re-arm it via `tutorialShown: false`.
+      gameState.tutorialShown = profile.tutorialShown !== false;
       gameState.save();
     },
 
