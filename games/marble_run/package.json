@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "gen:levels": "tsx scripts/generate-levels.ts",
     "build": "vite build",
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run",
