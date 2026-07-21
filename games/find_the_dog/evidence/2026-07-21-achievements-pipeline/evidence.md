@@ -1,244 +1,112 @@
-# Evidence — FTD ACH-2: achievement collection, unlock celebration + device proof
+---
+status: partial
+subject: FTD ACH-2 achievement collection and unlock flow
+created: 2026-07-21
+mode: pipeline
+---
 
-- **Card:** `gdUIHVjO` (TWF), stage `evidence_captured`
-- **Branch:** `trello-gdUIHVjO-ftd-ach-2-achievement-collection-unlock`
-- **HEAD at capture:** `eaa686e7`
-- **Plan:** `docs/plans/2026-07-21-002-feat-ftd-achievement-collection-plan.md`
-- **Mode:** `pipeline`
-- **Artifact contract:** **visual-runtime**
-- **Date:** 2026-07-21
+# Evidence: FTD ACH-2 achievement collection and unlock flow
 
 ## Verdict
 
-**PARTIAL — gaps not acceptable.** Local gates are green (typecheck, 209/209 unit,
-`git diff --check`) and the implementation itself drew **zero** defect findings from
-three reviewers. But the committed evidence set contains a **verified integrity
-failure**: `05-relaunch-home-no-replay.png` is byte-identical to
-`01-home-achievements-entry.png`, while the README claims it was captured from a
-separate harness-free production build after a relaunch. The card's AC6/AC12
-no-replay-after-relaunch claim therefore has no independent artifact backing it.
-This is a false provenance claim in committed evidence, not a taste call, so the card
-is regressed to `worked` rather than advanced.
+**PARTIAL — acceptable for PR review.** Nine unique physical-iPhone-12 frames and four gated runtime markers now prove the collection, real completion unlock, compact multi-unlock callout, unblocked Claim/coin/Next presentation, sequenced post-dismissal toast, persistence, and clean-build relaunch without replay. No reviewer found a P1 or broken core loop. Remaining gaps are explicit non-blocking presentation and runtime-depth risks for PR review.
 
-## Artifact contract classification
+## What Changed
 
-**visual-runtime.** The change renders new pixels on three surfaces (Home rail entry,
-full-screen achievements collection page, level-complete unlock callout + toast) and
-its acceptance criteria are stated in terms of on-device appearance, navigation, and
-persistence across a real relaunch. Headless tests alone cannot discharge it, so this
-artifact requires target-device in-situ proof — supplied below.
+- Added the accessible Home-rail Achievements entry and existing-shell collection page with deterministic catalog states, progress, rewards, and analytics.
+- Added the compact completion-card unlock callout and delayed the noninteractive toast until the completion overlay is dismissed.
+- Added deterministic harness states and real-device evidence for collection, unlock, Claim flow, persistence, and no replay.
+- Repaired the prior evidence rejection: frame 05 is now an independent capture, `proof3` gates `replay=false`, and `proof4` timestamps Claim after the callout.
 
-## Target device in-situ proof
+## Artifact Contract
 
-Device identity and provenance are recorded in the pre-existing capture set at
-`games/find_the_dog/evidence/2026-07-21-achievements/`:
+**visual-runtime.** The target is a mobile game in iPhone WKWebView, so device frames and gated device observations are the primary proof; browser/simulator evidence is not used.
 
-- **Device:** physical iPhone 12, iOS 18.7.8, UDID `00008101-000410EC3EF9001E`
-- **Bundle id:** `com.baseardahan.hiddenobj`, signing team `42L77JAX72`, Debug,
-  `vite build --mode ios` (Capacitor / WKWebView)
-- **Not** a simulator, not a desktop browser, not a Playwright render.
+## Target Device In-Situ Proof
 
-### Gated runtime markers
+- Physical iPhone 12, iOS 18.7.8, UDID `00008101-000410EC3EF9001E`.
+- Bundle `com.baseardahan.hiddenobj`, team `42L77JAX72`, Debug, `vite build --mode ios`.
+- Provenance: `games/find_the_dog/evidence/2026-07-21-achievements/README.md`.
+- All nine PNGs have distinct SHA-256 hashes; notably frame 01 is `7224018f...` and the clean-build relaunch frame 05 is `5d9529fb...`.
 
-From `games/find_the_dog/evidence/2026-07-21-achievements/proof-markers.txt`:
+### Gated markers
 
-```
+```text
 proof1: ok=true achOpen=true cards=11
-proof2: ok=true callout=true toast=true found=26/26 complete=true
+proof2: ok=true callout=true toastDuringCallout=false found=26/26 complete=true
+proof3: replay=false home=visible dwell=6s cleanBuild=true
+proof4: claim-tapped-at=+6.3s-after-callout
 ```
 
-These are XCUITest-gated accessibility markers published only after the harness
-snapshot confirmed each state. `proof2` in particular proves the unlock came through
-the **real** completion path — all 26 dogs found via dispatched touch input, then the
-real reducer (`AchievementSystem.apply` → `CommittedAchievementDelta.newlyUnlocked`) —
-rather than a mocked overlay.
+### Runtime observations
 
-### Frames
-
-| Frame | Proves |
+| Frame | Observation |
 |---|---|
-| `01-home-achievements-entry.png` | Home rail Achievements entry, label on one line |
-| `02-collection-states.png` | 11-card collection: Completed / In progress / Not started + reward states |
-| `03-unlock-callout-and-toast.png` | Real unlock moment: in-card callout + bottom-anchored toast |
-| `04-unlock-callout-settled.png` | Same callout after confetti settles, fully readable |
-| `05-relaunch-home-no-replay.png` | Clean production build (no harness) installed over, relaunched — no celebration replay |
-| `06-persisted-collection-after-clean-update.png` | Progress/completed/reward state persisted across the clean update |
+| `01-home-achievements-entry.png` | Accessible one-line Home entry using the collection medal; bottom navigation remains three cells. |
+| `02-collection-states.png` | Eleven deterministic entries with explicit state chips, numeric progress, category medals, and reward state. |
+| `03-unlock-callout.png`, `04-unlock-callout-settled.png` | Real two-achievement unlock compacted inside the completion card; no simultaneous toast (`proof2`). |
+| `05-relaunch-home-no-replay.png` | Independent clean-build relaunch frame after six-second dwell; no replay (`proof3`). |
+| `06-persisted-collection-after-clean-update.png` | Completed/reward-collected state and real progress persist across clean over-install. |
+| `07-collection-scrolled-end.png` | Real collection scrolled toward the terminal entries; category medals and clamped small fill visible. |
+| `08-post-claim-unblocked.png` | Claim occurs +6.3s after callout; balance advances 1120 to 1165 and Next Level is available. |
+| `09-toast-after-dismissal.png` | Toast appears on level 2 only after overlay dismissal, clear of title, currency, hint, and home indicator. |
 
-Frames 05–06 are the AC6/AC12 persistence claim: a harness-free production build
-installed *over* the proof build without uninstalling, then relaunched. The XCUITest
-asserted no "Achievement unlocked" callout or toast reappeared, and the collection
-still showed `First Find — Completed, Reward collected` with real progress carried
-from the actual wins (`Getting Warmer 2/10`, `Seasoned Seeker 2/25`).
+## Evidence Captured
 
-## Local gates
+| Type | Artifact / Command | Result |
+|---|---|---|
+| device | `games/find_the_dog/evidence/2026-07-21-achievements/` | Nine unique physical-device frames plus proof1-proof4 |
+| typecheck | `npm run typecheck -w @fabrikav2/find_the_dog` | passed |
+| unit | `npm run test:unit -w @fabrikav2/find_the_dog` | passed, 209/209 across 31 files |
+| diff | `git diff --check` | passed |
+| audit | `npm run audit` | pre-existing red: ignored `.env.ios.local` and unrelated `shell_template` AppIcon source gap; no branch-attributable regression |
 
-| Check | Result |
-|---|---|
-| `npm run typecheck -w @fabrikav2/find_the_dog` | **passed** (tsc --noEmit, exit 0) |
-| `npm run test:unit -w @fabrikav2/find_the_dog` | **passed** — 209/209 across 31 files |
-| `git diff --check` | **passed**, worktree clean |
-| `npm run audit` | **failed — pre-existing, not branch-attributable** (see below) |
+## Reviewer Assessments
 
-### Audit: pre-existing red, no regression from this card
+| Reviewer | Status | Result |
+|---|---|---|
+| ce-ui-interaction-reviewer | passed | Core navigation, collection semantics, callout/Claim hierarchy, toast sequencing, persistence, and no-replay are supported by device frames, markers, and focused tests. |
+| ce-motion-visual-reviewer | partial | No P1. Static sequence is coherent; residual P2s are the post-Claim zero recap, terminal-card safe-area settling, and reduced-motion exit/runtime coverage. |
+| ce-game-feel-reviewer | partial | No P1 or obstruction. Reward rhythm and double-announcement fix are proven; residual risk is zero recap plus no direct device Next/rate-prompt completion or motion/sound/haptic observation. |
 
-`npm run audit` fails on this branch, but it fails identically on the `main` baseline
-(`85c42ffb`), which was run directly for comparison rather than assumed:
+## Analysis
 
-- `structure`: `games/find_the_dog/.env.ios.local -> never in-tree`. This file is
-  **untracked and gitignored** (`.gitignore:4:.env.*`) — a local device-signing
-  artifact left by the conductor's device lane. `git ls-files --error-unmatch`
-  confirms it is not in the index, so **no secret is committed**. The audit's
-  structure check flags on-disk presence, not repository content.
-- `asset-identity`: FTD `DIVERGENT` byte-hash mismatches
-  (`no-ads-runtime.png`, `settings-icon-runtime.png`, `shop-icon-runtime.png`,
-  `shop_no_ads.png`) plus a `shell_template` app-icon violation.
+The prior blocking integrity gaps are closed mechanically: every PNG hash is unique, the clean relaunch has an independent gated `replay=false` marker, Claim timing has a gated marker, and the post-Claim and post-dismissal frames make the sequencing observable. The UI reviewer passed the contract. Motion and game-feel remain partial because screenshots cannot demonstrate temporal audio/haptic/reduced-motion quality and the device lane stops after proving Next is presented rather than tapping through a rate prompt and teardown.
 
-`git diff --name-only main...HEAD` touches **none** of these paths — no
-`design/assets`, no `public/ui`, no `shell_template`, no `.env`. Both error classes
-reproduce on main, so this card neither introduced nor worsened them.
+These gaps are acceptable for PR review because focused unit/source checks cover the non-interference and reduced-motion branches, the physical-device evidence proves the central collection/unlock/persistence loop, and all remaining findings are P2/P3 presentation or depth-of-proof issues rather than a P1 defect. They must remain visible as release-review risks.
 
-The `NO-REFS` line for the new `achievements` / `win-achievement` manifest states is
-reported by the auditor as **visible but non-failing** (reference scarcity), and the
-six pre-existing FTD states carry the same zero-refs status.
+## Gaps
 
-## Known limitation (carried from the capture set)
+- Frame 08 shows `Coins earned 0` after the successful +45 transfer; retain the earned amount or show an explicit Collected state.
+- Frame 07 does not prove the terminal card can settle fully above the home indicator.
+- Static PNGs do not directly assess motion, sound, haptics, confetti over time, or a real-device reduced-motion run; toast exit still has a 300ms opacity transition without an explicit reduced-motion override.
+- Device proof shows Next presented but does not tap through Next, a rate-prompt-triggering completion, or teardown; those are covered by source/unit checks only.
+- Frame 03 provenance wording is slightly early relative to callout visibility; frame 04 plus `proof2` supplies the actual callout proof.
 
-The generic `verify-device` allstates tour is not reliable for these custom
-achievement states on device (canonical state list + marker-propagation latency +
-per-state timeouts caused missed captures). The dedicated gated proof flow above is
-the reliable lane. Root causes fixed along the way and now on this branch:
-`VITE_INSITU_TOUR` missing from the game's vite `envPrefix` allowlist; synthetic taps
-dispatching only pointer events Phaser never listens to; single-shot clicks racing the
-scene-transition cover; and the first-run tutorial gate swallowing harness taps.
+## Next Action
 
-## BLOCKING: evidence integrity failure (frame 05)
+PR/release review should carry the accepted risks above. Before release, prefer fixing the post-Claim recap and toast reduced-motion exit, then capture a true terminal-scroll frame and a short physical-device sequence that taps Next through any rate prompt/teardown with reduced motion enabled.
 
-Verified directly with `shasum -a 256` over the committed frames:
+## ce-evidence Result
 
+```json
+{
+  "skill": "ce-evidence",
+  "status": "partial",
+  "artifact_path": "games/find_the_dog/evidence/2026-07-21-achievements-pipeline/evidence.md",
+  "verdict": "Physical-iPhone evidence verifies the core collection, unlock, unblocked Claim flow, persistence, and no-replay behavior; explicit non-blocking presentation and runtime-depth gaps remain for PR review.",
+  "mode": "pipeline",
+  "evidence": [
+    {"type":"device","label":"nine unique iPhone 12 frames plus proof1-proof4","result":"passed","path":"games/find_the_dog/evidence/2026-07-21-achievements","url":null},
+    {"type":"test","label":"FTD typecheck and 209 unit tests","result":"passed","path":null,"url":null}
+  ],
+  "reviewers": [
+    {"name":"ce-ui-interaction-reviewer","status":"passed","summary":"Core interaction and persistence contract verified."},
+    {"name":"ce-motion-visual-reviewer","status":"partial","summary":"No P1; static-only motion/reduced-motion and two P2 presentation gaps remain."},
+    {"name":"ce-game-feel-reviewer","status":"partial","summary":"No P1; core reward flow verified, but Next/rate-prompt teardown is not directly exercised."}
+  ],
+  "gaps":["post-Claim recap reads zero","terminal safe-area settling unproven","motion/audio/haptics/reduced-motion not directly observed","Next/rate-prompt teardown not directly exercised"],
+  "next_action":"Carry these accepted risks into PR/release review; preferably fix the recap and reduced-motion exit and capture terminal-scroll plus Next/rate-prompt device proof before release.",
+  "pr_updated":false
+}
 ```
-f88c8c080ca5f78e73b46f04beb5920775314f7015e13e1f05c5159febcaacc8  01-home-achievements-entry.png
-0222b1537d87e4f6109098736337c70403cf6475b660568dbbbed59c8a46641e  02-collection-states.png
-de26a9c6b2574349e89e718e35331ee3c8a3f42a868abfd41a0a9cb8673cf2e1  03-unlock-callout-and-toast.png
-1a4fb25938e43b4a2bfb76aef54be7a17f1086b7ba80e4d569ae7d4a36d1de1b  04-unlock-callout-settled.png
-f88c8c080ca5f78e73b46f04beb5920775314f7015e13e1f05c5159febcaacc8  05-relaunch-home-no-replay.png
-2a95b42713d98b73f2c0cf6f9e1cb407e03f3fa186acfe617b8aaec596ffd329  06-persisted-collection-after-clean-update.png
-```
-
-`01` and `05` share hash `f88c8c08…acc8` and byte size `3071823` — they are the same
-file. `README.md:38-41` describes `05` as captured from a clean production build
-(no test harness, no tour scripting) installed *over* the proof build and relaunched.
-That provenance claim cannot be true of a byte-identical copy of the proof-build Home
-capture; both also show the same `9:20` clock.
-
-Compounding it: the no-replay assertion is described as an XCUITest assertion, but
-`proof-markers.txt` only carries `proof1` and `proof2`. There is no gated marker
-(e.g. `proof3: replay=false`) for the no-replay claim, so it is neither visually nor
-machine-gated.
-
-**What is still genuinely proven:** frame `06` is distinct, is from the harness-free
-clean build, and shows persisted `First Find — Completed, Reward collected` with real
-carried progress (`2/10`, `2/25`). So *persistence across a clean over-install* holds.
-It is specifically the *Home-after-relaunch shows no replayed celebration* artifact
-that is missing.
-
-## Reviewer results
-
-All three pipeline reviewers returned `partial`. Notably, **none** attributed a defect
-to `HUD.ts`, `HomeScene.ts`, `LevelCompleteOverlay.ts`, `AchievementToast.ts`, or
-`styles.css` at P1 — the implementation is not what is blocking.
-
-### ce-ui-interaction-reviewer — `partial`
-
-- **P1** — frame `05` is a byte-identical duplicate of `01` (independently confirmed
-  above). The no-replay claim has no independent artifact.
-- **P3** — both collection frames are captured at scroll-top; no frame shows the list
-  scrolled to the 11th card, so bottom safe-area clearance is unproven.
-- Passed and not to be re-litigated: back affordance (~150px gold chevron) and
-  persistent title clear of the status bar; state conveyed by text chips
-  (Completed / In progress / Not started) plus numeric counters, not color alone;
-  callout sits inside the completion card above CLAIM / CLAIM 2x and occludes
-  neither; toast bottom-anchored clear of the coin pill and the buttons.
-
-### ce-motion-visual-reviewer — `partial`
-
-- **P3** — at 2/50 the progress fill is narrower than its own border-radius, so it
-  renders as a dot rather than a bar. Confirms the previously accepted P2 but rates it
-  *lower* severity: legible, not broken. Fix: clamp fill `min-width` to track height.
-- **Contested the second accepted P2**: the last card sitting under the home indicator
-  in `02`/`06` is normal scroll-region behavior at scroll-top, not clipping —
-  `styles.css:3859,3876` applies `env(safe-area-inset-bottom) + 24px` plus `+72px`.
-  Recorded as a gap (no scroll-end frame) rather than a defect.
-- Clean: safe areas respected on all three surfaces; no occlusion between toast, coin
-  pill, and LEVEL COMPLETE art; no layout shift between `03` and `04`; reduced-motion
-  handled on both new surfaces (`AchievementToast.ts:18`,
-  `LevelCompleteOverlay.ts:156`, `animation: none` fallbacks at `styles.css:544,611`);
-  both entrances 260ms ease-out.
-
-### ce-game-feel-reviewer — `partial`
-
-- **P2** — the unlock is announced twice simultaneously with the same medal glyph and
-  pill treatment (in-card callout *and* bottom toast), flattening the reward beat and
-  splitting attention at the moment the player is hunting for CLAIM. (This is round-1
-  F9 / round-2 F8 resurfacing under a gameplay lens rather than a visual one.)
-- **P2** — the toast occupies the thumb corridor ~100px under the CLAIM row; needs
-  confirmation it is `pointer-events: none` and a captured Claim tap during the toast
-  window.
-- **P3** — the *seeded* collection shows nested-ladder progress the real reducer
-  cannot produce (`4/10` alongside `0/25` and `0/50`), whereas the real-data frame `06`
-  correctly shows `2/10`, `2/25`, `2/50`. The seeded frame is therefore weak proof of
-  retroactive honesty.
-- **P3** — the collection promises reward language while the unlock moment names no
-  reward and the coin pill reads 970 unchanged across `03`/`04`.
-
-### Consolidated gaps
-
-1. Frame `05` duplicate + missing `proof3` no-replay marker. **(blocking)**
-2. No post-Claim frame or latency marker proving Claim / Next / coin transfer proceed
-   unblocked while the callout and toast are live — this is AC4's core promise and is
-   currently evidenced only at a single frozen instant.
-3. No scrolled-to-end collection frame.
-4. Frames `03` and `04` are static, so the claimed *ordering* (reward reveal → unlock
-   callout) and confetti readability during motion are unverified; a short recording
-   would settle it.
-5. No no-unlock completion card for comparison, so whether inserting the callout
-   shifts CLAIM's vertical position between completions is unknown.
-6. Multi-unlock collapse only demonstrated at 2 ("and 1 more"); 3+ uncaptured.
-7. All six frames are iPhone 12 portrait; AC3's narrow/short-viewport claim is
-   unobserved on a smaller device class.
-
-## Accepted non-blocking items
-
-Aesthetics review round 4 returned **CLEAN (0 P1, 2 P2)** after three prior
-regression rounds. The two surviving P2s were marked non-blocking by the reviewer:
-
-1. Near-zero progress (2/50) renders as a ~6px sliver, so "just started" reads close
-   to the "Not started" state it replaced. (`styles.css`)
-2. The last collection card's counter line sits close to the home indicator, so the
-   list's scrollability is not obvious at first glance. (`HUD.ts`)
-
-Additionally carried but never escalated across four rounds: confetti renders above
-the CLAIM 2x button and can obscure its "Watch ad" sublabel
-(`LevelCompleteOverlay.ts`).
-
-Note that the motion reviewer **downgraded** P2 #1 to P3 and **contested** P2 #2 as
-normal scroll behavior rather than clipping, so neither is a ship blocker on its own.
-
-## Next action
-
-`twf back --to worked`. The worked-stage worker should:
-
-1. **Recapture `05` as a genuinely distinct clean-build relaunch frame**, and extract
-   the no-replay assertion into `proof-markers.txt` as a gated marker
-   (e.g. `proof3: replay=false`) so it is machine-gated like `proof1`/`proof2`.
-   Correct or remove the `README.md:38-41` provenance claim either way.
-2. **Add a post-Claim capture** (or claim-latency marker) proving Claim and the coin
-   transfer proceed while the toast is live — this is AC4's central promise.
-3. Consider the game-feel P2 on double-announcement: one surface per context (in-card
-   callout when the completion card is up; toast only when no card is showing).
-   This defect has now been filed in three separate rounds under different lenses.
-4. Cheap folds while in there: clamp the progress fill `min-width` to the track height;
-   add a scrolled-to-end collection frame.
-
-Given this card's documented history — a deferred visual finding became the next
-round's blocker three separate times — items 3 and 4 are worth folding in now rather
-than banking.
