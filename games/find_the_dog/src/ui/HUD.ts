@@ -12,6 +12,7 @@ import { fulfillVerifiedPurchaseOnce, makePurchaseRestoreRetry, reportUnfulfille
 import { animateHintsToBalance } from './EconomyTransfer';
 import { getLegalLinks, type LegalLinks } from '../platform/LegalLinks';
 import { privacyConsentService } from '../privacy/PrivacyConsentService';
+import { notificationService } from '../notifications/NotificationService';
 import { rewardedAdIconMarkup } from './RewardedAdIcon';
 import { hideHomeMenuLayer } from './OverlayVisibility';
 
@@ -834,6 +835,16 @@ function renderSettingsRows(): string {
           <span class="toggle-slider"></span>
         </label>
       </div>
+      <div class="modal-row settings-row">
+        <div class="settings-row-left">
+          <svg class="settings-row-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22Zm8-5-1.7-1.9c-.4-.44-.63-1.02-.63-1.62V10a5.67 5.67 0 0 0-4.17-5.47V4a1.5 1.5 0 1 0-3 0v.53A5.67 5.67 0 0 0 6.33 10v3.48c0 .6-.22 1.18-.62 1.62L4 17a1 1 0 0 0 .75 1.66h14.5A1 1 0 0 0 20 17Z"/></svg>
+          <span class="settings-row-label">Reminders</span>
+        </div>
+        <label class="toggle-switch settings-toggle">
+          <input type="checkbox" id="toggle-notifications" ${gameState.settings.notificationsOn ? 'checked' : ''}>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
       <div class="settings-legal-footer" aria-label="Privacy, legal, and support links">
         <button id="settings-restore-btn" class="settings-footer-link settings-footer-action settings-restore-btn" type="button" aria-describedby="settings-restore-status">Restore Purchases</button>
         <span id="settings-restore-status" class="settings-restore-status" aria-live="polite">Restore No Ads purchases on this device.</span>
@@ -918,6 +929,15 @@ function wireSettingsPageListeners(page: HTMLElement): void {
     gameState.settings.hapticsOn = hapticsOn;
     gameState.save();
     void analytics.settingsChanged({ setting_name: 'hapticsOn', new_value: String(hapticsOn) });
+  });
+
+  page.querySelector('#toggle-notifications')?.addEventListener('change', (event) => {
+    if (!(event.currentTarget instanceof HTMLInputElement)) return;
+    const notificationsOn = event.currentTarget.checked;
+    gameState.settings.notificationsOn = notificationsOn;
+    gameState.save();
+    void notificationService.setEnabled(notificationsOn);
+    void analytics.settingsChanged({ setting_name: 'notificationsOn', new_value: String(notificationsOn) });
   });
 }
 
