@@ -188,10 +188,10 @@ export function createGame({ name, repoRoot, from = TEMPLATE_NAME }) {
       ['appId: "com.basegamelab.shell_template.dev"', `appId: "${appId}"`],
       ['appName: "Shell Template"', `appName: "${title}"`],
     ]);
-    substitute(join(targetDir, 'native-resources', 'ios', 'App', 'App', 'Info.plist'), [
+    substitute(join(targetDir, 'native-resources', 'ios', 'App', 'Info.plist'), [
       ['<string>Shell Template</string>', `<string>${title}</string>`],
     ]);
-    substitute(join(targetDir, 'native-resources', 'ios', 'App', 'App', 'Info.plist'), [
+    substitute(join(targetDir, 'native-resources', 'ios', 'App', 'Info.plist'), [
       ['com.basegamelab.shell_template.dev', appId],
     ]);
     substitute(join(targetDir, 'tests', 'unit', 'smoke.test.ts'), [
