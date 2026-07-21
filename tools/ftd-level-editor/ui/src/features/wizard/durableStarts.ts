@@ -21,7 +21,7 @@ export interface DurableStart {
   observer: JobObserver;
 }
 
-async function startDurable(
+export async function startDurable(
   context: DurableStartContext,
   kind: string,
   inputs: Record<string, unknown>,

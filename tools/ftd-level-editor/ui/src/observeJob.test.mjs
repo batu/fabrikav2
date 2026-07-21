@@ -216,6 +216,72 @@ describe('observeJob', () => {
     assert.ok(isTerminalJobStatus(final.job.status));
   });
 
+  it('stop() during an in-flight poll wins: the late response never resurrects the observer', async () => {
+    const { transport } = fakeServer(makeJob({ status: 'running' }));
+    let release;
+    const gate = new Promise((resolve) => {
+      release = resolve;
+    });
+    const gated = {
+      ...transport,
+      async getJob(jobId) {
+        await gate;
+        return transport.getJob(jobId);
+      },
+    };
+    const seen = [];
+    const observer = observeJob({
+      transport: gated,
+      requestId: 'req-1',
+      sessionId: 'level-01',
+      jobId: 'job-1',
+      onChange: (next) => seen.push(next.connection),
+    });
+    const pending = observer.pollOnce();
+    observer.stop();
+    release();
+    await pending;
+    assert.equal(observer.state().connection, 'stopped');
+    // no post-stop 'connected' publish reached onChange
+    assert.deepEqual(seen, ['stopped']);
+  });
+
+  it('overlapping pollOnce calls are single-flight: both callers get the same poll', async () => {
+    const { transport } = fakeServer(makeJob({ status: 'running' }));
+    let getJobCalls = 0;
+    const counting = {
+      ...transport,
+      async getJob(jobId) {
+        getJobCalls += 1;
+        return transport.getJob(jobId);
+      },
+    };
+    const observer = observeJob({
+      transport: counting,
+      requestId: 'req-1',
+      sessionId: 'level-01',
+      jobId: 'job-1',
+    });
+    const [a, b] = await Promise.all([observer.pollOnce(), observer.pollOnce()]);
+    assert.equal(getJobCalls, 1);
+    assert.deepEqual(a, b);
+  });
+
+  it('a never-resolved Request ID widens the poll delay with bounded backoff', async () => {
+    const { transport } = fakeServer(makeJob());
+    const observer = observeJob({ transport, requestId: 'req-unknown', sessionId: 'level-01' });
+    const delays = [];
+    let sleeps = 0;
+    await observer.run(async (ms) => {
+      delays.push(ms);
+      sleeps += 1;
+      if (sleeps >= 8) observer.stop();
+    });
+    // still connected (never an error), but delays grow toward the cap
+    assert.ok(delays[delays.length - 1] > delays[0]);
+    assert.ok(delays.every((ms) => ms <= DEFAULT_BACKOFF.maxMs));
+  });
+
   it('two concurrent observers converge on equivalent ordered events', async () => {
     const { state, transport } = fakeServer(makeJob({ status: 'running' }));
     state.events.push(makeEvent(2), makeEvent(3));

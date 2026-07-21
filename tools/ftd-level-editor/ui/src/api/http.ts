@@ -11,7 +11,12 @@ import type {
 export interface JobsTransportOptions {
   fetchImpl: typeof fetch;
   launchCredential: string;
+  // Per-request bound so a hung read fails into the observer's ordinary
+  // reconnecting path instead of stalling the poll loop indefinitely.
+  timeoutMs?: number;
 }
+
+export const DEFAULT_REQUEST_TIMEOUT_MS = 15_000;
 
 export class FtdHttpError extends Error {
   readonly status: number;
@@ -36,26 +41,34 @@ export interface JobsTransport {
 }
 
 export function createJobsTransport(options: JobsTransportOptions): JobsTransport {
+  const timeoutMs = options.timeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS;
   const request = async <T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<T> => {
-    const response = await options.fetchImpl(path, {
-      method,
-      credentials: 'same-origin',
-      headers: {
-        'X-FTD-Launch-Credential': options.launchCredential,
-        ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
-      },
-      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-    });
-    if (!response.ok) {
-      let detail: unknown = null;
-      try {
-        detail = (await response.json()) as unknown;
-      } catch {
-        detail = null;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await options.fetchImpl(path, {
+        method,
+        credentials: 'same-origin',
+        signal: controller.signal,
+        headers: {
+          'X-FTD-Launch-Credential': options.launchCredential,
+          ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
+        },
+        ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+      });
+      if (!response.ok) {
+        let detail: unknown = null;
+        try {
+          detail = (await response.json()) as unknown;
+        } catch {
+          detail = null;
+        }
+        throw new FtdHttpError(response.status, detail);
       }
-      throw new FtdHttpError(response.status, detail);
+      return (await response.json()) as T;
+    } finally {
+      clearTimeout(timer);
     }
-    return (await response.json()) as T;
   };
 
   return {

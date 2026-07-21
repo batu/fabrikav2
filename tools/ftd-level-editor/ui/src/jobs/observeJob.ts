@@ -95,15 +95,19 @@ export function observeJob(options: ObserveJobOptions): JobObserver {
     consecutiveFailures: 0,
   };
   let stopped = false;
+  let inflight: Promise<ObserverState> | null = null;
+  let emptyDiscoveries = 0;
 
   const publish = (next: ObserverState): ObserverState => {
+    // A publish resolving after stop() must not resurrect a detached
+    // observer; only stop() itself writes the 'stopped' state.
+    if (stopped && next.connection !== 'stopped') return state;
     state = next;
     options.onChange?.(state);
     return state;
   };
 
-  const pollOnce = async (): Promise<ObserverState> => {
-    if (stopped) return state;
+  const doPoll = async (): Promise<ObserverState> => {
     try {
       let jobId = state.jobId;
       if (jobId === null) {
@@ -113,6 +117,7 @@ export function observeJob(options: ObserveJobOptions): JobObserver {
           requestId: state.pendingRequestId,
         });
         if (found.length === 0) {
+          emptyDiscoveries += 1;
           return publish({ ...state, connection: 'connected', consecutiveFailures: 0 });
         }
         jobId = found[0].jobId;
@@ -120,6 +125,7 @@ export function observeJob(options: ObserveJobOptions): JobObserver {
       const job = await options.transport.getJob(jobId);
       const page = await options.transport.listEvents(jobId, state.eventCursor);
       const { events, cursor } = ingestEvents(state.events, page);
+      emptyDiscoveries = 0;
       return publish({
         ...state,
         jobId,
@@ -140,6 +146,18 @@ export function observeJob(options: ObserveJobOptions): JobObserver {
     }
   };
 
+  // Single-flight: an overlapping caller joins the pending poll instead of
+  // racing it, so a slow stale response can never publish last.
+  const pollOnce = (): Promise<ObserverState> => {
+    if (stopped) return Promise.resolve(state);
+    if (inflight === null) {
+      inflight = doPoll().finally(() => {
+        inflight = null;
+      });
+    }
+    return inflight;
+  };
+
   return {
     state: () => state,
     pollOnce,
@@ -148,10 +166,15 @@ export function observeJob(options: ObserveJobOptions): JobObserver {
         const current = await pollOnce();
         if (stopped) break;
         if (current.job !== null && isTerminalJobStatus(current.job.status)) break;
+        // Healthy reads poll at the base rate; failed reads and a Request ID
+        // the server has not resolved yet both widen with the same bounded
+        // schedule (still no terminal timeout — the job is never given up).
         const delay =
           current.connection === 'reconnecting'
             ? backoffDelayMs(backoff, current.consecutiveFailures)
-            : backoff.initialMs;
+            : current.jobId === null
+              ? backoffDelayMs(backoff, emptyDiscoveries)
+              : backoff.initialMs;
         await sleep(delay);
       }
       return state;
