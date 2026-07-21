@@ -166,8 +166,21 @@ occurrences persisted while cumulative progress did **not**, and after reload th
 recomputed from a stale (or zero) base. So `AchievementSystem` owns an explicit **pure**
 `applyDeltaToRecord(record, delta): AchievementRecord` that produces the next record by folding
 **every** `progressChanges` entry into `progress[id]`, adding `newlyUnlocked` ids to `unlocked`,
-adding `fact.levelId` to `masteredLevelIds` for a `newBest` (if absent), and appending the
+adding **`delta.masteredLevelIdsAdded`** to `masteredLevelIds`, and appending the
 occurrence to `processedOccurrenceIds` — all **together**, as one derived next-record value.
+
+**The delta is self-sufficient for mastery folding — no hidden fact dependency (fixes the
+latest red-team break #1).** The prior draft had `applyDeltaToRecord` read `fact.levelId`/
+`fact.newBest` to update `masteredLevelIds`, but the `AchievementDelta`/`CommittedAchievementDelta`
+it consumes carry **only** `{ occurrenceId, progressChanges, newlyUnlocked }` — no `levelId`, no
+`newBest` — so the promised consumer could not compose. Fix: `apply()` **derives** the mastery
+additions itself and puts them **on the delta** as `masteredLevelIdsAdded: readonly string[]`
+(computed from `fact.levelId`/`fact.newBest` against the record's existing `masteredLevelIds` —
+non-empty only for a `newBest` completion of a level not already mastered; always `[]` for
+dog-found/progress-only facts). `applyDeltaToRecord(record, delta)` then folds `masteredLevelIdsAdded`
+with progress/unlocks/processed and never touches the fact. A U2 round-trip repeat-best test proves
+a second `newBest` for an already-mastered level yields `masteredLevelIdsAdded: []` (mastery does
+not re-increment after reload).
 GameState's checkpoint-1 mutation (and the progress-only/no-wallet path, and migration) applies
 its record change **through this one function** so cumulative progress, unlocks, mastery, and
 processed-set always advance consistently. A U3 serialize/reload test proves cumulative progress
@@ -193,7 +206,8 @@ The achievement record is a single versioned `ftd_achievements` key (one `setIte
 so its *internal* fields — processed occurrence IDs, unlock set, and the single
 `pendingSettlement` — are mutually consistent by construction, since a per-key write
 is atomic). The record is the **durable authority**; the wallet is settled toward it
-through a write-ahead protocol (a strict transaction-identity checkpoint 0a plus a wallet
+through a write-ahead protocol (a strict completion-progression checkpoint 0pre plus a strict
+transaction-identity checkpoint 0a — both for every completion fact — plus a wallet
 baseline checkpoint 0b plus checkpoints 1–3) that carries the
 exact target wallet state, so recovery is unambiguous regardless of which write tore.
 
@@ -270,8 +284,30 @@ the moment settlement begins, the accepted transaction may exist only in memory,
 storage. If checkpoints 1–3 then committed an achievement under that **non-durable**
 transaction id, a crash before another successful transaction write would reload without the
 id, mint a *new* completion id on retry, and bypass achievement dedupe → a **second grant**.
-So the protocol opens with a **strict synchronous transaction-identity checkpoint**: after
-the accepted transaction/stat/base mutations are in memory, durably write the
+So the protocol opens with two strict synchronous identity checkpoints, **progression first,
+then transaction**:
+
+**Checkpoint 0pre — strict completion-progression persist (fixes the latest red-team break #2).**
+`persistActiveCompletionTransaction()` durably stores a transaction whose
+`completionStatsRegistered` flag is `true` (GameState.ts:115,683) — but the **progression state
+that flag guards** (`_bestTimes`, `_streakDays`, `_streakLastDate`, `_totalLevelsCompleted`,
+written by `registerLevelComplete`) is persisted only by the broad `save()`, which can tear
+**after** `COINS` (GameState.ts:911) and before those progression keys (STREAK_DAYS 905,
+STREAK_LAST_DATE 906, BEST_TIMES 907, TOTAL_LEVELS_COMPLETED 908). A crash there would reload a
+durable transaction with `completionStatsRegistered === true` sitting over **stale** progression —
+so a retry's `beginLevelCompletionTransaction` sees the flag set, **skips** `registerLevelComplete`
+permanently, and the streak/best/total never advance. To prevent true-flag-over-stale-progression,
+a new **error-propagating** `persistCompletionProgress()` helper strictly persists
+`BEST_TIMES`, `STREAK_DAYS`, `STREAK_LAST_DATE`, and `TOTAL_LEVELS_COMPLETED` from current memory
+**before** the transaction identity write. Ordering for **every** `LevelCompletionFact`:
+**0pre strict progression → 0a strict active transaction → achievement record (checkpoint 1)**; if
+either 0pre or 0a throws, **abort** the achievement commit (no record/outbox/reward/wallet-baseline
+state). This guarantees that whenever the durable transaction carries a true stats-registered flag,
+the durable progression already matches it — so a reload either sees consistent stats or (if 0pre
+tore) re-runs `registerLevelComplete` cleanly. Fault-inject each progression key and prove reload
+either retries registration or sees matching durable stats.
+
+**Checkpoint 0a — strict transaction-identity persist.** After 0pre, durably write the
 `ACTIVE_COMPLETION_TRANSACTION` key with a new **error-propagating**
 `persistActiveCompletionTransaction()` helper (single `setItem`, confirming
 `transaction.id` is stored), and rely on `load()`'s existing
@@ -280,8 +316,17 @@ the accepted transaction/stat/base mutations are in memory, durably write the
 baseline state is touched** — the fact stays unprocessed, and a same-process retry may reuse
 the in-memory transaction, but **no achievement can durably commit under a non-durable id**.
 
-Protocol (per accepted occurrence that grants a reward), fully synchronous — **no
-player mutation may interleave the checkpoints**:
+Protocol (per accepted occurrence), fully synchronous — **no
+player mutation may interleave the checkpoints**. **Checkpoints 0pre + 0a run for EVERY
+`LevelCompletionFact`, including progress-only/no-reward deltas** (occurrence-durability is
+independent of whether a reward is granted — latest break #3); the wallet baseline 0b and
+checkpoints 1–3's wallet write are reward-only. Dog-found facts skip 0pre + 0a (no completion
+transaction; their occurrence id derives from already-durable level/dog state):
+0pre. **Completion progression (checkpoint 0pre) — completion facts only (break #2).** Durably
+   persist `BEST_TIMES`/`STREAK_DAYS`/`STREAK_LAST_DATE`/`TOTAL_LEVELS_COMPLETED` from current
+   memory via the error-propagating `persistCompletionProgress()`; if it throws, **abort** (no
+   achievement/wallet state written). This makes the progression guarded by
+   `completionStatsRegistered` durable before the transaction that carries the true flag.
 0a. **Transaction identity (checkpoint 0a) — completion facts only.** Durably persist the
    accepted `ACTIVE_COMPLETION_TRANSACTION` via the error-propagating
    `persistActiveCompletionTransaction()`, confirming `transaction.id` is stored; if it
@@ -391,11 +436,12 @@ fresh `load()` from the persisted storage**, and asserts the reward is present e
 (never lost on the second load).
 
 Because checkpoint 0b forces stored-wallet == `before` before any achievement state is written
-(and checkpoint 0a has already made the completion transaction id durable, so dedupe survives a
-crash — break #1), and each later checkpoint is a set of single-key atomic `setItem`s, a crash
-*at* or *between* any checkpoint (0a–3) leaves every wallet component in exactly its own `before`
+(and checkpoint 0pre has made the guarded completion progression durable and checkpoint 0a has
+made the completion transaction id durable, so stats-consistency and dedupe both survive a
+crash — breaks #1/#2), and each later checkpoint is a set of single-key atomic `setItem`s, a crash
+*at* or *between* any checkpoint (0pre–3) leaves every wallet component in exactly its own `before`
 or `after`, all of which component-wise recovery resolves to a single grant. A crash *during*
-checkpoint 0a or 0b itself writes no `pendingSettlement`, so recovery has nothing to reconcile
+checkpoint 0pre, 0a, or 0b itself writes no `pendingSettlement`, so recovery has nothing to reconcile
 and the fact is
 re-derived cleanly on the next attempt. The prior draft (which captured `before` from post-grant
 memory over a possibly-torn stored wallet, and whose whole-snapshot comparison mis-read a mixed
@@ -510,6 +556,17 @@ does **not** make the call type-check or preserve fields:
   drops any key not on this allow-list, so an omission here silently strips the field —
   in particular the anomaly's diagnostic `wallet_component` (which names the torn wallet
   component: `coins` | `hints` | `coinsGranted` | `hintsGranted` | …) would be lost without it.
+- **`dashboardImportDimensionKeys` superset (fixes the latest red-team break #4).** Any dimension
+  a canonical row lists in `primaryDimensions` must **also** appear in the exported
+  `dashboardImportDimensionKeys` allowlist (CanonicalAnalyticsEvents.ts:601) — the
+  `purchase-funnel-analytics.test.ts` superset gate (lines 35-38) fails if a `primaryDimension` is
+  missing from it, and the live-feed/import paths silently drop or reject the unknown key. The
+  anomaly row puts `wallet_component` in `primaryDimensions`, so `wallet_component` must be **added
+  to `dashboardImportDimensionKeys`** in **find_the_dog's own** `CanonicalAnalyticsEvents.ts`
+  (line 601 — this is the copy the `purchase-funnel-analytics.test.ts` imports and the only one
+  inside the `analytics/**` fence; the separate shell_template copy is **out of scope and left
+  untouched**). The existing superset test is updated/extended to cover the achievement rows so the
+  invariant is enforced.
 - **GameAnalytics design mapping (`GameAnalyticsEvents.ts`).** The sink's `dispatch`
   (GameAnalyticsSink.ts:106-128) routes any **unrecognized** event name to
   `trackDesign(designEvent(gameAnalyticsDesignEventId(name, params), params, …))`, and
@@ -559,9 +616,24 @@ reconstruct the exact payloads from an occurrence id alone. The record therefore
 durable **analytics outbox** — `analyticsOutbox: PendingAnalyticsEvent[]`, where
 `PendingAnalyticsEvent` is a **discriminated union on `name`** (break #2) whose each member is
 a fully-formed `{ eventId, name, payload }` pairing the literal event name with its exact
-payload type, with a **stable `eventId`** (derived
-deterministically, e.g. `<occurrenceId>:<eventKind>:<achievementId>`) and the complete
-payload the sink needs. **Wire field is `event_id` (snake_case) — correction 2.** The outbox
+payload type, with a **stable, bounded `eventId`** and the complete payload the sink needs.
+
+**The stable `event_id` is bounded to ≤96 chars BEFORE the sink (fixes the latest red-team
+break #5).** `compactCustomFields` truncates every string custom-field **value** to 96 chars
+(`trimmed.slice(0, 96)`, GameAnalyticsEvents.ts:159). A naïve
+`<occurrenceId>:<eventKind>:<achievementId>` id is unbounded — a completion occurrence id is
+`completion:<seq>:<index>:<levelId>`, so a live id can exceed 96 chars and be silently truncated
+on the wire, collapsing **distinct** long occurrences onto the **same** truncated `event_id` (a
+downstream-dedupe hazard). So `deltaToEvents` derives a **deterministic ≤96-char** id up front:
+`<eventKind>:<achievementId>:<hash(occurrenceId)>`, where `hash` is a fixed-length (6-char) digest
+of the full occurrence id (reusing the existing `shortHash` FNV approach at
+GameAnalyticsEvents.ts:237-245 — a fixed 6-char base36 hash), and the `eventKind`/`achievementId`
+segments are themselves length-capped (mirroring `segment(...)`, GameAnalyticsEvents.ts:219-233)
+so the total is provably ≤96 and never hits the slice. Distinct occurrences keep distinct ids
+(the hash + achievement id disambiguate) while the id no longer depends on the raw occurrence-id
+length. This **same bounded id** is stored in **both** `PendingAnalyticsEvent.eventId` **and**
+`payload.event_id`, so what is journaled equals what travels the wire — the id never changes or
+truncates between the outbox and the sink. **Wire field is `event_id` (snake_case) — correction 2.** The outbox
 entry's structural `eventId` is an internal convenience only; the value that travels **on every
 analytics payload and every GameAnalytics wire row is `event_id`** (snake_case), because
 `compactParams`/`compactCustomFields` filter on the **exact** snake_case allow-list key
@@ -654,7 +726,8 @@ sequenceDiagram
     State->>Ach: apply(LevelCompletionFact{txId, levelId, progressionIndex, totalCompletions, streakDays, newBest, ...}, record)
     Ach-->>State: AchievementDelta{ progressChanges, newlyUnlocked[] (entitledReward) }
     Note over State: dedupe: txId already processed? -> empty delta
-    State->>LS: TX IDENTITY (checkpoint 0a): persistActiveCompletionTransaction() ACTIVE_COMPLETION_TRANSACTION<br/>(error-propagating; throw -> ABORT; makes txId durable BEFORE any achievement commit)
+    State->>LS: PROGRESSION (checkpoint 0pre): persistCompletionProgress() BEST_TIMES/STREAK_DAYS/STREAK_LAST_DATE/TOTAL_LEVELS_COMPLETED<br/>(error-propagating; throw -> ABORT; guards completionStatsRegistered flag; runs for ALL completion facts incl. no-reward)
+    State->>LS: TX IDENTITY (checkpoint 0a): persistActiveCompletionTransaction() ACTIVE_COMPLETION_TRANSACTION<br/>(error-propagating; throw -> ABORT; makes txId durable BEFORE any achievement commit; runs for ALL completion facts)
     State->>LS: BASELINE (checkpoint 0b): persistWallet() flush HINTS/COINS/WALLET_COUNTERS<br/>(error-propagating; throw -> ABORT, no achievement state); before = persisted baseline
     State->>State: build CommittedDelta: post-cap GrantedReward[]{achievementId,coins,hints};<br/>deltaToEvents -> full event list
     State->>State: WRITE-AHEAD (all in one record write): applyDeltaToRecord folds progress[id]+unlocked+masteredLevelIds+processed;<br/>analyticsOutbox += full events;<br/>pendingSettlement = {txId, before=baseline, after=before+post-cap reward};<br/>lastDurableRecord updated after this persist returns
@@ -755,9 +828,13 @@ versioned `AchievementRecord`, and per-achievement progress semantics. No behavi
   deltas and lets unlocks without a reward carry no `GrantedReward`.
 - `AchievementDelta` (pure, from `apply()`) is `readonly`: `{ occurrenceId, progressChanges:
   readonly AchievementProgressChange[], newlyUnlocked: readonly Achievement[] (catalog order,
-  each with optional `entitledReward`) }`. `CommittedAchievementDelta` (returned by GameState,
-  consumed by UI/analytics) extends it with `rewards: readonly GrantedReward[]` (applied
-  amounts, `achievementId`-tagged). This is the single owned consumer shape.
+  each with optional `entitledReward`), masteredLevelIdsAdded: readonly string[] }`. The
+  **`masteredLevelIdsAdded`** field (latest red-team break #1) makes the delta self-sufficient for
+  record folding: `apply()` derives it from `fact.levelId`/`fact.newBest` against the record's
+  `masteredLevelIds` (the level id iff this is a `newBest` completion of a not-yet-mastered level,
+  else `[]`), so `applyDeltaToRecord` never needs the fact to update mastery. `CommittedAchievementDelta`
+  (returned by GameState, consumed by UI/analytics) extends it with `rewards: readonly
+  GrantedReward[]` (applied amounts, `achievementId`-tagged). This is the single owned consumer shape.
 - `AchievementRecord` (versioned, the durable journal — one storage key): `{ version,
   progress: Record<id, number>, masteredLevelIds: readonly string[] (persisted distinct-level
   identity set — see below), unlocked: readonly id[], processedOccurrenceIds:
@@ -773,8 +850,10 @@ versioned `AchievementRecord`, and per-achievement progress semantics. No behavi
   (the wallet persists as three separate keys — KTD2).
 - **`masteredLevelIds` persists mastery identity (fixes the reload-double-count break):**
   distinct-level mastery progress is the size of this persisted set, not a raw numeric counter.
-  A `newBest` completion adds `fact.levelId` to the set only if absent, so a *repeat* best time
-  for an already-mastered level does **not** re-increment mastery after a serialize/reload —
+  A `newBest` completion of a not-yet-mastered level surfaces its level id via the delta's
+  `masteredLevelIdsAdded` (derived by `apply()`, break #1), which `applyDeltaToRecord` folds into
+  the set, so a *repeat* best time for an already-mastered level yields `masteredLevelIdsAdded: []`
+  and does **not** re-increment mastery after a serialize/reload —
   the prior draft stored only `progress: number` and could not distinguish a repeat best from a
   new level after deserialize.
   Invariant: at most one `pendingSettlement` exists at a time (the settlement protocol is
@@ -816,15 +895,18 @@ ordering in `AchievementSystem.ts`.
   only when `newBest` and not already present, so a repeat best for a mastered level never
   re-increments after reload — KTD4/U1), streak milestones (3/7 day from `currentStreakDays`).
 - `apply()` computes new progress per relevant achievement, returns crossings in
-  catalog `order`, and attaches each newly-unlocked entry's catalog `entitledReward`
-  (requested amount only — the post-cap applied `GrantedReward` is GameState's job, KTD1).
-  Pure, deterministic, no I/O; mastery progress is derived from the record's persisted
-  `masteredLevelIds` set passed in, never a bare counter.
+  catalog `order`, attaches each newly-unlocked entry's catalog `entitledReward`
+  (requested amount only — the post-cap applied `GrantedReward` is GameState's job, KTD1), and
+  **derives `masteredLevelIdsAdded`** (latest break #1) from `fact.levelId`/`fact.newBest` against
+  the record's `masteredLevelIds` — the contributing level id iff `newBest` and not already
+  mastered, else `[]`. Pure, deterministic, no I/O; mastery progress is derived from the record's
+  persisted `masteredLevelIds` set passed in, never a bare counter.
 - **Pure `applyDeltaToRecord(record, delta): AchievementRecord` (correction 3)** lives here too
   (owned, pure): it folds every `progressChanges` entry into `progress[id]`, adds `newlyUnlocked`
-  ids to `unlocked`, adds a `newBest` `fact.levelId` to `masteredLevelIds` if absent, and appends
-  the occurrence to `processedOccurrenceIds` — one derived next-record value GameState/migration
-  persist. It never touches `pendingSettlement`/`analyticsOutbox`/wallet (those are GameState's).
+  ids to `unlocked`, adds **`delta.masteredLevelIdsAdded`** to `masteredLevelIds` (no fact
+  dependency — break #1), and appends the occurrence to `processedOccurrenceIds` — one derived
+  next-record value GameState/migration persist. It never touches
+  `pendingSettlement`/`analyticsOutbox`/wallet (those are GameState's).
 - **Reward-budget check (AC6):** sum of all catalog coin rewards must stay modest vs
   existing flows — document the total in a code comment and assert an upper bound in
   the test so future catalog edits can't silently inflate the economy.
@@ -847,6 +929,12 @@ ordering in `AchievementSystem.ts`.
   `masteredLevelIds`/`processedOccurrenceIds` advance for crossings, and the input record is not
   mutated (pure). Feeding that returned record back into `apply()` continues from the folded
   progress.
+- **Mastery additions ride on the delta, not the fact (latest break #1).** `apply()` of a
+  `newBest` completion for a not-yet-mastered level returns `masteredLevelIdsAdded: [levelId]`;
+  `applyDeltaToRecord` folds that into `masteredLevelIds` **using only the delta** (no fact
+  argument). A **repeat** `newBest` for an already-mastered level returns
+  `masteredLevelIdsAdded: []`, so folding does not re-increment mastery — proven without reference
+  to `fact.levelId` inside `applyDeltaToRecord`.
 
 ---
 
@@ -886,26 +974,38 @@ the wallet via idempotent reconciliation, and expose the delta to callers. Wire
   achievement reward moves `_coinBalance`/`_hintBalance` and advances only
   `coinsGranted`/`hintsGranted` under the `'achievement'` source with zero type errors, and that
   the public `grantCoins` still behaves identically after the refactor.
-- Three targeted persist helpers so each checkpoint is a minimal atomic write:
+- Four targeted persist helpers so each checkpoint is a minimal atomic write:
+  `persistCompletionProgress()` (the `BEST_TIMES`/`STREAK_DAYS`/`STREAK_LAST_DATE`/
+  `TOTAL_LEVELS_COMPLETED` keys from memory — the checkpoint-0pre progression write that must be
+  durable before the true `completionStatsRegistered` flag, break #2),
   `persistActiveCompletionTransaction()` (single `setItem` of `ACTIVE_COMPLETION_TRANSACTION`,
   confirming `transaction.id` is stored — the checkpoint-0a identity write, break #1),
   `persistAchievementRecord()` (single `setItem` of `ftd_achievements`) and
   `persistWallet()` (the HINTS/COINS/WALLET_COUNTERS keys — three separate `setItem`s that
-  can each land or tear independently). **All three helpers must let a `setItem` throw propagate to
+  can each land or tear independently). **All four helpers must let a `setItem` throw propagate to
   the caller — they deliberately do NOT inherit `save()`'s catch-and-continue behavior**
   (GameState.ts:897-926 swallows/continues). This is load-bearing: the write-ahead protocol
   branches on whether each checkpoint's write actually committed, so a silently-swallowed throw
   would let the protocol advance to the wallet while believing the record was persisted. Add a
   code comment on each helper stating this failure-propagation contract and the checkpoint
   ordering invariant so a future refactor can't re-wrap them in `save()`'s try/catch.
-- **Checkpoint 0a strictly persists the completion transaction identity FIRST (break #1).**
-  For a completion fact, before the wallet baseline `applyAchievementFact` (invoked from the
-  completion seam) calls `persistActiveCompletionTransaction()` to durably flush the accepted
-  `ACTIVE_COMPLETION_TRANSACTION`, confirming its `id` is stored; if it **throws, abort** before
-  any wallet/record/outbox state — so no achievement occurrence can commit under a transaction id
-  that is not durably recoverable (a crash would otherwise mint a new id and re-grant). `load()`'s
-  existing `sequenceFromCompletionId` max logic (GameState.ts:965-968) handles sequence recovery.
-  Dog-found facts skip 0a (no transaction; occurrence id derives from durable level/dog state).
+- **Checkpoint 0pre strictly persists completion progression FIRST (break #2).** For **every**
+  completion fact (reward or progress-only), before the transaction-identity write
+  `applyAchievementFact` calls `persistCompletionProgress()` to durably flush
+  `BEST_TIMES`/`STREAK_DAYS`/`STREAK_LAST_DATE`/`TOTAL_LEVELS_COMPLETED` from memory; if it
+  **throws, abort** before any transaction/wallet/record/outbox state. This closes the
+  true-`completionStatsRegistered`-over-stale-progression tear: the durable stats always match the
+  flag, so a reload either sees consistent progression or re-runs `registerLevelComplete` (never
+  skips it forever). Dog-found facts skip 0pre.
+- **Checkpoint 0a strictly persists the completion transaction identity (break #1).**
+  For a completion fact, after 0pre and before the wallet baseline `applyAchievementFact` (invoked
+  from the completion seam) calls `persistActiveCompletionTransaction()` to durably flush the
+  accepted `ACTIVE_COMPLETION_TRANSACTION`, confirming its `id` is stored; if it **throws, abort**
+  before any wallet/record/outbox state — so no achievement occurrence can commit under a
+  transaction id that is not durably recoverable (a crash would otherwise mint a new id and
+  re-grant). `load()`'s existing `sequenceFromCompletionId` max logic (GameState.ts:965-968)
+  handles sequence recovery. Dog-found facts skip 0a (no transaction; occurrence id derives from
+  durable level/dog state).
 - **Checkpoint 0b uses `persistWallet()` as the baseline write.** Before any achievement state
   is written, `applyAchievementFact` calls `persistWallet()` to durably flush the current
   in-memory wallet; on success it captures `before` from that just-persisted state, so
@@ -914,18 +1014,29 @@ the wallet via idempotent reconciliation, and expose the delta to callers. Wire
   durable about the achievement written; fact stays unprocessed for a clean retry).
 - New GameState method `applyAchievementFact(fact)`:
   1. Guard on `processedOccurrenceIds` — already processed → return empty delta, no-op.
-  2. Call `AchievementSystem.apply(fact, record)`. If the delta grants no reward
+  2. **Occurrence-durability gate for completion facts (break #3).** For a
+     `LevelCompletionFact` — **regardless of whether a reward is later granted** — first run
+     **checkpoint 0pre (`persistCompletionProgress()`)** then **checkpoint 0a
+     (`persistActiveCompletionTransaction()`)**; if either throws, **abort** with no achievement
+     state written. This makes the completion transaction id (the dedupe occurrence id) durable
+     before **any** completion achievement commits — including a progress-only/no-reward delta —
+     so a crash after a prior torn broad `save()` cannot reload without the id, mint a new one on
+     retry, and bypass `processedOccurrenceIds` dedupe. Dog-found facts skip 0pre/0a (their
+     occurrence id `dog:<servedLevelId>:<dogId>` derives from already-durable level/dog state).
+     Then call `AchievementSystem.apply(fact, record)`. If the delta grants no reward
      (progress-only / no-wallet path, including a `newBest` that only updates
      `masteredLevelIds`), fold the delta into the record via the pure
      `applyDeltaToRecord(record, delta)` (correction 3 — updates `progress[id]` for every
-     `progressChanges` entry, adds unlocks, updates `masteredLevelIds`, marks processed),
+     `progressChanges` entry, adds unlocks, folds `delta.masteredLevelIdsAdded` into
+     `masteredLevelIds` (break #1), marks processed),
      **append its `deltaToEvents` output to `analyticsOutbox`**, and persist the record once
-     (no `pendingSettlement`, no wallet touch) — the events are still journaled durably. If it
-     grants a reward, run the write-ahead protocol:
-     - **Checkpoint 0a (transaction identity — completion facts only, break #1).** Call
-       `persistActiveCompletionTransaction()` to durably store the accepted
-       `ACTIVE_COMPLETION_TRANSACTION` (confirming `transaction.id`); if it **throws, abort**
-       (no wallet/record/outbox state written). Dog-found facts have no transaction and skip 0a.
+     (no `pendingSettlement`, no wallet touch) — the events are still journaled durably, and the
+     occurrence is already durable via 0pre/0a above. If it
+     grants a reward, run the write-ahead protocol (0pre/0a already done above; continue with the
+     wallet baseline 0b):
+     - (**Checkpoints 0pre + 0a already ran in step 2** for completion facts — completion
+       progression and transaction identity are durable; dog-found facts had neither. The reward
+       branch continues at the wallet baseline.)
      - **Checkpoint 0b (baseline).** Call `persistWallet()` to durably flush the current
        in-memory wallet; if it **throws, abort** — return without marking the occurrence,
        appending the outbox, or writing `pendingSettlement` (no achievement state committed).
@@ -939,8 +1050,9 @@ the wallet via idempotent reconciliation, and expose the delta to callers. Wire
        with the post-cap applied amounts; run `deltaToEvents` to get the full event list.
      - **Checkpoint 1 (single record write commits everything recoverable):** fold the delta
        into the record via `applyDeltaToRecord` (correction 3 — `progress[id]` for every
-       `progressChanges` entry, unlocks, and `fact.levelId` added to `masteredLevelIds` when the
-       fact is a `newBest` and the level is absent, occurrence marked processed),
+       `progressChanges` entry, unlocks, and `delta.masteredLevelIdsAdded` folded into
+       `masteredLevelIds` (break #1 — the mastery additions are derived onto the delta by
+       `apply()`, so no `fact` reference is needed here), occurrence marked processed),
        **append the full event list to `analyticsOutbox`**,
        and set `pendingSettlement = { occurrenceId, before = the checkpoint-0 baseline, after =
        before + post-cap reward }`; `persistAchievementRecord()`. (`settlementSnapshot()` is a
@@ -1014,14 +1126,18 @@ the wallet via idempotent reconciliation, and expose the delta to callers. Wire
 `localStorage.setItem` to throw on the Nth call or on a named key, drives a completion
 that crosses a reward threshold, reloads a fresh GameState from the (partially written)
 storage, and asserts the wallet equals **exactly** the single-grant value on every
-clean-tear boundary (recovered, not lost, not doubled). Inject a throw at **checkpoint 0a
-(transaction identity)**, **checkpoint 0b (baseline)** and at each of checkpoints 1–3, **and after each individual wallet key** (HINTS,
+clean-tear boundary (recovered, not lost, not doubled). Inject a throw at **checkpoint 0pre
+(each progression key — BEST_TIMES, STREAK_DAYS, STREAK_LAST_DATE, TOTAL_LEVELS_COMPLETED)**,
+**checkpoint 0a (transaction identity)**,
+**checkpoint 0b (baseline)** and at each of checkpoints 1–3, **and after each individual wallet key** (HINTS,
 COINS, WALLET_COUNTERS) within both the checkpoint-0b baseline write and the checkpoint-2 wallet
 write, so mixed per-key tears (e.g. COINS advanced but HINTS not) and a **pre-existing base-save
 tear** (an earlier `save()` left storage torn before settlement began) are exercised; assert
-component-wise load-time recovery lands every wallet component at `after` exactly once, and that
-a checkpoint-0a or checkpoint-0b throw leaves the fact **unprocessed** with no partial
-achievement state.
+component-wise load-time recovery lands every wallet component at `after` exactly once, that
+a checkpoint-0pre, checkpoint-0a, or checkpoint-0b throw leaves the fact **unprocessed** with no partial
+achievement state, and that after a checkpoint-0pre progression tear the reload either sees durable
+progression matching a true `completionStatsRegistered` flag or re-runs `registerLevelComplete`
+(never a true flag over stale stats).
 
 **Test scenarios:**
 - Covers AC3. Duplicate completion callback with same `transactionId` grants reward
@@ -1046,6 +1162,22 @@ achievement state.
   **during** checkpoint-0a `persistActiveCompletionTransaction()`: the fact is **not** marked
   processed, no wallet baseline / `pendingSettlement` / outbox / unlock is written, and a
   subsequent retry grants exactly once (no achievement committed under a non-durable id).
+- **Checkpoint-0pre progression durability + abort (break #2).** (a) Simulate a broad-`save()`
+  tear where `COINS` persisted but the progression keys (BEST_TIMES/STREAK_DAYS/STREAK_LAST_DATE/
+  TOTAL_LEVELS_COMPLETED) did **not**, over a transaction whose `completionStatsRegistered` is
+  `true`. The strict `persistCompletionProgress()` re-writes those keys before checkpoint 0a, so a
+  crash+reload sees durable progression **matching** the true flag (streak/best/total advanced),
+  and a retry does **not** skip `registerLevelComplete` over stale stats. (b) Inject a throw
+  **during** `persistCompletionProgress()` (including after only some progression keys land): the
+  fact is **not** marked processed, no transaction-identity/wallet/record state is written, and a
+  reload+retry either re-runs registration cleanly or sees matching durable stats — never a true
+  flag over stale progression.
+- **No-reward completion occurrence durability (break #3).** A completion fact that only advances
+  progress (crosses no reward threshold) still runs checkpoints 0pre + 0a. After a **pre-existing
+  base-save tear** (COINS persisted, ACTIVE_COMPLETION_TRANSACTION did not), applying the
+  progress-only fact re-persists the transaction id via 0a; a crash+reload then finds the **same**
+  transaction id, and a duplicate completion callback is deduped (empty delta) — the no-reward path
+  cannot mint a new id and double-count progress.
 - **Checkpoint-0b baseline abort (break #4).** Inject a throw during the checkpoint-0b
   `persistWallet()` (including after only some wallet keys land). The fact is **not** marked
   processed, no `pendingSettlement`/outbox/unlock is written, and a subsequent reload+retry
@@ -1177,7 +1309,9 @@ adaptation.
 `games/find_the_dog/src/analytics/CanonicalAnalyticsEvents.ts`,
 `games/find_the_dog/src/analytics/AnalyticsService.ts`,
 `games/find_the_dog/src/analytics/GameAnalyticsEvents.ts`,
-`games/find_the_dog/tests/unit/achievement-analytics.test.ts`.
+`games/find_the_dog/tests/unit/achievement-analytics.test.ts`,
+`games/find_the_dog/tests/unit/purchase-funnel-analytics.test.ts` (extend the existing
+primary-dimension superset gate to cover the achievement rows — break #4).
 
 **Approach (compose the full typed stack — KTD6 breaks #1/#3):**
 - **`FtdEvent` + service methods (AnalyticsService.ts).** Add `achievement_progress`,
@@ -1198,7 +1332,10 @@ adaptation.
   `compactCustomFields` drops any key not listed (GameAnalyticsEvents.ts:150-177).
   The `AchievementReconciliationAnomalyPayload` type carries a concrete
   `wallet_component: string` naming the torn component, and the anomaly canonical row lists it
-  in both `primaryDimensions` and `allowedGameAnalyticsCustomFields`; a U6 sink test dispatches
+  in `primaryDimensions` **and** `allowedGameAnalyticsCustomFields`, **and `wallet_component` is
+  added to find_the_dog's `dashboardImportDimensionKeys`** (break #4 — the
+  `purchase-funnel-analytics.test.ts` superset gate requires every `primaryDimension` to appear in
+  that allowlist, else import rejects/drops the field); a U6 sink test dispatches
   a real anomaly event and asserts `wallet_component` survives `compactCustomFields`.
 - **Design mapping (GameAnalyticsEvents.ts).** Add `achievement:progress`/`:unlocked`/
   `:reward:granted`/`:reconciliation:anomaly` **and the later-UI `achievement:viewed`/
@@ -1224,8 +1361,11 @@ adaptation.
   `analytics.achievement*` call type-checks (a plain `{ name: union; payload: union }` shape
   would NOT narrow the independently-typed payload — the red-team break). It also owns a pure
   `deltaToEvents(committedDelta)` mapper that reads each `GrantedReward.achievementId` to
-  associate reward events with their unlock and assigns each event a deterministic `eventId`
-  (`<occurrenceId>:<eventKind>:<achievementId>`); it is well-defined for multi-unlock deltas
+  associate reward events with their unlock and assigns each event a deterministic **bounded
+  ≤96-char** `eventId` (`<eventKind>:<achievementId>:<shortHash(occurrenceId)>` with capped
+  segments — break #5, so a long completion occurrence id cannot truncate to a colliding value
+  through `compactCustomFields`'s 96-char slice); the same bounded value is written to both
+  `eventId` and the payload's `event_id`. It is well-defined for multi-unlock deltas
   and unlocks without rewards. Add thin `analytics.achievement*` methods to `AnalyticsService`
   mirroring `dogFound`/`resourceChanged` (AnalyticsService.ts:297-345), **plus one public
   `dispatchAchievementEvent(event: PendingAnalyticsEvent)` with an exhaustive `never`-checked
@@ -1273,6 +1413,10 @@ adaptation.
   `eventId` in `analyticsOutbox` for re-dispatch; the test asserts the event is retained, not
   that any provider received it.
 - Canonical event definitions typecheck against `CanonicalAnalyticsEventDefinition`.
+- **Primary-dimension superset holds (break #4).** The extended `purchase-funnel-analytics.test.ts`
+  superset gate passes for the achievement rows — every achievement `primaryDimension` (including
+  the anomaly row's `wallet_component`) is present in find_the_dog's `dashboardImportDimensionKeys`;
+  a row whose `primaryDimensions` names a key missing from that allowlist fails the gate.
 - **`sdk.track` composes (break #1).** A test constructs each `analytics.achievement*` call
   and asserts it type-checks against `Analytics<FtdEvent>` — i.e. the event name is in the
   `FtdEvent` union — proving canonical rows alone are insufficient.
@@ -1302,6 +1446,13 @@ adaptation.
 - **`event_id` survives compaction (correction 2).** A dispatched achievement event's
   `event_id` is present in the emitted `designEvent` after both `compactParams` and
   `compactCustomFields` (on the allow-list, not stripped).
+- **Bounded `event_id` does not truncate or collide (break #5).** Build events from two
+  **distinct** completion occurrences whose raw occurrence ids are **long** (>96 chars, e.g. long
+  synthetic level ids). Assert (a) each derived `event_id` is **≤96 chars** so
+  `compactCustomFields`'s 96-char slice is a no-op — the wire `event_id` equals the journaled
+  `PendingAnalyticsEvent.eventId` byte-for-byte; and (b) the two occurrences yield **different**
+  `event_id`s through the sink (no truncation collapse), so downstream analysis-time dedupe keeps
+  them distinct.
 - Analytics never mutates progress/unlocked/settlement — it only reads the delta and
   drains `analyticsOutbox`.
 
@@ -1447,6 +1598,23 @@ completion transaction to close it.
   `analyticsOutbox` (not a fire-and-drop emit) before persisting the record, so the
   post-composition drain dispatches it (correction 6); U3 mismatch → pre-composition-persist +
   post-composition-drain test.
+- **Mastery fold needs a fact the delta doesn't carry (latest break #1).** `apply()` derives
+  `masteredLevelIdsAdded` onto the delta from `fact.levelId`/`fact.newBest`, and
+  `applyDeltaToRecord` folds that field with no fact dependency; U2 delta-driven repeat-best test.
+- **True `completionStatsRegistered` flag over stale progression (latest break #2).** A new
+  error-propagating `persistCompletionProgress()` (checkpoint 0pre) strictly persists
+  BEST_TIMES/STREAK_DAYS/STREAK_LAST_DATE/TOTAL_LEVELS_COMPLETED before the transaction identity
+  write, so a reload never sees the true flag over stale stats; U3 per-progression-key fault tests.
+- **Progress-only completion re-mints its transaction id (latest break #3).** Checkpoints 0pre/0a
+  run for **every** `LevelCompletionFact` (not just reward-granting ones), so a no-reward
+  completion's occurrence id is durable before its record commit; U3 no-reward torn-save dedupe test.
+- **Anomaly `wallet_component` rejected by dashboard import (latest break #4).** `wallet_component`
+  is added to find_the_dog's `dashboardImportDimensionKeys`, satisfying the
+  `purchase-funnel-analytics.test.ts` primary-dimension superset gate; U6 extended superset test.
+- **Long `event_id` truncates/collides on the wire (latest break #5).** `deltaToEvents` derives a
+  deterministic ≤96-char `event_id` (`<kind>:<achievementId>:<shortHash(occurrenceId)>`, capped
+  segments) stored in both the outbox entry and the payload, so `compactCustomFields`'s 96-char
+  slice never changes it and distinct long occurrences stay distinct; U6 bounded/distinct id test.
 
 ---
 
@@ -1471,7 +1639,11 @@ exercised, mirroring existing `registerLevelComplete` test style.
    with zero adaptation.
 2. Progress, threshold crossing, ordering, persistence/relaunch, retroactive
    evaluation, malformed/legacy data, duplicate occurrences, reward idempotency,
-   fault-injected torn writes at the **checkpoint-0a transaction-identity write**, the
+   fault-injected torn writes at the **checkpoint-0pre completion-progression write** (each of
+   BEST_TIMES/STREAK_DAYS/STREAK_LAST_DATE/TOTAL_LEVELS_COMPLETED — so a true
+   `completionStatsRegistered` flag never sits over stale progression), the **checkpoint-0a
+   transaction-identity write** (running for **every** completion fact incl. progress-only/no-reward
+   so a no-reward completion cannot re-mint its id), the
    **checkpoint-0b wallet baseline**, and every later settlement
    checkpoint **and after every individual wallet key** (transaction id durable before any
    achievement commit so a crash cannot re-mint an id and double-grant; grant recovered
@@ -1481,7 +1653,9 @@ exercised, mirroring existing `registerLevelComplete` test style.
    the documented `LevelCompletionFact` builder mapping incl. `timeSeconds ←
    transaction.timeSeconds` (break #4), fallback serving, multi-event
    analytics emission recovery from a durable outbox (journaled in checkpoint 1, before the
-   wallet write), persisted distinct-level mastery that does not re-increment on reload,
+   wallet write), persisted distinct-level mastery that does not re-increment on reload (folded
+   from the delta's own `masteredLevelIdsAdded`, break #1 — no hidden fact dependency in
+   `applyDeltaToRecord`),
    committed `achievementId`-tagged post-cap
    rewards, the additive `CompletionTransactionResult.achievementCommit` field (existing consumer
    fields intact), the **preserved (un-narrowed) completion-reuse guard** with per-transaction
@@ -1494,14 +1668,19 @@ exercised, mirroring existing `registerLevelComplete` test style.
    `coinsGranted`/`hintsGranted` (never the `levelCompleteCoinGrants`/`rewardedHintGrants`
    occurrence counts); `'achievement'` is added to `WalletMutationSource` and the real wallet
    methods compose; no dependency added (AC6).
-4. Analytics contract emits progress/unlock/reward once-per-occurrence (stable snake_case
-   `event_id` per event proven to survive `compactParams`/`compactCustomFields`, durable outbox
+4. Analytics contract emits progress/unlock/reward once-per-occurrence (stable, **bounded ≤96-char**
+   snake_case `event_id` per event — `<kind>:<achievementId>:<shortHash(occurrenceId)>` with capped
+   segments (break #5) so a long completion occurrence id never truncates/collides through
+   `compactCustomFields`'s 96-char slice — proven to survive `compactParams`/`compactCustomFields`
+   and to stay distinct across long occurrences, durable outbox
    for recovery), **composes through the whole typed stack** — achievement
    names in the `FtdEvent` union + typed `analytics.achievement*` methods **and one public
    `dispatchAchievementEvent` exhaustive-switch dispatcher over the discriminated-union
    `PendingAnalyticsEvent` (narrows payload per `name`, break #2)** (no private-`sdk`/dynamic
    access) so `sdk.track` type-checks and drain routes safely, canonical rows with
-   `allowedGameAnalyticsCustomFields` (incl. the anomaly's `wallet_component`, break #3), and the
+   `allowedGameAnalyticsCustomFields` (incl. the anomaly's `wallet_component`, break #3, which is
+   also added to find_the_dog's `dashboardImportDimensionKeys` to satisfy the primary-dimension
+   superset gate, latest break #4), and the
    `canonicalEventIdForDesignEvent` mapping (including
    the later-UI `achievement:viewed`/`achievement:page:viewed` ids) so the GameAnalytics sink
    carries (not drops) `achievement_id`/`event_id`/`progress`/`threshold`/applied reward fields —
