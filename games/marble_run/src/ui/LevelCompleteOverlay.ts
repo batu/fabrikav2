@@ -3,10 +3,9 @@ import type { LevelData } from '../data/levels';
 import { playClaim, playLevelComplete, playUITap } from '../audio/AudioManager';
 import { scaffoldEvents } from '../core/ScaffoldEvents';
 import { showRatePromptWithHandle, type RatePromptHandle } from './RatePrompt';
-import { animateCoinsToBalance } from './EconomyTransfer';
 import { showSceneTransitionCover } from './SceneTransitionCover';
-import { mountLevelComplete, type CoinTransfer, type ThemeTokens, type UiHandle } from '../v1core/ui';
-import { FTD_UI_THEME } from './ftdTheme';
+import { buildButtonElement, mountResultCard, type UiHandle } from '@fabrikav2/ui';
+import { assetUrls } from '../../design/theme';
 
 export interface LevelCompleteOverlayOptions {
   /** Seconds this attempt took. Required — drives the ⏱ readout. */
@@ -31,64 +30,22 @@ export interface LevelCompleteOverlayResult {
   nextLevelData: LevelData | null;
 }
 
-const COMPLETION_CONFETTI_SRC = '/ui/effects/confetti-side-burst.png';
-const COMPLETION_CONFETTI_FALL_SRC = '/ui/effects/confetti-fall.png';
-const COMPLETION_TITLE_SRC = '/ui/level-complete/level-complete-title.png';
-const COMPLETION_MASCOT_SRC = '/ui/level-complete/dog-detective-complete.png';
-const COMPLETION_COIN_ICON_SRC = '/ui/menu-icons/icon_coin.png';
-// SVG mirror of the CSS-drawn rewardedAdIconMarkup badge (the 2x button's "AD +
-// play" cue). Core renders the 2x icon as an <img> from --fab-complete-adicon-url,
-// so the badge ships as an FTD asset rather than injected markup.
-const COMPLETION_AD_BADGE_SRC = '/ui/level-complete/rewarded-ad-badge.svg';
+const COMPLETION_TITLE_SRC = assetUrls.ribbonCompleted;
+const COMPLETION_COIN_ICON_SRC = assetUrls.coinIcon;
 
-// The fast-E2E gate stays in FTD; core never reads import.meta.env. The gate
-// only chooses which timing-token VALUES we inject via the theme below.
-const fastE2EUi = String(import.meta.env.VITE_FTD_FAST_E2E_UI) === 'true';
-
-// Exported for parity with the pre-extraction surface (no current importers,
-// but other modules historically referenced the entrance/reveal constants).
+// Retained exports for callers that historically referenced the entrance/reveal
+// constants. The sugar ResultCard does not run the old count-up sequence.
 export const LEVEL_COMPLETE_ENTRANCE_MS = 620;
-export const LEVEL_COMPLETE_REWARD_REVEAL_DELAY_MS = fastE2EUi ? 80 : 4200;
-export const LEVEL_COMPLETE_REWARD_REVEAL_MS = fastE2EUi ? 40 : 860;
+export const LEVEL_COMPLETE_REWARD_REVEAL_DELAY_MS = 4200;
+export const LEVEL_COMPLETE_REWARD_REVEAL_MS = 860;
 
-// The overlay root id. Kept as the pre-extraction id (rather than core's default
-// 'fab-level-complete') so GameScene's shutdown teardown — which removes
-// '#level-complete-overlay' and toggles '#hud-overlay.completion-mode' — stays
-// unchanged, and so the '#hud-overlay.completion-mode > :not(#level-complete-
-// overlay)' sibling-hide rule still matches.
 const OVERLAY_ID = 'level-complete-overlay';
 
-/**
- * FTD level-complete art + timing as ../v1core/ui --fab-complete-* tokens.
- * Art URLs mirror the pre-extraction asset constants; timings are computed from
- * the fast-E2E gate so the env stays in FTD. The 2x button's rewarded-ad badge
- * (previously the CSS-drawn rewardedAdIconMarkup) ships as an SVG asset injected
- * via --fab-complete-adicon-url, since core renders that icon as an <img>.
- */
-const FTD_COMPLETE_THEME: ThemeTokens = {
-  '--fab-complete-title-url': `url('${COMPLETION_TITLE_SRC}')`,
-  '--fab-complete-mascot-url': `url('${COMPLETION_MASCOT_SRC}')`,
-  '--fab-complete-coin-icon-url': `url('${COMPLETION_COIN_ICON_SRC}')`,
-  '--fab-complete-confetti-burst-url': `url('${COMPLETION_CONFETTI_SRC}')`,
-  '--fab-complete-confetti-fall-url': `url('${COMPLETION_CONFETTI_FALL_SRC}')`,
-  '--fab-complete-adicon-url': `url('${COMPLETION_AD_BADGE_SRC}')`,
-  '--fab-complete-entrance-ms': `${LEVEL_COMPLETE_ENTRANCE_MS}ms`,
-  '--fab-complete-reward-reveal-delay-ms': `${fastE2EUi ? 80 : 4200}ms`,
-  '--fab-complete-reward-reveal-ms': `${fastE2EUi ? 40 : 860}ms`,
-  '--fab-complete-actions-delay-ms': `${fastE2EUi ? 0 : 260}ms`,
-  '--fab-complete-coin-count-ms': `${fastE2EUi ? 0 : 760}ms`,
-  '--fab-complete-message-interval-ms': '1600ms',
-};
-
-// Cache the warm-up promise per src (the decoded <img> itself is no longer
-// retained — core builds its own <img> elements from the theme tokens; this
-// only primes the browser's HTTP/image cache so those render instantly).
 const completionImageCache = new Map<string, Promise<void>>();
 
 function preloadCompletionImage(src: string): Promise<void> {
   const cached = completionImageCache.get(src);
   if (cached) return cached;
-
   const image = new Image();
   image.loading = 'eager';
   image.decoding = 'async';
@@ -101,58 +58,68 @@ function preloadCompletionImage(src: string): Promise<void> {
 
 let completionAssetsReady: Promise<void> | null = null;
 
-/**
- * Warm the HTTP cache for the celebration art before the overlay mounts. Stays
- * in FTD: core renders plain `<img>`/CSS-content images, so this preload makes
- * those resolve from cache for instant paint (the decode-clone micro-opt the
- * old single-file overlay used is dropped, per the extraction plan).
- */
+/** Warm the HTTP cache for the win-card art before the overlay mounts. */
 export function preloadLevelCompleteAssets(): Promise<void> {
   completionAssetsReady ??= Promise.all([
-    preloadCompletionImage(COMPLETION_CONFETTI_SRC),
-    preloadCompletionImage(COMPLETION_CONFETTI_FALL_SRC),
-    preloadCompletionImage(COMPLETION_TITLE_SRC),
-    preloadCompletionImage(COMPLETION_MASCOT_SRC),
+    preloadCompletionImage(assetUrls.popup),
+    preloadCompletionImage(assetUrls.ribbonCompleted),
+    preloadCompletionImage(assetUrls.crown),
+    preloadCompletionImage(assetUrls.nextText),
   ]).then(() => undefined);
   return completionAssetsReady;
 }
 
-/**
- * Show the Well Done overlay. Resolves when the player has dismissed it
- * (Next Level tapped, post-prompt flow resolved, currentLevelIndex
- * advanced). Caller restarts the scene after await.
- *
- * Thin wrapper over ../v1core/ui `mountLevelComplete`: FTD owns the side
- * effects (audio, scaffold event, asset preload), the re-entrancy guard, the
- * theme (art + timings), and the meaning injected via callbacks (coin-fly,
- * rate prompt, advance). Core owns the celebration presentation + sequencing.
- */
-// The live overlay's core handle, so scene shutdown can dismiss it properly
-// (abort the signal → run cleanups → clear timers → resolve dismissed), rather
-// than only raw-removing the DOM node (which would defeat core's signal guards
-// and leak its scheduled timers). Single overlay at a time, so one ref suffices.
 let activeLevelCompleteHandle: UiHandle | null = null;
 
-/**
- * Dismiss the live level-complete overlay, if any (idempotent). Call this from
- * scene shutdown INSTEAD of raw-removing #level-complete-overlay so core's
- * close() runs: aborts the AbortSignal its callbacks observe, clears its
- * scheduled timeouts + message interval, and resolves `dismissed`.
- */
+/** Dismiss the live level-complete overlay, if any (idempotent). */
 export function dismissLevelCompleteOverlay(): void {
   activeLevelCompleteHandle?.dismiss();
 }
 
+function buildCrown(): HTMLElement {
+  const wrap = document.createElement('div');
+  const img = document.createElement('img');
+  img.src = assetUrls.crown;
+  img.alt = '';
+  img.setAttribute('aria-hidden', 'true');
+  img.style.width = '100%';
+  img.style.height = '100%';
+  img.style.objectFit = 'contain';
+  wrap.appendChild(img);
+  return wrap;
+}
+
+function buildRewardRow(amount: number): HTMLElement {
+  const row = document.createElement('div');
+  row.className = 'marble-reward-row';
+  const rewardText = document.createElement('img');
+  rewardText.className = 'marble-reward-text';
+  rewardText.src = assetUrls.rewardText;
+  rewardText.alt = 'Reward';
+  const coin = document.createElement('img');
+  coin.src = COMPLETION_COIN_ICON_SRC;
+  coin.alt = '';
+  coin.setAttribute('aria-hidden', 'true');
+  const value = document.createElement('span');
+  value.className = 'marble-reward-value';
+  value.textContent = `+${amount}`;
+  row.append(rewardText, coin, value);
+  return row;
+}
+
+/**
+ * Show the level-complete card. Resolves when the player taps Next (advance +
+ * persist already applied). Sugar-skinned kit ResultCard replaces the v1core
+ * mountLevelComplete DOM; the claim-×2 rewarded-ad economy is preserved via a
+ * green CLAIM 2x action, but the coin count-up / reward-reveal animation is
+ * dropped (see docs/shell-parity-gaps.md).
+ */
 export function showLevelCompleteOverlay(
   levelId: string,
   options: LevelCompleteOverlayOptions,
 ): Promise<LevelCompleteOverlayResult> {
   const overlay = document.getElementById('hud-overlay');
   if (!overlay) return Promise.resolve({ nextLevelData: null });
-  // Re-entrancy: FTD semantics. If an overlay already exists, early-return a
-  // resolved no-op (NOT core's live-handle re-entrancy — handing the caller an
-  // in-flight overlay's handle would skew restart timing / drop the second
-  // completion's data).
   if (document.getElementById(OVERLAY_ID)) {
     return Promise.resolve({ nextLevelData: null });
   }
@@ -160,114 +127,95 @@ export function showLevelCompleteOverlay(
   playLevelComplete();
   scaffoldEvents.emit('level:complete', { levelId });
   void preloadLevelCompleteAssets();
-
-  // Balance pill starts at (balance − baseCoins) and counts up to the new
-  // balance as coins fly in (mirrors the pre-extraction overlay).
-  const balanceBefore = Math.max(0, options.coinBalance - options.baseCoins);
+  void COMPLETION_TITLE_SRC;
 
   overlay.classList.add('completion-mode');
 
-  // The wrapper owns the public result Promise. It resolves ONLY on the Next
-  // path (nextClicked) after core closes — bare external dismiss leaves it
-  // pending forever, identical to the pre-extraction state machine (Fork 1).
   let nextClicked = false;
   let resolvePublic: (result: LevelCompleteOverlayResult) => void;
   const publicResult = new Promise<LevelCompleteOverlayResult>((resolve) => {
     resolvePublic = resolve;
   });
 
-  const handle = mountLevelComplete({
-    mountInto: overlay,
-    id: OVERLAY_ID,
-    theme: { ...FTD_UI_THEME, ...FTD_COMPLETE_THEME },
-    content: {
-      messages: ['Level Clear!', 'Great Find!', 'Nice Work!'],
-      rewardLabel: 'Coins earned',
-      rewardAmount: options.baseCoins,
-      balanceBefore,
-      claimLabel: 'CLAIM',
-      nextLabel: 'Next Level',
-      nextLoadingLabel: 'Loading…',
-      ...(options.claimX2Available
-        ? {
-            claimDouble: {
-              label: 'CLAIM 2x',
-              sublabel: 'Watch ad',
-              loadingLabel: 'WAIT...',
-              loadingSublabel: 'Loading ad',
-              unavailableLabel: 'TRY LATER',
-              unavailableSublabel: 'Ad unavailable',
-              doubledRewardLabel: 'Doubled coins',
-            },
-          }
-        : {}),
-    },
-    actions: {
-      onClaim: async (transfer: CoinTransfer): Promise<void> => {
+  const levelNumber = gameState.currentLevelIndex + 1;
+  const rewardRow = buildRewardRow(options.baseCoins);
+  const rewardValue = rewardRow.querySelector<HTMLElement>('.marble-reward-value');
+
+  const actions = document.createElement('div');
+  actions.className = 'fab-modal-actions';
+
+  let claimBtn: HTMLButtonElement | null = null;
+  if (options.claimX2Available && options.onClaimX2 !== undefined) {
+    claimBtn = buildButtonElement({
+      label: 'Claim 2x',
+      dataAction: 'result-claim-x2',
+      className: 'marble-result-action marble-claim-x2',
+      spriteImage: assetUrls.buttonGreen,
+      onClick: () => {
+        if (!claimBtn) return;
+        claimBtn.disabled = true;
+        claimBtn.textContent = 'Loading…';
         playClaim();
-        await animateCoinsToBalance({
-          amount: transfer.amount,
-          source: transfer.source,
-          owner: transfer.root,
-          countElement: transfer.balanceCountEl,
-          fromValue: balanceBefore,
-          toValue: transfer.targetBalance,
-          tokenMultiplier: transfer.tokenMultiplier,
-          reducedMotion: transfer.reducedMotion,
+        void options.onClaimX2!().then((result) => {
+          if (result.granted && rewardValue) {
+            rewardValue.textContent = `+${options.baseCoins * 2}`;
+          }
+          claimBtn?.remove();
+          claimBtn = null;
         });
       },
-      onClaimDouble: options.onClaimX2 === undefined
-        ? undefined
-        : async (): Promise<{ granted: boolean; coinBalance: number }> => {
-            playClaim();
-            return options.onClaimX2!();
-          },
-      onNext: async (signal: AbortSignal): Promise<void> => {
-        nextClicked = true;
+    });
+    actions.appendChild(claimBtn);
+  }
 
-        // Advance + persist the level index IMMEDIATELY on Next-Level click.
-        // Rationale: the click itself is the player's consent to advance. If
-        // shutdown fires mid-rate-prompt-await below, the shutdown path
-        // resolves the prompt Promise → this handler resumes → the
-        // scene.restart guard skips — but ANY persistent mutation here has
-        // already landed. Doing it upfront means the save reflects the
-        // player's actual intent (they clicked) rather than being
-        // conditional on the subsequent async path surviving shutdown.
-        gameState.markActiveCompletionAdvanced(gameState.currentLevelIndex + 1);
-        // Do not eager-load the next level here. On Android this can leave the
-        // completion overlay stuck on "Loading..." when the WebView is busy
-        // around ads/assets. Persist the advancement and let GameScene's normal
-        // startup path load the selected wrapped content after restart.
+  const runNext = (): void => {
+    if (nextClicked) return;
+    nextClicked = true;
+    playUITap();
+    // The click is the player's consent to advance — persist immediately.
+    gameState.markActiveCompletionAdvanced(gameState.currentLevelIndex + 1);
 
-        // Rate prompt: one-shot at the 5th total level-complete. The prompt
-        // runs AFTER index persistence so shutdown-mid-prompt doesn't
-        // corrupt state either way — the click-advance is already on disk.
-        if (gameState.shouldShowRatePrompt()) {
-          const promptHandle = showRatePromptWithHandle();
-          options.onRatePromptHandle?.(promptHandle);
-          try {
-            await promptHandle.dismissed;
-          } finally {
-            options.onRatePromptHandle?.(null);
-          }
-        }
+    const finish = (): void => {
+      showSceneTransitionCover();
+      handle.dismiss();
+    };
 
-        // Short-circuit the transition-cover tail if the overlay was dismissed
-        // mid-await (e.g. scene shutdown unblocked the rate prompt).
-        if (!signal.aborted) showSceneTransitionCover();
-      },
-      onInteract: (): void => {
-        playUITap();
-      },
-    },
+    if (gameState.shouldShowRatePrompt()) {
+      const promptHandle = showRatePromptWithHandle();
+      options.onRatePromptHandle?.(promptHandle);
+      void promptHandle.dismissed.finally(() => {
+        options.onRatePromptHandle?.(null);
+        finish();
+      });
+      return;
+    }
+    finish();
+  };
+
+  const nextBtn = buildButtonElement({
+    label: 'Next',
+    ariaLabel: 'Next level',
+    dataAction: 'result-next',
+    className: 'marble-result-action marble-result-next',
+    spriteImage: assetUrls.nextText,
+    onClick: runNext,
+  });
+  actions.appendChild(nextBtn);
+
+  const handle = mountResultCard({
+    mountInto: overlay,
+    id: OVERLAY_ID,
+    variant: 'win',
+    title: 'Completed',
+    eyebrow: `Level ${levelNumber}`,
+    ribbonImage: assetUrls.ribbonCompleted,
+    cardImage: assetUrls.popup,
+    art: buildCrown(),
+    rewardDisplay: rewardRow,
+    actions,
   });
   activeLevelCompleteHandle = handle;
 
-  // Public result resolves exactly once, on the Next path, after core closes
-  // and resolves `dismissed`. Bare dismiss (no Next) → nextClicked false →
-  // stays pending (parity with pre-extraction). Drop completion-mode here so a
-  // bare dismiss (which never re-runs GameScene's teardown) doesn't leave the
-  // hud-overlay stuck hiding its siblings.
   void handle.dismissed.then(() => {
     if (activeLevelCompleteHandle === handle) activeLevelCompleteHandle = null;
     overlay.classList.remove('completion-mode');

@@ -2,6 +2,8 @@ import { playLevelFail, playUITap } from '../audio/AudioManager';
 import { scaffoldEvents } from '../core/ScaffoldEvents';
 import type { FailContinueOfferSet, FailContinueOption, FailContinueOptionKind } from '../shop/FailContinueOffers';
 import type { IapCatalogProductSnapshot } from '../shop/IapService';
+import { mountResultCard, type UiHandle } from '@fabrikav2/ui';
+import { assetUrls } from '../../design/theme';
 
 export interface FailContinueActionResult {
   resumed: boolean;
@@ -26,10 +28,24 @@ type PendingKind = Exclude<FailContinueOptionKind, 'retry'> | null;
 
 const OFFER_REFRESH_MS = 250;
 const EGO_OFFER_PENDING_RECOVERY_MS = 15_000;
-const FAIL_MASCOT_SRC = '/ui/level-complete/dog-detective-crying.png';
-const COIN_ICON_SRC = '/ui/menu-icons/icon_coin.png';
+const COIN_ICON_SRC = assetUrls.coinIcon;
 const HINT_ICON_SRC = '/ui/menu-icons/icon_hint_magnifier.png';
 const HEART_ICON_SRC = '/ui/menu-icons/icon_heart.png';
+
+const OVERLAY_ID = 'level-failed-overlay';
+
+function buildFailIcon(): HTMLElement {
+  const wrap = document.createElement('div');
+  const img = document.createElement('img');
+  img.src = assetUrls.iconFailed;
+  img.alt = '';
+  img.setAttribute('aria-hidden', 'true');
+  img.style.width = '100%';
+  img.style.height = '100%';
+  img.style.objectFit = 'contain';
+  wrap.appendChild(img);
+  return wrap;
+}
 
 let pendingRecoveryMsForTest: number | null = null;
 
@@ -44,18 +60,23 @@ function egoOfferPendingRecoveryMs(): number {
 export function showLevelFailedOverlay(levelId: string, options: LevelFailedOverlayOptions): void {
   const overlay = document.getElementById('hud-overlay');
   if (!overlay) return;
-  if (document.getElementById('level-failed-overlay')) return;
+  if (document.getElementById(OVERLAY_ID)) return;
 
   playLevelFail();
   scaffoldEvents.emit('level:fail', { levelId });
 
-  const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-  const el = document.createElement('div');
-  el.id = 'level-failed-overlay';
-  el.setAttribute('role', 'dialog');
-  el.setAttribute('aria-modal', 'true');
-  el.setAttribute('aria-labelledby', 'level-failed-title');
-  el.tabIndex = -1;
+  // Persistent slots the ResultCard owns; render() only rebuilds the offer
+  // buttons + status text, preserving the offer/pending/refresh economy intact
+  // (only the surrounding chrome is now the sugar kit ResultCard).
+  const optionsContainer = document.createElement('div');
+  optionsContainer.id = 'fail-options';
+  optionsContainer.className = 'fail-options fail-rescue-options';
+  const statusEl = document.createElement('p');
+  statusEl.id = 'fail-continue-status';
+  statusEl.className = 'fail-status';
+  statusEl.setAttribute('aria-live', 'polite');
+
+  const isOpen = (): boolean => handle?.el.isConnected ?? false;
 
   let pendingKind: PendingKind = null;
   let backgroundPendingKind: PendingKind = null;
@@ -81,7 +102,7 @@ export function showLevelFailedOverlay(levelId: string, options: LevelFailedOver
 
     const recoveryTimer = kind === 'egoOffer'
       ? window.setTimeout(() => {
-        if (!el.isConnected || pendingKind !== kind) return;
+        if (!isOpen() || pendingKind !== kind) return;
         backgroundPendingKind = kind;
         backgroundPendingSuperseded = false;
         statusMessage = 'Purchase is still processing. You can retry or choose another option; rewards apply if it finishes.';
@@ -90,7 +111,7 @@ export function showLevelFailedOverlay(levelId: string, options: LevelFailedOver
       : null;
 
     const result = await action(option, {
-      shouldResume: () => el.isConnected && (
+      shouldResume: () => isOpen() && (
         pendingKind === kind || (backgroundPendingKind === kind && !backgroundPendingSuperseded)
       ),
     });
@@ -102,7 +123,7 @@ export function showLevelFailedOverlay(levelId: string, options: LevelFailedOver
     } else if (backgroundPendingKind !== null && result.resumed) {
       backgroundPendingSuperseded = true;
     }
-    if (result.resumed || !el.isConnected) return;
+    if (result.resumed || !isOpen()) return;
     statusMessage = result.message ?? 'Try another option.';
     if (pendingKind === kind) pendingKind = null;
     render();
@@ -122,24 +143,8 @@ export function showLevelFailedOverlay(levelId: string, options: LevelFailedOver
     const coinBalance = options.getCoinBalance();
     const iapProducts = options.getIapProducts();
     lastRenderSignature = renderSignature(offers, coinBalance, iapProducts, pendingKind, backgroundPendingKind, statusMessage);
-    el.innerHTML = `
-      <div class="fail-rescue-balance" aria-label="Coin balance">
-        <img src="${COIN_ICON_SRC}" alt="" aria-hidden="true">
-        <span>${coinBalance.toLocaleString('en-US')}</span>
-      </div>
-      <section class="fail-card fail-rescue-card" aria-describedby="fail-continue-status">
-        <h2 id="level-failed-title" class="level-failed-title-art"><img src="/ui/level-complete/out-of-lives-title.png" alt="Out of Lives"></h2>
-        <div class="fail-rescue-art" aria-hidden="true">
-          <span class="fail-rescue-halo"></span>
-          <img class="fail-rescue-mascot" src="${FAIL_MASCOT_SRC}" alt="">
-        </div>
-        <div id="fail-options" class="fail-options fail-rescue-options"></div>
-        <p id="fail-continue-status" class="fail-status" aria-live="polite">${escapeHtml(statusMessage)}</p>
-      </section>
-    `;
-
-    const container = el.querySelector<HTMLDivElement>('#fail-options');
-    if (!container) return;
+    statusEl.textContent = statusMessage;
+    optionsContainer.replaceChildren();
 
     const primaryRow = document.createElement('div');
     primaryRow.className = 'fail-primary-actions';
@@ -156,26 +161,27 @@ export function showLevelFailedOverlay(levelId: string, options: LevelFailedOver
       button.addEventListener('click', retry);
       primaryRow.appendChild(button);
     }
-    container.appendChild(primaryRow);
+    optionsContainer.appendChild(primaryRow);
 
     for (const offer of offers.filter((candidate) => candidate.kind === 'egoOffer')) {
       const button = buttonForOffer(offer, iapProducts, pendingKind, backgroundPendingKind);
       button.addEventListener('click', () => void runAction('egoOffer', offer, options.onEgoOffer));
-      container.appendChild(button);
+      optionsContainer.appendChild(button);
     }
     // Fly the options in on the FIRST paint only — later re-renders (price
     // refresh, pending states) must not replay the entrance.
     if (!entranceApplied) {
       entranceApplied = true;
-      container.classList.add('fail-fly-in');
-      container.querySelectorAll<HTMLElement>('.fail-option').forEach((button, i) => {
+      optionsContainer.classList.add('fail-fly-in');
+      optionsContainer.querySelectorAll<HTMLElement>('.fail-option').forEach((button, i) => {
         button.style.setProperty('--fly-delay', `${i * 80}ms`);
       });
     }
     focusPreferredAction();
   };
 
-  const focusableButtons = (): HTMLButtonElement[] => Array.from(el.querySelectorAll<HTMLButtonElement>('button'));
+  const focusableButtons = (): HTMLButtonElement[] =>
+    Array.from(optionsContainer.querySelectorAll<HTMLButtonElement>('button'));
 
   const focusPreferredAction = (): void => {
     const buttons = focusableButtons();
@@ -183,42 +189,33 @@ export function showLevelFailedOverlay(levelId: string, options: LevelFailedOver
       ?? buttons.find((button) => !button.disabled)
       ?? buttons[0];
     window.setTimeout(() => {
-      if (!el.isConnected) return;
-      (preferred ?? el).focus();
+      if (!isOpen()) return;
+      preferred?.focus();
     }, 0);
   };
 
-  const restoreFocus = (): void => {
-    if (previousFocus?.isConnected) previousFocus.focus();
-  };
-
   const closeOverlay = (): void => {
-    el.remove();
-    restoreFocus();
+    handle.dismiss();
   };
 
-  el.addEventListener('keydown', (event) => {
-    if (event.key !== 'Tab') return;
-    const buttons = focusableButtons().filter((button) => !button.disabled);
-    if (buttons.length === 0) {
-      event.preventDefault();
-      el.focus();
-      return;
-    }
-    const first = buttons[0];
-    const last = buttons[buttons.length - 1];
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first.focus();
-    }
+  // Sugar ResultCard (lose variant): Ribbon_Failed + Icon_Failed + v1 copy,
+  // Popup card. The offer buttons + status live in game-owned slots so their
+  // pending/refresh economy is preserved unchanged.
+  const handle: UiHandle = mountResultCard({
+    mountInto: overlay,
+    id: OVERLAY_ID,
+    variant: 'lose',
+    title: 'Failed',
+    ribbonImage: assetUrls.ribbonFailed,
+    cardImage: assetUrls.popup,
+    art: buildFailIcon(),
+    messages: ['No hearts left!', 'Watch an ad to continue.'],
+    continueOffer: statusEl,
+    actions: optionsContainer,
   });
 
   render();
   scheduleOfferRefresh();
-  overlay.appendChild(el);
   focusPreferredAction();
 
   function scheduleOfferRefresh(): void {
@@ -227,7 +224,7 @@ export function showLevelFailedOverlay(levelId: string, options: LevelFailedOver
     offerRefreshScheduled = true;
     window.setTimeout(() => {
       offerRefreshScheduled = false;
-      if (!el.isConnected) return;
+      if (!isOpen()) return;
       if (pendingKind === null) {
         const offers = options.getOffers().options;
         const coinBalance = options.getCoinBalance();
@@ -407,13 +404,4 @@ function ariaLabelForOffer(
   if (meta.length === 0) return `${title}.${coinStatusSuffix}`;
   if (offer.kind === 'coinContinue') return `${title} for ${meta}.${coinStatusSuffix}`;
   return `${title}. ${meta}.${stateSuffix}`;
-}
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
 }

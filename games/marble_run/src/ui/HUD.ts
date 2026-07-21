@@ -15,6 +15,8 @@ import { privacyConsentService } from '../privacy/PrivacyConsentService';
 import { notificationService } from '../notifications/NotificationService';
 import { rewardedAdIconMarkup } from './RewardedAdIcon';
 import { hideHomeMenuLayer } from './OverlayVisibility';
+import { mountSettings } from '../menu/settings';
+import type { UiHandle } from '@fabrikav2/ui';
 import { gameConfig } from '../../game.config';
 
 /** Shell feature toggle: hides the hint pill (and its top-up "+") entirely. */
@@ -111,7 +113,6 @@ export function initHUD(): void {
         <div id="coin-pill" class="hud-pill" data-economy-target="coins" aria-label="Coin balance">
           <img class="hud-pill-icon" src="/ui/menu-icons/icon_coin.png" alt="" aria-hidden="true" data-economy-anchor="coin">
           <span class="coin-count">${gameState.coinBalance}</span>
-          <button id="hud-coin-plus" class="home-pill-plus" type="button" aria-label="Buy more coins">+</button>
         </div>
         <button id="settings-btn" type="button" aria-label="Settings">
           <img class="hud-icon-img" src="/ui/menu-icons/icon_settings_gear.png" alt="" aria-hidden="true">
@@ -128,7 +129,6 @@ export function initHUD(): void {
         <img class="hud-pill-icon" src="/ui/menu-icons/icon_hint_magnifier.png" alt="" aria-hidden="true" data-economy-anchor="hint">
         <span class="hint-count">${gameState.hintsRemaining}</span>
       </button>
-      <button id="hud-hint-plus" class="home-pill-plus hud-hint-plus" type="button" aria-label="Buy more hints" hidden>+</button>
     </div>
   `;
 
@@ -151,22 +151,10 @@ export function initHUD(): void {
   const settingsBtn = document.getElementById('settings-btn');
   settingsBtn?.addEventListener('click', () => {
     playUITap();
-    openPage('settings');
-  });
-
-  // Currency top-up "+" badges: open the new full-screen shop page deep-linked
-  // to the relevant section (mirrors the home-menu currency pluses). openPage
-  // already guards against stacking a second page overlay.
-  const coinPlus = document.getElementById('hud-coin-plus');
-  coinPlus?.addEventListener('click', () => {
-    playUITap();
-    openPage('shop', { scrollTo: 'coins' });
-  });
-
-  const hintPlus = document.getElementById('hud-hint-plus');
-  hintPlus?.addEventListener('click', () => {
-    playUITap();
-    openPage('shop', { scrollTo: 'hints' });
+    // KTD2 (conductor ruling): the in-game pause/settings button opens the same
+    // sugar settings modal with the in-game (Restart + Home) variant. There is
+    // no separate PauseOverlay and no shop entry point.
+    openSettingsModal(true);
   });
 }
 
@@ -191,6 +179,36 @@ let homeCallback: (() => void) | null = null;
 
 export function setHomeCallback(cb: (() => void) | null): void {
   homeCallback = cb;
+}
+
+/**
+ * In-game restart seam. GameScene registers this so the pause/settings modal's
+ * Restart row can re-run the active level (v1 sugar3d in-game settings variant).
+ */
+let restartCallback: (() => void) | null = null;
+
+export function setRestartCallback(cb: (() => void) | null): void {
+  restartCallback = cb;
+}
+
+/** The single live settings/pause modal, so a second tap can't stack it. */
+let settingsModalHandle: UiHandle | null = null;
+
+/**
+ * Open the sugar settings modal (KTD2: pause == settings). Menu variant shows a
+ * Close row; the in-game variant adds Restart + Home rows bound to the HUD's
+ * registered callbacks.
+ */
+export function openSettingsModal(inGame: boolean): void {
+  const overlay = document.getElementById('hud-overlay');
+  if (!overlay || settingsModalHandle) return;
+  settingsModalHandle = mountSettings({
+    mountInto: overlay,
+    inGame,
+    onRestart: () => restartCallback?.(),
+    onHome: () => homeCallback?.(),
+    onDismiss: () => { settingsModalHandle = null; },
+  });
 }
 
 /** Restart the active level when Classic / Restoration toggles in settings. */
@@ -283,7 +301,6 @@ function showHintBoosterModal(): void {
   const bundle = offers.options.find((option) => option.kind === 'coinBundle');
   const coinSingle = offers.options.find((option) => option.kind === 'coinSingle');
   const rewardedAd = offers.options.find((option) => option.kind === 'rewardedAd');
-  const shopTopUp = offers.options.find((option) => option.kind === 'shopTopUp');
 
   const modal = document.createElement('div');
   modal.id = 'hint-booster-modal';
@@ -314,11 +331,6 @@ function showHintBoosterModal(): void {
         ${coinSingle ? `
           <button id="hint-booster-buy-single" class="hint-booster-secondary" type="button" ${coinSingle.status === 'available' ? '' : 'disabled'}>
             Buy 1 hint — ${coinSingle.coinPrice} coins
-          </button>
-        ` : ''}
-        ${shopTopUp ? `
-          <button id="hint-booster-shop" class="hint-booster-secondary" type="button">
-            Visit shop / top up
           </button>
         ` : ''}
       </div>
@@ -396,11 +408,6 @@ function showHintBoosterModal(): void {
     if (!button || rewardedAd?.status !== 'available') return;
     void handleRewardedHintTap(button).finally(() => closeHintBoosterModal());
   });
-  modal.querySelector('#hint-booster-shop')?.addEventListener('click', () => {
-    closeHintBoosterModal();
-    openPage('shop', { scrollTo: 'hints' });
-  });
-
   overlay.appendChild(modal);
 }
 

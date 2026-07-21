@@ -1,14 +1,17 @@
 import Phaser from 'phaser';
 import { gameState } from '../core/GameState';
 import { getLevelIndex, loadLevel, loadLevelForProgression, type LevelData, type LevelIndexEntry } from '../data/levels';
-import { initHUD, openPage, setHomeCallback } from '../ui/HUD';
+import { initHUD, setHomeCallback } from '../ui/HUD';
 import { hideHomeMenuLayer, showHomeMenuLayer } from '../ui/OverlayVisibility';
 import { hideSceneTransitionCoverAfterPaint, showPlayEntryTransitionCover } from '../ui/SceneTransitionCover';
 import { adService } from '../ads/Service';
 import { hapticWrong } from '../haptics/HapticsManager';
 import { configuredMenuVignetteFactory, type MenuVignette } from '../menu/MenuVignette';
 import { crossfadeTo as crossfadeAmbient, presetForLevel } from '../audio/AmbientManager';
-import { mountLevelMap, type LevelMapNode, type LevelNodeState, type ThemeTokens } from '../v1core/ui';
+import type { UiHandle } from '@fabrikav2/ui';
+import { mountHomeShell } from '../menu/homeMenu';
+import { mountSettings } from '../menu/settings';
+import { buildSagaNodes } from '../menu/saga';
 import {
   type CancelScheduledIdleWork,
   hasLowDataConnection,
@@ -17,22 +20,6 @@ import {
 import { isGameSuspended, registerLifecycleHooks } from '../platform/gameLifecycle';
 import type { GameSceneData } from './GameScene';
 import { GameScene } from './GameScene';
-import { FTD_UI_THEME } from '../ui/ftdTheme';
-import { HOME_NO_ADS_BADGE_SRC } from '../ui/iconPreload';
-
-function triggerNavBounce(btn: HTMLButtonElement): void {
-  btn.classList.remove('home-nav-btn--tapped');
-  // Force reflow so the animation restarts if tapped again quickly
-  void btn.offsetWidth;
-  btn.classList.add('home-nav-btn--tapped');
-  // Remove any prior listener before adding a new one — rapid taps cancel the in-flight
-  // animation (no animationend fires) so { once: true } never auto-cleans up the old listener.
-  const prev = (btn as HTMLButtonElement & { __bounceEnd?: () => void }).__bounceEnd;
-  if (prev !== undefined) btn.removeEventListener('animationend', prev);
-  const onEnd = (): void => { btn.classList.remove('home-nav-btn--tapped'); };
-  (btn as HTMLButtonElement & { __bounceEnd?: () => void }).__bounceEnd = onEnd;
-  btn.addEventListener('animationend', onEnd, { once: true });
-}
 
 const BANNER_VIDEO_REPLAY_DELAY_MS = 10_000;
 const BANNER_VIDEO_INITIAL_DELAY_MS = 8_000;
@@ -56,27 +43,10 @@ function shouldRunHomeBannerVideo(): boolean {
   return !hasLowDataConnection() && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-/** FTD's level-map look as ../v1core/ui --fab-levelmap-* tokens. Only the
- *  per-game node art differs from the core defaults; sizes/offsets/colors match. */
-const FTD_LEVELMAP_THEME: ThemeTokens = {
-  '--fab-levelmap-art-default': "url('/ui/home/level-node-locked-runtime.png')",
-  '--fab-levelmap-art-locked': "url('/ui/home/level-node-locked-bones-runtime.png')",
-  '--fab-levelmap-art-completed': "url('/ui/home/level-node-complete-runtime.png')",
-  '--fab-levelmap-art-current': "url('/ui/home/node-current-candy.png')",
-  // Layout overrides MUST go through the theme (applied on `.fab-ui`): the core
-  // declares these tokens on `.fab-ui`, so a CSS override on a wrapping element
-  // is shadowed. `--fab-levelmap-node-gap` is the tile-spacing knob — raise it to
-  // push the upper tiles up toward the banner (current tile stays anchored by the
-  // stage's padding-bottom). Opacity forced to 1 → no depth fade, solid tiles.
-  '--fab-levelmap-node-gap': '40px',
-  '--fab-levelmap-far-opacity': '1',
-  '--fab-levelmap-distant-opacity': '1',
-  '--fab-levelmap-dot-color': '#5b5652',
-  '--fab-levelmap-locked-dot-color': '#5b5652',
-};
-
 export class HomeScene extends Phaser.Scene {
   private overlay: HTMLElement | null = null;
+  private homeHandle: UiHandle | null = null;
+  private settingsHandle: UiHandle | null = null;
   private levelIndex: LevelIndexEntry[] = [];
   private bannerVideoReplayTimer: number | null = null;
   private bannerVideoElement: HTMLVideoElement | null = null;
@@ -142,6 +112,9 @@ export class HomeScene extends Phaser.Scene {
       this.unregisterLifecycleHooks?.();
       this.unregisterLifecycleHooks = null;
       hideHomeMenuLayer(overlay);
+      this.dismissSettings();
+      this.homeHandle?.dismiss();
+      this.homeHandle = null;
       if (overlay.querySelector('#home-shell')) overlay.innerHTML = '';
       this.overlay = null;
     });
@@ -219,90 +192,74 @@ export class HomeScene extends Phaser.Scene {
     if (!overlay) return;
     this.navigationGeneration += 1;
     this.clearBannerVideoReplay();
-    overlay.innerHTML = this.renderHome();
-    showHomeMenuLayer(overlay);
-    this.startBannerVideoReplay();
-
-    overlay.querySelector<HTMLButtonElement>('#home-nav-settings')?.addEventListener('click', (e) => {
-      if (document.getElementById('home-page-overlay')) return;
-      triggerNavBounce(e.currentTarget as HTMLButtonElement);
-      openPage('settings');
-    });
-
-    overlay.querySelector<HTMLButtonElement>('#home-nav-shop')?.addEventListener('click', (e) => {
-      if (document.getElementById('home-page-overlay')) return;
-      triggerNavBounce(e.currentTarget as HTMLButtonElement);
-      openPage('shop');
-    });
-
-    // Currency "+" pills and the No-Ads button route into the shop — each deep-
-    // links to its own section (coins / hints / entitlements).
-    const shopShortcuts: Array<[string, 'coins' | 'hints' | 'entitlements']> = [
-      ['#home-coin-plus', 'coins'],
-      ['#home-hint-plus', 'hints'],
-      ['#home-no-ads', 'entitlements'],
-    ];
-    for (const [id, scrollTo] of shopShortcuts) {
-      overlay.querySelector<HTMLButtonElement>(id)?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (document.getElementById('home-page-overlay')) return;
-        triggerNavBounce(e.currentTarget as HTMLButtonElement);
-        openPage('shop', { scrollTo });
-      });
+    this.dismissSettings();
+    if (this.homeHandle) {
+      this.homeHandle.dismiss();
+      this.homeHandle = null;
     }
+    showHomeMenuLayer(overlay);
 
-    const startCurrentLevel = (button: HTMLButtonElement): void => {
-      if (document.getElementById('home-page-overlay')) return;
-      triggerNavBounce(button);
-      void this.startLevelFromMap(gameState.currentLevelIndex);
-    };
-
-    overlay.querySelector<HTMLButtonElement>('#home-play-now')?.addEventListener('click', (e) => {
-      startCurrentLevel(e.currentTarget as HTMLButtonElement);
+    const currentIndex = Math.max(0, gameState.currentLevelIndex);
+    const nodes = buildSagaNodes({
+      currentIndex,
+      levelCount: this.levelIndex.length,
+      nameFor: (logical) =>
+        this.levelIndex.length === 0
+          ? undefined
+          : this.levelIndex[this.contentLevelIndex(logical)]?.name,
     });
 
-    overlay.querySelector<HTMLButtonElement>('#home-nav-play')?.addEventListener('click', (e) => {
-      startCurrentLevel(e.currentTarget as HTMLButtonElement);
+    this.homeHandle = mountHomeShell({
+      mountInto: overlay,
+      coins: gameState.walletSnapshot().coins,
+      nodes,
+      currentLevelNumber: currentIndex + 1,
+      onStart: () => this.startCurrentLevel(),
+      onSelectLevel: (id) => {
+        const index = Number(id);
+        // Compare against the SAME clamp the saga uses for the current node's id,
+        // so a corrupted negative currentLevelIndex still lets the current node
+        // start (parity with the old state-based gate).
+        if (Number.isInteger(index) && index === Math.max(0, gameState.currentLevelIndex)) {
+          this.startCurrentLevelAt(index);
+        } else {
+          this.rejectLockedNode(id);
+        }
+      },
+      onOpenSettings: () => this.openHomeSettings(),
     });
-
-    // Prominent primary CTA — same destination as the small nav Play button
-    // (the current level), just the clearer entry point for new players.
-    overlay.querySelector<HTMLButtonElement>('#home-play-now')?.addEventListener('click', () => {
-      void this.startLevelFromMap(gameState.currentLevelIndex);
-    });
-
-    this.mountHomeLevelMap();
   }
 
-  /** (Re)mount just the level-map rail. Split out so the post-level-load update
-   *  refreshes only the map instead of re-rendering the whole home (which would
-   *  recreate the banner/pills/nav and make them visibly pop in). */
-  private mountHomeLevelMap(): void {
-    const mapMount = this.overlay?.querySelector<HTMLElement>('#home-map-mount');
-    if (!mapMount) return;
-    mapMount.replaceChildren();
-    mountLevelMap({
-      mountInto: mapMount,
-      state: { nodes: this.buildLevelMapNodes() },
-      theme: { ...FTD_UI_THEME, ...FTD_LEVELMAP_THEME },
-      suppressDefaultNodeDisc: true,
-      actions: {
-        // Forward-only rail: only the current node is playable (preserves the
-        // prior dataset.state !== 'current' gate).
-        onSelectLevel: (id) => {
-          const index = Number(id);
-          // Compare against the SAME clamp buildLevelMapNodes uses for the
-          // current node's id, so a corrupted negative currentLevelIndex still
-          // lets the current node start (parity with the old state-based gate).
-          if (Number.isInteger(index) && index === Math.max(0, gameState.currentLevelIndex)) {
-            void this.startLevelFromMap(index);
-          } else {
-            // Locked level: refuse to navigate, give a shake + "wrong" haptic.
-            this.rejectLockedNode(id);
-          }
-        },
-      },
+  private openHomeSettings(): void {
+    if (this.settingsHandle || !this.overlay) return;
+    this.settingsHandle = mountSettings({
+      mountInto: this.overlay,
+      inGame: false,
+      onDismiss: () => { this.settingsHandle = null; },
     });
+  }
+
+  private dismissSettings(): void {
+    if (this.settingsHandle) {
+      const handle = this.settingsHandle;
+      this.settingsHandle = null;
+      handle.dismiss();
+    }
+  }
+
+  private startCurrentLevel(): void {
+    this.startCurrentLevelAt(gameState.currentLevelIndex);
+  }
+
+  private startCurrentLevelAt(index: number): void {
+    if (this.settingsHandle) return;
+    void this.startLevelFromMap(index);
+  }
+
+  /** (Re)mount the home shell so the saga rail reflects the resolved level index. */
+  private mountHomeLevelMap(): void {
+    if (!this.overlay?.querySelector('#home-shell')) return;
+    this.renderHomeScreen();
   }
 
   private startGameScene(levelData?: LevelData): void {
@@ -312,6 +269,9 @@ export class HomeScene extends Phaser.Scene {
     showPlayEntryTransitionCover();
     this.cancelScheduledHomeAmbient();
     this.clearBannerVideoReplay();
+    this.dismissSettings();
+    this.homeHandle?.dismiss();
+    this.homeHandle = null;
     if (overlay) {
       hideHomeMenuLayer(overlay);
       overlay.innerHTML = '';
@@ -458,15 +418,15 @@ export class HomeScene extends Phaser.Scene {
     // ever renders one) doesn't get a "wrong" buzz for a finished level.
     if (!node || !node.classList.contains('locked')) return;
     hapticWrong();
-    node.classList.remove('home-node--rejected');
+    node.classList.remove('marble-node-rejected');
     void node.offsetWidth; // restart the animation if tapped again mid-shake
-    node.classList.add('home-node--rejected');
+    node.classList.add('marble-node-rejected');
     // Remove any prior listener first — rapid re-taps cancel the in-flight
     // animation (no animationend fires) so { once: true } never auto-cleans the
     // stale listener (same accumulation guard as triggerNavBounce).
     const prev = (node as HTMLElement & { __rejectEnd?: () => void }).__rejectEnd;
     if (prev !== undefined) node.removeEventListener('animationend', prev);
-    const onEnd = (): void => { node.classList.remove('home-node--rejected'); };
+    const onEnd = (): void => { node.classList.remove('marble-node-rejected'); };
     (node as HTMLElement & { __rejectEnd?: () => void }).__rejectEnd = onEnd;
     node.addEventListener('animationend', onEnd, { once: true });
   }
@@ -574,113 +534,4 @@ export class HomeScene extends Phaser.Scene {
     return ((index % this.levelIndex.length) + this.levelIndex.length) % this.levelIndex.length;
   }
 
-  // Use the transparent PNG everywhere. The WebM alpha path can paint an opaque
-  // base layer in WebView capture paths, which breaks the banner-over-paws
-  // composition the shipped home screen relies on.
-  private renderBannerMedia(): string {
-    return '<img class="home-brand-art" src="/ui/home/home-banner-mascot-runtime.png" alt="Marble Run">';
-  }
-
-  private renderHome(): string {
-    const wallet = gameState.walletSnapshot();
-    const currentLevel = gameState.currentLevelIndex + 1;
-    const bannerMedia = this.renderBannerMedia();
-
-    return `
-      <div id="home-shell" class="home-shell home-progression-shell">
-        <section class="home-title-panel" aria-label="Marble Run">
-          <div class="home-brand-banner">${bannerMedia}</div>
-        </section>
-
-        <div class="home-map-region">
-          <aside class="home-rail home-rail-left" aria-label="Quick actions">
-            <button id="home-no-ads" class="home-side-btn home-no-ads-btn" type="button" aria-label="Remove ads">
-              <img class="home-no-ads-art" src="${HOME_NO_ADS_BADGE_SRC}" alt="" aria-hidden="true">
-            </button>
-          </aside>
-          <section id="home-map-mount" class="home-map-stage" aria-label="Level progression"></section>
-          <aside class="home-rail home-rail-right" aria-label="Currency balance">
-            <div class="home-balance-pill home-coin-pill" data-economy-target="coins" aria-label="Coin balance">
-              <span>${wallet.coins}</span>
-              <img src="/ui/menu-icons/icon_coin.png" alt="" aria-hidden="true" data-economy-anchor="coin">
-              <button id="home-coin-plus" class="home-pill-plus" type="button" aria-label="Buy more coins">+</button>
-            </div>
-            <div class="home-balance-pill home-hint-pill" data-economy-target="hints" aria-label="Hint balance">
-              <span>${wallet.hints}</span>
-              <img src="/ui/menu-icons/icon_hint_magnifier.png" alt="" aria-hidden="true" data-economy-anchor="hint">
-              <button id="home-hint-plus" class="home-pill-plus" type="button" aria-label="Buy more hints">+</button>
-            </div>
-          </aside>
-        </div>
-
-        <button id="home-play-now" class="home-play-now-btn shop-grid-price-btn" type="button" aria-label="Play Level ${currentLevel}">
-          <span class="home-play-now-label">Play Now</span>
-        </button>
-
-        <nav class="home-nav-bar" aria-label="Main navigation">
-          <button id="home-nav-shop" class="home-nav-btn" type="button" aria-label="Open shop">
-            <img src="/ui/menu-icons/shop-icon-runtime.png" alt="" aria-hidden="true">
-            <span>Shop</span>
-          </button>
-          <button id="home-nav-play" class="home-nav-play-btn" type="button" aria-label="Play Level ${currentLevel}">
-            <span class="home-nav-play-emblem">
-              <img src="/ui/menu-icons/magnifier-runtime.png" alt="" aria-hidden="true">
-            </span>
-            <span>Play</span>
-          </button>
-          <button id="home-nav-settings" class="home-nav-btn" type="button" aria-label="Settings">
-            <img src="/ui/menu-icons/settings-icon-runtime.png" alt="" aria-hidden="true">
-            <span>Settings</span>
-          </button>
-        </nav>
-      </div>
-    `;
-  }
-
-  /**
-   * FTD's windowing policy → the node list the core rail draws. Empty list ⇒
-   * core renders its loading placeholder. The depth-fade/zig-zag/current scale
-   * are the core's job now; this only decides WHICH levels and their states.
-   */
-  private buildLevelMapNodes(): LevelMapNode[] {
-    const currentIndex = Math.max(0, gameState.currentLevelIndex);
-
-    // First paint, before getLevelIndex() resolves: render numbered nodes
-    // synchronously from the current index so the saga never flashes the core
-    // rail's numberless loading placeholder ("broken saga"). Names and exact
-    // end-of-sequence windowing are refined when the real index resolves and the
-    // map re-mounts; mid-sequence (the common case) these seed nodes are
-    // identical to the real ones (same numbers + states), so there's no pop.
-    if (this.levelIndex.length === 0) {
-      const offsets = Array.from({ length: 4 }, (_, index) => 4 - 1 - index);
-      return offsets.map((offset): LevelMapNode => {
-        const logicalIndex = currentIndex + offset;
-        const state: LevelNodeState = offset === 0 ? 'current' : 'locked';
-        return {
-          id: logicalIndex,
-          label: String(logicalIndex + 1),
-          name: `Level ${logicalIndex + 1} ${state}`,
-          state,
-        };
-      });
-    }
-
-    gameState.reconcileLevelOrder(this.levelIndex.map((entry) => entry.id));
-    const visibleCount = Math.min(4, this.levelIndex.length);
-    const offsets = Array.from({ length: visibleCount }, (_, index) => visibleCount - 1 - index);
-
-    return offsets.map((offset): LevelMapNode => {
-      const logicalIndex = currentIndex + offset;
-      const contentIndex = this.contentLevelIndex(logicalIndex);
-      const entry = this.levelIndex[contentIndex];
-      const state: LevelNodeState = offset === 0 ? 'current' : 'locked';
-      const levelName = entry.name || `Level ${logicalIndex + 1}`;
-      return {
-        id: logicalIndex,
-        label: String(logicalIndex + 1),
-        name: `Level ${logicalIndex + 1}: ${levelName} ${state}`,
-        state,
-      };
-    });
-  }
 }

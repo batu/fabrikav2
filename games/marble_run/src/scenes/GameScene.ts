@@ -16,6 +16,7 @@ import {
   setLevelSelectCallback,
   setHomeCallback,
   setGameModeChangeCallback,
+  setRestartCallback,
 } from '../ui/HUD';
 import { preloadLevelCompleteAssets, showLevelCompleteOverlay, dismissLevelCompleteOverlay } from '../ui/LevelCompleteOverlay';
 import type { RatePromptHandle } from '../ui/RatePrompt';
@@ -188,6 +189,12 @@ export class GameScene extends Phaser.Scene {
     setHomeCallback(() => {
       this.scene.start('HomeScene');
     });
+    setRestartCallback(() => {
+      if (this.level) {
+        this.preserveLevelUrlsOnShutdown = true;
+        this.scene.restart({ levelData: this.level } as GameSceneData);
+      }
+    });
     setGameModeChangeCallback(() => {
       if (this.level) {
         this.preserveLevelUrlsOnShutdown = true;
@@ -211,6 +218,7 @@ export class GameScene extends Phaser.Scene {
       this.unregisterLifecycleHooks = null;
       if (this.level !== null && !this.preserveLevelUrlsOnShutdown) disposeLevelUrls(this.level.id);
       setGameModeChangeCallback(null);
+      setRestartCallback(null);
       this.ratePromptHandle?.dismiss();
       this.ratePromptHandle = null;
       this.tweens.killAll();

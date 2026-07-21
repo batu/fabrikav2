@@ -1,0 +1,91 @@
+import { mountHomeMenu, type LevelMapNode, type UiHandle } from '@fabrikav2/ui';
+import { MARBLE_LEVELMAP_THEME, assetUrls } from '../../design/theme';
+
+/**
+ * v1 sugar3d home menu on the kit HomeMenu + SagaMap: a game-owned header
+ * (banner + coin pill + settings gear), the bottom-anchored gold-sun saga map,
+ * and a green LEVEL action button. SagaMap fires onSelectLevel for EVERY node —
+ * gating a locked tap (shake-reject) is the caller's job.
+ */
+
+export interface MountHomeShellOptions {
+  mountInto: HTMLElement;
+  coins: number;
+  nodes: readonly LevelMapNode[];
+  /** 1-based number shown on the LEVEL button. */
+  currentLevelNumber: number;
+  onSelectLevel: (id: string | number) => void;
+  onStart: () => void;
+  onOpenSettings: () => void;
+}
+
+function buildHeader(opts: MountHomeShellOptions): HTMLElement {
+  const header = document.createElement('div');
+  header.className = 'marble-home-header';
+
+  const banner = document.createElement('div');
+  banner.className = 'marble-home-banner';
+  const bannerImg = document.createElement('img');
+  bannerImg.src = assetUrls.banner;
+  bannerImg.alt = 'Marble Run';
+  banner.appendChild(bannerImg);
+
+  const coinPill = document.createElement('div');
+  coinPill.className = 'marble-coin-pill';
+  coinPill.dataset.economyTarget = 'coins';
+  coinPill.setAttribute('aria-label', 'Coin balance');
+  const coinCount = document.createElement('span');
+  coinCount.className = 'marble-coin-count';
+  coinCount.textContent = String(opts.coins);
+  const coinIcon = document.createElement('img');
+  coinIcon.src = assetUrls.coinIcon;
+  coinIcon.alt = '';
+  coinIcon.setAttribute('aria-hidden', 'true');
+  coinIcon.dataset.economyAnchor = 'coin';
+  coinPill.append(coinCount, coinIcon);
+
+  const spacer = document.createElement('div');
+
+  const gear = document.createElement('button');
+  gear.type = 'button';
+  gear.className = 'marble-gear-btn';
+  gear.dataset.fabAction = 'settings';
+  gear.setAttribute('aria-label', 'Settings');
+  const gearIcon = document.createElement('img');
+  gearIcon.src = assetUrls.settingsIcon;
+  gearIcon.alt = '';
+  gearIcon.setAttribute('aria-hidden', 'true');
+  gear.appendChild(gearIcon);
+  gear.addEventListener('click', () => opts.onOpenSettings());
+
+  header.append(coinPill, spacer, gear, banner);
+  return header;
+}
+
+export function mountHomeShell(opts: MountHomeShellOptions): UiHandle {
+  return mountHomeMenu({
+    mountInto: opts.mountInto,
+    id: 'home-shell',
+    // Redundant with tokens.css (which authoritatively themes every .fab-ui saga
+    // root); kept so the sugar levelmap values are also set on the menu root.
+    theme: MARBLE_LEVELMAP_THEME,
+    header: buildHeader(opts),
+    saga: {
+      state: { nodes: opts.nodes },
+      actions: { onSelectLevel: (id) => opts.onSelectLevel(id) },
+      loadingLabel: 'Loading levels',
+      suppressDefaultNodeDisc: true,
+      id: 'home-saga-map',
+    },
+    actions: [
+      {
+        label: `Level ${opts.currentLevelNumber}`,
+        ariaLabel: `Play Level ${opts.currentLevelNumber}`,
+        dataAction: 'play',
+        className: 'marble-level-button',
+        spriteImage: assetUrls.levelButton,
+        onClick: () => opts.onStart(),
+      },
+    ],
+  });
+}

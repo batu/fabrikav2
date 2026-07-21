@@ -17,6 +17,7 @@ import { installGameLifecycle } from './platform/gameLifecycle';
 import { notificationService } from './notifications/NotificationService';
 import { installAudioUnlock, installButtonVoiceEffects } from './audio/AudioManager';
 import { preloadIcons } from './ui/iconPreload';
+import { installShellArt } from '../design/theme';
 import '@fabrikav2/ui/ui.css';
 import '../design/tokens.css';
 import './v1core/ui/ui.css';
@@ -25,6 +26,9 @@ import './ui/styles.css';
 installPortraitOrientationLock();
 installAudioUnlock();
 installButtonVoiceEffects();
+// Inject the sugar shell art layer (fonts, purple bubble bg, vida PNG chrome)
+// before any kit surface mounts.
+installShellArt(document);
 preloadIcons();
 
 const game: Phaser.Game = new Phaser.Game(GameConfig);
