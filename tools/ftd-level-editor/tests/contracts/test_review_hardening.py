@@ -12,7 +12,7 @@ from ftd_editor.jobs.store import (
     OwnershipLost,
     RequestIdentityConflict,
 )
-from ftd_editor.jobs.worker import TerminalJobError
+from ftd_editor.jobs.worker import RetryableJobError, TerminalJobError
 
 KIND = "ftd.dog_variant_upscale"
 
@@ -246,6 +246,145 @@ def test_force_new_replay_with_same_request_id_returns_same_attempt(
     attempt = jobs_env.service.force_new(KIND, orphan.id, body)
     replay = jobs_env.service.force_new(KIND, orphan.id, body)
     assert replay.id == attempt.id
+
+
+# -- G1: heartbeat and set_stage are owner-fenced -------------------------------
+
+
+def test_swept_worker_heartbeat_and_stage_writes_are_fenced(jobs_env, ftd_session) -> None:
+    job = start(jobs_env, ftd_session, "req-hard-g1")
+    claimed = jobs_env.jobs.claim_next_queued(owner="slow-worker", kinds=(KIND,))
+    assert claimed is not None
+    jobs_env.jobs.heartbeat(job.id, owner="slow-worker")
+
+    sweeper = jobs_env.make_worker({KIND: lambda context: {"ok": True}})
+    jobs_env.clock.advance(120.0)
+    assert [record.id for record in sweeper.sweep_stale()] == [job.id]
+    requeued = jobs_env.jobs.get_job(job.id)
+    assert requeued.status == "queued"
+    assert requeued.worker_owner is None
+
+    # the zombie can neither refresh the lease nor steal ownership back
+    with pytest.raises(OwnershipLost):
+        jobs_env.jobs.heartbeat(job.id, owner="slow-worker")
+    assert jobs_env.jobs.get_job(job.id).worker_owner is None
+    with pytest.raises(OwnershipLost):
+        jobs_env.jobs.transition_job(
+            job.id,
+            status="running",
+            worker_owner="slow-worker",
+            expect_owner="slow-worker",
+        )
+
+
+# -- G2: a recorded provider submission is resumed, never re-run ---------------
+
+
+def test_retryable_error_after_provider_checkpoint_resumes_not_retries(
+    jobs_env, ftd_session
+) -> None:
+    job = start(jobs_env, ftd_session, "req-hard-g2")
+    submissions: list[str] = []
+    polls: list[str] = []
+
+    def handler(context):
+        context.record_submission_intent()
+        submissions.append(context.job.id)
+        context.record_provider_job_id("prov-g2")
+        raise RetryableJobError("provider_poll_timeout", "poll timed out mid-flight")
+
+    def resume(context, provider_job_id):
+        polls.append(provider_job_id)
+        return {"ok": True, "resumed": provider_job_id}
+
+    worker = jobs_env.make_worker({KIND: handler}, resume_handlers={KIND: resume})
+    assert worker.run_once()
+    checkpointed = jobs_env.jobs.get_job(job.id)
+    assert checkpointed.status == "polling"
+    assert checkpointed.stage == "resume_polling"
+
+    # a grant-free fresh retry of the paid submission is refused
+    with pytest.raises(AttemptNotAllowed):
+        jobs_env.jobs.retry(job.id)
+
+    # the resume path finishes the already-paid provider job: one submission only
+    assert worker.run_once()
+    finished = jobs_env.jobs.get_job(job.id)
+    assert finished.status == "succeeded"
+    assert submissions == [job.id]
+    assert polls == ["prov-g2"]
+
+
+# -- G3: sweep survives jobs that move mid-pass and never steals a live lease --
+
+
+def test_sweep_skips_job_that_moved_and_continues_the_pass(jobs_env, ftd_session) -> None:
+    moved = start(jobs_env, ftd_session, "req-hard-g3-a", inputs={"dogKey": "dog-a"})
+    stale = start(jobs_env, ftd_session, "req-hard-g3-b", inputs={"dogKey": "dog-b"})
+    for record in (moved, stale):
+        assert jobs_env.jobs.claim_next_queued(owner="dead-worker", kinds=(KIND,)) is not None
+
+    sweeper = jobs_env.make_worker({KIND: lambda context: {"ok": True}})
+    snapshot = jobs_env.jobs.list_active_jobs()
+    jobs_env.clock.advance(120.0)
+    # the first job finishes after the snapshot was taken (owner still live)
+    jobs_env.jobs.transition_job(
+        moved.id, status="failed_terminal", error_code="finished_late"
+    )
+    swept = [sweeper._reconcile_contained(job) for job in snapshot]
+
+    # the moved job is skipped, the genuinely stale one is still recovered
+    assert swept[0] is None
+    assert swept[1] is not None and swept[1].status == "queued"
+    events = [event.event_type for event in jobs_env.jobs.list_events(moved.id)]
+    assert "job.sweep_skipped" in events
+
+
+def test_sweep_takeover_is_lease_conditional(jobs_env, ftd_session) -> None:
+    job = start(jobs_env, ftd_session, "req-hard-g3-lease")
+    assert jobs_env.jobs.claim_next_queued(owner="live-worker", kinds=(KIND,)) is not None
+    sweeper = jobs_env.make_worker({KIND: lambda context: {"ok": True}})
+    snapshot = jobs_env.jobs.list_active_jobs()
+    jobs_env.clock.advance(120.0)
+    # the live worker heartbeats between the sweep snapshot and the takeover
+    jobs_env.jobs.heartbeat(job.id, owner="live-worker")
+    assert sweeper._reconcile_contained(snapshot[0]) is None
+    assert jobs_env.jobs.get_job(job.id).worker_owner == "live-worker"
+
+
+# -- G4: a pending cancel wins over every late outcome --------------------------
+
+
+def test_cancel_wins_over_retryable_error_and_conflict_outcomes(
+    jobs_env, ftd_session
+) -> None:
+    job = start(jobs_env, ftd_session, "req-hard-g4")
+
+    def handler(context):
+        jobs_env.jobs.request_cancel(context.job.id)
+        raise RetryableJobError("late_failure", "failed after cancel landed")
+
+    worker = jobs_env.make_worker({KIND: handler})
+    assert worker.run_once()
+    cancelled = jobs_env.jobs.get_job(job.id)
+    assert cancelled.status == "cancelled"
+    assert not cancelled.retryable
+
+    conflicted = start(jobs_env, ftd_session, "req-hard-g4-conflict", inputs={"dogKey": "d2"})
+    claimed = jobs_env.jobs.claim_next_queued(owner="w-g4", kinds=(KIND,))
+    assert claimed is not None
+    jobs_env.jobs.request_cancel(conflicted.id)
+    finished = jobs_env.jobs.transition_job(
+        conflicted.id,
+        status="succeeded",
+        result={"application": "conflict"},
+        worker_owner="w-g4",
+        expect_owner="w-g4",
+        cancel_wins=True,
+    )
+    assert finished.status == "cancelled"
+    assert finished.result["application"] == "withheld"
+    assert finished.result["lateOutput"] == "retained"
 
 
 # -- F11: swapped artifact bytes are never served ------------------------------

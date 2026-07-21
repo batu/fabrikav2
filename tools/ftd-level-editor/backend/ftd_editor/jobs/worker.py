@@ -13,7 +13,13 @@ from types import TracebackType
 from typing import Any, Self
 
 from .models import ArtifactRecord, JobRecord
-from .store import JobStore, OwnershipLost, TerminalJobImmutable, utc_now_iso
+from .store import (
+    AttemptNotAllowed,
+    JobStore,
+    OwnershipLost,
+    TerminalJobImmutable,
+    utc_now_iso,
+)
 
 
 class JobError(Exception):
@@ -107,7 +113,11 @@ class JobContext:
 
     def set_stage(self, status: str, *, stage: str | None = None) -> None:
         self.job = self.store.transition_job(
-            self.job.id, status=status, stage=stage, worker_owner=self.owner_id
+            self.job.id,
+            status=status,
+            stage=stage,
+            worker_owner=self.owner_id,
+            expect_owner=self.owner_id,
         )
 
     def cancel_requested(self) -> bool:
@@ -209,13 +219,7 @@ class DurableJobWorker:
             result["application"] = "conflict"
             self._finish(job.id, status="succeeded", result=result)
         except RetryableJobError as error:
-            self._finish(
-                job.id,
-                status="failed_retryable",
-                retryable=True,
-                error_code=error.code,
-                error_message=error.message,
-            )
+            self._contain_failure(job.id, error.code, error.message)
         except TerminalJobError as error:
             self._finish(
                 job.id,
@@ -230,26 +234,66 @@ class DurableJobWorker:
                 message="a fenced write was rejected; another owner holds this job",
             )
         except Exception as error:  # crash containment: the ledger stays consistent
-            latest = self.store.get_job(job.id)
-            if latest.metadata.get("providerSubmissionStarted") and not (
-                latest.metadata.get("providerJobId") and latest.kind in self.resume_handlers
-            ):
-                # Ambiguous spend: intent exists without a resumable identity.
-                # Never reclassify to retryable — that would allow a grant-free
-                # resubmission and a duplicate provider spend.
-                self._orphan(
-                    latest,
-                    "unexpected error after submission intent without a resumable "
-                    "provider identity; force-new authority is required",
-                )
-                return
+            self._contain_failure(job.id, "unexpected_job_error", str(error))
+
+    def _contain_failure(self, job_id: str, error_code: str, error_message: str) -> None:
+        """Classify a mid-execution failure without ever enabling duplicate spend.
+
+        A recorded provider submission is money already spent: with a resumable
+        identity the attempt goes back to polling so the paid job is finished,
+        never resubmitted; with bare intent it orphans behind the force-new
+        gate. Only a provably pre-side-effect failure stays grant-free
+        retryable.
+        """
+
+        latest = self.store.get_job(job_id)
+        if latest.status == "cancel_requested":
+            # A pending cancel wins over any failure classification.
             self._finish(
-                job.id,
-                status="failed_retryable",
-                retryable=True,
-                error_code="unexpected_job_error",
-                error_message=str(error),
+                job_id,
+                status="cancelled",
+                stage="cancelled",
+                error_code=error_code,
+                error_message=error_message,
             )
+            return
+        if latest.metadata.get("providerJobId") and latest.kind in self.resume_handlers:
+            try:
+                self.store.transition_job(
+                    latest.id,
+                    status="polling",
+                    stage="resume_polling",
+                    worker_owner=self.owner_id,
+                    heartbeat_at=self.now(),
+                    expect_owner=self.owner_id,
+                    error_code=error_code,
+                    error_message=error_message,
+                )
+            except (TerminalJobImmutable, OwnershipLost):
+                self.store.append_event(
+                    latest.id,
+                    "job.late_transition_rejected",
+                    data={"attempted": "polling"},
+                )
+            return
+        if latest.metadata.get("providerSubmissionStarted"):
+            # Ambiguous spend: intent exists without a resumable identity.
+            # Never reclassify to retryable — that would allow a grant-free
+            # resubmission and a duplicate provider spend.
+            self._orphan(
+                latest,
+                "failure after submission intent without a resumable "
+                "provider identity; force-new authority is required",
+                expect_owner=self.owner_id,
+            )
+            return
+        self._finish(
+            job_id,
+            status="failed_retryable",
+            retryable=True,
+            error_code=error_code,
+            error_message=error_message,
+        )
 
     def _succeed(self, context: JobContext, result: dict[str, Any] | None) -> None:
         self.store.complete_success(context.job.id, result=result, owner=self.owner_id)
@@ -260,6 +304,7 @@ class DurableJobWorker:
                 job_id,
                 worker_owner=self.owner_id,
                 expect_owner=self.owner_id,
+                cancel_wins=True,
                 **kwargs,
             )
         except TerminalJobImmutable:
@@ -275,7 +320,9 @@ class DurableJobWorker:
                 message="a fenced write was rejected; another owner holds this job",
             )
 
-    def _orphan(self, job: JobRecord, reason: str) -> JobRecord:
+    def _orphan(
+        self, job: JobRecord, reason: str, *, expect_owner: str | None = None
+    ) -> JobRecord:
         try:
             return self.store.transition_job(
                 job.id,
@@ -283,8 +330,9 @@ class DurableJobWorker:
                 stage="orphaned_unknown",
                 error_code="orphaned_unknown",
                 error_message=reason,
+                expect_owner=expect_owner,
             )
-        except TerminalJobImmutable:
+        except (TerminalJobImmutable, OwnershipLost):
             return self.store.get_job(job.id)
 
     # -- recovery ------------------------------------------------------------
@@ -296,7 +344,9 @@ class DurableJobWorker:
         for job in self.store.list_active_jobs():
             if job.status == "queued":
                 continue
-            reconciled.append(self._reconcile(job))
+            record = self._reconcile_contained(job)
+            if record is not None:
+                reconciled.append(record)
         return reconciled
 
     def sweep_stale(self) -> list[JobRecord]:
@@ -311,14 +361,42 @@ class DurableJobWorker:
                 age = (cutoff - datetime.fromisoformat(job.heartbeat_at)).total_seconds()
                 if age < self.stale_after_seconds:
                     continue
-            swept.append(self._reconcile(job))
+            record = self._reconcile_contained(job)
+            if record is not None:
+                swept.append(record)
         return swept
 
+    def _reconcile_contained(self, job: JobRecord) -> JobRecord | None:
+        """One job's takeover; a lost race never aborts the rest of the pass."""
+
+        try:
+            return self._reconcile(job)
+        except (TerminalJobImmutable, OwnershipLost, AttemptNotAllowed) as error:
+            self.store.append_event(
+                job.id,
+                "job.sweep_skipped",
+                message=f"takeover skipped; the job moved mid-sweep: {error}",
+            )
+            return None
+
     def _reconcile(self, job: JobRecord) -> JobRecord:
+        """Takeover conditional on the observed owner and lease (CAS).
+
+        Every transition passes the snapshot's owner and heartbeat: if the
+        supposedly-stale worker heartbeats, checkpoints, or finishes between
+        snapshot and takeover, the store raises instead of stealing a live job.
+        """
+
         provider_job_id = job.metadata.get("providerJobId")
         submission_started = bool(job.metadata.get("providerSubmissionStarted"))
+        fence: dict[str, Any] = {
+            "expect_owner": job.worker_owner,
+            "expect_heartbeat_at": job.heartbeat_at,
+        }
         if job.status == "cancel_requested":
-            return self.store.transition_job(job.id, status="cancelled", stage="cancelled")
+            return self.store.transition_job(
+                job.id, status="cancelled", stage="cancelled", **fence
+            )
         if provider_job_id and job.kind in self.resume_handlers:
             return self.store.transition_job(
                 job.id,
@@ -326,13 +404,22 @@ class DurableJobWorker:
                 stage="resume_polling",
                 worker_owner=self.owner_id,
                 heartbeat_at=self.now(),
+                **fence,
             )
         if submission_started:
-            return self._orphan(
-                job,
-                "submission intent exists without a resumable provider identity; "
-                "force-new authority is required before any resubmission",
+            return self.store.transition_job(
+                job.id,
+                status="orphaned_unknown",
+                stage="orphaned_unknown",
+                error_code="orphaned_unknown",
+                error_message=(
+                    "submission intent exists without a resumable provider identity; "
+                    "force-new authority is required before any resubmission"
+                ),
+                **fence,
             )
         return self.store.requeue_pre_side_effect(
-            job.id, reason="recovered before submission intent; safe to run once"
+            job.id,
+            reason="recovered before submission intent; safe to run once",
+            **fence,
         )

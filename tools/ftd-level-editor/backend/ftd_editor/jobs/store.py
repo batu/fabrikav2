@@ -399,9 +399,15 @@ class JobStore:
                 raise AttemptNotAllowed(
                     f"retry requires a definitive retryable failure, not {job.status!r}"
                 )
-            if job.metadata.get("providerSubmissionStarted") and not job.metadata.get(
-                "providerJobId"
-            ):
+            if job.metadata.get("providerSubmissionStarted"):
+                # A fresh queued attempt would drop the provider checkpoint and
+                # re-run the paid submission. With a recorded provider id the
+                # attempt must be resumed; without one intent is ambiguous.
+                if job.metadata.get("providerJobId"):
+                    raise AttemptNotAllowed(
+                        f"job {job_id!r} has a recorded provider submission; "
+                        "it must be resumed or superseded via force-new"
+                    )
                 raise AttemptNotAllowed(
                     f"job {job_id!r} has ambiguous submission intent; "
                     "force-new authority is required before any resubmission"
@@ -495,6 +501,8 @@ class JobStore:
         worker_owner: str | None = ...,  # type: ignore[assignment]
         heartbeat_at: str | None = ...,  # type: ignore[assignment]
         expect_owner: str | None = None,
+        expect_heartbeat_at: str | None = ...,  # type: ignore[assignment]
+        cancel_wins: bool = False,
     ) -> JobRecord:
         if status not in VALID_STATUSES:
             raise ValueError(f"invalid job status: {status}")
@@ -504,6 +512,20 @@ class JobStore:
             job.worker_owner != expect_owner or job.status == "queued"
         ):
             raise OwnershipLost(job, expect_owner)
+        if expect_heartbeat_at is not ... and job.heartbeat_at != expect_heartbeat_at:
+            # The observed lease moved between snapshot and takeover: the job
+            # is live, not stale. Refuse the conditional transition.
+            raise OwnershipLost(job, expect_owner or job.worker_owner or "")
+        if cancel_wins and job.status == "cancel_requested" and status != "cancelled":
+            # A pending cancel always wins over a late outcome (AE8a): land
+            # cancelled, retain the outcome instead of applying it.
+            if result is not None:
+                result = dict(result)
+                result["application"] = "withheld"
+                result["lateOutput"] = "retained"
+            status = "cancelled"
+            stage = "cancelled"
+            retryable = False
         now = self._now()
         safe_error = self._sanitized(error_message)
         conn.execute(
@@ -639,10 +661,12 @@ class JobStore:
             job = self._get_locked(conn, job_id)
             if is_terminal_status(job.status):
                 raise TerminalJobImmutable(job, job.status)
+            if job.worker_owner != owner or job.status == "queued":
+                raise OwnershipLost(job, owner)
             now = self._now()
             conn.execute(
-                "UPDATE jobs SET worker_owner = ?, heartbeat_at = ?, updated_at = ? WHERE id = ?",
-                (owner, now, now, job_id),
+                "UPDATE jobs SET heartbeat_at = ?, updated_at = ? WHERE id = ?",
+                (now, now, job_id),
             )
             return self._get_locked(conn, job_id)
 
@@ -670,13 +694,24 @@ class JobStore:
             self._append_event_locked(conn, job_id, "job.checkpoint", data=patch)
             return self._get_locked(conn, job_id)
 
-    def requeue_pre_side_effect(self, job_id: str, *, reason: str) -> JobRecord:
+    def requeue_pre_side_effect(
+        self,
+        job_id: str,
+        *,
+        reason: str,
+        expect_owner: str | None = None,
+        expect_heartbeat_at: str | None = ...,  # type: ignore[assignment]
+    ) -> JobRecord:
         """Requeue one attempt that provably never reached submission intent."""
 
         with self.transaction() as conn:
             job = self._get_locked(conn, job_id)
             if is_terminal_status(job.status):
                 raise TerminalJobImmutable(job, "queued")
+            if expect_owner is not None and job.worker_owner != expect_owner:
+                raise OwnershipLost(job, expect_owner)
+            if expect_heartbeat_at is not ... and job.heartbeat_at != expect_heartbeat_at:
+                raise OwnershipLost(job, expect_owner or job.worker_owner or "")
             if job.metadata.get("providerSubmissionStarted"):
                 raise AttemptNotAllowed(
                     f"job {job_id!r} has submission intent; requeue would risk duplicate spend"
