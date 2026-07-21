@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   buildReconciliationAnomalyEvent,
   deltaToEvents,
+  parsePendingAnalyticsEvent,
   type PendingAnalyticsEvent,
 } from '../../src/achievements/AchievementAnalytics';
 import type { CommittedAchievementDelta } from '../../src/achievements/AchievementSystem';
@@ -100,6 +101,51 @@ describe('dispatchAchievementEvent (correction 1)', () => {
       'achievement_reconciliation_anomaly',
       expect.objectContaining({ wallet_component: 'coins', achievement_id: 'achievement_system' }),
     );
+  });
+
+  it('exposes typed discovery and page-view methods for the dependent UI card', () => {
+    const spy = trackSpy();
+    analytics.achievementViewed({
+      event_id: 'ach:20:viewed:first_completion',
+      achievement_id: 'first_completion',
+      occurrence_id: 'view:first_completion',
+      category: 'completion',
+    });
+    analytics.achievementPageViewed({ event_id: 'ach:21:page:achievement_system' });
+    expect(spy).toHaveBeenCalledWith('achievement_viewed', expect.objectContaining({ achievement_id: 'first_completion' }));
+    expect(spy).toHaveBeenCalledWith('achievement_page_viewed', { event_id: 'ach:21:page:achievement_system' });
+  });
+});
+
+describe('parsePendingAnalyticsEvent', () => {
+  it('round-trips each owned persisted event shape', () => {
+    const events = deltaToEvents(multiUnlockDelta('occ-parse'), 0).events;
+    const anomaly = buildReconciliationAnomalyEvent('occ-parse', 'coins', events.length).event;
+    for (const event of [...events, anomaly]) {
+      expect(parsePendingAnalyticsEvent(JSON.parse(JSON.stringify(event)))).toEqual(event);
+    }
+  });
+
+  it.each([
+    { eventId: 'ach:1:x:y', name: 'unknown', payload: { event_id: 'ach:1:x:y' } },
+    {
+      eventId: 'ach:1:progress:first_completion',
+      name: 'achievement_progress',
+      payload: {
+        event_id: 'different', achievement_id: 'first_completion', occurrence_id: 'occ',
+        category: 'completion', progress: 1, threshold: 1,
+      },
+    },
+    {
+      eventId: 'ach:1:reward:first_completion',
+      name: 'achievement_reward_granted',
+      payload: {
+        event_id: 'ach:1:reward:first_completion', achievement_id: 'first_completion',
+        occurrence_id: 'occ', category: 'completion', reward_coins: 25,
+      },
+    },
+  ])('rejects malformed or mismatched durable outbox entry %#', (value) => {
+    expect(parsePendingAnalyticsEvent(value)).toBeNull();
   });
 });
 

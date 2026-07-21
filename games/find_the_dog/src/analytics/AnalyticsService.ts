@@ -10,10 +10,12 @@ import { adService } from '../ads/Service';
 import type { PurchaseUnfulfilledOutcome } from '../shop/PurchaseFulfillment';
 import type { AnalyticsLevelAttribution } from './AnalyticsEventContract';
 import type {
+  AchievementPageViewedPayload,
   AchievementProgressPayload,
   AchievementReconciliationAnomalyPayload,
   AchievementRewardGrantedPayload,
   AchievementUnlockedPayload,
+  AchievementViewedPayload,
   PendingAnalyticsEvent,
 } from '../achievements/AchievementAnalytics';
 
@@ -433,6 +435,14 @@ export class AnalyticsService {
     this.sdk.track('achievement_reconciliation_anomaly', compactParams({ ...payload }));
   }
 
+  achievementViewed(payload: AchievementViewedPayload): void {
+    this.sdk.track('achievement_viewed', compactParams({ ...payload }));
+  }
+
+  achievementPageViewed(payload: AchievementPageViewedPayload): void {
+    this.sdk.track('achievement_page_viewed', compactParams({ ...payload }));
+  }
+
   /**
    * The ONE public dispatch entry point for the achievement outbox (correction 1).
    * `GameState.drainAnalyticsOutbox()` calls only this — never the private `sdk` or
@@ -457,6 +467,7 @@ export class AnalyticsService {
       default: {
         const exhaustive: never = event;
         void exhaustive;
+        throw new Error('Unknown achievement analytics event');
       }
     }
   }

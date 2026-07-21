@@ -18,6 +18,7 @@ import {
 import {
   buildReconciliationAnomalyEvent,
   deltaToEvents,
+  parsePendingAnalyticsEvent,
   type PendingAnalyticsEvent,
 } from '../achievements/AchievementAnalytics';
 import { analytics } from '../analytics/AnalyticsService';
@@ -459,10 +460,9 @@ function parseAchievementRecord(value: string | null): AchievementRecord | null 
   };
 
   const outbox: PendingAnalyticsEvent[] = Array.isArray(record.analyticsOutbox)
-    ? (record.analyticsOutbox.filter(
-        (e): e is PendingAnalyticsEvent =>
-          e !== null && typeof e === 'object' && typeof (e as { eventId?: unknown }).eventId === 'string',
-      ))
+    ? record.analyticsOutbox
+        .map(parsePendingAnalyticsEvent)
+        .filter((event): event is PendingAnalyticsEvent => event !== null)
     : [];
 
   const nextAnalyticsEventSequence =
@@ -581,6 +581,10 @@ export class GameState {
   /** The record snapshot that always equals what storage last committed — the
    *  rollback target for a record-write throw (KTD2). */
   private _lastDurableRecord: AchievementRecord = emptyAchievementRecord();
+  /** False when load could not prove the persisted achievement journal was read
+   *  and reconciled. Broad saves and live facts must not overwrite an unknown
+   *  durable record with constructor defaults after a transient storage error. */
+  private _achievementPersistenceReady: boolean = false;
 
   get hintsRemaining(): number {
     return this._hintBalance;
@@ -864,19 +868,12 @@ export class GameState {
       completionStatsRegisteredNow = true;
     }
 
-    let baseCoinsGrantedNow = false;
-    if (!transaction.baseCoinsGranted && transaction.baseCoinReward > 0) {
-      this._coinBalance += transaction.baseCoinReward;
-      this._walletCounters.coinsGranted += transaction.baseCoinReward;
-      this._walletCounters.levelCompleteCoinGrants += 1;
-      transaction.baseCoinsGranted = true;
-      baseCoinsGrantedNow = true;
-    }
-
-    // Achievement fact — built after the non-persisting progression + base-coin
-    // mutations, BEFORE any broad save(), so checkpoint 0a is the first durable
-    // write of the completion (correction 5). The finale never throws: a strict
+    // Achievement fact — built after the non-persisting progression mutation,
+    // BEFORE any broad save(), so checkpoint 0a is the first durable write of the
+    // completion (correction 5). The finale never throws: a strict
     // achievement-persistence failure is caught and reported as achievementCommitError.
+    // The ordinary base grant remains after this protocol: checkpoint 0a must not
+    // durably set baseCoinsGranted=true before the base-mutated wallet is durable.
     let achievementCommit: CommittedAchievementDelta | undefined;
     let achievementCommitError: 'persistence-unavailable' | undefined;
     try {
@@ -887,9 +884,18 @@ export class GameState {
       achievementCommitError = 'persistence-unavailable';
     }
 
-    // Trailing broad save persists remaining bookkeeping (base coins on a no-reward
-    // completion, level index, sequence). It runs AFTER the achievement checkpoints,
-    // never advancing state ahead of checkpoint 0a.
+    let baseCoinsGrantedNow = false;
+    if (!transaction.baseCoinsGranted && transaction.baseCoinReward > 0) {
+      this._coinBalance += transaction.baseCoinReward;
+      this._walletCounters.coinsGranted += transaction.baseCoinReward;
+      this._walletCounters.levelCompleteCoinGrants += 1;
+      transaction.baseCoinsGranted = true;
+      baseCoinsGrantedNow = true;
+    }
+
+    // Trailing broad save preserves the existing COINS-before-transaction ordering
+    // for the ordinary base grant. ACH-1 does not claim to repair that pre-existing
+    // path, but it must not invert it into flag-before-wallet and lose the grant.
     this.save();
     return {
       transaction: cloneCompletionTransaction(transaction),
@@ -1225,6 +1231,9 @@ export class GameState {
    * throws propagate to the caller, which reports achievementCommitError.
    */
   applyAchievementFact(fact: AchievementFact): CommittedAchievementDelta {
+    if (!this._achievementPersistenceReady) {
+      throw new Error('achievement persistence is unavailable');
+    }
     // Step 0: finalize any durable pending settlement first, so an in-process retry
     // after a checkpoint-3 throw finalizes rather than returning empty (break #2).
     this.recoverPendingSettlement();
@@ -1363,6 +1372,7 @@ export class GameState {
    * from load().
    */
   drainAnalyticsOutbox(): void {
+    if (!this._achievementPersistenceReady) return;
     const record = this._achievementRecord;
     if (record.analyticsOutbox.length === 0) return;
     const remaining: PendingAnalyticsEvent[] = [];
@@ -1413,13 +1423,16 @@ export class GameState {
       }
       localStorage.setItem(STORAGE_KEYS.COMPLETION_SEQUENCE, String(this._completionSequence));
       localStorage.setItem(STORAGE_KEYS.WALLET_COUNTERS, JSON.stringify(this._walletCounters));
-      localStorage.setItem(STORAGE_KEYS.ACHIEVEMENTS, JSON.stringify(this._achievementRecord));
+      if (this._achievementPersistenceReady) {
+        localStorage.setItem(STORAGE_KEYS.ACHIEVEMENTS, JSON.stringify(this._achievementRecord));
+      }
     } catch {
       // localStorage unavailable — silently ignore
     }
   }
 
   load(): void {
+    this._achievementPersistenceReady = false;
     try {
       this._hintBalance = safeParseNonNegativeInteger(
         localStorage.getItem(STORAGE_KEYS.HINTS),
@@ -1518,6 +1531,13 @@ export class GameState {
         this._achievementRecord = migrateAchievements(derivable, parsedRecord);
         this._lastDurableRecord = this._achievementRecord;
         this.persistAchievementRecord();
+      } else if (parsedRecord.version > ACHIEVEMENT_RECORD_VERSION) {
+        // A downgraded build cannot safely interpret or overwrite a future
+        // journal. Keep gameplay available but disable achievement mutation for
+        // this session; the newer build remains the recovery authority.
+        this._achievementRecord = parsedRecord;
+        this._lastDurableRecord = parsedRecord;
+        return;
       } else {
         this._achievementRecord = { ...parsedRecord, nextAnalyticsEventSequence: sanitizeSequence(parsedRecord) };
         this._lastDurableRecord = this._achievementRecord;
@@ -1525,6 +1545,7 @@ export class GameState {
       // load() NEVER dispatches analytics — the pre-composition SDK has no sinks.
       // It only recovers wallet/settlement (and may append an anomaly for later drain).
       this.recoverPendingSettlement();
+      this._achievementPersistenceReady = true;
     } catch {
       // localStorage unavailable — use defaults
     } finally {

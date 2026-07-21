@@ -46,6 +46,13 @@ export interface AchievementReconciliationAnomalyPayload extends AchievementAnal
   readonly wallet_component: string;
 }
 
+/** Typed discovery/view contracts owned here for the dependent ACH-2 UI card. */
+export interface AchievementViewedPayload extends AchievementAnalyticsBase {}
+
+export interface AchievementPageViewedPayload {
+  readonly event_id: string;
+}
+
 export type AchievementAnalyticsPayload =
   | AchievementProgressPayload
   | AchievementUnlockedPayload
@@ -62,6 +69,76 @@ export type PendingAnalyticsEvent =
   | { readonly eventId: string; readonly name: 'achievement_unlocked'; readonly payload: AchievementUnlockedPayload }
   | { readonly eventId: string; readonly name: 'achievement_reward_granted'; readonly payload: AchievementRewardGrantedPayload }
   | { readonly eventId: string; readonly name: 'achievement_reconciliation_anomaly'; readonly payload: AchievementReconciliationAnomalyPayload };
+
+function analyticsBase(value: unknown, eventId: string): AchievementAnalyticsBase | null {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return null;
+  const record = value as Record<string, unknown>;
+  if (record.event_id !== eventId) return null;
+  if (typeof record.achievement_id !== 'string' || record.achievement_id.length === 0) return null;
+  if (typeof record.occurrence_id !== 'string' || record.occurrence_id.length === 0) return null;
+  if (typeof record.category !== 'string' || record.category.length === 0) return null;
+  return {
+    event_id: eventId,
+    achievement_id: record.achievement_id,
+    occurrence_id: record.occurrence_id,
+    category: record.category,
+  };
+}
+
+function nonNegativeNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= 0;
+}
+
+/**
+ * Fail-closed parser for the durable analytics outbox. The TypeScript union is
+ * not evidence that persisted JSON has the same shape, so validate the name,
+ * its coupled payload, and the duplicated event id before dispatch.
+ */
+export function parsePendingAnalyticsEvent(value: unknown): PendingAnalyticsEvent | null {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return null;
+  const record = value as Record<string, unknown>;
+  if (typeof record.eventId !== 'string' || record.eventId.length === 0) return null;
+  const base = analyticsBase(record.payload, record.eventId);
+  if (base === null) return null;
+  const payload = record.payload as Record<string, unknown>;
+
+  switch (record.name) {
+    case 'achievement_progress':
+      if (!nonNegativeNumber(payload.progress) || !nonNegativeNumber(payload.threshold)) return null;
+      return {
+        eventId: record.eventId,
+        name: record.name,
+        payload: { ...base, progress: payload.progress, threshold: payload.threshold },
+      };
+    case 'achievement_unlocked':
+      if (!nonNegativeNumber(payload.threshold)) return null;
+      return {
+        eventId: record.eventId,
+        name: record.name,
+        payload: { ...base, threshold: payload.threshold },
+      };
+    case 'achievement_reward_granted':
+      if (!nonNegativeNumber(payload.reward_coins) || !nonNegativeNumber(payload.reward_hints)) return null;
+      return {
+        eventId: record.eventId,
+        name: record.name,
+        payload: {
+          ...base,
+          reward_coins: payload.reward_coins,
+          reward_hints: payload.reward_hints,
+        },
+      };
+    case 'achievement_reconciliation_anomaly':
+      if (typeof payload.wallet_component !== 'string' || payload.wallet_component.length === 0) return null;
+      return {
+        eventId: record.eventId,
+        name: record.name,
+        payload: { ...base, wallet_component: payload.wallet_component },
+      };
+    default:
+      return null;
+  }
+}
 
 const CATEGORY_BY_ID: ReadonlyMap<string, string> = new Map(
   ACHIEVEMENT_CATALOG.map((achievement) => [achievement.id, achievement.category]),

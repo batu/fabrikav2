@@ -9,6 +9,10 @@ const K = {
   COUNTERS: 'ftd_wallet_counters',
   ACHIEVEMENTS: 'ftd_achievements',
   ACTIVE_TX: 'ftd_active_completion_transaction',
+  BEST_TIMES: 'ftd_best_times',
+  STREAK_DAYS: 'ftd_streak_days',
+  STREAK_LAST_DATE: 'ftd_streak_last_date',
+  TOTAL_COMPLETIONS: 'ftd_total_levels_completed',
 } as const;
 
 const EMPTY_COUNTERS = {
@@ -22,6 +26,21 @@ const EMPTY_COUNTERS = {
 
 function completionInput(levelId = 'lvl-a', levelIndex = 0) {
   return { levelId, levelIndex, timeSeconds: 20, baseCoinReward: 45 };
+}
+
+function completionFact(occurrenceId: string, totalCompletions = 1, newBest = true) {
+  return {
+    kind: 'level-completion' as const,
+    occurrenceId,
+    transactionId: occurrenceId,
+    masteryLevelId: `logical-${occurrenceId}`,
+    servedLevelId: `served-${occurrenceId}`,
+    progressionIndex: 0,
+    totalCompletions,
+    streakDays: 1,
+    timeSeconds: 20,
+    newBest,
+  };
 }
 
 // happy-dom here provides no localStorage — install a minimal in-memory polyfill.
@@ -71,6 +90,15 @@ function throwAlwaysOnKey(key: string): void {
   vi.spyOn(ls, 'setItem').mockImplementation((k: string, v: string) => {
     if (k === key) throw new Error('QuotaExceededError');
     original(k, v);
+  });
+}
+
+function throwOnGetKey(key: string): void {
+  const ls = store();
+  const original = ls.getItem.bind(ls);
+  vi.spyOn(ls, 'getItem').mockImplementation((k: string) => {
+    if (k === key) throw new Error('SecurityError');
+    return original(k);
   });
 }
 
@@ -188,6 +216,60 @@ describe('write-ahead recovery (AC3/KTD2)', () => {
     expect(gs2.achievementRecordSnapshot().pendingSettlement).toBeNull();
   });
 
+  it.each([K.BEST_TIMES, K.STREAK_DAYS, K.STREAK_LAST_DATE, K.TOTAL_COMPLETIONS])(
+    'checkpoint-0pre failure at %s leaves the durable transaction intent recoverable',
+    (key) => {
+      const gs = new GameState();
+      throwAlwaysOnKey(key);
+      const first = gs.beginLevelCompletionTransaction(completionInput());
+      expect(first.achievementCommitError).toBe('persistence-unavailable');
+      expect(first.transaction.completionStatsRegistered).toBe(true);
+      expect(first.transaction.completionProgressAfter).toBeDefined();
+
+      vi.restoreAllMocks();
+      const recovered = new GameState();
+      expect(recovered.completionTransactionSnapshot()?.id).toBe(first.transaction.id);
+      const retry = recovered.beginLevelCompletionTransaction(completionInput());
+      expect(retry.transaction.id).toBe(first.transaction.id);
+      expect(retry.completionStatsRegisteredNow).toBe(false);
+      expect(retry.achievementCommitError).toBeUndefined();
+    },
+  );
+
+  it.each([K.HINTS, K.COINS, K.COUNTERS])(
+    'checkpoint-0b baseline failure at %s aborts before achievement state commits',
+    (key) => {
+      const gs = new GameState();
+      throwOnNthKey(key, 1);
+      expect(() => gs.applyAchievementFact(completionFact(`baseline-${key}`))).toThrow();
+      expect(gs.achievementRecordSnapshot().processedOccurrenceIds).not.toContain(`baseline-${key}`);
+      expect(gs.achievementRecordSnapshot().pendingSettlement).toBeNull();
+
+      vi.restoreAllMocks();
+      const retry = gs.applyAchievementFact(completionFact(`baseline-${key}`));
+      expect(retry.rewards.length).toBeGreaterThan(0);
+      expect(gs.achievementRecordSnapshot().pendingSettlement).toBeNull();
+    },
+  );
+
+  it.each([K.HINTS, K.COINS, K.COUNTERS])(
+    'checkpoint-2 wallet tear at %s recovers once on a fresh load',
+    (key) => {
+      const gs = new GameState();
+      throwOnNthKey(key, 2);
+      expect(() => gs.applyAchievementFact(completionFact(`wallet-${key}`))).toThrow();
+      expect(gs.achievementRecordSnapshot().pendingSettlement).not.toBeNull();
+
+      vi.restoreAllMocks();
+      const recovered = new GameState();
+      expect(recovered.coinBalance).toBe(45);
+      expect(recovered.achievementRecordSnapshot().pendingSettlement).toBeNull();
+      const duplicate = recovered.applyAchievementFact(completionFact(`wallet-${key}`));
+      expect(duplicate.rewards).toHaveLength(0);
+      expect(recovered.coinBalance).toBe(45);
+    },
+  );
+
   it('crash after checkpoint 2 (finalize never ran) clears pending with no reapply', () => {
     writeTornState({
       coins: '145', // wallet already at after
@@ -286,6 +368,111 @@ describe('persistence-unavailable degradation (final correction)', () => {
     // No achievement reward applied (base coins only).
     expect(gs.coinBalance).toBe(45);
     expect(gs.achievementRecordSnapshot().unlocked).toHaveLength(0);
+  });
+
+  it('does not overwrite a valid achievement journal when load fails before reading it', () => {
+    const original = new GameState();
+    original.recordDogFound('lvl-a', 'dog-a');
+    const durableJournal = localStorage.getItem(K.ACHIEVEMENTS);
+    expect(durableJournal).not.toBeNull();
+
+    throwOnGetKey(K.HINTS);
+    const degraded = new GameState();
+    vi.restoreAllMocks();
+    degraded.grantCoins(1, 'test');
+    expect(degraded.recordDogFound('lvl-b', 'dog-b')).toBeNull();
+    expect(localStorage.getItem(K.ACHIEVEMENTS)).toBe(durableJournal);
+  });
+
+  it('does not downgrade or overwrite an achievement journal from a future record version', () => {
+    const futureRecord = {
+      version: 99,
+      progress: { future_catalog_entry: 7 },
+      masteredLevelIds: [],
+      unlocked: ['future_catalog_entry'],
+      processedOccurrenceIds: ['future:1'],
+      pendingSettlement: null,
+      analyticsOutbox: [],
+      nextAnalyticsEventSequence: 42,
+      futureField: { preserved: true },
+    };
+    const durableJournal = JSON.stringify(futureRecord);
+    localStorage.setItem(K.ACHIEVEMENTS, durableJournal);
+
+    const degraded = new GameState();
+    degraded.grantCoins(1, 'test');
+    expect(degraded.recordDogFound('lvl-a', 'dog-a')).toBeNull();
+    expect(localStorage.getItem(K.ACHIEVEMENTS)).toBe(durableJournal);
+  });
+
+  it('keeps the ordinary base grant recoverable when checkpoint 0pre interrupts after 0a', () => {
+    const gs = new GameState();
+    throwAlwaysOnKey(K.BEST_TIMES);
+    const first = gs.beginLevelCompletionTransaction(completionInput());
+    expect(first.achievementCommitError).toBe('persistence-unavailable');
+    expect(first.baseCoinsGrantedNow).toBe(true);
+    const durableTransaction = JSON.parse(localStorage.getItem(K.ACTIVE_TX) ?? '{}') as { baseCoinsGranted?: boolean };
+    expect(durableTransaction.baseCoinsGranted).toBe(false);
+
+    vi.restoreAllMocks();
+    const recovered = new GameState();
+    const retry = recovered.beginLevelCompletionTransaction(completionInput());
+    expect(retry.transaction.id).toBe(first.transaction.id);
+    expect(retry.baseCoinsGrantedNow).toBe(true);
+    expect(recovered.coinBalance).toBe(90);
+    expect(recovered.walletSnapshot().counters.levelCompleteCoinGrants).toBe(1);
+  });
+});
+
+describe('reward cap and analytics retry', () => {
+  it('records only the actually applied hint reward at the wallet cap', () => {
+    const seeded: AchievementRecord = {
+      version: 1,
+      progress: {
+        first_completion: 49,
+        completions_10: 49,
+        completions_25: 49,
+        completions_50: 49,
+        first_best: 1,
+      },
+      masteredLevelIds: [],
+      unlocked: ['first_completion', 'completions_10', 'completions_25', 'first_best'],
+      processedOccurrenceIds: ['migration:v1'],
+      pendingSettlement: null,
+      analyticsOutbox: [],
+      nextAnalyticsEventSequence: 0,
+    };
+    localStorage.setItem(K.ACHIEVEMENTS, JSON.stringify(seeded));
+    localStorage.setItem(K.HINTS, '2');
+    const gs = new GameState();
+    const committed = gs.applyAchievementFact(completionFact('cap-50', 50, false));
+    expect(committed.rewards).toContainEqual({ achievementId: 'completions_50', coins: 100, hints: 1 });
+    expect(gs.hintsRemaining).toBe(3);
+    expect(gs.walletSnapshot().counters.hintsGranted).toBe(1);
+
+    const recovered = new GameState();
+    expect(recovered.hintsRemaining).toBe(3);
+    expect(recovered.walletSnapshot().counters.hintsGranted).toBe(1);
+  });
+
+  it('retains only failed local dispatches and retries them after reload', () => {
+    const gs = new GameState();
+    gs.beginLevelCompletionTransaction(completionInput());
+    const firstEventId = gs.achievementRecordSnapshot().analyticsOutbox[0]?.eventId;
+    expect(firstEventId).toBeDefined();
+    const dispatch = vi.spyOn(analytics, 'dispatchAchievementEvent').mockImplementation((event) => {
+      if (event.eventId === firstEventId) throw new Error('dispatch unavailable');
+    });
+    gs.drainAnalyticsOutbox();
+    expect(gs.achievementRecordSnapshot().analyticsOutbox.map((event) => event.eventId)).toEqual([firstEventId]);
+    expect(dispatch).toHaveBeenCalled();
+
+    vi.restoreAllMocks();
+    const recovered = new GameState();
+    const retry = vi.spyOn(analytics, 'dispatchAchievementEvent').mockImplementation(() => undefined);
+    recovered.drainAnalyticsOutbox();
+    expect(retry).toHaveBeenCalledTimes(1);
+    expect(recovered.achievementRecordSnapshot().analyticsOutbox).toHaveLength(0);
   });
 });
 

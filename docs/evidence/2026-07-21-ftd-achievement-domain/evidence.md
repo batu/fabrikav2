@@ -18,7 +18,8 @@ Partial: fresh typecheck and unit evidence confirms the headless achievement con
 - Added the typed achievement catalog, fact/delta contract, versioned persisted record, conservative migration, durable analytics outbox, and deterministic event mapping.
 - Integrated achievement facts and recoverable reward settlement with `GameState`, preserving the existing completion result and allowing the core finale to continue when achievement persistence is unavailable.
 - Wired accepted dog finds and completion commits to the domain, and deferred recovered analytics draining until real SDK sinks are composed.
-- Added deterministic unit coverage for catalog ordering, progress, dedupe, relaunch, torn writes, migration, fallback identity, wallet reconciliation, and analytics field survival.
+- Added deterministic unit coverage for catalog ordering, progress, dedupe, relaunch, every strict settlement write boundary, migration, fallback identity, wallet reconciliation, analytics field survival/retry, and runtime wiring order.
+- Applied review hardening so a failed load cannot overwrite an unread journal, checkpoint 0a cannot strand an ordinary base grant, malformed persisted outbox events fail closed, and ACH-2 has typed discovery/view emitters.
 - This card is non-visible: the scene/bootstrap diff adds domain and analytics calls only and does not change rendered objects, layout, styling, textures, overlays, or native configuration.
 
 ## Evidence Captured
@@ -26,13 +27,14 @@ Partial: fresh typecheck and unit evidence confirms the headless achievement con
 | Type | Artifact / Command | Result |
 |------|--------------------|--------|
 | typecheck | `npm run typecheck -w @fabrikav2/find_the_dog` | passed, exit 0 |
-| unit suite | `npm run test:unit -w @fabrikav2/find_the_dog` | passed: 26 files, 151 tests |
-| focused achievement tests | `npx vitest run tests/unit/achievement-progress.test.ts tests/unit/achievement-persistence.test.ts tests/unit/achievement-migration.test.ts tests/unit/achievement-analytics.test.ts --reporter=verbose` from `games/find_the_dog` | passed: 4 files, 47 tests |
-| fault-injection / recovery | Focused test trace | passed: checkpoint-1 and checkpoint-2 crash recovery, mixed per-key tears, checkpoint-1/3 same-process retries, reconciliation anomaly journaling/drain, and persistence-unavailable finale degradation |
-| contract round trip | Focused test trace | passed: catalog order/reward bounds, cumulative progress/mastery reload, conservative migration, sequence-backed analytics IDs, typed dispatch, and GameAnalytics field survival |
-| diff hygiene | `git diff --check dbe90c68..HEAD` | passed, exit 0 |
+| unit suite | `npm run test:unit -w @fabrikav2/find_the_dog` | passed: 27 files, 174 tests |
+| focused review tests | `npm run test:unit -w @fabrikav2/find_the_dog -- --run tests/unit/achievement-persistence.test.ts tests/unit/achievement-analytics.test.ts tests/unit/achievement-runtime-wiring.test.ts` | passed: 3 files, 47 tests |
+| fault-injection / recovery | Focused test trace | passed: all four completion-progress writes, all three wallet baseline writes, all three settlement wallet writes, checkpoint-1/3 same-process retries, mixed per-key tears, hint-cap application, reconciliation anomaly journaling/drain, and persistence-unavailable finale degradation |
+| contract round trip | Focused test trace | passed: catalog order/reward bounds, cumulative progress/mastery reload, conservative migration, sequence-backed analytics IDs, typed dispatch/page-view methods, malformed-outbox rejection, GameAnalytics field survival, and GameScene/SdkContext wiring order |
+| diff hygiene | `git diff --check` | passed, exit 0 |
 | runtime-surface classification | `git diff --unified=4 dbe90c68..HEAD -- games/find_the_dog/src/scenes/GameScene.ts games/find_the_dog/src/sdk/SdkContext.ts` | headless-logic confirmed; only domain recording/outbox draining calls added |
-| repository audit | `npm run audit` | failed, exit 1: unchanged `games/shell_template/design/assets/app-icon.png` source is missing; remaining output is warnings in untouched design/reference/config files |
+| repository audit | `npm run audit` | failed: unchanged `games/shell_template/design/assets/app-icon.png` source is missing; remaining output is warnings in untouched design/reference/config files |
+| optional lint | `npx eslint <review-changed TypeScript files>` | unavailable: repository has no ESLint v9 `eslint.config.*`; required typecheck/unit gates remain green |
 | audit scope check | `git diff --name-only dbe90c68..HEAD` compared with audit output | no audit error points to an ACH-1 changed file; the failing `shell_template` asset is outside the card scope fence |
 
 ## Reviewer Assessments
@@ -43,7 +45,7 @@ Partial: fresh typecheck and unit evidence confirms the headless achievement con
 
 ## Analysis
 
-The change-specific gates are green. The full game typecheck passes, the complete unit suite passes, and the focused achievement suites directly exercise the high-risk behavior: duplicate callbacks, persistence/relaunch, wallet tears at settlement boundaries, same-process retry after record-write failure, conservative migration, fallback-safe mastery identity, bounded unique analytics IDs, and canonical analytics field survival.
+The change-specific gates are green. The full game typecheck passes, the complete 174-test unit suite passes, and the focused achievement suites directly exercise the high-risk behavior: duplicate callbacks, persistence/relaunch, every strict progression/wallet write boundary, same-process retry after record-write failure, hint-cap settlement, conservative migration, fallback-safe mastery identity, bounded unique analytics IDs, malformed/future journal input, and canonical analytics field survival/retry.
 
 The repository audit does not pass. Its only error is an asset-identity source missing under `games/shell_template`; it also reports warnings in pre-existing design tokens, reference manifests, dependencies, and assets. None of those paths are changed by ACH-1, and the card's scope fence prohibits repairing `shell_template`, design assets, refs, or unrelated audit debt here. This prevents a fully `passed` ce-evidence status, but it does not invalidate the focused headless-logic evidence and is acceptable to carry into PR review as an explicit repository release gate.
 
