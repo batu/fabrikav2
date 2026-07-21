@@ -12,7 +12,7 @@ Genuine on-device proof of the Find the Dog achievement system (TWF card
 - Bundle id: `com.baseardahan.hiddenobj`, signing team `42L77JAX72`, Debug
   configuration, `vite build --mode ios`.
 - Raw result bundles (not committed; large): `games/find_the_dog/.work/collectRun/`
-  `proof20.xcresult` (fixed build) and `persist2.xcresult` (clean-build persistence); earlier iterations proof15–19/persist1 retained for the troubleshooting trail.
+  `proof21.xcresult`/`proof22.xcresult` (round-2 design build) and `persist4.xcresult` (clean-build persistence); earlier iterations retained for the troubleshooting trail.
 
 ## What each capture shows
 
@@ -24,8 +24,9 @@ Genuine on-device proof of the Find the Dog achievement system (TWF card
    Confirmed by harness marker `proof1: ok=true achOpen=true cards=11`.
 3. `03-unlock-callout-and-toast.png` — the REAL unlock moment: level 1 won
    through the genuine completion path (all 26 dogs found via dispatched
-   touch input), showing simultaneously the in-app unlock toast ("🏆 First Find +1 more
-   unlocked!", copy deliberately distinct from the card callout) and the
+   touch input), showing simultaneously the in-app unlock toast (gold ★ medal +
+   "First Find +1 more unlocked!", positioned below the coin pill, copy
+   deliberately distinct from the card callout) and the
    completion-card callout ("Achievement unlocked — First Find and 1 more —
    Saved to your Achievements").
    Confirmed by `proof2: ok=true callout=true toast=true found=26/26
@@ -74,7 +75,16 @@ The clean persistence build was identical but WITHOUT
 generated `dist/levels` was pruned to the first three bundled levels (the full
 set is ~5 GB); `public/levels` was never touched.
 
-## Aesthetics-review fixes verified in these captures
+## Aesthetics round-2 fixes verified in these captures
+
+Round 2 escalated collection styling and toast treatment to P1. These frames
+show: badged achievement cards (gold ★ medal, dimmed when locked), colored
+state chips (green/amber/tan), themed beveled progress tracks, a gold-tinted
+completed card, a bottom scroll fade instead of a hard clip, and the toast
+repositioned below the HUD coin pill with the game's medal glyph instead of
+an emoji.
+
+## Aesthetics round-1 fixes verified in these captures
 
 The first evidence set failed aesthetics review (status-bar overlap + native
 focus ring on the achievements page; last card clipped). Root cause: the modal

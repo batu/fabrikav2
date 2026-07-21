@@ -561,12 +561,16 @@ function renderAchievementsPageBody(): string {
         ${achievements.map((achievement) => {
           const completed = achievement.progress >= achievement.threshold;
           const state = completed ? 'Completed' : achievement.progress > 0 ? 'In progress' : 'Locked';
-          return `<article class="achievement-card" data-achievement-id="${achievement.id}" aria-label="${achievement.name}: ${state}, ${achievement.progress} of ${achievement.threshold}. ${rewardStatusCopy(achievement.rewardStatus)}">
-            <header><h4>${achievement.name}</h4><strong class="achievement-state">${state}</strong></header>
-            <p>${achievement.description}</p>
-            <progress value="${achievement.progress}" max="${achievement.threshold}" aria-label="${achievement.name} progress: ${achievement.progress} of ${achievement.threshold}">${achievement.progress}/${achievement.threshold}</progress>
-            <span class="achievement-progress-text">${achievement.progress}/${achievement.threshold}</span>
-            <p class="achievement-reward-status">${rewardStatusCopy(achievement.rewardStatus)}</p>
+          const stateClass = completed ? 'completed' : achievement.progress > 0 ? 'in-progress' : 'locked';
+          return `<article class="achievement-card achievement-card--${stateClass}" data-achievement-id="${achievement.id}" aria-label="${achievement.name}: ${state}, ${achievement.progress} of ${achievement.threshold}. ${rewardStatusCopy(achievement.rewardStatus)}">
+            <span class="achievement-badge" aria-hidden="true">★</span>
+            <div class="achievement-card-main">
+              <header><h4>${achievement.name}</h4><strong class="achievement-state">${state}</strong></header>
+              <p>${achievement.description}</p>
+              <progress value="${achievement.progress}" max="${achievement.threshold}" aria-label="${achievement.name} progress: ${achievement.progress} of ${achievement.threshold}">${achievement.progress}/${achievement.threshold}</progress>
+              <span class="achievement-progress-text">${achievement.progress}/${achievement.threshold}</span>
+              <p class="achievement-reward-status">${rewardStatusCopy(achievement.rewardStatus)}</p>
+            </div>
           </article>`;
         }).join('')}
       </div>

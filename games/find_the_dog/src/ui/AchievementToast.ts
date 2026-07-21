@@ -24,13 +24,18 @@ export function showAchievementUnlockToast(unlocked: readonly { name: string }[]
 
   // Copy is deliberately distinct from the completion-card callout (which
   // reads "Achievement unlocked / <names> / guidance") so the two surfaces
-  // never show the same text twice on one screen.
+  // never show the same text twice on one screen. The medal is the same ★
+  // treatment as the Home achievements button — no emoji on this surface.
+  const medal = document.createElement('span');
+  medal.className = 'achievement-unlock-toast-medal';
+  medal.setAttribute('aria-hidden', 'true');
+  medal.textContent = '★';
   const summary = document.createElement('strong');
   summary.className = 'achievement-unlock-toast-summary';
   summary.textContent = unlocked.length === 1
-    ? `🏆 ${unlocked[0]!.name} unlocked!`
-    : `🏆 ${unlocked[0]!.name} +${unlocked.length - 1} more unlocked!`;
-  toast.append(summary);
+    ? `${unlocked[0]!.name} unlocked!`
+    : `${unlocked[0]!.name} +${unlocked.length - 1} more unlocked!`;
+  toast.append(medal, summary);
   document.body.appendChild(toast);
 
   window.setTimeout(() => {
