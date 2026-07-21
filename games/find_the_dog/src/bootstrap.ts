@@ -14,6 +14,7 @@ import { restoreNonConsumableEntitlements } from './shop/PurchaseFulfillment';
 import { buildFullShopCatalog } from './shop/ProductCatalog';
 import { installPortraitOrientationLock } from './platform/portraitOrientation';
 import { installGameLifecycle } from './platform/gameLifecycle';
+import { notificationService } from './notifications/NotificationService';
 import { installAudioUnlock, installButtonVoiceEffects } from './audio/AudioManager';
 import { getSdkContext } from './sdk/SdkContext';
 import { preloadIcons } from './ui/iconPreload';
@@ -38,6 +39,11 @@ initHUD();
 // timers/tweens, ambient motion, and audio instead of cooking the phone. See
 // platform/gameLifecycle.ts.
 installGameLifecycle(game);
+// Retention reminders: schedule on suspend, cancel on resume. The one-time OS
+// permission prompt fires on the second app open — never on first launch,
+// never mid-gameplay.
+notificationService.install();
+void notificationService.maybePromptOnLaunch();
 const shouldInitializeAds = gameState.settings.adsEnabled && !gameState.hasNoAdsEntitlement;
 const adConsentReady = shouldInitializeAds ? adService.init() : Promise.resolve();
 configureAttributionStartupGate(adConsentReady);

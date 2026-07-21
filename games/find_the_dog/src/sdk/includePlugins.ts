@@ -15,6 +15,7 @@
 export const ALWAYS_INCLUDED_PLUGINS: readonly string[] = [
   '@capacitor/app',
   '@capacitor/haptics',
+  '@capacitor/local-notifications',
   '@revenuecat/purchases-capacitor',
 ];
 
