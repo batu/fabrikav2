@@ -16,6 +16,7 @@ describe('capacitor includePlugins allowlist', () => {
     expect(ALWAYS_INCLUDED_PLUGINS).toEqual([
       '@capacitor/app',
       '@capacitor/haptics',
+      '@capacitor/local-notifications',
       '@revenuecat/purchases-capacitor',
     ]);
   });

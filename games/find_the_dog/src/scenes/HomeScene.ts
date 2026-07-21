@@ -538,6 +538,8 @@ export class HomeScene extends Phaser.Scene {
   private renderHome(): string {
     const wallet = gameState.walletSnapshot();
     const currentLevel = gameState.currentLevelIndex + 1;
+    // Read-side streak (0 when lapsed), so a dead streak never renders.
+    const streakDays = gameState.currentStreakDays();
     const bannerMedia = this.renderBannerMedia();
 
     return `
@@ -568,6 +570,11 @@ export class HomeScene extends Phaser.Scene {
               <img src="/ui/menu-icons/icon_hint_magnifier.png" alt="" aria-hidden="true" data-economy-anchor="hint">
               <button id="home-hint-plus" class="home-pill-plus" type="button" aria-label="Buy more hints">+</button>
             </div>
+            ${streakDays > 0 ? `
+            <div class="home-balance-pill home-streak-pill" aria-label="${streakDays}-day play streak">
+              <span class="home-streak-flame" aria-hidden="true">🔥</span>
+              <span>${streakDays}</span>
+            </div>` : ''}
           </aside>
         </div>
 

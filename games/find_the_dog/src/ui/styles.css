@@ -4955,3 +4955,15 @@
   font-weight: 800;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
 }
+
+/* --- Home streak pill (right rail, rendered only while a streak is alive) --- */
+.home-streak-pill {
+  background: linear-gradient(180deg, #fff3e0, #ffd9a8);
+  color: #7a3d10;
+}
+
+.home-streak-flame {
+  font-size: 20px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 2px rgba(90, 55, 20, 0.16));
+}

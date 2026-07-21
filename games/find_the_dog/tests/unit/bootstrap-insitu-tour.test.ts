@@ -111,6 +111,7 @@ describe("find_the_dog bootstrap insitu tour wiring", () => {
     }));
     vi.doMock("../../src/platform/gameLifecycle", () => ({
       installGameLifecycle: vi.fn(),
+      registerLifecycleHooks: vi.fn(() => vi.fn()),
     }));
     vi.doMock("../../src/audio/AudioManager", () => ({
       installAudioUnlock: vi.fn(),
