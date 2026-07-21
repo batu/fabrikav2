@@ -158,6 +158,21 @@ the wallet/UI/analytics must report `0`). So the two are distinct types:
   `achievementId` to associate each reward event with its unlock, and it is well-defined for
   multi-unlock deltas and for unlocks that carry no reward (no `GrantedReward` emitted).
 
+**A pure `applyDeltaToRecord` closes the progressChanges → persisted-progress gap (correction
+3).** `apply()` returns a delta whose `progressChanges: AchievementProgressChange[]` carry the
+new per-achievement progress values, but the durable record persists `progress: Record<id,
+number>` — nothing mapped the changes into that map, so a red-team break was that processed
+occurrences persisted while cumulative progress did **not**, and after reload the next fact
+recomputed from a stale (or zero) base. So `AchievementSystem` owns an explicit **pure**
+`applyDeltaToRecord(record, delta): AchievementRecord` that produces the next record by folding
+**every** `progressChanges` entry into `progress[id]`, adding `newlyUnlocked` ids to `unlocked`,
+adding `fact.levelId` to `masteredLevelIds` for a `newBest` (if absent), and appending the
+occurrence to `processedOccurrenceIds` — all **together**, as one derived next-record value.
+GameState's checkpoint-1 mutation (and the progress-only/no-wallet path, and migration) applies
+its record change **through this one function** so cumulative progress, unlocks, mastery, and
+processed-set always advance consistently. A U3 serialize/reload test proves cumulative progress
+survives a round-trip and the next fact continues from the persisted value, not a stale base.
+
 **The committed delta is surfaced additively — the existing completion result is NOT
 replaced (fixes red-team break #1).** The real consumer `GameScene.triggerLevelFinale`
 (GameScene.ts:1629-1674) reads `beginLevelCompletionTransaction()`'s
@@ -280,22 +295,36 @@ player mutation may interleave the checkpoints**:
 3. **Finalize (checkpoint 3).** Clear `pendingSettlement` to `null` in memory. Durably
    persist the **record key** again. Settlement is complete.
 
-**In-memory rollback on a record-write throw (correction 8).** Checkpoint 1 mutates the
-in-memory record (processed += occurrence, unlocks, `masteredLevelIds`, `analyticsOutbox`,
-`pendingSettlement`) **before** `persistAchievementRecord()` is called. If that `setItem`
-**throws** (the throwing helper propagates it), the in-memory record is now *ahead* of durable
-storage: a **same-process retry** of the same fact would see the occurrence already in
-`processedOccurrenceIds` and falsely dedupe it (empty delta) even though nothing was durably
-committed. So `applyAchievementFact` snapshots the record (a shallow structural clone of the
-mutated fields, or simply re-`parseAchievementRecord()` from storage) **before** the checkpoint-1
-mutation, and on **any** record-write throw (checkpoint 1 or 3) it **rolls the in-memory record
-back to that last-durable snapshot** before re-throwing/returning. After rollback the occurrence
-is unprocessed in memory, so a same-process retry re-derives it cleanly and grants exactly once.
+**In-memory rollback restores the ACTUAL last durable record — not always pre-checkpoint-1
+(corrections 4 + 8).** `applyAchievementFact` tracks a `lastDurableRecord` snapshot that always
+equals what storage last committed:
+- **Before checkpoint 1** it is the pre-transaction record (the record as loaded/last persisted,
+  occurrence still unprocessed).
+- **After checkpoint 1's `persistAchievementRecord()` returns** it is updated to the just-committed
+  record (occurrence processed, progress folded, unlocks, `masteredLevelIds`, `analyticsOutbox`,
+  and the non-null `pendingSettlement`) — because that state is now durable.
+
+On a **record-write throw**, roll the in-memory record back to `lastDurableRecord`, matched to
+which checkpoint failed:
+- **Checkpoint 1 throws** (nothing about this occurrence is durable yet): rollback lands on the
+  **pre-transaction** snapshot, occurrence **unprocessed**. A same-process retry re-derives the
+  fact cleanly and grants exactly once — closing the original correction-8 false-dedupe (a
+  committed-in-memory-but-not-durable occurrence). U3 injects a checkpoint-1 throw, retries the
+  same fact **in-process** (no reload), asserts a single grant/unlock.
+- **Checkpoint 3 throws** (checkpoint 1 **and** the checkpoint-2 wallet write **are durable**):
+  rollback must land on the **post-checkpoint-1 pending snapshot** (occurrence **processed**,
+  `pendingSettlement` still present) — **never** the pre-checkpoint-1 record (correction 4). If it
+  rolled back to pre-checkpoint-1, a same-process retry would see the occurrence unprocessed,
+  re-baseline the **already-rewarded** wallet, and grant a **second** time. Instead, the occurrence
+  stays processed and `pendingSettlement` remains, so the wallet is already at `after` with a live
+  pending marker; the next fact/retry must run `recoverPendingSettlement()` first, which finds every
+  component `== after`, finalizes (clears pending) without reapplying, and only then applies the new
+  fact — no double grant, no lost grant. A U3 test injects a checkpoint-3 throw, then **retries the
+  same fact in the same process** and asserts the reward is **not** doubled and pending finalizes.
+
 (Checkpoint 2 is a wallet write, not a record write; a throw there leaves the durable
-`pendingSettlement` from checkpoint 1 intact and is resolved by load-time recovery — no record
-rollback needed.) A U3 test injects a checkpoint-1 `persistAchievementRecord()` throw, then
-**retries the same fact in the same process** (no reload) and asserts a single grant/unlock, not
-a falsely-deduped empty delta.
+`pendingSettlement` from checkpoint 1 intact and is resolved by `recoverPendingSettlement()` — the
+in-memory record already matches `lastDurableRecord`, so no record rollback is needed.)
 
 **Recovery on load.** If `pendingSettlement` is absent, nothing to do. If present, resolve
 each wallet component (`coins`, `hints`, every `counters` field) independently against
@@ -305,20 +334,27 @@ its own `before`/`after`:
 - component `== after` → its write landed → leave as-is.
 - component matches **neither** → true anomaly for that component (only possible on genuine
   storage corruption, since per-key writes are atomic). **Mismatch policy:** do **not**
-  reapply — trust the stored component as-is, and emit a reconciliation-anomaly analytics
-  event naming the occurrence. This biases the corrupted edge to **at-most-once** (never a
-  double grant).
+  reapply — trust the stored component as-is, and **append a fully-formed
+  `achievement_reconciliation_anomaly` event (stable `event_id`, complete payload naming the
+  occurrence and the mismatched component) to `analyticsOutbox`** so the post-composition drain
+  dispatches it (correction 6 — recovery **may and must** update the outbox; the prior rule
+  forbidding it left the anomaly undispatchable because drain is the only dispatcher). This biases
+  the corrupted edge to **at-most-once** (never a double grant).
 **Recovery must durably persist the repaired wallet before clearing the intent
 (correction 6).** The prior draft resolved components *in memory*, then cleared
 `pendingSettlement` and persisted only the record — so a second fresh `load()` would read
 the still-torn stored wallet at `before` with no pending intent and **permanently lose the
 grant**. The corrected ordering, executed while `pendingSettlement` remains durable:
-1. Resolve each wallet component in memory (component-wise `before`/`after`/mismatch above).
+1. Resolve each wallet component in memory (component-wise `before`/`after`/mismatch above); on
+   any component mismatch, **append the `achievement_reconciliation_anomaly` event to the
+   in-memory `analyticsOutbox`** (correction 6) so it is carried into the record persist at step 3.
 2. **Strict-persist** the repaired wallet — `persistWallet()` writing HINTS/COINS/
    WALLET_COUNTERS — with the throwing helper. If this tears, `pendingSettlement` is still
    durable (not yet cleared), so the next `load()` simply re-resolves and re-persists: safe.
 3. Only after the wallet persist returns, clear `pendingSettlement` to `null`, keep the
-   occurrence marked processed, and `persistAchievementRecord()`. If **this** final record
+   occurrence marked processed, and `persistAchievementRecord()` — which durably commits the
+   cleared pending **and any appended anomaly event in `analyticsOutbox`**, so the post-composition
+   `drainAnalyticsOutbox()` will dispatch it. If **this** final record
    write fails, the next `load()` sees wallet `== after` **and** a still-present pending —
    component-wise recovery finds every component already at `after` (leaves them) and
    finalizes without reapplying: no double grant, no lost grant.
@@ -461,6 +497,14 @@ does **not** make the call type-check or preserve fields:
   single-colon `achievement:reward_granted` would never match, leaving `customFields` zeroed.
   The default `_`→`:` mapping already yields these ids, so no explicit `gameAnalyticsDesignEventId`
   case is needed — only the `canonicalEventIdForDesignEvent` reverse entries above.)
+  **Also map the later-UI page-view ids now (correction 5).** Even though this card does **not**
+  emit them (ACH-2 does), the reverse mapping and canonical rows/allow-lists must already carry
+  `achievement:viewed` → `achievement_viewed` and `achievement:page:viewed` →
+  `achievement_page_viewed` (from `achievement_viewed`/`achievement_page_viewed` under the
+  `_`→`:` rule). Otherwise, when ACH-2 emits them, the sink's fall-through hits
+  `canonicalEventIdForDesignEvent === null` and zeroes their `customFields` — the same drop
+  this card fixes for its own events. Owning the full reverse mapping here keeps the contract
+  whole for the consuming card.
 - **Sink test (`achievement-analytics.test.ts` + the GameAnalytics sink path).** Assert that
   dispatching a real `achievement_unlocked`/`achievement_progress`/`achievement_reward_granted`
   event through the GameAnalytics sink produces a `designEvent` whose `customFields` **contains**
@@ -482,22 +526,44 @@ reconstruct the exact payloads from an occurrence id alone. The record therefore
 durable **analytics outbox** — `analyticsOutbox: PendingAnalyticsEvent[]`, where each entry
 is a fully-formed `{ eventId, name, payload }` with a **stable `eventId`** (derived
 deterministically, e.g. `<occurrenceId>:<eventKind>:<achievementId>`) and the complete
-payload the sink needs. **Ordering (durability-first, fixes the prior gap):** the full event
+payload the sink needs. **Wire field is `event_id` (snake_case) — correction 2.** The outbox
+entry's structural `eventId` is an internal convenience only; the value that travels **on every
+analytics payload and every GameAnalytics wire row is `event_id`** (snake_case), because
+`compactParams`/`compactCustomFields` filter on the **exact** snake_case allow-list key
+(GameAnalyticsEvents.ts:150-177). So each `analytics.achievement*` params type carries
+`event_id: string` (set from the outbox entry's `eventId`), `event_id` is on every canonical
+row's `allowedGameAnalyticsCustomFields`, and a U6 test asserts `event_id` **survives both
+`compactParams` and `compactCustomFields`** (i.e. is present in the emitted design-event, not
+stripped). No automatic OwnedMirror top-level-id dedupe is claimed on this id (correction 3).
+**Ordering (durability-first, fixes the prior gap):** the full event
 list is appended to `analyticsOutbox` and persisted **in the same checkpoint-1 record write
 that first marks the occurrence processed/unlocked** — *before* the wallet write and *before*
 finalize — so there is never an instant where a committed occurrence exists without its
 reconstructable events. This holds for reward paths, progress-only/no-wallet paths, and
 migration alike (each first commits its outbox with its occurrence mark).
 
+**Public typed dispatcher — no dynamic private-sdk access (correction 1).** `AnalyticsService.sdk`
+is **private** and only the per-event camelCase methods are public, so neither
+`analytics.track(event.name, event.payload)` nor `analytics[event.name](event.payload)`
+type-checks from `GameState`. So `AnalyticsService` exposes **one** public
+`dispatchAchievementEvent(event: PendingAnalyticsEvent): void` with an **exhaustive `switch`**
+over the achievement event-name union (`achievement_progress` | `achievement_unlocked` |
+`achievement_reward_granted` | `achievement_reconciliation_anomaly`); each arm calls the matching
+typed `analytics.achievement*` method (which internally reaches the private `sdk.track`). The
+`switch` is `never`-exhaustive so a future event name fails to compile until an arm is added.
+`GameState.drainAnalyticsOutbox()` calls **only** this public dispatcher per event — no dynamic
+property access, no `sdk` reach-in. (The later-UI page-view names are dispatched by ACH-2, not by
+this card's drain, so they are not arms of this switch yet.)
+
 **Honest dispatch boundary — there is no sink-success ack (fixes red-team break #5).**
 The only observable boundary is the **synchronous return of the local dispatch call**:
-`analytics.achievement*` → `AnalyticsService` → `sdk.track(...)`, which enqueues/hands off
+`dispatchAchievementEvent` → `analytics.achievement*` → `sdk.track(...)`, which enqueues/hands off
 locally and **returns `void`**; the underlying sink (`GameAnalyticsSink`) initializes lazily,
 **swallows** initialization and dispatch errors (GameAnalyticsSink.ts:72-76), and never
 reports provider delivery. So "emitted successfully to the provider" is **unobservable** and
 this plan does not claim it. The durable guarantee is scoped to what we can observe: after
-the settlement finalizes, GameState drains the outbox by handing each event to the local
-dispatch call; an `eventId` is removed from the outbox **only after that local `track` handoff
+the settlement finalizes, GameState drains the outbox by handing each event to
+`dispatchAchievementEvent`; an `eventId` is removed from the outbox **only after that dispatch
 returns without throwing** — proving the event reached the local dispatch boundary, **not**
 that a provider received it.
 
@@ -505,8 +571,10 @@ that a provider received it.
 `GameState` is a singleton constructed (and `load()`-ed) **before** `getSdkContext()` composes
 `AnalyticsService`; the default pre-composition SDK has `sinks: []`, so a load-time dispatch
 would return normally and **delete the outbox events without any real sink ever seeing them**.
-Therefore `load()` **only recovers wallet/settlement and leaves `analyticsOutbox` intact**; it
-never dispatches. Draining is an **explicit method** (`drainAnalyticsOutbox()`) invoked by the
+Therefore `load()` **never dispatches** — it only recovers wallet/settlement and, on a mismatch,
+**appends** a reconciliation-anomaly event to `analyticsOutbox` for later drain (correction 6),
+without ever handing an event to a sink. Draining is an **explicit method**
+(`drainAnalyticsOutbox()`) invoked by the
 bootstrap/`SdkContext` path **after** the real analytics sinks are installed and ready — the
 same seam that already wires `AnalyticsService` into `GameState`. Both the normal
 post-settlement drain and the recovery-of-a-previously-committed-outbox drain go through this
@@ -549,13 +617,13 @@ sequenceDiagram
     Note over State: dedupe: txId already processed? -> empty delta
     State->>LS: BASELINE (checkpoint 0): persistWallet() flush HINTS/COINS/WALLET_COUNTERS<br/>(error-propagating; throw -> ABORT, no achievement state); before = persisted baseline
     State->>State: build CommittedDelta: post-cap GrantedReward[]{achievementId,coins,hints};<br/>deltaToEvents -> full event list
-    State->>State: WRITE-AHEAD (all in one record write): processed += txId; unlocked += ids;<br/>masteredLevelIds += levelId (if newBest & absent);<br/>analyticsOutbox += full events;<br/>pendingSettlement = {txId, before=baseline, after=before+post-cap reward}
+    State->>State: WRITE-AHEAD (all in one record write): applyDeltaToRecord folds progress[id]+unlocked+masteredLevelIds+processed;<br/>analyticsOutbox += full events;<br/>pendingSettlement = {txId, before=baseline, after=before+post-cap reward};<br/>lastDurableRecord updated after this persist returns
     State->>LS: persist RECORD key (checkpoint 1 — commits occurrence + events + intent together)
     State->>State: WALLET: applyCoinGrant/applyHintGrant (shared primitives, not grantCoins) -> lands at after
     State->>LS: persistWallet() HINTS, COINS, WALLET_COUNTERS (3 keys, checkpoint 2)
     State->>State: FINALIZE: record.pendingSettlement = null
     State->>LS: persist RECORD key (checkpoint 3)
-    State->>An: drainAnalyticsOutbox() [post-composition only, never in load()]: dispatch each event; remove eventId after local handoff returns (not provider ack)
+    State->>An: drainAnalyticsOutbox() [post-composition only, never in load()]: dispatchAchievementEvent(event) per entry (public exhaustive switch); remove eventId after handoff returns (not provider ack)
     State-->>GS: CompletionTransactionResult + achievementCommit: CommittedAchievementDelta (existing fields intact)
 ```
 
@@ -566,7 +634,8 @@ component already at `after` is left, a component matching neither is a per-comp
 handled by the mismatch policy. Because the wallet is three separate keys, a mixed tear
 (e.g. COINS advanced, HINTS not) is resolved correctly rather than mis-read as corruption.
 Re-applying the same `txId` is independently a no-op via `processedOccurrenceIds` (KTD3).
-`load()` itself leaves `analyticsOutbox` untouched; the post-composition `drainAnalyticsOutbox()`
+`load()` itself never dispatches (it may only append a reconciliation anomaly to
+`analyticsOutbox`, correction 6); the post-composition `drainAnalyticsOutbox()`
 (called by bootstrap after the real sinks compose) re-dispatches any event still in the outbox
 from its stored payload and removes it once the local dispatch handoff returns (KTD6 — at the
 dispatch boundary, not provider receipt; the owned mirror re-dedupes on its own id).
@@ -701,6 +770,11 @@ ordering in `AchievementSystem.ts`.
   (requested amount only — the post-cap applied `GrantedReward` is GameState's job, KTD1).
   Pure, deterministic, no I/O; mastery progress is derived from the record's persisted
   `masteredLevelIds` set passed in, never a bare counter.
+- **Pure `applyDeltaToRecord(record, delta): AchievementRecord` (correction 3)** lives here too
+  (owned, pure): it folds every `progressChanges` entry into `progress[id]`, adds `newlyUnlocked`
+  ids to `unlocked`, adds a `newBest` `fact.levelId` to `masteredLevelIds` if absent, and appends
+  the occurrence to `processedOccurrenceIds` — one derived next-record value GameState/migration
+  persist. It never touches `pendingSettlement`/`analyticsOutbox`/wallet (those are GameState's).
 - **Reward-budget check (AC6):** sum of all catalog coin rewards must stay modest vs
   existing flows — document the total in a code comment and assert an upper bound in
   the test so future catalog edits can't silently inflate the economy.
@@ -718,6 +792,11 @@ ordering in `AchievementSystem.ts`.
 - Multiple thresholds crossed by one fact are returned in catalog order.
 - Covers AC6. Sum of catalog coin rewards ≤ asserted modest bound; hints similarly bounded.
 - Streak milestone uses `streakDays` from the fact, not raw stored streak.
+- **`applyDeltaToRecord` folds progress (correction 3).** Given a record and a below-threshold
+  delta, the returned record's `progress[id]` equals the delta's new value, `unlocked`/
+  `masteredLevelIds`/`processedOccurrenceIds` advance for crossings, and the input record is not
+  mutated (pure). Feeding that returned record back into `apply()` continues from the folded
+  progress.
 
 ---
 
@@ -777,7 +856,9 @@ the wallet via idempotent reconciliation, and expose the delta to callers. Wire
   1. Guard on `processedOccurrenceIds` — already processed → return empty delta, no-op.
   2. Call `AchievementSystem.apply(fact, record)`. If the delta grants no reward
      (progress-only / no-wallet path, including a `newBest` that only updates
-     `masteredLevelIds`), mark processed, add unlocks, update `masteredLevelIds`,
+     `masteredLevelIds`), fold the delta into the record via the pure
+     `applyDeltaToRecord(record, delta)` (correction 3 — updates `progress[id]` for every
+     `progressChanges` entry, adds unlocks, updates `masteredLevelIds`, marks processed),
      **append its `deltaToEvents` output to `analyticsOutbox`**, and persist the record once
      (no `pendingSettlement`, no wallet touch) — the events are still journaled durably. If it
      grants a reward, run the write-ahead protocol:
@@ -792,9 +873,11 @@ the wallet via idempotent reconciliation, and expose the delta to callers. Wire
      - **Build the committed delta + events first.** Wrap the pure delta into a
        `CommittedAchievementDelta` whose `rewards` carry `{ achievementId, coins, hints }`
        with the post-cap applied amounts; run `deltaToEvents` to get the full event list.
-     - **Checkpoint 1 (single record write commits everything recoverable):** mark
-       processed, add unlocks, add `fact.levelId` to `masteredLevelIds` when the fact is a
-       `newBest` and the level is absent, **append the full event list to `analyticsOutbox`**,
+     - **Checkpoint 1 (single record write commits everything recoverable):** fold the delta
+       into the record via `applyDeltaToRecord` (correction 3 — `progress[id]` for every
+       `progressChanges` entry, unlocks, and `fact.levelId` added to `masteredLevelIds` when the
+       fact is a `newBest` and the level is absent, occurrence marked processed),
+       **append the full event list to `analyticsOutbox`**,
        and set `pendingSettlement = { occurrenceId, before = the checkpoint-0 baseline, after =
        before + post-cap reward }`; `persistAchievementRecord()`. (`settlementSnapshot()` is a
        narrow helper returning `{ coins: _coinBalance, hints: _hintBalance, counters:
@@ -804,9 +887,14 @@ the wallet via idempotent reconciliation, and expose the delta to callers. Wire
        broad-saving `grantCoins`/`grantHints`), landing the wallet at `after` by construction;
        then `persistWallet()`.
      - **Checkpoint 3:** `pendingSettlement = null`; `persistAchievementRecord()`.
-  On any **record-write throw** (checkpoint 1 or 3), roll the in-memory `_achievementRecord`
-  back to the pre-checkpoint-1 snapshot (correction 8) before returning, so a same-process
-  retry is not falsely deduped.
+  On a **record-write throw**, roll the in-memory `_achievementRecord` back to the tracked
+  `lastDurableRecord` snapshot (corrections 4 + 8): a **checkpoint-1** throw restores the
+  **pre-transaction** record (occurrence unprocessed → in-process retry re-derives and grants
+  once); a **checkpoint-3** throw restores the **post-checkpoint-1 pending** record (occurrence
+  **processed**, `pendingSettlement` present → the retry runs `recoverPendingSettlement()` first,
+  finalizes at `after` with no reapply, then applies the new fact) — **never** rolling a
+  checkpoint-3 failure back past the durable checkpoints 1/2 (which would re-baseline the
+  already-rewarded wallet and double-grant).
   3. Return the `CommittedAchievementDelta`. `applyAchievementFact` returns it directly (the
      dog-found seam consumes it as-is); the completion seam attaches it to the existing
      `CompletionTransactionResult` as the new optional `achievementCommit` field (break #1 —
@@ -815,7 +903,9 @@ the wallet via idempotent reconciliation, and expose the delta to callers. Wire
 - New `recoverPendingSettlement()` runs in `load()` after all keys parse: implements the
   KTD2 **component-by-component** `before`/`after`/mismatch resolution (each of `coins`,
   `hints`, and every `counters` field resolved against its own snapshot values) and is
-  the only place load mutates the wallet. **Ordering (correction 6):** while
+  the only place load mutates the wallet. On a component mismatch it **appends** a fully-formed
+  `achievement_reconciliation_anomaly` event to `analyticsOutbox` (correction 6) so the
+  post-composition drain dispatches it. **Ordering (correction 6):** while
   `pendingSettlement` is still durable, resolve the wallet in memory, then **strict-persist the
   repaired wallet via `persistWallet()`**, and **only then** clear `pendingSettlement` and
   `persistAchievementRecord()` — so a second fresh `load()` can never read a torn wallet with no
@@ -823,8 +913,10 @@ the wallet via idempotent reconciliation, and expose the delta to callers. Wire
   load; if the final record persist tears, the next load sees wallet `== after` + pending and
   finalizes with no reapply. It is idempotent — a second `load()` after both writes sees
   `pendingSettlement == null` and does nothing.
-- **`load()` does NOT dispatch analytics (correction 1).** The `analyticsOutbox` is left intact
-  on load; recovery touches only wallet/settlement. A separate explicit
+- **`load()` does NOT dispatch analytics (correction 1).** `load()` never hands an event to a
+  sink; it only recovers wallet/settlement and (on a mismatch) **appends** a reconciliation-anomaly
+  event to `analyticsOutbox` for later drain (correction 6) — it does not *dispatch* it. A separate
+  explicit
   `drainAnalyticsOutbox()` (below) is called by the bootstrap/`SdkContext` seam **after** the
   real `AnalyticsService` sinks are composed — because the `GameState` singleton `load()`s
   before analytics composition, and the pre-composition SDK has `sinks: []`, so a load-time
@@ -900,12 +992,21 @@ a checkpoint-0 throw leaves the fact **unprocessed** with no partial achievement
   hints/counters `== before` → **component-wise** recovery assigns hints/counters to `after`,
   leaves coins, and the whole wallet lands at `after` exactly once (not mis-read as
   corruption). Repeat with each key as the tear point.
+- **Same-process retry after a checkpoint-3 throw (correction 4).** Inject a throw in the
+  **finalize** `persistAchievementRecord()` (checkpoints 1 and 2 durable). Rollback lands on the
+  post-checkpoint-1 pending record (occurrence processed, pending present). **Retry the same fact
+  in-process** (no reload): recovery finds the wallet `== after`, finalizes without reapply, and
+  the reward is **not** doubled. Contrast with a checkpoint-1 throw retry, which grants exactly
+  once (occurrence was rolled back to unprocessed).
 - **Fault injection — crash before checkpoint 1.** Neither pending nor wallet persist;
   reload re-applies the fact cleanly, exactly once (occurrence not yet marked).
-- **Mismatch policy.** Corrupt one wallet component so it equals neither its `before` nor
-  its `after` while `pendingSettlement` is present → recovery trusts that component as-is,
-  clears the pending marker, keeps the occurrence processed, and emits the
-  reconciliation-anomaly event; no double grant, no crash.
+- **Mismatch policy + anomaly journaled (correction 6).** Corrupt one wallet component so it
+  equals neither its `before` nor its `after` while `pendingSettlement` is present → recovery
+  trusts that component as-is, **appends the `achievement_reconciliation_anomaly` event to
+  `analyticsOutbox`**, persists the repaired wallet then the record, clears the pending marker,
+  keeps the occurrence processed; no double grant, no crash. Assert a **pre-composition `load()`
+  persists the anomaly in the outbox (dispatches nothing)** and a later
+  `drainAnalyticsOutbox()` dispatches it exactly once.
 - **Hint cap at settlement.** A +N-hint reward applied at a near-full/full wallet: `after.hints`
   is `min(before.hints + N, MAX_HINT_BALANCE)`, the delta's `GrantedReward.hints` is the
   actual applied amount (possibly 0), and no reload overfills or disagrees with the wallet.
@@ -921,6 +1022,10 @@ a checkpoint-0 throw leaves the fact **unprocessed** with no partial achievement
 - **Committed reward association (requested-vs-applied split + `achievementId` tagging).** A multi-unlock completion returns a
   `CommittedAchievementDelta` whose `rewards` each carry the earning `achievementId` and the
   **applied** (post-cap) amounts; an unlock with no catalog reward yields no `GrantedReward`.
+- **Cumulative progress survives reload (correction 3).** Apply a below-threshold fact so
+  `applyDeltaToRecord` writes `progress[id] = k`; persist, reload a fresh GameState, apply the
+  next fact and assert progress continues from the persisted `k` (not a stale/zero base) and the
+  threshold crosses at the right cumulative count.
 - **Mastery survives reload (break #5).** Complete distinct levels A and B as `newBest`
   (mastery=2), persist, reload, then a **repeat** `newBest` for A → mastery stays 2 (A already
   in `masteredLevelIds`), no re-unlock, no re-grant.
@@ -1016,10 +1121,12 @@ adaptation.
   `category`, `progress`, `threshold`, `reward_coins`, `reward_hints`) — `compactCustomFields`
   drops any key not listed (GameAnalyticsEvents.ts:150-177).
 - **Design mapping (GameAnalyticsEvents.ts).** Add `achievement:progress`/`:unlocked`/
-  `:reward:granted`/`:reconciliation:anomaly` → their canonical ids in
+  `:reward:granted`/`:reconciliation:anomaly` **and the later-UI `achievement:viewed`/
+  `achievement:page:viewed`** (correction 5) → their canonical ids in
   `canonicalEventIdForDesignEvent` (GameAnalyticsEvents.ts:190-200); without this the sink's
   fall-through `designEvent(...)` gets `canonicalEventId === null` and **zeroes `customFields`**,
-  dropping every achievement field on the GameAnalytics wire.
+  dropping every achievement field on the GameAnalytics wire. The page-view ids are mapped now
+  (with canonical rows + allow-lists) even though ACH-2 emits them, so the contract is whole.
 - Every payload carries a stable `eventId` for downstream dedupe (analytics is **at-least-once
   at the local dispatch boundary**, never promised sink-level or provider-level delivery — the
   sink swallows errors and returns `void`, GameAnalyticsSink.ts:72-76 — dedupe is the consumer's
@@ -1030,12 +1137,17 @@ adaptation.
   associate reward events with their unlock and assigns each event a deterministic `eventId`
   (`<occurrenceId>:<eventKind>:<achievementId>`); it is well-defined for multi-unlock deltas
   and unlocks without rewards. Add thin `analytics.achievement*` methods to `AnalyticsService`
-  mirroring `dogFound`/`resourceChanged` (AnalyticsService.ts:297-345).
+  mirroring `dogFound`/`resourceChanged` (AnalyticsService.ts:297-345), **plus one public
+  `dispatchAchievementEvent(event: PendingAnalyticsEvent)` with an exhaustive `never`-checked
+  `switch` over the achievement event-name union** (correction 1) that routes each entry to its
+  typed method — `GameState.drainAnalyticsOutbox()` calls only this, never the private `sdk` or a
+  dynamic `analytics[name]`.
 - The full event list is appended to `record.analyticsOutbox` and persisted **in checkpoint 1**
   (U3 / KTD6), i.e. in the same record write that first marks the occurrence processed — never
   after finalize. Emit via the explicit `drainAnalyticsOutbox()` method (U3): hand each event
-  to the local dispatch call; remove that `eventId` from the outbox **only after the `track`
-  handoff returns without throwing** (the observable dispatch boundary — not a provider ack,
+  to the public `analytics.dispatchAchievementEvent(event)` (correction 1 — no private-`sdk`
+  reach-in); remove that `eventId` from the outbox **only after that dispatch
+  returns without throwing** (the observable dispatch boundary — not a provider ack,
   which the sink cannot give) and persist (best-effort).
   **`load()` never dispatches (correction 1):** the `GameState` singleton `load()`s before
   `getSdkContext()` composes the real sinks (pre-composition SDK is `sinks: []`), so load leaves
@@ -1074,11 +1186,23 @@ adaptation.
 - **`sdk.track` composes (break #1).** A test constructs each `analytics.achievement*` call
   and asserts it type-checks against `Analytics<FtdEvent>` — i.e. the event name is in the
   `FtdEvent` union — proving canonical rows alone are insufficient.
+- **Public dispatcher routes each event (correction 1).** `analytics.dispatchAchievementEvent`
+  is called with each of the four achievement `PendingAnalyticsEvent` shapes and a fake sink
+  observes the matching typed payload — proving `drainAnalyticsOutbox` needs no private-`sdk`
+  or dynamic property access, and the `never`-exhaustive switch covers every emitted name.
 - **GameAnalytics wire fields survive (break #3).** Dispatch a real `achievement_unlocked`,
   `achievement_progress`, and `achievement_reward_granted` event through the GameAnalytics sink
   path; assert the resulting `designEvent.customFields` **contains** `achievement_id`,
   `event_id`, `progress`/`threshold`, and applied `reward_coins`/`reward_hints` (not `{}`) —
   proving `canonicalEventIdForDesignEvent` resolves and the allow-list passes the fields.
+- **Page-view ids mapped for ACH-2 (correction 5).** `canonicalEventIdForDesignEvent` resolves
+  `achievement:viewed` and `achievement:page:viewed` to their canonical ids (not `null`), and
+  dispatching a synthetic `achievement_viewed`/`achievement_page_viewed` design event through the
+  sink yields non-empty `customFields` — proving the contract is whole even though this card does
+  not emit them.
+- **`event_id` survives compaction (correction 2).** A dispatched achievement event's
+  `event_id` is present in the emitted `designEvent` after both `compactParams` and
+  `compactCustomFields` (on the allow-list, not stripped).
 - Analytics never mutates progress/unlocked/settlement — it only reads the delta and
   drains `analyticsOutbox`.
 
@@ -1188,9 +1312,29 @@ completion transaction to close it.
   `applyCoinGrant`/`applyHintGrant` primitives + strict `persistWallet()`, never
   `grantCoins`/`grantHints` (which call `save()`); shared mutation semantics preserved
   (correction 2).
-- **Same-process retry falsely deduped after a record-write throw.** On a checkpoint-1/3
-  record-write throw the in-memory record rolls back to the last durable snapshot, so a
-  same-process retry re-derives and grants once (correction 8); U3 same-process retry test.
+- **Same-process retry falsely deduped or double-granted after a record-write throw.** Rollback
+  restores the **actual** last durable record: a checkpoint-1 throw → pre-transaction (retry
+  grants once); a checkpoint-3 throw → post-checkpoint-1 pending (occurrence stays processed,
+  recovery finalizes, retry does **not** double-grant) — never rolling a checkpoint-3 failure past
+  the durable wallet write (corrections 4 + 8); U3 checkpoint-1 and checkpoint-3 same-process retry
+  tests.
+- **`apply()` progress deltas never reach the persisted map.** A pure `applyDeltaToRecord` folds
+  every `progressChanges` entry into `record.progress[id]` (with unlocks/mastery/processed)
+  together, so cumulative progress survives serialize/reload and the next fact continues from it
+  (correction 3); U2 pure fold test + U3 reload-continuity test.
+- **`event_id` stripped by field compaction.** Every payload/wire field is snake_case `event_id`
+  on the canonical `allowedGameAnalyticsCustomFields`, proven to survive `compactParams` +
+  `compactCustomFields` (correction 2); U6 survival test.
+- **Dynamic private-`sdk` dispatch does not type-check.** A public
+  `dispatchAchievementEvent(PendingAnalyticsEvent)` with a `never`-exhaustive switch is the only
+  drain path — no `analytics[name]` / `sdk` reach-in (correction 1); U6 dispatcher-routing test.
+- **ACH-2 page-view events would drop their fields.** `achievement:viewed`/`achievement:page:viewed`
+  are mapped in `canonicalEventIdForDesignEvent` with canonical rows + allow-lists now, even though
+  ACH-2 emits them (correction 5); U6 page-view mapping test.
+- **Reconciliation anomaly never dispatched.** Recovery **appends** the anomaly event to
+  `analyticsOutbox` (not a fire-and-drop emit) before persisting the record, so the
+  post-composition drain dispatches it (correction 6); U3 mismatch → pre-composition-persist +
+  post-composition-drain test.
 
 ---
 
@@ -1234,13 +1378,17 @@ exercised, mirroring existing `registerLevelComplete` test style.
    `coinsGranted`/`hintsGranted` (never the `levelCompleteCoinGrants`/`rewardedHintGrants`
    occurrence counts); `'achievement'` is added to `WalletMutationSource` and the real wallet
    methods compose; no dependency added (AC6).
-4. Analytics contract emits progress/unlock/reward once-per-occurrence (stable per-event
-   ids, durable outbox for recovery), **composes through the whole typed stack** — achievement
-   names in the `FtdEvent` union + typed `analytics.achievement*` methods so `sdk.track`
-   type-checks, canonical rows with `allowedGameAnalyticsCustomFields`, and the
-   `canonicalEventIdForDesignEvent` mapping so the GameAnalytics sink carries (not drops)
-   `achievement_id`/`event_id`/`progress`/`threshold`/applied reward fields — scopes its
-   guarantee to the local dispatch-call boundary (no false provider-delivery claim; sink swallows
-   errors), and never mutates state (AC7).
+4. Analytics contract emits progress/unlock/reward once-per-occurrence (stable snake_case
+   `event_id` per event proven to survive `compactParams`/`compactCustomFields`, durable outbox
+   for recovery), **composes through the whole typed stack** — achievement
+   names in the `FtdEvent` union + typed `analytics.achievement*` methods **and one public
+   `dispatchAchievementEvent` exhaustive-switch dispatcher** (no private-`sdk`/dynamic access) so
+   `sdk.track` type-checks and drain routes safely, canonical rows with
+   `allowedGameAnalyticsCustomFields`, and the `canonicalEventIdForDesignEvent` mapping (including
+   the later-UI `achievement:viewed`/`achievement:page:viewed` ids) so the GameAnalytics sink
+   carries (not drops) `achievement_id`/`event_id`/`progress`/`threshold`/applied reward fields —
+   recovery-time reconciliation anomalies are **journaled into the outbox** and drained
+   post-composition, scopes its guarantee to the local dispatch-call boundary (no false
+   provider-delivery claim; sink swallows errors), and never mutates state (AC7).
 5. All four gate commands pass; the diff stays within the scope fence and preserves
    the unrelated dirty evidence changes on main.
