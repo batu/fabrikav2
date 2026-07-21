@@ -1,3 +1,5 @@
+import { ensureHostedMarker } from './markerHost.ts';
+
 export interface ViewportMetricsSnapshot {
   windowInnerWidth: number;
   windowInnerHeight: number;
@@ -124,15 +126,7 @@ function parseCssPx(value: string): number | null {
 }
 
 function ensureViewportMetricsMarker(): HTMLElement {
-  const existing = document.getElementById(VIEWPORT_METRICS_MARKER_ID);
-  if (existing !== null) return existing;
-
-  const marker = document.createElement('div');
-  marker.id = VIEWPORT_METRICS_MARKER_ID;
-  marker.setAttribute('role', 'text');
-  marker.style.cssText = 'position:fixed;left:-9999px;top:0;width:1px;height:1px;overflow:hidden;pointer-events:none;';
-  document.body.appendChild(marker);
-  return marker;
+  return ensureHostedMarker(VIEWPORT_METRICS_MARKER_ID);
 }
 
 function formatViewportMetricsLabel(metrics: ViewportMetricsSnapshot, state?: string): string {

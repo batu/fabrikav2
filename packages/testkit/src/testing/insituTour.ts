@@ -6,7 +6,39 @@ import {
   type DriveState,
 } from './driveTo.ts';
 import { publishTourMarker } from './tourMarker.ts';
+import { ensureHostedMarker } from './markerHost.ts';
 import { driveTourStateWithTimeout } from './tourDriveTimeout.ts';
+
+const TOUR_DRIVE_BREADCRUMB_ID = '__tourdrive__';
+const TOUR_DEBUG_BADGE_ID = '__tourdebug__';
+
+function updateDebugBadge(message: string): void {
+  try {
+    let badge = document.getElementById(TOUR_DEBUG_BADGE_ID);
+    if (badge === null) {
+      badge = document.createElement('div');
+      badge.id = TOUR_DEBUG_BADGE_ID;
+      badge.style.cssText = 'position:fixed;left:0;top:35%;width:100%;z-index:2147483647;'
+        + 'background:rgba(0,0,0,0.8);color:#0f0;font:14px/1.4 monospace;'
+        + 'padding:4px 8px;pointer-events:none;white-space:pre-wrap;word-break:break-all;';
+      document.body.appendChild(badge);
+    }
+    const now = new Date().toISOString().slice(11, 19);
+    badge.textContent = `${badge.textContent ?? ''}\n${now} ${message}`.split('\n').slice(-8).join('\n');
+  } catch {
+    // Diagnostics only.
+  }
+}
+
+function publishDriveBreadcrumb(label: string): void {
+  try {
+    const marker = ensureHostedMarker(TOUR_DRIVE_BREADCRUMB_ID);
+    marker.textContent = `tourdrive:${label}`;
+    marker.setAttribute('aria-label', `tourdrive:${label}`);
+  } catch {
+    // Forensics only — never let the breadcrumb break the tour.
+  }
+}
 
 export interface InsituTourHarness<State extends string = DriveState> {
   driveTo?: (state: State) => Promise<boolean>;
@@ -50,7 +82,12 @@ export async function maybeRunInsituTour<State extends string = DriveState>(
   options: InsituTourOptions<State> = {},
 ): Promise<void> {
   const script = options.script ?? requestedScript();
-  if (script !== 'allstates' || typeof harness.driveTo !== 'function') return;
+  // 'allstates-debug' = allstates + an on-screen badge mirroring every tour
+  // log line. Pixel-observable forensics for device-only freezes where the
+  // accessibility channel itself may be stale; never used by real capture
+  // runs (the badge would photobomb evidence).
+  const debugBadge = script === 'allstates-debug';
+  if ((script !== 'allstates' && !debugBadge) || typeof harness.driveTo !== 'function') return;
 
   const states = options.states ?? (INSITU_TOUR_STATES as unknown as readonly State[]);
   const sleep = options.sleep ?? defaultSleep;
@@ -62,6 +99,7 @@ export async function maybeRunInsituTour<State extends string = DriveState>(
   const driveTo = harness.driveTo;
   const snapshot = (): unknown => harness.snapshot();
   const log = (message: string): void => {
+    if (debugBadge) updateDebugBadge(message);
     options.logger?.(`[insituTour] ${message}`);
     if (options.logger === undefined) console.info(`[insituTour] ${message}`);
   };
@@ -72,28 +110,60 @@ export async function maybeRunInsituTour<State extends string = DriveState>(
   }
 
   for (const state of states) {
-    const ok = await driveTourStateWithTimeout(state, (target) => driveTo(target), {
-      timeoutMs: driveTimeoutMs,
-      onTimeout: (target) => log(`driveTo(${String(target)}) timed out after ${driveTimeoutMs}ms`),
-    });
+    // A drive (or the snapshot it polls) can throw — e.g. an engine object not
+    // ready on a slow device. One state's exception must publish that state as
+    // FAILED and let the tour continue, never silently kill the remaining
+    // states: a dead tour reads as "missing" markers with zero diagnostics.
+    // Forensic breadcrumb on a SEPARATE marker (#__tourdrive__): when a
+    // device-only failure freezes the tour, its last label tells exactly how
+    // far the loop got without perturbing the #__tourstate__ contract that
+    // runners and consumer tests assert on.
+    publishDriveBreadcrumb(`${state}-driving`);
+    if (debugBadge) updateDebugBadge(`driving ${String(state)}`);
+    let ok = false;
+    try {
+      ok = await driveTourStateWithTimeout(state, (target) => driveTo(target), {
+        timeoutMs: driveTimeoutMs,
+        onTimeout: (target) => log(`driveTo(${String(target)}) timed out after ${driveTimeoutMs}ms`),
+      });
+    } catch (error) {
+      log(`driveTo(${String(state)}) threw: ${String(error)}`);
+    }
     let stable = false;
     if (ok) {
       await sleep(markSettleRecheckMs);
-      stable = matches(state, snapshot());
+      try {
+        stable = matches(state, snapshot());
+      } catch (error) {
+        log(`snapshot after ${String(state)} threw: ${String(error)}`);
+      }
     }
 
+    const safeSnapshot = (): Record<string, unknown> => {
+      try {
+        return toRecord(snapshot());
+      } catch {
+        return {};
+      }
+    };
     publishTourMarker(stable ? state : `${state}-FAILED`, {
       publishMetrics: stable,
       log,
-      snapshot: () => toRecord(snapshot()),
+      snapshot: safeSnapshot,
     });
     await sleep(dwellMs);
 
     if (stable) {
-      publishTourMarker(matches(state, snapshot()) ? `${state}-DONE` : `${state}-FAILED`, {
+      let stillMatches = false;
+      try {
+        stillMatches = matches(state, snapshot());
+      } catch (error) {
+        log(`snapshot after ${String(state)} dwell threw: ${String(error)}`);
+      }
+      publishTourMarker(stillMatches ? `${state}-DONE` : `${state}-FAILED`, {
         publishMetrics: false,
         log,
-        snapshot: () => toRecord(snapshot()),
+        snapshot: safeSnapshot,
       });
     }
   }
@@ -101,7 +171,13 @@ export async function maybeRunInsituTour<State extends string = DriveState>(
   publishTourMarker('done', {
     publishMetrics: false,
     log,
-    snapshot: () => toRecord(snapshot()),
+    snapshot: () => {
+      try {
+        return toRecord(snapshot());
+      } catch {
+        return {};
+      }
+    },
   });
 }
 

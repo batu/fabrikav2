@@ -99,7 +99,11 @@ const SETTINGS_OPEN_TRIGGER_SELECTOR = '#home-nav-settings, #settings-btn';
 const ACHIEVEMENTS_OPEN_TRIGGER_SELECTOR = '#home-achievements';
 const SETTINGS_OPEN_TARGET_POLL_MS = 50;
 const SETTINGS_OPEN_TARGET_MAX_POLLS = 40;
-const HOME_PLAY_TRIGGER_SELECTOR = '#home-play-now, #home-nav-play, .fab-levelmap-node.current';
+// Priority order matters: a comma-list querySelector returns the DOCUMENT-order
+// first match, and the saga map places `.fab-levelmap-node.current` before the
+// Play button — but only the Play button reliably starts a level from a
+// dispatched pointer sequence. Query each selector in turn instead.
+const HOME_PLAY_TRIGGER_SELECTORS = ['#home-play-now', '#home-nav-play', '.fab-levelmap-node.current'];
 const HOME_READY_TARGET_POLL_MS = 50;
 const HOME_READY_TARGET_MAX_POLLS = 80;
 const START_LEVEL_TARGET_POLL_MS = 50;
@@ -149,9 +153,21 @@ function driveElementClick(element: HTMLElement): boolean {
  * (fonts/icon decodes are slower than in the browser lane) and swallows a
  * single-shot synthetic click, so poll until the element is topmost first.
  */
-async function clickWhenHittable(selector: string, pollMs: number, maxPolls: number): Promise<boolean> {
+async function clickWhenHittable(selector: string | readonly string[], pollMs: number, maxPolls: number): Promise<boolean> {
+  // A selector LIST is priority-ordered: the first selector with a present
+  // element wins. (A comma-list CSS selector would return the DOCUMENT-order
+  // first match instead — on the saga home that picks the levelmap node over
+  // #home-play-now, and only the Play button reliably starts a level from a
+  // dispatched sequence.)
+  const query = (): HTMLElement | null => {
+    for (const candidate of typeof selector === 'string' ? [selector] : selector) {
+      const el = document.querySelector<HTMLElement>(candidate);
+      if (el !== null) return el;
+    }
+    return null;
+  };
   const hittable = await waitUntil(() => {
-    const el = document.querySelector<HTMLElement>(selector);
+    const el = query();
     if (el === null) return false;
     const point = elementClientCenter(el);
     if (point === null || typeof document.elementFromPoint !== 'function') return true;
@@ -159,7 +175,7 @@ async function clickWhenHittable(selector: string, pollMs: number, maxPolls: num
     return hit !== null && (hit === el || el.contains(hit));
   }, pollMs, maxPolls);
   if (!hittable) return false;
-  const el = document.querySelector<HTMLElement>(selector);
+  const el = query();
   return el !== null && driveElementClick(el);
 }
 
@@ -331,7 +347,7 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     if (!atMenu) return false;
 
     const clicked = await clickWhenHittable(
-      HOME_PLAY_TRIGGER_SELECTOR,
+      HOME_PLAY_TRIGGER_SELECTORS,
       HOME_READY_TARGET_POLL_MS,
       HOME_READY_TARGET_MAX_POLLS,
     );
@@ -463,9 +479,24 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       { x: width * 0.95, y: height * 0.95 },
       { x: width * 0.5, y: height * 0.5 },
     ];
-    return candidates.find((point) => snapshot.dogPositions.every((dog) => (
+    const dogSafe = candidates.filter((point) => snapshot.dogPositions.every((dog) => (
       Math.hypot(dog.x - point.x, dog.y - point.y) > dog.r * 4
-    ))) ?? candidates[0];
+    )));
+    // Corner candidates can land under the DOM HUD (top bar, hint pill), where
+    // the dispatched tap hits the overlay instead of the canvas and silently
+    // does nothing. Prefer a candidate whose client point actually hit-tests to
+    // the canvas.
+    const scene = getGameScene();
+    const canvasSafe = scene === null || typeof document.elementFromPoint !== 'function'
+      ? dogSafe
+      : dogSafe.filter((point) => {
+        const client = canvasClientPoint(
+          scene.imgOffsetX + point.x * scene.imgScale,
+          scene.imgOffsetY + point.y * scene.imgScale,
+        );
+        return client !== null && document.elementFromPoint(client.x, client.y) === game.canvas;
+      });
+    return canvasSafe[0] ?? dogSafe[0] ?? candidates[0];
   }
 
   function tapSafeMiss(): { hitDogId: string | null; penalty: boolean } {
@@ -501,6 +532,10 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
   }
 
   async function failLevel(): Promise<boolean> {
+    // One wrong tap should end the level: burning every life through the
+    // penalty cooldown adds seconds of variance the capture runner's per-state
+    // budget has to absorb after the previous state's dwell.
+    if (gameState.lives > 1) gameState.lives = 1;
     for (let i = 0; i < GAMEPLAY.LIVES_PER_LEVEL + 2; i += 1) {
       if (findTheDogDrivePredicates.fail(driveSnapshot())) return true;
       tapSafeMiss();
@@ -610,9 +645,12 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       imgScale: scene?.imgScale ?? 0,
       imgOffsetX: scene?.imgOffsetX ?? 0,
       imgOffsetY: scene?.imgOffsetY ?? 0,
-      cameraZoom: scene?.getCameraZoom() ?? 1,
-      cameraScrollX: scene?.cameras.main.scrollX ?? 0,
-      cameraScrollY: scene?.cameras.main.scrollY ?? 0,
+      // scene.cameras.main is undefined while GameScene boots or shuts down; a
+      // snapshot taken in that window must degrade, not throw — a thrown
+      // snapshot rejects driveTo() and kills the whole insitu tour.
+      cameraZoom: scene?.cameras?.main !== undefined ? scene.getCameraZoom() : 1,
+      cameraScrollX: scene?.cameras?.main?.scrollX ?? 0,
+      cameraScrollY: scene?.cameras?.main?.scrollY ?? 0,
       gameSize: { width: game.canvas.width, height: game.canvas.height },
       viewportMetrics: readViewportMetrics(game.canvas),
       runtimeTextures: scene?.getRuntimeTexturesSnapshot() ?? {
@@ -761,6 +799,11 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       if (typeof profile.music === 'boolean') gameState.settings.musicOn = profile.music;
       if (typeof profile.sfx === 'boolean') gameState.settings.soundEffectsOn = profile.sfx;
       if (typeof profile.haptics === 'boolean') gameState.settings.hapticsOn = profile.haptics;
+      // A seeded save defaults to not-first-run: leaving the tutorial armed
+      // swallows wrong-tap penalties and non-target finds (handleTap's
+      // tutorial gate), which deadlocks the insitu tour's fail drive.
+      // Tutorial-focused tests can re-arm it via `tutorialShown: false`.
+      gameState.tutorialShown = profile.tutorialShown !== false;
       gameState.save();
     },
 

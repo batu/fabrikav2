@@ -1,3 +1,4 @@
+import { ensureHostedMarker } from './markerHost.ts';
 import { publishViewportMetricsMarker } from './viewportMetrics.ts';
 
 export const TOUR_MARKER_ID = '__tourstate__';
@@ -13,15 +14,7 @@ export function formatTourStateLabel(state: string): string {
 }
 
 export function ensureTourMarker(): HTMLElement {
-  const existing = document.getElementById(TOUR_MARKER_ID);
-  if (existing !== null) return existing;
-
-  const marker = document.createElement('div');
-  marker.id = TOUR_MARKER_ID;
-  marker.setAttribute('role', 'text');
-  marker.style.cssText = 'position:fixed;left:-9999px;top:0;width:1px;height:1px;overflow:hidden;pointer-events:none;';
-  document.body.appendChild(marker);
-  return marker;
+  return ensureHostedMarker(TOUR_MARKER_ID);
 }
 
 export function publishTourMarker(state: string, options: PublishTourMarkerOptions = {}): HTMLElement {

@@ -78,8 +78,25 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const RUNNER_DIR = path.join(__dirname, 'runner');
 
-// Read the Capacitor appId (the installed bundle id the runner must launch).
-function readAppBundleId(gameDir) {
+// Read the bundle id the runner must launch. On iOS the native-shell manifest's
+// ios.bundleId is authoritative: it can differ from the Capacitor appId (FTD
+// ships iOS as com.baseardahan.hiddenobj while capacitorAppId stays the .dev
+// identity used by Android). Launching the Capacitor appId on iOS targets
+// whatever app happens to own that id — on 2026-07-22 that was a months-stale
+// orphaned install, so every "device run" silently exercised old JS while the
+// fresh build sat installed under the real iOS id.
+function readAppBundleId(gameDir, platform = 'ios') {
+  if (platform === 'ios') {
+    const manifestPath = path.join(gameDir, 'native-resources', 'ios', 'shell-manifest.json');
+    if (fs.existsSync(manifestPath)) {
+      try {
+        const iosBundleId = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))?.ios?.bundleId;
+        if (iosBundleId) return iosBundleId;
+      } catch {
+        // fall through to the Capacitor appId
+      }
+    }
+  }
   const cfg = path.join(gameDir, 'capacitor.config.ts');
   if (!fs.existsSync(cfg)) return null;
   const m = fs.readFileSync(cfg, 'utf8').match(/appId:\s*['"]([^'"]+)['"]/);
@@ -180,7 +197,7 @@ function runIosDevicePath(args, manifest, date, deviceConfig = {}) {
 async function runAndroidDevicePath(args, manifest, date, deviceConfig = {}) {
   const outDir = defaultOut(args, date);
   fs.mkdirSync(outDir, { recursive: true });
-  const appId = readAppBundleId(manifest.gameDir);
+  const appId = readAppBundleId(manifest.gameDir, 'android');
   if (!appId) return { skip: `could not read appId from ${manifest.gameDir}/capacitor.config.ts` };
 
   const adbPrefix = deviceConfig.adbPrefix || 'adb';

@@ -123,6 +123,9 @@ function syntheticFixture(policy) {
     key === 'VITE_APPLOVIN_GDPR_TERMS_ALERT_ENABLED')) {
     values.set(key, 'false');
   }
+  // Capture-tour script is shell-env-only; a persisted value is invalid by
+  // policy, so the all-keys synthetic fixture must leave it unset.
+  values.set('VITE_INSITU_TOUR', '');
   return values;
 }
 

@@ -116,6 +116,23 @@ describe('environment validation', () => {
     expect(validateEnvironment({ gameRoot: root, mode: 'ios', policy, environment: {} }).ok).toBe(true);
   });
 
+  it('rejects a persisted VITE_INSITU_TOUR value (capture flags are shell-env only)', () => {
+    const root = makeGameRoot();
+    write(root, '.env.ios.local', [
+      'VITE_FTD_DISABLE_REMOTE_CONFIG=false',
+      'VITE_GAMEANALYTICS_IOS_ENABLED=false',
+      'VITE_ADJUST_IOS_ENABLED=false',
+      'VITE_APPLOVIN_IOS_ENABLED=false',
+      'VITE_CDN_ENABLED=false',
+      'VITE_INSITU_TOUR=allstates',
+      '',
+    ].join('\n'));
+
+    const result = validateEnvironment({ gameRoot: root, mode: 'ios', policy, environment: {} });
+    expect(result.ok).toBe(false);
+    expect(result.invalidKeys).toContain('VITE_INSITU_TOUR');
+  });
+
   it.each([
     {
       mode: 'ios',
@@ -243,13 +260,13 @@ describe('environment validation', () => {
 });
 
 describe('canonical template', () => {
-  it('contains the exact 57-key placeholder-only contract with one comment per assignment', () => {
+  it('contains the exact 59-key placeholder-only contract with one comment per assignment', () => {
     const templatePath = path.join(repoRoot, 'games/find_the_dog/.env.example');
     const result = validateTemplate(templatePath, policy);
 
     expect(result.ok).toBe(true);
     expect(result.keys).toEqual([...FIND_THE_DOG_ENV_KEYS].sort());
-    expect(result.keys).toHaveLength(57);
+    expect(result.keys).toHaveLength(59);
   });
 
   it('rejects duplicate assignments even when the final key set is exact', () => {

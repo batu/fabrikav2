@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   androidBuildEnv,
   buildAndroidBuildCommandParts,
@@ -16,6 +17,8 @@ import {
   launchAndroidApp,
   runXcuiTestAndExport,
 } from '../src/steps.mjs';
+
+const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 
 describe('steps command logging', () => {
   it('redacts configured argv values without changing the real argv contract', () => {
@@ -92,6 +95,44 @@ describe('buildAndInstallApp', () => {
 });
 
 describe('native resource recipe application', () => {
+  it('copies the shell-template app icon into Xcode\'s App resource directory', () => {
+    const gameDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vd-shell-recipe-game-'));
+    const shellTemplateDir = path.join(REPO_ROOT, 'games', 'shell_template');
+    const manifest = JSON.parse(
+      fs.readFileSync(path.join(shellTemplateDir, 'design', 'asset-identity.json'), 'utf8'),
+    );
+    const icon = manifest.assets['design/assets/app-icon.png'];
+    fs.cpSync(
+      path.join(shellTemplateDir, 'native-resources'),
+      path.join(gameDir, 'native-resources'),
+      { recursive: true },
+    );
+
+    try {
+      const applied = applyNativeRecipe(gameDir, 'ios');
+      const iconRelative = path
+        .relative('native-resources/ios/App', icon.source)
+        .split(path.sep)
+        .join('/');
+      const recipeIcon = path.join(gameDir, icon.source);
+      const runtimeIcon = path.join(gameDir, icon.runtime);
+
+      expect(icon.source).toBe(
+        'native-resources/ios/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png',
+      );
+      expect(icon.runtime).toBe(
+        'ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png',
+      );
+      expect(applied).toContain(iconRelative);
+      expect(fs.readFileSync(runtimeIcon)).toEqual(fs.readFileSync(recipeIcon));
+      expect(
+        fs.existsSync(path.join(gameDir, 'ios', 'App', 'App', 'App', 'Assets.xcassets')),
+      ).toBe(false);
+    } finally {
+      fs.rmSync(gameDir, { recursive: true, force: true });
+    }
+  });
+
   it('copies iOS recipe inputs into the generated Capacitor App target', () => {
     const gameDir = fs.mkdtempSync(path.join(os.tmpdir(), 'vd-recipe-game-'));
     const source = path.join(gameDir, 'native-resources', 'ios', 'App');

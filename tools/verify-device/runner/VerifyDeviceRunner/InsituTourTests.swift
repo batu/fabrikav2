@@ -26,7 +26,11 @@ final class InsituTourTests: XCTestCase {
     /// label before shooting, so the frame we capture is guaranteed to BE the
     /// state we stamp it with — never the previous/next frame. Budget covers the
     /// tour's slowest transition (driveTo is variable-time) plus dwell.
-    private let stateTimeout: TimeInterval = 25
+    /// 40s, not 25: the wait for state N starts as soon as state N-1 is shot
+    /// (early in N-1's dwell), so the budget must absorb the REMAINDER of that
+    /// dwell (~11s) plus the slowest drive (fail: home → level load → taps),
+    /// which overran 25s on a cold simulator.
+    private let stateTimeout: TimeInterval = 40
 
     /// Canonical states, tour order. The tour label is `tourstate:<state>`; the
     /// attachment name keeps a "<n>-<state>" order prefix so the CLI's
@@ -54,10 +58,19 @@ final class InsituTourTests: XCTestCase {
     ) -> TourMarkerResult {
         let exactLabel = "tourstate:\(state)"
         let failedLabel = "\(exactLabel)-FAILED"
-        let marker = app.descendants(matching: .any)
+        // Query staticTexts (the marker publishes role="text"), NOT
+        // .descendants(matching: .any): every `.exists` poll forces a
+        // synchronous accessibility snapshot served by the app's main thread,
+        // and an any-descendants scan of a heavy WKWebView tree at a fast
+        // cadence starves the web process on real hardware — the tour's own
+        // timers stop firing and every later state reads as "missing" (the
+        // 2026-07-22 on-device signature; the simulator is fast enough to
+        // mask it). staticTexts + a 1s cadence keeps the interrogation load
+        // far below the point where it perturbs the thing it measures.
+        let marker = app.staticTexts
             .matching(NSPredicate(format: "label == %@", exactLabel))
             .firstMatch
-        let failedMarker = app.descendants(matching: .any)
+        let failedMarker = app.staticTexts
             .matching(NSPredicate(format: "label == %@", failedLabel))
             .firstMatch
         let deadline = Date().addingTimeInterval(timeout)
@@ -69,7 +82,7 @@ final class InsituTourTests: XCTestCase {
             if failedMarker.exists {
                 return .failed
             }
-            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+            RunLoop.current.run(until: Date().addingTimeInterval(1.0))
         }
 
         if marker.exists {
@@ -87,7 +100,9 @@ final class InsituTourTests: XCTestCase {
         timeout: TimeInterval
     ) -> String? {
         let prefix = "viewportmetrics:state=tourstate:\(state);"
-        let marker = app.descendants(matching: .any)
+        // staticTexts + slow cadence for the same main-thread-starvation
+        // reason as waitForTourMarker above.
+        let marker = app.staticTexts
             .matching(NSPredicate(format: "label BEGINSWITH %@", prefix))
             .firstMatch
         let deadline = Date().addingTimeInterval(timeout)
@@ -96,7 +111,7 @@ final class InsituTourTests: XCTestCase {
             if marker.exists {
                 return marker.label
             }
-            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+            RunLoop.current.run(until: Date().addingTimeInterval(0.5))
         }
 
         return marker.exists ? marker.label : nil
@@ -146,6 +161,10 @@ final class InsituTourTests: XCTestCase {
                 // Attach whatever is on screen so the failure is inspectable, then
                 // fail loudly — the CLI verdict also flags the missing state.
                 shot("\(name)-MISSING")
+                // The app-side accessibility tree is the difference between "the
+                // tour never published" and "it published where XCUITest cannot
+                // see it" — attach it so a missing state is self-diagnosing.
+                attachText("\(name)-ax-tree", app.debugDescription)
                 XCTFail("state '\(state)' never published tourstate:\(state) within \(Int(stateTimeout))s — "
                     + "the tour did not reach it (or the harness/tour flag is off). "
                     + "A missing state is a loud failure, not a silent wrong frame.")

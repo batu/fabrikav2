@@ -245,6 +245,7 @@ describe('Find the Dog manifest contract', () => {
     expect(actualManifest.ios.localPackages.map((pkg) => pkg.name)).toEqual([
       'CapacitorApp',
       'CapacitorHaptics',
+      'CapacitorLocalNotifications',
       'CapacitorFirebaseAnalytics',
       'RevenuecatPurchasesCapacitor',
     ]);
