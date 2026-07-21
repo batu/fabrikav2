@@ -1,0 +1,356 @@
+{
+  "v1Root": "/Users/base/dev/appletolye/fabrika/games/marble_run/sugar3d",
+  "generatedBy": "games/marble_run/scripts/build-asset-manifest.mjs",
+  "totalAssets": 58,
+  "totalBytes": 6721537,
+  "assets": [
+    {
+      "v1Path": "native-resources/android-res/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png",
+      "v2Path": "native-resources/android-res/app/src/main/res/mipmap-hdpi/ic_launcher_foreground.png",
+      "bytes": 43799,
+      "sha256": "eb5add6097128dbcc5170d96e658fb84f43b269233459df4f54d842102d26d4a"
+    },
+    {
+      "v1Path": "native-resources/android-res/app/src/main/res/mipmap-hdpi/ic_launcher_round.png",
+      "v2Path": "native-resources/android-res/app/src/main/res/mipmap-hdpi/ic_launcher_round.png",
+      "bytes": 11531,
+      "sha256": "1db19fadab7afdea8cd07ab8819b4cf569a839c850d674153dd39de0fb36c390"
+    },
+    {
+      "v1Path": "native-resources/android-res/app/src/main/res/mipmap-hdpi/ic_launcher.png",
+      "v2Path": "native-resources/android-res/app/src/main/res/mipmap-hdpi/ic_launcher.png",
+      "bytes": 11425,
+      "sha256": "3d160c737b5e059825c6e24bbeeaf236e5baa0677f72d1a3c36a59975e87cb7b"
+    },
+    {
+      "v1Path": "native-resources/android-res/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png",
+      "v2Path": "native-resources/android-res/app/src/main/res/mipmap-mdpi/ic_launcher_foreground.png",
+      "bytes": 22404,
+      "sha256": "3ad0889400f223be27a6b70871faf439241f79b9d32bfd38c3e12ec0c3ca9755"
+    },
+    {
+      "v1Path": "native-resources/android-res/app/src/main/res/mipmap-mdpi/ic_launcher_round.png",
+      "v2Path": "native-resources/android-res/app/src/main/res/mipmap-mdpi/ic_launcher_round.png",
+      "bytes": 5808,
+      "sha256": "c2f527fbaf4950a204eac45c23a5a5bf8e96869acab4c9dddff8aa7bfdd63d75"
+    },
+    {
+      "v1Path": "native-resources/android-res/app/src/main/res/mipmap-mdpi/ic_launcher.png",
+      "v2Path": "native-resources/android-res/app/src/main/res/mipmap-mdpi/ic_launcher.png",
+      "bytes": 5776,
+      "sha256": "d9aa9dd7b739644b6bcac324350887d29372b2e7e7fadead4d5285f2d3f57427"
+    },
+    {
+      "v1Path": "native-resources/android-res/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png",
+      "v2Path": "native-resources/android-res/app/src/main/res/mipmap-xhdpi/ic_launcher_foreground.png",
+      "bytes": 70840,
+      "sha256": "2b7df3f3b764a7793cd93a66e1e760d4b6ce32efc97d26f7a0b286ab6a98f2d2"
+    },
+    {
+      "v1Path": "native-resources/android-res/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png",
+      "v2Path": "native-resources/android-res/app/src/main/res/mipmap-xhdpi/ic_launcher_round.png",
+      "bytes": 18625,
+      "sha256": "829bdf2bfff487c4f9bb3f9c1b2a568c2a9ad6afa910b31331f3f37c140bb01b"
+    },
+    {
+      "v1Path": "native-resources/android-res/app/src/main/res/mipmap-xhdpi/ic_launcher.png",
+      "v2Path": "native-resources/android-res/app/src/main/res/mipmap-xhdpi/ic_launcher.png",
+      "bytes": 18479,
+      "sha256": "4ddce5418ffa65af8fd890968e46e4ef5de60b90968d7ebefd7f279bdb0ff2a0"
+    },
+    {
+      "v1Path": "native-resources/android-res/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png",
+      "v2Path": "native-resources/android-res/app/src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png",
+      "bytes": 144582,
+      "sha256": "7bd33b6af1092874b65f176bf385ccd200bf01361755bbc7079f6efb0e639cb4"
+    },
+    {
+      "v1Path": "native-resources/android-res/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png",
+      "v2Path": "native-resources/android-res/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.png",
+      "bytes": 36316,
+      "sha256": "7aeb16ad7939636f13c0818314f5838b5480bf40a1f74aa59b4eb27a727ae134"
+    },
+    {
+      "v1Path": "native-resources/android-res/app/src/main/res/mipmap-xxhdpi/ic_launcher.png",
+      "v2Path": "native-resources/android-res/app/src/main/res/mipmap-xxhdpi/ic_launcher.png",
+      "bytes": 36063,
+      "sha256": "e35bf24e73b656680231341b17361ce639bb974b1e8793d5ad37907821b1e4f7"
+    },
+    {
+      "v1Path": "native-resources/android-res/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png",
+      "v2Path": "native-resources/android-res/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png",
+      "bytes": 243635,
+      "sha256": "7a314931ba3b0c9c3c95128ebc58ef55c848578f4e36c0ac29032e69ca58e57c"
+    },
+    {
+      "v1Path": "native-resources/android-res/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png",
+      "v2Path": "native-resources/android-res/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.png",
+      "bytes": 58667,
+      "sha256": "74e55c7748949e392942506324f7b3452ca20cae704f3939f657e5f9994c1e9a"
+    },
+    {
+      "v1Path": "native-resources/android-res/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+      "v2Path": "native-resources/android-res/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+      "bytes": 58296,
+      "sha256": "d7e829957ec99410bf44ac3eb3a4fc853c6d257280bff3a20cce23c8dff8d850"
+    },
+    {
+      "v1Path": "native-resources/android-res/app/src/main/res/values/ic_launcher_background.xml",
+      "v2Path": "native-resources/android-res/app/src/main/res/values/ic_launcher_background.xml",
+      "bytes": 121,
+      "sha256": "f687e491e88fccfad3b0f71f0ce520e92c077597faf82e3ea85cb67d3ba06c69"
+    },
+    {
+      "v1Path": "src/ui/assets/app-icon.png",
+      "v2Path": "public/v1/ui/app-icon.png",
+      "bytes": 1855750,
+      "sha256": "e5499b69aa0bbbb2a5b7d130b3169f80218c10bbab4135f024d997fdec955770"
+    },
+    {
+      "v1Path": "src/ui/assets/fonts/FredokaOne.woff2",
+      "v2Path": "public/v1/ui/fonts/FredokaOne.woff2",
+      "bytes": 15596,
+      "sha256": "e9986c62b19bce3791c4c103a4aa87c91d22d9e1c9f252f7f802ea26d3405769"
+    },
+    {
+      "v1Path": "src/ui/assets/fonts/LilitaOne.ttf",
+      "v2Path": "public/v1/ui/fonts/LilitaOne.ttf",
+      "bytes": 26332,
+      "sha256": "26ad0d77404141ff7af714353cdf23c980841829dd270fc26e6c2dfcf654bd6d"
+    },
+    {
+      "v1Path": "src/ui/assets/fonts/TitanOne.ttf",
+      "v2Path": "public/v1/ui/fonts/TitanOne.ttf",
+      "bytes": 52188,
+      "sha256": "c14c958677babb78649790ac2e998cea5cb940710aeb044e308cd79ee74a95bd"
+    },
+    {
+      "v1Path": "src/ui/assets/icon-coin-sparkle.png",
+      "v2Path": "public/v1/ui/icon-coin-sparkle.png",
+      "bytes": 84634,
+      "sha256": "1ba798a5c38b08dae6f1d26a81393520e7899cff34dc5b9184a1d7895ba83dc2"
+    },
+    {
+      "v1Path": "src/ui/assets/icon-gear.png",
+      "v2Path": "public/v1/ui/icon-gear.png",
+      "bytes": 75253,
+      "sha256": "70ace6e96d79af2e979f5acb8f7b38eb716c97ccabeb48ebef908b7fc103ded7"
+    },
+    {
+      "v1Path": "src/ui/assets/icon-marble-coin.png",
+      "v2Path": "public/v1/ui/icon-marble-coin.png",
+      "bytes": 67046,
+      "sha256": "aa231bd9bbf09257f356630e0d72a3f5be1545696dfdab8b5851d8221ebc0675"
+    },
+    {
+      "v1Path": "src/ui/assets/icon-menu.png",
+      "v2Path": "public/v1/ui/icon-menu.png",
+      "bytes": 66273,
+      "sha256": "5a91118efad8944e7212fa49f4ebcde6ff7d189362f4e7a0255597d272bc7fc1"
+    },
+    {
+      "v1Path": "src/ui/assets/icon-replay.png",
+      "v2Path": "public/v1/ui/icon-replay.png",
+      "bytes": 74428,
+      "sha256": "baf974eeaba7b82c17b0e748f87aaf2358251c2cdfdf464bfbc24b80980c7639"
+    },
+    {
+      "v1Path": "src/ui/assets/level-node-completed.webp",
+      "v2Path": "public/v1/ui/level-node-completed.webp",
+      "bytes": 9618,
+      "sha256": "43789e207cb73548f2a73a120e41f4a28409effbda117c11c4db3c9cab263ac2"
+    },
+    {
+      "v1Path": "src/ui/assets/level-node-current.webp",
+      "v2Path": "public/v1/ui/level-node-current.webp",
+      "bytes": 9356,
+      "sha256": "18e2008ee70ea6b9e673b13375e21860bf55f12f40688d5df3902e01cefbcf7f"
+    },
+    {
+      "v1Path": "src/ui/assets/level-node-default.webp",
+      "v2Path": "public/v1/ui/level-node-default.webp",
+      "bytes": 9072,
+      "sha256": "1e72e35a83adb357f78e9ee10d4939098df641b93e2c40243ed5958c62108cb4"
+    },
+    {
+      "v1Path": "src/ui/assets/level-node-locked.webp",
+      "v2Path": "public/v1/ui/level-node-locked.webp",
+      "bytes": 8934,
+      "sha256": "f1dbb7ff6638d9668f5bcf8676f9fd0a759b1cc7735c6709756b5de6b3d6518d"
+    },
+    {
+      "v1Path": "src/ui/assets/marble-run-banner.webp",
+      "v2Path": "public/v1/ui/marble-run-banner.webp",
+      "bytes": 27242,
+      "sha256": "bdf97fe9f0bd4da04b0221f4a6fc898da3206bfa61df94673b0d52bdf3668011"
+    },
+    {
+      "v1Path": "src/ui/assets/marble-shadow-tile.png",
+      "v2Path": "public/v1/ui/marble-shadow-tile.png",
+      "bytes": 37782,
+      "sha256": "fa16caf097346547036be160b1765ec18a54fd8d4f9f43216853c6e9e9d47b10"
+    },
+    {
+      "v1Path": "src/ui/assets/ribbon-fail.webp",
+      "v2Path": "public/v1/ui/ribbon-fail.webp",
+      "bytes": 19718,
+      "sha256": "d0fe713857905c888bd845dbc4c9736eee10af3952d00efbc327a11135b9827a"
+    },
+    {
+      "v1Path": "src/ui/assets/ribbon-success.webp",
+      "v2Path": "public/v1/ui/ribbon-success.webp",
+      "bytes": 21552,
+      "sha256": "2b73497140376636c1071160fe5096da949845d1f02e70556fa55187de225314"
+    },
+    {
+      "v1Path": "src/ui/assets/source/level-node-completed.png",
+      "v2Path": "public/v1/ui/source/level-node-completed.png",
+      "bytes": 260029,
+      "sha256": "db56409182094615ce82032fa8bff39c4b89bbc8fa80f9affdc6e5bd62c60165"
+    },
+    {
+      "v1Path": "src/ui/assets/source/level-node-current.png",
+      "v2Path": "public/v1/ui/source/level-node-current.png",
+      "bytes": 230871,
+      "sha256": "4b3a923d6a4a0bf38b0a842fdd15c79053b856dc34fa47725a147bd34fbbf923"
+    },
+    {
+      "v1Path": "src/ui/assets/source/level-node-default.png",
+      "v2Path": "public/v1/ui/source/level-node-default.png",
+      "bytes": 242947,
+      "sha256": "276bfa9ced858e7a860d4afc2475afa6f9fbfeb97d76c1790c7711084a2a860a"
+    },
+    {
+      "v1Path": "src/ui/assets/source/level-node-locked.png",
+      "v2Path": "public/v1/ui/source/level-node-locked.png",
+      "bytes": 312573,
+      "sha256": "0dcf507aae128259bfcf2c706863208eaea78fb6922811c5f5860db98f649167"
+    },
+    {
+      "v1Path": "src/ui/assets/source/marble-run-banner.png",
+      "v2Path": "public/v1/ui/source/marble-run-banner.png",
+      "bytes": 1420648,
+      "sha256": "cd751fc29f87981a5ab9e63ac08d45a33003e0b3751ad4a5c696461d4aa52256"
+    },
+    {
+      "v1Path": "src/ui/assets/source/ribbon-fail.png",
+      "v2Path": "public/v1/ui/source/ribbon-fail.png",
+      "bytes": 336247,
+      "sha256": "ec8e072e627fb8e53f0dacfc8a2d4f340bad4caa4dfe01df5ce41c8b2f87437b"
+    },
+    {
+      "v1Path": "src/ui/assets/source/ribbon-success.png",
+      "v2Path": "public/v1/ui/source/ribbon-success.png",
+      "bytes": 371417,
+      "sha256": "690f9ad043f6e2b7bdc4db241dad64885d6a3f2b680d9aa970006da3a5483cb7"
+    },
+    {
+      "v1Path": "src/ui/assets/vida-win-glare.png",
+      "v2Path": "public/v1/ui/vida-win-glare.png",
+      "bytes": 1541,
+      "sha256": "d3d787b297af50bd375cb92e4241ace9a2ec2d0b0003e84dad5f3d738d4461f4"
+    },
+    {
+      "v1Path": "src/ui/assets/vida/End/Fail/Button_Orange.png",
+      "v2Path": "public/v1/ui/vida/End/Fail/Button_Orange.png",
+      "bytes": 13181,
+      "sha256": "5e4d40f245687694b1f4067a52986922f11ecf0f8137cf9e0ac1c4347ce33b27"
+    },
+    {
+      "v1Path": "src/ui/assets/vida/End/Fail/Icon_Failed.png",
+      "v2Path": "public/v1/ui/vida/End/Fail/Icon_Failed.png",
+      "bytes": 16984,
+      "sha256": "92341deae2e05ed5cb7edd06a51a7ba754cf31d17535a4bda9b27e7545d08a64"
+    },
+    {
+      "v1Path": "src/ui/assets/vida/End/Fail/Ribbon_Failed.png",
+      "v2Path": "public/v1/ui/vida/End/Fail/Ribbon_Failed.png",
+      "bytes": 34084,
+      "sha256": "1575ca82ea8b889c4f772e6639705a9deb849e307de88ef979a84c768946b542"
+    },
+    {
+      "v1Path": "src/ui/assets/vida/End/Tutorial/Ribbon_Orange.png",
+      "v2Path": "public/v1/ui/vida/End/Tutorial/Ribbon_Orange.png",
+      "bytes": 22853,
+      "sha256": "a2fcf5ab0ffd6f6e7da3ae8d67ee8017194ceb1f85e9a5ba6a110689ced7280b"
+    },
+    {
+      "v1Path": "src/ui/assets/vida/End/Win/Button_Green.png",
+      "v2Path": "public/v1/ui/vida/End/Win/Button_Green.png",
+      "bytes": 13938,
+      "sha256": "da5214069ecccef885d6e89b1c76adb596ad278fc421b65b68e974d93d070eea"
+    },
+    {
+      "v1Path": "src/ui/assets/vida/End/Win/Icon_Coin.png",
+      "v2Path": "public/v1/ui/vida/End/Win/Icon_Coin.png",
+      "bytes": 13091,
+      "sha256": "c15cac23d408f1c0bf08b6f0cc33335ef95655a7a2d331d99cd62d552772ffc4"
+    },
+    {
+      "v1Path": "src/ui/assets/vida/End/Win/Icon_Crown.png",
+      "v2Path": "public/v1/ui/vida/End/Win/Icon_Crown.png",
+      "bytes": 37504,
+      "sha256": "063de379a2fb1b43d7fc3e87835935bf8dfabf6e3d07663e7e63f86ca5c005c3"
+    },
+    {
+      "v1Path": "src/ui/assets/vida/End/Win/Popup.png",
+      "v2Path": "public/v1/ui/vida/End/Win/Popup.png",
+      "bytes": 26554,
+      "sha256": "dc8a2528974fa4eaf76488df2caa128bbce4461907c083bbe30dfa58fa8d7070"
+    },
+    {
+      "v1Path": "src/ui/assets/vida/End/Win/Ribbon_Completed.png",
+      "v2Path": "public/v1/ui/vida/End/Win/Ribbon_Completed.png",
+      "bytes": 40912,
+      "sha256": "ccbe1c4dbb2bbb5afc38310e2e2c595548effb6ade815e779552a1068d20fa31"
+    },
+    {
+      "v1Path": "src/ui/assets/vida/End/Win/Txt_Next.png",
+      "v2Path": "public/v1/ui/vida/End/Win/Txt_Next.png",
+      "bytes": 8680,
+      "sha256": "85448f9272bfaa35c784f5a7407039c136c547dbb4448f3e65ccae86d54bde55"
+    },
+    {
+      "v1Path": "src/ui/assets/vida/End/Win/Txt_Reward.png",
+      "v2Path": "public/v1/ui/vida/End/Win/Txt_Reward.png",
+      "bytes": 9975,
+      "sha256": "e79816f5f2a69e4b16a7004c46532c478ec7b2f60438a066c8fe2304b551b685"
+    },
+    {
+      "v1Path": "src/ui/assets/vida/GameScreen/Button_Booster.png",
+      "v2Path": "public/v1/ui/vida/GameScreen/Button_Booster.png",
+      "bytes": 16241,
+      "sha256": "123ae6cf71ae61ceba3bf40e1c6878b35e5f4b9ea027016af55f2041ac546860"
+    },
+    {
+      "v1Path": "src/ui/assets/vida/GameScreen/Button_Settins.png",
+      "v2Path": "public/v1/ui/vida/GameScreen/Button_Settins.png",
+      "bytes": 7726,
+      "sha256": "9cd58f61d62794fd9a8d56bf05dd498aec4e09051d9b82499183ea3f2e00a276"
+    },
+    {
+      "v1Path": "src/ui/assets/vida/GameScreen/Frame_Currency.png",
+      "v2Path": "public/v1/ui/vida/GameScreen/Frame_Currency.png",
+      "bytes": 7835,
+      "sha256": "076945e16b1e7d0923ea9eb28a1956996164b5771cf90034c7a4aeb4900a2190"
+    },
+    {
+      "v1Path": "src/ui/assets/vida/GameScreen/Frame_Goals.png",
+      "v2Path": "public/v1/ui/vida/GameScreen/Frame_Goals.png",
+      "bytes": 8276,
+      "sha256": "4cbb36f70972d77590efac7118e2f7346894548db7757b09621a4c32127f2609"
+    },
+    {
+      "v1Path": "src/ui/assets/vida/GameScreen/Icon_Coin.png",
+      "v2Path": "public/v1/ui/vida/GameScreen/Icon_Coin.png",
+      "bytes": 9694,
+      "sha256": "e77e5dbf6899c3d427d1a846bdab2bb693bb59a5693c31ea6e1ec0eda9076980"
+    },
+    {
+      "v1Path": "src/ui/assets/vida/GameScreen/Icon_Settings.png",
+      "v2Path": "public/v1/ui/vida/GameScreen/Icon_Settings.png",
+      "bytes": 10595,
+      "sha256": "2afc7b81986c221dbcbeb197296b5d245b0285aa7cb757c6db1275664175d897"
+    }
+  ]
+}
