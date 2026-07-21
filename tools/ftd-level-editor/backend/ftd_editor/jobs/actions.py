@@ -6,11 +6,12 @@ from dataclasses import dataclass
 from typing import Any, Literal, Mapping
 
 from fastapi import APIRouter, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import Response
 from pydantic import BaseModel, ConfigDict, Field
 
 from ..approvals import ApprovalStore, GrantRejected
 from ..artifacts import ArtifactNotFound, ArtifactStore
+from ..sessions.routes import SessionRevisionConflictDetail, SessionSnapshotResponse
 from ..sessions.store import SessionNotFound, SessionRevisionConflict, SessionStore
 from .models import ExecutionSpec, JobRecord
 from .store import (
@@ -139,6 +140,17 @@ class RequestIdentityConflictDetail(BaseModel):
     submitted_input_hash: str = Field(alias="submittedInputHash")
 
 
+class StartJobConflictResponse(BaseModel):
+    """Wire shape of every 409 a durable start/force-new route can emit."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    detail: RequestIdentityConflictDetail | SessionRevisionConflictDetail | str
+
+
+_START_CONFLICT_RESPONSES = {409: {"model": StartJobConflictResponse}}
+
+
 class JobService:
     """Deterministic action-layer orchestration over the durable stores."""
 
@@ -183,23 +195,7 @@ class JobService:
 
     def start(self, kind: str, body: StartJobRequest) -> tuple[JobRecord, bool]:
         spec = self.build_spec(kind, body)
-        job, created = self.jobs.start_job(spec, request_id=body.request_id)
-        if created:
-            reusable = self.jobs.find_reusable(kind, job.input_hash)
-            if reusable is not None and reusable.id != job.id:
-                self.jobs.append_event(
-                    job.id,
-                    "job.artifact_reuse",
-                    data={"reusedFromJobId": reusable.id},
-                )
-                self.jobs.link_artifacts(from_job_id=reusable.id, to_job_id=job.id)
-                result = dict(reusable.result)
-                result["application"] = "reused"
-                result["reusedFromJobId"] = reusable.id
-                job = self.jobs.transition_job(
-                    job.id, status="succeeded", stage="reused", result=result
-                )
-        return job, created
+        return self.jobs.start_job(spec, request_id=body.request_id, reuse=True)
 
     def force_new(self, kind: str, job_id: str, body: ForceNewJobRequest) -> JobRecord:
         spec = self.build_spec(kind, body)
@@ -290,10 +286,10 @@ def build_job_router(service: JobService, dependencies: list[Any]) -> APIRouter:
         except SessionRevisionConflict as error:
             raise HTTPException(
                 status_code=409,
-                detail={
-                    "code": "session_revision_conflict",
-                    "currentRevision": error.current.revision,
-                },
+                detail=SessionRevisionConflictDetail(
+                    code="session_revision_conflict",
+                    current=SessionSnapshotResponse.from_snapshot(error.current),
+                ).model_dump(by_alias=True),
             ) from error
         except SessionNotFound as error:
             raise HTTPException(status_code=404, detail="session not found") from error
@@ -302,6 +298,7 @@ def build_job_router(service: JobService, dependencies: list[Any]) -> APIRouter:
         "/jobs/actions/{kind}",
         operation_id="startFtdDurableAction",
         response_model=JobResource,
+        responses=_START_CONFLICT_RESPONSES,
         openapi_extra={**durable_extra, "x-ftd-revision": "bound"},
     )
     def start_ftd_durable_action(kind: str, body: StartJobRequest) -> JobResource:
@@ -390,6 +387,7 @@ def build_job_router(service: JobService, dependencies: list[Any]) -> APIRouter:
         "/jobs/{job_id}/force-new/{kind}",
         operation_id="forceNewDurableJob",
         response_model=JobResource,
+        responses=_START_CONFLICT_RESPONSES,
         openapi_extra={**durable_extra, "x-ftd-approval": "single-use-grant"},
     )
     def force_new_durable_job(job_id: str, kind: str, body: ForceNewJobRequest) -> JobResource:
@@ -407,7 +405,11 @@ def build_job_router(service: JobService, dependencies: list[Any]) -> APIRouter:
         response_model=ApprovalGrantResponse,
         status_code=201,
         openapi_extra={
-            "x-ftd-authorization": "human-approval",
+            # Honest label: the gate is an exact server-derived acknowledgement
+            # from a credentialed caller, not proof of a human. A genuinely
+            # human gate needs a distinct approval credential (deferred to the
+            # unit that owns the human-facing approval surface).
+            "x-ftd-authorization": "deliberate-intent-acknowledgement",
             "x-ftd-side-effects": "grant-minting",
             "x-ftd-cost": "none",
         },
@@ -435,24 +437,28 @@ def build_job_router(service: JobService, dependencies: list[Any]) -> APIRouter:
     @router.get(
         "/jobs/{job_id}/artifacts/{artifact_id}",
         operation_id="downloadDurableJobArtifact",
-        response_class=FileResponse,
+        response_class=Response,
         openapi_extra={
             "x-ftd-side-effects": "none",
             "x-ftd-cost": "none",
             "x-ftd-artifacts": "opaque-download",
         },
     )
-    def download_durable_job_artifact(job_id: str, artifact_id: str) -> FileResponse:
+    def download_durable_job_artifact(job_id: str, artifact_id: str) -> Response:
         job_or_404(job_id)
         try:
             resolved = service.artifacts.resolve_download(job_id, artifact_id)
         except ArtifactNotFound as error:
             raise HTTPException(status_code=404, detail="artifact not found") from error
-        return FileResponse(
-            resolved.path,
+        return Response(
+            content=resolved.content,
             media_type=resolved.record.media_type,
-            filename=resolved.record.display_name,
-            headers={"X-Content-Type-Options": "nosniff"},
+            headers={
+                "X-Content-Type-Options": "nosniff",
+                "Content-Disposition": (
+                    f'attachment; filename="{resolved.record.display_name}"'
+                ),
+            },
         )
 
     return router

@@ -572,6 +572,36 @@
         "title": "MintApprovalRequest",
         "type": "object"
       },
+      "RequestIdentityConflictDetail": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "const": "request_identity_conflict",
+            "title": "Code",
+            "type": "string"
+          },
+          "existingInputHash": {
+            "title": "Existinginputhash",
+            "type": "string"
+          },
+          "existingJobId": {
+            "title": "Existingjobid",
+            "type": "string"
+          },
+          "submittedInputHash": {
+            "title": "Submittedinputhash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "existingJobId",
+          "existingInputHash",
+          "submittedInputHash"
+        ],
+        "title": "RequestIdentityConflictDetail",
+        "type": "object"
+      },
       "SessionProvenanceResponse": {
         "additionalProperties": false,
         "properties": {
@@ -695,6 +725,31 @@
           "activeVariant"
         ],
         "title": "SetDogActiveVariantRequest",
+        "type": "object"
+      },
+      "StartJobConflictResponse": {
+        "additionalProperties": false,
+        "description": "Wire shape of every 409 a durable start/force-new route can emit.",
+        "properties": {
+          "detail": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RequestIdentityConflictDetail"
+              },
+              {
+                "$ref": "#/components/schemas/SessionRevisionConflictDetail"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Detail"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "StartJobConflictResponse",
         "type": "object"
       },
       "StartJobRequest": {
@@ -868,7 +923,7 @@
           }
         ],
         "summary": "Mint Approval Grant",
-        "x-ftd-authorization": "human-approval",
+        "x-ftd-authorization": "deliberate-intent-acknowledgement",
         "x-ftd-cost": "none",
         "x-ftd-side-effects": "grant-minting"
       }
@@ -996,6 +1051,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartJobConflictResponse"
+                }
+              }
+            },
+            "description": "Conflict"
           },
           "422": {
             "content": {
@@ -1265,6 +1330,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartJobConflictResponse"
+                }
+              }
+            },
+            "description": "Conflict"
           },
           "422": {
             "content": {

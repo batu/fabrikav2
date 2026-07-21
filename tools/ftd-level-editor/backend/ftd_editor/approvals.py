@@ -57,9 +57,11 @@ class ApprovalStore:
     ) -> ApprovalGrant:
         """Mint one grant; the caller must supply the exact acknowledgement text.
 
-        Route-level launch-credential auth plus this server-derived
-        acknowledgement is the human-interaction gate: a caller-supplied role
-        claim alone can never produce a valid grant id.
+        This gate is deliberate-intent acknowledgement, not proof of a human:
+        the acknowledgement is derivable, so any credentialed caller that
+        explicitly names the protected action and binding can mint. A genuinely
+        human gate requires a distinct approval credential on the human-facing
+        surface, owned by a later unit.
         """
 
         if acknowledgement != expected_acknowledgement(action_kind, request_binding):

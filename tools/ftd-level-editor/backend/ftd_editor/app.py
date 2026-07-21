@@ -24,6 +24,7 @@ from .security import (
     SecretRedactionFilter,
     SecretRedactor,
 )
+from .jobs.actions import JobService
 from .settings import EditorSettings
 from .sessions.store import SessionStore
 
@@ -49,7 +50,7 @@ class StoreRegistry(Protocol):
     def sessions(self) -> SessionStore | None: ...
 
     @property
-    def jobs(self) -> Any | None: ...
+    def jobs(self) -> JobService | None: ...
 
     def names(self) -> tuple[str, ...]: ...
 
@@ -92,7 +93,7 @@ class EditorStores:
     """Explicit composition root for editor-owned persistence authorities."""
 
     sessions: SessionStore | None = None
-    jobs: Any | None = None
+    jobs: JobService | None = None
 
     def names(self) -> tuple[str, ...]:
         names: list[str] = []

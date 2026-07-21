@@ -114,6 +114,13 @@ export interface MintApprovalRequest {
   "sourceRevision": string;
 }
 
+export interface RequestIdentityConflictDetail {
+  "code": "request_identity_conflict";
+  "existingInputHash": string;
+  "existingJobId": string;
+  "submittedInputHash": string;
+}
+
 export interface SessionProvenanceResponse {
   "file_count": number;
   "session_sha256": string;
@@ -143,6 +150,10 @@ export interface SessionUnavailableResponse {
 export interface SetDogActiveVariantRequest {
   "activeVariant": null | number;
   "revision": string;
+}
+
+export interface StartJobConflictResponse {
+  "detail": RequestIdentityConflictDetail | SessionRevisionConflictDetail | string;
 }
 
 export interface StartJobRequest {

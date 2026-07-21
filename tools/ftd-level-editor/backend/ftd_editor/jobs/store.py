@@ -54,6 +54,18 @@ class AttemptNotAllowed(RuntimeError):
     pass
 
 
+class OwnershipLost(RuntimeError):
+    """A fenced write was attempted by a worker that no longer owns the job."""
+
+    def __init__(self, job: JobRecord, owner: str) -> None:
+        super().__init__(
+            f"worker {owner!r} no longer owns job {job.id!r} "
+            f"(owner={job.worker_owner!r}, status={job.status})"
+        )
+        self.job = job
+        self.owner = owner
+
+
 def utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
@@ -295,11 +307,16 @@ class JobStore:
         *,
         request_id: str,
         metadata: dict[str, Any] | None = None,
+        reuse: bool = False,
     ) -> tuple[JobRecord, bool]:
         """Persist request identity, Execution Spec, and Input Hash before side effects.
 
         Returns (job, created). Replay with the same hash returns the newest
         linked attempt; a different hash raises RequestIdentityConflict.
+
+        With reuse=True, a prior succeeded job with the same Input Hash
+        completes the new job in the same transaction, so a queued row that
+        could reach the paid handler is never visible to any worker.
         """
 
         submitted_hash = spec.input_hash()
@@ -313,10 +330,39 @@ class JobStore:
                 if existing.input_hash != submitted_hash:
                     raise RequestIdentityConflict(existing, submitted_hash)
                 return self._newest_attempt_locked(conn, existing), False
-            return (
-                self._insert_job(conn, spec=spec, request_id=request_id, metadata=metadata),
-                True,
-            )
+            job = self._insert_job(conn, spec=spec, request_id=request_id, metadata=metadata)
+            if reuse:
+                reusable = self._find_reusable_locked(conn, spec.kind, submitted_hash, job.id)
+                if reusable is not None:
+                    job = self._apply_reuse_locked(conn, job, reusable)
+            return job, True
+
+    def _find_reusable_locked(
+        self, conn: sqlite3.Connection, kind: str, input_hash: str, exclude_id: str
+    ) -> JobRecord | None:
+        row = conn.execute(
+            """
+            SELECT * FROM jobs
+            WHERE kind = ? AND input_hash = ? AND status = 'succeeded' AND id != ?
+            ORDER BY created_at DESC LIMIT 1
+            """,
+            (kind, input_hash, exclude_id),
+        ).fetchone()
+        return _row_to_job(row) if row is not None else None
+
+    def _apply_reuse_locked(
+        self, conn: sqlite3.Connection, job: JobRecord, reusable: JobRecord
+    ) -> JobRecord:
+        self._append_event_locked(
+            conn, job.id, "job.artifact_reuse", data={"reusedFromJobId": reusable.id}
+        )
+        self._link_artifacts_locked(conn, from_job_id=reusable.id, to_job_id=job.id)
+        result = dict(reusable.result)
+        result["application"] = "reused"
+        result["reusedFromJobId"] = reusable.id
+        return self._transition_locked(
+            conn, job, status="succeeded", stage="reused", result=result
+        )
 
     def find_by_request_id(self, kind: str, request_id: str) -> JobRecord | None:
         with self.connect() as conn:
@@ -353,6 +399,13 @@ class JobStore:
                 raise AttemptNotAllowed(
                     f"retry requires a definitive retryable failure, not {job.status!r}"
                 )
+            if job.metadata.get("providerSubmissionStarted") and not job.metadata.get(
+                "providerJobId"
+            ):
+                raise AttemptNotAllowed(
+                    f"job {job_id!r} has ambiguous submission intent; "
+                    "force-new authority is required before any resubmission"
+                )
             attempt = self._insert_job(
                 conn,
                 spec=ExecutionSpec.from_mapping(job.execution_spec),
@@ -382,6 +435,18 @@ class JobStore:
 
         with self.transaction() as conn:
             job = self._get_locked(conn, job_id)
+            bound = conn.execute(
+                "SELECT * FROM jobs WHERE kind = ? AND request_id = ?",
+                (spec.kind, new_request_id),
+            ).fetchone()
+            if bound is not None:
+                existing = _row_to_job(bound)
+                if (
+                    existing.input_hash == spec.input_hash()
+                    and existing.previous_attempt_id == job.id
+                ):
+                    return self._newest_attempt_locked(conn, existing)
+                raise RequestIdentityConflict(existing, spec.input_hash())
             if job.superseded_by is not None:
                 raise AttemptNotAllowed(f"job {job_id!r} is already superseded")
             grant_data = consume_grant(conn)
@@ -429,11 +494,16 @@ class JobStore:
         result: dict[str, Any] | None = None,
         worker_owner: str | None = ...,  # type: ignore[assignment]
         heartbeat_at: str | None = ...,  # type: ignore[assignment]
+        expect_owner: str | None = None,
     ) -> JobRecord:
         if status not in VALID_STATUSES:
             raise ValueError(f"invalid job status: {status}")
         if is_terminal_status(job.status):
             raise TerminalJobImmutable(job, status)
+        if expect_owner is not None and (
+            job.worker_owner != expect_owner or job.status == "queued"
+        ):
+            raise OwnershipLost(job, expect_owner)
         now = self._now()
         safe_error = self._sanitized(error_message)
         conn.execute(
@@ -450,7 +520,9 @@ class JobStore:
                 int(bool(retryable)) if retryable is not None else int(job.retryable),
                 error_code,
                 safe_error,
-                _json_dump(result) if result is not None else _json_dump(job.result),
+                self._sanitize(_json_dump(result))
+                if result is not None
+                else _json_dump(job.result),
                 job.worker_owner if worker_owner is ... else worker_owner,
                 job.heartbeat_at if heartbeat_at is ... else heartbeat_at,
                 now,
@@ -470,6 +542,40 @@ class JobStore:
     def transition_job(self, job_id: str, **kwargs: Any) -> JobRecord:
         with self.transaction() as conn:
             return self._transition_locked(conn, self._get_locked(conn, job_id), **kwargs)
+
+    def complete_success(
+        self, job_id: str, *, result: dict[str, Any] | None, owner: str
+    ) -> JobRecord | None:
+        """Atomically land one attempt's successful output, honoring a late cancel.
+
+        The status read and the terminal write share one transaction, so a
+        cancel that lands mid-completion can never be overwritten to
+        succeeded/applied. Returns None when the job was already terminal
+        (output retained, not applied).
+        """
+
+        with self.transaction() as conn:
+            job = self._get_locked(conn, job_id)
+            if is_terminal_status(job.status):
+                self._append_event_locked(
+                    conn,
+                    job.id,
+                    "job.late_output_retained",
+                    message="work finished after a terminal transition; "
+                    "output retained, not applied",
+                )
+                return None
+            if job.worker_owner != owner or job.status == "queued":
+                raise OwnershipLost(job, owner)
+            payload = dict(result or {})
+            if job.status == "cancel_requested":
+                payload.setdefault("application", "withheld")
+                payload["lateOutput"] = "retained"
+                return self._transition_locked(
+                    conn, job, status="cancelled", stage="cancelled", result=payload
+                )
+            payload.setdefault("application", "applied")
+            return self._transition_locked(conn, job, status="succeeded", result=payload)
 
     def get_job(self, job_id: str) -> JobRecord:
         with self.connect() as conn:
@@ -540,15 +646,21 @@ class JobStore:
             )
             return self._get_locked(conn, job_id)
 
-    def record_submission_intent(self, job_id: str) -> JobRecord:
-        return self._patch_metadata(job_id, {"providerSubmissionStarted": True})
+    def record_submission_intent(self, job_id: str, *, owner: str | None = None) -> JobRecord:
+        return self._patch_metadata(job_id, {"providerSubmissionStarted": True}, owner=owner)
 
-    def record_provider_job_id(self, job_id: str, provider_job_id: str) -> JobRecord:
-        return self._patch_metadata(job_id, {"providerJobId": provider_job_id})
+    def record_provider_job_id(
+        self, job_id: str, provider_job_id: str, *, owner: str | None = None
+    ) -> JobRecord:
+        return self._patch_metadata(job_id, {"providerJobId": provider_job_id}, owner=owner)
 
-    def _patch_metadata(self, job_id: str, patch: dict[str, Any]) -> JobRecord:
+    def _patch_metadata(
+        self, job_id: str, patch: dict[str, Any], *, owner: str | None = None
+    ) -> JobRecord:
         with self.transaction() as conn:
             job = self._get_locked(conn, job_id)
+            if owner is not None and (job.worker_owner != owner or job.status == "queued"):
+                raise OwnershipLost(job, owner)
             metadata = dict(job.metadata)
             metadata.update(patch)
             conn.execute(
@@ -673,39 +785,44 @@ class JobStore:
 
         with self.transaction() as conn:
             self._get_locked(conn, to_job_id)
-            rows = conn.execute(
-                "SELECT * FROM job_artifacts WHERE job_id = ? ORDER BY created_at ASC",
-                (from_job_id,),
-            ).fetchall()
-            linked: list[ArtifactRecord] = []
-            for row in rows:
-                conn.execute(
-                    """
-                    INSERT OR IGNORE INTO job_artifacts (
-                        artifact_id, job_id, display_name, media_type, checksum, size,
-                        relative_path, created_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (
-                        row["artifact_id"],
-                        to_job_id,
-                        row["display_name"],
-                        row["media_type"],
-                        row["checksum"],
-                        row["size"],
-                        row["relative_path"],
-                        self._now(),
-                    ),
+            return self._link_artifacts_locked(conn, from_job_id=from_job_id, to_job_id=to_job_id)
+
+    def _link_artifacts_locked(
+        self, conn: sqlite3.Connection, *, from_job_id: str, to_job_id: str
+    ) -> list[ArtifactRecord]:
+        rows = conn.execute(
+            "SELECT * FROM job_artifacts WHERE job_id = ? ORDER BY created_at ASC",
+            (from_job_id,),
+        ).fetchall()
+        linked: list[ArtifactRecord] = []
+        for row in rows:
+            conn.execute(
+                """
+                INSERT OR IGNORE INTO job_artifacts (
+                    artifact_id, job_id, display_name, media_type, checksum, size,
+                    relative_path, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    row["artifact_id"],
+                    to_job_id,
+                    row["display_name"],
+                    row["media_type"],
+                    row["checksum"],
+                    row["size"],
+                    row["relative_path"],
+                    self._now(),
+                ),
+            )
+            linked.append(
+                _row_to_artifact(
+                    conn.execute(
+                        "SELECT * FROM job_artifacts WHERE artifact_id = ? AND job_id = ?",
+                        (row["artifact_id"], to_job_id),
+                    ).fetchone()
                 )
-                linked.append(
-                    _row_to_artifact(
-                        conn.execute(
-                            "SELECT * FROM job_artifacts WHERE artifact_id = ? AND job_id = ?",
-                            (row["artifact_id"], to_job_id),
-                        ).fetchone()
-                    )
-                )
-            return linked
+            )
+        return linked
 
     def list_artifacts(self, job_id: str) -> list[ArtifactRecord]:
         with self.connect() as conn:

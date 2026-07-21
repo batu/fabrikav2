@@ -123,4 +123,7 @@ def test_openapi_pins_operation_ids_and_durability_extensions() -> None:
         assert required in operations, f"missing pinned operation {required}"
     assert operations["startFtdDurableAction"]["x-ftd-durability"] == "durable-job"
     assert operations["forceNewDurableJob"]["x-ftd-approval"] == "single-use-grant"
-    assert operations["mintApprovalGrant"]["x-ftd-authorization"] == "human-approval"
+    assert (
+            operations["mintApprovalGrant"]["x-ftd-authorization"]
+            == "deliberate-intent-acknowledgement"
+        )

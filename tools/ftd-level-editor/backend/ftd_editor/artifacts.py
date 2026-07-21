@@ -51,6 +51,7 @@ def sanitize_display_name(name: str) -> str:
 class ResolvedArtifact:
     record: ArtifactRecord
     path: Path
+    content: bytes
 
 
 class ArtifactStore:
@@ -111,10 +112,14 @@ class ArtifactStore:
             if not stat.S_ISREG(metadata.st_mode):
                 raise ArtifactNotFound(artifact_id)
             digest = hashlib.sha256()
+            chunks: list[bytes] = []
             while chunk := os.read(descriptor, 1024 * 1024):
                 digest.update(chunk)
+                chunks.append(chunk)
         finally:
             os.close(descriptor)
         if f"sha256:{digest.hexdigest()}" != record.checksum:
             raise ArtifactNotFound(artifact_id)
-        return ResolvedArtifact(record=record, path=candidate)
+        # The served bytes are exactly the bytes that passed O_NOFOLLOW +
+        # regular-file + checksum verification; the path is never reopened.
+        return ResolvedArtifact(record=record, path=candidate, content=b"".join(chunks))
