@@ -1,0 +1,23 @@
+{
+  "name": "app_icon",
+  "kind": "icon",
+  "size": "1024x1024",
+  "gen_size": "1024x1024",
+  "description": "A mobile app icon, FULL-BLEED square with no rounded corners (the OS masks it): a big radiant gold star with a subtle smiling sparkle sitting on a rich teal-to-deep-teal gradient background, one ribbon accent at the bottom, edge-to-edge color.",
+  "prompt_extra": "full-bleed opaque square, subject fills ~70% of the canvas, readable at 60px",
+  "transparent": false,
+  "models": [
+    "google/gemini-3.1-flash-image",
+    "openai/gpt-5.4-image-2"
+  ],
+  "variants": [
+    {
+      "name": "warm",
+      "prompt_extra": "warmer gold, sunnier"
+    },
+    {
+      "name": "clean",
+      "prompt_extra": "flatter, bolder, more minimal"
+    }
+  ]
+}

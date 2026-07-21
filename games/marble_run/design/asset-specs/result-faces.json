@@ -1,0 +1,31 @@
+{
+  "name": "result_faces",
+  "kind": "badge",
+  "size": "492x512",
+  "gen_size": "1536x768",
+  "description": "Two expressive result placeholders, one family: WIN \u2014 a big glossy gold star with a cheerful smiling face, arms-up celebratory sparkle burst around it; FAIL \u2014 the same star dimmed to grey-blue with a sad face, a single crack across one point, drooping slightly.",
+  "prompt_extra": "same star character silhouette in both cells; simple dot-and-curve face only (no limbs, no species); the emotion carries the scene",
+  "transparent": true,
+  "models": [
+    "google/gemini-3.1-flash-image",
+    "openai/gpt-5.4-image-2"
+  ],
+  "sheet": {
+    "cols": 2,
+    "rows": 1,
+    "names": [
+      "face_win",
+      "face_fail"
+    ]
+  },
+  "variants": [
+    {
+      "name": "warm",
+      "prompt_extra": "slightly warmer, richer gold tones and a touch more ornament"
+    },
+    {
+      "name": "clean",
+      "prompt_extra": "slightly cooler, simpler and more minimal composition"
+    }
+  ]
+}

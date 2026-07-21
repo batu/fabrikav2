@@ -1,0 +1,75 @@
+{
+  "color_map": {
+    "coin_gold": [
+      "#ffd65a",
+      "#e8a83c",
+      "#a06a1e"
+    ],
+    "cta_green": [
+      "#6cc24a",
+      "#3e8f2e",
+      "#245c1a"
+    ],
+    "gem_teal": [
+      "#48d8d4",
+      "#159481"
+    ],
+    "outline_ink": [
+      "#6b4a1e"
+    ],
+    "panel": [
+      "#fff7dc",
+      "#ffffff"
+    ],
+    "ribbon_red": [
+      "#e8574a",
+      "#a83229"
+    ],
+    "shadow_tint": [
+      "#815f2c"
+    ],
+    "sparkle": [
+      "#ffffff",
+      "#fff3bf"
+    ]
+  },
+  "negative": [
+    "fine intricate detail that vanishes at small sizes",
+    "clusters of tiny sparkles, dots or particles that read as noise on a phone",
+    "photorealism or realistic textures",
+    "raw cold 3D render look",
+    "noise, grain or gritty texture",
+    "washed-out pastel or muddy desaturated colors",
+    "thin wire-like lines or black outlines",
+    "text or letters unless the description explicitly requests them",
+    "watermark or signature",
+    "extra objects or filled empty space beyond the described subject"
+  ],
+  "palette": {
+    "accent": "#34c4b3",
+    "accent-strong": "#159481",
+    "reward": "#ffd65a",
+    "surface": "#fff7dc",
+    "surface-strong": "#ffffff",
+    "text": "#3d3d3d",
+    "warning": "#f17f47"
+  },
+  "phrases": {
+    "finish": "glossy sculpted finish with airbrushed polish and flawless smooth gradients \u2014 premium, satisfying, high-value feel, restrained not gaudy; clean pure solid colors; one crisp specular pop per object plus a subtle top sheen band; zero noise, zero texture grain; decorative particles are rationed: at most one or two LARGE sparkles, never a cloud of small ones",
+    "lighting": "single key light from the top with strong clear highlights, a bright thin rim light along the upper edges, gentle ambient occlusion in crevices, and a soft round contact shadow directly beneath the object",
+    "rendering": "premium mobile casual-game UI asset DESIGNED FOR SMALL PHONE SCREENS: it must read instantly at 48px \u2014 one big simple form, minimal interior detail, exaggerated size of the key feature, strong tonal contrast between the subject and its parts; semi-painted render with a stylized baked texture look \u2014 hand-painted lighting baked onto clean 3D-like volumes, bold chunky silhouette; subject matter strictly neutral premium motifs \u2014 stars, gems, coins, medals, ribbons, laurels, sparkles \u2014 absolutely no animals, characters, mascots, brands, or licensed shapes",
+    "shape": "rounded, hand-rolled chunky silhouettes with subtle asymmetry (never sterile mathematical geometry); smooth rounded outer edges with a few bold, crisp internal details (never many small ones); every object closed by a thin outline in a darker shade of its own fill color (never black); centered single subject with generous breathing room"
+  },
+  "pinned": true,
+  "ref_palette": [
+    "#fbf2dd",
+    "#f3ce92",
+    "#989180",
+    "#d6903b",
+    "#815f2c"
+  ],
+  "sources": [
+    "hand-authored gold standard 2026-07-16 (Batu-directed), grounded in ai_asset style_tokens (Casual Style Dictionary / Banana2) + web research in design/PROMPT-RESEARCH.md; design/style-guide.ingest-baseline.json holds the raw ingest output from design/refs/*.png for tool evaluation"
+  ],
+  "version": 1
+}

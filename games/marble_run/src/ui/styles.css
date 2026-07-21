@@ -1,0 +1,4783 @@
+@font-face {
+  font-family: 'LilitaOne';
+  src: url('/fonts/LilitaOne.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'FredokaOne';
+  src: url('/fonts/FredokaOne.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+/* HUD Overlay — floats on top of Phaser canvas */
+#hud-overlay {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  color: #3d3d3d;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#hud-overlay *,
+#hud-overlay *::before,
+#hud-overlay *::after {
+  -webkit-tap-highlight-color: transparent;
+}
+
+#hud-overlay button {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+#hud-overlay button:focus {
+  outline: none;
+}
+
+#hud-overlay button:focus-visible {
+  outline: 3px solid rgba(85, 180, 255, 0.72);
+  outline-offset: 3px;
+}
+
+/* Top bar — pushed below status bar / notch via safe-area inset */
+.hud-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 16px);
+  padding-left: calc(env(safe-area-inset-left, 0px) + 16px);
+  padding-right: calc(env(safe-area-inset-right, 0px) + 16px);
+  gap: 8px;
+}
+
+.hud-left,
+.hud-right {
+  display: flex;
+  gap: 8px;
+}
+
+.hud-left {
+  align-items: center;
+  min-width: 0;
+}
+
+.hud-right {
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+/* Frosted glass pill */
+.hud-pill {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 16px;
+  min-height: 44px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.hud-top-bar .hud-pill {
+  box-sizing: border-box;
+  height: 46px;
+  min-height: 46px;
+}
+
+/* Anchor for the nested coin top-up "+" badge (mirrors the home-menu pluses). */
+#coin-pill {
+  position: relative;
+}
+
+.hud-pill-icon,
+.hud-icon-img,
+.hud-inline-icon {
+  display: block;
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 2px 2px rgba(90, 55, 20, 0.16));
+}
+
+.rewarded-ad-icon {
+  --rewarded-ad-ink: #6d3914;
+  width: 34px;
+  min-width: 34px;
+  display: inline-grid;
+  grid-template-rows: auto auto;
+  place-items: center;
+  gap: 2px;
+  color: var(--rewarded-ad-ink);
+  line-height: 1;
+  filter: drop-shadow(0 2px 2px rgba(90, 55, 20, 0.18));
+}
+
+.rewarded-ad-icon-label {
+  min-width: 22px;
+  padding: 2px 4px 1px;
+  border-radius: 5px;
+  background: var(--rewarded-ad-ink);
+  color: #fff7d6;
+  font-size: 9px;
+  font-weight: 1000;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.rewarded-ad-icon-video {
+  position: relative;
+  width: 29px;
+  height: 20px;
+  display: block;
+  border: 2px solid var(--rewarded-ad-ink);
+  border-radius: 6px;
+  background: linear-gradient(180deg, #fffdf1 0%, #ffe39a 100%);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.58);
+}
+
+.rewarded-ad-icon-video::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  right: -8px;
+  width: 0;
+  height: 0;
+  border-left: 7px solid var(--rewarded-ad-ink);
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+}
+
+.rewarded-ad-icon-play {
+  position: absolute;
+  top: 4px;
+  left: 10px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid var(--rewarded-ad-ink);
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+}
+
+.hud-pill[hidden] {
+  display: none;
+}
+
+#dog-counter.pickup-pulse {
+  animation: pickup-counter-pop 280ms ease-out;
+}
+
+@keyframes pickup-counter-pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.13); }
+  100% { transform: scale(1); }
+}
+
+/* Hearts container */
+#hearts {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 10px;
+  flex: 0 0 auto;
+}
+
+.heart-icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+  background: url('/ui/menu-icons/icon_heart.png') center / contain no-repeat;
+  filter: drop-shadow(0 2px 2px rgba(90, 55, 20, 0.18));
+  /* Transition only filter (the grayscale on .empty); deliberately NOT opacity,
+     so it can't compete with the heart-lost keyframe that drives opacity 1→0.3
+     on the just-spent pip. */
+  transition: filter 0.3s ease;
+}
+
+.heart-icon.empty {
+  opacity: 0.3;
+  filter: grayscale(1);
+}
+
+/* Playful one-shot "lost" wiggle, applied by animateLifeLost() only to the pip
+   that just emptied on a miss. Deliberately NOT on .empty itself — updateHUD
+   rebuilds the hearts row on every call, so an .empty animation would re-fire
+   on unrelated updates (e.g. finding a dog). A quick squash + recoil reads as a
+   forgiving "aww, nope" rather than a punishing flash. */
+.heart-icon.heart-lost {
+  animation: heart-lost 0.45s ease-out;
+}
+
+@keyframes heart-lost {
+  0% { transform: scale(1.3) rotate(0deg); opacity: 1; }
+  30% { transform: scale(0.7) rotate(-12deg); }
+  55% { transform: scale(1.12) rotate(8deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 0.3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heart-icon.heart-lost {
+    animation: none;
+  }
+}
+
+/* Top-right icon buttons */
+#settings-btn {
+  pointer-events: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.restoration-progress {
+  position: absolute;
+  left: calc(env(safe-area-inset-left, 0px) + 16px);
+  right: calc(env(safe-area-inset-right, 0px) + 16px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+  padding: 10px 12px 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.76);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 6px 18px rgba(71, 43, 18, 0.16);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  pointer-events: none;
+}
+
+.restoration-progress[hidden] {
+  display: none;
+}
+
+.restoration-progress-copy {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  color: #4b3321;
+}
+
+.restoration-progress-label {
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.restoration-progress-value {
+  color: #d86e21;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.restoration-progress-track {
+  height: 9px;
+  margin-top: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(84, 59, 35, 0.14);
+}
+
+.restoration-progress-fill {
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ffba5f, #ff8c42, #f05a28);
+  box-shadow: 0 0 14px rgba(255, 140, 66, 0.5);
+  transition: width 360ms ease;
+}
+
+.restoration-progress.complete .restoration-progress-fill {
+  animation: restoration-complete-glow 850ms ease-out;
+}
+
+@keyframes restoration-complete-glow {
+  0%, 100% { filter: brightness(1); }
+  45% { filter: brightness(1.28); }
+}
+
+/* Hint button — bottom right. The absolute anchor lives on the wrapper (so the
+   sibling top-up "+" badge can position against it); the button itself fills
+   the wrapper in normal flow. */
+.hud-hint-wrap {
+  position: absolute;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 70px);
+  right: calc(env(safe-area-inset-right, 0px) + 16px);
+  /* Only the interactive children catch taps; empty wrapper area passes
+     through to the game canvas below. */
+  pointer-events: none;
+}
+
+#hint-btn {
+  pointer-events: auto;
+  cursor: pointer;
+  border: none;
+  font-size: 16px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+}
+
+/* The "+" badge is not a child of the auto pill, so re-enable taps explicitly. */
+.hud-hint-plus {
+  pointer-events: auto;
+}
+
+/* .home-pill-plus sets display:grid, which beats the [hidden] UA rule — hide it
+   explicitly so the hint "+" can be shown only when the player is out of hints. */
+.home-pill-plus[hidden] {
+  display: none;
+}
+
+#hint-btn.pulse {
+  animation: hint-pulse 1s ease-in-out infinite;
+}
+
+#hud-overlay:has(#restoration-progress:not([hidden])) .hud-hint-wrap {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 86px);
+}
+
+#hint-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+  animation: none;
+}
+
+#hud-overlay.play-entry-hud-enter-pending .hud-left,
+#hud-overlay.play-entry-hud-enter-pending .hud-right,
+#hud-overlay.play-entry-hud-enter-pending #hint-btn,
+#hud-overlay.play-entry-hud-enter-pending #hud-hint-plus {
+  opacity: 0;
+  transition:
+    transform 560ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 320ms ease;
+  will-change: transform, opacity;
+}
+
+#hud-overlay.play-entry-hud-enter-pending .hud-left {
+  transform: translate3d(calc(-100% - 48px), -18px, 0);
+}
+
+#hud-overlay.play-entry-hud-enter-pending .hud-right {
+  transform: translate3d(calc(100% + 48px), -18px, 0);
+}
+
+#hud-overlay.play-entry-hud-enter-pending #hint-btn,
+#hud-overlay.play-entry-hud-enter-pending #hud-hint-plus {
+  animation: none;
+  transform: translate3d(calc(100% + 48px), 72px, 0);
+}
+
+#hud-overlay.play-entry-hud-enter-pending.play-entry-hud-entering .hud-left,
+#hud-overlay.play-entry-hud-enter-pending.play-entry-hud-entering .hud-right,
+#hud-overlay.play-entry-hud-enter-pending.play-entry-hud-entering #hint-btn,
+#hud-overlay.play-entry-hud-enter-pending.play-entry-hud-entering #hud-hint-plus {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+#economy-transfer-layer {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  overflow: hidden;
+}
+
+.economy-transfer-token {
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  filter: drop-shadow(0 7px 10px rgba(72, 43, 16, 0.34));
+  will-change: transform, opacity;
+}
+
+.economy-transfer-token.coin {
+  width: 39px;
+  height: 39px;
+}
+
+.economy-transfer-token.hint {
+  width: 38px;
+  height: 38px;
+}
+
+.economy-transfer-target-bump {
+  animation: economy-target-bump 520ms cubic-bezier(0.16, 1.2, 0.28, 1);
+}
+
+@keyframes economy-target-bump {
+  0% { transform: scale(1); filter: brightness(1); }
+  36% { transform: scale(1.14); filter: brightness(1.18); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+
+#hud-overlay.completion-mode {
+  pointer-events: auto;
+}
+
+#hud-overlay.completion-mode > :not(#level-complete-overlay):not(#rate-prompt-overlay) {
+  display: none;
+}
+
+/* Core UI ships inside @layer; the inline app reset in index.html is unlayered
+   and intentionally global for legacy HUD/home elements. Keep completion
+   spacing unlayered and completion-scoped so the reset cannot zero it without
+   exempting unrelated .fab-ui surfaces like the level map. */
+#level-complete-overlay.fab-complete {
+  padding: calc(env(safe-area-inset-top, 0px) + 16px) 18px calc(env(safe-area-inset-bottom, 0px) + 16px);
+}
+
+#level-complete-overlay .fab-complete-balance {
+  padding: 8px 15px;
+}
+
+#level-complete-overlay .fab-complete-stage {
+  padding-top: 78px;
+}
+
+#level-complete-overlay .fab-complete-card {
+  padding: 54px 34px 24px;
+}
+
+#level-complete-overlay .fab-complete-mascot {
+  margin: 0 0 14px;
+}
+
+#level-complete-overlay .fab-complete-reward {
+  margin: 10px auto 0;
+  padding: 14px 22px;
+}
+
+#level-complete-overlay .fab-complete-reward-label {
+  padding: 2px 12px;
+}
+
+#level-complete-overlay .fab-complete-actions {
+  margin: 18px auto 0;
+  padding: 0;
+}
+
+#level-complete-overlay .fab-complete-claim-btn {
+  padding: 12px 14px;
+}
+
+#level-complete-overlay .fab-complete-claim-x2-btn {
+  padding: 8px 12px;
+}
+
+#level-complete-overlay .fab-complete-claim-x2-copy small {
+  margin-top: 3px;
+}
+
+#level-complete-overlay .fab-complete-next-btn {
+  min-height: 66px;
+  padding: 14px 32px;
+  border: 2px solid rgba(255, 232, 199, 0.9);
+  border-radius: 999px;
+  color: #ffffff;
+  background:
+    radial-gradient(circle at 28% 10%, rgba(255, 255, 255, 0.34), transparent 30%),
+    linear-gradient(180deg, #ff9d55 0%, #ff7635 48%, #e86024 100%);
+  box-shadow:
+    inset 0 4px 0 rgba(255, 255, 255, 0.34),
+    inset 0 -4px 0 rgba(157, 65, 20, 0.18),
+    0 6px 0 rgba(161, 76, 25, 0.34),
+    0 15px 26px rgba(161, 76, 25, 0.24);
+  font-weight: 1000;
+  text-shadow: 0 2px 0 rgba(128, 58, 21, 0.22);
+}
+
+#level-complete-overlay .fab-complete-next-btn:disabled {
+  color: #fff6e8;
+  -webkit-text-fill-color: #fff6e8;
+  opacity: 1;
+  background:
+    radial-gradient(circle at 28% 10%, rgba(255, 255, 255, 0.28), transparent 30%),
+    linear-gradient(180deg, #f58b45 0%, #dc642c 48%, #c8521f 100%);
+  filter: saturate(0.96);
+  box-shadow:
+    inset 0 4px 0 rgba(255, 255, 255, 0.24),
+    inset 0 -4px 0 rgba(103, 47, 18, 0.18),
+    0 6px 0 rgba(120, 61, 25, 0.3),
+    0 14px 24px rgba(120, 61, 25, 0.2);
+}
+
+@media (max-height: 860px) {
+  #level-complete-overlay.fab-complete {
+    padding: calc(env(safe-area-inset-top, 0px) + 10px) 18px calc(env(safe-area-inset-bottom, 0px) + 12px);
+  }
+
+  #level-complete-overlay .fab-complete-balance {
+    min-height: 38px;
+    padding: 6px 12px;
+    font-size: 15px;
+  }
+
+  #level-complete-overlay .fab-complete-stage {
+    width: min(86vw, 340px);
+    padding-top: 54px;
+  }
+
+  #level-complete-overlay .fab-complete-title {
+    width: min(88vw, 330px);
+  }
+
+  #level-complete-overlay .fab-complete-card {
+    min-height: 0;
+    padding: 42px 24px 18px;
+    border-radius: 24px;
+  }
+
+  #level-complete-overlay .fab-complete-mascot {
+    width: min(42vw, 150px);
+    margin-bottom: 10px;
+  }
+
+  #level-complete-overlay .fab-complete-message {
+    font-size: 24px;
+  }
+
+  #level-complete-overlay .fab-complete-reward {
+    min-width: 0;
+    width: min(260px, 100%);
+    margin-top: 8px;
+    padding: 10px 18px;
+  }
+
+  #level-complete-overlay .fab-complete-actions {
+    min-height: 58px;
+    margin-top: 12px;
+  }
+
+  #level-complete-overlay .fab-complete-claim-btn,
+  #level-complete-overlay .fab-complete-claim-x2-btn {
+    min-height: 54px;
+  }
+
+  #level-complete-overlay .fab-complete-next-btn {
+    padding: 12px 28px;
+  }
+}
+
+#scene-transition-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  pointer-events: auto;
+  background: linear-gradient(180deg, #fff7dc 0%, #ffdba5 48%, #f7b46c 100%);
+  opacity: 1;
+  transition: opacity 180ms ease;
+}
+
+#scene-transition-cover.scene-transition-cover--play-entry {
+  display: block;
+  overflow: hidden;
+  background: transparent;
+  transition: opacity 180ms ease;
+}
+
+#scene-transition-cover.scene-transition-cover--play-entry .play-entry-home-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(118% 72% at 50% 7%, var(--sch-spot) 0%, transparent 52%),
+    radial-gradient(145% 118% at 50% 116%, var(--sch-vig) 0%, transparent 56%),
+    linear-gradient(180deg, var(--sch-bg-top) 0%, var(--sch-bg-mid) 48%, var(--sch-bg-bot) 100%);
+  opacity: 1;
+  transition: opacity 900ms cubic-bezier(0.33, 0, 0.67, 1);
+}
+
+/* Replicate the home motif layer (#hud-overlay.home-mode::before) so the
+   pattern doesn't drop out the instant this backdrop paints over the real
+   home. Runs the SAME homePawDrift animation, phase-aligned to the live home
+   via a negative animation-delay (--home-paw-delay, set in
+   showPlayEntryTransitionCover) so the drift continues seamlessly with no jump
+   at the handoff. It fades out with the backdrop. */
+#scene-transition-cover.scene-transition-cover--play-entry .play-entry-home-backdrop::before {
+  content: "";
+  position: absolute;
+  inset: -180px;
+  pointer-events: none;
+  opacity: 0.28;
+  background-image: url('/ui/home/pattern-motif.png');
+  background-size: 74px 74px;
+  transform: translate3d(-74px, -74px, 0);
+  will-change: transform;
+  animation: homePawDrift 24s linear infinite;
+  animation-delay: var(--home-paw-delay, 0ms);
+}
+
+#scene-transition-cover.scene-transition-cover--play-entry .play-entry-transition-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(20, 18, 15, 0.88) 0 30%, rgba(5, 4, 3, 0.98) 72%, #050403 100%),
+    #050403;
+  opacity: 0;
+  transition: opacity 420ms cubic-bezier(0.33, 0, 0.67, 1);
+}
+
+#scene-transition-cover.scene-transition-cover--play-entry[data-transition-state="holding"] .play-entry-transition-veil {
+  opacity: 1;
+}
+
+#scene-transition-cover.scene-transition-cover--play-entry[data-transition-state="revealing"] .play-entry-transition-veil,
+#scene-transition-cover.scene-transition-cover--play-entry[data-transition-state="clearing"] .play-entry-transition-veil {
+  opacity: 0;
+  transition-duration: 900ms;
+  transition-timing-function: cubic-bezier(0.33, 0, 0.67, 1);
+}
+
+#scene-transition-cover.scene-transition-cover--play-entry[data-transition-state="revealing"] .play-entry-home-backdrop,
+#scene-transition-cover.scene-transition-cover--play-entry[data-transition-state="clearing"] .play-entry-home-backdrop {
+  opacity: 0;
+}
+
+#scene-transition-cover.hiding {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.scene-transition-cover-avatar {
+  width: clamp(180px, 52vw, 260px);
+  height: auto;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 32px rgba(128, 80, 27, 0.22)) drop-shadow(0 6px 14px rgba(128, 80, 27, 0.16));
+  animation: scene-transition-avatar-bob 720ms ease-in-out infinite;
+}
+
+@keyframes scene-transition-avatar-bob {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-5px) scale(1.03); }
+}
+
+.play-entry-home-shell {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  transform-origin: 50% 50%;
+}
+
+.play-entry-home-shell .home-title-panel,
+.play-entry-home-shell .home-map-stage,
+.play-entry-home-shell .home-rail,
+.play-entry-home-shell .home-play-now-btn,
+.play-entry-home-shell .home-nav-bar {
+  will-change: transform, opacity;
+  transition:
+    transform 900ms cubic-bezier(0.33, 0, 0.67, 1),
+    opacity 180ms ease;
+}
+
+#scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-title-panel {
+  transform: translateY(calc(-150% - 110px)) scale(0.96);
+  opacity: 1;
+}
+
+#scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-map-stage {
+  transform: translateY(-78vh) scale(0.94);
+  opacity: 1;
+}
+
+#scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-rail-left {
+  transform: translate(-62vw, -22vh) rotate(-7deg);
+  opacity: 1;
+}
+
+#scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-rail-right {
+  transform: translate(62vw, -22vh) rotate(7deg);
+  opacity: 1;
+}
+
+#scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-nav-bar {
+  transform: translateY(calc(125% + env(safe-area-inset-bottom, 0px) + 72px));
+  opacity: 1;
+}
+
+#scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-play-now-btn {
+  transform: translateY(60vh) scale(0.96);
+  opacity: 1;
+}
+
+#scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-title-panel {
+  transform: translateY(calc(-150% - 110px)) scale(0.96);
+  opacity: 0;
+}
+
+#scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-map-stage {
+  transform: translateY(-78vh) scale(0.94);
+  opacity: 0;
+}
+
+#scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-rail-left {
+  transform: translate(-62vw, -22vh) rotate(-7deg);
+  opacity: 0;
+}
+
+#scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-rail-right {
+  transform: translate(62vw, -22vh) rotate(7deg);
+  opacity: 0;
+}
+
+#scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-nav-bar {
+  transform: translateY(calc(125% + env(safe-area-inset-bottom, 0px) + 72px));
+  opacity: 0;
+}
+
+#scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-play-now-btn {
+  transform: translateY(60vh) scale(0.96);
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #scene-transition-cover {
+    transition: none;
+  }
+
+  .scene-transition-cover-avatar {
+    animation: none;
+  }
+
+  #scene-transition-cover.scene-transition-cover--play-entry {
+    transition: opacity 1ms ease;
+  }
+
+  #scene-transition-cover.scene-transition-cover--play-entry .play-entry-transition-veil {
+    transition: opacity 1ms ease;
+  }
+
+  #scene-transition-cover.scene-transition-cover--play-entry .play-entry-home-backdrop {
+    transition: opacity 1ms ease;
+  }
+
+  .play-entry-home-shell .home-title-panel,
+  .play-entry-home-shell .home-map-stage,
+  .play-entry-home-shell .home-rail,
+  .play-entry-home-shell .home-play-now-btn,
+  .play-entry-home-shell .home-nav-bar {
+    transition: opacity 1ms ease;
+  }
+
+  #scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-title-panel,
+  #scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-title-panel,
+  #scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-map-stage,
+  #scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-map-stage,
+  #scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-rail-left,
+  #scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-rail-left,
+  #scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-rail-right,
+  #scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-rail-right,
+  #scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-nav-bar,
+  #scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-nav-bar,
+  #scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-play-now-btn,
+  #scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-play-now-btn {
+    transform: none;
+    opacity: 0;
+  }
+}
+
+@keyframes hint-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Settings Modal */
+.modal-backdrop {
+  pointer-events: auto;
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.modal-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  min-width: 260px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.modal-card h2 {
+  font-size: 20px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.modal-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-row:last-child {
+  border-bottom: none;
+}
+
+.settings-card {
+  width: min(91vw, 390px);
+  max-height: min(82dvh, 650px);
+  padding: 18px 18px 20px;
+  overflow: hidden;
+  border: 4px solid #ffd56d;
+  border-radius: 30px;
+  color: #3b2a21;
+  background:
+    radial-gradient(circle at 50% -14%, rgba(255, 229, 144, 0.98), rgba(255, 249, 222, 0.98) 38%, rgba(255, 253, 246, 0.98) 74%),
+    linear-gradient(180deg, #fff7dc 0%, #fffdf7 68%, #fff2d1 100%);
+  box-shadow:
+    0 0 0 3px rgba(92, 49, 14, 0.84),
+    inset 0 5px 0 rgba(255, 255, 255, 0.7),
+    inset 0 -14px 24px rgba(226, 157, 62, 0.12),
+    0 8px 0 rgba(122, 61, 18, 0.24),
+    0 22px 58px rgba(61, 36, 16, 0.34);
+}
+
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.settings-title-lockup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.settings-title-badge {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fff4c4, #ffbd53);
+  box-shadow:
+    0 0 0 2px rgba(126, 68, 20, 0.2),
+    0 4px 0 rgba(177, 100, 38, 0.2),
+    0 9px 18px rgba(91, 53, 20, 0.14);
+}
+
+.settings-title-badge img {
+  width: 72%;
+  height: 72%;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 3px rgba(90, 55, 20, 0.18));
+}
+
+.settings-card h2 {
+  margin: 0;
+  color: #352317;
+  font-size: 34px;
+  line-height: 1;
+  text-align: left;
+  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.68);
+}
+
+.settings-close-btn {
+  pointer-events: auto;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  color: #3a2b23;
+  background: linear-gradient(180deg, #ffffff, #f4efe7);
+  box-shadow:
+    0 0 0 2px rgba(88, 48, 19, 0.18),
+    0 5px 0 rgba(112, 73, 42, 0.18),
+    0 10px 22px rgba(67, 39, 18, 0.14);
+  font: inherit;
+  font-size: 31px;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.settings-rows {
+  max-height: calc(min(82dvh, 650px) - 98px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  padding: 2px 3px 4px;
+}
+
+.settings-row {
+  min-height: 66px;
+  padding: 10px 13px 10px 10px;
+  border: 2px solid rgba(255, 255, 255, 0.86);
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 254, 247, 0.98) 0%, rgba(255, 244, 216, 0.96) 58%, rgba(255, 231, 184, 0.92) 100%);
+  box-shadow:
+    0 0 0 1px rgba(133, 79, 29, 0.12),
+    inset 0 2px 0 rgba(255, 255, 255, 0.86),
+    0 4px 0 rgba(162, 96, 38, 0.14),
+    0 10px 18px rgba(78, 45, 18, 0.09);
+}
+
+.settings-row:last-child {
+  border-bottom: 2px solid rgba(255, 255, 255, 0.86);
+}
+
+.settings-row-tall {
+  min-height: 68px;
+}
+
+.settings-row-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.settings-row-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 3px 4px rgba(68, 35, 10, 0.18));
+}
+
+.settings-shop-row .settings-row-icon {
+  width: 42px;
+  height: 42px;
+  padding: 5px;
+  border-radius: 15px;
+  background: linear-gradient(180deg, #ffefb8, #ffad44);
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.72),
+    0 3px 0 rgba(146, 78, 22, 0.16);
+}
+
+.settings-row-label {
+  min-width: 0;
+  color: #4b3321;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.12;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.68);
+}
+
+/* Gameplay-only exit row: a full-width settings-row button back to home. */
+.settings-home-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  cursor: pointer;
+  font: inherit;
+}
+
+.settings-home-btn:active {
+  transform: translateY(2px);
+}
+
+.settings-action-btn {
+  min-width: 82px;
+  min-height: 44px;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  color: #4b3321;
+  background: linear-gradient(180deg, #ffffff, #fff0cf 58%, #ead8bc);
+  box-shadow:
+    0 0 0 1px rgba(112, 73, 42, 0.1),
+    0 4px 0 rgba(112, 73, 42, 0.16);
+  font-size: 14px;
+  font-weight: 1000;
+}
+
+.settings-action-btn:hover {
+  background: linear-gradient(180deg, #ffffff, #fff3d8);
+}
+
+.settings-legal-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px 8px 2px;
+  color: #8c6c51;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.settings-legal-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.settings-footer-action {
+  color: #6f5236;
+  text-decoration-color: rgba(111, 82, 54, 0.5);
+}
+
+.settings-footer-link {
+  min-height: 44px;
+  padding: 0 5px;
+  border: 0;
+  border-radius: 999px;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  line-height: 1;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.settings-footer-link:hover,
+.settings-footer-link:focus-visible {
+  color: #4b3321;
+  text-decoration-color: currentColor;
+}
+
+.settings-footer-link:focus-visible {
+  outline: 2px solid rgba(255, 181, 71, 0.9);
+  outline-offset: 2px;
+  background: rgba(255, 255, 255, 0.48);
+}
+
+.settings-footer-separator {
+  color: rgba(75, 51, 33, 0.42);
+}
+
+.settings-toggle {
+  width: 54px;
+  height: 32px;
+  flex: 0 0 auto;
+}
+
+.settings-segmented {
+  flex: 0 0 auto;
+  border: 2px solid rgba(255, 255, 255, 0.82);
+  background: rgba(114, 72, 35, 0.12);
+  box-shadow: inset 0 2px 4px rgba(83, 47, 18, 0.08);
+}
+
+.settings-segmented .segmented-option span {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 11px;
+  color: #6a4a31;
+  font-weight: 900;
+}
+
+.settings-segmented .segmented-option input:checked + span {
+  color: #ffffff;
+  background: linear-gradient(180deg, #ffb547, #ff7e35);
+  box-shadow: 0 3px 0 rgba(151, 80, 27, 0.2);
+}
+
+.settings-card .toggle-slider,
+.home-page-body .settings-toggle .toggle-slider {
+  border: 2px solid rgba(255, 255, 255, 0.72);
+  background: linear-gradient(180deg, #d2bea0, #b7956d);
+  box-shadow:
+    inset 0 2px 5px rgba(94, 57, 25, 0.28),
+    0 2px 0 rgba(118, 72, 33, 0.16);
+}
+
+.settings-card .toggle-slider::before,
+.home-page-body .settings-toggle .toggle-slider::before {
+  width: 24px;
+  height: 24px;
+  left: 2px;
+  bottom: 2px;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.72),
+    0 2px 5px rgba(75, 42, 16, 0.24);
+}
+
+.settings-card .toggle-switch input:checked + .toggle-slider,
+.home-page-body .settings-toggle input:checked + .toggle-slider {
+  background: linear-gradient(180deg, #66f27f 0%, #18d64b 58%, #0fa83a 100%);
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, 0.26),
+    inset 0 -3px 6px rgba(0, 93, 31, 0.26),
+    0 2px 0 rgba(35, 106, 42, 0.2);
+}
+
+.settings-card .toggle-switch input:checked + .toggle-slider::before,
+.home-page-body .settings-toggle input:checked + .toggle-slider::before {
+  transform: translateX(22px);
+}
+
+.hint-booster-card {
+  width: min(88vw, 340px);
+  text-align: center;
+}
+
+.hint-booster-copy {
+  margin: 0 0 12px;
+  color: #5f4a36;
+  font-size: 15px;
+}
+
+.hint-booster-balance {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #fff4d8;
+  color: #6b431c;
+  font-weight: 900;
+}
+
+.hint-booster-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.hint-booster-primary,
+.hint-booster-secondary,
+.hint-booster-close {
+  pointer-events: auto;
+  min-height: 46px;
+  border: none;
+  border-radius: 14px;
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.hint-booster-primary {
+  color: #ffffff;
+  background: linear-gradient(135deg, #ff9f43, #ff6b35);
+  box-shadow: 0 8px 18px rgba(255, 107, 53, 0.26);
+}
+
+.hint-booster-secondary {
+  color: #4b3321;
+  background: #f4f0ea;
+}
+
+.hint-booster-secondary.rewarded-ad-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: left;
+}
+
+.hint-booster-action-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1;
+}
+
+.hint-booster-action-copy > span {
+  font-size: 15px;
+}
+
+.hint-booster-action-copy small {
+  margin-top: 3px;
+  color: #755d4b;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.hint-booster-primary:disabled,
+.hint-booster-secondary:disabled {
+  opacity: 0.45;
+  cursor: default;
+  box-shadow: none;
+}
+
+.hint-booster-note {
+  margin: 12px 0 0;
+  color: #9b4a22;
+  font-size: 13px;
+}
+
+.hint-booster-close {
+  margin-top: 12px;
+  color: #6a5b4f;
+  background: transparent;
+}
+
+#level-select-modal {
+  z-index: 70;
+}
+
+.level-select-card {
+  width: min(92vw, 520px);
+  max-height: min(78vh, 720px);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.level-select-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.level-select-header h2 {
+  flex: 1;
+  margin: 0;
+}
+
+.modal-close-btn {
+  pointer-events: auto;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: #f0f0f0;
+  color: #333;
+  font: inherit;
+  font-size: 22px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.level-select-grid {
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding-right: 2px;
+}
+
+.level-select-item {
+  position: relative;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #eeeeee;
+  min-height: 142px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.level-select-item.selected {
+  border-color: #FF8C42;
+}
+
+.level-select-item img {
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  object-fit: cover;
+  display: block;
+  background: #ddd;
+}
+
+.level-select-number {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 6px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.72);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.level-select-name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 18px 6px 6px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  text-align: left;
+  line-height: 1.15;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.76));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.level-select-loading,
+.level-select-empty {
+  grid-column: 1 / -1;
+  padding: 28px 12px;
+  color: #666;
+  text-align: center;
+}
+
+/* Toggle switch */
+.toggle-switch {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  cursor: pointer;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: #ccc;
+  border-radius: 28px;
+  transition: background 0.3s;
+}
+
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: #FF8C42;
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+}
+
+/* Segmented control — two-option radio picker for mutually exclusive modes
+   (Game Mode: Classic / Restoration). Brand accent matches toggle switch. */
+.segmented {
+  display: inline-flex;
+  background: #eee;
+  border-radius: 10px;
+  padding: 2px;
+  gap: 2px;
+}
+
+.segmented-option {
+  cursor: pointer;
+  position: relative;
+}
+
+.segmented-option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.segmented-option span {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  transition: background 0.2s, color 0.2s;
+}
+
+.segmented-option input:checked + span {
+  background: #FF8C42;
+  color: white;
+}
+
+/* RatePrompt's styles moved to @fabrika/core/ui (A-UI0). Its look is now driven
+   by --fab-* tokens via FTD_THEME in RatePrompt.ts; the .rate-* rules that used
+   to live here were removed with the migration. */
+
+@keyframes slideDown {
+  from { transform: translateY(-100px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Level Failed Overlay */
+/* Shared fade-in keyframe (was defined with the now-extracted level-complete
+   CSS; the failed overlay still uses it). */
+@keyframes completionOverlayFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+#level-failed-overlay {
+  pointer-events: auto;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  padding: calc(env(safe-area-inset-top, 0px) + 88px) 18px calc(env(safe-area-inset-bottom, 0px) + 18px);
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    linear-gradient(180deg, rgba(35, 48, 67, 0.32) 0%, rgba(75, 54, 39, 0.34) 46%, rgba(57, 32, 15, 0.46) 100%);
+  backdrop-filter: blur(3.5px) saturate(1.08) brightness(0.96);
+  -webkit-backdrop-filter: blur(3.5px) saturate(1.08) brightness(0.96);
+  animation: completionOverlayFadeIn 180ms ease-out both;
+}
+
+#level-failed-overlay::before,
+#level-failed-overlay::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  z-index: 0;
+}
+
+#level-failed-overlay::before {
+  inset: -18%;
+  background:
+    conic-gradient(from 205deg at 50% 22%,
+      transparent 0deg,
+      rgba(121, 214, 255, 0.1) 24deg,
+      transparent 48deg,
+      transparent 104deg,
+      rgba(255, 229, 145, 0.2) 124deg,
+      transparent 150deg,
+      transparent 218deg,
+      rgba(255, 146, 101, 0.12) 238deg,
+      transparent 268deg,
+      transparent 360deg),
+    linear-gradient(90deg, rgba(31, 45, 68, 0.2) 0%, transparent 25%, transparent 72%, rgba(101, 53, 23, 0.16) 100%),
+    linear-gradient(180deg, rgba(104, 200, 229, 0.12) 0%, transparent 38%, rgba(255, 173, 87, 0.13) 78%, transparent 100%);
+  filter: blur(1px);
+  transform: rotate(-2deg) scale(1.08);
+  opacity: 0.72;
+}
+
+#level-failed-overlay::after {
+  inset: 0;
+  background:
+    repeating-linear-gradient(112deg, rgba(255, 246, 204, 0.032) 0 2px, transparent 2px 48px),
+    linear-gradient(180deg, transparent 0%, transparent 46%, rgba(76, 39, 12, 0.14) 100%),
+    radial-gradient(ellipse at 50% 54%, transparent 0%, transparent 40%, rgba(28, 18, 14, 0.18) 100%);
+  opacity: 0.7;
+}
+
+.fail-card {
+  position: relative;
+  z-index: 1;
+  width: min(382px, 100%);
+  border-radius: 30px;
+  padding: 20px 18px 18px;
+  overflow: visible;
+  background:
+    radial-gradient(circle at 50% -8%, rgba(255, 232, 153, 0.98), rgba(255, 255, 255, 0.95) 43%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 243, 226, 0.97));
+  border: 4px solid rgba(255, 255, 255, 0.9);
+  box-shadow:
+    inset 0 5px 0 rgba(255, 255, 255, 0.62),
+    0 9px 0 rgba(177, 100, 38, 0.24),
+    0 24px 70px rgba(66, 38, 13, 0.34);
+  color: #3d2d20;
+  text-align: center;
+  isolation: isolate;
+  transform-origin: 50% 55%;
+  animation: failedRescueCardEnter 460ms cubic-bezier(0.16, 1.08, 0.22, 1.18) both;
+}
+
+.fail-rescue-card::before,
+.fail-rescue-card::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  z-index: -1;
+  border-radius: 999px;
+}
+
+.fail-rescue-card::before {
+  inset: -12px 22px auto;
+  height: 38px;
+  background: rgba(255, 181, 93, 0.38);
+  filter: blur(14px);
+}
+
+.fail-rescue-card::after {
+  left: 50%;
+  bottom: -15px;
+  width: 78%;
+  height: 28px;
+  transform: translateX(-50%);
+  background: rgba(82, 43, 12, 0.2);
+  filter: blur(13px);
+}
+
+.fail-rescue-art {
+  pointer-events: none;
+  position: relative;
+  margin: 4px auto 8px;
+  width: 190px;
+  height: 176px;
+  display: grid;
+  place-items: center;
+  isolation: isolate;
+}
+
+.fail-rescue-halo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: -1;
+  width: 150px;
+  height: 150px;
+  border-radius: 999px;
+  transform: translate(-50%, -45%);
+  background:
+    radial-gradient(circle, rgba(255, 246, 210, 0.96), rgba(255, 206, 105, 0.5) 56%, rgba(255, 142, 75, 0.12) 72%, transparent 76%);
+  box-shadow:
+    inset 0 0 0 7px rgba(255, 255, 255, 0.48),
+    0 16px 30px rgba(125, 73, 21, 0.2);
+}
+
+.fail-rescue-mascot {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 176px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 15px 21px rgba(91, 52, 20, 0.22));
+  animation: failedMascotPop 520ms 70ms cubic-bezier(0.16, 1.08, 0.22, 1.18) both;
+}
+
+.fail-rescue-balance {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 18px);
+  right: calc(env(safe-area-inset-right, 0px) + 18px);
+  z-index: 12;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 15px;
+  border-radius: 999px;
+  color: #4b382c;
+  font-size: 17px;
+  line-height: 1;
+  font-weight: 1000;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(255, 210, 116, 0.66);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.72),
+    0 8px 18px rgba(84, 49, 22, 0.14);
+}
+
+.fail-rescue-balance img {
+  display: block;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 2px rgba(90, 55, 20, 0.16));
+}
+
+.fail-rescue-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.fail-kicker {
+  font-size: 12px;
+  font-weight: 900;
+  color: #af5228;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.fail-life-chip {
+  min-height: 26px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px 4px 7px;
+  border-radius: 999px;
+  color: #93401f;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 900;
+  background: #fff0e3;
+  border: 2px solid rgba(255, 190, 126, 0.58);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.72);
+}
+
+.fail-life-chip img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+#level-failed-overlay h2 {
+  margin: 0 0 14px;
+  color: #2f2116;
+  font-size: clamp(28px, 8vw, 34px);
+  line-height: 1;
+  letter-spacing: 0;
+  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.78);
+}
+
+.fail-copy {
+  max-width: 290px;
+  margin: 0 auto 15px;
+  color: #6f5742;
+  font-size: 14px;
+  line-height: 1.28;
+  font-weight: 800;
+}
+
+.fail-options {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+/* First mount only (class set once in LevelFailedOverlay render): each option
+   flies in from below with a springy overshoot, staggered via --fly-delay. */
+.fail-options.fail-fly-in .fail-option {
+  animation: failOptionFlyIn 520ms cubic-bezier(0.18, 1.25, 0.35, 1) both;
+  animation-delay: var(--fly-delay, 0ms);
+}
+
+@keyframes failOptionFlyIn {
+  from { opacity: 0; transform: translateY(72px) scale(0.92); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.fail-option {
+  width: 100%;
+  min-height: 58px;
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  border: 3px solid rgba(255, 255, 255, 0.78);
+  border-radius: 19px;
+  padding: 8px 11px 8px 8px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 244, 230, 0.98));
+  color: #3d2d20;
+  font-family: 'Nunito', sans-serif;
+  text-align: left;
+  box-shadow:
+    inset 0 3px 0 rgba(255, 255, 255, 0.68),
+    0 7px 15px rgba(84, 49, 22, 0.14);
+  transition: transform 120ms ease-out, filter 120ms ease-out, opacity 120ms ease-out;
+}
+
+.fail-option:not(:disabled) {
+  cursor: pointer;
+}
+
+.fail-option:not(:disabled):active {
+  transform: translateY(2px) scale(0.985);
+}
+
+.fail-option:disabled {
+  opacity: 0.78;
+}
+
+.fail-option-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 50% 34%, #fff7cf, #ffd469 72%);
+  border: 2px solid rgba(255, 255, 255, 0.82);
+  color: #9b5524;
+  font-size: 10px;
+  font-weight: 900;
+  text-align: center;
+  box-shadow:
+    inset 0 3px 0 rgba(255, 255, 255, 0.58),
+    0 4px 8px rgba(111, 63, 20, 0.16);
+}
+
+.fail-option-icon img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 1px rgba(93, 54, 20, 0.16));
+}
+
+.fail-option-copy {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.fail-option-title {
+  display: block;
+  font-size: 17px;
+  line-height: 1.1;
+  font-weight: 900;
+}
+
+.fail-option-meta {
+  display: block;
+  color: #755d4b;
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 800;
+}
+
+.fail-option-state {
+  justify-self: end;
+  border-radius: 999px;
+  padding: 6px 9px;
+  background: rgba(255, 240, 226, 0.98);
+  color: #9f4c25;
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.fail-option.has-no-state .fail-option-state {
+  display: none;
+}
+
+.fail-primary-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 7px;
+}
+
+.fail-primary-actions .fail-option {
+  min-height: 66px;
+  grid-template-columns: 40px minmax(0, 1fr);
+  justify-items: stretch;
+  gap: 8px;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.fail-primary-actions .fail-option-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+}
+
+.fail-primary-actions .fail-option-icon img {
+  width: 29px;
+  height: 29px;
+}
+
+.fail-option-meta:empty {
+  display: none;
+}
+
+.fail-option-coin-continue {
+  border-color: rgba(128, 222, 89, 0.84);
+  background:
+    radial-gradient(circle at 28% 10%, rgba(255, 255, 255, 0.78), transparent 38%),
+    linear-gradient(180deg, #f5ffe5 0%, #c9f45e 48%, #84d947 100%);
+  color: #22421a;
+  box-shadow:
+    inset 0 4px 0 rgba(255, 255, 255, 0.46),
+    inset 0 -4px 0 rgba(76, 139, 32, 0.18),
+    0 7px 0 rgba(73, 142, 39, 0.2),
+    0 15px 26px rgba(47, 117, 45, 0.18);
+}
+
+.fail-option-coin-continue .fail-option-icon {
+  background:
+    radial-gradient(circle at 50% 34%, #fff8cf, #ffd55f 70%);
+  border-color: rgba(255, 255, 255, 0.86);
+}
+
+.fail-option-coin-continue .fail-option-title,
+.fail-option-retry-primary .fail-option-title {
+  font-size: 17px;
+}
+
+.fail-option-coin-continue .fail-option-meta {
+  color: #315720;
+  font-size: 12px;
+}
+
+.fail-option-coin-continue .fail-option-state {
+  justify-self: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #a1715e;
+  font-size: 11px;
+}
+
+.fail-option-retry-primary {
+  border-color: rgba(255, 133, 91, 0.72);
+  color: #fff;
+  background: linear-gradient(180deg, #ff7352 0%, #ff583d 100%);
+  box-shadow:
+    inset 0 4px 0 rgba(255, 255, 255, 0.32),
+    inset 0 -4px 0 rgba(183, 53, 37, 0.24),
+    0 7px 0 rgba(181, 63, 43, 0.24),
+    0 15px 26px rgba(158, 57, 39, 0.22);
+}
+
+.fail-option-retry-primary .fail-option-icon {
+  background:
+    radial-gradient(circle at 50% 34%, #fff4ef, #ffb08b 72%);
+  color: #9a341f;
+}
+
+.fail-option-retry-primary .fail-option-title {
+  color: #fff;
+}
+
+.fail-option-bundle {
+  min-height: 78px;
+  grid-template-columns: 50px minmax(0, 1fr) auto;
+  justify-items: stretch;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-color: rgba(114, 213, 255, 0.82);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 255, 255, 0.86), transparent 42%),
+    linear-gradient(180deg, #effcff 0%, #bfefff 58%, #78d8ff 100%);
+  color: #113c4b;
+  text-align: left;
+  box-shadow:
+    inset 0 4px 0 rgba(255, 255, 255, 0.52),
+    inset 0 -5px 0 rgba(23, 114, 154, 0.16),
+    0 7px 0 rgba(34, 132, 171, 0.18),
+    0 15px 26px rgba(34, 106, 140, 0.2);
+}
+
+.fail-option-bundle .fail-option-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 17px;
+  background:
+    radial-gradient(circle at 50% 34%, #f8ffff, #79dfff 72%);
+  border-color: rgba(255, 255, 255, 0.86);
+}
+
+.fail-option-bundle .fail-option-icon img {
+  width: 36px;
+  height: 36px;
+}
+
+.fail-option-bundle .fail-option-copy {
+  justify-items: start;
+}
+
+.fail-option-bundle .fail-option-title {
+  color: #113c4b;
+  font-size: 18px;
+}
+
+.fail-option-bundle .fail-option-meta {
+  color: #19576a;
+  font-size: 14px;
+}
+
+.fail-option-bundle .fail-option-state {
+  justify-self: end;
+  padding: 7px 10px;
+  border: 2px solid rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, #fff5a8 0%, #ffbe3d 100%);
+  color: #65370b;
+  font-size: 15px;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.55),
+    0 4px 0 rgba(147, 82, 18, 0.18);
+}
+
+.fail-option.is-insufficient,
+.fail-option.is-unavailable {
+  filter: saturate(0.72);
+}
+
+.fail-option.is-pending,
+.fail-option.is-processing {
+  filter: brightness(0.98);
+}
+
+.fail-option.is-pending .fail-option-state,
+.fail-option.is-processing .fail-option-state,
+.fail-option.is-insufficient .fail-option-state,
+.fail-option.is-unavailable .fail-option-state {
+  background: #fff8ef;
+  border: 2px solid rgba(255, 194, 128, 0.5);
+}
+
+.fail-status {
+  min-height: 17px;
+  margin: 11px 8px 0;
+  color: #9f4c25;
+  font-size: 12px;
+  line-height: 1.24;
+  font-weight: 800;
+  text-align: center;
+}
+
+@keyframes failedRescueCardEnter {
+  0% { opacity: 0; transform: translateY(28px) scale(0.86); }
+  66% { opacity: 1; transform: translateY(-5px) scale(1.025); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes failedMascotPop {
+  0% { opacity: 0; transform: translateY(24px) scale(0.82) rotate(-4deg); }
+  64% { opacity: 1; transform: translateY(-5px) scale(1.04) rotate(2deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+}
+
+@media (max-height: 720px) {
+  #level-failed-overlay {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 70px);
+  }
+
+  .fail-card {
+    padding-top: 76px;
+  }
+
+  .fail-rescue-art {
+    top: -80px;
+    width: 166px;
+    height: 154px;
+  }
+
+  .fail-rescue-halo {
+    width: 128px;
+    height: 128px;
+  }
+
+  .fail-rescue-mascot {
+    width: 154px;
+  }
+
+  .fail-copy {
+    margin-bottom: 10px;
+  }
+
+  .fail-options {
+    gap: 7px;
+  }
+
+  .fail-option {
+    min-height: 54px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+
+  .fail-primary-actions .fail-option {
+    min-height: 58px;
+  }
+
+  .fail-option-bundle {
+    min-height: 68px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fail-card,
+  .fail-rescue-mascot,
+  .fail-options.fail-fly-in .fail-option {
+    animation: none;
+  }
+}
+
+/* Action buttons */
+.btn-action {
+  pointer-events: auto;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 28px;
+  font-size: 18px;
+  font-weight: 800;
+  font-family: 'Nunito', sans-serif;
+  cursor: pointer;
+  min-width: 48px;
+  min-height: 48px;
+  transition: transform 80ms ease;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-action:active {
+  transform: scale(0.95);
+}
+
+.btn-primary {
+  background: #FF8C42;
+  color: white;
+}
+
+
+
+.btn-secondary {
+  background: #f0f0f0;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-secondary:hover {
+  background: #e5e5e5;
+}
+
+.btn-secondary:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.shop-card {
+  width: min(92vw, 420px);
+  max-height: 86vh;
+  overflow: auto;
+  padding: 24px 20px 22px;
+  border: 4px solid rgba(255, 255, 255, 0.88);
+  border-radius: 30px;
+  color: #3b2a21;
+  background:
+    radial-gradient(circle at 50% -8%, rgba(255, 229, 144, 0.95), rgba(255, 248, 224, 0.98) 35%, rgba(255, 255, 255, 0.97) 72%),
+    linear-gradient(180deg, #fff7df, #fffdf7);
+  box-shadow:
+    inset 0 5px 0 rgba(255, 255, 255, 0.62),
+    0 9px 0 rgba(153, 88, 30, 0.2),
+    0 24px 68px rgba(61, 36, 16, 0.32);
+}
+
+.shop-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 116px;
+}
+
+.shop-title-lockup {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+}
+
+.shop-mascot {
+  width: 126px;
+  height: 126px;
+  margin: -8px 0 0 -6px;
+  flex: 0 0 auto;
+  object-fit: contain;
+  filter: drop-shadow(0 16px 20px rgba(110, 64, 24, 0.2));
+}
+
+.shop-header h2 {
+  margin: 19px 0 0;
+  color: #352317;
+  font-size: 42px;
+  line-height: 1;
+}
+
+.shop-close-btn {
+  min-width: 52px;
+  height: 52px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 3px solid rgba(255, 255, 255, 0.84);
+  border-radius: 50%;
+  color: #3a2b23;
+  background: linear-gradient(180deg, #ffffff, #f4efe7);
+  box-shadow: 0 5px 0 rgba(112, 73, 42, 0.16), 0 10px 22px rgba(67, 39, 18, 0.14);
+  font: inherit;
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.settings-restore-panel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  /* Sits AFTER the product list (bottom of the scrolled shop content). */
+  margin: 18px 0 2px;
+  padding: 12px 13px;
+  border: 2px solid rgba(255, 204, 110, 0.48);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.settings-restore-copy {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.settings-restore-copy strong,
+.settings-restore-copy small {
+  display: block;
+}
+
+.settings-restore-copy strong {
+  color: #352317;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.settings-restore-copy small {
+  margin-top: 4px;
+  color: #806044;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.settings-restore-copy small[data-restore-state="restored"] {
+  color: #287a34;
+}
+
+.settings-restore-copy small[data-restore-state="failed"],
+.settings-restore-copy small[data-restore-state="unavailable"] {
+  color: #a4492f;
+}
+
+.settings-restore-btn {
+  min-height: 44px;
+  flex: 0 0 auto;
+  border: 2px solid rgba(204, 138, 52, 0.35);
+  border-radius: 14px;
+  color: #6e4a24;
+  background: linear-gradient(180deg, #fffdf5, #f2e4cb);
+  box-shadow: 0 3px 0 rgba(132, 82, 34, 0.18), 0 7px 14px rgba(78, 47, 19, 0.08);
+  font-weight: 900;
+}
+
+.settings-restore-btn:disabled {
+  color: #776b62;
+  background: linear-gradient(180deg, #f2efeb, #e6dfd7);
+  box-shadow: inset 0 0 0 1px rgba(111, 94, 78, 0.1);
+  opacity: 1;
+}
+
+.settings-restore-btn[data-restore-state="restored"]:disabled {
+  color: #287a34;
+  background: linear-gradient(180deg, #f3fff0, #d9f3d5);
+}
+
+.settings-restore-status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.settings-restore-status[data-restore-state="restored"] {
+  color: #287a34;
+}
+
+.settings-restore-status[data-restore-state="failed"],
+.settings-restore-status[data-restore-state="unavailable"] {
+  color: #a4492f;
+}
+
+@media (max-width: 360px) {
+  .settings-restore-panel {
+    align-items: stretch;
+    gap: 9px;
+    flex-direction: column;
+  }
+
+  .settings-restore-btn {
+    width: 100%;
+  }
+}
+
+.shop-products {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 8px;
+}
+
+.shop-section {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+}
+
+.shop-section-header {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-height: 70px;
+  padding: 5px 4px;
+  color: #3b2a21;
+}
+
+.shop-section-icon {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  border-radius: 20px;
+  background: linear-gradient(180deg, #fff6d5, #ffd475);
+  box-shadow: 0 4px 0 rgba(177, 100, 38, 0.16);
+  font-size: 29px;
+}
+
+.shop-section-icon img,
+.shop-product-icon img {
+  width: 78%;
+  height: 78%;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 3px rgba(90, 55, 20, 0.18));
+}
+
+.shop-section-icon.hint-icon,
+.shop-section-icon.coin-icon,
+.shop-product-icon.hint-icon,
+.shop-product-icon.coin-icon {
+  background: linear-gradient(180deg, #d8f6ff, #79d9ff);
+}
+
+.shop-section-icon.coin-icon,
+.shop-product-icon.coin-icon {
+  background: linear-gradient(180deg, #ffe68d, #ffae35);
+}
+
+.shop-section-header strong,
+.shop-section-header small {
+  display: block;
+}
+
+.shop-section-header strong {
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.shop-section-header small {
+  margin-top: 5px;
+  color: #806044;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.shop-product {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px;
+  border: 2px solid rgba(255, 204, 110, 0.58);
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 247, 229, 0.9));
+  box-shadow: 0 5px 0 rgba(176, 100, 38, 0.11), 0 12px 26px rgba(73, 43, 19, 0.1);
+}
+
+.shop-product.noAdsPremium {
+  border-color: rgba(255, 186, 40, 0.88);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 231, 132, 0.54), transparent 48%),
+    linear-gradient(180deg, #fff9df, #fff3cf);
+}
+
+.shop-product-icon {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 3px solid rgba(255, 255, 255, 0.82);
+  border-radius: 20px;
+  background: linear-gradient(180deg, #ffe9a8, #ffbd4a);
+  box-shadow: 0 5px 0 rgba(177, 100, 38, 0.16), inset 0 3px 0 rgba(255, 255, 255, 0.36);
+  font-size: 30px;
+}
+
+.shop-product-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.shop-product-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.shop-product-title {
+  overflow: visible;
+  color: #2f251f;
+  font-size: 17px;
+  font-weight: 900;
+  line-height: 1.12;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+.shop-product-badge {
+  flex: 0 0 auto;
+  padding: 3px 7px;
+  border: 2px solid rgba(255, 255, 255, 0.72);
+  border-radius: 999px;
+  color: #8a461b;
+  background: #ffe4a8;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.shop-product-grant {
+  margin-top: 6px;
+  color: #73553e;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.18;
+}
+
+.shop-product-action {
+  width: 94px;
+  flex: 0 0 94px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 5px;
+}
+
+.shop-product-price {
+  color: #87644a;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+}
+
+.shop-purchase-btn {
+  min-width: 0;
+  min-height: 44px;
+  padding: 8px 8px;
+  border: 2px solid rgba(255, 255, 255, 0.78);
+  border-radius: 14px;
+  color: #ffffff;
+  background: linear-gradient(180deg, #37d85a, #14a93b);
+  box-shadow: 0 4px 0 #087a25, 0 8px 16px rgba(14, 107, 43, 0.2);
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1.15;
+}
+
+.shop-purchase-btn:disabled {
+  color: #776b62;
+  background: linear-gradient(180deg, #f2efeb, #e6dfd7);
+  box-shadow: inset 0 0 0 1px rgba(111, 94, 78, 0.1);
+  opacity: 1;
+}
+
+/* ---- Tutorial overlay ---- */
+
+#tutorial-overlay {
+  /* Container is see-through for pointer events — only the bubbles, backdrop
+     (for an explicit "tap anywhere to dismiss") and dismiss button receive
+     taps. Critically: a tap landing on a dog must reach the Phaser canvas
+     so the player can learn by doing. */
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+}
+
+.tutorial-spotlight {
+  /* A transparent "hole" over the current target (dog, then hint button):
+     the huge box-shadow dims everything OUTSIDE this element, leaving the
+     target at full brightness so onboarding never darkens what it points at.
+     pointer-events: none so taps pass through to the canvas/button. Position
+     and shape are set inline per tutorial state. */
+  pointer-events: none;
+  position: absolute;
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.45);
+  transition: left 0.2s ease, top 0.2s ease, width 0.2s ease, height 0.2s ease, border-radius 0.2s ease;
+}
+
+.tutorial-bubble,
+.tutorial-dismiss {
+  pointer-events: auto;
+}
+
+.tutorial-bubble {
+  position: absolute;
+  background: white;
+  color: #222;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+  max-width: 220px;
+  text-align: center;
+  animation: tutorial-bounce 2.4s ease-in-out infinite;
+}
+
+.tutorial-bubble-dog {
+  /* anchored via inline left/top pointing near a dog. Offset up so the
+     arrow points down at the target. */
+  transform: translate(-50%, calc(-100% - 28px));
+}
+
+.tutorial-bubble-hint {
+  /* anchored via inline right/bottom relative to hint button. */
+}
+
+.tutorial-arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+.tutorial-arrow-up {
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 12px solid white;
+}
+
+.tutorial-arrow-down-right {
+  bottom: -14px;
+  right: 20px;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 14px solid white;
+}
+
+/* --- Pinch-to-zoom gesture visual (tutorial state 3) — minimal ---
+   Two small cream touch-points spread apart over a soft zoom ring. No caption
+   text, no shipped asset. Namespaced (tutorial-zoom-*) to avoid colliding with
+   generic selectors elsewhere. */
+
+.tutorial-pinch {
+  /* Centered anchor over the image. pointer-events none so the real pinch
+     reaches the canvas underneath. */
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: 10rem;
+  height: 10rem;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.tutorial-zoom-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4.4rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(246, 241, 231, 0.1), transparent 62%);
+  animation: tutorial-zoom-glow 2.4s cubic-bezier(0.2, 0.78, 0.2, 1) infinite;
+}
+
+.tutorial-zoom-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 3.2rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 0.18rem solid rgba(246, 241, 231, 0.6);
+  box-shadow: 0 0 0.9rem rgba(246, 241, 231, 0.15);
+  animation: tutorial-zoom-ring 2.4s cubic-bezier(0.2, 0.78, 0.2, 1) infinite;
+}
+
+.tutorial-zoom-dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1.6rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 29%, #fffdf7 0 16%, #f6f1e7 42%, #e7ddcb 100%);
+  box-shadow: 0 0.5rem 0.9rem rgba(0, 0, 0, 0.3), 0 0 0 0.3rem rgba(246, 241, 231, 0.07),
+    inset 0 -0.12rem 0.18rem rgba(83, 63, 37, 0.12);
+  animation: tutorial-zoom-dot-l 2.4s cubic-bezier(0.22, 0.8, 0.2, 1) infinite;
+}
+.tutorial-zoom-dot-r { animation-name: tutorial-zoom-dot-r; }
+.tutorial-zoom-dot::after {
+  content: "";
+  position: absolute;
+  width: 22%;
+  height: 22%;
+  border-radius: 50%;
+  left: 25%;
+  top: 22%;
+  background: rgba(255, 255, 255, 0.66);
+}
+
+@keyframes tutorial-zoom-glow {
+  0%, 18% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.9); }
+  62%, 76% { opacity: 0.85; transform: translate(-50%, -50%) scale(1.08); }
+  100% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.9); }
+}
+@keyframes tutorial-zoom-ring {
+  0%, 16% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  30% { opacity: 0.7; }
+  70% { opacity: 0.25; transform: translate(-50%, -50%) scale(1.5); }
+  84%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.6); }
+}
+@keyframes tutorial-zoom-dot-l {
+  0%, 14% { transform: translate(-50%, -50%) translate(-0.5rem, 0) scale(0.96); }
+  56%, 74% { transform: translate(-50%, -50%) translate(-2.4rem, 0) scale(1); }
+  90%, 100% { transform: translate(-50%, -50%) translate(-0.5rem, 0) scale(0.96); }
+}
+@keyframes tutorial-zoom-dot-r {
+  0%, 14% { transform: translate(-50%, -50%) translate(0.5rem, 0) scale(0.96); }
+  56%, 74% { transform: translate(-50%, -50%) translate(2.4rem, 0) scale(1); }
+  90%, 100% { transform: translate(-50%, -50%) translate(0.5rem, 0) scale(0.96); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-zoom-glow, .tutorial-zoom-ring, .tutorial-zoom-dot { animation: none; }
+  /* Hold the spread pose so the pinch intent still reads. */
+  .tutorial-zoom-ring, .tutorial-zoom-glow { opacity: 0.5; }
+  .tutorial-zoom-dot { transform: translate(-50%, -50%) translate(-2.4rem, 0); }
+  .tutorial-zoom-dot-r { transform: translate(-50%, -50%) translate(2.4rem, 0); }
+}
+
+.tutorial-dismiss {
+  position: absolute;
+  left: 50%;
+  bottom: 60px;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.92);
+  color: #222;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+
+@keyframes tutorial-bounce {
+  0%, 100% { transform: translate(-50%, calc(-100% - 28px)); }
+  50% { transform: translate(-50%, calc(-100% - 36px)); }
+}
+
+.tutorial-bubble-hint {
+  animation: tutorial-bounce-right 2.4s ease-in-out infinite;
+}
+
+@keyframes tutorial-bounce-right {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* --- Offline indicator + toast --- */
+
+.offline-indicator {
+  position: absolute;
+  top: 14px;
+  right: 60px;
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: opacity 250ms ease;
+  opacity: 1;
+}
+
+.offline-indicator.hidden {
+  opacity: 0;
+}
+
+.hud-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 80px;
+  transform: translate(-50%, 0);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 250ms ease;
+  max-width: 80vw;
+  text-align: center;
+  z-index: 10;
+}
+
+.hud-toast.visible {
+  opacity: 1;
+}
+
+/* Home progression shell */
+#hud-overlay.home-mode {
+  pointer-events: auto;
+  overflow: hidden;
+  background:
+    /* warm spotlight behind the banner */
+    radial-gradient(118% 72% at 50% 7%, rgba(255, 251, 232, 0.85) 0%, rgba(255, 251, 232, 0) 52%),
+    /* soft vignette toward the bottom + corners for depth */
+    radial-gradient(145% 118% at 50% 116%, rgba(120, 62, 18, 0.34) 0%, rgba(120, 62, 18, 0) 56%),
+    linear-gradient(180deg, #fff2cf 0%, #ffd79a 48%, #f1a957 100%);
+}
+
+/* Menu vignette active: the bottom linear layer goes translucent so the
+   ambient game scene on the canvas shows through; the spotlight + depth
+   vignette stay so the home keeps its lighting. */
+#hud-overlay.home-mode.hud-vignette-active {
+  background:
+    radial-gradient(118% 72% at 50% 7%, rgba(255, 251, 232, 0.85) 0%, rgba(255, 251, 232, 0) 52%),
+    radial-gradient(145% 118% at 50% 116%, rgba(120, 62, 18, 0.34) 0%, rgba(120, 62, 18, 0) 56%),
+    linear-gradient(180deg, rgba(255, 242, 207, 0.72) 0%, rgba(255, 215, 154, 0.66) 48%, rgba(241, 169, 87, 0.72) 100%);
+}
+
+#hud-overlay.home-mode::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: -180px;
+  z-index: 0;
+  opacity: 0.28;
+  background-image: url('/ui/home/pattern-motif.png');
+  background-size: 74px 74px;
+  transform: translate3d(-74px, -74px, 0);
+  will-change: transform;
+  animation: homePawDrift 24s linear infinite;
+}
+
+.home-shell {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+  box-sizing: border-box;
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) 13px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.home-top-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.home-top-spacer { flex: 1; }
+
+.home-balance-pill,
+.home-icon-btn,
+.home-shop-btn {
+  min-height: 39px;
+  border: 0;
+  border-radius: 999px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 780;
+}
+
+.home-balance-pill,
+.home-icon-btn,
+.home-shop-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 10px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 6px 14px rgba(128, 80, 27, 0.13);
+  color: #4b382c;
+  font-size: 15px;
+}
+
+.home-balance-pill img,
+.home-icon-btn img,
+.home-shop-btn img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex: 0 0 auto;
+  filter: drop-shadow(0 2px 2px rgba(90, 55, 20, 0.16));
+}
+
+.home-balance-pill span {
+  min-width: 1ch;
+}
+
+.home-shop-btn {
+  min-width: 82px;
+  background: linear-gradient(180deg, #fff9e8, #ffe19b);
+  color: #5e3c1f;
+  font-size: 14px;
+}
+
+.home-icon-btn {
+  min-width: 43px;
+  padding: 6px;
+  font-size: 18px;
+}
+
+.home-progression-shell {
+  /* overflow intentionally not hidden — nav bar play button rises above the bar */
+}
+
+.home-title-panel {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  width: 100%;
+  margin-top: 18px;
+}
+
+.home-map-stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 0 18px;
+}
+
+.home-bottom-panel {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 18px;
+  width: 100%;
+  padding: 0 0 16px;
+  transform: translateY(-38px);
+}
+
+
+.home-brand-banner {
+  position: relative;
+  justify-self: center;
+  width: min(92vw, 483px);
+  aspect-ratio: 1881 / 836;
+  min-height: 108px;
+  display: grid;
+  place-items: center;
+  margin-inline: auto;
+}
+
+.home-brand-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 10px 12px rgba(128, 80, 27, 0.15));
+  animation: homeMascotLoad 520ms 110ms cubic-bezier(0.16, 1.12, 0.22, 1.18) both;
+}
+
+
+@keyframes homePawDrift {
+  from { transform: translate3d(-74px, -74px, 0); }
+  to { transform: translate3d(74px, 74px, 0); }
+}
+
+@keyframes homeMascotLoad {
+  0% { opacity: 0; transform: translateY(14px) scale(0.72); }
+  68% { opacity: 1; transform: translateY(-3px) scale(1.08); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes homePlayButtonIdle {
+  0%, 100% { transform: translateY(0) scale(1); }
+  48% { transform: translateY(-3px) scale(1.035); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #hud-overlay.home-mode::before,
+  .home-brand-art {
+    animation-duration: 1ms;
+    animation-delay: 0ms;
+  }
+}
+
+/* ── Phase 1: Bottom nav bar ─────────────────────────────────────── */
+
+.home-nav-bar {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  width: 100%;
+  padding: 12px 8px calc(env(safe-area-inset-bottom, 0px) + 14px);
+  background: linear-gradient(180deg, #7a4a22 0%, #5c3414 100%);
+  border-radius: 24px 24px 0 0;
+  border-top: 1.5px solid rgba(255, 190, 80, 0.22);
+  box-shadow: 0 -6px 28px rgba(50, 22, 5, 0.35);
+  flex-shrink: 0;
+  overflow: visible;
+  z-index: 2;
+}
+
+/* Task 5: prominent primary "Play Now" CTA on Home. Reuses the unified shop
+   pill (.shop-grid-price-btn) for one consistent button look studio-wide. The
+   grid pill's -14px top pull (meant to overlap a card above it) is reset since
+   this stands alone above the nav bar. flex-shrink:0 so it isn't squeezed when
+   the level map claims the remaining height. */
+/* ID selector: the shared .shop-grid-price-btn class (later in the file) sets
+   width:100% + margin-top:-14px at equal specificity and was winning, which kept
+   Play Now full-width and barely pulled up. #home-play-now overrides it. */
+#home-play-now {
+  display: block;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 5;
+  /* 5px nudge via relative offset (not margin) so the saga doesn't reflow. */
+  top: 5px;
+  width: min(100%, 180px);
+  /* Pulled up toward the current level node (anchored low in the map stage).
+     Keep the layout footprint close to the old play-dock so the saga column
+     doesn't sink: net height ~56px (62 - 24 + 18). */
+  margin: -40px auto 14px;
+  /* App Store CTA: the unified shop pill in the rich Play greens (verified
+     against the build-14 marketing still — NOT the old art PNG, whose baked
+     white edge is the pre-polish look). */
+  font-size: 26px;
+  letter-spacing: 0.02em;
+  padding: 13px 0;
+  /* See .settings-home-btn: the shared pill colours live on --shop-price-* which
+     are scoped to .home-page-shop, so re-declare them on the Home CTA. */
+  --shop-price-top: hsl(128deg 70% 52%);
+  --shop-price-bottom: hsl(128deg 68% 40%);
+  --shop-price-border: hsl(128deg 60% 24%);
+  --shop-price-shadow: hsl(130deg 56% 22%);
+}
+
+.home-nav-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 72px;
+  padding: 8px 12px 6px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.10);
+  border-radius: 18px;
+  color: rgba(255, 225, 170, 0.92);
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  font-weight: 780;
+  cursor: pointer;
+  transform-origin: 50% 90%;
+  transition: color 120ms ease;
+}
+
+.home-nav-btn img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.30));
+  pointer-events: none;
+}
+
+/* Play button — overrides the side-button pill with its own raised card */
+.home-nav-play-btn {
+  margin-top: -44px;
+  position: relative;
+  z-index: 3;
+  background: #fff8ef;
+  border-radius: 26px;
+  min-width: 150px;
+  padding: 6px 24px 10px;
+  box-shadow:
+    0 -8px 24px rgba(50, 22, 5, 0.26),
+    0 6px 16px rgba(50, 22, 5, 0.20);
+  color: #5c3414;
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.home-nav-play-btn img {
+  width: 72px;
+  height: 72px;
+  filter: drop-shadow(0 4px 10px rgba(20, 100, 60, 0.35));
+}
+
+.home-nav-btn--tapped {
+  animation: homeNavBounce 200ms cubic-bezier(0.36, 0, 0.66, 1.6) both;
+}
+
+@keyframes homeNavBounce {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(0.88); }
+  70%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+/* ── Saga redesign (2026-06): split currency top bar, linear path, Play
+      Now dock, side rail, richer bottom bar ─────────────────────────── */
+
+#home-shell.home-progression-shell {
+  padding: calc(env(safe-area-inset-top, 0px) + 10px) 12px 0;
+  gap: 6px;
+}
+
+/* Banner with currency pills flanking the dog in its transparent side areas */
+#home-shell .home-title-panel {
+  position: relative;
+  margin-top: 0;
+  flex-shrink: 0;
+}
+
+#home-shell .home-brand-banner {
+  width: min(96vw, 500px);
+  margin-top: -6px;
+}
+
+#home-shell .home-balance-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  box-sizing: border-box;
+  gap: 6px;
+  min-width: 96px;
+  min-height: 42px;
+  padding: 5px 14px 5px 34px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fffaf0 0%, #ffe7b6 100%);
+  box-shadow:
+    inset 0 0 0 2px #ffffff,
+    inset 0 0 0 4px #d98a3c,
+    0 5px 0 #b86a26,
+    0 9px 16px rgba(96, 52, 12, 0.32);
+  color: #5c3414;
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+#home-shell .home-balance-pill img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex: 0 0 28px;
+  max-width: 28px;
+  max-height: 28px;
+  filter:
+    drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff)
+    drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff)
+    drop-shadow(0 3px 3px rgba(70, 40, 10, 0.3));
+}
+
+#home-shell .home-balance-pill span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2ch;
+  max-width: 4ch;
+  padding-right: 0;
+  line-height: 1;
+  overflow: hidden;
+  text-align: center;
+}
+
+.home-pill-plus {
+  position: absolute;
+  left: 0;
+  bottom: -7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #7be37a 0%, #3aa83c 100%);
+  box-shadow:
+    inset 0 0 0 1.5px #ffffff,
+    0 2px 0 #2a7d2c,
+    0 3px 5px rgba(20, 80, 20, 0.4);
+  color: #fff;
+  font-size: 0;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+}
+.home-pill-plus::after {
+  content: "+";
+  display: block;
+  flex: 0 0 auto;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1;
+}
+/* Expand the tap target to >=44px (project min) without enlarging the 22px badge. */
+.home-pill-plus::before {
+  content: "";
+  position: absolute;
+  inset: -11px;
+  border-radius: inherit;
+}
+.home-pill-plus:active { transform: translateY(2px); box-shadow: inset 0 0 0 1.5px #fff, 0 1px 0 #2a7d2c; }
+
+/* Map region: saga path + right side rail. Pulled up under the banner so the
+   farthest level recedes behind it. */
+.home-map-region {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  /* Overlaps up to just behind the banner's solid ribbon; the stage's
+     overflow:hidden clips tiles AND their shadows here so nothing bleeds into
+     the banner's transparent areas (the "darkened background"). */
+  margin-top: -120px;
+  display: flex;
+}
+
+/* Banner sits above the map so the top of the path tucks under it. */
+#home-shell .home-title-panel { z-index: 4; }
+
+#home-shell .home-map-stage {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  /* padding-bottom lifts the whole saga up so the current node sits just above
+     the Play Now CTA. Raise --fab-levelmap-node-gap to push the UPPER tiles
+     toward the banner. */
+  padding: 6px 0 20px;
+}
+
+.home-play-dock {
+  position: relative;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  margin-top: -24px;
+  margin-bottom: 13px;
+  pointer-events: auto;
+}
+
+/* Side rails just below the banner: No-Ads on the left, coin+hint stacked
+   on the right. Offset down past the banner (the map-region overlaps it). */
+.home-rail {
+  position: absolute;
+  top: 116px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 4;
+}
+.home-rail-left {
+  left: 20px;
+  align-items: flex-start;
+}
+.home-rail-right {
+  right: 0;
+  align-items: flex-end;
+}
+
+.home-side-btn {
+  display: grid;
+  place-items: center;
+  gap: 2px;
+  width: 62px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.home-no-ads-btn .home-no-ads-art {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 5px rgba(96, 40, 10, 0.34));
+  pointer-events: none;
+  transform-origin: 50% 55%;
+  animation: homeNoAdsPulse 2.4s ease-in-out infinite;
+}
+/* Soft attention glow behind the badge */
+.home-no-ads-btn .home-no-ads-art::after { content: none; }
+.home-no-ads-btn {
+  position: relative;
+  width: 58px;
+}
+.home-no-ads-btn::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: 56px;
+  height: 56px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 196, 84, 0.55) 0%, rgba(255, 196, 84, 0) 68%);
+  animation: homeNoAdsGlow 2.4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+@keyframes homeNoAdsPulse {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  18% { transform: scale(1.1) rotate(-5deg); }
+  36% { transform: scale(1.04) rotate(4deg); }
+  54% { transform: scale(1.08) rotate(0deg); }
+}
+@keyframes homeNoAdsGlow {
+  0%, 100% { opacity: 0.35; transform: translateX(-50%) scale(0.9); }
+  40% { opacity: 0.85; transform: translateX(-50%) scale(1.15); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-no-ads-btn .home-no-ads-art,
+  .home-no-ads-btn::before { animation-duration: 1ms; }
+}
+.home-side-btn-label {
+  font-family: 'Nunito', sans-serif;
+  font-size: 12px;
+  font-weight: 800;
+  color: #5c3414;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+
+/* Linear saga path + extra outline ring on every node (FTD-only override of
+   the core zig-zag placement). */
+/* NOTE: tile spacing (--fab-levelmap-node-gap) and the no-fade opacity tokens
+   are set via the mountLevelMap `theme` prop in HomeScene (FTD_LEVELMAP_THEME),
+   NOT here — the core re-declares those tokens on `.fab-ui`, which shadows any
+   override placed on this wrapping element. Straightening the column to a single
+   line still works here because --node-x isn't a core token. */
+.home-map-stage .fab-levelmap-node { --node-x: 0px !important; }
+
+/* Saga-style premium rail: tight honey-gold borders around a glossy turquoise
+   core, matching the straight reference strip while staying in FTD's palette. */
+.home-map-stage .fab-levelmap-path::before {
+  width: 18px;
+  border-radius: 999px;
+  box-shadow:
+    0 0 0 1px rgba(83, 43, 13, 0.72),
+    inset 0 0 0 1px rgba(255, 250, 196, 0.45);
+  opacity: 1;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.08) 25%, rgba(16, 92, 122, 0.26) 100%),
+    linear-gradient(90deg,
+      #ffd54b 0 2px,
+      #fff3a8 2px 4px,
+      #d18424 4px 5px,
+      #48d8d4 5px 7px,
+      #168ebd 7px 11px,
+      #0e6ea1 11px 13px,
+      #d18424 13px 14px,
+      #fff3a8 14px 16px,
+      #ffd54b 16px 18px);
+}
+
+/* Padlock badge on every locked level node (the levels above current). */
+.home-map-stage .fab-levelmap-node:not(.current)::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 0;
+  width: var(--fab-levelmap-node-size);
+  height: var(--fab-levelmap-node-size);
+  transform: translate(-50%, -50%);
+  border-radius: 16px;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.58) 0%, rgba(255, 255, 255, 0) 34%),
+    linear-gradient(135deg, #fff3a8 0%, #ffd54b 24%, #d88722 58%, #8b4215 100%);
+  box-shadow: none;
+}
+
+.home-map-stage .fab-levelmap-node.locked .fab-levelmap-node-dot {
+  position: relative;
+  font-size: 34px;
+  font-weight: 900;
+}
+.home-map-stage .fab-levelmap-node.locked .fab-levelmap-node-dot::after {
+  content: "";
+  position: absolute;
+  left: 28%;
+  bottom: -10px;
+  width: 30px;
+  height: 30px;
+  transform: translateX(-50%);
+  background: center / contain no-repeat
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M14 21v-5a10 10 0 0 1 20 0v5' fill='none' stroke='%238a4a18' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M14 20v-4a10 10 0 0 1 20 0v4' fill='none' stroke='%23f4c23a' stroke-width='4' stroke-linecap='round'/%3E%3Crect x='9' y='20' width='30' height='22' rx='6' fill='%238a4a18'/%3E%3Crect x='11' y='22' width='26' height='18' rx='5' fill='%23ffd24d'/%3E%3Crect x='11' y='22' width='26' height='18' rx='5' fill='none' stroke='%23fff7e0' stroke-width='1.5'/%3E%3Ccircle cx='24' cy='29' r='3.4' fill='%238a4a18'/%3E%3Crect x='22.4' y='30' width='3.2' height='7' rx='1.6' fill='%238a4a18'/%3E%3C/svg%3E");
+  filter: drop-shadow(0 2px 2px rgba(70, 35, 8, 0.4));
+  pointer-events: none;
+}
+
+/* Slow ambient sparkle on locked tiles (one per node, odd/even staggered). */
+@keyframes lockedTileSparkle {
+  0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.4) rotate(0deg); }
+  50%      { opacity: 0.9; transform: translate(-50%, -50%) scale(1) rotate(25deg); }
+}
+.home-map-stage .fab-levelmap-node.locked::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  top: 26%;
+  left: 30%;
+  width: 36px;
+  height: 36px;
+  background: #fff;
+  clip-path: polygon(50% 0%, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0% 50%, 42% 42%);
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.85));
+  pointer-events: none;
+  animation: lockedTileSparkle 4200ms ease-in-out infinite;
+}
+.home-map-stage .fab-levelmap-node.locked:nth-child(even)::after {
+  top: 62%;
+  left: 68%;
+  width: 27px;
+  height: 27px;
+  animation-delay: 2100ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-map-stage .fab-levelmap-node.locked::after { animation: none; }
+}
+
+/* Locked node tapped → quick shake (negative feedback, no navigation). */
+.home-map-stage .fab-levelmap-node.home-node--rejected {
+  animation: homeNodeShake 360ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+@keyframes homeNodeShake {
+  10%, 90% { transform: translateX(-5px) scale(var(--node-scale, 1)); }
+  20%, 80% { transform: translateX(7px) scale(var(--node-scale, 1)); }
+  30%, 50%, 70% { transform: translateX(-9px) scale(var(--node-scale, 1)); }
+  40%, 60% { transform: translateX(9px) scale(var(--node-scale, 1)); }
+}
+
+.home-map-stage .fab-levelmap-node.current .fab-levelmap-node-dot {
+  /* Extra outline ring + depth shadow for the playable tile only. Locked tiles
+     keep their source art edges without the white halo. */
+  filter:
+    drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
+    drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
+    drop-shadow(0 5px 6px rgba(70, 35, 8, 0.34));
+}
+
+.home-map-stage .fab-levelmap-node:not(.current) .fab-levelmap-node-dot {
+  filter: none;
+}
+
+/* ── Current (playable) level node: breathing glow + pulsing halo ───────────
+   The current node is otherwise visually flat versus the locked tiles (only
+   art + size differ), so nothing signals "this is the one you can play". A
+   gentle 2.6s breath (scale ~1.04, in place — no vertical drift) paired with
+   an animated teal drop-shadow that brightens at the breath peak draws the
+   eye. The keyframes re-state the white outline ring + depth shadow from the
+   rule above so the crisp edge survives while the glow animates. Teal matches
+   the candy node art (--fab-levelmap-art-current). */
+.home-map-stage .fab-levelmap-node.current .fab-levelmap-node-dot {
+  /* Scale from the center so the tile pulses in place. */
+  transform-origin: 50% 50%;
+  animation: homeCurrentNodeBreath 2.6s ease-in-out infinite;
+}
+
+@keyframes homeCurrentNodeBreath {
+  0%, 100% {
+    transform: scale(1);
+    filter:
+      drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
+      drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
+      drop-shadow(0 5px 6px rgba(70, 35, 8, 0.34))
+      drop-shadow(0 0 6px rgba(64, 210, 222, 0.42));
+  }
+  50% {
+    transform: scale(1.04);
+    filter:
+      drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
+      drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
+      drop-shadow(0 7px 8px rgba(70, 35, 8, 0.34))
+      drop-shadow(0 0 16px rgba(64, 210, 222, 0.85));
+  }
+}
+
+/* Pulsing teal halo behind the current node (~1.5× its size). The node is
+   position:relative with z-index:1 (a stacking context), so this ::before at
+   z-index 0 sits behind the dot (z-index 1). pointer-events:none keeps the
+   node itself the tap target that launches the level. */
+.home-map-stage .fab-levelmap-node.current::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 0;
+  /* Rounded-square glow via box-shadow — radial-gradient discs render as
+     crisp circles in WKWebView when the blur filter is skipped on animated
+     elements (seen on device). */
+  width: calc(var(--fab-levelmap-node-current-size) * 0.92);
+  height: calc(var(--fab-levelmap-node-current-size) * 0.92);
+  transform: translate(-50%, -50%);
+  border-radius: 24%;
+  pointer-events: none;
+  background: transparent;
+  box-shadow: 0 0 26px 14px rgba(64, 210, 222, 0.42);
+  animation: homeCurrentNodeHalo 2.6s ease-in-out infinite;
+}
+
+@keyframes homeCurrentNodeHalo {
+  0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(0.92); }
+  50% { opacity: 0.92; transform: translate(-50%, -50%) scale(1.12); }
+}
+
+/* Reduced motion: keep a static glow + halo, drop the animation. */
+@media (prefers-reduced-motion: reduce) {
+  .home-map-stage .fab-levelmap-node.current .fab-levelmap-node-dot {
+    animation: none;
+    filter:
+      drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
+      drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
+      drop-shadow(0 5px 6px rgba(70, 35, 8, 0.34))
+      drop-shadow(0 0 12px rgba(64, 210, 222, 0.6));
+  }
+  .home-map-stage .fab-levelmap-node.current::before {
+    animation: none;
+    opacity: 0.7;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Richer bottom nav: Shop · Home (raised emblem) · Settings */
+/* 3-tile bar in the reference structure, FTD warm palette: divided slots that
+   fill the full width, with a raised highlighted center. */
+#home-shell .home-nav-bar {
+  align-items: stretch;
+  justify-content: stretch;
+  gap: 0;
+  padding: 0;
+  /* span full screen width by cancelling the shell's 12px side padding */
+  margin-inline: -12px;
+  width: calc(100% + 24px);
+  background: linear-gradient(180deg, #c98a44 0%, #9a5d28 100%);
+  border-radius: 0;
+  border-top: 3px solid #ffd98a;
+  box-shadow: 0 -5px 18px rgba(60, 30, 8, 0.42);
+  overflow: visible;
+}
+
+#home-shell .home-nav-bar > button {
+  box-sizing: border-box;
+  flex: 0 0 calc(100% / 3);
+  width: calc(100% / 3);
+  max-width: calc(100% / 3);
+}
+
+/* Side slots — equal thirds, divider lines between, icon + label centered. */
+#home-shell .home-nav-btn {
+  align-self: stretch;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  padding: 9px 0 calc(env(safe-area-inset-bottom, 0px) * 0.55 + 4px);
+  border-radius: 0;
+  background: transparent;
+  overflow: visible;
+  /* subtle divider grooves on each inner edge */
+  box-shadow:
+    inset -1px 0 0 rgba(90, 48, 14, 0.55),
+    inset 1px 0 0 rgba(255, 225, 170, 0.28);
+  color: #fff7e6;
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  text-shadow:
+    0 1.5px 0 #6e3a12, 0 -1.5px 0 #6e3a12, 1.5px 0 0 #6e3a12, -1.5px 0 0 #6e3a12,
+    0 2px 3px rgba(0, 0, 0, 0.32);
+}
+#home-shell .home-nav-btn img {
+  width: 48px;
+  height: 48px;
+  filter:
+    drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
+    drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
+    drop-shadow(0 4px 5px rgba(70, 36, 10, 0.5));
+}
+
+/* Center Play slot — a full third, highlighted lighter, icon rises above. */
+#home-shell .home-nav-play-btn {
+  align-self: stretch;
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  margin-top: 0;
+  min-width: 0;
+  padding: 9px 0 calc(env(safe-area-inset-bottom, 0px) * 0.55 + 4px);
+  background: linear-gradient(180deg, #ffe3a6 0%, #f3bf68 100%);
+  border: 0;
+  border-radius: 0;
+  box-shadow:
+    inset 2px 0 0 rgba(255, 245, 215, 0.6),
+    inset -2px 0 0 rgba(255, 245, 215, 0.6),
+    inset 0 8px 14px rgba(255, 247, 222, 0.45);
+  color: #6e3a12;
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  text-shadow: 0 1.5px 0 rgba(255, 248, 224, 0.85), 0 -1px 0 rgba(180, 120, 50, 0.35);
+  cursor: pointer;
+}
+.home-nav-play-emblem {
+  display: grid;
+  place-items: center;
+}
+#home-shell .home-nav-play-btn .home-nav-play-emblem img {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  filter:
+    drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
+    drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
+    drop-shadow(0 4px 5px rgba(70, 36, 10, 0.5));
+}
+#home-shell .home-nav-play-btn:active .home-nav-play-emblem { transform: translateY(3px) scale(0.97); }
+
+/* Idle pulse on the whole Play Now CTA (moved off the nav emblem). Disabled on
+   the play-entry clone (1,1,0 beats #home-play-now) so the scatter-out transform
+   isn't overridden by the running animation. */
+.home-play-now-label { display: inline-block; }
+#home-play-now { animation: homePlayButtonIdle 1650ms ease-in-out infinite; }
+.play-entry-home-shell #home-play-now { animation: none; }
+@media (prefers-reduced-motion: reduce) {
+  #home-play-now { animation: none; }
+}
+
+/* ── Phase 1: Full-screen slide-in page shell ────────────────────── */
+
+.home-shell {
+  transition: filter 260ms ease-out, transform 260ms ease-out;
+}
+
+.home-shell--dimmed {
+  filter: brightness(0.6);
+  transform: scale(0.95);
+  pointer-events: none;
+}
+
+.home-page-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  /* Capture pointer events on the whole page. In-game #hud-overlay is
+     pointer-events:none (so gameplay taps reach the canvas); without this the
+     opaque page is transparent to hit-testing and taps fall through to the HUD
+     badges / game canvas behind it. Harmless on the home screen. */
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  background: #fffaf2;
+  transform: translateY(100%);
+  opacity: 0.4;
+  transition: transform 340ms cubic-bezier(0.22, 1.02, 0.32, 1), opacity 200ms ease-out;
+  border-radius: 20px 20px 0 0;
+  overflow: hidden;
+  box-shadow: 0 -6px 32px rgba(128, 80, 27, 0.16);
+}
+
+.home-page-overlay--open {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Juicy entrance: header settles in, then content sections cascade up — a slow,
+   smooth slide-and-fade (NOT a scale pop), so it reads as a reveal. */
+.home-page-overlay--open .home-page-back-btn,
+.home-page-overlay--open .home-page-title,
+.home-page-overlay--open .shop-header-balances {
+  animation: homePagePop 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.home-page-overlay--open .home-page-title { animation-delay: 90ms; }
+.home-page-overlay--open .shop-header-balances { animation-delay: 160ms; }
+
+/* Settings: the gentle rise the user liked — leave it. */
+.home-page-overlay--open .home-page-placeholder,
+.home-page-overlay--open .settings-row {
+  animation: homePageRise 640ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+/* Shop: start much lower and clearly slide up (visible the whole way). */
+.home-page-overlay--open .shop-featured-section,
+.home-page-overlay--open .shop-new-section,
+.home-page-overlay--open .settings-legal-footer {
+  animation: homePageSlideUp 920ms cubic-bezier(0.22, 0.61, 0.3, 1) both;
+}
+/* Settings stagger (looks good — keep). */
+.home-page-overlay--open .settings-row:nth-child(1) { animation-delay: 200ms; }
+.home-page-overlay--open .settings-row:nth-child(2) { animation-delay: 320ms; }
+.home-page-overlay--open .settings-row:nth-child(3) { animation-delay: 440ms; }
+.home-page-overlay--open .settings-row:nth-child(n + 4) { animation-delay: 560ms; }
+/* Shop stagger — target sections by id (nth-of-type miscounts because the
+   featured section is also a <div>). Sections cascade 0/120/240/360ms,
+   overlapping the panel slide so content starts moving immediately. */
+.home-page-overlay--open #shop-page-entitlements { animation-delay: 0ms; }
+.home-page-overlay--open #shop-page-hints { animation-delay: 120ms; }
+.home-page-overlay--open #shop-page-coins { animation-delay: 240ms; }
+.home-page-overlay--open .settings-legal-footer { animation-delay: 360ms; }
+
+/* Deep-link opens: panel still slides up, but content is present immediately
+   (no staggered entrance), so the scrolled-to section doesn't pop in. */
+.home-page-overlay--instant.home-page-overlay--open .home-page-back-btn,
+.home-page-overlay--instant.home-page-overlay--open .home-page-title,
+.home-page-overlay--instant.home-page-overlay--open .shop-header-balances,
+.home-page-overlay--instant.home-page-overlay--open .shop-featured-section,
+.home-page-overlay--instant.home-page-overlay--open .shop-new-section,
+.home-page-overlay--instant.home-page-overlay--open .settings-legal-footer {
+  animation: none;
+}
+
+@keyframes homePagePop {
+  0% { opacity: 0; transform: translateY(-12px) scale(0.94); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes homePageRise {
+  0% { opacity: 0; transform: translateY(44px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+/* Shop sections: begin far below and fade in across the WHOLE glide so both the
+   slide and the transparency change are obvious. */
+@keyframes homePageSlideUp {
+  0% { opacity: 0; transform: translateY(450px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.home-page-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid rgba(128, 80, 27, 0.1);
+  flex-shrink: 0;
+}
+
+.home-page-back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: transparent;
+  font-size: 0;
+  font-weight: 900;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  filter: drop-shadow(0 4px 3px rgba(70, 34, 7, 0.28));
+}
+
+.home-page-back-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.home-page-title {
+  font-family: 'Nunito', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  color: #3d2b1f;
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.home-page-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 24px 16px calc(env(safe-area-inset-bottom, 0px) + 24px);
+}
+
+.home-page-settings {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.58) 0 0),
+    radial-gradient(circle at 12% 9%, rgba(255, 255, 255, 0.92) 0 20px, transparent 21px),
+    radial-gradient(circle at 78% 13%, rgba(255, 255, 255, 0.72) 0 24px, transparent 25px),
+    linear-gradient(180deg, #fff7dc 0%, #ffdba5 58%, #f7b46c 100%);
+}
+
+.home-page-settings .home-page-header {
+  position: relative;
+  min-height: 96px;
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 16px;
+  overflow: hidden;
+  border-bottom: 4px solid #7b3e10;
+  background:
+    linear-gradient(180deg, rgba(255, 241, 189, 0.44) 0%, rgba(255, 255, 255, 0) 58%),
+    repeating-linear-gradient(-45deg, #ffc447 0, #ffc447 32px, #e57c08 32px, #e57c08 64px);
+  box-shadow:
+    inset 0 -22px 28px rgba(137, 66, 0, 0.24),
+    0 7px 0 rgba(0, 0, 0, 0.14);
+}
+
+.home-page-settings .home-page-header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 42%;
+  background: linear-gradient(180deg, rgba(111, 55, 8, 0), rgba(111, 55, 8, 0.2));
+  pointer-events: none;
+}
+
+.home-page-settings .home-page-back-btn {
+  position: relative;
+  z-index: 1;
+  width: 68px;
+  height: 68px;
+}
+
+.home-page-settings .home-page-title {
+  position: relative;
+  z-index: 1;
+  color: #4b260d;
+  font-family: 'FredokaOne', 'Nunito', sans-serif;
+  font-size: clamp(35px, 9vw, 43px);
+  font-weight: 400;
+  line-height: 1;
+  -webkit-text-stroke: 0.95px rgba(255, 245, 219, 0.7);
+  text-shadow:
+    0 2px 0 #fff5db,
+    0 4px 0 rgba(70, 31, 6, 0.24),
+    0 7px 12px rgba(70, 31, 6, 0.22);
+}
+
+.home-page-settings .home-page-body {
+  padding: 26px 14px calc(env(safe-area-inset-bottom, 0px) + 28px);
+  background:
+    radial-gradient(circle at 12% 7%, rgba(255, 255, 255, 0.52) 0 20px, transparent 21px),
+    radial-gradient(circle at 84% 18%, rgba(255, 255, 255, 0.46) 0 24px, transparent 25px),
+    radial-gradient(circle at 24% 56%, rgba(255, 255, 255, 0.35) 0 28px, transparent 29px);
+}
+
+.settings-page-card {
+  width: min(100%, 432px);
+  margin: 0 auto;
+  padding: 14px 12px 18px;
+  border: 4px solid #ffc247;
+  border-radius: 30px;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(255, 238, 160, 0.92), rgba(255, 252, 238, 0.98) 42%, rgba(255, 245, 224, 0.98) 100%);
+  box-shadow:
+    0 0 0 3px rgba(77, 38, 8, 0.86),
+    inset 0 5px 0 rgba(255, 255, 255, 0.72),
+    inset 0 -15px 24px rgba(208, 130, 37, 0.1),
+    0 8px 0 rgba(92, 45, 12, 0.32),
+    0 22px 38px rgba(79, 37, 9, 0.2);
+}
+
+/* Home uses the same row language as the Settings toggles: glossy icon, warm
+   raised row, and a simple action arrow instead of the shop price-button style. */
+.settings-home-btn {
+  width: 100%;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.settings-home-btn .settings-row-icon {
+  filter:
+    drop-shadow(1px 0 0 #fff) drop-shadow(-1px 0 0 #fff)
+    drop-shadow(0 1px 0 #fff) drop-shadow(0 -1px 0 #fff)
+    drop-shadow(0 4px 5px rgba(60, 30, 10, 0.24));
+}
+
+.settings-home-arrow {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.46), rgba(255, 255, 255, 0) 48%),
+    linear-gradient(180deg, #69df80 0%, #2fa94a 100%);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.88),
+    0 3px 0 #1d7830,
+    0 6px 9px rgba(58, 95, 24, 0.24);
+  position: relative;
+}
+
+.settings-home-arrow::before {
+  content: "";
+  position: absolute;
+  inset: 10px 12px 10px 10px;
+  border-top: 4px solid #fff;
+  border-right: 4px solid #fff;
+  transform: rotate(45deg);
+  filter: drop-shadow(0 1px 0 rgba(18, 70, 24, 0.26));
+}
+
+.home-page-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: #9a7a60;
+  font-family: 'Nunito', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  gap: 12px;
+}
+
+.home-page-placeholder-icon {
+  font-size: 48px;
+  opacity: 0.5;
+}
+
+/* Settings rows inside the page shell */
+.home-page-body .settings-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: none;
+  overflow: visible;
+  padding: 0;
+}
+
+.home-page-body .settings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px 12px 10px;
+  min-height: 86px;
+  border: 3px solid #fff6d7;
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 248, 0.98) 0%, rgba(255, 241, 205, 0.98) 62%, rgba(255, 225, 166, 0.94) 100%);
+  box-shadow:
+    0 0 0 2px rgba(111, 55, 8, 0.16),
+    inset 0 3px 0 rgba(255, 255, 255, 0.88),
+    inset 0 -6px 12px rgba(209, 138, 45, 0.1),
+    0 5px 0 rgba(144, 80, 24, 0.18),
+    0 11px 20px rgba(78, 45, 18, 0.11);
+}
+
+.home-page-body .settings-row:last-of-type {
+  border-bottom: 3px solid #fff6d7;
+}
+
+.home-page-body .settings-row-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.home-page-body .settings-row-icon {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 4px 5px rgba(60, 30, 10, 0.24));
+}
+
+.home-page-body .settings-row-label {
+  font-family: 'Nunito', sans-serif;
+  font-size: 22px;
+  font-weight: 950;
+  color: #4a2a17;
+  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.72);
+}
+
+.home-page-body .settings-legal-footer {
+  margin-top: 12px;
+  padding: 18px 12px 10px;
+  border: 2px solid rgba(255, 246, 215, 0.88);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 248, 0.72), rgba(255, 233, 191, 0.64));
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.52),
+    0 4px 0 rgba(144, 80, 24, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+}
+
+.home-page-body .settings-legal-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.home-page-body .settings-footer-link {
+  border: 0;
+  background: transparent;
+  color: #734a2c;
+  font-family: 'Nunito', sans-serif;
+  font-size: 16px;
+  font-weight: 900;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.home-page-body .settings-footer-separator {
+  color: #b89a7e;
+  font-size: 14px;
+}
+
+.home-page-body .settings-footer-action {
+  text-decoration: none;
+  color: #5a341a;
+  background: linear-gradient(180deg, #fff8eb, #eadbc7);
+  border: 2px solid rgba(255, 255, 255, 0.86);
+  border-radius: 999px;
+  padding: 11px 22px;
+  font-size: 17px;
+  box-shadow:
+    0 0 0 1px rgba(94, 52, 18, 0.12),
+    0 4px 0 rgba(94, 52, 18, 0.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-shell,
+  .home-page-overlay {
+    transition-duration: 1ms;
+  }
+  .home-nav-btn--tapped,
+  .home-page-overlay--open .home-page-back-btn,
+  .home-page-overlay--open .home-page-title,
+  .home-page-overlay--open .shop-header-balances,
+  .home-page-overlay--open .shop-featured-section,
+  .home-page-overlay--open .shop-new-section,
+  .home-page-overlay--open .settings-legal-footer,
+  .home-page-overlay--open .home-page-placeholder,
+  .home-page-overlay--open .settings-row {
+    animation-duration: 1ms;
+  }
+}
+
+/* ══ Shop Page (Phase 2) ════════════════════════════════════════════ */
+
+.home-page-shop {
+  --shop-header-overlay: linear-gradient(180deg, rgba(255, 241, 189, 0.44) 0%, rgba(255, 255, 255, 0) 58%);
+  --shop-header-stripes: repeating-linear-gradient(-45deg, #ffc447 0, #ffc447 32px, #e57c08 32px, #e57c08 64px);
+  --shop-header-border: #9e5305;
+  --shop-header-shadow: inset 0 -12px 18px rgba(137, 66, 0, 0.14), 0 7px 0 rgba(0, 0, 0, 0.16);
+  --shop-header-button-bg: rgba(255, 255, 255, 0.36);
+  --shop-header-button-border: rgba(78, 38, 0, 0.62);
+  --shop-header-button-color: #3c1f00;
+  --shop-header-button-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.34), 0 4px 0 rgba(116, 54, 0, 0.42);
+  --shop-title-color: #3c1f00;
+  --shop-title-stroke: rgba(255, 255, 255, 0.70);
+  --shop-title-shadow: 0 2px 0 rgba(255, 255, 255, 0.24), 0 4px 8px rgba(82, 38, 0, 0.25);
+  --shop-balance-bg: rgba(84, 42, 4, 0.58);
+  --shop-balance-border: rgba(43, 18, 0, 0.64);
+  --shop-balance-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.20), 0 4px 0 rgba(82, 38, 0, 0.42), 0 7px 11px rgba(0, 0, 0, 0.16);
+  --shop-body-color: #fff7dc;
+  --shop-body-gradient: linear-gradient(180deg, #fff7dc 0%, #ffdba5 48%, #f7b46c 100%);
+  --shop-body-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='86' height='86'%3E%3Cg fill='%23c8974a' fill-opacity='0.08'%3E%3Cellipse cx='43' cy='63' rx='17' ry='14'/%3E%3Cellipse cx='18' cy='43' rx='8' ry='10' transform='rotate(-20 18 43)'/%3E%3Cellipse cx='33' cy='33' rx='8' ry='10' transform='rotate(-7 33 33)'/%3E%3Cellipse cx='52' cy='33' rx='8' ry='10' transform='rotate(7 52 33)'/%3E%3Cellipse cx='67' cy='43' rx='8' ry='10' transform='rotate(20 67 43)'/%3E%3C/g%3E%3C/svg%3E");
+  --shop-card-border: #1d1308;
+  --shop-card-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.28), inset 0 -7px 0 rgba(0, 0, 0, 0.10), 0 5px 0 rgba(0, 0, 0, 0.58), 0 10px 18px rgba(80, 42, 6, 0.26);
+  --shop-noads-bg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='92' height='52' viewBox='0 0 92 52'%3E%3Cg fill='%2302769b' fill-opacity='0.15'%3E%3Cpath d='M18 3l5 10 11 1-8 8 2 11-10-5-10 5 2-11-8-8 11-1z'/%3E%3Cpath d='M70 15l4 8 9 1-7 6 2 9-8-4-8 4 2-9-7-6 9-1z'/%3E%3C/g%3E%3C/svg%3E"), linear-gradient(135deg, #14d6ee 0%, #11ace5 56%, #0b7fc7 100%);
+  --shop-vip-bg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='92' height='52' viewBox='0 0 92 52'%3E%3Cg fill='%23b46612' fill-opacity='0.16'%3E%3Cpath d='M18 3l5 10 11 1-8 8 2 11-10-5-10 5 2-11-8-8 11-1z'/%3E%3Cpath d='M70 15l4 8 9 1-7 6 2 9-8-4-8 4 2-9-7-6 9-1z'/%3E%3C/g%3E%3C/svg%3E"), linear-gradient(135deg, #ffe66b 0%, #ffbd38 58%, #ee8805 100%);
+  --shop-card-title-color: #ffffff;
+  --shop-card-title-stroke: #111827;
+  --shop-card-desc-color: rgba(73, 38, 14, 0.82);
+  --shop-badge-bg: linear-gradient(90deg, #fff8df 0%, #fff8df 70%, #ffb4c3 70%, #ff9eae 100%);
+  --shop-badge-color: #7a2b07;
+  --shop-badge-border: rgba(74, 34, 12, 0.82);
+  --shop-section-bg: linear-gradient(180deg, #6d3b18 0%, #4f270d 100%);
+  --shop-section-color: #ffffff;
+  --shop-section-border: rgba(28, 12, 2, 0.78);
+  --shop-section-stroke: #1b0d03;
+  --shop-grid-bg: hsl(38deg 90% 52%);
+  --shop-grid-border: hsl(38deg 90% 52%);
+  --shop-grid-shadow-color: hsl(38deg 75% 36%);
+  --shop-grid-shadow-glow: rgba(100, 60, 10, 0.25);
+  --shop-grid-inner-bg: hsl(46deg 60% 93%);
+  --shop-grid-amount-color: hsl(25deg 60% 18%);
+  --shop-price-top: hsl(128deg 70% 52%);
+  --shop-price-bottom: hsl(128deg 68% 40%);
+  --shop-price-border: hsl(128deg 60% 24%);
+  --shop-price-shadow: hsl(130deg 56% 22%);
+  --shop-grid-badge-bg: #f5a623;
+  --shop-grid-badge-color: #3c1f00;
+  --shop-grid-best-bg: #e07d08;
+  --shop-grid-best-color: #ffffff;
+}
+
+/* Reference-inspired shop awning with live wallet counters. */
+.home-page-shop .home-page-header {
+  position: relative;
+  align-items: center;
+  gap: 10px;
+  min-height: 96px;
+  padding: calc(env(safe-area-inset-top, 0px) + 12px) 14px 16px;
+  overflow: hidden;
+  background:
+    var(--shop-header-overlay),
+    var(--shop-header-stripes);
+  border-bottom: 4px solid var(--shop-header-border);
+  box-shadow: var(--shop-header-shadow);
+}
+
+.home-page-shop .home-page-header::before {
+  content: none;
+}
+
+.home-page-shop .home-page-back-btn {
+  position: relative;
+  z-index: 1;
+  width: 62px;
+  height: 62px;
+}
+
+.home-page-shop .home-page-title {
+  position: relative;
+  z-index: 1;
+  flex: 0 1 auto;
+  min-width: 0;
+  color: var(--shop-title-color);
+  font-family: 'FredokaOne', 'Nunito', sans-serif;
+  font-size: clamp(35px, 9vw, 43px);
+  font-weight: 400;
+  line-height: 1;
+  -webkit-text-stroke: 0.9px var(--shop-title-stroke);
+  text-shadow: var(--shop-title-shadow);
+}
+
+.shop-header-balances {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-left: auto;
+  min-width: 0;
+}
+
+.shop-header-balance-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 76px;
+  gap: 3px;
+  padding: 5px 9px 5px 6px;
+  border-radius: 16px;
+  background: var(--shop-balance-bg);
+  border: 2px solid var(--shop-balance-border);
+  box-shadow: var(--shop-balance-shadow);
+  color: #ffffff;
+  font-family: 'FredokaOne', 'Nunito', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1;
+  -webkit-text-stroke: 0.65px #071326;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.55);
+  white-space: nowrap;
+}
+
+.shop-header-balance-pill img {
+  width: 33px;
+  height: 33px;
+  object-fit: contain;
+  flex: 0 0 auto;
+  filter:
+    drop-shadow(0 0 1px rgba(0, 0, 0, 0.72))
+    drop-shadow(0 2px 2px rgba(0, 0, 0, 0.28));
+}
+
+/* Shop page body: no default padding — sections handle their own spacing */
+.home-page-shop .home-page-body {
+  padding: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: var(--shop-body-color);
+  background-image:
+    var(--shop-body-gradient),
+    var(--shop-body-pattern);
+  background-position: 0 0, 0 0;
+  background-size: 100% 100%, 80px 80px;
+  animation: shopPawDrift 24s linear infinite;
+}
+
+@keyframes shopPawDrift {
+  from { background-position: 0 0, -80px -80px; }
+  to   { background-position: 0 0, 80px 80px; }
+}
+
+/* ── Featured entitlement cards ─────────────────────────────── */
+
+.shop-featured-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 14px 15px 8px;
+}
+
+.shop-featured-wrapper {
+  position: relative;
+  padding-top: 18px;
+}
+
+.shop-featured-card {
+  display: flex;
+  align-items: center;
+  min-height: 122px;
+  padding: 15px 14px;
+  border-radius: 23px;
+  border: 3px solid var(--shop-card-border);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shop-card-shadow);
+}
+
+.shop-featured-card.vip {
+  background: var(--shop-vip-bg);
+}
+
+.shop-featured-card.no-ads {
+  background: var(--shop-noads-bg);
+}
+
+/* Diagonal shine sweep on the featured card */
+.shop-featured-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -60%;
+  width: 40%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+  transform: skewX(-15deg);
+  animation: shop-card-shine 4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.shop-featured-card.no-ads::before {
+  animation-delay: 2s;
+}
+
+@keyframes shop-card-shine {
+  0%, 25% { left: -60%; }
+  60%, 100% { left: 120%; }
+}
+
+.shop-featured-icon {
+  width: 88px;
+  height: 88px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.shop-featured-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.shop-featured-copy {
+  flex: 1;
+  position: relative;
+  z-index: 1;
+  padding: 0 13px;
+  min-width: 0;
+}
+
+.shop-featured-title {
+  font-family: 'FredokaOne', 'Nunito', sans-serif;
+  font-size: clamp(19px, 5vw, 25px);
+  font-weight: 400;
+  color: var(--shop-card-title-color);
+  line-height: 1.05;
+  -webkit-text-stroke: 0.85px var(--shop-card-title-stroke);
+  text-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.64),
+    0 4px 7px rgba(0, 0, 0, 0.20);
+}
+
+.shop-featured-desc {
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--shop-card-desc-color);
+  margin-top: 8px;
+  line-height: 1.24;
+}
+
+/* Task 1: featured (No-Ads / VIP) buttons reuse the grid pill style
+   (.shop-grid-price-btn) so every shop purchase button is identical. The grid
+   pill is built for a vertically-stacked card (full width, pulled up under the
+   card), so scope a layout override for the horizontal featured row: it sits as
+   an inline pill, not a full-width bar, with no upward pull. Visual look
+   (gradient, gloss, radius, typography, disabled state) comes from the shared
+   .shop-grid-price-btn rule. */
+.shop-featured-card .shop-grid-price-btn {
+  z-index: 1;
+  width: auto;
+  margin-top: 0;
+  flex-shrink: 0;
+  min-width: 106px;
+  padding-left: 18px;
+  padding-right: 18px;
+  white-space: nowrap;
+}
+
+.shop-featured-badge {
+  position: absolute;
+  top: -10px;
+  right: 13px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 178px;
+  height: 52px;
+  pointer-events: none;
+}
+
+/* Reduce + nudge down the Best Value banner on the No-Ads-Premium / VIP card. */
+.shop-featured-badge.shop-featured-badge--best-value {
+  width: 136px;
+  height: 40px;
+  top: 2px;
+}
+
+.shop-featured-badge img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* CSS sparkle overlay — twinkling 4-point stars on top of the badge art. */
+@keyframes badgeSparkle {
+  0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.35) rotate(0deg); }
+  45%      { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(20deg); }
+}
+/* JS-generated sparkle stars (count varies per badge; gold variant for the
+   premium icon). left/top are the star's centre. */
+.shop-sparkle {
+  position: absolute;
+  z-index: 4;
+  background: #fff;
+  clip-path: polygon(50% 0%, 58% 42%, 100% 50%, 58% 58%, 50% 100%, 42% 58%, 0% 50%, 42% 42%);
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.95));
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  animation: badgeSparkle 1700ms ease-in-out infinite;
+}
+.shop-sparkle--gold {
+  background: #ffd96b;
+  filter: drop-shadow(0 0 3px rgba(255, 190, 70, 0.95));
+}
+@media (prefers-reduced-motion: reduce) { .shop-sparkle { animation: none; } }
+
+/* Best Value badge: periodic enticing shake. Animates the badge IMG only so the
+   sparkle stars keep twinkling in place. Mostly at rest, with a wiggle burst. */
+@keyframes bestValueShake {
+  0%, 86%, 100% { transform: rotate(0deg) scale(1); }
+  88.5% { transform: rotate(-6deg) scale(1.07); }
+  90.5% { transform: rotate(5deg) scale(1.06); }
+  92.5% { transform: rotate(-4deg) scale(1.05); }
+  94.5% { transform: rotate(3deg) scale(1.04); }
+  97%   { transform: rotate(-1.5deg) scale(1.05); }
+}
+.shop-featured-badge--best-value img,
+.shop-grid-badge.best-value img {
+  transform-origin: 50% 50%;
+  /* 5s cycle: ~14% (≈700ms) wiggle burst, rest of the time at rest. */
+  animation: bestValueShake 5000ms ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .shop-featured-badge--best-value img,
+  .shop-grid-badge.best-value img { animation: none; }
+}
+
+/* ── Section dividers ──────────────────────────────────────── */
+
+.shop-new-section {
+  padding: 18px 15px 0;
+}
+
+.shop-new-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--shop-section-bg);
+  color: var(--shop-section-color);
+  font-family: 'LilitaOne', 'FredokaOne', 'Nunito', sans-serif;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 8px 24px;
+  border: 3px solid var(--shop-section-border);
+  border-radius: 13px;
+  margin-bottom: 15px;
+  text-align: center;
+  align-self: center;
+  width: min(100%, 360px);
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.16),
+    0 4px 0 rgba(0, 0, 0, 0.50),
+    0 8px 12px rgba(0, 0, 0, 0.18);
+  /* LilitaOne is already a heavy display face; a light stroke just firms the edges. */
+  -webkit-text-stroke: 0.6px var(--shop-section-stroke);
+  text-shadow: 0 2px 0 rgba(0, 0, 0, 0.55);
+}
+
+/* ── 3-column grid ─────────────────────────────────────────── */
+
+.shop-new-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  column-gap: 10px;
+  row-gap: 10px;
+  min-width: 0;
+  margin-bottom: 24px;
+}
+
+.shop-new-grid > * {
+  min-width: 0;
+}
+
+
+#shop-coins-grid {
+  row-gap: 20px;
+}
+
+/* Wrapper: stacks card + button vertically, holds badge absolutely */
+.shop-grid-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  position: relative;
+  gap: 0;
+}
+
+.shop-grid-card {
+  border-radius: 16px;
+  border: 5px solid var(--shop-grid-border);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 4px 4px 20px;
+  position: relative;
+  overflow: visible;
+  box-shadow:
+    0 0 0 3px rgba(0, 0, 0, 0.5),
+    0 5px 0 var(--shop-grid-shadow-color),
+    0 7px 14px var(--shop-grid-shadow-glow);
+}
+
+.shop-grid-card-inner {
+  border-radius: 10px;
+  border: 1.5px solid rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0 2px 8px;
+  box-shadow: inset 0 -8px 0 0 rgba(0, 0, 0, 0.1);
+}
+
+.shop-grid-icon {
+  width: 88%;
+  margin-left: auto;
+  margin-right: auto;
+  aspect-ratio: 1;
+  position: relative;
+  z-index: 3;
+  margin-top: 0;
+  margin-bottom: 2px;
+  overflow: hidden;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.shop-grid-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  position: relative;
+  z-index: 1;
+  filter:
+    drop-shadow(0 0 1px #000)
+    drop-shadow(0 0 1px #000)
+    drop-shadow(0 0 1px #000);
+}
+
+.shop-grid-card[data-catalog-id="hint-pack-50"] .shop-grid-icon img {
+  transform: scale(1.25);
+  transform-origin: 50% 50%;
+}
+
+.shop-grid-card[data-catalog-id="hint-pack-50"] .shop-grid-icon {
+  overflow: visible;
+}
+
+.shop-grid-icon-shine-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 2;
+  pointer-events: none;
+  -webkit-mask-image: var(--icon-src, none);
+  mask-image: var(--icon-src, none);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+/* Shine sweep — clipped by .shop-grid-icon-shine-mask to the original icon box. */
+.shop-grid-icon-shine-mask::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+  transform: translateX(-150%) skewX(-15deg);
+  animation: shop-icon-shine 3.2s ease-in-out infinite;
+  animation-delay: var(--shine-delay, 0s);
+  will-change: transform;
+}
+
+@keyframes shop-icon-shine {
+  0%, 35% { transform: translateX(-150%) skewX(-15deg); }
+  65%, 100% { transform: translateX(270%) skewX(-15deg); }
+}
+
+/* ── Card colour theme (unified amber/gold for all cards) ────── */
+.shop-grid-card--hints,
+.shop-grid-card--coins {
+  background: var(--shop-grid-bg);
+  border-color: var(--shop-grid-border);
+  box-shadow:
+    0 0 0 3px rgba(0, 0, 0, 0.5),
+    0 5px 0 var(--shop-grid-shadow-color),
+    0 7px 14px var(--shop-grid-shadow-glow);
+}
+
+.shop-grid-card--hints .shop-grid-card-inner,
+.shop-grid-card--coins .shop-grid-card-inner {
+  background: var(--shop-grid-inner-bg);
+}
+
+/* ── Amount text ──────────────────────────────────────────── */
+.shop-grid-amount {
+  font-family: 'FredokaOne', 'Nunito', sans-serif;
+  font-size: clamp(16.38px, 5.265vw, 25.74px);
+  font-weight: 700;
+  color: #fff;
+  -webkit-text-stroke: 0.8px #000;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.35);
+  margin-bottom: 0;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Unified juicy candy-pill button (.btn-juicy anchor) ─────── */
+.shop-grid-price-btn {
+  position: relative;
+  overflow: hidden;
+  margin-top: -14px;
+  z-index: 2;
+  background: linear-gradient(to bottom,
+    var(--shop-price-top) 0%,
+    var(--shop-price-bottom) 100%
+  );
+  border: 2px solid var(--shop-price-border);
+  border-radius: 999px;
+  padding: 10px 0;
+  width: 100%;
+  cursor: pointer;
+  text-align: center;
+  font-family: 'FredokaOne', 'Nunito', sans-serif;
+  font-size: 23px;
+  font-weight: 400;
+  color: #fff;
+  -webkit-text-stroke: 0.8px #000;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.35);
+  box-shadow:
+    0 5px 0 var(--shop-price-shadow),
+    0 7px 10px rgba(0, 0, 0, 0.28);
+  transition: transform 60ms ease, box-shadow 60ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Top-half gloss strip */
+.shop-grid-price-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 52%;
+  border-radius: 999px 999px 60% 60%;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.60) 0%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+  pointer-events: none;
+}
+
+/* Small sharp top-left specular dot */
+.shop-grid-price-btn::after {
+  content: '';
+  position: absolute;
+  top: 12%;
+  left: 14%;
+  width: 14%;
+  height: 22%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at 40% 40%,
+    rgba(255, 255, 255, 0.92) 0%,
+    rgba(255, 255, 255, 0.55) 30%,
+    transparent 65%
+  );
+  pointer-events: none;
+  transform: rotate(-12deg);
+}
+
+/* Press: sinks 4px, bevel collapses */
+.shop-grid-price-btn:active {
+  transform: translateY(4px);
+  box-shadow:
+    0 1px 0 var(--shop-price-shadow),
+    0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.shop-grid-price-btn:disabled {
+  background: rgba(0, 0, 0, 0.18) !important;
+  color: rgba(255, 255, 255, 0.5) !important;
+  -webkit-text-stroke: 0 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Purchasing: the tapped button goes greyscale + pressed (price text stays
+   visible, width unchanged). Only this button changes; the rest keep their look. */
+.shop-purchase-btn.shop-btn-purchasing,
+.shop-grid-price-btn.shop-btn-purchasing {
+  filter: grayscale(1) brightness(0.95);
+  transform: translateY(4px);
+  box-shadow:
+    0 1px 0 var(--shop-price-shadow),
+    0 2px 4px rgba(0, 0, 0, 0.2);
+  cursor: default;
+}
+
+
+.shop-grid-badge {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  width: 106px;
+  height: 31px;
+  pointer-events: none;
+}
+
+.shop-grid-badge img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* grid + featured badge sparkles are JS spans (.shop-sparkle) — see addSparkles. */
+
+.shop-grid-badge-spacer {
+  height: 22px; /* same height as badge row so icon Y is consistent */
+  flex-shrink: 0;
+}
+
+/* Reduce-motion: disable shine animations */
+@media (prefers-reduced-motion: reduce) {
+  .home-page-shop .home-page-body,
+  .shop-featured-card::before,
+  .shop-grid-icon::before {
+    animation: none;
+  }
+}
+
+/* "Out of Lives" title art (generated set) — mirrors the win card's title
+   footprint; the h2 keeps the accessible name via the img alt. */
+#level-failed-overlay .level-failed-title-art { margin: 0 0 2px; }
+#level-failed-overlay .level-failed-title-art img {
+  display: block;
+  width: min(78%, 340px);
+  margin: 0 auto;
+  height: auto;
+}
+
+/* Generated loading icon (portal req_97aebf: loading=2) spins gently on the
+   scene transition cover — replaces the FTD mascot avatar. */
+.scene-transition-spinner { animation: loadingSpin 1.6s linear infinite; }
+@keyframes loadingSpin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .scene-transition-spinner { animation: none; } }
+
+
+/* ============================================================
+   COLOR SCHEME TOKENS (plan section C — real hex, no generation)
+   The div-painted surfaces read these vars; a palette swap is one
+   html[data-scheme] attribute. Generated ASSETS keep their baked
+   colors — palette-carrying assets get regenerated separately.
+   Defaults reproduce the shipped cream/amber look exactly.
+   ============================================================ */
+:root {
+  --sch-bg-top: #fff2cf;
+  --sch-bg-mid: #ffd79a;
+  --sch-bg-bot: #f1a957;
+  --sch-spot: rgba(255, 251, 232, 0.85);
+  --sch-vig: rgba(120, 62, 18, 0.34);
+  --sch-nav-top: #7a4a22;
+  --sch-nav-bot: #5c3414;
+  --sch-nav-border: rgba(255, 190, 80, 0.22);
+  --sch-cta-top: hsl(128deg 70% 52%);
+  --sch-cta-bottom: hsl(128deg 68% 40%);
+  --sch-cta-border: hsl(128deg 60% 24%);
+  --sch-cta-shadow: hsl(130deg 56% 22%);
+  /* Result overlays get real color (Batu: not pale/translucent). */
+  --sch-win-overlay-bg: linear-gradient(180deg, rgba(255, 205, 120, 0.62) 0%, rgba(214, 138, 52, 0.66) 55%, rgba(150, 84, 24, 0.72) 100%);
+  --sch-fail-overlay-bg: linear-gradient(180deg, rgba(64, 78, 108, 0.62) 0%, rgba(84, 66, 56, 0.66) 50%, rgba(56, 38, 26, 0.74) 100%);
+}
+html[data-scheme="mint"] {
+  --sch-bg-top: #ecfaf3; --sch-bg-mid: #cdeee0; --sch-bg-bot: #a3dcc4;
+  --sch-spot: rgba(244, 255, 250, 0.85); --sch-vig: rgba(22, 92, 70, 0.30);
+  --sch-nav-top: #33806a; --sch-nav-bot: #22594a; --sch-nav-border: rgba(160, 255, 215, 0.25);
+  --sch-win-overlay-bg: linear-gradient(180deg, rgba(146, 226, 196, 0.60) 0%, rgba(58, 152, 120, 0.68) 100%);
+  --sch-fail-overlay-bg: linear-gradient(180deg, rgba(52, 88, 78, 0.64) 0%, rgba(28, 54, 46, 0.76) 100%);
+}
+html[data-scheme="berry"] {
+  --sch-bg-top: #ffeef3; --sch-bg-mid: #ffd2e0; --sch-bg-bot: #efaac2;
+  --sch-spot: rgba(255, 244, 248, 0.85); --sch-vig: rgba(112, 24, 60, 0.32);
+  --sch-nav-top: #7d3053; --sch-nav-bot: #5a2038; --sch-nav-border: rgba(255, 170, 205, 0.25);
+  --sch-win-overlay-bg: linear-gradient(180deg, rgba(240, 160, 195, 0.60) 0%, rgba(168, 66, 110, 0.68) 100%);
+  --sch-fail-overlay-bg: linear-gradient(180deg, rgba(92, 52, 70, 0.64) 0%, rgba(54, 26, 40, 0.76) 100%);
+}
+html[data-scheme="ocean"] {
+  --sch-bg-top: #ebf5ff; --sch-bg-mid: #c9e3fa; --sch-bg-bot: #9dc7ef;
+  --sch-spot: rgba(244, 250, 255, 0.85); --sch-vig: rgba(20, 62, 110, 0.32);
+  --sch-nav-top: #2f5a7d; --sch-nav-bot: #1f3f5a; --sch-nav-border: rgba(150, 210, 255, 0.25);
+  --sch-win-overlay-bg: linear-gradient(180deg, rgba(140, 195, 245, 0.60) 0%, rgba(52, 110, 178, 0.68) 100%);
+  --sch-fail-overlay-bg: linear-gradient(180deg, rgba(48, 68, 96, 0.64) 0%, rgba(24, 36, 56, 0.76) 100%);
+}
+html[data-scheme="sunset"] {
+  --sch-bg-top: #fff0e0; --sch-bg-mid: #ffcfa4; --sch-bg-bot: #f0925c;
+  --sch-spot: rgba(255, 246, 234, 0.85); --sch-vig: rgba(122, 44, 16, 0.34);
+  --sch-nav-top: #8a4a26; --sch-nav-bot: #633016; --sch-nav-border: rgba(255, 180, 110, 0.25);
+  --sch-win-overlay-bg: linear-gradient(180deg, rgba(255, 178, 110, 0.62) 0%, rgba(198, 96, 40, 0.70) 100%);
+  --sch-fail-overlay-bg: linear-gradient(180deg, rgba(96, 58, 44, 0.64) 0%, rgba(58, 32, 22, 0.76) 100%);
+}
+html[data-scheme="midnight"] {
+  --sch-bg-top: #323761; --sch-bg-mid: #262b4e; --sch-bg-bot: #191d3a;
+  --sch-spot: rgba(120, 130, 200, 0.30); --sch-vig: rgba(0, 0, 0, 0.45);
+  --sch-nav-top: #171a33; --sch-nav-bot: #0d0f22; --sch-nav-border: rgba(140, 150, 230, 0.25);
+  --sch-win-overlay-bg: linear-gradient(180deg, rgba(70, 78, 140, 0.66) 0%, rgba(30, 34, 70, 0.80) 100%);
+  --sch-fail-overlay-bg: linear-gradient(180deg, rgba(44, 48, 84, 0.70) 0%, rgba(16, 18, 38, 0.84) 100%);
+}
+
+/* Surfaces re-pointed at scheme tokens (same specificity, later cascade). */
+#hud-overlay.home-mode {
+  background:
+    radial-gradient(118% 72% at 50% 7%, var(--sch-spot) 0%, transparent 52%),
+    radial-gradient(145% 118% at 50% 116%, var(--sch-vig) 0%, transparent 56%),
+    linear-gradient(180deg, var(--sch-bg-top) 0%, var(--sch-bg-mid) 48%, var(--sch-bg-bot) 100%);
+}
+#home-shell .home-nav-bar, .play-entry-home-shell .home-nav-bar, .home-nav-bar {
+  background: linear-gradient(180deg, var(--sch-nav-top) 0%, var(--sch-nav-bot) 100%);
+  border-top: 1.5px solid var(--sch-nav-border);
+}
+#home-play-now.home-play-now-btn {
+  --shop-price-top: var(--sch-cta-top);
+  --shop-price-bottom: var(--sch-cta-bottom);
+  --shop-price-border: var(--sch-cta-border);
+  --shop-price-shadow: var(--sch-cta-shadow);
+}
+#level-complete-overlay.fab-complete { background: var(--sch-win-overlay-bg); }
+#level-failed-overlay { background: var(--sch-fail-overlay-bg); }
+
+/* Shop surfaces per scheme — mint (portal req_53e5eb). Structural surfaces go
+   mint/teal; gold stays on value elements (grids, prices, badges). The body
+   pattern swaps the leftover paw motif for the star. */
+html[data-scheme="mint"] .home-page-shop {
+  --shop-header-stripes: repeating-linear-gradient(-45deg, #7adfc4 0, #7adfc4 32px, #37a98a 32px, #37a98a 64px);
+  --shop-header-border: #1f6b53;
+  --shop-header-shadow: inset 0 -12px 18px rgba(10, 74, 56, 0.16), 0 7px 0 rgba(0, 0, 0, 0.16);
+  --shop-header-button-color: #0f3a2c;
+  --shop-header-button-border: rgba(8, 52, 38, 0.62);
+  --shop-header-button-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.34), 0 4px 0 rgba(12, 74, 54, 0.42);
+  --shop-title-color: #0f3a2c;
+  --shop-title-shadow: 0 2px 0 rgba(255, 255, 255, 0.24), 0 4px 8px rgba(8, 60, 42, 0.25);
+  --shop-balance-bg: rgba(14, 70, 54, 0.58);
+  --shop-balance-border: rgba(4, 38, 28, 0.64);
+  --shop-balance-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.20), 0 4px 0 rgba(10, 62, 46, 0.42), 0 7px 11px rgba(0, 0, 0, 0.16);
+  --shop-body-color: #ecfaf3;
+  --shop-body-gradient: linear-gradient(180deg, #ecfaf3 0%, #cdeee0 48%, #a3dcc4 100%);
+  --shop-body-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='86' height='86'%3E%3Cpath d='M43 12l7 24 24 7-24 7-7 24-7-24-24-7 24-7z' fill='%2337a98a' fill-opacity='0.10'/%3E%3C/svg%3E");
+  --shop-card-desc-color: rgba(16, 66, 50, 0.82);
+  --shop-section-bg: linear-gradient(180deg, #2e7d64 0%, #1d5847 100%);
+  --shop-section-border: rgba(6, 36, 27, 0.78);
+  --shop-section-stroke: #06251b;
+}
+
+/* Square tile art: the kit's node-dot radius token defaults to a circle
+   (999px, legacy candy discs) which clipped the square tiles into discs and
+   drew the white outline as a ring. Match the calm tiles' corner radius. */
+.home-map-stage .fab-levelmap-node-dot {
+  --fab-levelmap-node-radius: 26px;
+  border-radius: 26px;
+}
+
+/* Settings page per scheme — mint (structural surfaces only; cards stay warm
+   cream like the rest of the mint look). */
+html[data-scheme="mint"] .home-page-settings {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.58) 0 0),
+    radial-gradient(circle at 12% 9%, rgba(255, 255, 255, 0.92) 0 20px, transparent 21px),
+    radial-gradient(circle at 78% 13%, rgba(255, 255, 255, 0.72) 0 24px, transparent 25px),
+    linear-gradient(180deg, #ecfaf3 0%, #cdeee0 58%, #a3dcc4 100%);
+}
+html[data-scheme="mint"] .home-page-settings .home-page-header {
+  border-bottom: 4px solid #1f6b53;
+  background:
+    linear-gradient(180deg, rgba(235, 255, 247, 0.44) 0%, rgba(255, 255, 255, 0) 58%),
+    repeating-linear-gradient(-45deg, #7adfc4 0, #7adfc4 32px, #37a98a 32px, #37a98a 64px);
+  box-shadow:
+    inset 0 -22px 28px rgba(10, 74, 56, 0.22),
+    0 7px 0 rgba(0, 0, 0, 0.14);
+}
+html[data-scheme="mint"] .home-page-settings .home-page-header::after {
+  background: linear-gradient(180deg, rgba(10, 60, 44, 0), rgba(10, 60, 44, 0.2));
+}
+html[data-scheme="mint"] .home-page-settings .home-page-title {
+  color: #0f3a2c;
+  -webkit-text-stroke: 0.95px rgba(235, 255, 247, 0.7);
+  text-shadow:
+    0 2px 0 #eafff6,
+    0 4px 0 rgba(6, 44, 32, 0.24),
+    0 7px 12px rgba(6, 44, 32, 0.22);
+}
