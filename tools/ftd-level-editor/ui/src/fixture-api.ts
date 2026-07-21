@@ -25,7 +25,7 @@ function requestPath(input: RequestInfo | URL): string {
     throw new Error('Fixture requests must use same-origin paths');
   }
   const parsed = new URL(input, 'http://fixture.invalid');
-  return parsed.pathname;
+  return `${parsed.pathname}${parsed.search}`;
 }
 
 function isProtected(path: string): boolean {

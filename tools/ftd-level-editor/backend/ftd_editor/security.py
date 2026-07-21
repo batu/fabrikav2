@@ -122,6 +122,14 @@ class SecretRedactionFilter(logging.Filter):
     def filter(self, record: logging.LogRecord) -> bool:
         record.msg = self._redactor.sanitize_text(record.getMessage())
         record.args = ()
+        if record.exc_info is not None:
+            rendered = logging.Formatter().formatException(record.exc_info)
+            record.exc_text = self._redactor.sanitize_text(rendered)
+            record.exc_info = None
+        elif record.exc_text is not None:
+            record.exc_text = self._redactor.sanitize_text(record.exc_text)
+        if record.stack_info is not None:
+            record.stack_info = self._redactor.sanitize_text(record.stack_info)
         return True
 
 
@@ -219,6 +227,42 @@ class LocalRequestGuardMiddleware:
                 },
             )
         await response(scope, receive, send)
+
+
+class SecretBoundaryMiddleware:
+    """Return sanitized failures without exposing raw errors to the ASGI server."""
+
+    def __init__(self, app: ASGIApp, redactor: SecretRedactor):
+        self._app = app
+        self._redactor = redactor
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] != "http":
+            await self._app(scope, receive, send)
+            return
+        response_started = False
+
+        async def track_start(message: Message) -> None:
+            nonlocal response_started
+            if message["type"] == "http.response.start":
+                response_started = True
+            await send(message)
+
+        try:
+            await self._app(scope, receive, track_start)
+        except Exception as error:
+            if response_started:
+                raise
+            response = JSONResponse(
+                {"error": self._redactor.sanitize_exception(error)},
+                status_code=500,
+                headers={
+                    "Cache-Control": "no-store",
+                    "Referrer-Policy": "no-referrer",
+                    "X-Content-Type-Options": "nosniff",
+                },
+            )
+            await response(scope, receive, send)
 
 
 def sanitized_json(redactor: SecretRedactor, value: Any) -> bytes:

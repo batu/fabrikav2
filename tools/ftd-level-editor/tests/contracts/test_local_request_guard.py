@@ -1,6 +1,12 @@
 from __future__ import annotations
 
+import re
+
 from fastapi import FastAPI
+from fastapi.testclient import TestClient
+
+from ftd_editor.app import create_app
+from ftd_editor.settings import EditorSettings
 
 
 def test_same_origin_bootstrap_delivers_launch_credential(client, launch_credential: str) -> None:
@@ -10,6 +16,58 @@ def test_same_origin_bootstrap_delivers_launch_credential(client, launch_credent
     assert response.json() == {"launchCredential": launch_credential}
     assert response.headers["cache-control"] == "no-store"
     assert response.headers["referrer-policy"] == "no-referrer"
+
+
+def test_each_composition_gets_an_independent_url_safe_credential(
+    editor_settings: EditorSettings,
+    app_components,
+) -> None:
+    first = create_app(editor_settings, app_components)
+    second = create_app(editor_settings, app_components)
+    first_credential = first.state.launch_credential
+    second_credential = second.state.launch_credential
+
+    assert first_credential != second_credential
+    assert re.fullmatch(r"[A-Za-z0-9_-]{43}", first_credential)
+    assert re.fullmatch(r"[A-Za-z0-9_-]{43}", second_credential)
+
+    with (
+        TestClient(first, raise_server_exceptions=True) as first_client,
+        TestClient(second, raise_server_exceptions=True) as second_client,
+    ):
+        assert first_client.get(
+            "/api/status",
+            headers={"X-FTD-Launch-Credential": second_credential},
+        ).status_code == 401
+        assert second_client.get(
+            "/api/status",
+            headers={"X-FTD-Launch-Credential": first_credential},
+        ).status_code == 401
+
+
+def test_ipv6_loopback_composes_valid_host_and_origin_authorities(
+    tmp_path,
+    app_components,
+) -> None:
+    settings = EditorSettings.for_development(tmp_path / "ipv6", bind_host="::1")
+    assert settings.allowed_hosts == ("[::1]:5192", "[::1]")
+    assert settings.allowed_origins == ("http://[::1]:5192",)
+
+    ipv6_app = create_app(settings, app_components)
+    credential = ipv6_app.state.launch_credential
+    with TestClient(
+        ipv6_app,
+        raise_server_exceptions=True,
+    ) as ipv6_client:
+        response = ipv6_client.get(
+            "/api/status",
+            headers={
+                "Host": "[::1]:5192",
+                "Origin": "http://[::1]:5192",
+                "X-FTD-Launch-Credential": credential,
+            },
+        )
+    assert response.status_code == 200
 
 
 def test_hostile_host_cannot_read_bootstrap(client) -> None:

@@ -2,17 +2,28 @@
 
 from __future__ import annotations
 
+import logging
 import secrets as secrets_module
 from collections.abc import AsyncIterator, Callable, Mapping
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Security
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, ConfigDict
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from .security import LocalRequestGuardMiddleware, SecretRedactor
+from .security import (
+    LAUNCH_CREDENTIAL_HEADER,
+    LocalRequestGuardMiddleware,
+    SecretBoundaryMiddleware,
+    SecretRedactionFilter,
+    SecretRedactor,
+)
 from .settings import EditorSettings
 
 
@@ -105,11 +116,20 @@ def create_app(settings: EditorSettings, components: AppComponents) -> FastAPI:
 
     settings.validate(require_disposable_root=settings.environment != "production")
     launch_credential = secrets_module.token_urlsafe(32)
+    runtime_logger = logging.getLogger("ftd_editor.runtime")
+    server_logger = logging.getLogger("uvicorn.error")
+    redaction_filter = SecretRedactionFilter(components.redactor)
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-        settings.workspace.prepare()
-        yield
+        runtime_logger.addFilter(redaction_filter)
+        server_logger.addFilter(redaction_filter)
+        try:
+            settings.workspace.prepare()
+            yield
+        finally:
+            server_logger.removeFilter(redaction_filter)
+            runtime_logger.removeFilter(redaction_filter)
 
     application = FastAPI(
         title="Find the Dog Level Editor",
@@ -124,19 +144,42 @@ def create_app(settings: EditorSettings, components: AppComponents) -> FastAPI:
     application.state.worker = components.worker
     application.state.providers = components.providers
     application.state.redactor = components.redactor
+    application.state.logger = runtime_logger
     application.state.launch_credential = launch_credential
     application.add_middleware(
         LocalRequestGuardMiddleware,
         settings=settings,
         credential=launch_credential,
     )
+    application.add_middleware(
+        SecretBoundaryMiddleware,
+        redactor=components.redactor,
+    )
 
-    @application.exception_handler(Exception)
-    async def redact_unhandled(_: Request, error: Exception) -> JSONResponse:
+    @application.exception_handler(StarletteHTTPException)
+    async def redact_http_error(_: Request, error: StarletteHTTPException) -> JSONResponse:
         return JSONResponse(
-            {"error": components.redactor.sanitize_exception(error)},
-            status_code=500,
+            {"detail": components.redactor.sanitize(error.detail)},
+            status_code=error.status_code,
+            headers={
+                str(key): components.redactor.sanitize_text(str(value))
+                for key, value in (error.headers or {}).items()
+            },
         )
+
+    @application.exception_handler(RequestValidationError)
+    async def redact_validation_error(_: Request, error: RequestValidationError) -> JSONResponse:
+        return JSONResponse(
+            {"detail": components.redactor.sanitize(jsonable_encoder(error.errors()))},
+            status_code=422,
+        )
+
+    launch_credential_scheme = APIKeyHeader(
+        name=LAUNCH_CREDENTIAL_HEADER,
+        scheme_name="LaunchCredential",
+        auto_error=False,
+    )
+    protected_dependencies = [Security(launch_credential_scheme)]
 
     @application.get(
         "/bootstrap",
@@ -156,6 +199,7 @@ def create_app(settings: EditorSettings, components: AppComponents) -> FastAPI:
             "x-ftd-cost": "none",
             "x-ftd-authorization": "launch-credential",
         },
+        dependencies=protected_dependencies,
     )
     def status() -> EditorStatus:
         return EditorStatus(
@@ -169,6 +213,7 @@ def create_app(settings: EditorSettings, components: AppComponents) -> FastAPI:
         "/api/openapi.json",
         operation_id="getEditorOpenApi",
         include_in_schema=False,
+        dependencies=protected_dependencies,
     )
     def openapi_document() -> dict[str, Any]:
         return application.openapi()

@@ -43,4 +43,13 @@ describe('fail-closed browser fixture', () => {
       /Fixture requests must use same-origin paths/,
     );
   });
+
+  it('rejects unlisted query variants of scripted paths', async () => {
+    await assert.rejects(
+      fixtureFetch('/api/status?unlisted=true', {
+        headers: { 'X-FTD-Launch-Credential': 'fixture-launch-credential' },
+      }),
+      /Unmatched protected fixture request: GET \/api\/status\?unlisted=true/,
+    );
+  });
 });

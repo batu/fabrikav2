@@ -30,6 +30,18 @@ def _is_loopback(host: str) -> bool:
         return False
 
 
+def _host_authority(host: str, port: int | None = None) -> str:
+    """Format one exact HTTP Host/Origin authority, including IPv6 brackets."""
+
+    try:
+        parsed = ipaddress.ip_address(host)
+    except ValueError:
+        literal = host
+    else:
+        literal = f"[{host}]" if parsed.version == 6 else host
+    return f"{literal}:{port}" if port is not None else literal
+
+
 @dataclass(frozen=True, slots=True)
 class WorkspacePaths:
     """All mutable editor roots, fixed for the lifetime of one app."""
@@ -82,7 +94,6 @@ class EditorSettings:
     allowed_origins: tuple[str, ...]
     forbidden_roots: tuple[Path, ...]
     prewarm: bool = False
-    remote_enabled: bool = False
 
     @classmethod
     def for_test(
@@ -115,8 +126,11 @@ class EditorSettings:
         bind_port: int = 5192,
     ) -> Self:
         development_root = root or Path(tempfile.mkdtemp(prefix="ftd-editor-dev-"))
-        hosts = (f"{bind_host}:{bind_port}", bind_host)
-        origins = (f"http://{bind_host}:{bind_port}",)
+        hosts = (
+            _host_authority(bind_host, bind_port),
+            _host_authority(bind_host),
+        )
+        origins = (f"http://{_host_authority(bind_host, bind_port)}",)
         settings = cls(
             workspace=WorkspacePaths.below(development_root),
             environment="development",
@@ -139,15 +153,17 @@ class EditorSettings:
         allowed_hosts: tuple[str, ...] | None = None,
         allowed_origins: tuple[str, ...] | None = None,
         forbidden_roots: tuple[Path, ...] = (),
-        remote_enabled: bool = False,
     ) -> Self:
         if not data_root.is_absolute():
             raise SettingsError("production data root must be an explicit absolute path")
         resolved_root = _resolved(data_root)
         if ".twf-worktrees" in resolved_root.parts:
             raise SettingsError("production data root must be outside Git worktrees")
-        defaults_hosts = (f"{bind_host}:{bind_port}", bind_host)
-        defaults_origins = (f"http://{bind_host}:{bind_port}",)
+        defaults_hosts = (
+            _host_authority(bind_host, bind_port),
+            _host_authority(bind_host),
+        )
+        defaults_origins = (f"http://{_host_authority(bind_host, bind_port)}",)
         settings = cls(
             workspace=WorkspacePaths.below(resolved_root),
             environment="production",
@@ -156,7 +172,6 @@ class EditorSettings:
             allowed_hosts=allowed_hosts or defaults_hosts,
             allowed_origins=allowed_origins or defaults_origins,
             forbidden_roots=tuple(_resolved(path) for path in forbidden_roots),
-            remote_enabled=remote_enabled,
         )
         settings.validate(require_disposable_root=False)
         return settings
@@ -170,8 +185,8 @@ class EditorSettings:
                     raise SettingsError(f"editor path overlaps forbidden root: {forbidden}")
         if require_disposable_root and any(not _is_below(path, root) for path in paths):
             raise SettingsError("test/development operational roots must share one disposable root")
-        if not _is_loopback(self.bind_host) and not self.remote_enabled:
-            raise SettingsError("editor binds to loopback unless secure remote mode is explicit")
+        if not _is_loopback(self.bind_host):
+            raise SettingsError("editor binds to loopback; remote mode is not implemented")
         if not self.allowed_hosts or not self.allowed_origins:
             raise SettingsError("exact allowed Host and Origin values are required")
         if any("*" in value for value in (*self.allowed_hosts, *self.allowed_origins)):

@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import importlib
 import json
+import os
 import pkgutil
 import sqlite3
 import subprocess
@@ -10,6 +11,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from fastapi.testclient import TestClient
 
 import ftd_editor
 from ftd_editor.app import FailClosedProviderError
@@ -24,7 +26,7 @@ def _sha256(path: Path) -> str:
 
 
 def test_test_lifespan_cannot_open_or_modify_legacy_ledger(
-    client,
+    app,
     legacy_fixture_root: Path,
     authorized_headers: dict[str, str],
 ) -> None:
@@ -36,9 +38,11 @@ def test_test_lifespan_cannot_open_or_modify_legacy_ledger(
     connection.close()
     before = _sha256(ledger)
 
-    response = client.get("/api/status", headers=authorized_headers)
+    with TestClient(app, raise_server_exceptions=True) as client:
+        response = client.get("/api/status", headers=authorized_headers)
 
-    assert response.status_code == 200
+        assert response.status_code == 200
+        assert _sha256(ledger) == before
     assert _sha256(ledger) == before
     connection = sqlite3.connect(ledger)
     assert connection.execute("select id, status from jobs").fetchall() == [
@@ -70,14 +74,61 @@ def test_non_loopback_bind_requires_explicit_secure_remote_settings(tmp_path: Pa
     with pytest.raises(SettingsError, match="loopback"):
         EditorSettings.for_development(tmp_path / "target", bind_host="0.0.0.0")
 
+    with pytest.raises(SettingsError, match="remote mode is not implemented"):
+        EditorSettings.for_production(tmp_path / "production", bind_host="0.0.0.0")
+
 
 def test_importing_every_module_has_no_composition_side_effects(tmp_path: Path) -> None:
     script = """
+import builtins
+import io
 import json
+import multiprocessing
+import os
 import pkgutil
+import socket
+import sqlite3
+import subprocess
 import threading
 from pathlib import Path
 import ftd_editor
+
+def forbidden(action):
+    def fail(*args, **kwargs):
+        raise AssertionError(f'import attempted {action}')
+    return fail
+
+original_builtin_open = builtins.open
+original_io_open = io.open
+original_os_open = os.open
+
+def guarded_builtin_open(file, mode='r', *args, **kwargs):
+    if any(flag in mode for flag in ('w', 'a', 'x', '+')):
+        raise AssertionError(f'import attempted file write: {file}')
+    return original_builtin_open(file, mode, *args, **kwargs)
+
+def guarded_io_open(file, mode='r', *args, **kwargs):
+    if any(flag in mode for flag in ('w', 'a', 'x', '+')):
+        raise AssertionError(f'import attempted file write: {file}')
+    return original_io_open(file, mode, *args, **kwargs)
+
+def guarded_os_open(file, flags, *args, **kwargs):
+    write_flags = os.O_WRONLY | os.O_RDWR | os.O_CREAT | os.O_TRUNC | os.O_APPEND
+    if flags & write_flags:
+        raise AssertionError(f'import attempted file write: {file}')
+    return original_os_open(file, flags, *args, **kwargs)
+
+builtins.open = guarded_builtin_open
+io.open = guarded_io_open
+os.open = guarded_os_open
+os.mkdir = forbidden('directory creation')
+os.makedirs = forbidden('directory creation')
+sqlite3.connect = forbidden('SQLite connection')
+socket.socket.bind = forbidden('socket bind')
+socket.socket.connect = forbidden('socket connect')
+subprocess.Popen = forbidden('child process')
+threading.Thread.start = forbidden('thread start')
+multiprocessing.Process.start = forbidden('process start')
 
 before = {thread.ident for thread in threading.enumerate()}
 for module in pkgutil.walk_packages(ftd_editor.__path__, ftd_editor.__name__ + '.'):
@@ -96,6 +147,7 @@ print(json.dumps({
         check=True,
         capture_output=True,
         text=True,
+        env={**os.environ, "PYTHONDONTWRITEBYTECODE": "1"},
     )
     assert result.stderr == ""
     assert result.stdout.strip() == (
@@ -131,7 +183,16 @@ def test_openapi_and_route_inventory_are_frozen(app) -> None:
         ),
         key=lambda route: (route["path"], route["methods"]),
     )
-    openapi = json.dumps(app.openapi(), sort_keys=True, separators=(",", ":"))
+    openapi_document = app.openapi()
+    assert openapi_document["components"]["securitySchemes"]["LaunchCredential"] == {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-FTD-Launch-Credential",
+    }
+    assert openapi_document["paths"]["/api/status"]["get"]["security"] == [
+        {"LaunchCredential": []}
+    ]
+    openapi = json.dumps(openapi_document, sort_keys=True, separators=(",", ":"))
     actual = {
         "routes": routes,
         "openapiSha256": hashlib.sha256(openapi.encode()).hexdigest(),

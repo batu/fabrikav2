@@ -4,11 +4,17 @@ import json
 import logging
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from fastapi.testclient import TestClient
+from pydantic import BaseModel
 
 from ftd_editor.security import SecretRedactionFilter
 
 from conftest import CANARY_SECRET
+
+
+class FixtureBody(BaseModel):
+    count: int
 
 
 def test_composition_secrets_are_not_represented_or_serializable(app_components) -> None:
@@ -36,18 +42,50 @@ def test_recursive_persistence_sanitizer_removes_canaries_and_credentials(
 
 def test_representative_api_failure_is_redacted(
     app: FastAPI,
-    client,
     authorized_headers: dict[str, str],
 ) -> None:
     @app.get("/api/_fixture/fail")
     def fail() -> None:
         raise RuntimeError(f"provider failed with token={CANARY_SECRET}")
 
-    response = client.get("/api/_fixture/fail", headers=authorized_headers)
+    with TestClient(app, raise_server_exceptions=True) as client:
+        response = client.get("/api/_fixture/fail", headers=authorized_headers)
 
     assert response.status_code == 500
     assert CANARY_SECRET not in response.text
     assert "<redacted>" in response.text
+
+
+def test_framework_error_paths_are_redacted(
+    app: FastAPI,
+    authorized_headers: dict[str, str],
+) -> None:
+    @app.get("/api/_fixture/http-error")
+    def http_error() -> None:
+        raise HTTPException(status_code=409, detail=f"provider token={CANARY_SECRET}")
+
+    @app.post("/api/_fixture/validation-error")
+    def validation_error(body: FixtureBody) -> dict[str, bool]:
+        del body
+        return {"ok": True}
+
+    with TestClient(app, raise_server_exceptions=True) as client:
+        http_response = client.get(
+            "/api/_fixture/http-error",
+            headers=authorized_headers,
+        )
+        validation_response = client.post(
+            "/api/_fixture/validation-error",
+            headers={**authorized_headers, "Origin": "http://testserver"},
+            json={"count": CANARY_SECRET},
+        )
+
+    assert http_response.status_code == 409
+    assert validation_response.status_code == 422
+    assert CANARY_SECRET not in http_response.text
+    assert CANARY_SECRET not in validation_response.text
+    assert "<redacted>" in http_response.text
+    assert "<redacted>" in validation_response.text
 
 
 def test_logging_filter_redacts_canary(caplog, app_components) -> None:
@@ -59,6 +97,18 @@ def test_logging_filter_redacts_canary(caplog, app_components) -> None:
             logger.error("provider failure: %s", CANARY_SECRET)
     finally:
         logger.removeFilter(redaction_filter)
+
+    assert CANARY_SECRET not in caplog.text
+    assert "<redacted>" in caplog.text
+
+
+def test_composed_logger_redacts_exception_traceback(app: FastAPI, caplog) -> None:
+    with TestClient(app, raise_server_exceptions=True):
+        with caplog.at_level(logging.ERROR, logger=app.state.logger.name):
+            try:
+                raise RuntimeError(f"provider failure: {CANARY_SECRET}")
+            except RuntimeError:
+                app.state.logger.exception("provider invocation failed")
 
     assert CANARY_SECRET not in caplog.text
     assert "<redacted>" in caplog.text
