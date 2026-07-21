@@ -243,13 +243,13 @@ describe('environment validation', () => {
 });
 
 describe('canonical template', () => {
-  it('contains the exact 57-key placeholder-only contract with one comment per assignment', () => {
+  it('contains the exact 59-key placeholder-only contract with one comment per assignment', () => {
     const templatePath = path.join(repoRoot, 'games/find_the_dog/.env.example');
     const result = validateTemplate(templatePath, policy);
 
     expect(result.ok).toBe(true);
     expect(result.keys).toEqual([...FIND_THE_DOG_ENV_KEYS].sort());
-    expect(result.keys).toHaveLength(57);
+    expect(result.keys).toHaveLength(59);
   });
 
   it('rejects duplicate assignments even when the final key set is exact', () => {
