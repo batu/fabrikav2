@@ -77,7 +77,7 @@ function writeShellTemplate(root) {
   const tpl = join(root, 'games', 'shell_template');
   mkdirSync(join(tpl, 'design'), { recursive: true });
   mkdirSync(join(tpl, 'tests', 'unit'), { recursive: true });
-  mkdirSync(join(tpl, 'native-resources', 'ios', 'App', 'App'), { recursive: true });
+  mkdirSync(join(tpl, 'native-resources', 'ios', 'App'), { recursive: true });
   mkdirSync(join(tpl, 'ios', 'App'), { recursive: true }); // cap-generated: must be skipped
   mkdirSync(join(tpl, 'evidence'), { recursive: true });
   writeFileSync(join(tpl, 'evidence', 'old-proof.txt'), 'test game evidence\n');
@@ -94,7 +94,7 @@ function writeShellTemplate(root) {
     'const config = { appId: "com.basegamelab.shell_template.dev", appName: "Shell Template" };\nexport default config;\n',
   );
   writeFileSync(
-    join(tpl, 'native-resources', 'ios', 'App', 'App', 'Info.plist'),
+    join(tpl, 'native-resources', 'ios', 'App', 'Info.plist'),
     '<plist><string>Shell Template</string><string>com.basegamelab.shell_template.dev</string></plist>\n',
   );
   writeFileSync(
@@ -214,7 +214,7 @@ describe('createGame', () => {
     const cap = readFileSync(join(targetDir, 'capacitor.config.ts'), 'utf8');
     expect(cap).toContain('appId: "com.basegamelab.woolprobe.dev"');
     expect(cap).toContain('appName: "Wool Probe"');
-    const plist = readFileSync(join(targetDir, 'native-resources', 'ios', 'App', 'App', 'Info.plist'), 'utf8');
+    const plist = readFileSync(join(targetDir, 'native-resources', 'ios', 'App', 'Info.plist'), 'utf8');
     expect(plist).toContain('<string>Wool Probe</string>');
     expect(plist).toContain('com.basegamelab.woolprobe.dev');
     expect(readFileSync(join(targetDir, 'tests', 'unit', 'smoke.test.ts'), 'utf8')).toContain('toBe("wool_probe")');
@@ -223,7 +223,7 @@ describe('createGame', () => {
     expect(existsSync(join(targetDir, 'ios'))).toBe(false);
     expect(existsSync(join(targetDir, 'evidence', 'old-proof.txt'))).toBe(false);
     expect(existsSync(join(targetDir, 'evidence'))).toBe(true);
-    expect(existsSync(join(targetDir, 'native-resources', 'ios', 'App', 'App', 'Info.plist'))).toBe(true);
+    expect(existsSync(join(targetDir, 'native-resources', 'ios', 'App', 'Info.plist'))).toBe(true);
   });
 
   it('rejects an unknown template', () => {

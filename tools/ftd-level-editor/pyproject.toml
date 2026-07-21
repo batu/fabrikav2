@@ -1,0 +1,34 @@
+[project]
+name = "ftd-editor"
+version = "0.1.0"
+description = "Find the Dog level authoring tool"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi==0.136.0",
+  "httpx==0.28.1",
+  "pydantic==2.12.5",
+  "uvicorn==0.44.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["backend/ftd_editor"]
+
+[dependency-groups]
+dev = [
+  "pytest==9.0.2",
+  "pytest-asyncio==1.3.0",
+  "pytest-repeat==0.9.4",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers"
+markers = [
+  "paid: requires an explicitly authorized live provider invocation",
+  "stress: repeated race or crash-recovery verification",
+  "legacy_census: reads a separately supplied legacy corpus fixture",
+]
