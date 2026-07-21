@@ -58,10 +58,19 @@ final class InsituTourTests: XCTestCase {
     ) -> TourMarkerResult {
         let exactLabel = "tourstate:\(state)"
         let failedLabel = "\(exactLabel)-FAILED"
-        let marker = app.descendants(matching: .any)
+        // Query staticTexts (the marker publishes role="text"), NOT
+        // .descendants(matching: .any): every `.exists` poll forces a
+        // synchronous accessibility snapshot served by the app's main thread,
+        // and an any-descendants scan of a heavy WKWebView tree at a fast
+        // cadence starves the web process on real hardware — the tour's own
+        // timers stop firing and every later state reads as "missing" (the
+        // 2026-07-22 on-device signature; the simulator is fast enough to
+        // mask it). staticTexts + a 1s cadence keeps the interrogation load
+        // far below the point where it perturbs the thing it measures.
+        let marker = app.staticTexts
             .matching(NSPredicate(format: "label == %@", exactLabel))
             .firstMatch
-        let failedMarker = app.descendants(matching: .any)
+        let failedMarker = app.staticTexts
             .matching(NSPredicate(format: "label == %@", failedLabel))
             .firstMatch
         let deadline = Date().addingTimeInterval(timeout)
@@ -73,7 +82,7 @@ final class InsituTourTests: XCTestCase {
             if failedMarker.exists {
                 return .failed
             }
-            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+            RunLoop.current.run(until: Date().addingTimeInterval(1.0))
         }
 
         if marker.exists {
@@ -91,7 +100,9 @@ final class InsituTourTests: XCTestCase {
         timeout: TimeInterval
     ) -> String? {
         let prefix = "viewportmetrics:state=tourstate:\(state);"
-        let marker = app.descendants(matching: .any)
+        // staticTexts + slow cadence for the same main-thread-starvation
+        // reason as waitForTourMarker above.
+        let marker = app.staticTexts
             .matching(NSPredicate(format: "label BEGINSWITH %@", prefix))
             .firstMatch
         let deadline = Date().addingTimeInterval(timeout)
@@ -100,7 +111,7 @@ final class InsituTourTests: XCTestCase {
             if marker.exists {
                 return marker.label
             }
-            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+            RunLoop.current.run(until: Date().addingTimeInterval(0.5))
         }
 
         return marker.exists ? marker.label : nil
