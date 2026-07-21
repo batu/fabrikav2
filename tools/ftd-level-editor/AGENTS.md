@@ -24,7 +24,8 @@ This is an internal FTD authoring tool, not a generic game-editor platform.
 - `app.py` composes; routes stay thin.
 - Domain, prompts, and model options are pure leaves.
 - Job infrastructure imports no FTD feature module.
-- Only the future `SessionStore` may own authoring-session locks and mutation.
+- Only `SessionStore` owns authoring-session locks and mutation. U2's store shell
+  handles raw bundle reservation/publication; U3 adds typed session revisions.
 - Browser fixtures list allowed paths exactly and reject everything else.
 
 ## Verification

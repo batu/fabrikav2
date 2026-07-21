@@ -4,12 +4,12 @@
 
 The editor is one FTD-owned modular monolith: one FastAPI process, one React UI,
 one deliberately single-owner in-process worker, one filesystem authoring authority,
-and one SQLite job ledger. U1 installs only the composition and pure dependency
-leaves; the authoring store and ledger are still absent.
+and one SQLite job ledger. U2 now installs the operational filesystem and raw
+`SessionStore` shell; typed sessions and the job ledger are still absent.
 
 ```text
 React feature -> same-origin HTTP action -> thin FastAPI route
-                                           |-> SessionStore (later unit)
+                                           |-> SessionStore (raw bundles in U2)
                                            |-> durable jobs (later unit) -> provider adapter
                                            `-> pure FTD domain/prompt code
 
@@ -28,6 +28,25 @@ framework.
 entrypoint or test. They contain explicit authoring, public, state, artifact, cache,
 and lock roots. No module derives a path from `__file__`, parent depth, the current
 working directory, or the legacy checkout.
+
+Startup proves the configured filesystem supports exclusive locks, same-filesystem
+replace, file fsync, and directory fsync. Production data is rejected beneath any
+Git checkout or worktree. Path resolution is root-confined and rejects traversal or
+symlink escape.
+
+## Atomic bundle boundary
+
+`fs.py` owns the small durability primitives. Raw FTD bundle membership is staged
+and hash-validated on the destination filesystem before an immutable candidate is
+installed. Only a complete candidate may be exposed by its atomic selector. The
+phase record (`staged`, `candidate_installed`, `selector_swapped`, `committed`) lets
+startup roll an uncommitted selector back or retain a committed candidate. Prior
+immutable revisions are never deleted by recovery.
+
+`SessionStore` owns the same-dog process lock plus filesystem lock. Allocation,
+dog image, crop box, sprite image/metadata, raw session bytes, job artifact, bundle
+install, and selector commit all occur inside that reservation. This is deliberately
+not U3's typed session/revision contract.
 
 `AppComponents` carries the injected store registry, worker, provider registry, and
 central redactor. The default U1 test composition uses:
@@ -80,7 +99,6 @@ specific even where reliability infrastructure becomes reusable inside this tool
 
 ## Deferred boundaries
 
-- U2 adds filesystem probes, atomic publication, and recoverable bundles.
 - U3 adds the lossless revisioned `SessionStore`.
 - U4 adds the durable SQLite attempt ledger and single-owner worker.
 - U5-U7 add named FTD handlers and direct feature modules.

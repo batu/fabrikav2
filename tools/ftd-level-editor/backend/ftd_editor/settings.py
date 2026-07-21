@@ -30,6 +30,14 @@ def _is_loopback(host: str) -> bool:
         return False
 
 
+def _inside_git_checkout(path: Path) -> bool:
+    current = path.expanduser().resolve(strict=False)
+    for candidate in (current, *current.parents):
+        if (candidate / ".git").exists():
+            return True
+    return False
+
+
 def _host_authority(host: str, port: int | None = None) -> str:
     """Format one exact HTTP Host/Origin authority, including IPv6 brackets."""
 
@@ -80,6 +88,20 @@ class WorkspacePaths:
     def prepare(self) -> None:
         for path in (self.root, *self.operational_roots()):
             path.mkdir(parents=True, exist_ok=True)
+
+    def approve_filesystems(self) -> None:
+        """Run the live lock/rename/fsync contract once per distinct device."""
+
+        from .fs import probe_filesystem_contract
+
+        self.prepare()
+        probed_devices: set[int] = set()
+        for path in self.operational_roots():
+            device = path.stat().st_dev
+            if device in probed_devices:
+                continue
+            probe_filesystem_contract(path)
+            probed_devices.add(device)
 
 
 @dataclass(frozen=True, slots=True)
@@ -157,8 +179,6 @@ class EditorSettings:
         if not data_root.is_absolute():
             raise SettingsError("production data root must be an explicit absolute path")
         resolved_root = _resolved(data_root)
-        if ".twf-worktrees" in resolved_root.parts:
-            raise SettingsError("production data root must be outside Git worktrees")
         defaults_hosts = (
             _host_authority(bind_host, bind_port),
             _host_authority(bind_host),
@@ -179,12 +199,16 @@ class EditorSettings:
     def validate(self, *, require_disposable_root: bool) -> None:
         root = _resolved(self.workspace.root)
         paths = self.workspace.operational_roots()
+        if len(set(paths)) != len(paths):
+            raise SettingsError("operational roots must be explicit and distinct")
         for forbidden in self.forbidden_roots:
             for path in (root, *paths):
                 if _is_below(path, forbidden) or _is_below(forbidden, path):
                     raise SettingsError(f"editor path overlaps forbidden root: {forbidden}")
         if require_disposable_root and any(not _is_below(path, root) for path in paths):
             raise SettingsError("test/development operational roots must share one disposable root")
+        if self.environment == "production" and _inside_git_checkout(root):
+            raise SettingsError("production data root must be outside every Git checkout or worktree")
         if not _is_loopback(self.bind_host):
             raise SettingsError("editor binds to loopback; remote mode is not implemented")
         if not self.allowed_hosts or not self.allowed_origins:

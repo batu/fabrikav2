@@ -125,7 +125,7 @@ def create_app(settings: EditorSettings, components: AppComponents) -> FastAPI:
         runtime_logger.addFilter(redaction_filter)
         server_logger.addFilter(redaction_filter)
         try:
-            settings.workspace.prepare()
+            settings.workspace.approve_filesystems()
             yield
         finally:
             server_logger.removeFilter(redaction_filter)
