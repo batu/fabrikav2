@@ -193,7 +193,8 @@ The achievement record is a single versioned `ftd_achievements` key (one `setIte
 so its *internal* fields — processed occurrence IDs, unlock set, and the single
 `pendingSettlement` — are mutually consistent by construction, since a per-key write
 is atomic). The record is the **durable authority**; the wallet is settled toward it
-through a write-ahead protocol (a baseline checkpoint 0 plus checkpoints 1–3) that carries the
+through a write-ahead protocol (a strict transaction-identity checkpoint 0a plus a wallet
+baseline checkpoint 0b plus checkpoints 1–3) that carries the
 exact target wallet state, so recovery is unambiguous regardless of which write tore.
 
 `pendingSettlement` (present only mid-settlement, `null` otherwise) holds
@@ -260,9 +261,34 @@ achievement reward/unlock/analytics commit occurs, the fact stays unprocessed, a
 attempt/reload re-derives it cleanly. (The abort is safe because nothing durable about the
 achievement has been written yet.)
 
+**Strict completion-transaction identity is durable BEFORE any achievement checkpoint
+(fixes red-team break #1).** The occurrence id for a completion fact is the completion
+transaction `id`, and `processedOccurrenceIds` dedupe depends on that id being **durably
+recoverable**. But the existing broad `save()` writes `COINS` (GameState.ts:911) *before*
+the `ACTIVE_COMPLETION_TRANSACTION` key (GameState.ts:919) and can throw in between — so at
+the moment settlement begins, the accepted transaction may exist only in memory, not in
+storage. If checkpoints 1–3 then committed an achievement under that **non-durable**
+transaction id, a crash before another successful transaction write would reload without the
+id, mint a *new* completion id on retry, and bypass achievement dedupe → a **second grant**.
+So the protocol opens with a **strict synchronous transaction-identity checkpoint**: after
+the accepted transaction/stat/base mutations are in memory, durably write the
+`ACTIVE_COMPLETION_TRANSACTION` key with a new **error-propagating**
+`persistActiveCompletionTransaction()` helper (single `setItem`, confirming
+`transaction.id` is stored), and rely on `load()`'s existing
+`sequenceFromCompletionId(...)` max logic (GameState.ts:965-968) for sequence recovery.
+**If this strict write throws, abort before any achievement record/outbox/reward/wallet
+baseline state is touched** — the fact stays unprocessed, and a same-process retry may reuse
+the in-memory transaction, but **no achievement can durably commit under a non-durable id**.
+
 Protocol (per accepted occurrence that grants a reward), fully synchronous — **no
 player mutation may interleave the checkpoints**:
-0. **Baseline (checkpoint 0).** Persist `HINTS`/`COINS`/`WALLET_COUNTERS` from current memory
+0a. **Transaction identity (checkpoint 0a) — completion facts only.** Durably persist the
+   accepted `ACTIVE_COMPLETION_TRANSACTION` via the error-propagating
+   `persistActiveCompletionTransaction()`, confirming `transaction.id` is stored; if it
+   throws, **abort** (no achievement/wallet state written). (Dog-found facts have no
+   completion transaction and skip this checkpoint — their occurrence id
+   `dog:<servedLevelId>:<dogId>` is derived from already-durable level/dog state.)
+0b. **Baseline (checkpoint 0b).** Persist `HINTS`/`COINS`/`WALLET_COUNTERS` from current memory
    via the error-propagating `persistWallet()`; if it throws, **abort** (no achievement state
    written). On success, capture `before = settlementSnapshot()` from that just-persisted state.
 1. **Write-ahead (checkpoint 1).** `apply()` returns the delta. Compute the post-cap
@@ -335,8 +361,9 @@ its own `before`/`after`:
 - component matches **neither** → true anomaly for that component (only possible on genuine
   storage corruption, since per-key writes are atomic). **Mismatch policy:** do **not**
   reapply — trust the stored component as-is, and **append a fully-formed
-  `achievement_reconciliation_anomaly` event (stable `event_id`, complete payload naming the
-  occurrence and the mismatched component) to `analyticsOutbox`** so the post-composition drain
+  `achievement_reconciliation_anomaly` event (stable `event_id`, complete payload whose
+  concrete `wallet_component` dimension names the mismatched wallet component — break #3 — plus
+  the occurrence id) to `analyticsOutbox`** so the post-composition drain
   dispatches it (correction 6 — recovery **may and must** update the outbox; the prior rule
   forbidding it left the anomaly undispatchable because drain is the only dispatcher). This biases
   the corrupted edge to **at-most-once** (never a double grant).
@@ -363,11 +390,13 @@ Recovery is idempotent: once both writes land, a second `load()` sees
 fresh `load()` from the persisted storage**, and asserts the reward is present exactly once
 (never lost on the second load).
 
-Because checkpoint 0 forces stored-wallet == `before` before any achievement state is written,
-and each later checkpoint is a set of single-key atomic `setItem`s, a crash *at* or *between*
-any checkpoint (0–3) leaves every wallet component in exactly its own `before` or `after`, all
-of which component-wise recovery resolves to a single grant. A crash *during* checkpoint 0
-itself writes no `pendingSettlement`, so recovery has nothing to reconcile and the fact is
+Because checkpoint 0b forces stored-wallet == `before` before any achievement state is written
+(and checkpoint 0a has already made the completion transaction id durable, so dedupe survives a
+crash — break #1), and each later checkpoint is a set of single-key atomic `setItem`s, a crash
+*at* or *between* any checkpoint (0a–3) leaves every wallet component in exactly its own `before`
+or `after`, all of which component-wise recovery resolves to a single grant. A crash *during*
+checkpoint 0a or 0b itself writes no `pendingSettlement`, so recovery has nothing to reconcile
+and the fact is
 re-derived cleanly on the next attempt. The prior draft (which captured `before` from post-grant
 memory over a possibly-torn stored wallet, and whose whole-snapshot comparison mis-read a mixed
 per-key tear as corruption) is removed.
@@ -475,8 +504,12 @@ does **not** make the call type-check or preserve fields:
   check on the registry array would fail to typecheck (correction 5). Plus — critically — the
   optional **`allowedGameAnalyticsCustomFields`** list naming every dimension the wire path
   must carry (`achievement_id`, `occurrence_id`, `event_id`, `category`, `progress`,
-  `threshold`, `reward_coins`, `reward_hints`). `compactCustomFields` (GameAnalyticsEvents.ts:150-177)
-  drops any key not on this allow-list, so an omission here silently strips the field.
+  `threshold`, `reward_coins`, `reward_hints`, and — on the
+  `achievement:reconciliation:anomaly` row — **`wallet_component`**, break #3).
+  `compactCustomFields` (GameAnalyticsEvents.ts:150-177)
+  drops any key not on this allow-list, so an omission here silently strips the field —
+  in particular the anomaly's diagnostic `wallet_component` (which names the torn wallet
+  component: `coins` | `hints` | `coinsGranted` | `hintsGranted` | …) would be lost without it.
 - **GameAnalytics design mapping (`GameAnalyticsEvents.ts`).** The sink's `dispatch`
   (GameAnalyticsSink.ts:106-128) routes any **unrecognized** event name to
   `trackDesign(designEvent(gameAnalyticsDesignEventId(name, params), params, …))`, and
@@ -523,8 +556,10 @@ record has already committed the unlock/reward. Storing only occurrence ids is
 insufficient: one occurrence maps to **multiple** distinct events (a progress event, one
 `achievement_unlocked` per unlock, and a reward event), so after a crash `load()` cannot
 reconstruct the exact payloads from an occurrence id alone. The record therefore carries a
-durable **analytics outbox** — `analyticsOutbox: PendingAnalyticsEvent[]`, where each entry
-is a fully-formed `{ eventId, name, payload }` with a **stable `eventId`** (derived
+durable **analytics outbox** — `analyticsOutbox: PendingAnalyticsEvent[]`, where
+`PendingAnalyticsEvent` is a **discriminated union on `name`** (break #2) whose each member is
+a fully-formed `{ eventId, name, payload }` pairing the literal event name with its exact
+payload type, with a **stable `eventId`** (derived
 deterministically, e.g. `<occurrenceId>:<eventKind>:<achievementId>`) and the complete
 payload the sink needs. **Wire field is `event_id` (snake_case) — correction 2.** The outbox
 entry's structural `eventId` is an internal convenience only; the value that travels **on every
@@ -548,9 +583,13 @@ is **private** and only the per-event camelCase methods are public, so neither
 type-checks from `GameState`. So `AnalyticsService` exposes **one** public
 `dispatchAchievementEvent(event: PendingAnalyticsEvent): void` with an **exhaustive `switch`**
 over the achievement event-name union (`achievement_progress` | `achievement_unlocked` |
-`achievement_reward_granted` | `achievement_reconciliation_anomaly`); each arm calls the matching
-typed `analytics.achievement*` method (which internally reaches the private `sdk.track`). The
-`switch` is `never`-exhaustive so a future event name fails to compile until an arm is added.
+`achievement_reward_granted` | `achievement_reconciliation_anomaly`). Because
+`PendingAnalyticsEvent` is a **discriminated union keyed on `name`** (break #2 — each member
+couples its literal `name` with its exact payload type), `switch (event.name)` **narrows
+`event.payload`** to the matching payload type inside each arm, so each arm's typed
+`analytics.achievement*(event.payload)` call type-checks; a non-discriminated
+`{ name: union; payload: union }` would leave `payload` a union that no typed method accepts.
+The `switch` is `never`-exhaustive so a future event name fails to compile until an arm is added.
 `GameState.drainAnalyticsOutbox()` calls **only** this public dispatcher per event — no dynamic
 property access, no `sdk` reach-in. (The later-UI page-view names are dispatched by ACH-2, not by
 this card's drain, so they are not arms of this switch yet.)
@@ -615,7 +654,8 @@ sequenceDiagram
     State->>Ach: apply(LevelCompletionFact{txId, levelId, progressionIndex, totalCompletions, streakDays, newBest, ...}, record)
     Ach-->>State: AchievementDelta{ progressChanges, newlyUnlocked[] (entitledReward) }
     Note over State: dedupe: txId already processed? -> empty delta
-    State->>LS: BASELINE (checkpoint 0): persistWallet() flush HINTS/COINS/WALLET_COUNTERS<br/>(error-propagating; throw -> ABORT, no achievement state); before = persisted baseline
+    State->>LS: TX IDENTITY (checkpoint 0a): persistActiveCompletionTransaction() ACTIVE_COMPLETION_TRANSACTION<br/>(error-propagating; throw -> ABORT; makes txId durable BEFORE any achievement commit)
+    State->>LS: BASELINE (checkpoint 0b): persistWallet() flush HINTS/COINS/WALLET_COUNTERS<br/>(error-propagating; throw -> ABORT, no achievement state); before = persisted baseline
     State->>State: build CommittedDelta: post-cap GrantedReward[]{achievementId,coins,hints};<br/>deltaToEvents -> full event list
     State->>State: WRITE-AHEAD (all in one record write): applyDeltaToRecord folds progress[id]+unlocked+masteredLevelIds+processed;<br/>analyticsOutbox += full events;<br/>pendingSettlement = {txId, before=baseline, after=before+post-cap reward};<br/>lastDurableRecord updated after this persist returns
     State->>LS: persist RECORD key (checkpoint 1 — commits occurrence + events + intent together)
@@ -682,17 +722,25 @@ versioned `AchievementRecord`, and per-achievement progress semantics. No behavi
   resulting `streakDays`, and logical progression semantics (`progressionIndex`,
   `totalCompletions`). **Honest composition (fixes the red-team break):** the source
   `CompletionTransaction` (GameState.ts:101-120) exposes `id`, `levelId`, `levelIndex`,
-  `newBest`, `previousBestSeconds`, provenance — but **not** `transactionId`,
-  `progressionIndex`, `totalCompletions`, or `streakDays`, so the fact is **not** a
-  drop-in copy of the transaction and any "zero adaptation" claim for *fact construction*
-  was false and is removed. Instead U3 owns an explicit, tested **builder mapping** inside
-  GameState's completion seam (which is the only site with the missing fields in scope):
+  **`timeSeconds` (GameState.ts:105)**, `newBest`, `previousBestSeconds`, provenance — but
+  **not** `transactionId`, `progressionIndex`, `totalCompletions`, or `streakDays`, so the
+  fact is **not** a drop-in copy of the transaction and any "zero adaptation" claim for
+  *fact construction* was false and is removed. Instead U3 owns an explicit, tested
+  **builder mapping** inside GameState's completion seam (which is the only site with the
+  missing fields in scope):
   `transactionId ← transaction.id`, `levelId ← transaction.levelId`,
   `progressionIndex ← transaction.levelIndex`, `totalCompletions ← this._totalLevelsCompleted`
   (freshly incremented by `registerLevelComplete`, GameState.ts:806),
-  `streakDays ← this.currentStreakDays()` (GameState.ts:823), timing/provenance copied from
-  the transaction. `levelId` is retained on the fact so mastery ("N distinct levels with a
-  best time") can identify the contributing level. The **zero-adaptation guarantee applies
+  `streakDays ← this.currentStreakDays()` (GameState.ts:823),
+  **`timeSeconds ← transaction.timeSeconds`** (the source shape DOES carry `timeSeconds`,
+  GameState.ts:105, so timing has a real source and the fact type-checks — fixes the
+  red-team break that claimed timing had no source field),
+  `previousBestSeconds ← transaction.previousBestSeconds`, `newBest ← transaction.newBest`,
+  and provenance (`intendedLevelId`/`servedLevelId`/`sequenceVersion`/`fallbackReason`)
+  copied from the transaction. `levelId` is retained on the fact so mastery ("N distinct
+  levels with a best time") can identify the contributing level. The **source-shape fact**
+  explicitly lists `timeSeconds`, and a U3 typecheck test asserts the builder maps
+  `timeSeconds ← transaction.timeSeconds` against the real `CompletionTransaction`. The **zero-adaptation guarantee applies
   only to the UI card consuming the returned `CommittedAchievementDelta`**, not to GameState
   producing the fact — GameState is the producer and owns this documented builder + a U3 test
   asserting it type-checks against the real `CompletionTransaction`.
@@ -715,8 +763,10 @@ versioned `AchievementRecord`, and per-achievement progress semantics. No behavi
   identity set — see below), unlocked: readonly id[], processedOccurrenceIds:
   readonly string[], pendingSettlement: { occurrenceId, before: SettlementSnapshot, after:
   SettlementSnapshot } | null (the single in-flight write-ahead settlement), analyticsOutbox:
-  readonly PendingAnalyticsEvent[] (fully-formed events awaiting sink confirmation, each
-  `{ eventId, name, payload }` with a stable deterministic `eventId`, appended in checkpoint 1
+  readonly PendingAnalyticsEvent[] (fully-formed events awaiting sink confirmation, each a
+  member of the `PendingAnalyticsEvent` **discriminated union on `name`** — `{ eventId, name,
+  payload }` pairing the literal name with its exact payload type (break #2) — with a stable
+  deterministic `eventId`, appended in checkpoint 1
   — KTD6) }`, where `SettlementSnapshot = { coins: number, hints: number, counters:
   WalletCounters }` (reuses the existing `WalletCounters` interface exactly, GameState.ts:90-97)
   holds **absolute** wallet values whose components are resolved **independently** on recovery
@@ -836,21 +886,31 @@ the wallet via idempotent reconciliation, and expose the delta to callers. Wire
   achievement reward moves `_coinBalance`/`_hintBalance` and advances only
   `coinsGranted`/`hintsGranted` under the `'achievement'` source with zero type errors, and that
   the public `grantCoins` still behaves identically after the refactor.
-- Two targeted persist helpers so each checkpoint is a minimal atomic write:
+- Three targeted persist helpers so each checkpoint is a minimal atomic write:
+  `persistActiveCompletionTransaction()` (single `setItem` of `ACTIVE_COMPLETION_TRANSACTION`,
+  confirming `transaction.id` is stored — the checkpoint-0a identity write, break #1),
   `persistAchievementRecord()` (single `setItem` of `ftd_achievements`) and
   `persistWallet()` (the HINTS/COINS/WALLET_COUNTERS keys — three separate `setItem`s that
-  can each land or tear independently). **Both helpers must let a `setItem` throw propagate to
+  can each land or tear independently). **All three helpers must let a `setItem` throw propagate to
   the caller — they deliberately do NOT inherit `save()`'s catch-and-continue behavior**
   (GameState.ts:897-926 swallows/continues). This is load-bearing: the write-ahead protocol
   branches on whether each checkpoint's write actually committed, so a silently-swallowed throw
   would let the protocol advance to the wallet while believing the record was persisted. Add a
   code comment on each helper stating this failure-propagation contract and the checkpoint
   ordering invariant so a future refactor can't re-wrap them in `save()`'s try/catch.
-- **Checkpoint 0 uses `persistWallet()` as the baseline write.** Before any achievement state
+- **Checkpoint 0a strictly persists the completion transaction identity FIRST (break #1).**
+  For a completion fact, before the wallet baseline `applyAchievementFact` (invoked from the
+  completion seam) calls `persistActiveCompletionTransaction()` to durably flush the accepted
+  `ACTIVE_COMPLETION_TRANSACTION`, confirming its `id` is stored; if it **throws, abort** before
+  any wallet/record/outbox state — so no achievement occurrence can commit under a transaction id
+  that is not durably recoverable (a crash would otherwise mint a new id and re-grant). `load()`'s
+  existing `sequenceFromCompletionId` max logic (GameState.ts:965-968) handles sequence recovery.
+  Dog-found facts skip 0a (no transaction; occurrence id derives from durable level/dog state).
+- **Checkpoint 0b uses `persistWallet()` as the baseline write.** Before any achievement state
   is written, `applyAchievementFact` calls `persistWallet()` to durably flush the current
   in-memory wallet; on success it captures `before` from that just-persisted state, so
   stored-wallet == `before` even if an earlier broad `save()` in the same completion had torn
-  (break #4). If checkpoint 0 throws, the method **aborts before touching the record** (nothing
+  (break #4). If checkpoint 0b throws, the method **aborts before touching the record** (nothing
   durable about the achievement written; fact stays unprocessed for a clean retry).
 - New GameState method `applyAchievementFact(fact)`:
   1. Guard on `processedOccurrenceIds` — already processed → return empty delta, no-op.
@@ -862,7 +922,11 @@ the wallet via idempotent reconciliation, and expose the delta to callers. Wire
      **append its `deltaToEvents` output to `analyticsOutbox`**, and persist the record once
      (no `pendingSettlement`, no wallet touch) — the events are still journaled durably. If it
      grants a reward, run the write-ahead protocol:
-     - **Checkpoint 0 (baseline).** Call `persistWallet()` to durably flush the current
+     - **Checkpoint 0a (transaction identity — completion facts only, break #1).** Call
+       `persistActiveCompletionTransaction()` to durably store the accepted
+       `ACTIVE_COMPLETION_TRANSACTION` (confirming `transaction.id`); if it **throws, abort**
+       (no wallet/record/outbox state written). Dog-found facts have no transaction and skip 0a.
+     - **Checkpoint 0b (baseline).** Call `persistWallet()` to durably flush the current
        in-memory wallet; if it **throws, abort** — return without marking the occurrence,
        appending the outbox, or writing `pendingSettlement` (no achievement state committed).
        On success, capture `before = settlementSnapshot()` from that just-persisted baseline.
@@ -950,13 +1014,14 @@ the wallet via idempotent reconciliation, and expose the delta to callers. Wire
 `localStorage.setItem` to throw on the Nth call or on a named key, drives a completion
 that crosses a reward threshold, reloads a fresh GameState from the (partially written)
 storage, and asserts the wallet equals **exactly** the single-grant value on every
-clean-tear boundary (recovered, not lost, not doubled). Inject a throw at **checkpoint 0
-(baseline)** and at each of checkpoints 1–3, **and after each individual wallet key** (HINTS,
-COINS, WALLET_COUNTERS) within both the checkpoint-0 baseline write and the checkpoint-2 wallet
+clean-tear boundary (recovered, not lost, not doubled). Inject a throw at **checkpoint 0a
+(transaction identity)**, **checkpoint 0b (baseline)** and at each of checkpoints 1–3, **and after each individual wallet key** (HINTS,
+COINS, WALLET_COUNTERS) within both the checkpoint-0b baseline write and the checkpoint-2 wallet
 write, so mixed per-key tears (e.g. COINS advanced but HINTS not) and a **pre-existing base-save
 tear** (an earlier `save()` left storage torn before settlement began) are exercised; assert
 component-wise load-time recovery lands every wallet component at `after` exactly once, and that
-a checkpoint-0 throw leaves the fact **unprocessed** with no partial achievement state.
+a checkpoint-0a or checkpoint-0b throw leaves the fact **unprocessed** with no partial
+achievement state.
 
 **Test scenarios:**
 - Covers AC3. Duplicate completion callback with same `transactionId` grants reward
@@ -972,11 +1037,20 @@ a checkpoint-0 throw leaves the fact **unprocessed** with no partial achievement
   occurrence that **advances achievement progress normally** (e.g. a second completion increments
   the completion-count achievement). Assert the existing `beginLevelCompletionTransaction` reuse
   guard is unchanged and existing stats/base-coin one-shot behavior still holds.
-- **Checkpoint-0 baseline abort (break #4).** Inject a throw during the checkpoint-0
+- **Checkpoint-0a transaction-identity durability + abort (break #1).** Simulate a
+  pre-existing base-save tear where `COINS` persisted but `ACTIVE_COMPLETION_TRANSACTION` did
+  **not** (the real GameState.ts:911-before-919 ordering). (a) The strict
+  `persistActiveCompletionTransaction()` re-writes the transaction so `transaction.id` is
+  durable before checkpoint 1; a crash+reload after the achievement commits then finds the same
+  id and a duplicate completion callback **cannot re-grant** (dedupe holds). (b) Inject a throw
+  **during** checkpoint-0a `persistActiveCompletionTransaction()`: the fact is **not** marked
+  processed, no wallet baseline / `pendingSettlement` / outbox / unlock is written, and a
+  subsequent retry grants exactly once (no achievement committed under a non-durable id).
+- **Checkpoint-0b baseline abort (break #4).** Inject a throw during the checkpoint-0b
   `persistWallet()` (including after only some wallet keys land). The fact is **not** marked
   processed, no `pendingSettlement`/outbox/unlock is written, and a subsequent reload+retry
   grants exactly once. With a **pre-existing base-save tear** (storage already torn before
-  settlement), checkpoint 0 re-flushes memory so `before` == stored wallet, and later recovery
+  settlement), checkpoint 0b re-flushes memory so `before` == stored wallet, and later recovery
   is never a false corruption.
 - Covers AC3. Duplicate dog-found callback with same occurrence id → progress advances
   once.
@@ -1116,10 +1190,16 @@ adaptation.
 - **Canonical rows + allow-list (CanonicalAnalyticsEvents.ts).** Add a
   `CanonicalAnalyticsEventDefinition` per event with `id`, `firebaseName`, `gameAnalyticsName`
   (`achievement:progress`/`:unlocked`/`:reward:granted`/`:reconciliation:anomaly`),
-  `family: 'design'`, panel, question, dimensions, and an **`allowedGameAnalyticsCustomFields`**
+  `family: 'design'`, panel, question, dimensions, **`instrumentationStatus`**,
+  **`successBoundary`**, and an **`allowedGameAnalyticsCustomFields`**
   list of every dimension the wire must carry (`achievement_id`, `occurrence_id`, `event_id`,
-  `category`, `progress`, `threshold`, `reward_coins`, `reward_hints`) — `compactCustomFields`
-  drops any key not listed (GameAnalyticsEvents.ts:150-177).
+  `category`, `progress`, `threshold`, `reward_coins`, `reward_hints`, and — on the
+  `achievement:reconciliation:anomaly` row — **`wallet_component`**, break #3) —
+  `compactCustomFields` drops any key not listed (GameAnalyticsEvents.ts:150-177).
+  The `AchievementReconciliationAnomalyPayload` type carries a concrete
+  `wallet_component: string` naming the torn component, and the anomaly canonical row lists it
+  in both `primaryDimensions` and `allowedGameAnalyticsCustomFields`; a U6 sink test dispatches
+  a real anomaly event and asserts `wallet_component` survives `compactCustomFields`.
 - **Design mapping (GameAnalyticsEvents.ts).** Add `achievement:progress`/`:unlocked`/
   `:reward:granted`/`:reconciliation:anomaly` **and the later-UI `achievement:viewed`/
   `achievement:page:viewed`** (correction 5) → their canonical ids in
@@ -1132,7 +1212,17 @@ adaptation.
   sink swallows errors and returns `void`, GameAnalyticsSink.ts:72-76 — dedupe is the consumer's
   job on the `eventId`).
 - `AchievementAnalytics.ts` owns `AchievementAnalyticsPayload` types, the
-  `PendingAnalyticsEvent = { eventId, name, payload }` outbox entry type, and a pure
+  **`PendingAnalyticsEvent` discriminated union (correction / break #2)** — one member per
+  `AchievementEventName`, each pairing the literal `name` with its exact payload type and a
+  common `eventId`, e.g. `{ eventId: string; name: 'achievement_progress'; payload:
+  AchievementProgressPayload } | { eventId: string; name: 'achievement_unlocked'; payload:
+  AchievementUnlockedPayload } | { eventId: string; name: 'achievement_reward_granted';
+  payload: AchievementRewardGrantedPayload } | { eventId: string; name:
+  'achievement_reconciliation_anomaly'; payload: AchievementReconciliationAnomalyPayload }`.
+  Because `name` is the discriminant, `switch (event.name)` in `dispatchAchievementEvent`
+  **narrows `event.payload`** to the exact per-event type, so each arm's typed
+  `analytics.achievement*` call type-checks (a plain `{ name: union; payload: union }` shape
+  would NOT narrow the independently-typed payload — the red-team break). It also owns a pure
   `deltaToEvents(committedDelta)` mapper that reads each `GrantedReward.achievementId` to
   associate reward events with their unlock and assigns each event a deterministic `eventId`
   (`<occurrenceId>:<eventKind>:<achievementId>`); it is well-defined for multi-unlock deltas
@@ -1190,6 +1280,15 @@ adaptation.
   is called with each of the four achievement `PendingAnalyticsEvent` shapes and a fake sink
   observes the matching typed payload — proving `drainAnalyticsOutbox` needs no private-`sdk`
   or dynamic property access, and the `never`-exhaustive switch covers every emitted name.
+- **Discriminated-union narrowing (break #2).** A compile-level test builds each
+  `PendingAnalyticsEvent` member and asserts `switch (event.name)` narrows `event.payload` to the
+  exact per-event payload type (each arm's typed `analytics.achievement*(event.payload)` call
+  compiles); a mis-paired `{ name, payload }` is a type error. Proves the outbox union is
+  discriminated, not a `{ name: union; payload: union }` that fails to narrow.
+- **Anomaly `wallet_component` survives the wire (break #3).** Dispatch a real
+  `achievement_reconciliation_anomaly` event whose payload names a torn `wallet_component`
+  through the GameAnalytics sink; assert the resulting `designEvent.customFields` **contains**
+  `wallet_component` (on the anomaly row's allow-list, not stripped by `compactCustomFields`).
 - **GameAnalytics wire fields survive (break #3).** Dispatch a real `achievement_unlocked`,
   `achievement_progress`, and `achievement_reward_granted` event through the GameAnalytics sink
   path; assert the resulting `designEvent.customFields` **contains** `achievement_id`,
@@ -1287,10 +1386,23 @@ completion transaction to close it.
   is **preserved unchanged** (not narrowed); achievement dedupe is per accepted completion
   transaction id, so a later intentional same-level completion is a distinct occurrence that
   advances progress; U3 duplicate-vs-distinct test.
-- **Stored wallet already torn before settlement begins.** Checkpoint 0 durably re-flushes the
+- **Stored wallet already torn before settlement begins.** Checkpoint 0b durably re-flushes the
   in-memory wallet (error-propagating) and captures `before` from that persisted baseline, so
-  recovery never mis-reads a pre-existing base-save tear as corruption; U3 checkpoint-0 baseline
+  recovery never mis-reads a pre-existing base-save tear as corruption; U3 checkpoint-0b baseline
   + pre-existing-tear fault tests.
+- **Achievement committed under a non-durable completion transaction id (break #1).** The broad
+  `save()` writes `COINS` before `ACTIVE_COMPLETION_TRANSACTION` and can tear between; a crash
+  would reload without the id, mint a new one on retry, and bypass dedupe → double grant.
+  Mitigated by the strict error-propagating `persistActiveCompletionTransaction()` at checkpoint
+  0a — the transaction id is durable before any achievement/wallet checkpoint, or the fact
+  aborts unprocessed; U3 checkpoint-0a durability + abort tests.
+- **Outbox event/payload mismatch not caught by the compiler (break #2).** `PendingAnalyticsEvent`
+  is a **discriminated union on `name`**, so `dispatchAchievementEvent`'s `switch` narrows
+  `event.payload` and a mis-paired name/payload is a type error; U6 narrowing test.
+- **Reconciliation anomaly's diagnostic component stripped on the wire (break #3).** The anomaly
+  payload carries a concrete `wallet_component`; it is on the anomaly canonical row's
+  `allowedGameAnalyticsCustomFields`, proven to survive `compactCustomFields`; U6 anomaly
+  wire-survival test.
 - **Achievement analytics dropped on the wire.** Composing only the FTD registry does not
   type-check `sdk.track` and leaves the GameAnalytics sink zeroing custom fields; U6 adds
   `FtdEvent` names + params methods, canonical rows with `allowedGameAnalyticsCustomFields`, and
@@ -1359,14 +1471,18 @@ exercised, mirroring existing `registerLevelComplete` test style.
    with zero adaptation.
 2. Progress, threshold crossing, ordering, persistence/relaunch, retroactive
    evaluation, malformed/legacy data, duplicate occurrences, reward idempotency,
-   fault-injected torn writes at the **checkpoint-0 baseline** and every later settlement
-   checkpoint **and after every individual wallet key** (grant recovered component-by-component,
-   never lost on a clean tear or a pre-existing base-save tear, never double-granted; corruption
-   mismatch handled per component; a checkpoint-0 throw aborts with no partial achievement
-   state), hint-cap settlement, interrupted completion/retry, fallback serving, multi-event
+   fault-injected torn writes at the **checkpoint-0a transaction-identity write**, the
+   **checkpoint-0b wallet baseline**, and every later settlement
+   checkpoint **and after every individual wallet key** (transaction id durable before any
+   achievement commit so a crash cannot re-mint an id and double-grant; grant recovered
+   component-by-component, never lost on a clean tear or a pre-existing base-save tear, never
+   double-granted; corruption mismatch handled per component; a checkpoint-0a/0b throw aborts
+   with no partial achievement state), hint-cap settlement, interrupted completion/retry,
+   the documented `LevelCompletionFact` builder mapping incl. `timeSeconds ←
+   transaction.timeSeconds` (break #4), fallback serving, multi-event
    analytics emission recovery from a durable outbox (journaled in checkpoint 1, before the
-   wallet write), persisted distinct-level mastery that does not re-increment on reload, the
-   documented `LevelCompletionFact` builder mapping, committed `achievementId`-tagged post-cap
+   wallet write), persisted distinct-level mastery that does not re-increment on reload,
+   committed `achievementId`-tagged post-cap
    rewards, the additive `CompletionTransactionResult.achievementCommit` field (existing consumer
    fields intact), the **preserved (un-narrowed) completion-reuse guard** with per-transaction
    (not per-level) dedupe proven by a duplicate-vs-distinct test, the **four-seam analytics
@@ -1382,9 +1498,11 @@ exercised, mirroring existing `registerLevelComplete` test style.
    `event_id` per event proven to survive `compactParams`/`compactCustomFields`, durable outbox
    for recovery), **composes through the whole typed stack** — achievement
    names in the `FtdEvent` union + typed `analytics.achievement*` methods **and one public
-   `dispatchAchievementEvent` exhaustive-switch dispatcher** (no private-`sdk`/dynamic access) so
-   `sdk.track` type-checks and drain routes safely, canonical rows with
-   `allowedGameAnalyticsCustomFields`, and the `canonicalEventIdForDesignEvent` mapping (including
+   `dispatchAchievementEvent` exhaustive-switch dispatcher over the discriminated-union
+   `PendingAnalyticsEvent` (narrows payload per `name`, break #2)** (no private-`sdk`/dynamic
+   access) so `sdk.track` type-checks and drain routes safely, canonical rows with
+   `allowedGameAnalyticsCustomFields` (incl. the anomaly's `wallet_component`, break #3), and the
+   `canonicalEventIdForDesignEvent` mapping (including
    the later-UI `achievement:viewed`/`achievement:page:viewed` ids) so the GameAnalytics sink
    carries (not drops) `achievement_id`/`event_id`/`progress`/`threshold`/applied reward fields —
    recovery-time reconciliation anomalies are **journaled into the outbox** and drained
