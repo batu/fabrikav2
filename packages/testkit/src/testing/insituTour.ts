@@ -6,7 +6,20 @@ import {
   type DriveState,
 } from './driveTo.ts';
 import { publishTourMarker } from './tourMarker.ts';
+import { ensureHostedMarker } from './markerHost.ts';
 import { driveTourStateWithTimeout } from './tourDriveTimeout.ts';
+
+const TOUR_DRIVE_BREADCRUMB_ID = '__tourdrive__';
+
+function publishDriveBreadcrumb(label: string): void {
+  try {
+    const marker = ensureHostedMarker(TOUR_DRIVE_BREADCRUMB_ID);
+    marker.textContent = `tourdrive:${label}`;
+    marker.setAttribute('aria-label', `tourdrive:${label}`);
+  } catch {
+    // Forensics only — never let the breadcrumb break the tour.
+  }
+}
 
 export interface InsituTourHarness<State extends string = DriveState> {
   driveTo?: (state: State) => Promise<boolean>;
@@ -76,6 +89,11 @@ export async function maybeRunInsituTour<State extends string = DriveState>(
     // ready on a slow device. One state's exception must publish that state as
     // FAILED and let the tour continue, never silently kill the remaining
     // states: a dead tour reads as "missing" markers with zero diagnostics.
+    // Forensic breadcrumb on a SEPARATE marker (#__tourdrive__): when a
+    // device-only failure freezes the tour, its last label tells exactly how
+    // far the loop got without perturbing the #__tourstate__ contract that
+    // runners and consumer tests assert on.
+    publishDriveBreadcrumb(`${state}-driving`);
     let ok = false;
     try {
       ok = await driveTourStateWithTimeout(state, (target) => driveTo(target), {

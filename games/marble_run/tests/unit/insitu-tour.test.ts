@@ -268,9 +268,12 @@ describe('maybeRunInsituTour — allstates', () => {
     await vi.runAllTimersAsync();
     await run;
 
-    expect(created).toBe(2);
+    // Three singleton markers: tour state, viewport metrics, and the
+    // #__tourdrive__ forensic breadcrumb — each created once and reused.
+    expect(created).toBe(3);
     expect(registry.has('__tourstate__')).toBe(true);
     expect(registry.has('__viewportmetrics__')).toBe(true);
+    expect(registry.has('__tourdrive__')).toBe(true);
   });
 });
 

@@ -161,6 +161,10 @@ final class InsituTourTests: XCTestCase {
                 // Attach whatever is on screen so the failure is inspectable, then
                 // fail loudly — the CLI verdict also flags the missing state.
                 shot("\(name)-MISSING")
+                // The app-side accessibility tree is the difference between "the
+                // tour never published" and "it published where XCUITest cannot
+                // see it" — attach it so a missing state is self-diagnosing.
+                attachText("\(name)-ax-tree", app.debugDescription)
                 XCTFail("state '\(state)' never published tourstate:\(state) within \(Int(stateTimeout))s — "
                     + "the tour did not reach it (or the harness/tour flag is off). "
                     + "A missing state is a loud failure, not a silent wrong frame.")
