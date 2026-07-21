@@ -17,17 +17,19 @@ Passed: focused backend, UI, repeated race, and read-only live-corpus evidence c
 - Made `SessionStore` the single revisioned current-session writer, with destination-absence creation, whole-directory revisions, stable-dog/gallery actions, compare-and-swap conflicts, and direct-drift detection.
 - Added named current-session HTTP actions and explicit UI conflict state that preserves rejected intent until reapply or discard.
 - Added deterministic read-only legacy identity/artifact census classification for stable, rebindable, ambiguous, and unsupported sessions, with source and report checksums and no import/repair surface.
+- Review hardening made the census exhaustive over incomplete/symlinked session directories, restored v1's 20-pixel global minimum-cost identity gate, confined current-session directories against symlink escape, typed client failures and 409 OpenAPI recovery, and consolidated composition plus compare-and-swap ownership.
 
 ## Evidence Captured
 
 | Type | Artifact / Command | Result |
 |------|--------------------|--------|
-| focused U3 contracts | `UV_CACHE_DIR=/private/tmp/ftd-editor-uv-cache PYTHONDONTWRITEBYTECODE=1 uv run --project tools/ftd-level-editor pytest -q tools/ftd-level-editor/tests/contracts/test_session_roundtrip.py tools/ftd-level-editor/tests/contracts/test_session_revision.py tools/ftd-level-editor/tests/contracts/test_session_drift.py tools/ftd-level-editor/tests/contracts/test_session_actions.py` | passed: 14 tests in 0.17s |
-| safe backend regression lane | `UV_CACHE_DIR=/private/tmp/ftd-editor-uv-cache PYTHONDONTWRITEBYTECODE=1 uv run --project tools/ftd-level-editor pytest -q tools/ftd-level-editor/tests -m 'not paid'` | passed: 80 tests in 0.81s; no paid marker ran |
-| read-only census fixtures | `UV_CACHE_DIR=/private/tmp/ftd-editor-uv-cache PYTHONDONTWRITEBYTECODE=1 uv run --project tools/ftd-level-editor pytest -q tools/ftd-level-editor/tests -m legacy_census` | passed: 2 tests, 78 deselected; stable/rebindable/ambiguous/unsupported and unsafe-artifact cases classified with zero unexplained issues |
-| repeated race/crash lane | `UV_CACHE_DIR=/private/tmp/ftd-editor-uv-cache PYTHONDONTWRITEBYTECODE=1 uv run --project tools/ftd-level-editor pytest -q tools/ftd-level-editor/tests -m stress --count=20` | passed: 40 tests, 1560 deselected, in 2.84s |
+| focused U3 contracts | `UV_CACHE_DIR=/private/tmp/ftd-editor-uv-cache PYTHONDONTWRITEBYTECODE=1 uv run --project tools/ftd-level-editor pytest -q tools/ftd-level-editor/tests/contracts/test_session_roundtrip.py tools/ftd-level-editor/tests/contracts/test_session_revision.py tools/ftd-level-editor/tests/contracts/test_session_drift.py tools/ftd-level-editor/tests/contracts/test_session_actions.py` | passed: 20 tests in 0.13s |
+| safe backend regression lane | `UV_CACHE_DIR=/private/tmp/ftd-editor-uv-cache PYTHONDONTWRITEBYTECODE=1 uv run --project tools/ftd-level-editor pytest -q tools/ftd-level-editor/tests -m 'not paid'` | passed: 91 tests in 0.81s; no paid marker ran |
+| read-only census fixtures | `UV_CACHE_DIR=/private/tmp/ftd-editor-uv-cache PYTHONDONTWRITEBYTECODE=1 uv run --project tools/ftd-level-editor pytest -q tools/ftd-level-editor/tests -m legacy_census` | passed: 7 tests, 84 deselected; exhaustive malformed-corpus, global assignment, threshold, stable/rebindable/ambiguous/unsupported, and unsafe-artifact cases classified with zero unexplained issues |
+| repeated race/crash lane | `UV_CACHE_DIR=/private/tmp/ftd-editor-uv-cache PYTHONDONTWRITEBYTECODE=1 uv run --project tools/ftd-level-editor pytest -q tools/ftd-level-editor/tests -m stress --count=20` | passed: 40 tests, 1780 deselected, in 2.72s |
+| assignment oracle | deterministic 1-4 row/column random matrices compared with exhaustive permutation minima | passed: 1,600 property cases |
 | live v1 current-session census | `census_legacy_sessions(Path('/Users/base/dev/appletolye/fabrika/games/find_the_dog/pipeline/levelbuilder/levels'))` under the target U3 package | passed: source `sha256:c4650e7275eb0a101f416eddaf430818708158cde552cc39488197a79f78ec3d`; report `sha256:fd453dbb461dea050f6821021257a597ca6f8a5cc4cec63eadf22c3c07de026d`; 0 current sessions; 0 unexplained |
-| live source no-write snapshot | full path metadata plus file-byte digest before/after the census | passed: 2 entries and identical `sha256:d61f43dc7472ee4d129cb34a25c6a14aab489809fc7dadbbf8a8efefa70bbb8d` snapshots |
+| live source no-write snapshot | full path metadata plus file-byte digest before/after the census | passed: 1 descendant entry and identical `sha256:e2f98bb64d18d4254bdff959d7c2496543d539cb7801309ca310f8ec923e1cd5` snapshots |
 | UI conflict contract | `npm --workspace tools/ftd-level-editor run test:unit -- --test-name-pattern='revision conflict'` | passed: 9 tests; pending intent was not automatically resubmitted, reapply used the current revision, and discard refreshed without mutation |
 | generated editor contract | `npm --workspace tools/ftd-level-editor run editor:contracts:check` | passed |
 | UI static checks | `npm --workspace tools/ftd-level-editor run typecheck` and `npm --workspace tools/ftd-level-editor run build` | passed; fixture build transformed 31 modules |
@@ -43,7 +45,9 @@ The only emitted test warning was the existing FastAPI `StarletteDeprecationWarn
 
 | Reviewer | Status | Result |
 |----------|--------|--------|
-| none selected | not applicable | This is a headless session/revision/census contract. The conflict panel is intentionally unmounted, so no rendered interaction, visual, motion, or gameplay artifact changed. |
+| full code review | passed after fixes | Correctness, testing, maintainability, project standards, security, performance, API-contract, reliability, agent-native, and learnings lenses ran. Findings were fixed or dispositioned; the external Claude adversarial pass failed closed without usable output and the in-process adversarial reviewer timed out. |
+| simplify | passed | Applied one reuse, two quality, and two efficiency improvements; no safety or contract checks were removed. |
+| visual/device | not applicable | This is a headless session/revision/census contract. The conflict panel remains intentionally unmounted, so no rendered interaction, mobile-game, or device artifact changed. |
 
 ## Gaps
 

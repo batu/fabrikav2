@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import heapq
 import json
 import math
 import os
@@ -168,41 +169,117 @@ def _nearest_bindings(
     max_bind_distance: float,
     issues: set[LegacyIssueCode],
 ) -> tuple[tuple[int, int], ...]:
-    claimed: set[int] = set()
-    bindings: list[tuple[int, int]] = []
-    for dog_index, center in centers:
-        distances: list[tuple[float, int]] = []
-        for hitbox_index, hitbox in enumerate(hitboxes):
-            try:
-                distance = math.hypot(
-                    center[0] - float(hitbox["x"]),
-                    center[1] - float(hitbox["y"]),
+    if not centers or not hitboxes:
+        if centers or hitboxes:
+            issues.add("incomplete_binding")
+        return ()
+    try:
+        hitbox_centers = [
+            (float(hitbox["x"]), float(hitbox["y"])) for hitbox in hitboxes
+        ]
+        if any(
+            not math.isfinite(value)
+            for hitbox_center in hitbox_centers
+            for value in hitbox_center
+        ):
+            raise ValueError("hitbox coordinates must be finite")
+        costs = [
+            [
+                math.hypot(
+                    center[0] - hitbox_center[0],
+                    center[1] - hitbox_center[1],
                 )
-            except (KeyError, TypeError, ValueError):
-                issues.add("unsupported_hitbox")
-                return ()
-            distances.append((distance, hitbox_index))
-        distances.sort()
-        if not distances or distances[0][0] > max_bind_distance:
+                for hitbox_center in hitbox_centers
+            ]
+            for _, center in centers
+        ]
+        assignments = _minimum_cost_assignment(costs)
+    except (KeyError, TypeError, ValueError):
+        issues.add("unsupported_hitbox")
+        return ()
+
+    bindings: list[tuple[int, int]] = []
+    for center_index, hitbox_index in assignments:
+        dog_index, _ = centers[center_index]
+        nearest_distances = heapq.nsmallest(2, costs[center_index])
+        distance = costs[center_index][hitbox_index]
+        if distance > max_bind_distance:
             issues.add("unbound_dog")
             continue
-        tied = len(distances) > 1 and math.isclose(
-            distances[0][0],
-            distances[1][0],
-            abs_tol=1e-6,
-        )
-        if tied:
+        if len(nearest_distances) > 1 and math.isclose(
+            nearest_distances[0], nearest_distances[1], abs_tol=1e-6
+        ):
             issues.add("ambiguous_distance")
-            continue
-        target = distances[0][1]
-        if target in claimed:
-            issues.add("ambiguous_identity")
-            continue
-        claimed.add(target)
-        bindings.append((dog_index, target))
-    if len(bindings) != len(centers) or len(claimed) != len(hitboxes):
+        bindings.append((dog_index, hitbox_index))
+    if len(bindings) != len(centers) or len(bindings) != len(hitboxes):
         issues.add("incomplete_binding")
     return tuple(sorted(bindings))
+
+
+def _minimum_cost_assignment(costs: list[list[float]]) -> tuple[tuple[int, int], ...]:
+    """Return deterministic global minimum-cost row/column pairs."""
+
+    row_count = len(costs)
+    column_count = len(costs[0])
+    if any(len(row) != column_count for row in costs):
+        raise ValueError("assignment cost matrix must be rectangular")
+    if row_count > column_count:
+        transposed = [
+            [costs[row][column] for row in range(row_count)]
+            for column in range(column_count)
+        ]
+        return tuple(
+            sorted((column, row) for row, column in _minimum_cost_assignment(transposed))
+        )
+
+    potentials_by_row = [0.0] * (row_count + 1)
+    potentials_by_column = [0.0] * (column_count + 1)
+    matched_row = [0] * (column_count + 1)
+    previous_column = [0] * (column_count + 1)
+    for row in range(1, row_count + 1):
+        matched_row[0] = row
+        column = 0
+        minimum = [math.inf] * (column_count + 1)
+        used = [False] * (column_count + 1)
+        while True:
+            used[column] = True
+            active_row = matched_row[column]
+            delta = math.inf
+            next_column = 0
+            for candidate in range(1, column_count + 1):
+                if used[candidate]:
+                    continue
+                reduced = (
+                    costs[active_row - 1][candidate - 1]
+                    - potentials_by_row[active_row]
+                    - potentials_by_column[candidate]
+                )
+                if reduced < minimum[candidate]:
+                    minimum[candidate] = reduced
+                    previous_column[candidate] = column
+                if minimum[candidate] < delta:
+                    delta = minimum[candidate]
+                    next_column = candidate
+            for candidate in range(column_count + 1):
+                if used[candidate]:
+                    potentials_by_row[matched_row[candidate]] += delta
+                    potentials_by_column[candidate] -= delta
+                else:
+                    minimum[candidate] -= delta
+            column = next_column
+            if matched_row[column] == 0:
+                break
+        while column:
+            prior = previous_column[column]
+            matched_row[column] = matched_row[prior]
+            column = prior
+    return tuple(
+        sorted(
+            (row - 1, column - 1)
+            for column, row in enumerate(matched_row[1:], start=1)
+            if row
+        )
+    )
 
 
 def _unsupported_session(
@@ -225,6 +302,8 @@ def _classify(session_dir: Path, *, max_bind_distance: float) -> LegacySessionCe
     session_path = session_dir / "session.json"
     raw_bytes = b""
     try:
+        if session_dir.is_symlink():
+            raise ValueError("unsafe session directory")
         if session_path.is_symlink() or not session_path.is_file():
             raise ValueError("unsafe or missing session JSON")
         raw_bytes = session_path.read_bytes()
@@ -310,7 +389,7 @@ def _classify(session_dir: Path, *, max_bind_distance: float) -> LegacySessionCe
             issues.add("duplicate_stable_ids")
         elif set(dog_ids) != set(hitbox_ids):
             issues.add("stable_id_mismatch")
-        else:
+        elif "unsupported_dog_index" not in issues:
             index_by_id = {value: index for index, value in enumerate(hitbox_ids)}
             bindings = tuple(
                 sorted(
@@ -352,7 +431,7 @@ def _classify(session_dir: Path, *, max_bind_distance: float) -> LegacySessionCe
 def census_legacy_sessions(
     levels_root: Path,
     *,
-    max_bind_distance: float = 80,
+    max_bind_distance: float = 20,
 ) -> LegacyCensusReport:
     """Inspect an explicit corpus path without creating, repairing, or importing anything."""
 
@@ -360,7 +439,7 @@ def census_legacy_sessions(
     sessions = tuple(
         _classify(path, max_bind_distance=max_bind_distance)
         for path in sorted(levels_root.iterdir() if levels_root.exists() else ())
-        if path.is_dir() and not path.is_symlink() and (path / "session.json").exists()
+        if path.is_dir()
     )
     unexplained_count = sum(
         len(set(session.issue_codes) - _KNOWN_CODES) for session in sessions

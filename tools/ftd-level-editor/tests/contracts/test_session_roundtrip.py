@@ -7,7 +7,7 @@ import pytest
 from pydantic import ValidationError
 
 from ftd_editor.sessions.model import AuthoringSession
-from ftd_editor.sessions.store import SessionStore
+from ftd_editor.sessions.store import SessionRevisionConflict, SessionStore
 from ftd_editor.settings import WorkspacePaths
 
 
@@ -60,3 +60,24 @@ def test_store_noop_save_preserves_original_bytes_and_revision(tmp_path: Path) -
     assert (session_dir / "session.json").read_bytes() == raw
     assert after.revision == before.revision
     assert json.loads(after.session.to_bytes())["future"] == 7
+
+
+def test_public_save_path_rejects_a_stale_revision(tmp_path: Path) -> None:
+    paths = WorkspacePaths.below(tmp_path / "workspace")
+    paths.prepare()
+    store = SessionStore(paths)
+    original = store.create(
+        {"id": "save-race", "dogs": [{"index": 0, "id": "dog-a"}]}
+    )
+    winner = store.set_dog_active_variant(
+        "save-race", "dog-a", 0, expected_revision=original.revision
+    )
+
+    with pytest.raises(SessionRevisionConflict) as conflict:
+        store.save(
+            "save-race",
+            original.session,
+            expected_revision=original.revision,
+        )
+
+    assert conflict.value.current.revision == winner.revision

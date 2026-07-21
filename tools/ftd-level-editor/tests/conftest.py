@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 
 from ftd_editor.app import (
     AppComponents,
-    EmptyStores,
+    EditorStores,
     FailClosedProviders,
     ManualWorker,
     create_app,
@@ -40,7 +40,7 @@ def editor_settings(tmp_path: Path, legacy_fixture_root: Path) -> EditorSettings
 def app_components() -> AppComponents:
     secrets = CompositionSecrets.from_mapping({"provider": CANARY_SECRET})
     return AppComponents(
-        stores=EmptyStores(),
+        stores=EditorStores(),
         worker=ManualWorker(),
         providers=FailClosedProviders(),
         redactor=SecretRedactor(secrets),

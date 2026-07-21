@@ -15,7 +15,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from ..fs import AtomicBundleStore, PublishedBundle, atomic_write_bytes
+from ..fs import (
+    AtomicBundleStore,
+    FilesystemContractError,
+    PublishedBundle,
+    atomic_write_bytes,
+    resolve_confined,
+)
 from ..settings import WorkspacePaths
 from .dogs import DogBundlePayload, set_active_variant
 from .gallery import GallerySession, gallery_metadata, update_gallery_metadata
@@ -81,13 +87,6 @@ class SessionStore:
         self.bundles = AtomicBundleStore(paths.authoring / ".ftd-session-bundles")
         self.bundles.recover()
 
-    def names(self) -> tuple[str, ...]:
-        return ("sessions",)
-
-    @property
-    def sessions(self) -> "SessionStore":
-        return self
-
     @staticmethod
     def _validate_identifier(value: str, label: str) -> str:
         if not _IDENTIFIER.fullmatch(value):
@@ -95,7 +94,14 @@ class SessionStore:
         return value
 
     def _session_dir(self, session_id: str) -> Path:
-        return self.paths.authoring / self._validate_identifier(session_id, "session id")
+        identifier = self._validate_identifier(session_id, "session id")
+        lexical = self.paths.authoring / identifier
+        if lexical.is_symlink():
+            raise SessionNotFound(session_id)
+        try:
+            return resolve_confined(self.paths.authoring, identifier)
+        except FilesystemContractError as error:
+            raise SessionNotFound(session_id) from error
 
     @classmethod
     def _process_lock(cls, path: Path) -> threading.Lock:
@@ -215,18 +221,6 @@ class SessionStore:
                 raise
             return self.load(session_id)
 
-    def _save_locked(
-        self,
-        session_id: str,
-        session: AuthoringSession,
-        *,
-        expected_revision: str,
-    ) -> SessionSnapshot:
-        current = self.load(session_id)
-        if current.revision != expected_revision:
-            raise SessionRevisionConflict(current)
-        return self._commit_locked(current, session)
-
     def _commit_locked(
         self,
         current: SessionSnapshot,
@@ -258,8 +252,11 @@ class SessionStore:
         *,
         expected_revision: str,
     ) -> SessionSnapshot:
-        with self._exclusive(f"session:{session_id}"):
-            return self._save_locked(session_id, session, expected_revision=expected_revision)
+        return self.mutate(
+            session_id,
+            expected_revision=expected_revision,
+            mutation=lambda _current: session,
+        )
 
     def mutate(
         self,

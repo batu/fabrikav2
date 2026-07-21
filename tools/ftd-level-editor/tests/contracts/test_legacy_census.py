@@ -113,3 +113,113 @@ def test_missing_or_symlinked_referenced_artifact_is_unsupported(tmp_path: Path)
 
     assert report.sessions[0].classification == "unsupported"
     assert "unsafe_artifact" in report.sessions[0].issue_codes
+
+
+@pytest.mark.legacy_census
+def test_invalid_stable_dog_index_is_classified_without_aborting_corpus(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "legacy"
+    root.mkdir()
+    _write_session(
+        root,
+        "broken-index",
+        dogs=[{"id": "dog-a", "activeVariant": None}],
+        hitboxes=[{"id": "dog-a", "x": 10, "y": 10}],
+    )
+    _write_session(
+        root,
+        "valid",
+        dogs=[{"index": 0, "id": "dog-b", "activeVariant": None}],
+        hitboxes=[{"id": "dog-b", "x": 20, "y": 20}],
+    )
+
+    report = census_legacy_sessions(root)
+
+    by_id = {session.session_id: session for session in report.sessions}
+    assert by_id["broken-index"].classification == "unsupported"
+    assert "unsupported_dog_index" in by_id["broken-index"].issue_codes
+    assert by_id["valid"].classification == "stable"
+    assert report.unexplained_count == 0
+
+
+@pytest.mark.legacy_census
+def test_incomplete_and_symlinked_session_directories_are_explicitly_classified(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "legacy"
+    root.mkdir()
+    (root / "missing-session-json").mkdir()
+    outside = tmp_path / "outside-session"
+    outside.mkdir()
+    (outside / "session.json").write_text('{"id":"outside"}')
+    (root / "symlinked-session").symlink_to(outside, target_is_directory=True)
+
+    report = census_legacy_sessions(root)
+
+    assert {
+        session.session_id: session.classification for session in report.sessions
+    } == {
+        "missing-session-json": "unsupported",
+        "symlinked-session": "unsupported",
+    }
+    assert report.unexplained_count == 0
+
+
+@pytest.mark.legacy_census
+def test_rebind_uses_global_minimum_cost_instead_of_greedy_folder_order(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "legacy"
+    root.mkdir()
+    _write_session(
+        root,
+        "global-minimum",
+        dogs=[
+            {"index": 0, "activeVariant": 0},
+            {"index": 1, "activeVariant": 0},
+        ],
+        hitboxes=[{"x": 0, "y": 0}, {"x": 20, "y": 0}],
+        centers=[(9, 0), (-10, 0)],
+    )
+
+    report = census_legacy_sessions(root, max_bind_distance=100)
+
+    assert report.sessions[0].classification == "rebindable"
+    assert report.sessions[0].bindings == ((0, 1), (1, 0))
+
+
+@pytest.mark.legacy_census
+def test_default_rebind_threshold_matches_legacy_identity_gate(tmp_path: Path) -> None:
+    root = tmp_path / "legacy"
+    root.mkdir()
+    _write_session(
+        root,
+        "over-threshold",
+        dogs=[{"index": 0, "activeVariant": 0}],
+        hitboxes=[{"x": 0, "y": 0}],
+        centers=[(21, 0)],
+    )
+
+    report = census_legacy_sessions(root)
+
+    assert report.sessions[0].classification == "ambiguous"
+    assert "unbound_dog" in report.sessions[0].issue_codes
+
+
+@pytest.mark.legacy_census
+def test_non_finite_hitbox_coordinates_are_unsupported(tmp_path: Path) -> None:
+    root = tmp_path / "legacy"
+    root.mkdir()
+    _write_session(
+        root,
+        "non-finite",
+        dogs=[{"index": 0, "activeVariant": 0}],
+        hitboxes=[{"x": "nan", "y": 0}],
+        centers=[(0, 0)],
+    )
+
+    report = census_legacy_sessions(root)
+
+    assert report.sessions[0].classification == "unsupported"
+    assert "unsupported_hitbox" in report.sessions[0].issue_codes

@@ -2,12 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Literal
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 
 from .dogs import StableDogNotFound
+from .model import AuthoringSession
 from .store import (
     SessionAlreadyExists,
     SessionNotFound,
@@ -19,7 +20,7 @@ from .store import (
 
 class CreateSessionRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    session: dict[str, Any]
+    session: AuthoringSession
 
 
 class RevisionedAction(BaseModel):
@@ -76,6 +77,19 @@ class GallerySessionResponse(BaseModel):
     archived: bool
 
 
+class SessionRevisionConflictDetail(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    code: Literal["session_revision_conflict"]
+    current: SessionSnapshotResponse
+
+
+class SessionRevisionConflictResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    detail: SessionRevisionConflictDetail
+
+
 def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRouter:
     router = APIRouter(prefix="/api/sessions", dependencies=dependencies)
 
@@ -104,6 +118,8 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
                 status_code=409,
                 detail="session destination already exists",
             ) from error
+        except ValueError as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
 
     @router.get(
         "/{session_id}",
@@ -115,6 +131,8 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
             return SessionSnapshotResponse.from_snapshot(store.load(session_id))
         except SessionNotFound as error:
             raise HTTPException(status_code=404, detail="session not found") from error
+        except ValueError as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
 
     def apply(action: Any) -> SessionSnapshotResponse:
         try:
@@ -123,11 +141,13 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
             current = SessionSnapshotResponse.from_snapshot(error.current)
             raise HTTPException(
                 status_code=409,
-                detail={
-                    "code": "session_revision_conflict",
-                    "current": current.model_dump(by_alias=True),
-                },
+                detail=SessionRevisionConflictDetail(
+                    code="session_revision_conflict",
+                    current=current,
+                ).model_dump(by_alias=True),
             ) from error
+        except SessionNotFound as error:
+            raise HTTPException(status_code=404, detail="session not found") from error
         except StableDogNotFound as error:
             raise HTTPException(status_code=404, detail=str(error)) from error
         except ValueError as error:
@@ -137,6 +157,7 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
         "/{session_id}/dogs/{dog_id}/active-variant",
         operation_id="setCurrentSessionDogActiveVariant",
         response_model=SessionSnapshotResponse,
+        responses={409: {"model": SessionRevisionConflictResponse}},
     )
     def set_current_session_dog_active_variant(
         session_id: str, dog_id: str, body: SetDogActiveVariantRequest
@@ -154,6 +175,7 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
         "/{session_id}/gallery-metadata",
         operation_id="updateCurrentSessionGalleryMetadata",
         response_model=SessionSnapshotResponse,
+        responses={409: {"model": SessionRevisionConflictResponse}},
     )
     def update_current_session_gallery_metadata(
         session_id: str, body: UpdateGalleryMetadataRequest

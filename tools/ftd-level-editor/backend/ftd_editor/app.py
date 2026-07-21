@@ -85,15 +85,13 @@ class FailClosedProviders:
 
 
 @dataclass(frozen=True, slots=True)
-class EmptyStores:
-    """U1 store registry: no ledger or authoring store exists yet."""
+class EditorStores:
+    """Explicit composition root for editor-owned persistence authorities."""
 
-    @property
-    def sessions(self) -> None:
-        return None
+    sessions: SessionStore | None = None
 
     def names(self) -> tuple[str, ...]:
-        return ()
+        return ("sessions",) if self.sessions is not None else ()
 
 
 @dataclass(frozen=True, slots=True)

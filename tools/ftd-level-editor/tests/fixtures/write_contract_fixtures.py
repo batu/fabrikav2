@@ -8,7 +8,7 @@ import json
 from dataclasses import asdict
 from pathlib import Path
 
-from ftd_editor.app import AppComponents, EmptyStores, FailClosedProviders, ManualWorker, create_app
+from ftd_editor.app import AppComponents, EditorStores, FailClosedProviders, ManualWorker, create_app
 from ftd_editor.domain.geometry import banner_band, hud_band, section_forbidden_zones, section_ranges
 from ftd_editor.models.options import model_option_snapshot
 from ftd_editor.prompts.recipes import build_scene_prompt, get_entity_prompt, prompt_catalog_snapshot
@@ -44,7 +44,7 @@ def build_fixture(provenance: dict[str, str]) -> dict[str, object]:
     app = create_app(
         settings,
         AppComponents(
-            stores=EmptyStores(),
+            stores=EditorStores(),
             worker=ManualWorker(),
             providers=FailClosedProviders(),
             redactor=SecretRedactor(CompositionSecrets.from_mapping({})),

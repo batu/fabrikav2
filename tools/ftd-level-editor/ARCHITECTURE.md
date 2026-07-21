@@ -68,7 +68,7 @@ checksum did not change. It exposes no import or repair action.
 `AppComponents` carries the injected store registry, worker, provider registry, and
 central redactor. The default U1 test composition uses:
 
-- `EmptyStores`: proves no ledger or authoring authority exists yet;
+- `EditorStores`: explicitly composes the currently installed persistence authorities;
 - `ManualWorker`: no thread and no startup loop;
 - `FailClosedProviders`: every un-scripted provider lookup raises;
 - `SecretRedactor`: sanitizes errors and persistence-shaped payloads before they
