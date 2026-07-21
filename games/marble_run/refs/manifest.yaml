@@ -1,0 +1,276 @@
+# refcap-compare manifest for marble_run.
+# Drives paired reference(android) + v2(apple/web) capture into a side-by-side
+# grid per canonical state. Consumed by tools/refcap-compare.
+# Fixes ledger C4/B1/B2/B3 + the A5 package-stamp near-miss.
+game: marble_run
+
+# REFERENCE lane = the authoritative Android app, captured over the ubuntu-server
+# adb bridge. Package is foreground-verified (dumpsys) before every screencap and
+# stamped into per-capture metadata.
+reference:
+  package: com.basegamelab.marblerun
+  version: unknown            # stamp real versionName when captured live
+  device: Pixel 6a 1080x2400 @420dpi
+  host: ubuntu-server
+  adb: /home/batu/android-sdk/platform-tools/adb
+  serial: null               # fill in for a live run: --serial or here
+
+# V2 lane = the fabrika v2 port, driven by the game harness driveTo(state).
+# Gated on the sibling harness card; until it lands the v2 lane is offline-only.
+v2:
+  package: com.fabrikav2.marble_run
+  version: dev
+  viewport: 390x844
+
+# verify-device-only hygiene: iOS screenshots include the system status bar,
+# while the Android reference captures are fullscreen immersive. Crop the
+# physical-pixel status area from device captures before phash + panel judging;
+# raw captures are still preserved in the evidence directory.
+verifyDevice:
+  contentInsetTop: 130
+  regions:
+    - name: gameplay_top_hud
+      label: Gameplay top HUD hearts and settings band
+      coords: normalized
+      states:
+        - level
+      box:
+        x: 0.04
+        y: 0.06
+        width: 0.92
+        height: 0.11
+
+    - name: gameplay_bottom_hud
+      label: Gameplay bottom coin and hint controls
+      coords: normalized
+      states:
+        - level
+      box:
+        x: 0.03
+        y: 0.82
+        width: 0.94
+        height: 0.13
+
+    - name: settings_button_band
+      label: Settings modal close and reset controls
+      coords: normalized
+      states:
+        - settings
+      box:
+        x: 0.18
+        y: 0.54
+        width: 0.64
+        height: 0.19
+
+    - name: result_ribbon
+      label: Result screen headline ribbon
+      coords: normalized
+      states:
+        - win
+        - fail
+      box:
+        x: 0.07
+        y: 0.19
+        width: 0.86
+        height: 0.14
+
+    - name: win_next_button
+      label: Win screen primary next button
+      coords: normalized
+      states:
+        - win
+      box:
+        x: 0.27
+        y: 0.73
+        width: 0.46
+        height: 0.12
+
+    - name: fail_continue_button
+      label: Fail screen continue/loading primary button
+      coords: normalized
+      states:
+        - fail
+      box:
+        x: 0.22
+        y: 0.60
+        width: 0.56
+        height: 0.12
+
+    - name: fail_retry_button
+      label: Fail screen retry secondary button
+      coords: normalized
+      states:
+        - fail
+      box:
+        x: 0.22
+        y: 0.76
+        width: 0.56
+        height: 0.12
+
+    - name: menu_level_button
+      label: Menu primary level button
+      coords: normalized
+      states:
+        - menu
+      box:
+        x: 0.22
+        y: 0.84
+        width: 0.56
+        height: 0.12
+
+# Reference corpus metadata. Every committed image under refs/captures/ has an
+# entry here so audit/verify-device can distinguish trusted at-rest targets from
+# preserved-but-unsafe corpus debt.
+refs:
+  refs/captures/android-basegamelab/menu.png:
+    state-variant: menu/cold-start
+    capture-recipe: launch the Android reference app cold and wait for the saga menu to settle
+    at-rest: true
+    provenance:
+      source: shipped-capture
+      package: com.basegamelab.marblerun
+      device: Pixel 6a 1080x2400 @420dpi
+      host: ubuntu-server
+      tool: adb screencap with foreground package verified by dumpsys
+      captured: 2026-07-06
+
+  refs/captures/android-basegamelab/level-start.png:
+    state-variant: level/start
+    capture-recipe: from the saga menu, tap the green LEVEL button and capture after the board settles
+    at-rest: true
+    provenance:
+      source: shipped-capture
+      package: com.basegamelab.marblerun
+      device: Pixel 6a 1080x2400 @420dpi
+      host: ubuntu-server
+      tool: adb screencap with foreground package verified by dumpsys
+      captured: 2026-07-06
+
+  refs/captures/android-basegamelab/level-mid.png:
+    state-variant: level/mid-ambient-animation
+    capture-recipe: from a started level, wait several seconds and capture the ongoing board state
+    at-rest: true
+    provenance:
+      source: shipped-capture
+      package: com.basegamelab.marblerun
+      device: Pixel 6a 1080x2400 @420dpi
+      host: ubuntu-server
+      tool: adb screencap with foreground package verified by dumpsys
+      captured: 2026-07-06
+
+  refs/captures/android-basegamelab/level-ref-full.png:
+    state-variant: level/fullscreen-reference
+    capture-recipe: from a started level, capture the fullscreen Android reference board without status-bar chrome
+    at-rest: true
+    provenance:
+      source: shipped-capture
+      package: com.basegamelab.marblerun
+      device: Pixel 6a 1080x2400 @420dpi
+      host: ubuntu-server
+      tool: adb screencap with foreground package verified by dumpsys
+      captured: 2026-07-06
+
+  refs/captures/android-basegamelab/settings.png:
+    state-variant: settings/from-menu-close-reset-progress
+    capture-recipe: from the saga menu, tap the gear and capture the settings modal with CLOSE and RESET PROGRESS actions
+    at-rest: true
+    provenance:
+      source: shipped-capture
+      package: com.basegamelab.marblerun
+      device: Pixel 6a 1080x2400 @420dpi
+      host: ubuntu-server
+      tool: adb screencap with foreground package verified by dumpsys
+      captured: 2026-07-06
+
+  refs/captures/android-basegamelab/settings-inlevel-restart-home.png:
+    state-variant: settings/from-level-restart-home
+    capture-recipe: from an active level, tap the gear and capture the settings modal with RESTART and HOME actions
+    at-rest: true
+    provenance:
+      source: shipped-capture
+      package: com.basegamelab.marblerun
+      device: Pixel 6a 1080x2400 @420dpi
+      host: ubuntu-server
+      tool: adb screencap with foreground package verified by dumpsys
+      captured: 2026-07-06
+
+  refs/captures/android-basegamelab/win-ref.png:
+    state-variant: win/manual-level-complete
+    capture-recipe: human-drive the Android reference app to the settled WIN screen, then capture after the level-complete card is idle
+    at-rest: true
+    provenance:
+      source: shipped-capture
+      package: com.basegamelab.marblerun
+      device: Pixel 6a 1080x2400 @420dpi
+      host: ubuntu-server
+      tool: adb screencap with foreground package verified by dumpsys
+      captured: 2026-07-06
+
+  refs/captures/android-basegamelab/fail-ref.png:
+    state-variant: fail/mid-load-unsafe
+    capture-recipe: human-drive the Android reference app toward a fail state; current capture was taken before the fail screen settled
+    at-rest: false
+    not-at-rest-reason: contains a mid-load LOADING button and is not a stable fail screen
+    recapture-note: recapture after human or scripted play reaches the settled fail overlay; keep excluded from verify-device judging until then
+    provenance:
+      source: shipped-capture
+      package: com.basegamelab.marblerun
+      device: Pixel 6a 1080x2400 @420dpi
+      host: ubuntu-server
+      tool: adb screencap with foreground package verified by dumpsys
+      captured: 2026-07-06
+
+# Canonical states. Each state names a reference source and a v2 source.
+# offline: committed PNG consumed by `--offline` (the path the AC exercises).
+# recipe/driveTo: the live-lane instructions (coded, not run in the sandbox).
+# manual: true -> operator drives the phone and confirms before capture (never
+#         blind-tap); win/fail on the 3D board are not reachable by taps.
+states:
+  - name: menu
+    reference:
+      offline: refs/captures/android-basegamelab/menu.png
+      recipe: launch app cold; lands on the saga menu
+    v2:
+      offline: evidence/2026-07-06-1328-fixed/v2-menu.png
+      driveTo: menu
+
+  - name: level
+    reference:
+      offline: refs/captures/android-basegamelab/level-start.png
+      recipe: from menu, tap the green LEVEL button
+    v2:
+      offline: evidence/2026-07-06-1328-fixed/v2-level.png
+      driveTo: level
+
+  - name: settings
+    reference:
+      offline: refs/captures/android-basegamelab/settings.png
+      recipe: from menu, tap the gear; modal opens over dimmed menu
+    v2:
+      offline: evidence/2026-07-06-1328-fixed/v2-settings.png
+      driveTo: settings
+
+  - name: pause
+    reference:
+      gap: "no reference pause capture exists (refs README) — documented gap"
+    v2:
+      offline: evidence/2026-07-06-0953-v2-screens/04-pause-overlay.png
+      driveTo: pause
+
+  - name: win
+    reference:
+      offline: refs/captures/android-basegamelab/win-ref.png
+      manual: true
+      prompt: "Drive the phone to the WIN / level-complete screen, then press ENTER to capture."
+    v2:
+      offline: evidence/2026-07-06-0953-v2-screens/05-result-card.png
+      driveTo: win
+
+  - name: fail
+    reference:
+      offline: refs/captures/android-basegamelab/fail-ref.png
+      manual: true
+      prompt: "Drive the phone to the FAIL screen, then press ENTER to capture."
+    v2:
+      gap: "no trusted v2 fail capture committed yet — documented gap"
+      driveTo: fail
