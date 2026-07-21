@@ -1,0 +1,24 @@
+{
+  "name": "@fabrikav2/ftd-level-editor",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p ui/tsconfig.json",
+    "lint": "eslint ui",
+    "test:unit": "node --test ui/src/fixture-api.test.mjs",
+    "build": "vite build --config ui/vite.config.ts --mode fixture",
+    "editor:contracts:check": "UV_CACHE_DIR=${TMPDIR:-/tmp}/ftd-editor-uv-cache uv run python tests/fixtures/write_contract_fixtures.py --output tests/fixtures/pure-ftd-parity.json --check"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.2"
+  }
+}
