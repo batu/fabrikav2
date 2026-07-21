@@ -167,7 +167,7 @@ export function attachAchievementUnlockCallout(
       ? unlocked[0]!.name
       : `${unlocked[0]!.name} and ${unlocked.length - 1} more`;
     const guidance = document.createElement('small');
-    guidance.textContent = 'View from Home';
+    guidance.textContent = 'Saved to your Achievements';
     callout.append(heading, summary, guidance);
     card.insertBefore(callout, actions);
     showAchievementUnlockToast(unlocked);
@@ -243,7 +243,10 @@ export function showLevelCompleteOverlay(
     id: OVERLAY_ID,
     theme: { ...FTD_UI_THEME, ...FTD_COMPLETE_THEME },
     content: {
-      messages: ['Level Clear!', 'Great Find!', 'Nice Work!'],
+      // Praise only: the overlay's art title already states LEVEL COMPLETE, so
+      // a state-label subtitle ("Level Clear!") read as a duplicated/swapped
+      // heading in review — every subtitle is now congratulatory copy.
+      messages: ['Great Find!', 'Nice Work!'],
       rewardLabel: 'Coins earned',
       rewardAmount: options.baseCoins,
       balanceBefore,

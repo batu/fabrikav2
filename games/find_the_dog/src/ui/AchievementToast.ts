@@ -22,14 +22,15 @@ export function showAchievementUnlockToast(unlocked: readonly { name: string }[]
     `Achievements unlocked: ${unlocked.map((achievement) => achievement.name).join(', ')}`,
   );
 
-  const heading = document.createElement('strong');
-  heading.textContent = 'Achievement unlocked';
-  const summary = document.createElement('span');
+  // Copy is deliberately distinct from the completion-card callout (which
+  // reads "Achievement unlocked / <names> / guidance") so the two surfaces
+  // never show the same text twice on one screen.
+  const summary = document.createElement('strong');
   summary.className = 'achievement-unlock-toast-summary';
   summary.textContent = unlocked.length === 1
-    ? unlocked[0]!.name
-    : `${unlocked[0]!.name} and ${unlocked.length - 1} more`;
-  toast.append(heading, summary);
+    ? `🏆 ${unlocked[0]!.name} unlocked!`
+    : `🏆 ${unlocked[0]!.name} +${unlocked.length - 1} more unlocked!`;
+  toast.append(summary);
   document.body.appendChild(toast);
 
   window.setTimeout(() => {

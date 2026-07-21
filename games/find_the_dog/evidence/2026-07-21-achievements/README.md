@@ -12,7 +12,7 @@ Genuine on-device proof of the Find the Dog achievement system (TWF card
 - Bundle id: `com.baseardahan.hiddenobj`, signing team `42L77JAX72`, Debug
   configuration, `vite build --mode ios`.
 - Raw result bundles (not committed; large): `games/find_the_dog/.work/collectRun/`
-  `proof15.xcresult`, `proof16.xcresult`, `proof17.xcresult`, `persist1.xcresult`.
+  `proof20.xcresult` (fixed build) and `persist2.xcresult` (clean-build persistence); earlier iterations proof15–19/persist1 retained for the troubleshooting trail.
 
 ## What each capture shows
 
@@ -24,8 +24,10 @@ Genuine on-device proof of the Find the Dog achievement system (TWF card
    Confirmed by harness marker `proof1: ok=true achOpen=true cards=11`.
 3. `03-unlock-callout-and-toast.png` — the REAL unlock moment: level 1 won
    through the genuine completion path (all 26 dogs found via dispatched
-   touch input), showing simultaneously the in-app unlock toast (top) and the
-   completion-card callout ("Achievement unlocked — First Find and 1 more").
+   touch input), showing simultaneously the in-app unlock toast ("🏆 First Find +1 more
+   unlocked!", copy deliberately distinct from the card callout) and the
+   completion-card callout ("Achievement unlocked — First Find and 1 more —
+   Saved to your Achievements").
    Confirmed by `proof2: ok=true callout=true toast=true found=26/26
    complete=true` — the callout/toast come from the real achievement reducer
    (`AchievementSystem.apply` → `CommittedAchievementDelta.newlyUnlocked`),
@@ -71,6 +73,17 @@ The clean persistence build was identical but WITHOUT
 `VITE_ENABLE_TEST_HARNESS` and without any injected script. For proof builds,
 generated `dist/levels` was pruned to the first three bundled levels (the full
 set is ~5 GB); `public/levels` was never touched.
+
+## Aesthetics-review fixes verified in these captures
+
+The first evidence set failed aesthetics review (status-bar overlap + native
+focus ring on the achievements page; last card clipped). Root cause: the modal
+focus containment focused the page title, which WKWebView scroll-shifted into
+view and decorated with a native focus ring. The dialog container is focused
+instead now (`preventScroll`, ring-free), the completion subtitle pool is
+praise-only, the callout guidance no longer reads as a tappable affordance,
+and the toast copy no longer duplicates the callout. All of the above are
+visible fixed in captures 02–04.
 
 ## Known limitation: the generic in-situ tour
 

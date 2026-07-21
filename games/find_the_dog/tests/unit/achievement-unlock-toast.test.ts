@@ -68,15 +68,14 @@ describe('achievement unlock toast', () => {
     showAchievementUnlockToast([{ name: 'First Find' }]);
     const toast = document.getElementById('achievement-unlock-toast')!;
     expect(toast.getAttribute('role')).toBe('status');
-    expect(toast.textContent).toContain('Achievement unlocked');
-    expect(toast.textContent).toContain('First Find');
+    expect(toast.textContent).toContain('First Find unlocked!');
     expect(toast.querySelector('button, a')).toBeNull();
   });
 
   it('collapses multiple unlocks and exposes every name to assistive tech', () => {
     showAchievementUnlockToast([{ name: 'First Find' }, { name: 'Sharp Eyes' }]);
     const toast = document.getElementById('achievement-unlock-toast')!;
-    expect(toast.textContent).toContain('First Find and 1 more');
+    expect(toast.textContent).toContain('First Find +1 more unlocked!');
     expect(toast.getAttribute('aria-label')).toContain('Sharp Eyes');
   });
 

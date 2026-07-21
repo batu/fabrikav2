@@ -55,7 +55,7 @@ describe('achievement collection page', () => {
     opener.focus();
     openPage('achievements');
     expect(document.querySelector('#home-shell')?.hasAttribute('inert')).toBe(true);
-    expect(document.activeElement?.id).toBe('home-page-title');
+    expect(document.activeElement?.id).toBe('home-page-overlay');
     const back = document.querySelector<HTMLButtonElement>('#home-page-back')!;
     back.focus();
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true }));
@@ -70,7 +70,7 @@ describe('achievement collection page', () => {
     vi.spyOn(gameState, 'achievementReadProjection').mockReturnValue({ status: 'ready', achievements: [] });
     vi.spyOn(gameState, 'allocateAchievementViewEvent').mockReturnValue(null);
     openPage('achievements');
-    expect(document.activeElement?.id).toBe('home-page-title');
+    expect(document.activeElement?.id).toBe('home-page-overlay');
 
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true }));
 

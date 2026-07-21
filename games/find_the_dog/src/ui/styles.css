@@ -3774,6 +3774,11 @@
   pointer-events: none;
 }
 
+/* Programmatic focus targets for modal containment; the UA default focus ring
+   (a blue WebView rectangle on iOS) is noise on non-interactive containers. */
+.home-page-title:focus { outline: none; }
+.home-page-overlay:focus { outline: none; }
+
 .home-page-title {
   font-family: 'Nunito', sans-serif;
   font-size: 22px;

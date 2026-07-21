@@ -491,13 +491,13 @@ export function openPage(
       && focusable.includes(document.activeElement);
     if (!insideTabOrder) {
       event.preventDefault();
-      (event.shiftKey ? last : first).focus();
+      (event.shiftKey ? last : first).focus({ preventScroll: true });
     } else if (event.shiftKey && document.activeElement === first) {
       event.preventDefault();
-      last.focus();
+      last.focus({ preventScroll: true });
     } else if (!event.shiftKey && document.activeElement === last) {
       event.preventDefault();
-      first.focus();
+      first.focus({ preventScroll: true });
     }
   };
   document.addEventListener('keydown', pageEscapeHandler);
@@ -521,7 +521,14 @@ export function openPage(
     }
   }
   requestAnimationFrame(() => { page.classList.add('home-page-overlay--open'); });
-  page.querySelector<HTMLElement>('#home-page-title')?.focus();
+  // Focus the dialog CONTAINER, not the title: WKWebView draws a native focus
+  // ring around a focused heading that CSS cannot remove, and (without
+  // preventScroll) scrolls the viewport to reveal it, shoving the page under
+  // the status bar. The full-bleed container shows no ring and the dialog's
+  // aria-labelledby still announces the title. Reset any residual scroll.
+  page.tabIndex = -1;
+  page.focus({ preventScroll: true });
+  window.scrollTo(0, 0);
 }
 
 function rewardStatusCopy(status: import('../achievements/AchievementSystem').AchievementRewardStatus): string {
@@ -583,7 +590,7 @@ export function closePage(): void {
   shell?.removeAttribute('inert');
   if (pageEscapeHandler) document.removeEventListener('keydown', pageEscapeHandler);
   pageEscapeHandler = null;
-  pageOpener?.focus();
+  pageOpener?.focus({ preventScroll: true });
   pageOpener = null;
   page.classList.remove('home-page-overlay--open'); // slides back DOWN + fades, mirroring the open
   const remove = (): void => {
