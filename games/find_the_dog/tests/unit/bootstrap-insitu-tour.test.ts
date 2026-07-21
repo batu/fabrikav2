@@ -47,7 +47,7 @@ describe("find_the_dog bootstrap insitu tour wiring", () => {
     const assignWindowBindings = vi.fn(() => vi.fn());
     const maybeRunInsituTour = vi.fn(() => Promise.resolve());
     const createFindTheDogHarness = vi.fn(() => harness);
-    const FIND_THE_DOG_TOUR_STATES = ["menu", "level", "settings", "pause", "win", "fail", "achievements", "win-achievement"];
+    const FIND_THE_DOG_TOUR_STATES = ["achievements", "win-achievement", "menu", "level", "settings", "pause", "win", "fail"];
     const snapshotMatchesFindTheDogDriveState = vi.fn();
     const Game = vi.fn(function MockPhaserGame() {
       return game;

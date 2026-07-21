@@ -28,7 +28,7 @@ import {
 
 type FindTheDogVerb = 'gotoHome' | 'startLevel' | 'openSettings' | 'pause' | 'winLevel' | 'failLevel' | 'tapSafeMiss';
 export const FIND_THE_DOG_TOUR_STATES = [
-  'menu', 'level', 'settings', 'pause', 'win', 'fail', 'achievements', 'win-achievement',
+  'achievements', 'win-achievement', 'menu', 'level', 'settings', 'pause', 'win', 'fail',
 ] as const;
 export type FindTheDogDriveState = DriveState | 'achievements' | 'win-achievement';
 
