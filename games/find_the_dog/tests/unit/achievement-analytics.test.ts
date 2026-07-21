@@ -119,6 +119,18 @@ describe('achievement UI view-event allocation (ACH-2 dependency)', () => {
       allocateAchievementViewEvent({ name: 'achievement_viewed', achievementId: 'not-in-catalog' }, 9),
     ).toBeNull();
   });
+
+  it('rejects sequences that cannot advance as safe integers', () => {
+    expect(
+      allocateAchievementViewEvent(
+        { name: 'achievement_page_viewed' },
+        Number.MAX_SAFE_INTEGER,
+      ),
+    ).toBeNull();
+    expect(
+      allocateAchievementViewEvent({ name: 'achievement_page_viewed' }, Number.NaN),
+    ).toBeNull();
+  });
 });
 
 describe('dispatchAchievementEvent (correction 1)', () => {

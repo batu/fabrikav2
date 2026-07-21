@@ -582,6 +582,24 @@ describe('ACH-2 read and view-event contract', () => {
       'ach:16:page:achievement_system',
     );
   });
+
+  it('fails closed when a reservation block would exceed the safe integer range', () => {
+    const gs = new GameState();
+    localStorage.setItem(
+      K.ACHIEVEMENTS,
+      JSON.stringify({
+        ...gs.achievementRecordSnapshot(),
+        nextAnalyticsEventSequence: Number.MAX_SAFE_INTEGER - 8,
+      }),
+    );
+
+    const reloaded = new GameState();
+    const durableJournal = localStorage.getItem(K.ACHIEVEMENTS);
+    expect(
+      reloaded.allocateAchievementViewEvent({ name: 'achievement_page_viewed' }),
+    ).toBeNull();
+    expect(localStorage.getItem(K.ACHIEVEMENTS)).toBe(durableJournal);
+  });
 });
 
 describe('cumulative + mastery survive reload', () => {

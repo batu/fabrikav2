@@ -183,6 +183,9 @@ export function allocateAchievementViewEvent(
   request: AchievementViewEventRequest,
   startSequence: number,
 ): AchievementViewEventAllocation | null {
+  if (!Number.isSafeInteger(startSequence) || startSequence < 0 || startSequence >= Number.MAX_SAFE_INTEGER) {
+    return null;
+  }
   if (request.name === 'achievement_page_viewed') {
     const id = eventId(startSequence, 'page', ACHIEVEMENT_SYSTEM_ID);
     return {

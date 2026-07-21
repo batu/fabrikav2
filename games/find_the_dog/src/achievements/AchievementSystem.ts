@@ -456,9 +456,9 @@ export function migrate(
 export function sanitizeSequence(record: AchievementRecord): number {
   const stored =
     typeof record.nextAnalyticsEventSequence === 'number' &&
-    Number.isFinite(record.nextAnalyticsEventSequence) &&
+    Number.isSafeInteger(record.nextAnalyticsEventSequence) &&
     record.nextAnalyticsEventSequence >= 0
-      ? Math.floor(record.nextAnalyticsEventSequence)
+      ? record.nextAnalyticsEventSequence
       : 0;
   let maxOutbox = 0;
   for (const event of record.analyticsOutbox) {

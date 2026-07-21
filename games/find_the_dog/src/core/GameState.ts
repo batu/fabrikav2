@@ -1449,6 +1449,9 @@ export class GameState {
     );
     if (allocation === null) return null;
     if (needsReservation) {
+      if (startSequence > Number.MAX_SAFE_INTEGER - ACHIEVEMENT_VIEW_SEQUENCE_RESERVATION_SIZE) {
+        return null;
+      }
       const reservationLimit =
         startSequence + ACHIEVEMENT_VIEW_SEQUENCE_RESERVATION_SIZE;
       try {
