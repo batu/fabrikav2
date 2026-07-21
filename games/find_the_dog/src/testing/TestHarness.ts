@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import type { AnalyticsEvent } from '@fabrikav2/sdk/analytics';
 import { driveInputAt, type ClientPoint, type GameHarness, type HarnessSaveProfile } from '@fabrikav2/testkit/harness';
 import { gameState, type CompletionTransaction, type GameSettings, type WalletSnapshot } from '../core/GameState';
+import { emptyAchievementRecord, type AchievementRecord } from '../achievements/AchievementSystem';
 import { GAMEPLAY, TIMING } from '../core/Constants';
 import { GameScene, type ClassicRenderDiagnosticsSnapshot, type RuntimeTexturesSnapshot, type ViewportEffectSnapshot } from '../scenes/GameScene';
 import { loadLevel, packageCacheSnapshot as getPackageCacheSnapshot, runtimeSequenceSnapshot as getRuntimeSequenceSnapshot, type LevelData, type LevelDog } from '../data/levels';
@@ -26,6 +27,10 @@ import {
 } from '@fabrikav2/testkit/testing';
 
 type FindTheDogVerb = 'gotoHome' | 'startLevel' | 'openSettings' | 'pause' | 'winLevel' | 'failLevel' | 'tapSafeMiss';
+export const FIND_THE_DOG_TOUR_STATES = [
+  'achievements', 'win-achievement', 'menu', 'level', 'settings', 'pause', 'win', 'fail',
+] as const;
+export type FindTheDogDriveState = DriveState | 'achievements' | 'win-achievement';
 
 export const findTheDogDrivePredicates = {
   menu: (snapshot: DriveSnapshot): boolean => {
@@ -70,9 +75,14 @@ export const findTheDogDrivePredicates = {
       || snapshot.levelFailedOverlayVisible === true
       || (scene === 'GameScene' && (status === 'failed' || snapshot.lives === 0)));
   },
-} satisfies DriveStatePredicates;
+  achievements: (snapshot: DriveSnapshot): boolean => snapshot.achievementsOpen === true
+    && Number(snapshot.achievementCardCount ?? 0) > 0
+    && snapshot.settingsOpen !== true,
+  'win-achievement': (snapshot: DriveSnapshot): boolean => findTheDogDrivePredicates.win(snapshot)
+    && snapshot.achievementCalloutVisible === true,
+} satisfies DriveStatePredicates & Record<FindTheDogDriveState, (snapshot: DriveSnapshot) => boolean>;
 
-export function snapshotMatchesFindTheDogDriveState(state: DriveState, raw: unknown): boolean {
+export function snapshotMatchesFindTheDogDriveState(state: FindTheDogDriveState, raw: unknown): boolean {
   const snapshot = (raw ?? {}) as DriveSnapshot;
   return findTheDogDrivePredicates[state](snapshot);
 }
@@ -86,6 +96,7 @@ const SETTINGS_PAGE_SELECTOR = [
 ].join(', ');
 
 const SETTINGS_OPEN_TRIGGER_SELECTOR = '#home-nav-settings, #settings-btn';
+const ACHIEVEMENTS_OPEN_TRIGGER_SELECTOR = '#home-achievements';
 const SETTINGS_OPEN_TARGET_POLL_MS = 50;
 const SETTINGS_OPEN_TARGET_MAX_POLLS = 40;
 const HOME_PLAY_TRIGGER_SELECTOR = '#home-play-now, #home-nav-play, .fab-levelmap-node.current';
@@ -132,6 +143,26 @@ function driveElementClick(element: HTMLElement): boolean {
   return true;
 }
 
+/**
+ * Click a trigger through the real input path once the hit test actually
+ * reaches it. On device the #scene-transition-cover lingers past first paint
+ * (fonts/icon decodes are slower than in the browser lane) and swallows a
+ * single-shot synthetic click, so poll until the element is topmost first.
+ */
+async function clickWhenHittable(selector: string, pollMs: number, maxPolls: number): Promise<boolean> {
+  const hittable = await waitUntil(() => {
+    const el = document.querySelector<HTMLElement>(selector);
+    if (el === null) return false;
+    const point = elementClientCenter(el);
+    if (point === null || typeof document.elementFromPoint !== 'function') return true;
+    const hit = document.elementFromPoint(point.x, point.y);
+    return hit !== null && (hit === el || el.contains(hit));
+  }, pollMs, maxPolls);
+  if (!hittable) return false;
+  const el = document.querySelector<HTMLElement>(selector);
+  return el !== null && driveElementClick(el);
+}
+
 export interface FindTheDogSnapshot {
   /** Visible scene/surface inferred from DOM plus Phaser. */
   activeScene: string;
@@ -139,6 +170,9 @@ export interface FindTheDogSnapshot {
   phaserActiveScene: string;
   status: 'playing' | 'paused' | 'complete' | 'failed' | undefined;
   settingsOpen: boolean;
+  achievementsOpen: boolean;
+  achievementCardCount: number;
+  achievementCalloutVisible: boolean;
   homeShellVisible: boolean;
   levelCompleteOverlayVisible: boolean;
   levelFailedOverlayVisible: boolean;
@@ -222,7 +256,7 @@ export interface FindTheDogHarness extends GameHarness<FindTheDogVerb> {
   tapAtLevelCoords(x: number, y: number): { hitDogId: string | null; penalty: boolean };
   winLevel(): Promise<boolean>;
   failLevel(): Promise<boolean>;
-  driveTo(state: DriveState): Promise<boolean>;
+  driveTo(state: FindTheDogDriveState): Promise<boolean>;
   resetSave(): void;
   seedSave(profile: HarnessSaveProfile): void;
   setState(partial: { lives?: number; hintsRemaining?: number; currentLevelIndex?: number }): void;
@@ -291,18 +325,17 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     }
 
     const menuSnapshot = driveSnapshot();
-    const atMenu = (menuSnapshot.homeShellVisible === true && menuSnapshot.settingsOpen !== true) || await gotoHome();
+    const atMenu = (menuSnapshot.homeShellVisible === true
+      && menuSnapshot.settingsOpen !== true
+      && menuSnapshot.achievementsOpen !== true) || await gotoHome();
     if (!atMenu) return false;
 
-    const buttonReady = await waitUntil(
-      () => document.querySelector(HOME_PLAY_TRIGGER_SELECTOR) !== null,
+    const clicked = await clickWhenHittable(
+      HOME_PLAY_TRIGGER_SELECTOR,
       HOME_READY_TARGET_POLL_MS,
       HOME_READY_TARGET_MAX_POLLS,
     );
-    if (!buttonReady) return false;
-
-    const trigger = document.querySelector<HTMLElement>(HOME_PLAY_TRIGGER_SELECTOR);
-    if (trigger === null || !driveElementClick(trigger)) return false;
+    if (!clicked) return false;
 
     return waitUntil(
       () => findTheDogDrivePredicates.level(driveSnapshot()),
@@ -321,13 +354,70 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
 
   async function openSettingsFromUi(): Promise<boolean> {
     await waitForSettingsOpenTarget();
-    const button = document.querySelector<HTMLButtonElement>(SETTINGS_OPEN_TRIGGER_SELECTOR);
-    if (button !== null) {
-      driveElementClick(button);
+    if (document.querySelector(SETTINGS_OPEN_TRIGGER_SELECTOR) !== null) {
+      await clickWhenHittable(
+        SETTINGS_OPEN_TRIGGER_SELECTOR,
+        SETTINGS_OPEN_TARGET_POLL_MS,
+        SETTINGS_OPEN_TARGET_MAX_POLLS,
+      );
     }
     if (document.querySelector(SETTINGS_PAGE_SELECTOR) === null) openPage('settings');
     return waitUntil(
       () => findTheDogDrivePredicates.settings(driveSnapshot()),
+      SETTINGS_OPEN_TARGET_POLL_MS,
+      SETTINGS_OPEN_TARGET_MAX_POLLS,
+    );
+  }
+
+  /**
+   * Write a deterministic v2 achievement journal and reload it through the real
+   * persistence path. `load()` preserves a current-version record verbatim, so
+   * the collection capture always shows every reward status the card must prove:
+   * locked, in-progress, live-reward-settled, migration-reward-ineligible and
+   * legacy-reward-provenance-unknown.
+   */
+  function writeAchievementRecordForTest(record: AchievementRecord): void {
+    localStorage.setItem('ftd_achievements', JSON.stringify(record));
+    gameState.load();
+  }
+
+  function seedAchievementCollection(): void {
+    writeAchievementRecordForTest({
+      ...emptyAchievementRecord(),
+      progress: {
+        first_completion: 1,
+        completions_10: 4,
+        first_best: 1,
+        streak_3: 3,
+        streak_7: 3,
+        dogs_25: 8,
+        mastery_5: 2,
+      },
+      masteredLevelIds: ['level-1', 'level-2'],
+      unlocked: ['first_completion', 'first_best', 'streak_3'],
+      migrationRewardIneligibleAchievementIds: ['first_best'],
+      legacyRewardProvenanceUnknownAchievementIds: ['streak_3'],
+      processedOccurrenceIds: ['harness:achievement-collection'],
+    });
+  }
+
+  /** Guarantee a still-locked achievement so a real completion always unlocks one. */
+  function seedLockedAchievementsForUnlock(): void {
+    writeAchievementRecordForTest(emptyAchievementRecord());
+  }
+
+  async function openAchievementsFromUi(): Promise<boolean> {
+    const atHome = findTheDogDrivePredicates.menu(driveSnapshot()) || await gotoHome();
+    if (!atHome) return false;
+    seedAchievementCollection();
+    const clicked = await clickWhenHittable(
+      ACHIEVEMENTS_OPEN_TRIGGER_SELECTOR,
+      HOME_READY_TARGET_POLL_MS,
+      HOME_READY_TARGET_MAX_POLLS,
+    );
+    if (!clicked) return false;
+    return waitUntil(
+      () => findTheDogDrivePredicates.achievements(driveSnapshot()),
       SETTINGS_OPEN_TARGET_POLL_MS,
       SETTINGS_OPEN_TARGET_MAX_POLLS,
     );
@@ -384,11 +474,21 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
   }
 
   async function winLevel(): Promise<boolean> {
+    // Let the play-entry transition cover finish before tapping — while it is
+    // up, the real-input hit test lands on the cover instead of the canvas.
+    await waitUntil(
+      () => document.getElementById('scene-transition-cover') === null,
+      TERMINAL_TARGET_POLL_MS,
+      TERMINAL_TARGET_MAX_POLLS,
+    );
     const before = harnessSnapshot();
     for (const dog of before.dogPositions.filter((candidate) => !candidate.found)) {
-      harness.findDog(dog.id);
       await waitUntil(
-        () => gameState.foundDogIds.has(dog.id),
+        () => {
+          if (gameState.foundDogIds.has(dog.id)) return true;
+          harness.findDog(dog.id);
+          return gameState.foundDogIds.has(dog.id);
+        },
         TERMINAL_TARGET_POLL_MS,
         TERMINAL_TARGET_MAX_POLLS,
       );
@@ -421,6 +521,9 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       phaserActiveScene: snapshot.phaserActiveScene,
       inputReady: snapshot.levelDataReady,
       settingsOpen: snapshot.settingsOpen,
+      achievementsOpen: snapshot.achievementsOpen,
+      achievementCardCount: snapshot.achievementCardCount,
+      achievementCalloutVisible: snapshot.achievementCalloutVisible,
       homeShellVisible: snapshot.homeShellVisible,
       levelCompleteOverlayVisible: snapshot.levelCompleteOverlayVisible,
       levelFailedOverlayVisible: snapshot.levelFailedOverlayVisible,
@@ -448,6 +551,9 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     const phaserActiveScene = game.scene.getScenes(true)[0]?.scene.key ?? 'unknown';
     const homeShellVisible = document.querySelector('#home-shell') !== null;
     const settingsOpen = document.querySelector(SETTINGS_PAGE_SELECTOR) !== null;
+    const achievementsOpen = document.querySelector('#home-page-overlay.home-page-achievements') !== null;
+    const achievementCardCount = document.querySelectorAll('.achievement-card').length;
+    const achievementCalloutVisible = document.querySelector('.achievement-unlock-callout') !== null;
     const levelCompleteOverlayVisible = document.getElementById('level-complete-overlay') !== null;
     const levelFailedOverlayVisible = document.getElementById('level-failed-overlay') !== null;
     const activeScene = homeShellVisible ? 'HomeScene' : phaserActiveScene;
@@ -470,6 +576,9 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
               ? 'playing'
               : undefined,
       settingsOpen,
+      achievementsOpen,
+      achievementCardCount,
+      achievementCalloutVisible,
       homeShellVisible,
       levelCompleteOverlayVisible,
       levelFailedOverlayVisible,
@@ -534,7 +643,7 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     },
 
     gotoState(state: string): void {
-      if (isDriveState(state)) void harness.driveTo(state);
+      if (isDriveState(state, FIND_THE_DOG_TOUR_STATES)) void harness.driveTo(state as FindTheDogDriveState);
     },
 
     startLevel(id: number): void {
@@ -609,7 +718,25 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
 
     failLevel,
 
-    driveTo(state: DriveState): Promise<boolean> {
+    async driveTo(state: FindTheDogDriveState): Promise<boolean> {
+      // Tour states are deterministic captures, never the first-run tutorial:
+      // its gate makes only dogs[0] interactive and its bubble anchors on that
+      // dog's screen point, swallowing the harness's real-input taps. Browser
+      // flows already disable it via setState; do the same for tour drives.
+      gameState.settings.tutorialEnabled = false;
+      if (state === 'achievements') return openAchievementsFromUi();
+      if (state === 'win-achievement') {
+        seedLockedAchievementsForUnlock();
+        const started = await startLevel(1);
+        if (!started) return false;
+        const won = await winLevel();
+        if (!won) return false;
+        return waitUntil(
+          () => findTheDogDrivePredicates['win-achievement'](driveSnapshot()),
+          TERMINAL_TARGET_POLL_MS,
+          TERMINAL_TARGET_MAX_POLLS,
+        );
+      }
       return driveTo(driveDeps(), state, {
         predicates: findTheDogDrivePredicates,
         playingReady: findTheDogDrivePredicates.level,

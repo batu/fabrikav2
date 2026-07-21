@@ -18,7 +18,7 @@ export { ACHIEVEMENT_CATALOG, orderedAchievements };
 
 /** The current persisted `AchievementRecord.version`. Bump when the record shape
  *  changes in a way migration must upgrade. */
-export const ACHIEVEMENT_RECORD_VERSION = 1;
+export const ACHIEVEMENT_RECORD_VERSION = 2;
 
 /** Display grouping for an achievement. */
 export type AchievementCategory =
@@ -151,6 +151,14 @@ export interface AchievementRecord {
   /** Persisted distinct LOGICAL-level identity set — mastery progress is its size. */
   readonly masteredLevelIds: readonly string[];
   readonly unlocked: readonly string[];
+  /** Unlocks derived by migration and therefore permanently reward-ineligible. */
+  readonly migrationRewardIneligibleAchievementIds: readonly string[];
+  /**
+   * Unlocks imported from a pre-v2 record whose migration marker proves that
+   * migration ran, but whose old schema cannot prove whether each reward was
+   * migration-ineligible or earned live.
+   */
+  readonly legacyRewardProvenanceUnknownAchievementIds: readonly string[];
   readonly processedOccurrenceIds: readonly string[];
   readonly pendingSettlement: PendingSettlement | null;
   readonly analyticsOutbox: readonly PendingAnalyticsEvent[];
@@ -170,11 +178,71 @@ export function emptyAchievementRecord(): AchievementRecord {
     progress: {},
     masteredLevelIds: [],
     unlocked: [],
+    migrationRewardIneligibleAchievementIds: [],
+    legacyRewardProvenanceUnknownAchievementIds: [],
     processedOccurrenceIds: [],
     pendingSettlement: null,
     analyticsOutbox: [],
     nextAnalyticsEventSequence: 0,
   };
+}
+
+/** Canonical one-time reward state consumed directly by the achievement UI. */
+export type AchievementRewardStatus =
+  | 'locked'
+  | 'in-progress'
+  | 'live-reward-settled'
+  | 'migration-unlocked-reward-ineligible'
+  | 'legacy-unlocked-reward-provenance-unknown';
+
+/**
+ * Catalog metadata plus durable player state in deterministic display order.
+ * Progress is capped at the threshold because this is the UI/read projection;
+ * the journal retains the uncapped authoritative counter.
+ */
+export interface AchievementReadProjection extends Achievement {
+  readonly progress: number;
+  readonly rewardStatus: AchievementRewardStatus;
+}
+
+/**
+ * GameState's fail-closed public boundary. The pure projection builder returns
+ * the ready rows; persistence/settlement owners can instead expose unavailable
+ * without fabricating reward state from defaults or an in-flight journal.
+ */
+export type AchievementReadProjectionResult =
+  | {
+      readonly status: 'ready';
+      readonly achievements: readonly AchievementReadProjection[];
+    }
+  | {
+      readonly status: 'unavailable';
+      readonly reason: 'persistence-unavailable' | 'settlement-pending';
+    };
+
+export function buildAchievementReadProjection(
+  record: AchievementRecord,
+): readonly AchievementReadProjection[] {
+  const unlocked = new Set(record.unlocked);
+  const migrationIneligible = new Set(record.migrationRewardIneligibleAchievementIds);
+  const legacyProvenanceUnknown = new Set(
+    record.legacyRewardProvenanceUnknownAchievementIds,
+  );
+
+  return orderedAchievements().map((achievement) => {
+    const progress = Math.min(achievement.threshold, Math.max(0, currentProgress(record, achievement.id)));
+    let rewardStatus: AchievementRewardStatus;
+    if (unlocked.has(achievement.id)) {
+      rewardStatus = migrationIneligible.has(achievement.id)
+        ? 'migration-unlocked-reward-ineligible'
+        : legacyProvenanceUnknown.has(achievement.id)
+          ? 'legacy-unlocked-reward-provenance-unknown'
+          : 'live-reward-settled';
+    } else {
+      rewardStatus = progress > 0 ? 'in-progress' : 'locked';
+    }
+    return { ...achievement, progress, rewardStatus };
+  });
 }
 
 function clampNonNegativeInt(value: unknown): number {
@@ -314,6 +382,13 @@ export function migrate(
 
   const progress: Record<string, number> = { ...base.progress };
   const unlocked = [...base.unlocked];
+  const migrationRewardIneligibleAchievementIds = [
+    ...base.migrationRewardIneligibleAchievementIds,
+  ];
+  const legacyRewardProvenanceUnknownAchievementIds = [
+    ...base.legacyRewardProvenanceUnknownAchievementIds,
+  ];
+  const hadEarlierMigration = base.processedOccurrenceIds.some((id) => /^migration:v\d+$/.test(id));
 
   for (const achievement of orderedAchievements()) {
     let derivedProgress: number | null = null;
@@ -325,8 +400,31 @@ export function migrate(
     // version bump never regresses an existing unlock.
     const merged = Math.max(currentProgress(base, achievement.id), derivedProgress);
     progress[achievement.id] = merged;
-    if (merged >= achievement.threshold && !unlocked.includes(achievement.id)) {
-      unlocked.push(achievement.id);
+    if (merged >= achievement.threshold) {
+      const wasUnlocked = unlocked.includes(achievement.id);
+      if (!wasUnlocked) unlocked.push(achievement.id);
+      // New derivable unlocks are migration-only and receive no reward. A v1
+      // migration marker proves migration ran, but v1 did not persist enough
+      // provenance to classify each already-unlocked reward as live or migrated.
+      // Preserve that uncertainty explicitly instead of falsely calling it
+      // reward-ineligible or live-settled.
+      const migratedNow = !wasUnlocked;
+      const legacyProvenanceUnknown =
+        base.version < ACHIEVEMENT_RECORD_VERSION && hadEarlierMigration;
+      if (
+        migratedNow &&
+        !migrationRewardIneligibleAchievementIds.includes(achievement.id)
+      ) {
+        migrationRewardIneligibleAchievementIds.push(achievement.id);
+      }
+      if (
+        wasUnlocked &&
+        legacyProvenanceUnknown &&
+        !migrationRewardIneligibleAchievementIds.includes(achievement.id) &&
+        !legacyRewardProvenanceUnknownAchievementIds.includes(achievement.id)
+      ) {
+        legacyRewardProvenanceUnknownAchievementIds.push(achievement.id);
+      }
     }
   }
 
@@ -341,6 +439,8 @@ export function migrate(
     // Mastery is forward-only and never backfilled from served best-times.
     masteredLevelIds: [...base.masteredLevelIds],
     unlocked,
+    migrationRewardIneligibleAchievementIds,
+    legacyRewardProvenanceUnknownAchievementIds,
     processedOccurrenceIds,
     pendingSettlement: base.pendingSettlement,
     analyticsOutbox: [...base.analyticsOutbox],
@@ -356,9 +456,9 @@ export function migrate(
 export function sanitizeSequence(record: AchievementRecord): number {
   const stored =
     typeof record.nextAnalyticsEventSequence === 'number' &&
-    Number.isFinite(record.nextAnalyticsEventSequence) &&
+    Number.isSafeInteger(record.nextAnalyticsEventSequence) &&
     record.nextAnalyticsEventSequence >= 0
-      ? Math.floor(record.nextAnalyticsEventSequence)
+      ? record.nextAnalyticsEventSequence
       : 0;
   let maxOutbox = 0;
   for (const event of record.analyticsOutbox) {

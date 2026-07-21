@@ -27,6 +27,20 @@ v2:
 # Canonical states (tools/refcap-compare/src/manifest.mjs CANONICAL_STATES).
 # Each lane needs either "offline" (a committed PNG) or an explicit "gap".
 states:
+  - name: achievements
+    reference:
+      gap: "no accepted achievement collection reference yet"
+    v2:
+      gap: "capture and judge on the real device for ACH-2"
+      driveTo: achievements
+
+  - name: win-achievement
+    reference:
+      gap: "no accepted achievement unlock reference yet"
+    v2:
+      gap: "capture and judge on the real device for ACH-2"
+      driveTo: win-achievement
+
   - name: menu
     reference:
       gap: "no reference capture — fresh scaffold, nothing captured yet"

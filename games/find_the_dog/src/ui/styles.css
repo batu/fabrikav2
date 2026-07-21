@@ -490,6 +490,127 @@
   padding: 0;
 }
 
+#level-complete-overlay .achievement-unlock-callout {
+  display: grid;
+  gap: 2px;
+  width: min(100%, 280px);
+  margin: 12px auto 0;
+  padding: 10px 14px;
+  border: 2px solid #d88732;
+  border-radius: 16px;
+  color: #633818;
+  background: #fff4cf;
+  box-shadow: 0 3px 0 rgba(112, 57, 20, 0.18);
+  text-align: center;
+}
+
+#level-complete-overlay .achievement-unlock-summary {
+  display: -webkit-box;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  font-weight: 900;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+#level-complete-overlay .achievement-unlock-callout small { font-weight: 800; }
+
+#level-complete-overlay .achievement-unlock-callout-medal {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin: 0 auto 2px;
+  border: 2px solid #fff1bc;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffe08a, #e8973a);
+  box-shadow: 0 2px 0 #8b4b22, inset 0 2px 0 rgba(255, 255, 255, 0.55);
+  color: #fff7dc;
+  font-size: 17px;
+  line-height: 1;
+  text-shadow: 0 1px 0 rgba(112, 57, 20, 0.45);
+}
+
+#level-complete-overlay .achievement-unlock-callout[data-motion='full'] {
+  animation: achievement-unlock-enter 260ms ease-out both;
+}
+
+@keyframes achievement-unlock-enter {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #level-complete-overlay .achievement-unlock-callout { animation: none; }
+}
+
+#achievement-unlock-toast {
+  pointer-events: none;
+  position: fixed;
+  /* Bottom-anchored: the top of the completion screen is crowded (HUD coin
+     pill right, LEVEL COMPLETE title art center) — the bottom strip above the
+     home indicator is the one surface nothing else claims. */
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+  left: 50%;
+  z-index: 95;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: min(calc(100% - 32px), 320px);
+  padding: 10px 14px;
+  border: 2px solid #d88732;
+  border-radius: 16px;
+  color: #633818;
+  background: linear-gradient(180deg, #fff7dc, #ffe9b6);
+  box-shadow: 0 3px 0 rgba(112, 57, 20, 0.25), inset 0 2px 0 rgba(255, 255, 255, 0.8);
+  text-align: center;
+  transform: translateX(-50%);
+}
+
+#achievement-unlock-toast .achievement-unlock-toast-medal {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border: 2px solid #fff1bc;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #f7c85c, #d88731);
+  box-shadow: 0 2px 0 #8b4b22;
+  color: #fff7dc;
+  font-size: 15px;
+  line-height: 1;
+  text-shadow: 0 1px 0 rgba(112, 57, 20, 0.45);
+}
+
+#achievement-unlock-toast .achievement-unlock-toast-summary {
+  display: -webkit-box;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  font-weight: 900;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+#achievement-unlock-toast[data-motion='full'] {
+  animation: achievement-toast-enter 260ms ease-out both;
+}
+
+#achievement-unlock-toast.achievement-unlock-toast--leaving {
+  opacity: 0;
+  transition: opacity 300ms ease-out;
+}
+
+@keyframes achievement-toast-enter {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to { opacity: 1; transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #achievement-unlock-toast { animation: none; }
+}
+
 #level-complete-overlay .fab-complete-claim-btn {
   padding: 12px 14px;
 }
@@ -3172,6 +3293,51 @@
   border: 0;
   background: transparent;
   cursor: pointer;
+  min-height: 44px;
+}
+.home-achievements-btn {
+  width: auto;
+  min-width: 76px;
+  min-height: 58px;
+  display: grid;
+  gap: 3px;
+  justify-items: center;
+  align-content: center;
+  padding: 6px 6px 7px;
+  border: 2px solid #fff1bc;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #ffdf8e 0%, #f2b04a 55%, #d88731 100%);
+  color: #562f14;
+  font: 900 11px/1.05 'Nunito', sans-serif;
+  text-shadow: 0 1px 0 rgba(255, 244, 205, 0.65);
+  box-shadow:
+    0 4px 0 #8b4b22,
+    0 6px 9px rgba(70, 35, 8, 0.25),
+    inset 0 2px 0 rgba(255, 255, 255, 0.65),
+    inset 0 -2px 0 rgba(139, 75, 34, 0.28);
+}
+/* Same gold-medal treatment as the collection page's card badges so the Home
+   entry and its destination share one icon, embossed like the coin/hint pills. */
+.home-achievements-medal {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin: 0 auto;
+  border: 2px solid #fff1bc;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffe08a, #e8973a);
+  box-shadow: 0 2px 0 #8b4b22, inset 0 2px 0 rgba(255, 255, 255, 0.55);
+  color: #fff7dc;
+  font-size: 17px;
+  line-height: 1;
+  text-shadow: 0 1px 0 rgba(112, 57, 20, 0.45);
+}
+/* Keep the label on one line: the word must never break mid-word on device. */
+.home-achievements-label {
+  white-space: nowrap;
+  font-size: 10px;
+  letter-spacing: -0.01em;
 }
 
 .home-no-ads-btn .home-no-ads-art {
@@ -3638,8 +3804,8 @@
   align-items: center;
   gap: 12px;
   padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px 16px;
-  background: rgba(255, 255, 255, 0.9);
-  border-bottom: 1px solid rgba(128, 80, 27, 0.1);
+  background: linear-gradient(180deg, #fffdf4, #fff7dc);
+  border-bottom: 1px solid rgba(128, 80, 27, 0.16);
   flex-shrink: 0;
 }
 
@@ -3670,6 +3836,11 @@
   pointer-events: none;
 }
 
+/* Programmatic focus targets for modal containment; the UA default focus ring
+   (a blue WebView rectangle on iOS) is noise on non-interactive containers. */
+.home-page-title:focus { outline: none; }
+.home-page-overlay:focus { outline: none; }
+
 .home-page-title {
   font-family: 'Nunito', sans-serif;
   font-size: 22px;
@@ -3686,6 +3857,114 @@
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   padding: 24px 16px calc(env(safe-area-inset-bottom, 0px) + 24px);
+}
+
+.home-page-achievements { background: linear-gradient(180deg, #fff7dc, #f7c985); }
+/* Scroll affordance: a soft fade at the page's bottom edge so a mid-scroll
+   card reads as "more below" instead of a hard clip. */
+.home-page-achievements::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 26px;
+  background: linear-gradient(180deg, rgba(247, 201, 133, 0), #f7c985);
+  pointer-events: none;
+}
+.home-page-achievements .home-page-body {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 72px);
+}
+.achievement-category { margin: 0 0 22px; }
+.achievement-category > h3 { margin: 0 0 10px; text-transform: capitalize; color: #633818; font: 900 20px/1.2 'Nunito', sans-serif; }
+.achievement-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.achievement-card {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 14px;
+  border: 3px solid #9d5b29;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fffdf4, #fdf1d3);
+  box-shadow: 0 4px 0 rgba(112, 57, 20, 0.25), inset 0 2px 0 rgba(255, 255, 255, 0.8);
+  color: #3d2b1f;
+}
+.achievement-card--completed {
+  border-color: #d88732;
+  background: linear-gradient(180deg, #fff7d6, #ffe6a9);
+  box-shadow: 0 4px 0 rgba(160, 96, 24, 0.35), inset 0 2px 0 rgba(255, 255, 255, 0.9);
+}
+.achievement-card--not-started { opacity: 0.88; }
+.achievement-badge {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: 2px solid #fff1bc;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #f7c85c, #d88731);
+  box-shadow: 0 3px 0 #8b4b22, inset 0 2px 0 rgba(255, 255, 255, 0.5);
+  color: #fff7dc;
+  font-size: 26px;
+  line-height: 1;
+  text-shadow: 0 2px 0 rgba(112, 57, 20, 0.45);
+}
+.achievement-card--not-started .achievement-badge {
+  background: linear-gradient(180deg, #d9c9ab, #b09a76);
+  border-color: #efe4c8;
+  box-shadow: 0 3px 0 #86704d, inset 0 2px 0 rgba(255, 255, 255, 0.4);
+  color: rgba(255, 250, 235, 0.75);
+}
+.achievement-card header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.achievement-card h4 { margin: 0; font: 900 18px/1.2 'Nunito', sans-serif; }
+.achievement-card p { margin: 8px 0; overflow-wrap: anywhere; }
+.achievement-state {
+  flex: 0 0 auto;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #b09a76;
+  color: #fffaf0;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 0 rgba(70, 35, 8, 0.25);
+}
+.achievement-card--completed .achievement-state { background: #43a86b; }
+.achievement-card--in-progress .achievement-state { background: #e0983f; }
+.achievement-card progress {
+  width: 100%;
+  height: 12px;
+  min-height: 12px;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #f0dcb4;
+  box-shadow: inset 0 2px 3px rgba(112, 57, 20, 0.22);
+}
+.achievement-card progress::-webkit-progress-bar {
+  background: #f0dcb4;
+  border-radius: 999px;
+}
+.achievement-card progress::-webkit-progress-value {
+  background: linear-gradient(180deg, #63c98a, #3d9c62);
+  border-radius: 999px;
+  /* Near-zero progress (e.g. 2/50) otherwise renders narrower than its own
+     radius and reads as a dot / the not-started state. */
+  min-width: 12px;
+}
+/* …but a genuinely empty bar must stay empty. */
+.achievement-card progress[value='0']::-webkit-progress-value { min-width: 0; }
+.achievement-progress-text, .achievement-reward-status { font-weight: 800; }
+.achievement-unavailable { padding: 18px; border-radius: 18px; background: #fffaf0; color: #3d2b1f; }
+.home-page-overlay :focus-visible { outline: 4px solid #246cb3; outline-offset: 3px; }
+
+@media (max-height: 600px) {
+  .home-rail { top: 96px; gap: 6px; }
+  .home-achievements-btn { min-height: 44px; }
+  .home-page-body { padding-top: 14px; }
 }
 
 .home-page-settings {

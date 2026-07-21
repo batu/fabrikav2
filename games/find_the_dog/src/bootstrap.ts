@@ -149,7 +149,7 @@ if (typeof window !== 'undefined') {
     void Promise.all([
       import('./testing/TestHarness'),
       import('./audio/AmbientManager'),
-    ]).then(([{ createFindTheDogHarness, snapshotMatchesFindTheDogDriveState }, ambient]): void => {
+    ]).then(([{ createFindTheDogHarness, FIND_THE_DOG_TOUR_STATES, snapshotMatchesFindTheDogDriveState }, ambient]): void => {
       const harness = createFindTheDogHarness(game);
       releaseTestBindings?.();
       const releaseHarnessBindings = assignWindowBindings(window as unknown as Record<string, unknown>, {
@@ -171,6 +171,7 @@ if (typeof window !== 'undefined') {
       }
       void maybeRunInsituTour(harness, {
         snapshotMatchesState: snapshotMatchesFindTheDogDriveState,
+        states: FIND_THE_DOG_TOUR_STATES,
       }).catch((err: unknown): void => {
         console.warn('[insituTour] failed while running FTD tour', err);
       });
