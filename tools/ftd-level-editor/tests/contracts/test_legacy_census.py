@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import threading
 from pathlib import Path
 
 import pytest
@@ -118,6 +119,27 @@ def test_missing_or_symlinked_referenced_artifact_is_unsupported(tmp_path: Path)
 
     assert report.sessions[0].classification == "unsupported"
     assert "unsafe_artifact" in report.sessions[0].issue_codes
+
+
+@pytest.mark.legacy_census
+def test_fifo_session_payload_is_quarantined_without_blocking(tmp_path: Path) -> None:
+    root = tmp_path / "legacy"
+    session = root / "fifo-session"
+    session.mkdir(parents=True)
+    os.mkfifo(session / "session.json")
+    reports = []
+
+    def run_census() -> None:
+        reports.append(census_legacy_sessions(root))
+
+    worker = threading.Thread(target=run_census, daemon=True)
+    worker.start()
+    worker.join(timeout=1)
+
+    assert not worker.is_alive(), "FIFO read blocked instead of being quarantined"
+    assert len(reports) == 1
+    assert reports[0].sessions[0].classification == "unsupported"
+    assert "unsupported_shape" in reports[0].sessions[0].issue_codes
 
 
 @pytest.mark.legacy_census

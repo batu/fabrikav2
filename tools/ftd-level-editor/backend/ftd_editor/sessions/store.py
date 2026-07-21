@@ -97,12 +97,27 @@ class DogBundlePublication:
 
 _IDENTIFIER = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$")
 _DIRECTORY_FLAGS = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
-_FILE_FLAGS = os.O_RDONLY | os.O_NOFOLLOW
+_FILE_FLAGS = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
 _MISSING_SESSION_ERRNOS = {errno.ENOENT, errno.ENOTDIR, errno.ELOOP}
 
 
 def _is_missing_session_error(error: OSError) -> bool:
     return isinstance(error, SessionNotFound) or error.errno in _MISSING_SESSION_ERRNOS
+
+
+def _same_json_value(left: Any, right: Any) -> bool:
+    if type(left) is not type(right):
+        return False
+    if isinstance(left, dict):
+        return left.keys() == right.keys() and all(
+            _same_json_value(left[key], right[key]) for key in left
+        )
+    if isinstance(left, list):
+        return len(left) == len(right) and all(
+            _same_json_value(left_item, right_item)
+            for left_item, right_item in zip(left, right, strict=True)
+        )
+    return left == right
 
 
 class SessionStore:
@@ -405,6 +420,7 @@ class SessionStore:
                     os.rename(stage, session_dir)
                     published = True
                     self._fsync_path(self.paths.authoring)
+                    return self.load(session_id)
                 except BaseException as error:
                     if published:
                         raise SessionCommitIndeterminate(session_id) from error
@@ -412,7 +428,6 @@ class SessionStore:
                         shutil.rmtree(stage)
                         self._fsync_path(stage_root)
                     raise
-                return self.load(session_id)
 
     @staticmethod
     def _fsync_path(path: Path) -> None:
@@ -697,7 +712,7 @@ class SessionStore:
                 dog,
                 variant_index,
             ).to_mapping()
-            if payload_mapping != expected_mapping:
+            if not _same_json_value(payload_mapping, expected_mapping):
                 raise ValueError(
                     "dog bundle session payload must preserve the source session "
                     "and only select its allocated variant"

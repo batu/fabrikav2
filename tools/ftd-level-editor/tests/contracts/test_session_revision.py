@@ -13,6 +13,7 @@ from ftd_editor.sessions.model import AuthoringDog
 from ftd_editor.sessions.store import (
     SessionAlreadyExists,
     SessionCommitIndeterminate,
+    SessionReadError,
     SessionRevisionConflict,
     SessionStore,
 )
@@ -124,6 +125,27 @@ def test_creation_reports_indeterminate_commit_after_post_rename_fsync_failure(
 
     assert indeterminate.value.session_id == "race"
     assert store.load("race").session_id == "race"
+    with pytest.raises(SessionAlreadyExists):
+        store.create(_session())
+
+
+def test_creation_reports_indeterminate_commit_when_post_rename_reload_fails(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = _store(tmp_path)
+    real_load = store.load
+
+    def fail_readback(_: str):
+        raise SessionReadError("simulated post-rename readback failure")
+
+    with monkeypatch.context() as readback:
+        readback.setattr(store, "load", fail_readback)
+        with pytest.raises(SessionCommitIndeterminate) as indeterminate:
+            store.create(_session())
+
+    assert indeterminate.value.session_id == "race"
+    assert real_load("race").session_id == "race"
     with pytest.raises(SessionAlreadyExists):
         store.create(_session())
 

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import errno
 import os
+import threading
 from pathlib import Path
 
 import pytest
@@ -186,6 +187,30 @@ def test_tree_revision_frames_content_and_tracks_empty_and_special_entries(
     os.mkfifo(fifo)
     with_fifo, _ = SessionStore._tree_revision(first)
     assert with_fifo != with_symlink
+
+
+def test_fifo_session_payload_fails_without_blocking_the_store(tmp_path: Path) -> None:
+    paths = WorkspacePaths.below(tmp_path / "workspace")
+    paths.prepare()
+    store = SessionStore(paths)
+    session_dir = paths.authoring / "fifo-session"
+    session_dir.mkdir()
+    os.mkfifo(session_dir / "session.json")
+    outcomes: list[BaseException] = []
+
+    def load() -> None:
+        try:
+            store.load("fifo-session")
+        except BaseException as error:
+            outcomes.append(error)
+
+    worker = threading.Thread(target=load, daemon=True)
+    worker.start()
+    worker.join(timeout=1)
+
+    assert not worker.is_alive(), "FIFO read blocked instead of failing closed"
+    assert len(outcomes) == 1
+    assert isinstance(outcomes[0], SessionReadError)
 
 
 def test_transient_session_read_failure_is_not_reported_as_missing(

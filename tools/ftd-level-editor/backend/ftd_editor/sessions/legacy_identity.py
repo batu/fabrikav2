@@ -78,7 +78,7 @@ _DOG_FOLDER_RE = re.compile(r"^dog_(\d+)$")
 _DOG_TOMBSTONE_RE = re.compile(r"^deleted_dog_(\d+)\.[A-Za-z0-9_-]{8}$")
 _VARIANT_RE = re.compile(r"^variant_(\d{3})\.png$")
 _DIRECTORY_FLAGS = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
-_FILE_FLAGS = os.O_RDONLY | os.O_NOFOLLOW
+_FILE_FLAGS = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
 
 
 @dataclass(frozen=True, slots=True)

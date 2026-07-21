@@ -343,6 +343,46 @@ def test_dog_bundle_payload_must_preserve_unrelated_source_fields(
         store.bundles.resolve_manifest("sessions/session-a/dogs/dog_00/current")
 
 
+def test_dog_bundle_payload_must_preserve_json_scalar_types(tmp_path: Path) -> None:
+    paths = WorkspacePaths.below(tmp_path / "workspace")
+    paths.prepare()
+    store = SessionStore(paths)
+    source = store.create(
+        {
+            "id": "session-a",
+            "dogs": [{"index": 0, "id": "dog_00"}],
+            "legacyInt": 1,
+            "legacyFloat": 1.0,
+        }
+    )
+
+    for legacy_int, legacy_float in ((True, 1.0), (1, 1)):
+        with pytest.raises(ValueError, match="must preserve the source session"):
+            store.publish_dog_bundle(
+                "session-a",
+                "dog_00",
+                lambda index, int_value=legacy_int, float_value=legacy_float: replace(
+                    _payload("retyped", index),
+                    session_json={
+                        "id": "session-a",
+                        "dogs": [
+                            {
+                                "index": 0,
+                                "id": "dog_00",
+                                "activeVariant": index,
+                            }
+                        ],
+                        "legacyInt": int_value,
+                        "legacyFloat": float_value,
+                    },
+                ),
+                expected_revision=source.revision,
+            )
+
+    with pytest.raises(FileNotFoundError):
+        store.bundles.resolve_manifest("sessions/session-a/dogs/dog_00/current")
+
+
 def test_dog_bundle_publishes_the_exact_session_snapshot_it_validated(
     tmp_path: Path,
 ) -> None:
