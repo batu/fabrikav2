@@ -1,0 +1,83 @@
+{
+  "version": 1,
+  "name": "sugar3d-dimple-cup",
+  "palette": [
+    "#fff4e4",
+    "#ffdfeb",
+    "#f3cbd8",
+    "#df9fb8",
+    "#5e2a40",
+    "#ff4d6d",
+    "#38a3ff",
+    "#44d164",
+    "#ffcc1f",
+    "#b266ff",
+    "#ff8a3d",
+    "#ffffff"
+  ],
+  "parts": [
+    {
+      "id": "soft-cavity",
+      "lathe": {
+        "profile": [
+          [
+            0.34,
+            0
+          ],
+          [
+            0.42,
+            0.025
+          ],
+          [
+            0.36,
+            0.055
+          ],
+          [
+            0.14,
+            0.07
+          ],
+          [
+            0.02,
+            0.076
+          ]
+        ],
+        "segments": 32
+      },
+      "swatch": "P3",
+      "cell": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "inner-shadow",
+      "prim": "cylinder",
+      "dims": {
+        "radius": 0.23,
+        "height": 0.018
+      },
+      "swatch": "P4",
+      "on": "soft-cavity",
+      "anchor": "top",
+      "offset": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "lower-lip",
+      "prim": "cylinder",
+      "dims": {
+        "radius": 0.33,
+        "height": 0.012
+      },
+      "swatch": "P1",
+      "on": "inner-shadow",
+      "anchor": "top",
+      "offset": [
+        0,
+        0
+      ]
+    }
+  ]
+}

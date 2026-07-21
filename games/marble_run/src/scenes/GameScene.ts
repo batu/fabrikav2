@@ -29,6 +29,9 @@ import { buildShopCatalog } from '../shop/ProductCatalog';
 import { fulfillVerifiedPurchaseOnce, makePurchaseRestoreRetry, reportUnfulfilledPurchase } from '../shop/PurchaseFulfillment';
 import { hasUserActivated, runWhenVisibleAndIdle, type CancelScheduledIdleWork } from '../platform/browserScheduling';
 import { registerLifecycleHooks } from '../platform/gameLifecycle';
+import { GameplayController, type GameplayHooks } from '../gameplay/GameplayController';
+import { mountSettings } from '../menu/settings';
+import type { UiHandle } from '@fabrikav2/ui';
 
 export interface GameSceneData {
   levelId?: string;
@@ -69,6 +72,8 @@ export class GameScene extends Phaser.Scene {
   private unregisterLifecycleHooks: (() => void) | null = null;
   private wasClockPausedBeforeLifecycleSuspend: boolean = false;
   private wasTweenManagerPausedBeforeLifecycleSuspend: boolean = false;
+  private gameplayController: GameplayController | null = null;
+  private settingsHandle: UiHandle | null = null;
 
   constructor() {
     super('GameScene');
@@ -90,6 +95,10 @@ export class GameScene extends Phaser.Scene {
     this.unregisterLifecycleHooks = null;
     this.wasClockPausedBeforeLifecycleSuspend = false;
     this.wasTweenManagerPausedBeforeLifecycleSuspend = false;
+    this.gameplayController?.dispose();
+    this.gameplayController = null;
+    this.settingsHandle?.dismiss();
+    this.settingsHandle = null;
     gameState.reset();
   }
 
@@ -112,7 +121,7 @@ export class GameScene extends Phaser.Scene {
       void this.loadLevelAndRestart();
       return;
     }
-    this.setupStub();
+    this.setupGameplay();
     this.scheduleNonCriticalPreloads();
   }
 
@@ -164,9 +173,9 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  // ── stub scene body ──────────────────────────────────────────────────────
+  // ── gameplay mount (MRV2-4: ported Sugar3D board renderer + HUD) ──────────
 
-  private setupStub(): void {
+  private setupGameplay(): void {
     if (!this.level) return;
     const level = this.level;
 
@@ -179,10 +188,10 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.cameras.main.setBounds(0, 0, GAME.WIDTH, GAME.HEIGHT);
-    this.buildStubUi(level);
 
-    setHintCallback(() => this.onHintRequested());
-    setDebugOverlayCallback(() => { /* stub has no debug overlay */ });
+    // Register the shell seams the settings modal (Restart + Home) relies on.
+    setHintCallback(() => this.gameplayController?.showHint());
+    setDebugOverlayCallback(() => { /* no debug overlay */ });
     setLevelSelectCallback((levelId) => {
       void this.selectLevel(levelId);
     });
@@ -202,9 +211,19 @@ export class GameScene extends Phaser.Scene {
       }
     });
 
+    // Mount the ported three.js board + vida HUD over the Phaser canvas, and
+    // hide the FTD HUD chrome (kept in the DOM by initHUD) for this run.
+    const container = document.getElementById('game-container');
+    document.getElementById('hud-overlay')?.classList.add('mr-gameplay-active');
+    if (container) {
+      this.gameplayController = new GameplayController(container, this.buildGameplayHooks());
+      // The marble engine owns the in-level hearts; the shell board index is
+      // 0-based, the marble level id 1-based (KTD6 keys both off progression).
+      this.gameplayController.startLevel(gameState.currentLevelIndex + 1);
+    }
+
     this.levelStartedAt = Date.now();
     void this.trackLevelStart();
-    updateHUD(level.dogs.length, false);
     this.levelDataReady = true;
 
     hidePlayEntryTransitionCoverAfterSceneRender(this);
@@ -216,7 +235,12 @@ export class GameScene extends Phaser.Scene {
       this.cancelNonCriticalPreloadSchedule = null;
       this.unregisterLifecycleHooks?.();
       this.unregisterLifecycleHooks = null;
-      if (this.level !== null && !this.preserveLevelUrlsOnShutdown) disposeLevelUrls(this.level.id);
+      this.gameplayController?.dispose();
+      this.gameplayController = null;
+      this.settingsHandle?.dismiss();
+      this.settingsHandle = null;
+      document.getElementById('hud-overlay')?.classList.remove('mr-gameplay-active');
+      if (level.id !== '' && !this.preserveLevelUrlsOnShutdown) disposeLevelUrls(level.id);
       setGameModeChangeCallback(null);
       setRestartCallback(null);
       this.ratePromptHandle?.dismiss();
@@ -230,54 +254,48 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  /** Two big canvas buttons: WIN and LOSE. The whole inner game, for now. */
-  private buildStubUi(level: LevelData): void {
-    const cx = GAME.WIDTH / 2;
-    const cy = GAME.HEIGHT / 2;
-    const scale = GAME.WIDTH / 1170; // 1170 = iPhone portrait reference width
-
-    this.add.text(cx, cy - 420 * scale, `Level ${gameState.currentLevelIndex + 1}`, {
-      fontFamily: 'Fredoka One, sans-serif',
-      fontSize: `${Math.round(72 * scale)}px`,
-      color: '#5b4a3f',
-    }).setOrigin(0.5);
-    this.add.text(cx, cy - 330 * scale, level.id, {
-      fontFamily: 'sans-serif',
-      fontSize: `${Math.round(34 * scale)}px`,
-      color: '#8a7a6e',
-    }).setOrigin(0.5);
-
-    const buildButtons = () => {
-      if (this.isShuttingDown) return;
-      this.makeStubButton(cx, cy - 160 * scale, 'stub-win-medal', 'WIN', scale, () => this.winLevel());
-      this.makeStubButton(cx, cy + 260 * scale, 'stub-lose-medal', 'LOSE', scale, () => this.loseLife());
+  /** Injected shell seams the ported controller reads/reports through (KTD7). */
+  private buildGameplayHooks(): GameplayHooks {
+    return {
+      getCoins: () => gameState.coinBalance,
+      spendCoins: (cost) => gameState.spendCoins(cost, 'gameplayHint'),
+      onWin: () => {
+        this.gameplayController?.setHudVisible(false);
+        this.winLevel();
+      },
+      onFail: () => {
+        this.gameplayController?.setHudVisible(false);
+        this.enterFailedState();
+      },
+      onHintUsed: () => {
+        this.hintsUsedThisLevel += 1;
+        if (this.level) void analytics.hintUsed({ level_id: this.level.id, dogs_found: gameState.foundDogIds.size });
+      },
+      openSettings: () => this.openInGameSettings(),
+      isFirstLevel: () => gameState.currentLevelIndex === 0,
     };
-    if (this.textures.exists('stub-win-medal') && this.textures.exists('stub-lose-medal')) {
-      buildButtons();
-    } else {
-      this.load.image('stub-win-medal', '/ui/gameplay/btn-win.png');
-      this.load.image('stub-lose-medal', '/ui/gameplay/btn-lose.png');
-      this.load.once(Phaser.Loader.Events.COMPLETE, buildButtons);
-      this.load.start();
-    }
   }
 
-  /** Scenic medal button: generated art (sunburst / rain-cloud medal) + label. */
-  private makeStubButton(x: number, y: number, texture: string, label: string, scale: number, onTap: () => void): void {
-    const size = 340 * scale;
-    const button = this.add.image(x, y, texture)
-      .setDisplaySize(size, size)
-      .setInteractive({ useHandCursor: true });
-    const text = this.add.text(x, y + size / 2 + 44 * scale, label, {
-      fontFamily: 'Fredoka One, sans-serif',
-      fontSize: `${Math.round(56 * scale)}px`,
-      color: '#5b4a3f',
-    }).setOrigin(0.5);
-
-    button.on('pointerdown', () => {
-      if (this.levelComplete || this.isShuttingDown) return;
-      this.tweens.add({ targets: [button, text], scale: 0.94, duration: 60, yoyo: true });
-      onTap();
+  private openInGameSettings(): void {
+    const container = document.getElementById('game-container');
+    if (!container || this.settingsHandle) return;
+    this.gameplayController?.pause();
+    this.settingsHandle = mountSettings({
+      mountInto: container,
+      inGame: true,
+      onRestart: () => {
+        if (this.level) {
+          this.preserveLevelUrlsOnShutdown = true;
+          this.scene.restart({ levelData: this.level } as GameSceneData);
+        }
+      },
+      onHome: () => {
+        this.scene.start('HomeScene');
+      },
+      onDismiss: () => {
+        this.settingsHandle = null;
+        this.gameplayController?.resume();
+      },
     });
   }
 
@@ -449,6 +467,17 @@ export class GameScene extends Phaser.Scene {
 
     if (gameState.lives > 0) return;
 
+    this.enterFailedState();
+  }
+
+  /**
+   * The terminal fail sequence (last life gone). Extracted from loseLife so the
+   * ported GameplayController can drive it via onFail when the marble engine's
+   * own hearts are exhausted — the marble engine owns the in-level hearts, but
+   * the fail overlay + fail-continue offers remain the MRV2-5 shell path.
+   */
+  private enterFailedState(): void {
+    if (!this.level || this.levelComplete || this.isShuttingDown) return;
     void this.trackLevelFailed(gameState.foundDogIds.size);
     this.levelComplete = true;
     showLevelFailedOverlay(this.level.id, {
@@ -553,18 +582,12 @@ export class GameScene extends Phaser.Scene {
     gameState.penaltyCooldownUntil = 0;
     this.levelComplete = false;
     updateHUD(this.level.dogs.length, false);
+    // A mid-state resume of the ported board is not supported (fail-continue is
+    // out of scope per the conductor's no-shop ruling); a "continue" replays the
+    // level with a fresh board and its full hearts.
+    this.gameplayController?.setHudVisible(true);
+    this.gameplayController?.startLevel(gameState.currentLevelIndex + 1);
     return true;
-  }
-
-  // ── hints (shell system; game-side consume is a stub) ────────────────────
-
-  private onHintRequested(): void {
-    if (!this.level || gameState.hintsRemaining <= 0) return;
-    if (!gameState.spendHint('gameplayHint')) return;
-    this.hintsUsedThisLevel += 1;
-    hapticFound();
-    updateHUD(this.level.dogs.length, false);
-    void analytics.hintUsed({ level_id: this.level.id, dogs_found: gameState.foundDogIds.size });
   }
 
   // ── analytics ─────────────────────────────────────────────────────────────
