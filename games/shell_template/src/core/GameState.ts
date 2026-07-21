@@ -207,6 +207,9 @@ export interface GameSettings {
    *  user-initiated — but the promise of the toggle ("turn off ads") was read
    *  by users as "no ads at all," so rewarded is gated too. */
   adsEnabled: boolean;
+  /** When false, no local retention reminders are scheduled and pending ones
+   *  are cancelled. OS-level permission is a separate gate on top of this. */
+  notificationsOn: boolean;
   /** When false, the rate-me prompt is suppressed regardless of completion count. */
   ratePromptEnabled: boolean;
   /**
@@ -382,6 +385,7 @@ export class GameState {
     hapticsOn: true,
     showDebugOverlay: false,
     adsEnabled: true,
+    notificationsOn: true,
     ratePromptEnabled: true,
     tutorialEnabled: true,
     // Shell template default: 'classic'. Restoration mode is an FTD gameplay
@@ -437,6 +441,9 @@ export class GameState {
   }
   get streakDays(): number {
     return this._streakDays;
+  }
+  get totalLevelsCompleted(): number {
+    return this._totalLevelsCompleted;
   }
   get bestTimes(): Readonly<Record<string, number>> {
     return this._bestTimes;
@@ -994,6 +1001,7 @@ export class GameState {
         if (typeof settings.hapticsOn === 'boolean') this.settings.hapticsOn = settings.hapticsOn;
         if (typeof settings.showDebugOverlay === 'boolean') this.settings.showDebugOverlay = settings.showDebugOverlay;
         if (typeof settings.adsEnabled === 'boolean') this.settings.adsEnabled = settings.adsEnabled;
+        if (typeof settings.notificationsOn === 'boolean') this.settings.notificationsOn = settings.notificationsOn;
         if (typeof settings.ratePromptEnabled === 'boolean') this.settings.ratePromptEnabled = settings.ratePromptEnabled;
         if (typeof settings.tutorialEnabled === 'boolean') this.settings.tutorialEnabled = settings.tutorialEnabled;
         // Game mode is no longer user-selectable. Ignore legacy persisted
