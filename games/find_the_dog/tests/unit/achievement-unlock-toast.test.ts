@@ -1,0 +1,113 @@
+import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest';
+import type { CommittedAchievementDelta } from '../../src/achievements/AchievementSystem';
+
+const { allocateAchievementViewEvent, dispatchAchievementEvent, hapticFound, playUITap } = vi.hoisted(() => ({
+  allocateAchievementViewEvent: vi.fn(),
+  dispatchAchievementEvent: vi.fn(),
+  hapticFound: vi.fn(),
+  playUITap: vi.fn(),
+}));
+
+vi.mock('../../src/core/GameState', () => ({ gameState: { allocateAchievementViewEvent } }));
+vi.mock('../../src/analytics/AnalyticsService', () => ({ analytics: { dispatchAchievementEvent } }));
+vi.mock('../../src/haptics/HapticsManager', () => ({ hapticFound }));
+vi.mock('../../src/audio/AudioManager', () => ({ playLevelComplete: vi.fn(), playUITap }));
+vi.mock('../../src/core/ScaffoldEvents', () => ({ scaffoldEvents: { emit: vi.fn() } }));
+vi.mock('../../src/ui/RatePrompt', () => ({ showRatePromptWithHandle: vi.fn() }));
+vi.mock('../../src/ui/EconomyTransfer', () => ({ animateCoinsToBalance: vi.fn() }));
+vi.mock('../../src/ui/SceneTransitionCover', () => ({ showSceneTransitionCover: vi.fn() }));
+
+import {
+  attachAchievementUnlockCallout,
+  resetPresentedAchievementOccurrencesForTests,
+} from '../../src/ui/LevelCompleteOverlay';
+import { showAchievementUnlockToast } from '../../src/ui/AchievementToast';
+
+function delta(id = 'occ-1', names = ['First Find']): CommittedAchievementDelta {
+  return {
+    occurrenceId: id,
+    progressChanges: [],
+    masteredLevelIdsAdded: [],
+    rewards: [],
+    newlyUnlocked: names.map((name, order) => ({
+      id: `achievement-${order}`,
+      name,
+      description: 'Description',
+      category: 'completion',
+      milestoneKind: 'occurrence-count',
+      threshold: 1,
+      progressSource: 'totalCompletions',
+      order,
+      entitledReward: { coins: 0, hints: 0 },
+    })),
+  };
+}
+
+function fixture(): { root: HTMLElement; abort: AbortController } {
+  document.body.innerHTML = '<div id="level-complete-overlay" data-reward-reveal="pending"><section class="fab-complete-card"><div class="fab-complete-actions"></div></section></div>';
+  return {
+    root: document.getElementById('level-complete-overlay')!,
+    abort: new AbortController(),
+  };
+}
+
+describe('achievement unlock toast', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.clearAllMocks();
+    resetPresentedAchievementOccurrencesForTests();
+    allocateAchievementViewEvent.mockImplementation(({ achievementId }) => ({ achievementId }));
+    Object.defineProperty(window, 'matchMedia', { configurable: true, value: vi.fn(() => ({ matches: false })) });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('announces a single unlock as a non-interactive status toast', () => {
+    showAchievementUnlockToast([{ name: 'First Find' }]);
+    const toast = document.getElementById('achievement-unlock-toast')!;
+    expect(toast.getAttribute('role')).toBe('status');
+    expect(toast.textContent).toContain('Achievement unlocked');
+    expect(toast.textContent).toContain('First Find');
+    expect(toast.querySelector('button, a')).toBeNull();
+  });
+
+  it('collapses multiple unlocks and exposes every name to assistive tech', () => {
+    showAchievementUnlockToast([{ name: 'First Find' }, { name: 'Sharp Eyes' }]);
+    const toast = document.getElementById('achievement-unlock-toast')!;
+    expect(toast.textContent).toContain('First Find and 1 more');
+    expect(toast.getAttribute('aria-label')).toContain('Sharp Eyes');
+  });
+
+  it('auto-dismisses after its visible window', () => {
+    showAchievementUnlockToast([{ name: 'First Find' }]);
+    expect(document.getElementById('achievement-unlock-toast')).not.toBeNull();
+    vi.advanceTimersByTime(6000);
+    expect(document.getElementById('achievement-unlock-toast')).toBeNull();
+  });
+
+  it('shows nothing for an empty unlock set', () => {
+    showAchievementUnlockToast([]);
+    expect(document.getElementById('achievement-unlock-toast')).toBeNull();
+  });
+
+  it('fires alongside the completion callout on reward reveal and never replays the occurrence', async () => {
+    const { root, abort } = fixture();
+    attachAchievementUnlockCallout(root, delta(), abort.signal);
+    expect(document.getElementById('achievement-unlock-toast')).toBeNull();
+
+    root.dataset.rewardReveal = 'complete';
+    await Promise.resolve();
+    expect(document.getElementById('achievement-unlock-toast')).not.toBeNull();
+
+    vi.advanceTimersByTime(6000);
+    expect(document.getElementById('achievement-unlock-toast')).toBeNull();
+
+    const again = fixture();
+    attachAchievementUnlockCallout(again.root, delta(), again.abort.signal);
+    again.root.dataset.rewardReveal = 'complete';
+    await Promise.resolve();
+    expect(document.getElementById('achievement-unlock-toast')).toBeNull();
+  });
+});

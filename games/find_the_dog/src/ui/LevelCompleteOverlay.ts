@@ -10,6 +10,7 @@ import { FTD_UI_THEME } from './ftdTheme';
 import type { CommittedAchievementDelta } from '../achievements/AchievementSystem';
 import { analytics } from '../analytics/AnalyticsService';
 import { hapticFound } from '../haptics/HapticsManager';
+import { showAchievementUnlockToast } from './AchievementToast';
 
 export interface LevelCompleteOverlayOptions {
   /** Seconds this attempt took. Required — drives the ⏱ readout. */
@@ -169,6 +170,7 @@ export function attachAchievementUnlockCallout(
     guidance.textContent = 'View from Home';
     callout.append(heading, summary, guidance);
     card.insertBefore(callout, actions);
+    showAchievementUnlockToast(unlocked);
 
     hapticFound();
     playUITap();

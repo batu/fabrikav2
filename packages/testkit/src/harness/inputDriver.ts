@@ -50,6 +50,39 @@ export function driveInputAt(point: ClientPoint): DriveInputResult {
     target.dispatchEvent(new PointerEvent('pointerdown', { ...shared, pointerType: 'touch', isPrimary: true }));
     target.dispatchEvent(new PointerEvent('pointerup', { ...shared, pointerType: 'touch', isPrimary: true }));
   }
+  // Phaser (3.90) registers only mouse/touch DOM listeners — never pointer
+  // events — so a canvas game never sees the pointer sequence above. Dispatch
+  // the touch pair on touch platforms (iOS WKWebView: Phaser runs its
+  // TouchManager only) with a mouse pair fallback elsewhere, at the same
+  // hit-tested client coordinates.
+  let touchDispatched = false;
+  const touchPlatform = 'ontouchstart' in window || (navigator.maxTouchPoints ?? 0) > 0;
+  if (touchPlatform && typeof TouchEvent === 'function' && typeof Touch === 'function') {
+    try {
+      // Phaser reads touch.pageX/pageY (not clientX/Y); TouchInit defaults
+      // unset coordinate members to 0, so set every coordinate pair.
+      const touch = new Touch({
+        identifier: 1, target,
+        clientX: point.x, clientY: point.y,
+        pageX: point.x + window.scrollX, pageY: point.y + window.scrollY,
+        screenX: point.x, screenY: point.y,
+      });
+      const touchShared = { bubbles: true, cancelable: true, composed: true } as const;
+      target.dispatchEvent(new TouchEvent('touchstart', {
+        ...touchShared, touches: [touch], targetTouches: [touch], changedTouches: [touch],
+      }));
+      target.dispatchEvent(new TouchEvent('touchend', {
+        ...touchShared, touches: [], targetTouches: [], changedTouches: [touch],
+      }));
+      touchDispatched = true;
+    } catch {
+      touchDispatched = false;
+    }
+  }
+  if (!touchDispatched) {
+    target.dispatchEvent(new MouseEvent('mousedown', shared));
+    target.dispatchEvent(new MouseEvent('mouseup', shared));
+  }
   // A `click` always follows a real tap; dispatch it so click-only listeners
   // (the common menu-button case) fire without an `el.click()` shortcut.
   target.dispatchEvent(new MouseEvent('click', shared));

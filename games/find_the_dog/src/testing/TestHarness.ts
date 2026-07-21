@@ -143,6 +143,26 @@ function driveElementClick(element: HTMLElement): boolean {
   return true;
 }
 
+/**
+ * Click a trigger through the real input path once the hit test actually
+ * reaches it. On device the #scene-transition-cover lingers past first paint
+ * (fonts/icon decodes are slower than in the browser lane) and swallows a
+ * single-shot synthetic click, so poll until the element is topmost first.
+ */
+async function clickWhenHittable(selector: string, pollMs: number, maxPolls: number): Promise<boolean> {
+  const hittable = await waitUntil(() => {
+    const el = document.querySelector<HTMLElement>(selector);
+    if (el === null) return false;
+    const point = elementClientCenter(el);
+    if (point === null || typeof document.elementFromPoint !== 'function') return true;
+    const hit = document.elementFromPoint(point.x, point.y);
+    return hit !== null && (hit === el || el.contains(hit));
+  }, pollMs, maxPolls);
+  if (!hittable) return false;
+  const el = document.querySelector<HTMLElement>(selector);
+  return el !== null && driveElementClick(el);
+}
+
 export interface FindTheDogSnapshot {
   /** Visible scene/surface inferred from DOM plus Phaser. */
   activeScene: string;
@@ -310,15 +330,12 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       && menuSnapshot.achievementsOpen !== true) || await gotoHome();
     if (!atMenu) return false;
 
-    const buttonReady = await waitUntil(
-      () => document.querySelector(HOME_PLAY_TRIGGER_SELECTOR) !== null,
+    const clicked = await clickWhenHittable(
+      HOME_PLAY_TRIGGER_SELECTOR,
       HOME_READY_TARGET_POLL_MS,
       HOME_READY_TARGET_MAX_POLLS,
     );
-    if (!buttonReady) return false;
-
-    const trigger = document.querySelector<HTMLElement>(HOME_PLAY_TRIGGER_SELECTOR);
-    if (trigger === null || !driveElementClick(trigger)) return false;
+    if (!clicked) return false;
 
     return waitUntil(
       () => findTheDogDrivePredicates.level(driveSnapshot()),
@@ -337,9 +354,12 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
 
   async function openSettingsFromUi(): Promise<boolean> {
     await waitForSettingsOpenTarget();
-    const button = document.querySelector<HTMLButtonElement>(SETTINGS_OPEN_TRIGGER_SELECTOR);
-    if (button !== null) {
-      driveElementClick(button);
+    if (document.querySelector(SETTINGS_OPEN_TRIGGER_SELECTOR) !== null) {
+      await clickWhenHittable(
+        SETTINGS_OPEN_TRIGGER_SELECTOR,
+        SETTINGS_OPEN_TARGET_POLL_MS,
+        SETTINGS_OPEN_TARGET_MAX_POLLS,
+      );
     }
     if (document.querySelector(SETTINGS_PAGE_SELECTOR) === null) openPage('settings');
     return waitUntil(
@@ -390,14 +410,12 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     const atHome = findTheDogDrivePredicates.menu(driveSnapshot()) || await gotoHome();
     if (!atHome) return false;
     seedAchievementCollection();
-    const triggerReady = await waitUntil(
-      () => document.querySelector(ACHIEVEMENTS_OPEN_TRIGGER_SELECTOR) !== null,
+    const clicked = await clickWhenHittable(
+      ACHIEVEMENTS_OPEN_TRIGGER_SELECTOR,
       HOME_READY_TARGET_POLL_MS,
       HOME_READY_TARGET_MAX_POLLS,
     );
-    if (!triggerReady) return false;
-    const trigger = document.querySelector<HTMLElement>(ACHIEVEMENTS_OPEN_TRIGGER_SELECTOR);
-    if (trigger === null || !driveElementClick(trigger)) return false;
+    if (!clicked) return false;
     return waitUntil(
       () => findTheDogDrivePredicates.achievements(driveSnapshot()),
       SETTINGS_OPEN_TARGET_POLL_MS,
@@ -456,11 +474,21 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
   }
 
   async function winLevel(): Promise<boolean> {
+    // Let the play-entry transition cover finish before tapping — while it is
+    // up, the real-input hit test lands on the cover instead of the canvas.
+    await waitUntil(
+      () => document.getElementById('scene-transition-cover') === null,
+      TERMINAL_TARGET_POLL_MS,
+      TERMINAL_TARGET_MAX_POLLS,
+    );
     const before = harnessSnapshot();
     for (const dog of before.dogPositions.filter((candidate) => !candidate.found)) {
-      harness.findDog(dog.id);
       await waitUntil(
-        () => gameState.foundDogIds.has(dog.id),
+        () => {
+          if (gameState.foundDogIds.has(dog.id)) return true;
+          harness.findDog(dog.id);
+          return gameState.foundDogIds.has(dog.id);
+        },
         TERMINAL_TARGET_POLL_MS,
         TERMINAL_TARGET_MAX_POLLS,
       );
@@ -691,6 +719,11 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     failLevel,
 
     async driveTo(state: FindTheDogDriveState): Promise<boolean> {
+      // Tour states are deterministic captures, never the first-run tutorial:
+      // its gate makes only dogs[0] interactive and its bubble anchors on that
+      // dog's screen point, swallowing the harness's real-input taps. Browser
+      // flows already disable it via setState; do the same for tour drives.
+      gameState.settings.tutorialEnabled = false;
       if (state === 'achievements') return openAchievementsFromUi();
       if (state === 'win-achievement') {
         seedLockedAchievementsForUnlock();
