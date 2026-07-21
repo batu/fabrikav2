@@ -51,7 +51,12 @@ settlement writes)**
 (the grant is neither lost nor doubled when the wallet is in either the recorded
 before- or after-state), degrading to **at-most-once only on genuine corruption**
 where the wallet matches neither snapshot — a case we detect and handle by an explicit
-mismatch policy rather than a blind reapply.
+mismatch policy rather than a blind reapply. Distinctly, when a strict achievement/transaction-intent
+persist **throws outright** (storage unavailable/quota), the finale catches it, commits **nothing**
+about the achievement, and returns `achievementCommitError`; the core completion continues. In that
+degraded path the occurrence **may be lost** if the player advances before storage recovers — the
+guarantee is no corruption / no partial reward / no double grant, **not** losslessness under
+unavailable storage (final correction).
 
 ---
 
@@ -107,8 +112,9 @@ rendering (HomeScene, HUD, LevelCompleteOverlay styling untouched).
 - `currentLevelIndex` is a **selectable pointer**, not completion proof: `selectLevel`
   assigns it on mere navigation (GameScene.ts:1191), and HomeScene selection routes through
   the same path. Migration must derive progression from `_totalLevelsCompleted` /
-  `_bestTimes` / `currentStreakDays()` only — never treat `currentLevelIndex` as evidence a
-  level was completed.
+  `currentStreakDays()` only — never treat `currentLevelIndex` as evidence a
+  level was completed, and **never** convert `_bestTimes` (served-keyed, fallback-ambiguous) into
+  logical mastery (final correction): mastery begins from this release forward.
 - `onDogFound` has `dog.id` (stable per level) and `this.level.id` (the served level id),
   and dedupes finds within a level via `gameState.foundDogIds` (a Set of `dog.id`,
   GameScene.ts:1374). There is **no** persisted attempt/transaction id at the dog-found
@@ -174,13 +180,18 @@ latest red-team break #1).** The prior draft had `applyDeltaToRecord` read `fact
 `fact.newBest` to update `masteredLevelIds`, but the `AchievementDelta`/`CommittedAchievementDelta`
 it consumes carry **only** `{ occurrenceId, progressChanges, newlyUnlocked }` — no `levelId`, no
 `newBest` — so the promised consumer could not compose. Fix: `apply()` **derives** the mastery
-additions itself and puts them **on the delta** as `masteredLevelIdsAdded: readonly string[]`
-(computed from `fact.masteryLevelId`/`fact.newBest` against the record's existing `masteredLevelIds` —
-non-empty only for a `newBest` completion of a level not already mastered; always `[]` for
-dog-found/progress-only facts). `applyDeltaToRecord(record, delta)` then folds `masteredLevelIdsAdded`
-with progress/unlocks/processed and never touches the fact. A U2 round-trip repeat-best test proves
-a second `newBest` for an already-mastered level yields `masteredLevelIdsAdded: []` (mastery does
-not re-increment after reload).
+additions itself and puts them **on the delta** as `masteredLevelIdsAdded: readonly string[]`.
+**Logical mastery is forward-only distinct logical completion, NOT served best-time inference
+(final correction).** On **every accepted `LevelCompletionFact`**, `apply()` adds
+`fact.masteryLevelId` (`intendedLevelId ?? levelId`) to `masteredLevelIdsAdded` **iff it is not
+already in the record's `masteredLevelIds`** — **independent of `fact.newBest`**. `newBest`
+remains **served-level timing metadata only** (surfaced for first-best / personal-best facts) and
+is **never** used to decide logical mastery. `masteredLevelIdsAdded` is always `[]` for
+dog-found/progress-only facts. `applyDeltaToRecord(record, delta)` then folds `masteredLevelIdsAdded`
+with progress/unlocks/processed and never touches the fact. A U2 round-trip test proves a second
+completion of an already-mastered level yields `masteredLevelIdsAdded: []` (mastery does not
+re-increment after reload), and a fallback case where two intended levels share one served id keeps
+distinct `masteryLevelId`s.
 GameState's checkpoint-1 mutation (and the progress-only/no-wallet path, and migration) applies
 its record change **through this one function** so cumulative progress, unlocks, mastery, and
 processed-set always advance consistently. A U3 serialize/reload test proves cumulative progress
@@ -213,11 +224,17 @@ propagate throws *internally* (load-bearing for the write-ahead branch logic), b
 errors around the `applyAchievementFact` call**, rolls the in-memory `_achievementRecord` back to
 the last durable record (`lastDurableRecord`), and returns the **normal core completion result**
 with `achievementCommit` undefined and `achievementCommitError: 'persistence-unavailable'`. The
-core completion (stats, base coins, transaction identity) is unaffected; the overlay continues; the
-un-granted achievement fact stays unprocessed and is re-derived cleanly on the next
-completion/reload. A U3 test injects a storage throw during an achievement checkpoint and asserts
+core completion (stats, base coins, transaction identity) is unaffected; the overlay continues.
+**Honest persistence-unavailable degradation (final correction).** When strict achievement/
+transaction-intent persistence fails, no achievement record/wallet/outbox commit occurs and the
+un-granted occurrence is left uncommitted. If the player advances before storage recovers (the
+active transaction is cleared by `markActiveCompletionAdvanced`), that achievement occurrence
+**may be permanently lost — it is NOT promised to re-derive**. The safety guarantee in this branch
+is **no corruption, no partial achievement reward, and no double grant** — not losslessness under
+unavailable storage. A U3 test injects a storage throw during an achievement checkpoint and asserts
 the GameScene-style consumer still reads `transaction`/`previousBest`/`newBest`/`baseCoinsGrantedNow`
-(no exception escapes `beginLevelCompletionTransaction`) and sees `achievementCommitError` set.
+(no exception escapes `beginLevelCompletionTransaction`), sees `achievementCommitError` set, and the
+achievement wallet remains unchanged.
 
 **KTD2 — Recoverable write-ahead settlement with before/after snapshots.**
 The achievement record is a single versioned `ftd_achievements` key (one `setItem`,
@@ -289,9 +306,12 @@ corruption. So the protocol opens with a **strict synchronous baseline checkpoin
 guarantees stored-wallet == `before` regardless of any earlier broad `save()` tear. **If
 baseline persistence throws at or after any key, abort immediately** — before marking the
 occurrence processed, before appending the outbox, before writing `pendingSettlement`: no
-achievement reward/unlock/analytics commit occurs, the fact stays unprocessed, and the next
-attempt/reload re-derives it cleanly. (The abort is safe because nothing durable about the
-achievement has been written yet.)
+achievement reward/unlock/analytics commit occurs and the fact stays unprocessed. A same-process
+retry (or a reload while the completion transaction identity is still active) re-derives it; but if
+the player advances and the active transaction is cleared before storage recovers, that occurrence
+may be lost — losslessness is not promised (final correction). (The abort is safe because nothing
+durable about the achievement has been written yet — no corruption, no partial reward, no double
+grant.)
 
 **Strict completion-transaction identity is durable BEFORE any achievement checkpoint
 (fixes red-team break #1).** The occurrence id for a completion fact is the completion
@@ -561,8 +581,9 @@ achievement progress normally.
 
 **KTD4 — Catalog is data, grounded only in provable behaviors.** Small first release:
 progression/completion-count milestones, lifetime dog finds **from this release
-forward** (new counter, honestly zero-based), personal-best/mastery facts the game
-truly observes (`newBest`, per-level best times), and streak milestones
+forward** (new counter, honestly zero-based), personal-best facts the game
+truly observes (`newBest` timing) and mastery as distinct **logical** levels completed
+(forward-only, accrued on every completion — not inferred from served best-time keys), and streak milestones
 (`currentStreakDays`). Stable string IDs, explicit `order` for deterministic display.
 Rewards are modest coins/hints whose **summed** total is bounded well under existing
 level/reward economy flows (verified against `baseCoinReward` scale in the plan's
@@ -570,12 +591,20 @@ reward-budget check). No historical dog/hintless/clean-run/replay achievements.
 
 **KTD5 — Migration backfills only from durable derivable state.** On first load of a
 save lacking an achievement record (or a lower `version`), evaluate progression and
-completion-total milestones from `_totalLevelsCompleted` (the durable completion count),
-mastery from `_bestTimes` (distinct levels with a best time), and streak milestones from
-`currentStreakDays()`. **`currentLevelIndex` is deliberately excluded** — it is a
-selectable navigation pointer (GameScene.ts:1191), not completion proof, so a "reached
-level N" milestone is defined against completion count, never the level cursor. Sanitize
+completion-total milestones from `_totalLevelsCompleted` (the durable completion count)
+and streak milestones from `currentStreakDays()`. **`currentLevelIndex` is deliberately
+excluded** — it is a selectable navigation pointer (GameScene.ts:1191), not completion proof, so a
+"reached level N" milestone is defined against completion count, never the level cursor. Sanitize
 malformed legacy counters (clamp negatives/NaN to 0).
+**Migration does NOT backfill logical mastery (final correction).** Historical *intended* level
+identity is unobservable — `_bestTimes` is keyed by the **served** level id, and after any fallback
+substitution a served key cannot be trusted to equal a distinct logical `masteryLevelId` (it could
+collapse two intended levels into one key or split one intended level across several). So mastery,
+exactly like lifetime-dog discovery, **begins from this release forward**: `migrate()` initializes
+`masteredLevelIds` to `[]` and never converts `_bestTimes` keys into mastery entries. Existing
+served `_bestTimes` are left untouched but are not mastery evidence. A U5 test proves a save with
+fallback best-time history yields **no** migrated mastery (no guess/collapse/split) and that mastery
+accrues only from post-migration live completion facts.
 Lifetime-dog and any non-derivable facts start unearned. Backfill is itself an
 idempotent occurrence (`migration:v<N>`) so repeated evaluation never re-grants.
 
@@ -896,8 +925,8 @@ versioned `AchievementRecord`, and per-achievement progress semantics. No behavi
   `previousBestSeconds ← transaction.previousBestSeconds`, `newBest ← transaction.newBest`,
   and provenance (`sequenceVersion`/`fallbackReason`)
   copied from the transaction. `masteryLevelId` is the durable **logical** distinct-level key mastery
-  ("N distinct levels with a best time") counts on; `servedLevelId` is the actually-served id for
-  fallback analytics. The **source-shape fact**
+  ("N distinct logical levels completed") counts on — added on **every** accepted completion,
+  independent of `newBest`; `servedLevelId` is the actually-served id for fallback analytics. The **source-shape fact**
   explicitly lists `timeSeconds`, and a U3 typecheck test asserts the builder maps
   `timeSeconds ← transaction.timeSeconds` against the real `CompletionTransaction`. The **zero-adaptation guarantee applies
   only to the UI card consuming the returned `CommittedAchievementDelta`**, not to GameState
@@ -906,8 +935,13 @@ versioned `AchievementRecord`, and per-achievement progress semantics. No behavi
 - **`CompletionTransaction` gains an optional recoverable progression snapshot (latest
   break #1).** Extend the existing `CompletionTransaction` interface (GameState.ts:101-120)
   **additively** with `completionProgressAfter?: { bestTimes: Record<string, number>;
-  streakDays: number; streakLastDate: string | null; totalLevelsCompleted: number }` — the
-  **absolute** post-`registerLevelComplete` progression state. It is set in memory alongside
+  streakDays: number; streakLastDate: string; totalLevelsCompleted: number }` — the
+  **absolute** post-`registerLevelComplete` progression state. `streakLastDate` is a **plain
+  `string` (empty string `''` when no streak), never `null`** — it exactly matches
+  `GameState._streakLastDate: string` (GameState.ts:412) and the value passed to
+  `localStorage.setItem(STREAK_LAST_DATE, …)` (GameState.ts:906), so reconciliation assigns and
+  persists it without adaptation (final correction). `parseCompletionTransaction()` validates it as
+  a `string`. It is set in memory alongside
   `completionStatsRegistered = true` and travels in the durably-persisted
   `ACTIVE_COMPLETION_TRANSACTION` (checkpoint 0a), so a tear between the transaction write and the
   separate progression keys is repaired on load by reconciling to this snapshot (KTD2 /
@@ -927,9 +961,10 @@ versioned `AchievementRecord`, and per-achievement progress semantics. No behavi
   readonly AchievementProgressChange[], newlyUnlocked: readonly Achievement[] (catalog order,
   each with optional `entitledReward`), masteredLevelIdsAdded: readonly string[] }`. The
   **`masteredLevelIdsAdded`** field (latest red-team break #1) makes the delta self-sufficient for
-  record folding: `apply()` derives it from `fact.masteryLevelId`/`fact.newBest` against the record's
-  `masteredLevelIds` (the level id iff this is a `newBest` completion of a not-yet-mastered level,
-  else `[]`), so `applyDeltaToRecord` never needs the fact to update mastery. `CommittedAchievementDelta`
+  record folding: `apply()` derives it from `fact.masteryLevelId` against the record's
+  `masteredLevelIds` (the level id iff this accepted completion's `masteryLevelId` is not already
+  mastered — **independent of `newBest`**, final correction — else `[]`), so `applyDeltaToRecord`
+  never needs the fact to update mastery. `CommittedAchievementDelta`
   (returned by GameState, consumed by UI/analytics) extends it with `rewards: readonly
   GrantedReward[]` (applied amounts, `achievementId`-tagged). This is the single owned consumer shape.
 - `AchievementRecord` (versioned, the durable journal — one storage key): `{ version,
@@ -949,9 +984,10 @@ versioned `AchievementRecord`, and per-achievement progress semantics. No behavi
   (the wallet persists as three separate keys — KTD2).
 - **`masteredLevelIds` persists mastery identity (fixes the reload-double-count break):**
   distinct-level mastery progress is the size of this persisted set, not a raw numeric counter.
-  A `newBest` completion of a not-yet-mastered level surfaces its level id via the delta's
-  `masteredLevelIdsAdded` (derived by `apply()`, break #1), which `applyDeltaToRecord` folds into
-  the set, so a *repeat* best time for an already-mastered level yields `masteredLevelIdsAdded: []`
+  **Every accepted completion** of a not-yet-mastered logical level surfaces its `masteryLevelId`
+  via the delta's `masteredLevelIdsAdded` (derived by `apply()` independent of `newBest`, break #1
+  / final correction), which `applyDeltaToRecord` folds into
+  the set, so a *repeat* completion of an already-mastered level yields `masteredLevelIdsAdded: []`
   and does **not** re-increment mastery after a serialize/reload —
   the prior draft stored only `progress: number` and could not distinguish a repeat best from a
   new level after deserialize.
@@ -994,17 +1030,18 @@ ordering in `AchievementSystem.ts`.
   (reach level N **defined by completion count**, never `currentLevelIndex`, which is a
   selectable navigation pointer — GameScene.ts:1191), lifetime dog finds from-this-release
   (new record counter, starts 0, keyed on `dog:<servedLevelId>:<dogId>` occurrences),
-  personal-best/mastery (first `newBest`; N distinct **`masteryLevelId`**s with a best time — the
-  distinct set is the persisted `record.masteredLevelIds`, updated from the fact's `masteryLevelId`
-  (the logical, fallback-stable id — never `servedLevelId`)
-  only when `newBest` and not already present, so a repeat best for a mastered level never
-  re-increments after reload — KTD4/U1), streak milestones (3/7 day from `currentStreakDays`).
+  personal-best (first `newBest`, using `newBest` as served-level timing metadata only) and
+  mastery (N distinct **`masteryLevelId`**s completed — the distinct set is the persisted
+  `record.masteredLevelIds`, updated from the fact's `masteryLevelId` (the logical, fallback-stable
+  id — never `servedLevelId`) on **every** accepted completion when not already present, **independent
+  of `newBest`**, so a repeat completion of a mastered level never re-increments after reload —
+  KTD4/U1), streak milestones (3/7 day from `currentStreakDays`).
 - `apply()` computes new progress per relevant achievement, returns crossings in
   catalog `order`, attaches each newly-unlocked entry's catalog `entitledReward`
   (requested amount only — the post-cap applied `GrantedReward` is GameState's job, KTD1), and
-  **derives `masteredLevelIdsAdded`** (latest break #1) from `fact.masteryLevelId`/`fact.newBest` against
-  the record's `masteredLevelIds` — the contributing level id iff `newBest` and not already
-  mastered, else `[]`. Pure, deterministic, no I/O; mastery progress is derived from the record's
+  **derives `masteredLevelIdsAdded`** (latest break #1) from `fact.masteryLevelId` against
+  the record's `masteredLevelIds` — the contributing level id iff not already
+  mastered (**independent of `newBest`**, final correction), else `[]`. Pure, deterministic, no I/O; mastery progress is derived from the record's
   persisted `masteredLevelIds` set passed in, never a bare counter.
 - **Pure `applyDeltaToRecord(record, delta): AchievementRecord` (correction 3)** lives here too
   (owned, pure): it folds every `progressChanges` entry into `progress[id]`, adds `newlyUnlocked`
@@ -1034,18 +1071,19 @@ ordering in `AchievementSystem.ts`.
   `masteredLevelIds`/`processedOccurrenceIds` advance for crossings, and the input record is not
   mutated (pure). Feeding that returned record back into `apply()` continues from the folded
   progress.
-- **Mastery additions ride on the delta, not the fact (latest break #1).** `apply()` of a
-  `newBest` completion for a not-yet-mastered level returns `masteredLevelIdsAdded: [masteryLevelId]`;
-  `applyDeltaToRecord` folds that into `masteredLevelIds` **using only the delta** (no fact
-  argument). A **repeat** `newBest` for an already-mastered level returns
+- **Mastery additions ride on the delta, not the fact (latest break #1).** `apply()` of any
+  accepted completion for a not-yet-mastered level returns `masteredLevelIdsAdded: [masteryLevelId]`
+  (**independent of `newBest`**, final correction); `applyDeltaToRecord` folds that into
+  `masteredLevelIds` **using only the delta** (no fact
+  argument). A **repeat** completion of an already-mastered level returns
   `masteredLevelIdsAdded: []`, so folding does not re-increment mastery — proven without reference
   to `fact.masteryLevelId` inside `applyDeltaToRecord`.
 - **Mastery keys on `masteryLevelId`, not `servedLevelId` (latest break: split identity).**
   (a) Two facts for **distinct intended levels** that were both served by the **same fallback
-  `servedLevelId`** carry **different `masteryLevelId`s**, so each first `newBest` adds its own
+  `servedLevelId`** carry **different `masteryLevelId`s**, so each completion adds its own
   entry — mastery counts **two** distinct levels (a served-id-keyed model would have collapsed them
   to one). (b) One intended level served by **several alternative `servedLevelId`s** across retries
-  carries the **same `masteryLevelId`**, so repeat bests add it **once** — mastery counts **one**
+  carries the **same `masteryLevelId`**, so repeat completions add it **once** — mastery counts **one**
   (a served-id-keyed model would have over-counted). Proves distinct-level identity binds to the
   logical `masteryLevelId`.
 
@@ -1067,7 +1105,9 @@ the wallet via idempotent reconciliation, and expose the delta to callers. Wire
 - **Round-trip the new `completionProgressAfter` snapshot through clone + parse (correction 6).**
   The existing `cloneCompletionTransaction` and the whitelisting `parseCompletionTransaction`
   reconstruct only the current fields; extend **both** to deep-clone / validate / restore
-  `completionProgressAfter` (deep-copy the `bestTimes` map, carry `streakDays`, `streakLastDate`,
+  `completionProgressAfter` (deep-copy the `bestTimes` map, carry `streakDays`, validate
+  `streakLastDate` as a plain **`string`** — empty `''` allowed, never `null`, matching
+  `_streakLastDate: string`, final correction —
   `totalLevelsCompleted`), with **legacy absent-field compatibility** (a serialized transaction
   without the field parses to `completionProgressAfter: undefined` and keeps existing behavior). If
   the parser does not restore it, `load()`'s progression reconciliation can never run and the
@@ -1405,9 +1445,10 @@ flag over stale stats.
   `applyDeltaToRecord` writes `progress[id] = k`; persist, reload a fresh GameState, apply the
   next fact and assert progress continues from the persisted `k` (not a stale/zero base) and the
   threshold crosses at the right cumulative count.
-- **Mastery survives reload (break #5).** Complete distinct levels A and B as `newBest`
-  (mastery=2), persist, reload, then a **repeat** `newBest` for A → mastery stays 2 (A already
-  in `masteredLevelIds`), no re-unlock, no re-grant.
+- **Mastery survives reload (break #5).** Complete distinct levels A and B (mastery=2,
+  **independent of `newBest`**), persist, reload, then a **repeat** completion of A → mastery
+  stays 2 (A already in `masteredLevelIds`), no re-unlock, no re-grant. A second sub-test proves a
+  first accepted completion that is **not** a `newBest` still adds its `masteryLevelId`.
 - **Analytics journaled before wallet (break #6).** Inject a `persistWallet()` throw at
   checkpoint 2; reload → the occurrence is processed **and** its full event list is still in
   `analyticsOutbox` (committed at checkpoint 1), so recovery both lands the wallet at `after`
@@ -1433,11 +1474,15 @@ otherwise unchanged.
 
 **Approach:**
 - `AchievementSystem.migrate(derivableState, existingRecord?)` builds/upgrades the
-  record from `_totalLevelsCompleted`, `_bestTimes`, and `currentStreakDays()` only.
+  record from `_totalLevelsCompleted` and `currentStreakDays()` only.
   **`currentLevelIndex` is deliberately excluded** — it is a selectable navigation pointer
   (GameScene.ts:1191), not completion proof, so progression milestones backfill from the
-  durable completion count, never the level cursor. Runs as a single idempotent occurrence
-  `migration:v<N>` recorded in `processedOccurrenceIds`.
+  durable completion count, never the level cursor. **Logical mastery is NOT backfilled (final
+  correction):** `_bestTimes` is served-keyed and fallback-ambiguous, so historical intended
+  identity is unobservable — `migrate()` initializes `masteredLevelIds` to `[]` and never converts
+  best-time keys into mastery entries; mastery begins from this release forward, exactly like
+  lifetime-dog discovery. Existing `_bestTimes` are left untouched. Runs as a single idempotent
+  occurrence `migration:v<N>` recorded in `processedOccurrenceIds`.
 - Clamp negative/NaN/absurd legacy counters to safe values before evaluating.
 - **Initialize/sanitize `nextAnalyticsEventSequence` (latest break #3).** A fresh migrated record
   sets it to `0`; an upgraded record with an absent/NaN/negative counter is repaired to one past the
@@ -1471,7 +1516,10 @@ otherwise unchanged.
   new post-migration achievement rewards normally through the write-ahead protocol.
 - Covers AC5. Fallback-served completion in history: logical/progression milestones
   count; served-vs-intended identity does not corrupt dedupe.
-- Non-derivable achievements (lifetime dogs) remain unearned after backfill.
+- **No mastery backfill (final correction).** A save whose `_bestTimes` holds fallback-served
+  keys yields `masteredLevelIds: []` after migration — no mastery is guessed, collapsed, or split
+  from served keys; mastery accrues only from post-migration live completion facts.
+- Non-derivable achievements (lifetime dogs, mastery) remain unearned after backfill.
 - Version bump path: older record upgraded without losing existing unlocks.
 
 ---
@@ -1723,7 +1771,15 @@ completion transaction to close it.
 - **Silent double-emit of unlock analytics.** Emit strictly from the delta after the
   processed-id guard (U6 empty-delta test).
 - **Guessing history during backfill.** Only derivable facts backfilled; migration is
-  an idempotent occurrence (U5).
+  an idempotent occurrence (U5). **Logical mastery is NOT backfilled** — `_bestTimes` is
+  served-keyed and fallback-ambiguous, so mastery begins from this release forward; a U5 test
+  proves fallback best-time history yields `masteredLevelIds: []` (no guess/collapse/split)
+  (final correction).
+- **Overclaiming losslessness under unavailable storage.** If strict achievement/transaction-intent
+  persistence fails, the finale returns `achievementCommitError` with no achievement commit; if the
+  player advances before storage recovers, that occurrence **may be lost** — the branch guarantees
+  no corruption / no partial reward / no double grant, **not** losslessness; U3 asserts the wallet
+  is unchanged and the core result survives (final correction).
 - **Breaking the existing completion consumer.** `CompletionTransactionResult` is preserved
   and only additively extended with `achievementCommit?`; a U3 test asserts the real GameScene
   consumer still reads `transaction`/`previousBest`/`newBest`/`baseCoinsGrantedNow` (break #1).
@@ -1881,7 +1937,11 @@ exercised, mirroring existing `registerLevelComplete` test style.
    analytics emission recovery from a durable outbox (journaled in checkpoint 1, before the
    wallet write), persisted distinct-level mastery that does not re-increment on reload (folded
    from the delta's own `masteredLevelIdsAdded`, break #1 — no hidden fact dependency in
-   `applyDeltaToRecord`),
+   `applyDeltaToRecord`; **forward-only, added on every accepted completion independent of
+   `newBest`, and NOT backfilled from served `_bestTimes` — final correction**),
+   the **honest persistence-unavailable degradation** (a strict-persist throw yields
+   `achievementCommitError`, unchanged achievement wallet, no promise of losslessness if the
+   player advances before storage recovers — final correction),
    committed `achievementId`-tagged post-cap
    rewards, the additive `CompletionTransactionResult.achievementCommit` field (existing consumer
    fields intact), the **preserved (un-narrowed) completion-reuse guard** with per-transaction
