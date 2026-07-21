@@ -36,6 +36,7 @@ import {
   createAttributionProvider,
 } from '@fabrikav2/sdk/attribution';
 import { setMusicPausedForAd } from '../audio/AudioManager';
+import { gameState } from '../core/GameState';
 import { readAppLovinConfigForPlatform } from '../ads/AppLovinConfig';
 import { configureAdService } from '../ads/Service';
 import {
@@ -279,6 +280,9 @@ export function installSdkContext(context: GameSdkContext): GameSdkContext {
     providerName: () => context.ads.providerName,
     ownedMirrorStats: context.ownedMirrorStats,
   });
+  // Drain any achievement analytics recovered from a prior session's outbox now
+  // that the real sinks are composed (load() never dispatches — KTD6/correction 1).
+  gameState.drainAnalyticsOutbox();
   return context;
 }
 

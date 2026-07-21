@@ -1385,6 +1385,11 @@ export class GameScene extends Phaser.Scene {
     const dogIndex = this.level!.dogs.findIndex((d) => d.id === dog.id);
     this.trackDogFoundAnalytics(dogIndex, Math.round((Date.now() - this.levelStartedAt) / 1000));
 
+    // Achievement domain: record the accepted dog find (stable occurrence id
+    // dog:<servedLevelId>:<dogId>), then drain the journaled analytics outbox.
+    gameState.recordDogFound(this.level!.id, dog.id);
+    gameState.drainAnalyticsOutbox();
+
     // Restoration mode: remove the tapped dog instantly by carving its
     // local cell area out of the color layer. If the level ships a
     // separated sprite, fly that sprite into the HUD counter as the
@@ -1653,6 +1658,9 @@ export class GameScene extends Phaser.Scene {
         transaction_id: completion.transaction.id,
       });
     }
+    // Achievement analytics were journaled durably inside the completion commit;
+    // drain the outbox now that analytics is composed (dispatch boundary only).
+    gameState.drainAnalyticsOutbox();
     const previousBest = completion.previousBest;
     const newBest = completion.newBest;
     const displayTimeSeconds = completion.transaction.timeSeconds;

@@ -1,4 +1,26 @@
 import { GAMEPLAY } from './Constants';
+import {
+  ACHIEVEMENT_RECORD_VERSION,
+  apply as applyAchievement,
+  applyDeltaToRecord,
+  emptyAchievementRecord,
+  migrate as migrateAchievements,
+  sanitizeSequence,
+  type AchievementFact,
+  type AchievementRecord,
+  type CommittedAchievementDelta,
+  type DogFoundFact,
+  type GrantedReward,
+  type LevelCompletionFact,
+  type PendingSettlement,
+  type SettlementSnapshot,
+} from '../achievements/AchievementSystem';
+import {
+  buildReconciliationAnomalyEvent,
+  deltaToEvents,
+  type PendingAnalyticsEvent,
+} from '../achievements/AchievementAnalytics';
+import { analytics } from '../analytics/AnalyticsService';
 
 const STORAGE_KEYS = {
   HINTS: 'ftd_hints',
@@ -22,6 +44,7 @@ const STORAGE_KEYS = {
   WALLET_COUNTERS: 'ftd_wallet_counters',
   ACTIVE_COMPLETION_TRANSACTION: 'ftd_active_completion_transaction',
   COMPLETION_SEQUENCE: 'ftd_completion_sequence',
+  ACHIEVEMENTS: 'ftd_achievements',
 } as const;
 
 const CURRENT_LEVEL_ORDER_REVISION = 'bundled-v2';
@@ -85,6 +108,7 @@ export type WalletMutationSource =
   | 'shop'
   | 'iap'
   | 'tutorial'
+  | 'achievement'
   | 'test';
 
 export interface WalletCounters {
@@ -117,6 +141,19 @@ export interface CompletionTransaction {
   rewardProgressApplied: boolean;
   advanced: boolean;
   createdAtMs: number;
+  /**
+   * Absolute post-`registerLevelComplete` progression snapshot, set in memory
+   * alongside `completionStatsRegistered = true` and persisted with the
+   * transaction (checkpoint 0a). Optional so legacy serialized transactions
+   * without it keep existing behavior. `streakLastDate` is a plain string
+   * (empty `''` when no streak), never null — matches `_streakLastDate`.
+   */
+  completionProgressAfter?: {
+    bestTimes: Record<string, number>;
+    streakDays: number;
+    streakLastDate: string;
+    totalLevelsCompleted: number;
+  };
 }
 
 export interface CompletionTransactionInput {
@@ -137,6 +174,13 @@ export interface CompletionTransactionResult {
   newBest: boolean;
   baseCoinsGrantedNow: boolean;
   completionStatsRegisteredNow: boolean;
+  /** The committed achievement delta, if this completion changed achievements
+   *  (undefined otherwise). Additive — existing fields are unchanged. */
+  achievementCommit?: CommittedAchievementDelta;
+  /** Set when achievement persistence/settlement failed and was skipped so the
+   *  finale never throws. The un-granted occurrence may be lost if the player
+   *  advances before storage recovers (no losslessness promise). */
+  achievementCommitError?: 'persistence-unavailable';
 }
 
 export interface WalletSnapshot {
@@ -295,7 +339,34 @@ function parseWalletCounters(value: string | null): WalletCounters {
 }
 
 function cloneCompletionTransaction(transaction: CompletionTransaction): CompletionTransaction {
-  return { ...transaction };
+  return {
+    ...transaction,
+    ...(transaction.completionProgressAfter !== undefined
+      ? {
+          completionProgressAfter: {
+            ...transaction.completionProgressAfter,
+            bestTimes: { ...transaction.completionProgressAfter.bestTimes },
+          },
+        }
+      : {}),
+  };
+}
+
+function parseCompletionProgressAfter(value: unknown): CompletionTransaction['completionProgressAfter'] | undefined {
+  if (value === undefined) return undefined;
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return undefined;
+  const record = value as Record<string, unknown>;
+  const { streakDays, streakLastDate, totalLevelsCompleted, bestTimes } = record;
+  if (typeof streakDays !== 'number' || !Number.isFinite(streakDays) || streakDays < 0) return undefined;
+  if (typeof streakLastDate !== 'string') return undefined; // plain string, never null (empty allowed)
+  if (typeof totalLevelsCompleted !== 'number' || !Number.isSafeInteger(totalLevelsCompleted) || totalLevelsCompleted < 0) return undefined;
+  const cleanBest: Record<string, number> = {};
+  if (bestTimes !== null && typeof bestTimes === 'object' && !Array.isArray(bestTimes)) {
+    for (const [k, v] of Object.entries(bestTimes as Record<string, unknown>)) {
+      if (typeof v === 'number' && Number.isFinite(v)) cleanBest[k] = v;
+    }
+  }
+  return { bestTimes: cleanBest, streakDays, streakLastDate, totalLevelsCompleted };
 }
 
 function isCompletionFallbackReason(value: unknown): value is CompletionFallbackReason {
@@ -323,6 +394,7 @@ function parseCompletionTransaction(value: string | null): CompletionTransaction
   const sequenceVersion = record.sequenceVersion;
   const catalogRevision = record.catalogRevision;
   const fallbackReason = record.fallbackReason;
+  const completionProgressAfter = parseCompletionProgressAfter(record.completionProgressAfter);
   if (typeof id !== 'string' || id.length === 0) return null;
   if (typeof levelId !== 'string' || levelId.length === 0) return null;
   if (typeof levelIndex !== 'number' || !Number.isSafeInteger(levelIndex) || levelIndex < 0) return null;
@@ -360,13 +432,104 @@ function parseCompletionTransaction(value: string | null): CompletionTransaction
     rewardProgressApplied,
     advanced,
     createdAtMs,
+    ...(completionProgressAfter !== undefined ? { completionProgressAfter } : {}),
   };
 }
+
+/** Tolerant parse of the durable achievement record. Returns null when absent or
+ *  unparseable (→ migration builds a fresh record). Our own writes, so structural
+ *  fields are trusted when present; malformed values fall back to safe defaults. */
+function parseAchievementRecord(value: string | null): AchievementRecord | null {
+  const record = parseRecord(value);
+  if (record === null) return null;
+  const version = typeof record.version === 'number' && Number.isSafeInteger(record.version) ? record.version : 0;
+
+  const progress: Record<string, number> = {};
+  if (record.progress !== null && typeof record.progress === 'object' && !Array.isArray(record.progress)) {
+    for (const [k, v] of Object.entries(record.progress as Record<string, unknown>)) {
+      if (typeof v === 'number' && Number.isFinite(v)) progress[k] = v;
+    }
+  }
+
+  const stringArray = (raw: unknown): string[] => {
+    if (!Array.isArray(raw)) return [];
+    const out: string[] = [];
+    for (const item of raw) if (typeof item === 'string' && item.length > 0) out.push(item);
+    return out;
+  };
+
+  const outbox: PendingAnalyticsEvent[] = Array.isArray(record.analyticsOutbox)
+    ? (record.analyticsOutbox.filter(
+        (e): e is PendingAnalyticsEvent =>
+          e !== null && typeof e === 'object' && typeof (e as { eventId?: unknown }).eventId === 'string',
+      ))
+    : [];
+
+  const nextAnalyticsEventSequence =
+    typeof record.nextAnalyticsEventSequence === 'number' && Number.isFinite(record.nextAnalyticsEventSequence) && record.nextAnalyticsEventSequence >= 0
+      ? Math.floor(record.nextAnalyticsEventSequence)
+      : 0;
+
+  return {
+    version,
+    progress,
+    masteredLevelIds: stringArray(record.masteredLevelIds),
+    unlocked: stringArray(record.unlocked),
+    processedOccurrenceIds: stringArray(record.processedOccurrenceIds),
+    pendingSettlement: parsePendingSettlement(record.pendingSettlement),
+    analyticsOutbox: outbox,
+    nextAnalyticsEventSequence,
+  };
+}
+
+function parseSettlementSnapshot(value: unknown): SettlementSnapshot | null {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return null;
+  const record = value as Record<string, unknown>;
+  if (typeof record.coins !== 'number' || !Number.isFinite(record.coins)) return null;
+  if (typeof record.hints !== 'number' || !Number.isFinite(record.hints)) return null;
+  return {
+    coins: record.coins,
+    hints: record.hints,
+    counters: parseWalletCounters(JSON.stringify(record.counters ?? {})),
+  };
+}
+
+function parsePendingSettlement(value: unknown): PendingSettlement | null {
+  if (value === null || value === undefined || typeof value !== 'object' || Array.isArray(value)) return null;
+  const record = value as Record<string, unknown>;
+  const occurrenceId = record.occurrenceId;
+  const before = parseSettlementSnapshot(record.before);
+  const after = parseSettlementSnapshot(record.after);
+  if (typeof occurrenceId !== 'string' || occurrenceId.length === 0 || before === null || after === null) return null;
+  return { occurrenceId, before, after };
+}
+
+const WALLET_COUNTER_KEYS: readonly (keyof WalletCounters)[] = [
+  'coinsGranted',
+  'coinsSpent',
+  'hintsGranted',
+  'hintsSpent',
+  'levelCompleteCoinGrants',
+  'rewardedHintGrants',
+];
 
 function sequenceFromCompletionId(id: string): number {
   const match = /^completion:(\d+):/.exec(id);
   if (match === null) return 0;
   return Number(match[1]);
+}
+
+function emptyCommittedDelta(occurrenceId: string): CommittedAchievementDelta {
+  return { occurrenceId, progressChanges: [], newlyUnlocked: [], masteredLevelIdsAdded: [], rewards: [] };
+}
+
+function isEmptyCommittedDelta(delta: CommittedAchievementDelta): boolean {
+  return (
+    delta.progressChanges.length === 0 &&
+    delta.newlyUnlocked.length === 0 &&
+    delta.rewards.length === 0 &&
+    delta.masteredLevelIdsAdded.length === 0
+  );
 }
 
 export class GameState {
@@ -414,6 +577,10 @@ export class GameState {
   private _totalLevelsCompleted: number = 0;
   private _ratePromptShown: boolean = false;
   private _rateDeclined: boolean = false;
+  private _achievementRecord: AchievementRecord = emptyAchievementRecord();
+  /** The record snapshot that always equals what storage last committed — the
+   *  rollback target for a record-write throw (KTD2). */
+  private _lastDurableRecord: AchievementRecord = emptyAchievementRecord();
 
   get hintsRemaining(): number {
     return this._hintBalance;
@@ -464,11 +631,23 @@ export class GameState {
     };
   }
 
-  grantCoins(amount: number, _source: WalletMutationSource): void {
+  /**
+   * Non-persisting coin-grant primitive (validate, increment balance + lifetime
+   * `coinsGranted`, no `save()`). Symmetric to `applyHintGrant`. Shared by the
+   * public `grantCoins` and the achievement settlement checkpoint so both use one
+   * mutation semantics; the achievement path must NOT call the broad-saving
+   * `grantCoins` inside a write-ahead checkpoint. Returns the applied amount.
+   */
+  private applyCoinGrant(amount: number, _source: WalletMutationSource): number {
     const safeAmount = nonNegativeInteger(amount, 'coin grant amount');
-    if (safeAmount === 0) return;
+    if (safeAmount === 0) return 0;
     this._coinBalance += safeAmount;
     this._walletCounters.coinsGranted += safeAmount;
+    return safeAmount;
+  }
+
+  grantCoins(amount: number, source: WalletMutationSource): void {
+    if (this.applyCoinGrant(amount, source) === 0) return;
     this.save();
   }
 
@@ -678,9 +857,10 @@ export class GameState {
 
     let completionStatsRegisteredNow = false;
     if (!transaction.completionStatsRegistered) {
-      const { newBest } = this.registerLevelComplete(transaction.levelId, transaction.timeSeconds);
+      const { newBest } = this.applyLevelCompletionProgress(transaction.levelId, transaction.timeSeconds);
       transaction.newBest = newBest;
       transaction.completionStatsRegistered = true;
+      transaction.completionProgressAfter = this.completionProgressSnapshot();
       completionStatsRegisteredNow = true;
     }
 
@@ -693,6 +873,23 @@ export class GameState {
       baseCoinsGrantedNow = true;
     }
 
+    // Achievement fact — built after the non-persisting progression + base-coin
+    // mutations, BEFORE any broad save(), so checkpoint 0a is the first durable
+    // write of the completion (correction 5). The finale never throws: a strict
+    // achievement-persistence failure is caught and reported as achievementCommitError.
+    let achievementCommit: CommittedAchievementDelta | undefined;
+    let achievementCommitError: 'persistence-unavailable' | undefined;
+    try {
+      const committed = this.applyAchievementFact(this.buildLevelCompletionFact(transaction));
+      achievementCommit = isEmptyCommittedDelta(committed) ? undefined : committed;
+    } catch {
+      this._achievementRecord = this._lastDurableRecord;
+      achievementCommitError = 'persistence-unavailable';
+    }
+
+    // Trailing broad save persists remaining bookkeeping (base coins on a no-reward
+    // completion, level index, sequence). It runs AFTER the achievement checkpoints,
+    // never advancing state ahead of checkpoint 0a.
     this.save();
     return {
       transaction: cloneCompletionTransaction(transaction),
@@ -700,7 +897,53 @@ export class GameState {
       newBest: transaction.newBest,
       baseCoinsGrantedNow,
       completionStatsRegisteredNow,
+      ...(achievementCommit !== undefined ? { achievementCommit } : {}),
+      ...(achievementCommitError !== undefined ? { achievementCommitError } : {}),
     };
+  }
+
+  /** Documented builder mapping from the accepted CompletionTransaction to the
+   *  owned LevelCompletionFact (U1/U3, break #1). The only site with the
+   *  post-register totals/streak in scope. */
+  private buildLevelCompletionFact(transaction: CompletionTransaction): LevelCompletionFact {
+    return {
+      kind: 'level-completion',
+      occurrenceId: transaction.id,
+      transactionId: transaction.id,
+      masteryLevelId: transaction.intendedLevelId ?? transaction.levelId,
+      servedLevelId: transaction.servedLevelId ?? transaction.levelId,
+      progressionIndex: transaction.levelIndex,
+      totalCompletions: this._totalLevelsCompleted,
+      streakDays: this.currentStreakDays(),
+      timeSeconds: transaction.timeSeconds,
+      previousBestSeconds: transaction.previousBestSeconds,
+      newBest: transaction.newBest,
+      sequenceVersion: transaction.sequenceVersion,
+      fallbackReason: transaction.fallbackReason,
+    };
+  }
+
+  /**
+   * Record an accepted dog find. Occurrence id `dog:<servedLevelId>:<dogId>` derives
+   * from already-durable level/dog state (no completion transaction). The caller
+   * (GameScene) treats a persistence failure as best-effort — the achievement path
+   * never disrupts attempt memory/analytics — so this catches and returns null.
+   */
+  recordDogFound(servedLevelId: string, dogId: string): CommittedAchievementDelta | null {
+    if (servedLevelId.length === 0 || dogId.length === 0) return null;
+    const fact: DogFoundFact = {
+      kind: 'dog-found',
+      occurrenceId: `dog:${servedLevelId}:${dogId}`,
+      levelId: servedLevelId,
+      dogId,
+    };
+    try {
+      const committed = this.applyAchievementFact(fact);
+      return isEmptyCommittedDelta(committed) ? null : committed;
+    } catch {
+      this._achievementRecord = this._lastDurableRecord;
+      return null;
+    }
   }
 
   claimActiveCompletionBonusCoins(transactionId: string, amount: number): { granted: boolean; coinsGranted: number } {
@@ -782,7 +1025,14 @@ export class GameState {
    *
    * Returns whether the time was a new personal best (for celebration UI).
    */
-  registerLevelComplete(levelId: string, timeSeconds: number): { newBest: boolean } {
+  /**
+   * Non-persisting progression primitive (streak/best/total mutation, NO `save()`).
+   * The public `registerLevelComplete` calls this then `save()` (behavior
+   * byte-identical). The completion path calls this WITHOUT `save()` so no broad
+   * save durably advances progression ahead of the transaction guard (checkpoint
+   * 0a must be the first durable write).
+   */
+  private applyLevelCompletionProgress(levelId: string, timeSeconds: number): { newBest: boolean } {
     const today = todayString();
 
     if (this._streakLastDate !== today) {
@@ -804,9 +1054,23 @@ export class GameState {
     }
 
     this._totalLevelsCompleted += 1;
-
-    this.save();
     return { newBest };
+  }
+
+  registerLevelComplete(levelId: string, timeSeconds: number): { newBest: boolean } {
+    const result = this.applyLevelCompletionProgress(levelId, timeSeconds);
+    this.save();
+    return result;
+  }
+
+  /** Absolute post-register progression snapshot for the completion transaction. */
+  private completionProgressSnapshot(): NonNullable<CompletionTransaction['completionProgressAfter']> {
+    return {
+      bestTimes: { ...this._bestTimes },
+      streakDays: this._streakDays,
+      streakLastDate: this._streakLastDate,
+      totalLevelsCompleted: this._totalLevelsCompleted,
+    };
   }
 
   /**
@@ -894,6 +1158,235 @@ export class GameState {
     this.penaltyCooldownUntil = 0;
   }
 
+  // ===== Achievement domain (card ACH-1) =====================================
+  //
+  // Strict persist helpers. Each lets a `setItem` throw PROPAGATE to the caller —
+  // they deliberately do NOT inherit save()'s catch-and-continue, because the
+  // write-ahead protocol branches on whether each checkpoint actually committed.
+  // Do NOT re-wrap these in a try/catch.
+
+  /** Checkpoint 0a: durably persist the active completion transaction identity +
+   *  its progression snapshot, and the sequence counter. Throw propagates. */
+  private persistActiveCompletionTransaction(): void {
+    if (this._activeCompletionTransaction === null) {
+      localStorage.removeItem(STORAGE_KEYS.ACTIVE_COMPLETION_TRANSACTION);
+    } else {
+      localStorage.setItem(STORAGE_KEYS.ACTIVE_COMPLETION_TRANSACTION, JSON.stringify(this._activeCompletionTransaction));
+    }
+    localStorage.setItem(STORAGE_KEYS.COMPLETION_SEQUENCE, String(this._completionSequence));
+  }
+
+  /** Checkpoint 0pre: durably persist the guarded completion progression. Throw propagates. */
+  private persistCompletionProgress(): void {
+    localStorage.setItem(STORAGE_KEYS.BEST_TIMES, JSON.stringify(this._bestTimes));
+    localStorage.setItem(STORAGE_KEYS.STREAK_DAYS, String(this._streakDays));
+    localStorage.setItem(STORAGE_KEYS.STREAK_LAST_DATE, this._streakLastDate);
+    localStorage.setItem(STORAGE_KEYS.TOTAL_LEVELS_COMPLETED, String(this._totalLevelsCompleted));
+  }
+
+  /** Wallet keys as three separate atomic setItems (each can land/tear
+   *  independently). Baseline (0b) and settlement (checkpoint 2) write. Throw propagates. */
+  private persistWallet(): void {
+    localStorage.setItem(STORAGE_KEYS.HINTS, String(this._hintBalance));
+    localStorage.setItem(STORAGE_KEYS.COINS, String(this._coinBalance));
+    localStorage.setItem(STORAGE_KEYS.WALLET_COUNTERS, JSON.stringify(this._walletCounters));
+  }
+
+  /** Single-key durable write of the achievement record. Throw propagates. */
+  private persistAchievementRecord(): void {
+    localStorage.setItem(STORAGE_KEYS.ACHIEVEMENTS, JSON.stringify(this._achievementRecord));
+  }
+
+  private settlementSnapshot(): SettlementSnapshot {
+    return { coins: this._coinBalance, hints: this._hintBalance, counters: { ...this._walletCounters } };
+  }
+
+  /**
+   * Commit a next record durably (checkpoints 1 and 3). Sets it in memory, persists
+   * the single record key, and — only on success — advances `lastDurableRecord`. On
+   * a write throw, rolls the in-memory record back to the actual last durable record
+   * and re-throws (KTD2 rollback).
+   */
+  private commitRecord(next: AchievementRecord): void {
+    this._achievementRecord = next;
+    try {
+      this.persistAchievementRecord();
+    } catch (error) {
+      this._achievementRecord = this._lastDurableRecord;
+      throw error;
+    }
+    this._lastDurableRecord = next;
+  }
+
+  /**
+   * Apply an accepted achievement fact through the recoverable write-ahead
+   * settlement protocol (KTD2). Fully synchronous — no player mutation interleaves.
+   * Returns the committed delta (empty when deduped or a no-op). Strict-persist
+   * throws propagate to the caller, which reports achievementCommitError.
+   */
+  applyAchievementFact(fact: AchievementFact): CommittedAchievementDelta {
+    // Step 0: finalize any durable pending settlement first, so an in-process retry
+    // after a checkpoint-3 throw finalizes rather than returning empty (break #2).
+    this.recoverPendingSettlement();
+
+    const record = this._achievementRecord;
+    // Step 1: dedupe.
+    if (record.processedOccurrenceIds.includes(fact.occurrenceId)) {
+      return emptyCommittedDelta(fact.occurrenceId);
+    }
+
+    // Step 2: occurrence-durability gate for completion facts — runs for EVERY
+    // completion fact incl. progress-only/no-reward (break #3). Dog-found facts skip.
+    if (fact.kind === 'level-completion') {
+      this.persistActiveCompletionTransaction(); // checkpoint 0a
+      this.persistCompletionProgress(); // checkpoint 0pre
+    }
+
+    const delta = applyAchievement(fact, record);
+
+    // Post-cap reward computation. Coins uncapped; hints capped to room, sequentially.
+    const rewards: GrantedReward[] = [];
+    let totalCoins = 0;
+    let totalHints = 0;
+    let hintRoom = Math.max(0, GAMEPLAY.MAX_HINT_BALANCE - this._hintBalance);
+    for (const achievement of delta.newlyUnlocked) {
+      const coins = achievement.entitledReward?.coins ?? 0;
+      const requestedHints = achievement.entitledReward?.hints ?? 0;
+      const hints = Math.min(requestedHints, hintRoom);
+      hintRoom -= hints;
+      if (coins + hints > 0) {
+        rewards.push({ achievementId: achievement.id, coins, hints });
+        totalCoins += coins;
+        totalHints += hints;
+      }
+    }
+    const committed: CommittedAchievementDelta = { ...delta, rewards };
+    const hasWalletChange = totalCoins > 0 || totalHints > 0;
+
+    if (!hasWalletChange) {
+      // Progress-only / no-wallet path: single record persist journaling the outbox.
+      const { events, nextSequence } = deltaToEvents(committed, record.nextAnalyticsEventSequence);
+      const folded = applyDeltaToRecord(record, committed);
+      this.commitRecord({
+        ...folded,
+        analyticsOutbox: [...folded.analyticsOutbox, ...events],
+        nextAnalyticsEventSequence: nextSequence,
+      });
+      return committed;
+    }
+
+    // Reward path — recoverable write-ahead settlement.
+    this.persistWallet(); // checkpoint 0b (baseline)
+    const before = this.settlementSnapshot();
+    const after: SettlementSnapshot = {
+      coins: before.coins + totalCoins,
+      hints: before.hints + totalHints,
+      counters: {
+        ...before.counters,
+        coinsGranted: before.counters.coinsGranted + totalCoins,
+        hintsGranted: before.counters.hintsGranted + totalHints,
+      },
+    };
+
+    const { events, nextSequence } = deltaToEvents(committed, record.nextAnalyticsEventSequence);
+    const folded = applyDeltaToRecord(record, committed);
+    // Checkpoint 1: commit occurrence + unlocks + mastery + events + settlement intent together.
+    this.commitRecord({
+      ...folded,
+      analyticsOutbox: [...folded.analyticsOutbox, ...events],
+      nextAnalyticsEventSequence: nextSequence,
+      pendingSettlement: { occurrenceId: fact.occurrenceId, before, after },
+    });
+
+    // Checkpoint 2: apply the reward through the shared non-persisting primitives,
+    // landing the wallet at `after` by construction, then persist the wallet keys.
+    this.applyCoinGrant(totalCoins, 'achievement');
+    if (totalHints > 0) this.applyHintGrant(totalHints, 'achievement hint grant amount');
+    this.persistWallet();
+
+    // Checkpoint 3: finalize.
+    this.commitRecord({ ...this._achievementRecord, pendingSettlement: null });
+    return committed;
+  }
+
+  /**
+   * KTD2 recovery. Component-by-component resolves each wallet component against its
+   * own before/after; strict-persists the repaired wallet BEFORE clearing pending
+   * (correction 6), then clears pending and persists the record. Idempotent. On a
+   * component matching neither snapshot, trusts the stored value and appends a
+   * system-scoped reconciliation-anomaly event for later drain.
+   */
+  recoverPendingSettlement(): void {
+    const record = this._achievementRecord;
+    const pending = record.pendingSettlement;
+    if (pending === null) return;
+
+    const { before, after } = pending;
+    let mismatchComponent: string | null = null;
+    const resolve = (label: string, current: number, b: number, a: number): number => {
+      if (current === b) return a;
+      if (current === a) return current;
+      if (mismatchComponent === null) mismatchComponent = label;
+      return current;
+    };
+
+    this._coinBalance = resolve('coins', this._coinBalance, before.coins, after.coins);
+    this._hintBalance = resolve('hints', this._hintBalance, before.hints, after.hints);
+    const counters = { ...this._walletCounters };
+    for (const key of WALLET_COUNTER_KEYS) {
+      counters[key] = resolve(key, counters[key], before.counters[key], after.counters[key]);
+    }
+    this._walletCounters = counters;
+
+    let next = record;
+    if (mismatchComponent !== null) {
+      const { event, nextSequence } = buildReconciliationAnomalyEvent(
+        pending.occurrenceId,
+        mismatchComponent,
+        record.nextAnalyticsEventSequence,
+      );
+      next = { ...record, analyticsOutbox: [...record.analyticsOutbox, event], nextAnalyticsEventSequence: nextSequence };
+      this._achievementRecord = next;
+    }
+
+    // Strict-persist the repaired wallet before clearing the intent. If it tears,
+    // pending is still durable and the next load re-resolves.
+    this.persistWallet();
+    this.commitRecord({ ...next, pendingSettlement: null });
+  }
+
+  /**
+   * The ONLY analytics dispatch path. Invoked post-composition (bootstrap after
+   * sinks compose, and after each live commit). Hands each event to the public
+   * typed dispatcher; removes it from the outbox only after the local dispatch
+   * handoff returns (the observable boundary, NOT provider receipt). Never called
+   * from load().
+   */
+  drainAnalyticsOutbox(): void {
+    const record = this._achievementRecord;
+    if (record.analyticsOutbox.length === 0) return;
+    const remaining: PendingAnalyticsEvent[] = [];
+    for (const event of record.analyticsOutbox) {
+      try {
+        analytics.dispatchAchievementEvent(event);
+      } catch {
+        remaining.push(event);
+      }
+    }
+    this._achievementRecord = { ...record, analyticsOutbox: remaining };
+    try {
+      this.persistAchievementRecord();
+      this._lastDurableRecord = this._achievementRecord;
+    } catch {
+      // best-effort — the events already reached the dispatch boundary.
+    }
+  }
+
+  /** Test/inspection read of the current durable achievement record. */
+  achievementRecordSnapshot(): AchievementRecord {
+    return this._achievementRecord;
+  }
+
   save(): void {
     try {
       localStorage.setItem(STORAGE_KEYS.HINTS, String(this._hintBalance));
@@ -920,6 +1413,7 @@ export class GameState {
       }
       localStorage.setItem(STORAGE_KEYS.COMPLETION_SEQUENCE, String(this._completionSequence));
       localStorage.setItem(STORAGE_KEYS.WALLET_COUNTERS, JSON.stringify(this._walletCounters));
+      localStorage.setItem(STORAGE_KEYS.ACHIEVEMENTS, JSON.stringify(this._achievementRecord));
     } catch {
       // localStorage unavailable — silently ignore
     }
@@ -999,6 +1493,38 @@ export class GameState {
         // (Legacy `artStyle` key is ignored — the art-style feature
         // was removed when we moved to a single color.png per level.)
       }
+
+      // --- Achievement domain (card ACH-1) ---
+      // Progression reconciliation: repair progression from the durable
+      // completionProgressAfter snapshot if a checkpoint-0a→0pre tear left the
+      // progression keys stale under a true completionStatsRegistered flag.
+      const activeTx = this._activeCompletionTransaction;
+      if (activeTx !== null && activeTx.completionStatsRegistered && activeTx.completionProgressAfter !== undefined) {
+        const snap = activeTx.completionProgressAfter;
+        this._bestTimes = { ...snap.bestTimes };
+        this._streakDays = snap.streakDays;
+        this._streakLastDate = snap.streakLastDate;
+        this._totalLevelsCompleted = snap.totalLevelsCompleted;
+        this.persistCompletionProgress();
+      }
+
+      const parsedRecord = parseAchievementRecord(localStorage.getItem(STORAGE_KEYS.ACHIEVEMENTS));
+      const derivable = { totalCompletions: this._totalLevelsCompleted, streakDays: this.currentStreakDays() };
+      if (parsedRecord === null) {
+        this._achievementRecord = migrateAchievements(derivable);
+        this._lastDurableRecord = this._achievementRecord;
+        this.persistAchievementRecord();
+      } else if (parsedRecord.version < ACHIEVEMENT_RECORD_VERSION) {
+        this._achievementRecord = migrateAchievements(derivable, parsedRecord);
+        this._lastDurableRecord = this._achievementRecord;
+        this.persistAchievementRecord();
+      } else {
+        this._achievementRecord = { ...parsedRecord, nextAnalyticsEventSequence: sanitizeSequence(parsedRecord) };
+        this._lastDurableRecord = this._achievementRecord;
+      }
+      // load() NEVER dispatches analytics — the pre-composition SDK has no sinks.
+      // It only recovers wallet/settlement (and may append an anomaly for later drain).
+      this.recoverPendingSettlement();
     } catch {
       // localStorage unavailable — use defaults
     } finally {

@@ -9,6 +9,13 @@ import { registerLifecycleHooks } from '../platform/gameLifecycle';
 import { adService } from '../ads/Service';
 import type { PurchaseUnfulfilledOutcome } from '../shop/PurchaseFulfillment';
 import type { AnalyticsLevelAttribution } from './AnalyticsEventContract';
+import type {
+  AchievementProgressPayload,
+  AchievementReconciliationAnomalyPayload,
+  AchievementRewardGrantedPayload,
+  AchievementUnlockedPayload,
+  PendingAnalyticsEvent,
+} from '../achievements/AchievementAnalytics';
 
 export type FtdEvent =
   | 'app_open'
@@ -29,7 +36,14 @@ export type FtdEvent =
   | 'purchase_fulfilled'
   | 'purchase_unfulfilled'
   | 'iap_state_changed'
-  | 'rewarded_ad_granted';
+  | 'rewarded_ad_granted'
+  | 'achievement_progress'
+  | 'achievement_unlocked'
+  | 'achievement_reward_granted'
+  | 'achievement_reconciliation_anomaly'
+  // Defined now so the contract is whole; emitted by the later UI card (ACH-2).
+  | 'achievement_viewed'
+  | 'achievement_page_viewed';
 
 type LevelAttributionParams = Partial<AnalyticsLevelAttribution>;
 
@@ -401,6 +415,50 @@ export class AnalyticsService {
     });
     this.sdk.track('rewarded_ad_granted', compactParams(params));
     return Promise.resolve();
+  }
+
+  achievementProgress(payload: AchievementProgressPayload): void {
+    this.sdk.track('achievement_progress', compactParams({ ...payload }));
+  }
+
+  achievementUnlocked(payload: AchievementUnlockedPayload): void {
+    this.sdk.track('achievement_unlocked', compactParams({ ...payload }));
+  }
+
+  achievementRewardGranted(payload: AchievementRewardGrantedPayload): void {
+    this.sdk.track('achievement_reward_granted', compactParams({ ...payload }));
+  }
+
+  achievementReconciliationAnomaly(payload: AchievementReconciliationAnomalyPayload): void {
+    this.sdk.track('achievement_reconciliation_anomaly', compactParams({ ...payload }));
+  }
+
+  /**
+   * The ONE public dispatch entry point for the achievement outbox (correction 1).
+   * `GameState.drainAnalyticsOutbox()` calls only this — never the private `sdk` or
+   * a dynamic `analytics[name]`. The `switch` narrows the discriminated union's
+   * payload per `name`; the `never` default fails to compile if an emitted event
+   * name is added without an arm.
+   */
+  dispatchAchievementEvent(event: PendingAnalyticsEvent): void {
+    switch (event.name) {
+      case 'achievement_progress':
+        this.achievementProgress(event.payload);
+        return;
+      case 'achievement_unlocked':
+        this.achievementUnlocked(event.payload);
+        return;
+      case 'achievement_reward_granted':
+        this.achievementRewardGranted(event.payload);
+        return;
+      case 'achievement_reconciliation_anomaly':
+        this.achievementReconciliationAnomaly(event.payload);
+        return;
+      default: {
+        const exhaustive: never = event;
+        void exhaustive;
+      }
+    }
   }
 }
 

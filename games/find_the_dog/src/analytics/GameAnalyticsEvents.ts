@@ -196,6 +196,16 @@ function canonicalEventIdForDesignEvent(eventId: string): CanonicalAnalyticsEven
   if (normalized === 'purchase:fulfilled') return 'purchase_fulfilled';
   if (normalized === 'purchase:unfulfilled') return 'purchase_unfulfilled';
   if (normalized === 'ad:revenue') return 'ad_revenue_paid';
+  // Achievement events (card ACH-1). `gameAnalyticsDesignEventId` converts every
+  // underscore to a colon, so `achievement_reward_granted` -> `achievement:reward:granted`
+  // (two colons). Without these the sink's fall-through zeroes their customFields.
+  if (normalized === 'achievement:progress') return 'achievement_progress';
+  if (normalized === 'achievement:unlocked') return 'achievement_unlocked';
+  if (normalized === 'achievement:reward:granted') return 'achievement_reward_granted';
+  if (normalized === 'achievement:reconciliation:anomaly') return 'achievement_reconciliation_anomaly';
+  // Later-UI page-view ids mapped now (ACH-2 emits them) so the contract is whole.
+  if (normalized === 'achievement:viewed') return 'achievement_viewed';
+  if (normalized === 'achievement:page:viewed') return 'achievement_page_viewed';
   return null;
 }
 
