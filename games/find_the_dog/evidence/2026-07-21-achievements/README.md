@@ -12,7 +12,7 @@ Genuine on-device proof of the Find the Dog achievement system (TWF card
 - Bundle id: `com.baseardahan.hiddenobj`, signing team `42L77JAX72`, Debug
   configuration, `vite build --mode ios`.
 - Raw result bundles (not committed; large): `games/find_the_dog/.work/collectRun/`
-  `proof21.xcresult`/`proof22.xcresult` (round-2 design build) and `persist4.xcresult` (clean-build persistence); earlier iterations retained for the troubleshooting trail.
+  `proof23.xcresult` (round-3 design build) and `persist6.xcresult` (clean-build persistence); earlier iterations retained for the troubleshooting trail.
 
 ## What each capture shows
 
@@ -24,9 +24,9 @@ Genuine on-device proof of the Find the Dog achievement system (TWF card
    Confirmed by harness marker `proof1: ok=true achOpen=true cards=11`.
 3. `03-unlock-callout-and-toast.png` — the REAL unlock moment: level 1 won
    through the genuine completion path (all 26 dogs found via dispatched
-   touch input), showing simultaneously the in-app unlock toast (gold ★ medal +
-   "First Find +1 more unlocked!", positioned below the coin pill, copy
-   deliberately distinct from the card callout) and the
+   touch input), showing simultaneously the bottom-anchored in-app unlock toast (gold ★
+   medal + "First Find +1 more unlocked!", clear of the coin pill and title
+   art, copy deliberately distinct from the card callout) and the
    completion-card callout ("Achievement unlocked — First Find and 1 more —
    Saved to your Achievements").
    Confirmed by `proof2: ok=true callout=true toast=true found=26/26
@@ -74,6 +74,16 @@ The clean persistence build was identical but WITHOUT
 `VITE_ENABLE_TEST_HARNESS` and without any injected script. For proof builds,
 generated `dist/levels` was pruned to the first three bundled levels (the full
 set is ~5 GB); `public/levels` was never touched.
+
+## Aesthetics round-3 fixes verified in these captures
+
+Round 3's P1 (the Home Achievements rail button, filed three times) is fixed:
+the entry button now carries the same gold medal circle as the collection
+badges over an embossed glossy pill (capture 01). Folded P2s visible here:
+"Not started" chips replace the misleading "Locked" at zero progress,
+duplicate reward lines are gone (aria-labels keep the full status), category
+glyphs differentiate badges, the toast is bottom-anchored (clear of the
+LEVEL COMPLETE art and the coin pill), and the callout carries a medal icon.
 
 ## Aesthetics round-2 fixes verified in these captures
 

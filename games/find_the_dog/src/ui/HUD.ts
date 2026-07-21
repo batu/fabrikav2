@@ -531,6 +531,15 @@ export function openPage(
   window.scrollTo(0, 0);
 }
 
+/** Text glyphs (never emoji) so each category's medal reads distinctly. */
+const ACHIEVEMENT_CATEGORY_GLYPHS: Record<string, string> = {
+  completion: '★',
+  dogs: '♥',
+  mastery: '✦',
+  progression: '⚑',
+  streak: '◆',
+};
+
 function rewardStatusCopy(status: import('../achievements/AchievementSystem').AchievementRewardStatus): string {
   switch (status) {
     case 'locked': return 'Reward locked';
@@ -560,16 +569,24 @@ function renderAchievementsPageBody(): string {
       <div class="achievement-list">
         ${achievements.map((achievement) => {
           const completed = achievement.progress >= achievement.threshold;
-          const state = completed ? 'Completed' : achievement.progress > 0 ? 'In progress' : 'Locked';
-          const stateClass = completed ? 'completed' : achievement.progress > 0 ? 'in-progress' : 'locked';
-          return `<article class="achievement-card achievement-card--${stateClass}" data-achievement-id="${achievement.id}" aria-label="${achievement.name}: ${state}, ${achievement.progress} of ${achievement.threshold}. ${rewardStatusCopy(achievement.rewardStatus)}">
-            <span class="achievement-badge" aria-hidden="true">★</span>
+          // Nothing gates these, so zero progress is "Not started", not "Locked".
+          const state = completed ? 'Completed' : achievement.progress > 0 ? 'In progress' : 'Not started';
+          const stateClass = completed ? 'completed' : achievement.progress > 0 ? 'in-progress' : 'not-started';
+          // The reward line repeats the state chip for locked/in-progress; only
+          // render it when it says something the chip does not. The full reward
+          // status stays in the card's aria-label either way.
+          const rewardCopy = rewardStatusCopy(achievement.rewardStatus);
+          const rewardLine = achievement.rewardStatus === 'locked' || achievement.rewardStatus === 'in-progress'
+            ? ''
+            : `<p class="achievement-reward-status">${rewardCopy}</p>`;
+          return `<article class="achievement-card achievement-card--${stateClass}" data-achievement-id="${achievement.id}" aria-label="${achievement.name}: ${state}, ${achievement.progress} of ${achievement.threshold}. ${rewardCopy}">
+            <span class="achievement-badge" aria-hidden="true">${ACHIEVEMENT_CATEGORY_GLYPHS[achievement.category] ?? '★'}</span>
             <div class="achievement-card-main">
               <header><h4>${achievement.name}</h4><strong class="achievement-state">${state}</strong></header>
               <p>${achievement.description}</p>
               <progress value="${achievement.progress}" max="${achievement.threshold}" aria-label="${achievement.name} progress: ${achievement.progress} of ${achievement.threshold}">${achievement.progress}/${achievement.threshold}</progress>
               <span class="achievement-progress-text">${achievement.progress}/${achievement.threshold}</span>
-              <p class="achievement-reward-status">${rewardStatusCopy(achievement.rewardStatus)}</p>
+              ${rewardLine}
             </div>
           </article>`;
         }).join('')}

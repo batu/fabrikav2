@@ -159,6 +159,10 @@ export function attachAchievementUnlockCallout(
       'aria-label',
       `Achievements unlocked: ${unlocked.map((achievement) => achievement.name).join(', ')}`,
     );
+    const medal = document.createElement('span');
+    medal.className = 'achievement-unlock-callout-medal';
+    medal.setAttribute('aria-hidden', 'true');
+    medal.textContent = '★';
     const heading = document.createElement('strong');
     heading.textContent = 'Achievement unlocked';
     const summary = document.createElement('span');
@@ -168,7 +172,7 @@ export function attachAchievementUnlockCallout(
       : `${unlocked[0]!.name} and ${unlocked.length - 1} more`;
     const guidance = document.createElement('small');
     guidance.textContent = 'Saved to your Achievements';
-    callout.append(heading, summary, guidance);
+    callout.append(medal, heading, summary, guidance);
     card.insertBefore(callout, actions);
     showAchievementUnlockToast(unlocked);
 

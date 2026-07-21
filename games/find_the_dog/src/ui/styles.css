@@ -515,6 +515,22 @@
 
 #level-complete-overlay .achievement-unlock-callout small { font-weight: 800; }
 
+#level-complete-overlay .achievement-unlock-callout-medal {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin: 0 auto 2px;
+  border: 2px solid #fff1bc;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffe08a, #e8973a);
+  box-shadow: 0 2px 0 #8b4b22, inset 0 2px 0 rgba(255, 255, 255, 0.55);
+  color: #fff7dc;
+  font-size: 17px;
+  line-height: 1;
+  text-shadow: 0 1px 0 rgba(112, 57, 20, 0.45);
+}
+
 #level-complete-overlay .achievement-unlock-callout[data-motion='full'] {
   animation: achievement-unlock-enter 260ms ease-out both;
 }
@@ -531,9 +547,10 @@
 #achievement-unlock-toast {
   pointer-events: none;
   position: fixed;
-  /* Sits BELOW the HUD's top pill row (coins/settings) so it never overlaps
-     or clips against the coin pill; z above every HUD layer. */
-  top: calc(env(safe-area-inset-top, 0px) + 64px);
+  /* Bottom-anchored: the top of the completion screen is crowded (HUD coin
+     pill right, LEVEL COMPLETE title art center) — the bottom strip above the
+     home indicator is the one surface nothing else claims. */
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
   left: 50%;
   z-index: 95;
   display: flex;
@@ -586,7 +603,7 @@
 }
 
 @keyframes achievement-toast-enter {
-  from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
   to { opacity: 1; transform: translateX(-50%); }
 }
 
@@ -3282,15 +3299,40 @@
   width: auto;
   min-width: 76px;
   min-height: 58px;
-  padding: 5px 4px;
+  display: grid;
+  gap: 3px;
+  justify-items: center;
+  align-content: center;
+  padding: 6px 6px 7px;
   border: 2px solid #fff1bc;
   border-radius: 16px;
-  background: linear-gradient(180deg, #f7c85c, #d88731);
+  background: linear-gradient(180deg, #ffdf8e 0%, #f2b04a 55%, #d88731 100%);
   color: #562f14;
   font: 900 11px/1.05 'Nunito', sans-serif;
-  box-shadow: 0 4px 0 #8b4b22, 0 6px 9px rgba(70, 35, 8, 0.25);
+  text-shadow: 0 1px 0 rgba(255, 244, 205, 0.65);
+  box-shadow:
+    0 4px 0 #8b4b22,
+    0 6px 9px rgba(70, 35, 8, 0.25),
+    inset 0 2px 0 rgba(255, 255, 255, 0.65),
+    inset 0 -2px 0 rgba(139, 75, 34, 0.28);
 }
-.home-achievements-medal { font-size: 22px; line-height: 1; }
+/* Same gold-medal treatment as the collection page's card badges so the Home
+   entry and its destination share one icon, embossed like the coin/hint pills. */
+.home-achievements-medal {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin: 0 auto;
+  border: 2px solid #fff1bc;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffe08a, #e8973a);
+  box-shadow: 0 2px 0 #8b4b22, inset 0 2px 0 rgba(255, 255, 255, 0.55);
+  color: #fff7dc;
+  font-size: 17px;
+  line-height: 1;
+  text-shadow: 0 1px 0 rgba(112, 57, 20, 0.45);
+}
 /* Keep the label on one line: the word must never break mid-word on device. */
 .home-achievements-label {
   white-space: nowrap;
@@ -3826,7 +3868,7 @@
   right: 0;
   bottom: 0;
   left: 0;
-  height: calc(env(safe-area-inset-bottom, 0px) + 44px);
+  height: 26px;
   background: linear-gradient(180deg, rgba(247, 201, 133, 0), #f7c985);
   pointer-events: none;
 }
@@ -3853,7 +3895,7 @@
   background: linear-gradient(180deg, #fff7d6, #ffe6a9);
   box-shadow: 0 4px 0 rgba(160, 96, 24, 0.35), inset 0 2px 0 rgba(255, 255, 255, 0.9);
 }
-.achievement-card--locked { opacity: 0.88; }
+.achievement-card--not-started { opacity: 0.88; }
 .achievement-badge {
   display: grid;
   place-items: center;
@@ -3868,7 +3910,7 @@
   line-height: 1;
   text-shadow: 0 2px 0 rgba(112, 57, 20, 0.45);
 }
-.achievement-card--locked .achievement-badge {
+.achievement-card--not-started .achievement-badge {
   background: linear-gradient(180deg, #d9c9ab, #b09a76);
   border-color: #efe4c8;
   box-shadow: 0 3px 0 #86704d, inset 0 2px 0 rgba(255, 255, 255, 0.4);

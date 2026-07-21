@@ -30,8 +30,11 @@ describe('achievement collection page', () => {
     expect([...document.querySelectorAll('.achievement-card')].map((node) => node.getAttribute('data-achievement-id'))).toEqual(['a', 'c', 'b']);
     expect(document.body.textContent).toContain('0/1');
     expect(document.body.textContent).toContain('4/10');
-    expect(document.body.textContent).toContain('Reward locked');
-    expect(document.body.textContent).toContain('Reward in progress');
+    // Locked/in-progress reward lines are chip duplicates and stay visual-only
+    // in the aria-label; only differentiated reward copy renders as text.
+    expect(document.body.textContent).not.toContain('Reward locked');
+    expect(document.body.textContent).not.toContain('Reward in progress');
+    expect(document.querySelector('[data-achievement-id="a"]')?.getAttribute('aria-label')).toContain('Reward locked');
     expect(document.body.textContent).toContain('reward not available');
     expect(document.querySelector('progress')?.getAttribute('aria-label')).toBe('First progress: 0 of 1');
     expect(allocate).toHaveBeenCalledTimes(4);
