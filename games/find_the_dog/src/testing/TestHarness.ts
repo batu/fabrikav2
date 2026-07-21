@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import type { AnalyticsEvent } from '@fabrikav2/sdk/analytics';
 import { driveInputAt, type ClientPoint, type GameHarness, type HarnessSaveProfile } from '@fabrikav2/testkit/harness';
 import { gameState, type CompletionTransaction, type GameSettings, type WalletSnapshot } from '../core/GameState';
+import { emptyAchievementRecord, type AchievementRecord } from '../achievements/AchievementSystem';
 import { GAMEPLAY, TIMING } from '../core/Constants';
 import { GameScene, type ClassicRenderDiagnosticsSnapshot, type RuntimeTexturesSnapshot, type ViewportEffectSnapshot } from '../scenes/GameScene';
 import { loadLevel, packageCacheSnapshot as getPackageCacheSnapshot, runtimeSequenceSnapshot as getRuntimeSequenceSnapshot, type LevelData, type LevelDog } from '../data/levels';
@@ -348,13 +349,41 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     );
   }
 
+  /**
+   * Write a deterministic v2 achievement journal and reload it through the real
+   * persistence path. `load()` preserves a current-version record verbatim, so
+   * the collection capture always shows every reward status the card must prove:
+   * locked, in-progress, live-reward-settled, migration-reward-ineligible and
+   * legacy-reward-provenance-unknown.
+   */
+  function writeAchievementRecordForTest(record: AchievementRecord): void {
+    localStorage.setItem('ftd_achievements', JSON.stringify(record));
+    gameState.load();
+  }
+
   function seedAchievementCollection(): void {
-    gameState.applyAchievementFact({
-      kind: 'dog-found',
-      occurrenceId: 'harness:achievement-collection:dog-1',
-      levelId: 'level-1',
-      dogId: 'harness-dog-1',
+    writeAchievementRecordForTest({
+      ...emptyAchievementRecord(),
+      progress: {
+        first_completion: 1,
+        completions_10: 4,
+        first_best: 1,
+        streak_3: 3,
+        streak_7: 3,
+        dogs_25: 8,
+        mastery_5: 2,
+      },
+      masteredLevelIds: ['level-1', 'level-2'],
+      unlocked: ['first_completion', 'first_best', 'streak_3'],
+      migrationRewardIneligibleAchievementIds: ['first_best'],
+      legacyRewardProvenanceUnknownAchievementIds: ['streak_3'],
+      processedOccurrenceIds: ['harness:achievement-collection'],
     });
+  }
+
+  /** Guarantee a still-locked achievement so a real completion always unlocks one. */
+  function seedLockedAchievementsForUnlock(): void {
+    writeAchievementRecordForTest(emptyAchievementRecord());
   }
 
   async function openAchievementsFromUi(): Promise<boolean> {
@@ -664,6 +693,7 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
     async driveTo(state: FindTheDogDriveState): Promise<boolean> {
       if (state === 'achievements') return openAchievementsFromUi();
       if (state === 'win-achievement') {
+        seedLockedAchievementsForUnlock();
         const started = await startLevel(1);
         if (!started) return false;
         const won = await winLevel();

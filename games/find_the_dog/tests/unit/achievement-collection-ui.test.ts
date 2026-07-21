@@ -66,6 +66,19 @@ describe('achievement collection page', () => {
     closePage();
   });
 
+  it('contains Shift+Tab from the initially focused title inside the modal', () => {
+    vi.spyOn(gameState, 'achievementReadProjection').mockReturnValue({ status: 'ready', achievements: [] });
+    vi.spyOn(gameState, 'allocateAchievementViewEvent').mockReturnValue(null);
+    openPage('achievements');
+    expect(document.activeElement?.id).toBe('home-page-title');
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, bubbles: true, cancelable: true }));
+
+    const page = document.querySelector('#home-page-overlay')!;
+    expect(page.contains(document.activeElement)).toBe(true);
+    closePage();
+  });
+
   it('dispatches allocated analytics events unchanged', () => {
     vi.spyOn(gameState, 'achievementReadProjection').mockReturnValue({
       status: 'ready', achievements: [{ id: 'a', name: 'First', description: 'Desc', category: 'completion', milestoneKind: 'occurrence-count', threshold: 1, progressSource: 'totalCompletions', order: 1, progress: 1, rewardStatus: 'live-reward-settled' }],

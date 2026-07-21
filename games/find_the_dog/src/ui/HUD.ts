@@ -485,7 +485,14 @@ export function openPage(
     if (focusable.length === 0) return;
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
-    if (event.shiftKey && document.activeElement === first) {
+    // The page opens with focus on the tabindex="-1" title, which is not in
+    // `focusable`. Without this case Shift+Tab would leave the modal entirely.
+    const insideTabOrder = document.activeElement instanceof HTMLElement
+      && focusable.includes(document.activeElement);
+    if (!insideTabOrder) {
+      event.preventDefault();
+      (event.shiftKey ? last : first).focus();
+    } else if (event.shiftKey && document.activeElement === first) {
       event.preventDefault();
       last.focus();
     } else if (!event.shiftKey && document.activeElement === last) {

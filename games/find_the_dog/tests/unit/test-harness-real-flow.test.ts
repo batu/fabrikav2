@@ -60,6 +60,7 @@ const mocks = vi.hoisted(() => {
         tutorialEnabled: false,
       },
       save: vi.fn(),
+      load: vi.fn(),
       walletSnapshot: vi.fn(() => ({ coins: 0, hints: 3, noAds: false, premium: false, rewardProgressCount: 0 })),
       completionTransactionSnapshot: vi.fn(() => null),
       setCoinsForTest: vi.fn(),
@@ -99,6 +100,14 @@ const mocks = vi.hoisted(() => {
       this.gameState.save.mockClear();
     },
   };
+});
+
+const storage = new Map<string, string>();
+vi.stubGlobal("localStorage", {
+  getItem: (key: string) => storage.get(key) ?? null,
+  setItem: (key: string, value: string) => { storage.set(key, value); },
+  removeItem: (key: string) => { storage.delete(key); },
+  clear: () => { storage.clear(); },
 });
 
 vi.mock("phaser", () => ({ default: {} }));
@@ -400,10 +409,17 @@ describe("find_the_dog TestHarness real-flow wiring", () => {
 
     await expect(harness.driveTo("achievements")).resolves.toBe(true);
 
-    expect(mocks.gameState.applyAchievementFact).toHaveBeenCalledWith(expect.objectContaining({
-      kind: "dog-found",
-      occurrenceId: "harness:achievement-collection:dog-1",
-    }));
+    const { buildAchievementReadProjection } = await import("../../src/achievements/AchievementSystem");
+    const seeded = JSON.parse(localStorage.getItem("ftd_achievements")!);
+    expect(mocks.gameState.load).toHaveBeenCalled();
+    // The collection capture must be able to show every reward status.
+    expect(new Set(buildAchievementReadProjection(seeded).map((row) => row.rewardStatus))).toEqual(new Set([
+      "locked",
+      "in-progress",
+      "live-reward-settled",
+      "migration-unlocked-reward-ineligible",
+      "legacy-unlocked-reward-provenance-unknown",
+    ]));
     expect(mocks.openPage).toHaveBeenCalledWith("achievements");
     expect(snapshotMatchesFindTheDogDriveState("achievements", harness.snapshot())).toBe(true);
     document.querySelectorAll(".achievement-card").forEach((card) => card.remove());
@@ -415,7 +431,10 @@ describe("find_the_dog TestHarness real-flow wiring", () => {
     const fixture = createFakeGame();
     const harness = createFindTheDogHarness(fixture.game as never);
 
+    localStorage.setItem("ftd_achievements", JSON.stringify({ unlocked: ["first_completion"] }));
     await expect(harness.driveTo("win-achievement")).resolves.toBe(true);
+    // A guaranteed-locked seed so a real completion always produces newlyUnlocked.
+    expect(JSON.parse(localStorage.getItem("ftd_achievements")!).unlocked).toEqual([]);
     expect(snapshotMatchesFindTheDogDriveState("win-achievement", harness.snapshot())).toBe(true);
     document.querySelector(".achievement-unlock-callout")?.remove();
     expect(snapshotMatchesFindTheDogDriveState("win-achievement", harness.snapshot())).toBe(false);
