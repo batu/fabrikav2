@@ -16,15 +16,19 @@ ledger.
   app, worker, provider, store, mount, or filesystem root.
 - `create_app(settings, components)` is the only FastAPI composition seam.
 - Test and development settings put every mutable root below one disposable root.
-- Production roots are explicit, outside Git checkouts/worktrees, and accepted only
-  after live locking, same-filesystem replace, file-fsync, and directory-fsync probes.
+- Production roots are explicit siblings below one stable data root, are rechecked
+  for symlink drift and Git checkout/worktree overlap, and are accepted only after
+  live locking, same-filesystem replace, file-fsync, and directory-fsync probes.
 - JSON, bytes, and image writers use a same-filesystem temporary sibling, fsync it,
-  atomically replace the destination, and fsync the containing directory.
+  atomically replace the destination, and fsync every created or changed directory
+  entry needed to reach it.
 - Complete session-edit, dog-variant, public-package, and manifest-set membership is
   staged into immutable directories. A recovery record and atomic selector ensure
   startup keeps the prior committed revision after any interrupted phase.
 - `SessionStore` holds one process/file reservation from same-dog variant allocation
   through selector commit, yielding distinct complete bundles or an explicit reject.
+  It approves the filesystem before recovery; publication holds a shared store
+  lifecycle lock while startup recovery takes the exclusive side.
 - Providers fail closed unless composition installs a scripted adapter. The U1
   worker advances only when a test or caller invokes `step()`.
 - `/bootstrap` delivers one per-app launch credential after exact Host/Origin

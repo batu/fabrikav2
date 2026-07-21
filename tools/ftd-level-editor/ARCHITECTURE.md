@@ -31,8 +31,9 @@ working directory, or the legacy checkout.
 
 Startup proves the configured filesystem supports exclusive locks, same-filesystem
 replace, file fsync, and directory fsync. Production data is rejected beneath any
-Git checkout or worktree. Path resolution is root-confined and rejects traversal or
-symlink escape.
+Git checkout or worktree. Every operational root remains beneath the stable data
+root and is re-resolved before preparation so a late symlink cannot redirect it.
+Path resolution is root-confined and rejects traversal or symlink escape.
 
 ## Atomic bundle boundary
 
@@ -41,12 +42,16 @@ and hash-validated on the destination filesystem before an immutable candidate i
 installed. Only a complete candidate may be exposed by its atomic selector. The
 phase record (`staged`, `candidate_installed`, `selector_swapped`, `committed`) lets
 startup roll an uncommitted selector back or retain a committed candidate. Prior
-immutable revisions are never deleted by recovery.
+immutable revisions are never deleted by recovery. Directory components are created
+and linked durably before a selector can become committed. Publication holds a
+shared lifecycle lock; recovery takes the exclusive side so startup never treats an
+active transaction as crash residue.
 
 `SessionStore` owns the same-dog process lock plus filesystem lock. Allocation,
 dog image, crop box, sprite image/metadata, raw session bytes, job artifact, bundle
 install, and selector commit all occur inside that reservation. This is deliberately
-not U3's typed session/revision contract.
+not U3's typed session/revision contract. Construction probes the approved
+filesystem before any startup recovery may reconcile files.
 
 `AppComponents` carries the injected store registry, worker, provider registry, and
 central redactor. The default U1 test composition uses:

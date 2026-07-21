@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import errno
 import stat
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -54,6 +55,36 @@ def test_production_rejects_any_git_checkout_or_worktree_root(tmp_path: Path) ->
         EditorSettings.for_production(checkout / "data")
 
 
+def test_production_rejects_an_operational_root_inside_a_git_checkout(tmp_path: Path) -> None:
+    data_root = tmp_path / "production"
+    settings = EditorSettings.for_production(data_root)
+    checkout = data_root / "authoring-checkout"
+    checkout.mkdir(parents=True)
+    (checkout / ".git").write_text("gitdir: /tmp/example\n")
+
+    with pytest.raises(SettingsError, match="production roots"):
+        settings.with_workspace(replace(settings.workspace, authoring=checkout))
+
+
+def test_production_rejects_existing_or_late_operational_symlinks(tmp_path: Path) -> None:
+    existing_root = tmp_path / "existing"
+    existing_root.mkdir()
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (existing_root / "authoring").symlink_to(outside, target_is_directory=True)
+
+    with pytest.raises(SettingsError, match="share one data root"):
+        EditorSettings.for_production(existing_root)
+
+    late_root = tmp_path / "late"
+    settings = EditorSettings.for_production(late_root)
+    late_root.mkdir()
+    settings.workspace.authoring.symlink_to(outside, target_is_directory=True)
+
+    with pytest.raises(SettingsError, match="changed through a symlink"):
+        settings.workspace.approve_filesystems()
+
+
 def test_filesystem_probe_checks_locking_rename_and_durable_fsync(
     tmp_path: Path,
 ) -> None:
@@ -82,3 +113,58 @@ def test_filesystem_probe_fails_closed_when_directory_fsync_is_unsupported(
 
     with pytest.raises(FilesystemContractError, match="directory fsync"):
         probe_filesystem_contract(tmp_path / "unsupported")
+
+
+def test_filesystem_probe_fails_closed_when_exclusive_locking_is_broken(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import ftd_editor.fs as filesystem
+
+    monkeypatch.setattr(filesystem.fcntl, "flock", lambda *_: None)
+    root = tmp_path / "unsupported"
+
+    with pytest.raises(FilesystemContractError, match="two exclusive owners"):
+        probe_filesystem_contract(root)
+
+    assert not list(root.glob(".ftd-fs-probe-*"))
+
+
+def test_filesystem_probe_fails_closed_when_atomic_replace_is_unsupported(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import ftd_editor.fs as filesystem
+
+    def reject_replace(_: Path, __: Path) -> None:
+        raise OSError(errno.EIO, "replace unsupported")
+
+    monkeypatch.setattr(filesystem.os, "replace", reject_replace)
+    root = tmp_path / "unsupported"
+
+    with pytest.raises(FilesystemContractError, match="semantics probe"):
+        probe_filesystem_contract(root)
+
+    assert not list(root.glob(".ftd-fs-probe-*"))
+
+
+def test_filesystem_probe_fails_closed_when_file_fsync_is_unsupported(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import ftd_editor.fs as filesystem
+
+    real_fsync = filesystem.os.fsync
+
+    def reject_file_fsync(fd: int) -> None:
+        if stat.S_ISREG(filesystem.os.fstat(fd).st_mode):
+            raise OSError(errno.EINVAL, "file fsync unsupported")
+        real_fsync(fd)
+
+    monkeypatch.setattr(filesystem.os, "fsync", reject_file_fsync)
+    root = tmp_path / "unsupported"
+
+    with pytest.raises(FilesystemContractError, match="file fsync"):
+        probe_filesystem_contract(root)
+
+    assert not list(root.glob(".ftd-fs-probe-*"))

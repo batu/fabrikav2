@@ -12,6 +12,7 @@ import re
 import shutil
 import uuid
 from collections.abc import Callable, Mapping, Sequence
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
 from typing import Any, Literal, Protocol, TypedDict
@@ -35,8 +36,21 @@ class FilesystemProbeReport:
     directory_fsync: bool
 
 
+def _absolute(path: Path) -> Path:
+    return Path(os.path.abspath(path.expanduser()))
+
+
+def _reject_symlink_components(path: Path) -> None:
+    absolute = _absolute(path)
+    current = Path(absolute.anchor)
+    for part in absolute.parts[1:]:
+        current /= part
+        if current.is_symlink():
+            raise FilesystemContractError(f"filesystem path cannot traverse a symlink: {path}")
+
+
 def _nearest_existing(path: Path) -> Path:
-    current = path.expanduser().absolute()
+    current = _absolute(path)
     while not current.exists():
         if current.parent == current:
             raise FilesystemContractError(f"no existing ancestor for {path}")
@@ -94,6 +108,29 @@ def _fsync_file(path: Path) -> None:
         os.close(descriptor)
 
 
+def ensure_durable_directory(path: Path) -> Path:
+    """Create a symlink-free directory chain and durably link every new component."""
+
+    destination = _absolute(path)
+    _reject_symlink_components(destination)
+    missing: list[Path] = []
+    current = destination
+    while not current.exists():
+        if current.is_symlink():
+            raise FilesystemContractError(f"filesystem path cannot be a symlink: {current}")
+        if current.parent == current:
+            raise FilesystemContractError(f"no existing ancestor for {destination}")
+        missing.append(current)
+        current = current.parent
+    if not current.is_dir():
+        raise FilesystemContractError(f"filesystem parent is not a directory: {current}")
+    for directory in reversed(missing):
+        directory.mkdir()
+        _fsync_directory(directory)
+        _fsync_directory(directory.parent)
+    return destination
+
+
 def _hash_file(path: Path) -> tuple[int, str]:
     digest = hashlib.sha256()
     size = 0
@@ -107,8 +144,7 @@ def _hash_file(path: Path) -> tuple[int, str]:
 def probe_filesystem_contract(root: Path) -> FilesystemProbeReport:
     """Prove the lock, same-directory replace, and fsync semantics U2 relies on."""
 
-    approved_root = root.expanduser().resolve(strict=False)
-    approved_root.mkdir(parents=True, exist_ok=True)
+    approved_root = ensure_durable_directory(root)
     probe = approved_root / f".ftd-fs-probe-{uuid.uuid4().hex}"
     probe.mkdir()
     lock_path = probe / "lock"
@@ -163,13 +199,12 @@ def _atomic_target(
     staging_dir: Path | None,
     before_replace: Callable[[], None] | None,
 ) -> None:
-    requested_target = target.expanduser().absolute()
+    requested_target = _absolute(target)
     if requested_target.is_symlink():
         raise FilesystemContractError(f"atomic destination cannot be a symlink: {target}")
-    destination = requested_target.resolve(strict=False)
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    stage_parent = (staging_dir or destination.parent).expanduser().resolve(strict=False)
-    stage_parent.mkdir(parents=True, exist_ok=True)
+    destination_parent = ensure_durable_directory(requested_target.parent)
+    destination = destination_parent / requested_target.name
+    stage_parent = ensure_durable_directory(staging_dir or destination_parent)
     require_same_filesystem(destination.parent, stage_parent)
     temporary = stage_parent / f".{destination.name}.{uuid.uuid4().hex}.tmp"
     try:
@@ -179,6 +214,8 @@ def _atomic_target(
             before_replace()
         os.replace(temporary, destination)
         _fsync_directory(destination.parent)
+        if stage_parent != destination.parent:
+            _fsync_directory(stage_parent)
     finally:
         temporary.unlink(missing_ok=True)
 
@@ -323,7 +360,8 @@ class AtomicBundleStore:
     """Install immutable complete bundles and atomically select one revision."""
 
     def __init__(self, root: Path):
-        self.root = root.expanduser().resolve(strict=False)
+        self.root = _absolute(root)
+        _reject_symlink_components(self.root)
         self.bundles_dir = self.root / "bundles"
         self.selectors_dir = self.root / "selectors"
         self.staging_dir = self.root / ".staging"
@@ -340,7 +378,7 @@ class AtomicBundleStore:
             self.staging_dir,
             self.records_dir,
         ):
-            directory.mkdir(parents=True, exist_ok=True)
+            ensure_durable_directory(directory)
         require_same_filesystem(self.root, self.staging_dir)
         self._prepared = True
 
@@ -359,10 +397,10 @@ class AtomicBundleStore:
         return path
 
     def _stage_bundle(self, stage: Path, bundle: RawBundle) -> None:
-        stage.mkdir(parents=True)
+        ensure_durable_directory(stage)
         for member in bundle.members:
             destination = resolve_confined(stage, member.relative_path)
-            destination.parent.mkdir(parents=True, exist_ok=True)
+            ensure_durable_directory(destination.parent)
             destination.write_bytes(member.content)
             _fsync_file(destination)
         atomic_write_json(stage / ".ftd-bundle.json", bundle.manifest())
@@ -397,11 +435,12 @@ class AtomicBundleStore:
             if actual_size != expected_size or actual_hash != expected_hash:
                 raise FilesystemContractError(f"bundle member hash mismatch: {relative}")
             expected_files.add(relative)
-        actual_files = {
-            path_item.relative_to(path).as_posix()
-            for path_item in path.rglob("*")
-            if path_item.is_file() and not path_item.is_symlink()
-        }
+        actual_files: set[str] = set()
+        for path_item in path.rglob("*"):
+            if path_item.is_symlink():
+                raise FilesystemContractError(f"bundle contains an unsafe symlink: {path_item}")
+            if path_item.is_file():
+                actual_files.add(path_item.relative_to(path).as_posix())
         if actual_files != expected_files:
             raise FilesystemContractError("bundle membership does not match its recovery manifest")
         return manifest
@@ -415,13 +454,29 @@ class AtomicBundleStore:
         after_phase: Callable[[BundlePhase], None] | None = None,
     ) -> PublishedBundle:
         self.prepare()
+        with self._lifecycle_lock(exclusive=False):
+            return self._publish_locked(
+                selection,
+                bundle,
+                bundle_id=bundle_id,
+                after_phase=after_phase,
+            )
+
+    def _publish_locked(
+        self,
+        selection: str,
+        bundle: RawBundle,
+        *,
+        bundle_id: str | None,
+        after_phase: Callable[[BundlePhase], None] | None,
+    ) -> PublishedBundle:
         transaction_id = uuid.uuid4().hex
         chosen_id = bundle_id or transaction_id
         candidate = self._bundle_path(chosen_id)
         if candidate.exists():
             raise FilesystemContractError(f"immutable bundle already exists: {chosen_id}")
         selector = self._selector_path(selection)
-        selector.parent.mkdir(parents=True, exist_ok=True)
+        ensure_durable_directory(selector.parent)
         stage = resolve_confined(self.staging_dir, transaction_id)
         try:
             previous = selector.read_bytes()
@@ -441,6 +496,7 @@ class AtomicBundleStore:
 
             os.replace(stage, candidate)
             _fsync_directory(self.bundles_dir)
+            _fsync_directory(self.staging_dir)
             self._checkpoint(record, "candidate_installed", after_phase)
 
             selector_value = {
@@ -499,6 +555,18 @@ class AtomicBundleStore:
         if self.records_dir.exists():
             _fsync_directory(self.records_dir)
 
+    @contextmanager
+    def _lifecycle_lock(self, *, exclusive: bool):
+        lock_path = self.root / ".lifecycle.lock"
+        descriptor = os.open(lock_path, os.O_CREAT | os.O_RDWR, 0o600)
+        try:
+            operation = fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH
+            fcntl.flock(descriptor, operation)
+            yield
+        finally:
+            fcntl.flock(descriptor, fcntl.LOCK_UN)
+            os.close(descriptor)
+
     def _reconcile_record(self, record: Mapping[str, Any]) -> None:
         phase = record.get("phase")
         if phase not in _PHASES:
@@ -531,6 +599,10 @@ class AtomicBundleStore:
 
     def recover(self) -> None:
         self.prepare()
+        with self._lifecycle_lock(exclusive=True):
+            self._recover_locked()
+
+    def _recover_locked(self) -> None:
         records: list[dict[str, Any]] = []
         for path in sorted(self.records_dir.glob("*.json")):
             try:

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pytest
@@ -66,6 +68,80 @@ def test_startup_reconciles_deterministic_termination_at_every_install_phase(
     AtomicBundleStore(tmp_path / phase).recover()
     selected = AtomicBundleStore(tmp_path / phase).resolve("public/current")
     assert json.loads((selected / "manifest.json").read_text())["selected"] == expected
+
+
+@pytest.mark.parametrize(
+    ("phase", "committed"),
+    (
+        ("staged", False),
+        ("candidate_installed", False),
+        ("selector_swapped", False),
+        ("committed", True),
+    ),
+)
+def test_first_publication_reconciles_without_a_previous_selector(
+    tmp_path: Path,
+    phase: BundlePhase,
+    committed: bool,
+) -> None:
+    root = tmp_path / phase
+    store = AtomicBundleStore(root)
+
+    with pytest.raises(SimulatedCrash, match=phase):
+        store.publish(
+            "public/current",
+            _bundle("first"),
+            bundle_id="first",
+            after_phase=_crash_after(phase),
+        )
+
+    recovered = AtomicBundleStore(root)
+    recovered.recover()
+    if committed:
+        assert recovered.resolve("public/current").name == "first"
+    else:
+        with pytest.raises(FileNotFoundError, match="does not exist"):
+            recovered.resolve("public/current")
+        assert not (recovered.bundles_dir / "first").exists()
+    assert not list(recovered.staging_dir.iterdir())
+    assert not list(recovered.records_dir.glob("*.json"))
+
+
+def test_recovery_waits_for_an_active_publication(tmp_path: Path) -> None:
+    root = tmp_path / "store"
+    publisher = AtomicBundleStore(root)
+    publication_staged = threading.Event()
+    release_publication = threading.Event()
+    recovery_started = threading.Event()
+    recovery_finished = threading.Event()
+
+    def pause_after_staging(phase: BundlePhase) -> None:
+        if phase == "staged":
+            publication_staged.set()
+            assert release_publication.wait(timeout=5)
+
+    def recover() -> None:
+        recovery_started.set()
+        AtomicBundleStore(root).recover()
+        recovery_finished.set()
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        publication = pool.submit(
+            publisher.publish,
+            "public/current",
+            _bundle("new"),
+            bundle_id="new",
+            after_phase=pause_after_staging,
+        )
+        assert publication_staged.wait(timeout=5)
+        recovery = pool.submit(recover)
+        assert recovery_started.wait(timeout=5)
+        assert not recovery_finished.wait(timeout=0.1)
+        release_publication.set()
+        assert publication.result(timeout=5).bundle_id == "new"
+        recovery.result(timeout=5)
+
+    assert AtomicBundleStore(root).resolve("public/current").name == "new"
 
 
 def test_manifest_selection_failure_retains_prior_complete_selection(tmp_path: Path) -> None:

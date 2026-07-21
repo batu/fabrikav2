@@ -45,6 +45,7 @@ class SessionStore:
 
     def __init__(self, paths: WorkspacePaths):
         self.paths = paths
+        self.paths.approve_filesystems()
         self.bundles = AtomicBundleStore(paths.authoring / ".ftd-session-bundles")
         self.bundles.recover()
 

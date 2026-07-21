@@ -7,6 +7,7 @@ from pathlib import Path
 
 import pytest
 
+from ftd_editor.fs import FilesystemContractError
 from ftd_editor.sessions.dogs import DogBundlePayload
 from ftd_editor.sessions.store import ReservationRejected, SessionStore
 from ftd_editor.settings import WorkspacePaths
@@ -43,6 +44,8 @@ def test_concurrent_same_dog_publications_allocate_distinct_complete_bundles(
     store = SessionStore(paths)
     first_inside = threading.Event()
     release_first = threading.Event()
+    second_started = threading.Event()
+    second_finished = threading.Event()
 
     def publish(tag: str):
         def build(index: int) -> DogBundlePayload:
@@ -58,10 +61,19 @@ def test_concurrent_same_dog_publications_allocate_distinct_complete_bundles(
             wait_for_reservation=True,
         )
 
+    def publish_second():
+        second_started.set()
+        try:
+            return publish("two")
+        finally:
+            second_finished.set()
+
     with ThreadPoolExecutor(max_workers=2) as pool:
         first = pool.submit(publish, "one")
         assert first_inside.wait(timeout=5)
-        second = pool.submit(publish, "two")
+        second = pool.submit(publish_second)
+        assert second_started.wait(timeout=5)
+        assert not second_finished.wait(timeout=0.1)
         release_first.set()
         results = [first.result(timeout=5), second.result(timeout=5)]
 
@@ -102,3 +114,25 @@ def test_concurrent_same_dog_can_reject_one_reservation_explicitly(tmp_path: Pat
 
     assert completed.variant_index == 0
     _assert_complete(completed.path, "one", 0)
+
+
+def test_session_store_approves_filesystem_before_recovery(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    paths = WorkspacePaths.below(tmp_path / "workspace")
+    paths.prepare()
+    staging = paths.authoring / ".ftd-session-bundles" / ".staging" / "active"
+    staging.mkdir(parents=True)
+    sentinel = staging / "partial.bin"
+    sentinel.write_bytes(b"keep")
+
+    def reject_filesystem(_: WorkspacePaths) -> None:
+        raise FilesystemContractError("unsupported filesystem")
+
+    monkeypatch.setattr(WorkspacePaths, "approve_filesystems", reject_filesystem)
+
+    with pytest.raises(FilesystemContractError, match="unsupported filesystem"):
+        SessionStore(paths)
+
+    assert sentinel.read_bytes() == b"keep"

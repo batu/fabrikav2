@@ -86,8 +86,12 @@ class WorkspacePaths:
         )
 
     def prepare(self) -> None:
+        from .fs import ensure_durable_directory
+
         for path in (self.root, *self.operational_roots()):
-            path.mkdir(parents=True, exist_ok=True)
+            if _resolved(path) != path:
+                raise SettingsError(f"operational root changed through a symlink: {path}")
+            ensure_durable_directory(path)
 
     def approve_filesystems(self) -> None:
         """Run the live lock/rename/fsync contract once per distinct device."""
@@ -199,16 +203,26 @@ class EditorSettings:
     def validate(self, *, require_disposable_root: bool) -> None:
         root = _resolved(self.workspace.root)
         paths = self.workspace.operational_roots()
-        if len(set(paths)) != len(paths):
+        configured = (self.workspace.root, *paths)
+        if any(path != _resolved(path) for path in configured):
+            raise SettingsError("operational roots must be explicit resolved absolute paths")
+        if len(set(paths)) != len(paths) or any(
+            _is_below(path, other) or _is_below(other, path)
+            for index, path in enumerate(paths)
+            for other in paths[index + 1 :]
+        ):
             raise SettingsError("operational roots must be explicit and distinct")
         for forbidden in self.forbidden_roots:
             for path in (root, *paths):
                 if _is_below(path, forbidden) or _is_below(forbidden, path):
                     raise SettingsError(f"editor path overlaps forbidden root: {forbidden}")
-        if require_disposable_root and any(not _is_below(path, root) for path in paths):
-            raise SettingsError("test/development operational roots must share one disposable root")
-        if self.environment == "production" and _inside_git_checkout(root):
-            raise SettingsError("production data root must be outside every Git checkout or worktree")
+        if any(not _is_below(path, root) for path in paths):
+            environment = "test/development" if require_disposable_root else "production"
+            raise SettingsError(f"{environment} operational roots must share one data root")
+        if self.environment == "production" and any(
+            _inside_git_checkout(path) for path in (root, *paths)
+        ):
+            raise SettingsError("production roots must be outside every Git checkout or worktree")
         if not _is_loopback(self.bind_host):
             raise SettingsError("editor binds to loopback; remote mode is not implemented")
         if not self.allowed_hosts or not self.allowed_origins:
