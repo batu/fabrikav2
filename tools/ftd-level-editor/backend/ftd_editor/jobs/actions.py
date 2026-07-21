@@ -33,10 +33,18 @@ class FtdActionKind:
 
 # The durable FTD actions this editor understands. Later units register their
 # paid handlers against these exact names; callers can never invent a kind.
+# The U5 rows are the already-durable legacy starts (background generation,
+# crop inpaint, retry-failed-dogs, band generation, sequence workflow,
+# multi-scene generation) whose SSE/shadow observation moved to Job + events.
 FTD_ACTION_KINDS: tuple[FtdActionKind, ...] = (
     FtdActionKind("ftd.dog_variant_upscale", "upscale-r1", "spend-p1"),
     FtdActionKind("ftd.background_generate", "background-r1", "spend-p1"),
     FtdActionKind("ftd.sprite_animate", "sprite-r1", "spend-p1"),
+    FtdActionKind("ftd.crop_inpaint", "crop-inpaint-r1", "spend-p1"),
+    FtdActionKind("ftd.retry_failed_dogs", "retry-dogs-r1", "spend-p1"),
+    FtdActionKind("ftd.band_generate", "band-r1", "spend-p1"),
+    FtdActionKind("ftd.sequence_workflow", "sequence-r1", "spend-p1"),
+    FtdActionKind("ftd.multi_scene_generate", "multi-scene-r1", "spend-p1"),
 )
 
 
