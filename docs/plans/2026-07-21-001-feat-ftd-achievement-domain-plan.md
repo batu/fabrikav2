@@ -39,12 +39,17 @@ written so far and drops the rest. So we cannot rely on "the achievement record 
 the coin balance land together." (The existing base-coin path already exposes this:
 COINS is written at GameState.ts:911, *before* the completion transaction at 919, so
 a torn write there re-grants base coins on reload — see SURPRISES.) The plan therefore
-uses a **recoverable single-key journal + idempotent reconciliation on load**, not a
-"single batch is atomic" assumption. The achievement record is one key; the wallet is
-reconciled toward it on every load. Write ordering biases the one unrecoverable tear
-toward **losing** a grant, never duplicating one — so the guarantee we actually make
-is: **exactly-once on the happy path, recoverable across a crash between decision and
-wallet settlement, and at-most-once (never a double grant) in the worst case.**
+uses a **recoverable write-ahead settlement journal**: before touching the wallet we
+durably record a *pending settlement* that names the occurrence and the absolute
+before/after wallet snapshots; we then write the wallet; then we durably finalize
+(clear the pending settlement). Because the pending settlement carries the exact
+target state, load can always tell whether the wallet write happened and finish the
+job either way. The guarantee we make is therefore stronger than the prior draft's:
+**exactly-once and recoverable across a crash at any of the three write boundaries**
+(the grant is neither lost nor doubled when the wallet is in either the recorded
+before- or after-state), degrading to **at-most-once only on genuine corruption**
+where the wallet matches neither snapshot — a case we detect and handle by an explicit
+mismatch policy rather than a blind reapply.
 
 ---
 
@@ -107,39 +112,53 @@ existing transactional seam and makes the system fully unit-testable with plain 
 Rationale: the card's "narrow domain authority invoked synchronously" + the board
 lesson that analytics/overlay events are not mutation boundaries.
 
-**KTD2 — Recoverable single-key journal + reconcile-on-load, not "atomic batch".**
+**KTD2 — Recoverable write-ahead settlement with before/after snapshots.**
 The achievement record is a single versioned `ftd_achievements` key (one `setItem`,
-so its *internal* fields — decision ledger, unlock set, processed occurrence IDs,
-settlement markers — are mutually consistent by construction, since a per-key write
-is atomic). The record is the **durable authority** for what rewards the system has
-*decided* to grant; the wallet is treated as a cache reconciled toward the record on
-every `load()`.
+so its *internal* fields — processed occurrence IDs, unlock set, and the single
+`pendingSettlement` — are mutually consistent by construction, since a per-key write
+is atomic). The record is the **durable authority**; the wallet is settled toward it
+through a three-checkpoint write-ahead protocol that carries the exact target wallet
+state, so recovery is unambiguous regardless of which write tore.
 
-Protocol (per accepted occurrence):
-1. **Decide (journal).** `apply()` returns the delta; GameState appends the reward to
-   the record's `rewardLedger` (keyed by occurrence id), adds the occurrence to
-   `processedOccurrenceIds`, and records unlocks. This decision is persisted.
-2. **Settle (wallet).** Reconcile: `owed = Σ rewardLedger.coins`,
-   `settled = record.walletSettlement.coins`, `toApply = owed − settled`. Add
-   `toApply` to `_coinBalance` (and the analogous hint math), then set
-   `walletSettlement = owed`. Persist. Reconciliation is **target-based and
-   idempotent** — re-running it computes `toApply = 0` once settled.
-3. **Recover on load.** `load()` runs the same reconciliation. If a crash happened
-   after step 1 but before/at step 2, `settled < owed` and the remainder is applied
-   exactly once → the grant is **recovered**, not lost.
+`pendingSettlement` (present only mid-settlement, `null` otherwise) holds
+`{ occurrenceId, before: WalletSnapshot, after: WalletSnapshot }` where a
+`WalletSnapshot` is the **absolute** `{ coins, hints, walletCounters }` — not a delta.
 
-**Write-ordering rule (the one honest residual).** `walletSettlement` lives inside the
-record key; `_coinBalance` lives in the separate `COINS` key. These two keys can still
-tear against each other. We order the record `setItem` **before** the `COINS`
-`setItem` in `save()`. Then the only mid-`save()` tear is "settlement marker committed,
-balance not" → on reload `owed == settled`, so the remainder is **not** re-applied →
-the grant is *lost*, never *doubled*. Biasing to at-most-once is correct for an
-economy: a rare un-granted reward is acceptable; a double grant is not. Every
-"exactly-once/atomic" claim from the prior draft is removed in favor of this bound.
+Protocol (per accepted occurrence that grants a reward), fully synchronous — **no
+player mutation may interleave the three checkpoints**:
+1. **Write-ahead (checkpoint 1).** `apply()` returns the delta. In memory, mark the
+   occurrence `processed`, add unlocks, and set
+   `pendingSettlement = { occurrenceId, before = current wallet snapshot,
+   after = before + reward }`. Durably persist the **record key**. The intent to move
+   the wallet from `before` to `after` is now recoverable.
+2. **Write wallet (checkpoint 2).** Set `_coinBalance`/`_hintBalance`/`_walletCounters`
+   to `after` (absolute assignment, under the `'achievement'` `WalletMutationSource`).
+   Durably persist the **wallet keys** (COINS/HINTS/counters).
+3. **Finalize (checkpoint 3).** Clear `pendingSettlement` to `null` in memory. Durably
+   persist the **record key** again. Settlement is complete.
+
+**Recovery on load.** If `pendingSettlement` is absent, nothing to do. If present, read
+the current wallet snapshot `w`:
+- `w == before` → checkpoint 2 never landed → assign wallet = `after`, then clear
+  `pendingSettlement` and persist. Grant **applied exactly once**.
+- `w == after` → checkpoint 2 landed but finalize (checkpoint 3) did not → just clear
+  `pendingSettlement` and persist. **No reapply.**
+- `w` matches **neither** → genuine corruption (nothing else may interleave the
+  synchronous protocol, so this cannot happen on a clean tear). **Mismatch policy:**
+  do **not** blindly reapply — trust the wallet as-is, clear `pendingSettlement`, keep
+  the occurrence marked processed, and emit a reconciliation-anomaly analytics event.
+  This deliberately biases the corrupted edge to **at-most-once** (never a double
+  grant). Defined and fault-tested in U3.
+
+Because each checkpoint is a single-key atomic `setItem`, a crash *at* or *between* any
+checkpoint leaves the wallet in exactly `before` or `after`, both of which recovery
+resolves to a single grant. The prior draft's cumulative settlement marker (which lost
+a reward when COINS tore) is removed entirely.
 
 Rejected: a standalone `AchievementStore` with its own keys (reintroduces uncontrolled
-torn writes); and any claim that folding into `save()` makes the record and coins
-commit atomically together (false — see Problem Frame).
+torn writes); any claim that folding into a single `save()` makes the record and coins
+commit atomically together (false — see Problem Frame); and any relative/delta-based
+settlement (not idempotent under replay — absolute snapshots are).
 
 **KTD3 — Occurrence identity is the durable dedupe key.** Completion facts dedupe on
 the **completion transaction `id`** (already unique per accepted completion, stable
@@ -206,19 +225,23 @@ sequenceDiagram
     State->>Ach: apply(CompletionFact{txId, newBest, streak, ...}, record)
     Ach-->>State: AchievementDelta{ progressChanges, newlyUnlocked[], rewards[] }
     Note over State: dedupe: txId already processed? -> empty delta
-    State->>State: DECIDE: record.rewardLedger += {txId, coins, hints};<br/>record.processed += txId; record.unlocked += ids
-    State->>State: SETTLE: reconcile wallet toward Σ rewardLedger
-    State->>LS: save() — record key written BEFORE COINS key (ordering rule)
-    State->>An: emit from delta; on success record.analyticsEmitted += txId; save()
+    State->>State: WRITE-AHEAD: record.processed += txId; record.unlocked += ids;<br/>record.pendingSettlement = {txId, before, after=before+reward}
+    State->>LS: persist RECORD key (checkpoint 1)
+    State->>State: WALLET: assign coins/hints/counters = after
+    State->>LS: persist WALLET keys (checkpoint 2)
+    State->>State: FINALIZE: record.pendingSettlement = null
+    State->>LS: persist RECORD key (checkpoint 3)
+    State->>An: emit from delta; on success record.analyticsEmitted += txId; persist record
     State-->>GS: CompletionResult (+ achievementDelta for later UI)
 ```
 
-On relaunch mid-completion, `load()` restores the achievement record and re-runs
-reconciliation (KTD2): re-applying the same `txId` is a no-op via
-`processedOccurrenceIds` (KTD3), and `walletSettlement` vs `Σ rewardLedger` recovers
-any grant that was decided but not yet settled — exactly-once on recovery, and never a
-double grant even if a `save()` tore between the record and COINS keys. Any unlock not
-in `analyticsEmitted` is re-emitted once (KTD6).
+On relaunch at any checkpoint, `load()` inspects `pendingSettlement` (KTD2): if the
+wallet equals `before`, the `after` snapshot is applied exactly once (grant
+**recovered**); if it equals `after`, the pending marker is cleared with no reapply;
+if it matches neither, the mismatch policy trusts the wallet and marks the anomaly
+(at-most-once). Re-applying the same `txId` is independently a no-op via
+`processedOccurrenceIds` (KTD3). Any unlock not in `analyticsEmitted` is re-emitted
+once (KTD6). No path can double-grant, and no clean tear loses a grant.
 
 ---
 
@@ -267,11 +290,14 @@ versioned `AchievementRecord`, and per-achievement progress semantics. No behavi
   rewards: readonly GrantedReward[] }`.
 - `AchievementRecord` (versioned, the durable journal — one storage key): `{ version,
   progress: Record<id, number>, unlocked: readonly id[], processedOccurrenceIds:
-  readonly string[], rewardLedger: readonly {occurrenceId, coins, hints}[] (decided
-  grants — the reconcile authority), walletSettlement: {coins, hints} (amount already
-  folded into the wallet balance), analyticsEmitted: readonly string[] (occurrence ids
-  whose analytics reached the sink) }`. The invariant `walletSettlement ≤ Σ
-  rewardLedger` always holds; `load()` reconciles the difference (KTD2).
+  readonly string[], pendingSettlement: { occurrenceId, before: WalletSnapshot, after:
+  WalletSnapshot } | null (the single in-flight write-ahead settlement), analyticsEmitted:
+  readonly string[] (occurrence ids whose analytics reached the sink) }`, where
+  `WalletSnapshot = { coins: number, hints: number, walletCounters: Record<string,
+  number> }` holds **absolute** wallet values. Invariant: at most one `pendingSettlement`
+  exists at a time (the settlement protocol is synchronous and non-interleaving); a
+  non-null `pendingSettlement` on `load()` is resolved by KTD2 recovery before any new
+  fact is applied.
 - AC5: encode `milestoneKind` distinguishing occurrence-count vs logical-progression
   vs intended/canonical vs served/fallback so completion semantics are explicit in types.
 
@@ -336,24 +362,35 @@ the wallet via idempotent reconciliation, and expose the delta to callers. Wire
 `games/find_the_dog/src/scenes/GameScene.ts`,
 `games/find_the_dog/tests/unit/achievement-persistence.test.ts`.
 
-**Approach (implements KTD2's decide → settle → recover protocol):**
-- Add `_achievementRecord` field. In `save()`, write the `ftd_achievements` key
-  **before** the `COINS` key (GameState.ts:911) — this ordering is the load-bearing
-  rule from KTD2 (a mid-`save()` tear then loses, never doubles, a grant). Add a
-  code comment at both sites stating the dependency so a future reorder can't silently
-  break it. Parse in `load()` with a tolerant `parseAchievementRecord` helper mirroring
-  `parseWalletCounters`/`parseCompletionTransaction`.
+**Approach (implements KTD2's write-ahead settlement protocol):**
+- Add `_achievementRecord` field, parsed in `load()` with a tolerant
+  `parseAchievementRecord` helper mirroring `parseWalletCounters`/
+  `parseCompletionTransaction`. The record participates in the normal `save()` for the
+  no-pending steady state, but the settlement protocol drives its **own three
+  durable persist checkpoints** (see below) because finalize must be durable *after*
+  the wallet write — a single `save()` pass cannot express that ordering.
+- Two targeted persist helpers so each checkpoint is a minimal atomic write:
+  `persistAchievementRecord()` (single `setItem` of `ftd_achievements`) and
+  `persistWallet()` (the COINS/HINTS/counters keys). Add a code comment stating the
+  three-checkpoint invariant so a future refactor can't collapse the ordering.
 - New GameState method `applyAchievementFact(fact)`:
   1. Guard on `processedOccurrenceIds` — already processed → return empty delta, no-op.
-  2. Call `AchievementSystem.apply(fact, record)`; append rewards to `rewardLedger`,
-     add occurrence to `processedOccurrenceIds`, add unlocks to `unlocked`.
-  3. `reconcileWallet()`: `toApply = Σ rewardLedger − walletSettlement`; add to
-     `_coinBalance`/`_hintBalance` and `_walletCounters` under a new
-     `'achievement'` `WalletMutationSource`; set `walletSettlement = Σ rewardLedger`.
-  4. `save()`. Return the delta.
-- New `reconcileWallet()` also runs at the end of `load()` so a decision persisted
-  without its settlement is recovered on relaunch (exactly-once), and re-runs are
-  no-ops (`toApply = 0`). It is the single place wallet settlement changes.
+  2. Call `AchievementSystem.apply(fact, record)`. If the delta grants nothing, mark
+     processed + add unlocks and persist the record once (no wallet touch). If it
+     grants a reward, run the write-ahead protocol:
+     - **Checkpoint 1:** mark processed, add unlocks, set `pendingSettlement =
+       { occurrenceId, before = walletSnapshot(), after = before + reward }`;
+       `persistAchievementRecord()`.
+     - **Checkpoint 2:** assign `_coinBalance`/`_hintBalance`/`_walletCounters` to
+       `after` (absolute) under the new `'achievement'` `WalletMutationSource`;
+       `persistWallet()`.
+     - **Checkpoint 3:** `pendingSettlement = null`; `persistAchievementRecord()`.
+  3. Return the delta. The whole method is synchronous with no `await`/callback between
+     checkpoints, guaranteeing no player mutation interleaves.
+- New `recoverPendingSettlement()` runs in `load()` after all keys parse: implements the
+  KTD2 `before`/`after`/mismatch resolution and is the only place load mutates the
+  wallet. It is idempotent — a second `load()` sees `pendingSettlement == null` and does
+  nothing.
 - Invoke `applyAchievementFact` from `beginLevelCompletionTransaction` (after
   stats/base-coins commit, GameState.ts:696) using the transaction `id` as occurrence
   id; invoke from the accepted dog-found path in `GameScene` (GameScene.ts:1320-1386)
@@ -362,9 +399,10 @@ the wallet via idempotent reconciliation, and expose the delta to callers. Wire
 **Execution note (fault-injection first):** Start with a failing test harness that wraps
 `localStorage.setItem` to throw on the Nth call or on a named key, drives a completion
 that crosses a reward threshold, reloads a fresh GameState from the (partially written)
-storage, and asserts the coin balance is **never** above the single-grant value.
-Harden `reconcileWallet` + the save ordering until green for a throw injected at every
-write boundary.
+storage, and asserts the coin balance equals **exactly** the single-grant value on
+every clean-tear boundary (recovered, not lost, not doubled). Inject a throw at each of
+the three checkpoints and assert the load-time recovery lands the wallet at `after`
+exactly once.
 
 **Test scenarios:**
 - Covers AC3. Duplicate completion callback with same `transactionId` grants reward
@@ -375,22 +413,26 @@ write boundary.
   mid-flow) then retried → single grant, single unlock.
 - Covers AC3. Duplicate dog-found callback with same occurrence id → progress advances
   once.
-- **Fault injection — decision persisted, settlement lost.** `setItem` throws right
-  after the `ftd_achievements` write (before COINS). Reload → `reconcileWallet` applies
-  the owed remainder exactly once (grant *recovered*); running load twice does not
-  double it.
-- **Fault injection — settlement marker committed, COINS torn.** `setItem` throws on
-  the COINS write after `walletSettlement` was persisted. Reload → `owed == settled`,
-  no re-apply; the grant is lost but **never doubled** (documented at-most-once bound).
-- **Fault injection — throw before the record write.** Neither record nor coins
-  persist; reload re-applies the fact cleanly, exactly once (occurrence not yet marked).
-- Covers AC6. After reconciliation, reward coins/hints land in wallet and
-  `_walletCounters` with the `'achievement'` source; `Σ rewardLedger == walletSettlement
-  == achievement-sourced wallet counters` (reconciliation invariant holds).
-- Reward decided only for newly-unlocked entries, never on re-progress; ledger grows
-  by ≤ one entry per accepted occurrence.
-- `save()` failure path (localStorage throws) does not corrupt the in-memory record;
-  the invariant `walletSettlement ≤ Σ rewardLedger` holds after any single torn write.
+- **Fault injection — crash after checkpoint 1 (wallet write never ran).**
+  `persistAchievementRecord()` (pending written) succeeds, then `persistWallet()`
+  throws. Reload → wallet `== before` → recovery assigns `after` **exactly once**
+  (grant recovered); a second load is a no-op.
+- **Fault injection — crash after checkpoint 2 (finalize never ran).** Wallet write
+  landed but the finalize `persistAchievementRecord()` throws. Reload → wallet
+  `== after` → recovery clears `pendingSettlement` with **no reapply** (never doubled).
+- **Fault injection — crash before checkpoint 1.** Neither pending nor wallet persist;
+  reload re-applies the fact cleanly, exactly once (occurrence not yet marked).
+- **Mismatch policy.** Corrupt the wallet so it equals neither `before` nor `after`
+  while `pendingSettlement` is present → recovery trusts the wallet as-is, clears the
+  pending marker, keeps the occurrence processed, and emits the reconciliation-anomaly
+  event; no double grant, no crash.
+- Covers AC6. After settlement, reward coins/hints land in wallet and `_walletCounters`
+  with the `'achievement'` source; the wallet equals the `after` snapshot and
+  `pendingSettlement` is `null`.
+- Reward settled only for newly-unlocked entries, never on re-progress; at most one
+  `pendingSettlement` exists at any time.
+- `save()`/checkpoint failure path (localStorage throws) does not corrupt the in-memory
+  record; after any single torn write the record still parses and recovery resolves it.
 
 ---
 
@@ -443,9 +485,11 @@ adaptation.
 
 **Approach:**
 - Add `achievement_progress`, `achievement_unlocked`, `achievement_reward_granted`,
-  `achievement_page_viewed`, `achievement_viewed` to `canonicalAnalyticsEvents` with
-  family/panel/question/dimensions following existing entry shape. Every payload
-  carries the occurrence id for downstream dedupe.
+  `achievement_reconciliation_anomaly` (the KTD2 mismatch-policy signal), and the
+  later-UI `achievement_page_viewed` / `achievement_viewed` to `canonicalAnalyticsEvents`
+  with family/panel/question/dimensions following existing entry shape. Every payload
+  carries the occurrence id for downstream dedupe (analytics is **at-least-once**, never
+  promised sink-level exactly-once — dedupe is the consumer's job on the occurrence id).
 - `AchievementAnalytics.ts` owns `AchievementAnalyticsPayload` types and a pure
   `deltaToEvents(delta)` mapper. Add thin `analytics.achievement*` methods to
   `AnalyticsService` mirroring `dogFound`/`resourceChanged` (AnalyticsService.ts:297-345).
@@ -511,10 +555,11 @@ a contract addition here rather than re-declaring the shape downstream.
 **SURPRISE (pre-existing, out of this card's scope):** the existing base-coin grant
 writes `COINS` (GameState.ts:911) *before* the completion transaction that carries its
 `baseCoinsGranted` flag (line 919), so a torn `save()` there can **re-grant base coins**
-on reload — the opposite (unsafe) ordering from what this card adopts for achievements.
-This card deliberately does not rewrite the base-coin/transaction ordering (outside the
-achievement seam, risk to other wallet flows), but flags it: a future card could apply
-the same reconcile-before-COINS discipline to the completion transaction to close it.
+on reload — an unsafe ordering this card's achievement seam deliberately avoids via the
+write-ahead settlement protocol. This card does not rewrite the base-coin/transaction
+ordering (outside the achievement seam, risk to other wallet flows), but flags it: a
+future card could apply the same write-ahead before/after-snapshot discipline to the
+completion transaction to close it.
 
 ---
 
@@ -522,9 +567,12 @@ the same reconcile-before-COINS discipline to the completion transaction to clos
 
 - **Torn write between the achievement record and the coin balance.** Not mitigated by
   "one `save()` batch" (that batch is not atomic — see Problem Frame). Mitigated by
-  KTD2: single-key journal is the authority, wallet reconciled idempotently on load,
-  record written before COINS so the residual tear loses (at-most-once) rather than
-  doubles a grant. Proven by the U3 fault-injection tests at every write boundary.
+  KTD2's write-ahead settlement: a durable `pendingSettlement` records the absolute
+  before/after wallet snapshots before the wallet is touched, so load recovery lands
+  the wallet at `after` exactly once whether the crash left it at `before` or `after` —
+  neither losing nor doubling a grant. A wallet matching neither snapshot is genuine
+  corruption, handled by the explicit at-most-once mismatch policy. Proven by the U3
+  fault-injection tests at every checkpoint.
 - **Fallback serving changes served level IDs.** Dedupe on transaction `id`, not
   served/wrapped identity (KTD3, U5 fallback test).
 - **Economy distortion from reward inflation.** Reward-budget assertion in U2 caps the
@@ -557,9 +605,10 @@ exercised, mirroring existing `registerLevelComplete` test style.
    with zero adaptation.
 2. Progress, threshold crossing, ordering, persistence/relaunch, retroactive
    evaluation, malformed/legacy data, duplicate occurrences, reward idempotency,
-   fault-injected torn writes (never double-grant), interrupted completion/retry,
-   fallback serving, analytics emission recovery, and wallet reconciliation all have
-   passing deterministic tests (AC8).
+   fault-injected torn writes at every settlement checkpoint (grant recovered, never
+   lost on a clean tear, never double-granted; corruption mismatch handled), interrupted
+   completion/retry, fallback serving, analytics emission recovery, and write-ahead
+   settlement recovery all have passing deterministic tests (AC8).
 3. Rewards are coins/hints only, modest and asserted-bounded; no dependency added (AC6).
 4. Analytics contract emits progress/unlock/reward once-per-occurrence and never
    mutates state (AC7).
