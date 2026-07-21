@@ -48,6 +48,9 @@ class StoreRegistry(Protocol):
     @property
     def sessions(self) -> SessionStore | None: ...
 
+    @property
+    def jobs(self) -> Any | None: ...
+
     def names(self) -> tuple[str, ...]: ...
 
 
@@ -89,9 +92,15 @@ class EditorStores:
     """Explicit composition root for editor-owned persistence authorities."""
 
     sessions: SessionStore | None = None
+    jobs: Any | None = None
 
     def names(self) -> tuple[str, ...]:
-        return ("sessions",) if self.sessions is not None else ()
+        names: list[str] = []
+        if self.sessions is not None:
+            names.append("sessions")
+        if self.jobs is not None:
+            names.append("jobs")
+        return tuple(names)
 
 
 @dataclass(frozen=True, slots=True)
@@ -232,6 +241,13 @@ def create_app(settings: EditorSettings, components: AppComponents) -> FastAPI:
                 components.stores.sessions,
                 protected_dependencies,
             )
+        )
+
+    if components.stores.jobs is not None:
+        from .jobs.actions import build_job_router
+
+        application.include_router(
+            build_job_router(components.stores.jobs, protected_dependencies)
         )
 
     return application
