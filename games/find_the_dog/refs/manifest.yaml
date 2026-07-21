@@ -68,3 +68,17 @@ states:
     v2:
       gap: "no v2 capture yet"
       driveTo: fail
+
+  - name: achievements
+    reference:
+      gap: "no accepted achievement collection reference yet"
+    v2:
+      gap: "capture and judge on the real device for ACH-2"
+      driveTo: achievements
+
+  - name: win-achievement
+    reference:
+      gap: "no accepted achievement unlock reference yet"
+    v2:
+      gap: "capture and judge on the real device for ACH-2"
+      driveTo: win-achievement
