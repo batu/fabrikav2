@@ -3213,18 +3213,24 @@
   min-height: 44px;
 }
 .home-achievements-btn {
-  width: 76px;
+  width: auto;
+  min-width: 76px;
   min-height: 58px;
-  padding: 5px 3px;
+  padding: 5px 4px;
   border: 2px solid #fff1bc;
   border-radius: 16px;
   background: linear-gradient(180deg, #f7c85c, #d88731);
   color: #562f14;
   font: 900 11px/1.05 'Nunito', sans-serif;
-  overflow-wrap: anywhere;
   box-shadow: 0 4px 0 #8b4b22, 0 6px 9px rgba(70, 35, 8, 0.25);
 }
 .home-achievements-medal { font-size: 22px; line-height: 1; }
+/* Keep the label on one line: the word must never break mid-word on device. */
+.home-achievements-label {
+  white-space: nowrap;
+  font-size: 10px;
+  letter-spacing: -0.01em;
+}
 
 .home-no-ads-btn .home-no-ads-art {
   width: 58px;

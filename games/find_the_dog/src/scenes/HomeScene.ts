@@ -553,7 +553,7 @@ export class HomeScene extends Phaser.Scene {
             </button>
             <button id="home-achievements" class="home-side-btn home-achievements-btn" type="button" aria-label="Open achievements">
               <span class="home-achievements-medal" aria-hidden="true">★</span>
-              <span>Achievements</span>
+              <span class="home-achievements-label">Achievements</span>
             </button>
           </aside>
           <section id="home-map-mount" class="home-map-stage" aria-label="Level progression"></section>
