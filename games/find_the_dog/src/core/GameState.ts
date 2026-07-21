@@ -614,6 +614,10 @@ export class GameState {
   get totalLevelsCompleted(): number {
     return this._totalLevelsCompleted;
   }
+  /** True when a level completion was registered today (streak already safe). */
+  playedToday(): boolean {
+    return this._streakLastDate === todayString();
+  }
   get bestTimes(): Readonly<Record<string, number>> {
     return this._bestTimes;
   }
