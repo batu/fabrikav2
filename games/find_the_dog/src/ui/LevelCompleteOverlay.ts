@@ -7,6 +7,9 @@ import { animateCoinsToBalance } from './EconomyTransfer';
 import { showSceneTransitionCover } from './SceneTransitionCover';
 import { mountLevelComplete, type CoinTransfer, type ThemeTokens, type UiHandle } from '../v1core/ui';
 import { FTD_UI_THEME } from './ftdTheme';
+import type { CommittedAchievementDelta } from '../achievements/AchievementSystem';
+import { analytics } from '../analytics/AnalyticsService';
+import { hapticFound } from '../haptics/HapticsManager';
 
 export interface LevelCompleteOverlayOptions {
   /** Seconds this attempt took. Required — drives the ⏱ readout. */
@@ -25,6 +28,8 @@ export interface LevelCompleteOverlayOptions {
    * opens and with `null` when it closes.
    */
   onRatePromptHandle?: (handle: RatePromptHandle | null) => void;
+  /** Canonical ACH-1 commit result for this live completion occurrence. */
+  achievementCommit?: CommittedAchievementDelta;
 }
 
 export interface LevelCompleteOverlayResult {
@@ -126,6 +131,67 @@ export function preloadLevelCompleteAssets(): Promise<void> {
 // than only raw-removing the DOM node (which would defeat core's signal guards
 // and leak its scheduled timers). Single overlay at a time, so one ref suffices.
 let activeLevelCompleteHandle: UiHandle | null = null;
+const presentedAchievementOccurrences = new Set<string>();
+
+export function attachAchievementUnlockCallout(
+  root: HTMLElement,
+  delta: CommittedAchievementDelta | undefined,
+  signal: AbortSignal,
+): (() => void) | null {
+  if (!delta || delta.newlyUnlocked.length === 0 || presentedAchievementOccurrences.has(delta.occurrenceId)) return null;
+  const card = root.querySelector<HTMLElement>('.fab-complete-card');
+  const actions = card?.querySelector<HTMLElement>('.fab-complete-actions');
+  if (!card || !actions) return null;
+
+  const reveal = (): void => {
+    if (signal.aborted || root.dataset.rewardReveal !== 'complete') return;
+    if (presentedAchievementOccurrences.has(delta.occurrenceId)) return;
+    observer.disconnect();
+    presentedAchievementOccurrences.add(delta.occurrenceId);
+
+    const unlocked = delta.newlyUnlocked;
+    const callout = document.createElement('aside');
+    callout.className = 'achievement-unlock-callout';
+    callout.dataset.motion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'reduced' : 'full';
+    callout.setAttribute('role', 'status');
+    callout.setAttribute(
+      'aria-label',
+      `Achievements unlocked: ${unlocked.map((achievement) => achievement.name).join(', ')}`,
+    );
+    const heading = document.createElement('strong');
+    heading.textContent = 'Achievement unlocked';
+    const summary = document.createElement('span');
+    summary.className = 'achievement-unlock-summary';
+    summary.textContent = unlocked.length === 1
+      ? unlocked[0]!.name
+      : `${unlocked[0]!.name} and ${unlocked.length - 1} more`;
+    const guidance = document.createElement('small');
+    guidance.textContent = 'View from Home';
+    callout.append(heading, summary, guidance);
+    card.insertBefore(callout, actions);
+
+    hapticFound();
+    playUITap();
+    for (const achievement of unlocked) {
+      const event = gameState.allocateAchievementViewEvent({
+        name: 'achievement_viewed',
+        achievementId: achievement.id,
+      });
+      if (event) analytics.dispatchAchievementEvent(event);
+    }
+  };
+
+  const observer = new MutationObserver(reveal);
+  observer.observe(root, { attributes: true, attributeFilter: ['data-reward-reveal'] });
+  signal.addEventListener('abort', () => observer.disconnect(), { once: true });
+  reveal();
+  return () => observer.disconnect();
+}
+
+/** Test-only session reset; production replay protection lasts for the JS session. */
+export function resetPresentedAchievementOccurrencesForTests(): void {
+  presentedAchievementOccurrences.clear();
+}
 
 /**
  * Dismiss the live level-complete overlay, if any (idempotent). Call this from
@@ -250,6 +316,12 @@ export function showLevelCompleteOverlay(
     },
   });
   activeLevelCompleteHandle = handle;
+  const achievementCalloutAbort = new AbortController();
+  const disconnectAchievementObserver = attachAchievementUnlockCallout(
+    handle.el,
+    options.achievementCommit,
+    achievementCalloutAbort.signal,
+  );
 
   // Public result resolves exactly once, on the Next path, after core closes
   // and resolves `dismissed`. Bare dismiss (no Next) → nextClicked false →
@@ -257,6 +329,8 @@ export function showLevelCompleteOverlay(
   // bare dismiss (which never re-runs GameScene's teardown) doesn't leave the
   // hud-overlay stuck hiding its siblings.
   void handle.dismissed.then(() => {
+    achievementCalloutAbort.abort();
+    disconnectAchievementObserver?.();
     if (activeLevelCompleteHandle === handle) activeLevelCompleteHandle = null;
     overlay.classList.remove('completion-mode');
     if (nextClicked) resolvePublic({ nextLevelData: null });

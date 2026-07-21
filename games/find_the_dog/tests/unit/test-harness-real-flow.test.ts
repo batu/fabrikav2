@@ -19,13 +19,17 @@ const mocks = vi.hoisted(() => {
       return { hitTarget };
     }),
     initHUD: vi.fn(),
-    openPage: vi.fn((id: "shop" | "settings") => {
+    openPage: vi.fn((id: "shop" | "settings" | "achievements") => {
       const overlay = document.getElementById("hud-overlay");
       if (overlay === null) return;
       const page = document.createElement("div");
       page.id = "home-page-overlay";
       page.className = `home-page-overlay home-page-${id} home-page-overlay--open`;
-      page.innerHTML = id === "settings" ? '<div class="settings-page-card"></div>' : "";
+      page.innerHTML = id === "settings"
+        ? '<div class="settings-page-card"></div>'
+        : id === "achievements"
+          ? '<article class="achievement-card"></article><article class="achievement-card"></article>'
+          : "";
       overlay.appendChild(page);
     }),
     setFailOverlayPendingRecoveryMsForTest: vi.fn(),
@@ -71,6 +75,7 @@ const mocks = vi.hoisted(() => {
       grantNoAdsEntitlement: vi.fn(),
       grantPremiumEntitlement: vi.fn(),
       grantCoins: vi.fn(),
+      applyAchievementFact: vi.fn(() => ({ occurrenceId: "harness", progressChanges: [], newlyUnlocked: [], masteredLevelIdsAdded: [], rewards: [] })),
       setRewardProgressForTest: vi.fn(),
       markProcessedPurchaseId: vi.fn(() => true),
       grantRewardedHint: vi.fn(),
@@ -219,6 +224,7 @@ function createFakeGame(options: { deferHomeRender?: boolean } = {}) {
           fakeGameScene.complete = true;
           const complete = document.createElement("div");
           complete.id = "level-complete-overlay";
+          complete.innerHTML = '<aside class="achievement-unlock-callout"></aside>';
           overlay.appendChild(complete);
         }
         return;
@@ -253,12 +259,15 @@ function createFakeGame(options: { deferHomeRender?: boolean } = {}) {
       <div id="home-shell">
         <button id="home-play-now" data-hit-target="play" type="button">Play</button>
         <button id="home-nav-settings" data-hit-target="settings" type="button">Settings</button>
+        <button id="home-achievements" data-hit-target="achievements" type="button">Achievements</button>
       </div>
     `;
     const play = overlay.querySelector<HTMLButtonElement>("#home-play-now")!;
     const settings = overlay.querySelector<HTMLButtonElement>("#home-nav-settings")!;
+    const achievements = overlay.querySelector<HTMLButtonElement>("#home-achievements")!;
     setRect(play, { left: 10, top: 10, width: 40, height: 20 });
     setRect(settings, { left: 60, top: 10, width: 30, height: 20 });
+    setRect(achievements, { left: 10, top: 40, width: 80, height: 20 });
     play.addEventListener("click", () => {
       if (overlay.querySelector("#home-page-overlay") !== null) return;
       playClicks += 1;
@@ -271,6 +280,7 @@ function createFakeGame(options: { deferHomeRender?: boolean } = {}) {
       mocks.gameState.foundDogIds.clear();
     });
     settings.addEventListener("click", () => mocks.openPage("settings"));
+    achievements.addEventListener("click", () => mocks.openPage("achievements"));
   };
 
   canvas.addEventListener("click", (event) => {
@@ -383,6 +393,35 @@ describe("find_the_dog TestHarness real-flow wiring", () => {
     });
   });
 
+  it("achievements drives the Home action and requires rendered collection cards", async () => {
+    const { createFindTheDogHarness, snapshotMatchesFindTheDogDriveState } = await import("../../src/testing/TestHarness");
+    const fixture = createFakeGame();
+    const harness = createFindTheDogHarness(fixture.game as never);
+
+    await expect(harness.driveTo("achievements")).resolves.toBe(true);
+
+    expect(mocks.gameState.applyAchievementFact).toHaveBeenCalledWith(expect.objectContaining({
+      kind: "dog-found",
+      occurrenceId: "harness:achievement-collection:dog-1",
+    }));
+    expect(mocks.openPage).toHaveBeenCalledWith("achievements");
+    expect(snapshotMatchesFindTheDogDriveState("achievements", harness.snapshot())).toBe(true);
+    document.querySelectorAll(".achievement-card").forEach((card) => card.remove());
+    expect(snapshotMatchesFindTheDogDriveState("achievements", harness.snapshot())).toBe(false);
+  });
+
+  it("win-achievement requires both completion and the inline callout", async () => {
+    const { createFindTheDogHarness, snapshotMatchesFindTheDogDriveState } = await import("../../src/testing/TestHarness");
+    const fixture = createFakeGame();
+    const harness = createFindTheDogHarness(fixture.game as never);
+
+    await expect(harness.driveTo("win-achievement")).resolves.toBe(true);
+    expect(snapshotMatchesFindTheDogDriveState("win-achievement", harness.snapshot())).toBe(true);
+    document.querySelector(".achievement-unlock-callout")?.remove();
+    expect(snapshotMatchesFindTheDogDriveState("win-achievement", harness.snapshot())).toBe(false);
+    expect(snapshotMatchesFindTheDogDriveState("win", harness.snapshot())).toBe(true);
+  });
+
   it("startLevel clears an open settings page before driving Play", async () => {
     const { createFindTheDogHarness } = await import("../../src/testing/TestHarness");
     const fixture = createFakeGame();
@@ -476,6 +515,31 @@ describe("find_the_dog TestHarness real-flow wiring", () => {
       "tourstate:settings-FAILED",
       "tourstate:pause",
       "tourstate:pause-DONE",
+      "tourstate:done",
+    ]);
+  });
+
+  it("publishes trusted achievement tour markers only after their real predicates pass", async () => {
+    const { maybeRunInsituTour } = await import("@fabrikav2/testkit/testing");
+    const { createFindTheDogHarness, snapshotMatchesFindTheDogDriveState } = await import("../../src/testing/TestHarness");
+    const fixture = createFakeGame();
+    const harness = createFindTheDogHarness(fixture.game as never);
+    const ariaHistory = captureTourMarkerHistory();
+
+    await maybeRunInsituTour(harness, {
+      script: "allstates",
+      states: ["achievements", "win-achievement"],
+      dwellMs: 0,
+      markSettleRecheckMs: 0,
+      sleep: async (): Promise<void> => {},
+      snapshotMatchesState: snapshotMatchesFindTheDogDriveState,
+    });
+
+    expect(ariaHistory).toEqual([
+      "tourstate:achievements",
+      "tourstate:achievements-DONE",
+      "tourstate:win-achievement",
+      "tourstate:win-achievement-DONE",
       "tourstate:done",
     ]);
   });

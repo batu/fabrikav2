@@ -17,6 +17,8 @@ import { hideHomeMenuLayer } from './OverlayVisibility';
 
 let hintCallback: (() => void) | null = null;
 let homeCallback: (() => void) | null = null;
+let pageOpener: HTMLElement | null = null;
+let pageEscapeHandler: ((event: KeyboardEvent) => void) | null = null;
 
 /** Kick a rewarded-ad preload in the background so the first "watch-ad for hint" tap is quick. */
 function schedulePreloadIfRewardedPathAvailable(): void {
@@ -406,7 +408,7 @@ function updateRestorationProgress(_totalDogs: number, _restorationActive: boole
 // ── Phase 1: Full-screen slide-in page shell ──────────────────────
 
 export function openPage(
-  id: 'shop' | 'settings',
+  id: 'shop' | 'settings' | 'achievements',
   opts: { scrollTo?: 'hints' | 'coins' | 'entitlements' } = {},
 ): void {
   const overlay = document.getElementById('hud-overlay');
@@ -426,17 +428,21 @@ export function openPage(
   const page = document.createElement('div');
   page.id = 'home-page-overlay';
   page.className = 'home-page-overlay';
-  const title = id === 'shop' ? 'Shop' : 'Settings';
+  pageOpener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  const title = id === 'shop' ? 'Shop' : id === 'settings' ? 'Settings' : 'Achievements';
+  page.setAttribute('role', 'dialog');
+  page.setAttribute('aria-modal', 'true');
+  page.setAttribute('aria-labelledby', 'home-page-title');
   page.innerHTML = `
     <div class="home-page-header">
       <button id="home-page-back" class="home-page-back-btn" type="button" aria-label="Go back">
         <img class="home-page-back-art" src="/ui/page-header/back_button.png" alt="" aria-hidden="true">
       </button>
-      <h2 class="home-page-title">${title}</h2>
+      <h2 id="home-page-title" class="home-page-title" tabindex="-1">${title}</h2>
       ${id === 'shop' ? renderShopHeaderBalances() : ''}
     </div>
     <div class="home-page-body">
-      ${id === 'shop' ? renderShopPageBody() : renderSettingsPageBody()}
+      ${id === 'shop' ? renderShopPageBody() : id === 'settings' ? renderSettingsPageBody() : renderAchievementsPageBody()}
     </div>
   `;
 
@@ -461,12 +467,33 @@ export function openPage(
     wireSettingsPageListeners(page);
   }
   if (id === 'shop') page.classList.add('home-page-shop');
+  if (id === 'achievements') page.classList.add('home-page-achievements');
   if (id === 'settings') page.classList.add('home-page-settings');
   // Deep-link opens jump to a section, so skip the staggered content entrance
   // (otherwise the scrolled-to section sits empty then pops in after its delay).
   if (opts.scrollTo) page.classList.add('home-page-overlay--instant');
 
   overlay.appendChild(page);
+  shell?.setAttribute('inert', '');
+  pageEscapeHandler = (event: KeyboardEvent): void => {
+    if (event.key === 'Escape') {
+      closePage();
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    const focusable = [...page.querySelectorAll<HTMLElement>('button:not([disabled]), [href], input:not([disabled]), [tabindex]:not([tabindex="-1"])')];
+    if (focusable.length === 0) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
+  };
+  document.addEventListener('keydown', pageEscapeHandler);
   if (id === 'settings') {
     configureRestorePurchasesControl(page);
   }
@@ -487,13 +514,70 @@ export function openPage(
     }
   }
   requestAnimationFrame(() => { page.classList.add('home-page-overlay--open'); });
+  page.querySelector<HTMLElement>('#home-page-title')?.focus();
+}
+
+function rewardStatusCopy(status: import('../achievements/AchievementSystem').AchievementRewardStatus): string {
+  switch (status) {
+    case 'locked': return 'Reward locked';
+    case 'in-progress': return 'Reward in progress';
+    case 'live-reward-settled': return 'Reward collected';
+    case 'migration-unlocked-reward-ineligible': return 'Unlocked from earlier play; reward not available';
+    case 'legacy-unlocked-reward-provenance-unknown': return 'Unlocked from earlier play; reward history unavailable';
+  }
+}
+
+function renderAchievementsPageBody(): string {
+  const projection = gameState.achievementReadProjection();
+  if (projection.status === 'unavailable') {
+    const message = projection.reason === 'settlement-pending'
+      ? 'Achievements are updating. Please check again shortly.'
+      : 'Achievements are unavailable until your saved progress is ready.';
+    return `<section class="achievement-unavailable" role="status"><h3>Collection unavailable</h3><p>${message}</p></section>`;
+  }
+
+  const groups = new Map<string, typeof projection.achievements>();
+  for (const achievement of projection.achievements) {
+    groups.set(achievement.category, [...(groups.get(achievement.category) ?? []), achievement]);
+  }
+  const body = [...groups].map(([category, achievements]) => `
+    <section class="achievement-category" aria-labelledby="achievement-category-${category}">
+      <h3 id="achievement-category-${category}">${category}</h3>
+      <div class="achievement-list">
+        ${achievements.map((achievement) => {
+          const completed = achievement.progress >= achievement.threshold;
+          const state = completed ? 'Completed' : achievement.progress > 0 ? 'In progress' : 'Locked';
+          return `<article class="achievement-card" data-achievement-id="${achievement.id}" aria-label="${achievement.name}: ${state}, ${achievement.progress} of ${achievement.threshold}. ${rewardStatusCopy(achievement.rewardStatus)}">
+            <header><h4>${achievement.name}</h4><strong class="achievement-state">${state}</strong></header>
+            <p>${achievement.description}</p>
+            <progress value="${achievement.progress}" max="${achievement.threshold}" aria-label="${achievement.name} progress: ${achievement.progress} of ${achievement.threshold}">${achievement.progress}/${achievement.threshold}</progress>
+            <span class="achievement-progress-text">${achievement.progress}/${achievement.threshold}</span>
+            <p class="achievement-reward-status">${rewardStatusCopy(achievement.rewardStatus)}</p>
+          </article>`;
+        }).join('')}
+      </div>
+    </section>`).join('');
+
+  const pageEvent = gameState.allocateAchievementViewEvent({ name: 'achievement_page_viewed' });
+  if (pageEvent) analytics.dispatchAchievementEvent(pageEvent);
+  for (const achievement of projection.achievements) {
+    const event = gameState.allocateAchievementViewEvent({ name: 'achievement_viewed', achievementId: achievement.id });
+    if (event) analytics.dispatchAchievementEvent(event);
+  }
+  return body || '<section class="achievement-unavailable" role="status"><h3>No achievements yet</h3><p>Your collection is ready.</p></section>';
 }
 
 export function closePage(): void {
   const page = document.getElementById('home-page-overlay');
   if (!page) return;
   const overlay = document.getElementById('hud-overlay');
-  overlay?.querySelector<HTMLElement>('#home-shell')?.classList.remove('home-shell--dimmed');
+  const shell = overlay?.querySelector<HTMLElement>('#home-shell');
+  shell?.classList.remove('home-shell--dimmed');
+  shell?.removeAttribute('inert');
+  if (pageEscapeHandler) document.removeEventListener('keydown', pageEscapeHandler);
+  pageEscapeHandler = null;
+  pageOpener?.focus();
+  pageOpener = null;
   page.classList.remove('home-page-overlay--open'); // slides back DOWN + fades, mirroring the open
   const remove = (): void => {
     page.removeEventListener('transitionend', onTransitionEnd);

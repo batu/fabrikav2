@@ -1701,6 +1701,7 @@ export class GameScene extends Phaser.Scene {
         baseCoins: completion.transaction.baseCoinReward,
         coinBalance: gameState.coinBalance,
         claimX2Available,
+        achievementCommit: completion.achievementCommit,
         onClaimX2: async () => {
           const adResult = await showRewardedAdForEconomy();
           if (!adResult.granted) {
