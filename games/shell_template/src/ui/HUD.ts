@@ -14,6 +14,7 @@ import { getLegalLinks, type LegalLinks } from '../platform/LegalLinks';
 import { privacyConsentService } from '../privacy/PrivacyConsentService';
 import { notificationService } from '../notifications/NotificationService';
 import { rewardedAdIconMarkup } from './RewardedAdIcon';
+import { renderAchievementsPageBody } from './AchievementsPage';
 import { hideHomeMenuLayer } from './OverlayVisibility';
 import { gameConfig } from '../../game.config';
 
@@ -415,7 +416,7 @@ function updateRestorationProgress(_totalDogs: number, _restorationActive: boole
 // ── Phase 1: Full-screen slide-in page shell ──────────────────────
 
 export function openPage(
-  id: 'shop' | 'settings',
+  id: 'shop' | 'settings' | 'achievements',
   opts: { scrollTo?: 'hints' | 'coins' | 'entitlements' } = {},
 ): void {
   const overlay = document.getElementById('hud-overlay');
@@ -435,7 +436,7 @@ export function openPage(
   const page = document.createElement('div');
   page.id = 'home-page-overlay';
   page.className = 'home-page-overlay';
-  const title = id === 'shop' ? 'Shop' : 'Settings';
+  const title = id === 'shop' ? 'Shop' : id === 'settings' ? 'Settings' : 'Achievements';
   page.innerHTML = `
     <div class="home-page-header">
       <button id="home-page-back" class="home-page-back-btn" type="button" aria-label="Go back">
@@ -445,7 +446,7 @@ export function openPage(
       ${id === 'shop' ? renderShopHeaderBalances() : ''}
     </div>
     <div class="home-page-body">
-      ${id === 'shop' ? renderShopPageBody() : renderSettingsPageBody()}
+      ${id === 'shop' ? renderShopPageBody() : id === 'settings' ? renderSettingsPageBody() : renderAchievementsPageBody()}
     </div>
   `;
 
@@ -472,6 +473,7 @@ export function openPage(
     configureRestorePurchasesControl(page);
   }
   if (id === 'shop') page.classList.add('home-page-shop');
+  if (id === 'achievements') page.classList.add('home-page-achievements');
   // Deep-link opens jump to a section, so skip the staggered content entrance
   // (otherwise the scrolled-to section sits empty then pops in after its delay).
   if (opts.scrollTo) page.classList.add('home-page-overlay--instant');
@@ -850,6 +852,7 @@ function renderSettingsRows(): string {
           <span class="toggle-slider"></span>
         </label>
       </div>
+      <p id="notifications-denied-hint" class="settings-permission-hint" role="status" hidden>Notifications are turned off for this app. Enable them in iOS Settings to get reminders.</p>
       <button id="settings-home-btn" class="modal-row settings-row settings-home-btn" type="button" aria-label="Go to home screen">
         <span class="settings-row-left">
           <img class="settings-row-icon" src="/ui/settings/settings_icon_home.png" alt="" aria-hidden="true">
@@ -946,10 +949,23 @@ function wireSettingsPageListeners(page: HTMLElement): void {
 
   page.querySelector('#toggle-notifications')?.addEventListener('change', (event) => {
     if (!(event.currentTarget instanceof HTMLInputElement)) return;
-    const notificationsOn = event.currentTarget.checked;
+    const toggle = event.currentTarget;
+    const notificationsOn = toggle.checked;
     gameState.settings.notificationsOn = notificationsOn;
     gameState.save();
-    void notificationService.setEnabled(notificationsOn);
+    void notificationService.setEnabled(notificationsOn).then((permission) => {
+      // The OS said no: an on-toggle would be a lie (nothing can be scheduled),
+      // so revert it and point the player at iOS Settings instead of leaving a
+      // silently dead switch.
+      const denied = notificationsOn && permission === 'denied';
+      const hint = page.querySelector<HTMLElement>('#notifications-denied-hint');
+      if (hint) hint.hidden = !denied;
+      if (denied) {
+        toggle.checked = false;
+        gameState.settings.notificationsOn = false;
+        gameState.save();
+      }
+    });
     void analytics.settingsChanged({ setting_name: 'notificationsOn', new_value: String(notificationsOn) });
   });
 }

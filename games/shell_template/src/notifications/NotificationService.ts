@@ -237,20 +237,25 @@ export class NotificationService {
   }
 
   /** Settings-toggle path: turning reminders on requests OS permission if it
-   *  was never granted; turning them off cancels everything pending. */
-  async setEnabled(on: boolean): Promise<void> {
+   *  was never granted; turning them off cancels everything pending. Returns
+   *  the resulting permission so the settings UI can react to an OS denial
+   *  (revert the toggle, point at iOS Settings) instead of going silently
+   *  dead. Off always reports 'granted' — there is nothing to surface. */
+  async setEnabled(on: boolean): Promise<NotificationPermission> {
     try {
       if (!on) {
         await this.deps.provider.cancelReminders();
-        return;
+        return 'granted';
       }
       this.permission = await this.deps.provider.checkPermission();
       if (this.permission === 'prompt') {
         this.permission = await this.deps.provider.requestPermission();
         this.writeStorage(PERMISSION_ASKED_KEY, '1');
       }
+      return this.permission;
     } catch (err) {
       logNotificationError(err);
+      return this.permission;
     }
   }
 

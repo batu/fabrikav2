@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
 import { gameState } from '../core/GameState';
 import { getLevelIndex, loadLevel, loadLevelForProgression, type LevelData, type LevelIndexEntry } from '../data/levels';
-import { initHUD, openPage, setHomeCallback } from '../ui/HUD';
+import { initHUD, setHomeCallback } from '../ui/HUD';
+import { bindHomeNavigation } from '../ui/homeNavigation';
 import { hideHomeMenuLayer, showHomeMenuLayer } from '../ui/OverlayVisibility';
 import { hideSceneTransitionCoverAfterPaint, showPlayEntryTransitionCover } from '../ui/SceneTransitionCover';
 import { adService } from '../ads/Service';
@@ -179,52 +180,13 @@ export class HomeScene extends Phaser.Scene {
     showHomeMenuLayer(overlay);
     this.startBannerVideoReplay();
 
-    overlay.querySelector<HTMLButtonElement>('#home-nav-settings')?.addEventListener('click', (e) => {
-      if (document.getElementById('home-page-overlay')) return;
-      triggerNavBounce(e.currentTarget as HTMLButtonElement);
-      openPage('settings');
-    });
-
-    overlay.querySelector<HTMLButtonElement>('#home-nav-shop')?.addEventListener('click', (e) => {
-      if (document.getElementById('home-page-overlay')) return;
-      triggerNavBounce(e.currentTarget as HTMLButtonElement);
-      openPage('shop');
-    });
-
-    overlay.querySelector<HTMLButtonElement>('#home-achievements')?.addEventListener('click', (e) => {
-      if (document.getElementById('home-page-overlay')) return;
-      triggerNavBounce(e.currentTarget as HTMLButtonElement);
-      openPage('achievements');
-    });
-
-    // Currency "+" pills and the No-Ads button route into the shop — each deep-
-    // links to its own section (coins / hints / entitlements).
-    const shopShortcuts: Array<[string, 'coins' | 'hints' | 'entitlements']> = [
-      ['#home-coin-plus', 'coins'],
-      ['#home-hint-plus', 'hints'],
-      ['#home-no-ads', 'entitlements'],
-    ];
-    for (const [id, scrollTo] of shopShortcuts) {
-      overlay.querySelector<HTMLButtonElement>(id)?.addEventListener('click', (e) => {
-        e.stopPropagation();
+    bindHomeNavigation(overlay, {
+      triggerNavBounce,
+      startCurrentLevel: (button) => {
         if (document.getElementById('home-page-overlay')) return;
-        triggerNavBounce(e.currentTarget as HTMLButtonElement);
-        openPage('shop', { scrollTo });
-      });
-    }
-
-    const startCurrentLevel = (button: HTMLButtonElement): void => {
-      if (document.getElementById('home-page-overlay')) return;
-      triggerNavBounce(button);
-      void this.startLevelFromMap(gameState.currentLevelIndex);
-    };
-
-    overlay.querySelector<HTMLButtonElement>('#home-play-now')?.addEventListener('click', (e) => {
-      startCurrentLevel(e.currentTarget as HTMLButtonElement);
-    });
-
-    overlay.querySelector<HTMLButtonElement>('#home-nav-play')?.addEventListener('click', (e) => {
-      startCurrentLevel(e.currentTarget as HTMLButtonElement);
+        triggerNavBounce(button);
+        void this.startLevelFromMap(gameState.currentLevelIndex);
+      },
     });
 
     this.mountHomeLevelMap();
