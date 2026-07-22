@@ -372,10 +372,17 @@ body {
   color: #fff;
   text-shadow: 0 2px 0 rgba(120, 60, 20, 0.55);
 }
-/* MRV2-15 U2: v1 menu settings replaces the home scene with black, while the
-   in-game variant intentionally retains the shared translucent gameplay scrim. */
+/* MRV2-17: menu settings replaces the home scene with its own fully opaque,
+   dark-purple bubble field. The solid base prevents home chrome from reading
+   through; the low-contrast tile and dark scrim reproduce refs/settings.png.
+   The in-game variant intentionally retains the shared translucent scrim. */
 .fab-ui.fab-modal-backdrop.marble-settings-modal--menu {
-  background: #000;
+  background-color: #3b3247;
+  background-image:
+    linear-gradient(rgba(59, 50, 71, 0.82), rgba(59, 50, 71, 0.82)),
+    url('/v1/ui/marble-shadow-tile.png');
+  background-repeat: no-repeat, repeat;
+  background-size: auto, 320px 320px;
 }
 /* MRV2-11 U3 (KTD3, ref refs/settings.png): a small blue rounded SQUARE with a
    white × glyph docked top-right over the ribbon. No X sprite exists in-repo, so
