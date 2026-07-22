@@ -174,7 +174,9 @@ def freeze_candidate(
 
     if len(candidate_commit) != 40 or any(char not in "0123456789abcdef" for char in candidate_commit):
         raise ValueError("candidate commit must be one exact lowercase Git SHA")
-    inventory = inventory_tree(evidence_root)
+    # The freeze manifest is derived from the evidence and must never hash an
+    # older copy of itself when a rehearsal is repeated.
+    inventory = inventory_tree(evidence_root, exclude_names=("frozen-candidate.json",))
     gates = tuple(sorted((name, bool(value)) for name, value in required_gates.items()))
     blocked = tuple(name for name, passed in gates if not passed)
     return FrozenCandidate(
