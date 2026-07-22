@@ -21,17 +21,35 @@
     }
   },
   "twf_agents": {
-    "default": "claude/fable",
-    "stages": {
-      "brainstormed": "claude/fable",
-      "planned": "claude/fable",
-      "worked": "claude/opus",
-      "aesthetics_reviewed": "claude/fable",
-      "tested_insitu": "claude/sonnet",
-      "evidence_captured": "claude/sonnet",
-      "reviewed": "codex/gpt-5.6-sol@high",
-      "video_sent": "claude/sonnet",
-      "compounded": "claude/sonnet"
+    "default": "codex/sol@low",
+    "routes": [
+      {
+        "spec": "codex/sol@low",
+        "weight": 60
+      },
+      {
+        "spec": "claude/opus",
+        "weight": 30
+      },
+      {
+        "spec": "codex/terra@high",
+        "weight": 10
+      }
+    ],
+    "stages": {},
+    "budget": {
+      "enabled": false
+    },
+    "worktrees": {
+      "sparse_paths": [
+        "agents",
+        "configs",
+        "docs",
+        "games",
+        "packages",
+        "tools"
+      ],
+      "min_free_gib": 30
     }
   },
   "twf_gate": {
