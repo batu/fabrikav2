@@ -4,6 +4,7 @@ import { describe, it } from 'node:test';
 
 import {
   grantAcknowledgement,
+  isUnfinishedSagaStatus,
   publishingAnnouncement,
   publishingStatusCopy,
   retainedCandidates,
@@ -57,6 +58,14 @@ describe('publishing human surface contracts', () => {
     );
   });
 
+  it('treats every recoverable pre-terminal state as unfinished', () => {
+    assert.deepEqual(
+      ['pending_remote', 'reconciling', 'remote_committed', 'finalizing', 'succeeded', 'failed']
+        .map((status) => isUnfinishedSagaStatus(status)),
+      [true, true, true, true, false, false],
+    );
+  });
+
   it('offers retained immutable versions except the current selection', () => {
     const old = { ...candidate, candidateId: 'seq-0-def', sequenceVersion: 'seq-0', digest: 'def456' };
     assert.deepEqual(
@@ -80,4 +89,5 @@ describe('publishing human surface contracts', () => {
     assert.match(source, /\.focus\(\)/);
     assert.match(source, /type="button"/);
   });
+
 });

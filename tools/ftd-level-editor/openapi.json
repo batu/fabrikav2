@@ -704,6 +704,39 @@
         "title": "MintApprovalRequest",
         "type": "object"
       },
+      "MintPublishingApprovalRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "acknowledgement": {
+            "title": "Acknowledgement",
+            "type": "string"
+          },
+          "action": {
+            "enum": [
+              "publish",
+              "rollback"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "candidateId": {
+            "title": "Candidateid",
+            "type": "string"
+          },
+          "remote": {
+            "default": true,
+            "title": "Remote",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "candidateId",
+          "action",
+          "acknowledgement"
+        ],
+        "title": "MintPublishingApprovalRequest",
+        "type": "object"
+      },
       "PrepareSequenceRequest": {
         "additionalProperties": false,
         "properties": {
@@ -761,13 +794,84 @@
             "default": true,
             "title": "Remote",
             "type": "boolean"
+          },
+          "requestId": {
+            "maxLength": 192,
+            "minLength": 8,
+            "title": "Requestid",
+            "type": "string"
           }
         },
         "required": [
           "candidateId",
-          "grantId"
+          "grantId",
+          "requestId"
         ],
         "title": "ProtectedSequenceRequest",
+        "type": "object"
+      },
+      "PublishingApprovalResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "actionKind": {
+            "title": "Actionkind",
+            "type": "string"
+          },
+          "actor": {
+            "title": "Actor",
+            "type": "string"
+          },
+          "expiresAt": {
+            "title": "Expiresat",
+            "type": "string"
+          },
+          "grantId": {
+            "title": "Grantid",
+            "type": "string"
+          },
+          "requestBinding": {
+            "title": "Requestbinding",
+            "type": "string"
+          },
+          "sourceRevision": {
+            "title": "Sourcerevision",
+            "type": "string"
+          }
+        },
+        "required": [
+          "grantId",
+          "actor",
+          "actionKind",
+          "requestBinding",
+          "sourceRevision",
+          "expiresAt"
+        ],
+        "title": "PublishingApprovalResponse",
+        "type": "object"
+      },
+      "PublishingErrorResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            ],
+            "title": "Detail"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "PublishingErrorResponse",
         "type": "object"
       },
       "PublishingSnapshotResponse": {
@@ -807,6 +911,17 @@
                 "type": "null"
               }
             ]
+          },
+          "selectedRemoteRevision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selectedremoterevision"
           }
         },
         "required": [
@@ -814,7 +929,8 @@
           "candidates",
           "sagas",
           "rollbackEligibleCandidateIds",
-          "remoteEnabled"
+          "remoteEnabled",
+          "selectedRemoteRevision"
         ],
         "title": "PublishingSnapshotResponse",
         "type": "object"
@@ -864,6 +980,10 @@
             "title": "Actor",
             "type": "string"
           },
+          "baseRevision": {
+            "title": "Baserevision",
+            "type": "string"
+          },
           "candidateId": {
             "title": "Candidateid",
             "type": "string"
@@ -891,6 +1011,10 @@
             "title": "Remote",
             "type": "boolean"
           },
+          "requestId": {
+            "title": "Requestid",
+            "type": "string"
+          },
           "sagaId": {
             "title": "Sagaid",
             "type": "string"
@@ -914,12 +1038,14 @@
         },
         "required": [
           "sagaId",
+          "requestId",
           "action",
           "candidateId",
           "digest",
           "actor",
           "changelog",
           "sourceRevision",
+          "baseRevision",
           "status",
           "remote",
           "error"
@@ -1865,15 +1991,55 @@
             },
             "description": "Successful Response"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
           "422": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
                 }
               }
             },
-            "description": "Validation Error"
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
           }
         },
         "security": [
@@ -1883,10 +2049,96 @@
         ],
         "summary": "Activate",
         "x-ftd-approval": "single-use-digest-bound",
+        "x-ftd-authorization": "launch-credential-and-human-approval-grant",
         "x-ftd-cost": "none",
         "x-ftd-reconciliation": "exact-remote-readback-no-blind-republish",
         "x-ftd-revision": "digest-and-base-bound",
         "x-ftd-side-effects": "public-sequence-selection"
+      }
+    },
+    "/api/publishing/approval-grants": {
+      "post": {
+        "operationId": "mintPublishingApprovalGrant",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-FTD-Human-Approval-Credential",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Ftd-Human-Approval-Credential"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MintPublishingApprovalRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingApprovalResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "security": [
+          {
+            "LaunchCredential": []
+          }
+        ],
+        "summary": "Mint Approval",
+        "x-ftd-approval": "explicit-digest-and-action-confirmation",
+        "x-ftd-authorization": "human-publishing-credential",
+        "x-ftd-cost": "none",
+        "x-ftd-side-effects": "publication-grant-minting"
       }
     },
     "/api/publishing/export-dry-run": {
@@ -1913,15 +2165,45 @@
             },
             "description": "Successful Response"
           },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
           "422": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
                 }
               }
             },
-            "description": "Validation Error"
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
           }
         },
         "security": [
@@ -1931,6 +2213,7 @@
         ],
         "summary": "Export Dry Run",
         "x-ftd-artifacts": "validation-facts-only",
+        "x-ftd-authorization": "launch-credential",
         "x-ftd-cost": "none",
         "x-ftd-revision": "bound",
         "x-ftd-side-effects": "none"
@@ -1964,11 +2247,11 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
                 }
               }
             },
-            "description": "Validation Error"
+            "description": "Unprocessable Content"
           }
         },
         "security": [
@@ -1978,6 +2261,7 @@
         ],
         "summary": "Prepare",
         "x-ftd-approval": "not-required",
+        "x-ftd-authorization": "launch-credential",
         "x-ftd-cost": "none",
         "x-ftd-revision": "catalog-bound",
         "x-ftd-side-effects": "immutable-local-preview"
@@ -2007,15 +2291,55 @@
             },
             "description": "Successful Response"
           },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
           "422": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
                 }
               }
             },
-            "description": "Validation Error"
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
           }
         },
         "security": [
@@ -2025,6 +2349,7 @@
         ],
         "summary": "Rollback",
         "x-ftd-approval": "single-use-digest-bound",
+        "x-ftd-authorization": "launch-credential-and-human-approval-grant",
         "x-ftd-cost": "none",
         "x-ftd-reconciliation": "exact-remote-readback-no-blind-republish",
         "x-ftd-revision": "digest-and-base-bound",
@@ -2056,15 +2381,35 @@
             },
             "description": "Successful Response"
           },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
           "422": {
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
                 }
               }
             },
-            "description": "Validation Error"
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
           }
         },
         "security": [
@@ -2073,6 +2418,7 @@
           }
         ],
         "summary": "Reconcile",
+        "x-ftd-authorization": "launch-credential",
         "x-ftd-cost": "none",
         "x-ftd-reconciliation": "readback-only-no-publish",
         "x-ftd-side-effects": "remote-readback-and-local-finalization"

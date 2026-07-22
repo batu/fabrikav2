@@ -13,7 +13,10 @@ This is an internal FTD authoring and publishing tool, not a generic game editor
 - An ambiguous publish remains pending/reconciling. Reconcile through exact remote
   readback; never retry publication blindly.
 - Publish and rollback require a fresh server-held Approval Grant bound to action,
-  actor, digest, and source revision. Caller role claims are not authority.
+  actor, digest, and source revision. Caller role claims are not authority; the
+  generic agent grant route must reject publication actions.
+- Protected publication requests persist a stable Request ID. Replays return the
+  existing saga and never invoke the publisher again.
 - Keep FTD schema, dogs, geometry, hitboxes, cohorts, tombstones, starters,
   packages, and sequence semantics explicit. Do not introduce a framework.
 - Preserve the existing dependency set. A new dependency is a stop condition.

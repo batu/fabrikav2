@@ -28,9 +28,12 @@ FastAPI nor job infrastructure. Job infrastructure imports no FTD feature module
    sequence input before a selection can change.
 2. Persist an immutable canonical preview. Its SHA-256 binds actor, changelog,
    ordered level IDs, catalog revision, and remote base revision.
-3. Consume a server-held, single-use Approval Grant for `publish_sequence` or
-   `rollback_sequence`, bound to the candidate digest and source revision.
-4. Persist `pending_remote` before calling an explicitly configured publisher.
+3. Through an out-of-band operator credential that bootstrap never returns,
+   consume a server-held, single-use
+   Approval Grant for `publish_sequence` or `rollback_sequence`, bound to the
+   candidate digest and source revision. The generic agent mint route rejects both.
+4. Persist the caller Request ID and `pending_remote` before calling an explicitly
+   configured publisher; exact replay returns the existing saga.
 5. A definite rejection records `failed` and preserves current selection. A timeout
    records `reconciling`; restart calls readback only, never publish.
 6. Only an exact digest/version/base match reaches `remote_committed`, then local
@@ -48,7 +51,8 @@ fixture, not an autonomous loop and not a network adapter.
   provider-free contract app.
 - `publishing/level_schema.py` generates the game runtime `LevelFileV1` type.
 - `verify_public_levels.py` validates every committed level, extension geometry,
-  catalog, and the intentional `levels-index.json` retention gate.
+  every catalog-declared asset hash/size, and the intentional `levels-index.json`
+  retention gate.
 - Root `npm run editor:verify` is the one focused local/CI entry point.
 - CI gives the Python/editor aggregate its own job because npm workspace discovery
   alone cannot observe Python contract drift.

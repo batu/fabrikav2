@@ -491,6 +491,11 @@ def build_job_router(service: JobService, dependencies: list[Any]) -> APIRouter:
         },
     )
     def mint_approval_grant(body: MintApprovalRequest) -> ApprovalGrantResponse:
+        if body.action_kind in {"publish_sequence", "rollback_sequence"}:
+            raise HTTPException(
+                status_code=403,
+                detail="publication grants require the human publishing approval surface",
+            )
         try:
             grant = service.approvals.mint(
                 actor=body.actor,

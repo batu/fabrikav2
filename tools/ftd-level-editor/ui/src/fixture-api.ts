@@ -17,6 +17,7 @@ const RESPONSES = new Map<string, unknown>([
     'GET /api/publishing',
     {
       remoteEnabled: false,
+      selectedRemoteRevision: null,
       rollbackEligibleCandidateIds: ['seq-2026-07-19-retained'],
       selected: {
         candidateId: 'seq-2026-07-20-retained',

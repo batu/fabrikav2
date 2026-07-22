@@ -6,7 +6,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from ftd_editor.publishing.catalog import validate_catalog
+from ftd_editor.publishing.catalog import validate_catalog, verify_catalog_assets
 from ftd_editor.publishing.level_schema import LevelFileV1, validate_level_geometry
 
 
@@ -28,7 +28,8 @@ def main() -> int:
         )
         validate_level_geometry(level, native=native)
     catalog_path = LEVELS / "catalog-manifest.json"
-    validate_catalog(json.loads(catalog_path.read_text()))
+    catalog = validate_catalog(json.loads(catalog_path.read_text()))
+    verify_catalog_assets(catalog, LEVELS.parent)
     index_path = LEVELS / "levels-index.json"
     if not index_path.exists():
         raise SystemExit(

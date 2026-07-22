@@ -47,14 +47,22 @@ export function App() {
     if (api === null || state.kind !== 'ready') return;
     setBusy(true);
     setActionError(null);
+    let actionFailure: string | null = null;
     try {
       await action();
+    } catch (error: unknown) {
+      actionFailure = error instanceof Error ? error.message : 'Publishing action failed';
+    }
+    try {
       const publishing = await api.snapshot();
       setState({ kind: 'ready', editor: { ...state.editor, publishing } });
-    } catch (error: unknown) {
-      setActionError(error instanceof Error ? error.message : 'Publishing action failed');
-    } finally {
+      setActionError(actionFailure);
       setBusy(false);
+    } catch (error: unknown) {
+      const snapshotFailure = error instanceof Error ? error.message : 'snapshot refresh failed';
+      setActionError(
+        `${actionFailure === null ? '' : `${actionFailure}. `}Outcome unknown: ${snapshotFailure}. Reload before another publication action.`,
+      );
     }
   }
 
@@ -87,8 +95,12 @@ export function App() {
           busy={busy}
           error={actionError}
           onPrepare={(input: PreparePublishingInput) => run(() => api.prepare(input))}
-          onActivate={(candidate: PublishingCandidate) => run(() => api.activate(candidate, state.editor.publishing.remoteEnabled))}
-          onRollback={(candidate: PublishingCandidate) => run(() => api.rollback(candidate, state.editor.publishing.remoteEnabled))}
+          onActivate={(candidate: PublishingCandidate, credential: string) => (
+            run(() => api.activate(candidate, state.editor.publishing.remoteEnabled, credential))
+          )}
+          onRollback={(candidate: PublishingCandidate, credential: string) => (
+            run(() => api.rollback(candidate, state.editor.publishing.remoteEnabled, credential))
+          )}
           onReconcile={(sagaId: string) => run(() => api.reconcile(sagaId))}
         />
       )}

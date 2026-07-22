@@ -37,12 +37,12 @@ def seed_publishing_catalog(public_root: Path) -> None:
     {
       "id": "starter", "packageId": "starter:a", "listable": true,
       "bundledInApp": true, "cohortBuckets": ["all"], "tombstonedAt": null,
-      "retention": {"activeSequenceVersions": [], "rollbackEligibleSequenceVersions": []}
+      "retention": {"activeSequenceVersions": [], "rollbackEligibleSequenceVersions": ["seq-0"]}
     },
     {
       "id": "later", "packageId": "later:b", "listable": true,
       "bundledInApp": false, "cohortBuckets": ["all"], "tombstonedAt": null,
-      "retention": {"activeSequenceVersions": [], "rollbackEligibleSequenceVersions": []}
+      "retention": {"activeSequenceVersions": [], "rollbackEligibleSequenceVersions": ["seq-0"]}
     }
   ]
 }"""

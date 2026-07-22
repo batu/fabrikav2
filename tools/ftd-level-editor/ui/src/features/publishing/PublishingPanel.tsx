@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 
 import {
   grantAcknowledgement,
+  isUnfinishedSagaStatus,
   publishingAnnouncement,
   publishingStatusCopy,
   retainedCandidates,
@@ -15,8 +16,8 @@ interface PublishingPanelProps {
   busy: boolean;
   error: string | null;
   onPrepare(input: PreparePublishingInput): Promise<void>;
-  onActivate(candidate: PublishingCandidate): Promise<void>;
-  onRollback(candidate: PublishingCandidate): Promise<void>;
+  onActivate(candidate: PublishingCandidate, humanApprovalCredential: string): Promise<void>;
+  onRollback(candidate: PublishingCandidate, humanApprovalCredential: string): Promise<void>;
   onReconcile(sagaId: string): Promise<void>;
 }
 
@@ -30,12 +31,11 @@ export function PublishingPanel({
   onReconcile,
 }: PublishingPanelProps) {
   const [confirmedCandidateId, setConfirmedCandidateId] = useState<string | null>(null);
+  const [humanApprovalCredential, setHumanApprovalCredential] = useState('');
   const resultHeading = useRef<HTMLHeadingElement>(null);
   const newestCandidate = snapshot.candidates.at(-1) ?? null;
   const newestSaga = snapshot.sagas.at(-1) ?? null;
-  const hasUnfinishedRemoteSaga = snapshot.sagas.some((saga) => (
-    saga.remote && ['pending_remote', 'reconciling', 'remote_committed', 'finalizing'].includes(saga.status)
-  ));
+  const hasUnfinishedSaga = snapshot.sagas.some((saga) => isUnfinishedSagaStatus(saga.status));
   const retained = useMemo(
     () => retainedCandidates(
       snapshot.candidates,
@@ -61,6 +61,15 @@ export function PublishingPanel({
       changelog: value('changelog'),
       actor: value('actor'),
     });
+  }
+
+  async function submitHumanAction(
+    action: (candidate: PublishingCandidate, credential: string) => Promise<void>,
+    candidate: PublishingCandidate,
+  ) {
+    const credential = humanApprovalCredential;
+    setHumanApprovalCredential('');
+    await action(candidate, credential);
   }
 
   return (
@@ -136,15 +145,26 @@ export function PublishingPanel({
               <p id="grant-binding" className="grant-binding">
                 Grant binding: {grantAcknowledgement('publish_sequence', newestCandidate.digest)}
               </p>
+              <label>
+                Human approval credential
+                <input
+                  type="password"
+                  autoComplete="off"
+                  value={humanApprovalCredential}
+                  onChange={(event) => setHumanApprovalCredential(event.target.value)}
+                />
+                <small>Obtain this out-of-band from the operator who launched the editor.</small>
+              </label>
               <button
                 className="primary"
                 type="button"
                 disabled={
                   busy
-                  || hasUnfinishedRemoteSaga
+                  || hasUnfinishedSaga
+                  || humanApprovalCredential.length === 0
                   || confirmedCandidateId !== newestCandidate.candidateId
                 }
-                onClick={() => void onActivate(newestCandidate)}
+                onClick={() => void submitHumanAction(onActivate, newestCandidate)}
               >
                 {snapshot.remoteEnabled ? 'Approve and publish' : 'Approve local selection'}
               </button>
@@ -174,7 +194,7 @@ export function PublishingPanel({
                     <p>{copy.detail}</p>
                     <small>{saga.action} · {saga.digest.slice(0, 16)}…</small>
                   </div>
-                  {saga.status === 'reconciling' && (
+                  {isUnfinishedSagaStatus(saga.status) && (
                     <button type="button" disabled={busy} onClick={() => void onReconcile(saga.sagaId)}>
                       Read back exact hash
                     </button>
@@ -202,8 +222,8 @@ export function PublishingPanel({
                 </div>
                 <button
                   type="button"
-                  disabled={busy || hasUnfinishedRemoteSaga}
-                  onClick={() => void onRollback(candidate)}
+                  disabled={busy || hasUnfinishedSaga || humanApprovalCredential.length === 0}
+                  onClick={() => void submitHumanAction(onRollback, candidate)}
                 >
                   Confirm rollback
                 </button>

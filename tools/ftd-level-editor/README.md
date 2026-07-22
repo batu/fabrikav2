@@ -15,18 +15,22 @@ runtime, shares its roots, copies its data, or changes live authority.
 - Geometry validation rejects out-of-bounds hitboxes, broken cleanup regions,
   non-contiguous sections, and inconsistent native-to-baked extension transforms.
 - `publishing/export.py` validates complete assets before installing an immutable
-  content-addressed package.
+  content-addressed package through same-directory atomic staging.
 - Catalog validation keeps package identity, listability, tombstones, cohorts,
   bundled starters, active versions, and rollback retention explicit.
 - A publication preview binds actor, changelog, ordered level IDs, catalog/base
   revisions, and digest. Publish and rollback consume a fresh single-use Approval
-  Grant bound to that exact digest and revision.
+  Grant bound to that exact digest and revision. The generic agent approval route
+  cannot mint publication grants; the human publishing surface requires a distinct
+  operator-supplied credential that is never returned by bootstrap, plus explicit
+  digest confirmation.
 - Remote publication is fail-closed unless composition explicitly supplies an
   authenticated publisher. Tests use only `ScriptedPublisher`; the default app
   cannot contact a provider.
 - Ambiguous remote outcomes stay `reconciling`. Restart reconciliation performs
   exact readback and never calls publish again. Local selection changes only after
-  the exact remote digest is confirmed.
+  the exact remote digest is confirmed. A persisted Request ID makes response-loss
+  replay return the existing saga instead of submitting again.
 - Rollback selects a retained immutable candidate without rewriting package bytes.
 - `levels-index.json` intentionally remains while `tools/create-game` still emits
   it; deletion requires all runtime, scaffold, evidence, and publishing gates.
@@ -52,7 +56,7 @@ npm run editor:verify
 ```
 
 The aggregate runs pinned OpenAPI/type drift, pure FTD fixtures, generated public
-schema drift, public corpus geometry/catalog checks, the safe provider-free backend
+schema drift, public corpus geometry/catalog asset hash checks, the safe provider-free backend
 suite, UI typecheck/unit/lint/build, and no remote publication. Useful focused lanes:
 
 ```sh

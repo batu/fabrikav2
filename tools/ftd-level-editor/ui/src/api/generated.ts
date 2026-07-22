@@ -143,6 +143,13 @@ export interface MintApprovalRequest {
   "sourceRevision": string;
 }
 
+export interface MintPublishingApprovalRequest {
+  "acknowledgement": string;
+  "action": "publish" | "rollback";
+  "candidateId": string;
+  "remote"?: boolean;
+}
+
 export interface PrepareSequenceRequest {
   "actor": string;
   "catalogRevision": string;
@@ -156,6 +163,20 @@ export interface ProtectedSequenceRequest {
   "candidateId": string;
   "grantId": string;
   "remote"?: boolean;
+  "requestId": string;
+}
+
+export interface PublishingApprovalResponse {
+  "actionKind": string;
+  "actor": string;
+  "expiresAt": string;
+  "grantId": string;
+  "requestBinding": string;
+  "sourceRevision": string;
+}
+
+export interface PublishingErrorResponse {
+  "detail": Array<Record<string, unknown>> | string;
 }
 
 export interface PublishingSnapshotResponse {
@@ -164,6 +185,7 @@ export interface PublishingSnapshotResponse {
   "rollbackEligibleCandidateIds": Array<string>;
   "sagas": Array<SagaResponse>;
   "selected": CandidateResponse | null;
+  "selectedRemoteRevision": null | string;
 }
 
 export interface RequestIdentityConflictDetail {
@@ -176,11 +198,13 @@ export interface RequestIdentityConflictDetail {
 export interface SagaResponse {
   "action": "publish" | "rollback";
   "actor": string;
+  "baseRevision": string;
   "candidateId": string;
   "changelog": string;
   "digest": string;
   "error": null | string;
   "remote": boolean;
+  "requestId": string;
   "sagaId": string;
   "sourceRevision": string;
   "status": "pending_remote" | "reconciling" | "remote_committed" | "finalizing" | "succeeded" | "failed";
@@ -274,6 +298,7 @@ export interface FtdEditorOperations {
   "retryDurableJob": { method: "post"; path: "/api/jobs/{job_id}/retry" };
   "getPublishingSnapshot": { method: "get"; path: "/api/publishing" };
   "activateSequencePublication": { method: "post"; path: "/api/publishing/activate" };
+  "mintPublishingApprovalGrant": { method: "post"; path: "/api/publishing/approval-grants" };
   "dryRunCurrentSessionExport": { method: "post"; path: "/api/publishing/export-dry-run" };
   "prepareSequencePublication": { method: "post"; path: "/api/publishing/previews" };
   "rollbackSequencePublication": { method: "post"; path: "/api/publishing/rollback" };

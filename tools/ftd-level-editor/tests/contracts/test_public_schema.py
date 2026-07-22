@@ -84,6 +84,7 @@ def test_native_and_baked_extension_geometry_must_correspond() -> None:
         native=LevelFileV1.model_validate(native_payload),
     )
     baked_payload["dogs"][0]["y"] = 121
+    baked_payload["dogs"][0]["sprite"]["cleanup"]["height"] = 21
     with pytest.raises(ValueError, match="native/baked"):
         validate_level_geometry(
             LevelFileV1.model_validate(baked_payload),

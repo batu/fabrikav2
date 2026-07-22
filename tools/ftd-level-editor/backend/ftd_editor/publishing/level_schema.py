@@ -112,7 +112,7 @@ def _validate_dog_geometry(level: LevelFileV1) -> None:
             cleanup.x <= dog.x <= cleanup.x + cleanup.width
             and cleanup.y <= dog.y <= cleanup.y + cleanup.height
         ):
-            raise ValueError(f"{dog.id} cleanup geometry does not contain its hitbox")
+            raise ValueError(f"{dog.id} cleanup geometry does not contain its center")
 
 
 def validate_level_geometry(level: LevelFileV1, *, native: LevelFileV1 | None = None) -> None:
@@ -122,6 +122,8 @@ def validate_level_geometry(level: LevelFileV1, *, native: LevelFileV1 | None = 
     _validate_dog_geometry(level)
     if native is None:
         return
+    _validate_sections(native)
+    _validate_dog_geometry(native)
     extension = level.extension
     if extension is None or native.extension != extension:
         raise ValueError("native/baked extension metadata differs")
@@ -132,6 +134,8 @@ def validate_level_geometry(level: LevelFileV1, *, native: LevelFileV1 | None = 
     if level.height != native.height + extension.topBand + extension.bottomBand:
         raise ValueError("native/baked height differs from extension bands")
     native_dogs = {dog.id: dog for dog in native.dogs}
+    if set(native_dogs) != {dog.id for dog in level.dogs}:
+        raise ValueError("native/baked dog identity differs")
     for baked_dog in level.dogs:
         native_dog = native_dogs.get(baked_dog.id)
         if native_dog is None:
@@ -144,7 +148,14 @@ def validate_level_geometry(level: LevelFileV1, *, native: LevelFileV1 | None = 
             raise ValueError("native/baked sprite presence differs")
         if baked_dog.sprite is not None and native_dog.sprite is not None:
             if (
-                baked_dog.sprite.x != native_dog.sprite.x
+                baked_dog.sprite.image != native_dog.sprite.image
+                or baked_dog.sprite.width != native_dog.sprite.width
+                or baked_dog.sprite.height != native_dog.sprite.height
+                or baked_dog.sprite.anchorX != native_dog.sprite.anchorX
+                or baked_dog.sprite.anchorY != native_dog.sprite.anchorY
+                or baked_dog.sprite.cleanup.width != native_dog.sprite.cleanup.width
+                or baked_dog.sprite.cleanup.height != native_dog.sprite.cleanup.height
+                or baked_dog.sprite.x != native_dog.sprite.x
                 or baked_dog.sprite.y != native_dog.sprite.y + extension.topBand
                 or baked_dog.sprite.cleanup.x != native_dog.sprite.cleanup.x
                 or baked_dog.sprite.cleanup.y

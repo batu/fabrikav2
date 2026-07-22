@@ -54,6 +54,7 @@ def build_contract_app(root: Path):
         worker=ManualWorker(),
         providers=FailClosedProviders(),
         redactor=SecretRedactor(CompositionSecrets.from_mapping({})),
+        human_approval_credential="contract-only-human-approval-credential",
     )
     return create_app(settings, components)
 

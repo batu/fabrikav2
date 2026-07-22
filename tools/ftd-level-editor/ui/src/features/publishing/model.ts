@@ -52,6 +52,10 @@ export function publishingAnnouncement(saga: Pick<PublishSaga, 'status' | 'actio
   return `${saga.action === 'rollback' ? 'Rollback' : 'Publication'}: ${copy.label}. ${copy.detail}`;
 }
 
+export function isUnfinishedSagaStatus(status: PublishSagaStatus): boolean {
+  return ['pending_remote', 'reconciling', 'remote_committed', 'finalizing'].includes(status);
+}
+
 export function grantAcknowledgement(action: ApprovalAction, digest: string): string {
   return `I approve ${action} for ${digest}`;
 }

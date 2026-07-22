@@ -25,18 +25,24 @@ export function createPublishingApi(options: JobsTransportOptions) {
     candidate: PublishingCandidate,
     kind: PublishSaga['action'],
     remote: boolean,
+    humanApprovalCredential: string,
   ): Promise<PublishSaga> {
     const action = PROTECTED_ACTION[kind];
-    const grant = await request<ApprovalGrantResponse>('POST', '/api/approvals', {
-      actor: candidate.actor,
-      actionKind: action.approval,
-      requestBinding: candidate.digest,
-      sourceRevision: candidate.sourceRevision,
-      acknowledgement: grantAcknowledgement(action.approval, candidate.digest),
-    });
+    const grant = await requestFtd<ApprovalGrantResponse>(
+      { ...options, humanApprovalCredential },
+      'POST',
+      '/api/publishing/approval-grants',
+      {
+        candidateId: candidate.candidateId,
+        action: kind,
+        remote,
+        acknowledgement: grantAcknowledgement(action.approval, candidate.digest),
+      },
+    );
     return request('POST', `/api/publishing/${action.endpoint}`, {
       candidateId: candidate.candidateId,
       grantId: grant.grantId,
+      requestId: `${kind}-${candidate.candidateId}`,
       remote,
     });
   }
@@ -45,10 +51,16 @@ export function createPublishingApi(options: JobsTransportOptions) {
     snapshot: () => request<PublishingSnapshot>('GET', '/api/publishing'),
     prepare: (input: PreparePublishingInput) =>
       request<PublishingCandidate>('POST', '/api/publishing/previews', input),
-    activate: (candidate: PublishingCandidate, remote: boolean) =>
-      protectedAction(candidate, 'publish', remote),
-    rollback: (candidate: PublishingCandidate, remote: boolean) =>
-      protectedAction(candidate, 'rollback', remote),
+    activate: (
+      candidate: PublishingCandidate,
+      remote: boolean,
+      humanApprovalCredential: string,
+    ) => protectedAction(candidate, 'publish', remote, humanApprovalCredential),
+    rollback: (
+      candidate: PublishingCandidate,
+      remote: boolean,
+      humanApprovalCredential: string,
+    ) => protectedAction(candidate, 'rollback', remote, humanApprovalCredential),
     reconcile: (sagaId: string) =>
       request<PublishSaga>('POST', `/api/publishing/sagas/${encodeURIComponent(sagaId)}/reconcile`),
   };

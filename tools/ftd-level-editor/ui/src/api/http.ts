@@ -11,6 +11,7 @@ import type {
 export interface JobsTransportOptions {
   fetchImpl: typeof fetch;
   launchCredential: string;
+  humanApprovalCredential?: string;
   // Per-request bound so a hung read fails into the observer's ordinary
   // reconnecting path instead of stalling the poll loop indefinitely.
   timeoutMs?: number;
@@ -62,6 +63,9 @@ async function requestFtdWithDecoder<T>(
       signal: controller.signal,
       headers: {
         'X-FTD-Launch-Credential': options.launchCredential,
+        ...(options.humanApprovalCredential === undefined
+          ? {}
+          : { 'X-FTD-Human-Approval-Credential': options.humanApprovalCredential }),
         ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
       },
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),

@@ -119,6 +119,7 @@ class AppComponents:
     worker: Worker
     providers: ProviderRegistry
     redactor: SecretRedactor
+    human_approval_credential: str | None = None
 
 
 class EditorStatus(BaseModel):
@@ -171,6 +172,7 @@ def create_app(settings: EditorSettings, components: AppComponents) -> FastAPI:
     application.state.redactor = components.redactor
     application.state.logger = runtime_logger
     application.state.launch_credential = launch_credential
+    application.state.human_approval_credential = components.human_approval_credential
     application.add_middleware(
         LocalRequestGuardMiddleware,
         settings=settings,
@@ -267,11 +269,17 @@ def create_app(settings: EditorSettings, components: AppComponents) -> FastAPI:
     if components.stores.publishing is not None:
         from .publishing.routes import build_publishing_router
 
+        if components.human_approval_credential is None:
+            raise ValueError(
+                "publishing composition requires an operator-supplied human approval credential"
+            )
+
         application.include_router(
             build_publishing_router(
                 components.stores.publishing,
                 components.stores.sessions,
                 protected_dependencies,
+                components.human_approval_credential,
             )
         )
 

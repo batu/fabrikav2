@@ -4,11 +4,20 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import re
 import shutil
+import uuid
 from dataclasses import dataclass
 from pathlib import Path
 
-from ..fs import atomic_write_json, ensure_durable_directory
+from ..fs import (
+    atomic_write_json,
+    ensure_durable_directory,
+    exclusive_file_lock,
+    fsync_directory,
+    fsync_tree,
+)
 from .level_schema import LevelFileV1, validate_level_geometry
 
 
@@ -19,6 +28,9 @@ class PackageDescriptor:
     digest: str
     path: Path
     files: tuple[dict[str, str | int], ...]
+
+
+_SAFE_LEVEL_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,191}$")
 
 
 def _file_descriptor(path: Path, relative: str) -> dict[str, str | int]:
@@ -38,6 +50,11 @@ def stage_package(source: Path, packages_root: Path) -> PackageDescriptor:
 
     level_path = source / "level.json"
     level = LevelFileV1.model_validate_json(level_path.read_bytes())
+    if not _SAFE_LEVEL_ID.fullmatch(level.id):
+        raise ValueError(f"invalid package level id: {level.id!r}")
+    for member in source.rglob("*"):
+        if member.is_symlink():
+            raise ValueError(f"package source cannot contain a symlink: {member}")
     native_path = source / "native" / "level.json"
     native = LevelFileV1.model_validate_json(native_path.read_bytes()) if native_path.exists() else None
     validate_level_geometry(level, native=native)
@@ -61,13 +78,41 @@ def stage_package(source: Path, packages_root: Path) -> PackageDescriptor:
     digest = hashlib.sha256(encoded).hexdigest()
     package_id = f"{level.id}:{digest}"
     destination = packages_root / level.id / digest
-    if destination.exists():
-        existing = (destination / "package-manifest.json").read_text()
-        expected = json.dumps(manifest, indent=2)
+    expected = json.dumps(manifest, indent=2)
+
+    def validate_installed() -> None:
+        try:
+            existing = (destination / "package-manifest.json").read_text()
+        except FileNotFoundError as error:
+            raise ValueError("existing immutable package is incomplete") from error
         if existing != expected:
             raise ValueError("existing immutable package content does not match its identity")
-    else:
-        ensure_durable_directory(destination.parent)
-        shutil.copytree(source, destination)
-        atomic_write_json(destination / "package-manifest.json", manifest)
+        expected_paths = {str(item["path"]) for item in files} | {"package-manifest.json"}
+        actual_paths = {
+            path.relative_to(destination).as_posix()
+            for path in destination.rglob("*")
+            if path.is_file()
+        }
+        if actual_paths != expected_paths:
+            raise ValueError("existing immutable package membership does not match its identity")
+        for item in files:
+            path = destination / str(item["path"])
+            actual = _file_descriptor(path, str(item["path"]))
+            if actual != item:
+                raise ValueError("existing immutable package bytes do not match its identity")
+
+    ensure_durable_directory(destination.parent)
+    with exclusive_file_lock(destination.parent / ".package-install.lock"):
+        if destination.exists():
+            validate_installed()
+        else:
+            stage = destination.parent / f".{digest}.{uuid.uuid4().hex}.tmp"
+            try:
+                shutil.copytree(source, stage)
+                atomic_write_json(stage / "package-manifest.json", manifest)
+                fsync_tree(stage)
+                os.rename(stage, destination)
+                fsync_directory(destination.parent)
+            finally:
+                shutil.rmtree(stage, ignore_errors=True)
     return PackageDescriptor(package_id, level.id, digest, destination, files)
