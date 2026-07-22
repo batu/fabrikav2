@@ -32,7 +32,7 @@ describe('mountHomeShell', () => {
 
     const play = root.querySelector<HTMLButtonElement>('[data-fab-action="play"]');
     expect(play).not.toBeNull();
-    expect(play?.textContent).toBe('Level 3');
+    expect(play?.textContent).toBe('LEVEL 3');
 
     const pill = root.querySelector('.marble-coin-pill');
     expect(pill?.querySelector('.marble-coin-count')?.textContent).toBe('1234');

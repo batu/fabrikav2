@@ -136,14 +136,60 @@ function detectSettingsVariant(): SettingsVariant {
   return null;
 }
 
+/**
+ * Diagnostics for the last hit-tested drive click (device-parity MRV2-10 U5).
+ * `driveElementClick` fails HARD when another layer wins the hit-test at the
+ * target's centre (the testkit's designed truth-check — a tap that lands on an
+ * interceptor is not a real tap). On device the pause gear tap silently missed
+ * and the modal never opened, with no way to name the interceptor. This records
+ * the intended target, whether the tap landed, and — crucially — WHAT the
+ * hit-test actually returned, so the on-device log names the occluding layer.
+ */
+export interface DriveClickDiag {
+  target: string;
+  landed: boolean;
+  hitTarget: string | null;
+  point: ClientPoint | null;
+}
+
+let lastDriveClickDiag: DriveClickDiag | null = null;
+
+/** The last hit-tested drive click's diagnostics (null before any click). */
+export function getLastDriveClickDiag(): DriveClickDiag | null {
+  return lastDriveClickDiag;
+}
+
+function describeElement(el: Element | null): string {
+  if (!(el instanceof HTMLElement)) return el === null ? '<none>' : el.tagName.toLowerCase();
+  const id = el.id ? `#${el.id}` : '';
+  const cls = el.className && typeof el.className === 'string'
+    ? `.${el.className.trim().split(/\s+/).join('.')}`
+    : '';
+  const action = el.dataset.fabAction ? `[data-fab-action=${el.dataset.fabAction}]` : '';
+  const a = el.dataset.a ? `[data-a=${el.dataset.a}]` : '';
+  return `${el.tagName.toLowerCase()}${id}${cls}${action}${a}`;
+}
+
 function driveElementClick(element: HTMLElement): boolean {
   const point = elementClientCenter(element);
   if (point !== null && typeof document.elementFromPoint === 'function') {
     const { hitTarget } = driveInputAt(point);
-    return hitTarget !== null && (hitTarget === element || element.contains(hitTarget));
+    const landed = hitTarget !== null && (hitTarget === element || element.contains(hitTarget));
+    lastDriveClickDiag = {
+      target: describeElement(element),
+      landed,
+      hitTarget: describeElement(hitTarget),
+      point,
+    };
+    // Surface the diagnostics on the window so the conductor's on-device capture
+    // log can name the interceptor when a tap misses (KTD5 telemetry).
+    (window as unknown as { __mrLastDriveClick?: DriveClickDiag }).__mrLastDriveClick = lastDriveClickDiag;
+    return landed;
   }
 
   element.click();
+  lastDriveClickDiag = { target: describeElement(element), landed: true, hitTarget: 'element.click()', point: null };
+  (window as unknown as { __mrLastDriveClick?: DriveClickDiag }).__mrLastDriveClick = lastDriveClickDiag;
   return true;
 }
 
@@ -392,6 +438,12 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
    * result card, so the predicate (visible overlay + reward row) is the target.
    */
   async function driveWinViaPlay(): Promise<boolean> {
+    // Device-parity MRV2-10 U4: the win reward must read the source default (+25),
+    // not the +45 the device showed. The reward is baked into the persisted
+    // completion transaction at win time from remoteConfigService.value(); a stale
+    // DEV localStorage override (ftd_remote_config_test_overrides) could win over
+    // the schema default (25), so pin it explicitly for the capture.
+    remoteConfigService.setValuesForTest({ levelCompleteCoinReward: 25 });
     gameState.setTotalLevelsCompletedForTest(LEVEL_COUNT);
     // MRV2-9 U2a: the pre-win wallet must read 0 (the win grant itself is the
     // only legitimate coin source in this capture). Zero the persisted balance
@@ -436,6 +488,13 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
       // HUD settings button, so its (pointer-events:none) chrome can never sit
       // between the drive's hit-test and the gear.
       document.querySelectorAll('.tutorial-hand-layer').forEach((el) => el.remove());
+      // Device-parity MRV2-10 U5: the #scene-transition-cover is a full-screen,
+      // pointer-events:auto layer at z-index 20 (index.html) that swallows every
+      // tap while mounted. If it lingers past the startLevel handoff on device it
+      // is the interceptor that made the gear tap miss — the getLastDriveClickDiag
+      // hitTarget names it. Clear it before the tap so the gear can win the
+      // hit-test (startLevel already waits it out; this is belt-and-braces).
+      document.getElementById('scene-transition-cover')?.remove();
       const button = document.querySelector<HTMLElement>(HUD_SETTINGS_BUTTON_SELECTOR);
       if (button !== null) driveElementClick(button);
       return detectPauseModalVisible();

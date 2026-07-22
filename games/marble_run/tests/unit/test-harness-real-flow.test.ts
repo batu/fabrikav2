@@ -337,6 +337,24 @@ describe("marble_run TestHarness real-flow wiring", () => {
     });
   });
 
+  it("records hit-test diagnostics for the last drive click (MRV2-10 U5)", async () => {
+    const { createMarbleRunHarness, getLastDriveClickDiag } = await import("../../src/testing/TestHarness");
+    const fixture = createFakeGame();
+    const harness = createMarbleRunHarness(fixture.game as never);
+
+    await harness.verbs.startLevel.run();
+
+    // The drive clicks the mounted home Play button; the diagnostics must name
+    // the intended target AND what the hit-test returned, so an on-device miss
+    // can name the occluding layer instead of failing silently.
+    const diag = getLastDriveClickDiag();
+    expect(diag).not.toBeNull();
+    expect(diag!.landed).toBe(true);
+    expect(diag!.target).toContain("#home-play-now");
+    expect(diag!.hitTarget).toContain("#home-play-now");
+    expect((window as unknown as { __mrLastDriveClick?: unknown }).__mrLastDriveClick).toBe(diag);
+  });
+
   it("zeroes the wallet after seeding a driven gameplay capture (MRV2-9 U2a)", async () => {
     const { createMarbleRunHarness } = await import("../../src/testing/TestHarness");
     const fixture = createFakeGame();

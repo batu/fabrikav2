@@ -121,6 +121,12 @@ body {
 @keyframes marble-shadow-drift {
   to { background-position: 320px 320px; }
 }
+/* Device-parity MRV2-10 U1: during gameplay the ONLY bubble field is
+   #game-container::before (behind the transparent board canvas). This fixed
+   full-screen tile lives on #hud-overlay (above the board), so it must be gated
+   off while the gameplay HUD is mounted, or bubbles render OVER the playfield
+   (judge3 "pale bubbles over the playfield" major). Home/shell screens keep it. */
+.marble-ui.mr-gameplay-active::before { display: none; }
 .marble-ui > * { position: relative; z-index: 1; }
 
 /* ---- Home header chrome (game-owned slot) ---- */
@@ -190,13 +196,15 @@ body {
    A three.js canvas (HomeBoardPreview) in DOM flow just under the header; the
    board frames itself with margins, so a square slot reads as the ref tile. */
 .marble-home-board-preview-slot {
-  /* MRV2-9 U3: the MRV2-8 preview slot was large enough to shove the kit saga
-     down into (and behind) the LEVEL button. Keep it compact so the tight
-     centered 4-3-2-1 column sits fully above the button (refs/home-fresh.png). */
-  width: min(48vw, 230px);
+  /* Device-parity MRV2-10 U2: v1's decor board is LARGE and tilted, spanning
+     banner-to-nodes (refs/home-fresh.png) — the MRV2-9 compaction to min(48vw,
+     230px) rendered it as a tiny diamond. Restore the larger banner-to-nodes
+     footprint; the saga column below stays clear of the LEVEL button via the
+     enlarged .fab-home-menu padding-bottom (U2 node-1 clearance). */
+  width: min(66vw, 300px);
   aspect-ratio: 1 / 1;
-  max-height: 200px;
-  margin: 2px auto -4px;
+  max-height: 264px;
+  margin: 2px auto -6px;
   pointer-events: none;
 }
 
@@ -230,7 +238,11 @@ body {
   box-sizing: border-box;
   min-height: 100dvh;
   padding: 0 16px 96px;
-  padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  /* Device-parity MRV2-10 U2: the fixed LEVEL button (~86px tall at bottom 18px)
+     was overlapping the last saga node (gold sun node 1 hidden behind it,
+     refs/home-fresh.png). Reserve enough bottom room that the current node clears
+     the button with margin. */
+  padding-bottom: calc(148px + env(safe-area-inset-bottom, 0px));
 }
 .marble-ui .fab-home-menu-content { flex: 1 1 auto; min-height: 0; align-items: center; }
 .marble-ui .fab-home-menu-actions {
@@ -298,6 +310,42 @@ body {
 .marble-ui .marble-reward-row img { width: 30px; height: 30px; }
 .marble-ui .marble-reward-text { height: 26px; width: auto; }
 .marble-ui .fab-result-message { color: #3f6bb0; font-family: var(--fab-font-display); }
+
+/* ---- Win card device parity (MRV2-10 U4, ref refs/win.png) ---- */
+/* Opaque purple backdrop so the gameplay board never shows through the win
+   overlay (judge3/win.json: card floats over live playfield). */
+#hud-overlay.completion-mode .fab-modal-scrim {
+  background: linear-gradient(180deg, #9b7bcd 0%, #6b568e 100%);
+  opacity: 1;
+}
+/* Green Next pill: Button_Green sprite is the surface; contain a white label so
+   it never renders as giant word-art (the old Txt_Next sprite-label doubling). */
+.marble-ui .marble-result-next {
+  min-width: 220px;
+  min-height: 68px;
+  color: #fff;
+  font-family: var(--fab-font-display);
+  font-size: 24px;
+  text-shadow: 0 2px 0 rgba(20, 90, 30, 0.5);
+}
+/* Blue wallet pill, top-right of the win card. */
+.marble-ui .marble-win-coin-pill {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 78px;
+  height: 42px;
+  padding: 0 14px 0 10px;
+  color: #fff;
+  font-family: var(--fab-font-number);
+  font-size: 19px;
+  background: url('${assetUrls.coinFrame}') center / 100% 100% no-repeat;
+}
+.marble-ui .marble-win-coin-pill img { width: 24px; height: 24px; }
 `;
   doc.head.appendChild(style);
 }

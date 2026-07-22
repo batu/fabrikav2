@@ -34,7 +34,16 @@ export function buildSagaNodes(input: SagaInput): LevelMapNode[] {
     ? input.levelCount - 1
     : currentIndex + (SAGA_WINDOW_SIZE - 1);
   const ahead = Math.max(0, Math.min(visibleCount - 1, maxIndex - currentIndex));
-  const windowEnd = currentIndex + ahead;
+
+  // End-of-content parity (device-parity MRV2-10 U3, ref refs/level-map.png):
+  // when the current level is the LAST level there are no locked-ahead nodes and
+  // v1 does NOT render the current gold-sun in the chain — the LEVEL button below
+  // stands in for it. Instead the window shows only the prior COMPLETED nodes
+  // (e.g. current=110 → completed 106-109, no sun). Detect that case (no ahead
+  // levels but there IS history behind) and slide the whole window behind the
+  // current so no node equals currentIndex.
+  const behindOnly = ahead === 0 && currentIndex > 0;
+  const windowEnd = behindOnly ? currentIndex - 1 : currentIndex + ahead;
   const windowStart = Math.max(0, windowEnd - (visibleCount - 1));
 
   // Top→bottom: highest index (furthest ahead) first; current/last-completed last.

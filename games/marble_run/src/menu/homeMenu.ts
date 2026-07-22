@@ -86,7 +86,9 @@ export function mountHomeShell(opts: MountHomeShellOptions): UiHandle {
     },
     actions: [
       {
-        label: `Level ${opts.currentLevelNumber}`,
+        // Device-parity MRV2-10 U7.8: v1 renders the play button label uppercase
+        // (`LEVEL 110`, refs/level-map.png / home-fresh.png).
+        label: `LEVEL ${opts.currentLevelNumber}`,
         ariaLabel: `Play Level ${opts.currentLevelNumber}`,
         dataAction: 'play',
         className: 'marble-level-button',

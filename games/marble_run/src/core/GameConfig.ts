@@ -13,6 +13,14 @@ export const GameConfig: Phaser.Types.Core.GameConfig = {
   width: GAME.WIDTH,
   height: GAME.HEIGHT,
   parent: 'game-container',
+  // Device-parity MRV2-10 U1: the Phaser canvas must be TRANSPARENT so the
+  // wave-3 purple bubble field painted on #game-container (hud.css) shows through
+  // during gameplay. An opaque `backgroundColor: COLORS.BG` (cream) covered that
+  // field on all four gameplay states — home only read purple because
+  // #hud-overlay.home-mode repaints its own field on top. `transparent: true`
+  // forces the WebGL/Canvas clear alpha to 0; `backgroundColor` is retained only
+  // as the parsed clear tint (alpha is overridden to 0 by `transparent`).
+  transparent: true,
   backgroundColor: COLORS.BG,
   roundPixels: true,
   antialias: true,

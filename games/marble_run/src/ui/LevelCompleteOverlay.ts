@@ -1,6 +1,6 @@
 import { gameState } from '../core/GameState';
 import type { LevelData } from '../data/levels';
-import { playClaim, playLevelComplete, playUITap } from '../audio/AudioManager';
+import { playLevelComplete, playUITap } from '../audio/AudioManager';
 import { scaffoldEvents } from '../core/ScaffoldEvents';
 import { showRatePromptWithHandle, type RatePromptHandle } from './RatePrompt';
 import { showSceneTransitionCover } from './SceneTransitionCover';
@@ -108,6 +108,25 @@ function buildRewardRow(amount: number): HTMLElement {
 }
 
 /**
+ * Blue coin-balance pill for the win card top-right (device-parity MRV2-10 U4,
+ * ref refs/win.png). GameScene hides the in-level HUD behind the overlay, so the
+ * card renders its own wallet pill rather than relying on the hidden HUD counter.
+ */
+function buildCoinPill(balance: number): HTMLElement {
+  const pill = document.createElement('div');
+  pill.className = 'marble-win-coin-pill';
+  const coin = document.createElement('img');
+  coin.src = COMPLETION_COIN_ICON_SRC;
+  coin.alt = '';
+  coin.setAttribute('aria-hidden', 'true');
+  const value = document.createElement('span');
+  value.className = 'marble-win-coin-value';
+  value.textContent = String(balance);
+  pill.append(coin, value);
+  return pill;
+}
+
+/**
  * Show the level-complete card. Resolves when the player taps Next (advance +
  * persist already applied). Sugar-skinned kit ResultCard replaces the v1core
  * mountLevelComplete DOM; the claim-×2 rewarded-ad economy is preserved via a
@@ -139,34 +158,9 @@ export function showLevelCompleteOverlay(
 
   const levelNumber = gameState.currentLevelIndex + 1;
   const rewardRow = buildRewardRow(options.baseCoins);
-  const rewardValue = rewardRow.querySelector<HTMLElement>('.marble-reward-value');
 
   const actions = document.createElement('div');
   actions.className = 'fab-modal-actions';
-
-  let claimBtn: HTMLButtonElement | null = null;
-  if (options.claimX2Available && options.onClaimX2 !== undefined) {
-    claimBtn = buildButtonElement({
-      label: 'Claim 2x',
-      dataAction: 'result-claim-x2',
-      className: 'marble-result-action marble-claim-x2',
-      spriteImage: assetUrls.buttonGreen,
-      onClick: () => {
-        if (!claimBtn) return;
-        claimBtn.disabled = true;
-        claimBtn.textContent = 'Loading…';
-        playClaim();
-        void options.onClaimX2!().then((result) => {
-          if (result.granted && rewardValue) {
-            rewardValue.textContent = `+${options.baseCoins * 2}`;
-          }
-          claimBtn?.remove();
-          claimBtn = null;
-        });
-      },
-    });
-    actions.appendChild(claimBtn);
-  }
 
   const runNext = (): void => {
     if (nextClicked) return;
@@ -192,12 +186,16 @@ export function showLevelCompleteOverlay(
     finish();
   };
 
+  // Device-parity MRV2-10 U4: the Next action is a GREEN PILL (Button_Green) with
+  // a plain white "Next" label — NOT the Txt_Next.png word-art sprite, whose
+  // sprite-label doubling rendered a giant unstyled "Next" when the sprite failed
+  // to load/decode on device (judge3/win.json). One text source, contained.
   const nextBtn = buildButtonElement({
     label: 'Next',
     ariaLabel: 'Next level',
     dataAction: 'result-next',
     className: 'marble-result-action marble-result-next',
-    spriteImage: assetUrls.nextText,
+    spriteImage: assetUrls.buttonGreen,
     onClick: runNext,
   });
   actions.appendChild(nextBtn);
@@ -206,7 +204,11 @@ export function showLevelCompleteOverlay(
     mountInto: overlay,
     id: OVERLAY_ID,
     variant: 'win',
-    title: 'Completed',
+    // Ribbon_Completed.png already carries the baked-in "COMPLETED" word; passing
+    // a title here ALSO rendered the .fab-modal-ribbon-title h2 over it, so the
+    // word appeared twice, overlapping (judge3/win.json duplicate COMPLETED). Emit
+    // the sprite as the ONLY completed-text source; the eyebrow labels the level.
+    title: '',
     eyebrow: `Level ${levelNumber}`,
     ribbonImage: assetUrls.ribbonCompleted,
     cardImage: assetUrls.popup,
@@ -214,6 +216,8 @@ export function showLevelCompleteOverlay(
     rewardDisplay: rewardRow,
     actions,
   });
+  // Blue wallet pill, top-right of the win card (ref refs/win.png).
+  handle.el.querySelector('.fab-modal-card')?.appendChild(buildCoinPill(options.coinBalance));
   activeLevelCompleteHandle = handle;
 
   void handle.dismissed.then(() => {

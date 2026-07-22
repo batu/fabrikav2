@@ -202,9 +202,16 @@ let settingsModalHandle: UiHandle | null = null;
 export function openSettingsModal(inGame: boolean): void {
   const overlay = document.getElementById('hud-overlay');
   if (!overlay || settingsModalHandle) return;
+  // Device-parity MRV2-10 U6: the VISIBLE surface decides the variant, not the
+  // caller. This legacy FTD-gear path is hard-wired inGame:true; if it ever fires
+  // while the home shell is mounted (persistent #hud-overlay survives scene
+  // swaps), it would raise the in-game Restart/Home variant over home — exactly
+  // the settings-MISSING device defect. Force the menu (Close) variant on home so
+  // no wrong-variant modal can appear there regardless of the caller.
+  const onHome = document.querySelector('#home-shell') !== null;
   settingsModalHandle = mountSettings({
     mountInto: overlay,
-    inGame,
+    inGame: onHome ? false : inGame,
     onRestart: () => restartCallback?.(),
     onHome: () => homeCallback?.(),
     onDismiss: () => { settingsModalHandle = null; },

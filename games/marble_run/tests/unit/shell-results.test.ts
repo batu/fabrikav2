@@ -58,7 +58,12 @@ describe('sugar result cards', () => {
     expect(overlay!.querySelector('.marble-reward-value')?.textContent).toBe('+25');
   });
 
-  it('win variant mounts a Completed ribbon, reward row, and a Next action', () => {
+  // MRV2-10 U4: the Ribbon_Completed sprite already carries the baked-in
+  // "COMPLETED" word, so the overlay must NOT also render a .fab-modal-ribbon-title
+  // (the duplicate overlapping COMPLETED the device judge flagged). The Next
+  // action is a green pill (no Txt_Next word-art sprite/label doubling), Claim 2x
+  // is removed, and a blue wallet pill is rendered.
+  it('win variant renders no duplicate title, a green Next pill, a coin pill, and no Claim 2x', () => {
     void showLevelCompleteOverlay('lvl-1', {
       timeSeconds: 12,
       newBest: false,
@@ -70,10 +75,18 @@ describe('sugar result cards', () => {
 
     const overlay = document.getElementById('level-complete-overlay');
     expect(overlay).not.toBeNull();
-    expect(ribbonTitle(overlay!)).toBe('Completed');
+    // Ribbon sprite present, but the overlaid title text is empty (single source).
+    expect(overlay!.querySelector('.fab-modal-ribbon-image')).not.toBeNull();
+    expect(ribbonTitle(overlay!)).toBe('');
     expect(overlay!.querySelector('.marble-reward-value')?.textContent).toBe('+40');
-    expect(overlay!.querySelector('[data-fab-action="result-next"]')).not.toBeNull();
-    expect(overlay!.querySelector('[data-fab-action="result-claim-x2"]')).not.toBeNull();
+    const next = overlay!.querySelector<HTMLElement>('[data-fab-action="result-next"]');
+    expect(next).not.toBeNull();
+    // Green pill: no <img> sprite-label element inside the button.
+    expect(next!.querySelector('img')).toBeNull();
+    // Claim 2x is gone regardless of claimX2Available.
+    expect(overlay!.querySelector('[data-fab-action="result-claim-x2"]')).toBeNull();
+    // Blue wallet pill reflects the balance.
+    expect(overlay!.querySelector('.marble-win-coin-pill .marble-win-coin-value')?.textContent).toBe('140');
   });
 
   it('lose variant mounts a Failed ribbon with Retry + coin-continue offers', () => {

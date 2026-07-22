@@ -27,19 +27,21 @@ describe('buildSagaNodes windowing ({ahead:4, behind:0})', () => {
     expect(nodes.map((n) => n.state)).toEqual(['locked', 'current']);
   });
 
-  it('reveals completed nodes behind the current level at the sequence end (MRV2-9 U2b/U4)', () => {
-    // All 110 levels seeded, current anchored at the last level (index 109). With
-    // no levels ahead the forward window slides back, so the last completed levels
-    // render as green candy `completed` nodes above the current (refs/level-map.png).
+  it('shows only prior completed nodes (no current sun) at the sequence end (MRV2-10 U3)', () => {
+    // All 110 levels seeded, current anchored at the last level (index 109). v1's
+    // level-map shows the four PRIOR completed nodes above the LEVEL button with
+    // NO current gold-sun between board and chain — the LEVEL button stands in for
+    // the current level (refs/level-map.png). With no levels ahead the window
+    // slides fully behind the current so no node equals currentIndex.
     const nodes = buildSagaNodes({ currentIndex: 109, levelCount: 110 });
     expect(nodes).toHaveLength(SAGA_WINDOW_SIZE);
-    // Top→bottom (descending index): the current (last) level, then the three
-    // levels just completed behind it — rendered as green candy `completed` nodes.
-    expect(nodes.map((n) => n.state)).toEqual(['current', 'completed', 'completed', 'completed']);
-    expect(nodes.map((n) => n.label)).toEqual(['110', '109', '108', '107']);
-    // No out-of-range (locked) node past the final level leaks in.
+    // Top→bottom (descending index): the four levels just completed behind the
+    // current — all rendered as green candy `completed` nodes, no `current`.
+    expect(nodes.map((n) => n.state)).toEqual(['completed', 'completed', 'completed', 'completed']);
+    expect(nodes.map((n) => n.label)).toEqual(['109', '108', '107', '106']);
+    // No current sun and no out-of-range (locked) node leak in.
+    expect(nodes.some((n) => n.state === 'current')).toBe(false);
     expect(nodes.some((n) => n.state === 'locked')).toBe(false);
-    expect(nodes.filter((n) => n.state === 'completed')).toHaveLength(3);
   });
 
   it('keeps the forward window (no completed nodes) mid-sequence (MRV2-9 U3 ordering unchanged)', () => {
