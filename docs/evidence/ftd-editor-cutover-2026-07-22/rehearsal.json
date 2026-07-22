@@ -1,0 +1,99 @@
+{
+  "candidateCommit": "4888f1b99465989a3820e5dd0c649ab7dac96331",
+  "census": {
+    "report_checksum": "sha256:e9814ac1c4e48318cfc61bcf44ab53f9899276291866a71815bf317271bdb656",
+    "sessions": [],
+    "source_tree_checksum": "sha256:de0b77051b02047b705522c3b94968cdb5d1a0515dfc69a84287daa547e1321f",
+    "unexplained_count": 0
+  },
+  "clone": {
+    "destination": {
+      "checksum": "sha256:562663eb8bed6a92ec762eac8be99f4a4cbd74489c567f64539fd97aef4646cb",
+      "fileCount": 1,
+      "root": "/Users/base/dev/appletolye/.twf-out/JZly7JC5/cf5c03a423c4449490c06d593d409421/u9-rehearsal-candidate/target/authoring",
+      "totalBytes": 308
+    },
+    "excluded": [],
+    "source": {
+      "checksum": "sha256:562663eb8bed6a92ec762eac8be99f4a4cbd74489c567f64539fd97aef4646cb",
+      "fileCount": 1,
+      "root": "/Users/base/dev/appletolye/.twf-out/JZly7JC5/cf5c03a423c4449490c06d593d409421/u9-rehearsal-candidate/v1-clone",
+      "totalBytes": 308
+    }
+  },
+  "command": "scripts/rehearse_cutover.py --source-authoring /Users/base/dev/appletolye/fabrika/games/find_the_dog/pipeline/levelbuilder/levels --source-public /Users/base/dev/appletolye/fabrika/games/find_the_dog/public/levels --target-public ../../games/find_the_dog/public/levels --legacy-archive cutover/empty-legacy-archive.json --candidate-commit 4888f1b99465989a3820e5dd0c649ab7dac96331 --output-root /Users/base/dev/appletolye/.twf-out/JZly7JC5/cf5c03a423c4449490c06d593d409421/u9-rehearsal-candidate --evidence ../../docs/evidence/ftd-editor-cutover-2026-07-22/rehearsal.json",
+  "cutbackBoundary": {
+    "afterFirstTargetWrite": "retain target data; rollback Factory2 code only; never dual authority",
+    "beforeFirstTargetWrite": "v1 access may be restored with fresh approval"
+  },
+  "filesystemProbe": {
+    "atomic_replace": true,
+    "device": 16777232,
+    "directory_fsync": true,
+    "file_fsync": true,
+    "locking": true,
+    "root": "/Users/base/dev/appletolye/.twf-out/JZly7JC5/cf5c03a423c4449490c06d593d409421/u9-rehearsal-candidate/target"
+  },
+  "gates": {
+    "census_zero_unexplained": true,
+    "external_provider_publisher": false,
+    "filesystem_approved": true,
+    "fresh_runnable_ledger": true,
+    "human_acceptance": false,
+    "live_authority_unchanged": true,
+    "live_quiescence_copy_activation": false,
+    "provider_free_restart": true,
+    "second_writer_rejected": true,
+    "target_writer_disabled": true
+  },
+  "legacyArchive": {
+    "checksum": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "records": 0,
+    "runnableJobs": 0
+  },
+  "mutationProof": "blocked:PermissionError",
+  "observedAt": "2026-07-22T12:45:39.924468+00:00",
+  "roots": {
+    "disposableRehearsal": "/Users/base/dev/appletolye/.twf-out/JZly7JC5/cf5c03a423c4449490c06d593d409421/u9-rehearsal-candidate",
+    "sourceAuthoring": "/Users/base/dev/appletolye/fabrika/games/find_the_dog/pipeline/levelbuilder/levels",
+    "sourcePublic": "/Users/base/dev/appletolye/fabrika/games/find_the_dog/public/levels",
+    "targetPublic": "/Users/base/dev/appletolye/.twf-worktrees/trello-JZly7JC5-ftd-u9-cutover-rehearsal-and-frozen-cand/games/find_the_dog/public/levels"
+  },
+  "schemaVersion": 1,
+  "sourceAuthoringAfter": {
+    "checksum": "sha256:562663eb8bed6a92ec762eac8be99f4a4cbd74489c567f64539fd97aef4646cb",
+    "fileCount": 1,
+    "root": "/Users/base/dev/appletolye/fabrika/games/find_the_dog/pipeline/levelbuilder/levels",
+    "totalBytes": 308
+  },
+  "sourceAuthoringBefore": {
+    "checksum": "sha256:562663eb8bed6a92ec762eac8be99f4a4cbd74489c567f64539fd97aef4646cb",
+    "fileCount": 1,
+    "root": "/Users/base/dev/appletolye/fabrika/games/find_the_dog/pipeline/levelbuilder/levels",
+    "totalBytes": 308
+  },
+  "sourcePublicAfter": {
+    "checksum": "sha256:c0321d59cd8d7d7c669c26a42be7aca020c9707b59aa77055f2db6eb8295cf88",
+    "fileCount": 10272,
+    "root": "/Users/base/dev/appletolye/fabrika/games/find_the_dog/public/levels",
+    "totalBytes": 5416419915
+  },
+  "sourcePublicBefore": {
+    "checksum": "sha256:c0321d59cd8d7d7c669c26a42be7aca020c9707b59aa77055f2db6eb8295cf88",
+    "fileCount": 10272,
+    "root": "/Users/base/dev/appletolye/fabrika/games/find_the_dog/public/levels",
+    "totalBytes": 5416419915
+  },
+  "targetPublicAfter": {
+    "checksum": "sha256:c0321d59cd8d7d7c669c26a42be7aca020c9707b59aa77055f2db6eb8295cf88",
+    "fileCount": 10272,
+    "root": "/Users/base/dev/appletolye/.twf-worktrees/trello-JZly7JC5-ftd-u9-cutover-rehearsal-and-frozen-cand/games/find_the_dog/public/levels",
+    "totalBytes": 5416419915
+  },
+  "targetPublicBefore": {
+    "checksum": "sha256:c0321d59cd8d7d7c669c26a42be7aca020c9707b59aa77055f2db6eb8295cf88",
+    "fileCount": 10272,
+    "root": "/Users/base/dev/appletolye/.twf-worktrees/trello-JZly7JC5-ftd-u9-cutover-rehearsal-and-frozen-cand/games/find_the_dog/public/levels",
+    "totalBytes": 5416419915
+  }
+}

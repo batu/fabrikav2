@@ -1,0 +1,52 @@
+{
+  "activation_allowed": false,
+  "blocked_gates": [
+    "external_provider_publisher",
+    "human_acceptance",
+    "live_quiescence_copy_activation"
+  ],
+  "candidate_commit": "4888f1b99465989a3820e5dd0c649ab7dac96331",
+  "evidence_checksum": "sha256:31680bf1ec757e80974755b3f21495cb96e17db0e1cefbbca4028ed5cb339dd2",
+  "gates": [
+    [
+      "census_zero_unexplained",
+      true
+    ],
+    [
+      "external_provider_publisher",
+      false
+    ],
+    [
+      "filesystem_approved",
+      true
+    ],
+    [
+      "fresh_runnable_ledger",
+      true
+    ],
+    [
+      "human_acceptance",
+      false
+    ],
+    [
+      "live_authority_unchanged",
+      true
+    ],
+    [
+      "live_quiescence_copy_activation",
+      false
+    ],
+    [
+      "provider_free_restart",
+      true
+    ],
+    [
+      "second_writer_rejected",
+      true
+    ],
+    [
+      "target_writer_disabled",
+      true
+    ]
+  ]
+}
