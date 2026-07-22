@@ -74,3 +74,51 @@ npm run editor:contracts:write -w @fabrikav2/ftd-level-editor
 
 No command above uses live credentials, provider spend, remote publication,
 production roots, or the legacy corpus.
+
+## Cutover
+
+The migration is complete and merged; the frozen activation candidate is commit
+`63b5af67` (recorded in the U9 evidence under
+`docs/evidence/2026-07-22-ftd-u9-*`). The v1 Fabrika editor remains the sole
+writable authority until the activation gate below is executed. The full
+procedure with all preconditions is `docs/runbooks/ftd-editor-cutover.md`; this
+section is the operator summary.
+
+### 1. Rehearse (safe, repeatable, no authority change)
+
+From the repository root, on a clean checkout of the exact candidate:
+
+```sh
+uv run --project tools/ftd-level-editor python tools/ftd-level-editor/scripts/rehearse_cutover.py \
+  --source-authoring <live v1 authoring root, read-only> \
+  --source-public    <v1 public corpus> \
+  --target-public    games/find_the_dog/public/levels \
+  --legacy-archive   <exported terminal-rows archive JSON (schema: tools/ftd-level-editor/cutover/legacy-archive.schema.json)> \
+  --candidate-commit 63b5af67 \
+  --output-root      <fresh disposable dir — the command refuses an existing one> \
+  --evidence         <evidence dir>
+```
+
+The rehearsal clones authoring state, proves the clone is read-only, probes the
+filesystem lock/rename/fsync contract, copies without any `jobs.sqlite*`, imports
+only inert identity rows (replay lookups block duplicate paid work but can never
+schedule it), enforces one worker owner, and drives two real loopback API
+processes through lost-response persistence, induced outage, worker restart,
+Request-ID rediscovery, export dry-run, and package validation. Review
+`rehearsal.json` and `frozen-candidate.json`: zero unexplained census failures,
+and `activation_allowed` must still read `false` — the rehearsal never grants
+authority.
+
+### 2. Activate (human-gated, one way past the first write)
+
+Requires fresh explicit human approval; no card, hook, or agent may infer it.
+In order, per the runbook: accept the cloned-session human journey; run the
+approved minimum-cost check for every provider adapter plus the authenticated
+non-mutating publisher readback; stop all v1 processes and make the v1 root
+read-only, proving a mutation fails; drain to zero active/ambiguous jobs; copy
+once to the approved target roots; start Factory2 read-only and repeat the
+census, hash, and restart checks; then mint authority for exactly one writer.
+
+Cutback is only possible **before** the first target authoring write (restore v1,
+leave the target copy inert). After the first write, v1 is never restored as an
+authority — keep target data and roll back Factory2 code only.
