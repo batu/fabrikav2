@@ -256,6 +256,12 @@ body {
   justify-content: flex-start;
   padding-top: 4px;
 }
+/* MRV2-20 item 3: .fab-home-menu-content is a flex ROW with justify-content:
+   flex-start, so the .fab-levelmap wrapper (a fixed-width flex item) packed to
+   the LEFT — the saga chain drifted ~46px left of the viewport midline while v1
+   (base game menu.png) centers it. margin-inline:auto absorbs the free space on
+   both sides, centering the chain on the midline regardless of the row packing. */
+#home-shell .fab-home-menu-content > .fab-levelmap { margin-inline: auto; }
 /* MRV2-11 U4 (KTD4): full-bleed decor canvas behind the home DOM. Stage.resize
    already renders at window.innerWidth/Height (viewport aspect), so displaying
    the canvas viewport-sized — instead of squished into the old square slot —
@@ -268,7 +274,13 @@ body {
 #hud-overlay > .marble-home-board-preview {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  /* MRV2-20 item 4: v1 (base game menu.png) tucks the saga rail/top node BEHIND
+     the board; v2 layered the rail (shell content z-index:1) in FRONT. Raise the
+     board canvas above the rail so the chain emerges from behind the board. The
+     banner (z-index:4), LEVEL button (z-index:20) and current sun node
+     (z-index:21) all stay above this; the canvas is transparent everywhere but
+     the board art and non-interactive, so nothing else is occluded. */
+  z-index: 2;
   display: block;
   width: 100vw;
   height: 100dvh;
@@ -283,8 +295,18 @@ body {
 
 /* Green LEVEL action button — Button_Green sprite already set via --fab-btn-sprite-image. */
 .marble-ui .marble-level-button {
-  min-width: 220px;
-  min-height: 68px;
+  /* MRV2-20 item 6: the kit paints the sprite as a background sized 100% 100%
+     (ui.css .fab-btn), which STRETCHES Button_Green.png (native 435x200, ratio
+     2.175:1) to the button box. The old min-width:220 / min-height:68 box is
+     ~3.2:1, flattening the gloss + corner radius vs v1. v1 (.menu-play +
+     .vida-button-art, style.css) instead uses width:min(56vw,232px) with an
+     img at width:100% height:auto, i.e. the sprite's NATIVE aspect ratio. Match
+     that: fix the box to the sprite ratio so the background is undistorted. */
+  width: min(56vw, 232px);
+  min-width: 0;
+  min-height: 0;
+  aspect-ratio: 435 / 200;
+  padding: 0;
   color: #fff;
   font-family: var(--fab-font-display);
   font-size: 24px;
