@@ -21,8 +21,14 @@ call providers, publish, copy into production roots, or mint approval.
    clones authoring state, makes the clone read-only, proves a mutation fails,
    runs the filesystem lock/rename/fsync probe, copies once without any
    `jobs.sqlite*`, creates a fresh runnable ledger, imports inert identity rows,
-   rejects a second worker owner, reopens provider-free state, and proves the live
-   inputs stayed byte-identical.
+   rejects a second worker owner, then starts two real loopback API processes.
+   The first persists a Request ID while its response body is discarded; the
+   induced outage must reject reads, and the second process must restart the
+   worker, rediscover that same job by Request ID, and expose its terminal events
+   and artifact. The same process runs export dry-run, and the rehearsal runs the
+   committed package validator. Evidence names the process IDs, port, explicit
+   active/ambiguous drain counts, and a checksum attestation over the dated
+   command-and-observation record.
 3. Review `rehearsal.json` and `frozen-candidate.json`. Zero unexplained census
    failures and all local gates must pass. The human, external provider/publisher,
    and live quiescence/copy/activation gates must remain `false`; therefore

@@ -8,6 +8,7 @@ import json
 import shutil
 import stat
 import subprocess
+import sys
 from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -18,6 +19,7 @@ from ftd_editor.cutover import (
     copy_authoring_clone,
     freeze_candidate,
     inventory_tree,
+    run_live_reliability_journey,
     set_tree_read_only,
 )
 from ftd_editor.fs import probe_filesystem_contract
@@ -117,7 +119,43 @@ def main() -> None:
     except FailClosedProviderError:
         provider_fail_closed = True
     restarted_jobs = JobStore(target_root / "state")
-    provider_free_restart = provider_fail_closed and not restarted_jobs.list_jobs()
+    fixture = next(iter(sorted(args.target_public.glob("*/level.json"))), None)
+    if fixture is None:
+        raise RuntimeError("target public corpus has no level fixture for live rehearsal")
+    live_reliability = run_live_reliability_journey(
+        target_root / "live-reliability", fixture
+    )
+    provider_free_restart = provider_fail_closed and all(
+        (
+            live_reliability["lostResponseRequestPersisted"],
+            live_reliability["disconnectObserved"],
+            live_reliability["apiRestarted"],
+            live_reliability["workerRestarted"],
+            live_reliability["reloadByRequestId"],
+            live_reliability["terminalStatus"] == "succeeded",
+            live_reliability["artifactCount"] == 1,
+            live_reliability["exportDryRunValid"],
+        )
+    )
+    validator = subprocess.run(
+        [sys.executable, str(Path(__file__).with_name("verify_public_levels.py"))],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    drain_predicates = {
+        "queued": len(restarted_jobs.list_jobs(statuses=("queued",))),
+        "running": len(restarted_jobs.list_jobs(statuses=("running",))),
+        "polling": len(restarted_jobs.list_jobs(statuses=("polling",))),
+        "cancelRequested": len(
+            restarted_jobs.list_jobs(statuses=("cancel_requested",))
+        ),
+        "orphanedUnknown": len(
+            restarted_jobs.list_jobs(statuses=("orphaned_unknown",))
+        ),
+        "ready": not restarted_jobs.list_active_jobs()
+        and not restarted_jobs.list_jobs(statuses=("orphaned_unknown",)),
+    }
 
     source_authoring_after = inventory_tree(args.source_authoring)
     source_public_after = inventory_tree(args.source_public)
@@ -176,11 +214,29 @@ def main() -> None:
             "checksum": archive_checksum,
             "runnableJobs": len(jobs.list_jobs()),
         },
+        "drainPredicates": drain_predicates,
+        "liveReliability": live_reliability,
+        "packageValidation": {
+            "command": f"{sys.executable} {Path(__file__).with_name('verify_public_levels.py')}",
+            "exitCode": validator.returncode,
+            "observation": validator.stdout.strip(),
+        },
         "gates": gates,
         "cutbackBoundary": {
             "beforeFirstTargetWrite": "v1 access may be restored with fresh approval",
             "afterFirstTargetWrite": "retain target data; rollback Factory2 code only; never dual authority",
         },
+    }
+    signature_payload = json.dumps(
+        evidence_payload, sort_keys=True, separators=(",", ":"), default=str
+    ).encode()
+    import hashlib
+
+    evidence_payload["attestation"] = {
+        "recordedBy": "twf-worker:JZly7JC5",
+        "signedAt": evidence_payload["observedAt"],
+        "signature": "sha256:" + hashlib.sha256(signature_payload).hexdigest(),
+        "meaning": "checksum signature over the dated command-and-observation record",
     }
     args.evidence.parent.mkdir(parents=True, exist_ok=True)
     args.evidence.write_text(

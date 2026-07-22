@@ -13,6 +13,7 @@ from ftd_editor.cutover import (
     copy_authoring_clone,
     freeze_candidate,
     inventory_tree,
+    run_live_reliability_journey,
     set_tree_read_only,
 )
 from ftd_editor.jobs.models import ExecutionSpec
@@ -165,6 +166,39 @@ def test_freeze_candidate_is_checksumming_and_refuses_unpassed_gates(tmp_path: P
     assert frozen.blocked_gates == ("external_provider_publisher", "human_acceptance")
     assert frozen.activation_allowed is False
     assert inventory_tree(evidence).files
+
+
+def test_live_reliability_journey_uses_real_process_and_persists_identity(
+    tmp_path: Path,
+) -> None:
+    fixture = tmp_path / "level.json"
+    fixture.write_text(
+        json.dumps(
+            {
+                "id": "u9-rehearsal",
+                "name": "U9 rehearsal",
+                "width": 100,
+                "height": 100,
+                "bwImage": "levels/u9-rehearsal/bw.png",
+                "colorImage": "levels/u9-rehearsal/color.png",
+                "dogs": [
+                    {"index": 0, "id": "dog_00", "x": 50, "y": 50, "r": 10}
+                ],
+            }
+        )
+    )
+
+    observation = run_live_reliability_journey(tmp_path / "live", fixture)
+
+    assert observation["lostResponseRequestPersisted"] is True
+    assert observation["disconnectObserved"] is True
+    assert observation["apiRestarted"] is True
+    assert observation["workerRestarted"] is True
+    assert observation["reloadByRequestId"] is True
+    assert observation["terminalStatus"] == "succeeded"
+    assert observation["artifactCount"] == 1
+    assert observation["eventCount"] >= 3
+    assert observation["exportDryRunValid"] is True
 
 
 @pytest.fixture(autouse=True)

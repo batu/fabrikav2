@@ -5,11 +5,17 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import socket
 import shutil
 import stat
+import subprocess
+import sys
+import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Literal, Mapping
+
+import httpx
 
 from .fs import ensure_durable_directory, fsync_tree, require_same_filesystem
 
@@ -79,6 +85,159 @@ class FrozenCandidate:
     gates: tuple[tuple[str, bool], ...]
     blocked_gates: tuple[str, ...]
     activation_allowed: bool
+
+
+def _free_loopback_port() -> int:
+    with socket.socket() as listener:
+        listener.bind(("127.0.0.1", 0))
+        return int(listener.getsockname()[1])
+
+
+def _start_rehearsal_server(
+    root: Path, fixture: Path, port: int, *, run_worker: bool
+) -> subprocess.Popen[str]:
+    script = Path(__file__).resolve().parents[2] / "scripts/live_reliability_server.py"
+    command = [
+        sys.executable,
+        str(script),
+        "--root",
+        str(root),
+        "--port",
+        str(port),
+        "--session-fixture",
+        str(fixture),
+    ]
+    if run_worker:
+        command.append("--run-worker-on-start")
+    return subprocess.Popen(
+        command,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
+
+
+def _await_bootstrap(base_url: str, process: subprocess.Popen[str]) -> str:
+    for _ in range(100):
+        if process.poll() is not None:
+            stderr = process.stderr.read() if process.stderr is not None else ""
+            raise RuntimeError(f"rehearsal server exited before ready: {stderr}")
+        try:
+            response = httpx.get(f"{base_url}/bootstrap", timeout=0.2)
+            if response.status_code == 200:
+                return str(response.json()["launchCredential"])
+        except httpx.TransportError:
+            pass
+        time.sleep(0.05)
+    raise RuntimeError("rehearsal server did not become ready")
+
+
+def _stop_rehearsal_server(process: subprocess.Popen[str]) -> None:
+    process.terminate()
+    try:
+        process.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait(timeout=5)
+
+
+def run_live_reliability_journey(root: Path, session_fixture: Path) -> dict[str, object]:
+    """Observe lost-response/reload/API+worker restart against real processes."""
+
+    root.mkdir(parents=True, exist_ok=False)
+    session_id = str(json.loads(session_fixture.read_text())["id"])
+    port = _free_loopback_port()
+    base_url = f"http://127.0.0.1:{port}"
+    request_id = "u9-rehearsal-lost-response"
+    first = _start_rehearsal_server(root, session_fixture, port, run_worker=False)
+    try:
+        credential = _await_bootstrap(base_url, first)
+        headers = {
+            "X-FTD-Launch-Credential": credential,
+            "Origin": base_url,
+        }
+        snapshot = httpx.get(
+            f"{base_url}/api/sessions/{session_id}", headers=headers
+        ).json()
+        with httpx.Client() as client:
+            start_request = client.build_request(
+                "POST",
+                f"{base_url}/api/jobs/actions/ftd.background_generate",
+                headers=headers,
+                json={
+                    "requestId": request_id,
+                    "sessionId": session_id,
+                    "revision": snapshot["revision"],
+                    "inputs": {"sceneIntent": {"description": "provider-free rehearsal"}},
+                },
+            )
+            lost_response = client.send(start_request, stream=True)
+            lost_response.close()  # Discard the durable Job response body.
+        persisted = False
+        for _ in range(50):
+            jobs = httpx.get(
+                f"{base_url}/api/jobs",
+                params={"requestId": request_id},
+                headers=headers,
+                timeout=0.5,
+            ).json()
+            if jobs:
+                persisted = True
+                break
+            time.sleep(0.02)
+        if not persisted:
+            raise RuntimeError("lost-response Request ID did not become durable")
+    finally:
+        _stop_rehearsal_server(first)
+
+    disconnected = False
+    try:
+        httpx.get(f"{base_url}/api/jobs", timeout=0.2)
+    except httpx.TransportError:
+        disconnected = True
+
+    second = _start_rehearsal_server(root, session_fixture, port, run_worker=True)
+    try:
+        credential = _await_bootstrap(base_url, second)
+        headers = {
+            "X-FTD-Launch-Credential": credential,
+            "Origin": base_url,
+        }
+        jobs = httpx.get(
+            f"{base_url}/api/jobs",
+            params={"requestId": request_id},
+            headers=headers,
+        ).json()
+        if len(jobs) != 1:
+            raise RuntimeError("reload by Request ID did not find exactly one job")
+        job = jobs[0]
+        events = httpx.get(
+            f"{base_url}/api/jobs/{job['jobId']}/events", headers=headers
+        ).json()
+        export = httpx.post(
+            f"{base_url}/api/publishing/export-dry-run",
+            headers=headers,
+            json={"sessionId": session_id, "revision": snapshot["revision"]},
+        )
+        export.raise_for_status()
+        return {
+            "processes": [first.pid, second.pid],
+            "port": port,
+            "requestId": request_id,
+            "jobId": job["jobId"],
+            "lostResponseRequestPersisted": persisted,
+            "disconnectObserved": disconnected,
+            "apiRestarted": first.pid != second.pid,
+            "workerRestarted": job["status"] == "succeeded",
+            "reloadByRequestId": True,
+            "terminalStatus": job["status"],
+            "eventCount": len(events),
+            "artifactCount": len(job["artifacts"]),
+            "exportDryRunValid": export.json()["valid"],
+            "providerMode": "fail-closed",
+        }
+    finally:
+        _stop_rehearsal_server(second)
 
 
 def _sha256_file(path: Path) -> str:
