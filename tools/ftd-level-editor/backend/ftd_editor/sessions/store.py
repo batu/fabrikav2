@@ -75,6 +75,10 @@ class _SessionReplaceIndeterminate(RuntimeError):
     pass
 
 
+class _CaptureCandidateRejected(RuntimeError):
+    pass
+
+
 class SessionRevisionConflict(RuntimeError):
     def __init__(self, current: "SessionSnapshot") -> None:
         super().__init__(f"session revision is stale; current revision is {current.revision}")
@@ -119,6 +123,7 @@ _IDENTIFIER = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$")
 _DIRECTORY_FLAGS = os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW
 _FILE_FLAGS = os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK
 _MISSING_SESSION_ERRNOS = {errno.ENOENT, errno.ENOTDIR, errno.ELOOP}
+_CAPTURE_IMAGE_MAX_BYTES = 64 * 1024 * 1024
 
 
 def _is_missing_session_error(error: OSError) -> bool:
@@ -335,15 +340,43 @@ class SessionStore:
             os.close(authoring_fd)
 
     @staticmethod
-    def _read_regular_file(directory_fd: int, filename: str) -> bytes:
+    def _read_regular_file(
+        directory_fd: int,
+        filename: str,
+        *,
+        max_bytes: int | None = None,
+    ) -> bytes:
         descriptor = os.open(filename, _FILE_FLAGS, dir_fd=directory_fd)
         try:
             metadata = os.fstat(descriptor)
             if not stat.S_ISREG(metadata.st_mode):
                 raise FileNotFoundError(filename)
-            return io.FileIO(descriptor, "rb", closefd=False).readall()
+            if max_bytes is not None and metadata.st_size > max_bytes:
+                raise _CaptureCandidateRejected(f"{filename} exceeds the capture limit")
+            if max_bytes is None:
+                return io.FileIO(descriptor, "rb", closefd=False).readall()
+            received = bytearray()
+            while chunk := os.read(descriptor, min(1024 * 1024, max_bytes + 1)):
+                received.extend(chunk)
+                if len(received) > max_bytes:
+                    raise _CaptureCandidateRejected(
+                        f"{filename} exceeds the capture limit"
+                    )
+            return bytes(received)
         finally:
             os.close(descriptor)
+
+    @staticmethod
+    def _is_capture_png(content: bytes) -> bool:
+        if (
+            len(content) < 24
+            or content[:8] != b"\x89PNG\r\n\x1a\n"
+            or content[12:16] != b"IHDR"
+        ):
+            return False
+        width = int.from_bytes(content[16:20], "big")
+        height = int.from_bytes(content[20:24], "big")
+        return 0 < width <= 32768 and 0 < height <= 32768
 
     @staticmethod
     def _assert_session_link(
@@ -659,14 +692,15 @@ class SessionStore:
                     raise SessionRevisionConflict(self.load(session_id))
                 for candidate in candidates:
                     try:
-                        metadata = os.stat(
+                        content = self._read_regular_file(
+                            session_fd,
                             candidate,
-                            dir_fd=session_fd,
-                            follow_symlinks=False,
+                            max_bytes=_CAPTURE_IMAGE_MAX_BYTES,
                         )
-                        if not stat.S_ISREG(metadata.st_mode):
+                        if not self._is_capture_png(content):
                             continue
-                        content = self._read_regular_file(session_fd, candidate)
+                    except _CaptureCandidateRejected:
+                        continue
                     except OSError as error:
                         if (
                             _is_missing_session_error(error)

@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import struct
+from pathlib import Path
 
+import pytest
 from fastapi.testclient import TestClient
 
 from ftd_editor.app import (
@@ -14,6 +16,9 @@ from ftd_editor.app import (
     create_app,
 )
 from ftd_editor.security import CompositionSecrets, SecretRedactor
+from ftd_editor.sessions.gallery import CaptureVariant, capture_source_candidates
+from ftd_editor.sessions.model import AuthoringSession
+from ftd_editor.sessions import store as store_module
 from ftd_editor.sessions.store import SessionStore
 
 
@@ -53,6 +58,39 @@ def _current_revision(client: TestClient, headers: dict[str, str], session_id: s
     response = client.get(f"/api/sessions/{session_id}", headers=headers)
     assert response.status_code == 200
     return response.json()["revision"]
+
+
+@pytest.mark.parametrize(
+    ("variant", "expected"),
+    [
+        ("gemini", ("color.png", "bg_00.png")),
+        ("openai", ("openai_color.png", "openai_bg.png")),
+        ("openai_v2", ("openai_color_v2.png", "openai_bg_v2.png")),
+        ("gemini_bg_only", ("bg_02.png", "bg_00.png")),
+        ("openai_bg_only", ("openai_bg.png",)),
+        ("openai_v2_bg_only", ("openai_bg_v2.png",)),
+    ],
+)
+def test_capture_candidate_precedence_matches_v1(
+    variant: CaptureVariant,
+    expected: tuple[str, ...],
+) -> None:
+    session = AuthoringSession.from_mapping(
+        {"id": "capture-candidates", "dogs": [], "selected_bg": 2}
+    )
+
+    assert capture_source_candidates(session, variant) == expected
+
+
+def test_capture_candidate_precedence_coerces_unknown_selected_background() -> None:
+    session = AuthoringSession.from_mapping(
+        {"id": "capture-candidates", "dogs": [], "selected_bg": "unknown"}
+    )
+
+    assert capture_source_candidates(session, "gemini_bg_only") == (
+        "bg_00.png",
+        "bg_00.png",
+    )
 
 
 def test_capture_ports_v1_gallery_source_selection_without_derivative_writes(
@@ -144,6 +182,56 @@ def test_capture_never_follows_a_session_image_symlink(editor_settings, tmp_path
     assert outside.read_bytes().endswith(b"outside-secret")
 
 
+def test_capture_skips_malformed_primary_image_for_valid_fallback(editor_settings) -> None:
+    app = _session_app(editor_settings)
+    headers = _headers(app)
+    fallback = _png(40, 30, b"fallback")
+    with TestClient(app, raise_server_exceptions=False) as client:
+        client.post(
+            "/api/sessions",
+            headers=headers,
+            json={"session": {"id": "malformed-capture", "dogs": []}},
+        )
+        session_dir = editor_settings.workspace.authoring / "malformed-capture"
+        (session_dir / "color.png").write_bytes(b"not-a-png")
+        (session_dir / "bg_00.png").write_bytes(fallback)
+        revision = _current_revision(client, headers, "malformed-capture")
+
+        response = client.post(
+            "/api/sessions/malformed-capture/capture",
+            headers=headers,
+            json={"revision": revision, "variant": "gemini"},
+        )
+
+    assert response.status_code == 200
+    assert response.content == fallback
+    assert response.headers["x-ftd-image-source"] == "bg_00.png"
+
+
+def test_capture_rejects_an_oversized_image(editor_settings, monkeypatch) -> None:
+    monkeypatch.setattr(store_module, "_CAPTURE_IMAGE_MAX_BYTES", 32)
+    app = _session_app(editor_settings)
+    headers = _headers(app)
+    with TestClient(app, raise_server_exceptions=False) as client:
+        client.post(
+            "/api/sessions",
+            headers=headers,
+            json={"session": {"id": "oversized-capture", "dogs": []}},
+        )
+        session_dir = editor_settings.workspace.authoring / "oversized-capture"
+        (session_dir / "color.png").write_bytes(_png(40, 30, b"too-large"))
+        revision = _current_revision(client, headers, "oversized-capture")
+
+        response = client.post(
+            "/api/sessions/oversized-capture/capture",
+            headers=headers,
+            json={"revision": revision, "variant": "gemini"},
+        )
+
+    assert response.status_code == 404
+    assert response.json() == {"detail": "session image not found"}
+
+
 def test_capture_binary_headers_are_pinned_in_openapi(editor_settings) -> None:
     operation = _session_app(editor_settings).openapi()["paths"][
         "/api/sessions/{session_id}/capture"
@@ -161,8 +249,21 @@ def test_capture_binary_headers_are_pinned_in_openapi(editor_settings) -> None:
         "X-FTD-Image-SHA256",
     }
     assert (
+        operation["responses"]["404"]["content"]["application/json"]["schema"][
+            "$ref"
+        ]
+        == "#/components/schemas/SessionImageNotFoundResponse"
+    )
+    assert (
         operation["responses"]["409"]["content"]["application/json"]["schema"][
             "$ref"
         ]
         == "#/components/schemas/SessionRevisionConflictResponse"
     )
+
+    generated = (
+        Path(__file__).resolve().parents[2] / "ui" / "src" / "api" / "generated.ts"
+    ).read_text(encoding="utf-8")
+    assert "export interface CaptureCurrentSessionImageResponseHeaders" in generated
+    assert 'export type CaptureCurrentSessionImageResponseMediaType = "image/png";' in generated
+    assert "response: CaptureCurrentSessionImageBinaryResponse" in generated

@@ -64,6 +64,11 @@ def _ts_identifier(name: str) -> str:
     return "".join(part for part in name.replace("-", "_").split("_") if part)
 
 
+def _ts_pascal_identifier(name: str) -> str:
+    identifier = _ts_identifier(name)
+    return identifier[:1].upper() + identifier[1:]
+
+
 def _ts_type(schema: dict[str, Any] | None) -> str:
     if not schema:
         return "unknown"
@@ -128,9 +133,50 @@ def generate_typescript(document: dict[str, Any]) -> str:
     operations: list[str] = []
     for path in sorted(document.get("paths", {})):
         for method in sorted(document["paths"][path]):
-            operation_id = document["paths"][path][method].get("operationId")
+            operation = document["paths"][path][method]
+            operation_id = operation.get("operationId")
             if operation_id:
-                operations.append(f'  "{operation_id}": {{ method: "{method}"; path: "{path}" }};')
+                binary_media_types: set[str] = set()
+                binary_headers: dict[str, dict[str, Any]] = {}
+                for response in operation.get("responses", {}).values():
+                    for media_type, content in response.get("content", {}).items():
+                        schema = content.get("schema", {})
+                        if schema.get("type") == "string" and schema.get("format") == "binary":
+                            binary_media_types.add(media_type)
+                            binary_headers.update(response.get("headers", {}))
+                response_type = None
+                if binary_media_types:
+                    prefix = _ts_pascal_identifier(operation_id)
+                    headers_type = f"{prefix}ResponseHeaders"
+                    media_type = f"{prefix}ResponseMediaType"
+                    response_type = f"{prefix}BinaryResponse"
+                    lines.append(f"export interface {headers_type} {{")
+                    for header_name in sorted(binary_headers):
+                        lines.append(
+                            f"  {json.dumps(header_name)}: "
+                            f"{_ts_type(binary_headers[header_name].get('schema'))};"
+                        )
+                    lines.append("}")
+                    lines.append("")
+                    lines.append(
+                        f"export type {media_type} = "
+                        + " | ".join(json.dumps(value) for value in sorted(binary_media_types))
+                        + ";"
+                    )
+                    lines.append("")
+                    lines.append(f"export interface {response_type} {{")
+                    lines.append('  "body": Blob;')
+                    lines.append(f'  "headers": {headers_type};')
+                    lines.append(f'  "mediaType": {media_type};')
+                    lines.append("}")
+                    lines.append("")
+                response_member = (
+                    f"; response: {response_type}" if response_type is not None else ""
+                )
+                operations.append(
+                    f'  "{operation_id}": {{ method: "{method}"; path: "{path}"'
+                    f"{response_member} }};"
+                )
     lines.append("export interface FtdEditorOperations {")
     lines.extend(operations)
     lines.append("}")

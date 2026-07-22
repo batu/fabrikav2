@@ -113,6 +113,31 @@ describe('gallery unpaid stable-ID actions', () => {
     );
   });
 
+  it('rejects a capture whose media type drifts from the generated contract', async () => {
+    const fetchImpl = async () => ({
+      ok: true,
+      headers: new Headers({
+        'Content-Type': 'text/plain',
+        'X-FTD-Session-Id': 's1',
+        'X-FTD-Session-Revision': 'rev-2',
+        'X-FTD-Image-Source': 'color.png',
+        'X-FTD-Image-SHA256': 'sha256:image',
+      }),
+      async blob() {
+        return new Blob(['not-an-image'], { type: 'text/plain' });
+      },
+    });
+
+    await assert.rejects(
+      () =>
+        captureCurrentSessionImage(
+          { fetchImpl, launchCredential: 'cred' },
+          { sessionId: 's1', revision: 'rev-2', variant: 'gemini' },
+        ),
+      /not image\/png/,
+    );
+  });
+
   it('uses the shared bounded request path for a stalled mutation', async () => {
     const fetchImpl = (_path, init) =>
       new Promise((_resolve, reject) => {

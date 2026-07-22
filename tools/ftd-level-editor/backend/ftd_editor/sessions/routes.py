@@ -104,6 +104,12 @@ class SessionUnavailableResponse(BaseModel):
     detail: str
 
 
+class SessionImageNotFoundResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    detail: Literal["session image not found"]
+
+
 _UNAVAILABLE_RESPONSE = {503: {"model": SessionUnavailableResponse}}
 
 _CAPTURE_HEADERS = {
@@ -280,6 +286,7 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
                 },
                 "headers": _CAPTURE_HEADERS,
             },
+            404: {"model": SessionImageNotFoundResponse},
             409: {"model": SessionRevisionConflictResponse},
             **_UNAVAILABLE_RESPONSE,
         },

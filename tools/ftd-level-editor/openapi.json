@@ -629,6 +629,21 @@
         "title": "RequestIdentityConflictDetail",
         "type": "object"
       },
+      "SessionImageNotFoundResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "const": "session image not found",
+            "title": "Detail",
+            "type": "string"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "SessionImageNotFoundResponse",
+        "type": "object"
+      },
       "SessionProvenanceResponse": {
         "additionalProperties": false,
         "properties": {
@@ -1711,6 +1726,16 @@
                 }
               }
             }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionImageNotFoundResponse"
+                }
+              }
+            },
+            "description": "Not Found"
           },
           "409": {
             "content": {

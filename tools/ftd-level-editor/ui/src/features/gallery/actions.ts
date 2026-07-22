@@ -3,6 +3,8 @@
 // pinned OpenAPI document (AE12) — no repository knowledge, no extra state.
 
 import type {
+  CaptureCurrentSessionImageResponseHeaders,
+  CaptureCurrentSessionImageResponseMediaType,
   CaptureSessionImageRequest,
   SessionSnapshotResponse,
 } from '../../api/generated.ts';
@@ -19,7 +21,7 @@ export interface SessionImageCapture {
   revision: string;
   source: string;
   sha256: string;
-  mediaType: string;
+  mediaType: CaptureCurrentSessionImageResponseMediaType;
   image: Blob;
 }
 
@@ -53,9 +55,18 @@ export function updateGalleryMetadata(
   );
 }
 
-function requireCaptureHeader(headers: Headers, name: string): string {
+function requireCaptureHeader(
+  headers: Headers,
+  name: keyof CaptureCurrentSessionImageResponseHeaders,
+): string {
   const value = headers.get(name);
   if (!value) throw new Error(`FTD capture response lacks ${name}`);
+  return value;
+}
+
+function requireCaptureMediaType(headers: Headers): CaptureCurrentSessionImageResponseMediaType {
+  const value = headers.get('Content-Type')?.split(';', 1)[0]?.trim().toLowerCase();
+  if (value !== 'image/png') throw new Error('FTD capture response is not image/png');
   return value;
 }
 
@@ -74,7 +85,7 @@ export async function captureCurrentSessionImage(
     revision: requireCaptureHeader(response.headers, 'X-FTD-Session-Revision'),
     source: requireCaptureHeader(response.headers, 'X-FTD-Image-Source'),
     sha256: requireCaptureHeader(response.headers, 'X-FTD-Image-SHA256'),
-    mediaType: requireCaptureHeader(response.headers, 'Content-Type'),
+    mediaType: requireCaptureMediaType(response.headers),
     image: response.blob,
   };
 }
