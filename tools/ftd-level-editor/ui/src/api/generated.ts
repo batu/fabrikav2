@@ -36,6 +36,11 @@ export interface BootstrapResponse {
   "launchCredential": string;
 }
 
+export interface CaptureSessionImageRequest {
+  "revision": string;
+  "variant"?: "gemini" | "openai" | "openai_v2" | "gemini_bg_only" | "openai_bg_only" | "openai_v2_bg_only";
+}
+
 export interface CreateSessionRequest {
   "session": AuthoringSession;
 }
@@ -191,6 +196,7 @@ export interface FtdEditorOperations {
   "listCurrentSessions": { method: "get"; path: "/api/sessions" };
   "createCurrentSession": { method: "post"; path: "/api/sessions" };
   "getCurrentSession": { method: "get"; path: "/api/sessions/{session_id}" };
+  "captureCurrentSessionImage": { method: "post"; path: "/api/sessions/{session_id}/capture" };
   "setCurrentSessionDogActiveVariant": { method: "post"; path: "/api/sessions/{session_id}/dogs/{dog_id}/active-variant" };
   "updateCurrentSessionGalleryMetadata": { method: "post"; path: "/api/sessions/{session_id}/gallery-metadata" };
   "getEditorStatus": { method: "get"; path: "/api/status" };

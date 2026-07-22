@@ -29,7 +29,13 @@ from ..fs import (
 )
 from ..settings import WorkspacePaths
 from .dogs import DogBundlePayload, require_stable_dog, set_active_variant
-from .gallery import GallerySession, gallery_metadata, update_gallery_metadata
+from .gallery import (
+    CaptureVariant,
+    GallerySession,
+    capture_source_candidates,
+    gallery_metadata,
+    update_gallery_metadata,
+)
 from .model import AuthoringSession
 
 
@@ -54,6 +60,10 @@ class SessionCommitIndeterminate(RuntimeError):
 
 
 class SessionAlreadyExists(FileExistsError):
+    pass
+
+
+class SessionImageNotFound(FileNotFoundError):
     pass
 
 
@@ -84,6 +94,16 @@ class SessionSnapshot:
     revision: str
     session: AuthoringSession
     provenance: SessionProvenance
+
+
+@dataclass(frozen=True, slots=True)
+class SessionImageCapture:
+    session_id: str
+    revision: str
+    source: str
+    sha256: str
+    media_type: str
+    content: bytes
 
 
 @dataclass(frozen=True, slots=True)
@@ -611,6 +631,70 @@ class SessionStore:
             mutation=lambda session: update_gallery_metadata(
                 session, tags=tags, archived=archived
             ),
+        )
+
+    def capture_image(
+        self,
+        session_id: str,
+        *,
+        expected_revision: str,
+        variant: CaptureVariant,
+    ) -> SessionImageCapture:
+        """Read one v1-compatible current image only at the named revision."""
+
+        current = self.load(session_id)
+        if current.revision != expected_revision:
+            raise SessionRevisionConflict(current)
+        candidates = capture_source_candidates(current.session, variant)
+        source = None
+        content = None
+        try:
+            with self._open_session_descriptors(session_id) as (
+                authoring_fd,
+                session_fd,
+                opened,
+            ):
+                observed_revision, _ = self._tree_revision_fd(session_fd)
+                if observed_revision != expected_revision:
+                    raise SessionRevisionConflict(self.load(session_id))
+                for candidate in candidates:
+                    try:
+                        metadata = os.stat(
+                            candidate,
+                            dir_fd=session_fd,
+                            follow_symlinks=False,
+                        )
+                        if not stat.S_ISREG(metadata.st_mode):
+                            continue
+                        content = self._read_regular_file(session_fd, candidate)
+                    except OSError as error:
+                        if (
+                            _is_missing_session_error(error)
+                            or error.errno == errno.EMLINK
+                        ):
+                            continue
+                        raise
+                    source = candidate
+                    break
+                self._assert_session_link(authoring_fd, session_id, opened)
+                final_revision, _ = self._tree_revision_fd(session_fd)
+                if final_revision != expected_revision:
+                    raise SessionRevisionConflict(self.load(session_id))
+        except SessionRevisionConflict:
+            raise
+        except OSError as error:
+            raise SessionReadError(
+                f"could not capture image for session {session_id!r}"
+            ) from error
+        if source is None or content is None:
+            raise SessionImageNotFound(session_id)
+        return SessionImageCapture(
+            session_id=session_id,
+            revision=expected_revision,
+            source=source,
+            sha256=f"sha256:{hashlib.sha256(content).hexdigest()}",
+            media_type="image/png",
+            content=content,
         )
 
     def list_gallery(self) -> list[GallerySession]:

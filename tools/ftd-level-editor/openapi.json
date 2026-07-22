@@ -179,6 +179,33 @@
         "title": "BootstrapResponse",
         "type": "object"
       },
+      "CaptureSessionImageRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "title": "Revision",
+            "type": "string"
+          },
+          "variant": {
+            "default": "gemini",
+            "enum": [
+              "gemini",
+              "openai",
+              "openai_v2",
+              "gemini_bg_only",
+              "openai_bg_only",
+              "openai_v2_bg_only"
+            ],
+            "title": "Variant",
+            "type": "string"
+          }
+        },
+        "required": [
+          "revision"
+        ],
+        "title": "CaptureSessionImageRequest",
+        "type": "object"
+      },
       "CreateSessionRequest": {
         "additionalProperties": false,
         "properties": {
@@ -1620,6 +1647,112 @@
         ],
         "summary": "Get Current Session",
         "x-ftd-cost": "none",
+        "x-ftd-side-effects": "none"
+      }
+    },
+    "/api/sessions/{session_id}/capture": {
+      "post": {
+        "operationId": "captureCurrentSessionImage",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaptureSessionImageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "image/png": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Revision-bound current authoring image bytes.",
+            "headers": {
+              "X-FTD-Image-SHA256": {
+                "description": "SHA-256 digest of the returned image bytes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-FTD-Image-Source": {
+                "description": "Session-relative v1-compatible source filename.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-FTD-Session-Id": {
+                "description": "Captured authoring session identity.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-FTD-Session-Revision": {
+                "description": "Exact session revision captured.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionRevisionConflictResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionUnavailableResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "LaunchCredential": []
+          }
+        ],
+        "summary": "Capture Current Session Image",
+        "x-ftd-artifacts": "inline-image",
+        "x-ftd-authorization": "launch-credential",
+        "x-ftd-cost": "none",
+        "x-ftd-revision": "bound",
         "x-ftd-side-effects": "none"
       }
     },

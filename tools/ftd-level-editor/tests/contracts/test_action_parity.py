@@ -9,7 +9,9 @@ paths, methods, and request property names from the document alone.
 
 from __future__ import annotations
 
+import hashlib
 import json
+import struct
 from pathlib import Path
 
 from fastapi.testclient import TestClient
@@ -25,6 +27,16 @@ from ftd_editor.security import CompositionSecrets, SecretRedactor
 from ftd_editor.sessions.store import SessionStore
 
 PINNED = Path(__file__).resolve().parents[2] / "openapi.json"
+
+
+def _png(width: int = 32, height: int = 24) -> bytes:
+    return (
+        b"\x89PNG\r\n\x1a\n"
+        + struct.pack(">I", 13)
+        + b"IHDR"
+        + struct.pack(">II", width, height)
+        + b"\x08\x02\x00\x00\x00" * 2
+    )
 
 
 def _session_app(editor_settings):
@@ -130,7 +142,18 @@ def test_fresh_client_completes_unpaid_edit_and_capture_from_pinned_extensions(
     app = _session_app(editor_settings)
     headers = _headers(app)
     with TestClient(app, raise_server_exceptions=False) as client:
-        created = _create(client, headers, "discover", DOGS)
+        _create(client, headers, "discover", DOGS)
+        image = _png()
+        (editor_settings.workspace.authoring / "discover" / "color.png").write_bytes(
+            image
+        )
+
+        snapshot_method, snapshot_path, _ = _operation(document, "getCurrentSession")
+        current = client.request(
+            snapshot_method.upper(),
+            snapshot_path.format(session_id="discover"),
+            headers=headers,
+        ).json()
 
         method, path_template, operation = _operation(
             document, "updateCurrentSessionGalleryMetadata"
@@ -141,21 +164,33 @@ def test_fresh_client_completes_unpaid_edit_and_capture_from_pinned_extensions(
             method.upper(),
             path_template.format(session_id="discover"),
             headers=headers,
-            json={"revision": created["revision"], "tags": ["ready"]},
+            json={"revision": current["revision"], "tags": ["ready"]},
         )
 
-        capture_method, capture_path, capture_op = _operation(document, "getCurrentSession")
+        capture_method, capture_path, capture_op = _operation(
+            document, "captureCurrentSessionImage"
+        )
         assert capture_op["x-ftd-side-effects"] == "none"
+        assert capture_op["x-ftd-cost"] == "none"
+        assert capture_op["x-ftd-revision"] == "bound"
+        assert capture_op["x-ftd-artifacts"] == "inline-image"
         captured = client.request(
             capture_method.upper(),
             capture_path.format(session_id="discover"),
             headers=headers,
+            json={"revision": edited.json()["revision"], "variant": "gemini"},
         )
 
     assert edited.status_code == 200
     assert captured.status_code == 200
-    assert captured.json()["revision"] == edited.json()["revision"]
-    assert captured.json()["session"]["tags"] == ["ready"]
+    assert captured.content == image
+    assert captured.headers["content-type"] == "image/png"
+    assert captured.headers["x-ftd-session-id"] == "discover"
+    assert captured.headers["x-ftd-session-revision"] == edited.json()["revision"]
+    assert captured.headers["x-ftd-image-source"] == "color.png"
+    assert captured.headers["x-ftd-image-sha256"] == (
+        f"sha256:{hashlib.sha256(image).hexdigest()}"
+    )
 
     # Paid actions are discoverable from the same document's extension —
     # there is no second catalog endpoint anywhere in the surface.

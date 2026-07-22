@@ -29,6 +29,11 @@ export class FtdHttpError extends Error {
   }
 }
 
+export interface FtdBinaryResponse {
+  headers: Headers;
+  blob: Blob;
+}
+
 export interface JobsTransport {
   startAction(kind: string, body: StartJobRequest): Promise<JobResource>;
   getJob(jobId: string): Promise<JobResource>;
@@ -40,10 +45,11 @@ export interface JobsTransport {
   artifactUrl(jobId: string, artifactId: string): string;
 }
 
-export async function requestFtd<T>(
+async function requestFtdWithDecoder<T>(
   options: JobsTransportOptions,
   method: 'GET' | 'POST',
   path: string,
+  decode: (response: Response) => Promise<T>,
   body?: unknown,
 ): Promise<T> {
   const timeoutMs = options.timeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS;
@@ -69,10 +75,40 @@ export async function requestFtd<T>(
       }
       throw new FtdHttpError(response.status, detail);
     }
-    return (await response.json()) as T;
+    return await decode(response);
   } finally {
     clearTimeout(timer);
   }
+}
+
+export function requestFtd<T>(
+  options: JobsTransportOptions,
+  method: 'GET' | 'POST',
+  path: string,
+  body?: unknown,
+): Promise<T> {
+  return requestFtdWithDecoder(
+    options,
+    method,
+    path,
+    async (response) => (await response.json()) as T,
+    body,
+  );
+}
+
+export function requestFtdBinary(
+  options: JobsTransportOptions,
+  method: 'GET' | 'POST',
+  path: string,
+  body?: unknown,
+): Promise<FtdBinaryResponse> {
+  return requestFtdWithDecoder(
+    options,
+    method,
+    path,
+    async (response) => ({ headers: response.headers, blob: await response.blob() }),
+    body,
+  );
 }
 
 export function createJobsTransport(options: JobsTransportOptions): JobsTransport {

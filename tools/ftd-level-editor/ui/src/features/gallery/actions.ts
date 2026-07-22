@@ -2,10 +2,26 @@
 // named HTTP routes. Same wire contract a direct client derives from the
 // pinned OpenAPI document (AE12) — no repository knowledge, no extra state.
 
-import type { SessionSnapshotResponse } from '../../api/generated.ts';
-import { type JobsTransportOptions, requestFtd } from '../../api/http.ts';
+import type {
+  CaptureSessionImageRequest,
+  SessionSnapshotResponse,
+} from '../../api/generated.ts';
+import {
+  type JobsTransportOptions,
+  requestFtd,
+  requestFtdBinary,
+} from '../../api/http.ts';
 
 export type SessionActionContext = JobsTransportOptions;
+
+export interface SessionImageCapture {
+  sessionId: string;
+  revision: string;
+  source: string;
+  sha256: string;
+  mediaType: string;
+  image: Blob;
+}
 
 async function post(
   context: SessionActionContext,
@@ -35,4 +51,30 @@ export function updateGalleryMetadata(
     `/api/sessions/${encodeURIComponent(args.sessionId)}/gallery-metadata`,
     { revision: args.revision, tags: args.tags ?? null, archived: args.archived ?? null },
   );
+}
+
+function requireCaptureHeader(headers: Headers, name: string): string {
+  const value = headers.get(name);
+  if (!value) throw new Error(`FTD capture response lacks ${name}`);
+  return value;
+}
+
+export async function captureCurrentSessionImage(
+  context: SessionActionContext,
+  args: { sessionId: string } & CaptureSessionImageRequest,
+): Promise<SessionImageCapture> {
+  const response = await requestFtdBinary(
+    context,
+    'POST',
+    `/api/sessions/${encodeURIComponent(args.sessionId)}/capture`,
+    { revision: args.revision, variant: args.variant ?? 'gemini' },
+  );
+  return {
+    sessionId: requireCaptureHeader(response.headers, 'X-FTD-Session-Id'),
+    revision: requireCaptureHeader(response.headers, 'X-FTD-Session-Revision'),
+    source: requireCaptureHeader(response.headers, 'X-FTD-Image-Source'),
+    sha256: requireCaptureHeader(response.headers, 'X-FTD-Image-SHA256'),
+    mediaType: requireCaptureHeader(response.headers, 'Content-Type'),
+    image: response.blob,
+  };
 }
