@@ -45,6 +45,10 @@ FTD_ACTION_KINDS: tuple[FtdActionKind, ...] = (
     FtdActionKind("ftd.band_generate", "band-r1", "spend-p1"),
     FtdActionKind("ftd.sequence_workflow", "sequence-r1", "spend-p1"),
     FtdActionKind("ftd.multi_scene_generate", "multi-scene-r1", "spend-p1"),
+    # U6: the last two request-owned v1 paid actions (GET+SSE magenta inpaint
+    # and POST single-dog regeneration) gain durable kinds of their own.
+    FtdActionKind("ftd.magenta_inpaint", "magenta-r1", "spend-p1"),
+    FtdActionKind("ftd.dog_regenerate", "dog-regen-r1", "spend-p1"),
 )
 
 
@@ -202,6 +206,19 @@ class JobService:
         )
 
     def start(self, kind: str, body: StartJobRequest) -> tuple[JobRecord, bool]:
+        # Replay attachment must win before session-revision validation: a job
+        # that already applied its output moved the session revision, and the
+        # caller replaying a lost response still carries the original one.
+        existing = self.jobs.find_by_request_id(kind, body.request_id)
+        if existing is not None:
+            stored = existing.execution_spec
+            if (
+                stored.get("sessionId") == body.session_id
+                and stored.get("sourceRevision") == body.revision
+                and stored.get("inputs") == body.inputs
+                and stored.get("providerOptions") == body.provider_options
+            ):
+                return existing, False
         spec = self.build_spec(kind, body)
         return self.jobs.start_job(spec, request_id=body.request_id, reuse=True)
 
