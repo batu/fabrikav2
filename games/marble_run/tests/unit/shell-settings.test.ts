@@ -26,6 +26,7 @@ describe('mountSettings variants', () => {
     );
     expect(keys).toEqual(['music', 'sfx', 'haptics']);
     expect(actionLabels(root)).toEqual(['settings-close']);
+    expect(root.querySelector('.fab-modal-backdrop')?.classList).toContain('marble-settings-modal--menu');
   });
 
   it('in-game variant renders Restart + Home instead of Close', () => {
@@ -36,6 +37,8 @@ describe('mountSettings variants', () => {
     mountSettings({ mountInto: root, inGame: true, onRestart, onHome });
 
     expect(actionLabels(root)).toEqual(['settings-restart', 'settings-home']);
+    expect(root.querySelector('.fab-modal-backdrop')?.classList).toContain('marble-settings-modal--ingame');
+    expect(root.querySelector('.marble-settings-modal--menu')).toBeNull();
 
     root.querySelector<HTMLButtonElement>('[data-fab-action="settings-restart"]')?.click();
     expect(onRestart).toHaveBeenCalledTimes(1);

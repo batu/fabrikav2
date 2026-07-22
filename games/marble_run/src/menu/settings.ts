@@ -120,5 +120,6 @@ export function mountSettings(opts: MountSettingsOptions): UiHandle {
       opts.onDismiss?.();
     },
   });
+  handle.el.classList.add(opts.inGame ? 'marble-settings-modal--ingame' : 'marble-settings-modal--menu');
   return handle;
 }

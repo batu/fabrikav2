@@ -207,7 +207,10 @@ body {
      390×844 budget and the chain's tail (sun node 1 / node 106) clears the
      fixed LEVEL button instead of sliding under it. Tuned headlessly against
      refs/home-fresh.png + refs/level-map.png. */
-  max-height: 175px;
+  /* MRV2-15 U1: recover the final deliberate gap between the complete sun and
+     fixed CTA. The wave-7 value avoided overlap but left the sun visually
+     tucked behind the button at the reference viewport. */
+  max-height: 155px;
   margin: 2px auto -6px;
   pointer-events: none;
 }
@@ -355,10 +358,21 @@ body {
   width: 100%;
   height: 100%;
 }
+.marble-ui .marble-settings-card .fab-modal-ribbon-title {
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  text-align: center;
+}
 .marble-ui .fab-modal-ribbon-title {
   font-family: var(--fab-font-display);
   color: #fff;
   text-shadow: 0 2px 0 rgba(120, 60, 20, 0.55);
+}
+/* MRV2-15 U2: v1 menu settings replaces the home scene with black, while the
+   in-game variant intentionally retains the shared translucent gameplay scrim. */
+.marble-ui.marble-settings-modal--menu {
+  background: #000;
 }
 /* MRV2-11 U3 (KTD3, ref refs/settings.png): a small blue rounded SQUARE with a
    white × glyph docked top-right over the ribbon. No X sprite exists in-repo, so
