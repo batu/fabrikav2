@@ -16,6 +16,7 @@ from ..jobs.worker import JobContext, TerminalJobError
 from .paid import (
     PaidRuntime,
     apply_session_mutation,
+    completed_items_from_prior_attempts,
     fetch_output,
     load_spec,
     policy_for,
@@ -194,27 +195,33 @@ def _multi_scene_handler(
         if not isinstance(scenes, list) or not all(isinstance(s, str) and s for s in scenes):
             raise TerminalJobError("invalid_inputs", "scenes must be a non-empty string list")
         policy = policy_for("image")
-        references: dict[str, dict[str, Any]] = {}
-        url = submit_and_obtain_output_url(
-            context,
-            runtime,
-            IMAGE_PROVIDER,
-            policy,
-            {**dict(spec.inputs), "scene": scenes[0]},
-            spec.provider_options,
+        already_completed = completed_items_from_prior_attempts(
+            context, "job.scene_completed", "scene"
         )
-        for index, scene_key in enumerate(scenes):
-            if index > 0:
+        references: dict[str, dict[str, Any]] = {}
+        first_submission = True
+        for scene_key in scenes:
+            prior = already_completed.get(scene_key)
+            if prior is not None:
+                # A prior attempt already paid for and registered this scene:
+                # reuse its checkpointed reference instead of ever re-submitting.
+                references[scene_key] = {
+                    field: prior.get(field)
+                    for field in ("artifactId", "checksum", "mediaType", "width", "height")
+                }
+                continue
+            if not first_submission:
                 context.raise_if_cancel_requested()
                 context.heartbeat()
-                url = submit_and_obtain_output_url(
-                    context,
-                    runtime,
-                    IMAGE_PROVIDER,
-                    policy,
-                    {**dict(spec.inputs), "scene": scene_key},
-                    spec.provider_options,
-                )
+            first_submission = False
+            url = submit_and_obtain_output_url(
+                context,
+                runtime,
+                IMAGE_PROVIDER,
+                policy,
+                {**dict(spec.inputs), "scene": scene_key},
+                spec.provider_options,
+            )
             validated = fetch_output(context, url, policy)
             display_name = f"{scene_key}.png"
             retain_if_cancelled(
@@ -233,7 +240,7 @@ def _multi_scene_handler(
             context.store.append_event(
                 context.job.id,
                 "job.scene_completed",
-                data={"scene": scene_key, "artifactId": artifact.artifact_id},
+                data={"scene": scene_key, **references[scene_key]},
             )
         retained = {"application": "retained", "scenes": references}
 

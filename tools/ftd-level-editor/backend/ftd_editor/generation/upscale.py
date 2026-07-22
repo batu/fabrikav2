@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import Any, Callable, Mapping
 
 from ..jobs.worker import JobContext, TerminalJobError
-from .crop import publish_variant_bundle
+from .crop import _require_dog, publish_variant_bundle
 from .paid import (
     PaidRuntime,
     apply_session_mutation,
@@ -37,6 +37,17 @@ def upscale_handler(runtime: PaidRuntime) -> Callable[[JobContext], dict[str, An
             raise TerminalJobError(
                 "invalid_inputs", f"upscale target must be one of {UPSCALE_TARGETS}"
             )
+        # Validate every dog-targeted input before any provider spend: a bad
+        # dogId/hitbox must fail terminally for free, never after submission.
+        dog_id: str | None = None
+        hitbox: Mapping[str, Any] | None = None
+        if target == "dog_variant":
+            dog_id = str(require_input(spec, "dogId"))
+            raw_hitbox = require_input(spec, "hitbox")
+            if not isinstance(raw_hitbox, Mapping):
+                raise TerminalJobError("invalid_inputs", "hitbox must be a mapping")
+            hitbox = raw_hitbox
+            _require_dog(runtime, spec, dog_id)
         policy = policy_for("image")
         url = submit_and_obtain_output_url(
             context,
@@ -48,10 +59,7 @@ def upscale_handler(runtime: PaidRuntime) -> Callable[[JobContext], dict[str, An
         )
         validated = fetch_output(context, url, policy)
         if target == "dog_variant":
-            dog_id = str(require_input(spec, "dogId"))
-            hitbox = require_input(spec, "hitbox")
-            if not isinstance(hitbox, Mapping):
-                raise TerminalJobError("invalid_inputs", "hitbox must be a mapping")
+            assert dog_id is not None and hitbox is not None
             return publish_variant_bundle(context, runtime, spec, dog_id, validated, hitbox)
         display_name = "background_upscaled.png"
         retain_if_cancelled(

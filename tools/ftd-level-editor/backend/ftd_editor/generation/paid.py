@@ -209,3 +209,26 @@ def apply_session_mutation(
 
 def policy_for(provider_name: str) -> OutputPolicy:
     return FTD_OUTPUT_POLICIES[provider_name]
+
+
+def completed_items_from_prior_attempts(
+    context: JobContext, event_type: str, key: str
+) -> dict[str, dict[str, Any]]:
+    """Per-item completion checkpoints from this job's linked-attempt chain.
+
+    Batch kinds append one durable event per published item; a retry or
+    granted force-new attempt walks its previous_attempt_id chain and skips
+    every item a prior attempt already paid for and published, so recovery
+    only spends for items that never completed.
+    """
+
+    completed: dict[str, dict[str, Any]] = {}
+    attempt_id = context.job.previous_attempt_id
+    while attempt_id:
+        for event in context.store.list_events(attempt_id):
+            if event.event_type == event_type:
+                item = str(event.data.get(key) or "")
+                if item and item not in completed:
+                    completed[item] = dict(event.data)
+        attempt_id = context.store.get_job(attempt_id).previous_attempt_id
+    return completed

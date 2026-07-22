@@ -18,6 +18,7 @@ from .boundary import ValidatedOutput
 from .cutout import crop_box, sprite_export
 from .paid import (
     PaidRuntime,
+    completed_items_from_prior_attempts,
     fetch_output,
     load_spec,
     policy_for,
@@ -147,6 +148,9 @@ def retry_failed_dogs_handler(runtime: PaidRuntime) -> Callable[[JobContext], di
         if not isinstance(dogs, list) or not dogs:
             raise TerminalJobError("invalid_inputs", "dogs must be a non-empty list")
         policy = policy_for("image")
+        already_completed = completed_items_from_prior_attempts(
+            context, "job.dog_completed", "dogId"
+        )
         results: list[dict[str, Any]] = []
         for entry in dogs:
             if not isinstance(entry, Mapping):
@@ -158,6 +162,12 @@ def retry_failed_dogs_handler(runtime: PaidRuntime) -> Callable[[JobContext], di
                 raise TerminalJobError(
                     "invalid_inputs", "each dog entry needs dogId, hitbox, and prompt"
                 )
+            prior = already_completed.get(dog_id)
+            if prior is not None:
+                # A prior attempt already paid for and published this dog:
+                # reuse its checkpoint instead of ever re-submitting.
+                results.append({**prior, "application": "reused_prior_attempt"})
+                continue
             context.raise_if_cancel_requested()
             context.heartbeat()
             _require_dog(runtime, spec, dog_id)
@@ -175,7 +185,7 @@ def retry_failed_dogs_handler(runtime: PaidRuntime) -> Callable[[JobContext], di
             context.store.append_event(
                 context.job.id,
                 "job.dog_completed",
-                data={"dogId": dog_id, "artifactId": outcome["artifactId"]},
+                data={"dogId": dog_id, **outcome},
             )
         return {"application": "applied", "dogs": results}
 

@@ -18,7 +18,7 @@ from ftd_editor.approvals import expected_acknowledgement
 from ftd_editor.generation.boundary import TransportResponse
 from ftd_editor.generation.paid import ProviderSubmission, ProviderPoll
 from ftd_editor.jobs.actions import FTD_ACTION_KINDS, ForceNewJobRequest, StartJobRequest
-from ftd_editor.jobs.store import RequestIdentityConflict
+from ftd_editor.jobs.store import AttemptNotAllowed, RequestIdentityConflict
 
 HITBOX = {"x": 10, "y": 12, "w": 20, "h": 24}
 
@@ -183,7 +183,7 @@ def test_ambiguous_post_submit_failure_requires_grant(paid_env, paid_session, ki
     assert orphaned.status == "orphaned_unknown"
     assert orphaned.metadata.get("providerSubmissionStarted")
     # Grant-free retry is forbidden for ambiguous spend.
-    with pytest.raises(Exception):
+    with pytest.raises(AttemptNotAllowed):
         paid_env.env.jobs.retry(job.id)
     # Force-new with a valid single-use grant creates one linked attempt.
     session = paid_env.env.sessions.load(paid_session.session_id)
@@ -251,6 +251,52 @@ def test_restart_before_intent_runs_exactly_once(paid_env, paid_session):
     assert len(paid_env.image.submissions) == 1
 
 
+def test_mid_batch_failure_never_respends_completed_items(paid_env, paid_session):
+    kind = "ftd.retry_failed_dogs"
+    paid_env.transport.responses[IMAGE_URL] = lambda: TransportResponse(
+        status=200, media_type="image/png", chunks=[make_png(640, 640)]
+    )
+    # dog-1 succeeds and is durably published; dog-2's submission tears mid-call.
+    paid_env.image.script.extend(
+        [ProviderSubmission(output_url=IMAGE_URL), RuntimeError("connection torn mid-batch")]
+    )
+    job, _ = start(paid_env, paid_session, kind, "req-mid-batch")
+    run_all(paid_env.make_worker())
+    orphaned = paid_env.env.jobs.get_job(job.id)
+    assert orphaned.status == "orphaned_unknown"
+    assert len(paid_env.image.submissions) == 2
+    # Recovery via granted force-new must reuse dog-1's checkpoint: exactly one
+    # more paid submission, never len(dogs) again.
+    session = paid_env.env.sessions.load(paid_session.session_id)
+    grant = paid_env.env.approvals.mint(
+        actor="tester",
+        action_kind=f"force_new:{kind}",
+        request_binding=f"job:{job.id}",
+        source_revision=session.revision,
+        acknowledgement=expected_acknowledgement(f"force_new:{kind}", f"job:{job.id}"),
+    )
+    forced = paid_env.service.force_new(
+        kind,
+        job.id,
+        ForceNewJobRequest(
+            requestId="req-mid-batch-forced",
+            sessionId=session.session_id,
+            revision=session.revision,
+            inputs=GOOD_INPUTS[kind],
+            providerOptions={},
+            grantId=grant.grant_id,
+            actor="tester",
+        ),
+    )
+    paid_env.image.script.append(ProviderSubmission(output_url=IMAGE_URL))
+    run_all(paid_env.make_worker())
+    final = paid_env.env.jobs.get_job(forced.id)
+    assert final.status == "succeeded"
+    assert len(paid_env.image.submissions) == 3
+    applications = {entry["dogId"]: entry["application"] for entry in final.result["dogs"]}
+    assert applications == {"dog-1": "reused_prior_attempt", "dog-2": "applied"}
+
+
 def test_unknown_kind_start_is_rejected(paid_env, paid_session):
     with pytest.raises(KeyError):
         start(paid_env, paid_session, "ftd.not_a_kind", "req-unknown", inputs={})
@@ -259,6 +305,12 @@ def test_unknown_kind_start_is_rejected(paid_env, paid_session):
 def test_all_registered_kinds_have_handlers(paid_env):
     handlers = paid_env.make_worker().handlers
     assert set(handlers) == {action.kind for action in FTD_ACTION_KINDS}
+
+
+def test_spend_safety_matrix_covers_every_registered_kind():
+    # A kind added to the registry without a GOOD_INPUTS entry must fail
+    # loudly here instead of silently dropping out of the paid matrix.
+    assert set(ALL_KINDS) == {action.kind for action in FTD_ACTION_KINDS}
 
 
 def test_source_inventory_no_request_owned_provider_call_or_mini_ledger():
@@ -271,7 +323,15 @@ def test_source_inventory_no_request_owned_provider_call_or_mini_ledger():
         "fal.run/",
         "api.openai.com/v1",
     )
-    route_owned_provider_markers = ("providers.require", "httpx.")
+    route_owned_provider_markers = (
+        "providers.require",
+        "httpx",
+        "aiohttp",
+        "urllib.request",
+        "http.client",
+        "import requests",
+        "from requests",
+    )
     scanned = 0
     for path in sorted((root / "backend").rglob("*.py")) + sorted(
         (root / "ui" / "src").rglob("*.ts*")
