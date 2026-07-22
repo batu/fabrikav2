@@ -50,8 +50,11 @@
   to { transform: translate3d(74px, 74px, 0); }
 }
 /* Lift the transparent board canvas above the bubble motif so the board reads
- * over the field, not under it (the ::before sits at z-index 0). */
-#game-container canvas {
+ * over the field, not under it (the ::before sits at z-index 0). Child
+ * combinator on purpose: only the Phaser canvas is a direct child — a bare
+ * descendant selector (1-0-1) used to beat the home preview's full-bleed
+ * fixed rule and push that canvas below the viewport (MRV2-13 defect 1). */
+#game-container > canvas {
   position: relative;
   z-index: 1;
 }

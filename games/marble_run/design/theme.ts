@@ -222,9 +222,12 @@ body {
    already renders at window.innerWidth/Height (viewport aspect), so displaying
    the canvas viewport-sized — instead of squished into the old square slot —
    reproduces v1's large tilted framed board by construction. z-index:0 keeps it
-   BELOW the home shell content (.marble-ui > * is z-index:1); the two-class
-   selector beats that rule. Non-interactive so taps reach the DOM above it. */
-.marble-ui > .marble-home-board-preview {
+   BELOW the home shell content (.marble-ui > * is z-index:1). MRV2-13: id
+   strength (#hud-overlay, 1-1-0) on purpose — the gameplay sheet's
+   '#game-container > canvas' rule (1-0-1) previously out-specified the old
+   two-class selector and left this canvas in-flow below the viewport.
+   Non-interactive so taps reach the DOM above it. */
+#hud-overlay > .marble-home-board-preview {
   position: fixed;
   inset: 0;
   z-index: 0;
@@ -293,12 +296,17 @@ body {
   padding:
     max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
     max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
-}
-/* A tall card can never top-crop: flex-centering an overflowing card clips the
-   top edge irrecoverably, so bound the height to the safe viewport and scroll. */
-.marble-ui .fab-modal-card {
-  max-height: calc(100dvh - max(16px, env(safe-area-inset-top)) - max(16px, env(safe-area-inset-bottom)));
+  /* MRV2-13 U2: the BACKDROP is the scroll container, never the card — the kit
+     ribbon overhangs the card top via negative margin, so any card overflow
+     clipping crops the ribbon and the top rounded corners (round-5 settings
+     defect). margin-block:auto on the card keeps the wave-5 guarantee: auto
+     margins center a fitting card and pin an overflowing card's top visible. */
   overflow-y: auto;
+}
+.marble-ui .fab-modal-card {
+  margin-block: auto;
+  /* Dock the close X on the card's top-right CORNER (refs/settings.png). */
+  --fab-modal-close-inset: -8px;
 }
 
 /* ---- Settings / result modal cards (Popup vida via cardImage) ---- */
@@ -378,6 +386,13 @@ body {
   flex-direction: column;
   justify-content: center;
   gap: 0;
+}
+/* MRV2-13 U3 (ref refs/win.png): the LEVEL COMPLETED ribbon sits ABOVE the
+   card's top edge — bottom just kissing the card — not overlapping the card
+   interior. Extends the kit's default ~20px overhang; needs the U2 no-clip
+   card (overflow visible) or the lifted ribbon would be cropped. */
+#modal-root.completion-mode .fab-modal-ribbon {
+  margin-top: calc(-1 * var(--fab-space-lg) - var(--fab-ribbon-overhang) - 72px);
 }
 /* Green Next pill: Button_Green sprite is the surface; contain a white label so
    it never renders as giant word-art (the old Txt_Next sprite-label doubling). */
