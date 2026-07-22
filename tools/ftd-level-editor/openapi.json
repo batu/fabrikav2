@@ -1079,6 +1079,65 @@
           }
         ],
         "summary": "Start Ftd Durable Action",
+        "x-ftd-actions": [
+          {
+            "kind": "ftd.dog_variant_upscale",
+            "policyVersion": "spend-p1",
+            "recipeVersion": "upscale-r1"
+          },
+          {
+            "intentInput": "sceneIntent",
+            "kind": "ftd.background_generate",
+            "policyVersion": "spend-p1",
+            "recipeVersion": "background-r1"
+          },
+          {
+            "kind": "ftd.sprite_animate",
+            "policyVersion": "spend-p1",
+            "recipeVersion": "sprite-r1"
+          },
+          {
+            "intentInput": "dogIntent",
+            "kind": "ftd.crop_inpaint",
+            "policyVersion": "spend-p1",
+            "recipeVersion": "crop-inpaint-r1"
+          },
+          {
+            "intentInput": "dogs[].dogIntent",
+            "kind": "ftd.retry_failed_dogs",
+            "policyVersion": "spend-p1",
+            "recipeVersion": "retry-dogs-r1"
+          },
+          {
+            "kind": "ftd.band_generate",
+            "policyVersion": "spend-p1",
+            "recipeVersion": "band-r1"
+          },
+          {
+            "kind": "ftd.sequence_workflow",
+            "policyVersion": "spend-p1",
+            "recipeVersion": "sequence-r1"
+          },
+          {
+            "kind": "ftd.multi_scene_generate",
+            "policyVersion": "spend-p1",
+            "recipeVersion": "multi-scene-r1"
+          },
+          {
+            "intentInput": "dogIntent",
+            "kind": "ftd.magenta_inpaint",
+            "policyVersion": "spend-p1",
+            "recipeVersion": "magenta-r1",
+            "replaces": "v1 GET+SSE magenta inpaint request"
+          },
+          {
+            "intentInput": "dogIntent",
+            "kind": "ftd.dog_regenerate",
+            "policyVersion": "spend-p1",
+            "recipeVersion": "dog-regen-r1",
+            "replaces": "v1 POST single-dog regeneration request"
+          }
+        ],
         "x-ftd-authorization": "launch-credential",
         "x-ftd-cost": "provider-spend",
         "x-ftd-durability": "durable-job",
@@ -1447,7 +1506,9 @@
             "LaunchCredential": []
           }
         ],
-        "summary": "List Current Sessions"
+        "summary": "List Current Sessions",
+        "x-ftd-cost": "none",
+        "x-ftd-side-effects": "none"
       },
       "post": {
         "operationId": "createCurrentSession",
@@ -1498,7 +1559,9 @@
             "LaunchCredential": []
           }
         ],
-        "summary": "Create Current Session"
+        "summary": "Create Current Session",
+        "x-ftd-cost": "none",
+        "x-ftd-side-effects": "session-mutation"
       }
     },
     "/api/sessions/{session_id}": {
@@ -1552,7 +1615,9 @@
             "LaunchCredential": []
           }
         ],
-        "summary": "Get Current Session"
+        "summary": "Get Current Session",
+        "x-ftd-cost": "none",
+        "x-ftd-side-effects": "none"
       }
     },
     "/api/sessions/{session_id}/dogs/{dog_id}/active-variant": {
@@ -1635,7 +1700,10 @@
             "LaunchCredential": []
           }
         ],
-        "summary": "Set Current Session Dog Active Variant"
+        "summary": "Set Current Session Dog Active Variant",
+        "x-ftd-cost": "none",
+        "x-ftd-revision": "bound",
+        "x-ftd-side-effects": "session-mutation"
       }
     },
     "/api/sessions/{session_id}/gallery-metadata": {
@@ -1709,7 +1777,10 @@
             "LaunchCredential": []
           }
         ],
-        "summary": "Update Current Session Gallery Metadata"
+        "summary": "Update Current Session Gallery Metadata",
+        "x-ftd-cost": "none",
+        "x-ftd-revision": "bound",
+        "x-ftd-side-effects": "session-mutation"
       }
     },
     "/api/status": {
@@ -1754,7 +1825,9 @@
           }
         },
         "summary": "Bootstrap",
-        "x-ftd-authority": "same-origin-bootstrap"
+        "x-ftd-authority": "same-origin-bootstrap",
+        "x-ftd-cost": "none",
+        "x-ftd-side-effects": "none"
       }
     }
   }

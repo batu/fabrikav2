@@ -112,6 +112,7 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
         operation_id="listCurrentSessions",
         response_model=list[GallerySessionResponse],
         responses=_UNAVAILABLE_RESPONSE,
+        openapi_extra={"x-ftd-side-effects": "none", "x-ftd-cost": "none"},
     )
     def list_current_sessions() -> list[GallerySessionResponse]:
         try:
@@ -128,6 +129,7 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
         operation_id="createCurrentSession",
         response_model=SessionSnapshotResponse,
         responses=_UNAVAILABLE_RESPONSE,
+        openapi_extra={"x-ftd-side-effects": "session-mutation", "x-ftd-cost": "none"},
     )
     def create_current_session(body: CreateSessionRequest) -> SessionSnapshotResponse:
         try:
@@ -152,6 +154,7 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
         operation_id="getCurrentSession",
         response_model=SessionSnapshotResponse,
         responses=_UNAVAILABLE_RESPONSE,
+        openapi_extra={"x-ftd-side-effects": "none", "x-ftd-cost": "none"},
     )
     def get_current_session(session_id: str) -> SessionSnapshotResponse:
         try:
@@ -197,6 +200,11 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
             409: {"model": SessionRevisionConflictResponse},
             **_UNAVAILABLE_RESPONSE,
         },
+        openapi_extra={
+            "x-ftd-side-effects": "session-mutation",
+            "x-ftd-cost": "none",
+            "x-ftd-revision": "bound",
+        },
     )
     def set_current_session_dog_active_variant(
         session_id: str, dog_id: str, body: SetDogActiveVariantRequest
@@ -217,6 +225,11 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
         responses={
             409: {"model": SessionRevisionConflictResponse},
             **_UNAVAILABLE_RESPONSE,
+        },
+        openapi_extra={
+            "x-ftd-side-effects": "session-mutation",
+            "x-ftd-cost": "none",
+            "x-ftd-revision": "bound",
         },
     )
     def update_current_session_gallery_metadata(

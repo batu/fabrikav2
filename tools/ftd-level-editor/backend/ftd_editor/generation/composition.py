@@ -1,8 +1,9 @@
 """FTD scene-composition paid actions and pure band-extension math.
 
 Pure leaves port the v1 band arithmetic exactly (`band_generation.py`:
-`compute_band_heights`, `_strip_px`, `derive_band_prompt`, TARGET_ASPECT).
-The PIL canvas/mask assembly of v1 is provider-side input preparation and
+`compute_band_heights`, `_strip_px`, TARGET_ASPECT). Prompt text is
+composed only by `ftd_editor.prompts` from structured intents (U7). The
+PIL canvas/mask assembly of v1 is provider-side input preparation and
 is deferred with the imaging dependencies; the durable handlers pass the
 band geometry and prompt to the scripted provider adapter instead.
 """
@@ -13,6 +14,12 @@ import math
 from typing import Any, Callable, Mapping
 
 from ..jobs.worker import JobContext, TerminalJobError
+from ..prompts.intents import (
+    IntentError,
+    derive_band_prompt,
+    forbid_client_prompt_keys,
+    resolve_scene_prompt,
+)
 from .paid import (
     PaidRuntime,
     apply_session_mutation,
@@ -50,33 +57,6 @@ def strip_px(band_height: int) -> int:
     """Exact v1 port: edge-context strip thickness for a seamless band join."""
 
     return max(64, band_height // 8)
-
-
-def derive_band_prompt(side: str, scene_meta: Mapping[str, Any]) -> str:
-    """Exact v1 port of the scene-aware band prompt with the no-subject guard."""
-
-    context_bits = [
-        str(scene_meta.get(key)).strip()
-        for key in ("setting", "scene", "scene_prompt")
-        if scene_meta.get(key)
-    ]
-    context = ", ".join(context_bits)
-    guard = "No animals, no characters, no dogs, no people, no text, no watermarks."
-    if side == "bottom":
-        body = (
-            "Continue the scene seamlessly downward: more of the same foreground "
-            "ground, less detail, same camera angle, scale, perspective, style and "
-            "lighting. No new structures."
-        )
-    else:
-        body = (
-            "Continue the scene seamlessly upward: let any buildings, walls or "
-            "fences at the top edge simply end, and fade into a simple open "
-            "low-detail background (sky, grass, water or floor as appropriate). "
-            "Calm, sparse, mostly empty."
-        )
-    prefix = f"Scene: {context}. " if context else ""
-    return f"{prefix}{body} {guard}"
 
 
 def _artifact_reference(artifact: Any, validated: Any) -> dict[str, Any]:
@@ -130,7 +110,11 @@ def _run_single_scene_action(
 def background_generate_handler(runtime: PaidRuntime) -> Callable[[JobContext], dict[str, Any]]:
     def handler(context: JobContext) -> dict[str, Any]:
         spec = load_spec(context)
-        prompt = str(require_input(spec, "prompt"))
+        try:
+            forbid_client_prompt_keys(spec.inputs)
+            prompt = resolve_scene_prompt(require_input(spec, "sceneIntent"))
+        except IntentError as error:
+            raise TerminalJobError("invalid_inputs", str(error)) from error
 
         def apply(mapping: dict[str, Any], reference: dict[str, Any]) -> None:
             mapping["background"] = reference
@@ -150,6 +134,10 @@ def background_generate_handler(runtime: PaidRuntime) -> Callable[[JobContext], 
 def band_generate_handler(runtime: PaidRuntime) -> Callable[[JobContext], dict[str, Any]]:
     def handler(context: JobContext) -> dict[str, Any]:
         spec = load_spec(context)
+        try:
+            forbid_client_prompt_keys(spec.inputs)
+        except IntentError as error:
+            raise TerminalJobError("invalid_inputs", str(error)) from error
         side = str(require_input(spec, "side"))
         if side not in ("top", "bottom"):
             raise TerminalJobError("invalid_inputs", "band side must be 'top' or 'bottom'")

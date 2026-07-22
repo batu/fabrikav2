@@ -22,6 +22,8 @@ from ftd_editor.jobs.store import AttemptNotAllowed, RequestIdentityConflict
 
 HITBOX = {"x": 10, "y": 12, "w": 20, "h": 24}
 
+DOG_INTENT = {"style": "clean_old_cartoon"}
+
 GOOD_INPUTS: dict[str, dict] = {
     "ftd.dog_variant_upscale": {
         "target": "dog_variant",
@@ -29,17 +31,17 @@ GOOD_INPUTS: dict[str, dict] = {
         "hitbox": HITBOX,
         "model": "fal-ai/esrgan",
     },
-    "ftd.background_generate": {"prompt": "a cartoon barn scene"},
+    "ftd.background_generate": {"sceneIntent": {"scene": "istanbul_market"}},
     "ftd.sprite_animate": {
         "dogId": "dog-1",
         "sourceCandidateId": "cand-1",
         "motionPreset": "idle",
     },
-    "ftd.crop_inpaint": {"dogId": "dog-1", "hitbox": HITBOX, "prompt": "add one dog"},
+    "ftd.crop_inpaint": {"dogId": "dog-1", "hitbox": HITBOX, "dogIntent": DOG_INTENT},
     "ftd.retry_failed_dogs": {
         "dogs": [
-            {"dogId": "dog-1", "hitbox": HITBOX, "prompt": "first"},
-            {"dogId": "dog-2", "hitbox": HITBOX, "prompt": "second"},
+            {"dogId": "dog-1", "hitbox": HITBOX, "dogIntent": DOG_INTENT},
+            {"dogId": "dog-2", "hitbox": HITBOX, "dogIntent": {"style": "old_pixel_art"}},
         ]
     },
     "ftd.band_generate": {
@@ -50,8 +52,8 @@ GOOD_INPUTS: dict[str, dict] = {
     },
     "ftd.sequence_workflow": {"scenes": ["farm_barn"]},
     "ftd.multi_scene_generate": {"scenes": ["farm_barn", "farm_field"]},
-    "ftd.magenta_inpaint": {"dogPrompt": "Add exactly one cute dog"},
-    "ftd.dog_regenerate": {"dogId": "dog-1", "hitbox": HITBOX, "prompt": "regenerate"},
+    "ftd.magenta_inpaint": {"dogIntent": DOG_INTENT},
+    "ftd.dog_regenerate": {"dogId": "dog-1", "hitbox": HITBOX, "dogIntent": {"style": "old_pixel_art"}},
 }
 
 ALL_KINDS = tuple(GOOD_INPUTS)

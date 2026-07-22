@@ -201,7 +201,11 @@ def create_app(settings: EditorSettings, components: AppComponents) -> FastAPI:
         "/bootstrap",
         response_model=BootstrapResponse,
         operation_id="getEditorBootstrap",
-        openapi_extra={"x-ftd-authority": "same-origin-bootstrap"},
+        openapi_extra={
+            "x-ftd-authority": "same-origin-bootstrap",
+            "x-ftd-side-effects": "none",
+            "x-ftd-cost": "none",
+        },
     )
     def bootstrap() -> BootstrapResponse:
         return BootstrapResponse(launchCredential=launch_credential)

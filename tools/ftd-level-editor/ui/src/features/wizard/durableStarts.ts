@@ -7,6 +7,7 @@
 
 import type { JobResource } from '../../api/generated.ts';
 import type { JobsTransport } from '../../api/http.ts';
+import type { FtdDogIntent, FtdSceneIntent } from '../prompts/intents.ts';
 import { type JobObserver, observeJob } from '../../jobs/observeJob.ts';
 
 export interface DurableStartContext {
@@ -43,21 +44,23 @@ export async function startDurable(
 
 export function startBackgroundGeneration(
   context: DurableStartContext,
-  inputs: { sceneKey: string },
+  inputs: { sceneIntent: FtdSceneIntent },
 ): Promise<DurableStart> {
   return startDurable(context, 'ftd.background_generate', inputs);
 }
 
 export function startCropInpaint(
   context: DurableStartContext,
-  inputs: { dogKey: string; cropBox: Record<string, number> },
+  inputs: { dogId: string; hitbox: Record<string, number>; dogIntent: FtdDogIntent },
 ): Promise<DurableStart> {
   return startDurable(context, 'ftd.crop_inpaint', inputs);
 }
 
 export function startRetryFailedDogs(
   context: DurableStartContext,
-  inputs: { dogKeys: string[] },
+  inputs: {
+    dogs: { dogId: string; hitbox: Record<string, number>; dogIntent: FtdDogIntent }[];
+  },
 ): Promise<DurableStart> {
   return startDurable(context, 'ftd.retry_failed_dogs', inputs);
 }
@@ -71,14 +74,14 @@ export function startBandGeneration(
 
 export function startMagentaInpaint(
   context: DurableStartContext,
-  inputs: { dogPrompt: string; hitboxes: Record<string, number>[]; magentaPromptOverride?: string },
+  inputs: { dogIntent: FtdDogIntent; hitboxes: Record<string, number>[] },
 ): Promise<DurableStart> {
   return startDurable(context, 'ftd.magenta_inpaint', inputs);
 }
 
 export function startDogRegeneration(
   context: DurableStartContext,
-  inputs: { dogId: string; hitbox: Record<string, number>; prompt: string },
+  inputs: { dogId: string; hitbox: Record<string, number>; dogIntent: FtdDogIntent },
 ): Promise<DurableStart> {
   return startDurable(context, 'ftd.dog_regenerate', inputs);
 }

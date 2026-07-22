@@ -83,7 +83,7 @@ def test_same_dog_sequential_paid_actions_allocate_distinct_bundles(paid_env, pa
     # still-current revision (identical inputs would hit U4 artifact reuse).
     script_happy(paid_env, kind)
     session = paid_env.env.sessions.load(paid_session.session_id)
-    changed = {**GOOD_INPUTS[kind], "prompt": "a different pose"}
+    changed = {**GOOD_INPUTS[kind], "dogIntent": {"style": "old_pixel_art"}}
     second, _ = start(paid_env, session, kind, "req-dog-b", inputs=changed)
     run_all(paid_env.make_worker())
     final = paid_env.env.jobs.get_job(second.id)

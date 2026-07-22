@@ -12,6 +12,7 @@ from __future__ import annotations
 from typing import Any, Callable, Mapping
 
 from ..jobs.worker import ApplicationConflict, JobContext, TerminalJobError
+from ..prompts.intents import IntentError, forbid_client_prompt_keys, resolve_dog_prompt
 from ..sessions.dogs import DogBundlePayload, StableDogNotFound, require_stable_dog, set_active_variant
 from ..sessions.store import ReservationRejected, SessionRevisionConflict
 from .boundary import ValidatedOutput
@@ -107,16 +108,18 @@ def _require_dog(runtime: PaidRuntime, spec: Any, dog_id: str) -> None:
         raise TerminalJobError("stable_dog_not_found", str(error)) from error
 
 
-def _single_dog_handler(
-    runtime: PaidRuntime, *, prompt_input: str
-) -> Callable[[JobContext], dict[str, Any]]:
+def _single_dog_handler(runtime: PaidRuntime) -> Callable[[JobContext], dict[str, Any]]:
     def handler(context: JobContext) -> dict[str, Any]:
         spec = load_spec(context)
         dog_id = str(require_input(spec, "dogId"))
         hitbox = require_input(spec, "hitbox")
         if not isinstance(hitbox, Mapping):
             raise TerminalJobError("invalid_inputs", "hitbox must be a mapping")
-        prompt = str(require_input(spec, prompt_input))
+        try:
+            forbid_client_prompt_keys(spec.inputs)
+            prompt = resolve_dog_prompt(require_input(spec, "dogIntent"))
+        except IntentError as error:
+            raise TerminalJobError("invalid_inputs", str(error)) from error
         _require_dog(runtime, spec, dog_id)
         policy = policy_for("image")
         url = submit_and_obtain_output_url(
@@ -134,16 +137,20 @@ def _single_dog_handler(
 
 
 def crop_inpaint_handler(runtime: PaidRuntime) -> Callable[[JobContext], dict[str, Any]]:
-    return _single_dog_handler(runtime, prompt_input="prompt")
+    return _single_dog_handler(runtime)
 
 
 def dog_regenerate_handler(runtime: PaidRuntime) -> Callable[[JobContext], dict[str, Any]]:
-    return _single_dog_handler(runtime, prompt_input="prompt")
+    return _single_dog_handler(runtime)
 
 
 def retry_failed_dogs_handler(runtime: PaidRuntime) -> Callable[[JobContext], dict[str, Any]]:
     def handler(context: JobContext) -> dict[str, Any]:
         spec = load_spec(context)
+        try:
+            forbid_client_prompt_keys(spec.inputs)
+        except IntentError as error:
+            raise TerminalJobError("invalid_inputs", str(error)) from error
         dogs = require_input(spec, "dogs")
         if not isinstance(dogs, list) or not dogs:
             raise TerminalJobError("invalid_inputs", "dogs must be a non-empty list")
@@ -157,11 +164,15 @@ def retry_failed_dogs_handler(runtime: PaidRuntime) -> Callable[[JobContext], di
                 raise TerminalJobError("invalid_inputs", "each dog entry must be a mapping")
             dog_id = str(entry.get("dogId") or "")
             hitbox = entry.get("hitbox")
-            prompt = str(entry.get("prompt") or "")
-            if not dog_id or not isinstance(hitbox, Mapping) or not prompt:
+            if not dog_id or not isinstance(hitbox, Mapping):
                 raise TerminalJobError(
-                    "invalid_inputs", "each dog entry needs dogId, hitbox, and prompt"
+                    "invalid_inputs", "each dog entry needs dogId, hitbox, and dogIntent"
                 )
+            try:
+                forbid_client_prompt_keys(entry)
+                prompt = resolve_dog_prompt(entry.get("dogIntent"))
+            except IntentError as error:
+                raise TerminalJobError("invalid_inputs", str(error)) from error
             prior = already_completed.get(dog_id)
             if prior is not None:
                 # A prior attempt already paid for and published this dog:

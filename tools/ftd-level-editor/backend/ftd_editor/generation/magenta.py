@@ -1,17 +1,17 @@
-"""FTD magenta-overlay inpaint: pure prompt derivation plus the durable action.
+"""FTD magenta-overlay inpaint durable action.
 
-The prompt builder is an exact port of v1 `_magenta_prompt` (inpaint.py:4413):
-it strips the per-crop positional phrases from the wizard's entity prompt and
-wraps the subject in the fixed magenta-marker task framing. The paid execution
-itself moves off the v1 GET+SSE request path onto the U4 durable job.
+Prompt composition is server-owned by `ftd_editor.prompts.intents` (U7):
+the caller submits a structured dog intent and the server derives the
+magenta-marker inpaint prompt. The paid execution itself moved off the v1
+GET+SSE request path onto the U4 durable job.
 """
 
 from __future__ import annotations
 
-import re
 from typing import Any, Callable
 
-from ..jobs.worker import JobContext
+from ..jobs.worker import JobContext, TerminalJobError
+from ..prompts.intents import IntentError, forbid_client_prompt_keys, resolve_magenta_prompt
 from .paid import (
     PaidRuntime,
     apply_session_mutation,
@@ -24,61 +24,14 @@ from .paid import (
     submit_and_obtain_output_url,
 )
 
-_POSITIONAL_PHRASES = (
-    "at the center of the image",
-    "occupying roughly the central third of the frame (not filling it).",
-    "occupying roughly the central third of the frame",
-    "Place exactly one",
-    "do not repeat the subject.",
-    "Keep all other elements of the image unchanged.",
-)
-
-
-def magenta_prompt(entity_prompt: str) -> str:
-    """Exact v1 port: strip per-crop framing clauses, keep aesthetic clauses."""
-
-    cleaned = entity_prompt.strip()
-    for phrase in _POSITIONAL_PHRASES:
-        cleaned = cleaned.replace(phrase, "")
-    cleaned = re.sub(r"\s{2,}", " ", cleaned).replace(" ,", ",").replace(" .", ".").strip()
-    return (
-        "TASK: This image contains several opaque bright magenta (#FF00FF) "
-        "circular regions painted on top of a scene. The magenta circles are "
-        "LOCATION MARKERS ONLY — each one marks roughly where one instance "
-        "of the subject should appear. Replace every magenta circle with exactly "
-        "one instance of the subject described below, centered near that "
-        "circle's position.\n\n"
-        f"SUBJECT: {cleaned}\n\n"
-        "SCALE: Do NOT fill the circle. Render the subject at whatever physical "
-        "size is realistic for this scene — compare it to the other visible "
-        "objects around that spot (doorways, people, furniture, crates, trees, "
-        "etc.) and size the subject so it looks like it actually belongs there. "
-        "If the subject is a small animal, it should look small relative to "
-        "human-scale props in the scene, even when the magenta circle is large. "
-        "If the magenta circle is larger than a realistic subject, leave the "
-        "remainder of the circle area filled with what the surrounding scene "
-        "would plausibly contain at that spot (ground, floor, background texture).\n\n"
-        "STYLE: Match the surrounding scene's art style, palette, line weight, "
-        "lighting, shadow direction, and level of detail exactly. The subject "
-        "must look like it was always part of the illustration.\n\n"
-        "HARD CONSTRAINTS: "
-        "(1) Every magenta region must be fully replaced — no magenta pixels "
-        "may remain. "
-        "(2) Do not introduce any magenta, pink, or fuchsia tones elsewhere in "
-        "the output. "
-        "(3) Do not alter pixels far from the magenta regions — keep the "
-        "rest of the scene pixel-identical. "
-        "(4) Produce exactly one subject per circle; do not clone the subject "
-        "into the surrounding scene."
-    )
-
-
 def magenta_inpaint_handler(runtime: PaidRuntime) -> Callable[[JobContext], dict[str, Any]]:
     def handler(context: JobContext) -> dict[str, Any]:
         spec = load_spec(context)
-        entity_prompt = str(require_input(spec, "dogPrompt"))
-        override = str(spec.inputs.get("magentaPromptOverride") or "")
-        prompt = override if override else magenta_prompt(entity_prompt)
+        try:
+            forbid_client_prompt_keys(spec.inputs)
+            prompt = resolve_magenta_prompt(require_input(spec, "dogIntent"))
+        except IntentError as error:
+            raise TerminalJobError("invalid_inputs", str(error)) from error
         policy = policy_for("image")
         url = submit_and_obtain_output_url(
             context,
