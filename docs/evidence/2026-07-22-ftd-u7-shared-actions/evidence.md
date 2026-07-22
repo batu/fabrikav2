@@ -1,53 +1,61 @@
-# Evidence: FTD U7 — Shared actions and dependency cleanup
+---
+status: passed
+subject: FTD U7 shared actions, dependency cleanup, and revision-bound capture
+created: 2026-07-22
+mode: pipeline
+---
 
-- **Date:** 2026-07-22
-- **Card:** QHlpqoFF ([FTD U7] Shared actions and dependency cleanup)
-- **Branch:** trello-QHlpqoFF-ftd-u7-shared-actions-and-dependency-cle (reviewed from 8d63a9d2)
-- **Contract:** headless-logic (server-owned prompt intents, OpenAPI action discovery, import-boundary/dead-code cleanup — no visual runtime)
-- **Status:** verification passed; acceptance blocked in review
+# Evidence: FTD U7 shared actions, dependency cleanup, and revision-bound capture
 
 ## Verdict
 
-The full safe backend/UI suite, contract-drift check, and targeted AE12/AE14 contract tests pass after review fixes. The pinned `x-ftd-actions` OpenAPI extension is present (10 actions on `startFtdDurableAction`), LevelStore is absent from the backend, and the sessions barrel re-exports nothing.
+Fresh headless-logic evidence on commit `09eb8d7b` confirms the U7 capture repair: a client using the pinned OpenAPI contract can make a stable-ID edit and receive the exact current-session PNG at the edited revision, while the UI adapter exposes the same binary/revision/source/checksum facts and the full safe editor suite remains green.
 
-Review did not certify the U7 acceptance claim: the test named as a fresh-client edit-and-capture journey only calls `getCurrentSession`. It observes edited session metadata, not a revision-bound image capture. Implementing that missing operation requires an explicit public contract decision, so the card must return to planning rather than treating the passing test as capture evidence.
+## What Changed
 
-## Evidence
+- Added `POST /api/sessions/{session_id}/capture` (`captureCurrentSessionImage`) with a required Session Revision and six named FTD capture variants.
+- Ported the v1 gallery-preview source precedence into `SessionStore` while keeping capture read-only, root-confined, no-follow, and protected by before/after revision checks.
+- Pinned the binary response and cost, side-effect, revision, artifact, and authorization extensions in `openapi.json`, then regenerated TypeScript wire types.
+- Added a UI gallery adapter over the shared credentialed, bounded HTTP transport.
+- Replaced the false fresh-client capture alias with observed image bytes plus revision, source, and SHA-256 response proof.
 
-All commands ran from this worktree on 2026-07-22; workspace-scoped commands target `tools/ftd-level-editor/`.
+## Evidence Captured
 
-| Check | Command | Result |
+| Type | Artifact / Command | Result |
 |---|---|---|
-| Backend suite (safe markers) | `uv run --project tools/ftd-level-editor pytest tools/ftd-level-editor/tests -m 'not legacy_census and not paid and not stress' -q` | **331 passed**, 20 deselected, exit 0 |
-| AE12/AE14 contract coverage | included in the safe backend suite | action discovery, stable-ID reorder, import boundaries, route inventory, and structured intents pass; the purported capture assertion is not capture proof |
-| OpenAPI/type drift | `npm run editor:contracts:check` | no drift, exit 0 |
-| UI unit tests (incl. wire-shape adapter parity) | `npm run test:unit -w @fabrikav2/ftd-level-editor` | **55 pass, 0 fail** |
-| Typecheck | `npm run typecheck` | clean |
-| Lint | `npm run lint` (eslint ui) | clean |
-| Build | `npm run build -w @fabrikav2/ftd-level-editor` | clean fixture build |
-| Repository-wide lint | `npm run lint` | **not clean due to unrelated pre-existing errors** in `games/find_the_dog` and a missing root config imported by `tools/native-shell`; the editor workspace itself is clean |
-| Pinned action catalog | inspect `openapi.json` | `x-ftd-actions` on `startFtdDurableAction` → 10 actions (single catalog per test_route_inventory) |
-| LevelStore absent | `grep -rn LevelStore backend --include='*.py'` (non-test) | zero hits |
-| No compatibility barrel | `backend/ftd_editor/sessions/__init__.py` | docstring only, re-exports nothing |
+| full safe backend suite | `UV_CACHE_DIR=/private/tmp/ftd-u7-uv-cache uv run --project tools/ftd-level-editor pytest tools/ftd-level-editor/tests -m 'not legacy_census and not paid and not stress' -q` | passed: **335 passed**, 20 deselected; no provider call or spend |
+| focused capture/parity/boundary contracts | `uv run --project tools/ftd-level-editor pytest` over `test_session_capture.py`, `test_action_parity.py`, `test_route_inventory.py`, and `test_import_boundaries.py` | passed: **16 passed**; exact PNG bytes and revision/source/SHA-256 headers observed; stale revision returns current snapshot; symlink source rejected; no derivative or lock write |
+| UI adapter parity | `npm run test:unit -w @fabrikav2/ftd-level-editor` | passed: **56/56**; gallery capture uses the revision-bound binary contract and shared bounded transport |
+| OpenAPI/type drift | `npm run editor:contracts:check -w @fabrikav2/ftd-level-editor` | passed: pinned fixture has no drift |
+| TypeScript | `npm run typecheck -w @fabrikav2/ftd-level-editor` | passed |
+| Editor lint | `npm run lint -w @fabrikav2/ftd-level-editor` | passed |
+| Fixture build | `npm run build -w @fabrikav2/ftd-level-editor` | passed: Vite fixture build completed |
+| pinned capture discovery | inspected `openapi.json` operation `captureCurrentSessionImage` | passed: `image/png` binary response; `x-ftd-cost=none`, `x-ftd-side-effects=none`, `x-ftd-revision=bound`, `x-ftd-artifacts=inline-image`, `x-ftd-authorization=launch-credential` |
+| direct dependency boundaries | focused `test_import_boundaries.py`, `rg -n "LevelStore"` in backend/UI, and inspection of `sessions/__init__.py` | passed: forbidden imports rejected, no `LevelStore` hit, and the sessions package re-exports nothing |
+| dead-code inventory | `npx knip --workspace tools/ftd-level-editor` | known non-capture inventory remains (`Activity.tsx`, `revisionConflict.tsx`, observer exports, generated wire types, and the package's `uv` binary); no capture file/export is reported |
+| patch hygiene | `git diff --check` | passed |
 
-## Review fixes
+## Runtime Contract Observed
 
-- Closed scene and dog intents over the frozen catalogs so unknown values cannot fall through as provider prompt text.
-- Replaced caller-owned band `sceneMeta` with a catalog-owned `sceneIntent`; multi-scene and sequence workflows now reject client prompt keys and resolve every prompt before the first provider submission.
-- Corrected the UI durable-start adapter payloads to match the backend contract.
-- Reused the bounded, credentialed HTTP transport for gallery mutations and covered stalled-request abort behavior.
+The focused API tests start the injected FastAPI app against disposable roots and exercise the public operation. The successful response contains the exact source PNG bytes and pins these facts in response headers:
 
-## Blocking acceptance gap
+- session identity
+- exact captured Session Revision
+- v1-compatible session-relative source filename
+- SHA-256 digest of returned bytes
 
-- `tests/contracts/test_action_parity.py` labels `getCurrentSession` as capture. No revision-bound image-capture operation is discovered or exercised, so the required unpaid UI/direct-client parity journey remains unproved.
+The tests also observe a typed `409` with the current snapshot for a stale revision, a `404` for a symlink-only source, selected-background precedence, and no `.gallery_previews` or lock write. This is the real API boundary for the changed behavior; no mobile-game or rendered UI surface changed, so device/ADB evidence is not applicable.
 
-## Gaps / carry-forwards (tracked on card)
+## Reviewer Assessments
 
-- Real-browser Activity focus/aria-live journey: no feature UI mount exists yet to host it (U5-gap backstop; owed when a mount exists).
-- `sprite_animate` still accepts `customPrompt` free text (animation scope, not scene/dog inpaint) — U8 candidate.
-- Legacy full-corpus census (`legacy_census` marker) deferred to U9 rehearsal (needs external corpus).
-- `levels-index.json` deletion still gated on U7/U8 consumer proof (plan F-line 334).
+No visual, interaction, motion, or gameplay reviewer applies to this headless HTTP/client-contract delta. The next TWF stage owns code review of the binary contract, revision/TOCTOU behavior, pinned discovery, and UI/direct-client parity.
 
-## Next action
+## Gaps
 
-Return to planning to define the revision-bound image-capture operation and its UI/direct-client parity journey without inventing a shadow catalog or widening U7 implicitly.
+- None in the revision-bound capture repair or its U7 headless-logic contract.
+
+Tracked later-unit and mount-dependent deferrals remain unchanged: the Activity focus/aria-live browser journey awaits a real feature mount; `sprite_animate.customPrompt` is a U8 policy decision; full-corpus `legacy_census` belongs to U9 rehearsal; and `levels-index.json` deletion remains behind the U7/U8 consumer gate.
+
+## Next Action
+
+None for evidence. Advance to code review of commit `09eb8d7b` and this updated artifact.
