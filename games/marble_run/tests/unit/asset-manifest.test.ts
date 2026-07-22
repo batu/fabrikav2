@@ -1,13 +1,13 @@
 // Two-way proof that the v1 sugar3d → v2 marble_run asset port is 1:1:
 // nothing missing, nothing invented, nothing changed — in either direction.
-// Regenerate with: node games/marble_run/scripts/build-asset-manifest.mjs
+// Regenerate with: node tools/marble-run/build-asset-manifest.mjs
 
 import { existsSync, readFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 // @ts-expect-error -- plain .mjs helper shared with the generator script
-import { ASSET_ROOTS, V1_ROOT, listAssets, sha256 } from '../../scripts/asset-inventory.mjs';
+import { ASSET_ROOTS, V1_ROOT, listAssets, sha256 } from '../../../../tools/marble-run/asset-inventory.mjs';
 
 interface Entry {
   v1Path: string;

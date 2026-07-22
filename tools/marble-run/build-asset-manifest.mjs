@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 import { ASSET_ROOTS, V1_ROOT, listAssets, sha256 } from './asset-inventory.mjs';
 
-const gameDir = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const gameDir = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', 'games', 'marble_run');
 const manifestPath = join(gameDir, 'docs', 'asset-manifest.json');
 
 const entries = [];
@@ -34,7 +34,7 @@ entries.sort((a, b) => a.v1Path.localeCompare(b.v1Path));
 
 const manifest = {
   v1Root: V1_ROOT,
-  generatedBy: 'games/marble_run/scripts/build-asset-manifest.mjs',
+  generatedBy: 'tools/marble-run/build-asset-manifest.mjs',
   totalAssets: entries.length,
   totalBytes: entries.reduce((sum, e) => sum + e.bytes, 0),
   assets: entries,

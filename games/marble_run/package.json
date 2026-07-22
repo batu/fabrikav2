@@ -9,8 +9,8 @@
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run",
     "lint": "eslint .",
-    "ios:add": "npx cap add ios && npx cap sync ios && node scripts/ios-inject-team.mjs",
-    "ios:sync": "npx cap sync ios && node scripts/ios-inject-team.mjs"
+    "ios:add": "npx cap add ios && npx cap sync ios && node ../../tools/marble-run/ios-inject-team.mjs",
+    "ios:sync": "npx cap sync ios && node ../../tools/marble-run/ios-inject-team.mjs"
   },
   "dependencies": {
     "@capacitor/core": "^8.1.0",

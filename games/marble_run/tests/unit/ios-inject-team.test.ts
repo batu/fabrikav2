@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DEVELOPMENT_TEAM, injectDevelopmentTeam } from "../../scripts/ios-inject-team.mjs";
+import { DEVELOPMENT_TEAM, injectDevelopmentTeam } from "../../../../tools/marble-run/ios-inject-team.mjs";
 
 // Two build configs (Debug + Release), each with an Automatic sign style — the
 // exact shape `cap add ios` emits and v1 sugar3d's pbxproj carries. Tabs match
