@@ -3,6 +3,7 @@ import { playUITap } from '../audio/AudioManager';
 import { getStoreMetadata } from '../platform/StoreMetadata';
 import { mountRatePrompt } from '../v1core/ui';
 import { FTD_UI_THEME } from './ftdTheme';
+import { getModalRoot } from './modalRoot';
 
 /**
  * One-shot rate-me prompt — find_the_dog wiring of the shared
@@ -25,11 +26,11 @@ export interface RatePromptHandle {
 }
 
 export function showRatePromptWithHandle(): RatePromptHandle {
-  const hudOverlay = document.getElementById('hud-overlay');
-  if (!hudOverlay) return { dismissed: Promise.resolve(), dismiss: () => {} };
+  const modalRoot = getModalRoot();
+  if (!modalRoot) return { dismissed: Promise.resolve(), dismiss: () => {} };
 
   const handle = mountRatePrompt({
-    mountInto: hudOverlay,
+    mountInto: modalRoot,
     id: 'rate-prompt-overlay',
     theme: FTD_UI_THEME,
     content: {

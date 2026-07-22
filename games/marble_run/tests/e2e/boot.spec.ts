@@ -39,6 +39,49 @@ test("Play Now starts the current level from a real menu tap", async ({ page }) 
   );
 });
 
+test("win Next click closes the result and starts level 2", async ({ page }) => {
+  await page.addInitScript(() => window.localStorage.clear());
+  await page.goto("/?insituTour=win");
+  await page.waitForFunction(
+    () => (window as unknown as {
+      __FIND_DOG_HARNESS__?: { snapshot: () => { levelCompleteOverlayVisible: boolean } };
+    }).__FIND_DOG_HARNESS__?.snapshot().levelCompleteOverlayVisible === true,
+    { timeout: 30000 },
+  );
+
+  await page.evaluate(() => {
+    (window as unknown as {
+      __FIND_DOG_HARNESS__: { setSettings: (settings: { ratePromptEnabled: boolean }) => void };
+    }).__FIND_DOG_HARNESS__.setSettings({ ratePromptEnabled: false });
+  });
+
+  const next = page.locator('[data-fab-action="result-next"]');
+  await expect(next).toBeVisible();
+  await expect(next).toBeEnabled();
+  const hitAction = await next.evaluate((button) => {
+    const rect = button.getBoundingClientRect();
+    return document
+      .elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)
+      ?.closest('[data-fab-action]')
+      ?.getAttribute('data-fab-action');
+  });
+  expect(hitAction).toBe('result-next');
+
+  await next.click();
+
+  await expect(page.locator('#level-complete-overlay')).toHaveCount(0);
+  await page.waitForFunction(() => {
+    const bindings = window as unknown as {
+      __FIND_DOG_HARNESS__?: { snapshot: () => { activeScene: string; status?: string } };
+      __FIND_DOG_STATE__?: { currentLevelIndex: number };
+    };
+    const snapshot = bindings.__FIND_DOG_HARNESS__?.snapshot();
+    return snapshot?.activeScene === 'GameScene'
+      && snapshot.status === 'playing'
+      && bindings.__FIND_DOG_STATE__?.currentLevelIndex === 1;
+  }, { timeout: 30000 });
+});
+
 test.describe("home menu polish regressions", () => {
   test.use({
     viewport: { width: 390, height: 844 },
