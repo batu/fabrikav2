@@ -66,3 +66,17 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run audit
+
+  # FTD editor owns Python contracts plus generated OpenAPI/TypeScript/public
+  # schema. Keep this aggregate explicit: workspace discovery only sees npm.
+  ftd-editor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: astral-sh/setup-uv@v6
+      - run: npm ci
+      - run: npm run editor:ci -w @fabrikav2/ftd-level-editor

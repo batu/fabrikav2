@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run",
     "lint": "eslint .",
+    "gen:level-types:check": "npm run editor:schema:check -w @fabrikav2/ftd-level-editor",
     "build:ios": "node ../../tools/game-env/validate.mjs --game find_the_dog --mode ios && vite build --mode ios",
     "build:android": "node ../../tools/game-env/validate.mjs --game find_the_dog --mode android && vite build --mode android",
     "dev:ios": "vite --mode ios",

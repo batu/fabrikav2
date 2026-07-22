@@ -179,6 +179,85 @@
         "title": "BootstrapResponse",
         "type": "object"
       },
+      "CandidateResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "actor": {
+            "title": "Actor",
+            "type": "string"
+          },
+          "candidateId": {
+            "title": "Candidateid",
+            "type": "string"
+          },
+          "catalogRevision": {
+            "title": "Catalogrevision",
+            "type": "string"
+          },
+          "changelog": {
+            "title": "Changelog",
+            "type": "string"
+          },
+          "digest": {
+            "title": "Digest",
+            "type": "string"
+          },
+          "levelIds": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Levelids",
+            "type": "array"
+          },
+          "sequenceVersion": {
+            "title": "Sequenceversion",
+            "type": "string"
+          },
+          "sourceRevision": {
+            "title": "Sourcerevision",
+            "type": "string"
+          }
+        },
+        "required": [
+          "candidateId",
+          "sequenceVersion",
+          "levelIds",
+          "catalogRevision",
+          "changelog",
+          "actor",
+          "sourceRevision",
+          "digest"
+        ],
+        "title": "CandidateResponse",
+        "type": "object"
+      },
+      "CaptureSessionImageRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "title": "Revision",
+            "type": "string"
+          },
+          "variant": {
+            "default": "gemini",
+            "enum": [
+              "gemini",
+              "openai",
+              "openai_v2",
+              "gemini_bg_only",
+              "openai_bg_only",
+              "openai_v2_bg_only"
+            ],
+            "title": "Variant",
+            "type": "string"
+          }
+        },
+        "required": [
+          "revision"
+        ],
+        "title": "CaptureSessionImageRequest",
+        "type": "object"
+      },
       "CreateSessionRequest": {
         "additionalProperties": false,
         "properties": {
@@ -222,6 +301,59 @@
           "stores"
         ],
         "title": "EditorStatus",
+        "type": "object"
+      },
+      "ExportDryRunRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "title": "Revision",
+            "type": "string"
+          },
+          "sessionId": {
+            "title": "Sessionid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sessionId",
+          "revision"
+        ],
+        "title": "ExportDryRunRequest",
+        "type": "object"
+      },
+      "ExportDryRunResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "dogCount": {
+            "title": "Dogcount",
+            "type": "integer"
+          },
+          "levelId": {
+            "title": "Levelid",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "string"
+          },
+          "sessionId": {
+            "title": "Sessionid",
+            "type": "string"
+          },
+          "valid": {
+            "title": "Valid",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "sessionId",
+          "revision",
+          "valid",
+          "levelId",
+          "dogCount"
+        ],
+        "title": "ExportDryRunResponse",
         "type": "object"
       },
       "ForceNewJobRequest": {
@@ -572,6 +704,237 @@
         "title": "MintApprovalRequest",
         "type": "object"
       },
+      "MintPublishingApprovalRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "acknowledgement": {
+            "title": "Acknowledgement",
+            "type": "string"
+          },
+          "action": {
+            "enum": [
+              "publish",
+              "rollback"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "candidateId": {
+            "title": "Candidateid",
+            "type": "string"
+          },
+          "remote": {
+            "default": true,
+            "title": "Remote",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "candidateId",
+          "action",
+          "acknowledgement"
+        ],
+        "title": "MintPublishingApprovalRequest",
+        "type": "object"
+      },
+      "PrepareSequenceRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "actor": {
+            "title": "Actor",
+            "type": "string"
+          },
+          "catalogRevision": {
+            "title": "Catalogrevision",
+            "type": "string"
+          },
+          "changelog": {
+            "title": "Changelog",
+            "type": "string"
+          },
+          "levelIds": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Levelids",
+            "type": "array"
+          },
+          "sequenceVersion": {
+            "title": "Sequenceversion",
+            "type": "string"
+          },
+          "sourceRevision": {
+            "title": "Sourcerevision",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sequenceVersion",
+          "levelIds",
+          "catalogRevision",
+          "changelog",
+          "actor",
+          "sourceRevision"
+        ],
+        "title": "PrepareSequenceRequest",
+        "type": "object"
+      },
+      "ProtectedSequenceRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "candidateId": {
+            "title": "Candidateid",
+            "type": "string"
+          },
+          "grantId": {
+            "title": "Grantid",
+            "type": "string"
+          },
+          "remote": {
+            "default": true,
+            "title": "Remote",
+            "type": "boolean"
+          },
+          "requestId": {
+            "maxLength": 192,
+            "minLength": 8,
+            "title": "Requestid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "candidateId",
+          "grantId",
+          "requestId"
+        ],
+        "title": "ProtectedSequenceRequest",
+        "type": "object"
+      },
+      "PublishingApprovalResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "actionKind": {
+            "title": "Actionkind",
+            "type": "string"
+          },
+          "actor": {
+            "title": "Actor",
+            "type": "string"
+          },
+          "expiresAt": {
+            "title": "Expiresat",
+            "type": "string"
+          },
+          "grantId": {
+            "title": "Grantid",
+            "type": "string"
+          },
+          "requestBinding": {
+            "title": "Requestbinding",
+            "type": "string"
+          },
+          "sourceRevision": {
+            "title": "Sourcerevision",
+            "type": "string"
+          }
+        },
+        "required": [
+          "grantId",
+          "actor",
+          "actionKind",
+          "requestBinding",
+          "sourceRevision",
+          "expiresAt"
+        ],
+        "title": "PublishingApprovalResponse",
+        "type": "object"
+      },
+      "PublishingErrorResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              }
+            ],
+            "title": "Detail"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "PublishingErrorResponse",
+        "type": "object"
+      },
+      "PublishingSnapshotResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "candidates": {
+            "items": {
+              "$ref": "#/components/schemas/CandidateResponse"
+            },
+            "title": "Candidates",
+            "type": "array"
+          },
+          "remoteEnabled": {
+            "title": "Remoteenabled",
+            "type": "boolean"
+          },
+          "rollbackEligibleCandidateIds": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Rollbackeligiblecandidateids",
+            "type": "array"
+          },
+          "sagas": {
+            "items": {
+              "$ref": "#/components/schemas/SagaResponse"
+            },
+            "title": "Sagas",
+            "type": "array"
+          },
+          "selected": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CandidateResponse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "selectedRemoteRevision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Selectedremoterevision"
+          }
+        },
+        "required": [
+          "selected",
+          "candidates",
+          "sagas",
+          "rollbackEligibleCandidateIds",
+          "remoteEnabled",
+          "selectedRemoteRevision"
+        ],
+        "title": "PublishingSnapshotResponse",
+        "type": "object"
+      },
       "RequestIdentityConflictDetail": {
         "additionalProperties": false,
         "properties": {
@@ -600,6 +963,109 @@
           "submittedInputHash"
         ],
         "title": "RequestIdentityConflictDetail",
+        "type": "object"
+      },
+      "SagaResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "publish",
+              "rollback"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "actor": {
+            "title": "Actor",
+            "type": "string"
+          },
+          "baseRevision": {
+            "title": "Baserevision",
+            "type": "string"
+          },
+          "candidateId": {
+            "title": "Candidateid",
+            "type": "string"
+          },
+          "changelog": {
+            "title": "Changelog",
+            "type": "string"
+          },
+          "digest": {
+            "title": "Digest",
+            "type": "string"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "remote": {
+            "title": "Remote",
+            "type": "boolean"
+          },
+          "requestId": {
+            "title": "Requestid",
+            "type": "string"
+          },
+          "sagaId": {
+            "title": "Sagaid",
+            "type": "string"
+          },
+          "sourceRevision": {
+            "title": "Sourcerevision",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pending_remote",
+              "reconciling",
+              "remote_committed",
+              "finalizing",
+              "succeeded",
+              "failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sagaId",
+          "requestId",
+          "action",
+          "candidateId",
+          "digest",
+          "actor",
+          "changelog",
+          "sourceRevision",
+          "baseRevision",
+          "status",
+          "remote",
+          "error"
+        ],
+        "title": "SagaResponse",
+        "type": "object"
+      },
+      "SessionImageNotFoundResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "const": "session image not found",
+            "title": "Detail",
+            "type": "string"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "SessionImageNotFoundResponse",
         "type": "object"
       },
       "SessionProvenanceResponse": {
@@ -1079,6 +1545,68 @@
           }
         ],
         "summary": "Start Ftd Durable Action",
+        "x-ftd-actions": [
+          {
+            "kind": "ftd.dog_variant_upscale",
+            "policyVersion": "spend-p1",
+            "recipeVersion": "upscale-r1"
+          },
+          {
+            "intentInput": "sceneIntent",
+            "kind": "ftd.background_generate",
+            "policyVersion": "spend-p1",
+            "recipeVersion": "background-r1"
+          },
+          {
+            "kind": "ftd.sprite_animate",
+            "policyVersion": "spend-p1",
+            "recipeVersion": "sprite-r1"
+          },
+          {
+            "intentInput": "dogIntent",
+            "kind": "ftd.crop_inpaint",
+            "policyVersion": "spend-p1",
+            "recipeVersion": "crop-inpaint-r1"
+          },
+          {
+            "intentInput": "dogs[].dogIntent",
+            "kind": "ftd.retry_failed_dogs",
+            "policyVersion": "spend-p1",
+            "recipeVersion": "retry-dogs-r1"
+          },
+          {
+            "intentInput": "sceneIntent",
+            "kind": "ftd.band_generate",
+            "policyVersion": "spend-p1",
+            "recipeVersion": "band-r1"
+          },
+          {
+            "intentInput": "scenes[]",
+            "kind": "ftd.sequence_workflow",
+            "policyVersion": "spend-p1",
+            "recipeVersion": "sequence-r1"
+          },
+          {
+            "intentInput": "scenes[]",
+            "kind": "ftd.multi_scene_generate",
+            "policyVersion": "spend-p1",
+            "recipeVersion": "multi-scene-r1"
+          },
+          {
+            "intentInput": "dogIntent",
+            "kind": "ftd.magenta_inpaint",
+            "policyVersion": "spend-p1",
+            "recipeVersion": "magenta-r1",
+            "replaces": "v1 GET+SSE magenta inpaint request"
+          },
+          {
+            "intentInput": "dogIntent",
+            "kind": "ftd.dog_regenerate",
+            "policyVersion": "spend-p1",
+            "recipeVersion": "dog-regen-r1",
+            "replaces": "v1 POST single-dog regeneration request"
+          }
+        ],
         "x-ftd-authorization": "launch-credential",
         "x-ftd-cost": "provider-spend",
         "x-ftd-durability": "durable-job",
@@ -1413,6 +1941,489 @@
         "x-ftd-side-effects": "provider-submission"
       }
     },
+    "/api/publishing": {
+      "get": {
+        "operationId": "getPublishingSnapshot",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingSnapshotResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "LaunchCredential": []
+          }
+        ],
+        "summary": "Get Snapshot",
+        "x-ftd-authorization": "launch-credential",
+        "x-ftd-cost": "none",
+        "x-ftd-side-effects": "none"
+      }
+    },
+    "/api/publishing/activate": {
+      "post": {
+        "operationId": "activateSequencePublication",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProtectedSequenceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SagaResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "LaunchCredential": []
+          }
+        ],
+        "summary": "Activate",
+        "x-ftd-approval": "single-use-digest-bound",
+        "x-ftd-authorization": "launch-credential-and-human-approval-grant",
+        "x-ftd-cost": "none",
+        "x-ftd-reconciliation": "exact-remote-readback-no-blind-republish",
+        "x-ftd-revision": "digest-and-base-bound",
+        "x-ftd-side-effects": "public-sequence-selection"
+      }
+    },
+    "/api/publishing/approval-grants": {
+      "post": {
+        "operationId": "mintPublishingApprovalGrant",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "X-FTD-Human-Approval-Credential",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Ftd-Human-Approval-Credential"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MintPublishingApprovalRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingApprovalResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "security": [
+          {
+            "LaunchCredential": []
+          }
+        ],
+        "summary": "Mint Approval",
+        "x-ftd-approval": "explicit-digest-and-action-confirmation",
+        "x-ftd-authorization": "human-publishing-credential",
+        "x-ftd-cost": "none",
+        "x-ftd-side-effects": "publication-grant-minting"
+      }
+    },
+    "/api/publishing/export-dry-run": {
+      "post": {
+        "operationId": "dryRunCurrentSessionExport",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportDryRunRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExportDryRunResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "LaunchCredential": []
+          }
+        ],
+        "summary": "Export Dry Run",
+        "x-ftd-artifacts": "validation-facts-only",
+        "x-ftd-authorization": "launch-credential",
+        "x-ftd-cost": "none",
+        "x-ftd-revision": "bound",
+        "x-ftd-side-effects": "none"
+      }
+    },
+    "/api/publishing/previews": {
+      "post": {
+        "operationId": "prepareSequencePublication",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrepareSequenceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CandidateResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "security": [
+          {
+            "LaunchCredential": []
+          }
+        ],
+        "summary": "Prepare",
+        "x-ftd-approval": "not-required",
+        "x-ftd-authorization": "launch-credential",
+        "x-ftd-cost": "none",
+        "x-ftd-revision": "catalog-bound",
+        "x-ftd-side-effects": "immutable-local-preview"
+      }
+    },
+    "/api/publishing/rollback": {
+      "post": {
+        "operationId": "rollbackSequencePublication",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProtectedSequenceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SagaResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "LaunchCredential": []
+          }
+        ],
+        "summary": "Rollback",
+        "x-ftd-approval": "single-use-digest-bound",
+        "x-ftd-authorization": "launch-credential-and-human-approval-grant",
+        "x-ftd-cost": "none",
+        "x-ftd-reconciliation": "exact-remote-readback-no-blind-republish",
+        "x-ftd-revision": "digest-and-base-bound",
+        "x-ftd-side-effects": "public-sequence-selection"
+      }
+    },
+    "/api/publishing/sagas/{saga_id}/reconcile": {
+      "post": {
+        "operationId": "reconcileSequencePublication",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "saga_id",
+            "required": true,
+            "schema": {
+              "title": "Saga Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SagaResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublishingErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "LaunchCredential": []
+          }
+        ],
+        "summary": "Reconcile",
+        "x-ftd-authorization": "launch-credential",
+        "x-ftd-cost": "none",
+        "x-ftd-reconciliation": "readback-only-no-publish",
+        "x-ftd-side-effects": "remote-readback-and-local-finalization"
+      }
+    },
     "/api/sessions": {
       "get": {
         "operationId": "listCurrentSessions",
@@ -1447,7 +2458,9 @@
             "LaunchCredential": []
           }
         ],
-        "summary": "List Current Sessions"
+        "summary": "List Current Sessions",
+        "x-ftd-cost": "none",
+        "x-ftd-side-effects": "none"
       },
       "post": {
         "operationId": "createCurrentSession",
@@ -1498,7 +2511,9 @@
             "LaunchCredential": []
           }
         ],
-        "summary": "Create Current Session"
+        "summary": "Create Current Session",
+        "x-ftd-cost": "none",
+        "x-ftd-side-effects": "session-mutation"
       }
     },
     "/api/sessions/{session_id}": {
@@ -1552,7 +2567,125 @@
             "LaunchCredential": []
           }
         ],
-        "summary": "Get Current Session"
+        "summary": "Get Current Session",
+        "x-ftd-cost": "none",
+        "x-ftd-side-effects": "none"
+      }
+    },
+    "/api/sessions/{session_id}/capture": {
+      "post": {
+        "operationId": "captureCurrentSessionImage",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "session_id",
+            "required": true,
+            "schema": {
+              "title": "Session Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaptureSessionImageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "image/png": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Revision-bound current authoring image bytes.",
+            "headers": {
+              "X-FTD-Image-SHA256": {
+                "description": "SHA-256 digest of the returned image bytes.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-FTD-Image-Source": {
+                "description": "Session-relative v1-compatible source filename.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-FTD-Session-Id": {
+                "description": "Captured authoring session identity.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "X-FTD-Session-Revision": {
+                "description": "Exact session revision captured.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionImageNotFoundResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionRevisionConflictResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionUnavailableResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "security": [
+          {
+            "LaunchCredential": []
+          }
+        ],
+        "summary": "Capture Current Session Image",
+        "x-ftd-artifacts": "inline-image",
+        "x-ftd-authorization": "launch-credential",
+        "x-ftd-cost": "none",
+        "x-ftd-revision": "bound",
+        "x-ftd-side-effects": "none"
       }
     },
     "/api/sessions/{session_id}/dogs/{dog_id}/active-variant": {
@@ -1635,7 +2768,10 @@
             "LaunchCredential": []
           }
         ],
-        "summary": "Set Current Session Dog Active Variant"
+        "summary": "Set Current Session Dog Active Variant",
+        "x-ftd-cost": "none",
+        "x-ftd-revision": "bound",
+        "x-ftd-side-effects": "session-mutation"
       }
     },
     "/api/sessions/{session_id}/gallery-metadata": {
@@ -1709,7 +2845,10 @@
             "LaunchCredential": []
           }
         ],
-        "summary": "Update Current Session Gallery Metadata"
+        "summary": "Update Current Session Gallery Metadata",
+        "x-ftd-cost": "none",
+        "x-ftd-revision": "bound",
+        "x-ftd-side-effects": "session-mutation"
       }
     },
     "/api/status": {
@@ -1754,7 +2893,9 @@
           }
         },
         "summary": "Bootstrap",
-        "x-ftd-authority": "same-origin-bootstrap"
+        "x-ftd-authority": "same-origin-bootstrap",
+        "x-ftd-cost": "none",
+        "x-ftd-side-effects": "none"
       }
     }
   }

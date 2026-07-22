@@ -1,145 +1,63 @@
 # FTD Editor Architecture
 
-## Shape
-
-The editor is one FTD-owned modular monolith: one FastAPI process, one React UI,
-one deliberately single-owner in-process worker, one filesystem authoring authority,
-and one SQLite job ledger. U3 now installs the lossless, revisioned current-session
-boundary; the durable job ledger is still absent.
+## Authorities and dependency direction
 
 ```text
-React feature -> same-origin HTTP action -> thin FastAPI route
-                                           |-> SessionStore (typed CAS + raw bundles)
-                                           |-> durable jobs (later unit) -> provider adapter
-                                           `-> pure FTD domain/prompt code
-
-create_app(settings, components) may compose every layer.
-Pure domain/prompts/models import no FastAPI, store, worker, provider, or UI code.
-Job infrastructure must never import an FTD feature module.
+React feature -> typed same-origin FTD action -> thin FastAPI route
+                                                |-> SessionStore (authoring CAS)
+                                                |-> JobStore/worker (attempts/events)
+                                                `-> PublishingService
+                                                    |-> public schema + geometry
+                                                    |-> immutable candidates
+                                                    |-> catalog/sequence selection
+                                                    `-> injected publisher readback
 ```
 
-There is no generic service layer, repository base class, dependency-injection
-container, command bus, plugin registry, compatibility façade, or multi-game editor
-framework.
+Four authorities stay separate: authoring session files, SQLite jobs/events,
+the public level schema, and immutable packages plus selection manifests. There is
+no LevelStore projection, generic command bus, plugin registry, compatibility
+facade, service split, or multi-game editor abstraction.
 
-## Composition and imports
+`create_app(settings, components)` is the only composition boundary. Routes do not
+discover paths or providers. Pure schema/catalog/geometry modules import neither
+FastAPI nor job infrastructure. Job infrastructure imports no FTD feature module.
 
-`EditorSettings` and `WorkspacePaths` are frozen values created by the process
-entrypoint or test. They contain explicit authoring, public, state, artifact, cache,
-and lock roots. No module derives a path from `__file__`, parent depth, the current
-working directory, or the legacy checkout.
+## Publication lifecycle
 
-Startup proves the configured filesystem supports exclusive locks, same-filesystem
-replace, file fsync, and directory fsync. Production data is rejected beneath any
-Git checkout or worktree. Every operational root remains beneath the stable data
-root and is re-resolved before preparation so a late symlink cannot redirect it.
-Path resolution is root-confined and rejects traversal or symlink escape.
+1. Validate public schema, baked/native geometry, catalog, starters, and ordered
+   sequence input before a selection can change.
+2. Persist an immutable canonical preview. Its SHA-256 binds actor, changelog,
+   ordered level IDs, catalog revision, and remote base revision.
+3. Through an out-of-band operator credential that bootstrap never returns,
+   consume a server-held, single-use
+   Approval Grant for `publish_sequence` or `rollback_sequence`, bound to the
+   candidate digest and source revision. The generic agent mint route rejects both.
+4. Persist the caller Request ID and `pending_remote` before calling an explicitly
+   configured publisher; exact replay returns the existing saga.
+5. A definite rejection records `failed` and preserves current selection. A timeout
+   records `reconciling`; restart calls readback only, never publish.
+6. Only an exact digest/version/base match reaches `remote_committed`, then local
+   atomic finalization selects the immutable candidate. A crash before finalization
+   remains recoverable through the same exact readback.
+7. Rollback runs the same protected lifecycle against an eligible retained
+   candidate and never edits its bytes.
 
-## Atomic bundle boundary
+Default composition has no publisher. `ScriptedPublisher` is a deterministic test
+fixture, not an autonomous loop and not a network adapter.
 
-`fs.py` owns the small durability primitives. Raw FTD bundle membership is staged
-and hash-validated on the destination filesystem before an immutable candidate is
-installed. Only a complete candidate may be exposed by its atomic selector. The
-phase record (`staged`, `candidate_installed`, `selector_swapped`, `committed`) lets
-startup roll an uncommitted selector back or retain a committed candidate. Prior
-immutable revisions are never deleted by recovery. Directory components are created
-and linked durably before a selector can become committed. Publication holds a
-shared lifecycle lock; recovery takes the exclusive side so startup never treats an
-active transaction as crash residue.
+## Contracts and CI
 
-`SessionStore` owns current-session and same-dog process locks plus filesystem locks. Allocation,
-dog image, crop box, sprite image/metadata, raw session bytes, job artifact, bundle
-install, and selector commit all occur inside that reservation. This is deliberately
-one FTD store rather than a second projection. Construction probes the approved
-filesystem before any startup recovery may reconcile files.
+- `openapi.json` and `ui/src/api/generated.ts` derive from the fully composed,
+  provider-free contract app.
+- `publishing/level_schema.py` generates the game runtime `LevelFileV1` type.
+- `verify_public_levels.py` validates every committed level, extension geometry,
+  every catalog-declared asset hash/size, and the intentional `levels-index.json`
+  retention gate.
+- Root `npm run editor:verify` is the one focused local/CI entry point.
+- CI gives the Python/editor aggregate its own job because npm workspace discovery
+  alone cannot observe Python contract drift.
 
-The current-session revision uses framed entry records and hashes the complete
-session directory, including empty directories, symlinks, special entries, and
-unmanaged direct filesystem changes. Directory/file descriptors pin no-follow
-session reads and writes so a path swap cannot redirect access outside the approved
-authoring root. Loads preserve exact source bytes and expose typed known fields
-without expanding absent defaults or coercing legacy scalar representations.
-Existing-session writes use compare-and-swap and return the current snapshot on
-conflict. Creation stages a complete session and durably renames it only while the
-destination is absent; startup removes abandoned stages, and a post-rename
-durability failure is reported as an indeterminate commit. Stable dog actions and
-gallery metadata mutations are named operations, never a generic raw patch.
-
-Dog-bundle work preflights the source revision and one stable dog before invoking
-the builder, then rechecks both after reservation and before selector publication.
-The builder must return the exact source session mapping with only the allocated
-dog variant selected; dropping unrelated legacy or future fields is rejected. All
-supported live writers share these locks. Arbitrary manual/raw
-filesystem changes are offline-only because no cooperative CAS can atomically
-exclude a non-cooperating writer; once the editor restarts, the full-tree revision
-detects the changed state.
-
-Any failure after an atomic session replacement crosses its commit point is exposed
-as an indeterminate commit. The caller reloads the current snapshot before making
-an explicit reapply or discard decision.
-
-Legacy identity analysis is a separate read-only leaf. It accepts an explicit
-corpus root, inventories live and tombstone dog folders, records active/fallback
-variant-box provenance, quarantines positional permutations and dangling or
-mismatched identities, resolves referenced artifacts with descriptor-relative
-no-follow opens, classifies stable/rebindable/ambiguous/unsupported sessions, and
-checks that the source tree checksum did not change. It exposes no import or repair
-action.
-
-`AppComponents` carries the injected store registry, worker, provider registry, and
-central redactor. The default U1 test composition uses:
-
-- `EditorStores`: explicitly composes the currently installed persistence authorities;
-- `ManualWorker`: no thread and no startup loop;
-- `FailClosedProviders`: every un-scripted provider lookup raises;
-- `SecretRedactor`: sanitizes errors and persistence-shaped payloads before they
-  cross an outward boundary.
-
-Importing any backend module reads only package-owned static prompt data. It creates
-no runtime object and starts no lifecycle.
-
-## Local trust boundary
-
-The loopback process generates a random launch credential for each app composition.
-The request guard executes before routing:
-
-1. require an exact allowed `Host` value (DNS-rebinding defense);
-2. reject any non-matching `Origin`;
-3. require an allowed Origin on mutating methods;
-4. answer only narrow, same-origin preflights;
-5. require the launch credential header for API, asset, and download paths.
-
-The same-origin `/bootstrap` response is the only credential delivery path. It is
-Host/Origin guarded, `no-store`, and `no-referrer`. Credentials in URLs are never
-accepted. Remote exposure stays disabled unless a later, separately reviewed mode
-adds authentication and transport requirements.
-
-## Secret boundary
-
-Provider/publisher secrets are `SecretValue` composition inputs. Their string and
-representation forms are redacted, and they are not Pydantic/OpenAPI fields.
-`SecretRedactor` recursively sanitizes untrusted text for API errors, logs, durable
-events, SQLite metadata, artifacts, and evidence. Later persistence code must call
-this boundary before writing; it must not grow feature-local scrubbers.
-
-## Pure FTD leaves
-
-- `domain/geometry.py`: FTD HUD/banner/safe-area and three-section geometry.
-- `prompts/recipes.py` + `prompts/catalog.json`: server-owned FTD scenes, style,
-  entity, hidden-object composition, and entity inpaint recipes. Provider invocation
-  is intentionally excluded.
-- `models/options.py`: the existing v1 model IDs/labels as an environment-free
-  registry. Composition supplies provider capabilities instead of modules reading
-  API-key environment variables.
-
-These modules are final dependency leaves for later feature ports. They remain FTD
-specific even where reliability infrastructure becomes reusable inside this tool.
-
-## Deferred boundaries
-
-- U4 adds the durable SQLite attempt ledger and single-owner worker.
-- U5-U7 add named FTD handlers and direct feature modules.
-- U8 adds publishing/schema/CI ownership.
-- U9 rehearses cutover without changing authority.
-
-None of those deferrals permit target code to import or write the legacy editor.
+Production roots remain explicit, outside Git worktrees, and filesystem-probed.
+Provider/publisher secrets stay backend-only and pass through the central redactor
+before errors or durable state. U8 changes no runtime authority and performs no
+remote call.

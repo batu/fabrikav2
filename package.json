@@ -30,7 +30,8 @@
     "knip": "knip",
     "create-game": "node tools/create-game/src/create-game.mjs",
     "refcap-compare": "node tools/refcap-compare/cli.mjs",
-    "verify-device": "node tools/verify-device/cli.mjs"
+    "verify-device": "node tools/verify-device/cli.mjs",
+    "editor:verify": "npm run editor:verify -w @fabrikav2/ftd-level-editor"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
