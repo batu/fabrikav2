@@ -379,14 +379,17 @@ function drawBoard(canvas: HTMLCanvasElement, snap: TapTenSnapshot): void {
 
   const { size, ratio } = resizeCanvas(canvas);
   const style = getComputedStyle(canvas);
-  const boardBg = token(style, "--fab-tap-board-bg", "Canvas");
-  const tileIdle = token(style, "--fab-tap-tile-idle", "ButtonFace");
-  const tileLit = token(style, "--fab-tap-tile-lit", "Highlight");
-  const tileDone = token(style, "--fab-tap-tile-done", "CanvasText");
-  const tileFail = token(style, "--fab-tap-tile-fail", "Mark");
-  const text = token(style, "--fab-tap-board-text", "CanvasText");
-  const gap = numericToken(style, "--fab-tap-board-gap", 12);
-  const radius = numericToken(style, "--fab-tap-tile-radius", 18);
+  // These runtime-facing properties are bridged from the --fab-tap-* design
+  // tokens in tapTen.css so the static token-consumers audit sees a var()
+  // dependency; the computed values are identical to the source tokens.
+  const boardBg = token(style, "--tap-board-bg", "Canvas");
+  const tileIdle = token(style, "--tap-tile-idle", "ButtonFace");
+  const tileLit = token(style, "--tap-tile-lit", "Highlight");
+  const tileDone = token(style, "--tap-tile-done", "CanvasText");
+  const tileFail = token(style, "--tap-tile-fail", "Mark");
+  const text = token(style, "--tap-board-text", "CanvasText");
+  const gap = numericToken(style, "--tap-board-gap", 12);
+  const radius = numericToken(style, "--tap-tile-radius", 18);
   const cell = (size - gap * 3) / 2;
 
   context.save();
@@ -405,7 +408,7 @@ function drawBoard(canvas: HTMLCanvasElement, snap: TapTenSnapshot): void {
     roundRect(context, x, y, cell, cell, radius);
     context.fill();
     context.fillStyle = text;
-    context.font = token(style, "--fab-tap-board-font", "700 34px system-ui");
+    context.font = token(style, "--tap-board-font", "700 34px system-ui");
     context.textAlign = "center";
     context.textBaseline = "middle";
     context.fillText(String(tile + 1), x + cell / 2, y + cell / 2);

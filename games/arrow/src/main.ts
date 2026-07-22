@@ -1,5 +1,6 @@
 import "@fabrikav2/ui/ui.css";
 import "../design/tokens.css";
+import "./shell/levelmap-bridge.css";
 import { assignWindowBindings, maybeRunInsituTour } from "@fabrikav2/testkit/testing";
 import { installLevelMapArt } from "../design/theme.js";
 import { App, isHarnessEnabled } from "./shell/App.js";

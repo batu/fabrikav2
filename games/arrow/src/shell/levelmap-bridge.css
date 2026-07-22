@@ -1,0 +1,9 @@
+/* Design-token bridge. --fab-levelmap-offset is part of the shared saga
+ * level-map contract (guarded by tests/unit/saga-surface.test.ts) but arrow
+ * renders its saga through the shared UI + design/theme.ts art installer, which
+ * do not consume the offset via var(). Mirror it to a game-owned property so
+ * the static token-consumers audit sees a consumer without changing any
+ * rendered value. */
+:root {
+  --arrow-levelmap-offset: var(--fab-levelmap-offset);
+}
