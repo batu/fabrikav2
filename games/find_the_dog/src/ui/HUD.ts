@@ -13,6 +13,7 @@ import { animateHintsToBalance } from './EconomyTransfer';
 import { getLegalLinks, type LegalLinks } from '../platform/LegalLinks';
 import { privacyConsentService } from '../privacy/PrivacyConsentService';
 import { notificationService } from '../notifications/NotificationService';
+import { renderAchievementsPageBody } from './AchievementsPage';
 import { rewardedAdIconMarkup } from './RewardedAdIcon';
 import { hideHomeMenuLayer } from './OverlayVisibility';
 
@@ -532,76 +533,6 @@ export function openPage(
   window.scrollTo(0, 0);
 }
 
-/** Text glyphs (never emoji) so each category's medal reads distinctly. */
-const ACHIEVEMENT_CATEGORY_GLYPHS: Record<string, string> = {
-  completion: '★',
-  dogs: '♥',
-  mastery: '✦',
-  progression: '⚑',
-  streak: '◆',
-};
-
-function rewardStatusCopy(status: import('../achievements/AchievementSystem').AchievementRewardStatus): string {
-  switch (status) {
-    case 'locked': return 'Reward locked';
-    case 'in-progress': return 'Reward in progress';
-    case 'live-reward-settled': return 'Reward collected';
-    case 'migration-unlocked-reward-ineligible': return 'Unlocked from earlier play; reward not available';
-    case 'legacy-unlocked-reward-provenance-unknown': return 'Unlocked from earlier play; reward history unavailable';
-  }
-}
-
-function renderAchievementsPageBody(): string {
-  const projection = gameState.achievementReadProjection();
-  if (projection.status === 'unavailable') {
-    const message = projection.reason === 'settlement-pending'
-      ? 'Achievements are updating. Please check again shortly.'
-      : 'Achievements are unavailable until your saved progress is ready.';
-    return `<section class="achievement-unavailable" role="status"><h3>Collection unavailable</h3><p>${message}</p></section>`;
-  }
-
-  const groups = new Map<string, typeof projection.achievements>();
-  for (const achievement of projection.achievements) {
-    groups.set(achievement.category, [...(groups.get(achievement.category) ?? []), achievement]);
-  }
-  const body = [...groups].map(([category, achievements]) => `
-    <section class="achievement-category" aria-labelledby="achievement-category-${category}">
-      <h3 id="achievement-category-${category}">${category}</h3>
-      <div class="achievement-list">
-        ${achievements.map((achievement) => {
-          const completed = achievement.progress >= achievement.threshold;
-          // Nothing gates these, so zero progress is "Not started", not "Locked".
-          const state = completed ? 'Completed' : achievement.progress > 0 ? 'In progress' : 'Not started';
-          const stateClass = completed ? 'completed' : achievement.progress > 0 ? 'in-progress' : 'not-started';
-          // The reward line repeats the state chip for locked/in-progress; only
-          // render it when it says something the chip does not. The full reward
-          // status stays in the card's aria-label either way.
-          const rewardCopy = rewardStatusCopy(achievement.rewardStatus);
-          const rewardLine = achievement.rewardStatus === 'locked' || achievement.rewardStatus === 'in-progress'
-            ? ''
-            : `<p class="achievement-reward-status">${rewardCopy}</p>`;
-          return `<article class="achievement-card achievement-card--${stateClass}" data-achievement-id="${achievement.id}" aria-label="${achievement.name}: ${state}, ${achievement.progress} of ${achievement.threshold}. ${rewardCopy}">
-            <span class="achievement-badge" aria-hidden="true">${ACHIEVEMENT_CATEGORY_GLYPHS[achievement.category] ?? '★'}</span>
-            <div class="achievement-card-main">
-              <header><h4>${achievement.name}</h4><strong class="achievement-state">${state}</strong></header>
-              <p>${achievement.description}</p>
-              <progress value="${achievement.progress}" max="${achievement.threshold}" aria-label="${achievement.name} progress: ${achievement.progress} of ${achievement.threshold}">${achievement.progress}/${achievement.threshold}</progress>
-              <span class="achievement-progress-text">${achievement.progress}/${achievement.threshold}</span>
-              ${rewardLine}
-            </div>
-          </article>`;
-        }).join('')}
-      </div>
-    </section>`).join('');
-
-  const pageEvent = gameState.allocateAchievementViewEvent({ name: 'achievement_page_viewed' });
-  if (pageEvent) analytics.dispatchAchievementEvent(pageEvent);
-  for (const achievement of projection.achievements) {
-    const event = gameState.allocateAchievementViewEvent({ name: 'achievement_viewed', achievementId: achievement.id });
-    if (event) analytics.dispatchAchievementEvent(event);
-  }
-  return body || '<section class="achievement-unavailable" role="status"><h3>No achievements yet</h3><p>Your collection is ready.</p></section>';
-}
 
 export function closePage(): void {
   const page = document.getElementById('home-page-overlay');
@@ -964,6 +895,7 @@ function renderSettingsRows(): string {
           <span class="toggle-slider"></span>
         </label>
       </div>
+      <p id="notifications-denied-hint" class="settings-permission-hint" role="status" hidden>Notifications are turned off for this app. Enable them in iOS Settings to get reminders.</p>
       <div class="settings-legal-footer" aria-label="Privacy, legal, and support links">
         <button id="settings-restore-btn" class="settings-footer-link settings-footer-action settings-restore-btn" type="button" aria-describedby="settings-restore-status">Restore Purchases</button>
         <span id="settings-restore-status" class="settings-restore-status" aria-live="polite">Restore No Ads purchases on this device.</span>
@@ -1052,10 +984,23 @@ function wireSettingsPageListeners(page: HTMLElement): void {
 
   page.querySelector('#toggle-notifications')?.addEventListener('change', (event) => {
     if (!(event.currentTarget instanceof HTMLInputElement)) return;
-    const notificationsOn = event.currentTarget.checked;
+    const toggle = event.currentTarget;
+    const notificationsOn = toggle.checked;
     gameState.settings.notificationsOn = notificationsOn;
     gameState.save();
-    void notificationService.setEnabled(notificationsOn);
+    void notificationService.setEnabled(notificationsOn).then((permission) => {
+      // The OS said no: an on-toggle would be a lie (nothing can be scheduled),
+      // so revert it and point the player at iOS Settings instead of leaving a
+      // silently dead switch.
+      const denied = notificationsOn && permission === 'denied';
+      const hint = page.querySelector<HTMLElement>('#notifications-denied-hint');
+      if (hint) hint.hidden = !denied;
+      if (denied) {
+        toggle.checked = false;
+        gameState.settings.notificationsOn = false;
+        gameState.save();
+      }
+    });
     void analytics.settingsChanged({ setting_name: 'notificationsOn', new_value: String(notificationsOn) });
   });
 }

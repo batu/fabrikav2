@@ -8,6 +8,16 @@ import { attribution } from '../attribution/AttributionService';
 import { adService } from '../ads/Service';
 import type { PurchaseUnfulfilledOutcome } from '../shop/PurchaseFulfillment';
 import type { AnalyticsLevelAttribution } from './AnalyticsEventContract';
+import type {
+  AchievementPageViewedPayload,
+  AchievementProgressPayload,
+  AchievementReconciliationAnomalyPayload,
+  AchievementRewardGrantedPayload,
+  AchievementUnlockedPayload,
+  AchievementViewedPayload,
+  AchievementViewEvent,
+  PendingAnalyticsEvent,
+} from '../achievements/AchievementAnalytics';
 
 type FtdEvent =
   | 'app_open'
@@ -19,7 +29,14 @@ type FtdEvent =
   | 'resource_changed'
   | 'purchase_fulfilled'
   | 'purchase_unfulfilled'
-  | 'rewarded_ad_granted';
+  | 'rewarded_ad_granted'
+  | 'achievement_progress'
+  | 'achievement_unlocked'
+  | 'achievement_reward_granted'
+  | 'achievement_reconciliation_anomaly'
+  // Defined now so the contract is whole; emitted by the achievements UI.
+  | 'achievement_viewed'
+  | 'achievement_page_viewed';
 
 type LevelAttributionParams = Partial<AnalyticsLevelAttribution>;
 
@@ -266,6 +283,62 @@ class AnalyticsService {
     });
     this.sdk.track('rewarded_ad_granted', compactParams(params));
     return Promise.resolve();
+  }
+
+  achievementProgress(payload: AchievementProgressPayload): void {
+    this.sdk.track('achievement_progress', compactParams({ ...payload }));
+  }
+
+  achievementUnlocked(payload: AchievementUnlockedPayload): void {
+    this.sdk.track('achievement_unlocked', compactParams({ ...payload }));
+  }
+
+  achievementRewardGranted(payload: AchievementRewardGrantedPayload): void {
+    this.sdk.track('achievement_reward_granted', compactParams({ ...payload }));
+  }
+
+  achievementReconciliationAnomaly(payload: AchievementReconciliationAnomalyPayload): void {
+    this.sdk.track('achievement_reconciliation_anomaly', compactParams({ ...payload }));
+  }
+
+  achievementViewed(payload: AchievementViewedPayload): void {
+    this.sdk.track('achievement_viewed', compactParams({ ...payload }));
+  }
+
+  achievementPageViewed(payload: AchievementPageViewedPayload): void {
+    this.sdk.track('achievement_page_viewed', compactParams({ ...payload }));
+  }
+
+  /**
+   * The public exhaustive dispatcher for durable domain events and allocated UI
+   * view events. Callers never access the private SDK or dynamically index methods.
+   */
+  dispatchAchievementEvent(event: PendingAnalyticsEvent | AchievementViewEvent): void {
+    switch (event.name) {
+      case 'achievement_progress':
+        this.achievementProgress(event.payload);
+        return;
+      case 'achievement_unlocked':
+        this.achievementUnlocked(event.payload);
+        return;
+      case 'achievement_reward_granted':
+        this.achievementRewardGranted(event.payload);
+        return;
+      case 'achievement_reconciliation_anomaly':
+        this.achievementReconciliationAnomaly(event.payload);
+        return;
+      case 'achievement_viewed':
+        this.achievementViewed(event.payload);
+        return;
+      case 'achievement_page_viewed':
+        this.achievementPageViewed(event.payload);
+        return;
+      default: {
+        const exhaustive: never = event;
+        void exhaustive;
+        throw new Error('Unknown achievement analytics event');
+      }
+    }
   }
 }
 

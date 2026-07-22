@@ -105,6 +105,11 @@ void initializeCohort()
   })
   .finally((): void => {
     void analytics.appOpen();
+    // Drain any achievement analytics recovered from a prior session's outbox
+    // now that the analytics service is live (load() never dispatches). FTD does
+    // this in installSdkContext after real sinks compose; the shell has no SDK
+    // composition root, so the appOpen anchor is the equivalent boundary.
+    gameState.drainAnalyticsOutbox();
   });
 
 game.events.once('destroy', (): void => {

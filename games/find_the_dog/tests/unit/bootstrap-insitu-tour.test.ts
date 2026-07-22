@@ -22,6 +22,7 @@ const mockedModules = [
   "../../src/ui/iconPreload",
   "../../src/testing/TestHarness",
   "../../src/audio/AmbientManager",
+  "../../src/notifications/NotificationService",
 ];
 
 describe("find_the_dog bootstrap insitu tour wiring", () => {
@@ -125,10 +126,19 @@ describe("find_the_dog bootstrap insitu tour wiring", () => {
       snapshotMatchesFindTheDogDriveState,
     }));
     vi.doMock("../../src/audio/AmbientManager", () => ({ __ambientDebugSnapshot: vi.fn() }));
+    const notificationService = {
+      install: vi.fn(),
+      maybePromptOnLaunch: vi.fn(() => Promise.resolve()),
+    };
+    vi.doMock("../../src/notifications/NotificationService", () => ({ notificationService }));
 
     await import("../../src/bootstrap.ts");
 
     await vi.waitFor(() => {
+      // Production notification wiring: bootstrap must install the lifecycle
+      // hooks and fire the one-time launch prompt path.
+      expect(notificationService.install).toHaveBeenCalledTimes(1);
+      expect(notificationService.maybePromptOnLaunch).toHaveBeenCalledTimes(1);
       expect(assignWindowBindings).toHaveBeenCalledWith(expect.any(Object), expect.objectContaining({
         __FIND_DOG_HARNESS__: harness,
       }));

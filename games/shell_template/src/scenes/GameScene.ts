@@ -310,6 +310,9 @@ export class GameScene extends Phaser.Scene {
         transaction_id: completion.transaction.id,
       });
     }
+    // Achievement analytics were journaled durably inside the completion commit;
+    // drain the outbox now that analytics is composed (dispatch boundary only).
+    gameState.drainAnalyticsOutbox();
     const previousBest = completion.previousBest;
     const newBest = completion.newBest;
     const displayTimeSeconds = completion.transaction.timeSeconds;
@@ -350,6 +353,7 @@ export class GameScene extends Phaser.Scene {
         baseCoins: completion.transaction.baseCoinReward,
         coinBalance: gameState.coinBalance,
         claimX2Available,
+        achievementCommit: completion.achievementCommit,
         onClaimX2: async () => {
           const adResult = await showRewardedAdForEconomy();
           if (!adResult.granted) {

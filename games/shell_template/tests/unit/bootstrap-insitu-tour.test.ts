@@ -64,6 +64,7 @@ describe("find_the_dog bootstrap insitu tour wiring", () => {
       gameState: {
         settings: { adsEnabled: false },
         hasNoAdsEntitlement: false,
+        drainAnalyticsOutbox: vi.fn(),
       },
     }));
     vi.doMock("../../src/ui/HUD", () => ({ initHUD: vi.fn() }));

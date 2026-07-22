@@ -251,6 +251,12 @@ export class HomeScene extends Phaser.Scene {
       });
     }
 
+    overlay.querySelector<HTMLButtonElement>('#home-achievements')?.addEventListener('click', (e) => {
+      if (document.getElementById('home-page-overlay')) return;
+      triggerNavBounce(e.currentTarget as HTMLButtonElement);
+      openPage('achievements');
+    });
+
     const startCurrentLevel = (button: HTMLButtonElement): void => {
       if (document.getElementById('home-page-overlay')) return;
       triggerNavBounce(button);
@@ -596,6 +602,10 @@ export class HomeScene extends Phaser.Scene {
           <aside class="home-rail home-rail-left" aria-label="Quick actions">
             <button id="home-no-ads" class="home-side-btn home-no-ads-btn" type="button" aria-label="Remove ads">
               <img class="home-no-ads-art" src="${HOME_NO_ADS_BADGE_SRC}" alt="" aria-hidden="true">
+            </button>
+            <button id="home-achievements" class="home-side-btn home-achievements-btn" type="button" aria-label="Open achievements">
+              <span class="home-achievements-medal" aria-hidden="true">★</span>
+              <span class="home-achievements-label">Achievements</span>
             </button>
           </aside>
           <section id="home-map-mount" class="home-map-stage" aria-label="Level progression"></section>
