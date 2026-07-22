@@ -165,6 +165,98 @@ describe('IapService.purchase — state machine', () => {
   });
 });
 
+describe('IapService.purchase — late-settle serialization (AUDIT #4)', () => {
+  const NO_ADS_TXN = {
+    productIdentifier: NO_ADS,
+    transactionId: 'txn-1',
+    purchaseToken: 'token-1',
+    customerInfo: { allPurchasedProductIdentifiers: [NO_ADS], nonSubscriptionTransactions: [{ productIdentifier: NO_ADS }] },
+  };
+
+  it('holds the lock past the caller timeout and a retry cannot double-charge (AC1); the late success is banked, not discarded (AC2)', async () => {
+    const { service, provider } = await readyService(
+      { purchaseDelayMs: { [NO_ADS]: 40 }, purchaseResults: { [NO_ADS]: NO_ADS_TXN } },
+      { purchaseTimeoutMs: () => 10 },
+    );
+
+    // Caller-facing timeout fires before the native purchase settles.
+    const first = await service.purchase(NO_ADS);
+    expect(first.status).toBe('failed');
+    // The lock is HELD through native settlement — the timer did not release it.
+    expect(service.snapshot().purchaseInProgress).toBe(true);
+
+    // A retry while the native call is still live is rejected — no second charge.
+    const retry = await service.purchase(NO_ADS);
+    expect(retry.status).toBe('unavailable');
+    expect(retry.errorMessage).toBe('native store operation already in progress');
+    expect(provider.purchaseCalls).toEqual([NO_ADS]);
+
+    // After the native promise settles the lock releases and the result is banked.
+    await wait(60);
+    expect(service.snapshot().purchaseInProgress).toBe(false);
+
+    // The next purchase() of the same product returns the banked outcome without a
+    // fresh native call — the discarded-first-transaction bug is closed.
+    const banked = await service.purchase(NO_ADS);
+    expect(banked.status).toBe('purchased');
+    expect(banked.purchaseId).toBe('txn-1');
+    expect(provider.purchaseCalls).toEqual([NO_ADS]);
+  });
+
+  it('banks a late native FAILURE that lands after the caller timeout (AC2/AC3)', async () => {
+    const { service, provider } = await readyService(
+      { purchaseDelayMs: { [NO_ADS]: 40 }, purchaseErrors: { [NO_ADS]: new Error('late boom') } },
+      { purchaseTimeoutMs: () => 10 },
+    );
+
+    const first = await service.purchase(NO_ADS);
+    expect(first.status).toBe('failed');
+    expect(service.snapshot().purchaseInProgress).toBe(true);
+
+    await wait(60);
+    // Lock released after settlement even on a rejection (AC3).
+    expect(service.snapshot().purchaseInProgress).toBe(false);
+
+    const banked = await service.purchase(NO_ADS);
+    expect(banked.status).toBe('failed');
+    expect(banked.errorMessage).toBe('late boom');
+    expect(provider.purchaseCalls).toEqual([NO_ADS]);
+  });
+
+  it('keeps late results per-SKU — a banked SKU A result does not block or leak into SKU B (AC4)', async () => {
+    const HINTS_TXN = {
+      productIdentifier: HINTS_10,
+      transactionId: 'txn-h',
+      purchaseToken: null,
+      customerInfo: { allPurchasedProductIdentifiers: [], nonSubscriptionTransactions: [{ productIdentifier: HINTS_10 }] },
+    };
+    const { service, provider } = await readyService(
+      {
+        purchaseDelayMs: { [NO_ADS]: 40 },
+        purchaseResults: { [NO_ADS]: NO_ADS_TXN, [HINTS_10]: HINTS_TXN },
+      },
+      { purchaseTimeoutMs: () => 10 },
+    );
+
+    // SKU A times out on the caller side, then settles late and is banked.
+    expect((await service.purchase(NO_ADS)).status).toBe('failed');
+    await wait(60);
+    expect(service.snapshot().purchaseInProgress).toBe(false);
+
+    // A different SKU is charged normally and is NOT served the banked A result.
+    const other = await service.purchase(HINTS_10);
+    expect(other.status).toBe('purchased');
+    expect(other.productId).toBe(HINTS_10);
+    expect(provider.purchaseCalls).toEqual([NO_ADS, HINTS_10]);
+
+    // The banked A result is still deliverable to a later A purchase.
+    const bankedA = await service.purchase(NO_ADS);
+    expect(bankedA.status).toBe('purchased');
+    expect(bankedA.purchaseId).toBe('txn-1');
+    expect(provider.purchaseCalls).toEqual([NO_ADS, HINTS_10]);
+  });
+});
+
 describe('IapService.restore — late-settle machine', () => {
   it('restores owned product ids from customerInfo', async () => {
     const { service } = await readyService({

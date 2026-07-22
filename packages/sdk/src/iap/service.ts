@@ -17,7 +17,7 @@
  * VERBATIM. It is subtle and battle-tested; do not "simplify" it.
  */
 import { assertUniqueCatalogProductIds, type CatalogProduct } from './catalog.ts';
-import { withTimeout } from '../with-timeout.ts';
+import { withTimeout, isTimeoutError } from '../with-timeout.ts';
 
 export type IapServiceState =
   | 'idle'
@@ -125,12 +125,6 @@ export interface IapServiceDependencies<TPayload = unknown> {
 
 export const DEFAULT_OPERATION_TIMEOUT_MS = 15_000;
 export const DEFAULT_PURCHASE_TIMEOUT_MS = 60_000;
-/** Generous bound for the native restorePurchases promise to settle after the
- * user-facing operation timeout has fired. Used only to guarantee the
- * `restoreInProgress` flag is cleared (and any late result captured) even when
- * the native bridge hangs — without this, a never-settling native restore
- * permanently disables every Buy button (nativeOperationInProgress stays true). */
-export const RESTORE_SETTLE_TIMEOUT_MS = 60_000;
 
 /**
  * The sandbox seam mandated by the decisions doc: a `test_`-prefixed key targets
@@ -187,6 +181,11 @@ export class IapService<TPayload = unknown> {
   private activePurchaseProductId: string | null = null;
   private restoreInProgress = false;
   private completedRestoreResult: IapRestoreResult | null = null;
+  /** A purchase result whose native promise settled AFTER its caller-facing
+   * timeout returned. Banked here — never discarded — so the next purchase() of
+   * the same product observes the real outcome instead of issuing a second
+   * charge. Mirrors `completedRestoreResult` for the restore path. */
+  private completedPurchaseResult: IapPurchaseResult | null = null;
   /** customerInfo-update handler set before init(). When set, init registers a
    * provider listener that calls it on every CustomerInfo change so deferred
    * non-consumable entitlements (e.g. an Ask-to-Buy no-ads purchase approved
@@ -227,13 +226,49 @@ export class IapService<TPayload = unknown> {
     };
   }
 
+  /** Bank a late-settled purchase result for `productId` (the caller already
+   * timed out), or null. Consumed by the next purchase() of that product so a
+   * timeout-then-retry observes the real outcome rather than double-charging. */
+  consumeCompletedPurchaseResult(productId: string): IapPurchaseResult | null {
+    if (this.completedPurchaseResult === null) return null;
+    if (this.completedPurchaseResult.productId !== productId) return null;
+    const result = this.completedPurchaseResult;
+    this.completedPurchaseResult = null;
+    return result;
+  }
+
+  private purchasedResult(productId: string, transaction: PurchaseTransaction): IapPurchaseResult {
+    return {
+      status: 'purchased',
+      productId,
+      storeProductId: transaction.productIdentifier,
+      purchaseId: transaction.transactionId,
+      purchaseToken: transaction.purchaseToken,
+      customerInfo: transaction.customerInfo,
+      errorMessage: null,
+    };
+  }
+
+  private failedPurchaseResult(productId: string, err: unknown, message: string): IapPurchaseResult {
+    return {
+      status: isUserCancelled(err) ? 'cancelled' : 'failed',
+      productId,
+      purchaseId: null,
+      purchaseToken: null,
+      customerInfo: null,
+      errorMessage: message,
+    };
+  }
+
   async purchase(productId: string): Promise<IapPurchaseResult> {
     if (this.state !== 'ready') {
       return { status: 'unavailable', productId, purchaseId: null, purchaseToken: null, customerInfo: null, errorMessage: this.lastErrorMessage };
     }
 
     // Single-flight guard: one native store operation at a time. A concurrent
-    // purchase, or a purchase during restore, is rejected — not queued.
+    // purchase, or a purchase during restore, is rejected — not queued. The lock
+    // is held until the RAW native promise settles (see below), so a retry after a
+    // caller timeout lands here and cannot issue a second charge.
     if (this.activePurchaseProductId !== null || this.restoreInProgress) {
       return {
         status: 'unavailable',
@@ -245,6 +280,11 @@ export class IapService<TPayload = unknown> {
       };
     }
 
+    // A native purchase that settled after its caller timed out is banked, not
+    // discarded: return it here instead of charging again.
+    const banked = this.consumeCompletedPurchaseResult(productId);
+    if (banked !== null) return banked;
+
     if (!this.storeProductsById.has(productId)) {
       return { status: 'unavailable', productId, purchaseId: null, purchaseToken: null, customerInfo: null, errorMessage: 'product metadata unavailable' };
     }
@@ -254,37 +294,46 @@ export class IapService<TPayload = unknown> {
     }
 
     this.activePurchaseProductId = productId;
+    let returnedBeforeNativeSettled = false;
+    // Observe the RAW native promise, NOT the caller-facing `withTimeout` race. A
+    // JavaScript timeout does not cancel the native store operation, so releasing
+    // the lock when the timer wins (the old `finally`) let a retry start a second
+    // charge while the first was still live. Ownership is released only when the
+    // native promise itself settles; a late result is banked for delivery.
+    const purchasePromise = provider.purchaseProduct(productId);
+    void purchasePromise.then(
+      (transaction) => {
+        if (returnedBeforeNativeSettled) {
+          this.completedPurchaseResult = this.purchasedResult(productId, transaction);
+        }
+        if (this.activePurchaseProductId === productId) this.activePurchaseProductId = null;
+      },
+      (err: unknown) => {
+        const message = errorMessage(err);
+        if (returnedBeforeNativeSettled) {
+          this.lastErrorMessage = message;
+          this.completedPurchaseResult = this.failedPurchaseResult(productId, err, message);
+        }
+        if (this.activePurchaseProductId === productId) this.activePurchaseProductId = null;
+      },
+    );
+
     try {
-      const transaction = await withTimeout(
-        provider.purchaseProduct(productId),
-        this.purchaseTimeoutMs(),
-        'purchaseProduct',
-      );
-      return {
-        status: 'purchased',
-        productId,
-        storeProductId: transaction.productIdentifier,
-        purchaseId: transaction.transactionId,
-        purchaseToken: transaction.purchaseToken,
-        customerInfo: transaction.customerInfo,
-        errorMessage: null,
-      };
+      const transaction = await withTimeout(purchasePromise, this.purchaseTimeoutMs(), 'purchaseProduct');
+      return this.purchasedResult(productId, transaction);
     } catch (err) {
       const message = errorMessage(err);
       this.lastErrorMessage = message;
-      return {
-        status: isUserCancelled(err) ? 'cancelled' : 'failed',
-        productId,
-        purchaseId: null,
-        purchaseToken: null,
-        customerInfo: null,
-        errorMessage: message,
-      };
-    } finally {
-      // Clear even on throw so a failed purchase never wedges the service.
-      if (this.activePurchaseProductId === productId) {
-        this.activePurchaseProductId = null;
+      if (isTimeoutError(err)) {
+        // The caller-facing wait elapsed but the native operation is still live.
+        // Keep the lock (never released by a timer) so a retry cannot double-charge;
+        // the raw-promise observer above will bank the eventual result and release.
+        returnedBeforeNativeSettled = true;
+        return { status: 'failed', productId, purchaseId: null, purchaseToken: null, customerInfo: null, errorMessage: message };
       }
+      // A definitive native rejection: the raw-promise observer already released
+      // the lock. Report cancel vs failure to the still-waiting caller.
+      return this.failedPurchaseResult(productId, err, message);
     }
   }
 
@@ -322,11 +371,14 @@ export class IapService<TPayload = unknown> {
     try {
       const restorePromise = provider.restorePurchases();
       releaseRestoreLockInFinally = false;
-      // Bound the native promise so the flag-clearing handler always runs even
-      // if the bridge hangs. The user-facing result below still uses the faster
-      // operationTimeoutMs; this settle bound only guarantees the lock releases
-      // and any late result is captured for the next restore() call.
-      void withTimeout(restorePromise, RESTORE_SETTLE_TIMEOUT_MS, 'restorePurchases settle').then(
+      // Observe the RAW native promise, not a watchdog race. A JavaScript timer
+      // does not cancel restorePurchases(); releasing `restoreInProgress` when a
+      // settle bound elapsed (the old behavior) reopened the shared gate while the
+      // native restore was still live, letting a purchase overlap it. Ownership is
+      // released only when the native promise itself settles; a late result is
+      // banked for the next restore() call. A truly hung bridge keeps the gate
+      // closed (fail-closed) until the process restarts.
+      void restorePromise.then(
         (customerInfo) => {
           if (returnedBeforeNativeSettled) {
             this.completedRestoreResult = restoredResultFromCustomerInfo(customerInfo);
