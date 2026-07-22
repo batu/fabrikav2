@@ -36,6 +36,17 @@ export interface BootstrapResponse {
   "launchCredential": string;
 }
 
+export interface CandidateResponse {
+  "actor": string;
+  "candidateId": string;
+  "catalogRevision": string;
+  "changelog": string;
+  "digest": string;
+  "levelIds": Array<string>;
+  "sequenceVersion": string;
+  "sourceRevision": string;
+}
+
 export interface CaptureSessionImageRequest {
   "revision": string;
   "variant"?: "gemini" | "openai" | "openai_v2" | "gemini_bg_only" | "openai_bg_only" | "openai_v2_bg_only";
@@ -50,6 +61,19 @@ export interface EditorStatus {
   "service": string;
   "stores": Array<string>;
   "workerMode": string;
+}
+
+export interface ExportDryRunRequest {
+  "revision": string;
+  "sessionId": string;
+}
+
+export interface ExportDryRunResponse {
+  "dogCount": number;
+  "levelId": string;
+  "revision": string;
+  "sessionId": string;
+  "valid": boolean;
 }
 
 export interface ForceNewJobRequest {
@@ -119,11 +143,47 @@ export interface MintApprovalRequest {
   "sourceRevision": string;
 }
 
+export interface PrepareSequenceRequest {
+  "actor": string;
+  "catalogRevision": string;
+  "changelog": string;
+  "levelIds": Array<string>;
+  "sequenceVersion": string;
+  "sourceRevision": string;
+}
+
+export interface ProtectedSequenceRequest {
+  "candidateId": string;
+  "grantId": string;
+  "remote"?: boolean;
+}
+
+export interface PublishingSnapshotResponse {
+  "candidates": Array<CandidateResponse>;
+  "remoteEnabled": boolean;
+  "rollbackEligibleCandidateIds": Array<string>;
+  "sagas": Array<SagaResponse>;
+  "selected": CandidateResponse | null;
+}
+
 export interface RequestIdentityConflictDetail {
   "code": "request_identity_conflict";
   "existingInputHash": string;
   "existingJobId": string;
   "submittedInputHash": string;
+}
+
+export interface SagaResponse {
+  "action": "publish" | "rollback";
+  "actor": string;
+  "candidateId": string;
+  "changelog": string;
+  "digest": string;
+  "error": null | string;
+  "remote": boolean;
+  "sagaId": string;
+  "sourceRevision": string;
+  "status": "pending_remote" | "reconciling" | "remote_committed" | "finalizing" | "succeeded" | "failed";
 }
 
 export interface SessionImageNotFoundResponse {
@@ -212,6 +272,12 @@ export interface FtdEditorOperations {
   "listDurableJobEvents": { method: "get"; path: "/api/jobs/{job_id}/events" };
   "forceNewDurableJob": { method: "post"; path: "/api/jobs/{job_id}/force-new/{kind}" };
   "retryDurableJob": { method: "post"; path: "/api/jobs/{job_id}/retry" };
+  "getPublishingSnapshot": { method: "get"; path: "/api/publishing" };
+  "activateSequencePublication": { method: "post"; path: "/api/publishing/activate" };
+  "dryRunCurrentSessionExport": { method: "post"; path: "/api/publishing/export-dry-run" };
+  "prepareSequencePublication": { method: "post"; path: "/api/publishing/previews" };
+  "rollbackSequencePublication": { method: "post"; path: "/api/publishing/rollback" };
+  "reconcileSequencePublication": { method: "post"; path: "/api/publishing/sagas/{saga_id}/reconcile" };
   "listCurrentSessions": { method: "get"; path: "/api/sessions" };
   "createCurrentSession": { method: "post"; path: "/api/sessions" };
   "getCurrentSession": { method: "get"; path: "/api/sessions/{session_id}" };

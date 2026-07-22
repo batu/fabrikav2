@@ -27,6 +27,28 @@ from ftd_editor.settings import EditorSettings
 CANARY_SECRET = "ftd-canary-secret-8d122253"
 
 
+def seed_publishing_catalog(public_root: Path) -> None:
+    levels = public_root / "levels"
+    levels.mkdir(parents=True, exist_ok=True)
+    (levels / "catalog-manifest.json").write_text(
+        """{
+  "catalogRevision": "catalog-1",
+  "levels": [
+    {
+      "id": "starter", "packageId": "starter:a", "listable": true,
+      "bundledInApp": true, "cohortBuckets": ["all"], "tombstonedAt": null,
+      "retention": {"activeSequenceVersions": [], "rollbackEligibleSequenceVersions": []}
+    },
+    {
+      "id": "later", "packageId": "later:b", "listable": true,
+      "bundledInApp": false, "cohortBuckets": ["all"], "tombstonedAt": null,
+      "retention": {"activeSequenceVersions": [], "rollbackEligibleSequenceVersions": []}
+    }
+  ]
+}"""
+    )
+
+
 class ManualClock:
     """Deterministic injected clock for store/worker/approval timing tests."""
 

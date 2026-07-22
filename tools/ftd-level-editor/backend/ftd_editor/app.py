@@ -7,7 +7,7 @@ import secrets as secrets_module
 from collections.abc import AsyncIterator, Callable, Mapping
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 
 from fastapi import FastAPI, Request, Security
 from fastapi.encoders import jsonable_encoder
@@ -27,6 +27,9 @@ from .security import (
 from .jobs.actions import JobService
 from .settings import EditorSettings
 from .sessions.store import SessionStore
+
+if TYPE_CHECKING:
+    from .publishing.sequence import PublishingService
 
 
 class FailClosedProviderError(RuntimeError):
@@ -51,6 +54,9 @@ class StoreRegistry(Protocol):
 
     @property
     def jobs(self) -> JobService | None: ...
+
+    @property
+    def publishing(self) -> "PublishingService | None": ...
 
     def names(self) -> tuple[str, ...]: ...
 
@@ -94,6 +100,7 @@ class EditorStores:
 
     sessions: SessionStore | None = None
     jobs: JobService | None = None
+    publishing: "PublishingService | None" = None
 
     def names(self) -> tuple[str, ...]:
         names: list[str] = []
@@ -101,6 +108,8 @@ class EditorStores:
             names.append("sessions")
         if self.jobs is not None:
             names.append("jobs")
+        if self.publishing is not None:
+            names.append("publishing")
         return tuple(names)
 
 
@@ -253,6 +262,17 @@ def create_app(settings: EditorSettings, components: AppComponents) -> FastAPI:
 
         application.include_router(
             build_job_router(components.stores.jobs, protected_dependencies)
+        )
+
+    if components.stores.publishing is not None:
+        from .publishing.routes import build_publishing_router
+
+        application.include_router(
+            build_publishing_router(
+                components.stores.publishing,
+                components.stores.sessions,
+                protected_dependencies,
+            )
         )
 
     return application

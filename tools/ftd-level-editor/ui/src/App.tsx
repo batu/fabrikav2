@@ -1,21 +1,26 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-import { type EditorStatus, loadEditorStatus } from './api.ts';
+import { loadEditorBootstrap, type EditorBootstrap } from './api.ts';
+import { createPublishingApi, type PreparePublishingInput } from './features/publishing/api.ts';
+import { PublishingPanel } from './features/publishing/PublishingPanel.tsx';
+import type { PublishingCandidate } from './features/publishing/model.ts';
 import './styles.css';
 
 type LoadState =
   | { kind: 'loading' }
-  | { kind: 'ready'; status: EditorStatus }
+  | { kind: 'ready'; editor: EditorBootstrap }
   | { kind: 'failed'; message: string };
 
 export function App() {
   const [state, setState] = useState<LoadState>({ kind: 'loading' });
+  const [busy, setBusy] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
-    void loadEditorStatus()
-      .then((status) => {
-        if (active) setState({ kind: 'ready', status });
+    void loadEditorBootstrap()
+      .then((editor) => {
+        if (active) setState({ kind: 'ready', editor });
       })
       .catch((error: unknown) => {
         if (active) {
@@ -30,31 +35,63 @@ export function App() {
     };
   }, []);
 
+  const api = useMemo(() => {
+    if (state.kind !== 'ready') return null;
+    return createPublishingApi({
+      fetchImpl: state.editor.fetchImpl,
+      launchCredential: state.editor.launchCredential,
+    });
+  }, [state]);
+
+  async function run(action: () => Promise<unknown>) {
+    if (api === null || state.kind !== 'ready') return;
+    setBusy(true);
+    setActionError(null);
+    try {
+      await action();
+      const publishing = await api.snapshot();
+      setState({ kind: 'ready', editor: { ...state.editor, publishing } });
+    } catch (error: unknown) {
+      setActionError(error instanceof Error ? error.message : 'Publishing action failed');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <main className="shell">
-      <header>
-        <p className="eyebrow">Find the Dog</p>
-        <h1>Level Editor</h1>
-        <p className="lede">The hermetic workspace is ready for feature migration.</p>
+      <header className="masthead">
+        <div>
+          <p className="eyebrow">Find the Dog</p>
+          <h1>Level Editor</h1>
+          <p className="lede">Validate immutable level packages and move one approved sequence at a time.</p>
+        </div>
+        <section className="status-card" aria-live="polite" aria-label="Editor connection">
+          {state.kind === 'loading' && <p>Checking the local editor boundary…</p>}
+          {state.kind === 'failed' && <p className="error">Fail-closed bootstrap: {state.message}</p>}
+          {state.kind === 'ready' && (
+            <>
+              <span className="status-dot" aria-hidden="true" />
+              <div>
+                <strong>Local editor connected</strong>
+                <p>{state.editor.status.workerMode} worker · {state.editor.status.providerMode} providers</p>
+              </div>
+            </>
+          )}
+        </section>
       </header>
 
-      <section className="status-card" aria-live="polite">
-        {state.kind === 'loading' && <p>Checking the local editor boundary…</p>}
-        {state.kind === 'failed' && (
-          <p className="error">Fail-closed bootstrap: {state.message}</p>
-        )}
-        {state.kind === 'ready' && (
-          <>
-            <span className="status-dot" aria-hidden="true" />
-            <div>
-              <strong>Provider-free fixture connected</strong>
-              <p>
-                {state.status.workerMode} worker · {state.status.providerMode} providers
-              </p>
-            </div>
-          </>
-        )}
-      </section>
+      {state.kind === 'ready' && api !== null && (
+        <PublishingPanel
+          snapshot={state.editor.publishing}
+          busy={busy}
+          error={actionError}
+          onPrepare={(input: PreparePublishingInput) => run(() => api.prepare(input))}
+          onActivate={(candidate: PublishingCandidate) => run(() => api.activate(candidate, state.editor.publishing.remoteEnabled))}
+          onRollback={(candidate: PublishingCandidate) => run(() => api.rollback(candidate, state.editor.publishing.remoteEnabled))}
+          onReconcile={(sagaId: string) => run(() => api.reconcile(sagaId))}
+        />
+      )}
     </main>
   );
 }
