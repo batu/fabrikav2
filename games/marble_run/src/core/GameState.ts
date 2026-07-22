@@ -531,6 +531,13 @@ export class GameState {
     this.save();
   }
 
+  /** Seed prior progress for drives/tests (e.g. suppress the level-1 tutorial
+   *  hand by making totalLevelsCompleted > 0). Mirrors v1's recordWin seeding. */
+  setTotalLevelsCompletedForTest(count: number): void {
+    this._totalLevelsCompleted = nonNegativeInteger(count, 'test levels completed');
+    this.save();
+  }
+
   ensureMinimumHints(amount: number, _source: WalletMutationSource): number {
     const safeAmount = nonNegativeInteger(amount, 'minimum hint balance');
     const targetAmount = Math.min(safeAmount, GAMEPLAY.MAX_HINT_BALANCE);

@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { driveInputAt, type ClientPoint, type GameHarness, type HarnessSaveProfile } from '@fabrikav2/testkit/harness';
 import { gameState, type CompletionTransaction, type GameSettings, type WalletSnapshot } from '../core/GameState';
 import { GAMEPLAY, TIMING } from '../core/Constants';
+import { LEVEL_COUNT } from '../three/constants';
 import { GameScene } from '../scenes/GameScene';
 import { loadLevel, packageCacheSnapshot as getPackageCacheSnapshot, runtimeSequenceSnapshot as getRuntimeSequenceSnapshot, type LevelData } from '../data/levels';
 import type { RuntimeSequenceResolution } from '../sequence/runtimeSequence';
@@ -21,7 +22,7 @@ import {
   type DriveToDeps,
   type ViewportMetricsSnapshot,
 } from '@fabrikav2/testkit/testing';
-import { marbleRunDrivePredicates, snapshotMatchesMarbleRunDriveState } from './drivePredicates';
+import { marbleRunDrivePredicates, snapshotMatchesMarbleRunDriveState, type SettingsVariant } from './drivePredicates';
 import {
   PIXELSMITH_STATE_LEVELS,
   isGameplayState,
@@ -50,6 +51,16 @@ const SETTINGS_PAGE_SELECTOR = [
 const SHOP_PAGE_SELECTOR = '#home-page-overlay.home-page-shop';
 const LEVELMAP_NODE_SELECTOR = '.fab-levelmap-node';
 const SETTINGS_OPEN_TRIGGER_SELECTOR = '#home-nav-settings, #settings-btn';
+// The real home gear (game-owned header, homeMenu.ts) and the in-game HUD
+// settings button (hud.ts) — the drives click these so pause/settings open the
+// same modals a player would see, not a lifecycle flag or a page overlay.
+const HOME_GEAR_SELECTOR = '.marble-gear-btn[data-fab-action="settings"]';
+const HUD_SETTINGS_BUTTON_SELECTOR = '[data-a="settings"]';
+// v1 driveTo('win'): run at 6x and tap a movable marble each frame until the
+// engine genuinely completes the level and the overlay mounts.
+const WIN_DRIVE_ANIMATION_SPEED = 6;
+const WIN_DRIVE_MAX_TAPS = 120;
+const WIN_DRIVE_TAP_INTERVAL_MS = 140;
 const SETTINGS_OPEN_TARGET_POLL_MS = 50;
 const SETTINGS_OPEN_TARGET_MAX_POLLS = 40;
 const HOME_PLAY_TRIGGER_SELECTOR = '#home-play-now, #home-nav-play, .fab-levelmap-node.current';
@@ -85,6 +96,40 @@ function elementClientCenter(element: HTMLElement): ClientPoint | null {
   };
 }
 
+/**
+ * True when `el` is mounted AND actually rendered — has layout box, is not
+ * display:none/visibility:hidden, and is not fully transparent. The UI-truth
+ * predicates require this so a detached-or-hidden node can never publish a
+ * tourstate marker for a surface the player can't see (wave-1 lying markers).
+ */
+function isElementVisible(el: Element | null | undefined): boolean {
+  if (!(el instanceof HTMLElement) || !el.isConnected) return false;
+  const style = window.getComputedStyle(el);
+  if (style.display === 'none' || style.visibility === 'hidden') return false;
+  if (Number.parseFloat(style.opacity || '1') <= 0.01) return false;
+  // On device (WKWebView) an off-layout node has a zero box; reject it. In a
+  // headless DOM (jsdom) getBoundingClientRect is always 0×0, so only apply the
+  // box check where layout is actually measured.
+  const rect = el.getBoundingClientRect();
+  const hasLayout = rect.width > 0 || rect.height > 0;
+  const layoutMeasured = document.documentElement.getBoundingClientRect().width > 0;
+  return hasLayout || !layoutMeasured;
+}
+
+/**
+ * Which settings modal (if any) is mounted AND visible, distinguished by the
+ * action rows the game renders per variant (menu = Close; in-game = Restart/
+ * Home). The kit modal card (`.fab-modal-card`) carries aria-modal, so the
+ * testkit marker re-parents into it — the variant is the game's DOM truth.
+ */
+function detectSettingsVariant(): SettingsVariant {
+  const menuBtn = document.querySelector('[data-action="settings-close"]');
+  if (isElementVisible(menuBtn?.closest('.fab-modal-card') ?? menuBtn)) return 'menu';
+  const ingameBtn = document.querySelector('[data-action="settings-restart"], [data-action="settings-home"]');
+  if (isElementVisible(ingameBtn?.closest('.fab-modal-card') ?? ingameBtn)) return 'ingame';
+  return null;
+}
+
 function driveElementClick(element: HTMLElement): boolean {
   const point = elementClientCenter(element);
   if (point !== null && typeof document.elementFromPoint === 'function') {
@@ -103,6 +148,8 @@ export interface MarbleRunSnapshot {
   phaserActiveScene: string;
   status: 'playing' | 'paused' | 'complete' | 'failed' | undefined;
   settingsOpen: boolean;
+  /** Mounted+visible settings modal variant (menu Close / in-game Restart-Home), else null. */
+  settingsVariant: SettingsVariant;
   shopOpen: boolean;
   levelMapVisible: boolean;
   homeShellVisible: boolean;
@@ -259,8 +306,11 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
       driveElementClick(button);
     }
     if (document.querySelector(SETTINGS_PAGE_SELECTOR) === null) openPage('settings');
+    // Generic settings verb: confirm ANY settings surface is open (page or
+    // modal). The strict menu-modal (Close variant) capture is the Pixelsmith
+    // `settings` state's own drive (driveMenuSettingsViaUi), not this verb.
     return waitUntil(
-      () => marbleRunDrivePredicates.settings(driveSnapshot()),
+      () => driveSnapshot().settingsOpen === true,
       SETTINGS_OPEN_TARGET_POLL_MS,
       SETTINGS_OPEN_TARGET_MAX_POLLS,
     );
@@ -294,11 +344,83 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
     }
     if (state === 'shop') return openShopFromUi();
     if (isGameplayState(state)) {
+      // v1 driveTo parity: teach shows the tutorial hand (fires only on level 1
+      // from a pristine save); opener/plugs/voids seed prior progress so the
+      // hand is suppressed (opener shares level 1 with teach — progress is the
+      // sole differentiator, see GameScene isFirstLevel + pixelsmithStates map).
+      if (state === 'gameplay-teach') harness.resetSave();
+      else gameState.setTotalLevelsCompletedForTest(LEVEL_COUNT);
       const started = await startLevel(PIXELSMITH_STATE_LEVELS[state]);
       return started && marbleRunDrivePredicates.level(driveSnapshot());
     }
-    // win / pause / settings alias existing drive states.
+    if (state === 'win') return driveWinViaPlay();
+    if (state === 'pause') return drivePauseViaUi();
+    if (state === 'settings') return driveMenuSettingsViaUi();
     return harness.driveTo(state);
+  }
+
+  /**
+   * Win drive — v1 driveTo('win') semantics. Seed progress (no tutorial hand),
+   * start level 1, run the board at 6x and tap a movable marble each cycle until
+   * the engine genuinely completes and the level-complete overlay mounts. No
+   * `scene.winLevel()` shortcut — the Pixelsmith capture must show the real
+   * result card, so the predicate (visible overlay + reward row) is the target.
+   */
+  async function driveWinViaPlay(): Promise<boolean> {
+    gameState.setTotalLevelsCompletedForTest(LEVEL_COUNT);
+    const started = await startLevel(1);
+    if (!started) return false;
+    const controller = getGameScene()?.getGameplayControllerForTest();
+    if (controller === null || controller === undefined) return false;
+    controller.setAnimationSpeed(WIN_DRIVE_ANIMATION_SPEED);
+    for (let i = 0; i < WIN_DRIVE_MAX_TAPS; i += 1) {
+      if (pixelsmithStatePredicates.win(driveSnapshot())) return true;
+      const movable = controller.engineRef()?.movableMarbles() ?? [];
+      if (movable.length > 0) controller.tapCell(movable[0].cell);
+      await sleep(WIN_DRIVE_TAP_INTERVAL_MS);
+    }
+    return pixelsmithStatePredicates.win(driveSnapshot());
+  }
+
+  /**
+   * Pause drive — open the in-game settings modal (Restart/Home variant) through
+   * the real HUD settings button, NOT a lifecycle suspend. The wave-1 pause
+   * capture was raw gameplay because the drive only set the lifecycle flag; the
+   * predicate now demands the mounted+visible in-game modal.
+   */
+  async function drivePauseViaUi(): Promise<boolean> {
+    gameState.setTotalLevelsCompletedForTest(LEVEL_COUNT);
+    const started = await startLevel(1);
+    if (!started) return false;
+    const opened = await waitUntil(() => {
+      if (detectPauseModalVisible()) return true;
+      const button = document.querySelector<HTMLElement>(HUD_SETTINGS_BUTTON_SELECTOR);
+      if (button !== null) driveElementClick(button);
+      return detectPauseModalVisible();
+    }, SETTINGS_OPEN_TARGET_POLL_MS, SETTINGS_OPEN_TARGET_MAX_POLLS);
+    return opened && marbleRunDrivePredicates.pause(driveSnapshot());
+  }
+
+  function detectPauseModalVisible(): boolean {
+    return marbleRunDrivePredicates.pause(driveSnapshot());
+  }
+
+  /**
+   * Menu settings drive — go home first, then open the menu settings modal
+   * (Close variant) through the real home gear. MRV2-5 ruling: menu settings =
+   * Close variant. The wave-1 drive opened the in-game (Restart/Home) variant
+   * over gameplay and never published a marker.
+   */
+  async function driveMenuSettingsViaUi(): Promise<boolean> {
+    const atHome = await gotoHome();
+    if (!atHome) return false;
+    const opened = await waitUntil(() => {
+      if (marbleRunDrivePredicates.settings(driveSnapshot())) return true;
+      const gear = document.querySelector<HTMLElement>(HOME_GEAR_SELECTOR);
+      if (gear !== null) driveElementClick(gear);
+      return marbleRunDrivePredicates.settings(driveSnapshot());
+    }, SETTINGS_OPEN_TARGET_POLL_MS, SETTINGS_OPEN_TARGET_MAX_POLLS);
+    return opened && marbleRunDrivePredicates.settings(driveSnapshot());
   }
 
   async function pauseGame(): Promise<boolean> {
@@ -340,6 +462,7 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
       phaserActiveScene: snapshot.phaserActiveScene,
       inputReady: snapshot.levelDataReady,
       settingsOpen: snapshot.settingsOpen,
+      settingsVariant: snapshot.settingsVariant,
       shopOpen: snapshot.shopOpen,
       levelMapVisible: snapshot.levelMapVisible,
       homeShellVisible: snapshot.homeShellVisible,
@@ -368,10 +491,18 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
     const scene = getGameScene();
     const phaserActiveScene = game.scene.getScenes(true)[0]?.scene.key ?? 'unknown';
     const homeShellVisible = document.querySelector('#home-shell') !== null;
-    const settingsOpen = document.querySelector(SETTINGS_PAGE_SELECTOR) !== null;
+    const settingsVariant = detectSettingsVariant();
+    // settingsOpen stays broad (modal OR legacy page overlay) so home-fresh /
+    // level-map exclusions still hold; the win/pause/settings predicates key on
+    // the visibility-qualified settingsVariant instead.
+    const settingsOpen = settingsVariant !== null || document.querySelector(SETTINGS_PAGE_SELECTOR) !== null;
     const shopOpen = document.querySelector(SHOP_PAGE_SELECTOR) !== null;
     const levelMapVisible = document.querySelector(LEVELMAP_NODE_SELECTOR) !== null;
-    const levelCompleteOverlayVisible = document.getElementById('level-complete-overlay') !== null;
+    // UI-truth: the overlay must be mounted AND visibly rendered, not merely
+    // present in the DOM. The reward row is dropped-reveal so it is intrinsic to
+    // the mounted overlay — the overlay's own visibility is the capture truth.
+    const levelCompleteEl = document.getElementById('level-complete-overlay');
+    const levelCompleteOverlayVisible = isElementVisible(levelCompleteEl);
     const levelFailedOverlayVisible = document.getElementById('level-failed-overlay') !== null;
     const activeScene = homeShellVisible ? 'HomeScene' : phaserActiveScene;
     const visibleGameScene = activeScene === 'GameScene';
@@ -392,6 +523,7 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
               ? 'playing'
               : undefined,
       settingsOpen,
+      settingsVariant,
       shopOpen,
       levelMapVisible,
       homeShellVisible,
@@ -498,6 +630,11 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
       gameState.currentLevelIndex = 0;
       gameState.setCoinsForTest(0);
       gameState.setHintsForTest(0);
+      // Pristine progress so the level-1 tutorial hand shows (teach state) and
+      // home-fresh renders the fresh-install saga — gameState.reset() only
+      // clears per-attempt state (lives/found), not lifetime progress.
+      gameState.setTotalLevelsCompletedForTest(0);
+      gameState.tutorialShown = false;
       gameState.reset();
       gameState.save();
     },

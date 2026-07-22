@@ -25,21 +25,29 @@ export const PIXELSMITH_TOUR_STATES = [
 export type PixelsmithState = (typeof PIXELSMITH_TOUR_STATES)[number];
 
 /**
- * The four `gameplay-*` states are board-feature captures in v1's vocabulary
- * (opener = first level, plugs/voids/teach = specific board content). v2 levels
- * are still stubs with no `tags`, so each maps to a designated stub level index
- * here; all four currently capture stub gameplay. When real level content lands
- * (later MRV2 cards) only this map (or a future tags lookup) changes — the tour
- * contract does not. See plan KTD-3.
+ * The four `gameplay-*` states are board-feature captures. The level set is the
+ * byte-identical 110-level bundle shared with v1 sugar3d, so v1's baked indices
+ * (scanned from `levels.generated.ts` for the feature) apply directly:
+ *   - opener → level 1  (the first, simplest onboarding board)
+ *   - plugs  → level 8  (first board containing a wooden plug, 'X')
+ *   - voids  → level 6  (first board containing a void cell, '#')
+ *   - teach  → level 1  driven from a PRISTINE save so the tutorial hand shows
+ *              (GameplayController shows the hand only on level 1 when the player
+ *              has completed no levels); opener drives level 1 from a SEEDED
+ *              save (progress recorded), so no tutorial overlay — the two share
+ *              an index but capture visibly different surfaces (see plan U2 /
+ *              v1 `driveTo`).
+ * A static map (like v1): when level content changes only this map moves, the
+ * tour contract does not.
  */
 export const PIXELSMITH_STATE_LEVELS: Readonly<Record<
   'gameplay-opener' | 'gameplay-plugs' | 'gameplay-voids' | 'gameplay-teach',
   number
 >> = {
   'gameplay-opener': 1,
-  'gameplay-plugs': 2,
-  'gameplay-voids': 3,
-  'gameplay-teach': 4,
+  'gameplay-plugs': 8,
+  'gameplay-voids': 6,
+  'gameplay-teach': 1,
 };
 
 export function isPixelsmithState(state: string): state is PixelsmithState {
@@ -79,7 +87,10 @@ export const pixelsmithStatePredicates: Record<
   win: (snapshot) => marbleRunDrivePredicates.win(snapshot),
   pause: (snapshot) => marbleRunDrivePredicates.pause(snapshot),
   shop: (snapshot) => snapshot.shopOpen === true,
-  settings: (snapshot) => snapshot.settingsOpen === true,
+  // Menu settings = home shell + the Close-variant modal (MRV2-5). Reuses the
+  // UI-truth predicate so a page overlay / stray settingsOpen flag never
+  // publishes tourstate:settings over the wrong surface.
+  settings: (snapshot) => marbleRunDrivePredicates.settings(snapshot),
 };
 
 export function snapshotMatchesPixelsmithState(state: PixelsmithState, raw: unknown): boolean {

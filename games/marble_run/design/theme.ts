@@ -130,8 +130,10 @@ body {
   position: relative;
   display: flex;
   justify-content: center;
-  order: -1;
-  margin-bottom: 4px;
+  /* v1 parity: coin pill + gear sit ABOVE the banner (refs/home-fresh.png).
+     The 3-col grid places pill/spacer/gear on row 1 and the full-width banner on
+     row 2 in DOM order — so the banner must NOT be pulled up with order:-1. */
+  margin-top: 4px;
 }
 .marble-home-banner img {
   width: min(78vw, 360px);
@@ -175,6 +177,21 @@ body {
   cursor: pointer;
 }
 .marble-gear-btn img { width: 28px; height: 28px; }
+
+/* v1 App.showMenuDecor: the tilted decor board between banner and saga chain.
+   A three.js canvas (HomeBoardPreview) in DOM flow just under the header; the
+   board frames itself with margins, so a square slot reads as the ref tile. */
+.marble-home-board-preview-slot {
+  width: min(62vw, 300px);
+  aspect-ratio: 1 / 1;
+  margin: 2px auto -6px;
+  pointer-events: none;
+}
+.marble-home-board-preview {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
 
 /* Green LEVEL action button — Button_Green sprite already set via --fab-btn-sprite-image. */
 .marble-ui .marble-level-button {

@@ -16,10 +16,14 @@ const SNAPSHOTS: Record<PixelsmithState, Record<string, unknown>> = {
   "gameplay-plugs": { activeScene: "GameScene", status: "playing", levelDataReady: true, homeShellVisible: false, lives: 3 },
   "gameplay-voids": { activeScene: "GameScene", status: "playing", levelDataReady: true, homeShellVisible: false, lives: 3 },
   "gameplay-teach": { activeScene: "GameScene", status: "playing", levelDataReady: true, homeShellVisible: false, lives: 3 },
-  win: { activeScene: "GameScene", status: "complete", levelComplete: true, homeShellVisible: false },
-  pause: { activeScene: "GameScene", status: "paused", lifecycleSuspended: true, homeShellVisible: false },
+  // UI-truth: win = a mounted+visible level-complete overlay; pause = the in-game
+  // settings modal; settings = the menu (Close) settings modal. Internal flags
+  // (status/lifecycleSuspended/settingsOpen) alone no longer satisfy — the
+  // corrected predicates assert the actual surface (MRV2-8 defects 3/4).
+  win: { activeScene: "GameScene", homeShellVisible: false, levelCompleteOverlayVisible: true },
+  pause: { activeScene: "GameScene", homeShellVisible: false, settingsVariant: "ingame" },
   shop: { shopOpen: true, homeShellVisible: true },
-  settings: { settingsOpen: true, homeShellVisible: true },
+  settings: { homeShellVisible: true, settingsVariant: "menu" },
 };
 
 describe("pixelsmith state vocabulary", () => {
@@ -39,11 +43,13 @@ describe("pixelsmith state vocabulary", () => {
   });
 
   it("maps each gameplay-* state to a designated level index", () => {
+    // v1 sugar3d parity against the byte-identical 110-level set (plugs = first
+    // 'X' board @ 8, voids = first '#' board @ 6, opener/teach share level 1).
     expect(PIXELSMITH_STATE_LEVELS).toEqual({
       "gameplay-opener": 1,
-      "gameplay-plugs": 2,
-      "gameplay-voids": 3,
-      "gameplay-teach": 4,
+      "gameplay-plugs": 8,
+      "gameplay-voids": 6,
+      "gameplay-teach": 1,
     });
   });
 
@@ -65,8 +71,11 @@ describe("pixelsmith state predicates", () => {
 
   it("keeps shop and settings mutually distinguishable", () => {
     expect(pixelsmithStatePredicates.shop({ shopOpen: true })).toBe(true);
-    expect(pixelsmithStatePredicates.shop({ settingsOpen: true })).toBe(false);
-    expect(pixelsmithStatePredicates.settings({ settingsOpen: true })).toBe(true);
+    expect(pixelsmithStatePredicates.shop({ settingsVariant: "menu", homeShellVisible: true })).toBe(false);
+    // Menu settings = home shell + Close-variant modal (UI-truth); a bare
+    // settingsOpen flag is no longer sufficient.
+    expect(pixelsmithStatePredicates.settings({ homeShellVisible: true, settingsVariant: "menu" })).toBe(true);
+    expect(pixelsmithStatePredicates.settings({ settingsOpen: true, homeShellVisible: true })).toBe(false);
     expect(pixelsmithStatePredicates.settings({ shopOpen: true })).toBe(false);
   });
 

@@ -272,7 +272,13 @@ export class GameScene extends Phaser.Scene {
         if (this.level) void analytics.hintUsed({ level_id: this.level.id, dogs_found: gameState.foundDogIds.size });
       },
       openSettings: () => this.openInGameSettings(),
-      isFirstLevel: () => gameState.currentLevelIndex === 0,
+      // v1 parity: the tutorial hand shows on level 1 only for a true first-ever
+      // play (no level completed yet), NOT merely whenever the played index is 0.
+      // The Pixelsmith opener drive starts level 1 with seeded progress
+      // (totalLevelsCompleted > 0) so it must NOT show the hand; teach starts
+      // level 1 from a pristine save so it MUST. Gating on currentLevelIndex===0
+      // could not distinguish them (both play level 1 → index 0).
+      isFirstLevel: () => gameState.totalLevelsCompleted === 0,
     };
   }
 
@@ -694,5 +700,12 @@ export class GameScene extends Phaser.Scene {
 
   isLevelDataReady(): boolean {
     return this.levelDataReady;
+  }
+
+  /** Test/drive-only: the live gameplay controller, so the Pixelsmith win drive
+   *  can complete the level through the real engine (setAnimationSpeed + tapping
+   *  movable marbles, v1 driveTo('win') semantics) instead of a state shortcut. */
+  getGameplayControllerForTest(): GameplayController | null {
+    return this.gameplayController;
   }
 }

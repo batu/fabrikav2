@@ -16,10 +16,12 @@ const SNAPSHOTS: Record<PixelsmithState, Record<string, unknown>> = {
   "gameplay-plugs": { activeScene: "GameScene", status: "playing", levelDataReady: true, homeShellVisible: false, lives: 3 },
   "gameplay-voids": { activeScene: "GameScene", status: "playing", levelDataReady: true, homeShellVisible: false, lives: 3 },
   "gameplay-teach": { activeScene: "GameScene", status: "playing", levelDataReady: true, homeShellVisible: false, lives: 3 },
-  win: { activeScene: "GameScene", status: "complete", levelComplete: true, homeShellVisible: false },
-  pause: { activeScene: "GameScene", status: "paused", lifecycleSuspended: true, homeShellVisible: false },
+  // UI-truth surfaces (MRV2-8 defects 3/4): win = visible level-complete overlay,
+  // pause = in-game settings modal, settings = menu (Close) settings modal.
+  win: { activeScene: "GameScene", homeShellVisible: false, levelCompleteOverlayVisible: true },
+  pause: { activeScene: "GameScene", homeShellVisible: false, settingsVariant: "ingame" },
   shop: { shopOpen: true, homeShellVisible: true },
-  settings: { settingsOpen: true, homeShellVisible: true },
+  settings: { homeShellVisible: true, settingsVariant: "menu" },
 };
 
 // The card's hard external contract: Pixelsmith gives up after 25s.

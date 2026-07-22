@@ -10,6 +10,7 @@ import { configuredMenuVignetteFactory, type MenuVignette } from '../menu/MenuVi
 import { crossfadeTo as crossfadeAmbient, presetForLevel } from '../audio/AmbientManager';
 import type { UiHandle } from '@fabrikav2/ui';
 import { mountHomeShell } from '../menu/homeMenu';
+import { HomeBoardPreview } from '../menu/HomeBoardPreview';
 import { mountSettings } from '../menu/settings';
 import { buildSagaNodes } from '../menu/saga';
 import {
@@ -60,6 +61,7 @@ export class HomeScene extends Phaser.Scene {
   /** In-flight/completed background texture warm for the current level.
    *  `token.stale` flips to abort a warm the launch path has superseded. */
   private prewarm: { levelId: string; token: { stale: boolean }; promise: Promise<void> } | null = null;
+  private boardPreview: HomeBoardPreview | null = null;
   private menuVignette: MenuVignette | null = null;
   private menuVignettePoll: Phaser.Time.TimerEvent | null = null;
   private menuVignettePaused = false;
@@ -109,6 +111,7 @@ export class HomeScene extends Phaser.Scene {
       // next scene's loader takes over.
       if (this.prewarm !== null) this.prewarm.token.stale = true;
       this.clearBannerVideoReplay();
+      this.disposeBoardPreview();
       this.unregisterLifecycleHooks?.();
       this.unregisterLifecycleHooks = null;
       hideHomeMenuLayer(overlay);
@@ -193,6 +196,7 @@ export class HomeScene extends Phaser.Scene {
     this.navigationGeneration += 1;
     this.clearBannerVideoReplay();
     this.dismissSettings();
+    this.disposeBoardPreview();
     if (this.homeHandle) {
       this.homeHandle.dismiss();
       this.homeHandle = null;
@@ -228,6 +232,36 @@ export class HomeScene extends Phaser.Scene {
       },
       onOpenSettings: () => this.openHomeSettings(),
     });
+
+    this.mountBoardPreview();
+  }
+
+  /**
+   * v1 `App.showMenuDecor` parity: the tilted decor board between banner and
+   * saga chain. Owns its own three.js canvas + loop (HomeBoardPreview), disposed
+   * on every re-render / gameplay entry / shutdown so no WebGL context leaks. The
+   * canvas is CSS-positioned via `.marble-home-board-preview`.
+   */
+  private mountBoardPreview(): void {
+    this.disposeBoardPreview();
+    const shell = this.overlay?.querySelector<HTMLElement>('#home-shell');
+    if (!shell) return;
+    // Place the decor tile in DOM flow between the header and the saga chain
+    // (v1 renders it in that region). A dedicated slot keeps the canvas sizing
+    // independent of the kit saga layout.
+    const header = shell.querySelector<HTMLElement>('.marble-home-header');
+    const slot = document.createElement('div');
+    slot.className = 'marble-home-board-preview-slot';
+    if (header) header.insertAdjacentElement('afterend', slot);
+    else shell.prepend(slot);
+    this.boardPreview = new HomeBoardPreview(slot, 'marble-home-board-preview');
+  }
+
+  private disposeBoardPreview(): void {
+    if (this.boardPreview !== null) {
+      this.boardPreview.dispose();
+      this.boardPreview = null;
+    }
   }
 
   private openHomeSettings(): void {
@@ -270,6 +304,7 @@ export class HomeScene extends Phaser.Scene {
     this.cancelScheduledHomeAmbient();
     this.clearBannerVideoReplay();
     this.dismissSettings();
+    this.disposeBoardPreview();
     this.homeHandle?.dismiss();
     this.homeHandle = null;
     if (overlay) {
