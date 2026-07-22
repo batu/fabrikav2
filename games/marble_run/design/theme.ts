@@ -60,7 +60,10 @@ export const MARBLE_LEVELMAP_THEME: ThemeTokens = {
   '--fab-levelmap-locked-color': '#5b4636',
   '--fab-levelmap-locked-dot-color': '#5b4636',
   '--fab-levelmap-completed-color': '#6a3016',
-  '--fab-levelmap-current-color': '#ffffff',
+  // v1 renders the current (gold-sun) node number in the same dark brown as the
+  // wooden-medallion nodes — white was a shell_template default and reads as a
+  // near-invisible digit on the cream sun center (device-parity MRV2-7, defect 5).
+  '--fab-levelmap-current-color': '#6a3016',
 };
 
 const SHELL_ART_STYLE_ID = 'marble-shell-art';
@@ -124,6 +127,7 @@ body {
 }
 .marble-home-banner {
   grid-column: 1 / -1;
+  position: relative;
   display: flex;
   justify-content: center;
   order: -1;
@@ -133,6 +137,22 @@ body {
   width: min(78vw, 360px);
   height: auto;
   filter: drop-shadow(0 10px 18px rgba(40, 20, 60, 0.32));
+}
+/* v1 "Marble Run" title text overlaying the empty wooden banner plate. */
+.marble-home-banner-title {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 62%;
+  text-align: center;
+  font-family: 'FredokaOne', var(--fab-font-display), sans-serif;
+  font-size: clamp(20px, 6.6vw, 32px);
+  line-height: 1;
+  color: #6a3016;
+  text-shadow: 0 2px 0 rgba(255, 240, 205, 0.6);
+  pointer-events: none;
+  white-space: nowrap;
 }
 .marble-coin-pill {
   display: inline-flex;

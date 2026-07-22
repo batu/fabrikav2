@@ -615,10 +615,12 @@
   position: absolute;
   inset: 0;
   z-index: 0;
+  /* Mirror the live home purple bubble field so the play-entry handoff doesn't
+     flash the old cream/mint backdrop (device-parity MRV2-7). */
   background:
-    radial-gradient(118% 72% at 50% 7%, var(--sch-spot) 0%, transparent 52%),
-    radial-gradient(145% 118% at 50% 116%, var(--sch-vig) 0%, transparent 56%),
-    linear-gradient(180deg, var(--sch-bg-top) 0%, var(--sch-bg-mid) 48%, var(--sch-bg-bot) 100%);
+    radial-gradient(118% 72% at 50% 7%, rgba(210, 190, 240, 0.32) 0%, transparent 52%),
+    radial-gradient(145% 118% at 50% 116%, rgba(40, 20, 60, 0.34) 0%, transparent 56%),
+    linear-gradient(180deg, #9b7bcd 0%, #6b568e 100%);
   opacity: 1;
   transition: opacity 900ms cubic-bezier(0.33, 0, 0.67, 1);
 }
@@ -635,8 +637,8 @@
   inset: -180px;
   pointer-events: none;
   opacity: 0.28;
-  background-image: url('/ui/home/pattern-motif.png');
-  background-size: 74px 74px;
+  background-image: url('/v1/ui/marble-shadow-tile.png');
+  background-size: 320px 320px;
   transform: translate3d(-74px, -74px, 0);
   will-change: transform;
   animation: homePawDrift 24s linear infinite;
@@ -2701,16 +2703,16 @@
   opacity: 1;
 }
 
-/* Home progression shell */
+/* Home progression shell — v1 Sugar3D purple bubble field (device-parity MRV2-7). */
 #hud-overlay.home-mode {
   pointer-events: auto;
   overflow: hidden;
   background:
-    /* warm spotlight behind the banner */
-    radial-gradient(118% 72% at 50% 7%, rgba(255, 251, 232, 0.85) 0%, rgba(255, 251, 232, 0) 52%),
-    /* soft vignette toward the bottom + corners for depth */
-    radial-gradient(145% 118% at 50% 116%, rgba(120, 62, 18, 0.34) 0%, rgba(120, 62, 18, 0) 56%),
-    linear-gradient(180deg, #fff2cf 0%, #ffd79a 48%, #f1a957 100%);
+    /* soft spotlight behind the banner */
+    radial-gradient(118% 72% at 50% 7%, rgba(210, 190, 240, 0.32) 0%, rgba(210, 190, 240, 0) 52%),
+    /* depth vignette toward the bottom + corners */
+    radial-gradient(145% 118% at 50% 116%, rgba(40, 20, 60, 0.34) 0%, rgba(40, 20, 60, 0) 56%),
+    linear-gradient(180deg, #9b7bcd 0%, #6b568e 100%);
 }
 
 /* Menu vignette active: the bottom linear layer goes translucent so the
@@ -2718,9 +2720,9 @@
    vignette stay so the home keeps its lighting. */
 #hud-overlay.home-mode.hud-vignette-active {
   background:
-    radial-gradient(118% 72% at 50% 7%, rgba(255, 251, 232, 0.85) 0%, rgba(255, 251, 232, 0) 52%),
-    radial-gradient(145% 118% at 50% 116%, rgba(120, 62, 18, 0.34) 0%, rgba(120, 62, 18, 0) 56%),
-    linear-gradient(180deg, rgba(255, 242, 207, 0.72) 0%, rgba(255, 215, 154, 0.66) 48%, rgba(241, 169, 87, 0.72) 100%);
+    radial-gradient(118% 72% at 50% 7%, rgba(210, 190, 240, 0.32) 0%, rgba(210, 190, 240, 0) 52%),
+    radial-gradient(145% 118% at 50% 116%, rgba(40, 20, 60, 0.34) 0%, rgba(40, 20, 60, 0) 56%),
+    linear-gradient(180deg, rgba(155, 123, 205, 0.72) 0%, rgba(107, 86, 142, 0.72) 100%);
 }
 
 #hud-overlay.home-mode::before {
@@ -2730,11 +2732,20 @@
   inset: -180px;
   z-index: 0;
   opacity: 0.28;
-  background-image: url('/ui/home/pattern-motif.png');
-  background-size: 74px 74px;
+  background-image: url('/v1/ui/marble-shadow-tile.png');
+  background-size: 320px 320px;
   transform: translate3d(-74px, -74px, 0);
   will-change: transform;
   animation: homePawDrift 24s linear infinite;
+}
+
+/* Home shows only the marble header (coin pill + gear + banner via
+   .marble-home-header). The gameplay HUD chrome — dog counter, hearts, and the
+   hint booster pill — is non-canonical on the v1 home, so hide it in home-mode
+   (device-parity MRV2-7). Gameplay drops home-mode, restoring the full HUD. */
+#hud-overlay.home-mode .hud-top-bar,
+#hud-overlay.home-mode .hud-hint-wrap {
+  display: none;
 }
 
 .home-shell {
@@ -4700,12 +4711,13 @@ html[data-scheme="midnight"] {
   --sch-fail-overlay-bg: linear-gradient(180deg, rgba(44, 48, 84, 0.70) 0%, rgba(16, 18, 38, 0.84) 100%);
 }
 
-/* Surfaces re-pointed at scheme tokens (same specificity, later cascade). */
+/* Surfaces re-pointed at scheme tokens (same specificity, later cascade).
+   Home stays the fixed v1 purple bubble field (not scheme-driven) — MRV2-7. */
 #hud-overlay.home-mode {
   background:
-    radial-gradient(118% 72% at 50% 7%, var(--sch-spot) 0%, transparent 52%),
-    radial-gradient(145% 118% at 50% 116%, var(--sch-vig) 0%, transparent 56%),
-    linear-gradient(180deg, var(--sch-bg-top) 0%, var(--sch-bg-mid) 48%, var(--sch-bg-bot) 100%);
+    radial-gradient(118% 72% at 50% 7%, rgba(210, 190, 240, 0.32) 0%, transparent 52%),
+    radial-gradient(145% 118% at 50% 116%, rgba(40, 20, 60, 0.34) 0%, transparent 56%),
+    linear-gradient(180deg, #9b7bcd 0%, #6b568e 100%);
 }
 #home-shell .home-nav-bar, .play-entry-home-shell .home-nav-bar, .home-nav-bar {
   background: linear-gradient(180deg, var(--sch-nav-top) 0%, var(--sch-nav-bot) 100%);

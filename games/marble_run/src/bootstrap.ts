@@ -14,7 +14,6 @@ import { restoreNonConsumableEntitlements } from './shop/PurchaseFulfillment';
 import { buildFullShopCatalog } from './shop/ProductCatalog';
 import { installPortraitOrientationLock } from './platform/portraitOrientation';
 import { installGameLifecycle } from './platform/gameLifecycle';
-import { notificationService } from './notifications/NotificationService';
 import { installAudioUnlock, installButtonVoiceEffects } from './audio/AudioManager';
 import { preloadIcons } from './ui/iconPreload';
 import { installShellArt } from '../design/theme';
@@ -39,11 +38,11 @@ initHUD();
 // timers/tweens, ambient motion, and audio instead of cooking the phone. See
 // platform/gameLifecycle.ts.
 installGameLifecycle(game);
-// Retention reminders: schedule on suspend, cancel on resume. The one-time OS
-// permission prompt fires on the second app open — never on first launch,
-// never mid-gameplay.
-notificationService.install();
-void notificationService.maybePromptOnLaunch();
+// Retention notifications intentionally NOT bootstrapped: v1 Sugar3D never
+// requests iOS notification permission (device-parity defect MRV2-7). The
+// NotificationService module + its user-initiated settings toggle stay dormant
+// plumbing — no install()/maybePromptOnLaunch() at boot, so no OS permission
+// prompt fires. Re-enabling retention reminders is a deferred later-wave call.
 const shouldInitializeAds = gameState.settings.adsEnabled && !gameState.hasNoAdsEntitlement;
 const adConsentReady = shouldInitializeAds ? adService.init() : Promise.resolve();
 configureAttributionStartupGate(adConsentReady);

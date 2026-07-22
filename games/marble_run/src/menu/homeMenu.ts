@@ -28,7 +28,14 @@ function buildHeader(opts: MountHomeShellOptions): HTMLElement {
   const bannerImg = document.createElement('img');
   bannerImg.src = assetUrls.banner;
   bannerImg.alt = 'Marble Run';
-  banner.appendChild(bannerImg);
+  // The ported banner webp is the empty wooden plate; v1 renders the title text
+  // inside it. No title-art asset exists in the ported tree, so the title is DOM
+  // text in the v1 FredokaOne face (device-parity MRV2-7, defect 3).
+  const bannerTitle = document.createElement('span');
+  bannerTitle.className = 'marble-home-banner-title';
+  bannerTitle.textContent = 'Marble Run';
+  bannerTitle.setAttribute('aria-hidden', 'true');
+  banner.append(bannerImg, bannerTitle);
 
   const coinPill = document.createElement('div');
   coinPill.className = 'marble-coin-pill';
