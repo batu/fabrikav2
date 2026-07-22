@@ -185,7 +185,7 @@ export class IapService<TPayload = unknown> {
    * timeout returned. Banked here — never discarded — so the next purchase() of
    * the same product observes the real outcome instead of issuing a second
    * charge. Mirrors `completedRestoreResult` for the restore path. */
-  private completedPurchaseResult: IapPurchaseResult | null = null;
+  private completedPurchaseResultsByProductId = new Map<string, IapPurchaseResult>();
   /** customerInfo-update handler set before init(). When set, init registers a
    * provider listener that calls it on every CustomerInfo change so deferred
    * non-consumable entitlements (e.g. an Ask-to-Buy no-ads purchase approved
@@ -230,10 +230,9 @@ export class IapService<TPayload = unknown> {
    * timed out), or null. Consumed by the next purchase() of that product so a
    * timeout-then-retry observes the real outcome rather than double-charging. */
   consumeCompletedPurchaseResult(productId: string): IapPurchaseResult | null {
-    if (this.completedPurchaseResult === null) return null;
-    if (this.completedPurchaseResult.productId !== productId) return null;
-    const result = this.completedPurchaseResult;
-    this.completedPurchaseResult = null;
+    const result = this.completedPurchaseResultsByProductId.get(productId) ?? null;
+    if (result === null) return null;
+    this.completedPurchaseResultsByProductId.delete(productId);
     return result;
   }
 
@@ -300,11 +299,13 @@ export class IapService<TPayload = unknown> {
     // the lock when the timer wins (the old `finally`) let a retry start a second
     // charge while the first was still live. Ownership is released only when the
     // native promise itself settles; a late result is banked for delivery.
-    const purchasePromise = provider.purchaseProduct(productId);
+    // Normalize even a contract-violating synchronous provider throw into the
+    // native promise. That keeps settlement and lock release on the same path.
+    const purchasePromise = Promise.resolve().then(() => provider.purchaseProduct(productId));
     void purchasePromise.then(
       (transaction) => {
         if (returnedBeforeNativeSettled) {
-          this.completedPurchaseResult = this.purchasedResult(productId, transaction);
+          this.completedPurchaseResultsByProductId.set(productId, this.purchasedResult(productId, transaction));
         }
         if (this.activePurchaseProductId === productId) this.activePurchaseProductId = null;
       },
@@ -312,7 +313,7 @@ export class IapService<TPayload = unknown> {
         const message = errorMessage(err);
         if (returnedBeforeNativeSettled) {
           this.lastErrorMessage = message;
-          this.completedPurchaseResult = this.failedPurchaseResult(productId, err, message);
+          this.completedPurchaseResultsByProductId.set(productId, this.failedPurchaseResult(productId, err, message));
         }
         if (this.activePurchaseProductId === productId) this.activePurchaseProductId = null;
       },

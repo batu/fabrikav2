@@ -255,6 +255,44 @@ describe('IapService.purchase — late-settle serialization (AUDIT #4)', () => {
     expect(bankedA.purchaseId).toBe('txn-1');
     expect(provider.purchaseCalls).toEqual([NO_ADS, HINTS_10]);
   });
+
+  it('preserves separate unconsumed late results when two SKUs time out sequentially (AC4)', async () => {
+    const HINTS_TXN = {
+      productIdentifier: HINTS_10,
+      transactionId: 'txn-h',
+      purchaseToken: null,
+      customerInfo: { allPurchasedProductIdentifiers: [], nonSubscriptionTransactions: [{ productIdentifier: HINTS_10 }] },
+    };
+    const { service, provider } = await readyService(
+      {
+        purchaseDelayMs: { [NO_ADS]: 40, [HINTS_10]: 40 },
+        purchaseResults: { [NO_ADS]: NO_ADS_TXN, [HINTS_10]: HINTS_TXN },
+      },
+      { purchaseTimeoutMs: () => 10 },
+    );
+
+    expect((await service.purchase(NO_ADS)).status).toBe('failed');
+    await wait(60);
+    expect((await service.purchase(HINTS_10)).status).toBe('failed');
+    await wait(60);
+
+    expect((await service.purchase(NO_ADS)).purchaseId).toBe('txn-1');
+    expect((await service.purchase(HINTS_10)).purchaseId).toBe('txn-h');
+    expect(provider.purchaseCalls).toEqual([NO_ADS, HINTS_10]);
+  });
+
+  it('releases the purchase lock when a provider throws synchronously', async () => {
+    const { service, provider } = await readyService({});
+    provider.purchaseProduct = (): Promise<never> => {
+      throw new Error('sync provider failure');
+    };
+
+    const result = await service.purchase(NO_ADS);
+
+    expect(result.status).toBe('failed');
+    expect(result.errorMessage).toBe('sync provider failure');
+    expect(service.snapshot().purchaseInProgress).toBe(false);
+  });
 });
 
 describe('IapService.restore — late-settle machine', () => {
