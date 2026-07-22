@@ -548,7 +548,7 @@ export class AdMobProvider implements AdProvider {
     // native show resolves on PRESENT, so the guard and re-arm must span through
     // a terminal event (KTD1). Both listeners are required — if either fails to
     // register we do not present and leave the ready state retryable.
-    const waiter = await this.createInterstitialTerminalWaiter();
+    const waiter = await this.createInterstitialTerminalWaiter(generation);
     if (waiter === null) {
       this.showInProgress = false;
       return false;
@@ -712,7 +712,7 @@ export class AdMobProvider implements AdProvider {
    * does not present. Distinct from `createFullScreenAdDismissalWaiter`, which
    * keeps its 30-second timeout for rewarded ads.
    */
-  private async createInterstitialTerminalWaiter(): Promise<{
+  private async createInterstitialTerminalWaiter(generation: number): Promise<{
     wait: () => Promise<void>;
     settle: () => void;
     cleanup: () => Promise<void>;
@@ -728,9 +728,32 @@ export class AdMobProvider implements AdProvider {
       };
     });
 
+    const onTerminal = (): void => {
+      if (this.disposed || this.generation !== generation) return;
+      resolveWait();
+    };
+
     try {
-      handles.push(await this.adapter.addListener(InterstitialAdPluginEvents.Dismissed, resolveWait));
-      handles.push(await this.adapter.addListener(InterstitialAdPluginEvents.FailedToShow, resolveWait));
+      const dismissedHandle = await this.adapter.addListener(InterstitialAdPluginEvents.Dismissed, onTerminal);
+      if (this.disposed || this.generation !== generation) {
+        await this.removeHandleSafely(dismissedHandle);
+        return null;
+      }
+      handles.push(dismissedHandle);
+
+      const failedToShowHandle = await this.adapter.addListener(
+        InterstitialAdPluginEvents.FailedToShow,
+        onTerminal,
+      );
+      if (this.disposed || this.generation !== generation) {
+        await this.removeHandleSafely(failedToShowHandle);
+        while (handles.length > 0) {
+          const handle = handles.pop();
+          if (handle !== undefined) await this.removeHandleSafely(handle);
+        }
+        return null;
+      }
+      handles.push(failedToShowHandle);
     } catch (err: unknown) {
       this.warn('interstitial terminal listener registration failed', err);
       while (handles.length > 0) {

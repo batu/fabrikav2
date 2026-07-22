@@ -654,4 +654,31 @@ describe('AdMobProvider dispose (U6)', (): void => {
 
     expect(await provider.maybeShowInterstitial({ minIntervalMs: 0 })).toBe(false);
   });
+
+  it('dispose during terminal-listener registration prevents a late native show', async (): Promise<void> => {
+    let releaseDismissedListener: (() => void) | undefined;
+    const lateHandleRemove = vi.fn(async (): Promise<void> => {});
+    const baseAdapter = makeAdapter();
+    const addListener = baseAdapter.addListener as ReturnType<typeof vi.fn>;
+    addListener.mockImplementation(async (eventName, listenerFunc) => {
+      if (eventName === InterstitialAdPluginEvents.Dismissed) {
+        await new Promise<void>((resolve) => {
+          releaseDismissedListener = resolve;
+        });
+        return { remove: lateHandleRemove };
+      }
+      return { remove: async (): Promise<void> => { void listenerFunc; } };
+    });
+    const provider = new AdMobProvider(config, { adapter: baseAdapter, now, scheduleRetry });
+    await provider.preloadInterstitial();
+
+    const pendingShow = provider.maybeShowInterstitial({ minIntervalMs: 0 });
+    await flush();
+    await provider.dispose();
+    releaseDismissedListener?.();
+
+    await expect(pendingShow).resolves.toBe(false);
+    expect(baseAdapter.showInterstitial).not.toHaveBeenCalled();
+    expect(lateHandleRemove).toHaveBeenCalledTimes(1);
+  });
 });
