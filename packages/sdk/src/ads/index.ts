@@ -60,8 +60,11 @@ export {
 
 export {
   createAdProvider,
+  createOwnedAdProvider,
   defaultAdProviderFactories,
   type AdProviderFactories,
+  type OwnedAdProvider,
+  type OwnedAdProviderDeps,
 } from './createAdProvider.ts';
 
 export {
