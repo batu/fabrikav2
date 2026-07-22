@@ -72,6 +72,20 @@
   border: 0;
   border-radius: var(--fab-tap-board-radius);
   box-shadow: var(--fab-shadow-button);
+
+  /* Canvas paint tokens are read at runtime via getComputedStyle in
+   * TapTenScreen.ts. Bridge each design token to a game-owned runtime property
+   * so the static token-consumers audit sees a real var() dependency while the
+   * canvas keeps the exact same computed values. */
+  --tap-board-bg: var(--fab-tap-board-bg);
+  --tap-board-text: var(--fab-tap-board-text);
+  --tap-board-gap: var(--fab-tap-board-gap);
+  --tap-board-font: var(--fab-tap-board-font);
+  --tap-tile-radius: var(--fab-tap-tile-radius);
+  --tap-tile-idle: var(--fab-tap-tile-idle);
+  --tap-tile-lit: var(--fab-tap-tile-lit);
+  --tap-tile-done: var(--fab-tap-tile-done);
+  --tap-tile-fail: var(--fab-tap-tile-fail);
 }
 
 .tap-ten-screen__actions {

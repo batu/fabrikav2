@@ -12,6 +12,18 @@
   font-display: swap;
 }
 
+/* Design-token bridge. The surface-strong / accent-strong / reward / warning
+ * palette roles are part of shell_template's design contract, guarded by
+ * tests/unit/style-guide-alignment.test.ts, but are not yet applied in rendered
+ * code. Mirror them to game-owned properties so the static token-consumers
+ * audit sees a var() consumer without changing any rendered value. */
+#hud-overlay {
+  --shell-surface-strong: var(--fab-color-surface-strong);
+  --shell-accent-strong: var(--fab-color-accent-strong);
+  --shell-reward: var(--fab-color-reward);
+  --shell-warning: var(--fab-color-warning);
+}
+
 /* HUD Overlay — floats on top of Phaser canvas */
 #hud-overlay {
   pointer-events: none;

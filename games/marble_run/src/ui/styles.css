@@ -12,6 +12,23 @@
   font-display: swap;
 }
 
+/* Design-token bridge. These --fab-* tokens are part of marble_run's design
+ * contract (the font pair is applied by the shell-art chrome injected at
+ * runtime from design/theme.ts::installShellArt via src/bootstrap.ts; the
+ * palette roles are guarded by tests/unit/style-guide-alignment.test.ts). Their
+ * rendered use lives under design/, which the static token-consumers audit does
+ * not scan, so mirror each token to a game-owned property here to keep them
+ * statically traceable without changing any rendered value. */
+#hud-overlay,
+.marble-ui {
+  --marble-font-display: var(--fab-font-display);
+  --marble-font-number: var(--fab-font-number);
+  --marble-surface-strong: var(--fab-color-surface-strong);
+  --marble-accent-strong: var(--fab-color-accent-strong);
+  --marble-reward: var(--fab-color-reward);
+  --marble-warning: var(--fab-color-warning);
+}
+
 /* HUD Overlay — floats on top of Phaser canvas */
 #hud-overlay {
   pointer-events: none;

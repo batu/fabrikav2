@@ -19,14 +19,12 @@
   --fab-color-secondary-border: rgba(255, 255, 255, 0.7);
   --fab-color-overlay-scrim: rgba(17, 14, 18, 0.66);
 
-  --fab-space-screen-padding: 16px;
   --fab-radius-pill: 999px;
 
   /* v1 fonts: FredokaOne display, LilitaOne level labels, TitanOne numbers.
    * @font-face declarations are injected by installShellArt(). */
   --fab-font-family: 'FredokaOne', 'Nunito', system-ui, sans-serif;
   --fab-font-display: 'FredokaOne', 'LilitaOne', system-ui, sans-serif;
-  --fab-font-body: 'Nunito', system-ui, sans-serif;
   --fab-font-number: 'TitanOne', 'LilitaOne', system-ui, sans-serif;
 
   /* Toggle switch: v1 grey-off / green-on candy pills. */
