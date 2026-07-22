@@ -4,6 +4,7 @@ import { playLevelComplete, playUITap } from '../audio/AudioManager';
 import { scaffoldEvents } from '../core/ScaffoldEvents';
 import { showRatePromptWithHandle, type RatePromptHandle } from './RatePrompt';
 import { showSceneTransitionCover } from './SceneTransitionCover';
+import { animateCoinsToBalance } from './EconomyTransfer';
 import { buildButtonElement, mountResultCard, type UiHandle } from '@fabrikav2/ui';
 import { getModalRoot } from './modalRoot';
 import { assetUrls } from '../../design/theme';
@@ -123,6 +124,10 @@ function buildRewardRow(amount: number): HTMLElement {
 function buildCoinPill(balance: number): HTMLElement {
   const pill = document.createElement('div');
   pill.className = 'marble-win-coin-pill';
+  // v1 parity (sugar3d/src/ui/dom.ts:505 #completion-coin-target): the wallet
+  // pill is the coin-fly count-up target. EconomyTransfer.animateCoinsToBalance
+  // resolves its target by this id, so the reward coins fly here on Next.
+  pill.id = 'completion-coin-target';
   const coin = document.createElement('img');
   coin.src = COMPLETION_COIN_ICON_SRC;
   coin.alt = '';
@@ -138,8 +143,9 @@ function buildCoinPill(balance: number): HTMLElement {
  * Show the level-complete card. Resolves when the player taps Next (advance +
  * persist already applied). Sugar-skinned kit ResultCard replaces the v1core
  * mountLevelComplete DOM; the claim-×2 rewarded-ad economy is preserved via a
- * green CLAIM 2x action, but the coin count-up / reward-reveal animation is
- * dropped (see docs/shell-parity-gaps.md).
+ * green CLAIM 2x action. MRV2-21 restores v1's coin-fly + count-up on Next: the
+ * wallet pill starts at the pre-reward balance and the reward coins fly into it
+ * with a count-up before the level transition (see runNext below).
  */
 export function showLevelCompleteOverlay(
   levelId: string,
@@ -166,6 +172,10 @@ export function showLevelCompleteOverlay(
 
   const levelNumber = gameState.currentLevelIndex + 1;
   const rewardRow = buildRewardRow(options.baseCoins);
+  // v1 parity (sugar3d/src/ui/dom.ts:497 balanceBefore): the wallet starts at
+  // the pre-reward balance and counts up as the reward coins fly in on Next.
+  const balanceBefore = Math.max(0, options.coinBalance - options.baseCoins);
+  const coinPill = buildCoinPill(balanceBefore);
 
   // MRV2-11 U5 (ref refs/win.png): the win card holds NO actions — Next is a
   // standalone pill far below the card, appended to the backdrop (see below). The
@@ -185,16 +195,32 @@ export function showLevelCompleteOverlay(
       handle.dismiss();
     };
 
-    if (gameState.shouldShowRatePrompt()) {
-      const promptHandle = showRatePromptWithHandle();
-      options.onRatePromptHandle?.(promptHandle);
-      void promptHandle.dismissed.finally(() => {
-        options.onRatePromptHandle?.(null);
-        finish();
-      });
-      return;
-    }
-    finish();
+    const proceed = (): void => {
+      if (gameState.shouldShowRatePrompt()) {
+        const promptHandle = showRatePromptWithHandle();
+        options.onRatePromptHandle?.(promptHandle);
+        void promptHandle.dismissed.finally(() => {
+          options.onRatePromptHandle?.(null);
+          finish();
+        });
+        return;
+      }
+      finish();
+    };
+
+    // v1 parity (sugar3d/src/ui/dom.ts:524 showWin onNext): fly the reward coins
+    // from the reward row into the wallet pill with a count-up, THEN advance. The
+    // engine no-ops (resolves immediately) under reduced motion or when the
+    // target/source are not measurable, so the flow never stalls.
+    nextBtn.setAttribute('data-disabled', 'true');
+    void animateCoinsToBalance({
+      amount: options.baseCoins,
+      source: rewardRow,
+      owner: handle.el,
+      countElement: coinPill.querySelector<HTMLElement>('.marble-win-coin-value'),
+      fromValue: balanceBefore,
+      toValue: options.coinBalance,
+    }).then(proceed);
   };
 
   // Device-parity MRV2-10 U4: the Next action is a GREEN PILL (Button_Green) with
@@ -230,7 +256,7 @@ export function showLevelCompleteOverlay(
   // board. The coin pill docks to the SCREEN top-right (backdrop, safe-area
   // inset) and Next is a standalone pill BELOW the card — both appended to the
   // backdrop (handle.el), not the card, so the card stays compact.
-  handle.el.appendChild(buildCoinPill(options.coinBalance));
+  handle.el.appendChild(coinPill);
   nextBtn.classList.add('marble-win-next-standalone');
   handle.el.appendChild(nextBtn);
   activeLevelCompleteHandle = handle;
