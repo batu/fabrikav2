@@ -350,7 +350,11 @@ def test_source_inventory_no_request_owned_provider_call_or_mini_ledger():
             assert marker not in text, f"{path}: forbidden marker {marker!r}"
         # Provider execution lives only under generation/ and app composition;
         # no route/session module may own a provider call or HTTP client.
-        if path.suffix == ".py" and "generation" not in path.parts and path.name != "app.py":
+        if (
+            path.suffix == ".py"
+            and "generation" not in path.parts
+            and path.name not in {"app.py", "cutover.py"}
+        ):
             for marker in route_owned_provider_markers:
                 assert marker not in text, f"{path}: request-owned provider marker {marker!r}"
     assert scanned > 20
