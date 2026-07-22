@@ -15,6 +15,17 @@ vi.mock('../../src/audio/AudioManager', () => ({
   playUITap: () => {},
 }));
 
+// The coin-fly engine measures getBoundingClientRect (all zeros under happy-dom)
+// and drives rAF; stub it so the overlay's Next→coin-fly→advance flow is testable
+// without the animation runtime. Returns resolved so runNext still proceeds.
+const { animateCoinsToBalance } = vi.hoisted(() => ({
+  animateCoinsToBalance: vi.fn((_options: unknown) => Promise.resolve()),
+}));
+vi.mock('../../src/ui/EconomyTransfer', () => ({
+  animateCoinsToBalance,
+  animateHintsToBalance: () => Promise.resolve(),
+}));
+
 import { showLevelCompleteOverlay } from '../../src/ui/LevelCompleteOverlay';
 import { showLevelFailedOverlay } from '../../src/ui/LevelFailedOverlay';
 import { showRatePromptWithHandle } from '../../src/ui/RatePrompt';
@@ -37,6 +48,7 @@ function ribbonTitle(root: ParentNode): string | undefined {
 
 describe('sugar result cards', () => {
   beforeEach(() => {
+    animateCoinsToBalance.mockClear();
     // MRV2-11 U2: result cards now mount into the fixed #modal-root layer. Keep
     // #hud-overlay for the finale test (which mounts there explicitly).
     document.body.innerHTML =
@@ -112,8 +124,9 @@ describe('sugar result cards', () => {
     expect(next!.querySelector('img')).toBeNull();
     // Claim 2x is gone regardless of claimX2Available.
     expect(overlay!.querySelector('[data-fab-action="result-claim-x2"]')).toBeNull();
-    // Blue wallet pill reflects the balance.
-    expect(overlay!.querySelector('.marble-win-coin-pill .marble-win-coin-value')?.textContent).toBe('140');
+    // MRV2-21 R4 (v1 parity): the wallet pill starts at the PRE-reward balance
+    // (coinBalance - baseCoins) and counts up to the final balance on Next.
+    expect(overlay!.querySelector('.marble-win-coin-pill .marble-win-coin-value')?.textContent).toBe('100');
 
     // MRV2-11 U5 (ref refs/win.png): three screen-level pieces. The coin pill and
     // the standalone Next live on the BACKDROP, NOT inside the compact card.
@@ -148,6 +161,50 @@ describe('sugar result cards', () => {
       await expect(result).resolves.toEqual({ nextLevelData: null });
       expect(gameState.currentLevelIndex).toBe(1);
       expect(document.getElementById('level-complete-overlay')).toBeNull();
+    } finally {
+      gameState.settings.ratePromptEnabled = ratePromptEnabled;
+    }
+  });
+
+  // MRV2-21 R4 (card item 4, v1 sugar3d/src/ui/dom.ts:524): tapping Next flies
+  // the reward coins from the reward row into the wallet pill, counting the pill
+  // up from the pre-reward balance to the final balance, before advancing.
+  it('flies reward coins into the wallet pill with a count-up on Next', async () => {
+    const ratePromptEnabled = gameState.settings.ratePromptEnabled;
+    gameState.settings.ratePromptEnabled = false;
+    gameState.currentLevelIndex = 0;
+
+    try {
+      const result = showLevelCompleteOverlay('lvl-coinfly', {
+        timeSeconds: 8,
+        newBest: false,
+        baseCoins: 25,
+        coinBalance: 125,
+        claimX2Available: false,
+      });
+      // Pill seeded at the pre-reward balance (125 - 25).
+      expect(
+        document.querySelector('.marble-win-coin-pill .marble-win-coin-value')?.textContent,
+      ).toBe('100');
+
+      const next = document.querySelector<HTMLButtonElement>('[data-fab-action="result-next"]')!;
+      next.click();
+
+      expect(animateCoinsToBalance).toHaveBeenCalledTimes(1);
+      const call = animateCoinsToBalance.mock.calls[0][0] as {
+        amount: number;
+        source: Element | null;
+        fromValue: number;
+        toValue: number;
+        countElement: Element | null;
+      };
+      expect(call.amount).toBe(25);
+      expect(call.fromValue).toBe(100);
+      expect(call.toValue).toBe(125);
+      expect(call.source).toBe(document.querySelector('.marble-reward-row'));
+      expect(call.countElement).toBe(document.querySelector('.marble-win-coin-value'));
+
+      await expect(result).resolves.toEqual({ nextLevelData: null });
     } finally {
       gameState.settings.ratePromptEnabled = ratePromptEnabled;
     }

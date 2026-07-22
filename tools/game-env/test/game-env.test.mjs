@@ -298,6 +298,8 @@ describe('Vite mode configuration', () => {
       const ios = resolveFindTheDogViteConfig('ios', root);
       expect(process.env[key]).toBe('ios-local-value');
       expect(process.env[unknownKey]).toBe('ambient-unknown');
+      expect(ios.publicDir).toBe(false);
+      expect(ios.plugins?.some((plugin) => plugin && plugin.name === 'ftd-native-public-bundle')).toBe(true);
       expect(ios.envPrefix).toContain('VITE_REVENUECAT_IOS_API_KEY');
       expect(ios.envPrefix).not.toContain('VITE_REVENUECAT_ANDROID_API_KEY');
       expect(ios.envPrefix).toContain('VITE_GAMEANALYTICS_IOS_GAME_KEY');
@@ -305,11 +307,15 @@ describe('Vite mode configuration', () => {
 
       const android = resolveFindTheDogViteConfig('android', root);
       expect(process.env[key]).toBe('ambient-value');
+      expect(android.publicDir).toBe(false);
+      expect(android.plugins?.some((plugin) => plugin && plugin.name === 'ftd-native-public-bundle')).toBe(true);
       expect(android.envPrefix).toContain('VITE_REVENUECAT_ANDROID_API_KEY');
       expect(android.envPrefix).not.toContain('VITE_REVENUECAT_IOS_API_KEY');
       expect(android.envPrefix).not.toContain('VITE_GAMEANALYTICS_IOS_GAME_KEY');
 
       const development = resolveFindTheDogViteConfig('development', root);
+      expect(development.publicDir).not.toBe(false);
+      expect(development.plugins?.some((plugin) => plugin && plugin.name === 'ftd-native-public-bundle')).toBe(false);
       expect(development.envPrefix).not.toContain('VITE_REVENUECAT_IOS_API_KEY');
       expect(development.envPrefix).not.toContain('VITE_REVENUECAT_ANDROID_API_KEY');
       expect(development.envPrefix).not.toContain('VITE_APPLOVIN_IOS_SDK_KEY');

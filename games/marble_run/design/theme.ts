@@ -499,10 +499,26 @@ body {
 #modal-root.completion-mode .fab-modal-ribbon {
   margin-top: calc(-1 * var(--fab-space-lg) - var(--fab-ribbon-overhang) - 72px);
 }
+/* MRV2-21 R2 (card item 2, ref v1 .win-level sugar3d/src/ui/style.css:2029):
+   the "LEVEL n" label sits in the TOP green band of the ribbon, above the baked
+   "COMPLETED" word. The kit eyebrow default is a dark translucent grey at 30% —
+   which read wrong (murky, mis-placed) over the green ribbon. Match v1: dark
+   green with a subtle white lift, seated in the top band. */
+#modal-root.completion-mode .fab-modal-ribbon-eyebrow {
+  top: 17%;
+  left: 0;
+  right: 0;
+  /* A game reset zeroes the kit's margin-inline:auto, so the eyebrow pinned to
+     the ribbon's left edge instead of centering over COMPLETED. Restore auto. */
+  margin-inline: auto;
+  color: #26951d;
+  font-size: clamp(15px, 4.2vw, 18px);
+  letter-spacing: 0;
+  text-shadow: 0 1px rgba(255, 255, 255, 0.45);
+}
 /* Green Next pill: Button_Green sprite is the surface; contain a white label so
    it never renders as giant word-art (the old Txt_Next sprite-label doubling). */
 .marble-ui .marble-result-next {
-  min-width: 220px;
   min-height: 68px;
   color: #fff;
   font-family: var(--fab-font-display);
@@ -510,12 +526,22 @@ body {
   text-shadow: 0 2px 0 rgba(20, 90, 30, 0.5);
 }
 /* Standalone Next lives on the backdrop, spaced well below the card (ref). */
+/* MRV2-21 R3 (card item 3, ref v1 win-next-button ~160px): v1's Next is a
+   COMPACT pill, not a full-width bar. The kit .fab-btn sets width:100%, so
+   without a local constraint the standalone Next inherited the full 390px
+   backdrop width. Pin an explicit compact width matching v1's geometry. */
+/* MRV2-21 R1 (card item 1): a fixed width also PINS the button geometry through
+   the level transition — with width:100% the button re-flowed (morphed wide) as
+   the backdrop flex changed on dismiss. A fixed px width cannot morph. */
 .marble-ui .marble-win-next-standalone {
   position: relative;
   z-index: 2;
   margin-top: clamp(28px, 9vh, 84px);
   align-self: center;
   flex: 0 0 auto;
+  width: 172px;
+  min-width: 172px;
+  max-width: 172px;
 }
 /* Blue wallet pill docked to the SCREEN top-right (backdrop child, safe area). */
 .marble-ui .marble-win-coin-pill {

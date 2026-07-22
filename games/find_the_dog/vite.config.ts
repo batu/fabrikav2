@@ -4,6 +4,7 @@ import { defineConfig, type UserConfig } from 'vite';
 import { baseViteConfig } from '../../configs/vite.base.ts';
 import { readEnvFile } from '../../tools/game-env/src/env.mjs';
 import { FIND_THE_DOG_ENV_KEYS } from '../../tools/game-env/src/policies/find-the-dog.mjs';
+import { nativePublicBundlePlugin } from './build/nativePublicBundle.ts';
 
 const gameRoot = path.dirname(fileURLToPath(import.meta.url));
 const injectedEnvironment = new Map<string, string | undefined>();
@@ -61,8 +62,11 @@ export function resolveFindTheDogViteConfig(mode: string, root = gameRoot): User
     injectIosEnvironment(root);
   }
 
+  const nativeMode = mode === 'ios' || mode === 'android';
   return baseViteConfig({
     envPrefix: envPrefixesForMode(mode),
+    publicDir: nativeMode ? false : undefined,
+    plugins: nativeMode ? [nativePublicBundlePlugin(path.join(root, 'public'))] : [],
     server: { port: 5199 },
     resolve: { alias: { '@capacitor-community/admob': admobStub } },
   });
