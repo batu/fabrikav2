@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { installShellArt } from "../../design/theme";
+import { installShellArt, MARBLE_LEVELMAP_THEME } from "../../design/theme";
+import { mountHomeShell } from "../../src/menu/homeMenu";
 
 function shellArtCss(): string {
   installShellArt(document);
@@ -37,5 +38,29 @@ describe("device parity wave 8 CSS pins", () => {
   it("shrinks the home preview budget on short phone viewports", () => {
     const css = shellArtCss();
     expect(css).toMatch(/@media \(max-height: 800px\)[^{]*\{[\s\S]*?\.marble-home-board-preview-slot \{[^}]*max-height: 115px/);
+  });
+
+  it("keeps the home saga dense and prominent", () => {
+    expect(MARBLE_LEVELMAP_THEME["--fab-levelmap-node-size"]).toBe("64px");
+    expect(MARBLE_LEVELMAP_THEME["--fab-levelmap-node-current-size"]).toBe("112px");
+    expect(MARBLE_LEVELMAP_THEME["--fab-levelmap-node-gap"]).toBe("2px");
+  });
+
+  it("mounts the v1 eight-piece ambient sprinkle layer", () => {
+    const mountInto = document.createElement("div");
+    document.body.appendChild(mountInto);
+    const handle = mountHomeShell({
+      mountInto,
+      coins: 0,
+      nodes: [{ id: 1, label: "1", name: "Level 1", state: "current" }],
+      currentLevelNumber: 1,
+      onSelectLevel: () => undefined,
+      onStart: () => undefined,
+      onOpenSettings: () => undefined,
+    });
+
+    expect(handle.el.querySelectorAll(".marble-ambient-sprinkle")).toHaveLength(8);
+    expect(shellArtCss()).toMatch(/@keyframes marble-sprinkle-fall/);
+    handle.dismiss();
   });
 });
