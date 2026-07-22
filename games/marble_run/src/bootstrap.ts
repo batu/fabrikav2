@@ -22,6 +22,7 @@ import '@fabrikav2/ui/ui.css';
 import '../design/tokens.css';
 import './v1core/ui/ui.css';
 import './ui/styles.css';
+import './gameplay/hud.css';
 
 installPortraitOrientationLock();
 installAudioUnlock();

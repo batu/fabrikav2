@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "name": "sugar3d-marble-core",
+  "palette": [
+    "#fff4e4",
+    "#ffdfeb",
+    "#f3cbd8",
+    "#df9fb8",
+    "#5e2a40",
+    "#ff4d6d",
+    "#38a3ff",
+    "#44d164",
+    "#ffcc1f",
+    "#b266ff",
+    "#ff8a3d",
+    "#ffffff"
+  ],
+  "parts": [
+    {
+      "id": "core",
+      "prim": "sphere",
+      "dims": {
+        "radius": 0.36
+      },
+      "swatch": "P5",
+      "cell": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "gloss-spot",
+      "prim": "sphere",
+      "dims": {
+        "radius": 0.065
+      },
+      "swatch": "P11",
+      "on": "core",
+      "anchor": "top",
+      "offset": [
+        -0.08,
+        -0.08
+      ]
+    }
+  ]
+}

@@ -1,0 +1,473 @@
+/*
+ * In-level HUD styles — ported from the game-HUD slice of Sugar3D v1
+ * `src/ui/style.css` (vida Goals/Currency frames, hint booster button,
+ * settings button, hearts, streak pop, route-blocked prompt, tutorial hand).
+ *
+ * Scoped under `.mr-gameplay-screen` so it cannot bleed into the MRV2-5 shell
+ * screens or the FTD HUD (which live outside this root). The CSS variables the
+ * ported rules reference are re-declared on the root rather than at :root, for
+ * the same isolation reason. Keyframe names are carried verbatim.
+ */
+
+/* While the marble gameplay is mounted, hide the FTD HUD chrome (kept in the
+ * DOM by initHUD) so only the ported vida HUD shows. The win/fail overlays,
+ * which also mount into #hud-overlay, stay visible. */
+#hud-overlay.mr-gameplay-active .hud-top-bar,
+#hud-overlay.mr-gameplay-active .hud-hint-wrap,
+#hud-overlay.mr-gameplay-active #offline-indicator {
+  display: none !important;
+}
+
+.mr-gameplay-screen {
+  --sugar-marble-red: #ff4d6d;
+  --sugar-text-on-candy: #ffffff;
+  --sugar-text-ink: #203050;
+  --sugar-radius-pill: 999px;
+  --vida-font-number: 'Vida Number', 'Arial Black', system-ui, sans-serif;
+
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+  z-index: 3;
+  animation: mr-screen-fade-in 0.18s ease both;
+}
+.mr-gameplay-screen > * {
+  pointer-events: auto;
+}
+.mr-gameplay-screen > .tutorial-hand-layer {
+  pointer-events: none;
+}
+
+/* ── top HUD bar ─────────────────────────────────────────────── */
+.mr-gameplay-screen .hud {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 16px);
+  left: 0;
+  right: 0;
+  min-height: 132px;
+  padding: 0 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+/* ── coin counter (vida currency frame) ──────────────────────── */
+.mr-gameplay-screen .vida-currency-counter {
+  position: relative;
+  width: 122px;
+  height: 65px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  color: var(--sugar-text-on-candy);
+  line-height: 1;
+  font-family: var(--vida-font-number);
+  -webkit-text-stroke: 0;
+}
+.mr-gameplay-screen .vida-counter-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+.mr-gameplay-screen .vida-counter-content {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 0;
+  transform: translate(-50%, -50%);
+  color: var(--sugar-text-on-candy);
+  font-family: var(--vida-font-number);
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+  -webkit-text-stroke: 1px #10456b;
+  text-shadow: 0 2px 0 #10456b !important;
+}
+.mr-gameplay-screen .vida-counter-coin {
+  width: 27px;
+  height: 27px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+.mr-gameplay-screen .vida-counter-value {
+  display: inline-block;
+  min-width: 1ch;
+  transform: translateY(0);
+}
+.mr-gameplay-screen .game-coin-counter {
+  position: fixed;
+  left: 20px;
+  top: auto;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+}
+
+/* ── settings button (vida) ──────────────────────────────────── */
+.mr-gameplay-screen .vida-settings-button {
+  position: relative;
+  width: 72px;
+  height: 78px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--vida-font-number);
+  -webkit-text-stroke: 0;
+  transform-origin: 50% 70%;
+  transition: transform 90ms ease;
+}
+.mr-gameplay-screen .vida-settings-button:active {
+  transform: translateY(4px) scale(0.94);
+}
+.mr-gameplay-screen .vida-settings-button-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+.mr-gameplay-screen .vida-settings-icon {
+  position: relative;
+  z-index: 1;
+  width: 38px;
+  height: auto;
+  pointer-events: none;
+  transform: translateY(-2px);
+}
+.mr-gameplay-screen .game-settings {
+  position: absolute;
+  right: 18px;
+  top: -2px;
+}
+
+/* ── hearts (vida goals frame) ───────────────────────────────── */
+.mr-gameplay-screen .hearts {
+  position: absolute;
+  top: -2px;
+  left: 20px;
+  width: 184px;
+  height: 78px;
+  transform: none;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  gap: 6px;
+  background: transparent;
+  box-shadow: none;
+  filter: none;
+  overflow: visible;
+  white-space: nowrap;
+}
+.mr-gameplay-screen .vida-hearts-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+.mr-gameplay-screen .hearts-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: #ff5060;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: clamp(27px, 6.2vw, 29px);
+  font-weight: 900;
+  line-height: 1;
+  -webkit-text-stroke: 1px #203040;
+  text-shadow:
+    0 2px 0 #203040,
+    0 0 6px rgba(255, 169, 183, 0.42) !important;
+  transform: translateY(-2px);
+}
+.mr-gameplay-screen .hearts span {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.mr-gameplay-screen .hearts span.dead {
+  filter: grayscale(1) brightness(1.05);
+  opacity: 0.44;
+  transform: scale(0.92);
+}
+
+/* ── bottom bar: hint booster button ─────────────────────────── */
+.mr-gameplay-screen .hud-bottom {
+  position: absolute;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+  left: 22px;
+  right: 22px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  pointer-events: none;
+}
+.mr-gameplay-screen .hud-bottom > * {
+  pointer-events: auto;
+}
+.mr-gameplay-screen .hint-btn {
+  position: relative;
+  width: 108px;
+  height: 116px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--sugar-text-on-candy);
+  font-family: var(--vida-font-number);
+  cursor: pointer;
+  transform-origin: 50% 78%;
+  transition: transform 90ms ease;
+}
+.mr-gameplay-screen .hint-btn:active {
+  transform: translateY(5px) scale(0.94);
+}
+.mr-gameplay-screen .hint-btn:disabled {
+  cursor: default;
+  opacity: 0.58;
+}
+.mr-gameplay-screen .hint-btn:disabled:active {
+  transform: none;
+}
+.mr-gameplay-screen .hint-btn-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+.mr-gameplay-screen .hint-label {
+  position: relative;
+  z-index: 1;
+  margin-top: 23px;
+  font-size: 17px;
+  line-height: 1;
+  -webkit-text-stroke: 1px var(--sugar-text-ink);
+  text-shadow: 0 2px 0 var(--sugar-text-ink) !important;
+}
+.mr-gameplay-screen .hint-cost {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  margin-top: -28px;
+  font-size: 13px;
+  line-height: 1;
+  -webkit-text-stroke: 0.6px var(--sugar-text-ink);
+  text-shadow: 0 1px 0 var(--sugar-text-ink) !important;
+}
+.mr-gameplay-screen .hint-cost img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+/* ── streak pop ──────────────────────────────────────────────── */
+.mr-gameplay-screen .streak {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 86px);
+  left: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  max-width: calc(100vw - 28px);
+  min-height: 54px;
+  padding: 8px 20px 10px;
+  border-radius: var(--sugar-radius-pill);
+  background: linear-gradient(180deg, rgba(255, 248, 226, 0.96), rgba(255, 218, 88, 0.9) 45%, rgba(244, 164, 28, 0.92));
+  border: 4px solid rgba(255, 255, 255, 0.9);
+  transform: translateX(-50%);
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+  color: #fff8d6;
+  -webkit-text-stroke: 0;
+  text-shadow: 0 2px 4px rgba(45, 23, 10, 0.14) !important;
+  box-shadow: 0 5px 0 #cf7d20, 0 10px 18px rgba(122, 58, 85, 0.22);
+  animation: mr-streakpop 1.3s ease forwards;
+  pointer-events: none;
+}
+
+/* ── route-blocked prompt ────────────────────────────────────── */
+.mr-gameplay-screen .route-blocked-prompt {
+  position: absolute;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 118px);
+  z-index: 6;
+  transform: translateX(-50%);
+  pointer-events: none;
+  padding: 12px 24px 13px;
+  border-radius: var(--sugar-radius-pill);
+  background:
+    radial-gradient(32px 18px at 18% 18%, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0) 62%),
+    linear-gradient(#ff7a86, #ff4057 52%, #d6263f);
+  color: var(--sugar-text-on-candy);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
+  text-transform: lowercase;
+  text-shadow: 0 2px 5px rgba(86, 43, 18, 0.12) !important;
+  box-shadow:
+    inset 0 3px 0 rgba(255, 255, 255, 0.32),
+    0 5px 0 #9e1a31,
+    0 10px 18px rgba(71, 14, 34, 0.28);
+  animation: mr-route-blocked-enter 0.18s cubic-bezier(0.18, 1.42, 0.36, 1) both;
+}
+.mr-gameplay-screen .route-blocked-prompt.is-fading {
+  animation: mr-route-blocked-exit 0.26s ease-in both;
+}
+
+/* ── tutorial hand ───────────────────────────────────────────── */
+.mr-gameplay-screen .tutorial-hand-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: radial-gradient(
+    circle 78px at var(--tx) var(--ty),
+    rgba(19, 12, 24, 0) 0 62px,
+    rgba(19, 12, 24, 0.14) 72px,
+    rgba(19, 12, 24, 0.48) 96px
+  );
+  animation: mr-fadein 0.18s ease;
+}
+.mr-gameplay-screen .tutorial-hand-layer.tutorial-reject {
+  background:
+    radial-gradient(
+      circle 88px at var(--tx) var(--ty),
+      rgba(255, 255, 255, 0.02) 0 54px,
+      rgba(255, 72, 90, 0.16) 68px,
+      rgba(255, 72, 90, 0.36) 94px,
+      rgba(19, 12, 24, 0.52) 126px
+    );
+  animation: mr-tutorial-reject-layer 0.42s ease;
+}
+.mr-gameplay-screen .tutorial-spotlight,
+.mr-gameplay-screen .tutorial-ring,
+.mr-gameplay-screen .tutorial-hand {
+  position: absolute;
+  left: var(--tx);
+  top: var(--ty);
+  pointer-events: none;
+}
+.mr-gameplay-screen .tutorial-spotlight {
+  width: 142px;
+  height: 142px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0 42%, rgba(255, 255, 255, 0.04) 58%, rgba(255, 255, 255, 0) 72%);
+}
+.mr-gameplay-screen .tutorial-ring {
+  width: 86px;
+  height: 86px;
+  border: 6px solid rgba(255, 250, 178, 0.98);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  filter:
+    drop-shadow(0 4px 5px rgba(22, 13, 8, 0.42))
+    drop-shadow(0 0 12px rgba(255, 238, 112, 0.36));
+  animation: mr-tutorial-ring-pulse 1.05s ease-in-out infinite;
+}
+.mr-gameplay-screen .tutorial-hand {
+  font-size: 92px;
+  line-height: 1;
+  transform: translate(-50%, -14px);
+  filter:
+    drop-shadow(0 5px 0 #26150f)
+    drop-shadow(0 12px 15px rgba(21, 13, 8, 0.42));
+  animation: mr-tutorial-hand-tap 1.05s ease-in-out infinite;
+}
+.mr-gameplay-screen .tutorial-reject .tutorial-ring {
+  border-color: #ff6b63;
+  filter:
+    drop-shadow(0 4px 5px rgba(22, 13, 8, 0.42))
+    drop-shadow(0 0 18px rgba(255, 55, 72, 0.72));
+  animation: mr-tutorial-reject-ring 0.42s ease;
+}
+.mr-gameplay-screen .tutorial-reject .tutorial-spotlight {
+  background: radial-gradient(circle, rgba(255, 98, 116, 0.22) 0 42%, rgba(255, 98, 116, 0.1) 58%, rgba(255, 98, 116, 0) 72%);
+}
+.mr-gameplay-screen .tutorial-reject .tutorial-hand {
+  animation: mr-tutorial-hand-reject 0.42s ease;
+}
+
+/* ── keyframes (renamed with mr- prefix to avoid shell collisions) ── */
+@keyframes mr-screen-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes mr-fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes mr-route-blocked-enter {
+  0% { transform: translateX(-50%) translateY(10px) scale(0.86); opacity: 0; }
+  78% { transform: translateX(-50%) translateY(-2px) scale(1.04); opacity: 1; }
+  100% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+}
+@keyframes mr-route-blocked-exit {
+  from { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; }
+  to { transform: translateX(-50%) translateY(8px) scale(0.94); opacity: 0; }
+}
+@keyframes mr-streakpop {
+  0% { transform: translateX(-50%) translateY(-12px) scale(0.72); opacity: 0; }
+  18% { transform: translateX(-50%) translateY(0) scale(1.08); opacity: 1; }
+  30% { transform: translateX(-50%) scale(1); }
+  75% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes mr-tutorial-hand-tap {
+  0%, 100% { transform: translate(-50%, -8px) scale(1); }
+  46% { transform: translate(-50%, -26px) scale(1.04); }
+  62% { transform: translate(-50%, -14px) scale(0.96); }
+}
+@keyframes mr-tutorial-ring-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.92; }
+  56% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.56; }
+}
+@keyframes mr-tutorial-reject-ring {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  22% { transform: translate(-50%, -50%) scale(1.34); }
+  48% { transform: translate(-50%, -50%) scale(0.9); }
+}
+@keyframes mr-tutorial-hand-reject {
+  0%, 100% { transform: translate(-50%, -14px) rotate(0deg); }
+  22% { transform: translate(calc(-50% - 12px), -14px) rotate(-4deg); }
+  44% { transform: translate(calc(-50% + 10px), -14px) rotate(4deg); }
+  66% { transform: translate(calc(-50% - 6px), -14px) rotate(-2deg); }
+}
+@keyframes mr-tutorial-reject-layer {
+  0%, 100% { opacity: 1; }
+  38% { opacity: 0.88; }
+}

@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "name": "sugar3d-plug-cap",
+  "palette": [
+    "#fff4e4",
+    "#ffdfeb",
+    "#f3cbd8",
+    "#df9fb8",
+    "#5e2a40",
+    "#ff4d6d",
+    "#38a3ff",
+    "#44d164",
+    "#ffcc1f",
+    "#b266ff",
+    "#ff8a3d",
+    "#ffffff"
+  ],
+  "parts": [
+    {
+      "id": "plug-shadow-ring",
+      "prim": "cylinder",
+      "dims": {
+        "radius": 0.34,
+        "height": 0.045
+      },
+      "swatch": "P3",
+      "cell": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "porcelain-cap",
+      "prim": "sphere",
+      "dims": {
+        "radius": 0.33
+      },
+      "scale": [
+        1,
+        0.62,
+        1
+      ],
+      "swatch": "P11",
+      "on": "plug-shadow-ring",
+      "anchor": "top",
+      "offset": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "cap-gloss",
+      "prim": "sphere",
+      "dims": {
+        "radius": 0.07
+      },
+      "swatch": "P0",
+      "on": "porcelain-cap",
+      "anchor": "top",
+      "offset": [
+        -0.08,
+        -0.1
+      ]
+    }
+  ]
+}
