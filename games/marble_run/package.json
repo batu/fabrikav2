@@ -9,8 +9,10 @@
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run",
     "lint": "eslint .",
-    "ios:add": "npx cap add ios && npx cap sync ios && node ../../tools/marble-run/ios-inject-team.mjs",
-    "ios:sync": "npx cap sync ios && node ../../tools/marble-run/ios-inject-team.mjs"
+    "ios:add": "npx cap add ios && npx cap sync ios && node ../../tools/marble-run/ios-inject-team.mjs && node ../../tools/marble-run/sync-native-resources.mjs ios",
+    "ios:sync": "npx cap sync ios && node ../../tools/marble-run/ios-inject-team.mjs && node ../../tools/marble-run/sync-native-resources.mjs ios",
+    "android:add": "npx cap add android && npx cap sync android && node ../../tools/marble-run/sync-native-resources.mjs android",
+    "android:sync": "npx cap sync android && node ../../tools/marble-run/sync-native-resources.mjs android"
   },
   "dependencies": {
     "@capacitor/app": "^8.1.1",

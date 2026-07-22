@@ -29,6 +29,8 @@ const DECOR_FRAME_ZOOM = 1.42;
 const MENU_CAMERA_YAW_DEG = 90;
 /** v1 `tickMenuDecor`: idle a marble roughly every 2.6s. */
 const DECOR_MOVE_INTERVAL_S = 2.6;
+/** v1 `App.loop`: slow showcase spin on menu screens (`root.rotation.y += dt * 0.12`). */
+const DECOR_SPIN_RATE_RAD_S = 0.12;
 const MAX_FRAME_DT_S = 0.05;
 
 export class HomeBoardPreview {
@@ -110,6 +112,8 @@ export class HomeBoardPreview {
     const dt = Math.min((now - this.lastTime) / 1000, MAX_FRAME_DT_S);
     this.lastTime = now;
     this.board?.tick(dt);
+    // v1 App.loop: slow showcase rotation on menu screens.
+    if (this.board !== null) this.board.root.rotation.y += dt * DECOR_SPIN_RATE_RAD_S;
     this.tickDecor(dt);
     this.stage.render();
     this.rafHandle = requestAnimationFrame(() => this.loop());
