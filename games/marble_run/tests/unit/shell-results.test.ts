@@ -17,6 +17,8 @@ vi.mock('../../src/audio/AudioManager', () => ({
 
 import { showLevelCompleteOverlay } from '../../src/ui/LevelCompleteOverlay';
 import { showLevelFailedOverlay } from '../../src/ui/LevelFailedOverlay';
+import { showRatePromptWithHandle } from '../../src/ui/RatePrompt';
+import { gameState } from '../../src/core/GameState';
 import { mountFinale } from '../../src/menu/finale';
 import type { FailContinueOfferSet } from '../../src/shop/FailContinueOffers';
 
@@ -123,6 +125,40 @@ describe('sugar result cards', () => {
     expect(overlay!.querySelectorAll('[data-fab-action="result-next"]').length).toBe(1);
     // Single COMPLETED source: the ribbon sprite (its overlaid title text empty).
     expect(overlay!.querySelectorAll('.fab-modal-ribbon-image').length).toBe(1);
+  });
+
+  it('advances and dismisses exactly once when the standalone Next button is clicked', async () => {
+    const ratePromptEnabled = gameState.settings.ratePromptEnabled;
+    gameState.settings.ratePromptEnabled = false;
+    gameState.currentLevelIndex = 0;
+
+    try {
+      const result = showLevelCompleteOverlay('lvl-next', {
+        timeSeconds: 12,
+        newBest: false,
+        baseCoins: 25,
+        coinBalance: 25,
+        claimX2Available: false,
+      });
+      const next = document.querySelector<HTMLButtonElement>('[data-fab-action="result-next"]')!;
+
+      next.click();
+      next.click();
+
+      await expect(result).resolves.toEqual({ nextLevelData: null });
+      expect(gameState.currentLevelIndex).toBe(1);
+      expect(document.getElementById('level-complete-overlay')).toBeNull();
+    } finally {
+      gameState.settings.ratePromptEnabled = ratePromptEnabled;
+    }
+  });
+
+  it('mounts the rate prompt in the modal layer above the completion overlay', () => {
+    const prompt = showRatePromptWithHandle();
+    const promptOverlay = document.getElementById('rate-prompt-overlay');
+
+    expect(promptOverlay?.parentElement).toBe(document.getElementById('modal-root'));
+    prompt.dismiss();
   });
 
   // MRV2-11 U5: the win scrim reverts from the wave-4 opaque purple gradient to a
