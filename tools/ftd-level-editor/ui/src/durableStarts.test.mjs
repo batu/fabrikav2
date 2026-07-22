@@ -1,11 +1,15 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
+import { startSpriteAnimation } from './features/animations/durableStarts.ts';
 import { startSequenceWorkflow } from './features/lineup/durableStarts.ts';
 import {
   startBackgroundGeneration,
   startBandGeneration,
   startCropInpaint,
+  startDogRegeneration,
+  startDogVariantUpscale,
+  startMagentaInpaint,
   startMultiSceneGeneration,
   startRetryFailedDogs,
 } from './features/wizard/durableStarts.ts';
@@ -21,6 +25,8 @@ const BACKEND_ACTION_KINDS = [
   'ftd.band_generate',
   'ftd.sequence_workflow',
   'ftd.multi_scene_generate',
+  'ftd.magenta_inpaint',
+  'ftd.dog_regenerate',
 ];
 
 function makeContext() {
@@ -56,6 +62,14 @@ const STARTS = [
   [startBandGeneration, 'ftd.band_generate', { bandIndex: 2 }],
   [startMultiSceneGeneration, 'ftd.multi_scene_generate', { sceneCount: 3 }],
   [startSequenceWorkflow, 'ftd.sequence_workflow', { sequenceName: 'seq', levelIds: ['l1'] }],
+  [startSpriteAnimation, 'ftd.sprite_animate', { dogId: 'd1', sourceCandidateId: 'c1' }],
+  [startMagentaInpaint, 'ftd.magenta_inpaint', { dogPrompt: 'p', hitboxes: [{ x: 1 }] }],
+  [startDogRegeneration, 'ftd.dog_regenerate', { dogId: 'd1', hitbox: { x: 1 }, prompt: 'p' }],
+  [
+    startDogVariantUpscale,
+    'ftd.dog_variant_upscale',
+    { target: 'dog_variant', dogId: 'd1', hitbox: { x: 1 }, model: 'fal-ai/esrgan' },
+  ],
 ];
 
 describe('durable feature starts', () => {

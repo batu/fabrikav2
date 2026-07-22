@@ -69,6 +69,27 @@ export function startBandGeneration(
   return startDurable(context, 'ftd.band_generate', inputs);
 }
 
+export function startMagentaInpaint(
+  context: DurableStartContext,
+  inputs: { dogPrompt: string; hitboxes: Record<string, number>[]; magentaPromptOverride?: string },
+): Promise<DurableStart> {
+  return startDurable(context, 'ftd.magenta_inpaint', inputs);
+}
+
+export function startDogRegeneration(
+  context: DurableStartContext,
+  inputs: { dogId: string; hitbox: Record<string, number>; prompt: string },
+): Promise<DurableStart> {
+  return startDurable(context, 'ftd.dog_regenerate', inputs);
+}
+
+export function startDogVariantUpscale(
+  context: DurableStartContext,
+  inputs: { target: 'dog_variant' | 'background'; dogId?: string; hitbox?: Record<string, number>; model: string },
+): Promise<DurableStart> {
+  return startDurable(context, 'ftd.dog_variant_upscale', inputs);
+}
+
 export function startMultiSceneGeneration(
   context: DurableStartContext,
   inputs: { sceneCount: number },
