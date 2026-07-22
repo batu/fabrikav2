@@ -203,7 +203,11 @@ body {
      the board rather than floating in the emptied middle. */
   width: min(66vw, 300px);
   aspect-ratio: 1 / 1;
-  max-height: 264px;
+  /* MRV2-14 U1 (KTD1): trimmed from 264px so the banner→saga block fits the
+     390×844 budget and the chain's tail (sun node 1 / node 106) clears the
+     fixed LEVEL button instead of sliding under it. Tuned headlessly against
+     refs/home-fresh.png + refs/level-map.png. */
+  max-height: 175px;
   margin: 2px auto -6px;
   pointer-events: none;
 }
@@ -213,6 +217,12 @@ body {
    the zigzag, and keep the composed saga hugging the board rather than floating
    in the middle of the empty region. */
 #home-shell .fab-levelmap-node { --node-x: 0px !important; }
+/* MRV2-14 U1 (KTD1): the kit rail is min-height min(455px, 100%) with
+   justify-content center, so a short 4-node chain leaves ~175px of centered
+   dead band that (with the preview spacer) overflowed the 390×844 budget and
+   pushed sun node 1 / node 106 under the fixed LEVEL button. Collapse the rail
+   to its content height so the chain hangs directly off the board bottom (v1). */
+#home-shell .fab-levelmap-path { min-height: 0; }
 #home-shell .fab-home-menu-content {
   flex: 0 1 auto;
   justify-content: flex-start;
@@ -270,6 +280,11 @@ body {
   bottom: calc(18px + env(safe-area-inset-bottom, 0px));
   transform: translateX(-50%);
   z-index: 20;
+  /* MRV2-14 U1 (KTD2): the kit sets this container width:100%, which on a
+     position:fixed element resolves against the VIEWPORT — hence the edge-to-edge
+     full-bleed LEVEL button. Shrink to the content so the button sizes from its
+     own min-width:220px like v1 (inset pill, refs/home-fresh.png). */
+  width: max-content;
 }
 
 /* Locked-node shake reject (v1 dom.ts affordance). */
@@ -317,6 +332,29 @@ body {
   min-width: min(86vw, 360px);
 }
 .marble-ui .fab-modal-ribbon-image { width: min(78vw, 300px); }
+
+/* MRV2-14 U2 (KTD3, refs/pause.png + refs/settings.png): the settings/pause card
+   (marble-settings-card) is a plain BLOCK, so the kit ribbon's align-self:center
+   was ignored (left-aligned) and its ~-40px overhang couldn't beat the 64px card
+   padding (ribbon sat fully inside, below the top edge). Make the card a flex
+   column so the ribbon centers, cancel the 64px top padding so the ribbon
+   overhangs the card top, restore the ribbon image to fill its (widened)
+   container so it overhangs the card sides too. Scoped to marble-settings-card so
+   the win result card (fab-result-card) composition is untouched (KTD3-guard).
+   Constants tuned headlessly against refs/pause.png + refs/settings.png. */
+.marble-ui .marble-settings-card.fab-modal-card--image {
+  display: flex;
+  flex-direction: column;
+}
+.marble-ui .marble-settings-card > .fab-modal-ribbon {
+  align-self: center;
+  width: min(96%, 380px);
+  margin: calc(-64px - var(--fab-ribbon-overhang)) 0 var(--fab-space-md);
+}
+.marble-ui .marble-settings-card > .fab-modal-ribbon > .fab-modal-ribbon-image {
+  width: 100%;
+  height: 100%;
+}
 .marble-ui .fab-modal-ribbon-title {
   font-family: var(--fab-font-display);
   color: #fff;
@@ -353,23 +391,44 @@ body {
 }
 
 /* In-game settings action rows (Restart / Home) + menu Close. */
-.marble-ui .marble-settings-action { color: #fff; font-family: var(--fab-font-display); }
+.marble-ui .marble-settings-action {
+  color: #fff;
+  font-family: var(--fab-font-display);
+  /* MRV2-14 U2 (KTD4, refs/pause.png): Restart/Home rows are inset pills (~60%
+     card width, centered), not stretched edge-to-edge. */
+  width: min(72%, 260px);
+  min-height: 64px;
+  margin-inline: auto;
+}
 
 /* ---- Result cards (win/lose) ---- */
 .marble-ui .fab-result-art { width: 96px; }
+/* MRV2-14 U4 (ref refs/win.png): REWARD word-art stacked ABOVE a coin+value row,
+   no pill background, directly on the card body; +value in white with a dark
+   outline like v1. Was a single inline white pill (round-6 defect 5). */
 .marble-ui .marble-reward-row {
-  display: inline-flex;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 8px 18px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.62);
-  color: #7a4515;
+  background: none;
+  color: #fff;
   font-family: var(--fab-font-number);
-  font-size: 26px;
+  font-size: 30px;
 }
-.marble-ui .marble-reward-row img { width: 30px; height: 30px; }
-.marble-ui .marble-reward-text { height: 26px; width: auto; }
+.marble-ui .marble-reward-coinrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.marble-ui .marble-reward-coinrow img { width: 34px; height: 34px; }
+.marble-ui .marble-reward-value {
+  color: #fff;
+  text-shadow:
+    0 2px 0 rgba(60, 30, 10, 0.55),
+    0 0 3px rgba(60, 30, 10, 0.6);
+}
+.marble-ui .marble-reward-text { height: 30px; width: auto; }
 .marble-ui .fab-result-message { color: #3f6bb0; font-family: var(--fab-font-display); }
 
 /* ---- Win card device parity (MRV2-11 U5, ref refs/win.png) ---- */

@@ -61,6 +61,28 @@ describe('sugar result cards', () => {
     expect(overlay!.querySelector('.marble-reward-value')?.textContent).toBe('+25');
   });
 
+  // MRV2-14 U4 (ref refs/win.png): the reward is a STACK — REWARD word-art on
+  // top, then a coin+value row — not a single inline pill. Pin the DOM shape so a
+  // regression back to the one-row pill is caught here.
+  it('stacks the REWARD word-art above the coin+value row', () => {
+    void showLevelCompleteOverlay('lvl-stack', {
+      timeSeconds: 8,
+      newBest: false,
+      baseCoins: 25,
+      coinBalance: 25,
+      claimX2Available: false,
+    });
+    const row = document.querySelector('.marble-reward-row');
+    expect(row).not.toBeNull();
+    const children = Array.from(row!.children);
+    expect(children[0]).toBe(row!.querySelector('.marble-reward-text'));
+    const coinRow = row!.querySelector('.marble-reward-coinrow');
+    expect(coinRow).not.toBeNull();
+    expect(children[1]).toBe(coinRow);
+    // The value lives inside the coin row, not directly on the reward wrapper.
+    expect(coinRow!.querySelector('.marble-reward-value')?.textContent).toBe('+25');
+  });
+
   // MRV2-10 U4: the Ribbon_Completed sprite already carries the baked-in
   // "COMPLETED" word, so the overlay must NOT also render a .fab-modal-ribbon-title
   // (the duplicate overlapping COMPLETED the device judge flagged). The Next

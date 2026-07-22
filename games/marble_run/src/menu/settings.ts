@@ -77,7 +77,9 @@ export function mountSettings(opts: MountSettingsOptions): UiHandle {
           label: 'Restart',
           dataAction: 'settings-restart',
           className: 'marble-settings-action',
-          spriteImage: assetUrls.buttonGreen,
+          // MRV2-14 U3 (ref refs/pause.png): Restart is the YELLOW pill
+          // (Button_Orange sprite), Home is GREEN — the two were swapped.
+          spriteImage: assetUrls.buttonOrange,
           onClick: () => {
             handle.dismiss();
             opts.onRestart?.();
@@ -87,7 +89,7 @@ export function mountSettings(opts: MountSettingsOptions): UiHandle {
           label: 'Home',
           dataAction: 'settings-home',
           className: 'marble-settings-action',
-          spriteImage: assetUrls.buttonOrange,
+          spriteImage: assetUrls.buttonGreen,
           onClick: () => {
             handle.dismiss();
             opts.onHome?.();

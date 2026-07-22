@@ -104,4 +104,19 @@ describe('mountSettings variants', () => {
     mountSettings({ mountInto: game, inGame: true, onRestart: vi.fn(), onHome: vi.fn() });
     expect(game.querySelector<HTMLElement>('[data-fab-action="settings-x"]')?.textContent).toContain('×');
   });
+
+  // MRV2-14 U3 (ref refs/pause.png): the in-game Restart/Home sprites were
+  // swapped — Restart must be the YELLOW pill (Button_Orange), Home the GREEN
+  // pill (Button_Green). The kit paints the sprite as the `--fab-btn-sprite-image`
+  // inline custom property.
+  it('in-game Restart is the orange sprite and Home is the green sprite', () => {
+    const root = document.createElement('div');
+    document.body.appendChild(root);
+    mountSettings({ mountInto: root, inGame: true, onRestart: vi.fn(), onHome: vi.fn() });
+
+    const restart = root.querySelector<HTMLElement>('[data-fab-action="settings-restart"]');
+    const home = root.querySelector<HTMLElement>('[data-fab-action="settings-home"]');
+    expect(restart!.style.getPropertyValue('--fab-btn-sprite-image')).toContain('Button_Orange');
+    expect(home!.style.getPropertyValue('--fab-btn-sprite-image')).toContain('Button_Green');
+  });
 });

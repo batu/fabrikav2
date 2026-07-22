@@ -91,12 +91,18 @@ function buildCrown(): HTMLElement {
 }
 
 function buildRewardRow(amount: number): HTMLElement {
+  // MRV2-14 U4 (ref refs/win.png): the REWARD word-art stacks ABOVE a coin+value
+  // row inside the card body — not a single inline white pill. The wrapper keeps
+  // the `marble-reward-row` class so the kit rewardDisplay slot + tests keep their
+  // hook; CSS restyles it to a transparent centered column.
   const row = document.createElement('div');
   row.className = 'marble-reward-row';
   const rewardText = document.createElement('img');
   rewardText.className = 'marble-reward-text';
   rewardText.src = assetUrls.rewardText;
   rewardText.alt = 'Reward';
+  const coinRow = document.createElement('div');
+  coinRow.className = 'marble-reward-coinrow';
   const coin = document.createElement('img');
   coin.src = COMPLETION_COIN_ICON_SRC;
   coin.alt = '';
@@ -104,7 +110,8 @@ function buildRewardRow(amount: number): HTMLElement {
   const value = document.createElement('span');
   value.className = 'marble-reward-value';
   value.textContent = `+${amount}`;
-  row.append(rewardText, coin, value);
+  coinRow.append(coin, value);
+  row.append(rewardText, coinRow);
   return row;
 }
 
