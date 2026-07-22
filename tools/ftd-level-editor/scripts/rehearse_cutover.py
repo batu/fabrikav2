@@ -67,6 +67,15 @@ def _prove_mutation_fails(root: Path) -> str:
     raise RuntimeError(f"representative mutation unexpectedly succeeded: {candidate}")
 
 
+def _inventory_summary(inventory) -> dict[str, object]:
+    return {
+        "root": inventory.root,
+        "fileCount": len(inventory.files),
+        "totalBytes": sum(item.size for item in inventory.files),
+        "checksum": inventory.checksum,
+    }
+
+
 def main() -> None:
     args = parse_args()
     if args.output_root.exists():
@@ -148,15 +157,19 @@ def main() -> None:
             "targetPublic": str(args.target_public.resolve()),
             "disposableRehearsal": str(args.output_root.resolve()),
         },
-        "sourceAuthoringBefore": asdict(source_authoring_before),
-        "sourceAuthoringAfter": asdict(source_authoring_after),
-        "sourcePublicBefore": asdict(source_public_before),
-        "sourcePublicAfter": asdict(source_public_after),
-        "targetPublicBefore": asdict(target_public_before),
-        "targetPublicAfter": asdict(target_public_after),
+        "sourceAuthoringBefore": _inventory_summary(source_authoring_before),
+        "sourceAuthoringAfter": _inventory_summary(source_authoring_after),
+        "sourcePublicBefore": _inventory_summary(source_public_before),
+        "sourcePublicAfter": _inventory_summary(source_public_after),
+        "targetPublicBefore": _inventory_summary(target_public_before),
+        "targetPublicAfter": _inventory_summary(target_public_after),
         "census": asdict(census),
         "filesystemProbe": asdict(filesystem_probe),
-        "clone": asdict(clone),
+        "clone": {
+            "source": _inventory_summary(clone.source),
+            "destination": _inventory_summary(clone.destination),
+            "excluded": clone.excluded,
+        },
         "mutationProof": mutation_proof,
         "legacyArchive": {
             "records": len(archive_records),
