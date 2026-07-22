@@ -21,3 +21,16 @@ Tool mapping:
 - Skill: open the referenced SKILL.md and follow it
 - ExitPlanMode: ignore
 <!-- END COMPOUND CODEX TOOL MAP -->
+
+<!-- BEGIN AGENCY SKILL INDEX -->
+## Available skills
+
+These skills are synced into `.codex/skills/`. When a request matches one,
+open its SKILL.md at the path shown and follow it before improvising.
+
+- `android-adb-real-device-testing` — General real-device Android testing via ADB for web apps, WebViews, and nativ... (`.codex/skills/android-adb-real-device-testing/SKILL.md`)
+- `game-qa` — End-to-end QA testing for Phaser 3 mobile games with Playwright. (`.codex/skills/game-qa/SKILL.md`)
+- `mobile-game-ui-ux` — Design, review, and improve mobile game UI/UX for casual, puzzle, Phaser, Thr... (`.codex/skills/mobile-game-ui-ux/SKILL.md`)
+- `trello-pipeline` — Run Trello work through the bounded twf state machine. Use when the user says... (`.codex/skills/trello-pipeline/SKILL.md`)
+- `twf-conduct` — Conduct a bounded twf board with at most four cards and one worker per stage. (`.codex/skills/twf-conduct/SKILL.md`)
+<!-- END AGENCY SKILL INDEX -->

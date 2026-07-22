@@ -22,16 +22,23 @@
   },
   "twf_agents": {
     "default": "codex/sol@low",
-    "stages": {
-      "brainstormed": "codex/sol@low",
-      "planned": "codex/sol@low",
-      "worked": "codex/sol@low",
-      "aesthetics_reviewed": "codex/sol@low",
-      "tested_insitu": "codex/sol@low",
-      "evidence_captured": "codex/sol@low",
-      "reviewed": "codex/sol@low",
-      "video_sent": "codex/sol@low",
-      "compounded": "codex/sol@low"
+    "routes": [
+      {
+        "spec": "codex/sol@low",
+        "weight": 60
+      },
+      {
+        "spec": "claude/opus",
+        "weight": 30
+      },
+      {
+        "spec": "codex/terra@high",
+        "weight": 10
+      }
+    ],
+    "stages": {},
+    "budget": {
+      "enabled": false
     },
     "worktrees": {
       "sparse_paths": [
