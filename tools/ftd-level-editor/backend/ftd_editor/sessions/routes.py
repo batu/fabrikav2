@@ -4,14 +4,16 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel, ConfigDict, Field
 
 from .dogs import StableDogNotFound
+from .gallery import CaptureVariant
 from .model import AuthoringSession
 from .store import (
     SessionAlreadyExists,
     SessionCommitIndeterminate,
+    SessionImageNotFound,
     SessionNotFound,
     SessionReadError,
     SessionRevisionConflict,
@@ -37,6 +39,10 @@ class SetDogActiveVariantRequest(RevisionedAction):
 class UpdateGalleryMetadataRequest(RevisionedAction):
     tags: list[str] | None = None
     archived: bool | None = None
+
+
+class CaptureSessionImageRequest(RevisionedAction):
+    variant: CaptureVariant = "gemini"
 
 
 class SessionProvenanceResponse(BaseModel):
@@ -98,7 +104,26 @@ class SessionUnavailableResponse(BaseModel):
     detail: str
 
 
+class SessionImageNotFoundResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    detail: Literal["session image not found"]
+
+
 _UNAVAILABLE_RESPONSE = {503: {"model": SessionUnavailableResponse}}
+
+_CAPTURE_HEADERS = {
+    name: {
+        "description": description,
+        "schema": {"type": "string"},
+    }
+    for name, description in {
+        "X-FTD-Session-Id": "Captured authoring session identity.",
+        "X-FTD-Session-Revision": "Exact session revision captured.",
+        "X-FTD-Image-Source": "Session-relative v1-compatible source filename.",
+        "X-FTD-Image-SHA256": "SHA-256 digest of the returned image bytes.",
+    }.items()
+}
 
 
 def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRouter:
@@ -112,6 +137,7 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
         operation_id="listCurrentSessions",
         response_model=list[GallerySessionResponse],
         responses=_UNAVAILABLE_RESPONSE,
+        openapi_extra={"x-ftd-side-effects": "none", "x-ftd-cost": "none"},
     )
     def list_current_sessions() -> list[GallerySessionResponse]:
         try:
@@ -128,6 +154,7 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
         operation_id="createCurrentSession",
         response_model=SessionSnapshotResponse,
         responses=_UNAVAILABLE_RESPONSE,
+        openapi_extra={"x-ftd-side-effects": "session-mutation", "x-ftd-cost": "none"},
     )
     def create_current_session(body: CreateSessionRequest) -> SessionSnapshotResponse:
         try:
@@ -152,6 +179,7 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
         operation_id="getCurrentSession",
         response_model=SessionSnapshotResponse,
         responses=_UNAVAILABLE_RESPONSE,
+        openapi_extra={"x-ftd-side-effects": "none", "x-ftd-cost": "none"},
     )
     def get_current_session(session_id: str) -> SessionSnapshotResponse:
         try:
@@ -163,18 +191,21 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
         except SessionReadError as error:
             raise unavailable(error) from error
 
+    def revision_conflict(error: SessionRevisionConflict) -> HTTPException:
+        current = SessionSnapshotResponse.from_snapshot(error.current)
+        return HTTPException(
+            status_code=409,
+            detail=SessionRevisionConflictDetail(
+                code="session_revision_conflict",
+                current=current,
+            ).model_dump(by_alias=True),
+        )
+
     def apply(action: Any) -> SessionSnapshotResponse:
         try:
             return SessionSnapshotResponse.from_snapshot(action())
         except SessionRevisionConflict as error:
-            current = SessionSnapshotResponse.from_snapshot(error.current)
-            raise HTTPException(
-                status_code=409,
-                detail=SessionRevisionConflictDetail(
-                    code="session_revision_conflict",
-                    current=current,
-                ).model_dump(by_alias=True),
-            ) from error
+            raise revision_conflict(error) from error
         except SessionNotFound as error:
             raise HTTPException(status_code=404, detail="session not found") from error
         except StableDogNotFound as error:
@@ -197,6 +228,11 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
             409: {"model": SessionRevisionConflictResponse},
             **_UNAVAILABLE_RESPONSE,
         },
+        openapi_extra={
+            "x-ftd-side-effects": "session-mutation",
+            "x-ftd-cost": "none",
+            "x-ftd-revision": "bound",
+        },
     )
     def set_current_session_dog_active_variant(
         session_id: str, dog_id: str, body: SetDogActiveVariantRequest
@@ -218,6 +254,11 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
             409: {"model": SessionRevisionConflictResponse},
             **_UNAVAILABLE_RESPONSE,
         },
+        openapi_extra={
+            "x-ftd-side-effects": "session-mutation",
+            "x-ftd-cost": "none",
+            "x-ftd-revision": "bound",
+        },
     )
     def update_current_session_gallery_metadata(
         session_id: str, body: UpdateGalleryMetadataRequest
@@ -229,6 +270,62 @@ def build_session_router(store: SessionStore, dependencies: list[Any]) -> APIRou
                 tags=body.tags,
                 archived=body.archived,
             )
+        )
+
+    @router.post(
+        "/{session_id}/capture",
+        operation_id="captureCurrentSessionImage",
+        response_class=Response,
+        responses={
+            200: {
+                "description": "Revision-bound current authoring image bytes.",
+                "content": {
+                    "image/png": {
+                        "schema": {"type": "string", "format": "binary"}
+                    }
+                },
+                "headers": _CAPTURE_HEADERS,
+            },
+            404: {"model": SessionImageNotFoundResponse},
+            409: {"model": SessionRevisionConflictResponse},
+            **_UNAVAILABLE_RESPONSE,
+        },
+        openapi_extra={
+            "x-ftd-side-effects": "none",
+            "x-ftd-cost": "none",
+            "x-ftd-revision": "bound",
+            "x-ftd-artifacts": "inline-image",
+            "x-ftd-authorization": "launch-credential",
+        },
+    )
+    def capture_current_session_image(
+        session_id: str, body: CaptureSessionImageRequest
+    ) -> Response:
+        try:
+            capture = store.capture_image(
+                session_id,
+                expected_revision=body.revision,
+                variant=body.variant,
+            )
+        except SessionRevisionConflict as error:
+            raise revision_conflict(error) from error
+        except (SessionNotFound, SessionImageNotFound) as error:
+            raise HTTPException(status_code=404, detail="session image not found") from error
+        except ValueError as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
+        except SessionReadError as error:
+            raise unavailable(error) from error
+        return Response(
+            content=capture.content,
+            media_type=capture.media_type,
+            headers={
+                "X-FTD-Session-Id": capture.session_id,
+                "X-FTD-Session-Revision": capture.revision,
+                "X-FTD-Image-Source": capture.source,
+                "X-FTD-Image-SHA256": capture.sha256,
+                "ETag": f'"{capture.sha256}"',
+                "Cache-Control": "private, no-store",
+            },
         )
 
     return router

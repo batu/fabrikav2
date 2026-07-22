@@ -7,6 +7,7 @@
 
 import type { JobResource } from '../../api/generated.ts';
 import type { JobsTransport } from '../../api/http.ts';
+import type { FtdDogIntent, FtdSceneIntent } from '../prompts/intents.ts';
 import { type JobObserver, observeJob } from '../../jobs/observeJob.ts';
 
 export interface DurableStartContext {
@@ -43,35 +44,63 @@ export async function startDurable(
 
 export function startBackgroundGeneration(
   context: DurableStartContext,
-  inputs: { sceneKey: string },
+  inputs: { sceneIntent: FtdSceneIntent },
 ): Promise<DurableStart> {
   return startDurable(context, 'ftd.background_generate', inputs);
 }
 
 export function startCropInpaint(
   context: DurableStartContext,
-  inputs: { dogKey: string; cropBox: Record<string, number> },
+  inputs: { dogId: string; hitbox: Record<string, number>; dogIntent: FtdDogIntent },
 ): Promise<DurableStart> {
   return startDurable(context, 'ftd.crop_inpaint', inputs);
 }
 
 export function startRetryFailedDogs(
   context: DurableStartContext,
-  inputs: { dogKeys: string[] },
+  inputs: {
+    dogs: { dogId: string; hitbox: Record<string, number>; dogIntent: FtdDogIntent }[];
+  },
 ): Promise<DurableStart> {
   return startDurable(context, 'ftd.retry_failed_dogs', inputs);
 }
 
 export function startBandGeneration(
   context: DurableStartContext,
-  inputs: { bandIndex: number },
+  inputs: {
+    side: 'top' | 'bottom';
+    nativeWidth: number;
+    nativeHeight: number;
+    sceneIntent: FtdSceneIntent;
+  },
 ): Promise<DurableStart> {
   return startDurable(context, 'ftd.band_generate', inputs);
 }
 
+export function startMagentaInpaint(
+  context: DurableStartContext,
+  inputs: { dogIntent: FtdDogIntent; hitboxes: Record<string, number>[] },
+): Promise<DurableStart> {
+  return startDurable(context, 'ftd.magenta_inpaint', inputs);
+}
+
+export function startDogRegeneration(
+  context: DurableStartContext,
+  inputs: { dogId: string; hitbox: Record<string, number>; dogIntent: FtdDogIntent },
+): Promise<DurableStart> {
+  return startDurable(context, 'ftd.dog_regenerate', inputs);
+}
+
+export function startDogVariantUpscale(
+  context: DurableStartContext,
+  inputs: { target: 'dog_variant' | 'background'; dogId?: string; hitbox?: Record<string, number>; model: string },
+): Promise<DurableStart> {
+  return startDurable(context, 'ftd.dog_variant_upscale', inputs);
+}
+
 export function startMultiSceneGeneration(
   context: DurableStartContext,
-  inputs: { sceneCount: number },
+  inputs: { scenes: string[] },
 ): Promise<DurableStart> {
   return startDurable(context, 'ftd.multi_scene_generate', inputs);
 }

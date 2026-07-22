@@ -36,6 +36,11 @@ export interface BootstrapResponse {
   "launchCredential": string;
 }
 
+export interface CaptureSessionImageRequest {
+  "revision": string;
+  "variant"?: "gemini" | "openai" | "openai_v2" | "gemini_bg_only" | "openai_bg_only" | "openai_v2_bg_only";
+}
+
 export interface CreateSessionRequest {
   "session": AuthoringSession;
 }
@@ -121,6 +126,10 @@ export interface RequestIdentityConflictDetail {
   "submittedInputHash": string;
 }
 
+export interface SessionImageNotFoundResponse {
+  "detail": "session image not found";
+}
+
 export interface SessionProvenanceResponse {
   "file_count": number;
   "session_sha256": string;
@@ -178,6 +187,21 @@ export interface ValidationError {
   "type": string;
 }
 
+export interface CaptureCurrentSessionImageResponseHeaders {
+  "X-FTD-Image-SHA256": string;
+  "X-FTD-Image-Source": string;
+  "X-FTD-Session-Id": string;
+  "X-FTD-Session-Revision": string;
+}
+
+export type CaptureCurrentSessionImageResponseMediaType = "image/png";
+
+export interface CaptureCurrentSessionImageBinaryResponse {
+  "body": Blob;
+  "headers": CaptureCurrentSessionImageResponseHeaders;
+  "mediaType": CaptureCurrentSessionImageResponseMediaType;
+}
+
 export interface FtdEditorOperations {
   "mintApprovalGrant": { method: "post"; path: "/api/approvals" };
   "listDurableJobs": { method: "get"; path: "/api/jobs" };
@@ -191,6 +215,7 @@ export interface FtdEditorOperations {
   "listCurrentSessions": { method: "get"; path: "/api/sessions" };
   "createCurrentSession": { method: "post"; path: "/api/sessions" };
   "getCurrentSession": { method: "get"; path: "/api/sessions/{session_id}" };
+  "captureCurrentSessionImage": { method: "post"; path: "/api/sessions/{session_id}/capture"; response: CaptureCurrentSessionImageBinaryResponse };
   "setCurrentSessionDogActiveVariant": { method: "post"; path: "/api/sessions/{session_id}/dogs/{dog_id}/active-variant" };
   "updateCurrentSessionGalleryMetadata": { method: "post"; path: "/api/sessions/{session_id}/gallery-metadata" };
   "getEditorStatus": { method: "get"; path: "/api/status" };
