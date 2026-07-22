@@ -94,7 +94,7 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   hintBoosterSingleCoinPrice: 250,
   hintBoosterBundleCoinPrice: 600,
   hintBoosterBundleHintAmount: 3,
-  levelCompleteCoinReward: 45,
+  levelCompleteCoinReward: 25,
   levelContinueCoinPrice: 900,
   noAdsVisible: true,
   noAdsProductId: 'com.baseardahan.hiddenobj.noads3',

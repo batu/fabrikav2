@@ -21,6 +21,7 @@ interface MarbleRunDriveSnapshot extends DriveSnapshot {
   readonly homeShellVisible?: boolean;
   readonly levelCompleteOverlayVisible?: boolean;
   readonly levelFailedOverlayVisible?: boolean;
+  readonly gameplayHudVisible?: boolean;
 }
 
 function asMarbleSnapshot(snapshot: DriveSnapshot): MarbleRunDriveSnapshot {
@@ -78,14 +79,19 @@ export const marbleRunDrivePredicates = {
     return scene === 'GameScene' && snap.settingsVariant === 'ingame';
   },
   /**
-   * Win — UI-truth. Requires the level-complete overlay to be mounted AND
-   * visible (the harness qualifies `levelCompleteOverlayVisible` on actual
-   * visibility + the revealed reward card, not mere `getElementById`). Internal
-   * `levelComplete`/`status` flags may narrow but never satisfy on their own.
+   * Win — UI-truth + settledness (MRV2-9 U6). Requires the level-complete overlay
+   * mounted AND visible AND the in-level gameplay HUD chrome hidden. The wave-2
+   * predicate (overlay mounted+visible alone) fired mid-transition, so the round-2
+   * capture still showed hearts/gear/hint under a dim scrim. `gameplayHudVisible`
+   * goes false only once the win path runs setHudVisible(false), so requiring it
+   * pins `tourstate:win` to the settled result frame (undefined tolerated for the
+   * pure-snapshot unit predicates that predate the field).
    */
   win: (snapshot: DriveSnapshot): boolean => {
     const snap = asMarbleSnapshot(snapshot);
-    return snap.homeShellVisible !== true && snap.levelCompleteOverlayVisible === true;
+    return snap.homeShellVisible !== true
+      && snap.levelCompleteOverlayVisible === true
+      && snap.gameplayHudVisible !== true;
   },
   fail: (snapshot: DriveSnapshot): boolean => {
     const scene = String(snapshot.scene ?? snapshot.activeScene ?? '');

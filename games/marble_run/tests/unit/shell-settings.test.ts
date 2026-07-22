@@ -58,4 +58,33 @@ describe('mountSettings variants', () => {
     expect(saveSpy).toHaveBeenCalled();
     saveSpy.mockRestore();
   });
+
+  // MRV2-9 U7/U2c root cause: the harness derives the mounted settings variant
+  // (menu/ingame) from the modal's action rows. The kit Button primitive renders
+  // `dataAction` as `data-fab-action`, so detectSettingsVariant MUST query
+  // `data-fab-action`, not `data-action` — the wave-2 `data-action` selectors
+  // matched nothing, leaving settingsVariant permanently null on device and both
+  // the settings and pause markers MISSING. Pin the emitted attribute so a kit
+  // change (or a regression back to `data-action`) is caught here, not on device.
+  it('renders settings action hooks as data-fab-action (variant detection contract)', () => {
+    const root = document.createElement('div');
+    document.body.appendChild(root);
+    mountSettings({ mountInto: root, inGame: true, onRestart: vi.fn(), onHome: vi.fn() });
+
+    expect(root.querySelector('[data-fab-action="settings-restart"]')).not.toBeNull();
+    expect(root.querySelector('[data-fab-action="settings-home"]')).not.toBeNull();
+    // The close X is the dismiss hook the drive clicks to clear a stale modal.
+    expect(root.querySelector('[data-fab-action="settings-x"]')).not.toBeNull();
+    // The pre-fix `data-action` selectors must find nothing.
+    expect(root.querySelector('[data-action="settings-restart"]')).toBeNull();
+    expect(root.querySelector('[data-action="settings-close"]')).toBeNull();
+  });
+
+  it('menu variant exposes the Close action as data-fab-action', () => {
+    const root = document.createElement('div');
+    document.body.appendChild(root);
+    mountSettings({ mountInto: root, inGame: false });
+    expect(root.querySelector('[data-fab-action="settings-close"]')).not.toBeNull();
+    expect(root.querySelector('[data-action="settings-close"]')).toBeNull();
+  });
 });

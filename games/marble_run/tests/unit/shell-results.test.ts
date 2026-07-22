@@ -38,6 +38,26 @@ describe('sugar result cards', () => {
     document.body.innerHTML = '<div id="hud-overlay" class="marble-ui"></div>';
   });
 
+  // MRV2-9 U8: v1 parity for the win coin reward — the schema default is 25 (was
+  // 45). GameScene.winLevel reads this value into the overlay's baseCoins.
+  it('defaults the level-complete coin reward to 25 (v1 parity)', async () => {
+    const { REMOTE_CONFIG_DEFAULTS } = await import('../../src/config/remoteConfigSchema');
+    expect(REMOTE_CONFIG_DEFAULTS.levelCompleteCoinReward).toBe(25);
+  });
+
+  it('renders +25 in the reward row when the win uses the default reward', async () => {
+    const { REMOTE_CONFIG_DEFAULTS } = await import('../../src/config/remoteConfigSchema');
+    void showLevelCompleteOverlay('lvl-default-reward', {
+      timeSeconds: 8,
+      newBest: false,
+      baseCoins: REMOTE_CONFIG_DEFAULTS.levelCompleteCoinReward,
+      coinBalance: REMOTE_CONFIG_DEFAULTS.levelCompleteCoinReward,
+      claimX2Available: false,
+    });
+    const overlay = document.getElementById('level-complete-overlay');
+    expect(overlay!.querySelector('.marble-reward-value')?.textContent).toBe('+25');
+  });
+
   it('win variant mounts a Completed ribbon, reward row, and a Next action', () => {
     void showLevelCompleteOverlay('lvl-1', {
       timeSeconds: 12,

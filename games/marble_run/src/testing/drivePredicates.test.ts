@@ -32,6 +32,17 @@ describe('marbleRunDrivePredicates.win (UI-truth)', () => {
   it('rejects a visible overlay while the home shell is showing', () => {
     expect(marbleRunDrivePredicates.win(snap({ levelCompleteOverlayVisible: true, homeShellVisible: true }))).toBe(false);
   });
+
+  // MRV2-9 U6: settledness — the overlay can mount mid-transition while the
+  // in-level vida HUD (hearts/gear/hint) is still painted. tourstate:win must
+  // hold until that chrome is hidden.
+  it('rejects a mounted overlay while the gameplay HUD is still visible', () => {
+    expect(marbleRunDrivePredicates.win(snap({ levelCompleteOverlayVisible: true, gameplayHudVisible: true }))).toBe(false);
+  });
+
+  it('accepts once the overlay is visible AND the gameplay HUD is hidden', () => {
+    expect(marbleRunDrivePredicates.win(snap({ levelCompleteOverlayVisible: true, gameplayHudVisible: false }))).toBe(true);
+  });
 });
 
 describe('marbleRunDrivePredicates.pause (UI-truth)', () => {

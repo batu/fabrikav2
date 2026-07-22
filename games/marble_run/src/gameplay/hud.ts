@@ -160,10 +160,13 @@ export class GameHud {
     el.className = 'tutorial-hand-layer';
     el.style.setProperty('--tx', `${point.x}px`);
     el.style.setProperty('--ty', `${point.y}px`);
+    // MRV2-9 U5: v1's teach (refs/gameplay-teach.png) shows the engine-drawn
+    // route hint on a CLEAN board — no emoji hand, no white spotlight, no
+    // full-screen charcoal scrim. (No vida tutorial-hand image exists in the
+    // ported tree — see handoff SURPRISES.) Keep only a subtle pulsing ring at
+    // the target cell as the anchored affordance.
     el.innerHTML = `
-      <div class="tutorial-spotlight"></div>
       <div class="tutorial-ring"></div>
-      <div class="tutorial-hand" aria-hidden="true">👆</div>
     `;
     this.screenEl.appendChild(el);
     return el;

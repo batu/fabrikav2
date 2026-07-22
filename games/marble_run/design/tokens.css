@@ -51,4 +51,11 @@
   --fab-levelmap-locked-dot-color: #5b4636;
   --fab-levelmap-completed-color: #6a3016;
   --fab-levelmap-current-color: #ffffff;
+  /* Kit rail (.fab-levelmap-path::before) reads the three-stop line vars; unset
+   * they paint a fat gray default rail (device-parity MRV2-9 U3). Wooden-tan v1
+   * connector to match refs/home-fresh.png. */
+  --fab-levelmap-line-top: rgba(214, 162, 96, 0.55);
+  --fab-levelmap-line-mid: #cf9a4f;
+  --fab-levelmap-line-bottom: #a9702f;
+  --fab-levelmap-line-glow: 0 0 0 2px rgba(255, 246, 224, 0.28);
 }

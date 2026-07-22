@@ -59,6 +59,8 @@ const mocks = vi.hoisted(() => {
       walletSnapshot: vi.fn(() => ({ coins: 0, hints: 3, noAds: false, premium: false, rewardProgressCount: 0 })),
       completionTransactionSnapshot: vi.fn(() => null),
       setCoinsForTest: vi.fn(),
+      setTotalLevelsCompletedForTest: vi.fn(),
+      tutorialShown: false,
       setHintsForTest: vi.fn((hints: number) => {
         mocks.gameState.hintsRemaining = hints;
       }),
@@ -333,6 +335,20 @@ describe("marble_run TestHarness real-flow wiring", () => {
       status: "playing",
       levelDataReady: true,
     });
+  });
+
+  it("zeroes the wallet after seeding a driven gameplay capture (MRV2-9 U2a)", async () => {
+    const { createMarbleRunHarness } = await import("../../src/testing/TestHarness");
+    const fixture = createFakeGame();
+    const harness = createMarbleRunHarness(fixture.game as never);
+    mocks.gameState.setCoinsForTest.mockClear();
+
+    await expect(harness.driveTo("gameplay-opener")).resolves.toBe(true);
+
+    // Progress is seeded (suppresses the tutorial hand) and the persisted wallet
+    // is explicitly zeroed so the capture shows 0 coins, not a stale leak.
+    expect(mocks.gameState.setTotalLevelsCompletedForTest).toHaveBeenCalled();
+    expect(mocks.gameState.setCoinsForTest).toHaveBeenCalledWith(0);
   });
 
   it("snapshot does not report level while the home shell is still visible", async () => {

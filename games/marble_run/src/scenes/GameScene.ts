@@ -311,6 +311,12 @@ export class GameScene extends Phaser.Scene {
   winLevel(): void {
     if (!this.level || this.levelComplete || this.isShuttingDown) return;
     this.levelComplete = true;
+    // MRV2-9 U6: hide the in-level vida HUD chrome the moment the level is won so
+    // the settled result card owns the screen (v1 parity). The onWin hook already
+    // does this on the real completion path, but the direct winLevel() seam (test
+    // harness / shortcuts) must hide it too, otherwise hearts/gear/hint peek under
+    // the overlay in the win capture.
+    this.gameplayController?.setHudVisible(false);
     hapticFound();
     const timeSeconds = Math.round((Date.now() - this.levelStartedAt) / 1000);
     void this.trackLevelComplete(timeSeconds);

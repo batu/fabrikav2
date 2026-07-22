@@ -64,6 +64,14 @@ export const MARBLE_LEVELMAP_THEME: ThemeTokens = {
   // wooden-medallion nodes — white was a shell_template default and reads as a
   // near-invisible digit on the cream sun center (device-parity MRV2-7, defect 5).
   '--fab-levelmap-current-color': '#6a3016',
+  // The kit rail (`.fab-levelmap-path::before`) reads the THREE-stop
+  // `--fab-levelmap-line-top/mid/bottom` vars, not the single `--fab-levelmap-line`
+  // ftdTheme sets — leaving them unset painted the fat GRAY default rail behind the
+  // saga (device-parity MRV2-9 U3). Point them at the v1 wooden-tan connector.
+  '--fab-levelmap-line-top': 'rgba(214, 162, 96, 0.55)',
+  '--fab-levelmap-line-mid': '#cf9a4f',
+  '--fab-levelmap-line-bottom': '#a9702f',
+  '--fab-levelmap-line-glow': '0 0 0 2px rgba(255, 246, 224, 0.28)',
 };
 
 const SHELL_ART_STYLE_ID = 'marble-shell-art';
@@ -182,10 +190,25 @@ body {
    A three.js canvas (HomeBoardPreview) in DOM flow just under the header; the
    board frames itself with margins, so a square slot reads as the ref tile. */
 .marble-home-board-preview-slot {
-  width: min(62vw, 300px);
+  /* MRV2-9 U3: the MRV2-8 preview slot was large enough to shove the kit saga
+     down into (and behind) the LEVEL button. Keep it compact so the tight
+     centered 4-3-2-1 column sits fully above the button (refs/home-fresh.png). */
+  width: min(48vw, 230px);
   aspect-ratio: 1 / 1;
-  margin: 2px auto -6px;
+  max-height: 200px;
+  margin: 2px auto -4px;
   pointer-events: none;
+}
+
+/* MRV2-9 U3: force the saga into a single tight centered column. The kit centers
+   nodes by default (--node-x:0); pin it so no inherited offset can reintroduce
+   the zigzag, and keep the composed saga hugging the board rather than floating
+   in the middle of the empty region. */
+#home-shell .fab-levelmap-node { --node-x: 0px !important; }
+#home-shell .fab-home-menu-content {
+  flex: 0 1 auto;
+  justify-content: flex-start;
+  padding-top: 4px;
 }
 .marble-home-board-preview {
   display: block;

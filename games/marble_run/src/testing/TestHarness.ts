@@ -123,9 +123,15 @@ function isElementVisible(el: Element | null | undefined): boolean {
  * testkit marker re-parents into it — the variant is the game's DOM truth.
  */
 function detectSettingsVariant(): SettingsVariant {
-  const menuBtn = document.querySelector('[data-action="settings-close"]');
+  // MRV2-9 U7/U2c root cause: the kit's Button primitive renders `dataAction`
+  // as `data-fab-action` (packages/ui Button.ts), NOT `data-action`. The wave-2
+  // selectors queried `[data-action=...]`, so this ALWAYS returned null — the
+  // `settings` and `pause` predicates could never see a mounted modal, and both
+  // markers were MISSING on device (settings-MISSING / pause-MISSING) even though
+  // the modal was on screen. Query the attribute the kit actually emits.
+  const menuBtn = document.querySelector('[data-fab-action="settings-close"]');
   if (isElementVisible(menuBtn?.closest('.fab-modal-card') ?? menuBtn)) return 'menu';
-  const ingameBtn = document.querySelector('[data-action="settings-restart"], [data-action="settings-home"]');
+  const ingameBtn = document.querySelector('[data-fab-action="settings-restart"], [data-fab-action="settings-home"]');
   if (isElementVisible(ingameBtn?.closest('.fab-modal-card') ?? ingameBtn)) return 'ingame';
   return null;
 }
@@ -155,6 +161,8 @@ export interface MarbleRunSnapshot {
   homeShellVisible: boolean;
   levelCompleteOverlayVisible: boolean;
   levelFailedOverlayVisible: boolean;
+  /** True while the in-level vida HUD chrome (hearts/gear/hint) is displayed. */
+  gameplayHudVisible: boolean;
   lifecycleSuspended: boolean;
   levelId: string;
   levelSize: { width: number; height: number };
@@ -334,6 +342,16 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
       return atHome && pixelsmithStatePredicates['home-fresh'](driveSnapshot());
     }
     if (state === 'level-map') {
+      // MRV2-9 U2b: the wave-2 drive only called gotoHome() with no seed, so the
+      // saga still showed the fresh-install window (Level 2 / nodes 3-5). Seed the
+      // full 110-level progress and anchor the current level at the sequence end
+      // BEFORE gotoHome so the home shell renders from the seeded state (seeding
+      // after the shell mounts is a silent visual no-op). Zero the wallet for v1
+      // recordWin(i, 0) parity — the ref shows 0 coins (refs/level-map.png).
+      gameState.setTotalLevelsCompletedForTest(LEVEL_COUNT);
+      gameState.currentLevelIndex = LEVEL_COUNT - 1;
+      gameState.setCoinsForTest(0);
+      gameState.save();
       const atHome = await gotoHome();
       if (!atHome) return false;
       return waitUntil(
@@ -350,6 +368,13 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
       // sole differentiator, see GameScene isFirstLevel + pixelsmithStates map).
       if (state === 'gameplay-teach') harness.resetSave();
       else gameState.setTotalLevelsCompletedForTest(LEVEL_COUNT);
+      // MRV2-9 U2a: every seeded/driven gameplay capture must show 0 coins (v1
+      // recordWin(i, 0) parity). The 25-coin leak the round-2 judge flagged is the
+      // PERSISTED wallet from a prior session — setTotalLevelsCompletedForTest
+      // grants no coins but also does not clear them, so the stale balance rode
+      // through. Zero the wallet explicitly after seeding and before capture.
+      gameState.setCoinsForTest(0);
+      gameState.save();
       const started = await startLevel(PIXELSMITH_STATE_LEVELS[state]);
       return started && marbleRunDrivePredicates.level(driveSnapshot());
     }
@@ -368,6 +393,11 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
    */
   async function driveWinViaPlay(): Promise<boolean> {
     gameState.setTotalLevelsCompletedForTest(LEVEL_COUNT);
+    // MRV2-9 U2a: the pre-win wallet must read 0 (the win grant itself is the
+    // only legitimate coin source in this capture). Zero the persisted balance
+    // so the settled win card shows the real +reward, not a phantom seed leak.
+    gameState.setCoinsForTest(0);
+    gameState.save();
     const started = await startLevel(1);
     if (!started) return false;
     const controller = getGameScene()?.getGameplayControllerForTest();
@@ -390,10 +420,22 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
    */
   async function drivePauseViaUi(): Promise<boolean> {
     gameState.setTotalLevelsCompletedForTest(LEVEL_COUNT);
+    // MRV2-9 U2a: 0 coins for capture parity. MRV2-9 U2c belt-and-braces: the
+    // tutorial hand fires only on a pristine save (isFirstLevel === totalLevels
+    // completed 0); seeding LEVEL_COUNT suppresses it, but the round-2 device
+    // pause still showed the hand blocking the gear tap, so also mark the
+    // tutorial shown so the controller never mounts it.
+    gameState.setCoinsForTest(0);
+    gameState.tutorialShown = true;
+    gameState.save();
     const started = await startLevel(1);
     if (!started) return false;
     const opened = await waitUntil(() => {
       if (detectPauseModalVisible()) return true;
+      // Remove any tutorial hand layer that slipped through before tapping the
+      // HUD settings button, so its (pointer-events:none) chrome can never sit
+      // between the drive's hit-test and the gear.
+      document.querySelectorAll('.tutorial-hand-layer').forEach((el) => el.remove());
       const button = document.querySelector<HTMLElement>(HUD_SETTINGS_BUTTON_SELECTOR);
       if (button !== null) driveElementClick(button);
       return detectPauseModalVisible();
@@ -414,13 +456,37 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
   async function driveMenuSettingsViaUi(): Promise<boolean> {
     const atHome = await gotoHome();
     if (!atHome) return false;
+    // MRV2-9 U7 root cause (settings-MISSING device capture): the home shell was
+    // visible but a STALE in-game settings modal (Restart/Home variant) was
+    // mounted over it. That variant fails the menu (Close) predicate, and its
+    // full-screen backdrop swallows the home-gear tap, so the drive's hit-test
+    // never reaches the gear and `tourstate:settings` never publishes. Dismiss
+    // any open settings modal (via its own close handle so the singleton guard
+    // clears) before — and, if a wrong variant reopens, during — the gear taps.
+    dismissAnyOpenSettingsModal();
     const opened = await waitUntil(() => {
       if (marbleRunDrivePredicates.settings(driveSnapshot())) return true;
+      if (detectSettingsVariant() === 'ingame') {
+        dismissAnyOpenSettingsModal();
+        return false;
+      }
       const gear = document.querySelector<HTMLElement>(HOME_GEAR_SELECTOR);
       if (gear !== null) driveElementClick(gear);
       return marbleRunDrivePredicates.settings(driveSnapshot());
     }, SETTINGS_OPEN_TARGET_POLL_MS, SETTINGS_OPEN_TARGET_MAX_POLLS);
     return opened && marbleRunDrivePredicates.settings(driveSnapshot());
+  }
+
+  /**
+   * Dismiss any mounted settings modal through its own close control so the
+   * shell's singleton handle guard (HUD.settingsModalHandle / scene settings
+   * handle) is released — a raw DOM removal would leave the guard set and block
+   * the next open. Idempotent; a no-op when no modal is present.
+   */
+  function dismissAnyOpenSettingsModal(): void {
+    document
+      .querySelectorAll<HTMLElement>('[data-fab-action="settings-x"], [data-fab-action="settings-close"]')
+      .forEach((closer) => closer.click());
   }
 
   async function pauseGame(): Promise<boolean> {
@@ -468,6 +534,7 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
       homeShellVisible: snapshot.homeShellVisible,
       levelCompleteOverlayVisible: snapshot.levelCompleteOverlayVisible,
       levelFailedOverlayVisible: snapshot.levelFailedOverlayVisible,
+      gameplayHudVisible: snapshot.gameplayHudVisible,
       lifecycleSuspended: snapshot.lifecycleSuspended,
       levelComplete: snapshot.levelComplete,
       lives: snapshot.lives,
@@ -504,6 +571,11 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
     const levelCompleteEl = document.getElementById('level-complete-overlay');
     const levelCompleteOverlayVisible = isElementVisible(levelCompleteEl);
     const levelFailedOverlayVisible = document.getElementById('level-failed-overlay') !== null;
+    // MRV2-9 U6: the in-level vida HUD lives in `.mr-gameplay-ui` (game-container),
+    // hidden via setHudVisible(false) when a shell overlay takes over. The settled-
+    // win predicate requires it hidden so `tourstate:win` never fires on the mid-
+    // transition frame that still showed hearts/gear/hint under a dim scrim.
+    const gameplayHudVisible = isElementVisible(document.querySelector('.mr-gameplay-ui'));
     const activeScene = homeShellVisible ? 'HomeScene' : phaserActiveScene;
     const visibleGameScene = activeScene === 'GameScene';
     const level = scene?.getLevel();
@@ -529,6 +601,7 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
       homeShellVisible,
       levelCompleteOverlayVisible,
       levelFailedOverlayVisible,
+      gameplayHudVisible,
       lifecycleSuspended: isGameSuspended(),
       levelId: level?.id ?? '',
       levelSize: { width: level?.width ?? 0, height: level?.height ?? 0 },

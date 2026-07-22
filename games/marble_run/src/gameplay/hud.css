@@ -18,6 +18,44 @@
   display: none !important;
 }
 
+/* ── in-level background: v1 Sugar3D purple bubble field (MRV2-9 U1) ──────────
+ * The three canvas clears transparent (Stage.setClearColor(0x000000, 0)), so the
+ * board floats over whatever #game-container paints. index.html gives it a flat
+ * purple gradient; v1 additionally lays the home spotlight + depth vignette and
+ * the animated marble-shadow-tile bubble motif behind the board (refs/gameplay-
+ * opener.png). Painting it on #game-container keeps it BEHIND the transparent
+ * canvas (the .mr-gameplay-screen HUD layer sits in front and must stay clear).
+ * On the home screen #hud-overlay.home-mode paints its own bg on top, so this
+ * only shows during gameplay. */
+#game-container {
+  background:
+    radial-gradient(118% 72% at 50% 7%, rgba(210, 190, 240, 0.32) 0%, rgba(210, 190, 240, 0) 52%),
+    radial-gradient(145% 118% at 50% 116%, rgba(40, 20, 60, 0.34) 0%, rgba(40, 20, 60, 0) 56%),
+    linear-gradient(180deg, #9b7bcd 0%, #6b568e 100%);
+}
+#game-container::before {
+  content: "";
+  position: absolute;
+  inset: -180px;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.28;
+  background-image: url('/v1/ui/marble-shadow-tile.png');
+  background-size: 320px 320px;
+  transform: translate3d(-74px, -74px, 0);
+  will-change: transform;
+  animation: mr-gameplay-paw-drift 24s linear infinite;
+}
+@keyframes mr-gameplay-paw-drift {
+  to { transform: translate3d(74px, 74px, 0); }
+}
+/* Lift the transparent board canvas above the bubble motif so the board reads
+ * over the field, not under it (the ::before sits at z-index 0). */
+#game-container canvas {
+  position: relative;
+  z-index: 1;
+}
+
 .mr-gameplay-screen {
   --sugar-marble-red: #ff4d6d;
   --sugar-text-on-candy: #ffffff;
@@ -348,47 +386,23 @@
   animation: mr-route-blocked-exit 0.26s ease-in both;
 }
 
-/* ── tutorial hand ───────────────────────────────────────────── */
+/* ── tutorial hand ───────────────────────────────────────────────
+ * MRV2-9 U5: v1's teach shows a clean board with the engine route hint — no
+ * emoji hand, no white spotlight, no full-screen charcoal scrim. The layer is
+ * now a transparent, non-dimming container that carries only the target ring. */
 .mr-gameplay-screen .tutorial-hand-layer {
   position: absolute;
   inset: 0;
   z-index: 5;
   pointer-events: none;
-  background: radial-gradient(
-    circle 78px at var(--tx) var(--ty),
-    rgba(19, 12, 24, 0) 0 62px,
-    rgba(19, 12, 24, 0.14) 72px,
-    rgba(19, 12, 24, 0.48) 96px
-  );
+  background: transparent;
   animation: mr-fadein 0.18s ease;
 }
-.mr-gameplay-screen .tutorial-hand-layer.tutorial-reject {
-  background:
-    radial-gradient(
-      circle 88px at var(--tx) var(--ty),
-      rgba(255, 255, 255, 0.02) 0 54px,
-      rgba(255, 72, 90, 0.16) 68px,
-      rgba(255, 72, 90, 0.36) 94px,
-      rgba(19, 12, 24, 0.52) 126px
-    );
-  animation: mr-tutorial-reject-layer 0.42s ease;
-}
-.mr-gameplay-screen .tutorial-spotlight,
-.mr-gameplay-screen .tutorial-ring,
-.mr-gameplay-screen .tutorial-hand {
+.mr-gameplay-screen .tutorial-ring {
   position: absolute;
   left: var(--tx);
   top: var(--ty);
   pointer-events: none;
-}
-.mr-gameplay-screen .tutorial-spotlight {
-  width: 142px;
-  height: 142px;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0 42%, rgba(255, 255, 255, 0.04) 58%, rgba(255, 255, 255, 0) 72%);
-}
-.mr-gameplay-screen .tutorial-ring {
   width: 86px;
   height: 86px;
   border: 6px solid rgba(255, 250, 178, 0.98);
@@ -399,27 +413,12 @@
     drop-shadow(0 0 12px rgba(255, 238, 112, 0.36));
   animation: mr-tutorial-ring-pulse 1.05s ease-in-out infinite;
 }
-.mr-gameplay-screen .tutorial-hand {
-  font-size: 92px;
-  line-height: 1;
-  transform: translate(-50%, -14px);
-  filter:
-    drop-shadow(0 5px 0 #26150f)
-    drop-shadow(0 12px 15px rgba(21, 13, 8, 0.42));
-  animation: mr-tutorial-hand-tap 1.05s ease-in-out infinite;
-}
 .mr-gameplay-screen .tutorial-reject .tutorial-ring {
   border-color: #ff6b63;
   filter:
     drop-shadow(0 4px 5px rgba(22, 13, 8, 0.42))
     drop-shadow(0 0 18px rgba(255, 55, 72, 0.72));
   animation: mr-tutorial-reject-ring 0.42s ease;
-}
-.mr-gameplay-screen .tutorial-reject .tutorial-spotlight {
-  background: radial-gradient(circle, rgba(255, 98, 116, 0.22) 0 42%, rgba(255, 98, 116, 0.1) 58%, rgba(255, 98, 116, 0) 72%);
-}
-.mr-gameplay-screen .tutorial-reject .tutorial-hand {
-  animation: mr-tutorial-hand-reject 0.42s ease;
 }
 
 /* ── keyframes (renamed with mr- prefix to avoid shell collisions) ── */
