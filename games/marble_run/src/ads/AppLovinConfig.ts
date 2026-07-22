@@ -136,8 +136,8 @@ export function readAppLovinConfigForPlatform(
       },
       consentFlow: {
         enabled: parseBooleanEnv(env.VITE_APPLOVIN_CONSENT_FLOW_ENABLED, true),
-        privacyPolicyUrl: envString(env.VITE_FTD_PRIVACY_POLICY_URL) ?? DEFAULT_LEGAL_LINKS.privacyPolicyUrl,
-        termsOfServiceUrl: envString(env.VITE_FTD_TERMS_URL) ?? DEFAULT_LEGAL_LINKS.termsUrl,
+        privacyPolicyUrl: envString(env.VITE_MARBLE_RUN_PRIVACY_POLICY_URL) ?? DEFAULT_LEGAL_LINKS.privacyPolicyUrl,
+        termsOfServiceUrl: envString(env.VITE_MARBLE_RUN_TERMS_URL) ?? DEFAULT_LEGAL_LINKS.termsUrl,
         showTermsAndPrivacyPolicyAlertInGdpr: parseBooleanEnv(env.VITE_APPLOVIN_GDPR_TERMS_ALERT_ENABLED, true),
       },
     },

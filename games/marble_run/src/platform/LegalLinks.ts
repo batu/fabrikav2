@@ -16,10 +16,10 @@ export const DEFAULT_LEGAL_LINKS: LegalLinks = {
 
 export function getLegalLinks(env: LegalLinksEnv = import.meta.env): LegalLinks {
   return {
-    privacyPolicyUrl: envString(env, 'VITE_FTD_PRIVACY_POLICY_URL') ?? DEFAULT_LEGAL_LINKS.privacyPolicyUrl,
-    termsUrl: envString(env, 'VITE_FTD_TERMS_URL') ?? DEFAULT_LEGAL_LINKS.termsUrl,
-    supportUrl: envString(env, 'VITE_FTD_SUPPORT_URL') ?? DEFAULT_LEGAL_LINKS.supportUrl,
-    dataDeletionUrl: envString(env, 'VITE_FTD_DATA_DELETION_URL') ?? DEFAULT_LEGAL_LINKS.dataDeletionUrl,
+    privacyPolicyUrl: envString(env, 'VITE_MARBLE_RUN_PRIVACY_POLICY_URL') ?? DEFAULT_LEGAL_LINKS.privacyPolicyUrl,
+    termsUrl: envString(env, 'VITE_MARBLE_RUN_TERMS_URL') ?? DEFAULT_LEGAL_LINKS.termsUrl,
+    supportUrl: envString(env, 'VITE_MARBLE_RUN_SUPPORT_URL') ?? DEFAULT_LEGAL_LINKS.supportUrl,
+    dataDeletionUrl: envString(env, 'VITE_MARBLE_RUN_DATA_DELETION_URL') ?? DEFAULT_LEGAL_LINKS.dataDeletionUrl,
   };
 }
 
