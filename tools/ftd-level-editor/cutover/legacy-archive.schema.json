@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FTD inert legacy request archive",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": ["requestId", "kind", "inputHash", "attemptId", "disposition", "artifacts"],
+    "properties": {
+      "requestId": {"type": "string", "minLength": 1},
+      "kind": {"type": "string", "minLength": 1},
+      "inputHash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+      "attemptId": {"type": "string", "minLength": 1},
+      "disposition": {
+        "enum": ["succeeded", "failed_terminal", "failed_retryable", "cancelled", "resolved"]
+      },
+      "artifacts": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["checksum", "locator"],
+          "properties": {
+            "checksum": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+            "locator": {"type": "string", "minLength": 1}
+          }
+        }
+      }
+    }
+  }
+}

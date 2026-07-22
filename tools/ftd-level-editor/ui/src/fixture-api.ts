@@ -13,6 +13,47 @@ const RESPONSES = new Map<string, unknown>([
       stores: [],
     },
   ],
+  [
+    'GET /api/publishing',
+    {
+      remoteEnabled: false,
+      selectedRemoteRevision: null,
+      rollbackEligibleCandidateIds: ['seq-2026-07-19-retained'],
+      selected: {
+        candidateId: 'seq-2026-07-20-retained',
+        sequenceVersion: 'seq-2026-07-20',
+        levelIds: ['starter-level', 'market-level'],
+        catalogRevision: 'catalog-000052',
+        changelog: 'Current retained sequence',
+        actor: 'human:batu',
+        sourceRevision: 'remote-52',
+        digest: '52b5c1e6ec663ed21cf2d35530e56eb778705f50b84c8a42aeb69ee241f5ca82',
+      },
+      candidates: [
+        {
+          candidateId: 'seq-2026-07-19-retained',
+          sequenceVersion: 'seq-2026-07-19',
+          levelIds: ['starter-level'],
+          catalogRevision: 'catalog-000051',
+          changelog: 'Prior rollback-safe sequence',
+          actor: 'human:batu',
+          sourceRevision: 'remote-51',
+          digest: '51b5c1e6ec663ed21cf2d35530e56eb778705f50b84c8a42aeb69ee241f5ca81',
+        },
+        {
+          candidateId: 'seq-2026-07-20-retained',
+          sequenceVersion: 'seq-2026-07-20',
+          levelIds: ['starter-level', 'market-level'],
+          catalogRevision: 'catalog-000052',
+          changelog: 'Current retained sequence',
+          actor: 'human:batu',
+          sourceRevision: 'remote-52',
+          digest: '52b5c1e6ec663ed21cf2d35530e56eb778705f50b84c8a42aeb69ee241f5ca82',
+        },
+      ],
+      sagas: [],
+    },
+  ],
 ]);
 
 function requestPath(input: RequestInfo | URL): string {

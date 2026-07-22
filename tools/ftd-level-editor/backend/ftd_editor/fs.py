@@ -98,6 +98,12 @@ def _fsync_directory(path: Path) -> None:
         os.close(descriptor)
 
 
+def fsync_directory(path: Path) -> None:
+    """Durably persist one directory entry set."""
+
+    _fsync_directory(path)
+
+
 def _fsync_file(path: Path) -> None:
     descriptor = os.open(path, os.O_RDONLY)
     try:
@@ -105,6 +111,38 @@ def _fsync_file(path: Path) -> None:
     except OSError as error:
         raise FilesystemContractError(f"file fsync is unsupported for {path}: {error}") from error
     finally:
+        os.close(descriptor)
+
+
+def fsync_tree(root: Path) -> None:
+    """Fsync every regular member and directory in one symlink-free tree."""
+
+    for path in root.rglob("*"):
+        if path.is_symlink():
+            raise FilesystemContractError(f"durable tree cannot contain a symlink: {path}")
+        if path.is_file():
+            _fsync_file(path)
+    for directory in sorted(
+        (path for path in root.rglob("*") if path.is_dir()),
+        key=lambda path: len(path.parts),
+        reverse=True,
+    ):
+        _fsync_directory(directory)
+    _fsync_directory(root)
+
+
+@contextmanager
+def exclusive_file_lock(path: Path):
+    """Serialize a cross-process state transition through one durable lock file."""
+
+    lock_path = _absolute(path)
+    ensure_durable_directory(lock_path.parent)
+    descriptor = os.open(lock_path, os.O_CREAT | os.O_RDWR, 0o600)
+    try:
+        fcntl.flock(descriptor, fcntl.LOCK_EX)
+        yield
+    finally:
+        fcntl.flock(descriptor, fcntl.LOCK_UN)
         os.close(descriptor)
 
 

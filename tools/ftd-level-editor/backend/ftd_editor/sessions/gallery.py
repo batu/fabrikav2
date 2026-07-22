@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Literal
 
 from .model import AuthoringSession
 
@@ -15,6 +15,42 @@ class GallerySession:
     dog_count: int
     tags: tuple[str, ...]
     archived: bool
+
+
+CaptureVariant = Literal[
+    "gemini",
+    "openai",
+    "openai_v2",
+    "gemini_bg_only",
+    "openai_bg_only",
+    "openai_v2_bg_only",
+]
+
+
+def capture_source_candidates(
+    session: AuthoringSession, variant: CaptureVariant
+) -> tuple[str, ...]:
+    """Choose current image bytes using the v1 gallery-preview precedence."""
+
+    raw = session.to_mapping()
+    selected_bg = raw.get("selected_bg")
+    if not isinstance(selected_bg, int):
+        selected_bg = 0
+    selected = f"bg_{selected_bg:02d}.png"
+
+    match variant:
+        case "gemini":
+            return ("color.png", "bg_00.png")
+        case "openai":
+            return ("openai_color.png", "openai_bg.png")
+        case "openai_v2":
+            return ("openai_color_v2.png", "openai_bg_v2.png")
+        case "gemini_bg_only":
+            return (selected, "bg_00.png")
+        case "openai_bg_only":
+            return ("openai_bg.png",)
+        case "openai_v2_bg_only":
+            return ("openai_bg_v2.png",)
 
 
 def gallery_metadata(session: AuthoringSession) -> tuple[tuple[str, ...], bool]:

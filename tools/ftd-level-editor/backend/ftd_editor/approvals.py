@@ -160,3 +160,24 @@ class ApprovalStore:
             )
 
         return consume
+
+    def consume(
+        self,
+        *,
+        grant_id: str,
+        actor: str,
+        action_kind: str,
+        request_binding: str,
+        source_revision: str,
+    ) -> dict[str, Any]:
+        """Consume a grant atomically when no larger ledger transaction exists."""
+
+        with self._jobs.transaction() as conn:
+            return self.consume_locked(
+                conn,
+                grant_id=grant_id,
+                actor=actor,
+                action_kind=action_kind,
+                request_binding=request_binding,
+                source_revision=source_revision,
+            )

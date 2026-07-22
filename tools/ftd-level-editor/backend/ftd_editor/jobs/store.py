@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import sqlite3
 import threading
@@ -52,6 +53,17 @@ class TerminalJobImmutable(RuntimeError):
 
 class AttemptNotAllowed(RuntimeError):
     pass
+
+
+class ArchivedRequestIdentity(RuntimeError):
+    """A historical Request ID is inert and cannot become runnable work."""
+
+    def __init__(self, kind: str, request_id: str) -> None:
+        super().__init__(
+            f"request {request_id!r} for {kind!r} exists in inert legacy archive"
+        )
+        self.kind = kind
+        self.request_id = request_id
 
 
 class OwnershipLost(RuntimeError):
@@ -183,6 +195,17 @@ CREATE TABLE IF NOT EXISTS job_artifacts (
     PRIMARY KEY (artifact_id, job_id)
 );
 CREATE INDEX IF NOT EXISTS idx_job_artifacts_job ON job_artifacts(job_id);
+
+CREATE TABLE IF NOT EXISTS legacy_request_archive (
+    kind TEXT NOT NULL,
+    request_id TEXT NOT NULL,
+    input_hash TEXT NOT NULL,
+    attempt_id TEXT NOT NULL,
+    disposition TEXT NOT NULL,
+    artifacts_json TEXT NOT NULL,
+    imported_at TEXT NOT NULL,
+    PRIMARY KEY (kind, request_id)
+);
 
 CREATE TABLE IF NOT EXISTS approval_grants (
     grant_id TEXT PRIMARY KEY,
@@ -321,6 +344,12 @@ class JobStore:
 
         submitted_hash = spec.input_hash()
         with self.transaction() as conn:
+            archived = conn.execute(
+                "SELECT 1 FROM legacy_request_archive WHERE kind = ? AND request_id = ?",
+                (spec.kind, request_id),
+            ).fetchone()
+            if archived is not None:
+                raise ArchivedRequestIdentity(spec.kind, request_id)
             row = conn.execute(
                 "SELECT * FROM jobs WHERE kind = ? AND request_id = ?",
                 (spec.kind, request_id),
@@ -336,6 +365,84 @@ class JobStore:
                 if reusable is not None:
                     job = self._apply_reuse_locked(conn, job, reusable)
             return job, True
+
+    def import_legacy_archive(self, records: Sequence[Any]) -> str:
+        """Atomically import terminal identity rows with no executable spec or status."""
+
+        from ..cutover import LegacyArchiveRecord
+
+        ordered = sorted(records, key=lambda item: (item.kind, item.request_id))
+        payload: list[dict[str, Any]] = []
+        for record in ordered:
+            if not isinstance(record, LegacyArchiveRecord):
+                raise TypeError("legacy archive records must use LegacyArchiveRecord")
+            record.validate()
+            payload.append(
+                {
+                    "kind": record.kind,
+                    "requestId": record.request_id,
+                    "inputHash": record.input_hash,
+                    "attemptId": record.attempt_id,
+                    "disposition": record.disposition,
+                    "artifacts": list(record.artifacts),
+                }
+            )
+        checksum = "sha256:" + hashlib.sha256(
+            json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
+        with self.transaction() as conn:
+            for record in ordered:
+                existing = conn.execute(
+                    "SELECT * FROM legacy_request_archive WHERE kind = ? AND request_id = ?",
+                    (record.kind, record.request_id),
+                ).fetchone()
+                values = (
+                    record.input_hash,
+                    record.attempt_id,
+                    record.disposition,
+                    json.dumps(record.artifacts, sort_keys=True, separators=(",", ":")),
+                )
+                if existing is not None:
+                    current = tuple(
+                        existing[name]
+                        for name in (
+                            "input_hash",
+                            "attempt_id",
+                            "disposition",
+                            "artifacts_json",
+                        )
+                    )
+                    if current != values:
+                        raise ValueError(
+                            f"conflicting legacy identity for {record.kind}/{record.request_id}"
+                        )
+                    continue
+                conn.execute(
+                    """INSERT INTO legacy_request_archive
+                    (kind, request_id, input_hash, attempt_id, disposition, artifacts_json, imported_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                    (record.kind, record.request_id, *values, self._now()),
+                )
+        return checksum
+
+    def find_legacy_archive(self, kind: str, request_id: str) -> Any | None:
+        from ..cutover import LegacyArchiveRecord
+
+        with self.connect() as conn:
+            row = conn.execute(
+                "SELECT * FROM legacy_request_archive WHERE kind = ? AND request_id = ?",
+                (kind, request_id),
+            ).fetchone()
+        if row is None:
+            return None
+        return LegacyArchiveRecord(
+            request_id=str(row["request_id"]),
+            kind=str(row["kind"]),
+            input_hash=str(row["input_hash"]),
+            attempt_id=str(row["attempt_id"]),
+            disposition=str(row["disposition"]),
+            artifacts=tuple(json.loads(row["artifacts_json"])),
+        )
 
     def _find_reusable_locked(
         self, conn: sqlite3.Connection, kind: str, input_hash: str, exclude_id: str

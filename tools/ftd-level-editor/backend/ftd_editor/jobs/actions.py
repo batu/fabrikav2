@@ -15,6 +15,7 @@ from ..sessions.routes import SessionRevisionConflictDetail, SessionSnapshotResp
 from ..sessions.store import SessionNotFound, SessionRevisionConflict, SessionStore
 from .models import ExecutionSpec, JobRecord
 from .store import (
+    ArchivedRequestIdentity,
     AttemptNotAllowed,
     JobNotFound,
     JobStore,
@@ -24,11 +25,32 @@ from .store import (
 
 @dataclass(frozen=True, slots=True)
 class FtdActionKind:
-    """One server-registered FTD action; recipe/policy versions are server-owned."""
+    """One server-registered FTD action; recipe/policy versions are server-owned.
+
+    `intent_input` names the structured server-resolved prompt intent the kind
+    requires (None when the kind carries no prompt); `replaces` records the
+    retired v1 surface the durable kind supersedes. Both are published as
+    OpenAPI operation extensions so fresh clients discover actions from the
+    pinned document rather than a second catalog.
+    """
 
     kind: str
     recipe_version: str
     policy_version: str
+    intent_input: str | None = None
+    replaces: str | None = None
+
+    def discovery_entry(self) -> dict[str, str]:
+        entry = {
+            "kind": self.kind,
+            "recipeVersion": self.recipe_version,
+            "policyVersion": self.policy_version,
+        }
+        if self.intent_input is not None:
+            entry["intentInput"] = self.intent_input
+        if self.replaces is not None:
+            entry["replaces"] = self.replaces
+        return entry
 
 
 # The durable FTD actions this editor understands. Later units register their
@@ -38,13 +60,39 @@ class FtdActionKind:
 # multi-scene generation) whose SSE/shadow observation moved to Job + events.
 FTD_ACTION_KINDS: tuple[FtdActionKind, ...] = (
     FtdActionKind("ftd.dog_variant_upscale", "upscale-r1", "spend-p1"),
-    FtdActionKind("ftd.background_generate", "background-r1", "spend-p1"),
+    FtdActionKind(
+        "ftd.background_generate", "background-r1", "spend-p1", intent_input="sceneIntent"
+    ),
     FtdActionKind("ftd.sprite_animate", "sprite-r1", "spend-p1"),
-    FtdActionKind("ftd.crop_inpaint", "crop-inpaint-r1", "spend-p1"),
-    FtdActionKind("ftd.retry_failed_dogs", "retry-dogs-r1", "spend-p1"),
-    FtdActionKind("ftd.band_generate", "band-r1", "spend-p1"),
-    FtdActionKind("ftd.sequence_workflow", "sequence-r1", "spend-p1"),
-    FtdActionKind("ftd.multi_scene_generate", "multi-scene-r1", "spend-p1"),
+    FtdActionKind("ftd.crop_inpaint", "crop-inpaint-r1", "spend-p1", intent_input="dogIntent"),
+    FtdActionKind(
+        "ftd.retry_failed_dogs", "retry-dogs-r1", "spend-p1", intent_input="dogs[].dogIntent"
+    ),
+    FtdActionKind(
+        "ftd.band_generate", "band-r1", "spend-p1", intent_input="sceneIntent"
+    ),
+    FtdActionKind(
+        "ftd.sequence_workflow", "sequence-r1", "spend-p1", intent_input="scenes[]"
+    ),
+    FtdActionKind(
+        "ftd.multi_scene_generate", "multi-scene-r1", "spend-p1", intent_input="scenes[]"
+    ),
+    # U6: the last two request-owned v1 paid actions (GET+SSE magenta inpaint
+    # and POST single-dog regeneration) gain durable kinds of their own.
+    FtdActionKind(
+        "ftd.magenta_inpaint",
+        "magenta-r1",
+        "spend-p1",
+        intent_input="dogIntent",
+        replaces="v1 GET+SSE magenta inpaint request",
+    ),
+    FtdActionKind(
+        "ftd.dog_regenerate",
+        "dog-regen-r1",
+        "spend-p1",
+        intent_input="dogIntent",
+        replaces="v1 POST single-dog regeneration request",
+    ),
 )
 
 
@@ -202,6 +250,19 @@ class JobService:
         )
 
     def start(self, kind: str, body: StartJobRequest) -> tuple[JobRecord, bool]:
+        # Replay attachment must win before session-revision validation: a job
+        # that already applied its output moved the session revision, and the
+        # caller replaying a lost response still carries the original one.
+        existing = self.jobs.find_by_request_id(kind, body.request_id)
+        if existing is not None:
+            stored = existing.execution_spec
+            if (
+                stored.get("sessionId") == body.session_id
+                and stored.get("sourceRevision") == body.revision
+                and stored.get("inputs") == body.inputs
+                and stored.get("providerOptions") == body.provider_options
+            ):
+                return existing, False
         spec = self.build_spec(kind, body)
         return self.jobs.start_job(spec, request_id=body.request_id, reuse=True)
 
@@ -291,6 +352,11 @@ def build_job_router(service: JobService, dependencies: list[Any]) -> APIRouter:
             ) from error
         except RequestIdentityConflict as error:
             raise identity_conflict(error) from error
+        except ArchivedRequestIdentity as error:
+            raise HTTPException(
+                status_code=409,
+                detail="request identity is preserved in the inert legacy archive",
+            ) from error
         except SessionRevisionConflict as error:
             raise HTTPException(
                 status_code=409,
@@ -307,7 +373,15 @@ def build_job_router(service: JobService, dependencies: list[Any]) -> APIRouter:
         operation_id="startFtdDurableAction",
         response_model=JobResource,
         responses=_START_CONFLICT_RESPONSES,
-        openapi_extra={**durable_extra, "x-ftd-revision": "bound"},
+        openapi_extra={
+            **durable_extra,
+            "x-ftd-revision": "bound",
+            # The one discoverable action catalog: fresh clients enumerate
+            # kinds from this pinned extension, never a second endpoint.
+            "x-ftd-actions": [
+                action.discovery_entry() for action in service.action_kinds.values()
+            ],
+        },
     )
     def start_ftd_durable_action(kind: str, body: StartJobRequest) -> JobResource:
         job, _created = guard_start(lambda: service.start(kind, body))
@@ -423,6 +497,11 @@ def build_job_router(service: JobService, dependencies: list[Any]) -> APIRouter:
         },
     )
     def mint_approval_grant(body: MintApprovalRequest) -> ApprovalGrantResponse:
+        if body.action_kind in {"publish_sequence", "rollback_sequence"}:
+            raise HTTPException(
+                status_code=403,
+                detail="publication grants require the human publishing approval surface",
+            )
         try:
             grant = service.approvals.mint(
                 actor=body.actor,

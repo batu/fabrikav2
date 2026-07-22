@@ -7,7 +7,7 @@ import secrets as secrets_module
 from collections.abc import AsyncIterator, Callable, Mapping
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
-from typing import Any, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 
 from fastapi import FastAPI, Request, Security
 from fastapi.encoders import jsonable_encoder
@@ -27,6 +27,9 @@ from .security import (
 from .jobs.actions import JobService
 from .settings import EditorSettings
 from .sessions.store import SessionStore
+
+if TYPE_CHECKING:
+    from .publishing.sequence import PublishingService
 
 
 class FailClosedProviderError(RuntimeError):
@@ -51,6 +54,9 @@ class StoreRegistry(Protocol):
 
     @property
     def jobs(self) -> JobService | None: ...
+
+    @property
+    def publishing(self) -> "PublishingService | None": ...
 
     def names(self) -> tuple[str, ...]: ...
 
@@ -94,6 +100,7 @@ class EditorStores:
 
     sessions: SessionStore | None = None
     jobs: JobService | None = None
+    publishing: "PublishingService | None" = None
 
     def names(self) -> tuple[str, ...]:
         names: list[str] = []
@@ -101,6 +108,8 @@ class EditorStores:
             names.append("sessions")
         if self.jobs is not None:
             names.append("jobs")
+        if self.publishing is not None:
+            names.append("publishing")
         return tuple(names)
 
 
@@ -110,6 +119,7 @@ class AppComponents:
     worker: Worker
     providers: ProviderRegistry
     redactor: SecretRedactor
+    human_approval_credential: str | None = None
 
 
 class EditorStatus(BaseModel):
@@ -162,6 +172,7 @@ def create_app(settings: EditorSettings, components: AppComponents) -> FastAPI:
     application.state.redactor = components.redactor
     application.state.logger = runtime_logger
     application.state.launch_credential = launch_credential
+    application.state.human_approval_credential = components.human_approval_credential
     application.add_middleware(
         LocalRequestGuardMiddleware,
         settings=settings,
@@ -201,7 +212,11 @@ def create_app(settings: EditorSettings, components: AppComponents) -> FastAPI:
         "/bootstrap",
         response_model=BootstrapResponse,
         operation_id="getEditorBootstrap",
-        openapi_extra={"x-ftd-authority": "same-origin-bootstrap"},
+        openapi_extra={
+            "x-ftd-authority": "same-origin-bootstrap",
+            "x-ftd-side-effects": "none",
+            "x-ftd-cost": "none",
+        },
     )
     def bootstrap() -> BootstrapResponse:
         return BootstrapResponse(launchCredential=launch_credential)
@@ -249,6 +264,23 @@ def create_app(settings: EditorSettings, components: AppComponents) -> FastAPI:
 
         application.include_router(
             build_job_router(components.stores.jobs, protected_dependencies)
+        )
+
+    if components.stores.publishing is not None:
+        from .publishing.routes import build_publishing_router
+
+        if components.human_approval_credential is None:
+            raise ValueError(
+                "publishing composition requires an operator-supplied human approval credential"
+            )
+
+        application.include_router(
+            build_publishing_router(
+                components.stores.publishing,
+                components.stores.sessions,
+                protected_dependencies,
+                components.human_approval_credential,
+            )
         )
 
     return application

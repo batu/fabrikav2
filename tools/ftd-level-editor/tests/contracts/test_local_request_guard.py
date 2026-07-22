@@ -9,11 +9,14 @@ from ftd_editor.app import create_app
 from ftd_editor.settings import EditorSettings
 
 
-def test_same_origin_bootstrap_delivers_launch_credential(client, launch_credential: str) -> None:
+def test_same_origin_bootstrap_delivers_only_launch_credential(
+    client, launch_credential: str
+) -> None:
     response = client.get("/bootstrap")
 
     assert response.status_code == 200
     assert response.json() == {"launchCredential": launch_credential}
+    assert "humanApprovalCredential" not in response.text
     assert response.headers["cache-control"] == "no-store"
     assert response.headers["referrer-policy"] == "no-referrer"
 
