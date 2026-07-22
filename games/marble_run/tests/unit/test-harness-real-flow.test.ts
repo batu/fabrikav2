@@ -168,6 +168,33 @@ function installElementFromPoint(): void {
   });
 }
 
+// Mount the in-game HUD gear ([data-a="settings"]) plus an empty #modal-root.
+// Clicking the gear mounts the in-game settings card (Restart/Home variant),
+// mirroring GameScene.openInGameSettings -> mountSettings({ inGame: true }).
+function mountInGameGear(overlay: HTMLElement): void {
+  let modalRoot = document.getElementById("modal-root");
+  if (modalRoot === null) {
+    modalRoot = document.createElement("div");
+    modalRoot.id = "modal-root";
+    document.body.appendChild(modalRoot);
+  }
+  const gear = document.createElement("button");
+  gear.type = "button";
+  gear.dataset.a = "settings";
+  gear.dataset.hitTarget = "gear";
+  gear.textContent = "Settings";
+  overlay.appendChild(gear);
+  setRect(gear, { left: 70, top: 0, width: 24, height: 24 });
+  gear.addEventListener("click", () => {
+    modalRoot!.innerHTML = `
+      <div class="fab-modal-card marble-settings-card" role="dialog" aria-modal="true">
+        <button data-fab-action="settings-restart" type="button">Restart</button>
+        <button data-fab-action="settings-home" type="button">Home</button>
+      </div>
+    `;
+  });
+}
+
 function createFakeGame() {
   let activeScene = "HomeScene";
   let playClicks = 0;
@@ -274,6 +301,11 @@ function createFakeGame() {
       fakeGameScene.complete = false;
       mocks.gameState.lives = 3;
       mocks.gameState.foundDogIds.clear();
+      // In-game HUD gear (MRV2-12): the real gameplay gear is [data-a="settings"];
+      // tapping it mounts the in-game (Restart/Home) settings card into #modal-root
+      // via GameScene.openInGameSettings. Stub that chain so the pause drive's UI
+      // path can be exercised end-to-end (gear tap -> mounted modal -> 'ingame').
+      mountInGameGear(overlay);
     });
     settings.addEventListener("click", () => mocks.openPage("settings"));
   };
@@ -400,6 +432,31 @@ describe("marble_run TestHarness real-flow wiring", () => {
       settingsOpen: true,
       homeShellVisible: true,
     });
+  });
+
+  it("driveTo('pause') opens the in-game settings modal via the HUD gear, not a lifecycle suspend (MRV2-12)", async () => {
+    const { createMarbleRunHarness } = await import("../../src/testing/TestHarness");
+    const fixture = createFakeGame();
+    const harness = createMarbleRunHarness(fixture.game as never);
+    mocks.setLifecycleForTest.mockClear();
+
+    await expect(harness.driveTo("pause")).resolves.toBe(true);
+
+    // The card acceptance: #modal-root holds the in-game (Restart/Home) settings
+    // card and the snapshot reads the 'ingame' variant while still in GameScene.
+    const modalRoot = document.getElementById("modal-root")!;
+    expect(modalRoot.querySelector('[data-fab-action="settings-restart"]')).not.toBeNull();
+    expect(modalRoot.querySelector('[data-fab-action="settings-home"]')).not.toBeNull();
+    expect(harness.snapshot()).toMatchObject({
+      activeScene: "GameScene",
+      settingsVariant: "ingame",
+    });
+    // Routing proof: the drive never took the generic lane's lifecycle-suspend
+    // path (setLifecycleForTest('inactive')) — the wave-1 / pre-fix defect.
+    expect(mocks.setLifecycleForTest).not.toHaveBeenCalledWith("inactive");
+    // And the last drive click actually landed on the HUD gear.
+    expect((window as unknown as { __mrLastDriveClick?: { target: string; landed: boolean } }).__mrLastDriveClick)
+      .toMatchObject({ landed: true });
   });
 
   it("winLevel reports the win outcome through the stub scene seam", async () => {

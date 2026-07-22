@@ -430,7 +430,14 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
     if (state === 'win') return driveWinViaPlay();
     if (state === 'pause') return drivePauseViaUi();
     if (state === 'settings') return driveMenuSettingsViaUi();
-    return harness.driveTo(state);
+    // KTD2 (MRV2-12): every pixelsmith state is handled explicitly above; the old
+    // `harness.driveTo(state)` fallback would be infinite mutual recursion after
+    // KTD1 dropped the `!isDriveState` guard. Route directly to the generic lane.
+    return driveTo(driveDeps(), state as DriveState, {
+      predicates: marbleRunDrivePredicates,
+      playingReady: marbleRunDrivePredicates.level,
+      maxPolls: START_LEVEL_TARGET_MAX_POLLS,
+    });
   }
 
   /**
@@ -753,7 +760,12 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
     failLevel,
 
     driveTo(state: MarbleRunDriveState): Promise<boolean> {
-      if (isPixelsmithState(state) && !isDriveState(state)) {
+      // KTD1 (MRV2-12): route every pixelsmith-vocabulary state to the UI drives.
+      // 'pause'/'win'/'settings' are in BOTH vocabularies; the old `!isDriveState`
+      // clause sent them to the generic lifecycle-suspend lane, which never taps
+      // the HUD gear so #modal-root stayed empty and the UI-truth predicate could
+      // never pass.
+      if (isPixelsmithState(state)) {
         return driveToPixelsmithState(state);
       }
       return driveTo(driveDeps(), state, {
