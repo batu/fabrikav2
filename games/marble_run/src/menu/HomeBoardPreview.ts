@@ -1,6 +1,7 @@
 import { BoardEngine } from '../marble-board';
 import { LEVELS } from '../levels/levels.generated';
 import { BoardScene } from '../three/BoardScene';
+import { GAMEPLAY_CAMERA_GROUND_ANGLE_DEG } from '../three/constants';
 import { Stage } from '../three/Stage';
 
 /**
@@ -23,6 +24,9 @@ const DECOR_LEVEL_INDEX = 2;
 /** v1 `App`: menu view offset ratio + decor framing zoom. */
 const MENU_VIEW_OFFSET_Y_RATIO = 0.11;
 const DECOR_FRAME_ZOOM = 1.42;
+/** v1 `DEFAULT_DEBUG_TUNING`: the menu board uses the same ground angle but a
+ *  90deg yaw. The preview owns this Stage, so gameplay keeps its 45deg yaw. */
+const MENU_CAMERA_YAW_DEG = 90;
 /** v1 `tickMenuDecor`: idle a marble roughly every 2.6s. */
 const DECOR_MOVE_INTERVAL_S = 2.6;
 const MAX_FRAME_DT_S = 0.05;
@@ -46,6 +50,7 @@ export class HomeBoardPreview {
     container.appendChild(this.canvas);
 
     this.stage = new Stage(this.canvas);
+    this.stage.setDimetricCamera(GAMEPLAY_CAMERA_GROUND_ANGLE_DEG, MENU_CAMERA_YAW_DEG);
     this.stage.setViewOffsetYRatio(MENU_VIEW_OFFSET_Y_RATIO);
     this.showDecor();
 

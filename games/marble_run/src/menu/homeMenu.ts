@@ -19,6 +19,26 @@ export interface MountHomeShellOptions {
   onOpenSettings: () => void;
 }
 
+const AMBIENT_SPRINKLE_COLORS = ['#ff4d6d', '#38a3ff', '#44d164', '#ffcc1f', '#b266ff'] as const;
+const AMBIENT_SPRINKLE_COUNT = 8;
+
+/** Port of v1 `Ui.ambientSprinkles`: eight independently falling candy dashes. */
+function appendAmbientSprinkles(shell: HTMLElement): void {
+  const layer = document.createElement('div');
+  layer.className = 'marble-ambient-sprinkles';
+  layer.setAttribute('aria-hidden', 'true');
+  for (let index = 0; index < AMBIENT_SPRINKLE_COUNT; index += 1) {
+    const piece = document.createElement('i');
+    piece.className = 'marble-ambient-sprinkle';
+    piece.style.left = `${Math.random() * 100}vw`;
+    piece.style.background = AMBIENT_SPRINKLE_COLORS[index % AMBIENT_SPRINKLE_COLORS.length];
+    piece.style.animationDuration = `${9 + Math.random() * 8}s`;
+    piece.style.animationDelay = `${-Math.random() * 12}s`;
+    layer.appendChild(piece);
+  }
+  shell.appendChild(layer);
+}
+
 function buildHeader(opts: MountHomeShellOptions): HTMLElement {
   const header = document.createElement('div');
   header.className = 'marble-home-header';
@@ -70,7 +90,7 @@ function buildHeader(opts: MountHomeShellOptions): HTMLElement {
 }
 
 export function mountHomeShell(opts: MountHomeShellOptions): UiHandle {
-  return mountHomeMenu({
+  const handle = mountHomeMenu({
     mountInto: opts.mountInto,
     id: 'home-shell',
     // Redundant with tokens.css (which authoritatively themes every .fab-ui saga
@@ -97,4 +117,6 @@ export function mountHomeShell(opts: MountHomeShellOptions): UiHandle {
       },
     ],
   });
+  appendAmbientSprinkles(handle.el);
+  return handle;
 }

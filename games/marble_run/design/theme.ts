@@ -40,17 +40,17 @@ export const assetUrls = {
 
 /**
  * Sugar levelmap tokens applied on the SagaMap root. Node art is the ported
- * gold-sun webp set; the menu-mount uses the smaller 56/100px node sizes and
- * solid (opacity 1) tiles so the candy rail reads cleanly against the bubble bg.
+ * gold-sun webp set; the menu-mount uses prominent 64/112px medallions and
+ * solid (opacity 1) tiles so the dense candy rail reads clearly on phone widths.
  */
 export const MARBLE_LEVELMAP_THEME: ThemeTokens = {
   '--fab-levelmap-art-default': "url('/v1/ui/level-node-default.webp')",
   '--fab-levelmap-art-locked': "url('/v1/ui/level-node-locked.webp')",
   '--fab-levelmap-art-completed': "url('/v1/ui/level-node-completed.webp')",
   '--fab-levelmap-art-current': "url('/v1/ui/level-node-current.webp')",
-  '--fab-levelmap-node-size': '56px',
-  '--fab-levelmap-node-current-size': '100px',
-  '--fab-levelmap-node-gap': '4px',
+  '--fab-levelmap-node-size': '64px',
+  '--fab-levelmap-node-current-size': '112px',
+  '--fab-levelmap-node-gap': '2px',
   '--fab-levelmap-node-font': '18px',
   '--fab-levelmap-node-current-font': '39px',
   '--fab-levelmap-far-opacity': '1',
@@ -128,6 +128,28 @@ body {
    (judge3 "pale bubbles over the playfield" major). Home/shell screens keep it. */
 .marble-ui.mr-gameplay-active::before { display: none; }
 .marble-ui > * { position: relative; z-index: 1; }
+
+/* v1 menu life: eight 6x12 candy dashes falling behind all interactive chrome. */
+.marble-ambient-sprinkles {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.marble-ambient-sprinkle {
+  position: absolute;
+  top: -5vh;
+  width: 6px;
+  height: 12px;
+  border-radius: 5px;
+  opacity: 0.68;
+  animation: marble-sprinkle-fall linear infinite;
+}
+@keyframes marble-sprinkle-fall {
+  from { transform: translateY(0) rotate(0deg); }
+  to { transform: translateY(115vh) rotate(540deg); }
+}
 
 /* ---- Home header chrome (game-owned slot) ---- */
 .marble-home-header {
