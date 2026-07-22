@@ -109,7 +109,7 @@ export function mountSettings(opts: MountSettingsOptions): UiHandle {
     ribbon: { title: 'Settings', image: assetUrls.ribbonOrange },
     cardImage: assetUrls.popup,
     cardClassName: 'marble-settings-card',
-    closeButton: { label: '', ariaLabel: 'Close', dataAction: 'settings-x' },
+    closeButton: { label: '×', ariaLabel: 'Close', dataAction: 'settings-x' },
     body,
     actions,
     backdropDismiss: true,

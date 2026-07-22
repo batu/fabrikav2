@@ -30,6 +30,7 @@ import { fulfillVerifiedPurchaseOnce, makePurchaseRestoreRetry, reportUnfulfille
 import { hasUserActivated, runWhenVisibleAndIdle, type CancelScheduledIdleWork } from '../platform/browserScheduling';
 import { registerLifecycleHooks } from '../platform/gameLifecycle';
 import { GameplayController, type GameplayHooks } from '../gameplay/GameplayController';
+import { getModalRoot } from '../ui/modalRoot';
 import { mountSettings } from '../menu/settings';
 import type { UiHandle } from '@fabrikav2/ui';
 
@@ -248,7 +249,7 @@ export class GameScene extends Phaser.Scene {
       this.tweens.killAll();
       dismissLevelCompleteOverlay();
       document.getElementById('rate-prompt-overlay')?.remove();
-      document.getElementById('hud-overlay')?.classList.remove('completion-mode');
+      getModalRoot()?.classList.remove('completion-mode');
       document.getElementById('level-complete-overlay')?.remove();
       document.getElementById('level-failed-overlay')?.remove();
     });
@@ -283,11 +284,11 @@ export class GameScene extends Phaser.Scene {
   }
 
   private openInGameSettings(): void {
-    const container = document.getElementById('game-container');
-    if (!container || this.settingsHandle) return;
+    const modalRoot = getModalRoot();
+    if (!modalRoot || this.settingsHandle) return;
     this.gameplayController?.pause();
     this.settingsHandle = mountSettings({
-      mountInto: container,
+      mountInto: modalRoot,
       inGame: true,
       onRestart: () => {
         if (this.level) {

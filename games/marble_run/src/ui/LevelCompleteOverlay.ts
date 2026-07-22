@@ -5,6 +5,7 @@ import { scaffoldEvents } from '../core/ScaffoldEvents';
 import { showRatePromptWithHandle, type RatePromptHandle } from './RatePrompt';
 import { showSceneTransitionCover } from './SceneTransitionCover';
 import { buildButtonElement, mountResultCard, type UiHandle } from '@fabrikav2/ui';
+import { getModalRoot } from './modalRoot';
 import { assetUrls } from '../../design/theme';
 
 export interface LevelCompleteOverlayOptions {
@@ -137,7 +138,7 @@ export function showLevelCompleteOverlay(
   levelId: string,
   options: LevelCompleteOverlayOptions,
 ): Promise<LevelCompleteOverlayResult> {
-  const overlay = document.getElementById('hud-overlay');
+  const overlay = getModalRoot();
   if (!overlay) return Promise.resolve({ nextLevelData: null });
   if (document.getElementById(OVERLAY_ID)) {
     return Promise.resolve({ nextLevelData: null });
@@ -159,8 +160,11 @@ export function showLevelCompleteOverlay(
   const levelNumber = gameState.currentLevelIndex + 1;
   const rewardRow = buildRewardRow(options.baseCoins);
 
+  // MRV2-11 U5 (ref refs/win.png): the win card holds NO actions — Next is a
+  // standalone pill far below the card, appended to the backdrop (see below). The
+  // kit requires a fresh `actions` element, so pass an empty one.
   const actions = document.createElement('div');
-  actions.className = 'fab-modal-actions';
+  actions.className = 'fab-modal-actions marble-win-actions-empty';
 
   const runNext = (): void => {
     if (nextClicked) return;
@@ -198,7 +202,6 @@ export function showLevelCompleteOverlay(
     spriteImage: assetUrls.buttonGreen,
     onClick: runNext,
   });
-  actions.appendChild(nextBtn);
 
   const handle = mountResultCard({
     mountInto: overlay,
@@ -216,8 +219,13 @@ export function showLevelCompleteOverlay(
     rewardDisplay: rewardRow,
     actions,
   });
-  // Blue wallet pill, top-right of the win card (ref refs/win.png).
-  handle.el.querySelector('.fab-modal-card')?.appendChild(buildCoinPill(options.coinBalance));
+  // MRV2-11 U5 (ref refs/win.png): three screen-level pieces over the dimmed
+  // board. The coin pill docks to the SCREEN top-right (backdrop, safe-area
+  // inset) and Next is a standalone pill BELOW the card — both appended to the
+  // backdrop (handle.el), not the card, so the card stays compact.
+  handle.el.appendChild(buildCoinPill(options.coinBalance));
+  nextBtn.classList.add('marble-win-next-standalone');
+  handle.el.appendChild(nextBtn);
   activeLevelCompleteHandle = handle;
 
   void handle.dismissed.then(() => {

@@ -23,6 +23,7 @@ import {
   type ViewportMetricsSnapshot,
 } from '@fabrikav2/testkit/testing';
 import { marbleRunDrivePredicates, snapshotMatchesMarbleRunDriveState, type SettingsVariant } from './drivePredicates';
+import { readModalGeometry, type ModalGeometrySnapshot } from './modalGeometry';
 import {
   PIXELSMITH_STATE_LEVELS,
   isGameplayState,
@@ -231,6 +232,8 @@ export interface MarbleRunSnapshot {
     lastKnownLiveListedStorageKey: string;
   };
   levelDataReady: boolean;
+  /** Device-truth modal geometry probe; present ONLY while a modal is open. */
+  modalGeometry?: ModalGeometrySnapshot;
 }
 
 export interface MarbleRunHarness extends GameHarness<MarbleRunVerb> {
@@ -640,8 +643,10 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
     const level = scene?.getLevel();
     const levelComplete = visibleGameScene && ((scene?.isLevelComplete() ?? false) || levelCompleteOverlayVisible);
     const levelFailed = visibleGameScene && (levelFailedOverlayVisible || gameState.lives <= 0);
+    const modalGeometry = readModalGeometry();
 
     return {
+      ...(modalGeometry !== undefined ? { modalGeometry } : {}),
       activeScene,
       phaserActiveScene,
       status: isGameSuspended()

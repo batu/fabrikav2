@@ -35,7 +35,10 @@ function ribbonTitle(root: ParentNode): string | undefined {
 
 describe('sugar result cards', () => {
   beforeEach(() => {
-    document.body.innerHTML = '<div id="hud-overlay" class="marble-ui"></div>';
+    // MRV2-11 U2: result cards now mount into the fixed #modal-root layer. Keep
+    // #hud-overlay for the finale test (which mounts there explicitly).
+    document.body.innerHTML =
+      '<div id="hud-overlay" class="marble-ui"></div><div id="modal-root" class="marble-ui"></div>';
   });
 
   // MRV2-9 U8: v1 parity for the win coin reward — the schema default is 25 (was
@@ -87,6 +90,30 @@ describe('sugar result cards', () => {
     expect(overlay!.querySelector('[data-fab-action="result-claim-x2"]')).toBeNull();
     // Blue wallet pill reflects the balance.
     expect(overlay!.querySelector('.marble-win-coin-pill .marble-win-coin-value')?.textContent).toBe('140');
+
+    // MRV2-11 U5 (ref refs/win.png): three screen-level pieces. The coin pill and
+    // the standalone Next live on the BACKDROP, NOT inside the compact card.
+    const card = overlay!.querySelector('.fab-modal-card')!;
+    expect(card).not.toBeNull();
+    expect(card.querySelector('.marble-win-coin-pill')).toBeNull();
+    expect(card.querySelector('[data-fab-action="result-next"]')).toBeNull();
+    // Exactly one Next, outside the card.
+    expect(overlay!.querySelectorAll('[data-fab-action="result-next"]').length).toBe(1);
+    // Single COMPLETED source: the ribbon sprite (its overlaid title text empty).
+    expect(overlay!.querySelectorAll('.fab-modal-ribbon-image').length).toBe(1);
+  });
+
+  // MRV2-11 U5: the win scrim reverts from the wave-4 opaque purple gradient to a
+  // TRANSLUCENT purple dim so the darkened board shows through (ref refs/win.png).
+  it('win scrim CSS is translucent, not an opaque gradient', async () => {
+    const { installShellArt } = await import('../../design/theme');
+    document.getElementById('marble-shell-art')?.remove();
+    installShellArt(document);
+    const css = document.getElementById('marble-shell-art')?.textContent ?? '';
+    const scrimBlock = css.slice(css.indexOf('.completion-mode .fab-modal-scrim'));
+    expect(scrimBlock).toContain('rgba(');
+    // The old opaque full-bleed gradient must be gone from the completion scrim.
+    expect(scrimBlock.slice(0, scrimBlock.indexOf('}'))).not.toContain('linear-gradient');
   });
 
   it('lose variant mounts a Failed ribbon with Retry + coin-continue offers', () => {

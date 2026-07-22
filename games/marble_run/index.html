@@ -48,6 +48,18 @@
         inset: 0;
         z-index: 2;
       }
+      /* MRV2-11 U2 (KTD1): one fixed, full-viewport modal layer, sibling of
+         #game-container, above #hud-overlay (z2) and #scene-transition-cover
+         (z20). Every modal (home/pause settings, win/fail result cards, finale)
+         mounts here so no Phaser-managed or container-relative box can misplace
+         it. Inert until a modal mounts — the kit backdrop re-enables pointer
+         events on itself. */
+      #modal-root {
+        position: fixed;
+        inset: 0;
+        z-index: 40;
+        pointer-events: none;
+      }
       #scene-transition-cover {
         position: absolute;
         inset: 0;
@@ -78,6 +90,7 @@
       </div>
       <div id="hud-overlay" class="marble-ui"></div>
     </div>
+    <div id="modal-root" class="marble-ui"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

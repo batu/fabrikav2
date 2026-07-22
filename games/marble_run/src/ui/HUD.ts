@@ -16,6 +16,7 @@ import { notificationService } from '../notifications/NotificationService';
 import { rewardedAdIconMarkup } from './RewardedAdIcon';
 import { hideHomeMenuLayer } from './OverlayVisibility';
 import { mountSettings } from '../menu/settings';
+import { getModalRoot } from './modalRoot';
 import type { UiHandle } from '@fabrikav2/ui';
 import { gameConfig } from '../../game.config';
 
@@ -200,8 +201,8 @@ let settingsModalHandle: UiHandle | null = null;
  * registered callbacks.
  */
 export function openSettingsModal(inGame: boolean): void {
-  const overlay = document.getElementById('hud-overlay');
-  if (!overlay || settingsModalHandle) return;
+  const modalRoot = getModalRoot();
+  if (!modalRoot || settingsModalHandle) return;
   // Device-parity MRV2-10 U6: the VISIBLE surface decides the variant, not the
   // caller. This legacy FTD-gear path is hard-wired inGame:true; if it ever fires
   // while the home shell is mounted (persistent #hud-overlay survives scene
@@ -210,7 +211,7 @@ export function openSettingsModal(inGame: boolean): void {
   // no wrong-variant modal can appear there regardless of the caller.
   const onHome = document.querySelector('#home-shell') !== null;
   settingsModalHandle = mountSettings({
-    mountInto: overlay,
+    mountInto: modalRoot,
     inGame: onHome ? false : inGame,
     onRestart: () => restartCallback?.(),
     onHome: () => homeCallback?.(),

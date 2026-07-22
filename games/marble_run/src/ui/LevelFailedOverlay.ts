@@ -3,6 +3,7 @@ import { scaffoldEvents } from '../core/ScaffoldEvents';
 import type { FailContinueOfferSet, FailContinueOption, FailContinueOptionKind } from '../shop/FailContinueOffers';
 import type { IapCatalogProductSnapshot } from '../shop/IapService';
 import { mountResultCard, type UiHandle } from '@fabrikav2/ui';
+import { getModalRoot } from './modalRoot';
 import { assetUrls } from '../../design/theme';
 
 export interface FailContinueActionResult {
@@ -58,7 +59,7 @@ function egoOfferPendingRecoveryMs(): number {
 }
 
 export function showLevelFailedOverlay(levelId: string, options: LevelFailedOverlayOptions): void {
-  const overlay = document.getElementById('hud-overlay');
+  const overlay = getModalRoot();
   if (!overlay) return;
   if (document.getElementById(OVERLAY_ID)) return;
 

@@ -87,4 +87,21 @@ describe('mountSettings variants', () => {
     expect(root.querySelector('[data-fab-action="settings-close"]')).not.toBeNull();
     expect(root.querySelector('[data-action="settings-close"]')).toBeNull();
   });
+
+  // MRV2-11 U3 (KTD3, ref refs/settings.png): the close X is the blue square
+  // sprite with a RENDERED white × glyph — not the wave-4 empty label + broken
+  // color:transparent blob. The glyph text must actually be present so it reads.
+  it('renders the close X with a visible × glyph (menu + in-game)', () => {
+    const menu = document.createElement('div');
+    document.body.appendChild(menu);
+    mountSettings({ mountInto: menu, inGame: false });
+    const menuX = menu.querySelector<HTMLElement>('[data-fab-action="settings-x"]');
+    expect(menuX).not.toBeNull();
+    expect(menuX!.textContent).toContain('×');
+
+    const game = document.createElement('div');
+    document.body.appendChild(game);
+    mountSettings({ mountInto: game, inGame: true, onRestart: vi.fn(), onHome: vi.fn() });
+    expect(game.querySelector<HTMLElement>('[data-fab-action="settings-x"]')?.textContent).toContain('×');
+  });
 });

@@ -196,11 +196,11 @@ body {
    A three.js canvas (HomeBoardPreview) in DOM flow just under the header; the
    board frames itself with margins, so a square slot reads as the ref tile. */
 .marble-home-board-preview-slot {
-  /* Device-parity MRV2-10 U2: v1's decor board is LARGE and tilted, spanning
-     banner-to-nodes (refs/home-fresh.png) — the MRV2-9 compaction to min(48vw,
-     230px) rendered it as a tiny diamond. Restore the larger banner-to-nodes
-     footprint; the saga column below stays clear of the LEVEL button via the
-     enlarged .fab-home-menu padding-bottom (U2 node-1 clearance). */
+  /* Device-parity MRV2-11 U4: the decor board canvas is now rendered FULL-BLEED
+     behind the home DOM (see .marble-home-board-preview below), reproducing v1's
+     large tilted framed board at viewport aspect. This slot is now only a spacer
+     that reserves the banner→saga vertical room so the saga column keeps hugging
+     the board rather than floating in the emptied middle. */
   width: min(66vw, 300px);
   aspect-ratio: 1 / 1;
   max-height: 264px;
@@ -218,10 +218,26 @@ body {
   justify-content: flex-start;
   padding-top: 4px;
 }
-.marble-home-board-preview {
+/* MRV2-11 U4 (KTD4): full-bleed decor canvas behind the home DOM. Stage.resize
+   already renders at window.innerWidth/Height (viewport aspect), so displaying
+   the canvas viewport-sized — instead of squished into the old square slot —
+   reproduces v1's large tilted framed board by construction. z-index:0 keeps it
+   BELOW the home shell content (.marble-ui > * is z-index:1); the two-class
+   selector beats that rule. Non-interactive so taps reach the DOM above it. */
+.marble-ui > .marble-home-board-preview {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
   display: block;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 100dvh;
+  pointer-events: none;
+}
+/* Level-map / home current node sits ABOVE the fixed LEVEL button (z-index:20)
+   where they meet (MRV2-11 U4: node 106 over the button on the level map). */
+#home-shell .fab-levelmap-node.current {
+  position: relative;
+  z-index: 21;
 }
 
 /* Green LEVEL action button — Button_Green sprite already set via --fab-btn-sprite-image. */
@@ -261,6 +277,30 @@ body {
   75% { transform: translateX(calc(var(--node-x) + 8px)) scale(var(--node-scale)); }
 }
 
+/* ---- Modal layer (MRV2-11 U2 / KTD1) ----
+   #modal-root is the single fixed full-viewport layer (index.html). It carries
+   .marble-ui only so the themed modal CSS below applies — it must NOT paint the
+   animated bubble field the shell screens use, or a stray tile would float over
+   every modal. */
+#modal-root.marble-ui::before { display: none; }
+
+/* The kit backdrop is position:absolute (fills its mount container). Pin it to
+   the viewport so the card centers on the SCREEN regardless of any container
+   box, with safe-area padding so the card never sits under a notch/home bar. */
+.marble-ui .fab-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  padding:
+    max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+}
+/* A tall card can never top-crop: flex-centering an overflowing card clips the
+   top edge irrecoverably, so bound the height to the safe viewport and scroll. */
+.marble-ui .fab-modal-card {
+  max-height: calc(100dvh - max(16px, env(safe-area-inset-top)) - max(16px, env(safe-area-inset-bottom)));
+  overflow-y: auto;
+}
+
 /* ---- Settings / result modal cards (Popup vida via cardImage) ---- */
 .marble-ui .fab-modal-card--image {
   border: 0;
@@ -274,10 +314,23 @@ body {
   color: #fff;
   text-shadow: 0 2px 0 rgba(120, 60, 20, 0.55);
 }
+/* MRV2-11 U3 (KTD3, ref refs/settings.png): a small blue rounded SQUARE with a
+   white × glyph docked top-right over the ribbon. No X sprite exists in-repo, so
+   the blue Button_Settins tile IS the square and the × is a rendered text glyph
+   (NOT color:transparent, which hid it as a stretched blob in wave-4). */
 .marble-ui .fab-modal-close {
+  width: 52px;
+  min-width: 52px;
+  height: 52px;
+  min-height: 52px;
   background: url('${assetUrls.settingsButton}') center / 100% 100% no-repeat;
   border: 0;
-  color: transparent;
+  color: #fff;
+  font-family: var(--fab-font-display);
+  font-size: 30px;
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 0 2px 0 rgba(30, 70, 140, 0.5);
 }
 
 /* Sugar toggle rows: translucent white pill rows, green-on switch. */
@@ -311,12 +364,20 @@ body {
 .marble-ui .marble-reward-text { height: 26px; width: auto; }
 .marble-ui .fab-result-message { color: #3f6bb0; font-family: var(--fab-font-display); }
 
-/* ---- Win card device parity (MRV2-10 U4, ref refs/win.png) ---- */
-/* Opaque purple backdrop so the gameplay board never shows through the win
-   overlay (judge3/win.json: card floats over live playfield). */
-#hud-overlay.completion-mode .fab-modal-scrim {
-  background: linear-gradient(180deg, #9b7bcd 0%, #6b568e 100%);
+/* ---- Win card device parity (MRV2-11 U5, ref refs/win.png) ---- */
+/* Translucent purple dim (NOT the wave-4 opaque gradient): the darkened live
+   board — wooden frame and all — must show through beneath the win pieces. */
+#modal-root.completion-mode .fab-modal-scrim {
+  background: rgba(75, 47, 109, 0.62);
   opacity: 1;
+}
+/* Three screen-level pieces (ref): coin pill top-right, ribbon+card group, and a
+   standalone Next well below. Stack the backdrop children as a centered column so
+   the card and the standalone Next sit apart with the dimmed board between. */
+#modal-root.completion-mode .fab-modal-backdrop {
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
 }
 /* Green Next pill: Button_Green sprite is the surface; contain a white label so
    it never renders as giant word-art (the old Txt_Next sprite-label doubling). */
@@ -328,12 +389,20 @@ body {
   font-size: 24px;
   text-shadow: 0 2px 0 rgba(20, 90, 30, 0.5);
 }
-/* Blue wallet pill, top-right of the win card. */
+/* Standalone Next lives on the backdrop, spaced well below the card (ref). */
+.marble-ui .marble-win-next-standalone {
+  position: relative;
+  z-index: 2;
+  margin-top: clamp(28px, 9vh, 84px);
+  align-self: center;
+  flex: 0 0 auto;
+}
+/* Blue wallet pill docked to the SCREEN top-right (backdrop child, safe area). */
 .marble-ui .marble-win-coin-pill {
   position: absolute;
-  top: 14px;
-  right: 16px;
-  z-index: 2;
+  top: max(14px, env(safe-area-inset-top));
+  right: max(16px, env(safe-area-inset-right));
+  z-index: 3;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -346,6 +415,8 @@ body {
   background: url('${assetUrls.coinFrame}') center / 100% 100% no-repeat;
 }
 .marble-ui .marble-win-coin-pill img { width: 24px; height: 24px; }
+/* Empty win action slot: the card renders no actions (Next is standalone). */
+.marble-ui .marble-win-actions-empty { display: none; }
 `;
   doc.head.appendChild(style);
 }

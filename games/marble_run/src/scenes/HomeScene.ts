@@ -11,6 +11,7 @@ import { crossfadeTo as crossfadeAmbient, presetForLevel } from '../audio/Ambien
 import type { UiHandle } from '@fabrikav2/ui';
 import { mountHomeShell } from '../menu/homeMenu';
 import { HomeBoardPreview } from '../menu/HomeBoardPreview';
+import { getModalRoot } from '../ui/modalRoot';
 import { mountSettings } from '../menu/settings';
 import { buildSagaNodes } from '../menu/saga';
 import {
@@ -244,17 +245,20 @@ export class HomeScene extends Phaser.Scene {
    */
   private mountBoardPreview(): void {
     this.disposeBoardPreview();
-    const shell = this.overlay?.querySelector<HTMLElement>('#home-shell');
-    if (!shell) return;
-    // Place the decor tile in DOM flow between the header and the saga chain
-    // (v1 renders it in that region). A dedicated slot keeps the canvas sizing
-    // independent of the kit saga layout.
+    const overlay = this.overlay;
+    const shell = overlay?.querySelector<HTMLElement>('#home-shell');
+    if (!overlay || !shell) return;
+    // MRV2-11 U4: reserve the banner→saga vertical room with an in-flow spacer,
+    // but render the actual decor canvas FULL-BLEED behind the home DOM (mounted
+    // on the overlay, CSS-positioned fixed/inset:0 at z-index:0 below the shell).
+    // Stage renders at viewport aspect, so a viewport-sized canvas reproduces
+    // v1's large tilted framed board — the old square slot squished it.
     const header = shell.querySelector<HTMLElement>('.marble-home-header');
     const slot = document.createElement('div');
     slot.className = 'marble-home-board-preview-slot';
     if (header) header.insertAdjacentElement('afterend', slot);
     else shell.prepend(slot);
-    this.boardPreview = new HomeBoardPreview(slot, 'marble-home-board-preview');
+    this.boardPreview = new HomeBoardPreview(overlay, 'marble-home-board-preview');
   }
 
   private disposeBoardPreview(): void {
@@ -265,9 +269,10 @@ export class HomeScene extends Phaser.Scene {
   }
 
   private openHomeSettings(): void {
-    if (this.settingsHandle || !this.overlay) return;
+    const modalRoot = getModalRoot();
+    if (this.settingsHandle || !modalRoot) return;
     this.settingsHandle = mountSettings({
-      mountInto: this.overlay,
+      mountInto: modalRoot,
       inGame: false,
       onDismiss: () => { this.settingsHandle = null; },
     });
