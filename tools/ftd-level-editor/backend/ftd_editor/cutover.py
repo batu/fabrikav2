@@ -145,11 +145,16 @@ def run_live_reliability_journey(root: Path, session_fixture: Path) -> dict[str,
     """Observe lost-response/reload/API+worker restart against real processes."""
 
     root.mkdir(parents=True, exist_ok=False)
-    session_id = str(json.loads(session_fixture.read_text())["id"])
+    fixture_payload = json.loads(session_fixture.read_text())
+    for index, dog in enumerate(fixture_payload.get("dogs", ())):
+        dog.setdefault("index", index)
+    disposable_fixture = root / "session-fixture.json"
+    disposable_fixture.write_text(json.dumps(fixture_payload, sort_keys=True) + "\n")
+    session_id = str(fixture_payload["id"])
     port = _free_loopback_port()
     base_url = f"http://127.0.0.1:{port}"
     request_id = "u9-rehearsal-lost-response"
-    first = _start_rehearsal_server(root, session_fixture, port, run_worker=False)
+    first = _start_rehearsal_server(root, disposable_fixture, port, run_worker=False)
     try:
         credential = _await_bootstrap(base_url, first)
         headers = {
@@ -196,7 +201,7 @@ def run_live_reliability_journey(root: Path, session_fixture: Path) -> dict[str,
     except httpx.TransportError:
         disconnected = True
 
-    second = _start_rehearsal_server(root, session_fixture, port, run_worker=True)
+    second = _start_rehearsal_server(root, disposable_fixture, port, run_worker=True)
     try:
         credential = _await_bootstrap(base_url, second)
         headers = {

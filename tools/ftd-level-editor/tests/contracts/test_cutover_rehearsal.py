@@ -182,7 +182,7 @@ def test_live_reliability_journey_uses_real_process_and_persists_identity(
                 "bwImage": "levels/u9-rehearsal/bw.png",
                 "colorImage": "levels/u9-rehearsal/color.png",
                 "dogs": [
-                    {"index": 0, "id": "dog_00", "x": 50, "y": 50, "r": 10}
+                    {"id": "dog_00", "x": 50, "y": 50, "r": 10}
                 ],
             }
         )
