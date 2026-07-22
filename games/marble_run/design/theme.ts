@@ -374,7 +374,7 @@ body {
 }
 /* MRV2-15 U2: v1 menu settings replaces the home scene with black, while the
    in-game variant intentionally retains the shared translucent gameplay scrim. */
-.marble-ui.fab-modal-backdrop.marble-settings-modal--menu {
+.fab-ui.fab-modal-backdrop.marble-settings-modal--menu {
   background: #000;
 }
 /* MRV2-11 U3 (KTD3, ref refs/settings.png): a small blue rounded SQUARE with a

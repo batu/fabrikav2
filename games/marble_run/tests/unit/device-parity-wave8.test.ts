@@ -25,7 +25,7 @@ describe("device parity wave 8 CSS pins", () => {
 
   it("makes only the menu settings backdrop opaque black", () => {
     const css = shellArtCss();
-    const menu = css.match(/\.marble-ui\.fab-modal-backdrop\.marble-settings-modal--menu \{[^}]*\}/);
+    const menu = css.match(/\.fab-ui\.fab-modal-backdrop\.marble-settings-modal--menu \{[^}]*\}/);
     expect(menu).not.toBeNull();
     expect(menu![0]).toContain("background: #000");
     expect(css).not.toMatch(/marble-settings-modal--ingame[^}]*background:\s*#000/);
