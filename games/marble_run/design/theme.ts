@@ -214,6 +214,9 @@ body {
   margin: 2px auto -6px;
   pointer-events: none;
 }
+@media (max-height: 800px) {
+  .marble-home-board-preview-slot { max-height: 115px; }
+}
 
 /* MRV2-9 U3: force the saga into a single tight centered column. The kit centers
    nodes by default (--node-x:0); pin it so no inherited offset can reintroduce
@@ -371,7 +374,7 @@ body {
 }
 /* MRV2-15 U2: v1 menu settings replaces the home scene with black, while the
    in-game variant intentionally retains the shared translucent gameplay scrim. */
-.marble-ui.marble-settings-modal--menu {
+.marble-ui.fab-modal-backdrop.marble-settings-modal--menu {
   background: #000;
 }
 /* MRV2-11 U3 (KTD3, ref refs/settings.png): a small blue rounded SQUARE with a

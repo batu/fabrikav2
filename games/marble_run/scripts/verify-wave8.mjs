@@ -1,5 +1,5 @@
 // MRV2-15: built-dist headless acceptance for final home/settings parity.
-// Run from games/marble_run after `npm run build`.
+// Run from games/marble_run; this script builds the harness-enabled dist first.
 /* global process, getComputedStyle */
 import { spawn } from "node:child_process";
 import { mkdirSync } from "node:fs";
@@ -17,6 +17,21 @@ function fail(state, message) {
 
 function ok(state, message) {
   console.log(`  ok [${state}]: ${message}`);
+}
+
+async function buildDist() {
+  await new Promise((resolve, reject) => {
+    const build = spawn("npm", ["run", "build"], {
+      cwd: process.cwd(),
+      env: { ...process.env, VITE_ENABLE_TEST_HARNESS: "true" },
+      stdio: "inherit",
+    });
+    build.on("error", reject);
+    build.on("exit", (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(`harness-enabled build failed (${code})`));
+    });
+  });
 }
 
 async function reach(page, state) {
@@ -105,6 +120,8 @@ async function checkSettings(browser, state) {
     await context.close();
   }
 }
+
+await buildDist();
 
 const preview = spawn("npx", ["vite", "preview", "--port", String(PORT), "--strictPort"], {
   cwd: process.cwd(),
