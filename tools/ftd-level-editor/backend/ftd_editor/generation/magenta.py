@@ -10,8 +10,8 @@ from __future__ import annotations
 
 from typing import Any, Callable
 
-from ..jobs.worker import JobContext, TerminalJobError
-from ..prompts.intents import IntentError, forbid_client_prompt_keys, resolve_magenta_prompt
+from ..jobs.worker import JobContext
+from ..prompts.intents import resolve_magenta_prompt
 from .paid import (
     PaidRuntime,
     apply_session_mutation,
@@ -20,6 +20,7 @@ from .paid import (
     policy_for,
     register_output_artifact,
     require_input,
+    resolve_prompt_intent,
     retain_if_cancelled,
     submit_and_obtain_output_url,
 )
@@ -27,18 +28,17 @@ from .paid import (
 def magenta_inpaint_handler(runtime: PaidRuntime) -> Callable[[JobContext], dict[str, Any]]:
     def handler(context: JobContext) -> dict[str, Any]:
         spec = load_spec(context)
-        try:
-            forbid_client_prompt_keys(spec.inputs)
-            prompt = resolve_magenta_prompt(require_input(spec, "dogIntent"))
-        except IntentError as error:
-            raise TerminalJobError("invalid_inputs", str(error)) from error
+        prompt = resolve_prompt_intent(
+            spec.inputs,
+            lambda: resolve_magenta_prompt(require_input(spec, "dogIntent")),
+        )
         policy = policy_for("image")
         url = submit_and_obtain_output_url(
             context,
             runtime,
             "ftd.image",
             policy,
-            {**dict(spec.inputs), "prompt": prompt},
+            {"hitboxes": spec.inputs.get("hitboxes", []), "prompt": prompt},
             spec.provider_options,
         )
         validated = fetch_output(context, url, policy)

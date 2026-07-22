@@ -9,7 +9,7 @@ import {
 
 export function startSequenceWorkflow(
   context: DurableStartContext,
-  inputs: { sequenceName: string; levelIds: string[] },
+  inputs: { scenes: string[] },
 ): Promise<DurableStart> {
   return startDurable(context, 'ftd.sequence_workflow', inputs);
 }

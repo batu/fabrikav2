@@ -40,35 +40,44 @@ export interface JobsTransport {
   artifactUrl(jobId: string, artifactId: string): string;
 }
 
-export function createJobsTransport(options: JobsTransportOptions): JobsTransport {
+export async function requestFtd<T>(
+  options: JobsTransportOptions,
+  method: 'GET' | 'POST',
+  path: string,
+  body?: unknown,
+): Promise<T> {
   const timeoutMs = options.timeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS;
-  const request = async <T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<T> => {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
-    try {
-      const response = await options.fetchImpl(path, {
-        method,
-        credentials: 'same-origin',
-        signal: controller.signal,
-        headers: {
-          'X-FTD-Launch-Credential': options.launchCredential,
-          ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
-        },
-        ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-      });
-      if (!response.ok) {
-        let detail: unknown = null;
-        try {
-          detail = (await response.json()) as unknown;
-        } catch {
-          detail = null;
-        }
-        throw new FtdHttpError(response.status, detail);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await options.fetchImpl(path, {
+      method,
+      credentials: 'same-origin',
+      signal: controller.signal,
+      headers: {
+        'X-FTD-Launch-Credential': options.launchCredential,
+        ...(body === undefined ? {} : { 'Content-Type': 'application/json' }),
+      },
+      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+    });
+    if (!response.ok) {
+      let detail: unknown = null;
+      try {
+        detail = (await response.json()) as unknown;
+      } catch {
+        detail = null;
       }
-      return (await response.json()) as T;
-    } finally {
-      clearTimeout(timer);
+      throw new FtdHttpError(response.status, detail);
     }
+    return (await response.json()) as T;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+export function createJobsTransport(options: JobsTransportOptions): JobsTransport {
+  const request = <T>(method: 'GET' | 'POST', path: string, body?: unknown): Promise<T> => {
+    return requestFtd<T>(options, method, path, body);
   };
 
   return {

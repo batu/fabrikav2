@@ -12,7 +12,7 @@ from __future__ import annotations
 from typing import Any, Callable, Mapping
 
 from ..jobs.worker import ApplicationConflict, JobContext, TerminalJobError
-from ..prompts.intents import IntentError, forbid_client_prompt_keys, resolve_dog_prompt
+from ..prompts.intents import resolve_dog_prompt
 from ..sessions.dogs import DogBundlePayload, StableDogNotFound, require_stable_dog, set_active_variant
 from ..sessions.store import ReservationRejected, SessionRevisionConflict
 from .boundary import ValidatedOutput
@@ -25,6 +25,7 @@ from .paid import (
     policy_for,
     register_output_artifact,
     require_input,
+    resolve_prompt_intent,
     retain_if_cancelled,
     submit_and_obtain_output_url,
 )
@@ -115,11 +116,10 @@ def _single_dog_handler(runtime: PaidRuntime) -> Callable[[JobContext], dict[str
         hitbox = require_input(spec, "hitbox")
         if not isinstance(hitbox, Mapping):
             raise TerminalJobError("invalid_inputs", "hitbox must be a mapping")
-        try:
-            forbid_client_prompt_keys(spec.inputs)
-            prompt = resolve_dog_prompt(require_input(spec, "dogIntent"))
-        except IntentError as error:
-            raise TerminalJobError("invalid_inputs", str(error)) from error
+        prompt = resolve_prompt_intent(
+            spec.inputs,
+            lambda: resolve_dog_prompt(require_input(spec, "dogIntent")),
+        )
         _require_dog(runtime, spec, dog_id)
         policy = policy_for("image")
         url = submit_and_obtain_output_url(
@@ -127,7 +127,7 @@ def _single_dog_handler(runtime: PaidRuntime) -> Callable[[JobContext], dict[str
             runtime,
             IMAGE_PROVIDER,
             policy,
-            {**dict(spec.inputs), "prompt": prompt},
+            {"dogId": dog_id, "hitbox": dict(hitbox), "prompt": prompt},
             spec.provider_options,
         )
         validated = fetch_output(context, url, policy)
@@ -147,18 +147,11 @@ def dog_regenerate_handler(runtime: PaidRuntime) -> Callable[[JobContext], dict[
 def retry_failed_dogs_handler(runtime: PaidRuntime) -> Callable[[JobContext], dict[str, Any]]:
     def handler(context: JobContext) -> dict[str, Any]:
         spec = load_spec(context)
-        try:
-            forbid_client_prompt_keys(spec.inputs)
-        except IntentError as error:
-            raise TerminalJobError("invalid_inputs", str(error)) from error
+        resolve_prompt_intent(spec.inputs, lambda: "")
         dogs = require_input(spec, "dogs")
         if not isinstance(dogs, list) or not dogs:
             raise TerminalJobError("invalid_inputs", "dogs must be a non-empty list")
-        policy = policy_for("image")
-        already_completed = completed_items_from_prior_attempts(
-            context, "job.dog_completed", "dogId"
-        )
-        results: list[dict[str, Any]] = []
+        prepared: list[tuple[str, Mapping[str, Any], str]] = []
         for entry in dogs:
             if not isinstance(entry, Mapping):
                 raise TerminalJobError("invalid_inputs", "each dog entry must be a mapping")
@@ -168,11 +161,18 @@ def retry_failed_dogs_handler(runtime: PaidRuntime) -> Callable[[JobContext], di
                 raise TerminalJobError(
                     "invalid_inputs", "each dog entry needs dogId, hitbox, and dogIntent"
                 )
-            try:
-                forbid_client_prompt_keys(entry)
-                prompt = resolve_dog_prompt(entry.get("dogIntent"))
-            except IntentError as error:
-                raise TerminalJobError("invalid_inputs", str(error)) from error
+            prompt = resolve_prompt_intent(
+                entry,
+                lambda entry=entry: resolve_dog_prompt(entry.get("dogIntent")),
+            )
+            _require_dog(runtime, spec, dog_id)
+            prepared.append((dog_id, hitbox, prompt))
+        policy = policy_for("image")
+        already_completed = completed_items_from_prior_attempts(
+            context, "job.dog_completed", "dogId"
+        )
+        results: list[dict[str, Any]] = []
+        for dog_id, hitbox, prompt in prepared:
             prior = already_completed.get(dog_id)
             if prior is not None:
                 # A prior attempt already paid for and published this dog:
@@ -181,13 +181,12 @@ def retry_failed_dogs_handler(runtime: PaidRuntime) -> Callable[[JobContext], di
                 continue
             context.raise_if_cancel_requested()
             context.heartbeat()
-            _require_dog(runtime, spec, dog_id)
             url = submit_and_obtain_output_url(
                 context,
                 runtime,
                 IMAGE_PROVIDER,
                 policy,
-                {**dict(spec.inputs), "dogId": dog_id, "prompt": prompt},
+                {"dogId": dog_id, "hitbox": dict(hitbox), "prompt": prompt},
                 spec.provider_options,
             )
             validated = fetch_output(context, url, policy)

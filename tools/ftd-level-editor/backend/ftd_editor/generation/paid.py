@@ -23,6 +23,7 @@ from ..jobs.worker import (
     RetryableJobError,
     TerminalJobError,
 )
+from ..prompts.intents import IntentError, forbid_client_prompt_keys
 from ..sessions.store import SessionRevisionConflict, SessionStore
 from .boundary import (
     FTD_OUTPUT_POLICIES,
@@ -80,6 +81,16 @@ def require_input(spec: ExecutionSpec, name: str) -> Any:
     if value is None or value == "":
         raise TerminalJobError("invalid_inputs", f"required input {name!r} is missing")
     return value
+
+
+def resolve_prompt_intent(inputs: Mapping[str, Any], resolver: Callable[[], str]) -> str:
+    """Translate malformed FTD prompt intent into the worker's terminal error contract."""
+
+    try:
+        forbid_client_prompt_keys(inputs)
+        return resolver()
+    except IntentError as error:
+        raise TerminalJobError("invalid_inputs", str(error)) from error
 
 
 def provider_for(context: JobContext, name: str) -> PaidProvider:

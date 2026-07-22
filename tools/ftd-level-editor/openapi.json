@@ -1109,16 +1109,19 @@
             "recipeVersion": "retry-dogs-r1"
           },
           {
+            "intentInput": "sceneIntent",
             "kind": "ftd.band_generate",
             "policyVersion": "spend-p1",
             "recipeVersion": "band-r1"
           },
           {
+            "intentInput": "scenes[]",
             "kind": "ftd.sequence_workflow",
             "policyVersion": "spend-p1",
             "recipeVersion": "sequence-r1"
           },
           {
+            "intentInput": "scenes[]",
             "kind": "ftd.multi_scene_generate",
             "policyVersion": "spend-p1",
             "recipeVersion": "multi-scene-r1"

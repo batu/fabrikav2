@@ -12,10 +12,10 @@ from __future__ import annotations
 import re
 from typing import Any, Mapping
 
-from .recipes import build_scene_prompt, get_entity_prompt
+from .recipes import CONTENTS, ENTITIES, SETTINGS, STYLES, VIEWS, build_scene_prompt, get_entity_prompt
 
 # Input keys that would carry client-composed prompt text; always rejected.
-CLIENT_PROMPT_KEYS = ("prompt", "dogPrompt", "magentaPromptOverride")
+CLIENT_PROMPT_KEYS = ("prompt", "dogPrompt", "magentaPromptOverride", "sceneMeta")
 
 _SCENE_INTENT_KEYS = frozenset({"view", "style", "scene"})
 _DOG_INTENT_KEYS = frozenset({"style", "entity"})
@@ -43,16 +43,41 @@ def _require_mapping(intent: Any, name: str, allowed: frozenset[str]) -> Mapping
     return intent
 
 
+def _require_catalog_key(
+    fields: Mapping[str, Any],
+    key: str,
+    catalog: Mapping[str, Any],
+    intent_name: str,
+    *,
+    default: str | None = None,
+) -> str:
+    value = fields.get(key, default)
+    if value is None:
+        raise IntentError(f"{intent_name}.{key} is required")
+    identifier = str(value)
+    if identifier not in catalog:
+        raise IntentError(f"{intent_name}.{key} is not a frozen catalog identifier")
+    return identifier
+
+
+def _scene_fields(intent: Any) -> tuple[str, str, str]:
+    fields = _require_mapping(intent, "sceneIntent", _SCENE_INTENT_KEYS)
+    scene = _require_catalog_key(fields, "scene", CONTENTS, "sceneIntent")
+    view = _require_catalog_key(fields, "view", VIEWS, "sceneIntent", default="isometric")
+    style = _require_catalog_key(
+        fields, "style", STYLES, "sceneIntent", default="clean_old_cartoon"
+    )
+    return scene, view, style
+
+
 def resolve_scene_prompt(intent: Any) -> str:
     """Compose the scene-generation prompt from a structured scene intent."""
 
-    fields = _require_mapping(intent, "sceneIntent", _SCENE_INTENT_KEYS)
-    if "scene" not in fields:
-        raise IntentError("sceneIntent.scene is required")
+    scene, view, style = _scene_fields(intent)
     return build_scene_prompt(
-        view=str(fields.get("view", "isometric")),
-        style=str(fields.get("style", "clean_old_cartoon")),
-        content=str(fields["scene"]),
+        view=view,
+        style=style,
+        content=scene,
     )
 
 
@@ -60,9 +85,9 @@ def resolve_dog_prompt(intent: Any) -> str:
     """Compose the per-dog entity prompt from a structured dog intent."""
 
     fields = _require_mapping(intent, "dogIntent", _DOG_INTENT_KEYS)
-    if "style" not in fields:
-        raise IntentError("dogIntent.style is required")
-    return get_entity_prompt(str(fields["style"]), str(fields.get("entity", "dog")))
+    style = _require_catalog_key(fields, "style", STYLES, "dogIntent")
+    entity = _require_catalog_key(fields, "entity", ENTITIES, "dogIntent", default="dog")
+    return get_entity_prompt(style, entity)
 
 
 def resolve_magenta_prompt(intent: Any) -> str:
@@ -145,3 +170,18 @@ def derive_band_prompt(side: str, scene_meta: Mapping[str, Any]) -> str:
         )
     prefix = f"Scene: {context}. " if context else ""
     return f"{prefix}{body} {guard}"
+
+
+def resolve_band_prompt(side: str, intent: Any) -> str:
+    """Compose a band-extension prompt from catalog-closed scene intent."""
+
+    scene, _view, _style = _scene_fields(intent)
+    setting = next(
+        setting_key
+        for setting_key, setting_entry in SETTINGS.items()
+        if scene in setting_entry["scenes"]
+    )
+    return derive_band_prompt(
+        side,
+        {"setting": setting, "scene": scene, "scene_prompt": CONTENTS[scene]},
+    )

@@ -67,7 +67,12 @@ export function startRetryFailedDogs(
 
 export function startBandGeneration(
   context: DurableStartContext,
-  inputs: { bandIndex: number },
+  inputs: {
+    side: 'top' | 'bottom';
+    nativeWidth: number;
+    nativeHeight: number;
+    sceneIntent: FtdSceneIntent;
+  },
 ): Promise<DurableStart> {
   return startDurable(context, 'ftd.band_generate', inputs);
 }
@@ -95,7 +100,7 @@ export function startDogVariantUpscale(
 
 export function startMultiSceneGeneration(
   context: DurableStartContext,
-  inputs: { sceneCount: number },
+  inputs: { scenes: string[] },
 ): Promise<DurableStart> {
   return startDurable(context, 'ftd.multi_scene_generate', inputs);
 }

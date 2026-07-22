@@ -63,6 +63,21 @@ def test_action_catalog_lives_only_in_the_pinned_start_operation_extension() -> 
     ]
     for entry, action in zip(catalog, FTD_ACTION_KINDS):
         assert entry == action.discovery_entry()
+    prompt_intents = {
+        entry["kind"]: entry["intentInput"]
+        for entry in catalog
+        if "intentInput" in entry
+    }
+    assert prompt_intents == {
+        "ftd.background_generate": "sceneIntent",
+        "ftd.crop_inpaint": "dogIntent",
+        "ftd.retry_failed_dogs": "dogs[].dogIntent",
+        "ftd.band_generate": "sceneIntent",
+        "ftd.sequence_workflow": "scenes[]",
+        "ftd.multi_scene_generate": "scenes[]",
+        "ftd.magenta_inpaint": "dogIntent",
+        "ftd.dog_regenerate": "dogIntent",
+    }
     # No second catalog: the extension is the only place kinds are enumerated.
     others = [
         (method, path)

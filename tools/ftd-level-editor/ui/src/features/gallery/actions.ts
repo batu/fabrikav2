@@ -3,33 +3,16 @@
 // pinned OpenAPI document (AE12) — no repository knowledge, no extra state.
 
 import type { SessionSnapshotResponse } from '../../api/generated.ts';
+import { type JobsTransportOptions, requestFtd } from '../../api/http.ts';
 
-export interface SessionActionContext {
-  fetchImpl: typeof fetch;
-  launchCredential: string;
-}
+export type SessionActionContext = JobsTransportOptions;
 
 async function post(
   context: SessionActionContext,
   path: string,
   body: unknown,
 ): Promise<SessionSnapshotResponse> {
-  const response = await context.fetchImpl(path, {
-    method: 'POST',
-    credentials: 'same-origin',
-    headers: {
-      'X-FTD-Launch-Credential': context.launchCredential,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  });
-  if (!response.ok) {
-    throw Object.assign(new Error(`session action failed (${response.status})`), {
-      status: response.status,
-      detail: await response.json().catch(() => null),
-    });
-  }
-  return (await response.json()) as SessionSnapshotResponse;
+  return requestFtd<SessionSnapshotResponse>(context, 'POST', path, body);
 }
 
 export function setDogActiveVariant(

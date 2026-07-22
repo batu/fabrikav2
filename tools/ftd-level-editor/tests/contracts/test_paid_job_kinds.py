@@ -31,7 +31,9 @@ GOOD_INPUTS: dict[str, dict] = {
         "hitbox": HITBOX,
         "model": "fal-ai/esrgan",
     },
-    "ftd.background_generate": {"sceneIntent": {"scene": "istanbul_market"}},
+    "ftd.background_generate": {
+        "sceneIntent": {"scene": "turkey_grand_bazaar_corridor"}
+    },
     "ftd.sprite_animate": {
         "dogId": "dog-1",
         "sourceCandidateId": "cand-1",
@@ -48,10 +50,12 @@ GOOD_INPUTS: dict[str, dict] = {
         "side": "top",
         "nativeWidth": 1000,
         "nativeHeight": 1000,
-        "sceneMeta": {"setting": "farm"},
+        "sceneIntent": {"scene": "turkey_grand_bazaar_corridor"},
     },
-    "ftd.sequence_workflow": {"scenes": ["farm_barn"]},
-    "ftd.multi_scene_generate": {"scenes": ["farm_barn", "farm_field"]},
+    "ftd.sequence_workflow": {"scenes": ["turkey_grand_bazaar_corridor"]},
+    "ftd.multi_scene_generate": {
+        "scenes": ["turkey_grand_bazaar_corridor", "turkey_mardin_stone_terrace"]
+    },
     "ftd.magenta_inpaint": {"dogIntent": DOG_INTENT},
     "ftd.dog_regenerate": {"dogId": "dog-1", "hitbox": HITBOX, "dogIntent": {"style": "old_pixel_art"}},
 }

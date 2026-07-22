@@ -56,12 +56,12 @@ function makeContext() {
 }
 
 const STARTS = [
-  [startBackgroundGeneration, 'ftd.background_generate', { sceneIntent: { scene: 's1' } }],
+  [startBackgroundGeneration, 'ftd.background_generate', { sceneIntent: { scene: 'turkey_grand_bazaar_corridor' } }],
   [startCropInpaint, 'ftd.crop_inpaint', { dogId: 'd1', hitbox: { x: 0, y: 0 }, dogIntent: { style: 'clean_old_cartoon' } }],
   [startRetryFailedDogs, 'ftd.retry_failed_dogs', { dogs: [{ dogId: 'd1', hitbox: { x: 1 }, dogIntent: { style: 'clean_old_cartoon' } }] }],
-  [startBandGeneration, 'ftd.band_generate', { bandIndex: 2 }],
-  [startMultiSceneGeneration, 'ftd.multi_scene_generate', { sceneCount: 3 }],
-  [startSequenceWorkflow, 'ftd.sequence_workflow', { sequenceName: 'seq', levelIds: ['l1'] }],
+  [startBandGeneration, 'ftd.band_generate', { side: 'top', nativeWidth: 1000, nativeHeight: 1000, sceneIntent: { scene: 'turkey_grand_bazaar_corridor' } }],
+  [startMultiSceneGeneration, 'ftd.multi_scene_generate', { scenes: ['turkey_grand_bazaar_corridor'] }],
+  [startSequenceWorkflow, 'ftd.sequence_workflow', { scenes: ['turkey_grand_bazaar_corridor'] }],
   [startSpriteAnimation, 'ftd.sprite_animate', { dogId: 'd1', sourceCandidateId: 'c1' }],
   [startMagentaInpaint, 'ftd.magenta_inpaint', { dogIntent: { style: 'clean_old_cartoon' }, hitboxes: [{ x: 1 }] }],
   [startDogRegeneration, 'ftd.dog_regenerate', { dogId: 'd1', hitbox: { x: 1 }, dogIntent: { style: 'clean_old_cartoon' } }],

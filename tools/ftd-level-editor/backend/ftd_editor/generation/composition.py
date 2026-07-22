@@ -15,9 +15,7 @@ from typing import Any, Callable, Mapping
 
 from ..jobs.worker import JobContext, TerminalJobError
 from ..prompts.intents import (
-    IntentError,
-    derive_band_prompt,
-    forbid_client_prompt_keys,
+    resolve_band_prompt,
     resolve_scene_prompt,
 )
 from .paid import (
@@ -29,6 +27,7 @@ from .paid import (
     policy_for,
     register_output_artifact,
     require_input,
+    resolve_prompt_intent,
     retain_if_cancelled,
     submit_and_obtain_output_url,
 )
@@ -85,7 +84,7 @@ def _run_single_scene_action(
         runtime,
         IMAGE_PROVIDER,
         policy,
-        {**dict(spec.inputs), **dict(extra_inputs), "prompt": prompt},
+        {**dict(extra_inputs), "prompt": prompt},
         spec.provider_options,
     )
     validated = fetch_output(context, url, policy)
@@ -110,11 +109,10 @@ def _run_single_scene_action(
 def background_generate_handler(runtime: PaidRuntime) -> Callable[[JobContext], dict[str, Any]]:
     def handler(context: JobContext) -> dict[str, Any]:
         spec = load_spec(context)
-        try:
-            forbid_client_prompt_keys(spec.inputs)
-            prompt = resolve_scene_prompt(require_input(spec, "sceneIntent"))
-        except IntentError as error:
-            raise TerminalJobError("invalid_inputs", str(error)) from error
+        prompt = resolve_prompt_intent(
+            spec.inputs,
+            lambda: resolve_scene_prompt(require_input(spec, "sceneIntent")),
+        )
 
         def apply(mapping: dict[str, Any], reference: dict[str, Any]) -> None:
             mapping["background"] = reference
@@ -134,10 +132,6 @@ def background_generate_handler(runtime: PaidRuntime) -> Callable[[JobContext], 
 def band_generate_handler(runtime: PaidRuntime) -> Callable[[JobContext], dict[str, Any]]:
     def handler(context: JobContext) -> dict[str, Any]:
         spec = load_spec(context)
-        try:
-            forbid_client_prompt_keys(spec.inputs)
-        except IntentError as error:
-            raise TerminalJobError("invalid_inputs", str(error)) from error
         side = str(require_input(spec, "side"))
         if side not in ("top", "bottom"):
             raise TerminalJobError("invalid_inputs", "band side must be 'top' or 'bottom'")
@@ -150,8 +144,10 @@ def band_generate_handler(runtime: PaidRuntime) -> Callable[[JobContext], dict[s
         if band_height == 0:
             # Deterministic no-spend branch: the scene already meets the aspect.
             return {"application": "none", "reason": "target aspect already met"}
-        scene_meta = spec.inputs.get("sceneMeta") or {}
-        prompt = derive_band_prompt(side, scene_meta)
+        prompt = resolve_prompt_intent(
+            spec.inputs,
+            lambda: resolve_band_prompt(side, require_input(spec, "sceneIntent")),
+        )
 
         def apply(mapping: dict[str, Any], reference: dict[str, Any]) -> None:
             bands = mapping.setdefault("bands", {})
@@ -182,6 +178,10 @@ def _multi_scene_handler(
         scenes = require_input(spec, "scenes")
         if not isinstance(scenes, list) or not all(isinstance(s, str) and s for s in scenes):
             raise TerminalJobError("invalid_inputs", "scenes must be a non-empty string list")
+        scene_prompts = resolve_prompt_intent(
+            spec.inputs,
+            lambda: {scene: resolve_scene_prompt({"scene": scene}) for scene in scenes},
+        )
         policy = policy_for("image")
         already_completed = completed_items_from_prior_attempts(
             context, "job.scene_completed", "scene"
@@ -207,7 +207,7 @@ def _multi_scene_handler(
                 runtime,
                 IMAGE_PROVIDER,
                 policy,
-                {**dict(spec.inputs), "scene": scene_key},
+                {"scene": scene_key, "prompt": scene_prompts[scene_key]},
                 spec.provider_options,
             )
             validated = fetch_output(context, url, policy)

@@ -67,9 +67,15 @@ FTD_ACTION_KINDS: tuple[FtdActionKind, ...] = (
     FtdActionKind(
         "ftd.retry_failed_dogs", "retry-dogs-r1", "spend-p1", intent_input="dogs[].dogIntent"
     ),
-    FtdActionKind("ftd.band_generate", "band-r1", "spend-p1"),
-    FtdActionKind("ftd.sequence_workflow", "sequence-r1", "spend-p1"),
-    FtdActionKind("ftd.multi_scene_generate", "multi-scene-r1", "spend-p1"),
+    FtdActionKind(
+        "ftd.band_generate", "band-r1", "spend-p1", intent_input="sceneIntent"
+    ),
+    FtdActionKind(
+        "ftd.sequence_workflow", "sequence-r1", "spend-p1", intent_input="scenes[]"
+    ),
+    FtdActionKind(
+        "ftd.multi_scene_generate", "multi-scene-r1", "spend-p1", intent_input="scenes[]"
+    ),
     # U6: the last two request-owned v1 paid actions (GET+SSE magenta inpaint
     # and POST single-dog regeneration) gain durable kinds of their own.
     FtdActionKind(

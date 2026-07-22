@@ -56,4 +56,19 @@ describe('gallery unpaid stable-ID actions', () => {
       },
     ]);
   });
+
+  it('uses the shared bounded request path for a stalled mutation', async () => {
+    const fetchImpl = (_path, init) =>
+      new Promise((_resolve, reject) => {
+        init.signal.addEventListener('abort', () => reject(new Error('aborted')));
+      });
+    await assert.rejects(
+      () =>
+        updateGalleryMetadata(
+          { fetchImpl, launchCredential: 'cred', timeoutMs: 10 },
+          { sessionId: 's1', revision: 'rev-1' },
+        ),
+      /aborted/,
+    );
+  });
 });
