@@ -15,6 +15,7 @@ from ..sessions.routes import SessionRevisionConflictDetail, SessionSnapshotResp
 from ..sessions.store import SessionNotFound, SessionRevisionConflict, SessionStore
 from .models import ExecutionSpec, JobRecord
 from .store import (
+    ArchivedRequestIdentity,
     AttemptNotAllowed,
     JobNotFound,
     JobStore,
@@ -351,6 +352,11 @@ def build_job_router(service: JobService, dependencies: list[Any]) -> APIRouter:
             ) from error
         except RequestIdentityConflict as error:
             raise identity_conflict(error) from error
+        except ArchivedRequestIdentity as error:
+            raise HTTPException(
+                status_code=409,
+                detail="request identity is preserved in the inert legacy archive",
+            ) from error
         except SessionRevisionConflict as error:
             raise HTTPException(
                 status_code=409,
