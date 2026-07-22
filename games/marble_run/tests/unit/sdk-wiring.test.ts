@@ -184,6 +184,35 @@ describe('createGameSdk composition root (web/dev)', () => {
   });
 });
 
+describe('GameSdk ad-provider teardown wiring', () => {
+  it('invokes the ad-owner disposal on session teardown (even if pagehide repeats)', () => {
+    const disposeAds = vi.fn(async () => {});
+    const ports: GameSdkPorts = {
+      analytics: createAnalytics({ env: 'development', sessionId: 's', sinks: [] }),
+      ads: makeFakeAds().provider,
+      iap: new IapService<MarbleGrant>({
+        isNativePlatform: () => false,
+        platform: () => 'web',
+        apiKey: () => 'test_marble_run_sandbox',
+        catalogProducts: () => marbleCatalogProducts,
+        provider: () => new FakePurchaseProvider({ products: fakeStoreProductsFromCatalog() }),
+        operationTimeoutMs: () => 1_000,
+      }),
+      attribution: new AttributionService(createAttributionProvider('web')),
+      remoteConfig: createRemoteConfigService(marbleRemoteConfigSchema),
+      economy: makeEconomy(),
+      environments: resolveSdkEnvironments('development'),
+      disposeAds,
+    };
+    const sdk = new GameSdk(ports, false);
+
+    sdk.endSession();
+    sdk.endSession(); // pagehide fired twice; dispose is idempotent downstream
+
+    expect(disposeAds).toHaveBeenCalledTimes(2);
+  });
+});
+
 describe('GameSdk analytics wiring', () => {
   it('emits the canonical level + economy events tagged env=development', async () => {
     const { sdk, events } = await makeHarness();

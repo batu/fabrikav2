@@ -17,7 +17,7 @@ import {
   type SdkEnvironments,
 } from '@fabrikav2/sdk';
 import {
-  createAdProvider,
+  createOwnedAdProvider,
   readAppLovinConfigForPlatform,
   shouldShowInterstitial,
   type AdProvider,
@@ -80,6 +80,8 @@ export interface GameSdkPorts {
   readonly environments: SdkEnvironments;
   /** Injectable clock (tests); defaults to Date.now. */
   readonly now?: () => number;
+  /** Tears down the ad provider (AdMob listeners/timers) on session teardown. */
+  readonly disposeAds?: () => Promise<void>;
 }
 
 function priceUsd(product: CatalogProduct<MarbleGrant>): number {
@@ -289,6 +291,9 @@ export class GameSdk {
   endSession(durationMs?: number): void {
     this.ports.analytics.sessionEnd(durationMs === undefined ? undefined : { duration_ms: durationMs });
     void this.ports.analytics.flush();
+    // Tear down the ad provider's native listeners/timers. Safe to call more
+    // than once (dispose is idempotent) even if pagehide fires repeatedly.
+    void this.ports.disposeAds?.();
   }
 }
 
@@ -306,13 +311,19 @@ export function createGameSdk(deps: {
    *  injects a RingBufferSink here so `drainEvents()` can witness the trace;
    *  empty in production. */
   analyticsSinks?: readonly AnalyticsSink[];
+  /** App-foreground seam (production supplies `@capacitor/app`'s resume) so
+   *  AdMob re-arms a stale interstitial on resume; omitted on web/CI. */
+  addAppResumeListener?: (onResume: () => void) => Promise<{ remove: () => Promise<void> }>;
 }): GameSdk {
   const buildEnv: SdkBuildEnv = deps.buildEnv ?? (import.meta.env.PROD ? 'production' : 'development');
   const environments = resolveSdkEnvironments(buildEnv);
   const platform = Capacitor.getPlatform();
 
   const appLovinConfig = readAppLovinConfigForPlatform(platform === 'ios' ? 'ios' : 'android');
-  const ads = createAdProvider(platform, appLovinConfig);
+  const adsOwner = createOwnedAdProvider(platform, appLovinConfig, {
+    addAppResumeListener: deps.addAppResumeListener,
+  });
+  const ads = adsOwner.provider;
 
   const analytics = createAnalytics({
     env: environments.analytics,
@@ -336,7 +347,16 @@ export function createGameSdk(deps: {
   const remoteConfig = createRemoteConfigService(marbleRemoteConfigSchema);
 
   return new GameSdk(
-    { analytics, ads, iap, attribution, remoteConfig, economy: deps.economy, environments },
+    {
+      analytics,
+      ads,
+      iap,
+      attribution,
+      remoteConfig,
+      economy: deps.economy,
+      environments,
+      disposeAds: adsOwner.dispose,
+    },
     deps.firstOpen,
   );
 }

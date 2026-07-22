@@ -6,6 +6,7 @@
  */
 import '@fabrikav2/ui/ui.css';
 import '../design/tokens.css';
+import { App as CapacitorApp } from '@capacitor/app';
 import { assignWindowBindings, maybeRunInsituTour } from '@fabrikav2/testkit/testing';
 import { createRingBufferSink } from '@fabrikav2/sdk/analytics';
 import { App, isHarnessEnabled } from './shell/App';
@@ -40,6 +41,11 @@ const sdk = createGameSdk({
   economy,
   firstOpen: !saveState.hasProgress,
   analyticsSinks: harnessSink ? [harnessSink] : undefined,
+  // Bridge @capacitor/app's foreground `resume` to the ad provider so AdMob
+  // re-arms a stale interstitial when the app comes back (native only; a no-op
+  // on web/CI). Only the `resume` event drives re-arm — never a show.
+  addAppResumeListener: (onResume) =>
+    CapacitorApp.addListener('resume', () => onResume()),
 });
 void sdk.init();
 

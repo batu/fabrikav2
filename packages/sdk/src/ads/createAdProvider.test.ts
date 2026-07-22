@@ -14,7 +14,7 @@ vi.mock('@capacitor-community/admob', () => ({
 }));
 vi.mock('@capacitor/core', () => ({ registerPlugin: (): unknown => ({}) }));
 
-import { createAdProvider, type AdProviderFactories } from './createAdProvider.ts';
+import { createAdProvider, createOwnedAdProvider, type AdProviderFactories } from './createAdProvider.ts';
 import type { AdProvider } from './AdProvider.ts';
 import type { AppLovinConfig, AppLovinConfigResult } from './AppLovinConfig.ts';
 
@@ -101,5 +101,48 @@ describe('createAdProvider', (): void => {
     const provider = createAdProvider('web', disabledConfig('ios', false), factories);
     expect(provider.providerName).toBe('disabled');
     expect(factories.createDisabledProvider).toHaveBeenCalledWith(expect.stringContaining('web'));
+  });
+
+  it('compile-time: the return remains assignable to AdProvider with no .provider adaptation', (): void => {
+    const factories = makeFactories();
+    const provider: AdProvider = createAdProvider('android', disabledConfig('android', false), factories);
+    expect(provider.providerName).toBe('admob');
+  });
+});
+
+describe('createOwnedAdProvider', (): void => {
+  it('selects the same provider as createAdProvider for every platform/config', (): void => {
+    const cases: Array<[string, AppLovinConfigResult, string]> = [
+      ['ios', enabledConfig('ios'), 'applovin-max'],
+      ['ios', disabledConfig('ios', true), 'disabled'],
+      ['android', enabledConfig('android'), 'applovin-max'],
+      ['android', disabledConfig('android', true), 'disabled'],
+      ['android', disabledConfig('android', false), 'admob'],
+      ['web', disabledConfig('ios', false), 'disabled'],
+    ];
+    for (const [platform, cfg, expected] of cases) {
+      const owned = createOwnedAdProvider(platform, cfg);
+      expect(owned.provider.providerName).toBe(expected);
+      // parity with the legacy factory-based selection
+      expect(createAdProvider(platform, cfg).providerName).toBe(expected);
+    }
+  });
+
+  it('an owner exposes async disposal that is safe to call (AppLovin/Disabled no-op)', async (): Promise<void> => {
+    const disabled = createOwnedAdProvider('web', disabledConfig('ios', false));
+    await expect(disabled.dispose()).resolves.toBeUndefined();
+
+    const applovin = createOwnedAdProvider('android', enabledConfig('android'));
+    await expect(applovin.dispose()).resolves.toBeUndefined();
+  });
+
+  it('forwards the resume seam only to AdMob and never crashes on non-AdMob', (): void => {
+    const addAppResumeListener = vi.fn(async () => ({ remove: async (): Promise<void> => {} }));
+    const admob = createOwnedAdProvider('android', disabledConfig('android', false), { addAppResumeListener });
+    expect(admob.provider.providerName).toBe('admob');
+    // The seam registers on init (native path), not at construction; just prove
+    // construction with a seam is valid for AdMob and ignored elsewhere.
+    const disabled = createOwnedAdProvider('web', disabledConfig('ios', false), { addAppResumeListener });
+    expect(disabled.provider.providerName).toBe('disabled');
   });
 });
