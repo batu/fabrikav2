@@ -23,12 +23,15 @@ describe("device parity wave 8 CSS pins", () => {
     expect(title![0]).toContain("text-align: center");
   });
 
-  it("makes only the menu settings backdrop opaque black", () => {
+  it("makes only the menu settings backdrop an opaque purple bubble field", () => {
     const css = shellArtCss();
     const menu = css.match(/\.fab-ui\.fab-modal-backdrop\.marble-settings-modal--menu \{[^}]*\}/);
     expect(menu).not.toBeNull();
-    expect(menu![0]).toContain("background: #000");
-    expect(css).not.toMatch(/marble-settings-modal--ingame[^}]*background:\s*#000/);
+    expect(menu![0]).toContain("background-color: #3b3247");
+    expect(menu![0]).toContain("url('/v1/ui/marble-shadow-tile.png')");
+    expect(menu![0]).toContain("background-repeat: no-repeat, repeat");
+    expect(menu![0]).not.toContain("background: #000");
+    expect(css).not.toMatch(/marble-settings-modal--ingame[^}]*marble-shadow-tile/);
   });
 
   it("shrinks the home preview budget on short phone viewports", () => {

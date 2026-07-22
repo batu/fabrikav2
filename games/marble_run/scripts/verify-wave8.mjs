@@ -3,11 +3,12 @@
 /* global process, getComputedStyle */
 import { spawn } from "node:child_process";
 import { mkdirSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { chromium } from "@playwright/test";
 
 const PORT = Number(process.env.PREVIEW_PORT ?? 4173);
-const EVIDENCE_DIR = join(process.cwd(), "evidence", "mrv2-15");
+const EVIDENCE_DIR = join(process.env.TWF_OUT_DIR ?? tmpdir(), "mrv2-17-wave8");
 let failures = 0;
 
 function fail(state, message) {
@@ -91,11 +92,14 @@ async function checkSettings(browser, state) {
       const rr = ribbon.getBoundingClientRect();
       const tr = title.getBoundingClientRect();
       const background = getComputedStyle(root).backgroundColor;
-      const alphaMatch = background.match(/^rgba?\([^)]*(?:,\s*([\d.]+))?\)$/);
+      const channels = background.match(/[\d.]+/g)?.map(Number) ?? [];
       return {
         titleDelta: Math.abs((tr.left + tr.width / 2) - (rr.left + rr.width / 2)),
         background,
-        alpha: background.startsWith("rgb(") ? 1 : Number(alphaMatch?.[1] ?? 0),
+        red: channels[0] ?? 0,
+        green: channels[1] ?? 0,
+        blue: channels[2] ?? 0,
+        alpha: channels.length === 3 ? 1 : (channels[3] ?? 0),
         menu: root.classList.contains("marble-settings-modal--menu"),
         ingame: root.classList.contains("marble-settings-modal--ingame"),
       };
@@ -109,7 +113,7 @@ async function checkSettings(browser, state) {
     if (state === "settings") {
       if (result.menu && !result.ingame) ok(state, "menu variant hook present");
       else fail(state, `wrong variant hooks (menu=${result.menu}, ingame=${result.ingame})`);
-      if (result.alpha === 1 && result.background === "rgb(0, 0, 0)") ok(state, "backdrop is opaque black");
+      if (result.alpha === 1 && result.blue > result.red && result.red > 24) ok(state, `backdrop is opaque purple (${result.background})`);
       else fail(state, `backdrop is ${result.background} (alpha ${result.alpha})`);
     } else if (result.ingame && !result.menu && result.alpha < 1) {
       ok(state, `in-game backdrop remains dim (${result.background})`);
