@@ -4,9 +4,8 @@ import { whenIconsDecoded } from './iconPreload';
 const COVER_ID = 'scene-transition-cover';
 const COVER_ASSETS_READY_CAP_MS = 1500;
 const MIN_VISIBLE_MS = 650;
-const PLAY_ENTRY_REVEAL_MS = 900;
-const PLAY_ENTRY_CLEANUP_MS = 220;
-const PLAY_ENTRY_BLACK_FADE_IN_MS = 260;
+const PLAY_ENTRY_REVEAL_MS = 520;
+const PLAY_ENTRY_CLEANUP_MS = 40;
 const PLAY_ENTRY_HUD_ENTER_MS = 680;
 let shownAt = performance.now();
 let transitionGeneration = 0;
@@ -109,9 +108,9 @@ export function showSceneTransitionCover(): void {
   cover.replaceChildren();
 }
 
-/** Play-entry transition: clone the live #home-shell into the cover, then let
- *  CSS fly each home piece off-screen (title up, map up, rails out, nav + play
- *  down) while the veil crossfades to the freshly rendered game behind it. */
+/** Play-entry transition: freeze the live home shell in one overlay and fade it
+ *  as a single frame after the game scene has rendered. Live v1 never morphs or
+ *  independently moves the title, board, saga nodes, or LEVEL button. */
 export function showPlayEntryTransitionCover(): void {
   const homeShell = document.getElementById('home-shell');
   if (homeShell === null) {
@@ -134,10 +133,7 @@ export function showPlayEntryTransitionCover(): void {
       source.removeAttribute('src');
     }
   });
-  cover.innerHTML = `
-    <div class="play-entry-home-backdrop"></div>
-    <div class="play-entry-transition-veil"></div>
-  `;
+  cover.innerHTML = '<div class="play-entry-home-backdrop"></div>';
   // Phase-sync the backdrop's motif drift to the live home pattern so it doesn't
   // jump when this backdrop paints over the real home. The home motif layer
   // drifts via the homePawDrift CSS animation, which is compositor-driven —
@@ -194,7 +190,7 @@ function hidePlayEntryTransitionCover(cover: HTMLElement, generation: string = c
   if (!isCurrentTransition(cover, generation, 'play-entry')) return;
   const reduceMotion = prefersReducedMotion();
   if (cover.dataset.transitionState === 'arming') {
-    window.setTimeout(() => hidePlayEntryTransitionCover(cover, generation), reduceMotion ? 1 : PLAY_ENTRY_BLACK_FADE_IN_MS);
+    window.setTimeout(() => hidePlayEntryTransitionCover(cover, generation), 1);
     return;
   }
   if (cover.dataset.transitionState === 'revealing' || cover.dataset.transitionState === 'clearing') return;

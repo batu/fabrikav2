@@ -45,15 +45,15 @@ test("win Next click closes the result and starts level 2", async ({ page }) => 
   await page.goto("/?insituTour=win");
   await page.waitForFunction(
     () => (window as unknown as {
-      __FIND_DOG_HARNESS__?: { snapshot: () => { levelCompleteOverlayVisible: boolean } };
-    }).__FIND_DOG_HARNESS__?.snapshot().levelCompleteOverlayVisible === true,
+      __MARBLE_RUN_HARNESS__?: { snapshot: () => { levelCompleteOverlayVisible: boolean } };
+    }).__MARBLE_RUN_HARNESS__?.snapshot().levelCompleteOverlayVisible === true,
     { timeout: 30000 },
   );
 
   await page.evaluate(() => {
     (window as unknown as {
-      __FIND_DOG_HARNESS__: { setSettings: (settings: { ratePromptEnabled: boolean }) => void };
-    }).__FIND_DOG_HARNESS__.setSettings({ ratePromptEnabled: false });
+      __MARBLE_RUN_HARNESS__: { setSettings: (settings: { ratePromptEnabled: boolean }) => void };
+    }).__MARBLE_RUN_HARNESS__.setSettings({ ratePromptEnabled: false });
   });
 
   const next = page.locator('[data-fab-action="result-next"]');
@@ -73,10 +73,10 @@ test("win Next click closes the result and starts level 2", async ({ page }) => 
   await expect(page.locator('#level-complete-overlay')).toHaveCount(0);
   await page.waitForFunction(() => {
     const bindings = window as unknown as {
-      __FIND_DOG_HARNESS__?: { snapshot: () => { activeScene: string; status?: string } };
+      __MARBLE_RUN_HARNESS__?: { snapshot: () => { activeScene: string; status?: string } };
       __FIND_DOG_STATE__?: { currentLevelIndex: number };
     };
-    const snapshot = bindings.__FIND_DOG_HARNESS__?.snapshot();
+    const snapshot = bindings.__MARBLE_RUN_HARNESS__?.snapshot();
     return snapshot?.activeScene === 'GameScene'
       && snapshot.status === 'playing'
       && bindings.__FIND_DOG_STATE__?.currentLevelIndex === 1;

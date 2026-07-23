@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
-/// <reference path="../../../packages/sdk/src/ads/capacitor-admob-shims.d.ts" />
-/// <reference path="../../../packages/sdk/src/haptics/capacitor-shims.d.ts" />
+import '../../../packages/sdk/src/ads/capacitor-admob-shims.d.ts';
+import '../../../packages/sdk/src/haptics/capacitor-shims.d.ts';
 
 interface ImportMetaEnv {
   readonly VITE_ENABLE_TEST_HARNESS?: string;

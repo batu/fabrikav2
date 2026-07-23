@@ -19,6 +19,7 @@
     <link rel="preload" as="image" href="/ui/home/node-current-candy.png" />
     <link rel="preload" as="image" href="/ui/home/level-node-locked-runtime.png" />
     <link rel="preload" as="image" href="/ui/home/level-node-locked-bones-runtime.png" />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/FredokaOne.woff2" crossorigin />
     <style>
       * {
         box-sizing: border-box;
@@ -68,24 +69,11 @@
         background: linear-gradient(180deg, #9b7bcd 0%, #6b568e 100%);
         opacity: 1;
       }
-      @keyframes bootSpin { to { transform: rotate(360deg); } }
-      .scene-transition-cover-avatar {
-        animation: bootSpin 1.6s linear infinite;
-        width: clamp(140px, 38vw, 200px);
-        height: auto;
-        display: block;
-        object-fit: contain;
-        filter:
-          drop-shadow(0 18px 32px rgba(128, 80, 27, 0.22))
-          drop-shadow(0 6px 14px rgba(128, 80, 27, 0.16));
-      }
     </style>
   </head>
   <body>
     <div id="game-container">
-      <div id="scene-transition-cover" aria-hidden="true">
-        <img class="scene-transition-cover-avatar" src="/ui/loading-icon.png" alt="" />
-      </div>
+      <div id="scene-transition-cover" aria-hidden="true"></div>
       <div id="hud-overlay" class="marble-ui"></div>
     </div>
     <div id="modal-root" class="marble-ui"></div>

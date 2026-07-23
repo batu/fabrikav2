@@ -186,6 +186,8 @@ if (typeof window !== 'undefined') {
       releaseTestBindings = assignWindowBindings(window as unknown as Record<string, unknown>, {
         __FIND_DOG_GAME__: game,
         __FIND_DOG_STATE__: gameState,
+        __MARBLE_RUN_HARNESS__: harness,
+        // One-release compatibility alias for existing device drivers.
         __FIND_DOG_HARNESS__: harness,
         __FIND_DOG_AMBIENT__: ambient.__ambientDebugSnapshot,
       });

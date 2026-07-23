@@ -26,6 +26,7 @@ describe('mountSettings variants', () => {
     );
     expect(keys).toEqual(['music', 'sfx', 'haptics']);
     expect(actionLabels(root)).toEqual(['settings-close']);
+    expect(root.querySelector('[data-fab-action="settings-close"]')?.textContent).toBe('CLOSE');
     expect(root.querySelector('.fab-modal-backdrop')?.classList).toContain('marble-settings-modal--menu');
   });
 

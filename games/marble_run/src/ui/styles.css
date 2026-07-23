@@ -9,7 +9,8 @@
   font-family: 'FredokaOne';
   src: url('/fonts/FredokaOne.woff2') format('woff2');
   font-weight: 400;
-  font-display: swap;
+  /* Avoid a one-frame WKWebView fallback during app boot/device capture. */
+  font-display: block;
 }
 
 /* Design-token bridge. These --fab-* tokens are part of marble_run's design
@@ -616,16 +617,19 @@
   display: grid;
   place-items: center;
   pointer-events: auto;
-  background: linear-gradient(180deg, #fff7dc 0%, #ffdba5 48%, #f7b46c 100%);
+  background:
+    radial-gradient(118% 72% at 50% 7%, rgba(210, 190, 240, 0.32) 0%, transparent 52%),
+    radial-gradient(145% 118% at 50% 116%, rgba(40, 20, 60, 0.34) 0%, transparent 56%),
+    linear-gradient(180deg, #9b7bcd 0%, #6b568e 100%);
   opacity: 1;
-  transition: opacity 180ms ease;
+  transition: opacity 220ms ease;
 }
 
 #scene-transition-cover.scene-transition-cover--play-entry {
   display: block;
   overflow: hidden;
   background: transparent;
-  transition: opacity 180ms ease;
+  transition: opacity 220ms ease;
 }
 
 #scene-transition-cover.scene-transition-cover--play-entry .play-entry-home-backdrop {
@@ -639,7 +643,7 @@
     radial-gradient(145% 118% at 50% 116%, rgba(40, 20, 60, 0.34) 0%, transparent 56%),
     linear-gradient(180deg, #9b7bcd 0%, #6b568e 100%);
   opacity: 1;
-  transition: opacity 900ms cubic-bezier(0.33, 0, 0.67, 1);
+  transition: opacity 520ms ease-in-out;
 }
 
 /* Replicate the home motif layer (#hud-overlay.home-mode::before) so the
@@ -662,28 +666,6 @@
   animation-delay: var(--home-paw-delay, 0ms);
 }
 
-#scene-transition-cover.scene-transition-cover--play-entry .play-entry-transition-veil {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background:
-    radial-gradient(circle at 50% 42%, rgba(20, 18, 15, 0.88) 0 30%, rgba(5, 4, 3, 0.98) 72%, #050403 100%),
-    #050403;
-  opacity: 0;
-  transition: opacity 420ms cubic-bezier(0.33, 0, 0.67, 1);
-}
-
-#scene-transition-cover.scene-transition-cover--play-entry[data-transition-state="holding"] .play-entry-transition-veil {
-  opacity: 1;
-}
-
-#scene-transition-cover.scene-transition-cover--play-entry[data-transition-state="revealing"] .play-entry-transition-veil,
-#scene-transition-cover.scene-transition-cover--play-entry[data-transition-state="clearing"] .play-entry-transition-veil {
-  opacity: 0;
-  transition-duration: 900ms;
-  transition-timing-function: cubic-bezier(0.33, 0, 0.67, 1);
-}
-
 #scene-transition-cover.scene-transition-cover--play-entry[data-transition-state="revealing"] .play-entry-home-backdrop,
 #scene-transition-cover.scene-transition-cover--play-entry[data-transition-state="clearing"] .play-entry-home-backdrop {
   opacity: 0;
@@ -700,76 +682,12 @@
   z-index: 2;
   pointer-events: none;
   transform-origin: 50% 50%;
-}
-
-.play-entry-home-shell .home-title-panel,
-.play-entry-home-shell .home-map-stage,
-.play-entry-home-shell .home-rail,
-.play-entry-home-shell .home-play-now-btn,
-.play-entry-home-shell .home-nav-bar {
-  will-change: transform, opacity;
-  transition:
-    transform 900ms cubic-bezier(0.33, 0, 0.67, 1),
-    opacity 180ms ease;
-}
-
-#scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-title-panel {
-  transform: translateY(calc(-150% - 110px)) scale(0.96);
   opacity: 1;
+  transition: opacity 520ms ease-in-out;
 }
 
-#scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-map-stage {
-  transform: translateY(-78vh) scale(0.94);
-  opacity: 1;
-}
-
-#scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-rail-left {
-  transform: translate(-62vw, -22vh) rotate(-7deg);
-  opacity: 1;
-}
-
-#scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-rail-right {
-  transform: translate(62vw, -22vh) rotate(7deg);
-  opacity: 1;
-}
-
-#scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-nav-bar {
-  transform: translateY(calc(125% + env(safe-area-inset-bottom, 0px) + 72px));
-  opacity: 1;
-}
-
-#scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-play-now-btn {
-  transform: translateY(60vh) scale(0.96);
-  opacity: 1;
-}
-
-#scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-title-panel {
-  transform: translateY(calc(-150% - 110px)) scale(0.96);
-  opacity: 0;
-}
-
-#scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-map-stage {
-  transform: translateY(-78vh) scale(0.94);
-  opacity: 0;
-}
-
-#scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-rail-left {
-  transform: translate(-62vw, -22vh) rotate(-7deg);
-  opacity: 0;
-}
-
-#scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-rail-right {
-  transform: translate(62vw, -22vh) rotate(7deg);
-  opacity: 0;
-}
-
-#scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-nav-bar {
-  transform: translateY(calc(125% + env(safe-area-inset-bottom, 0px) + 72px));
-  opacity: 0;
-}
-
-#scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-play-now-btn {
-  transform: translateY(60vh) scale(0.96);
+#scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell,
+#scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell {
   opacity: 0;
 }
 
@@ -782,36 +700,12 @@
     transition: opacity 1ms ease;
   }
 
-  #scene-transition-cover.scene-transition-cover--play-entry .play-entry-transition-veil {
-    transition: opacity 1ms ease;
-  }
-
   #scene-transition-cover.scene-transition-cover--play-entry .play-entry-home-backdrop {
     transition: opacity 1ms ease;
   }
 
-  .play-entry-home-shell .home-title-panel,
-  .play-entry-home-shell .home-map-stage,
-  .play-entry-home-shell .home-rail,
-  .play-entry-home-shell .home-play-now-btn,
-  .play-entry-home-shell .home-nav-bar {
+  .play-entry-home-shell {
     transition: opacity 1ms ease;
-  }
-
-  #scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-title-panel,
-  #scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-title-panel,
-  #scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-map-stage,
-  #scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-map-stage,
-  #scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-rail-left,
-  #scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-rail-left,
-  #scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-rail-right,
-  #scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-rail-right,
-  #scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-nav-bar,
-  #scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-nav-bar,
-  #scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-play-now-btn,
-  #scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-play-now-btn {
-    transform: none;
-    opacity: 0;
   }
 }
 

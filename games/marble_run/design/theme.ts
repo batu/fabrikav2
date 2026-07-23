@@ -190,13 +190,16 @@ body {
   top: 46%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 62%;
+  width: 72%;
   text-align: center;
   font-family: 'FredokaOne', var(--fab-font-display), sans-serif;
-  font-size: clamp(20px, 6.6vw, 32px);
+  font-size: clamp(30px, 9.5vw, 42px);
   line-height: 1;
   color: #6a3016;
-  text-shadow: 0 2px 0 rgba(255, 240, 205, 0.6);
+  text-shadow:
+    0 2px 0 rgba(255, 240, 205, 0.52),
+    0 4px 0 #3d1b33,
+    0 7px 9px rgba(40, 20, 60, 0.38);
   pointer-events: none;
   white-space: nowrap;
 }
@@ -246,6 +249,12 @@ body {
 }
 @media (max-height: 800px) {
   .marble-home-board-preview-slot { max-height: 115px; }
+}
+@media (min-height: 801px) and (max-height: 900px) {
+  /* The iPhone 390x844 budget varies with WKWebView safe-area reporting.
+     Reserve clearance for the current gold sun above the fixed LEVEL action
+     instead of letting the preview spacer consume the extra inset. */
+  .marble-home-board-preview-slot { max-height: min(16vh, 140px); }
 }
 
 /* MRV2-9 U3: force the saga into a single tight centered column. The kit centers
@@ -401,9 +410,10 @@ body {
   flex-direction: column;
   /* MRV2-25 item 2 (ref pause.png): v2's settings/pause card rendered ~80% of
      screen width on the Pixel while v1 fills ~87%. Widen to match v1's ratio. */
-  width: min(92vw, 420px);
-  min-width: min(92vw, 420px);
-  max-width: min(92vw, 420px);
+  width: min(88vw, 420px);
+  min-width: min(88vw, 420px);
+  max-width: min(88vw, 420px);
+  padding: 64px 30px 38px;
 }
 .marble-ui .marble-settings-card > .fab-modal-ribbon {
   align-self: center;
@@ -425,21 +435,14 @@ body {
   color: #fff;
   text-shadow: 0 2px 0 rgba(120, 60, 20, 0.55);
 }
-/* MRV2-17: menu settings replaces the home scene with its own fully opaque,
-   dark-purple bubble field. The solid base prevents home chrome from reading
-   through; the low-contrast tile and dark scrim reproduce refs/settings.png.
-   The in-game variant intentionally retains the shared translucent scrim. */
-/* MRV2-25 item 3: on the Pixel this field rendered ~(31,26,36) near-black while
-   v1 is a clear ~(64,51,82) purple — the #3b3247 base darkens ~0.5x through
-   device compositing. Pre-brighten the base + gradient so the device shade lands
-   on v1's purple; the transparent bubble tile still supplies faint texture. */
+/* Menu settings is a modal over the live home, not a replacement page. The
+   purple scrim dims the existing bubble field and leaves the banner/saga faintly
+   visible exactly like v1. */
 .fab-ui.fab-modal-backdrop.marble-settings-modal--menu {
-  background-color: #9577bf;
-  background-image:
-    linear-gradient(rgba(149, 119, 191, 0.82), rgba(149, 119, 191, 0.82)),
-    url('/v1/ui/marble-shadow-tile.png');
-  background-repeat: no-repeat, repeat;
-  background-size: auto, 320px 320px;
+  background: transparent;
+}
+.fab-ui.fab-modal-backdrop.marble-settings-modal--menu .fab-modal-scrim {
+  background: rgba(62, 43, 84, 0.72);
 }
 /* MRV2-25 item 2 (ref pause.png): v1 FULLY dims the gameplay HUD beneath the
    pause card — hearts/gear/hint are barely visible and the field reads as a flat
@@ -476,6 +479,7 @@ body {
   font-family: var(--fab-font-display);
 }
 .marble-ui .fab-toggle-row-label { color: #4a2f6d; }
+.marble-ui .fab-toggle-slider::before { background: #fff4dc; }
 .marble-ui .fab-toggle-input:checked + .fab-toggle-slider {
   background: linear-gradient(180deg, #55f464, #10b535);
 }
@@ -489,9 +493,13 @@ body {
   width: min(72%, 260px);
   min-height: 64px;
   margin-inline: auto;
-}
-.marble-settings-modal--ingame .marble-settings-action {
   text-transform: uppercase;
+  text-shadow:
+    0 2px 0 rgba(20, 90, 30, 0.58),
+    0 4px 0 rgba(20, 50, 80, 0.58);
+}
+.marble-settings-modal--menu .fab-modal-actions {
+  padding-bottom: 4px;
 }
 
 /* ---- Result cards (win/lose) ---- */

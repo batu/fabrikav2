@@ -98,7 +98,7 @@ export function mountSettings(opts: MountSettingsOptions): UiHandle {
       ]
     : [
         {
-          label: 'Close',
+          label: 'CLOSE',
           dataAction: 'settings-close',
           className: 'marble-settings-action',
           spriteImage: assetUrls.buttonGreen,

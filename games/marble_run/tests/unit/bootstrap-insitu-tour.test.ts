@@ -134,6 +134,8 @@ describe("marble_run bootstrap insitu tour wiring", () => {
 
     await vi.waitFor(() => {
       expect(assignWindowBindings).toHaveBeenCalledWith(expect.any(Object), expect.objectContaining({
+        __MARBLE_RUN_HARNESS__: harness,
+        // Compatibility alias remains for one release.
         __FIND_DOG_HARNESS__: harness,
       }));
       expect(maybeRunInsituTour).toHaveBeenCalledWith(harness, {

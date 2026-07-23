@@ -24,17 +24,15 @@ describe("device parity wave 8 CSS pins", () => {
     expect(title![0]).toContain("text-align: center");
   });
 
-  it("makes only the menu settings backdrop an opaque purple bubble field", () => {
+  it("keeps the live home visible through a purple menu-settings scrim", () => {
     const css = shellArtCss();
     const menu = css.match(/\.fab-ui\.fab-modal-backdrop\.marble-settings-modal--menu \{[^}]*\}/);
     expect(menu).not.toBeNull();
-    // MRV2-25 item 3: base pre-brightened so the device composite stops reading
-    // near-black and lands on v1's ~(64,51,82) purple.
-    expect(menu![0]).toContain("background-color: #9577bf");
-    expect(menu![0]).toContain("url('/v1/ui/marble-shadow-tile.png')");
-    expect(menu![0]).toContain("background-repeat: no-repeat, repeat");
+    expect(menu![0]).toContain("background: transparent");
     expect(menu![0]).not.toContain("background: #000");
-    expect(css).not.toMatch(/marble-settings-modal--ingame[^}]*marble-shadow-tile/);
+    const scrim = css.match(/\.fab-ui\.fab-modal-backdrop\.marble-settings-modal--menu \.fab-modal-scrim \{[^}]*\}/);
+    expect(scrim).not.toBeNull();
+    expect(scrim![0]).toContain("background: rgba(62, 43, 84, 0.72)");
   });
 
   it("matches the v1 in-game settings shade and all-caps actions", () => {
@@ -45,7 +43,7 @@ describe("device parity wave 8 CSS pins", () => {
     // the composite matches v1's ~(64,51,82) pause shade on device.
     expect(ingame![0]).toContain("background: rgba(162, 129, 207, 0.93)");
 
-    const actions = css.match(/\.marble-settings-modal--ingame \.marble-settings-action \{[^}]*\}/);
+    const actions = css.match(/\.marble-ui \.marble-settings-action \{[^}]*\}/);
     expect(actions).not.toBeNull();
     expect(actions![0]).toContain("text-transform: uppercase");
   });
@@ -53,6 +51,23 @@ describe("device parity wave 8 CSS pins", () => {
   it("shrinks the home preview budget on short phone viewports", () => {
     const css = shellArtCss();
     expect(css).toMatch(/@media \(max-height: 800px\)[^{]*\{[\s\S]*?\.marble-home-board-preview-slot \{[^}]*max-height: 115px/);
+    expect(css).toMatch(/@media \(min-height: 801px\) and \(max-height: 900px\)[^{]*\{[\s\S]*?max-height: min\(16vh, 140px\)/);
+  });
+
+  it("uses the v1-sized banner title with a dark drop shadow", () => {
+    const css = shellArtCss();
+    const title = css.match(/\.marble-home-banner-title \{[^}]*\}/);
+    expect(title).not.toBeNull();
+    expect(title![0]).toContain("font-size: clamp(30px, 9.5vw, 42px)");
+    expect(title![0]).toContain("0 4px 0 #3d1b33");
+  });
+
+  it("uses cream toggle knobs and keeps CLOSE padded inside the card", () => {
+    const css = shellArtCss();
+    expect(css).toMatch(/\.marble-ui \.fab-toggle-slider::before \{ background: #fff4dc; \}/);
+    const card = css.match(/\.marble-ui \.marble-settings-card\.fab-modal-card--image \{[^}]*\}/);
+    expect(card?.[0]).toContain("padding: 64px 30px 38px");
+    expect(css).toMatch(/\.marble-settings-modal--menu \.fab-modal-actions \{[^}]*padding-bottom: 4px/);
   });
 
   it("keeps the home saga dense and prominent", () => {
