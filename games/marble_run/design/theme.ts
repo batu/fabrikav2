@@ -548,22 +548,22 @@ body {
   text-shadow: 0 2px 0 rgba(20, 90, 30, 0.5);
 }
 /* Standalone Next lives on the backdrop, spaced well below the card (ref). */
-/* MRV2-21 R3 (card item 3, ref v1 win-next-button ~160px): v1's Next is a
-   COMPACT pill, not a full-width bar. The kit .fab-btn sets width:100%, so
-   without a local constraint the standalone Next inherited the full 390px
-   backdrop width. Pin an explicit compact width matching v1's geometry. */
-/* MRV2-21 R1 (card item 1): a fixed width also PINS the button geometry through
-   the level transition — with width:100% the button re-flowed (morphed wide) as
-   the backdrop flex changed on dismiss. A fixed px width cannot morph. */
+/* MRV2-21 R3 (card item 3, ref v1 win-next-button width:42%): v1's Next is a
+   COMPACT pill, not a full-width bar. Pin its width and horizontal placement to
+   the same backdrop-relative geometry so dismissing flex layout cannot morph it. */
 .marble-ui .marble-win-next-standalone {
-  position: relative;
+  position: absolute;
+  left: 29%;
+  /* v1's full-height result card occupies y=5%..95%; its Next is bottom:9.8%
+     inside that frame. Flattening those two nested percentages onto this
+     backdrop gives 5% + (90% * 9.8%) = 13.82% from the viewport bottom. */
+  bottom: 13.82%;
   z-index: 2;
-  margin-top: clamp(28px, 9vh, 84px);
-  align-self: center;
+  margin: 0;
   flex: 0 0 auto;
-  width: 172px;
-  min-width: 172px;
-  max-width: 172px;
+  width: 42%;
+  min-width: 0;
+  max-width: none;
 }
 /* Blue wallet pill docked to the SCREEN top-right (backdrop child, safe area). */
 .marble-ui .marble-win-coin-pill {

@@ -694,20 +694,6 @@
   pointer-events: none;
 }
 
-.scene-transition-cover-avatar {
-  width: clamp(180px, 52vw, 260px);
-  height: auto;
-  display: block;
-  object-fit: contain;
-  filter: drop-shadow(0 18px 32px rgba(128, 80, 27, 0.22)) drop-shadow(0 6px 14px rgba(128, 80, 27, 0.16));
-  animation: scene-transition-avatar-bob 720ms ease-in-out infinite;
-}
-
-@keyframes scene-transition-avatar-bob {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-5px) scale(1.03); }
-}
-
 .play-entry-home-shell {
   position: absolute;
   inset: 0;
@@ -790,10 +776,6 @@
 @media (prefers-reduced-motion: reduce) {
   #scene-transition-cover {
     transition: none;
-  }
-
-  .scene-transition-cover-avatar {
-    animation: none;
   }
 
   #scene-transition-cover.scene-transition-cover--play-entry {

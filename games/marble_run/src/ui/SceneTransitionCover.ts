@@ -103,9 +103,10 @@ function createOrReuseCover(kind: TransitionKind): HTMLElement {
 
 export function showSceneTransitionCover(): void {
   const cover = createOrReuseCover('generic');
-  cover.innerHTML = `
-    <img class="scene-transition-cover-avatar scene-transition-spinner" src="/ui/loading-icon.png" alt="">
-  `;
+  // Live v1 swaps directly from the completed level to the next rendered board:
+  // it has no loading illustration. Keep v2's cover as an input/readiness shield,
+  // but leave it visually empty rather than exposing inherited shell-template art.
+  cover.replaceChildren();
 }
 
 /** Play-entry transition: clone the live #home-shell into the cover, then let
