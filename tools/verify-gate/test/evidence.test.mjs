@@ -56,6 +56,61 @@ describe('newestVisualChangeMs', () => {
     const res = newestVisualChangeMs(['games/g/src/gone.ts'], dir, { run: () => ({ ok: false, stdout: '' }) });
     expect(res).toEqual({ newestChangeMs: null, missingFiles: ['games/g/src/gone.ts'] });
   });
+
+  // Fresh linked worktrees stamp EVERY checkout file with "now"; a clean file's
+  // real change time is its last commit, not its checkout mtime.
+  function fakeGit({ dirty = [], commitSeconds = null }) {
+    return (cmd) => {
+      if (cmd.startsWith('git status')) {
+        return { ok: true, stdout: dirty.map((f) => ` M ${f}`).join('\n') + '\n' };
+      }
+      if (cmd.startsWith('git log')) {
+        return commitSeconds === null
+          ? { ok: false, stdout: '' }
+          : { ok: true, stdout: `${commitSeconds}\n` };
+      }
+      return { ok: false, stdout: '' };
+    };
+  }
+
+  it('clean file in a fresh worktree uses commit time, not checkout mtime', () => {
+    const now = Date.now();
+    write('games/g/src/menu.ts', now); // checkout stamped "now"
+    const run = fakeGit({ dirty: [], commitSeconds: 10 }); // committed long ago (t=10s)
+    const res = newestVisualChangeMs(['games/g/src/menu.ts'], dir, { run });
+    expect(res.newestChangeMs).toBe(10_000);
+    expect(res.missingFiles).toEqual([]);
+  });
+
+  it('dirty file keeps mtime even when its last commit is old', () => {
+    const now = Date.now();
+    write('games/g/src/menu.ts', now);
+    const run = fakeGit({ dirty: ['games/g/src/menu.ts'], commitSeconds: 10 });
+    const res = newestVisualChangeMs(['games/g/src/menu.ts'], dir, { run });
+    expect(res.newestChangeMs).toBe(fs.statSync(path.join(dir, 'games/g/src/menu.ts')).mtimeMs);
+  });
+
+  it('untracked file (dirty per git status) keeps mtime', () => {
+    write('games/g/src/new.ts', 7000);
+    const run = (cmd) => cmd.startsWith('git status')
+      ? { ok: true, stdout: '?? games/g/src/new.ts\n' }
+      : { ok: false, stdout: '' };
+    const res = newestVisualChangeMs(['games/g/src/new.ts'], dir, { run });
+    expect(res.newestChangeMs).toBe(7000);
+  });
+
+  it('falls back to mtime when git status fails (fail-soft)', () => {
+    write('games/g/src/menu.ts', 7000);
+    const res = newestVisualChangeMs(['games/g/src/menu.ts'], dir, { run: () => ({ ok: false, stdout: '' }) });
+    expect(res.newestChangeMs).toBe(7000);
+  });
+
+  it('clean file with no git-log record falls back to mtime', () => {
+    write('games/g/src/menu.ts', 7000);
+    const run = fakeGit({ dirty: [], commitSeconds: null });
+    const res = newestVisualChangeMs(['games/g/src/menu.ts'], dir, { run });
+    expect(res.newestChangeMs).toBe(7000);
+  });
 });
 
 describe('panelMtimesMs (real globSync)', () => {
@@ -136,5 +191,27 @@ describe('freshness end-to-end (fs -> pure compare)', () => {
     }, 8000);
     const { newestChangeMs } = newestVisualChangeMs(['games/g/src/menu.ts'], dir);
     expect(evidenceIsFresh(newestChangeMs, readPanelEvidence(dir), ['g'])).toBe(true);
+  });
+  it('fresh-worktree simulation: clean file with fresh checkout mtime but old commit, panel between -> PASS', () => {
+    write('games/g/src/menu.ts', Date.now()); // checkout stamped now
+    writeJson('docs/evidence/2026-07-07-device-verify/panel.json', {
+      game: 'g', lane: 'device', generatedAt: '2026-01-01T00:00:00.000Z', verdict: { pass: true },
+    });
+    const run = (cmd) => cmd.startsWith('git status')
+      ? { ok: true, stdout: '' } // clean worktree
+      : { ok: true, stdout: `${Math.floor(Date.parse('2025-01-01T00:00:00Z') / 1000)}\n` };
+    const { newestChangeMs } = newestVisualChangeMs(['games/g/src/menu.ts'], dir, { run });
+    expect(evidenceIsFresh(newestChangeMs, readPanelEvidence(dir), ['g'])).toBe(true);
+  });
+  it('dirty file in the same setup still FAILS (mtime newer than panel)', () => {
+    write('games/g/src/menu.ts', Date.now());
+    writeJson('docs/evidence/2026-07-07-device-verify/panel.json', {
+      game: 'g', lane: 'device', generatedAt: '2026-01-01T00:00:00.000Z', verdict: { pass: true },
+    });
+    const run = (cmd) => cmd.startsWith('git status')
+      ? { ok: true, stdout: ' M games/g/src/menu.ts\n' }
+      : { ok: true, stdout: `${Math.floor(Date.parse('2025-01-01T00:00:00Z') / 1000)}\n` };
+    const { newestChangeMs } = newestVisualChangeMs(['games/g/src/menu.ts'], dir, { run });
+    expect(evidenceIsFresh(newestChangeMs, readPanelEvidence(dir), ['g'])).toBe(false);
   });
 });
