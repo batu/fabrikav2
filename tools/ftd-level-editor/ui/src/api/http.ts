@@ -18,6 +18,7 @@ export interface JobsTransportOptions {
 }
 
 export const DEFAULT_REQUEST_TIMEOUT_MS = 15_000;
+export const ARTIFACT_REQUEST_TIMEOUT_MS = 60_000;
 
 function editorPath(path: string): string {
   return globalThis.location?.pathname.startsWith('/tools/ftd-editor/')
@@ -113,7 +114,10 @@ export function requestFtdBinary(
   body?: unknown,
 ): Promise<FtdBinaryResponse> {
   return requestFtdWithDecoder(
-    options,
+    {
+      ...options,
+      timeoutMs: Math.max(options.timeoutMs ?? 0, ARTIFACT_REQUEST_TIMEOUT_MS),
+    },
     method,
     path,
     async (response) => ({ headers: response.headers, blob: await response.blob() }),
