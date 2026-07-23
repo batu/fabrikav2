@@ -26,7 +26,12 @@ sed \
   -e "s#__ENV_FILE__#$ENV_FILE#g" \
   "$EDITOR_ROOT/deploy/com.appletolye.ftd-editor-rehearsal.plist" > "$PLIST_DEST"
 
-DOMAIN="gui/$(id -u)"
+UID_NUM="$(id -u)"
+if launchctl print "gui/$UID_NUM" >/dev/null 2>&1; then
+  DOMAIN="gui/$UID_NUM"
+else
+  DOMAIN="user/$UID_NUM"
+fi
 launchctl bootout "$DOMAIN/$LABEL" 2>/dev/null || true
 launchctl bootstrap "$DOMAIN" "$PLIST_DEST"
 launchctl kickstart -k "$DOMAIN/$LABEL"
