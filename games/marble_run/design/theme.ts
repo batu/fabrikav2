@@ -274,13 +274,9 @@ body {
 #hud-overlay > .marble-home-board-preview {
   position: fixed;
   inset: 0;
-  /* MRV2-20 item 4: v1 (base game menu.png) tucks the saga rail/top node BEHIND
-     the board; v2 layered the rail (shell content z-index:1) in FRONT. Raise the
-     board canvas above the rail so the chain emerges from behind the board. The
-     banner (z-index:4), LEVEL button (z-index:20) and current sun node
-     (z-index:21) all stay above this; the canvas is transparent everywhere but
-     the board art and non-interactive, so nothing else is occluded. */
-  z-index: 2;
+  /* MRV2-24 same-device Pixel capture: keep the board behind the saga rail so
+     its top numbered node remains fully readable at every progression point. */
+  z-index: 0;
   display: block;
   width: 100vw;
   height: 100dvh;
@@ -428,6 +424,12 @@ body {
   background-repeat: no-repeat, repeat;
   background-size: auto, 320px 320px;
 }
+/* MRV2-24: v2's dark gameplay field makes the shared near-black scrim render
+   much darker than v1. Tint the same 0.66-alpha layer purple so the composited
+   Pixel 6a shade matches v1 while gameplay remains visible beneath it. */
+.fab-ui.fab-modal-backdrop.marble-settings-modal--ingame {
+  background: rgba(119, 100, 141, 0.66);
+}
 /* MRV2-11 U3 (KTD3, ref refs/settings.png): a small blue rounded SQUARE with a
    white × glyph docked top-right over the ribbon. No X sprite exists in-repo, so
    the blue Button_Settins tile IS the square and the × is a rendered text glyph
@@ -467,6 +469,9 @@ body {
   width: min(72%, 260px);
   min-height: 64px;
   margin-inline: auto;
+}
+.marble-settings-modal--ingame .marble-settings-action {
+  text-transform: uppercase;
 }
 
 /* ---- Result cards (win/lose) ---- */
