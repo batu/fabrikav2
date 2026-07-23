@@ -373,17 +373,6 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
     );
   }
 
-  async function openShopFromUi(): Promise<boolean> {
-    const atHome = marbleRunDrivePredicates.menu(driveSnapshot()) || await gotoHome();
-    if (!atHome) return false;
-    if (document.querySelector(SHOP_PAGE_SELECTOR) === null) openPage('shop');
-    return waitUntil(
-      () => pixelsmithStatePredicates.shop(driveSnapshot()),
-      SETTINGS_OPEN_TARGET_POLL_MS,
-      SETTINGS_OPEN_TARGET_MAX_POLLS,
-    );
-  }
-
   async function driveToPixelsmithState(state: PixelsmithState): Promise<boolean> {
     if (state === 'home-fresh') {
       harness.resetSave();
@@ -409,7 +398,6 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
         HOME_READY_TARGET_MAX_POLLS,
       );
     }
-    if (state === 'shop') return openShopFromUi();
     if (isGameplayState(state)) {
       // v1 driveTo parity: teach shows the tutorial hand (fires only on level 1
       // from a pristine save); opener/plugs/voids seed prior progress so the

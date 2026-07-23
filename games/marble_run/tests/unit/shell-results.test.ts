@@ -38,6 +38,7 @@ import type { FailContinueOfferSet } from '../../src/shop/FailContinueOffers';
 const OFFERS: FailContinueOfferSet = {
   options: [
     { kind: 'coinContinue', status: 'available', coinPrice: 100, coinAmount: 0, productId: null, hintAmount: 0, reason: '' },
+    { kind: 'egoOffer', status: 'available', coinPrice: 0, coinAmount: 1_000, productId: 'purchase-me', hintAmount: 5, reason: '' },
     { kind: 'retry', status: 'available', coinPrice: 0, coinAmount: 0, productId: null, hintAmount: 0, reason: '' },
   ],
 };
@@ -268,15 +269,13 @@ describe('sugar result cards', () => {
     expect(transitionZ).toBeGreaterThan(modalZ);
   });
 
-  it('lose variant mounts a Failed ribbon with Retry + coin-continue offers', () => {
+  it('lose variant mounts Retry + coin continue but never a purchase offer', () => {
     showLevelFailedOverlay('lvl-1', {
       getOffers: () => OFFERS,
       getCoinBalance: () => 999,
-      getIapProducts: () => [],
       shouldRefreshOffers: () => false,
       onRetry: vi.fn(),
       onCoinContinue: async () => ({ resumed: false }),
-      onEgoOffer: async () => ({ resumed: false }),
     });
 
     const overlay = document.getElementById('level-failed-overlay');
@@ -284,6 +283,8 @@ describe('sugar result cards', () => {
     expect(ribbonTitle(overlay!)).toBe('Failed');
     expect(overlay!.querySelector('#retry-btn')).not.toBeNull();
     expect(overlay!.querySelector('#coin-continue-btn')).not.toBeNull();
+    expect(overlay!.querySelector('#ego-offer-btn')).toBeNull();
+    expect(overlay!.textContent).not.toContain('Purchase');
     expect(overlay!.querySelector('.fab-result-message')?.textContent).toBe('No hearts left!');
   });
 

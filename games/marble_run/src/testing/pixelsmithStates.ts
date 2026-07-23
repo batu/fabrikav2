@@ -2,7 +2,7 @@ import type { DriveSnapshot } from '@fabrikav2/testkit/testing';
 import { marbleRunDrivePredicates } from './drivePredicates';
 
 /**
- * The ten deterministic capture states Pixelsmith drives marble_run to, in the
+ * The nine deterministic capture states Pixelsmith drives marble_run to, in the
  * card's order. Each is published as a `tourstate:<state>` accessibility marker
  * (see @fabrikav2/testkit `publishTourMarker`) within 25s of a cold launch when
  * built with `VITE_INSITU_TOUR=<state>`. Mechanism is identical to the
@@ -18,7 +18,6 @@ export const PIXELSMITH_TOUR_STATES = [
   'gameplay-teach',
   'win',
   'pause',
-  'shop',
   'settings',
 ] as const;
 
@@ -63,9 +62,8 @@ export function isGameplayState(
 /**
  * Per-state acceptance predicate. Gameplay/win/pause/settings reuse the existing
  * marble_run drive predicates so a Pixelsmith capture only fires on the exact
- * surface the default harness already validates. `home-fresh`/`level-map`/`shop`
- * key on the home shell + a distinguishing DOM signal (shop and settings are
- * mutually exclusive so a mis-drive never screenshots the wrong page).
+ * surface the default harness already validates. `home-fresh`/`level-map` key
+ * on the home shell and explicitly reject any stray shop surface.
  */
 export const pixelsmithStatePredicates: Record<
   PixelsmithState,
@@ -86,7 +84,6 @@ export const pixelsmithStatePredicates: Record<
   'gameplay-teach': (snapshot) => marbleRunDrivePredicates.level(snapshot),
   win: (snapshot) => marbleRunDrivePredicates.win(snapshot),
   pause: (snapshot) => marbleRunDrivePredicates.pause(snapshot),
-  shop: (snapshot) => snapshot.shopOpen === true,
   // Menu settings = home shell + the Close-variant modal (MRV2-5). Reuses the
   // UI-truth predicate so a page overlay / stray settingsOpen flag never
   // publishes tourstate:settings over the wrong surface.

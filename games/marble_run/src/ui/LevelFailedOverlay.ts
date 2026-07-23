@@ -18,11 +18,9 @@ export interface FailContinueActionContext {
 export interface LevelFailedOverlayOptions {
   getOffers: () => FailContinueOfferSet;
   getCoinBalance: () => number;
-  getIapProducts: () => readonly IapCatalogProductSnapshot[];
   shouldRefreshOffers: () => boolean;
   onRetry: () => void;
   onCoinContinue: (option: FailContinueOption, context: FailContinueActionContext) => Promise<FailContinueActionResult>;
-  onEgoOffer: (option: FailContinueOption, context: FailContinueActionContext) => Promise<FailContinueActionResult>;
 }
 
 type PendingKind = Exclude<FailContinueOptionKind, 'retry'> | null;
@@ -140,9 +138,9 @@ export function showLevelFailedOverlay(levelId: string, options: LevelFailedOver
   };
 
   const render = (): void => {
-    const offers = options.getOffers().options;
+    const offers = options.getOffers().options.filter((offer) => offer.kind !== 'egoOffer');
     const coinBalance = options.getCoinBalance();
-    const iapProducts = options.getIapProducts();
+    const iapProducts: readonly IapCatalogProductSnapshot[] = [];
     lastRenderSignature = renderSignature(offers, coinBalance, iapProducts, pendingKind, backgroundPendingKind, statusMessage);
     statusEl.textContent = statusMessage;
     optionsContainer.replaceChildren();
@@ -164,11 +162,6 @@ export function showLevelFailedOverlay(levelId: string, options: LevelFailedOver
     }
     optionsContainer.appendChild(primaryRow);
 
-    for (const offer of offers.filter((candidate) => candidate.kind === 'egoOffer')) {
-      const button = buttonForOffer(offer, iapProducts, pendingKind, backgroundPendingKind);
-      button.addEventListener('click', () => void runAction('egoOffer', offer, options.onEgoOffer));
-      optionsContainer.appendChild(button);
-    }
     // Fly the options in on the FIRST paint only — later re-renders (price
     // refresh, pending states) must not replay the entrance.
     if (!entranceApplied) {
@@ -227,9 +220,9 @@ export function showLevelFailedOverlay(levelId: string, options: LevelFailedOver
       offerRefreshScheduled = false;
       if (!isOpen()) return;
       if (pendingKind === null) {
-        const offers = options.getOffers().options;
+        const offers = options.getOffers().options.filter((offer) => offer.kind !== 'egoOffer');
         const coinBalance = options.getCoinBalance();
-        const iapProducts = options.getIapProducts();
+        const iapProducts: readonly IapCatalogProductSnapshot[] = [];
         const nextSignature = renderSignature(offers, coinBalance, iapProducts, pendingKind, backgroundPendingKind, statusMessage);
         if (nextSignature !== lastRenderSignature) render();
       }

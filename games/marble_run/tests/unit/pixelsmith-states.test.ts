@@ -22,12 +22,11 @@ const SNAPSHOTS: Record<PixelsmithState, Record<string, unknown>> = {
   // corrected predicates assert the actual surface (MRV2-8 defects 3/4).
   win: { activeScene: "GameScene", homeShellVisible: false, levelCompleteOverlayVisible: true },
   pause: { activeScene: "GameScene", homeShellVisible: false, settingsVariant: "ingame" },
-  shop: { shopOpen: true, homeShellVisible: true },
   settings: { homeShellVisible: true, settingsVariant: "menu" },
 };
 
 describe("pixelsmith state vocabulary", () => {
-  it("exposes the ten card-order states", () => {
+  it("exposes the no-shop card-order states", () => {
     expect(PIXELSMITH_TOUR_STATES).toEqual([
       "home-fresh",
       "level-map",
@@ -37,7 +36,6 @@ describe("pixelsmith state vocabulary", () => {
       "gameplay-teach",
       "win",
       "pause",
-      "shop",
       "settings",
     ]);
   });
@@ -69,9 +67,7 @@ describe("pixelsmith state predicates", () => {
     }
   });
 
-  it("keeps shop and settings mutually distinguishable", () => {
-    expect(pixelsmithStatePredicates.shop({ shopOpen: true })).toBe(true);
-    expect(pixelsmithStatePredicates.shop({ settingsVariant: "menu", homeShellVisible: true })).toBe(false);
+  it("rejects a stray shop surface from settings and home states", () => {
     // Menu settings = home shell + Close-variant modal (UI-truth); a bare
     // settingsOpen flag is no longer sufficient.
     expect(pixelsmithStatePredicates.settings({ homeShellVisible: true, settingsVariant: "menu" })).toBe(true);

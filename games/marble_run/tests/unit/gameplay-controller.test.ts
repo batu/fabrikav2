@@ -178,15 +178,17 @@ describe("GameplayController", () => {
     expect(hooks.onFail).toHaveBeenCalledWith(levelIndex + 1);
   });
 
-  it("gates the hint on the coin cost", () => {
+  it("does nothing and opens no purchase surface when a hint cannot be afforded", () => {
     const hooks = makeHooks();
     controller = new GameplayController(container, hooks);
     controller.startLevel(1);
 
-    hooks.coins = HINT_COIN_COST - 1;
+    hooks.coins = 0;
     controller.showHint();
     expect(hooks.onHintUsed).not.toHaveBeenCalled();
-    expect(hooks.coins).toBe(HINT_COIN_COST - 1);
+    expect(hooks.coins).toBe(0);
+    expect(document.querySelector("#hint-booster-modal")).toBeNull();
+    expect(document.querySelector(".home-page-shop")).toBeNull();
 
     hooks.coins = HINT_COIN_COST;
     controller.showHint();
