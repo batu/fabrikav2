@@ -252,6 +252,7 @@ function freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, 
 export function decideStop({
   message,
   changedFiles,
+  sessionFiles,
   newestVisualMtimeMs,
   panelMtimesMs,
   panelEvidence,
@@ -261,9 +262,22 @@ export function decideStop({
   if (!toolPresent || !gamesDirPresent) {
     return { action: 'noop', reason: 'self-disabled: verify-device tool or games/ dir absent' };
   }
-  const visualFiles = (changedFiles || []).filter(isVisualFile);
+  let visualFiles = (changedFiles || []).filter(isVisualFile);
   if (visualFiles.length === 0) {
     return { action: 'noop', reason: 'no changed file matches a visual glob' };
+  }
+  // Gate on THIS SESSION's work: the branch diff includes other sessions' and
+  // agents' files in a shared dirty tree (observed false blocks on planning-only
+  // sessions). When the transcript is readable, only visual files this session
+  // actually edited can block; sessionFiles === null means attribution is
+  // unknown, so the whole diff stays gated. The merge gate remains the
+  // fail-closed backstop for the branch as a whole.
+  if (Array.isArray(sessionFiles)) {
+    const touched = new Set(sessionFiles.map(repoPath));
+    visualFiles = visualFiles.filter((f) => touched.has(repoPath(f)));
+    if (visualFiles.length === 0) {
+      return { action: 'pass', reason: 'branch visual changes were not authored by this session — not gated' };
+    }
   }
   const unv = detectUnverified(message);
   if (unv.present) {

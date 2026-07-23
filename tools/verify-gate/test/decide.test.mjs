@@ -20,6 +20,32 @@ describe('decideStop — the block gate', () => {
     expect(d.games).toEqual(['marble_run']);
   });
 
+  it('PASSES when the branch visual diff was not authored by this session', () => {
+    const d = decideStop({ ...base, sessionFiles: ['docs/plan.md', 'tools/x.mjs'] });
+    expect(d.action).toBe('pass');
+    expect(d.reason).toMatch(/not authored by this session/);
+  });
+
+  it('PASSES a planning-only session (no edits at all) despite a dirty shared tree', () => {
+    const d = decideStop({ ...base, sessionFiles: [] });
+    expect(d.action).toBe('pass');
+  });
+
+  it('still BLOCKS when this session edited one of the visual files', () => {
+    const d = decideStop({
+      ...base,
+      changedFiles: ['games/marble_run/src/menu.ts', 'games/arrow/src/main.ts'],
+      sessionFiles: ['games/marble_run/src/menu.ts'],
+    });
+    expect(d.action).toBe('block');
+    expect(d.visualFiles).toEqual(['games/marble_run/src/menu.ts']);
+  });
+
+  it('gates the whole diff when session attribution is unknown (sessionFiles null)', () => {
+    const d = decideStop({ ...base, sessionFiles: null });
+    expect(d.action).toBe('block');
+  });
+
   it('PASSES a refactor: visual change but NO done-claim (gate on the claim, not the file)', () => {
     const d = decideStop({ ...base, message: 'Refactored menu layout into a pure helper. No behavior change.' });
     expect(d.action).toBe('pass');

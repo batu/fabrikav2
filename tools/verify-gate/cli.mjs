@@ -17,7 +17,7 @@ import { execSync } from 'node:child_process';
 import { decideStop, buildBlockMessage, isVisualFile } from './src/classify.mjs';
 import { changedFilesVsMain } from './src/git.mjs';
 import { newestVisualChangeMs, readPanelEvidence } from './src/evidence.mjs';
-import { readLastAssistantText } from './src/transcript.mjs';
+import { readLastAssistantText, readSessionEditedFiles } from './src/transcript.mjs';
 import { appendLedgerEntry, resolveLedgerFile } from './src/ledger.mjs';
 
 function readStdin() {
@@ -60,17 +60,28 @@ function main() {
   if (!toolPresent || !gamesDirPresent) return 0;
 
   const message = readLastAssistantText(input.transcript_path);
+  // Repo-relative paths of files this session edited (null = transcript
+  // unreadable -> attribution unknown -> gate the whole diff as before).
+  const sessionFilesRaw = readSessionEditedFiles(input.transcript_path);
+  const sessionFiles = sessionFilesRaw == null
+    ? null
+    : sessionFilesRaw.map((p) => (path.isAbsolute(p) ? path.relative(projectDir, p) : p));
   const run = makeRunner(projectDir);
   const changed = changedFilesVsMain(run);
   if (!changed.ok) return 0; // fail-open: merge-gate is the fail-closed backstop
   const changedFiles = changed.files;
-  const visualFiles = changedFiles.filter(isVisualFile);
+  let visualFiles = changedFiles.filter(isVisualFile);
+  if (sessionFiles != null) {
+    const touched = new Set(sessionFiles);
+    visualFiles = visualFiles.filter((f) => touched.has(f));
+  }
   const { newestChangeMs } = newestVisualChangeMs(visualFiles, projectDir, { run });
   const panels = readPanelEvidence(projectDir);
 
   const decision = decideStop({
     message,
     changedFiles,
+    sessionFiles,
     newestVisualMtimeMs: newestChangeMs,
     panelEvidence: panels,
     toolPresent,
