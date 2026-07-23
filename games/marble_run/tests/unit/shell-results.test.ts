@@ -139,9 +139,23 @@ describe('sugar result cards', () => {
     )?.groups?.body;
 
     expect(rule).toContain('position: absolute');
-    expect(rule).toContain('bottom: 13.82%');
+    expect(rule).toContain('bottom: 17.6%');
     expect(rule).toContain('left: 29%');
     expect(rule).toContain('width: 42%');
+  });
+
+  it('fills the centered win-ribbon wrapper instead of left-aligning capped art', async () => {
+    const { installShellArt } = await import('../../design/theme');
+    document.getElementById('marble-shell-art')?.remove();
+    installShellArt(document);
+    const css = document.getElementById('marble-shell-art')?.textContent ?? '';
+    const rule = css.match(
+      /#modal-root\.completion-mode \.fab-modal-ribbon > \.fab-modal-ribbon-image\s*\{(?<body>[^}]*)\}/,
+    )?.groups?.body;
+
+    expect(rule).toContain('width: 100%');
+    expect(rule).toContain('max-width: none');
+    expect(rule).toContain('margin-inline: auto');
   });
 
   it('advances and dismisses exactly once when the standalone Next button is clicked', async () => {
@@ -250,11 +264,13 @@ describe('sugar result cards', () => {
       /#modal-root\.completion-mode \.fab-modal-card\.fab-result-card \{[^}]*\}/,
     )?.[0] ?? '';
 
-    expect(cardRule).toContain('width: min(304px, calc(100vw - 36px))');
-    expect(cardRule).toContain('min-width: min(304px, calc(100vw - 36px))');
-    expect(cardRule).toContain('max-width: min(304px, calc(100vw - 36px))');
+    expect(cardRule).toContain('width: min(100vw, 430px)');
+    expect(cardRule).toContain('min-width: min(100vw, 430px)');
+    expect(cardRule).toContain('max-width: min(100vw, 430px)');
+    expect(cardRule).toContain('height: min(100dvh, 760px)');
+    expect(cardRule).toContain('min-height: min(100dvh, 620px)');
     expect(cardRule).toContain('flex: 0 0 auto');
-    expect(cardRule).toContain('transform: translateY(-5vh)');
+    expect(cardRule).toContain('transform: none');
 
     const source = await import('../../index.html?raw').then((module) => module.default as string);
     const modalZ = Number(source.match(/#modal-root\s*\{[^}]*z-index:\s*(\d+)/s)?.[1]);

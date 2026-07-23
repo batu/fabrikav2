@@ -12,9 +12,9 @@
 /* While the marble gameplay is mounted, hide the FTD HUD chrome (kept in the
  * DOM by initHUD) so only the ported vida HUD shows. The win/fail overlays,
  * which also mount into #hud-overlay, stay visible. */
-#hud-overlay.mr-gameplay-active .hud-top-bar,
-#hud-overlay.mr-gameplay-active .hud-hint-wrap,
-#hud-overlay.mr-gameplay-active #offline-indicator {
+#hud-overlay.mr-gameplay-active:not(.home-mode) .hud-top-bar,
+#hud-overlay.mr-gameplay-active:not(.home-mode) .hud-hint-wrap,
+#hud-overlay.mr-gameplay-active:not(.home-mode) #offline-indicator {
   display: none !important;
 }
 

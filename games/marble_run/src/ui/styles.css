@@ -642,6 +642,21 @@
   transition: opacity 520ms ease-in-out;
 }
 
+/* The live home is the transition artwork. Freeze every CSS animation at its
+   current painted frame before opacity changes so ambient sprinkles, the
+   bubble-field drift, the current-node breath/halo, and the CTA cannot advance
+   independently during the fade. animation-play-state preserves the exact
+   frame already on screen; replacing animations with `none` would snap them
+   back to their first keyframe. */
+#hud-overlay.home-play-entry,
+#hud-overlay.home-play-entry::before,
+#hud-overlay.home-play-entry::after,
+#hud-overlay.home-play-entry *,
+#hud-overlay.home-play-entry *::before,
+#hud-overlay.home-play-entry *::after {
+  animation-play-state: paused !important;
+}
+
 #hud-overlay.home-play-entry[data-play-entry-state="revealing"] {
   opacity: 0;
 }

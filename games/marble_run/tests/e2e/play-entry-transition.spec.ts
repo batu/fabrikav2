@@ -8,7 +8,7 @@ test.describe('menu to game transition', () => {
     deviceScaleFactor: 1,
   });
 
-  test('fades the live home in place without cloning or reparenting it', async ({ page }, testInfo) => {
+  test('fades the live home in place without displacing any menu element', async ({ page }, testInfo) => {
     await page.addInitScript(() => window.localStorage.clear());
     await page.goto('/');
     await expect(page.locator('#home-shell')).toBeVisible({ timeout: 30_000 });
@@ -22,6 +22,24 @@ test.describe('menu to game transition', () => {
 
     await page.screenshot({ path: testInfo.outputPath('frame-00-live-menu.png') });
 
+    const trackedSelectors = [
+      '.marble-home-header',
+      '.marble-home-banner',
+      '.marble-home-board-preview',
+      '.fab-levelmap-path',
+      '.fab-levelmap-node.current',
+      '.marble-level-button',
+    ] as const;
+    const before = await page.evaluate((selectors) => Object.fromEntries(selectors.map((selector) => {
+      const rect = document.querySelector(selector)?.getBoundingClientRect();
+      return [selector, rect == null ? null : {
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height,
+      }];
+    })), trackedSelectors);
+
     await page.locator('.marble-level-button').first().tap();
 
     // The live overlay itself becomes the fade layer — no separate cover is
@@ -33,8 +51,44 @@ test.describe('menu to game transition', () => {
     expect(await page.locator('#scene-transition-cover').count()).toBe(0);
     expect(await page.locator('#hud-overlay > #home-shell').count()).toBe(1);
     expect(await page.locator('#hud-overlay > .marble-home-board-preview').count()).toBe(1);
+    const animationStates = await page.evaluate(() => ({
+      overlayBackdrop: getComputedStyle(document.querySelector('#hud-overlay')!, '::before').animationPlayState,
+      sprinkle: getComputedStyle(document.querySelector('.marble-ambient-sprinkle')!).animationPlayState,
+      currentNode: getComputedStyle(document.querySelector('.fab-levelmap-node.current .fab-levelmap-node-dot')!).animationPlayState,
+      currentHalo: getComputedStyle(document.querySelector('.fab-levelmap-node.current')!, '::before').animationPlayState,
+      levelButton: getComputedStyle(document.querySelector('.marble-level-button')!).animationPlayState,
+    }));
+    expect(animationStates).toEqual({
+      overlayBackdrop: 'paused',
+      sprinkle: 'paused',
+      currentNode: 'paused',
+      currentHalo: 'paused',
+      levelButton: 'paused',
+    });
     // The clone-into-cover mechanism is gone: no play-entry clone subtree exists.
     expect(await page.locator('.play-entry-home-shell').count()).toBe(0);
+    const holding = await page.evaluate((selectors) => Object.fromEntries(selectors.map((selector) => {
+      const rect = document.querySelector(selector)?.getBoundingClientRect();
+      return [selector, rect == null ? null : {
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height,
+      }];
+    })), trackedSelectors);
+    expect(holding).toEqual(before);
+
+    await expect(overlay).toHaveAttribute('data-play-entry-state', 'revealing', { timeout: 30_000 });
+    const midpoint = await page.evaluate((selectors) => Object.fromEntries(selectors.map((selector) => {
+      const rect = document.querySelector(selector)?.getBoundingClientRect();
+      return [selector, rect == null ? null : {
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height,
+      }];
+    })), trackedSelectors);
+    expect(midpoint).toEqual(before);
 
     for (let frame = 1; frame < 8; frame += 1) {
       await page.waitForTimeout(120);
