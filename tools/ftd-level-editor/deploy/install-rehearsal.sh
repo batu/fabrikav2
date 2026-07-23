@@ -15,7 +15,7 @@ test -d "$SOURCE_AUTHORING"
 test -f "$ENV_FILE"
 test -x "$PYTHON"
 
-npm run build:live
+(cd "$EDITOR_ROOT" && npm run build:live)
 mkdir -p "$DATA_ROOT/logs" "$HOME/Library/LaunchAgents"
 
 sed \
