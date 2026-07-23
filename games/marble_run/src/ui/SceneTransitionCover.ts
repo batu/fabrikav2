@@ -2,42 +2,37 @@ import Phaser from 'phaser';
 import { whenIconsDecoded } from './iconPreload';
 
 const COVER_ID = 'scene-transition-cover';
+const OVERLAY_ID = 'hud-overlay';
 const COVER_ASSETS_READY_CAP_MS = 1500;
 const MIN_VISIBLE_MS = 650;
 const PLAY_ENTRY_REVEAL_MS = 520;
-const PLAY_ENTRY_CLEANUP_MS = 40;
 const PLAY_ENTRY_HUD_ENTER_MS = 680;
 let shownAt = performance.now();
 let transitionGeneration = 0;
 let hudEnterGeneration = 0;
 let hudEnterCleanupTimer: number | null = null;
 
-type TransitionKind = 'generic' | 'play-entry';
+type TransitionKind = 'generic';
 
 export interface PlayEntryTransitionOptions {
   /**
-   * The live menu preview canvas is a sibling of #home-shell, so cloning the
-   * shell cannot preserve its WebGL pixels. Keep this exact canvas in the cover
-   * until the home shell has faded away instead of attempting to clone it.
+   * Tears the live home down — dispose the live board-preview canvas, wipe the
+   * overlay, and build the game HUD. Called exactly once, AFTER the fade has
+   * completed, so the real home keeps painting until it is fully transparent.
+   * Also called immediately (as a fallback) when the home shell is absent and
+   * the play-entry fade cannot run.
    */
-  preservedElement?: HTMLElement;
-  /** Releases the owner of preservedElement after the transition no longer
-   * needs it. This is also called if a new transition replaces this one. */
-  disposePreservedElement?: () => void;
+  onTeardown?: () => void;
 }
 
-let preservedPlayEntryElement: { readonly cover: HTMLElement; readonly dispose: () => void } | null = null;
+// The live home overlay is faded in place during a play-entry transition. This
+// holds the teardown owed to the current fade so it can run once the fade ends
+// (or be flushed if a new transition supersedes it).
+let playEntryGeneration = 0;
+let playEntryTeardown: (() => void) | null = null;
 
 function transitionRoot(): HTMLElement | null {
   return document.getElementById(COVER_ID);
-}
-
-function disposePreservedPlayEntryElement(cover?: HTMLElement): void {
-  if (preservedPlayEntryElement === null) return;
-  if (cover !== undefined && preservedPlayEntryElement.cover !== cover) return;
-  const preserved = preservedPlayEntryElement;
-  preservedPlayEntryElement = null;
-  preserved.dispose();
 }
 
 function nextTransitionGeneration(): string {
@@ -53,16 +48,18 @@ function isCurrentCover(cover: HTMLElement, generation: string): boolean {
   return transitionRoot() === cover && coverGeneration(cover) === generation;
 }
 
-function isCurrentTransition(cover: HTMLElement, generation: string, kind: TransitionKind): boolean {
-  return isCurrentCover(cover, generation) && cover.dataset.transitionKind === kind;
-}
-
 function prefersReducedMotion(): boolean {
   return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 }
 
 function hudOverlay(): HTMLElement | null {
-  return document.getElementById('hud-overlay');
+  return document.getElementById(OVERLAY_ID);
+}
+
+function isCurrentPlayEntry(overlay: HTMLElement, generation: number): boolean {
+  return hudOverlay() === overlay
+    && overlay.dataset.playEntryGeneration === String(generation)
+    && overlay.classList.contains('home-play-entry');
 }
 
 function preparePlayEntryHudEnter(): void {
@@ -105,7 +102,6 @@ function cancelPlayEntryHudEnter(): void {
 function createOrReuseCover(kind: TransitionKind): HTMLElement {
   const container = document.getElementById('game-container') ?? document.body;
   let cover = transitionRoot();
-  if (cover !== null) disposePreservedPlayEntryElement(cover);
   if (cover === null) {
     cover = document.createElement('div');
     cover.id = COVER_ID;
@@ -131,79 +127,89 @@ export function showSceneTransitionCover(): void {
   cover.replaceChildren();
 }
 
-/** Play-entry transition: freeze the live home shell in one overlay and fade it
- *  as a single frame after the game scene has rendered. Live v1 never morphs or
- *  independently moves the title, board, saga nodes, or LEVEL button. */
+/**
+ * Play-entry transition (renderer-proof): keep the LIVE home overlay mounted and
+ * painting, lift it above the freshly mounted game scene, and fade the real home
+ * layers as a single frame once the board has rendered. No clone, no reparent —
+ * WebKit paints exactly the nodes it already had on screen, so the menu never
+ * blanks to an empty purple field mid-transition (MRV2-31). The home is torn
+ * down only after the fade completes (options.onTeardown).
+ */
 export function showPlayEntryTransitionCover(options: PlayEntryTransitionOptions = {}): void {
+  const overlay = hudOverlay();
   const homeShell = document.getElementById('home-shell');
-  if (homeShell === null) {
-    options.disposePreservedElement?.();
+  if (overlay === null || homeShell === null) {
+    options.onTeardown?.();
     showSceneTransitionCover();
     return;
   }
 
-  const cover = createOrReuseCover('play-entry');
-  const generation = coverGeneration(cover);
-  cover.dataset.transitionState = 'arming';
-  preparePlayEntryHudEnter();
-  // Recreate the live overlay's containing block around the clone. The menu
-  // itself has several viewport and inherited-font rules, so cloning only its
-  // root into the cover changes the layout context and visibly snaps the saga
-  // and CTA at t0.
-  const foreground = document.createElement('div');
-  foreground.className = 'play-entry-home-shell';
-  foreground.setAttribute('aria-hidden', 'true');
-  foreground.setAttribute('inert', '');
-  const frozenHomeShell = homeShell.cloneNode(true) as HTMLElement;
-  frozenHomeShell.querySelectorAll('video').forEach((video) => {
-    video.pause();
-    video.removeAttribute('src');
-    for (const source of Array.from(video.querySelectorAll('source'))) {
-      source.removeAttribute('src');
-    }
-  });
-  cover.innerHTML = '<div class="play-entry-home-backdrop"></div>';
-  // Phase-sync the backdrop's motif drift to the live home pattern so it doesn't
-  // jump when this backdrop paints over the real home. The home motif layer
-  // drifts via the homePawDrift CSS animation, which is compositor-driven —
-  // getComputedStyle returns the base transform, NOT the on-screen position, so
-  // we can't just copy the transform. Instead run the SAME animation on the
-  // backdrop and align its phase with a negative animation-delay equal to the
-  // live animation's currentTime. document.getAnimations() surfaces the
-  // ::before animation.
-  const motifAnim = document.getAnimations().find(
-    (a): a is CSSAnimation => a instanceof CSSAnimation && a.animationName === 'homePawDrift',
-  );
-  const motifTime = motifAnim?.currentTime ?? null;
-  if (typeof motifTime === 'number') {
-    cover.querySelector<HTMLElement>('.play-entry-home-backdrop')
-      ?.style.setProperty('--home-paw-delay', `${-motifTime}ms`);
-  }
-  foreground.appendChild(frozenHomeShell);
-  cover.appendChild(foreground);
-  if (options.preservedElement !== undefined) {
-    // Move, never clone: an HTMLCanvasElement clone intentionally has no bitmap
-    // backing store. Keeping the live canvas also preserves its exact viewport
-    // geometry while the frozen DOM shell fades over the game scene.
-    cover.appendChild(options.preservedElement);
-    if (options.disposePreservedElement !== undefined) {
-      preservedPlayEntryElement = { cover, dispose: options.disposePreservedElement };
-    }
-  }
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    if (isCurrentTransition(cover, generation, 'play-entry') && cover.dataset.transitionState === 'arming') {
-      cover.dataset.transitionState = 'holding';
-    }
-  }));
+  // A superseded fade never got to run its teardown; flush it before arming the
+  // next one so the previous home cannot leak.
+  const stale = playEntryTeardown;
+  playEntryTeardown = null;
+  stale?.();
+
+  playEntryGeneration += 1;
+  playEntryTeardown = options.onTeardown ?? null;
+  overlay.dataset.playEntryGeneration = String(playEntryGeneration);
+  overlay.dataset.playEntryState = 'holding';
+  overlay.classList.add('home-play-entry');
+  // Freeze interaction with the fading home; its buttons are already disabled by
+  // the launch path, but inert guarantees no stray tap re-enters navigation.
+  homeShell.setAttribute('inert', '');
+  shownAt = performance.now();
 }
 
 export function cancelPlayEntryTransitionCover(): void {
-  const cover = transitionRoot();
-  if (cover?.dataset.transitionKind !== 'play-entry') return;
+  const overlay = hudOverlay();
+  if (overlay === null || !overlay.classList.contains('home-play-entry')) return;
+  playEntryGeneration += 1;
+  const teardown = playEntryTeardown;
+  playEntryTeardown = null;
   cancelPlayEntryHudEnter();
-  disposePreservedPlayEntryElement(cover);
-  cover.dataset.transitionState = 'done';
-  cover.remove();
+  overlay.classList.remove('home-play-entry');
+  delete overlay.dataset.playEntryState;
+  delete overlay.dataset.playEntryGeneration;
+  teardown?.();
+}
+
+export function isPlayEntryTransitionActive(): boolean {
+  return hudOverlay()?.classList.contains('home-play-entry') ?? false;
+}
+
+function finishPlayEntry(overlay: HTMLElement): void {
+  const teardown = playEntryTeardown;
+  playEntryTeardown = null;
+  overlay.dataset.playEntryState = 'done';
+  // Tear the home down while the overlay is still fully transparent and lifted,
+  // then drop the lift so the game HUD (built by the teardown) takes over. This
+  // ordering prevents the home flashing back at opacity 1 for a frame.
+  teardown?.();
+  preparePlayEntryHudEnter();
+  overlay.classList.remove('home-play-entry');
+  delete overlay.dataset.playEntryState;
+  delete overlay.dataset.playEntryGeneration;
+  beginPlayEntryHudEnter();
+}
+
+function revealPlayEntry(overlay: HTMLElement, generation: number): void {
+  if (!isCurrentPlayEntry(overlay, generation)) return;
+  const state = overlay.dataset.playEntryState;
+  if (state === 'revealing' || state === 'done') return;
+  const reduceMotion = prefersReducedMotion();
+  const minVisibleMs = reduceMotion ? 0 : MIN_VISIBLE_MS;
+  const revealMs = reduceMotion ? 1 : PLAY_ENTRY_REVEAL_MS;
+  const elapsed = performance.now() - shownAt;
+  window.setTimeout(() => {
+    if (!isCurrentPlayEntry(overlay, generation)) return;
+    // Fade the live home to transparent (CSS opacity transition on the overlay).
+    overlay.dataset.playEntryState = 'revealing';
+    window.setTimeout(() => {
+      if (!isCurrentPlayEntry(overlay, generation)) return;
+      finishPlayEntry(overlay);
+    }, revealMs);
+  }, Math.max(0, minVisibleMs - elapsed));
 }
 
 function removeCoverAfterHide(cover: HTMLElement, generation: string, delayMs: number): void {
@@ -219,54 +225,17 @@ function hideGenericTransitionCover(cover: HTMLElement): void {
   const generation = coverGeneration(cover);
   const elapsed = performance.now() - shownAt;
   window.setTimeout(() => {
-    if (!isCurrentCover(cover, generation) || cover.dataset.transitionKind === 'play-entry') return;
+    if (!isCurrentCover(cover, generation)) return;
     cover.dataset.transitionState = 'clearing';
     cover.classList.add('hiding');
     removeCoverAfterHide(cover, generation, 220);
   }, Math.max(0, MIN_VISIBLE_MS - elapsed));
 }
 
-function hidePlayEntryTransitionCover(cover: HTMLElement, generation: string = coverGeneration(cover)): void {
-  if (!isCurrentTransition(cover, generation, 'play-entry')) return;
-  const reduceMotion = prefersReducedMotion();
-  if (cover.dataset.transitionState === 'arming') {
-    window.setTimeout(() => hidePlayEntryTransitionCover(cover, generation), 1);
-    return;
-  }
-  if (cover.dataset.transitionState === 'revealing' || cover.dataset.transitionState === 'clearing') return;
-  const elapsed = performance.now() - shownAt;
-  const minVisibleMs = reduceMotion ? 0 : MIN_VISIBLE_MS;
-  const revealMs = reduceMotion ? 1 : PLAY_ENTRY_REVEAL_MS;
-  const cleanupMs = reduceMotion ? 1 : PLAY_ENTRY_CLEANUP_MS;
-  window.setTimeout(() => {
-    if (!isCurrentTransition(cover, generation, 'play-entry')) return;
-    cover.dataset.transitionState = 'revealing';
-    window.setTimeout(() => {
-      if (!isCurrentTransition(cover, generation, 'play-entry')) return;
-      cover.dataset.transitionState = 'clearing';
-      window.setTimeout(() => {
-        if (!isCurrentTransition(cover, generation, 'play-entry')) return;
-        beginPlayEntryHudEnter();
-        // The live board has faded out with the frozen shell. Dispose it only
-        // once the game scene is visible, preventing a blank clone at t0 and a
-        // ghost canvas after the reveal.
-        disposePreservedPlayEntryElement(cover);
-        cover.classList.add('hiding');
-        removeCoverAfterHide(cover, generation, 240);
-      }, cleanupMs);
-    }, revealMs);
-  }, Math.max(0, minVisibleMs - elapsed));
-}
-
 export function hideSceneTransitionCover(): void {
   const cover = transitionRoot();
   if (cover === null) return;
-  const generation = coverGeneration(cover);
-  if (cover.dataset.transitionKind === 'play-entry') {
-    hidePlayEntryTransitionCover(cover, generation);
-  } else {
-    hideGenericTransitionCover(cover);
-  }
+  hideGenericTransitionCover(cover);
 }
 
 export function hidePlayEntryTransitionCoverAfterSceneRender(scene: Phaser.Scene): void {
@@ -274,12 +243,12 @@ export function hidePlayEntryTransitionCoverAfterSceneRender(scene: Phaser.Scene
   const scheduleHide = (): void => {
     if (scheduled) return;
     scheduled = true;
-    // The board has rendered once. Let the browser paint it behind the home clone
-    // before moving the overlay into its reveal phase.
+    // The board has rendered once. Let the browser paint it behind the live home
+    // before starting the home's fade-out.
     requestAnimationFrame(() => requestAnimationFrame(() => {
-      const cover = transitionRoot();
-      if (cover?.dataset.transitionKind === 'play-entry') {
-        hidePlayEntryTransitionCover(cover, coverGeneration(cover));
+      const overlay = hudOverlay();
+      if (overlay !== null && overlay.classList.contains('home-play-entry')) {
+        revealPlayEntry(overlay, Number(overlay.dataset.playEntryGeneration));
       } else {
         hideSceneTransitionCoverAfterPaint();
       }
@@ -290,17 +259,12 @@ export function hidePlayEntryTransitionCoverAfterSceneRender(scene: Phaser.Scene
   window.setTimeout(scheduleHide, 120);
 }
 
-export function isPlayEntryTransitionActive(): boolean {
-  return transitionRoot()?.dataset.transitionKind === 'play-entry';
-}
-
 export function hideSceneTransitionCoverAfterPaint(): void {
   // Hold the cover until fonts AND the preloaded icons are ready, so the home is
   // revealed complete — no font swap (FOUT) on the text and no icon pop-in.
   // Capped so the cover always lifts even if a font/decode never resolves.
   const reveal = (): void => {
     requestAnimationFrame(() => requestAnimationFrame(() => {
-      if (transitionRoot()?.dataset.transitionKind === 'play-entry') return;
       hideSceneTransitionCover();
     }));
   };

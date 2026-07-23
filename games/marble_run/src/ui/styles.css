@@ -625,104 +625,24 @@
   transition: opacity 220ms ease;
 }
 
-#scene-transition-cover.scene-transition-cover--play-entry {
-  display: block;
-  overflow: hidden;
-  background: transparent;
-  transition: opacity 220ms ease;
-}
-
-#scene-transition-cover.scene-transition-cover--play-entry .play-entry-home-backdrop {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  /* Mirror the live home purple bubble field so the play-entry handoff doesn't
-     flash the old cream/mint backdrop (device-parity MRV2-7). */
-  background:
-    radial-gradient(118% 72% at 50% 7%, rgba(210, 190, 240, 0.32) 0%, transparent 52%),
-    radial-gradient(145% 118% at 50% 116%, rgba(40, 20, 60, 0.34) 0%, transparent 56%),
-    linear-gradient(180deg, #9b7bcd 0%, #6b568e 100%);
-  opacity: 1;
-  transition: opacity 520ms ease-in-out;
-}
-
-/* The menu board is a live WebGL canvas, not part of the cloned #home-shell.
-   Preserve the exact element and viewport geometry beneath the frozen shell;
-   it fades with the shell so it cannot remain as a ghost over the game. */
-#scene-transition-cover > .marble-home-board-preview {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  display: block;
-  width: 100vw;
-  height: 100dvh;
-  pointer-events: none;
-  opacity: 1;
-  transition: opacity 520ms ease-in-out;
-}
-
-/* Replicate the home motif layer (#hud-overlay.home-mode::before) so the
-   pattern doesn't drop out the instant this backdrop paints over the real
-   home. Runs the SAME homePawDrift animation, phase-aligned to the live home
-   via a negative animation-delay (--home-paw-delay, set in
-   showPlayEntryTransitionCover) so the drift continues seamlessly with no jump
-   at the handoff. It fades out with the backdrop. */
-#scene-transition-cover.scene-transition-cover--play-entry .play-entry-home-backdrop::before {
-  content: "";
-  position: absolute;
-  inset: -180px;
-  pointer-events: none;
-  opacity: 0.28;
-  background-image: url('/v1/ui/marble-shadow-tile.png');
-  background-size: 320px 320px;
-  transform: translate3d(-74px, -74px, 0);
-  will-change: transform;
-  animation: homePawDrift 24s linear infinite;
-  animation-delay: var(--home-paw-delay, 0ms);
-}
-
-#scene-transition-cover.scene-transition-cover--play-entry[data-transition-state="revealing"] .play-entry-home-backdrop,
-#scene-transition-cover.scene-transition-cover--play-entry[data-transition-state="clearing"] .play-entry-home-backdrop {
-  opacity: 0;
-}
-
 #scene-transition-cover.hiding {
   opacity: 0;
   pointer-events: none;
 }
 
-.play-entry-home-shell {
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  /* Mirror #hud-overlay's live layout context. The frozen clone is outside the
-     real overlay, so inheriting body defaults here would alter its text and
-     containing-block behavior at the handoff frame. */
-  font-family: 'FredokaOne', sans-serif;
-  font-weight: 700;
-  color: #3d3d3d;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-tap-highlight-color: transparent;
-  transform-origin: 50% 50%;
+/* Play-entry transition (MRV2-31, renderer-proof): the LIVE home overlay is
+   lifted above the freshly mounted game scene and faded as a single frame. No
+   clone, no reparent — WebKit paints exactly the nodes it already had on screen,
+   so the menu (banner, board, saga, buttons) never blanks to an empty purple
+   field mid-transition. The live board-preview canvas and the home motif layer
+   are children of #hud-overlay, so this one opacity fade carries them too. */
+#hud-overlay.home-play-entry {
+  z-index: 20;
   opacity: 1;
   transition: opacity 520ms ease-in-out;
 }
 
-.play-entry-home-shell #home-shell {
-  position: relative;
-  z-index: 1;
-  height: 100%;
-}
-
-#scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell,
-#scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell {
-  opacity: 0;
-}
-
-#scene-transition-cover[data-transition-state="revealing"] > .marble-home-board-preview,
-#scene-transition-cover[data-transition-state="clearing"] > .marble-home-board-preview {
+#hud-overlay.home-play-entry[data-play-entry-state="revealing"] {
   opacity: 0;
 }
 
@@ -731,19 +651,7 @@
     transition: none;
   }
 
-  #scene-transition-cover.scene-transition-cover--play-entry {
-    transition: opacity 1ms ease;
-  }
-
-  #scene-transition-cover.scene-transition-cover--play-entry .play-entry-home-backdrop {
-    transition: opacity 1ms ease;
-  }
-
-  .play-entry-home-shell {
-    transition: opacity 1ms ease;
-  }
-
-  #scene-transition-cover > .marble-home-board-preview {
+  #hud-overlay.home-play-entry {
     transition: opacity 1ms ease;
   }
 }
@@ -3480,7 +3388,7 @@
    isn't overridden by the running animation. */
 .home-play-now-label { display: inline-block; }
 #home-play-now { animation: homePlayButtonIdle 1650ms ease-in-out infinite; }
-.play-entry-home-shell #home-play-now { animation: none; }
+#hud-overlay.home-play-entry #home-play-now { animation: none; }
 @media (prefers-reduced-motion: reduce) {
   #home-play-now { animation: none; }
 }
@@ -4651,7 +4559,7 @@ html[data-scheme="midnight"] {
     radial-gradient(145% 118% at 50% 116%, rgba(40, 20, 60, 0.34) 0%, transparent 56%),
     linear-gradient(180deg, #9b7bcd 0%, #6b568e 100%);
 }
-#home-shell .home-nav-bar, .play-entry-home-shell .home-nav-bar, .home-nav-bar {
+#home-shell .home-nav-bar, .home-nav-bar {
   background: linear-gradient(180deg, var(--sch-nav-top) 0%, var(--sch-nav-bot) 100%);
   border-top: 1.5px solid var(--sch-nav-border);
 }

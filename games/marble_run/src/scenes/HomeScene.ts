@@ -63,6 +63,9 @@ export class HomeScene extends Phaser.Scene {
    *  `token.stale` flips to abort a warm the launch path has superseded. */
   private prewarm: { levelId: string; token: { stale: boolean }; promise: Promise<void> } | null = null;
   private boardPreview: HomeBoardPreview | null = null;
+  /** True once a play-entry launch has handed the live home to the transition
+   *  controller, so scene shutdown must NOT tear the home DOM down early. */
+  private playEntryHandoff: boolean = false;
   private menuVignette: MenuVignette | null = null;
   private menuVignettePoll: Phaser.Time.TimerEvent | null = null;
   private menuVignettePaused = false;
@@ -115,11 +118,17 @@ export class HomeScene extends Phaser.Scene {
       this.disposeBoardPreview();
       this.unregisterLifecycleHooks?.();
       this.unregisterLifecycleHooks = null;
-      hideHomeMenuLayer(overlay);
       this.dismissSettings();
-      this.homeHandle?.dismiss();
-      this.homeHandle = null;
-      if (overlay.querySelector('#home-shell')) overlay.innerHTML = '';
+      // During a play-entry launch the live home must stay mounted and painting
+      // until the fade completes; the transition controller's teardown owns
+      // hiding the shell, disposing the preview, and building the game HUD. Only
+      // tear the home down here for non-launch shutdowns (e.g. suspend/restart).
+      if (!this.playEntryHandoff) {
+        hideHomeMenuLayer(overlay);
+        this.homeHandle?.dismiss();
+        this.homeHandle = null;
+        if (overlay.querySelector('#home-shell')) overlay.innerHTML = '';
+      }
       this.overlay = null;
     });
   }
@@ -303,25 +312,34 @@ export class HomeScene extends Phaser.Scene {
 
   private startGameScene(levelData?: LevelData): void {
     const overlay = this.overlay;
-    // The board preview is a WebGL canvas outside #home-shell. A cloned shell
-    // therefore loses it immediately, so hand the live canvas to the cover and
-    // let the cover dispose it after the completed reveal.
+    // Renderer-proof play-entry (MRV2-31): keep the LIVE home DOM (shell + live
+    // preview canvas) mounted and painting; the transition controller lifts it
+    // above the freshly mounted game scene and fades the real layers as one
+    // frame. No clone, no reparent — WebKit paints the same nodes it already had
+    // on screen, so the menu never blanks to an empty purple field. Capture the
+    // home instances and hand teardown to the controller; scene shutdown must
+    // not destroy the home until the fade completes (see playEntryHandoff).
     const boardPreview = this.boardPreview;
+    const homeHandle = this.homeHandle;
     this.boardPreview = null;
+    this.homeHandle = null;
+    this.playEntryHandoff = true;
     showPlayEntryTransitionCover({
-      preservedElement: boardPreview?.canvasElement(),
-      disposePreservedElement: boardPreview === null ? undefined : () => boardPreview.dispose(),
+      onTeardown: () => {
+        boardPreview?.dispose();
+        if (overlay) {
+          hideHomeMenuLayer(overlay);
+          homeHandle?.dismiss();
+          if (overlay.querySelector('#home-shell')) overlay.innerHTML = '';
+        } else {
+          homeHandle?.dismiss();
+        }
+        initHUD();
+      },
     });
     this.cancelScheduledHomeAmbient();
     this.clearBannerVideoReplay();
     this.dismissSettings();
-    this.homeHandle?.dismiss();
-    this.homeHandle = null;
-    if (overlay) {
-      hideHomeMenuLayer(overlay);
-      overlay.innerHTML = '';
-    }
-    initHUD();
     const sceneData: GameSceneData = levelData === undefined ? {} : { levelData };
     this.scene.start('GameScene', sceneData);
   }

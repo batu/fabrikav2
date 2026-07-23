@@ -1,29 +1,5 @@
 import { expect, test } from '@playwright/test';
 
-// Reuse the repository's dependency-free PNG decoder for an actual screenshot
-// comparison instead of treating DOM geometry as a visual assertion.
-// @ts-expect-error This shared JavaScript evidence helper intentionally has no declaration file.
-import { decodePng } from '../../../../tools/refcap-compare/src/png.mjs';
-
-function changedPixelFraction(beforePng: Buffer, afterPng: Buffer): number {
-  const before = decodePng(beforePng);
-  const after = decodePng(afterPng);
-  expect(after.width).toBe(before.width);
-  expect(after.height).toBe(before.height);
-
-  let changed = 0;
-  for (let index = 0; index < before.data.length; index += 4) {
-    const maxChannelDelta = Math.max(
-      Math.abs(before.data[index]! - after.data[index]!),
-      Math.abs(before.data[index + 1]! - after.data[index + 1]!),
-      Math.abs(before.data[index + 2]! - after.data[index + 2]!),
-      Math.abs(before.data[index + 3]! - after.data[index + 3]!),
-    );
-    if (maxChannelDelta > 16) changed += 1;
-  }
-  return changed / (before.data.length / 4);
-}
-
 test.describe('menu to game transition', () => {
   test.use({
     viewport: { width: 390, height: 844 },
@@ -32,55 +8,49 @@ test.describe('menu to game transition', () => {
     deviceScaleFactor: 1,
   });
 
-  test('preserves the live board through the frozen-frame handoff', async ({ page }, testInfo) => {
+  test('fades the live home in place without cloning or reparenting it', async ({ page }, testInfo) => {
     await page.addInitScript(() => window.localStorage.clear());
     await page.goto('/');
     await expect(page.locator('#home-shell')).toBeVisible({ timeout: 30_000 });
     const liveBoard = page.locator('#hud-overlay > .marble-home-board-preview');
     await expect(liveBoard).toBeVisible({ timeout: 30_000 });
 
-    const liveShell = await page.locator('#home-shell').screenshot({
-      path: testInfo.outputPath('frame-00-live-menu-shell.png'),
-    });
-    const liveBoardPixels = await liveBoard.screenshot({
-      path: testInfo.outputPath('frame-00-live-menu-board.png'),
-    });
+    // The home shell re-renders once after the async level index resolves; let
+    // that settle so the baseline capture isn't taken from a detaching node.
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(500);
 
-    await page.locator('#home-play-now').tap();
-    const cover = page.locator('#scene-transition-cover');
-    await expect(cover).toBeVisible({ timeout: 30_000 });
-    await expect(cover.locator('.play-entry-home-shell')).toBeVisible();
-    const frozenBoard = cover.locator('.marble-home-board-preview');
-    await expect(frozenBoard).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath('frame-00-live-menu.png') });
 
-    const frozenShell = await cover.locator('.play-entry-home-shell').screenshot({
-      path: testInfo.outputPath('frame-01-frozen-shell.png'),
-    });
-    const frozenBoardPixels = await frozenBoard.screenshot({
-      path: testInfo.outputPath('frame-01-frozen-board.png'),
-    });
+    await page.locator('.marble-level-button').first().tap();
 
-    // The shell's clipped screenshot excludes the fade/backdrop layer. The
-    // board screenshot is the exact moved canvas, so any change here signals a
-    // clone/geometry regression rather than a level-render difference below.
-    expect(changedPixelFraction(liveShell, frozenShell)).toBeLessThan(0.01);
-    expect(changedPixelFraction(liveBoardPixels, frozenBoardPixels)).toBeLessThan(0.01);
+    // The live overlay itself becomes the fade layer — no separate cover is
+    // created, and the real home nodes are never moved out of #hud-overlay. This
+    // is the renderer-proof invariant: nothing is cloned or reparented, so WebKit
+    // paints the same nodes it already had on screen.
+    const overlay = page.locator('#hud-overlay.home-play-entry');
+    await expect(overlay).toHaveCount(1, { timeout: 30_000 });
+    expect(await page.locator('#scene-transition-cover').count()).toBe(0);
+    expect(await page.locator('#hud-overlay > #home-shell').count()).toBe(1);
+    expect(await page.locator('#hud-overlay > .marble-home-board-preview').count()).toBe(1);
+    // The clone-into-cover mechanism is gone: no play-entry clone subtree exists.
+    expect(await page.locator('.play-entry-home-shell').count()).toBe(0);
 
-    for (let frame = 2; frame < 8; frame += 1) {
-      await page.waitForTimeout(160);
+    for (let frame = 1; frame < 8; frame += 1) {
+      await page.waitForTimeout(120);
       await page.screenshot({ path: testInfo.outputPath(`frame-0${frame}-transition.png`) });
-      const transitionState = await cover.getAttribute('data-transition-state');
-      if (transitionState === 'arming' || transitionState === 'holding') {
-        await expect(frozenBoard).toBeVisible();
-      }
     }
 
+    // The fade completes: the game is active, the home teardown has run, and the
+    // overlay lift is dropped — never leaving a stuck cover.
     await page.waitForFunction(
       () => {
         const game = (window as unknown as { __FIND_DOG_GAME__?: { scene?: { isActive?: (key: string) => boolean } } })
           .__FIND_DOG_GAME__;
+        const overlayEl = document.getElementById('hud-overlay');
         return game?.scene?.isActive?.('GameScene') === true
-          && document.getElementById('scene-transition-cover') === null;
+          && document.getElementById('scene-transition-cover') === null
+          && overlayEl?.classList.contains('home-play-entry') === false;
       },
       { timeout: 30_000 },
     );
