@@ -35,6 +35,14 @@ type FirebaseAnalyticsLoader = () => Promise<{
   };
 }>;
 
+// Marble Run must not block launch behind MAX's terms/privacy dialog. Keep
+// this game-level policy at composition rather than changing the shared SDK's
+// defaults for other games.
+const MARBLE_RUN_APPLOVIN_PRIVACY_ENV: Env = {
+  VITE_APPLOVIN_CONSENT_FLOW_ENABLED: 'false',
+  VITE_APPLOVIN_GDPR_TERMS_ALERT_ENABLED: 'false',
+};
+
 export interface SdkProviderSelection {
   readonly platform: 'android' | 'ios' | 'web';
   readonly analyticsSinks: readonly string[];
@@ -81,7 +89,10 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
     onFullScreenAdStarted: (): void => setMusicPausedForAd(true),
     onFullScreenAdFinished: (): void => setMusicPausedForAd(false),
   };
-  const appLovinConfig = readAppLovinConfigForPlatform(platform === 'ios' ? 'ios' : 'android', env);
+  const appLovinConfig = readAppLovinConfigForPlatform(platform === 'ios' ? 'ios' : 'android', {
+    ...env,
+    ...MARBLE_RUN_APPLOVIN_PRIVACY_ENV,
+  });
   const adFactories: AdProviderFactories = deps.adProviderFactories ?? {
     createAdMobProvider: defaultAdProviderFactories.createAdMobProvider,
     createAppLovinMaxProvider: (config) => new AppLovinMaxProvider(config, {
