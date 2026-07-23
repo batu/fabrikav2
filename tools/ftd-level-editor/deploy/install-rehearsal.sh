@@ -6,7 +6,7 @@ REPO_ROOT="$(cd "$EDITOR_ROOT/../.." && pwd)"
 SOURCE_AUTHORING="${FTD_V1_AUTHORING_ROOT:-/Users/base/dev/appletolye/fabrika/games/find_the_dog/pipeline/levelbuilder/levels}"
 DATA_ROOT="${FTD_EDITOR_DATA_ROOT:-$HOME/.ftd-editor-rehearsal}"
 ENV_FILE="${FTD_EDITOR_ENV_FILE:-/Users/base/dev/appletolye/.env}"
-PYTHON="$EDITOR_ROOT/.venv/bin/python"
+PYTHON="$(realpath "$EDITOR_ROOT/.venv/bin/python")"
 LABEL="com.appletolye.ftd-editor-rehearsal"
 PLIST_DEST="$HOME/Library/LaunchAgents/$LABEL.plist"
 
