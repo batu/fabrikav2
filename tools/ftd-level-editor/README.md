@@ -96,6 +96,15 @@ Git checkout, keeps v1 in `forbidden_roots`, starts one durable worker, and
 does not compose publishing. Point Portal's optional `ftd_editor.backend_url`
 at this loopback service and `ftd_editor.ui_root` at this package's `dist/`.
 
+For the Mac mini production rehearsal, install or refresh the launchd service:
+
+```sh
+tools/ftd-level-editor/deploy/install-rehearsal.sh
+```
+
+The service listens only on loopback port `5192`, stores cloned v2 rehearsal
+data under `~/.ftd-editor-rehearsal`, and leaves the v1 authoring root unchanged.
+
 ## Cutover
 
 The migration is complete and merged; the frozen activation candidate is commit
