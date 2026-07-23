@@ -114,10 +114,12 @@ describe('merge-gate CLI', () => {
     git('commit -q -m base');
     git('checkout -q -b feature');
     write('games/g/src/menu.ts', 'changed', 1000);
+    // The file is committed (clean), so freshness compares against its real
+    // commit time — the panel must be generated after that commit.
     write('docs/evidence/2026-07-07-device-verify/panel.json', JSON.stringify({
       game: 'g',
       lane: 'device',
-      generatedAt: '1970-01-01T00:00:02.000Z',
+      generatedAt: new Date(Date.now() + 60_000).toISOString(),
       verdict: { pass: false, score: 45, summary: 'FAIL — panel median 45%' },
       states: [],
     }), 2000);

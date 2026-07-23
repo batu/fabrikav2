@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { appendLedgerEntry, readLedger } from '../src/ledger.mjs';
+import { appendLedgerEntry, readLedger, resolveLedgerFile, LEDGER_PATH } from '../src/ledger.mjs';
 
 let dir;
 beforeEach(() => {
@@ -43,5 +43,25 @@ describe('appendLedgerEntry + readLedger (real fs, temp dir)', () => {
     expect(readLedger(ledger)).toEqual([]);
     fs.writeFileSync(ledger, '{"ts":"t","changed_files":[],"reason":"ok"}\nGARBAGE\n\n');
     expect(readLedger(ledger)).toHaveLength(1);
+  });
+});
+
+describe('resolveLedgerFile (worktree-shared .work root)', () => {
+  it('resolves to the main checkout when projectDir is a linked worktree', () => {
+    const run = () => ({ ok: true, stdout: '/repo/main/.git\n' });
+    expect(resolveLedgerFile('/repo/wt/agent-x', run)).toBe(path.join('/repo/main', LEDGER_PATH));
+  });
+
+  it('falls back to projectDir in the main checkout (relative .git)', () => {
+    const run = () => ({ ok: true, stdout: '.git\n' });
+    expect(resolveLedgerFile('/repo/main', run)).toBe(path.join('/repo/main', LEDGER_PATH));
+  });
+
+  it('falls back to projectDir when not a git repo or git errors', () => {
+    expect(resolveLedgerFile('/some/dir', () => ({ ok: false, stdout: '' })))
+      .toBe(path.join('/some/dir', LEDGER_PATH));
+    expect(resolveLedgerFile('/some/dir', () => { throw new Error('boom'); }))
+      .toBe(path.join('/some/dir', LEDGER_PATH));
+    expect(resolveLedgerFile('/some/dir')).toBe(path.join('/some/dir', LEDGER_PATH));
   });
 });
