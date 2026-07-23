@@ -6,16 +6,7 @@
     <string>com.appletolye.ftd-editor-rehearsal</string>
     <key>ProgramArguments</key>
     <array>
-        <string>__PYTHON__</string>
-        <string>__EDITOR_ROOT__/scripts/run_rehearsal.py</string>
-        <string>--source-authoring</string>
-        <string>__SOURCE_AUTHORING__</string>
-        <string>--root</string>
-        <string>__DATA_ROOT__</string>
-        <string>--env-file</string>
-        <string>__ENV_FILE__</string>
-        <string>--port</string>
-        <string>5192</string>
+        <string>__RUNNER__</string>
     </array>
     <key>WorkingDirectory</key>
     <string>__EDITOR_ROOT__</string>

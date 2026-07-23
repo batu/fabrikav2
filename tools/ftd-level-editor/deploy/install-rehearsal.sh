@@ -9,6 +9,7 @@ ENV_FILE="${FTD_EDITOR_ENV_FILE:-/Users/base/dev/appletolye/.env}"
 PYTHON="$(realpath "$EDITOR_ROOT/.venv/bin/python")"
 LABEL="com.appletolye.ftd-editor-rehearsal"
 PLIST_DEST="$HOME/Library/LaunchAgents/$LABEL.plist"
+RUNNER="$HOME/.local/bin/ftd-editor-rehearsal"
 
 test -d "$REPO_ROOT/.git" || test -f "$REPO_ROOT/.git"
 test -d "$SOURCE_AUTHORING"
@@ -16,7 +17,7 @@ test -f "$ENV_FILE"
 test -x "$PYTHON"
 
 (cd "$EDITOR_ROOT" && npm run build:live)
-mkdir -p "$DATA_ROOT/logs" "$HOME/Library/LaunchAgents"
+mkdir -p "$DATA_ROOT/logs" "$HOME/Library/LaunchAgents" "$HOME/.local/bin"
 
 sed \
   -e "s#__PYTHON__#$PYTHON#g" \
@@ -24,6 +25,13 @@ sed \
   -e "s#__SOURCE_AUTHORING__#$SOURCE_AUTHORING#g" \
   -e "s#__DATA_ROOT__#$DATA_ROOT#g" \
   -e "s#__ENV_FILE__#$ENV_FILE#g" \
+  "$EDITOR_ROOT/deploy/run-installed-rehearsal.sh" > "$RUNNER"
+chmod 755 "$RUNNER"
+
+sed \
+  -e "s#__RUNNER__#$RUNNER#g" \
+  -e "s#__EDITOR_ROOT__#$EDITOR_ROOT#g" \
+  -e "s#__DATA_ROOT__#$DATA_ROOT#g" \
   "$EDITOR_ROOT/deploy/com.appletolye.ftd-editor-rehearsal.plist" > "$PLIST_DEST"
 
 UID_NUM="$(id -u)"
