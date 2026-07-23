@@ -20,13 +20,10 @@ import {
 } from '../ui/HUD';
 import { preloadLevelCompleteAssets, showLevelCompleteOverlay, dismissLevelCompleteOverlay } from '../ui/LevelCompleteOverlay';
 import type { RatePromptHandle } from '../ui/RatePrompt';
-import { showLevelFailedOverlay, type FailContinueActionContext } from '../ui/LevelFailedOverlay';
+import { showLevelFailedOverlay } from '../ui/LevelFailedOverlay';
 import { hidePlayEntryTransitionCoverAfterSceneRender, hideSceneTransitionCoverAfterPaint, showSceneTransitionCover } from '../ui/SceneTransitionCover';
 import { remoteConfigService } from '../config/RemoteConfigService';
 import { buildFailContinueOffers, type FailContinueOfferSet, type FailContinueOption } from '../shop/FailContinueOffers';
-import { iapService } from '../shop/IapService';
-import { buildShopCatalog } from '../shop/ProductCatalog';
-import { fulfillVerifiedPurchaseOnce, makePurchaseRestoreRetry, reportUnfulfilledPurchase } from '../shop/PurchaseFulfillment';
 import { hasUserActivated, runWhenVisibleAndIdle, type CancelScheduledIdleWork } from '../platform/browserScheduling';
 import { registerLifecycleHooks } from '../platform/gameLifecycle';
 import { GameplayController, type GameplayHooks } from '../gameplay/GameplayController';
@@ -496,16 +493,7 @@ export class GameScene extends Phaser.Scene {
     showLevelFailedOverlay(this.level.id, {
       getOffers: () => this.buildFailContinueOfferSet(),
       getCoinBalance: () => gameState.coinBalance,
-      getIapProducts: () => iapService.snapshot().products,
-      shouldRefreshOffers: () => {
-        const iapSnapshot = iapService.snapshot();
-        const egoOfferProductId = remoteConfigService.value('egoOfferProductId');
-        const egoOfferStoreProduct = iapSnapshot.products.find((product) => product.productId === egoOfferProductId)?.storeProduct ?? null;
-        return iapSnapshot.state === 'idle'
-          || iapSnapshot.state === 'initializing'
-          || iapSnapshot.nativeOperationInProgress
-          || (iapSnapshot.state === 'ready' && egoOfferStoreProduct === null);
-      },
+      shouldRefreshOffers: () => false,
       onRetry: () => {
         const retryLevel = this.level;
         showSceneTransitionCover();
@@ -518,19 +506,15 @@ export class GameScene extends Phaser.Scene {
         }
       },
       onCoinContinue: async (option) => this.continueWithCoins(option),
-      onEgoOffer: async (option, context) => this.continueWithEgoOffer(option, context),
     });
   }
 
   private buildFailContinueOfferSet(): FailContinueOfferSet {
-    const iapSnapshot = iapService.snapshot();
-    const egoOfferProductId = remoteConfigService.value('egoOfferProductId');
-    const egoOfferStoreProduct = iapSnapshot.products.find((product) => product.productId === egoOfferProductId)?.storeProduct ?? null;
-
-    return buildFailContinueOffers({
+    const offers = buildFailContinueOffers({
       coins: gameState.coinBalance,
-      egoOfferPurchaseAvailable: iapSnapshot.state === 'ready' && egoOfferStoreProduct !== null && !iapSnapshot.nativeOperationInProgress,
+      egoOfferPurchaseAvailable: false,
     });
+    return { options: offers.options.filter((option) => option.kind !== 'egoOffer') };
   }
 
   private async continueWithCoins(option: FailContinueOption): Promise<{ resumed: boolean; message?: string }> {
@@ -550,42 +534,6 @@ export class GameScene extends Phaser.Scene {
       });
     }
     return resumed ? { resumed: true } : { resumed: false };
-  }
-
-  private async continueWithEgoOffer(option: FailContinueOption, context: FailContinueActionContext): Promise<{ resumed: boolean; message?: string }> {
-    if (option.productId === null) return { resumed: false, message: 'Purchase unavailable.' };
-    const purchase = await iapService.purchase(option.productId);
-    if (purchase.status !== 'purchased') {
-      return { resumed: false, message: purchase.status === 'cancelled' ? 'Purchase cancelled.' : 'Purchase unavailable.' };
-    }
-    const fulfillment = fulfillVerifiedPurchaseOnce(purchase, buildShopCatalog().products, gameState);
-    const resolved = await reportUnfulfilledPurchase(
-      fulfillment,
-      analytics,
-      makePurchaseRestoreRetry(purchase, {
-        restore: () => iapService.restore(),
-        products: () => buildShopCatalog().products,
-        wallet: gameState,
-      }),
-    );
-    if (resolved.status !== 'fulfilled' || resolved.grant?.continueLevel !== true) {
-      return { resumed: false, message: 'Purchase could not continue this level.' };
-    }
-    void analytics.purchaseFulfilled({
-      product_id: resolved.productId,
-      purchase_id: resolved.purchaseId,
-      no_ads: resolved.grant.noAds,
-      hints: resolved.grant.hints,
-      coins: resolved.grant.coins,
-      continue_level: resolved.grant.continueLevel,
-    });
-    if (!context.shouldResume()) {
-      if (this.level) updateHUD(this.level.dogs.length, false);
-      return { resumed: false, message: 'Purchase completed. Hints and coins were added; choose another continue option or retry.' };
-    }
-    return this.resumeFailedAttempt()
-      ? { resumed: true }
-      : { resumed: false };
   }
 
   private resumeFailedAttempt(): boolean {

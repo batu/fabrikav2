@@ -3,17 +3,13 @@ import { GAMEPLAY } from '../core/Constants';
 import { playUITap, playHint, setMusicEnabled, setSoundEffectsEnabled } from '../audio/AudioManager';
 import { syncAmbientMusicPreference } from '../audio/AmbientManager';
 import { analytics } from '../analytics/AnalyticsService';
-import { trackRewardedWatchedAfterGrant } from '../attribution/RewardedAttribution';
-import { adService, showRewardedAdForEconomy } from '../ads/Service';
-import { iapService, type IapRestoreResult, type IapServiceState, type IapSnapshot, type IapStoreProductSnapshot } from '../shop/IapService';
-import { buildHintBoosterOffers } from '../shop/HintBoosterOffers';
-import { buildFullShopCatalog, buildShopCatalog, type ShopCatalogProduct } from '../shop/ProductCatalog';
-import { fulfillVerifiedPurchaseOnce, makePurchaseRestoreRetry, reportUnfulfilledPurchase, restoreNonConsumableEntitlements } from '../shop/PurchaseFulfillment';
-import { animateHintsToBalance } from './EconomyTransfer';
+import { adService } from '../ads/Service';
+import { iapService, type IapServiceState, type IapSnapshot, type IapStoreProductSnapshot } from '../shop/IapService';
+import { buildShopCatalog, type ShopCatalogProduct } from '../shop/ProductCatalog';
+import { fulfillVerifiedPurchaseOnce, makePurchaseRestoreRetry, reportUnfulfilledPurchase } from '../shop/PurchaseFulfillment';
 import { getLegalLinks, type LegalLinks } from '../platform/LegalLinks';
 import { privacyConsentService } from '../privacy/PrivacyConsentService';
 import { notificationService } from '../notifications/NotificationService';
-import { rewardedAdIconMarkup } from './RewardedAdIcon';
 import { hideHomeMenuLayer } from './OverlayVisibility';
 import { mountSettings } from '../menu/settings';
 import { getModalRoot } from './modalRoot';
@@ -41,14 +37,8 @@ function schedulePreloadIfRewardedPathAvailable(): void {
 let lastKnownTotalDogs = 0;
 let lastKnownRestorationActive = false;
 
-type RestoreUiState = 'idle' | 'initializing' | 'busy' | 'unavailable' | 'pending' | 'restored' | 'empty' | 'failed';
-
 const IAP_CONTROL_REFRESH_MS = 250;
 
-let restoreUiState: RestoreUiState = 'idle';
-let activeRestorePromise: Promise<RestoreUiState> | null = null;
-let awaitingLateRestoreResult = false;
-let lateRestorePollScheduled = false;
 let shopNativeOperationRefreshScheduledFor: HTMLElement | null = null;
 
 function openExternalUrl(url: string): void {
@@ -58,45 +48,6 @@ function openExternalUrl(url: string): void {
 function openLegalLink(key: keyof LegalLinks): void {
   const links = getLegalLinks();
   openExternalUrl(links[key]);
-}
-
-/** Handle a tap on the hint button when hintsRemaining === 0 but a rewarded ad is available. */
-async function handleRewardedHintTap(hintBtn: HTMLButtonElement): Promise<void> {
-  if (hintBtn.dataset.pending === '1') return;
-  hintBtn.dataset.pending = '1';
-  const originalLabel = hintBtn.innerHTML;
-  hintBtn.innerHTML = `${rewardedAdIconMarkup('hint-booster-ad-icon')}<span class="hint-booster-action-copy"><span>Loading...</span><small>Opening ad</small></span>`;
-  hintBtn.disabled = true;
-  try {
-    const { granted } = await showRewardedAdForEconomy();
-    if (granted) {
-      const source = document.getElementById('hint-booster-watch-ad') ?? hintBtn;
-      const hintGranted = trackRewardedWatchedAfterGrant(
-        { granted },
-        'hint_button',
-        () => gameState.grantRewardedHint(),
-      );
-      if (!hintGranted) return;
-      playHint();
-      void animateHintsToBalance({ amount: 1, source });
-      void analytics.rewardedAdGranted({ placement: 'hint_button' });
-      void analytics.resourceChanged({
-        flow_type: 'source',
-        currency: 'hints',
-        amount: 1,
-        item_type: 'rewarded',
-        item_id: 'rewarded_hint',
-      });
-      hintCallback?.();
-      void analytics.settingsChanged({ setting_name: 'rewardedHintGranted', new_value: String(gameState.rewardedHintsToday) });
-    }
-  } finally {
-    delete hintBtn.dataset.pending;
-    hintBtn.innerHTML = originalLabel;
-    updateHUD(lastKnownTotalDogs, lastKnownRestorationActive);
-    // Preload the next one so a rapid second earn is still fast.
-    schedulePreloadIfRewardedPathAvailable();
-  }
 }
 
 export function initHUD(): void {
@@ -139,12 +90,9 @@ export function initHUD(): void {
   hintBtn?.addEventListener('click', () => {
     playUITap();
     if (gameState.hintCircleActive) return;
-    if (gameState.hintsRemaining > 0) {
-      playHint();
-      hintCallback?.();
-      return;
-    }
-    showHintBoosterModal();
+    if (gameState.hintsRemaining <= 0) return;
+    playHint();
+    hintCallback?.();
   });
 
   schedulePreloadIfRewardedPathAvailable();
@@ -256,7 +204,7 @@ export function updateHUD(totalDogs: number, restorationActive: boolean = false)
 
   // Hint button — two visual states:
   //   hintsRemaining > 0: normal "💡 N"
-  //   hintsRemaining === 0: opens the hint booster modal.
+  //   hintsRemaining === 0: disabled. Marble Run has no hint top-up surface.
   const hintBtn = document.getElementById('hint-btn') as HTMLButtonElement | null;
   if (hintBtn) {
     const hasHints = gameState.hintsRemaining > 0;
@@ -270,7 +218,7 @@ export function updateHUD(totalDogs: number, restorationActive: boolean = false)
       hintBtn.classList.toggle('pulse', !gameState.hintCircleActive);
     } else {
       hintBtn.innerHTML = '<img class="hud-pill-icon" src="/ui/menu-icons/icon_hint_magnifier.png" alt="" aria-hidden="true" data-economy-anchor="hint"><span class="hint-count">0</span>';
-      hintBtn.disabled = gameState.hintCircleActive;
+      hintBtn.disabled = true;
       hintBtn.classList.remove('pulse');
     }
   }
@@ -293,134 +241,6 @@ export function animateLifeLost(): void {
   // (no-op for a purely cosmetic animation) the `?.` below handles.
   const justLost = pips[gameState.lives] as HTMLElement | undefined;
   justLost?.classList.add('heart-lost');
-}
-
-function showHintBoosterModal(): void {
-  const overlay = document.getElementById('hud-overlay');
-  if (!overlay || document.getElementById('hint-booster-modal')) return;
-
-  const offers = buildHintBoosterOffers({
-    hints: gameState.hintsRemaining,
-    coins: gameState.coinBalance,
-    adsEnabled: gameState.settings.adsEnabled,
-    hasNoAdsEntitlement: gameState.hasNoAdsEntitlement,
-    rewardedAdAvailable: !gameState.isRewardedHintCapped(),
-  });
-  const bundle = offers.options.find((option) => option.kind === 'coinBundle');
-  const coinSingle = offers.options.find((option) => option.kind === 'coinSingle');
-  const rewardedAd = offers.options.find((option) => option.kind === 'rewardedAd');
-
-  const modal = document.createElement('div');
-  modal.id = 'hint-booster-modal';
-  modal.className = 'modal-backdrop';
-  modal.innerHTML = `
-    <div class="modal-card hint-booster-card" role="dialog" aria-modal="true" aria-labelledby="hint-booster-title">
-      <h2 id="hint-booster-title">Out of hints?</h2>
-      <p class="hint-booster-copy">Get a fresh hint pack and use one right away.</p>
-      <div class="hint-booster-balance">
-        <img class="hud-inline-icon" src="/ui/menu-icons/icon_coin.png" alt="" aria-hidden="true">
-        <span id="hint-booster-coin-balance">${gameState.coinBalance}</span> coins
-      </div>
-      <div class="hint-booster-actions">
-        ${bundle ? `
-          <button id="hint-booster-buy-bundle" class="hint-booster-primary" type="button" ${bundle.status === 'available' ? '' : 'disabled'}>
-            Get ${bundle.hintAmount} hints — ${bundle.coinPrice} coins
-          </button>
-        ` : ''}
-        ${rewardedAd ? `
-          <button id="hint-booster-watch-ad" class="hint-booster-secondary rewarded-ad-button" type="button" ${rewardedAd.status === 'available' ? '' : 'disabled'}>
-            ${rewardedAdIconMarkup('hint-booster-ad-icon')}
-            <span class="hint-booster-action-copy">
-              <span>Watch Ad</span>
-              <small>+${rewardedAd.hintAmount} hint</small>
-            </span>
-          </button>
-        ` : ''}
-        ${coinSingle ? `
-          <button id="hint-booster-buy-single" class="hint-booster-secondary" type="button" ${coinSingle.status === 'available' ? '' : 'disabled'}>
-            Buy 1 hint — ${coinSingle.coinPrice} coins
-          </button>
-        ` : ''}
-      </div>
-      ${bundle?.status === 'insufficientCoins' && coinSingle?.status !== 'available' ? '<p class="hint-booster-note">Not enough coins for the 3-hint booster.</p>' : ''}
-      <button id="hint-booster-close" class="hint-booster-close" type="button">Maybe later</button>
-    </div>
-  `;
-
-  modal.addEventListener('click', (event) => {
-    if (event.target === modal) closeHintBoosterModal();
-  });
-  modal.querySelector('#hint-booster-close')?.addEventListener('click', closeHintBoosterModal);
-  modal.querySelector('#hint-booster-buy-bundle')?.addEventListener('click', () => {
-    if (!bundle || bundle.status !== 'available') return;
-    const spent = gameState.spendCoins(bundle.coinPrice, 'shop');
-    if (!spent) {
-      updateHUD(lastKnownTotalDogs, lastKnownRestorationActive);
-      return;
-    }
-    const hintsGranted = gameState.grantHints(bundle.hintAmount, 'shop');
-    void analytics.resourceChanged({
-      flow_type: 'sink',
-      currency: 'coins',
-      amount: bundle.coinPrice,
-      item_type: 'hint',
-      item_id: 'hint_booster_bundle',
-    });
-    void analytics.resourceChanged({
-      flow_type: 'source',
-      currency: 'hints',
-      amount: hintsGranted,
-      item_type: 'shop',
-      item_id: 'hint_booster_bundle',
-    });
-    if (hintsGranted > 0) {
-      void animateHintsToBalance({ amount: hintsGranted, source: modal.querySelector('#hint-booster-buy-bundle') });
-    }
-    closeHintBoosterModal();
-    playHint();
-    hintCallback?.();
-    updateHUD(lastKnownTotalDogs, lastKnownRestorationActive);
-  });
-  modal.querySelector('#hint-booster-buy-single')?.addEventListener('click', () => {
-    if (!coinSingle || coinSingle.status !== 'available') return;
-    const spent = gameState.spendCoins(coinSingle.coinPrice, 'shop');
-    if (!spent) {
-      updateHUD(lastKnownTotalDogs, lastKnownRestorationActive);
-      return;
-    }
-    const hintsGranted = gameState.grantHints(coinSingle.hintAmount, 'shop');
-    void analytics.resourceChanged({
-      flow_type: 'sink',
-      currency: 'coins',
-      amount: coinSingle.coinPrice,
-      item_type: 'hint',
-      item_id: 'hint_booster_single',
-    });
-    void analytics.resourceChanged({
-      flow_type: 'source',
-      currency: 'hints',
-      amount: hintsGranted,
-      item_type: 'shop',
-      item_id: 'hint_booster_single',
-    });
-    if (hintsGranted > 0) {
-      void animateHintsToBalance({ amount: hintsGranted, source: modal.querySelector('#hint-booster-buy-single') });
-    }
-    closeHintBoosterModal();
-    playHint();
-    hintCallback?.();
-    updateHUD(lastKnownTotalDogs, lastKnownRestorationActive);
-  });
-  modal.querySelector('#hint-booster-watch-ad')?.addEventListener('click', () => {
-    const button = modal.querySelector<HTMLButtonElement>('#hint-booster-watch-ad');
-    if (!button || rewardedAd?.status !== 'available') return;
-    void handleRewardedHintTap(button).finally(() => closeHintBoosterModal());
-  });
-  overlay.appendChild(modal);
-}
-
-function closeHintBoosterModal(): void {
-  document.getElementById('hint-booster-modal')?.remove();
 }
 
 function updateRestorationProgress(_totalDogs: number, _restorationActive: boolean): void {
@@ -483,8 +303,6 @@ export function openPage(
   if (id === 'settings') {
     page.classList.add('home-page-settings');
     wireSettingsPageListeners(page);
-    // Restore Purchases now lives in Settings (moved out of the Shop footer).
-    configureRestorePurchasesControl(page);
   }
   if (id === 'shop') page.classList.add('home-page-shop');
   // Deep-link opens jump to a section, so skip the staggered content entrance
@@ -874,8 +692,6 @@ function renderSettingsRows(): string {
       </button>
       <div class="settings-legal-footer" aria-label="Privacy, legal, and support links">
         <button id="privacy-choices-btn" class="settings-footer-link settings-footer-action" type="button" aria-label="Privacy choices, opens consent options">Privacy choices</button>
-        <button id="settings-restore-btn" class="settings-footer-link settings-footer-action settings-restore-btn" type="button" aria-describedby="settings-restore-status">Restore Purchases</button>
-        <span id="settings-restore-status" class="settings-restore-status" aria-live="polite">Restore No Ads purchases on this device.</span>
         <div class="settings-legal-links">
           <button id="privacy-policy-link-btn" class="settings-footer-link" type="button" aria-label="Privacy Policy, opens in browser">Privacy</button>
           <span class="settings-footer-separator" aria-hidden="true">•</span>
@@ -969,193 +785,8 @@ function wireSettingsPageListeners(page: HTMLElement): void {
   });
 }
 
-function configureRestorePurchasesControl(modal: HTMLElement): void {
-  const controls = shopRestoreControls(modal);
-  if (restoreUiState !== 'pending' && restoreUiState !== 'restored') {
-    restoreUiState = nextRestoreUiStateFromIap();
-  }
-  renderRestoreControl(controls, restoreUiState);
-  controls.button.addEventListener('click', () => {
-    void restorePurchasesFromShop();
-  });
-  scheduleRestoreControlRefresh(modal);
-}
-
-function shopRestoreControls(page: HTMLElement): { button: HTMLButtonElement; status: HTMLElement } {
-  const button = page.querySelector<HTMLButtonElement>('#settings-restore-btn');
-  const status = page.querySelector<HTMLElement>('#settings-restore-status');
-  if (button === null || status === null) {
-    throw new Error('restore controls are missing from the settings page');
-  }
-  return { button, status };
-}
-
-function restoreUiStateForIapSnapshot(iapSnapshot: IapSnapshot): RestoreUiState {
-  if (activeRestorePromise !== null) return 'pending';
-  if (restoreUiState === 'restored' || restoreUiState === 'empty' || restoreUiState === 'failed') return restoreUiState;
-  if (iapSnapshot.nativeOperationInProgress) return 'busy';
-  if (iapSnapshot.state === 'ready') return 'idle';
-  if (iapSnapshot.state === 'idle' || iapSnapshot.state === 'initializing') return 'initializing';
-  return 'unavailable';
-}
-
-function applyCompletedRestoreResultIfAvailable(): RestoreUiState | null {
-  const completedRestore = iapService.consumeCompletedRestoreResult();
-  if (completedRestore === null) return null;
-  awaitingLateRestoreResult = false;
-  restoreUiState = applyRestoreResult(completedRestore);
-  renderCurrentRestoreControl();
-  renderCurrentShopPurchaseControls();
-  return restoreUiState;
-}
-
-function nextRestoreUiStateFromIap(): RestoreUiState {
-  const completedRestoreState = applyCompletedRestoreResultIfAvailable();
-  if (completedRestoreState !== null) return completedRestoreState;
-  return restoreUiStateForIapSnapshot(iapService.snapshot());
-}
-
-function scheduleLateRestoreResultPoll(): void {
-  if (lateRestorePollScheduled) return;
-  lateRestorePollScheduled = true;
-  window.setTimeout(() => {
-    lateRestorePollScheduled = false;
-    const completedRestoreState = applyCompletedRestoreResultIfAvailable();
-    if (completedRestoreState !== null) return;
-
-    const snapshot = iapService.snapshot();
-    if (awaitingLateRestoreResult && snapshot.restoreInProgress) {
-      scheduleLateRestoreResultPoll();
-      return;
-    }
-
-    awaitingLateRestoreResult = false;
-    restoreUiState = restoreUiStateForIapSnapshot(snapshot);
-    renderCurrentRestoreControl();
-    renderCurrentShopPurchaseControls();
-  }, IAP_CONTROL_REFRESH_MS);
-}
-
-function restoreStatusText(state: RestoreUiState): string {
-  if (state === 'idle') return 'Restore No Ads purchases on this device.';
-  if (state === 'initializing') return 'Store is still loading.';
-  if (state === 'busy') return 'Store operation in progress.';
-  if (state === 'pending') return 'Checking your purchases…';
-  if (state === 'restored') return '✓ No Ads restored.';
-  if (state === 'empty') return 'No restorable No Ads purchase found.';
-  if (state === 'failed') return 'Restore failed. Try again later.';
-  return 'Store unavailable on this build.';
-}
-
-function renderRestoreControl(controls: { button: HTMLButtonElement; status: HTMLElement }, state: RestoreUiState): void {
-  const nativeOperationInProgress = iapService.snapshot().nativeOperationInProgress;
-  controls.status.textContent = restoreStatusText(state);
-  controls.status.dataset.restoreState = state;
-  controls.button.dataset.restoreState = state;
-  controls.button.textContent = state === 'pending' ? 'Restoring…' : state === 'restored' ? 'Restored' : 'Restore Purchases';
-  controls.button.disabled = nativeOperationInProgress
-    || state === 'pending'
-    || state === 'restored'
-    || state === 'initializing'
-    || state === 'busy'
-    || state === 'unavailable';
-}
-
 function currentShopModal(): HTMLElement | null {
   return document.querySelector<HTMLElement>('#home-page-overlay.home-page-shop') ?? null;
-}
-
-/** Restore Purchases lives on the Settings page now (moved out of the Shop). */
-function currentRestorePage(): HTMLElement | null {
-  return document.querySelector<HTMLElement>('#home-page-overlay.home-page-settings') ?? null;
-}
-
-function renderCurrentRestoreControl(): void {
-  const page = currentRestorePage();
-  if (page === null) return;
-  renderRestoreControl(shopRestoreControls(page), restoreUiState);
-}
-
-function refreshCurrentRestoreControl(): void {
-  const page = currentRestorePage();
-  if (page === null) return;
-  if (restoreUiState !== 'pending' && restoreUiState !== 'restored') {
-    restoreUiState = nextRestoreUiStateFromIap();
-  }
-  renderRestoreControl(shopRestoreControls(page), restoreUiState);
-  scheduleRestoreControlRefresh(page);
-}
-
-function scheduleRestoreControlRefresh(modal: HTMLElement): void {
-  if (restoreUiState !== 'initializing' && restoreUiState !== 'busy') return;
-  window.setTimeout(() => {
-    if (!modal.isConnected) return;
-    restoreUiState = nextRestoreUiStateFromIap();
-    renderRestoreControl(shopRestoreControls(modal), restoreUiState);
-    renderCurrentShopPurchaseControls();
-    scheduleRestoreControlRefresh(modal);
-  }, IAP_CONTROL_REFRESH_MS);
-}
-
-function restoreResultUiState(result: RestoreUiState): RestoreUiState {
-  if ((result === 'busy' || result === 'failed' || result === 'unavailable') && iapService.snapshot().restoreInProgress) {
-    awaitingLateRestoreResult = true;
-    scheduleLateRestoreResultPoll();
-    return 'busy';
-  }
-  return result;
-}
-
-async function restorePurchasesFromShop(): Promise<void> {
-  if (activeRestorePromise !== null) {
-    restoreUiState = 'pending';
-    renderCurrentRestoreControl();
-    renderCurrentShopPurchaseControls();
-    return;
-  }
-  if (iapService.snapshot().nativeOperationInProgress) return;
-  if (restoreUiState === 'pending' || restoreUiState === 'restored' || restoreUiState === 'initializing' || restoreUiState === 'busy' || restoreUiState === 'unavailable') return;
-
-  playUITap();
-  restoreUiState = 'pending';
-  activeRestorePromise = applyRestoredPurchases();
-  renderCurrentRestoreControl();
-  renderCurrentShopPurchaseControls();
-  try {
-    restoreUiState = restoreResultUiState(await activeRestorePromise);
-  } finally {
-    activeRestorePromise = null;
-    renderCurrentRestoreControl();
-    renderCurrentShopPurchaseControls();
-    const page = currentRestorePage();
-    if (page !== null) scheduleRestoreControlRefresh(page);
-  }
-}
-
-async function applyRestoredPurchases(): Promise<RestoreUiState> {
-  return applyRestoreResult(await iapService.restore());
-}
-
-function applyRestoreResult(restore: IapRestoreResult): RestoreUiState {
-  if (restore.status === 'unavailable') {
-    return iapService.snapshot().nativeOperationInProgress ? 'busy' : 'unavailable';
-  }
-  if (restore.status !== 'restored') {
-    return iapService.snapshot().nativeOperationInProgress ? 'busy' : 'failed';
-  }
-
-  const grant = restoreNonConsumableEntitlements(
-    restore.ownedProductIds,
-    buildFullShopCatalog().products,
-    gameState,
-  );
-
-  if (!grant.noAds) return 'empty';
-
-  updateHUD(lastKnownTotalDogs, lastKnownRestorationActive);
-  showToast('No Ads restored');
-  void adService.hideBanner();
-  return 'restored';
 }
 
 function applyShopPurchaseButtonState(
@@ -1230,7 +861,6 @@ function scheduleShopNativeOperationRefresh(modal: HTMLElement): void {
     const currentModal = modal.isConnected ? modal : currentShopModal();
     if (currentModal === null) return;
     renderCurrentShopPurchaseControls();
-    renderCurrentRestoreControl();
     scheduleShopNativeOperationRefresh(currentModal);
   }, IAP_CONTROL_REFRESH_MS);
 }
@@ -1250,7 +880,6 @@ async function purchaseShopProduct(
   try {
     const purchasePromise = iapService.purchase(product.productId);
     renderCurrentShopPurchaseControls();
-    refreshCurrentRestoreControl();
     const purchase = await purchasePromise;
     action.classList.remove('shop-btn-purchasing');
     if (purchase.status !== 'purchased') {
@@ -1302,7 +931,6 @@ async function purchaseShopProduct(
   } finally {
     window.setTimeout(() => {
       renderCurrentShopPurchaseControls();
-      refreshCurrentRestoreControl();
       if (!action.isConnected) return;
       const iapSnapshot = iapService.snapshot();
       applyShopPurchaseButtonState(

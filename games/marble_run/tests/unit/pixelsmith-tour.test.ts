@@ -20,7 +20,6 @@ const SNAPSHOTS: Record<PixelsmithState, Record<string, unknown>> = {
   // pause = in-game settings modal, settings = menu (Close) settings modal.
   win: { activeScene: "GameScene", homeShellVisible: false, levelCompleteOverlayVisible: true },
   pause: { activeScene: "GameScene", homeShellVisible: false, settingsVariant: "ingame" },
-  shop: { shopOpen: true, homeShellVisible: true },
   settings: { homeShellVisible: true, settingsVariant: "menu" },
 };
 
@@ -111,14 +110,14 @@ describe("marble_run maybeRunInsituTour — single pixelsmith state", () => {
   }
 
   it("marks <state>-FAILED (never the bare state) when the drive never settles", async () => {
-    const harness = makeHarness("shop", async () => new Promise<boolean>(() => {}));
+    const harness = makeHarness("settings", async () => new Promise<boolean>(() => {}));
 
-    const run = runSingleStateTour("shop", harness);
+    const run = runSingleStateTour("settings", harness);
     await vi.runAllTimersAsync();
     await run;
 
-    expect(ariaHistory).toContain("tourstate:shop-FAILED");
-    expect(ariaHistory).not.toContain("tourstate:shop");
+    expect(ariaHistory).toContain("tourstate:settings-FAILED");
+    expect(ariaHistory).not.toContain("tourstate:settings");
   });
 
   it("does not seed the default save profile for home-fresh", async () => {
@@ -146,7 +145,7 @@ describe("marble_run maybeRunInsituTour — single pixelsmith state", () => {
   it("seeds the default save profile for a non-home-fresh state", async () => {
     const calls: string[] = [];
     const harness = makeHarness(
-      "shop",
+      "settings",
       async () => true,
       {
         resetSave: () => {
@@ -158,7 +157,7 @@ describe("marble_run maybeRunInsituTour — single pixelsmith state", () => {
       },
     );
 
-    const run = runSingleStateTour("shop", harness);
+    const run = runSingleStateTour("settings", harness);
     await vi.runAllTimersAsync();
     await run;
 

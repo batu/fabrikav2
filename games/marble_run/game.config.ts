@@ -11,11 +11,10 @@ export const gameConfig = {
   // the actual title lives in design/copy.ts and a reskin edits it through the
   // design sheet. `satisfies CopyKey` fails typecheck if a literal is pasted here.
   title: "game.title" satisfies CopyKey,
-  screens: ["HomeMenu", "SagaMap", "Shop", "Settings", "ResultCard", "PauseOverlay", "Toast", "ConnectivityIndicator"],
+  screens: ["HomeMenu", "SagaMap", "Settings", "ResultCard", "PauseOverlay", "Toast", "ConnectivityIndicator"],
   saga: { levels: 20 },
-  // Shell feature toggles. Hints are a shell-owned system (balance, boosters,
-  // shop offers, HUD pill); a game without a hint mechanic flips this off and
-  // the HUD hides the pill while the economy plumbing stays compiled-in.
+  // Shell feature toggles. Marble Run spends coins directly for gameplay hints;
+  // there is deliberately no booster or shop fallback when the balance is low.
   features: { hints: true },
   // Optional ambient game scene rendered on the canvas behind the home shell
   // (see src/menu/MenuVignette.ts). 'none' disables; 'demo' is the template's
