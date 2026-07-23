@@ -1,0 +1,39 @@
+{
+  "name": "find-the-dog-level-editor",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "test:animation-library-page": "node tests/animation-library-page-smoke.mjs",
+    "test:sprite-browser": "node tests/sprite-browser-refresh-smoke.mjs",
+    "test:sprite-animation-wizard": "node tests/sprite-animation-wizard-smoke.mjs",
+    "test:sprite-animation-review-library": "node tests/sprite-animation-review-library-smoke.mjs",
+    "test:cutout-review-panel": "node tests/cutout-review-panel-smoke.mjs",
+    "test:step-place-dogs": "node tests/step-place-dogs-smoke.mjs",
+    "test:inpaint-job-resume": "node tests/inpaint-job-resume-smoke.mjs",
+    "test:step-inpaint-retry": "node tests/step-inpaint-retry-smoke.mjs",
+    "test:sequence-page": "node tests/sequence-page-smoke.mjs",
+    "test:golden-path": "node tests/golden-path-journey-smoke.mjs",
+    "test:wizard-many-scenes": "node tests/wizard-many-scenes-smoke.mjs",
+    "test:gallery-retired-actions": "node tests/gallery-retired-actions-smoke.mjs",
+    "test:bg-stream-cache": "node tests/bg-stream-cache-smoke.mjs",
+    "preview": "vite preview",
+    "test:dogs-canvas": "node tests/dogs-canvas-smoke.mjs",
+    "test:smoke-all": "node tests/run-all-smokes.mjs",
+    "test:prompts-page": "node tests/prompts-page-smoke.mjs"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.101.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.2"
+  }
+}
