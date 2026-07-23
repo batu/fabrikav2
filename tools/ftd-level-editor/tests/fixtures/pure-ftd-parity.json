@@ -33,7 +33,7 @@
     ]
   },
   "provenance": {
-    "legacyPromptSourceSha256": "3b9389c32a4e1ce72801876fbe81e6f47fa4a5f56ab6571a0cdcef3a6c7d3c8c",
+    "legacyPromptSourceSha256": "7061d36e212d10e63811321ba8bdd11157095b1535d9087e244aca9823a44ea2",
     "note": "Generated once from the read-only v1 prompt catalog; runtime has no legacy dependency."
   },
   "pureFtd": {
@@ -133,7 +133,7 @@
       "oldPixelCat": "619475f8cd9688285ae76a5349f88883b05cceee57cf9b61be5ffd3d59c1536f"
     },
     "prompts": {
-      "catalogSha256": "567a2905e82e9b835c8cd7bcc590380cfad7198547a43c30af26ecb6f5d71c35",
+      "catalogSha256": "f924ee1605b1c910fcb75a2a70cc82b31ba2d781649b7b810658174fe807b636",
       "entities": [
         "capybara",
         "cat",
@@ -142,6 +142,16 @@
       ],
       "model": "google/gemini-3.1-flash-image-preview",
       "scenes": [
+        "ad_autumn_forest",
+        "ad_bazaar_alley",
+        "ad_beach_tidepools",
+        "ad_castle_market",
+        "ad_cozy_library",
+        "ad_farm_orchard",
+        "ad_japanese_garden",
+        "ad_snowy_chalet",
+        "ad_treehouse_village",
+        "ad_winter_night_plaza",
         "fairytale_forest_enchanted_stream_crossing",
         "fairytale_forest_fairy_ring_picnic",
         "fairytale_forest_giant_hollow_tree_library",
@@ -189,6 +199,7 @@
         "uk_seaside_pier"
       ],
       "settings": [
+        "ad_campaigns",
         "fairytale_forest",
         "france",
         "hawaii",
