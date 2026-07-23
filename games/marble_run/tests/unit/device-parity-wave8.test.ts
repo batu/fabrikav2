@@ -63,4 +63,23 @@ describe("device parity wave 8 CSS pins", () => {
     expect(shellArtCss()).toMatch(/@keyframes marble-sprinkle-fall/);
     handle.dismiss();
   });
+
+  it("stacks the home banner above the rotating board above the saga rail (MRV2-23 item 3b)", () => {
+    // Strip CSS comments so prose like "z-index:4" inside explanatory blocks
+    // cannot be mistaken for an actual declaration.
+    const css = shellArtCss().replace(/\/\*[\s\S]*?\*\//g, "");
+
+    const banner = css.match(/\.marble-home-banner \{[^}]*\}/);
+    expect(banner).not.toBeNull();
+    const bannerZ = Number(banner![0].match(/z-index:\s*(\d+)/)?.[1]);
+
+    const board = css.match(/#hud-overlay > \.marble-home-board-preview \{[^}]*\}/);
+    expect(board).not.toBeNull();
+    const boardZ = Number(board![0].match(/z-index:\s*(\d+)/)?.[1]);
+
+    // banner > board so the wooden title always paints over the tilted decor.
+    expect(bannerZ).toBeGreaterThan(boardZ);
+    // board stays above the shell/saga content layer (.marble-ui > * is z-index:1).
+    expect(boardZ).toBeGreaterThan(1);
+  });
 });

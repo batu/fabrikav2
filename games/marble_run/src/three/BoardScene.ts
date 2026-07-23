@@ -240,7 +240,7 @@ export class BoardScene {
       const beam = new THREE.Mesh(
         beamGeo,
         new THREE.MeshBasicMaterial({
-          color: index % 2 === 0 ? 0xffffff : color,
+          color,
           transparent: true,
           opacity: 0.78,
           depthWrite: false,
@@ -256,7 +256,7 @@ export class BoardScene {
 
     const markerGeo = new THREE.TorusGeometry(W3D.DIMPLE_R * 0.34, 0.026, 8, 24);
     const markerMat = new THREE.MeshBasicMaterial({
-      color: 0xffffff,
+      color,
       transparent: true,
       opacity: 0.86,
     });

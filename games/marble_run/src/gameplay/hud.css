@@ -398,23 +398,67 @@
 }
 
 /* ── tutorial hand ───────────────────────────────────────────────
- * MRV2-9 U5: v1's teach shows a clean board with the engine route hint — no
- * emoji hand, no white spotlight, no full-screen charcoal scrim. The layer is
- * now a transparent, non-dimming container that carries only the target ring. */
-/* Device-parity MRV2-10 U7.5: the round-3 teach ref (refs/gameplay-teach.png)
-   dims the WHOLE screen (board + UI) under a dark purple translucent scrim and
-   shows NO yellow highlight ring — the route hint is drawn by the engine on the
-   board itself. (This supersedes the MRV2-9 clean-board reading.) */
+ * MRV2-23 item 2: ported from v1 sugar3d/src/ui/style.css tutorial-* rules.
+ * The radial cutout leaves the target bright; the pale ring and 👆 glyph are
+ * anchored to the projected target coordinates. */
 .mr-gameplay-screen .tutorial-hand-layer {
   position: absolute;
   inset: 0;
   z-index: 5;
   pointer-events: none;
-  background: rgba(38, 20, 58, 0.52);
+  background: radial-gradient(
+    circle 78px at var(--tx) var(--ty),
+    rgba(19, 12, 24, 0) 0 62px,
+    rgba(19, 12, 24, 0.14) 72px,
+    rgba(19, 12, 24, 0.48) 96px
+  );
   animation: mr-fadein 0.18s ease;
 }
+.mr-gameplay-screen .tutorial-hand-layer.tutorial-reject {
+  background:
+    radial-gradient(
+      circle 88px at var(--tx) var(--ty),
+      rgba(255, 255, 255, 0.02) 0 54px,
+      rgba(255, 72, 90, 0.16) 68px,
+      rgba(255, 72, 90, 0.36) 94px,
+      rgba(19, 12, 24, 0.52) 126px
+    );
+  animation: mr-tutorial-reject-layer 0.42s ease;
+}
+.mr-gameplay-screen .tutorial-spotlight,
+.mr-gameplay-screen .tutorial-ring,
+.mr-gameplay-screen .tutorial-hand {
+  position: absolute;
+  left: var(--tx);
+  top: var(--ty);
+  pointer-events: none;
+}
+.mr-gameplay-screen .tutorial-spotlight {
+  width: 142px;
+  height: 142px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0 42%, rgba(255, 255, 255, 0.04) 58%, rgba(255, 255, 255, 0) 72%);
+}
 .mr-gameplay-screen .tutorial-ring {
-  display: none;
+  width: 86px;
+  height: 86px;
+  border: 6px solid rgba(255, 250, 178, 0.98);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  filter:
+    drop-shadow(0 4px 5px rgba(22, 13, 8, 0.42))
+    drop-shadow(0 0 12px rgba(255, 238, 112, 0.36));
+  animation: mr-tutorial-ring-pulse 1.05s ease-in-out infinite;
+}
+.mr-gameplay-screen .tutorial-hand {
+  font-size: 92px;
+  line-height: 1;
+  transform: translate(-50%, -14px);
+  filter:
+    drop-shadow(0 5px 0 #26150f)
+    drop-shadow(0 12px 15px rgba(21, 13, 8, 0.42));
+  animation: mr-tutorial-hand-tap 1.05s ease-in-out infinite;
 }
 .mr-gameplay-screen .tutorial-reject .tutorial-ring {
   border-color: #ff6b63;
@@ -422,6 +466,12 @@
     drop-shadow(0 4px 5px rgba(22, 13, 8, 0.42))
     drop-shadow(0 0 18px rgba(255, 55, 72, 0.72));
   animation: mr-tutorial-reject-ring 0.42s ease;
+}
+.mr-gameplay-screen .tutorial-reject .tutorial-spotlight {
+  background: radial-gradient(circle, rgba(255, 98, 116, 0.22) 0 42%, rgba(255, 98, 116, 0.1) 58%, rgba(255, 98, 116, 0) 72%);
+}
+.mr-gameplay-screen .tutorial-reject .tutorial-hand {
+  animation: mr-tutorial-hand-reject 0.42s ease;
 }
 
 /* ── keyframes (renamed with mr- prefix to avoid shell collisions) ── */

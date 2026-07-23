@@ -164,6 +164,14 @@ body {
 .marble-home-banner {
   grid-column: 1 / -1;
   position: relative;
+  /* MRV2-23 item 3b: the wooden banner must paint ABOVE the rotating decor board
+     (#hud-overlay > .marble-home-board-preview, z-index:2), while the saga rail
+     stays behind it. The board raise (MRV2-20 item 4) already documented this
+     intended banner level ("banner z-index:4") but it was never applied here, so
+     the board rendered OVER the banner. .marble-home-header creates no stacking
+     context (plain grid), so this competes in the same root context as the board,
+     matching the LEVEL button (20) / current node (21) that already escape it. */
+  z-index: 4;
   display: flex;
   justify-content: center;
   /* v1 parity: coin pill + gear sit ABOVE the banner (refs/home-fresh.png).
@@ -513,6 +521,16 @@ body {
   flex-direction: column;
   justify-content: center;
   gap: 0;
+}
+/* MRV2-23 item 4: keep the result panel at its settled iPhone geometry for the
+   whole completion lifetime. The shared card's fluid vw width was observable
+   reflowing during Next dismissal; the shell transition cover now masks that
+   dismissal as intended, and this fixed flex item cannot stretch meanwhile. */
+#modal-root.completion-mode .fab-modal-card.fab-result-card {
+  flex: 0 0 auto;
+  width: min(304px, calc(100vw - 36px));
+  min-width: min(304px, calc(100vw - 36px));
+  max-width: min(304px, calc(100vw - 36px));
 }
 /* MRV2-13 U3 (ref refs/win.png): the LEVEL COMPLETED ribbon sits ABOVE the
    card's top edge — bottom just kissing the card — not overlapping the card

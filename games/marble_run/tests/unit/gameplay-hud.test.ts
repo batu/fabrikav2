@@ -82,18 +82,19 @@ describe("GameHud", () => {
     expect(valueIndex).toBeGreaterThan(iconIndex);
   });
 
-  // MRV2-9 U5: teach shows a clean board — no emoji hand, no white spotlight, no
-  // full-screen charcoal scrim; only a subtle target ring remains.
   describe("showTutorialHand (v1 teach parity)", () => {
-    it("renders only a target ring — no emoji glyph, spotlight, or scrim", () => {
+    it("renders the v1 spotlight, ring, and emoji hand at the projected target", () => {
       const { hud } = mount(0);
       const el = hud.showTutorialHand({ x: 100, y: 200 })!;
       expect(el).not.toBeNull();
+      expect(el.style.getPropertyValue("--tx")).toBe("100px");
+      expect(el.style.getPropertyValue("--ty")).toBe("200px");
+      expect(el.querySelector(".tutorial-spotlight")).not.toBeNull();
       expect(el.querySelector(".tutorial-ring")).not.toBeNull();
-      expect(el.querySelector(".tutorial-spotlight")).toBeNull();
-      expect(el.querySelector(".tutorial-hand")).toBeNull();
-      // No emoji text node anywhere in the tutorial layer.
-      expect(el.textContent ?? "").not.toContain("\u{1F446}");
+      const hand = el.querySelector(".tutorial-hand");
+      expect(hand).not.toBeNull();
+      expect(hand?.textContent).toBe("\u{1F446}");
+      expect(hand?.getAttribute("aria-hidden")).toBe("true");
     });
   });
 });
