@@ -140,6 +140,21 @@ describe('sugar result cards', () => {
     expect(overlay!.querySelectorAll('.fab-modal-ribbon-image').length).toBe(1);
   });
 
+  it('pins the standalone Next action to v1 card-relative geometry', async () => {
+    const { installShellArt } = await import('../../design/theme');
+    document.getElementById('marble-shell-art')?.remove();
+    installShellArt(document);
+    const css = document.getElementById('marble-shell-art')?.textContent ?? '';
+    const rule = css.match(
+      /\.marble-ui \.marble-win-next-standalone\s*\{(?<body>[^}]*)\}/,
+    )?.groups?.body;
+
+    expect(rule).toContain('position: absolute');
+    expect(rule).toContain('bottom: 13.82%');
+    expect(rule).toContain('left: 29%');
+    expect(rule).toContain('width: 42%');
+  });
+
   it('advances and dismisses exactly once when the standalone Next button is clicked', async () => {
     const ratePromptEnabled = gameState.settings.ratePromptEnabled;
     gameState.settings.ratePromptEnabled = false;
