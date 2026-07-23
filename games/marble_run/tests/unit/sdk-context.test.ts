@@ -51,6 +51,29 @@ describe('createSdkContext', () => {
     expect(context.configuredIds.appsFlyerAppleAppId).toBe('6793860059');
   });
 
+  it('disables the AppLovin consent dialog even when the supplied ad env enables it', () => {
+    const context = createSdkContext({
+      platform: 'ios',
+      isNativePlatform: true,
+      env: {
+        ...FULL_ENV,
+        VITE_APPLOVIN_CONSENT_FLOW_ENABLED: 'true',
+        VITE_APPLOVIN_GDPR_TERMS_ALERT_ENABLED: 'true',
+      },
+      isProductionBuild: true,
+    });
+
+    expect(context.configuredIds.appLovin).toMatchObject({
+      enabled: true,
+      config: {
+        consentFlow: {
+          enabled: false,
+          showTermsAndPrivacyPolicyAlertInGdpr: false,
+        },
+      },
+    });
+  });
+
   it('never constructs the firebase sink on web even with firebase env present', () => {
     const context = createSdkContext({
       platform: 'web',

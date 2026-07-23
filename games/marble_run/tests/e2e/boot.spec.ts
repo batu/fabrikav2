@@ -20,6 +20,7 @@ test("boots the real Marble Run shell", async ({ page }) => {
   await expect(page.locator("#home-play-now")).toBeVisible();
   await expect(page.locator("#home-no-ads .home-side-btn-label")).toHaveCount(0);
   await expect(page.locator("#home-nav-play")).toBeVisible();
+  await expect(page.getByText('To use Marble Run you must agree to our Terms & Conditions')).toHaveCount(0);
 });
 
 test("Play Now starts the current level from a real menu tap", async ({ page }) => {
