@@ -1,66 +1,61 @@
-# Marble Run v2 — Handoff (2026-07-23)
+# Marble Run v2 — Handoff (2026-07-23, rev 2)
 
-Written by the outgoing conductor session for the next agent. Batu has lost confidence in this session's transition work after three failed attempts; read the "Open bug" section first and trust the shell_template reference over anything this session built.
+For the incoming agent. The previous session (mine) fixed many things but repeatedly made one structural mistake you must not repeat. Read this whole doc before touching code.
 
-## TL;DR for the next agent
+## The one lesson that governs everything
 
-- `fabrikav2/games/marble_run` is a near-complete port of canonical v1 (`fabrika/games/marble_run/sugar3d`). 32 twf cards landed; both phones run current main.
-- **ONE OPEN P0: the menu→game transition is still wrong on device.** Three attempts failed. **`games/shell_template` implements this exact transition CORRECTLY** — find_the_dog uses the same mechanism and it is smooth. Do not invent a fourth bespoke mechanism: diff what marble_run's home does differently from shell_template's home and make marble_run's home compatible with the stock shell transition instead of modifying the transition again.
-- Second open report, unreproduced: Batu says the **win screen layout regressed**; conductor's headless captures match v1 geometry, so the discrepancy is likely device/aspect-specific or in an interaction this session failed to reproduce. Get his exact description or a photo before touching anything.
+**Every major failure of the previous session came from building parallel bespoke systems beside existing correct ones.** The shell transition was rewritten three times instead of asking why shell_template's works; kit theming was bypassed with piles of game-local CSS; the repo's `verify-device` lane was ignored in favor of hand-rolled capture scripts that produced false evidence (stale builds were judged and reported as fixed).
 
-## Open bug: menu→game transition
+Your operating rule: **if a working implementation exists in the repo (shell_template, find_the_dog, the ui kit, verify-device), you either use it unchanged or fix it upstream. A marble_run-local parallel version is a defect.** Prefer deleting code over adding it.
 
-Batu's reports over three builds (verbatim symptoms):
-1. Clone-freeze era: "The board disappears, saga and buttons snap to a slightly different transform (location scale changes). Then it fades to the new level, and the elements disappear."
-2. After MRV2-30 (preserve live canvas inside cloned cover): fixed on Android/Chromium (frame-verified crossfade), still broken on iPhone — device frames show the cover as an **empty purple field** mid-transition (WKWebView never paints the cloned shell). Evidence: `docs/evidence/2026-07-23-delta-map/ios-transition-empty-cover.png`.
-3. After MRV2-31 (`503c6108`, replaced clone with live-DOM fade: lift `#hud-overlay` above the mounted game scene, fade the real home, defer teardown): "the mangling of scale changed but **the saga moves up**" during the transition.
+## Your mission (in order)
 
-### What this session believes (unverified) about the remaining defect
-The live-DOM fade lifts the real home overlay while the game scene mounts underneath. The saga moving up suggests the home overlay **reflows during the fade** — likely because mounting the game scene (canvas resize, HUD init, or `#hud-overlay` class changes like leaving `home-mode`) alters the layout context the saga depends on (the full-viewport board-preview canvas participates in layout; the `home-play-entry` lift changes containing block; or `initHUD` deferred-but-partially-running mutates `#hud-overlay` children). The fix direction this session did NOT get to: **freeze the home overlay's geometry** (e.g., lock its current height/positions via fixed positioning at transition start) or, better, make marble_run's home structurally identical to shell_template's home so the stock transition needs no special-casing.
+### 1. Fix the menu→game transition by SUBTRACTION (P0, open)
+- Symptom today (Batu, on device): during the fade "the saga moves up". Earlier variants: board vanishing, elements snapping, empty cover on iOS. Three bespoke mechanisms were tried (commits `d65270b7`, `080f8ab9`, `503c6108`) — all wrong approach.
+- **The correct approach: `games/shell_template` (and find_the_dog) run this exact transition correctly with the STOCK mechanism.** Do not modify the transition again. Instead:
+  1. Diff marble_run's home structure/CSS against shell_template's (`src/scenes/HomeScene.ts`, `src/menu/HomeBoardPreview.ts`, `src/ui/SceneTransitionCover.ts`, transition/home sections of `src/ui/styles.css`, `design/theme.ts` vs the template's equivalents).
+  2. **Delete marble_run's transition-specific code and CSS** (the play-entry customizations, preserved-canvas plumbing, lift/fade special cases) so the stock shell flow runs unmodified.
+  3. Make the home STRUCTURE conform to the template's layout contract: the WebGL board preview must live inside the shell's layout system (not a full-viewport sibling that reflows siblings when it mounts/unmounts), saga on stock SagaMap geometry. Reskin only through kit theme tokens/props.
+- Definition of fixed: menu fades as one static composition (board included), nothing moves/scales/vanishes, on BOTH Android WebView and WKWebView (previous fix worked on Android only — engines differ; verify both).
 
-### Why shell_template matters
-`games/shell_template` (and find_the_dog) run this exact play-entry transition correctly. Marble_run's home differs from the template's in three ways this session introduced during pixel-parity work:
-- a full-viewport WebGL board-preview canvas (`HomeBoardPreview`, sibling of `#home-shell`, `z` between rail and banner),
-- heavily customized saga layout (margin-inline auto centering, custom connector/rail theming, preview-slot spacer),
-- game-local CSS overrides on `#hud-overlay.home-mode` layers.
-The transition regressions track exactly these deviations. Compare `games/shell_template/src` home structure + transition flow against `games/marble_run/src` (`scenes/HomeScene.ts`, `menu/HomeBoardPreview.ts`, `ui/SceneTransitionCover.ts`, `ui/styles.css` transition sections, `design/theme.ts`).
+### 2. Reduce the game-local override pile (P1, prevents regressions)
+`games/marble_run/src/ui/styles.css` + `design/theme.ts` accumulated overrides across six parity cards (win/modal/settings/z-index/width pins). These collide — the win screen regressed repeatedly because of it. For each override: map it to a kit theme token (keep as a token value), or move the capability upstream into `packages/ui` (separate card — kit changes affect all games), or delete it. Shrinking these files is success; growing them is failure.
 
-### Transition code history (all on fabrikav2 main)
-- `d65270b7` MRV2-29: "restore shell transition parity" (clone-freeze polish)
-- `080f8ab9` MRV2-30: preserve live canvas inside cover (fixed Chromium, not WKWebView)
-- `503c6108` MRV2-31: live-DOM fade, no clone (current; saga-moves-up remains)
+### 3. Win screen (P0 report, unreproduced)
+Batu says the win layout regressed; headless captures match v1 geometry. Reproduce ON THE PIXEL first (v1-vs-v2 same-device comparison; see evidence lanes below). If it doesn't reproduce, get his exact complaint/photo before changing anything. Suspect the override pile from item 2.
 
-## Verified-good state (don't re-break)
+## Devices & verification (use existing lanes — do not hand-roll)
 
-All device-verified on the Pixel unless noted:
-- 110-level set (MRB-7 rebake in fabrika v1, ported byte-identical): no orphan gates, bimodal symmetry, teach/debut spotlights.
-- Home: FredokaOne font everywhere (was silent system-sans fallback), banner title size+shadow, turning board behind banner, centered saga behind board, gold sun node, inset LEVEL button, confetti, app icon (both platforms — icon script needs `ios|android` arg).
-- Tutorial: light spotlight + ring + 👆 emoji hand + solid connected route line (v1 uses the emoji; there is no hand raster).
-- Fail screen: single FAILED ribbon + LEVEL eyebrow, WATCH AD + RETRY stacked below card, no coin-spend button, dimmed-board backdrop.
-- Win screen: centered card, LEVEL n COMPLETED ribbon, compact Next at v1 geometry, coin-fly with +25→0 countdown (MRV2-28; headless-verified; Batu disputes something here — see open report).
-- Settings/pause: purple scrim (menu variant), CLOSE inside card, square X on ribbon shoulder, RESTART/HOME caps in-game, cream knobs.
-- No consent dialog (killed for marble_run; it came from the SDK/attribution refactor), no shop/IAP surfaces anywhere (hint no-ops when coins insufficient, no Restore Purchases, no fail-screen offers).
-- No notifications prompt at boot.
+- **Primary device: Pixel 6a, serial `27091JEGR22183`.** Build/verify there first. iPhone 12 (`2D894791-A5A3-58BE-9C88-AE0AF08B8C09`) is the confirmation surface — WKWebView must pass too.
+- **Use `npm run verify-device -- --game marble_run`** for device visual verification. It is the FTD-proven marker-gated lane. Do NOT write custom adb/CDP/screenshot loops — the previous session's hand-rolled loops produced false evidence (silent gradle failures + stale APKs judged as current).
+- If you must capture manually, first ASSERT BUILD IDENTITY: the `index-*.js` hash in `dist/index.html` must match what the device serves (previous session lost hours to judging stale builds).
+- v1/v2 share the bundle id with DIFFERENT debug signatures — uninstall before switching. `adb shell cmd statusbar collapse` before captures.
+- Tour states for driving screens: `VITE_ENABLE_TEST_HARNESS=true VITE_INSITU_TOUR=<state> npm run build` (states: home-fresh, level-map, gameplay-{opener,plugs,voids,teach}, win, pause, settings). Production builds strip the harness without the flag.
+- iOS: signing works WITHOUT an Apple account via the cached wildcard team profile — do NOT pass `-allowProvisioningUpdates`. StoreKit.framework and three orphan native plugins (AppLovinMax/AppsFlyer/MetaEvents) were stripped from the generated ios project; `npx cap sync ios` or regenerating `ios/` can resurrect build breakage. Icon overlay: `node tools/marble-run/sync-native-resources.mjs <ios|android>` (arg required).
+- iPhone screenshots: `sudo /Users/base/.local/bin/pymobiledevice3 remote tunneld` once, then `pymobiledevice3 developer dvt screenshot out.png` (~1s each — too slow for transitions; use recordings or Batu's eyes for motion).
 
-## Evidence & references
-- Delta map with v1/v2 pairs: `games/marble_run/docs/evidence/2026-07-23-delta-map/index.html`
-- v1 reference captures (same-device Pixel): scratchpad `pixelcmp/v1/*.png`; iPhone refs `refs/*.png`; session scratchpad root: `/private/tmp/claude-501/-Users-base-dev-appletolye/fe715c29-d217-442f-b369-42c6d456569f/scratchpad/`
-- Canonical v1 source: `fabrika/games/marble_run/sugar3d` (menu decor camera yaw 90, `ui/dom.ts` showTutorialHand/coin-fly, `ui/style.css`).
+## Evaluation contract (how "done" is judged)
 
-## Device lanes (working recipes)
-- **Pixel (adb)**: build `VITE_ENABLE_TEST_HARNESS=true VITE_INSITU_TOUR=<state> npm run build` → `npx cap sync android` → `cd android && JAVA_HOME=/opt/homebrew/opt/openjdk@21/... ./gradlew installDebug`. **v1 and v2 have different debug signatures — uninstall before switching.** Marker-gated capture: poll `document.body.getAttribute('data-tour-state')` over CDP (`adb forward tcp:PORT localabstract:webview_devtools_remote_<pid>`), screencap when it equals the state. Collapse the shade first (`adb shell cmd statusbar collapse`).
-- **iPhone**: signing works WITHOUT an Apple account via cached wildcard profile (valid to 2027) — do not pass `-allowProvisioningUpdates`. StoreKit.framework was stripped from the pbxproj (IAP capability demand); three orphan native plugins (AppLovinMax/AppsFlyer/MetaEvents) removed from the generated project — **`npx cap sync ios` or regenerating ios/ may resurrect breakage**; a durable per-game plugin gating card was never done. Screenshots: `sudo /Users/base/.local/bin/pymobiledevice3 remote tunneld` once, then `pymobiledevice3 developer dvt screenshot out.png` (~1s each — too slow to catch transitions; use Batu's eyes or record via QuickTime).
-- Tour states: home-fresh, level-map, gameplay-{opener,plugs,voids,teach}, win, pause, settings. Harness global is `__FIND_DOG_HARNESS__` (rename shipped? check — MRV2-29 item 5) with `startLevel/failLevel/winLevel/driveTo/snapshot`.
+- **Static states**: capture v1 and v2 on the SAME Pixel (marker-gated) for home, gameplay-opener, win, fail, settings; run `pixelsmith judge --capture <v2> --reference <v1>` per pair (pixelsmith CLI: `cd /Users/base/dev/appletolye/pixelsmith && uv run pixelsmith ...`). Gate: zero blocker-severity findings per pair.
+- **Motion (the transition)**: Pixelsmith judges stills only — motion needs recordings. `adb shell screenrecord` menu→game on v1 and v2, extract 8fps frames; (a) judge time-matched midpoint frame pairs, (b) pixel-diff v2's last pre-fade frame vs fade-midpoint frame: zero element displacement. Repeat on iPhone (recording or hand-test). **A stills-only pass does NOT count for anything animated** — this exact mistake caused most of the previous session's false "done"s.
+- **Terminal gate**: fresh install on the Pixel; Batu plays menu→level→win→fail→settings. His sign-off closes the work. Never self-declare done — the only status vocabulary is "landed, awaiting device proof" and "device-proven".
 
-## Pipeline landmines (cost this session real time)
-- Shared main checkout: other sessions grab branches and drop untracked docs; `twf merge-card` refuses dirty trees. Use `--fix-dirty` for lockfiles; hold untracked strays aside and restore.
-- sol@low plan-stage workers frequently exit without committing the plan file — commit it for them or the next spawn refuses the dirty worktree.
-- Worker sandboxes cannot run browsers/xcodebuild/devices; they park cards to blocked_on_batu — the conductor runs those proofs post-land.
-- Generated `android/`+`ios/` live only in the main checkout, not card worktrees.
-- Icon overlay: `node tools/marble-run/sync-native-resources.mjs <ios|android>` (arg required).
+## Verified-good state (do not re-break; re-verify after your changes)
 
-## Monetization / release debts (untouched, pre-existing)
-- KeymasterConfig still carries FTD AppLovin unit IDs; a Marble Run Keymaster row is required before any ad build. Legal/store URLs unverified. Debug-signed builds only. Win reward pinned to 25 via config (remote-config could reintroduce 45).
+110-level set (no orphan gates, bimodal symmetry, teach spotlights); FredokaOne font everywhere; banner title size+shadow; turning board behind banner; centered saga, gold sun node, inset LEVEL button, confetti; app icon on both platforms; tutorial = light spotlight + ring + 👆 emoji hand + solid route line (v1 uses the emoji — there is no hand raster); fail screen = single FAILED ribbon + LEVEL eyebrow + WATCH AD/RETRY stacked, no coin-spend button; win = centered card, compact Next at v1 geometry, coin-fly with +25→0 countdown; settings/pause = purple scrim, CLOSE inside card, square X, caps RESTART/HOME, cream knobs; NO consent dialog, NO notifications prompt, NO shop/IAP surfaces anywhere.
 
-## Board
-fabrikav2 board `scratch-2`: MRV2-1..31 merged. fabrika board: MRB-1..8 merged. No open workers at handoff.
+## References & evidence
+- Canonical v1: `fabrika/games/marble_run/sugar3d` (menu camera yaw 90; `ui/dom.ts` tutorial/coin-fly; `ui/style.css`).
+- Delta map + image pairs: `games/marble_run/docs/evidence/2026-07-23-delta-map/index.html`.
+- Same-device v1 Pixel references: session scratchpad `/private/tmp/claude-501/-Users-base-dev-appletolye/fe715c29-d217-442f-b369-42c6d456569f/scratchpad/pixelcmp/v1/` (regenerable via the tour builds if the scratchpad is gone).
+- Harness global: `__FIND_DOG_HARNESS__` (`startLevel/failLevel/winLevel/driveTo/snapshot`) — rename to `__MARBLE_RUN_HARNESS__` was carded but verify what shipped.
+
+## Pipeline notes
+- twf board `scratch-2` (fabrikav2); MRV2-1..31 merged. Bounded style: conductor spawns, one stage per worker, no `TWF_AGENT` (config routes codex/sol@low), sparse worktrees, `--fix-dirty` for lockfile-dirty landings.
+- Shared main checkout: other sessions grab branches / drop untracked files; hold strays aside when landing, restore after.
+- sol@low plan-stage workers often exit without committing the plan file — commit it for them before respawning, or the next spawn refuses the dirty worktree.
+- Worker sandboxes have no browser/xcodebuild/device access — the conductor owns those proofs post-land; say so on every card so workers don't park.
+- Generated `android/`/`ios/` exist only in the main checkout, not card worktrees.
+
+## Untouched debts (not yours unless asked)
+Monetization config dead by design (FTD AppLovin IDs are placeholders; Marble Run Keymaster row needed before ad builds); legal/store URLs unverified; debug-signed builds only; win reward pinned to 25 via config.
