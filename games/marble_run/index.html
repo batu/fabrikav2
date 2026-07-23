@@ -48,16 +48,14 @@
         inset: 0;
         z-index: 2;
       }
-      /* MRV2-11 U2 (KTD1): one fixed, full-viewport modal layer, sibling of
-         #game-container, above #hud-overlay (z2) and #scene-transition-cover
-         (z20). Every modal (home/pause settings, win/fail result cards, finale)
-         mounts here so no Phaser-managed or container-relative box can misplace
-         it. Inert until a modal mounts — the kit backdrop re-enables pointer
-         events on itself. */
+      /* MRV2-11 U2: one fixed, full-viewport modal layer, sibling of
+         #game-container. Keep it above the HUD while settled, but below the
+         stock shell transition cover (z20) so Next is masked before the result
+         overlay dismisses instead of exposing its teardown/reflow. */
       #modal-root {
         position: fixed;
         inset: 0;
-        z-index: 40;
+        z-index: 4;
         pointer-events: none;
       }
       #scene-transition-cover {

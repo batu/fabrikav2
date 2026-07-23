@@ -231,6 +231,28 @@ describe('sugar result cards', () => {
     expect(scrimBlock.slice(0, scrimBlock.indexOf('}'))).not.toContain('linear-gradient');
   });
 
+  it('pins the win card geometry while the shell transition cover masks dismissal', async () => {
+    const { installShellArt } = await import('../../design/theme');
+    document.getElementById('marble-shell-art')?.remove();
+    installShellArt(document);
+    const css = document.getElementById('marble-shell-art')?.textContent ?? '';
+    const cardRule = css.match(
+      /#modal-root\.completion-mode \.fab-modal-card\.fab-result-card \{[^}]*\}/,
+    )?.[0] ?? '';
+
+    expect(cardRule).toContain('width: min(304px, calc(100vw - 36px))');
+    expect(cardRule).toContain('min-width: min(304px, calc(100vw - 36px))');
+    expect(cardRule).toContain('max-width: min(304px, calc(100vw - 36px))');
+    expect(cardRule).toContain('flex: 0 0 auto');
+
+    const source = await import('../../index.html?raw').then((module) => module.default as string);
+    const modalZ = Number(source.match(/#modal-root\s*\{[^}]*z-index:\s*(\d+)/s)?.[1]);
+    const transitionZ = Number(
+      source.match(/#scene-transition-cover\s*\{[^}]*z-index:\s*(\d+)/s)?.[1],
+    );
+    expect(transitionZ).toBeGreaterThan(modalZ);
+  });
+
   it('lose variant mounts a Failed ribbon with Retry + coin-continue offers', () => {
     showLevelFailedOverlay('lvl-1', {
       getOffers: () => OFFERS,

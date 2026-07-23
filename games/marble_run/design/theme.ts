@@ -522,6 +522,16 @@ body {
   justify-content: center;
   gap: 0;
 }
+/* MRV2-23 item 4: keep the result panel at its settled iPhone geometry for the
+   whole completion lifetime. The shared card's fluid vw width was observable
+   reflowing during Next dismissal; the shell transition cover now masks that
+   dismissal as intended, and this fixed flex item cannot stretch meanwhile. */
+#modal-root.completion-mode .fab-modal-card.fab-result-card {
+  flex: 0 0 auto;
+  width: min(304px, calc(100vw - 36px));
+  min-width: min(304px, calc(100vw - 36px));
+  max-width: min(304px, calc(100vw - 36px));
+}
 /* MRV2-13 U3 (ref refs/win.png): the LEVEL COMPLETED ribbon sits ABOVE the
    card's top edge — bottom just kissing the card — not overlapping the card
    interior. Extends the kit's default ~20px overhang; needs the U2 no-clip
