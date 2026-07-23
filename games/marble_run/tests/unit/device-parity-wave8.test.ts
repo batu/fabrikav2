@@ -28,7 +28,9 @@ describe("device parity wave 8 CSS pins", () => {
     const css = shellArtCss();
     const menu = css.match(/\.fab-ui\.fab-modal-backdrop\.marble-settings-modal--menu \{[^}]*\}/);
     expect(menu).not.toBeNull();
-    expect(menu![0]).toContain("background-color: #3b3247");
+    // MRV2-25 item 3: base pre-brightened so the device composite stops reading
+    // near-black and lands on v1's ~(64,51,82) purple.
+    expect(menu![0]).toContain("background-color: #9577bf");
     expect(menu![0]).toContain("url('/v1/ui/marble-shadow-tile.png')");
     expect(menu![0]).toContain("background-repeat: no-repeat, repeat");
     expect(menu![0]).not.toContain("background: #000");
@@ -39,7 +41,9 @@ describe("device parity wave 8 CSS pins", () => {
     const css = shellArtCss();
     const ingame = css.match(/\.fab-ui\.fab-modal-backdrop\.marble-settings-modal--ingame \{[^}]*\}/);
     expect(ingame).not.toBeNull();
-    expect(ingame![0]).toContain("background: rgba(119, 100, 141, 0.66)");
+    // MRV2-25 item 2: near-opaque purple so v1's full HUD dim is reproduced and
+    // the composite matches v1's ~(64,51,82) pause shade on device.
+    expect(ingame![0]).toContain("background: rgba(162, 129, 207, 0.93)");
 
     const actions = css.match(/\.marble-settings-modal--ingame \.marble-settings-action \{[^}]*\}/);
     expect(actions).not.toBeNull();
@@ -90,7 +94,10 @@ describe("device parity wave 8 CSS pins", () => {
 
     // banner > board so the wooden title always paints over the tilted decor.
     expect(bannerZ).toBeGreaterThan(boardZ);
-    // board stays above the shell/saga content layer (.marble-ui > * is z-index:1).
-    expect(boardZ).toBeGreaterThan(1);
+    // MRV2-24 (preview-geometry) moved the decor board full-bleed BEHIND the home
+    // shell content (.marble-ui > * is z-index:1), so it now sits at z-index:0 —
+    // see theme.ts "z-index:0 keeps it BELOW the home shell content". This stale
+    // MRV2-23 assertion (board above saga) was left unchanged by that card.
+    expect(boardZ).toBe(0);
   });
 });

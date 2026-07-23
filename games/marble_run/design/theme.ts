@@ -399,6 +399,11 @@ body {
 .marble-ui .marble-settings-card.fab-modal-card--image {
   display: flex;
   flex-direction: column;
+  /* MRV2-25 item 2 (ref pause.png): v2's settings/pause card rendered ~80% of
+     screen width on the Pixel while v1 fills ~87%. Widen to match v1's ratio. */
+  width: min(92vw, 420px);
+  min-width: min(92vw, 420px);
+  max-width: min(92vw, 420px);
 }
 .marble-ui .marble-settings-card > .fab-modal-ribbon {
   align-self: center;
@@ -424,19 +429,26 @@ body {
    dark-purple bubble field. The solid base prevents home chrome from reading
    through; the low-contrast tile and dark scrim reproduce refs/settings.png.
    The in-game variant intentionally retains the shared translucent scrim. */
+/* MRV2-25 item 3: on the Pixel this field rendered ~(31,26,36) near-black while
+   v1 is a clear ~(64,51,82) purple — the #3b3247 base darkens ~0.5x through
+   device compositing. Pre-brighten the base + gradient so the device shade lands
+   on v1's purple; the transparent bubble tile still supplies faint texture. */
 .fab-ui.fab-modal-backdrop.marble-settings-modal--menu {
-  background-color: #3b3247;
+  background-color: #9577bf;
   background-image:
-    linear-gradient(rgba(59, 50, 71, 0.82), rgba(59, 50, 71, 0.82)),
+    linear-gradient(rgba(149, 119, 191, 0.82), rgba(149, 119, 191, 0.82)),
     url('/v1/ui/marble-shadow-tile.png');
   background-repeat: no-repeat, repeat;
   background-size: auto, 320px 320px;
 }
-/* MRV2-24: v2's dark gameplay field makes the shared near-black scrim render
-   much darker than v1. Tint the same 0.66-alpha layer purple so the composited
-   Pixel 6a shade matches v1 while gameplay remains visible beneath it. */
+/* MRV2-25 item 2 (ref pause.png): v1 FULLY dims the gameplay HUD beneath the
+   pause card — hearts/gear/hint are barely visible and the field reads as a flat
+   ~#3f3351 purple. MRV2-24's 0.66-alpha scrim left the HUD plainly visible on
+   device. Raise the alpha near-opaque so the HUD is only faintly ghosted, and use
+   a purple pre-brightened to counter the device darkening MRV2-24 measured on
+   this layer, so the composited Pixel shade lands on v1's ~(64,51,82). */
 .fab-ui.fab-modal-backdrop.marble-settings-modal--ingame {
-  background: rgba(119, 100, 141, 0.66);
+  background: rgba(162, 129, 207, 0.93);
 }
 /* MRV2-11 U3 (KTD3, ref refs/settings.png): a small blue rounded SQUARE with a
    white × glyph docked top-right over the ribbon. No X sprite exists in-repo, so

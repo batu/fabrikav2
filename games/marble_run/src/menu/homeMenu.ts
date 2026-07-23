@@ -69,7 +69,9 @@ function buildHeader(opts: MountHomeShellOptions): HTMLElement {
   coinIcon.alt = '';
   coinIcon.setAttribute('aria-hidden', 'true');
   coinIcon.dataset.economyAnchor = 'coin';
-  coinPill.append(coinCount, coinIcon);
+  // Device-parity MRV2-25 item 1: v1 renders the coin icon on the LEFT and the
+  // value on the RIGHT (home-fresh ref). Kit DOM order = visual order here.
+  coinPill.append(coinIcon, coinCount);
 
   const spacer = document.createElement('div');
 
