@@ -23,7 +23,6 @@ import type { RatePromptHandle } from '../ui/RatePrompt';
 import { showLevelFailedOverlay } from '../ui/LevelFailedOverlay';
 import { hidePlayEntryTransitionCoverAfterSceneRender, hideSceneTransitionCoverAfterPaint, showSceneTransitionCover } from '../ui/SceneTransitionCover';
 import { remoteConfigService } from '../config/RemoteConfigService';
-import { buildFailContinueOffers, type FailContinueOfferSet, type FailContinueOption } from '../shop/FailContinueOffers';
 import { hasUserActivated, runWhenVisibleAndIdle, type CancelScheduledIdleWork } from '../platform/browserScheduling';
 import { registerLifecycleHooks } from '../platform/gameLifecycle';
 import { GameplayController, type GameplayHooks } from '../gameplay/GameplayController';
@@ -491,9 +490,7 @@ export class GameScene extends Phaser.Scene {
     void this.trackLevelFailed(gameState.foundDogIds.size);
     this.levelComplete = true;
     showLevelFailedOverlay(this.level.id, {
-      getOffers: () => this.buildFailContinueOfferSet(),
-      getCoinBalance: () => gameState.coinBalance,
-      shouldRefreshOffers: () => false,
+      levelNumber: gameState.currentLevelIndex + 1,
       onRetry: () => {
         const retryLevel = this.level;
         showSceneTransitionCover();
@@ -505,33 +502,18 @@ export class GameScene extends Phaser.Scene {
           this.scene.restart({} as GameSceneData);
         }
       },
-      onCoinContinue: async (option) => this.continueWithCoins(option),
+      onWatchAd: async () => this.continueWithRewardedAd(),
     });
   }
 
-  private buildFailContinueOfferSet(): FailContinueOfferSet {
-    const offers = buildFailContinueOffers({
-      coins: gameState.coinBalance,
-      egoOfferPurchaseAvailable: false,
-    });
-    return { options: offers.options.filter((option) => option.kind !== 'egoOffer') };
-  }
-
-  private async continueWithCoins(option: FailContinueOption): Promise<{ resumed: boolean; message?: string }> {
-    if (!this.level || option.status !== 'available') return { resumed: false };
-    if (!gameState.spendCoins(option.coinPrice, 'shop')) {
-      return { resumed: false, message: 'Not enough coins.' };
-    }
+  private async continueWithRewardedAd(): Promise<{ resumed: boolean; message?: string }> {
+    if (!this.level) return { resumed: false };
+    const adResult = await showRewardedAdForEconomy();
+    if (!adResult.granted) return { resumed: false, message: 'Ad unavailable. Try again or retry the level.' };
     const resumed = this.resumeFailedAttempt();
     if (resumed) {
-      void analytics.resourceChanged({
-        flow_type: 'sink',
-        currency: 'coins',
-        amount: option.coinPrice,
-        item_type: 'continue',
-        item_id: 'fail_continue',
-        level_id: this.level.id,
-      });
+      trackRewardedWatchedIfGranted(adResult, 'level_fail_continue');
+      void analytics.rewardedAdGranted({ placement: 'level_fail_continue' });
     }
     return resumed ? { resumed: true } : { resumed: false };
   }

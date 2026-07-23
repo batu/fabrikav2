@@ -220,6 +220,9 @@ export function showLevelCompleteOverlay(
       countElement: coinPill.querySelector<HTMLElement>('.marble-win-coin-value'),
       fromValue: balanceBefore,
       toValue: options.coinBalance,
+      countdownElement: rewardRow.querySelector<HTMLElement>('.marble-reward-value'),
+      countdownFromValue: options.baseCoins,
+      countdownToValue: 0,
     }).then(proceed);
   };
 

@@ -548,6 +548,7 @@ body {
   width: min(304px, calc(100vw - 36px));
   min-width: min(304px, calc(100vw - 36px));
   max-width: min(304px, calc(100vw - 36px));
+  transform: translateY(-5vh);
 }
 /* MRV2-13 U3 (ref refs/win.png): the LEVEL COMPLETED ribbon sits ABOVE the
    card's top edge — bottom just kissing the card — not overlapping the card
@@ -620,6 +621,63 @@ body {
 .marble-ui .marble-win-coin-pill img { width: 24px; height: 24px; }
 /* Empty win action slot: the card renders no actions (Next is standalone). */
 .marble-ui .marble-win-actions-empty { display: none; }
+
+/* ---- Fail card parity (MRV2-28, ref refs/lose.png) ---- */
+/* Ribbon_Failed already contains the styled FAILED word; add only the v1
+   LEVEL eyebrow and keep the two sprite buttons in the backdrop below the card. */
+#modal-root #level-failed-overlay {
+  background: transparent;
+}
+#modal-root #level-failed-overlay::before,
+#modal-root #level-failed-overlay::after {
+  display: none;
+}
+#modal-root #level-failed-overlay .fab-modal-scrim {
+  background: rgba(46, 34, 68, 0.64);
+  opacity: 1;
+}
+#modal-root #level-failed-overlay .fab-modal-card.fab-result-card {
+  flex: 0 0 auto;
+  width: min(304px, calc(100vw - 36px));
+  min-width: min(304px, calc(100vw - 36px));
+  max-width: min(304px, calc(100vw - 36px));
+  transform: translateY(-5vh);
+}
+#modal-root #level-failed-overlay .fab-modal-ribbon {
+  width: calc(100% + 56px);
+  max-width: none;
+  margin-top: calc(-1 * var(--fab-space-lg) - var(--fab-ribbon-overhang) - 52px);
+}
+#modal-root #level-failed-overlay .fab-modal-ribbon-eyebrow {
+  top: 17%;
+  margin-inline: auto;
+  color: #a6373c;
+  font-size: clamp(15px, 4.2vw, 18px);
+  letter-spacing: 0;
+  text-shadow: 0 1px rgba(255, 255, 255, 0.45);
+}
+#modal-root #level-failed-overlay .fab-modal-ribbon-title { display: none; }
+#modal-root #level-failed-overlay .fab-result-continue { display: none; }
+#modal-root #level-failed-overlay .fail-status:empty { display: none; }
+.marble-ui .marble-fail-actions {
+  position: absolute;
+  left: 20.5%;
+  bottom: 18.5%;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 59%;
+}
+.marble-ui .marble-fail-action {
+  min-height: 84px;
+  padding: 0;
+  color: #fff;
+  font-family: var(--fab-font-display);
+  font-size: clamp(23px, 6vw, 30px);
+  letter-spacing: 0;
+  text-shadow: 0 3px 0 rgba(32, 47, 84, 0.78);
+}
 `;
   doc.head.appendChild(style);
 }

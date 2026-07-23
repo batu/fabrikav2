@@ -9,6 +9,9 @@ interface EconomyTransferOptions {
   countElement?: HTMLElement | null;
   fromValue?: number;
   toValue?: number;
+  countdownElement?: HTMLElement | null;
+  countdownFromValue?: number;
+  countdownToValue?: number;
   tokenMultiplier?: number;
   reducedMotion?: boolean;
 }
@@ -94,13 +97,19 @@ function tokenCount(kind: EconomyTransferKind, amount: number, multiplier: numbe
   return Math.min(36, Math.max(baseCount, Math.round(baseCount * multiplier)));
 }
 
-function animateCount(element: HTMLElement, from: number, to: number, durationMs: number): void {
+function animateCount(
+  element: HTMLElement,
+  from: number,
+  to: number,
+  durationMs: number,
+  formatValue: (value: number) => string = String,
+): void {
   nextCountToken += 1;
   const token = String(nextCountToken);
   element.dataset.economyCountToken = token;
 
   if (from === to || durationMs <= 0) {
-    element.textContent = String(to);
+    element.textContent = formatValue(to);
     return;
   }
 
@@ -109,7 +118,7 @@ function animateCount(element: HTMLElement, from: number, to: number, durationMs
     if (!element.isConnected || element.dataset.economyCountToken !== token) return;
     const progress = Math.min(1, (now - startedAt) / durationMs);
     const eased = 1 - Math.pow(1 - progress, 3);
-    element.textContent = String(Math.round(from + (to - from) * eased));
+    element.textContent = formatValue(Math.round(from + (to - from) * eased));
     if (progress < 1) window.requestAnimationFrame(step);
   };
   window.requestAnimationFrame(step);
@@ -253,6 +262,19 @@ function animateFtdEconomyTransfer(options: EconomyTransferOptions): Promise<voi
 
   if (options.countElement && options.fromValue !== undefined && options.toValue !== undefined) {
     animateCount(options.countElement, options.fromValue, options.toValue, reducedMotion ? 0 : TRANSFER_DURATION_MS);
+  }
+  if (
+    options.countdownElement
+    && options.countdownFromValue !== undefined
+    && options.countdownToValue !== undefined
+  ) {
+    animateCount(
+      options.countdownElement,
+      options.countdownFromValue,
+      options.countdownToValue,
+      reducedMotion ? 0 : TRANSFER_DURATION_MS,
+      (value) => value === 0 ? '0' : `+${value}`,
+    );
   }
 
   if (reducedMotion) {

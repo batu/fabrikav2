@@ -31,18 +31,6 @@ import { showLevelFailedOverlay } from '../../src/ui/LevelFailedOverlay';
 import { showRatePromptWithHandle } from '../../src/ui/RatePrompt';
 import { gameState } from '../../src/core/GameState';
 import { mountFinale } from '../../src/menu/finale';
-import type { FailContinueOfferSet } from '../../src/shop/FailContinueOffers';
-
-// Built inline (not via buildFailContinueOffers) so the suite doesn't import
-// RemoteConfigService, whose module init reads window.localStorage.
-const OFFERS: FailContinueOfferSet = {
-  options: [
-    { kind: 'coinContinue', status: 'available', coinPrice: 100, coinAmount: 0, productId: null, hintAmount: 0, reason: '' },
-    { kind: 'egoOffer', status: 'available', coinPrice: 0, coinAmount: 1_000, productId: 'purchase-me', hintAmount: 5, reason: '' },
-    { kind: 'retry', status: 'available', coinPrice: 0, coinAmount: 0, productId: null, hintAmount: 0, reason: '' },
-  ],
-};
-
 function ribbonTitle(root: ParentNode): string | undefined {
   return root.querySelector('.fab-modal-ribbon-title')?.textContent ?? undefined;
 }
@@ -213,12 +201,18 @@ describe('sugar result cards', () => {
         fromValue: number;
         toValue: number;
         countElement: Element | null;
+        countdownElement: Element | null;
+        countdownFromValue: number;
+        countdownToValue: number;
       };
       expect(call.amount).toBe(25);
       expect(call.fromValue).toBe(100);
       expect(call.toValue).toBe(125);
       expect(call.source).toBe(document.querySelector('.marble-reward-row'));
       expect(call.countElement).toBe(document.querySelector('.marble-win-coin-value'));
+      expect(call.countdownElement).toBe(document.querySelector('.marble-reward-value'));
+      expect(call.countdownFromValue).toBe(25);
+      expect(call.countdownToValue).toBe(0);
 
       await expect(result).resolves.toEqual({ nextLevelData: null });
     } finally {
@@ -260,6 +254,7 @@ describe('sugar result cards', () => {
     expect(cardRule).toContain('min-width: min(304px, calc(100vw - 36px))');
     expect(cardRule).toContain('max-width: min(304px, calc(100vw - 36px))');
     expect(cardRule).toContain('flex: 0 0 auto');
+    expect(cardRule).toContain('transform: translateY(-5vh)');
 
     const source = await import('../../index.html?raw').then((module) => module.default as string);
     const modalZ = Number(source.match(/#modal-root\s*\{[^}]*z-index:\s*(\d+)/s)?.[1]);
@@ -269,23 +264,33 @@ describe('sugar result cards', () => {
     expect(transitionZ).toBeGreaterThan(modalZ);
   });
 
-  it('lose variant mounts Retry + coin continue but never a purchase offer', () => {
+  it('lose variant keeps one FAILED source, a LEVEL eyebrow, and v1 Watch Ad + Retry actions', () => {
     showLevelFailedOverlay('lvl-1', {
-      getOffers: () => OFFERS,
-      getCoinBalance: () => 999,
-      shouldRefreshOffers: () => false,
+      levelNumber: 1,
       onRetry: vi.fn(),
-      onCoinContinue: async () => ({ resumed: false }),
+      onWatchAd: async () => ({ resumed: false }),
     });
 
     const overlay = document.getElementById('level-failed-overlay');
     expect(overlay).not.toBeNull();
-    expect(ribbonTitle(overlay!)).toBe('Failed');
-    expect(overlay!.querySelector('#retry-btn')).not.toBeNull();
-    expect(overlay!.querySelector('#coin-continue-btn')).not.toBeNull();
-    expect(overlay!.querySelector('#ego-offer-btn')).toBeNull();
-    expect(overlay!.textContent).not.toContain('Purchase');
+    expect(ribbonTitle(overlay!)).toBe('');
+    expect(overlay!.querySelector('.fab-modal-ribbon-eyebrow')?.textContent).toBe('Level 1');
+    expect(overlay!.querySelectorAll('.fab-modal-ribbon-image')).toHaveLength(1);
+    expect(overlay!.querySelector('[data-fab-action="result-watch-ad"]')?.textContent).toBe('WATCH AD');
+    expect(overlay!.querySelector('[data-fab-action="result-retry"]')?.textContent).toBe('RETRY');
+    expect(overlay!.querySelector('#coin-continue-btn')).toBeNull();
+    expect(overlay!.textContent).not.toContain('coins');
     expect(overlay!.querySelector('.fab-result-message')?.textContent).toBe('No hearts left!');
+  });
+
+  it('removes the fail hatch layer and keeps only a dimmed gameplay scrim', async () => {
+    const { installShellArt } = await import('../../design/theme');
+    document.getElementById('marble-shell-art')?.remove();
+    installShellArt(document);
+    const css = document.getElementById('marble-shell-art')?.textContent ?? '';
+
+    expect(css).toContain('#modal-root #level-failed-overlay::after {\n  display: none;');
+    expect(css).toContain('#modal-root #level-failed-overlay .fab-modal-scrim {\n  background: rgba(46, 34, 68, 0.64);');
   });
 
   it('finale mounts an orange Complete ribbon and an Awesome action', () => {
