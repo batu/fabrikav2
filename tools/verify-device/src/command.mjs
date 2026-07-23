@@ -61,5 +61,7 @@ export function execCommandParts(parts, opts = {}) {
   const [file, ...args] = parts;
   if (!file) throw new Error('cannot run an empty command');
   process.stderr.write(`  ${formatCommandParts(parts, { redact })}\n`);
-  return execFileSync(file, args, { stdio: ['ignore', 'pipe', 'inherit'], ...execOpts });
+  // 64MB: raw `adb exec-out screencap -p` PNGs and full logcat dumps exceed
+  // Node's 1MB default, failing with ENOBUFS mid-run on real devices.
+  return execFileSync(file, args, { stdio: ['ignore', 'pipe', 'inherit'], maxBuffer: 64 * 1024 * 1024, ...execOpts });
 }

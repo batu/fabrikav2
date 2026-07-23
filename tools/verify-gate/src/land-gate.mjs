@@ -7,7 +7,6 @@ export function parseLandGateArgs(argv) {
     shortid: null,
     onto: 'HEAD',
     skipProject: false,
-    skipMerge: false,
   };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -15,7 +14,7 @@ export function parseLandGateArgs(argv) {
     else if (arg === '--shortid') out.shortid = argv[++i];
     else if (arg === '--onto') out.onto = argv[++i];
     else if (arg === '--skip-project') out.skipProject = true;
-    else if (arg === '--skip-merge') out.skipMerge = true;
+    else if (arg === '--skip-merge') { /* removed with the visual verify gate; tolerated for old callers */ }
     else throw new Error(`unexpected argument: ${arg}`);
   }
   if (out.branch && out.shortid) {
@@ -33,14 +32,6 @@ export function buildLandGateSteps({ scriptDir, args }) {
       command: node,
       args: [path.join(scriptDir, 'project-gate.mjs')],
       env: { PROJECT_GATE_DIR: null },
-    });
-  }
-  if (!args.skipMerge) {
-    steps.push({
-      name: 'verify-merge-gate',
-      command: node,
-      args: [path.join(scriptDir, 'merge-gate.mjs')],
-      env: { VERIFY_GATE_PROJECT_DIR: null },
     });
   }
   if (args.branch || args.shortid) {

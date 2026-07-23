@@ -1,0 +1,59 @@
+{
+  "menu": {
+    "score": 75,
+    "majorConsensusCount": 1,
+    "verdict": "fail",
+    "capture": {
+      "gated": true
+    }
+  },
+  "level": {
+    "score": 35,
+    "majorConsensusCount": 3,
+    "verdict": "fail",
+    "capture": {
+      "gated": true
+    }
+  },
+  "settings": {
+    "score": 75,
+    "majorConsensusCount": 1,
+    "verdict": "fail",
+    "capture": {
+      "gated": true
+    }
+  },
+  "pause": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "unscored",
+    "capture": {
+      "gated": true
+    }
+  },
+  "win": {
+    "score": 75,
+    "majorConsensusCount": 2,
+    "verdict": "fail",
+    "capture": {
+      "gated": true
+    }
+  },
+  "fail": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "skipped",
+    "capture": {
+      "gated": true
+    }
+  },
+  "__run": {
+    "kind": "verified-fail",
+    "enforcement": "exploratory",
+    "exitCode": 0,
+    "applicableCount": 4,
+    "fidelitySource": "panel",
+    "reason": "panel fidelity fail: menu, level, settings, win",
+    "summary": "VERIFIED-FAIL [EXPLORATORY] — panel fidelity fail: menu, level, settings, win (applicable 4, fidelity panel, exit 0)"
+  }
+}

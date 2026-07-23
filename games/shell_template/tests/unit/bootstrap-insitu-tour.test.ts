@@ -72,17 +72,25 @@ describe("find_the_dog bootstrap insitu tour wiring", () => {
       analytics: {
         setCohortBucket: vi.fn(),
         appOpen: vi.fn(),
+        configureExtraSinks: vi.fn(),
+        adRevenuePaid: vi.fn(),
       },
     }));
     vi.doMock("../../src/attribution/AttributionService", () => ({
-      attribution: { init: vi.fn() },
+      attribution: { init: vi.fn(), configureProvider: vi.fn() },
       configureAttributionStartupGate: vi.fn(),
+      createShellTemplateAttributionProvider: vi.fn(() => ({
+        providerName: "disabled",
+        init: vi.fn(() => Promise.resolve()),
+        track: vi.fn(() => Promise.resolve()),
+      })),
     }));
     vi.doMock("../../src/ads/Service", () => ({
       adService: {
         init: vi.fn(() => Promise.resolve()),
         hideBanner: vi.fn(),
       },
+      configureAdService: vi.fn(),
     }));
     vi.doMock("../../src/data/cohortContext", () => ({
       initializeCohort: vi.fn(() => Promise.resolve(0)),

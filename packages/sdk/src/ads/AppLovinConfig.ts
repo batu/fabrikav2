@@ -129,11 +129,21 @@ export function readAppLovinConfigForPlatform(
   const interstitial = envString(env[keys.interstitialAdUnitId]);
   const rewarded = envString(env[keys.rewardedAdUnitId]);
 
+  // Opt-in partial-units mode: a game whose publisher supplied only some MAX
+  // unit ids can still enable ads. Unconfigured formats carry '' and the
+  // provider skips them as first-class not-configured, never calling native.
+  // Default (flag absent) keeps the strict all-three contract unchanged.
+  const allowPartialUnits = parseBooleanEnv(env.VITE_APPLOVIN_ALLOW_PARTIAL_UNITS, false);
+
   const missingKeys: string[] = [];
   if (sdkKey === null) missingKeys.push(keys.sdkKey);
-  if (banner === null) missingKeys.push(keys.bannerAdUnitId);
-  if (interstitial === null) missingKeys.push(keys.interstitialAdUnitId);
-  if (rewarded === null) missingKeys.push(keys.rewardedAdUnitId);
+  const missingUnitKeys: string[] = [];
+  if (banner === null) missingUnitKeys.push(keys.bannerAdUnitId);
+  if (interstitial === null) missingUnitKeys.push(keys.interstitialAdUnitId);
+  if (rewarded === null) missingUnitKeys.push(keys.rewardedAdUnitId);
+  if (!allowPartialUnits || missingUnitKeys.length === 3) {
+    missingKeys.push(...missingUnitKeys);
+  }
 
   if (missingKeys.length > 0) {
     return {
@@ -153,9 +163,9 @@ export function readAppLovinConfigForPlatform(
       platform,
       sdkKey: requiredValue(sdkKey),
       adUnitIds: {
-        banner: requiredValue(banner),
-        interstitial: requiredValue(interstitial),
-        rewarded: requiredValue(rewarded),
+        banner: banner ?? '',
+        interstitial: interstitial ?? '',
+        rewarded: rewarded ?? '',
       },
       verboseLogging: !isProductionBuild && parseBooleanEnv(env.VITE_APPLOVIN_VERBOSE_LOGGING, false),
       privacy: {

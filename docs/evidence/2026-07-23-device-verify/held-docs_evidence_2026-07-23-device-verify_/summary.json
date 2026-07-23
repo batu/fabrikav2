@@ -1,0 +1,44 @@
+{
+  "menu": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "unscored"
+  },
+  "level": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "unscored"
+  },
+  "settings": {
+    "score": 62,
+    "majorConsensusCount": 1,
+    "verdict": "fail",
+    "capture": {
+      "gated": true
+    }
+  },
+  "pause": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "unscored"
+  },
+  "win": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "unscored"
+  },
+  "fail": {
+    "score": null,
+    "majorConsensusCount": 0,
+    "verdict": "skipped"
+  },
+  "__run": {
+    "kind": "verified-fail",
+    "enforcement": "exploratory",
+    "exitCode": 1,
+    "applicableCount": 4,
+    "fidelitySource": "panel",
+    "reason": "missing capture: menu, level, win; panel fidelity fail: settings",
+    "summary": "VERIFIED-FAIL [EXPLORATORY] — missing capture: menu, level, win; panel fidelity fail: settings (applicable 4, fidelity panel, exit nonzero) · hard integrity: capture runner failed: android capture failures: state \"menu\" never published exact tourstate:menu before timeout; state \"level\" never published exact tourstate:level before timeout; state \"settings\" never retired exact tourstate:settings-DONE before timeout; state \"pause\" never published exact tourstate:pause before timeout; tour completed before state \"win\" was captured; tour completed before state \"fail\" was captured"
+  }
+}

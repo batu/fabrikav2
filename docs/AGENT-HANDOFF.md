@@ -34,58 +34,22 @@ That command writes the required local Git config:
 The behavior is covered by `tools/verify-gate/test/lockfile-merge-driver.test.mjs`,
 including a real temp-repo merge conflict.
 
-### 1. Claim-gated Stop hook
-- **Shim:** `agents/hooks/verify-visual-claim.sh` (mirrored to `.claude/hooks/`
-  by the standard sync — see "Activation" below).
-- **Wired in:** `agents/settings.json` under a `Stop` hook.
-- **Core:** `tools/verify-gate/cli.mjs` → `src/classify.mjs`.
-- On turn end it reads the **last assistant message** from the transcript and
-  **BLOCKS** (Claude Code Stop-hook `{"decision":"block"}`) **iff ALL** of:
-  1. the message makes a **done-claim**. The source of truth is
-     `DONE_LANGUAGE_RES` in `tools/verify-gate/src/classify.mjs`; examples include
-     `done`, `verified`, `validated`, `tested`, `fixed`, `implemented`, `landed`,
-     `renders correctly`, `looks right`, `matches the reference`, and
-     pixel/fidelity clean/pass wording. The same file's incomplete-language guard
-     prevents unresolved/partial/blocked prose from counting as done.
-  2. `git diff` vs the merge-base with `origin/main` (plus untracked files)
-     touches a **visual glob**: `games/*/src/**`, `games/*/design/**`,
-     `packages/ui/**`;
-  3. there is **no fresh** verify-device evidence — no
-     `docs/evidence/*device-verify*/panel.json` (or `games/*/evidence/**/panel.json`)
-     with an mtime **newer** than the newest changed visual file;
-  4. the message has **no `UNVERIFIED:` marker**.
-- The block message names the changed visual files, the exact command
-  `npm run verify-device -- --game <g>`, and cites AGENTS.md #8.
-- **Gate on the CLAIM, not the file:** a refactor that touches a visual file but
-  makes no done-claim does **not** block. This precision is the whole point and
-  is unit-tested (`test/decide.test.mjs`, `test/classify.test.mjs`).
+### 1. Visual verify gate — REMOVED (2026-07-23)
+The claim-gated Stop hook (`verify-visual-claim.sh` + `cli.mjs`), the
+UNVERIFIED ledger, and the merge evidence gate (`merge-gate.mjs`,
+`npm run verify-merge-gate`) were removed after proving too brittle: no
+recorded true catch, repeated false blocks from timestamp heuristics and
+shared-dirty-tree attribution, and two repair commits in its first weeks.
+Device verification remains the workflow bar (AGENTS.md #8/#9 and the
+per-card `npm run verify-device` runs); it is no longer code-enforced.
+The historical ledger stays at `.work/verify-ledger.jsonl`.
 
-### 2. UNVERIFIED ledger (self-disabling escape hatch)
-- When the last message contains `UNVERIFIED: <reason>`, the hook appends
-  `{ts, changed_files, reason}` to `.work/verify-ledger.jsonl` and **does not
-  block**. Skipping stays possible — but is **recorded, never silent**.
-- Core: `src/ledger.mjs`.
-
-### 3. Merge gate (ship-time backstop)
-- `tools/verify-gate/merge-gate.mjs` (root script:
-  `npm run verify-merge-gate`). For a diff that touches visual globs it
-  **HARD-FAILS** (exit 1) when there is no fresh structured `panel.json`
-  covering the affected game: `game` must match, `lane` must be `device`,
-  `generatedAt` must be newer than the visual change, and `verdict.pass` must be
-  `true`. Cross-game panels, browser-lane panels, failing verdicts, corrupt
-  panels, stale panels, git-diff errors, and deleted visual files without fresh
-  evidence all fail closed. This is the ship-time backstop for the escape hatch.
-  Fail-**closed** (an unexpected error is a hard fail), unlike the Stop hook
-  which fails **open**.
-- Conductors run it through the hard landing gate below, not as an adjacent
-  best-effort command.
-
-### 4. Landing gate (no pipe masks)
+### 2. Landing gate (no pipe masks)
 - `tools/verify-gate/land-gate.mjs` (root script: `npm run land-gate`) composes
-  `project-gate` + `verify-merge-gate` as direct child processes and preserves
-  each child exit code. Do **not** pipe it through `tail`, `tee`, `grep`, or any
-  other command before testing `$?`; the incident class was a red gate masked by
-  a pipeline.
+  `project-gate` (and `verify-landed-gate` when a branch/shortid is given) as
+  direct child processes and preserves each child exit code. Do **not** pipe it
+  through `tail`, `tee`, `grep`, or any other command before testing `$?`; the
+  incident class was a red gate masked by a pipeline.
 - `agents/config.json` sets `twf_gate.cmds` to `npm run land-gate`, so
   `twf merge-card` reaches cleanup only after the hard landing gate returns 0.
 - When a conductor is manually deciding whether it is safe to delete a card
@@ -94,26 +58,12 @@ including a real temp-repo merge conflict.
   `verify-landed-gate` and proves the branch tip is on the integration ref
   before cleanup.
 
-### 5. Live activation mirror check
+### 3. Live activation mirror check
 - `tools/verify-gate/check-claude-mirror.mjs` (root script:
   `npm run check-claude-mirror`) fails when `agents/settings.json` or
   `agents/hooks/*` drift from their live `.claude/` mirrors. It is included in
-  `project_gate.cmds`, so a checkout cannot claim Stop-hook activation while the
-  live Claude files are inert or stale.
-
-## Self-disable (catalog-safe)
-Both the shell shim and the Node cores exit as a no-op when
-`tools/verify-device/cli.mjs` is absent **or** there is no `games/` dir. Safe to
-promote catalog-wide to non-game projects — it simply does nothing there.
-
-## Activation / sync
-The Stop hook is committed-active in this checkout: `agents/settings.json` and
-`.claude/settings.json` both register `.claude/hooks/verify-visual-claim.sh`,
-and the hook file itself is mirrored under `agents/hooks/` and `.claude/hooks/`.
-`tools/verify-gate/src/claude-mirror.mjs` plus
-`tools/verify-gate/check-claude-mirror.mjs` fail the project gate on drift between
-the source `agents/**` files and the live `.claude/**` copies. Catalog promotion
-is a separate conductor step (do not touch the agency repo).
+  `project_gate.cmds`, so a checkout cannot run with inert or stale live
+  Claude files.
 
 ## Tests
 `npm run test:unit -w @fabrikav2/verify-gate` covers done-language detection

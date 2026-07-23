@@ -3,6 +3,7 @@ import {
   createConsoleSink,
   type Analytics,
   type AnalyticsParamValue,
+  type AnalyticsSink,
 } from '@fabrikav2/sdk/analytics';
 import { attribution } from '../attribution/AttributionService';
 import { adService } from '../ads/Service';
@@ -134,14 +135,27 @@ function providerName(): string {
 }
 
 class AnalyticsService {
-  private readonly sdk: Analytics<FtdEvent>;
+  private sdk: Analytics<FtdEvent>;
   private cohortBucket: number | null = null;
+  private readonly sessionId = sessionId();
 
   constructor() {
-    this.sdk = createAnalytics<FtdEvent>({
+    this.sdk = this.composeSdk([]);
+  }
+
+  /** SdkContext installs environment-selected sinks (e.g. Firebase) at bootstrap,
+   * before any gameplay events fire. Session id stays stable across the rebuild. */
+  configureExtraSinks(extraSinks: readonly AnalyticsSink[]): void {
+    this.sdk = this.composeSdk(extraSinks);
+  }
+
+  private composeSdk(extraSinks: readonly AnalyticsSink[]): Analytics<FtdEvent> {
+    const sinks: AnalyticsSink[] = import.meta.env.DEV ? [createConsoleSink()] : [];
+    sinks.push(...extraSinks);
+    return createAnalytics<FtdEvent>({
       env: import.meta.env.PROD ? 'production' : 'development',
-      sessionId: sessionId(),
-      sinks: import.meta.env.DEV ? [createConsoleSink()] : [],
+      sessionId: this.sessionId,
+      sinks,
       globalParams: { game: 'marble_run' },
     });
   }

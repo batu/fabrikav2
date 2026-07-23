@@ -19,7 +19,29 @@ const nativeFileIds = {
     buildId: 'A11F00052FAD000000000005',
     refId: 'A11F00062FAD000000000006',
   },
+  'AppsFlyerAttributionPlugin.swift': {
+    buildId: 'A11F00192FAD000000000019',
+    refId: 'A11F00212FAD000000000021',
+  },
+  'MetaEventsPlugin.swift': {
+    buildId: 'A11F00202FAD000000000020',
+    refId: 'A11F00222FAD000000000022',
+  },
+  'MarbleRunBridgeViewController.swift': {
+    buildId: 'A11F00232FAD000000000023',
+    refId: 'A11F00252FAD000000000025',
+  },
+  'ShellTemplateBridgeViewController.swift': {
+    buildId: 'A11F00242FAD000000000024',
+    refId: 'A11F00262FAD000000000026',
+  },
 };
+
+/** Storyboard bridge class: manifest override with the FTD default preserved
+ * for the pre-parameterized manifest schema. */
+function bridgeClassFor(manifest) {
+  return manifest?.ios?.bridgeViewController ?? 'FindTheDogBridgeViewController';
+}
 
 const privacyFileIds = {
   buildId: 'A11F00072FAD000000000007',
@@ -269,11 +291,11 @@ export function patchPbxproj(content, manifest, { googleServicePresent = false }
   return ensureBuildSettings(next, manifest);
 }
 
-export function patchStoryboard(content) {
-  const desired = '<viewController id="BYZ-38-t0r" customClass="FindTheDogBridgeViewController" customModule="App" customModuleProvider="target" sceneMemberID="viewController"/>';
+export function patchStoryboard(content, manifest) {
+  const desired = `<viewController id="BYZ-38-t0r" customClass="${bridgeClassFor(manifest)}" customModule="App" customModuleProvider="target" sceneMemberID="viewController"/>`;
   if (content.includes(desired)) return content;
   const candidate = /<viewController id="BYZ-38-t0r"[^>]*sceneMemberID="viewController"\s*\/>/;
-  return replaceRequired(content, candidate, desired, 'FindTheDog bridge storyboard class');
+  return replaceRequired(content, candidate, desired, 'bridge storyboard class');
 }
 
 function replacePlistEntry(content, key, valueXml) {
@@ -411,11 +433,19 @@ function validateRecipeSources(recipeDir, manifest, issues) {
   const read = (file) => fs.existsSync(path.join(appDir, file)) ? fs.readFileSync(path.join(appDir, file), 'utf8') : '';
   const appDelegate = read('AppDelegate.swift');
   for (const snippet of ['setCategory(.playback', '.mixWithOthers']) if (!appDelegate.includes(snippet)) issues.push(`AppDelegate.swift is missing ${snippet}`);
-  const bridge = read('FindTheDogBridgeViewController.swift');
-  for (const snippet of ['registerPluginInstance(AppLovinMaxPlugin())', 'registerPluginInstance(AdjustAttributionPlugin())', 'contentInsetAdjustmentBehavior = .never']) {
-    if (!bridge.includes(snippet)) issues.push(`FindTheDogBridgeViewController.swift is missing ${snippet}`);
+  const bridgeFile = `${bridgeClassFor(manifest)}.swift`;
+  const bridge = read(bridgeFile);
+  const pluginSources = manifest.ios.swiftSources.filter((name) => name.endsWith('Plugin.swift'));
+  const bridgeSnippets = [
+    'contentInsetAdjustmentBehavior = .never',
+    ...pluginSources.map((name) => `registerPluginInstance(${name.replace('.swift', '')}())`),
+  ];
+  for (const snippet of bridgeSnippets) {
+    if (!bridge.includes(snippet)) issues.push(`${bridgeFile} is missing ${snippet}`);
   }
-  const appLovin = read('AppLovinMaxPlugin.swift');
+  const hasAppLovin = manifest.ios.swiftSources.includes('AppLovinMaxPlugin.swift');
+  const appLovin = hasAppLovin ? read('AppLovinMaxPlugin.swift') : '';
+  if (hasAppLovin) {
   for (const method of ['initialize', 'showBanner', 'hideBanner', 'preloadInterstitial', 'showInterstitial', 'preloadRewarded', 'showRewarded', 'showPrivacyOptions']) {
     if (!appLovin.includes(`CAPPluginMethod(name: "${method}"`)) issues.push(`AppLovinMaxPlugin.swift is missing ${method}`);
   }
@@ -431,7 +461,10 @@ function validateRecipeSources(recipeDir, manifest, issues) {
   if ((appLovin.match(/MAAdView\(adUnitIdentifier:/g) ?? []).length !== 1) issues.push('AppLovinMaxPlugin.swift must create exactly one MAAdView');
   if ((appLovin.match(/adView\.loadAd\(\)/g) ?? []).length !== 1) issues.push('AppLovinMaxPlugin.swift must explicitly load the banner exactly once');
   for (const forbidden of ['destroyBanner', 'removeFromSuperview', 'bannerAdView = nil', 'showCMPForExistingUser(from:']) if (appLovin.includes(forbidden)) issues.push(`AppLovinMaxPlugin.swift contains forbidden persistent-banner/consent source: ${forbidden}`);
-  const adjust = read('AdjustAttributionPlugin.swift');
+  }
+  const hasAdjust = manifest.ios.swiftSources.includes('AdjustAttributionPlugin.swift');
+  const adjust = hasAdjust ? read('AdjustAttributionPlugin.swift') : '';
+  if (hasAdjust) {
   for (const snippet of [
     'config.isValid()',
     'disableIdfaReading()',
@@ -447,8 +480,12 @@ function validateRecipeSources(recipeDir, manifest, issues) {
     '"rewardedWatched": ["placement"]',
   ]) if (!adjust.includes(snippet)) issues.push(`AdjustAttributionPlugin.swift is missing ${snippet}`);
   for (const forbidden of ['getBool("disableIdfaReading")', 'getBool("disableAppTrackingTransparencyUsage")', 'call.getString("eventToken")']) if (adjust.includes(forbidden)) issues.push(`AdjustAttributionPlugin.swift exposes unsafe bridge input: ${forbidden}`);
+  }
   const privacy = read(manifest.ios.privacyManifest);
-  for (const snippet of ['<key>NSPrivacyTracking</key>', '<true/>', '<string>applovin.com</string>', '<string>adjust.com</string>', 'NSPrivacyCollectedDataTypeAdvertisingData']) if (!privacy.includes(snippet)) issues.push(`PrivacyInfo.xcprivacy is missing ${snippet}`);
+  const privacySnippets = ['<key>NSPrivacyTracking</key>', '<true/>', 'NSPrivacyCollectedDataTypeAdvertisingData'];
+  if (hasAppLovin) privacySnippets.push('<string>applovin.com</string>');
+  if (hasAdjust) privacySnippets.push('<string>adjust.com</string>');
+  for (const snippet of privacySnippets) if (!privacy.includes(snippet)) issues.push(`PrivacyInfo.xcprivacy is missing ${snippet}`);
   const joined = [appDelegate, bridge, appLovin, adjust, privacy].join('\n');
   const secretPatterns = [
     /VITE_ADJUST_IOS_APP_TOKEN\s*=\s*[a-z0-9]{12}/i,
@@ -503,6 +540,9 @@ export function validateGeneratedShell({ repoRoot, game, allowMissingFirebase = 
   const project = fs.readFileSync(required.project, 'utf8');
   for (const entry of fs.readdirSync(path.join(recipeDir, 'App'), { withFileTypes: true })) {
     if (!entry.isFile()) continue;
+    // A recipe Info.plist is a base input: the pipeline patches the generated
+    // copy (SKAdNetwork, display name, orientations), so bytes lawfully drift.
+    if (entry.name === 'Info.plist') continue;
     const generatedFile = path.join(iosRoot, 'App', entry.name);
     if (!fs.existsSync(generatedFile)) {
       issues.push(`generated iOS app is missing copied recipe file App/${entry.name}`);
@@ -526,7 +566,7 @@ export function validateGeneratedShell({ repoRoot, game, allowMissingFirebase = 
   if (googleServicePresent && googleState !== 'wired') issues.push(`${FIREBASE_PLIST} is present but not wired into App Resources`);
   if (!googleServicePresent && googleState !== 'absent') issues.push(`${FIREBASE_PLIST} is absent but remains wired into App Resources`);
   const storyboard = fs.readFileSync(required.storyboard, 'utf8');
-  if (!storyboard.includes('customClass="FindTheDogBridgeViewController" customModule="App"')) issues.push('storyboard bridge class is invalid');
+  if (!storyboard.includes(`customClass="${bridgeClassFor(manifest)}" customModule="App"`)) issues.push('storyboard bridge class is invalid');
   validatePackage(fs.readFileSync(required.packageSwift, 'utf8'), manifest, issues);
   return { issues, generatedPresent: true, skAdNetworkCount: ids.length };
 }
@@ -536,7 +576,7 @@ function collectRecipeIssues(gameDir, recipeDir, manifest, ids) {
   validateManifest(manifest, issues);
   validateCatalog(ids, issues);
   validateRecipeSources(recipeDir, manifest, issues);
-  if (manifest.capacitorAppId !== 'com.basegamelab.find_the_dog.dev') issues.push('Capacitor/Android identity drifted from com.basegamelab.find_the_dog.dev');
+  if (manifest.game === 'find_the_dog' && manifest.capacitorAppId !== 'com.basegamelab.find_the_dog.dev') issues.push('Capacitor/Android identity drifted from com.basegamelab.find_the_dog.dev');
   const capacitorConfig = path.join(gameDir, 'capacitor.config.ts');
   if (!fs.existsSync(capacitorConfig) || !fs.readFileSync(capacitorConfig, 'utf8').includes(`appId: "${manifest.capacitorAppId}"`)) {
     issues.push(`capacitor.config.ts does not declare appId ${manifest.capacitorAppId}`);
@@ -585,7 +625,12 @@ export function applyNativeShell({ repoRoot, game }) {
   const firebaseIssues = [];
   validateFirebaseIdentity(gameDir, manifest, { allowMissingFirebase: true }, firebaseIssues);
   if (firebaseIssues.length) throw new Error(`invalid native Firebase configuration:\n- ${firebaseIssues.join('\n- ')}`);
-  const googleServicePresent = fs.existsSync(path.join(iosRoot, 'App', FIREBASE_PLIST));
+  // The recipe copy below may introduce the Firebase plist on first apply, so
+  // presence is recipe-or-generated, not generated-only.
+  const googleServicePresent = fs.existsSync(path.join(iosRoot, 'App', FIREBASE_PLIST))
+    || fs.existsSync(path.join(recipeDir, 'App', FIREBASE_PLIST));
+  const changed = [];
+  copyRecipeApp(recipeDir, iosRoot, changed);
   const originals = {
     plist: fs.readFileSync(files.plist, 'utf8'),
     storyboard: fs.readFileSync(files.storyboard, 'utf8'),
@@ -594,12 +639,10 @@ export function applyNativeShell({ repoRoot, game }) {
   };
   const outputs = {
     plist: patchInfoPlist(originals.plist, manifest, ids),
-    storyboard: patchStoryboard(originals.storyboard),
+    storyboard: patchStoryboard(originals.storyboard, manifest),
     project: patchPbxproj(originals.project, manifest, { googleServicePresent }),
     packageSwift: renderPackageSwift(manifest),
   };
-  const changed = [];
-  copyRecipeApp(recipeDir, iosRoot, changed);
   writeIfChanged(files.plist, originals.plist, outputs.plist, changed, 'App/Info.plist');
   writeIfChanged(files.storyboard, originals.storyboard, outputs.storyboard, changed, 'App/Base.lproj/Main.storyboard');
   writeIfChanged(files.project, originals.project, outputs.project, changed, 'App.xcodeproj/project.pbxproj');

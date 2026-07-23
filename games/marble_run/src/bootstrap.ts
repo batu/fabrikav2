@@ -7,6 +7,7 @@ import { initHUD } from './ui/HUD';
 import { analytics } from './analytics/AnalyticsService';
 import { attribution, configureAttributionStartupGate } from './attribution/AttributionService';
 import { adService } from './ads/Service';
+import { createSdkContext, getSdkContext, installSdkContext } from './sdk/SdkContext';
 import { initializeCohort } from './data/cohortContext';
 import { remoteConfigService } from './config/RemoteConfigService';
 import { iapService, ownedProductIdsFromCustomerInfo, type CustomerInfo } from './shop/IapService';
@@ -30,6 +31,20 @@ installButtonVoiceEffects();
 // before any kit surface mounts.
 installShellArt(document);
 preloadIcons();
+
+// Compose the SDK providers (ads / attribution / meta / analytics sinks) from
+// env config before any consumer fires an init or event. Off is a first-class
+// Disabled* state, so this is safe with an empty env.
+installSdkContext(createSdkContext());
+void getSdkContext().meta.init();
+// Build-time automount for device evidence capture: a dev/harness build with
+// VITE_SDK_VERIFIER_AUTOMOUNT=true shows the SDK verifier pane at launch, so
+// screenshots need no tap choreography. Same gate as the 4-tap path.
+if ((!import.meta.env.PROD || TEST_HARNESS_ENABLED) && import.meta.env.VITE_SDK_VERIFIER_AUTOMOUNT === 'true') {
+  void import('./devtools/SdkVerifierMount').then(({ toggleSdkVerifierPane }): void => {
+    toggleSdkVerifierPane(getSdkContext());
+  });
+}
 
 const game: Phaser.Game = new Phaser.Game(GameConfig);
 initHUD();
@@ -134,7 +149,13 @@ if (typeof window !== 'undefined') {
     lastTapTime = now;
     if (tapCount >= TAPS_REQUIRED) {
       tapCount = 0;
-      // Reserved for future dev toggles. Intentionally empty today.
+      // Dev-only SDK verifier pane (status / actions / callback log for the
+      // ads, attribution, firebase, and facebook components).
+      if (!import.meta.env.PROD || TEST_HARNESS_ENABLED) {
+        void import('./devtools/SdkVerifierMount').then(({ toggleSdkVerifierPane }): void => {
+          toggleSdkVerifierPane(getSdkContext());
+        });
+      }
     }
   });
 

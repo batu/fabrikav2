@@ -33,6 +33,19 @@ export const OVERLAYS = {
   },
 };
 
+/** Additional overlays applied after the primary one (same copy semantics).
+ *  android-src carries the committed Capacitor SDK plugin sources
+ *  (AppLovin/AppsFlyer/Meta bridges) that `cap add android` cannot generate. */
+export const EXTRA_OVERLAYS = {
+  ios: [],
+  android: [
+    {
+      from: 'native-resources/android-src/app/src/main/java',
+      to: 'android/app/src/main/java',
+    },
+  ],
+};
+
 const ANDROID_DENSITIES = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi', 'xxxhdpi'];
 const ANDROID_LAUNCHER_NAMES = [
   'ic_launcher.png',
@@ -125,6 +138,9 @@ function main(argv) {
     return;
   }
   const changed = copyOverlay(overlay.from, overlay.to);
+  for (const extra of EXTRA_OVERLAYS[platform] ?? []) {
+    if (existsSync(extra.from)) changed.push(...copyOverlay(extra.from, extra.to));
+  }
   if (platform === 'android') {
     const mismatches = assertFilesMatch(overlay.from, overlay.to, ANDROID_LAUNCHER_ICONS);
     if (mismatches.length > 0) {

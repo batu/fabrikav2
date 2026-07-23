@@ -83,3 +83,22 @@ export const attribution = new AttributionService(createAttributionProvider());
 Pass any startup/privacy/config gate in the `AttributionService` constructor before exporting the singleton. `configureStartupGate()` is only for early bootstrap code that can run before any attribution event is fired; it cannot retroactively gate an event that already started.
 
 Rewarded flows should attribute only after the reward is actually granted. Keep that timing in game-owned glue instead of this shared provider module.
+
+## AppsFlyer adapter
+
+`AppsFlyerAttributionProvider` mirrors the Adjust adapter behind the same
+`AttributionProvider` interface, selected via `selectAttributionProvider`
+(explicit `preferred` choice wins; otherwise AppsFlyer-before-Adjust by config
+presence; everything else resolves Disabled with a reason). Native contract
+(`jsName='AppsFlyerAttribution'`): `initialize({devKey, appleAppId, debugLogging,
+attWaitSeconds})`, `trackEvent({eventName, eventValues})`, `getStatus()` — all
+resolve-not-reject.
+
+Env keys:
+
+| Key | Meaning |
+|---|---|
+| `VITE_APPSFLYER_ENABLED` | Master gate; anything but `true` is disabled |
+| `VITE_APPSFLYER_DEV_KEY` | AppsFlyer dev key (required both platforms) |
+| `VITE_APPSFLYER_APPLE_APP_ID` | Numeric App Store id (required on iOS) |
+| `VITE_APPSFLYER_DEBUG_LOGGING` | Verbose logs; forced off in production builds |

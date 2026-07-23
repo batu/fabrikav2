@@ -1,0 +1,571 @@
+{
+  "models": [
+    "anthropic/claude-opus-4.1",
+    "anthropic/claude-sonnet-5",
+    "google/gemini-3.5-flash"
+  ],
+  "judges": [
+    {
+      "id": "opus",
+      "model": "anthropic/claude-opus-4.1",
+      "provider": "openrouter",
+      "enabled": true
+    },
+    {
+      "id": "sonnet",
+      "model": "anthropic/claude-sonnet-5",
+      "provider": "openrouter",
+      "enabled": true
+    },
+    {
+      "id": "gemini-flash",
+      "model": "google/gemini-3.5-flash",
+      "provider": "openrouter",
+      "enabled": true
+    }
+  ],
+  "thresholdPct": 85,
+  "states": [
+    {
+      "state": "menu",
+      "score": 75,
+      "status": "fail",
+      "reason": "panel 75% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 60
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 75
+        }
+      ],
+      "consensus": [
+        {
+          "key": "other",
+          "count": 2,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Game board shows completely different game state",
+            "The preview board's grid-hole layout, marbles, and color rings are completely different from the reference design."
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Marble positions/arrangement differ significantly from reference layout",
+            "The vertical connection line linking the board to the level nodes is missing its wooden track design."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "level",
+      "score": 35,
+      "status": "fail",
+      "reason": "panel 35% < 85%; consensus blocker: layout (2/3)",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 35
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 15
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 35
+        }
+      ],
+      "consensus": [
+        {
+          "key": "layout",
+          "count": 2,
+          "of": 3,
+          "severity": "blocker",
+          "descriptions": [
+            "Board layout and ball arrangement completely different from reference; grid of pegs/balls replaced with scattered balls and a hint path overlay",
+            "The game board puzzle configuration, marble colors/positions, and launcher positions do not match the reference."
+          ]
+        },
+        {
+          "key": "extra-element",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Hand/finger pointer overlay on game board",
+            "Extra hint path visualization and hand cursor icon not present in reference",
+            "A tutorial overlay with a dark mask, spotlight, and hand cursor is present on the screen."
+          ]
+        },
+        {
+          "key": "background",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Game board background color different",
+            "Overall background color scheme is darker/desaturated compared to reference",
+            "The background and UI elements are heavily dimmed."
+          ]
+        },
+        {
+          "key": "color",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Hearts color slightly different",
+            "Top hearts bar and settings button are darker teal/blue instead of bright cyan"
+          ]
+        }
+      ]
+    },
+    {
+      "state": "settings",
+      "score": 75,
+      "status": "fail",
+      "reason": "panel 75% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 85
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 60
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 75
+        }
+      ],
+      "consensus": [
+        {
+          "key": "missing-element",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "RESET PROGRESS text/button is missing",
+            "Reset Progress link is missing",
+            "The 'RESET PROGRESS' action link is completely missing from the bottom of the dialog."
+          ]
+        },
+        {
+          "key": "typography",
+          "count": 3,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Close button text capitalization differs",
+            "Close button text style differs",
+            "The main action button text 'Close' uses incorrect casing, font, and size."
+          ]
+        },
+        {
+          "key": "color",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Label text color differs",
+            "Toggle switches have incorrect green gradient and knob colors."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "pause",
+      "score": null,
+      "status": "unscored",
+      "reason": "no reference to score against",
+      "models": [],
+      "consensus": []
+    },
+    {
+      "state": "win",
+      "score": 75,
+      "status": "fail",
+      "reason": "panel 75% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 75
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 45
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 85
+        }
+      ],
+      "consensus": [
+        {
+          "key": "text-content",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Coin counter shows wrong value",
+            "Level number differs from reference",
+            "The text content for the level and coin values differs."
+          ]
+        },
+        {
+          "key": "layout",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "Completion dialog positioned differently",
+            "Overall vertical layout/positioning of elements shifted; card is higher and smaller, leaving large empty space below",
+            "The card background behind the green banner has a flat, cut-off top edge instead of being cleanly rounded and masked/hidden behind the banner."
+          ]
+        },
+        {
+          "key": "background",
+          "count": 3,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Background elements visibility differs",
+            "Wooden shelf background behind card is faded/less vibrant and partially cut off",
+            "The wooden panel illustration in the background is smaller and darker."
+          ]
+        },
+        {
+          "key": "sizing",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Reward card and banner are significantly smaller than reference and card is not fully visible/cropped",
+            "The top-right coin counter capsule button is horizontally squished and smaller."
+          ]
+        }
+      ]
+    },
+    {
+      "state": "fail",
+      "score": null,
+      "status": "skipped",
+      "reason": "reference skipped by refs manifest at-rest:false: refs/captures/android-basegamelab/fail-ref.png - contains a mid-load LOADING button and is not a stable fail screen; recapture: recapture after human or scripted play reaches the settled fail overlay; keep excluded from verify-device judging until then",
+      "models": [],
+      "consensus": []
+    }
+  ],
+  "verdict": {
+    "pass": false,
+    "summary": "FAIL — panel median 75% · 0 pass, 4 fail, 1 unscored, 1 skipped (floor 85%)",
+    "states": [
+      {
+        "state": "menu",
+        "score": 75,
+        "status": "fail",
+        "reason": "panel 75% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 60
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 75
+          }
+        ],
+        "consensus": [
+          {
+            "key": "other",
+            "count": 2,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Game board shows completely different game state",
+              "The preview board's grid-hole layout, marbles, and color rings are completely different from the reference design."
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Marble positions/arrangement differ significantly from reference layout",
+              "The vertical connection line linking the board to the level nodes is missing its wooden track design."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "level",
+        "score": 35,
+        "status": "fail",
+        "reason": "panel 35% < 85%; consensus blocker: layout (2/3)",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 35
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 15
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 35
+          }
+        ],
+        "consensus": [
+          {
+            "key": "layout",
+            "count": 2,
+            "of": 3,
+            "severity": "blocker",
+            "descriptions": [
+              "Board layout and ball arrangement completely different from reference; grid of pegs/balls replaced with scattered balls and a hint path overlay",
+              "The game board puzzle configuration, marble colors/positions, and launcher positions do not match the reference."
+            ]
+          },
+          {
+            "key": "extra-element",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Hand/finger pointer overlay on game board",
+              "Extra hint path visualization and hand cursor icon not present in reference",
+              "A tutorial overlay with a dark mask, spotlight, and hand cursor is present on the screen."
+            ]
+          },
+          {
+            "key": "background",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Game board background color different",
+              "Overall background color scheme is darker/desaturated compared to reference",
+              "The background and UI elements are heavily dimmed."
+            ]
+          },
+          {
+            "key": "color",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Hearts color slightly different",
+              "Top hearts bar and settings button are darker teal/blue instead of bright cyan"
+            ]
+          }
+        ]
+      },
+      {
+        "state": "settings",
+        "score": 75,
+        "status": "fail",
+        "reason": "panel 75% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 85
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 60
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 75
+          }
+        ],
+        "consensus": [
+          {
+            "key": "missing-element",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "RESET PROGRESS text/button is missing",
+              "Reset Progress link is missing",
+              "The 'RESET PROGRESS' action link is completely missing from the bottom of the dialog."
+            ]
+          },
+          {
+            "key": "typography",
+            "count": 3,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Close button text capitalization differs",
+              "Close button text style differs",
+              "The main action button text 'Close' uses incorrect casing, font, and size."
+            ]
+          },
+          {
+            "key": "color",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Label text color differs",
+              "Toggle switches have incorrect green gradient and knob colors."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "pause",
+        "score": null,
+        "status": "unscored",
+        "reason": "no reference to score against",
+        "models": [],
+        "consensus": []
+      },
+      {
+        "state": "win",
+        "score": 75,
+        "status": "fail",
+        "reason": "panel 75% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 75
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 45
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 85
+          }
+        ],
+        "consensus": [
+          {
+            "key": "text-content",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Coin counter shows wrong value",
+              "Level number differs from reference",
+              "The text content for the level and coin values differs."
+            ]
+          },
+          {
+            "key": "layout",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "Completion dialog positioned differently",
+              "Overall vertical layout/positioning of elements shifted; card is higher and smaller, leaving large empty space below",
+              "The card background behind the green banner has a flat, cut-off top edge instead of being cleanly rounded and masked/hidden behind the banner."
+            ]
+          },
+          {
+            "key": "background",
+            "count": 3,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Background elements visibility differs",
+              "Wooden shelf background behind card is faded/less vibrant and partially cut off",
+              "The wooden panel illustration in the background is smaller and darker."
+            ]
+          },
+          {
+            "key": "sizing",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Reward card and banner are significantly smaller than reference and card is not fully visible/cropped",
+              "The top-right coin counter capsule button is horizontally squished and smaller."
+            ]
+          }
+        ]
+      },
+      {
+        "state": "fail",
+        "score": null,
+        "status": "skipped",
+        "reason": "reference skipped by refs manifest at-rest:false: refs/captures/android-basegamelab/fail-ref.png - contains a mid-load LOADING button and is not a stable fail screen; recapture: recapture after human or scripted play reaches the settled fail overlay; keep excluded from verify-device judging until then",
+        "models": [],
+        "consensus": []
+      }
+    ],
+    "score": 75
+  },
+  "budgetHalted": false,
+  "game": "marble_run",
+  "lane": "device",
+  "generatedAt": "2026-07-23T11:01:05.801Z"
+}

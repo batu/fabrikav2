@@ -156,19 +156,25 @@ worker's device. It cannot control a physical iPhone or iPad.
 Put machine-readable declarations on their own description lines:
 
 ```text
-Classification: direct-to-work | needs-plan | needs-brainstorm
-Task-class: game-visual | infra-code | docs-policy
+Classification: direct-to-work
+Stage-profile: game-visual
+Task-class: <open lesson/telemetry tag>
 Depends_on: <shortid>[, <shortid>...]
 Touches: <repo-relative path>[, <path>...]
 Contract: <shared path> (owner: this card)
 Visual: <surface>[, <surface>...]
 ```
 
+Choose exactly one classification (`direct-to-work`, `needs-plan`, or
+`needs-brainstorm`) and one stage profile (`game-visual`, `infra-code`, or
+`docs-policy`). Do not append prose to either machine-readable value.
+
 Before starting shared-path work, `twf lock-check <path>...` reports declared
 overlap with in-flight cards. It is advisory; the card declarations and live
 worktrees remain the source of truth.
 
-`Task-class` chooses an ordered subset of one canonical physical sequence:
+`Stage-profile` chooses an ordered subset of one canonical physical sequence.
+`Task-class` remains an open lesson/telemetry tag and does not control routing:
 
 ```text
 Todo → Brainstormed → Planned → Worked → Aesthetics Reviewed →
@@ -187,10 +193,11 @@ ceremonial substitutes.
 
 ## Stage work
 
-Use the checklist printed by the command that entered the stage. The durable
-minimum is:
+`twf status` prints the entry checklist for the next in-profile column. Complete
+that artifact before advancing; a card enters a column only after its required
+artifact exists. The durable minimum is:
 
-| Stage | Required outcome |
+| Column to enter | Artifact required to enter |
 |---|---|
 | Brainstormed | Requirements doc only when product ambiguity exists |
 | Planned | Short implementation plan only when implementation choices exist |

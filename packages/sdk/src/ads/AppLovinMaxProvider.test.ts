@@ -182,3 +182,50 @@ describe('AppLovinMaxProvider lifecycle', (): void => {
     expect(onFullScreenAdFinished).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('AppLovinMaxProvider partial unit configuration', (): void => {
+  const partialConfig: AppLovinConfig = {
+    ...config,
+    adUnitIds: { banner: '', interstitial: '', rewarded: 'r' },
+  };
+
+  it('skips unconfigured formats without touching native and resolves safe values', async (): Promise<void> => {
+    const plugin = makePlugin();
+    const provider = new AppLovinMaxProvider(partialConfig, { plugin, logger: silentLogger });
+
+    await provider.preloadInterstitial();
+    const interstitialShown = await provider.maybeShowInterstitial();
+    const bannerShown = await provider.showBanner();
+
+    expect(plugin.preloadInterstitial).not.toHaveBeenCalled();
+    expect(plugin.showInterstitial).not.toHaveBeenCalled();
+    expect(plugin.showBanner).not.toHaveBeenCalled();
+    expect(interstitialShown).toBe(false);
+    expect(bannerShown).toBe(false);
+  });
+
+  it('still serves the configured format', async (): Promise<void> => {
+    const plugin = makePlugin({ showRewarded: vi.fn(async () => ({ granted: true })) });
+    const provider = new AppLovinMaxProvider(partialConfig, { plugin, logger: silentLogger });
+
+    const result = await provider.showRewardedAd();
+
+    expect(result.granted).toBe(true);
+    expect(plugin.showRewarded).toHaveBeenCalled();
+  });
+
+  it('skips rewarded when its unit id is blank', async (): Promise<void> => {
+    const plugin = makePlugin();
+    const provider = new AppLovinMaxProvider(
+      { ...config, adUnitIds: { banner: 'b', interstitial: 'i', rewarded: '' } },
+      { plugin, logger: silentLogger },
+    );
+
+    await provider.preloadRewarded();
+    const result = await provider.showRewardedAd();
+
+    expect(plugin.preloadRewarded).not.toHaveBeenCalled();
+    expect(plugin.showRewarded).not.toHaveBeenCalled();
+    expect(result).toEqual({ granted: false });
+  });
+});

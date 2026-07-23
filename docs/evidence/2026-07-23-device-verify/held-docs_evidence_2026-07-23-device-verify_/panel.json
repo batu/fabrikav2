@@ -1,0 +1,261 @@
+{
+  "models": [
+    "anthropic/claude-opus-4.1",
+    "anthropic/claude-sonnet-5",
+    "google/gemini-3.5-flash"
+  ],
+  "judges": [
+    {
+      "id": "opus",
+      "model": "anthropic/claude-opus-4.1",
+      "provider": "openrouter",
+      "enabled": true
+    },
+    {
+      "id": "sonnet",
+      "model": "anthropic/claude-sonnet-5",
+      "provider": "openrouter",
+      "enabled": true
+    },
+    {
+      "id": "gemini-flash",
+      "model": "google/gemini-3.5-flash",
+      "provider": "openrouter",
+      "enabled": true
+    }
+  ],
+  "thresholdPct": 85,
+  "states": [
+    {
+      "state": "menu",
+      "score": null,
+      "status": "unscored",
+      "reason": "no device capture to score",
+      "models": [],
+      "consensus": []
+    },
+    {
+      "state": "level",
+      "score": null,
+      "status": "unscored",
+      "reason": "no device capture to score",
+      "models": [],
+      "consensus": []
+    },
+    {
+      "state": "settings",
+      "score": 62,
+      "status": "fail",
+      "reason": "panel 62% < 85%",
+      "models": [
+        {
+          "judge": "opus",
+          "model": "anthropic/claude-opus-4.1",
+          "ok": true,
+          "fidelity": 85
+        },
+        {
+          "judge": "sonnet",
+          "model": "anthropic/claude-sonnet-5",
+          "ok": true,
+          "fidelity": 62
+        },
+        {
+          "judge": "gemini-flash",
+          "model": "google/gemini-3.5-flash",
+          "ok": true,
+          "fidelity": 58
+        }
+      ],
+      "consensus": [
+        {
+          "key": "missing-element",
+          "count": 3,
+          "of": 3,
+          "severity": "major",
+          "descriptions": [
+            "RESET PROGRESS button is missing",
+            "'Reset Progress' link is missing entirely",
+            "Missing 'RESET PROGRESS' button"
+          ]
+        },
+        {
+          "key": "typography",
+          "count": 3,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Button text capitalization differs",
+            "Text labels use different font weight/style and color",
+            "Close button text font and style mismatch"
+          ]
+        },
+        {
+          "key": "background",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Background color/texture differs significantly",
+            "Background texture and hidden medal missing"
+          ]
+        },
+        {
+          "key": "iconography",
+          "count": 2,
+          "of": 3,
+          "severity": "minor",
+          "descriptions": [
+            "Close (X) button size and border differ",
+            "Toggle switches replaced with generic OS switches"
+          ]
+        }
+      ]
+    },
+    {
+      "state": "pause",
+      "score": null,
+      "status": "unscored",
+      "reason": "no device capture to score",
+      "models": [],
+      "consensus": []
+    },
+    {
+      "state": "win",
+      "score": null,
+      "status": "unscored",
+      "reason": "no device capture to score",
+      "models": [],
+      "consensus": []
+    },
+    {
+      "state": "fail",
+      "score": null,
+      "status": "skipped",
+      "reason": "reference skipped by refs manifest at-rest:false: refs/captures/android-basegamelab/fail-ref.png - contains a mid-load LOADING button and is not a stable fail screen; recapture: recapture after human or scripted play reaches the settled fail overlay; keep excluded from verify-device judging until then",
+      "models": [],
+      "consensus": []
+    }
+  ],
+  "verdict": {
+    "pass": false,
+    "summary": "FAIL — panel median 62% · 0 pass, 1 fail, 4 unscored, 1 skipped (floor 85%)",
+    "states": [
+      {
+        "state": "menu",
+        "score": null,
+        "status": "unscored",
+        "reason": "no device capture to score",
+        "models": [],
+        "consensus": []
+      },
+      {
+        "state": "level",
+        "score": null,
+        "status": "unscored",
+        "reason": "no device capture to score",
+        "models": [],
+        "consensus": []
+      },
+      {
+        "state": "settings",
+        "score": 62,
+        "status": "fail",
+        "reason": "panel 62% < 85%",
+        "models": [
+          {
+            "judge": "opus",
+            "model": "anthropic/claude-opus-4.1",
+            "ok": true,
+            "fidelity": 85
+          },
+          {
+            "judge": "sonnet",
+            "model": "anthropic/claude-sonnet-5",
+            "ok": true,
+            "fidelity": 62
+          },
+          {
+            "judge": "gemini-flash",
+            "model": "google/gemini-3.5-flash",
+            "ok": true,
+            "fidelity": 58
+          }
+        ],
+        "consensus": [
+          {
+            "key": "missing-element",
+            "count": 3,
+            "of": 3,
+            "severity": "major",
+            "descriptions": [
+              "RESET PROGRESS button is missing",
+              "'Reset Progress' link is missing entirely",
+              "Missing 'RESET PROGRESS' button"
+            ]
+          },
+          {
+            "key": "typography",
+            "count": 3,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Button text capitalization differs",
+              "Text labels use different font weight/style and color",
+              "Close button text font and style mismatch"
+            ]
+          },
+          {
+            "key": "background",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Background color/texture differs significantly",
+              "Background texture and hidden medal missing"
+            ]
+          },
+          {
+            "key": "iconography",
+            "count": 2,
+            "of": 3,
+            "severity": "minor",
+            "descriptions": [
+              "Close (X) button size and border differ",
+              "Toggle switches replaced with generic OS switches"
+            ]
+          }
+        ]
+      },
+      {
+        "state": "pause",
+        "score": null,
+        "status": "unscored",
+        "reason": "no device capture to score",
+        "models": [],
+        "consensus": []
+      },
+      {
+        "state": "win",
+        "score": null,
+        "status": "unscored",
+        "reason": "no device capture to score",
+        "models": [],
+        "consensus": []
+      },
+      {
+        "state": "fail",
+        "score": null,
+        "status": "skipped",
+        "reason": "reference skipped by refs manifest at-rest:false: refs/captures/android-basegamelab/fail-ref.png - contains a mid-load LOADING button and is not a stable fail screen; recapture: recapture after human or scripted play reaches the settled fail overlay; keep excluded from verify-device judging until then",
+        "models": [],
+        "consensus": []
+      }
+    ],
+    "score": 62
+  },
+  "budgetHalted": false,
+  "game": "marble_run",
+  "lane": "device",
+  "generatedAt": "2026-07-23T10:32:49.522Z"
+}

@@ -1,0 +1,599 @@
+{
+  "game": "marble_run",
+  "generatedAt": "2026-07-23",
+  "schema": "verifyDevice.regions coords=normalized",
+  "cropDir": "docs/evidence/2026-07-23-device-verify/crops",
+  "entries": [
+    {
+      "state": "menu",
+      "region": "menu_level_button",
+      "label": "Menu primary level button",
+      "side": "device",
+      "sourceImage": "docs/evidence/2026-07-23-device-verify/judged-captures/menu.png",
+      "path": "crops/menu--menu_level_button--device.png",
+      "geometry": {
+        "coords": "normalized",
+        "normalized": {
+          "x": 0.22,
+          "y": 0.84,
+          "width": 0.56,
+          "height": 0.12
+        },
+        "pixels": {
+          "x": 237,
+          "y": 1906,
+          "width": 606,
+          "height": 274
+        },
+        "sourceResolution": "1080x2270"
+      },
+      "cropResolution": "606x274"
+    },
+    {
+      "state": "menu",
+      "region": "menu_level_button",
+      "label": "Menu primary level button",
+      "side": "reference",
+      "sourceImage": "games/marble_run/refs/captures/android-basegamelab/menu.png",
+      "path": "crops/menu--menu_level_button--reference.png",
+      "geometry": {
+        "coords": "normalized",
+        "normalized": {
+          "x": 0.22,
+          "y": 0.84,
+          "width": 0.56,
+          "height": 0.12
+        },
+        "pixels": {
+          "x": 237,
+          "y": 2016,
+          "width": 606,
+          "height": 288
+        },
+        "sourceResolution": "1080x2400"
+      },
+      "cropResolution": "606x288"
+    },
+    {
+      "state": "menu",
+      "region": "menu_level_button",
+      "label": "Menu primary level button",
+      "side": "diff",
+      "sourceImage": {
+        "device": "docs/evidence/2026-07-23-device-verify/judged-captures/menu.png",
+        "reference": "games/marble_run/refs/captures/android-basegamelab/menu.png"
+      },
+      "path": "crops/menu--menu_level_button--diff.png",
+      "geometry": {
+        "coords": "normalized",
+        "normalized": {
+          "x": 0.22,
+          "y": 0.84,
+          "width": 0.56,
+          "height": 0.12
+        },
+        "sourceResolution": {
+          "device": "1080x2270",
+          "reference": "1080x2400"
+        }
+      },
+      "cropResolution": "90x200",
+      "changedFraction": 0.34805555555555556,
+      "meanDelta": 23.27987448478953
+    },
+    {
+      "state": "level",
+      "region": "gameplay_top_hud",
+      "label": "Gameplay top HUD hearts and settings band",
+      "side": "device",
+      "sourceImage": "docs/evidence/2026-07-23-device-verify/judged-captures/level.png",
+      "path": "crops/level--gameplay_top_hud--device.png",
+      "geometry": {
+        "coords": "normalized",
+        "normalized": {
+          "x": 0.04,
+          "y": 0.06,
+          "width": 0.92,
+          "height": 0.11
+        },
+        "pixels": {
+          "x": 43,
+          "y": 136,
+          "width": 994,
+          "height": 250
+        },
+        "sourceResolution": "1080x2270"
+      },
+      "cropResolution": "994x250"
+    },
+    {
+      "state": "level",
+      "region": "gameplay_top_hud",
+      "label": "Gameplay top HUD hearts and settings band",
+      "side": "reference",
+      "sourceImage": "games/marble_run/refs/captures/android-basegamelab/level-start.png",
+      "path": "crops/level--gameplay_top_hud--reference.png",
+      "geometry": {
+        "coords": "normalized",
+        "normalized": {
+          "x": 0.04,
+          "y": 0.06,
+          "width": 0.92,
+          "height": 0.11
+        },
+        "pixels": {
+          "x": 43,
+          "y": 144,
+          "width": 994,
+          "height": 264
+        },
+        "sourceResolution": "1080x2400"
+      },
+      "cropResolution": "994x264"
+    },
+    {
+      "state": "level",
+      "region": "gameplay_top_hud",
+      "label": "Gameplay top HUD hearts and settings band",
+      "side": "diff",
+      "sourceImage": {
+        "device": "docs/evidence/2026-07-23-device-verify/judged-captures/level.png",
+        "reference": "games/marble_run/refs/captures/android-basegamelab/level-start.png"
+      },
+      "path": "crops/level--gameplay_top_hud--diff.png",
+      "geometry": {
+        "coords": "normalized",
+        "normalized": {
+          "x": 0.04,
+          "y": 0.06,
+          "width": 0.92,
+          "height": 0.11
+        },
+        "sourceResolution": {
+          "device": "1080x2270",
+          "reference": "1080x2400"
+        }
+      },
+      "cropResolution": "90x200",
+      "changedFraction": 0.9753888888888889,
+      "meanDelta": 95.17340234616087
+    },
+    {
+      "state": "level",
+      "region": "gameplay_bottom_hud",
+      "label": "Gameplay bottom coin and hint controls",
+      "side": "device",
+      "sourceImage": "docs/evidence/2026-07-23-device-verify/judged-captures/level.png",
+      "path": "crops/level--gameplay_bottom_hud--device.png",
+      "geometry": {
+        "coords": "normalized",
+        "normalized": {
+          "x": 0.03,
+          "y": 0.82,
+          "width": 0.94,
+          "height": 0.13
+        },
+        "pixels": {
+          "x": 32,
+          "y": 1861,
+          "width": 1016,
+          "height": 296
+        },
+        "sourceResolution": "1080x2270"
+      },
+      "cropResolution": "1016x296"
+    },
+    {
+      "state": "level",
+      "region": "gameplay_bottom_hud",
+      "label": "Gameplay bottom coin and hint controls",
+      "side": "reference",
+      "sourceImage": "games/marble_run/refs/captures/android-basegamelab/level-start.png",
+      "path": "crops/level--gameplay_bottom_hud--reference.png",
+      "geometry": {
+        "coords": "normalized",
+        "normalized": {
+          "x": 0.03,
+          "y": 0.82,
+          "width": 0.94,
+          "height": 0.13
+        },
+        "pixels": {
+          "x": 32,
+          "y": 1967,
+          "width": 1016,
+          "height": 313
+        },
+        "sourceResolution": "1080x2400"
+      },
+      "cropResolution": "1016x313"
+    },
+    {
+      "state": "level",
+      "region": "gameplay_bottom_hud",
+      "label": "Gameplay bottom coin and hint controls",
+      "side": "diff",
+      "sourceImage": {
+        "device": "docs/evidence/2026-07-23-device-verify/judged-captures/level.png",
+        "reference": "games/marble_run/refs/captures/android-basegamelab/level-start.png"
+      },
+      "path": "crops/level--gameplay_bottom_hud--diff.png",
+      "geometry": {
+        "coords": "normalized",
+        "normalized": {
+          "x": 0.03,
+          "y": 0.82,
+          "width": 0.94,
+          "height": 0.13
+        },
+        "sourceResolution": {
+          "device": "1080x2270",
+          "reference": "1080x2400"
+        }
+      },
+      "cropResolution": "90x200",
+      "changedFraction": 0.9953333333333333,
+      "meanDelta": 112.71484426767671
+    },
+    {
+      "state": "settings",
+      "region": "settings_button_band",
+      "label": "Settings modal close and reset controls",
+      "side": "device",
+      "sourceImage": "docs/evidence/2026-07-23-device-verify/judged-captures/settings.png",
+      "path": "crops/settings--settings_button_band--device.png",
+      "geometry": {
+        "coords": "normalized",
+        "normalized": {
+          "x": 0.18,
+          "y": 0.54,
+          "width": 0.64,
+          "height": 0.19
+        },
+        "pixels": {
+          "x": 194,
+          "y": 1225,
+          "width": 692,
+          "height": 433
+        },
+        "sourceResolution": "1080x2270"
+      },
+      "cropResolution": "692x433"
+    },
+    {
+      "state": "settings",
+      "region": "settings_button_band",
+      "label": "Settings modal close and reset controls",
+      "side": "reference",
+      "sourceImage": "games/marble_run/refs/captures/android-basegamelab/settings.png",
+      "path": "crops/settings--settings_button_band--reference.png",
+      "geometry": {
+        "coords": "normalized",
+        "normalized": {
+          "x": 0.18,
+          "y": 0.54,
+          "width": 0.64,
+          "height": 0.19
+        },
+        "pixels": {
+          "x": 194,
+          "y": 1296,
+          "width": 692,
+          "height": 456
+        },
+        "sourceResolution": "1080x2400"
+      },
+      "cropResolution": "692x456"
+    },
+    {
+      "state": "settings",
+      "region": "settings_button_band",
+      "label": "Settings modal close and reset controls",
+      "side": "diff",
+      "sourceImage": {
+        "device": "docs/evidence/2026-07-23-device-verify/judged-captures/settings.png",
+        "reference": "games/marble_run/refs/captures/android-basegamelab/settings.png"
+      },
+      "path": "crops/settings--settings_button_band--diff.png",
+      "geometry": {
+        "coords": "normalized",
+        "normalized": {
+          "x": 0.18,
+          "y": 0.54,
+          "width": 0.64,
+          "height": 0.19
+        },
+        "sourceResolution": {
+          "device": "1080x2270",
+          "reference": "1080x2400"
+        }
+      },
+      "cropResolution": "90x200",
+      "changedFraction": 0.7764444444444445,
+      "meanDelta": 66.40425807820844
+    },
+    {
+      "state": "win",
+      "region": "result_ribbon",
+      "label": "Result screen headline ribbon",
+      "side": "device",
+      "sourceImage": "docs/evidence/2026-07-23-device-verify/judged-captures/win.png",
+      "path": "crops/win--result_ribbon--device.png",
+      "geometry": {
+        "coords": "normalized",
+        "normalized": {
+          "x": 0.07,
+          "y": 0.19,
+          "width": 0.86,
+          "height": 0.14
+        },
+        "pixels": {
+          "x": 75,
+          "y": 431,
+          "width": 930,
+          "height": 319
+        },
+        "sourceResolution": "1080x2270"
+      },
+      "cropResolution": "930x319"
+    },
+    {
+      "state": "win",
+      "region": "result_ribbon",
+      "label": "Result screen headline ribbon",
+      "side": "reference",
+      "sourceImage": "games/marble_run/refs/captures/android-basegamelab/win-ref.png",
+      "path": "crops/win--result_ribbon--reference.png",
+      "geometry": {
+        "coords": "normalized",
+        "normalized": {
+          "x": 0.07,
+          "y": 0.19,
+          "width": 0.86,
+          "height": 0.14
+        },
+        "pixels": {
+          "x": 75,
+          "y": 456,
+          "width": 930,
+          "height": 336
+        },
+        "sourceResolution": "1080x2400"
+      },
+      "cropResolution": "930x336"
+    },
+    {
+      "state": "win",
+      "region": "result_ribbon",
+      "label": "Result screen headline ribbon",
+      "side": "diff",
+      "sourceImage": {
+        "device": "docs/evidence/2026-07-23-device-verify/judged-captures/win.png",
+        "reference": "games/marble_run/refs/captures/android-basegamelab/win-ref.png"
+      },
+      "path": "crops/win--result_ribbon--diff.png",
+      "geometry": {
+        "coords": "normalized",
+        "normalized": {
+          "x": 0.07,
+          "y": 0.19,
+          "width": 0.86,
+          "height": 0.14
+        },
+        "sourceResolution": {
+          "device": "1080x2270",
+          "reference": "1080x2400"
+        }
+      },
+      "cropResolution": "90x200",
+      "changedFraction": 0.8320555555555555,
+      "meanDelta": 84.40836021212252
+    },
+    {
+      "state": "win",
+      "region": "win_next_button",
+      "label": "Win screen primary next button",
+      "side": "device",
+      "sourceImage": "docs/evidence/2026-07-23-device-verify/judged-captures/win.png",
+      "path": "crops/win--win_next_button--device.png",
+      "geometry": {
+        "coords": "normalized",
+        "normalized": {
+          "x": 0.27,
+          "y": 0.73,
+          "width": 0.46,
+          "height": 0.12
+        },
+        "pixels": {
+          "x": 291,
+          "y": 1657,
+          "width": 498,
+          "height": 273
+        },
+        "sourceResolution": "1080x2270"
+      },
+      "cropResolution": "498x273"
+    },
+    {
+      "state": "win",
+      "region": "win_next_button",
+      "label": "Win screen primary next button",
+      "side": "reference",
+      "sourceImage": "games/marble_run/refs/captures/android-basegamelab/win-ref.png",
+      "path": "crops/win--win_next_button--reference.png",
+      "geometry": {
+        "coords": "normalized",
+        "normalized": {
+          "x": 0.27,
+          "y": 0.73,
+          "width": 0.46,
+          "height": 0.12
+        },
+        "pixels": {
+          "x": 291,
+          "y": 1752,
+          "width": 498,
+          "height": 288
+        },
+        "sourceResolution": "1080x2400"
+      },
+      "cropResolution": "498x288"
+    },
+    {
+      "state": "win",
+      "region": "win_next_button",
+      "label": "Win screen primary next button",
+      "side": "diff",
+      "sourceImage": {
+        "device": "docs/evidence/2026-07-23-device-verify/judged-captures/win.png",
+        "reference": "games/marble_run/refs/captures/android-basegamelab/win-ref.png"
+      },
+      "path": "crops/win--win_next_button--diff.png",
+      "geometry": {
+        "coords": "normalized",
+        "normalized": {
+          "x": 0.27,
+          "y": 0.73,
+          "width": 0.46,
+          "height": 0.12
+        },
+        "sourceResolution": {
+          "device": "1080x2270",
+          "reference": "1080x2400"
+        }
+      },
+      "cropResolution": "90x200",
+      "changedFraction": 0.652,
+      "meanDelta": 61.40976069536797
+    },
+    {
+      "state": "fail",
+      "region": "result_ribbon",
+      "label": "Result screen headline ribbon",
+      "side": "device",
+      "sourceImage": "docs/evidence/2026-07-23-device-verify/judged-captures/fail.png",
+      "path": "crops/fail--result_ribbon--device.png",
+      "geometry": {
+        "coords": "normalized",
+        "normalized": {
+          "x": 0.07,
+          "y": 0.19,
+          "width": 0.86,
+          "height": 0.14
+        },
+        "pixels": {
+          "x": 75,
+          "y": 431,
+          "width": 930,
+          "height": 319
+        },
+        "sourceResolution": "1080x2270"
+      },
+      "cropResolution": "930x319"
+    },
+    {
+      "state": "fail",
+      "region": "result_ribbon",
+      "label": "Result screen headline ribbon",
+      "side": "reference",
+      "skipReason": "reference skipped by refs manifest at-rest:false: refs/captures/android-basegamelab/fail-ref.png - contains a mid-load LOADING button and is not a stable fail screen; recapture: recapture after human or scripted play reaches the settled fail overlay; keep excluded from verify-device judging until then"
+    },
+    {
+      "state": "fail",
+      "region": "result_ribbon",
+      "label": "Result screen headline ribbon",
+      "side": "diff",
+      "sourceImage": {
+        "device": "docs/evidence/2026-07-23-device-verify/judged-captures/fail.png",
+        "reference": null
+      },
+      "skipReason": "diff requires both device and reference crops"
+    },
+    {
+      "state": "fail",
+      "region": "fail_continue_button",
+      "label": "Fail screen continue/loading primary button",
+      "side": "device",
+      "sourceImage": "docs/evidence/2026-07-23-device-verify/judged-captures/fail.png",
+      "path": "crops/fail--fail_continue_button--device.png",
+      "geometry": {
+        "coords": "normalized",
+        "normalized": {
+          "x": 0.22,
+          "y": 0.6,
+          "width": 0.56,
+          "height": 0.12
+        },
+        "pixels": {
+          "x": 237,
+          "y": 1362,
+          "width": 606,
+          "height": 273
+        },
+        "sourceResolution": "1080x2270"
+      },
+      "cropResolution": "606x273"
+    },
+    {
+      "state": "fail",
+      "region": "fail_continue_button",
+      "label": "Fail screen continue/loading primary button",
+      "side": "reference",
+      "skipReason": "reference skipped by refs manifest at-rest:false: refs/captures/android-basegamelab/fail-ref.png - contains a mid-load LOADING button and is not a stable fail screen; recapture: recapture after human or scripted play reaches the settled fail overlay; keep excluded from verify-device judging until then"
+    },
+    {
+      "state": "fail",
+      "region": "fail_continue_button",
+      "label": "Fail screen continue/loading primary button",
+      "side": "diff",
+      "sourceImage": {
+        "device": "docs/evidence/2026-07-23-device-verify/judged-captures/fail.png",
+        "reference": null
+      },
+      "skipReason": "diff requires both device and reference crops"
+    },
+    {
+      "state": "fail",
+      "region": "fail_retry_button",
+      "label": "Fail screen retry secondary button",
+      "side": "device",
+      "sourceImage": "docs/evidence/2026-07-23-device-verify/judged-captures/fail.png",
+      "path": "crops/fail--fail_retry_button--device.png",
+      "geometry": {
+        "coords": "normalized",
+        "normalized": {
+          "x": 0.22,
+          "y": 0.76,
+          "width": 0.56,
+          "height": 0.12
+        },
+        "pixels": {
+          "x": 237,
+          "y": 1725,
+          "width": 606,
+          "height": 273
+        },
+        "sourceResolution": "1080x2270"
+      },
+      "cropResolution": "606x273"
+    },
+    {
+      "state": "fail",
+      "region": "fail_retry_button",
+      "label": "Fail screen retry secondary button",
+      "side": "reference",
+      "skipReason": "reference skipped by refs manifest at-rest:false: refs/captures/android-basegamelab/fail-ref.png - contains a mid-load LOADING button and is not a stable fail screen; recapture: recapture after human or scripted play reaches the settled fail overlay; keep excluded from verify-device judging until then"
+    },
+    {
+      "state": "fail",
+      "region": "fail_retry_button",
+      "label": "Fail screen retry secondary button",
+      "side": "diff",
+      "sourceImage": {
+        "device": "docs/evidence/2026-07-23-device-verify/judged-captures/fail.png",
+        "reference": null
+      },
+      "skipReason": "diff requires both device and reference crops"
+    }
+  ]
+}

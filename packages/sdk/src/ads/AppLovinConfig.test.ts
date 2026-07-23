@@ -59,3 +59,63 @@ describe('readAppLovinConfigForPlatform', (): void => {
     }
   });
 });
+
+describe('readAppLovinConfigForPlatform partial-units mode', (): void => {
+  const partialEnv = {
+    VITE_APPLOVIN_IOS_ENABLED: 'true',
+    VITE_APPLOVIN_IOS_GENERAL_AUDIENCE_ONLY: 'true',
+    VITE_APPLOVIN_IOS_SDK_KEY: 'sdk-key-abcdef',
+    VITE_APPLOVIN_IOS_REWARDED_ID: 'rewarded-unit',
+    VITE_APPLOVIN_ALLOW_PARTIAL_UNITS: 'true',
+  };
+
+  it('enables with one unit id, blanking the unconfigured formats', (): void => {
+    const result = readAppLovinConfigForPlatform('ios', partialEnv);
+    expect(result.enabled).toBe(true);
+    if (result.enabled) {
+      expect(result.config.adUnitIds).toEqual({
+        banner: '',
+        interstitial: '',
+        rewarded: 'rewarded-unit',
+      });
+    }
+  });
+
+  it('still requires the sdk key in partial mode', (): void => {
+    const { VITE_APPLOVIN_IOS_SDK_KEY: _omitted, ...withoutKey } = partialEnv;
+    const result = readAppLovinConfigForPlatform('ios', withoutKey);
+    expect(result.enabled).toBe(false);
+    if (!result.enabled) {
+      expect(result.missingKeys).toEqual(['VITE_APPLOVIN_IOS_SDK_KEY']);
+    }
+  });
+
+  it('stays disabled when no unit id is present even in partial mode', (): void => {
+    const result = readAppLovinConfigForPlatform('ios', {
+      VITE_APPLOVIN_IOS_ENABLED: 'true',
+      VITE_APPLOVIN_IOS_GENERAL_AUDIENCE_ONLY: 'true',
+      VITE_APPLOVIN_IOS_SDK_KEY: 'sdk-key-abcdef',
+      VITE_APPLOVIN_ALLOW_PARTIAL_UNITS: 'true',
+    });
+    expect(result.enabled).toBe(false);
+    if (!result.enabled) {
+      expect(result.missingKeys).toEqual([
+        'VITE_APPLOVIN_IOS_BANNER_ID',
+        'VITE_APPLOVIN_IOS_INTERSTITIAL_ID',
+        'VITE_APPLOVIN_IOS_REWARDED_ID',
+      ]);
+    }
+  });
+
+  it('keeps the strict all-units contract when the flag is absent', (): void => {
+    const { VITE_APPLOVIN_ALLOW_PARTIAL_UNITS: _flag, ...strictPartial } = partialEnv;
+    const result = readAppLovinConfigForPlatform('ios', strictPartial);
+    expect(result.enabled).toBe(false);
+    if (!result.enabled) {
+      expect(result.missingKeys).toEqual([
+        'VITE_APPLOVIN_IOS_BANNER_ID',
+        'VITE_APPLOVIN_IOS_INTERSTITIAL_ID',
+      ]);
+    }
+  });
+});

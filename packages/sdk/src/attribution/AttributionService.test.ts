@@ -46,6 +46,7 @@ describe('createAttributionProvider', (): void => {
       },
       {
         createAdjustProvider: vi.fn((): AttributionProvider => adjustProvider),
+        createAppsFlyerProvider: vi.fn((): AttributionProvider => makeProvider('appsflyer')),
         createDisabledProvider: vi.fn((): AttributionProvider => disabledProvider),
       },
     );
@@ -81,6 +82,7 @@ describe('createAttributionProvider', (): void => {
     const reasons: string[] = [];
     const factories = {
       createAdjustProvider: vi.fn((): AttributionProvider => makeProvider('adjust')),
+      createAppsFlyerProvider: vi.fn((): AttributionProvider => makeProvider('appsflyer')),
       createDisabledProvider: vi.fn((reason: string): AttributionProvider => {
         reasons.push(reason);
         return makeProvider('disabled');
@@ -121,6 +123,7 @@ describe('AttributionService', (): void => {
       { enabled: true, config },
       {
         createAdjustProvider: vi.fn((): AttributionProvider => makeProvider('adjust')),
+        createAppsFlyerProvider: vi.fn((): AttributionProvider => makeProvider('appsflyer')),
         createDisabledProvider: (reason: string): AttributionProvider =>
           new DisabledAttributionProvider(reason, logger),
       },
@@ -195,6 +198,7 @@ describe('AttributionService', (): void => {
       },
       {
         createAdjustProvider: vi.fn((): AttributionProvider => makeProvider('adjust')),
+        createAppsFlyerProvider: vi.fn((): AttributionProvider => makeProvider('appsflyer')),
         createDisabledProvider: (reason: string): AttributionProvider =>
           new DisabledAttributionProvider(reason, logger),
       },

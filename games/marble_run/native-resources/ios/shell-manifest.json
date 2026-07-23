@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "game": "marble_run",
+  "capacitorAppId": "com.basegamelab.marblerun",
+  "ios": {
+    "bundleId": "com.basegamelab.marblerun",
+    "displayName": "Marble Run",
+    "bridgeViewController": "MarbleRunBridgeViewController",
+    "swiftToolsVersion": "6.1",
+    "deploymentTarget": "15",
+    "targetedDeviceFamily": "1",
+    "trackingUsageDescription": "We use your permission to show more relevant ads and measure ad performance across apps and websites.",
+    "localPackages": [
+      {
+        "name": "CapacitorApp",
+        "path": "../../../../../node_modules/@capacitor/app",
+        "product": "CapacitorApp"
+      },
+      {
+        "name": "CapacitorHaptics",
+        "path": "../../../../../node_modules/@capacitor/haptics",
+        "product": "CapacitorHaptics"
+      },
+      {
+        "name": "CapacitorLocalNotifications",
+        "path": "../../../../../node_modules/@capacitor/local-notifications",
+        "product": "CapacitorLocalNotifications"
+      },
+      {
+        "name": "CapacitorFirebaseAnalytics",
+        "path": "../../../../../node_modules/@capacitor-firebase/analytics",
+        "product": "CapacitorFirebaseAnalytics",
+        "traits": [
+          "AnalyticsWithoutAdIdSupport"
+        ]
+      }
+    ],
+    "remotePackages": [
+      {
+        "name": "capacitor-swift-pm",
+        "url": "https://github.com/ionic-team/capacitor-swift-pm.git",
+        "requirement": "exact",
+        "version": "8.4.1",
+        "products": [
+          "Capacitor",
+          "Cordova"
+        ]
+      },
+      {
+        "name": "AppLovinSDK",
+        "url": "https://github.com/AppLovin/AppLovin-MAX-Swift-Package.git",
+        "requirement": "from",
+        "version": "13.6.2",
+        "products": [
+          "AppLovinSDK"
+        ]
+      },
+      {
+        "name": "GoogleUserMessagingPlatform",
+        "url": "https://github.com/googleads/swift-package-manager-google-user-messaging-platform.git",
+        "requirement": "from",
+        "version": "3.1.0",
+        "products": [
+          "GoogleUserMessagingPlatform"
+        ]
+      },
+      {
+        "name": "AppsFlyerFramework",
+        "url": "https://github.com/AppsFlyerSDK/AppsFlyerFramework.git",
+        "requirement": "from",
+        "version": "6.15.3",
+        "products": [
+          "AppsFlyerLib"
+        ]
+      },
+      {
+        "name": "facebook-ios-sdk",
+        "url": "https://github.com/facebook/facebook-ios-sdk.git",
+        "requirement": "from",
+        "version": "18.0.0",
+        "products": [
+          "FacebookCore"
+        ]
+      }
+    ],
+    "swiftSources": [
+      "AppLovinMaxPlugin.swift",
+      "MarbleRunBridgeViewController.swift",
+      "AppsFlyerAttributionPlugin.swift",
+      "MetaEventsPlugin.swift"
+    ],
+    "privacyManifest": "PrivacyInfo.xcprivacy",
+    "skAdNetworkCatalog": "applovin-skadnetwork-ids.json"
+  }
+}

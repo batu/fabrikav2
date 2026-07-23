@@ -6,7 +6,7 @@ fork. Concerns: `ads` (`AdProvider` interface generalizing v1's AdMob-only servi
 `admob` / `applovin-max` / `disabled` adapters, rewarded + interstitial), `analytics`
 (canonical event contract + pluggable `firebase` / `owned-mirror` / `console` sinks),
 `iap` (product-catalog schema from FTD + RevenueCat purchase/restore/fulfillment),
-`attribution` (Adjust), `haptics` (v1 core's implementation as-is), and `audio` (a minimal
+`attribution` (Adjust, AppsFlyer), `haptics` (v1 core's implementation as-is), and `audio` (a minimal
 `AudioBus` — play/mute/volume/ducking — that kills the 4×~1,860-line per-game audio
 rewrite). Source-shipped; native-backed SDKs need a native shell to verify. See
 `docs/architecture/v2-architecture.md` §packages/sdk.
@@ -26,5 +26,14 @@ Built in migration order (haptics → audio → analytics → ads → iap → at
   ported. Covers all 4 v1 games' mute/volume shapes (see
   `docs/brainstorms/2026-07-06-sdk-haptics-audiobus-requirements.md`).
 
-Remaining concerns (`analytics` / `ads` / `iap` / `attribution`) are still stubs. Source-shipped;
-native-backed SDKs need a native shell to verify.
+- **`./analytics` / `./ads` / `./iap` / `./attribution`** — implemented (the "stubs"
+  note above is historical): canonical analytics contract + firebase/owned-mirror/console
+  sinks; `AdProvider` with `admob` / `applovin-max` / `disabled` adapters (opt-in
+  `VITE_APPLOVIN_ALLOW_PARTIAL_UNITS` lets a game run MAX with only some unit ids);
+  RevenueCat IAP; Adjust + AppsFlyer attribution behind `selectAttributionProvider`.
+- **`./meta`** — Facebook Core SDK surface (init + app events only, no Login):
+  `readMetaConfig` (`VITE_FB_APP_ID` / `VITE_FB_CLIENT_TOKEN`, auto-log and
+  advertiser-id collection default OFF), `CapacitorMetaProvider` over the
+  `MetaEvents` native bridge, `DisabledMetaProvider` as the first-class off state.
+
+Source-shipped; native-backed SDKs need a native shell to verify.

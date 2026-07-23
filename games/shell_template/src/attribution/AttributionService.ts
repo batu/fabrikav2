@@ -1,18 +1,12 @@
-import { Capacitor } from '@capacitor/core';
-import { AdjustAttributionProvider } from './AdjustAttributionProvider';
-import { readAdjustIosConfig, type AdjustConfigResult } from './AdjustConfig';
-import type { AttributionEventName, AttributionParams, AttributionProvider } from './AttributionProvider';
-import { DisabledAttributionProvider } from './DisabledAttributionProvider';
-
-export interface AttributionProviderFactories {
-  createAdjustProvider: (config: Extract<AdjustConfigResult, { enabled: true }>['config']) => AttributionProvider;
-  createDisabledProvider: (reason: string) => AttributionProvider;
-}
-
-const defaultAttributionProviderFactories: AttributionProviderFactories = {
-  createAdjustProvider: (config): AttributionProvider => new AdjustAttributionProvider(config),
-  createDisabledProvider: (reason: string): AttributionProvider => new DisabledAttributionProvider(reason),
-};
+import {
+  DisabledAttributionProvider,
+  readAdjustIosConfig,
+  readAppsFlyerConfig,
+  selectAttributionProvider,
+  type AttributionEventName,
+  type AttributionParams,
+  type AttributionProvider,
+} from '@fabrikav2/sdk/attribution';
 
 let attributionStartupGate: Promise<void> = Promise.resolve();
 
@@ -26,24 +20,17 @@ export function resetAttributionStartupGateForTest(): void {
   attributionStartupGate = Promise.resolve();
 }
 
-export function createFindTheDogAttributionProvider(
-  platform: string = Capacitor.getPlatform(),
-  adjustConfig: AdjustConfigResult = readAdjustIosConfig(),
-  factories: AttributionProviderFactories = defaultAttributionProviderFactories,
-): AttributionProvider {
-  if (platform !== 'ios') {
-    return factories.createDisabledProvider(`Adjust disabled on ${platform || 'web'} platform`);
-  }
-
-  if (!adjustConfig.enabled) {
-    return factories.createDisabledProvider(`iOS Adjust unavailable: ${adjustConfig.reason}`);
-  }
-
-  return factories.createAdjustProvider(adjustConfig.config);
-}
-
 export class AttributionService {
-  constructor(private readonly provider: AttributionProvider = createFindTheDogAttributionProvider()) {}
+  constructor(private provider: AttributionProvider) {}
+
+  /** SdkContext installs the selected provider (AppsFlyer / Adjust / disabled). */
+  configureProvider(provider: AttributionProvider): void {
+    this.provider = provider;
+  }
+
+  get providerName(): string {
+    return this.provider.providerName;
+  }
 
   async init(): Promise<void> {
     await attributionStartupGate;
@@ -85,4 +72,18 @@ export class AttributionService {
   }
 }
 
-export const attribution = new AttributionService();
+export const attribution = new AttributionService(
+  new DisabledAttributionProvider('attribution not composed yet; SdkContext installs the provider at bootstrap'),
+);
+
+export function createShellTemplateAttributionProvider(
+  platform: string,
+  env: Record<string, string | boolean | undefined>,
+  isProductionBuild: boolean,
+): AttributionProvider {
+  return selectAttributionProvider({
+    platform,
+    appsFlyerConfig: readAppsFlyerConfig(platform, env, isProductionBuild),
+    adjustConfig: readAdjustIosConfig(env, isProductionBuild),
+  });
+}

@@ -9,12 +9,13 @@
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run",
     "lint": "eslint .",
-    "ios:add": "npx cap add ios && npx cap sync ios && node ../../tools/marble-run/ios-inject-team.mjs && node ../../tools/marble-run/sync-native-resources.mjs ios",
-    "ios:sync": "npx cap sync ios && node ../../tools/marble-run/ios-inject-team.mjs && node ../../tools/marble-run/sync-native-resources.mjs ios",
-    "android:add": "npx cap add android && npx cap sync android && node ../../tools/marble-run/sync-native-resources.mjs android",
-    "android:sync": "npx cap sync android && node ../../tools/marble-run/sync-native-resources.mjs android"
+    "ios:add": "npx cap add ios && npx cap sync ios && node ../../tools/native-shell/apply.mjs --game marble_run && node ../../tools/native-shell/validate.mjs --game marble_run && node ../../tools/marble-run/ios-inject-team.mjs && node ../../tools/marble-run/sync-native-resources.mjs ios",
+    "ios:sync": "npx cap sync ios && node ../../tools/native-shell/apply.mjs --game marble_run && node ../../tools/native-shell/validate.mjs --game marble_run && node ../../tools/marble-run/ios-inject-team.mjs && node ../../tools/marble-run/sync-native-resources.mjs ios",
+    "android:add": "npx cap add android && npx cap sync android && node ../../tools/marble-run/sync-native-resources.mjs android && node ../../tools/marble-run/android-apply-sdks.mjs",
+    "android:sync": "npx cap sync android && node ../../tools/marble-run/sync-native-resources.mjs android && node ../../tools/marble-run/android-apply-sdks.mjs"
   },
   "dependencies": {
+    "@capacitor-firebase/analytics": "^8.3.0",
     "@capacitor/app": "^8.1.1",
     "@capacitor/core": "^8.1.0",
     "@capacitor/haptics": "^8.0.2",

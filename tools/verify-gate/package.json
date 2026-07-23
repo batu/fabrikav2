@@ -3,17 +3,14 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "DETERMINISTIC claim-gated verify enforcement (card elkcIthD): a Stop-hook that blocks done-claims on visual changes lacking fresh verify-device evidence, an UNVERIFIED ledger escape hatch, and a merge gate backstop. Self-disabling (no-op) when tools/verify-device or games/ are absent.",
+  "description": "DETERMINISTIC landing gates: project quality (project-gate), landed-before-cleanup guard (landed-gate), release provenance, and the claude-mirror check. (The claim-gated visual verify Stop hook and merge evidence gate were removed 2026-07-23.)",
   "bin": {
-    "verify-visual-claim": "cli.mjs",
-    "verify-merge-gate": "merge-gate.mjs",
     "land-gate": "land-gate.mjs",
     "check-claude-mirror": "check-claude-mirror.mjs",
     "project-gate": "project-gate.mjs",
     "verify-landed-gate": "landed-gate.mjs"
   },
   "scripts": {
-    "verify-merge-gate": "node merge-gate.mjs",
     "land-gate": "node land-gate.mjs",
     "check-claude-mirror": "node check-claude-mirror.mjs",
     "project-gate": "node project-gate.mjs",

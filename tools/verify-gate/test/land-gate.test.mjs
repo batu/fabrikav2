@@ -21,18 +21,26 @@ describe('parseLandGateArgs', () => {
 });
 
 describe('buildLandGateSteps', () => {
-  it('runs project, merge, and landed gates in order when a branch is supplied', () => {
+  it('runs project and landed gates in order when a branch is supplied', () => {
     const steps = buildLandGateSteps({
       scriptDir: '/repo/tools/verify-gate',
       args: parseLandGateArgs(['--branch', 'trello-abc12345-x']),
     });
-    expect(steps.map((s) => s.name)).toEqual(['project-gate', 'verify-merge-gate', 'verify-landed-gate']);
-    expect(steps[2].args).toContain('trello-abc12345-x');
+    expect(steps.map((s) => s.name)).toEqual(['project-gate', 'verify-landed-gate']);
+    expect(steps[1].args).toContain('trello-abc12345-x');
   });
 
   it('omits landed-gate when no branch/shortid was supplied', () => {
     const steps = buildLandGateSteps({ scriptDir: '/repo/tools/verify-gate', args: parseLandGateArgs([]) });
-    expect(steps.map((s) => s.name)).toEqual(['project-gate', 'verify-merge-gate']);
+    expect(steps.map((s) => s.name)).toEqual(['project-gate']);
+  });
+
+  it('tolerates the retired --skip-merge flag from old callers', () => {
+    const steps = buildLandGateSteps({
+      scriptDir: '/repo/tools/verify-gate',
+      args: parseLandGateArgs(['--skip-merge']),
+    });
+    expect(steps.map((s) => s.name)).toEqual(['project-gate']);
   });
 });
 
@@ -51,8 +59,8 @@ describe('runLandGate', () => {
       stdout: { write() {} },
       stderr: { write() {} },
     });
-    expect(result).toMatchObject({ ok: false, failed: 'verify-merge-gate', code: 7 });
-    expect(seen).toEqual(['project-gate.mjs', 'merge-gate.mjs']);
+    expect(result).toMatchObject({ ok: false, failed: 'verify-landed-gate', code: 7 });
+    expect(seen).toEqual(['project-gate.mjs', 'landed-gate.mjs']);
   });
 
   it('passes when every child exits 0', () => {
@@ -69,6 +77,6 @@ describe('runLandGate', () => {
       stderr: { write() {} },
     });
     expect(result.ok).toBe(true);
-    expect(seen).toEqual(['project-gate.mjs', 'merge-gate.mjs', 'landed-gate.mjs']);
+    expect(seen).toEqual(['project-gate.mjs', 'landed-gate.mjs']);
   });
 });

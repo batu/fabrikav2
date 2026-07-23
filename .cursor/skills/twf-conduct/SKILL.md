@@ -66,13 +66,18 @@ A cold worker must be able to act from the card plus the latest structured
 handoff. Keep the card short and include:
 
 ```text
-Classification: direct-to-work | needs-plan | needs-brainstorm
-Task-class: game-visual | infra-code | docs-policy
+Classification: direct-to-work
+Stage-profile: game-visual
+Task-class: <open lesson/telemetry tag>
 Depends_on: <shortid>[, <shortid>...]
 Touches: <repo-relative path>[, <path>...]
 Contract: <shared path> (owner: this card)
 Visual: <surface>[, <surface>...]
 ```
+
+Choose exactly one classification (`direct-to-work`, `needs-plan`, or
+`needs-brainstorm`) and one stage profile (`game-visual`, `infra-code`, or
+`docs-policy`). Do not append prose to either machine-readable value.
 
 Also name the outcome, hard constraints, acceptance criteria, and narrowest
 meaningful verification command. Do not split a small change into ceremonial
@@ -111,6 +116,17 @@ The launcher owns lane admission, sparse worktree setup, disk-floor checks, and
 the synchronous worker process. Treat any refusal as a blocker; do not work
 around it manually.
 
+### Worker-environment suite failures
+
+Workers should run focused tests for the files they changed. A broad suite run
+inside a spawned twf worker can legitimately fail tests that assert conductor
+behavior, notably nested-spawn guards and conductor owner-identity handling:
+the worker environment intentionally carries spawn-depth and attempt identity
+that those tests assume are absent. Record those environment-specific failures
+in the handoff, including the focused suite that passed; do not weaken the
+guards or erase worker environment variables to make conductor-only tests pass.
+The conductor runs the broad suite outside the worker environment.
+
 ## Device work
 
 Follow `trello-pipeline` exactly. It owns simulator isolation, the
@@ -130,6 +146,27 @@ After the synchronous worker exits, read all four:
 marker, and conditionally advances the claimed stage. A completion receipt
 proves handoff plus board movement; it does not prove the worker's free-text
 verification claim.
+
+### Conductor skip/advance
+
+When a stage is intentionally not applicable and no worker attempt exists,
+record the decision as a structured N/A handoff, then advance:
+
+```bash
+twf handoff --card <shortid> \
+  --done "N/A: skipped: non-visible" \
+  --verified "Conductor confirmed this stage is not applicable to the card" \
+  --remaining "Continue at the next in-profile stage" \
+  --surprises "none"
+twf next --card <shortid>
+```
+
+Put the concrete skip reason in the structured handoff fields; do not substitute
+a free-form comment, because the digest parser only recognizes the structured
+field labels. This conductor-only recipe intentionally produces no
+`TWF-Completion` receipt: `twf handoff` has no attempt id and `twf next` is a
+separate board transition. Use it only for an explicit N/A decision, never to
+represent completed worker work.
 
 If the card advanced correctly, deliberately choose whether another stage is
 needed. If it failed, blocked, or drifted, surface the exact evidence. Never

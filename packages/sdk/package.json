@@ -12,7 +12,8 @@
     "./attribution": "./src/attribution/index.ts",
     "./analytics": "./src/analytics/index.ts",
     "./iap": "./src/iap/index.ts",
-    "./ads": "./src/ads/index.ts"
+    "./ads": "./src/ads/index.ts",
+    "./meta": "./src/meta/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

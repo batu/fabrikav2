@@ -3,6 +3,7 @@ node_modules
 dist/
 .env
 .env.*
+!games/*/.env.example
 .DS_Store
 .twf/
 
@@ -38,3 +39,6 @@ docs/evidence/*/device-attachments/*.mp4
 # Human-provided reference videos (large; keep local, never in git)
 games/*/refs/video/*.mp4
 games/*/refs/video/*.mov
+
+# Publisher-provided SDK credentials & sheets (keys, tokens; never commit)
+games/*/sdk_integration/

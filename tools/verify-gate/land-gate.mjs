@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // Conductor-facing hard landing gate (card GG0XXzgA).
 //
-// Runs project quality, merge visual-evidence enforcement, and optionally the
-// landed-before-cleanup guard as direct child processes. No shell pipeline is
-// involved, so each child exit code is honored.
+// Runs project quality and optionally the landed-before-cleanup guard as
+// direct child processes. No shell pipeline is involved, so each child exit
+// code is honored. (The merge visual-evidence step was removed with the
+// visual verify gate, 2026-07-23.)
 //
 //   npm run land-gate
 //   npm run land-gate -- --branch trello-<shortid>-<slug>

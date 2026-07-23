@@ -136,6 +136,11 @@ export class AppLovinMaxProvider implements AdProvider {
       return this.interstitialPreloadPromise;
     }
 
+    if (this.config.adUnitIds.interstitial === '') {
+      this.logUnitNotConfiguredOnce('interstitial');
+      return;
+    }
+
     this.interstitialPreloadPromise = (async (): Promise<void> => {
       await this.init();
       if (!this.initialized) return;
@@ -166,6 +171,10 @@ export class AppLovinMaxProvider implements AdProvider {
   async maybeShowInterstitial(options?: MaybeShowInterstitialOptions): Promise<boolean> {
     await this.init();
     if (!this.initialized) return false;
+    if (this.config.adUnitIds.interstitial === '') {
+      this.logUnitNotConfiguredOnce('interstitial');
+      return false;
+    }
 
     const now = this.now();
     if (now - this.lastInterstitialShownAt < (options?.minIntervalMs ?? MIN_INTERSTITIAL_INTERVAL_MS)) {
@@ -211,6 +220,10 @@ export class AppLovinMaxProvider implements AdProvider {
   async showBanner(): Promise<boolean> {
     await this.init();
     if (!this.initialized) return false;
+    if (this.config.adUnitIds.banner === '') {
+      this.logUnitNotConfiguredOnce('banner');
+      return false;
+    }
     if (this.bannerVisible || this.bannerRequestInFlight) return false;
 
     this.bannerRequestInFlight = true;
@@ -252,6 +265,11 @@ export class AppLovinMaxProvider implements AdProvider {
       return this.rewardedPreloadPromise;
     }
 
+    if (this.config.adUnitIds.rewarded === '') {
+      this.logUnitNotConfiguredOnce('rewarded');
+      return;
+    }
+
     this.rewardedPreloadPromise = (async (): Promise<void> => {
       await this.init();
       if (!this.initialized) return;
@@ -282,6 +300,10 @@ export class AppLovinMaxProvider implements AdProvider {
   async showRewardedAd(): Promise<RewardedAdResult> {
     await this.init();
     if (!this.initialized) return { granted: false };
+    if (this.config.adUnitIds.rewarded === '') {
+      this.logUnitNotConfiguredOnce('rewarded');
+      return { granted: false };
+    }
 
     if (!this.rewardedLoaded) {
       await this.preloadRewarded();
@@ -363,6 +385,14 @@ export class AppLovinMaxProvider implements AdProvider {
       this.revenueListenerRegistered = false;
       this.warn('ad revenue listener registration failed', err);
     }
+  }
+
+  private readonly unitNotConfiguredLogged = new Set<string>();
+
+  private logUnitNotConfiguredOnce(format: 'banner' | 'interstitial' | 'rewarded'): void {
+    if (this.unitNotConfiguredLogged.has(format)) return;
+    this.unitNotConfiguredLogged.add(format);
+    this.log(`${format} ad unit not configured; skipping`);
   }
 
   private log(message: string, details?: Record<string, unknown>): void {

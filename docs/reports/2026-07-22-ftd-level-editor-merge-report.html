@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FTD Level Editor — merged to main</title>
+<style>
+  :root { --ink:#1a1d21; --mut:#6a7280; --bg:#fafaf8; --card:#fff; --line:#e5e5e0;
+          --ok:#0a7d33; --warn:#a15c00; --bad:#b3261e; --acc:#2456c4; }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink:#e8e8e4; --mut:#9aa2ad; --bg:#141518; --card:#1d1f24; --line:#2c2f36;
+            --ok:#4cc06e; --warn:#e0a44a; --bad:#e57373; --acc:#7ea6f5; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; font:15px/1.55 -apple-system,'Segoe UI',sans-serif; color:var(--ink); background:var(--bg); }
+  main { max-width:880px; margin:0 auto; padding:32px 20px 64px; }
+  .eyebrow { text-transform:uppercase; letter-spacing:.08em; font-size:12px; color:var(--mut); margin:0 0 4px; }
+  h1 { font-size:26px; margin:0 0 6px; }
+  h2 { font-size:17px; margin:34px 0 10px; }
+  .summary { color:var(--mut); margin:0 0 8px; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:10px; margin:18px 0; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+  .card b { display:block; font-size:13px; color:var(--mut); font-weight:600; margin-bottom:2px; }
+  .card span { font-size:15px; }
+  table { border-collapse:collapse; width:100%; background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden; font-size:14px; }
+  th,td { text-align:left; padding:8px 12px; border-top:1px solid var(--line); vertical-align:top; }
+  thead th { border-top:none; background:color-mix(in srgb, var(--card) 70%, var(--bg)); font-size:12.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--mut); }
+  .ok { color:var(--ok); font-weight:600; } .warn { color:var(--warn); font-weight:600; } .bad { color:var(--bad); font-weight:600; }
+  code { font:12.5px/1.5 ui-monospace,SFMono-Regular,monospace; background:color-mix(in srgb, var(--card) 60%, var(--bg)); padding:1px 5px; border-radius:4px; }
+  details { margin:10px 0; } summary { cursor:pointer; color:var(--acc); font-weight:600; font-size:14px; }
+  ul { margin:6px 0 6px 18px; padding:0; } li { margin:3px 0; }
+  .foot { color:var(--mut); font-size:12.5px; margin-top:40px; border-top:1px solid var(--line); padding-top:10px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">Status report · 2026-07-22</p>
+    <h1>FTD Level Editor migration is merged to main</h1>
+    <p class="summary">The whole reliability migration (U1–U5) plus the device-capture chain repairs landed on <code>main</code> after a 7-reviewer + cross-model review. The capture tour now runs end-to-end on the physical iPhone for the first time.</p>
+  </header>
+
+  <section>
+    <div class="cards">
+      <div class="card"><b>Merge</b><span class="ok">On main</span></div>
+      <div class="card"><b>Land-gate</b><span class="ok">PASS</span></div>
+      <div class="card"><b>Phone capture</b><span class="ok">6/6 states gated</span></div>
+      <div class="card"><b>Review</b><span class="ok">All P1s closed / superseded</span></div>
+      <div class="card"><b>Panel scoring</b><span class="warn">Unscored — no refs</span></div>
+      <div class="card"><b>Push to origin</b><span class="warn">Not pushed (your call)</span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>What is implemented</h2>
+    <table>
+      <thead><tr><th>Area</th><th>Delivered</th><th>State</th></tr></thead>
+      <tbody>
+        <tr><td>Durable jobs (U4)</td><td>Append-only job attempts, immutable specs, request identity, restart recovery, cancel/retry/force-new, approval grants, opaque artifacts, generated OpenAPI/TS contracts, named FTD job actions. Two review loops (F1–F13, G1–G4) closed.</td><td class="ok">Merged</td></tr>
+        <tr><td>Polling observer + Activity (U5)</td><td>One job-and-event observer (request ID, snapshot, event cursor, connection state as separate facts; bounded backoff, no terminal timeout). Reload/cleared-storage recovery from durable server state. Activity recovery surface. Full 11-state job-state/action matrix. Background, crop/retry, band, sequence, multi-scene starts as durable POSTs. Legacy EventSource / start-on-GET / timer / shadow-storage paths deleted (proven by committed scan test).</td><td class="ok">Merged</td></tr>
+        <tr><td>Capture tour enablement</td><td><code>VITE_INSITU_TOUR</code> was silently stripped from every native build by the game env whitelist — the tour never ran from env. Whitelisted + template/contract-tested; persisted env values are now rejected (capture flags are shell-env-only).</td><td class="ok">Merged</td></tr>
+        <tr><td>Synthetic-input fidelity</td><td>Phaser never saw pointer-only synthetic taps. Now touch-first with mouse fallback (branch + achievements work converged on the same fix; touch version won). Play trigger selection is priority-ordered and hittability-polled.</td><td class="ok">Merged</td></tr>
+        <tr><td>Tour robustness + forensics</td><td>Exception-isolated per state (a throwing drive publishes FAILED and continues), seeded saves skip the first-run tutorial (opt-out-able), snapshot degrades while GameScene camera is unready, markers publish inside open <code>aria-modal</code> dialogs (shared helper + unit tests), a separate forensic breadcrumb marker, an on-screen debug badge behind <code>allstates-debug</code>, and the runner dumps the app accessibility tree on missing states.</td><td class="ok">Merged</td></tr>
+        <tr><td>The device-run root cause</td><td>verify-device launched the Capacitor appId on iOS — which a months-stale orphaned install owned — so every phone run silently exercised old JS while fresh builds sat installed under the real iOS bundle id. It now launches the shell-manifest <code>ios.bundleId</code>. First run against the real app passed the full tour on the iPhone.</td><td class="ok">Merged</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Proof</h2>
+    <ul>
+      <li><span class="ok">Phone:</span> all six tour states (menu, level, settings, pause, win, fail) captured with marker confirmation on the physical iPhone; evidence committed under <code>docs/evidence/2026-07-21-device-verify/</code>.</li>
+      <li><span class="ok">Land-gate:</span> PASS on the initiative branch — project-gate (typecheck, all unit suites, audit, claude-mirror) green and verify-merge-gate satisfied by the fresh on-device panel artifact.</li>
+      <li><span class="ok">Merged tree:</span> repo typecheck 0 errors; every workspace unit suite green (incl. backend 211, FTD 175, testkit 51 with the new coverage).</li>
+      <li><span class="ok">Review:</span> 7 personas plus an independent cross-model pass. Both models independently flagged the same top finding (mouse-path capture masking broken touch input) — resolved by the touch-first input driver taken during the merge. Test-coverage P1s closed with new testkit/FTD unit tests; duplicated marker logic extracted.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>What still needs attention</h2>
+    <table>
+      <thead><tr><th>Gap</th><th>Why it matters</th><th>Suggested next step</th></tr></thead>
+      <tbody>
+        <tr><td class="warn">No reference images</td><td>FTD has zero committed refs, so captures judge as "no-reference" and the vision panel can't score fidelity.</td><td>Ratify today's device captures (or curated ones) into <code>games/find_the_dog/refs/</code>.</td></tr>
+        <tr><td class="warn">pause looks identical to level</td><td>FTD's pause is a lifecycle suspend with no overlay, so the integrity check flags the pair as indistinguishable.</td><td>Either add a visible pause treatment or mark the state visually-equal by design.</td></tr>
+        <tr><td class="warn">Not pushed</td><td>The merge exists only locally; origin/main is behind.</td><td>Push when you're ready — nothing blocks it from the gate side.</td></tr>
+        <tr><td>Editor UI mounting (U6/U7)</td><td>Activity renders nothing until feature screens mount it; named job kinds are fail-closed until U6 ports paid handlers.</td><td>Continue the migration plan with U6.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <details>
+    <summary>Appendix — commits, review detail, incident notes</summary>
+    <ul>
+      <li>Merge commit <code>199750e2</code> on main; initiative branch <code>twf-ftd-level-editor-migration</code> fully merged (U5 merge <code>97ef4266</code>, fixes <code>05c27706</code>, <code>be31c0d5</code>, <code>a38604f4</code>, launch-id fix, forensics + evidence commits).</li>
+      <li>Review run: correctness (0 findings, verified the camera sentinel against Phaser source), adversarial + Codex cross-model (corroborated P1/P2 at identical file:line), testing (2 P1 coverage gaps — closed), project-standards (kit-blast-radius P1 — closed; it also predicted the marble_run consumer break that surfaced in testing), maintainability (P2 duplication — extracted), agent-native (pass, 2 advisories — both since implemented as the AX dump + breadcrumbs), learnings (validated the fix against the "harness shortcuts mask input bugs" retro).</li>
+      <li>Deferred review advisories: multi-modal marker hosting picks the first <code>aria-modal</code> in document order; the one-life fail shortcut trades a full 3-miss loop for capture speed (full loop stays covered headlessly); tour cannot certify user-activation-gated behavior (audio unlock) since synthetic events are untrusted.</li>
+      <li>Incidents during the session: two stale-worktree landing refusals (worktrees pruned and recreated; branches unharmed), a disk-full build failure (freed 15 GB of regenerable build dirs), one transient testkit suite flake (3× green after), and a pre-existing red native-shell contract test on main (local-notifications package unpinned) fixed in the merge.</li>
+      <li>The phone's dev app was reinstalled several times during diagnosis; the currently installed <code>com.baseardahan.hiddenobj</code> is the latest capture build. Reinstall from main if you want a non-harness build on the device.</li>
+    </ul>
+  </details>
+
+  <p class="foot">fabrikav2 · twf-ftd-level-editor-migration → main · generated 2026-07-22 by Claude Fable 5</p>
+</main>
+</body>
+</html>
