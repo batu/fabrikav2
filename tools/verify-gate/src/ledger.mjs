@@ -7,6 +7,32 @@ import path from 'node:path';
 export const LEDGER_PATH = '.work/verify-ledger.jsonl';
 
 /**
+ * Absolute ledger file path, resolved against the repository's MAIN checkout.
+ * `.work/` is gitignored and workspace-local, so a ledger written inside a
+ * linked worktree would be invisible to every other checkout; anchoring on the
+ * parent of `git rev-parse --git-common-dir` gives all worktrees one shared
+ * ledger. Fail-soft: no runner, git error, or empty output falls back to
+ * projectDir (the pre-existing behavior — also the main-checkout/non-git case).
+ * @param {string} projectDir
+ * @param {(cmd:string)=>{ok:boolean, stdout:string}} [run]
+ */
+export function resolveLedgerFile(projectDir, run) {
+  let root = projectDir;
+  if (run) {
+    try {
+      const res = run('git rev-parse --git-common-dir');
+      const common = res.ok ? res.stdout.trim() : '';
+      if (common) {
+        root = path.dirname(path.isAbsolute(common) ? common : path.resolve(projectDir, common));
+      }
+    } catch {
+      // fail-soft: keep projectDir
+    }
+  }
+  return path.join(root, LEDGER_PATH);
+}
+
+/**
  * Append one skip record. `now` is injectable for deterministic tests.
  * @returns {object} the record written
  */

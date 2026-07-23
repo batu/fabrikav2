@@ -18,7 +18,7 @@ import { decideStop, buildBlockMessage, isVisualFile } from './src/classify.mjs'
 import { changedFilesVsMain } from './src/git.mjs';
 import { newestVisualChangeMs, readPanelEvidence } from './src/evidence.mjs';
 import { readLastAssistantText } from './src/transcript.mjs';
-import { appendLedgerEntry, LEDGER_PATH } from './src/ledger.mjs';
+import { appendLedgerEntry, resolveLedgerFile } from './src/ledger.mjs';
 
 function readStdin() {
   try {
@@ -79,7 +79,7 @@ function main() {
 
   if (decision.action === 'ledger') {
     appendLedgerEntry(
-      path.join(projectDir, LEDGER_PATH),
+      resolveLedgerFile(projectDir, run),
       { changed_files: decision.visualFiles, reason: decision.ledgerReason },
     );
     return 0;

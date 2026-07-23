@@ -16,7 +16,7 @@ import { execSync } from 'node:child_process';
 import { decideMerge, isVisualFile } from './src/classify.mjs';
 import { changedFilesVsMain, dirtyFiles } from './src/git.mjs';
 import { newestVisualChangeMs, readPanelEvidence } from './src/evidence.mjs';
-import { readLedger, LEDGER_PATH } from './src/ledger.mjs';
+import { readLedger, resolveLedgerFile } from './src/ledger.mjs';
 
 function makeRunner(cwd) {
   return (cmd) => {
@@ -88,7 +88,7 @@ function main() {
   const visualFiles = changedFiles.filter(isVisualFile);
   const { newestChangeMs } = newestVisualChangeMs(visualFiles, projectDir, { run });
   const panels = readPanelEvidence(projectDir);
-  const ledger = readLedger(path.join(projectDir, LEDGER_PATH));
+  const ledger = readLedger(resolveLedgerFile(projectDir, run));
   const cardContext = readCardContext();
 
   const decision = decideMerge({
