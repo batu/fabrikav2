@@ -176,20 +176,13 @@ export function gamesFromVisualFiles(files) {
  * needed to make that same panel pass. The merge/stop gate proves observation
  * happened on the real device; the fidelity floor stays a phase/conductor bar.
  * @param {number|null} newestVisualMtimeMs newest changed-visual-file/change time
- * @param {Array|number[]} panelEvidence structured panel records, or legacy mtimes
+ * @param {Array} panelEvidence structured panel records
  * @param {string[]} affectedGames game slugs extracted from visual files. When
  *   empty (e.g. packages/ui), any fresh device panel is accepted.
  */
 export function evidenceIsFresh(newestVisualMtimeMs, panelEvidence, affectedGames = []) {
   if (newestVisualMtimeMs == null) return false;
   const panels = panelEvidence || [];
-
-  // Backward-compatible pure helper path for older tests/callers. The CLIs pass
-  // structured records and therefore enforce game/lane/verdict.
-  if (panels.every((p) => typeof p === 'number')) {
-    return panels.some((t) => t > newestVisualMtimeMs);
-  }
-
   const valid = freshDevicePanels(newestVisualMtimeMs, panels);
   if (affectedGames.length === 0) return valid.length > 0;
   return affectedGames.every((game) => valid.some((p) => p.game === game));
@@ -214,8 +207,6 @@ function bestPanelForGame(panels, game) {
 
 function freshEvidenceDetails(newestVisualMtimeMs, panels, affectedGames = []) {
   if (newestVisualMtimeMs == null) return [];
-  if ((panels || []).every((p) => typeof p === 'number')) return [];
-
   const fresh = freshDevicePanels(newestVisualMtimeMs, panels);
   if (affectedGames.length === 0) {
     return fresh.length === 0
@@ -234,8 +225,8 @@ function panelVerdictSummary(panel) {
   return `${panel.game || 'unknown'}: verdict ${verdict}${score}${summary}`;
 }
 
-function freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs }) {
-  const panels = panelEvidence || panelMtimesMs || [];
+function freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence }) {
+  const panels = panelEvidence || [];
   const affectedGames = gamesFromVisualFiles(visualFiles);
   const ok = evidenceIsFresh(newestVisualMtimeMs, panels, affectedGames);
   const details = ok ? freshEvidenceDetails(newestVisualMtimeMs, panels, affectedGames) : [];
@@ -254,7 +245,6 @@ export function decideStop({
   changedFiles,
   sessionFiles,
   newestVisualMtimeMs,
-  panelMtimesMs,
   panelEvidence,
   toolPresent,
   gamesDirPresent,
@@ -293,7 +283,7 @@ export function decideStop({
     // Gate on the CLAIM, not the file: a refactor with no done-claim passes.
     return { action: 'pass', reason: 'visual change but no done-claim — not gated' };
   }
-  const fresh = freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs });
+  const fresh = freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence });
   if (fresh.ok) {
     const detail = fresh.details.length
       ? ` (${fresh.details.map(panelVerdictSummary).join('; ')})`
@@ -341,7 +331,6 @@ export function buildBlockMessage({ visualFiles, games }) {
 export function decideMerge({
   changedFiles,
   newestVisualMtimeMs,
-  panelMtimesMs,
   panelEvidence,
   ledgerEntryCount = 0,
   worktreeDirtyFiles = [],
@@ -372,7 +361,7 @@ export function decideMerge({
   if (visualFiles.length === 0) {
     return { ok: true, reason: 'no visual files in diff — merge gate not applicable' };
   }
-  const fresh = freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence, panelMtimesMs });
+  const fresh = freshEvidenceCovers({ visualFiles, newestVisualMtimeMs, panelEvidence });
   if (fresh.ok) {
     const detail = fresh.details.length
       ? ` (${fresh.details.map(panelVerdictSummary).join('; ')})`

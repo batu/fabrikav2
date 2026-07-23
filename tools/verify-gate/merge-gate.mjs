@@ -11,23 +11,10 @@
 // unexpected error is a hard fail, not a silent pass. Set VERIFY_GATE_PROJECT_DIR
 // to gate a different checkout.
 import fs from 'node:fs';
-import path from 'node:path';
-import { execSync } from 'node:child_process';
 import { decideMerge, isVisualFile } from './src/classify.mjs';
-import { changedFilesVsMain, dirtyFiles } from './src/git.mjs';
+import { changedFilesVsMain, dirtyFiles, makeRunner, visualToolchainPresent } from './src/git.mjs';
 import { newestVisualChangeMs, readPanelEvidence } from './src/evidence.mjs';
 import { readLedger, resolveLedgerFile } from './src/ledger.mjs';
-
-function makeRunner(cwd) {
-  return (cmd) => {
-    try {
-      const stdout = execSync(cmd, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
-      return { ok: true, stdout };
-    } catch (e) {
-      return { ok: false, stdout: e && e.stdout ? String(e.stdout) : '' };
-    }
-  };
-}
 
 function splitLabels(value) {
   const raw = String(value || '').trim();
@@ -67,13 +54,7 @@ function decisionHint(decision) {
 function main() {
   const projectDir = process.env.VERIFY_GATE_PROJECT_DIR || process.cwd();
 
-  const toolPresent = fs.existsSync(path.join(projectDir, 'tools/verify-device/cli.mjs'));
-  let gamesDirPresent = false;
-  try {
-    gamesDirPresent = fs.statSync(path.join(projectDir, 'games')).isDirectory();
-  } catch {
-    gamesDirPresent = false;
-  }
+  const { toolPresent, gamesDirPresent } = visualToolchainPresent(projectDir, fs);
 
   const run = makeRunner(projectDir);
   const dirty = dirtyFiles(run);

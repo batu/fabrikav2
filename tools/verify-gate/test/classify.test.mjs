@@ -148,17 +148,20 @@ describe('gamesFromVisualFiles', () => {
 });
 
 describe('evidenceIsFresh', () => {
+  const panel = (generatedAtMs) => (
+    { valid: true, game: 'g', lane: 'device', verdictPass: true, generatedAtMs }
+  );
   it('fresh when a panel is newer than the newest visual change', () => {
-    expect(evidenceIsFresh(1000, [500, 1500])).toBe(true);
+    expect(evidenceIsFresh(1000, [panel(500), panel(1500)])).toBe(true);
   });
   it('stale when every panel is older than the change', () => {
-    expect(evidenceIsFresh(1000, [200, 800])).toBe(false);
+    expect(evidenceIsFresh(1000, [panel(200), panel(800)])).toBe(false);
   });
   it('stale when there are no panels at all', () => {
     expect(evidenceIsFresh(1000, [])).toBe(false);
   });
-  it('equal mtime is NOT fresh (strictly newer required)', () => {
-    expect(evidenceIsFresh(1000, [1000])).toBe(false);
+  it('equal time is NOT fresh (strictly newer required)', () => {
+    expect(evidenceIsFresh(1000, [panel(1000)])).toBe(false);
   });
   it('no stat-able visual change time => not fresh (deleted files fail closed)', () => {
     expect(evidenceIsFresh(null, [])).toBe(false);

@@ -3,6 +3,36 @@
 // be fetched in a fresh worktree, so we try origin/main, then main, then plain
 // `git diff HEAD` (uncommitted only). `run` is injected so it is testable and
 // always scoped to the project dir.
+import fs from 'node:fs';
+import path from 'node:path';
+import { execSync } from 'node:child_process';
+
+/**
+ * The one shared command runner for every gate CLI (was reimplemented per-CLI
+ * with silent drift). Captures stderr so a fail-closed gate can say WHY a git
+ * or npm call failed instead of a bare "command failed".
+ * @param {string} cwd
+ * @param {{trim?: boolean}} [opts] trim stdout (release-provenance behavior)
+ * @returns {(cmd:string)=>{ok:boolean, stdout:string, stderr:string}}
+ */
+export function makeRunner(cwd, { trim = false } = {}) {
+  return (cmd) => {
+    try {
+      const stdout = execSync(cmd, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+      return { ok: true, stdout: trim ? stdout.trim() : stdout, stderr: '' };
+    } catch (e) {
+      const stdout = e && e.stdout ? String(e.stdout) : '';
+      const stderr = e && e.stderr ? String(e.stderr) : '';
+      return { ok: false, stdout: trim ? stdout.trim() : stdout, stderr };
+    }
+  };
+}
+
+/** Append the last stderr line (when present) to a gate error message. */
+function withStderr(msg, res) {
+  const line = String((res && res.stderr) || '').trim().split('\n').filter(Boolean).pop();
+  return line ? `${msg}: ${line}` : msg;
+}
 
 /**
  * @param {(cmd:string)=>{ok:boolean, stdout:string}} run command runner
@@ -44,7 +74,7 @@ function porcelainPath(line) {
 export function dirtyFiles(run) {
   const status = run('git status --porcelain --untracked-files=all');
   if (!status.ok) {
-    return { ok: false, error: 'git status --porcelain --untracked-files=all failed' };
+    return { ok: false, error: withStderr('git status --porcelain --untracked-files=all failed', status) };
   }
   const rawLines = status.stdout.split('\n').filter((line) => line.trim() !== '');
   return { ok: true, files: [...new Set(rawLines.map(porcelainPath))] };
@@ -75,7 +105,7 @@ export function changedFilesVsMain(run) {
   if (!diff.ok) {
     return {
       ok: false,
-      error: `git diff --name-only ${point} failed`,
+      error: withStderr(`git diff --name-only ${point} failed`, diff),
     };
   }
   // `git diff --name-only <point>` = <point>-tree vs working tree (tracked).
@@ -90,4 +120,21 @@ export function changedFilesVsMain(run) {
   }
   const untracked = lines(ls);
   return { ok: true, files: [...new Set([...tracked, ...untracked])] };
+}
+
+/**
+ * The visual-toolchain self-disable predicate, shared by the Stop hook and the
+ * merge gate (was duplicated per-CLI): the gate is active only when the
+ * verify-device tool and a games/ dir both exist.
+ * @returns {{toolPresent:boolean, gamesDirPresent:boolean}}
+ */
+export function visualToolchainPresent(projectDir, fsImpl = fs) {
+  const toolPresent = fsImpl.existsSync(path.join(projectDir, 'tools/verify-device/cli.mjs'));
+  let gamesDirPresent = false;
+  try {
+    gamesDirPresent = fsImpl.statSync(path.join(projectDir, 'games')).isDirectory();
+  } catch {
+    gamesDirPresent = false;
+  }
+  return { toolPresent, gamesDirPresent };
 }

@@ -33,23 +33,25 @@ export function readConfig(configFile, fsImpl = fs) {
 }
 
 /**
- * Extract the ordered project-quality command list from config. Prefer the
- * dedicated `project_gate` block; fall back to the historical `twf_gate` block
- * for older repos. `pre` steps run before `cmds`. Each entry is a shell-string
- * command run as-is. Throws when the block is absent or empty — this repo
- * defines a gate, so a missing block is a misconfiguration, not "nothing to run".
+ * Extract the ordered project-quality command list from the `project_gate`
+ * block. (The historical `twf_gate` fallback is gone: `twf_gate` now carries
+ * the conductor's landing command, a different semantic, and every synced repo
+ * defines `project_gate`.) `pre` steps run before `cmds`. Each entry is a
+ * shell-string command run as-is. Throws when the block is absent or empty —
+ * this repo defines a gate, so a missing block is a misconfiguration, not
+ * "nothing to run".
  * @returns {string[]} commands in execution order
  */
 export function resolveGateCommands(config) {
-  const gate = config && (config.project_gate || config.twf_gate);
+  const gate = config && config.project_gate;
   if (!gate || typeof gate !== 'object') {
-    throw new Error('no `project_gate` or `twf_gate` block in gate config — cannot resolve gate commands');
+    throw new Error('no `project_gate` block in gate config — cannot resolve gate commands');
   }
   const pre = Array.isArray(gate.pre) ? gate.pre : [];
   const cmds = Array.isArray(gate.cmds) ? gate.cmds : [];
   const all = [...pre, ...cmds].filter((c) => typeof c === 'string' && c.trim() !== '');
   if (all.length === 0) {
-    throw new Error('`twf_gate` block resolved to zero commands');
+    throw new Error('`project_gate` block resolved to zero commands');
   }
   return all;
 }

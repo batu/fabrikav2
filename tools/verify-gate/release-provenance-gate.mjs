@@ -6,18 +6,11 @@
 // Set RELEASE_GATE_DIR to gate a different checkout. Exits non-zero when the
 // working tree is dirty or HEAD is unpushed, so a release pipeline that chains
 // on `&&` refuses to sign/upload an untraceable bundle (the FTD 1.0.2 lesson).
-import { execSync } from 'node:child_process';
 import { checkReleaseProvenance } from './src/release-provenance.mjs';
+import { makeRunner } from './src/git.mjs';
 
 const dir = process.env.RELEASE_GATE_DIR || process.cwd();
-
-function run(cmd) {
-  try {
-    return { ok: true, stdout: execSync(cmd, { cwd: dir, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim() };
-  } catch {
-    return { ok: false, stdout: '' };
-  }
-}
+const run = makeRunner(dir, { trim: true });
 
 try {
   const result = checkReleaseProvenance(run);

@@ -43,39 +43,28 @@ describe('readConfig + resolveGateCommands (config-read)', () => {
     ]);
   });
 
-  it('falls back to twf_gate for older configs', () => {
-    const file = writeConfig({
-      twf_gate: {
-        pre: ['npm install'],
-        cmds: ['npm run typecheck', 'npm run test:unit', 'npm run audit'],
-      },
-    });
-    const cmds = resolveGateCommands(readConfig(file));
-    expect(cmds).toEqual([
-      'npm install',
-      'npm run typecheck',
-      'npm run test:unit',
-      'npm run audit',
-    ]);
+  it('ignores twf_gate: it now carries the conductor landing command, not the quality gate', () => {
+    const file = writeConfig({ twf_gate: { cmds: ['npm run land-gate'] } });
+    expect(() => resolveGateCommands(readConfig(file))).toThrow(/no `project_gate` block/);
   });
 
   it('tolerates a missing pre block', () => {
-    const file = writeConfig({ twf_gate: { cmds: ['npm run test:unit'] } });
+    const file = writeConfig({ project_gate: { cmds: ['npm run test:unit'] } });
     expect(resolveGateCommands(readConfig(file))).toEqual(['npm run test:unit']);
   });
 
   it('drops blank/non-string entries', () => {
-    const file = writeConfig({ twf_gate: { pre: ['', '  '], cmds: ['npm run audit', 5] } });
+    const file = writeConfig({ project_gate: { pre: ['', '  '], cmds: ['npm run audit', 5] } });
     expect(resolveGateCommands(readConfig(file))).toEqual(['npm run audit']);
   });
 
-  it('throws when the twf_gate block is absent', () => {
+  it('throws when the project_gate block is absent', () => {
     const file = writeConfig({ trello: {} });
-    expect(() => resolveGateCommands(readConfig(file))).toThrow(/no `project_gate` or `twf_gate` block/);
+    expect(() => resolveGateCommands(readConfig(file))).toThrow(/no `project_gate` block/);
   });
 
-  it('throws when twf_gate resolves to zero commands', () => {
-    const file = writeConfig({ twf_gate: { pre: [], cmds: [] } });
+  it('throws when project_gate resolves to zero commands', () => {
+    const file = writeConfig({ project_gate: { pre: [], cmds: [] } });
     expect(() => resolveGateCommands(readConfig(file))).toThrow(/zero commands/);
   });
 
@@ -97,7 +86,7 @@ describe('readConfig + resolveGateCommands (config-read)', () => {
 
 describe('runGate (pass/fail orchestration)', () => {
   const gate = {
-    twf_gate: { pre: ['npm install'], cmds: ['npm run typecheck', 'npm run test:unit'] },
+    project_gate: { pre: ['npm install'], cmds: ['npm run typecheck', 'npm run test:unit'] },
   };
 
   it('runs every command in order and PASSES when all are green', () => {

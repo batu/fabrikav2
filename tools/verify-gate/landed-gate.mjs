@@ -16,19 +16,8 @@
 // FAIL-CLOSED: any unexpected error is a hard exit 1 — a landing guard must
 // never wave a delete through on error. Set LANDED_GATE_PROJECT_DIR to gate a
 // different checkout.
-import { execSync } from 'node:child_process';
 import { evaluateLanded, locateBranch, parseArgs } from './src/landed.mjs';
-
-function makeRunner(cwd) {
-  return (cmd) => {
-    try {
-      const stdout = execSync(cmd, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
-      return { ok: true, stdout };
-    } catch (e) {
-      return { ok: false, stdout: e && e.stdout ? String(e.stdout) : '' };
-    }
-  };
-}
+import { makeRunner } from './src/git.mjs';
 
 function main() {
   const projectDir = process.env.LANDED_GATE_PROJECT_DIR || process.cwd();

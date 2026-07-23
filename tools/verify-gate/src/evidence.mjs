@@ -4,6 +4,7 @@
 // gathers the numbers.
 import fs from 'node:fs';
 import path from 'node:path';
+import { dirtyFiles } from './git.mjs';
 
 /** Panel-artifact globs (card-specified): the device-verify evidence dirs under
  *  docs/evidence, plus per-game evidence dirs. */
@@ -40,16 +41,8 @@ function gitCommitTimeMs(run, file) {
  *  git status cannot run (fail-soft: callers then treat every file as dirty,
  *  i.e. the pre-existing mtime behavior). */
 function gitDirtyPathSet(run) {
-  const status = run('git status --porcelain --untracked-files=all');
-  if (!status.ok) return null;
-  const set = new Set();
-  for (const line of status.stdout.split('\n')) {
-    if (line.trim() === '') continue;
-    let file = line.slice(3);
-    if (file.includes(' -> ')) file = file.split(' -> ').pop();
-    set.add(file.trim().replace(/^"|"$/g, ''));
-  }
-  return set;
+  const status = dirtyFiles(run);
+  return status.ok ? new Set(status.files) : null;
 }
 
 /**
@@ -97,27 +90,6 @@ export function newestVisualChangeMs(files, projectDir, { fsImpl = fs, run } = {
     if (t !== null && (newestChangeMs === null || t > newestChangeMs)) newestChangeMs = t;
   }
   return { newestChangeMs, missingFiles };
-}
-
-/** Mtimes (ms) of every panel.json matched by PANEL_GLOBS under projectDir. */
-export function panelMtimesMs(projectDir, fsImpl = fs) {
-  const times = [];
-  for (const pattern of PANEL_GLOBS) {
-    let matches = [];
-    try {
-      matches = fsImpl.globSync(pattern, { cwd: projectDir });
-    } catch {
-      matches = [];
-    }
-    for (const m of matches) {
-      try {
-        times.push(fsImpl.statSync(path.join(projectDir, m)).mtimeMs);
-      } catch {
-        // race: matched then removed — ignore.
-      }
-    }
-  }
-  return times;
 }
 
 function panelPaths(projectDir, fsImpl = fs) {

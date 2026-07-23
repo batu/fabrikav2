@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { newestMtimeMs, newestVisualChangeMs, panelMtimesMs, readPanelEvidence } from '../src/evidence.mjs';
+import { newestMtimeMs, newestVisualChangeMs, readPanelEvidence } from '../src/evidence.mjs';
 import { evidenceIsFresh } from '../src/classify.mjs';
 
 let dir;
@@ -113,16 +113,19 @@ describe('newestVisualChangeMs', () => {
   });
 });
 
-describe('panelMtimesMs (real globSync)', () => {
+describe('panel discovery (real globSync)', () => {
   it('discovers panel.json under docs/evidence/*device-verify* and games/*/evidence', () => {
     write('docs/evidence/2026-07-07-device-verify/panel.json', 5000);
     write('docs/evidence/2026-07-07-other-report/panel.json', 9000); // not a *device-verify* dir
     write('games/marble_run/evidence/2026-07-07-run/panel.json', 4000);
-    const times = panelMtimesMs(dir).sort((a, b) => a - b);
-    expect(times).toEqual([4000, 5000]); // the non-device-verify one is excluded
+    const paths = readPanelEvidence(dir).map((p) => p.path);
+    expect(paths).toEqual([
+      'docs/evidence/2026-07-07-device-verify/panel.json',
+      'games/marble_run/evidence/2026-07-07-run/panel.json',
+    ]); // the non-device-verify one is excluded
   });
   it('returns [] when there are no panels', () => {
-    expect(panelMtimesMs(dir)).toEqual([]);
+    expect(readPanelEvidence(dir)).toEqual([]);
   });
 });
 

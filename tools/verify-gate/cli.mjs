@@ -13,9 +13,8 @@
 // ship-time backstop. Self-disable is handled both here and in the shell shim.
 import fs from 'node:fs';
 import path from 'node:path';
-import { execSync } from 'node:child_process';
 import { decideStop, buildBlockMessage, isVisualFile } from './src/classify.mjs';
-import { changedFilesVsMain } from './src/git.mjs';
+import { changedFilesVsMain, makeRunner, visualToolchainPresent } from './src/git.mjs';
 import { newestVisualChangeMs, readPanelEvidence } from './src/evidence.mjs';
 import { readLastAssistantText, readSessionEditedFiles } from './src/transcript.mjs';
 import { appendLedgerEntry, resolveLedgerFile } from './src/ledger.mjs';
@@ -26,17 +25,6 @@ function readStdin() {
   } catch {
     return '';
   }
-}
-
-function makeRunner(cwd) {
-  return (cmd) => {
-    try {
-      const stdout = execSync(cmd, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
-      return { ok: true, stdout };
-    } catch (e) {
-      return { ok: false, stdout: e && e.stdout ? String(e.stdout) : '' };
-    }
-  };
 }
 
 function main() {
@@ -50,13 +38,7 @@ function main() {
 
   // Self-disable: no verify-device tool or no games/ dir -> no-op (catalog-safe
   // for non-game projects).
-  const toolPresent = fs.existsSync(path.join(projectDir, 'tools/verify-device/cli.mjs'));
-  let gamesDirPresent = false;
-  try {
-    gamesDirPresent = fs.statSync(path.join(projectDir, 'games')).isDirectory();
-  } catch {
-    gamesDirPresent = false;
-  }
+  const { toolPresent, gamesDirPresent } = visualToolchainPresent(projectDir, fs);
   if (!toolPresent || !gamesDirPresent) return 0;
 
   const message = readLastAssistantText(input.transcript_path);
