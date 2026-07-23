@@ -14,8 +14,30 @@ let hudEnterCleanupTimer: number | null = null;
 
 type TransitionKind = 'generic' | 'play-entry';
 
+export interface PlayEntryTransitionOptions {
+  /**
+   * The live menu preview canvas is a sibling of #home-shell, so cloning the
+   * shell cannot preserve its WebGL pixels. Keep this exact canvas in the cover
+   * until the home shell has faded away instead of attempting to clone it.
+   */
+  preservedElement?: HTMLElement;
+  /** Releases the owner of preservedElement after the transition no longer
+   * needs it. This is also called if a new transition replaces this one. */
+  disposePreservedElement?: () => void;
+}
+
+let preservedPlayEntryElement: { readonly cover: HTMLElement; readonly dispose: () => void } | null = null;
+
 function transitionRoot(): HTMLElement | null {
   return document.getElementById(COVER_ID);
+}
+
+function disposePreservedPlayEntryElement(cover?: HTMLElement): void {
+  if (preservedPlayEntryElement === null) return;
+  if (cover !== undefined && preservedPlayEntryElement.cover !== cover) return;
+  const preserved = preservedPlayEntryElement;
+  preservedPlayEntryElement = null;
+  preserved.dispose();
 }
 
 function nextTransitionGeneration(): string {
@@ -83,6 +105,7 @@ function cancelPlayEntryHudEnter(): void {
 function createOrReuseCover(kind: TransitionKind): HTMLElement {
   const container = document.getElementById('game-container') ?? document.body;
   let cover = transitionRoot();
+  if (cover !== null) disposePreservedPlayEntryElement(cover);
   if (cover === null) {
     cover = document.createElement('div');
     cover.id = COVER_ID;
@@ -111,9 +134,10 @@ export function showSceneTransitionCover(): void {
 /** Play-entry transition: freeze the live home shell in one overlay and fade it
  *  as a single frame after the game scene has rendered. Live v1 never morphs or
  *  independently moves the title, board, saga nodes, or LEVEL button. */
-export function showPlayEntryTransitionCover(): void {
+export function showPlayEntryTransitionCover(options: PlayEntryTransitionOptions = {}): void {
   const homeShell = document.getElementById('home-shell');
   if (homeShell === null) {
+    options.disposePreservedElement?.();
     showSceneTransitionCover();
     return;
   }
@@ -122,11 +146,16 @@ export function showPlayEntryTransitionCover(): void {
   const generation = coverGeneration(cover);
   cover.dataset.transitionState = 'arming';
   preparePlayEntryHudEnter();
-  const foreground = homeShell.cloneNode(true) as HTMLElement;
-  foreground.classList.add('play-entry-home-shell');
+  // Recreate the live overlay's containing block around the clone. The menu
+  // itself has several viewport and inherited-font rules, so cloning only its
+  // root into the cover changes the layout context and visibly snaps the saga
+  // and CTA at t0.
+  const foreground = document.createElement('div');
+  foreground.className = 'play-entry-home-shell';
   foreground.setAttribute('aria-hidden', 'true');
   foreground.setAttribute('inert', '');
-  foreground.querySelectorAll('video').forEach((video) => {
+  const frozenHomeShell = homeShell.cloneNode(true) as HTMLElement;
+  frozenHomeShell.querySelectorAll('video').forEach((video) => {
     video.pause();
     video.removeAttribute('src');
     for (const source of Array.from(video.querySelectorAll('source'))) {
@@ -150,7 +179,17 @@ export function showPlayEntryTransitionCover(): void {
     cover.querySelector<HTMLElement>('.play-entry-home-backdrop')
       ?.style.setProperty('--home-paw-delay', `${-motifTime}ms`);
   }
+  foreground.appendChild(frozenHomeShell);
   cover.appendChild(foreground);
+  if (options.preservedElement !== undefined) {
+    // Move, never clone: an HTMLCanvasElement clone intentionally has no bitmap
+    // backing store. Keeping the live canvas also preserves its exact viewport
+    // geometry while the frozen DOM shell fades over the game scene.
+    cover.appendChild(options.preservedElement);
+    if (options.disposePreservedElement !== undefined) {
+      preservedPlayEntryElement = { cover, dispose: options.disposePreservedElement };
+    }
+  }
   requestAnimationFrame(() => requestAnimationFrame(() => {
     if (isCurrentTransition(cover, generation, 'play-entry') && cover.dataset.transitionState === 'arming') {
       cover.dataset.transitionState = 'holding';
@@ -162,6 +201,7 @@ export function cancelPlayEntryTransitionCover(): void {
   const cover = transitionRoot();
   if (cover?.dataset.transitionKind !== 'play-entry') return;
   cancelPlayEntryHudEnter();
+  disposePreservedPlayEntryElement(cover);
   cover.dataset.transitionState = 'done';
   cover.remove();
 }
@@ -207,6 +247,10 @@ function hidePlayEntryTransitionCover(cover: HTMLElement, generation: string = c
       window.setTimeout(() => {
         if (!isCurrentTransition(cover, generation, 'play-entry')) return;
         beginPlayEntryHudEnter();
+        // The live board has faded out with the frozen shell. Dispose it only
+        // once the game scene is visible, preventing a blank clone at t0 and a
+        // ghost canvas after the reveal.
+        disposePreservedPlayEntryElement(cover);
         cover.classList.add('hiding');
         removeCoverAfterHide(cover, generation, 240);
       }, cleanupMs);

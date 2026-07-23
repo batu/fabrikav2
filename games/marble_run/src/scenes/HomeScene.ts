@@ -303,13 +303,18 @@ export class HomeScene extends Phaser.Scene {
 
   private startGameScene(levelData?: LevelData): void {
     const overlay = this.overlay;
-    // Clone the live home into the cover BEFORE the overlay is torn down —
-    // the play-entry transition flies the cloned pieces off-screen.
-    showPlayEntryTransitionCover();
+    // The board preview is a WebGL canvas outside #home-shell. A cloned shell
+    // therefore loses it immediately, so hand the live canvas to the cover and
+    // let the cover dispose it after the completed reveal.
+    const boardPreview = this.boardPreview;
+    this.boardPreview = null;
+    showPlayEntryTransitionCover({
+      preservedElement: boardPreview?.canvasElement(),
+      disposePreservedElement: boardPreview === null ? undefined : () => boardPreview.dispose(),
+    });
     this.cancelScheduledHomeAmbient();
     this.clearBannerVideoReplay();
     this.dismissSettings();
-    this.disposeBoardPreview();
     this.homeHandle?.dismiss();
     this.homeHandle = null;
     if (overlay) {

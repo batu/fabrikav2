@@ -15,6 +15,7 @@ vi.mock('../../src/ui/iconPreload', () => ({
 }));
 
 import {
+  hideSceneTransitionCover,
   showPlayEntryTransitionCover,
   showSceneTransitionCover,
 } from '../../src/ui/SceneTransitionCover';
@@ -53,6 +54,7 @@ describe('generic scene transition cover', () => {
     const cover = document.getElementById('scene-transition-cover');
     expect(cover?.dataset.transitionKind).toBe('play-entry');
     expect(cover?.querySelector('.play-entry-home-shell')).not.toBeNull();
+    expect(cover?.querySelector('.play-entry-home-shell > #home-shell')).not.toBeNull();
     expect(cover?.querySelector('.play-entry-transition-veil')).toBeNull();
 
     const css = readFileSync(join(process.cwd(), 'src/ui/styles.css'), 'utf8');
@@ -62,5 +64,35 @@ describe('generic scene transition cover', () => {
     expect(css).not.toMatch(/play-entry-home-shell \.home-title-panel[\s\S]*?translateY/);
     expect(css).not.toMatch(/play-entry-home-shell \.home-map-stage[\s\S]*?translateY/);
     expect(css).not.toMatch(/play-entry-home-shell \.marble-level-button[\s\S]*?transform/);
+  });
+
+  it('keeps the live board canvas under the frozen shell until the reveal finishes', async () => {
+    document.getElementById('game-container')!.innerHTML = `
+      <div id="hud-overlay">
+        <div id="home-shell"><button class="marble-level-button">LEVEL 1</button></div>
+        <canvas class="marble-home-board-preview"></canvas>
+      </div>
+    `;
+    const board = document.querySelector<HTMLCanvasElement>('.marble-home-board-preview')!;
+    const dispose = vi.fn();
+
+    showPlayEntryTransitionCover({ preservedElement: board, disposePreservedElement: dispose });
+
+    const cover = document.getElementById('scene-transition-cover');
+    expect(cover?.querySelector('.marble-home-board-preview')).toBe(board);
+    expect(dispose).not.toHaveBeenCalled();
+
+    const css = readFileSync(join(process.cwd(), 'src/ui/styles.css'), 'utf8');
+    expect(css).toMatch(/#scene-transition-cover > \.marble-home-board-preview \{[\s\S]*?position: fixed;/);
+    expect(css).toMatch(
+      /#scene-transition-cover\[data-transition-state="revealing"\] > \.marble-home-board-preview,[\s\S]*?opacity: 0;/,
+    );
+
+    cover!.dataset.transitionState = 'holding';
+    vi.useFakeTimers();
+    hideSceneTransitionCover();
+    await vi.advanceTimersByTimeAsync(2_000);
+    expect(dispose).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
   });
 });

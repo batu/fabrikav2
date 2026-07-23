@@ -646,6 +646,21 @@
   transition: opacity 520ms ease-in-out;
 }
 
+/* The menu board is a live WebGL canvas, not part of the cloned #home-shell.
+   Preserve the exact element and viewport geometry beneath the frozen shell;
+   it fades with the shell so it cannot remain as a ghost over the game. */
+#scene-transition-cover > .marble-home-board-preview {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  width: 100vw;
+  height: 100dvh;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 520ms ease-in-out;
+}
+
 /* Replicate the home motif layer (#hud-overlay.home-mode::before) so the
    pattern doesn't drop out the instant this backdrop paints over the real
    home. Runs the SAME homePawDrift animation, phase-aligned to the live home
@@ -681,13 +696,33 @@
   inset: 0;
   z-index: 2;
   pointer-events: none;
+  /* Mirror #hud-overlay's live layout context. The frozen clone is outside the
+     real overlay, so inheriting body defaults here would alter its text and
+     containing-block behavior at the handoff frame. */
+  font-family: 'FredokaOne', sans-serif;
+  font-weight: 700;
+  color: #3d3d3d;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
   transform-origin: 50% 50%;
   opacity: 1;
   transition: opacity 520ms ease-in-out;
 }
 
+.play-entry-home-shell #home-shell {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+}
+
 #scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell,
 #scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell {
+  opacity: 0;
+}
+
+#scene-transition-cover[data-transition-state="revealing"] > .marble-home-board-preview,
+#scene-transition-cover[data-transition-state="clearing"] > .marble-home-board-preview {
   opacity: 0;
 }
 
@@ -705,6 +740,10 @@
   }
 
   .play-entry-home-shell {
+    transition: opacity 1ms ease;
+  }
+
+  #scene-transition-cover > .marble-home-board-preview {
     transition: opacity 1ms ease;
   }
 }

@@ -122,6 +122,13 @@ export class HomeBoardPreview {
     this.rafHandle = requestAnimationFrame(() => this.loop());
   }
 
+  /** The transition cover moves this exact canvas rather than cloning it: a
+   * cloned WebGL canvas has no rendered bitmap. Ownership remains here until
+   * the cover calls dispose after its reveal. */
+  canvasElement(): HTMLCanvasElement {
+    return this.canvas;
+  }
+
   dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
