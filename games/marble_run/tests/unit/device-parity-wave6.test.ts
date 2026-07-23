@@ -27,14 +27,12 @@ describe("device parity wave 6 CSS pins", () => {
     expect(HUD_CSS).not.toMatch(/#game-container\s+canvas/);
   });
 
-  it("home preview full-bleed rule uses id strength and sits above the saga rail (MRV2-20 item 4)", () => {
+  it("home preview full-bleed rule uses id strength and keeps the saga rail readable", () => {
     const css = shellArtCss();
     const rule = css.match(/#hud-overlay > \.marble-home-board-preview \{[^}]*\}/);
     expect(rule).not.toBeNull();
     expect(rule![0]).toContain("position: fixed");
-    // MRV2-20 item 4: raised from 0 to 2 so the saga rail/top node tucks BEHIND
-    // the board (shell content is z-index:1), matching v1's base-game menu.
-    expect(rule![0]).toContain("z-index: 2");
+    expect(rule![0]).toContain("z-index: 0");
     expect(rule![0]).toContain("inset: 0");
   });
 

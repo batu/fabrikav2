@@ -8,7 +8,7 @@ import { Stage } from '../three/Stage';
  * Home board preview — the tilted wooden board with idle marbles that v1 sugar3d
  * renders between the banner and the saga chain (v1 `App.showMenuDecor` /
  * `tickMenuDecor`). A faithful port, NOT a screenshot: a non-interactive
- * `BoardEngine(LEVELS[2])` on its own three.js `Stage`, framed at 1.42x with the
+ * `BoardEngine(LEVELS[2])` on its own three.js `Stage`, framed for the
  * menu view offset, self-animating a marble every few seconds and reseeding when
  * the board empties.
  *
@@ -21,16 +21,19 @@ import { Stage } from '../three/Stage';
 
 /** v1 uses LEVELS[2] as the decorative board. */
 const DECOR_LEVEL_INDEX = 2;
-/** v1 `App`: menu view offset ratio + decor framing zoom. */
+/** Same-device Pixel 6a parity: the full-viewport v2 preview needs a wider
+ * frame and stronger upward view offset to reproduce v1's smaller board tucked
+ * immediately under the title banner. */
 const MENU_VIEW_OFFSET_Y_RATIO = 0.11;
-const DECOR_FRAME_ZOOM = 1.42;
+const DECOR_FRAME_ZOOM = 1.75;
 /** v1 `DEFAULT_DEBUG_TUNING`: the menu board uses the same ground angle but a
  *  90deg yaw. The preview owns this Stage, so gameplay keeps its 45deg yaw. */
 const MENU_CAMERA_YAW_DEG = 90;
 /** v1 `tickMenuDecor`: idle a marble roughly every 2.6s. */
 const DECOR_MOVE_INTERVAL_S = 2.6;
-/** v1 `App.loop`: slow showcase spin on menu screens (`root.rotation.y += dt * 0.12`). */
-const DECOR_SPIN_RATE_RAD_S = 0.12;
+/** The ported board axes mirror v1's visible rotation, so negate v1's world
+ * delta to preserve the same on-screen showcase direction. */
+const DECOR_SPIN_RATE_RAD_S = -0.12;
 const MAX_FRAME_DT_S = 0.05;
 
 export class HomeBoardPreview {

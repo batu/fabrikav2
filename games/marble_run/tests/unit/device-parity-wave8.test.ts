@@ -35,6 +35,17 @@ describe("device parity wave 8 CSS pins", () => {
     expect(css).not.toMatch(/marble-settings-modal--ingame[^}]*marble-shadow-tile/);
   });
 
+  it("matches the v1 in-game settings shade and all-caps actions", () => {
+    const css = shellArtCss();
+    const ingame = css.match(/\.fab-ui\.fab-modal-backdrop\.marble-settings-modal--ingame \{[^}]*\}/);
+    expect(ingame).not.toBeNull();
+    expect(ingame![0]).toContain("background: rgba(119, 100, 141, 0.66)");
+
+    const actions = css.match(/\.marble-settings-modal--ingame \.marble-settings-action \{[^}]*\}/);
+    expect(actions).not.toBeNull();
+    expect(actions![0]).toContain("text-transform: uppercase");
+  });
+
   it("shrinks the home preview budget on short phone viewports", () => {
     const css = shellArtCss();
     expect(css).toMatch(/@media \(max-height: 800px\)[^{]*\{[\s\S]*?\.marble-home-board-preview-slot \{[^}]*max-height: 115px/);
