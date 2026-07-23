@@ -325,6 +325,13 @@ body {
   font-size: 24px;
   text-shadow: 0 2px 0 rgba(20, 90, 30, 0.5);
 }
+/* The shared button primitive scales while :active. Its click starts the home
+   fade before the pointer-active state releases, so that press transform would
+   animate back to base geometry inside the fade. Keep this transition CTA
+   positionally static; brightness still supplies tap feedback. */
+.marble-ui .marble-level-button:active:not(:disabled) {
+  transform: none;
+}
 
 .marble-ui .fab-home-menu {
   box-sizing: border-box;

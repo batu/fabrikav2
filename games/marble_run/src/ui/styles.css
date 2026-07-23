@@ -3398,12 +3398,11 @@
 }
 #home-shell .home-nav-play-btn:active .home-nav-play-emblem { transform: translateY(3px) scale(0.97); }
 
-/* Idle pulse on the whole Play Now CTA (moved off the nav emblem). Disabled on
-   the play-entry clone (1,1,0 beats #home-play-now) so the scatter-out transform
-   isn't overridden by the running animation. */
+/* Idle pulse on the whole Play Now CTA (moved off the nav emblem). During
+   play-entry the overlay-wide animation-play-state rule pauses this at its
+   current painted phase, preserving the button's exact geometry through fade. */
 .home-play-now-label { display: inline-block; }
 #home-play-now { animation: homePlayButtonIdle 1650ms ease-in-out infinite; }
-#hud-overlay.home-play-entry #home-play-now { animation: none; }
 @media (prefers-reduced-motion: reduce) {
   #home-play-now { animation: none; }
 }

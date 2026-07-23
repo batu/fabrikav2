@@ -68,10 +68,12 @@ describe("device parity wave 7 CSS pins", () => {
     expect(css).toMatch(/\.marble-ui \.marble-reward-coinrow \{[^}]*\}/);
   });
 
-  it("keeps the win completion ribbon lift untouched (KTD3-guard)", () => {
+  it("keeps the centered win completion ribbon geometry (KTD3-guard)", () => {
     const css = shellArtCss();
     const ribbon = css.match(/#modal-root\.completion-mode \.fab-modal-ribbon \{[^}]*\}/);
     expect(ribbon).not.toBeNull();
-    expect(ribbon![0]).toContain("margin-top: calc(-1 * var(--fab-space-lg) - var(--fab-ribbon-overhang) - 72px)");
+    expect(ribbon![0]).toContain("left: 8.2%");
+    expect(ribbon![0]).toContain("width: 83.6%");
+    expect(ribbon![0]).toContain("margin: 0");
   });
 });

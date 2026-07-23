@@ -40,6 +40,34 @@ test.describe('menu to game transition', () => {
       }];
     })), trackedSelectors);
 
+    await page.evaluate((selectors) => {
+      const bindings = window as typeof window & {
+        __MARBLE_TRANSITION_REVEAL_GEOMETRY__?: Record<string, {
+          x: number;
+          y: number;
+          width: number;
+          height: number;
+        } | null> | null;
+      };
+      bindings.__MARBLE_TRANSITION_REVEAL_GEOMETRY__ = null;
+      const overlay = document.getElementById('hud-overlay');
+      if (overlay === null) throw new Error('HUD overlay missing before play entry');
+      const observer = new MutationObserver(() => {
+        if (overlay.getAttribute('data-play-entry-state') !== 'revealing') return;
+        bindings.__MARBLE_TRANSITION_REVEAL_GEOMETRY__ = Object.fromEntries(selectors.map((selector) => {
+          const rect = document.querySelector(selector)?.getBoundingClientRect();
+          return [selector, rect == null ? null : {
+            x: rect.x,
+            y: rect.y,
+            width: rect.width,
+            height: rect.height,
+          }];
+        }));
+        observer.disconnect();
+      });
+      observer.observe(overlay, { attributes: true, attributeFilter: ['data-play-entry-state'] });
+    }, trackedSelectors);
+
     await page.locator('.marble-level-button').first().tap();
 
     // The live overlay itself becomes the fade layer — no separate cover is
@@ -78,16 +106,15 @@ test.describe('menu to game transition', () => {
     })), trackedSelectors);
     expect(holding).toEqual(before);
 
-    await expect(overlay).toHaveAttribute('data-play-entry-state', 'revealing', { timeout: 30_000 });
-    const midpoint = await page.evaluate((selectors) => Object.fromEntries(selectors.map((selector) => {
-      const rect = document.querySelector(selector)?.getBoundingClientRect();
-      return [selector, rect == null ? null : {
-        x: rect.x,
-        y: rect.y,
-        width: rect.width,
-        height: rect.height,
-      }];
-    })), trackedSelectors);
+    await page.waitForFunction(
+      () => (window as typeof window & {
+        __MARBLE_TRANSITION_REVEAL_GEOMETRY__?: object | null;
+      }).__MARBLE_TRANSITION_REVEAL_GEOMETRY__ != null,
+      { timeout: 30_000 },
+    );
+    const midpoint = await page.evaluate(() => (window as typeof window & {
+      __MARBLE_TRANSITION_REVEAL_GEOMETRY__?: object | null;
+    }).__MARBLE_TRANSITION_REVEAL_GEOMETRY__);
     expect(midpoint).toEqual(before);
 
     for (let frame = 1; frame < 8; frame += 1) {
