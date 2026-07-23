@@ -19,6 +19,12 @@ export interface JobsTransportOptions {
 
 export const DEFAULT_REQUEST_TIMEOUT_MS = 15_000;
 
+function editorPath(path: string): string {
+  return globalThis.location?.pathname.startsWith('/tools/ftd-editor/')
+    ? `/tools/ftd-editor${path}`
+    : path;
+}
+
 export class FtdHttpError extends Error {
   readonly status: number;
   readonly detail: unknown;
@@ -57,7 +63,7 @@ async function requestFtdWithDecoder<T>(
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const response = await options.fetchImpl(path, {
+    const response = await options.fetchImpl(editorPath(path), {
       method,
       credentials: 'same-origin',
       signal: controller.signal,

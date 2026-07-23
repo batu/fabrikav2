@@ -1941,6 +1941,34 @@
         "x-ftd-side-effects": "provider-submission"
       }
     },
+    "/api/prompts/catalog": {
+      "get": {
+        "operationId": "getFtdPromptCatalog",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Getftdpromptcatalog",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "LaunchCredential": []
+          }
+        ],
+        "summary": "Prompt Catalog",
+        "x-ftd-authorization": "launch-credential",
+        "x-ftd-cost": "none",
+        "x-ftd-side-effects": "none"
+      }
+    },
     "/api/publishing": {
       "get": {
         "operationId": "getPublishingSnapshot",

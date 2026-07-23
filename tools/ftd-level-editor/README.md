@@ -75,6 +75,27 @@ npm run editor:contracts:write -w @fabrikav2/ftd-level-editor
 No command above uses live credentials, provider spend, remote publication,
 production roots, or the legacy corpus.
 
+## Real-data rehearsal
+
+Build the live UI and start a separate v2 workspace from a one-time snapshot
+of the current v1 authoring root:
+
+```sh
+npm run build:live -w @fabrikav2/ftd-level-editor
+uv run --project tools/ftd-level-editor python \
+  tools/ftd-level-editor/scripts/run_rehearsal.py \
+  --source-authoring /absolute/path/to/v1/levels \
+  --root /absolute/path/outside/git/ftd-editor-rehearsal \
+  --env-file /absolute/path/to/operator.env \
+  --port 5192
+```
+
+The explicit environment file must contain `OPENROUTER_API_KEY`. The launcher
+copies v1 authoring once, excludes runnable v1 ledgers, refuses roots inside a
+Git checkout, keeps v1 in `forbidden_roots`, starts one durable worker, and
+does not compose publishing. Point Portal's optional `ftd_editor.backend_url`
+at this loopback service and `ftd_editor.ui_root` at this package's `dist/`.
+
 ## Cutover
 
 The migration is complete and merged; the frozen activation candidate is commit

@@ -4,6 +4,7 @@ import { loadEditorBootstrap, type EditorBootstrap } from './api.ts';
 import { createPublishingApi, type PreparePublishingInput } from './features/publishing/api.ts';
 import { PublishingPanel } from './features/publishing/PublishingPanel.tsx';
 import type { PublishingCandidate } from './features/publishing/model.ts';
+import { AuthoringWorkspace } from './features/wizard/AuthoringWorkspace.tsx';
 import './styles.css';
 
 type LoadState =
@@ -36,7 +37,7 @@ export function App() {
   }, []);
 
   const api = useMemo(() => {
-    if (state.kind !== 'ready') return null;
+    if (state.kind !== 'ready' || state.editor.publishing === null) return null;
     return createPublishingApi({
       fetchImpl: state.editor.fetchImpl,
       launchCredential: state.editor.launchCredential,
@@ -90,18 +91,34 @@ export function App() {
       </header>
 
       {state.kind === 'ready' && api !== null && (
+        <>
+        <AuthoringWorkspace
+          context={{
+            fetchImpl: state.editor.fetchImpl,
+            launchCredential: state.editor.launchCredential,
+          }}
+        />
         <PublishingPanel
-          snapshot={state.editor.publishing}
+          snapshot={state.editor.publishing!}
           busy={busy}
           error={actionError}
           onPrepare={(input: PreparePublishingInput) => run(() => api.prepare(input))}
           onActivate={(candidate: PublishingCandidate, credential: string) => (
-            run(() => api.activate(candidate, state.editor.publishing.remoteEnabled, credential))
+            run(() => api.activate(candidate, state.editor.publishing!.remoteEnabled, credential))
           )}
           onRollback={(candidate: PublishingCandidate, credential: string) => (
-            run(() => api.rollback(candidate, state.editor.publishing.remoteEnabled, credential))
+            run(() => api.rollback(candidate, state.editor.publishing!.remoteEnabled, credential))
           )}
           onReconcile={(sagaId: string) => run(() => api.reconcile(sagaId))}
+        />
+        </>
+      )}
+      {state.kind === 'ready' && api === null && (
+        <AuthoringWorkspace
+          context={{
+            fetchImpl: state.editor.fetchImpl,
+            launchCredential: state.editor.launchCredential,
+          }}
         />
       )}
     </main>

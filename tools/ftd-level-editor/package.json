@@ -8,6 +8,7 @@
     "lint": "eslint ui",
     "test:unit": "node --test ui/src/*.test.mjs",
     "build": "vite build --config ui/vite.config.ts --mode fixture",
+    "build:live": "vite build --config ui/vite.config.ts --mode production",
     "editor:contracts:write": "UV_CACHE_DIR=${TMPDIR:-/tmp}/ftd-editor-uv-cache uv run python scripts/generate_contracts.py",
     "editor:contracts:check": "UV_CACHE_DIR=${TMPDIR:-/tmp}/ftd-editor-uv-cache uv run python scripts/generate_contracts.py --check && UV_CACHE_DIR=${TMPDIR:-/tmp}/ftd-editor-uv-cache uv run python tests/fixtures/write_contract_fixtures.py --output tests/fixtures/pure-ftd-parity.json --check",
     "editor:schema:write": "UV_CACHE_DIR=${TMPDIR:-/tmp}/ftd-editor-uv-cache uv run python scripts/generate_level_schema.py",

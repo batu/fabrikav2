@@ -1,6 +1,6 @@
 {
   "appContract": {
-    "openapiSha256": "ef91a9de9afc759b11083cb97349f2b58bd31a6e860dd86fccb7f54b981eb8f8",
+    "openapiSha256": "ff42235b3fad55ebb928279b2a134b41e6d92d6cd02e95acd2ef45556ebce7ea",
     "routes": [
       {
         "methods": [
@@ -8,6 +8,13 @@
         ],
         "operationId": "getEditorOpenApi",
         "path": "/api/openapi.json"
+      },
+      {
+        "methods": [
+          "GET"
+        ],
+        "operationId": "getFtdPromptCatalog",
+        "path": "/api/prompts/catalog"
       },
       {
         "methods": [

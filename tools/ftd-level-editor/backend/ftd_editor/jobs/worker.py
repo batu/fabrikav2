@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import fcntl
 import os
+import threading
 import uuid
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
@@ -20,6 +21,45 @@ from .store import (
     TerminalJobImmutable,
     utc_now_iso,
 )
+
+
+@dataclass(slots=True)
+class SingleOwnerWorkerLoop:
+    """Run one durable worker in-process while holding its ownership lock."""
+
+    worker: "DurableJobWorker"
+    poll_seconds: float = 0.2
+    mode: str = "single-owner"
+    _stop: threading.Event = field(default_factory=threading.Event, init=False)
+    _thread: threading.Thread | None = field(default=None, init=False)
+
+    def step(self) -> bool:
+        return self.worker.step()
+
+    def start(self) -> None:
+        if self._thread is not None:
+            return
+        if not self.worker.acquire_ownership():
+            raise RuntimeError("another FTD durable worker owns this rehearsal root")
+        self._stop.clear()
+        self._thread = threading.Thread(
+            target=self._run,
+            name="ftd-editor-worker",
+            daemon=True,
+        )
+        self._thread.start()
+
+    def _run(self) -> None:
+        while not self._stop.is_set():
+            if not self.worker.run_once():
+                self._stop.wait(self.poll_seconds)
+
+    def stop(self) -> None:
+        self._stop.set()
+        if self._thread is not None:
+            self._thread.join(timeout=5)
+            self._thread = None
+        self.worker.release_ownership()
 
 
 class JobError(Exception):

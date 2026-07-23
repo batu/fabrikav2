@@ -152,8 +152,14 @@ def create_app(settings: EditorSettings, components: AppComponents) -> FastAPI:
         server_logger.addFilter(redaction_filter)
         try:
             settings.workspace.approve_filesystems()
+            start = getattr(components.worker, "start", None)
+            if callable(start):
+                start()
             yield
         finally:
+            stop = getattr(components.worker, "stop", None)
+            if callable(stop):
+                stop()
             server_logger.removeFilter(redaction_filter)
             runtime_logger.removeFilter(redaction_filter)
 
@@ -248,6 +254,21 @@ def create_app(settings: EditorSettings, components: AppComponents) -> FastAPI:
     )
     def openapi_document() -> dict[str, Any]:
         return application.openapi()
+
+    @application.get(
+        "/api/prompts/catalog",
+        operation_id="getFtdPromptCatalog",
+        openapi_extra={
+            "x-ftd-side-effects": "none",
+            "x-ftd-cost": "none",
+            "x-ftd-authorization": "launch-credential",
+        },
+        dependencies=protected_dependencies,
+    )
+    def prompt_catalog() -> dict[str, Any]:
+        from .prompts.recipes import prompt_catalog_snapshot
+
+        return prompt_catalog_snapshot()
 
     if components.stores.sessions is not None:
         from .sessions.routes import build_session_router

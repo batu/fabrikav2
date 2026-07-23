@@ -296,6 +296,7 @@ export interface FtdEditorOperations {
   "listDurableJobEvents": { method: "get"; path: "/api/jobs/{job_id}/events" };
   "forceNewDurableJob": { method: "post"; path: "/api/jobs/{job_id}/force-new/{kind}" };
   "retryDurableJob": { method: "post"; path: "/api/jobs/{job_id}/retry" };
+  "getFtdPromptCatalog": { method: "get"; path: "/api/prompts/catalog" };
   "getPublishingSnapshot": { method: "get"; path: "/api/publishing" };
   "activateSequencePublication": { method: "post"; path: "/api/publishing/activate" };
   "mintPublishingApprovalGrant": { method: "post"; path: "/api/publishing/approval-grants" };
