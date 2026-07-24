@@ -22,6 +22,7 @@ import {
 } from '../ui/HUD';
 import { showTutorialOverlay, phaserPointToCssPoint, type TutorialHandle } from '../ui/TutorialOverlay';
 import { preloadLevelCompleteAssets, showLevelCompleteOverlay, dismissLevelCompleteOverlay } from '../ui/LevelCompleteOverlay';
+import { presentAchievementUnlocks } from '../ui/AchievementToast';
 import type { RatePromptHandle } from '../ui/RatePrompt';
 import { showLevelFailedOverlay, type FailContinueActionContext } from '../ui/LevelFailedOverlay';
 import {
@@ -1387,8 +1388,10 @@ export class GameScene extends Phaser.Scene {
 
     // Achievement domain: record the accepted dog find (stable occurrence id
     // dog:<servedLevelId>:<dogId>), then drain the journaled analytics outbox.
-    gameState.recordDogFound(this.level!.id, dog.id);
+    // Any unlock this find commits announces immediately as the top toast.
+    const dogFoundCommit = gameState.recordDogFound(this.level!.id, dog.id);
     gameState.drainAnalyticsOutbox();
+    presentAchievementUnlocks(dogFoundCommit);
 
     // Restoration mode: remove the tapped dog instantly by carving its
     // local cell area out of the color layer. If the level ships a
@@ -1661,6 +1664,9 @@ export class GameScene extends Phaser.Scene {
     // Achievement analytics were journaled durably inside the completion commit;
     // drain the outbox now that analytics is composed (dispatch boundary only).
     gameState.drainAnalyticsOutbox();
+    // Completion-committed unlocks announce as the top toast the moment they
+    // land, not as a callout inside the level-complete card.
+    presentAchievementUnlocks(completion.achievementCommit);
     const previousBest = completion.previousBest;
     const newBest = completion.newBest;
     const displayTimeSeconds = completion.transaction.timeSeconds;
@@ -1701,7 +1707,6 @@ export class GameScene extends Phaser.Scene {
         baseCoins: completion.transaction.baseCoinReward,
         coinBalance: gameState.coinBalance,
         claimX2Available,
-        achievementCommit: completion.achievementCommit,
         onClaimX2: async () => {
           const adResult = await showRewardedAdForEconomy();
           if (!adResult.granted) {
@@ -1984,8 +1989,8 @@ export class GameScene extends Phaser.Scene {
       emitted: markPoint,
     };
     const gfx = this.add.graphics();
-    gfx.lineStyle(3, COLORS.WRONG_TAP, 1);
-    const size = 12;
+    gfx.lineStyle(9, COLORS.WRONG_TAP, 1);
+    const size = 36;
     gfx.beginPath();
     gfx.moveTo(-size, -size);
     gfx.lineTo(size, size);
@@ -2009,6 +2014,7 @@ export class GameScene extends Phaser.Scene {
     this.tweens.add({
       targets: gfx,
       alpha: 0,
+      delay: TIMING.WRONG_TAP_LINGER_MS,
       duration: TIMING.WRONG_TAP_FADE_MS,
       onComplete: () => gfx.destroy(),
     });
@@ -2367,6 +2373,12 @@ export class GameScene extends Phaser.Scene {
       .setOrigin(sprite.anchorX ?? 0.5, sprite.anchorY ?? 0.5)
       .setScrollFactor(0)
       .setDepth(85);
+
+    // White sticker outline so the picked-up dog pops off the busy board
+    // while it flies to the counter. preFX is WebGL-only and undefined on
+    // the canvas renderer, where the pickup stays outline-less.
+    image.preFX?.setPadding(12);
+    image.preFX?.addGlow(0xffffff, 6, 2);
 
     image.setDisplaySize(sprite.width * this.imgScale, sprite.height * this.imgScale);
     const startScaleX = image.scaleX;

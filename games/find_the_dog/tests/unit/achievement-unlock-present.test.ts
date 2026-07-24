@@ -1,26 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { CommittedAchievementDelta } from '../../src/achievements/AchievementSystem';
 
-const { allocateAchievementViewEvent, dispatchAchievementEvent, hapticFound, playUITap } = vi.hoisted(() => ({
+const { allocateAchievementViewEvent, dispatchAchievementEvent } = vi.hoisted(() => ({
   allocateAchievementViewEvent: vi.fn(),
   dispatchAchievementEvent: vi.fn(),
-  hapticFound: vi.fn(),
-  playUITap: vi.fn(),
 }));
 
 vi.mock('../../src/core/GameState', () => ({ gameState: { allocateAchievementViewEvent } }));
 vi.mock('../../src/analytics/AnalyticsService', () => ({ analytics: { dispatchAchievementEvent } }));
-vi.mock('../../src/haptics/HapticsManager', () => ({ hapticFound }));
-vi.mock('../../src/audio/AudioManager', () => ({ playLevelComplete: vi.fn(), playUITap }));
-vi.mock('../../src/core/ScaffoldEvents', () => ({ scaffoldEvents: { emit: vi.fn() } }));
-vi.mock('../../src/ui/RatePrompt', () => ({ showRatePromptWithHandle: vi.fn() }));
-vi.mock('../../src/ui/EconomyTransfer', () => ({ animateCoinsToBalance: vi.fn() }));
-vi.mock('../../src/ui/SceneTransitionCover', () => ({ showSceneTransitionCover: vi.fn() }));
 
 import {
-  attachAchievementUnlockCallout,
+  presentAchievementUnlocks,
   resetPresentedAchievementOccurrencesForTests,
-} from '../../src/ui/LevelCompleteOverlay';
+} from '../../src/ui/AchievementToast';
 
 function delta(id = 'occ-1', names = ['First Find']): CommittedAchievementDelta {
   return {
@@ -42,85 +34,41 @@ function delta(id = 'occ-1', names = ['First Find']): CommittedAchievementDelta 
   };
 }
 
-function fixture(): { root: HTMLElement; abort: AbortController } {
-  document.body.innerHTML = '<div id="level-complete-overlay" data-reward-reveal="pending"><section class="fab-complete-card"><div class="fab-complete-actions"></div></section></div>';
-  return {
-    root: document.getElementById('level-complete-overlay')!,
-    abort: new AbortController(),
-  };
-}
-
-describe('achievement unlock completion callout', () => {
+describe('presentAchievementUnlocks', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    document.body.innerHTML = '';
     resetPresentedAchievementOccurrencesForTests();
     allocateAchievementViewEvent.mockImplementation(({ achievementId }) => ({ achievementId }));
     Object.defineProperty(window, 'matchMedia', { configurable: true, value: vi.fn(() => ({ matches: false })) });
   });
 
-  it('waits for the canonical reward reveal and adds no interactive control', async () => {
-    const { root, abort } = fixture();
-    attachAchievementUnlockCallout(root, delta(), abort.signal);
-    expect(root.querySelector('.achievement-unlock-callout')).toBeNull();
-
-    root.dataset.rewardReveal = 'complete';
-    await Promise.resolve();
-    const callout = root.querySelector('.achievement-unlock-callout');
-    expect(callout?.textContent).toContain('First Find');
-    expect(callout?.querySelector('button, a')).toBeNull();
-    expect(hapticFound).toHaveBeenCalledTimes(1);
-    expect(playUITap).toHaveBeenCalledTimes(1);
-  });
-
-  it('collapses multiple unlocks, announces every name, and dispatches canonical views', async () => {
-    const { root, abort } = fixture();
-    attachAchievementUnlockCallout(root, delta('occ-many', ['First Find', 'Sharp Eyes', 'Dog Expert']), abort.signal);
-    root.dataset.rewardReveal = 'complete';
-    await Promise.resolve();
-    const callout = root.querySelector<HTMLElement>('.achievement-unlock-callout')!;
-    expect(callout.textContent).toContain('First Find and 2 more');
-    expect(callout.getAttribute('aria-label')).toContain('First Find, Sharp Eyes, Dog Expert');
+  it('shows the toast immediately and dispatches a canonical view per unlock', () => {
+    presentAchievementUnlocks(delta('occ-many', ['First Find', 'Sharp Eyes', 'Dog Expert']));
+    const toast = document.getElementById('achievement-unlock-toast')!;
+    expect(toast.textContent).toContain('First Find +2 more unlocked!');
+    expect(toast.getAttribute('aria-label')).toContain('First Find, Sharp Eyes, Dog Expert');
     expect(allocateAchievementViewEvent).toHaveBeenCalledTimes(3);
     expect(dispatchAchievementEvent).toHaveBeenCalledTimes(3);
   });
 
-  it('presents a live occurrence once across competing observers and skips empty deltas', async () => {
-    const first = fixture();
-    attachAchievementUnlockCallout(first.root, delta(), first.abort.signal);
-    attachAchievementUnlockCallout(first.root, delta(), first.abort.signal);
-    first.root.dataset.rewardReveal = 'complete';
-    await Promise.resolve();
-    expect(first.root.querySelectorAll('.achievement-unlock-callout')).toHaveLength(1);
+  it('presents each occurrence once and skips empty or missing deltas', () => {
+    presentAchievementUnlocks(delta());
+    document.getElementById('achievement-unlock-toast')!.remove();
+    presentAchievementUnlocks(delta());
+    expect(document.getElementById('achievement-unlock-toast')).toBeNull();
+    expect(allocateAchievementViewEvent).toHaveBeenCalledTimes(1);
 
-    const second = fixture();
-    attachAchievementUnlockCallout(second.root, delta(), second.abort.signal);
-    second.root.dataset.rewardReveal = 'complete';
-    await Promise.resolve();
-    expect(second.root.querySelector('.achievement-unlock-callout')).toBeNull();
-    expect(attachAchievementUnlockCallout(second.root, { ...delta('empty'), newlyUnlocked: [] }, second.abort.signal)).toBeNull();
+    presentAchievementUnlocks({ ...delta('empty'), newlyUnlocked: [] });
+    presentAchievementUnlocks(null);
+    presentAchievementUnlocks(undefined);
+    expect(document.getElementById('achievement-unlock-toast')).toBeNull();
   });
 
-  it('disconnects on dismissal without consuming a pending occurrence', async () => {
-    const first = fixture();
-    attachAchievementUnlockCallout(first.root, delta(), first.abort.signal);
-    first.abort.abort();
-    first.root.dataset.rewardReveal = 'complete';
-    await Promise.resolve();
-    expect(first.root.querySelector('.achievement-unlock-callout')).toBeNull();
-
-    const second = fixture();
-    attachAchievementUnlockCallout(second.root, delta(), second.abort.signal);
-    second.root.dataset.rewardReveal = 'complete';
-    await Promise.resolve();
-    expect(second.root.querySelector('.achievement-unlock-callout')).not.toBeNull();
-  });
-
-  it('keeps reduced-motion content while suppressing decorative animation', async () => {
-    Object.defineProperty(window, 'matchMedia', { configurable: true, value: vi.fn(() => ({ matches: true })) });
-    const { root, abort } = fixture();
-    attachAchievementUnlockCallout(root, delta(), abort.signal);
-    root.dataset.rewardReveal = 'complete';
-    await Promise.resolve();
-    expect(root.querySelector<HTMLElement>('.achievement-unlock-callout')?.dataset.motion).toBe('reduced');
+  it('still shows the toast when a view event cannot be allocated', () => {
+    allocateAchievementViewEvent.mockReturnValue(null);
+    presentAchievementUnlocks(delta());
+    expect(document.getElementById('achievement-unlock-toast')).not.toBeNull();
+    expect(dispatchAchievementEvent).not.toHaveBeenCalled();
   });
 });

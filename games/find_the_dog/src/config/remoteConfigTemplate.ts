@@ -117,7 +117,6 @@ const TEMPLATE_GROUPS: readonly RemoteConfigTemplateGroup[] = [
     name: 'Polish',
     description: 'Visual polish rollout flags for effects and in-level motion.',
     keys: [
-      'transitionConfettiEnabled',
       'findMomentBurstEnabled',
       'microAnimationsEnabled',
     ],

@@ -1,12 +1,40 @@
+import type { CommittedAchievementDelta } from '../achievements/AchievementSystem';
+import { analytics } from '../analytics/AnalyticsService';
+import { gameState } from '../core/GameState';
+
 const TOAST_ID = 'achievement-unlock-toast';
 const TOAST_VISIBLE_MS = 5200;
 const TOAST_EXIT_MS = 320;
 
+const presentedOccurrences = new Set<string>();
+
+/**
+ * Present a committed achievement delta the moment it lands: top toast plus
+ * canonical achievement_viewed dispatch, guarded per occurrence so a replayed
+ * delta (scene restart, competing callers) never announces twice.
+ */
+export function presentAchievementUnlocks(delta: CommittedAchievementDelta | null | undefined): void {
+  if (!delta || delta.newlyUnlocked.length === 0 || presentedOccurrences.has(delta.occurrenceId)) return;
+  presentedOccurrences.add(delta.occurrenceId);
+  showAchievementUnlockToast(delta.newlyUnlocked);
+  for (const achievement of delta.newlyUnlocked) {
+    const event = gameState.allocateAchievementViewEvent({
+      name: 'achievement_viewed',
+      achievementId: achievement.id,
+    });
+    if (event) analytics.dispatchAchievementEvent(event);
+  }
+}
+
+export function resetPresentedAchievementOccurrencesForTests(): void {
+  presentedOccurrences.clear();
+}
+
 /**
  * Transient in-app toast announcing newly unlocked achievements. Non-blocking
  * by construction: pointer-events none, no controls, auto-dismisses. Replay
- * protection lives with the caller (the completion callout's per-occurrence
- * guard), so the toast itself stays a dumb presenter.
+ * protection lives with `presentAchievementUnlocks`'s per-occurrence guard,
+ * so the toast itself stays a dumb presenter.
  */
 export function showAchievementUnlockToast(unlocked: readonly { name: string }[]): void {
   if (unlocked.length === 0) return;

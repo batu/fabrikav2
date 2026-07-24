@@ -18,7 +18,6 @@ export interface RemoteConfigValues {
   rewardHintsAmount: number;
   gameplayInitialHints: number;
   ratePromptEnabledDefault: boolean;
-  transitionConfettiEnabled: boolean;
   findMomentBurstEnabled: boolean;
   microAnimationsEnabled: boolean;
   hintRwEnabled: boolean;
@@ -89,7 +88,6 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   rewardHintsAmount: 4,
   gameplayInitialHints: 3,
   ratePromptEnabledDefault: true,
-  transitionConfettiEnabled: true,
   findMomentBurstEnabled: true,
   microAnimationsEnabled: false,
   hintRwEnabled: true,
@@ -164,7 +162,6 @@ export const REMOTE_CONFIG_DEFINITIONS_BY_KEY: {
   rewardHintsAmount: { key: 'rewardHintsAmount', remoteKey: 'reward_hints_amount', type: 'number', description: 'Hints granted when reward progress completes.' },
   gameplayInitialHints: { key: 'gameplayInitialHints', remoteKey: 'gameplay_initial_hints', type: 'number', description: 'Default starting hints for new players.' },
   ratePromptEnabledDefault: { key: 'ratePromptEnabledDefault', remoteKey: 'rate_prompt_enabled_default', type: 'boolean', description: 'Default rate prompt availability for fresh installs.' },
-  transitionConfettiEnabled: { key: 'transitionConfettiEnabled', remoteKey: 'transition_confetti_enabled', type: 'boolean', description: 'Enable confetti on completion transitions.' },
   findMomentBurstEnabled: { key: 'findMomentBurstEnabled', remoteKey: 'find_moment_burst_enabled', type: 'boolean', description: 'Enable small find-moment burst feedback.' },
   microAnimationsEnabled: { key: 'microAnimationsEnabled', remoteKey: 'micro_animations_enabled', type: 'boolean', description: 'Enable subtle in-level micro animations.' },
   hintRwEnabled: { key: 'hintRwEnabled', remoteKey: 'hint_rw_enabled', type: 'boolean', description: 'Enable rewarded-ad hint acquisition when hints are empty.' },
@@ -273,7 +270,6 @@ export function mapRemoteConfigValues(
     rewardHintsAmount: read('rewardHintsAmount'),
     gameplayInitialHints: read('gameplayInitialHints'),
     ratePromptEnabledDefault: read('ratePromptEnabledDefault'),
-    transitionConfettiEnabled: read('transitionConfettiEnabled'),
     findMomentBurstEnabled: read('findMomentBurstEnabled'),
     microAnimationsEnabled: read('microAnimationsEnabled'),
     hintRwEnabled: read('hintRwEnabled'),
@@ -339,7 +335,6 @@ export function mapRemoteConfigSources<TSource>(
     rewardHintsAmount: read('rewardHintsAmount'),
     gameplayInitialHints: read('gameplayInitialHints'),
     ratePromptEnabledDefault: read('ratePromptEnabledDefault'),
-    transitionConfettiEnabled: read('transitionConfettiEnabled'),
     findMomentBurstEnabled: read('findMomentBurstEnabled'),
     microAnimationsEnabled: read('microAnimationsEnabled'),
     hintRwEnabled: read('hintRwEnabled'),

@@ -490,67 +490,12 @@
   padding: 0;
 }
 
-#level-complete-overlay .achievement-unlock-callout {
-  display: grid;
-  gap: 2px;
-  width: min(100%, 280px);
-  margin: 12px auto 0;
-  padding: 10px 14px;
-  border: 2px solid #d88732;
-  border-radius: 16px;
-  color: #633818;
-  background: #fff4cf;
-  box-shadow: 0 3px 0 rgba(112, 57, 20, 0.18);
-  text-align: center;
-}
-
-#level-complete-overlay .achievement-unlock-summary {
-  display: -webkit-box;
-  overflow: hidden;
-  overflow-wrap: anywhere;
-  font-weight: 900;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-#level-complete-overlay .achievement-unlock-callout small { font-weight: 800; }
-
-#level-complete-overlay .achievement-unlock-callout-medal {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  margin: 0 auto 2px;
-  border: 2px solid #fff1bc;
-  border-radius: 50%;
-  background: linear-gradient(180deg, #ffe08a, #e8973a);
-  box-shadow: 0 2px 0 #8b4b22, inset 0 2px 0 rgba(255, 255, 255, 0.55);
-  color: #fff7dc;
-  font-size: 17px;
-  line-height: 1;
-  text-shadow: 0 1px 0 rgba(112, 57, 20, 0.45);
-}
-
-#level-complete-overlay .achievement-unlock-callout[data-motion='full'] {
-  animation: achievement-unlock-enter 260ms ease-out both;
-}
-
-@keyframes achievement-unlock-enter {
-  from { opacity: 0; transform: translateY(6px) scale(0.98); }
-  to { opacity: 1; transform: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  #level-complete-overlay .achievement-unlock-callout { animation: none; }
-}
-
 #achievement-unlock-toast {
   pointer-events: none;
   position: fixed;
-  /* Bottom-anchored: the top of the completion screen is crowded (HUD coin
-     pill right, LEVEL COMPLETE title art center) — the bottom strip above the
-     home indicator is the one surface nothing else claims. */
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
+  /* Top-anchored: unlocks announce from the top of the screen the moment
+     they commit, mid-gameplay or at completion. */
+  top: calc(env(safe-area-inset-top, 0px) + 16px);
   left: 50%;
   z-index: 95;
   display: flex;
@@ -603,7 +548,7 @@
 }
 
 @keyframes achievement-toast-enter {
-  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
   to { opacity: 1; transform: translateX(-50%); }
 }
 
@@ -1137,12 +1082,6 @@
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.68);
 }
 
-.settings-permission-hint {
-  margin: 2px 4px 8px;
-  color: #7a5335;
-  font-size: 13px;
-  line-height: 1.3;
-}
 
 .settings-action-btn {
   min-width: 82px;
@@ -3768,10 +3707,13 @@
   animation: homePageSlideUp 920ms cubic-bezier(0.22, 0.61, 0.3, 1) both;
 }
 /* Settings stagger (looks good — keep). */
+/* Child indexes count the non-row divider (child 2): 1 Home, 3 Music,
+   4 Sound Effects, 5 Haptics. Keep each row on its own beat — a shared
+   tail delay made everything below Music pop in at once. */
 .home-page-overlay--open .settings-row:nth-child(1) { animation-delay: 200ms; }
-.home-page-overlay--open .settings-row:nth-child(2) { animation-delay: 320ms; }
-.home-page-overlay--open .settings-row:nth-child(3) { animation-delay: 440ms; }
-.home-page-overlay--open .settings-row:nth-child(n + 4) { animation-delay: 560ms; }
+.home-page-overlay--open .settings-row:nth-child(3) { animation-delay: 320ms; }
+.home-page-overlay--open .settings-row:nth-child(4) { animation-delay: 440ms; }
+.home-page-overlay--open .settings-row:nth-child(n + 5) { animation-delay: 560ms; }
 /* Shop stagger — target sections by id (nth-of-type miscounts because the
    featured section is also a <div>). Sections cascade 0/120/240/360ms,
    overlapping the panel slide so content starts moving immediately. */
