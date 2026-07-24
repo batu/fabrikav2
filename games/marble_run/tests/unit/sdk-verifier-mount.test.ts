@@ -47,6 +47,18 @@ describe('SdkVerifierMount', () => {
     expect(document.querySelectorAll('[data-sdk]')).toHaveLength(0);
   });
 
+  it('can reopen immediately after the visible close control is used', () => {
+    const context = emptyContext();
+
+    expect(toggleSdkVerifierPane(context, document)).toBe(true);
+    (document.querySelector('[aria-label="Close panel"]') as HTMLButtonElement).click();
+    expect(document.getElementById('sdk-verifier-pane')).toBeNull();
+
+    expect(toggleSdkVerifierPane(context, document)).toBe(true);
+    expect(document.getElementById('sdk-verifier-pane')).not.toBeNull();
+    expect(toggleSdkVerifierPane(context, document)).toBe(false);
+  });
+
   it('analytics action routes through the real AnalyticsService', async () => {
     const analyticsModule = await import('../../src/analytics/AnalyticsService');
     const spy = vi.spyOn(analyticsModule.analytics, 'settingsChanged').mockResolvedValue();
