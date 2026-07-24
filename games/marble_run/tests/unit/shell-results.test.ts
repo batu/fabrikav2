@@ -307,6 +307,8 @@ describe('sugar result cards', () => {
 
     expect(css).toContain('#modal-root #level-failed-overlay::after {\n  display: none;');
     expect(css).toContain('#modal-root #level-failed-overlay .fab-modal-scrim {\n  background: rgba(46, 34, 68, 0.64);');
+    expect(css).toContain('translate: 0 -16vh;');
+    expect(css).toContain('bottom: 23%;');
   });
 
   it('finale mounts an orange Complete ribbon and an Awesome action', () => {

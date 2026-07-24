@@ -711,7 +711,10 @@ body {
   width: min(304px, calc(100vw - 36px));
   min-width: min(304px, calc(100vw - 36px));
   max-width: min(304px, calc(100vw - 36px));
-  transform: translateY(-5vh);
+  /* The shared result-card entrance owns transform. Use the independent
+     translate property so its fill-mode cannot drop the v1 vertical offset
+     after the animation settles. */
+  translate: 0 -16vh;
 }
 #modal-root #level-failed-overlay .fab-modal-ribbon {
   width: calc(100% + 56px);
@@ -732,7 +735,7 @@ body {
 .marble-ui .marble-fail-actions {
   position: absolute;
   left: 20.5%;
-  bottom: 18.5%;
+  bottom: 23%;
   z-index: 3;
   display: flex;
   flex-direction: column;
