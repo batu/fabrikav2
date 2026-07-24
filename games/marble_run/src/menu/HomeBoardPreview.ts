@@ -122,13 +122,17 @@ export class HomeBoardPreview {
     this.rafHandle = requestAnimationFrame(() => this.loop());
   }
 
+  /** Freeze the exact painted home-board frame for the menu fade. */
+  pause(): void {
+    if (this.rafHandle === null) return;
+    cancelAnimationFrame(this.rafHandle);
+    this.rafHandle = null;
+  }
+
   dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
-    if (this.rafHandle !== null) {
-      cancelAnimationFrame(this.rafHandle);
-      this.rafHandle = null;
-    }
+    this.pause();
     this.clearDecor();
     this.stage.dispose();
     this.canvas.remove();

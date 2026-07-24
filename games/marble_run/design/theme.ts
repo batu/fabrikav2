@@ -126,7 +126,7 @@ body {
    full-screen tile lives on #hud-overlay (above the board), so it must be gated
    off while the gameplay HUD is mounted, or bubbles render OVER the playfield
    (judge3 "pale bubbles over the playfield" major). Home/shell screens keep it. */
-.marble-ui.mr-gameplay-active::before { display: none; }
+.marble-ui.mr-gameplay-active:not(.home-mode)::before { display: none; }
 .marble-ui > * { position: relative; z-index: 1; }
 
 /* v1 menu life: eight 6x12 candy dashes falling behind all interactive chrome. */
@@ -324,6 +324,13 @@ body {
   font-family: var(--fab-font-display);
   font-size: 24px;
   text-shadow: 0 2px 0 rgba(20, 90, 30, 0.5);
+}
+/* The shared button primitive scales while :active. Its click starts the home
+   fade before the pointer-active state releases, so that press transform would
+   animate back to base geometry inside the fade. Keep this transition CTA
+   positionally static; brightness still supplies tap feedback. */
+.marble-ui .marble-level-button:active:not(:disabled) {
+  transform: none;
 }
 
 .marble-ui .fab-home-menu {
@@ -525,9 +532,9 @@ body {
 .marble-ui .marble-reward-coinrow img { width: 34px; height: 34px; }
 .marble-ui .marble-reward-value {
   color: #fff;
-  text-shadow:
-    0 2px 0 rgba(60, 30, 10, 0.55),
-    0 0 3px rgba(60, 30, 10, 0.6);
+  -webkit-text-stroke: 1.4px #203050;
+  paint-order: stroke fill;
+  text-shadow: 0 3px 0 #203050;
 }
 .marble-ui .marble-reward-text { height: 30px; width: auto; }
 .marble-ui .fab-result-message { color: #3f6bb0; font-family: var(--fab-font-display); }
@@ -553,17 +560,51 @@ body {
    dismissal as intended, and this fixed flex item cannot stretch meanwhile. */
 #modal-root.completion-mode .fab-modal-card.fab-result-card {
   flex: 0 0 auto;
-  width: min(304px, calc(100vw - 36px));
-  min-width: min(304px, calc(100vw - 36px));
-  max-width: min(304px, calc(100vw - 36px));
-  transform: translateY(-5vh);
+  position: relative;
+  width: min(100vw, 430px);
+  min-width: min(100vw, 430px);
+  max-width: min(100vw, 430px);
+  height: min(100dvh, 760px);
+  min-height: min(100dvh, 620px);
+  padding: 0;
+  gap: 0;
+  overflow: visible;
+  transform: none;
+  background-image: none !important;
+}
+#modal-root.completion-mode .fab-modal-card.fab-result-card::after {
+  content: '';
+  position: absolute;
+  left: 13.5%;
+  top: 21.4%;
+  z-index: 1;
+  width: 73%;
+  aspect-ratio: 846 / 1009;
+  pointer-events: none;
+  background: url('${assetUrls.popup}') center / 100% 100% no-repeat;
 }
 /* MRV2-13 U3 (ref refs/win.png): the LEVEL COMPLETED ribbon sits ABOVE the
    card's top edge — bottom just kissing the card — not overlapping the card
    interior. Extends the kit's default ~20px overhang; needs the U2 no-clip
    card (overflow visible) or the lifted ribbon would be cropped. */
 #modal-root.completion-mode .fab-modal-ribbon {
-  margin-top: calc(-1 * var(--fab-space-lg) - var(--fab-ribbon-overhang) - 72px);
+  position: absolute;
+  left: 8.2%;
+  top: 9.9%;
+  z-index: 4;
+  width: 83.6%;
+  max-width: none;
+  margin: 0;
+}
+/* The shared image rule caps ribbon art at 300 CSS px. On the Pixel that made
+   the 83.6%-wide, correctly centered wrapper contain a narrower LEFT-aligned
+   sprite, so the visible COMPLETED art sat ~58 physical px left of the card
+   center. Fill the centered wrapper exactly, matching the v1 902 px ribbon. */
+#modal-root.completion-mode .fab-modal-ribbon > .fab-modal-ribbon-image {
+  display: block;
+  width: 100%;
+  max-width: none;
+  margin-inline: auto;
 }
 /* MRV2-21 R2 (card item 2, ref v1 .win-level sugar3d/src/ui/style.css:2029):
    the "LEVEL n" label sits in the TOP green band of the ribbon, above the baked
@@ -582,6 +623,26 @@ body {
   letter-spacing: 0;
   text-shadow: 0 1px rgba(255, 255, 255, 0.45);
 }
+#modal-root.completion-mode .fab-result-body {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: block;
+}
+#modal-root.completion-mode .fab-result-art {
+  position: absolute;
+  left: 36%;
+  top: 30.3%;
+  width: 28%;
+  height: auto;
+}
+#modal-root.completion-mode .marble-reward-row {
+  position: absolute;
+  left: 37%;
+  top: 47.5%;
+  width: 26%;
+  gap: 4px;
+}
 /* Green Next pill: Button_Green sprite is the surface; contain a white label so
    it never renders as giant word-art (the old Txt_Next sprite-label doubling). */
 .marble-ui .marble-result-next {
@@ -589,7 +650,9 @@ body {
   color: #fff;
   font-family: var(--fab-font-display);
   font-size: 24px;
-  text-shadow: 0 2px 0 rgba(20, 90, 30, 0.5);
+  -webkit-text-stroke: 1.4px #203050;
+  paint-order: stroke fill;
+  text-shadow: 0 3px 0 #203050;
 }
 /* Standalone Next lives on the backdrop, spaced well below the card (ref). */
 /* MRV2-21 R3 (card item 3, ref v1 win-next-button width:42%): v1's Next is a
@@ -598,10 +661,9 @@ body {
 .marble-ui .marble-win-next-standalone {
   position: absolute;
   left: 29%;
-  /* v1's full-height result card occupies y=5%..95%; its Next is bottom:9.8%
-     inside that frame. Flattening those two nested percentages onto this
-     backdrop gives 5% + (90% * 9.8%) = 13.82% from the viewport bottom. */
-  bottom: 13.82%;
+  /* Same-device Pixel alignment: the v1 reference places the button about
+     96 physical pixels above the earlier flattened 13.82% approximation. */
+  bottom: 17.6%;
   z-index: 2;
   margin: 0;
   flex: 0 0 auto;
@@ -618,15 +680,15 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-width: 78px;
-  height: 42px;
+  min-width: 104px;
+  height: 50px;
   padding: 0 14px 0 10px;
   color: #fff;
   font-family: var(--fab-font-number);
-  font-size: 19px;
+  font-size: 20px;
   background: url('${assetUrls.coinFrame}') center / 100% 100% no-repeat;
 }
-.marble-ui .marble-win-coin-pill img { width: 24px; height: 24px; }
+.marble-ui .marble-win-coin-pill img { width: 27px; height: 27px; }
 /* Empty win action slot: the card renders no actions (Next is standalone). */
 .marble-ui .marble-win-actions-empty { display: none; }
 
@@ -649,7 +711,10 @@ body {
   width: min(304px, calc(100vw - 36px));
   min-width: min(304px, calc(100vw - 36px));
   max-width: min(304px, calc(100vw - 36px));
-  transform: translateY(-5vh);
+  /* The shared result-card entrance owns transform. Use the independent
+     translate property so its fill-mode cannot drop the v1 vertical offset
+     after the animation settles. */
+  translate: 0 -16vh;
 }
 #modal-root #level-failed-overlay .fab-modal-ribbon {
   width: calc(100% + 56px);
@@ -670,7 +735,7 @@ body {
 .marble-ui .marble-fail-actions {
   position: absolute;
   left: 20.5%;
-  bottom: 18.5%;
+  bottom: 23%;
   z-index: 3;
   display: flex;
   flex-direction: column;

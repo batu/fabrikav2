@@ -642,6 +642,21 @@
   transition: opacity 520ms ease-in-out;
 }
 
+/* The live home is the transition artwork. Freeze every CSS animation at its
+   current painted frame before opacity changes so ambient sprinkles, the
+   bubble-field drift, the current-node breath/halo, and the CTA cannot advance
+   independently during the fade. animation-play-state preserves the exact
+   frame already on screen; replacing animations with `none` would snap them
+   back to their first keyframe. */
+#hud-overlay.home-play-entry,
+#hud-overlay.home-play-entry::before,
+#hud-overlay.home-play-entry::after,
+#hud-overlay.home-play-entry *,
+#hud-overlay.home-play-entry *::before,
+#hud-overlay.home-play-entry *::after {
+  animation-play-state: paused !important;
+}
+
 #hud-overlay.home-play-entry[data-play-entry-state="revealing"] {
   opacity: 0;
 }
@@ -3383,12 +3398,11 @@
 }
 #home-shell .home-nav-play-btn:active .home-nav-play-emblem { transform: translateY(3px) scale(0.97); }
 
-/* Idle pulse on the whole Play Now CTA (moved off the nav emblem). Disabled on
-   the play-entry clone (1,1,0 beats #home-play-now) so the scatter-out transform
-   isn't overridden by the running animation. */
+/* Idle pulse on the whole Play Now CTA (moved off the nav emblem). During
+   play-entry the overlay-wide animation-play-state rule pauses this at its
+   current painted phase, preserving the button's exact geometry through fade. */
 .home-play-now-label { display: inline-block; }
 #home-play-now { animation: homePlayButtonIdle 1650ms ease-in-out infinite; }
-#hud-overlay.home-play-entry #home-play-now { animation: none; }
 @media (prefers-reduced-motion: reduce) {
   #home-play-now { animation: none; }
 }

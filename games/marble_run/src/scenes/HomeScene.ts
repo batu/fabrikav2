@@ -321,6 +321,10 @@ export class HomeScene extends Phaser.Scene {
     // not destroy the home until the fade completes (see playEntryHandoff).
     const boardPreview = this.boardPreview;
     const homeHandle = this.homeHandle;
+    // The transition is a fade of one static composition. Stop the preview's
+    // rAF loop before gameplay mounts so no marble, board rotation, or WebGL
+    // repaint can change pixels between the last menu frame and fade midpoint.
+    boardPreview?.pause();
     this.boardPreview = null;
     this.homeHandle = null;
     this.playEntryHandoff = true;

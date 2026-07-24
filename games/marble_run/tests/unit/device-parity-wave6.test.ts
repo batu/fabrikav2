@@ -27,6 +27,14 @@ describe("device parity wave 6 CSS pins", () => {
     expect(HUD_CSS).not.toMatch(/#game-container\s+canvas/);
   });
 
+  it("combo callouts use the bundled display font on both Android and WKWebView", () => {
+    const streak = HUD_CSS.match(/\.mr-gameplay-screen \.streak \{[^}]*\}/);
+    expect(streak).not.toBeNull();
+    expect(streak![0]).toContain("font-family: 'FredokaOne'");
+    expect(streak![0]).toContain("font-weight: 400");
+    expect(streak![0]).toContain("font-synthesis: none");
+  });
+
   it("home preview full-bleed rule uses id strength and keeps the saga rail readable", () => {
     const css = shellArtCss();
     const rule = css.match(/#hud-overlay > \.marble-home-board-preview \{[^}]*\}/);
@@ -49,10 +57,12 @@ describe("device parity wave 6 CSS pins", () => {
     expect(backdrop![0]).toContain("overflow-y: auto");
   });
 
-  it("completion ribbon is lifted above the card top (defect 3)", () => {
+  it("completion ribbon is centered against the completion artwork (defect 3)", () => {
     const css = shellArtCss();
     const ribbon = css.match(/#modal-root\.completion-mode \.fab-modal-ribbon \{[^}]*\}/);
     expect(ribbon).not.toBeNull();
-    expect(ribbon![0]).toContain("margin-top: calc(-1 * var(--fab-space-lg) - var(--fab-ribbon-overhang) - 72px)");
+    expect(ribbon![0]).toContain("left: 8.2%");
+    expect(ribbon![0]).toContain("width: 83.6%");
+    expect(ribbon![0]).toContain("margin: 0");
   });
 });
