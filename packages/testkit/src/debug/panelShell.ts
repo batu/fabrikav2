@@ -3,6 +3,7 @@ export interface DebugPanelShellOptions {
   title: string;
   width?: number;
   document?: Document;
+  onClose?: () => void;
 }
 
 export interface DebugPanelShell {
@@ -11,7 +12,7 @@ export interface DebugPanelShell {
   remove(): boolean;
 }
 
-function applyStyles(element: HTMLElement, styles: Partial<CSSStyleDeclaration>): void {
+export function applyStyles(element: HTMLElement, styles: Partial<CSSStyleDeclaration>): void {
   Object.assign(element.style, styles);
 }
 
@@ -39,6 +40,7 @@ export function mountDebugPanel(options: DebugPanelShellOptions): DebugPanelShel
     zIndex: '99999',
     width: `${width}px`,
     maxHeight: '85vh',
+    maxWidth: 'calc(100vw - 24px)',
     overflowY: 'auto',
     padding: '10px',
     borderRadius: '10px',
@@ -67,32 +69,67 @@ export function mountDebugPanel(options: DebugPanelShellOptions): DebugPanelShel
   const collapseBtn = doc.createElement('button');
   collapseBtn.textContent = '\u25BE';
   collapseBtn.title = 'Toggle panel';
+  collapseBtn.setAttribute('aria-label', 'Collapse panel');
   collapseBtn.setAttribute(
     'style',
-    'background:none;border:1px solid rgba(157,208,255,0.3);color:#e0eaff;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;line-height:1',
+    'min-width:36px;min-height:36px;background:rgba(255,255,255,0.06);border:1px solid rgba(157,208,255,0.3);color:#e0eaff;cursor:pointer;font-size:16px;padding:4px 8px;border-radius:8px;line-height:1',
   );
 
+  const closeBtn = doc.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.textContent = '\u00D7';
+  closeBtn.title = 'Close panel';
+  closeBtn.setAttribute('aria-label', 'Close panel');
+  closeBtn.setAttribute(
+    'style',
+    'min-width:36px;min-height:36px;background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.35);color:#fecaca;cursor:pointer;font-size:22px;padding:2px 8px;border-radius:8px;line-height:1',
+  );
+  const titleActions = doc.createElement('div');
+  applyStyles(titleActions, {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '6px',
+  });
+  titleActions.append(collapseBtn, closeBtn);
+
   const body = doc.createElement('div');
+  body.id = `${id}-body`;
   applyStyles(body, {
     display: 'grid',
     gap: '10px',
   });
 
   let collapsed = false;
+  collapseBtn.setAttribute('aria-controls', body.id);
+  collapseBtn.setAttribute('aria-expanded', 'true');
   collapseBtn.addEventListener('click', (): void => {
     collapsed = !collapsed;
     body.style.display = collapsed ? 'none' : 'grid';
     collapseBtn.textContent = collapsed ? '\u25B8' : '\u25BE';
+    collapseBtn.title = collapsed ? 'Expand panel' : 'Collapse panel';
+    collapseBtn.setAttribute('aria-label', collapseBtn.title);
+    collapseBtn.setAttribute('aria-expanded', String(!collapsed));
     panel.style.width = collapsed ? 'auto' : `${width}px`;
   });
 
-  titleBar.append(titleEl, collapseBtn);
+  titleBar.append(titleEl, titleActions);
   panel.append(titleBar, body);
   doc.body.appendChild(panel);
+
+  let didNotifyClose = false;
+  const remove = (): boolean => {
+    const removed = removeDebugPanel(id, doc);
+    if (removed && !didNotifyClose) {
+      didNotifyClose = true;
+      options.onClose?.();
+    }
+    return removed;
+  };
+  closeBtn.addEventListener('click', remove);
 
   return {
     panel,
     body,
-    remove: (): boolean => removeDebugPanel(id, doc),
+    remove,
   };
 }

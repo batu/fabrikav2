@@ -32,6 +32,10 @@ describe('mountSdkVerifierPane', (): void => {
     expect(sections[1].querySelector('[data-role="status"]')?.textContent).toContain('not configured');
     expect(sections[1].querySelector('[data-role="configured-id"]')?.textContent).toBe('appId: (not set)');
     expect(sections[0].querySelector('[data-role="configured-id"]')?.textContent).toContain('<redacted:BUP>');
+    expect(doc.querySelector('[data-role="verifier-summary"]')?.textContent).toContain('2 integrations');
+    expect(doc.querySelector('[data-action="refresh-statuses"]')).not.toBeNull();
+    expect(doc.querySelector('[data-role="callback-log-empty"]')?.textContent).toContain('Actions and callbacks');
+    expect(doc.querySelector('[data-role="callback-log"]')?.getAttribute('aria-live')).toBe('polite');
   });
 
   it('runs an action exactly once per click and logs start + result', async (): Promise<void> => {
@@ -45,10 +49,14 @@ describe('mountSdkVerifierPane', (): void => {
 
     const button = doc.querySelector('[data-sdk] button');
     (button as HTMLButtonElement).click();
+    expect((button as HTMLButtonElement).disabled).toBe(true);
+    expect(button?.getAttribute('aria-busy')).toBe('true');
     await Promise.resolve();
     await Promise.resolve();
 
     expect(run).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() => expect((button as HTMLButtonElement).disabled).toBe(false));
+    expect(button?.getAttribute('aria-busy')).toBe('false');
     const logItems = [...doc.querySelectorAll('[data-role="callback-log"] li')].map((li) => li.textContent);
     expect(logItems[0]).toBe('12:00:00 [applovin-max] Load rewarded…');
     expect(logItems[1]).toBe('12:00:00 [applovin-max] Load rewarded: loaded=true');
@@ -67,6 +75,7 @@ describe('mountSdkVerifierPane', (): void => {
 
     const logText = doc.querySelector('[data-role="callback-log"]')?.textContent ?? '';
     expect(logText).toContain('Send event FAILED: bridge down');
+    expect(doc.querySelector('[data-role="callback-log"] li:last-child')?.getAttribute('role')).toBe('alert');
   });
 
   it('caps the callback log length', (): void => {
@@ -78,6 +87,7 @@ describe('mountSdkVerifierPane', (): void => {
     const items = doc.querySelectorAll('[data-role="callback-log"] li');
     expect(items).toHaveLength(3);
     expect(items[0].textContent).toContain('event 2');
+    expect(doc.querySelector('[data-role="callback-log-empty"]')).toBeNull();
   });
 
   it('refreshStatuses re-reads live status and remove unmounts', (): void => {
@@ -91,5 +101,17 @@ describe('mountSdkVerifierPane', (): void => {
 
     expect(pane.remove()).toBe(true);
     expect(doc.querySelectorAll('[data-sdk]')).toHaveLength(0);
+  });
+
+  it('announces the current collapse state', (): void => {
+    const doc = makeDocument();
+    mountSdkVerifierPane({ document: doc, entries: [makeEntry()] });
+    const collapse = doc.querySelector('[aria-label="Collapse panel"]') as HTMLButtonElement;
+
+    expect(collapse.getAttribute('aria-expanded')).toBe('true');
+    expect(collapse.getAttribute('aria-controls')).toBe('sdk-verifier-pane-body');
+    collapse.click();
+    expect(collapse.getAttribute('aria-expanded')).toBe('false');
+    expect(collapse.getAttribute('aria-label')).toBe('Expand panel');
   });
 });

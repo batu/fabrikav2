@@ -19,7 +19,13 @@ export function toggleSdkVerifierPane(context: GameSdkContext, doc: Document = d
     removeSdkVerifierPane(doc);
     return false;
   }
-  mounted = mountSdkVerifierPane({ document: doc, entries: buildEntries(context) });
+  mounted = mountSdkVerifierPane({
+    document: doc,
+    entries: buildEntries(context),
+    onClose: (): void => {
+      mounted = null;
+    },
+  });
   return true;
 }
 
