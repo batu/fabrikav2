@@ -81,10 +81,14 @@ describe("device parity wave 8 CSS pins", () => {
     expect(css).toMatch(/\.marble-settings-modal--menu \.fab-modal-actions \{[^}]*padding-bottom: 4px/);
   });
 
-  it("keeps the home saga dense and prominent", () => {
-    expect(MARBLE_LEVELMAP_THEME["--fab-levelmap-node-size"]).toBe("64px");
-    expect(MARBLE_LEVELMAP_THEME["--fab-levelmap-node-current-size"]).toBe("112px");
-    expect(MARBLE_LEVELMAP_THEME["--fab-levelmap-node-gap"]).toBe("2px");
+  it("uses v1's saga geometry", () => {
+    // Ported from v1 .menu-saga-mount .fab-ui (sugar3d/src/ui/style.css). The
+    // previous 64/112/2 values were tuned by eye and rendered nodes larger and
+    // tighter than v1.
+    expect(MARBLE_LEVELMAP_THEME["--fab-levelmap-node-size"]).toBe("56px");
+    expect(MARBLE_LEVELMAP_THEME["--fab-levelmap-node-current-size"]).toBe("100px");
+    expect(MARBLE_LEVELMAP_THEME["--fab-levelmap-node-gap"]).toBe("4px");
+    expect(MARBLE_LEVELMAP_THEME["--fab-levelmap-path-width"]).toBe("min(180px, 48vw)");
   });
 
   it("mounts the v1 eight-piece ambient sprinkle layer", () => {

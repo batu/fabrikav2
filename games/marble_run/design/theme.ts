@@ -48,9 +48,11 @@ export const MARBLE_LEVELMAP_THEME: ThemeTokens = {
   '--fab-levelmap-art-locked': "url('/v1/ui/level-node-locked.webp')",
   '--fab-levelmap-art-completed': "url('/v1/ui/level-node-completed.webp')",
   '--fab-levelmap-art-current': "url('/v1/ui/level-node-current.webp')",
-  '--fab-levelmap-node-size': '64px',
-  '--fab-levelmap-node-current-size': '112px',
-  '--fab-levelmap-node-gap': '2px',
+  // v1 .menu-saga-mount .fab-ui: 56 / 100 / gap 4, path width min(180px, 48vw).
+  '--fab-levelmap-node-size': '56px',
+  '--fab-levelmap-node-current-size': '100px',
+  '--fab-levelmap-node-gap': '4px',
+  '--fab-levelmap-path-width': 'min(180px, 48vw)',
   '--fab-levelmap-node-font': '18px',
   '--fab-levelmap-node-current-font': '39px',
   '--fab-levelmap-far-opacity': '1',
@@ -114,7 +116,9 @@ export function installShellArt(doc: Document = document): void {
 
 /* Purple bubble world: gradient body + animated marble-shadow-tile overlay. */
 body {
-  background: linear-gradient(180deg, #9b7bcd 0%, #6b568e 100%);
+  /* v1 (style.css body) paints a FLAT --sugar-bg-top; the gradient down to
+     #6b568e was v2's own and darkened the lower screen into plum. */
+  background: #9b7bcd;
 }
 .marble-ui::before {
   content: '';
@@ -219,8 +223,9 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-width: 92px;
-  height: 46px;
+  /* v1 .menu-coin-counter is a 116x62 capsule; 92x46 read visibly small. */
+  min-width: 116px;
+  height: 62px;
   padding: 0 16px 0 12px;
   color: #fff;
   font-family: var(--fab-font-number);
