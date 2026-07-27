@@ -344,10 +344,19 @@ body {
   min-height: 0;
   aspect-ratio: 435 / 200;
   padding: 0;
+  /* v1 (.menu-play) is pure sprite art: border:0, border-radius:0,
+     background:transparent, box-shadow:none. The kit's .fab-btn paints an 18px
+     rounded rect plus inset/drop shadows BEHIND the sprite, which read on device
+     as a stray outline around the button. The kit already exposes both as
+     tokens, so no kit change is needed — just switch the chrome off here. */
+  --fab-btn-radius: 0;
+  --fab-shadow-button: none;
   color: #fff;
   font-family: var(--fab-font-display);
-  font-size: 24px;
-  text-shadow: 0 2px 0 rgba(20, 90, 30, 0.5);
+  /* v1 .menu-play .vida-button-text */
+  font-size: clamp(22px, 6.1vw, 28px);
+  -webkit-text-stroke-width: 1.45px;
+  text-shadow: 0 3px 0 #2b1f3d;
 }
 /* The shared button primitive scales while :active. Its click starts the home
    fade before the pointer-active state releases, so that press transform would
