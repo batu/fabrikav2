@@ -101,6 +101,27 @@ compiled default. Upload `docs/remote-config-template.json` (regenerate with
 `UPDATE_REMOTE_CONFIG_TEMPLATE=1 npm run test:unit -w @fabrikav2/marble_run`) to
 make the parameters live; a guard test fails if that file drifts from the schema.
 
+## How to verify on device
+
+The gating logic and the fetch/coercion are covered by unit tests
+(`tests/unit/interstitial-policy.test.ts`, `tests/unit/remote-config-fetch.test.ts`);
+what tests cannot prove is **ad fill** and the **live config round trip**. Both
+are reachable from the SDK verifier pane (4-tap gesture, or build with
+`VITE_SDK_VERIFIER_AUTOMOUNT=true`):
+
+1. `ads → Load interstitial` then `Show interstitial` — forces `minIntervalMs: 0`,
+   so it bypasses the policy and answers only "does the corrected unit id fill?".
+   This is the check that was blocked by the invalid unit id.
+2. `ads → Load rewarded` / `Show rewarded` — same for the rewarded unit.
+3. `remote config (ads) → Refetch config` — shows fetch status and the active
+   gate values. While the console has no template it reports
+   `no-template` with every value at its compiled default; after publishing it
+   should report `success` with the console's values.
+
+Note that the dev-only localStorage overrides (`ftd_remote_config_test_overrides`)
+do **not** apply in a device build, so changing the gates for a device test means
+publishing them to the console.
+
 ## SDK integration status
 
 | SDK | Status |
