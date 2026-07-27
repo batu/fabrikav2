@@ -53,3 +53,25 @@ the dashboard's unit format.
 - Ad fill / render (blocked above).
 - Firebase event delivery anywhere (Android has no `google-services.json`).
 - iOS runtime (signing).
+
+## Addendum — our own Firebase project (same day)
+
+The publisher's `mable-run` project is not accessible to `baseardahan@gmail.com`,
+so Remote Config could not be published and Android had no `google-services.json`.
+Created `marble-run-basegamelab` and registered both apps under
+`com.basegamelab.marblerun`.
+
+- **Remote Config live**: 62 parameters published; a remote change to
+  `interstitial_first_level` (10 → 3 → 10) was observed by the client; the Pixel
+  reports `ready / fetch success / values remote`
+  (`pixel-remote-config-values-remote.png`). The ad gates are now tunable
+  without a build.
+- **Firebase Analytics works on Android** (first time). With
+  `debug.firebase.analytics.app` set, logcat shows:
+  `V FA: App measurement enabled for app package, google app id:
+  com.basegamelab.marblerun, 1:993722317077:android:53094b7d303d1811ff111c`
+  followed by `Logging event: ... screen_view` and
+  `Uploading data. app ... com.basegamelab.marblerun`. Previously nothing was
+  sent at all, because the google-services plugin was never applied.
+- **iOS analytics unchanged** — still the publisher's plist, still reporting to
+  `mable-run`. Open decision.
