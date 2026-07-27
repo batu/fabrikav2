@@ -28,9 +28,17 @@ matches the `BUNDLE_ID` inside `GoogleService-Info.plist`.
 | Banner | not supplied (`VITE_APPLOVIN_ALLOW_PARTIAL_UNITS=true` keeps MAX running without it) |
 
 This supersedes the earlier state where the single publisher-supplied id was
-bound to both slots as a format probe; that id resolved to `REWARDED_INTER` and
-every request failed with `invalid_or_disabled_ad_unit_id`. Both ids are now set
-for iOS and Android in `.env`, and both are present in the built bundle.
+bound to both slots as a format probe. Both ids are now set for iOS and Android
+in `.env`, and both reach the native SDK.
+
+> **Ads still cannot fill (device-verified 2026-07-27, Pixel 6a).** Both ids —
+> including the *new* interstitial `e959cabdfd0981de` — return
+> `E AppLovinSdk: Unknown ad format: REWARDED_INTER` and `loaded:false`. They are
+> both registered in the MAX dashboard as **rewarded interstitial** units, a
+> format this integration never requests. Fixing this needs either standard
+> Interstitial + Rewarded units from the publisher, or rewarded-interstitial
+> support added to the native plugin. Evidence:
+> `evidence/2026-07-27-ad-ids-remote-config/`.
 
 AdMob remains the config-switched Android fallback in `packages/sdk`
 (`selectAdProvider`) and is never selected while MAX is enabled. No AdMob unit
