@@ -17,6 +17,11 @@ export interface SagaInput {
   levelCount: number;
   /** Resolve a display name for a logical level index; falls back to `Level N`. */
   nameFor?: (logicalIndex: number) => string | undefined;
+  /** Map a logical progress index to the 1-based level number to display.
+   *  Injected (not imported) to keep this module pure and unit-testable; the
+   *  shell passes `contentLevelNumber` so a wrapped replay shows its real level
+   *  number rather than an ever-climbing progress count. */
+  levelNumberFor?: (logicalIndex: number) => number;
 }
 
 export function buildSagaNodes(input: SagaInput): LevelMapNode[] {
@@ -25,26 +30,20 @@ export function buildSagaNodes(input: SagaInput): LevelMapNode[] {
     ? Math.min(SAGA_WINDOW_SIZE, input.levelCount)
     : SAGA_WINDOW_SIZE;
 
-  // Forward-only window: current + up to 3 locked-ahead levels. Near the end of
-  // the sequence there are no ahead levels, so the window slides back to reveal
-  // the COMPLETED levels behind the current — v1 level-map parity, where the
-  // last completed nodes (green candy) sit above the current (device-parity
-  // MRV2-9 U2b/U4; ref refs/level-map.png). `maxIndex` clamps the forward reach.
-  const maxIndex = input.levelCount > 0
-    ? input.levelCount - 1
-    : currentIndex + (SAGA_WINDOW_SIZE - 1);
-  const ahead = Math.max(0, Math.min(visibleCount - 1, maxIndex - currentIndex));
-
-  // End-of-content parity (device-parity MRV2-10 U3, ref refs/level-map.png):
-  // when the current level is the LAST level there are no locked-ahead nodes and
-  // v1 does NOT render the current gold-sun in the chain — the LEVEL button below
-  // stands in for it. Instead the window shows only the prior COMPLETED nodes
-  // (e.g. current=110 → completed 106-109, no sun). Detect that case (no ahead
-  // levels but there IS history behind) and slide the whole window behind the
-  // current so no node equals currentIndex.
-  const behindOnly = ahead === 0 && currentIndex > 0;
-  const windowEnd = behindOnly ? currentIndex - 1 : currentIndex + ahead;
-  const windowStart = Math.max(0, windowEnd - (visibleCount - 1));
+  // Forward-only window: the current level anchored at the bottom with locked
+  // levels above it. Progression is endless (see levels/progression.ts — after
+  // the final level the sequence loops back to level 20), so there is ALWAYS a
+  // level ahead and the window never runs out of forward content.
+  //
+  // There is deliberately no end-of-sequence branch. An earlier port reproduced
+  // v1's last-level presentation (window slides behind the current, showing four
+  // COMPLETED green nodes and no gold sun). That is dropped by product decision
+  // (2026-07-27): the map must always read current-gold-sun + locked-wood, so a
+  // completed node can never appear. Keep it that way — the state a node can
+  // carry here is `current` or `locked`, never `completed`.
+  const ahead = visibleCount - 1;
+  const windowEnd = currentIndex + ahead;
+  const windowStart = currentIndex;
 
   // Top→bottom: highest index (furthest ahead) first; current/last-completed last.
   const indices = Array.from(
@@ -52,12 +51,8 @@ export function buildSagaNodes(input: SagaInput): LevelMapNode[] {
     (_, i) => windowEnd - i,
   );
   return indices.map((logicalIndex): LevelMapNode => {
-    const state: LevelNodeState = logicalIndex < currentIndex
-      ? 'completed'
-      : logicalIndex === currentIndex
-        ? 'current'
-        : 'locked';
-    const levelNumber = logicalIndex + 1;
+    const state: LevelNodeState = logicalIndex === currentIndex ? 'current' : 'locked';
+    const levelNumber = input.levelNumberFor?.(logicalIndex) ?? logicalIndex + 1;
     const name = input.nameFor?.(logicalIndex);
     return {
       id: logicalIndex,

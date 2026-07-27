@@ -5,6 +5,7 @@ import { disposeLevelUrls, getLevelIndex, loadLevel, loadLevelForProgression, wi
 import type { LevelData } from '../data/levels';
 import { adService, showRewardedAdForEconomy } from '../ads/Service';
 import { decideInterstitial } from '../ads/interstitialPolicy';
+import { contentLevelNumber } from '../levels/progression';
 import { readInterstitialPolicyConfig, rewardedAdsEnabled } from '../ads/remoteAdPolicy';
 import { trackRewardedWatchedIfGranted } from '../attribution/RewardedAttribution';
 import { analytics } from '../analytics/AnalyticsService';
@@ -218,7 +219,7 @@ export class GameScene extends Phaser.Scene {
       this.gameplayController = new GameplayController(container, this.buildGameplayHooks());
       // The marble engine owns the in-level hearts; the shell board index is
       // 0-based, the marble level id 1-based (KTD6 keys both off progression).
-      this.gameplayController.startLevel(gameState.currentLevelIndex + 1);
+      this.gameplayController.startLevel(contentLevelNumber(gameState.currentLevelIndex));
     }
 
     this.levelStartedAt = Date.now();
@@ -554,7 +555,7 @@ export class GameScene extends Phaser.Scene {
     // out of scope per the conductor's no-shop ruling); a "continue" replays the
     // level with a fresh board and its full hearts.
     this.gameplayController?.setHudVisible(true);
-    this.gameplayController?.startLevel(gameState.currentLevelIndex + 1);
+    this.gameplayController?.startLevel(contentLevelNumber(gameState.currentLevelIndex));
     return true;
   }
 
