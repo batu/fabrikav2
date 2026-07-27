@@ -68,6 +68,15 @@ export const MARBLE_LEVELMAP_THEME: ThemeTokens = {
   // `--fab-levelmap-line-top/mid/bottom` vars, not the single `--fab-levelmap-line`
   // ftdTheme sets — leaving them unset painted the fat GRAY default rail behind the
   // saga (device-parity MRV2-9 U3). Point them at the v1 wooden-tan connector.
+  // v1core's rail rule (src/v1core/ui/ui.css) reads the SINGLE `--fab-levelmap-line`
+  // token, not the kit's three-stop set below, and its default is a GREY gradient
+  // (#9ca3af -> #6b7280) — which is exactly what shipped on device while the
+  // three-stop tan values sat unused. Both token families must be set because two
+  // rail implementations are in play (kit + v1core; a third FTD "premium rail"
+  // lives in src/ui/styles.css scoped to .home-map-stage). Consolidating them is
+  // its own card; until then this keeps the device honest.
+  // v1 renders a tan double-rail: dark edges, two cream rails, tan core.
+  '--fab-levelmap-line': 'linear-gradient(90deg, #8a5a24 0 1px, #f7e7c4 1px 3px, #cfa063 3px 6px, #f7e7c4 6px 8px, #8a5a24 8px 9px)',
   '--fab-levelmap-line-top': 'rgba(214, 162, 96, 0.55)',
   '--fab-levelmap-line-mid': '#cf9a4f',
   '--fab-levelmap-line-bottom': '#a9702f',
@@ -180,7 +189,9 @@ body {
   margin-top: 4px;
 }
 .marble-home-banner img {
-  width: min(78vw, 360px);
+  /* v1 measures 84% of screen width (905/1080 on the Pixel 6a); 78vw rendered
+     840px and read visibly inset next to v1's overhanging plate. */
+  width: min(84vw, 388px);
   height: auto;
   filter: drop-shadow(0 10px 18px rgba(40, 20, 60, 0.32));
 }
@@ -196,10 +207,11 @@ body {
   font-size: clamp(30px, 9.5vw, 42px);
   line-height: 1;
   color: #6a3016;
-  text-shadow:
-    0 2px 0 rgba(255, 240, 205, 0.52),
-    0 4px 0 #3d1b33,
-    0 7px 9px rgba(40, 20, 60, 0.38);
+  /* v1 parity (2026-07-27): flat brown lettering. The previous stack layered a
+     cream underline (read as a white outline on device), a hard dark-purple
+     offset shadow, and a soft blur — none of which v1 has. Only the faint soft
+     shadow is kept. Do not reintroduce the offset layers. */
+  text-shadow: 0 2px 5px rgba(40, 20, 60, 0.22);
   pointer-events: none;
   white-space: nowrap;
 }
@@ -268,6 +280,18 @@ body {
    pushed sun node 1 / node 106 under the fixed LEVEL button. Collapse the rail
    to its content height so the chain hangs directly off the board bottom (v1). */
 #home-shell .fab-levelmap-path { min-height: 0; }
+/* The tan rail must be set on the levelmap ELEMENT, not just via the theme prop.
+   v1core (src/v1core/ui/ui.css:19) declares a GREY --fab-levelmap-line on
+   .fab-ui, and the SagaMap root carries fab-ui itself — so it re-declares grey
+   locally and beats the value the theme prop sets on the .fab-home-menu wrapper.
+   Verified on device over CDP: the element computed the grey default while
+   --fab-levelmap-line-mid (which v1core never re-declares) carried the marble
+   value through. Specificity here (#id + class) wins over .fab-ui. */
+#home-shell .fab-levelmap,
+#home-shell .fab-levelmap-path {
+  --fab-levelmap-line: linear-gradient(90deg, #8a5a24 0 1px, #f7e7c4 1px 3px, #cfa063 3px 6px, #f7e7c4 6px 8px, #8a5a24 8px 9px);
+  --fab-levelmap-line-glow: 0 0 0 1px rgba(101, 62, 24, 0.45);
+}
 #home-shell .fab-home-menu-content {
   flex: 0 1 auto;
   justify-content: flex-start;
@@ -417,30 +441,51 @@ body {
   flex-direction: column;
   /* MRV2-25 item 2 (ref pause.png): v2's settings/pause card rendered ~80% of
      screen width on the Pixel while v1 fills ~87%. Widen to match v1's ratio. */
-  width: min(88vw, 420px);
-  min-width: min(88vw, 420px);
-  max-width: min(88vw, 420px);
-  padding: 64px 30px 38px;
+  /* Ported verbatim from v1 (fabrika/games/marble_run/sugar3d/src/ui/style.css
+     .card.settings-card): width min(92vw, 430px), padding 104px 42px 34px,
+     min-height 520px for the menu variant. Read the v1 source rather than
+     measuring screenshots — it is in-tree at fabrika/games/marble_run/sugar3d. */
+  width: min(92vw, 430px);
+  min-width: min(92vw, 430px);
+  max-width: min(92vw, 430px);
+  min-height: 520px;
+  padding: 104px 42px 34px;
 }
 .marble-ui .marble-settings-card > .fab-modal-ribbon {
   align-self: center;
-  width: min(96%, 380px);
-  margin: calc(-64px - var(--fab-ribbon-overhang)) 0 var(--fab-space-md);
+  /* v1: .settings-ribbon-art is width:96% of the card, offset top:-26px. */
+  width: 96%;
+  /* v1 anchors the ribbon art at top:-26px against a 104px top padding; in the
+     kit's flow layout that is the same lift expressed as a negative margin. */
+  margin: calc(-104px - 26px) 0 var(--fab-space-md);
 }
 .marble-ui .marble-settings-card > .fab-modal-ribbon > .fab-modal-ribbon-image {
   width: 100%;
   height: 100%;
 }
 .marble-ui .marble-settings-card .fab-modal-ribbon-title {
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
+  /* Measured -42px off the ribbon centre on device: the kit sets left:0/right:0
+     with margin-inline:auto, and layering left:50% + translateX(-50%) on top of
+     that over-constrained the box. Centre it the kit's way instead. */
+  left: 0;
+  right: 0;
+  width: auto;
+  max-width: none;
+  margin-inline: auto;
+  transform: translateY(-50%);
   text-align: center;
 }
 .marble-ui .fab-modal-ribbon-title {
   font-family: var(--fab-font-display);
   color: #fff;
-  text-shadow: 0 2px 0 rgba(120, 60, 20, 0.55);
+  /* v1 .settings-ribbon-label: ink stroke + hard ink shadow, not the brown
+     value this carried. Sizes ported verbatim. */
+  font-size: clamp(27px, 7.1vw, 34px);
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  -webkit-text-stroke: 2px #2b1f3d;
+  text-shadow: 0 3px 0 #2b1f3d;
 }
 /* Menu settings is a modal over the live home, not a replacement page. The
    purple scrim dims the existing bubble field and leaves the banner/saga faintly
@@ -449,7 +494,10 @@ body {
   background: transparent;
 }
 .fab-ui.fab-modal-backdrop.marble-settings-modal--menu .fab-modal-scrim {
-  background: rgba(62, 43, 84, 0.72);
+  /* v1 dims the home to a near-flat dark purple — banner, coin pill, gear, sun
+     badge and LEVEL button are all unreadable behind the card. At 0.72 they read
+     clearly on device, so the modal did not sit apart from the page. */
+  background: rgba(62, 43, 84, 0.93);
 }
 /* MRV2-25 item 2 (ref pause.png): v1 FULLY dims the gameplay HUD beneath the
    pause card — hearts/gear/hint are barely visible and the field reads as a flat
@@ -465,10 +513,16 @@ body {
    the blue Button_Settins tile IS the square and the × is a rendered text glyph
    (NOT color:transparent, which hid it as a stretched blob in wave-4). */
 .marble-ui .fab-modal-close {
-  width: 52px;
-  min-width: 52px;
-  height: 52px;
-  min-height: 52px;
+  /* The kit rounds .fab-modal-close to 50% (packages/ui/src/ui.css), which
+     clipped this square Button_Settins tile into a circle on device — a
+     regression against the recorded "square X" parity. The PNG carries its own
+     rounded-square corners, so the radius must be zero here. */
+  border-radius: 0;
+  /* v1 .settings-close: 60x65 at right:22px, top:-26px. */
+  width: 60px;
+  min-width: 60px;
+  height: 65px;
+  min-height: 65px;
   background: url('${assetUrls.settingsButton}') center / 100% 100% no-repeat;
   border: 0;
   color: #fff;
@@ -482,7 +536,8 @@ body {
 /* Sugar toggle rows: translucent white pill rows, green-on switch. */
 .marble-ui .fab-toggle-row {
   background: rgba(255, 255, 255, 0.54);
-  color: #4a2f6d;
+  /* v1 labels are near-black navy; #4a2f6d read as purple against v1's ink. */
+  color: #22304d;
   font-family: var(--fab-font-display);
 }
 .marble-ui .fab-toggle-row-label { color: #4a2f6d; }
