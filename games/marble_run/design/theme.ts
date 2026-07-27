@@ -234,13 +234,15 @@ body {
 }
 .marble-coin-pill img { width: 26px; height: 26px; }
 .marble-gear-btn {
-  width: 52px;
-  height: 52px;
+  /* v1 .vida-settings-button is 72x78 with a 38px icon; 52x52/28px read
+     markedly small next to the coin capsule. */
+  width: 72px;
+  height: 78px;
   border: 0;
   background: url('${assetUrls.settingsButton}') center / 100% 100% no-repeat;
   cursor: pointer;
 }
-.marble-gear-btn img { width: 28px; height: 28px; }
+.marble-gear-btn img { width: 38px; height: auto; }
 
 /* v1 App.showMenuDecor: the tilted decor board between banner and saga chain.
    A three.js canvas (HomeBoardPreview) in DOM flow just under the header; the
