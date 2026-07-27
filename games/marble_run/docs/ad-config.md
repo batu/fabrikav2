@@ -102,12 +102,37 @@ fetch is cached in localStorage and replayed at the next cold start, so a launch
 with no network keeps the live values. Fetch failures are non-fatal and surface
 in the SDK verifier pane's snapshot.
 
-**Live run (2026-07-24):** the client reaches the real project and classifies the
-response as `no-template` — authentication works; **no Remote Config template has
-been published in the `mable-run` console yet**, so every value is still the
-compiled default. Upload `docs/remote-config-template.json` (regenerate with
-`UPDATE_REMOTE_CONFIG_TEMPLATE=1 npm run test:unit -w @fabrikav2/marble_run`) to
-make the parameters live; a guard test fails if that file drifts from the schema.
+### Which Firebase project (changed 2026-07-27)
+
+The publisher's project is **`mable-run`** (their spelling, not a typo here) and
+the `baseardahan@gmail.com` account **cannot open it** — `firebase projects:list`
+does not include it and `apps:list --project mable-run` fails on permissions.
+That blocked both publishing a Remote Config template and downloading
+`google-services.json`.
+
+So Remote Config is now owned by **our** project, `marble-run-basegamelab`
+(console: https://console.firebase.google.com/project/marble-run-basegamelab).
+Both apps are registered under `com.basegamelab.marblerun`. Consequences:
+
+- **Remote Config**: ours, publishable by us. `firebase deploy --only remoteconfig`
+  from `games/marble_run/` (see `firebase.json`).
+- **Android analytics**: now lands in our project —
+  `native-resources/android-config/app/google-services.json` is overlaid onto
+  `android/app/` by `sync-native-resources.mjs`, and `app/build.gradle` applies
+  the google-services plugin only when that file exists. Before this, Android
+  had no Firebase config at all and sent nothing anywhere.
+- **iOS analytics**: still ships the publisher's plist, so it reports to
+  `mable-run`. **Open decision** — either repoint iOS at our project (analytics
+  in one place, but the publisher loses the iOS data they set up) or get access
+  to `mable-run` and consolidate there.
+
+**Live and device-verified (2026-07-27):** template published (62 parameters);
+a remote change to `interstitial_first_level` (10 → 3 → 10) propagated to the
+client; the Pixel's verifier pane reports `ready / fetch success / values remote`
+(`evidence/2026-07-27-ad-ids-remote-config/pixel-remote-config-values-remote.png`).
+Regenerate the template with
+`UPDATE_REMOTE_CONFIG_TEMPLATE=1 npm run test:unit -w @fabrikav2/marble_run`;
+a guard test fails if it drifts from the schema.
 
 ## How to verify on device
 
