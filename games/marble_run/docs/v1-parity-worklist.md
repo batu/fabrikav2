@@ -70,9 +70,15 @@ produces the original package id again.
 15. **CLOSE button is undersized.** v1's is tall with a thick dark outline and
     clear margin below it inside the card; v2's is short, flatter, thinner
     outlined, and nearly touches the card's bottom edge.
-16. **SETTINGS ribbon geometry.** v1's ribbon is wider than the card and its
-    folded ends overhang both edges; v2's is narrower and tucked differently
-    against the card top.
+16. **SETTINGS ribbon geometry + label centring.** Measured on the same Pixel
+    captures (1080px wide):
+    - v1 ribbon spans x63-1016 (**953px**); v2 spans x160-907 (**747px**) — v2 is
+      206px narrower, which is why v1's folded ends overhang the card and v2's
+      tuck inside it.
+    - The label is **not centred on the ribbon in v2**: text centre sits **-42px**
+      left of the ribbon centre, against **+7px** (i.e. centred) in v1.
+    Measure with the ribbon's own span, not the full row — the close button's
+    white glyph otherwise leaks into the text bounds and reverses the sign.
 17. **Row label colour.** v1 uses dark navy/near-black; v2 uses purple.
 18. **Row insets.** v1's rows have larger side margins inside the card; v2's run
     closer to the card edges.
