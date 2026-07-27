@@ -347,6 +347,101 @@ body {
   z-index: 21;
 }
 
+/* ---- Menu exit choreography (v1 parity, 2026-07-27) ----------------------
+   v1 does NOT crossfade home->game. It flies each element out and only then
+   reveals gameplay: header + banner exit UP, the CTA and saga rail exit DOWN,
+   the 3D board scales up and blurs. Ported from v1's .screen.menu-leaving rules
+   and @keyframes menu-*-exit (sugar3d/src/ui/style.css).
+
+   Without this, v2 crossfaded everything in place and both screens rendered on
+   top of each other for ~250ms — two boards, the banner across the game board,
+   and two coin pills (recorded on the Pixel 6a).
+
+   Distances/durations are tokens so the values stay tunable per game if this is
+   ever promoted into packages/ui. Timings sit inside the shell's 520ms play-entry
+   reveal so nothing is cut off mid-flight. */
+#home-shell {
+  --marble-exit-header-y: -110px;
+  --marble-exit-title-y: -150px;
+  --marble-exit-cta-y: 140px;
+  --marble-exit-rail-y: 170px;
+  --marble-exit-stage-y: -7vh;
+  --marble-exit-ease-linearish: cubic-bezier(0.62, 0, 0.94, 0.42);
+}
+#home-shell.menu-leaving .marble-home-header,
+#home-shell.menu-leaving .marble-home-banner,
+#home-shell.menu-leaving .marble-level-button,
+#home-shell.menu-leaving .fab-levelmap,
+#hud-overlay > .marble-home-board-preview.menu-leaving {
+  /* Promote to their own layers: these must keep animating while the main
+     thread is busy booting GameScene. transform + opacity only. */
+  will-change: transform, opacity;
+}
+#home-shell.menu-leaving .marble-home-header {
+  animation: marble-menu-top-exit 0.42s ease-in forwards;
+}
+#home-shell.menu-leaving .marble-home-banner {
+  animation: marble-menu-title-exit 0.44s var(--marble-exit-ease-linearish) forwards;
+}
+#home-shell.menu-leaving .marble-level-button {
+  /* The button carries an idle breathe animation; an id/class keyframe already
+     running beats a transform, so the exit must replace it outright. */
+  animation: marble-menu-play-exit 0.4s ease-in forwards;
+}
+#home-shell.menu-leaving .fab-levelmap {
+  animation: marble-menu-rail-exit 0.44s var(--marble-exit-ease-linearish) forwards;
+}
+#hud-overlay > .marble-home-board-preview.menu-leaving {
+  animation: marble-menu-stage-exit 0.44s ease-in forwards;
+}
+/* src/ui/styles.css freezes EVERY animation under #hud-overlay during play
+   entry (animation-play-state: paused !important) so the menu holds still as
+   static artwork for the crossfade. That is exactly what pinned these exits at
+   frame 0 on device — measured as animationName running but playState "paused",
+   currentTime 0, for the whole transition. The freeze still applies to ambient
+   motion (sprinkle drift, bubble field, node breath); the elements that are
+   supposed to LEAVE must be exempted. Specificity + !important beats the
+   universal-selector freeze. */
+#hud-overlay.home-play-entry #home-shell.menu-leaving .marble-home-header,
+#hud-overlay.home-play-entry #home-shell.menu-leaving .marble-home-banner,
+#hud-overlay.home-play-entry #home-shell.menu-leaving .marble-level-button,
+#hud-overlay.home-play-entry #home-shell.menu-leaving .fab-levelmap,
+#hud-overlay.home-play-entry > .marble-home-board-preview.menu-leaving {
+  animation-play-state: running !important;
+}
+@keyframes marble-menu-top-exit {
+  to { transform: translateY(var(--marble-exit-header-y)); opacity: 0; }
+}
+@keyframes marble-menu-title-exit {
+  to { transform: translateY(var(--marble-exit-title-y)) scale(0.86); opacity: 0; }
+}
+@keyframes marble-menu-play-exit {
+  to { transform: translateY(var(--marble-exit-cta-y)) scale(0.86); opacity: 0; }
+}
+@keyframes marble-menu-rail-exit {
+  to { transform: translateY(var(--marble-exit-rail-y)) scale(0.92); opacity: 0; }
+}
+@keyframes marble-menu-stage-exit {
+  /* No filter: blur() here. GameScene boots on the main thread the moment the
+     exit starts, and a blur keyframe forces the whole animation off the
+     compositor onto that blocked thread — measured on a Pixel 6a advancing 33ms
+     of animation in 220ms of wall time, i.e. the elements barely moved. v1 can
+     afford the blur because its menu is not competing with a Phaser boot. */
+  to { transform: translateY(var(--marble-exit-stage-y)) scale(1.06); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Collapse to a plain cut: the shell's reduced-motion path already skips the
+     fade, so a 0.44s flight would be the only thing still moving. */
+  #home-shell.menu-leaving .marble-home-header,
+  #home-shell.menu-leaving .marble-home-banner,
+  #home-shell.menu-leaving .marble-level-button,
+  #home-shell.menu-leaving .fab-levelmap,
+  #hud-overlay > .marble-home-board-preview.menu-leaving {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 /* Green LEVEL action button — Button_Green sprite already set via --fab-btn-sprite-image. */
 .marble-ui .marble-level-button {
   /* MRV2-20 item 6: the kit paints the sprite as a background sized 100% 100%
