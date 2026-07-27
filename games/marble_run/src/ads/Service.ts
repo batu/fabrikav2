@@ -1,6 +1,7 @@
 import { setMusicPausedForAd } from '../audio/AudioManager';
 import type { AdProvider, MaybeShowInterstitialOptions, RewardedAdResult } from './AdProvider';
 import { DisabledAdProvider } from './DisabledAdProvider';
+import { rewardedAdsEnabled } from './remoteAdPolicy';
 
 export interface RewardedAdResultForTest {
   granted: boolean;
@@ -37,6 +38,11 @@ export function setRewardedAdResultForTest(result: RewardedAdResultForTest | nul
 }
 
 export async function showRewardedAdForEconomy(): Promise<{ granted: boolean }> {
+  // Remote master switch, checked ahead of the test hook's provider bypass but
+  // behind it in precedence so harness-driven tours keep their scripted result.
+  if (rewardedAdResultForTest === null && !rewardedAdsEnabled()) {
+    return { granted: false };
+  }
   if (rewardedAdResultForTest !== null) {
     const result = rewardedAdResultForTest;
     if (result.delayMs !== undefined) {

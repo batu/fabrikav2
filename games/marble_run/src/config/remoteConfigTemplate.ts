@@ -64,11 +64,14 @@ const TEMPLATE_GROUPS: readonly RemoteConfigTemplateGroup[] = [
   },
   {
     name: 'Ads',
-    description: 'Interstitial cadence: every-Nth-level gate, frequency cap, and first eligible level.',
+    description: 'Interstitial gating: kill switch, ad-free level floor, fail-only window, and the two independent cooldowns. Plus the rewarded master switch.',
     keys: [
-      'interstitialEveryNLevels',
-      'interstitialMinIntervalS',
-      'interstitialMinLevel',
+      'interstitialAdsEnabled',
+      'interstitialFirstLevel',
+      'interstitialFailOnlyUntilLevel',
+      'interstitialFailCooldownS',
+      'interstitialLevelEndCooldownS',
+      'rewardedAdsEnabled',
     ],
   },
   {

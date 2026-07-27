@@ -19,6 +19,10 @@ real hardware, Android 16.
   **rewarded interstitial**, a format the integration does not yet request.
   Publisher follow-up: standard interstitial + rewarded unit ids (or a decision
   to add rewarded-inter support).
+  **RESOLVED 2026-07-24**: the publisher supplied a proper pair — rewarded
+  `d516d39f20c54af0`, interstitial `e959cabdfd0981de` — now set for both
+  platforms in `.env` (see `docs/ad-config.md`). Ad fill remains unproven on
+  device; re-run this capture with the corrected ids.
 - **AppsFlyer**: provider selected (`appsflyer`), native `trackEvent` flowing
   (`appOpen` with cohort_bucket seen in logcat via the Capacitor bridge).
 - **Facebook Core**: initialized programmatically with app id 4138472436283342;

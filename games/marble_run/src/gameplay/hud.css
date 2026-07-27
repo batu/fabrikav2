@@ -412,7 +412,7 @@
   z-index: 5;
   pointer-events: none;
   background: radial-gradient(
-    circle 78px at var(--tx) var(--ty),
+    circle 78px at var(--tx, 0px) var(--ty, 0px),
     rgba(19, 12, 24, 0) 0 62px,
     rgba(19, 12, 24, 0.14) 72px,
     rgba(19, 12, 24, 0.48) 96px
@@ -422,7 +422,7 @@
 .mr-gameplay-screen .tutorial-hand-layer.tutorial-reject {
   background:
     radial-gradient(
-      circle 88px at var(--tx) var(--ty),
+      circle 88px at var(--tx, 0px) var(--ty, 0px),
       rgba(255, 255, 255, 0.02) 0 54px,
       rgba(255, 72, 90, 0.16) 68px,
       rgba(255, 72, 90, 0.36) 94px,
@@ -434,8 +434,8 @@
 .mr-gameplay-screen .tutorial-ring,
 .mr-gameplay-screen .tutorial-hand {
   position: absolute;
-  left: var(--tx);
-  top: var(--ty);
+  left: var(--tx, 0px);
+  top: var(--ty, 0px);
   pointer-events: none;
 }
 .mr-gameplay-screen .tutorial-spotlight {

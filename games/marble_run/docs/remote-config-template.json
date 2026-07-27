@@ -1,0 +1,466 @@
+{
+  "conditions": [],
+  "parameters": {},
+  "parameterGroups": {
+    "Progression And Home": {
+      "description": "Home shell, map, reward progress, startup, and player-facing progression defaults.",
+      "parameters": {
+        "progression_home_enabled": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Enable the home/progression shell.",
+          "valueType": "BOOLEAN"
+        },
+        "level_map_enabled": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Enable the vertical level-map screen.",
+          "valueType": "BOOLEAN"
+        },
+        "level_sequence_payload": {
+          "defaultValue": {
+            "value": ""
+          },
+          "description": "Complete V1 live level sequence JSON payload. Empty disables remote sequence activation.",
+          "valueType": "STRING"
+        },
+        "level_sequence_sha256": {
+          "defaultValue": {
+            "value": ""
+          },
+          "description": "SHA-256 hex digest for level_sequence_payload. Required when payload is non-empty.",
+          "valueType": "STRING"
+        },
+        "reward_progress_enabled": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Enable home reward-progress loop.",
+          "valueType": "BOOLEAN"
+        },
+        "reward_progress_goal": {
+          "defaultValue": {
+            "value": "6"
+          },
+          "description": "Level completions required for the home reward.",
+          "valueType": "NUMBER"
+        },
+        "reward_hints_amount": {
+          "defaultValue": {
+            "value": "4"
+          },
+          "description": "Hints granted when reward progress completes.",
+          "valueType": "NUMBER"
+        },
+        "gameplay_initial_hints": {
+          "defaultValue": {
+            "value": "3"
+          },
+          "description": "Default starting hints for new players.",
+          "valueType": "NUMBER"
+        },
+        "rate_prompt_enabled_default": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Default rate prompt availability for fresh installs.",
+          "valueType": "BOOLEAN"
+        }
+      }
+    },
+    "Rewards And Continues": {
+      "description": "Rewarded-ad availability and soft-currency economy values.",
+      "parameters": {
+        "hint_rw_enabled": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Enable rewarded-ad hint acquisition when hints are empty.",
+          "valueType": "BOOLEAN"
+        },
+        "level_continue_rw_enabled": {
+          "defaultValue": {
+            "value": "false"
+          },
+          "description": "Deprecated no-op: fail-screen rewarded-ad continue was removed.",
+          "valueType": "BOOLEAN"
+        },
+        "level_end_claim_x2_enabled": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Enable rewarded-ad completion coin doubling.",
+          "valueType": "BOOLEAN"
+        },
+        "hint_booster_single_coin_price": {
+          "defaultValue": {
+            "value": "250"
+          },
+          "description": "Coin price for one hint.",
+          "valueType": "NUMBER"
+        },
+        "hint_booster_bundle_coin_price": {
+          "defaultValue": {
+            "value": "600"
+          },
+          "description": "Coin price for hint bundle.",
+          "valueType": "NUMBER"
+        },
+        "hint_booster_bundle_hint_amount": {
+          "defaultValue": {
+            "value": "3"
+          },
+          "description": "Hints granted by bundle purchase.",
+          "valueType": "NUMBER"
+        },
+        "level_complete_coin_reward": {
+          "defaultValue": {
+            "value": "25"
+          },
+          "description": "Base coins granted on level completion.",
+          "valueType": "NUMBER"
+        },
+        "level_continue_coin_price": {
+          "defaultValue": {
+            "value": "900"
+          },
+          "description": "Coin price for level continue.",
+          "valueType": "NUMBER"
+        }
+      }
+    },
+    "Ads": {
+      "description": "Interstitial gating: kill switch, ad-free level floor, fail-only window, and the two independent cooldowns. Plus the rewarded master switch.",
+      "parameters": {
+        "interstitial_ads_enabled": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Master kill switch for interstitials. False shows none regardless of the level gates.",
+          "valueType": "BOOLEAN"
+        },
+        "interstitial_first_level": {
+          "defaultValue": {
+            "value": "10"
+          },
+          "description": "First level number (1-based) that may show an interstitial. Levels below this are ad-free.",
+          "valueType": "NUMBER"
+        },
+        "interstitial_fail_only_until_level": {
+          "defaultValue": {
+            "value": "20"
+          },
+          "description": "Below this level number, interstitials show only after a fail. From this level on, wins are eligible too.",
+          "valueType": "NUMBER"
+        },
+        "interstitial_fail_cooldown_s": {
+          "defaultValue": {
+            "value": "90"
+          },
+          "description": "Minimum seconds since the last interstitial before a fail may show one.",
+          "valueType": "NUMBER"
+        },
+        "interstitial_level_end_cooldown_s": {
+          "defaultValue": {
+            "value": "90"
+          },
+          "description": "Minimum seconds since the last interstitial before a completed level may show one.",
+          "valueType": "NUMBER"
+        },
+        "rewarded_ads_enabled": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Master switch for every rewarded placement (hints, claim x2, fail continue).",
+          "valueType": "BOOLEAN"
+        }
+      }
+    },
+    "Shop And Offers": {
+      "description": "Client-visible product IDs, offer visibility, and fulfillment grant quantities.",
+      "parameters": {
+        "no_ads_visible": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Show No-Ads offer.",
+          "valueType": "BOOLEAN"
+        },
+        "no_ads_product_id": {
+          "defaultValue": {
+            "value": "com.baseardahan.hiddenobj.noads3"
+          },
+          "description": "Store product ID for No-Ads.",
+          "valueType": "STRING"
+        },
+        "no_ads_premium_visible": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Show No-Ads Premium offer.",
+          "valueType": "BOOLEAN"
+        },
+        "no_ads_premium_product_id": {
+          "defaultValue": {
+            "value": "com.baseardahan.hiddenobj.noadspremium2"
+          },
+          "description": "Store product ID for No-Ads Premium.",
+          "valueType": "STRING"
+        },
+        "no_ads_premium_hint_amount": {
+          "defaultValue": {
+            "value": "5"
+          },
+          "description": "Hints granted by No-Ads Premium.",
+          "valueType": "NUMBER"
+        },
+        "ego_offer_enabled": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Enable fail-screen continue + hints offer.",
+          "valueType": "BOOLEAN"
+        },
+        "ego_offer_product_id": {
+          "defaultValue": {
+            "value": "com.baseardahan.hiddenobj.levelcontinue1000coins5hints"
+          },
+          "description": "Store product ID for fail-screen ego offer.",
+          "valueType": "STRING"
+        },
+        "ego_offer_hint_amount": {
+          "defaultValue": {
+            "value": "5"
+          },
+          "description": "Hints granted by ego offer.",
+          "valueType": "NUMBER"
+        },
+        "ego_offer_coin_amount": {
+          "defaultValue": {
+            "value": "1000"
+          },
+          "description": "Coins granted by ego offer.",
+          "valueType": "NUMBER"
+        },
+        "hint_pack_10_visible": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Show 10-hint pack.",
+          "valueType": "BOOLEAN"
+        },
+        "hint_pack_10_product_id": {
+          "defaultValue": {
+            "value": "com.baseardahan.hiddenobj.hints10x"
+          },
+          "description": "Store product ID for 10-hint pack.",
+          "valueType": "STRING"
+        },
+        "hint_pack_10_hint_amount": {
+          "defaultValue": {
+            "value": "10"
+          },
+          "description": "Hints granted by 10-hint pack.",
+          "valueType": "NUMBER"
+        },
+        "hint_pack_25_visible": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Show 25-hint pack.",
+          "valueType": "BOOLEAN"
+        },
+        "hint_pack_25_product_id": {
+          "defaultValue": {
+            "value": "com.baseardahan.hiddenobj.hints25x"
+          },
+          "description": "Store product ID for 25-hint pack.",
+          "valueType": "STRING"
+        },
+        "hint_pack_25_hint_amount": {
+          "defaultValue": {
+            "value": "25"
+          },
+          "description": "Hints granted by 25-hint pack.",
+          "valueType": "NUMBER"
+        },
+        "hint_pack_50_visible": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Show 50-hint pack.",
+          "valueType": "BOOLEAN"
+        },
+        "hint_pack_50_product_id": {
+          "defaultValue": {
+            "value": "com.baseardahan.hiddenobj.hints50x"
+          },
+          "description": "Store product ID for 50-hint pack.",
+          "valueType": "STRING"
+        },
+        "hint_pack_50_hint_amount": {
+          "defaultValue": {
+            "value": "50"
+          },
+          "description": "Hints granted by 50-hint pack.",
+          "valueType": "NUMBER"
+        },
+        "coin_pack_1000_visible": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Show 1,000-coin pack.",
+          "valueType": "BOOLEAN"
+        },
+        "coin_pack_1000_product_id": {
+          "defaultValue": {
+            "value": "com.baseardahan.hiddenobj.coins1000"
+          },
+          "description": "Store product ID for 1,000-coin pack.",
+          "valueType": "STRING"
+        },
+        "coin_pack_1000_coin_amount": {
+          "defaultValue": {
+            "value": "1000"
+          },
+          "description": "Coins granted by 1,000-coin pack.",
+          "valueType": "NUMBER"
+        },
+        "coin_pack_5000_visible": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Show 5,000-coin pack.",
+          "valueType": "BOOLEAN"
+        },
+        "coin_pack_5000_product_id": {
+          "defaultValue": {
+            "value": "com.baseardahan.hiddenobj.coins5000"
+          },
+          "description": "Store product ID for 5,000-coin pack.",
+          "valueType": "STRING"
+        },
+        "coin_pack_5000_coin_amount": {
+          "defaultValue": {
+            "value": "5000"
+          },
+          "description": "Coins granted by 5,000-coin pack.",
+          "valueType": "NUMBER"
+        },
+        "coin_pack_10000_visible": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Show 10,000-coin pack.",
+          "valueType": "BOOLEAN"
+        },
+        "coin_pack_10000_product_id": {
+          "defaultValue": {
+            "value": "com.baseardahan.hiddenobj.coins10000"
+          },
+          "description": "Store product ID for 10,000-coin pack.",
+          "valueType": "STRING"
+        },
+        "coin_pack_10000_coin_amount": {
+          "defaultValue": {
+            "value": "10000"
+          },
+          "description": "Coins granted by 10,000-coin pack.",
+          "valueType": "NUMBER"
+        },
+        "coin_pack_25000_visible": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Show 25,000-coin pack.",
+          "valueType": "BOOLEAN"
+        },
+        "coin_pack_25000_product_id": {
+          "defaultValue": {
+            "value": "com.baseardahan.hiddenobj.coins25000"
+          },
+          "description": "Store product ID for 25,000-coin pack.",
+          "valueType": "STRING"
+        },
+        "coin_pack_25000_coin_amount": {
+          "defaultValue": {
+            "value": "25000"
+          },
+          "description": "Coins granted by 25,000-coin pack.",
+          "valueType": "NUMBER"
+        },
+        "coin_pack_50000_visible": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Show 50,000-coin pack.",
+          "valueType": "BOOLEAN"
+        },
+        "coin_pack_50000_product_id": {
+          "defaultValue": {
+            "value": "com.baseardahan.hiddenobj.coins50000"
+          },
+          "description": "Store product ID for 50,000-coin pack.",
+          "valueType": "STRING"
+        },
+        "coin_pack_50000_coin_amount": {
+          "defaultValue": {
+            "value": "50000"
+          },
+          "description": "Coins granted by 50,000-coin pack.",
+          "valueType": "NUMBER"
+        },
+        "coin_pack_100000_visible": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Show 100,000-coin pack.",
+          "valueType": "BOOLEAN"
+        },
+        "coin_pack_100000_product_id": {
+          "defaultValue": {
+            "value": "com.baseardahan.hiddenobj.coins100000"
+          },
+          "description": "Store product ID for 100,000-coin pack.",
+          "valueType": "STRING"
+        },
+        "coin_pack_100000_coin_amount": {
+          "defaultValue": {
+            "value": "100000"
+          },
+          "description": "Coins granted by 100,000-coin pack.",
+          "valueType": "NUMBER"
+        }
+      }
+    },
+    "Polish": {
+      "description": "Visual polish rollout flags for effects and in-level motion.",
+      "parameters": {
+        "transition_confetti_enabled": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Enable confetti on completion transitions.",
+          "valueType": "BOOLEAN"
+        },
+        "find_moment_burst_enabled": {
+          "defaultValue": {
+            "value": "true"
+          },
+          "description": "Enable small find-moment burst feedback.",
+          "valueType": "BOOLEAN"
+        },
+        "micro_animations_enabled": {
+          "defaultValue": {
+            "value": "false"
+          },
+          "description": "Enable subtle in-level micro animations.",
+          "valueType": "BOOLEAN"
+        }
+      }
+    }
+  }
+}
+

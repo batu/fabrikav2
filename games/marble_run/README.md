@@ -7,9 +7,13 @@ transitions) with the inner game still the Win/Lose stub scene. See
 `docs/seam-map.md` for the Game↔Shell contract; regenerate stub levels with
 `node tools/create-game/src/gen-stub-levels.mjs` from the repo root.
 
-The engine, assets, and screens are **not ported yet** — placeholder art from
-the template is intentional and later MRV2 cards replace it. Fidelity to v1 is
-the goal: no gameplay changes or visual "improvements".
+The engine, assets, and screens **are ported** (MRV2-1..31): the three.js marble
+board lives in `src/three/` + `src/marble-board/`, driven by
+`src/gameplay/GameplayController.ts`, with the sugar shell in `src/menu/` and
+`src/ui/`. Fidelity to v1 is the goal: no gameplay changes or visual
+"improvements".
+
+Monetization and remote-config setup: `docs/ad-config.md`.
 
 Keep gameplay code in `src/`, source references in `refs/`,
 promoted evidence in `evidence/`, and design-owned copy, tokens, and assets in
