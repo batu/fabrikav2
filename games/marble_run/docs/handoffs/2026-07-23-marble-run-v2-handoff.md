@@ -11,6 +11,18 @@ Your operating rule: **if a working implementation exists in the repo (shell_tem
 ## Your mission (in order)
 
 ### 1. Fix the menu→game transition by SUBTRACTION (P0, open)
+
+> **RESOLVED 2026-07-27 — directive lifted by Batu.** The menu now uses v1's
+> exit choreography (header/banner up, CTA/rail down, board scaled) instead of
+> crossfading in place. The standing "do not modify the shell transition
+> mechanism again" rule below is **superseded for this work**, though note the
+> mechanism itself was NOT rewritten: the cover, its timings, and teardown
+> ownership are unchanged. The fix was CSS keyframes + exempting the departing
+> elements from the overlay-wide `animation-play-state: paused` freeze in
+> `src/ui/styles.css`, and moving the trigger into `revealPlayEntry` so the exit
+> starts once GameScene has rendered. See commit 25b03240 and the three device
+> findings recorded there. Verified by frame-stepping a Pixel 6a recording;
+> UNVERIFIED on iOS (no device video capture lane yet).
 - Symptom today (Batu, on device): during the fade "the saga moves up". Earlier variants: board vanishing, elements snapping, empty cover on iOS. Three bespoke mechanisms were tried (commits `d65270b7`, `080f8ab9`, `503c6108`) — all wrong approach.
 - **The correct approach: `games/shell_template` (and find_the_dog) run this exact transition correctly with the STOCK mechanism.** Do not modify the transition again. Instead:
   1. Diff marble_run's home structure/CSS against shell_template's (`src/scenes/HomeScene.ts`, `src/menu/HomeBoardPreview.ts`, `src/ui/SceneTransitionCover.ts`, transition/home sections of `src/ui/styles.css`, `design/theme.ts` vs the template's equivalents).
