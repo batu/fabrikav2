@@ -58,7 +58,7 @@ describe("device parity wave 8 CSS pins", () => {
   it("shrinks the home preview budget on short phone viewports", () => {
     const css = shellArtCss();
     expect(css).toMatch(/@media \(max-height: 800px\)[^{]*\{[\s\S]*?\.marble-home-board-preview-slot \{[^}]*max-height: 115px/);
-    expect(css).toMatch(/@media \(min-height: 801px\) and \(max-height: 900px\)[^{]*\{[\s\S]*?max-height: min\(16vh, 140px\)/);
+    expect(css).toMatch(/@media \(min-height: 801px\) and \(max-height: 900px\)[^{]*\{[\s\S]*?max-height: min\(11vh, 100px\)/);
   });
 
   it("uses the v1-sized banner title with flat lettering (no offset shadow or outline)", () => {

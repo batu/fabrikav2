@@ -193,11 +193,16 @@ body {
   margin-top: 4px;
 }
 .marble-home-banner img {
-  /* v1 measures 84% of screen width (905/1080 on the Pixel 6a); 78vw rendered
-     840px and read visibly inset next to v1's overhanging plate. */
-  width: min(84vw, 388px);
+  /* v1 .menu-title: width min(84vw, 430px). */
+  width: min(84vw, 430px);
   height: auto;
-  filter: drop-shadow(0 10px 18px rgba(40, 20, 60, 0.32));
+}
+/* The drop-shadow belongs on the CONTAINER, as in v1 (.menu-title), not on the
+   img. On the img, WKWebView composited the filter layer with an opaque backing
+   and painted a visible lighter rectangle behind the banner — iPhone only;
+   Android's WebView never showed it. */
+.marble-home-banner {
+  filter: drop-shadow(0 12px 16px rgba(35, 20, 10, 0.34));
 }
 /* v1 "Marble Run" title text overlaying the empty wooden banner plate. */
 .marble-home-banner-title {
@@ -273,7 +278,12 @@ body {
   /* The iPhone 390x844 budget varies with WKWebView safe-area reporting.
      Reserve clearance for the current gold sun above the fixed LEVEL action
      instead of letting the preview spacer consume the extra inset. */
-  .marble-home-board-preview-slot { max-height: min(16vh, 140px); }
+  /* 2026-07-27: the saga now uses v1's geometry (node 56 / current 100 / gap 4),
+     which is taller than the tuned-by-eye 64/112/2 chain this figure was set
+     against — the gold sun ended up clipped behind the fixed LEVEL button on an
+     iPhone 12 (844pt lands in this bucket; the Pixel at 914pt does not, which is
+     why Android looked fine). Give the chain back the clearance. */
+  .marble-home-board-preview-slot { max-height: min(11vh, 100px); }
 }
 
 /* MRV2-9 U3: force the saga into a single tight centered column. The kit centers
