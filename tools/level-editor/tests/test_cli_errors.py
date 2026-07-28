@@ -19,7 +19,9 @@ class _StubClient:
 
     def request(self, method, path, **kwargs):
         self.calls.append((method, path))
-        outcome = self.script.get(path, self.script.get("*"))
+        # Method-aware lookup: "GET /api/sessions" (listing) and
+        # "POST /api/sessions" (create) are different endpoints.
+        outcome = self.script.get(f"{method} {path}", self.script.get(path, self.script.get("*")))
         if isinstance(outcome, Exception):
             raise outcome
         if callable(outcome):

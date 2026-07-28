@@ -511,12 +511,31 @@ def cmd_author(client: Client, args: argparse.Namespace) -> None:
     for step in steps:
         if step == "create":
             if session_id:
-                note("create", {"skipped": "existing session", "sessionId": session_id})
+                note("create", {"reused": session_id})
                 continue
-            created = client.post("/api/actions/assemble-recipe-prompts", json={})  # placeholder replaced below
-        if step == "create":
-            continue
-        if step == "generate-bg":
+            if not args.template:
+                raise CliError("template_required", "author needs --template or an existing --session-id")
+            create_args = argparse.Namespace(**{**vars(args), "json": False})
+            config = client.get("/api/config")
+            template = next((t for t in config.get("templates", []) if t["id"] == args.template), None)
+            if template is None:
+                raise CliError("unknown_template", f"no template {args.template!r}")
+            recipe = {k: template[k] for k in ("setting", "scene", "entity", "view", "style")}
+            prompts = client.post("/api/actions/assemble-recipe-prompts", json=recipe)
+            model = template.get("model")
+            created = client.post("/api/sessions", json={
+                **recipe,
+                "scenePrompt": prompts["scenePrompt"],
+                "dogPrompt": prompts["dogPrompt"],
+                "bgModel": model,
+                "inpaintModel": model,
+                "nDogs": args.count,
+                "aspectRatio": "9:16",
+                "imageSize": "1K",
+            })
+            session_id = created["sessionId"]
+            note("create", {"sessionId": session_id, "template": args.template})
+        elif step == "generate-bg":
             job = client.post(f"/api/sessions/{session_id}/background-generation/jobs")
             job = _require_success(_wait_for_job(client, job.get("jobId") or job.get("id"),
                                                  timeout_s=args.timeout, quiet=True))
@@ -578,11 +597,18 @@ def cmd_author(client: Client, args: argparse.Namespace) -> None:
                                 params={"maxOffsetFraction": args.max_offset})
             note("fix-hitboxes", {"moved": len(moved.get("moved", []))})
         elif step == "export":
-            export_args = argparse.Namespace(**{**vars(args), "session_id": session_id,
-                                                "skip_approve": False, "force_reapprove": False,
-                                                "note": args.changelog, "wait": True})
+            export_args = argparse.Namespace(**{
+                **vars(args),
+                "session_id": session_id,
+                "skip_approve": False,
+                "force_reapprove": False,
+                "acknowledge_destructive": False,
+                "note": args.changelog,
+                "wait": True,
+            })
             try:
-                cmd_export(client, export_args)
+                job = _run_export(client, export_args)
+                note("export", {"packaged": True, "status": job.get("status")})
             except CliError as error:
                 # The RC-activation refusal is expected and NOT a failure: the
                 # package and manifests are already installed by then.
@@ -725,12 +751,17 @@ def cmd_approve(client: Client, args: argparse.Namespace) -> None:
     ))
 
 
-def cmd_export(client: Client, args: argparse.Namespace) -> None:
+def _run_export(client: Client, args: argparse.Namespace) -> dict:
+    """Export composition shared by `export` and `author` (author must not
+    double-emit: `--json` promises exactly one JSON document)."""
     if args.session_id and not args.skip_approve:
         already = False
         if not args.force_reapprove:
             listing = client.get("/api/sessions")
-            entry = next((x for x in listing if x.get("id") == args.session_id), None)
+            entry = next(
+                (x for x in listing if isinstance(x, dict) and x.get("id") == args.session_id),
+                None,
+            ) if isinstance(listing, list) else None
             already = bool(entry and entry.get("catalogUploaded"))
         if not already:
             client.post(
@@ -778,7 +809,11 @@ def cmd_export(client: Client, args: argparse.Namespace) -> None:
         job = _require_success(
             _wait_for_job(client, job_id, timeout_s=args.timeout, quiet=args.json)
         )
-    _emit(args, job)
+    return job
+
+
+def cmd_export(client: Client, args: argparse.Namespace) -> None:
+    _emit(args, _run_export(client, args))
 
 
 def cmd_validate(args: argparse.Namespace) -> None:
@@ -914,6 +949,26 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--set-active")
     p.add_argument("--variant", type=int)
     p.add_argument("--delete")
+
+    p = verb("author", cmd_author)
+    p.add_argument("--template")
+    p.add_argument("--session-id", dest="session_id")
+    p.add_argument("--count", type=int, default=20)
+    p.add_argument("--bg-index", type=int, default=0)
+    p.add_argument("--strategy", default="smart")
+    p.add_argument("--radius", type=int)
+    p.add_argument("--min-radius", type=int, default=18)
+    p.add_argument("--shrink-step", type=int, default=2)
+    p.add_argument("--hard-percent", type=int, default=30)
+    p.add_argument("--max-offset", type=float, default=0.5)
+    p.add_argument("--repair-passes", type=int, default=2)
+    p.add_argument("--drop-unrepairable", action="store_true")
+    p.add_argument("--changelog", default="authored by level-editor CLI")
+    p.add_argument("--timeout", type=float, default=900.0)
+    p.add_argument("--inpaint-timeout", type=float, default=3600.0)
+    p.add_argument("--force-disk", action="store_true")
+    p.add_argument("--stop-after", choices=list(AUTHOR_STEPS))
+    p.add_argument("--dry-run", action="store_true")
 
     p = verb("repair-sprites", cmd_repair_sprites)
     p.add_argument("session_id")

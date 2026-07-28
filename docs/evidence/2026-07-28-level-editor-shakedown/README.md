@@ -124,3 +124,22 @@ Verified per level, individually, id-selected:
 
 Provider spend for the whole pilot-3 run: roughly $1.10 (1 background, 20
 inpaints, ~6 repair regenerations).
+
+## One-command authoring (2026-07-29)
+
+`level-editor author --template <id>` runs the whole proven flow — create,
+generate-bg, select-bg, auto-hitboxes (auto-fitting radius), inpaint,
+repair-sprites, fix-hitboxes, export — with `--dry-run`, `--stop-after` for
+partial/resumable runs, and `--session-id` to continue an existing session.
+The RC-activation refusal is treated as success, because by that point the
+package and manifests are installed.
+
+Proven live: `author --template stb-lineart --count 15 --drop-unrepairable`
+produced `japan_morning_market_bird_a7a0` end-to-end in one command —
+15/15 birds reachable, status complete, corpus validator green at 4 levels.
+That level also exercises the Spot The Bird line-art template for the first
+time (pilot4-lineart-one-command.png): recognisably the coloring-book look
+from the competitor references.
+
+Eight steps that had to be remembered in order, with two easy-to-forget
+repair steps, are now one command for a human or an agent.
