@@ -93,6 +93,15 @@ def apply_game_from_env() -> GameProfile | None:
     sensible in tests)."""
     explicit_ws = os.environ.get(WORKSPACE_ENV)
     explicit_root = os.environ.get(GAME_ROOT_ENV)
+    if bool(explicit_ws) != bool(explicit_root):
+        # Half-set env silently split the workspace from the export root and
+        # landed exports in tools/public/levels (observed live 2026-07-28).
+        missing = GAME_ROOT_ENV if explicit_ws else WORKSPACE_ENV
+        raise UnknownGameError(
+            f"{missing} must be set alongside "
+            f"{WORKSPACE_ENV if explicit_ws else GAME_ROOT_ENV}; "
+            "set both, or use --game / LEVEL_EDITOR_GAME instead"
+        )
     if explicit_ws and explicit_root:
         root = Path(explicit_root)
         return GameProfile(

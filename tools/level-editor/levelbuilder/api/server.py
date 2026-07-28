@@ -22,10 +22,22 @@ import dotenv
 _app_dir = Path(__file__).resolve().parent
 _tool_dir = _app_dir.parent.parent  # tools/level-editor
 
-_env_candidates = [
-    *reversed([ancestor / ".env" for ancestor in _tool_dir.parents]),
-    _tool_dir / ".env",
-]
+def _env_chain(tool_dir: Path) -> list[Path]:
+    """Ancestor .env files, parent-first, stopping one level ABOVE the repo root.
+
+    The base dir holds shared provider keys; beyond that (/Users, /) is not
+    ours to read. Walking to filesystem root was an unbounded-trust bug.
+    """
+    chain: list[Path] = []
+    for ancestor in tool_dir.parents:
+        chain.append(ancestor / ".env")
+        if (ancestor / ".git").exists():
+            chain.append(ancestor.parent / ".env")
+            break
+    return list(reversed(chain))
+
+
+_env_candidates = [*_env_chain(_tool_dir), _tool_dir / ".env"]
 _loaded_envs: set[Path] = set()
 for _env in _env_candidates:
     _resolved_env = _env.resolve()
@@ -245,6 +257,11 @@ async def _structured_internal_error(request: Request, exc: Exception) -> JSONRe
     )
 
 
+# uvicorn percent-decodes scope["path"], so a traversal payload can reach a
+# path join; only plain session ids are allowed to touch the filesystem here.
+_SESSION_ID_SAFE = re.compile(r"^[A-Za-z0-9_\-]{1,120}$")
+
+
 class _SessionRevisionMiddleware(BaseHTTPMiddleware):
     """Collision visibility (KTD6): every /api/sessions/{id}... response
     carries `X-Session-Revision` (session.json mtime_ns). Two actors on one
@@ -253,7 +270,14 @@ class _SessionRevisionMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         response = await call_next(request)
         parts = request.url.path.split("/")
-        if len(parts) >= 4 and parts[1] == "api" and parts[2] == "sessions" and parts[3]:
+        if (
+            response.status_code < 400
+            and len(parts) >= 4
+            and parts[1] == "api"
+            and parts[2] == "sessions"
+            and parts[3]
+            and _SESSION_ID_SAFE.fullmatch(parts[3])
+        ):
             session_json = LEVELS_DIR / parts[3] / "session.json"
             try:
                 response.headers["X-Session-Revision"] = str(session_json.stat().st_mtime_ns)
@@ -275,8 +299,12 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization"],
 )
-app.add_middleware(_TokenAuthMiddleware)
+# Order matters: Starlette makes the LAST added the outermost, so the revision
+# middleware must be added FIRST — otherwise it wraps auth and stamps
+# X-Session-Revision onto 401s, leaking session existence + mtime to
+# unauthenticated callers on tunneled deployments.
 app.add_middleware(_SessionRevisionMiddleware)
+app.add_middleware(_TokenAuthMiddleware)
 
 # Include route modules
 app.include_router(rest_router)

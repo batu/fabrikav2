@@ -78,6 +78,7 @@ class Client:
         headers = {"Authorization": f"Bearer {token}"} if token else {}
         self._http = httpx.Client(base_url=base_url, headers=headers, timeout=60.0)
         self.base_url = base_url
+        self.last_session_revision: str | None = None
 
     def request(self, method: str, path: str, **kwargs: Any) -> Any:
         try:
@@ -98,6 +99,18 @@ class Client:
                 json.dumps(detail) if not isinstance(detail, str) else detail,
                 stage=f"{method} {path}",
             )
+        revision = response.headers.get("X-Session-Revision")
+        if revision:
+            if (
+                method in ("POST", "PATCH", "DELETE", "PUT")
+                and self.last_session_revision
+                and revision == self.last_session_revision
+            ):
+                print(
+                    "warning: session revision unchanged after mutation — another actor may have raced this write",
+                    file=sys.stderr,
+                )
+            self.last_session_revision = revision
         if response.headers.get("content-type", "").startswith("application/json"):
             return response.json()
         return response.content
@@ -119,7 +132,9 @@ def _emit(args: argparse.Namespace, payload: Any) -> None:
             print(payload)
 
 
-def _wait_for_job(client: Client, job_id: str, *, timeout_s: float, quiet: bool) -> dict:
+def _wait_for_job(client: Client, job_id: str | None, *, timeout_s: float, quiet: bool) -> dict:
+    if not job_id:
+        raise CliError("job_id_missing", "server response carried no job id", stage="wait")
     deadline = time.monotonic() + timeout_s
     last_status = None
     transient_failures = 0
@@ -127,8 +142,8 @@ def _wait_for_job(client: Client, job_id: str, *, timeout_s: float, quiet: bool)
         try:
             job = client.get(f"/api/jobs/{job_id}")
         except (httpx.TransportError, CliError) as error:
-            # Jobs are durable server-side; a transient transport blip must not
-            # abandon the wait. Give up only after sustained unreachability.
+            if isinstance(error, CliError) and error.code.startswith("http_4"):
+                raise
             transient_failures += 1
             if transient_failures > 30:
                 raise CliError("poll_unreachable", f"lost the server while waiting on job {job_id}: {error}", stage="wait") from error
@@ -283,7 +298,7 @@ def cmd_create(client: Client, args: argparse.Namespace) -> None:
             "style": template["style"],
         }
         model = template.get("model")
-        n_dogs = int(template.get("nDogs", 20))
+        n_dogs = args.count if args.count is not None else 20 if args.count is not None else int(template.get("nDogs", 20))
     else:
         required = ["setting", "scene", "style", "view", "entity"]
         missing = [name for name in required if not getattr(args, name.replace("-", "_"), None)]
@@ -297,7 +312,7 @@ def cmd_create(client: Client, args: argparse.Namespace) -> None:
             "style": args.style,
         }
         model = args.model
-        n_dogs = args.count
+        n_dogs = args.count if args.count is not None else 20
     prompts = client.post("/api/actions/assemble-recipe-prompts", json=recipe)
     body = {
         **recipe,
@@ -394,6 +409,8 @@ def cmd_regenerate(client: Client, args: argparse.Namespace) -> None:
 
 
 def cmd_dogs(client: Client, args: argparse.Namespace) -> None:
+    if args.set_active is not None and args.variant is None:
+        raise CliError("variant_required", "--set-active requires --variant (activeVariant null means 'no variant')")
     if args.set_active is not None:
         result = client.request(
             "PATCH",
@@ -411,32 +428,12 @@ def cmd_dogs(client: Client, args: argparse.Namespace) -> None:
 
 
 def cmd_fix_hitboxes(client: Client, args: argparse.Namespace) -> None:
-    """Recenter hitboxes into their active sprite cleanup boxes.
-
-    The inpainted bird often sits slightly off the requested center; the
-    export gate (correctly) refuses a dog whose center falls outside its
-    cleanup geometry, and gameplay taps should track the visible bird anyway.
-    Deterministic, server-authoritative data flow: read session, compute new
-    centers from sprite metadata, save via the hitboxes endpoint."""
-    session = client.get(f"/api/sessions/{args.session_id}")
-    hitboxes = session.get("hitboxes") or []
-    dogs = {d["index"]: d for d in session.get("dogs") or []}
-    moved = []
-    for index, hb in enumerate(hitboxes):
-        dog = dogs.get(index) or {}
-        sprite = dog.get("sprite") or {}
-        box = sprite.get("cleanup", {}).get("box") or sprite.get("cleanupBox")
-        if not box:
-            continue
-        if not (box[0] <= hb["x"] <= box[2] and box[1] <= hb["y"] <= box[3]):
-            hb["x"], hb["y"] = (box[0] + box[2]) // 2, (box[1] + box[3]) // 2
-            moved.append(index)
-    if moved:
-        client.post(
-            f"/api/sessions/{args.session_id}/hitboxes",
-            json={"hitboxes": hitboxes, "action": "recenter"},
-        )
-    _emit(args, {"moved": moved, "total": len(hitboxes)})
+    """Recenter hitboxes onto their birds' visible sprite centers (server-side:
+    sprite metadata lives on the server filesystem, not in the session API)."""
+    _emit(args, client.post(
+        f"/api/sessions/{args.session_id}/fix-hitboxes",
+        params={"maxOffsetFraction": args.max_offset},
+    ))
 
 
 def cmd_review(client: Client, args: argparse.Namespace) -> None:
@@ -461,6 +458,16 @@ def cmd_review(client: Client, args: argparse.Namespace) -> None:
         written.append(f"bg_{index:02d}.png")
         index += 1
     session = client.get(f"/api/sessions/{session_id}")
+    for dog in session.get("dogs") or []:
+        for rel in dog.get("variants") or []:
+            try:
+                payload = client.get(f"/levels/{session_id}/{rel}")
+            except CliError:
+                continue
+            target = out / rel
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(payload)
+            written.append(rel)
     (out / "session.json").write_text(json.dumps(session, indent=2))
     written.append("session.json")
     _emit(args, {"out": str(out), "files": written})
@@ -468,8 +475,14 @@ def cmd_review(client: Client, args: argparse.Namespace) -> None:
 
 def cmd_watch(client: Client, args: argparse.Namespace) -> None:
     last: dict[str, str] = {}
+    last_revision: str | None = None
     print(f"watching session {args.session_id} (ctrl-c to stop)", file=sys.stderr)
     while True:
+        client.get(f"/api/sessions/{args.session_id}")
+        if client.last_session_revision != last_revision:
+            if last_revision is not None:
+                print(json.dumps({"sessionRevision": client.last_session_revision}))
+            last_revision = client.last_session_revision
         jobs = client.get("/api/jobs", params={"sessionId": args.session_id})
         for job in jobs.get("jobs", jobs) if isinstance(jobs, dict) else jobs:
             key = job.get("jobId") or job.get("id")
@@ -489,10 +502,16 @@ def cmd_approve(client: Client, args: argparse.Namespace) -> None:
 
 def cmd_export(client: Client, args: argparse.Namespace) -> None:
     if args.session_id and not args.skip_approve:
-        client.post(
-            f"/api/sessions/{args.session_id}/approve-catalog",
-            params={"requestId": str(uuid.uuid4())},
-        )
+        already = False
+        if not args.force_reapprove:
+            listing = client.get("/api/sessions")
+            entry = next((x for x in listing if x.get("id") == args.session_id), None)
+            already = bool(entry and entry.get("catalogUploaded"))
+        if not already:
+            client.post(
+                f"/api/sessions/{args.session_id}/approve-catalog",
+                params={"requestId": str(uuid.uuid4())},
+            )
     if args.session_id:
         client.post(f"/api/sessions/{args.session_id}/bundle")
     state = client.get("/api/sequence-workflow")
@@ -612,7 +631,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--template")
     for axis in ("setting", "scene", "style", "view", "entity", "model"):
         p.add_argument(f"--{axis}")
-    p.add_argument("--count", type=int, default=20)
+    p.add_argument("--count", type=int, default=None)
 
     for name, func in (("generate-bg", cmd_generate_bg), ("upscale", cmd_upscale)):
         p = verb(name, func)
@@ -627,7 +646,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = verb("auto-hitboxes", cmd_auto_hitboxes)
     p.add_argument("session_id")
-    p.add_argument("--count", type=int, default=20)
+    p.add_argument("--count", type=int, default=None)
     p.add_argument("--strategy", default="random")
     p.add_argument("--radius", type=int)
 
@@ -658,6 +677,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = verb("fix-hitboxes", cmd_fix_hitboxes)
     p.add_argument("session_id")
+    p.add_argument("--max-offset", type=float, default=0.5)
 
     p = verb("review", cmd_review)
     p.add_argument("session_id")
@@ -673,6 +693,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = verb("export", cmd_export)
     p.add_argument("session_id", nargs="?")
     p.add_argument("--skip-approve", action="store_true")
+    p.add_argument("--force-reapprove", action="store_true", help="approve again even when already cataloged (mints a new catalog revision)")
     p.add_argument("--note", default="level-editor CLI export")
     p.add_argument("--wait", action="store_true")
     p.add_argument("--timeout", type=float, default=1800.0)
@@ -707,6 +728,13 @@ def main(argv: list[str] | None = None) -> int:
             client = Client(args.url, args.token)
             args.func(client, args)
         return 0
+    except httpx.TransportError as error:
+        payload = {"error": {"code": "transport_error", "stage": "http", "message": str(error) or type(error).__name__}}
+        if getattr(args, "json", False):
+            print(json.dumps(payload))
+        else:
+            print(f"error [transport_error]: {payload['error']['message']}", file=sys.stderr)
+        return 2
     except CliError as error:
         payload = {"error": {"code": error.code, "stage": error.stage, "message": error.message}}
         if getattr(args, "json", False):

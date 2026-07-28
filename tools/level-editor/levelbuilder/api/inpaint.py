@@ -88,7 +88,9 @@ _INPAINT_WORKERS = _env_int("FTD_INPAINT_WORKERS", 4, 1, 20)
 _CROP_PASS_PARALLEL = os.environ.get("FTD_CROP_PASS_PARALLEL", "0") == "1"
 _TIMEOUT_WORKERS = _env_int("FTD_INPAINT_TIMEOUT_WORKERS", 8, 1, 32)
 _GEMINI_MAX_CONCURRENCY = _env_int("FTD_PROVIDER_CONCURRENCY", _dynamic_provider_concurrency(), 1, 11)
-_SPRITE_REPAIR_ENABLED = os.environ.get("FTD_SPRITE_REPAIR", "0") == "1"
+# Fork default: ON. Weak-alpha birds silently shipping without pickup
+# sprites cost a full debugging loop overnight; opt OUT with =0.
+_SPRITE_REPAIR_ENABLED = os.environ.get("FTD_SPRITE_REPAIR", "1") == "1"
 _SPRITE_REPAIR_SEMAPHORE = threading.BoundedSemaphore(_env_int("FTD_SPRITE_REPAIR_CONCURRENCY", 1, 1, 4))
 _SPRITE_EXPORT_PADDING_PX = 4
 _SPRITE_CLEANUP_PADDING_PX = 8

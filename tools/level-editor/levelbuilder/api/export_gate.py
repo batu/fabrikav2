@@ -67,7 +67,12 @@ def validate_corpus(public_root: Path, *, require_levels_index: bool = False) ->
     Returns a summary dict; raises ExportGateError on the first failing level
     or catalog problem.
     """
-    level_paths = sorted(public_root.glob("*/level.json"))
+    # pathlib.glob matches dot-directories, and .catalog-staging-* /
+    # .catalog-backup-* dirs survive a SIGKILL mid-export — they are not levels.
+    level_paths = sorted(
+        path for path in public_root.glob("*/level.json")
+        if not path.parent.name.startswith(".")
+    )
     for path in level_paths:
         validate_level_dir(public_root, path.parent.name)
     catalog_checked = False

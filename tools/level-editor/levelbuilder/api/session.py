@@ -2214,6 +2214,55 @@ def _load_hitboxes_raw(sdir: Path) -> list:
     return data if isinstance(data, list) else []
 
 
+def recenter_hitboxes_to_sprites(
+    session_id: str,
+    *,
+    max_offset_fraction: float = 0.5,
+) -> dict:
+    """Recenter hitboxes onto their active sprite's visible bbox center.
+
+    The inpainted animal often sits off the requested center; a tap point
+    outside (or on the fringe of) the visible sprite is a guaranteed player
+    miss even when it satisfies the looser cleanup-box gate. Policy: move a
+    hitbox to the sprite bbox center when the current center is outside the
+    bbox OR farther than `max_offset_fraction * r` from it. Fork addition
+    (2026-07-29) — the pilot audit found 9/40 birds beyond this threshold.
+    """
+    _validate_session_id_or_raise(session_id)
+    sdir = session_dir(session_id)
+    hb_path = sdir / "hitboxes.json"
+    if not hb_path.exists():
+        raise LevelNotReadyError("missing hitboxes.json")
+    with open(hb_path) as f:
+        hitboxes = json.load(f)
+    raw = load_session_raw(session_id) or {}
+    sprites = active_sprite_metadata_map(session_id, raw.get("dogs") or [], hitboxes)
+    moved: list[dict] = []
+    for index, hb in enumerate(hitboxes):
+        sprite = sprites.get(index)
+        if sprite is None:
+            continue
+        cx = sprite["x"] + sprite["width"] / 2
+        cy = sprite["y"] + sprite["height"] / 2
+        inside = (
+            sprite["x"] <= hb["x"] <= sprite["x"] + sprite["width"]
+            and sprite["y"] <= hb["y"] <= sprite["y"] + sprite["height"]
+        )
+        radius = hb.get("r", hb.get("radius", 30))
+        distance = ((hb["x"] - cx) ** 2 + (hb["y"] - cy) ** 2) ** 0.5
+        if not inside or distance > radius * max_offset_fraction:
+            moved.append({
+                "index": index,
+                "from": [hb["x"], hb["y"]],
+                "to": [int(cx), int(cy)],
+                "distance": round(distance, 1),
+            })
+            hb["x"], hb["y"] = int(cx), int(cy)
+    if moved:
+        save_hitboxes(session_id, hitboxes)
+    return {"sessionId": session_id, "moved": moved, "total": len(hitboxes)}
+
+
 def save_hitboxes(session_id: str, hitboxes: list[dict]) -> list[dict] | None:
     """Save hitboxes to the current hitboxes.json (authoritative). Returns the
     id-stamped persisted list (None if a public-package no-op).

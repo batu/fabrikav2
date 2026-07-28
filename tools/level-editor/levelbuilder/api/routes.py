@@ -1895,13 +1895,21 @@ def preview_level_locally(
 
 
 @router.post("/sessions/{session_id}/approve-catalog")
-def approve_level_for_catalog(session_id: str, requestId: str = Query(None)):
+def approve_level_for_catalog(session_id: str, requestId: str = Query(..., min_length=8, max_length=200)):
     # Un-retired in the fork: FTD retired this because new-level publishing was
     # to move to the v2 editor at cutover, leaving new levels with NO live path
     # into the production catalog. This tool authors new levels, so the reviewed
     # session → catalog registration path is load-bearing again. The staging
     # export inside runs through the fail-closed export gate.
     return S.approve_level_for_catalog(session_id, request_id=requestId)
+
+
+@router.post("/sessions/{session_id}/fix-hitboxes")
+def fix_session_hitboxes(session_id: str, maxOffsetFraction: float = Query(0.5, ge=0.1, le=1.0)):
+    # Fork addition: server-side recenter — sprite metadata lives on the
+    # server filesystem, so the client cannot compute this correctly.
+    _validate_session_id(session_id)
+    return S.recenter_hitboxes_to_sprites(session_id, max_offset_fraction=maxOffsetFraction)
 
 
 @router.post("/sessions/{session_id}/bundle")
@@ -1912,8 +1920,13 @@ def bundle_level_as_starter(session_id: str):
     # bundled at preview-time pre-catalog; a fresh game needs a way to bundle
     # a level that was cataloged first.
     _validate_session_id(session_id)
-    S._ensure_levels_index_entry(session_id)
+    if not (S.GAME_PUBLIC_LEVELS / session_id / "level.json").is_file():
+        raise HTTPException(404, detail={
+            "error": f"no installed public package for {session_id}; export it first",
+            "code": "package_not_installed",
+        })
     manifest = S.upsert_bundled_manifest_level(session_id)
+    S._ensure_levels_index_entry(session_id)
     return {"levelId": session_id, "bundled": True, "manifestRevision": manifest.get("manifestRevision")}
 
 
