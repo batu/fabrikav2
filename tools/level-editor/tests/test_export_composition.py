@@ -124,7 +124,7 @@ def test_auto_hitboxes_defaults_to_session_count(monkeypatch, capsys):
     captured = {}
     stub = _StubClient({
         "/api/sessions/s1": {"nDogs": 18, "hitboxes": []},
-        "/api/sessions/s1/auto-hitboxes": {"hitboxes": []},
+        "/api/sessions/s1/auto-hitboxes": {"hitboxes": [{"x": 1, "y": 1, "r": 26}] * 18},
     })
     original = stub.request
 
@@ -179,3 +179,39 @@ def test_auto_hitboxes_gives_up_below_min_radius(monkeypatch, capsys):
     code, out = _run(monkeypatch, capsys, stub, ["auto-hitboxes", "s1", "--radius", "24", "--min-radius", "20"])
     assert code == 2
     assert json.loads(out)["error"]["code"] == "placement_did_not_fit"
+
+
+
+def test_partial_placement_is_treated_as_did_not_fit(monkeypatch, capsys):
+    """The random placer returns 200 with FEWER hitboxes than requested; that
+    must trigger the shrink path, not report success."""
+    seen = []
+
+    def partial(_attempt):
+        radius = seen[-1]
+        count = 20 if radius <= 24 else 5
+        return {"hitboxes": [{"x": 1, "y": 1, "r": radius}] * count}
+
+    stub = _StubClient({
+        "/api/sessions/s1": {"nDogs": 20, "hitboxes": []},
+        "/api/sessions/s1/auto-hitboxes": partial,
+    })
+    original = stub.request
+
+    def spy(method, path, **kwargs):
+        if path.endswith("/auto-hitboxes"):
+            seen.append((kwargs.get("json") or {})["radius"])
+        return original(method, path, **kwargs)
+
+    stub.request = spy
+    code, out = _run(monkeypatch, capsys, stub, ["auto-hitboxes", "s1", "--radius", "30", "--strategy", "random"])
+    assert code == 0
+    assert json.loads(out)["radiusUsed"] == 24
+    assert seen == [30, 28, 26, 24]
+
+
+def test_shrink_step_zero_is_rejected(monkeypatch, capsys):
+    stub = _StubClient({"/api/sessions/s1": {"nDogs": 20, "hitboxes": []}})
+    code, out = _run(monkeypatch, capsys, stub, ["auto-hitboxes", "s1", "--shrink-step", "0"])
+    assert code == 2
+    assert json.loads(out)["error"]["code"] == "bad_shrink_step"

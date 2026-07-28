@@ -14,6 +14,9 @@ def _make_session(sess, session_id: str, hitboxes, sprites) -> None:
         dog_dir.mkdir(parents=True)
         if sprite is not None:
             (dog_dir / "variant_000.png").write_bytes(b"")
+            # Real sessions always write the variant box sidecar; rebinding a
+            # painted dog to its hitbox after a sibling delete depends on it.
+            (dog_dir / "variant_000.box.json").write_text(json.dumps({"box": sprite}))
             (dog_dir / "sprite_000.png").write_bytes(b"")
             meta = {
                 "image": f"dogs/dog_{i:02d}/sprite_000.png",
@@ -89,3 +92,17 @@ def test_recentered_hitbox_lands_inside_cleanup_box(isolated_session):
     left, top, right, bottom = meta["cleanupBox"]
     assert left <= persisted[0]["x"] <= right
     assert top <= persisted[0]["y"] <= bottom
+
+
+def test_recenter_fixes_far_drift(isolated_session):
+    """A hitbox that drifted far enough to stop rebinding to its variant box is
+    exactly the one that most needs recentering — resolving sprites through the
+    hitbox target map silently skipped these."""
+    sess = isolated_session
+    hitboxes = [{"x": 700, "y": 700, "r": 26}]
+    sprites = [[100, 100, 140, 140]]
+    _make_session(sess, "recenter_far_drift_1", hitboxes, sprites)
+    result = sess.recenter_hitboxes_to_sprites("recenter_far_drift_1")
+    assert [m["index"] for m in result["moved"]] == [0]
+    persisted = json.loads((sess.LEVELS_DIR / "recenter_far_drift_1" / "hitboxes.json").read_text())
+    assert [persisted[0]["x"], persisted[0]["y"]] == [120, 120]

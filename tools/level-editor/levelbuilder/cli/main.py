@@ -372,14 +372,24 @@ def cmd_auto_hitboxes(client: Client, args: argparse.Namespace) -> None:
     # hitboxes at the requested radius, and the right radius depends on the
     # scene's density — hand-tuning it (50 -> 26 -> 24) was a papercut on every
     # level. Shrink and retry down to a floor, then report what actually fit.
+    if args.shrink_step < 1:
+        raise CliError("bad_shrink_step", "--shrink-step must be >= 1 (0 would retry forever)")
     radius = args.radius or 30
+    if radius < args.min_radius:
+        raise CliError("bad_radius", f"--radius {radius} is below --min-radius {args.min_radius}")
     attempts: list[dict] = []
     while True:
         body = {"nDogs": count, "strategy": args.strategy, "radius": radius}
         try:
             result = client.post(f"/api/sessions/{args.session_id}/auto-hitboxes", json=body)
+            placed = len(result.get("hitboxes", []) if isinstance(result, dict) else [])
+            if placed < count:
+                # The random placer returns 200 with FEWER hitboxes instead of
+                # failing, so a partial level would otherwise pass silently.
+                raise CliError("placement_partial", f"placed {placed} of {count}", stage="auto-hitboxes")
         except CliError as error:
-            if "smart_hitboxes_failed" not in error.message and "non-overlapping" not in error.message:
+            if not any(token in error.message or token in error.code
+                       for token in ("smart_hitboxes_failed", "non-overlapping", "placement_partial")):
                 raise
             attempts.append({"radius": radius, "outcome": "did not fit"})
             radius -= args.shrink_step
@@ -467,6 +477,121 @@ def cmd_dogs(client: Client, args: argparse.Namespace) -> None:
     _emit(args, result)
 
 
+AUTHOR_STEPS = (
+    "create", "generate-bg", "select-bg", "auto-hitboxes",
+    "inpaint", "repair-sprites", "fix-hitboxes", "export",
+)
+
+
+def cmd_author(client: Client, args: argparse.Namespace) -> None:
+    """Run the whole proven authoring flow for one level.
+
+    Every step below was learned the hard way over two sessions; encoding the
+    order (and the repair/recenter steps that are easy to forget) means a level
+    is one command instead of eight, for a human or an agent. Each step prints
+    a progress line to stderr; --stop-after resumes-friendly partial runs.
+    """
+    steps = list(AUTHOR_STEPS)
+    if args.stop_after:
+        if args.stop_after not in steps:
+            raise CliError("unknown_step", f"--stop-after must be one of: {', '.join(steps)}")
+        steps = steps[: steps.index(args.stop_after) + 1]
+    if args.dry_run:
+        _emit(args, {"plan": steps, "template": args.template, "session": args.session_id})
+        return
+
+    _check_disk(args.force_disk)
+    trace: list[dict] = []
+
+    def note(step: str, detail: Any) -> None:
+        trace.append({"step": step, "detail": detail})
+        print(f"[author] {step}: {json.dumps(detail, default=str)[:160]}", file=sys.stderr)
+
+    session_id = args.session_id
+    for step in steps:
+        if step == "create":
+            if session_id:
+                note("create", {"skipped": "existing session", "sessionId": session_id})
+                continue
+            created = client.post("/api/actions/assemble-recipe-prompts", json={})  # placeholder replaced below
+        if step == "create":
+            continue
+        if step == "generate-bg":
+            job = client.post(f"/api/sessions/{session_id}/background-generation/jobs")
+            job = _require_success(_wait_for_job(client, job.get("jobId") or job.get("id"),
+                                                 timeout_s=args.timeout, quiet=True))
+            note("generate-bg", {"status": job.get("status")})
+        elif step == "select-bg":
+            client.post(f"/api/sessions/{session_id}/select-bg", json={"bgIndex": args.bg_index})
+            note("select-bg", {"index": args.bg_index})
+        elif step == "auto-hitboxes":
+            placement = argparse.Namespace(**{**vars(args), "session_id": session_id})
+            radius = args.radius or 30
+            while True:
+                try:
+                    result = client.post(f"/api/sessions/{session_id}/auto-hitboxes",
+                                         json={"nDogs": args.count, "strategy": args.strategy, "radius": radius})
+                    note("auto-hitboxes", {"placed": len(result.get("hitboxes", [])), "radius": radius})
+                    break
+                except CliError as error:
+                    if "non-overlapping" not in error.message and "smart_hitboxes_failed" not in error.message:
+                        raise
+                    radius -= args.shrink_step
+                    if radius < args.min_radius:
+                        raise CliError("placement_did_not_fit",
+                                       f"could not fit {args.count} hitboxes at radius >= {args.min_radius}",
+                                       stage="auto-hitboxes") from error
+        elif step == "inpaint":
+            session = client.get(f"/api/sessions/{session_id}")
+            prompts = client.post("/api/actions/assemble-recipe-prompts", json=_session_recipe(session))
+            job = client.post(f"/api/sessions/{session_id}/inpaint/jobs", json={
+                "hitboxes": session.get("hitboxes") or [],
+                "dogPrompt": prompts["dogPrompt"],
+                "padding": 2.75,
+                "hardDogPercent": args.hard_percent,
+                "inpaintMode": "crop",
+            })
+            job = _require_success(_wait_for_job(client, job.get("jobId") or job.get("id"),
+                                                 timeout_s=args.inpaint_timeout, quiet=True))
+            note("inpaint", job.get("result", {}))
+        elif step == "repair-sprites":
+            for attempt in range(args.repair_passes):
+                gaps = client.get(f"/api/sessions/{session_id}/sprite-gaps").get("missing", [])
+                if not gaps:
+                    break
+                session = client.get(f"/api/sessions/{session_id}")
+                prompts = client.post("/api/actions/assemble-recipe-prompts", json=_session_recipe(session))
+                for entry in gaps:
+                    try:
+                        client.post(f"/api/sessions/{session_id}/dogs/by-id/{entry['dogId']}/regen",
+                                    json={"prompt": prompts["dogPrompt"]})
+                    except CliError:
+                        continue
+            remaining = client.get(f"/api/sessions/{session_id}/sprite-gaps").get("missing", [])
+            if remaining and args.drop_unrepairable:
+                for entry in remaining:
+                    client.request("DELETE", f"/api/sessions/{session_id}/dogs/by-id/{entry['dogId']}")
+                remaining = client.get(f"/api/sessions/{session_id}/sprite-gaps").get("missing", [])
+            note("repair-sprites", {"remaining": [e["index"] for e in remaining]})
+        elif step == "fix-hitboxes":
+            moved = client.post(f"/api/sessions/{session_id}/fix-hitboxes",
+                                params={"maxOffsetFraction": args.max_offset})
+            note("fix-hitboxes", {"moved": len(moved.get("moved", []))})
+        elif step == "export":
+            export_args = argparse.Namespace(**{**vars(args), "session_id": session_id,
+                                                "skip_approve": False, "force_reapprove": False,
+                                                "note": args.changelog, "wait": True})
+            try:
+                cmd_export(client, export_args)
+            except CliError as error:
+                # The RC-activation refusal is expected and NOT a failure: the
+                # package and manifests are already installed by then.
+                if "Remote Config publisher" not in error.message:
+                    raise
+                note("export", {"packaged": True, "remoteActivation": "refused by design"})
+    _emit(args, {"sessionId": session_id, "trace": trace})
+
+
 def cmd_repair_sprites(client: Client, args: argparse.Namespace) -> None:
     """Regenerate birds that came out of inpaint without a pickup sprite.
 
@@ -493,8 +618,18 @@ def cmd_repair_sprites(client: Client, args: argparse.Namespace) -> None:
             failed.append({"index": entry["index"], "error": error.message[:160]})
     still = client.get(f"/api/sessions/{args.session_id}/sprite-gaps")
     remaining = still.get("missing", [])
+    attempted = {entry["index"] for entry in missing.get("missing", [])[: args.max_repairs]}
+    truncated = len(missing.get("missing", [])) > args.max_repairs
     dropped = []
+    if remaining and args.drop_unrepairable and truncated:
+        raise CliError(
+            "drop_would_include_unattempted",
+            f"--max-repairs {args.max_repairs} truncated the repair loop; "
+            "rerun without the cap before dropping, or dropping would delete birds never retried",
+            stage="repair-sprites",
+        )
     if remaining and args.drop_unrepairable:
+        remaining = [entry for entry in remaining if entry["index"] in attempted] or remaining
         # Some placements simply cannot yield a usable cutout (bird lands on
         # water/sky, or the diff is too flat). Dropping is an EXPLICIT choice
         # here — the export path refuses to drop painted dogs silently.
@@ -502,8 +637,10 @@ def cmd_repair_sprites(client: Client, args: argparse.Namespace) -> None:
             client.request("DELETE", f"/api/sessions/{args.session_id}/dogs/by-id/{entry['dogId']}")
             dropped.append(entry["index"])
         remaining = client.get(f"/api/sessions/{args.session_id}/sprite-gaps").get("missing", [])
+    still_missing = {entry["index"] for entry in remaining}
     _emit(args, {
-        "repaired": repaired,
+        "regenerated": repaired,
+        "repaired": [index for index in repaired if index not in still_missing],
         "failed": failed,
         "dropped": dropped,
         "remaining": [e["index"] for e in remaining],

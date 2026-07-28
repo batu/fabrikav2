@@ -45,27 +45,50 @@ def test_many_orphans_are_truncated_in_the_message():
 
 
 def test_level_not_ready_maps_to_409(app_client):
-    """Author-fixable refusals are 409, not 500 (the CLI fails fast on 4xx)."""
-    from levelbuilder.api import server
+    """Author-fixable refusals are 409, not 500 (the CLI fails fast on 4xx).
 
-    handlers = server.app.exception_handlers
-    from levelbuilder.api.session import LevelNotReadyError
+    Exercised through a real route rather than asserting handler registration —
+    registration alone could still return 500."""
+    from levelbuilder.api import session as sess
 
-    assert LevelNotReadyError in handlers
+    session_id = "not_ready_probe_01"
+    (sess.LEVELS_DIR / session_id).mkdir(parents=True, exist_ok=True)  # no hitboxes.json
+    response = app_client.post(f"/api/sessions/{session_id}/fix-hitboxes")
+    assert response.status_code == 409, response.text
+    body = response.json()
+    assert body["code"] == "level_not_ready"
+    assert "hitboxes" in body["error"]
 
 
-def test_sprite_gaps_uses_dog_indices_not_target_indices(isolated_session, monkeypatch):
-    """After a delete, dog-meta indices diverge from hitbox target indices.
-    Comparing against the map's KEYS reported healthy dogs as missing (and
-    burned provider calls regenerating them)."""
+def test_sprite_gaps_after_a_real_delete(isolated_session):
+    """The live incident: after deleting a dog, dog-meta indices diverge from
+    hitbox target indices, and comparing against the map's KEYS reported
+    healthy dogs as missing (costing provider calls to "fix" them).
+
+    Built from real session state and a real delete — no stubbed lookups."""
+    import json as _json
+
     from levelbuilder.api import routes
+    from tests.test_recenter import _make_session
 
-    dogs_meta = [{"index": 19, "id": "uuid-19", "activeVariant": 1}]
-    # dog 19 is bound to hitbox slot 18 (one earlier dog was deleted).
-    monkeypatch.setattr(routes.S, "active_dog_variant_targets", lambda *a, **k: {18: (19, 1)})
-    monkeypatch.setattr(routes.S, "active_sprite_metadata_map", lambda *a, **k: {18: {"image": "x"}})
-    monkeypatch.setattr(routes.S, "load_session_raw", lambda *a, **k: {"dogs": dogs_meta})
-    monkeypatch.setattr(routes.S, "session_dir", lambda *a, **k: isolated_session.LEVELS_DIR / "nope")
+    sess = isolated_session
+    session_id = "delete_divergence_01"
+    hitboxes = [
+        {"x": 50, "y": 50, "r": 26, "id": "uuid-0"},
+        {"x": 150, "y": 150, "r": 26, "id": "uuid-1"},
+        {"x": 250, "y": 250, "r": 26, "id": "uuid-2"},
+    ]
+    sprites = [[30, 30, 70, 70], [130, 130, 170, 170], [230, 230, 270, 270]]
+    _make_session(sess, session_id, hitboxes, sprites)
+    raw = _json.loads((sess.LEVELS_DIR / session_id / "session.json").read_text())
+    for index, dog in enumerate(raw["dogs"]):
+        dog["id"] = f"uuid-{index}"
+    (sess.LEVELS_DIR / session_id / "session.json").write_text(_json.dumps(raw))
 
-    result = routes.get_sprite_gaps("session_with_delete_01")
-    assert result["missing"] == []
+    assert routes.get_sprite_gaps(session_id)["missing"] == []
+
+    # Delete the middle dog: survivors keep dog indices 0 and 2, but the
+    # hitbox list now has only two slots.
+    assert sess.delete_dog_by_id(session_id, "uuid-1") is True
+    gaps = routes.get_sprite_gaps(session_id)
+    assert gaps["missing"] == [], f"healthy dogs reported missing: {gaps}"

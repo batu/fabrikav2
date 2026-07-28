@@ -482,6 +482,11 @@ def require_all_painted_dogs_mapped(
         and isinstance(dog.get("index"), int)
         and int(dog["index"]) not in mapped_dog_indices
     ]
+    if orphaned and not target_map:
+        raise LevelNotReadyError(
+            f"{len(orphaned)} painted dog(s) in {session_id} map to no hitbox because the "
+            "session has no usable hitboxes — place hitboxes before exporting."
+        )
     if orphaned:
         labels = ", ".join(f"dog_{i:02d}" for i in sorted(orphaned)[:12])
         suffix = "" if len(orphaned) <= 12 else f", +{len(orphaned) - 12} more"
@@ -2280,12 +2285,23 @@ def recenter_hitboxes_to_sprites(
     with open(hb_path) as f:
         hitboxes = json.load(f)
     raw = load_session_raw(session_id) or {}
-    sprites = active_sprite_metadata_map(session_id, raw.get("dogs") or [], hitboxes)
     moved: list[dict] = []
-    for index, hb in enumerate(hitboxes):
-        sprite = sprites.get(index)
+    # Resolve sprites by DOG index, not through the hitbox target map: a hitbox
+    # that drifted far enough to stop rebinding is exactly the one that most
+    # needs recentering, and going through the target map silently skipped it.
+    for dog in raw.get("dogs") or []:
+        if not isinstance(dog, dict) or not is_painted_dog_meta(dog):
+            continue
+        index = dog.get("index")
+        variant = dog.get("activeVariant")
+        if not isinstance(index, int) or not isinstance(variant, int):
+            continue
+        if index >= len(hitboxes):
+            continue
+        sprite = _level_sprite_metadata(session_id, index, variant)
         if sprite is None:
             continue
+        hb = hitboxes[index]
         cx = sprite["x"] + sprite["width"] / 2
         cy = sprite["y"] + sprite["height"] / 2
         inside = (
