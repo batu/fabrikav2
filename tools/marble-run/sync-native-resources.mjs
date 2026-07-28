@@ -35,13 +35,20 @@ export const OVERLAYS = {
 
 /** Additional overlays applied after the primary one (same copy semantics).
  *  android-src carries the committed Capacitor SDK plugin sources
- *  (AppLovin/AppsFlyer/Meta bridges) that `cap add android` cannot generate. */
+ *  (AppLovin/AppsFlyer/Meta bridges) that `cap add android` cannot generate.
+ *  android-config carries google-services.json: `app/build.gradle` applies the
+ *  google-services plugin only when that file is present, so without this
+ *  overlay a regenerated `android/` silently drops Firebase natively. */
 export const EXTRA_OVERLAYS = {
   ios: [],
   android: [
     {
       from: 'native-resources/android-src/app/src/main/java',
       to: 'android/app/src/main/java',
+    },
+    {
+      from: 'native-resources/android-config/app',
+      to: 'android/app',
     },
   ],
 };
@@ -137,9 +144,12 @@ function main(argv) {
     process.exit(1);
     return;
   }
-  const changed = copyOverlay(overlay.from, overlay.to);
+  // Report each file against the overlay that wrote it — a single `to` in the
+  // summary misattributes extra-overlay files to the primary destination.
+  const changed = copyOverlay(overlay.from, overlay.to).map((rel) => `${overlay.to}/${rel}`);
   for (const extra of EXTRA_OVERLAYS[platform] ?? []) {
-    if (existsSync(extra.from)) changed.push(...copyOverlay(extra.from, extra.to));
+    if (!existsSync(extra.from)) continue;
+    changed.push(...copyOverlay(extra.from, extra.to).map((rel) => `${extra.to}/${rel}`));
   }
   if (platform === 'android') {
     const mismatches = assertFilesMatch(overlay.from, overlay.to, ANDROID_LAUNCHER_ICONS);
@@ -150,10 +160,10 @@ function main(argv) {
     }
   }
   if (changed.length === 0) {
-    console.info(`[sync-native-resources] ${platform}: overlay already in sync (${overlay.to}); no change.`);
+    console.info(`[sync-native-resources] ${platform}: overlay already in sync; no change.`);
     return;
   }
-  console.info(`[sync-native-resources] ${platform}: overlaid ${changed.length} file(s) into ${overlay.to}:`);
+  console.info(`[sync-native-resources] ${platform}: overlaid ${changed.length} file(s):`);
   for (const rel of changed) console.info(`  ${rel}`);
 }
 

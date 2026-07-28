@@ -1,6 +1,8 @@
 import Phaser from 'phaser';
 import { gameState } from '../core/GameState';
 import { getLevelIndex, loadLevel, loadLevelForProgression, type LevelData, type LevelIndexEntry } from '../data/levels';
+import { LEVELS } from '../levels/levels.generated';
+import { contentLevelNumber } from '../levels/progression';
 import { initHUD, setHomeCallback } from '../ui/HUD';
 import { hideHomeMenuLayer, showHomeMenuLayer } from '../ui/OverlayVisibility';
 import { hideSceneTransitionCoverAfterPaint, showPlayEntryTransitionCover } from '../ui/SceneTransitionCover';
@@ -216,7 +218,14 @@ export class HomeScene extends Phaser.Scene {
     const currentIndex = Math.max(0, gameState.currentLevelIndex);
     const nodes = buildSagaNodes({
       currentIndex,
-      levelCount: this.levelIndex.length,
+      // The playable content is the generated marble set (LEVELS), NOT the
+      // scaffold's `levels-index.json` — that file is leftover find_the_dog stub
+      // content and is 20 entries long. Sizing the saga from it made every save
+      // past level 20 look like it had finished the game: `ahead` clamped to 0,
+      // so the map dropped the gold-sun current node and rendered four completed
+      // (green) nodes instead of current + locked-ahead.
+      levelCount: LEVELS.length,
+      levelNumberFor: contentLevelNumber,
       nameFor: (logical) =>
         this.levelIndex.length === 0
           ? undefined

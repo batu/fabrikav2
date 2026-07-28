@@ -17,9 +17,13 @@ export interface RemoteConfigValues {
   hintRwEnabled: boolean;
   levelContinueRwEnabled: boolean;
   levelEndClaimX2Enabled: boolean;
-  interstitialEveryNLevels: number;
-  interstitialMinIntervalS: number;
-  interstitialMinLevel: number;
+  interstitialAdsEnabled: boolean;
+  interstitialFirstLevel: number;
+  interstitialFailOnlyUntilLevel: number;
+  interstitialFailCooldownS: number;
+  interstitialLevelEndCooldownS: number;
+  rewardedAdsEnabled: boolean;
+  testTitleOverride: string;
   hintBoosterSingleCoinPrice: number;
   hintBoosterBundleCoinPrice: number;
   hintBoosterBundleHintAmount: number;
@@ -88,9 +92,13 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   hintRwEnabled: true,
   levelContinueRwEnabled: false,
   levelEndClaimX2Enabled: true,
-  interstitialEveryNLevels: 3,
-  interstitialMinIntervalS: 120,
-  interstitialMinLevel: 0,
+  interstitialAdsEnabled: true,
+  interstitialFirstLevel: 10,
+  interstitialFailOnlyUntilLevel: 20,
+  interstitialFailCooldownS: 90,
+  interstitialLevelEndCooldownS: 90,
+  rewardedAdsEnabled: true,
+  testTitleOverride: '',
   hintBoosterSingleCoinPrice: 250,
   hintBoosterBundleCoinPrice: 600,
   hintBoosterBundleHintAmount: 3,
@@ -163,9 +171,13 @@ export const REMOTE_CONFIG_DEFINITIONS_BY_KEY: {
   hintRwEnabled: { key: 'hintRwEnabled', remoteKey: 'hint_rw_enabled', type: 'boolean', description: 'Enable rewarded-ad hint acquisition when hints are empty.' },
   levelContinueRwEnabled: { key: 'levelContinueRwEnabled', remoteKey: 'level_continue_rw_enabled', type: 'boolean', description: 'Deprecated no-op: fail-screen rewarded-ad continue was removed.' },
   levelEndClaimX2Enabled: { key: 'levelEndClaimX2Enabled', remoteKey: 'level_end_claim_x2_enabled', type: 'boolean', description: 'Enable rewarded-ad completion coin doubling.' },
-  interstitialEveryNLevels: { key: 'interstitialEveryNLevels', remoteKey: 'interstitial_every_n_levels', type: 'number', description: 'Show an interstitial after every Nth completed level this session. 0 disables interstitials.' },
-  interstitialMinIntervalS: { key: 'interstitialMinIntervalS', remoteKey: 'interstitial_min_interval_s', type: 'number', description: 'Minimum seconds between interstitial impressions.' },
-  interstitialMinLevel: { key: 'interstitialMinLevel', remoteKey: 'interstitial_min_level', type: 'number', description: 'First level number (1-based) at which interstitials may show. 0 = no floor.' },
+  interstitialAdsEnabled: { key: 'interstitialAdsEnabled', remoteKey: 'interstitial_ads_enabled', type: 'boolean', description: 'Master kill switch for interstitials. False shows none regardless of the level gates.' },
+  interstitialFirstLevel: { key: 'interstitialFirstLevel', remoteKey: 'interstitial_first_level', type: 'number', description: 'First level number (1-based) that may show an interstitial. Levels below this are ad-free.' },
+  interstitialFailOnlyUntilLevel: { key: 'interstitialFailOnlyUntilLevel', remoteKey: 'interstitial_fail_only_until_level', type: 'number', description: 'Below this level number, interstitials show only after a fail. From this level on, wins are eligible too.' },
+  interstitialFailCooldownS: { key: 'interstitialFailCooldownS', remoteKey: 'interstitial_fail_cooldown_s', type: 'number', description: 'Minimum seconds since the last interstitial before a fail may show one.' },
+  interstitialLevelEndCooldownS: { key: 'interstitialLevelEndCooldownS', remoteKey: 'interstitial_level_end_cooldown_s', type: 'number', description: 'Minimum seconds since the last interstitial before a completed level may show one.' },
+  rewardedAdsEnabled: { key: 'rewardedAdsEnabled', remoteKey: 'rewarded_ads_enabled', type: 'boolean', description: 'Master switch for every rewarded placement (hints, claim x2, fail continue).' },
+  testTitleOverride: { key: 'testTitleOverride', remoteKey: 'test_title_override', type: 'string', description: 'TESTING ONLY: replaces the home banner title text. Empty = the normal "Marble Run" title. Use this to prove a remote-config change reached a device.' },
   hintBoosterSingleCoinPrice: { key: 'hintBoosterSingleCoinPrice', remoteKey: 'hint_booster_single_coin_price', type: 'number', description: 'Coin price for one hint.' },
   hintBoosterBundleCoinPrice: { key: 'hintBoosterBundleCoinPrice', remoteKey: 'hint_booster_bundle_coin_price', type: 'number', description: 'Coin price for hint bundle.' },
   hintBoosterBundleHintAmount: { key: 'hintBoosterBundleHintAmount', remoteKey: 'hint_booster_bundle_hint_amount', type: 'number', description: 'Hints granted by bundle purchase.' },
@@ -232,9 +244,13 @@ export function mapRemoteConfigValues(
     hintRwEnabled: read('hintRwEnabled'),
     levelContinueRwEnabled: read('levelContinueRwEnabled'),
     levelEndClaimX2Enabled: read('levelEndClaimX2Enabled'),
-    interstitialEveryNLevels: read('interstitialEveryNLevels'),
-    interstitialMinIntervalS: read('interstitialMinIntervalS'),
-    interstitialMinLevel: read('interstitialMinLevel'),
+    interstitialAdsEnabled: read('interstitialAdsEnabled'),
+    interstitialFirstLevel: read('interstitialFirstLevel'),
+    interstitialFailOnlyUntilLevel: read('interstitialFailOnlyUntilLevel'),
+    interstitialFailCooldownS: read('interstitialFailCooldownS'),
+    interstitialLevelEndCooldownS: read('interstitialLevelEndCooldownS'),
+    rewardedAdsEnabled: read('rewardedAdsEnabled'),
+    testTitleOverride: read('testTitleOverride'),
     hintBoosterSingleCoinPrice: read('hintBoosterSingleCoinPrice'),
     hintBoosterBundleCoinPrice: read('hintBoosterBundleCoinPrice'),
     hintBoosterBundleHintAmount: read('hintBoosterBundleHintAmount'),
@@ -298,9 +314,13 @@ export function mapRemoteConfigSources<TSource>(
     hintRwEnabled: read('hintRwEnabled'),
     levelContinueRwEnabled: read('levelContinueRwEnabled'),
     levelEndClaimX2Enabled: read('levelEndClaimX2Enabled'),
-    interstitialEveryNLevels: read('interstitialEveryNLevels'),
-    interstitialMinIntervalS: read('interstitialMinIntervalS'),
-    interstitialMinLevel: read('interstitialMinLevel'),
+    interstitialAdsEnabled: read('interstitialAdsEnabled'),
+    interstitialFirstLevel: read('interstitialFirstLevel'),
+    interstitialFailOnlyUntilLevel: read('interstitialFailOnlyUntilLevel'),
+    interstitialFailCooldownS: read('interstitialFailCooldownS'),
+    interstitialLevelEndCooldownS: read('interstitialLevelEndCooldownS'),
+    rewardedAdsEnabled: read('rewardedAdsEnabled'),
+    testTitleOverride: read('testTitleOverride'),
     hintBoosterSingleCoinPrice: read('hintBoosterSingleCoinPrice'),
     hintBoosterBundleCoinPrice: read('hintBoosterBundleCoinPrice'),
     hintBoosterBundleHintAmount: read('hintBoosterBundleHintAmount'),
