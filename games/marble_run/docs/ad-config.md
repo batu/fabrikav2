@@ -10,7 +10,7 @@ the secret values.
 | What | Value |
 | --- | --- |
 | Bundle / package id (release) | `com.basegamelab.marblerun` |
-| Apple ID | `6793860059` |
+| Apple ID | `6793860059` — **ours**, generated on our App Store Connect account, not supplied by the publisher (their sheet left the row blank; we filled it in and confirmed it) |
 | Firebase project | `mable-run` (note the publisher's spelling) |
 | Facebook app id | `4138472436283342` |
 | AdMob app id (supplied, unused) | `ca-app-pub-2687326720221638~6588461200` |
