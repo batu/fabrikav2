@@ -58,3 +58,15 @@ uses RC sequences is an open product decision.
 Known quality notes for the human pass: pilot 1 has signpost text ("Faerie
 Glen / Troll Bridge") despite the no-text constraint; a handful of birds are
 easy-visibility; game UI copy still says "dog" (reskin backlog).
+
+## Gameplay probe findings (late night)
+
+Scripted playthroughs of pilot 1 verified: level load, tutorial gate, tap-to-
+find with sprite pickup + cleanup (1/20), miss penalty, lives system, and the
+out-of-lives modal with correctly-unavailable purchases. Two scripted full
+runs died on misses despite tapping exact level.json coordinates — suggests
+some birds sit visually offset beyond their 26px tap radius (fix-hitboxes
+recenters only gate violations, not sub-threshold offsets), or blind taps on
+already-found spots cost more than budgeted. Morning follow-up: run the
+game-qa harness (snapshot/verbs) for exact per-bird tap verification, and
+consider recentering ALL hitboxes to sprite centers, not just gate violators.
