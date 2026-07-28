@@ -137,3 +137,45 @@ def test_auto_hitboxes_defaults_to_session_count(monkeypatch, capsys):
     code, _ = _run(monkeypatch, capsys, stub, ["auto-hitboxes", "s1"])
     assert code == 0
     assert captured["nDogs"] == 18
+
+
+def test_auto_hitboxes_shrinks_radius_until_placement_fits(monkeypatch, capsys):
+    """Placement fails closed when the radius is too big for the scene; the
+    verb shrinks and retries instead of making a human guess."""
+    radii = []
+
+    def placement(_attempt):
+        radius = radii[-1]
+        if radius > 24:
+            raise cli.CliError("http_502", '{"code": "smart_hitboxes_failed"}', stage="POST")
+        return {"hitboxes": [{"x": 1, "y": 1, "r": radius}] * 20}
+
+    stub = _StubClient({
+        "/api/sessions/s1": {"nDogs": 20, "hitboxes": []},
+        "/api/sessions/s1/auto-hitboxes": placement,
+    })
+    original = stub.request
+
+    def spy(method, path, **kwargs):
+        if path.endswith("/auto-hitboxes"):
+            radii.append((kwargs.get("json") or {})["radius"])
+        return original(method, path, **kwargs)
+
+    stub.request = spy
+    code, out = _run(monkeypatch, capsys, stub, ["auto-hitboxes", "s1", "--radius", "30"])
+    assert code == 0
+    assert radii == [30, 28, 26, 24]
+    assert json.loads(out)["radiusUsed"] == 24
+
+
+def test_auto_hitboxes_gives_up_below_min_radius(monkeypatch, capsys):
+    def never_fits(_attempt):
+        raise cli.CliError("http_502", '{"code": "smart_hitboxes_failed"}', stage="POST")
+
+    stub = _StubClient({
+        "/api/sessions/s1": {"nDogs": 20, "hitboxes": []},
+        "/api/sessions/s1/auto-hitboxes": never_fits,
+    })
+    code, out = _run(monkeypatch, capsys, stub, ["auto-hitboxes", "s1", "--radius", "24", "--min-radius", "20"])
+    assert code == 2
+    assert json.loads(out)["error"]["code"] == "placement_did_not_fit"

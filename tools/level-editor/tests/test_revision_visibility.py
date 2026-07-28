@@ -49,3 +49,40 @@ def test_cli_warns_when_revision_does_not_move(monkeypatch, capsys) -> None:
     client.get("/api/sessions/s1")
     client.post("/api/sessions/s1/hitboxes", json={})
     assert "revision unchanged" in capsys.readouterr().err
+
+
+def test_no_warning_for_non_session_mutations(capsys) -> None:
+    """approve-catalog / bundle legitimately leave session.json alone — warning
+    there is a false alarm (observed live during pilot 3's export)."""
+    import httpx
+
+    from levelbuilder.cli import main as cli
+
+    class _FrozenRevision(httpx.BaseTransport):
+        def handle_request(self, request):
+            return httpx.Response(200, json={"ok": True},
+                                  headers={"X-Session-Revision": "222", "content-type": "application/json"})
+
+    client = cli.Client("http://stub", None)
+    client._http = httpx.Client(transport=_FrozenRevision(), base_url="http://stub")
+    client.get("/api/sessions/s1")
+    client.post("/api/sessions/s1/approve-catalog")
+    client.post("/api/sessions/s1/bundle")
+    assert "revision unchanged" not in capsys.readouterr().err
+
+
+def test_warning_still_fires_for_session_mutations(capsys) -> None:
+    import httpx
+
+    from levelbuilder.cli import main as cli
+
+    class _FrozenRevision(httpx.BaseTransport):
+        def handle_request(self, request):
+            return httpx.Response(200, json={"ok": True},
+                                  headers={"X-Session-Revision": "333", "content-type": "application/json"})
+
+    client = cli.Client("http://stub", None)
+    client._http = httpx.Client(transport=_FrozenRevision(), base_url="http://stub")
+    client.get("/api/sessions/s1")
+    client.post("/api/sessions/s1/hitboxes", json={})
+    assert "revision unchanged" in capsys.readouterr().err

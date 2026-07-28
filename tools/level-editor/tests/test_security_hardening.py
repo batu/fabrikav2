@@ -26,15 +26,31 @@ def test_revision_header_absent_on_error_response(app_client) -> None:
     assert "X-Session-Revision" not in response.headers
 
 
-def test_env_chain_stops_above_repo_root(tmp_path) -> None:
-    repo = tmp_path / "base" / "repo"
-    tool = repo / "tools" / "level-editor"
+def test_env_chain_is_bounded_by_home(monkeypatch, tmp_path) -> None:
+    home = tmp_path / "home"
+    tool = home / "dev" / "repo" / "tools" / "level-editor"
     tool.mkdir(parents=True)
-    (repo / ".git").mkdir()
+    monkeypatch.setattr(server.Path, "home", classmethod(lambda cls: home))
     chain = [str(p) for p in server._env_chain(tool)]
-    assert str(tmp_path / "base" / ".env") in chain
+    assert str(home / "dev" / "repo" / ".env") in chain
+    assert str(home / "dev" / ".env") in chain
+    assert str(home / ".env") not in chain
     assert str(tmp_path / ".env") not in chain
-    assert str(tmp_path.parent / ".env") not in chain
+
+
+def test_env_chain_reaches_shared_env_from_a_worktree(monkeypatch, tmp_path) -> None:
+    """Regression: `.git` is a FILE at a worktree root, so stopping at the
+    first `.git` cut the chain two levels below the shared provider keys and
+    background generation failed with OPENROUTER_API_KEY unset."""
+    home = tmp_path / "home"
+    base = home / "dev" / "base"
+    worktree = base / "repo" / ".worktrees" / "feature"
+    tool = worktree / "tools" / "level-editor"
+    tool.mkdir(parents=True)
+    (worktree / ".git").write_text("gitdir: ../../.git/worktrees/feature")
+    monkeypatch.setattr(server.Path, "home", classmethod(lambda cls: home))
+    chain = [str(p) for p in server._env_chain(tool)]
+    assert str(base / ".env") in chain, "shared provider keys must still load"
 
 
 def test_partial_workspace_env_is_an_error(monkeypatch) -> None:

@@ -1904,6 +1904,39 @@ def approve_level_for_catalog(session_id: str, requestId: str = Query(..., min_l
     return S.approve_level_for_catalog(session_id, request_id=requestId)
 
 
+@router.get("/sessions/{session_id}/sprite-gaps")
+def get_sprite_gaps(session_id: str):
+    """Painted dogs whose active variant has no usable pickup sprite.
+
+    These are exactly the dogs that make the export gate refuse the level;
+    the server owns the answer because sprite metadata lives on its disk.
+    """
+    _validate_session_id(session_id)
+    raw = S.load_session_raw(session_id) or {}
+    hb_path = S.session_dir(session_id) / "hitboxes.json"
+    hitboxes = json.loads(hb_path.read_text()) if hb_path.exists() else []
+    dogs_meta = raw.get("dogs") or []
+    # active_sprite_metadata_map is keyed by TARGET (hitbox) index, which
+    # diverges from the dog-meta index after a delete — compare against the
+    # mapped DOG indices, not the map's keys.
+    targets = S.active_dog_variant_targets(session_id, dogs_meta, hitboxes)
+    sprites = S.active_sprite_metadata_map(session_id, dogs_meta, hitboxes)
+    dogs_with_sprites = {
+        dog_index
+        for target_index, (dog_index, _variant) in targets.items()
+        if target_index in sprites
+    }
+    missing = []
+    for dog in dogs_meta:
+        if not isinstance(dog, dict) or not S.is_painted_dog_meta(dog):
+            continue
+        index = dog.get("index")
+        if not isinstance(index, int) or index in dogs_with_sprites:
+            continue
+        missing.append({"index": index, "dogId": dog.get("id") or f"dog_{index:02d}"})
+    return {"sessionId": session_id, "missing": missing, "painted": len(dogs_meta)}
+
+
 @router.post("/sessions/{session_id}/fix-hitboxes")
 def fix_session_hitboxes(session_id: str, maxOffsetFraction: float = Query(0.5, ge=0.1, le=1.0)):
     # Fork addition: server-side recenter — sprite metadata lives on the

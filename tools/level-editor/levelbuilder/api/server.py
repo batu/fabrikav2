@@ -23,17 +23,20 @@ _app_dir = Path(__file__).resolve().parent
 _tool_dir = _app_dir.parent.parent  # tools/level-editor
 
 def _env_chain(tool_dir: Path) -> list[Path]:
-    """Ancestor .env files, parent-first, stopping one level ABOVE the repo root.
+    """Ancestor .env files, parent-first (deeper overrides).
 
-    The base dir holds shared provider keys; beyond that (/Users, /) is not
-    ours to read. Walking to filesystem root was an unbounded-trust bug.
+    Bounded at the user's home directory: shared provider keys live a couple of
+    levels up (<base>/.env), but /Users/.env and /.env are not ours to read.
+    NOTE: do not stop at the first `.git` — in a git worktree that is a FILE at
+    the worktree root, two levels below the shared env (regression 2026-07-29:
+    OPENROUTER_API_KEY silently unset, background generation failed).
     """
+    home = Path.home().resolve()
     chain: list[Path] = []
-    for ancestor in tool_dir.parents:
-        chain.append(ancestor / ".env")
-        if (ancestor / ".git").exists():
-            chain.append(ancestor.parent / ".env")
+    for ancestor in tool_dir.resolve().parents:
+        if ancestor == home or home not in [ancestor, *ancestor.parents]:
             break
+        chain.append(ancestor / ".env")
     return list(reversed(chain))
 
 

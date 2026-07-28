@@ -52,3 +52,20 @@ def test_level_not_ready_maps_to_409(app_client):
     from levelbuilder.api.session import LevelNotReadyError
 
     assert LevelNotReadyError in handlers
+
+
+def test_sprite_gaps_uses_dog_indices_not_target_indices(isolated_session, monkeypatch):
+    """After a delete, dog-meta indices diverge from hitbox target indices.
+    Comparing against the map's KEYS reported healthy dogs as missing (and
+    burned provider calls regenerating them)."""
+    from levelbuilder.api import routes
+
+    dogs_meta = [{"index": 19, "id": "uuid-19", "activeVariant": 1}]
+    # dog 19 is bound to hitbox slot 18 (one earlier dog was deleted).
+    monkeypatch.setattr(routes.S, "active_dog_variant_targets", lambda *a, **k: {18: (19, 1)})
+    monkeypatch.setattr(routes.S, "active_sprite_metadata_map", lambda *a, **k: {18: {"image": "x"}})
+    monkeypatch.setattr(routes.S, "load_session_raw", lambda *a, **k: {"dogs": dogs_meta})
+    monkeypatch.setattr(routes.S, "session_dir", lambda *a, **k: isolated_session.LEVELS_DIR / "nope")
+
+    result = routes.get_sprite_gaps("session_with_delete_01")
+    assert result["missing"] == []

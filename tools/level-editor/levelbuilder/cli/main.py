@@ -51,10 +51,18 @@ WIZARD_OPERATIONS: dict[str, str] = {
     "sequence-start-job": "export",
     "session-archive": "archive",
     "approve-catalog": "approve",
+    "sprite-gaps": "repair-sprites",
     "bundle-starter": "export",
     "prompt-library": "prompts",
     "generation-status": "status",
 }
+
+# Endpoints that write session.json. Catalog/bundle/sequence calls legitimately
+# leave the session untouched, so warning on them is a false alarm.
+SESSION_MUTATING_SUFFIXES = (
+    "hitboxes", "select-bg", "fix-hitboxes", "recomposite", "archive",
+    "active", "regen", "extension/accept", "extension/clear",
+)
 
 TERMINAL_JOB_STATUSES = {
     "succeeded",
@@ -103,6 +111,7 @@ class Client:
         if revision:
             if (
                 method in ("POST", "PATCH", "DELETE", "PUT")
+                and any(path.endswith(suffix) or f"/{suffix}/" in path for suffix in SESSION_MUTATING_SUFFIXES)
                 and self.last_session_revision
                 and revision == self.last_session_revision
             ):
@@ -359,10 +368,35 @@ def cmd_auto_hitboxes(client: Client, args: argparse.Namespace) -> None:
     if count is None:
         session = client.get(f"/api/sessions/{args.session_id}")
         count = int(session.get("nDogs") or len(session.get("hitboxes") or []) or 20)
-    body = {"nDogs": count, "strategy": args.strategy}
-    if args.radius:
-        body["radius"] = args.radius
-    _emit(args, client.post(f"/api/sessions/{args.session_id}/auto-hitboxes", json=body))
+    # Placement fails closed when it cannot fit `count` non-overlapping
+    # hitboxes at the requested radius, and the right radius depends on the
+    # scene's density — hand-tuning it (50 -> 26 -> 24) was a papercut on every
+    # level. Shrink and retry down to a floor, then report what actually fit.
+    radius = args.radius or 30
+    attempts: list[dict] = []
+    while True:
+        body = {"nDogs": count, "strategy": args.strategy, "radius": radius}
+        try:
+            result = client.post(f"/api/sessions/{args.session_id}/auto-hitboxes", json=body)
+        except CliError as error:
+            if "smart_hitboxes_failed" not in error.message and "non-overlapping" not in error.message:
+                raise
+            attempts.append({"radius": radius, "outcome": "did not fit"})
+            radius -= args.shrink_step
+            if radius < args.min_radius:
+                raise CliError(
+                    "placement_did_not_fit",
+                    f"could not fit {count} hitboxes down to radius {args.min_radius}; "
+                    "lower --count or raise --min-radius",
+                    stage="auto-hitboxes",
+                ) from error
+            continue
+        result = dict(result) if isinstance(result, dict) else {"result": result}
+        result["radiusUsed"] = radius
+        if attempts:
+            result["radiusAttempts"] = attempts
+        _emit(args, result)
+        return
 
 
 def cmd_set_hitboxes(client: Client, args: argparse.Namespace) -> None:
@@ -431,6 +465,54 @@ def cmd_dogs(client: Client, args: argparse.Namespace) -> None:
         session = client.get(f"/api/sessions/{args.session_id}")
         result = session.get("dogs") or []
     _emit(args, result)
+
+
+def cmd_repair_sprites(client: Client, args: argparse.Namespace) -> None:
+    """Regenerate birds that came out of inpaint without a pickup sprite.
+
+    Provider output sometimes yields an alpha the cutout pipeline can't use;
+    those dogs ship without sprite metadata and the export gate refuses the
+    whole level. Regeneration reliably produces a usable variant, so loop the
+    stragglers instead of making a human find them (done by hand twice).
+    """
+    session = client.get(f"/api/sessions/{args.session_id}")
+    missing = client.get(f"/api/sessions/{args.session_id}/sprite-gaps")
+    repaired, failed = [], []
+    for entry in missing.get("missing", []):
+        if len(repaired) >= args.max_repairs:
+            break
+        dog_id = entry["dogId"]
+        try:
+            prompts = client.post("/api/actions/assemble-recipe-prompts", json=_session_recipe(session))
+            client.post(
+                f"/api/sessions/{args.session_id}/dogs/by-id/{dog_id}/regen",
+                json={"prompt": prompts["dogPrompt"]},
+            )
+            repaired.append(entry["index"])
+        except CliError as error:
+            failed.append({"index": entry["index"], "error": error.message[:160]})
+    still = client.get(f"/api/sessions/{args.session_id}/sprite-gaps")
+    remaining = still.get("missing", [])
+    dropped = []
+    if remaining and args.drop_unrepairable:
+        # Some placements simply cannot yield a usable cutout (bird lands on
+        # water/sky, or the diff is too flat). Dropping is an EXPLICIT choice
+        # here — the export path refuses to drop painted dogs silently.
+        for entry in remaining:
+            client.request("DELETE", f"/api/sessions/{args.session_id}/dogs/by-id/{entry['dogId']}")
+            dropped.append(entry["index"])
+        remaining = client.get(f"/api/sessions/{args.session_id}/sprite-gaps").get("missing", [])
+    _emit(args, {
+        "repaired": repaired,
+        "failed": failed,
+        "dropped": dropped,
+        "remaining": [e["index"] for e in remaining],
+        "hint": (
+            "unrepairable placements remain — rerun to retry, or pass "
+            "--drop-unrepairable to remove them explicitly"
+            if remaining else None
+        ),
+    })
 
 
 def cmd_fix_hitboxes(client: Client, args: argparse.Namespace) -> None:
@@ -654,7 +736,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("session_id")
     p.add_argument("--count", type=int, default=None)
     p.add_argument("--strategy", default="random")
-    p.add_argument("--radius", type=int)
+    p.add_argument("--radius", type=int, help="starting radius (shrinks on failure)")
+    p.add_argument("--min-radius", type=int, default=18)
+    p.add_argument("--shrink-step", type=int, default=2)
 
     p = verb("set-hitboxes", cmd_set_hitboxes)
     p.add_argument("session_id")
@@ -680,6 +764,12 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--set-active")
     p.add_argument("--variant", type=int)
     p.add_argument("--delete")
+
+    p = verb("repair-sprites", cmd_repair_sprites)
+    p.add_argument("session_id")
+    p.add_argument("--max-repairs", type=int, default=25)
+    p.add_argument("--drop-unrepairable", action="store_true",
+                   help="explicitly delete dogs that still lack a pickup sprite")
 
     p = verb("fix-hitboxes", cmd_fix_hitboxes)
     p.add_argument("session_id")
