@@ -219,6 +219,23 @@ def _start_gallery_derivative_prewarm() -> None:
 
 
 @asynccontextmanager
+def _start_sprite_model_prewarm() -> None:
+    if os.environ.get("FTD_SPRITE_REPAIR", "1") != "1":
+        return
+
+    def _warm() -> None:
+        for builder_name in ("_pickup_cutout_session", "_pickup_sam_session"):
+            builder = getattr(_inpaint_mod, builder_name, None)
+            if builder is None:
+                continue
+            try:
+                builder()
+            except Exception:  # model weights unavailable: repair degrades, boot does not
+                logger.warning("sprite model prewarm failed for %s", builder_name, exc_info=True)
+
+    threading.Thread(target=_warm, name="sprite-model-prewarm", daemon=True).start()
+
+
 async def lifespan(app: FastAPI):
     # Startup: apply phase-aware httpx timeout to merceka_core.image
     # so provider hangs surface in seconds, not minutes.
@@ -226,6 +243,11 @@ async def lifespan(app: FastAPI):
     # Warm gallery derivatives in the background so first review opens don't
     # pay the PNG -> WebP conversion cost.
     _start_gallery_derivative_prewarm()
+    # Sprite repair defaults ON in the fork, and its rembg/SAM sessions
+    # download model weights lazily with no timeout — observed live as an
+    # 8.8 MB download running INSIDE a request, next to a client reset. Warm
+    # them off the request path; failures here are non-fatal (repair degrades).
+    _start_sprite_model_prewarm()
     job_worker = get_default_job_worker()
     register_rest_job_handlers(job_worker)
     register_inpaint_job_handlers(job_worker)
