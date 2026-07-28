@@ -70,3 +70,27 @@ recenters only gate violations, not sub-threshold offsets), or blind taps on
 already-found spots cost more than budgeted. Morning follow-up: run the
 game-qa harness (snapshot/verbs) for exact per-bird tap verification, and
 consider recentering ALL hitboxes to sprite centers, not just gate violators.
+
+## Tap-accuracy resolution (2026-07-29)
+
+The overnight "birds may be unreachable" finding was WRONG — and the way it
+was wrong is the lesson. Driving the game with blind coordinate taps
+(`page.mouse.click` at level.json positions) reads as misses and burns lives;
+it never proved anything about the level data.
+
+Re-run through the game's own harness (`window.__FIND_DOG_HARNESS__`,
+`findDog(id)` + `snapshot()`), which is the authoritative surface:
+
+- pilot 1 `fairytale_forest_mushroom_cottage_glade_bird_d894`: **20/20 found,
+  status complete**
+- pilot 2 `japan_morning_market_bird_a53a`: **20/20 found, status complete**
+
+Both levels were always winnable. Promoted the audit to
+`tools/level-editor/scripts/tap-audit.mjs` (exits non-zero on any unreachable
+bird) so this is a repeatable check rather than a one-off.
+
+Separately, the offline geometry audit did find 9/40 birds whose tap center
+sat outside or on the fringe of the visible sprite — a real playability
+concern even though the tap radius covered it. The new server-side
+`fix-hitboxes` (recenter when outside the bbox OR beyond r/2 from the sprite
+center) moved 15 hitboxes across both pilots; residual offsets: none.

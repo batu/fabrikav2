@@ -63,3 +63,29 @@ def test_recenter_threshold_fraction(isolated_session):
     assert kept["moved"] == []
     moved = sess.recenter_hitboxes_to_sprites("recenter_test_c3d4")
     assert [m["index"] for m in moved["moved"]] == [0]
+
+
+def test_recenter_is_idempotent(isolated_session):
+    sess = isolated_session
+    hitboxes = [{"x": 300, "y": 300, "r": 26}]
+    sprites = [[100, 100, 140, 140]]
+    _make_session(sess, "recenter_test_e5f6", hitboxes, sprites)
+    first = sess.recenter_hitboxes_to_sprites("recenter_test_e5f6")
+    second = sess.recenter_hitboxes_to_sprites("recenter_test_e5f6")
+    assert len(first["moved"]) == 1
+    assert second["moved"] == []
+
+
+def test_recentered_hitbox_lands_inside_cleanup_box(isolated_session):
+    """The gate requires center-containment in cleanup geometry; recentering
+    onto the sprite bbox center must satisfy it (cleanup ⊇ sprite bbox)."""
+    sess = isolated_session
+    hitboxes = [{"x": 999, "y": 999, "r": 26}]
+    sprites = [[100, 100, 140, 140]]
+    _make_session(sess, "recenter_test_g7h8", hitboxes, sprites)
+    sess.recenter_hitboxes_to_sprites("recenter_test_g7h8")
+    persisted = json.loads((sess.LEVELS_DIR / "recenter_test_g7h8" / "hitboxes.json").read_text())
+    meta = json.loads((sess.LEVELS_DIR / "recenter_test_g7h8" / "dogs" / "dog_00" / "sprite_000.json").read_text())
+    left, top, right, bottom = meta["cleanupBox"]
+    assert left <= persisted[0]["x"] <= right
+    assert top <= persisted[0]["y"] <= bottom
