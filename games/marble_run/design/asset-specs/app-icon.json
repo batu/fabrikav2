@@ -3,8 +3,8 @@
   "kind": "icon",
   "size": "1024x1024",
   "gen_size": "1024x1024",
-  "description": "A mobile app icon, FULL-BLEED square with no rounded corners (the OS masks it): a big radiant gold star with a subtle smiling sparkle sitting on a rich teal-to-deep-teal gradient background, one ribbon accent at the bottom, edge-to-edge color.",
-  "prompt_extra": "full-bleed opaque square, subject fills ~70% of the canvas, readable at 60px",
+  "description": "A mobile app icon, FULL-BLEED square with no rounded corners (the OS masks it): a warm cream wooden marble board tilted in three-quarter view, a glossy blue marble resting on it and a smaller red marble beside a dark hole, scattered pastel confetti specks, on a rich purple background, edge-to-edge colour.",
+  "prompt_extra": "full-bleed opaque square, the board fills ~80% of the canvas, readable at 60px; match refs/assets/design/app-icon.png, which is the shipping icon on both platforms",
   "transparent": false,
   "models": [
     "google/gemini-3.1-flash-image",
