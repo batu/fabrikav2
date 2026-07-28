@@ -258,6 +258,89 @@
         "title": "CaptureSessionImageRequest",
         "type": "object"
       },
+      "CatalogOptions": {
+        "additionalProperties": false,
+        "description": "Dropdown vocabularies, straight from the frozen catalog.",
+        "properties": {
+          "entities": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Entities",
+            "type": "array"
+          },
+          "models": {
+            "items": {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            "title": "Models",
+            "type": "array"
+          },
+          "scenes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Scenes",
+            "type": "array"
+          },
+          "styles": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Styles",
+            "type": "array"
+          },
+          "views": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Views",
+            "type": "array"
+          }
+        },
+        "required": [
+          "scenes",
+          "views",
+          "styles",
+          "entities",
+          "models"
+        ],
+        "title": "CatalogOptions",
+        "type": "object"
+      },
+      "CreatePresetRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "notes": {
+            "default": "",
+            "title": "Notes",
+            "type": "string"
+          },
+          "selection": {
+            "$ref": "#/components/schemas/PresetSelection"
+          }
+        },
+        "required": [
+          "id",
+          "label",
+          "selection"
+        ],
+        "title": "CreatePresetRequest",
+        "type": "object"
+      },
       "CreateSessionRequest": {
         "additionalProperties": false,
         "properties": {
@@ -779,6 +862,184 @@
         "title": "PrepareSequenceRequest",
         "type": "object"
       },
+      "PresetConflictResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "PresetConflictResponse",
+        "type": "object"
+      },
+      "PresetIndexResponse": {
+        "additionalProperties": false,
+        "description": "Everything the dropdown needs in one call: the presets and the vocabularies.",
+        "properties": {
+          "options": {
+            "$ref": "#/components/schemas/CatalogOptions"
+          },
+          "presets": {
+            "items": {
+              "$ref": "#/components/schemas/PresetRecord"
+            },
+            "title": "Presets",
+            "type": "array"
+          }
+        },
+        "required": [
+          "presets",
+          "options"
+        ],
+        "title": "PresetIndexResponse",
+        "type": "object"
+      },
+      "PresetNotFoundResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "const": "preset not found",
+            "title": "Detail",
+            "type": "string"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "PresetNotFoundResponse",
+        "type": "object"
+      },
+      "PresetRecord": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "pattern": "^[a-z0-9][a-z0-9_-]{1,63}$",
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "notes": {
+            "default": "",
+            "title": "Notes",
+            "type": "string"
+          },
+          "selection": {
+            "$ref": "#/components/schemas/PresetSelection"
+          },
+          "version": {
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "version",
+          "label",
+          "selection"
+        ],
+        "title": "PresetRecord",
+        "type": "object"
+      },
+      "PresetRunRecord": {
+        "additionalProperties": false,
+        "description": "An immutable record of one generation run.\n\n``resolved`` is a by-value snapshot: editing the preset afterwards cannot\nrewrite what this run reports.",
+        "properties": {
+          "createdAt": {
+            "title": "Createdat",
+            "type": "string"
+          },
+          "digest": {
+            "title": "Digest",
+            "type": "string"
+          },
+          "note": {
+            "default": "",
+            "title": "Note",
+            "type": "string"
+          },
+          "outcome": {
+            "pattern": "^(recorded|succeeded|failed)$",
+            "title": "Outcome",
+            "type": "string"
+          },
+          "presetId": {
+            "title": "Presetid",
+            "type": "string"
+          },
+          "presetVersion": {
+            "title": "Presetversion",
+            "type": "integer"
+          },
+          "resolved": {
+            "$ref": "#/components/schemas/ResolvedPreset"
+          },
+          "runId": {
+            "minLength": 1,
+            "title": "Runid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "runId",
+          "presetId",
+          "presetVersion",
+          "digest",
+          "resolved",
+          "createdAt",
+          "outcome"
+        ],
+        "title": "PresetRunRecord",
+        "type": "object"
+      },
+      "PresetSelection": {
+        "additionalProperties": false,
+        "description": "The frozen catalog identifiers a preset binds together.",
+        "properties": {
+          "entity": {
+            "minLength": 1,
+            "title": "Entity",
+            "type": "string"
+          },
+          "model": {
+            "minLength": 1,
+            "title": "Model",
+            "type": "string"
+          },
+          "scene": {
+            "minLength": 1,
+            "title": "Scene",
+            "type": "string"
+          },
+          "style": {
+            "minLength": 1,
+            "title": "Style",
+            "type": "string"
+          },
+          "view": {
+            "minLength": 1,
+            "title": "View",
+            "type": "string"
+          }
+        },
+        "required": [
+          "scene",
+          "view",
+          "style",
+          "entity",
+          "model"
+        ],
+        "title": "PresetSelection",
+        "type": "object"
+      },
       "ProtectedSequenceRequest": {
         "additionalProperties": false,
         "properties": {
@@ -935,6 +1196,36 @@
         "title": "PublishingSnapshotResponse",
         "type": "object"
       },
+      "RecordRunRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "note": {
+            "default": "",
+            "title": "Note",
+            "type": "string"
+          },
+          "outcome": {
+            "default": "recorded",
+            "enum": [
+              "recorded",
+              "succeeded",
+              "failed"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "runId": {
+            "minLength": 1,
+            "title": "Runid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "runId"
+        ],
+        "title": "RecordRunRequest",
+        "type": "object"
+      },
       "RequestIdentityConflictDetail": {
         "additionalProperties": false,
         "properties": {
@@ -963,6 +1254,55 @@
           "submittedInputHash"
         ],
         "title": "RequestIdentityConflictDetail",
+        "type": "object"
+      },
+      "ResolvedPreset": {
+        "additionalProperties": false,
+        "description": "A preset with its catalog text resolved and pinned by digest.",
+        "properties": {
+          "catalogSha256": {
+            "title": "Catalogsha256",
+            "type": "string"
+          },
+          "digest": {
+            "title": "Digest",
+            "type": "string"
+          },
+          "entityPrompt": {
+            "title": "Entityprompt",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "presetId": {
+            "title": "Presetid",
+            "type": "string"
+          },
+          "presetVersion": {
+            "title": "Presetversion",
+            "type": "integer"
+          },
+          "scenePrompt": {
+            "title": "Sceneprompt",
+            "type": "string"
+          },
+          "selection": {
+            "$ref": "#/components/schemas/PresetSelection"
+          }
+        },
+        "required": [
+          "presetId",
+          "presetVersion",
+          "label",
+          "selection",
+          "scenePrompt",
+          "entityPrompt",
+          "catalogSha256",
+          "digest"
+        ],
+        "title": "ResolvedPreset",
         "type": "object"
       },
       "SagaResponse": {
@@ -1254,6 +1594,20 @@
         "title": "StartJobRequest",
         "type": "object"
       },
+      "UnknownCatalogKeyResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "UnknownCatalogKeyResponse",
+        "type": "object"
+      },
       "UpdateGalleryMetadataRequest": {
         "additionalProperties": false,
         "properties": {
@@ -1291,6 +1645,19 @@
           "revision"
         ],
         "title": "UpdateGalleryMetadataRequest",
+        "type": "object"
+      },
+      "UpdateSelectionRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "selection": {
+            "$ref": "#/components/schemas/PresetSelection"
+          }
+        },
+        "required": [
+          "selection"
+        ],
+        "title": "UpdateSelectionRequest",
         "type": "object"
       },
       "ValidationError": {
@@ -1939,6 +2306,313 @@
         "x-ftd-cost": "provider-spend",
         "x-ftd-durability": "durable-job",
         "x-ftd-side-effects": "provider-submission"
+      }
+    },
+    "/api/presets": {
+      "get": {
+        "operationId": "listPresets",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresetIndexResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "LaunchCredential": []
+          }
+        ],
+        "summary": "List Presets",
+        "x-ftd-cost": "none",
+        "x-ftd-side-effects": "none"
+      },
+      "post": {
+        "operationId": "createPreset",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePresetRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresetRecord"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresetConflictResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnknownCatalogKeyResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "security": [
+          {
+            "LaunchCredential": []
+          }
+        ],
+        "summary": "Create Preset",
+        "x-ftd-cost": "none",
+        "x-ftd-side-effects": "preset-mutation"
+      }
+    },
+    "/api/presets/runs": {
+      "get": {
+        "operationId": "listPresetRuns",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PresetRunRecord"
+                  },
+                  "title": "Response Listpresetruns",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "LaunchCredential": []
+          }
+        ],
+        "summary": "List Preset Runs",
+        "x-ftd-cost": "none",
+        "x-ftd-side-effects": "none"
+      }
+    },
+    "/api/presets/{preset_id}/resolved": {
+      "get": {
+        "operationId": "resolvePreset",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "preset_id",
+            "required": true,
+            "schema": {
+              "title": "Preset Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResolvedPreset"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresetNotFoundResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "LaunchCredential": []
+          }
+        ],
+        "summary": "Resolve Preset",
+        "x-ftd-cost": "none",
+        "x-ftd-side-effects": "none"
+      }
+    },
+    "/api/presets/{preset_id}/runs": {
+      "post": {
+        "operationId": "recordPresetRun",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "preset_id",
+            "required": true,
+            "schema": {
+              "title": "Preset Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecordRunRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresetRunRecord"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresetNotFoundResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresetConflictResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "LaunchCredential": []
+          }
+        ],
+        "summary": "Record Preset Run",
+        "x-ftd-cost": "none",
+        "x-ftd-provenance": "embeds the resolved preset by value",
+        "x-ftd-side-effects": "run-record"
+      }
+    },
+    "/api/presets/{preset_id}/selection": {
+      "post": {
+        "operationId": "updatePresetSelection",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "preset_id",
+            "required": true,
+            "schema": {
+              "title": "Preset Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSelectionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresetRecord"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresetNotFoundResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UnknownCatalogKeyResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "security": [
+          {
+            "LaunchCredential": []
+          }
+        ],
+        "summary": "Update Preset Selection",
+        "x-ftd-cost": "none",
+        "x-ftd-provenance": "bumps version; recorded runs keep their own snapshot",
+        "x-ftd-side-effects": "preset-mutation"
       }
     },
     "/api/publishing": {

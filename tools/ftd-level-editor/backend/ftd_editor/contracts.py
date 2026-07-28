@@ -31,6 +31,7 @@ def build_contract_app(root: Path):
     from .jobs.actions import JobService
     from .jobs.store import JobStore
     from .security import CompositionSecrets, SecretRedactor
+    from .presets.store import PresetStore
     from .sessions.store import SessionStore
     from .publishing.sequence import PublishingService
     from .settings import EditorSettings
@@ -49,8 +50,11 @@ def build_contract_app(root: Path):
         state_root=settings.workspace.state / "publishing",
         approvals=ApprovalStore(jobs),
     )
+    presets = PresetStore(settings.workspace.state / "presets")
     components = AppComponents(
-        stores=EditorStores(sessions=sessions, jobs=service, publishing=publishing),
+        stores=EditorStores(
+            sessions=sessions, jobs=service, publishing=publishing, presets=presets
+        ),
         worker=ManualWorker(),
         providers=FailClosedProviders(),
         redactor=SecretRedactor(CompositionSecrets.from_mapping({})),
