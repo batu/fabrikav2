@@ -94,3 +94,33 @@ sat outside or on the fringe of the visible sprite — a real playability
 concern even though the tap radius covered it. The new server-side
 `fix-hitboxes` (recenter when outside the bbox OR beyond r/2 from the sprite
 center) moved 15 hitboxes across both pilots; residual offsets: none.
+
+## Pilot 3 + audit correctness (2026-07-29, improvement session)
+
+A third level (`italy_venice_canal_morning_bird_d570`, Venice canal) was
+authored end-to-end as a LIVE regression test of the night's fixes. Every
+rough edge it hit became a fix rather than a workaround: auto-fitting
+placement radius, `sprite-gaps` + `repair-sprites`, and the env-chain
+regression that had silently unset OPENROUTER_API_KEY.
+
+It ships with 19 birds, not 20: one placement could not yield a usable pickup
+cutout after three regenerations, and was dropped through the EXPLICIT
+`--drop-unrepairable` path (the export gate now forbids the silent drop).
+
+**The tap-audit script was itself wrong twice, and both are instructive.**
+Index-based level selection silently audited level 1 three times in a row and
+reported "20/20 complete" for all of them — a green result that proved
+nothing, because a level-order-revision migration rewrites currentLevelIndex
+on boot. The script now selects by level ID and hard-fails when the loaded
+level is not the requested one.
+
+Verified per level, individually, id-selected:
+
+| level | found | status |
+|---|---|---|
+| fairytale_forest_mushroom_cottage_glade_bird_d894 | 20/20 | complete |
+| japan_morning_market_bird_a53a | 20/20 | complete |
+| italy_venice_canal_morning_bird_d570 | 19/19 | complete |
+
+Provider spend for the whole pilot-3 run: roughly $1.10 (1 background, 20
+inpaints, ~6 repair regenerations).
