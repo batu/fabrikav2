@@ -1,3 +1,6 @@
+// MUST be first: installs an in-memory localStorage fallback before any module
+// reads storage at import time (sandboxed preview / private browsing).
+import './platform/storageFallback';
 import Phaser from 'phaser';
 import { assignWindowBindings, maybeRunInsituTour } from '@fabrikav2/testkit/testing';
 import { GameConfig } from './core/GameConfig';
