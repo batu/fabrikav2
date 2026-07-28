@@ -8,6 +8,7 @@ import { redactAppLovinSdkKey } from './redact';
 import { analytics } from '../analytics/AnalyticsService';
 import { attribution } from '../attribution/AttributionService';
 import type { GameSdkContext } from '../sdk/SdkContext';
+import { remoteConfigService } from '../config/RemoteConfigService';
 
 let mounted: SdkVerifierPane | null = null;
 
@@ -19,7 +20,13 @@ export function toggleSdkVerifierPane(context: GameSdkContext, doc: Document = d
     removeSdkVerifierPane(doc);
     return false;
   }
-  mounted = mountSdkVerifierPane({ document: doc, entries: buildEntries(context) });
+  mounted = mountSdkVerifierPane({
+    document: doc,
+    entries: buildEntries(context),
+    onClose: (): void => {
+      mounted = null;
+    },
+  });
   return true;
 }
 
@@ -87,6 +94,36 @@ export function buildEntries(context: GameSdkContext): SdkVerifierEntry[] {
       actions: [
         { label: 'Init FB', run: async (): Promise<string> => { await meta.init(); return describeMetaStatus(meta.getStatus()); } },
         { label: 'Send FB event', run: async (): Promise<string> => { await meta.logEvent('sdk_verifier_ping'); return 'logEvent dispatched'; } },
+      ],
+    },
+    {
+      // On-device readout of the live ad gates: without this, the only way to
+      // tell whether a console change reached the build is to grind levels.
+      name: 'remote config (ads)',
+      configuredIds: {
+        interstitialsEnabled: String(remoteConfigService.value('interstitialAdsEnabled')),
+        firstLevel: String(remoteConfigService.value('interstitialFirstLevel')),
+        failOnlyUntilLevel: String(remoteConfigService.value('interstitialFailOnlyUntilLevel')),
+        failCooldownS: String(remoteConfigService.value('interstitialFailCooldownS')),
+        levelEndCooldownS: String(remoteConfigService.value('interstitialLevelEndCooldownS')),
+        rewardedEnabled: String(remoteConfigService.value('rewardedAdsEnabled')),
+      },
+      getStatus: (): string => {
+        const snapshot = remoteConfigService.snapshot();
+        const source = snapshot.sources.interstitialFirstLevel;
+        return `${snapshot.state} / fetch ${snapshot.lastFetchStatus} / values ${source}${
+          snapshot.lastErrorMessage === null ? '' : ` — ${snapshot.lastErrorMessage}`
+        }`;
+      },
+      actions: [
+        {
+          label: 'Refetch config',
+          run: async (): Promise<string> => {
+            await remoteConfigService.refresh();
+            const snapshot = remoteConfigService.snapshot();
+            return `fetch ${snapshot.lastFetchStatus}${snapshot.lastErrorMessage === null ? '' : `: ${snapshot.lastErrorMessage}`}`;
+          },
+        },
       ],
     },
   ];

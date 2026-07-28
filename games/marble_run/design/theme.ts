@@ -48,9 +48,11 @@ export const MARBLE_LEVELMAP_THEME: ThemeTokens = {
   '--fab-levelmap-art-locked': "url('/v1/ui/level-node-locked.webp')",
   '--fab-levelmap-art-completed': "url('/v1/ui/level-node-completed.webp')",
   '--fab-levelmap-art-current': "url('/v1/ui/level-node-current.webp')",
-  '--fab-levelmap-node-size': '64px',
-  '--fab-levelmap-node-current-size': '112px',
-  '--fab-levelmap-node-gap': '2px',
+  // v1 .menu-saga-mount .fab-ui: 56 / 100 / gap 4, path width min(180px, 48vw).
+  '--fab-levelmap-node-size': '56px',
+  '--fab-levelmap-node-current-size': '100px',
+  '--fab-levelmap-node-gap': '4px',
+  '--fab-levelmap-path-width': 'min(180px, 48vw)',
   '--fab-levelmap-node-font': '18px',
   '--fab-levelmap-node-current-font': '39px',
   '--fab-levelmap-far-opacity': '1',
@@ -68,6 +70,15 @@ export const MARBLE_LEVELMAP_THEME: ThemeTokens = {
   // `--fab-levelmap-line-top/mid/bottom` vars, not the single `--fab-levelmap-line`
   // ftdTheme sets — leaving them unset painted the fat GRAY default rail behind the
   // saga (device-parity MRV2-9 U3). Point them at the v1 wooden-tan connector.
+  // v1core's rail rule (src/v1core/ui/ui.css) reads the SINGLE `--fab-levelmap-line`
+  // token, not the kit's three-stop set below, and its default is a GREY gradient
+  // (#9ca3af -> #6b7280) — which is exactly what shipped on device while the
+  // three-stop tan values sat unused. Both token families must be set because two
+  // rail implementations are in play (kit + v1core; a third FTD "premium rail"
+  // lives in src/ui/styles.css scoped to .home-map-stage). Consolidating them is
+  // its own card; until then this keeps the device honest.
+  // v1 renders a tan double-rail: dark edges, two cream rails, tan core.
+  '--fab-levelmap-line': 'linear-gradient(90deg, #8a5a24 0 1px, #f7e7c4 1px 3px, #cfa063 3px 6px, #f7e7c4 6px 8px, #8a5a24 8px 9px)',
   '--fab-levelmap-line-top': 'rgba(214, 162, 96, 0.55)',
   '--fab-levelmap-line-mid': '#cf9a4f',
   '--fab-levelmap-line-bottom': '#a9702f',
@@ -105,7 +116,9 @@ export function installShellArt(doc: Document = document): void {
 
 /* Purple bubble world: gradient body + animated marble-shadow-tile overlay. */
 body {
-  background: linear-gradient(180deg, #9b7bcd 0%, #6b568e 100%);
+  /* v1 (style.css body) paints a FLAT --sugar-bg-top; the gradient down to
+     #6b568e was v2's own and darkened the lower screen into plum. */
+  background: #9b7bcd;
 }
 .marble-ui::before {
   content: '';
@@ -126,7 +139,7 @@ body {
    full-screen tile lives on #hud-overlay (above the board), so it must be gated
    off while the gameplay HUD is mounted, or bubbles render OVER the playfield
    (judge3 "pale bubbles over the playfield" major). Home/shell screens keep it. */
-.marble-ui.mr-gameplay-active::before { display: none; }
+.marble-ui.mr-gameplay-active:not(.home-mode)::before { display: none; }
 .marble-ui > * { position: relative; z-index: 1; }
 
 /* v1 menu life: eight 6x12 candy dashes falling behind all interactive chrome. */
@@ -180,9 +193,16 @@ body {
   margin-top: 4px;
 }
 .marble-home-banner img {
-  width: min(78vw, 360px);
+  /* v1 .menu-title: width min(84vw, 430px). */
+  width: min(84vw, 430px);
   height: auto;
-  filter: drop-shadow(0 10px 18px rgba(40, 20, 60, 0.32));
+}
+/* The drop-shadow belongs on the CONTAINER, as in v1 (.menu-title), not on the
+   img. On the img, WKWebView composited the filter layer with an opaque backing
+   and painted a visible lighter rectangle behind the banner — iPhone only;
+   Android's WebView never showed it. */
+.marble-home-banner {
+  filter: drop-shadow(0 12px 16px rgba(35, 20, 10, 0.34));
 }
 /* v1 "Marble Run" title text overlaying the empty wooden banner plate. */
 .marble-home-banner-title {
@@ -196,10 +216,11 @@ body {
   font-size: clamp(30px, 9.5vw, 42px);
   line-height: 1;
   color: #6a3016;
-  text-shadow:
-    0 2px 0 rgba(255, 240, 205, 0.52),
-    0 4px 0 #3d1b33,
-    0 7px 9px rgba(40, 20, 60, 0.38);
+  /* v1 parity (2026-07-27): flat brown lettering. The previous stack layered a
+     cream underline (read as a white outline on device), a hard dark-purple
+     offset shadow, and a soft blur — none of which v1 has. Only the faint soft
+     shadow is kept. Do not reintroduce the offset layers. */
+  text-shadow: 0 2px 5px rgba(40, 20, 60, 0.22);
   pointer-events: none;
   white-space: nowrap;
 }
@@ -207,8 +228,9 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-width: 92px;
-  height: 46px;
+  /* v1 .menu-coin-counter is a 116x62 capsule; 92x46 read visibly small. */
+  min-width: 116px;
+  height: 62px;
   padding: 0 16px 0 12px;
   color: #fff;
   font-family: var(--fab-font-number);
@@ -217,13 +239,15 @@ body {
 }
 .marble-coin-pill img { width: 26px; height: 26px; }
 .marble-gear-btn {
-  width: 52px;
-  height: 52px;
+  /* v1 .vida-settings-button is 72x78 with a 38px icon; 52x52/28px read
+     markedly small next to the coin capsule. */
+  width: 72px;
+  height: 78px;
   border: 0;
   background: url('${assetUrls.settingsButton}') center / 100% 100% no-repeat;
   cursor: pointer;
 }
-.marble-gear-btn img { width: 28px; height: 28px; }
+.marble-gear-btn img { width: 38px; height: auto; }
 
 /* v1 App.showMenuDecor: the tilted decor board between banner and saga chain.
    A three.js canvas (HomeBoardPreview) in DOM flow just under the header; the
@@ -254,7 +278,12 @@ body {
   /* The iPhone 390x844 budget varies with WKWebView safe-area reporting.
      Reserve clearance for the current gold sun above the fixed LEVEL action
      instead of letting the preview spacer consume the extra inset. */
-  .marble-home-board-preview-slot { max-height: min(16vh, 140px); }
+  /* 2026-07-27: the saga now uses v1's geometry (node 56 / current 100 / gap 4),
+     which is taller than the tuned-by-eye 64/112/2 chain this figure was set
+     against — the gold sun ended up clipped behind the fixed LEVEL button on an
+     iPhone 12 (844pt lands in this bucket; the Pixel at 914pt does not, which is
+     why Android looked fine). Give the chain back the clearance. */
+  .marble-home-board-preview-slot { max-height: min(11vh, 100px); }
 }
 
 /* MRV2-9 U3: force the saga into a single tight centered column. The kit centers
@@ -268,6 +297,18 @@ body {
    pushed sun node 1 / node 106 under the fixed LEVEL button. Collapse the rail
    to its content height so the chain hangs directly off the board bottom (v1). */
 #home-shell .fab-levelmap-path { min-height: 0; }
+/* The tan rail must be set on the levelmap ELEMENT, not just via the theme prop.
+   v1core (src/v1core/ui/ui.css:19) declares a GREY --fab-levelmap-line on
+   .fab-ui, and the SagaMap root carries fab-ui itself — so it re-declares grey
+   locally and beats the value the theme prop sets on the .fab-home-menu wrapper.
+   Verified on device over CDP: the element computed the grey default while
+   --fab-levelmap-line-mid (which v1core never re-declares) carried the marble
+   value through. Specificity here (#id + class) wins over .fab-ui. */
+#home-shell .fab-levelmap,
+#home-shell .fab-levelmap-path {
+  --fab-levelmap-line: linear-gradient(90deg, #8a5a24 0 1px, #f7e7c4 1px 3px, #cfa063 3px 6px, #f7e7c4 6px 8px, #8a5a24 8px 9px);
+  --fab-levelmap-line-glow: 0 0 0 1px rgba(101, 62, 24, 0.45);
+}
 #home-shell .fab-home-menu-content {
   flex: 0 1 auto;
   justify-content: flex-start;
@@ -306,6 +347,101 @@ body {
   z-index: 21;
 }
 
+/* ---- Menu exit choreography (v1 parity, 2026-07-27) ----------------------
+   v1 does NOT crossfade home->game. It flies each element out and only then
+   reveals gameplay: header + banner exit UP, the CTA and saga rail exit DOWN,
+   the 3D board scales up and blurs. Ported from v1's .screen.menu-leaving rules
+   and @keyframes menu-*-exit (sugar3d/src/ui/style.css).
+
+   Without this, v2 crossfaded everything in place and both screens rendered on
+   top of each other for ~250ms — two boards, the banner across the game board,
+   and two coin pills (recorded on the Pixel 6a).
+
+   Distances/durations are tokens so the values stay tunable per game if this is
+   ever promoted into packages/ui. Timings sit inside the shell's 520ms play-entry
+   reveal so nothing is cut off mid-flight. */
+#home-shell {
+  --marble-exit-header-y: -110px;
+  --marble-exit-title-y: -150px;
+  --marble-exit-cta-y: 140px;
+  --marble-exit-rail-y: 170px;
+  --marble-exit-stage-y: -7vh;
+  --marble-exit-ease-linearish: cubic-bezier(0.62, 0, 0.94, 0.42);
+}
+#home-shell.menu-leaving .marble-home-header,
+#home-shell.menu-leaving .marble-home-banner,
+#home-shell.menu-leaving .marble-level-button,
+#home-shell.menu-leaving .fab-levelmap,
+#hud-overlay > .marble-home-board-preview.menu-leaving {
+  /* Promote to their own layers: these must keep animating while the main
+     thread is busy booting GameScene. transform + opacity only. */
+  will-change: transform, opacity;
+}
+#home-shell.menu-leaving .marble-home-header {
+  animation: marble-menu-top-exit 0.42s ease-in forwards;
+}
+#home-shell.menu-leaving .marble-home-banner {
+  animation: marble-menu-title-exit 0.44s var(--marble-exit-ease-linearish) forwards;
+}
+#home-shell.menu-leaving .marble-level-button {
+  /* The button carries an idle breathe animation; an id/class keyframe already
+     running beats a transform, so the exit must replace it outright. */
+  animation: marble-menu-play-exit 0.4s ease-in forwards;
+}
+#home-shell.menu-leaving .fab-levelmap {
+  animation: marble-menu-rail-exit 0.44s var(--marble-exit-ease-linearish) forwards;
+}
+#hud-overlay > .marble-home-board-preview.menu-leaving {
+  animation: marble-menu-stage-exit 0.44s ease-in forwards;
+}
+/* src/ui/styles.css freezes EVERY animation under #hud-overlay during play
+   entry (animation-play-state: paused !important) so the menu holds still as
+   static artwork for the crossfade. That is exactly what pinned these exits at
+   frame 0 on device — measured as animationName running but playState "paused",
+   currentTime 0, for the whole transition. The freeze still applies to ambient
+   motion (sprinkle drift, bubble field, node breath); the elements that are
+   supposed to LEAVE must be exempted. Specificity + !important beats the
+   universal-selector freeze. */
+#hud-overlay.home-play-entry #home-shell.menu-leaving .marble-home-header,
+#hud-overlay.home-play-entry #home-shell.menu-leaving .marble-home-banner,
+#hud-overlay.home-play-entry #home-shell.menu-leaving .marble-level-button,
+#hud-overlay.home-play-entry #home-shell.menu-leaving .fab-levelmap,
+#hud-overlay.home-play-entry > .marble-home-board-preview.menu-leaving {
+  animation-play-state: running !important;
+}
+@keyframes marble-menu-top-exit {
+  to { transform: translateY(var(--marble-exit-header-y)); opacity: 0; }
+}
+@keyframes marble-menu-title-exit {
+  to { transform: translateY(var(--marble-exit-title-y)) scale(0.86); opacity: 0; }
+}
+@keyframes marble-menu-play-exit {
+  to { transform: translateY(var(--marble-exit-cta-y)) scale(0.86); opacity: 0; }
+}
+@keyframes marble-menu-rail-exit {
+  to { transform: translateY(var(--marble-exit-rail-y)) scale(0.92); opacity: 0; }
+}
+@keyframes marble-menu-stage-exit {
+  /* No filter: blur() here. GameScene boots on the main thread the moment the
+     exit starts, and a blur keyframe forces the whole animation off the
+     compositor onto that blocked thread — measured on a Pixel 6a advancing 33ms
+     of animation in 220ms of wall time, i.e. the elements barely moved. v1 can
+     afford the blur because its menu is not competing with a Phaser boot. */
+  to { transform: translateY(var(--marble-exit-stage-y)) scale(1.06); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* Collapse to a plain cut: the shell's reduced-motion path already skips the
+     fade, so a 0.44s flight would be the only thing still moving. */
+  #home-shell.menu-leaving .marble-home-header,
+  #home-shell.menu-leaving .marble-home-banner,
+  #home-shell.menu-leaving .marble-level-button,
+  #home-shell.menu-leaving .fab-levelmap,
+  #hud-overlay > .marble-home-board-preview.menu-leaving {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 /* Green LEVEL action button — Button_Green sprite already set via --fab-btn-sprite-image. */
 .marble-ui .marble-level-button {
   /* MRV2-20 item 6: the kit paints the sprite as a background sized 100% 100%
@@ -320,10 +456,26 @@ body {
   min-height: 0;
   aspect-ratio: 435 / 200;
   padding: 0;
+  /* v1 (.menu-play) is pure sprite art: border:0, border-radius:0,
+     background:transparent, box-shadow:none. The kit's .fab-btn paints an 18px
+     rounded rect plus inset/drop shadows BEHIND the sprite, which read on device
+     as a stray outline around the button. The kit already exposes both as
+     tokens, so no kit change is needed — just switch the chrome off here. */
+  --fab-btn-radius: 0;
+  --fab-shadow-button: none;
   color: #fff;
   font-family: var(--fab-font-display);
-  font-size: 24px;
-  text-shadow: 0 2px 0 rgba(20, 90, 30, 0.5);
+  /* v1 .menu-play .vida-button-text */
+  font-size: clamp(22px, 6.1vw, 28px);
+  -webkit-text-stroke-width: 1.45px;
+  text-shadow: 0 3px 0 #2b1f3d;
+}
+/* The shared button primitive scales while :active. Its click starts the home
+   fade before the pointer-active state releases, so that press transform would
+   animate back to base geometry inside the fade. Keep this transition CTA
+   positionally static; brightness still supplies tap feedback. */
+.marble-ui .marble-level-button:active:not(:disabled) {
+  transform: none;
 }
 
 .marble-ui .fab-home-menu {
@@ -410,30 +562,51 @@ body {
   flex-direction: column;
   /* MRV2-25 item 2 (ref pause.png): v2's settings/pause card rendered ~80% of
      screen width on the Pixel while v1 fills ~87%. Widen to match v1's ratio. */
-  width: min(88vw, 420px);
-  min-width: min(88vw, 420px);
-  max-width: min(88vw, 420px);
-  padding: 64px 30px 38px;
+  /* Ported verbatim from v1 (fabrika/games/marble_run/sugar3d/src/ui/style.css
+     .card.settings-card): width min(92vw, 430px), padding 104px 42px 34px,
+     min-height 520px for the menu variant. Read the v1 source rather than
+     measuring screenshots — it is in-tree at fabrika/games/marble_run/sugar3d. */
+  width: min(92vw, 430px);
+  min-width: min(92vw, 430px);
+  max-width: min(92vw, 430px);
+  min-height: 520px;
+  padding: 104px 42px 34px;
 }
 .marble-ui .marble-settings-card > .fab-modal-ribbon {
   align-self: center;
-  width: min(96%, 380px);
-  margin: calc(-64px - var(--fab-ribbon-overhang)) 0 var(--fab-space-md);
+  /* v1: .settings-ribbon-art is width:96% of the card, offset top:-26px. */
+  width: 96%;
+  /* v1 anchors the ribbon art at top:-26px against a 104px top padding; in the
+     kit's flow layout that is the same lift expressed as a negative margin. */
+  margin: calc(-104px - 26px) 0 var(--fab-space-md);
 }
 .marble-ui .marble-settings-card > .fab-modal-ribbon > .fab-modal-ribbon-image {
   width: 100%;
   height: 100%;
 }
 .marble-ui .marble-settings-card .fab-modal-ribbon-title {
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
+  /* Measured -42px off the ribbon centre on device: the kit sets left:0/right:0
+     with margin-inline:auto, and layering left:50% + translateX(-50%) on top of
+     that over-constrained the box. Centre it the kit's way instead. */
+  left: 0;
+  right: 0;
+  width: auto;
+  max-width: none;
+  margin-inline: auto;
+  transform: translateY(-50%);
   text-align: center;
 }
 .marble-ui .fab-modal-ribbon-title {
   font-family: var(--fab-font-display);
   color: #fff;
-  text-shadow: 0 2px 0 rgba(120, 60, 20, 0.55);
+  /* v1 .settings-ribbon-label: ink stroke + hard ink shadow, not the brown
+     value this carried. Sizes ported verbatim. */
+  font-size: clamp(27px, 7.1vw, 34px);
+  line-height: 1;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  -webkit-text-stroke: 2px #2b1f3d;
+  text-shadow: 0 3px 0 #2b1f3d;
 }
 /* Menu settings is a modal over the live home, not a replacement page. The
    purple scrim dims the existing bubble field and leaves the banner/saga faintly
@@ -442,7 +615,10 @@ body {
   background: transparent;
 }
 .fab-ui.fab-modal-backdrop.marble-settings-modal--menu .fab-modal-scrim {
-  background: rgba(62, 43, 84, 0.72);
+  /* v1 dims the home to a near-flat dark purple — banner, coin pill, gear, sun
+     badge and LEVEL button are all unreadable behind the card. At 0.72 they read
+     clearly on device, so the modal did not sit apart from the page. */
+  background: rgba(62, 43, 84, 0.93);
 }
 /* MRV2-25 item 2 (ref pause.png): v1 FULLY dims the gameplay HUD beneath the
    pause card — hearts/gear/hint are barely visible and the field reads as a flat
@@ -458,10 +634,16 @@ body {
    the blue Button_Settins tile IS the square and the × is a rendered text glyph
    (NOT color:transparent, which hid it as a stretched blob in wave-4). */
 .marble-ui .fab-modal-close {
-  width: 52px;
-  min-width: 52px;
-  height: 52px;
-  min-height: 52px;
+  /* The kit rounds .fab-modal-close to 50% (packages/ui/src/ui.css), which
+     clipped this square Button_Settins tile into a circle on device — a
+     regression against the recorded "square X" parity. The PNG carries its own
+     rounded-square corners, so the radius must be zero here. */
+  border-radius: 0;
+  /* v1 .settings-close: 60x65 at right:22px, top:-26px. */
+  width: 60px;
+  min-width: 60px;
+  height: 65px;
+  min-height: 65px;
   background: url('${assetUrls.settingsButton}') center / 100% 100% no-repeat;
   border: 0;
   color: #fff;
@@ -475,7 +657,8 @@ body {
 /* Sugar toggle rows: translucent white pill rows, green-on switch. */
 .marble-ui .fab-toggle-row {
   background: rgba(255, 255, 255, 0.54);
-  color: #4a2f6d;
+  /* v1 labels are near-black navy; #4a2f6d read as purple against v1's ink. */
+  color: #22304d;
   font-family: var(--fab-font-display);
 }
 .marble-ui .fab-toggle-row-label { color: #4a2f6d; }
@@ -525,9 +708,9 @@ body {
 .marble-ui .marble-reward-coinrow img { width: 34px; height: 34px; }
 .marble-ui .marble-reward-value {
   color: #fff;
-  text-shadow:
-    0 2px 0 rgba(60, 30, 10, 0.55),
-    0 0 3px rgba(60, 30, 10, 0.6);
+  -webkit-text-stroke: 1.4px #203050;
+  paint-order: stroke fill;
+  text-shadow: 0 3px 0 #203050;
 }
 .marble-ui .marble-reward-text { height: 30px; width: auto; }
 .marble-ui .fab-result-message { color: #3f6bb0; font-family: var(--fab-font-display); }
@@ -553,17 +736,51 @@ body {
    dismissal as intended, and this fixed flex item cannot stretch meanwhile. */
 #modal-root.completion-mode .fab-modal-card.fab-result-card {
   flex: 0 0 auto;
-  width: min(304px, calc(100vw - 36px));
-  min-width: min(304px, calc(100vw - 36px));
-  max-width: min(304px, calc(100vw - 36px));
-  transform: translateY(-5vh);
+  position: relative;
+  width: min(100vw, 430px);
+  min-width: min(100vw, 430px);
+  max-width: min(100vw, 430px);
+  height: min(100dvh, 760px);
+  min-height: min(100dvh, 620px);
+  padding: 0;
+  gap: 0;
+  overflow: visible;
+  transform: none;
+  background-image: none !important;
+}
+#modal-root.completion-mode .fab-modal-card.fab-result-card::after {
+  content: '';
+  position: absolute;
+  left: 13.5%;
+  top: 21.4%;
+  z-index: 1;
+  width: 73%;
+  aspect-ratio: 846 / 1009;
+  pointer-events: none;
+  background: url('${assetUrls.popup}') center / 100% 100% no-repeat;
 }
 /* MRV2-13 U3 (ref refs/win.png): the LEVEL COMPLETED ribbon sits ABOVE the
    card's top edge — bottom just kissing the card — not overlapping the card
    interior. Extends the kit's default ~20px overhang; needs the U2 no-clip
    card (overflow visible) or the lifted ribbon would be cropped. */
 #modal-root.completion-mode .fab-modal-ribbon {
-  margin-top: calc(-1 * var(--fab-space-lg) - var(--fab-ribbon-overhang) - 72px);
+  position: absolute;
+  left: 8.2%;
+  top: 9.9%;
+  z-index: 4;
+  width: 83.6%;
+  max-width: none;
+  margin: 0;
+}
+/* The shared image rule caps ribbon art at 300 CSS px. On the Pixel that made
+   the 83.6%-wide, correctly centered wrapper contain a narrower LEFT-aligned
+   sprite, so the visible COMPLETED art sat ~58 physical px left of the card
+   center. Fill the centered wrapper exactly, matching the v1 902 px ribbon. */
+#modal-root.completion-mode .fab-modal-ribbon > .fab-modal-ribbon-image {
+  display: block;
+  width: 100%;
+  max-width: none;
+  margin-inline: auto;
 }
 /* MRV2-21 R2 (card item 2, ref v1 .win-level sugar3d/src/ui/style.css:2029):
    the "LEVEL n" label sits in the TOP green band of the ribbon, above the baked
@@ -582,6 +799,26 @@ body {
   letter-spacing: 0;
   text-shadow: 0 1px rgba(255, 255, 255, 0.45);
 }
+#modal-root.completion-mode .fab-result-body {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: block;
+}
+#modal-root.completion-mode .fab-result-art {
+  position: absolute;
+  left: 36%;
+  top: 30.3%;
+  width: 28%;
+  height: auto;
+}
+#modal-root.completion-mode .marble-reward-row {
+  position: absolute;
+  left: 37%;
+  top: 47.5%;
+  width: 26%;
+  gap: 4px;
+}
 /* Green Next pill: Button_Green sprite is the surface; contain a white label so
    it never renders as giant word-art (the old Txt_Next sprite-label doubling). */
 .marble-ui .marble-result-next {
@@ -589,7 +826,9 @@ body {
   color: #fff;
   font-family: var(--fab-font-display);
   font-size: 24px;
-  text-shadow: 0 2px 0 rgba(20, 90, 30, 0.5);
+  -webkit-text-stroke: 1.4px #203050;
+  paint-order: stroke fill;
+  text-shadow: 0 3px 0 #203050;
 }
 /* Standalone Next lives on the backdrop, spaced well below the card (ref). */
 /* MRV2-21 R3 (card item 3, ref v1 win-next-button width:42%): v1's Next is a
@@ -598,10 +837,9 @@ body {
 .marble-ui .marble-win-next-standalone {
   position: absolute;
   left: 29%;
-  /* v1's full-height result card occupies y=5%..95%; its Next is bottom:9.8%
-     inside that frame. Flattening those two nested percentages onto this
-     backdrop gives 5% + (90% * 9.8%) = 13.82% from the viewport bottom. */
-  bottom: 13.82%;
+  /* Same-device Pixel alignment: the v1 reference places the button about
+     96 physical pixels above the earlier flattened 13.82% approximation. */
+  bottom: 17.6%;
   z-index: 2;
   margin: 0;
   flex: 0 0 auto;
@@ -618,15 +856,15 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-width: 78px;
-  height: 42px;
+  min-width: 104px;
+  height: 50px;
   padding: 0 14px 0 10px;
   color: #fff;
   font-family: var(--fab-font-number);
-  font-size: 19px;
+  font-size: 20px;
   background: url('${assetUrls.coinFrame}') center / 100% 100% no-repeat;
 }
-.marble-ui .marble-win-coin-pill img { width: 24px; height: 24px; }
+.marble-ui .marble-win-coin-pill img { width: 27px; height: 27px; }
 /* Empty win action slot: the card renders no actions (Next is standalone). */
 .marble-ui .marble-win-actions-empty { display: none; }
 
@@ -649,7 +887,10 @@ body {
   width: min(304px, calc(100vw - 36px));
   min-width: min(304px, calc(100vw - 36px));
   max-width: min(304px, calc(100vw - 36px));
-  transform: translateY(-5vh);
+  /* The shared result-card entrance owns transform. Use the independent
+     translate property so its fill-mode cannot drop the v1 vertical offset
+     after the animation settles. */
+  translate: 0 -16vh;
 }
 #modal-root #level-failed-overlay .fab-modal-ribbon {
   width: calc(100% + 56px);
@@ -670,7 +911,7 @@ body {
 .marble-ui .marble-fail-actions {
   position: absolute;
   left: 20.5%;
-  bottom: 18.5%;
+  bottom: 23%;
   z-index: 3;
   display: flex;
   flex-direction: column;

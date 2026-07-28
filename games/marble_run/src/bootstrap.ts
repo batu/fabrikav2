@@ -1,3 +1,6 @@
+// MUST be first: installs an in-memory localStorage fallback before any module
+// reads storage at import time (sandboxed preview / private browsing).
+import './platform/storageFallback';
 import Phaser from 'phaser';
 import { assignWindowBindings, maybeRunInsituTour } from '@fabrikav2/testkit/testing';
 import { GameConfig } from './core/GameConfig';
@@ -17,6 +20,7 @@ import { installPortraitOrientationLock } from './platform/portraitOrientation';
 import { installGameLifecycle } from './platform/gameLifecycle';
 import { installAudioUnlock, installButtonVoiceEffects } from './audio/AudioManager';
 import { preloadIcons } from './ui/iconPreload';
+import { installSdkVerifierGesture } from './devtools/installSdkVerifierGesture';
 import { installShellArt } from '../design/theme';
 import '@fabrikav2/ui/ui.css';
 import '../design/tokens.css';
@@ -103,6 +107,8 @@ void remoteConfigService.initAndWait().finally(() => {
   });
 });
 let releaseTestBindings: (() => void) | null = null;
+let releaseSdkVerifierGesture: (() => void) | null = null;
+let sdkVerifierTogglePending = false;
 
 // Resolve AB cohort before appOpen so every analytics event carries it
 // as a user property. First-launch cost is one SubtleCrypto SHA-256
@@ -129,35 +135,26 @@ void initializeCohort()
 game.events.once('destroy', (): void => {
   releaseTestBindings?.();
   releaseTestBindings = null;
+  releaseSdkVerifierGesture?.();
+  releaseSdkVerifierGesture = null;
 });
 
 if (typeof window !== 'undefined') {
-  // 4-tap debug panel toggle
-  let tapCount = 0;
-  let lastTapTime = 0;
-  const TAP_WINDOW_MS = 600;
-  const TAPS_REQUIRED = 4;
-
-  // The 4-tap debug panel previously housed the screenshot-capture button.
-  // Per card PscoX2dh, capture moved into Settings. Keeping the 4-tap
-  // listener in place as a reserved gesture for future dev affordances
-  // without re-adding the panel plumbing that had only one tenant.
-  window.addEventListener('pointerup', (): void => {
-    const now = Date.now();
-    if (now - lastTapTime > TAP_WINDOW_MS) tapCount = 0;
-    tapCount += 1;
-    lastTapTime = now;
-    if (tapCount >= TAPS_REQUIRED) {
-      tapCount = 0;
+  if (!import.meta.env.PROD || TEST_HARNESS_ENABLED) {
+    releaseSdkVerifierGesture = installSdkVerifierGesture(window, (): void => {
+      if (sdkVerifierTogglePending) return;
+      sdkVerifierTogglePending = true;
       // Dev-only SDK verifier pane (status / actions / callback log for the
       // ads, attribution, firebase, and facebook components).
-      if (!import.meta.env.PROD || TEST_HARNESS_ENABLED) {
-        void import('./devtools/SdkVerifierMount').then(({ toggleSdkVerifierPane }): void => {
+      void import('./devtools/SdkVerifierMount')
+        .then(({ toggleSdkVerifierPane }): void => {
           toggleSdkVerifierPane(getSdkContext());
+        })
+        .finally((): void => {
+          sdkVerifierTogglePending = false;
         });
-      }
-    }
-  });
+    });
+  }
 
   // __FIND_DOG_GAME__ is consumed by the Settings → Capture flow in HUD.ts,
   // which is itself gated on `!import.meta.env.PROD`. The

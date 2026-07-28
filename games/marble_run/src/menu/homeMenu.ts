@@ -1,5 +1,6 @@
 import { mountHomeMenu, type LevelMapNode, type UiHandle } from '@fabrikav2/ui';
 import { MARBLE_LEVELMAP_THEME, assetUrls } from '../../design/theme';
+import { remoteConfigService } from '../config/RemoteConfigService';
 
 /**
  * v1 sugar3d home menu on the kit HomeMenu + SagaMap: a game-owned header
@@ -53,7 +54,11 @@ function buildHeader(opts: MountHomeShellOptions): HTMLElement {
   // text in the v1 FredokaOne face (device-parity MRV2-7, defect 3).
   const bannerTitle = document.createElement('span');
   bannerTitle.className = 'marble-home-banner-title';
-  bannerTitle.textContent = 'Marble Run';
+  // TESTING knob: a non-empty test_title_override in Remote Config replaces the
+  // title, so a config change can be proven on a real device by eye. Empty (the
+  // default) leaves the shipped title untouched.
+  const titleOverride = remoteConfigService.value('testTitleOverride').trim();
+  bannerTitle.textContent = titleOverride.length > 0 ? titleOverride : 'Marble Run';
   bannerTitle.setAttribute('aria-hidden', 'true');
   banner.append(bannerImg, bannerTitle);
 

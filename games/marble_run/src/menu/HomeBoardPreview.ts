@@ -24,8 +24,8 @@ const DECOR_LEVEL_INDEX = 2;
 /** Same-device Pixel 6a parity: the full-viewport v2 preview needs a wider
  * frame and stronger upward view offset to reproduce v1's smaller board tucked
  * immediately under the title banner. */
-const MENU_VIEW_OFFSET_Y_RATIO = 0.11;
-const DECOR_FRAME_ZOOM = 1.75;
+const MENU_VIEW_OFFSET_Y_RATIO = 0.07;
+const DECOR_FRAME_ZOOM = 1.95;
 /** v1 `DEFAULT_DEBUG_TUNING`: the menu board uses the same ground angle but a
  *  90deg yaw. The preview owns this Stage, so gameplay keeps its 45deg yaw. */
 const MENU_CAMERA_YAW_DEG = 90;
@@ -122,13 +122,17 @@ export class HomeBoardPreview {
     this.rafHandle = requestAnimationFrame(() => this.loop());
   }
 
+  /** Freeze the exact painted home-board frame for the menu fade. */
+  pause(): void {
+    if (this.rafHandle === null) return;
+    cancelAnimationFrame(this.rafHandle);
+    this.rafHandle = null;
+  }
+
   dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
-    if (this.rafHandle !== null) {
-      cancelAnimationFrame(this.rafHandle);
-      this.rafHandle = null;
-    }
+    this.pause();
     this.clearDecor();
     this.stage.dispose();
     this.canvas.remove();

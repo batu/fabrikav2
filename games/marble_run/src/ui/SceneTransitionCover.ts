@@ -203,6 +203,14 @@ function revealPlayEntry(overlay: HTMLElement, generation: number): void {
   const elapsed = performance.now() - shownAt;
   window.setTimeout(() => {
     if (!isCurrentPlayEntry(overlay, generation)) return;
+    // v1 parity: the menu does not dissolve in place, it flies out (header and
+    // banner up, CTA and rail down, board scaled) revealing the game beneath.
+    // This must fire HERE — at reveal, once GameScene has actually rendered —
+    // not at the tap. Triggering it at the tap made the menu leave while the
+    // scene was still booting, which left ~870ms of empty purple on a Pixel 6a.
+    // The exit keyframes live in design/theme.ts (.menu-leaving).
+    overlay.querySelector('#home-shell')?.classList.add('menu-leaving');
+    overlay.querySelector('.marble-home-board-preview')?.classList.add('menu-leaving');
     // Fade the live home to transparent (CSS opacity transition on the overlay).
     overlay.dataset.playEntryState = 'revealing';
     window.setTimeout(() => {

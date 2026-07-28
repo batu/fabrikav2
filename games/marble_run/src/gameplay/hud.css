@@ -12,9 +12,9 @@
 /* While the marble gameplay is mounted, hide the FTD HUD chrome (kept in the
  * DOM by initHUD) so only the ported vida HUD shows. The win/fail overlays,
  * which also mount into #hud-overlay, stay visible. */
-#hud-overlay.mr-gameplay-active .hud-top-bar,
-#hud-overlay.mr-gameplay-active .hud-hint-wrap,
-#hud-overlay.mr-gameplay-active #offline-indicator {
+#hud-overlay.mr-gameplay-active:not(.home-mode) .hud-top-bar,
+#hud-overlay.mr-gameplay-active:not(.home-mode) .hud-hint-wrap,
+#hud-overlay.mr-gameplay-active:not(.home-mode) #offline-indicator {
   display: none !important;
 }
 
@@ -354,8 +354,13 @@
   background: linear-gradient(180deg, rgba(255, 248, 226, 0.96), rgba(255, 218, 88, 0.9) 45%, rgba(244, 164, 28, 0.92));
   border: 4px solid rgba(255, 255, 255, 0.9);
   transform: translateX(-50%);
+  /* v1 inherits its bundled Fredoka display face from body. The scoped v2 HUD
+     has no such inheritance, so Android and WKWebView used different platform
+     fallbacks for GREAT/NICE combo callouts. Pin the real bundled face here. */
+  font-family: 'FredokaOne', 'Arial Rounded MT Bold', 'Trebuchet MS', system-ui, sans-serif;
   font-size: 30px;
-  font-weight: 900;
+  font-weight: 400;
+  font-synthesis: none;
   line-height: 1;
   letter-spacing: 0;
   white-space: nowrap;
@@ -407,7 +412,7 @@
   z-index: 5;
   pointer-events: none;
   background: radial-gradient(
-    circle 78px at var(--tx) var(--ty),
+    circle 78px at var(--tx, 0px) var(--ty, 0px),
     rgba(19, 12, 24, 0) 0 62px,
     rgba(19, 12, 24, 0.14) 72px,
     rgba(19, 12, 24, 0.48) 96px
@@ -417,7 +422,7 @@
 .mr-gameplay-screen .tutorial-hand-layer.tutorial-reject {
   background:
     radial-gradient(
-      circle 88px at var(--tx) var(--ty),
+      circle 88px at var(--tx, 0px) var(--ty, 0px),
       rgba(255, 255, 255, 0.02) 0 54px,
       rgba(255, 72, 90, 0.16) 68px,
       rgba(255, 72, 90, 0.36) 94px,
@@ -429,8 +434,8 @@
 .mr-gameplay-screen .tutorial-ring,
 .mr-gameplay-screen .tutorial-hand {
   position: absolute;
-  left: var(--tx);
-  top: var(--ty);
+  left: var(--tx, 0px);
+  top: var(--ty, 0px);
   pointer-events: none;
 }
 .mr-gameplay-screen .tutorial-spotlight {

@@ -1,9 +1,13 @@
 import Phaser from 'phaser';
 import { GAME, GAMEPLAY, TIMING } from '../core/Constants';
 import { gameState } from '../core/GameState';
+import { stopAmbient } from '../audio/AmbientManager';
 import { disposeLevelUrls, getLevelIndex, loadLevel, loadLevelForProgression, withDirectSelectServingAttempt } from '../data/levels';
 import type { LevelData } from '../data/levels';
 import { adService, showRewardedAdForEconomy } from '../ads/Service';
+import { decideInterstitial } from '../ads/interstitialPolicy';
+import { contentLevelNumber } from '../levels/progression';
+import { readInterstitialPolicyConfig, rewardedAdsEnabled } from '../ads/remoteAdPolicy';
 import { trackRewardedWatchedIfGranted } from '../attribution/RewardedAttribution';
 import { analytics } from '../analytics/AnalyticsService';
 import { resolveAnalyticsLevelAttributionFromServingAttempt, type AnalyticsLevelAttribution } from '../analytics/AnalyticsEventContract';
@@ -176,6 +180,12 @@ export class GameScene extends Phaser.Scene {
     if (!this.level) return;
     const level = this.level;
 
+    // Product call (2026-07-28): no music during gameplay. The home ambient
+    // otherwise keeps playing straight through a level, because HomeScene is the
+    // only thing that ever starts it and nothing stopped it on entry. SFX and
+    // haptics are unaffected; the menu track resumes on return to the home.
+    stopAmbient();
+
     if (gameState.settings.adsEnabled) {
       void adService.showBanner().then((shown: boolean): void => {
         if (shown && this.level) {
@@ -216,7 +226,7 @@ export class GameScene extends Phaser.Scene {
       this.gameplayController = new GameplayController(container, this.buildGameplayHooks());
       // The marble engine owns the in-level hearts; the shell board index is
       // 0-based, the marble level id 1-based (KTD6 keys both off progression).
-      this.gameplayController.startLevel(gameState.currentLevelIndex + 1);
+      this.gameplayController.startLevel(contentLevelNumber(gameState.currentLevelIndex));
     }
 
     this.levelStartedAt = Date.now();
@@ -373,6 +383,7 @@ export class GameScene extends Phaser.Scene {
 
       const claimX2Available =
         remoteConfigService.value('levelEndClaimX2Enabled') &&
+        rewardedAdsEnabled() &&
         gameState.settings.adsEnabled &&
         !gameState.hasNoAdsEntitlement &&
         !completion.transaction.bonusCoinsGranted &&
@@ -423,12 +434,11 @@ export class GameScene extends Phaser.Scene {
         if (this.isShuttingDown || !this.sys.isActive()) return;
 
         gameState.levelsCompletedThisSession += 1;
-        const everyNLevels = remoteConfigService.value('interstitialEveryNLevels');
-        const minLevelNumber = remoteConfigService.value('interstitialMinLevel');
-        const shouldTry =
-          everyNLevels > 0 &&
-          gameState.levelsCompletedThisSession % everyNLevels === 0 &&
-          gameState.currentLevelIndex + 1 >= minLevelNumber;
+        const decision = decideInterstitial({
+          levelNumber: gameState.currentLevelIndex + 1,
+          trigger: 'level_complete',
+          config: readInterstitialPolicyConfig(),
+        });
         const restartToNextLevel = (): void => {
           if (this.isShuttingDown || !this.sys.isActive()) return;
           this.scene.restart(
@@ -437,9 +447,9 @@ export class GameScene extends Phaser.Scene {
               : ({} as GameSceneData),
           );
         };
-        if (shouldTry && gameState.settings.adsEnabled) {
+        if (decision.allowed && gameState.settings.adsEnabled) {
           void adService
-            .maybeShowInterstitial({ minIntervalMs: remoteConfigService.value('interstitialMinIntervalS') * 1000 })
+            .maybeShowInterstitial({ minIntervalMs: decision.minIntervalMs })
             .then((shown: boolean): void => {
               if (shown) {
                 void analytics.adShown({ ad_type: 'interstitial', placement: 'between_levels' });
@@ -493,14 +503,37 @@ export class GameScene extends Phaser.Scene {
       levelNumber: gameState.currentLevelIndex + 1,
       onRetry: () => {
         const retryLevel = this.level;
-        showSceneTransitionCover();
-        gameState.reset();
-        if (retryLevel !== null) {
-          this.preserveLevelUrlsOnShutdown = true;
-          this.scene.restart({ levelData: retryLevel } as GameSceneData);
-        } else {
-          this.scene.restart({} as GameSceneData);
+        const restartLevel = (): void => {
+          if (this.isShuttingDown || !this.sys.isActive()) return;
+          showSceneTransitionCover();
+          gameState.reset();
+          if (retryLevel !== null) {
+            this.preserveLevelUrlsOnShutdown = true;
+            this.scene.restart({ levelData: retryLevel } as GameSceneData);
+          } else {
+            this.scene.restart({} as GameSceneData);
+          }
+        };
+        // Post-fail interstitial: shown on the way out of the fail screen, not
+        // over it, so the fail beat stays readable (mirrors the win path, where
+        // the ad sits between the overlay and the next level).
+        const decision = decideInterstitial({
+          levelNumber: gameState.currentLevelIndex + 1,
+          trigger: 'level_fail',
+          config: readInterstitialPolicyConfig(),
+        });
+        if (decision.allowed && gameState.settings.adsEnabled) {
+          void adService
+            .maybeShowInterstitial({ minIntervalMs: decision.minIntervalMs })
+            .then((shown: boolean): void => {
+              if (shown) {
+                void analytics.adShown({ ad_type: 'interstitial', placement: 'level_fail' });
+              }
+            })
+            .finally(restartLevel);
+          return;
         }
+        restartLevel();
       },
       onWatchAd: async () => this.continueWithRewardedAd(),
     });
@@ -529,7 +562,7 @@ export class GameScene extends Phaser.Scene {
     // out of scope per the conductor's no-shop ruling); a "continue" replays the
     // level with a fresh board and its full hearts.
     this.gameplayController?.setHudVisible(true);
-    this.gameplayController?.startLevel(gameState.currentLevelIndex + 1);
+    this.gameplayController?.startLevel(contentLevelNumber(gameState.currentLevelIndex));
     return true;
   }
 

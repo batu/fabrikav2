@@ -16,12 +16,17 @@ describe("device parity wave 8 CSS pins", () => {
   });
 
   it("centers the actual settings ribbon title", () => {
+    // NOTE: this assertion used to require `left: 50%` + translate(-50%, -50%),
+    // and passed while the shipped title sat 42px LEFT of the ribbon centre on a
+    // Pixel 6a — string-matching CSS proves nothing about layout. That pairing
+    // fought the kit's own left:0/right:0/margin-inline:auto centring. Centre it
+    // the kit's way and keep the over-constraining combination out.
     const css = shellArtCss();
     const title = css.match(/\.marble-ui \.marble-settings-card \.fab-modal-ribbon-title \{[^}]*\}/);
     expect(title).not.toBeNull();
-    expect(title![0]).toContain("left: 50%");
-    expect(title![0]).toContain("transform: translate(-50%, -50%)");
+    expect(title![0]).toContain("margin-inline: auto");
     expect(title![0]).toContain("text-align: center");
+    expect(title![0]).not.toContain("left: 50%");
   });
 
   it("keeps the live home visible through a purple menu-settings scrim", () => {
@@ -32,7 +37,9 @@ describe("device parity wave 8 CSS pins", () => {
     expect(menu![0]).not.toContain("background: #000");
     const scrim = css.match(/\.fab-ui\.fab-modal-backdrop\.marble-settings-modal--menu \.fab-modal-scrim \{[^}]*\}/);
     expect(scrim).not.toBeNull();
-    expect(scrim![0]).toContain("background: rgba(62, 43, 84, 0.72)");
+    // 0.72 left the home banner, coin pill, gear and LEVEL button plainly
+    // readable behind the card on device; v1 dims them to near-invisible.
+    expect(scrim![0]).toContain("background: rgba(62, 43, 84, 0.93)");
   });
 
   it("matches the v1 in-game settings shade and all-caps actions", () => {
@@ -51,29 +58,37 @@ describe("device parity wave 8 CSS pins", () => {
   it("shrinks the home preview budget on short phone viewports", () => {
     const css = shellArtCss();
     expect(css).toMatch(/@media \(max-height: 800px\)[^{]*\{[\s\S]*?\.marble-home-board-preview-slot \{[^}]*max-height: 115px/);
-    expect(css).toMatch(/@media \(min-height: 801px\) and \(max-height: 900px\)[^{]*\{[\s\S]*?max-height: min\(16vh, 140px\)/);
+    expect(css).toMatch(/@media \(min-height: 801px\) and \(max-height: 900px\)[^{]*\{[\s\S]*?max-height: min\(11vh, 100px\)/);
   });
 
-  it("uses the v1-sized banner title with a dark drop shadow", () => {
+  it("uses the v1-sized banner title with flat lettering (no offset shadow or outline)", () => {
+    // v1's title is flat brown with only a faint soft shadow. The old stack added
+    // a cream underline (read as a white outline on device) and a hard purple
+    // offset shadow; both are gone by product call (2026-07-27).
     const css = shellArtCss();
     const title = css.match(/\.marble-home-banner-title \{[^}]*\}/);
     expect(title).not.toBeNull();
     expect(title![0]).toContain("font-size: clamp(30px, 9.5vw, 42px)");
-    expect(title![0]).toContain("0 4px 0 #3d1b33");
+    expect(title![0]).not.toContain("0 4px 0 #3d1b33");
+    expect(title![0]).not.toContain("rgba(255, 240, 205");
   });
 
   it("uses cream toggle knobs and keeps CLOSE padded inside the card", () => {
     const css = shellArtCss();
     expect(css).toMatch(/\.marble-ui \.fab-toggle-slider::before \{ background: #fff4dc; \}/);
     const card = css.match(/\.marble-ui \.marble-settings-card\.fab-modal-card--image \{[^}]*\}/);
-    expect(card?.[0]).toContain("padding: 64px 30px 38px");
+    expect(card?.[0]).toContain("padding: 104px 42px 34px");
     expect(css).toMatch(/\.marble-settings-modal--menu \.fab-modal-actions \{[^}]*padding-bottom: 4px/);
   });
 
-  it("keeps the home saga dense and prominent", () => {
-    expect(MARBLE_LEVELMAP_THEME["--fab-levelmap-node-size"]).toBe("64px");
-    expect(MARBLE_LEVELMAP_THEME["--fab-levelmap-node-current-size"]).toBe("112px");
-    expect(MARBLE_LEVELMAP_THEME["--fab-levelmap-node-gap"]).toBe("2px");
+  it("uses v1's saga geometry", () => {
+    // Ported from v1 .menu-saga-mount .fab-ui (sugar3d/src/ui/style.css). The
+    // previous 64/112/2 values were tuned by eye and rendered nodes larger and
+    // tighter than v1.
+    expect(MARBLE_LEVELMAP_THEME["--fab-levelmap-node-size"]).toBe("56px");
+    expect(MARBLE_LEVELMAP_THEME["--fab-levelmap-node-current-size"]).toBe("100px");
+    expect(MARBLE_LEVELMAP_THEME["--fab-levelmap-node-gap"]).toBe("4px");
+    expect(MARBLE_LEVELMAP_THEME["--fab-levelmap-path-width"]).toBe("min(180px, 48vw)");
   });
 
   it("mounts the v1 eight-piece ambient sprinkle layer", () => {
