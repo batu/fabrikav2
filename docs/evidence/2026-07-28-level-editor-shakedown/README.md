@@ -1,4 +1,13 @@
-# Level editor fork — live shakedown (AE4)
+# Level editor fork — evidence log
+
+> **Current state (2026-07-29):** `tools/level-editor` is the live Find the
+> Bird editor. Corpus: **5 levels**, every one verified completable through the
+> game's own harness (`scripts/audit-corpus.sh`). Test suite: **134**.
+> `npm run editor2:verify` green.
+>
+> This file is a running log — sections below are dated and describe the state
+> at the time they were written, so earlier ones say "two pilots" or "three
+> levels". The line above is the authoritative current count.
 
 Date: 2026-07-28 · Plan: docs/plans/2026-07-28-001-feat-level-editor-fork-agentic-cli-plan.md
 
