@@ -1,7 +1,7 @@
 {
   "version": 1,
   "manifestRevision": 1,
-  "generatedAt": "2026-07-28T22:58:47.987857Z",
+  "generatedAt": "2026-07-28T23:23:24.265504Z",
   "experimentId": "find-the-bird-empty-v1",
   "levels": [
     {
@@ -494,6 +494,77 @@
             "hash": "8240232f5d4c22f296be232e2dd6d1ab9513b4eb35699b66b003a7b4353855d2",
             "size": 4138,
             "path": "levels/japan_morning_market_bird_a7a0/dogs/dog_14/sprite_000.png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "japan_morning_market_bird_e99f",
+      "name": "Level japan_morning_market_bird_e99f (bold_cardboard)",
+      "width": 768,
+      "height": 1376,
+      "cohort_buckets": [
+        "all"
+      ],
+      "bundled": true,
+      "assets": {
+        "levelJson": {
+          "hash": "04bc60234f3784b8fbbb359337c92e31ea728111c017ee757b9e01e50272e924",
+          "size": 3826,
+          "path": "levels/japan_morning_market_bird_e99f/level.json"
+        },
+        "colorImage": {
+          "hash": "4a9d33aba7cb756f55ab98119395b7c67c16797f04e7a0d932ffd8b7872bea54",
+          "size": 2094730,
+          "path": "levels/japan_morning_market_bird_e99f/color.png"
+        },
+        "bgImages": [
+          {
+            "hash": "ba318253523117a95b0512b9bf06c5c8e4490eae0715568eb1f86ad327c8bbc4",
+            "size": 2086864,
+            "path": "levels/japan_morning_market_bird_e99f/bg_00.png"
+          }
+        ],
+        "dogSprites": [
+          {
+            "hash": "3f8d5a83a25a9ed4c8de664b040e63e653be0c75554d32621c2d3452baa8b242",
+            "size": 3038,
+            "path": "levels/japan_morning_market_bird_e99f/dogs/dog_00/sprite_000.png"
+          },
+          {
+            "hash": "4df7bb75354846ad2dadddaae71d6d1c3713c965d10d0bf97bbaf554b0d2d8b5",
+            "size": 5632,
+            "path": "levels/japan_morning_market_bird_e99f/dogs/dog_01/sprite_000.png"
+          },
+          {
+            "hash": "12781ecba395e85e8ef4de93c6821a4c7d802e67af886a543084f2155bc23b7e",
+            "size": 3114,
+            "path": "levels/japan_morning_market_bird_e99f/dogs/dog_02/sprite_001.png"
+          },
+          {
+            "hash": "ef8d1bb41f578af72e291e41332f48206c96e3edb0873eb9ce27c83c4ba323de",
+            "size": 6910,
+            "path": "levels/japan_morning_market_bird_e99f/dogs/dog_03/sprite_000.png"
+          },
+          {
+            "hash": "e80bb427d752a71a95c0034df0c98a99ea7e100c16d3b6f61879f708c95f9886",
+            "size": 4465,
+            "path": "levels/japan_morning_market_bird_e99f/dogs/dog_04/sprite_000.png"
+          },
+          {
+            "hash": "acbba01b5b9e50bcd70f58a5a8a964f757765713f1a69c4519ea4cfcba4a5db8",
+            "size": 4259,
+            "path": "levels/japan_morning_market_bird_e99f/dogs/dog_05/sprite_000.png"
+          },
+          {
+            "hash": "2a698da402e3fe59814ef5cdf231c207a77cc799a051094d136155b1f4cc811d",
+            "size": 6309,
+            "path": "levels/japan_morning_market_bird_e99f/dogs/dog_06/sprite_000.png"
+          },
+          {
+            "hash": "82ae7844158fd04b6cfaad917f597c8f0ab8eddc2194dc54470becfbe526a548",
+            "size": 4019,
+            "path": "levels/japan_morning_market_bird_e99f/dogs/dog_07/sprite_000.png"
           }
         ]
       }

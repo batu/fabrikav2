@@ -141,7 +141,7 @@ stay untouched (proven by live probe, not just asserted).
 | `missing pickup sprite cleanup metadata for N dog(s)` | `repair-sprites <id>` (regenerates them); add `--drop-unrepairable` for placements that never yield a cutout |
 | `N painted dog(s) no longer map to any hitbox` (409) | a hitbox moved away from its painted bird; `fix-hitboxes <id>` then re-export. The export refuses rather than silently shipping fewer birds |
 | `Only selected N non-overlapping smart hitboxes` | scene too dense for that radius — `auto-hitboxes` auto-shrinks now; lower `--min-radius` or `--count` if it still gives up |
-| Lineup "Start" fails with `catalogLevelMissing` | the wizard has **no** route that registers a new level in the catalog — v1 retired `approve-catalog` and only the CLI un-retires it. Run `level-editor approve <session-id>` (or `export`, which includes it), then Start. See Known gaps |
+| Lineup "Start" fails with `catalogLevelMissing` | the level is not in the catalog yet — click **Publish to catalog** on its Gallery card, or run `level-editor approve <session-id>` |
 | tap-audit passes but you doubt it | confirm the reported `level` matches what you asked for; it fails hard on mismatch, and index-based selection is not supported for exactly this reason |
 | gate refusal: `cleanup geometry does not contain its center` | hitbox drifted off the painted bird — `fix-hitboxes <id>`, re-export |
 | 409 `painted dog(s) no longer map to any hitbox` | a hitbox moved away from painted art; without this guard the bird silently vanished from the package — `fix-hitboxes` or restore placements |
@@ -153,12 +153,6 @@ Operational history and evidence: `docs/evidence/2026-07-28-level-editor-shakedo
 
 ## Known gaps
 
-- **The wizard cannot catalog a new level.** `approve-catalog` is reachable
-  only from the CLI (`approve`, and implicitly `export`/`author`), so a human
-  working purely in the UI can select a level in Gallery but Lineup Start
-  refuses it with `catalogLevelMissing`. Agent→human parity is complete; the
-  human→agent direction has this one hole. The fix is a Gallery button calling
-  the same route.
 - **Approval replay protection is process-memory only** — it does not survive
   a server restart (inherited v1 semantics).
 - **No eslint config** for the forked UI (upstream had none either), so the

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { publishLevelToCatalog } from '../api/editorApi';
 import type { CSSProperties } from 'react';
 import {
   listSessions,
@@ -452,6 +453,7 @@ export default function GalleryPage({ config, onOpen }: Props) {
                 onOpenWizard={onOpen}
                 onOpenReview={handleCardOpen}
                 onToggleLineup={toggleLineupMembership}
+                onPublished={refresh}
               />
             ))}
           </div>
@@ -494,6 +496,7 @@ function GalleryCard({
   onOpenWizard,
   onOpenReview,
   onToggleLineup,
+  onPublished,
   visibilityIssues,
 }: {
   card: VariantCard;
@@ -503,12 +506,15 @@ function GalleryCard({
   onOpenWizard: (sessionId: string) => void;
   onOpenReview: (cardId: string) => void;
   onToggleLineup: (card: VariantCard, selectable: boolean) => void;
+  onPublished: () => void;
   visibilityIssues: VisibilityIssue[];
 }) {
   const { session, variant, state } = card;
   const thumbSrc = variantThumbnailUrl(session, variant);
   const previewSrc = variantPreviewUrl(session, variant);
   const [thumbFailed, setThumbFailed] = useState(false);
+  const [publishBusy, setPublishBusy] = useState(false);
+  const [publishError, setPublishError] = useState<string | null>(null);
   const downloadName = compositeDownloadName(session, variant);
   useEffect(() => {
     setThumbFailed(false);
@@ -712,6 +718,43 @@ function GalleryCard({
         >
           {lineupBusy ? 'Saving...' : selectedInLineup ? 'Remove from Lineup' : 'Add to Lineup'}
         </button>
+        {state !== 'background' && session.catalogUploaded !== true && (
+          <button
+            type="button"
+            data-gallery-no-reorder="true"
+            disabled={publishBusy}
+            onClick={async (e) => {
+              e.stopPropagation();
+              setPublishBusy(true);
+              setPublishError(null);
+              try {
+                await publishLevelToCatalog(session.id);
+                onPublished();
+              } catch (err) {
+                setPublishError(err instanceof Error ? err.message : 'Publish failed');
+              } finally {
+                setPublishBusy(false);
+              }
+            }}
+            title="Register this level in the catalog and bundled starters so Lineup Start can ship it"
+            style={{
+              marginTop: 4,
+              background: '#2a2438',
+              color: '#e6d9ff',
+              border: '1px solid #6b4fa8',
+              borderRadius: 4,
+              padding: '4px 8px',
+              fontSize: '0.75rem',
+              cursor: publishBusy ? 'wait' : 'pointer',
+              fontWeight: 700,
+            }}
+          >
+            {publishBusy ? 'Publishing...' : 'Publish to catalog'}
+          </button>
+        )}
+        {publishError !== null && (
+          <div style={{ color: '#ff9c9c', fontSize: '0.7rem', marginTop: 4 }}>{publishError}</div>
+        )}
         <button
           type="button"
           data-gallery-no-reorder="true"

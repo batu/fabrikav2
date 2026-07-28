@@ -903,6 +903,18 @@ export interface BundledManifest {
   levels: BundledManifestEntry[];
 }
 
+/** Register an exported level in the production catalog + bundled starters.
+ *  The CLI has always been able to do this (`level-editor approve`); without a
+ *  UI caller a human could select a level in Gallery but Lineup Start refused
+ *  it with catalogLevelMissing. */
+export async function publishLevelToCatalog(sessionId: string): Promise<void> {
+  const requestId = `ui-${sessionId}-${Date.now()}`;
+  await request(`/api/sessions/${sessionId}/approve-catalog?requestId=${encodeURIComponent(requestId)}`, {
+    method: 'POST',
+  });
+  await request(`/api/sessions/${sessionId}/bundle`, { method: 'POST' });
+}
+
 export function getBundledManifest(): Promise<BundledManifest> {
   return request<BundledManifest>(`/api/bundled-manifest`);
 }
