@@ -1239,7 +1239,17 @@ def list_sessions(*, include_public: bool = False) -> list[dict]:
                         raw_for_setting = json.load(f)
                 except (OSError, json.JSONDecodeError):
                     raw_for_setting = None
-            has_thumb = (d / "thumb_00.jpg").exists()
+            # `thumb_00.jpg` is a legacy artifact of the v1 SSE background flow;
+            # the durable-job path never writes it, so CLI-authored levels
+            # reported hasThumbnail=false and the Gallery refused to let a human
+            # add them to the Lineup ("Missing preview thumbnail asset") even
+            # though the thumbnail endpoint serves them fine. Report what the
+            # gallery can actually render: any source `ensure_gallery_thumbnail`
+            # accepts.
+            has_thumb = (d / "thumb_00.jpg").exists() or any(
+                (d / name).exists()
+                for name in ("color.png", "bg_00.png", "openai_color.png", "openai_color_v2.png")
+            )
             # Deprecated wire name: `exported` now mirrors local preview listing
             # rather than raw package-file presence. Catalog-uploaded-but-unlisted
             # assets can live under public/levels/ without being preview/live listed.

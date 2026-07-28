@@ -298,7 +298,7 @@ def cmd_create(client: Client, args: argparse.Namespace) -> None:
             "style": template["style"],
         }
         model = template.get("model")
-        n_dogs = args.count if args.count is not None else 20 if args.count is not None else int(template.get("nDogs", 20))
+        n_dogs = args.count if args.count is not None else int(template.get("nDogs", 20))
     else:
         required = ["setting", "scene", "style", "view", "entity"]
         missing = [name for name in required if not getattr(args, name.replace("-", "_"), None)]
@@ -353,7 +353,13 @@ def cmd_upscale(client: Client, args: argparse.Namespace) -> None:
 
 
 def cmd_auto_hitboxes(client: Client, args: argparse.Namespace) -> None:
-    body = {"nDogs": args.count, "strategy": args.strategy}
+    # Default to the session's own target count so the verb works bare; the
+    # server requires nDogs >= 1 and would 422 on None.
+    count = args.count
+    if count is None:
+        session = client.get(f"/api/sessions/{args.session_id}")
+        count = int(session.get("nDogs") or len(session.get("hitboxes") or []) or 20)
+    body = {"nDogs": count, "strategy": args.strategy}
     if args.radius:
         body["radius"] = args.radius
     _emit(args, client.post(f"/api/sessions/{args.session_id}/auto-hitboxes", json=body))

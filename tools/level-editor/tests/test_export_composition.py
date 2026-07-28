@@ -91,3 +91,49 @@ def test_create_count_overrides_template(monkeypatch, capsys):
     code, _ = _run(monkeypatch, capsys, stub, ["create", "--template", "t1", "--count", "7"])
     assert code == 0
     assert captured["nDogs"] == 7
+
+
+def test_template_ndogs_used_when_count_omitted(monkeypatch, capsys):
+    """The line-art template ships nDogs=15; omitting --count must not force 20."""
+    captured = {}
+    script = {
+        "/api/config": {"templates": [{
+            "id": "t1", "label": "T", "view": "isometric", "style": "lineart",
+            "entity": "bird", "setting": "japan", "scene": "japan_morning_market",
+            "model": "m", "nDogs": 15,
+        }]},
+        "/api/actions/assemble-recipe-prompts": {"scenePrompt": "s", "dogPrompt": "d"},
+        "/api/sessions": {"sessionId": "new_session"},
+    }
+    stub = _StubClient(script)
+    original = stub.request
+
+    def spy(method, path, **kwargs):
+        if path == "/api/sessions" and method == "POST":
+            captured.update(kwargs.get("json") or {})
+        return original(method, path, **kwargs)
+
+    stub.request = spy
+    code, _ = _run(monkeypatch, capsys, stub, ["create", "--template", "t1"])
+    assert code == 0
+    assert captured["nDogs"] == 15
+
+
+def test_auto_hitboxes_defaults_to_session_count(monkeypatch, capsys):
+    """Bare `auto-hitboxes <id>` must not send nDogs: null (server 422s)."""
+    captured = {}
+    stub = _StubClient({
+        "/api/sessions/s1": {"nDogs": 18, "hitboxes": []},
+        "/api/sessions/s1/auto-hitboxes": {"hitboxes": []},
+    })
+    original = stub.request
+
+    def spy(method, path, **kwargs):
+        if path.endswith("/auto-hitboxes"):
+            captured.update(kwargs.get("json") or {})
+        return original(method, path, **kwargs)
+
+    stub.request = spy
+    code, _ = _run(monkeypatch, capsys, stub, ["auto-hitboxes", "s1"])
+    assert code == 0
+    assert captured["nDogs"] == 18
