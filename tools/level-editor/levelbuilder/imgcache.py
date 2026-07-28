@@ -21,17 +21,25 @@ __all__ = ['_hash_arg', 'image_cache']
 # %% [markdown] nbs/utils/cache.ipynb 1 [notebook-only: "# Image Cache"]
 # %% nbs/utils/cache.ipynb 2
 from pathlib import Path
+import os
 from functools import wraps
 import hashlib
 
 from PIL import Image
 
-try:
-    CACHE_DIR = Path(__file__).resolve().parent.parent.parent / "nbs" / ".cache"
-except NameError:
-    # __file__ is not defined in Jupyter notebooks — use cwd
-    CACHE_DIR = Path(".cache")
-CACHE_DIR.mkdir(parents=True, exist_ok=True)
+# Notebook-era cache. In the fork this resolved to `tools/nbs/.cache` —
+# OUTSIDE the tool, polluting the repo's tools/ dir on every import. Keep it
+# inside the tool, and create it lazily so merely importing the module (which
+# every route does, via prompts) touches no filesystem.
+CACHE_DIR = Path(
+    os.environ.get("LEVEL_EDITOR_IMAGE_CACHE")
+    or Path(__file__).resolve().parent.parent / ".cache" / "images"
+)
+
+
+def _ensure_cache_dir() -> Path:
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    return CACHE_DIR
 
 
 def _hash_arg(arg) -> bytes:
@@ -60,7 +68,7 @@ def image_cache(fn):
             h.update(k.encode())
             h.update(_hash_arg(kwargs[k]))
         key = f"{fn.__name__}_{h.hexdigest()[:12]}"
-        path = CACHE_DIR / f"{key}.png"
+        path = _ensure_cache_dir() / f"{key}.png"
         if cached and path.exists():
             return Image.open(path)  # preserve original mode (RGB or RGBA)
         img = fn(*args, **kwargs)
