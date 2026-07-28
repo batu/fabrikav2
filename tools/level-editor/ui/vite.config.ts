@@ -1,4 +1,6 @@
 import { defineConfig } from 'vite';
+
+const apiTarget = process.env.LEVEL_EDITOR_API ?? 'http://localhost:5192';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
@@ -13,15 +15,15 @@ export default defineConfig({
     },
     proxy: {
       '/api': {
-        target: 'http://localhost:5192',
+        target: apiTarget,
         changeOrigin: true,
       },
       '/levels': {
-        target: 'http://localhost:5192',
+        target: apiTarget,
         changeOrigin: true,
       },
       '/public-levels': {
-        target: 'http://localhost:5192',
+        target: apiTarget,
         changeOrigin: true,
       },
     },

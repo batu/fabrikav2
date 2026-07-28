@@ -46,8 +46,23 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 from contextlib import asynccontextmanager
 
 # Resolve the per-game profile BEFORE the route/session imports below: the
-# forked v1 modules bind their filesystem roots at import time.
-from levelbuilder.settings import apply_game_from_env
+# forked v1 modules bind their filesystem roots at import time. When run as
+# `python -m levelbuilder.api.server`, `--game` must be parsed HERE — the
+# bottom `__main__` block runs only after the session module has already
+# cached its roots (observed live: `--game` silently ignored, sessions landing
+# in the tool dir).
+from levelbuilder.settings import apply_game_from_env, resolve_game
+
+_CLI_ARGS = None
+if __name__ == "__main__":
+    import argparse as _argparse
+
+    _parser = _argparse.ArgumentParser(description="Level editor server")
+    _parser.add_argument("--game", help="game name under games/ (or absolute game path)")
+    _parser.add_argument("--port", type=int, default=5192)
+    _CLI_ARGS = _parser.parse_args()
+    if _CLI_ARGS.game:
+        resolve_game(_CLI_ARGS.game).apply()
 
 ACTIVE_GAME = apply_game_from_env()
 
@@ -280,20 +295,10 @@ app.mount("/public-levels", StaticFiles(directory=str(_session_mod.GAME_PUBLIC_L
 
 
 if __name__ == "__main__":
-    import argparse
     import uvicorn
     import logging
 
-    _parser = argparse.ArgumentParser(description="Level editor server")
-    _parser.add_argument("--game", help="game name under games/ (or absolute game path)")
-    _parser.add_argument("--port", type=int, default=5192)
-    _cli_args = _parser.parse_args()
-    if _cli_args.game:
-        # Translate to env so the uvicorn import-string reload path resolves
-        # the same profile when it reimports this module.
-        from levelbuilder.settings import resolve_game
-
-        resolve_game(_cli_args.game).apply()
+    _cli_args = _CLI_ARGS  # parsed at module top, before session-root binding
 
     # SSE auth fallback: clients that can't set Authorization headers
     # (EventSource) pass the token via `?token=...`. Without scrubbing,
