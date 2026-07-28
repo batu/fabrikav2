@@ -30,3 +30,31 @@ verified live (`/api/config` reports the passed game; wizard masthead renders
 Remaining live coverage (unbudgeted, deliberate): inpaint/upscale/export verbs
 have scripted-provider coverage only; the F2 human+agent co-presence
 walkthrough needs the human at the wizard.
+
+## Overnight session (2026-07-28/29): two pilot levels authored solo via CLI
+
+Full F1 flow, agent-only, against `--game find_the_bird` on the live fork:
+template create → generate-bg → smart auto-hitboxes (r=26/24; default r=50 is
+sized for the old broad scenes) → 20-bird inpaint → sprite repair regen loop
+(`FTD_SPRITE_REPAIR=1` required — off by default, silently skips weak alphas)
+→ `fix-hitboxes` (recenter into sprite cleanup boxes; the gate correctly
+refused off-center dogs) → approve-catalog → bundle → validate.
+
+Result: `fairytale_forest_mushroom_cottage_glade_bird_d894` and
+`japan_morning_market_bird_a53a` installed, cataloged, bundled; corpus
+validator green (2 levels). Pilot 1 verified IN-GAME: level loads, 0/20
+counter, tap on the tutorial bird → 1/20 with clean sprite pickup + cleanup
+(pilot1-ingame.png, pilot1-ingame-found.png).
+
+Un-retired in the fork for new-level publishing: `approve-catalog` route and a
+new manifest-only `bundle` route (v1 retired these expecting the v2 cutover to
+own new-level publishing; a fresh game needs them).
+
+Deliberate stop: the sequence Start job's final phase is Firebase Remote
+Config activation — refused by the fork's disabled publisher, by design. The
+game consumes bundled/catalog manifests, which are complete. Whether FTB ever
+uses RC sequences is an open product decision.
+
+Known quality notes for the human pass: pilot 1 has signpost text ("Faerie
+Glen / Troll Bridge") despite the no-text constraint; a handful of birds are
+easy-visibility; game UI copy still says "dog" (reskin backlog).

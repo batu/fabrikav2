@@ -50,6 +50,8 @@ WIZARD_OPERATIONS: dict[str, str] = {
     "sequence-dry-run": "export",
     "sequence-start-job": "export",
     "session-archive": "archive",
+    "approve-catalog": "approve",
+    "bundle-starter": "export",
     "prompt-library": "prompts",
     "generation-status": "status",
 }
@@ -120,8 +122,19 @@ def _emit(args: argparse.Namespace, payload: Any) -> None:
 def _wait_for_job(client: Client, job_id: str, *, timeout_s: float, quiet: bool) -> dict:
     deadline = time.monotonic() + timeout_s
     last_status = None
+    transient_failures = 0
     while True:
-        job = client.get(f"/api/jobs/{job_id}")
+        try:
+            job = client.get(f"/api/jobs/{job_id}")
+        except (httpx.TransportError, CliError) as error:
+            # Jobs are durable server-side; a transient transport blip must not
+            # abandon the wait. Give up only after sustained unreachability.
+            transient_failures += 1
+            if transient_failures > 30:
+                raise CliError("poll_unreachable", f"lost the server while waiting on job {job_id}: {error}", stage="wait") from error
+            time.sleep(4.0)
+            continue
+        transient_failures = 0
         status = job.get("status")
         if status != last_status and not quiet:
             print(f"job {job_id}: {status}", file=sys.stderr)
@@ -305,7 +318,7 @@ def cmd_generate_bg(client: Client, args: argparse.Namespace) -> None:
     job = client.post(f"/api/sessions/{args.session_id}/background-generation/jobs")
     if args.wait:
         job = _require_success(
-            _wait_for_job(client, job["jobId"], timeout_s=args.timeout, quiet=args.json)
+            _wait_for_job(client, job.get("jobId") or job.get("id"), timeout_s=args.timeout, quiet=args.json)
         )
     _emit(args, job)
 
@@ -319,13 +332,15 @@ def cmd_upscale(client: Client, args: argparse.Namespace) -> None:
     job = client.post(f"/api/sessions/{args.session_id}/upscale-bg/jobs")
     if args.wait:
         job = _require_success(
-            _wait_for_job(client, job["jobId"], timeout_s=args.timeout, quiet=args.json)
+            _wait_for_job(client, job.get("jobId") or job.get("id"), timeout_s=args.timeout, quiet=args.json)
         )
     _emit(args, job)
 
 
 def cmd_auto_hitboxes(client: Client, args: argparse.Namespace) -> None:
     body = {"nDogs": args.count, "strategy": args.strategy}
+    if args.radius:
+        body["radius"] = args.radius
     _emit(args, client.post(f"/api/sessions/{args.session_id}/auto-hitboxes", json=body))
 
 
@@ -364,13 +379,18 @@ def cmd_inpaint(client: Client, args: argparse.Namespace) -> None:
         job = client.post(f"/api/sessions/{args.session_id}/inpaint/jobs", json=body)
     if args.wait:
         job = _require_success(
-            _wait_for_job(client, job["jobId"], timeout_s=args.timeout, quiet=args.json)
+            _wait_for_job(client, job.get("jobId") or job.get("id"), timeout_s=args.timeout, quiet=args.json)
         )
     _emit(args, job)
 
 
 def cmd_regenerate(client: Client, args: argparse.Namespace) -> None:
-    _emit(args, client.post(f"/api/sessions/{args.session_id}/dogs/by-id/{args.dog}/regen", json={}))
+    session = client.get(f"/api/sessions/{args.session_id}")
+    prompts = client.post("/api/actions/assemble-recipe-prompts", json=_session_recipe(session))
+    _emit(args, client.post(
+        f"/api/sessions/{args.session_id}/dogs/by-id/{args.dog}/regen",
+        json={"prompt": prompts["dogPrompt"]},
+    ))
 
 
 def cmd_dogs(client: Client, args: argparse.Namespace) -> None:
@@ -388,6 +408,35 @@ def cmd_dogs(client: Client, args: argparse.Namespace) -> None:
         session = client.get(f"/api/sessions/{args.session_id}")
         result = session.get("dogs") or []
     _emit(args, result)
+
+
+def cmd_fix_hitboxes(client: Client, args: argparse.Namespace) -> None:
+    """Recenter hitboxes into their active sprite cleanup boxes.
+
+    The inpainted bird often sits slightly off the requested center; the
+    export gate (correctly) refuses a dog whose center falls outside its
+    cleanup geometry, and gameplay taps should track the visible bird anyway.
+    Deterministic, server-authoritative data flow: read session, compute new
+    centers from sprite metadata, save via the hitboxes endpoint."""
+    session = client.get(f"/api/sessions/{args.session_id}")
+    hitboxes = session.get("hitboxes") or []
+    dogs = {d["index"]: d for d in session.get("dogs") or []}
+    moved = []
+    for index, hb in enumerate(hitboxes):
+        dog = dogs.get(index) or {}
+        sprite = dog.get("sprite") or {}
+        box = sprite.get("cleanup", {}).get("box") or sprite.get("cleanupBox")
+        if not box:
+            continue
+        if not (box[0] <= hb["x"] <= box[2] and box[1] <= hb["y"] <= box[3]):
+            hb["x"], hb["y"] = (box[0] + box[2]) // 2, (box[1] + box[3]) // 2
+            moved.append(index)
+    if moved:
+        client.post(
+            f"/api/sessions/{args.session_id}/hitboxes",
+            json={"hitboxes": hitboxes, "action": "recenter"},
+        )
+    _emit(args, {"moved": moved, "total": len(hitboxes)})
 
 
 def cmd_review(client: Client, args: argparse.Namespace) -> None:
@@ -431,9 +480,30 @@ def cmd_watch(client: Client, args: argparse.Namespace) -> None:
         time.sleep(args.interval)
 
 
+def cmd_approve(client: Client, args: argparse.Namespace) -> None:
+    _emit(args, client.post(
+        f"/api/sessions/{args.session_id}/approve-catalog",
+        params={"requestId": str(uuid.uuid4())},
+    ))
+
+
 def cmd_export(client: Client, args: argparse.Namespace) -> None:
+    if args.session_id and not args.skip_approve:
+        client.post(
+            f"/api/sessions/{args.session_id}/approve-catalog",
+            params={"requestId": str(uuid.uuid4())},
+        )
+    if args.session_id:
+        client.post(f"/api/sessions/{args.session_id}/bundle")
     state = client.get("/api/sequence-workflow")
-    lineup = list(state.get("draft", {}).get("levelIds") or state.get("liveLevelIds") or [])
+    live = state.get("liveSequence") or {}
+    draft_state = state.get("draft") or {}
+    base_version = live.get("sequenceVersion") or ""
+    # The draft's catalog base tracks the CATALOG authority, which advances on
+    # approve-catalog; the live sequence's catalogRevision lags until a
+    # sequence ships.
+    base_catalog = (state.get("catalog") or {}).get("catalogRevision") or live.get("catalogRevision") or ""
+    lineup = list(draft_state.get("levelIds") or live.get("levelIds") or [])
     if args.session_id and args.session_id not in lineup:
         lineup.append(args.session_id)
     draft = client.request(
@@ -441,26 +511,28 @@ def cmd_export(client: Client, args: argparse.Namespace) -> None:
         "/api/sequence-workflow/draft",
         json={
             "levelIds": lineup,
-            "baseLiveSequenceVersion": state.get("liveSequenceVersion") or "",
-            "baseCatalogRevision": state.get("catalogRevision") or "",
-            "draftRevision": state.get("draft", {}).get("draftRevision") or "",
+            "baseLiveSequenceVersion": base_version,
+            "baseCatalogRevision": base_catalog,
+            "draftRevision": draft_state.get("draftRevision") or "",
         },
     )
+    new_draft = (draft.get("draft") or {}).get("draftRevision") or draft.get("draftRevision") or ""
     job = client.post(
         "/api/sequence-workflow/start",
         json={
             "changelogNote": args.note,
-            "baseLiveSequenceVersion": state.get("liveSequenceVersion") or "",
-            "baseCatalogRevision": state.get("catalogRevision") or "",
-            "draftRevision": draft.get("draft", {}).get("draftRevision") or draft.get("draftRevision") or "",
+            "baseLiveSequenceVersion": base_version,
+            "baseCatalogRevision": base_catalog,
+            "draftRevision": new_draft,
             "destructiveWarningAcknowledged": bool(args.acknowledge_destructive),
             "requestId": str(uuid.uuid4()),
             "dynamicBundle": False,
         },
     )
-    if args.wait:
+    job_id = job.get("jobId") or job.get("id")
+    if args.wait and job_id:
         job = _require_success(
-            _wait_for_job(client, job["jobId"], timeout_s=args.timeout, quiet=args.json)
+            _wait_for_job(client, job_id, timeout_s=args.timeout, quiet=args.json)
         )
     _emit(args, job)
 
@@ -557,6 +629,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("session_id")
     p.add_argument("--count", type=int, default=20)
     p.add_argument("--strategy", default="random")
+    p.add_argument("--radius", type=int)
 
     p = verb("set-hitboxes", cmd_set_hitboxes)
     p.add_argument("session_id")
@@ -583,6 +656,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--variant", type=int)
     p.add_argument("--delete")
 
+    p = verb("fix-hitboxes", cmd_fix_hitboxes)
+    p.add_argument("session_id")
+
     p = verb("review", cmd_review)
     p.add_argument("session_id")
     p.add_argument("--out", required=True)
@@ -591,8 +667,12 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("session_id")
     p.add_argument("--interval", type=float, default=2.0)
 
+    p = verb("approve", cmd_approve)
+    p.add_argument("session_id")
+
     p = verb("export", cmd_export)
     p.add_argument("session_id", nargs="?")
+    p.add_argument("--skip-approve", action="store_true")
     p.add_argument("--note", default="level-editor CLI export")
     p.add_argument("--wait", action="store_true")
     p.add_argument("--timeout", type=float, default=1800.0)

@@ -1895,8 +1895,26 @@ def preview_level_locally(
 
 
 @router.post("/sessions/{session_id}/approve-catalog")
-def approve_level_for_catalog(session_id: str):
-    _retired_direct_package_route(session_id)
+def approve_level_for_catalog(session_id: str, requestId: str = Query(None)):
+    # Un-retired in the fork: FTD retired this because new-level publishing was
+    # to move to the v2 editor at cutover, leaving new levels with NO live path
+    # into the production catalog. This tool authors new levels, so the reviewed
+    # session → catalog registration path is load-bearing again. The staging
+    # export inside runs through the fail-closed export gate.
+    return S.approve_level_for_catalog(session_id, request_id=requestId)
+
+
+@router.post("/sessions/{session_id}/bundle")
+def bundle_level_as_starter(session_id: str):
+    # Fork addition: register an installed public package in the bundled
+    # manifest (starter set). Pure manifest upsert over already-installed
+    # bytes — catalog packages are not mutated. The original v1 flow only
+    # bundled at preview-time pre-catalog; a fresh game needs a way to bundle
+    # a level that was cataloged first.
+    _validate_session_id(session_id)
+    S._ensure_levels_index_entry(session_id)
+    manifest = S.upsert_bundled_manifest_level(session_id)
+    return {"levelId": session_id, "bundled": True, "manifestRevision": manifest.get("manifestRevision")}
 
 
 @router.get("/catalog/levels")
