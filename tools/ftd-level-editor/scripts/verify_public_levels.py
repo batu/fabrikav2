@@ -15,6 +15,24 @@ LEVELS = ROOT / "games/find_the_dog/public/levels"
 
 
 def main() -> int:
+    # --root <public-levels dir> validates another game's corpus with the same
+    # engine; the FTD invocation (no args) keeps its historical strictness,
+    # including the levels-index retention gate below.
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--root", type=Path, default=None)
+    parser.add_argument(
+        "--no-require-levels-index",
+        action="store_true",
+        help="skip the FTD-legacy levels-index.json retention gate",
+    )
+    args = parser.parse_args()
+    global LEVELS
+    if args.root is not None:
+        LEVELS = args.root.resolve()
+    require_levels_index = args.root is None and not args.no_require_levels_index
+
     level_paths = sorted(LEVELS.glob("*/level.json"))
     if not level_paths:
         raise SystemExit("no committed public levels found")
@@ -30,12 +48,13 @@ def main() -> int:
     catalog_path = LEVELS / "catalog-manifest.json"
     catalog = validate_catalog(json.loads(catalog_path.read_text()))
     verify_catalog_assets(catalog, LEVELS.parent)
-    index_path = LEVELS / "levels-index.json"
-    if not index_path.exists():
-        raise SystemExit(
-            "levels-index.json remains required by create-game until all consumer gates migrate"
-        )
-    print(f"validated {len(level_paths)} level packages, catalog, and retained levels-index")
+    if require_levels_index:
+        index_path = LEVELS / "levels-index.json"
+        if not index_path.exists():
+            raise SystemExit(
+                "levels-index.json remains required by create-game until all consumer gates migrate"
+            )
+    print(f"validated {len(level_paths)} level packages and catalog (root={LEVELS})")
     return 0
 
 

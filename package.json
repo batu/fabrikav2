@@ -14,7 +14,9 @@
     "tools/verify-device",
     "tools/verify-gate",
     "tools/game-env",
-    "tools/native-shell"
+    "tools/native-shell",
+    "tools/level-editor",
+    "tools/level-editor/ui"
   ],
   "scripts": {
     "typecheck": "npm run typecheck --workspaces --if-present",
@@ -30,7 +32,8 @@
     "create-game": "node tools/create-game/src/create-game.mjs",
     "refcap-compare": "node tools/refcap-compare/cli.mjs",
     "verify-device": "node tools/verify-device/cli.mjs",
-    "editor:verify": "npm run editor:verify -w @fabrikav2/ftd-level-editor"
+    "editor:verify": "npm run editor:verify -w @fabrikav2/ftd-level-editor",
+    "editor2:verify": "npm run editor2:verify -w @fabrikav2/level-editor-tool"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

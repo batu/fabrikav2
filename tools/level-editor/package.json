@@ -1,0 +1,11 @@
+{
+  "name": "@fabrikav2/level-editor-tool",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "typecheck": "tsc -p ui/tsconfig.json --noEmit",
+    "editor2:backend:test": "UV_CACHE_DIR=${TMPDIR:-/tmp}/level-editor-uv-cache uv run pytest tests -q",
+    "editor2:ui:build": "npm run build -w @fabrikav2/level-editor",
+    "editor2:verify": "npm run editor2:backend:test && npm run typecheck && npm run editor2:ui:build"
+  }
+}
