@@ -74,10 +74,13 @@ TERMINAL_JOB_STATUSES = {
 
 
 class CliError(Exception):
-    def __init__(self, code: str, message: str, stage: str = "cli") -> None:
+    def __init__(self, code: str, message: str, stage: str = "cli", context: dict | None = None) -> None:
         self.code = code
         self.stage = stage
         self.message = message
+        # Extra operator-facing state (e.g. the session id you already paid
+        # for, and how to resume) merged into the single error envelope.
+        self.context = context or {}
         super().__init__(message)
 
 
@@ -492,6 +495,10 @@ def cmd_author(client: Client, args: argparse.Namespace) -> None:
     a progress line to stderr; --stop-after resumes-friendly partial runs.
     """
     steps = list(AUTHOR_STEPS)
+    if args.start_from:
+        if args.start_from not in steps:
+            raise CliError("unknown_step", f"--start-from must be one of: {', '.join(steps)}")
+        steps = steps[steps.index(args.start_from):]
     if args.stop_after:
         if args.stop_after not in steps:
             raise CliError("unknown_step", f"--stop-after must be one of: {', '.join(steps)}")
@@ -507,114 +514,155 @@ def cmd_author(client: Client, args: argparse.Namespace) -> None:
         trace.append({"step": step, "detail": detail})
         print(f"[author] {step}: {json.dumps(detail, default=str)[:160]}", file=sys.stderr)
 
+    session_id = None
+    # Resume safety: rerunning with --session-id must not redo paid work. The
+    # natural recovery action after a partial run is exactly this command, so
+    # skipping already-satisfied steps is what keeps it from double-spending.
     session_id = args.session_id
-    for step in steps:
-        if step == "create":
-            if session_id:
-                note("create", {"reused": session_id})
+    existing = client.get(f"/api/sessions/{session_id}") if session_id else {}
+    already_has_bg = bool(existing.get("backgrounds") or existing.get("selectedBgIndex") is not None)
+    already_painted = any(
+        isinstance(dog, dict) and dog.get("activeVariant") is not None
+        for dog in (existing.get("dogs") or [])
+    )
+
+    try:
+        for step in steps:
+            if step == "generate-bg" and already_has_bg and not args.redo:
+                note("generate-bg", {"skipped": "session already has backgrounds (use --redo)"})
                 continue
-            if not args.template:
-                raise CliError("template_required", "author needs --template or an existing --session-id")
-            create_args = argparse.Namespace(**{**vars(args), "json": False})
-            config = client.get("/api/config")
-            template = next((t for t in config.get("templates", []) if t["id"] == args.template), None)
-            if template is None:
-                raise CliError("unknown_template", f"no template {args.template!r}")
-            recipe = {k: template[k] for k in ("setting", "scene", "entity", "view", "style")}
-            prompts = client.post("/api/actions/assemble-recipe-prompts", json=recipe)
-            model = template.get("model")
-            created = client.post("/api/sessions", json={
-                **recipe,
-                "scenePrompt": prompts["scenePrompt"],
-                "dogPrompt": prompts["dogPrompt"],
-                "bgModel": model,
-                "inpaintModel": model,
-                "nDogs": args.count,
-                "aspectRatio": "9:16",
-                "imageSize": "1K",
-            })
-            session_id = created["sessionId"]
-            note("create", {"sessionId": session_id, "template": args.template})
-        elif step == "generate-bg":
-            job = client.post(f"/api/sessions/{session_id}/background-generation/jobs")
-            job = _require_success(_wait_for_job(client, job.get("jobId") or job.get("id"),
-                                                 timeout_s=args.timeout, quiet=True))
-            note("generate-bg", {"status": job.get("status")})
-        elif step == "select-bg":
-            client.post(f"/api/sessions/{session_id}/select-bg", json={"bgIndex": args.bg_index})
-            note("select-bg", {"index": args.bg_index})
-        elif step == "auto-hitboxes":
-            placement = argparse.Namespace(**{**vars(args), "session_id": session_id})
-            radius = args.radius or 30
-            while True:
-                try:
-                    result = client.post(f"/api/sessions/{session_id}/auto-hitboxes",
-                                         json={"nDogs": args.count, "strategy": args.strategy, "radius": radius})
-                    note("auto-hitboxes", {"placed": len(result.get("hitboxes", [])), "radius": radius})
-                    break
-                except CliError as error:
-                    if "non-overlapping" not in error.message and "smart_hitboxes_failed" not in error.message:
-                        raise
-                    radius -= args.shrink_step
-                    if radius < args.min_radius:
-                        raise CliError("placement_did_not_fit",
-                                       f"could not fit {args.count} hitboxes at radius >= {args.min_radius}",
-                                       stage="auto-hitboxes") from error
-        elif step == "inpaint":
-            session = client.get(f"/api/sessions/{session_id}")
-            prompts = client.post("/api/actions/assemble-recipe-prompts", json=_session_recipe(session))
-            job = client.post(f"/api/sessions/{session_id}/inpaint/jobs", json={
-                "hitboxes": session.get("hitboxes") or [],
-                "dogPrompt": prompts["dogPrompt"],
-                "padding": 2.75,
-                "hardDogPercent": args.hard_percent,
-                "inpaintMode": "crop",
-            })
-            job = _require_success(_wait_for_job(client, job.get("jobId") or job.get("id"),
-                                                 timeout_s=args.inpaint_timeout, quiet=True))
-            note("inpaint", job.get("result", {}))
-        elif step == "repair-sprites":
-            for attempt in range(args.repair_passes):
-                gaps = client.get(f"/api/sessions/{session_id}/sprite-gaps").get("missing", [])
-                if not gaps:
-                    break
+            if step == "inpaint" and already_painted and not args.redo:
+                note("inpaint", {"skipped": "dogs already painted (use --redo)"})
+                continue
+            if step == "auto-hitboxes" and already_painted and not args.redo:
+                # Re-placing hitboxes under painted art moves every tap target
+                # away from its bird — the export gate then refuses the level.
+                note("auto-hitboxes", {"skipped": "session already painted; re-placing would orphan the art"})
+                continue
+            if step == "create":
+                if session_id:
+                    note("create", {"reused": session_id})
+                    continue
+                if not args.template:
+                    raise CliError("template_required", "author needs --template or an existing --session-id")
+                config = client.get("/api/config")
+                template = next((t for t in config.get("templates", []) if t["id"] == args.template), None)
+                if template is None:
+                    raise CliError("unknown_template", f"no template {args.template!r}")
+                recipe = {k: template[k] for k in ("setting", "scene", "entity", "view", "style")}
+                prompts = client.post("/api/actions/assemble-recipe-prompts", json=recipe)
+                model = template.get("model")
+                created = client.post("/api/sessions", json={
+                    **recipe,
+                    "scenePrompt": prompts["scenePrompt"],
+                    "dogPrompt": prompts["dogPrompt"],
+                    "bgModel": model,
+                    "inpaintModel": model,
+                    "nDogs": args.count,
+                    "aspectRatio": "9:16",
+                    "imageSize": "1K",
+                })
+                session_id = created["sessionId"]
+                note("create", {"sessionId": session_id, "template": args.template})
+            elif step == "generate-bg":
+                job = client.post(f"/api/sessions/{session_id}/background-generation/jobs")
+                job = _require_success(_wait_for_job(client, job.get("jobId") or job.get("id"),
+                                                     timeout_s=args.timeout, quiet=True))
+                note("generate-bg", {"status": job.get("status")})
+            elif step == "select-bg":
+                client.post(f"/api/sessions/{session_id}/select-bg", json={"bgIndex": args.bg_index})
+                note("select-bg", {"index": args.bg_index})
+            elif step == "auto-hitboxes":
+                radius = args.radius or 30
+                while True:
+                    try:
+                        result = client.post(f"/api/sessions/{session_id}/auto-hitboxes",
+                                             json={"nDogs": args.count, "strategy": args.strategy, "radius": radius})
+                        note("auto-hitboxes", {"placed": len(result.get("hitboxes", [])), "radius": radius})
+                        break
+                    except CliError as error:
+                        if "non-overlapping" not in error.message and "smart_hitboxes_failed" not in error.message:
+                            raise
+                        radius -= args.shrink_step
+                        if radius < args.min_radius:
+                            raise CliError("placement_did_not_fit",
+                                           f"could not fit {args.count} hitboxes at radius >= {args.min_radius}",
+                                           stage="auto-hitboxes") from error
+            elif step == "inpaint":
                 session = client.get(f"/api/sessions/{session_id}")
                 prompts = client.post("/api/actions/assemble-recipe-prompts", json=_session_recipe(session))
-                for entry in gaps:
-                    try:
-                        client.post(f"/api/sessions/{session_id}/dogs/by-id/{entry['dogId']}/regen",
-                                    json={"prompt": prompts["dogPrompt"]})
-                    except CliError:
-                        continue
-            remaining = client.get(f"/api/sessions/{session_id}/sprite-gaps").get("missing", [])
-            if remaining and args.drop_unrepairable:
-                for entry in remaining:
-                    client.request("DELETE", f"/api/sessions/{session_id}/dogs/by-id/{entry['dogId']}")
+                job = client.post(f"/api/sessions/{session_id}/inpaint/jobs", json={
+                    "hitboxes": session.get("hitboxes") or [],
+                    "dogPrompt": prompts["dogPrompt"],
+                    "padding": 2.75,
+                    "hardDogPercent": args.hard_percent,
+                    "inpaintMode": "crop",
+                })
+                job = _require_success(_wait_for_job(client, job.get("jobId") or job.get("id"),
+                                                     timeout_s=args.inpaint_timeout, quiet=True))
+                note("inpaint", job.get("result", {}))
+            elif step == "repair-sprites":
+                budget = args.max_repairs
+                regen_failures: list[dict] = []
+                for _pass in range(args.repair_passes):
+                    gaps = client.get(f"/api/sessions/{session_id}/sprite-gaps").get("missing", [])
+                    if not gaps or budget <= 0:
+                        break
+                    session = client.get(f"/api/sessions/{session_id}")
+                    prompts = client.post("/api/actions/assemble-recipe-prompts", json=_session_recipe(session))
+                    for entry in gaps:
+                        if budget <= 0:
+                            break
+                        budget -= 1
+                        try:
+                            client.post(f"/api/sessions/{session_id}/dogs/by-id/{entry['dogId']}/regen",
+                                        json={"prompt": prompts["dogPrompt"]})
+                        except CliError as error:
+                            regen_failures.append({"index": entry["index"], "error": error.message[:120]})
                 remaining = client.get(f"/api/sessions/{session_id}/sprite-gaps").get("missing", [])
-            note("repair-sprites", {"remaining": [e["index"] for e in remaining]})
-        elif step == "fix-hitboxes":
-            moved = client.post(f"/api/sessions/{session_id}/fix-hitboxes",
-                                params={"maxOffsetFraction": args.max_offset})
-            note("fix-hitboxes", {"moved": len(moved.get("moved", []))})
-        elif step == "export":
-            export_args = argparse.Namespace(**{
-                **vars(args),
-                "session_id": session_id,
-                "skip_approve": False,
-                "force_reapprove": False,
-                "acknowledge_destructive": False,
-                "note": args.changelog,
-                "wait": True,
-            })
-            try:
-                job = _run_export(client, export_args)
-                note("export", {"packaged": True, "status": job.get("status")})
-            except CliError as error:
-                # The RC-activation refusal is expected and NOT a failure: the
-                # package and manifests are already installed by then.
-                if "Remote Config publisher" not in error.message:
-                    raise
-                note("export", {"packaged": True, "remoteActivation": "refused by design"})
+                if remaining and args.drop_unrepairable:
+                    for entry in remaining:
+                        client.request("DELETE", f"/api/sessions/{session_id}/dogs/by-id/{entry['dogId']}")
+                    remaining = client.get(f"/api/sessions/{session_id}/sprite-gaps").get("missing", [])
+                note("repair-sprites", {
+                    "remaining": [e["index"] for e in remaining],
+                    "regenBudgetLeft": budget,
+                    "regenFailures": regen_failures,
+                })
+            elif step == "fix-hitboxes":
+                moved = client.post(f"/api/sessions/{session_id}/fix-hitboxes",
+                                    params={"maxOffsetFraction": args.max_offset})
+                note("fix-hitboxes", {"moved": len(moved.get("moved", []))})
+            elif step == "export":
+                export_args = argparse.Namespace(**{
+                    **vars(args),
+                    "session_id": session_id,
+                    "skip_approve": False,
+                    "force_reapprove": False,
+                    "acknowledge_destructive": False,
+                    "note": args.changelog,
+                    "wait": True,
+                })
+                try:
+                    job = _run_export(client, export_args)
+                    note("export", {"packaged": True, "status": job.get("status")})
+                except CliError as error:
+                    # The RC-activation refusal is expected and NOT a failure: the
+                    # package and manifests are already installed by then.
+                    if "Remote Config publisher" not in error.message:
+                        raise
+                    note("export", {"packaged": True, "remoteActivation": "refused by design"})
+    except CliError as error:
+        # The session id is the operator's handle for resuming; losing it to a
+        # stderr-only note after paying for a background is unacceptable.
+        error.context = {
+            **error.context,
+            "sessionId": session_id,
+            "trace": trace,
+            **({"resume": f"level-editor author --session-id {session_id} --start-from <step>"}
+               if session_id else {}),
+        }
+        raise
     _emit(args, {"sessionId": session_id, "trace": trace})
 
 
@@ -967,7 +1015,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--timeout", type=float, default=900.0)
     p.add_argument("--inpaint-timeout", type=float, default=3600.0)
     p.add_argument("--force-disk", action="store_true")
+    p.add_argument("--start-from", choices=list(AUTHOR_STEPS))
     p.add_argument("--stop-after", choices=list(AUTHOR_STEPS))
+    p.add_argument("--max-repairs", type=int, default=25)
+    p.add_argument("--redo", action="store_true",
+                   help="regenerate even when the session already has backgrounds/painted dogs")
     p.add_argument("--dry-run", action="store_true")
 
     p = verb("repair-sprites", cmd_repair_sprites)
@@ -1039,7 +1091,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"error [transport_error]: {payload['error']['message']}", file=sys.stderr)
         return 2
     except CliError as error:
-        payload = {"error": {"code": error.code, "stage": error.stage, "message": error.message}}
+        payload = {"error": {"code": error.code, "stage": error.stage, "message": error.message},
+                   **error.context}
         if getattr(args, "json", False):
             print(json.dumps(payload))
         else:

@@ -90,3 +90,91 @@ def test_unknown_template_fails_before_spending(monkeypatch, capsys):
     assert code == 2
     assert json.loads(out)["error"]["code"] == "unknown_template"
     assert not any("background-generation" in path for _, path in stub.calls)
+
+
+def test_rerun_with_session_id_does_not_redo_paid_work(monkeypatch, capsys):
+    """The natural recovery after a partial run is rerunning the same command
+    with --session-id; before this guard it re-generated the background and
+    re-inpainted every bird (the expensive failure mode)."""
+    script = _script()
+    script["GET /api/sessions/auth_1"] = {
+        "nDogs": 20,
+        "hitboxes": [{"x": 1, "y": 1, "r": 26}] * 20,
+        "selectedBgIndex": 0,
+        "backgrounds": ["bg_00.png"],
+        "dogs": [{"index": i, "activeVariant": 0} for i in range(20)],
+        "setting": "japan", "scene": "japan_morning_market", "entity": "bird",
+        "view": "isometric_close_20", "style": "bold_cardboard",
+    }
+    stub = _StubClient(script)
+    code, out = _run(monkeypatch, capsys, stub, ["author", "--session-id", "auth_1", "--force-disk"])
+    assert code == 0, out
+    paths = [path for _, path in stub.calls]
+    assert not any("background-generation" in p for p in paths), "re-generated a paid background"
+    assert not any("inpaint/jobs" in p for p in paths), "re-inpainted painted dogs"
+    steps = {entry["step"]: entry["detail"] for entry in json.loads(out)["trace"]}
+    assert "skipped" in steps["generate-bg"]
+    assert "skipped" in steps["inpaint"]
+
+
+def test_redo_forces_regeneration(monkeypatch, capsys):
+    script = _script()
+    script["GET /api/sessions/auth_1"] = {
+        "nDogs": 20, "hitboxes": [{"x": 1, "y": 1, "r": 26}] * 20,
+        "selectedBgIndex": 0, "backgrounds": ["bg_00.png"],
+        "dogs": [{"index": i, "activeVariant": 0} for i in range(20)],
+        "setting": "japan", "scene": "japan_morning_market", "entity": "bird",
+        "view": "isometric_close_20", "style": "bold_cardboard",
+    }
+    stub = _StubClient(script)
+    code, _ = _run(monkeypatch, capsys, stub,
+                   ["author", "--session-id", "auth_1", "--redo", "--force-disk"])
+    assert code == 0
+    assert any("background-generation" in path for _, path in stub.calls)
+
+
+def test_failure_reports_session_id_and_resume_hint(monkeypatch, capsys):
+    script = _script()
+    script["/api/sessions/auth_1/inpaint/jobs"] = cli.CliError("http_500", "provider exploded", stage="POST")
+    stub = _StubClient(script)
+    code, out = _run(monkeypatch, capsys, stub, ["author", "--template", "t1", "--force-disk"])
+    assert code == 2
+    payload = json.loads(out)
+    assert payload["sessionId"] == "auth_1", "lost the session the run already paid for"
+    assert "resume" in payload
+    assert [entry["step"] for entry in payload["trace"]][:2] == ["create", "generate-bg"]
+
+
+def test_repair_budget_is_capped(monkeypatch, capsys):
+    """Worst case must stay bounded: gaps x passes without a cap was ~40 paid
+    regenerations on a pathological level."""
+    script = _script()
+    script["/api/sessions/auth_1/sprite-gaps"] = {
+        "missing": [{"index": i, "dogId": f"uuid-{i}"} for i in range(20)]
+    }
+    for index in range(20):
+        script[f"/api/sessions/auth_1/dogs/by-id/uuid-{index}/regen"] = {"variantIndex": 1}
+    stub = _StubClient(script)
+    code, _ = _run(monkeypatch, capsys, stub,
+                   ["author", "--template", "t1", "--max-repairs", "3",
+                    "--repair-passes", "5", "--force-disk"])
+    assert code == 0
+    assert sum("/regen" in path for _, path in stub.calls) == 3
+
+
+def test_rerun_does_not_replace_hitboxes_under_painted_art(monkeypatch, capsys):
+    """Re-placing hitboxes on a painted session moves every tap target off its
+    bird; the export gate then refuses the whole level."""
+    script = _script()
+    script["GET /api/sessions/auth_1"] = {
+        "nDogs": 20, "hitboxes": [{"x": 1, "y": 1, "r": 26}] * 20,
+        "selectedBgIndex": 0, "backgrounds": ["bg_00.png"],
+        "dogs": [{"index": i, "activeVariant": 0} for i in range(20)],
+        "setting": "japan", "scene": "japan_morning_market", "entity": "bird",
+        "view": "isometric_close_20", "style": "bold_cardboard",
+    }
+    stub = _StubClient(script)
+    code, out = _run(monkeypatch, capsys, stub,
+                     ["author", "--session-id", "auth_1", "--stop-after", "auto-hitboxes", "--force-disk"])
+    assert code == 0
+    assert not any("auto-hitboxes" in path for _, path in stub.calls)

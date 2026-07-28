@@ -49,6 +49,7 @@ floor (`LEVEL_EDITOR_DISK_FLOOR_GIB`, default 5).
 
 | Verb | Does |
 |---|---|
+| `author --template T [--session-id S]` | **the whole flow in one command** (create → bg → hitboxes → inpaint → repair → recenter → export) |
 | `serve --game G [--port]` | run the backend for one game |
 | `doctor --game G` | server-free workspace census: orphans, stuck jobs, locks, disk |
 | `status` / `config` | server + generation status / full recipe catalog |
