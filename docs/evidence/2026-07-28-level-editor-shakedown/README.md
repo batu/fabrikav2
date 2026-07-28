@@ -143,3 +143,48 @@ from the competitor references.
 
 Eight steps that had to be remembered in order, with two easy-to-forget
 repair steps, are now one command for a human or an agent.
+
+## Improvement session (2026-07-29, ~90 min, ~$2.60 of a $30 budget)
+
+Five Fable review agents audited the fork across different lenses; every
+finding they raised was either fixed with a covering test or documented as a
+known gap. Test count went 55 → 134.
+
+**Security / correctness fixed:**
+- `X-Session-Revision` was stamped onto 401 responses (middleware order made
+  the stamper wrap auth), an unauthenticated session-existence + mtime oracle
+  on tunneled deployments. Also guarded against `..%2F` traversal reaching a
+  `stat()`.
+- Exports could silently drop a painted bird: a displaced hitbox made the dog
+  fall out of the target map, out of `painted_indices`, and past the sprite
+  gate — a 19-bird package shipped from a 20-bird session with no error. Now
+  refused (409) and proven atomic by live probe.
+- Half-set `LEVELBUILDER_*` env silently split the workspace from the export
+  root (the live "game: tools" bug). Now a startup error.
+- `/bundle` wrote a levels-index entry before checking the package existed;
+  `approve-catalog` had no replay protection without a requestId; the corpus
+  validator globbed `.catalog-staging-*` SIGKILL orphans as real levels.
+- The vendored notebook cache created `tools/nbs/.cache` OUTSIDE the tool on
+  every import, and a dead paid helper forced every provider-free import path
+  to pull merceka_core.
+
+**Self-inflicted regressions caught by the agents (all fixed):** a mangled
+`--count` ternary, an env-chain change that silently unset OPENROUTER_API_KEY
+in worktrees (a worktree's `.git` is a file, two levels below the shared env),
+a `sprite-gaps` route comparing dog indices against target-index keys, a
+revision warning that false-alarmed on `approve-catalog`, and an `author`
+rerun that re-generated backgrounds and re-inpainted every bird — the most
+natural recovery action was the one that double-spent.
+
+**Capability added:**
+- `author` — the entire authoring flow in one command, resumable
+  (`--start-from`, `--session-id` skips work that exists), budget-capped, with
+  `--dry-run`. Level 4 was authored with it end-to-end.
+- `repair-sprites` + `sprite-gaps` (self-healing pickup sprites),
+  auto-fitting placement radius, server-side `fix-hitboxes`.
+- Gallery **Publish to catalog** button — closes the last parity gap: the
+  human can now do what the CLI could (register a level in the catalog).
+- Corpus validation is part of `editor2:verify`; `scripts/audit-corpus.sh`
+  gates every bundled level's reachability.
+
+**Corpus:** 5 levels, all PASS the harness reachability audit, validator green.
