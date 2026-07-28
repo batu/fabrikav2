@@ -133,9 +133,13 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   const baseFactories = deps.adProviderFactories;
   const adFactories: AdProviderFactories | undefined = baseFactories === undefined
     ? {
-        createAdMobProvider: () => {
-          throw new Error('FTD does not compose AdMob');
-        },
+        // FTD ships AppLovin MAX only. The shared selector falls back to AdMob
+        // on Android whenever AppLovin was not requested, so answer that slot
+        // with the disabled provider instead of throwing — a throw here escapes
+        // bootstrap and hangs the app on the splash screen.
+        createAdMobProvider: () => defaultAdProviderFactories.createDisabledProvider(
+          'FTD does not compose AdMob',
+        ),
         createAppLovinMaxProvider: (config) => new AppLovinMaxProvider(config, {
           lifecycle,
           onAdRevenuePaid: (event): void => {
