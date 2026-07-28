@@ -1,0 +1,24 @@
+import Phaser from 'phaser';
+import { remoteConfigService } from '../config/RemoteConfigService';
+
+export class BootScene extends Phaser.Scene {
+  private isShuttingDown: boolean = false;
+
+  constructor() {
+    super('BootScene');
+  }
+
+  create(): void {
+    this.isShuttingDown = false;
+    this.events.once('shutdown', () => {
+      this.isShuttingDown = true;
+    });
+    void this.chooseStartScene();
+  }
+
+  private async chooseStartScene(): Promise<void> {
+    await remoteConfigService.initAndWaitForTest();
+    if (this.isShuttingDown || !this.sys.isActive()) return;
+    this.scene.start('HomeScene');
+  }
+}

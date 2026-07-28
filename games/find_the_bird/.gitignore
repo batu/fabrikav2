@@ -1,0 +1,10 @@
+# Real mode-local configuration remains covered by the root `.env.*` rule.
+# The placeholder-only contract is deliberately tracked despite that rule.
+!.env.example
+GoogleService-Info.plist
+
+# Levelbuilder authoring workspace (sessions, generation state, prompt library
+# overrides) — scratch data owned by the v1 levelbuilder running with
+# LEVELBUILDER_WORKSPACE pointed here. Only validated exports land in
+# public/levels and get committed.
+.levelbuilder/
