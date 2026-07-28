@@ -29,8 +29,10 @@ Environment notes:
 - Setting only one of `LEVELBUILDER_WORKSPACE` / `LEVELBUILDER_GAME_ROOT` is a
   startup **error** (a half-set pair once split the workspace from the export
   root and exports landed in `tools/public/levels`). Prefer `--game`.
-- `.env` files load from the ancestor chain, stopping one level above the repo
-  root (provider keys live in the base dir's `.env`).
+- `.env` files load from the ancestor chain, parent-first (deeper overrides),
+  bounded at `$HOME` — provider keys live in the base dir's `.env`. Do not
+  stop the walk at the first `.git`: in a worktree that is a *file* two levels
+  below the shared env, and the keys silently vanish.
 - Sprite repair defaults **on** (`FTD_SPRITE_REPAIR=0` disables). Off, weak-alpha
   birds silently ship without pickup sprites and export refuses later.
 - `FTD_BUILDER_TOKEN` enables bearer-token auth for tunneled deployments; the
@@ -55,9 +57,10 @@ floor (`LEVEL_EDITOR_DISK_FLOOR_GIB`, default 5).
 | `generate-bg <id> [--wait]` | background generation job |
 | `select-bg <id> <index>` | choose a background |
 | `upscale <id> [--wait]` | background upscale job |
-| `auto-hitboxes <id> --count N [--strategy smart] [--radius R]` | place hiding spots (see radius note below) |
+| `auto-hitboxes <id> [--count N] [--strategy smart] [--radius R]` | place hiding spots; shrinks the radius until they fit |
 | `set-hitboxes <id> --file F` | replace hitboxes from JSON |
 | `fix-hitboxes <id> [--max-offset]` | recenter hitboxes onto painted sprites (server-side) |
+| `repair-sprites <id> [--drop-unrepairable]` | regenerate birds missing a pickup sprite; explicit drop for hopeless placements |
 | `visibility-check <id>` | contrast/visibility report |
 | `inpaint <id> [--wait] [--hard-percent] [--retry-failed]` | paint all birds (durable job) |
 | `regenerate <id> --dog <stable-id>` | repaint one bird (note: stable dog id, not `dog_NN`) |
@@ -80,14 +83,18 @@ level-editor create --template ftb-cardboard-forest
 level-editor generate-bg <id> --wait          # review the art before continuing
 level-editor review <id> --out /tmp/look && open /tmp/look/bg_00.png
 level-editor select-bg <id> 0
-level-editor auto-hitboxes <id> --count 20 --strategy smart --radius 26
+level-editor auto-hitboxes <id> --count 20 --strategy smart   # auto-fits radius
 level-editor inpaint <id> --wait
+level-editor repair-sprites <id>              # close pickup-sprite gaps
 level-editor fix-hitboxes <id>                # recenter taps onto painted birds
 level-editor export <id> --wait
 level-editor validate --game find_the_bird
 ```
 
-Radius: the default placement radius (50) is sized for the old broad FTD
+Radius: `auto-hitboxes` now starts at `--radius` (default 30) and shrinks by
+`--shrink-step` down to `--min-radius` until the requested count fits,
+reporting `radiusUsed`. Historical note: the original default (50) is sized
+for the old broad FTD
 framing. Close-camera scenes (`isometric_close_20`, 768px wide) fit 20 spots
 at `--radius 24..26`; the smart strategy refuses rather than overcrowding.
 
@@ -118,7 +125,7 @@ uv run level-editor validate --game find_the_bird
 # Per-bird reachability through the game's own test harness (game dev server
 # must be running). Blind coordinate taps are NOT a valid substitute — they
 # read as misses and burn lives:
-GAME_URL=http://localhost:5177 LEVEL_INDEX=1 node scripts/tap-audit.mjs
+GAME_URL=http://localhost:5177 LEVEL_ID=<level-id> node scripts/tap-audit.mjs
 ```
 
 A refused export is fail-closed and atomic: level dirs and both manifests
@@ -129,7 +136,10 @@ stay untouched (proven by live probe, not just asserted).
 | Symptom | Cause / fix |
 |---|---|
 | `/api/config` reports `game: tools`, sessions land in the tool dir | game profile never bound — pass `--game`, or set BOTH `LEVELBUILDER_*` vars; partial env now fails at startup |
-| `missing pickup sprite cleanup metadata for N dog(s)` | sprite extraction failed for those birds; ensure sprite repair is on (default) and `regenerate --dog <stable-id>` the stragglers |
+| `missing pickup sprite cleanup metadata for N dog(s)` | `repair-sprites <id>` (regenerates them); add `--drop-unrepairable` for placements that never yield a cutout |
+| `N painted dog(s) no longer map to any hitbox` (409) | a hitbox moved away from its painted bird; `fix-hitboxes <id>` then re-export. The export refuses rather than silently shipping fewer birds |
+| `Only selected N non-overlapping smart hitboxes` | scene too dense for that radius — `auto-hitboxes` auto-shrinks now; lower `--min-radius` or `--count` if it still gives up |
+| tap-audit passes but you doubt it | confirm the reported `level` matches what you asked for; it fails hard on mismatch, and index-based selection is not supported for exactly this reason |
 | gate refusal: `cleanup geometry does not contain its center` | hitbox drifted off the painted bird — `fix-hitboxes <id>`, re-export |
 | 409 `painted dog(s) no longer map to any hitbox` | a hitbox moved away from painted art; without this guard the bird silently vanished from the package — `fix-hitboxes` or restore placements |
 | CLI dies mid `--wait` with connection reset | transient server stall; jobs are durable — re-attach with `level-editor job <id>`, polling now retries blips automatically |
