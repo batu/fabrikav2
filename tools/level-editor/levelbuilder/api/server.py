@@ -242,6 +242,20 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Level Editor API", lifespan=lifespan)
 
 
+@app.exception_handler(_session_mod.LevelNotReadyError)
+async def _level_not_ready(request: Request, exc: Exception) -> JSONResponse:
+    """A refused export is the author's problem to fix, not a server fault:
+    409, with the actionable reason, rather than a bare 500."""
+    return JSONResponse(
+        status_code=409,
+        content={
+            "error": str(exc),
+            "code": "level_not_ready",
+            "stage": f"{request.method} {request.url.path}",
+        },
+    )
+
+
 @app.exception_handler(Exception)
 async def _structured_internal_error(request: Request, exc: Exception) -> JSONResponse:
     """R5: no bare 500s — every unhandled failure reaches clients as a

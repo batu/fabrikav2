@@ -458,6 +458,40 @@ def active_sprite_metadata_map(
     return sprites
 
 
+def require_all_painted_dogs_mapped(
+    session_id: str,
+    dogs_meta: list[dict],
+    target_map: dict[int, tuple[int, int]],
+) -> None:
+    """Fail export when a painted dog maps to no hitbox instead of vanishing.
+
+    `active_dog_variant_targets` drops a dog whose variant box no longer sits
+    near any hitbox (e.g. the hitbox was moved far away after painting). That
+    drop was SILENT: the level simply shipped with fewer birds than the author
+    painted, and the HUD counted the smaller number. Verified live 2026-07-29 —
+    one displaced hitbox produced a 19-bird package from a 20-bird session with
+    no error anywhere. Fail visibly instead; the fix is to move the hitbox back
+    (or `fix-hitboxes`) and re-export.
+    """
+    mapped_dog_indices = {dog_index for dog_index, _ in target_map.values()}
+    orphaned = [
+        int(dog["index"])
+        for dog in dogs_meta
+        if isinstance(dog, dict)
+        and is_painted_dog_meta(dog)
+        and isinstance(dog.get("index"), int)
+        and int(dog["index"]) not in mapped_dog_indices
+    ]
+    if orphaned:
+        labels = ", ".join(f"dog_{i:02d}" for i in sorted(orphaned)[:12])
+        suffix = "" if len(orphaned) <= 12 else f", +{len(orphaned) - 12} more"
+        raise LevelNotReadyError(
+            f"{len(orphaned)} painted dog(s) in {session_id} no longer map to any hitbox: "
+            f"{labels}{suffix}. Their hitboxes moved away from the painted art — "
+            "re-run fix-hitboxes or restore the placements before exporting."
+        )
+
+
 def require_sprite_metadata_for_indices(
     *,
     session_id: str,
@@ -2747,6 +2781,7 @@ def export_to_game(
             is_magenta = raw.get("inpaint_mode") == "magenta"
             if raw_dogs and not is_magenta:
                 target_map = active_dog_variant_targets(session_id, raw_dogs, hitboxes)
+                require_all_painted_dogs_mapped(session_id, raw_dogs, target_map)
                 if target_map:
                     painted_indices = sorted(target_map.keys())
                 else:
