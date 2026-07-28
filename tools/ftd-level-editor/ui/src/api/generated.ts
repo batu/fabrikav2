@@ -52,6 +52,21 @@ export interface CaptureSessionImageRequest {
   "variant"?: "gemini" | "openai" | "openai_v2" | "gemini_bg_only" | "openai_bg_only" | "openai_v2_bg_only";
 }
 
+export interface CatalogOptions {
+  "entities": Array<string>;
+  "models": Array<Record<string, string>>;
+  "scenes": Array<string>;
+  "styles": Array<string>;
+  "views": Array<string>;
+}
+
+export interface CreatePresetRequest {
+  "id": string;
+  "label": string;
+  "notes"?: string;
+  "selection": PresetSelection;
+}
+
 export interface CreateSessionRequest {
   "session": AuthoringSession;
 }
@@ -159,6 +174,46 @@ export interface PrepareSequenceRequest {
   "sourceRevision": string;
 }
 
+export interface PresetConflictResponse {
+  "detail": string;
+}
+
+export interface PresetIndexResponse {
+  "options": CatalogOptions;
+  "presets": Array<PresetRecord>;
+}
+
+export interface PresetNotFoundResponse {
+  "detail": "preset not found";
+}
+
+export interface PresetRecord {
+  "id": string;
+  "label": string;
+  "notes"?: string;
+  "selection": PresetSelection;
+  "version": number;
+}
+
+export interface PresetRunRecord {
+  "createdAt": string;
+  "digest": string;
+  "note"?: string;
+  "outcome": string;
+  "presetId": string;
+  "presetVersion": number;
+  "resolved": ResolvedPreset;
+  "runId": string;
+}
+
+export interface PresetSelection {
+  "entity": string;
+  "model": string;
+  "scene": string;
+  "style": string;
+  "view": string;
+}
+
 export interface ProtectedSequenceRequest {
   "candidateId": string;
   "grantId": string;
@@ -188,11 +243,28 @@ export interface PublishingSnapshotResponse {
   "selectedRemoteRevision": null | string;
 }
 
+export interface RecordRunRequest {
+  "note"?: string;
+  "outcome"?: "recorded" | "succeeded" | "failed";
+  "runId": string;
+}
+
 export interface RequestIdentityConflictDetail {
   "code": "request_identity_conflict";
   "existingInputHash": string;
   "existingJobId": string;
   "submittedInputHash": string;
+}
+
+export interface ResolvedPreset {
+  "catalogSha256": string;
+  "digest": string;
+  "entityPrompt": string;
+  "label": string;
+  "presetId": string;
+  "presetVersion": number;
+  "scenePrompt": string;
+  "selection": PresetSelection;
 }
 
 export interface SagaResponse {
@@ -257,10 +329,18 @@ export interface StartJobRequest {
   "sessionId": string;
 }
 
+export interface UnknownCatalogKeyResponse {
+  "detail": string;
+}
+
 export interface UpdateGalleryMetadataRequest {
   "archived"?: boolean | null;
   "revision": string;
   "tags"?: Array<string> | null;
+}
+
+export interface UpdateSelectionRequest {
+  "selection": PresetSelection;
 }
 
 export interface ValidationError {
@@ -296,6 +376,12 @@ export interface FtdEditorOperations {
   "listDurableJobEvents": { method: "get"; path: "/api/jobs/{job_id}/events" };
   "forceNewDurableJob": { method: "post"; path: "/api/jobs/{job_id}/force-new/{kind}" };
   "retryDurableJob": { method: "post"; path: "/api/jobs/{job_id}/retry" };
+  "listPresets": { method: "get"; path: "/api/presets" };
+  "createPreset": { method: "post"; path: "/api/presets" };
+  "listPresetRuns": { method: "get"; path: "/api/presets/runs" };
+  "resolvePreset": { method: "get"; path: "/api/presets/{preset_id}/resolved" };
+  "recordPresetRun": { method: "post"; path: "/api/presets/{preset_id}/runs" };
+  "updatePresetSelection": { method: "post"; path: "/api/presets/{preset_id}/selection" };
   "getPublishingSnapshot": { method: "get"; path: "/api/publishing" };
   "activateSequencePublication": { method: "post"; path: "/api/publishing/activate" };
   "mintPublishingApprovalGrant": { method: "post"; path: "/api/publishing/approval-grants" };
