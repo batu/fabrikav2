@@ -119,8 +119,9 @@ seeds still serve).
 npm run editor2:verify          # from tools/level-editor: pytest + tsc + UI build
 npm run editor2:verify -w @fabrikav2/level-editor-tool   # from repo root
 
-# Corpus gate (same engine as the export gate):
+# Corpus gate (same engine as the export gate; now part of editor2:verify):
 uv run level-editor validate --game find_the_bird
+npm run editor2:corpus:all      # every game with a public/levels corpus
 
 # Per-bird reachability through the game's own test harness (game dev server
 # must be running). Blind coordinate taps are NOT a valid substitute — they

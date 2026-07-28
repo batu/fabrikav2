@@ -647,15 +647,28 @@ def cmd_export(client: Client, args: argparse.Namespace) -> None:
 def cmd_validate(args: argparse.Namespace) -> None:
     # Local, server-free: same engine as the export gate.
     from levelbuilder.api.export_gate import ExportGateError, validate_corpus
-    from levelbuilder.settings import resolve_game
+    from levelbuilder.settings import available_games, repo_root, resolve_game
 
-    profile = resolve_game(args.game)
-    root = profile.game_root / "public" / "levels"
-    try:
-        summary = validate_corpus(root)
-    except ExportGateError as error:
-        raise CliError("validation_failed", str(error), stage="validate") from error
-    _emit(args, {"root": str(root), **summary, "ok": True})
+    if args.all_games:
+        root_dir = repo_root()
+        names = [
+            name for name in available_games()
+            if (root_dir / "games" / name / "public" / "levels").is_dir()
+        ] if root_dir else []
+    else:
+        if not args.game:
+            raise CliError("game_required", "pass --game <name> or --all-games")
+        names = [args.game]
+
+    results = []
+    for name in names:
+        root = resolve_game(name).game_root / "public" / "levels"
+        try:
+            summary = validate_corpus(root)
+        except ExportGateError as error:
+            raise CliError("validation_failed", f"{name}: {error}", stage="validate") from error
+        results.append({"game": name, "root": str(root), **summary})
+    _emit(args, {"ok": True, "games": results})
 
 
 def cmd_jobs(client: Client, args: argparse.Namespace) -> None:
@@ -796,7 +809,9 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--acknowledge-destructive", action="store_true")
 
     p = verb("validate", cmd_validate, needs_client=False)
-    p.add_argument("--game", required=True)
+    p.add_argument("--game")
+    p.add_argument("--all-games", action="store_true",
+                   help="validate every game with a public/levels corpus")
 
     p = verb("jobs", cmd_jobs)
     p.add_argument("--session")

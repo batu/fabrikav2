@@ -6,6 +6,8 @@
     "typecheck": "tsc -p ui/tsconfig.json --noEmit",
     "editor2:backend:test": "UV_CACHE_DIR=${TMPDIR:-/tmp}/level-editor-uv-cache uv run pytest tests -q",
     "editor2:ui:build": "npm run build -w @fabrikav2/level-editor",
-    "editor2:verify": "npm run editor2:backend:test && npm run typecheck && npm run editor2:ui:build"
+    "editor2:verify": "npm run editor2:backend:test && npm run editor2:corpus && npm run typecheck && npm run editor2:ui:build",
+    "editor2:corpus": "UV_CACHE_DIR=${TMPDIR:-/tmp}/level-editor-uv-cache uv run level-editor --json validate --game find_the_bird",
+    "editor2:corpus:all": "UV_CACHE_DIR=${TMPDIR:-/tmp}/level-editor-uv-cache uv run level-editor --json validate --all-games"
   }
 }
