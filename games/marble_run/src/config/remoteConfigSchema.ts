@@ -23,6 +23,7 @@ export interface RemoteConfigValues {
   interstitialFailCooldownS: number;
   interstitialLevelEndCooldownS: number;
   rewardedAdsEnabled: boolean;
+  testTitleOverride: string;
   hintBoosterSingleCoinPrice: number;
   hintBoosterBundleCoinPrice: number;
   hintBoosterBundleHintAmount: number;
@@ -97,6 +98,7 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   interstitialFailCooldownS: 90,
   interstitialLevelEndCooldownS: 90,
   rewardedAdsEnabled: true,
+  testTitleOverride: '',
   hintBoosterSingleCoinPrice: 250,
   hintBoosterBundleCoinPrice: 600,
   hintBoosterBundleHintAmount: 3,
@@ -175,6 +177,7 @@ export const REMOTE_CONFIG_DEFINITIONS_BY_KEY: {
   interstitialFailCooldownS: { key: 'interstitialFailCooldownS', remoteKey: 'interstitial_fail_cooldown_s', type: 'number', description: 'Minimum seconds since the last interstitial before a fail may show one.' },
   interstitialLevelEndCooldownS: { key: 'interstitialLevelEndCooldownS', remoteKey: 'interstitial_level_end_cooldown_s', type: 'number', description: 'Minimum seconds since the last interstitial before a completed level may show one.' },
   rewardedAdsEnabled: { key: 'rewardedAdsEnabled', remoteKey: 'rewarded_ads_enabled', type: 'boolean', description: 'Master switch for every rewarded placement (hints, claim x2, fail continue).' },
+  testTitleOverride: { key: 'testTitleOverride', remoteKey: 'test_title_override', type: 'string', description: 'TESTING ONLY: replaces the home banner title text. Empty = the normal "Marble Run" title. Use this to prove a remote-config change reached a device.' },
   hintBoosterSingleCoinPrice: { key: 'hintBoosterSingleCoinPrice', remoteKey: 'hint_booster_single_coin_price', type: 'number', description: 'Coin price for one hint.' },
   hintBoosterBundleCoinPrice: { key: 'hintBoosterBundleCoinPrice', remoteKey: 'hint_booster_bundle_coin_price', type: 'number', description: 'Coin price for hint bundle.' },
   hintBoosterBundleHintAmount: { key: 'hintBoosterBundleHintAmount', remoteKey: 'hint_booster_bundle_hint_amount', type: 'number', description: 'Hints granted by bundle purchase.' },
@@ -247,6 +250,7 @@ export function mapRemoteConfigValues(
     interstitialFailCooldownS: read('interstitialFailCooldownS'),
     interstitialLevelEndCooldownS: read('interstitialLevelEndCooldownS'),
     rewardedAdsEnabled: read('rewardedAdsEnabled'),
+    testTitleOverride: read('testTitleOverride'),
     hintBoosterSingleCoinPrice: read('hintBoosterSingleCoinPrice'),
     hintBoosterBundleCoinPrice: read('hintBoosterBundleCoinPrice'),
     hintBoosterBundleHintAmount: read('hintBoosterBundleHintAmount'),
@@ -316,6 +320,7 @@ export function mapRemoteConfigSources<TSource>(
     interstitialFailCooldownS: read('interstitialFailCooldownS'),
     interstitialLevelEndCooldownS: read('interstitialLevelEndCooldownS'),
     rewardedAdsEnabled: read('rewardedAdsEnabled'),
+    testTitleOverride: read('testTitleOverride'),
     hintBoosterSingleCoinPrice: read('hintBoosterSingleCoinPrice'),
     hintBoosterBundleCoinPrice: read('hintBoosterBundleCoinPrice'),
     hintBoosterBundleHintAmount: read('hintBoosterBundleHintAmount'),

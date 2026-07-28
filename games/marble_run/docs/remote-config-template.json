@@ -178,6 +178,18 @@
         }
       }
     },
+    "Testing": {
+      "description": "Visible switch for proving a remote-config change reached a real device. Inert when empty.",
+      "parameters": {
+        "test_title_override": {
+          "defaultValue": {
+            "value": ""
+          },
+          "description": "TESTING ONLY: replaces the home banner title text. Empty = the normal \"Marble Run\" title. Use this to prove a remote-config change reached a device.",
+          "valueType": "STRING"
+        }
+      }
+    },
     "Shop And Offers": {
       "description": "Client-visible product IDs, offer visibility, and fulfillment grant quantities.",
       "parameters": {

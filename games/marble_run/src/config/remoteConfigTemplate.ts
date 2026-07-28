@@ -75,6 +75,13 @@ const TEMPLATE_GROUPS: readonly RemoteConfigTemplateGroup[] = [
     ],
   },
   {
+    name: 'Testing',
+    description: 'Visible switch for proving a remote-config change reached a real device. Inert when empty.',
+    keys: [
+      'testTitleOverride',
+    ],
+  },
+  {
     name: 'Shop And Offers',
     description: 'Client-visible product IDs, offer visibility, and fulfillment grant quantities.',
     keys: [
