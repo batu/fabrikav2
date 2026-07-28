@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME, GAMEPLAY, TIMING } from '../core/Constants';
 import { gameState } from '../core/GameState';
+import { stopAmbient } from '../audio/AmbientManager';
 import { disposeLevelUrls, getLevelIndex, loadLevel, loadLevelForProgression, withDirectSelectServingAttempt } from '../data/levels';
 import type { LevelData } from '../data/levels';
 import { adService, showRewardedAdForEconomy } from '../ads/Service';
@@ -178,6 +179,12 @@ export class GameScene extends Phaser.Scene {
   private setupGameplay(): void {
     if (!this.level) return;
     const level = this.level;
+
+    // Product call (2026-07-28): no music during gameplay. The home ambient
+    // otherwise keeps playing straight through a level, because HomeScene is the
+    // only thing that ever starts it and nothing stopped it on entry. SFX and
+    // haptics are unaffected; the menu track resumes on return to the home.
+    stopAmbient();
 
     if (gameState.settings.adsEnabled) {
       void adService.showBanner().then((shown: boolean): void => {
