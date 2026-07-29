@@ -885,11 +885,11 @@ def _openai_inpaint_prompt(prompt: str) -> str:
     return (
         f"{prompt}\n\n"
         "For masked editing, treat the transparent area as placement room, not as a shape to fill. "
-        "Keep exactly one dog centered on the hitbox, but make the dog occupy roughly 55-70% of the editable area "
-        "and leave surrounding background visible where the dog body does not cover it. "
-        "Preserve the source background exactly everywhere the dog body is not visible. "
+        "Keep exactly one subject centered on the hitbox, but make the subject occupy roughly 55-70% of the editable area "
+        "and leave surrounding background visible where the subject's body does not cover it. "
+        "Preserve the source background exactly everywhere the subject's body is not visible. "
         "Do not repaint, replace, redesign, stylize, blur, clean up, or add scenery, props, vegetation, rocks, shadows, paths, water, or texture. "
-        "Only add the dog; all visible non-dog pixels should remain the original background."
+        "Only add the subject; all visible non-subject pixels should remain the original background."
     )
 
 

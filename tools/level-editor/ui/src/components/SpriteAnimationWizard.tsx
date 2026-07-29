@@ -19,27 +19,27 @@ const ANIMATION_PRESETS: AnimationPreset[] = [
   {
     id: 'tail_wag',
     label: 'Tail wag',
-    prompt: 'Animate this dog sprite with a gentle tail wag. Keep the dog in place, preserve the cartoon 2D style, and make it a short seamless loop.',
+    prompt: 'Animate this character sprite with a gentle tail wag. Keep the character in place, preserve the cartoon 2D style, and make it a short seamless loop.',
   },
   {
     id: 'blink',
     label: 'Blink',
-    prompt: 'Animate this dog sprite with a small blink and subtle head motion. Keep the body position stable, preserve the cartoon 2D style, and make it a short seamless loop.',
+    prompt: 'Animate this character sprite with a small blink and subtle head motion. Keep the body position stable, preserve the cartoon 2D style, and make it a short seamless loop.',
   },
   {
     id: 'sniff',
     label: 'Sniff',
-    prompt: 'Animate this dog sprite with a curious sniffing motion. Add a tiny nose and head bob while keeping the paws planted and the cartoon 2D style unchanged.',
+    prompt: 'Animate this character sprite with a curious sniffing motion. Add a tiny nose and head bob while keeping the paws planted and the cartoon 2D style unchanged.',
   },
   {
     id: 'happy_bounce',
     label: 'Happy bounce',
-    prompt: 'Animate this dog sprite with a small happy bounce. Keep the dog centered, preserve the original proportions and cartoon 2D style, and make it loop cleanly.',
+    prompt: 'Animate this character sprite with a small happy bounce. Keep the character centered, preserve the original proportions and cartoon 2D style, and make it loop cleanly.',
   },
   {
     id: 'idle_breathing',
     label: 'Idle breathing',
-    prompt: 'Animate this dog sprite with subtle idle breathing and a tiny ear or head movement. Keep the silhouette readable and preserve the cartoon 2D style.',
+    prompt: 'Animate this character sprite with subtle idle breathing and a tiny ear or head movement. Keep the silhouette readable and preserve the cartoon 2D style.',
   },
 ];
 

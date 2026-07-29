@@ -25,7 +25,7 @@ export default function DogRail({ sessionId, dog, onPick, onRegen, regenerating 
   return (
     <div className="dog-rail" data-testid="dog-rail">
       <div className="dog-rail-head">
-        <strong>dog {dog.index}</strong>
+        <strong>entity {dog.index}</strong>
         <span className={`dog-status dog-status-${dog.status}`}>{dog.status}</span>
         {excluded && dog.variants.length > 0 && (
           <span className="dog-rail-excluded" data-testid="dog-rail-excluded">excluded from level</span>

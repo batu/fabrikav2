@@ -64,7 +64,7 @@ function normalizeRestoredDogs(dogs: SessionResponse['dogs']): SessionResponse['
     return {
       ...dog,
       status: 'error',
-      error: dog.error ?? 'stream disconnected before this dog finished; retry inpaint',
+      error: dog.error ?? 'stream disconnected before this entity finished; retry inpaint',
     };
   });
 }

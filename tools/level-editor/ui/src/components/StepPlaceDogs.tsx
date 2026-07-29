@@ -273,10 +273,10 @@ export default function StepPlaceDogs({
     <div className={`step ${isCollapsed ? 'collapsed' : ''}`}>
       <StepHeader
         stepNumber={3}
-        title="Place Dogs"
+        title="Place Entities"
         collapsed={isCollapsed}
         onToggle={collapsed ? () => setForceOpen(!forceOpen) : undefined}
-        summary={`${hitboxes.length} dogs placed`}
+        summary={`${hitboxes.length} entities placed`}
       />
 
       {!isCollapsed && <div className="step-content">

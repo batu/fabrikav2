@@ -1202,7 +1202,7 @@ export default function StepConfigure({
             {multiSceneJobs.length > 0 && (
               <div className="many-scene-jobs" data-testid="many-scene-jobs">
                 <div className="configure-muted">
-                  Many-scene jobs use the same recipe/session API as a single level. Open any ready card to continue in Dogs.
+                  Many-scene jobs use the same recipe/session API as a single level. Open any ready card to continue in the Wizard.
                 </div>
                 <div className="many-scene-job-grid">
                   {multiSceneJobs.map((job) => (

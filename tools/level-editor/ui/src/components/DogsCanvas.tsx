@@ -328,9 +328,9 @@ export default function DogsCanvas({ sessionId }: Props) {
   return (
     <div className="dogs-canvas" data-testid="dogs-canvas">
       <div className="dogs-canvas-bar">
-        <strong>Dogs canvas</strong>
+        <strong>Entities canvas</strong>
         <span className="dogs-canvas-sub" data-testid="dogs-canvas-summary">
-          {total} hitboxes · {session.dogs.length} dogs · drag to move
+          {total} hitboxes · {session.dogs.length} painted · drag to move
         </span>
         {legacyCount > 0 && (
           <span className="dogs-canvas-legacy" data-testid="dogs-canvas-legacy-banner">

@@ -129,7 +129,7 @@ export default function SpriteAnimationBrowser({
 
         {sessionId && !spritesReady && (
           <div className="sprite-browser-empty">
-            Finish generating dog sprites before choosing an animation source.
+            Finish generating sprites before choosing an animation source.
           </div>
         )}
 
@@ -145,7 +145,7 @@ export default function SpriteAnimationBrowser({
 
         {sessionId && spritesReady && !loading && !error && candidates.length === 0 && (
           <div className="sprite-browser-empty">
-            No pickup sprites found for this session yet. Generate dog sprites before starting animation.
+            No pickup sprites found for this session yet. Generate sprites before starting animation.
           </div>
         )}
 

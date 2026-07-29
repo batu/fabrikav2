@@ -41,12 +41,12 @@ const DogStripCell = memo(function DogStripCell({ sessionId, dog, selected, onSe
     >
       <span className="dog-strip-thumb">
         {thumbUrl ? (
-          <img src={thumbUrl} alt={`dog ${dog.index}`} loading="lazy" />
+          <img src={thumbUrl} alt={`entity ${dog.index}`} loading="lazy" />
         ) : (
           <span className="dog-strip-placeholder">{placeholder}</span>
         )}
       </span>
-      <span className="dog-strip-label">{excluded ? 'excluded' : `dog ${dog.index}`}</span>
+      <span className="dog-strip-label">{excluded ? 'excluded' : `entity ${dog.index}`}</span>
     </button>
   );
 });

@@ -363,7 +363,7 @@ export default function GalleryPage({ config, onOpen }: Props) {
             >
               <option value="newest">Newest first</option>
               <option value="name">Name A-Z</option>
-              <option value="dogs">Dogs high-low</option>
+              <option value="dogs">Entities high-low</option>
             </select>
             <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.85rem', color: '#ccc' }}>
               <input
@@ -533,7 +533,7 @@ function GalleryCard({
     : missingAssetReason
       ? missingAssetReason
       : state === 'background'
-        ? 'Place and inpaint dogs before adding this level to Lineup.'
+        ? 'Place and inpaint entities before adding this level to Lineup.'
         : blockerCount > 0
           ? 'Fix blocking visibility issues before adding this level to Lineup.'
           : null;

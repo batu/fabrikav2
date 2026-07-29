@@ -308,7 +308,7 @@ export default function StepInpaint({
   const failedDogs = dogs.filter((d) => d.status === 'error');
   const dogErrors = failedDogs.map((d) => ({
     index: d.index,
-    error: d.error ?? 'Dog is still marked failed; retry or inspect backend logs.',
+    error: d.error ?? 'Entity is still marked failed; retry or inspect backend logs.',
   }));
 
   useEffect(() => {
@@ -380,7 +380,7 @@ export default function StepInpaint({
         title="Inpainting Results"
         collapsed={isCollapsed}
         onToggle={collapsed ? () => setForceOpen(!forceOpen) : undefined}
-        summary={`${doneCount}/${totalCount} dogs done`}
+        summary={`${doneCount}/${totalCount} entities done`}
       />
 
       {!isCollapsed && (
@@ -394,7 +394,7 @@ export default function StepInpaint({
                 />
               </div>
               <span className="inpaint-progress-text">
-                Inpainting: {doneCount}/{totalCount} dogs done{passText}
+                Inpainting: {doneCount}/{totalCount} entities done{passText}
               </span>
             </div>
           )}
@@ -407,7 +407,7 @@ export default function StepInpaint({
 
           {allDone && (
             <div className="inpaint-complete-badge">
-              All {totalCount} dogs inpainted — drag hitboxes to adjust alignment
+              All {totalCount} entities inpainted — drag hitboxes to adjust alignment
             </div>
           )}
 
@@ -440,11 +440,11 @@ export default function StepInpaint({
                 fontSize: 13,
               }}
             >
-              <strong>{dogErrors.length} of {totalCount} dog{dogErrors.length === 1 ? '' : 's'} failed to paint.</strong>
+              <strong>{dogErrors.length} of {totalCount} entit{dogErrors.length === 1 ? 'y' : 'ies'} failed to paint.</strong>
               <ul style={{ margin: '6px 0 0 18px', padding: 0 }}>
                 {dogErrors.map((e) => (
                   <li key={e.index} style={{ opacity: 0.9, wordBreak: 'break-word' }}>
-                    dog #{e.index}: {e.error}
+                    entity #{e.index}: {e.error}
                   </li>
                 ))}
               </ul>
@@ -454,7 +454,7 @@ export default function StepInpaint({
                 disabled={retryingFailed || failedDogIndices.length === 0}
                 style={{ marginTop: 8 }}
               >
-                {retryingFailed ? `Retrying failed dogs (${failedDogIndices.length})` : `Retry failed dogs (${failedDogIndices.length})`}
+                {retryingFailed ? `Retrying failed entities (${failedDogIndices.length})` : `Retry failed entities (${failedDogIndices.length})`}
               </button>
             </div>
           )}
@@ -603,7 +603,7 @@ export default function StepInpaint({
             <>
               {allDone && (
                 <p className="placement-hint">
-                  Drag the hitbox circles to match the dog positions. These positions drive gameplay hit targets, visibility validation, Gallery selection, and Lineup Start.
+                  Drag the hitbox circles to match the entity positions. These positions drive gameplay hit targets, visibility validation, Gallery selection, and Lineup Start.
                 </p>
               )}
               <button
@@ -611,7 +611,7 @@ export default function StepInpaint({
                 onClick={handleRegen}
                 style={{ marginTop: 16, alignSelf: 'center' }}
               >
-                Regenerate All Dogs ({totalCount})
+                Regenerate All Entities ({totalCount})
               </button>
               {sessionId && session && (
                 <>

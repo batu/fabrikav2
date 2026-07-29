@@ -193,7 +193,7 @@ export default function AnimationLibraryPage() {
         </div>
       )}
 
-      {loading && <div className="sprite-browser-empty">Loading generated dog sprites...</div>}
+      {loading && <div className="sprite-browser-empty">Loading generated sprites...</div>}
       {error && (
         <div className="sprite-browser-error">
           <strong>Could not load animation library.</strong> {error}
@@ -201,7 +201,7 @@ export default function AnimationLibraryPage() {
       )}
       {!loading && !error && spriteEntries.length === 0 && (
         <div className="sprite-browser-empty">
-          No generated dog sprites found yet. Generate dogs in the Wizard, then return here to animate them.
+          No generated sprites found yet. Generate entities in the Wizard, then return here to animate them.
         </div>
       )}
 
