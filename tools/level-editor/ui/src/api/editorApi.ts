@@ -1264,7 +1264,7 @@ export function bgPreviewUrl(sessionId: string): string {
 }
 
 export function recompositePreviewUrl(sessionId: string, version: string | number): string {
-  return `/api/sessions/${encodeURIComponent(sessionId)}/recomposite-preview?scale=0.5&v=${encodeURIComponent(String(version))}`;
+  return `/api/sessions/${encodeURIComponent(sessionId)}/recomposite-preview?scale=1&v=${encodeURIComponent(String(version))}`;
 }
 
 export function dogVariantUrl(sessionId: string, variantPath: string): string {
