@@ -52,6 +52,7 @@ export function DevicePreview({ session, imageUrl, levelWidth, levelHeight }: {
   const [showChrome, setShowChrome] = useState(true);
   const [showHitboxes, setShowHitboxes] = useState(false);
   const [geometry, setGeometry] = useState<GeometryConfig | null>(null);
+  const [chromeMissing, setChromeMissing] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -85,7 +86,7 @@ export function DevicePreview({ session, imageUrl, levelWidth, levelHeight }: {
       <div style={{ minWidth: 190 }}>
         <label style={{ display: 'block', marginBottom: 8 }}>
           Device
-          <select className="inline-select" value={deviceId} onChange={(e) => setDeviceId(e.target.value)} style={{ display: 'block', marginTop: 4 }}>
+          <select className="inline-select" value={deviceId} onChange={(e) => { setDeviceId(e.target.value); setChromeMissing(false); }} style={{ display: 'block', marginTop: 4 }}>
             {DEVICE_PRESETS.map((preset) => (
               <option key={preset.id} value={preset.id}>{preset.name} · {preset.width}×{preset.height}</option>
             ))}
@@ -142,7 +143,26 @@ export function DevicePreview({ session, imageUrl, levelWidth, levelHeight }: {
             }}
           />
         ))}
-        {showChrome && (
+        {showChrome && !chromeMissing && (
+          /* Real game chrome captured from the running game per device (with
+             simulated safe-area insets) — the actual HUD/hint UI, not bands. */
+          <img
+            src={`/device-chrome/${device.id}.png`}
+            alt={`${device.name} game UI`}
+            onError={() => setChromeMissing(true)}
+            style={{
+              position: 'absolute',
+              left: 0,
+              top: 0,
+              width: device.width * display,
+              height: device.height * display,
+              maxWidth: 'none',
+              pointerEvents: 'none',
+            }}
+          />
+        )}
+        {showChrome && chromeMissing && (
+          /* Fallback bands when a capture is missing for this device. */
           <>
             {overlayBand('safe-top', 0, device.safeTop, 'rgba(220,40,40,0.35)', `safe area ${device.safeTop}px`)}
             {overlayBand('hud', device.safeTop, hudPx, 'rgba(40,90,220,0.35)', 'HUD')}

@@ -22,8 +22,8 @@ from levelbuilder.hitboxes import Rect
 # Viewport-anchored HUD/banner heights as fractions of level height. In cover-scale
 # mode the landscape level fills the viewport vertically, so the HUD (top) and ad
 # banner (bottom) sit at the top/bottom of the level image itself.
-# Portrait reference: HUD 191/1376=13.9%, banner 98/1376=7.1%.
-HUD_FRACTION = 0.139
+# Portrait reference: HUD 230/1376=16.7%, banner 98/1376=7.1%.
+HUD_FRACTION = 230 / 1376
 BANNER_FRACTION = 0.071
 
 # Buffer on each side of a shared section boundary where dogs should not be placed —
@@ -46,21 +46,22 @@ VIEWPORT_SAFE_FRACTION = 60.0 / 640.0
 # reference to the actual background dimensions. This is the single source for the
 # portrait dead zones (previously hardcoded in routes.py::_portrait_deadzones).
 #
-# NOTE: the HUD/ad-band heights are the literal reference pixels (191 / 98), which
-# are close to but NOT equal to HUD_FRACTION/BANNER_FRACTION * ref_height
-# (int(1376*0.071)=97 != 98). They are intentionally kept as exact reference pixels
-# so the portrait placement geometry is byte-stable; do not "simplify" them onto the
-# fractions or you shift the ad band by a pixel.
+# HUD and HINT_CHIP are MEASURED, not designed: captured from the running game
+# across 10 device presets with simulated safe-area insets, mapped into this
+# reference frame via inverse cover-scaling, unioned, padded 8px
+# (tests/test_measured_deadzones.py pins them; re-run the chrome capture after
+# any HUD/hint layout change). The AD band stays at the literal reference 98px
+# so the ad-band geometry is byte-stable vs BANNER_FRACTION rounding.
 PORTRAIT_REF_WIDTH = 768
 PORTRAIT_REF_HEIGHT = 1376
 
 # (x, y, w, h) rects in the 768x1376 reference frame, with a label for clarity.
 PORTRAIT_REFERENCE_DEADZONES: list[tuple[str, int, int, int, int]] = [
-    ("HUD",       0,   0,    768, 191),
+    ("HUD",       0,   0,    768, 230),
     ("AD",        0,   1278, 768, 98),
     ("CROP_L",    0,   0,    90,  1376),
     ("CROP_R",    678, 0,    90,  1376),
-    ("HINT_CHIP", 551, 1151, 137, 100),
+    ("HINT_CHIP", 531, 1117, 213, 138),
 ]
 
 
