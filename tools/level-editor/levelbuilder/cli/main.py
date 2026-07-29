@@ -769,6 +769,12 @@ def cmd_review(client: Client, args: argparse.Namespace) -> None:
             written.append(rel)
     (out / "session.json").write_text(json.dumps(session, indent=2))
     written.append("session.json")
+    try:
+        generations = client.get(f"/api/sessions/{session_id}/generations")
+        (out / "generations.json").write_text(json.dumps(generations, indent=2))
+        written.append("generations.json")
+    except CliError:
+        pass  # older server; review still delivers the images
     _emit(args, {"out": str(out), "files": written})
 
 
@@ -984,7 +990,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--wait", action="store_true")
     p.add_argument("--timeout", type=float, default=3600.0)
     p.add_argument("--padding", type=float, default=2.75)
-    p.add_argument("--hard-percent", type=int, default=30)
+    p.add_argument("--hard-percent", type=int, default=0)
     p.add_argument("--retry-failed", action="store_true")
     p.add_argument("--force-disk", action="store_true")
 
@@ -1007,7 +1013,7 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--radius", type=int)
     p.add_argument("--min-radius", type=int, default=18)
     p.add_argument("--shrink-step", type=int, default=2)
-    p.add_argument("--hard-percent", type=int, default=30)
+    p.add_argument("--hard-percent", type=int, default=0)
     p.add_argument("--max-offset", type=float, default=0.5)
     p.add_argument("--repair-passes", type=int, default=2)
     p.add_argument("--drop-unrepairable", action="store_true")

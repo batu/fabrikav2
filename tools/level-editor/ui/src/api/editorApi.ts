@@ -709,7 +709,7 @@ export function startCropInpaintJob(
   padding: number = 2.75,
   inpaintModel?: string,
   hardDogPrompt?: string,
-  hardDogPercent: number = 30,
+  hardDogPercent: number = 0,
   inpaintMode: Exclude<InpaintMode, 'magenta'> = 'crop',
 ): Promise<CropInpaintJobResponse> {
   return request(`/api/sessions/${sessionId}/inpaint/jobs`, {

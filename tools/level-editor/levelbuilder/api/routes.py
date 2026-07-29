@@ -1904,6 +1904,24 @@ def approve_level_for_catalog(session_id: str, requestId: str = Query(..., min_l
     return S.approve_level_for_catalog(session_id, request_id=requestId)
 
 
+@router.get("/sessions/{session_id}/generations")
+def list_generation_sidecars(session_id: str):
+    """Every `.gen.json` sidecar in the session: the full prompt + parameters
+    behind each paid generation, for UI display and later forensics."""
+    _validate_session_id(session_id)
+    sdir = S.session_dir(session_id)
+    if not sdir.exists():
+        raise HTTPException(404, detail={"error": "Session not found"})
+    generations = []
+    for path in sorted(sdir.rglob("*.gen.json")):
+        try:
+            data = json.loads(path.read_text())
+        except (OSError, json.JSONDecodeError):
+            continue
+        generations.append({"file": str(path.relative_to(sdir)), **data})
+    return {"sessionId": session_id, "generations": generations}
+
+
 @router.get("/sessions/{session_id}/sprite-gaps")
 def get_sprite_gaps(session_id: str):
     """Painted dogs whose active variant has no usable pickup sprite.

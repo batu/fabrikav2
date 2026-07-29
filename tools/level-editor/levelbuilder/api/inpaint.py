@@ -3,6 +3,7 @@
 import asyncio
 import hashlib
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 import logging
 import os
@@ -2028,6 +2029,30 @@ def _resolve_inpaint_dog_indices(raw: dict[str, Any], hitbox_list: list[dict[str
     return resolved
 
 
+def write_generation_sidecar(image_path, *, kind: str, prompt: str, model: str,
+                             params: dict | None = None, extra: dict | None = None) -> None:
+    """Persist the full prompt + parameters of a paid generation next to its
+    image as `<stem>.gen.json`. Reference material, never authority — a
+    sidecar failure must not fail the generation that just succeeded, and
+    unserializable provider extras degrade to strings."""
+    from pathlib import Path as _P
+
+    target = _P(image_path)
+    payload = {
+        "kind": kind,
+        "prompt": prompt,
+        "model": model,
+        "params": params or {},
+        "createdAt": datetime.now(timezone.utc).isoformat(),
+        **({"extra": extra} if extra else {}),
+    }
+    try:
+        serializable = json.loads(json.dumps(payload, default=str))
+        _atomic_write_json(serializable, target.with_name(f"{target.stem}.gen.json"))
+    except Exception:
+        logger.warning("failed to write generation sidecar for %s", target, exc_info=True)
+
+
 def _atomic_write_json(obj, path) -> None:
     """Same contract as _atomic_save_image for JSON payloads — unique tmp
     suffix so concurrent writers to the same target (e.g. level.json
@@ -2309,6 +2334,11 @@ def _run_background_generation_job(job: JobRecord, store: JobStore) -> dict[str,
                         "promptContext": raw.get("prompt_context") or {},
                     }
                     _atomic_save_image(result.image, path)
+                    write_generation_sidecar(
+                        path, kind="background", prompt=prompt, model=model,
+                        params={"aspectRatio": aspect_ratio, "imageSize": image_size},
+                        extra={"providerElapsed": elapsed},
+                    )
                     S.record_generated_background(
                         session_id,
                         bg_index=i,
@@ -2531,7 +2561,7 @@ class CropInpaintJobRequest(BaseModel):
     inpaintModel: str | None = Field(None, max_length=200)
     inpaintMode: CropInpaintMode = "crop"
     hardDogPrompt: str | None = Field(None, max_length=8000)
-    hardDogPercent: int = Field(30, ge=0, le=100)
+    hardDogPercent: int = Field(0, ge=0, le=100)  # default all-easy; hard is opt-in
     padding: float = Field(2.75, ge=1.0, le=5.0)
 
 
@@ -2989,6 +3019,10 @@ def _run_crop_inpaint_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
                 variant_idx = S.get_next_variant_index(session_id, dog_index)
             variant_path = dog_dir / f"variant_{variant_idx:03d}.png"
             _atomic_save_image(isolated_variant, variant_path)
+            write_generation_sidecar(
+                variant_path, kind="crop_inpaint", prompt=prompt_for_job, model=model,
+                params={"hitbox": dict(hitbox), "dogIndex": dog_index},
+            )
             _save_variant_box(variant_path, box)
             _save_sprite_assets(
                 dog_dir=dog_dir,
@@ -3726,6 +3760,10 @@ def _run_single_dog_regen(
             variant_idx = S.get_next_variant_index(session_id, dog_index)
         variant_path = dog_dir / f"variant_{variant_idx:03d}.png"
         _atomic_save_image(painted, variant_path)
+        write_generation_sidecar(
+            variant_path, kind="dog_regenerate", prompt=prompt, model=model,
+            params={"dogIndex": dog_index},
+        )
         _save_variant_box(variant_path, box)
         _save_sprite_assets(
             dog_dir=dog_dir,

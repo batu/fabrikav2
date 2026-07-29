@@ -197,7 +197,7 @@ export function useInpaintStream() {
       magentaPromptOverride: string = '',
       inpaintModel: string = '',
       hardDogPrompt: string = '',
-      hardDogPercent: number = 30,
+      hardDogPercent: number = 0,
       padding: number = 2.75,
     ) => {
       esRef.current?.close();
