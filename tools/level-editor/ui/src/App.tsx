@@ -99,7 +99,9 @@ export default function App() {
   const [dogPrompt, setDogPrompt] = useState('');
   const [includeStyleInInpaintPrompt, setIncludeStyleInInpaintPrompt] = useState(true);
   const [hiddennessLevel, setHiddennessLevel] = useState<HiddennessLevel>('easy');
-  const [hardHiddenPercent, setHardHiddenPercent] = useState(30);
+  // 0 by default per 2026-07-28 direction — matches the backend/CLI default;
+  // the slider opts hard-hidden birds in, never silently ships them.
+  const [hardHiddenPercent, setHardHiddenPercent] = useState(0);
   const [inpaintPadding, setInpaintPadding] = useState(DEFAULT_INPAINT_PADDING);
   const [inpaintModel, setInpaintModel] = useState('');
   const [upscaleEnabled, setUpscaleEnabled] = useState(true);
