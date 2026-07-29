@@ -3657,7 +3657,7 @@ def reorder_levels_index(ids_in_order: list[str]) -> list[dict]:
         return ordered
 
 
-_SESSION_ID_RE = re.compile(r"^[a-z0-9_-]{3,64}$")
+_SESSION_ID_RE = re.compile(r"^[a-z0-9_-]{3,120}$")
 
 
 def clear_incomplete_sessions(protect_exported: bool = True) -> dict:

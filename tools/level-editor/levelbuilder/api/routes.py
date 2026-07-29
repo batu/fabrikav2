@@ -261,7 +261,7 @@ def _assemble_recipe_prompts(req: RecipePromptRequest) -> RecipePromptResponse:
 
 # Builder-created sessions use 8-hex UUIDs; CLI/script-generated sessions
 # (e.g. japanese_riverside_dusk) use descriptive snake_case ids. Allow both.
-SESSION_ID_RE = re.compile(r"^[a-z0-9_-]{3,64}$")
+SESSION_ID_RE = re.compile(r"^[a-z0-9_-]{3,120}$")
 
 
 def _validate_session_id(session_id: str) -> None:

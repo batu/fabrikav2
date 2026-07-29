@@ -494,7 +494,7 @@ def _with_retries_and_timeout(
     raise last_exc  # type: ignore[misc]
 
 # See routes.py for the same pattern + rationale (UUIDs vs script-generated ids).
-SESSION_ID_RE = re.compile(r"^[a-z0-9_-]{3,64}$")
+SESSION_ID_RE = re.compile(r"^[a-z0-9_-]{3,120}$")
 
 
 def _validate_session_id(session_id: str) -> None:
