@@ -52,6 +52,10 @@ interface Props {
   backgroundOverride?: string;
   /** If true, don't render dog variant images on the overlay */
   hideVariants?: boolean;
+  /** If true, don't paint the dead-zone bands (HUD/AD/crop/hint). Step 4 sets
+   * this when the real game-chrome overlay is stacked on top — the bands are
+   * redundant there and obscure the art. */
+  hideDeadZones?: boolean;
   /** Draw the per-hitbox identity label. Default true (the wizard steps show it);
    * DogsCanvas sets false — the raw id is a debug detail, not a user feature, and
    * returns later as a toggle in the overlay-chooser panel (spec -004 §1.5). */
@@ -290,7 +294,7 @@ function sectionIndexForX(sections: LevelSection[], x: number): number {
 // Throttle generating pulse to ~12fps
 const GENERATING_FRAME_INTERVAL = 80;
 
-export default function LevelCanvas({ state, dispatch, readOnly = false, allowAddRemove = true, backgroundOverride, hideVariants = false, showLabels = true, onMutate }: Props) {
+export default function LevelCanvas({ state, dispatch, readOnly = false, allowAddRemove = true, backgroundOverride, hideVariants = false, hideDeadZones = false, showLabels = true, onMutate }: Props) {
   const geometryQuery = useQuery({
     queryKey: ['geometry-config'],
     queryFn: getGeometryConfig,
@@ -313,6 +317,7 @@ export default function LevelCanvas({ state, dispatch, readOnly = false, allowAd
   const dogsRef = useRef<DogState[]>(state.dogs);
   const selectedDogIndexRef = useRef<number | null>(state.selectedDogIndex);
   const showOverlayRef = useRef(state.showOverlay);
+  const hideDeadZonesRef = useRef(hideDeadZones);
   const showLabelsRef = useRef(showLabels);
   const sessionIdRef = useRef(state.sessionId);
   // Orientation + sections feed the landscape overlay (dividers + counters).
@@ -342,13 +347,14 @@ export default function LevelCanvas({ state, dispatch, readOnly = false, allowAd
     dogsRef.current = state.dogs;
     selectedDogIndexRef.current = state.selectedDogIndex;
     showOverlayRef.current = state.showOverlay;
+    hideDeadZonesRef.current = hideDeadZones;
     showLabelsRef.current = showLabels;
     sessionIdRef.current = state.sessionId;
     orientationRef.current = state.orientation;
     sectionsRef.current = state.sections;
     inpaintPaddingRef.current = state.inpaintPadding ?? DEFAULT_INPAINT_PADDING;
     dirtyRef.current = true;
-  }, [state.hitboxes, state.dogs, state.selectedDogIndex, state.showOverlay, showLabels, state.sessionId, state.orientation, state.sections, state.inpaintPadding]);
+  }, [state.hitboxes, state.dogs, state.selectedDogIndex, state.showOverlay, hideDeadZones, showLabels, state.sessionId, state.orientation, state.sections, state.inpaintPadding]);
 
   // Load background image (or override image like color.png)
   useEffect(() => {
@@ -473,7 +479,7 @@ export default function LevelCanvas({ state, dispatch, readOnly = false, allowAd
       ctx.clearRect(0, 0, w, h);
 
       const showOverlay = showOverlayRef.current;
-      if (showOverlay) {
+      if (showOverlay && !hideDeadZonesRef.current) {
         // Draw dead zones (already in image-pixel coords; multiply by scale for canvas)
         for (const zone of deadZonesRef.current) {
           drawDangerZone(ctx, zone, scale);

@@ -209,6 +209,7 @@ export default function StepInpaint({
   const [selectedDogIndex, setSelectedDogIndex] = useState<number | null>(null);
   const [showChromeOverlay, setShowChromeOverlay] = useState(false);
   const [overlayDeviceId, setOverlayDeviceId] = useState<string>('pixel-8-pro');
+  const [showDangerZones, setShowDangerZones] = useState(true);
   const isCollapsed = collapsed && !forceOpen;
 
   useEffect(() => {
@@ -537,8 +538,8 @@ export default function StepInpaint({
           )}
 
           {canvasState && (
-            <div className="canvas-centered">
-              <div style={{ display: 'flex', gap: 14, alignItems: 'center', marginBottom: 6, fontSize: 13 }}>
+            <>
+              <div style={{ display: 'flex', gap: 14, alignItems: 'center', margin: '6px 0', fontSize: 13 }}>
                 <label style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                   <input
                     type="checkbox"
@@ -558,26 +559,37 @@ export default function StepInpaint({
                     ))}
                   </select>
                 )}
-              </div>
-              <div style={{ position: 'relative', display: 'inline-block' }}>
-                <LevelCanvas
-                  state={canvasState}
-                  dispatch={() => {}}
-                  onMutate={handleCanvasMutation}
-                  allowAddRemove={false}
-                  backgroundOverride={canvasBgUrl}
-                  hideVariants
-                  readOnly={inProgress}
-                />
-                {showChromeOverlay && session?.bgWidth != null && session.bgWidth > 0 && session.bgHeight != null && (
-                  <ChromeOverlay
-                    deviceId={overlayDeviceId}
-                    levelWidth={session.bgWidth}
-                    levelHeight={session.bgHeight}
+                <label style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <input
+                    type="checkbox"
+                    checked={showDangerZones}
+                    onChange={(e) => setShowDangerZones(e.target.checked)}
                   />
-                )}
+                  Danger zones
+                </label>
               </div>
-            </div>
+              <div className="canvas-centered">
+                <div style={{ position: 'relative', width: '100%' }}>
+                  <LevelCanvas
+                    state={canvasState}
+                    dispatch={() => {}}
+                    onMutate={handleCanvasMutation}
+                    allowAddRemove={false}
+                    backgroundOverride={canvasBgUrl}
+                    hideVariants
+                    hideDeadZones={!showDangerZones}
+                    readOnly={inProgress}
+                  />
+                  {showChromeOverlay && session?.bgWidth != null && session.bgWidth > 0 && session.bgHeight != null && (
+                    <ChromeOverlay
+                      deviceId={overlayDeviceId}
+                      levelWidth={session.bgWidth}
+                      levelHeight={session.bgHeight}
+                    />
+                  )}
+                </div>
+              </div>
+            </>
           )}
 
           {allSettled && (
