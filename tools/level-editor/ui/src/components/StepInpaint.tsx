@@ -1,4 +1,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
+import { ComparePanel } from './ComparePanel';
+import { DevicePreview } from './DevicePreview';
+import { PromptDisclosure } from './PromptDisclosure';
 import { useQueryClient } from '@tanstack/react-query';
 import type { ConfigResponse, DogState, HiddennessLevel, Hitbox, SessionResponse } from '../types';
 import type { InpaintStreamControls } from '../api/useInpaintStream';
@@ -583,6 +586,23 @@ export default function StepInpaint({
                 </>
               )}
             </>
+          )}
+          <PromptDisclosure label="full inpaint prompt" prompt={sharedPrompt} />
+          {sessionId != null && session != null && (
+            <ComparePanel sessionId={sessionId} />
+          )}
+          {sessionId != null && session?.bgWidth != null && session.bgWidth > 0 && session.bgHeight != null && (
+            <details style={{ marginTop: 12 }}>
+              <summary style={{ cursor: 'pointer', fontWeight: 700 }}>Device preview</summary>
+              <div style={{ marginTop: 8 }}>
+                <DevicePreview
+                  session={{ id: sessionId, hitboxes: session.hitboxes }}
+                  imageUrl={`/levels/${sessionId}/color.png?v=${variantKey}`}
+                  levelWidth={session.bgWidth}
+                  levelHeight={session.bgHeight}
+                />
+              </div>
+            </details>
           )}
         </div>
       )}

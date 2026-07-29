@@ -54,3 +54,17 @@ def test_recenter_reports_crop_risk(isolated_session):
     assert result["moved"][0].get("cropRisk") is True, (
         "a recenter landing inside the crop band must be flagged"
     )
+
+
+def test_device_preview_uses_cover_math_like_the_game():
+    """The preview must scale exactly like GameScene (cover = Math.max) or it
+    lies about what phones crop."""
+    from pathlib import Path
+
+    preview = (Path(__file__).parent.parent / "ui/src/components/DevicePreview.tsx").read_text()
+    segment = preview[preview.index("function coverPlacement"):]
+    segment = segment[:segment.index("}")]
+    assert "Math.max" in segment
+    game = (Path(__file__).parent.parent.parent.parent
+            / "games/find_the_bird/src/scenes/GameScene.ts").read_text()
+    assert "this.imgScale = Math.max(scaleX, scaleY)" in game

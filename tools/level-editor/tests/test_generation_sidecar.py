@@ -96,3 +96,21 @@ def test_review_verb_downloads_generations(monkeypatch, capsys, tmp_path):
     assert "generations.json" in listing["files"]
     saved = _json.loads((out_dir / "generations.json").read_text())
     assert saved["generations"][0]["prompt"] == "p"
+
+
+def test_sidecar_params_accept_hitbox_dataclass(tmp_path):
+    """Regression: the crop path passes a Hitbox dataclass, and dict(Hitbox)
+    raised TypeError AFTER the paid paint — every dog in a live comparison run
+    failed post-payment."""
+    from levelbuilder.api.inpaint import write_generation_sidecar
+    from levelbuilder.hitboxes import Hitbox
+
+    image = tmp_path / "variant_000.png"
+    image.write_bytes(b"png")
+    hitbox = Hitbox(x=10, y=20, radius=26)
+    write_generation_sidecar(
+        image, kind="crop_inpaint", prompt="p", model="m",
+        params={"hitbox": vars(hitbox) if hasattr(hitbox, "__dict__") else dict(hitbox)},
+    )
+    data = json.loads((tmp_path / "variant_000.gen.json").read_text())
+    assert data["params"]["hitbox"]["x"] == 10

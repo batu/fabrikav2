@@ -3021,7 +3021,8 @@ def _run_crop_inpaint_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
             _atomic_save_image(isolated_variant, variant_path)
             write_generation_sidecar(
                 variant_path, kind="crop_inpaint", prompt=prompt_for_job, model=model,
-                params={"hitbox": dict(hitbox), "dogIndex": dog_index},
+                params={"hitbox": vars(hitbox) if hasattr(hitbox, "__dict__") else dict(hitbox),
+                        "dogIndex": dog_index},
             )
             _save_variant_box(variant_path, box)
             _save_sprite_assets(

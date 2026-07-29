@@ -197,3 +197,29 @@ natural recovery action was the one that double-spent.
   gates every bundled level's reachability.
 
 **Corpus:** 5 levels, all PASS the harness reachability audit, validator green.
+
+## Batu's direction batch (2026-07-29, TDD)
+
+Six asks, all landed red-first:
+
+1. **Hard mix defaults to 0** at every layer (API, both UI clients, both CLI
+   verbs), pinned by tests.
+2. **Inpaint approach comparison**: checkboxes (not radio) queue any subset of
+   crop / crop_reference / magenta, each in an isolated session clone; live run
+   on the 8-bird market session produced compare-three-approaches.png. Verdict
+   material: crop = subtle/production, crop_reference = weakest (artifacts),
+   magenta = bold and oversized but one-call-consistent. Magenta gained a
+   durable job kind in the process; its first live durable run succeeded.
+3. **Device preview** in the wizard: portal Device Lab presets (10 phones,
+   real safe-area insets), board cover-scaled with the exact GameScene math
+   (pinned by test), toggleable game chrome + hitbox overlay.
+4. **Full prompt display**: one-click disclosure of the exact prompt text.
+5. **Generation sidecars**: every paid call writes `<image>.gen.json` (full
+   prompt, model, params, timestamp) + GET /sessions/{id}/generations + the
+   review verb saves generations.json.
+6. **Crop-band enforcement**: `clipped` now blocks Lineup, the narrowest
+   device class joined the visibility viewports, recenter flags cropRisk.
+
+Live comparison run also caught a self-inflicted regression: dict(Hitbox) in
+the new sidecar wiring crashed every crop dog AFTER its paid paint. Fixed with
+a regression test; the retry run succeeded 8/8 on both crop modes.
