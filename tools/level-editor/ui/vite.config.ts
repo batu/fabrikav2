@@ -4,6 +4,9 @@ const apiTarget = process.env.LEVEL_EDITOR_API ?? 'http://localhost:5192';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
+  // Relative base so the built dist works both at the root (tunnel) and under
+  // the portal's /tools/ftd-editor/ prefix.
+  base: './',
   plugins: [react()],
   server: {
     port: 5193,

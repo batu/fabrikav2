@@ -56,7 +56,7 @@ export function ChromeOverlay({ deviceId, levelWidth, levelHeight }: {
       {y > 0 && <div style={{ ...dim, left: pctX(Math.max(0, x)), top: 0, height: pctY(y), width: pctX(Math.min(w, levelWidth)) }} />}
       {y + h < levelHeight && <div style={{ ...dim, left: pctX(Math.max(0, x)), bottom: 0, height: pctY(levelHeight - y - h), width: pctX(Math.min(w, levelWidth)) }} />}
       <img
-        src={`/device-chrome/${device.id}.png`}
+        src={`assets/device-chrome/${device.id}.png`}
         alt={`${device.name} game UI`}
         style={{
           position: 'absolute',
@@ -190,7 +190,7 @@ export function DevicePreview({ session, imageUrl, levelWidth, levelHeight }: {
           /* Real game chrome captured from the running game per device (with
              simulated safe-area insets) — the actual HUD/hint UI, not bands. */
           <img
-            src={`/device-chrome/${device.id}.png`}
+            src={`assets/device-chrome/${device.id}.png`}
             alt={`${device.name} game UI`}
             onError={() => setChromeMissing(true)}
             style={{
