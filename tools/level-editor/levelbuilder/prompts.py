@@ -623,6 +623,152 @@ SETTINGS = {
             ),
         },
     },
+    # Reconstructed from the shipped Find the Dog corpus themes
+    # (pirate_shipwreck_island_*, railway_roundhouse_*, coral_reef_*). The
+    # original wizard sessions and their scene prompts were purged, so these
+    # are re-briefed from the level slugs and shipped art in the same
+    # brief-the-illustrator template as the rest of the catalogue.
+    "pirate_shipwreck_island": {
+        "label": "Pirate Shipwreck Island",
+        "scenes": {
+            "pirate_shipwreck_island_treasure_cove_camp": (
+                "A pirate treasure-cove camp sprawling across a sheltered beach — a main campfire clearing ringed with driftwood seats, a side path branching up to a lookout ledge, a strip of tide-line rocks trailing off along the water. "
+                "The entire ground surface is consistent sand and weathered rock throughout — every area the viewer can see the ground, it reads as rippled beach sand, wet shingle, or barnacled stone with no untextured blank areas. "
+                "Salvaged tents and lean-tos of varying sizes crowd unevenly around the clearing, some clustered around the fire, others standing alone against the cliff. Patched sailcloth roofs at different heights, some overlapping, some freestanding. "
+                "A half-buried rowboat sticks out of the sand at an unexpected angle near the tide line. "
+                "Scattered throughout without pattern: open treasure chests spilling gold coins, rum barrels, coiled ropes, a ragged black flag on a leaning pole, cutlasses stuck in the sand, lantern posts, fishing nets hung between stakes, stacked crates stamped with anchors, a spyglass on a barrel, message bottles, cannonballs in a pyramid, a parrot perch, driftwood benches, tattered maps weighted with shells, bait buckets, an anchor half-sunk in sand. "
+                "Dense clusters around the campfire, sparser breathing room along the tide line. "
+                "Asymmetric, organic layout — like a camp thrown together from three shipwrecks' worth of salvage."
+            ),
+            "pirate_shipwreck_island_broken_bow_lagoon": (
+                "A turquoise lagoon around a broken ship's bow sprawling across connected shallows — the shattered bow section beached at the center, a side sandbar branching off toward palm shade, a reef-rock strip curling around the far water. "
+                "The lagoon has consistent materials throughout — each visible region renders as the material it should be, clear turquoise water over pale sand in the shallows, dry coral-sand on the bars, splintered planking on the wreck, with no untextured blank areas. "
+                "Wreck fragments of varying sizes scatter unevenly through the shallows, some clustered against the bow, others standing alone as lone ribs. Broken mast stumps at different heights, some overlapping, some freestanding. "
+                "The cracked bowsprit juts out of the water at an unexpected angle, its figurehead still attached. "
+                "Scattered throughout without pattern: barnacled hull planks, a torn sail draped over a spar, floating barrels, rope ladders trailing into water, a ship's wheel wedged in sand, brass portholes, seaweed-wrapped cannon, drifting oars, a crow's-nest basket washed ashore, treasure-chest fragments, starfish on the wet sand, gulls' driftwood perches, coral heads breaking the surface, a lantern hooked on a rib, crab pots, tangled rigging. "
+                "Dense clusters around the beached bow, sparser breathing room across the open sandbar. "
+                "Asymmetric, organic layout — like a wreck the tide has been redistributing for twenty years."
+            ),
+            "pirate_shipwreck_island_jungle_cave_shore": (
+                "A jungle cave shore sprawling from dark rock to bright water — a main cave mouth yawning at the center, a side jungle path branching in under hanging vines, a shoreline strip of rock pools running along the front. "
+                "The entire ground surface is consistent stone and jungle floor throughout — every area the viewer can see the ground, it reads as wet cave rock, packed jungle earth, or tide-pooled shore stone with no untextured blank areas. "
+                "Vine-hung boulders of varying sizes crowd unevenly around the cave mouth, some clustered into rough walls, others standing alone among ferns. Palm crowns and rock ledges at different heights, some overlapping, some freestanding. "
+                "A rickety plank walkway climbs into the cave at an unexpected angle, lashed to stalagmites. "
+                "Scattered throughout without pattern: smugglers' crates under tarpaulins, hanging lanterns glowing amber in the cave dark, rolled hammocks between palms, powder kegs, a skiff pulled up on the rocks, torch brackets, rope bridges over pools, stacked coconuts, a cooking pot on a tripod, tide-pool starfish, machetes in a stump, carved warning signs, bat-shadowed stalactites, bedrolls on ledges, fishing spears, a chest wedged in a crevice. "
+                "Dense clusters just inside the cave mouth, sparser breathing room along the rock pools. "
+                "Asymmetric, organic layout — like a hideout smugglers kept improving until the navy found it."
+            ),
+            "pirate_shipwreck_island_dock_fragment_hideout": (
+                "A hideout built on surviving dock fragments sprawling out over shallow water — a main platform of salvaged decking, a side jetty branching off on leaning pilings, a half-collapsed walkway strip trailing toward shore. "
+                "The hideout has consistent materials throughout — each visible region renders as the material it should be, weathered grey planking on the platforms, green water between the pilings, mudflat and shingle under the shore end, with no untextured blank areas. "
+                "Shanty huts of varying sizes crowd unevenly across the platforms, some clustered wall-to-wall, others standing alone on stilts. Patched tin-and-sailcloth roofs at different heights, some overlapping, some freestanding. "
+                "A salvaged mast crane leans out over the water at an unexpected angle, a cargo net swinging from its arm. "
+                "Scattered throughout without pattern: mooring bollards wrapped in rope, lobster pots stacked by doors, hanging oil lamps, gangplanks between platforms, barrels lashed under walkways, drying laundry lines, a rowboat tied below, harpoons on wall racks, tackle boxes, crates of contraband under tarps, a bell on a post, buoys strung like beads, a spy-hole shutter, fish drying on lines, coiled anchor chain, a card table on the porch. "
+                "Dense clusters around the main platform, sparser breathing room down the collapsed walkway. "
+                "Asymmetric, organic layout — like a dock that failed and got rebuilt as a den one plank at a time."
+            ),
+            "pirate_shipwreck_island_palm_root_ship_ribs": (
+                "A hull skeleton swallowed by palm roots sprawling across a jungle-edge beach — the great rib cage of a ship at the center, a side path branching through the roots that grew around it, a dune-grass strip running off behind. "
+                "The entire ground surface is consistent sand and root-woven earth throughout — every area the viewer can see the ground, it reads as dry sand, matted roots, or leaf-littered soil with no untextured blank areas. "
+                "Curved ship ribs of varying heights rise unevenly from the sand, some clustered into a near-complete hull, others standing alone like gateways. Palm trunks lean at different heights through the frame, some overlapping the ribs, some freestanding. "
+                "One massive palm grows straight through the keel at an unexpected angle, roots gripping the timber. "
+                "Scattered throughout without pattern: sand-drifted cargo crates, a ship's bell hanging from a rib, rope remnants fused with vines, a rusted cannon in the dunes, half-buried amphorae, an old campfire ring, weathered figurehead leaning on a trunk, coconut piles, a hammock slung between ribs, brass fittings gone green, a tattered chart pinned by a dagger, crab burrows, orchids growing from the timber, a lantern on a root hook, broken oars, a treasure spade in the sand. "
+                "Dense clusters inside the rib cage, sparser breathing room out along the dune grass. "
+                "Asymmetric, organic layout — like a wreck the jungle has spent fifty years quietly claiming."
+            ),
+        },
+    },
+    "railway_roundhouse": {
+        "label": "Railway Roundhouse",
+        "scenes": {
+            "railway_roundhouse_sleepy_mountain_rail_stop": (
+                "A sleepy mountain rail stop sprawling along a curved platform — a main timber station house at the center, a side track branching toward a water tower, a strip of sidings trailing off below pine slopes. "
+                "The entire ground surface is consistent gravel ballast and worn planking throughout — every area the viewer can see the ground, it reads as track ballast, platform boards, or packed cinder path with no untextured blank areas. "
+                "Station outbuildings of varying sizes crowd unevenly along the platform, some clustered against the main house, others standing alone by the sidings. Snow-dusted gable roofs at different heights, some overlapping, some freestanding. "
+                "A small tank engine rests on the siding at an unexpected angle, steam curling from its dome. "
+                "Scattered throughout without pattern: luggage trolleys stacked with trunks, milk churns on the platform edge, a signal post with lowered arm, lanterns on hooks, mail sacks by the door, a station clock, coal bunkers, wooden benches, a hand-cranked pump trolley, timetable boards, crates of apples, a stove-pipe chimney puffing, rope-tied parcels, a station cat's basket, watering cans, telegraph poles marching uphill. "
+                "Dense clusters around the station house, sparser breathing room down the sidings. "
+                "Asymmetric, organic layout — like a stop the railway forgot to modernize and the mountain forgave."
+            ),
+            "railway_roundhouse_maintenance_courtyard_loop": (
+                "A roundhouse maintenance courtyard sprawling around a central turntable — the great brick roundhouse arcing along one side, a side yard branching off between workshops, a loop of radial tracks fanning across the open ground. "
+                "The entire ground surface is consistent cobble, cinder, and steel rail throughout — every area the viewer can see the ground, it reads as setts, packed cinder, or track-and-turntable ironwork with no untextured blank areas. "
+                "Workshop bays of varying widths crowd unevenly around the yard, some clustered under the roundhouse roof, others standing alone as sheds. Smoke vents and roof monitors at different heights, some overlapping, some freestanding. "
+                "The turntable bridge sits swung at an unexpected angle, half-aligned with an empty bay. "
+                "Scattered throughout without pattern: locomotive wheels leaned in rows, oil cans on workbenches, chain hoists dangling from beams, coal heaps, red toolboxes, gauges and pipework on trolleys, buffer stops, a sand tower, drums of grease, inspection pits with ladders, spare boiler tubes, wheelbarrows, hanging work lamps, bolt bins, a pressure gauge wall, rag bales, semaphore arms awaiting repair. "
+                "Dense clusters along the workshop bays, sparser breathing room across the turntable ring. "
+                "Asymmetric, organic layout — like a yard organized by forty years of habit rather than any drawing."
+            ),
+            "railway_roundhouse_luggage_island_depot": (
+                "A luggage depot on a platform island sprawling between two track beds — a main sorting canopy at the center, a side ramp branching down to a subway stair, a trolley-parking strip running off along the platform edge. "
+                "The entire ground surface is consistent paving slabs and tactile platform edge throughout — every area the viewer can see the ground, it reads as worn flagstones, painted safety lines, or ramp concrete with no untextured blank areas. "
+                "Stacked luggage mountains of varying sizes crowd unevenly under the canopy, some clustered into tottering walls, others standing alone as single trunks. Canopy struts and hanging signs at different heights, some overlapping, some freestanding. "
+                "An overloaded baggage trolley leans at an unexpected angle against a pillar, one wheel off the ground. "
+                "Scattered throughout without pattern: leather suitcases with travel stickers, hat boxes, wicker baskets, a birdcage awaiting its owner, mail bags on a scale, rolled carpets, a lost-property cabinet, parcel labels fluttering on strings, porters' caps on hooks, a weighing machine, umbrella bundles, steamer trunks, a tea trolley, pigeonhole shelving, chalk destination boards, rope-tied crates, a sleeping guard's chair. "
+                "Dense clusters under the sorting canopy, sparser breathing room along the platform edge. "
+                "Asymmetric, organic layout — like a depot where every train for a decade left something behind."
+            ),
+            "railway_roundhouse_garden_rail_museum": (
+                "A garden rail museum sprawling through hedged grounds — a main lawn with exhibited engines, a side gravel path branching between flowerbeds, a miniature-railway strip looping off around a pond. "
+                "The entire ground surface is consistent lawn, gravel path, and narrow-gauge track throughout — every area the viewer can see the ground, it reads as mown grass, raked gravel, or tiny rails in ballast with no untextured blank areas. "
+                "Retired locomotives of varying sizes sit unevenly across the lawns, some clustered nose-to-tail on display track, others standing alone on plinths. Boiler tops and cab roofs at different heights, some overlapping the hedges, some freestanding. "
+                "A signal gantry spans the main path at an unexpected angle, repurposed as a rose arch. "
+                "Scattered throughout without pattern: brass nameplates on posts, a ticket kiosk with striped awning, picnic benches, a miniature steam engine pulling empty carriages, flower planters made from wheelbarrows,signal levers in a glass case, a water crane dribbling into a barrel, painted milestones, a bandstand, vintage station signs on the hedge, watering cans, a wheelbarrow of coal for the miniature line, topiary shaped like an engine, lamp posts from five different stations, a guard's van serving as a tea shop, croquet hoops on the lawn. "
+                "Dense clusters around the exhibited engines, sparser breathing room along the pond loop. "
+                "Asymmetric, organic layout — like a museum assembled by volunteers who each loved a different railway."
+            ),
+        },
+    },
+    "coral_reef": {
+        "label": "Coral Reef (Underwater)",
+        "scenes": {
+            "coral_reef_coral_bommie_garden": (
+                "An underwater coral bommie garden sprawling across a sunlit seabed — a main cluster of coral towers at the center, a side sand channel branching between outcrops, a seagrass strip trailing off into blue distance. "
+                "The entire seabed surface is consistent sand and reef rock throughout — every area the viewer can see the bottom, it reads as rippled white sand, coral rubble, or algae-fuzzed stone with no untextured blank areas. "
+                "Coral bommies of varying sizes crowd unevenly across the garden, some clustered into connected towers, others standing alone with sand halos. Plate and staghorn crowns at different heights, some overlapping, some freestanding. "
+                "A great brain coral leans off-center at an unexpected angle, a cleaning station busy on its crown. "
+                "Scattered throughout without pattern: purple sea fans, anemones with resident clownfish, giant clams with wavy lips, feather stars perched on ridges, sea urchins in crevices, a sleeping turtle under a ledge, garden eels in the channel, cushion starfish, barrel sponges, parrotfish-grazed patches, a drifting jellyfish, conch shells on the sand, banded sea kraits threading the towers, bubble streams from a vent, christmas-tree worms, a lionfish hovering by a hole. "
+                "Dense clusters around the central towers, sparser breathing room across the seagrass. "
+                "Asymmetric, organic layout — like a garden the reef has been planting for a thousand years."
+            ),
+            "coral_reef_kelp_coral_arches": (
+                "An underwater arcade of kelp-hung coral arches sprawling along a reef wall — a main run of stone arches at the center, a side swim-through branching into a blue hole, a boulder strip trailing along the wall's foot. "
+                "The seafloor has consistent materials throughout — each visible region renders as the material it should be, coral-crusted rock on the arches, swaying kelp curtains between them, clean sand in the passages, with no untextured blank areas. "
+                "Natural rock arches of varying spans crowd unevenly along the wall, some clustered into tunnels, others standing alone as lone gateways. Kelp fronds and coral outcrops at different heights, some overlapping the arches, some freestanding. "
+                "One collapsed arch lies at an unexpected angle, its fallen span now a bridge between boulders. "
+                "Scattered throughout without pattern: schools of silver fish threading the arches, moray eels in wall holes, lobsters under ledges, sea stars on the spans, drifting kelp fronds, an octopus's shell-decorated den, gorgonian fans in the current, a patrolling reef shark silhouette, nudibranchs on the stone, cleaner shrimp stations, urchin barrens, a grouper holding station in a tunnel, anchor scar on one boulder, sponges in window nooks, a ray sleeping in a sand pocket, bubble columns in a shaft of light. "
+                "Dense clusters through the main arch run, sparser breathing room along the boulder foot. "
+                "Asymmetric, organic layout — like architecture the ocean carved and then decorated."
+            ),
+            "coral_reef_lagoon_ruin_reef": (
+                "Sunken ruins overgrown into a lagoon reef sprawling across shallow bright water — a main fallen temple colonnade at the center, a side avenue of toppled statues branching off, a strip of collapsed wall trailing into deeper blue. "
+                "The lagoon floor has consistent materials throughout — each visible region renders as the material it should be, coral-crusted marble on the ruins, turquoise-lit sand between them, mosaic fragments where floors survive, with no untextured blank areas. "
+                "Broken columns of varying heights rise unevenly from the sand, some clustered into standing rows, others lying alone in pieces. Capitals and arch fragments at different heights, some overlapping, some freestanding. "
+                "A great stone head lies half-buried at an unexpected angle, an anemone crown growing where its laurel was. "
+                "Scattered throughout without pattern: amphorae nested in coral, a school of fish flowing through a doorway, urns spilling old coins, carved reliefs blurred by sponges, a moray in a fluted column, mosaic dolphins under drifting sand, sea-grass tufts between paving, a fallen bronze lamp, turtle grazing on a lintel, votive statues in a niche, an anchor of some later wreck, clam-studded steps, a shaft of light through a broken dome, octopus den in a vault, sea fans on the architrave, scattered tesserae glinting. "
+                "Dense clusters along the colonnade, sparser breathing room out over the open sand. "
+                "Asymmetric, organic layout — like a city the sea took and slowly turned into reef."
+            ),
+            "coral_reef_shipwreck_reef_camp": (
+                "A sunken shipwreck absorbed into a reef sprawling across the seabed — the broken hull amidships at the center, a side debris field branching down-current, a strip of reef climbing the stern like a hill. "
+                "The seabed has consistent materials throughout — each visible region renders as the material it should be, coral-encrusted iron and timber on the wreck, pale sand in the scour pits, living reef where the growth has taken, with no untextured blank areas. "
+                "Hull sections of varying sizes lie unevenly across the site, some clustered into recognizable ship, others standing alone as lone plates. Masts and davits lean at different heights, some overlapping, some freestanding. "
+                "The ship's funnel lies toppled at an unexpected angle, now a swim-through tunnel ringed with soft coral. "
+                "Scattered throughout without pattern: the wheel fused with fan coral, portholes peering from sponge walls, a school circling the mast top, anchor chain running into sand, cargo crates burst with ingots, a grouper in the hold's dark, batfish under the bow, crockery half-buried in silt, the bell greened and hanging, lionfish in the companionway, sea whips on the railings, an old diving helmet, ammunition boxes gone to coral, a turtle resting on the deck, drifting fishing net pinned by growth, davits trailing rope. "
+                "Dense clusters around the amidships break, sparser breathing room down the debris field. "
+                "Asymmetric, organic layout — like a wreck the reef adopted and remodeled deck by deck."
+            ),
+            "coral_reef_tidal_pool_labyrinth": (
+                "A tidal-pool labyrinth sprawling across a rocky shore at low tide — a main basin maze at the center, a side channel branching seaward through the rocks, a barnacled ridge strip running along the high side. "
+                "The entire surface is consistent wet rock and pooled water throughout — every area the viewer can see the ground, it reads as glistening stone, mirror-still pool, or weed-slick channel with no untextured blank areas. "
+                "Rock basins of varying sizes interlock unevenly across the shelf, some clustered into chains of pools, others standing alone as single bowls. Ridge walls and boulders at different heights, some overlapping, some freestanding. "
+                "One deep pool cuts the shelf at an unexpected angle, dark and connected to the sea by a hidden tunnel. "
+                "Scattered throughout without pattern: orange and violet starfish, anemones like wet dahlias, hermit crabs trading shells, limpet constellations, a stranded jellyfish, kelp ropes across the rock, mussel beds in blue-black drifts, a small octopus flowing between pools, shrimp flickering in the shallows, gull footprints in a sand pocket, sea glass and driftwood, whelk clusters, a tide-abandoned bucket, crab molts, sculpins darting under ledges, periwinkles on every wall. "
+                "Dense clusters through the central maze, sparser breathing room along the seaward channel. "
+                "Asymmetric, organic layout — like a maze the tide redraws twice a day and never the same way."
+            ),
+        },
+    },
     "ad_campaigns": {
         "label": "Ad Campaigns",
         "scenes": {
