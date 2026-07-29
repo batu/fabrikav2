@@ -569,7 +569,14 @@ export default function StepInpaint({
                 </label>
               </div>
               <div className="canvas-centered">
-                <div style={{ position: 'relative', width: '100%' }}>
+                {/* Width capped so the full portrait level fits one viewport
+                    height (canvas height follows width via the level aspect). */}
+                <div style={{
+                  position: 'relative',
+                  width: session?.bgWidth && session?.bgHeight
+                    ? `min(100%, calc((100vh - 170px) * ${session.bgWidth / session.bgHeight}))`
+                    : '100%',
+                }}>
                   <LevelCanvas
                     state={canvasState}
                     dispatch={() => {}}
