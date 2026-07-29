@@ -887,6 +887,9 @@ MOBILE_VISIBILITY_VIEWPORTS = [
     {"name": "iPhone 15", "width": 393, "height": 852},
     {"name": "Pixel 8", "width": 412, "height": 915},
     {"name": "Tall Android", "width": 360, "height": 800},
+    # Narrowest supported aspect (0.449): crops the most horizontally under
+    # cover-scaling, so it is the level-edge worst case.
+    {"name": "Pixel 8 Pro", "width": 448, "height": 998},
 ]
 
 
@@ -2311,12 +2314,26 @@ def recenter_hitboxes_to_sprites(
         radius = hb.get("r", hb.get("radius", 30))
         distance = ((hb["x"] - cx) ** 2 + (hb["y"] - cy) ** 2) ** 0.5
         if not inside or distance > radius * max_offset_fraction:
-            moved.append({
+            entry = {
                 "index": index,
                 "from": [hb["x"], hb["y"]],
                 "to": [int(cx), int(cy)],
                 "distance": round(distance, 1),
-            })
+            }
+            # A recenter is tap-accurate but useless if the bird itself sits in
+            # the band that cover-scaling crops on the narrowest phones. Flag
+            # it so callers surface the risk instead of shipping blind.
+            from levelbuilder.sections import (
+                PORTRAIT_REF_WIDTH as _REF_W,
+                PORTRAIT_REFERENCE_DEADZONES as _REF_DZ,
+            )
+            raw_meta = raw if isinstance(raw, dict) else {}
+            level_width = int(raw_meta.get("bg_width") or _REF_W)
+            crop_band = next((w for (label, _x, _y, w, _h) in _REF_DZ if label == "CROP_L"), 90)
+            band = crop_band * level_width / _REF_W
+            if cx < band or cx > level_width - band:
+                entry["cropRisk"] = True
+            moved.append(entry)
             hb["x"], hb["y"] = int(cx), int(cy)
     if moved:
         save_hitboxes(session_id, hitboxes)

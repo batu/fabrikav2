@@ -30,7 +30,7 @@ export function visibilityIssueLabel(issue: VisibilityIssue): string {
 }
 
 export function blockingVisibilityIssues(issues: VisibilityIssue[]): VisibilityIssue[] {
-  return issues.filter((issue) => issue.type === 'blocked_area');
+  return issues.filter((issue) => issue.type === 'blocked_area' || issue.type === 'clipped');
 }
 
 export function summarizeVisibilityIssues(issues: VisibilityIssue[]): VisibilityWarningSummary[] {
@@ -61,7 +61,7 @@ export function summarizeVisibilityIssues(issues: VisibilityIssue[]): Visibility
 }
 
 export function blockingVisibilitySummaries(summaries: VisibilityWarningSummary[]): VisibilityWarningSummary[] {
-  return summaries.filter((summary) => summary.type === 'blocked_area');
+  return summaries.filter((summary) => summary.type === 'blocked_area' || summary.type === 'clipped');
 }
 
 export function visibilitySummaryLabel(summary: VisibilityWarningSummary): string {
