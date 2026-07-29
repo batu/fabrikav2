@@ -52,6 +52,7 @@ WIZARD_OPERATIONS: dict[str, str] = {
     "session-archive": "archive",
     "approve-catalog": "approve",
     "sprite-gaps": "repair-sprites",
+    "compare-inpaint": "compare",
     "bundle-starter": "export",
     "prompt-library": "prompts",
     "generation-status": "status",
@@ -666,6 +667,26 @@ def cmd_author(client: Client, args: argparse.Namespace) -> None:
     _emit(args, {"sessionId": session_id, "trace": trace})
 
 
+def cmd_compare(client: Client, args: argparse.Namespace) -> None:
+    """Queue several inpaint approaches on clones of one session and wait for
+    all of them, reporting the clone ids to inspect side by side."""
+    _check_disk(args.force_disk)
+    modes = [m.strip() for m in args.modes.split(",") if m.strip()]
+    body = {"modes": modes, "hardDogPercent": args.hard_percent}
+    started = client.post(f"/api/sessions/{args.session_id}/compare-inpaint", json=body)
+    results = []
+    for entry in started["comparisons"]:
+        outcome = dict(entry)
+        if args.wait:
+            job = _wait_for_job(client, entry["jobId"], timeout_s=args.timeout, quiet=args.json)
+            outcome["status"] = job.get("status")
+            if job.get("status") != "succeeded":
+                outcome["error"] = job.get("errorMessage")
+        results.append(outcome)
+    _emit(args, {"sessionId": args.session_id, "comparisons": results,
+                 "hint": "review each comparison session (color.png/eval.png), or open it in the wizard"})
+
+
 def cmd_repair_sprites(client: Client, args: argparse.Namespace) -> None:
     """Regenerate birds that came out of inpaint without a pickup sprite.
 
@@ -1027,6 +1048,14 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--redo", action="store_true",
                    help="regenerate even when the session already has backgrounds/painted dogs")
     p.add_argument("--dry-run", action="store_true")
+
+    p = verb("compare", cmd_compare)
+    p.add_argument("session_id")
+    p.add_argument("--modes", default="crop,crop_reference,magenta")
+    p.add_argument("--hard-percent", type=int, default=0)
+    p.add_argument("--wait", action="store_true")
+    p.add_argument("--timeout", type=float, default=3600.0)
+    p.add_argument("--force-disk", action="store_true")
 
     p = verb("repair-sprites", cmd_repair_sprites)
     p.add_argument("session_id")

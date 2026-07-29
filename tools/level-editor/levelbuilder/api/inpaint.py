@@ -3453,7 +3453,30 @@ def clear_extension(session_id: str) -> ExtensionStateResponse:
     return ExtensionStateResponse(extension=None)
 
 
+def _run_magenta_inpaint_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
+    """Durable wrapper over run_magenta_inpaint: reads its inputs from the
+    session's own files, so a queued job survives restarts with no request
+    state. Job-ifies the last SSE-only paid path."""
+    session_id = job.session_id
+    raw = S.load_session_raw(session_id) or {}
+    hb_path = S.session_dir(session_id) / "hitboxes.json"
+    hitbox_list = json.loads(hb_path.read_text()) if hb_path.exists() else []
+    if not hitbox_list:
+        raise RuntimeError("magenta inpaint requires hitboxes")
+    metadata = job.metadata or {}
+    dog_prompt = metadata.get("dogPrompt") or raw.get("dog_prompt") or ""
+    model = metadata.get("model") or raw.get("inpaint_model") or raw.get("model")
+    return run_magenta_inpaint(
+        session_id,
+        hitbox_list=hitbox_list,
+        dog_prompt=dog_prompt,
+        model=model,
+        magenta_override=str(metadata.get("magentaOverride") or ""),
+    )
+
+
 def register_job_handlers(worker: JobWorker) -> None:
+    worker.register_handler("magenta_inpaint", _run_magenta_inpaint_job)
     worker.register_handler("background_generation", _run_background_generation_job)
     worker.register_handler("crop_inpaint", _run_crop_inpaint_job)
     worker.register_handler("crop_inpaint_retry", _run_retry_failed_dogs_job)
@@ -4511,6 +4534,132 @@ def _magenta_prompt(entity_prompt: str) -> str:
     )
 
 
+def run_magenta_inpaint(
+    session_id: str,
+    *,
+    hitbox_list: list[dict],
+    dog_prompt: str,
+    model: str,
+    magenta_override: str = "",
+    bg_index: int | None = None,
+    cancel_check=None,
+) -> dict:
+    """Sync magenta-overlay inpaint core: overlay -> single edit_image call ->
+    full finalize (color/inpainted/bw/eval/level.json + session flags).
+
+    Extracted from the SSE route so the durable job worker and the comparison
+    feature can run magenta without owning an EventSource. `cancel_check` is an
+    optional callable raising to abort between phases.
+    """
+    raw = S.load_session_raw(session_id)
+    if raw is None:
+        raise S.LevelNotReadyError(f"session {session_id} not found")
+    sdir = S.session_dir(session_id)
+    selected = bg_index if bg_index is not None else _resolve_selected_bg(session_id, raw)
+    if selected is None:
+        raise S.LevelNotReadyError("No background selected")
+    bg_path = sdir / f"bg_{selected:02d}.png"
+    if not bg_path.exists():
+        raise S.LevelNotReadyError("Background file not found")
+
+    with Image.open(bg_path) as bg_src:
+        bg_src.load()
+        bg = bg_src.copy()
+    w, h = bg.size
+    overlay = _build_magenta_overlay(bg, hitbox_list)
+    prompt = magenta_override.strip() or _magenta_prompt(dog_prompt)
+    try:
+        if cancel_check is not None:
+            cancel_check()
+        result = _with_retries_and_timeout(edit_image, overlay, prompt, model=model)
+        if result.size != (w, h):
+            result = result.resize((w, h), Image.LANCZOS)
+        if cancel_check is not None:
+            cancel_check()
+
+        _atomic_save_image(result, sdir / "inpainted.png")
+        write_generation_sidecar(
+            sdir / "inpainted.png", kind="magenta_inpaint", prompt=prompt, model=model,
+            params={"hitboxes": len(hitbox_list), "width": w, "height": h},
+        )
+        _atomic_save_image(result, sdir / "color.png")
+        _atomic_save_image(overlay, sdir / "magenta_overlay.png")
+        bw = bg.convert("L").convert("RGB")
+        _atomic_save_image(bw, sdir / "bw.png")
+        bw.close()
+
+        hb_objects = [Hitbox(x=hb["x"], y=hb["y"], radius=hb["r"]) for hb in hitbox_list]
+        eval_img = evaluate_hitboxes(result, hb_objects, opacity=0.3)
+        _atomic_save_image(eval_img, sdir / "eval.png")
+        eval_img.close()
+
+        level_data = S.build_level_dict(
+            session_id, hitbox_list, width=w, height=h, style=raw.get("style"),
+        )
+        _atomic_write_json(level_data, sdir / "level.json")
+        _mark_session_dogs_done(session_id, hitbox_list)
+        S.update_session_field(session_id, inpaint_mode="magenta")
+        return {
+            "hitboxes": len(hitbox_list),
+            "colorFile": "color.png",
+            "overlayFile": "magenta_overlay.png",
+        }
+    finally:
+        bg.close()
+        overlay.close()
+
+
+class CompareInpaintRequest(BaseModel):
+    modes: list[CropInpaintMode | Literal["magenta"]] = Field(..., min_length=1, max_length=3)
+    hardDogPercent: int = Field(0, ge=0, le=100)
+    padding: float = Field(2.75, ge=1.0, le=5.0)
+
+
+@router.post("/sessions/{session_id}/compare-inpaint")
+def compare_inpaint(session_id: str, req: CompareInpaintRequest):
+    """Queue any subset of the three inpaint approaches, each in an isolated
+    clone of this session, so results can be compared side by side without
+    clobbering each other."""
+    _validate_session_id(session_id)
+    raw = S.load_session_raw(session_id)
+    if raw is None:
+        raise HTTPException(404, detail={"error": "Session not found"})
+    selected_bg = _resolve_selected_bg(session_id, raw)
+    hb_path = S.session_dir(session_id) / "hitboxes.json"
+    hitbox_list = json.loads(hb_path.read_text()) if hb_path.exists() else []
+    if selected_bg is None or not hitbox_list:
+        raise HTTPException(409, detail={
+            "error": "compare-inpaint needs a selected background and hitboxes",
+            "code": "level_not_ready",
+        })
+    dog_prompt = raw.get("dog_prompt") or ""
+    model = raw.get("inpaint_model") or raw.get("model")
+    comparisons = []
+    for mode in dict.fromkeys(req.modes):  # de-dupe, preserve order
+        clone_id = S.clone_session_for_comparison(session_id, mode)
+        if mode == "magenta":
+            job = JOB_STORE.create_job(
+                kind="magenta_inpaint",
+                session_id=clone_id,
+                metadata={"dogPrompt": dog_prompt, "model": model,
+                          "comparisonOf": session_id, "mode": mode},
+            )
+        else:
+            job = _start_crop_inpaint_job_record(
+                clone_id,
+                hitbox_list=hitbox_list,
+                dog_prompt=dog_prompt,
+                model=model,
+                selected_bg=selected_bg,
+                hard_dog_prompt=None,
+                hard_dog_percent=req.hardDogPercent,
+                padding=req.padding,
+                inpaint_mode=mode,
+            )
+        comparisons.append({"mode": mode, "sessionId": clone_id, "jobId": job.id})
+    return {"sessionId": session_id, "comparisons": comparisons}
+
+
 @router.get("/magenta-prompt-preview")
 async def magenta_prompt_preview(dogPrompt: str = Query(..., max_length=4000)):
     """Render what the server would send to the model for a given subject
@@ -4585,80 +4734,26 @@ async def inpaint_magenta(
         if startup_error is not None:
             yield _startup_error_event(startup_error, code=startup_error_code)
             return
-
         if await request.is_disconnected():
             return
-
-        with Image.open(bg_path) as bg_src:
-            bg_src.load()
-            bg = bg_src.copy()
-        w, h = bg.size
-
-        overlay = _build_magenta_overlay(bg, hitbox_list)
-        prompt = magentaPromptOverride.strip() if magentaPromptOverride.strip() else _magenta_prompt(dogPrompt)
-
-        yield {"event": "magenta_start", "data": json.dumps({
-            "hitboxes": len(hitbox_list),
-            "width": w,
-            "height": h,
-        })}
-
+        yield {"event": "magenta_start", "data": json.dumps({"hitboxes": len(hitbox_list)})}
         loop = asyncio.get_running_loop()
-
-        def _run() -> Image.Image:
-            painted = _with_retries_and_timeout(edit_image, overlay, prompt, model=model)
-            if painted.size != (w, h):
-                painted = painted.resize((w, h), Image.LANCZOS)
-            return painted
-
         try:
-            result = await loop.run_in_executor(executor, _run)
+            # Single source of truth: the same sync core the durable job runs.
+            summary = await loop.run_in_executor(
+                executor,
+                lambda: run_magenta_inpaint(
+                    session_id,
+                    hitbox_list=hitbox_list,
+                    dog_prompt=dogPrompt,
+                    model=model,
+                    magenta_override=magentaPromptOverride,
+                    bg_index=selected_bg,
+                ),
+            )
         except Exception as e:  # noqa: BLE001
-            bg.close()
-            overlay.close()
-            yield {"event": "magenta_error", "data": json.dumps({
-                "error": _sanitized_error(e),
-            })}
+            yield {"event": "magenta_error", "data": json.dumps({"error": _sanitized_error(e)})}
             return
-
-        if await request.is_disconnected():
-            bg.close(); overlay.close(); result.close()
-            return
-
-        _atomic_save_image(result, sdir / "inpainted.png")
-        _atomic_save_image(result, sdir / "color.png")
-        _atomic_save_image(overlay, sdir / "magenta_overlay.png")
-
-        bw = bg.convert("L").convert("RGB")
-        _atomic_save_image(bw, sdir / "bw.png")
-        bw.close()
-
-        hb_objects = [Hitbox(x=hb["x"], y=hb["y"], radius=hb["r"]) for hb in hitbox_list]
-        eval_img = evaluate_hitboxes(result, hb_objects, opacity=0.3)
-        _atomic_save_image(eval_img, sdir / "eval.png")
-        eval_img.close()
-
-        level_data = S.build_level_dict(
-            session_id, hitbox_list,
-            width=w, height=h, style=raw.get("style"),
-        )
-        _atomic_write_json(level_data, sdir / "level.json")
-
-        # Mark every dog as done in session.json so the UI's allDone gating
-        # matches the per-crop path. activeVariant stays None because the
-        # magenta path does not produce per-dog variants.
-        _mark_session_dogs_done(session_id, hitbox_list)
-        # Flag the session so downstream recomposites skip the per-variant
-        # compose (which would return a bare bg since no dog has an active
-        # variant) and preserve the magenta inpaint output.
-        S.update_session_field(session_id, inpaint_mode="magenta")
-
-        bg.close(); overlay.close(); result.close()
-
-        yield {"event": "magenta_complete", "data": json.dumps({
-            "hitboxes": len(hitbox_list),
-            "colorFile": "color.png",
-            "overlayFile": "magenta_overlay.png",
-        })}
+        yield {"event": "magenta_complete", "data": json.dumps(summary)}
 
     return EventSourceResponse(stream(), ping=15)

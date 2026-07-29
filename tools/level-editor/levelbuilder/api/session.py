@@ -2266,6 +2266,40 @@ def _load_hitboxes_raw(sdir: Path) -> list:
     return data if isinstance(data, list) else []
 
 
+COMPARISON_INPUT_FILES = ("hitboxes.json",)
+
+
+def clone_session_for_comparison(session_id: str, mode: str) -> str:
+    """Clone a session's INPUTS (backgrounds + hitboxes + recipe metadata)
+    into `<sid>__cmp_<mode>` so an inpaint approach can run isolated — outputs
+    (dogs/, color.png, level.json) are never cloned, and re-cloning the same
+    mode replaces the previous comparison run wholesale."""
+    _validate_session_id_or_raise(session_id)
+    sdir = session_dir(session_id)
+    raw = load_session_raw(session_id)
+    if raw is None:
+        raise LevelNotReadyError(f"session {session_id} not found")
+    clone_id = f"{session_id}__cmp_{mode}"
+    clone_dir = LEVELS_DIR / clone_id
+    if clone_dir.exists():
+        shutil.rmtree(clone_dir)
+    clone_dir.mkdir(parents=True)
+    for bg in sorted(sdir.glob("bg_*.png")):
+        shutil.copy2(bg, clone_dir / bg.name)
+    for name in COMPARISON_INPUT_FILES:
+        src = sdir / name
+        if src.exists():
+            shutil.copy2(src, clone_dir / name)
+    clone_raw = dict(raw)
+    clone_raw["dogs"] = []
+    clone_raw.pop("inpaint_mode", None)
+    clone_raw["comparison_of"] = session_id
+    clone_raw["comparison_mode"] = mode
+    with open(clone_dir / "session.json", "w") as f:
+        json.dump(clone_raw, f, indent=2)
+    return clone_id
+
+
 def recenter_hitboxes_to_sprites(
     session_id: str,
     *,
