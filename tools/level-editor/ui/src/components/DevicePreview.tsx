@@ -28,6 +28,49 @@ export function coverPlacement(deviceW: number, deviceH: number, levelW: number,
   };
 }
 
+/** Absolutely-positioned overlay that projects a device's captured game chrome
+ *  back into level space (inverse cover-scale), for stacking on top of a
+ *  full-level render such as the Inpainting Results canvas. Percentage units so
+ *  it tracks whatever size the underlying canvas is displayed at. The regions
+ *  the device crops away are dimmed. Parent must be position:relative. */
+export function ChromeOverlay({ deviceId, levelWidth, levelHeight }: {
+  deviceId: string;
+  levelWidth: number;
+  levelHeight: number;
+}) {
+  const device = DEVICE_PRESETS.find((preset) => preset.id === deviceId);
+  if (!device) return null;
+  const { scale, offsetX, offsetY } = coverPlacement(device.width, device.height, levelWidth, levelHeight);
+  // Device frame mapped into level coords.
+  const x = -offsetX / scale;
+  const y = -offsetY / scale;
+  const w = device.width / scale;
+  const h = device.height / scale;
+  const pctX = (v: number) => `${(v / levelWidth) * 100}%`;
+  const pctY = (v: number) => `${(v / levelHeight) * 100}%`;
+  const dim = { position: 'absolute' as const, background: 'rgba(0,0,0,0.55)', pointerEvents: 'none' as const };
+  return (
+    <div data-chrome-overlay={device.id} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+      {x > 0 && <div style={{ ...dim, left: 0, top: 0, bottom: 0, width: pctX(x) }} />}
+      {x + w < levelWidth && <div style={{ ...dim, right: 0, top: 0, bottom: 0, width: pctX(levelWidth - x - w) }} />}
+      {y > 0 && <div style={{ ...dim, left: pctX(Math.max(0, x)), top: 0, height: pctY(y), width: pctX(Math.min(w, levelWidth)) }} />}
+      {y + h < levelHeight && <div style={{ ...dim, left: pctX(Math.max(0, x)), bottom: 0, height: pctY(levelHeight - y - h), width: pctX(Math.min(w, levelWidth)) }} />}
+      <img
+        src={`/device-chrome/${device.id}.png`}
+        alt={`${device.name} game UI`}
+        style={{
+          position: 'absolute',
+          left: pctX(x),
+          top: pctY(y),
+          width: pctX(w),
+          height: pctY(h),
+          maxWidth: 'none',
+        }}
+      />
+    </div>
+  );
+}
+
 interface SessionLike {
   id: string;
   hitboxes?: { x: number; y: number; r: number }[];

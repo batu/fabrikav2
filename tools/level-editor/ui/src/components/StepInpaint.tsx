@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { ComparePanel } from './ComparePanel';
-import { DevicePreview } from './DevicePreview';
+import { ChromeOverlay, DEVICE_PRESETS, DevicePreview } from './DevicePreview';
 import { PromptDisclosure } from './PromptDisclosure';
 import { useQueryClient } from '@tanstack/react-query';
 import type { ConfigResponse, DogState, HiddennessLevel, Hitbox, SessionResponse } from '../types';
@@ -207,6 +207,8 @@ export default function StepInpaint({
   const [forceOpen, setForceOpen] = useState(false);
   const [retryingFailed, setRetryingFailed] = useState(false);
   const [selectedDogIndex, setSelectedDogIndex] = useState<number | null>(null);
+  const [showChromeOverlay, setShowChromeOverlay] = useState(false);
+  const [overlayDeviceId, setOverlayDeviceId] = useState<string>('pixel-8-pro');
   const isCollapsed = collapsed && !forceOpen;
 
   useEffect(() => {
@@ -536,15 +538,45 @@ export default function StepInpaint({
 
           {canvasState && (
             <div className="canvas-centered">
-              <LevelCanvas
-                state={canvasState}
-                dispatch={() => {}}
-                onMutate={handleCanvasMutation}
-                allowAddRemove={false}
-                backgroundOverride={canvasBgUrl}
-                hideVariants
-                readOnly={inProgress}
-              />
+              <div style={{ display: 'flex', gap: 14, alignItems: 'center', marginBottom: 6, fontSize: 13 }}>
+                <label style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                  <input
+                    type="checkbox"
+                    checked={showChromeOverlay}
+                    onChange={(e) => setShowChromeOverlay(e.target.checked)}
+                  />
+                  Game UI overlay
+                </label>
+                {showChromeOverlay && (
+                  <select
+                    className="inline-select"
+                    value={overlayDeviceId}
+                    onChange={(e) => setOverlayDeviceId(e.target.value)}
+                  >
+                    {DEVICE_PRESETS.map((preset) => (
+                      <option key={preset.id} value={preset.id}>{preset.name} · {preset.width}×{preset.height}</option>
+                    ))}
+                  </select>
+                )}
+              </div>
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <LevelCanvas
+                  state={canvasState}
+                  dispatch={() => {}}
+                  onMutate={handleCanvasMutation}
+                  allowAddRemove={false}
+                  backgroundOverride={canvasBgUrl}
+                  hideVariants
+                  readOnly={inProgress}
+                />
+                {showChromeOverlay && session?.bgWidth != null && session.bgWidth > 0 && session.bgHeight != null && (
+                  <ChromeOverlay
+                    deviceId={overlayDeviceId}
+                    levelWidth={session.bgWidth}
+                    levelHeight={session.bgHeight}
+                  />
+                )}
+              </div>
             </div>
           )}
 
