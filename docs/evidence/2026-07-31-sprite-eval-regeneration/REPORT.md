@@ -19,8 +19,13 @@
 | metric | baseline (shipped) | after recut/re-export |
 |---|---|---|
 | deterministic fails (282 birds) | 164 (58%) | 126 — every re-exported level at 0 |
-| semantic defects (codex, subject<0.5) | 66 (23%) | see `semantic_after.json` |
-| levels fully regenerated at 0 fail / 0 warn | 0 | 5 of 20 |
+| semantic defect rate (codex judge) | 23% corpus-wide | **11% on regenerated levels** (7/62); un-regenerated levels unchanged |
+| levels fully regenerated at 0 deterministic fail / 0 warn | 0 | 5 of 20 |
+| pickup pop-in on device | black rects / scenery pop | zero (win.png, 15/15 pickups) |
+
+Final repaint worklist: **58 birds** (`repaint_final.json`) — 55 from the
+original sweep plus 3 semantic finds on regenerated levels (over-inclusive
+masks the judge caught post-recut).
 
 Re-exported levels: japan_morning_market_bird_e99f, morning_pirate_cove_pro_standard,
 pirate_shipwreck_island_palm_root_ship_ribs_bird_0e47__cmp_crop,
