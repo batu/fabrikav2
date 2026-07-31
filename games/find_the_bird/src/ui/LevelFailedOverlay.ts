@@ -327,7 +327,7 @@ function titleForOffer(offer: FailContinueOption, pendingKind: PendingKind, back
   }
   if (backgroundPendingKind === offer.kind && offer.kind === 'egoOffer') return 'Purchase processing';
   if (offer.kind === 'coinContinue') return 'Continue';
-  if (offer.kind === 'egoOffer') return 'Continue';
+  if (offer.kind === 'egoOffer') return 'Refill & Continue';
   return 'Retry';
 }
 

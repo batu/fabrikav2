@@ -1,7 +1,7 @@
-// Data-only achievement catalog for Find the Dog (card ACH-1, U2 / KTD4).
+// Data-only achievement catalog for Find the Bird.
 //
 // Grounded ONLY in provable behaviors: completion-count milestones, streak
-// milestones, personal-best, lifetime dog finds (from this release forward), and
+// milestones, personal-best, lifetime bird finds (from this release forward), and
 // distinct LOGICAL-level mastery (forward-only). No accounts/cloud/leaderboard/
 // social/battle-pass/daily-mission/new-currency. Rewards are modest coins/hints.
 
@@ -74,7 +74,7 @@ export const ACHIEVEMENT_CATALOG: readonly Achievement[] = [
   },
   {
     id: 'completions_50',
-    name: 'Dog Whisperer',
+    name: 'Bird Whisperer',
     description: 'Complete 50 levels.',
     category: 'completion',
     milestoneKind: 'occurrence-count',
@@ -119,7 +119,7 @@ export const ACHIEVEMENT_CATALOG: readonly Achievement[] = [
   {
     id: 'dogs_25',
     name: 'Pack Leader',
-    description: 'Find 25 dogs.',
+    description: 'Find 25 birds.',
     category: 'dogs',
     milestoneKind: 'occurrence-count',
     threshold: 25,
@@ -130,7 +130,7 @@ export const ACHIEVEMENT_CATALOG: readonly Achievement[] = [
   {
     id: 'dogs_100',
     name: 'Hundred Hounds',
-    description: 'Find 100 dogs.',
+    description: 'Find 100 birds.',
     category: 'dogs',
     milestoneKind: 'occurrence-count',
     threshold: 100,

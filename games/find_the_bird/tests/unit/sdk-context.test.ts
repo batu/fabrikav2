@@ -84,6 +84,18 @@ describe('FTD SdkContext composition matrix', () => {
     expect(gameanalytics).not.toHaveBeenCalled();
   });
 
+  it('composes the shared AdMob provider for native Android without AppLovin config', () => {
+    const context = createSdkContext({
+      buildEnv: 'development',
+      platform: 'android',
+      isNativePlatform: true,
+      env: {},
+    });
+
+    expect(context.selection.ads).toBe('admob');
+    expect(context.ads.providerName).toBe('admob');
+  });
+
   it('forwards iOS events through the lazy Firebase transport', async () => {
     const logEvent = vi.fn(async () => undefined);
     const loader = vi.fn(async () => ({ FirebaseAnalytics: { logEvent } }));

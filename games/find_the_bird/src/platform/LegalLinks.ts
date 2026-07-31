@@ -8,10 +8,10 @@ export interface LegalLinks {
 export type LegalLinksEnv = Record<string, string | boolean | undefined>;
 
 export const DEFAULT_LEGAL_LINKS: LegalLinks = {
-  privacyPolicyUrl: 'https://basegamelab.com/find-the-dog/privacy',
-  termsUrl: 'https://basegamelab.com/find-the-dog/terms',
-  supportUrl: 'https://basegamelab.com/find-the-dog/support',
-  dataDeletionUrl: 'https://basegamelab.com/find-the-dog/data-deletion',
+  privacyPolicyUrl: 'https://basegamelab.com/find-the-bird/privacy',
+  termsUrl: 'https://basegamelab.com/find-the-bird/terms',
+  supportUrl: 'https://basegamelab.com/find-the-bird/support',
+  dataDeletionUrl: 'https://basegamelab.com/find-the-bird/data-deletion',
 };
 
 export function getLegalLinks(env: LegalLinksEnv = import.meta.env): LegalLinks {

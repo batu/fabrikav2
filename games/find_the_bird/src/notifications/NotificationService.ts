@@ -158,17 +158,17 @@ export function planReminders(now: Date, inputs: ReminderInputs): ScheduledRemin
       reminders.push({
         id: STREAK_REMINDER_ID,
         title: 'Your streak is waiting! 🐶',
-        body: `Find a dog today to keep your ${inputs.streakDays}-day streak alive.`,
+        body: `Find a bird today to keep your ${inputs.streakDays}-day streak alive.`,
         at,
       });
     }
   }
   reminders.push({
     id: COMEBACK_REMINDER_ID,
-    title: 'The dogs miss you! 🐾',
+    title: 'The birds miss you! 🪶',
     body: inputs.totalLevelsCompleted > 0
-      ? 'New scenes are waiting to be searched. Come find the dog!'
-      : 'Your first dog is still hiding. Come find it!',
+      ? 'New scenes are waiting to be searched. Come find the bird!'
+      : 'Your first bird is still hiding. Come find it!',
     at: reminderTime(now, COMEBACK_DELAY_DAYS),
   });
   return reminders;

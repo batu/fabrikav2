@@ -58,7 +58,7 @@ function composeCaptioned(img: HTMLImageElement, ctx: ShareWinContext): string {
   const titleSize = Math.round(captionH * 0.30);
   c2d.font = `900 ${titleSize}px "Nunito", system-ui, sans-serif`;
   c2d.fillText(
-    `I found all ${ctx.dogsFound} dogs in ${ctx.levelName}`,
+    `I found all ${ctx.dogsFound} birds in ${ctx.levelName}`,
     sceneW / 2,
     sceneH + captionH * 0.40,
   );
@@ -68,7 +68,7 @@ function composeCaptioned(img: HTMLImageElement, ctx: ShareWinContext): string {
   c2d.font = `700 ${subSize}px "Nunito", system-ui, sans-serif`;
   c2d.fillStyle = '#555';
   c2d.fillText(
-    `in ${formatDuration(ctx.timeSeconds)} • Find the Dog`,
+    `in ${formatDuration(ctx.timeSeconds)} • Find the Bird`,
     sceneW / 2,
     sceneH + captionH * 0.76,
   );
@@ -79,7 +79,7 @@ function composeCaptioned(img: HTMLImageElement, ctx: ShareWinContext): string {
 
 function buildFilename(ctx: ShareWinContext): string {
   const safeName = ctx.levelName.replace(/[^a-zA-Z0-9]+/g, '_').toLowerCase();
-  return `find_the_dog_${safeName}_${ctx.dogsFound}dogs.png`;
+  return `find_the_bird_${safeName}_${ctx.dogsFound}birds.png`;
 }
 
 function shareWeb(filename: string, base64: string): void {

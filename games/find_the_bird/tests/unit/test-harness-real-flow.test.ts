@@ -223,9 +223,11 @@ function createFakeGame(options: { deferHomeRender?: boolean } = {}) {
     isLevelDataReady: vi.fn(() => fakeGameScene.ready),
     handleTap: vi.fn((tap: { worldX: number; worldY: number }) => {
       fakeGameScene.taps.push(tap);
+      const levelX = (tap.worldX - fakeGameScene.imgOffsetX) / fakeGameScene.imgScale;
+      const levelY = (tap.worldY - fakeGameScene.imgOffsetY) / fakeGameScene.imgScale;
       const hit = fakeGameScene.level.dogs.find((dog) => {
         if (mocks.gameState.foundDogIds.has(dog.id)) return false;
-        return Math.hypot(dog.x - tap.worldX, dog.y - tap.worldY) <= dog.r * 3;
+        return Math.hypot(dog.x - levelX, dog.y - levelY) <= dog.r * 3;
       });
       if (hit !== undefined) {
         mocks.gameState.foundDogIds.add(hit.id);
@@ -233,7 +235,10 @@ function createFakeGame(options: { deferHomeRender?: boolean } = {}) {
           fakeGameScene.complete = true;
           const complete = document.createElement("div");
           complete.id = "level-complete-overlay";
-          complete.innerHTML = '<aside class="achievement-unlock-callout"></aside>';
+          complete.innerHTML = `
+            <aside class="achievement-unlock-callout"></aside>
+            <div class="fab-complete-actions" data-visible="true"></div>
+          `;
           overlay.appendChild(complete);
         }
         return;
@@ -294,7 +299,10 @@ function createFakeGame(options: { deferHomeRender?: boolean } = {}) {
 
   canvas.addEventListener("click", (event) => {
     if (activeScene !== "GameScene") return;
-    fakeGameScene.handleTap({ worldX: event.clientX, worldY: event.clientY });
+    fakeGameScene.handleTap({
+      worldX: event.clientX + fakeGameScene.cameras.main.scrollX,
+      worldY: event.clientY + fakeGameScene.cameras.main.scrollY,
+    });
   });
 
   const game = {
@@ -493,6 +501,32 @@ describe("find_the_dog TestHarness real-flow wiring", () => {
     });
   });
 
+  it("findDog deterministically exercises a square target outside the visible canvas", async () => {
+    const { createFindTheDogHarness } = await import("../../src/testing/TestHarness");
+    const fixture = createFakeGame();
+    fixture.fakeGameScene.level = {
+      ...levelData,
+      width: 200,
+      dogs: [{ id: "offscreen-bird", x: 150, y: 50, r: 5 }],
+    };
+    const harness = createFindTheDogHarness(fixture.game as never);
+    await harness.verbs.startLevel.run();
+
+    expect(harness.findDog("offscreen-bird")).toEqual({ found: true, totalFound: 1 });
+    expect(fixture.fakeGameScene.taps).toContainEqual(expect.objectContaining({ worldX: 150, worldY: 50 }));
+  });
+
+  it("findDog bypasses DOM coordinates when square camera scroll changes the world point", async () => {
+    const { createFindTheDogHarness } = await import("../../src/testing/TestHarness");
+    const fixture = createFakeGame();
+    fixture.fakeGameScene.cameras.main.scrollX = 50;
+    const harness = createFindTheDogHarness(fixture.game as never);
+    await harness.verbs.startLevel.run();
+
+    expect(harness.findDog("dog-a")).toEqual({ found: true, totalFound: 1 });
+    expect(mocks.gameState.lives).toBe(3);
+  });
+
   it("publishes every canonical tour marker in order through the real harness", async () => {
     const { maybeRunInsituTour } = await import("@fabrikav2/testkit/testing");
     const { createFindTheDogHarness, snapshotMatchesFindTheDogDriveState } = await import("../../src/testing/TestHarness");
@@ -524,6 +558,19 @@ describe("find_the_dog TestHarness real-flow wiring", () => {
       "tourstate:done",
     ]);
   }, 15_000);
+
+  it("keeps the physical-device pause state in the canonical tour order", async () => {
+    const { FIND_THE_DOG_TOUR_STATES } = await import("../../src/testing/TestHarness");
+
+    expect(FIND_THE_DOG_TOUR_STATES.slice(0, 6)).toEqual([
+      "menu",
+      "level",
+      "settings",
+      "pause",
+      "win",
+      "fail",
+    ]);
+  });
 
   it("marks a lost real-harness state FAILED and continues to the next state", async () => {
     const { maybeRunInsituTour } = await import("@fabrikav2/testkit/testing");

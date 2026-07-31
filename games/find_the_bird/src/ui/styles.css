@@ -571,17 +571,17 @@
 #level-complete-overlay .fab-complete-next-btn {
   min-height: 66px;
   padding: 14px 32px;
-  border: 2px solid rgba(255, 232, 199, 0.9);
+  border: 2px solid rgba(255, 248, 232, 0.9);
   border-radius: 999px;
   color: #ffffff;
   background:
     radial-gradient(circle at 28% 10%, rgba(255, 255, 255, 0.34), transparent 30%),
-    linear-gradient(180deg, #ff9d55 0%, #ff7635 48%, #e86024 100%);
+    linear-gradient(180deg, #77b7d6 0%, #4d9cc4 48%, #367b9d 100%);
   box-shadow:
     inset 0 4px 0 rgba(255, 255, 255, 0.34),
-    inset 0 -4px 0 rgba(157, 65, 20, 0.18),
-    0 6px 0 rgba(161, 76, 25, 0.34),
-    0 15px 26px rgba(161, 76, 25, 0.24);
+    inset 0 -4px 0 rgba(45, 91, 112, 0.18),
+    0 6px 0 rgba(45, 91, 112, 0.34),
+    0 15px 26px rgba(45, 91, 112, 0.24);
   font-weight: 1000;
   text-shadow: 0 2px 0 rgba(128, 58, 21, 0.22);
 }
@@ -592,7 +592,7 @@
   opacity: 1;
   background:
     radial-gradient(circle at 28% 10%, rgba(255, 255, 255, 0.28), transparent 30%),
-    linear-gradient(180deg, #f58b45 0%, #dc642c 48%, #c8521f 100%);
+     linear-gradient(180deg, #a8b67d 0%, #82925e 48%, #596944 100%);
   filter: saturate(0.96);
   box-shadow:
     inset 0 4px 0 rgba(255, 255, 255, 0.24),
@@ -614,11 +614,11 @@
 
   #level-complete-overlay .fab-complete-stage {
     width: min(86vw, 340px);
-    padding-top: 54px;
+    padding-top: 58px;
   }
 
   #level-complete-overlay .fab-complete-title {
-    width: min(88vw, 330px);
+    width: min(48vw, 180px);
   }
 
   #level-complete-overlay .fab-complete-card {
@@ -628,7 +628,7 @@
   }
 
   #level-complete-overlay .fab-complete-mascot {
-    width: min(42vw, 150px);
+    width: min(46vw, 172px);
     margin-bottom: 10px;
   }
 
@@ -1887,11 +1887,11 @@
 }
 
 .fail-option-coin-continue {
-  border-color: rgba(128, 222, 89, 0.84);
+  border-color: rgba(130, 146, 94, 0.84);
   background:
     radial-gradient(circle at 28% 10%, rgba(255, 255, 255, 0.78), transparent 38%),
-    linear-gradient(180deg, #f5ffe5 0%, #c9f45e 48%, #84d947 100%);
-  color: #22421a;
+    linear-gradient(180deg, #fffdf6 0%, #dce3bf 48%, #a8b67d 100%);
+  color: #33423d;
   box-shadow:
     inset 0 4px 0 rgba(255, 255, 255, 0.46),
     inset 0 -4px 0 rgba(76, 139, 32, 0.18),
@@ -1925,19 +1925,19 @@
 }
 
 .fail-option-retry-primary {
-  border-color: rgba(255, 133, 91, 0.72);
+  border-color: rgba(77, 156, 196, 0.72);
   color: #fff;
-  background: linear-gradient(180deg, #ff7352 0%, #ff583d 100%);
+  background: linear-gradient(180deg, #77b7d6 0%, #4d9cc4 100%);
   box-shadow:
     inset 0 4px 0 rgba(255, 255, 255, 0.32),
-    inset 0 -4px 0 rgba(183, 53, 37, 0.24),
-    0 7px 0 rgba(181, 63, 43, 0.24),
-    0 15px 26px rgba(158, 57, 39, 0.22);
+    inset 0 -4px 0 rgba(45, 91, 112, 0.24),
+    0 7px 0 rgba(45, 91, 112, 0.24),
+    0 15px 26px rgba(45, 91, 112, 0.22);
 }
 
 .fail-option-retry-primary .fail-option-icon {
   background:
-    radial-gradient(circle at 50% 34%, #fff4ef, #ffb08b 72%);
+    radial-gradient(circle at 50% 34%, #fffdf6, #dce3bf 72%);
   color: #9a341f;
 }
 
@@ -2755,10 +2755,10 @@
   overflow: hidden;
   background:
     /* warm spotlight behind the banner */
-    radial-gradient(118% 72% at 50% 7%, rgba(255, 251, 232, 0.85) 0%, rgba(255, 251, 232, 0) 52%),
+    radial-gradient(118% 72% at 50% 7%, rgba(255, 252, 239, 0.9) 0%, rgba(255, 252, 239, 0) 52%),
     /* soft vignette toward the bottom + corners for depth */
-    radial-gradient(145% 118% at 50% 116%, rgba(120, 62, 18, 0.34) 0%, rgba(120, 62, 18, 0) 56%),
-    linear-gradient(180deg, #fff2cf 0%, #ffd79a 48%, #f1a957 100%);
+    radial-gradient(145% 118% at 50% 116%, rgba(89, 105, 68, 0.1) 0%, rgba(89, 105, 68, 0) 56%),
+    linear-gradient(180deg, #fff8e8 0%, #f7f0dc 72%, #e8e8c9 100%);
 }
 
 #hud-overlay.home-mode::before {
@@ -2767,12 +2767,13 @@
   position: absolute;
   inset: -180px;
   z-index: 0;
-  opacity: 0.28;
-  background-image: url("data:image/svg+xml,%3Csvg width='96' height='96' viewBox='0 0 96 96' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.9' transform='translate(48 48) rotate(-18) translate(-48 -48)'%3E%3Cellipse cx='48' cy='68' rx='19' ry='16'/%3E%3Cellipse cx='20' cy='45' rx='9' ry='12' transform='rotate(-20 20 45)'/%3E%3Cellipse cx='37' cy='34' rx='9' ry='12' transform='rotate(-7 37 34)'/%3E%3Cellipse cx='57' cy='34' rx='9' ry='12' transform='rotate(7 57 34)'/%3E%3Cellipse cx='74' cy='45' rx='9' ry='12' transform='rotate(20 74 45)'/%3E%3C/g%3E%3C/svg%3E");
-  background-size: 74px 74px;
-  transform: translate3d(-74px, -74px, 0);
+  opacity: 0.11;
+  background-image: url('/ui/home/background-feather.svg');
+  background-size: 132px 132px;
+  background-repeat: repeat;
+  transform: translate3d(-92px, 92px, 0);
   will-change: transform;
-  animation: homePawDrift 24s linear infinite;
+  animation: homeFeatherDrift 26s linear infinite;
 }
 
 .home-shell {
@@ -2907,7 +2908,7 @@
   position: relative;
   justify-self: center;
   width: min(92vw, 483px);
-  aspect-ratio: 1881 / 836;
+  aspect-ratio: 1408 / 487;
   min-height: 108px;
   display: grid;
   place-items: center;
@@ -2925,9 +2926,9 @@
 }
 
 
-@keyframes homePawDrift {
-  from { transform: translate3d(-74px, -74px, 0); }
-  to { transform: translate3d(74px, 74px, 0); }
+@keyframes homeFeatherDrift {
+  from { transform: translate3d(-92px, 92px, 0); }
+  to { transform: translate3d(92px, -92px, 0); }
 }
 
 @keyframes homeMascotLoad {
@@ -2945,8 +2946,7 @@
   #hud-overlay.home-mode::before,
   .home-brand-art,
   .home-play-btn {
-    animation-duration: 1ms;
-    animation-delay: 0ms;
+    animation: none;
   }
 }
 
@@ -2983,12 +2983,12 @@
   z-index: 5;
   /* 5px nudge via relative offset (not margin) so the saga doesn't reflow. */
   top: 5px;
-  width: min(100%, 180px);
+  width: min(100%, 232px);
   /* Pulled up toward the current level node while retaining the compact
      a39c67fb layout footprint. */
-  margin: -40px auto 26px;
-  height: 62px;
-  min-height: 62px;
+  margin: -40px auto 20px;
+  height: 72px;
+  min-height: 72px;
   border: 0;
   border-radius: 999px;
   background: url('/ui/home/play-level-button-runtime.png') center / 100% 100% no-repeat;
@@ -3095,13 +3095,13 @@
   min-height: 42px;
   padding: 5px 14px 5px 34px;
   border-radius: 999px;
-  background: linear-gradient(180deg, #fffaf0 0%, #ffe7b6 100%);
+  background: linear-gradient(180deg, #fffdf6 0%, #f4ead1 100%);
   box-shadow:
     inset 0 0 0 2px #ffffff,
-    inset 0 0 0 4px #d98a3c,
-    0 5px 0 #b86a26,
-    0 9px 16px rgba(96, 52, 12, 0.32);
-  color: #5c3414;
+    inset 0 0 0 4px #82925e,
+    0 5px 0 #596944,
+    0 9px 16px rgba(61, 78, 63, 0.24);
+  color: #33423d;
   font-family: 'Nunito', sans-serif;
   font-size: 18px;
   font-weight: 900;
@@ -3250,34 +3250,23 @@
   justify-items: center;
   align-content: center;
   padding: 6px 6px 7px;
-  border: 2px solid #fff1bc;
+  border: 1px solid rgba(255, 248, 232, 0.72);
   border-radius: 16px;
-  background: linear-gradient(180deg, #ffdf8e 0%, #f2b04a 55%, #d88731 100%);
-  color: #562f14;
+  background: rgba(255, 250, 239, 0.78);
+  color: #33423d;
   font: 900 11px/1.05 'Nunito', sans-serif;
   text-shadow: 0 1px 0 rgba(255, 244, 205, 0.65);
-  box-shadow:
-    0 4px 0 #8b4b22,
-    0 6px 9px rgba(70, 35, 8, 0.25),
-    inset 0 2px 0 rgba(255, 255, 255, 0.65),
-    inset 0 -2px 0 rgba(139, 75, 34, 0.28);
+  box-shadow: 0 5px 12px rgba(61, 78, 63, 0.16);
 }
 /* Same gold-medal treatment as the collection page's card badges so the Home
    entry and its destination share one icon, embossed like the coin/hint pills. */
 .home-achievements-medal {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
+  display: block;
+  width: 38px;
+  height: 38px;
   margin: 0 auto;
-  border: 2px solid #fff1bc;
-  border-radius: 50%;
-  background: linear-gradient(180deg, #ffe08a, #e8973a);
-  box-shadow: 0 2px 0 #8b4b22, inset 0 2px 0 rgba(255, 255, 255, 0.55);
-  color: #fff7dc;
-  font-size: 17px;
-  line-height: 1;
-  text-shadow: 0 1px 0 rgba(112, 57, 20, 0.45);
+  object-fit: contain;
+  filter: drop-shadow(0 3px 4px rgba(61, 78, 63, 0.2));
 }
 /* Keep the label on one line: the word must never break mid-word on device. */
 .home-achievements-label {
@@ -3287,8 +3276,8 @@
 }
 
 .home-no-ads-btn .home-no-ads-art {
-  width: 58px;
-  height: 58px;
+  width: 82px;
+  height: 82px;
   object-fit: contain;
   filter: drop-shadow(0 4px 5px rgba(96, 40, 10, 0.34));
   pointer-events: none;
@@ -3299,15 +3288,15 @@
 .home-no-ads-btn .home-no-ads-art::after { content: none; }
 .home-no-ads-btn {
   position: relative;
-  width: 58px;
+  width: 82px;
 }
 .home-no-ads-btn::before {
   content: "";
   position: absolute;
   top: 4px;
   left: 50%;
-  width: 56px;
-  height: 56px;
+  width: 78px;
+  height: 78px;
   transform: translateX(-50%);
   border-radius: 999px;
   background: radial-gradient(circle, rgba(255, 196, 84, 0.55) 0%, rgba(255, 196, 84, 0) 68%);
@@ -3338,8 +3327,7 @@
 }
 
 
-/* Linear saga path + extra outline ring on every node (FTD-only override of
-   the core zig-zag placement). */
+/* Keep the saga placement on one straight vertical axis. */
 /* NOTE: tile spacing (--fab-levelmap-node-gap) and the no-fade opacity tokens
    are set via the mountLevelMap `theme` prop in HomeScene (FTD_LEVELMAP_THEME),
    NOT here — the core re-declares those tokens on `.fab-ui`, which shadows any
@@ -3347,45 +3335,23 @@
    line still works here because --node-x isn't a core token. */
 .home-map-stage .fab-levelmap-node { --node-x: 0px !important; }
 
-/* Saga-style premium rail: tight honey-gold borders around a glossy turquoise
-   core, matching the straight reference strip while staying in FTD's palette. */
+/* Soft vine-like garden rail rather than a dark wooden ladder. */
 .home-map-stage .fab-levelmap-path::before {
-  width: 18px;
+  width: 13px;
   border-radius: 999px;
   box-shadow:
-    0 0 0 1px rgba(83, 43, 13, 0.72),
-    inset 0 0 0 1px rgba(255, 250, 196, 0.45);
+    0 0 0 2px rgba(91, 105, 57, 0.34),
+    inset 3px 0 0 rgba(255, 248, 232, 0.38),
+    inset -3px 0 0 rgba(75, 82, 45, 0.16);
   opacity: 1;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.08) 25%, rgba(16, 92, 122, 0.26) 100%),
-    linear-gradient(90deg,
-      #ffd54b 0 2px,
-      #fff3a8 2px 4px,
-      #d18424 4px 5px,
-      #48d8d4 5px 7px,
-      #168ebd 7px 11px,
-      #0e6ea1 11px 13px,
-      #d18424 13px 14px,
-      #fff3a8 14px 16px,
-      #ffd54b 16px 18px);
+    linear-gradient(90deg, rgba(255,255,255,.24), transparent 32%, rgba(67,75,38,.14) 72%, rgba(255,255,255,.14)),
+    repeating-linear-gradient(180deg, #a8af72 0 18px, #929b5d 18px 36px, #b5bb7b 36px 54px);
 }
 
 /* Padlock badge on every locked level node (the levels above current). */
 .home-map-stage .fab-levelmap-node:not(.current)::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  z-index: 0;
-  width: var(--fab-levelmap-node-size);
-  height: var(--fab-levelmap-node-size);
-  transform: translate(-50%, -50%);
-  border-radius: 16px;
-  pointer-events: none;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.58) 0%, rgba(255, 255, 255, 0) 34%),
-    linear-gradient(135deg, #fff3a8 0%, #ffd54b 24%, #d88722 58%, #8b4215 100%);
-  box-shadow: none;
+  content: none;
 }
 
 .home-map-stage .fab-levelmap-node.locked .fab-levelmap-node-dot {
@@ -3394,17 +3360,7 @@
   font-weight: 900;
 }
 .home-map-stage .fab-levelmap-node.locked .fab-levelmap-node-dot::after {
-  content: "";
-  position: absolute;
-  left: 28%;
-  bottom: -10px;
-  width: 30px;
-  height: 30px;
-  transform: translateX(-50%);
-  background: center / contain no-repeat
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M14 21v-5a10 10 0 0 1 20 0v5' fill='none' stroke='%238a4a18' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M14 20v-4a10 10 0 0 1 20 0v4' fill='none' stroke='%23f4c23a' stroke-width='4' stroke-linecap='round'/%3E%3Crect x='9' y='20' width='30' height='22' rx='6' fill='%238a4a18'/%3E%3Crect x='11' y='22' width='26' height='18' rx='5' fill='%23ffd24d'/%3E%3Crect x='11' y='22' width='26' height='18' rx='5' fill='none' stroke='%23fff7e0' stroke-width='1.5'/%3E%3Ccircle cx='24' cy='29' r='3.4' fill='%238a4a18'/%3E%3Crect x='22.4' y='30' width='3.2' height='7' rx='1.6' fill='%238a4a18'/%3E%3C/svg%3E");
-  filter: drop-shadow(0 2px 2px rgba(70, 35, 8, 0.4));
-  pointer-events: none;
+  content: none;
 }
 
 /* Slow ambient sparkle on locked tiles (one per node, odd/even staggered). */
@@ -3468,7 +3424,7 @@
    an animated teal drop-shadow that brightens at the breath peak draws the
    eye. The keyframes re-state the white outline ring + depth shadow from the
    rule above so the crisp edge survives while the glow animates. Teal matches
-   the candy node art (--fab-levelmap-art-current). */
+   the Cozy Garden current-node art (--fab-levelmap-art-current). */
 .home-map-stage .fab-levelmap-node.current .fab-levelmap-node-dot {
   /* Scale from the center so the tile pulses in place. */
   transform-origin: 50% 50%;
@@ -3549,11 +3505,13 @@
   /* span full screen width by cancelling the shell's 12px side padding */
   margin-inline: -12px;
   width: calc(100% + 24px);
-  background: linear-gradient(180deg, #c98a44 0%, #9a5d28 100%);
+  background:
+    url('/ui/navigation/nav-bar-3.png') center bottom / 100% 100% no-repeat;
   border-radius: 0;
-  border-top: 3px solid #ffd98a;
-  box-shadow: 0 -5px 18px rgba(60, 30, 8, 0.42);
+  border-top: 0;
+  box-shadow: none;
   overflow: visible;
+  min-height: 134px;
 }
 
 #home-shell .home-nav-bar > button {
@@ -3561,6 +3519,7 @@
   flex: 0 0 calc(100% / 3);
   width: calc(100% / 3);
   max-width: calc(100% / 3);
+  align-items: center;
 }
 
 /* Side slots — equal thirds, divider lines between, icon + label centered. */
@@ -3570,25 +3529,24 @@
   justify-content: center;
   gap: 2px;
   min-width: 0;
-  padding: 9px 0 calc(env(safe-area-inset-bottom, 0px) * 0.55 + 4px);
+  padding: 8px 0 calc(env(safe-area-inset-bottom, 0px) * 0.55 + 14px);
   border-radius: 0;
   background: transparent;
   overflow: visible;
   /* subtle divider grooves on each inner edge */
-  box-shadow:
-    inset -1px 0 0 rgba(90, 48, 14, 0.55),
-    inset 1px 0 0 rgba(255, 225, 170, 0.28);
-  color: #fff7e6;
-  font-size: 17px;
+  box-shadow: none;
+  color: #33423d;
+  font-size: 13px;
   font-weight: 900;
   letter-spacing: 0.3px;
   text-shadow:
-    0 1.5px 0 #6e3a12, 0 -1.5px 0 #6e3a12, 1.5px 0 0 #6e3a12, -1.5px 0 0 #6e3a12,
-    0 2px 3px rgba(0, 0, 0, 0.32);
+    0 1px 0 #fff8e8, 0 2px 3px rgba(51, 66, 61, 0.24);
 }
 #home-shell .home-nav-btn img {
-  width: 61px;
-  height: 61px;
+  width: 66px;
+  height: 66px;
+  object-fit: contain;
+  object-position: center;
   filter:
     drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
     drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
@@ -3607,20 +3565,17 @@
   gap: 2px;
   margin-top: 0;
   min-width: 0;
-  padding: 9px 0 calc(env(safe-area-inset-bottom, 0px) * 0.55 + 4px);
-  background: linear-gradient(180deg, #ffe3a6 0%, #f3bf68 100%);
+  padding: 6px 0 calc(env(safe-area-inset-bottom, 0px) * 0.55 + 13px);
+  background: transparent;
   border: 0;
   border-radius: 0;
-  box-shadow:
-    inset 2px 0 0 rgba(255, 245, 215, 0.6),
-    inset -2px 0 0 rgba(255, 245, 215, 0.6),
-    inset 0 8px 14px rgba(255, 247, 222, 0.45);
-  color: #6e3a12;
+  box-shadow: none;
+  color: #33423d;
   font-family: 'Nunito', sans-serif;
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 900;
   letter-spacing: 0.3px;
-  text-shadow: 0 1.5px 0 rgba(255, 248, 224, 0.85), 0 -1px 0 rgba(180, 120, 50, 0.35);
+  text-shadow: 0 1px 0 #fff8e8, 0 2px 3px rgba(51, 66, 61, 0.2);
   cursor: pointer;
 }
 .home-nav-play-emblem {
@@ -3702,8 +3657,7 @@
 }
 /* Shop: start much lower and clearly slide up (visible the whole way). */
 .home-page-overlay--open .shop-featured-section,
-.home-page-overlay--open .shop-new-section,
-.home-page-overlay--open .settings-legal-footer {
+.home-page-overlay--open .shop-new-section {
   animation: homePageSlideUp 920ms cubic-bezier(0.22, 0.61, 0.3, 1) both;
 }
 /* Settings stagger (looks good — keep). */
@@ -3720,7 +3674,6 @@
 .home-page-overlay--open #shop-page-entitlements { animation-delay: 0ms; }
 .home-page-overlay--open #shop-page-hints { animation-delay: 120ms; }
 .home-page-overlay--open #shop-page-coins { animation-delay: 240ms; }
-.home-page-overlay--open .settings-legal-footer { animation-delay: 360ms; }
 
 /* Deep-link opens: panel still slides up, but content is present immediately
    (no staggered entrance), so the scrolled-to section doesn't pop in. */
@@ -3808,7 +3761,7 @@
   padding: 24px 16px calc(env(safe-area-inset-bottom, 0px) + 24px);
 }
 
-.home-page-achievements { background: linear-gradient(180deg, #fff7dc, #f7c985); }
+.home-page-achievements { background: linear-gradient(180deg, #fff8e8, #f4ead1); }
 /* Scroll affordance: a soft fade at the page's bottom edge so a mid-scroll
    card reads as "more below" instead of a hard clip. */
 .home-page-achievements::after {
@@ -3818,14 +3771,14 @@
   bottom: 0;
   left: 0;
   height: 26px;
-  background: linear-gradient(180deg, rgba(247, 201, 133, 0), #f7c985);
+  background: linear-gradient(180deg, rgba(244, 234, 209, 0), #f4ead1);
   pointer-events: none;
 }
 .home-page-achievements .home-page-body {
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 72px);
 }
 .achievement-category { margin: 0 0 22px; }
-.achievement-category > h3 { margin: 0 0 10px; text-transform: capitalize; color: #633818; font: 900 20px/1.2 'Nunito', sans-serif; }
+.achievement-category > h3 { margin: 0 0 10px; text-transform: capitalize; color: #465536; font: 900 20px/1.2 'Nunito', sans-serif; }
 .achievement-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
 .achievement-card {
   display: grid;
@@ -3833,16 +3786,16 @@
   gap: 12px;
   align-items: start;
   padding: 14px;
-  border: 3px solid #9d5b29;
+  border: 3px solid #82925e;
   border-radius: 18px;
-  background: linear-gradient(180deg, #fffdf4, #fdf1d3);
-  box-shadow: 0 4px 0 rgba(112, 57, 20, 0.25), inset 0 2px 0 rgba(255, 255, 255, 0.8);
-  color: #3d2b1f;
+  background: linear-gradient(180deg, #fffdf6, #f4ead1);
+  box-shadow: 0 4px 0 rgba(89, 105, 68, 0.24), inset 0 2px 0 rgba(255, 255, 255, 0.84);
+  color: #33423d;
 }
 .achievement-card--completed {
-  border-color: #d88732;
-  background: linear-gradient(180deg, #fff7d6, #ffe6a9);
-  box-shadow: 0 4px 0 rgba(160, 96, 24, 0.35), inset 0 2px 0 rgba(255, 255, 255, 0.9);
+  border-color: #d8a33e;
+  background: linear-gradient(180deg, #fff8e8, #efd99a);
+  box-shadow: 0 4px 0 rgba(156, 109, 36, 0.28), inset 0 2px 0 rgba(255, 255, 255, 0.9);
 }
 .achievement-card--not-started { opacity: 0.88; }
 .achievement-badge {
@@ -3850,20 +3803,21 @@
   place-items: center;
   width: 52px;
   height: 52px;
-  border: 2px solid #fff1bc;
+  border: 0;
   border-radius: 50%;
-  background: linear-gradient(180deg, #f7c85c, #d88731);
-  box-shadow: 0 3px 0 #8b4b22, inset 0 2px 0 rgba(255, 255, 255, 0.5);
-  color: #fff7dc;
-  font-size: 26px;
-  line-height: 1;
-  text-shadow: 0 2px 0 rgba(112, 57, 20, 0.45);
+  background: transparent;
+  box-shadow: none;
+}
+.achievement-badge img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 3px 3px rgba(51, 66, 61, 0.2));
 }
 .achievement-card--not-started .achievement-badge {
-  background: linear-gradient(180deg, #d9c9ab, #b09a76);
-  border-color: #efe4c8;
-  box-shadow: 0 3px 0 #86704d, inset 0 2px 0 rgba(255, 255, 255, 0.4);
-  color: rgba(255, 250, 235, 0.75);
+  filter: grayscale(0.12) saturate(0.86);
+  opacity: 0.88;
 }
 .achievement-card header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .achievement-card h4 { margin: 0; font: 900 18px/1.2 'Nunito', sans-serif; }
@@ -3879,8 +3833,8 @@
   letter-spacing: 0.02em;
   text-shadow: 0 1px 0 rgba(70, 35, 8, 0.25);
 }
-.achievement-card--completed .achievement-state { background: #43a86b; }
-.achievement-card--in-progress .achievement-state { background: #e0983f; }
+.achievement-card--completed .achievement-state { background: #6f8048; }
+.achievement-card--in-progress .achievement-state { background: #4d9cc4; }
 .achievement-card progress {
   width: 100%;
   height: 12px;
@@ -3890,15 +3844,15 @@
   border: 0;
   border-radius: 999px;
   overflow: hidden;
-  background: #f0dcb4;
-  box-shadow: inset 0 2px 3px rgba(112, 57, 20, 0.22);
+  background: #e3d8bd;
+  box-shadow: inset 0 2px 3px rgba(89, 105, 68, 0.2);
 }
 .achievement-card progress::-webkit-progress-bar {
-  background: #f0dcb4;
+  background: #e3d8bd;
   border-radius: 999px;
 }
 .achievement-card progress::-webkit-progress-value {
-  background: linear-gradient(180deg, #63c98a, #3d9c62);
+  background: linear-gradient(180deg, #77b7d6, #4d9cc4);
   border-radius: 999px;
   /* Near-zero progress (e.g. 2/50) otherwise renders narrower than its own
      radius and reads as a dot / the not-started state. */
@@ -3907,7 +3861,7 @@
 /* …but a genuinely empty bar must stay empty. */
 .achievement-card progress[value='0']::-webkit-progress-value { min-width: 0; }
 .achievement-progress-text, .achievement-reward-status { font-weight: 800; }
-.achievement-unavailable { padding: 18px; border-radius: 18px; background: #fffaf0; color: #3d2b1f; }
+.achievement-unavailable { padding: 18px; border: 3px solid #82925e; border-radius: 18px; background: #fff8e8; color: #33423d; box-shadow: 0 4px 0 rgba(89, 105, 68, 0.22); }
 .home-page-overlay :focus-visible { outline: 4px solid #246cb3; outline-offset: 3px; }
 
 @media (max-height: 600px) {
@@ -3921,7 +3875,7 @@
     linear-gradient(180deg, rgba(255, 255, 255, 0.58) 0 0),
     radial-gradient(circle at 12% 9%, rgba(255, 255, 255, 0.92) 0 20px, transparent 21px),
     radial-gradient(circle at 78% 13%, rgba(255, 255, 255, 0.72) 0 24px, transparent 25px),
-    linear-gradient(180deg, #fff7dc 0%, #ffdba5 58%, #f7b46c 100%);
+    linear-gradient(180deg, #fff8e8 0%, #f4ead1 58%, #dce3bf 100%);
 }
 
 .home-page-settings .home-page-header {
@@ -3929,10 +3883,10 @@
   min-height: 96px;
   padding: calc(env(safe-area-inset-top, 0px) + 12px) 16px 16px;
   overflow: hidden;
-  border-bottom: 4px solid #7b3e10;
+  border-bottom: 4px solid #596944;
   background:
-    linear-gradient(180deg, rgba(255, 241, 189, 0.44) 0%, rgba(255, 255, 255, 0) 58%),
-    repeating-linear-gradient(-45deg, #ffc447 0, #ffc447 32px, #e57c08 32px, #e57c08 64px);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0) 58%),
+    linear-gradient(135deg, #dce3bf 0%, #a8b67d 58%, #82925e 100%);
   box-shadow:
     inset 0 -22px 28px rgba(137, 66, 0, 0.24),
     0 7px 0 rgba(0, 0, 0, 0.14);
@@ -3959,7 +3913,7 @@
 .home-page-settings .home-page-title {
   position: relative;
   z-index: 1;
-  color: #4b260d;
+  color: #33423d;
   font-family: 'FredokaOne', 'Nunito', sans-serif;
   font-size: clamp(35px, 9vw, 43px);
   font-weight: 400;
@@ -4164,6 +4118,45 @@
     0 4px 0 rgba(94, 52, 18, 0.12);
 }
 
+/* Keep the complete settings card visible on phone-height canvases. The
+   full-size spacing remains available on taller tablets and desktop windows. */
+@media (max-height: 900px) {
+  .home-page-settings .home-page-body {
+    padding-top: 16px;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  }
+
+  .home-page-settings .settings-page-card {
+    padding: 10px 10px 12px;
+  }
+
+  .home-page-settings .settings-rows {
+    gap: 9px;
+  }
+
+  .home-page-settings .settings-row {
+    min-height: 72px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+  }
+
+  .home-page-settings .settings-row-icon {
+    width: 54px;
+    height: 54px;
+  }
+
+  .home-page-settings .settings-legal-footer {
+    margin-top: 5px;
+    padding: 10px 10px 7px;
+    gap: 8px;
+  }
+
+  .home-page-settings .settings-footer-action {
+    padding: 8px 18px;
+    font-size: 16px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .home-shell,
   .home-page-overlay {
@@ -4185,47 +4178,47 @@
 /* ══ Shop Page (Phase 2) ════════════════════════════════════════════ */
 
 .home-page-shop {
-  --shop-header-overlay: linear-gradient(180deg, rgba(255, 241, 189, 0.44) 0%, rgba(255, 255, 255, 0) 58%);
-  --shop-header-stripes: repeating-linear-gradient(-45deg, #ffc447 0, #ffc447 32px, #e57c08 32px, #e57c08 64px);
-  --shop-header-border: #9e5305;
-  --shop-header-shadow: inset 0 -12px 18px rgba(137, 66, 0, 0.14), 0 7px 0 rgba(0, 0, 0, 0.16);
+  --shop-header-overlay: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 58%);
+  --shop-header-stripes: linear-gradient(135deg, #dce3bf 0%, #a8b67d 58%, #82925e 100%);
+  --shop-header-border: #596944;
+  --shop-header-shadow: inset 0 -12px 18px rgba(61, 78, 63, 0.12), 0 7px 0 rgba(61, 78, 63, 0.14);
   --shop-header-button-bg: rgba(255, 255, 255, 0.36);
   --shop-header-button-border: rgba(78, 38, 0, 0.62);
   --shop-header-button-color: #3c1f00;
   --shop-header-button-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.34), 0 4px 0 rgba(116, 54, 0, 0.42);
-  --shop-title-color: #3c1f00;
+  --shop-title-color: #33423d;
   --shop-title-stroke: rgba(255, 255, 255, 0.70);
   --shop-title-shadow: 0 2px 0 rgba(255, 255, 255, 0.24), 0 4px 8px rgba(82, 38, 0, 0.25);
   --shop-balance-bg: rgba(84, 42, 4, 0.58);
   --shop-balance-border: rgba(43, 18, 0, 0.64);
   --shop-balance-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.20), 0 4px 0 rgba(82, 38, 0, 0.42), 0 7px 11px rgba(0, 0, 0, 0.16);
-  --shop-body-color: #fff7dc;
-  --shop-body-gradient: linear-gradient(180deg, #fff7dc 0%, #ffdba5 48%, #f7b46c 100%);
-  --shop-body-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='86' height='86'%3E%3Cg fill='%23c8974a' fill-opacity='0.08'%3E%3Cellipse cx='43' cy='63' rx='17' ry='14'/%3E%3Cellipse cx='18' cy='43' rx='8' ry='10' transform='rotate(-20 18 43)'/%3E%3Cellipse cx='33' cy='33' rx='8' ry='10' transform='rotate(-7 33 33)'/%3E%3Cellipse cx='52' cy='33' rx='8' ry='10' transform='rotate(7 52 33)'/%3E%3Cellipse cx='67' cy='43' rx='8' ry='10' transform='rotate(20 67 43)'/%3E%3C/g%3E%3C/svg%3E");
-  --shop-card-border: #1d1308;
+  --shop-body-color: #fff8e8;
+  --shop-body-gradient: linear-gradient(180deg, #fff8e8 0%, #f4ead1 48%, #dce3bf 100%);
+  --shop-body-pattern: url('/ui/home/background-feather.svg');
+  --shop-card-border: #596944;
   --shop-card-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.28), inset 0 -7px 0 rgba(0, 0, 0, 0.10), 0 5px 0 rgba(0, 0, 0, 0.58), 0 10px 18px rgba(80, 42, 6, 0.26);
-  --shop-noads-bg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='92' height='52' viewBox='0 0 92 52'%3E%3Cg fill='%2302769b' fill-opacity='0.15'%3E%3Cpath d='M18 3l5 10 11 1-8 8 2 11-10-5-10 5 2-11-8-8 11-1z'/%3E%3Cpath d='M70 15l4 8 9 1-7 6 2 9-8-4-8 4 2-9-7-6 9-1z'/%3E%3C/g%3E%3C/svg%3E"), linear-gradient(135deg, #14d6ee 0%, #11ace5 56%, #0b7fc7 100%);
-  --shop-vip-bg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='92' height='52' viewBox='0 0 92 52'%3E%3Cg fill='%23b46612' fill-opacity='0.16'%3E%3Cpath d='M18 3l5 10 11 1-8 8 2 11-10-5-10 5 2-11-8-8 11-1z'/%3E%3Cpath d='M70 15l4 8 9 1-7 6 2 9-8-4-8 4 2-9-7-6 9-1z'/%3E%3C/g%3E%3C/svg%3E"), linear-gradient(135deg, #ffe66b 0%, #ffbd38 58%, #ee8805 100%);
-  --shop-card-title-color: #ffffff;
-  --shop-card-title-stroke: #111827;
-  --shop-card-desc-color: rgba(73, 38, 14, 0.82);
+  --shop-noads-bg: linear-gradient(135deg, #dce3bf 0%, #a8b67d 56%, #82925e 100%);
+  --shop-vip-bg: linear-gradient(135deg, #fff8e8 0%, #efd99a 58%, #d8a33e 100%);
+  --shop-card-title-color: #33423d;
+  --shop-card-title-stroke: rgba(255, 255, 255, 0.65);
+  --shop-card-desc-color: rgba(51, 66, 61, 0.82);
   --shop-badge-bg: linear-gradient(90deg, #fff8df 0%, #fff8df 70%, #ffb4c3 70%, #ff9eae 100%);
   --shop-badge-color: #7a2b07;
   --shop-badge-border: rgba(74, 34, 12, 0.82);
-  --shop-section-bg: linear-gradient(180deg, #6d3b18 0%, #4f270d 100%);
+  --shop-section-bg: linear-gradient(180deg, #596944 0%, #3f5038 100%);
   --shop-section-color: #ffffff;
   --shop-section-border: rgba(28, 12, 2, 0.78);
   --shop-section-stroke: #1b0d03;
-  --shop-grid-bg: hsl(38deg 90% 52%);
-  --shop-grid-border: hsl(38deg 90% 52%);
-  --shop-grid-shadow-color: hsl(38deg 75% 36%);
+  --shop-grid-bg: #a8b67d;
+  --shop-grid-border: #82925e;
+  --shop-grid-shadow-color: #596944;
   --shop-grid-shadow-glow: rgba(100, 60, 10, 0.25);
   --shop-grid-inner-bg: hsl(46deg 60% 93%);
   --shop-grid-amount-color: hsl(25deg 60% 18%);
-  --shop-price-top: hsl(128deg 70% 52%);
-  --shop-price-bottom: hsl(128deg 68% 40%);
-  --shop-price-border: hsl(128deg 60% 24%);
-  --shop-price-shadow: hsl(130deg 56% 22%);
+  --shop-price-top: #77b7d6;
+  --shop-price-bottom: #4d9cc4;
+  --shop-price-border: #366e89;
+  --shop-price-shadow: #2d5b70;
   --shop-grid-badge-bg: #f5a623;
   --shop-grid-badge-color: #3c1f00;
   --shop-grid-best-bg: #e07d08;
@@ -4349,7 +4342,9 @@
 }
 
 .shop-featured-card {
-  display: flex;
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr) 106px;
+  column-gap: 8px;
   align-items: center;
   min-height: 122px;
   padding: 15px 14px;
@@ -4390,8 +4385,8 @@
 }
 
 .shop-featured-icon {
-  width: 88px;
-  height: 88px;
+  width: 82px;
+  height: 82px;
   flex-shrink: 0;
   position: relative;
   z-index: 1;
@@ -4404,16 +4399,15 @@
 }
 
 .shop-featured-copy {
-  flex: 1;
   position: relative;
   z-index: 1;
-  padding: 0 13px;
+  padding: 0;
   min-width: 0;
 }
 
 .shop-featured-title {
   font-family: 'FredokaOne', 'Nunito', sans-serif;
-  font-size: clamp(19px, 5vw, 25px);
+  font-size: clamp(18px, 4.6vw, 23px);
   font-weight: 400;
   color: var(--shop-card-title-color);
   line-height: 1.05;
@@ -4445,8 +4439,9 @@
   margin-top: 0;
   flex-shrink: 0;
   min-width: 106px;
-  padding-left: 18px;
-  padding-right: 18px;
+  padding-left: 14px;
+  padding-right: 14px;
+  justify-self: end;
   white-space: nowrap;
 }
 
@@ -4636,15 +4631,6 @@
     drop-shadow(0 0 1px #000)
     drop-shadow(0 0 1px #000)
     drop-shadow(0 0 1px #000);
-}
-
-.shop-grid-card[data-catalog-id="hint-pack-50"] .shop-grid-icon img {
-  transform: scale(1.25);
-  transform-origin: 50% 50%;
-}
-
-.shop-grid-card[data-catalog-id="hint-pack-50"] .shop-grid-icon {
-  overflow: visible;
 }
 
 .shop-grid-icon-shine-mask {
@@ -4853,9 +4839,7 @@
    geometry. Options via html[data-home-opt="1|2|3"].
    ============================================================ */
 .settings-home-btn .settings-row-icon {
-  /* settings_icon_home.png ships a cold blue badge; warm it toward the
-     gold/amber icon set (panel defect: reads as a foreign asset). */
-  filter: sepia(0.45) saturate(1.3) hue-rotate(-18deg);
+  filter: none;
 }
 .settings-home-btn {
   transition: transform 90ms ease, box-shadow 90ms ease;
@@ -4885,19 +4869,19 @@
 /* Chosen treatment (portal req_ac4f85, pick 1): warm amber gradient row +
    deep house ledge, geometry unchanged. */
 .settings-home-btn {
-  background: linear-gradient(180deg, #ffe2a1 0%, #f5b95c 55%, #e69b35 100%);
-  border: 2px solid rgba(140, 78, 20, 0.7);
+   background: linear-gradient(180deg, #dce3bf 0%, #a8b67d 55%, #82925e 100%);
+   border: 2px solid rgba(89, 105, 68, 0.7);
   border-radius: 18px;
   box-shadow:
     inset 0 3px 0 rgba(255, 255, 255, 0.65),
-    0 8px 0 #a8641e,
-    0 14px 20px rgba(91, 48, 12, 0.2);
+     0 8px 0 #596944,
+     0 14px 20px rgba(61, 78, 63, 0.2);
 }
 .settings-home-btn:active {
   box-shadow:
     inset 0 3px 0 rgba(255, 255, 255, 0.65),
-    0 3px 0 #a8641e,
-    0 8px 12px rgba(91, 48, 12, 0.16);
+     0 3px 0 #596944,
+     0 8px 12px rgba(61, 78, 63, 0.16);
 }
 .settings-home-btn .settings-row-label {
   color: #5c3414;
@@ -4912,7 +4896,641 @@
 }
 
 .home-streak-flame {
-  font-size: 20px;
-  line-height: 1;
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
   filter: drop-shadow(0 2px 2px rgba(90, 55, 20, 0.16));
+}
+
+#level-complete-overlay .fab-complete-side-confetti {
+  z-index: 1;
+}
+
+/* Archived complete-surface pass. The preferred Cozy Garden 3D UI is the
+   earlier icon-and-layout pass above; keep this code unreachable so its
+   generated div textures/nine-slice frames cannot override that baseline. */
+@media (max-width: 0px) and (min-width: 1px) {
+/* Gameplay surfaces: use the same material system as the menu pages instead
+   of translucent browser-style glass. Structural layout wrappers stay clear. */
+#hud-overlay .hud-pill,
+#hud-overlay .restoration-progress {
+  background-color: #fff8e8;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.44), rgba(232, 215, 184, 0.12)),
+    var(--cg-texture-canvas);
+  background-size: 100% 100%, 96px 96px;
+  background-repeat: no-repeat, repeat;
+  border: 2px solid #f0d99f;
+  box-shadow:
+    0 4px 0 rgba(146, 104, 47, 0.42),
+    0 7px 16px rgba(59, 74, 51, 0.16),
+    inset 0 2px 0 rgba(255, 255, 255, 0.62);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+#hud-overlay #settings-btn {
+  overflow: hidden;
+  border: 2px solid #f0d99f;
+  background-color: #fff8e8;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(232, 215, 184, 0.12)),
+    var(--cg-texture-canvas);
+  background-size: 100% 100%, 96px 96px;
+  box-shadow:
+    0 4px 0 rgba(146, 104, 47, 0.42),
+    0 7px 16px rgba(59, 74, 51, 0.16);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+#hud-overlay .restoration-progress-track {
+  background-color: #6f7f4e;
+  background-image: var(--cg-texture-olive);
+  background-size: 72px 72px;
+  border: 2px solid rgba(72, 91, 55, 0.42);
+  box-shadow: inset 0 2px 4px rgba(48, 64, 41, 0.24);
+}
+
+.hint-booster-card,
+.tutorial-card,
+.rate-prompt-card {
+  background-color: #fff8e8;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.38), rgba(232, 215, 184, 0.14)),
+    var(--cg-texture-canvas);
+  background-size: 100% 100%, 112px 112px;
+  background-repeat: no-repeat, repeat;
+  border-color: #e7c984;
+  box-shadow:
+    0 7px 0 rgba(151, 101, 43, 0.5),
+    0 14px 30px rgba(44, 63, 46, 0.24);
+}
+
+/* ══ Cozy Garden 3D surface system ═══════════════════════════════
+   Generated paintings are reduced to exact seamless tiles, then combined
+   with transparent nine-slice rims. Copy and state remain live HTML. */
+:root {
+  --cg-texture-canvas: url('/ui/textures/canvas-cream-seamless.png');
+  --cg-texture-olive: url('/ui/textures/painted-olive-seamless.png');
+  --cg-texture-sky: url('/ui/textures/painted-sky-seamless.png');
+  --cg-texture-honey: url('/ui/textures/wood-honey-seamless.png');
+  --cg-frame-panel-honey: url('/ui/surfaces/panel-honey-9s.png');
+  --cg-frame-panel-olive: url('/ui/surfaces/panel-olive-9s.png');
+  --cg-frame-button-olive: url('/ui/surfaces/button-olive-9s.png');
+  --cg-frame-button-sky: url('/ui/surfaces/button-sky-9s.png');
+}
+
+.home-page-overlay,
+.home-page-achievements,
+.home-page-settings,
+.home-page-shop .home-page-body {
+  background-color: #fff8e8;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(220, 227, 191, 0.12)),
+    url('/ui/home/background-feather.svg'),
+    var(--cg-texture-canvas);
+  background-size: 100% 100%, 112px 112px, 128px 128px;
+  background-repeat: no-repeat, repeat, repeat;
+}
+
+.settings-page-card,
+.home-page-body .settings-legal-footer,
+.achievement-card,
+.achievement-unavailable,
+.fail-card,
+#level-complete-overlay .fab-complete-card {
+  position: relative;
+  background-color: #fff8e8;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(232, 215, 184, 0.16)),
+    var(--cg-texture-canvas);
+  background-size: 100% 100%, 128px 128px;
+  background-repeat: no-repeat, repeat;
+  border-color: transparent;
+}
+
+.settings-page-card::after,
+.home-page-body .settings-legal-footer::after,
+.achievement-card::after,
+.achievement-unavailable::after,
+#level-complete-overlay .fab-complete-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  border: 24px solid transparent;
+  border-image-source: var(--cg-frame-panel-honey);
+  border-image-slice: 52;
+  border-image-width: 24px;
+  border-image-repeat: stretch;
+  pointer-events: none;
+}
+
+.home-page-body .settings-row {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-color: transparent;
+  background-color: #fff8e8;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(239, 209, 147, 0.12)),
+    var(--cg-texture-canvas);
+  background-size: 100% 100%, 112px 112px;
+  background-repeat: no-repeat, repeat;
+}
+
+.home-page-body .settings-row::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border: 18px solid transparent;
+  border-image-source: var(--cg-frame-panel-honey);
+  border-image-slice: 52;
+  border-image-width: 18px;
+  border-image-repeat: stretch;
+  pointer-events: none;
+}
+
+.home-page-body .settings-row > * {
+  position: relative;
+  z-index: 4;
+}
+
+.home-page-body .settings-footer-action {
+  position: relative;
+  isolation: isolate;
+  min-width: 132px;
+  border-color: transparent;
+  background-color: #82925e;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(70, 85, 54, 0.12)),
+    var(--cg-texture-olive);
+  background-size: 100% 100%, 96px 96px;
+  color: #fff8e8;
+  text-shadow: 0 2px 0 rgba(51, 66, 61, 0.34);
+}
+
+.home-page-body .settings-footer-action::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border: 14px solid transparent;
+  border-image-source: var(--cg-frame-button-olive);
+  border-image-slice: 34;
+  border-image-width: 14px;
+  border-image-repeat: stretch;
+  pointer-events: none;
+}
+
+.home-page-settings .home-page-header,
+.home-page-shop .home-page-header {
+  background-color: #82925e;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(70, 85, 54, 0.2)),
+    var(--cg-texture-olive);
+  background-size: 100% 100%, 128px 128px;
+  background-repeat: no-repeat, repeat;
+}
+
+.home-map-stage .fab-levelmap-path::before {
+  background-color: #98a366;
+  background-image:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.24), transparent 32%, rgba(67, 75, 38, 0.15) 74%, rgba(255, 255, 255, 0.14)),
+    var(--cg-texture-olive);
+  background-size: 100% 100%, 84px 84px;
+  background-repeat: no-repeat, repeat;
+}
+
+#home-shell .home-balance-pill,
+.shop-header-balance-pill,
+.fail-rescue-balance,
+#level-complete-overlay .fab-complete-balance {
+  background-color: #fff8e8;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(232, 215, 184, 0.12)),
+    var(--cg-texture-canvas);
+  background-size: 100% 100%, 96px 96px;
+}
+
+.shop-featured-card,
+.shop-grid-card,
+.shop-new-section-header {
+  position: relative;
+  isolation: isolate;
+}
+
+.shop-featured-card.vip,
+.shop-featured-card.no-ads,
+.shop-grid-card--hints,
+.shop-grid-card--coins {
+  background-color: #fff8e8;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(232, 215, 184, 0.1)),
+    var(--cg-texture-canvas);
+  background-size: 100% 100%, 112px 112px;
+  background-repeat: no-repeat, repeat;
+  border-color: transparent;
+}
+
+.shop-featured-card::after,
+.shop-grid-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  border: 20px solid transparent;
+  border-image-source: var(--cg-frame-panel-olive);
+  border-image-slice: 52;
+  border-image-width: 20px;
+  border-image-repeat: stretch;
+  pointer-events: none;
+}
+
+.shop-featured-card > *,
+.shop-grid-card > * {
+  position: relative;
+  z-index: 6;
+}
+
+.shop-new-section-header {
+  overflow: hidden;
+  border-color: transparent;
+  background-color: #82925e;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(70, 85, 54, 0.18)),
+    var(--cg-texture-olive);
+  background-size: 100% 100%, 96px 96px;
+}
+
+.shop-new-section-header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 14px solid transparent;
+  border-image-source: var(--cg-frame-button-olive);
+  border-image-slice: 34;
+  border-image-width: 14px;
+  border-image-repeat: stretch;
+  pointer-events: none;
+}
+
+.shop-grid-card-inner {
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: rgba(89, 105, 68, 0.22);
+}
+
+.shop-grid-price-btn,
+#level-complete-overlay .fab-complete-next-btn,
+.fail-option-primary {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-color: transparent;
+  background-color: #4d9cc4;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(47, 117, 152, 0.14)),
+    var(--cg-texture-sky);
+  background-size: 100% 100%, 96px 96px;
+  background-repeat: no-repeat, repeat;
+}
+
+.shop-grid-price-btn::before {
+  height: 38%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.34), transparent);
+}
+
+.shop-grid-price-btn::after,
+#level-complete-overlay .fab-complete-next-btn::after,
+.fail-option-primary::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  transform: none;
+  background: none;
+  border: 14px solid transparent;
+  border-image-source: var(--cg-frame-button-sky);
+  border-image-slice: 34;
+  border-image-width: 14px;
+  border-image-repeat: stretch;
+  pointer-events: none;
+}
+
+.achievement-card--completed {
+  background-color: #fff3cf;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.36), rgba(216, 163, 62, 0.14)),
+    var(--cg-texture-canvas);
+}
+
+/* First in-context review: keep the storybook motif sparse and reserve more of
+   every nine-slice center for live copy. */
+.home-page-overlay,
+.home-page-achievements,
+.home-page-settings,
+.home-page-shop .home-page-body {
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(220, 227, 191, 0.12)),
+    var(--cg-texture-canvas);
+  background-size: 100% 100%, 128px 128px;
+  background-repeat: no-repeat, repeat;
+}
+
+.settings-page-card::after,
+.home-page-body .settings-legal-footer::after,
+.achievement-card::after,
+.achievement-unavailable::after,
+#level-complete-overlay .fab-complete-card::after {
+  border-width: 12px;
+  border-image-width: 12px;
+}
+
+.home-page-body .settings-row::after {
+  border-width: 10px;
+  border-image-width: 10px;
+}
+
+.home-page-body .settings-footer-action::after,
+.shop-new-section-header::after,
+.shop-grid-price-btn::after,
+#level-complete-overlay .fab-complete-next-btn::after,
+.fail-option-primary::after {
+  border-width: 10px;
+  border-image-width: 10px;
+}
+
+.shop-featured-card::after,
+.shop-grid-card::after {
+  border-width: 12px;
+  border-image-width: 12px;
+}
+
+.achievement-card {
+  padding: 20px 18px;
+}
+
+.achievement-card header {
+  padding-top: 2px;
+}
+
+/* Shop ribbons use one reusable painted-wood body with live copy. This replaces
+   the old candy badge bitmaps and keeps labels crisp at every scale. */
+.shop-featured-badge,
+.shop-grid-badge {
+  box-sizing: border-box;
+  isolation: isolate;
+  overflow: hidden;
+  border: 3px solid #607047;
+  border-radius: 17px;
+  background-color: #82925e;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(70, 85, 54, 0.2)),
+    var(--cg-texture-olive);
+  background-size: 100% 100%, 96px 96px;
+  background-repeat: no-repeat, repeat;
+  box-shadow:
+    inset 0 0 0 2px rgba(220, 227, 191, 0.68),
+    0 4px 0 #465536,
+    0 6px 9px rgba(51, 66, 61, 0.2);
+  color: #fff8e8;
+  font-family: 'LilitaOne', 'FredokaOne', 'Nunito', sans-serif;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 0 rgba(51, 66, 61, 0.48);
+  white-space: nowrap;
+}
+
+.shop-featured-badge.shop-featured-badge--best-value {
+  width: 142px;
+  height: 42px;
+  top: -5px;
+}
+
+.shop-grid-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 112px;
+  height: 34px;
+  font-size: 14px;
+}
+
+.shop-featured-badge--best-value,
+.shop-grid-badge.best-value {
+  animation: none;
+}
+
+#level-complete-overlay .fab-complete-claim-btn,
+#level-complete-overlay .fab-complete-claim-x2-btn {
+  background-repeat: no-repeat, repeat;
+  background-size: 100% 100%, 96px 96px;
+}
+
+#level-complete-overlay .fab-complete-claim-btn {
+  background-color: #82925e;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(70, 85, 54, 0.18)),
+    var(--cg-texture-olive);
+}
+
+#level-complete-overlay .fab-complete-claim-x2-btn {
+  background-color: #d8a33e;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.44), rgba(118, 82, 46, 0.12)),
+    var(--cg-texture-honey);
+}
+
+#level-complete-overlay .fab-complete-claim-x2-icon {
+  width: 36px;
+  height: 36px;
+}
+
+/* Fail actions share the same garden materials as Shop and Settings. The
+   original class names are offer semantics, so style all three actual offers
+   instead of relying on the unused legacy .fail-option-primary hook. */
+.fail-card {
+  border: 12px solid transparent;
+  border-image-source: var(--cg-frame-panel-honey);
+  border-image-slice: 52;
+  border-image-width: 12px;
+  border-image-repeat: stretch;
+}
+
+.fail-option-coin-continue,
+.fail-option-retry-primary,
+.fail-option-bundle {
+  border: 4px solid #607047;
+  background-color: #82925e;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(70, 85, 54, 0.18)),
+    var(--cg-texture-olive);
+  background-size: 100% 100%, 96px 96px;
+  background-repeat: no-repeat, repeat;
+  box-shadow:
+    inset 0 0 0 2px rgba(220, 227, 191, 0.58),
+    0 7px 0 #465536,
+    0 10px 14px rgba(51, 66, 61, 0.18);
+}
+
+.fail-option-retry-primary,
+.fail-option-bundle {
+  border-color: #2f7598;
+  background-color: #4d9cc4;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(47, 117, 152, 0.16)),
+    var(--cg-texture-sky);
+  box-shadow:
+    inset 0 0 0 2px rgba(216, 241, 251, 0.62),
+    0 7px 0 #2f7598,
+    0 10px 14px rgba(47, 117, 152, 0.2);
+}
+
+/* Settings controls use the same muted painted materials as the surrounding
+   panel. Keep one structural frame per level and normalize the footer actions. */
+.settings-page-card {
+  border-color: transparent;
+  box-shadow: 0 9px 0 rgba(70, 85, 54, 0.2), 0 18px 28px rgba(51, 66, 61, 0.14);
+}
+
+.home-page-body .settings-row {
+  border-color: transparent;
+  box-shadow: 0 5px 0 rgba(118, 82, 46, 0.16), 0 9px 14px rgba(51, 66, 61, 0.08);
+}
+
+.home-page-body .settings-legal-footer {
+  border-color: transparent;
+  box-shadow: 0 5px 0 rgba(118, 82, 46, 0.14);
+}
+
+.home-page-body .settings-footer-action {
+  box-sizing: border-box;
+  width: 174px;
+  min-width: 174px;
+  min-height: 46px;
+  padding: 9px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-card .toggle-slider,
+.home-page-body .settings-toggle .toggle-slider {
+  border-color: #607047;
+  background-color: #d8cdb4;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(118, 82, 46, 0.12)),
+    var(--cg-texture-canvas);
+  background-size: 100% 100%, 72px 72px;
+}
+
+.settings-card .toggle-slider::before,
+.home-page-body .settings-toggle .toggle-slider::before {
+  background-color: #fff8e8;
+  background-image: var(--cg-texture-canvas);
+  background-size: 64px 64px;
+  border: 1px solid #d7c8aa;
+}
+
+.settings-card .toggle-switch input:checked + .toggle-slider,
+.home-page-body .settings-toggle input:checked + .toggle-slider {
+  border-color: #596944;
+  background-color: #82925e;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(70, 85, 54, 0.2)),
+    var(--cg-texture-olive);
+  background-size: 100% 100%, 72px 72px;
+  box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.22), 0 2px 0 rgba(70, 85, 54, 0.22);
+}
+
+.settings-home-arrow {
+  background-color: #82925e;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.24), rgba(70, 85, 54, 0.18)),
+    var(--cg-texture-olive);
+  background-size: 100% 100%, 72px 72px;
+  box-shadow:
+    inset 0 0 0 2px rgba(220, 227, 191, 0.8),
+    0 3px 0 #465536,
+    0 6px 9px rgba(51, 66, 61, 0.2);
+}
+}
+
+/* Selected saga level: retain the approved node art and white edge, without
+   the later teal halo or glow animation behind it. */
+.home-map-stage .fab-levelmap-node.current .fab-levelmap-node-dot {
+  animation: none;
+  filter:
+    drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
+    drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
+    drop-shadow(0 5px 6px rgba(70, 35, 8, 0.34));
+}
+
+.home-map-stage .fab-levelmap-node.current::before {
+  content: none;
+  animation: none;
+  background: none;
+}
+
+/* Settings returns to flat Cozy Garden color planes. Remove every gradient
+   and decorative background layer in this page while preserving its layout,
+   icons, controls and accessibility states. */
+.home-page-settings,
+.home-page-settings *,
+.home-page-settings *::before,
+.home-page-settings *::after {
+  background-image: none !important;
+}
+
+.home-page-settings { background-color: #f4ead1; }
+.home-page-settings .home-page-header { background-color: #a8b67d; }
+.home-page-settings .home-page-body { background-color: transparent; }
+.home-page-settings .settings-page-card { background-color: #fff8e8; }
+.home-page-settings .settings-row { background-color: #fff3d7; }
+.home-page-settings .settings-legal-footer { background-color: #f3e6ce; }
+.home-page-settings .settings-footer-action { background-color: #eadbc7; }
+.home-page-settings .settings-home-btn { background-color: #a8b67d; }
+.home-page-settings .settings-home-arrow { background-color: #2fa94a; }
+
+/* Promotional labels still need a bounded layout after the generated surface
+   layer is removed. Keep them as plain flat pills with live text. */
+.shop-featured-badge,
+.shop-grid-badge {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #607047;
+  border-radius: 17px;
+  background: #82925e;
+  color: #fff8e8;
+  font-family: 'LilitaOne', 'FredokaOne', 'Nunito', sans-serif;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  text-shadow: 0 2px 0 rgba(51, 66, 61, 0.48);
+  box-shadow: 0 4px 0 #465536;
+  white-space: nowrap;
+}
+
+.shop-featured-badge.shop-featured-badge--best-value {
+  width: 142px;
+  height: 42px;
+  top: -5px;
+  font-size: 16px;
+}
+
+.shop-grid-badge {
+  width: 112px;
+  height: 34px;
+  font-size: 14px;
 }

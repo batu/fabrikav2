@@ -6,8 +6,8 @@
 import { computeIncludePlugins } from "./src/sdk/includePlugins";
 
 const config = {
-  appId: "com.basegamelab.find_the_bird.dev",
-  appName: "Find the Bird",
+  appId: "com.basegamelab.findthebird",
+  appName: "Find The Bird",
   webDir: "dist",
   // Explicit native plugin allowlist. @capacitor-firebase/analytics configures
   // Firebase at boot (crashing when no config ships), so it is included ONLY when

@@ -133,9 +133,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
   const baseFactories = deps.adProviderFactories;
   const adFactories: AdProviderFactories | undefined = baseFactories === undefined
     ? {
-        createAdMobProvider: () => {
-          throw new Error('FTD does not compose AdMob');
-        },
+        createAdMobProvider: defaultAdProviderFactories.createAdMobProvider,
         createAppLovinMaxProvider: (config) => new AppLovinMaxProvider(config, {
           lifecycle,
           onAdRevenuePaid: (event): void => {

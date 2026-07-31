@@ -37,7 +37,7 @@ const COMPLETION_COIN_ICON_SRC = '/ui/menu-icons/icon_coin.png';
 // SVG mirror of the CSS-drawn rewardedAdIconMarkup badge (the 2x button's "AD +
 // play" cue). Core renders the 2x icon as an <img> from --fab-complete-adicon-url,
 // so the badge ships as an FTD asset rather than injected markup.
-const COMPLETION_AD_BADGE_SRC = '/ui/level-complete/rewarded-ad-badge.svg';
+const COMPLETION_AD_BADGE_SRC = '/ui/level-complete/rewarded-ad-badge.png';
 
 // The fast-E2E gate stays in FTD; core never reads import.meta.env. The gate
 // only chooses which timing-token VALUES we inject via the theme below.

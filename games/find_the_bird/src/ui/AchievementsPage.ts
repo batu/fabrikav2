@@ -2,13 +2,13 @@ import { gameState } from '../core/GameState';
 import { analytics } from '../analytics/AnalyticsService';
 import type { AchievementRewardStatus } from '../achievements/AchievementSystem';
 
-/** Text glyphs (never emoji) so each category's medal reads distinctly. */
-const ACHIEVEMENT_CATEGORY_GLYPHS: Record<string, string> = {
-  completion: '★',
-  dogs: '♥',
-  mastery: '✦',
-  progression: '⚑',
-  streak: '◆',
+/** Cozy Garden medallions remain image assets while card copy stays semantic. */
+const ACHIEVEMENT_CATEGORY_BADGES: Record<string, string> = {
+  completion: '/ui/achievements/achievement-completion.png',
+  dogs: '/ui/achievements/achievement-birds.png',
+  mastery: '/ui/achievements/achievement-mastery.png',
+  progression: '/ui/achievements/achievement-progression.png',
+  streak: '/ui/achievements/achievement-streak.png',
 };
 
 function rewardStatusCopy(status: AchievementRewardStatus): string {
@@ -64,7 +64,7 @@ export function renderAchievementsPageBody(): string {
             ? ''
             : `<p class="achievement-reward-status">${rewardCopy}</p>`;
           return `<article class="achievement-card achievement-card--${stateClass}" data-achievement-id="${achievement.id}" aria-label="${achievement.name}: ${state}, ${achievement.progress} of ${achievement.threshold}. ${rewardCopy}">
-            <span class="achievement-badge" aria-hidden="true">${ACHIEVEMENT_CATEGORY_GLYPHS[achievement.category] ?? '★'}</span>
+            <span class="achievement-badge" aria-hidden="true"><img src="${ACHIEVEMENT_CATEGORY_BADGES[achievement.category] ?? ACHIEVEMENT_CATEGORY_BADGES.completion}" alt=""></span>
             <div class="achievement-card-main">
               <header><h4>${achievement.name}</h4><strong class="achievement-state">${state}</strong></header>
               <p>${achievement.description}</p>

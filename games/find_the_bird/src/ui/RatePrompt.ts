@@ -33,7 +33,7 @@ export function showRatePromptWithHandle(): RatePromptHandle {
     id: 'rate-prompt-overlay',
     theme: FTD_UI_THEME,
     content: {
-      title: 'Enjoying Find the Dog?',
+      title: 'Enjoying Find the Bird?',
       subtitle: 'A quick rating helps other players find us.',
       acceptLabel: 'Yes, rate it',
       declineLabel: 'Not really',

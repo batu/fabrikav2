@@ -68,7 +68,7 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
     <div class="tutorial-spotlight"></div>
     <div class="tutorial-bubble tutorial-bubble-dog" style="left:${anchor.dogScreen.x}px;top:${anchor.dogScreen.y}px;">
       <div class="tutorial-arrow tutorial-arrow-up"></div>
-      <div class="tutorial-text">Tap the dog</div>
+      <div class="tutorial-text">Tap the bird</div>
     </div>
   `;
   hudOverlay.appendChild(overlay);
