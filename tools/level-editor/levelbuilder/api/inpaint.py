@@ -4272,6 +4272,57 @@ def get_retry_failed_dogs_job(session_id: str, job_id: str) -> RetryFailedDogsJo
 # variant. Called after a variant swap so the scene reflects the chosen
 # variant immediately (without waiting for the next regen).
 
+# Sprite-only compositing (plan 2026-07-31-002 U6): the scene receives ONLY the
+# validated pickup sprite, not the whole diff-masked variant. Pickup then
+# restores pixel-identical background — pop-in impossible by construction.
+# Dogs without a usable sprite fall back to the legacy diff paste (they are
+# already repair-flagged; export refuses them). Opt out with =0.
+def _sprite_only_compose_enabled() -> bool:
+    return os.environ.get("FTD_SPRITE_ONLY_COMPOSE", "1").strip().lower() not in {"0", "false", "no"}
+
+
+def _paste_pickup_sprite(
+    result: Image.Image,
+    bg_clean: Image.Image,
+    dog_dir,
+    variant_idx: int,
+    *,
+    restore_cleanup: bool,
+) -> bool:
+    """Paste dog_dir's pickup sprite onto result. Returns False when the dog
+    has no usable sprite (caller falls back to the legacy diff paste)."""
+    meta_path = dog_dir / f"sprite_{variant_idx:03d}.json"
+    sprite_path = dog_dir / f"sprite_{variant_idx:03d}.png"
+    if not meta_path.exists() or not sprite_path.exists():
+        return False
+    try:
+        meta = json.loads(meta_path.read_text())
+    except (OSError, json.JSONDecodeError):
+        return False
+    if not (meta.get("quality") or {}).get("pickupUsable"):
+        return False
+    sprite_box = meta.get("spriteBox")
+    if not (isinstance(sprite_box, list) and len(sprite_box) == 4):
+        return False
+    try:
+        with Image.open(sprite_path) as simg:
+            simg.load()
+            sprite = simg.convert("RGBA").copy()
+    except (OSError, ValueError):
+        return False
+    if restore_cleanup:
+        # Magenta-mode base is the previous composite; scrub the old broad
+        # paste back to clean background before the sprite lands.
+        cleanup = meta.get("cleanupBox") or sprite_box
+        x0, y0, x1, y1 = (int(v) for v in cleanup)
+        region = bg_clean.crop((x0, y0, x1, y1))
+        result.paste(region, (x0, y0))
+        region.close()
+    result.paste(sprite, (int(sprite_box[0]), int(sprite_box[1])), mask=sprite)
+    sprite.close()
+    return True
+
+
 def compose_with_mask(session_id: str) -> Image.Image | None:
     """Build the full composite in memory using raw diff-mask paste.
     Pure function \u2014 does not touch disk. Returns a PIL RGB image or None
@@ -4377,7 +4428,13 @@ def compose_with_mask(session_id: str) -> Image.Image | None:
                 continue
         if av is None:
             continue
-        variant_path = S.dogs_dir(session_id) / f"dog_{dog_index:02d}" / f"variant_{av:03d}.png"
+        dog_dir = S.dogs_dir(session_id) / f"dog_{dog_index:02d}"
+        if _sprite_only_compose_enabled() and _paste_pickup_sprite(
+            result, bg_clean, dog_dir, av,
+            restore_cleanup=inpaint_mode == "magenta" and color_path.exists(),
+        ):
+            continue
+        variant_path = dog_dir / f"variant_{av:03d}.png"
         if not variant_path.exists():
             continue
         hb = Hitbox(x=hb_data["x"], y=hb_data["y"], radius=hb_data.get("r", hb_data.get("radius", 30)))
