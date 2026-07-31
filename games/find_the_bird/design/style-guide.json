@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "pinned": true,
+  "palette": {
+    "accent": "#4d9cc4",
+    "accent-strong": "#2f7598",
+    "reward": "#d8a33e",
+    "surface": "#fff8e8",
+    "surface-strong": "#f4ead1",
+    "text": "#33423d",
+    "warning": "#e98b5d"
+  },
+  "color_map": {
+    "painted_wood": ["#f4ead1", "#d8bf8e", "#9b7445"],
+    "sage": ["#a8b67d", "#82925e", "#596944"],
+    "sky_blue": ["#77b7d6", "#4d9cc4", "#2f7598"],
+    "peach": ["#f2aa7e", "#e98b5d", "#b85e3d"],
+    "warm_gold": ["#efd16f", "#d8a33e", "#9c6d24"],
+    "canvas": ["#fff8e8", "#e8d7b8"],
+    "ink": ["#33423d", "#67533c"],
+    "leaf": ["#9eac68", "#6f8048", "#465536"]
+  },
+  "phrases": {
+    "rendering": "premium cozy mobile-game UI asset designed to read instantly on a small phone: soft hand-painted 3D volume, bubbly rounded silhouette, storybook garden craft aesthetic, friendly and tactile without looking like candy or a plastic toy",
+    "shape": "chunky rounded forms with gentle handmade asymmetry, broad readable planes, softly beveled edges, restrained botanical ornament, generous transparent breathing room, no thin fragile details",
+    "finish": "painted wood, glazed ceramic, woven canvas and knitted fibers with smooth clean shading; subtle material texture only, no grain cloud, no sugar, frosting, gumdrop, candy enamel or hard toy-plastic gloss",
+    "lighting": "warm diffuse key light from upper left, soft ambient occlusion in joints, one restrained highlight, and a soft compact contact shadow contained within the silhouette"
+  },
+  "negative": [
+    "candy, gumdrops, lollipops, frosting, sweets or confectionery",
+    "hard plastic toy gloss or raw photorealistic 3D render",
+    "human arms, hands, fingers or gloves",
+    "photorealistic birds",
+    "fine detail that disappears at phone size",
+    "dense grain, visual noise or gritty texture",
+    "black outlines",
+    "text or letters unless explicitly requested",
+    "watermark or signature",
+    "objects touching or crossing the canvas edge"
+  ],
+  "ref_palette": ["#fff8e8", "#f4ead1", "#82925e", "#4d9cc4", "#e98b5d", "#d8a33e"],
+  "sources": [
+    "Approved Cozy Garden 3D complete set in refs/art/style-sets/cozy-garden-3d",
+    "Approved menu-in-context capture in refs/art/menu-prototype/garden-menu-capture.png"
+  ]
+}
