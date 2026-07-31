@@ -377,9 +377,9 @@ async function resolveBundledOnlyRuntimeSequence(manifest: ManifestV1): Promise<
 }
 
 /**
- * Playable aspect ratios: portrait (h > w) OR wide-landscape (w/h >= 1.5).
- * Excludes square / near-square (e.g. legacy 1024×1024 debug levels) while
- * still admitting 16:9 (1.78:1) and wider landscapes like the 3-panel maps.
+ * Playable aspect ratios: portrait/square (h >= w) OR wide-landscape
+ * (w/h >= 1.5). Mild landscape remains unsupported because it has neither
+ * continuous-level pan geometry nor section metadata.
  */
 function getManifestClient(): ManifestClient {
   if (manifestClient === null) manifestClient = createManifestClient();

@@ -52,6 +52,8 @@ import {
   resolveRuntimeTextureLongEdge,
   selectRuntimeColorImageUrl,
 } from './RuntimeTexturePolicy';
+import { resolveLevelCoverFit, resolveLevelPanBounds } from './levelFit';
+import { resolveRuntimeHitRadius } from './hitboxGeometry';
 
 export interface GameSceneData {
   levelId?: string;
@@ -219,12 +221,6 @@ export class GameScene extends Phaser.Scene {
   /** Restoration mode: per-section (landscape) or single (portrait) clean background images. */
   private bgLayers: Phaser.GameObjects.Image[] = [];
   /**
-   * Mirrored copies of the clean bg flipped into the letterbox margin so a
-   * contain-scaled image reads as extending past its edge instead of sitting
-   * on bars. Decorative only — sit behind everything, never interactive.
-   */
-  private edgeMirrorImages: Phaser.GameObjects.Image[] = [];
-  /**
    * Restoration mode: in-flight dissolve cells for legacy animated deletes.
    * New deletes complete instantly, but this remains for shutdown safety,
    * old active-cell hit testing, and tests that inspect the runtime shape.
@@ -373,7 +369,6 @@ export class GameScene extends Phaser.Scene {
     this.wasMicroAnimationLayerActiveBeforeLifecycleSuspend = false;
     this.isRestoration = false;
     this.bgLayers = [];
-    this.edgeMirrorImages = [];
     this.dissolveActiveCells = [];
     this.dissolveCompletedCells = [];
     this.pickupAnimationsActive = 0;
@@ -720,6 +715,7 @@ export class GameScene extends Phaser.Scene {
 
     const sections = this.level.sections;
     const isSectioned = Array.isArray(sections) && sections.length > 0;
+    let initialCoverScroll = { x: 0, y: 0 };
 
     if (isSectioned) {
       // Landscape / wide level — the image fills the portrait viewport
@@ -735,17 +731,19 @@ export class GameScene extends Phaser.Scene {
       this.imgOffsetX = 0;
       this.imgOffsetY = (GAME.HEIGHT - this.level.height * this.imgScale) / 2;
     } else {
-      // Portrait / square — scale to CONTAIN: fit the whole image inside the
-      // viewport so no dog is ever cropped off-screen (cover-scale cropped the
-      // overflow dimension and pushed edge dogs out of reach, making some
-      // levels unplayable). The resulting letterbox margin is filled with a
-      // mirror of the clean bg (addEdgeMirrors) so it reads as the scene
-      // continuing, not as bars.
-      const scaleX = GAME.WIDTH / this.level.width;
-      const scaleY = GAME.HEIGHT / this.level.height;
-      this.imgScale = Math.min(scaleX, scaleY);
-      this.imgOffsetX = (GAME.WIDTH - this.level.width * this.imgScale) / 2;
-      this.imgOffsetY = (GAME.HEIGHT - this.level.height * this.imgScale) / 2;
+      // Portrait / square — centered COVER fit. The previous contain fit added
+      // mirrored padding around the image; on iPhone that produced a visible
+      // horizontal seam and duplicated scenery. Keep the image at world origin
+      // so masks cover its full extent, center the initial crop with camera
+      // scroll, and let the player pan across any overflow at minimum zoom.
+      const fit = resolveLevelCoverFit(
+        { width: this.level.width, height: this.level.height },
+        { width: GAME.WIDTH, height: GAME.HEIGHT },
+      );
+      this.imgScale = fit.scale;
+      this.imgOffsetX = 0;
+      this.imgOffsetY = 0;
+      initialCoverScroll = { x: fit.initialScrollX, y: fit.initialScrollY };
     }
 
     // Resolve Restoration once and field-cache it. All subsequent
@@ -824,13 +822,6 @@ export class GameScene extends Phaser.Scene {
     this.colorImage.setOrigin(0, 0);
     this.colorImage.setPosition(this.imgOffsetX, this.imgOffsetY);
     this.colorImage.setDisplaySize(this.level.width * this.imgScale, this.level.height * this.imgScale);
-
-    // Fill the contain-scale letterbox margin with a flipped copy of the clean
-    // bg so edges look like the scene continues. Restoration uses bg_0 (no
-    // dogs, so the margin never shows a phantom uncatchable dog); classic falls
-    // back to the color image.
-    const mirrorTexture = isRestoration && this.textures.exists('bg_0') ? 'bg_0' : 'color';
-    this.addEdgeMirrors(mirrorTexture);
 
     // Canvas-based mask — plain 2D canvas updated each frame, pushed to WebGL via refresh().
     // More reliable than RenderTexture BitmapMask which doesn't update dynamically on mobile WebGL.
@@ -955,7 +946,7 @@ export class GameScene extends Phaser.Scene {
     this.input.on('pointerdown', pointerDownHandler);
     this.input.on('pointerup', tapHandler);
 
-    this.pinchZoom = new PinchZoom(this);
+    this.pinchZoom = new PinchZoom(this, { panAtMinZoom: !isSectioned });
 
     if (import.meta.env.DEV) {
       this.input.keyboard?.on('keydown-D', () => {
@@ -979,16 +970,17 @@ export class GameScene extends Phaser.Scene {
       );
       this.sectionController.clampCameraToCurrentSection();
     } else {
-      const imageLeft = this.imgOffsetX;
-      const imageTop = this.imgOffsetY;
-      const imageRight = this.imgOffsetX + this.level.width * this.imgScale;
-      const imageBottom = this.imgOffsetY + this.level.height * this.imgScale;
-      const boundsX = Math.min(0, imageLeft);
-      const boundsY = Math.min(0, imageTop);
-      const boundsW = Math.max(GAME.WIDTH, imageRight - boundsX);
-      const boundsH = Math.max(GAME.HEIGHT, imageBottom - boundsY);
-      this.cameras.main.setBounds(boundsX, boundsY, boundsW, boundsH);
-      this.cameras.main.setScroll(0, 0);
+      const fit = resolveLevelCoverFit(
+        { width: this.level.width, height: this.level.height },
+        { width: GAME.WIDTH, height: GAME.HEIGHT },
+      );
+      const bounds = resolveLevelPanBounds(
+        { width: this.level.width, height: this.level.height },
+        { width: GAME.WIDTH, height: GAME.HEIGHT },
+        fit,
+      );
+      this.cameras.main.setBounds(bounds.x, bounds.y, bounds.width, bounds.height);
+      this.cameras.main.setScroll(initialCoverScroll.x, initialCoverScroll.y);
     }
 
     setHintCallback(() => this.onHintRequested());
@@ -1116,7 +1108,6 @@ export class GameScene extends Phaser.Scene {
       // (todo 040 + pattern 2026-04-15-reentrant-tween-guard).
       this.tweens.killAll();
       this.bgLayers = [];
-      this.edgeMirrorImages = [];
       this.dissolveActiveCells = [];
       this.dissolveCompletedCells = [];
       // Dismiss the level-complete overlay via its core handle so close() runs
@@ -1267,9 +1258,8 @@ export class GameScene extends Phaser.Scene {
       return;
     }
 
-    // 4. Taps on the mirrored decorative margin (outside the level image) are
-    // no-ops — the player tapped scenery padding, not a missed guess, so no
-    // wrong-tap penalty.
+    // 4. Taps outside the level image are no-ops. Cover-fit levels normally
+    // have no exposed margin, but keep this for camera/pinch boundaries.
     if (
       levelX < 0 || levelY < 0 ||
       levelX > this.level.width || levelY > this.level.height
@@ -1279,43 +1269,6 @@ export class GameScene extends Phaser.Scene {
 
     // 5. Wrong tap — penalty with cooldown
     this.onWrongTap(screenX, screenY);
-  }
-
-  /**
-   * Add flipped copies of the clean bg into the contain-scale letterbox margin
-   * so the scene reads as continuing past its edge instead of ending on bars.
-   * Contain leaves a gap on exactly one axis (the image is full-bleed on the
-   * other), so only the matching pair of mirrors is created. Each mirror shares
-   * the main image's scale and abuts its edge, so the seam is the literal
-   * reflection of the boundary pixels.
-   */
-  private addEdgeMirrors(textureKey: string): void {
-    if (!this.level) return;
-    const w = this.level.width * this.imgScale;
-    const h = this.level.height * this.imgScale;
-    const x0 = this.imgOffsetX;
-    const y0 = this.imgOffsetY;
-    const EPSILON = 0.5;
-
-    const addMirror = (x: number, y: number, flipX: boolean, flipY: boolean): void => {
-      const mirror = this.add.image(x, y, textureKey);
-      mirror.setOrigin(0, 0);
-      mirror.setDisplaySize(w, h);
-      mirror.setFlip(flipX, flipY);
-      mirror.setDepth(-10);
-      this.edgeMirrorImages.push(mirror);
-    };
-
-    if (x0 > EPSILON) {
-      // Horizontal letterbox — mirror left and right.
-      addMirror(x0 - w, y0, true, false);
-      addMirror(x0 + w, y0, true, false);
-    }
-    if (y0 > EPSILON) {
-      // Vertical letterbox — mirror top and bottom.
-      addMirror(x0, y0 - h, false, true);
-      addMirror(x0, y0 + h, false, true);
-    }
   }
 
   private findClosestUnfoundDog(levelX: number, levelY: number): LevelDog | null {
@@ -1337,7 +1290,11 @@ export class GameScene extends Phaser.Scene {
       const dx = levelX - dog.x;
       const dy = levelY - dog.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      const toleranceRadius = dog.r * GAMEPLAY.TOLERANCE_MULTIPLIER;
+      const toleranceRadius = resolveRuntimeHitRadius(
+        dog,
+        this.level?.dogs ?? candidates,
+        this.level?.width === this.level?.height,
+      );
 
       if (dist <= toleranceRadius && dist < closestDist) {
         closest = dog;
@@ -1881,7 +1838,11 @@ export class GameScene extends Phaser.Scene {
 
     const dogScreen = phaserPointToCssPoint(canvas, GAME.WIDTH, GAME.HEIGHT, phaserX, phaserY);
 
-    const ringRadius = dog.r * this.imgScale * GAMEPLAY.TOLERANCE_MULTIPLIER;
+    const ringRadius = resolveRuntimeHitRadius(
+      dog,
+      this.level?.dogs ?? [dog],
+      this.level?.width === this.level?.height,
+    ) * this.imgScale;
     // Ring radius in CSS px (FIT scaling makes the canvas CSS size differ from
     // GAME.WIDTH) so the overlay's spotlight cutout matches the on-canvas ring.
     const dogRadiusCss = ringRadius * (canvas.getBoundingClientRect().width / GAME.WIDTH);
@@ -3225,7 +3186,11 @@ export class GameScene extends Phaser.Scene {
 
     const sx = this.imgOffsetX + dog.x * this.imgScale;
     const sy = this.imgOffsetY + dog.y * this.imgScale;
-    const sr = dog.r * this.imgScale * GAMEPLAY.TOLERANCE_MULTIPLIER;
+    const sr = resolveRuntimeHitRadius(
+      dog,
+      this.level.dogs,
+      this.level.width === this.level.height,
+    ) * this.imgScale;
 
     this.hintCircleGfx = this.add.graphics();
     this.hintCircleGfx.setDepth(50);
@@ -3303,7 +3268,15 @@ export class GameScene extends Phaser.Scene {
       this.debugGfx.strokeCircle(sx, sy, sr);
 
       this.debugGfx.lineStyle(1, color, hasWarnings ? 0.55 : 0.3);
-      this.debugGfx.strokeCircle(sx, sy, sr * GAMEPLAY.TOLERANCE_MULTIPLIER);
+      this.debugGfx.strokeCircle(
+        sx,
+        sy,
+        resolveRuntimeHitRadius(
+          dog,
+          this.level.dogs,
+          this.level.width === this.level.height,
+        ) * this.imgScale,
+      );
 
       this.debugGfx.fillStyle(color, 0.8);
       this.debugGfx.fillCircle(sx, sy, 3);
