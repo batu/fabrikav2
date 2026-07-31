@@ -57,6 +57,13 @@ def _build_exportable_session(sess, session_id: str, *, dog_xy=(384, 700)) -> Pa
 
 
 @pytest.fixture(autouse=True)
+def _sprite_quality_gate_off(monkeypatch):
+    # These tests exercise manifest atomicity/replay with sprite-less fixture
+    # packages; sprite quality has its own coverage in test_export_gate.py.
+    monkeypatch.setenv("FTD_SPRITE_QUALITY_GATE", "0")
+
+
+@pytest.fixture(autouse=True)
 def _clean_approval_ledger(isolated_session):
     isolated_session._CATALOG_APPROVAL_REQUESTS.clear()
     yield
