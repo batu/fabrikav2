@@ -419,7 +419,8 @@ def _with_retries_and_timeout(
             # kept running server-side. Queue wait keeps its own timed
             # acquire (so the 9th/10th dog of a batch still queues instead of
             # failing, and a genuinely wedged upstream still surfaces).
-            if not GEMINI_SEMAPHORE.acquire(timeout=_GEMINI_CALL_TIMEOUT_S):
+            provider_permit = GEMINI_SEMAPHORE
+            if not provider_permit.acquire(timeout=_GEMINI_CALL_TIMEOUT_S):
                 raise SemaphoreExhaustedError(
                     "gemini concurrency exhausted — upstream likely wedged"
                 )
@@ -431,7 +432,7 @@ def _with_retries_and_timeout(
                 try:
                     return fn(*args, **kwargs)
                 finally:
-                    GEMINI_SEMAPHORE.release()
+                    provider_permit.release()
 
             # Submit to the shared long-lived timeout pool and wait with
             # a per-call cap. Do NOT use the pool as a context manager
@@ -440,7 +441,7 @@ def _with_retries_and_timeout(
             try:
                 fut = _ensure_timeout_executor().submit(_held_call)
             except BaseException:
-                GEMINI_SEMAPHORE.release()  # _held_call never ran
+                provider_permit.release()  # _held_call never ran
                 raise
             return fut.result(timeout=_GEMINI_CALL_TIMEOUT_S)
         except FutureTimeoutError as exc:
@@ -449,7 +450,7 @@ def _with_retries_and_timeout(
             # finally will never run — release here. False means it is
             # running/finished and the worker releases.
             if fut.cancel():
-                GEMINI_SEMAPHORE.release()
+                provider_permit.release()
             last_exc = TimeoutError(f"provider call timed out after {_GEMINI_CALL_TIMEOUT_S:.0f}s")
             exc = last_exc
             if attempt + 1 >= _MAX_ATTEMPTS:

@@ -1,7 +1,7 @@
 {
   "name": "@fabrikav2/level-editor-tool",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "scripts": {
     "typecheck": "tsc -p ui/tsconfig.json --noEmit",
     "editor2:backend:test": "UV_CACHE_DIR=${TMPDIR:-/tmp}/level-editor-uv-cache uv run pytest tests -q",

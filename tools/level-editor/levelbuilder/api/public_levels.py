@@ -316,21 +316,6 @@ def _asset_digest_parts(assets: list[dict[str, Any]]) -> bytes:
     return "\n".join(sorted(parts)).encode("utf-8")
 
 
-def _unique_required_bytes(assets: list[dict[str, Any]]) -> int:
-    seen_hashes: set[str] = set()
-    total = 0
-    for asset in assets:
-        asset_hash = asset.get("hash")
-        size = asset.get("size")
-        if not isinstance(asset_hash, str) or not isinstance(size, int):
-            continue
-        if asset_hash in seen_hashes:
-            continue
-        seen_hashes.add(asset_hash)
-        total += size
-    return total
-
-
 def is_all_cohort_available(cohort_buckets: list[Any]) -> bool:
     return len(cohort_buckets) == 1 and cohort_buckets[0] == "all"
 
@@ -372,7 +357,7 @@ def public_level_catalog_entry(
             if isinstance(descriptor, dict):
                 optional_assets.append(_required_asset(f"styleVariant:{slug}", descriptor))
 
-    required_bytes = _unique_required_bytes(required_assets)
+    required_bytes = sum(asset["size"] for asset in required_assets)
     package_digest = hashlib.sha256(_asset_digest_parts(required_assets)).hexdigest()[:16]
     normalized_cohorts = cohort_buckets if cohort_buckets is not None else ["all"]
     globally_available = is_all_cohort_available(normalized_cohorts)

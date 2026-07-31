@@ -113,6 +113,29 @@ def test_bundle_upsert_is_idempotent(isolated_session):
     assert ids == ["publish_test_e5f6"]
 
 
+def test_catalog_required_bytes_counts_each_declared_asset(isolated_session):
+    sess = isolated_session
+    session_id = "publish_test_bytes1"
+    _build_exportable_session(sess, session_id)
+    sess.export_to_game(session_id)
+
+    public_dir = sess.GAME_PUBLIC_LEVELS / session_id
+    (public_dir / "bg_00.png").write_bytes((public_dir / "color.png").read_bytes())
+
+    from levelbuilder.api import public_levels
+
+    entry = public_levels.public_level_catalog_entry(
+        sess.GAME_PUBLIC_LEVELS,
+        session_id,
+        catalog_revision="catalog-test",
+    )
+    package = entry["package"]
+
+    assert package["requiredBytes"] == sum(
+        asset["size"] for asset in package["requiredAssets"]
+    )
+
+
 def test_refused_export_leaves_manifests_and_no_package(isolated_session):
     sess = isolated_session
     from levelbuilder.api.export_gate import ExportGateError
