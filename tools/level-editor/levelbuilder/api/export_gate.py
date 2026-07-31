@@ -48,10 +48,36 @@ def _level_violations(level_dir: Path) -> list[str]:
     return violations
 
 
-def validate_level_dir(public_root: Path, level_id: str) -> None:
+def _sprite_quality_violations(level_dir: Path) -> list[str]:
+    """Deterministic sprite-quality axes (plan 2026-07-31-002 R9).
+
+    Fast local image math only — semantic judging happens at inpaint/repair
+    time, not here. Under sprite-only compositing a fresh export passes by
+    construction; a failure means the package would ship visible pop-in,
+    background-leak sprites, or satellite specks.
+    """
+    import os
+
+    if os.environ.get("FTD_SPRITE_QUALITY_GATE", "1").strip().lower() in {"0", "false", "no"}:
+        return []
+    from levelbuilder.api.sprite_eval import evaluate_level_dir
+
+    report = evaluate_level_dir(level_dir)
+    violations = []
+    for bird in report["birds"]:
+        for axis, data in bird.get("axes", {}).items():
+            if data.get("verdict") == "fail":
+                detail = data.get("evidence") or f"score={data.get('score')}"
+                violations.append(f"sprite quality: {bird['dogId']} {axis} fail ({detail})")
+    return violations
+
+
+def validate_level_dir(public_root: Path, level_id: str, *, sprite_quality: bool = True) -> None:
     """Raise ExportGateError when the freshly written package is not game-legal."""
     try:
         violations = _level_violations(public_root / level_id)
+        if not violations and sprite_quality:
+            violations = _sprite_quality_violations(public_root / level_id)
     except ExportGateError:
         raise
     except Exception as error:
@@ -74,7 +100,10 @@ def validate_corpus(public_root: Path, *, require_levels_index: bool = False) ->
         if not path.parent.name.startswith(".")
     )
     for path in level_paths:
-        validate_level_dir(public_root, path.parent.name)
+        # Sprite-quality stays off for corpus sweeps until the shipped levels
+        # are regenerated under sprite-only compositing (plan U8 flips this) —
+        # the legacy corpus predates the gate and would refuse wholesale.
+        validate_level_dir(public_root, path.parent.name, sprite_quality=False)
     catalog_checked = False
     catalog_path = public_root / "catalog-manifest.json"
     if catalog_path.is_file():
