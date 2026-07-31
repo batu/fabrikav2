@@ -62,7 +62,7 @@ const FTD_LEVELMAP_THEME: ThemeTokens = {
   '--fab-levelmap-art-default': "url('/ui/home/level-node-locked-runtime.png')",
   '--fab-levelmap-art-locked': "url('/ui/home/level-node-locked-bones-runtime.png')",
   '--fab-levelmap-art-completed': "url('/ui/home/level-node-complete-runtime.png')",
-  '--fab-levelmap-art-current': "url('/ui/home/node-current-candy.png')",
+  '--fab-levelmap-art-current': "url('/ui/home/level-node-current-teal-runtime.png')",
   // Layout overrides MUST go through the theme (applied on `.fab-ui`): the core
   // declares these tokens on `.fab-ui`, so a CSS override on a wrapping element
   // is shadowed. `--fab-levelmap-node-gap` is the tile-spacing knob — raise it to
@@ -494,7 +494,7 @@ export class HomeScene extends Phaser.Scene {
   // base layer in WebView capture paths, which breaks the banner-over-paws
   // composition the shipped home screen relies on.
   private renderBannerMedia(): string {
-    return '<img class="home-brand-art" src="/ui/home/home-banner-mascot-runtime.png" alt="Find the Dog">';
+    return '<img class="home-brand-art" src="/ui/home/home-banner-mascot-runtime.png" alt="Find the Bird">';
   }
 
   private renderHome(): string {
@@ -506,7 +506,7 @@ export class HomeScene extends Phaser.Scene {
 
     return `
       <div id="home-shell" class="home-shell home-progression-shell">
-        <section class="home-title-panel" aria-label="Find the Dog">
+        <section class="home-title-panel" aria-label="Find the Bird">
           <div class="home-brand-banner">${bannerMedia}</div>
         </section>
 
@@ -516,7 +516,7 @@ export class HomeScene extends Phaser.Scene {
               <img class="home-no-ads-art" src="${HOME_NO_ADS_BADGE_SRC}" alt="" aria-hidden="true">
             </button>
             <button id="home-achievements" class="home-side-btn home-achievements-btn" type="button" aria-label="Open achievements">
-              <span class="home-achievements-medal" aria-hidden="true">★</span>
+              <img class="home-achievements-medal" src="/ui/achievements/achievement-shortcut-runtime.png" alt="" aria-hidden="true">
               <span class="home-achievements-label">Achievements</span>
             </button>
           </aside>
@@ -533,7 +533,7 @@ export class HomeScene extends Phaser.Scene {
               <button id="home-hint-plus" class="home-pill-plus" type="button" aria-label="Buy more hints">+</button>
             </div>
             <div class="home-balance-pill home-streak-pill" aria-label="${streakDays}-day play streak">
-              <span class="home-streak-flame" aria-hidden="true">🔥</span>
+              <img class="home-streak-flame" src="/ui/menu-icons/icon_streak_flame.png" alt="" aria-hidden="true">
               <span>${streakDays}</span>
             </div>
           </aside>

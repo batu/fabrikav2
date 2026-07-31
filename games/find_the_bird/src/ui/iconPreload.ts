@@ -15,7 +15,6 @@ const ICON_URLS: readonly string[] = [
   HOME_NO_ADS_BADGE_SRC,
   '/ui/home/play-level-button-runtime.png',
   '/ui/home/home-banner-mascot-runtime.png',
-  '/ui/home/node-current-candy.png',
   '/ui/home/level-node-locked-runtime.png',
   '/ui/home/level-node-locked-bones-runtime.png',
   '/ui/home/level-node-complete-runtime.png',

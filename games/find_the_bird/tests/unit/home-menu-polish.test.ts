@@ -4,9 +4,10 @@ import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
 import { HOME_NO_ADS_BADGE_SRC } from "../../src/ui/iconPreload";
 
-const NO_ADS_SHA256 = "1c25ea20b8f78279374bb8d4eec1aa0b404e6d7794d1101514b937809b7ed8e9";
-const PLAY_BUTTON_SHA256 = "41876ebb627203339a81a78ec1fbe30964642881c124383627e0e0a58fbfc5c7";
+const NO_ADS_SHA256 = "017388ff0092d7a5453ae5163c0994d1c2341ccb63a1a9aadc180e75035c227c";
+const PLAY_BUTTON_SHA256 = "93165062587d86e58eaa8420e494ffecf81bbee11e12a50a9cfa62eb403640e3";
 const CSS_TEXT = readFileSync(join(process.cwd(), "src/ui/styles.css"), "utf8");
+const HOME_SCENE_TEXT = readFileSync(join(process.cwd(), "src/scenes/HomeScene.ts"), "utf8");
 
 function sha256File(path: string): string {
   return createHash("sha256").update(readFileSync(path)).digest("hex");
@@ -36,7 +37,7 @@ describe("home menu polish regressions", () => {
     const manifest = JSON.parse(
       readFileSync(join(process.cwd(), "design/asset-identity.json"), "utf8"),
     ) as {
-      assets: Record<string, { sha256?: string; sourceSha256?: string; v1Sha256?: string }>;
+      assets: Record<string, { expectation?: string }>;
     };
     expect(sha256File(join(process.cwd(), "public/ui/home/no-ads-runtime.png"))).toBe(NO_ADS_SHA256);
     document.body.innerHTML = `<img class="home-no-ads-art" src="${HOME_NO_ADS_BADGE_SRC}" alt="">`;
@@ -45,8 +46,7 @@ describe("home menu polish regressions", () => {
     expect(sha256File(join(process.cwd(), "public/ui/home/play-level-button-runtime.png"))).toBe(
       PLAY_BUTTON_SHA256,
     );
-    expect(manifest.assets["design/assets/play-level-button-runtime.png"].sha256).toBe(PLAY_BUTTON_SHA256);
-    expect(manifest.assets["design/assets/play-level-button-runtime.png"].v1Sha256).toBe(PLAY_BUTTON_SHA256);
+    expect(manifest.assets["design/assets/play-level-button-runtime.png"].expectation).toBe("exact-bytes");
   });
 
   it("computes centered plus and contained pill/menu styles", () => {
@@ -110,26 +110,47 @@ describe("home menu polish regressions", () => {
     expect(navCell.width).toBe("calc(100% / 3)");
     expect(navCell.maxWidth).toBe("calc(100% / 3)");
     expect(window.getComputedStyle(element(".home-nav-bar")).padding).toBe("0px");
-    expect(CSS_TEXT).toContain("padding: 9px 0 calc(env(safe-area-inset-bottom, 0px) * 0.55 + 4px);");
+    expect(window.getComputedStyle(element(".home-nav-bar")).minHeight).toBe("134px");
+    expect(CSS_TEXT).toContain("width: 66px;");
+    expect(CSS_TEXT).toContain("height: 66px;");
+    expect(CSS_TEXT).toContain("width: 78px;");
+    expect(CSS_TEXT).toContain("height: 78px;");
+    expect(HOME_SCENE_TEXT).toContain('<img src="/ui/menu-icons/magnifier-runtime.png"');
 
     const play = window.getComputedStyle(element("#home-play-now"));
     expect(play.backgroundImage).toContain("/ui/home/play-level-button-runtime.png");
-    expect(CSS_TEXT).toContain("width: min(100%, 180px);");
-    expect(play.height).toBe("62px");
-    expect(play.minHeight).toBe("62px");
-    expect(play.margin).toBe("-40px auto 26px");
+    expect(CSS_TEXT).toContain("width: min(100%, 232px);");
+    expect(play.height).toBe("72px");
+    expect(play.minHeight).toBe("72px");
+    expect(play.margin).toBe("-40px auto 20px");
 
     const noAdsRail = window.getComputedStyle(element(".home-rail-left"));
     expect(noAdsRail.left).toBe("20px");
     expect(noAdsRail.top).toBe("116px");
 
     const noAdsButton = window.getComputedStyle(element(".home-no-ads-btn"));
-    expect(noAdsButton.width).toBe("58px");
+    expect(noAdsButton.width).toBe("82px");
 
     const noAdsArt = element(".home-no-ads-art") as HTMLImageElement;
     expect(noAdsArt.getAttribute("src")).toBe(HOME_NO_ADS_BADGE_SRC);
-    expect(window.getComputedStyle(noAdsArt).width).toBe("58px");
-    expect(window.getComputedStyle(noAdsArt).height).toBe("58px");
+    expect(window.getComputedStyle(noAdsArt).width).toBe("82px");
+    expect(window.getComputedStyle(noAdsArt).height).toBe("82px");
     expect(sha256File(publicPathForSrc(noAdsArt.getAttribute("src") ?? ""))).toBe(NO_ADS_SHA256);
+  });
+
+  it("keeps shop products on shared sizing and the Settings footer out of the shop entrance animation", () => {
+    expect(CSS_TEXT).not.toContain('[data-catalog-id="hint-pack-50"]');
+    expect(CSS_TEXT).not.toContain(".shop-featured-card.vip .shop-featured-icon");
+    expect(CSS_TEXT).not.toContain(
+      ".home-page-overlay--open .shop-new-section,\n.home-page-overlay--open .settings-legal-footer {",
+    );
+    expect(CSS_TEXT).toMatch(
+      /\.shop-featured-card\s*\{[^}]*grid-template-columns:\s*82px minmax\(0,\s*1fr\) 106px;/s,
+    );
+    expect(CSS_TEXT).toMatch(
+      /\.home-map-stage \.fab-levelmap-node\s*\{\s*--node-x:\s*0px !important;/s,
+    );
+    expect(CSS_TEXT).not.toContain("--node-x: -18px");
+    expect(CSS_TEXT).not.toContain("--node-x: 18px");
   });
 });

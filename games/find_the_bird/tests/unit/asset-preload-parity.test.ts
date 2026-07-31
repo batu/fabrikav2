@@ -5,14 +5,24 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { assets } from "../../design/assets";
 
 const REQUIRED_RESKIN_ASSET_IDS = [
+  "achievement-birds",
+  "achievement-completion",
+  "achievement-shortcut-runtime",
+  "achievement-mastery",
+  "achievement-progression",
+  "achievement-streak",
   "back_button",
-  "best-value-2-mint-rose-ticket",
+  "background-feather",
+  "button-olive-9s",
+  "button-sky-9s",
+  "canvas-cream-seamless",
   "dog-detective-complete",
   "dog-detective-crying",
   "dog-detective-openai",
   "home-banner-mascot-runtime",
   "icon_coin",
   "icon_heart",
+  "icon_streak_flame",
   "icon_hint_magnifier",
   "icon_settings_gear",
   "level-complete-title",
@@ -21,11 +31,16 @@ const REQUIRED_RESKIN_ASSET_IDS = [
   "level-node-locked-bones-runtime",
   "level-node-locked-runtime",
   "magnifier-runtime",
+  "nav-bar-3",
+  "nav-bar-4",
+  "nav-bar-5",
   "no-ads-runtime",
-  "node-current-candy",
+  "painted-olive-seamless",
+  "painted-sky-seamless",
+  "panel-honey-9s",
+  "panel-olive-9s",
   "pattern-motif",
   "play-level-button-runtime",
-  "popular-3-gold-candy-tab",
   "rewarded-ad-badge",
   "settings-icon-runtime",
   "settings_icon_home",
@@ -45,24 +60,25 @@ const REQUIRED_RESKIN_ASSET_IDS = [
   "shop_no_ads",
   "shop_no_ads_premium",
   "shop_vip_bundle",
+  "wood-honey-seamless",
 ] as const;
 
 const PUBLIC_ASSET_SHA256 = {
-  "ui/shop/shop_no_ads_premium.png": "f9c31663e04484f1bf784afbcc9a66b8e536ac580a12fb65cbbe148559a2e4e7",
-  "ui/shop/badges/best-value-2-mint-rose-ticket.png": "c2310232503b747df6e3b46421809bd222a8c09bf5c665813beb39dea4a0fa34",
-  "ui/shop/badges/popular-3-gold-candy-tab.png": "ac400dd413fc37cef639e32d1e03d2f77bc84a4c5bc341b53dbcc0af30d58b46",
-  "ui/shop/shop_hint_pack_small.png": "b6c6f51eab32c19275b77972868b4ccc200f6a3cb28e1ff808d6dae6fb32b766",
-  "ui/shop/shop_hint_pack_medium.png": "ded4ee72219c88190a00ebbcb6859ea833adc2410443e42b7c6a275e8e70a8f0",
-  "ui/shop/shop_hint_pack_large.png": "5784279ec6992aa39e5c028041f7e7c6d395381f228bc043a3a2fa2a41b2143e",
-  "ui/shop/shop_no_ads.png": "1c25ea20b8f78279374bb8d4eec1aa0b404e6d7794d1101514b937809b7ed8e9",
-  "ui/shop/shop_vip_bundle.png": "c398c75f823ea891d9b3b66a9a309213ec00b2ce53209202ac601ff53aaa51c3",
-  "ui/shop/shop_coin_pack_6.png": "7e1c0e3c5c37eb8e3f802a44bb4e132ecf203f8f1d52a440e1fa5861889ceab3",
-  "ui/settings/settings_icon_home.png": "1b63b502850aa3f3afd092f962dbcfd8acd4e8fb6c8aaa17f43a3094f56e2028",
+  "ui/shop/shop_no_ads_premium.png": "af2b9c23e4560720907fdffbca20802147286bc9bf6ba9b2f72e9e4e34b6705a",
+  "ui/shop/shop_hint_pack_small.png": "ec30d0d140afb221966a7512f8c72e00a96e1831f6281d61af1ddc2485f52234",
+  "ui/shop/shop_hint_pack_medium.png": "ab5b25a558c30d33aa2b524dec171e2abee97e659efb50f8c9a0da65795e4ae4",
+  "ui/shop/shop_hint_pack_large.png": "b982b9dac9f9ae37aa583bcb75d82fc157010ffbc05cfe869ad8f8834937a82f",
+  "ui/shop/shop_no_ads.png": "017388ff0092d7a5453ae5163c0994d1c2341ccb63a1a9aadc180e75035c227c",
+  "ui/shop/shop_vip_bundle.png": "16941c94ea26c5923f219e47b87bcbbdc187778499912ecdf5228a4f73ca149f",
+  "ui/shop/shop_coin_pack_6.png": "e3f49975292f8ea777fcec9c31e6a4487c33937a0bd170409bada8b4d0453240",
+  "ui/settings/settings_icon_home.png": "973bb67314af4eaae548d9ee31a03008bc1e99e3b1c64d44e0ce6bec6ae87e16",
+  "ui/settings/settings_icon_vibration.png": "e583e7032f613db816942cf178c4b440e8332e2acbc6d068624bf3c1a2e418b0",
   "ui/settings/settings_icon_home.svg": "b4aec7ec1e6db225d3d526062632ff76efd072ce3c5a473955d50c7bfc687052",
-  "ui/home/no-ads-runtime.png": "1c25ea20b8f78279374bb8d4eec1aa0b404e6d7794d1101514b937809b7ed8e9",
-  "ui/menu-icons/magnifier-runtime.png": "733d24b713f8eec00aba3eff442065cb284bcfc9675b676320355c60df14fbe0",
-  "ui/menu-icons/settings-icon-runtime.png": "a460e4fd568f8ff32e36241cbcf1b38aa9dda34c7d034f2b71e686bf6d71136a",
-  "ui/menu-icons/shop-icon-runtime.png": "97b9aa58f157d94405cb7b66632c554c40fa15b3f2f5e9693989441685012f34",
+  "ui/home/no-ads-runtime.png": "017388ff0092d7a5453ae5163c0994d1c2341ccb63a1a9aadc180e75035c227c",
+  "ui/menu-icons/magnifier-runtime.png": "ef455791858fca0e89a3c5634ca918b617635538dfe5d187dcd332ffa6c7abc9",
+  "ui/menu-icons/settings-icon-runtime.png": "1a3730b636ae359696816242926fa86d1047aba21f5c7e6d9deda8838430353d",
+  "ui/menu-icons/shop-icon-runtime.png": "f627574764c4a51b7f874eeb60cee50e6c1d850dd2c30c05995e882301ab8878",
+  "ui/menu-icons/icon_streak_flame.png": "bbf7e5461d78bae54dd5b64a7054b80715e2aecd0f08b0742a3396bbc284dbd6",
 } as const;
 
 function sha256File(path: string): string {
@@ -75,6 +91,15 @@ afterEach(() => {
 });
 
 describe("selected v1 runtime assets", () => {
+  it("documents every design-sheet asset in the canonical Cozy Garden list", () => {
+    const canonicalList = readFileSync(join(process.cwd(), "design/ASSET-LIST.md"), "utf8");
+    for (const assetId of REQUIRED_RESKIN_ASSET_IDS) {
+      expect(canonicalList, assetId).toContain(`\`${assetId}\``);
+    }
+    expect(canonicalList).toContain("There is no Pause screen");
+    expect(canonicalList).toContain("byte-identical to `public/ui/home/no-ads-runtime.png`");
+  });
+
   it("exposes every non-level reskin asset through the design-sheet bindings", () => {
     const boundAssetIds = new Set<string>();
     const collect = (value: unknown): void => {
@@ -90,7 +115,7 @@ describe("selected v1 runtime assets", () => {
     expect([...boundAssetIds].sort()).toEqual([...REQUIRED_RESKIN_ASSET_IDS].sort());
   });
 
-  it("pins all fifteen public assets and only the selected badge variants", () => {
+  it("pins selected public assets and only the selected badge variants", () => {
     for (const [relativePath, expectedHash] of Object.entries(PUBLIC_ASSET_SHA256)) {
       expect(sha256File(join(process.cwd(), "public", relativePath)), relativePath).toBe(expectedHash);
     }
@@ -99,6 +124,9 @@ describe("selected v1 runtime assets", () => {
       "best-value-2-mint-rose-ticket.png",
       "popular-3-gold-candy-tab.png",
     ]);
+    expect(
+      sha256File(join(process.cwd(), "public/ui/shop/shop_no_ads.png")),
+    ).toBe(sha256File(join(process.cwd(), "public/ui/home/no-ads-runtime.png")));
   });
 
   it("decodes the Settings Home icon exactly once across repeated preload calls", async () => {

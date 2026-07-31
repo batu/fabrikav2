@@ -51,27 +51,32 @@ describe('shop and Settings parity', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders the premium icon and exhaustive image-badge policy with rationed accents', () => {
+  it('renders the premium icon and exhaustive live-text badge policy with rationed accents', () => {
     openPage('shop');
+
+    const noAds = productCard('no-ads');
+    expect(noAds.querySelector<HTMLImageElement>('.shop-featured-icon img')?.getAttribute('src'))
+      .toBe('/ui/home/no-ads-runtime.png');
 
     const vip = productCard('no-ads-premium');
     expect(vip.querySelector<HTMLImageElement>('.shop-featured-icon img')?.getAttribute('src'))
       .toBe('/ui/shop/shop_no_ads_premium.png');
 
     const expectedBadges = new Map([
-      ['no-ads-premium', ['/ui/shop/badges/best-value-2-mint-rose-ticket.png', 'Best Value']],
-      ['hint-pack-25', ['/ui/shop/badges/popular-3-gold-candy-tab.png', 'Popular']],
-      ['hint-pack-50', ['/ui/shop/badges/best-value-2-mint-rose-ticket.png', 'Best Value']],
-      ['coin-pack-5000', ['/ui/shop/badges/popular-3-gold-candy-tab.png', 'Popular']],
-      ['coin-pack-100000', ['/ui/shop/badges/best-value-2-mint-rose-ticket.png', 'Best Value']],
+      ['no-ads-premium', 'Best Value'],
+      ['hint-pack-25', 'Popular'],
+      ['hint-pack-50', 'Best Value'],
+      ['coin-pack-5000', 'Popular'],
+      ['coin-pack-100000', 'Best Value'],
     ] as const);
 
-    for (const [id, [src, label]] of expectedBadges) {
+    for (const [id, label] of expectedBadges) {
       const wrapper = productCard(id).closest<HTMLElement>('.shop-featured-wrapper, .shop-grid-wrapper');
       const badge = wrapper?.querySelector<HTMLElement>('.shop-featured-badge, .shop-grid-badge') ?? null;
       expect(badge?.getAttribute('aria-label')).toBe(label);
-      expect(badge?.querySelector<HTMLImageElement>('img')?.getAttribute('src')).toBe(src);
-      expect(badge?.querySelectorAll('.shop-sparkle').length).toBeLessThanOrEqual(2);
+      expect(badge?.textContent).toContain(label);
+      expect(badge?.querySelector('img')).toBeNull();
+      expect(badge?.querySelectorAll('.shop-sparkle')).toHaveLength(0);
       expect(productCard(id).querySelectorAll(':scope > .shop-sparkle').length).toBeLessThanOrEqual(2);
     }
 

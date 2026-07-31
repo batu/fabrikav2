@@ -3,7 +3,9 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { test, expect } from "@playwright/test";
 
-const NO_ADS_SHA256 = "ba4bba67bed79199645c6e1e568ec26589a3e1a799a8c2cb5ace66ed2f292722";
+const NO_ADS_SHA256 = "017388ff0092d7a5453ae5163c0994d1c2341ccb63a1a9aadc180e75035c227c";
+const NO_ADS_SOURCE_SHA256 = "33c9301a52d9d54b903bde83b0a8816c628dd484e2bf33560a3098f1a409f33c";
+const NO_ADS_V1_SHA256 = "1c25ea20b8f78279374bb8d4eec1aa0b404e6d7794d1101514b937809b7ed8e9";
 const PLAY_BUTTON_SHA256 = "41876ebb627203339a81a78ec1fbe30964642881c124383627e0e0a58fbfc5c7";
 
 function sha256File(path: string): string {
@@ -57,8 +59,8 @@ test.describe("home menu polish regressions", () => {
     expect(sha256File(join(process.cwd(), "public/ui/home/no-ads-runtime.png"))).toBe(NO_ADS_SHA256);
     expect(sha256File(join(process.cwd(), "design/assets/no-ads-runtime.png"))).toBe(NO_ADS_SHA256);
     expect(manifest.assets["design/assets/no-ads-runtime.png"].sha256).toBe(NO_ADS_SHA256);
-    expect(manifest.assets["design/assets/no-ads-runtime.png"].sourceSha256).toBe(NO_ADS_SHA256);
-    expect(manifest.assets["design/assets/no-ads-runtime.png"].v1Sha256).toBe(NO_ADS_SHA256);
+    expect(manifest.assets["design/assets/no-ads-runtime.png"].sourceSha256).toBe(NO_ADS_SOURCE_SHA256);
+    expect(manifest.assets["design/assets/no-ads-runtime.png"].v1Sha256).toBe(NO_ADS_V1_SHA256);
     expect(sha256File(join(process.cwd(), "public/ui/home/play-level-button-runtime.png"))).toBe(
       PLAY_BUTTON_SHA256,
     );
@@ -180,7 +182,7 @@ test.describe("home menu polish regressions", () => {
     expect(layout.noAdsBottom).toBeLessThan(360);
     expect(layout.sagaNodeDisc).toBe("none");
     expect(layout.currentDotBackgroundColor).toMatch(/^(rgba\(0, 0, 0, 0\)|transparent)$/);
-    expect(layout.currentDotBackgroundImage).toContain("node-current-candy.png");
+    expect(layout.currentDotBackgroundImage).toContain("level-node-current-teal-runtime.png");
     for (const plus of layout.plusStyles) {
       expect(plus.display).toBe("flex");
       expect(plus.alignItems).toBe("center");

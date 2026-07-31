@@ -15,6 +15,7 @@ import { privacyConsentService } from '../privacy/PrivacyConsentService';
 import { renderAchievementsPageBody } from './AchievementsPage';
 import { rewardedAdIconMarkup } from './RewardedAdIcon';
 import { hideHomeMenuLayer } from './OverlayVisibility';
+import { HOME_NO_ADS_BADGE_SRC } from './iconPreload';
 
 let hintCallback: (() => void) | null = null;
 let homeCallback: (() => void) | null = null;
@@ -46,7 +47,7 @@ let activeRestorePromise: Promise<RestoreUiState> | null = null;
 let awaitingLateRestoreResult = false;
 let lateRestorePollScheduled = false;
 let shopNativeOperationRefreshScheduledFor: HTMLElement | null = null;
-const SHOP_NO_ADS_ICON_SRC = '/ui/shop/shop_no_ads.png';
+const SHOP_NO_ADS_ICON_SRC = HOME_NO_ADS_BADGE_SRC;
 const SHOP_SMALL_PACK_ICON_SRC = '/ui/shop/shop_hint_pack_small.png';
 
 function openExternalUrl(url: string): void {
@@ -105,7 +106,7 @@ export function initHUD(): void {
   overlay.innerHTML = `
     <div class="hud-top-bar">
       <div class="hud-left">
-        <div id="dog-counter" class="hud-pill">🐾 <span class="count">0/0</span></div>
+        <div id="dog-counter" class="hud-pill">🪶 <span class="count">0/0</span></div>
         <div id="hearts" class="hud-pill" aria-label="Lives"></div>
       </div>
       <div class="hud-right">
@@ -651,7 +652,7 @@ function renderFeaturedCard(
   card.dataset.catalogId = product.id;
 
   const iconSrc = isVip ? '/ui/shop/shop_no_ads_premium.png' : SHOP_NO_ADS_ICON_SRC;
-  const badgeAsset = shopProductBadgeAsset(product);
+  const badgeLabel = shopProductBadge(product);
   const price = storeProduct?.priceString ?? product.displayPrice;
 
   const iconEl = document.createElement('div');
@@ -684,19 +685,13 @@ function renderFeaturedCard(
   card.appendChild(priceBtn);
   if (isVip) addSparkles(card, 2, true);
 
-  if (badgeAsset !== null) {
+  if (badgeLabel !== null && badgeLabel !== 'Continue') {
     const badge = document.createElement('div');
-    const badgeKind = badgeAsset.label === 'Best Value' ? 'best-value' : 'popular';
+    const badgeKind = badgeLabel === 'Best Value' ? 'best-value' : 'popular';
     badge.className = `shop-featured-badge shop-featured-badge--${badgeKind}`;
-    badge.setAttribute('aria-label', badgeAsset.label);
-    const badgeImg = document.createElement('img');
-    badgeImg.src = badgeAsset.src;
-    badgeImg.alt = '';
-    badgeImg.loading = 'eager';
-    badgeImg.decoding = 'async';
-    if (badgeAsset.label === 'Best Value') badgeImg.style.animationDelay = `${(Math.random() * 5000).toFixed(0)}ms`;
-    badge.appendChild(badgeImg);
-    addSparkles(badge, badgeAsset.label === 'Best Value' ? 2 : 1);
+    badge.textContent = badgeLabel;
+    badge.setAttribute('aria-label', badgeLabel);
+    if (badgeLabel === 'Best Value') badge.style.animationDelay = `${(Math.random() * 5000).toFixed(0)}ms`;
     wrapper.appendChild(badge);
   }
 
@@ -751,19 +746,13 @@ function renderGridCard(
   priceBtn.addEventListener('click', () => { void purchaseShopProduct(product, priceBtn, price); });
 
   // Badge sits above the card as an absolute overlay
-  const badgeAsset = shopProductBadgeAsset(product);
-  if (badgeAsset !== null) {
+  const badgeLabel = shopProductBadge(product);
+  if (badgeLabel !== null && badgeLabel !== 'Continue') {
     const badge = document.createElement('div');
-    badge.className = `shop-grid-badge${badgeAsset.label === 'Best Value' ? ' best-value' : ''}`;
-    badge.setAttribute('aria-label', badgeAsset.label);
-    const badgeImg = document.createElement('img');
-    badgeImg.src = badgeAsset.src;
-    badgeImg.alt = '';
-    badgeImg.loading = 'lazy';
-    badgeImg.decoding = 'async';
-    if (badgeAsset.label === 'Best Value') badgeImg.style.animationDelay = `${(Math.random() * 5000).toFixed(0)}ms`;
-    badge.appendChild(badgeImg);
-    addSparkles(badge, badgeAsset.label === 'Best Value' ? 2 : 1);
+    badge.className = `shop-grid-badge${badgeLabel === 'Best Value' ? ' best-value' : ''}`;
+    badge.textContent = badgeLabel;
+    badge.setAttribute('aria-label', badgeLabel);
+    if (badgeLabel === 'Best Value') badge.style.animationDelay = `${(Math.random() * 5000).toFixed(0)}ms`;
     wrapper.appendChild(badge);
   }
 
@@ -1346,13 +1335,6 @@ function shopProductBadge(product: ShopCatalogProduct): string | null {
     return null;
   }
   if (product.kind === 'egoOffer') return 'Continue';
-  return null;
-}
-
-function shopProductBadgeAsset(product: ShopCatalogProduct): { label: string; src: string } | null {
-  const label = shopProductBadge(product);
-  if (label === 'Best Value') return { label, src: '/ui/shop/badges/best-value-2-mint-rose-ticket.png' };
-  if (label === 'Popular') return { label, src: '/ui/shop/badges/popular-3-gold-candy-tab.png' };
   return null;
 }
 

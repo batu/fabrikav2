@@ -1,6 +1,6 @@
 # Find the Bird asset-generation batches
 
-The 40 non-level reskin slots are divided by screen and visual responsibility. Each batch is reviewed and approved independently before its assets replace runtime files.
+The 41 non-level reskin slots are divided by screen and visual responsibility. Each batch is reviewed and approved independently before its assets replace runtime files.
 
 ## Fixed art direction
 
@@ -13,7 +13,7 @@ The 40 non-level reskin slots are divided by screen and visual responsibility. E
 
 ## Batch 1 — Global UI primitives
 
-Slots: 9
+Slots: 10
 
 Decision: approved as a visual family on 2026-07-28. Runtime extraction remains part of the production pass.
 
@@ -26,8 +26,9 @@ Decision: approved as a visual family on 2026-07-28. Runtime extraction remains 
 - `icon_settings_gear`
 - `shop-icon-runtime`
 - `pattern-motif`
+- `background-feather`
 
-Review gate: the icon family reads clearly at phone size, shares one silhouette and shadow system, and remains quieter than level artwork.
+Review gate: the icon family reads clearly at phone size, shares one silhouette and shadow system, and remains quieter than level artwork. The shared feather is reused across all visual sets and moves diagonally behind menu content.
 
 ## Batch 2 — Home and level path
 

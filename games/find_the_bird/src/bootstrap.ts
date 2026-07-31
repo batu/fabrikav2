@@ -175,9 +175,13 @@ if (typeof window !== 'undefined') {
       } else {
         releaseTestBindings = releaseHarnessBindings;
       }
+      const requestedTourState = String(import.meta.env.VITE_INSITU_TOUR_STATE ?? '');
+      const tourStates = (FIND_THE_DOG_TOUR_STATES as readonly string[]).includes(requestedTourState)
+        ? [requestedTourState as (typeof FIND_THE_DOG_TOUR_STATES)[number]]
+        : FIND_THE_DOG_TOUR_STATES;
       void maybeRunInsituTour(harness, {
         snapshotMatchesState: snapshotMatchesFindTheDogDriveState,
-        states: FIND_THE_DOG_TOUR_STATES,
+        states: tourStates,
       }).catch((err: unknown): void => {
         console.warn('[insituTour] failed while running FTD tour', err);
       });
