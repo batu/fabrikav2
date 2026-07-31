@@ -93,6 +93,37 @@ def test_create_count_overrides_template(monkeypatch, capsys):
     assert captured["nDogs"] == 7
 
 
+def test_create_one_shot_forwards_background_entity_mode(monkeypatch, capsys):
+    captured = {}
+    script = {
+        "/api/actions/assemble-recipe-prompts": {"scenePrompt": "s", "dogPrompt": "d"},
+        "/api/sessions": {"sessionId": "new_session"},
+    }
+    stub = _StubClient(script)
+    original = stub.request
+
+    def spy(method, path, **kwargs):
+        if path == "/api/sessions" and method == "POST":
+            captured.update(kwargs.get("json") or {})
+        return original(method, path, **kwargs)
+
+    stub.request = spy
+    code, _ = _run(monkeypatch, capsys, stub, [
+        "create",
+        "--setting", "pirate_shipwreck_island",
+        "--scene", "pirate_shipwreck_island_treasure_cove_camp",
+        "--style", "bold_cardboard",
+        "--view", "isometric",
+        "--entity", "bird",
+        "--model", "google/gemini-3.1-flash-image-preview",
+        "--count", "15",
+        "--one-shot",
+    ])
+
+    assert code == 0
+    assert captured["oneShot"] is True
+
+
 def test_template_ndogs_used_when_count_omitted(monkeypatch, capsys):
     """The line-art template ships nDogs=15; omitting --count must not force 20."""
     captured = {}

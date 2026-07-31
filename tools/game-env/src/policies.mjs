@@ -2,6 +2,7 @@ import { FIND_THE_DOG_POLICY } from './policies/find-the-dog.mjs';
 
 const POLICIES = new Map([
   ['find_the_dog', FIND_THE_DOG_POLICY],
+  ['find_the_bird', FIND_THE_DOG_POLICY],
 ]);
 
 export function getGamePolicy(game) {

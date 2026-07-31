@@ -137,6 +137,17 @@ describe('native shell transforms', () => {
     expect(once).not.toContain('Landscape');
   });
 
+  it('removes tracking and ad-network declarations for a provider-free shell', () => {
+    const tracked = patchInfoPlist(plist(), manifest(), catalog());
+    const providerFree = manifest();
+    providerFree.ios.trackingUsageDescription = null;
+    providerFree.ios.skAdNetworkCatalog = null;
+    const clean = patchInfoPlist(tracked, providerFree, []);
+    expect(clean).not.toContain('NSUserTrackingUsageDescription');
+    expect(clean).not.toContain('SKAdNetworkItems');
+    expect(clean).not.toContain('SKAdNetworkIdentifier');
+  });
+
   it('patches project and storyboard idempotently and rejects partial wiring', () => {
     const once = patchPbxproj(pbxproj(), manifest(), { googleServicePresent: false });
     expect(patchPbxproj(once, manifest(), { googleServicePresent: false })).toBe(once);

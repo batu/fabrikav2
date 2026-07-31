@@ -12,5 +12,10 @@ export default defineConfig({
     host: '127.0.0.1',
     port: 5193,
     strictPort: true,
+    allowedHosts: ['.trycloudflare.com'],
+    proxy: {
+      '/api': 'http://127.0.0.1:5192',
+      '/bootstrap': 'http://127.0.0.1:5192',
+    },
   },
 });

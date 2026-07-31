@@ -45,6 +45,7 @@ router = APIRouter(prefix="/api")
 JOB_STORE = JobStore()
 
 CropInpaintMode = Literal["crop", "crop_reference"]
+InpaintMode = Literal["crop", "crop_reference", "magenta"]
 
 
 def _env_int(name: str, default: int, minimum: int, maximum: int) -> int:
@@ -565,6 +566,47 @@ def _isolate_variant_crop(
     return isolated
 
 
+def _subject_only_composite_mask(
+    *,
+    clean_crop: Image.Image,
+    painted: Image.Image,
+    dog_mask: Image.Image,
+    hitbox: Hitbox,
+    box: tuple[int, int, int, int],
+) -> Image.Image | None:
+    """Replace a broad provider diff with a compact subject-only mask.
+
+    Image-edit providers may redraw most of a crop. Pasting that diff creates
+    rectangular panels, seams, guide fragments, and cut-off scenery. Compact
+    diffs can pass through; broad or edge-touching diffs must be semantically
+    isolated or fail closed.
+    """
+    stats = _alpha_stats(dog_mask)
+    if not bool(stats["fullCropLike"]) and int(stats["edgeTouches"]) < 2:
+        return dog_mask
+
+    repairers = (
+        lambda: _sam2_sprite_alpha(painted, hitbox, box, relaxed=True),
+        lambda: _semantic_sprite_alpha(
+            clean_crop, painted, hitbox, box, relaxed=True
+        ),
+        lambda: _color_seeded_sprite_alpha(clean_crop, painted, hitbox, box),
+        lambda: _sam_sprite_alpha(painted, hitbox, box, relaxed=True),
+        lambda: _seeded_grabcut_sprite_alpha(
+            clean_crop, painted, hitbox, box
+        ),
+        lambda: _localized_hitbox_sprite_alpha(
+            clean_crop, painted, hitbox, box
+        ),
+    )
+    for repair in repairers:
+        repaired = repair()
+        if repaired is not None:
+            dog_mask.close()
+            return repaired
+    return None
+
+
 def _clean_sprite_alpha(
     dog_mask: Image.Image,
     hitbox: Hitbox,
@@ -936,8 +978,13 @@ def _build_reference_crop_sheet(
     margin = 24
     gap = 20
     ref_max_long_edge = 640
+    sheet_width, sheet_height = full_scene.size
     reference = full_scene.convert("RGB")
-    ref_scale = min(1.0, ref_max_long_edge / max(1, max(reference.size)))
+    ref_scale = min(
+        1.0,
+        ref_max_long_edge / max(1, max(reference.size)),
+        (sheet_width - margin * 2) / max(1, reference.width),
+    )
     ref_size = (
         max(1, round(reference.width * ref_scale)),
         max(1, round(reference.height * ref_scale)),
@@ -955,14 +1002,22 @@ def _build_reference_crop_sheet(
             outline=(74, 222, 128),
             width=max(2, round(3 * ref_scale)),
         )
+    crop_scale = min(
+        2.0,
+        (sheet_width - margin * 2) / max(1, crop_before.width),
+        (sheet_height - margin * 2 - reference.height - gap) / max(1, crop_before.height),
+    )
+    crop_size = (
+        max(1, round(crop_before.width * crop_scale)),
+        max(1, round(crop_before.height * crop_scale)),
+    )
     crop_panel = crop_before.convert("RGB")
-    content_width = max(reference.width, crop_panel.width)
-    sheet_width = content_width + margin * 2
-    ref_x = margin + (content_width - reference.width) // 2
+    if crop_panel.size != crop_size:
+        crop_panel = crop_panel.resize(crop_size, Image.LANCZOS)
+    ref_x = (sheet_width - reference.width) // 2
     ref_y = margin
-    crop_x = margin + (content_width - crop_panel.width) // 2
+    crop_x = (sheet_width - crop_panel.width) // 2
     crop_y = ref_y + reference.height + gap
-    sheet_height = crop_y + crop_panel.height + margin
     sheet = Image.new("RGB", (sheet_width, sheet_height), (18, 18, 18))
     sheet.paste(reference, (ref_x, ref_y))
     sheet.paste(crop_panel, (crop_x, crop_y))
@@ -979,20 +1034,25 @@ def _build_reference_crop_sheet(
     )
     reference.close()
     crop_panel.close()
-    return sheet, (crop_x, crop_y, crop_x + crop_before.width, crop_y + crop_before.height)
+    return sheet, (crop_x, crop_y, crop_x + crop_panel.width, crop_y + crop_panel.height)
 
 
 def _extract_reference_crop_panel(
     painted_sheet: Image.Image,
     panel_box: tuple[int, int, int, int],
     target_size: tuple[int, int],
+    *,
+    source_sheet_size: tuple[int, int],
 ) -> Image.Image:
-    expected_width = max(1, panel_box[2])
-    expected_height = max(1, panel_box[3])
-    sheet = painted_sheet
-    if sheet.size[0] < expected_width or sheet.size[1] < expected_height:
-        sheet = painted_sheet.resize((expected_width, expected_height), Image.LANCZOS)
-    crop = sheet.crop(panel_box)
+    scale_x = painted_sheet.width / max(1, source_sheet_size[0])
+    scale_y = painted_sheet.height / max(1, source_sheet_size[1])
+    scaled_box = (
+        round(panel_box[0] * scale_x),
+        round(panel_box[1] * scale_y),
+        round(panel_box[2] * scale_x),
+        round(panel_box[3] * scale_y),
+    )
+    crop = painted_sheet.crop(scaled_box)
     if crop.size != target_size:
         crop = crop.resize(target_size, Image.LANCZOS)
     return crop
@@ -1760,6 +1820,7 @@ def _save_sprite_assets(
     box: tuple[int, int, int, int],
     clean_crop: Image.Image | None = None,
     model: str | None = None,
+    prevalidated: bool = False,
 ) -> dict | None:
     """Save transparent pickup sprite + debug mask next to a dog variant."""
     alpha = _clean_sprite_alpha(dog_mask, hitbox, box)
@@ -1782,7 +1843,11 @@ def _save_sprite_assets(
         float(stats["visibleCoverage"]) < 0.02
         and float(stats["bboxCoverage"]) < 0.04
     )
-    poor_animal_cutout = not _is_provider_cutout_alpha_usable(alpha, hitbox, box, model=model)
+    poor_animal_cutout = (
+        False
+        if prevalidated
+        else not _is_provider_cutout_alpha_usable(alpha, hitbox, box, model=model)
+    )
     repair_reason: str | None = None
     empty_alpha = alpha.getbbox() is None
     needs_repair = too_noisy_for_pickup or too_tiny_for_pickup or poor_animal_cutout or empty_alpha
@@ -2559,7 +2624,7 @@ class CropInpaintJobRequest(BaseModel):
     hitboxes: list[dict[str, Any]]
     dogPrompt: str = Field(..., max_length=4000)
     inpaintModel: str | None = Field(None, max_length=200)
-    inpaintMode: CropInpaintMode = "crop"
+    inpaintMode: InpaintMode = "crop"
     hardDogPrompt: str | None = Field(None, max_length=8000)
     hardDogPercent: int = Field(0, ge=0, le=100)  # default all-easy; hard is opt-in
     padding: float = Field(2.75, ge=1.0, le=5.0)
@@ -2750,6 +2815,47 @@ def start_crop_inpaint_job(session_id: str, req: CropInpaintJobRequest) -> CropI
                 "code": "invalid_model",
             },
         )
+    if req.inpaintMode == "magenta":
+        if model.startswith("fal-ai/"):
+            raise HTTPException(
+                400,
+                detail={
+                    "error": "magenta mode requires an image-edit model; fal masked inpaint models are not supported.",
+                    "code": "invalid_model",
+                },
+            )
+        idempotency_key = _crop_inpaint_idempotency_key(
+            session_id,
+            selected_bg=selected_bg,
+            hitbox_list=hitbox_list,
+            dog_prompt=req.dogPrompt,
+            model=model,
+            inpaint_mode="magenta",
+            hard_dog_prompt=None,
+            hard_dog_percent=0,
+            padding=req.padding,
+        ).replace("crop-inpaint:", "magenta-inpaint:", 1)
+        job = JOB_STORE.get_job_by_idempotency_key(
+            kind="magenta_inpaint",
+            idempotency_key=idempotency_key,
+        )
+        if job is None:
+            persisted_hitboxes = S.save_hitboxes(session_id, hitbox_list) or hitbox_list
+            job = JOB_STORE.create_job(
+                kind="magenta_inpaint",
+                session_id=session_id,
+                idempotency_key=idempotency_key,
+                input_hash=idempotency_key,
+                metadata={
+                    "selectedBg": selected_bg,
+                    "hitboxes": persisted_hitboxes,
+                    "dogPrompt": req.dogPrompt,
+                    "model": model,
+                    "inpaintMode": "magenta",
+                    "safeToRequeue": True,
+                },
+            )
+        return _crop_inpaint_job_response(job)
     job = _start_crop_inpaint_job_record(
         session_id,
         hitbox_list=hitbox_list,
@@ -2884,7 +2990,7 @@ def _run_crop_inpaint_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
     selected_bg = int(metadata["selectedBg"])
     inpaint_mode: CropInpaintMode = "crop_reference" if metadata.get("inpaintMode") == "crop_reference" else "crop"
     hard_dog_prompt = str(metadata.get("hardDogPrompt") or "")
-    hard_dog_percent = int(metadata.get("hardDogPercent") or 30)
+    hard_dog_percent = int(metadata.get("hardDogPercent", 30))
     padding = float(metadata.get("padding") or 2.75)
     raw = S.load_session_raw(session_id)
     if raw is None:
@@ -2978,7 +3084,12 @@ def _run_crop_inpaint_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
                         model=model,
                     )
                     try:
-                        painted = _extract_reference_crop_panel(painted_sheet, crop_panel_box, crop_before.size)
+                        painted = _extract_reference_crop_panel(
+                            painted_sheet,
+                            crop_panel_box,
+                            crop_before.size,
+                            source_sheet_size=reference_sheet.size,
+                        )
                     finally:
                         painted_sheet.close()
                 finally:
@@ -3010,9 +3121,23 @@ def _run_crop_inpaint_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
             if painted.size != crop_before.size:
                 painted = painted.resize(crop_before.size, Image.LANCZOS)
             dog_mask = _extract_dog_pixels(crop_before, painted, threshold=30)
+            hitbox = hitboxes_for_job[0]
+            repaired_mask = _subject_only_composite_mask(
+                clean_crop=clean_crop,
+                painted=painted,
+                dog_mask=dog_mask,
+                hitbox=hitbox,
+                box=box,
+            )
+            if repaired_mask is None:
+                dog_mask.close()
+                raise RuntimeError(
+                    "provider changed too much of the crop and the subject "
+                    "could not be isolated safely"
+                )
+            dog_mask = repaired_mask
             isolated_variant = _isolate_variant_crop(clean_crop, painted, dog_mask)
             dog_index = indices[0]
-            hitbox = hitboxes_for_job[0]
             dog_dir = S.dogs_dir(session_id) / f"dog_{dog_index:02d}"
             dog_dir.mkdir(parents=True, exist_ok=True)
             with S._session_lock:
@@ -4151,11 +4276,9 @@ def compose_with_mask(session_id: str) -> Image.Image | None:
     Pure function \u2014 does not touch disk. Returns a PIL RGB image or None
     if the session is missing its bg / hitboxes.
 
-    Magenta-mode short-circuit: if the session was inpainted via magenta
-    mode (no per-dog variants on disk) we return the EXISTING color.png
-    unchanged. Without this, every dog would be skipped (activeVariant is
-    None for all of them) and compose would return a bare background \u2014
-    wiping the magenta inpaint on every tweak.
+    Magenta mode uses the existing color.png as its base. Dogs without a
+    per-dog variant remain untouched; repaired dogs with an active variant are
+    composited over that base.
     """
     from PIL import UnidentifiedImageError
     raw = S.load_session_raw(session_id)
@@ -4169,13 +4292,8 @@ def compose_with_mask(session_id: str) -> Image.Image | None:
     if not bg_path.exists():
         return None
 
-    # Magenta-mode preservation: reuse the existing color.png.
     inpaint_mode = raw.get("inpaint_mode")
     color_path = sdir / "color.png"
-    if inpaint_mode == "magenta" and color_path.exists():
-        with Image.open(color_path) as existing:
-            existing.load()
-            return existing.convert("RGB").copy()
 
     hb_path = sdir / "hitboxes.json"
     if not hb_path.exists():
@@ -4188,9 +4306,14 @@ def compose_with_mask(session_id: str) -> Image.Image | None:
 
     with Image.open(bg_path) as bg_src:
         bg_src.load()
-        result = bg_src.convert("RGB").copy()
+        bg_clean = bg_src.convert("RGB").copy()
+    if inpaint_mode == "magenta" and color_path.exists():
+        with Image.open(color_path) as existing:
+            existing.load()
+            result = existing.convert("RGB").copy()
+    else:
+        result = bg_clean.copy()
     w, h = result.size
-    bg_clean = result.copy()
 
     raw_dogs = raw.get("dogs", [])
     target_map = S.active_dog_variant_targets(session_id, raw_dogs, hitbox_list)
@@ -4612,6 +4735,7 @@ def run_magenta_inpaint(
 
 class CompareInpaintRequest(BaseModel):
     modes: list[CropInpaintMode | Literal["magenta"]] = Field(..., min_length=1, max_length=3)
+    models: list[str] = Field(default_factory=list, max_length=3)
     hardDogPercent: int = Field(0, ge=0, le=100)
     padding: float = Field(2.75, ge=1.0, le=5.0)
 
@@ -4634,10 +4758,34 @@ def compare_inpaint(session_id: str, req: CompareInpaintRequest):
             "code": "level_not_ready",
         })
     dog_prompt = raw.get("dog_prompt") or ""
-    model = raw.get("inpaint_model") or raw.get("model")
+    default_model = raw.get("inpaint_model") or raw.get("model")
+    requested_models = list(dict.fromkeys(req.models))
+    if requested_models and req.modes != ["magenta"]:
+        raise HTTPException(400, detail={
+            "error": "model comparison currently requires modes=[magenta]",
+            "code": "invalid_comparison",
+        })
+    invalid_models = [
+        model for model in requested_models
+        if model not in INPAINT_MODEL_IDS or model.startswith("fal-ai/")
+    ]
+    if invalid_models:
+        raise HTTPException(400, detail={
+            "error": f"Invalid magenta comparison model: {invalid_models[0]}",
+            "code": "invalid_model",
+        })
     comparisons = []
-    for mode in dict.fromkeys(req.modes):  # de-dupe, preserve order
-        clone_id = S.clone_session_for_comparison(session_id, mode)
+    variants = (
+        [("magenta", model) for model in requested_models]
+        if requested_models
+        else [(mode, default_model) for mode in dict.fromkeys(req.modes)]
+    )
+    for mode, model in variants:
+        clone_label = mode
+        if requested_models:
+            model_slug = re.sub(r"[^a-z0-9]+", "_", str(model).lower()).strip("_")
+            clone_label = f"{mode}_{model_slug}"[:48]
+        clone_id = S.clone_session_for_comparison(session_id, clone_label)
         if mode == "magenta":
             job = JOB_STORE.create_job(
                 kind="magenta_inpaint",
@@ -4657,7 +4805,7 @@ def compare_inpaint(session_id: str, req: CompareInpaintRequest):
                 padding=req.padding,
                 inpaint_mode=mode,
             )
-        comparisons.append({"mode": mode, "sessionId": clone_id, "jobId": job.id})
+        comparisons.append({"mode": mode, "model": model, "sessionId": clone_id, "jobId": job.id})
     return {"sessionId": session_id, "comparisons": comparisons}
 
 

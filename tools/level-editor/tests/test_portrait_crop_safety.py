@@ -31,6 +31,29 @@ def test_edge_bird_reports_clipped_on_wide_device(isolated_session):
     assert clipped, f"a bird at x=30 must clip on tall phones; got {issues}"
 
 
+def test_square_bird_covered_by_hud_is_reachable_by_safe_area_pan(isolated_session):
+    from levelbuilder.api.session import blocking_visibility_issues, mobile_visibility_report
+
+    report = mobile_visibility_report({
+        "width": 4096, "height": 4096,
+        "dogs": [{"id": "top_bird", "x": 2048, "y": 180, "r": 80}],
+    }, viewports=[{"name": "phone", "width": 1170, "height": 2532}])
+
+    assert not blocking_visibility_issues(report), report["issues"]
+
+
+def test_portrait_bird_covered_by_hud_remains_blocking(isolated_session):
+    from levelbuilder.api.session import blocking_visibility_issues, mobile_visibility_report
+
+    report = mobile_visibility_report({
+        "width": 1200, "height": 1800,
+        "dogs": [{"id": "top_bird", "x": 600, "y": 80, "r": 40}],
+    }, viewports=[{"name": "phone", "width": 1170, "height": 2532}])
+
+    blocked = blocking_visibility_issues(report)
+    assert any(issue.get("area") == "HUD" for issue in blocked), report["issues"]
+
+
 def test_clipped_is_blocking_in_the_ui_filter():
     from pathlib import Path
 

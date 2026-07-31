@@ -183,6 +183,38 @@ def seed_default_presets(store: PresetStore) -> list[PresetRecord]:
                 "isolated prompt-wording edits moved nothing beyond noise."
             ),
         ),
+        PresetRecord(
+            id="find-the-bird-cardboard-forest-pilot",
+            version=1,
+            label="Find the Bird — cardboard forest pilot",
+            selection=PresetSelection(
+                scene="fairytale_forest_mushroom_cottage_glade",
+                view="isometric_close_20",
+                style="bold_cardboard",
+                entity="bird",
+                model="google/gemini-3.1-flash-image-preview",
+            ),
+            notes=(
+                "Pilot 1 of 2 for the selected P3 Bold Cardboard direction. "
+                "Closer mobile framing with approximately 20 bird hiding pockets."
+            ),
+        ),
+        PresetRecord(
+            id="find-the-bird-cardboard-market-pilot",
+            version=1,
+            label="Find the Bird — cardboard market pilot",
+            selection=PresetSelection(
+                scene="japan_morning_market",
+                view="isometric_close_20",
+                style="bold_cardboard",
+                entity="bird",
+                model="google/gemini-3.1-flash-image-preview",
+            ),
+            notes=(
+                "Pilot 2 of 2 for the selected P3 Bold Cardboard direction. "
+                "A busier architectural scene tests the style beyond the cozy forest."
+            ),
+        ),
     ]
     created = []
     for preset in defaults:
