@@ -27,5 +27,19 @@ curl -s http://localhost:11435/api/version
 
 ## SAM2 (cutout masking, plan U7)
 
-A separate uv project at `~/sam2-service` on the host carries torch + SAM2
-for mask extraction. Checkpoints download from Hugging Face on first use.
+`~/sam2-service` on the host runs `sam2_server.py` (this directory; scp it
+over) on port **8977** with SAM2.1-hiera-large. Launch:
+
+```sh
+ssh ubuntu-server 'cd ~/sam2-service && setsid nohup ~/.local/bin/uv run python sam2_server.py > sam2_server.log 2>&1 < /dev/null &'
+ssh -f -N -L 8977:localhost:8977 ubuntu-server
+curl -s http://localhost:8977/health
+```
+
+Then `FTD_SAM2_URL=http://localhost:8977` makes SAM2 the ladder's primary
+cutout (`FTD_SAM2_PRIMARY=0` reverts to diff-first). Ports 8765/8766/11434
+belong to other services on the host — do not touch them.
+
+**GPU contention:** the ollama judge model holds ~22 GiB; SAM2 OOMs while it
+is resident. `ollama stop qwen3.5:27b` before mask batches, or sequence the
+two workloads.
