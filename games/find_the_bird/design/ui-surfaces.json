@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "style": "cozy-garden-3d",
+  "generatedFrom": {
+    "canvas-cream": "design/source-textures/canvas-cream-source.png",
+    "painted-olive": "design/source-textures/painted-olive-source.png",
+    "wood-honey": "design/source-textures/wood-honey-source.png"
+  },
+  "textures": {
+    "canvas-cream": {
+      "runtime": "/ui/textures/canvas-cream-seamless.png",
+      "repeat": "repeat",
+      "tileSize": [
+        256,
+        256
+      ],
+      "edgeMeanAbsoluteError": {
+        "horizontal": 0.0,
+        "vertical": 0.0
+      },
+      "sha256": "17e7fc9014b86b34b7b52f2ceec6c906b17df9f5b21de1cef893b9ed2f9af269"
+    },
+    "painted-olive": {
+      "runtime": "/ui/textures/painted-olive-seamless.png",
+      "repeat": "repeat",
+      "tileSize": [
+        256,
+        256
+      ],
+      "edgeMeanAbsoluteError": {
+        "horizontal": 0.0,
+        "vertical": 0.0
+      },
+      "sha256": "5f20466a7cf9b7cf36ea539bd2bcd598b37d7764a5f2b2891a38655993efa6af"
+    },
+    "wood-honey": {
+      "runtime": "/ui/textures/wood-honey-seamless.png",
+      "repeat": "repeat",
+      "tileSize": [
+        256,
+        256
+      ],
+      "edgeMeanAbsoluteError": {
+        "horizontal": 0.0,
+        "vertical": 0.0
+      },
+      "sha256": "1b2d5fec0e2febd461fc058625ee8195f5517c8d11904a0c7917b2f0adec4605"
+    },
+    "painted-sky": {
+      "runtime": "/ui/textures/painted-sky-seamless.png",
+      "repeat": "repeat",
+      "tileSize": [
+        256,
+        256
+      ],
+      "edgeMeanAbsoluteError": {
+        "horizontal": 0.0,
+        "vertical": 0.0
+      },
+      "sha256": "d1d6670eaf5456c0a66060844e4ac5983626d1baa008a53345ef30cf20f0b641"
+    }
+  },
+  "nineSliceSurfaces": {
+    "panel-honey": {
+      "runtime": "/ui/surfaces/panel-honey-9s.png",
+      "size": [
+        256,
+        256
+      ],
+      "slice": 52,
+      "fill": false,
+      "repeat": "stretch",
+      "center": "transparent",
+      "sha256": "54db5332dc5b084b09fb7219d79ef0f1f3a8442c393b946fbc2792bd548db7ab"
+    },
+    "panel-olive": {
+      "runtime": "/ui/surfaces/panel-olive-9s.png",
+      "size": [
+        256,
+        256
+      ],
+      "slice": 52,
+      "fill": false,
+      "repeat": "stretch",
+      "center": "transparent",
+      "sha256": "e2beeb59b1f4c2e5af1bbb804a1ebf5509b4d19acba90ea26640472976dc258a"
+    },
+    "button-olive": {
+      "runtime": "/ui/surfaces/button-olive-9s.png",
+      "size": [
+        256,
+        128
+      ],
+      "slice": 34,
+      "fill": false,
+      "repeat": "stretch",
+      "center": "transparent",
+      "sha256": "c0680aa04fb9c682d0d0681b0337e2255496df07339d1d883e81158b2e7135c7"
+    },
+    "button-sky": {
+      "runtime": "/ui/surfaces/button-sky-9s.png",
+      "size": [
+        256,
+        128
+      ],
+      "slice": 34,
+      "fill": false,
+      "repeat": "stretch",
+      "center": "transparent",
+      "sha256": "feceee1936a85ddce1bdf67b84bab6caa188c453127f0535425d35f185e7b97f"
+    }
+  }
+}

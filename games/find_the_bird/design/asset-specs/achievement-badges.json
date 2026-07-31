@@ -1,0 +1,21 @@
+{
+  "name": "achievement_badges",
+  "kind": "badge",
+  "size": "256x256",
+  "gen_size": "1920x384",
+  "description": "Five matching cozy garden achievement medallions: 1) completion, a gold star on a sky-blue ceramic center; 2) bird finding, a small blue feather on a peach ceramic center; 3) mastery, a brass magnifying glass over a cream center; 4) progression, a tiny painted-wood trail sign with an upward leaf; 5) streak, a warm golden sunrise with three rays. Every medallion uses the same olive leaf wreath, painted-wood rim and small cream flower accent.",
+  "prompt_extra": "exactly one centered emblem per cell, no text, no numbers, no bird characters; identical rim size and lighting; wide transparent padding; nothing crosses cell boundaries",
+  "transparent": true,
+  "models": ["openai/gpt-5.4-image-2"],
+  "sheet": {
+    "cols": 5,
+    "rows": 1,
+    "names": [
+      "achievement_completion",
+      "achievement_birds",
+      "achievement_mastery",
+      "achievement_progression",
+      "achievement_streak"
+    ]
+  }
+}

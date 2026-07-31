@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" fill="none">
+  <defs>
+    <linearGradient id="feather-fill" x1="58" y1="198" x2="204" y2="48" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#126CB5"/>
+      <stop offset="1" stop-color="#29B8D4"/>
+    </linearGradient>
+    <linearGradient id="shaft-fill" x1="62" y1="214" x2="192" y2="54" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E7C778"/>
+      <stop offset="1" stop-color="#FFF1BE"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(76 76) scale(.4)">
+  <path d="M55 205C67 151 91 88 158 41C181 25 207 33 211 55C218 97 177 155 84 203L55 205Z" fill="url(#feather-fill)" stroke="#224758" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M67 198C104 165 141 119 194 55" stroke="url(#shaft-fill)" stroke-width="9" stroke-linecap="round"/>
+  <path d="M92 175L64 160M111 152L73 132M130 128L88 105M149 104L111 82M168 80L140 61" stroke="#E9FAF4" stroke-opacity=".72" stroke-width="6" stroke-linecap="round"/>
+  <path d="M103 176L116 207M124 153L145 190M145 127L172 162M166 102L194 126" stroke="#0D6798" stroke-width="6" stroke-linecap="round"/>
+  <path d="M55 205L39 227" stroke="#C89543" stroke-width="10" stroke-linecap="round"/>
+  </g>
+</svg>
