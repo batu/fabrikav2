@@ -10,26 +10,26 @@
     2156
   ],
   "spriteBox": [
-    2456,
-    1684,
-    2872,
-    2012
+    2478,
+    1698,
+    2857,
+    1994
   ],
   "cleanupBox": [
-    2440,
-    1668,
-    2888,
-    2028
+    2474,
+    1694,
+    2861,
+    1998
   ],
-  "width": 416,
-  "height": 328,
-  "anchorX": 0.4615,
-  "anchorY": 0.5,
-  "technique": "diff-mask-connected-components-v1",
+  "width": 379,
+  "height": 296,
+  "anchorX": 0.4485,
+  "anchorY": 0.5068,
+  "technique": "sam2-primary-cutout-v1",
   "quality": {
-    "visibleCoverage": 0.1158,
-    "strongCoverage": 0.1095,
-    "bboxCoverage": 0.2444,
+    "visibleCoverage": 0.0979,
+    "strongCoverage": 0.0962,
+    "bboxCoverage": 0.2373,
     "edgeTouches": 0,
     "fullCropLike": false,
     "pickupUsable": true,
