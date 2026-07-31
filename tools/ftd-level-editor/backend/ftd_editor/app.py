@@ -29,6 +29,7 @@ from .settings import EditorSettings
 from .sessions.store import SessionStore
 
 if TYPE_CHECKING:
+    from .presets.store import PresetStore
     from .publishing.sequence import PublishingService
 
 
@@ -57,6 +58,9 @@ class StoreRegistry(Protocol):
 
     @property
     def publishing(self) -> "PublishingService | None": ...
+
+    @property
+    def presets(self) -> "PresetStore | None": ...
 
     def names(self) -> tuple[str, ...]: ...
 
@@ -101,6 +105,7 @@ class EditorStores:
     sessions: SessionStore | None = None
     jobs: JobService | None = None
     publishing: "PublishingService | None" = None
+    presets: "PresetStore | None" = None
 
     def names(self) -> tuple[str, ...]:
         names: list[str] = []
@@ -110,6 +115,8 @@ class EditorStores:
             names.append("jobs")
         if self.publishing is not None:
             names.append("publishing")
+        if self.presets is not None:
+            names.append("presets")
         return tuple(names)
 
 
@@ -264,6 +271,13 @@ def create_app(settings: EditorSettings, components: AppComponents) -> FastAPI:
 
         application.include_router(
             build_job_router(components.stores.jobs, protected_dependencies)
+        )
+
+    if components.stores.presets is not None:
+        from .presets.routes import build_preset_router
+
+        application.include_router(
+            build_preset_router(components.stores.presets, protected_dependencies)
         )
 
     if components.stores.publishing is not None:

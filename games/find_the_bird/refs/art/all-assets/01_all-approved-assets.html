@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Find the Bird — Approved Asset System</title>
+  <style>
+    :root {
+      --ink: #243747;
+      --muted: #677683;
+      --paper: #fffaf0;
+      --cream: #f3e3bf;
+      --blue: #4f9fbd;
+      --blue-dark: #276980;
+      --coral: #ef796d;
+      --green: #7ea16b;
+      --line: #cfb984;
+      --shadow: rgba(62, 47, 30, .14);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(239,121,109,.13), transparent 30rem),
+        radial-gradient(circle at 90% 8%, rgba(79,159,189,.17), transparent 32rem),
+        #eadab7;
+      font-family: ui-rounded, "Avenir Next", Avenir, system-ui, sans-serif;
+    }
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 28px auto 72px;
+    }
+    header, section {
+      background: rgba(255,250,240,.96);
+      border: 2px solid var(--line);
+      box-shadow: 0 10px 0 var(--shadow);
+    }
+    header {
+      padding: clamp(24px, 5vw, 58px);
+      border-radius: 28px;
+    }
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--blue-dark);
+      font-weight: 850;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      font-size: 13px;
+    }
+    h1 {
+      max-width: 850px;
+      margin: 0;
+      font-size: clamp(38px, 7vw, 76px);
+      line-height: .98;
+      letter-spacing: -.045em;
+    }
+    .lede {
+      max-width: 760px;
+      margin: 22px 0 0;
+      color: var(--muted);
+      font-size: clamp(18px, 2.5vw, 24px);
+      line-height: 1.45;
+    }
+    .status {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 28px;
+    }
+    .pill {
+      padding: 9px 14px;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--blue-dark);
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .pill:nth-child(2) { background: var(--green); }
+    .pill:nth-child(3) { background: var(--coral); }
+    section {
+      overflow: hidden;
+      margin-top: 26px;
+      border-radius: 22px;
+    }
+    .copy { padding: 24px 28px 20px; }
+    .batch {
+      color: var(--blue-dark);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    h2 {
+      margin: 5px 0 8px;
+      font-size: clamp(27px, 4vw, 42px);
+      letter-spacing: -.025em;
+    }
+    p { margin: 0; color: var(--muted); line-height: 1.55; }
+    .slots {
+      margin-top: 12px;
+      color: var(--ink);
+      font-weight: 700;
+      font-size: 14px;
+    }
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-top: 2px solid var(--line);
+      background: #e8dcc3;
+    }
+    .note {
+      margin-top: 14px;
+      padding: 12px 15px;
+      border-left: 5px solid var(--coral);
+      background: #fff1e9;
+      color: #78493f;
+      font-weight: 750;
+      line-height: 1.45;
+    }
+    footer {
+      padding: 34px 8px 0;
+      color: #5f5545;
+      text-align: center;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">Canonical production reference</p>
+    <h1>Find the Bird<br>approved asset system</h1>
+    <p class="lede">P3 Bold Cardboard is locked across the explorer-bluebird mascot and all 40 non-level reskin slots. This page is the single visual source for runtime production.</p>
+    <div class="status">
+      <span class="pill">P3 locked</span>
+      <span class="pill">6 batches approved</span>
+      <span class="pill">40 runtime slots</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="copy">
+      <span class="batch">Character lock</span>
+      <h2>P3 Explorer Bluebird</h2>
+      <p>Stylized storybook anatomy, cardboard layering, explorer gear worn by strap or folded wing. No human arms, hands, or fingers.</p>
+    </div>
+    <img src="02_mascot-turnaround.png" alt="Approved explorer bluebird mascot turnaround">
+    <img src="03_mascot-expressions-tools.png" alt="Approved explorer bluebird expressions and tools">
+  </section>
+
+  <section>
+    <div class="copy">
+      <span class="batch">Batch 1 · 9 slots</span>
+      <h2>Global UI primitives</h2>
+      <p>One phone-readable silhouette, outline, cut edge, and shadow language.</p>
+      <p class="slots">Back · coin · heart · hint · magnifier · settings · gear · shop · pattern</p>
+    </div>
+    <img src="04_batch-01-global-ui.png" alt="Approved global UI primitive concepts">
+  </section>
+
+  <section>
+    <div class="copy">
+      <span class="batch">Batch 2 · 8 slots</span>
+      <h2>Home and level path</h2>
+      <p>The named banner below is canonical. Path states remain distinct by silhouette and symbol, not color alone.</p>
+      <p class="slots">Banner · no ads · play · locked · locked nest · current A · current B · complete</p>
+    </div>
+    <img src="05_approved-home-banner.png" alt="Approved Find the Bird named home banner">
+    <div class="copy">
+      <div class="note">The scenic banner visible in the following sheet is superseded. Use the named banner above. The other seven concepts remain approved.</div>
+    </div>
+    <img src="06_batch-02-home-path-remainder.png" alt="Approved home and level path concepts with superseded scenic banner">
+  </section>
+
+  <section>
+    <div class="copy">
+      <span class="batch">Batch 3 · 5 slots</span>
+      <h2>Mascot and results</h2>
+      <p>Neutral, success, and failure poses preserve the locked anatomy. The magnifier is strap-mounted.</p>
+      <p class="slots">Boot avatar · success · failure · LEVEL COMPLETE · AD badge</p>
+    </div>
+    <img src="07_batch-03-mascot-results.png" alt="Approved mascot and results concepts">
+  </section>
+
+  <section>
+    <div class="copy">
+      <span class="batch">Batch 4 · 4 slots</span>
+      <h2>Settings</h2>
+      <p>Birdhouse home plus music, sound, and vibration tokens built for their smallest phone size.</p>
+      <p class="slots">Home · music · sound · vibration</p>
+    </div>
+    <img src="08_batch-04-settings.png" alt="Approved settings icon concepts">
+  </section>
+
+  <section>
+    <div class="copy">
+      <span class="batch">Batch 5 · 9 slots</span>
+      <h2>Shop currency packs</h2>
+      <p>Feather medallions replace paw currency; quantity and container silhouette communicate tier progression.</p>
+      <p class="slots">6 coin tiers · 3 hint tiers</p>
+    </div>
+    <img src="09_batch-05-shop-currency.png" alt="Approved shop currency concepts">
+  </section>
+
+  <section>
+    <div class="copy">
+      <span class="batch">Batch 6 · 5 slots</span>
+      <h2>Shop offers and badges</h2>
+      <p>The FTD-structure no-ads products below are canonical: crossed ADS, then crossed ADS plus 5× feather magnifier.</p>
+      <p class="slots">Best Value · Popular · no ads · premium no ads · VIP</p>
+    </div>
+    <img src="10_approved-no-ads.png" alt="Approved no ads and premium no ads concepts">
+    <div class="copy">
+      <div class="note">In the following sheet, only Best Value, Popular, and VIP remain approved. Its two older no-ads product concepts are superseded by the pair above.</div>
+    </div>
+    <img src="11_batch-06-badges-vip.png" alt="Approved shop badges and VIP concept with superseded no ads products">
+  </section>
+
+  <footer>Approved reference only. Runtime cutouts are generated independently; concept sheets are never cropped into game assets.</footer>
+</main>
+</body>
+</html>

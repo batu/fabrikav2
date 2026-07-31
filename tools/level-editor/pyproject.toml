@@ -1,0 +1,51 @@
+[project]
+name = "level-editor"
+version = "0.1.0"
+description = "Hidden-object level editor: wizard UI + agentic CLI over one FastAPI server, per-game workspaces."
+requires-python = ">=3.11"
+dependencies = [
+  "Pillow",
+  "httpx",
+  "python-dotenv",
+  "numpy",
+  "scipy>=1.17.1",
+  "scikit-learn>=1.8.0",
+  "fastapi>=0.136.0",
+  "uvicorn>=0.44.0",
+  "sse-starlette>=3.3.4",
+  "opencv-python-headless>=4.13.0.92",
+  "rembg[cpu]>=2.0.75",
+  "pymatting>=1.1.15",
+  "numba>=0.65",
+  "merceka-core",
+  # Schema/validator authority stays owned by ftd-level-editor (KTD5); the
+  # export gate imports it rather than copying it.
+  "ftd-editor",
+]
+
+[project.scripts]
+level-editor = "levelbuilder.cli.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["levelbuilder"]
+
+[tool.uv.sources]
+# Cross-repo provider layer stays git-rev pinned (KTD4). Upgrades are explicit:
+# bump this revision and regenerate uv.lock.
+merceka-core = { git = "https://github.com/batu/merceka-core.git", rev = "e34a8399942ac62226190880ff290b8f53366265" }
+ftd-editor = { path = "../ftd-level-editor", editable = true }
+
+[dependency-groups]
+dev = [
+  "pytest>=9.0.2",
+  "pytest-asyncio>=0.25",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+addopts = "--strict-markers"
