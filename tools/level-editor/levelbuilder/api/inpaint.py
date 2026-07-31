@@ -1340,12 +1340,21 @@ def _sam2_sprite_alpha(
     box: tuple[int, int, int, int],
     *,
     relaxed: bool = False,
+    box_scale: float = 0.75,
+    point_override: tuple[float, float] | None = None,
 ) -> Image.Image | None:
     predictor = _pickup_sam2_predictor()
     if predictor is None:
         return None
 
-    point, prompt_box = _sam2_prompt_box(painted, hitbox, box, box_scale=0.75)
+    point, prompt_box = _sam2_prompt_box(painted, hitbox, box, box_scale=box_scale)
+    if point_override is not None:
+        width, height = painted.size
+        point = np.array(
+            [[min(float(width - 1), max(0.0, point_override[0])),
+              min(float(height - 1), max(0.0, point_override[1]))]],
+            dtype=np.float32,
+        )
     rgb = np.array(painted.convert("RGB"))
 
     def _predict() -> tuple[np.ndarray, np.ndarray, Any]:

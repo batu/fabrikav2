@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "image": "dogs/dog_05/sprite_000.png",
+  "mask": "dogs/dog_05/sprite_mask_000.png",
+  "sourceVariant": "dogs/dog_05/variant_000.png",
+  "sourceBox": [
+    349,
+    558,
+    513,
+    722
+  ],
+  "spriteBox": [
+    408,
+    616,
+    467,
+    686
+  ],
+  "cleanupBox": [
+    404,
+    612,
+    471,
+    690
+  ],
+  "width": 59,
+  "height": 70,
+  "anchorX": 0.3898,
+  "anchorY": 0.3429,
+  "technique": "sam-prompted-cutout-v1",
+  "quality": {
+    "visibleCoverage": 0.0617,
+    "strongCoverage": 0.0568,
+    "bboxCoverage": 0.1053,
+    "edgeTouches": 0,
+    "fullCropLike": false,
+    "pickupUsable": true,
+    "backgroundFallback": false,
+    "templateFallback": false,
+    "repairReason": "oversized_or_scene_mask"
+  }
+}
