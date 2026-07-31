@@ -329,11 +329,21 @@ def _variant_target_index(
     dog_index: int,
     variant_index: int,
     hitboxes: list[dict] | None,
+    dog_id: str | None = None,
 ) -> int | None:
     if hitboxes is None:
         return dog_index
     if dog_index < 0:
         return None
+
+    # Stable-id join first (same precedent as compose_with_mask, review P1 #2):
+    # a dog whose id matches a hitbox binds to it regardless of geometry —
+    # without this, a dog whose hitbox moved away from the painted crop was
+    # dropped here and export shipped fewer birds than the author painted.
+    if dog_id:
+        for i, hb in enumerate(hitboxes):
+            if isinstance(hb, dict) and hb.get("id") == dog_id:
+                return i
 
     box = _read_box(_variant_box_path(session_id, dog_index, variant_index))
     if box is None:
@@ -370,7 +380,10 @@ def active_dog_variant_targets(
             variant_index = int(dog_meta["activeVariant"])
         except (KeyError, TypeError, ValueError):
             continue
-        target_index = _variant_target_index(session_id, dog_index, variant_index, hitboxes)
+        target_index = _variant_target_index(
+            session_id, dog_index, variant_index, hitboxes,
+            dog_id=dog_meta.get("id") if isinstance(dog_meta.get("id"), str) else None,
+        )
         if target_index is None:
             continue
         targets[target_index] = (dog_index, variant_index)

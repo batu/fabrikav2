@@ -254,9 +254,16 @@
  },
  "italy_venice_canal_morning_bird_d570": {
   "levelId": "italy_venice_canal_morning_bird_d570",
-  "error": "LevelNotReadyError: 1 painted dog(s) in italy_venice_canal_morning_bird_d570 no longer map to any hitbox: dog_19. Their hitboxes moved away from the painted art \u2014 re-run fix-hitboxes or restore the placements before exporting.",
+  "recut": 18,
+  "failed": [],
+  "skipped": [
+   "dog_14: no variant"
+  ],
+  "gateRefusal": [
+   "geometry: dog_15 cleanup geometry does not contain its center"
+  ],
   "exported": false,
-  "seconds": 2.8
+  "seconds": 2.7
  },
  "japan_morning_market_bird_a7a0": {
   "levelId": "japan_morning_market_bird_a7a0",
@@ -270,9 +277,9 @@
    "dog_17: no variant"
   ],
   "gateRefusal": [
-   "geometry: dog_13 cleanup geometry does not contain its center"
+   "geometry: dog_12 cleanup geometry does not contain its center"
   ],
   "exported": false,
-  "seconds": 2.8
+  "seconds": 2.2
  }
 }
