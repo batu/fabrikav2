@@ -16,7 +16,7 @@ from PIL import Image
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
-LEVELS = REPO / "games" / "find_the_bird" / "public" / "levels"
+LEVELS = REPO / "docs" / "evidence" / "2026-07-31-sprite-eval-regeneration" / "baseline-corpus" / "levels"
 
 
 def main() -> None:

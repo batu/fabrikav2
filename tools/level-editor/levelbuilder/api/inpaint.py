@@ -867,8 +867,10 @@ def _is_cutout_alpha_usable(
     bbox_width = bbox[2] - bbox[0]
     bbox_height = bbox[3] - bbox[1]
     radius = max(4.0, float(hitbox.radius))
-    if bbox_width > 90 or bbox_height > 96:
-        return False
+    # The old absolute 90/96px caps were tuned for legacy r~30 hitboxes and
+    # rejected every correctly-sized bird on 4K levels (r=136), silently
+    # routing all cutouts through the relaxed repair lane (U7 finding). The
+    # radius-relative caps below are the real oversize guard.
     if bbox_width > radius * 2.45 or bbox_height > radius * 2.55:
         return False
     if bool(stats["fullCropLike"]):
@@ -1891,9 +1893,23 @@ def _save_sprite_assets(
     prevalidated: bool = False,
 ) -> dict | None:
     """Save transparent pickup sprite + debug mask next to a dog variant."""
-    alpha = _clean_sprite_alpha(dog_mask, hitbox, box)
+    alpha: Image.Image | None = None
     sprite_source: Image.Image | None = None
     technique = "diff-mask-connected-components-v1"
+    # SAM2-primary (plan 2026-07-31-002 U7): when a SAM2 predictor is reachable
+    # (remote FTD_SAM2_URL or local checkpoint), segment the subject directly
+    # instead of trusting the provider diff — the diff ships truncated birds
+    # (missing feet/wings) that pass every geometry gate. Diff-clean remains
+    # the fallback. Opt out with FTD_SAM2_PRIMARY=0.
+    if (
+        os.environ.get("FTD_SAM2_PRIMARY", "1").strip().lower() not in {"0", "false", "no"}
+        and (os.environ.get("FTD_SAM2_URL") or os.environ.get("FTD_PICKUP_SAM2_CHECKPOINT"))
+    ):
+        alpha = _sam2_sprite_alpha(painted, hitbox, box)
+        if alpha is not None:
+            technique = "sam2-primary-cutout-v1"
+    if alpha is None:
+        alpha = _clean_sprite_alpha(dog_mask, hitbox, box)
     stats = _alpha_stats(alpha)
     if clean_crop is not None and stats["fullCropLike"]:
         alpha.close()

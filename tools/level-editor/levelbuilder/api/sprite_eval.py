@@ -202,8 +202,17 @@ def evaluate_level_dir(level_dir: Path) -> dict:
         sprite_meta = dog.get("sprite") or {}
         image_rel = sprite_meta.get("image")
         record: dict = {"dogId": dog.get("id")}
-        sprite_path = level_dir.parent.parent / image_rel if image_rel else None
-        if sprite_path is None or not sprite_path.exists():
+        sprite_path = None
+        if image_rel:
+            # level.json paths are public/-relative ("levels/<id>/dogs/...");
+            # also resolve within level_dir so staged exports outside the
+            # public tree evaluate identically.
+            prefix = f"levels/{level_dir.name}/"
+            candidates = [level_dir.parent.parent / image_rel]
+            if image_rel.startswith(prefix):
+                candidates.append(level_dir / image_rel[len(prefix):])
+            sprite_path = next((c for c in candidates if c.exists()), None)
+        if sprite_path is None:
             record["axes"] = {"exclusion": {"score": 0.0, "verdict": "fail", "evidence": "missing sprite"}}
             birds.append(record)
             continue
