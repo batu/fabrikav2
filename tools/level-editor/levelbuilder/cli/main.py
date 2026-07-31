@@ -309,6 +309,7 @@ def cmd_create(client: Client, args: argparse.Namespace) -> None:
             "entity": template["entity"],
             "view": template["view"],
             "style": template["style"],
+            "scale": args.scale or template.get("scale") or "none",
         }
         model = template.get("model")
         n_dogs = args.count if args.count is not None else int(template.get("nDogs", 20))
@@ -323,6 +324,7 @@ def cmd_create(client: Client, args: argparse.Namespace) -> None:
             "entity": args.entity,
             "view": args.view,
             "style": args.style,
+            "scale": args.scale,
         }
         model = args.model
         n_dogs = args.count if args.count is not None else 20
@@ -334,8 +336,9 @@ def cmd_create(client: Client, args: argparse.Namespace) -> None:
         "bgModel": model or args.model or "google/gemini-3.1-flash-image-preview",
         "inpaintModel": model or args.model or "google/gemini-3.1-flash-image-preview",
         "nDogs": n_dogs,
-        "aspectRatio": "9:16",
+        "aspectRatio": args.aspect_ratio,
         "imageSize": "1K",
+        "oneShot": args.one_shot,
     }
     created = client.post("/api/sessions", json=body)
     _emit(args, created)
@@ -443,7 +446,8 @@ def cmd_inpaint(client: Client, args: argparse.Namespace) -> None:
             "dogPrompt": prompts["dogPrompt"],
             "padding": args.padding,
             "hardDogPercent": args.hard_percent,
-            "inpaintMode": "crop",
+            "inpaintMode": args.mode,
+            "inpaintModel": args.model,
         }
         job = client.post(f"/api/sessions/{args.session_id}/inpaint/jobs", json=body)
     if args.wait:
@@ -672,7 +676,8 @@ def cmd_compare(client: Client, args: argparse.Namespace) -> None:
     all of them, reporting the clone ids to inspect side by side."""
     _check_disk(args.force_disk)
     modes = [m.strip() for m in args.modes.split(",") if m.strip()]
-    body = {"modes": modes, "hardDogPercent": args.hard_percent}
+    models = [m.strip() for m in (args.models or "").split(",") if m.strip()]
+    body = {"modes": modes, "models": models, "hardDogPercent": args.hard_percent}
     started = client.post(f"/api/sessions/{args.session_id}/compare-inpaint", json=body)
     results = []
     for entry in started["comparisons"]:
@@ -753,6 +758,52 @@ def cmd_fix_hitboxes(client: Client, args: argparse.Namespace) -> None:
     _emit(args, client.post(
         f"/api/sessions/{args.session_id}/fix-hitboxes",
         params={"maxOffsetFraction": args.max_offset},
+    ))
+
+
+def cmd_reconcile_magenta_hitboxes(client: Client, args: argparse.Namespace) -> None:
+    detections = json.loads(Path(args.file).read_text())
+    if isinstance(detections, dict):
+        detections = detections.get("detections")
+    if not isinstance(detections, list):
+        raise CliError("invalid_detections", "file must contain a detection array")
+    _emit(args, client.post(
+        f"/api/sessions/{args.session_id}/reconcile-magenta-hitboxes",
+        json={
+            "detections": detections,
+            "minimumConfidence": args.minimum_confidence,
+        },
+    ))
+
+
+def cmd_materialize_detection_sprites(client: Client, args: argparse.Namespace) -> None:
+    detections = json.loads(Path(args.file).read_text())
+    if isinstance(detections, dict):
+        detections = detections.get("detections")
+    if not isinstance(detections, list):
+        raise CliError("invalid_detections", "file must contain a detection array")
+    _emit(args, client.post(
+        f"/api/sessions/{args.session_id}/materialize-detection-sprites",
+        json={
+            "detections": detections,
+            "minimumConfidence": args.minimum_confidence,
+        },
+        timeout=args.timeout,
+    ))
+
+
+def cmd_finalize_one_shot(client: Client, args: argparse.Namespace) -> None:
+    detections = json.loads(Path(args.file).read_text())
+    if isinstance(detections, dict):
+        detections = detections.get("detections")
+    if not isinstance(detections, list):
+        raise CliError("invalid_detections", "file must contain a detection array")
+    _emit(args, client.post(
+        f"/api/sessions/{args.session_id}/finalize-one-shot",
+        json={
+            "detections": detections,
+            "minimumConfidence": args.minimum_confidence,
+        },
     ))
 
 
@@ -977,9 +1028,21 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = verb("create", cmd_create)
     p.add_argument("--template")
-    for axis in ("setting", "scene", "style", "view", "entity", "model"):
+    for axis in ("setting", "scene", "style", "view", "entity", "model", "scale"):
         p.add_argument(f"--{axis}")
+    p.set_defaults(scale="none")
     p.add_argument("--count", type=int, default=None)
+    p.add_argument(
+        "--aspect-ratio",
+        choices=("9:16", "1:1"),
+        default="9:16",
+        help="generated background aspect ratio",
+    )
+    p.add_argument(
+        "--one-shot",
+        action="store_true",
+        help="paint the requested entities directly into the generated background",
+    )
 
     for name, func in (("generate-bg", cmd_generate_bg), ("upscale", cmd_upscale)):
         p = verb(name, func)
@@ -1012,6 +1075,8 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--timeout", type=float, default=3600.0)
     p.add_argument("--padding", type=float, default=2.75)
     p.add_argument("--hard-percent", type=int, default=0)
+    p.add_argument("--mode", choices=("crop", "crop_reference", "magenta"), default="crop")
+    p.add_argument("--model", help="override the session's configured inpaint model")
     p.add_argument("--retry-failed", action="store_true")
     p.add_argument("--force-disk", action="store_true")
 
@@ -1052,6 +1117,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = verb("compare", cmd_compare)
     p.add_argument("session_id")
     p.add_argument("--modes", default="crop,crop_reference,magenta")
+    p.add_argument("--models", help="comma-separated magenta models to compare on identical cloned inputs")
     p.add_argument("--hard-percent", type=int, default=0)
     p.add_argument("--wait", action="store_true")
     p.add_argument("--timeout", type=float, default=3600.0)
@@ -1066,6 +1132,22 @@ def build_parser() -> argparse.ArgumentParser:
     p = verb("fix-hitboxes", cmd_fix_hitboxes)
     p.add_argument("session_id")
     p.add_argument("--max-offset", type=float, default=0.5)
+
+    p = verb("reconcile-magenta-hitboxes", cmd_reconcile_magenta_hitboxes)
+    p.add_argument("session_id")
+    p.add_argument("--file", required=True)
+    p.add_argument("--minimum-confidence", type=float, default=0.5)
+
+    p = verb("materialize-detection-sprites", cmd_materialize_detection_sprites)
+    p.add_argument("session_id")
+    p.add_argument("--file", required=True)
+    p.add_argument("--minimum-confidence", type=float, default=0.5)
+    p.add_argument("--timeout", type=float, default=900.0)
+
+    p = verb("finalize-one-shot", cmd_finalize_one_shot)
+    p.add_argument("session_id")
+    p.add_argument("--file", required=True)
+    p.add_argument("--minimum-confidence", type=float, default=0.5)
 
     p = verb("review", cmd_review)
     p.add_argument("session_id")

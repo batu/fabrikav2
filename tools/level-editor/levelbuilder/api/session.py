@@ -2157,7 +2157,26 @@ def mobile_visibility_report(
                     ("SAFE_L", 0.0, 0.0, safe_x, vh),
                     ("SAFE_R", vw - safe_x, 0.0, safe_x, vh),
                 ])
+            # Square continuous levels can pan vertically by exactly the fixed
+            # UI safe areas at minimum zoom. Treat an initially covered bird as
+            # playable only when its complete hit circle can be moved into the
+            # unobscured band. Portrait and sectioned levels retain the strict
+            # fixed-camera gate.
+            square_safe_area_reachable = False
+            if not sections and width == height:
+                top_travel = vh * _SECTIONS_HUD_FRACTION
+                bottom_travel = vh * _SECTIONS_BANNER_FRACTION
+                reachable_center_min = screen_y - bottom_travel
+                reachable_center_max = screen_y + top_travel
+                safe_center_min = top_travel + screen_r
+                safe_center_max = vh - bottom_travel - screen_r
+                square_safe_area_reachable = (
+                    reachable_center_max >= safe_center_min
+                    and reachable_center_min <= safe_center_max
+                )
             for label, bx, by, bw, bh in blocked:
+                if label in ("HUD", "AD") and square_safe_area_reachable:
+                    continue
                 if right > bx and left < bx + bw and bottom > by and top < by + bh:
                     issues.append({
                         "type": "blocked_area",
@@ -2371,7 +2390,367 @@ def recenter_hitboxes_to_sprites(
             hb["x"], hb["y"] = int(cx), int(cy)
     if moved:
         save_hitboxes(session_id, hitboxes)
+        _refresh_eval_overlay(session_id, hitboxes)
     return {"sessionId": session_id, "moved": moved, "total": len(hitboxes)}
+
+
+def _refresh_eval_overlay(session_id: str, hitboxes: list[dict]) -> None:
+    """Keep the review overlay synchronized with authoritative hitboxes."""
+    sdir = session_dir(session_id)
+    color_path = sdir / "color.png"
+    if not color_path.exists():
+        return
+    from levelbuilder.api.inpaint import Hitbox, evaluate_hitboxes
+
+    with Image.open(color_path) as source:
+        source.load()
+        evaluated = evaluate_hitboxes(
+            source.convert("RGB"),
+            [
+                Hitbox(
+                    x=int(hitbox["x"]),
+                    y=int(hitbox["y"]),
+                    radius=int(hitbox.get("r", hitbox.get("radius", 30))),
+                )
+                for hitbox in hitboxes
+            ],
+            opacity=0.3,
+        )
+    temp = (sdir / "eval.png").with_suffix(".png.tmp")
+    evaluated.save(temp, format="PNG")
+    evaluated.close()
+    os.replace(temp, sdir / "eval.png")
+
+
+def reconcile_magenta_hitboxes_to_detections(
+    session_id: str,
+    *,
+    detections: list[dict],
+    minimum_confidence: float = 0.5,
+) -> dict:
+    """Recenter whole-image magenta hitboxes onto recognized subject bounds.
+
+    Magenta mode has no isolated sprite metadata, so the crop-mode recenter
+    cannot operate. Recognition remains an explicit input; this function owns
+    only deterministic validation, one-to-one assignment, stable-id
+    preservation, and persistence. It fails closed unless recognition returns
+    exactly one usable detection per existing hitbox.
+    """
+    from scipy.optimize import linear_sum_assignment
+
+    _validate_session_id_or_raise(session_id)
+    sdir = session_dir(session_id)
+    hitboxes = _load_hitboxes_raw(sdir)
+    if not hitboxes:
+        raise LevelNotReadyError("missing hitboxes.json")
+
+    normalized: list[dict] = []
+    for index, detection in enumerate(detections):
+        if not isinstance(detection, dict):
+            raise LevelNotReadyError(f"detection {index} must be an object")
+        try:
+            x = float(detection["x"])
+            y = float(detection["y"])
+            width = float(detection["width"])
+            height = float(detection["height"])
+            confidence = float(detection.get("confidence", 1.0))
+        except (KeyError, TypeError, ValueError) as error:
+            raise LevelNotReadyError(
+                f"detection {index} needs numeric x, y, width, and height"
+            ) from error
+        if width <= 0 or height <= 0:
+            raise LevelNotReadyError(f"detection {index} dimensions must be positive")
+        if confidence < minimum_confidence:
+            continue
+        normalized.append({
+            "index": index,
+            "cx": x + width / 2,
+            "cy": y + height / 2,
+            "width": width,
+            "height": height,
+            "confidence": confidence,
+        })
+    if len(normalized) != len(hitboxes):
+        raise LevelNotReadyError(
+            f"recognition must provide exactly {len(hitboxes)} usable detections; "
+            f"got {len(normalized)}"
+        )
+
+    costs = [
+        [
+            (float(hitbox["x"]) - detection["cx"]) ** 2
+            + (float(hitbox["y"]) - detection["cy"]) ** 2
+            for detection in normalized
+        ]
+        for hitbox in hitboxes
+    ]
+    rows, columns = linear_sum_assignment(costs)
+    reconciled = [dict(hitbox) for hitbox in hitboxes]
+    moved: list[dict] = []
+    for row, column in zip(rows.tolist(), columns.tolist(), strict=True):
+        detection = normalized[column]
+        hitbox = reconciled[row]
+        old = [int(hitbox["x"]), int(hitbox["y"])]
+        cx, cy = int(round(detection["cx"])), int(round(detection["cy"]))
+        # Target the visible torso comfortably while retaining mobile tap
+        # forgiveness. Bounds are deliberately conservative for 1K portrait.
+        radius = int(round(max(detection["width"], detection["height"]) * 0.55))
+        radius = max(22, min(64, radius))
+        hitbox.update({"x": cx, "y": cy, "r": radius})
+        moved.append({
+            "hitboxIndex": row,
+            "detectionIndex": detection["index"],
+            "from": old,
+            "to": [cx, cy],
+            "radius": radius,
+            "confidence": detection["confidence"],
+        })
+
+    persisted = save_hitboxes(session_id, reconciled) or reconciled
+    _refresh_eval_overlay(session_id, persisted)
+    level_path = sdir / "level.json"
+    if level_path.exists():
+        raw = load_session_raw(session_id) or {}
+        width = int(raw.get("bg_width") or 768)
+        height = int(raw.get("bg_height") or 1376)
+        level_data = build_level_dict(
+            session_id,
+            persisted,
+            width=width,
+            height=height,
+            style=raw.get("style"),
+        )
+        tmp = level_path.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(level_data, indent=2) + "\n")
+        os.replace(tmp, level_path)
+    return {
+        "sessionId": session_id,
+        "moved": moved,
+        "total": len(persisted),
+    }
+
+
+def materialize_detection_sprites(
+    session_id: str,
+    *,
+    detections: list[dict],
+    minimum_confidence: float = 0.5,
+) -> dict:
+    """Create pickup sprites for a reconciled whole-image generation.
+
+    Recognition supplies tight bird bounds. Semantic foreground extraction is
+    then constrained to each local bound, producing the same sprite metadata
+    contract as crop-mode generation without weakening the export gate.
+    """
+    from scipy.optimize import linear_sum_assignment
+    from levelbuilder.api import inpaint as _inpaint
+
+    _validate_session_id_or_raise(session_id)
+    sdir = session_dir(session_id)
+    color_path = sdir / "color.png"
+    if not color_path.exists():
+        raise LevelNotReadyError("missing color.png")
+    hitboxes = _load_hitboxes_raw(sdir)
+    if not hitboxes:
+        raise LevelNotReadyError("missing hitboxes.json")
+
+    usable: list[dict] = []
+    for index, detection in enumerate(detections):
+        try:
+            x = int(round(float(detection["x"])))
+            y = int(round(float(detection["y"])))
+            width = int(round(float(detection["width"])))
+            height = int(round(float(detection["height"])))
+            confidence = float(detection.get("confidence", 1.0))
+        except (KeyError, TypeError, ValueError) as error:
+            raise LevelNotReadyError(f"invalid detection {index}") from error
+        if width <= 0 or height <= 0:
+            raise LevelNotReadyError(f"detection {index} dimensions must be positive")
+        if confidence >= minimum_confidence:
+            usable.append({
+                "index": index,
+                "x": x,
+                "y": y,
+                "width": width,
+                "height": height,
+                "cx": x + width / 2,
+                "cy": y + height / 2,
+            })
+    if len(usable) != len(hitboxes):
+        raise LevelNotReadyError(
+            f"sprite materialization needs exactly {len(hitboxes)} usable detections; "
+            f"got {len(usable)}"
+        )
+
+    costs = [
+        [
+            (float(hitbox["x"]) - detection["cx"]) ** 2
+            + (float(hitbox["y"]) - detection["cy"]) ** 2
+            for detection in usable
+        ]
+        for hitbox in hitboxes
+    ]
+    rows, columns = linear_sum_assignment(costs)
+    detection_by_hitbox = {
+        row: usable[column]
+        for row, column in zip(rows.tolist(), columns.tolist(), strict=True)
+    }
+    raw = load_session_raw(session_id) or {}
+    existing_dogs = {
+        dog.get("index"): dog
+        for dog in raw.get("dogs") or []
+        if isinstance(dog, dict) and isinstance(dog.get("index"), int)
+    }
+    materialized: list[dict] = []
+    with Image.open(color_path) as source:
+        color = source.convert("RGB")
+    try:
+        for index, hitbox_data in enumerate(hitboxes):
+            detection = detection_by_hitbox[index]
+            padding = max(
+                16,
+                int(round(max(detection["width"], detection["height"]) * 0.35)),
+            )
+            box = (
+                max(0, detection["x"] - padding),
+                max(0, detection["y"] - padding),
+                min(color.width, detection["x"] + detection["width"] + padding),
+                min(color.height, detection["y"] + detection["height"] + padding),
+            )
+            painted = color.crop(box)
+            hitbox = _inpaint.Hitbox(
+                x=int(hitbox_data["x"]),
+                y=int(hitbox_data["y"]),
+                radius=int(hitbox_data.get("r", hitbox_data.get("radius", 30))),
+            )
+            alpha = _inpaint._semantic_sprite_alpha(
+                None, painted, hitbox, box, relaxed=True
+            )
+            if alpha is None:
+                alpha = _inpaint._sam_sprite_alpha(
+                    painted, hitbox, box, relaxed=True
+                )
+            if alpha is None:
+                alpha = _inpaint._sam2_sprite_alpha(
+                    painted, hitbox, box, relaxed=True
+                )
+            if alpha is None:
+                painted.close()
+                raise LevelNotReadyError(
+                    f"semantic pickup extraction failed for detection {detection['index']}"
+                )
+            dog_dir = dogs_dir(session_id) / f"dog_{index:02d}"
+            dog_dir.mkdir(parents=True, exist_ok=True)
+            variant_path = dog_dir / "variant_000.png"
+            painted.save(variant_path)
+            _inpaint._save_variant_box(variant_path, box)
+            metadata = _inpaint._save_sprite_assets(
+                dog_dir=dog_dir,
+                variant_idx=0,
+                painted=painted,
+                dog_mask=alpha,
+                hitbox=hitbox,
+                box=box,
+                model=raw.get("inpaint_model"),
+                prevalidated=True,
+            )
+            alpha.close()
+            painted.close()
+            if metadata is None:
+                raise LevelNotReadyError(
+                    f"pickup sprite validation failed for detection {detection['index']}"
+                )
+            materialized.append({
+                "index": index,
+                "detectionIndex": detection["index"],
+                "spriteBox": metadata["spriteBox"],
+            })
+    finally:
+        color.close()
+
+    dogs = []
+    for index, hitbox in enumerate(hitboxes):
+        existing = existing_dogs.get(index) or {}
+        dogs.append({
+            **existing,
+            "index": index,
+            "id": hitbox.get("id") or existing.get("id") or f"dog_{index:02d}",
+            "status": "done",
+            "activeVariant": 0,
+            "promptOverride": existing.get("promptOverride"),
+        })
+    raw["dogs"] = dogs
+    save_session(session_id, raw)
+    return {
+        "sessionId": session_id,
+        "materialized": len(materialized),
+        "sprites": materialized,
+    }
+
+
+def finalize_one_shot_from_detections(
+    session_id: str,
+    *,
+    detections: list[dict],
+    minimum_confidence: float = 0.5,
+) -> dict:
+    """Turn a one-shot background containing birds into a playable level."""
+    _validate_session_id_or_raise(session_id)
+    raw = load_session_raw(session_id)
+    if raw is None:
+        raise LevelNotReadyError(f"session {session_id} not found")
+    context = raw.get("prompt_context") or {}
+    if not context.get("oneShot"):
+        raise LevelNotReadyError("session was not created as one-shot")
+    expected = int(context.get("oneShotCount") or raw.get("n_dogs") or 0)
+    usable = []
+    for index, detection in enumerate(detections):
+        try:
+            x = float(detection["x"])
+            y = float(detection["y"])
+            width = float(detection["width"])
+            height = float(detection["height"])
+            confidence = float(detection.get("confidence", 1.0))
+        except (KeyError, TypeError, ValueError) as error:
+            raise LevelNotReadyError(f"invalid detection {index}") from error
+        if width <= 0 or height <= 0:
+            raise LevelNotReadyError(f"detection {index} dimensions must be positive")
+        if confidence >= minimum_confidence:
+            usable.append((x, y, width, height))
+    if len(usable) != expected:
+        raise LevelNotReadyError(
+            f"one-shot recognition must find exactly {expected} birds; got {len(usable)}"
+        )
+    selected = raw.get("selected_bg")
+    if selected is None:
+        raise LevelNotReadyError("No background selected")
+    sdir = session_dir(session_id)
+    background = sdir / f"bg_{int(selected):02d}.png"
+    if not background.exists():
+        raise LevelNotReadyError("Background file not found")
+    hitboxes = []
+    for x, y, width, height in usable:
+        radius = max(22, min(64, int(round(max(width, height) * 0.55))))
+        hitboxes.append({
+            "x": int(round(x + width / 2)),
+            "y": int(round(y + height / 2)),
+            "r": radius,
+        })
+    persisted = save_hitboxes(session_id, hitboxes) or hitboxes
+    shutil.copy2(background, sdir / "color.png")
+    shutil.copy2(background, sdir / "inpainted.png")
+    with Image.open(background) as image:
+        width, height = image.size
+        level_data = build_level_dict(
+            session_id,
+            persisted,
+            width=width,
+            height=height,
+            style=raw.get("style"),
+        )
+    (sdir / "level.json").write_text(json.dumps(level_data, indent=2) + "\n")
+    update_session_field(session_id, inpaint_mode="one_shot")
+    return {"sessionId": session_id, "hitboxes": len(persisted), "colorFile": "color.png"}
 
 
 def save_hitboxes(session_id: str, hitboxes: list[dict]) -> list[dict] | None:
@@ -2855,8 +3234,8 @@ def export_to_game(
             # hitbox. Without this branch the activeVariant filter rejects
             # every magenta re-export (todo 023 regression).
             raw_dogs = raw.get("dogs") or []
-            is_magenta = raw.get("inpaint_mode") == "magenta"
-            if raw_dogs and not is_magenta:
+            is_whole_image = raw.get("inpaint_mode") in {"magenta", "one_shot"}
+            if raw_dogs and not is_whole_image:
                 target_map = active_dog_variant_targets(session_id, raw_dogs, hitboxes)
                 require_all_painted_dogs_mapped(session_id, raw_dogs, target_map)
                 if target_map:
@@ -2991,7 +3370,10 @@ def export_to_game(
     # above; the full recomposite_color would clobber it). Skip magenta (its
     # color.png is the whole-image output, not a per-variant compose) and openai_*
     # (unaffected by the split).
-    if color_src == sdir / "color.png" and (load_session_raw(session_id) or {}).get("inpaint_mode") != "magenta":
+    if (
+        color_src == sdir / "color.png"
+        and (load_session_raw(session_id) or {}).get("inpaint_mode") not in {"magenta", "one_shot"}
+    ):
         from levelbuilder.api import inpaint as _inpaint
         _inpaint.refresh_color_only(session_id)
 

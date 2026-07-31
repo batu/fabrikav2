@@ -21,6 +21,9 @@ STYLES: dict[str, str] = _CATALOG["STYLES"]
 SETTINGS: dict[str, dict[str, Any]] = _CATALOG["SETTINGS"]
 ENTITIES: dict[str, str] = _CATALOG["ENTITIES"]
 ENTITY_PROMPT_TEMPLATE: str = _CATALOG["ENTITY_PROMPT_TEMPLATE"]
+ENTITY_STYLE_PROMPTS: dict[str, dict[str, str]] = _CATALOG.get(
+    "ENTITY_STYLE_PROMPTS", {}
+)
 _OLD_PIXEL_ART_ENTITY_PROMPT_TEMPLATE: str = _CATALOG[
     "_OLD_PIXEL_ART_ENTITY_PROMPT_TEMPLATE"
 ]
@@ -61,6 +64,9 @@ SCENE_DESCRIPTIONS = {
 
 def get_entity_prompt(style: str = "clean_old_cartoon", entity: str = "dog") -> str:
     noun = ENTITIES.get(entity, entity)
+    styled_prompt = ENTITY_STYLE_PROMPTS.get(style, {}).get(entity)
+    if styled_prompt is not None:
+        return styled_prompt
     if style == "old_pixel_art":
         return _OLD_PIXEL_ART_ENTITY_PROMPT_TEMPLATE.format(entity=noun)
     return ENTITY_PROMPT_TEMPLATE.format(entity=noun)
@@ -79,16 +85,18 @@ def build_scene_prompt(
     scene_prompt = CONTENTS.get(content, content)
     title = _scene_title(content)
     short_description = _short_scene_description(content, scene_prompt)
+    game_title = "Find the Bird" if style == "bold_cardboard" else "Find the Dog"
+    target_plural = "birds" if style == "bold_cardboard" else "dogs"
     return "\n\n".join(
         [
-            f"[Purpose]\nCreate a full-bleed portrait mobile-game background for Find the Dog. Title: {title}.",
+            f"[Purpose]\nCreate a full-bleed portrait mobile-game background for {game_title}. Title: {title}.",
             f"[Short Description]\n{short_description}",
             f"[Scene]\n{scene_prompt}",
             f"[View]\n{view_prompt}",
             f"[Style]\n{style_prompt}",
             (
                 "[Gameplay Composition]\n"
-                "Design this as a production hidden-object background where dogs will be added later. "
+                f"Design this as a production hidden-object background where {target_plural} will be added later. "
                 "Create many plausible hiding pockets on walkable/contact surfaces or open gaps beside "
                 "props, plants, rocks, furniture, railings, crates, planters, benches, roots, tools, "
                 "shelves, stalls, boats, carts, market goods, or other readable foreground objects. "

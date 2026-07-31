@@ -29,3 +29,12 @@ def test_ui_client_defaults_to_zero_hard():
     for rel in ("ui/src/api/editorApi.ts", "ui/src/api/useInpaintStream.ts"):
         source = (Path(__file__).parent.parent / rel).read_text()
         assert "hardDogPercent: number = 30" not in source, f"{rel} still defaults to 30"
+
+
+def test_worker_preserves_explicit_zero_hard_percent():
+    from pathlib import Path
+
+    source = (
+        Path(__file__).parent.parent / "levelbuilder/api/inpaint.py"
+    ).read_text()
+    assert 'metadata.get("hardDogPercent") or 30' not in source

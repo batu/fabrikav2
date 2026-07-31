@@ -184,6 +184,11 @@ function wireSource(content, file) {
   return next;
 }
 
+function removeWiring(content, ids) {
+  const wanted = new Set(ids);
+  return content.split('\n').filter((line) => ![...wanted].some((id) => line.includes(id))).join('\n');
+}
+
 function wireResource(content, file) {
   const state = resourceWiringState(content, file.name);
   assertWiringState(state, file.name);
@@ -278,10 +283,14 @@ function ensureBuildSettings(content, manifest) {
 }
 
 export function patchPbxproj(content, manifest, { googleServicePresent = false } = {}) {
-  let next = content;
+  const desiredSources = new Set(nativeFilesFor(manifest).flatMap((file) => [file.buildId, file.refId]));
+  const staleSourceIds = Object.values(nativeFileIds).flatMap((file) => [file.buildId, file.refId]).filter((id) => !desiredSources.has(id));
+  const hasTrackingProviders = manifest.ios.swiftSources.some((name) => ['AppLovinMaxPlugin.swift', 'AdjustAttributionPlugin.swift', 'AppsFlyerAttributionPlugin.swift', 'MetaEventsPlugin.swift'].includes(name));
+  let next = removeWiring(content, staleSourceIds);
+  if (!hasTrackingProviders) next = removeWiring(next, frameworks.flatMap(([, buildId, refId]) => [buildId, refId]));
   for (const file of nativeFilesFor(manifest)) next = wireSource(next, file);
   next = wireResource(next, privacyFileFor(manifest));
-  for (const framework of frameworks) next = wireFramework(next, framework);
+  if (hasTrackingProviders) for (const framework of frameworks) next = wireFramework(next, framework);
   if (googleServicePresent) next = wireResource(next, googleServiceFile);
   const googleState = resourceWiringState(next, FIREBASE_PLIST);
   assertWiringState(googleState, FIREBASE_PLIST);
@@ -307,13 +316,22 @@ function replacePlistEntry(content, key, valueXml) {
   return `${content.slice(0, closing)}\t${entry}\n${content.slice(closing)}`;
 }
 
+function removePlistEntry(content, key) {
+  const pattern = new RegExp(`\\s*<key>${escapeRegExp(key)}<\\/key>\\s*(?:<string>[\\s\\S]*?<\\/string>|<(?:true|false)\\/>|<array>[\\s\\S]*?<\\/array>)`);
+  return content.replace(pattern, '');
+}
+
 export function patchInfoPlist(content, manifest, skAdIds) {
-  if (skAdIds.length !== EXPECTED_SKAD_COUNT || new Set(skAdIds).size !== EXPECTED_SKAD_COUNT) {
+  const usesAdNetworks = Boolean(manifest.ios.skAdNetworkCatalog);
+  if (usesAdNetworks && (skAdIds.length !== EXPECTED_SKAD_COUNT || new Set(skAdIds).size !== EXPECTED_SKAD_COUNT)) {
     throw new Error(`SKAdNetwork catalog must contain exactly ${EXPECTED_SKAD_COUNT} unique identifiers`);
   }
+  if (!usesAdNetworks && skAdIds.length) throw new Error('provider-free shell cannot contain SKAdNetwork identifiers');
   let next = content;
   next = replacePlistEntry(next, 'CFBundleDisplayName', `<string>${manifest.ios.displayName}</string>`);
-  next = replacePlistEntry(next, 'NSUserTrackingUsageDescription', `<string>${manifest.ios.trackingUsageDescription}</string>`);
+  next = manifest.ios.trackingUsageDescription
+    ? replacePlistEntry(next, 'NSUserTrackingUsageDescription', `<string>${manifest.ios.trackingUsageDescription}</string>`)
+    : removePlistEntry(next, 'NSUserTrackingUsageDescription');
   next = replacePlistEntry(next, 'ITSAppUsesNonExemptEncryption', '<false/>');
   next = replacePlistEntry(next, 'GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED', '<false/>');
   const portrait = '<array>\n\t\t<string>UIInterfaceOrientationPortrait</string>\n\t</array>';
@@ -323,7 +341,9 @@ export function patchInfoPlist(content, manifest, skAdIds) {
     .sort()
     .map((id) => `\t\t<dict>\n\t\t\t<key>SKAdNetworkIdentifier</key>\n\t\t\t<string>${id}</string>\n\t\t</dict>`)
     .join('\n');
-  next = replacePlistEntry(next, 'SKAdNetworkItems', `<array>\n${items}\n\t</array>`);
+  next = usesAdNetworks
+    ? replacePlistEntry(next, 'SKAdNetworkItems', `<array>\n${items}\n\t</array>`)
+    : removePlistEntry(next, 'SKAdNetworkItems');
   return next;
 }
 
@@ -378,13 +398,14 @@ function loadContext(repoRoot, game) {
   requireFile(manifestPath, 'shell manifest');
   const manifest = readJson(manifestPath);
   if (manifest.schemaVersion !== 1 || manifest.game !== game) throw new Error('shell manifest schema/game mismatch');
-  const catalogPath = path.join(recipeDir, manifest.ios.skAdNetworkCatalog);
-  requireFile(catalogPath, 'SKAdNetwork catalog');
-  const ids = readJson(catalogPath).skadnetwork_ids?.map((entry) => entry.skadnetwork_id) ?? [];
+  const catalogPath = manifest.ios.skAdNetworkCatalog ? path.join(recipeDir, manifest.ios.skAdNetworkCatalog) : null;
+  if (catalogPath) requireFile(catalogPath, 'SKAdNetwork catalog');
+  const ids = catalogPath ? (readJson(catalogPath).skadnetwork_ids?.map((entry) => entry.skadnetwork_id) ?? []) : [];
   return { gameDir, recipeDir, manifest, ids };
 }
 
 function validateCatalog(ids, issues) {
+  if (ids.length === 0) return;
   if (ids.length !== EXPECTED_SKAD_COUNT) issues.push(`SKAdNetwork catalog has ${ids.length} entries, expected ${EXPECTED_SKAD_COUNT}`);
   if (new Set(ids).size !== ids.length) issues.push('SKAdNetwork catalog contains duplicates');
   const malformed = ids.filter((id) => !SKAD_ID.test(id));
@@ -398,9 +419,9 @@ function validateManifest(manifest, issues) {
     ['ios.displayName', manifest.ios?.displayName],
     ['ios.swiftToolsVersion', manifest.ios?.swiftToolsVersion],
     ['ios.deploymentTarget', manifest.ios?.deploymentTarget],
-    ['ios.trackingUsageDescription', manifest.ios?.trackingUsageDescription],
   ];
   for (const [name, value] of requiredStrings) if (typeof value !== 'string' || !value.trim()) issues.push(`shell manifest ${name} must be a non-empty string`);
+  if (manifest.ios?.trackingUsageDescription != null && (typeof manifest.ios.trackingUsageDescription !== 'string' || !manifest.ios.trackingUsageDescription.trim())) issues.push('shell manifest ios.trackingUsageDescription must be null or a non-empty string');
   const localPackages = manifest.ios?.localPackages ?? [];
   const remotePackages = manifest.ios?.remotePackages ?? [];
   const names = [...localPackages, ...remotePackages].map((pkg) => pkg.name);
@@ -482,10 +503,14 @@ function validateRecipeSources(recipeDir, manifest, issues) {
   for (const forbidden of ['getBool("disableIdfaReading")', 'getBool("disableAppTrackingTransparencyUsage")', 'call.getString("eventToken")']) if (adjust.includes(forbidden)) issues.push(`AdjustAttributionPlugin.swift exposes unsafe bridge input: ${forbidden}`);
   }
   const privacy = read(manifest.ios.privacyManifest);
-  const privacySnippets = ['<key>NSPrivacyTracking</key>', '<true/>', 'NSPrivacyCollectedDataTypeAdvertisingData'];
+  const hasTrackingProviders = hasAppLovin || hasAdjust;
+  const privacySnippets = hasTrackingProviders
+    ? ['<key>NSPrivacyTracking</key>', '<true/>', 'NSPrivacyCollectedDataTypeAdvertisingData']
+    : ['<key>NSPrivacyTracking</key>', '<false/>', '<key>NSPrivacyCollectedDataTypes</key>'];
   if (hasAppLovin) privacySnippets.push('<string>applovin.com</string>');
   if (hasAdjust) privacySnippets.push('<string>adjust.com</string>');
   for (const snippet of privacySnippets) if (!privacy.includes(snippet)) issues.push(`PrivacyInfo.xcprivacy is missing ${snippet}`);
+  if (!hasTrackingProviders && /NSPrivacyCollectedDataType(?:UserID|PurchaseHistory|ProductInteraction|AdvertisingData)/.test(privacy)) issues.push('provider-free PrivacyInfo.xcprivacy declares collected data');
   const joined = [appDelegate, bridge, appLovin, adjust, privacy].join('\n');
   const secretPatterns = [
     /VITE_ADJUST_IOS_APP_TOKEN\s*=\s*[a-z0-9]{12}/i,
@@ -522,7 +547,8 @@ export function validateGeneratedShell({ repoRoot, game, allowMissingFirebase = 
   const { gameDir, recipeDir, manifest, ids } = loadContext(repoRoot, game);
   const issues = collectRecipeIssues(gameDir, recipeDir, manifest, ids);
   const iosRoot = path.join(gameDir, 'ios', 'App');
-  validateFirebaseIdentity(gameDir, manifest, { allowMissingFirebase }, issues);
+  const usesFirebase = manifest.ios.localPackages.some((pkg) => pkg.name === 'CapacitorFirebaseAnalytics');
+  if (usesFirebase) validateFirebaseIdentity(gameDir, manifest, { allowMissingFirebase }, issues);
   if (!fs.existsSync(iosRoot)) return { issues, generatedPresent: false, skAdNetworkCount: ids.length };
   const required = {
     plist: path.join(iosRoot, 'App', 'Info.plist'),
@@ -534,7 +560,8 @@ export function validateGeneratedShell({ repoRoot, game, allowMissingFirebase = 
   if (issues.some((issue) => issue.startsWith('generated iOS project is missing'))) return { issues, generatedPresent: true, skAdNetworkCount: ids.length };
   const plist = fs.readFileSync(required.plist, 'utf8');
   const plistIds = [...plist.matchAll(/<key>SKAdNetworkIdentifier<\/key>\s*<string>([^<]+)<\/string>/g)].map((match) => match[1]);
-  if (plistIds.length !== EXPECTED_SKAD_COUNT || new Set(plistIds).size !== EXPECTED_SKAD_COUNT || [...plistIds].sort().join('\n') !== [...ids].sort().join('\n')) issues.push('Info.plist SKAdNetworkItems must equal the 152-entry catalog exactly');
+  if (plistIds.length !== ids.length || new Set(plistIds).size !== ids.length || [...plistIds].sort().join('\n') !== [...ids].sort().join('\n')) issues.push('Info.plist SKAdNetworkItems must equal the configured catalog exactly');
+  if (!manifest.ios.trackingUsageDescription && plist.includes('NSUserTrackingUsageDescription')) issues.push('provider-free Info.plist contains NSUserTrackingUsageDescription');
   for (const snippet of ['<key>ITSAppUsesNonExemptEncryption</key>\n\t<false/>', '<key>GOOGLE_ANALYTICS_IDFV_COLLECTION_ENABLED</key>\n\t<false/>', '<string>UIInterfaceOrientationPortrait</string>']) if (!plist.includes(snippet)) issues.push(`Info.plist is missing ${snippet}`);
   if (plist.includes('UIInterfaceOrientationLandscape')) issues.push('Info.plist contains a landscape orientation');
   const project = fs.readFileSync(required.project, 'utf8');
@@ -553,7 +580,12 @@ export function validateGeneratedShell({ repoRoot, game, allowMissingFirebase = 
   for (const file of nativeFilesFor(manifest)) if (sourceWiringState(project, file.name) !== 'wired') issues.push(`${file.name} is not fully wired into App Sources`);
   const privacyFile = privacyFileFor(manifest);
   if (resourceWiringState(project, privacyFile.name) !== 'wired') issues.push(`${privacyFile.name} is not fully wired into App Resources`);
-  for (const [name] of frameworks) if (frameworkWiringState(project, name) !== 'wired') issues.push(`${name} is not fully weak-linked`);
+  const hasTrackingProviders = manifest.ios.swiftSources.some((name) => ['AppLovinMaxPlugin.swift', 'AdjustAttributionPlugin.swift', 'AppsFlyerAttributionPlugin.swift', 'MetaEventsPlugin.swift'].includes(name));
+  for (const [name] of frameworks) {
+    const state = frameworkWiringState(project, name);
+    if (hasTrackingProviders && state !== 'wired') issues.push(`${name} is not fully weak-linked`);
+    if (!hasTrackingProviders && state !== 'absent') issues.push(`${name} remains wired in a provider-free shell`);
+  }
   if (!project.includes(`PRODUCT_BUNDLE_IDENTIFIER = ${manifest.ios.bundleId};`)) issues.push('project.pbxproj has the wrong iOS bundle identifier');
   if (!project.includes(`TARGETED_DEVICE_FAMILY = ${manifest.ios.targetedDeviceFamily};`)) issues.push('project.pbxproj is not phone-only');
   if (!project.includes(`IPHONEOS_DEPLOYMENT_TARGET = ${manifest.ios.deploymentTarget}.0;`)) issues.push('project.pbxproj has the wrong iOS deployment target');
@@ -623,7 +655,9 @@ export function applyNativeShell({ repoRoot, game }) {
   };
   for (const [label, file] of Object.entries(files)) requireFile(file, label);
   const firebaseIssues = [];
-  validateFirebaseIdentity(gameDir, manifest, { allowMissingFirebase: true }, firebaseIssues);
+  if (manifest.ios.localPackages.some((pkg) => pkg.name === 'CapacitorFirebaseAnalytics')) {
+    validateFirebaseIdentity(gameDir, manifest, { allowMissingFirebase: true }, firebaseIssues);
+  }
   if (firebaseIssues.length) throw new Error(`invalid native Firebase configuration:\n- ${firebaseIssues.join('\n- ')}`);
   // The recipe copy below may introduce the Firebase plist on first apply, so
   // presence is recipe-or-generated, not generated-only.

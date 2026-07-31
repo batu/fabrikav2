@@ -83,6 +83,17 @@ VIEWS = {
         "wide-angle distortion, dramatic foreshortening, depth of field, or tiny "
         "distance-scaled clutter."
     ),
+    "top_down": (
+        "Near-vertical overhead mobile game-board view, with the camera above the scene looking "
+        "75 to 85 degrees downward. Treat any enclosed architecture as an open-roof cutaway floor "
+        "plan: omit ceilings and overhead vaults so ground, counters, tabletops, stall footprints, "
+        "and navigable paths dominate the image. Show a broad connected layout from above, not the "
+        "interior elevation of a corridor. No horizon, no eye-level corridor, no tunnel view, no "
+        "view looking into an arch or doorway, no central vanishing point, and no deep one-point "
+        "perspective. Vertical faces must be shallow and secondary to visible horizontal surfaces. "
+        "Use controlled hidden-object density with 4 to 6 readable clusters, breathing room "
+        "between them, and objects large enough to scan on a phone."
+    ),
 }
 
 STYLES = {
@@ -636,7 +647,7 @@ SETTINGS = {
                 "The entire ground surface is consistent sand and weathered rock throughout — every area the viewer can see the ground, it reads as rippled beach sand, wet shingle, or barnacled stone with no untextured blank areas. "
                 "Salvaged tents and lean-tos of varying sizes crowd unevenly around the clearing, some clustered around the fire, others standing alone against the cliff. Patched sailcloth roofs at different heights, some overlapping, some freestanding. "
                 "A half-buried rowboat sticks out of the sand at an unexpected angle near the tide line. "
-                "Scattered throughout without pattern: open treasure chests spilling gold coins, rum barrels, coiled ropes, a ragged black flag on a leaning pole, cutlasses stuck in the sand, lantern posts, fishing nets hung between stakes, stacked crates stamped with anchors, a spyglass on a barrel, message bottles, cannonballs in a pyramid, a parrot perch, driftwood benches, tattered maps weighted with shells, bait buckets, an anchor half-sunk in sand. "
+                "Scattered throughout without pattern: open treasure chests spilling gold coins, rum barrels, coiled ropes, a ragged black flag on a leaning pole, cutlasses stuck in the sand, lantern posts, fishing nets hung between stakes, stacked crates stamped with anchors, a spyglass on a barrel, message bottles, cannonballs in a pyramid, a weathered signpost, driftwood benches, tattered maps weighted with shells, bait buckets, an anchor half-sunk in sand. "
                 "Dense clusters around the campfire, sparser breathing room along the tide line. "
                 "Asymmetric, organic layout — like a camp thrown together from three shipwrecks' worth of salvage."
             ),
@@ -986,6 +997,7 @@ def build_scene_prompt(
     view: str = "isometric",
     style: str = "clean_old_cartoon",
     content: str = "istanbul_market",
+    entity: str = "dog",
 ) -> str:
     """Compose a scene prompt from view + style + content.
 
@@ -1000,11 +1012,12 @@ def build_scene_prompt(
     c = CONTENTS.get(content, content)
     title = _scene_title(content)
     short_description = _short_scene_description(content, c)
-    game_title = "Find the Bird" if style == "bold_cardboard" else "Find the Dog"
-    target_plural = "birds" if style == "bold_cardboard" else "dogs"
+    entity_noun = ENTITIES.get(entity, entity)
+    game_title = f"Find the {entity_noun.title()}"
+    target_plural = f"{entity_noun}s"
     return "\n\n".join(
         [
-            f"[Purpose]\nCreate a full-bleed portrait mobile-game background for {game_title}. Title: {title}.",
+            f"[Purpose]\nCreate a full-bleed portrait mobile-game background for {game_title}.",
             f"[Short Description]\n{short_description}",
             f"[Scene]\n{c}",
             f"[View]\n{v}",
@@ -1023,7 +1036,8 @@ def build_scene_prompt(
             ),
             (
                 "[Constraints]\n"
-                "No people, no live animals, no birds, no insects, no mascots, no dogs, no readable "
+                f"Do not depict any {entity_noun}; every {entity_noun} is added during the later gameplay pass. "
+                "No people, no live animals, no insects, no mascots, no readable "
                 "text, no logos, no watermarks. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, "
                 "empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture "
                 "camouflage. Every visible ground, floor, or water-edge region should read as a clear "

@@ -42,7 +42,11 @@ def test_index_serves_presets_and_every_dropdown_vocabulary(editor_settings):
         response = client.get("/api/presets", headers=_headers(app))
     assert response.status_code == 200
     body = response.json()
-    assert [preset["id"] for preset in body["presets"]] == ["spot-the-bird-lineart"]
+    assert [preset["id"] for preset in body["presets"]] == [
+        "find-the-bird-cardboard-forest-pilot",
+        "find-the-bird-cardboard-market-pilot",
+        "spot-the-bird-lineart",
+    ]
 
     options = body["options"]
     # The dropdowns are driven by the frozen catalog, never by a second list.
@@ -51,6 +55,43 @@ def test_index_serves_presets_and_every_dropdown_vocabulary(editor_settings):
     assert "isometric" in options["views"]
     assert "japan_morning_market" in options["scenes"]
     assert any(option["id"].startswith("google/") for option in options["models"])
+
+
+@pytest.mark.parametrize(
+    ("preset_id", "scene"),
+    [
+        (
+            "find-the-bird-cardboard-forest-pilot",
+            "fairytale_forest_mushroom_cottage_glade",
+        ),
+        ("find-the-bird-cardboard-market-pilot", "japan_morning_market"),
+    ],
+)
+def test_cardboard_pilots_resolve_the_selected_style_and_close_20_template(
+    editor_settings, preset_id, scene
+):
+    app, _ = _preset_app(editor_settings)
+    with TestClient(app) as client:
+        response = client.get(
+            f"/api/presets/{preset_id}/resolved", headers=_headers(app)
+        )
+
+    assert response.status_code == 200
+    resolved = response.json()
+    assert resolved["selection"] == {
+        "scene": scene,
+        "view": "isometric_close_20",
+        "style": "bold_cardboard",
+        "entity": "bird",
+        "model": "google/gemini-3.1-flash-image-preview",
+    }
+    assert "approximately 20 plausible hiding pockets" in resolved["scenePrompt"]
+    assert "stacked matte cardstock" in resolved["scenePrompt"]
+    assert "background for Find the Bird" in resolved["scenePrompt"]
+    assert "where birds will be added later" in resolved["scenePrompt"]
+    assert "where dogs will be added later" not in resolved["scenePrompt"]
+    assert "exactly two wings and two legs" in resolved["entityPrompt"]
+    assert "No felt" in resolved["entityPrompt"]
 
 
 def test_resolution_pins_catalog_text_and_a_digest(editor_settings):

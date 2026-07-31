@@ -148,10 +148,13 @@ def _build_scene_prompt(
     style_prompt: str,
     scale_prompt: str,
     title: str,
+    entity_noun: str,
 ) -> str:
     short_description = _short_scene_description(content_prompt, title)
+    game_title = f"Find the {entity_noun.title()}"
+    target_plural = f"{entity_noun}s"
     blocks = [
-        f"[Purpose]\nCreate a full-bleed portrait mobile-game background for Find the Dog. Title: {title}.",
+        f"[Purpose]\nCreate a full-bleed portrait mobile-game background for {game_title}.",
         f"[Short Description]\n{short_description}",
         f"[Scene] {content_prompt}",
         f"[View] {view_prompt}",
@@ -160,8 +163,8 @@ def _build_scene_prompt(
         blocks.append(f"[Scale]\n{scale_prompt}")
     blocks.extend([
         f"[Style] {style_prompt}",
-        "[Gameplay Composition]\nDesign this as a production hidden-object background where dogs will be added later. Create many plausible hiding pockets on walkable/contact surfaces or open gaps beside props, plants, rocks, furniture, railings, crates, planters, benches, roots, tools, shelves, stalls, boats, carts, market goods, or other readable foreground objects. Near props is ideal; inside solid objects, on blank walls, on roofs, floating over water, or on decorative vertical faces is not useful. Use theme-specific spatial logic such as rings, islands, terraces, nested rooms, clearings, bridges, piers, shelves, courtyards, side alleys, garden pockets, or clustered market zones. Keep open pockets between prop clusters so hitboxes can sit near objects without excessive overlap.",
-        "[Constraints]\nNo people, no live animals, no birds, no insects, no mascots, no dogs, no readable text, no logos, no watermarks. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture camouflage. Every visible ground, floor, or water-edge region should read as a clear material appropriate to the scene; no untextured blank areas.",
+        f"[Gameplay Composition]\nDesign this as a production hidden-object background where {target_plural} will be added later. Create many plausible hiding pockets on walkable/contact surfaces or open gaps beside props, plants, rocks, furniture, railings, crates, planters, benches, roots, tools, shelves, stalls, boats, carts, market goods, or other readable foreground objects. Near props is ideal; inside solid objects, on blank walls, on roofs, floating over water, or on decorative vertical faces is not useful. Use theme-specific spatial logic such as rings, islands, terraces, nested rooms, clearings, bridges, piers, shelves, courtyards, side alleys, garden pockets, or clustered market zones. Keep open pockets between prop clusters so hitboxes can sit near objects without excessive overlap.",
+        f"[Constraints]\nDo not depict any {entity_noun}; every {entity_noun} is added during the later gameplay pass. No people, no live animals, no insects, no mascots, no readable text, no logos, no watermarks. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture camouflage. Every visible ground, floor, or water-edge region should read as a clear material appropriate to the scene; no untextured blank areas.",
     ])
     return "\n\n".join(blocks)
 
@@ -228,6 +231,7 @@ def _assemble_recipe_prompts(req: RecipePromptRequest) -> RecipePromptResponse:
         style_prompt=style_prompt,
         scale_prompt=scale_def["prompt"],
         title=title,
+        entity_noun=entity_noun,
     )
     dog_prompt = _render_entity_prompt(
         text=entity_template,
@@ -255,7 +259,7 @@ def _assemble_recipe_prompts(req: RecipePromptRequest) -> RecipePromptResponse:
                 "scene": f"scene:{req.setting}.{req.scene}",
                 "entity": "inpaint:default",
             },
-            "breedPolicy": "per-dog-generation",
+            "breedPolicy": "per-entity-generation",
         },
     )
 
@@ -299,6 +303,7 @@ class CreateSessionRequest(BaseModel):
     bgModel: str | None = Field(None, max_length=200)
     inpaintModel: str | None = Field(None, max_length=200)
     nDogs: int = Field(..., ge=1, le=40)
+    oneShot: bool = False
     aspectRatio: str = "9:16"
     imageSize: str = "1K"
     upscaleEnabled: bool = False
@@ -316,8 +321,48 @@ class CreateSessionRequest(BaseModel):
     tags: list[str] = Field(default_factory=list, max_length=20)
 
 
+def _one_shot_scene_prompt(
+    scene_prompt: str,
+    *,
+    entity: str,
+    count: int,
+) -> str:
+    plural = entity if entity.endswith("s") else f"{entity}s"
+    prompt = scene_prompt.replace(
+        f"where {plural} will be added later.",
+        f"with exactly {count} individual {plural} already integrated into the finished scene.",
+    )
+    prompt = prompt.replace(
+        f"Do not depict any {entity}; every {entity} is added during the later gameplay pass.",
+        (
+            f"Depict exactly {count} individual {plural}. Every {entity} must be fully visible, "
+            "recognizable on close inspection, safely inside the canvas, and separated from every "
+            f"other {entity}. Keep all {plural} at approximately the same apparent screen-space "
+            "size regardless of scene depth; the largest and smallest may differ by no more than "
+            "25%. Distribute them naturally across the full scene without overlapping them."
+        ),
+    )
+    prompt = prompt.replace(
+        "No people, no live animals, no insects, no mascots,",
+        f"No people, no live animals other than the requested {plural}, no insects, no mascots,",
+    )
+    return (
+        f"{prompt}\n\n[One-Shot Verification]\n"
+        f"This is the finished playable illustration. Include exactly {count} {plural} in this "
+        "single image-generation pass. Do not add magenta circles, target markers, labels, numbers, "
+        f"outlines, or a title. Add no live animals other than the requested {plural}. Before "
+        f"responding, verify that all {count} {plural} are present, fully visible, separated, and "
+        "within the 25% apparent-size tolerance. Return only the completed image."
+    )
+
+
 class SelectBgRequest(BaseModel):
     bgIndex: int
+
+
+class ReconcileMagentaHitboxesRequest(BaseModel):
+    detections: list[dict[str, Any]] = Field(..., min_length=1, max_length=40)
+    minimumConfidence: float = Field(0.5, ge=0.0, le=1.0)
 
 
 class LevelSectionResponse(BaseModel):
@@ -888,6 +933,19 @@ def create_session(req: CreateSessionRequest):
             "scene": req.scene,
             "entity": req.entity,
             "sceneDescription": SCENE_DESCRIPTIONS.get(req.scene or "", ""),
+        }
+    if req.oneShot:
+        entity = req.entity or "target"
+        scene_prompt = _one_shot_scene_prompt(
+            scene_prompt,
+            entity=entity,
+            count=req.nDogs,
+        )
+        prompt_context = {
+            **prompt_context,
+            "oneShot": True,
+            "oneShotCount": req.nDogs,
+            "oneShotSizeTolerancePercent": 25,
         }
 
     bg_model = req.bgModel or req.model
@@ -1961,6 +2019,54 @@ def fix_session_hitboxes(session_id: str, maxOffsetFraction: float = Query(0.5, 
     # server filesystem, so the client cannot compute this correctly.
     _validate_session_id(session_id)
     return S.recenter_hitboxes_to_sprites(session_id, max_offset_fraction=maxOffsetFraction)
+
+
+@router.post("/sessions/{session_id}/reconcile-magenta-hitboxes")
+def reconcile_magenta_hitboxes(session_id: str, req: ReconcileMagentaHitboxesRequest):
+    _validate_session_id(session_id)
+    try:
+        return S.reconcile_magenta_hitboxes_to_detections(
+            session_id,
+            detections=req.detections,
+            minimum_confidence=req.minimumConfidence,
+        )
+    except S.LevelNotReadyError as error:
+        raise HTTPException(
+            409,
+            detail={"error": str(error), "code": "recognition_not_ready"},
+        ) from error
+
+
+@router.post("/sessions/{session_id}/materialize-detection-sprites")
+def materialize_detection_sprites(session_id: str, req: ReconcileMagentaHitboxesRequest):
+    _validate_session_id(session_id)
+    try:
+        return S.materialize_detection_sprites(
+            session_id,
+            detections=req.detections,
+            minimum_confidence=req.minimumConfidence,
+        )
+    except S.LevelNotReadyError as error:
+        raise HTTPException(
+            409,
+            detail={"error": str(error), "code": "sprite_materialization_failed"},
+        ) from error
+
+
+@router.post("/sessions/{session_id}/finalize-one-shot")
+def finalize_one_shot(session_id: str, req: ReconcileMagentaHitboxesRequest):
+    _validate_session_id(session_id)
+    try:
+        return S.finalize_one_shot_from_detections(
+            session_id,
+            detections=req.detections,
+            minimum_confidence=req.minimumConfidence,
+        )
+    except S.LevelNotReadyError as error:
+        raise HTTPException(
+            409,
+            detail={"error": str(error), "code": "recognition_not_ready"},
+        ) from error
 
 
 @router.post("/sessions/{session_id}/bundle")

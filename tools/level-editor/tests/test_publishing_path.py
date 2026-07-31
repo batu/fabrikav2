@@ -155,3 +155,49 @@ def test_staging_orphans_are_not_levels(isolated_session):
 
     candidates = sess.list_catalog_candidates(include_tombstoned=True)
     assert [c["id"] for c in candidates if c["id"].startswith(".")] == []
+
+
+def test_magenta_detection_sprites_make_whole_image_exportable(
+    isolated_session, monkeypatch
+):
+    sess = isolated_session
+    from levelbuilder.api import inpaint
+
+    session_id = "publish_magenta_whole_image"
+    sdir = _build_exportable_session(sess, session_id)
+    (sdir / "session.json").write_text(json.dumps({
+        "mode": "portrait",
+        "style": "clean_old_cartoon",
+        "inpaint_mode": "magenta",
+        "dogs": [{"index": 0, "activeVariant": None}],
+    }))
+    for path in (sdir / "dogs").rglob("*"):
+        if path.is_file():
+            path.unlink()
+
+    def fake_semantic_alpha(clean_crop, painted, hitbox, box, relaxed):
+        alpha = Image.new("L", painted.size, 0)
+        alpha.paste(255, (20, 20, painted.width - 20, painted.height - 20))
+        return alpha
+
+    monkeypatch.setattr(inpaint, "_semantic_sprite_alpha", fake_semantic_alpha)
+    result = sess.materialize_detection_sprites(
+        session_id,
+        detections=[{
+            "x": 364,
+            "y": 680,
+            "width": 40,
+            "height": 40,
+            "confidence": 0.99,
+        }],
+    )
+
+    assert result["materialized"] == 1
+    result = sess.export_to_game(session_id, enforce_visibility=False)
+
+    assert result["levelId"] == session_id
+    exported = json.loads(
+        (sess.GAME_PUBLIC_LEVELS / session_id / "level.json").read_text()
+    )
+    assert exported["dogs"][0]["id"] == "dog_00"
+    assert exported["dogs"][0]["sprite"]["cleanup"]

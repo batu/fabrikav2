@@ -35,7 +35,7 @@ def test_recipe_prompt_assembly_returns_server_owned_prompt_context() -> None:
     assert "[Scale]" not in response.scenePrompt
     assert "Specific dog breed for this target:" not in response.dogPrompt
     assert response.promptContext["source"] == "server-recipe-prompt-v1"
-    assert response.promptContext["breedPolicy"] == "per-dog-generation"
+    assert response.promptContext["breedPolicy"] == "per-entity-generation"
     assert response.promptContext["scale"] == "none"
 
 
@@ -47,6 +47,24 @@ def test_recipe_prompt_assembly_adds_selected_scale_without_changing_no_scale() 
     assert "[Scale]" in response.scenePrompt
     assert "larger landmarks and props" in response.scenePrompt
     assert response.promptContext["scale"] == "close_ad"
+
+
+def test_top_down_view_forbids_corridor_perspective() -> None:
+    recipe = _valid_recipe().model_copy(
+        update={
+            "setting": "turkey",
+            "scene": "turkey_grand_bazaar_corridor",
+            "view": "top_down",
+        }
+    )
+
+    response = routes._assemble_recipe_prompts(recipe)
+
+    assert "75 to 85 degrees downward" in response.scenePrompt
+    assert "open-roof cutaway floor plan" in response.scenePrompt
+    assert "No horizon" in response.scenePrompt
+    assert "no eye-level corridor" in response.scenePrompt
+    assert "no central vanishing point" in response.scenePrompt
 
 
 def test_recipe_prompt_assembly_rejects_invalid_scale() -> None:
@@ -110,6 +128,40 @@ def test_create_session_allows_legacy_prompt_payload(monkeypatch: pytest.MonkeyP
     assert response["scenePrompt"] == "legacy scene prompt"
     assert captured["scene_prompt"] == "legacy scene prompt"
     assert captured["dog_prompt"] == "legacy dog prompt"
+
+
+def test_create_session_one_shot_adds_entities_to_background_prompt(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    captured: dict[str, object] = {}
+
+    def fake_create_session(session_id: str, **kwargs: object) -> None:
+        captured["session_id"] = session_id
+        captured.update(kwargs)
+
+    monkeypatch.setattr(routes.S, "create_session", fake_create_session)
+
+    response = routes.create_session(
+        routes.CreateSessionRequest(
+            setting="pirate_shipwreck_island",
+            scene="pirate_shipwreck_island_treasure_cove_camp",
+            entity="bird",
+            view="isometric",
+            style="bold_cardboard",
+            bgModel=DEFAULT_TEST_MODEL,
+            inpaintModel=DEFAULT_TEST_MODEL,
+            nDogs=15,
+            oneShot=True,
+        ),
+    )
+
+    prompt = response["scenePrompt"]
+    assert "exactly 15 individual birds" in prompt
+    assert "25%" in prompt
+    assert "magenta" in prompt
+    assert "No people, no live animals, no insects" not in prompt
+    assert "No people, no live animals other than the requested birds" in prompt
+    assert captured["scene_prompt"] == prompt
 
 
 def test_create_session_rejects_retired_landscape_mode() -> None:
