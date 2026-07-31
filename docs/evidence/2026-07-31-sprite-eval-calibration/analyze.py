@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-GOLD = "gold"
+GOLD = "gold-sol"
 BACKENDS = ["ollama", "codex", "openrouter-flash", "luna"]
 DEFECT = 0.5
 
