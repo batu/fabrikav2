@@ -631,8 +631,12 @@ def _clean_sprite_alpha(
     yy, xx = np.ogrid[:height, :width]
     core_radius = max(4.0, float(hitbox.radius) * 1.15)
     core = ((xx - local_cx) ** 2 + (yy - local_cy) ** 2) <= core_radius ** 2
-    max_component_distance = max(8.0, float(hitbox.radius) * 2.6)
-    min_component_area = max(12, int(float(hitbox.radius) * float(hitbox.radius) * 0.025))
+    # Tightened (plan 2026-07-31-002 U7): the 2.6r / 0.025r² zone admitted
+    # crumb specks (droppings, detached feet, paint flecks) that shipped in
+    # pickup sprites across the audited corpus. Held tools survive because
+    # they touch the hitbox core; only detached debris rides on these limits.
+    max_component_distance = max(8.0, float(hitbox.radius) * 1.8)
+    min_component_area = max(24, int(float(hitbox.radius) * float(hitbox.radius) * 0.06))
 
     visited = np.zeros(arr.shape, dtype=bool)
     keep = np.zeros(arr.shape, dtype=bool)
