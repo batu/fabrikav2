@@ -969,6 +969,35 @@ def cmd_validate(args: argparse.Namespace) -> None:
     _emit(args, {"ok": True, "games": results})
 
 
+def cmd_evaluate_sprites(args: argparse.Namespace) -> None:
+    # Local, server-free: deterministic sprite-quality axes over an exported corpus.
+    from levelbuilder.api.sprite_eval import evaluate_corpus, evaluate_level_dir
+    from levelbuilder.settings import resolve_game
+
+    if not args.game:
+        raise CliError("game_required", "pass --game <name>")
+    root = resolve_game(args.game).game_root / "public" / "levels"
+    if not root.is_dir():
+        raise CliError("corpus_missing", f"no public/levels corpus at {root}")
+    if args.level:
+        report = {
+            "levels": [evaluate_level_dir(root / level_id) for level_id in args.level],
+        }
+        report["summary"] = {
+            "levels": len(report["levels"]),
+            "birds": sum(lv["summary"]["birds"] for lv in report["levels"]),
+            "fail": sum(lv["summary"]["fail"] for lv in report["levels"]),
+            "warn": sum(lv["summary"]["warn"] for lv in report["levels"]),
+        }
+    else:
+        report = evaluate_corpus(root)
+    if args.out:
+        Path(args.out).write_text(json.dumps(report, indent=1))
+        _emit(args, {"ok": True, "out": args.out, "summary": report["summary"]})
+    else:
+        _emit(args, report)
+
+
 def cmd_jobs(client: Client, args: argparse.Namespace) -> None:
     params = {"sessionId": args.session} if args.session else {}
     _emit(args, client.get("/api/jobs", params=params))
@@ -1173,6 +1202,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--game")
     p.add_argument("--all-games", action="store_true",
                    help="validate every game with a public/levels corpus")
+
+    p = verb("evaluate-sprites", cmd_evaluate_sprites, needs_client=False)
+    p.add_argument("--game")
+    p.add_argument("--level", action="append", help="limit to specific level id(s)")
+    p.add_argument("--out", help="write full report JSON to this path")
 
     p = verb("jobs", cmd_jobs)
     p.add_argument("--session")
