@@ -15,6 +15,20 @@ REPO = HERE.parents[2]
 PUBLIC = REPO / "games" / "find_the_bird" / "public" / "levels"
 
 
+def _regenerate_webp_derivatives(level_dir: Path) -> None:
+    """The bundled manifest and game prefer .webp; export deletes stale ones.
+    Without fresh derivatives + a manifest upsert the game's prewarm hits a
+    missing webp and the reveal under-layer renders BLACK on pickup (found
+    live 2026-07-31)."""
+    from PIL import Image
+
+    for stem in ("color", "bg_00"):
+        png, webp = level_dir / f"{stem}.png", level_dir / f"{stem}.webp"
+        if png.exists() and not webp.exists():
+            with Image.open(png) as img:
+                img.convert("RGB").save(webp, format="WEBP", quality=80, method=6)
+
+
 def main() -> None:
     os.environ.setdefault("LEVEL_EDITOR_GAME", "find_the_bird")
     from levelbuilder.settings import apply_game_from_env
@@ -47,6 +61,10 @@ def main() -> None:
             shutil.move(str(staging / level_id), str(live))
             if backup.exists():
                 shutil.rmtree(backup)
+            _regenerate_webp_derivatives(live)
+            from levelbuilder.api.session import upsert_bundled_manifest_level
+
+            upsert_bundled_manifest_level(level_id)
             results[level_id] = "exported"
         except ExportGateError as error:
             results[level_id] = f"refused: {'; '.join(error.violations[:2])}"

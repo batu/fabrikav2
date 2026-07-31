@@ -1,0 +1,325 @@
+{
+  "id": "morning_fairytale_glade_flash_close",
+  "name": "Level morning_fairytale_glade_flash_close (clean_old_cartoon)",
+  "width": 768,
+  "height": 1376,
+  "bwImage": "levels/morning_fairytale_glade_flash_close/bw.png",
+  "colorImage": "levels/morning_fairytale_glade_flash_close/color.png",
+  "dogs": [
+    {
+      "id": "dog_00",
+      "x": 496,
+      "y": 580,
+      "r": 32,
+      "sprite": {
+        "image": "levels/morning_fairytale_glade_flash_close/dogs/dog_00/sprite_000.png",
+        "x": 470,
+        "y": 550,
+        "width": 52,
+        "height": 46,
+        "cleanup": {
+          "x": 466,
+          "y": 546,
+          "width": 60,
+          "height": 54
+        },
+        "anchorX": 0.5,
+        "anchorY": 0.6522
+      }
+    },
+    {
+      "id": "dog_01",
+      "x": 294,
+      "y": 557,
+      "r": 30,
+      "sprite": {
+        "image": "levels/morning_fairytale_glade_flash_close/dogs/dog_01/sprite_000.png",
+        "x": 272,
+        "y": 541,
+        "width": 47,
+        "height": 36,
+        "cleanup": {
+          "x": 268,
+          "y": 537,
+          "width": 55,
+          "height": 44
+        },
+        "anchorX": 0.4681,
+        "anchorY": 0.4444
+      }
+    },
+    {
+      "id": "dog_02",
+      "x": 520,
+      "y": 929,
+      "r": 23,
+      "sprite": {
+        "image": "levels/morning_fairytale_glade_flash_close/dogs/dog_02/sprite_000.png",
+        "x": 490,
+        "y": 897,
+        "width": 41,
+        "height": 59,
+        "cleanup": {
+          "x": 486,
+          "y": 897,
+          "width": 49,
+          "height": 63
+        },
+        "anchorX": 0.7317,
+        "anchorY": 0.5424
+      }
+    },
+    {
+      "id": "dog_03",
+      "x": 407,
+      "y": 990,
+      "r": 45,
+      "sprite": {
+        "image": "levels/morning_fairytale_glade_flash_close/dogs/dog_03/sprite_000.png",
+        "x": 368,
+        "y": 956,
+        "width": 66,
+        "height": 52,
+        "cleanup": {
+          "x": 364,
+          "y": 952,
+          "width": 74,
+          "height": 60
+        },
+        "anchorX": 0.5909,
+        "anchorY": 0.6538
+      }
+    },
+    {
+      "id": "dog_04",
+      "x": 428,
+      "y": 702,
+      "r": 32,
+      "sprite": {
+        "image": "levels/morning_fairytale_glade_flash_close/dogs/dog_04/sprite_000.png",
+        "x": 397,
+        "y": 673,
+        "width": 73,
+        "height": 67,
+        "cleanup": {
+          "x": 393,
+          "y": 669,
+          "width": 81,
+          "height": 71
+        },
+        "anchorX": 0.4247,
+        "anchorY": 0.4328
+      }
+    },
+    {
+      "id": "dog_05",
+      "x": 352,
+      "y": 642,
+      "r": 34,
+      "sprite": {
+        "image": "levels/morning_fairytale_glade_flash_close/dogs/dog_05/sprite_000.png",
+        "x": 307,
+        "y": 611,
+        "width": 68,
+        "height": 56,
+        "cleanup": {
+          "x": 303,
+          "y": 607,
+          "width": 76,
+          "height": 64
+        },
+        "anchorX": 0.6618,
+        "anchorY": 0.5536
+      }
+    },
+    {
+      "id": "dog_06",
+      "x": 474,
+      "y": 897,
+      "r": 30,
+      "sprite": {
+        "image": "levels/morning_fairytale_glade_flash_close/dogs/dog_06/sprite_000.png",
+        "x": 445,
+        "y": 866,
+        "width": 48,
+        "height": 60,
+        "cleanup": {
+          "x": 441,
+          "y": 862,
+          "width": 56,
+          "height": 68
+        },
+        "anchorX": 0.6042,
+        "anchorY": 0.5167
+      }
+    },
+    {
+      "id": "dog_07",
+      "x": 458,
+      "y": 723,
+      "r": 24,
+      "sprite": {
+        "image": "levels/morning_fairytale_glade_flash_close/dogs/dog_07/sprite_000.png",
+        "x": 423,
+        "y": 701,
+        "width": 49,
+        "height": 48,
+        "cleanup": {
+          "x": 420,
+          "y": 697,
+          "width": 56,
+          "height": 56
+        },
+        "anchorX": 0.7143,
+        "anchorY": 0.4583
+      }
+    },
+    {
+      "id": "dog_08",
+      "x": 306,
+      "y": 784,
+      "r": 35,
+      "sprite": {
+        "image": "levels/morning_fairytale_glade_flash_close/dogs/dog_08/sprite_000.png",
+        "x": 289,
+        "y": 762,
+        "width": 41,
+        "height": 39,
+        "cleanup": {
+          "x": 285,
+          "y": 758,
+          "width": 49,
+          "height": 47
+        },
+        "anchorX": 0.4146,
+        "anchorY": 0.5641
+      }
+    },
+    {
+      "id": "dog_09",
+      "x": 347,
+      "y": 969,
+      "r": 25,
+      "sprite": {
+        "image": "levels/morning_fairytale_glade_flash_close/dogs/dog_09/sprite_000.png",
+        "x": 311,
+        "y": 934,
+        "width": 57,
+        "height": 57,
+        "cleanup": {
+          "x": 308,
+          "y": 934,
+          "width": 64,
+          "height": 61
+        },
+        "anchorX": 0.6316,
+        "anchorY": 0.614
+      }
+    },
+    {
+      "id": "dog_10",
+      "x": 349,
+      "y": 872,
+      "r": 31,
+      "sprite": {
+        "image": "levels/morning_fairytale_glade_flash_close/dogs/dog_10/sprite_000.png",
+        "x": 319,
+        "y": 835,
+        "width": 57,
+        "height": 62,
+        "cleanup": {
+          "x": 315,
+          "y": 831,
+          "width": 65,
+          "height": 70
+        },
+        "anchorX": 0.5263,
+        "anchorY": 0.5968
+      }
+    },
+    {
+      "id": "dog_11",
+      "x": 333,
+      "y": 457,
+      "r": 22,
+      "sprite": {
+        "image": "levels/morning_fairytale_glade_flash_close/dogs/dog_11/sprite_000.png",
+        "x": 304,
+        "y": 426,
+        "width": 47,
+        "height": 50,
+        "cleanup": {
+          "x": 302,
+          "y": 426,
+          "width": 53,
+          "height": 54
+        },
+        "anchorX": 0.617,
+        "anchorY": 0.62
+      }
+    },
+    {
+      "id": "dog_12",
+      "x": 556,
+      "y": 716,
+      "r": 23,
+      "sprite": {
+        "image": "levels/morning_fairytale_glade_flash_close/dogs/dog_12/sprite_000.png",
+        "x": 519,
+        "y": 696,
+        "width": 48,
+        "height": 41,
+        "cleanup": {
+          "x": 519,
+          "y": 692,
+          "width": 52,
+          "height": 49
+        },
+        "anchorX": 0.7708,
+        "anchorY": 0.4878
+      }
+    },
+    {
+      "id": "dog_13",
+      "x": 419,
+      "y": 541,
+      "r": 31,
+      "sprite": {
+        "image": "levels/morning_fairytale_glade_flash_close/dogs/dog_13/sprite_000.png",
+        "x": 380,
+        "y": 508,
+        "width": 55,
+        "height": 52,
+        "cleanup": {
+          "x": 376,
+          "y": 504,
+          "width": 63,
+          "height": 60
+        },
+        "anchorX": 0.7091,
+        "anchorY": 0.6346
+      }
+    },
+    {
+      "id": "dog_14",
+      "x": 314,
+      "y": 399,
+      "r": 25,
+      "sprite": {
+        "image": "levels/morning_fairytale_glade_flash_close/dogs/dog_14/sprite_000.png",
+        "x": 279,
+        "y": 371,
+        "width": 46,
+        "height": 57,
+        "cleanup": {
+          "x": 275,
+          "y": 367,
+          "width": 54,
+          "height": 65
+        },
+        "anchorX": 0.7609,
+        "anchorY": 0.4912
+      }
+    }
+  ]
+}
