@@ -26,6 +26,21 @@ Re-exported levels: japan_morning_market_bird_e99f, morning_pirate_cove_pro_stan
 pirate_shipwreck_island_palm_root_ship_ribs_bird_0e47__cmp_crop,
 square_grand_bazaar_flash_4k, square_hawaii_waterfall_flash_4k.
 
+## Device evidence (iPhone 12, verify-device lane)
+
+`device/level.png` — regenerated hawaii level rendering on the phone (all 15
+birds complete, sticker-integrated). `device/win.png` — after the tour picked
+up all 15 birds: background pristine, zero pop-in, zero artifacts.
+
+**Regression found and fixed on the way:** the first device run showed BLACK
+rectangles at every pickup site. Root cause: the staged export bypassed the
+packaging step that generates `color.webp`/`bg_00.webp` and refreshes
+bundled-manifest hashes; the game's prewarm failed decoding the missing webp
+and the reveal under-layer rendered black. Reproduced in browser
+(`device/browser-pickup-after.png` is the fixed browser run), repaired via
+webp regeneration + `upsert_bundled_manifest_level`, now built into
+`export_pass.py`, and re-verified on the device.
+
 ## Remaining work (see BLOCKERS.md)
 
 - **55 birds across 15 levels need provider repaints** (`repaint_final.json`):
