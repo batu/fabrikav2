@@ -126,6 +126,36 @@ def test_run_magenta_inpaint_writes_full_output(isolated_session, monkeypatch):
     assert (sdir / "inpainted.gen.json").is_file()
 
 
+def test_provider_call_releases_the_semaphore_it_acquired(monkeypatch):
+    import threading
+
+    from levelbuilder.api import inpaint as inp
+
+    acquired_semaphore = threading.BoundedSemaphore(1)
+    replacement_semaphore = threading.BoundedSemaphore(1)
+    call_started = threading.Event()
+    finish_call = threading.Event()
+    monkeypatch.setattr(inp, "GEMINI_SEMAPHORE", acquired_semaphore)
+    monkeypatch.setattr(inp, "_MAX_ATTEMPTS", 1)
+
+    def provider_call():
+        call_started.set()
+        assert finish_call.wait(timeout=2)
+        return "done"
+
+    result = []
+    worker = threading.Thread(
+        target=lambda: result.append(inp._with_retries_and_timeout(provider_call))
+    )
+    worker.start()
+    assert call_started.wait(timeout=2)
+    monkeypatch.setattr(inp, "GEMINI_SEMAPHORE", replacement_semaphore)
+    finish_call.set()
+    worker.join(timeout=2)
+
+    assert result == ["done"]
+
+
 def test_durable_inpaint_request_accepts_magenta_mode():
     from levelbuilder.api import inpaint as inp
 

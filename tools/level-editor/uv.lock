@@ -655,7 +655,7 @@ wheels = [
 
 [[package]]
 name = "ftd-editor"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "../ftd-level-editor" }
 dependencies = [
     { name = "fastapi" },
@@ -990,7 +990,7 @@ wheels = [
 
 [[package]]
 name = "level-editor"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
