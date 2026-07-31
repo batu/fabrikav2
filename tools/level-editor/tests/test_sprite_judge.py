@@ -75,6 +75,21 @@ def test_codex_missing_cli_returns_structured_failure(monkeypatch):
     assert "not found" in verdict.error
 
 
+def test_ollama_backend_registered_with_env_url(monkeypatch):
+    monkeypatch.setenv("LEVEL_EDITOR_OLLAMA_URL", "http://example:9999/")
+    backend = make_backend("ollama")
+    assert backend.base_url == "http://example:9999"
+    assert backend.model == "qwen3.5:27b"
+
+
+def test_ollama_unreachable_returns_structured_failure(monkeypatch):
+    monkeypatch.setenv("LEVEL_EDITOR_OLLAMA_URL", "http://127.0.0.1:1")
+    backend = make_backend("ollama", timeout_s=2.0)
+    verdict = backend.judge(_case())
+    assert verdict.ok is False
+    assert verdict.error
+
+
 def test_make_backend_unknown_name():
     with pytest.raises(JudgeError):
         make_backend("nope")

@@ -253,9 +253,70 @@ class OpenRouterJudge:
         )
 
 
+class OllamaJudge:
+    """Judge via an Ollama server (the ubuntu-server 4090 by default). Free batch lane."""
+
+    name = "ollama"
+
+    # Ollama on the GPU host binds localhost only; reach it through an SSH
+    # tunnel: `ssh -f -N -L 11435:localhost:11434 ubuntu-server`.
+    def __init__(
+        self,
+        model: str = "qwen3.5:27b",
+        base_url: str | None = None,
+        timeout_s: float = 180.0,
+    ):
+        import os
+
+        self.model = model
+        base_url = base_url or os.environ.get(
+            "LEVEL_EDITOR_OLLAMA_URL", "http://localhost:11435"
+        )
+        self.base_url = base_url.rstrip("/")
+        self.timeout_s = timeout_s
+
+    def judge(self, case: JudgeCase) -> JudgeVerdict:
+        import base64
+        import io
+
+        import httpx
+
+        panel = build_judge_panel(case)
+        buffer = io.BytesIO()
+        panel.save(buffer, format="PNG")
+        try:
+            response = httpx.post(
+                f"{self.base_url}/api/chat",
+                json={
+                    "model": self.model,
+                    "stream": False,
+                    "options": {"temperature": 0.0},
+                    "messages": [{
+                        "role": "user",
+                        "content": PROMPT_TEMPLATE,
+                        "images": [base64.b64encode(buffer.getvalue()).decode()],
+                    }],
+                },
+                timeout=self.timeout_s,
+            )
+            response.raise_for_status()
+            text = (response.json().get("message") or {}).get("content") or ""
+            data = parse_verdict_json(text)
+        except JudgeError as exc:
+            return _failed(case, self.name, str(exc))
+        except Exception as exc:  # noqa: BLE001 — network/server errors become structured failures
+            return _failed(case, self.name, f"{type(exc).__name__}: {exc}")
+        return JudgeVerdict(
+            dog_id=case.dog_id, subject=data["subject"],
+            completeness=data["completeness"], evidence=data["evidence"],
+            backend=f"{self.name}:{self.model}",
+        )
+
+
 BACKENDS = {
     "codex": CodexExecJudge,
     "openrouter": OpenRouterJudge,
+    "ollama": OllamaJudge,
 }
 
 
