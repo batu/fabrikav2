@@ -1127,12 +1127,75 @@ def _pickup_sam_session():
     return _PICKUP_SAM_SESSION
 
 
+class RemoteSam2Predictor:
+    """SAM2 over HTTP (the pato 4090 service, scripts/pato-judge/sam2_server.py).
+
+    Satisfies the Sam2Predictor protocol so _sam2_sprite_alpha works unchanged
+    on hosts without a local sam2 install. Reach the service through an SSH
+    tunnel: `ssh -f -N -L 8977:localhost:8977 ubuntu-server`, then set
+    FTD_SAM2_URL=http://localhost:8977.
+    """
+
+    def __init__(self, base_url: str, timeout_s: float = 120.0):
+        self.base_url = base_url.rstrip("/")
+        self.timeout_s = timeout_s
+        self._image: np.ndarray | None = None
+
+    def set_image(self, image: np.ndarray) -> None:
+        self._image = image
+
+    def predict(
+        self,
+        *,
+        point_coords: np.ndarray,
+        point_labels: np.ndarray,
+        box: np.ndarray,
+        multimask_output: bool = True,
+    ):
+        import base64
+        import io
+
+        import httpx
+
+        if self._image is None:
+            raise RuntimeError("set_image was not called")
+        buffer = io.BytesIO()
+        Image.fromarray(self._image).save(buffer, format="PNG")
+        response = httpx.post(
+            f"{self.base_url}/predict",
+            json={
+                "image_png_b64": base64.b64encode(buffer.getvalue()).decode(),
+                "point": point_coords.tolist(),
+                "point_labels": [int(v) for v in np.asarray(point_labels).ravel()],
+                "box": [float(v) for v in np.asarray(box).ravel()],
+                "multimask_output": multimask_output,
+            },
+            timeout=self.timeout_s,
+        )
+        response.raise_for_status()
+        payload = response.json()
+        shape = tuple(payload["shape"])
+        packed = np.frombuffer(
+            base64.b64decode(payload["masks_packed_b64"]), dtype=np.uint8
+        )
+        total = int(np.prod(shape))
+        masks = np.unpackbits(packed, count=total).reshape(shape).astype(bool)
+        return masks, np.array(payload["scores"], dtype=np.float32), None
+
+
 def _pickup_sam2_predictor() -> Sam2Predictor | None:
     global _PICKUP_SAM2_FAILED, _PICKUP_SAM2_PREDICTOR
     if _PICKUP_SAM2_FAILED:
         return None
     if _PICKUP_SAM2_PREDICTOR is not None:
         return _PICKUP_SAM2_PREDICTOR
+
+    remote_url = os.environ.get("FTD_SAM2_URL")
+    if remote_url:
+        with _PICKUP_SAM2_LOCK:
+            if _PICKUP_SAM2_PREDICTOR is None:
+                _PICKUP_SAM2_PREDICTOR = RemoteSam2Predictor(remote_url)
+            return _PICKUP_SAM2_PREDICTOR
 
     checkpoint = os.environ.get("FTD_PICKUP_SAM2_CHECKPOINT")
     if not checkpoint:

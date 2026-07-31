@@ -237,7 +237,9 @@ class OpenRouterJudge:
             llm = LLM(model_name=f"openrouter/{self.model}", system_prompt=PROMPT_TEMPLATE)
             response = llm.generate_with_resource(
                 "Judge the attached panel.", resource_path=panel_path,
-                temperature=0.0, max_tokens=400,
+                # Generous cap: reasoning models (gemini-2.5-pro) spend tokens
+                # thinking before the JSON; 400 truncated mid-verdict.
+                temperature=0.0, max_tokens=4000,
             )
             data = parse_verdict_json(response if isinstance(response, str) else str(response))
         except JudgeError as exc:
@@ -264,7 +266,7 @@ class OllamaJudge:
         self,
         model: str = "qwen3.5:27b",
         base_url: str | None = None,
-        timeout_s: float = 180.0,
+        timeout_s: float = 480.0,
     ):
         import os
 
