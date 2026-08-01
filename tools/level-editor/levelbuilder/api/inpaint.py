@@ -1372,6 +1372,12 @@ def _sam2_sprite_alpha(
         masks, scores, _ = future.result(timeout=_sam2_predict_timeout_s())
     except FutureTimeoutError:
         future.cancel()
+        if isinstance(predictor, RemoteSam2Predictor):
+            # A remote predictor timeout is a per-call network transient, not a
+            # broken local model — latching here silently degraded a whole
+            # 280-dog recut batch to weak fallbacks after one tunnel hiccup.
+            logger.warning("remote SAM2 predict timed out; retry next call")
+            return None
         logger.exception("SAM2 pickup sprite cutout timed out; disabling SAM2 fallback")
         _disable_sam2_pickup()
         return None

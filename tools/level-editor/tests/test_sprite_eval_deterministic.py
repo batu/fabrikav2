@@ -151,3 +151,24 @@ def test_evaluate_corpus_aggregates(level_dir):
     report = evaluate_corpus(level_dir.parent)
     assert report["summary"]["levels"] == 1
     assert report["summary"]["birds"] == 1
+
+
+def test_neighbor_sprite_content_is_not_pop_in():
+    clean = _flat(100, 100, 100)
+    scene = clean.copy()
+    scene[20:40, 20:40] = 250  # this bird
+    scene[60:80, 60:80] = 250  # neighbor bird's painted sprite
+    sprite = _sprite(20, 20)
+    inputs = BirdInputs(
+        dog_id="dog_00", sprite=sprite, sprite_box=(20, 20, 40, 40),
+        crop_box=(0, 0, 100, 100), clean_crop=clean, scene_crop=scene,
+        neighbor_boxes=((60, 60, 80, 80),),
+    )
+    result = evaluate_bird(inputs)
+    assert result["axes"]["coherence"]["verdict"] == "pass"
+    # Without the neighbor declared, the same scene is pop-in.
+    naked = BirdInputs(
+        dog_id="dog_00", sprite=_sprite(20, 20), sprite_box=(20, 20, 40, 40),
+        crop_box=(0, 0, 100, 100), clean_crop=clean, scene_crop=scene,
+    )
+    assert evaluate_bird(naked)["axes"]["coherence"]["verdict"] != "pass"

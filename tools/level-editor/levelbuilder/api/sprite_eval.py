@@ -52,6 +52,10 @@ class BirdInputs:
     clean_crop: np.ndarray | None  # HxWx3 int16, crop_box region of clean bg
     scene_crop: np.ndarray | None  # HxWx3 int16, crop_box region of composited scene
     noise_floor: float = 0.0
+    # Level-coord sprite boxes of OTHER birds; their painted content inside
+    # this crop is legitimate scene, not pop-in (dense levels false-positived
+    # coherence 0.0 when neighbors sat inside the evaluated crop).
+    neighbor_boxes: tuple[tuple[int, int, int, int], ...] = ()
 
 
 def _verdict(score: float, warn: float, fail: float) -> str:
@@ -147,7 +151,15 @@ def evaluate_bird(inputs: BirdInputs) -> dict:
     }
 
     # Coherence: painted content the sprite does not carry pops on pickup.
-    pop = changed & ~visible
+    # Neighbor sprites are part of the composed scene — mask them out.
+    neighbor_mask = np.zeros(changed.shape, dtype=bool)
+    cx0, cy0, cx1, cy1 = inputs.crop_box
+    for nx0, ny0, nx1, ny1 in inputs.neighbor_boxes:
+        ix0, iy0 = max(nx0, cx0), max(ny0, cy0)
+        ix1, iy1 = min(nx1, cx1), min(ny1, cy1)
+        if ix1 > ix0 and iy1 > iy0:
+            neighbor_mask[iy0 - cy0:iy1 - cy0, ix0 - cx0:ix1 - cx0] = True
+    pop = changed & ~visible & ~neighbor_mask
     pop_area = float(pop.sum())
     pop_ratio = pop_area / sprite_area
     score = max(0.0, 1.0 - pop_ratio)
@@ -232,6 +244,15 @@ def evaluate_level_dir(level_dir: Path) -> dict:
             max(0, crop_box[0]), max(0, crop_box[1]),
             min(width, crop_box[2]), min(height, crop_box[3]),
         )
+        neighbor_boxes = []
+        for other in level.get("dogs", []):
+            if other is dog:
+                continue
+            os_ = other.get("sprite") or {}
+            if all(k in os_ for k in ("x", "y", "width", "height")):
+                neighbor_boxes.append(
+                    (os_["x"], os_["y"], os_["x"] + os_["width"], os_["y"] + os_["height"])
+                )
         inputs = BirdInputs(
             dog_id=str(dog.get("id")),
             sprite=Image.open(sprite_path).convert("RGBA"),
@@ -240,6 +261,7 @@ def evaluate_level_dir(level_dir: Path) -> dict:
             clean_crop=None if reduced else _crop(clean, crop_box),
             scene_crop=None if reduced else _crop(scene, crop_box),
             noise_floor=floor,
+            neighbor_boxes=tuple(neighbor_boxes),
         )
         record.update(evaluate_bird(inputs))
         birds.append(record)
