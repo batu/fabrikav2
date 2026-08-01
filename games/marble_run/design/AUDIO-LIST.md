@@ -58,7 +58,7 @@ within ~10ms of touch).
 
 | # | Track | Fires on | Brief |
 |---|---|---|---|
-| 21 | music-menu | Home/menu ambient (AmbientManager `crossfadeTo`) | 60–90s seamless instrumental loop, upbeat-cozy (see Suno prompt in session notes). Replaces `/audio/velvet-ii-v.mp3`. |
+| 21 | music-menu | Home/menu ambient (AmbientManager `crossfadeTo`) | Exact v1 Sugar3D procedural pentatonic music-box loop with warm C3/G3 drone. |
 | 22 | music-gameplay | In-level ambient | Same family, more minimal — melody thinned so it never fights focus. |
 
 ## Wiring notes

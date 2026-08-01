@@ -17,6 +17,10 @@ describe("GameHud", () => {
     document.body.innerHTML = "";
   });
 
+  it("prices hints at 225 coins", () => {
+    expect(HINT_COIN_COST).toBe(225);
+  });
+
   it("renders N heart glyphs for N hearts and marks them dead on loss", () => {
     const { root, hud } = mount(0, 5);
     const hearts = root.querySelectorAll(".hearts-content > span");

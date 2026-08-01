@@ -24,31 +24,15 @@ let desiredFadeMs = 500;
 let ambientUnlockArmed = false;
 let wasActiveBeforeLifecycleSuspend = false;
 const DEFAULT_BACKGROUND_PRESET = 'background_music';
-const BACKGROUND_MUSIC_URL = '/audio/background-music.mp3';
-let backgroundMusicBufferPromise: Promise<AudioBuffer> | null = null;
-
-function loadBackgroundMusicBuffer(ctx: AudioContext): Promise<AudioBuffer> {
-  backgroundMusicBufferPromise ??= fetch(BACKGROUND_MUSIC_URL)
-    .then((response: Response): Promise<ArrayBuffer> => {
-      // iOS Capacitor serves app assets from the capacitor://localhost custom
-      // scheme, whose handler returns status 0 (not 200) even on success — so
-      // response.ok is false despite valid bytes. Only treat a *real* HTTP
-      // error status as a failure; status 0 is an accepted local response.
-      if (!response.ok && response.status !== 0) {
-        throw new Error(`Failed to load background music: ${response.status}`);
-      }
-      return response.arrayBuffer();
-    })
-    .then((data: ArrayBuffer): Promise<AudioBuffer> => ctx.decodeAudioData(data))
-    .catch((error: unknown): never => {
-      // Clear the memo so a later crossfade can retry rather than being
-      // permanently silent after one transient load/decode failure.
-      backgroundMusicBufferPromise = null;
-      throw error;
-    });
-
-  return backgroundMusicBufferPromise;
-}
+const MUSIC_BOX_PATTERN: readonly number[] = [
+  523.25, 0, 783.99, 0, 659.25, 0, 0, 880,
+  0, 587.33, 0, 783.99, 0, 0, 1046.5, 0,
+  659.25, 0, 523.25, 0, 880, 0, 0, 587.33,
+  0, 783.99, 0, 659.25, 0, 0, 523.25, 0,
+];
+const MUSIC_BOX_STEP_S = 0.34;
+const MUSIC_BOX_NOTE_GAIN = 0.04;
+const MUSIC_BOX_DRONE_GAIN = 0.018;
 
 // ---- Small helpers for preset graphs ----
 
@@ -359,34 +343,68 @@ const buildNightHarbor: PresetBuilder = (ctx) => {
 
 const buildBackgroundMusic: PresetBuilder = (ctx) => {
   const out = ctx.createGain();
-  out.gain.value = 0.32;
-  let source: AudioBufferSourceNode | null = null;
-  let cancelled = false;
+  out.gain.value = 1;
+  const drones: OscillatorNode[] = [];
+  let step = 0;
+  let nextNoteTime = ctx.currentTime + 0.1;
 
-  // Wait for the iOS unlock as well as the decode — a buffer source started
-  // on a suspended context never produces sound on iOS WKWebView, and this
-  // preset is built at scene load, before the first user gesture.
-  void Promise.all([loadBackgroundMusicBuffer(ctx), ensureAudioUnlocked()])
-    .then(([buffer]: [AudioBuffer, void]): void => {
-      if (cancelled) return;
-      source = ctx.createBufferSource();
-      source.buffer = buffer;
-      source.loop = true;
-      source.connect(out);
-      source.start();
-    })
-    .catch((error: unknown): void => {
-      console.error('[audio] background music unavailable', error);
-    });
+  // Exact v1 Sugar3D menu bed: a quiet C-major pentatonic music box over a
+  // warm C3/G3 drone. The v2 music bus still owns mute, lifecycle, and fades.
+  for (const frequency of [130.81, 196.0]) {
+    const oscillator = ctx.createOscillator();
+    oscillator.type = 'sine';
+    oscillator.frequency.value = frequency;
+    oscillator.detune.value = Math.random() * 5 - 2.5;
+    const gain = ctx.createGain();
+    gain.gain.value = MUSIC_BOX_DRONE_GAIN;
+    oscillator.connect(gain);
+    gain.connect(out);
+    oscillator.start();
+    drones.push(oscillator);
+  }
+
+  const scheduleNote = (frequency: number, at: number): void => {
+    const fundamental = ctx.createOscillator();
+    fundamental.type = 'sine';
+    fundamental.frequency.setValueAtTime(frequency, at);
+    const harmonic = ctx.createOscillator();
+    harmonic.type = 'sine';
+    harmonic.frequency.setValueAtTime(frequency * 2, at);
+
+    const envelope = ctx.createGain();
+    envelope.gain.setValueAtTime(MUSIC_BOX_NOTE_GAIN, at);
+    envelope.gain.exponentialRampToValueAtTime(0.0005, at + 1.4);
+    const harmonicEnvelope = ctx.createGain();
+    harmonicEnvelope.gain.setValueAtTime(MUSIC_BOX_NOTE_GAIN * 0.25, at);
+    harmonicEnvelope.gain.exponentialRampToValueAtTime(0.0005, at + 0.5);
+
+    fundamental.connect(envelope);
+    harmonic.connect(harmonicEnvelope);
+    envelope.connect(out);
+    harmonicEnvelope.connect(out);
+    fundamental.start(at);
+    fundamental.stop(at + 1.5);
+    harmonic.start(at);
+    harmonic.stop(at + 0.6);
+  };
+
+  const schedule = (): void => {
+    if (nextNoteTime < ctx.currentTime) nextNoteTime = ctx.currentTime + 0.05;
+    while (nextNoteTime < ctx.currentTime + 0.3) {
+      const frequency = MUSIC_BOX_PATTERN[step % MUSIC_BOX_PATTERN.length];
+      if (frequency > 0) scheduleNote(frequency, nextNoteTime);
+      step += 1;
+      nextNoteTime += MUSIC_BOX_STEP_S;
+    }
+  };
+  schedule();
+  const timer = window.setInterval(schedule, 120);
 
   return {
     outGain: out,
     cleanup: () => {
-      cancelled = true;
-      if (source !== null) {
-        source.stop();
-        source.disconnect();
-      }
+      window.clearInterval(timer);
+      for (const drone of drones) drone.stop();
     },
   };
 };
@@ -483,8 +501,7 @@ function armAmbientUnlock(): void {
     // gated (e.g. home BGM scheduled before the first tap) would stay armed
     // forever and the menu would be silent. Defer past ensureAudioUnlocked() so
     // the AudioContext is actually running before a builder might start a source
-    // synchronously (background_music already awaits unlock internally; this keeps the
-    // path correct for any future synthesized home preset). desiredPresetKey is
+    // synchronously. desiredPresetKey is
     // re-read at resolve time, so it reflects the most recent requested preset.
     void ensureAudioUnlocked().then((): void => {
       if (gameState.settings.musicOn && desiredPresetKey !== null) {
