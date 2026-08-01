@@ -1,7 +1,7 @@
 {
   "version": 1,
   "manifestRevision": 1,
-  "generatedAt": "2026-08-01T06:13:44.457092Z",
+  "generatedAt": "2026-08-01T06:27:01.396009Z",
   "experimentId": "find-the-bird-empty-v1",
   "levels": [
     {
@@ -15,20 +15,20 @@
       "bundled": true,
       "assets": {
         "levelJson": {
-          "hash": "8d94f0f44c0cb8868e92f346e0d8e2047f475caa421719395d074b83fef465fe",
-          "size": 7114,
+          "hash": "687098d616c1947c765090468e05f1753ee5240d3551db5564c3b9dbe6511546",
+          "size": 7116,
           "path": "levels/square_hawaii_waterfall_flash_4k/level.json"
         },
         "colorImage": {
-          "hash": "069925fa29b8ba4dcab694e533d9af14b26d9e3090b8a3d1c5e2efacfeef830d",
-          "size": 1035220,
-          "path": "levels/square_hawaii_waterfall_flash_4k/color.webp"
+          "hash": "6a0743e05e775126556336781777965602210f8069b985f30a419b488d5cd654",
+          "size": 17239138,
+          "path": "levels/square_hawaii_waterfall_flash_4k/color.png"
         },
         "bgImages": [
           {
-            "hash": "43d38ad44de311a06d5af5a68338a4050215902bc12072f8cd6b983c99c27666",
-            "size": 989522,
-            "path": "levels/square_hawaii_waterfall_flash_4k/bg_00.webp"
+            "hash": "1bb4c6f8c91ed4f93f8efdc23c4a509f7f3ddfc7174a731fd54e31241a7832c6",
+            "size": 16863921,
+            "path": "levels/square_hawaii_waterfall_flash_4k/bg_00.png"
           }
         ],
         "dogSprites": [
@@ -58,9 +58,9 @@
             "path": "levels/square_hawaii_waterfall_flash_4k/dogs/dog_04/sprite_000.png"
           },
           {
-            "hash": "1a278a154e68da36b99cdd60dde527b8569bbc107edb202680d6ddd7f643a6e1",
-            "size": 6658,
-            "path": "levels/square_hawaii_waterfall_flash_4k/dogs/dog_05/sprite_000.png"
+            "hash": "ad3943bad258e4e3873f9c01027280d6ad61b30ccfc89fed5658988cf0fe28d7",
+            "size": 26304,
+            "path": "levels/square_hawaii_waterfall_flash_4k/dogs/dog_05/sprite_001.png"
           },
           {
             "hash": "f0c9f465d62f32068d5f9f725782406c884303ebc0bda2cb9469d1245219cf51",
@@ -112,7 +112,7 @@
     },
     {
       "id": "square_pirate_cove_flash_4k",
-      "name": "Level pirate_shipwreck_island_treasure_cove_camp_bird_f8a4 (clean_old_cartoon)",
+      "name": "Level square_pirate_cove_flash_4k (clean_old_cartoon)",
       "width": 4096,
       "height": 4096,
       "cohort_buckets": [
@@ -121,96 +121,96 @@
       "bundled": true,
       "assets": {
         "levelJson": {
-          "hash": "266360240864df49440838010741b624dbb2c634d3407020b581ab0a32c852d9",
-          "size": 7088,
+          "hash": "b721fb7d9d9813d0c8d6d9888989df72e1de658fbac08b1d4e2cf32d750d9420",
+          "size": 7017,
           "path": "levels/square_pirate_cove_flash_4k/level.json"
         },
         "colorImage": {
-          "hash": "db9639a812c36cab13ed2824cbfc708293666297623db92aa8b51a16546e3c0f",
-          "size": 1409756,
-          "path": "levels/square_pirate_cove_flash_4k/color.webp"
+          "hash": "0df53b0a25b04902ab769341c4c24b3a8185cdb5ff592634795f81abb3825218",
+          "size": 15507859,
+          "path": "levels/square_pirate_cove_flash_4k/color.png"
         },
         "bgImages": [
           {
-            "hash": "073629ea8ea561cfa99d1894131fe326c1b97c24358fb9874efb23eb47e25d72",
-            "size": 1262500,
-            "path": "levels/square_pirate_cove_flash_4k/bg_00.webp"
+            "hash": "58981a88c9d6035a19d58f3d141dc84223af5abb9d23ef97f7a627c310f9b02a",
+            "size": 15005966,
+            "path": "levels/square_pirate_cove_flash_4k/bg_00.png"
           }
         ],
         "dogSprites": [
           {
-            "hash": "ede16c0e0aaeb41f8b2bd002a22dbcabda8679f600e08ff3566bf5b679328fd7",
-            "size": 85713,
+            "hash": "085ca722aa78c58cc4b6e6f3f34ab3c88d71b935869472d75ac8554f8437f816",
+            "size": 44016,
             "path": "levels/square_pirate_cove_flash_4k/dogs/dog_00/sprite_000.png"
           },
           {
-            "hash": "fd3ecab20b92e6dec580a209f274041d6bf2b66f2f03fff8d41ae84e5fbcf994",
-            "size": 161336,
-            "path": "levels/square_pirate_cove_flash_4k/dogs/dog_01/sprite_000.png"
+            "hash": "7ac3f141ec9b3b87f5490b769d28c27d471baeceb570de77bcfa3a3658af1ca8",
+            "size": 173487,
+            "path": "levels/square_pirate_cove_flash_4k/dogs/dog_01/sprite_001.png"
           },
           {
-            "hash": "1dc8ea920dc78ce3127e78060c15c4ca5cae33d3b32d2b80503ebc0096829074",
-            "size": 62047,
+            "hash": "360db612492e0cdd8fbb1cdce9b7815331b0796d25d2b7b76fa4d94263462c31",
+            "size": 31315,
             "path": "levels/square_pirate_cove_flash_4k/dogs/dog_02/sprite_000.png"
           },
           {
-            "hash": "0082dd1439a2c8c532c6cd4eeaf7cb1ea1c33c9044b598f01999637ede7ed174",
-            "size": 121014,
+            "hash": "fe32ae35d624873deb65df4d25bfedca6d429124404a328f18542246aea05471",
+            "size": 53580,
             "path": "levels/square_pirate_cove_flash_4k/dogs/dog_03/sprite_000.png"
           },
           {
-            "hash": "7db806b1d52c4be7eab0ff06a8dc19996306fe2cbb6b8f4fc752b6fe8231a596",
-            "size": 175468,
+            "hash": "4825f49e5208e03a7c014bffbece65e14244f2e2edb6772d2803e66cd68f3d73",
+            "size": 169035,
             "path": "levels/square_pirate_cove_flash_4k/dogs/dog_04/sprite_000.png"
           },
           {
-            "hash": "02d20e8916721ee85b0ae00ed18f7aae46bad57f20933a8d4b5b3a2aaf437eb7",
-            "size": 111049,
+            "hash": "fea8a3b1876fde39fafd8b5e52c71799cafde816b1814dd801481226bea173ef",
+            "size": 43118,
             "path": "levels/square_pirate_cove_flash_4k/dogs/dog_05/sprite_000.png"
           },
           {
-            "hash": "f65330d1794f1955e13074855a0c05da16d899863a5264589e9c4ef3810d0573",
-            "size": 110266,
+            "hash": "baf4c182da26233305035d12a0ab6cf99e2011ad1aea2479e6fc8ea2b251080e",
+            "size": 44893,
             "path": "levels/square_pirate_cove_flash_4k/dogs/dog_06/sprite_000.png"
           },
           {
-            "hash": "5d431115d865fef7039600233c8212ad9824d22653e8d77ade094a73395dfc9e",
-            "size": 135175,
+            "hash": "e7e53f3813f3d235fd8a4b1706a8f5b85c44c88d2adf04219021bdb51e76d8b7",
+            "size": 77495,
             "path": "levels/square_pirate_cove_flash_4k/dogs/dog_07/sprite_000.png"
           },
           {
-            "hash": "39a481ae38f7808e6ce6061f432de5e6b523a341e6aa8db35c641f05279abd34",
-            "size": 153644,
+            "hash": "e4b4ba444f58f5a909dc441446aeb93bfcfff2db4327f031a904727d1acd07c6",
+            "size": 122386,
             "path": "levels/square_pirate_cove_flash_4k/dogs/dog_08/sprite_000.png"
           },
           {
-            "hash": "238a88f65d78ca80e89e42d78a0847b8be9215455f6f06395a8fc2abf1d932cc",
-            "size": 125808,
+            "hash": "5b3c3763fc81cd8e747d2e02adc6582d1f25bd1902c6b520688bc3d7893f8e46",
+            "size": 78131,
             "path": "levels/square_pirate_cove_flash_4k/dogs/dog_09/sprite_000.png"
           },
           {
-            "hash": "6a0aafefd237f3937aa30c15d00f8abb7e0d235182804fedda62ab040ed6ab9b",
-            "size": 99265,
+            "hash": "98a6b4fa8f71da703ce80ddc64671213146db73d646187c0609117907ce94681",
+            "size": 68672,
             "path": "levels/square_pirate_cove_flash_4k/dogs/dog_10/sprite_000.png"
           },
           {
-            "hash": "61ffba2523864d069871692971772fa3c0889fcb3d36f12f6ea9fa04a8754dc1",
-            "size": 67409,
-            "path": "levels/square_pirate_cove_flash_4k/dogs/dog_11/sprite_000.png"
+            "hash": "ebe5f60359adb3edfe388fa7e38054ddb0c7ae2200f1a65be8a6b625bdf9b6c8",
+            "size": 110949,
+            "path": "levels/square_pirate_cove_flash_4k/dogs/dog_11/sprite_001.png"
           },
           {
-            "hash": "d386d7634de54ac02bcda007cc7a6f5d01b0a95deab739e6df00f81c913d346c",
-            "size": 147142,
+            "hash": "69faede2dc11b5275a97cd9f1aea6583d08ff33db0f954c39065096d5c7274fd",
+            "size": 16775,
             "path": "levels/square_pirate_cove_flash_4k/dogs/dog_12/sprite_000.png"
           },
           {
-            "hash": "75e65037da95e939a9265f649b98280cdd4e6cbb361dd4bc9d178646359ed7d8",
-            "size": 168040,
+            "hash": "5ddb35dac2bd5c3e5566a14390586bad04675786ba3078d97eb2929068c483f4",
+            "size": 103438,
             "path": "levels/square_pirate_cove_flash_4k/dogs/dog_13/sprite_000.png"
           },
           {
-            "hash": "ec7cccaa3dc21f0e2d86d45e4abb30ca13dd712f5b78caf221949fc6836fdfac",
-            "size": 48045,
+            "hash": "b8672b346bcea99e393f27f56f4323af3eff0791ae1f530558c31e9888d85999",
+            "size": 41421,
             "path": "levels/square_pirate_cove_flash_4k/dogs/dog_14/sprite_000.png"
           }
         ]
@@ -218,7 +218,7 @@
     },
     {
       "id": "square_yucatan_cenote_flash_4k",
-      "name": "Level mexico_yucatan_cenote_ruins_bird_1570 (clean_old_cartoon)",
+      "name": "Level square_yucatan_cenote_flash_4k (clean_old_cartoon)",
       "width": 4096,
       "height": 4096,
       "cohort_buckets": [
@@ -227,96 +227,96 @@
       "bundled": true,
       "assets": {
         "levelJson": {
-          "hash": "d8862a79257388c636d5b941ecf5fd7f685a39d69dfa4a7dd5cd1bbaf0afa406",
-          "size": 7100,
+          "hash": "f44af752f7c65294111699505a4313075f6123c9068c61f491fc09b14ff054ca",
+          "size": 7085,
           "path": "levels/square_yucatan_cenote_flash_4k/level.json"
         },
         "colorImage": {
-          "hash": "54314ee44c9d8083b8a6326bf9f6b72c72a0263b083b00eecb63134d99053f20",
-          "size": 1485396,
-          "path": "levels/square_yucatan_cenote_flash_4k/color.webp"
+          "hash": "f6b098686064322db3d03b32de0b0a76061e7a5cc417902553c1d0fe87b31279",
+          "size": 16304565,
+          "path": "levels/square_yucatan_cenote_flash_4k/color.png"
         },
         "bgImages": [
           {
-            "hash": "64087b64e8da40ff1f95386cefea81c7d6f6e39c4d1e9a655cce7d9748e6dd43",
-            "size": 1316066,
-            "path": "levels/square_yucatan_cenote_flash_4k/bg_00.webp"
+            "hash": "a164a64821c16e2c16a8b55312acfd891517a10dfaf195102049ab793465a497",
+            "size": 15674164,
+            "path": "levels/square_yucatan_cenote_flash_4k/bg_00.png"
           }
         ],
         "dogSprites": [
           {
-            "hash": "976b28e0b39d064a23253550315d4a71cd685199470520505b00171dea171f62",
-            "size": 207484,
+            "hash": "1eb0944b93a5ac1be1d9d11b09ed25d0ff027db7d94d1c3e00293ed7472f92ad",
+            "size": 121824,
             "path": "levels/square_yucatan_cenote_flash_4k/dogs/dog_00/sprite_000.png"
           },
           {
-            "hash": "c63a05c5c31597e81191e98acada140a5585774e3fe6f4e9568e8c18bb8c6590",
-            "size": 160790,
+            "hash": "a7cf8e3cc6d430b16a26e80bea8b91622f0ffa7dffb148c5c189ab4c37175b1e",
+            "size": 144775,
             "path": "levels/square_yucatan_cenote_flash_4k/dogs/dog_01/sprite_000.png"
           },
           {
-            "hash": "c2408cce291c1be5ae4c7c54ce4a13163b3f7abba9d78bb9ca8bcb0f6aa6bf03",
-            "size": 66730,
-            "path": "levels/square_yucatan_cenote_flash_4k/dogs/dog_02/sprite_000.png"
+            "hash": "fb90a82dcfd4392bb87b0cb8daab68867f250ba73dac7261f7fa3d47bcbac49e",
+            "size": 91754,
+            "path": "levels/square_yucatan_cenote_flash_4k/dogs/dog_02/sprite_001.png"
           },
           {
-            "hash": "934950953acefd2de61bb401082163b1494f5c4706da2be97356b0944283d96a",
-            "size": 227379,
+            "hash": "28497851ca2f207d0e8412a64a4d6e54deae9203aa98acc87717dddec01ad39a",
+            "size": 83055,
             "path": "levels/square_yucatan_cenote_flash_4k/dogs/dog_03/sprite_000.png"
           },
           {
-            "hash": "afb4b2e22217d40c705e01e190789ccbd8477efda4f6000ea005295bd6b11c84",
-            "size": 129140,
+            "hash": "0f2ddef144e766dc4770721e7bbe3ae5a2581ab221031c6fdd1cc2b143b610ef",
+            "size": 136341,
             "path": "levels/square_yucatan_cenote_flash_4k/dogs/dog_04/sprite_000.png"
           },
           {
-            "hash": "c3593ae0a18610bc092bb22ef4f2a7f82d5e4442110f19ee49c31217dfb6c633",
-            "size": 61212,
+            "hash": "04cb0fcae43e3eec8171280dbaa21ca54c0f3a61844d0f3f00325de8b1faf397",
+            "size": 143761,
             "path": "levels/square_yucatan_cenote_flash_4k/dogs/dog_05/sprite_000.png"
           },
           {
-            "hash": "548fe15b8eea6237561ab6ba0bea8c2bf04ef36d5c9aba5de5871c8eaceda446",
-            "size": 194455,
+            "hash": "375ddc57f12ed4f384384552153d3e1270f93ea1b0dabe84dcdc35f1762f21c3",
+            "size": 64359,
             "path": "levels/square_yucatan_cenote_flash_4k/dogs/dog_06/sprite_000.png"
           },
           {
-            "hash": "90374a2d7634de6a4b133b0ba33b13bfa08f0bee5413e215e38c5fb96a3e64fd",
-            "size": 129345,
+            "hash": "953d7088560e7ea49b1eab571faacce2f5c8146aaa8b522d2d9d5344cb0c5a84",
+            "size": 92303,
             "path": "levels/square_yucatan_cenote_flash_4k/dogs/dog_07/sprite_000.png"
           },
           {
-            "hash": "096bf9a2d73556c84a37937180b1f597741d5e687febbfe881ad096abeeed42e",
-            "size": 127960,
+            "hash": "aefee0a3e90f440c8cb4eb53901cec96ad217f16a7dba433a13d7166c030a2ae",
+            "size": 112343,
             "path": "levels/square_yucatan_cenote_flash_4k/dogs/dog_08/sprite_000.png"
           },
           {
-            "hash": "f2fbd74a4b1ba4de5eb0b84e786889342246233bcb7ab69af7c912e46ebac71d",
-            "size": 191225,
+            "hash": "a43e34b40614858a9533393ca0403e4b6ffe34178da92957c9ba8ce114f53006",
+            "size": 117280,
             "path": "levels/square_yucatan_cenote_flash_4k/dogs/dog_09/sprite_000.png"
           },
           {
-            "hash": "2fec0389e839969945b27cc872dee1234dbcf78c19f96c95d3052166fefff4c9",
-            "size": 173109,
+            "hash": "a021fe4e442e11803c5faf959201721e7ac293287ed4a9308854f10b482f0357",
+            "size": 110072,
             "path": "levels/square_yucatan_cenote_flash_4k/dogs/dog_10/sprite_000.png"
           },
           {
-            "hash": "53f20fd10f4e7dbff9ea99cce42cceeb03eed26603690d2318c1e4e9cab695f6",
-            "size": 194665,
+            "hash": "0746f75890c02b24d6ca2cb265192bcd776addfa8524c314a14bfa164623b04d",
+            "size": 76567,
             "path": "levels/square_yucatan_cenote_flash_4k/dogs/dog_11/sprite_000.png"
           },
           {
-            "hash": "d975aeefb33ecede050af22b5d821d59d045cb32518b978127abdfcbaf375524",
-            "size": 107017,
+            "hash": "fbd7b4155088c80403e150f09a27df24d9d3b8d746d60f898becf1a6a6f6dfaf",
+            "size": 79685,
             "path": "levels/square_yucatan_cenote_flash_4k/dogs/dog_12/sprite_000.png"
           },
           {
-            "hash": "7a798413dd47f2127e2f453b646046826121c8e5a7404b5f5f7542cc2e81c2f5",
-            "size": 319184,
+            "hash": "17cc95f3bcb63c8aff5615c00138398c51dcf33fa965290145cafce73edd6bb0",
+            "size": 104101,
             "path": "levels/square_yucatan_cenote_flash_4k/dogs/dog_13/sprite_000.png"
           },
           {
-            "hash": "fc8e20fb7e66a65898711139a7e31ade771c21a1db298fd1bfd9e350b0c52bbf",
-            "size": 273999,
+            "hash": "54209cefb5c0b46f1d0d45c951ad0058e457278a78c95db29d491405f6ed2467",
+            "size": 139437,
             "path": "levels/square_yucatan_cenote_flash_4k/dogs/dog_14/sprite_000.png"
           }
         ]
@@ -324,7 +324,7 @@
     },
     {
       "id": "square_sami_aurora_flash_4k",
-      "name": "Level nordic_cold_sami_aurora_camp_bird_f503 (clean_old_cartoon)",
+      "name": "Level square_sami_aurora_flash_4k (clean_old_cartoon)",
       "width": 4096,
       "height": 4096,
       "cohort_buckets": [
@@ -333,96 +333,96 @@
       "bundled": true,
       "assets": {
         "levelJson": {
-          "hash": "7af358cb44ff7f7b0ce045001df9e919ffcd32ecc58613de4c6104fc20a2bb3f",
-          "size": 7052,
+          "hash": "6638fcf35ecccc60c0269e3d033e9bfe502a284889267f8318268d18fa34ecc1",
+          "size": 7026,
           "path": "levels/square_sami_aurora_flash_4k/level.json"
         },
         "colorImage": {
-          "hash": "7b87b80359d061c873f091db442829c19412f97eeea76babfa3b619075a84901",
-          "size": 1351038,
-          "path": "levels/square_sami_aurora_flash_4k/color.webp"
+          "hash": "8b54ba44582232eaa306b6d5f7ede5acad4555f467e23126369f2002912a2fca",
+          "size": 15466615,
+          "path": "levels/square_sami_aurora_flash_4k/color.png"
         },
         "bgImages": [
           {
-            "hash": "0fc4a8ddf1ccfd755556f00ab42b7ae43a7354c3b32f7b032e3b35567d9a1e95",
-            "size": 1238768,
-            "path": "levels/square_sami_aurora_flash_4k/bg_00.webp"
+            "hash": "2b0798787c483cc2432be1025d1057c4eda43aa9f5d7d1e3b97e160ffddfe912",
+            "size": 14846942,
+            "path": "levels/square_sami_aurora_flash_4k/bg_00.png"
           }
         ],
         "dogSprites": [
           {
-            "hash": "abbab6f24169ecc9c8185886f895f1b57d217224c4504011cc9377c997ccad94",
-            "size": 110358,
+            "hash": "e5722db07fbf0cd4e70230b1888eac3cca4a43ea4d479dcd861b1b404de85764",
+            "size": 97777,
             "path": "levels/square_sami_aurora_flash_4k/dogs/dog_00/sprite_000.png"
           },
           {
-            "hash": "aa6e63df30a6a91611c1d00e97b07fd23ab2886b39154bdbc133c8aa7b39e92b",
-            "size": 126643,
-            "path": "levels/square_sami_aurora_flash_4k/dogs/dog_01/sprite_000.png"
+            "hash": "4360abb9e3c86e31a55e67602cf057b15c11df1674a158e174820dcb396edbd2",
+            "size": 96882,
+            "path": "levels/square_sami_aurora_flash_4k/dogs/dog_01/sprite_001.png"
           },
           {
-            "hash": "7b22e2c80d5d38858d36acd1a58bdeecf2ab08d19512110a41337987cbc3bbed",
-            "size": 103144,
-            "path": "levels/square_sami_aurora_flash_4k/dogs/dog_02/sprite_000.png"
+            "hash": "f32c968d0deb5b16e63fda0bb6f6974f700009402ea8b6fd9db8e20fd5d8ea0d",
+            "size": 93817,
+            "path": "levels/square_sami_aurora_flash_4k/dogs/dog_02/sprite_001.png"
           },
           {
-            "hash": "a82a8572b17f91d220e5099117fe08aa67892a30fb6282aadb0a919007178ddb",
-            "size": 133874,
+            "hash": "b8437371bb41fdbad52986a156088011beaa5adf2a70dec3c18e558399696617",
+            "size": 81712,
             "path": "levels/square_sami_aurora_flash_4k/dogs/dog_03/sprite_000.png"
           },
           {
-            "hash": "0d832c821b6fbdbe0b04e2ffb587f662e879e3e52a541a355279f782012c420b",
-            "size": 147086,
+            "hash": "4e07451d0a923b85dcef7b45a97e4c6044d37d9ea4dede065183b3b63394b3f5",
+            "size": 115842,
             "path": "levels/square_sami_aurora_flash_4k/dogs/dog_04/sprite_000.png"
           },
           {
-            "hash": "b0e499b54c8ea1560c0c7ad10ff0dc9aa604ded073f7e0421772467ac11a8b70",
-            "size": 149156,
+            "hash": "94ecda00f1a9322ff62351d6ae8a93f86029b1be36e0a7d80b5206042175edb2",
+            "size": 90662,
             "path": "levels/square_sami_aurora_flash_4k/dogs/dog_05/sprite_000.png"
           },
           {
-            "hash": "5fe5a7e2650bf03e6867527d3afb1ff14d6f1b62c43bcc78f656fe5475c9b8d6",
-            "size": 188562,
-            "path": "levels/square_sami_aurora_flash_4k/dogs/dog_06/sprite_000.png"
+            "hash": "db13bdd47f96ef4d4cc835c899780c4fdf377aa1d2e58e30ce8d975c13975b2b",
+            "size": 162508,
+            "path": "levels/square_sami_aurora_flash_4k/dogs/dog_06/sprite_001.png"
           },
           {
-            "hash": "a2e5103d88c70658e389d2bc54b0321f90b633629a754c21152d61db00b6790d",
-            "size": 66089,
+            "hash": "92467cf2aafbb3d53a37e9742e8994b4814337979768f532914e00e18fe939ee",
+            "size": 44550,
             "path": "levels/square_sami_aurora_flash_4k/dogs/dog_07/sprite_000.png"
           },
           {
-            "hash": "c99b7f24c3a42d6c60dc265598705875bacc9fe9fc61048bdfe8350ca5d4ffec",
-            "size": 131733,
-            "path": "levels/square_sami_aurora_flash_4k/dogs/dog_08/sprite_000.png"
+            "hash": "92cf05a7d93c826edc104eb313fa2071396b31738c07abb74ab2a515ba39abc2",
+            "size": 106101,
+            "path": "levels/square_sami_aurora_flash_4k/dogs/dog_08/sprite_001.png"
           },
           {
-            "hash": "4122d0e00a3cc48ac0cf444c891525b5d62fefea6e772e02099cbfc11ad436f8",
-            "size": 263765,
-            "path": "levels/square_sami_aurora_flash_4k/dogs/dog_09/sprite_000.png"
+            "hash": "1a62fd20a8829e8ac238e801f53a5cb7743d992466806e140553ee3a82e46bda",
+            "size": 136198,
+            "path": "levels/square_sami_aurora_flash_4k/dogs/dog_09/sprite_001.png"
           },
           {
-            "hash": "a026daaf46e29a6c733a13c478216e41665b25b8126f5a6aec0247794284bbb1",
-            "size": 109561,
+            "hash": "e46645322a839983218061b5cef3c1e82bf4cd7e77ad597e78a87894e9fd0fbd",
+            "size": 78612,
             "path": "levels/square_sami_aurora_flash_4k/dogs/dog_10/sprite_000.png"
           },
           {
-            "hash": "39f2d594a925cf3195d4a737b1a275d2133106b8c5e94a81dce66a0a03964113",
-            "size": 168029,
-            "path": "levels/square_sami_aurora_flash_4k/dogs/dog_11/sprite_000.png"
+            "hash": "6cbf1cbb21bbeea236b10d4a2b044e8c6b359a8059da61d04ec83f1aef548547",
+            "size": 83736,
+            "path": "levels/square_sami_aurora_flash_4k/dogs/dog_11/sprite_001.png"
           },
           {
-            "hash": "c0b90f6f93deee7da017caa1f4a94bea7ee40b90e9bd36468514b9ae35cfea3f",
-            "size": 245550,
+            "hash": "efd82789cdcfe15c0f7558b33def62a0260a1cf685805e86f28a6f83a5124e66",
+            "size": 135943,
             "path": "levels/square_sami_aurora_flash_4k/dogs/dog_12/sprite_000.png"
           },
           {
-            "hash": "069e916c4da0190386dbd09d6f3c6930ce4b10ca1f3b8f3a529e2da71f25e150",
-            "size": 169835,
+            "hash": "9638b6f4cdb871b71da49833631e5909ee9f175c202eb33fe397dec8003391cf",
+            "size": 98121,
             "path": "levels/square_sami_aurora_flash_4k/dogs/dog_13/sprite_000.png"
           },
           {
-            "hash": "fd7269af30d934ce2648e532e2cecf3fe97c2cec5425077ed868bcaa5f1828cc",
-            "size": 184981,
+            "hash": "933eb331234e19e2c4798e8e6317a4b971bef1e508f5f066fe338abae39d937e",
+            "size": 97187,
             "path": "levels/square_sami_aurora_flash_4k/dogs/dog_14/sprite_000.png"
           }
         ]
@@ -550,15 +550,15 @@
           "path": "levels/japan_morning_market_bird_e99f/level.json"
         },
         "colorImage": {
-          "hash": "161cc093a7b2422187f65bec724a268ea0d1ea6d8b5b5d37ab0bf98e52010ec8",
-          "size": 221054,
-          "path": "levels/japan_morning_market_bird_e99f/color.webp"
+          "hash": "5de9e63c03961f0e6c666ec8a03d43640941195b356ec838020cf54c54a7ed3f",
+          "size": 2093168,
+          "path": "levels/japan_morning_market_bird_e99f/color.png"
         },
         "bgImages": [
           {
-            "hash": "1d4c9fc28f5c18386f248f98d09fc90f3a9ff6307799df94c460d654397ae447",
-            "size": 219142,
-            "path": "levels/japan_morning_market_bird_e99f/bg_00.webp"
+            "hash": "ba318253523117a95b0512b9bf06c5c8e4490eae0715568eb1f86ad327c8bbc4",
+            "size": 2086864,
+            "path": "levels/japan_morning_market_bird_e99f/bg_00.png"
           }
         ],
         "dogSprites": [
@@ -616,20 +616,20 @@
       "bundled": true,
       "assets": {
         "levelJson": {
-          "hash": "4301b27c25ff86027c1d354709bde0f475eaa917f1352769f1cccbd5bb408046",
-          "size": 6982,
+          "hash": "1746292ebf8b1cff08b3d7f1e7fb5d8d14a2fc073d96dd6b8fd55ef9ce2ef696",
+          "size": 6979,
           "path": "levels/morning_pirate_cove_pro_standard/level.json"
         },
         "colorImage": {
-          "hash": "f2c2ea8c15f665ec2ac27d5173d84cfce026e50b72c72a0a98b3bbb0fb5813ee",
-          "size": 150112,
-          "path": "levels/morning_pirate_cove_pro_standard/color.webp"
+          "hash": "2051ec3ebaa6f63741086c8717be0413b83d11f6d868b375ba91f8bfc9131959",
+          "size": 1487718,
+          "path": "levels/morning_pirate_cove_pro_standard/color.png"
         },
         "bgImages": [
           {
-            "hash": "06a66fbc2f4bfb35dafe1add17c9e33ad3318a1a418885c277a8b68d96490dc3",
-            "size": 142510,
-            "path": "levels/morning_pirate_cove_pro_standard/bg_00.webp"
+            "hash": "52a282a4469b8d6d5ef2970399efd006798f1003246e9a19bc33b1a69fd44824",
+            "size": 1462795,
+            "path": "levels/morning_pirate_cove_pro_standard/bg_00.png"
           }
         ],
         "dogSprites": [
@@ -669,9 +669,9 @@
             "path": "levels/morning_pirate_cove_pro_standard/dogs/dog_06/sprite_000.png"
           },
           {
-            "hash": "852850a972aa2f4eadcac709d38ede52a2f16ade09d270f201a694aa77ee8342",
-            "size": 8190,
-            "path": "levels/morning_pirate_cove_pro_standard/dogs/dog_07/sprite_000.png"
+            "hash": "da52588de77984fac4e6f5cd9b1dbda2cf08fe7d2ddb5cb7d7f064242220f777",
+            "size": 7402,
+            "path": "levels/morning_pirate_cove_pro_standard/dogs/dog_07/sprite_001.png"
           },
           {
             "hash": "f839ddaa21faeab491047769d7ecc999393841e4ca535c78e84e6114d7d22827",
@@ -689,9 +689,9 @@
             "path": "levels/morning_pirate_cove_pro_standard/dogs/dog_10/sprite_000.png"
           },
           {
-            "hash": "cda7c4774e2a3ff1984f01cdc68dc12ca54a78bda6c167f3aa3cc61e9333ca88",
-            "size": 2244,
-            "path": "levels/morning_pirate_cove_pro_standard/dogs/dog_11/sprite_000.png"
+            "hash": "5ba733449b72c7330a5a35791940eb1e8a5a76f8bd98ed5710ec5f51c0542916",
+            "size": 4688,
+            "path": "levels/morning_pirate_cove_pro_standard/dogs/dog_11/sprite_001.png"
           },
           {
             "hash": "0f841b4b07428bd4f00cac3e8afb224edaf44226f51b4fb4a96de12de479e524",
@@ -699,14 +699,14 @@
             "path": "levels/morning_pirate_cove_pro_standard/dogs/dog_12/sprite_000.png"
           },
           {
-            "hash": "d81e59a3bed997a64dff2684b00d00606c8e6543f019180f328d9c37eeca56c8",
-            "size": 17393,
+            "hash": "c7a05c57800f0caacafd46142cf6904afe0066b86c8136a3ae5012fe183f6fab",
+            "size": 17178,
             "path": "levels/morning_pirate_cove_pro_standard/dogs/dog_13/sprite_000.png"
           },
           {
-            "hash": "ca1516030304883f13b090db37ed33faefb2e0f625edccc9b4b7b2bf01178d3d",
-            "size": 3191,
-            "path": "levels/morning_pirate_cove_pro_standard/dogs/dog_14/sprite_000.png"
+            "hash": "ef8a7d66f8060140655fc66c81a4ca03b3a57051e0cc3a22afeceeb0806fe0e5",
+            "size": 12123,
+            "path": "levels/morning_pirate_cove_pro_standard/dogs/dog_14/sprite_002.png"
           }
         ]
       }
@@ -722,20 +722,20 @@
       "bundled": true,
       "assets": {
         "levelJson": {
-          "hash": "ac4066ef9408c8e567346b1072d3d33d76150d2ffd62e51ce1feeee944e459c9",
-          "size": 5183,
+          "hash": "55624581c7a51db66d5b83ed9d5a4dc9134a26f035c4e48dee4b49d4eb670382",
+          "size": 5179,
           "path": "levels/pirate_shipwreck_island_palm_root_ship_ribs_bird_0e47__cmp_crop/level.json"
         },
         "colorImage": {
-          "hash": "e84143d05f696bcb0be4c785956b66c20db6fb1b1d01da4697f83da9f509f1f3",
-          "size": 129932,
-          "path": "levels/pirate_shipwreck_island_palm_root_ship_ribs_bird_0e47__cmp_crop/color.webp"
+          "hash": "781efeeca2578a0673d784d6a4e9c6db1781fe86cb708fa9ffa73f5df5fdeffb",
+          "size": 1701938,
+          "path": "levels/pirate_shipwreck_island_palm_root_ship_ribs_bird_0e47__cmp_crop/color.png"
         },
         "bgImages": [
           {
-            "hash": "627616b5afad6b83533f8051693a482de911d77724f32c65059841f24a8e11e9",
-            "size": 123906,
-            "path": "levels/pirate_shipwreck_island_palm_root_ship_ribs_bird_0e47__cmp_crop/bg_00.webp"
+            "hash": "5cfed9f19dd135a33f780b5b5b59d5a4314e98e68df59f266f6afbe08fab12a8",
+            "size": 1690235,
+            "path": "levels/pirate_shipwreck_island_palm_root_ship_ribs_bird_0e47__cmp_crop/bg_00.png"
           }
         ],
         "dogSprites": [
@@ -750,8 +750,8 @@
             "path": "levels/pirate_shipwreck_island_palm_root_ship_ribs_bird_0e47__cmp_crop/dogs/dog_01/sprite_000.png"
           },
           {
-            "hash": "ec5dc305bdf376aa8e23c5e6884e4abac082f489a578ec42c9253d3c4a24c01f",
-            "size": 11665,
+            "hash": "f06e917e44ac8a9a4de69cc50cb93ee144fd9daab28fcb74cea541dcfff565d3",
+            "size": 2923,
             "path": "levels/pirate_shipwreck_island_palm_root_ship_ribs_bird_0e47__cmp_crop/dogs/dog_02/sprite_000.png"
           },
           {
@@ -765,13 +765,13 @@
             "path": "levels/pirate_shipwreck_island_palm_root_ship_ribs_bird_0e47__cmp_crop/dogs/dog_04/sprite_001.png"
           },
           {
-            "hash": "fa8caa9de7d2d6c4d79f38eeced89fac6dd4678fd2100f1ef8031ecd6360ae0e",
-            "size": 2182,
-            "path": "levels/pirate_shipwreck_island_palm_root_ship_ribs_bird_0e47__cmp_crop/dogs/dog_05/sprite_002.png"
+            "hash": "433f2cc00f67497817ee4ccb852d08f06c01e8eb6c40ff11342991fca9cf51e1",
+            "size": 5075,
+            "path": "levels/pirate_shipwreck_island_palm_root_ship_ribs_bird_0e47__cmp_crop/dogs/dog_05/sprite_003.png"
           },
           {
-            "hash": "b84997c3999648ee2e84ef5c07de9ee70c92667c4c3941ae32fdef0dbaa19834",
-            "size": 10363,
+            "hash": "2b57cdf73d2c3af54eba13b8b80c5a7052176e8f89d375db2d7907862d438370",
+            "size": 3348,
             "path": "levels/pirate_shipwreck_island_palm_root_ship_ribs_bird_0e47__cmp_crop/dogs/dog_06/sprite_000.png"
           },
           {
@@ -995,6 +995,127 @@
             "hash": "f26d6d39702406e67e7a58122074b836debb0dac75c2d42de1aa81a982965500",
             "size": 6114,
             "path": "levels/pirate_shipwreck_island_jungle_cave_shore_bird_04e0__cmp_crop/dogs/dog_09/sprite_001.png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "japan_morning_market_bird_a7a0",
+      "name": "Level japan_morning_market_bird_a7a0 (lineart)",
+      "width": 768,
+      "height": 1376,
+      "cohort_buckets": [
+        "all"
+      ],
+      "bundled": true,
+      "assets": {
+        "levelJson": {
+          "hash": "a7a4d874c5b674c654a1d73cef62c1e983dc94ae7173b6a85f7c0a58a2760816",
+          "size": 8253,
+          "path": "levels/japan_morning_market_bird_a7a0/level.json"
+        },
+        "colorImage": {
+          "hash": "6f22ba51eb22e6f1ce19e6792c0f13fbe41afb16ba4458e2deb6c4fbec4b728f",
+          "size": 1701939,
+          "path": "levels/japan_morning_market_bird_a7a0/color.png"
+        },
+        "bgImages": [
+          {
+            "hash": "f5e86ffbdfd6d63518ad215d706bdc1d0a8fb3eac8748869026221cb22d5efe9",
+            "size": 1694648,
+            "path": "levels/japan_morning_market_bird_a7a0/bg_00.png"
+          }
+        ],
+        "dogSprites": [
+          {
+            "hash": "45735c8487a6d69c65a9f6980a0f672940ba9cd6ad7efc35a2a63593c5041ca8",
+            "size": 2751,
+            "path": "levels/japan_morning_market_bird_a7a0/dogs/dog_00/sprite_001.png"
+          },
+          {
+            "hash": "c7b6e768e6c18dfb33cf24dff97dd9e959bf39a5ac8569c1aa5dd9616e8925bf",
+            "size": 3487,
+            "path": "levels/japan_morning_market_bird_a7a0/dogs/dog_01/sprite_000.png"
+          },
+          {
+            "hash": "85396f29bd44357d577a5816d06643af00ab5109472ed4b0e957c936033fc6ec",
+            "size": 3287,
+            "path": "levels/japan_morning_market_bird_a7a0/dogs/dog_02/sprite_002.png"
+          },
+          {
+            "hash": "0de2d95f0a57345b5cd75c705216a780a065445c29bf9e7dc61ae64aba6468f9",
+            "size": 2963,
+            "path": "levels/japan_morning_market_bird_a7a0/dogs/dog_03/sprite_001.png"
+          },
+          {
+            "hash": "64157c144ac1765977ad09ad3d286549b750955e7b85fddb3c918c40ee98c780",
+            "size": 3727,
+            "path": "levels/japan_morning_market_bird_a7a0/dogs/dog_04/sprite_000.png"
+          },
+          {
+            "hash": "f17ad31d394d9c67bd4567ddd2f1608db68a23d9fc11abcd14c6c13e23c67d8b",
+            "size": 3713,
+            "path": "levels/japan_morning_market_bird_a7a0/dogs/dog_05/sprite_000.png"
+          },
+          {
+            "hash": "47ae4167040080acb12ac54d1e997e72a8a85e279c28b52d627e232fe41b413b",
+            "size": 1063,
+            "path": "levels/japan_morning_market_bird_a7a0/dogs/dog_06/sprite_000.png"
+          },
+          {
+            "hash": "e4251da417f1475d259e135a49ee2d1a68b1e5a9b2584383c5e8aee171683e84",
+            "size": 3438,
+            "path": "levels/japan_morning_market_bird_a7a0/dogs/dog_07/sprite_002.png"
+          },
+          {
+            "hash": "507588e06b540cf83949b7880c21cb0abcedb9224256b6668a45e51c0d3ed44d",
+            "size": 3458,
+            "path": "levels/japan_morning_market_bird_a7a0/dogs/dog_08/sprite_000.png"
+          },
+          {
+            "hash": "c1b31017254609683ffd6e4d9fa658b9abecc88ec12e6e64986325816cba9905",
+            "size": 3159,
+            "path": "levels/japan_morning_market_bird_a7a0/dogs/dog_09/sprite_000.png"
+          },
+          {
+            "hash": "4cbbf250868d274235a498adfb3b24834dc4222633c29bb5358ca989654b61e5",
+            "size": 3613,
+            "path": "levels/japan_morning_market_bird_a7a0/dogs/dog_10/sprite_000.png"
+          },
+          {
+            "hash": "dc387861570ffc294ca822ca789184c0fba4b6ac7b2223fc4eb7eae31326a094",
+            "size": 2093,
+            "path": "levels/japan_morning_market_bird_a7a0/dogs/dog_12/sprite_001.png"
+          },
+          {
+            "hash": "2d0f7b75dd4361e17233d2afd700f6528512e2c051b912a66805f7a113e4f0dd",
+            "size": 3098,
+            "path": "levels/japan_morning_market_bird_a7a0/dogs/dog_14/sprite_001.png"
+          },
+          {
+            "hash": "a8ee6bd2fe182e039e49b1f7b56eb3a9b2f40da79626750af53e0961a2bc5f9a",
+            "size": 11440,
+            "path": "levels/japan_morning_market_bird_a7a0/dogs/dog_15/sprite_001.png"
+          },
+          {
+            "hash": "e20f602e07f4296d56eb0f2a880d73fe94186787197c7c48711ed1c359c63cfb",
+            "size": 2719,
+            "path": "levels/japan_morning_market_bird_a7a0/dogs/dog_16/sprite_001.png"
+          },
+          {
+            "hash": "ebb53271fa6e55e4dea276f4ca697e634d660d2eace017efb7638acd038b1fbd",
+            "size": 4077,
+            "path": "levels/japan_morning_market_bird_a7a0/dogs/dog_17/sprite_001.png"
+          },
+          {
+            "hash": "e9efaa94dd1fc8ce517cc4da711149ca23fe3fcdcb2c3f4e351378a1a697b850",
+            "size": 3367,
+            "path": "levels/japan_morning_market_bird_a7a0/dogs/dog_18/sprite_001.png"
+          },
+          {
+            "hash": "d4cd10dd2aceb46b9de92030f826fbc940e4c1a664c020541dddd7bc96c8562a",
+            "size": 1730,
+            "path": "levels/japan_morning_market_bird_a7a0/dogs/dog_19/sprite_001.png"
           }
         ]
       }

@@ -68,21 +68,26 @@ def _verdict(score: float, warn: float, fail: float) -> str:
     return "pass"
 
 
-def _alpha_in_crop(inputs: BirdInputs) -> np.ndarray:
-    """Sprite alpha placed on the crop_box canvas, float 0..1."""
+def _alpha_in_crop(inputs: BirdInputs) -> tuple[np.ndarray, np.ndarray | None]:
+    """Sprite alpha (float 0..1) and RGB placed on the crop_box canvas."""
     cx0, cy0, cx1, cy1 = inputs.crop_box
     canvas = np.zeros((cy1 - cy0, cx1 - cx0), dtype=np.float32)
+    rgb_canvas = np.zeros((cy1 - cy0, cx1 - cx0, 3), dtype=np.int16)
     sx0, sy0, sx1, sy1 = inputs.sprite_box
-    alpha = np.asarray(inputs.sprite.convert("RGBA"), dtype=np.float32)[:, :, 3] / 255.0
+    rgba = np.asarray(inputs.sprite.convert("RGBA"), dtype=np.float32)
+    alpha = rgba[:, :, 3] / 255.0
     # Intersect sprite box with crop box.
     ix0, iy0 = max(sx0, cx0), max(sy0, cy0)
     ix1, iy1 = min(sx1, cx1), min(sy1, cy1)
     if ix1 <= ix0 or iy1 <= iy0:
-        return canvas
+        return canvas, rgb_canvas
     canvas[iy0 - cy0:iy1 - cy0, ix0 - cx0:ix1 - cx0] = alpha[
         iy0 - sy0:iy1 - sy0, ix0 - sx0:ix1 - sx0
     ]
-    return canvas
+    rgb_canvas[iy0 - cy0:iy1 - cy0, ix0 - cx0:ix1 - cx0] = rgba[
+        iy0 - sy0:iy1 - sy0, ix0 - sx0:ix1 - sx0, :3
+    ].astype(np.int16)
+    return canvas, rgb_canvas
 
 
 def _connected_components(mask: np.ndarray) -> list[np.ndarray]:
@@ -116,7 +121,7 @@ def _changed_mask(inputs: BirdInputs) -> np.ndarray:
 
 
 def evaluate_bird(inputs: BirdInputs) -> dict:
-    alpha = _alpha_in_crop(inputs)
+    alpha, sprite_rgb = _alpha_in_crop(inputs)
     visible = alpha > (ALPHA_VISIBLE / 255.0)
     sprite_area = float(visible.sum())
     axes: dict[str, dict] = {}
@@ -141,9 +146,16 @@ def evaluate_bird(inputs: BirdInputs) -> dict:
 
     changed = _changed_mask(inputs)
 
-    # Exclusion: sprite mass sitting on unchanged background.
+    # Exclusion: sprite mass sitting on unchanged background. A sprite pixel
+    # whose own color matches the clean bg beneath it is invisible, not a
+    # leak — without this, white-bodied birds over light line-art regions
+    # false-positived at leak ~0.5 (found live on japan_morning_market_a7a0).
     alpha_mass = float(alpha.sum())
-    leak = float((alpha * ~changed).sum()) / alpha_mass if alpha_mass else 1.0
+    sprite_differs = (
+        np.abs(sprite_rgb - inputs.clean_crop).sum(axis=2).astype(np.float32)
+        > CHANGE_ABS_FLOOR
+    )
+    leak = float((alpha * (~changed & sprite_differs)).sum()) / alpha_mass if alpha_mass else 1.0
     axes["exclusion"] = {
         "score": round(1.0 - leak, 4),
         "verdict": _verdict(1.0 - leak, EXCLUSION_WARN, EXCLUSION_FAIL),

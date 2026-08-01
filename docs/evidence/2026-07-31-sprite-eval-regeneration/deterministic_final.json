@@ -1,0 +1,6542 @@
+{
+ "schemaVersion": 1,
+ "root": "/Users/base/dev/appletolye/fabrikav2/.worktrees/feat-find-the-bird-reskin/games/find_the_bird/public/levels",
+ "levels": [
+  {
+   "schemaVersion": 1,
+   "levelId": "fairytale_forest_mushroom_cottage_glade_bird_d894",
+   "summary": {
+    "birds": 20,
+    "reducedInput": false,
+    "noiseFloor": 0.0,
+    "fail": 0,
+    "warn": 1
+   },
+   "birds": [
+    {
+     "dogId": "dog_00",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9811,
+       "verdict": "pass",
+       "leakFraction": 0.0189
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 903
+    },
+    {
+     "dogId": "dog_01",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9662,
+       "verdict": "pass",
+       "leakFraction": 0.0338
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 570
+    },
+    {
+     "dogId": "dog_02",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9831,
+       "verdict": "pass",
+       "leakFraction": 0.0169
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 534
+    },
+    {
+     "dogId": "dog_03",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9946,
+       "verdict": "pass",
+       "leakFraction": 0.0054
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 901
+    },
+    {
+     "dogId": "dog_04",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9774,
+       "verdict": "pass",
+       "leakFraction": 0.0226
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 387
+    },
+    {
+     "dogId": "dog_05",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9938,
+       "verdict": "pass",
+       "leakFraction": 0.0062
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1022
+    },
+    {
+     "dogId": "dog_06",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9865,
+       "verdict": "pass",
+       "leakFraction": 0.0135
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 788
+    },
+    {
+     "dogId": "dog_07",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9813,
+       "verdict": "pass",
+       "leakFraction": 0.0187
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 979
+    },
+    {
+     "dogId": "dog_08",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9914,
+       "verdict": "pass",
+       "leakFraction": 0.0086
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 860
+    },
+    {
+     "dogId": "dog_09",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.986,
+       "verdict": "pass",
+       "leakFraction": 0.014
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 727
+    },
+    {
+     "dogId": "dog_10",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9842,
+       "verdict": "pass",
+       "leakFraction": 0.0158
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1055
+    },
+    {
+     "dogId": "dog_11",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9911,
+       "verdict": "pass",
+       "leakFraction": 0.0089
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 890
+    },
+    {
+     "dogId": "dog_12",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9935,
+       "verdict": "pass",
+       "leakFraction": 0.0065
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1262
+    },
+    {
+     "dogId": "dog_13",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9877,
+       "verdict": "pass",
+       "leakFraction": 0.0123
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 682
+    },
+    {
+     "dogId": "dog_14",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9938,
+       "verdict": "pass",
+       "leakFraction": 0.0062
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1102
+    },
+    {
+     "dogId": "dog_15",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9859,
+       "verdict": "pass",
+       "leakFraction": 0.0141
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1244
+    },
+    {
+     "dogId": "dog_16",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9923,
+       "verdict": "pass",
+       "leakFraction": 0.0077
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1061
+    },
+    {
+     "dogId": "dog_17",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9899,
+       "verdict": "pass",
+       "leakFraction": 0.0101
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 540
+    },
+    {
+     "dogId": "dog_18",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9818,
+       "verdict": "pass",
+       "leakFraction": 0.0182
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1167
+    },
+    {
+     "dogId": "dog_19",
+     "axes": {
+      "specks": {
+       "count": 1,
+       "areaFraction": 0.0169,
+       "verdict": "warn"
+      },
+      "exclusion": {
+       "score": 0.9901,
+       "verdict": "pass",
+       "leakFraction": 0.0099
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 889
+    }
+   ]
+  },
+  {
+   "schemaVersion": 1,
+   "levelId": "italy_venice_canal_morning_bird_d570",
+   "summary": {
+    "birds": 19,
+    "reducedInput": false,
+    "noiseFloor": 0.0,
+    "fail": 0,
+    "warn": 0
+   },
+   "birds": [
+    {
+     "dogId": "dog_00",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9916,
+       "verdict": "pass",
+       "leakFraction": 0.0084
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 835
+    },
+    {
+     "dogId": "dog_01",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9848,
+       "verdict": "pass",
+       "leakFraction": 0.0152
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 560
+    },
+    {
+     "dogId": "dog_02",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9859,
+       "verdict": "pass",
+       "leakFraction": 0.0141
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 735
+    },
+    {
+     "dogId": "dog_03",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9962,
+       "verdict": "pass",
+       "leakFraction": 0.0038
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 609
+    },
+    {
+     "dogId": "dog_04",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.994,
+       "verdict": "pass",
+       "leakFraction": 0.006
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 797
+    },
+    {
+     "dogId": "dog_05",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9962,
+       "verdict": "pass",
+       "leakFraction": 0.0038
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 298
+    },
+    {
+     "dogId": "dog_06",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9911,
+       "verdict": "pass",
+       "leakFraction": 0.0089
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 698
+    },
+    {
+     "dogId": "dog_07",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9888,
+       "verdict": "pass",
+       "leakFraction": 0.0112
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 790
+    },
+    {
+     "dogId": "dog_08",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9894,
+       "verdict": "pass",
+       "leakFraction": 0.0106
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1116
+    },
+    {
+     "dogId": "dog_09",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9855,
+       "verdict": "pass",
+       "leakFraction": 0.0145
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1227
+    },
+    {
+     "dogId": "dog_10",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9924,
+       "verdict": "pass",
+       "leakFraction": 0.0076
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 717
+    },
+    {
+     "dogId": "dog_11",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9944,
+       "verdict": "pass",
+       "leakFraction": 0.0056
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 465
+    },
+    {
+     "dogId": "dog_12",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9965,
+       "verdict": "pass",
+       "leakFraction": 0.0035
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 909
+    },
+    {
+     "dogId": "dog_13",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9712,
+       "verdict": "pass",
+       "leakFraction": 0.0288
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 643
+    },
+    {
+     "dogId": "dog_14",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9918,
+       "verdict": "pass",
+       "leakFraction": 0.0082
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 659
+    },
+    {
+     "dogId": "dog_15",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.993,
+       "verdict": "pass",
+       "leakFraction": 0.007
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 497
+    },
+    {
+     "dogId": "dog_16",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9898,
+       "verdict": "pass",
+       "leakFraction": 0.0102
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 656
+    },
+    {
+     "dogId": "dog_17",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9833,
+       "verdict": "pass",
+       "leakFraction": 0.0167
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 571
+    },
+    {
+     "dogId": "dog_18",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9913,
+       "verdict": "pass",
+       "leakFraction": 0.0087
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1069
+    }
+   ]
+  },
+  {
+   "schemaVersion": 1,
+   "levelId": "japan_morning_market_bird_a53a",
+   "summary": {
+    "birds": 20,
+    "reducedInput": false,
+    "noiseFloor": 0.0,
+    "fail": 0,
+    "warn": 0
+   },
+   "birds": [
+    {
+     "dogId": "dog_00",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9937,
+       "verdict": "pass",
+       "leakFraction": 0.0063
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 746
+    },
+    {
+     "dogId": "dog_01",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9877,
+       "verdict": "pass",
+       "leakFraction": 0.0123
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 541
+    },
+    {
+     "dogId": "dog_02",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9734,
+       "verdict": "pass",
+       "leakFraction": 0.0266
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 267
+    },
+    {
+     "dogId": "dog_03",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.988,
+       "verdict": "pass",
+       "leakFraction": 0.012
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 650
+    },
+    {
+     "dogId": "dog_04",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9921,
+       "verdict": "pass",
+       "leakFraction": 0.0079
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 815
+    },
+    {
+     "dogId": "dog_05",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9807,
+       "verdict": "pass",
+       "leakFraction": 0.0193
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 771
+    },
+    {
+     "dogId": "dog_06",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9921,
+       "verdict": "pass",
+       "leakFraction": 0.0079
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1104
+    },
+    {
+     "dogId": "dog_07",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9907,
+       "verdict": "pass",
+       "leakFraction": 0.0093
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 766
+    },
+    {
+     "dogId": "dog_08",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9839,
+       "verdict": "pass",
+       "leakFraction": 0.0161
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 592
+    },
+    {
+     "dogId": "dog_09",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.996,
+       "verdict": "pass",
+       "leakFraction": 0.004
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 950
+    },
+    {
+     "dogId": "dog_10",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9813,
+       "verdict": "pass",
+       "leakFraction": 0.0187
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 642
+    },
+    {
+     "dogId": "dog_11",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9967,
+       "verdict": "pass",
+       "leakFraction": 0.0033
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 492
+    },
+    {
+     "dogId": "dog_12",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9735,
+       "verdict": "pass",
+       "leakFraction": 0.0265
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 582
+    },
+    {
+     "dogId": "dog_13",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.994,
+       "verdict": "pass",
+       "leakFraction": 0.006
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 844
+    },
+    {
+     "dogId": "dog_14",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9933,
+       "verdict": "pass",
+       "leakFraction": 0.0067
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 933
+    },
+    {
+     "dogId": "dog_15",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9931,
+       "verdict": "pass",
+       "leakFraction": 0.0069
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1127
+    },
+    {
+     "dogId": "dog_16",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9931,
+       "verdict": "pass",
+       "leakFraction": 0.0069
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 825
+    },
+    {
+     "dogId": "dog_17",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9813,
+       "verdict": "pass",
+       "leakFraction": 0.0187
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 681
+    },
+    {
+     "dogId": "dog_18",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9947,
+       "verdict": "pass",
+       "leakFraction": 0.0053
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 782
+    },
+    {
+     "dogId": "dog_19",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9924,
+       "verdict": "pass",
+       "leakFraction": 0.0076
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 598
+    }
+   ]
+  },
+  {
+   "schemaVersion": 1,
+   "levelId": "japan_morning_market_bird_a7a0",
+   "summary": {
+    "birds": 18,
+    "reducedInput": false,
+    "noiseFloor": 0.0,
+    "fail": 0,
+    "warn": 0
+   },
+   "birds": [
+    {
+     "dogId": "dog_00",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9949,
+       "verdict": "pass",
+       "leakFraction": 0.0051
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1098
+    },
+    {
+     "dogId": "dog_01",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9952,
+       "verdict": "pass",
+       "leakFraction": 0.0048
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 887
+    },
+    {
+     "dogId": "dog_02",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9951,
+       "verdict": "pass",
+       "leakFraction": 0.0049
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1188
+    },
+    {
+     "dogId": "dog_03",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9953,
+       "verdict": "pass",
+       "leakFraction": 0.0047
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1157
+    },
+    {
+     "dogId": "dog_04",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9973,
+       "verdict": "pass",
+       "leakFraction": 0.0027
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 996
+    },
+    {
+     "dogId": "dog_05",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9933,
+       "verdict": "pass",
+       "leakFraction": 0.0067
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 979
+    },
+    {
+     "dogId": "dog_06",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9982,
+       "verdict": "pass",
+       "leakFraction": 0.0018
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 301
+    },
+    {
+     "dogId": "dog_07",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9945,
+       "verdict": "pass",
+       "leakFraction": 0.0055
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1024
+    },
+    {
+     "dogId": "dog_08",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9971,
+       "verdict": "pass",
+       "leakFraction": 0.0029
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 820
+    },
+    {
+     "dogId": "dog_09",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9961,
+       "verdict": "pass",
+       "leakFraction": 0.0039
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 742
+    },
+    {
+     "dogId": "dog_10",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9971,
+       "verdict": "pass",
+       "leakFraction": 0.0029
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 862
+    },
+    {
+     "dogId": "dog_11",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9692,
+       "verdict": "pass",
+       "leakFraction": 0.0308
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 540
+    },
+    {
+     "dogId": "dog_12",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.8999,
+       "verdict": "pass",
+       "leakFraction": 0.1001
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 761
+    },
+    {
+     "dogId": "dog_13",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9958,
+       "verdict": "pass",
+       "leakFraction": 0.0042
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 4373
+    },
+    {
+     "dogId": "dog_14",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9954,
+       "verdict": "pass",
+       "leakFraction": 0.0046
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 869
+    },
+    {
+     "dogId": "dog_15",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9933,
+       "verdict": "pass",
+       "leakFraction": 0.0067
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1360
+    },
+    {
+     "dogId": "dog_16",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9937,
+       "verdict": "pass",
+       "leakFraction": 0.0063
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1177
+    },
+    {
+     "dogId": "dog_17",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9945,
+       "verdict": "pass",
+       "leakFraction": 0.0055
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 526
+    }
+   ]
+  },
+  {
+   "schemaVersion": 1,
+   "levelId": "japan_morning_market_bird_e99f",
+   "summary": {
+    "birds": 8,
+    "reducedInput": false,
+    "noiseFloor": 0.0,
+    "fail": 0,
+    "warn": 0
+   },
+   "birds": [
+    {
+     "dogId": "dog_00",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9948,
+       "verdict": "pass",
+       "leakFraction": 0.0052
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 671
+    },
+    {
+     "dogId": "dog_01",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9971,
+       "verdict": "pass",
+       "leakFraction": 0.0029
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1384
+    },
+    {
+     "dogId": "dog_02",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9836,
+       "verdict": "pass",
+       "leakFraction": 0.0164
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 890
+    },
+    {
+     "dogId": "dog_03",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9942,
+       "verdict": "pass",
+       "leakFraction": 0.0058
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1312
+    },
+    {
+     "dogId": "dog_04",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9946,
+       "verdict": "pass",
+       "leakFraction": 0.0054
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 960
+    },
+    {
+     "dogId": "dog_05",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9931,
+       "verdict": "pass",
+       "leakFraction": 0.0069
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 904
+    },
+    {
+     "dogId": "dog_06",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9867,
+       "verdict": "pass",
+       "leakFraction": 0.0133
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 964
+    },
+    {
+     "dogId": "dog_07",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9926,
+       "verdict": "pass",
+       "leakFraction": 0.0074
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 714
+    }
+   ]
+  },
+  {
+   "schemaVersion": 1,
+   "levelId": "morning_fairytale_glade_flash_close",
+   "summary": {
+    "birds": 15,
+    "reducedInput": false,
+    "noiseFloor": 0.0,
+    "fail": 0,
+    "warn": 0
+   },
+   "birds": [
+    {
+     "dogId": "dog_00",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9859,
+       "verdict": "pass",
+       "leakFraction": 0.0141
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 829
+    },
+    {
+     "dogId": "dog_01",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9879,
+       "verdict": "pass",
+       "leakFraction": 0.0121
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 790
+    },
+    {
+     "dogId": "dog_02",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9763,
+       "verdict": "pass",
+       "leakFraction": 0.0237
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 384
+    },
+    {
+     "dogId": "dog_03",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9852,
+       "verdict": "pass",
+       "leakFraction": 0.0148
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1328
+    },
+    {
+     "dogId": "dog_04",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9865,
+       "verdict": "pass",
+       "leakFraction": 0.0135
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1433
+    },
+    {
+     "dogId": "dog_05",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.983,
+       "verdict": "pass",
+       "leakFraction": 0.017
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1097
+    },
+    {
+     "dogId": "dog_06",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9852,
+       "verdict": "pass",
+       "leakFraction": 0.0148
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 795
+    },
+    {
+     "dogId": "dog_07",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.985,
+       "verdict": "pass",
+       "leakFraction": 0.015
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 658
+    },
+    {
+     "dogId": "dog_08",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9896,
+       "verdict": "pass",
+       "leakFraction": 0.0104
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1135
+    },
+    {
+     "dogId": "dog_09",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9785,
+       "verdict": "pass",
+       "leakFraction": 0.0215
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 752
+    },
+    {
+     "dogId": "dog_10",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9826,
+       "verdict": "pass",
+       "leakFraction": 0.0174
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1125
+    },
+    {
+     "dogId": "dog_11",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9898,
+       "verdict": "pass",
+       "leakFraction": 0.0102
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 462
+    },
+    {
+     "dogId": "dog_12",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9832,
+       "verdict": "pass",
+       "leakFraction": 0.0168
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 559
+    },
+    {
+     "dogId": "dog_13",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9859,
+       "verdict": "pass",
+       "leakFraction": 0.0141
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 737
+    },
+    {
+     "dogId": "dog_14",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9787,
+       "verdict": "pass",
+       "leakFraction": 0.0213
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 457
+    }
+   ]
+  },
+  {
+   "schemaVersion": 1,
+   "levelId": "morning_fairytale_glade_flash_none",
+   "summary": {
+    "birds": 15,
+    "reducedInput": false,
+    "noiseFloor": 0.0,
+    "fail": 0,
+    "warn": 2
+   },
+   "birds": [
+    {
+     "dogId": "dog_00",
+     "axes": {
+      "specks": {
+       "count": 1,
+       "areaFraction": 0.0343,
+       "verdict": "warn"
+      },
+      "exclusion": {
+       "score": 0.9774,
+       "verdict": "pass",
+       "leakFraction": 0.0226
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 962
+    },
+    {
+     "dogId": "dog_01",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9809,
+       "verdict": "pass",
+       "leakFraction": 0.0191
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 693
+    },
+    {
+     "dogId": "dog_02",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9861,
+       "verdict": "pass",
+       "leakFraction": 0.0139
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 591
+    },
+    {
+     "dogId": "dog_03",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9841,
+       "verdict": "pass",
+       "leakFraction": 0.0159
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 465
+    },
+    {
+     "dogId": "dog_04",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9796,
+       "verdict": "pass",
+       "leakFraction": 0.0204
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 348
+    },
+    {
+     "dogId": "dog_05",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9871,
+       "verdict": "pass",
+       "leakFraction": 0.0129
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1657
+    },
+    {
+     "dogId": "dog_06",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9849,
+       "verdict": "pass",
+       "leakFraction": 0.0151
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 402
+    },
+    {
+     "dogId": "dog_07",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9869,
+       "verdict": "pass",
+       "leakFraction": 0.0131
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 622
+    },
+    {
+     "dogId": "dog_08",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9804,
+       "verdict": "pass",
+       "leakFraction": 0.0196
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 584
+    },
+    {
+     "dogId": "dog_09",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9917,
+       "verdict": "pass",
+       "leakFraction": 0.0083
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1153
+    },
+    {
+     "dogId": "dog_10",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9857,
+       "verdict": "pass",
+       "leakFraction": 0.0143
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 616
+    },
+    {
+     "dogId": "dog_11",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9863,
+       "verdict": "pass",
+       "leakFraction": 0.0137
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1058
+    },
+    {
+     "dogId": "dog_12",
+     "axes": {
+      "specks": {
+       "count": 1,
+       "areaFraction": 0.008,
+       "verdict": "warn"
+      },
+      "exclusion": {
+       "score": 0.9909,
+       "verdict": "pass",
+       "leakFraction": 0.0091
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 997
+    },
+    {
+     "dogId": "dog_13",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9882,
+       "verdict": "pass",
+       "leakFraction": 0.0118
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 693
+    },
+    {
+     "dogId": "dog_14",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.986,
+       "verdict": "pass",
+       "leakFraction": 0.014
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 673
+    }
+   ]
+  },
+  {
+   "schemaVersion": 1,
+   "levelId": "morning_japan_market_pro_standard",
+   "summary": {
+    "birds": 15,
+    "reducedInput": false,
+    "noiseFloor": 0.0,
+    "fail": 0,
+    "warn": 2
+   },
+   "birds": [
+    {
+     "dogId": "dog_00",
+     "axes": {
+      "specks": {
+       "count": 1,
+       "areaFraction": 0.0162,
+       "verdict": "warn"
+      },
+      "exclusion": {
+       "score": 0.9814,
+       "verdict": "pass",
+       "leakFraction": 0.0186
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 494
+    },
+    {
+     "dogId": "dog_01",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9889,
+       "verdict": "pass",
+       "leakFraction": 0.0111
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1330
+    },
+    {
+     "dogId": "dog_02",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9792,
+       "verdict": "pass",
+       "leakFraction": 0.0208
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 480
+    },
+    {
+     "dogId": "dog_03",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9868,
+       "verdict": "pass",
+       "leakFraction": 0.0132
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 728
+    },
+    {
+     "dogId": "dog_04",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9891,
+       "verdict": "pass",
+       "leakFraction": 0.0109
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1148
+    },
+    {
+     "dogId": "dog_05",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9817,
+       "verdict": "pass",
+       "leakFraction": 0.0183
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 845
+    },
+    {
+     "dogId": "dog_06",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9967,
+       "verdict": "pass",
+       "leakFraction": 0.0033
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 3211
+    },
+    {
+     "dogId": "dog_07",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9935,
+       "verdict": "pass",
+       "leakFraction": 0.0065
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 985
+    },
+    {
+     "dogId": "dog_08",
+     "axes": {
+      "specks": {
+       "count": 1,
+       "areaFraction": 0.0155,
+       "verdict": "warn"
+      },
+      "exclusion": {
+       "score": 0.9873,
+       "verdict": "pass",
+       "leakFraction": 0.0127
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 517
+    },
+    {
+     "dogId": "dog_09",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9847,
+       "verdict": "pass",
+       "leakFraction": 0.0153
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 979
+    },
+    {
+     "dogId": "dog_10",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9886,
+       "verdict": "pass",
+       "leakFraction": 0.0114
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1337
+    },
+    {
+     "dogId": "dog_11",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9904,
+       "verdict": "pass",
+       "leakFraction": 0.0096
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1162
+    },
+    {
+     "dogId": "dog_12",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9811,
+       "verdict": "pass",
+       "leakFraction": 0.0189
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 442
+    },
+    {
+     "dogId": "dog_13",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.983,
+       "verdict": "pass",
+       "leakFraction": 0.017
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 717
+    },
+    {
+     "dogId": "dog_14",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9906,
+       "verdict": "pass",
+       "leakFraction": 0.0094
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1131
+    }
+   ]
+  },
+  {
+   "schemaVersion": 1,
+   "levelId": "morning_japan_market_pro_wide",
+   "summary": {
+    "birds": 15,
+    "reducedInput": false,
+    "noiseFloor": 0.0,
+    "fail": 0,
+    "warn": 0
+   },
+   "birds": [
+    {
+     "dogId": "dog_00",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9879,
+       "verdict": "pass",
+       "leakFraction": 0.0121
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1071
+    },
+    {
+     "dogId": "dog_01",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9863,
+       "verdict": "pass",
+       "leakFraction": 0.0137
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 871
+    },
+    {
+     "dogId": "dog_02",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9901,
+       "verdict": "pass",
+       "leakFraction": 0.0099
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 2127
+    },
+    {
+     "dogId": "dog_03",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9888,
+       "verdict": "pass",
+       "leakFraction": 0.0112
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1732
+    },
+    {
+     "dogId": "dog_04",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9892,
+       "verdict": "pass",
+       "leakFraction": 0.0108
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1248
+    },
+    {
+     "dogId": "dog_05",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9907,
+       "verdict": "pass",
+       "leakFraction": 0.0093
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 2272
+    },
+    {
+     "dogId": "dog_06",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.986,
+       "verdict": "pass",
+       "leakFraction": 0.014
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 859
+    },
+    {
+     "dogId": "dog_07",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.987,
+       "verdict": "pass",
+       "leakFraction": 0.013
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1314
+    },
+    {
+     "dogId": "dog_08",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9817,
+       "verdict": "pass",
+       "leakFraction": 0.0183
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 751
+    },
+    {
+     "dogId": "dog_09",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9877,
+       "verdict": "pass",
+       "leakFraction": 0.0123
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 2069
+    },
+    {
+     "dogId": "dog_10",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9827,
+       "verdict": "pass",
+       "leakFraction": 0.0173
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 681
+    },
+    {
+     "dogId": "dog_11",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9884,
+       "verdict": "pass",
+       "leakFraction": 0.0116
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1112
+    },
+    {
+     "dogId": "dog_12",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.986,
+       "verdict": "pass",
+       "leakFraction": 0.014
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 636
+    },
+    {
+     "dogId": "dog_13",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9855,
+       "verdict": "pass",
+       "leakFraction": 0.0145
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 987
+    },
+    {
+     "dogId": "dog_14",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9886,
+       "verdict": "pass",
+       "leakFraction": 0.0114
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 982
+    }
+   ]
+  },
+  {
+   "schemaVersion": 1,
+   "levelId": "morning_pirate_cove_pro_standard",
+   "summary": {
+    "birds": 15,
+    "reducedInput": false,
+    "noiseFloor": 0.0,
+    "fail": 0,
+    "warn": 0
+   },
+   "birds": [
+    {
+     "dogId": "dog_00",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9927,
+       "verdict": "pass",
+       "leakFraction": 0.0073
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 2333
+    },
+    {
+     "dogId": "dog_01",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9909,
+       "verdict": "pass",
+       "leakFraction": 0.0091
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1508
+    },
+    {
+     "dogId": "dog_02",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9889,
+       "verdict": "pass",
+       "leakFraction": 0.0111
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1548
+    },
+    {
+     "dogId": "dog_03",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9945,
+       "verdict": "pass",
+       "leakFraction": 0.0055
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 2752
+    },
+    {
+     "dogId": "dog_04",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9939,
+       "verdict": "pass",
+       "leakFraction": 0.0061
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 2256
+    },
+    {
+     "dogId": "dog_05",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9911,
+       "verdict": "pass",
+       "leakFraction": 0.0089
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 2542
+    },
+    {
+     "dogId": "dog_06",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9913,
+       "verdict": "pass",
+       "leakFraction": 0.0087
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 2748
+    },
+    {
+     "dogId": "dog_07",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9949,
+       "verdict": "pass",
+       "leakFraction": 0.0051
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 2471
+    },
+    {
+     "dogId": "dog_08",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9918,
+       "verdict": "pass",
+       "leakFraction": 0.0082
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 2075
+    },
+    {
+     "dogId": "dog_09",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9911,
+       "verdict": "pass",
+       "leakFraction": 0.0089
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 2991
+    },
+    {
+     "dogId": "dog_10",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9885,
+       "verdict": "pass",
+       "leakFraction": 0.0115
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 2034
+    },
+    {
+     "dogId": "dog_11",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9905,
+       "verdict": "pass",
+       "leakFraction": 0.0095
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1383
+    },
+    {
+     "dogId": "dog_12",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9894,
+       "verdict": "pass",
+       "leakFraction": 0.0106
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 2441
+    },
+    {
+     "dogId": "dog_13",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9921,
+       "verdict": "pass",
+       "leakFraction": 0.0079
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 4844
+    },
+    {
+     "dogId": "dog_14",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9968,
+       "verdict": "pass",
+       "leakFraction": 0.0032
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 3944
+    }
+   ]
+  },
+  {
+   "schemaVersion": 1,
+   "levelId": "pirate_shipwreck_island_broken_bow_lagoon_bird_c8a9__cmp_crop",
+   "summary": {
+    "birds": 10,
+    "reducedInput": false,
+    "noiseFloor": 0.0,
+    "fail": 0,
+    "warn": 0
+   },
+   "birds": [
+    {
+     "dogId": "dog_00",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9943,
+       "verdict": "pass",
+       "leakFraction": 0.0057
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1747
+    },
+    {
+     "dogId": "dog_01",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9592,
+       "verdict": "pass",
+       "leakFraction": 0.0408
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 302
+    },
+    {
+     "dogId": "dog_02",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.985,
+       "verdict": "pass",
+       "leakFraction": 0.015
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1149
+    },
+    {
+     "dogId": "dog_03",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.989,
+       "verdict": "pass",
+       "leakFraction": 0.011
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 724
+    },
+    {
+     "dogId": "dog_04",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9888,
+       "verdict": "pass",
+       "leakFraction": 0.0112
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 623
+    },
+    {
+     "dogId": "dog_05",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9852,
+       "verdict": "pass",
+       "leakFraction": 0.0148
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 304
+    },
+    {
+     "dogId": "dog_06",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9904,
+       "verdict": "pass",
+       "leakFraction": 0.0096
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1588
+    },
+    {
+     "dogId": "dog_07",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9883,
+       "verdict": "pass",
+       "leakFraction": 0.0117
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 947
+    },
+    {
+     "dogId": "dog_08",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9927,
+       "verdict": "pass",
+       "leakFraction": 0.0073
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 813
+    },
+    {
+     "dogId": "dog_09",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9909,
+       "verdict": "pass",
+       "leakFraction": 0.0091
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1136
+    }
+   ]
+  },
+  {
+   "schemaVersion": 1,
+   "levelId": "pirate_shipwreck_island_dock_fragment_hideout_bird_f22b__cmp_crop",
+   "summary": {
+    "birds": 10,
+    "reducedInput": false,
+    "noiseFloor": 0.0,
+    "fail": 0,
+    "warn": 0
+   },
+   "birds": [
+    {
+     "dogId": "dog_00",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9934,
+       "verdict": "pass",
+       "leakFraction": 0.0066
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1882
+    },
+    {
+     "dogId": "dog_01",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9948,
+       "verdict": "pass",
+       "leakFraction": 0.0052
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1094
+    },
+    {
+     "dogId": "dog_02",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9943,
+       "verdict": "pass",
+       "leakFraction": 0.0057
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 818
+    },
+    {
+     "dogId": "dog_03",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9902,
+       "verdict": "pass",
+       "leakFraction": 0.0098
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1528
+    },
+    {
+     "dogId": "dog_04",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9937,
+       "verdict": "pass",
+       "leakFraction": 0.0063
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1517
+    },
+    {
+     "dogId": "dog_05",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9917,
+       "verdict": "pass",
+       "leakFraction": 0.0083
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1078
+    },
+    {
+     "dogId": "dog_06",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9888,
+       "verdict": "pass",
+       "leakFraction": 0.0112
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 775
+    },
+    {
+     "dogId": "dog_07",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9942,
+       "verdict": "pass",
+       "leakFraction": 0.0058
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 650
+    },
+    {
+     "dogId": "dog_08",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9957,
+       "verdict": "pass",
+       "leakFraction": 0.0043
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1879
+    },
+    {
+     "dogId": "dog_09",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9891,
+       "verdict": "pass",
+       "leakFraction": 0.0109
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1164
+    }
+   ]
+  },
+  {
+   "schemaVersion": 1,
+   "levelId": "pirate_shipwreck_island_jungle_cave_shore_bird_04e0__cmp_crop",
+   "summary": {
+    "birds": 10,
+    "reducedInput": false,
+    "noiseFloor": 0.0,
+    "fail": 0,
+    "warn": 0
+   },
+   "birds": [
+    {
+     "dogId": "dog_00",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9925,
+       "verdict": "pass",
+       "leakFraction": 0.0075
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 621
+    },
+    {
+     "dogId": "dog_01",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.991,
+       "verdict": "pass",
+       "leakFraction": 0.009
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1277
+    },
+    {
+     "dogId": "dog_02",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9918,
+       "verdict": "pass",
+       "leakFraction": 0.0082
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1660
+    },
+    {
+     "dogId": "dog_03",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9917,
+       "verdict": "pass",
+       "leakFraction": 0.0083
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 2058
+    },
+    {
+     "dogId": "dog_04",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9909,
+       "verdict": "pass",
+       "leakFraction": 0.0091
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 3247
+    },
+    {
+     "dogId": "dog_05",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.986,
+       "verdict": "pass",
+       "leakFraction": 0.014
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1498
+    },
+    {
+     "dogId": "dog_06",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.968,
+       "verdict": "pass",
+       "leakFraction": 0.032
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 385
+    },
+    {
+     "dogId": "dog_07",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9928,
+       "verdict": "pass",
+       "leakFraction": 0.0072
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1317
+    },
+    {
+     "dogId": "dog_08",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9933,
+       "verdict": "pass",
+       "leakFraction": 0.0067
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1155
+    },
+    {
+     "dogId": "dog_09",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9893,
+       "verdict": "pass",
+       "leakFraction": 0.0107
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1557
+    }
+   ]
+  },
+  {
+   "schemaVersion": 1,
+   "levelId": "pirate_shipwreck_island_palm_root_ship_ribs_bird_0e47__cmp_crop",
+   "summary": {
+    "birds": 10,
+    "reducedInput": false,
+    "noiseFloor": 0.0,
+    "fail": 0,
+    "warn": 0
+   },
+   "birds": [
+    {
+     "dogId": "dog_00",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.995,
+       "verdict": "pass",
+       "leakFraction": 0.005
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1504
+    },
+    {
+     "dogId": "dog_01",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9931,
+       "verdict": "pass",
+       "leakFraction": 0.0069
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1503
+    },
+    {
+     "dogId": "dog_02",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9938,
+       "verdict": "pass",
+       "leakFraction": 0.0062
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 699
+    },
+    {
+     "dogId": "dog_03",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9912,
+       "verdict": "pass",
+       "leakFraction": 0.0088
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1768
+    },
+    {
+     "dogId": "dog_04",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9877,
+       "verdict": "pass",
+       "leakFraction": 0.0123
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 850
+    },
+    {
+     "dogId": "dog_05",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9883,
+       "verdict": "pass",
+       "leakFraction": 0.0117
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1366
+    },
+    {
+     "dogId": "dog_06",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9785,
+       "verdict": "pass",
+       "leakFraction": 0.0215
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 792
+    },
+    {
+     "dogId": "dog_07",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9861,
+       "verdict": "pass",
+       "leakFraction": 0.0139
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1000
+    },
+    {
+     "dogId": "dog_08",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9922,
+       "verdict": "pass",
+       "leakFraction": 0.0078
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1319
+    },
+    {
+     "dogId": "dog_09",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9833,
+       "verdict": "pass",
+       "leakFraction": 0.0167
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1295
+    }
+   ]
+  },
+  {
+   "schemaVersion": 1,
+   "levelId": "pirate_shipwreck_island_treasure_cove_camp_bird_5064__cmp_crop",
+   "summary": {
+    "birds": 10,
+    "reducedInput": false,
+    "noiseFloor": 0.0,
+    "fail": 0,
+    "warn": 1
+   },
+   "birds": [
+    {
+     "dogId": "dog_00",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9947,
+       "verdict": "pass",
+       "leakFraction": 0.0053
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1055
+    },
+    {
+     "dogId": "dog_01",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9924,
+       "verdict": "pass",
+       "leakFraction": 0.0076
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1181
+    },
+    {
+     "dogId": "dog_02",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9877,
+       "verdict": "pass",
+       "leakFraction": 0.0123
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1073
+    },
+    {
+     "dogId": "dog_03",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9919,
+       "verdict": "pass",
+       "leakFraction": 0.0081
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1094
+    },
+    {
+     "dogId": "dog_04",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9948,
+       "verdict": "pass",
+       "leakFraction": 0.0052
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1247
+    },
+    {
+     "dogId": "dog_05",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.994,
+       "verdict": "pass",
+       "leakFraction": 0.006
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1064
+    },
+    {
+     "dogId": "dog_06",
+     "axes": {
+      "specks": {
+       "count": 1,
+       "areaFraction": 0.0327,
+       "verdict": "warn"
+      },
+      "exclusion": {
+       "score": 0.9864,
+       "verdict": "pass",
+       "leakFraction": 0.0136
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 245
+    },
+    {
+     "dogId": "dog_07",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9956,
+       "verdict": "pass",
+       "leakFraction": 0.0044
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1994
+    },
+    {
+     "dogId": "dog_08",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9904,
+       "verdict": "pass",
+       "leakFraction": 0.0096
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1245
+    },
+    {
+     "dogId": "dog_09",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9942,
+       "verdict": "pass",
+       "leakFraction": 0.0058
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 1368
+    }
+   ]
+  },
+  {
+   "schemaVersion": 1,
+   "levelId": "square_grand_bazaar_flash_4k",
+   "summary": {
+    "birds": 15,
+    "reducedInput": false,
+    "noiseFloor": 0.0,
+    "fail": 0,
+    "warn": 0
+   },
+   "birds": [
+    {
+     "dogId": "dog_00",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9995,
+       "verdict": "pass",
+       "leakFraction": 0.0005
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 44173
+    },
+    {
+     "dogId": "dog_01",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9975,
+       "verdict": "pass",
+       "leakFraction": 0.0025
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 71763
+    },
+    {
+     "dogId": "dog_02",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9982,
+       "verdict": "pass",
+       "leakFraction": 0.0018
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 10825
+    },
+    {
+     "dogId": "dog_03",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9978,
+       "verdict": "pass",
+       "leakFraction": 0.0022
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 37332
+    },
+    {
+     "dogId": "dog_04",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9976,
+       "verdict": "pass",
+       "leakFraction": 0.0024
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 31187
+    },
+    {
+     "dogId": "dog_05",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9983,
+       "verdict": "pass",
+       "leakFraction": 0.0017
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 62228
+    },
+    {
+     "dogId": "dog_06",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9915,
+       "verdict": "pass",
+       "leakFraction": 0.0085
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 21303
+    },
+    {
+     "dogId": "dog_07",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9986,
+       "verdict": "pass",
+       "leakFraction": 0.0014
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 68286
+    },
+    {
+     "dogId": "dog_08",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9996,
+       "verdict": "pass",
+       "leakFraction": 0.0004
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 41032
+    },
+    {
+     "dogId": "dog_09",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9949,
+       "verdict": "pass",
+       "leakFraction": 0.0051
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 25056
+    },
+    {
+     "dogId": "dog_10",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9984,
+       "verdict": "pass",
+       "leakFraction": 0.0016
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 47460
+    },
+    {
+     "dogId": "dog_11",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9955,
+       "verdict": "pass",
+       "leakFraction": 0.0045
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 27514
+    },
+    {
+     "dogId": "dog_12",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.999,
+       "verdict": "pass",
+       "leakFraction": 0.001
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 16937
+    },
+    {
+     "dogId": "dog_13",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9982,
+       "verdict": "pass",
+       "leakFraction": 0.0018
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 38045
+    },
+    {
+     "dogId": "dog_14",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9968,
+       "verdict": "pass",
+       "leakFraction": 0.0032
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 19261
+    }
+   ]
+  },
+  {
+   "schemaVersion": 1,
+   "levelId": "square_hawaii_waterfall_flash_4k",
+   "summary": {
+    "birds": 15,
+    "reducedInput": false,
+    "noiseFloor": 0.0,
+    "fail": 0,
+    "warn": 0
+   },
+   "birds": [
+    {
+     "dogId": "dog_00",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9983,
+       "verdict": "pass",
+       "leakFraction": 0.0017
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 51001
+    },
+    {
+     "dogId": "dog_01",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9979,
+       "verdict": "pass",
+       "leakFraction": 0.0021
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 48026
+    },
+    {
+     "dogId": "dog_02",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9989,
+       "verdict": "pass",
+       "leakFraction": 0.0011
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 55919
+    },
+    {
+     "dogId": "dog_03",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9991,
+       "verdict": "pass",
+       "leakFraction": 0.0009
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 67298
+    },
+    {
+     "dogId": "dog_04",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9981,
+       "verdict": "pass",
+       "leakFraction": 0.0019
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 21375
+    },
+    {
+     "dogId": "dog_05",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.997,
+       "verdict": "pass",
+       "leakFraction": 0.003
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 12818
+    },
+    {
+     "dogId": "dog_06",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9984,
+       "verdict": "pass",
+       "leakFraction": 0.0016
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 59559
+    },
+    {
+     "dogId": "dog_07",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9992,
+       "verdict": "pass",
+       "leakFraction": 0.0008
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 52071
+    },
+    {
+     "dogId": "dog_08",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9985,
+       "verdict": "pass",
+       "leakFraction": 0.0015
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 53821
+    },
+    {
+     "dogId": "dog_09",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9988,
+       "verdict": "pass",
+       "leakFraction": 0.0012
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 36352
+    },
+    {
+     "dogId": "dog_10",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.999,
+       "verdict": "pass",
+       "leakFraction": 0.001
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 43645
+    },
+    {
+     "dogId": "dog_11",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9987,
+       "verdict": "pass",
+       "leakFraction": 0.0013
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 35725
+    },
+    {
+     "dogId": "dog_12",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9991,
+       "verdict": "pass",
+       "leakFraction": 0.0009
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 42015
+    },
+    {
+     "dogId": "dog_13",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9992,
+       "verdict": "pass",
+       "leakFraction": 0.0008
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 57292
+    },
+    {
+     "dogId": "dog_14",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9965,
+       "verdict": "pass",
+       "leakFraction": 0.0035
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 22981
+    }
+   ]
+  },
+  {
+   "schemaVersion": 1,
+   "levelId": "square_pirate_cove_flash_4k",
+   "summary": {
+    "birds": 15,
+    "reducedInput": false,
+    "noiseFloor": 0.0,
+    "fail": 0,
+    "warn": 0
+   },
+   "birds": [
+    {
+     "dogId": "dog_00",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9975,
+       "verdict": "pass",
+       "leakFraction": 0.0025
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 20936
+    },
+    {
+     "dogId": "dog_01",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9988,
+       "verdict": "pass",
+       "leakFraction": 0.0012
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 97735
+    },
+    {
+     "dogId": "dog_02",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9995,
+       "verdict": "pass",
+       "leakFraction": 0.0005
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 16432
+    },
+    {
+     "dogId": "dog_03",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9985,
+       "verdict": "pass",
+       "leakFraction": 0.0015
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 27740
+    },
+    {
+     "dogId": "dog_04",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9992,
+       "verdict": "pass",
+       "leakFraction": 0.0008
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 91333
+    },
+    {
+     "dogId": "dog_05",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9973,
+       "verdict": "pass",
+       "leakFraction": 0.0027
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 21895
+    },
+    {
+     "dogId": "dog_06",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9975,
+       "verdict": "pass",
+       "leakFraction": 0.0025
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 19595
+    },
+    {
+     "dogId": "dog_07",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.998,
+       "verdict": "pass",
+       "leakFraction": 0.002
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 39115
+    },
+    {
+     "dogId": "dog_08",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9986,
+       "verdict": "pass",
+       "leakFraction": 0.0014
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 71532
+    },
+    {
+     "dogId": "dog_09",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9986,
+       "verdict": "pass",
+       "leakFraction": 0.0014
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 43133
+    },
+    {
+     "dogId": "dog_10",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9981,
+       "verdict": "pass",
+       "leakFraction": 0.0019
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 34677
+    },
+    {
+     "dogId": "dog_11",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9988,
+       "verdict": "pass",
+       "leakFraction": 0.0012
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 79041
+    },
+    {
+     "dogId": "dog_12",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9995,
+       "verdict": "pass",
+       "leakFraction": 0.0005
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 10274
+    },
+    {
+     "dogId": "dog_13",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9989,
+       "verdict": "pass",
+       "leakFraction": 0.0011
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 58763
+    },
+    {
+     "dogId": "dog_14",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.997,
+       "verdict": "pass",
+       "leakFraction": 0.003
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 19938
+    }
+   ]
+  },
+  {
+   "schemaVersion": 1,
+   "levelId": "square_sami_aurora_flash_4k",
+   "summary": {
+    "birds": 15,
+    "reducedInput": false,
+    "noiseFloor": 0.0,
+    "fail": 0,
+    "warn": 0
+   },
+   "birds": [
+    {
+     "dogId": "dog_00",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9989,
+       "verdict": "pass",
+       "leakFraction": 0.0011
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 48736
+    },
+    {
+     "dogId": "dog_01",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9994,
+       "verdict": "pass",
+       "leakFraction": 0.0006
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 58352
+    },
+    {
+     "dogId": "dog_02",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.999,
+       "verdict": "pass",
+       "leakFraction": 0.001
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 56441
+    },
+    {
+     "dogId": "dog_03",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9987,
+       "verdict": "pass",
+       "leakFraction": 0.0013
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 47502
+    },
+    {
+     "dogId": "dog_04",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9993,
+       "verdict": "pass",
+       "leakFraction": 0.0007
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 68476
+    },
+    {
+     "dogId": "dog_05",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9993,
+       "verdict": "pass",
+       "leakFraction": 0.0007
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 50329
+    },
+    {
+     "dogId": "dog_06",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9987,
+       "verdict": "pass",
+       "leakFraction": 0.0013
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 83125
+    },
+    {
+     "dogId": "dog_07",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9976,
+       "verdict": "pass",
+       "leakFraction": 0.0024
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 24058
+    },
+    {
+     "dogId": "dog_08",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.999,
+       "verdict": "pass",
+       "leakFraction": 0.001
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 51166
+    },
+    {
+     "dogId": "dog_09",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9997,
+       "verdict": "pass",
+       "leakFraction": 0.0003
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 91248
+    },
+    {
+     "dogId": "dog_10",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9997,
+       "verdict": "pass",
+       "leakFraction": 0.0003
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 41684
+    },
+    {
+     "dogId": "dog_11",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9978,
+       "verdict": "pass",
+       "leakFraction": 0.0022
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 47644
+    },
+    {
+     "dogId": "dog_12",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9995,
+       "verdict": "pass",
+       "leakFraction": 0.0005
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 68416
+    },
+    {
+     "dogId": "dog_13",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9996,
+       "verdict": "pass",
+       "leakFraction": 0.0004
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 52925
+    },
+    {
+     "dogId": "dog_14",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9994,
+       "verdict": "pass",
+       "leakFraction": 0.0006
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 47022
+    }
+   ]
+  },
+  {
+   "schemaVersion": 1,
+   "levelId": "square_yucatan_cenote_flash_4k",
+   "summary": {
+    "birds": 15,
+    "reducedInput": false,
+    "noiseFloor": 0.0,
+    "fail": 0,
+    "warn": 0
+   },
+   "birds": [
+    {
+     "dogId": "dog_00",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9983,
+       "verdict": "pass",
+       "leakFraction": 0.0017
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 60315
+    },
+    {
+     "dogId": "dog_01",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9981,
+       "verdict": "pass",
+       "leakFraction": 0.0019
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 73546
+    },
+    {
+     "dogId": "dog_02",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9985,
+       "verdict": "pass",
+       "leakFraction": 0.0015
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 54146
+    },
+    {
+     "dogId": "dog_03",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9968,
+       "verdict": "pass",
+       "leakFraction": 0.0032
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 37650
+    },
+    {
+     "dogId": "dog_04",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9992,
+       "verdict": "pass",
+       "leakFraction": 0.0008
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 76328
+    },
+    {
+     "dogId": "dog_05",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9978,
+       "verdict": "pass",
+       "leakFraction": 0.0022
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 76283
+    },
+    {
+     "dogId": "dog_06",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9977,
+       "verdict": "pass",
+       "leakFraction": 0.0023
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 30212
+    },
+    {
+     "dogId": "dog_07",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9988,
+       "verdict": "pass",
+       "leakFraction": 0.0012
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 50918
+    },
+    {
+     "dogId": "dog_08",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9991,
+       "verdict": "pass",
+       "leakFraction": 0.0009
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 62392
+    },
+    {
+     "dogId": "dog_09",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9986,
+       "verdict": "pass",
+       "leakFraction": 0.0014
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 60725
+    },
+    {
+     "dogId": "dog_10",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9989,
+       "verdict": "pass",
+       "leakFraction": 0.0011
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 59503
+    },
+    {
+     "dogId": "dog_11",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9983,
+       "verdict": "pass",
+       "leakFraction": 0.0017
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 38005
+    },
+    {
+     "dogId": "dog_12",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9977,
+       "verdict": "pass",
+       "leakFraction": 0.0023
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 42554
+    },
+    {
+     "dogId": "dog_13",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.9993,
+       "verdict": "pass",
+       "leakFraction": 0.0007
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 60305
+    },
+    {
+     "dogId": "dog_14",
+     "axes": {
+      "specks": {
+       "count": 0,
+       "areaFraction": 0.0,
+       "verdict": "pass"
+      },
+      "exclusion": {
+       "score": 0.999,
+       "verdict": "pass",
+       "leakFraction": 0.001
+      },
+      "coherence": {
+       "score": 1.0,
+       "verdict": "pass",
+       "popArea": 0,
+       "popRatio": 0.0
+      }
+     },
+     "spriteArea": 66853
+    }
+   ]
+  }
+ ],
+ "summary": {
+  "levels": 20,
+  "birds": 285,
+  "fail": 0,
+  "warn": 6
+ }
+}

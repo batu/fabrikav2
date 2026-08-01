@@ -100,10 +100,9 @@ def validate_corpus(public_root: Path, *, require_levels_index: bool = False) ->
         if not path.parent.name.startswith(".")
     )
     for path in level_paths:
-        # Sprite-quality stays off for corpus sweeps until the shipped levels
-        # are regenerated under sprite-only compositing (plan U8 flips this) —
-        # the legacy corpus predates the gate and would refuse wholesale.
-        validate_level_dir(public_root, path.parent.name, sprite_quality=False)
+        # Full corpus regenerated under sprite-only compositing 2026-08-01
+        # (plan 2026-07-31-002 U8): sprite quality is now corpus-enforced.
+        validate_level_dir(public_root, path.parent.name)
     catalog_checked = False
     catalog_path = public_root / "catalog-manifest.json"
     if catalog_path.is_file():
