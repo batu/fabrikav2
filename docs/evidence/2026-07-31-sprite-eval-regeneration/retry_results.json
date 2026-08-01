@@ -319,14 +319,6 @@
   "resolved": false,
   "reason": "no variant cleared the judge"
  },
- "pirate_shipwreck_island_jungle_cave_shore_bird_04e0__cmp_crop/dog_04": {
-  "resolved": true,
-  "attempt": {
-   "box_scale": 1.2
-  },
-  "subject": 0.55,
-  "completeness": 0.98
- },
  "pirate_shipwreck_island_jungle_cave_shore_bird_04e0__cmp_crop/dog_06": {
   "resolved": false,
   "reason": "no variant cleared the judge"
@@ -362,18 +354,6 @@
   },
   "subject": 0.98,
   "completeness": 0.96
- },
- "square_grand_bazaar_flash_4k/dog_01": {
-  "resolved": true,
-  "attempt": {
-   "box_scale": 1.2,
-   "point_override": [
-    329.9162405505371,
-    240.4970601671063
-   ]
-  },
-  "subject": 0.99,
-  "completeness": 0.97
  },
  "square_grand_bazaar_flash_4k/dog_02": {
   "resolved": true,
@@ -486,5 +466,25 @@
   },
   "subject": 0.58,
   "completeness": 0.98
+ },
+ "pirate_shipwreck_island_jungle_cave_shore_bird_04e0__cmp_crop/dog_04": {
+  "resolved": true,
+  "attempt": {
+   "box_scale": 1.6
+  },
+  "subject": 0.58,
+  "completeness": 0.98
+ },
+ "square_grand_bazaar_flash_4k/dog_01": {
+  "resolved": true,
+  "attempt": {
+   "box_scale": 1.2,
+   "point_override": [
+    329.9162405505371,
+    240.4970601671063
+   ]
+  },
+  "subject": 0.99,
+  "completeness": 0.96
  }
 }

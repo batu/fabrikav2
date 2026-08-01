@@ -13,22 +13,22 @@
     590,
     432,
     630,
-    468
+    469
   ],
   "cleanupBox": [
     586,
     428,
     634,
-    472
+    473
   ],
   "width": 40,
-  "height": 36,
+  "height": 37,
   "anchorX": 0.4,
-  "anchorY": 0.5278,
-  "technique": "diff-mask-connected-components-v1",
+  "anchorY": 0.5135,
+  "technique": "sam2-primary-cutout-v1",
   "quality": {
-    "visibleCoverage": 0.025,
-    "strongCoverage": 0.0212,
+    "visibleCoverage": 0.0266,
+    "strongCoverage": 0.0235,
     "bboxCoverage": 0.0448,
     "edgeTouches": 0,
     "fullCropLike": false,
