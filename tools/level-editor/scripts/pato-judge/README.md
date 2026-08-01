@@ -31,7 +31,7 @@ curl -s http://localhost:11435/api/version
 over) on port **8977** with SAM2.1-hiera-large. Launch:
 
 ```sh
-ssh ubuntu-server 'cd ~/sam2-service && setsid nohup ~/.local/bin/uv run python sam2_server.py > sam2_server.log 2>&1 < /dev/null &'
+ssh ubuntu-server "systemctl --user start sam2-server"   # installed as a systemd user service 2026-08-01
 ssh -f -N -L 8977:localhost:8977 ubuntu-server
 curl -s http://localhost:8977/health
 ```
