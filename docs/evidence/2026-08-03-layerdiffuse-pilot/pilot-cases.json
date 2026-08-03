@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "sourceRoot": "/Users/base/dev/appletolye/fabrikav2/games/find_the_bird/.levelbuilder/levels",
+  "generation": {
+    "width": 512,
+    "height": 512,
+    "steps": 28,
+    "cfg": 7.0,
+    "sampler": "dpmpp_2m",
+    "scheduler": "karras",
+    "negativePrompt": "photorealistic, 3d render, realistic photograph, text, watermark, logo, multiple birds, extra animals, duplicate subject, cropped bird, missing feet, missing wings, missing held object, disconnected object, branch, perch, cast shadow"
+  },
+  "cases": [
+    {
+      "caseId": "venice-tiny-telescope",
+      "levelId": "italy_venice_canal_morning_bird_d570",
+      "birdId": "0998adb4-50c8-5250-8cef-76a9dbd058ed",
+      "expectedDogDir": "dog_03",
+      "expectedVariant": 0,
+      "seed": 25001,
+      "prompt": "one tiny charming anthropomorphic warm-brown and white sparrow holding a tiny brass telescope, complete full body and held telescope visible, standing naturally in the provided narrow Venetian canal walkway scene, bird occupies roughly one quarter of the canvas, vintage children's picture-book cartoon, rounded shapes, thick confident dark ink outline, flat poster color fills, soft hand-painted texture, readable mobile-game silhouette, high quality"
+    },
+    {
+      "caseId": "hawaii-water-compass",
+      "levelId": "square_hawaii_waterfall_flash_4k",
+      "birdId": "8bf0b160-3f71-52d4-b1c2-625086bd52ea",
+      "expectedDogDir": "dog_11",
+      "expectedVariant": 0,
+      "seed": 25002,
+      "prompt": "one charming turquoise anthropomorphic bird holding a small silver compass in one wing, complete full body, feet, tail, wings and compass visible, standing naturally on the mossy boulder in the provided Hawaiian waterfall scene, bird occupies roughly half of the canvas, vintage hand-drawn cartoon, rounded old-cartoon shapes, thick confident black ink outline, flat poster color fills, soft hand-painted texture, readable mobile-game silhouette, high quality"
+    },
+    {
+      "caseId": "yucatan-clean-anchor",
+      "levelId": "square_yucatan_cenote_flash_4k",
+      "birdId": "30df40ff-1296-58e1-8dab-967dd5773ee7",
+      "expectedDogDir": "dog_14",
+      "expectedVariant": 0,
+      "seed": 25003,
+      "prompt": "one charming cream-and-brown spotted long-beaked shorebird holding a magnifying glass in one wing, complete full body, thin legs, feet, tail, wings and magnifying glass visible, standing naturally in the shallow turquoise water of the provided cenote scene, bird occupies roughly half of the canvas, vintage hand-drawn cartoon, rounded old-cartoon shapes, thick confident black ink outline, flat poster color fills, soft hand-painted texture, readable mobile-game silhouette, high quality"
+    }
+  ]
+}

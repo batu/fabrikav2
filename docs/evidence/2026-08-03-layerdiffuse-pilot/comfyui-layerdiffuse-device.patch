@@ -1,0 +1,8 @@
+diff --git a/lib_layerdiffusion/attention_sharing.py b/lib_layerdiffusion/attention_sharing.py
+index cc67986..4fba609 100644
+--- a/lib_layerdiffusion/attention_sharing.py
++++ b/lib_layerdiffusion/attention_sharing.py
+@@ -161,2 +161,3 @@ class AttentionSharingUnit(torch.nn.Module):
+     def forward(self, h, context=None, value=None):
++        self.to(h.device)
+         transformer_options = self.transformer_options

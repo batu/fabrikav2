@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LayerDiffuse pilot — rejected</title>
+  <style>
+    :root {
+      --paper: #f5efe1;
+      --ink: #24231f;
+      --muted: #6d685d;
+      --line: #cfc5b2;
+      --fail: #a2362d;
+      --fail-soft: #f0d6d0;
+      --ok: #37674d;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Georgia, "Times New Roman", serif;
+      line-height: 1.5;
+    }
+    main { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 54px 0 80px; }
+    header { display: grid; grid-template-columns: 1fr auto; gap: 40px; align-items: end; border-bottom: 2px solid var(--ink); padding-bottom: 30px; }
+    .eyebrow, th, .metric-label { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; letter-spacing: .08em; }
+    .eyebrow { margin: 0 0 12px; color: var(--muted); font-size: 12px; }
+    h1 { margin: 0; max-width: 820px; font-size: clamp(42px, 7vw, 82px); line-height: .96; font-weight: 500; letter-spacing: -.045em; }
+    .status { align-self: start; color: var(--fail); border: 2px solid var(--fail); padding: 8px 12px; font: 700 13px/1 ui-monospace, SFMono-Regular, Menlo, monospace; text-transform: uppercase; letter-spacing: .08em; transform: rotate(1deg); }
+    .summary { max-width: 850px; margin: 30px 0 0; font-size: 22px; }
+    section { margin-top: 52px; }
+    h2 { margin: 0 0 18px; font-size: 32px; font-weight: 500; letter-spacing: -.02em; }
+    .verdict { border-left: 7px solid var(--fail); background: var(--fail-soft); padding: 22px 26px; font-size: 20px; }
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .metric { padding: 20px 18px 22px 0; }
+    .metric + .metric { padding-left: 18px; border-left: 1px solid var(--line); }
+    .metric-label { display: block; color: var(--muted); font-size: 11px; }
+    .metric strong { display: block; margin-top: 5px; font-size: 30px; font-weight: 500; }
+    figure { margin: 30px 0 54px; }
+    figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); background: #fff8e8; }
+    figcaption { margin-top: 10px; color: var(--muted); font-size: 15px; }
+    table { width: 100%; border-collapse: collapse; font-size: 16px; }
+    th, td { text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); padding: 14px 12px 14px 0; }
+    th { color: var(--muted); font-size: 11px; }
+    td strong { color: var(--fail); }
+    details { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 16px 0; }
+    summary { cursor: pointer; font-weight: 700; }
+    summary:focus-visible, a:focus-visible { outline: 3px solid var(--fail); outline-offset: 4px; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .88em; }
+    a { color: var(--fail); text-underline-offset: 3px; }
+    @media (max-width: 760px) {
+      main { width: min(100% - 24px, 1180px); padding-top: 30px; }
+      header { grid-template-columns: 1fr; }
+      .status { justify-self: start; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .metric:nth-child(3) { border-left: 0; }
+      .metric:nth-child(n+3) { border-top: 1px solid var(--line); }
+      table { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <p class="eyebrow">Wayfinder evidence · 03 August 2026 · RTX 4090</p>
+        <h1>LayerDiffuse fits. The birds do not.</h1>
+        <p class="summary">The official SD1.5 background-conditioned workflow completed three representative cases at zero provider cost, but produced the wrong subject or incomplete foreground every time.</p>
+      </div>
+      <div class="status">Route rejected</div>
+    </header>
+
+    <section aria-labelledby="verdict">
+      <h2 id="verdict">Verdict</h2>
+      <div class="verdict"><strong>Stop this route at the pilot.</strong> 0/3 outputs contained the required bird plus held item, and 0/3 foregrounds were free of unrelated scene fragments. Exact compositing guarantees pixel identity only after the model generates the right layer; here it did not.</div>
+    </section>
+
+    <section aria-labelledby="numbers">
+      <h2 id="numbers">What the run proved</h2>
+      <div class="metrics">
+        <div class="metric"><span class="metric-label">Subject gate</span><strong>0 / 3</strong></div>
+        <div class="metric"><span class="metric-label">Peak observed GPU</span><strong>7,462 MiB</strong></div>
+        <div class="metric"><span class="metric-label">Warm generation</span><strong>4.6–5.0 s</strong></div>
+        <div class="metric"><span class="metric-label">Provider spend</span><strong>$0</strong></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="evidence">
+      <h2 id="evidence">Raw comparisons</h2>
+      <figure>
+        <img src="02_sheet-venice-tiny-telescope.png" alt="Venice target compared with LayerDiffuse foreground, model blend, and exact composite">
+        <figcaption>Venice · a witch-like person and dog replace the tiny telescope bird. Two alpha components.</figcaption>
+      </figure>
+      <figure>
+        <img src="03_sheet-hawaii-water-compass.png" alt="Hawaii target compared with LayerDiffuse foreground, model blend, and exact composite">
+        <figcaption>Hawaii · a different blue bird appears without the compass; the opaque rock/base belongs to the background. Four alpha components.</figcaption>
+      </figure>
+      <figure>
+        <img src="04_sheet-yucatan-clean-anchor.png" alt="Yucatan target compared with LayerDiffuse foreground, model blend, and exact composite">
+        <figcaption>Yucatán · a human with a mirror and broad water layer replace the bird with magnifier. Five alpha components; alpha reaches every canvas edge.</figcaption>
+      </figure>
+    </section>
+
+    <section aria-labelledby="run-table">
+      <h2 id="run-table">Measured cases</h2>
+      <table>
+        <thead><tr><th>Case</th><th>Conditioning</th><th>Elapsed</th><th>Total / incremental GPU</th><th>Failure</th></tr></thead>
+        <tbody>
+          <tr><td>Venice tiny telescope</td><td>132→512 · 3.879× upscale</td><td>6.555 s</td><td>7,238 / 4,078 MiB</td><td><strong>Wrong subjects</strong></td></tr>
+          <tr><td>Hawaii water compass</td><td>604→512 · 0.848× downscale</td><td>5.017 s</td><td>7,462 / 1,408 MiB</td><td><strong>Missing item + background layer</strong></td></tr>
+          <tr><td>Yucatán clean anchor</td><td>832→512 · 0.615× downscale</td><td>4.584 s</td><td>7,462 / 0 MiB warm</td><td><strong>Wrong subject + full-frame layer</strong></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="setup">
+      <h2 id="setup">Audit trail</h2>
+      <details>
+        <summary>Exact stack and first-live-run compatibility finding</summary>
+        <p>ComfyUI <code>f4007609</code>, ComfyUI-layerdiffuse <code>b4f6a9e</code>, DreamShaper 8 SHA-256 <code>879db523…8abd7fd</code>, 512×512, 28 steps, CFG 7, DPM++ 2M Karras.</p>
+        <p>The first call failed before sampling because the extension left its custom control convolution on CPU while the background control tensor moved to CUDA. The recorded one-line compatibility patch moves the registered attention-sharing unit to <code>h.device</code>. The unchanged official graph then completed. Source sessions remained read only; all generated binaries live outside git.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>
