@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "ticket": "https://github.com/batu/fabrikav2/issues/27",
+  "date": "2026-08-03",
+  "benchmark": "../2026-08-03-cutout-benchmark/benchmark-manifest.json",
+  "sourceReadOnly": true,
+  "lockedHoldout": {
+    "cases": 20,
+    "usedForTraining": false,
+    "usedForValidation": false,
+    "usedForTuning": false,
+    "firstUsedAfterCheckpointSelection": true
+  },
+  "syntheticData": {
+    "generator": "gpt-image-2",
+    "quality": "low",
+    "size": "1024x1024",
+    "calls": 32,
+    "estimatedCostUsd": 0.283248,
+    "acceptedBirds": 30,
+    "excludedBirds": 2,
+    "trainSceneLevels": 12,
+    "validationSceneLevels": 4,
+    "trainPairs": 184,
+    "validationPairs": 56,
+    "alphaSource": "exact alpha recovered from the flat-key generated bird and preserved through deterministic compositing"
+  },
+  "candidate": {
+    "name": "finetuned-vitmatte",
+    "baseModel": "hustvl/vitmatte-small-distinctions-646",
+    "baseRevision": "6a0e75d7214b01f4d1163ede0f15b23afbbd480b",
+    "upstreamCodeCommit": "8cd7ef068380977c3962c4cb733cb1fe7f2241a5",
+    "codeLicense": "MIT",
+    "checkpointLicense": "Apache-2.0",
+    "checkpointSha256": "f75d28397c1e1adf476c0c444ed1344ecee8ee940c11e954a4924990f2fba4e8",
+    "training": {
+      "seed": 27082026,
+      "epochs": 20,
+      "selectedEpoch": 19,
+      "batchSize": 2,
+      "learningRate": 0.00002,
+      "trainedParameters": 2068961,
+      "totalParameters": 25814753,
+      "elapsedSeconds": 85.168,
+      "peakCudaMemoryBytes": 1151378944,
+      "validationMad": 0.002967315082039152,
+      "validationUnknownMad": 0.009089459362521321
+    },
+    "inference": {
+      "cases": 20,
+      "elapsedSeconds": 1.265,
+      "meanModelLoopSeconds": 0.03314,
+      "warmMeanModelLoopSeconds": 0.016426,
+      "peakCudaMemoryBytes": 1912936448,
+      "marginalApiCostUsd": 0
+    },
+    "diagnostics": {
+      "multiComponentCases": 8,
+      "satellitePixels": 4502,
+      "meanPartialAlphaFraction": 0.506372
+    },
+    "prefilter": {
+      "pass": 1,
+      "reject": 17,
+      "error": 2,
+      "meanSubjectOnCompletedJudgments": 0.450556,
+      "meanCompletenessOnCompletedJudgments": 0.750556
+    }
+  },
+  "controls": [
+    {
+      "name": "sam2-native",
+      "description": "ticket 17 best production-eligible lane",
+      "prefilter": {
+        "pass": 8,
+        "reject": 12,
+        "error": 0
+      },
+      "diagnostics": {
+        "multiComponentCases": 0,
+        "satellitePixels": 0,
+        "meanPartialAlphaFraction": 0.139546
+      }
+    },
+    {
+      "name": "sam2-stock-vitmatte",
+      "description": "ticket 17 same base matting architecture without fine-tuning",
+      "prefilter": {
+        "pass": 4,
+        "reject": 16,
+        "error": 0
+      },
+      "diagnostics": {
+        "multiComponentCases": 4,
+        "satellitePixels": 169,
+        "meanPartialAlphaFraction": 0.615695
+      }
+    },
+    {
+      "name": "registered-difference-samrefiner-hqsam-stock-vitmatte",
+      "samRefinerCommit": "4bb7f95738c7a2e805f189210fb09e02a2197557",
+      "hqSamVendoredTree": "a097774e71ab472b52d74dc5001442ad8f6a6355",
+      "distanceTransform": "SciPy EDT on CPU, mathematically exact for SAMRefiner's fixed lambda=0",
+      "inference": {
+        "cases": 20,
+        "elapsedSeconds": 8.265,
+        "meanModelLoopSeconds": 0.394885,
+        "peakCudaMemoryBytes": 6213660160,
+        "marginalApiCostUsd": 0
+      },
+      "prefilter": {
+        "pass": 1,
+        "reject": 19,
+        "error": 0,
+        "meanSubject": 0.3345,
+        "meanCompleteness": 0.7935
+      },
+      "diagnostics": {
+        "multiComponentCases": 4,
+        "satellitePixels": 35,
+        "meanPartialAlphaFraction": 0.45607
+      }
+    }
+  ],
+  "environment": {
+    "gpu": "NVIDIA GeForce RTX 4090",
+    "torch": "2.8.0+cu128"
+  },
+  "codexRecommendation": "Do not advance the fine-tuned ViTMatte lane: it passed 1 of 20 versus 8 of 20 for the ticket 17 SAM2-native control.",
+  "humanAcceptanceRequired": true,
+  "acceptanceAuthority": "Batu via Portal"
+}

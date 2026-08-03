@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Style-specific bird matte — ticket 27</title>
+  <style>
+    :root {
+      --cream: #fff8e8;
+      --paper: #f3ead7;
+      --ink: #292823;
+      --muted: #736b5e;
+      --line: #d8cdb8;
+      --teal: #087f73;
+      --teal-soft: #d9eee8;
+      --red: #9c382e;
+      --red-soft: #f6ded9;
+      --amber: #8c5a04;
+      --amber-soft: #fae9c8;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: "Avenir Next", "Gill Sans", sans-serif;
+      line-height: 1.5;
+    }
+    main { width: min(1240px, calc(100% - 40px)); margin: 0 auto; padding: 48px 0 80px; }
+    header { display: grid; grid-template-columns: 1.45fr .75fr; gap: 54px; align-items: end; padding-bottom: 34px; border-bottom: 2px solid var(--ink); }
+    .eyebrow { margin: 0 0 10px; color: var(--red); font: 700 12px/1.2 ui-monospace, monospace; letter-spacing: .14em; text-transform: uppercase; }
+    h1, h2 { font-family: Charter, Georgia, serif; letter-spacing: -.025em; }
+    h1 { max-width: 900px; margin: 0; font-size: clamp(40px, 6.6vw, 82px); line-height: .94; }
+    h2 { margin: 0 0 16px; font-size: clamp(26px, 3vw, 38px); }
+    h3 { margin: 0 0 8px; font-size: 17px; }
+    p { margin: 0; }
+    .summary { margin-top: 22px; max-width: 790px; color: #4d493f; font-size: 19px; }
+    .status { border-left: 4px solid var(--red); padding-left: 18px; }
+    .status strong { display: block; color: var(--red); font-size: 26px; }
+    .status span { color: var(--muted); font-size: 14px; }
+    section { padding: 40px 0; border-bottom: 1px solid var(--line); }
+    .verdict { display: grid; grid-template-columns: 1.25fr .75fr; gap: 44px; }
+    .callout { background: var(--red-soft); padding: 22px 24px; border-left: 5px solid var(--red); font-size: 18px; }
+    .metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+    .metric { background: var(--cream); padding: 18px; }
+    .metric b { display: block; font: 700 28px/1 Charter, Georgia, serif; }
+    .metric small { color: var(--muted); }
+    .legend { position: sticky; top: 0; z-index: 2; display: flex; flex-wrap: wrap; gap: 8px; margin: 0 -10px 22px; padding: 12px 10px; background: rgba(255, 248, 232, .96); border-bottom: 1px solid var(--line); backdrop-filter: blur(8px); }
+    .tag { display: inline-block; padding: 3px 8px; border-radius: 999px; font: 700 11px/1.2 ui-monospace, monospace; white-space: nowrap; }
+    .base { color: #075b52; background: var(--teal-soft); }
+    .risk { color: #724801; background: var(--amber-soft); }
+    .no { color: #7d2820; background: var(--red-soft); }
+    figure { margin: 0 0 28px; }
+    figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); background: white; }
+    figcaption { margin-top: 9px; color: var(--muted); font-size: 13px; }
+    .matrix { width: 100%; border-collapse: collapse; font-size: 15px; }
+    .matrix th, .matrix td { padding: 15px 13px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+    .matrix th { color: var(--muted); font: 700 11px/1.2 ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; }
+    .matrix td:not(:first-child), .matrix th:not(:first-child) { text-align: right; }
+    .matrix .candidate td { background: var(--red-soft); }
+    .pair { display: grid; grid-template-columns: 1.05fr .95fr; gap: 38px; align-items: start; }
+    .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 22px; background: var(--line); border: 1px solid var(--line); }
+    .fact { min-height: 112px; padding: 17px; background: var(--cream); }
+    .fact b { display: block; margin-bottom: 5px; font: 700 21px/1.1 Charter, Georgia, serif; }
+    .fact small { color: var(--muted); }
+    ul { margin: 12px 0 0; padding-left: 20px; }
+    li + li { margin-top: 7px; }
+    details { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 14px; }
+    summary { cursor: pointer; font-weight: 700; color: var(--teal); }
+    summary:focus-visible { outline: 3px solid var(--amber); outline-offset: 4px; }
+    code { font-family: ui-monospace, monospace; font-size: .9em; }
+    .fine { color: var(--muted); font-size: 13px; }
+    @media (max-width: 780px) {
+      main { width: min(100% - 24px, 1240px); padding-top: 28px; }
+      header, .verdict, .pair { grid-template-columns: 1fr; gap: 24px; }
+      .facts { grid-template-columns: 1fr; }
+      .matrix { display: block; overflow-x: auto; }
+      .legend { position: static; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <p class="eyebrow">Wayfinder research · 03 Aug 2026</p>
+        <h1>Fine edges cannot rescue the wrong bird mask.</h1>
+        <p class="summary">A style-specific ViTMatte decoder learned the synthetic task, then failed the real one. It passed 1 of 20 locked cases—well behind the existing SAM2-native control at 8 of 20.</p>
+      </div>
+      <div class="status">
+        <strong>Do not advance</strong>
+        <span>Codex recommendation only. Ticket 27 is awaiting Batu’s Portal verdict.</span>
+      </div>
+    </header>
+
+    <section class="verdict" aria-labelledby="verdict">
+      <div>
+        <h2 id="verdict">Answer</h2>
+        <div class="callout"><strong>The fine-tuned matte does not solve clean bird extraction.</strong> It reduces scene pixels on a few cases, but still loses complete birds, hollows interiors, and keeps market, tent, fence, water, and shoreline fragments. Synthetic validation quality did not transfer to the locked real cohort.</div>
+      </div>
+      <div class="metrics" aria-label="result metrics">
+        <div class="metric"><b>1 / 20</b><small>candidate prefilter pass</small></div>
+        <div class="metric"><b>8 / 20</b><small>SAM2-native control</small></div>
+        <div class="metric"><b>4,502</b><small>candidate satellite pixels</small></div>
+        <div class="metric"><b>$0.283</b><small>synthetic bootstrap</small></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="comparison">
+      <h2 id="comparison">Every locked case</h2>
+      <div class="legend" aria-label="sheet column legend">
+        <span class="tag risk">Rejected historical</span>
+        <span class="tag base">SAM2 native</span>
+        <span class="tag base">SAM2 → stock ViTMatte</span>
+        <span class="tag risk">SAMRefiner(HQ-SAM) → stock ViTMatte</span>
+        <span class="tag no">Fine-tuned ViTMatte</span>
+      </div>
+      <figure>
+        <img src="sheet-01.png" alt="Benchmark cases 1 through 4 comparing the rejected sprite and four local extraction methods">
+        <figcaption>Cases 1–4 · small scenery collisions and line art. The candidate is empty on case 4.</figcaption>
+      </figure>
+      <figure>
+        <img src="sheet-02.png" alt="Benchmark cases 5 through 8 comparing the rejected sprite and four local extraction methods">
+        <figcaption>Cases 5–8 · held items and dense scene boundaries. Fence, kiosk, and market pixels remain.</figcaption>
+      </figure>
+      <figure>
+        <img src="sheet-03.png" alt="Benchmark cases 9 through 12 comparing the rejected sprite and four local extraction methods">
+        <figcaption>Cases 9–12 · completeness, tent, reflective water, and rope traps.</figcaption>
+      </figure>
+      <figure>
+        <img src="sheet-04.png" alt="Benchmark cases 13 through 16 comparing the rejected sprite and four local extraction methods">
+        <figcaption>Cases 13–16 · shoreline, timber, barrel, and high-resolution market geometry.</figcaption>
+      </figure>
+      <figure>
+        <img src="sheet-05.png" alt="Benchmark cases 17 through 20 comparing the rejected sprite and four local extraction methods">
+        <figcaption>Cases 17–20 · native-4K anchors. Yucatán is the candidate’s only prefilter pass.</figcaption>
+      </figure>
+    </section>
+
+    <section aria-labelledby="score">
+      <h2 id="score">Fixed comparison</h2>
+      <table class="matrix">
+        <thead><tr><th>Method</th><th>Pass</th><th>Reject</th><th>Error</th><th>Multi-part</th><th>Satellites</th></tr></thead>
+        <tbody>
+          <tr><td>SAM2 native · ticket 17 best production lane</td><td>8</td><td>12</td><td>0</td><td>0</td><td>0</td></tr>
+          <tr><td>SAM2 → stock ViTMatte</td><td>4</td><td>16</td><td>0</td><td>4</td><td>169</td></tr>
+          <tr><td>Registered difference → SAMRefiner(HQ-SAM) → stock ViTMatte</td><td>1</td><td>19</td><td>0</td><td>4</td><td>35</td></tr>
+          <tr class="candidate"><td><strong>Registered difference → fine-tuned ViTMatte</strong></td><td><strong>1</strong></td><td><strong>17</strong></td><td><strong>2</strong></td><td><strong>8</strong></td><td><strong>4,502</strong></td></tr>
+        </tbody>
+      </table>
+      <p class="fine" style="margin-top:12px">The two candidate errors are judge timeouts, not passes or inferred failures. Batu’s visual verdict remains authoritative.</p>
+    </section>
+
+    <section class="pair" aria-labelledby="training">
+      <div>
+        <h2 id="training">The pilot was properly isolated</h2>
+        <p>Thirty accepted flat-key birds yielded exact alpha targets and 240 deterministic composites. Train and validation were split by scene/style, and all 20 real benchmark IDs remained untouched until the epoch-19 checkpoint was frozen.</p>
+        <div class="facts">
+          <div class="fact"><b>184 / 56</b><small>train / validation pairs</small></div>
+          <div class="fact"><b>12 / 4</b><small>disjoint scene levels</small></div>
+          <div class="fact"><b>0</b><small>holdout cases used to tune</small></div>
+        </div>
+      </div>
+      <div>
+        <h3><span class="tag base">Commercial base</span></h3>
+        <p>ViTMatte-S Distinctions-646: MIT upstream code and Apache-2.0 checkpoint card. Only 2.07M decoder parameters were trained.</p>
+        <ul>
+          <li>20 epochs; selected epoch 19</li>
+          <li>85.168 seconds training</li>
+          <li>1.07 GiB peak allocated training VRAM</li>
+          <li>1.265 seconds for 20 candidate inferences</li>
+          <li>Zero marginal model API cost</li>
+        </ul>
+      </div>
+    </section>
+
+    <section aria-labelledby="control">
+      <h2 id="control">SAMRefiner control closes the open comparison</h2>
+      <p>The production-compatible hybrid used registered difference, official SAMRefiner with its vendored HQ-SAM implementation, then stock ViTMatte. Its 1-of-20 pass rate shows that a stronger boundary decoder still cannot correct a wrong-subject prior.</p>
+      <div class="facts">
+        <div class="fact"><b>8.265 s</b><small>20-case model loop</small></div>
+        <div class="fact"><b>5.79 GiB</b><small>peak allocated VRAM</small></div>
+        <div class="fact"><b>1 / 20</b><small>Codex prefilter pass</small></div>
+      </div>
+      <details>
+        <summary>Implementation audit</summary>
+        <p style="margin-top:10px">The host lacked the CUDA toolkit required to compile FastGeodis. SAMRefiner fixes its distance parameter at λ=0, where the generalized distance reduces exactly to Euclidean distance, so the runner used SciPy’s CPU EDT without changing the method’s distance field.</p>
+      </details>
+    </section>
+
+    <section aria-labelledby="audit">
+      <h2 id="audit">Decision boundary</h2>
+      <p>Approve the research conclusion if these sheets support “style-specific ViTMatte does not beat the existing production control.” Reject it if any case or methodological fact contradicts that conclusion. Approval resolves this research ticket only; it does not select a corpus-wide production method or modify runtime assets.</p>
+      <p class="fine" style="margin-top:12px">Audit facts, immutable revisions, checkpoint digest, reproduction commands, and full method notes are recorded in the committed ticket-27 evidence directory.</p>
+    </section>
+  </main>
+</body>
+</html>
