@@ -215,7 +215,7 @@ export function createSdkContext(deps: CreateSdkContextDependencies = {}): GameS
       products: buildShopCatalog().products.map(ftdDefaultStoreProduct),
     });
   }
-  const apiKey = revenueCatKey ?? 'test_find_the_dog_sandbox';
+  const apiKey = revenueCatKey ?? 'test_find_the_bird_sandbox';
   const iapComposition: FindTheDogIapComposition = {
     // Preserve the current seeded fake web service as ready while still selecting
     // the provider from the real production matrix.

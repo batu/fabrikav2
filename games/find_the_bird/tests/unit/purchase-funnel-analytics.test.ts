@@ -77,6 +77,44 @@ describe('AnalyticsService purchase funnel emitters', () => {
 });
 
 describe('FindTheDogIapService analytics wiring', () => {
+  it('retries initialization after the native store initially returns no products', async () => {
+    let productLoads = 0;
+    const provider = {
+      configure: vi.fn(async () => undefined),
+      getProducts: vi.fn(async (productIds: readonly string[]) => {
+        productLoads += 1;
+        if (productLoads === 1) return [];
+        return productIds.slice(0, 1).map((productId) => ({
+          productId,
+          title: 'Recovered product',
+          description: 'Recovered product',
+          price: 1.99,
+          priceString: '$1.99',
+          currencyCode: 'USD',
+        }));
+      }),
+      purchaseProduct: vi.fn(),
+      restorePurchases: vi.fn(),
+      addCustomerInfoUpdateListener: vi.fn(async () => undefined),
+      removeCustomerInfoUpdateListener: vi.fn(async () => undefined),
+    };
+    const service = new FindTheDogIapService({
+      isNativePlatform: () => true,
+      platform: () => 'ios',
+      apiKey: () => 'appl_test',
+      provider: () => provider,
+    });
+
+    service.init();
+    await service.initPromiseValue;
+    expect(service.snapshot().state).toBe('load-failed');
+
+    service.init();
+    await service.initPromiseValue;
+    expect(service.snapshot().state).toBe('ready');
+    expect(provider.getProducts).toHaveBeenCalledTimes(2);
+  });
+
   it('emits iap_state_changed transitions and purchase_sheet_shown through a real purchase', async () => {
     const stateSpy = vi.spyOn(analytics, 'iapStateChanged').mockResolvedValue();
     const sheetSpy = vi.spyOn(analytics, 'purchaseSheetShown').mockResolvedValue();

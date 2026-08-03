@@ -815,7 +815,8 @@ function renderPageShopProducts(page: HTMLElement): void {
 
 function schedulePageShopProductsRefresh(page: HTMLElement): void {
   const iapState = iapService.snapshot().state;
-  if (iapState !== 'idle' && iapState !== 'initializing') return;
+  if (iapState === 'load-failed') iapService.init();
+  if (iapState !== 'idle' && iapState !== 'initializing' && iapState !== 'load-failed') return;
   window.setTimeout(() => {
     if (!page.isConnected) return;
     if (!page.classList.contains('home-page-overlay--open')) return;

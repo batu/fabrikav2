@@ -61,7 +61,7 @@ interface FtdIapGrant {
   readonly source: ShopCatalogProduct;
 }
 
-const SANDBOX_API_KEY = 'test_find_the_dog_sandbox';
+const SANDBOX_API_KEY = 'test_find_the_bird_sandbox';
 
 export interface FindTheDogIapComposition {
   readonly isNativePlatform: () => boolean;
@@ -144,8 +144,8 @@ export class FindTheDogIapService {
   init(): void {
     if (this.initPromise === null) {
       if (this.usesInternalFakeProvider) this.configureFakeProducts();
-      this.initPromise = this.service.init();
     }
+    this.initPromise = this.service.init();
   }
 
   setOnCustomerInfoUpdate(handler: ((customerInfo: CustomerInfoLike) => void) | null): void {
