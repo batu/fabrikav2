@@ -13,9 +13,6 @@ import { adService } from './ads/Service';
 import { createSdkContext, getSdkContext, installSdkContext } from './sdk/SdkContext';
 import { initializeCohort } from './data/cohortContext';
 import { remoteConfigService } from './config/RemoteConfigService';
-import { iapService, ownedProductIdsFromCustomerInfo, type CustomerInfo } from './shop/IapService';
-import { restoreNonConsumableEntitlements } from './shop/PurchaseFulfillment';
-import { buildFullShopCatalog } from './shop/ProductCatalog';
 import { installPortraitOrientationLock } from './platform/portraitOrientation';
 import { installGameLifecycle } from './platform/gameLifecycle';
 import { installAudioUnlock, installButtonVoiceEffects } from './audio/AudioManager';
@@ -72,40 +69,10 @@ void adConsentReady
   .catch((err: unknown): void => {
     console.warn('[ads] consent initialization failed before attribution startup', err);
   });
-// Recover deferred NON-CONSUMABLE entitlements (no-ads) from a CustomerInfo
-// snapshot — used both at cold-start (via restore()) and on every customerInfo
-// update (via the RevenueCat listener). This is the safe recovery path for
-// purchases that the 60s purchase timeout abandoned while the OS payment queue
-// kept running (Ask-to-Buy / slow auth / user walked away). It grants ONLY
-// no-ads; it must NOT re-fulfill consumables — on iOS the listener's
-// transaction ids (RevenueCat internal) ≠ the purchase path's ids (StoreKit),
-// so consumable reconciliation here would double-grant (see plan PR-6 spike).
-// Consumable recovery requires a server-side RevenueCat webhooks follow-up.
-function recoverDeferredNonConsumableEntitlements(customerInfo: CustomerInfo): void {
-  const ownedProductIds = ownedProductIdsFromCustomerInfo(customerInfo);
-  const grant = restoreNonConsumableEntitlements(ownedProductIds, buildFullShopCatalog().products, gameState);
-  if (grant.noAds) {
-    void adService.hideBanner();
-  }
-}
-
-iapService.setOnCustomerInfoUpdate(recoverDeferredNonConsumableEntitlements);
-
-void remoteConfigService.initAndWait().finally(() => {
-  iapService.init();
-  const initPromise = iapService.initPromiseValue;
-  if (initPromise === null) return;
-  void initPromise.finally(() => {
-    // Cold-start recovery: surface any deferred/abandoned non-consumable
-    // entitlements (e.g. Ask-to-Buy approved before this launch). The
-    // customerInfo listener registered during init handles subsequent updates.
-    void iapService.restore().then((restore): void => {
-      if (restore.customerInfo !== null) recoverDeferredNonConsumableEntitlements(restore.customerInfo);
-    }).catch((err: unknown): void => {
-      console.warn('[iap] launch-time deferred entitlement restore failed', err);
-    });
-  });
-});
+// Marble Run has no in-app purchases. Remote config still initializes the
+// gameplay and advertising policy, but no store provider or restore listener
+// is started at launch.
+void remoteConfigService.initAndWait();
 let releaseTestBindings: (() => void) | null = null;
 let releaseSdkVerifierGesture: (() => void) | null = null;
 let sdkVerifierTogglePending = false;
