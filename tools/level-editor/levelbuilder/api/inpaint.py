@@ -39,6 +39,17 @@ from .layer_provider import (
 )
 from .routes import INPAINT_MODEL_IDS
 
+# Eager scipy import: session.py's lazy `from scipy.optimize import ...` can
+# race this module's worker threads on the importlib module lock and deadlock
+# (`_DeadlockError: _ModuleLock('scipy.linalg.cython_blas')` — flaky
+# test_magenta_recompose failures, 3 occurrences 2026-08-01..03). Importing at
+# module load, before any executor thread exists, removes the race.
+try:
+    import scipy.linalg  # noqa: F401
+    import scipy.optimize  # noqa: F401
+except ImportError:  # scipy is a hard dep in practice; stay import-safe anyway
+    pass
+
 logger = logging.getLogger("levelbuilder.inpaint")
 
 router = APIRouter(prefix="/api")
