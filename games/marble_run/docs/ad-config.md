@@ -19,19 +19,25 @@ The release bundle id is already what `capacitor.config.ts`, `android/app/build.
 and the iOS `PRODUCT_BUNDLE_IDENTIFIER` all carry — no change was needed, and it
 matches the `BUNDLE_ID` inside `GoogleService-Info.plist`.
 
-## AppLovin MAX ad units (corrected 2026-07-24)
+## AppLovin MAX ad units (third batch, 2026-08-03)
 
 | Format | Unit id |
 | --- | --- |
-| Rewarded | `d516d39f20c54af0` |
-| Interstitial | `e959cabdfd0981de` |
+| Rewarded | `a530ac16c61b0899` (created 2026-08-03; publisher says live ~30 min after creation) |
+| Interstitial | `ac793825199f97bd` (created 2026-08-03; same caveat) |
 | Banner | not supplied (`VITE_APPLOVIN_ALLOW_PARTIAL_UNITS=true` keeps MAX running without it) |
 
-This supersedes the earlier state where the single publisher-supplied id was
-bound to both slots as a format probe. Both ids are now set for iOS and Android
-in `.env`, and both reach the native SDK.
+These replace the 2026-07-24 pair (rewarded `d516d39f20c54af0`, interstitial
+`e959cabdfd0981de`), which the publisher had created as **Rewarded Interstitial**
+units — a format removed in MAX SDK 13.0.0, so SDK 13.5.1 rejects them at load
+(see the block below). The publisher created the new units after receiving the
+2026-08-03 evidence report. **Fill with the new ids is unverified** until the
+next device run.
 
-> **Ads still cannot fill (device-verified 2026-07-27, Pixel 6a).** Both ids —
+History of the two earlier batches: the first single id (bound to both slots as
+a format probe) and the 2026-07-24 pair all failed the same way on device:
+
+> **(2026-07-24 pair, device-verified 2026-07-27, Pixel 6a.)** Both ids —
 > including the *new* interstitial `e959cabdfd0981de` — return
 > `E AppLovinSdk: Unknown ad format: REWARDED_INTER` and `loaded:false`. They are
 > both registered in the MAX dashboard as **rewarded interstitial** units, a

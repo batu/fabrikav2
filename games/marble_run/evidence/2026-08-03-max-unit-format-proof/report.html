@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marble Run — MAX ad units: format mismatch proof</title>
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 16px/1.55 -apple-system, "Segoe UI", Roboto, sans-serif;
+         background: #f6f7f9; color: #1c2330; }
+  main { max-width: 880px; margin: 0 auto; padding: 32px 20px 64px; }
+  .eyebrow { text-transform: uppercase; letter-spacing: .08em; font-size: 12px;
+             color: #6b7484; margin: 0 0 4px; }
+  h1 { font-size: 26px; margin: 0 0 8px; }
+  h2 { font-size: 19px; margin: 36px 0 10px; }
+  .summary { color: #4a5468; margin: 0; }
+  .verdict { background: #fdecec; border: 1px solid #f2b8b5; border-radius: 10px;
+             padding: 14px 18px; margin: 22px 0; }
+  .verdict strong { color: #a4262c; }
+  .ok { background: #e9f6ec; border: 1px solid #b7dfc0; border-radius: 10px;
+        padding: 14px 18px; margin: 14px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 14.5px; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid #e2e6ec; vertical-align: top; }
+  th { color: #6b7484; font-weight: 600; }
+  code, pre { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 13px; }
+  code { background: #eceff3; padding: 1px 5px; border-radius: 4px; }
+  pre { background: #12161f; color: #dbe2ee; padding: 14px 16px; border-radius: 10px;
+        overflow-x: auto; line-height: 1.5; }
+  pre .err { color: #ff8a80; font-weight: 600; }
+  pre .hl { color: #ffd54f; }
+  figure { margin: 14px 0; }
+  figure img { max-width: 100%; border: 1px solid #d5dae2; border-radius: 10px; }
+  figcaption { font-size: 13px; color: #6b7484; margin-top: 6px; }
+  .steps li { margin: 6px 0; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #10141b; color: #dde3ec; }
+    .summary { color: #9aa5b5; }
+    .verdict { background: #2a1618; border-color: #6e3237; }
+    .verdict strong { color: #ff9d99; }
+    .ok { background: #14241a; border-color: #2d5a3a; }
+    th, td { border-color: #2a3140; }
+    th { color: #8d97a8; }
+    code { background: #1e2531; }
+    figure img { border-color: #2a3140; }
+  }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <p class="eyebrow">Device evidence · Pixel 6a · 2026-07-27 · Marble Run (com.basegamelab.marblerun)</p>
+  <h1>MAX ads cannot fill: both ad unit ids are “Rewarded Interstitial” format</h1>
+  <p class="summary">The supplied unit ids are integrated correctly and reach the AppLovin SDK on a real device — the SDK itself rejects both loads with <code>Unknown ad format: REWARDED_INTER</code>. The units need to be recreated in the MAX dashboard as a standard <strong>Interstitial</strong> and a standard <strong>Rewarded</strong> unit.</p>
+</header>
+
+<div class="verdict">
+  <strong>Blocked on the MAX dashboard, not on the app.</strong> The app requests the two
+  standard formats (Interstitial, Rewarded) exactly per AppLovin's integration docs. Both
+  supplied ids — <code>d516d39f20c54af0</code> (labeled Rewarded) and
+  <code>e959cabdfd0981de</code> (labeled Interstitial) — are registered as
+  <em>Rewarded&nbsp;Interstitial</em> units, so every load is refused before any network request.
+</div>
+
+<h2>Answer to your reply (2026-08-03): that is exactly the code we run</h2>
+<p>You wrote that we should load the units with
+<code>[MARewardedAd sharedWithAdUnitIdentifier:@"d516d39f20c54af0"]</code> and
+<code>[[MAInterstitialAd alloc] initWithAdUnitIdentifier:@"e959cabdfd0981de"]</code>.
+Our iOS plugin is the Swift form of those identical calls, and Android uses the equivalent
+standard classes:</p>
+<table>
+  <tr><th>Your snippet (Obj-C)</th><th>Our code</th></tr>
+  <tr>
+    <td><code>[MARewardedAd sharedWithAdUnitIdentifier:@"d516d39f…"]</code></td>
+    <td><code>MARewardedAd.shared(withAdUnitIdentifier: adUnitId)</code> — <code>AppLovinMaxPlugin.swift:488</code><br>
+        <code>MaxRewardedAd.getInstance(adUnitId, activity)</code> — Android</td>
+  </tr>
+  <tr>
+    <td><code>[[MAInterstitialAd alloc] initWithAdUnitIdentifier:@"e959cabd…"]</code></td>
+    <td><code>MAInterstitialAd(adUnitIdentifier: adUnitId)</code> — <code>AppLovinMaxPlugin.swift:475</code><br>
+        <code>new MaxInterstitialAd(adUnitId)</code> — Android</td>
+  </tr>
+</table>
+<p>With exactly this code, the SDK on a real device answers
+<code>Unknown ad format: REWARDED_INTER</code> for both ids (full log below). The format string
+in that error comes from the ad unit's configuration in the MAX dashboard, not from our code —
+our code never mentions any format; it only passes the id.</p>
+<p><strong>Why the SDK calls it “unknown”:</strong> we ship AppLovin MAX SDK
+<strong>13.5.1</strong>. AppLovin removed the Rewarded&nbsp;Interstitial format from the SDK in
+version 13.0.0 (see AppLovin's own adapter changelogs, e.g.
+<a href="https://github.com/AppLovin/AppLovin-MAX-SDK-android/blob/master/Google/CHANGELOG.md">AppLovin-MAX-SDK-Android</a>).
+So even a purpose-built integration could not load these units on a current SDK: units created
+as Rewarded&nbsp;Interstitial are unservable on SDK&nbsp;13.x and must be recreated as standard
+Interstitial / Rewarded units.</p>
+
+<h2>60-second check on your side</h2>
+<ol class="steps">
+  <li>Open the AppLovin MAX dashboard → <strong>MAX → Ad Units</strong>.</li>
+  <li>Find <code>d516d39f20c54af0</code> and <code>e959cabdfd0981de</code>.</li>
+  <li>Look at the <strong>Ad Format</strong> column — we expect both to read <em>Rewarded Interstitial</em>.</li>
+  <li>Create one <strong>Interstitial</strong> unit and one <strong>Rewarded</strong> unit for
+      <code>com.basegamelab.marblerun</code> and send us the new ids. That is the only change needed;
+      the integration is otherwise proven live (SDK initializes, mediation traffic flows).</li>
+</ol>
+
+<h2>What we integrated (matches your sheet exactly)</h2>
+<table>
+  <tr><th>Field</th><th>Marble Run Info.xlsx</th><th>App configuration</th></tr>
+  <tr><td>AppLovin SDK key</td><td><code>Z3rGm2U6…GwBUP</code></td><td>identical — SDK initializes on device</td></tr>
+  <tr><td>Max Rewarded Unit id</td><td><code>d516d39f20c54af0</code></td><td><code>d516d39f20c54af0</code></td></tr>
+  <tr><td>Max Interstitial Unit id</td><td><code>e959cabdfd0981de</code></td><td><code>e959cabdfd0981de</code></td></tr>
+  <tr><td>Package</td><td><code>com.basegamelab.marblerun</code></td><td>identical</td></tr>
+</table>
+
+<h2>The code: standard-format requests only</h2>
+<p>Native Android plugin (<code>AppLovinMaxPlugin.java</code>). These are AppLovin's own
+standard classes — <code>MaxInterstitialAd</code> and <code>MaxRewardedAd</code> — used exactly
+as in AppLovin's documentation. Nothing in the app requests the Rewarded&nbsp;Interstitial format.</p>
+<pre>
+// Interstitial — standard MaxInterstitialAd
+public void preloadInterstitial(PluginCall call) {
+    String adUnitId = trimmed(call.getString("adUnitId"));
+    ...
+    interstitialAd = <span class="hl">new MaxInterstitialAd(adUnitId)</span>;
+    interstitialAd.setListener(new MaxAdListener() { ... });
+    interstitialAd.loadAd();
+}
+
+// Rewarded — standard MaxRewardedAd
+public void preloadRewarded(PluginCall call) {
+    String adUnitId = trimmed(call.getString("adUnitId"));
+    ...
+    rewardedAd = <span class="hl">MaxRewardedAd.getInstance(adUnitId, activity)</span>;
+    rewardedAd.setListener(new MaxRewardedAdListener() { ... });
+    rewardedAd.loadAd();
+}
+</pre>
+
+<h2>The device log: your ids arrive, the SDK refuses the format</h2>
+<p>Full logcat from the Pixel 6a test (2026-07-27). Note the <code>adUnitId</code> in each
+bridge call is exactly the id from your sheet, and the very next SDK line is the rejection —
+this is a dashboard-side format error, not a fill/no-fill or network issue.</p>
+<pre>
+13:27:23.438  I Capacitor/Console: [ads:applovin] preloading rewarded ad
+13:27:23.441  V Capacitor: pluginId: AppLovinMax, methodName: preloadRewarded,
+              methodData: {"adUnitId":"<span class="hl">d516d39f20c54af0</span>"}
+13:27:23.675  <span class="err">E AppLovinSdk: [AppLovinSdk] Unknown ad format: REWARDED_INTER</span>
+13:27:23.681  I Capacitor/Console: {"loaded":false}
+
+13:29:04.507  I Capacitor/Console: [ads:applovin] preloading interstitial
+13:29:04.511  V Capacitor: pluginId: AppLovinMax, methodName: preloadInterstitial,
+              methodData: {"adUnitId":"<span class="hl">e959cabdfd0981de</span>"}
+13:29:04.642  <span class="err">E AppLovinSdk: [AppLovinSdk] Unknown ad format: REWARDED_INTER</span>
+13:29:04.644  I Capacitor/Console: {"loaded":false}
+</pre>
+<p><code>REWARDED_INTER</code> is AppLovin's internal name for the <em>Rewarded Interstitial</em>
+ad format. The SDK reads the unit's format from the MAX dashboard when loading; since the app's
+integration only implements the Interstitial and Rewarded formats, a unit registered as
+Rewarded&nbsp;Interstitial can never load, regardless of network fill.</p>
+
+<h2>On-device state at the moment of the test</h2>
+<figure>
+  <img src="pixel-activity-log-shown-false.png" alt="In-app SDK verifier on the Pixel 6a showing the show-interstitial call returning shown=false">
+  <figcaption>In-app SDK verifier, Pixel 6a: <code>showInterstitial → shown=false</code> after the load was refused. The same pane confirms the SDK is initialized with your key and mediation traffic is live.</figcaption>
+</figure>
+
+<div class="ok">
+  <strong>Already proven working on device:</strong> AppLovin SDK initialization with your SDK key,
+  AppsFlyer attribution (native <code>trackEvent</code> flowing), Facebook Core (accepted POST to
+  <code>graph.facebook.com</code>). Ads are the single remaining blocker, and new standard-format
+  unit ids unblock them with no app change.
+</div>
+
+<p style="color:#6b7484;font-size:13px">History: an earlier single supplied id failed the same way on 2026-07-23; the corrected pair supplied 2026-07-24 was retested 2026-07-27 with the result above. Raw captures: <code>games/marble_run/evidence/2026-07-27-ad-ids-remote-config/</code>.</p>
+</main>
+</body>
+</html>

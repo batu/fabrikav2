@@ -1,0 +1,36 @@
+<meta charset="utf-8">
+<title>Marble Run v1→v2 Delta Map</title>
+<style>
+body{font-family:-apple-system,sans-serif;margin:24px;background:#1a1523;color:#eee}
+h1{font-size:22px} h2{font-size:17px;margin-top:28px;border-bottom:1px solid #444;padding-bottom:4px}
+table{border-collapse:collapse;width:100%;font-size:14px} td,th{border:1px solid #3a3347;padding:6px 8px;text-align:left;vertical-align:top}
+.p0{color:#ff7b72;font-weight:700}.p1{color:#f0b429;font-weight:600}.p2{color:#8ddb8c}
+.pair{display:flex;gap:8px;flex-wrap:wrap}.pair figure{margin:0}.pair img{width:220px;border:1px solid #555}
+figcaption{font-size:12px;color:#aaa;text-align:center}
+</style>
+<h1>Marble Run v1→v2 Delta Map — 2026-07-23</h1>
+<p>Same-device (Pixel 6a) pairs; v1 = canonical Sugar3D, v2 = fabrikav2 main. Batu-reported items + Pixelsmith judge + conductor review.</p>
+<table>
+<tr><th>#</th><th>Sev</th><th>Delta</th><th>Evidence</th><th>Fix card</th></tr>
+<tr><td>D1</td><td class="p0">P0</td><td><b>Terms &amp; Conditions consent dialog</b> pops over every screen on fresh install (from SDK/attribution refactor). v1 has no consent dialog. Blocks first-run UX entirely.</td><td>v2-win-consent.png</td><td>MRV2-27</td></tr>
+<tr><td>D2</td><td class="p0">P0</td><td><b>Fail screen wrong</b>: duplicate "FAILED" ghost text; missing "LEVEL n" eyebrow; buttons are "Continue 900 coins"+"Retry" side-by-side (v1: WATCH AD green + RETRY yellow, stacked BELOW card); ribbon narrow; hatched dark backdrop (v1: dimmed board).</td><td>v1-lose.png vs v2-lose.png</td><td>MRV2-28</td></tr>
+<tr><td>D3</td><td class="p0">P0</td><td><b>Win screen</b>: card not centered (Batu); reward "+25" must COUNT DOWN to 0 while coins fly to wallet (v1 behavior); verify LEVEL text placement.</td><td>v1-win.png (+ MRV2-21 v1 timing seq in .twf-out/E9l7SETU)</td><td>MRV2-28</td></tr>
+<tr><td>D4</td><td class="p0">P0</td><td><b>Level transition</b> "utterly broken" (Batu, on device): frame-compare menu→game and win→next vs v1; nothing may morph; match v1 cover timing.</td><td>delta/v1/mg-*.png, delta/v2/mgt-*.png, delta/v2/v2-win-trans.mp4 (scratchpad)</td><td>MRV2-29</td></tr>
+<tr><td>D5</td><td class="p1">P1</td><td><b>Menu banner title</b>: v1 larger with drop shadow; v2 smaller flat. <b>iPhone aspect</b>: sun node overlaps LEVEL button (needs aspect-aware clearance).</td><td>v1-home.png; iphone-final.png</td><td>MRV2-29</td></tr>
+<tr><td>D6</td><td class="p1">P1</td><td><b>Settings</b>: v1 scrim = dimmed purple w/ home visible (v2 near-black); CLOSE all-caps w/ shadow INSIDE card (v2 breaches bottom); X = rounded square on ribbon shoulder; cream toggle knobs; interior padding.</td><td>v1-settings.png vs v2-settings.png</td><td>MRV2-29</td></tr>
+<tr><td>D7</td><td class="p1">P1</td><td><b>iOS font</b> differs per Batu — verify FredokaOne @font-face actually loads in WKWebView; fix path/format if fallback occurs.</td><td>Batu report; iphone captures</td><td>MRV2-29</td></tr>
+<tr><td>D8</td><td class="p2">P2</td><td>Harness global still named <code>__FIND_DOG_HARNESS__</code> — rebrand survivor (breaks tooling expectations).</td><td>CDP probe</td><td>MRV2-29</td></tr>
+</table>
+<h2>Pairs</h2>
+<div class="pair">
+<figure><img src="v1-lose.png"><figcaption>v1 fail</figcaption></figure>
+<figure><img src="v2-lose.png"><figcaption>v2 fail (dup text, wrong buttons)</figcaption></figure>
+<figure><img src="v1-win.png"><figcaption>v1 win</figcaption></figure>
+<figure><img src="v2-win-consent.png"><figcaption>v2 win + consent dialog</figcaption></figure>
+</div>
+<div class="pair">
+<figure><img src="v1-settings.png"><figcaption>v1 settings</figcaption></figure>
+<figure><img src="v2-settings.png"><figcaption>v2 settings</figcaption></figure>
+<figure><img src="v1-home.png"><figcaption>v1 home</figcaption></figure>
+<figure><img src="v1-menu110.png"><figcaption>v1 completed-node art (106-109)</figcaption></figure>
+</div>
