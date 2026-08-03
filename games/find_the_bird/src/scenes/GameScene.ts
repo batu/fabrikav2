@@ -1357,7 +1357,9 @@ export class GameScene extends Phaser.Scene {
     if (this.isRestoration) {
       this.playRestorationPickupAnimation(dog);
       this.spawnRestorationDissolve(dog);
-      this.emitPawBurst(canvasX, canvasY);
+      // Legacy find-moment burst is a dog-era paw effect; the experimental
+      // styles replace it with their own feedback (map #18).
+      if (this.pickupStyle === 'classic') this.emitPawBurst(canvasX, canvasY);
       return;
     }
 
@@ -2324,7 +2326,242 @@ export class GameScene extends Phaser.Scene {
     counter.classList.add('pickup-pulse');
   }
 
+  /** Pickup presentation experiments (map #18): switchable at runtime via the
+   *  test harness or the ?pickupStyle= query param. 'classic' is the shipped
+   *  behavior; the alternatives are candidates under evaluation. */
+  private pickupStyle: 'classic' | 'juiced' | 'dissolve' | 'peel' =
+    (new URLSearchParams(globalThis.location?.search ?? '').get('pickupStyle') as
+      'classic' | 'juiced' | 'dissolve' | 'peel' | null) ?? 'classic';
+
+  setPickupStyleForTest(style: 'classic' | 'juiced' | 'dissolve' | 'peel'): void {
+    this.pickupStyle = style;
+  }
+
   private playRestorationPickupAnimation(dog: LevelDog): void {
+    switch (this.pickupStyle) {
+      case 'juiced': this.playPickupJuiced(dog); return;
+      case 'dissolve': this.playPickupDissolve(dog); return;
+      case 'peel': this.playPickupPeel(dog); return;
+      default: this.playPickupClassic(dog);
+    }
+  }
+
+  /** Shared setup for pickup styles: floating sprite image at the bird. */
+  private spawnPickupImage(dog: LevelDog): {
+    image: Phaser.GameObjects.Image;
+    start: { x: number; y: number };
+    target: { x: number; y: number };
+  } {
+    const sprite = this.restorationSpriteForDog(dog);
+    const textureKey = this.spriteTextureKeyForDog(dog);
+    const start = this.levelToViewportPoint(dog.x, dog.y);
+    const target = this.counterTargetPoint();
+    const image = this.add.image(start.x, start.y, textureKey)
+      .setOrigin(sprite.anchorX ?? 0.5, sprite.anchorY ?? 0.5)
+      .setScrollFactor(0)
+      .setDepth(85);
+    image.setDisplaySize(sprite.width * this.imgScale, sprite.height * this.imgScale);
+    return { image, start, target };
+  }
+
+  private finishPickup(image: Phaser.GameObjects.Image | null): void {
+    this.pickupAnimationsActive = Math.max(0, this.pickupAnimationsActive - 1);
+    this.pickupAnimationsCompleted += 1;
+    image?.destroy();
+    this.pulseDogCounter();
+  }
+
+  /** Style A — juiced flyout: anticipation squash, ghost trail, velocity
+   *  stretch, faster ease-out landing with counter punch. */
+  private playPickupJuiced(dog: LevelDog): void {
+    const { image, start, target } = this.spawnPickupImage(dog);
+    image.preFX?.setPadding(12);
+    image.preFX?.addGlow(0xfff7e0, 8, 2);
+    const baseSX = image.scaleX;
+    const baseSY = image.scaleY;
+    const startDisplaySize = Math.max(image.displayWidth, image.displayHeight, 1);
+    const landFactor = Phaser.Math.Clamp(
+      GAMEPLAY.RESTORATION_PICKUP_LANDING_SIZE_PX / startDisplaySize, 0.22, 0.72,
+    );
+    const arcHeight = Math.max(
+      GAMEPLAY.RESTORATION_PICKUP_MIN_ARC_PX, Math.abs(start.x - target.x) * 0.28,
+    );
+    const control = { x: (start.x + target.x) / 2, y: Math.min(start.y, target.y) - arcHeight };
+    const reducedMotion = this.prefersReducedMotion();
+    const flyMs = reducedMotion ? 240 : Math.round(TIMING.RESTORATION_PICKUP_FLY_MS * 0.72);
+    this.pickupAnimationsActive += 1;
+
+    // Anticipation: quick squash down, stretch up — then launch.
+    this.tweens.chain({
+      targets: image,
+      tweens: [
+        { scaleX: baseSX * 1.14, scaleY: baseSY * 0.82, duration: reducedMotion ? 0 : 70, ease: 'Quad.easeOut' },
+        { scaleX: baseSX * 0.92, scaleY: baseSY * 1.16, duration: reducedMotion ? 0 : 80, ease: 'Quad.easeIn' },
+      ],
+      onComplete: () => {
+        const progress = { t: 0 };
+        let prev = { x: start.x, y: start.y };
+        let ghostTick = 0;
+        this.tweens.add({
+          targets: progress,
+          t: 1,
+          duration: flyMs,
+          ease: 'Cubic.easeIn',
+          onUpdate: () => {
+            const t = progress.t;
+            const inv = 1 - t;
+            const x = inv * inv * start.x + 2 * inv * t * control.x + t * t * target.x;
+            const y = inv * inv * start.y + 2 * inv * t * control.y + t * t * target.y;
+            // Velocity stretch: scale along motion, squash across it.
+            const vx = x - prev.x; const vy = y - prev.y;
+            const speed = Math.min(Math.hypot(vx, vy) / 26, 0.5);
+            const angle = Math.atan2(vy, vx) * Phaser.Math.RAD_TO_DEG;
+            image.setRotation(Phaser.Math.DegToRad(angle) * 0.12);
+            const s = Phaser.Math.Linear(1, landFactor, t);
+            image.setScale(baseSX * s * (1 + speed), baseSY * s * (1 - speed * 0.55));
+            image.setPosition(x, y);
+            // Ghost trail: short-lived clones behind the bird (WebGL-cheap).
+            if (!reducedMotion && ++ghostTick % 3 === 0 && t > 0.08 && t < 0.9) {
+              const ghost = this.add.image(x, y, image.texture.key)
+                .setOrigin(image.originX, image.originY)
+                .setScrollFactor(0).setDepth(84)
+                .setScale(image.scaleX, image.scaleY)
+                .setAlpha(0.4).setRotation(image.rotation);
+              this.tweens.add({ targets: ghost, alpha: 0, duration: 190, onComplete: () => ghost.destroy() });
+            }
+            prev = { x, y };
+          },
+          onComplete: () => { this.emitCounterPop(); this.finishPickup(image); },
+        });
+      },
+    });
+  }
+
+  /** Star pop at the counter target — the landing thump every style shares. */
+  private emitCounterPop(): void {
+    this.ensurePickupParticleTexture();
+    const target = this.counterTargetPoint();
+    const pop = this.add.particles(target.x, target.y, 'pickup-mote', {
+      speed: { min: 50, max: 150 }, angle: { min: 0, max: 360 },
+      lifespan: 300, scale: { start: 1.1, end: 0 }, quantity: 10,
+      emitting: false, blendMode: Phaser.BlendModes.ADD, tint: 0xffe9a8,
+    }).setScrollFactor(0).setDepth(90);
+    pop.explode(10);
+    this.time.delayedCall(350, () => pop.destroy());
+  }
+
+  /** Style B — particle dissolve: the bird bursts in place; a spark streak
+   *  carries the "credit" to the counter. Cutout quality barely matters. */
+  private playPickupDissolve(dog: LevelDog): void {
+    const { image, start, target } = this.spawnPickupImage(dog);
+    const reducedMotion = this.prefersReducedMotion();
+    this.pickupAnimationsActive += 1;
+    this.ensurePickupParticleTexture();
+    const burst = this.add.particles(start.x, start.y, 'pickup-mote', {
+      speed: { min: 60, max: 260 },
+      angle: { min: 180, max: 360 },
+      gravityY: 260,
+      lifespan: { min: 380, max: 760 },
+      scale: { start: 1.7, end: 0 },
+      quantity: reducedMotion ? 10 : 42,
+      emitting: false,
+      blendMode: Phaser.BlendModes.ADD,
+      tint: [0xffffff, 0xffe9a8, 0x9fd7ff, 0xfff2c8],
+    }).setScrollFactor(0).setDepth(86);
+
+    // Pop: brief inflate + flash, then the sprite collapses as particles fly.
+    this.tweens.chain({
+      targets: image,
+      tweens: [
+        { scale: image.scaleX * 1.18, duration: reducedMotion ? 0 : 90, ease: 'Back.easeOut' },
+        { scale: image.scaleX * 0.05, alpha: 0, angle: 20, duration: reducedMotion ? 140 : 210, ease: 'Back.easeIn' },
+      ],
+      onStart: () => { image.preFX?.setPadding(10); image.preFX?.addGlow(0xffffff, 10, 3); },
+      onComplete: () => {
+        burst.explode(reducedMotion ? 8 : 26);
+        // Credit streak: one bright mote arcs to the counter fast.
+        const mote = this.add.image(start.x, start.y, 'pickup-mote')
+          .setScrollFactor(0).setDepth(87).setTint(0xffe9a8).setScale(2.1)
+          .setBlendMode(Phaser.BlendModes.ADD);
+        const trail = this.add.particles(start.x, start.y, 'pickup-mote', {
+          speed: 8, lifespan: 260, scale: { start: 0.9, end: 0 },
+          alpha: { start: 0.8, end: 0 }, frequency: 18, follow: mote,
+          blendMode: Phaser.BlendModes.ADD, tint: 0xffe9a8,
+        }).setScrollFactor(0).setDepth(86);
+        const progress = { t: 0 };
+        const control = { x: (start.x + target.x) / 2, y: Math.min(start.y, target.y) - 90 };
+        this.tweens.add({
+          targets: progress, t: 1, duration: reducedMotion ? 200 : 340, ease: 'Cubic.easeIn',
+          onUpdate: () => {
+            const t = progress.t; const inv = 1 - t;
+            mote.setPosition(
+              inv * inv * start.x + 2 * inv * t * control.x + t * t * target.x,
+              inv * inv * start.y + 2 * inv * t * control.y + t * t * target.y,
+            );
+            mote.setAlpha(1 - t * 0.3);
+          },
+          onComplete: () => {
+            mote.destroy();
+            trail.stop();
+            this.time.delayedCall(300, () => { burst.destroy(); trail.destroy(); });
+            this.emitCounterPop();
+            this.finishPickup(image);
+          },
+        });
+      },
+    });
+  }
+
+  /** Style C — sticker peel: the bird lifts like a sticker (skew + shadow),
+   *  curls, and flicks off toward the counter with spin. */
+  private playPickupPeel(dog: LevelDog): void {
+    const { image, start, target } = this.spawnPickupImage(dog);
+    const reducedMotion = this.prefersReducedMotion();
+    const baseSX = image.scaleX; const baseSY = image.scaleY;
+    image.preFX?.setPadding(12);
+    image.preFX?.addShadow(2, 4, 0.08, 0.7, 0x000000, 4, 0.6);
+    this.pickupAnimationsActive += 1;
+    // Peel: bottom edge "sticks" — origin shifts low, sprite skews up and
+    // scales as if lifting off the page.
+    image.setOrigin(0.5, 1);
+    image.y += image.displayHeight * 0.5;
+    this.tweens.chain({
+      targets: image,
+      tweens: [
+        { scaleY: baseSY * 1.28, scaleX: baseSX * 0.92, angle: -9, duration: reducedMotion ? 0 : 220, ease: 'Quad.easeOut' },
+        { scaleY: baseSY * 0.88, angle: 6, duration: reducedMotion ? 0 : 130, ease: 'Quad.easeInOut' },
+      ],
+      onComplete: () => {
+        const progress = { t: 0 };
+        const control = { x: (start.x + target.x) / 2, y: Math.min(start.y, target.y) - 140 };
+        this.tweens.add({
+          targets: progress, t: 1, duration: reducedMotion ? 240 : 520, ease: 'Cubic.easeIn',
+          onUpdate: () => {
+            const t = progress.t; const inv = 1 - t;
+            image.setPosition(
+              inv * inv * start.x + 2 * inv * t * control.x + t * t * target.x,
+              inv * inv * start.y + 2 * inv * t * control.y + t * t * target.y,
+            );
+            image.setAngle(5 + t * 340);
+            const s = Phaser.Math.Linear(1, 0.3, t);
+            image.setScale(baseSX * s, baseSY * s);
+            image.setAlpha(1 - t * 0.15);
+          },
+          onComplete: () => { this.emitCounterPop(); this.finishPickup(image); },
+        });
+      },
+    });
+  }
+
+  private ensurePickupParticleTexture(): void {
+    if (this.textures.exists('pickup-mote')) return;
+    const g = this.add.graphics();
+    g.fillStyle(0xffffff, 1).fillCircle(6, 6, 6);
+    g.generateTexture('pickup-mote', 12, 12);
+    g.destroy();
+  }
+
+  private playPickupClassic(dog: LevelDog): void {
     const sprite = this.restorationSpriteForDog(dog);
     const textureKey = this.spriteTextureKeyForDog(dog);
 

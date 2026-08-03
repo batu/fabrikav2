@@ -307,6 +307,7 @@ export interface FindTheDogHarness extends GameHarness<FindTheDogVerb> {
   drainEvents(): AnalyticsEvent[];
   setFailOverlayPendingRecoveryMsForTest(ms: number | null): void;
   enableMicroAnimationsForTest(): void;
+  setPickupStyleForTest(style: 'classic' | 'juiced' | 'dissolve' | 'peel'): void;
   /**
    * Directly set the main camera zoom. Test-only: simulates the outcome of a
    * pinch gesture (multi-touch pinch is impractical to drive in Playwright)
@@ -955,6 +956,9 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       setFailOverlayPendingRecoveryMsForTest(ms);
     },
 
+    setPickupStyleForTest(style: 'classic' | 'juiced' | 'dissolve' | 'peel'): void {
+      getGameScene()?.setPickupStyleForTest(style);
+    },
     enableMicroAnimationsForTest(): void {
       getGameScene()?.enableMicroAnimationsForTest();
     },
