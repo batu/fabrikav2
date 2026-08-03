@@ -164,6 +164,22 @@ Rewarded&nbsp;Interstitial can never load, regardless of network fill.</p>
   <figcaption>In-app SDK verifier, Pixel 6a: <code>showInterstitial → shown=false</code> after the load was refused. The same pane confirms the SDK is initialized with your key and mediation traffic is live.</figcaption>
 </figure>
 
+<h2>Resolution (2026-08-03): the new units work</h2>
+<div class="ok">
+  <strong>Verified on iOS simulator (iPhone 17 Pro Max):</strong> the newly created standard
+  units both load with real fill on the very first attempt — no code change beyond swapping in
+  the new ids. Console log from the run:
+</div>
+<pre>
+10:17:55.826  [ads:applovin] rewarded load requested unit=…<span class="hl">0899</span>   (a530ac16c61b0899)
+10:17:55.833  [ads:applovin] interstitial load requested unit=…<span class="hl">97bd</span>   (ac793825199f97bd)
+10:17:57.727  [ads:applovin] <span class="hl">interstitial loaded</span> unit=…97bd
+10:17:57.727  [ads:applovin] <span class="hl">rewarded loaded</span> unit=…0899
+</pre>
+<p>This is the definitive cross-check: same app, same code, same SDK — old ids rejected with
+the format error, new standard-format ids load immediately. A physical-device run (including
+the show/render path) is the remaining step before ads are called fully done.</p>
+
 <div class="ok">
   <strong>Already proven working on device:</strong> AppLovin SDK initialization with your SDK key,
   AppsFlyer attribution (native <code>trackEvent</code> flowing), Facebook Core (accepted POST to

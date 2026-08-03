@@ -31,8 +31,12 @@ These replace the 2026-07-24 pair (rewarded `d516d39f20c54af0`, interstitial
 `e959cabdfd0981de`), which the publisher had created as **Rewarded Interstitial**
 units — a format removed in MAX SDK 13.0.0, so SDK 13.5.1 rejects them at load
 (see the block below). The publisher created the new units after receiving the
-2026-08-03 evidence report. **Fill with the new ids is unverified** until the
-next device run.
+2026-08-03 evidence report. **Both new units load with real fill on the iOS
+simulator** (iPhone 17 Pro Max, 2026-08-03): `interstitial loaded unit=…97bd`,
+`rewarded loaded unit=…0899` — see
+`evidence/2026-08-03-max-unit-format-proof/sim-console-new-units-loaded.log`.
+The format blocker is resolved. Still pending: a physical-device run (fill +
+actual render/show path) before calling ads done.
 
 History of the two earlier batches: the first single id (bound to both slots as
 a format probe) and the 2026-07-24 pair all failed the same way on device:
