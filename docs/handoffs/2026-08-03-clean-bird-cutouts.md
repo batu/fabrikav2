@@ -1,7 +1,7 @@
 # Handoff: clean bird-sprite cutouts for Find The Bird
 
 **Date:** 2026-08-03 · **Author:** claude-fable-5 session (sprite-pipeline goal)
-**Repo:** `/Users/base/dev/appletolye/fabrikav2/.worktrees/feat-find-the-bird-reskin` · branch `feat/find-the-bird-reskin`
+**Repo:** `/Users/base/dev/appletolye/fabrikav2` · branch `feat/find-the-bird-reskin`
 
 ## Mission
 
