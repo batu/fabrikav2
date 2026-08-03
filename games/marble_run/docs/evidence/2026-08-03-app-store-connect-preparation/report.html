@@ -18,9 +18,9 @@
   <header>
     <p class="eyebrow">Release evidence · 3 August 2026</p>
     <h1>The listing now has a temporary simulator screenshot.</h1>
-    <p class="summary">Marble Run 1.0 (1) is processed and attached. Its English listing is populated, one inspected 6.9-inch simulator screenshot is live, and the store catalog is verified empty. App Privacy, pricing/territories, support-copy correction, and exact-build physical-device proof remain.</p>
+    <p class="summary">Marble Run 1.0 (2) is processed, attached, and live in internal and external TestFlight. Its English listing is populated, one inspected 6.9-inch simulator screenshot is live, and the store catalog is verified empty. App Privacy, pricing/territories, support-copy correction, and exact-build physical-device proof remain.</p>
     <div class="status">
-      <div class="pill ok">Processed<span>Build 1 · VALID</span></div>
+      <div class="pill ok">Processed<span>Build 2 · VALID</span></div>
       <div class="pill ok">Attached<span>Version 1.0</span></div>
       <div class="pill warn">Prepared<span>Listing incomplete</span></div>
       <div class="pill bad">Not submitted<span>Boundary preserved</span></div>
@@ -33,10 +33,11 @@
       <tr><td>Classification</td><td>No category or age answers</td><td>Games → Puzzle; advertising declared; all mature-content frequencies set to none</td></tr>
       <tr><td>Public URLs</td><td>Empty</td><td>Privacy and support URLs saved; privacy, terms, support, and deletion pages returned HTTP 200 and rendered at mobile width</td></tr>
       <tr><td>Review</td><td>No contact</td><td>Private contact configured without exposing values; no demo account required; reviewer navigation notes saved</td></tr>
-      <tr><td>Binary</td><td>Processed but unattached</td><td>Exact build ID attached; version 1.0, build 1, minimum iOS 15.0, export compliance recorded as non-exempt encryption false</td></tr>
+      <tr><td>Binary</td><td>Build 1 predates the no-IAP correction</td><td>Clean-source build 2 uploaded and attached; version 1.0, minimum iOS 15.0, export compliance resolved</td></tr>
+      <tr><td>TestFlight</td><td>Build 2 absent</td><td>Build 2 assigned to both Marble Run tester groups; internal and external states <code>IN_BETA_TESTING</code>; external beta review <code>APPROVED</code></td></tr>
       <tr><td>Icon</td><td>Uninspected processed rendition</td><td>Apple-processed 1024×1024 rendition opened; opaque and visually matches the marble-board source</td></tr>
       <tr><td>Screenshot</td><td>None</td><td>One inspected 1320×2868 iPhone 17 Pro Max simulator capture uploaded; Apple asset state <code>COMPLETE</code></td></tr>
-      <tr><td>Commerce</td><td>Stale purchase startup and purchase-history declaration</td><td>Current source disables startup/restore and forces the product catalog empty; purchase history is removed from the privacy manifest; live ASC catalog remains 0 IAPs and 0 subscription groups. The attached build predates this correction.</td></tr>
+      <tr><td>Commerce</td><td>Stale purchase startup and purchase-history declaration</td><td>Build 2 disables startup/restore and forces the product catalog empty; purchase history is removed from the packaged privacy manifest; live ASC catalog remains 0 IAPs and 0 subscription groups</td></tr>
     </tbody></table>
   </section>
 
@@ -44,7 +45,7 @@
     <div class="card"><h3>Store screenshots</h3><p>One simulator screenshot is uploaded for now. It accurately shows the current home screen, but it is not proof of the exact processed build on a physical iPhone and should be replaced before submission.</p></div>
     <div class="card"><h3>App Privacy</h3><p>The corrected source manifest declares tracking and collection of linked User ID, Product Interaction, and Advertising Data. Apple does not expose the questionnaire through the supported writable API; it must be completed in the authenticated web console.</p></div>
     <div class="card"><h3>Pricing and availability</h3><p>USA is the base territory, but no price rows or territory-availability resource exists. Free pricing and intended territories require an explicit commercial decision.</p></div>
-    <div class="card"><h3>Binary and support copy</h3><p>Corrected source and the live ASC catalog now agree that Marble Run has no IAPs, but attached build 1 predates the source correction. A fresh binary is required. The public support page also still mentions purchase restoration and needs a separately authorized production correction.</p></div>
+    <div class="card"><h3>Support copy</h3><p>Build 2 and the live ASC catalog now agree that Marble Run has no IAPs. The public support page still mentions purchase restoration and needs a separately authorized production correction.</p></div>
   </div></section>
 
   <section><h2>Prepared App Privacy answer set</h2>
@@ -61,7 +62,7 @@
     <table><tbody>
       <tr><th>App</th><td>Marble Run - Sort Puzzle</td><th>Apple ID</th><td>6793860059</td></tr>
       <tr><th>Bundle ID</th><td><code>com.basegamelab.marblerun</code></td><th>Version</th><td>1.0 (1)</td></tr>
-      <tr><th>Source</th><td><code>bf02803a18</code> no-IAP correction; release evidence committed separately</td><th>App Store state</th><td>PREPARE_FOR_SUBMISSION</td></tr>
+      <tr><th>Source</th><td><code>56f770485c</code>, embedded clean source metadata</td><th>App Store state</th><td>PREPARE_FOR_SUBMISSION</td></tr>
       <tr><th>Submission</th><td colspan="3">No review submission exists. Submit for Review was intentionally untouched.</td></tr>
     </tbody></table>
     <details><summary>Primary references</summary><ul>

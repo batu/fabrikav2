@@ -5,8 +5,8 @@
     "name": "Marble Run - Sort Puzzle",
     "bundleId": "com.basegamelab.marblerun",
     "version": "1.0",
-    "build": "1",
-    "buildId": "1aaec2df-a988-4b18-a923-d6a7775ba0fd",
+    "build": "2",
+    "buildId": "3d845d35-f61d-483d-86b3-7ac9db563cc1",
     "processingState": "VALID"
   },
   "before": {
@@ -40,12 +40,16 @@
     "inAppPurchaseCount": 0,
     "subscriptionGroupCount": 0,
     "iapRuntimeInitializedInCorrectedSource": false,
-    "correctedSourceUploaded": false,
+    "correctedSourceUploaded": true,
+    "embeddedSourceSha": "56f770485c",
+    "embeddedSourceDirty": false,
+    "testFlightInternalState": "IN_BETA_TESTING",
+    "testFlightExternalState": "IN_BETA_TESTING",
+    "externalBetaReviewState": "APPROVED",
     "reviewSubmissionCount": 0
   },
   "remainingBlockers": [
     "The uploaded screenshot is from a simulator build, not the exact processed App Store build on a physical iPhone",
-    "The attached App Store build predates the no-IAP source correction; a new build must be uploaded and attached",
     "App Privacy questionnaire requires authenticated App Store Connect web completion",
     "App price and territory availability are not configured",
     "The public support page still mentions purchase restoration and must be corrected before release",
