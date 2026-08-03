@@ -48,10 +48,42 @@ def _level_violations(level_dir: Path) -> list[str]:
     return violations
 
 
-def validate_level_dir(public_root: Path, level_id: str) -> None:
+def _sprite_quality_violations(level_dir: Path) -> list[str]:
+    """Deterministic sprite-quality axes (plan 2026-07-31-002 R9).
+
+    Fast local image math only — semantic judging happens at inpaint/repair
+    time, not here. Under sprite-only compositing a fresh export passes by
+    construction; a failure means the package would ship visible pop-in,
+    background-leak sprites, or satellite specks.
+    """
+    import os
+
+    # Default OFF since 2026-08-03: paint-first compositing is the shipped
+    # policy (sprite-only compositing was rejected on design grounds — birds
+    # must stay embedded in the painted scene). The exclusion/coherence axes
+    # assume scene == clean bg + sprite and false-positive against painted
+    # scenes; opt back in with FTD_SPRITE_QUALITY_GATE=1 only for sprite-only
+    # experiments.
+    if os.environ.get("FTD_SPRITE_QUALITY_GATE", "0").strip().lower() in {"0", "false", "no"}:
+        return []
+    from levelbuilder.api.sprite_eval import evaluate_level_dir
+
+    report = evaluate_level_dir(level_dir)
+    violations = []
+    for bird in report["birds"]:
+        for axis, data in bird.get("axes", {}).items():
+            if data.get("verdict") == "fail":
+                detail = data.get("evidence") or f"score={data.get('score')}"
+                violations.append(f"sprite quality: {bird['dogId']} {axis} fail ({detail})")
+    return violations
+
+
+def validate_level_dir(public_root: Path, level_id: str, *, sprite_quality: bool = True) -> None:
     """Raise ExportGateError when the freshly written package is not game-legal."""
     try:
         violations = _level_violations(public_root / level_id)
+        if not violations and sprite_quality:
+            violations = _sprite_quality_violations(public_root / level_id)
     except ExportGateError:
         raise
     except Exception as error:

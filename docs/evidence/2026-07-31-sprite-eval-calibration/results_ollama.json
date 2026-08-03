@@ -1,0 +1,211 @@
+{
+ "italy_venice_canal_morning_bird_d570/dog_03": {
+  "schemaVersion": 1,
+  "dogId": "italy_venice_canal_morning_bird_d570/dog_03",
+  "subject": 0.5,
+  "completeness": 1.0,
+  "evidence": "The sprite correctly identifies the bird but incorrectly includes the wooden plank/perch it is standing on, which is classified as background scenery.",
+  "backend": "ollama:qwen3.5:27b",
+  "ok": true,
+  "error": null,
+  "seconds": 63.1
+ },
+ "italy_venice_canal_morning_bird_d570/dog_05": {
+  "schemaVersion": 1,
+  "dogId": "italy_venice_canal_morning_bird_d570/dog_05",
+  "subject": 0.0,
+  "completeness": 0.0,
+  "evidence": "The extracted sprite contains only a small piece of green moss from the background path, completely missing the bird that is clearly visible in the painted panel.",
+  "backend": "ollama:qwen3.5:27b",
+  "ok": true,
+  "error": null,
+  "seconds": 23.5
+ },
+ "morning_fairytale_glade_flash_close/dog_11": {
+  "schemaVersion": 1,
+  "dogId": "morning_fairytale_glade_flash_close/dog_11",
+  "subject": 0.2,
+  "completeness": 1.0,
+  "evidence": "The sprite incorrectly includes the birdhouse structure, which counts as a background stall or scenery rather than an item held or worn by the bird, though the visible parts of the bird itself are complete.",
+  "backend": "ollama:qwen3.5:27b",
+  "ok": true,
+  "error": null,
+  "seconds": 78.0
+ },
+ "morning_fairytale_glade_flash_close/dog_12": {
+  "schemaVersion": 1,
+  "dogId": "morning_fairytale_glade_flash_close/dog_12",
+  "subject": 0.0,
+  "completeness": 0.0,
+  "evidence": "",
+  "backend": "ollama",
+  "ok": false,
+  "error": "ReadTimeout: timed out",
+  "seconds": 180.0
+ },
+ "square_sami_aurora_flash_4k/dog_08": {
+  "schemaVersion": 1,
+  "dogId": "square_sami_aurora_flash_4k/dog_08",
+  "subject": 0.0,
+  "completeness": 0.0,
+  "evidence": "",
+  "backend": "ollama",
+  "ok": false,
+  "error": "ReadTimeout: timed out",
+  "seconds": 180.1
+ },
+ "square_sami_aurora_flash_4k/dog_09": {
+  "schemaVersion": 1,
+  "dogId": "square_sami_aurora_flash_4k/dog_09",
+  "subject": 0.5,
+  "completeness": 1.0,
+  "evidence": "The sprite correctly captures the bird and the feather it is holding, but incorrectly includes the straw perch it is standing on, which is considered background.",
+  "backend": "ollama:qwen3.5:27b",
+  "ok": true,
+  "error": null,
+  "seconds": 62.1
+ },
+ "morning_fairytale_glade_flash_none/dog_01": {
+  "schemaVersion": 1,
+  "dogId": "morning_fairytale_glade_flash_none/dog_01",
+  "subject": 0.0,
+  "completeness": 0.0,
+  "evidence": "The extracted sprite contains only the wooden cart from the background, completely missing the bird that is visible in the painted panel.",
+  "backend": "ollama:qwen3.5:27b",
+  "ok": true,
+  "error": null,
+  "seconds": 29.0
+ },
+ "morning_japan_market_pro_standard/dog_05": {
+  "schemaVersion": 1,
+  "dogId": "morning_japan_market_pro_standard/dog_05",
+  "subject": 0.0,
+  "completeness": 0.0,
+  "evidence": "",
+  "backend": "ollama",
+  "ok": false,
+  "error": "ReadTimeout: timed out",
+  "seconds": 180.0
+ },
+ "morning_fairytale_glade_flash_close/dog_07": {
+  "schemaVersion": 1,
+  "dogId": "morning_fairytale_glade_flash_close/dog_07",
+  "subject": 0.0,
+  "completeness": 0.0,
+  "evidence": "",
+  "backend": "ollama",
+  "ok": false,
+  "error": "ReadTimeout: timed out",
+  "seconds": 180.0
+ },
+ "japan_morning_market_bird_a53a/dog_09": {
+  "schemaVersion": 1,
+  "dogId": "japan_morning_market_bird_a53a/dog_09",
+  "subject": 0.9,
+  "completeness": 1.0,
+  "evidence": "The sprite captures the entire bird and its hat but includes the cast shadow on the ground, which is considered background.",
+  "backend": "ollama:qwen3.5:27b",
+  "ok": true,
+  "error": null,
+  "seconds": 115.2
+ },
+ "morning_japan_market_pro_wide/dog_14": {
+  "schemaVersion": 1,
+  "dogId": "morning_japan_market_pro_wide/dog_14",
+  "subject": 1.0,
+  "completeness": 1.0,
+  "evidence": "The sprite correctly isolates the single bird from the background railing and scenery, capturing the entire figure including head, body, wings, and tail.",
+  "backend": "ollama:qwen3.5:27b",
+  "ok": true,
+  "error": null,
+  "seconds": 31.1
+ },
+ "japan_morning_market_bird_a7a0/dog_12": {
+  "schemaVersion": 1,
+  "dogId": "japan_morning_market_bird_a7a0/dog_12",
+  "subject": 1.0,
+  "completeness": 1.0,
+  "evidence": "The sprite cleanly isolates the bird and the small object it is holding, excluding the surrounding background elements like the roof and path.",
+  "backend": "ollama:qwen3.5:27b",
+  "ok": true,
+  "error": null,
+  "seconds": 58.1
+ },
+ "morning_fairytale_glade_flash_close/dog_09": {
+  "schemaVersion": 1,
+  "dogId": "morning_fairytale_glade_flash_close/dog_09",
+  "subject": 0.2,
+  "completeness": 1.0,
+  "evidence": "The sprite contains the bird but incorrectly includes the basket, which is a prop/perch and should be excluded as background.",
+  "backend": "ollama:qwen3.5:27b",
+  "ok": true,
+  "error": null,
+  "seconds": 149.8
+ },
+ "square_hawaii_waterfall_flash_4k/dog_11": {
+  "schemaVersion": 1,
+  "dogId": "square_hawaii_waterfall_flash_4k/dog_11",
+  "subject": 0.7,
+  "completeness": 0.9,
+  "evidence": "The sprite captures the complete bird and the pocket watch it holds, but erroneously includes small fragments of the background rock near the beak and feet.",
+  "backend": "ollama:qwen3.5:27b",
+  "ok": true,
+  "error": null,
+  "seconds": 126.1
+ },
+ "square_yucatan_cenote_flash_4k/dog_06": {
+  "schemaVersion": 1,
+  "dogId": "square_yucatan_cenote_flash_4k/dog_06",
+  "subject": 0.3,
+  "completeness": 0.9,
+  "evidence": "The sprite contains the bird but incorrectly includes a large chunk of background water above the head and several stones from the ground below, which are scenery elements.",
+  "backend": "ollama:qwen3.5:27b",
+  "ok": true,
+  "error": null,
+  "seconds": 81.4
+ },
+ "square_pirate_cove_flash_4k/dog_14": {
+  "schemaVersion": 1,
+  "dogId": "square_pirate_cove_flash_4k/dog_14",
+  "subject": 0.0,
+  "completeness": 0.0,
+  "evidence": "The sprite contains a beige background fragment instead of the yellow and black bird visible in the painted panel.",
+  "backend": "ollama:qwen3.5:27b",
+  "ok": true,
+  "error": null,
+  "seconds": 37.1
+ },
+ "japan_morning_market_bird_a7a0/dog_08": {
+  "schemaVersion": 1,
+  "dogId": "japan_morning_market_bird_a7a0/dog_08",
+  "subject": 0.0,
+  "completeness": 0.0,
+  "evidence": "The sprite contains a fragment of the background structure (likely wood or cloth) instead of the bird visible in the painted panel.",
+  "backend": "ollama:qwen3.5:27b",
+  "ok": true,
+  "error": null,
+  "seconds": 75.8
+ },
+ "square_yucatan_cenote_flash_4k/dog_14": {
+  "schemaVersion": 1,
+  "dogId": "square_yucatan_cenote_flash_4k/dog_14",
+  "subject": 1.0,
+  "completeness": 1.0,
+  "evidence": "The sprite perfectly isolates the bird and the magnifying glass it is holding, excluding the background fish and plants seen in the painted panel.",
+  "backend": "ollama:qwen3.5:27b",
+  "ok": true,
+  "error": null,
+  "seconds": 30.9
+ },
+ "square_grand_bazaar_flash_4k/dog_09": {
+  "schemaVersion": 1,
+  "dogId": "square_grand_bazaar_flash_4k/dog_09",
+  "subject": 0.0,
+  "completeness": 0.0,
+  "evidence": "",
+  "backend": "ollama",
+  "ok": false,
+  "error": "ReadTimeout: timed out",
+  "seconds": 180.0
+ }
+}

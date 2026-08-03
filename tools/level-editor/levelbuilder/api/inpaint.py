@@ -39,6 +39,17 @@ from .layer_provider import (
 )
 from .routes import INPAINT_MODEL_IDS
 
+# Eager scipy import: session.py's lazy `from scipy.optimize import ...` can
+# race this module's worker threads on the importlib module lock and deadlock
+# (`_DeadlockError: _ModuleLock('scipy.linalg.cython_blas')` — flaky
+# test_magenta_recompose failures, 3 occurrences 2026-08-01..03). Importing at
+# module load, before any executor thread exists, removes the race.
+try:
+    import scipy.linalg  # noqa: F401
+    import scipy.optimize  # noqa: F401
+except ImportError:  # scipy is a hard dep in practice; stay import-safe anyway
+    pass
+
 logger = logging.getLogger("levelbuilder.inpaint")
 
 router = APIRouter(prefix="/api")
@@ -631,8 +642,12 @@ def _clean_sprite_alpha(
     yy, xx = np.ogrid[:height, :width]
     core_radius = max(4.0, float(hitbox.radius) * 1.15)
     core = ((xx - local_cx) ** 2 + (yy - local_cy) ** 2) <= core_radius ** 2
-    max_component_distance = max(8.0, float(hitbox.radius) * 2.6)
-    min_component_area = max(12, int(float(hitbox.radius) * float(hitbox.radius) * 0.025))
+    # Tightened (plan 2026-07-31-002 U7): the 2.6r / 0.025r² zone admitted
+    # crumb specks (droppings, detached feet, paint flecks) that shipped in
+    # pickup sprites across the audited corpus. Held tools survive because
+    # they touch the hitbox core; only detached debris rides on these limits.
+    max_component_distance = max(8.0, float(hitbox.radius) * 1.8)
+    min_component_area = max(24, int(float(hitbox.radius) * float(hitbox.radius) * 0.06))
 
     visited = np.zeros(arr.shape, dtype=bool)
     keep = np.zeros(arr.shape, dtype=bool)
@@ -863,8 +878,10 @@ def _is_cutout_alpha_usable(
     bbox_width = bbox[2] - bbox[0]
     bbox_height = bbox[3] - bbox[1]
     radius = max(4.0, float(hitbox.radius))
-    if bbox_width > 90 or bbox_height > 96:
-        return False
+    # The old absolute 90/96px caps were tuned for legacy r~30 hitboxes and
+    # rejected every correctly-sized bird on 4K levels (r=136), silently
+    # routing all cutouts through the relaxed repair lane (U7 finding). The
+    # radius-relative caps below are the real oversize guard.
     if bbox_width > radius * 2.45 or bbox_height > radius * 2.55:
         return False
     if bool(stats["fullCropLike"]):
@@ -1127,12 +1144,75 @@ def _pickup_sam_session():
     return _PICKUP_SAM_SESSION
 
 
+class RemoteSam2Predictor:
+    """SAM2 over HTTP (the pato 4090 service, scripts/pato-judge/sam2_server.py).
+
+    Satisfies the Sam2Predictor protocol so _sam2_sprite_alpha works unchanged
+    on hosts without a local sam2 install. Reach the service through an SSH
+    tunnel: `ssh -f -N -L 8977:localhost:8977 ubuntu-server`, then set
+    FTD_SAM2_URL=http://localhost:8977.
+    """
+
+    def __init__(self, base_url: str, timeout_s: float = 120.0):
+        self.base_url = base_url.rstrip("/")
+        self.timeout_s = timeout_s
+        self._image: np.ndarray | None = None
+
+    def set_image(self, image: np.ndarray) -> None:
+        self._image = image
+
+    def predict(
+        self,
+        *,
+        point_coords: np.ndarray,
+        point_labels: np.ndarray,
+        box: np.ndarray,
+        multimask_output: bool = True,
+    ):
+        import base64
+        import io
+
+        import httpx
+
+        if self._image is None:
+            raise RuntimeError("set_image was not called")
+        buffer = io.BytesIO()
+        Image.fromarray(self._image).save(buffer, format="PNG")
+        response = httpx.post(
+            f"{self.base_url}/predict",
+            json={
+                "image_png_b64": base64.b64encode(buffer.getvalue()).decode(),
+                "point": point_coords.tolist(),
+                "point_labels": [int(v) for v in np.asarray(point_labels).ravel()],
+                "box": [float(v) for v in np.asarray(box).ravel()],
+                "multimask_output": multimask_output,
+            },
+            timeout=self.timeout_s,
+        )
+        response.raise_for_status()
+        payload = response.json()
+        shape = tuple(payload["shape"])
+        packed = np.frombuffer(
+            base64.b64decode(payload["masks_packed_b64"]), dtype=np.uint8
+        )
+        total = int(np.prod(shape))
+        masks = np.unpackbits(packed, count=total).reshape(shape).astype(bool)
+        return masks, np.array(payload["scores"], dtype=np.float32), None
+
+
 def _pickup_sam2_predictor() -> Sam2Predictor | None:
     global _PICKUP_SAM2_FAILED, _PICKUP_SAM2_PREDICTOR
     if _PICKUP_SAM2_FAILED:
         return None
     if _PICKUP_SAM2_PREDICTOR is not None:
         return _PICKUP_SAM2_PREDICTOR
+
+    remote_url = os.environ.get("FTD_SAM2_URL")
+    if remote_url:
+        with _PICKUP_SAM2_LOCK:
+            if _PICKUP_SAM2_PREDICTOR is None:
+                _PICKUP_SAM2_PREDICTOR = RemoteSam2Predictor(remote_url)
+            return _PICKUP_SAM2_PREDICTOR
 
     checkpoint = os.environ.get("FTD_PICKUP_SAM2_CHECKPOINT")
     if not checkpoint:
@@ -1271,12 +1351,21 @@ def _sam2_sprite_alpha(
     box: tuple[int, int, int, int],
     *,
     relaxed: bool = False,
+    box_scale: float = 0.75,
+    point_override: tuple[float, float] | None = None,
 ) -> Image.Image | None:
     predictor = _pickup_sam2_predictor()
     if predictor is None:
         return None
 
-    point, prompt_box = _sam2_prompt_box(painted, hitbox, box, box_scale=0.75)
+    point, prompt_box = _sam2_prompt_box(painted, hitbox, box, box_scale=box_scale)
+    if point_override is not None:
+        width, height = painted.size
+        point = np.array(
+            [[min(float(width - 1), max(0.0, point_override[0])),
+              min(float(height - 1), max(0.0, point_override[1]))]],
+            dtype=np.float32,
+        )
     rgb = np.array(painted.convert("RGB"))
 
     def _predict() -> tuple[np.ndarray, np.ndarray, Any]:
@@ -1294,6 +1383,12 @@ def _sam2_sprite_alpha(
         masks, scores, _ = future.result(timeout=_sam2_predict_timeout_s())
     except FutureTimeoutError:
         future.cancel()
+        if isinstance(predictor, RemoteSam2Predictor):
+            # A remote predictor timeout is a per-call network transient, not a
+            # broken local model — latching here silently degraded a whole
+            # 280-dog recut batch to weak fallbacks after one tunnel hiccup.
+            logger.warning("remote SAM2 predict timed out; retry next call")
+            return None
         logger.exception("SAM2 pickup sprite cutout timed out; disabling SAM2 fallback")
         _disable_sam2_pickup()
         return None
@@ -1824,9 +1919,23 @@ def _save_sprite_assets(
     prevalidated: bool = False,
 ) -> dict | None:
     """Save transparent pickup sprite + debug mask next to a dog variant."""
-    alpha = _clean_sprite_alpha(dog_mask, hitbox, box)
+    alpha: Image.Image | None = None
     sprite_source: Image.Image | None = None
     technique = "diff-mask-connected-components-v1"
+    # SAM2-primary (plan 2026-07-31-002 U7): when a SAM2 predictor is reachable
+    # (remote FTD_SAM2_URL or local checkpoint), segment the subject directly
+    # instead of trusting the provider diff — the diff ships truncated birds
+    # (missing feet/wings) that pass every geometry gate. Diff-clean remains
+    # the fallback. Opt out with FTD_SAM2_PRIMARY=0.
+    if (
+        os.environ.get("FTD_SAM2_PRIMARY", "1").strip().lower() not in {"0", "false", "no"}
+        and (os.environ.get("FTD_SAM2_URL") or os.environ.get("FTD_PICKUP_SAM2_CHECKPOINT"))
+    ):
+        alpha = _sam2_sprite_alpha(painted, hitbox, box)
+        if alpha is not None:
+            technique = "sam2-primary-cutout-v1"
+    if alpha is None:
+        alpha = _clean_sprite_alpha(dog_mask, hitbox, box)
     stats = _alpha_stats(alpha)
     if clean_crop is not None and stats["fullCropLike"]:
         alpha.close()
@@ -4272,6 +4381,57 @@ def get_retry_failed_dogs_job(session_id: str, job_id: str) -> RetryFailedDogsJo
 # variant. Called after a variant swap so the scene reflects the chosen
 # variant immediately (without waiting for the next regen).
 
+# Sprite-only compositing (plan 2026-07-31-002 U6): the scene receives ONLY the
+# validated pickup sprite, not the whole diff-masked variant. Pickup then
+# restores pixel-identical background — pop-in impossible by construction.
+# Dogs without a usable sprite fall back to the legacy diff paste (they are
+# already repair-flagged; export refuses them). Opt out with =0.
+def _sprite_only_compose_enabled() -> bool:
+    return os.environ.get("FTD_SPRITE_ONLY_COMPOSE", "1").strip().lower() not in {"0", "false", "no"}
+
+
+def _paste_pickup_sprite(
+    result: Image.Image,
+    bg_clean: Image.Image,
+    dog_dir,
+    variant_idx: int,
+    *,
+    restore_cleanup: bool,
+) -> bool:
+    """Paste dog_dir's pickup sprite onto result. Returns False when the dog
+    has no usable sprite (caller falls back to the legacy diff paste)."""
+    meta_path = dog_dir / f"sprite_{variant_idx:03d}.json"
+    sprite_path = dog_dir / f"sprite_{variant_idx:03d}.png"
+    if not meta_path.exists() or not sprite_path.exists():
+        return False
+    try:
+        meta = json.loads(meta_path.read_text())
+    except (OSError, json.JSONDecodeError):
+        return False
+    if not (meta.get("quality") or {}).get("pickupUsable"):
+        return False
+    sprite_box = meta.get("spriteBox")
+    if not (isinstance(sprite_box, list) and len(sprite_box) == 4):
+        return False
+    try:
+        with Image.open(sprite_path) as simg:
+            simg.load()
+            sprite = simg.convert("RGBA").copy()
+    except (OSError, ValueError):
+        return False
+    if restore_cleanup:
+        # Magenta-mode base is the previous composite; scrub the old broad
+        # paste back to clean background before the sprite lands.
+        cleanup = meta.get("cleanupBox") or sprite_box
+        x0, y0, x1, y1 = (int(v) for v in cleanup)
+        region = bg_clean.crop((x0, y0, x1, y1))
+        result.paste(region, (x0, y0))
+        region.close()
+    result.paste(sprite, (int(sprite_box[0]), int(sprite_box[1])), mask=sprite)
+    sprite.close()
+    return True
+
+
 def compose_with_mask(session_id: str) -> Image.Image | None:
     """Build the full composite in memory using raw diff-mask paste.
     Pure function \u2014 does not touch disk. Returns a PIL RGB image or None
@@ -4377,7 +4537,13 @@ def compose_with_mask(session_id: str) -> Image.Image | None:
                 continue
         if av is None:
             continue
-        variant_path = S.dogs_dir(session_id) / f"dog_{dog_index:02d}" / f"variant_{av:03d}.png"
+        dog_dir = S.dogs_dir(session_id) / f"dog_{dog_index:02d}"
+        if _sprite_only_compose_enabled() and _paste_pickup_sprite(
+            result, bg_clean, dog_dir, av,
+            restore_cleanup=inpaint_mode == "magenta" and color_path.exists(),
+        ):
+            continue
+        variant_path = dog_dir / f"variant_{av:03d}.png"
         if not variant_path.exists():
             continue
         hb = Hitbox(x=hb_data["x"], y=hb_data["y"], radius=hb_data.get("r", hb_data.get("radius", 30)))
