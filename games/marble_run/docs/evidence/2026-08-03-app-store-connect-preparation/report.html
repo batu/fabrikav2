@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Marble Run — App Store Connect preparation</title>
+  <style>
+    :root{color-scheme:light;--ink:#20172c;--muted:#6e6478;--line:#ded6e6;--paper:#fffdfb;--wash:#f4eef8;--ok:#176947;--warn:#9a5418;--bad:#9a2e42;--purple:#6d34a5}
+    *{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#f5eff9,#fff9ef);color:var(--ink);font:15px/1.55 ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    main{max-width:1040px;margin:auto;padding:48px 24px 80px}header{padding:28px 30px;background:var(--paper);border:1px solid var(--line);border-radius:20px;box-shadow:0 18px 50px #4e2a6a16}
+    .eyebrow{margin:0 0 8px;color:var(--purple);font-weight:800;letter-spacing:.1em;text-transform:uppercase;font-size:12px}h1{font-size:clamp(30px,5vw,54px);line-height:1.02;margin:0 0 14px;letter-spacing:-.035em}.summary{max-width:760px;color:var(--muted);font-size:18px;margin:0}
+    .status{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:24px}.pill{border-radius:14px;padding:12px;background:var(--wash);font-weight:750}.pill span{display:block;font-size:12px;color:var(--muted);font-weight:600}.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+    section{margin-top:28px;background:#ffffffb8;border:1px solid var(--line);border-radius:18px;padding:24px}h2{margin:0 0 16px;font-size:22px;letter-spacing:-.02em}h3{margin:22px 0 8px;font-size:16px}ul{margin:8px 0;padding-left:22px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{padding:17px;border:1px solid var(--line);border-radius:14px;background:var(--paper)}.card p{margin:5px 0;color:var(--muted)}
+    table{width:100%;border-collapse:collapse}th,td{text-align:left;vertical-align:top;padding:10px 8px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em}code{font:13px ui-monospace,SFMono-Regular,Menlo,monospace;background:#f0eaf4;padding:2px 5px;border-radius:5px}a{color:#5b238e}details{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}summary{cursor:pointer;font-weight:750}@media(max-width:760px){main{padding:24px 14px 50px}.status{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}section,header{padding:20px}table{font-size:13px}}
+  </style>
+</head>
+<body><main>
+  <header>
+    <p class="eyebrow">Release evidence · 3 August 2026</p>
+    <h1>The listing now has a temporary simulator screenshot.</h1>
+    <p class="summary">Marble Run 1.0 (1) is processed and attached. Its English listing is populated, one inspected 6.9-inch simulator screenshot is live, and the store catalog is verified empty. App Privacy, pricing/territories, support-copy correction, and exact-build physical-device proof remain.</p>
+    <div class="status">
+      <div class="pill ok">Processed<span>Build 1 · VALID</span></div>
+      <div class="pill ok">Attached<span>Version 1.0</span></div>
+      <div class="pill warn">Prepared<span>Listing incomplete</span></div>
+      <div class="pill bad">Not submitted<span>Boundary preserved</span></div>
+    </div>
+  </header>
+
+  <section><h2>What changed</h2>
+    <table><thead><tr><th>Area</th><th>Before</th><th>Verified now</th></tr></thead><tbody>
+      <tr><td>Store copy</td><td>Empty</td><td>Subtitle, 580-character description, and 65-character keywords saved in <code>en-US</code></td></tr>
+      <tr><td>Classification</td><td>No category or age answers</td><td>Games → Puzzle; advertising declared; all mature-content frequencies set to none</td></tr>
+      <tr><td>Public URLs</td><td>Empty</td><td>Privacy and support URLs saved; privacy, terms, support, and deletion pages returned HTTP 200 and rendered at mobile width</td></tr>
+      <tr><td>Review</td><td>No contact</td><td>Private contact configured without exposing values; no demo account required; reviewer navigation notes saved</td></tr>
+      <tr><td>Binary</td><td>Processed but unattached</td><td>Exact build ID attached; version 1.0, build 1, minimum iOS 15.0, export compliance recorded as non-exempt encryption false</td></tr>
+      <tr><td>Icon</td><td>Uninspected processed rendition</td><td>Apple-processed 1024×1024 rendition opened; opaque and visually matches the marble-board source</td></tr>
+      <tr><td>Screenshot</td><td>None</td><td>One inspected 1320×2868 iPhone 17 Pro Max simulator capture uploaded; Apple asset state <code>COMPLETE</code></td></tr>
+      <tr><td>Commerce</td><td>Stale purchase startup and purchase-history declaration</td><td>Current source disables startup/restore and forces the product catalog empty; purchase history is removed from the privacy manifest; live ASC catalog remains 0 IAPs and 0 subscription groups. The attached build predates this correction.</td></tr>
+    </tbody></table>
+  </section>
+
+  <section><h2>Blocking decisions and missing proof</h2><div class="grid">
+    <div class="card"><h3>Store screenshots</h3><p>One simulator screenshot is uploaded for now. It accurately shows the current home screen, but it is not proof of the exact processed build on a physical iPhone and should be replaced before submission.</p></div>
+    <div class="card"><h3>App Privacy</h3><p>The corrected source manifest declares tracking and collection of linked User ID, Product Interaction, and Advertising Data. Apple does not expose the questionnaire through the supported writable API; it must be completed in the authenticated web console.</p></div>
+    <div class="card"><h3>Pricing and availability</h3><p>USA is the base territory, but no price rows or territory-availability resource exists. Free pricing and intended territories require an explicit commercial decision.</p></div>
+    <div class="card"><h3>Binary and support copy</h3><p>Corrected source and the live ASC catalog now agree that Marble Run has no IAPs, but attached build 1 predates the source correction. A fresh binary is required. The public support page also still mentions purchase restoration and needs a separately authorized production correction.</p></div>
+  </div></section>
+
+  <section><h2>Prepared App Privacy answer set</h2>
+    <ul>
+      <li><strong>Tracking:</strong> Yes; the privacy manifest declares tracking domains and ATT usage.</li>
+      <li><strong>Identifiers → User ID:</strong> linked to the user; analytics purpose; not marked for tracking.</li>
+      <li><strong>Usage Data → Product Interaction:</strong> linked; analytics purpose; not marked for tracking.</li>
+      <li><strong>Advertising Data:</strong> linked; used for third-party advertising and analytics; marked for tracking.</li>
+    </ul>
+    <p>These answers are prepared from the exact release source manifest and embedded SDK inventory. They are not represented as published until the rendered App Store Connect questionnaire is saved and re-opened.</p>
+  </section>
+
+  <section><h2>Release identity</h2>
+    <table><tbody>
+      <tr><th>App</th><td>Marble Run - Sort Puzzle</td><th>Apple ID</th><td>6793860059</td></tr>
+      <tr><th>Bundle ID</th><td><code>com.basegamelab.marblerun</code></td><th>Version</th><td>1.0 (1)</td></tr>
+      <tr><th>Source</th><td><code>bf02803a18</code> no-IAP correction; release evidence committed separately</td><th>App Store state</th><td>PREPARE_FOR_SUBMISSION</td></tr>
+      <tr><th>Submission</th><td colspan="3">No review submission exists. Submit for Review was intentionally untouched.</td></tr>
+    </tbody></table>
+    <details><summary>Primary references</summary><ul>
+      <li><a href="https://developer.apple.com/help/app-store-connect/reference/app-information/required-localizable-and-editable-properties">Apple required and editable properties</a></li>
+      <li><a href="https://developer.apple.com/help/app-store-connect/reference/app-information/screenshot-specifications">Apple screenshot specifications</a></li>
+      <li><a href="https://developer.apple.com/help/app-store-connect/manage-app-information/overview-of-export-compliance">Apple export compliance overview</a></li>
+      <li><a href="https://basegamelab.com/marble-run/privacy">Marble Run privacy policy</a> · <a href="https://basegamelab.com/marble-run/support">support</a></li>
+    </ul></details>
+  </section>
+</main></body></html>
