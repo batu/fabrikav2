@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SAM3 bird cutout deep dive</title>
+  <style>
+    :root {
+      --paper: #fff8e8;
+      --paper-deep: #f1e7d3;
+      --ink: #25231f;
+      --muted: #6d685e;
+      --line: #c9bea8;
+      --reject: #a23d2a;
+      --reject-pale: #f2d8cf;
+      --good: #315f50;
+      --mono: ui-monospace, "SFMono-Regular", "Cascadia Code", Menlo, Consolas, monospace;
+      --serif: Georgia, "Times New Roman", serif;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--ink); }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: var(--sans);
+      line-height: 1.55;
+    }
+    main { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 64px 0 96px; }
+    header { display: grid; grid-template-columns: 1.45fr .55fr; gap: 44px; align-items: end; padding-bottom: 40px; border-bottom: 2px solid var(--ink); }
+    .eyebrow, .label, th { font-family: var(--mono); text-transform: uppercase; letter-spacing: .11em; font-size: 11px; }
+    .eyebrow { color: var(--reject); margin: 0 0 14px; }
+    h1, h2, h3 { font-family: var(--serif); font-weight: 500; letter-spacing: -.025em; }
+    h1 { max-width: 820px; margin: 0; font-size: clamp(44px, 7vw, 88px); line-height: .96; }
+    h2 { margin: 0 0 20px; font-size: clamp(30px, 4vw, 48px); line-height: 1.05; }
+    h3 { margin: 0 0 8px; font-size: 22px; }
+    .summary { max-width: 720px; margin: 24px 0 0; font-size: 20px; color: var(--muted); }
+    .stamp { border-left: 1px solid var(--line); padding-left: 24px; color: var(--muted); font-size: 14px; }
+    .stamp strong { display: block; color: var(--ink); font-family: var(--mono); font-size: 13px; margin-bottom: 8px; }
+    section { padding: 54px 0; border-bottom: 1px solid var(--line); }
+    .verdict { display: grid; grid-template-columns: .62fr 1.38fr; gap: 44px; }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--reject);
+      font-family: var(--mono);
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .status::before { content: ""; width: 11px; height: 11px; border-radius: 50%; background: var(--reject); box-shadow: 0 0 0 5px var(--reject-pale); }
+    .verdict-copy { font-family: var(--serif); font-size: clamp(27px, 3.4vw, 44px); line-height: 1.16; margin: 0; }
+    .verdict-copy strong { color: var(--reject); font-weight: 500; }
+    .lede { max-width: 820px; color: var(--muted); font-size: 17px; }
+    .table-wrap { overflow-x: auto; border-top: 2px solid var(--ink); border-bottom: 1px solid var(--ink); }
+    table { width: 100%; border-collapse: collapse; min-width: 820px; }
+    th, td { padding: 16px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+    th { color: var(--muted); font-weight: 500; }
+    td:first-child { font-weight: 700; }
+    .bad { color: var(--reject); font-weight: 700; }
+    .good { color: var(--good); }
+    code { font-family: var(--mono); font-size: .9em; background: var(--paper-deep); padding: 2px 5px; }
+    .failures { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+    .failure { background: var(--paper); padding: 24px; }
+    .failure p { margin: 0; color: var(--muted); }
+    .route { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; counter-reset: route; }
+    .step { position: relative; padding-top: 54px; border-top: 2px solid var(--ink); }
+    .step::before { counter-increment: route; content: "0" counter(route); position: absolute; top: 14px; left: 0; font-family: var(--mono); color: var(--reject); }
+    .step p { margin: 0; color: var(--muted); }
+    .variants { columns: 2 320px; column-gap: 38px; }
+    .variant { break-inside: avoid; padding: 18px 0; border-top: 1px solid var(--line); }
+    .variant p { color: var(--muted); margin: 0; }
+    details { margin-top: 22px; border-top: 1px solid var(--line); padding-top: 14px; }
+    summary { cursor: pointer; font-family: var(--mono); font-size: 13px; color: var(--muted); }
+    summary:focus-visible, a:focus-visible { outline: 3px solid var(--reject); outline-offset: 3px; }
+    .sheet { margin: 28px 0 0; }
+    .sheet figcaption { display: flex; justify-content: space-between; gap: 16px; margin-bottom: 10px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+    .sheet img { display: block; width: 100%; height: auto; border: 1px solid var(--line); background: #fff; }
+    a { color: var(--ink); text-decoration-color: var(--reject); text-underline-offset: 3px; }
+    a:hover { color: var(--reject); }
+    footer { padding-top: 34px; color: var(--muted); font-size: 14px; }
+    @media (max-width: 800px) {
+      main { width: min(100% - 24px, 1180px); padding-top: 32px; }
+      header, .verdict { grid-template-columns: 1fr; gap: 24px; }
+      .stamp { border-left: 0; border-top: 1px solid var(--line); padding: 18px 0 0; }
+      .failures, .route { grid-template-columns: 1fr; }
+      section { padding: 38px 0; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <p class="eyebrow">Find the Bird · cutout research · 03 August 2026</p>
+        <h1>SAM3 finds the bird, but not the whole pickup.</h1>
+        <p class="summary">Both current upstream checkpoints ran across the fixed 20-bird benchmark. Neither clears the production cutout bar.</p>
+      </div>
+      <div class="stamp">
+        <strong>WAYFINDER RESEARCH</strong>
+        Ticket: <a href="https://github.com/batu/fabrikav2/issues/26">SAM3 pipeline deep-dive</a><br>
+        Benchmark: <a href="https://github.com/batu/fabrikav2/issues/15">fixed 20-bird cohort</a><br>
+        Judge status: informational, not acceptance
+      </div>
+    </header>
+
+    <section class="verdict" aria-labelledby="verdict-title">
+      <div>
+        <p class="status">Zero-shot rejected</p>
+        <h2 id="verdict-title">Verdict</h2>
+      </div>
+      <p class="verdict-copy">The model usually captures the bird body, yet <strong>drops held items, keeps scenery, or damages the alpha edge</strong>. SAM3.1 is a video-efficiency release—not a better still-image mask.</p>
+    </section>
+
+    <section aria-labelledby="measured-title">
+      <p class="label">Measured on RTX 4090</p>
+      <h2 id="measured-title">Two checkpoints, nearly one topology</h2>
+      <p class="lede">The hard masks overlap at mean IoU <code>0.991979</code>. The relation prompt never won selection, and produced no mask at all for every SAM3.1 case.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Method</th><th>Peak CUDA</th><th>20 cases</th><th>Prompt outcome</th><th>Codex pre-filter</th><th>Visual call</th></tr></thead>
+          <tbody>
+            <tr><td>SAM3 image</td><td>5.043 GiB</td><td>4.0242 s</td><td><code>the bird</code> 20/20</td><td>19 pass · 1 reject</td><td class="bad">Reject</td></tr>
+            <tr><td>SAM3.1 one-frame</td><td>5.651 GiB</td><td>6.1607 s</td><td><code>the bird</code> 20/20</td><td>16 pass · 4 reject</td><td class="bad">Reject</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <details>
+        <summary>Why the pre-filter is not acceptance</summary>
+        <p>The base SAM3 candidate for the 4K Hawaii bird visibly reduces the compass to translucent residue, yet Codex passed it. The sheets below are the controlling evidence for this AFK research conclusion; Batu’s eye remains the map’s eventual acceptance authority.</p>
+      </details>
+    </section>
+
+    <section aria-labelledby="fail-title">
+      <p class="label">Failure anatomy</p>
+      <h2 id="fail-title">The defect is still topology plus edge</h2>
+      <div class="failures">
+        <article class="failure"><h3>Compass lost</h3><p>The Hawaii candidate leaves a ghost in base SAM3 and drops the compass in SAM3.1.</p></article>
+        <article class="failure"><h3>Perch retained</h3><p>The hammer bird keeps timber while a transparent hole cuts through its belly and held tool.</p></article>
+        <article class="failure"><h3>Glass omitted</h3><p>The Yucatán bird loses the magnifying glass instead of treating it as part of the subject.</p></article>
+        <article class="failure"><h3>Edge contract missed</h3><p>Base has pale fringe/ghost pixels; 3.1 has a binary staircase edge and visible specks.</p></article>
+      </div>
+    </section>
+
+    <section aria-labelledby="route-title">
+      <p class="label">Decision-ready route</p>
+      <h2 id="route-title">Recover topology first, then matte it</h2>
+      <div class="route">
+        <article class="step"><h3>Interactive decoder</h3><p>Fine-tune the SAM-style decoder with the stable hitbox point/box so hats, books, feet, and held objects survive.</p></article>
+        <article class="step"><h3>ViTMatte-S</h3><p>Feed topology-correct masks into a style-specific matte trained on exact flat-key alpha pairs.</p></article>
+        <article class="step"><h3>Boundary distillation</h3><p>If ViTMatte quality wins, distill its narrow-band correction into the 1–3M parameter BoundaryNet.</p></article>
+      </div>
+    </section>
+
+    <section aria-labelledby="variants-title">
+      <p class="label">Six specified methods</p>
+      <h2 id="variants-title">What can run next</h2>
+      <div class="variants">
+        <article class="variant"><h3>1 · SAM3 image zero-shot</h3><p>Live. Soft probability edge available; topology and fringe fail the bar.</p></article>
+        <article class="variant"><h3>2 · SAM3.1 one-frame</h3><p>Live. Hard masks only; nearly identical topology and harsher edge.</p></article>
+        <article class="variant"><h3>3 · Mask-head adaptation</h3><p>Freeze detector and backbone; train the segmentation head on 20k illustration composites.</p></article>
+        <article class="variant"><h3>4 · Interactive decoder</h3><p>Train point/box prompting on 50k perturbed hitbox views. First choice after this result.</p></article>
+        <article class="variant"><h3>5 · SAM3 + ViTMatte-S</h3><p>Train exact soft alpha inside a SAM-derived trimap after topology is complete.</p></article>
+        <article class="variant"><h3>6 · BoundaryNet</h3><p>Cheap 1–3M parameter residual model for ±24 px edge repair and future scale.</p></article>
+      </div>
+    </section>
+
+    <section aria-labelledby="sheets-title">
+      <p class="label">Raw benchmark evidence</p>
+      <h2 id="sheets-title">All 20 birds at the shipped cream background</h2>
+      <p class="lede">Each row shows clean crop, painted crop, SAM3, and SAM3.1. The images are preserved at the benchmark’s 1–2× review scale.</p>
+      <figure class="sheet"><figcaption><span>Sheet 01</span><span>cases 01–04</span></figcaption><img src="02_sheet-01.png" alt="SAM3 comparison sheet for benchmark cases 1 through 4"></figure>
+      <figure class="sheet"><figcaption><span>Sheet 02</span><span>cases 05–08</span></figcaption><img src="03_sheet-02.png" alt="SAM3 comparison sheet for benchmark cases 5 through 8"></figure>
+      <figure class="sheet"><figcaption><span>Sheet 03</span><span>cases 09–12</span></figcaption><img src="04_sheet-03.png" alt="SAM3 comparison sheet for benchmark cases 9 through 12"></figure>
+      <figure class="sheet"><figcaption><span>Sheet 04</span><span>cases 13–16</span></figcaption><img src="05_sheet-04.png" alt="SAM3 comparison sheet for benchmark cases 13 through 16"></figure>
+      <figure class="sheet"><figcaption><span>Sheet 05</span><span>cases 17–20</span></figcaption><img src="06_sheet-05.png" alt="SAM3 comparison sheet for benchmark cases 17 through 20"></figure>
+    </section>
+
+    <footer>
+      Primary sources: <a href="https://github.com/facebookresearch/sam3/tree/96914d2425f90a64f45ca977c2b5165418099543">Meta SAM3 pinned source</a>,
+      <a href="https://github.com/facebookresearch/sam3/blob/96914d2425f90a64f45ca977c2b5165418099543/RELEASE_SAM3p1.md">SAM3.1 release notes</a>, and
+      <a href="https://github.com/hustvl/ViTMatte">ViTMatte</a>. No paid inference API was used; both live methods trend to effectively zero marginal cost per sprite.
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "ticket": "https://github.com/batu/fabrikav2/issues/26",
+  "benchmark": "https://github.com/batu/fabrikav2/issues/15",
+  "benchmarkManifestSha256": "57a932e39d3e3ac629345f64d6c99d9d05f89fe65dc2662799fdca419067d549",
+  "caseCount": 20,
+  "sourceJoin": "session dogs and hitboxes joined independently by stable id",
+  "sam3CodeRevision": "96914d2425f90a64f45ca977c2b5165418099543",
+  "prompts": [
+    "the bird",
+    "the bird and what it holds"
+  ],
+  "methods": [
+    {
+      "name": "sam3-zero-shot",
+      "checkpointRepo": "facebook/sam3",
+      "checkpointRevision": "3c879f39826c281e95690f02c7821c4de09afae7",
+      "checkpointFile": "sam3.pt",
+      "publicApi": "build_sam3_image_model + Sam3Processor",
+      "alphaSource": "masks_logits",
+      "processorResolution": 1008,
+      "modelLoadSeconds": 6.7125,
+      "inferenceSecondsFor20Cases": 4.0242,
+      "peakCudaMemoryBytes": 5414406656,
+      "nonEmptyOutputs": 20,
+      "chosenPromptCounts": {
+        "the bird": 20,
+        "the bird and what it holds": 0
+      },
+      "promptMaskTotals": {
+        "the bird": 341,
+        "the bird and what it holds": 7
+      },
+      "heldItemPromptZeroMaskCases": 13,
+      "codexPrefilter": {
+        "pass": 19,
+        "reject": 1,
+        "error": 0,
+        "humanAcceptanceRequired": true
+      },
+      "partialAlphaFractionAmongNonzero": 0.100583,
+      "multiComponentCases": 5,
+      "smallComponentCases": 3,
+      "visualVerdict": "reject"
+    },
+    {
+      "name": "sam3p1-zero-shot",
+      "checkpointRepo": "facebook/sam3.1",
+      "checkpointRevision": "daa63191845a41281374e725f4c9e51c7a824460",
+      "checkpointFile": "sam3.1_multiplex.pt",
+      "publicApi": "build_sam3_predictor version sam3.1 on one-frame PNG",
+      "alphaSource": "out_binary_masks",
+      "processorResolution": 1008,
+      "modelLoadSeconds": 10.4308,
+      "inferenceSecondsFor20Cases": 6.1607,
+      "peakCudaMemoryBytes": 6068238336,
+      "nonEmptyOutputs": 20,
+      "chosenPromptCounts": {
+        "the bird": 20,
+        "the bird and what it holds": 0
+      },
+      "promptMaskTotals": {
+        "the bird": 23,
+        "the bird and what it holds": 0
+      },
+      "heldItemPromptZeroMaskCases": 20,
+      "codexPrefilter": {
+        "pass": 16,
+        "reject": 4,
+        "error": 0,
+        "humanAcceptanceRequired": true
+      },
+      "partialAlphaFractionAmongNonzero": 0.0,
+      "multiComponentCases": 4,
+      "smallComponentCases": 2,
+      "visualVerdict": "reject"
+    }
+  ],
+  "crossMethodHardMaskIou": {
+    "mean": 0.991979,
+    "minimum": 0.97356,
+    "minimumCase": "morning_japan_market_pro_standard__dog_11"
+  },
+  "visualFailures": [
+    "held and worn items are inconsistently omitted",
+    "base probability alpha leaves ghost and fringe residue",
+    "sam3.1 exposes a hard binary edge",
+    "both methods produce satellite fragments on some cases"
+  ],
+  "decision": "Zero-shot SAM3 and SAM3.1 are not clean enough; recover topology with the hitbox-driven interactive decoder adaptation before alpha refinement."
+}
