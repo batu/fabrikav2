@@ -30,7 +30,11 @@ lanes() { pgrep -fl "codex exec .*wayfinder-ticket" | wc -l | tr -d ' '; }
 launch() {
   local n="$1"; local mode="${2:-fresh}"
   local wt="$REPO/.worktrees/cutout-lab-$n"
-  git worktree add "$wt" -b "feat/cutout-lab-$n" origin/main >/dev/null 2>&1 || true
+  if [ ! -d "$wt" ]; then
+    git worktree add "$wt" -b "feat/cutout-lab-$n" origin/main >/dev/null 2>&1 \
+      || git worktree add "$wt" "feat/cutout-lab-$n" >/dev/null 2>&1 \
+      || { echo "$(date '+%H:%M') worktree add FAILED for #$n"; return 1; }
+  fi
   echo "$(date '+%H:%M') launching ticket #$n ($MODEL/$EFFORT)"
   ( cd "$wt" && codex exec \
       --dangerously-bypass-approvals-and-sandbox \
