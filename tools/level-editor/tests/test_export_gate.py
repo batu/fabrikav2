@@ -89,7 +89,9 @@ def test_sprite_quality_gate_refuses_failing_level(tmp_path, monkeypatch):
             "cleanup": {"x": 28, "y": 28, "width": 44, "height": 44},
             "anchorX": 0.5, "anchorY": 0.5}}],
     }))
+    # Opt-in since 2026-08-03 (paint-first compositing is the shipped policy;
+    # these axes assume sprite-only composites).
+    assert _sprite_quality_violations(lv) == []
+    monkeypatch.setenv("FTD_SPRITE_QUALITY_GATE", "1")
     violations = _sprite_quality_violations(lv)
     assert any("exclusion" in v for v in violations)
-    monkeypatch.setenv("FTD_SPRITE_QUALITY_GATE", "0")
-    assert _sprite_quality_violations(lv) == []

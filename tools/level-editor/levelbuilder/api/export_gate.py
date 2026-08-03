@@ -58,7 +58,13 @@ def _sprite_quality_violations(level_dir: Path) -> list[str]:
     """
     import os
 
-    if os.environ.get("FTD_SPRITE_QUALITY_GATE", "1").strip().lower() in {"0", "false", "no"}:
+    # Default OFF since 2026-08-03: paint-first compositing is the shipped
+    # policy (sprite-only compositing was rejected on design grounds — birds
+    # must stay embedded in the painted scene). The exclusion/coherence axes
+    # assume scene == clean bg + sprite and false-positive against painted
+    # scenes; opt back in with FTD_SPRITE_QUALITY_GATE=1 only for sprite-only
+    # experiments.
+    if os.environ.get("FTD_SPRITE_QUALITY_GATE", "0").strip().lower() in {"0", "false", "no"}:
         return []
     from levelbuilder.api.sprite_eval import evaluate_level_dir
 
@@ -100,8 +106,6 @@ def validate_corpus(public_root: Path, *, require_levels_index: bool = False) ->
         if not path.parent.name.startswith(".")
     )
     for path in level_paths:
-        # Full corpus regenerated under sprite-only compositing 2026-08-01
-        # (plan 2026-07-31-002 U8): sprite quality is now corpus-enforced.
         validate_level_dir(public_root, path.parent.name)
     catalog_checked = False
     catalog_path = public_root / "catalog-manifest.json"
