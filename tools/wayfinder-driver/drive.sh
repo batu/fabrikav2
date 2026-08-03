@@ -52,8 +52,21 @@ Resolve ONLY this ticket per the wayfinder protocol: resolution comment, close, 
     echo "$(date '+%H:%M') ticket #$n session ended (exit $?)" ) &
 }
 
+prune_closed() {
+  # Free disk: closed tickets' worktrees go once their branch is on origin.
+  gh api "repos/batu/fabrikav2/issues/$MAP/sub_issues" --paginate     --jq '.[] | select(.state=="closed") | .number' 2>/dev/null | while read -r n; do
+    wt="$REPO/.worktrees/cutout-lab-$n"
+    [ -d "$wt" ] || continue
+    pgrep -f "wayfinder-ticket $n:" >/dev/null && continue
+    L=$(git rev-parse "feat/cutout-lab-$n" 2>/dev/null); R=$(git ls-remote origin "feat/cutout-lab-$n" 2>/dev/null | awk '{print $1}')
+    [ "$L" = "$R" ] || git push -q origin "feat/cutout-lab-$n" 2>/dev/null || continue
+    git worktree remove --force "$wt" 2>/dev/null && echo "$(date '+%H:%M') pruned worktree #$n"
+  done
+}
+
 echo "$(date '+%H:%M') driver up (map #$MAP, $MODEL/$EFFORT, lanes<=$MAX_LANES)"
 while true; do
+  prune_closed
   open=$(open_children | wc -l | tr -d ' ')
   if [ "$open" -eq 0 ]; then
     telegram-send -m "Wayfinder map #14 has NO open tickets — the way is clear. Driver exiting. Review the map: https://github.com/batu/fabrikav2/issues/14" || true
