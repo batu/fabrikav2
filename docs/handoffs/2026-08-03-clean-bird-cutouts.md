@@ -72,8 +72,8 @@ Per level (20 levels, ~285 birds), everything needed for extraction:
   (uv projects under `~/`). Ollama also runs there (`qwen3.5:27b`, vision) —
   unload it (`ollama stop qwen3.5:27b`) before VRAM-heavy work.
 - **Money:** authorized. `OPENAI_API_KEY` in `/Users/base/dev/appletolye/.env`
-  (`gpt-image-2` works — proven for repaints). **OpenRouter is exhausted — do not
-  use it.** New models/checkpoints (BiRefNet, ViTMatte, FBA matting, whatever) may
+  (`gpt-image-2` works — proven for repaints). OpenRouter has ~$50 credit (topped up
+  2026-08-03) — usable for judging/experiments. New models/checkpoints (BiRefNet, ViTMatte, FBA matting, whatever) may
   be downloaded to pato; modest paid API usage is fine.
 - **Judging:** `codex exec --json -i <panel.png> -- "<prompt>"` (subscription,
   free) — see `tools/level-editor/levelbuilder/api/sprite_judge.py` for a working
