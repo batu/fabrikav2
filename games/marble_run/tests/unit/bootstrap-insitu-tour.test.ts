@@ -94,15 +94,19 @@ describe("marble_run bootstrap insitu tour wiring", () => {
     vi.doMock("../../src/data/cohortContext", () => ({
       initializeCohort: vi.fn(() => Promise.resolve(0)),
     }));
+    const initializeRemoteConfig = vi.fn(() => Promise.resolve());
     vi.doMock("../../src/config/RemoteConfigService", () => ({
-      remoteConfigService: { initAndWait: vi.fn(() => Promise.resolve()) },
+      remoteConfigService: { initAndWait: initializeRemoteConfig },
     }));
+    const initializeIap = vi.fn();
+    const installCustomerInfoListener = vi.fn();
+    const restorePurchases = vi.fn();
     vi.doMock("../../src/shop/IapService", () => ({
       iapService: {
-        setOnCustomerInfoUpdate: vi.fn(),
-        init: vi.fn(),
+        setOnCustomerInfoUpdate: installCustomerInfoListener,
+        init: initializeIap,
         initPromiseValue: null,
-        restore: vi.fn(),
+        restore: restorePurchases,
       },
       ownedProductIdsFromCustomerInfo: vi.fn(() => []),
     }));
@@ -142,5 +146,9 @@ describe("marble_run bootstrap insitu tour wiring", () => {
         snapshotMatchesState: snapshotMatchesMarbleRunDriveState,
       });
     });
+    expect(initializeIap).not.toHaveBeenCalled();
+    expect(installCustomerInfoListener).not.toHaveBeenCalled();
+    expect(restorePurchases).not.toHaveBeenCalled();
+    expect(initializeRemoteConfig).toHaveBeenCalledOnce();
   });
 });

@@ -12,7 +12,7 @@ export type CameraMode = 'perspective' | 'dimetric' | 'isometric' | 'trimetric';
 export const MAX_RENDER_DPR = 2;
 export const LONG_PRESS_ROUTE_MS = 1200;
 export const LEVEL_COIN_REWARD = 25;
-export const HINT_COIN_COST = 125;
+export const HINT_COIN_COST = 225;
 
 /** World units: 1 = one grid cell. */
 export const W3D = {

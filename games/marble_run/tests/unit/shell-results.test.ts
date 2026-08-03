@@ -28,7 +28,6 @@ vi.mock('../../src/ui/EconomyTransfer', () => ({
 
 import { showLevelCompleteOverlay } from '../../src/ui/LevelCompleteOverlay';
 import { showLevelFailedOverlay } from '../../src/ui/LevelFailedOverlay';
-import { showRatePromptWithHandle } from '../../src/ui/RatePrompt';
 import { gameState } from '../../src/core/GameState';
 import { mountFinale } from '../../src/menu/finale';
 function ribbonTitle(root: ParentNode): string | undefined {
@@ -234,12 +233,29 @@ describe('sugar result cards', () => {
     }
   });
 
-  it('mounts the rate prompt in the modal layer above the completion overlay', () => {
-    const prompt = showRatePromptWithHandle();
-    const promptOverlay = document.getElementById('rate-prompt-overlay');
+  it('advances without showing a rate prompt after the historical threshold', async () => {
+    const ratePromptEnabled = gameState.settings.ratePromptEnabled;
+    const totalLevelsCompleted = gameState.totalLevelsCompleted;
+    gameState.settings.ratePromptEnabled = true;
+    gameState.setTotalLevelsCompletedForTest(5);
 
-    expect(promptOverlay?.parentElement).toBe(document.getElementById('modal-root'));
-    prompt.dismiss();
+    try {
+      const result = showLevelCompleteOverlay('lvl-no-rate-prompt', {
+        timeSeconds: 12,
+        newBest: false,
+        baseCoins: 25,
+        coinBalance: 25,
+        claimX2Available: false,
+      });
+
+      document.querySelector<HTMLButtonElement>('[data-fab-action="result-next"]')!.click();
+
+      await expect(result).resolves.toEqual({ nextLevelData: null });
+      expect(document.getElementById('rate-prompt-overlay')).toBeNull();
+    } finally {
+      gameState.settings.ratePromptEnabled = ratePromptEnabled;
+      gameState.setTotalLevelsCompletedForTest(totalLevelsCompleted);
+    }
   });
 
   // MRV2-11 U5: the win scrim reverts from the wave-4 opaque purple gradient to a

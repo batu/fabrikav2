@@ -44,6 +44,11 @@ const REQUIREMENT_DISPLAY_PRICES = {
 } as const;
 
 export function buildFullShopCatalog(reader: CatalogReader = remoteConfigService): ShopCatalog {
+  // Marble Run is intentionally a no-IAP product. Keep the catalog empty at
+  // the product boundary so remote flags cannot accidentally resurrect stale
+  // offers or product IDs from another game.
+  if (!MARBLE_RUN_IAP_ENABLED) return { products: [] };
+
   const products: ShopCatalogProduct[] = [
     {
       id: 'no-ads',
@@ -100,6 +105,8 @@ export function buildFullShopCatalog(reader: CatalogReader = remoteConfigService
 
   return { products };
 }
+
+export const MARBLE_RUN_IAP_ENABLED = false;
 
 export function buildShopCatalog(reader: CatalogReader = remoteConfigService): ShopCatalog {
   return { products: buildFullShopCatalog(reader).products.filter((product) => product.visible) };

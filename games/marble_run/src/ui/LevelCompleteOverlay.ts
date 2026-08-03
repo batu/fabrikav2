@@ -2,7 +2,6 @@ import { gameState } from '../core/GameState';
 import type { LevelData } from '../data/levels';
 import { playLevelComplete, playUITap } from '../audio/AudioManager';
 import { scaffoldEvents } from '../core/ScaffoldEvents';
-import { showRatePromptWithHandle, type RatePromptHandle } from './RatePrompt';
 import { showSceneTransitionCover } from './SceneTransitionCover';
 import { animateCoinsToBalance } from './EconomyTransfer';
 import { buildButtonElement, mountResultCard, type UiHandle } from '@fabrikav2/ui';
@@ -20,12 +19,6 @@ export interface LevelCompleteOverlayOptions {
   coinBalance: number;
   claimX2Available: boolean;
   onClaimX2?: () => Promise<{ granted: boolean; coinBalance: number }>;
-  /**
-   * Optional sink for the rate-prompt handle while it's on-screen, so the
-   * scene can dismiss it on shutdown. Called with a handle when the prompt
-   * opens and with `null` when it closes.
-   */
-  onRatePromptHandle?: (handle: RatePromptHandle | null) => void;
 }
 
 export interface LevelCompleteOverlayResult {
@@ -195,19 +188,6 @@ export function showLevelCompleteOverlay(
       handle.dismiss();
     };
 
-    const proceed = (): void => {
-      if (gameState.shouldShowRatePrompt()) {
-        const promptHandle = showRatePromptWithHandle();
-        options.onRatePromptHandle?.(promptHandle);
-        void promptHandle.dismissed.finally(() => {
-          options.onRatePromptHandle?.(null);
-          finish();
-        });
-        return;
-      }
-      finish();
-    };
-
     // v1 parity (sugar3d/src/ui/dom.ts:524 showWin onNext): fly the reward coins
     // from the reward row into the wallet pill with a count-up, THEN advance. The
     // engine no-ops (resolves immediately) under reduced motion or when the
@@ -223,7 +203,7 @@ export function showLevelCompleteOverlay(
       countdownElement: rewardRow.querySelector<HTMLElement>('.marble-reward-value'),
       countdownFromValue: options.baseCoins,
       countdownToValue: 0,
-    }).then(proceed);
+    }).then(finish);
   };
 
   // Device-parity MRV2-10 U4: the Next action is a GREEN PILL (Button_Green) with

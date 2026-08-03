@@ -23,7 +23,6 @@ import {
   setRestartCallback,
 } from '../ui/HUD';
 import { preloadLevelCompleteAssets, showLevelCompleteOverlay, dismissLevelCompleteOverlay } from '../ui/LevelCompleteOverlay';
-import type { RatePromptHandle } from '../ui/RatePrompt';
 import { showLevelFailedOverlay } from '../ui/LevelFailedOverlay';
 import { hidePlayEntryTransitionCoverAfterSceneRender, hideSceneTransitionCoverAfterPaint, showSceneTransitionCover } from '../ui/SceneTransitionCover';
 import { remoteConfigService } from '../config/RemoteConfigService';
@@ -66,7 +65,6 @@ export class GameScene extends Phaser.Scene {
   private hintsUsedThisLevel: number = 0;
   private wrongTapsCount: number = 0;
   private analyticsLevelAttribution: AnalyticsLevelAttribution | null = null;
-  private ratePromptHandle: RatePromptHandle | null = null;
   private preserveLevelUrlsOnShutdown: boolean = false;
   private isShuttingDown: boolean = false;
   private cancelNonCriticalPreloadSchedule: CancelScheduledIdleWork | null = null;
@@ -87,7 +85,6 @@ export class GameScene extends Phaser.Scene {
     this.hintsUsedThisLevel = 0;
     this.wrongTapsCount = 0;
     this.analyticsLevelAttribution = null;
-    this.ratePromptHandle = null;
     this.preserveLevelUrlsOnShutdown = false;
     this.isShuttingDown = false;
     this.cancelNonCriticalPreloadSchedule?.();
@@ -250,11 +247,8 @@ export class GameScene extends Phaser.Scene {
       if (level.id !== '' && !this.preserveLevelUrlsOnShutdown) disposeLevelUrls(level.id);
       setGameModeChangeCallback(null);
       setRestartCallback(null);
-      this.ratePromptHandle?.dismiss();
-      this.ratePromptHandle = null;
       this.tweens.killAll();
       dismissLevelCompleteOverlay();
-      document.getElementById('rate-prompt-overlay')?.remove();
       getModalRoot()?.classList.remove('completion-mode');
       document.getElementById('level-complete-overlay')?.remove();
       document.getElementById('level-failed-overlay')?.remove();
@@ -424,9 +418,6 @@ export class GameScene extends Phaser.Scene {
             void analytics.settingsChanged({ setting_name: 'claimX2', new_value: 'granted' });
           }
           return { granted: claim.granted, coinBalance: gameState.coinBalance };
-        },
-        onRatePromptHandle: (handle) => {
-          this.ratePromptHandle = handle;
         },
       });
 
