@@ -187,3 +187,16 @@ publisher to supply `google-services.json` for `com.basegamelab.marblerun`; the
 iOS plist alone is not enough.
 
 Details and capture hashes: `evidence/2026-07-23-sdk-integration-evidence.md`.
+
+## TestFlight build 3 (2026-08-03)
+
+First TestFlight build containing the working ad units. Built from main
+(`588af816`) in a clean worktree with no local `.env` — the ids came from the
+tracked `.env.production`, and were verified inside the archived `App.app`
+(`bootstrap-Dt9ckLNd.js`) before upload. Version 1.0 (3), uploaded via
+`xcodebuild -exportArchive` with the same ExportOptions as build 2.
+
+Lane gotcha for the record: `npm run ios:add` in a fresh worktree left the
+AppLovin/AppsFlyer/FBSDK SPM wiring unapplied (pbxproj had 0 AppLovin refs);
+re-running `tools/native-shell/apply.mjs --game marble_run` fixed it. Check
+`grep -c AppLovin ios/App/App.xcodeproj/project.pbxproj` before archiving.
