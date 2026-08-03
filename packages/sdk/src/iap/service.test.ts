@@ -85,6 +85,24 @@ describe('IapService.init — state machine', () => {
     await service.init(); // retry allowed because init nulled the promise on failure
     expect(service.snapshot().state).toBe('ready');
   });
+
+  it('treats an empty native product response as load-failed and retries', async () => {
+    const provider = new FakePurchaseProvider({ products: [] });
+    const service = new IapService<FtdGrant>({
+      ...makeDeps({}).deps,
+      provider: () => provider,
+    });
+
+    await service.init();
+    expect(service.snapshot().state).toBe('load-failed');
+    expect(service.snapshot().lastErrorMessage).toContain('zero store products');
+
+    provider.setConfig({ products: storeProductsFor([NO_ADS]) });
+    await service.init();
+    expect(service.snapshot().state).toBe('ready');
+    expect(service.snapshot().products.filter((product) => product.storeProduct !== null)).toHaveLength(1);
+    expect(provider.configureCalls).toBe(2);
+  });
 });
 
 describe('IapService.purchase — state machine', () => {

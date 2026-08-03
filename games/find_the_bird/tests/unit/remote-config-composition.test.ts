@@ -22,6 +22,15 @@ afterEach(() => {
 });
 
 describe('FTD remote-config schema parity', () => {
+  it('uses Find the Bird App Store product identifiers by default', () => {
+    const productIds = Object.entries(REMOTE_CONFIG_DEFAULTS)
+      .filter(([key]) => key.endsWith('ProductId'))
+      .map(([, value]) => value);
+
+    expect(productIds).toHaveLength(12);
+    expect(productIds.every((value) => typeof value === 'string' && value.startsWith('com.basegamelab.findthebird.'))).toBe(true);
+  });
+
   it('preserves every existing key, default, wire key, primitive type, description, and validation rule', () => {
     expect(Object.keys(ftdRemoteConfigSchema)).toEqual(Object.keys(REMOTE_CONFIG_DEFAULTS));
 

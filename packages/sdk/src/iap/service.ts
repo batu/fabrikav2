@@ -516,10 +516,13 @@ export class IapService<TPayload = unknown> {
         this.dependencies.operationTimeoutMs(),
         'getProducts',
       );
+      if (storeProducts.length === 0) {
+        throw new Error('provider returned zero store products');
+      }
       this.provider = provider;
       this.storeProductsById = new Map(storeProducts.map((product) => [product.productId, product]));
       this.lastErrorMessage = null;
-      this.setState('ready', storeProducts.length === 0 ? 'ready with zero store products' : null);
+      this.setState('ready', null);
       this.registerCustomerInfoListener(provider);
     } catch (err) {
       this.lastErrorMessage = errorMessage(err);
