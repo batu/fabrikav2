@@ -48,6 +48,17 @@ if ((!import.meta.env.PROD || TEST_HARNESS_ENABLED) && import.meta.env.VITE_SDK_
   void import('./devtools/SdkVerifierMount').then(({ toggleSdkVerifierPane }): void => {
     toggleSdkVerifierPane(getSdkContext());
   });
+  // VITE_SDK_VERIFIER_AUTOPRELOAD=true additionally inits ads and preloads both
+  // units at launch, so ad-unit verification needs no tap choreography either
+  // (simulators have no automated touch path). Same gate as the automount.
+  if (import.meta.env.VITE_SDK_VERIFIER_AUTOPRELOAD === 'true') {
+    void (async (): Promise<void> => {
+      const ads = getSdkContext().ads;
+      await ads.init();
+      console.log('[sdk-verifier] autopreload interstitial:', await ads.preloadInterstitial().then(() => 'resolved', (e) => `rejected: ${String(e)}`));
+      console.log('[sdk-verifier] autopreload rewarded:', await ads.preloadRewarded().then(() => 'resolved', (e) => `rejected: ${String(e)}`));
+    })();
+  }
 }
 
 const game: Phaser.Game = new Phaser.Game(GameConfig);
