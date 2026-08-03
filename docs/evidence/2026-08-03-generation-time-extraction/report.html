@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Generation-time bird extraction — ticket 16</title>
+  <style>
+    :root {
+      --cream: #fff8e8;
+      --paper: #f3ead7;
+      --ink: #292823;
+      --muted: #736b5e;
+      --line: #d8cdb8;
+      --teal: #087f73;
+      --teal-soft: #d9eee8;
+      --amber: #ad6800;
+      --amber-soft: #fae9c8;
+      --red: #a13e32;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: "Avenir Next", "Gill Sans", sans-serif;
+      line-height: 1.5;
+    }
+    main { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 48px 0 80px; }
+    header { display: grid; grid-template-columns: 1.5fr 0.8fr; gap: 56px; align-items: end; padding-bottom: 34px; border-bottom: 2px solid var(--ink); }
+    .eyebrow { margin: 0 0 10px; color: var(--teal); font: 700 12px/1.2 ui-monospace, monospace; letter-spacing: .14em; text-transform: uppercase; }
+    h1, h2 { font-family: Charter, Georgia, serif; letter-spacing: -.025em; }
+    h1 { max-width: 850px; margin: 0; font-size: clamp(38px, 6vw, 72px); line-height: .98; }
+    h2 { margin: 0 0 16px; font-size: clamp(26px, 3vw, 38px); }
+    h3 { margin: 0 0 8px; font-size: 17px; }
+    p { margin: 0; }
+    .summary { margin-top: 22px; max-width: 760px; color: #4d493f; font-size: 19px; }
+    .status { border-left: 4px solid var(--teal); padding-left: 18px; }
+    .status strong { display: block; color: var(--teal); font-size: 26px; }
+    .status span { color: var(--muted); font-size: 14px; }
+    section { padding: 40px 0; border-bottom: 1px solid var(--line); }
+    .verdict { display: grid; grid-template-columns: 1.3fr .7fr; gap: 46px; }
+    .callout { background: var(--teal-soft); padding: 22px 24px; border-left: 5px solid var(--teal); font-size: 18px; }
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+    .metric { background: var(--cream); padding: 18px; }
+    .metric b { display: block; font: 700 26px/1 Charter, Georgia, serif; }
+    .metric small { color: var(--muted); }
+    figure { margin: 26px 0 0; }
+    figure img { display: block; width: 100%; height: auto; border: 1px solid var(--line); background: white; }
+    figcaption { margin-top: 10px; color: var(--muted); font-size: 13px; }
+    .matrix { width: 100%; border-collapse: collapse; font-size: 15px; }
+    .matrix th, .matrix td { padding: 16px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+    .matrix th { color: var(--muted); font: 700 11px/1.2 ui-monospace, monospace; letter-spacing: .09em; text-transform: uppercase; }
+    .tag { display: inline-block; padding: 3px 8px; border-radius: 999px; font: 700 11px/1.2 ui-monospace, monospace; white-space: nowrap; }
+    .go { color: #075b52; background: var(--teal-soft); }
+    .risk { color: #774700; background: var(--amber-soft); }
+    .no { color: #7d2820; background: #f6ded9; }
+    .pair { display: grid; grid-template-columns: 1.15fr .85fr; gap: 32px; align-items: start; }
+    ul { margin: 12px 0 0; padding-left: 20px; }
+    li + li { margin-top: 7px; }
+    details { margin-top: 20px; border-top: 1px solid var(--line); padding-top: 14px; }
+    summary { cursor: pointer; font-weight: 700; color: var(--teal); }
+    summary:focus-visible { outline: 3px solid var(--amber); outline-offset: 4px; }
+    code { font-family: ui-monospace, monospace; font-size: .9em; }
+    .fine { color: var(--muted); font-size: 13px; }
+    @media (max-width: 760px) {
+      main { width: min(100% - 24px, 1180px); padding-top: 28px; }
+      header, .verdict, .pair { grid-template-columns: 1fr; gap: 24px; }
+      .metrics { grid-template-columns: 1fr; }
+      .matrix { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <p class="eyebrow">Wayfinder research · 03 Aug 2026</p>
+        <h1>Paint the bird first. Composite the same pixels.</h1>
+        <p class="summary">Generation-time extraction is viable when the paint call yields a flat-key bird and deterministic code places that exact RGBA into the clean scene. A second generative redraw breaks identity.</p>
+      </div>
+      <div class="status">
+        <strong>Research resolved</strong>
+        <span>Portal progress report only — no Batu acceptance verdict requested or claimed.</span>
+      </div>
+    </header>
+
+    <section class="verdict" aria-labelledby="verdict">
+      <div>
+        <h2 id="verdict">Answer</h2>
+        <div class="callout"><strong>Advance flat-first generation to the method shootout.</strong> Generate one isolated bird, key it locally, and use the same cutout for both the scene composite and flyout. The extraction adds no second paid sprite call.</div>
+      </div>
+      <div class="metrics" aria-label="experiment metrics">
+        <div class="metric"><b>$0.0478</b><small>four-call total</small></div>
+        <div class="metric"><b>3 / 3</b><small>clean bird pre-filter</small></div>
+        <div class="metric"><b>2 / 3</b><small>retrospective identity</small></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="flat">
+      <h2 id="flat">Flat-first probe</h2>
+      <p>Three stable-ID benchmark cases cover a tiny held-object bird and two native-4K anchors. The provider added a subtle magenta gradient despite the prompt; local background-field fitting, alpha recovery, defringing, and connected-component pruning removed it without another call.</p>
+      <figure>
+        <img src="02_flat-first-samples.png" alt="Three-row comparison of clean crop, current painted bird, generated flat-key bird, cutout on cream, and deterministic composite">
+        <figcaption>Current painted references are shown only to stress-test redraw fidelity. In production, the generated flat bird is the source of both right-hand artifacts, so identity is exact by construction.</figcaption>
+      </figure>
+      <details>
+        <summary>Strict identity audit</summary>
+        <ul>
+          <li><strong>Venice tiny telescope — fail:</strong> different proportions, pose, markings, expression, and gear construction.</li>
+          <li><strong>Hawaii compass — pass:</strong> reads as the same individual; no clear edge or satellite defect.</li>
+          <li><strong>Yucatán magnifier — pass:</strong> reads as the same individual; thin legs and handle remain intact at sheet scale.</li>
+        </ul>
+      </details>
+    </section>
+
+    <section class="pair" aria-labelledby="paired">
+      <div>
+        <h2 id="paired">One response, two panels</h2>
+        <figure>
+          <img src="03_generated-pair.png" alt="A generated two-panel image with the painted scene on the left and a related isolated bird on magenta on the right">
+          <figcaption>Encouraging as an experiment, unsafe as a contract: the scene was regenerated and reformatted, and the bird pixels differ between panels.</figcaption>
+        </figure>
+      </div>
+      <div>
+        <h3><span class="tag risk">Exploratory only</span></h3>
+        <p>The API documents multiple image outputs as alternatives, not typed correlated artifacts. A prompted contact sheet can work once and still fail on output count, geometry, or identity in the next call.</p>
+        <ul>
+          <li>Estimated cost: $0.011984</li>
+          <li>Elapsed: 21.070 seconds</li>
+          <li>Scene and cutout are visually related</li>
+          <li>No pixel-identity guarantee</li>
+        </ul>
+      </div>
+    </section>
+
+    <section aria-labelledby="routes">
+      <h2 id="routes">Route boundary</h2>
+      <table class="matrix">
+        <thead><tr><th>Route</th><th>Finding</th><th>Disposition</th></tr></thead>
+        <tbody>
+          <tr><td>Bird first → local key → exact composite</td><td>Identity and untouched background are deterministic. Provider gradient is locally removable.</td><td><span class="tag go">Advance</span></td></tr>
+          <tr><td>Scene + isolated bird in one prompted response</td><td>No provider artifact contract; scene geometry and pixels drift.</td><td><span class="tag risk">Baseline only</span></td></tr>
+          <tr><td>Edit API returns mask/alpha</td><td>No qualifying OpenAI or Google response contract found; masks are input or internal guidance.</td><td><span class="tag no">No route</span></td></tr>
+          <tr><td>Local LayerDiffuse joint layers</td><td>Only surveyed local one-pass foreground/background/blend candidate; 4090 quality remains untested.</td><td><span class="tag risk">New sharp question</span></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section aria-labelledby="audit">
+      <h2 id="audit">Audit trail</h2>
+      <p>The committed Markdown report holds primary-source citations, exact usage ledgers, experiment interpretation, and reproduction commands. Generated binaries remain outside git under the ticket worktree.</p>
+      <p class="fine" style="margin-top:12px">Acceptance boundary: Codex visual checks are pre-filters only. Batu’s Portal verdict remains the method and corpus acceptance authority at the shootout.</p>
+    </section>
+  </main>
+</body>
+</html>
