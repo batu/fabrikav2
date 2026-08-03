@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "sourceRoot": "/Users/base/dev/appletolye/fabrikav2/games/find_the_bird/.levelbuilder/levels",
+  "cases": [
+    {
+      "caseId": "venice-tiny-telescope",
+      "levelId": "italy_venice_canal_morning_bird_d570",
+      "birdId": "0998adb4-50c8-5250-8cef-76a9dbd058ed",
+      "expectedDogDir": "dog_03",
+      "expectedVariant": 0,
+      "note": "Tiny r=24 telescope bird against dense railing linework."
+    },
+    {
+      "caseId": "hawaii-water-compass",
+      "levelId": "square_hawaii_waterfall_flash_4k",
+      "birdId": "8bf0b160-3f71-52d4-b1c2-625086bd52ea",
+      "expectedDogDir": "dog_11",
+      "expectedVariant": 0,
+      "note": "Native-4K compass bird on a mossy rock over reflective water."
+    },
+    {
+      "caseId": "yucatan-clean-anchor",
+      "levelId": "square_yucatan_cenote_flash_4k",
+      "birdId": "30df40ff-1296-58e1-8dab-967dd5773ee7",
+      "expectedDogDir": "dog_14",
+      "expectedVariant": 0,
+      "note": "Native-4K magnifying-glass bird used as the clean anchor."
+    }
+  ]
+}
