@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "ticket": "https://github.com/batu/fabrikav2/issues/17",
+  "date": "2026-08-03",
+  "benchmark": "../2026-08-03-cutout-benchmark/benchmark-manifest.json",
+  "cases": 20,
+  "levels": 20,
+  "sourceReadOnly": true,
+  "environment": {
+    "gpu": "NVIDIA GeForce RTX 4090",
+    "gpuMemoryMiB": 24564,
+    "driver": "595.84",
+    "torch": "2.8.0+cu128",
+    "sam2mattingCommit": "73dd721d77b56749248aefe5e8824d7f61b9d13c",
+    "hqSamCommit": "e696978d60352dc9a26b12631cd91781502c6546"
+  },
+  "methods": [
+    {
+      "name": "sam2-native",
+      "model": "facebook/sam2.1-hiera-large",
+      "productionEligible": true,
+      "elapsedSeconds": 3.1345,
+      "peakCudaMemoryBytes": null,
+      "prefilter": {"pass": 8, "reject": 12, "error": 0}
+    },
+    {
+      "name": "sam2-vitmatte",
+      "model": "facebook/sam2.1-hiera-large -> hustvl/vitmatte-small-distinctions-646",
+      "productionEligible": true,
+      "elapsedSeconds": 1.059,
+      "seedElapsedSeconds": 3.1345,
+      "peakCudaMemoryBytes": 1595004928,
+      "prefilter": {"pass": 4, "reject": 16, "error": 0}
+    },
+    {
+      "name": "hqsam2-vitmatte",
+      "model": "HQ-SAM2 sam2.1_hq_hiera_large -> hustvl/vitmatte-small-distinctions-646",
+      "productionEligible": true,
+      "elapsedSeconds": 3.3325,
+      "peakCudaMemoryBytes": 2604344320,
+      "prefilter": {"pass": 3, "reject": 17, "error": 0}
+    },
+    {
+      "name": "birefnet-hr-matting",
+      "model": "ZhengPeng7/BiRefNet_HR-matting",
+      "productionEligible": true,
+      "elapsedSeconds": 8.8857,
+      "peakCudaMemoryBytes": 9695249408,
+      "prefilter": null
+    },
+    {
+      "name": "birefnet-hr",
+      "model": "ZhengPeng7/BiRefNet_HR",
+      "productionEligible": true,
+      "elapsedSeconds": 8.5719,
+      "peakCudaMemoryBytes": 9695249408,
+      "prefilter": null
+    },
+    {
+      "name": "sam2matting-t",
+      "model": "SAM2Matting-SAM2.1-Tiny",
+      "productionEligible": false,
+      "publishedLicense": "CC BY-NC-SA 4.0",
+      "elapsedSeconds": 0.8697,
+      "peakCudaMemoryBytes": 851732480,
+      "prefilter": {"pass": 8, "reject": 12, "error": 0}
+    }
+  ],
+  "unavailable": [
+    {
+      "name": "SAM3",
+      "reason": "Official Hugging Face checkpoint was access-gated; the GPU host had no approval, authentication, or cached checkpoint."
+    }
+  ],
+  "outcome": "no suitable off-the-shelf method",
+  "next": "Fine-tune a commercially usable style-specific matte model on ticket #16 flat-key synthetic pairs, with this cohort held out.",
+  "humanAcceptanceRequired": true
+}
