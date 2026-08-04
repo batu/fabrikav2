@@ -689,6 +689,20 @@ SETTINGS = {
             ),
         },
     },
+    "ancient_forest_creek": {
+        "label": "Ancient Forest Creek",
+        "scenes": {
+            "ancient_forest_creek_autumn_pond_reeds": (
+                "An autumn woodland pond sprawling along a slow forest creek — a main reed-fringed pond basin, a side path branching along the bank under old maples, a log-crossing strip where the creek narrows. "
+                "The forest floor has consistent materials throughout — each visible region renders as the material it should be, fallen amber leaves drifted over packed earth, wet dark mud at the waterline, still tea-colored pond water dotted with leaf rafts, mossy stones along the creek, with no untextured blank areas. "
+                "Ancient tree trunks of varying girths rise unevenly around the pond, some clustered in tight groves hung with golden foliage, others standing alone half-bare. Canopy gaps at different heights, some overlapping, some freestanding. "
+                "A great fallen log bridges the creek at an unexpected angle, its bark shaggy with moss and shelf fungus. "
+                "Scattered throughout without pattern: cattail reed clumps, a rowboat pulled into the reeds, stacked firewood, a rope swing over the water, wicker eel traps, a leaf-buried park bench, lantern posts, mushroom clusters on stumps, acorn caps, a wooden birdhouse on a pole, an old wooden dock with missing planks, coiled rope, a watering can, hand-carved walking sticks leaned on a trunk, stepping stones, a forgotten picnic basket, dragonfly reeds, a duckboard path sinking into the mud. "
+                "Dense clusters around the pond edge and dock, sparser breathing room along the creek path. "
+                "Asymmetric, organic layout — like a woodland pond shaped by a century of autumns."
+            ),
+        },
+    },
     "railway_roundhouse": {
         "label": "Railway Roundhouse",
         "scenes": {

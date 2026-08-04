@@ -4963,6 +4963,19 @@ def _magenta_prompt(entity_prompt: str) -> str:
     )
 
 
+def _chrome_band_heights(width: int, height: int) -> tuple[int, int]:
+    """Safe-area improvement (issue #31): for square (pan/zoom) scenes the
+    HUD band and ad-banner band are cropped out of the image sent to the
+    full-scene magenta call, so the model physically cannot paint a subject
+    behind chrome — and each call ships ~20-25% fewer pixels. Returns
+    (top, bottom) crop heights; (0, 0) disables cropping for non-square
+    scenes, whose portrait framing assumptions we don't want to disturb."""
+    if not (height > 0 and 0.95 <= width / height <= 1.05):
+        return (0, 0)
+    from levelbuilder.sections import BANNER_FRACTION, HUD_FRACTION
+    return (int(height * HUD_FRACTION), int(height * BANNER_FRACTION))
+
+
 def run_magenta_inpaint(
     session_id: str,
     *,
@@ -5000,9 +5013,22 @@ def run_magenta_inpaint(
     try:
         if cancel_check is not None:
             cancel_check()
-        result = _with_retries_and_timeout(edit_image, overlay, prompt, model=model)
-        if result.size != (w, h):
-            result = result.resize((w, h), Image.LANCZOS)
+        band_top, band_bottom = _chrome_band_heights(w, h)
+        if band_top or band_bottom:
+            # Send only the playable band; paste it back into the clean bg so
+            # the chrome bands stay exactly the background (no paint possible).
+            send = overlay.crop((0, band_top, w, h - band_bottom))
+            band = _with_retries_and_timeout(edit_image, send, prompt, model=model)
+            send.close()
+            if band.size != (w, h - band_top - band_bottom):
+                band = band.resize((w, h - band_top - band_bottom), Image.LANCZOS)
+            result = bg.copy()
+            result.paste(band, (0, band_top))
+            band.close()
+        else:
+            result = _with_retries_and_timeout(edit_image, overlay, prompt, model=model)
+            if result.size != (w, h):
+                result = result.resize((w, h), Image.LANCZOS)
         if cancel_check is not None:
             cancel_check()
 

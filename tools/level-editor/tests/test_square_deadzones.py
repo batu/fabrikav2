@@ -48,3 +48,16 @@ class TestSquareDeadzones:
         for z in zones:
             inside = z.x <= cx <= z.x + z.w and z.y <= cy <= z.y + z.h
             assert not inside
+
+
+class TestChromeBandCrop:
+    def test_square_gets_bands(self):
+        from levelbuilder.api.inpaint import _chrome_band_heights
+        from levelbuilder.sections import BANNER_FRACTION, HUD_FRACTION
+        top, bottom = _chrome_band_heights(4096, 4096)
+        assert top == int(4096 * HUD_FRACTION)
+        assert bottom == int(4096 * BANNER_FRACTION)
+
+    def test_portrait_disabled(self):
+        from levelbuilder.api.inpaint import _chrome_band_heights
+        assert _chrome_band_heights(768, 1376) == (0, 0)
