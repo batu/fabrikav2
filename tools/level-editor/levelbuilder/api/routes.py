@@ -585,9 +585,16 @@ INPAINT_MODELS = [
 if os.environ.get("FAL_KEY"):
     INPAINT_MODELS.append({"id": "fal-ai/flux-pro/v1/fill", "label": "fal Flux Pro Fill"})
 
-UPSCALE_MODELS = []
+# Deterministic local upscale is always available: it is what the shipped
+# square campaign actually used (sessions record `deterministic-lanczos-4x`),
+# previously via out-of-band scripts. Folding it in makes `author` fully
+# self-contained and free of provider keys for this step.
+DETERMINISTIC_UPSCALE_MODEL = "deterministic-lanczos-4x"
+UPSCALE_MODELS = [
+    {"id": DETERMINISTIC_UPSCALE_MODEL, "label": "Deterministic Lanczos (local, free)"},
+]
 if os.environ.get("FAL_KEY"):
-    UPSCALE_MODELS = [
+    UPSCALE_MODELS += [
         {"id": "fal-ai/esrgan", "label": "fal ESRGAN (conservative)"},
         {"id": "fal-ai/aura-sr", "label": "fal AuraSR (4x quality test)"},
     ]
@@ -1551,14 +1558,17 @@ def _upscale_background_sync(
                 raise OperationCancelled()
             if before_provider_submit is not None:
                 before_provider_submit()
-            upscaled = _with_retries_and_timeout(
-                upscale_image,
-                source,
-                cancel_event=cancel_event,
-                model=req.model,
-                scale=scale,
-            )
-            upscaled = _resize_to_long_edge(upscaled, req.targetLongEdge)
+            if req.model == DETERMINISTIC_UPSCALE_MODEL:
+                upscaled = _resize_to_long_edge(source, req.targetLongEdge)
+            else:
+                upscaled = _with_retries_and_timeout(
+                    upscale_image,
+                    source,
+                    cancel_event=cancel_event,
+                    model=req.model,
+                    scale=scale,
+                )
+                upscaled = _resize_to_long_edge(upscaled, req.targetLongEdge)
         except OperationCancelled as exc:
             raise HTTPException(
                 499,
