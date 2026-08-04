@@ -21,7 +21,7 @@ test("boots the real Find the Dog shell", async ({ page }) => {
   await expect(page.locator("#home-map-mount")).toBeVisible();
   await expect(page.locator("#home-play-now")).toBeVisible();
   await expect(page.locator("#home-no-ads .home-side-btn-label")).toHaveCount(0);
-  await expect(page.locator("#home-nav-play")).toBeVisible();
+  await expect(page.locator("#home-nav-achievements")).toBeVisible();
 });
 
 test("Play Now starts the current level from a real menu tap", async ({ page }) => {
@@ -123,6 +123,18 @@ test.describe("home menu polish regressions", () => {
       const navWidths = Array.from(document.querySelectorAll<HTMLElement>("#home-shell .home-nav-bar > button")).map(
         (button) => button.getBoundingClientRect().width,
       );
+      const navBarBox = box("#home-shell .home-nav-bar");
+      const navIconCenterOffsets = ["#home-nav-achievements img", "#home-nav-shop img", "#home-nav-settings img"].map(
+        (selector, index) => {
+          const iconBox = box(selector);
+          const iconCenter = iconBox.left + (iconBox.right - iconBox.left) / 2;
+          const expectedCenter = navBarBox.left + (navBarBox.right - navBarBox.left) * ((index + 0.5) / 3);
+          return Math.abs(iconCenter - expectedCenter);
+        },
+      );
+      const navLabelBottoms = ["#home-nav-achievements > span", "#home-nav-shop > span", "#home-nav-settings > span"]
+        .map((selector) => box(selector).bottom);
+      const navLabelBottomClearances = navLabelBottoms.map((bottom) => navBarBox.bottom - bottom);
       const play = document.querySelector<HTMLButtonElement>("#home-play-now");
       if (play === null) throw new Error("Missing Play Now button");
       const playStyle = window.getComputedStyle(play);
@@ -163,6 +175,9 @@ test.describe("home menu polish regressions", () => {
           contained(box(".home-hint-pill"), box(".home-hint-pill span")) &&
           contained(box(".home-hint-pill"), box(".home-hint-pill img")),
         navWidths,
+        navIconCenterOffsets,
+        navLabelBottoms,
+        navLabelBottomClearances,
         playWidth: playBox.width,
         playHeight: playBox.height,
         playBackground: playStyle.backgroundImage,
@@ -195,10 +210,17 @@ test.describe("home menu polish regressions", () => {
     expect(layout.coinContained).toBe(true);
     expect(layout.hintContained).toBe(true);
     expect(Math.max(...layout.navWidths) - Math.min(...layout.navWidths)).toBeLessThanOrEqual(1);
+    for (const offset of layout.navIconCenterOffsets) {
+      expect(offset).toBeLessThanOrEqual(1);
+    }
+    expect(Math.max(...layout.navLabelBottoms) - Math.min(...layout.navLabelBottoms)).toBeLessThanOrEqual(1);
+    for (const clearance of layout.navLabelBottomClearances) {
+      expect(clearance).toBeGreaterThanOrEqual(40);
+    }
     expect(layout.playBackground).toContain("play-level-button-runtime.png");
-    expect(layout.playWidth).toBeGreaterThanOrEqual(176);
-    expect(layout.playWidth).toBeLessThanOrEqual(220);
-    expect(layout.playHeight).toBeGreaterThanOrEqual(60);
-    expect(layout.playHeight).toBeLessThanOrEqual(72);
+    expect(layout.playWidth).toBeGreaterThanOrEqual(290);
+    expect(layout.playWidth).toBeLessThanOrEqual(315);
+    expect(layout.playHeight).toBeGreaterThanOrEqual(90);
+    expect(layout.playHeight).toBeLessThanOrEqual(100);
   });
 });

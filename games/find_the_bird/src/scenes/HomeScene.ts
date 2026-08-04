@@ -523,10 +523,6 @@ export class HomeScene extends Phaser.Scene {
             <button id="home-no-ads" class="home-side-btn home-no-ads-btn" type="button" aria-label="Remove ads">
               <img class="home-no-ads-art" src="${HOME_NO_ADS_BADGE_SRC}" alt="" aria-hidden="true">
             </button>
-            <button id="home-achievements" class="home-side-btn home-achievements-btn" type="button" aria-label="Open achievements">
-              <img class="home-achievements-medal" src="/ui/achievements/achievement-shortcut-runtime.png" alt="" aria-hidden="true">
-              <span class="home-achievements-label">Achievements</span>
-            </button>
           </aside>
           <section id="home-map-mount" class="home-map-stage" aria-label="Level progression"></section>
           <aside class="home-rail home-rail-right" aria-label="Currency balance">
@@ -555,15 +551,13 @@ export class HomeScene extends Phaser.Scene {
         </div>
 
         <nav class="home-nav-bar" aria-label="Main navigation">
+          <button id="home-nav-achievements" class="home-nav-btn" type="button" aria-label="Open achievements">
+            <img src="/ui/achievements/achievement-shortcut-runtime.png" alt="" aria-hidden="true">
+            <span>Achievements</span>
+          </button>
           <button id="home-nav-shop" class="home-nav-btn" type="button" aria-label="Open shop">
             <img src="/ui/menu-icons/shop-icon-runtime.png" alt="" aria-hidden="true">
             <span>Shop</span>
-          </button>
-          <button id="home-nav-play" class="home-nav-play-btn" type="button" aria-label="Play Level ${currentLevel}">
-            <span class="home-nav-play-emblem">
-              <img src="/ui/menu-icons/magnifier-runtime.png" alt="" aria-hidden="true">
-            </span>
-            <span>Play</span>
           </button>
           <button id="home-nav-settings" class="home-nav-btn" type="button" aria-label="Settings">
             <img src="/ui/menu-icons/settings-icon-runtime.png" alt="" aria-hidden="true">

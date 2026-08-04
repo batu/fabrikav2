@@ -101,7 +101,7 @@ const SETTINGS_PAGE_SELECTOR = [
 ].join(', ');
 
 const SETTINGS_OPEN_TRIGGER_SELECTOR = '#home-nav-settings, #settings-btn';
-const ACHIEVEMENTS_OPEN_TRIGGER_SELECTOR = '#home-achievements';
+const ACHIEVEMENTS_OPEN_TRIGGER_SELECTOR = '#home-nav-achievements';
 const SHOP_OPEN_TRIGGER_SELECTOR = '#home-nav-shop';
 const SETTINGS_OPEN_TARGET_POLL_MS = 50;
 const SETTINGS_OPEN_TARGET_MAX_POLLS = 40;
@@ -109,7 +109,7 @@ const SETTINGS_OPEN_TARGET_MAX_POLLS = 40;
 // first match, and the saga map places `.fab-levelmap-node.current` before the
 // Play button — but only the Play button reliably starts a level from a
 // dispatched pointer sequence. Query each selector in turn instead.
-const HOME_PLAY_TRIGGER_SELECTORS = ['#home-play-now', '#home-nav-play', '.fab-levelmap-node.current'];
+const HOME_PLAY_TRIGGER_SELECTORS = ['#home-play-now', '.fab-levelmap-node.current'];
 const HOME_READY_TARGET_POLL_MS = 50;
 const HOME_READY_TARGET_MAX_POLLS = 80;
 const START_LEVEL_TARGET_POLL_MS = 50;

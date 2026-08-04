@@ -6,7 +6,7 @@ import { refreshHomeWalletBalances } from './WalletBalances';
 export interface HomeNavigationDeps {
   /** Tap feedback on the pressed button (bounce animation). */
   triggerNavBounce(button: HTMLButtonElement): void;
-  /** Start the current level (Play Now / Play tab). */
+  /** Start the current level from Play Now. */
   startCurrentLevel(button: HTMLButtonElement): void;
   /** Page opener — injectable so tests can observe routing. */
   openPage?: typeof openPage;
@@ -14,7 +14,7 @@ export interface HomeNavigationDeps {
 
 /**
  * Wire the home overlay's navigation: page buttons (settings / shop /
- * achievements), the shop deep-link shortcuts, and the two play triggers.
+ * achievements), the shop deep-link shortcuts, and the Play Now trigger.
  * Pure DOM — extracted from HomeScene so routing is click-testable without
  * a Phaser scene.
  */
@@ -24,7 +24,7 @@ export function bindHomeNavigation(overlay: HTMLElement, deps: HomeNavigationDep
   const pageButtons: Array<[string, 'settings' | 'shop' | 'achievements']> = [
     ['#home-nav-settings', 'settings'],
     ['#home-nav-shop', 'shop'],
-    ['#home-achievements', 'achievements'],
+    ['#home-nav-achievements', 'achievements'],
   ];
   for (const [id, page] of pageButtons) {
     overlay.querySelector<HTMLButtonElement>(id)?.addEventListener('click', (e) => {
@@ -77,9 +77,6 @@ export function bindHomeNavigation(overlay: HTMLElement, deps: HomeNavigationDep
   });
 
   overlay.querySelector<HTMLButtonElement>('#home-play-now')?.addEventListener('click', (e) => {
-    deps.startCurrentLevel(e.currentTarget as HTMLButtonElement);
-  });
-  overlay.querySelector<HTMLButtonElement>('#home-nav-play')?.addEventListener('click', (e) => {
     deps.startCurrentLevel(e.currentTarget as HTMLButtonElement);
   });
 }

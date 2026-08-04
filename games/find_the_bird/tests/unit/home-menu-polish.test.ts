@@ -113,16 +113,26 @@ describe("home menu polish regressions", () => {
     expect(window.getComputedStyle(element(".home-nav-bar")).minHeight).toBe("134px");
     expect(CSS_TEXT).toContain("width: 66px;");
     expect(CSS_TEXT).toContain("height: 66px;");
-    expect(CSS_TEXT).toContain("width: 78px;");
-    expect(CSS_TEXT).toContain("height: 78px;");
-    expect(HOME_SCENE_TEXT).toContain('<img src="/ui/menu-icons/magnifier-runtime.png"');
+    expect(HOME_SCENE_TEXT).not.toContain('id="home-nav-play"');
+    expect(HOME_SCENE_TEXT).toContain('id="home-nav-achievements"');
 
     const play = window.getComputedStyle(element("#home-play-now"));
     expect(play.backgroundImage).toContain("/ui/home/play-level-button-runtime.png");
-    expect(CSS_TEXT).toContain("width: min(100%, 232px);");
-    expect(play.height).toBe("72px");
-    expect(play.minHeight).toBe("72px");
+    expect(CSS_TEXT).toContain("width: min(100%, 300px);");
+    expect(play.top).toBe("13px");
+    expect(play.height).toBe("94px");
+    expect(play.minHeight).toBe("94px");
     expect(play.margin).toBe("-40px auto 20px");
+
+    const sideNavIconRule = CSS_TEXT.match(/#home-shell \.home-nav-btn img\s*\{([^}]*)\}/s)?.[1] ?? "";
+    expect(sideNavIconRule).toContain("margin-inline: auto");
+    expect(sideNavIconRule).toContain("transform: translateY(-18px)");
+    expect(CSS_TEXT).toMatch(/#home-shell #home-nav-achievements img\s*\{[^}]*width:\s*62px;[^}]*height:\s*62px;/s);
+    expect(CSS_TEXT).not.toContain(".home-nav-play-btn");
+    expect(CSS_TEXT).toContain("bottom: calc(env(safe-area-inset-bottom, 0px) * 0.55 + 50px);");
+    expect(CSS_TEXT).toContain("font-size: 11px;");
+    expect(CSS_TEXT).toContain("line-height: 18px;");
+    expect(CSS_TEXT).toContain("text-align: center;");
 
     const noAdsRail = window.getComputedStyle(element(".home-rail-left"));
     expect(noAdsRail.left).toBe("20px");
