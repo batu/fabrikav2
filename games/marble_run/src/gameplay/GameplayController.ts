@@ -194,6 +194,20 @@ export class GameplayController {
     this.paused = false;
   }
 
+  /** Resume the failed run without replacing its board or remaining marbles. */
+  continueAfterFail(): boolean {
+    if (!this.engine || !this.board) return false;
+    if (!this.engine.continueAfterFail(this.engine.totalHearts())) return false;
+    this.ended = false;
+    this.consecutiveBlocked = 0;
+    this.clearFailModalTimer();
+    this.cancelPendingPointer();
+    this.hud.hideRouteBlockedPrompt();
+    this.hud.setHearts(this.engine.hearts());
+    this.board.refreshGateLiveness();
+    return true;
+  }
+
   private clearBoard(): void {
     this.clearFailModalTimer();
     this.clearWinModalTimer();

@@ -299,6 +299,7 @@ describe('sugar result cards', () => {
   it('lose variant keeps one FAILED source, a LEVEL eyebrow, and v1 Watch Ad + Retry actions', () => {
     showLevelFailedOverlay('lvl-1', {
       levelNumber: 1,
+      watchAdAvailable: true,
       onRetry: vi.fn(),
       onWatchAd: async () => ({ resumed: false }),
     });
@@ -313,6 +314,21 @@ describe('sugar result cards', () => {
     expect(overlay!.querySelector('#coin-continue-btn')).toBeNull();
     expect(overlay!.textContent).not.toContain('coins');
     expect(overlay!.querySelector('.fab-result-message')?.textContent).toBe('No hearts left!');
+  });
+
+  it('removes the rewarded continue action when remote config disables it', () => {
+    showLevelFailedOverlay('lvl-1', {
+      levelNumber: 1,
+      watchAdAvailable: false,
+      onRetry: vi.fn(),
+      onWatchAd: async () => ({ resumed: false }),
+    });
+
+    const overlay = document.getElementById('level-failed-overlay');
+    expect(overlay).not.toBeNull();
+    expect(overlay!.querySelector('[data-fab-action="result-watch-ad"]')).toBeNull();
+    expect(overlay!.querySelector('[data-fab-action="result-retry"]')?.textContent).toBe('RETRY');
+    expect(overlay!.textContent).not.toContain('Watch an ad to continue.');
   });
 
   it('removes the fail hatch layer and keeps only a dimmed gameplay scrim', async () => {

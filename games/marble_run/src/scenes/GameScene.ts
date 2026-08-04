@@ -492,6 +492,11 @@ export class GameScene extends Phaser.Scene {
     this.levelComplete = true;
     showLevelFailedOverlay(this.level.id, {
       levelNumber: gameState.currentLevelIndex + 1,
+      watchAdAvailable:
+        remoteConfigService.value('levelContinueRwEnabled') &&
+        rewardedAdsEnabled() &&
+        gameState.settings.adsEnabled &&
+        !gameState.hasNoAdsEntitlement,
       onRetry: () => {
         const retryLevel = this.level;
         const restartLevel = (): void => {
@@ -505,29 +510,27 @@ export class GameScene extends Phaser.Scene {
             this.scene.restart({} as GameSceneData);
           }
         };
-        // Post-fail interstitial: shown on the way out of the fail screen, not
-        // over it, so the fail beat stays readable (mirrors the win path, where
-        // the ad sits between the overlay and the next level).
-        const decision = decideInterstitial({
-          levelNumber: gameState.currentLevelIndex + 1,
-          trigger: 'level_fail',
-          config: readInterstitialPolicyConfig(),
-        });
-        if (decision.allowed && gameState.settings.adsEnabled) {
-          void adService
-            .maybeShowInterstitial({ minIntervalMs: decision.minIntervalMs })
-            .then((shown: boolean): void => {
-              if (shown) {
-                void analytics.adShown({ ad_type: 'interstitial', placement: 'level_fail' });
-              }
-            })
-            .finally(restartLevel);
-          return;
-        }
         restartLevel();
       },
       onWatchAd: async () => this.continueWithRewardedAd(),
     });
+    this.maybeShowFailInterstitial();
+  }
+
+  private maybeShowFailInterstitial(): void {
+    const decision = decideInterstitial({
+      levelNumber: gameState.currentLevelIndex + 1,
+      trigger: 'level_fail',
+      config: readInterstitialPolicyConfig(),
+    });
+    if (!decision.allowed || !gameState.settings.adsEnabled || gameState.hasNoAdsEntitlement) return;
+    void adService
+      .maybeShowInterstitial({ minIntervalMs: decision.minIntervalMs })
+      .then((shown: boolean): void => {
+        if (shown) {
+          void analytics.adShown({ ad_type: 'interstitial', placement: 'level_fail' });
+        }
+      });
   }
 
   private async continueWithRewardedAd(): Promise<{ resumed: boolean; message?: string }> {
@@ -544,16 +547,13 @@ export class GameScene extends Phaser.Scene {
 
   private resumeFailedAttempt(): boolean {
     if (!this.level) return false;
+    if (!this.gameplayController?.continueAfterFail()) return false;
     document.getElementById('level-failed-overlay')?.remove();
     gameState.lives = GAMEPLAY.LIVES_PER_LEVEL;
     gameState.penaltyCooldownUntil = 0;
     this.levelComplete = false;
     updateHUD(this.level.dogs.length, false);
-    // A mid-state resume of the ported board is not supported (fail-continue is
-    // out of scope per the conductor's no-shop ruling); a "continue" replays the
-    // level with a fresh board and its full hearts.
-    this.gameplayController?.setHudVisible(true);
-    this.gameplayController?.startLevel(contentLevelNumber(gameState.currentLevelIndex));
+    this.gameplayController.setHudVisible(true);
     return true;
   }
 
