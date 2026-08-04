@@ -440,6 +440,10 @@ def cmd_inpaint(client: Client, args: argparse.Namespace) -> None:
     if args.retry_failed:
         job = client.post(f"/api/sessions/{args.session_id}/dogs/retry-inpaint/jobs", json={})
     else:
+        if getattr(args, "ring_radius", None):
+            if args.mode != "ring":
+                raise CliError("invalid_flag", "--ring-radius requires --mode ring")
+            hitboxes = [{**hb, "r": int(args.ring_radius)} for hb in hitboxes]
         prompts = client.post("/api/actions/assemble-recipe-prompts", json=_session_recipe(session))
         body = {
             "hitboxes": hitboxes,
@@ -1104,8 +1108,12 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--timeout", type=float, default=3600.0)
     p.add_argument("--padding", type=float, default=2.75)
     p.add_argument("--hard-percent", type=int, default=0)
-    p.add_argument("--mode", choices=("crop", "crop_reference", "magenta"), default="crop")
+    p.add_argument("--mode", choices=("crop", "crop_reference", "ring", "magenta"), default="crop")
     p.add_argument("--model", help="override the session's configured inpaint model")
+    p.add_argument(
+        "--ring-radius", type=int,
+        help="ring mode: uniform marker/tap radius in scene pixels applied to every hitbox before painting",
+    )
     p.add_argument("--retry-failed", action="store_true")
     p.add_argument("--force-disk", action="store_true")
 

@@ -55,8 +55,8 @@ logger = logging.getLogger("levelbuilder.inpaint")
 router = APIRouter(prefix="/api")
 JOB_STORE = JobStore()
 
-CropInpaintMode = Literal["crop", "crop_reference"]
-InpaintMode = Literal["crop", "crop_reference", "magenta"]
+CropInpaintMode = Literal["crop", "crop_reference", "ring"]
+InpaintMode = Literal["crop", "crop_reference", "ring", "magenta"]
 
 
 def _env_int(name: str, default: int, minimum: int, maximum: int) -> int:
@@ -3098,7 +3098,11 @@ def _run_crop_inpaint_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
     dog_prompt = str(metadata["dogPrompt"])
     model = str(metadata["model"])
     selected_bg = int(metadata["selectedBg"])
-    inpaint_mode: CropInpaintMode = "crop_reference" if metadata.get("inpaintMode") == "crop_reference" else "crop"
+    inpaint_mode: CropInpaintMode = (
+        metadata.get("inpaintMode")
+        if metadata.get("inpaintMode") in ("crop_reference", "ring")
+        else "crop"
+    )
     hard_dog_prompt = str(metadata.get("hardDogPrompt") or "")
     hard_dog_percent = int(metadata.get("hardDogPercent", 30))
     padding = float(metadata.get("padding") or 2.75)
@@ -3204,6 +3208,49 @@ def _run_crop_inpaint_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
                         painted_sheet.close()
                 finally:
                     reference_sheet.close()
+            elif inpaint_mode == "ring":
+                hb0 = hitboxes_for_job[0]
+                hb0d = vars(hb0) if hasattr(hb0, "__dict__") else dict(hb0)
+                ring_r = float(hb0d.get("r") or hb0d.get("radius"))
+                ring_cx = float(hb0d["x"]) - box[0]
+                ring_cy = float(hb0d["y"]) - box[1]
+                ring_prompt = _ring_crop_prompt(prompt_for_job)
+                painted = None
+                last_reason = ""
+                for ring_attempt in range(_MAX_ATTEMPTS):
+                    ring_input = crop_before.copy()
+                    ImageDraw.Draw(ring_input).ellipse(
+                        [ring_cx - ring_r, ring_cy - ring_r, ring_cx + ring_r, ring_cy + ring_r],
+                        outline=(255, 0, 255), width=max(6, int(ring_r / 12)),
+                    )
+                    candidate = _with_retries_and_timeout(
+                        edit_image,
+                        ring_input,
+                        ring_prompt,
+                        on_attempt=lambda a, e, di=indices[0]: emit_retry(di, a, e),
+                        cancel_event=cancel_event,
+                        model=model,
+                    )
+                    ring_input.close()
+                    if candidate.size != crop_before.size:
+                        candidate = candidate.resize(crop_before.size, Image.LANCZOS)
+                    if _ring_residual_magenta_count(candidate) > 40:
+                        last_reason = "magenta ring survived"
+                        candidate.close()
+                        emit_retry(indices[0], ring_attempt, RuntimeError(last_reason))
+                        continue
+                    gate_mask = _extract_dog_pixels(crop_before, candidate, threshold=30)
+                    contained = _ring_containment_ok(gate_mask, (ring_cx, ring_cy), ring_r)
+                    gate_mask.close()
+                    if not contained:
+                        last_reason = "subject not contained in ring"
+                        candidate.close()
+                        emit_retry(indices[0], ring_attempt, RuntimeError(last_reason))
+                        continue
+                    painted = candidate
+                    break
+                if painted is None:
+                    raise RuntimeError(f"ring inpaint failed after {_MAX_ATTEMPTS} attempts: {last_reason}")
             elif model.startswith("fal-ai/") or model.startswith("openai/"):
                 mask = Image.new("L", crop_before.size, 0)
                 draw = ImageDraw.Draw(mask)
@@ -3271,13 +3318,32 @@ def _run_crop_inpaint_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
                 model=model,
             )
             isolated_variant.close()
+            # Ring mode composites the FULL feathered ring interior — the
+            # model painted shadow/occlusion/light into those pixels with the
+            # scene visible, and soft shading falls below the diff threshold
+            # of the subject mask. Outside-ring drift is discarded by the
+            # mask; sprite assets above still use the subject-only mask.
+            composite_mask = dog_mask
+            if inpaint_mode == "ring":
+                hb0 = hitboxes_for_job[0]
+                hb0d = vars(hb0) if hasattr(hb0, "__dict__") else dict(hb0)
+                rr = float(hb0d.get("r") or hb0d.get("radius"))
+                rcx = float(hb0d["x"]) - box[0]
+                rcy = float(hb0d["y"]) - box[1]
+                disc = Image.new("L", crop_before.size, 0)
+                ImageDraw.Draw(disc).ellipse(
+                    [rcx - rr - 14, rcy - rr - 14, rcx + rr + 14, rcy + rr + 14], fill=255,
+                )
+                composite_mask = disc.filter(ImageFilter.GaussianBlur(6))
+                disc.close()
+                dog_mask.close()
             return {
                 "indices": indices,
                 "variantIndex": variant_idx,
                 "file": f"dogs/dog_{dog_index:02d}/variant_{variant_idx:03d}.png",
                 "box": box,
                 "painted": painted,
-                "mask": dog_mask,
+                "mask": composite_mask,
             }
         except OperationCancelled:
             raise
@@ -4772,6 +4838,90 @@ def _build_magenta_overlay(bg: Image.Image, hitboxes: list[dict]) -> Image.Image
     return overlay
 
 
+_POSITIONAL_PHRASES = [
+    "at the center of the image",
+    "occupying roughly the central third of the frame (not filling it).",
+    "occupying roughly the central third of the frame",
+    "Place exactly one",
+    "do not repeat the subject.",
+    "Keep all other elements of the image unchanged.",
+]
+
+
+def _strip_positional_phrases(entity_prompt: str) -> str:
+    """The wizard entity_prompt carries per-crop framing clauses ("at the
+    center of the image", ...). Marker-based modes (magenta discs, ring
+    outlines) position by marker, so those clauses are stripped while the
+    aesthetic/charm/style clauses are kept."""
+    cleaned = entity_prompt.strip()
+    for p in _POSITIONAL_PHRASES:
+        cleaned = cleaned.replace(p, "")
+    return re.sub(r"\s{2,}", " ", cleaned).replace(" ,", ",").replace(" .", ".").strip()
+
+
+def _ring_crop_prompt(entity_prompt: str) -> str:
+    """Ring mode: the model sees the actual scene pixels inside an outline
+    marker, so it can paint the subject blended in place (contact shadow,
+    occlusion, matching light) while recovery stays deterministic (diff
+    bounded by the ring). Composes the session's default entity prompt so
+    charm/variation/style language is identical to the other modes."""
+    cleaned = _strip_positional_phrases(entity_prompt)
+    return (
+        "TASK: This image is a crop of an illustrated scene. A bright magenta "
+        "(#FF00FF) CIRCLE OUTLINE is drawn on top as a location marker. Paint "
+        "exactly one instance of the subject described below ENTIRELY INSIDE "
+        "that circle — every pixel of the subject and its contact shadow "
+        "must lie within the circle outline. Then erase the magenta outline "
+        "completely, restoring exactly what it covered.\n\n"
+        f"SUBJECT: {cleaned}\n\n"
+        "BLEND: The subject must look painted into the scene, not pasted on: "
+        "resting naturally on the surfaces visible inside the circle, with a "
+        "soft contact shadow, matching the scene's art style, palette, line "
+        "weight, lighting and shadow direction exactly. It may be partially "
+        "tucked behind scenery that is already inside the circle.\n\n"
+        "SCALE: Size the subject realistically relative to the scene — do "
+        "NOT fill the circle. If a realistic subject is smaller than the "
+        "circle, leave the rest of the circle area exactly as the scene "
+        "already is.\n\n"
+        "HARD CONSTRAINTS: "
+        "(1) No magenta, pink, or fuchsia pixels may remain anywhere. "
+        "(2) Every pixel OUTSIDE the circle must remain EXACTLY identical to "
+        "the input. "
+        "(3) Inside the circle, change only what the subject and its shadow "
+        "require. "
+        "(4) Exactly one subject; do not repeat it elsewhere."
+    )
+
+
+def _ring_residual_magenta_count(img: Image.Image) -> int:
+    """Count near-#FF00FF pixels; >0 after a ring paint means the marker
+    survived and the attempt must be retried."""
+    rgb = img.convert("RGB")
+    import numpy as _np
+    a = _np.asarray(rgb, dtype=_np.int16)
+    return int(((a[..., 0] > 200) & (a[..., 1] < 90) & (a[..., 2] > 200)).sum())
+
+
+def _ring_containment_ok(
+    dog_mask: Image.Image,
+    center_xy: tuple[float, float],
+    radius: float,
+    margin: float = 0.12,
+    max_outside_frac: float = 0.02,
+) -> bool:
+    """The painted subject must sit inside the ring (plus a small margin):
+    at most `max_outside_frac` of subject pixels may fall outside."""
+    import numpy as _np
+    m = _np.asarray(dog_mask.convert("L")) > 127
+    total = int(m.sum())
+    if total == 0:
+        return False
+    yy, xx = _np.nonzero(m)
+    limit = radius * (1.0 + margin)
+    outside = int(((xx - center_xy[0]) ** 2 + (yy - center_xy[1]) ** 2 > limit * limit).sum())
+    return outside / total <= max_outside_frac
+
+
 def _magenta_prompt(entity_prompt: str) -> str:
     # The entity_prompt from the wizard is tuned for per-crop inpaint
     # ("Add exactly one cute X at the center of the image, occupying
@@ -4779,19 +4929,7 @@ def _magenta_prompt(entity_prompt: str) -> str:
     # conflict with magenta-mode semantics (one instance per circle,
     # scale = circle radius, not frame-relative). Strip the framing
     # clauses that no longer apply, keep the aesthetic clauses.
-    cleaned = entity_prompt.strip()
-    _POSITIONAL_PHRASES = [
-        "at the center of the image",
-        "occupying roughly the central third of the frame (not filling it).",
-        "occupying roughly the central third of the frame",
-        "Place exactly one",
-        "do not repeat the subject.",
-        "Keep all other elements of the image unchanged.",
-    ]
-    for p in _POSITIONAL_PHRASES:
-        cleaned = cleaned.replace(p, "")
-    # Collapse any double spaces / orphan punctuation from removals.
-    cleaned = re.sub(r"\s{2,}", " ", cleaned).replace(" ,", ",").replace(" .", ".").strip()
+    cleaned = _strip_positional_phrases(entity_prompt)
 
     return (
         "TASK: This image contains several opaque bright magenta (#FF00FF) "
