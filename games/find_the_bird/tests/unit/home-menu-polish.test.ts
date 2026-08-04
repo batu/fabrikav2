@@ -126,7 +126,7 @@ describe("home menu polish regressions", () => {
 
     const sideNavIconRule = CSS_TEXT.match(/#home-shell \.home-nav-btn img\s*\{([^}]*)\}/s)?.[1] ?? "";
     expect(sideNavIconRule).toContain("margin-inline: auto");
-    expect(sideNavIconRule).toContain("transform: translateY(-18px)");
+    expect(sideNavIconRule).toContain("transform: translateY(-28px)");
     expect(CSS_TEXT).toMatch(/#home-shell #home-nav-achievements img\s*\{[^}]*width:\s*62px;[^}]*height:\s*62px;/s);
     expect(CSS_TEXT).not.toContain(".home-nav-play-btn");
     expect(CSS_TEXT).toContain("bottom: calc(env(safe-area-inset-bottom, 0px) * 0.55 + 50px);");

@@ -3175,7 +3175,7 @@
   /* padding-bottom lifts the whole saga up so the current node sits just above
      the Play Now CTA. Raise --fab-levelmap-node-gap to push the UPPER tiles
      toward the banner. */
-  padding: 6px 0 40px;
+  padding: 6px 0 28px;
 }
 
 .home-play-dock {
@@ -3493,7 +3493,7 @@
   margin-inline: auto;
   object-fit: contain;
   object-position: center;
-  transform: translateY(-18px);
+  transform: translateY(-28px);
   filter:
     drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
     drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)

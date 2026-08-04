@@ -15,10 +15,12 @@ Browser captures and measured geometry confirm the larger, lower Play Now CTA an
 
 - Increased Play Now from 232x72 CSS pixels to 300x94 CSS pixels.
 - Lowered Play Now by 8 CSS pixels without reflowing the level path.
+- Lowered the saga path by 12 CSS pixels so the progression sits more naturally between the banner and CTA.
 - Replaced the redundant Play navigation item with an Achievements / Shop / Settings bar; Play Now is the sole play action.
 - Removed the old side-rail Achievements shortcut and routed the new bottom-bar entry to the same page.
 - Explicitly centered all three navigation icons and aligned all three labels within equal-width cells.
 - Compensated for transparent asset padding so the visible Achievements trophy and Settings gear have matching visual dimensions and centers.
+- Raised the three icon artworks by 10 CSS pixels to preserve a visible gap above their labels.
 - Added browser assertions that measure icon centers against the three expected bar centers and require every label to clear the bar bottom by at least 40 CSS pixels.
 
 ## Evidence Captured
