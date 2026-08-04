@@ -605,7 +605,7 @@ def cmd_author(client: Client, args: argparse.Namespace) -> None:
                     "dogPrompt": prompts["dogPrompt"],
                     "padding": 2.75,
                     "hardDogPercent": args.hard_percent,
-                    "inpaintMode": "crop",
+                    "inpaintMode": args.inpaint_mode,
                 })
                 job = _require_success(_wait_for_job(client, job.get("jobId") or job.get("id"),
                                                      timeout_s=args.inpaint_timeout, quiet=True))
@@ -1137,6 +1137,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--min-radius", type=int, default=18)
     p.add_argument("--shrink-step", type=int, default=2)
     p.add_argument("--hard-percent", type=int, default=0)
+    p.add_argument(
+        "--inpaint-mode", choices=("crop", "crop_reference", "ring", "magenta"), default="crop",
+        help="paint lane for the inpaint step (magenta = full-scene disc lane; ring = outline markers)",
+    )
     p.add_argument("--max-offset", type=float, default=0.5)
     p.add_argument("--repair-passes", type=int, default=2)
     p.add_argument("--drop-unrepairable", action="store_true")
