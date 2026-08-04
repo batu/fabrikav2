@@ -591,8 +591,17 @@ def cmd_author(client: Client, args: argparse.Namespace) -> None:
                                                      timeout_s=args.timeout, quiet=True))
                 note("generate-bg", {"status": job.get("status")})
             elif step == "select-bg":
-                client.post(f"/api/sessions/{session_id}/select-bg", json={"bgIndex": args.bg_index})
-                note("select-bg", {"index": args.bg_index})
+                session = client.get(f"/api/sessions/{session_id}")
+                current = session.get("selectedBgIndex")
+                if current is not None and not args.redo:
+                    # Rerun safety: re-selecting index 0 after an upscale
+                    # silently downgrades the session back to the 1K original
+                    # and everything downstream (hitboxes, paint) runs at the
+                    # wrong scale.
+                    note("select-bg", {"skipped": f"selection already {current}"})
+                else:
+                    client.post(f"/api/sessions/{session_id}/select-bg", json={"bgIndex": args.bg_index})
+                    note("select-bg", {"index": args.bg_index})
             elif step == "upscale":
                 session = client.get(f"/api/sessions/{session_id}")
                 bg_w = session.get("bgWidth") or session.get("bg_width") or 0
@@ -611,6 +620,16 @@ def cmd_author(client: Client, args: argparse.Namespace) -> None:
                         timeout_s=args.timeout, quiet=True,
                     ))
                     note("upscale", job.get("result", {}) or {"status": job.get("status")})
+                    # The job's select can be refused (downstream-artifact
+                    # guard) or the request may have deduped to an existing
+                    # upscaled background without touching selection — make
+                    # the upscaled index the selection explicitly.
+                    up_bg = (job.get("result") or {}).get("background") or {}
+                    up_index = up_bg.get("index")
+                    session = client.get(f"/api/sessions/{session_id}")
+                    if up_index is not None and session.get("selectedBgIndex") != up_index:
+                        client.post(f"/api/sessions/{session_id}/select-bg", json={"bgIndex": int(up_index)})
+                        note("upscale-select", {"index": up_index})
             elif step == "auto-hitboxes":
                 radius = args.radius or 30
                 while True:
