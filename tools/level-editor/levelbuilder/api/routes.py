@@ -1723,6 +1723,40 @@ def _portrait_deadzones(bg_w: int, bg_h: int) -> list:
     ]
 
 
+def _square_deadzones(bg_w: int, bg_h: int) -> list:
+    """Square (pan/zoom) deadzones. The portrait rects assume a fixed
+    768x1376 framing and scale badly onto a 1:1 world (giant side strips
+    that never get cropped on a pannable square). For squares the
+    structural risks are targets stuck under the floating chrome at the
+    pan bounds: HUD band on top, ad banner on bottom, hint chip
+    bottom-right. Fractions single-sourced from sections.py; the hint chip
+    is scaled from the portrait reference by width so chrome geometry
+    stays consistent."""
+    from levelbuilder.hitboxes import Rect
+    from levelbuilder.sections import (
+        BANNER_FRACTION,
+        HUD_FRACTION,
+        PORTRAIT_REF_WIDTH,
+        PORTRAIT_REFERENCE_DEADZONES,
+    )
+    hud = int(bg_h * HUD_FRACTION)
+    banner = int(bg_h * BANNER_FRACTION)
+    s = bg_w / float(PORTRAIT_REF_WIDTH)
+    chip = next(z for z in PORTRAIT_REFERENCE_DEADZONES if z[0] == "HINT_CHIP")
+    _, cx, _cy, cw, ch = chip
+    chip_w, chip_h = int(cw * s), int(ch * s)
+    return [
+        Rect(x=0, y=0, w=bg_w, h=hud),
+        Rect(x=0, y=bg_h - banner, w=bg_w, h=banner),
+        Rect(x=bg_w - chip_w - int((PORTRAIT_REF_WIDTH - cx - cw) * s),
+             y=bg_h - banner - chip_h, w=chip_w, h=chip_h),
+    ]
+
+
+def _is_square_level(bg_w: int, bg_h: int) -> bool:
+    return bg_h > 0 and 0.95 <= bg_w / bg_h <= 1.05
+
+
 def _landscape_deadzones(bg_w: int, bg_h: int) -> list:
     """Landscape deadzones — HUD / ad bands + edge and section buffers.
     Mirrors LevelCanvas.tsx (13.9% HUD, 7.1% banner, 60px safe area at the
@@ -1809,10 +1843,12 @@ def auto_place_hitboxes(session_id: str, req: AutoHitboxesRequest) -> dict[str, 
     # through to the default, silently giving landscape sessions portrait
     # deadzone geometry.
     orientation = raw.get("mode", "portrait")
-    forbidden = (
-        _landscape_deadzones(bg_w, bg_h) if orientation == "landscape"
-        else _portrait_deadzones(bg_w, bg_h)
-    )
+    if orientation == "landscape":
+        forbidden = _landscape_deadzones(bg_w, bg_h)
+    elif _is_square_level(bg_w, bg_h):
+        forbidden = _square_deadzones(bg_w, bg_h)
+    else:
+        forbidden = _portrait_deadzones(bg_w, bg_h)
 
     radius = int(req.radius or _AUTOPLACE_DEFAULT_RADIUS)
 
