@@ -2619,7 +2619,9 @@ def materialize_detection_sprites(
     with Image.open(color_path) as source:
         color = source.convert("RGB")
     try:
-        for index, hitbox_data in enumerate(hitboxes):
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+        max_workers = max(1, int(os.environ.get("FTD_SPRITE_WORKERS", "5")))
+        def _process_one(index: int, hitbox_data: dict):
             detection = detection_by_hitbox[index]
             padding = max(
                 16,
@@ -2683,12 +2685,11 @@ def materialize_detection_sprites(
                 )
             if alpha is None:
                 painted.close()
-                failed.append({
+                return ("failed", {
                     "index": index,
                     "detectionIndex": detection["index"],
                     "reason": "extraction_failed",
                 })
-                continue
             dog_dir = dogs_dir(session_id) / f"dog_{index:02d}"
             dog_dir.mkdir(parents=True, exist_ok=True)
             variant_path = dog_dir / "variant_000.png"
@@ -2707,17 +2708,38 @@ def materialize_detection_sprites(
             alpha.close()
             painted.close()
             if metadata is None:
-                failed.append({
+                return ("failed", {
                     "index": index,
                     "detectionIndex": detection["index"],
                     "reason": "validation_failed",
                 })
-                continue
-            materialized.append({
+            return ("ok", {
                 "index": index,
                 "detectionIndex": detection["index"],
                 "spriteBox": metadata["spriteBox"],
             })
+
+        pending = []
+        for index, hitbox_data in enumerate(hitboxes):
+            meta_path = dogs_dir(session_id) / f"dog_{index:02d}" / "sprite_000.json"
+            if meta_path.exists() and not os.environ.get("FTD_SPRITE_FORCE"):
+                try:
+                    if json.loads(meta_path.read_text()).get("technique") == "flatkey-recreate-v1":
+                        materialized.append({
+                            "index": index,
+                            "detectionIndex": detection_by_hitbox[index]["index"],
+                            "spriteBox": json.loads(meta_path.read_text()).get("spriteBox"),
+                            "skipped": True,
+                        })
+                        continue
+                except (OSError, ValueError):
+                    pass
+            pending.append((index, hitbox_data))
+        with ThreadPoolExecutor(max_workers=max_workers) as pool:
+            futures = [pool.submit(_process_one, idx, hb) for idx, hb in pending]
+            for fut in as_completed(futures):
+                kind, payload = fut.result()
+                (materialized if kind == "ok" else failed).append(payload)
     finally:
         color.close()
 

@@ -1921,7 +1921,7 @@ def _save_sprite_assets(
     """Save transparent pickup sprite + debug mask next to a dog variant."""
     alpha: Image.Image | None = None
     sprite_source: Image.Image | None = None
-    technique = "diff-mask-connected-components-v1"
+    technique = "flatkey-recreate-v1" if prevalidated else "diff-mask-connected-components-v1"
     # SAM2-primary (plan 2026-07-31-002 U7): when a SAM2 predictor is reachable
     # (remote FTD_SAM2_URL or local checkpoint), segment the subject directly
     # instead of trusting the provider diff — the diff ships truncated birds
