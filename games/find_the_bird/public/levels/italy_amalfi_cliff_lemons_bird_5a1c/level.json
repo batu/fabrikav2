@@ -1,0 +1,493 @@
+{
+  "id": "italy_amalfi_cliff_lemons_bird_5a1c",
+  "name": "Level italy_amalfi_cliff_lemons_bird_5a1c (clean_old_cartoon)",
+  "width": 4096,
+  "height": 4096,
+  "bwImage": "levels/italy_amalfi_cliff_lemons_bird_5a1c/bw.png",
+  "colorImage": "levels/italy_amalfi_cliff_lemons_bird_5a1c/color.png",
+  "dogs": [
+    {
+      "id": "dog_00",
+      "x": 1150,
+      "y": 1217,
+      "r": 144,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_00/sprite_000.png",
+        "x": 980,
+        "y": 1059,
+        "width": 273,
+        "height": 311,
+        "cleanup": {
+          "x": 771,
+          "y": 899,
+          "width": 695,
+          "height": 695
+        },
+        "anchorX": 0.5092,
+        "anchorY": 0.6045
+      }
+    },
+    {
+      "id": "dog_01",
+      "x": 3708,
+      "y": 1108,
+      "r": 144,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_01/sprite_000.png",
+        "x": 3615,
+        "y": 894,
+        "width": 237,
+        "height": 304,
+        "cleanup": {
+          "x": 3368,
+          "y": 732,
+          "width": 695,
+          "height": 695
+        },
+        "anchorX": 0.4262,
+        "anchorY": 0.6118
+      }
+    },
+    {
+      "id": "dog_02",
+      "x": 3123,
+      "y": 1056,
+      "r": 144,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_02/sprite_000.png",
+        "x": 3096,
+        "y": 868,
+        "width": 260,
+        "height": 267,
+        "cleanup": {
+          "x": 2839,
+          "y": 687,
+          "width": 695,
+          "height": 695
+        },
+        "anchorX": 0.35,
+        "anchorY": 0.6255
+      }
+    },
+    {
+      "id": "dog_03",
+      "x": 3767,
+      "y": 1865,
+      "r": 114,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_03/sprite_000.png",
+        "x": 3646,
+        "y": 1788,
+        "width": 254,
+        "height": 230,
+        "cleanup": {
+          "x": 3480,
+          "y": 1610,
+          "width": 563,
+          "height": 563
+        },
+        "anchorX": 0.4567,
+        "anchorY": 0.4522
+      }
+    },
+    {
+      "id": "dog_04",
+      "x": 3586,
+      "y": 1478,
+      "r": 114,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_04/sprite_000.png",
+        "x": 3442,
+        "y": 1319,
+        "width": 222,
+        "height": 252,
+        "cleanup": {
+          "x": 3298,
+          "y": 1195,
+          "width": 563,
+          "height": 563
+        },
+        "anchorX": 0.6216,
+        "anchorY": 0.627
+      }
+    },
+    {
+      "id": "dog_05",
+      "x": 3039,
+      "y": 1132,
+      "r": 114,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_05/sprite_000.png",
+        "x": 2919,
+        "y": 1032,
+        "width": 250,
+        "height": 264,
+        "cleanup": {
+          "x": 2777,
+          "y": 900,
+          "width": 533,
+          "height": 563
+        },
+        "anchorX": 0.44,
+        "anchorY": 0.5682
+      }
+    },
+    {
+      "id": "dog_06",
+      "x": 2780,
+      "y": 946,
+      "r": 114,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_06/sprite_000.png",
+        "x": 2591,
+        "y": 727,
+        "width": 308,
+        "height": 272,
+        "cleanup": {
+          "x": 2492,
+          "y": 666,
+          "width": 563,
+          "height": 505
+        },
+        "anchorX": 0.5942,
+        "anchorY": 0.5993
+      }
+    },
+    {
+      "id": "dog_07",
+      "x": 2530,
+      "y": 1068,
+      "r": 114,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_07/sprite_000.png",
+        "x": 2464,
+        "y": 935,
+        "width": 202,
+        "height": 221,
+        "cleanup": {
+          "x": 2244,
+          "y": 761,
+          "width": 533,
+          "height": 563
+        },
+        "anchorX": 0.3069,
+        "anchorY": 0.4887
+      }
+    },
+    {
+      "id": "dog_08",
+      "x": 1338,
+      "y": 1322,
+      "r": 114,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_08/sprite_000.png",
+        "x": 1278,
+        "y": 1101,
+        "width": 168,
+        "height": 324,
+        "cleanup": {
+          "x": 1045,
+          "y": 1056,
+          "width": 563,
+          "height": 563
+        },
+        "anchorX": 0.2917,
+        "anchorY": 0.7315
+      }
+    },
+    {
+      "id": "dog_09",
+      "x": 1761,
+      "y": 1364,
+      "r": 114,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_09/sprite_000.png",
+        "x": 1655,
+        "y": 1233,
+        "width": 232,
+        "height": 219,
+        "cleanup": {
+          "x": 1485,
+          "y": 1094,
+          "width": 563,
+          "height": 563
+        },
+        "anchorX": 0.4828,
+        "anchorY": 0.653
+      }
+    },
+    {
+      "id": "dog_10",
+      "x": 1888,
+      "y": 2059,
+      "r": 114,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_10/sprite_000.png",
+        "x": 1597,
+        "y": 1950,
+        "width": 358,
+        "height": 251,
+        "cleanup": {
+          "x": 1577,
+          "y": 1791,
+          "width": 563,
+          "height": 563
+        },
+        "anchorX": 0.7318,
+        "anchorY": 0.49
+      }
+    },
+    {
+      "id": "dog_11",
+      "x": 1960,
+      "y": 1656,
+      "r": 114,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_11/sprite_000.png",
+        "x": 1784,
+        "y": 1542,
+        "width": 265,
+        "height": 338,
+        "cleanup": {
+          "x": 1669,
+          "y": 1394,
+          "width": 563,
+          "height": 563
+        },
+        "anchorX": 0.6302,
+        "anchorY": 0.3964
+      }
+    },
+    {
+      "id": "dog_12",
+      "x": 2543,
+      "y": 1958,
+      "r": 114,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_12/sprite_000.png",
+        "x": 2451,
+        "y": 1850,
+        "width": 230,
+        "height": 258,
+        "cleanup": {
+          "x": 2270,
+          "y": 1689,
+          "width": 563,
+          "height": 563
+        },
+        "anchorX": 0.4391,
+        "anchorY": 0.469
+      }
+    },
+    {
+      "id": "dog_13",
+      "x": 2875,
+      "y": 1960,
+      "r": 114,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_13/sprite_000.png",
+        "x": 2742,
+        "y": 1811,
+        "width": 194,
+        "height": 308,
+        "cleanup": {
+          "x": 2593,
+          "y": 1678,
+          "width": 563,
+          "height": 563
+        },
+        "anchorX": 0.6856,
+        "anchorY": 0.4838
+      }
+    },
+    {
+      "id": "dog_14",
+      "x": 2960,
+      "y": 1856,
+      "r": 114,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_14/sprite_000.png",
+        "x": 2897,
+        "y": 1689,
+        "width": 241,
+        "height": 263,
+        "cleanup": {
+          "x": 2723,
+          "y": 1565,
+          "width": 563,
+          "height": 563
+        },
+        "anchorX": 0.4481,
+        "anchorY": 0.6008
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 2790,
+      "y": 2567,
+      "r": 114,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_15/sprite_000.png",
+        "x": 2708,
+        "y": 2491,
+        "width": 245,
+        "height": 236,
+        "cleanup": {
+          "x": 2531,
+          "y": 2331,
+          "width": 563,
+          "height": 471
+        },
+        "anchorX": 0.4286,
+        "anchorY": 0.5169
+      }
+    },
+    {
+      "id": "dog_16",
+      "x": 2547,
+      "y": 2423,
+      "r": 114,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_16/sprite_000.png",
+        "x": 2474,
+        "y": 2259,
+        "width": 232,
+        "height": 233,
+        "cleanup": {
+          "x": 2284,
+          "y": 2125,
+          "width": 563,
+          "height": 563
+        },
+        "anchorX": 0.3966,
+        "anchorY": 0.6352
+      }
+    },
+    {
+      "id": "dog_17",
+      "x": 1594,
+      "y": 2973,
+      "r": 114,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_17/sprite_000.png",
+        "x": 1416,
+        "y": 2862,
+        "width": 260,
+        "height": 254,
+        "cleanup": {
+          "x": 1283,
+          "y": 2692,
+          "width": 563,
+          "height": 563
+        },
+        "anchorX": 0.5731,
+        "anchorY": 0.4409
+      }
+    },
+    {
+      "id": "dog_18",
+      "x": 1316,
+      "y": 2542,
+      "r": 114,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_18/sprite_000.png",
+        "x": 1143,
+        "y": 2389,
+        "width": 219,
+        "height": 304,
+        "cleanup": {
+          "x": 1006,
+          "y": 2268,
+          "width": 563,
+          "height": 563
+        },
+        "anchorX": 0.6621,
+        "anchorY": 0.5296
+      }
+    },
+    {
+      "id": "dog_19",
+      "x": 1103,
+      "y": 3562,
+      "r": 114,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_19/sprite_000.png",
+        "x": 1032,
+        "y": 3412,
+        "width": 196,
+        "height": 282,
+        "cleanup": {
+          "x": 842,
+          "y": 3261,
+          "width": 563,
+          "height": 563
+        },
+        "anchorX": 0.4694,
+        "anchorY": 0.4645
+      }
+    },
+    {
+      "id": "dog_20",
+      "x": 481,
+      "y": 3193,
+      "r": 114,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_20/sprite_000.png",
+        "x": 349,
+        "y": 3013,
+        "width": 247,
+        "height": 231,
+        "cleanup": {
+          "x": 191,
+          "y": 2860,
+          "width": 563,
+          "height": 563
+        },
+        "anchorX": 0.502,
+        "anchorY": 0.5584
+      }
+    },
+    {
+      "id": "dog_21",
+      "x": 1733,
+      "y": 3198,
+      "r": 114,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_21/sprite_000.png",
+        "x": 1636,
+        "y": 3031,
+        "width": 158,
+        "height": 257,
+        "cleanup": {
+          "x": 1448,
+          "y": 2936,
+          "width": 563,
+          "height": 563
+        },
+        "anchorX": 0.5949,
+        "anchorY": 0.7276
+      }
+    },
+    {
+      "id": "dog_22",
+      "x": 2014,
+      "y": 3552,
+      "r": 114,
+      "sprite": {
+        "image": "levels/italy_amalfi_cliff_lemons_bird_5a1c/dogs/dog_22/sprite_000.png",
+        "x": 1892,
+        "y": 3428,
+        "width": 267,
+        "height": 237,
+        "cleanup": {
+          "x": 1749,
+          "y": 3284,
+          "width": 563,
+          "height": 541
+        },
+        "anchorX": 0.5206,
+        "anchorY": 0.5823
+      }
+    }
+  ]
+}

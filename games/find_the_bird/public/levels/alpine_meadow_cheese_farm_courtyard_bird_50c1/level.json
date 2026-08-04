@@ -1,0 +1,514 @@
+{
+  "id": "alpine_meadow_cheese_farm_courtyard_bird_50c1",
+  "name": "Level alpine_meadow_cheese_farm_courtyard_bird_50c1 (clean_old_cartoon)",
+  "width": 4096,
+  "height": 4096,
+  "bwImage": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/bw.png",
+  "colorImage": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/color.png",
+  "dogs": [
+    {
+      "id": "dog_00",
+      "x": 456,
+      "y": 946,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_00/sprite_000.png",
+        "x": 313,
+        "y": 853,
+        "width": 267,
+        "height": 219,
+        "cleanup": {
+          "x": 288,
+          "y": 783,
+          "width": 317,
+          "height": 317
+        },
+        "anchorX": 0.5019,
+        "anchorY": 0.4064
+      }
+    },
+    {
+      "id": "dog_01",
+      "x": 392,
+      "y": 1349,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_01/sprite_000.png",
+        "x": 248,
+        "y": 1239,
+        "width": 262,
+        "height": 225,
+        "cleanup": {
+          "x": 220,
+          "y": 1176,
+          "width": 317,
+          "height": 317
+        },
+        "anchorX": 0.5,
+        "anchorY": 0.4267
+      }
+    },
+    {
+      "id": "dog_02",
+      "x": 1623,
+      "y": 1145,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_02/sprite_000.png",
+        "x": 1499,
+        "y": 1020,
+        "width": 245,
+        "height": 259,
+        "cleanup": {
+          "x": 1463,
+          "y": 991,
+          "width": 317,
+          "height": 317
+        },
+        "anchorX": 0.502,
+        "anchorY": 0.5019
+      }
+    },
+    {
+      "id": "dog_03",
+      "x": 2324,
+      "y": 1210,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_03/sprite_000.png",
+        "x": 2197,
+        "y": 1132,
+        "width": 253,
+        "height": 207,
+        "cleanup": {
+          "x": 2165,
+          "y": 1055,
+          "width": 317,
+          "height": 317
+        },
+        "anchorX": 0.502,
+        "anchorY": 0.3961
+      }
+    },
+    {
+      "id": "dog_04",
+      "x": 3014,
+      "y": 1154,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_04/sprite_000.png",
+        "x": 2862,
+        "y": 1070,
+        "width": 259,
+        "height": 202,
+        "cleanup": {
+          "x": 2832,
+          "y": 986,
+          "width": 317,
+          "height": 297
+        },
+        "anchorX": 0.4981,
+        "anchorY": 0.3713
+      }
+    },
+    {
+      "id": "dog_05",
+      "x": 3477,
+      "y": 1203,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_05/sprite_000.png",
+        "x": 3358,
+        "y": 1123,
+        "width": 266,
+        "height": 213,
+        "cleanup": {
+          "x": 3333,
+          "y": 1044,
+          "width": 317,
+          "height": 317
+        },
+        "anchorX": 0.5038,
+        "anchorY": 0.3756
+      }
+    },
+    {
+      "id": "dog_06",
+      "x": 3914,
+      "y": 951,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_06/sprite_000.png",
+        "x": 3783,
+        "y": 934,
+        "width": 263,
+        "height": 147,
+        "cleanup": {
+          "x": 3755,
+          "y": 800,
+          "width": 317,
+          "height": 299
+        },
+        "anchorX": 0.4981,
+        "anchorY": 0.1156
+      }
+    },
+    {
+      "id": "dog_07",
+      "x": 2807,
+      "y": 1425,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_07/sprite_000.png",
+        "x": 2666,
+        "y": 1307,
+        "width": 259,
+        "height": 234,
+        "cleanup": {
+          "x": 2637,
+          "y": 1273,
+          "width": 317,
+          "height": 297
+        },
+        "anchorX": 0.5019,
+        "anchorY": 0.4487
+      }
+    },
+    {
+      "id": "dog_08",
+      "x": 3377,
+      "y": 1563,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_08/sprite_000.png",
+        "x": 3250,
+        "y": 1495,
+        "width": 266,
+        "height": 204,
+        "cleanup": {
+          "x": 3224,
+          "y": 1407,
+          "width": 317,
+          "height": 317
+        },
+        "anchorX": 0.5,
+        "anchorY": 0.348
+      }
+    },
+    {
+      "id": "dog_09",
+      "x": 3916,
+      "y": 1859,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_09/sprite_000.png",
+        "x": 3785,
+        "y": 1814,
+        "width": 264,
+        "height": 175,
+        "cleanup": {
+          "x": 3757,
+          "y": 1700,
+          "width": 317,
+          "height": 317
+        },
+        "anchorX": 0.4962,
+        "anchorY": 0.2571
+      }
+    },
+    {
+      "id": "dog_10",
+      "x": 2292,
+      "y": 1654,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_10/sprite_000.png",
+        "x": 2178,
+        "y": 1529,
+        "width": 245,
+        "height": 256,
+        "cleanup": {
+          "x": 2143,
+          "y": 1498,
+          "width": 317,
+          "height": 317
+        },
+        "anchorX": 0.5061,
+        "anchorY": 0.5
+      }
+    },
+    {
+      "id": "dog_11",
+      "x": 1988,
+      "y": 1901,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_11/sprite_000.png",
+        "x": 1869,
+        "y": 1771,
+        "width": 236,
+        "height": 258,
+        "cleanup": {
+          "x": 1824,
+          "y": 1737,
+          "width": 317,
+          "height": 317
+        },
+        "anchorX": 0.4831,
+        "anchorY": 0.4845
+      }
+    },
+    {
+      "id": "dog_12",
+      "x": 838,
+      "y": 2214,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_12/sprite_000.png",
+        "x": 700,
+        "y": 2090,
+        "width": 265,
+        "height": 259,
+        "cleanup": {
+          "x": 675,
+          "y": 2058,
+          "width": 317,
+          "height": 317
+        },
+        "anchorX": 0.5057,
+        "anchorY": 0.4903
+      }
+    },
+    {
+      "id": "dog_13",
+      "x": 1488,
+      "y": 2225,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_13/sprite_000.png",
+        "x": 1370,
+        "y": 2135,
+        "width": 267,
+        "height": 214,
+        "cleanup": {
+          "x": 1345,
+          "y": 2057,
+          "width": 317,
+          "height": 317
+        },
+        "anchorX": 0.5019,
+        "anchorY": 0.3785
+      }
+    },
+    {
+      "id": "dog_14",
+      "x": 1904,
+      "y": 2694,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_14/sprite_000.png",
+        "x": 1812,
+        "y": 2606,
+        "width": 126,
+        "height": 134,
+        "cleanup": {
+          "x": 1727,
+          "y": 2530,
+          "width": 317,
+          "height": 317
+        },
+        "anchorX": 0.5873,
+        "anchorY": 0.6194
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 2473,
+      "y": 2750,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_15/sprite_000.png",
+        "x": 2344,
+        "y": 2646,
+        "width": 267,
+        "height": 231,
+        "cleanup": {
+          "x": 2319,
+          "y": 2585,
+          "width": 317,
+          "height": 317
+        },
+        "anchorX": 0.5019,
+        "anchorY": 0.4242
+      }
+    },
+    {
+      "id": "dog_16",
+      "x": 2885,
+      "y": 2215,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_16/sprite_000.png",
+        "x": 2777,
+        "y": 2098,
+        "width": 223,
+        "height": 240,
+        "cleanup": {
+          "x": 2730,
+          "y": 2054,
+          "width": 317,
+          "height": 317
+        },
+        "anchorX": 0.5022,
+        "anchorY": 0.4792
+      }
+    },
+    {
+      "id": "dog_17",
+      "x": 792,
+      "y": 2673,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_17/sprite_000.png",
+        "x": 649,
+        "y": 2597,
+        "width": 266,
+        "height": 205,
+        "cleanup": {
+          "x": 624,
+          "y": 2510,
+          "width": 317,
+          "height": 317
+        },
+        "anchorX": 0.5038,
+        "anchorY": 0.3512
+      }
+    },
+    {
+      "id": "dog_18",
+      "x": 1419,
+      "y": 2911,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_18/sprite_000.png",
+        "x": 1297,
+        "y": 2820,
+        "width": 267,
+        "height": 226,
+        "cleanup": {
+          "x": 1272,
+          "y": 2754,
+          "width": 317,
+          "height": 317
+        },
+        "anchorX": 0.5019,
+        "anchorY": 0.4115
+      }
+    },
+    {
+      "id": "dog_19",
+      "x": 769,
+      "y": 3274,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_19/sprite_000.png",
+        "x": 641,
+        "y": 3146,
+        "width": 255,
+        "height": 255,
+        "cleanup": {
+          "x": 610,
+          "y": 3115,
+          "width": 317,
+          "height": 317
+        },
+        "anchorX": 0.502,
+        "anchorY": 0.502
+      }
+    },
+    {
+      "id": "dog_20",
+      "x": 1080,
+      "y": 3313,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_20/sprite_000.png",
+        "x": 948,
+        "y": 3270,
+        "width": 258,
+        "height": 167,
+        "cleanup": {
+          "x": 919,
+          "y": 3148,
+          "width": 317,
+          "height": 317
+        },
+        "anchorX": 0.5039,
+        "anchorY": 0.2216
+      }
+    },
+    {
+      "id": "dog_21",
+      "x": 2040,
+      "y": 3301,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_21/sprite_000.png",
+        "x": 1902,
+        "y": 3239,
+        "width": 267,
+        "height": 189,
+        "cleanup": {
+          "x": 1877,
+          "y": 3137,
+          "width": 317,
+          "height": 316
+        },
+        "anchorX": 0.5019,
+        "anchorY": 0.2963
+      }
+    },
+    {
+      "id": "dog_22",
+      "x": 3438,
+      "y": 2426,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_22/sprite_000.png",
+        "x": 3328,
+        "y": 2298,
+        "width": 219,
+        "height": 256,
+        "cleanup": {
+          "x": 3279,
+          "y": 2267,
+          "width": 317,
+          "height": 317
+        },
+        "anchorX": 0.5023,
+        "anchorY": 0.5
+      }
+    },
+    {
+      "id": "dog_23",
+      "x": 3890,
+      "y": 3261,
+      "r": 58,
+      "sprite": {
+        "image": "levels/alpine_meadow_cheese_farm_courtyard_bird_50c1/dogs/dog_23/sprite_000.png",
+        "x": 3762,
+        "y": 3221,
+        "width": 264,
+        "height": 167,
+        "cleanup": {
+          "x": 3737,
+          "y": 3096,
+          "width": 317,
+          "height": 317
+        },
+        "anchorX": 0.5076,
+        "anchorY": 0.2036
+      }
+    }
+  ]
+}
