@@ -5079,12 +5079,21 @@ def detect_birds_vlm(session_id: str, *, model: str = "gemini-3.6-flash") -> lis
                 "box_2d": {"type": "ARRAY", "items": {"type": "INTEGER"}},
                 "label": {"type": "STRING"}}, "required": ["box_2d"]}}},
     }
-    resp = _httpx.post(
-        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
-        json=payload, headers={"x-goog-api-key": api_key}, timeout=180,
-    )
-    resp.raise_for_status()
-    data = resp.json()
+    data = None
+    for attempt in range(5):
+        resp = _httpx.post(
+            f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+            json=payload, headers={"x-goog-api-key": api_key}, timeout=180,
+        )
+        if resp.status_code == 429 or resp.status_code >= 500:
+            import time as _t
+            _t.sleep(min(60, 5 * (2 ** attempt)))
+            continue
+        resp.raise_for_status()
+        data = resp.json()
+        break
+    if data is None:
+        raise S.LevelNotReadyError(f"VLM detection rate-limited after retries ({resp.status_code})")
     try:
         from merceka_core import costs as _mc
         _mc.record(source="google-direct", model=f"google/{model}", usage=data.get("usageMetadata"))
@@ -5176,6 +5185,8 @@ def recenter_hitboxes_local_diff(
             hb["x"], hb["y"] = int(cx), int(cy)
         if radius_scale != 1.0:
             hb["r"] = int(round(hb["r"] * radius_scale))
+        # Export-gate invariant: the hitbox extent must stay inside the level.
+        hb["r"] = max(18, min(hb["r"], hb["x"], hb["y"], color.width - hb["x"], color.height - hb["y"]))
         # Record the measured footprint; cleanup boxes are written after ALL
         # birds are measured so each box can avoid its neighbors' footprints.
         comp_mask = labels == _comp_idx
