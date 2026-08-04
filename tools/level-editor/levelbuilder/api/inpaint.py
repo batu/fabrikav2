@@ -5098,14 +5098,33 @@ def recenter_hitboxes_local_diff(
             cy, cx = float(ys.mean()) + y0, float(xs.mean()) + x0
             dist = ((cx - hb["x"]) ** 2 + (cy - hb["y"]) ** 2) ** 0.5
             if best is None or dist < best[0]:
-                best = (dist, cx, cy)
+                best = (dist, cx, cy, idx)
         if best is None:
             continue
-        dist, cx, cy = best
-        if dist > r * max_shift_factor or dist < 3:
-            continue
-        moved.append({"id": hb.get("id"), "from": [hb["x"], hb["y"]], "to": [int(cx), int(cy)], "shift": round(dist, 1)})
-        hb["x"], hb["y"] = int(cx), int(cy)
+        dist, cx, cy, _comp_idx = best
+        if dist <= r * max_shift_factor and dist >= 3:
+            moved.append({"id": hb.get("id"), "from": [hb["x"], hb["y"]], "to": [int(cx), int(cy)], "shift": round(dist, 1)})
+            hb["x"], hb["y"] = int(cx), int(cy)
+        # The cleanup box must cover the painted bird's FULL measured footprint
+        # (observed on device build 7: sprite-derived boxes covered 36-87% too
+        # little, leaving most of the painted bird in the scene after pickup).
+        comp_mask = labels == _comp_idx
+        ys, xs = _np.nonzero(comp_mask)
+        margin = 12
+        bx0 = max(0, int(xs.min()) + x0 - margin)
+        by0 = max(0, int(ys.min()) + y0 - margin)
+        bx1 = min(color.width, int(xs.max()) + x0 + margin)
+        by1 = min(color.height, int(ys.max()) + y0 + margin)
+        idx = hitboxes.index(hb)
+        meta_path = S.dogs_dir(session_id) / f"dog_{idx:02d}" / "sprite_000.json"
+        if meta_path.exists():
+            meta = json.loads(meta_path.read_text())
+            old_cu = meta.get("cleanupBox")
+            meta["cleanupBox"] = [bx0, by0, bx1, by1]
+            # spriteBox must stay inside cleanup for the runtime contract;
+            # widen it is not needed — only cleanup grows.
+            meta_path.write_text(json.dumps(meta, indent=2))
+            hb_cleanup = {"id": hb.get("id"), "cleanupBox": [bx0, by0, bx1, by1], "was": old_cu}
     S.save_hitboxes(session_id, hitboxes)
     bg.close(); color.close()
     return {"sessionId": session_id, "moved": moved, "total": len(hitboxes)}
