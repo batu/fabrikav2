@@ -22,6 +22,7 @@ def _script() -> dict:
                                  "setting": "japan", "scene": "japan_morning_market",
                                  "entity": "bird", "view": "isometric_close_20", "style": "bold_cardboard"},
         "/api/sessions/auth_1/background-generation/jobs": {"jobId": "j1"},
+        "/api/sessions/auth_1/upscale-bg/jobs": {"jobId": "j1"},
         "/api/jobs/j1": {"status": "succeeded", "id": "j1", "result": {"backgrounds": 1}},
         "/api/sessions/auth_1/select-bg": {"selectedBgIndex": 0},
         "/api/sessions/auth_1/auto-hitboxes": {"hitboxes": [{"x": 1, "y": 1, "r": 26}] * 20},
@@ -51,7 +52,7 @@ def test_full_flow_runs_every_step_in_order(monkeypatch, capsys):
     code, out = _run(monkeypatch, capsys, stub, ["author", "--template", "t1", "--force-disk"])
     assert code == 0, out
     steps = [entry["step"] for entry in json.loads(out)["trace"]]
-    assert steps == ["create", "generate-bg", "select-bg", "auto-hitboxes",
+    assert steps == ["create", "generate-bg", "select-bg", "upscale", "auto-hitboxes",
                      "inpaint", "repair-sprites", "fix-hitboxes", "export"]
 
 

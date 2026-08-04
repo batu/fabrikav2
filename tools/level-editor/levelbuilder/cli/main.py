@@ -88,7 +88,10 @@ class CliError(Exception):
 class Client:
     def __init__(self, base_url: str, token: str | None) -> None:
         headers = {"Authorization": f"Bearer {token}"} if token else {}
-        self._http = httpx.Client(base_url=base_url, headers=headers, timeout=60.0)
+        # Sync endpoints legitimately run minutes (smart hitbox vision scoring,
+        # 4x lanczos upscale of a 4K canvas); 60s produced spurious
+        # transport_error failures mid-author.
+        self._http = httpx.Client(base_url=base_url, headers=headers, timeout=600.0)
         self.base_url = base_url
         self.last_session_revision: str | None = None
 
@@ -490,7 +493,7 @@ def cmd_dogs(client: Client, args: argparse.Namespace) -> None:
 
 
 AUTHOR_STEPS = (
-    "create", "generate-bg", "select-bg", "auto-hitboxes",
+    "create", "generate-bg", "select-bg", "upscale", "auto-hitboxes",
     "inpaint", "repair-sprites", "fix-hitboxes", "export",
 )
 
@@ -581,6 +584,18 @@ def cmd_author(client: Client, args: argparse.Namespace) -> None:
             elif step == "select-bg":
                 client.post(f"/api/sessions/{session_id}/select-bg", json={"bgIndex": args.bg_index})
                 note("select-bg", {"index": args.bg_index})
+            elif step == "upscale":
+                session = client.get(f"/api/sessions/{session_id}")
+                bg_w = session.get("bgWidth") or session.get("bg_width") or 0
+                if bg_w and int(bg_w) >= 4096:
+                    note("upscale", {"skipped": f"background already {bg_w}px"})
+                else:
+                    job = client.post(f"/api/sessions/{session_id}/upscale-bg/jobs")
+                    job = _require_success(_wait_for_job(
+                        client, job.get("jobId") or job.get("id"),
+                        timeout_s=args.timeout, quiet=True,
+                    ))
+                    note("upscale", job.get("result", {}) or {"status": job.get("status")})
             elif step == "auto-hitboxes":
                 radius = args.radius or 30
                 while True:
