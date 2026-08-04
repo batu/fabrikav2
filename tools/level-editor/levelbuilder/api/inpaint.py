@@ -5084,7 +5084,7 @@ def recenter_hitboxes_local_diff(
         x0, y0 = max(0, hb["x"] - pad), max(0, hb["y"] - pad)
         x1, y1 = min(color.width, hb["x"] + pad), min(color.height, hb["y"] + pad)
         diff = _np.abs(a_full[y0:y1, x0:x1] - b_full[y0:y1, x0:x1]).sum(axis=2) > threshold
-        diff = _ndi.binary_dilation(diff, iterations=3)
+        diff = _ndi.binary_dilation(diff, iterations=5)
         labels, n = _ndi.label(diff)
         best = None
         for idx, sl in enumerate(_ndi.find_objects(labels), start=1):
@@ -5110,7 +5110,7 @@ def recenter_hitboxes_local_diff(
         # little, leaving most of the painted bird in the scene after pickup).
         comp_mask = labels == _comp_idx
         ys, xs = _np.nonzero(comp_mask)
-        margin = 12
+        margin = 32
         bx0 = max(0, int(xs.min()) + x0 - margin)
         by0 = max(0, int(ys.min()) + y0 - margin)
         bx1 = min(color.width, int(xs.max()) + x0 + margin)

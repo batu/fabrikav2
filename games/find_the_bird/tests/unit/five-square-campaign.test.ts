@@ -9,7 +9,7 @@ const CAMPAIGN_IDS = [
   'ancient_forest_creek_autumn_pond_reeds_bird_da7e',
 ] as const;
 const TARGET_COUNTS: Record<string, number> = {
-  ancient_forest_creek_autumn_pond_reeds_bird_da7e: 17,
+  ancient_forest_creek_autumn_pond_reeds_bird_da7e: 18,
 };
 
 const levelsRoot = join(process.cwd(), 'public/levels');
