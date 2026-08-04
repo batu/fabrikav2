@@ -975,6 +975,37 @@ export default function SequencePage() {
             </article>
           ))}
         </div>
+        <div style={{ marginTop: 16 }}>
+          <h3 style={{ fontSize: '0.85rem', color: '#9db2a5', margin: '0 0 6px' }}>
+            Catalog levels not in the lineup
+          </h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {state.catalog.levels
+              .filter((level) => !draftIds.includes(level.id))
+              .map((level) => (
+                <button
+                  key={level.id}
+                  type="button"
+                  disabled={draftMutationDisabled}
+                  onClick={() => markDraftChanged([...draftIds, level.id])}
+                  title={`Append ${level.id} to the draft lineup`}
+                  style={{
+                    background: '#1f3329', color: '#bfe8ce',
+                    border: '1px solid #2f674b', borderRadius: 4,
+                    padding: '4px 10px', fontSize: '0.75rem',
+                    cursor: draftMutationDisabled ? 'not-allowed' : 'pointer', fontWeight: 600,
+                  }}
+                >
+                  + {level.name ?? level.id}
+                </button>
+              ))}
+            {state.catalog.levels.filter((level) => !draftIds.includes(level.id)).length === 0 && (
+              <span style={{ fontSize: '0.75rem', color: '#777' }}>
+                Every catalog level is already in the lineup.
+              </span>
+            )}
+          </div>
+        </div>
       </section>
 
       <details className="sequence-panel sequence-advanced-panel">

@@ -698,30 +698,6 @@ function GalleryCard({
             {disabledReason}
           </div>
         )}
-        <button
-          type="button"
-          data-gallery-no-reorder="true"
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleLineup(card, selectableForLineup);
-          }}
-          disabled={!selectableForLineup || lineupBusy}
-          title={disabledReason ?? (selectedInLineup ? 'Remove this level from Lineup' : 'Add this completed level to Lineup')}
-          style={{
-            marginTop: 4,
-            background: selectedInLineup ? '#23462f' : '#1f3329',
-            color: selectedInLineup ? '#d7ffd8' : '#bfe8ce',
-            border: selectedInLineup ? '1px solid #74d680' : '1px solid #2f674b',
-            borderRadius: 4,
-            padding: '4px 8px',
-            fontSize: '0.75rem',
-            cursor: selectableForLineup && !lineupBusy ? 'pointer' : 'not-allowed',
-            fontWeight: 700,
-            opacity: selectableForLineup ? 1 : 0.6,
-          }}
-        >
-          {lineupBusy ? 'Saving...' : selectedInLineup ? 'Remove from Lineup' : 'Add to Lineup'}
-        </button>
         {state !== 'background' && session.catalogUploaded !== true && (
           <button
             type="button"
@@ -759,25 +735,6 @@ function GalleryCard({
         {publishError !== null && (
           <div style={{ color: '#ff9c9c', fontSize: '0.7rem', marginTop: 4 }}>{publishError}</div>
         )}
-        <button
-          type="button"
-          data-gallery-no-reorder="true"
-          onClick={(e) => { e.stopPropagation(); onOpenReview(card.id); }}
-          title="Review this Gallery card"
-          style={{
-            marginTop: 4,
-            background: '#242424',
-            color: '#ddd',
-            border: '1px solid #444',
-            borderRadius: 4,
-            padding: '4px 8px',
-            fontSize: '0.75rem',
-            cursor: 'pointer',
-            fontWeight: 600,
-          }}
-        >
-          Review
-        </button>
         <button
           type="button"
           data-gallery-no-reorder="true"
