@@ -155,11 +155,11 @@ describe('canonical achievement read projection (ACH-2 dependency)', () => {
     });
   });
 
-  it('distinguishes live settled rewards from migration-unlocked reward-ineligible entries', () => {
+  it('distinguishes claimable live rewards from migration-unlocked reward-ineligible entries', () => {
     const liveDelta = apply(completion(), emptyAchievementRecord());
     const live = buildAchievementReadProjection(applyDeltaToRecord(emptyAchievementRecord(), liveDelta));
     expect(live.find((entry) => entry.id === 'first_completion')?.rewardStatus).toBe(
-      'live-reward-settled',
+      'unlocked-reward-claimable',
     );
 
     const migrated = buildAchievementReadProjection(migrate({ totalCompletions: 12, streakDays: 3 }));

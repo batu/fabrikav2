@@ -384,7 +384,7 @@ function applyArtSrc(root: HTMLElement, img: HTMLImageElement, token: string): v
 /** Cubic-ease integer count between `from`→`to` over `durationMs` (drives the
  *  earned-counter drain). A per-element token guard makes a later call cancel an
  *  in-flight earlier one. Zero/equal → set immediately (covers reduced-motion). */
-function animateIntegerText(element: HTMLElement, from: number, to: number, durationMs: number): void {
+export function animateIntegerText(element: HTMLElement, from: number, to: number, durationMs: number): void {
   nextCountupToken += 1;
   const token = String(nextCountupToken);
   element.dataset.countupToken = token;

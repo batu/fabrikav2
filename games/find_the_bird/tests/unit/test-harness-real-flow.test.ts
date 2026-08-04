@@ -441,7 +441,8 @@ describe("find_the_dog TestHarness real-flow wiring", () => {
     expect(new Set(buildAchievementReadProjection(seeded).map((row) => row.rewardStatus))).toEqual(new Set([
       "locked",
       "in-progress",
-      "live-reward-settled",
+      "unlocked-reward-claimable",
+      "reward-claimed",
       "migration-unlocked-reward-ineligible",
       "legacy-unlocked-reward-provenance-unknown",
     ]));

@@ -396,10 +396,10 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
   }
 
   /**
-   * Write a deterministic v2 achievement journal and reload it through the real
+   * Write a deterministic current-version achievement journal and reload it through the real
    * persistence path. `load()` preserves a current-version record verbatim, so
    * the collection capture always shows every reward status the card must prove:
-   * locked, in-progress, live-reward-settled, migration-reward-ineligible and
+   * locked, in-progress, reward-claimed, migration-reward-ineligible and
    * legacy-reward-provenance-unknown.
    */
   function writeAchievementRecordForTest(record: AchievementRecord): void {
@@ -413,14 +413,16 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       progress: {
         first_completion: 1,
         completions_10: 4,
+        completions_25: 25,
         first_best: 1,
         streak_3: 3,
-        streak_7: 3,
+        streak_7: 7,
         dogs_25: 8,
         mastery_5: 2,
       },
       masteredLevelIds: ['level-1', 'level-2'],
-      unlocked: ['first_completion', 'first_best', 'streak_3'],
+      unlocked: ['first_completion', 'completions_25', 'first_best', 'streak_3', 'streak_7'],
+      claimedRewardAchievementIds: ['completions_25'],
       migrationRewardIneligibleAchievementIds: ['first_best'],
       legacyRewardProvenanceUnknownAchievementIds: ['streak_3'],
       processedOccurrenceIds: ['harness:achievement-collection'],

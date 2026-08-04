@@ -118,6 +118,8 @@ function writeTornState(opts: {
     progress: {},
     masteredLevelIds: [],
     unlocked: ['first_completion'],
+    claimedRewardAchievementIds: ['first_completion'],
+    claimedDailyStreakRewardDates: [],
     migrationRewardIneligibleAchievementIds: [],
     legacyRewardProvenanceUnknownAchievementIds: [],
     processedOccurrenceIds: ['occ-r'],
@@ -143,12 +145,12 @@ afterEach(() => {
 });
 
 describe('happy path completion (AC2/AC6)', () => {
-  it('grants base + achievement reward once and persists (first_completion 25 + first_best 20)', () => {
+  it('unlocks rewards without auto-paying them', () => {
     const gs = new GameState();
     const result = gs.beginLevelCompletionTransaction(completionInput());
     expect(result.achievementCommit).toBeDefined();
     expect(result.achievementCommitError).toBeUndefined();
-    expect(gs.coinBalance).toBe(90); // 45 base + 45 achievement
+    expect(gs.coinBalance).toBe(45);
     const rec = gs.achievementRecordSnapshot();
     expect(rec.unlocked).toEqual(expect.arrayContaining(['first_completion', 'first_best']));
     expect(rec.pendingSettlement).toBeNull();
@@ -157,7 +159,7 @@ describe('happy path completion (AC2/AC6)', () => {
     // beyond the single base grant.
     const wallet = gs.walletSnapshot();
     expect(wallet.counters.levelCompleteCoinGrants).toBe(1);
-    expect(wallet.counters.coinsGranted).toBe(90);
+    expect(wallet.counters.coinsGranted).toBe(45);
   });
 
   it('duplicate completion callback grants once (AC3)', () => {
@@ -165,7 +167,7 @@ describe('happy path completion (AC2/AC6)', () => {
     gs.beginLevelCompletionTransaction(completionInput());
     const dup = gs.beginLevelCompletionTransaction(completionInput());
     expect(dup.achievementCommit).toBeUndefined();
-    expect(gs.coinBalance).toBe(90);
+    expect(gs.coinBalance).toBe(45);
   });
 
   it('reload persists reward and re-apply is a no-op (AC3)', () => {
@@ -173,7 +175,7 @@ describe('happy path completion (AC2/AC6)', () => {
     const result = gs.beginLevelCompletionTransaction(completionInput());
     const fact = result.achievementCommit!;
     const gs2 = new GameState();
-    expect(gs2.coinBalance).toBe(90);
+    expect(gs2.coinBalance).toBe(45);
     expect(gs2.achievementRecordSnapshot().unlocked).toContain('first_completion');
     // Re-applying the same occurrence returns empty.
     const empty = gs2.applyAchievementFact({
@@ -189,7 +191,7 @@ describe('happy path completion (AC2/AC6)', () => {
       newBest: true,
     });
     expect(empty.newlyUnlocked).toHaveLength(0);
-    expect(gs2.coinBalance).toBe(90);
+    expect(gs2.coinBalance).toBe(45);
   });
 
   it('journals analytics events durably (break #6)', () => {
@@ -197,10 +199,13 @@ describe('happy path completion (AC2/AC6)', () => {
     gs.beginLevelCompletionTransaction(completionInput());
     const outbox = gs.achievementRecordSnapshot().analyticsOutbox;
     expect(outbox.some((e) => e.name === 'achievement_unlocked')).toBe(true);
-    expect(outbox.some((e) => e.name === 'achievement_reward_granted')).toBe(true);
+    expect(outbox.some((e) => e.name === 'achievement_reward_granted')).toBe(false);
+    gs.claimAchievementReward('first_completion');
+    expect(gs.achievementRecordSnapshot().analyticsOutbox.some((e) => e.name === 'achievement_reward_granted')).toBe(true);
+    const persistedEventCount = gs.achievementRecordSnapshot().analyticsOutbox.length;
     // A fresh load retains them (load never dispatches).
     const gs2 = new GameState();
-    expect(gs2.achievementRecordSnapshot().analyticsOutbox.length).toBe(outbox.length);
+    expect(gs2.achievementRecordSnapshot().analyticsOutbox.length).toBe(persistedEventCount);
   });
 });
 
@@ -245,14 +250,15 @@ describe('write-ahead recovery (AC3/KTD2)', () => {
     'checkpoint-0b baseline failure at %s aborts before achievement state commits',
     (key) => {
       const gs = new GameState();
+      gs.beginLevelCompletionTransaction(completionInput());
       throwOnNthKey(key, 1);
-      expect(() => gs.applyAchievementFact(completionFact(`baseline-${key}`))).toThrow();
-      expect(gs.achievementRecordSnapshot().processedOccurrenceIds).not.toContain(`baseline-${key}`);
+      expect(() => gs.claimAchievementReward('first_completion')).toThrow();
+      expect(gs.achievementRecordSnapshot().claimedRewardAchievementIds).not.toContain('first_completion');
       expect(gs.achievementRecordSnapshot().pendingSettlement).toBeNull();
 
       vi.restoreAllMocks();
-      const retry = gs.applyAchievementFact(completionFact(`baseline-${key}`));
-      expect(retry.rewards.length).toBeGreaterThan(0);
+      const retry = gs.claimAchievementReward('first_completion');
+      expect(retry).toMatchObject({ coins: 25 });
       expect(gs.achievementRecordSnapshot().pendingSettlement).toBeNull();
     },
   );
@@ -261,17 +267,17 @@ describe('write-ahead recovery (AC3/KTD2)', () => {
     'checkpoint-2 wallet tear at %s recovers once on a fresh load',
     (key) => {
       const gs = new GameState();
+      gs.beginLevelCompletionTransaction(completionInput());
       throwOnNthKey(key, 2);
-      expect(() => gs.applyAchievementFact(completionFact(`wallet-${key}`))).toThrow();
+      expect(() => gs.claimAchievementReward('first_completion')).toThrow();
       expect(gs.achievementRecordSnapshot().pendingSettlement).not.toBeNull();
 
       vi.restoreAllMocks();
       const recovered = new GameState();
-      expect(recovered.coinBalance).toBe(45);
+      expect(recovered.coinBalance).toBe(70);
       expect(recovered.achievementRecordSnapshot().pendingSettlement).toBeNull();
-      const duplicate = recovered.applyAchievementFact(completionFact(`wallet-${key}`));
-      expect(duplicate.rewards).toHaveLength(0);
-      expect(recovered.coinBalance).toBe(45);
+      expect(recovered.claimAchievementReward('first_completion')).toBeNull();
+      expect(recovered.coinBalance).toBe(70);
     },
   );
 
@@ -322,9 +328,9 @@ describe('write-ahead recovery (AC3/KTD2)', () => {
 describe('in-process retry after record-write throw (corrections 4/8)', () => {
   it('checkpoint-3 throw then in-process retry finalizes without double grant', () => {
     const gs = new GameState();
+    gs.beginLevelCompletionTransaction(completionInput());
     throwOnNthKey(K.ACHIEVEMENTS, 2); // cp1 write #1 ok, cp3 write #2 throws
-    const result = gs.beginLevelCompletionTransaction(completionInput());
-    expect(result.achievementCommitError).toBe('persistence-unavailable');
+    expect(() => gs.claimAchievementReward('first_completion')).toThrow();
     vi.restoreAllMocks();
     // Wallet already at `after`; a same-fact retry recovers pending then dedupes.
     const rec = gs.achievementRecordSnapshot();
@@ -333,36 +339,21 @@ describe('in-process retry after record-write throw (corrections 4/8)', () => {
       status: 'unavailable',
       reason: 'settlement-pending',
     });
-    const retry = gs.applyAchievementFact({
-      kind: 'level-completion',
-      occurrenceId: rec.pendingSettlement!.occurrenceId,
-      transactionId: rec.pendingSettlement!.occurrenceId,
-      masteryLevelId: 'lvl-a', servedLevelId: 'lvl-a', progressionIndex: 0,
-      totalCompletions: 1, streakDays: 1, timeSeconds: 20, newBest: true,
-    });
-    expect(retry.rewards).toHaveLength(0); // deduped, no second grant
-    expect(gs.coinBalance).toBe(90);
+    expect(gs.claimAchievementReward('first_completion')).toBeNull();
+    expect(gs.coinBalance).toBe(70);
     expect(gs.achievementRecordSnapshot().pendingSettlement).toBeNull();
     expect(gs.achievementReadProjection().status).toBe('ready');
   });
 
   it('checkpoint-1 throw then retry grants exactly once (occurrence rolled back)', () => {
     const gs = new GameState();
+    gs.beginLevelCompletionTransaction(completionInput());
     throwOnNthKey(K.ACHIEVEMENTS, 1); // cp1 write #1 throws
-    const result = gs.beginLevelCompletionTransaction(completionInput());
-    expect(result.achievementCommitError).toBe('persistence-unavailable');
-    // Occurrence was rolled back to unprocessed; no reward granted yet.
+    expect(() => gs.claimAchievementReward('first_completion')).toThrow();
     expect(gs.coinBalance).toBe(45); // base only
     vi.restoreAllMocks();
-    const fact = {
-      kind: 'level-completion' as const,
-      occurrenceId: 'completion:1:0:lvl-a', transactionId: 'completion:1:0:lvl-a',
-      masteryLevelId: 'lvl-a', servedLevelId: 'lvl-a', progressionIndex: 0,
-      totalCompletions: 1, streakDays: 1, timeSeconds: 20, newBest: true,
-    };
-    const retry = gs.applyAchievementFact(fact);
-    expect(retry.rewards.length).toBeGreaterThan(0);
-    expect(gs.coinBalance).toBe(90); // base + achievement, single grant
+    expect(gs.claimAchievementReward('first_completion')).toMatchObject({ coins: 25 });
+    expect(gs.coinBalance).toBe(70);
   });
 });
 
@@ -440,13 +431,13 @@ describe('persistence-unavailable degradation (final correction)', () => {
     const retry = recovered.beginLevelCompletionTransaction(completionInput());
     expect(retry.transaction.id).toBe(first.transaction.id);
     expect(retry.baseCoinsGrantedNow).toBe(true);
-    expect(recovered.coinBalance).toBe(90);
+    expect(recovered.coinBalance).toBe(45);
     expect(recovered.walletSnapshot().counters.levelCompleteCoinGrants).toBe(1);
   });
 });
 
-describe('reward cap and analytics retry', () => {
-  it('records only the actually applied hint reward at the wallet cap', () => {
+describe('uncapped reward and analytics retry', () => {
+  it('grants the full achievement hint reward above the former cap', () => {
     const seeded: AchievementRecord = {
       version: ACHIEVEMENT_RECORD_VERSION,
       progress: {
@@ -458,6 +449,8 @@ describe('reward cap and analytics retry', () => {
       },
       masteredLevelIds: [],
       unlocked: ['first_completion', 'completions_10', 'completions_25', 'first_best'],
+      claimedRewardAchievementIds: ['first_completion', 'completions_10', 'completions_25', 'first_best'],
+      claimedDailyStreakRewardDates: [],
       migrationRewardIneligibleAchievementIds: [],
       legacyRewardProvenanceUnknownAchievementIds: [],
       processedOccurrenceIds: [`migration:v${ACHIEVEMENT_RECORD_VERSION}`],
@@ -469,13 +462,14 @@ describe('reward cap and analytics retry', () => {
     localStorage.setItem(K.HINTS, '2');
     const gs = new GameState();
     const committed = gs.applyAchievementFact(completionFact('cap-50', 50, false));
-    expect(committed.rewards).toContainEqual({ achievementId: 'completions_50', coins: 100, hints: 1 });
-    expect(gs.hintsRemaining).toBe(3);
-    expect(gs.walletSnapshot().counters.hintsGranted).toBe(1);
+    expect(committed.rewards).toHaveLength(0);
+    expect(gs.claimAchievementReward('completions_50')).toEqual({ achievementId: 'completions_50', coins: 100, hints: 3 });
+    expect(gs.hintsRemaining).toBe(5);
+    expect(gs.walletSnapshot().counters.hintsGranted).toBe(3);
 
     const recovered = new GameState();
-    expect(recovered.hintsRemaining).toBe(3);
-    expect(recovered.walletSnapshot().counters.hintsGranted).toBe(1);
+    expect(recovered.hintsRemaining).toBe(5);
+    expect(recovered.walletSnapshot().counters.hintsGranted).toBe(3);
   });
 
   it('retains only failed local dispatches and retries them after reload', () => {

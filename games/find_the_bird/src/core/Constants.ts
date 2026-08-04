@@ -58,7 +58,6 @@ export const GAMEPLAY = {
   TOLERANCE_MULTIPLIER: 3.0,
   LIVES_PER_LEVEL: 3,
   INITIAL_HINTS: 3,
-  MAX_HINT_BALANCE: 3,
   /** Max movement between pointer-down and pointer-up that still counts as a tap.
    *  Phaser reports pointer coordinates in the game's internal canvas pixels,
    *  while the canvas itself is DPR-scaled, so this uses a 12 CSS-pixel slop

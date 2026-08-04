@@ -18,7 +18,8 @@ export { ACHIEVEMENT_CATALOG, orderedAchievements };
 
 /** The current persisted `AchievementRecord.version`. Bump when the record shape
  *  changes in a way migration must upgrade. */
-export const ACHIEVEMENT_RECORD_VERSION = 2;
+export const ACHIEVEMENT_RECORD_VERSION = 3;
+const MANUAL_REWARD_CLAIM_VERSION = 3;
 
 /** Display grouping for an achievement. */
 export type AchievementCategory =
@@ -47,7 +48,7 @@ export type ProgressSource =
   | 'streakDays' // high-water mark of LevelCompletionFact.streakDays
   | 'lifetimeDogs'; // +1 per accepted DogFoundFact
 
-/** Modest existing-economy reward. Coins uncapped; hints respect MAX_HINT_BALANCE. */
+/** Modest existing-economy reward. Coins and hints are uncapped. */
 export interface EntitledReward {
   coins?: number;
   hints?: number;
@@ -151,6 +152,10 @@ export interface AchievementRecord {
   /** Persisted distinct LOGICAL-level identity set — mastery progress is its size. */
   readonly masteredLevelIds: readonly string[];
   readonly unlocked: readonly string[];
+  /** Live unlock rewards explicitly collected by the player. */
+  readonly claimedRewardAchievementIds: readonly string[];
+  /** Local calendar dates whose daily streak reward was durably claimed. */
+  readonly claimedDailyStreakRewardDates: readonly string[];
   /** Unlocks derived by migration and therefore permanently reward-ineligible. */
   readonly migrationRewardIneligibleAchievementIds: readonly string[];
   /**
@@ -178,6 +183,8 @@ export function emptyAchievementRecord(): AchievementRecord {
     progress: {},
     masteredLevelIds: [],
     unlocked: [],
+    claimedRewardAchievementIds: [],
+    claimedDailyStreakRewardDates: [],
     migrationRewardIneligibleAchievementIds: [],
     legacyRewardProvenanceUnknownAchievementIds: [],
     processedOccurrenceIds: [],
@@ -191,7 +198,8 @@ export function emptyAchievementRecord(): AchievementRecord {
 export type AchievementRewardStatus =
   | 'locked'
   | 'in-progress'
-  | 'live-reward-settled'
+  | 'unlocked-reward-claimable'
+  | 'reward-claimed'
   | 'migration-unlocked-reward-ineligible'
   | 'legacy-unlocked-reward-provenance-unknown';
 
@@ -224,6 +232,7 @@ export function buildAchievementReadProjection(
   record: AchievementRecord,
 ): readonly AchievementReadProjection[] {
   const unlocked = new Set(record.unlocked);
+  const claimed = new Set(record.claimedRewardAchievementIds);
   const migrationIneligible = new Set(record.migrationRewardIneligibleAchievementIds);
   const legacyProvenanceUnknown = new Set(
     record.legacyRewardProvenanceUnknownAchievementIds,
@@ -231,18 +240,25 @@ export function buildAchievementReadProjection(
 
   return orderedAchievements().map((achievement) => {
     const progress = Math.min(achievement.threshold, Math.max(0, currentProgress(record, achievement.id)));
-    let rewardStatus: AchievementRewardStatus;
-    if (unlocked.has(achievement.id)) {
-      rewardStatus = migrationIneligible.has(achievement.id)
-        ? 'migration-unlocked-reward-ineligible'
-        : legacyProvenanceUnknown.has(achievement.id)
-          ? 'legacy-unlocked-reward-provenance-unknown'
-          : 'live-reward-settled';
-    } else {
-      rewardStatus = progress > 0 ? 'in-progress' : 'locked';
-    }
+    const rewardStatus = achievementRewardStatus(
+      achievement.id, progress, unlocked, claimed, migrationIneligible, legacyProvenanceUnknown,
+    );
     return { ...achievement, progress, rewardStatus };
   });
+}
+
+function achievementRewardStatus(
+  id: string,
+  progress: number,
+  unlocked: ReadonlySet<string>,
+  claimed: ReadonlySet<string>,
+  migrationIneligible: ReadonlySet<string>,
+  legacyProvenanceUnknown: ReadonlySet<string>,
+): AchievementRewardStatus {
+  if (!unlocked.has(id)) return progress > 0 ? 'in-progress' : 'locked';
+  if (migrationIneligible.has(id)) return 'migration-unlocked-reward-ineligible';
+  if (legacyProvenanceUnknown.has(id)) return 'legacy-unlocked-reward-provenance-unknown';
+  return claimed.has(id) ? 'reward-claimed' : 'unlocked-reward-claimable';
 }
 
 function clampNonNegativeInt(value: unknown): number {
@@ -382,6 +398,11 @@ export function migrate(
 
   const progress: Record<string, number> = { ...base.progress };
   const unlocked = [...base.unlocked];
+  // v2 paid live rewards at unlock time. Treat every existing unlock as already
+  // claimed during the v3 transition so an upgrade cannot duplicate value.
+  const claimedRewardAchievementIds = base.version < MANUAL_REWARD_CLAIM_VERSION
+    ? [...base.unlocked]
+    : [...base.claimedRewardAchievementIds];
   const migrationRewardIneligibleAchievementIds = [
     ...base.migrationRewardIneligibleAchievementIds,
   ];
@@ -439,6 +460,8 @@ export function migrate(
     // Mastery is forward-only and never backfilled from served best-times.
     masteredLevelIds: [...base.masteredLevelIds],
     unlocked,
+    claimedRewardAchievementIds,
+    claimedDailyStreakRewardDates: [...base.claimedDailyStreakRewardDates],
     migrationRewardIneligibleAchievementIds,
     legacyRewardProvenanceUnknownAchievementIds,
     processedOccurrenceIds,
