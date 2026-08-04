@@ -1,0 +1,61 @@
+<title>Blending: paint-in vs flat-key vs ring-marker</title><style>:root{--ink:#23301f;--paper:#f7f6ef;--line:#d8d5c2;--moss:#47663a;--alert:#a3502e;--dim:#6b7263}
+@media (prefers-color-scheme:dark){:root{--ink:#e3e6da;--paper:#171c14;--line:#39422f;--moss:#8fb87d;--alert:#d98a63;--dim:#97a08c}}
+:root[data-theme="dark"]{--ink:#e3e6da;--paper:#171c14;--line:#39422f;--moss:#8fb87d;--alert:#d98a63;--dim:#97a08c}
+:root[data-theme="light"]{--ink:#23301f;--paper:#f7f6ef;--line:#d8d5c2;--moss:#47663a;--alert:#a3502e;--dim:#6b7263}
+body{background:var(--paper);color:var(--ink);margin:0;font:16px/1.55 Georgia,serif}
+main{max-width:64rem;margin:0 auto;padding:2rem 1rem}h1{font-size:1.45rem}h2{color:var(--moss);font-size:1.02rem;border-bottom:1px solid var(--line);padding-bottom:.3rem}
+.row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+.row img{width:100%;border:1px solid var(--line)}.cap{font:12px ui-monospace,monospace;color:var(--dim)}
+.good{color:var(--moss);font-weight:700}.bad{color:var(--alert);font-weight:700}</style><main>
+<h1>Bird blending — A: old magenta paint-in · B: current flat-key · C: ring-marker experiment</h1>
+<p>C = the scene crop is sent with only a <b>magenta ring</b> marking the target, so the model sees the
+scene and paints the bird in place — contact shadows, occlusion, matching light — then we recover the
+cutout by diffing against the clean crop, bounded by the ring. 6 birds, pirate cove, Gemini Flash,
+one attempt each, ~$0.10 total.</p>
+<p><b>Result: 6/6 painted blended birds with contact shadows.</b> 4/6 kept the rest of the crop
+pixel-stable (&lt;10% drift); 2/6 re-rendered the whole crop subtly (60% drift) — harmless in
+production because we paste back only the ring interior and discard everything outside it.
+The recovered cutouts include the shadow, which the flyout sprite can drop or keep.</p>
+<h2>Bird 00 — drift outside ring: <span class="bad">21%</span></h2>
+<div class="row">
+<div><img src="dog00_v1_a_oldpaint.png"><div class="cap">A · old paint-in (blended, dirty cutouts)</div></div>
+<div><img src="dog00_v1_b_current.png"><div class="cap">B · current flat-key (clean cutout, sticker feel)</div></div>
+<div><img src="dog00_v1_c_result.png"><div class="cap">C · ring-marker paint-in (blended + recoverable)</div></div>
+<div><img src="dog00_v1_c_extract.png"><div class="cap">C · diff-recovered cutout (inside ring)</div></div>
+</div><h2>Bird 03 — drift outside ring: <span class="good">8%</span></h2>
+<div class="row">
+<div><img src="dog03_v1_a_oldpaint.png"><div class="cap">A · old paint-in (blended, dirty cutouts)</div></div>
+<div><img src="dog03_v1_b_current.png"><div class="cap">B · current flat-key (clean cutout, sticker feel)</div></div>
+<div><img src="dog03_v1_c_result.png"><div class="cap">C · ring-marker paint-in (blended + recoverable)</div></div>
+<div><img src="dog03_v1_c_extract.png"><div class="cap">C · diff-recovered cutout (inside ring)</div></div>
+</div><h2>Bird 06 — drift outside ring: <span class="bad">62%</span></h2>
+<div class="row">
+<div><img src="dog06_v1_a_oldpaint.png"><div class="cap">A · old paint-in (blended, dirty cutouts)</div></div>
+<div><img src="dog06_v1_b_current.png"><div class="cap">B · current flat-key (clean cutout, sticker feel)</div></div>
+<div><img src="dog06_v1_c_result.png"><div class="cap">C · ring-marker paint-in (blended + recoverable)</div></div>
+<div><img src="dog06_v1_c_extract.png"><div class="cap">C · diff-recovered cutout (inside ring)</div></div>
+</div><h2>Bird 09 — drift outside ring: <span class="good">4%</span></h2>
+<div class="row">
+<div><img src="dog09_v1_a_oldpaint.png"><div class="cap">A · old paint-in (blended, dirty cutouts)</div></div>
+<div><img src="dog09_v1_b_current.png"><div class="cap">B · current flat-key (clean cutout, sticker feel)</div></div>
+<div><img src="dog09_v1_c_result.png"><div class="cap">C · ring-marker paint-in (blended + recoverable)</div></div>
+<div><img src="dog09_v1_c_extract.png"><div class="cap">C · diff-recovered cutout (inside ring)</div></div>
+</div><h2>Bird 12 — drift outside ring: <span class="good">2%</span></h2>
+<div class="row">
+<div><img src="dog12_v1_a_oldpaint.png"><div class="cap">A · old paint-in (blended, dirty cutouts)</div></div>
+<div><img src="dog12_v1_b_current.png"><div class="cap">B · current flat-key (clean cutout, sticker feel)</div></div>
+<div><img src="dog12_v1_c_result.png"><div class="cap">C · ring-marker paint-in (blended + recoverable)</div></div>
+<div><img src="dog12_v1_c_extract.png"><div class="cap">C · diff-recovered cutout (inside ring)</div></div>
+</div><h2>Bird 14 — drift outside ring: <span class="bad">60%</span></h2>
+<div class="row">
+<div><img src="dog14_v1_a_oldpaint.png"><div class="cap">A · old paint-in (blended, dirty cutouts)</div></div>
+<div><img src="dog14_v1_b_current.png"><div class="cap">B · current flat-key (clean cutout, sticker feel)</div></div>
+<div><img src="dog14_v1_c_result.png"><div class="cap">C · ring-marker paint-in (blended + recoverable)</div></div>
+<div><img src="dog14_v1_c_extract.png"><div class="cap">C · diff-recovered cutout (inside ring)</div></div>
+</div>
+<h2>My read</h2>
+<p>The ring approach recovers the blending we lost without giving up deterministic cutout recovery.
+The engineering needed to productionize: ring-bounded paste-back with a feathered edge, a drift gate
+(reject &gt;N% change inside-ring-but-not-bird), and shadow/sprite separation for the flyout. Worth a
+full-level pilot before rolling into the 10-level run.</p>
+</main>
