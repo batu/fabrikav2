@@ -20,6 +20,7 @@ import {
   parseRuntimeCatalogManifest,
   parseStoredRuntimeSequence,
   resolveRuntimeSequence,
+  runtimeCatalogRevisionForManifest,
   serializeStoredRuntimeSequence,
   type RuntimeCatalogManifest,
   type RuntimeRemoteConfigValueSource,
@@ -1106,9 +1107,27 @@ export async function loadLevelForProgression(progressionIndex: number): Promise
   if (intendedLevelId === undefined) throw new Error('No intended level resolved');
 
   const manifest = manifestWithBundledFallbackEntries(getManifestClient().getManifest());
-  const catalog = lastPackageCatalogSnapshot ?? await getActivePackageCatalog(manifest);
   const sequenceLevelIds = index.map((entry) => entry.id);
   const runtimeSequence = lastRuntimeSequenceResolution;
+
+  // Simplification (2026-08-04, device regression): with no CDN, a bundled
+  // level ships complete inside the app by construction — catalog-snapshot
+  // package gating only re-verifies hashes that an out-of-band asset touch
+  // can invalidate, and its failure path serves stale fallbacks or strands
+  // progression. Bundled + offline loads directly, always.
+  if (getCdnOrigin() === null) {
+    const bundledEntry = manifest.levels.find((entry) => entry.id === intendedLevelId && entry.bundled);
+    if (bundledEntry !== undefined) {
+      const direct = await loadLevel(intendedLevelId);
+      const attempt = buildServingAttempt(
+        progressionIndex, sequenceLevelIds, runtimeSequence,
+        runtimeCatalogRevisionForManifest(manifest), intendedLevelId, intendedLevelId, null,
+      );
+      return setServingAttempt(direct, attempt);
+    }
+  }
+
+  const catalog = lastPackageCatalogSnapshot ?? await getActivePackageCatalog(manifest);
   const exactPackage = catalog.packagesByLevelId.get(intendedLevelId);
   const exactPackageIsLoadable = exactPackage !== undefined && exactPackage.listable && exactPackage.complete;
 

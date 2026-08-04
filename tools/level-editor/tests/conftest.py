@@ -34,8 +34,13 @@ def isolated_session(tmp_path, monkeypatch):
 
     levels_dir = tmp_path / "levels"
     levels_dir.mkdir()
-    public_levels = tmp_path / "public_levels"
-    public_levels.mkdir()
+    # Match the production layout (<game>/public/levels): catalog asset paths
+    # are "levels/<id>/..." and resolve against the public root's PARENT, so
+    # the directory must be literally named "levels" under a parent dir —
+    # the old flat "public_levels" name made verification resolve into the
+    # sessions dir by coincidence.
+    public_levels = tmp_path / "public" / "levels"
+    public_levels.mkdir(parents=True)
     monkeypatch.setattr(sessmod, "LEVELS_DIR", levels_dir)
     monkeypatch.setattr(sessmod, "GAME_PUBLIC_LEVELS", public_levels)
     monkeypatch.setattr(sessmod, "GAME_LEVELS_INDEX", public_levels / "levels-index.json")

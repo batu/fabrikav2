@@ -3547,12 +3547,28 @@ def export_to_game(
                 dst_level_tmp.unlink()
             except OSError:
                 pass
+    whole_image = raw.get("inpaint_mode") in {"magenta", "one_shot"}
     for bg_src in sorted(sdir.glob("bg_[0-9][0-9].png")):
+        if whole_image and bg_src.name != "bg_00.png":
+            # Authoring-only upscale tiers: shipping them tripled the native
+            # bundle (observed 322MB vs the 100MB cap on build 9).
+            continue
         shutil.copy2(bg_src, dst / bg_src.name)
         # Same stale-derivative invalidation as color.webp above (054 #1).
         (dst / bg_src.name).with_suffix(".webp").unlink(missing_ok=True)
-    if raw.get("inpaint_mode") in {"magenta", "one_shot"}:
+    if whole_image:
         _write_birdless_restore_bg(sdir, dst, raw, level_data)
+    # Bundle derivatives are part of the export so catalog snapshots always
+    # match what ships: 2560/q70 webp for scene + restore bg.
+    for stem in ("color", "bg_00"):
+        png = dst / f"{stem}.png"
+        if not png.exists():
+            continue
+        with Image.open(png) as img:
+            im = img.convert("RGB")
+            if im.width > 2560:
+                im = im.resize((2560, int(im.height * 2560 / im.width)), Image.LANCZOS)
+            im.save(dst / f"{stem}.webp", format="WEBP", quality=70, method=6)
 
     public_dogs_dir = dst / "dogs"
     if public_dogs_dir.exists():
@@ -3573,6 +3589,20 @@ def export_to_game(
         target = dst / rel_path
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(src, target)
+        # Flyout sprites display small (dissolve flashes them ~0.3s); cap the
+        # shipped texture so 20 birds/level stay bundle-friendly. Metadata
+        # boxes are scene-coordinate, so texture size is free to shrink.
+        try:
+            with Image.open(target) as _sp:
+                if max(_sp.size) > 288:
+                    _scale = 288 / max(_sp.size)
+                    _small = _sp.convert("RGBA").resize(
+                        (max(1, int(_sp.width * _scale)), max(1, int(_sp.height * _scale))), Image.LANCZOS,
+                    )
+                    _small.save(target, optimize=True)
+                    _small.close()
+        except (OSError, ValueError):
+            pass
         for sibling_name in (
             src.with_suffix(".json").name,
             f"sprite_mask_{src.stem.removeprefix('sprite_')}.png",
