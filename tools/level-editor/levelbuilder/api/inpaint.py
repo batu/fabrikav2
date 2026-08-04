@@ -5252,6 +5252,7 @@ def recenter_hitboxes_local_diff(
         meta2["cleanupBox"] = cu
         meta_path2.write_text(json.dumps(meta2, indent=2))
     margin = 32
+    final_boxes: dict[int, list[int]] = {}
     # Neighbor avoidance must consider both measured footprints AND the
     # neighbors' spriteBoxes: the runtime carves other dogs' sprite rects out
     # of each cleanup area and requires the tap center to survive the carve
@@ -5304,10 +5305,40 @@ def recenter_hitboxes_local_diff(
         pad_c = 20
         bx0 = min(bx0, max(0, hb_c["x"] - pad_c)); by0 = min(by0, max(0, hb_c["y"] - pad_c))
         bx1 = max(bx1, min(color.width, hb_c["x"] + pad_c)); by1 = max(by1, min(color.height, hb_c["y"] + pad_c))
+        final_boxes[idx] = [int(bx0), int(by0), int(bx1), int(by1)]
+
+    # Runtime contract (restorationDissolveRects): each dog's dissolve area is
+    # its cleanup MINUS every other dog's cleanup, and the tap center must
+    # survive. Overlapping cleanups mutually destroy each other, so make them
+    # pairwise disjoint: split each overlapping pair at the bisector of the
+    # two centers along the axis with the larger center separation.
+    ids = sorted(final_boxes)
+    for a_i in range(len(ids)):
+        for b_i in range(a_i + 1, len(ids)):
+            ia, ib = ids[a_i], ids[b_i]
+            A, B = final_boxes[ia], final_boxes[ib]
+            if A[2] <= B[0] or A[0] >= B[2] or A[3] <= B[1] or A[1] >= B[3]:
+                continue
+            ca = (hitboxes[ia]["x"], hitboxes[ia]["y"])
+            cb = (hitboxes[ib]["x"], hitboxes[ib]["y"])
+            if abs(ca[0] - cb[0]) >= abs(ca[1] - cb[1]):
+                mid = (ca[0] + cb[0]) // 2
+                left, right = (ia, ib) if ca[0] < cb[0] else (ib, ia)
+                final_boxes[left][2] = min(final_boxes[left][2], mid - 1)
+                final_boxes[right][0] = max(final_boxes[right][0], mid + 1)
+            else:
+                mid = (ca[1] + cb[1]) // 2
+                top, bottom = (ia, ib) if ca[1] < cb[1] else (ib, ia)
+                final_boxes[top][3] = min(final_boxes[top][3], mid - 1)
+                final_boxes[bottom][1] = max(final_boxes[bottom][1], mid + 1)
+    for idx, box in final_boxes.items():
+        hbx, hby = hitboxes[idx]["x"], hitboxes[idx]["y"]
+        box[0] = min(box[0], hbx - 10); box[1] = min(box[1], hby - 10)
+        box[2] = max(box[2], hbx + 10); box[3] = max(box[3], hby + 10)
         meta_path = S.dogs_dir(session_id) / f"dog_{idx:02d}" / "sprite_000.json"
         if meta_path.exists():
             meta = json.loads(meta_path.read_text())
-            meta["cleanupBox"] = [int(bx0), int(by0), int(bx1), int(by1)]
+            meta["cleanupBox"] = box
             meta_path.write_text(json.dumps(meta, indent=2))
     S.save_hitboxes(session_id, hitboxes)
     bg.close(); color.close()
