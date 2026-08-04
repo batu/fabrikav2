@@ -2326,15 +2326,16 @@ export class GameScene extends Phaser.Scene {
     counter.classList.add('pickup-pulse');
   }
 
-  /** Pickup presentation experiments (map #18): switchable at runtime via the
-   *  test harness or the ?pickupStyle= query param. 'classic' is the shipped
-   *  behavior; the alternatives are candidates under evaluation. */
+  /** Pickup presentation (map #18): 'dissolve' shipped as the default per
+   *  Batu's 2026-08-04 verdict (most forgiving of cutout imperfections).
+   *  Still switchable via the test harness, ?pickupStyle=, or the 4-tap
+   *  cycler for evaluation. */
   private pickupStyle: 'classic' | 'juiced' | 'dissolve' | 'peel' =
     (new URLSearchParams(globalThis.location?.search ?? '').get('pickupStyle') as
       'classic' | 'juiced' | 'dissolve' | 'peel' | null)
     ?? (globalThis.localStorage?.getItem('ftb.pickupStyle') as
       'classic' | 'juiced' | 'dissolve' | 'peel' | null)
-    ?? 'classic';
+    ?? 'dissolve';
 
   setPickupStyleForTest(style: 'classic' | 'juiced' | 'dissolve' | 'peel'): void {
     this.pickupStyle = style;
@@ -2460,6 +2461,7 @@ export class GameScene extends Phaser.Scene {
     const reducedMotion = this.prefersReducedMotion();
     this.pickupAnimationsActive += 1;
     this.ensurePickupParticleTexture();
+    this.ensurePickupFeatherTexture();
     const burst = this.add.particles(start.x, start.y, 'pickup-mote', {
       speed: { min: 60, max: 260 },
       angle: { min: 180, max: 360 },
@@ -2471,6 +2473,21 @@ export class GameScene extends Phaser.Scene {
       blendMode: Phaser.BlendModes.ADD,
       tint: [0xffffff, 0xffe9a8, 0x9fd7ff, 0xfff2c8],
     }).setScrollFactor(0).setDepth(86);
+    // Feathers: fewer, slower, no ADD blend — they read as matter, not light.
+    // Light gravity + high air drag so they flutter down instead of raining.
+    const feathers = this.add.particles(start.x, start.y, 'pickup-feather', {
+      speed: { min: 40, max: 150 },
+      angle: { min: 200, max: 340 },
+      gravityY: 90,
+      accelerationX: { min: -30, max: 30 },
+      lifespan: { min: 700, max: 1200 },
+      scale: { start: 0.9, end: 0.55 },
+      alpha: { start: 1, end: 0 },
+      rotate: { min: -200, max: 200 },
+      quantity: reducedMotion ? 3 : 9,
+      emitting: false,
+      tint: [0xffffff, 0xffe1b0, 0xa8d8ff, 0xf6c6cf],
+    }).setScrollFactor(0).setDepth(87);
 
     // Pop: brief inflate + flash, then the sprite collapses as particles fly.
     this.tweens.chain({
@@ -2482,6 +2499,7 @@ export class GameScene extends Phaser.Scene {
       onStart: () => { image.preFX?.setPadding(10); image.preFX?.addGlow(0xffffff, 10, 3); },
       onComplete: () => {
         burst.explode(reducedMotion ? 8 : 26);
+        feathers.explode(reducedMotion ? 3 : 9);
         // Credit streak: one bright mote arcs to the counter fast.
         const mote = this.add.image(start.x, start.y, 'pickup-mote')
           .setScrollFactor(0).setDepth(87).setTint(0xffe9a8).setScale(2.1)
@@ -2507,6 +2525,7 @@ export class GameScene extends Phaser.Scene {
             mote.destroy();
             trail.stop();
             this.time.delayedCall(300, () => { burst.destroy(); trail.destroy(); });
+            this.time.delayedCall(1300, () => feathers.destroy());
             this.emitCounterPop();
             this.finishPickup(image);
           },
@@ -2561,6 +2580,23 @@ export class GameScene extends Phaser.Scene {
     const g = this.add.graphics();
     g.fillStyle(0xffffff, 1).fillCircle(6, 6, 6);
     g.generateTexture('pickup-mote', 12, 12);
+    g.destroy();
+  }
+
+  /** Small white feather (tinted per-particle): rounded vane + darker quill. */
+  private ensurePickupFeatherTexture(): void {
+    if (this.textures.exists('pickup-feather')) return;
+    const g = this.add.graphics();
+    g.fillStyle(0xffffff, 1);
+    g.beginPath();
+    g.moveTo(11, 1);
+    g.arc(8, 12, 7.6, Phaser.Math.DegToRad(-70), Phaser.Math.DegToRad(105), false);
+    g.lineTo(11, 27);
+    g.arc(14, 12, 7.6, Phaser.Math.DegToRad(105), Phaser.Math.DegToRad(-70), true);
+    g.closePath();
+    g.fillPath();
+    g.lineStyle(1.6, 0xd8d2c4, 1).lineBetween(11, 3, 11, 27);
+    g.generateTexture('pickup-feather', 22, 28);
     g.destroy();
   }
 
