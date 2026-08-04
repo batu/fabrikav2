@@ -814,6 +814,31 @@ def cmd_fix_hitboxes(client: Client, args: argparse.Namespace) -> None:
     ))
 
 
+def cmd_materialize_hitbox_sprites(client: Client, args: argparse.Namespace) -> None:
+    """Cut pickup sprites at the session's (typically hand-placed) hitboxes.
+
+    No detection, no reconcile: each hitbox IS the bird, so the detection fed
+    to materialize is just a padded square around it. Flat-key recreate is the
+    primary extractor server-side; the free chain is the fallback."""
+    session = client.get(f"/api/sessions/{args.session_id}")
+    hitboxes = session.get("hitboxes") or []
+    if not hitboxes:
+        raise CliError("no_hitboxes", "session has no hitboxes")
+    detections = []
+    for hb in hitboxes:
+        r = float(hb.get("r") or hb.get("radius") or 58)
+        pad = r * args.pad_factor
+        detections.append({
+            "x": int(hb["x"] - pad), "y": int(hb["y"] - pad),
+            "width": int(2 * pad), "height": int(2 * pad),
+            "confidence": 1.0,
+        })
+    _emit(args, client.post(
+        f"/api/sessions/{args.session_id}/materialize-detection-sprites",
+        json={"detections": detections, "minimumConfidence": 0.5},
+    ))
+
+
 def cmd_finalize_magenta_hitboxes(client: Client, args: argparse.Namespace) -> None:
     _emit(args, client.post(
         f"/api/sessions/{args.session_id}/finalize-magenta-hitboxes",
@@ -1229,6 +1254,10 @@ def build_parser() -> argparse.ArgumentParser:
     p = verb("fix-hitboxes", cmd_fix_hitboxes)
     p.add_argument("session_id")
     p.add_argument("--max-offset", type=float, default=0.5)
+
+    p = verb("materialize-hitbox-sprites", cmd_materialize_hitbox_sprites)
+    p.add_argument("session_id")
+    p.add_argument("--pad-factor", type=float, default=2.2)
 
     p = verb("finalize-magenta-hitboxes", cmd_finalize_magenta_hitboxes)
     p.add_argument("session_id")
