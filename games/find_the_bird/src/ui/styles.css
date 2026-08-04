@@ -2981,14 +2981,14 @@
   flex-shrink: 0;
   position: relative;
   z-index: 5;
-  /* 5px nudge via relative offset (not margin) so the saga doesn't reflow. */
-  top: 5px;
-  width: min(100%, 232px);
+  /* Lower the larger CTA without changing the saga's layout footprint. */
+  top: 13px;
+  width: min(100%, 300px);
   /* Pulled up toward the current level node while retaining the compact
      a39c67fb layout footprint. */
   margin: -40px auto 20px;
-  height: 72px;
-  min-height: 72px;
+  height: 94px;
+  min-height: 94px;
   border: 0;
   border-radius: 999px;
   background: url('/ui/home/play-level-button-runtime.png') center / 100% 100% no-repeat;
@@ -3028,29 +3028,6 @@
   object-fit: contain;
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.30));
   pointer-events: none;
-}
-
-/* Play button — overrides the side-button pill with its own raised card */
-.home-nav-play-btn {
-  margin-top: -44px;
-  position: relative;
-  z-index: 3;
-  background: #fff8ef;
-  border-radius: 26px;
-  min-width: 150px;
-  padding: 6px 24px 10px;
-  box-shadow:
-    0 -8px 24px rgba(50, 22, 5, 0.26),
-    0 6px 16px rgba(50, 22, 5, 0.20);
-  color: #5c3414;
-  font-size: 13px;
-  font-weight: 900;
-}
-
-.home-nav-play-btn img {
-  width: 72px;
-  height: 72px;
-  filter: drop-shadow(0 4px 10px rgba(20, 100, 60, 0.35));
 }
 
 .home-nav-btn--tapped {
@@ -3198,7 +3175,7 @@
   /* padding-bottom lifts the whole saga up so the current node sits just above
      the Play Now CTA. Raise --fab-levelmap-node-gap to push the UPPER tiles
      toward the banner. */
-  padding: 6px 0 40px;
+  padding: 6px 0 28px;
 }
 
 .home-play-dock {
@@ -3241,37 +3218,6 @@
   cursor: pointer;
   min-height: 44px;
 }
-/* Bare like the other rail buttons (e.g. no-ads): icon + label, no card chrome. */
-.home-achievements-btn {
-  width: auto;
-  min-width: 76px;
-  min-height: 58px;
-  display: grid;
-  gap: 3px;
-  justify-items: center;
-  align-content: center;
-  padding: 6px 6px 7px;
-  color: #33423d;
-  font: 900 11px/1.05 'Nunito', sans-serif;
-  text-shadow: 0 1px 0 rgba(255, 244, 205, 0.65);
-}
-/* Same gold-medal treatment as the collection page's card badges so the Home
-   entry and its destination share one icon, embossed like the coin/hint pills. */
-.home-achievements-medal {
-  display: block;
-  width: 38px;
-  height: 38px;
-  margin: 0 auto;
-  object-fit: contain;
-  filter: drop-shadow(0 3px 4px rgba(61, 78, 63, 0.2));
-}
-/* Keep the label on one line: the word must never break mid-word on device. */
-.home-achievements-label {
-  white-space: nowrap;
-  font-size: 10px;
-  letter-spacing: -0.01em;
-}
-
 .home-no-ads-btn .home-no-ads-art {
   width: 82px;
   height: 82px;
@@ -3491,7 +3437,7 @@
   }
 }
 
-/* Richer bottom nav: Shop · Home (raised emblem) · Settings */
+/* Richer bottom nav: Achievements · Shop · Settings */
 /* 3-tile bar in the reference structure, FTD warm palette: divided slots that
    fill the full width, with a raised highlighted center. */
 #home-shell .home-nav-bar {
@@ -3522,6 +3468,7 @@
 /* Side slots — equal thirds, divider lines between, icon + label centered. */
 #home-shell .home-nav-btn {
   align-self: stretch;
+  position: relative;
   flex-direction: column;
   justify-content: center;
   gap: 2px;
@@ -3540,55 +3487,32 @@
     0 1px 0 #fff8e8, 0 2px 3px rgba(51, 66, 61, 0.24);
 }
 #home-shell .home-nav-btn img {
+  display: block;
   width: 66px;
   height: 66px;
+  margin-inline: auto;
   object-fit: contain;
   object-position: center;
+  transform: translateY(-8px);
   filter:
     drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
     drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
     drop-shadow(0 4px 5px rgba(70, 36, 10, 0.5));
+}
+#home-shell #home-nav-achievements img {
+  width: 62px;
+  height: 62px;
 }
 
-/* Center Play slot — a full third, highlighted lighter, icon rises above. */
-#home-shell .home-nav-play-btn {
-  align-self: stretch;
-  position: relative;
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 2px;
-  margin-top: 0;
-  min-width: 0;
-  padding: 6px 0 calc(env(safe-area-inset-bottom, 0px) * 0.55 + 13px);
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
-  color: #33423d;
-  font-family: 'Nunito', sans-serif;
-  font-size: 14px;
-  font-weight: 900;
-  letter-spacing: 0.3px;
-  text-shadow: 0 1px 0 #fff8e8, 0 2px 3px rgba(51, 66, 61, 0.2);
-  cursor: pointer;
+#home-shell .home-nav-btn > span {
+  position: absolute;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom, 0px) * 0.55 + 30px);
+  left: 0;
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
 }
-.home-nav-play-emblem {
-  display: grid;
-  place-items: center;
-}
-#home-shell .home-nav-play-btn .home-nav-play-emblem img {
-  width: 78px;
-  height: 78px;
-  object-fit: contain;
-  filter:
-    drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
-    drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
-    drop-shadow(0 4px 5px rgba(70, 36, 10, 0.5));
-}
-#home-shell .home-nav-play-btn:active .home-nav-play-emblem { transform: translateY(3px) scale(0.97); }
 
 /* Idle pulse on the whole Play Now CTA (moved off the nav emblem). Disabled on
    the play-entry clone (1,1,0 beats #home-play-now) so the scatter-out transform
@@ -3913,7 +3837,6 @@
 
 @media (max-height: 600px) {
   .home-rail { top: 96px; gap: 6px; }
-  .home-achievements-btn { min-height: 44px; }
   .home-page-body { padding-top: 14px; }
 }
 

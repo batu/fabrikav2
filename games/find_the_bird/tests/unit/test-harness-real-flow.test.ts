@@ -273,12 +273,12 @@ function createFakeGame(options: { deferHomeRender?: boolean } = {}) {
       <div id="home-shell">
         <button id="home-play-now" data-hit-target="play" type="button">Play</button>
         <button id="home-nav-settings" data-hit-target="settings" type="button">Settings</button>
-        <button id="home-achievements" data-hit-target="achievements" type="button">Achievements</button>
+        <button id="home-nav-achievements" data-hit-target="achievements" type="button">Achievements</button>
       </div>
     `;
     const play = overlay.querySelector<HTMLButtonElement>("#home-play-now")!;
     const settings = overlay.querySelector<HTMLButtonElement>("#home-nav-settings")!;
-    const achievements = overlay.querySelector<HTMLButtonElement>("#home-achievements")!;
+    const achievements = overlay.querySelector<HTMLButtonElement>("#home-nav-achievements")!;
     setRect(play, { left: 10, top: 10, width: 40, height: 20 });
     setRect(settings, { left: 60, top: 10, width: 30, height: 20 });
     setRect(achievements, { left: 10, top: 40, width: 80, height: 20 });
