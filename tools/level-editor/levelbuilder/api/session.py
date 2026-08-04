@@ -2615,6 +2615,7 @@ def materialize_detection_sprites(
         if isinstance(dog, dict) and isinstance(dog.get("index"), int)
     }
     materialized: list[dict] = []
+    failed: list[dict] = []
     with Image.open(color_path) as source:
         color = source.convert("RGB")
     try:
@@ -2682,9 +2683,12 @@ def materialize_detection_sprites(
                 )
             if alpha is None:
                 painted.close()
-                raise LevelNotReadyError(
-                    f"semantic pickup extraction failed for detection {detection['index']}"
-                )
+                failed.append({
+                    "index": index,
+                    "detectionIndex": detection["index"],
+                    "reason": "extraction_failed",
+                })
+                continue
             dog_dir = dogs_dir(session_id) / f"dog_{index:02d}"
             dog_dir.mkdir(parents=True, exist_ok=True)
             variant_path = dog_dir / "variant_000.png"
@@ -2703,9 +2707,12 @@ def materialize_detection_sprites(
             alpha.close()
             painted.close()
             if metadata is None:
-                raise LevelNotReadyError(
-                    f"pickup sprite validation failed for detection {detection['index']}"
-                )
+                failed.append({
+                    "index": index,
+                    "detectionIndex": detection["index"],
+                    "reason": "validation_failed",
+                })
+                continue
             materialized.append({
                 "index": index,
                 "detectionIndex": detection["index"],
@@ -2714,6 +2721,7 @@ def materialize_detection_sprites(
     finally:
         color.close()
 
+    succeeded_indices = {entry["index"] for entry in materialized}
     dogs = []
     for index, hitbox in enumerate(hitboxes):
         existing = existing_dogs.get(index) or {}
@@ -2721,8 +2729,8 @@ def materialize_detection_sprites(
             **existing,
             "index": index,
             "id": hitbox.get("id") or existing.get("id") or f"dog_{index:02d}",
-            "status": "done",
-            "activeVariant": 0,
+            "status": "done" if index in succeeded_indices else "failed",
+            "activeVariant": 0 if index in succeeded_indices else existing.get("activeVariant"),
             "promptOverride": existing.get("promptOverride"),
         })
     raw["dogs"] = dogs
@@ -2731,6 +2739,7 @@ def materialize_detection_sprites(
         "sessionId": session_id,
         "materialized": len(materialized),
         "sprites": materialized,
+        "failed": failed,
     }
 
 
