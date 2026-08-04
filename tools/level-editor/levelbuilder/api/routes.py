@@ -1336,7 +1336,10 @@ def start_upscale_background_job(session_id: str, req: UpscaleBgRequest) -> Upsc
     if existing_job is not None:
         if req.select and not bool(existing_job.metadata.get("select")):
             existing_job = JOB_STORE.update_metadata(existing_job.id, {"select": True})
-        if existing_job.status == "failed_retryable":
+        if existing_job.status in ("failed_retryable", "failed_terminal"):
+            # failed_terminal included: a terminal verdict can be an artifact
+            # of since-fixed server config (e.g. a model id the lane didn't
+            # know yet); a fresh explicit request is consent to try again.
             existing_job = JOB_STORE.requeue_job(existing_job.id, reason="Retry requested through upscale job start endpoint.")
         if existing_job.status == "succeeded" and req.select and not S.has_downstream_artifacts(session_id):
             background = existing_job.result.get("background")
