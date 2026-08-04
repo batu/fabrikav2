@@ -5061,9 +5061,8 @@ def detect_birds_vlm(session_id: str, *, model: str = "gemini-3.6-flash") -> lis
     import io as _io
     import httpx as _httpx
 
+    use_openrouter = bool(os.environ.get("MERCEKA_FORCE_OPENROUTER")) or not os.environ.get("GOOGLE_API_KEY")
     api_key = os.environ.get("GOOGLE_API_KEY")
-    if not api_key:
-        raise S.LevelNotReadyError("GOOGLE_API_KEY not set")
     sdir = S.session_dir(session_id)
     with Image.open(sdir / "color.png") as _c:
         W, H = _c.size
@@ -5079,27 +5078,63 @@ def detect_birds_vlm(session_id: str, *, model: str = "gemini-3.6-flash") -> lis
                 "box_2d": {"type": "ARRAY", "items": {"type": "INTEGER"}},
                 "label": {"type": "STRING"}}, "required": ["box_2d"]}}},
     }
-    data = None
-    for attempt in range(5):
-        resp = _httpx.post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
-            json=payload, headers={"x-goog-api-key": api_key}, timeout=180,
-        )
-        if resp.status_code == 429 or resp.status_code >= 500:
-            import time as _t
-            _t.sleep(min(60, 5 * (2 ** attempt)))
-            continue
-        resp.raise_for_status()
-        data = resp.json()
-        break
-    if data is None:
-        raise S.LevelNotReadyError(f"VLM detection rate-limited after retries ({resp.status_code})")
-    try:
-        from merceka_core import costs as _mc
-        _mc.record(source="google-direct", model=f"google/{model}", usage=data.get("usageMetadata"))
-    except Exception:
-        pass
-    boxes = json.loads(data["candidates"][0]["content"]["parts"][0]["text"])
+    boxes = None
+    if not use_openrouter:
+        data = None
+        for attempt in range(3):
+            resp = _httpx.post(
+                f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+                json=payload, headers={"x-goog-api-key": api_key}, timeout=180,
+            )
+            if resp.status_code == 429 or resp.status_code >= 500:
+                if "RESOURCE_EXHAUSTED" in resp.text:
+                    break  # billing depleted: no point retrying — fall through to OpenRouter
+                import time as _t
+                _t.sleep(min(60, 5 * (2 ** attempt)))
+                continue
+            resp.raise_for_status()
+            data = resp.json()
+            break
+        if data is not None:
+            try:
+                from merceka_core import costs as _mc
+                _mc.record(source="google-direct", model=f"google/{model}", usage=data.get("usageMetadata"))
+            except Exception:
+                pass
+            boxes = json.loads(data["candidates"][0]["content"]["parts"][0]["text"])
+    if boxes is None:
+        or_key = os.environ.get("OPENROUTER_API_KEY")
+        if not or_key:
+            raise S.LevelNotReadyError("no usable vision provider (Google depleted, no OPENROUTER_API_KEY)")
+        or_payload = {
+            "model": f"google/{model}",
+            "messages": [{"role": "user", "content": [
+                {"type": "image_url", "image_url": {"url": "data:image/png;base64," + _b64.b64encode(buf.getvalue()).decode()}},
+                {"type": "text", "text": "Detect every bird in this illustrated hidden-object scene. Return STRICT JSON: an array of objects {\"box_2d\": [ymin,xmin,ymax,xmax]} with coordinates in 0-1000 normalized space. No prose."},
+            ]}],
+            "usage": {"include": True},
+        }
+        for attempt in range(4):
+            resp = _httpx.post("https://openrouter.ai/api/v1/chat/completions", json=or_payload,
+                               headers={"Authorization": f"Bearer {or_key}"}, timeout=180)
+            if resp.status_code == 429 or resp.status_code >= 500:
+                import time as _t
+                _t.sleep(min(60, 5 * (2 ** attempt)))
+                continue
+            resp.raise_for_status()
+            data = resp.json()
+            break
+        else:
+            raise S.LevelNotReadyError("OpenRouter VLM detection rate-limited after retries")
+        try:
+            from merceka_core import costs as _mc
+            usage = data.get("usage") or {}
+            _mc.record(source="openrouter", model=f"google/{model}", usage=usage, usd=usage.get("cost"))
+        except Exception:
+            pass
+        txt = data["choices"][0]["message"]["content"]
+        txt = txt[txt.find("["): txt.rfind("]") + 1]
+        boxes = json.loads(txt)
     dets = []
     for b in boxes:
         y0, x0, y1, x1 = b["box_2d"]  # [ymin,xmin,ymax,xmax] in 0-1000
@@ -5199,6 +5234,23 @@ def recenter_hitboxes_local_diff(
     # Neighbor-aware cleanup boxes: full margin per side unless it would bite
     # another bird's footprint — the shipped background is birdless, so a box
     # overlapping neighbor PIXELS would erase that neighbor on pickup.
+    # Hitboxes with no measured footprint keep their existing cleanup, which
+    # can violate the contain-center gate — expand those minimally.
+    for idx2, hb2 in enumerate(hitboxes):
+        if idx2 in footprints:
+            continue
+        meta_path2 = S.dogs_dir(session_id) / f"dog_{idx2:02d}" / "sprite_000.json"
+        if not meta_path2.exists():
+            continue
+        meta2 = json.loads(meta_path2.read_text())
+        cu = meta2.get("cleanupBox")
+        if not (isinstance(cu, list) and len(cu) == 4):
+            continue
+        pad_c2 = 20
+        cu = [min(cu[0], max(0, hb2["x"] - pad_c2)), min(cu[1], max(0, hb2["y"] - pad_c2)),
+              max(cu[2], min(color.width, hb2["x"] + pad_c2)), max(cu[3], min(color.height, hb2["y"] + pad_c2))]
+        meta2["cleanupBox"] = cu
+        meta_path2.write_text(json.dumps(meta2, indent=2))
     margin = 32
     for idx, fp in footprints.items():
         fx0, fy0, fx1, fy1 = fp
