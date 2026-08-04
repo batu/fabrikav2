@@ -34,10 +34,8 @@ build-backend = "hatchling.build"
 packages = ["levelbuilder"]
 
 [tool.uv.sources]
-# Cross-repo provider layer stays git-rev pinned (KTD4). Upgrades are explicit:
-# bump this revision and regenerate uv.lock.
-merceka-core = { git = "https://github.com/batu/merceka-core.git", rev = "e34a8399942ac62226190880ff290b8f53366265" }
 ftd-editor = { path = "../ftd-level-editor", editable = true }
+merceka-core = { path = "../../../merceka-core", editable = true }
 
 [dependency-groups]
 dev = [

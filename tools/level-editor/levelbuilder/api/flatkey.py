@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import numpy as np
 from PIL import Image
+from scipy import ndimage
 
 FLAT_PROMPT = (
     "Recreate the exact same cartoon bird character from this image — identical "
@@ -135,14 +136,55 @@ def flat_ok(flat, cutout):
     grayish = vis & (abs(rr-gg) < 18) & (abs(gg-bb2) < 18) & (rr > 90) & (rr < 230)
     if vis.sum() and float(grayish.sum())/float(vis.sum()) > 0.45:
         return False, f"cutout dominated by flat gray/white background ({grayish.sum()/vis.sum():.2f})"
-    import sys as _s
-    _s.path.insert(0, str((HERE / "../../../tools/level-editor").resolve()))
     from levelbuilder.api.sprite_eval import _connected_components
     comps = _connected_components(ca)
     big = [c for c in comps if c.sum() > 0.25 * max(1, comps[0].sum())]
     if len(big) > 1:
         return False, f"{len(big)} large components (duplicate subject?)"
     return True, ""
+
+
+def strip_flat_rim(cutout: Image.Image) -> Image.Image:
+    """Remove edge-connected flat backdrop remnants from a chroma-keyed sprite:
+    the white sticker rim and any low-saturation gray panel the model rendered
+    instead of magenta. Flood from the transparent edge through low-saturation
+    bright pixels; the dark line-art outline stops the flood, so gray/white
+    interior plumage survives."""
+    a = np.asarray(cutout.convert("RGBA"), dtype=np.uint8).copy()
+    rgb = a[..., :3].astype(int)
+    al = a[..., 3]
+    mx = rgb.max(axis=2)
+    mn = rgb.min(axis=2)
+    sat = mx - mn
+    flatish = (al > 0) & (sat < 34) & (mx > 110)
+    transparent = al == 0
+    edge = ndimage.binary_dilation(np.pad(transparent, 1, constant_values=True))[1:-1, 1:-1]
+    labels, n = ndimage.label(flatish)
+    rim = np.zeros_like(flatish)
+    for i in range(1, n + 1):
+        m = labels == i
+        if (m & edge).any():
+            rim |= m
+    halo = ndimage.binary_dilation(rim) & (sat < 50) & (mx > 100) & ~rim
+    a[..., 3][rim | halo] = 0
+    return Image.fromarray(a)
+
+
+def judge_gate(cutout: Image.Image, painted: Image.Image) -> bool:
+    """Codex vision gate from the validated corpus lane: complete single bird
+    (+ held item), no stray artifacts. Fails open when the judge is
+    unavailable — the deterministic gates already passed."""
+    import os as _os
+    if _os.environ.get("FTD_FLATKEY_NO_JUDGE"):
+        return True
+    try:
+        from levelbuilder.api.sprite_judge import CodexExecJudge, JudgeCase
+        v = CodexExecJudge().judge(JudgeCase(dog_id="gate", sprite=cutout, painted_crop=painted))
+    except Exception:
+        return True
+    if not v.ok:
+        return True
+    return v.subject >= 0.5 and v.completeness >= 0.5
 
 
 def flatkey_recreate_sprite(
@@ -162,5 +204,13 @@ def flatkey_recreate_sprite(
         ok, _reason = flat_ok(flat, cutout)
         if not ok:
             continue
-        return despill(cutout)
+        cutout = despill(cutout)
+        cutout = strip_flat_rim(cutout)
+        bbox = cutout.getbbox()
+        if bbox is None:
+            continue
+        cutout = cutout.crop(bbox)
+        if not judge_gate(cutout, painted_crop):
+            continue
+        return cutout
     return None
