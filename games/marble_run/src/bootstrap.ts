@@ -9,7 +9,7 @@ import { gameState } from './core/GameState';
 import { initHUD } from './ui/HUD';
 import { analytics } from './analytics/AnalyticsService';
 import { attribution, configureAttributionStartupGate } from './attribution/AttributionService';
-import { adService } from './ads/Service';
+import { initializeAdsForGameplay } from './ads/Service';
 import { createSdkContext, getSdkContext, installSdkContext } from './sdk/SdkContext';
 import { initializeCohort } from './data/cohortContext';
 import { remoteConfigService } from './config/RemoteConfigService';
@@ -71,7 +71,7 @@ installGameLifecycle(game);
 // plumbing — no install()/maybePromptOnLaunch() at boot, so no OS permission
 // prompt fires. Re-enabling retention reminders is a deferred later-wave call.
 const shouldInitializeAds = gameState.settings.adsEnabled && !gameState.hasNoAdsEntitlement;
-const adConsentReady = shouldInitializeAds ? adService.init() : Promise.resolve();
+const adConsentReady = shouldInitializeAds ? initializeAdsForGameplay() : Promise.resolve();
 configureAttributionStartupGate(adConsentReady);
 void adConsentReady
   .finally((): void => {

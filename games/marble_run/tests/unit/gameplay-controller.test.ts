@@ -178,6 +178,35 @@ describe("GameplayController", () => {
     expect(hooks.onFail).toHaveBeenCalledWith(levelIndex + 1);
   });
 
+  it("continues a failed board in place with restored hearts", () => {
+    let levelIndex = -1;
+    let blockedCell: Cell | null = null;
+    for (let i = 0; i < LEVELS.length; i += 1) {
+      const probe = new GameplayController(container, makeHooks());
+      probe.startLevel(i + 1);
+      const engine = probe.engineRef()!;
+      const blocked = engine.allMarbles().find((marble) => engine.previewTap(marble.cell) === null);
+      probe.dispose();
+      if (blocked) { levelIndex = i; blockedCell = blocked.cell; break; }
+    }
+    expect(blockedCell).not.toBeNull();
+
+    controller = new GameplayController(container, makeHooks());
+    controller.startLevel(levelIndex + 1);
+    const failedEngine = controller.engineRef()!;
+    const remainingBeforeFail = failedEngine.remainingCount();
+    for (let i = 0; i < failedEngine.totalHearts(); i += 1) controller.tapCell(blockedCell!);
+    vi.advanceTimersByTime(500);
+    expect(failedEngine.gameStatus()).toBe("failed");
+
+    expect(controller.continueAfterFail()).toBe(true);
+    expect(controller.engineRef()).toBe(failedEngine);
+    expect(failedEngine.remainingCount()).toBe(remainingBeforeFail);
+    expect(failedEngine.gameStatus()).toBe("playing");
+    expect(failedEngine.hearts()).toBe(failedEngine.totalHearts());
+    expect(controller.snapshot().ended).toBe(false);
+  });
+
   it("does nothing and opens no purchase surface when a hint cannot be afforded", () => {
     const hooks = makeHooks();
     controller = new GameplayController(container, hooks);

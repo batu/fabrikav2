@@ -169,7 +169,7 @@ export const REMOTE_CONFIG_DEFINITIONS_BY_KEY: {
   findMomentBurstEnabled: { key: 'findMomentBurstEnabled', remoteKey: 'find_moment_burst_enabled', type: 'boolean', description: 'Enable small find-moment burst feedback.' },
   microAnimationsEnabled: { key: 'microAnimationsEnabled', remoteKey: 'micro_animations_enabled', type: 'boolean', description: 'Enable subtle in-level micro animations.' },
   hintRwEnabled: { key: 'hintRwEnabled', remoteKey: 'hint_rw_enabled', type: 'boolean', description: 'Enable rewarded-ad hint acquisition when hints are empty.' },
-  levelContinueRwEnabled: { key: 'levelContinueRwEnabled', remoteKey: 'level_continue_rw_enabled', type: 'boolean', description: 'Deprecated no-op: fail-screen rewarded-ad continue was removed.' },
+  levelContinueRwEnabled: { key: 'levelContinueRwEnabled', remoteKey: 'level_continue_rw_enabled', type: 'boolean', description: 'Show the fail-screen rewarded-ad continue action.' },
   levelEndClaimX2Enabled: { key: 'levelEndClaimX2Enabled', remoteKey: 'level_end_claim_x2_enabled', type: 'boolean', description: 'Enable rewarded-ad completion coin doubling.' },
   interstitialAdsEnabled: { key: 'interstitialAdsEnabled', remoteKey: 'interstitial_ads_enabled', type: 'boolean', description: 'Master kill switch for interstitials. False shows none regardless of the level gates.' },
   interstitialFirstLevel: { key: 'interstitialFirstLevel', remoteKey: 'interstitial_first_level', type: 'number', description: 'First level number (1-based) that may show an interstitial. Levels below this are ad-free.' },

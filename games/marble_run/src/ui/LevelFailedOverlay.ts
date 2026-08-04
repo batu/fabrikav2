@@ -11,6 +11,7 @@ export interface FailContinueActionResult {
 
 export interface LevelFailedOverlayOptions {
   levelNumber: number;
+  watchAdAvailable: boolean;
   onRetry: () => void;
   onWatchAd: () => Promise<FailContinueActionResult>;
 }
@@ -61,14 +62,16 @@ export function showLevelFailedOverlay(levelId: string, options: LevelFailedOver
     options.onRetry();
   };
 
-  const watchAd = buildButtonElement({
-    label: 'WATCH AD',
-    ariaLabel: 'Watch an ad to continue',
-    dataAction: 'result-watch-ad',
-    className: 'marble-result-action marble-fail-action marble-fail-watch-ad',
-    spriteImage: assetUrls.buttonGreen,
-    onClick: () => void runWatchAd(),
-  });
+  const watchAd = options.watchAdAvailable
+    ? buildButtonElement({
+        label: 'WATCH AD',
+        ariaLabel: 'Watch an ad to continue',
+        dataAction: 'result-watch-ad',
+        className: 'marble-result-action marble-fail-action marble-fail-watch-ad',
+        spriteImage: assetUrls.buttonGreen,
+        onClick: () => void runWatchAd(),
+      })
+    : null;
   const retryButton = buildButtonElement({
     label: 'RETRY',
     ariaLabel: 'Retry level',
@@ -77,10 +80,11 @@ export function showLevelFailedOverlay(levelId: string, options: LevelFailedOver
     spriteImage: assetUrls.buttonOrange,
     onClick: retry,
   });
-  optionsContainer.append(watchAd, retryButton);
+  if (watchAd !== null) optionsContainer.appendChild(watchAd);
+  optionsContainer.appendChild(retryButton);
 
   async function runWatchAd(): Promise<void> {
-    if (watchAdPending) return;
+    if (watchAdPending || watchAd === null) return;
     playUITap();
     watchAdPending = true;
     watchAd.disabled = true;
@@ -108,7 +112,9 @@ export function showLevelFailedOverlay(levelId: string, options: LevelFailedOver
     ribbonImage: assetUrls.ribbonFailed,
     cardImage: assetUrls.popup,
     art: buildFailIcon(),
-    messages: ['No hearts left!', 'Watch an ad to continue.'],
+    messages: options.watchAdAvailable
+      ? ['No hearts left!', 'Watch an ad to continue.']
+      : ['No hearts left!'],
     continueOffer: statusEl,
     actions: optionsContainer,
   });
