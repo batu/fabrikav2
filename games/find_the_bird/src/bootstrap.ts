@@ -135,7 +135,24 @@ if (typeof window !== 'undefined') {
     lastTapTime = now;
     if (tapCount >= TAPS_REQUIRED) {
       tapCount = 0;
-      // Reserved for future dev toggles. Intentionally empty today.
+      // Pickup-style cycler (map #18 evaluation): 4 taps advances
+      // classic → juiced → dissolve → peel, persists the choice, and applies
+      // it to the running GameScene so styles can be compared on device.
+      const styles = ['classic', 'juiced', 'dissolve', 'peel'] as const;
+      const current = window.localStorage.getItem('ftb.pickupStyle') ?? 'classic';
+      const next = styles[(styles.indexOf(current as typeof styles[number]) + 1) % styles.length];
+      window.localStorage.setItem('ftb.pickupStyle', next);
+      for (const scene of game.scene.getScenes(true)) {
+        (scene as Partial<{ setPickupStyleForTest: (s: typeof styles[number]) => void }>)
+          .setPickupStyleForTest?.(next);
+      }
+      const toast = document.createElement('div');
+      toast.textContent = `pickup: ${next}`;
+      toast.style.cssText = 'position:fixed;top:12%;left:50%;transform:translateX(-50%);'
+        + 'background:rgba(0,0,0,.75);color:#fff;padding:6px 14px;border-radius:14px;'
+        + 'font:600 14px system-ui;z-index:9999;pointer-events:none;';
+      document.body.appendChild(toast);
+      window.setTimeout(() => toast.remove(), 1400);
     }
   });
 

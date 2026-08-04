@@ -2331,7 +2331,10 @@ export class GameScene extends Phaser.Scene {
    *  behavior; the alternatives are candidates under evaluation. */
   private pickupStyle: 'classic' | 'juiced' | 'dissolve' | 'peel' =
     (new URLSearchParams(globalThis.location?.search ?? '').get('pickupStyle') as
-      'classic' | 'juiced' | 'dissolve' | 'peel' | null) ?? 'classic';
+      'classic' | 'juiced' | 'dissolve' | 'peel' | null)
+    ?? (globalThis.localStorage?.getItem('ftb.pickupStyle') as
+      'classic' | 'juiced' | 'dissolve' | 'peel' | null)
+    ?? 'classic';
 
   setPickupStyleForTest(style: 'classic' | 'juiced' | 'dissolve' | 'peel'): void {
     this.pickupStyle = style;
