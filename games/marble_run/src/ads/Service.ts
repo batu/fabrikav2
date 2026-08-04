@@ -15,6 +15,12 @@ export function configureAdService(next: AdProvider): void {
   provider = next;
 }
 
+/** Initialize ads and arm the first fail/win interstitial before gameplay. */
+export async function initializeAdsForGameplay(): Promise<void> {
+  await provider.init();
+  await provider.preloadInterstitial();
+}
+
 /** Stable facade: consumers hold `adService` across provider installation. */
 export const adService: AdProvider = {
   get providerName(): string {
