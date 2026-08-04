@@ -2087,11 +2087,11 @@ def reconcile_magenta_hitboxes(session_id: str, req: ReconcileMagentaHitboxesReq
 
 
 @router.post("/sessions/{session_id}/recenter-hitboxes-local")
-def recenter_hitboxes_local(session_id: str):
+def recenter_hitboxes_local(session_id: str, radiusScale: float = Query(1.0, ge=0.5, le=3.0)):
     _validate_session_id(session_id)
     from .inpaint import recenter_hitboxes_local_diff
     try:
-        return recenter_hitboxes_local_diff(session_id)
+        return recenter_hitboxes_local_diff(session_id, radius_scale=radiusScale)
     except S.LevelNotReadyError as error:
         raise HTTPException(409, detail={"error": str(error), "code": "recenter_failed"}) from error
 

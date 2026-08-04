@@ -840,7 +840,8 @@ def cmd_materialize_hitbox_sprites(client: Client, args: argparse.Namespace) -> 
 
 
 def cmd_recenter_hitboxes_local(client: Client, args: argparse.Namespace) -> None:
-    _emit(args, client.post(f"/api/sessions/{args.session_id}/recenter-hitboxes-local"))
+    params = {"radiusScale": args.radius_scale} if args.radius_scale != 1.0 else None
+    _emit(args, client.post(f"/api/sessions/{args.session_id}/recenter-hitboxes-local", params=params))
 
 
 def cmd_finalize_magenta_hitboxes(client: Client, args: argparse.Namespace) -> None:
@@ -1265,6 +1266,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = verb("recenter-hitboxes-local", cmd_recenter_hitboxes_local)
     p.add_argument("session_id")
+    p.add_argument("--radius-scale", type=float, default=1.0)
 
     p = verb("finalize-magenta-hitboxes", cmd_finalize_magenta_hitboxes)
     p.add_argument("session_id")

@@ -5058,6 +5058,7 @@ def recenter_hitboxes_local_diff(
     threshold: int = 80,
     min_area: int = 900,
     max_shift_factor: float = 1.6,
+    radius_scale: float = 1.0,
 ) -> dict:
     """Snap each hitbox to the centroid of the nearest painted-diff component
     inside its own crop. Local scope defeats the scene-wide drift that broke
@@ -5078,6 +5079,8 @@ def recenter_hitboxes_local_diff(
     a_full = _np.asarray(bg, dtype=_np.int16)
     b_full = _np.asarray(color, dtype=_np.int16)
     moved = []
+    footprints: dict[int, tuple[int, int, int, int]] = {}
+    overlap_flags: list[dict] = []
     for hb in hitboxes:
         r = int(hb.get("r") or 58)
         pad = int(r * crop_factor)
@@ -5105,29 +5108,54 @@ def recenter_hitboxes_local_diff(
         if dist <= r * max_shift_factor and dist >= 3:
             moved.append({"id": hb.get("id"), "from": [hb["x"], hb["y"]], "to": [int(cx), int(cy)], "shift": round(dist, 1)})
             hb["x"], hb["y"] = int(cx), int(cy)
-        # The cleanup box must cover the painted bird's FULL measured footprint
-        # (observed on device build 7: sprite-derived boxes covered 36-87% too
-        # little, leaving most of the painted bird in the scene after pickup).
+        if radius_scale != 1.0:
+            hb["r"] = int(round(hb["r"] * radius_scale))
+        # Record the measured footprint; cleanup boxes are written after ALL
+        # birds are measured so each box can avoid its neighbors' footprints.
         comp_mask = labels == _comp_idx
         ys, xs = _np.nonzero(comp_mask)
-        margin = 32
-        bx0 = max(0, int(xs.min()) + x0 - margin)
-        by0 = max(0, int(ys.min()) + y0 - margin)
-        bx1 = min(color.width, int(xs.max()) + x0 + margin)
-        by1 = min(color.height, int(ys.max()) + y0 + margin)
-        idx = hitboxes.index(hb)
+        footprints[hitboxes.index(hb)] = (
+            int(xs.min()) + x0, int(ys.min()) + y0,
+            int(xs.max()) + x0, int(ys.max()) + y0,
+        )
+
+    # Neighbor-aware cleanup boxes: full margin per side unless it would bite
+    # another bird's footprint — the shipped background is birdless, so a box
+    # overlapping neighbor PIXELS would erase that neighbor on pickup.
+    margin = 32
+    for idx, fp in footprints.items():
+        fx0, fy0, fx1, fy1 = fp
+        bx0, by0 = fx0 - margin, fy0 - margin
+        bx1, by1 = fx1 + margin, fy1 + margin
+        for jdx, ofp in footprints.items():
+            if jdx == idx:
+                continue
+            ox0, oy0, ox1, oy1 = ofp
+            if bx1 <= ox0 or bx0 >= ox1 or by1 <= oy0 or by0 >= oy1:
+                continue  # no overlap with neighbor footprint
+            # Own footprints intersecting = inseparable pair; flag for HITL.
+            if not (fx1 <= ox0 or fx0 >= ox1 or fy1 <= oy0 or fy0 >= oy1):
+                overlap_flags.append({"a": idx, "b": jdx})
+                continue
+            # Pull back only the sides that reach into the neighbor.
+            if fx1 <= ox0:
+                bx1 = min(bx1, ox0 - 2)
+            if fx0 >= ox1:
+                bx0 = max(bx0, ox1 + 2)
+            if fy1 <= oy0:
+                by1 = min(by1, oy0 - 2)
+            if fy0 >= oy1:
+                by0 = max(by0, oy1 + 2)
+        bx0 = max(0, min(bx0, fx0)); by0 = max(0, min(by0, fy0))
+        bx1 = min(color.width, max(bx1, fx1)); by1 = min(color.height, max(by1, fy1))
         meta_path = S.dogs_dir(session_id) / f"dog_{idx:02d}" / "sprite_000.json"
         if meta_path.exists():
             meta = json.loads(meta_path.read_text())
-            old_cu = meta.get("cleanupBox")
-            meta["cleanupBox"] = [bx0, by0, bx1, by1]
-            # spriteBox must stay inside cleanup for the runtime contract;
-            # widen it is not needed — only cleanup grows.
+            meta["cleanupBox"] = [int(bx0), int(by0), int(bx1), int(by1)]
             meta_path.write_text(json.dumps(meta, indent=2))
-            hb_cleanup = {"id": hb.get("id"), "cleanupBox": [bx0, by0, bx1, by1], "was": old_cu}
     S.save_hitboxes(session_id, hitboxes)
     bg.close(); color.close()
-    return {"sessionId": session_id, "moved": moved, "total": len(hitboxes)}
+    return {"sessionId": session_id, "moved": moved, "total": len(hitboxes), "overlapFlags": overlap_flags}
 
 
 def run_magenta_inpaint(
