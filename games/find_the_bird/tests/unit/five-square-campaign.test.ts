@@ -24,6 +24,8 @@ const CAMPAIGN_IDS = [
   'ad_campaigns_ad_treehouse_village_bird_30fd',
   'alpine_meadow_cheese_farm_courtyard_bird_50c1',
   'alpine_meadow_goat_pasture_terraces_bird_6dff',
+  'alpine_meadow_herb_market_garden_bird_cf51',
+  'alpine_meadow_snowmelt_creek_bridges_bird_5c36',
 ] as const;
 const TARGET_COUNTS: Record<string, number> = {
   ancient_forest_creek_autumn_pond_reeds_bird_da7e: 18,
@@ -44,6 +46,8 @@ const TARGET_COUNTS: Record<string, number> = {
   ad_campaigns_ad_treehouse_village_bird_30fd: 21,
   alpine_meadow_cheese_farm_courtyard_bird_50c1: 24,
   alpine_meadow_goat_pasture_terraces_bird_6dff: 23,
+  alpine_meadow_herb_market_garden_bird_cf51: 17,
+  alpine_meadow_snowmelt_creek_bridges_bird_5c36: 20,
 };
 
 const levelsRoot = join(process.cwd(), 'public/levels');
