@@ -2086,6 +2086,33 @@ def reconcile_magenta_hitboxes(session_id: str, req: ReconcileMagentaHitboxesReq
         ) from error
 
 
+@router.post("/sessions/{session_id}/finalize-magenta-hitboxes")
+def finalize_magenta_hitboxes(session_id: str, topN: int = Query(0, ge=0, le=40)):
+    """Deterministic magenta finalization: diff-detect painted subjects,
+    reconcile hitboxes one-to-one onto them, materialize detection sprites.
+    `topN` caps detections to the N largest (defaults to the hitbox count)."""
+    _validate_session_id(session_id)
+    from .inpaint import detect_painted_subjects
+    try:
+        detections = detect_painted_subjects(session_id)
+        hb_path = S.session_dir(session_id) / "hitboxes.json"
+        n = topN or (len(json.loads(hb_path.read_text())) if hb_path.exists() else 0)
+        if n:
+            detections = detections[:n]
+        reconciled = S.reconcile_magenta_hitboxes_to_detections(
+            session_id, detections=detections, minimum_confidence=0.5,
+        )
+        sprites = S.materialize_detection_sprites(
+            session_id, detections=detections, minimum_confidence=0.5,
+        )
+    except S.LevelNotReadyError as error:
+        raise HTTPException(
+            409,
+            detail={"error": str(error), "code": "magenta_finalize_failed"},
+        ) from error
+    return {"detections": len(detections), "reconciled": reconciled, "sprites": sprites}
+
+
 @router.post("/sessions/{session_id}/materialize-detection-sprites")
 def materialize_detection_sprites(session_id: str, req: ReconcileMagentaHitboxesRequest):
     _validate_session_id(session_id)

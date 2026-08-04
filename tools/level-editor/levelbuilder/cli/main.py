@@ -814,6 +814,13 @@ def cmd_fix_hitboxes(client: Client, args: argparse.Namespace) -> None:
     ))
 
 
+def cmd_finalize_magenta_hitboxes(client: Client, args: argparse.Namespace) -> None:
+    _emit(args, client.post(
+        f"/api/sessions/{args.session_id}/finalize-magenta-hitboxes",
+        params={"topN": args.top_n} if args.top_n else None,
+    ))
+
+
 def cmd_reconcile_magenta_hitboxes(client: Client, args: argparse.Namespace) -> None:
     detections = json.loads(Path(args.file).read_text())
     if isinstance(detections, dict):
@@ -1222,6 +1229,10 @@ def build_parser() -> argparse.ArgumentParser:
     p = verb("fix-hitboxes", cmd_fix_hitboxes)
     p.add_argument("session_id")
     p.add_argument("--max-offset", type=float, default=0.5)
+
+    p = verb("finalize-magenta-hitboxes", cmd_finalize_magenta_hitboxes)
+    p.add_argument("session_id")
+    p.add_argument("--top-n", type=int, default=0)
 
     p = verb("reconcile-magenta-hitboxes", cmd_reconcile_magenta_hitboxes)
     p.add_argument("session_id")

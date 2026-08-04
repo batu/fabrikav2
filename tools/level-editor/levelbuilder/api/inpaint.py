@@ -4976,6 +4976,63 @@ def _chrome_band_heights(width: int, height: int) -> tuple[int, int]:
     return (int(height * HUD_FRACTION), int(height * BANNER_FRACTION))
 
 
+def detect_painted_subjects(
+    session_id: str,
+    *,
+    threshold: int = 40,
+    min_area: int = 400,
+    merge_px: int = 4,
+    pad: int = 6,
+) -> list[dict]:
+    """Deterministic subject detection for magenta-painted scenes: everything
+    that differs from the clean selected background IS painted subject matter
+    (the chrome bands paste back as pure background, so they never diff).
+    Connected components after a small dilation (merges a bird with its
+    detached shadow) become detections for reconcile/materialize."""
+    import numpy as _np
+    from scipy import ndimage as _ndi
+
+    raw = S.load_session_raw(session_id)
+    if raw is None:
+        raise S.LevelNotReadyError(f"session {session_id} not found")
+    sdir = S.session_dir(session_id)
+    selected = _resolve_selected_bg(session_id, raw)
+    if selected is None:
+        raise S.LevelNotReadyError("No background selected")
+    bg_path = sdir / f"bg_{selected:02d}.png"
+    color_path = sdir / "color.png"
+    if not bg_path.exists() or not color_path.exists():
+        raise S.LevelNotReadyError("clean background and painted color are both required")
+    with Image.open(bg_path) as a_img, Image.open(color_path) as b_img:
+        a = _np.asarray(a_img.convert("RGB"), dtype=_np.int16)
+        b = _np.asarray(b_img.convert("RGB"), dtype=_np.int16)
+    if a.shape != b.shape:
+        raise S.LevelNotReadyError(
+            f"background {a.shape} and color {b.shape} dimensions differ"
+        )
+    changed = _np.abs(a - b).sum(axis=2) > threshold
+    if merge_px > 0:
+        changed = _ndi.binary_dilation(changed, iterations=merge_px)
+    labels, n = _ndi.label(changed)
+    detections: list[dict] = []
+    for sl in _ndi.find_objects(labels):
+        if sl is None:
+            continue
+        h = sl[0].stop - sl[0].start
+        w = sl[1].stop - sl[1].start
+        if w * h < min_area:
+            continue
+        detections.append({
+            "x": max(0, sl[1].start - pad),
+            "y": max(0, sl[0].start - pad),
+            "width": w + 2 * pad,
+            "height": h + 2 * pad,
+            "confidence": 1.0,
+        })
+    detections.sort(key=lambda d: d["width"] * d["height"], reverse=True)
+    return detections
+
+
 def run_magenta_inpaint(
     session_id: str,
     *,
