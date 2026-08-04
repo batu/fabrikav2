@@ -139,9 +139,12 @@ if (typeof window !== 'undefined') {
       // classic → juiced → dissolve → peel, persists the choice, and applies
       // it to the running GameScene so styles can be compared on device.
       const styles = ['classic', 'juiced', 'dissolve', 'peel'] as const;
-      const current = window.localStorage.getItem('ftb.pickupStyle') ?? 'classic';
+      // Session-only cycling: persisting the choice overrode the shipped
+      // default across app updates (observed on build 6).
+      const current = (window as unknown as { __ftbPickupStyle?: string }).__ftbPickupStyle ?? 'dissolve';
       const next = styles[(styles.indexOf(current as typeof styles[number]) + 1) % styles.length];
-      window.localStorage.setItem('ftb.pickupStyle', next);
+      (window as unknown as { __ftbPickupStyle?: string }).__ftbPickupStyle = next;
+      window.localStorage.removeItem('ftb.pickupStyle');
       for (const scene of game.scene.getScenes(true)) {
         (scene as Partial<{ setPickupStyleForTest: (s: typeof styles[number]) => void }>)
           .setPickupStyleForTest?.(next);

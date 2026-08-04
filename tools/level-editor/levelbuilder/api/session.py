@@ -26,7 +26,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
 
-from PIL import Image
+from PIL import Image, ImageDraw
 from pydantic import ValidationError
 
 from levelbuilder.sections import (
@@ -3241,6 +3241,54 @@ def _write_native_source_package(
                 pass
 
 
+def _write_birdless_restore_bg(sdir: Path, dst: Path, raw: dict, level_data: dict) -> None:
+    """Whole-image paint modes ship a restore background that is the PAINTED
+    scene minus birds, at full scene resolution.
+
+    Two live defects this kills (observed on device, build 6): the copied
+    session bg_00 was the 1K pre-upscale original (runtime scaled it 4x under
+    a 4096 scene), and the model's scene-wide drift meant every cleanup patch
+    swapped drifted pixels for clean-bg pixels — a visible few-pixel jump on
+    every pickup. Patching ONLY each bird's cleanup region out of the painted
+    color keeps every other pixel byte-identical to the scene."""
+    from PIL import ImageFilter as _IF
+
+    with Image.open(sdir / "color.png") as _c:
+        color = _c.convert("RGB")
+    selected = raw.get("selected_bg") or 0
+    bg_path = sdir / f"bg_{int(selected):02d}.png"
+    if not bg_path.exists():
+        color.close()
+        return
+    with Image.open(bg_path) as _b:
+        clean = _b.convert("RGB")
+    if clean.size != color.size:
+        clean = clean.resize(color.size, Image.LANCZOS)
+    out = color.copy()
+    for dog in (level_data.get("dogs") or []):
+        sprite = dog.get("sprite") if isinstance(dog, dict) else None
+        cleanup = sprite.get("cleanup") if isinstance(sprite, dict) else None
+        if not isinstance(cleanup, dict):
+            continue
+        x, y = int(cleanup["x"]), int(cleanup["y"])
+        w, h = int(cleanup["width"]), int(cleanup["height"])
+        x0, y0 = max(0, x), max(0, y)
+        x1, y1 = min(out.width, x + w), min(out.height, y + h)
+        if x1 <= x0 or y1 <= y0:
+            continue
+        patch = clean.crop((x0, y0, x1, y1))
+        mask = Image.new("L", patch.size, 0)
+        feather = 8
+        ImageDraw.Draw(mask).rectangle(
+            [feather, feather, patch.width - feather, patch.height - feather], fill=255,
+        )
+        mask = mask.filter(_IF.GaussianBlur(4))
+        out.paste(patch, (x0, y0), mask)
+    out.save(dst / "bg_00.png")
+    (dst / "bg_00.webp").unlink(missing_ok=True)
+    color.close(); clean.close(); out.close()
+
+
 def export_to_game(
     session_id: str,
     variant: str = "gemini",
@@ -3502,6 +3550,8 @@ def export_to_game(
         shutil.copy2(bg_src, dst / bg_src.name)
         # Same stale-derivative invalidation as color.webp above (054 #1).
         (dst / bg_src.name).with_suffix(".webp").unlink(missing_ok=True)
+    if raw.get("inpaint_mode") in {"magenta", "one_shot"}:
+        _write_birdless_restore_bg(sdir, dst, raw, level_data)
 
     public_dogs_dir = dst / "dogs"
     if public_dogs_dir.exists():

@@ -5051,6 +5051,66 @@ def _band_feather_mask(size: tuple[int, int], feather: int = 48) -> Image.Image:
     return mask
 
 
+def recenter_hitboxes_local_diff(
+    session_id: str,
+    *,
+    crop_factor: float = 2.2,
+    threshold: int = 80,
+    min_area: int = 900,
+    max_shift_factor: float = 1.6,
+) -> dict:
+    """Snap each hitbox to the centroid of the nearest painted-diff component
+    inside its own crop. Local scope defeats the scene-wide drift that broke
+    global diff detection; a shift beyond max_shift_factor*r is refused
+    (protects deliberate manual placements from bad snaps)."""
+    import numpy as _np
+    from scipy import ndimage as _ndi
+
+    raw = S.load_session_raw(session_id)
+    if raw is None:
+        raise S.LevelNotReadyError(f"session {session_id} not found")
+    sdir = S.session_dir(session_id)
+    selected = _resolve_selected_bg(session_id, raw)
+    bg = Image.open(sdir / f"bg_{selected:02d}.png").convert("RGB")
+    color = Image.open(sdir / "color.png").convert("RGB")
+    hb_path = sdir / "hitboxes.json"
+    hitboxes = json.loads(hb_path.read_text())
+    a_full = _np.asarray(bg, dtype=_np.int16)
+    b_full = _np.asarray(color, dtype=_np.int16)
+    moved = []
+    for hb in hitboxes:
+        r = int(hb.get("r") or 58)
+        pad = int(r * crop_factor)
+        x0, y0 = max(0, hb["x"] - pad), max(0, hb["y"] - pad)
+        x1, y1 = min(color.width, hb["x"] + pad), min(color.height, hb["y"] + pad)
+        diff = _np.abs(a_full[y0:y1, x0:x1] - b_full[y0:y1, x0:x1]).sum(axis=2) > threshold
+        diff = _ndi.binary_dilation(diff, iterations=3)
+        labels, n = _ndi.label(diff)
+        best = None
+        for idx, sl in enumerate(_ndi.find_objects(labels), start=1):
+            if sl is None:
+                continue
+            h = sl[0].stop - sl[0].start
+            w = sl[1].stop - sl[1].start
+            if w * h < min_area:
+                continue
+            ys, xs = _np.nonzero(labels == idx)
+            cy, cx = float(ys.mean()) + y0, float(xs.mean()) + x0
+            dist = ((cx - hb["x"]) ** 2 + (cy - hb["y"]) ** 2) ** 0.5
+            if best is None or dist < best[0]:
+                best = (dist, cx, cy)
+        if best is None:
+            continue
+        dist, cx, cy = best
+        if dist > r * max_shift_factor or dist < 3:
+            continue
+        moved.append({"id": hb.get("id"), "from": [hb["x"], hb["y"]], "to": [int(cx), int(cy)], "shift": round(dist, 1)})
+        hb["x"], hb["y"] = int(cx), int(cy)
+    S.save_hitboxes(session_id, hitboxes)
+    bg.close(); color.close()
+    return {"sessionId": session_id, "moved": moved, "total": len(hitboxes)}
+
+
 def run_magenta_inpaint(
     session_id: str,
     *,

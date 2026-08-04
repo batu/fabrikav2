@@ -2330,10 +2330,11 @@ export class GameScene extends Phaser.Scene {
    *  Batu's 2026-08-04 verdict (most forgiving of cutout imperfections).
    *  Still switchable via the test harness, ?pickupStyle=, or the 4-tap
    *  cycler for evaluation. */
+  // localStorage deliberately NOT consulted: a style cycled during an earlier
+  // build's evaluation persisted and silently overrode the shipped default on
+  // device (observed on build 6).
   private pickupStyle: 'classic' | 'juiced' | 'dissolve' | 'peel' =
     (new URLSearchParams(globalThis.location?.search ?? '').get('pickupStyle') as
-      'classic' | 'juiced' | 'dissolve' | 'peel' | null)
-    ?? (globalThis.localStorage?.getItem('ftb.pickupStyle') as
       'classic' | 'juiced' | 'dissolve' | 'peel' | null)
     ?? 'dissolve';
 

@@ -2086,6 +2086,16 @@ def reconcile_magenta_hitboxes(session_id: str, req: ReconcileMagentaHitboxesReq
         ) from error
 
 
+@router.post("/sessions/{session_id}/recenter-hitboxes-local")
+def recenter_hitboxes_local(session_id: str):
+    _validate_session_id(session_id)
+    from .inpaint import recenter_hitboxes_local_diff
+    try:
+        return recenter_hitboxes_local_diff(session_id)
+    except S.LevelNotReadyError as error:
+        raise HTTPException(409, detail={"error": str(error), "code": "recenter_failed"}) from error
+
+
 @router.post("/sessions/{session_id}/finalize-magenta-hitboxes")
 def finalize_magenta_hitboxes(session_id: str, topN: int = Query(0, ge=0, le=40)):
     """Deterministic magenta finalization: diff-detect painted subjects,
@@ -2094,11 +2104,31 @@ def finalize_magenta_hitboxes(session_id: str, topN: int = Query(0, ge=0, le=40)
     _validate_session_id(session_id)
     from .inpaint import detect_painted_subjects
     try:
-        detections = detect_painted_subjects(session_id)
+        # Candidate pool: diff components. The magenta model re-renders subtle
+        # scenery, so the pool is larger than the bird count — select the best
+        # one-per-hitbox by center proximity (Hungarian) BEFORE reconcile,
+        # which requires exactly n detections. Size window rejects both speck
+        # drift and the scene-wide drift mega-component.
+        pool = detect_painted_subjects(session_id, threshold=80, min_area=1500)
+        pool = [d for d in pool if 40 <= max(d["width"], d["height"]) <= 700]
         hb_path = S.session_dir(session_id) / "hitboxes.json"
-        n = topN or (len(json.loads(hb_path.read_text())) if hb_path.exists() else 0)
-        if n:
-            detections = detections[:n]
+        hitboxes = json.loads(hb_path.read_text()) if hb_path.exists() else []
+        n = topN or len(hitboxes)
+        if len(pool) < n:
+            raise S.LevelNotReadyError(
+                f"only {len(pool)} sane-size diff components for {n} hitboxes"
+            )
+        from scipy.optimize import linear_sum_assignment
+        costs = [
+            [
+                (hb["x"] - (d["x"] + d["width"] / 2)) ** 2
+                + (hb["y"] - (d["y"] + d["height"] / 2)) ** 2
+                for d in pool
+            ]
+            for hb in hitboxes[:n]
+        ]
+        _, cols = linear_sum_assignment(costs)
+        detections = [pool[c] for c in cols.tolist()]
         reconciled = S.reconcile_magenta_hitboxes_to_detections(
             session_id, detections=detections, minimum_confidence=0.5,
         )
