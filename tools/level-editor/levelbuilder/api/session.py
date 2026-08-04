@@ -2876,14 +2876,27 @@ def save_hitboxes(session_id: str, hitboxes: list[dict]) -> list[dict] | None:
         if _tombstoned:
             hitboxes = [h for h in hitboxes if not (isinstance(h, dict) and h.get("id") in _tombstoned)]
         persisted: list = []
+        # Ids already carried BY VALUE in this batch: positional recovery must
+        # never duplicate one of these. After a delete shifts slots, the prior
+        # occupant of slot i can be a hitbox that still exists elsewhere in the
+        # incoming array — recovering its id minted duplicates (observed
+        # 2026-08-04: review-modal add-after-delete collapsed 4 dogs onto one
+        # id and export shipped 8/17 birds).
+        carried_ids = {
+            h.get("id") for h in hitboxes if isinstance(h, dict) and h.get("id")
+        }
+        assigned_ids: set = set()
         for index, hitbox in enumerate(hitboxes):
             if not isinstance(hitbox, dict) or hitbox.get("id"):
                 persisted.append(hitbox)
                 continue
             prior = existing[index] if index < len(existing) else None
             recovered = prior.get("id") if isinstance(prior, dict) else None
+            if recovered and (recovered in carried_ids or recovered in assigned_ids):
+                recovered = None
             if recovered:
                 new_id = recovered  # case 2: the prior slot's id (a move preserves identity)
+                assigned_ids.add(new_id)
             else:
                 # case 3: genuinely new id-less slot. The canonical positional mint
                 # can ALIAS a survivor's id after a tombstone gap (review P1 #8 —
