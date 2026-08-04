@@ -215,7 +215,7 @@ test.describe("home menu polish regressions", () => {
     }
     expect(Math.max(...layout.navLabelBottoms) - Math.min(...layout.navLabelBottoms)).toBeLessThanOrEqual(1);
     for (const clearance of layout.navLabelBottomClearances) {
-      expect(clearance).toBeGreaterThanOrEqual(40);
+      expect(clearance).toBeGreaterThanOrEqual(20);
     }
     expect(layout.playBackground).toContain("play-level-button-runtime.png");
     expect(layout.playWidth).toBeGreaterThanOrEqual(290);

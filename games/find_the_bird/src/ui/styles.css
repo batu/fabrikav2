@@ -3493,7 +3493,7 @@
   margin-inline: auto;
   object-fit: contain;
   object-position: center;
-  transform: translateY(-28px);
+  transform: translateY(-8px);
   filter:
     drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
     drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
@@ -3507,7 +3507,7 @@
 #home-shell .home-nav-btn > span {
   position: absolute;
   right: 0;
-  bottom: calc(env(safe-area-inset-bottom, 0px) * 0.55 + 50px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) * 0.55 + 30px);
   left: 0;
   font-size: 11px;
   line-height: 18px;

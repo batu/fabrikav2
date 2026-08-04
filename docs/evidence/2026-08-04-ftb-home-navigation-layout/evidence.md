@@ -20,7 +20,7 @@ Browser captures and measured geometry confirm the larger, lower Play Now CTA an
 - Removed the old side-rail Achievements shortcut and routed the new bottom-bar entry to the same page.
 - Explicitly centered all three navigation icons and aligned all three labels within equal-width cells.
 - Compensated for transparent asset padding so the visible Achievements trophy and Settings gear have matching visual dimensions and centers.
-- Raised the three icon artworks by 10 CSS pixels to preserve a visible gap above their labels.
+- Positioned each icon-label group 20 CSS pixels lower in its cell while preserving a visible internal gap.
 - Added browser assertions that measure icon centers against the three expected bar centers and require every label to clear the bar bottom by at least 40 CSS pixels.
 
 ## Evidence Captured
@@ -30,8 +30,8 @@ Browser captures and measured geometry confirm the larger, lower Play Now CTA an
 | screenshot | `assets/before.png` | Original 390x844 home layout captured |
 | screenshot | `assets/after-390x844.png` | Larger/lower CTA and centered navigation visible |
 | screenshot | `assets/after-375x667.png` | Compact viewport remains contained and aligned |
-| browser geometry | 390px bar centers: 65, 195, 325; icon centers: 64.98, 194.97, 324.95; all label boxes: 776-794 | passed, each icon within 0.05px and labels exactly aligned with 50px bottom clearance |
-| browser geometry | 375px bar centers and icon centers: 62.5, 187.5, 312.5; all label boxes: 599-617 | passed, exact, with 50px bottom clearance |
+| browser geometry | 390px bar centers: 65, 195, 325; icon centers: 64.98, 194.97, 324.95; all label boxes: 796-814 | passed, each icon within 0.05px and labels exactly aligned with 30px bottom clearance |
+| browser geometry | 375px bar centers and icon centers: 62.5, 187.5, 312.5; all label boxes: 619-637 | passed, exact, with 30px bottom clearance |
 | unit tests | Find the Bird Vitest suite | passed, 42 files / 276 tests |
 | static check | TypeScript `--noEmit` and changed-test ESLint | passed |
 | production build | Vite production build | passed |
