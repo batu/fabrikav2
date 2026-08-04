@@ -3,6 +3,7 @@ import { publishLevelToCatalog } from '../api/editorApi';
 import type { CSSProperties } from 'react';
 import {
   listSessions,
+  setArchived,
   checkMobileVisibilityBatch,
   getSequenceWorkflow,
   saveSequenceDraft,
@@ -454,6 +455,7 @@ export default function GalleryPage({ config, onOpen }: Props) {
                 onOpenReview={handleCardOpen}
                 onToggleLineup={toggleLineupMembership}
                 onPublished={refresh}
+                onArchivedChanged={handleArchivedChanged}
               />
             ))}
           </div>
@@ -497,6 +499,7 @@ function GalleryCard({
   onOpenReview,
   onToggleLineup,
   onPublished,
+  onArchivedChanged,
   visibilityIssues,
 }: {
   card: VariantCard;
@@ -507,6 +510,7 @@ function GalleryCard({
   onOpenReview: (cardId: string) => void;
   onToggleLineup: (card: VariantCard, selectable: boolean) => void;
   onPublished: () => void;
+  onArchivedChanged: (id: string, archived: boolean, variant?: string) => void;
   visibilityIssues: VisibilityIssue[];
 }) {
   const { session, variant, state } = card;
@@ -817,6 +821,35 @@ function GalleryCard({
         >
           Save Image
         </a>
+        <button
+          type="button"
+          data-gallery-no-reorder="true"
+          onClick={async (e) => {
+            e.stopPropagation();
+            const next = !card.archived;
+            try {
+              await setArchived(session.id, next, variant);
+              onArchivedChanged(session.id, next, variant);
+            } catch (err) {
+              console.error('archive failed', err);
+            }
+          }}
+          title={card.archived
+            ? 'Restore this card into the active gallery'
+            : 'Archive this card (hidden unless SHOW ARCHIVED; never selectable for Lineup)'}
+          style={{
+            background: card.archived ? '#332a1f' : '#2a1f1f',
+            color: card.archived ? '#e8d5bf' : '#e8bfbf',
+            border: `1px solid ${card.archived ? '#6b4a2a' : '#6b2a2a'}`,
+            borderRadius: 4,
+            padding: '4px 8px',
+            fontSize: '0.75rem',
+            cursor: 'pointer',
+            fontWeight: 600,
+          }}
+        >
+          {card.archived ? 'Unarchive' : 'Archive'}
+        </button>
       </div>
     </div>
   );
