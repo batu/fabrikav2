@@ -5252,11 +5252,31 @@ def recenter_hitboxes_local_diff(
         meta2["cleanupBox"] = cu
         meta_path2.write_text(json.dumps(meta2, indent=2))
     margin = 32
+    # Neighbor avoidance must consider both measured footprints AND the
+    # neighbors' spriteBoxes: the runtime carves other dogs' sprite rects out
+    # of each cleanup area and requires the tap center to survive the carve
+    # (GameScene.assertRestorationDogGeometryReady threw on device build 9).
+    sprite_boxes: dict[int, tuple[int, int, int, int]] = {}
+    for j in range(len(hitboxes)):
+        mp = S.dogs_dir(session_id) / f"dog_{j:02d}" / "sprite_000.json"
+        if mp.exists():
+            try:
+                sb = json.loads(mp.read_text()).get("spriteBox")
+                if isinstance(sb, list) and len(sb) == 4:
+                    sprite_boxes[j] = tuple(int(v) for v in sb)
+            except (OSError, ValueError):
+                pass
     for idx, fp in footprints.items():
         fx0, fy0, fx1, fy1 = fp
         bx0, by0 = fx0 - margin, fy0 - margin
         bx1, by1 = fx1 + margin, fy1 + margin
-        for jdx, ofp in footprints.items():
+        avoid = dict(footprints)
+        for j, sb in sprite_boxes.items():
+            if j == idx:
+                continue
+            ox0, oy0, ox1, oy1 = avoid.get(j, sb)
+            avoid[j] = (min(ox0, sb[0]), min(oy0, sb[1]), max(ox1, sb[2]), max(oy1, sb[3]))
+        for jdx, ofp in avoid.items():
             if jdx == idx:
                 continue
             ox0, oy0, ox1, oy1 = ofp
