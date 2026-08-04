@@ -2636,9 +2636,42 @@ def materialize_detection_sprites(
                 y=int(hitbox_data["y"]),
                 radius=int(hitbox_data.get("r", hitbox_data.get("radius", 30))),
             )
-            alpha = _inpaint._semantic_sprite_alpha(
-                None, painted, hitbox, box, relaxed=True
-            )
+            # Primary: the map #14 winning technique — LLM flat-key recreate
+            # (paid, ~$0.01-0.07/bird, metered). The free chain remains as
+            # fallback; SAM2-remote retired in favor of SAM3 (tracked issue).
+            sprite_rgba = None
+            if not os.environ.get("FTD_DISABLE_FLATKEY_SPRITES"):
+                from levelbuilder.api.flatkey import flatkey_recreate_sprite
+                inpaint_model = str(raw.get("inpaint_model") or raw.get("model") or "google/gemini-3.1-flash-image-preview")
+                try:
+                    sprite_rgba = flatkey_recreate_sprite(painted, model=inpaint_model)
+                except Exception:
+                    sprite_rgba = None
+            if sprite_rgba is not None:
+                # Fit the recreated sprite into the detection box (centered-x,
+                # bottom-anchored — same contract as the shipped corpus lane),
+                # and synthesize the alpha at crop scale for the metadata path.
+                target_w = max(1, detection["width"])
+                target_h = max(1, detection["height"])
+                scale = min(target_w / sprite_rgba.width, target_h / sprite_rgba.height, 1.0)
+                if scale < 1.0:
+                    sprite_rgba = sprite_rgba.resize(
+                        (max(1, int(sprite_rgba.width * scale)), max(1, int(sprite_rgba.height * scale))),
+                        Image.LANCZOS,
+                    )
+                alpha = Image.new("L", painted.size, 0)
+                off_x = max(0, (detection["x"] - box[0]) + (target_w - sprite_rgba.width) // 2)
+                off_y = max(0, (detection["y"] - box[1]) + (target_h - sprite_rgba.height))
+                alpha.paste(sprite_rgba.getchannel("A"), (off_x, off_y))
+                # The sprite pixels must be the RECREATED bird, not scene
+                # pixels under its silhouette — composite it into the crop so
+                # the masked sprite equals the flat-key output exactly.
+                painted.paste(sprite_rgba.convert("RGB"), (off_x, off_y), sprite_rgba.getchannel("A"))
+                sprite_rgba.close()
+            else:
+                alpha = _inpaint._semantic_sprite_alpha(
+                    None, painted, hitbox, box, relaxed=True
+                )
             if alpha is None:
                 alpha = _inpaint._sam_sprite_alpha(
                     painted, hitbox, box, relaxed=True
