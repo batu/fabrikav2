@@ -343,6 +343,15 @@ def cmd_create(client: Client, args: argparse.Namespace) -> None:
         "imageSize": "1K",
         "oneShot": args.one_shot,
     }
+    if args.aspect_ratio == "1:1":
+        # Square campaign levels ship at 4096: bake the deterministic upscale
+        # policy in at create time so author's upscale step can satisfy the
+        # route's session-policy check.
+        body.update({
+            "upscaleEnabled": True,
+            "upscaleModel": "deterministic-lanczos-4x",
+            "upscaleTargetLongEdge": 4096,
+        })
     created = client.post("/api/sessions", json=body)
     _emit(args, created)
 
@@ -590,7 +599,13 @@ def cmd_author(client: Client, args: argparse.Namespace) -> None:
                 if bg_w and int(bg_w) >= 4096:
                     note("upscale", {"skipped": f"background already {bg_w}px"})
                 else:
-                    job = client.post(f"/api/sessions/{session_id}/upscale-bg/jobs")
+                    # The route enforces the session's stored upscale policy;
+                    # echo it back rather than assuming one.
+                    job = client.post(f"/api/sessions/{session_id}/upscale-bg/jobs", json={
+                        "model": session.get("upscaleModel") or "deterministic-lanczos-4x",
+                        "targetLongEdge": int(session.get("upscaleTargetLongEdge") or 4096),
+                        "select": True,
+                    })
                     job = _require_success(_wait_for_job(
                         client, job.get("jobId") or job.get("id"),
                         timeout_s=args.timeout, quiet=True,
