@@ -5033,6 +5033,23 @@ def detect_painted_subjects(
     return detections
 
 
+def _band_feather_mask(size: tuple[int, int], feather: int = 48) -> Image.Image:
+    """Alpha mask fading the pasted band into the clean background across its
+    top/bottom edges, so model drift near its frame edges cannot print a hard
+    seam at the chrome-band boundary (#31 watch item, observed on the first
+    band-cropped level)."""
+    w, h = size
+    mask = Image.new("L", size, 255)
+    px = mask.load()
+    steps = max(1, min(feather, h // 4))
+    for i in range(steps):
+        v = int(255 * (i + 1) / (steps + 1))
+        for x in range(w):
+            px[x, i] = v
+            px[x, h - 1 - i] = v
+    return mask
+
+
 def run_magenta_inpaint(
     session_id: str,
     *,
@@ -5080,7 +5097,7 @@ def run_magenta_inpaint(
             if band.size != (w, h - band_top - band_bottom):
                 band = band.resize((w, h - band_top - band_bottom), Image.LANCZOS)
             result = bg.copy()
-            result.paste(band, (0, band_top))
+            result.paste(band, (0, band_top), _band_feather_mask(band.size))
             band.close()
         else:
             result = _with_retries_and_timeout(edit_image, overlay, prompt, model=model)
