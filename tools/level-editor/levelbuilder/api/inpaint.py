@@ -1928,7 +1928,8 @@ def _save_sprite_assets(
     # (missing feet/wings) that pass every geometry gate. Diff-clean remains
     # the fallback. Opt out with FTD_SAM2_PRIMARY=0.
     if (
-        os.environ.get("FTD_SAM2_PRIMARY", "1").strip().lower() not in {"0", "false", "no"}
+        not prevalidated  # a prevalidated mask (flat-key recreate) is authoritative
+        and os.environ.get("FTD_SAM2_PRIMARY", "1").strip().lower() not in {"0", "false", "no"}
         and (os.environ.get("FTD_SAM2_URL") or os.environ.get("FTD_PICKUP_SAM2_CHECKPOINT"))
     ):
         alpha = _sam2_sprite_alpha(painted, hitbox, box)
