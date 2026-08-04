@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  isNativeShellOrigin,
   resolveRuntimeTextureLongEdge,
   selectRuntimeColorImageUrl,
 } from '../../src/scenes/RuntimeTexturePolicy';
@@ -34,6 +35,30 @@ describe('selectRuntimeColorImageUrl', () => {
       .toBe('levels/level-a/color.webp');
     expect(selectRuntimeColorImageUrl('levels/level-a/color.webp', 2560, 5600, 4096))
       .toBe('levels/level-a/color.webp');
+  });
+
+  it('never upgrades to color.png inside the native shell, where only the webp is bundled', () => {
+    const original = globalThis.location;
+    Object.defineProperty(globalThis, 'location', {
+      value: { protocol: 'capacitor:', hostname: 'localhost' },
+      configurable: true, writable: true,
+    });
+    try {
+      expect(selectRuntimeColorImageUrl('levels/level-a/color.webp', 2560, 5600, 8192))
+        .toBe('levels/level-a/color.webp');
+    } finally {
+      Object.defineProperty(globalThis, 'location', {
+        value: original, configurable: true, writable: true,
+      });
+    }
+  });
+
+  it('classifies native shell origins without matching web dev servers', () => {
+    expect(isNativeShellOrigin('capacitor:', 'localhost')).toBe(true);
+    expect(isNativeShellOrigin('https:', 'localhost')).toBe(true);
+    expect(isNativeShellOrigin('http:', 'localhost')).toBe(false);
+    expect(isNativeShellOrigin('https:', 'game.example.com')).toBe(false);
+    expect(isNativeShellOrigin(undefined, undefined)).toBe(false);
   });
 
   it('does not rewrite remote object URLs or sources without a higher-resolution tier', () => {
