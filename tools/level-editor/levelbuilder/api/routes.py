@@ -2087,6 +2087,16 @@ def reconcile_magenta_hitboxes(session_id: str, req: ReconcileMagentaHitboxesReq
         ) from error
 
 
+@router.post("/sessions/{session_id}/place-hitboxes-vlm")
+def place_hitboxes_vlm_route(session_id: str, radius: int = Query(58, ge=18, le=200)):
+    _validate_session_id(session_id)
+    from .inpaint import place_hitboxes_vlm
+    try:
+        return place_hitboxes_vlm(session_id, radius=radius)
+    except S.LevelNotReadyError as error:
+        raise HTTPException(409, detail={"error": str(error), "code": "vlm_placement_failed"}) from error
+
+
 @router.post("/sessions/{session_id}/recenter-hitboxes-local")
 def recenter_hitboxes_local(session_id: str, radiusScale: float = Query(1.0, ge=0.5, le=3.0)):
     _validate_session_id(session_id)

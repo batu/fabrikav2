@@ -689,6 +689,47 @@ SETTINGS = {
             ),
         },
     },
+    "alpine_meadow": {
+        "label": "Alpine Meadow",
+        "scenes": {
+            "alpine_meadow_cheese_farm_courtyard": (
+                "An alpine cheese-farm courtyard sprawling on a high meadow shelf — a main flagstone yard between the farmhouse and the aging hut, a side lane branching toward the milking shed, a strip of fenced pasture trailing uphill. "
+                "The ground has consistent materials throughout — each visible region renders as the material it should be, worn flagstones in the yard, packed dirt on the lane, thick wildflower-dotted grass beyond the fences, with no untextured blank areas. "
+                "Timber farm buildings of varying sizes crowd unevenly around the yard, some clustered shoulder-to-shoulder, others standing alone with narrow gaps. Shingled roofs at different heights, some overlapping, some freestanding. "
+                "A giant copper cheese kettle leans against the aging hut at an unexpected angle. "
+                "Scattered throughout without pattern: cheese wheels stacked on racks, milk churns, a wooden press, coiled rope, hay bales, a hand cart, carved milking stools, cow bells hung on pegs, a butter churn, wooden buckets, a scale with weights, cloth-wrapped wheels on a bench, a water trough, split firewood, pitchforks leaned on rails, herb bundles drying under the eaves. "
+                "Dense clusters around the aging hut and yard, sparser breathing room along the pasture fence. "
+                "Asymmetric, organic layout — like a farmstead grown over five generations of summers."
+            ),
+            "alpine_meadow_goat_pasture_terraces": (
+                "Terraced goat pastures stepping down an alpine slope — a main run of stone-walled terraces, a zigzag path branching between them, a spring-fed water channel trailing along the lowest wall. "
+                "The slope has consistent materials throughout — each visible region renders as the material it should be, cropped green turf on the terraces, dry-stone walls between levels, gravel on the path, clear water in the channel, with no untextured blank areas. "
+                "Goat sheds and hay shelters of varying sizes sit unevenly across the terraces, some tucked against walls, others freestanding. Plank roofs at different heights, some overlapping, some alone. "
+                "A weathered wooden stile crosses the highest wall at an unexpected angle. "
+                "Scattered throughout without pattern: salt-lick stones, feed troughs, a stack of fence posts, coiled wire, wooden gates ajar, a bell on a post, milk cans in a carry frame, a bench under a lone pine, watering cans, a mineral tub, hay piles, a rope-and-pulley hay lift, hoof-trimming stand, stone cairns, a shepherd's crook against a shed. "
+                "Dense clusters around the sheds, sparser breathing room across the open terraces. "
+                "Asymmetric, organic layout — like pastures fitted to the mountain one wall at a time."
+            ),
+            "alpine_meadow_herb_market_garden": (
+                "An alpine herb market-garden spreading behind a low farmhouse — a main grid of raised planting beds, a side path branching to a drying pavilion, a strip of cold frames trailing along the stone boundary wall. "
+                "The garden has consistent materials throughout — each visible region renders as the material it should be, dark tilled soil in the beds, plank edging, crushed-stone paths, glass panes on the cold frames, with no untextured blank areas. "
+                "Timber sheds and the drying pavilion of varying sizes stand unevenly around the beds, some clustered, some alone. Shingle roofs at different heights, some overlapping, some freestanding. "
+                "A painted beehive tower leans at an unexpected angle beside the boundary wall. "
+                "Scattered throughout without pattern: bundles of drying herbs on racks, seed trays, terracotta pots, a wheelbarrow, watering cans, twine spools, hand trowels in a crate, a market stall half-set-up with jars of dried herbs, scales, labeled sacks, a compost bin, cloches, a rain barrel, bee smokers, woven baskets, a garden bench. "
+                "Dense clusters around the pavilion and stall, sparser breathing room between the outer beds. "
+                "Asymmetric, organic layout — like a garden that outgrew its plan decades ago."
+            ),
+            "alpine_meadow_snowmelt_creek_bridges": (
+                "A snowmelt creek braiding through an alpine meadow crossed by little bridges — a main run of clear rushing water over pale stones, a side rivulet branching through the grass, a marshy strip of cotton-grass trailing along the bank. "
+                "The meadow has consistent materials throughout — each visible region renders as the material it should be, glassy water over creek stones, lush meadow grass with wildflowers, dark peaty mud at the marsh edge, weathered planks on the bridges, with no untextured blank areas. "
+                "Small wooden footbridges of varying builds cross the braids unevenly, some arched, some flat planks on boulders. Rails at different heights, some overlapping views, some open. "
+                "A half-collapsed older bridge tilts into the water at an unexpected angle. "
+                "Scattered throughout without pattern: stepping stones, a fishing creel, rubber boots drying on a post, a rope swing over the deepest pool, watering spots trampled by cattle, a sluice gate, stacked flat stones, a picnic blanket with a basket, an overturned rowboat too big for the creek, milk cans cooling in the shallows, a butterfly net against a rail, marker stakes, a small waterwheel, coiled rope, lanterns on bridge posts. "
+                "Dense clusters at the bridge crossings, sparser breathing room across the open meadow. "
+                "Asymmetric, organic layout — like crossings added wherever feet kept getting wet."
+            ),
+        },
+    },
     "ancient_forest_creek": {
         "label": "Ancient Forest Creek",
         "scenes": {

@@ -5051,6 +5051,72 @@ def _band_feather_mask(size: tuple[int, int], feather: int = 48) -> Image.Image:
     return mask
 
 
+def detect_birds_vlm(session_id: str, *, model: str = "gemini-3.6-flash") -> list[dict]:
+    """VLM bounding-box bird detection — the calibration winner on the
+    10-keeper ground truth (95.5% recall / 96.1% precision, ~53px center
+    error before the local-diff snap). One metered call per scene; scales
+    Gemini's 0-1000 box space by the ACTUAL scene size (the calibration
+    outliers were exactly a hardcoded-4096 mapping on 1K scenes)."""
+    import base64 as _b64
+    import io as _io
+    import httpx as _httpx
+
+    api_key = os.environ.get("GOOGLE_API_KEY")
+    if not api_key:
+        raise S.LevelNotReadyError("GOOGLE_API_KEY not set")
+    sdir = S.session_dir(session_id)
+    with Image.open(sdir / "color.png") as _c:
+        W, H = _c.size
+        scaled = _c.convert("RGB").resize((1024, 1024), Image.LANCZOS)
+    buf = _io.BytesIO(); scaled.save(buf, "PNG"); scaled.close()
+    payload = {
+        "contents": [{"parts": [
+            {"inlineData": {"mimeType": "image/png", "data": _b64.b64encode(buf.getvalue()).decode()}},
+            {"text": "Detect every bird in this illustrated hidden-object scene. Return bounding boxes for ALL birds."},
+        ]}],
+        "generationConfig": {"responseMimeType": "application/json",
+            "responseSchema": {"type": "ARRAY", "items": {"type": "OBJECT", "properties": {
+                "box_2d": {"type": "ARRAY", "items": {"type": "INTEGER"}},
+                "label": {"type": "STRING"}}, "required": ["box_2d"]}}},
+    }
+    resp = _httpx.post(
+        f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+        json=payload, headers={"x-goog-api-key": api_key}, timeout=180,
+    )
+    resp.raise_for_status()
+    data = resp.json()
+    try:
+        from merceka_core import costs as _mc
+        _mc.record(source="google-direct", model=f"google/{model}", usage=data.get("usageMetadata"))
+    except Exception:
+        pass
+    boxes = json.loads(data["candidates"][0]["content"]["parts"][0]["text"])
+    dets = []
+    for b in boxes:
+        y0, x0, y1, x1 = b["box_2d"]  # [ymin,xmin,ymax,xmax] in 0-1000
+        dets.append({
+            "x": int(x0 * W / 1000), "y": int(y0 * H / 1000),
+            "width": int((x1 - x0) * W / 1000), "height": int((y1 - y0) * H / 1000),
+            "confidence": 1.0,
+        })
+    return dets
+
+
+def place_hitboxes_vlm(session_id: str, *, radius: int = 58) -> dict:
+    """Fully automated placement: VLM detections become the hitboxes (uniform
+    radius), then the local-diff recentre snaps + writes footprint cleanups."""
+    dets = detect_birds_vlm(session_id)
+    if not dets:
+        raise S.LevelNotReadyError("VLM found no birds")
+    hitboxes = [
+        {"x": d["x"] + d["width"] // 2, "y": d["y"] + d["height"] // 2, "r": radius}
+        for d in dets
+    ]
+    persisted = S.save_hitboxes(session_id, hitboxes) or hitboxes
+    result = recenter_hitboxes_local_diff(session_id)
+    return {"sessionId": session_id, "placed": len(persisted), "recentre": result}
+
+
 def recenter_hitboxes_local_diff(
     session_id: str,
     *,

@@ -839,6 +839,13 @@ def cmd_materialize_hitbox_sprites(client: Client, args: argparse.Namespace) -> 
     ))
 
 
+def cmd_place_hitboxes_vlm(client: Client, args: argparse.Namespace) -> None:
+    _emit(args, client.post(
+        f"/api/sessions/{args.session_id}/place-hitboxes-vlm",
+        params={"radius": args.radius} if args.radius else None,
+    ))
+
+
 def cmd_recenter_hitboxes_local(client: Client, args: argparse.Namespace) -> None:
     params = {"radiusScale": args.radius_scale} if args.radius_scale != 1.0 else None
     _emit(args, client.post(f"/api/sessions/{args.session_id}/recenter-hitboxes-local", params=params))
@@ -1264,6 +1271,10 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("session_id")
     p.add_argument("--pad-factor", type=float, default=2.2)
     p.add_argument("--force", action="store_true", help="recut even dogs already flat-keyed (e.g. after a radius change)")
+
+    p = verb("place-hitboxes-vlm", cmd_place_hitboxes_vlm)
+    p.add_argument("session_id")
+    p.add_argument("--radius", type=int, default=58)
 
     p = verb("recenter-hitboxes-local", cmd_recenter_hitboxes_local)
     p.add_argument("session_id")
