@@ -3241,6 +3241,7 @@
   cursor: pointer;
   min-height: 44px;
 }
+/* Bare like the other rail buttons (e.g. no-ads): icon + label, no card chrome. */
 .home-achievements-btn {
   width: auto;
   min-width: 76px;
@@ -3250,13 +3251,9 @@
   justify-items: center;
   align-content: center;
   padding: 6px 6px 7px;
-  border: 1px solid rgba(255, 248, 232, 0.72);
-  border-radius: 16px;
-  background: rgba(255, 250, 239, 0.78);
   color: #33423d;
   font: 900 11px/1.05 'Nunito', sans-serif;
   text-shadow: 0 1px 0 rgba(255, 244, 205, 0.65);
-  box-shadow: 0 5px 12px rgba(61, 78, 63, 0.16);
 }
 /* Same gold-medal treatment as the collection page's card badges so the Home
    entry and its destination share one icon, embossed like the coin/hint pills. */
