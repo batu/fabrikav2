@@ -27,6 +27,7 @@ import {
   type AchievementViewEventRequest,
 } from '../achievements/AchievementAnalytics';
 import { analytics } from '../analytics/AnalyticsService';
+import { ACHIEVEMENT_CATALOG } from '../achievements/catalog';
 
 const STORAGE_KEYS = {
   HINTS: 'ftd_hints',
@@ -106,6 +107,22 @@ export const RATE_PROMPT_THRESHOLD = 5;
 /** Max rewarded hints a player can earn per day. Families-policy friendly. */
 export const MAX_REWARDED_HINTS_PER_DAY = 5;
 
+export interface DailyStreakRewardClaim {
+  streakDay: number;
+  coins: number;
+  hints: number;
+}
+
+export type DailyStreakRewardStatus = DailyStreakRewardClaim & {
+  status: 'unavailable' | 'claimable' | 'claimed';
+};
+
+export function dailyStreakRewardForDay(streakDay: number): { coins: number; hints: number } {
+  const day = Math.max(0, Math.floor(streakDay));
+  if (day === 0) return { coins: 0, hints: 0 };
+  return { coins: Math.min(day, 5) * 10, hints: day % 5 === 0 ? 1 : 0 };
+}
+
 export type WalletMutationSource =
   | 'gameplayHint'
   | 'levelComplete'
@@ -115,6 +132,7 @@ export type WalletMutationSource =
   | 'iap'
   | 'tutorial'
   | 'achievement'
+  | 'streakReward'
   | 'test';
 
 export interface WalletCounters {
@@ -483,6 +501,8 @@ function parseAchievementRecord(value: string | null): AchievementRecord | null 
     progress,
     masteredLevelIds: stringArray(record.masteredLevelIds),
     unlocked: stringArray(record.unlocked),
+    claimedRewardAchievementIds: stringArray(record.claimedRewardAchievementIds),
+    claimedDailyStreakRewardDates: stringArray(record.claimedDailyStreakRewardDates),
     migrationRewardIneligibleAchievementIds: stringArray(
       record.migrationRewardIneligibleAchievementIds,
     ),
@@ -633,8 +653,8 @@ export class GameState {
     return this._totalLevelsCompleted;
   }
   /** True when a level completion was registered today (streak already safe). */
-  playedToday(): boolean {
-    return this._streakLastDate === todayString();
+  playedToday(date = todayString()): boolean {
+    return this._streakLastDate === date;
   }
   get bestTimes(): Readonly<Record<string, number>> {
     return this._bestTimes;
@@ -697,12 +717,9 @@ export class GameState {
   private applyHintGrant(amount: number, reason: string): number {
     const safeAmount = nonNegativeInteger(amount, reason);
     if (safeAmount === 0) return 0;
-    const availableRoom = Math.max(0, GAMEPLAY.MAX_HINT_BALANCE - this._hintBalance);
-    const appliedAmount = Math.min(safeAmount, availableRoom);
-    if (appliedAmount === 0) return 0;
-    this._hintBalance += appliedAmount;
-    this._walletCounters.hintsGranted += appliedAmount;
-    return appliedAmount;
+    this._hintBalance += safeAmount;
+    this._walletCounters.hintsGranted += safeAmount;
+    return safeAmount;
   }
 
   grantHints(amount: number, _source: WalletMutationSource): number {
@@ -732,9 +749,8 @@ export class GameState {
 
   ensureMinimumHints(amount: number, _source: WalletMutationSource): number {
     const safeAmount = nonNegativeInteger(amount, 'minimum hint balance');
-    const targetAmount = Math.min(safeAmount, GAMEPLAY.MAX_HINT_BALANCE);
-    if (this._hintBalance >= targetAmount) return 0;
-    const appliedAmount = this.applyHintGrant(targetAmount - this._hintBalance, 'minimum hint grant amount');
+    if (this._hintBalance >= safeAmount) return 0;
+    const appliedAmount = this.applyHintGrant(safeAmount - this._hintBalance, 'minimum hint grant amount');
     if (appliedAmount === 0) return 0;
     this.save();
     return appliedAmount;
@@ -779,13 +795,6 @@ export class GameState {
     let hintsGranted = 0;
     if (this._rewardProgressCount >= safeGoal) {
       hintsGranted = this.applyHintGrant(safeHintRewardAmount, 'reward hint grant amount');
-      // Only consume the cycle when the reward actually lands (or there is
-      // nothing to land). When the player is at MAX_HINT_BALANCE the grant
-      // yields 0; holding the accumulated count (>= goal) until there is
-      // room mirrors grantRewardedHint, which does not consume its daily
-      // slot when applyHintGrant yields 0. Without this guard the count
-      // was wiped to 0 on every goal-crossing while capped — a live bug
-      // for hint-hoarding players, who start at the cap by default.
       if (hintsGranted > 0 || safeHintRewardAmount === 0) {
         this._rewardProgressCount = 0;
         rewardGranted = safeHintRewardAmount > 0;
@@ -824,9 +833,7 @@ export class GameState {
       this._noAdsEntitlement = true;
       this.settings.adsEnabled = false;
     }
-    // Paid hints bypass the free-hint cap: a purchase must deliver the full
-    // amount the player paid for. MAX_HINT_BALANCE only stops *free* hint
-    // accrual (reward progress, rewarded ad, starting hints) — see applyHintGrant.
+    // Purchases deliver their full hint amount, as do all other hint sources.
     let appliedHintAmount = 0;
     if (hintAmount > 0) {
       this._hintBalance += hintAmount;
@@ -1119,14 +1126,53 @@ export class GameState {
    * load/render so the reset is deterministic at the single call site
    * (`registerLevelComplete` owns the actual streak mutation).
    */
-  currentStreakDays(): number {
+  currentStreakDays(date = todayString()): number {
     if (this._streakDays <= 0 || this._streakLastDate === '') return 0;
-    const today = todayString();
-    if (this._streakLastDate === today) return this._streakDays;
-    const gap = dayDiff(this._streakLastDate, today);
+    if (this._streakLastDate === date) return this._streakDays;
+    const gap = dayDiff(this._streakLastDate, date);
     // gap=1 means "last played yesterday, streak still alive today"
     // (they just haven't logged today's completion yet).
     return gap <= 1 ? this._streakDays : 0;
+  }
+
+  dailyStreakRewardStatus(date = todayString()): DailyStreakRewardStatus {
+    const streakDay = this.currentStreakDays(date);
+    const reward = dailyStreakRewardForDay(streakDay);
+    if (this._streakLastDate !== date || streakDay === 0) return { status: 'unavailable', streakDay, ...reward };
+    return {
+      status: this._achievementRecord.claimedDailyStreakRewardDates.includes(date) ? 'claimed' : 'claimable',
+      streakDay,
+      ...reward,
+    };
+  }
+
+  claimDailyStreakReward(): DailyStreakRewardClaim | null {
+    if (!this._achievementPersistenceReady) return null;
+    this.recoverPendingSettlement();
+    const claimDate = todayString();
+    const status = this.dailyStreakRewardStatus(claimDate);
+    if (status.status !== 'claimable') return null;
+    this.persistWallet();
+    const before = this.settlementSnapshot();
+    const after: SettlementSnapshot = {
+      coins: before.coins + status.coins,
+      hints: before.hints + status.hints,
+      counters: {
+        ...before.counters,
+        coinsGranted: before.counters.coinsGranted + status.coins,
+        hintsGranted: before.counters.hintsGranted + status.hints,
+      },
+    };
+    this.commitRecord({
+      ...this._achievementRecord,
+      claimedDailyStreakRewardDates: [...this._achievementRecord.claimedDailyStreakRewardDates, claimDate],
+      pendingSettlement: { occurrenceId: `streak:${claimDate}`, before, after },
+    });
+    this.applyCoinGrant(status.coins, 'streakReward');
+    this.applyHintGrant(status.hints, 'daily streak hint reward');
+    this.persistWallet();
+    this.commitRecord({ ...this._achievementRecord, pendingSettlement: null });
+    return { streakDay: status.streakDay, coins: status.coins, hints: status.hints };
   }
 
   /** True when it's time to show the one-shot rate-me prompt. */
@@ -1282,69 +1328,61 @@ export class GameState {
 
     const delta = applyAchievement(fact, record);
 
-    // Post-cap reward computation. Coins uncapped; hints capped to room, sequentially.
-    const rewards: GrantedReward[] = [];
-    let totalCoins = 0;
-    let totalHints = 0;
-    let hintRoom = Math.max(0, GAMEPLAY.MAX_HINT_BALANCE - this._hintBalance);
-    for (const achievement of delta.newlyUnlocked) {
-      const coins = achievement.entitledReward?.coins ?? 0;
-      const requestedHints = achievement.entitledReward?.hints ?? 0;
-      const hints = Math.min(requestedHints, hintRoom);
-      hintRoom -= hints;
-      if (coins + hints > 0) {
-        rewards.push({ achievementId: achievement.id, coins, hints });
-        totalCoins += coins;
-        totalHints += hints;
-      }
-    }
-    const committed: CommittedAchievementDelta = { ...delta, rewards };
-    const hasWalletChange = totalCoins > 0 || totalHints > 0;
-
-    if (!hasWalletChange) {
-      // Progress-only / no-wallet path: single record persist journaling the outbox.
-      const { events, nextSequence } = deltaToEvents(committed, record.nextAnalyticsEventSequence);
-      const folded = applyDeltaToRecord(record, committed);
-      this.commitRecord({
-        ...folded,
-        analyticsOutbox: [...folded.analyticsOutbox, ...events],
-        nextAnalyticsEventSequence: nextSequence,
-      });
-      return committed;
-    }
-
-    // Reward path — recoverable write-ahead settlement.
-    this.persistWallet(); // checkpoint 0b (baseline)
-    const before = this.settlementSnapshot();
-    const after: SettlementSnapshot = {
-      coins: before.coins + totalCoins,
-      hints: before.hints + totalHints,
-      counters: {
-        ...before.counters,
-        coinsGranted: before.counters.coinsGranted + totalCoins,
-        hintsGranted: before.counters.hintsGranted + totalHints,
-      },
-    };
-
+    const committed: CommittedAchievementDelta = { ...delta, rewards: [] };
     const { events, nextSequence } = deltaToEvents(committed, record.nextAnalyticsEventSequence);
     const folded = applyDeltaToRecord(record, committed);
-    // Checkpoint 1: commit occurrence + unlocks + mastery + events + settlement intent together.
     this.commitRecord({
       ...folded,
       analyticsOutbox: [...folded.analyticsOutbox, ...events],
       nextAnalyticsEventSequence: nextSequence,
-      pendingSettlement: { occurrenceId: fact.occurrenceId, before, after },
     });
-
-    // Checkpoint 2: apply the reward through the shared non-persisting primitives,
-    // landing the wallet at `after` by construction, then persist the wallet keys.
-    this.applyCoinGrant(totalCoins, 'achievement');
-    if (totalHints > 0) this.applyHintGrant(totalHints, 'achievement hint grant amount');
-    this.persistWallet();
-
-    // Checkpoint 3: finalize.
-    this.commitRecord({ ...this._achievementRecord, pendingSettlement: null });
     return committed;
+  }
+
+  claimAchievementReward(achievementId: string): GrantedReward | null {
+    if (!this._achievementPersistenceReady) return null;
+    this.recoverPendingSettlement();
+    const record = this._achievementRecord;
+    if (!record.unlocked.includes(achievementId)) return null;
+    if (record.claimedRewardAchievementIds.includes(achievementId)) return null;
+    if (record.migrationRewardIneligibleAchievementIds.includes(achievementId)) return null;
+    if (record.legacyRewardProvenanceUnknownAchievementIds.includes(achievementId)) return null;
+    const achievement = ACHIEVEMENT_CATALOG.find((entry) => entry.id === achievementId);
+    if (!achievement) return null;
+    const reward: GrantedReward = {
+      achievementId,
+      coins: achievement.entitledReward?.coins ?? 0,
+      hints: achievement.entitledReward?.hints ?? 0,
+    };
+    const occurrenceId = `claim:${achievementId}`;
+    const committed: CommittedAchievementDelta = {
+      occurrenceId,
+      progressChanges: [], newlyUnlocked: [], masteredLevelIdsAdded: [], rewards: [reward],
+    };
+    this.persistWallet();
+    const before = this.settlementSnapshot();
+    const after: SettlementSnapshot = {
+      coins: before.coins + reward.coins,
+      hints: before.hints + reward.hints,
+      counters: {
+        ...before.counters,
+        coinsGranted: before.counters.coinsGranted + reward.coins,
+        hintsGranted: before.counters.hintsGranted + reward.hints,
+      },
+    };
+    const { events, nextSequence } = deltaToEvents(committed, record.nextAnalyticsEventSequence);
+    this.commitRecord({
+      ...record,
+      claimedRewardAchievementIds: [...record.claimedRewardAchievementIds, achievementId],
+      analyticsOutbox: [...record.analyticsOutbox, ...events],
+      nextAnalyticsEventSequence: nextSequence,
+      pendingSettlement: { occurrenceId, before, after },
+    });
+    this.applyCoinGrant(reward.coins, 'achievement');
+    this.applyHintGrant(reward.hints, 'achievement hint grant amount');
+    this.persistWallet();
+    this.commitRecord({ ...this._achievementRecord, pendingSettlement: null });
+    return reward;
   }
 
   /**

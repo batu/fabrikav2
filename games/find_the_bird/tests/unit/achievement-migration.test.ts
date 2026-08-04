@@ -105,10 +105,10 @@ describe('migration / backfill (AC4/AC5/KTD5)', () => {
     // A live completion: completions_10 is already unlocked (no re-grant); first_best
     // is genuinely new post-migration and rewards normally (20 coins) + base 45.
     const result = gs.beginLevelCompletionTransaction({ levelId: 'lvl-live', levelIndex: 12, timeSeconds: 15, baseCoinReward: 45 });
-    const rewardedIds = result.achievementCommit?.rewards.map((r) => r.achievementId) ?? [];
-    expect(rewardedIds).toContain('first_best');
-    expect(rewardedIds).not.toContain('completions_10');
-    expect(gs.coinBalance).toBe(65); // 45 base + 20 first_best
+    expect(result.achievementCommit?.rewards).toHaveLength(0);
+    expect(gs.claimAchievementReward('first_best')).toMatchObject({ coins: 20 });
+    expect(gs.claimAchievementReward('completions_10')).toBeNull();
+    expect(gs.coinBalance).toBe(65); // 45 base + claimed 20 first_best
   });
 
   it('upgrades an older-version record without losing existing unlocks', () => {

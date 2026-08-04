@@ -502,6 +502,14 @@ export class HomeScene extends Phaser.Scene {
     const currentLevel = gameState.currentLevelIndex + 1;
     // Read-side streak (0 when lapsed); the pill always renders, showing 0 for a dead streak.
     const streakDays = gameState.currentStreakDays();
+    const streakReward = gameState.dailyStreakRewardStatus();
+    const streakRewardBadge = streakReward.status === 'claimable' ? 'CLAIM' : streakReward.status === 'claimed' ? '✓' : '';
+    let streakRewardDescription = 'Complete a level today to unlock the reward';
+    if (streakReward.status === 'claimed') {
+      streakRewardDescription = 'Today’s reward collected';
+    } else if (streakReward.status === 'claimable') {
+      streakRewardDescription = `Claim ${streakReward.coins} coins${streakReward.hints > 0 ? ` and ${streakReward.hints} hint` : ''}`;
+    }
     const bannerMedia = this.renderBannerMedia();
 
     return `
@@ -532,10 +540,11 @@ export class HomeScene extends Phaser.Scene {
               <img src="/ui/menu-icons/icon_hint_magnifier.png" alt="" aria-hidden="true" data-economy-anchor="hint">
               <button id="home-hint-plus" class="home-pill-plus" type="button" aria-label="Buy more hints">+</button>
             </div>
-            <div class="home-balance-pill home-streak-pill" aria-label="${streakDays}-day play streak">
+            <button id="home-streak-reward" class="home-balance-pill home-streak-pill" type="button" data-reward-status="${streakReward.status}" aria-label="${streakDays}-day play streak. ${streakRewardDescription}">
               <img class="home-streak-flame" src="/ui/menu-icons/icon_streak_flame.png" alt="" aria-hidden="true">
               <span>${streakDays}</span>
-            </div>
+              <small>${streakRewardBadge}</small>
+            </button>
           </aside>
         </div>
 

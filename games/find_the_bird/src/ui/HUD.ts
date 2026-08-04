@@ -12,7 +12,7 @@ import { fulfillVerifiedPurchaseOnce, makePurchaseRestoreRetry, reportUnfulfille
 import { animateHintsToBalance } from './EconomyTransfer';
 import { getLegalLinks, type LegalLinks } from '../platform/LegalLinks';
 import { privacyConsentService } from '../privacy/PrivacyConsentService';
-import { renderAchievementsPageBody } from './AchievementsPage';
+import { renderAchievementHeaderBalances, renderAchievementsPageBody, wireAchievementClaimButtons } from './AchievementsPage';
 import { rewardedAdIconMarkup } from './RewardedAdIcon';
 import { hideHomeMenuLayer } from './OverlayVisibility';
 import { HOME_NO_ADS_BADGE_SRC } from './iconPreload';
@@ -441,7 +441,7 @@ export function openPage(
         <img class="home-page-back-art" src="/ui/page-header/back_button.png" alt="" aria-hidden="true">
       </button>
       <h2 id="home-page-title" class="home-page-title" tabindex="-1">${title}</h2>
-      ${id === 'shop' ? renderShopHeaderBalances() : ''}
+      ${id === 'shop' ? renderShopHeaderBalances() : id === 'achievements' ? renderAchievementHeaderBalances() : ''}
     </div>
     <div class="home-page-body">
       ${id === 'shop' ? renderShopPageBody() : id === 'settings' ? renderSettingsPageBody() : renderAchievementsPageBody()}
@@ -476,6 +476,7 @@ export function openPage(
   if (opts.scrollTo) page.classList.add('home-page-overlay--instant');
 
   overlay.appendChild(page);
+  if (id === 'achievements') wireAchievementClaimButtons(page);
   shell?.setAttribute('inert', '');
   pageEscapeHandler = (event: KeyboardEvent): void => {
     if (event.key === 'Escape') {

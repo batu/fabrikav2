@@ -3750,6 +3750,35 @@
   min-width: 0;
 }
 
+.achievement-header-balances {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  gap: 3px;
+}
+
+.achievement-header-balance {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 58px;
+  height: 32px;
+  padding: 3px 10px 3px 5px;
+  border: 2px solid #82925e;
+  border-radius: 999px;
+  background: #fff8e8;
+  box-shadow: 0 3px 0 rgba(70, 85, 54, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  color: #3d2b1f;
+  font: 900 15px/1 'Nunito', sans-serif;
+}
+
+.achievement-header-balance img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 2px rgba(51, 66, 61, 0.2));
+}
+
 .home-page-body {
   flex: 1;
   overflow-y: auto;
@@ -3858,6 +3887,27 @@
 /* …but a genuinely empty bar must stay empty. */
 .achievement-card progress[value='0']::-webkit-progress-value { min-width: 0; }
 .achievement-progress-text, .achievement-reward-status { font-weight: 800; }
+.achievement-claim-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 10px;
+  border: 2px solid #55703a;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #91c85f, #62953f);
+  color: #fff;
+  font: 900 15px/1 'Nunito', sans-serif;
+  box-shadow: 0 4px 0 #3f6a2d, inset 0 2px 0 rgba(255, 255, 255, 0.35);
+}
+.achievement-claim-reward { display: inline-flex; align-items: center; gap: 3px; }
+.achievement-claim-reward img { width: 24px; height: 24px; object-fit: contain; filter: drop-shadow(0 2px 2px rgba(36, 67, 30, 0.28)); }
+.achievement-claim-plus { opacity: 0.82; }
+.achievement-claim-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #3f6a2d; }
+.achievement-claim-btn:disabled { cursor: wait; filter: saturate(0.78); }
 .achievement-unavailable { padding: 18px; border: 3px solid #82925e; border-radius: 18px; background: #fff8e8; color: #33423d; box-shadow: 0 4px 0 rgba(89, 105, 68, 0.22); }
 .home-page-overlay :focus-visible { outline: 4px solid #246cb3; outline-offset: 3px; }
 
@@ -4890,6 +4940,25 @@
 .home-streak-pill {
   background: linear-gradient(180deg, #fff3e0, #ffd9a8);
   color: #7a3d10;
+  border: 0;
+  font: inherit;
+  cursor: default;
+}
+
+.home-streak-pill[data-reward-status='claimable'] {
+  cursor: pointer;
+  box-shadow: 0 0 0 3px #fff0a8, 0 5px 0 #c1782f, 0 8px 14px rgba(95, 50, 15, 0.24);
+  animation: home-streak-claim-pulse 1.5s ease-in-out infinite;
+}
+
+.home-streak-pill small {
+  font-size: 9px;
+  font-weight: 1000;
+  letter-spacing: 0.04em;
+}
+
+@keyframes home-streak-claim-pulse {
+  50% { transform: scale(1.04); }
 }
 
 .home-streak-flame {

@@ -1,4 +1,7 @@
 import { openPage } from './HUD';
+import { gameState } from '../core/GameState';
+import { analytics } from '../analytics/AnalyticsService';
+import { refreshHomeWalletBalances } from './WalletBalances';
 
 export interface HomeNavigationDeps {
   /** Tap feedback on the pressed button (bounce animation). */
@@ -46,6 +49,32 @@ export function bindHomeNavigation(overlay: HTMLElement, deps: HomeNavigationDep
       open('shop', { scrollTo });
     });
   }
+
+  overlay.querySelector<HTMLButtonElement>('#home-streak-reward')?.addEventListener('click', (event) => {
+    const button = event.currentTarget as HTMLButtonElement;
+    if (button.dataset.rewardStatus !== 'claimable') return;
+    deps.triggerNavBounce(button);
+    const claim = (() => {
+      try {
+        return gameState.claimDailyStreakReward();
+      } catch {
+        return gameState.claimDailyStreakReward();
+      }
+    })();
+    if (!claim) return;
+    if (claim.coins > 0) void analytics.resourceChanged({
+      flow_type: 'source', currency: 'coins', amount: claim.coins,
+      item_type: 'rewarded', item_id: 'daily_streak',
+    });
+    if (claim.hints > 0) void analytics.resourceChanged({
+      flow_type: 'source', currency: 'hints', amount: claim.hints,
+      item_type: 'rewarded', item_id: 'daily_streak',
+    });
+    button.dataset.rewardStatus = 'claimed';
+    button.querySelector('small')!.textContent = '✓';
+    button.setAttribute('aria-label', `${claim.streakDay}-day play streak. Today’s reward collected`);
+    refreshHomeWalletBalances(overlay);
+  });
 
   overlay.querySelector<HTMLButtonElement>('#home-play-now')?.addEventListener('click', (e) => {
     deps.startCurrentLevel(e.currentTarget as HTMLButtonElement);

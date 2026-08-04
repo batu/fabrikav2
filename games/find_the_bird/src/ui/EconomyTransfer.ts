@@ -1,12 +1,16 @@
+import { animateIntegerText } from '../v1core/ui';
+
 type EconomyTransferKind = 'coin' | 'hint';
 
 interface EconomyTransferOptions {
   kind: EconomyTransferKind;
   amount: number;
   source: Element | null;
+  target?: HTMLElement | null;
   targets: readonly string[];
   owner?: Element | null;
   countElement?: HTMLElement | null;
+  drainCountElement?: HTMLElement | null;
   fromValue?: number;
   toValue?: number;
   tokenMultiplier?: number;
@@ -18,10 +22,13 @@ const TOKEN_IMAGE_BY_KIND: Record<EconomyTransferKind, string> = {
   hint: '/ui/menu-icons/icon_hint_magnifier.png',
 };
 
+export function economyTokenImage(kind: EconomyTransferKind): string {
+  return TOKEN_IMAGE_BY_KIND[kind];
+}
+
 const FAST_E2E_UI = String(import.meta.env.VITE_FTD_FAST_E2E_UI) === 'true';
 const TRANSFER_DURATION_MS = FAST_E2E_UI ? 80 : 760;
 const STAGGER_MS = FAST_E2E_UI ? 0 : 42;
-let nextCountToken = 0;
 
 interface TransferController {
   cancelled: boolean;
@@ -92,27 +99,6 @@ function tokenCount(kind: EconomyTransferKind, amount: number, multiplier: numbe
   if (kind === 'hint') return Math.min(8, Math.max(3, amount * 3));
   const baseCount = Math.min(12, Math.max(6, Math.ceil(amount / 6)));
   return Math.min(36, Math.max(baseCount, Math.round(baseCount * multiplier)));
-}
-
-function animateCount(element: HTMLElement, from: number, to: number, durationMs: number): void {
-  nextCountToken += 1;
-  const token = String(nextCountToken);
-  element.dataset.economyCountToken = token;
-
-  if (from === to || durationMs <= 0) {
-    element.textContent = String(to);
-    return;
-  }
-
-  const startedAt = performance.now();
-  const step = (now: number): void => {
-    if (!element.isConnected || element.dataset.economyCountToken !== token) return;
-    const progress = Math.min(1, (now - startedAt) / durationMs);
-    const eased = 1 - Math.pow(1 - progress, 3);
-    element.textContent = String(Math.round(from + (to - from) * eased));
-    if (progress < 1) window.requestAnimationFrame(step);
-  };
-  window.requestAnimationFrame(step);
 }
 
 function ensureLayer(): HTMLElement {
@@ -239,7 +225,7 @@ function bumpTarget(target: HTMLElement): void {
 
 function animateFtdEconomyTransfer(options: EconomyTransferOptions): Promise<void> {
   const amount = Math.max(0, Math.floor(options.amount));
-  const target = firstVisibleTarget(options.targets);
+  const target = options.target ?? firstVisibleTarget(options.targets);
   if (amount === 0 || target === null) return Promise.resolve();
 
   const targetCenter = visibleTransferAnchor(target, options.kind);
@@ -252,7 +238,10 @@ function animateFtdEconomyTransfer(options: EconomyTransferOptions): Promise<voi
   const reducedMotion = options.reducedMotion ?? (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false);
 
   if (options.countElement && options.fromValue !== undefined && options.toValue !== undefined) {
-    animateCount(options.countElement, options.fromValue, options.toValue, reducedMotion ? 0 : TRANSFER_DURATION_MS);
+    animateIntegerText(options.countElement, options.fromValue, options.toValue, reducedMotion ? 0 : TRANSFER_DURATION_MS);
+  }
+  if (options.drainCountElement) {
+    animateIntegerText(options.drainCountElement, amount, 0, reducedMotion ? 0 : TRANSFER_DURATION_MS);
   }
 
   if (reducedMotion) {
@@ -287,7 +276,7 @@ export function animateCoinsToBalance(options: Omit<EconomyTransferOptions, 'kin
   return animateFtdEconomyTransfer({
     ...options,
     kind: 'coin',
-    targets: ['.fab-complete-balance', '#coin-pill', '#completion-coin-target', '#completion-coin-target-count', '.home-coin-pill'],
+    targets: ['[data-economy-target="coins"]', '.fab-complete-balance', '#coin-pill', '#completion-coin-target', '#completion-coin-target-count', '.home-coin-pill'],
   });
 }
 
