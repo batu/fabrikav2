@@ -847,8 +847,12 @@ def cmd_place_hitboxes_vlm(client: Client, args: argparse.Namespace) -> None:
 
 
 def cmd_recenter_hitboxes_local(client: Client, args: argparse.Namespace) -> None:
-    params = {"radiusScale": args.radius_scale} if args.radius_scale != 1.0 else None
-    _emit(args, client.post(f"/api/sessions/{args.session_id}/recenter-hitboxes-local", params=params))
+    params: dict = {}
+    if args.radius_scale != 1.0:
+        params["radiusScale"] = args.radius_scale
+    if args.prune_empty:
+        params["pruneEmpty"] = "true"
+    _emit(args, client.post(f"/api/sessions/{args.session_id}/recenter-hitboxes-local", params=params or None))
 
 
 def cmd_finalize_magenta_hitboxes(client: Client, args: argparse.Namespace) -> None:
@@ -1279,6 +1283,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = verb("recenter-hitboxes-local", cmd_recenter_hitboxes_local)
     p.add_argument("session_id")
     p.add_argument("--radius-scale", type=float, default=1.0)
+    p.add_argument("--prune-empty", action="store_true", help="drop hitboxes with no painted-bird diff evidence (VLM false positives)")
 
     p = verb("finalize-magenta-hitboxes", cmd_finalize_magenta_hitboxes)
     p.add_argument("session_id")

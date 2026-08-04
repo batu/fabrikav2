@@ -3266,6 +3266,15 @@ def _write_birdless_restore_bg(sdir: Path, dst: Path, raw: dict, level_data: dic
     if clean.size != color.size:
         clean = clean.resize(color.size, Image.LANCZOS)
     out = color.copy()
+    # Erase ONLY the bird pixels (local diff vs clean bg inside the cleanup
+    # rect, dilated + feathered) — a rectangular patch visibly reverts drifted
+    # scenery around the bird when the runtime swaps it in ("pickup destroys
+    # background", device build 10). Masked erasure keeps every non-bird pixel
+    # byte-identical to the scene, so the swap is seamless at any box size.
+    import numpy as _np
+    from scipy import ndimage as _ndi
+    color_arr = _np.asarray(color, dtype=_np.int16)
+    clean_arr = _np.asarray(clean, dtype=_np.int16)
     for dog in (level_data.get("dogs") or []):
         sprite = dog.get("sprite") if isinstance(dog, dict) else None
         cleanup = sprite.get("cleanup") if isinstance(sprite, dict) else None
@@ -3277,13 +3286,10 @@ def _write_birdless_restore_bg(sdir: Path, dst: Path, raw: dict, level_data: dic
         x1, y1 = min(out.width, x + w), min(out.height, y + h)
         if x1 <= x0 or y1 <= y0:
             continue
+        diff = _np.abs(color_arr[y0:y1, x0:x1] - clean_arr[y0:y1, x0:x1]).sum(axis=2) > 45
+        diff = _ndi.binary_dilation(diff, iterations=4)
+        mask = Image.fromarray((diff * 255).astype("uint8")).filter(_IF.GaussianBlur(3))
         patch = clean.crop((x0, y0, x1, y1))
-        mask = Image.new("L", patch.size, 0)
-        feather = 8
-        ImageDraw.Draw(mask).rectangle(
-            [feather, feather, patch.width - feather, patch.height - feather], fill=255,
-        )
-        mask = mask.filter(_IF.GaussianBlur(4))
         out.paste(patch, (x0, y0), mask)
     out.save(dst / "bg_00.png")
     (dst / "bg_00.webp").unlink(missing_ok=True)

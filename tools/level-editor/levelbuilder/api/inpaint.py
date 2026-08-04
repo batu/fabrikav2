@@ -5169,6 +5169,7 @@ def recenter_hitboxes_local_diff(
     min_area: int = 900,
     max_shift_factor: float = 1.6,
     radius_scale: float = 1.0,
+    prune_empty: bool = False,
 ) -> dict:
     """Snap each hitbox to the centroid of the nearest painted-diff component
     inside its own crop. Local scope defeats the scene-wide drift that broke
@@ -5189,6 +5190,7 @@ def recenter_hitboxes_local_diff(
     a_full = _np.asarray(bg, dtype=_np.int16)
     b_full = _np.asarray(color, dtype=_np.int16)
     moved = []
+    pruned: list[dict] = []
     footprints: dict[int, tuple[int, int, int, int]] = {}
     overlap_flags: list[dict] = []
     for hb in hitboxes:
@@ -5213,6 +5215,8 @@ def recenter_hitboxes_local_diff(
             if best is None or dist < best[0]:
                 best = (dist, cx, cy, idx)
         if best is None:
+            if prune_empty:
+                pruned.append({"id": hb.get("id"), "x": hb["x"], "y": hb["y"]})
             continue
         dist, cx, cy, _comp_idx = best
         if dist <= r * max_shift_factor and dist >= 3:
@@ -5340,9 +5344,12 @@ def recenter_hitboxes_local_diff(
             meta = json.loads(meta_path.read_text())
             meta["cleanupBox"] = box
             meta_path.write_text(json.dumps(meta, indent=2))
+    if pruned:
+        pruned_ids = {p["id"] for p in pruned}
+        hitboxes = [h for h in hitboxes if h.get("id") not in pruned_ids]
     S.save_hitboxes(session_id, hitboxes)
     bg.close(); color.close()
-    return {"sessionId": session_id, "moved": moved, "total": len(hitboxes), "overlapFlags": overlap_flags}
+    return {"sessionId": session_id, "moved": moved, "total": len(hitboxes), "overlapFlags": overlap_flags, "pruned": pruned}
 
 
 def run_magenta_inpaint(
