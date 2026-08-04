@@ -363,6 +363,7 @@ class SelectBgRequest(BaseModel):
 class ReconcileMagentaHitboxesRequest(BaseModel):
     detections: list[dict[str, Any]] = Field(..., min_length=1, max_length=40)
     minimumConfidence: float = Field(0.5, ge=0.0, le=1.0)
+    force: bool = False
 
 
 class LevelSectionResponse(BaseModel):
@@ -2151,6 +2152,7 @@ def materialize_detection_sprites(session_id: str, req: ReconcileMagentaHitboxes
             session_id,
             detections=req.detections,
             minimum_confidence=req.minimumConfidence,
+            force=req.force,
         )
     except S.LevelNotReadyError as error:
         raise HTTPException(

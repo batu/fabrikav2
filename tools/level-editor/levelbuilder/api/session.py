@@ -2548,6 +2548,7 @@ def materialize_detection_sprites(
     *,
     detections: list[dict],
     minimum_confidence: float = 0.5,
+    force: bool = False,
 ) -> dict:
     """Create pickup sprites for a reconciled whole-image generation.
 
@@ -2722,7 +2723,7 @@ def materialize_detection_sprites(
         pending = []
         for index, hitbox_data in enumerate(hitboxes):
             meta_path = dogs_dir(session_id) / f"dog_{index:02d}" / "sprite_000.json"
-            if meta_path.exists() and not os.environ.get("FTD_SPRITE_FORCE"):
+            if meta_path.exists() and not force and not os.environ.get("FTD_SPRITE_FORCE"):
                 try:
                     if json.loads(meta_path.read_text()).get("technique") == "flatkey-recreate-v1":
                         materialized.append({

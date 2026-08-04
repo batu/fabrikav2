@@ -835,7 +835,7 @@ def cmd_materialize_hitbox_sprites(client: Client, args: argparse.Namespace) -> 
         })
     _emit(args, client.post(
         f"/api/sessions/{args.session_id}/materialize-detection-sprites",
-        json={"detections": detections, "minimumConfidence": 0.5},
+        json={"detections": detections, "minimumConfidence": 0.5, "force": bool(getattr(args, "force", False))},
     ))
 
 
@@ -1263,6 +1263,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = verb("materialize-hitbox-sprites", cmd_materialize_hitbox_sprites)
     p.add_argument("session_id")
     p.add_argument("--pad-factor", type=float, default=2.2)
+    p.add_argument("--force", action="store_true", help="recut even dogs already flat-keyed (e.g. after a radius change)")
 
     p = verb("recenter-hitboxes-local", cmd_recenter_hitboxes_local)
     p.add_argument("session_id")
