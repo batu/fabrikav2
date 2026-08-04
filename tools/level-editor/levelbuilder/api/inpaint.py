@@ -5148,6 +5148,13 @@ def recenter_hitboxes_local_diff(
                 by0 = max(by0, oy1 + 2)
         bx0 = max(0, min(bx0, fx0)); by0 = max(0, min(by0, fy0))
         bx1 = min(color.width, max(bx1, fx1)); by1 = min(color.height, max(by1, fy1))
+        # Export-gate invariant: the cleanup box must contain its hitbox
+        # center (with a small pad) even when the measured footprint sits
+        # off-center from a hand placement the snap refused to move.
+        hb_c = hitboxes[idx]
+        pad_c = 20
+        bx0 = min(bx0, max(0, hb_c["x"] - pad_c)); by0 = min(by0, max(0, hb_c["y"] - pad_c))
+        bx1 = max(bx1, min(color.width, hb_c["x"] + pad_c)); by1 = max(by1, min(color.height, hb_c["y"] + pad_c))
         meta_path = S.dogs_dir(session_id) / f"dog_{idx:02d}" / "sprite_000.json"
         if meta_path.exists():
             meta = json.loads(meta_path.read_text())
