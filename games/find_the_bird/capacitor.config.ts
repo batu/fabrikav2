@@ -14,6 +14,12 @@ const config = {
   // the Firebase env config is present at sync time. Run ios:sync with the same
   // env as the build so this presence check matches the shipped bundle.
   includePlugins: computeIncludePlugins(process.env),
+  // Dev-shell mode: when FTB_DEV_SHELL_URL is set at sync time, the WKWebView
+  // loads the game from that URL instead of the bundled dist/. TestFlight-only
+  // iteration lane — a release build must NEVER be synced with this env set.
+  ...(process.env.FTB_DEV_SHELL_URL
+    ? { server: { url: process.env.FTB_DEV_SHELL_URL } }
+    : {}),
   ios: {
     // Keep the WKWebView scroll view from applying automatic safe-area content
     // insets. The game owns safe-area rhythm through CSS env(...) probes and
