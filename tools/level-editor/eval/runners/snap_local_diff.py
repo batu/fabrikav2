@@ -1,7 +1,13 @@
 """Standalone local-diff snap: recentre candidate circles to the nearest
 painted-diff component inside their own crop (READ-ONLY port of
-`recenter_hitboxes_local_diff()`, same defaults: crop 2.2r, threshold 80,
+`recenter_hitboxes_local_diff()`, defaults: crop 2.2r, threshold 80,
 min_area 900, dilate 5, refuse shifts > 1.6r).
+
+Deliberate divergence from the shipped function: min_area here scales with
+resolution ((W/4096)^2) so the 1024/2688 golden levels filter comparably;
+shipped recenter uses a FIXED min_area=900, which on those levels would
+refuse most snaps. Eval *-snap rows therefore measure the recommended
+scaled behavior, not bit-exact shipped behavior on non-4096 levels.
 
 Usage: uv run python eval/runners/snap_local_diff.py <in_dir> <out_dir> \
     [--prune-empty]

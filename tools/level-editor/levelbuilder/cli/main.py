@@ -236,17 +236,25 @@ def cmd_eval_compare(args: argparse.Namespace) -> None:
     import importlib.util
 
     compare_path = Path(__file__).resolve().parents[2] / "eval" / "compare.py"
+    if not compare_path.is_file():
+        raise CliError("eval_compare_missing",
+                       f"{compare_path} not found — eval-compare only works from a "
+                       "source checkout (eval/ is not packaged)", stage="preflight")
     spec = importlib.util.spec_from_file_location("eval_compare", compare_path)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
-    argv = ["--runs", args.runs]
-    if args.levels:
-        argv += ["--levels", args.levels]
-    if args.force:
-        argv += ["--force"]
-    if args.out_dir:
-        argv += ["--out-dir", args.out_dir]
-    mod.main(argv)
+    runs = [r for r in args.runs.split(",") if r]
+    levels = [s for s in args.levels.split(",") if s] or None
+    out_dir = Path(args.out_dir) if args.out_dir else mod.EVAL_DIR / "results" / "compare"
+    try:
+        for r in runs:
+            if not (mod.EVAL_DIR / "results" / r / "candidates").is_dir():
+                raise mod.CompareError(f"run '{r}' has no candidates dir under eval/results/")
+        out_html, rendered = mod.generate(runs, out_dir, levels=levels, force=args.force)
+    except mod.CompareError as err:
+        raise CliError("eval_compare_failed", str(err), stage="eval-compare") from err
+    _emit(args, {"outHtml": str(out_html), "rendered": rendered,
+                 "runs": runs, "forced": bool(args.force or levels)})
 
 
 def cmd_doctor(args: argparse.Namespace) -> None:

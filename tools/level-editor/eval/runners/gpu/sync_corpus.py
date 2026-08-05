@@ -3,7 +3,7 @@ import json
 import subprocess
 from pathlib import Path
 
-base = Path('/Users/base/dev/appletolye/fabrikav2/.worktrees/hitbox-hillclimb/tools/level-editor/eval/corpus')
+base = Path(__file__).resolve().parents[2] / 'corpus'
 corpus = json.loads((base / 'corpus.json').read_text())
 subprocess.run(['ssh', 'ubuntu-server', 'mkdir -p ~/hitbox-lab/corpus/scenes'], check=True)
 for i, (sid, e) in enumerate(corpus.items()):

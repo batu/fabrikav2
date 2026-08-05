@@ -1,15 +1,19 @@
 {
   "run_id": "owlv2-neg-clip-c0.3-p0.5",
-  "timestamp": "2026-08-05T16:12:37+00:00",
+  "timestamp": "2026-08-05T17:43:28+00:00",
   "notes": "owlv2-neg conf>=0.3 + siglip bird-prob>=0.5",
   "meta": {},
   "golden_total": 412,
   "candidates_total": 0,
   "recall": 0.0,
   "precision": null,
+  "recall_1to1": 0.0,
+  "precision_1to1": null,
   "center_err_px4096": null,
   "radius_fit": null,
   "duplicates": 0,
+  "min_level_recall": 0.0,
+  "golden_sha256": "ea1e958d05be",
   "excluded_unlabeled": [
     "ancient_forest_creek_autumn_pond_reeds_bird_da7e"
   ],
@@ -40,6 +44,8 @@
       "duplicates": 0,
       "recall": 0.0,
       "precision": null,
+      "recall_1to1": 0.0,
+      "precision_1to1": null,
       "center_err_px4096": null,
       "radius_fit": null
     },
@@ -69,6 +75,8 @@
       "duplicates": 0,
       "recall": 0.0,
       "precision": null,
+      "recall_1to1": 0.0,
+      "precision_1to1": null,
       "center_err_px4096": null,
       "radius_fit": null
     },
@@ -96,6 +104,8 @@
       "duplicates": 0,
       "recall": 0.0,
       "precision": null,
+      "recall_1to1": 0.0,
+      "precision_1to1": null,
       "center_err_px4096": null,
       "radius_fit": null
     },
@@ -134,6 +144,8 @@
       "duplicates": 0,
       "recall": 0.0,
       "precision": null,
+      "recall_1to1": 0.0,
+      "precision_1to1": null,
       "center_err_px4096": null,
       "radius_fit": null
     },
@@ -164,6 +176,8 @@
       "duplicates": 0,
       "recall": 0.0,
       "precision": null,
+      "recall_1to1": 0.0,
+      "precision_1to1": null,
       "center_err_px4096": null,
       "radius_fit": null
     },
@@ -194,6 +208,8 @@
       "duplicates": 0,
       "recall": 0.0,
       "precision": null,
+      "recall_1to1": 0.0,
+      "precision_1to1": null,
       "center_err_px4096": null,
       "radius_fit": null
     },
@@ -227,6 +243,8 @@
       "duplicates": 0,
       "recall": 0.0,
       "precision": null,
+      "recall_1to1": 0.0,
+      "precision_1to1": null,
       "center_err_px4096": null,
       "radius_fit": null
     },
@@ -260,6 +278,8 @@
       "duplicates": 0,
       "recall": 0.0,
       "precision": null,
+      "recall_1to1": 0.0,
+      "precision_1to1": null,
       "center_err_px4096": null,
       "radius_fit": null
     },
@@ -297,6 +317,8 @@
       "duplicates": 0,
       "recall": 0.0,
       "precision": null,
+      "recall_1to1": 0.0,
+      "precision_1to1": null,
       "center_err_px4096": null,
       "radius_fit": null
     },
@@ -333,6 +355,8 @@
       "duplicates": 0,
       "recall": 0.0,
       "precision": null,
+      "recall_1to1": 0.0,
+      "precision_1to1": null,
       "center_err_px4096": null,
       "radius_fit": null
     },
@@ -363,6 +387,8 @@
       "duplicates": 0,
       "recall": 0.0,
       "precision": null,
+      "recall_1to1": 0.0,
+      "precision_1to1": null,
       "center_err_px4096": null,
       "radius_fit": null
     },
@@ -396,6 +422,8 @@
       "duplicates": 0,
       "recall": 0.0,
       "precision": null,
+      "recall_1to1": 0.0,
+      "precision_1to1": null,
       "center_err_px4096": null,
       "radius_fit": null
     },
@@ -433,6 +461,8 @@
       "duplicates": 0,
       "recall": 0.0,
       "precision": null,
+      "recall_1to1": 0.0,
+      "precision_1to1": null,
       "center_err_px4096": null,
       "radius_fit": null
     },
@@ -466,6 +496,8 @@
       "duplicates": 0,
       "recall": 0.0,
       "precision": null,
+      "recall_1to1": 0.0,
+      "precision_1to1": null,
       "center_err_px4096": null,
       "radius_fit": null
     },
@@ -497,6 +529,8 @@
       "duplicates": 0,
       "recall": 0.0,
       "precision": null,
+      "recall_1to1": 0.0,
+      "precision_1to1": null,
       "center_err_px4096": null,
       "radius_fit": null
     },
@@ -533,6 +567,8 @@
       "duplicates": 0,
       "recall": 0.0,
       "precision": null,
+      "recall_1to1": 0.0,
+      "precision_1to1": null,
       "center_err_px4096": null,
       "radius_fit": null
     },
@@ -566,6 +602,8 @@
       "duplicates": 0,
       "recall": 0.0,
       "precision": null,
+      "recall_1to1": 0.0,
+      "precision_1to1": null,
       "center_err_px4096": null,
       "radius_fit": null
     },
@@ -601,6 +639,8 @@
       "duplicates": 0,
       "recall": 0.0,
       "precision": null,
+      "recall_1to1": 0.0,
+      "precision_1to1": null,
       "center_err_px4096": null,
       "radius_fit": null
     },
@@ -631,6 +671,8 @@
       "duplicates": 0,
       "recall": 0.0,
       "precision": null,
+      "recall_1to1": 0.0,
+      "precision_1to1": null,
       "center_err_px4096": null,
       "radius_fit": null
     },
@@ -664,6 +706,8 @@
       "duplicates": 0,
       "recall": 0.0,
       "precision": null,
+      "recall_1to1": 0.0,
+      "precision_1to1": null,
       "center_err_px4096": null,
       "radius_fit": null
     },
@@ -696,6 +740,8 @@
       "duplicates": 0,
       "recall": 0.0,
       "precision": null,
+      "recall_1to1": 0.0,
+      "precision_1to1": null,
       "center_err_px4096": null,
       "radius_fit": null
     }

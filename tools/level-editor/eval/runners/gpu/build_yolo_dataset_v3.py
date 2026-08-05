@@ -1,11 +1,13 @@
 """Build tiled YOLO dataset v3 (runs on ubuntu-server).
 
-v2 changes vs v1: hybrid labels from corpus_v2.json (leakage already excluded
-there); per-scene scale normalization so the median bird box ~= --target-bird
-px (train/test scale alignment with 4096 golden scenes); fixed val families
-in the golden domain (4096 outdoor scenes); more negative tiles.
+v3 changes vs v2: parametrized corpus file (--corpus), leakage exclusion at
+build time (--exclude-keys keyword list / --exclude-golden-tagged), so the
+same builder produces both the golden-free main dataset and the
+leave-family-out fold datasets. Retains v2's per-scene scale normalization
+(median bird box ~= --target-bird px) and fixed val families.
 
-Usage: .venv/bin/python build_yolo_dataset_v2.py --out dataset-v2
+Usage: .venv/bin/python build_yolo_dataset_v3.py --out dataset-v4 \
+    --corpus corpus/corpus_v4.json --exclude-golden-tagged
 """
 
 from __future__ import annotations

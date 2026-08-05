@@ -1,15 +1,19 @@
 {
   "run_id": "vlm-yolosnap-12",
-  "timestamp": "2026-08-05T16:12:37+00:00",
+  "timestamp": "2026-08-05T17:43:28+00:00",
   "notes": "VLM centers snapped to yolo11s-v4 conf0.05 within 1.2r",
   "meta": {},
   "golden_total": 412,
   "candidates_total": 412,
   "recall": 0.9611650485436893,
   "precision": 0.9587378640776699,
+  "recall_1to1": 0.9587378640776699,
+  "precision_1to1": 0.9587378640776699,
   "center_err_px4096": 39.73939633381643,
   "radius_fit": 0.1535341996173672,
   "duplicates": 0,
+  "min_level_recall": 0.7083333333333334,
+  "golden_sha256": "ea1e958d05be",
   "excluded_unlabeled": [
     "ancient_forest_creek_autumn_pond_reeds_bird_da7e"
   ],
@@ -23,6 +27,8 @@
       "duplicates": 0,
       "recall": 1.0,
       "precision": 1.0,
+      "recall_1to1": 1.0,
+      "precision_1to1": 1.0,
       "center_err_px4096": 32.47469930068313,
       "radius_fit": 0.0
     },
@@ -37,6 +43,8 @@
       "duplicates": 0,
       "recall": 0.9375,
       "precision": 0.9375,
+      "recall_1to1": 0.9375,
+      "precision_1to1": 0.9375,
       "center_err_px4096": 27.612442460293035,
       "radius_fit": 0.20833333333333334
     },
@@ -49,6 +57,8 @@
       "duplicates": 0,
       "recall": 1.0,
       "precision": 1.0,
+      "recall_1to1": 1.0,
+      "precision_1to1": 1.0,
       "center_err_px4096": 42.111479637099976,
       "radius_fit": 0.07446808510638296
     },
@@ -61,6 +71,8 @@
       "duplicates": 0,
       "recall": 1.0,
       "precision": 1.0,
+      "recall_1to1": 1.0,
+      "precision_1to1": 1.0,
       "center_err_px4096": 27.93953088027771,
       "radius_fit": 0.0
     },
@@ -75,6 +87,8 @@
       "duplicates": 0,
       "recall": 0.9411764705882353,
       "precision": 0.9411764705882353,
+      "recall_1to1": 0.9411764705882353,
+      "precision_1to1": 0.9411764705882353,
       "center_err_px4096": 40.870565861908574,
       "radius_fit": 0.0
     },
@@ -89,6 +103,8 @@
       "duplicates": 0,
       "recall": 0.9411764705882353,
       "precision": 0.9411764705882353,
+      "recall_1to1": 0.9411764705882353,
+      "precision_1to1": 0.9411764705882353,
       "center_err_px4096": 41.88432868140512,
       "radius_fit": 0.0
     },
@@ -101,6 +117,8 @@
       "duplicates": 0,
       "recall": 1.0,
       "precision": 1.0,
+      "recall_1to1": 1.0,
+      "precision_1to1": 1.0,
       "center_err_px4096": 21.78996853369103,
       "radius_fit": 0.0
     },
@@ -115,6 +133,8 @@
       "duplicates": 0,
       "recall": 0.95,
       "precision": 0.9047619047619048,
+      "recall_1to1": 0.95,
+      "precision_1to1": 0.9047619047619048,
       "center_err_px4096": 33.64179946175201,
       "radius_fit": 0.0
     },
@@ -130,6 +150,8 @@
       "duplicates": 0,
       "recall": 0.9166666666666666,
       "precision": 0.9166666666666666,
+      "recall_1to1": 0.9166666666666666,
+      "precision_1to1": 0.9166666666666666,
       "center_err_px4096": 35.92565775780835,
       "radius_fit": 0.0
     },
@@ -142,6 +164,8 @@
       "duplicates": 0,
       "recall": 1.0,
       "precision": 1.0,
+      "recall_1to1": 1.0,
+      "precision_1to1": 1.0,
       "center_err_px4096": 36.794279210513594,
       "radius_fit": 0.0
     },
@@ -157,6 +181,8 @@
       "duplicates": 0,
       "recall": 0.8823529411764706,
       "precision": 0.8823529411764706,
+      "recall_1to1": 0.8823529411764706,
+      "precision_1to1": 0.8823529411764706,
       "center_err_px4096": 44.46446456989346,
       "radius_fit": 0.0
     },
@@ -169,6 +195,8 @@
       "duplicates": 0,
       "recall": 1.0,
       "precision": 1.0,
+      "recall_1to1": 1.0,
+      "precision_1to1": 1.0,
       "center_err_px4096": 39.142448786801694,
       "radius_fit": 0.0
     },
@@ -189,6 +217,8 @@
       "duplicates": 0,
       "recall": 0.7083333333333334,
       "precision": 0.6956521739130435,
+      "recall_1to1": 0.6666666666666666,
+      "precision_1to1": 0.6956521739130435,
       "center_err_px4096": 83.1279618790011,
       "radius_fit": 0.3958333333333333
     },
@@ -201,6 +231,8 @@
       "duplicates": 0,
       "recall": 1.0,
       "precision": 1.0,
+      "recall_1to1": 1.0,
+      "precision_1to1": 1.0,
       "center_err_px4096": 35.45622906233929,
       "radius_fit": 0.3872023809523809
     },
@@ -213,6 +245,8 @@
       "duplicates": 0,
       "recall": 1.0,
       "precision": 1.0,
+      "recall_1to1": 1.0,
+      "precision_1to1": 1.0,
       "center_err_px4096": 60.133500407762234,
       "radius_fit": 0.3958333333333333
     },
@@ -225,6 +259,8 @@
       "duplicates": 0,
       "recall": 1.0,
       "precision": 1.0,
+      "recall_1to1": 1.0,
+      "precision_1to1": 1.0,
       "center_err_px4096": 35.22834917672696,
       "radius_fit": 0.2575800915331808
     },
@@ -237,6 +273,8 @@
       "duplicates": 0,
       "recall": 1.0,
       "precision": 1.0,
+      "recall_1to1": 1.0,
+      "precision_1to1": 1.0,
       "center_err_px4096": 40.93050392431315,
       "radius_fit": 0.2428127221984453
     },
@@ -249,6 +287,8 @@
       "duplicates": 0,
       "recall": 1.0,
       "precision": 1.0,
+      "recall_1to1": 1.0,
+      "precision_1to1": 1.0,
       "center_err_px4096": 46.98566974368588,
       "radius_fit": 0.2467091022173148
     },
@@ -261,6 +301,8 @@
       "duplicates": 0,
       "recall": 1.0,
       "precision": 1.0,
+      "recall_1to1": 1.0,
+      "precision_1to1": 1.0,
       "center_err_px4096": 44.787007961442185,
       "radius_fit": 0.5111111111111111
     },
@@ -275,6 +317,8 @@
       "duplicates": 0,
       "recall": 0.95,
       "precision": 0.95,
+      "recall_1to1": 0.95,
+      "precision_1to1": 0.95,
       "center_err_px4096": 35.24735376618476,
       "radius_fit": 0.03515146878824969
     },
@@ -287,6 +331,8 @@
       "duplicates": 0,
       "recall": 1.0,
       "precision": 1.0,
+      "recall_1to1": 1.0,
+      "precision_1to1": 1.0,
       "center_err_px4096": 40.7636499901598,
       "radius_fit": 0.5111111111111111
     }

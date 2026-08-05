@@ -48,6 +48,11 @@ def main() -> None:
     sources = []
     for tok in args.sources.split(","):
         run, conf = tok.rsplit(":", 1)
+        run_dir = EVAL_DIR / "results" / run
+        # A typo'd source would silently contribute zero detections and
+        # depress every cluster's vote count — fail loudly instead.
+        if not (run_dir / "raw").is_dir() and not (run_dir / "candidates").is_dir():
+            raise SystemExit(f"source run '{run}' has no raw/ or candidates/ dir")
         sources.append((run, float(conf)))
 
     manifest = json.loads((GOLDEN_DIR / "manifest.json").read_text())

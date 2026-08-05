@@ -19,7 +19,9 @@ import json
 import re
 from pathlib import Path
 
-LEVELS = Path("/Users/base/dev/appletolye/fabrikav2/games/find_the_bird/.levelbuilder/levels")
+import os
+LEVELS = Path(os.environ.get("FTB_LEVELS_DIR",
+    Path.home() / "dev/appletolye/fabrikav2/games/find_the_bird/.levelbuilder/levels"))
 EVAL_DIR = Path(__file__).resolve().parent.parent
 GOLDEN = json.loads((EVAL_DIR / "golden-hitboxes-2026-08-05/manifest.json").read_text())
 

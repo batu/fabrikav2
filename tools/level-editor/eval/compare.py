@@ -34,13 +34,26 @@ DEFAULT_RUNS = "vlm-snap,ensF2hi-snap"
 RENDER_PX = 820
 
 
+class CompareError(RuntimeError):
+    """Bad input (unknown level id, missing run). The CLI verb maps this to
+    its CliError JSON envelope; standalone main() prints it and exits 2."""
+
+
 def _inputs_mtime(sid: str, run: str, color: Path) -> float:
+    """Newest mtime among the render's inputs. A MISSING input returns +inf
+    (always stale): a deleted candidates file must invalidate the cached
+    image, not freeze it — otherwise the image keeps showing rings whose
+    source is gone while the caption recomputes to 0. The renderer module
+    itself is an input too (draw-logic/RENDER_PX changes re-render)."""
     paths = [
         GOLDEN_DIR / f"{sid}.hitboxes.json",
         EVAL_DIR / "results" / run / "candidates" / f"{sid}.json",
         color,
+        Path(__file__),
     ]
-    return max(p.stat().st_mtime for p in paths if p.exists())
+    if not all(p.exists() for p in paths):
+        return float("inf")
+    return max(p.stat().st_mtime for p in paths)
 
 
 def _render(sid: str, run: str, color: Path, out_jpg: Path) -> None:
@@ -87,7 +100,7 @@ def generate(runs: list[str], out_dir: Path, *, levels: list[str] | None,
     forced = set(levels or [])
     unknown = forced - set(manifest)
     if unknown:
-        raise SystemExit(f"unknown level ids: {sorted(unknown)}")
+        raise CompareError(f"unknown level ids: {sorted(unknown)}")
 
     rendered = 0
     rows = []
@@ -101,7 +114,8 @@ def generate(runs: list[str], out_dir: Path, *, levels: list[str] | None,
             if stale:
                 _render(sid, run, color, jpg)
                 rendered += 1
-                print(f"rendered {run}/{sid}", flush=True)
+                # Progress to stderr: stdout must stay clean for --json callers.
+                print(f"rendered {run}/{sid}", file=sys.stderr, flush=True)
             b64 = base64.b64encode(jpg.read_bytes()).decode()
             cap = _caption(sid, run, info["dims"])
             cells.append(
@@ -140,12 +154,18 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out-dir", type=Path, default=EVAL_DIR / "results" / "compare")
     args = ap.parse_args(argv)
 
+    import sys
+
     runs = [r for r in args.runs.split(",") if r]
-    for r in runs:
-        if not (EVAL_DIR / "results" / r / "candidates").is_dir():
-            raise SystemExit(f"run '{r}' has no candidates dir under eval/results/")
     levels = [s for s in args.levels.split(",") if s] or None
-    out_html, rendered = generate(runs, args.out_dir, levels=levels, force=args.force)
+    try:
+        for r in runs:
+            if not (EVAL_DIR / "results" / r / "candidates").is_dir():
+                raise CompareError(f"run '{r}' has no candidates dir under eval/results/")
+        out_html, rendered = generate(runs, args.out_dir, levels=levels, force=args.force)
+    except CompareError as err:
+        print(f"error: {err}", file=sys.stderr)
+        return 2
     print(f"{out_html} ({rendered} level renders regenerated, "
           f"{'forced all' if args.force else 'rest from cache'})")
     return 0

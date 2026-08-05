@@ -16,8 +16,13 @@ from PIL import Image
 from scipy import ndimage as ndi
 
 Image.MAX_IMAGE_PIXELS = None
-LEVELS = Path('/Users/base/dev/appletolye/fabrikav2/games/find_the_bird/.levelbuilder/levels')
-EVAL = Path('/Users/base/dev/appletolye/fabrikav2/.worktrees/hitbox-hillclimb/tools/level-editor/eval')
+# Repo-relative so the recipe survives this worktree's deletion. The
+# levels workspace lives in the MAIN checkout (session data is untracked
+# and absent in fresh worktrees); resolve via env override when needed.
+import os
+EVAL = Path(__file__).resolve().parents[1]
+LEVELS = Path(os.environ.get('FTB_LEVELS_DIR',
+    Path.home() / 'dev/appletolye/fabrikav2/games/find_the_bird/.levelbuilder/levels'))
 
 GOLDEN_KEYWORDS = [
     "autumn_forest", "bazaar_alley", "castle_market", "japanese_garden",

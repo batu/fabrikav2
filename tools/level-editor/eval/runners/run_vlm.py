@@ -4,8 +4,13 @@ Mirrors `detect_birds_vlm()` (levelbuilder/api/inpaint.py): color.png resized
 to 1024 LANCZOS, gemini-3.6-flash boxes in [ymin,xmin,ymax,xmax] 0-1000
 normalized, scaled by the ACTUAL scene size. Routed via OpenRouter
 (MERCEKA_FORCE_OPENROUTER lane); usage metered to the merceka ledger.
-Emits circles: center = box center, r = editor uniform radius (87 in
-4096-space) matching place_hitboxes_vlm's uniform-radius placement.
+Emits circles: center = box center, r = 87 in 4096-space (dim-scaled).
+NOTE: the shipped place_hitboxes_vlm default is raw r=58 regardless of scene
+dims — a smaller snap crop/max-shift on 4096 scenes. The dim-scaled r=87
+variant scores strictly better (vlm-snap R.981/P.978 vs vlm-r58-snap
+R.956/P.954); this is a deliberate divergence, kept because it is the
+recommended production setting, with the strict-fidelity row scored
+separately as vlm-r58-snap.
 
 Usage: uv run python eval/runners/run_vlm.py <out_dir> [--model gemini-3.6-flash]
 """
@@ -78,8 +83,10 @@ def detect(color_path: Path, model: str, key: str) -> tuple[list[dict], dict]:
     try:
         from merceka_core import costs as mc
         mc.record(source="openrouter", model=f"google/{model}", usage=usage, usd=usage.get("cost"))
-    except Exception:
-        pass
+    except Exception as err:
+        # The ledger is the only durable cost meter — never fail the run over
+        # it, but never lose a write silently either.
+        print(f"  WARNING: merceka ledger write failed: {err}")
     txt = data["choices"][0]["message"]["content"]
     txt = txt[txt.find("["): txt.rfind("]") + 1]
     boxes = json.loads(txt)
@@ -107,7 +114,18 @@ def main() -> None:
     args.out_dir.mkdir(parents=True, exist_ok=True)
 
     manifest = json.loads((GOLDEN_DIR / "manifest.json").read_text())
+    # Resume-safe cost record: carry forward timings/costs of cached levels
+    # from a previous invocation so total_cost_usd never under-reports spend.
     timings, usages = {}, {}
+    prev_meta = args.out_dir / "_run.json"
+    if prev_meta.exists():
+        prev = json.loads(prev_meta.read_text())
+        if prev.get("model") and prev["model"] != args.model:
+            raise SystemExit(
+                f"out dir {args.out_dir} holds cached candidates from model "
+                f"'{prev['model']}' — resume with the same model or use a fresh out dir")
+        timings = prev.get("timings_s", {}) or {}
+        usages = prev.get("costs_usd", {}) or {}
     for sid, info in manifest.items():
         out = args.out_dir / f"{sid}.json"
         if out.exists():

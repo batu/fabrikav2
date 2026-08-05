@@ -3,7 +3,7 @@ import json
 import subprocess
 from pathlib import Path
 
-manifest_path = Path('/Users/base/dev/appletolye/fabrikav2/.worktrees/hitbox-hillclimb/tools/level-editor/eval/golden-hitboxes-2026-08-05/manifest.json')
+manifest_path = Path(__file__).resolve().parents[2] / 'golden-hitboxes-2026-08-05/manifest.json'
 m = json.loads(manifest_path.read_text())
 subprocess.run(['ssh', 'ubuntu-server', 'mkdir -p ~/hitbox-lab/scenes'], check=True)
 for sid, info in m.items():

@@ -6,7 +6,10 @@ Usage: .venv/bin/python detect_gpu.py --backend owlv2|gdino|yoloworld \
 Reads ~/hitbox-lab/scenes/<sid>/color.png (from manifest.json).
 Writes runs/<name>/<sid>.json: [{"x","y","w","h","score"}] in scene px,
 plus _run.json with backend, weights, params, timings, GPU mem.
-Deterministic: no sampling; fixed weights; NMS is deterministic.
+Reproducibility: no sampling, fixed weights, deterministic NMS — but CUDA
+kernel selection is NOT pinned (no torch.use_deterministic_algorithms), so
+boxes at the conf margin can flip between runs. The archived raw JSONs are
+the reproducibility anchor; treat GPU re-runs as approximately equal.
 """
 
 from __future__ import annotations
@@ -162,7 +165,7 @@ def main() -> None:
         t0 = time.time()
         img = Image.open(LAB / "scenes" / sid / "color.png").convert("RGB")
         W, H = img.size
-        tile = min(args.tile, W)
+        tile = min(args.tile, W, H)
         all_dets: list[dict] = []
         for x, y in tiles_for(W, H, tile, args.overlap):
             crop = img.crop((x, y, x + tile, y + tile))

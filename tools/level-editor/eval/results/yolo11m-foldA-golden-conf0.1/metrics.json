@@ -1,6 +1,6 @@
 {
   "run_id": "yolo11m-foldA-golden-conf0.1",
-  "timestamp": "2026-08-05T16:12:37+00:00",
+  "timestamp": "2026-08-05T17:43:28+00:00",
   "notes": "yolo-custom conf>=0.1 tiled",
   "meta": {
     "backend": "yolo-custom",
@@ -25,9 +25,13 @@
   "candidates_total": 859,
   "recall": 0.8616504854368932,
   "precision": 0.660069848661234,
+  "recall_1to1": 0.8592233009708737,
+  "precision_1to1": 0.4121071012805588,
   "center_err_px4096": 34.77697391528834,
   "radius_fit": 0.1510143853526482,
   "duplicates": 213,
+  "min_level_recall": 0.5555555555555556,
+  "golden_sha256": "ea1e958d05be",
   "excluded_unlabeled": [
     "ancient_forest_creek_autumn_pond_reeds_bird_da7e"
   ],
@@ -41,6 +45,8 @@
       "duplicates": 7,
       "recall": 1.0,
       "precision": 0.71875,
+      "recall_1to1": 1.0,
+      "precision_1to1": 0.5,
       "center_err_px4096": 37.1457410131443,
       "radius_fit": 0.0
     },
@@ -53,6 +59,8 @@
       "duplicates": 13,
       "recall": 1.0,
       "precision": 0.58,
+      "recall_1to1": 1.0,
+      "precision_1to1": 0.32,
       "center_err_px4096": 32.24251162313928,
       "radius_fit": 0.20833333333333334
     },
@@ -65,6 +73,8 @@
       "duplicates": 14,
       "recall": 1.0,
       "precision": 0.45901639344262296,
+      "recall_1to1": 1.0,
+      "precision_1to1": 0.22950819672131148,
       "center_err_px4096": 32.82251092352113,
       "radius_fit": 0.07446808510638296
     },
@@ -77,6 +87,8 @@
       "duplicates": 10,
       "recall": 1.0,
       "precision": 0.7608695652173914,
+      "recall_1to1": 1.0,
+      "precision_1to1": 0.5434782608695652,
       "center_err_px4096": 22.849697621848204,
       "radius_fit": 0.0
     },
@@ -93,6 +105,8 @@
       "duplicates": 7,
       "recall": 0.8235294117647058,
       "precision": 0.5,
+      "recall_1to1": 0.8235294117647058,
+      "precision_1to1": 0.3333333333333333,
       "center_err_px4096": 30.87159772650209,
       "radius_fit": 0.0
     },
@@ -111,6 +125,8 @@
       "duplicates": 6,
       "recall": 0.7058823529411765,
       "precision": 0.5454545454545454,
+      "recall_1to1": 0.7058823529411765,
+      "precision_1to1": 0.36363636363636365,
       "center_err_px4096": 31.29119055981471,
       "radius_fit": 0.0
     },
@@ -126,6 +142,8 @@
       "duplicates": 13,
       "recall": 0.9,
       "precision": 0.7948717948717948,
+      "recall_1to1": 0.9,
+      "precision_1to1": 0.46153846153846156,
       "center_err_px4096": 24.668635122144455,
       "radius_fit": 0.0
     },
@@ -143,6 +161,8 @@
       "duplicates": 9,
       "recall": 0.8,
       "precision": 0.7352941176470589,
+      "recall_1to1": 0.8,
+      "precision_1to1": 0.47058823529411764,
       "center_err_px4096": 35.636939577940865,
       "radius_fit": 0.0
     },
@@ -158,6 +178,8 @@
       "duplicates": 11,
       "recall": 0.9166666666666666,
       "precision": 0.75,
+      "recall_1to1": 0.9166666666666666,
+      "precision_1to1": 0.5,
       "center_err_px4096": 32.73824066793099,
       "radius_fit": 0.0
     },
@@ -174,6 +196,8 @@
       "duplicates": 14,
       "recall": 0.8695652173913043,
       "precision": 0.6938775510204082,
+      "recall_1to1": 0.8695652173913043,
+      "precision_1to1": 0.40816326530612246,
       "center_err_px4096": 41.843843472711015,
       "radius_fit": 0.0
     },
@@ -192,6 +216,8 @@
       "duplicates": 7,
       "recall": 0.7058823529411765,
       "precision": 0.6333333333333333,
+      "recall_1to1": 0.7058823529411765,
+      "precision_1to1": 0.4,
       "center_err_px4096": 38.73754420799444,
       "radius_fit": 0.0
     },
@@ -209,6 +235,8 @@
       "duplicates": 5,
       "recall": 0.8,
       "precision": 0.5526315789473685,
+      "recall_1to1": 0.8,
+      "precision_1to1": 0.42105263157894735,
       "center_err_px4096": 36.60223482482381,
       "radius_fit": 0.0
     },
@@ -228,6 +256,8 @@
       "duplicates": 12,
       "recall": 0.75,
       "precision": 0.6170212765957447,
+      "recall_1to1": 0.7083333333333334,
+      "precision_1to1": 0.3617021276595745,
       "center_err_px4096": 76.7435299714729,
       "radius_fit": 0.3958333333333333
     },
@@ -243,6 +273,8 @@
       "duplicates": 20,
       "recall": 0.9,
       "precision": 0.7916666666666666,
+      "recall_1to1": 0.9,
+      "precision_1to1": 0.375,
       "center_err_px4096": 30.59947032407602,
       "radius_fit": 0.3862433862433862
     },
@@ -264,6 +296,8 @@
       "duplicates": 10,
       "recall": 0.5555555555555556,
       "precision": 0.8,
+      "recall_1to1": 0.5555555555555556,
+      "precision_1to1": 0.4,
       "center_err_px4096": 43.63754713460904,
       "radius_fit": 0.3958333333333333
     },
@@ -279,6 +313,8 @@
       "duplicates": 13,
       "recall": 0.9130434782608695,
       "precision": 0.6538461538461539,
+      "recall_1to1": 0.9130434782608695,
+      "precision_1to1": 0.40384615384615385,
       "center_err_px4096": 33.555245275674146,
       "radius_fit": 0.2595551378446115
     },
@@ -293,6 +329,8 @@
       "duplicates": 18,
       "recall": 0.95,
       "precision": 0.6981132075471698,
+      "recall_1to1": 0.95,
+      "precision_1to1": 0.3584905660377358,
       "center_err_px4096": 29.348900103535513,
       "radius_fit": 0.2303796067263811
     },
@@ -308,6 +346,8 @@
       "duplicates": 13,
       "recall": 0.9090909090909091,
       "precision": 0.6875,
+      "recall_1to1": 0.9090909090909091,
+      "precision_1to1": 0.4166666666666667,
       "center_err_px4096": 28.530440815609346,
       "radius_fit": 0.2551566081837271
     },
@@ -324,6 +364,8 @@
       "duplicates": 1,
       "recall": 0.8235294117647058,
       "precision": 0.9375,
+      "recall_1to1": 0.8235294117647058,
+      "precision_1to1": 0.875,
       "center_err_px4096": 31.973879437691654,
       "radius_fit": 0.5111111111111111
     },
@@ -340,6 +382,8 @@
       "duplicates": 8,
       "recall": 0.85,
       "precision": 0.5102040816326531,
+      "recall_1to1": 0.85,
+      "precision_1to1": 0.3469387755102041,
       "center_err_px4096": 37.22763767177998,
       "radius_fit": 0.039286935704514366
     },
@@ -355,6 +399,8 @@
       "duplicates": 2,
       "recall": 0.8947368421052632,
       "precision": 0.8260869565217391,
+      "recall_1to1": 0.8947368421052632,
+      "precision_1to1": 0.7391304347826086,
       "center_err_px4096": 31.490787639341065,
       "radius_fit": 0.5111111111111111
     }

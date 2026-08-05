@@ -1,6 +1,6 @@
 {
   "run_id": "yolo11m-foldA-golden-conf0.3",
-  "timestamp": "2026-08-05T16:12:37+00:00",
+  "timestamp": "2026-08-05T17:43:29+00:00",
   "notes": "yolo-custom conf>=0.3 tiled",
   "meta": {
     "backend": "yolo-custom",
@@ -25,9 +25,13 @@
   "candidates_total": 275,
   "recall": 0.5461165048543689,
   "precision": 0.8690909090909091,
+  "recall_1to1": 0.5461165048543689,
+  "precision_1to1": 0.8181818181818182,
   "center_err_px4096": 37.43671297316797,
   "radius_fit": 0.17425729397167442,
   "duplicates": 14,
+  "min_level_recall": 0.16666666666666666,
+  "golden_sha256": "ea1e958d05be",
   "excluded_unlabeled": [
     "ancient_forest_creek_autumn_pond_reeds_bird_da7e"
   ],
@@ -51,6 +55,8 @@
       "duplicates": 0,
       "recall": 0.4375,
       "precision": 0.875,
+      "recall_1to1": 0.4375,
+      "precision_1to1": 0.875,
       "center_err_px4096": 30.168533497868435,
       "radius_fit": 0.0
     },
@@ -65,6 +71,8 @@
       "duplicates": 4,
       "recall": 0.9375,
       "precision": 0.95,
+      "recall_1to1": 0.9375,
+      "precision_1to1": 0.75,
       "center_err_px4096": 30.62094726668407,
       "radius_fit": 0.20833333333333334
     },
@@ -84,6 +92,8 @@
       "duplicates": 0,
       "recall": 0.5714285714285714,
       "precision": 0.6153846153846154,
+      "recall_1to1": 0.5714285714285714,
+      "precision_1to1": 0.6153846153846154,
       "center_err_px4096": 36.30589398083054,
       "radius_fit": 0.07446808510638298
     },
@@ -101,6 +111,8 @@
       "duplicates": 1,
       "recall": 0.84,
       "precision": 0.9166666666666666,
+      "recall_1to1": 0.84,
+      "precision_1to1": 0.875,
       "center_err_px4096": 24.812085526304845,
       "radius_fit": 0.0
     },
@@ -123,6 +135,8 @@
       "duplicates": 0,
       "recall": 0.47058823529411764,
       "precision": 0.8888888888888888,
+      "recall_1to1": 0.47058823529411764,
+      "precision_1to1": 0.8888888888888888,
       "center_err_px4096": 33.52280274827837,
       "radius_fit": 0.0
     },
@@ -147,6 +161,8 @@
       "duplicates": 0,
       "recall": 0.35294117647058826,
       "precision": 0.8571428571428571,
+      "recall_1to1": 0.35294117647058826,
+      "precision_1to1": 0.8571428571428571,
       "center_err_px4096": 48.11212208958406,
       "radius_fit": 0.0
     },
@@ -167,6 +183,8 @@
       "duplicates": 1,
       "recall": 0.65,
       "precision": 0.9333333333333333,
+      "recall_1to1": 0.65,
+      "precision_1to1": 0.8666666666666667,
       "center_err_px4096": 25.138695319199527,
       "radius_fit": 0.0
     },
@@ -193,6 +211,8 @@
       "duplicates": 1,
       "recall": 0.35,
       "precision": 0.7272727272727273,
+      "recall_1to1": 0.35,
+      "precision_1to1": 0.6363636363636364,
       "center_err_px4096": 36.9442807093937,
       "radius_fit": 0.0
     },
@@ -220,6 +240,8 @@
       "duplicates": 1,
       "recall": 0.4166666666666667,
       "precision": 1.0,
+      "recall_1to1": 0.4166666666666667,
+      "precision_1to1": 0.9090909090909091,
       "center_err_px4096": 36.88315075090094,
       "radius_fit": 0.0
     },
@@ -246,6 +268,8 @@
       "duplicates": 1,
       "recall": 0.43478260869565216,
       "precision": 0.8461538461538461,
+      "recall_1to1": 0.43478260869565216,
+      "precision_1to1": 0.7692307692307693,
       "center_err_px4096": 43.039500791072406,
       "radius_fit": 0.0
     },
@@ -272,6 +296,8 @@
       "duplicates": 0,
       "recall": 0.23529411764705882,
       "precision": 0.6666666666666666,
+      "recall_1to1": 0.23529411764705882,
+      "precision_1to1": 0.6666666666666666,
       "center_err_px4096": 47.46101705428298,
       "radius_fit": 0.0
     },
@@ -296,6 +322,8 @@
       "duplicates": 0,
       "recall": 0.45,
       "precision": 0.6428571428571429,
+      "recall_1to1": 0.45,
+      "precision_1to1": 0.6428571428571429,
       "center_err_px4096": 40.22701630726889,
       "radius_fit": 0.0
     },
@@ -326,6 +354,8 @@
       "duplicates": 0,
       "recall": 0.2916666666666667,
       "precision": 0.5384615384615384,
+      "recall_1to1": 0.2916666666666667,
+      "precision_1to1": 0.5384615384615384,
       "center_err_px4096": 92.78456564879033,
       "radius_fit": 0.3958333333333333
     },
@@ -346,6 +376,8 @@
       "duplicates": 0,
       "recall": 0.65,
       "precision": 1.0,
+      "recall_1to1": 0.65,
+      "precision_1to1": 1.0,
       "center_err_px4096": 36.40786371312241,
       "radius_fit": 0.38255494505494503
     },
@@ -374,6 +406,8 @@
       "duplicates": 0,
       "recall": 0.16666666666666666,
       "precision": 1.0,
+      "recall_1to1": 0.16666666666666666,
+      "precision_1to1": 1.0,
       "center_err_px4096": 67.50079783384588,
       "radius_fit": 0.3958333333333333
     },
@@ -393,6 +427,8 @@
       "duplicates": 2,
       "recall": 0.7391304347826086,
       "precision": 0.95,
+      "recall_1to1": 0.7391304347826086,
+      "precision_1to1": 0.85,
       "center_err_px4096": 39.918455155007294,
       "radius_fit": 0.25554695562435503
     },
@@ -414,6 +450,8 @@
       "duplicates": 0,
       "recall": 0.6,
       "precision": 0.9230769230769231,
+      "recall_1to1": 0.6,
+      "precision_1to1": 0.9230769230769231,
       "center_err_px4096": 42.765860157433245,
       "radius_fit": 0.2638726470742977
     },
@@ -436,6 +474,8 @@
       "duplicates": 0,
       "recall": 0.5909090909090909,
       "precision": 0.9285714285714286,
+      "recall_1to1": 0.5909090909090909,
+      "precision_1to1": 0.9285714285714286,
       "center_err_px4096": 29.48047361279649,
       "radius_fit": 0.2413359686855676
     },
@@ -453,6 +493,8 @@
       "duplicates": 0,
       "recall": 0.7647058823529411,
       "precision": 1.0,
+      "recall_1to1": 0.7647058823529411,
+      "precision_1to1": 1.0,
       "center_err_px4096": 39.04501419889406,
       "radius_fit": 0.5111111111111111
     },
@@ -474,6 +516,8 @@
       "duplicates": 3,
       "recall": 0.6,
       "precision": 0.8333333333333334,
+      "recall_1to1": 0.6,
+      "precision_1to1": 0.6666666666666666,
       "center_err_px4096": 42.05068885652344,
       "radius_fit": 0.04784399224806202
     },
@@ -489,6 +533,8 @@
       "duplicates": 0,
       "recall": 0.8947368421052632,
       "precision": 1.0,
+      "recall_1to1": 0.8947368421052632,
+      "precision_1to1": 1.0,
       "center_err_px4096": 31.490787639341065,
       "radius_fit": 0.5111111111111111
     }

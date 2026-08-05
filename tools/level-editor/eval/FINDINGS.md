@@ -20,6 +20,29 @@ Target was recall ≥ .97 AND precision ≥ .95 AND center err ≤ 25px at $0.
 The incumbent clears recall+precision; **nothing clears all three** — center
 error has a ~30px floor across every method (see finding 4).
 
+## Post-review corrections (2026-08-05 code review)
+
+- **Radius fidelity**: the vlm-snap row uses a dim-scaled r=87 radius; the
+  SHIPPED `place-hitboxes-vlm` default is raw r=58, which scores notably
+  worse (`vlm-r58-snap`: R .956 / P .954 / 31.2). Same pipeline, same cost —
+  **recommend bumping the shipped verb's radius to scale with scene dims**
+  (r ≈ 87·dim/4096). Verdict unchanged: the scaled config beats every
+  challenger.
+- **Metric honesty columns**: contract recall lets one candidate "find"
+  every overlapping golden it lands in, and duplicates count as TPs
+  (both per GOAL.md's definitions). Measured inflation is small (1-2 birds,
+  fairy_ring only; vlm-snap 1-to-1: .978/.978) but the gaming surface is
+  real. metrics.json now reports `recall_1to1`/`precision_1to1` alongside
+  the contract metrics; RESULTS.md rows carry `min lvl R` (worst-level
+  recall — the aggregate hid fairy_ring's .71) and a golden-set sha so rows
+  scored against different golden states can't be silently compared.
+  **Decision open to Batu: switch the ranking gate to the 1-to-1 metrics**
+  (changes published numbers; contract edit to GOAL.md).
+- **Center-error caveat**: the metric is conditioned on matched pairs
+  (dist ≤ g.r), so it is truncated at the golden radius — a low-recall
+  method's center error describes only its hits. Read it jointly with
+  recall; the "~30px floor" is partly a metric ceiling.
+
 Full table: `eval/results/RESULTS.md` (94 runs, all reproducible — each run
 dir holds candidates + metrics.json with model/weights/thresholds; fold
 weights SHA-256 pinned in `eval/results/yolo-folds-composite/raw/_run.json`,
