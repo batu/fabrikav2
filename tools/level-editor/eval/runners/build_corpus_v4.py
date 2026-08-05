@@ -3,7 +3,7 @@
 v3 lesson: spriteBoxes are cutout-space rects — undersized/offset vs painted
 birds. v4 derives each bird's extent from the diff component under its OWN
 hitbox (local crop, so global repaint drift can't leak in), exactly like the
-shipped recentre. Fallback: 1.7*r square. Extent clamped to [0.9r, 5r] side.
+shipped recentre. Boxes are always centered on the hitbox; side clamped to [1.6r, 3.2r], fallback 2.2r when no component qualifies.
 
 Writes eval/corpus/corpus_v4.json.
 """
