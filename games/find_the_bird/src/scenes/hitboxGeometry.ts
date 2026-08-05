@@ -7,7 +7,10 @@ export interface HitTargetGeometry {
   r: number;
 }
 
-const SQUARE_TOLERANCE_MULTIPLIER = 1.35;
+// 2.0 (2026-08-05): painted birds regularly render larger than their hitbox
+// disc, so taps on visible bird pixels were landing outside the accepted
+// radius. Neighbor-overlap clamping below still prevents shared hit areas.
+const SQUARE_TOLERANCE_MULTIPLIER = 2.0;
 const NEIGHBOR_GAP_LEVEL_PX = 4;
 
 /** Keep square-level taps forgiving without letting adjacent birds share a hit area. */

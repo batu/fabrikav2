@@ -3426,6 +3426,20 @@ def _write_birdless_restore_bg(sdir: Path, dst: Path, raw: dict, level_data: dic
         diff = _ndi.binary_dilation(diff, iterations=4)
         mask = Image.fromarray((diff * 255).astype("uint8")).filter(_IF.GaussianBlur(3))
         patch = Image.fromarray(shifted_clean[y0:y1, x0:x1].astype("uint8"))
+        # Sharpness matching (2026-08-05, "the difference is resolution"):
+        # the paint model outputs crisper high-frequency detail than the
+        # lanczos-upscaled clean bg (measured 11.98 vs 8.64 gradient energy),
+        # so revealed patches read as a blur pop. Unsharp-mask the clean
+        # patch toward the local painted crispness, scaled by the measured
+        # gradient ratio and clamped to sane bounds.
+        def _grad_energy(gray: _np.ndarray) -> float:
+            gy, gx = _np.gradient(gray.astype(_np.float64))
+            return float(_np.sqrt(gx * gx + gy * gy).mean())
+        painted_g = _grad_energy(color_arr[y0:y1, x0:x1].mean(axis=2))
+        clean_g = _grad_energy(shifted_clean[y0:y1, x0:x1].mean(axis=2))
+        if clean_g > 0 and painted_g / clean_g > 1.05:
+            percent = int(min(180.0, (painted_g / clean_g - 1.0) * 200.0))
+            patch = patch.filter(_IF.UnsharpMask(radius=2, percent=percent, threshold=2))
         out.paste(patch, (x0, y0), mask)
     out.save(dst / "bg_00.png")
     (dst / "bg_00.webp").unlink(missing_ok=True)
