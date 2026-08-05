@@ -2114,7 +2114,7 @@ def reconcile_magenta_hitboxes(session_id: str, req: ReconcileMagentaHitboxesReq
 
 
 @router.post("/sessions/{session_id}/place-hitboxes-vlm")
-def place_hitboxes_vlm_route(session_id: str, radius: int = Query(58, ge=18, le=200)):
+def place_hitboxes_vlm_route(session_id: str, radius: int | None = Query(None, ge=18, le=200)):
     _validate_session_id(session_id)
     from .inpaint import place_hitboxes_vlm
     try:

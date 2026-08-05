@@ -4976,12 +4976,26 @@ def detect_birds_vlm(session_id: str, *, model: str = "gemini-3.6-flash") -> lis
     return dets
 
 
-def place_hitboxes_vlm(session_id: str, *, radius: int = 58) -> dict:
+def uniform_hitbox_radius(dim: int) -> int:
+    """Tap-generosity radius scaled to scene size: 87px in 4096-space (the
+    golden-set convention). The old fixed r=58 under-performs on 4096 scenes
+    because the recentre's crop (2.2r) and max-shift (1.6r) scale with r —
+    measured on the golden 22: scaled r R.981/P.978 vs raw 58 R.956/P.954
+    (eval/FINDINGS.md, 2026-08-05)."""
+    return max(18, min(200, round(87 * dim / 4096)))
+
+
+def place_hitboxes_vlm(session_id: str, *, radius: int | None = None) -> dict:
     """Fully automated placement: VLM detections become the hitboxes (uniform
-    radius), then the local-diff recentre snaps + writes footprint cleanups."""
+    radius, scene-scaled unless explicitly given), then the local-diff
+    recentre snaps + writes footprint cleanups. Golden-set score:
+    recall .978 / precision .978 / 31.9px center err (1-to-1 gate)."""
     dets = detect_birds_vlm(session_id)
     if not dets:
         raise S.LevelNotReadyError("VLM found no birds")
+    if radius is None:
+        with Image.open(S.session_dir(session_id) / "color.png") as _c:
+            radius = uniform_hitbox_radius(_c.width)
     hitboxes = [
         {"x": d["x"] + d["width"] // 2, "y": d["y"] + d["height"] // 2, "r": radius}
         for d in dets

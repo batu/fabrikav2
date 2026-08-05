@@ -14,11 +14,19 @@ A placement is GOOD when a player who sees the bird and taps it is rewarded,
 and a player who taps where there is no bird is not. Concretely, per golden
 hitbox g and candidate c:
 
-1. **Recall** — every golden bird has a candidate whose center lies inside g
-   (a missed bird is an unfindable target: the worst failure class).
-2. **Precision** — every candidate center lies inside some golden g (a false
-   positive is a "miss" tap on nothing: the second-worst class, and the one
-   Batu kept hitting on-device).
+1. **Recall** — every golden bird has its OWN candidate: matching is
+   one-to-one, so one candidate dropped between overlapping goldens counts
+   once, not twice (a missed bird is an unfindable target: the worst
+   failure class). *(Amended 2026-08-05: originally "a candidate whose
+   center lies inside g" — any-overlap; that variant is still reported as
+   `recall_any`. Review found the any-overlap form inflatable in dense
+   scenes.)*
+2. **Precision** — every candidate is the match of some golden bird
+   (one-to-one; duplicates stacked on an already-matched bird count
+   against precision — a false positive is a "miss" tap on nothing: the
+   second-worst class, and the one Batu kept hitting on-device).
+   *(Amended 2026-08-05: originally any-overlap, reported as
+   `precision_any`.)*
 3. **Center error** — mean distance from candidate center to its matched
    golden center, in level px (normalize by level size for cross-level
    comparison).
