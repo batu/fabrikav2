@@ -1,4 +1,4 @@
-"""RED: queue any subset of the three inpaint approaches and compare results.
+"""Queue any subset of the canonical inpaint approaches and compare results.
 
 Design: each selected mode runs in a CLONE of the session (shared background +
 hitboxes, isolated dogs/color output), so approaches never clobber each other
@@ -67,11 +67,11 @@ def test_compare_endpoint_starts_a_job_per_mode(app_client):
     _seed_session(sess, "cmp_api_01")
     response = app_client.post(
         "/api/sessions/cmp_api_01/compare-inpaint",
-        json={"modes": ["crop", "crop_reference", "magenta"]},
+        json={"modes": ["crop", "magenta"]},
     )
     assert response.status_code == 200, response.text
     body = response.json()
-    assert {entry["mode"] for entry in body["comparisons"]} == {"crop", "crop_reference", "magenta"}
+    assert {entry["mode"] for entry in body["comparisons"]} == {"crop", "magenta"}
     for entry in body["comparisons"]:
         assert entry["sessionId"].startswith("cmp_api_01")
         assert entry["jobId"]
@@ -286,42 +286,6 @@ def test_compare_endpoint_clones_one_magenta_input_per_model(app_client, monkeyp
         "openai/gpt-image-2",
     ]
     assert len({item["sessionId"] for item in comparisons}) == 2
-
-
-def test_reference_sheet_keeps_scene_aspect_ratio():
-    from PIL import Image
-
-    from levelbuilder.api.inpaint import Hitbox, _build_reference_crop_sheet
-
-    scene = Image.new("RGB", (768, 1376), "white")
-    crop = Image.new("RGB", (164, 164), "blue")
-    sheet, _ = _build_reference_crop_sheet(
-        scene,
-        crop,
-        [Hitbox(x=384, y=688, radius=30)],
-        (302, 606, 466, 770),
-    )
-
-    assert sheet.width * scene.height == sheet.height * scene.width
-
-
-def test_reference_panel_extraction_scales_coordinates_with_provider_output():
-    from PIL import Image
-
-    from levelbuilder.api.inpaint import _extract_reference_crop_panel
-
-    original_sheet = Image.new("RGB", (100, 200), "black")
-    original_sheet.paste(Image.new("RGB", (40, 40), "lime"), (30, 140))
-    provider_output = original_sheet.resize((200, 400), Image.Resampling.NEAREST)
-
-    crop = _extract_reference_crop_panel(
-        provider_output,
-        (30, 140, 70, 180),
-        (40, 40),
-        source_sheet_size=original_sheet.size,
-    )
-
-    assert crop.getpixel((20, 20)) == (0, 255, 0)
 
 
 def test_broad_reference_diff_requires_subject_only_mask(monkeypatch):
