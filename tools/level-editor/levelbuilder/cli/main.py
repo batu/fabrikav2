@@ -1329,7 +1329,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = verb("place-hitboxes-vlm", cmd_place_hitboxes_vlm)
     p.add_argument("session_id")
-    p.add_argument("--radius", type=int, default=58)
+    p.add_argument("--radius", type=int, default=None,
+                   help="tap radius; default scales with scene size (87@4096)")
 
     p = verb("clone", cmd_clone)
     p.add_argument("session_id")

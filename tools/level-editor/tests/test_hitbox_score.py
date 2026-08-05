@@ -39,23 +39,23 @@ def test_recall_uses_golden_radius_not_candidate_radius():
     assert lvl["recall"] == 1.0
 
 
-def test_duplicates_do_not_hurt_contract_precision_but_show_in_1to1():
+def test_duplicates_hurt_ranking_precision_but_not_legacy_any():
     golden = [g(100, 100, 50)]
     stacked = [{"x": 100 + i, "y": 100, "r": 50} for i in range(3)]
     lvl = score.score_level(golden, stacked, dim=4096)
     assert lvl["recall"] == 1.0
-    assert lvl["precision"] == 1.0  # contract: every candidate is inside a golden
+    assert lvl["precision"] == 1 / 3  # 1-to-1 gate: stacking cannot pad precision
     assert lvl["duplicates"] == 2
-    assert lvl["precision_1to1"] == 1 / 3  # honesty column exposes the padding
+    assert lvl["precision_any"] == 1.0  # legacy any-overlap contract variant
 
 
-def test_overlap_recall_inflation_disclosed_by_recall_1to1():
-    # Two overlapping goldens, one candidate between them: contract recall
-    # counts both as found; 1-to-1 counts a single match.
+def test_overlap_recall_not_inflated_under_1to1_gate():
+    # Two overlapping goldens, one candidate between them: 1-to-1 recall
+    # counts a single match; the legacy any-variant counted both as found.
     golden = [g(100, 100, 60, "a"), g(160, 100, 60, "b")]
     lvl = score.score_level(golden, [{"x": 130, "y": 100, "r": 50}], dim=4096)
-    assert lvl["recall"] == 1.0
-    assert lvl["recall_1to1"] == 0.5
+    assert lvl["recall"] == 0.5
+    assert lvl["recall_any"] == 1.0
 
 
 def test_one_to_one_matching_prefers_nearest_and_strands_the_farther():
@@ -94,6 +94,16 @@ def test_empty_candidates_and_empty_metrics():
     assert lvl["recall"] == 0.0
     assert lvl["precision"] is None
     assert lvl["center_err_px4096"] is None
+
+
+def test_uniform_hitbox_radius_scales_with_scene_size():
+    from levelbuilder.api.inpaint import uniform_hitbox_radius
+
+    assert uniform_hitbox_radius(4096) == 87
+    assert uniform_hitbox_radius(2688) == 57  # ~ the old fixed 58, at canonical dims
+    assert uniform_hitbox_radius(1024) == 22
+    assert uniform_hitbox_radius(100) == 18   # floor
+    assert uniform_hitbox_radius(100000) == 200  # ceiling matches the route's le=200
 
 
 def test_compare_missing_input_is_always_stale(tmp_path, monkeypatch):

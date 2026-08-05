@@ -9,14 +9,18 @@ circles {"x", "y", "r"} or boxes {"x", "y", "width", "height"} (box entries
 are converted to center + r = max(w,h)/2). Missing level file = zero
 candidates for that level (counts fully against recall).
 
-Metrics (rank order per GOAL.md): recall, precision, center error, radius fit.
- - recall:    golden g is FOUND if some candidate center lies within g.r of g.
- - precision: candidate c is a TP if its center lies inside some golden circle.
+Metrics (rank order per GOAL.md as amended 2026-08-05): recall, precision,
+center error, radius fit — recall/precision are ONE-TO-ONE (each golden can
+be satisfied by at most one candidate and vice versa; duplicates and
+overlap double-counting do not score). The original any-overlap contract
+variants are reported as recall_any/precision_any.
+ - recall:    fraction of goldens with their OWN matched candidate (1-to-1).
+ - precision: fraction of candidates that are the match of some golden.
  - center error: mean over one-to-one greedy matches (pairs with dist <= g.r),
    in 4096-normalized px (raw px * 4096 / level_dim).
  - radius fit: mean |c.r - g.r| / g.r over the same one-to-one matches.
-Duplicates (TP candidates left over after one-to-one matching) are reported —
-they don't hurt the contract metrics but flag double-boxing of one bird.
+Duplicates (candidates on an already-matched golden) now count against
+precision (unmatched candidates) and are also reported separately.
 
 Writes eval/results/<run_id>/metrics.json and appends to eval/results/RESULTS.md.
 Read-only with respect to golden data.
@@ -87,15 +91,14 @@ def score_level(golden: list[dict], cands: list[dict], dim: int) -> dict:
         "missed": [golden[i]["id"] for i in range(n_g) if not found[i]],
         "false_positives": sum(1 for t in tp_cand if not t),
         "duplicates": duplicates,
-        "recall": (sum(found) / n_g) if n_g else None,
-        "precision": (sum(tp_cand) / n_c) if n_c else None,
-        # 1-to-1 variants: a candidate can satisfy only one golden (and vice
-        # versa). The contract metrics above allow one candidate to "find"
-        # every overlapping golden it lands in, and count duplicates as TPs —
-        # inflatable in dense scenes (measured: 1-2 birds on fairy_ring).
-        # Reported for honesty; ranking stays on the contract metrics.
-        "recall_1to1": (len(matches) / n_g) if n_g else None,
-        "precision_1to1": (len(matches) / n_c) if n_c else None,
+        # Ranking metrics are ONE-TO-ONE (gate switch approved 2026-08-05):
+        # a candidate can satisfy only one golden and vice versa, so stacked
+        # duplicates and overlap double-counting cannot inflate the score.
+        "recall": (len(matches) / n_g) if n_g else None,
+        "precision": (len(matches) / n_c) if n_c else None,
+        # Legacy any-overlap contract variants (pre-amendment GOAL.md).
+        "recall_any": (sum(found) / n_g) if n_g else None,
+        "precision_any": (sum(tp_cand) / n_c) if n_c else None,
         "center_err_px4096": (sum(center_errs) / len(center_errs)) if center_errs else None,
         "radius_fit": (sum(radius_errs) / len(radius_errs)) if radius_errs else None,
         # Consumed by the aggregate in main(); stripped before serialization.
@@ -147,7 +150,7 @@ def main() -> int:
         tot_c += lvl["candidates"]
         tot_tp += lvl["candidates"] - lvl["false_positives"]
         tot_dup += lvl["duplicates"]
-        tot_matched += round(lvl["recall_1to1"] * lvl["golden"]) if lvl["recall_1to1"] else 0
+        tot_matched += round(lvl["recall"] * lvl["golden"]) if lvl["recall"] else 0
 
     summary = {
         "run_id": args.run_id,
@@ -156,10 +159,10 @@ def main() -> int:
         "meta": json.loads(args.meta),
         "golden_total": tot_g,
         "candidates_total": tot_c,
-        "recall": tot_found / tot_g if tot_g else None,
-        "precision": tot_tp / tot_c if tot_c else None,
-        "recall_1to1": tot_matched / tot_g if tot_g else None,
-        "precision_1to1": tot_matched / tot_c if tot_c else None,
+        "recall": tot_matched / tot_g if tot_g else None,
+        "precision": tot_matched / tot_c if tot_c else None,
+        "recall_any": tot_found / tot_g if tot_g else None,
+        "precision_any": tot_tp / tot_c if tot_c else None,
         "center_err_px4096": sum(all_center) / len(all_center) if all_center else None,
         "radius_fit": sum(all_radius) / len(all_radius) if all_radius else None,
         "duplicates": tot_dup,

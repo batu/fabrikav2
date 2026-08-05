@@ -5,20 +5,27 @@ boxes + local-diff snap) stays canonical.** Per GOAL.md, the honest
 deliverable is this table. No `place-hitboxes-local` verb was shipped and
 PIPELINE.md is unchanged.
 
-## Final standings (21 labeled golden levels / 412 hitboxes)
+## Final standings (21 labeled golden levels / 412 hitboxes, 1-to-1 gate)
+
+Ranking metrics are one-to-one (GOAL.md amendment, 2026-08-05): duplicates
+and overlap double-counting no longer score. This *widened* the incumbent's
+lead — the free ensembles had been padding precision with duplicate rings.
 
 | candidate | recall | precision | center px (4096) | cost/level | time/level |
 |---|---|---|---|---|---|
-| **vlm-snap (incumbent)** | **.981** | **.978** | **31.9** | ~$0.02 metered | ~15s |
-| ensF2hi-snap (best free, recall-lean) | .964 | .899 | 30.7 | $0 | ~10s |
-| ensF3hi-snap (best free, balanced) | .927 | .943 | 30.9 | $0 | ~10s |
-| owlv2-neg conf .3 (best free single) | .968 | .865 | 34.9 | $0 | ~7s |
-| yolo11m LOFO composite conf .1 | .942 | .448 | 32.7 | $0 | ~1s |
-| local-diff standalone (best sweep) | .40 | .05 | 47.7 | $0 | ~5s |
+| **vlm-snap (incumbent, dim-scaled r)** | **.978** | **.978** | **31.9** | ~$0.02 metered | ~15s |
+| vlm-r58-snap (shipped r=58 defaults) | .954 | .954 | 31.2 | ~$0.02 metered | ~15s |
+| ensF2hi-snap (best free, recall-lean) | .964 | .758 | 30.7 | $0 | ~10s |
+| ensF3hi-snap (best free, balanced) | .927 | .840 | 30.9 | $0 | ~10s |
+| yolo11m LOFO composite conf .1 | .93 | .42 | 32.7 | $0 | ~1s |
+| local-diff standalone (best sweep) | .39 | .05 | 47.7 | $0 | ~5s |
 
 Target was recall ≥ .97 AND precision ≥ .95 AND center err ≤ 25px at $0.
 The incumbent clears recall+precision; **nothing clears all three** — center
-error has a ~30px floor across every method (see finding 4).
+error has a ~30px floor across every method (see finding 4). Production
+change shipped with this amendment: `place-hitboxes-vlm` now defaults to a
+dim-scaled radius (87@4096 via `uniform_hitbox_radius`), worth
++.02 recall / +.02 precision over the old fixed r=58.
 
 ## Post-review corrections (2026-08-05 code review)
 
@@ -36,8 +43,9 @@ error has a ~30px floor across every method (see finding 4).
   the contract metrics; RESULTS.md rows carry `min lvl R` (worst-level
   recall — the aggregate hid fairy_ring's .71) and a golden-set sha so rows
   scored against different golden states can't be silently compared.
-  **Decision open to Batu: switch the ranking gate to the 1-to-1 metrics**
-  (changes published numbers; contract edit to GOAL.md).
+  **Decision taken (Batu, 2026-08-05): the ranking gate IS the 1-to-1
+  metrics** — GOAL.md amended, table regenerated; legacy any-overlap values
+  remain as `recall_any`/`precision_any`.
 - **Center-error caveat**: the metric is conditioned on matched pairs
   (dist ≤ g.r), so it is truncated at the golden radius — a low-recall
   method's center error describes only its hits. Read it jointly with
