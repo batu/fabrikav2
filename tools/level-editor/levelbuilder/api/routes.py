@@ -1760,9 +1760,16 @@ def _square_deadzones(bg_w: int, bg_h: int) -> list:
     chip = next(z for z in PORTRAIT_REFERENCE_DEADZONES if z[0] == "HINT_CHIP")
     _, cx, _cy, cw, ch = chip
     chip_w, chip_h = int(cw * s), int(ch * s)
+    from levelbuilder.sections import SQUARE_SIDE_MARGIN_FRACTION
+    side = int(bg_w * SQUARE_SIDE_MARGIN_FRACTION)
     return [
         Rect(x=0, y=0, w=bg_w, h=hud),
         Rect(x=0, y=bg_h - banner, w=bg_w, h=banner),
+        # Side edge-artifact margins: the magenta send crop excludes these
+        # strips (see inpaint._chrome_crop_box), so a hitbox placed here
+        # would never receive paint.
+        Rect(x=0, y=0, w=side, h=bg_h),
+        Rect(x=bg_w - side, y=0, w=side, h=bg_h),
         Rect(x=bg_w - chip_w - int((PORTRAIT_REF_WIDTH - cx - cw) * s),
              y=bg_h - banner - chip_h, w=chip_w, h=chip_h),
     ]

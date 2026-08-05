@@ -21,12 +21,19 @@ class TestSquareDetection:
 class TestSquareDeadzones:
     def test_bands_and_chip(self):
         zones = _square_deadzones(4096, 4096)
-        assert len(zones) == 3
-        hud, banner, chip = zones
+        assert len(zones) == 5
+        hud, banner, left, right, chip = zones
         assert (hud.x, hud.y, hud.w) == (0, 0, 4096)
         assert hud.h == int(4096 * HUD_FRACTION)
         assert banner.y == 4096 - int(4096 * BANNER_FRACTION)
         assert banner.h == int(4096 * BANNER_FRACTION)
+        # Side edge-artifact margins mirror the magenta send crop
+        # (sections.SQUARE_SIDE_MARGIN_FRACTION): hitboxes placed there
+        # would never receive paint.
+        from levelbuilder.sections import SQUARE_SIDE_MARGIN_FRACTION
+        side = int(4096 * SQUARE_SIDE_MARGIN_FRACTION)
+        assert (left.x, left.w, left.h) == (0, side, 4096)
+        assert (right.x, right.w, right.h) == (4096 - side, side, 4096)
         # Hint chip hugs the bottom-right, above the banner band.
         assert chip.x + chip.w <= 4096
         assert chip.y + chip.h == banner.y

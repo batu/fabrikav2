@@ -4990,6 +4990,19 @@ def _chrome_band_heights(width: int, height: int) -> tuple[int, int]:
     return (int(height * HUD_FRACTION), int(height * BANNER_FRACTION))
 
 
+def _chrome_crop_box(width: int, height: int) -> tuple[int, int, int, int]:
+    """(left, top, right, bottom) crop box for the magenta send region.
+    Sides come from sections.SQUARE_SIDE_MARGIN_FRACTION (edge-artifact
+    buffer — see its docstring), top/bottom from the chrome bands. Full
+    frame for non-square scenes."""
+    band_top, band_bottom = _chrome_band_heights(width, height)
+    if not (band_top or band_bottom):
+        return (0, 0, width, height)
+    from levelbuilder.sections import SQUARE_SIDE_MARGIN_FRACTION
+    side = int(width * SQUARE_SIDE_MARGIN_FRACTION)
+    return (side, band_top, width - side, height - band_bottom)
+
+
 def detect_painted_subjects(
     session_id: str,
     *,
@@ -5047,11 +5060,11 @@ def detect_painted_subjects(
     return detections
 
 
-def _band_feather_mask(size: tuple[int, int], feather: int = 48) -> Image.Image:
+def _band_feather_mask(size: tuple[int, int], feather: int = 48, *, sides: bool = False) -> Image.Image:
     """Alpha mask fading the pasted band into the clean background across its
-    top/bottom edges, so model drift near its frame edges cannot print a hard
-    seam at the chrome-band boundary (#31 watch item, observed on the first
-    band-cropped level)."""
+    top/bottom edges (and, with sides=True, all four edges), so model drift
+    near its frame edges cannot print a hard seam at the crop boundary
+    (#31 watch item, observed on the first band-cropped level)."""
     w, h = size
     mask = Image.new("L", size, 255)
     px = mask.load()
@@ -5059,8 +5072,15 @@ def _band_feather_mask(size: tuple[int, int], feather: int = 48) -> Image.Image:
     for i in range(steps):
         v = int(255 * (i + 1) / (steps + 1))
         for x in range(w):
-            px[x, i] = v
-            px[x, h - 1 - i] = v
+            px[x, i] = min(px[x, i], v)
+            px[x, h - 1 - i] = min(px[x, h - 1 - i], v)
+    if sides:
+        steps_x = max(1, min(feather, w // 4))
+        for i in range(steps_x):
+            v = int(255 * (i + 1) / (steps_x + 1))
+            for y in range(h):
+                px[i, y] = min(px[i, y], v)
+                px[w - 1 - i, y] = min(px[w - 1 - i, y], v)
     return mask
 
 
@@ -5402,17 +5422,19 @@ def run_magenta_inpaint(
     try:
         if cancel_check is not None:
             cancel_check()
-        band_top, band_bottom = _chrome_band_heights(w, h)
-        if band_top or band_bottom:
-            # Send only the playable band; paste it back into the clean bg so
-            # the chrome bands stay exactly the background (no paint possible).
-            send = overlay.crop((0, band_top, w, h - band_bottom))
+        crop_l, crop_t, crop_r, crop_b = _chrome_crop_box(w, h)
+        if (crop_l, crop_t, crop_r, crop_b) != (0, 0, w, h):
+            # Send only the inner region; paste it back into the clean bg so
+            # chrome bands AND side edge-margins stay exactly the background
+            # (no paint possible there, no edge displacement possible there).
+            send = overlay.crop((crop_l, crop_t, crop_r, crop_b))
             band = _with_retries_and_timeout(edit_image, send, prompt, model=model)
             send.close()
-            if band.size != (w, h - band_top - band_bottom):
-                band = band.resize((w, h - band_top - band_bottom), Image.LANCZOS)
+            expected = (crop_r - crop_l, crop_b - crop_t)
+            if band.size != expected:
+                band = band.resize(expected, Image.LANCZOS)
             result = bg.copy()
-            result.paste(band, (0, band_top), _band_feather_mask(band.size))
+            result.paste(band, (crop_l, crop_t), _band_feather_mask(band.size, sides=crop_l > 0))
             band.close()
         else:
             result = _with_retries_and_timeout(edit_image, overlay, prompt, model=model)

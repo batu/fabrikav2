@@ -26,6 +26,15 @@ from levelbuilder.hitboxes import Rect
 HUD_FRACTION = 230 / 1376
 BANNER_FRACTION = 0.071
 
+# Side edge-safety margin for square (pan/zoom) scenes, as a fraction of level
+# width. Full-scene paint models displace content most near the frame edges
+# (alignment probes 2026-08-05: 43-448px at edge windows vs ~11px center), so
+# the magenta send crop excludes these strips and placement must too — a
+# magenta circle inside the margin would be cropped out of the paint call and
+# never painted. NOT a phone-crop deadzone: square levels pan, sides are
+# playable; this is an edge-artifact buffer only.
+SQUARE_SIDE_MARGIN_FRACTION = 0.06
+
 # Buffer on each side of a shared section boundary where dogs should not be placed —
 # ensures a dog is always fully inside one section's visible slice during the camera pan.
 SECTION_BOUNDARY_BUFFER = 60
