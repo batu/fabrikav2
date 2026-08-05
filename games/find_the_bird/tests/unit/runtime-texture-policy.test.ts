@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  isSelectivePublicBundleMode,
   isNativeShellOrigin,
   resolveRuntimeTextureLongEdge,
   selectRuntimeColorImageUrl,
@@ -51,6 +52,14 @@ describe('selectRuntimeColorImageUrl', () => {
         value: original, configurable: true, writable: true,
       });
     }
+  });
+
+  it('never upgrades to an omitted color.png in a selective native build served as a web preview', () => {
+    expect(isSelectivePublicBundleMode('ios')).toBe(true);
+    expect(isSelectivePublicBundleMode('android')).toBe(true);
+    expect(isSelectivePublicBundleMode('production')).toBe(false);
+    expect(selectRuntimeColorImageUrl('levels/level-a/color.webp', 2560, 5600, 8192, false))
+      .toBe('levels/level-a/color.webp');
   });
 
   it('classifies native shell origins without matching web dev servers', () => {

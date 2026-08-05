@@ -2350,14 +2350,6 @@ export class GameScene extends Phaser.Scene {
     this.pickupStyle = style;
   }
 
-  // TEMPORARY: level-variant A/B skip (see bootstrap.ts "next ▸" button).
-  // Marks the running level complete through the normal finale path so
-  // progression advances even when a variant's hitboxes are unplayable.
-  skipLevelForTest(): void {
-    if (!this.level || this.levelComplete) return;
-    this.triggerLevelFinale();
-  }
-
   private playRestorationPickupAnimation(dog: LevelDog): void {
     switch (this.pickupStyle) {
       case 'juiced': this.playPickupJuiced(dog); return;

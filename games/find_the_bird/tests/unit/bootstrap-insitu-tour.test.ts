@@ -146,6 +146,8 @@ describe("find_the_dog bootstrap insitu tour wiring", () => {
         snapshotMatchesState: snapshotMatchesFindTheDogDriveState,
         states: FIND_THE_DOG_TOUR_STATES,
       });
+      expect(document.body.textContent).not.toContain("next ▸");
+      expect(document.body.children).toHaveLength(3);
     });
   });
 });

@@ -118,56 +118,6 @@ game.events.once('destroy', (): void => {
 });
 
 if (typeof window !== 'undefined') {
-  // 4-tap debug panel toggle
-  let tapCount = 0;
-  let lastTapTime = 0;
-  const TAP_WINDOW_MS = 600;
-  const TAPS_REQUIRED = 4;
-
-  // The 4-tap pickup-style cycler was removed 2026-08-05 (Batu: single
-  // shipped style, accidental triggers during play were confusing A/B
-  // sessions). Reserved-gesture plumbing removed with it.
-  void tapCount; void lastTapTime; void TAP_WINDOW_MS; void TAPS_REQUIRED;
-
-  // TEMPORARY level-skip button for the level-variant A/B campaign: the
-  // player must be able to reach later variant levels even when an earlier
-  // variant's hitboxes are broken. Remove before any public build.
-  const skipBtn = document.createElement('button');
-  skipBtn.textContent = 'next ▸';
-  skipBtn.style.cssText = 'position:fixed;top:max(env(safe-area-inset-top,0px),8px);right:8px;'
-    + 'background:rgba(0,0,0,.6);color:#fff;border:0;padding:6px 12px;border-radius:12px;'
-    + 'font:700 13px system-ui;z-index:9999;';
-  skipBtn.addEventListener('click', (): void => {
-    for (const scene of game.scene.getScenes(true)) {
-      const s = scene as Partial<{ skipLevelForTest: () => void }>;
-      if (s.skipLevelForTest !== undefined) { s.skipLevelForTest(); return; }
-    }
-  });
-  document.body.appendChild(skipBtn);
-
-  // TEMPORARY variant-label overlay for the level A/B campaign: names the
-  // pipeline variant of the level being played so on-device judgments can
-  // be attributed. Remove together with the skip button.
-  const VARIANT_LABELS: Record<string, string> = {
-    ad_campaigns_ad_autumn_forest_bird_native2k: 'CANONICAL: native-2k paint + lite cutouts',
-    ad_campaigns_ad_autumn_forest_bird_poststretch2: 'CANONICAL (early): square-send paint, your hitboxes',
-  };
-  const levelLabel = document.createElement('div');
-  levelLabel.style.cssText = 'position:fixed;top:max(env(safe-area-inset-top,0px),8px);left:8px;right:80px;'
-    + 'background:rgba(0,0,0,.65);color:#ffe14a;padding:5px 10px;border-radius:10px;'
-    + 'font:700 12px system-ui;z-index:9999;pointer-events:none;display:none;';
-  document.body.appendChild(levelLabel);
-  window.setInterval((): void => {
-    let id: string | undefined;
-    for (const scene of game.scene.getScenes(true)) {
-      const lvl = (scene as Partial<{ level: { id?: string } | null }>).level;
-      if (lvl?.id !== undefined) { id = lvl.id; break; }
-    }
-    if (id === undefined) { levelLabel.style.display = 'none'; return; }
-    levelLabel.textContent = VARIANT_LABELS[id] ?? id;
-    levelLabel.style.display = 'block';
-  }, 800);
-
   // __FIND_DOG_GAME__ is consumed by the Settings → Capture flow in HUD.ts,
   // which is itself gated on `!import.meta.env.PROD`. The
   // TEST_HARNESS_ENABLED gate (DEV || VITE_ENABLE_TEST_HARNESS) is stricter

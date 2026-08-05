@@ -164,6 +164,8 @@ let legacyAssetCacheCleanupStarted = false;
 let cachedIndex: LevelIndexEntry[] | null = null;
 let bundledManifestPromise: Promise<ManifestV1> | null = null;
 let bundledManifestSnapshot: ManifestV1 | null = null;
+let runtimeManifestSnapshot: ManifestV1 | null = null;
+let runtimeManifestEntriesById = new Map<string, ManifestLevelEntry>();
 let catalogManifestPromise: Promise<RuntimeCatalogManifest | null> | null = null;
 const catalogSnapshotPromises = new Map<string, Promise<RuntimeCatalogManifest | null>>();
 let lastCatalogManifestFetchFailed = false;
@@ -225,14 +227,33 @@ function getBundledEntry(id: string): ManifestLevelEntry | null {
   return bundledManifestSnapshot?.levels.find((entry) => entry.id === id) ?? null;
 }
 
-function manifestWithBundledFallbackEntries(activeManifest: ManifestV1): ManifestV1 {
-  if (bundledManifestSnapshot === null) return activeManifest;
+export function reconcileManifestBundledAuthority(
+  activeManifest: ManifestV1,
+  bundledManifest: ManifestV1,
+): ManifestV1 {
+  const bundledById = new Map(bundledManifest.levels.map((entry) => [entry.id, entry]));
   const activeIds = new Set(activeManifest.levels.map((entry) => entry.id));
-  const levels: ManifestLevelEntry[] = [...activeManifest.levels];
-  for (const bundledEntry of bundledManifestSnapshot.levels) {
+  const levels: ManifestLevelEntry[] = activeManifest.levels.map((entry) => (
+    bundledById.get(entry.id) ?? { ...entry, bundled: false }
+  ));
+  for (const bundledEntry of bundledManifest.levels) {
     if (!activeIds.has(bundledEntry.id)) levels.push(bundledEntry);
   }
   return { ...activeManifest, levels };
+}
+
+function manifestWithBundledFallbackEntries(activeManifest: ManifestV1): ManifestV1 {
+  return bundledManifestSnapshot === null
+    ? activeManifest
+    : reconcileManifestBundledAuthority(activeManifest, bundledManifestSnapshot);
+}
+
+function getRuntimeManifest(): ManifestV1 {
+  if (runtimeManifestSnapshot === null) {
+    runtimeManifestSnapshot = manifestWithBundledFallbackEntries(getManifestClient().getManifest());
+    runtimeManifestEntriesById = new Map(runtimeManifestSnapshot.levels.map((entry) => [entry.id, entry]));
+  }
+  return runtimeManifestSnapshot;
 }
 
 async function fetchRuntimeCatalogJson(path: string): Promise<RuntimeCatalogManifest | null> {
@@ -514,7 +535,8 @@ async function ensureManifestInitialized(): Promise<void> {
 }
 
 async function getRuntimeEntry(id: string): Promise<ManifestLevelEntry | null> {
-  const manifestEntry = getManifestClient().getManifest().levels.find((entry) => entry.id === id) ?? null;
+  getRuntimeManifest();
+  const manifestEntry = runtimeManifestEntriesById.get(id) ?? null;
   if (manifestEntry !== null) return manifestEntry;
   const bundledEntry = getBundledEntry(id);
   if (bundledEntry !== null) return bundledEntry;
@@ -816,7 +838,7 @@ export async function getLevelIndex(): Promise<LevelIndexEntry[]> {
   if (cachedIndex !== null) return cachedIndex;
   await ensureManifestInitialized();
 
-  const manifest = manifestWithBundledFallbackEntries(getManifestClient().getManifest());
+  const manifest = getRuntimeManifest();
   const runtimeSequence = await resolveActiveRuntimeSequence(manifest);
   writeLiveListedIfFresh(runtimeSequence);
   const catalog = await getActivePackageCatalog(manifest);
@@ -1107,7 +1129,7 @@ export async function loadLevelForProgression(progressionIndex: number): Promise
   const intendedLevelId = index[safeIndex]?.id;
   if (intendedLevelId === undefined) throw new Error('No intended level resolved');
 
-  const manifest = manifestWithBundledFallbackEntries(getManifestClient().getManifest());
+  const manifest = getRuntimeManifest();
   const sequenceLevelIds = index.map((entry) => entry.id);
   const runtimeSequence = lastRuntimeSequenceResolution;
 
@@ -1236,7 +1258,7 @@ export function disposeLevelUrls(id: string): void {
 export async function isLevelCached(id: string): Promise<boolean> {
   if (levelCache.has(id)) return true;
   await ensureManifestInitialized();
-  const manifest = manifestWithBundledFallbackEntries(getManifestClient().getManifest());
+  const manifest = getRuntimeManifest();
   const catalog = lastPackageCatalogSnapshot ?? await getActivePackageCatalog(manifest);
   const descriptor = catalog.packagesByLevelId.get(id);
   if (descriptor === undefined) return false;
@@ -1322,6 +1344,9 @@ export async function _clearAllLevelCaches(): Promise<void> {
   cachedIndex = null;
   manifestClient = null;
   bundledManifestPromise = null;
+  bundledManifestSnapshot = null;
+  runtimeManifestSnapshot = null;
+  runtimeManifestEntriesById.clear();
   catalogManifestPromise = null;
   catalogManifestRetryAfterMs = 0;
   catalogSnapshotPromises.clear();
