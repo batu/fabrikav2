@@ -561,6 +561,26 @@ def _atomic_save_image(img: Image.Image, path) -> None:
             logger.warning("failed to cleanup tmp file %s", tmp)
 
 
+def _atomic_copy_file(src, dst) -> None:
+    """Byte-copy an already-encoded file with the same tmp+replace discipline
+    as _atomic_save_image — used where two artifacts are byte-identical so the
+    second doesn't pay a fresh PNG encode."""
+    import shutil
+    from pathlib import Path as _P
+    s, d = _P(src), _P(dst)
+    ext = d.suffix.lstrip(".") or "tmp"
+    tmp = d.with_suffix(f".tmp-{ext}-{os.getpid()}-{uuid.uuid4().hex[:8]}")
+    try:
+        shutil.copyfile(s, tmp)
+        tmp.replace(d)
+    finally:
+        try:
+            if tmp.exists():
+                tmp.unlink()
+        except OSError:
+            logger.warning("failed to cleanup tmp file %s", tmp)
+
+
 def _isolate_variant_crop(
     clean_crop: Image.Image,
     painted: Image.Image,
@@ -4666,13 +4686,26 @@ def _build_magenta_overlay(bg: Image.Image, hitboxes: list[dict]) -> Image.Image
     return overlay
 
 
+# Fragment strips stay alongside the sentence regexes: styled entity-prompt
+# overrides phrase positioning differently and only partially match the
+# sentence patterns above.
 _POSITIONAL_PHRASES = [
     "at the center of the image",
     "occupying roughly the central third of the frame (not filling it).",
     "occupying roughly the central third of the frame",
-    "Place exactly one",
     "do not repeat the subject.",
     "Keep all other elements of the image unchanged.",
+]
+
+# Whole sentences whose subject-count claims ("exactly one ... to this crop")
+# contradict the magenta wrapper's one-per-circle instruction for a
+# multi-marker full-scene edit. Stripped as complete sentences so no dangling
+# fragments survive into SUBJECT.
+_POSITIONAL_SENTENCES = [
+    # Loose tail: styled overrides continue past "to this crop" with a comma
+    # ("...to this crop, centered on the marked target area.").
+    re.compile(r"Add exactly one [^.]*?to this crop[^.]*\.\s*"),
+    re.compile(r"Place exactly one [^.]*?(?:—[^.]*)?\.\s*"),
 ]
 
 
@@ -4682,6 +4715,8 @@ def _strip_positional_phrases(entity_prompt: str) -> str:
     outlines) position by marker, so those clauses are stripped while the
     aesthetic/charm/style clauses are kept."""
     cleaned = entity_prompt.strip()
+    for rx in _POSITIONAL_SENTENCES:
+        cleaned = rx.sub("", cleaned)
     for p in _POSITIONAL_PHRASES:
         cleaned = cleaned.replace(p, "")
     return re.sub(r"\s{2,}", " ", cleaned).replace(" ,", ",").replace(" .", ".").strip()
@@ -4712,7 +4747,7 @@ def _magenta_prompt(entity_prompt: str) -> str:
         f"SUBJECT: {cleaned}\n\n"
         "SCALE: Do NOT fill the circle. Render the subject at whatever physical "
         "size is realistic for this scene \u2014 compare it to the other visible "
-        "objects around that spot (doorways, people, furniture, crates, trees, "
+        "objects around that spot (doorways, furniture, crates, stalls, trees, "
         "etc.) and size the subject so it looks like it actually belongs there. "
         "If the subject is a small animal, it should look small relative to "
         "human-scale props in the scene, even when the magenta circle is large. "
@@ -4725,8 +4760,9 @@ def _magenta_prompt(entity_prompt: str) -> str:
         "HARD CONSTRAINTS: "
         "(1) Every magenta region must be fully replaced \u2014 no magenta pixels "
         "may remain. "
-        "(2) Do not introduce any magenta, pink, or fuchsia tones elsewhere in "
-        "the output. "
+        "(2) Do not create any new marker-color (#FF00FF) pixels anywhere in "
+        "the output; legitimate pink or magenta scene art that already exists "
+        "outside the circles stays untouched. "
         "(3) Do not alter pixels far from the magenta regions \u2014 keep the "
         "rest of the scene pixel-identical. "
         "(4) Produce exactly one subject per circle; do not clone the subject "
@@ -5184,12 +5220,22 @@ def run_magenta_inpaint(
         if cancel_check is not None:
             cancel_check()
         crop_l, crop_t, crop_r, crop_b = _chrome_crop_box(w, h)
+        # Every retried draw is a billed call; the count lands in the sidecar
+        # so refused-draw burn is measurable at catalog scale.
+        retry_count = 0
+
+        def _count_retry(_attempt_idx, _exc):
+            nonlocal retry_count
+            retry_count += 1
+
         if (crop_l, crop_t, crop_r, crop_b) != (0, 0, w, h):
             # Send only the inner region; paste it back into the clean bg so
             # chrome bands AND side edge-margins stay exactly the background
             # (no paint possible there, no edge displacement possible there).
             send = overlay.crop((crop_l, crop_t, crop_r, crop_b))
-            band = _with_retries_and_timeout(edit_image, send, prompt, model=model)
+            band = _with_retries_and_timeout(
+                edit_image, send, prompt, model=model, on_attempt=_count_retry,
+            )
             send.close()
             expected = (crop_r - crop_l, crop_b - crop_t)
             if band.size != expected:
@@ -5198,7 +5244,9 @@ def run_magenta_inpaint(
             result.paste(band, (crop_l, crop_t), _band_feather_mask(band.size, sides=crop_l > 0))
             band.close()
         else:
-            result = _with_retries_and_timeout(edit_image, overlay, prompt, model=model)
+            result = _with_retries_and_timeout(
+                edit_image, overlay, prompt, model=model, on_attempt=_count_retry,
+            )
             if result.size != (w, h):
                 result = result.resize((w, h), Image.LANCZOS)
         if cancel_check is not None:
@@ -5207,9 +5255,14 @@ def run_magenta_inpaint(
         _atomic_save_image(result, sdir / "inpainted.png")
         write_generation_sidecar(
             sdir / "inpainted.png", kind="magenta_inpaint", prompt=prompt, model=model,
-            params={"hitboxes": len(hitbox_list), "width": w, "height": h},
+            params={
+                "hitboxes": len(hitbox_list), "width": w, "height": h,
+                "attempts": retry_count + 1,
+            },
         )
-        _atomic_save_image(result, sdir / "color.png")
+        # color.png is byte-identical to inpainted.png; copy the encoded file
+        # instead of paying a second full-size PNG encode.
+        _atomic_copy_file(sdir / "inpainted.png", sdir / "color.png")
         _atomic_save_image(overlay, sdir / "magenta_overlay.png")
         bw = bg.convert("L").convert("RGB")
         _atomic_save_image(bw, sdir / "bw.png")

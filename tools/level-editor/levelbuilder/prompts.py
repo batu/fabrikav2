@@ -1072,7 +1072,7 @@ def build_scene_prompt(
     target_plural = f"{entity_noun}s"
     return "\n\n".join(
         [
-            f"[Purpose]\nCreate a full-bleed portrait mobile-game background for {game_title}.",
+            f"[Purpose]\nCreate a full-bleed mobile-game background for {game_title}.",
             f"[Short Description]\n{short_description}",
             f"[Scene]\n{c}",
             f"[View]\n{v}",

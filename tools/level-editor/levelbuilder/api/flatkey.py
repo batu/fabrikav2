@@ -226,15 +226,18 @@ def flatkey_recreate_sprite(
 # take the largest per cell), and dilation bridges the gutters (label raw).
 
 GRID_PROMPT_TEMPLATE = (
-    "This image is a {n}x{n} grid of {count} panels separated by thick white "
-    "gutters. Each panel shows one cartoon bird in a scene. Recreate EACH "
-    "panel's bird — identical species impression, colors, markings, pose, "
-    "expression, and any held or worn item — as a clean sticker illustration "
-    "on a completely uniform, flat, pure magenta (#FF00FF) background, "
-    "KEEPING THE EXACT SAME grid layout and white gutters. Exactly one bird "
-    "per panel, centered in its panel. No shadows, no scenery, no gradients: "
-    "perfectly flat magenta in every panel except the birds. Do not merge, "
-    "move, or swap panels."
+    "This image is a {n}x{n} grid of panels separated by thick white "
+    "gutters. The first {count} panels in row-major order each show one "
+    "cartoon bird in a scene; any remaining cells are empty white padding. "
+    "Recreate EACH occupied panel's bird — identical species impression, "
+    "colors, markings, pose, expression, and any held or worn item — as a "
+    "clean sticker illustration on a completely uniform, flat, pure magenta "
+    "(#FF00FF) background, KEEPING THE EXACT SAME grid layout and white "
+    "gutters. Exactly one bird per occupied panel, centered in its panel; "
+    "empty padding cells must stay empty white — do not invent birds there. "
+    "The output must contain exactly {count} birds. No shadows, no scenery, "
+    "no gradients: perfectly flat magenta in every occupied panel except the "
+    "birds. Do not merge, move, or swap panels."
 )
 _GRID_CANVAS = 1000  # flash-lite rejects >1K input
 _GRID_GUTTER = 20
@@ -282,7 +285,15 @@ def split_grid_panels(out: Image.Image, n: int, count: int) -> list[Image.Image 
 
 
 def _panel_cutout(panel: Image.Image) -> Image.Image | None:
-    cutout = strip_flat_rim(despill(chroma_key(panel)))
+    # Same deterministic gate order as the single path: chroma key, then
+    # flat_ok (non-flat key / gray-panel / duplicate-subject detection),
+    # then despill + rim strip. Batch results are marked prevalidated
+    # downstream, so this is the gate that earns that flag.
+    keyed = chroma_key(panel)
+    ok, _reason = flat_ok(panel, keyed)
+    if not ok:
+        return None
+    cutout = strip_flat_rim(despill(keyed))
     alpha = np.asarray(cutout)[:, :, 3]
     subject = float((alpha > 0).mean())
     if not (0.02 < subject < 0.9):
@@ -308,28 +319,37 @@ def flatkey_recreate_sprites_batch(
 
     results: dict[int, Image.Image] = {}
 
+    def _run_chunk(chunk: list[int], n: int) -> list[tuple[int, Image.Image | None]]:
+        grid_img = _compose_grid([crops[i] for i in chunk], n)
+        try:
+            out = edit_image(
+                grid_img,
+                GRID_PROMPT_TEMPLATE.format(n=n, count=len(chunk)),
+                model=model,
+            )
+        except Exception:
+            return [(idx, None) for idx in chunk]
+        panels = split_grid_panels(out, n, len(chunk))
+        return [
+            (idx, _panel_cutout(panel) if panel is not None else None)
+            for idx, panel in zip(chunk, panels)
+        ]
+
     def _run(indices: list[int], n: int) -> list[int]:
-        failed: list[int] = []
         per = n * n
-        for start in range(0, len(indices), per):
-            chunk = indices[start:start + per]
-            grid_img = _compose_grid([crops[i] for i in chunk], n)
-            try:
-                out = edit_image(
-                    grid_img,
-                    GRID_PROMPT_TEMPLATE.format(n=n, count=len(chunk)),
-                    model=model,
-                )
-            except Exception:
-                failed.extend(chunk)
-                continue
-            panels = split_grid_panels(out, n, len(chunk))
-            for idx, panel in zip(chunk, panels):
-                cut = _panel_cutout(panel) if panel is not None else None
-                if cut is None:
-                    failed.append(idx)
-                else:
-                    results[idx] = cut
+        chunks = [indices[start:start + per] for start in range(0, len(indices), per)]
+        # Chunks within a rung are independent provider calls; a bounded pool
+        # of 2 makes rung wall time ≈ the slower call, not the sum. Results
+        # are collected in submit order, so output stays deterministic.
+        from concurrent.futures import ThreadPoolExecutor
+        failed: list[int] = []
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            for future in [pool.submit(_run_chunk, chunk, n) for chunk in chunks]:
+                for idx, cut in future.result():
+                    if cut is None:
+                        failed.append(idx)
+                    else:
+                        results[idx] = cut
         return failed
 
     pending = sorted(crops)

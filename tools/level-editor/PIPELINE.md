@@ -24,12 +24,12 @@ level-editor recenter-hitboxes-local <sid> --prune-empty
 | Background | `google/gemini-3.1-flash-image-preview` | 1:1, 1K | $0.068/call metered; per-image pricing |
 | Upscale | `fal-ai/esrgan` (lanczos fallback when no `FAL_KEY`) | target long edge **2688** | ESRGAN input stopped the model inventing junk props (books/padlocks seen with soft lanczos-1K input). Export ships 2560px webps, so 2688 needs no later upscale. |
 | Working canvas | — | **2688 × 2688** | Sized so the magenta square-send region is exactly 2048. |
-| Placement | smart (vision-scored) | radius **38** (=58 × 2688/4096, canvas-scaled default) | Deadzones include HUD band, banner band, hint chip, and the side edge-margins (below). |
+| Placement | smart (vision-scored, `google/gemini-3.5-flash-lite`, metered) | radius **38** (=58 × 2688/4096, canvas-scaled default); 36-candidate pool (floor 2×n), chunks scored in parallel | Deadzones include HUD band, banner band, hint chip, and the side edge-margins (below). The old n×4 floor silently doubled scoring calls (64 candidates / 4 serial calls at 16 birds). |
 | Magenta send | `_chrome_crop_box` | square, **2048 × 2048** | Flash's measured native output ceiling is 2048². A square native-size send returns byte-aligned content (gate PASS, 3.98% diff = birds only). Any other aspect/size caused 11–509px content displacement across 5 measured runs — "the docks pasted offset". |
 | Side margins | `sections.square_send_side_margin` | sized to square the send | Edge windows showed the worst displacement (43–448px). Margins stay original pixels; placement deadzones exclude them so no dot lands where paint can't reach. Squares still pan — these are artifact buffers, NOT phone-crop deadzones. |
 | Paint | flash via guarded client | 1 call, all birds | $0.068 flat regardless of canvas (1120 output image tokens). Client refuses aspect-mismatched returns (>2%) instead of silently stretching — the silent stretch was the root cause of the pickup-seam era. |
 | Post-paint snap | `recenter-hitboxes-local --prune-empty` | local diff | With an aligned scene the diff is bird-only, so diff-snap beats VLM boxes (16/16, 0 false). VLM detection (`gemini-3.6-flash`) remains the periodic auditor. |
-| Cutouts | flat-key recreate, **batched 3x3 grids** (`FTD_FLATKEY_GRID`, `FTD_FLATKEY_MODEL`) | flash-lite, 3x3 default | $0.0045/bird metered (~$0.07/level) vs $0.034 single. Ladder: 3x3 → 2x2 retry → single (judge-gated). 4x4 passes numeric gates but visibly bleeds panels — capped at 3. Splitter detects magenta components (never split at input coords; no dilation — it bridges gutters). |
+| Cutouts | flat-key recreate, **batched 3x3 grids** (`FTD_FLATKEY_GRID`, `FTD_FLATKEY_MODEL`) | flash-lite, 3x3 default | $0.0045/bird metered (~$0.07/level) vs $0.034 single. Ladder: 3x3 → 2x2 retry → single; every batch panel passes the deterministic `flat_ok` gate, the VLM judge runs only on the single fallback. Same-rung grid calls run in parallel (pool of 2). 4x4 passes numeric gates but visibly bleeds panels — capped at 3. Splitter detects magenta components (never split at input coords; no dilation — it bridges gutters). |
 | Tap tolerance | runtime `hitboxGeometry.ts` | 2.0× hitbox radius (squares) | Painted birds render larger than their disc; neighbor-overlap clamp prevents shared areas. |
 | Restore bg | masked writer | bird-pixels-only + phase-align + sharpness match | Clean patches are unsharp-masked toward local painted crispness (measured 11.98 vs 8.64 gradient energy gap). |
 
@@ -44,10 +44,16 @@ level-editor recenter-hitboxes-local <sid> --prune-empty
 
 ## Cost & time per level (metered where a meter exists)
 
-- bg $0.068 · paint $0.068 · cutouts ~$0.07 (batched 3x3 lite) · VLM audit ~$0.07
-- ESRGAN ~2–7¢/call (fal — **not yet in the merceka ledger**, estimate)
-- Total ≈ **$0.30 and 5–8 min**; 20 levels ≈ $6 / ~2.5 h; 1000 levels ≈ $300.
-- Known metering gaps to close: fal, OpenAI-direct, smart-placement scoring.
+- bg $0.068 · paint $0.068 · cutouts ~$0.07 (batched 3x3 lite) · placement ~$0.01
+- VLM audit (`detect_birds_vlm`, ~$0.02/call) — **operator policy, not enforced
+  in code**: run it on the first level of every batch, a 1-in-10 sample
+  thereafter, and any level with anomalous local-diff counts, large recentre
+  snaps, pruned hitboxes, or HITL concern. Do not run it per-level.
+- ESRGAN ~2–7¢/call (fal — ledgered as unknown-cost rows; price via rates.json)
+- Total ≈ **$0.22–0.25 and 4–6 min**; 20 levels ≈ $5; 1000 levels ≈ $230–250.
+- Metering closed 2026-08-05: merceka LLM path (placement scoring, sprite
+  judge), fal upscale, OpenAI-direct — every provider call now writes
+  `~/.merceka/costs.jsonl`.
 
 ## What was eliminated (don't relitigate without new evidence)
 

@@ -23,7 +23,9 @@ from levelbuilder.hitboxes import Rect
 
 logger = logging.getLogger(__name__)
 
-SMART_PLACEMENT_MODEL = "google/gemini-2.5-flash"
+# Picked from the live OpenRouter catalog 2026-08-05: same input price as the
+# legacy 2.5-flash it replaces ($0.30/M), current generation vision.
+SMART_PLACEMENT_MODEL = "google/gemini-3.5-flash-lite"
 DEFAULT_CANDIDATE_COUNT = 36
 DEFAULT_SCORE_THRESHOLD = 45
 SCORING_CHUNK_SIZE = 20
@@ -313,35 +315,56 @@ def score_candidates_with_vision(
         system_prompt=_score_system_prompt(entity_label, n),
         output_schema=CandidateScoreResponse,
     )
-    scores: list[CandidateScore] = []
-    last_chunk_error: Exception | None = None
+    # Contact sheets are built SERIALLY in this thread: PIL images decode
+    # lazily and concurrent crop() on the same Image corrupts the shared
+    # decode stream (observed live: "broken PNG file"). Only the provider
+    # round-trips are parallelized.
+    chunk_sheets: list[tuple[int, int, Path]] = []
     for start in range(0, len(candidates), SCORING_CHUNK_SIZE):
         chunk = candidates[start:start + SCORING_CHUNK_SIZE]
         sheet = build_candidate_contact_sheet(image, chunk, padding=padding)
         with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as f:
             sheet.save(f, format="PNG")
-            tmp_path = Path(f.name)
+            chunk_sheets.append((start, len(chunk), Path(f.name)))
         sheet.close()
-        try:
-            response = llm.generate_with_resource(
-                "Score the numbered candidate crops for plausible hidden-object placement. Return all ids.",
-                resource_path=tmp_path,
-                temperature=0.0,
-                max_tokens=max(1200, min(4000, len(chunk) * 90)),
-            )
-            scores.extend(response.candidates)
-        except Exception as exc:  # noqa: BLE001
-            # Salvage partial results (fresh-review P3 — ledger 054 #35): a
-            # later chunk failing used to discard the PAID earlier chunks and
-            # fail the whole request. Unscored candidates simply don't rank;
-            # the caller still enforces its selected >= n gate. Only a total
-            # wipeout (no scores at all) surfaces as a failure.
-            last_chunk_error = exc
-            logger.warning(
-                "vision scoring chunk %d-%d failed (%s); continuing with %d scored so far",
-                start, start + len(chunk) - 1, exc, len(scores),
-            )
-        finally:
+
+    def _score_chunk(chunk_len: int, tmp_path: Path) -> list[CandidateScore]:
+        response = llm.generate_with_resource(
+            "Score the numbered candidate crops for plausible hidden-object placement. Return all ids.",
+            resource_path=tmp_path,
+            temperature=0.0,
+            max_tokens=max(1200, min(4000, chunk_len * 90)),
+        )
+        return list(response.candidates)
+
+    scores: list[CandidateScore] = []
+    last_chunk_error: Exception | None = None
+    # Chunks are independent; a bounded pool turns N serial vision round-trips
+    # into ~1 wall-clock round-trip. Results are collected in start order so
+    # scoring stays deterministic.
+    from concurrent.futures import ThreadPoolExecutor
+    try:
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            futures = [
+                (start, pool.submit(_score_chunk, chunk_len, tmp_path))
+                for start, chunk_len, tmp_path in chunk_sheets
+            ]
+            for start, future in futures:
+                try:
+                    scores.extend(future.result())
+                except Exception as exc:  # noqa: BLE001
+                    # Salvage partial results (fresh-review P3 — ledger 054 #35): a
+                    # later chunk failing used to discard the PAID earlier chunks and
+                    # fail the whole request. Unscored candidates simply don't rank;
+                    # the caller still enforces its selected >= n gate. Only a total
+                    # wipeout (no scores at all) surfaces as a failure.
+                    last_chunk_error = exc
+                    logger.warning(
+                        "vision scoring chunk %d failed (%s); continuing with %d scored so far",
+                        start, exc, len(scores),
+                    )
+    finally:
+        for _start, _len, tmp_path in chunk_sheets:
             tmp_path.unlink(missing_ok=True)
     if not scores and last_chunk_error is not None:
         raise last_chunk_error
@@ -371,7 +394,10 @@ def smart_place_hitboxes(
             radius=radius,
             forbidden=forbidden,
             seed=seed,
-            count=max(candidate_count, n * 4),
+            # Floor of 2 alternatives per requested hitbox; the old n*4 floor
+            # silently ballooned a 16-bird level to 64 candidates and doubled
+            # the paid scoring calls past the declared default of 36.
+            count=max(candidate_count, n * 2),
             padding=padding,
         )
         if len(candidates) < n:

@@ -155,7 +155,7 @@ def _build_scene_prompt(
     game_title = f"Find the {entity_noun.title()}"
     target_plural = f"{entity_noun}s"
     blocks = [
-        f"[Purpose]\nCreate a full-bleed portrait mobile-game background for {game_title}.",
+        f"[Purpose]\nCreate a full-bleed mobile-game background for {game_title}.",
         f"[Short Description]\n{short_description}",
         f"[Scene] {content_prompt}",
         f"[View] {view_prompt}",
