@@ -1,0 +1,312 @@
+{
+  "run_id": "yolo-folds-composite-conf0.1",
+  "timestamp": "2026-08-05T16:12:37+00:00",
+  "notes": "yolo11m LOFO composite conf>=0.1 tiled",
+  "meta": {
+    "backend": "yolo11m LOFO composite",
+    "weights": "4 fold best.pt",
+    "params": null,
+    "conf": 0.1,
+    "timings_s_total": 0,
+    "gpu_mem_mb": null
+  },
+  "golden_total": 412,
+  "candidates_total": 1593,
+  "recall": 0.941747572815534,
+  "precision": 0.448210922787194,
+  "center_err_px4096": 32.67340742687514,
+  "radius_fit": 0.15363479634352495,
+  "duplicates": 327,
+  "excluded_unlabeled": [
+    "ancient_forest_creek_autumn_pond_reeds_bird_da7e"
+  ],
+  "per_level": {
+    "ad_campaigns_ad_autumn_forest_bird_389c": {
+      "golden": 16,
+      "candidates": 32,
+      "found": 16,
+      "missed": [],
+      "false_positives": 9,
+      "duplicates": 7,
+      "recall": 1.0,
+      "precision": 0.71875,
+      "center_err_px4096": 37.1457410131443,
+      "radius_fit": 0.0
+    },
+    "ad_campaigns_ad_autumn_forest_bird_native2k": {
+      "golden": 16,
+      "candidates": 50,
+      "found": 16,
+      "missed": [],
+      "false_positives": 21,
+      "duplicates": 13,
+      "recall": 1.0,
+      "precision": 0.58,
+      "center_err_px4096": 32.24251162313928,
+      "radius_fit": 0.20833333333333334
+    },
+    "ad_campaigns_ad_autumn_forest_bird_poststretch2": {
+      "golden": 14,
+      "candidates": 61,
+      "found": 14,
+      "missed": [],
+      "false_positives": 33,
+      "duplicates": 14,
+      "recall": 1.0,
+      "precision": 0.45901639344262296,
+      "center_err_px4096": 32.82251092352113,
+      "radius_fit": 0.07446808510638296
+    },
+    "ad_campaigns_ad_bazaar_alley_bird_3663": {
+      "golden": 25,
+      "candidates": 93,
+      "found": 25,
+      "missed": [],
+      "false_positives": 47,
+      "duplicates": 21,
+      "recall": 1.0,
+      "precision": 0.4946236559139785,
+      "center_err_px4096": 21.9039823592011,
+      "radius_fit": 0.0
+    },
+    "ad_campaigns_ad_castle_market_bird_9721": {
+      "golden": 17,
+      "candidates": 86,
+      "found": 16,
+      "missed": [
+        "b22ee462-b063-5477-bd65-63b86365d08a"
+      ],
+      "false_positives": 59,
+      "duplicates": 11,
+      "recall": 0.9411764705882353,
+      "precision": 0.313953488372093,
+      "center_err_px4096": 25.199889405207397,
+      "radius_fit": 0.0
+    },
+    "ad_campaigns_ad_japanese_garden_bird_cd3d": {
+      "golden": 17,
+      "candidates": 74,
+      "found": 16,
+      "missed": [
+        "9cedb2e6-6024-560c-b151-753be035d6d6"
+      ],
+      "false_positives": 44,
+      "duplicates": 14,
+      "recall": 0.9411764705882353,
+      "precision": 0.40540540540540543,
+      "center_err_px4096": 42.38429622584972,
+      "radius_fit": 0.0
+    },
+    "ad_campaigns_ad_snowy_chalet_bird_c64d": {
+      "golden": 20,
+      "candidates": 107,
+      "found": 20,
+      "missed": [],
+      "false_positives": 71,
+      "duplicates": 16,
+      "recall": 1.0,
+      "precision": 0.3364485981308411,
+      "center_err_px4096": 22.38753207129252,
+      "radius_fit": 0.0
+    },
+    "ad_campaigns_ad_treehouse_village_bird_30fd": {
+      "golden": 20,
+      "candidates": 70,
+      "found": 18,
+      "missed": [
+        "300266c8-9642-5baf-8ec0-de5c8a2319b3",
+        "9d492580-1fe0-57f4-9de2-748bd038bce4"
+      ],
+      "false_positives": 32,
+      "duplicates": 20,
+      "recall": 0.9,
+      "precision": 0.5428571428571428,
+      "center_err_px4096": 27.609459505299558,
+      "radius_fit": 0.0
+    },
+    "alpine_meadow_cheese_farm_courtyard_bird_50c1": {
+      "golden": 24,
+      "candidates": 74,
+      "found": 21,
+      "missed": [
+        "3116ce4e-4893-5ca9-bbbd-cfe7737e210a",
+        "4a58a311-4e7f-5555-812d-885402a2bf74",
+        "895a9607-a309-5d66-affb-56a380fb6a78"
+      ],
+      "false_positives": 31,
+      "duplicates": 22,
+      "recall": 0.875,
+      "precision": 0.581081081081081,
+      "center_err_px4096": 28.842743854632815,
+      "radius_fit": 0.0
+    },
+    "alpine_meadow_goat_pasture_terraces_bird_6dff": {
+      "golden": 23,
+      "candidates": 175,
+      "found": 23,
+      "missed": [],
+      "false_positives": 135,
+      "duplicates": 17,
+      "recall": 1.0,
+      "precision": 0.22857142857142856,
+      "center_err_px4096": 37.52289893444004,
+      "radius_fit": 0.0
+    },
+    "alpine_meadow_herb_market_garden_bird_cf51": {
+      "golden": 17,
+      "candidates": 72,
+      "found": 13,
+      "missed": [
+        "f8dfe733-9e89-5da2-823d-b86b963d0efd",
+        "6c78c095-079c-57c9-bade-3dec56789645",
+        "0fba8f30-4956-5d7c-b09f-8fdb0894fa67",
+        "f9665128-63ad-59da-af05-571f55865285"
+      ],
+      "false_positives": 46,
+      "duplicates": 13,
+      "recall": 0.7647058823529411,
+      "precision": 0.3611111111111111,
+      "center_err_px4096": 31.96305734184679,
+      "radius_fit": 0.0
+    },
+    "alpine_meadow_snowmelt_creek_bridges_bird_5c36": {
+      "golden": 20,
+      "candidates": 62,
+      "found": 20,
+      "missed": [],
+      "false_positives": 27,
+      "duplicates": 15,
+      "recall": 1.0,
+      "precision": 0.5645161290322581,
+      "center_err_px4096": 31.80911479421302,
+      "radius_fit": 0.0
+    },
+    "fairytale_forest_fairy_ring_picnic_bird_9ed2": {
+      "golden": 24,
+      "candidates": 70,
+      "found": 19,
+      "missed": [
+        "b7b807d9-8a4d-5751-bb1c-3f51ac93314e",
+        "f050b492-37d9-5880-b89b-247432a4d23a",
+        "786bd936-ae4c-585d-9ed7-ea37b37febed",
+        "aa2d40d2-c3dd-5ce6-b180-0edf9c693803",
+        "dc55bae4-6254-5533-935c-d4c06e3c4f7e"
+      ],
+      "false_positives": 39,
+      "duplicates": 13,
+      "recall": 0.7916666666666666,
+      "precision": 0.44285714285714284,
+      "center_err_px4096": 66.20146323995147,
+      "radius_fit": 0.3958333333333333
+    },
+    "hawaii_north_shore_surf_shack_bird_51c1": {
+      "golden": 20,
+      "candidates": 81,
+      "found": 20,
+      "missed": [],
+      "false_positives": 22,
+      "duplicates": 39,
+      "recall": 1.0,
+      "precision": 0.7283950617283951,
+      "center_err_px4096": 26.982861270986085,
+      "radius_fit": 0.3872023809523809
+    },
+    "hawaii_rainforest_waterfall_bird_4453": {
+      "golden": 18,
+      "candidates": 63,
+      "found": 16,
+      "missed": [
+        "cc99b902-d61a-5457-a529-e592596223bf",
+        "cb1911da-b2af-55a9-9c5a-9d214e0cfc34"
+      ],
+      "false_positives": 25,
+      "duplicates": 22,
+      "recall": 0.8888888888888888,
+      "precision": 0.6031746031746031,
+      "center_err_px4096": 48.618573256285906,
+      "radius_fit": 0.3958333333333333
+    },
+    "italy_amalfi_cliff_lemons_bird_5a1c": {
+      "golden": 23,
+      "candidates": 89,
+      "found": 23,
+      "missed": [],
+      "false_positives": 48,
+      "duplicates": 18,
+      "recall": 1.0,
+      "precision": 0.4606741573033708,
+      "center_err_px4096": 28.66009805588079,
+      "radius_fit": 0.2575800915331808
+    },
+    "italy_tuscan_hill_village_bird_a61f": {
+      "golden": 20,
+      "candidates": 59,
+      "found": 18,
+      "missed": [
+        "65494fac-2bd4-5576-bf53-844111d04475",
+        "5706c15d-f58a-5d9f-adc8-e528968b8a63"
+      ],
+      "false_positives": 23,
+      "duplicates": 18,
+      "recall": 0.9,
+      "precision": 0.6101694915254238,
+      "center_err_px4096": 26.52771565321941,
+      "radius_fit": 0.23293910241917098
+    },
+    "mexico_dia_de_muertos_plaza_bird_8d56": {
+      "golden": 22,
+      "candidates": 74,
+      "found": 21,
+      "missed": [
+        "308492ba-4455-5939-afc2-7d4c28223818"
+      ],
+      "false_positives": 40,
+      "duplicates": 13,
+      "recall": 0.9545454545454546,
+      "precision": 0.4594594594594595,
+      "center_err_px4096": 26.60151053291956,
+      "radius_fit": 0.24782790300317328
+    },
+    "mexico_yucatan_cenote_ruins_bird_b8be": {
+      "golden": 17,
+      "candidates": 35,
+      "found": 16,
+      "missed": [
+        "f2df2c4d-1804-410e-ba62-dac816f439ce"
+      ],
+      "false_positives": 14,
+      "duplicates": 5,
+      "recall": 0.9411764705882353,
+      "precision": 0.6,
+      "center_err_px4096": 36.76497831813602,
+      "radius_fit": 0.5111111111111111
+    },
+    "pirate_shipwreck_island_broken_bow_lagoon_bird_ae98": {
+      "golden": 20,
+      "candidates": 139,
+      "found": 18,
+      "missed": [
+        "b4a62c34-83a1-48cc-8094-b52f8e8d2467",
+        "c4b53d09-3358-41ba-9092-737ab262637b"
+      ],
+      "false_positives": 106,
+      "duplicates": 15,
+      "recall": 0.9,
+      "precision": 0.23741007194244604,
+      "center_err_px4096": 33.223413000561465,
+      "radius_fit": 0.03710432816537468
+    },
+    "pirate_shipwreck_island_treasure_cove_camp_bird_13c5": {
+      "golden": 19,
+      "candidates": 27,
+      "found": 19,
+      "missed": [],
+      "false_positives": 7,
+      "duplicates": 1,
+      "recall": 1.0,
+      "precision": 0.7407407407407407,
+      "center_err_px4096": 31.05436939740839,
+      "radius_fit": 0.5111111111111111
+    }
+  }
+}

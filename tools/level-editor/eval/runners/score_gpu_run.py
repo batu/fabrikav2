@@ -26,8 +26,10 @@ def main() -> None:
 
     raw_dir = EVAL_DIR / "results" / args.run_name / "raw"
     raw_dir.mkdir(parents=True, exist_ok=True)
-    subprocess.run(["rsync", "-a", f"{args.host}:hitbox-lab/runs/{args.run_name}/",
-                    str(raw_dir) + "/"], check=True)
+    rs = subprocess.run(["rsync", "-a", f"{args.host}:hitbox-lab/runs/{args.run_name}/",
+                         str(raw_dir) + "/"])
+    if rs.returncode != 0 and not any(raw_dir.glob("*.json")):
+        raise SystemExit(f"no remote run and no local raw boxes in {raw_dir}")
 
     manifest = json.loads((GOLDEN_DIR / "manifest.json").read_text())
     run_meta = json.loads((raw_dir / "_run.json").read_text())
