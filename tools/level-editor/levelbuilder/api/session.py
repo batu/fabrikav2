@@ -3297,6 +3297,60 @@ def _write_native_source_package(
                 pass
 
 
+def _require_local_alignment(sdir: Path, raw: dict, *, max_shift: int = 8) -> None:
+    """Refuse export when the painted scene is spatially warped vs the clean bg.
+
+    Verified live 2026-08-05 ("the docks are pasted offset"): a sizeless
+    OpenAI edits call returned a non-square canvas that edit_image stretched
+    back to 4096², displacing content by up to ~190px near the edges while
+    the image CENTER stayed aligned — so whole-image/quadrant shift checks
+    read 0. Restore patches cut from the undistorted clean bg then land
+    visibly offset on pickup. Probe a 3x3 grid of local windows with phase
+    correlation; any window shifted beyond max_shift px fails the export.
+    """
+    import numpy as _np
+
+    color_path = sdir / "color.png"
+    selected = raw.get("selected_bg") or 0
+    bg_path = sdir / f"bg_{int(selected):02d}.png"
+    if not color_path.exists() or not bg_path.exists():
+        return
+    with Image.open(color_path) as _c:
+        color = _c.convert("L")
+        with Image.open(bg_path) as _b:
+            clean = _b.convert("L")
+            if clean.size != color.size:
+                clean = clean.resize(color.size, Image.LANCZOS)
+            ca = _np.asarray(color, dtype=_np.float64)
+            ba = _np.asarray(clean, dtype=_np.float64)
+    H, W = ca.shape
+    win_h, win_w = H // 4, W // 4
+    bad: list[str] = []
+    for gy in range(3):
+        for gx in range(3):
+            y0 = (H - win_h) * gy // 2
+            x0 = (W - win_w) * gx // 2
+            a = ca[y0:y0 + win_h, x0:x0 + win_w]
+            b = ba[y0:y0 + win_h, x0:x0 + win_w]
+            fa, fb = _np.fft.fft2(a - a.mean()), _np.fft.fft2(b - b.mean())
+            spec = fa * _np.conj(fb)
+            spec /= _np.abs(spec) + 1e-9
+            corr = _np.abs(_np.fft.ifft2(spec))
+            dy, dx = _np.unravel_index(int(_np.argmax(corr)), corr.shape)
+            if dy > win_h // 2:
+                dy -= win_h
+            if dx > win_w // 2:
+                dx -= win_w
+            if abs(int(dx)) > max_shift or abs(int(dy)) > max_shift:
+                bad.append(f"grid({gx},{gy}) shift=({int(dx)},{int(dy)})")
+    if bad:
+        raise LevelNotReadyError(
+            "painted scene is spatially misaligned with the clean background "
+            f"(warped/stretched paint output): {', '.join(bad)}. "
+            "Regenerate the paint with an aspect-preserving model call before exporting."
+        )
+
+
 def _write_birdless_restore_bg(sdir: Path, dst: Path, raw: dict, level_data: dict) -> None:
     """Whole-image paint modes ship a restore background that is the PAINTED
     scene minus birds, at full scene resolution.
@@ -3640,6 +3694,7 @@ def export_to_game(
         # Same stale-derivative invalidation as color.webp above (054 #1).
         (dst / bg_src.name).with_suffix(".webp").unlink(missing_ok=True)
     if whole_image:
+        _require_local_alignment(sdir, raw)
         _write_birdless_restore_bg(sdir, dst, raw, level_data)
     # Bundle derivatives are part of the export so catalog snapshots always
     # match what ships: 2560/q70 webp for scene + restore bg.
