@@ -43,11 +43,20 @@ class TestSquareDeadzones:
         # The portrait CROP_L/CROP_R strips must NOT appear on squares: a
         # pannable square is never side-cropped, and scaled strips would
         # blank ~12% of the world on each side for no reason.
+        #
+        # 2026-08-05 amendment: a deliberate 6% edge-artifact margin per side
+        # IS allowed (SQUARE_SIDE_MARGIN_FRACTION) — the magenta send crop
+        # excludes those strips because paint models displace content at the
+        # frame edges, so placement must exclude them too. The guard now pins
+        # the side strips to exactly that fraction so the old fat portrait
+        # strips can never come back.
+        from levelbuilder.sections import SQUARE_SIDE_MARGIN_FRACTION
         zones = _square_deadzones(4096, 4096)
-        full_height_side = [
-            z for z in zones if z.h >= 4000 and z.w < 1000
-        ]
-        assert full_height_side == []
+        side_strips = [z for z in zones if z.h >= 4000 and z.w < 1000]
+        expected_w = int(4096 * SQUARE_SIDE_MARGIN_FRACTION)
+        assert SQUARE_SIDE_MARGIN_FRACTION <= 0.08
+        assert len(side_strips) == 2
+        assert all(z.w == expected_w for z in side_strips)
 
     def test_center_area_free(self):
         zones = _square_deadzones(4096, 4096)
