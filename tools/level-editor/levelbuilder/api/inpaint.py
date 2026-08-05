@@ -4992,15 +4992,19 @@ def _chrome_band_heights(width: int, height: int) -> tuple[int, int]:
 
 def _chrome_crop_box(width: int, height: int) -> tuple[int, int, int, int]:
     """(left, top, right, bottom) crop box for the magenta send region.
-    Sides come from sections.SQUARE_SIDE_MARGIN_FRACTION (edge-artifact
-    buffer — see its docstring), top/bottom from the chrome bands. Full
-    frame for non-square scenes."""
+    The region is SQUARE: height = between the chrome bands, width trimmed
+    to match via sections.square_send_side_margin (models honor 1:1 far
+    more reliably than odd aspects, and the aspect guard bills every
+    refused draw). Full frame for non-square scenes."""
     band_top, band_bottom = _chrome_band_heights(width, height)
     if not (band_top or band_bottom):
         return (0, 0, width, height)
-    from levelbuilder.sections import SQUARE_SIDE_MARGIN_FRACTION
-    side = int(width * SQUARE_SIDE_MARGIN_FRACTION)
-    return (side, band_top, width - side, height - band_bottom)
+    from levelbuilder.sections import square_send_side_margin
+    side = square_send_side_margin(width, height)
+    inner_h = height - band_top - band_bottom
+    left = side
+    right = min(width - side, left + inner_h)
+    return (left, band_top, right, height - band_bottom)
 
 
 def detect_painted_subjects(

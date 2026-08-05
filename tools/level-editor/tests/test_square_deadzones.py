@@ -28,10 +28,10 @@ class TestSquareDeadzones:
         assert banner.y == 4096 - int(4096 * BANNER_FRACTION)
         assert banner.h == int(4096 * BANNER_FRACTION)
         # Side edge-artifact margins mirror the magenta send crop
-        # (sections.SQUARE_SIDE_MARGIN_FRACTION): hitboxes placed there
-        # would never receive paint.
-        from levelbuilder.sections import SQUARE_SIDE_MARGIN_FRACTION
-        side = int(4096 * SQUARE_SIDE_MARGIN_FRACTION)
+        # (sections.square_send_side_margin — sized to make the send region
+        # SQUARE): hitboxes placed there would never receive paint.
+        from levelbuilder.sections import square_send_side_margin
+        side = square_send_side_margin(4096, 4096)
         assert (left.x, left.w, left.h) == (0, side, 4096)
         assert (right.x, right.w, right.h) == (4096 - side, side, 4096)
         # Hint chip hugs the bottom-right, above the banner band.
@@ -50,11 +50,13 @@ class TestSquareDeadzones:
         # frame edges, so placement must exclude them too. The guard now pins
         # the side strips to exactly that fraction so the old fat portrait
         # strips can never come back.
-        from levelbuilder.sections import SQUARE_SIDE_MARGIN_FRACTION
+        from levelbuilder.sections import square_send_side_margin
         zones = _square_deadzones(4096, 4096)
         side_strips = [z for z in zones if z.h >= 4000 and z.w < 1000]
-        expected_w = int(4096 * SQUARE_SIDE_MARGIN_FRACTION)
-        assert SQUARE_SIDE_MARGIN_FRACTION <= 0.08
+        expected_w = square_send_side_margin(4096, 4096)
+        # Margin is whatever makes the send region square, but never the fat
+        # ~12% portrait strips on BOTH sides combined beyond ~25% of width.
+        assert expected_w * 2 <= 4096 * 0.25
         assert len(side_strips) == 2
         assert all(z.w == expected_w for z in side_strips)
 

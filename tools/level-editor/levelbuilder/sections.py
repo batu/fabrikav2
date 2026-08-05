@@ -35,6 +35,17 @@ BANNER_FRACTION = 0.071
 # playable; this is an edge-artifact buffer only.
 SQUARE_SIDE_MARGIN_FRACTION = 0.06
 
+
+def square_send_side_margin(width: int, height: int) -> int:
+    """Side margin that makes the magenta send region SQUARE: the region
+    between the HUD and banner bands is the send height, and the sides are
+    trimmed until width matches it (never below the minimum edge-artifact
+    fraction). Models comply with 1:1 far more reliably than with odd
+    aspects, and the aspect guard hard-fails mismatches — a square send
+    minimizes refused (billed) draws."""
+    inner_h = height - int(height * HUD_FRACTION) - int(height * BANNER_FRACTION)
+    return max(int(width * SQUARE_SIDE_MARGIN_FRACTION), (width - inner_h) // 2)
+
 # Buffer on each side of a shared section boundary where dogs should not be placed —
 # ensures a dog is always fully inside one section's visible slice during the camera pan.
 SECTION_BOUNDARY_BUFFER = 60

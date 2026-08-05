@@ -1760,8 +1760,8 @@ def _square_deadzones(bg_w: int, bg_h: int) -> list:
     chip = next(z for z in PORTRAIT_REFERENCE_DEADZONES if z[0] == "HINT_CHIP")
     _, cx, _cy, cw, ch = chip
     chip_w, chip_h = int(cw * s), int(ch * s)
-    from levelbuilder.sections import SQUARE_SIDE_MARGIN_FRACTION
-    side = int(bg_w * SQUARE_SIDE_MARGIN_FRACTION)
+    from levelbuilder.sections import square_send_side_margin
+    side = square_send_side_margin(bg_w, bg_h)
     return [
         Rect(x=0, y=0, w=bg_w, h=hud),
         Rect(x=0, y=bg_h - banner, w=bg_w, h=banner),
