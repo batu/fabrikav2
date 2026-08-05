@@ -338,7 +338,10 @@ def flatkey_recreate_sprites_batch(
     if pending:
         pending = _run(pending, 2)
     for idx in pending:
-        single = flatkey_recreate_sprite(crops[idx], model=model)
+        try:
+            single = flatkey_recreate_sprite(crops[idx], model=model)
+        except Exception:
+            single = None
         if single is not None:
             results[idx] = single
     return results

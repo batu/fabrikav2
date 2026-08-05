@@ -2813,13 +2813,21 @@ def materialize_detection_sprites(
                 batch_crops[index] = color.crop(box)
             if batch_crops:
                 if grid_n >= 2:
-                    prebatched = flatkey_recreate_sprites_batch(
-                        batch_crops, model=flatkey_model, grid=grid_n,
-                    )
+                    # Fail-soft like the old per-dog path: a provider outage
+                    # degrades to the free extractor chain, never an abort.
+                    try:
+                        prebatched = flatkey_recreate_sprites_batch(
+                            batch_crops, model=flatkey_model, grid=grid_n,
+                        )
+                    except Exception:
+                        prebatched = {}
                 else:  # FTD_FLATKEY_GRID=1: force the single-call path
+                    from levelbuilder.api.flatkey import flatkey_recreate_sprite
                     for index, crop in batch_crops.items():
-                        from levelbuilder.api.flatkey import flatkey_recreate_sprite
-                        single = flatkey_recreate_sprite(crop, model=flatkey_model)
+                        try:
+                            single = flatkey_recreate_sprite(crop, model=flatkey_model)
+                        except Exception:
+                            single = None
                         if single is not None:
                             prebatched[index] = single
         with ThreadPoolExecutor(max_workers=max_workers) as pool:
