@@ -224,7 +224,7 @@ export function useInpaintStream() {
         bundledInApp: false,
       }));
 
-      if (mode === 'crop' || mode === 'crop_reference') {
+      if (mode === 'crop') {
         void (async () => {
           try {
             const job = await startCropInpaintJob(

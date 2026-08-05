@@ -66,12 +66,6 @@ const INPAINT_APPROACHES: InpaintApproach[] = [
     description: 'Fastest controlled path. Sends only each padded hitbox crop and keeps per-entity variants.',
   },
   {
-    id: 'crop_reference',
-    label: 'Full ref + crop',
-    meta: 'N reference calls',
-    description: 'Sends the full scene as context beside each crop, then extracts the edited crop back into the level.',
-  },
-  {
     id: 'magenta',
     label: 'Magenta full scene',
     meta: '1 scene call',
@@ -152,7 +146,7 @@ export default function StepPlaceDogs({
   const [visibilityIssues, setVisibilityIssues] = useState<VisibilityIssue[]>([]);
   const [inpaintMode, setInpaintMode] = useState<InpaintMode>(() => {
     const saved = localStorage.getItem('ftd.inpaintMode');
-    return saved === 'magenta' || saved === 'crop_reference' ? saved : 'crop';
+    return saved === 'crop' ? saved : 'magenta';
   });
   const inpaintModels = getInpaintModels(config);
   const visibleInpaintModels = inpaintMode !== 'crop'
@@ -422,11 +416,9 @@ export default function StepPlaceDogs({
             </span>
           </label>
           <div className="recipe-note">
-            {inpaintMode === 'crop_reference'
-              ? 'Full reference + crop uses each crop as the editable panel and the full scene as visual context.'
-              : inpaintMode === 'magenta'
-                ? 'Magenta mode ignores crop padding and creates one full-scene edit for all targets.'
-                : 'Crop mode sends only the padded crop for each target and keeps the most predictable variant workflow.'}
+            {inpaintMode === 'magenta'
+              ? 'Magenta mode ignores crop padding and creates one full-scene edit for all targets (canonical, see PIPELINE.md).'
+              : 'Crop mode sends only the padded crop for each target and keeps the most predictable variant workflow.'}
             {includeStyleInInpaintPrompt && stylePrompt ? ' Style text is appended to the inpaint prompt.' : ''}
             {settingPrompt ? ' Setting context is appended automatically.' : ''}
           </div>
