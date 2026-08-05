@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "game": {
+    "slug": "find-the-bird",
+    "title": "Find the Bird",
+    "portal_version": "2026.08.06-1",
+    "description": "Find hidden birds in hand-drawn scenes.",
+    "previous_portal_release": null,
+    "changelog_basis": "Initial release"
+  },
+  "source": {
+    "repo": "/Users/base/dev/appletolye/fabrikav2",
+    "worktree": "/Users/base/dev/appletolye/fabrikav2/.worktrees/ftb-portal-release",
+    "branch": "feat/ftb-portal-release",
+    "revision": "8d98445d0a633fc8ff4a7a8c66223dc1cb213c36",
+    "revision_committed_at": "2026-08-06T01:01:49+03:00",
+    "tracked_files_clean_at_build": true,
+    "generated_untracked_path_after_build": "games/find_the_bird/dist-portal/"
+  },
+  "production_environment": {
+    "mode": "ios",
+    "harness_enabled": false,
+    "capacitor_debug": false,
+    "commands": [
+      "npm run build:ios",
+      "npm run ios:sync",
+      "xcodebuild -quiet -workspace ios/App/App.xcworkspace -scheme App -configuration Release -sdk iphoneos -derivedDataPath ios/App/build DEVELOPMENT_TEAM=42L77JAX72 PRODUCT_BUNDLE_IDENTIFIER=com.baseardahan.hiddenobj CODE_SIGN_STYLE=Automatic build",
+      "npx vite build --mode ios --base ./ --outDir dist-portal"
+    ]
+  },
+  "native_artifact": {
+    "filename": "find-the-bird-8d98445d-release.app.zip",
+    "local_path": "/private/tmp/ftb-portal-candidate/find-the-bird-8d98445d-release.app.zip",
+    "bytes": 48206582,
+    "sha256": "d88ad44d7b25a00e0000de79f973065f65f7ac0687820d14cef1666dcd2f63cd",
+    "app_bundle_tree_sha256": "eb81ac3b9d557a6aec2d0811c620b4bd27f166083bd0712d255598fd4d24da2f",
+    "bundle_id": "com.baseardahan.hiddenobj",
+    "marketing_version": "1.0",
+    "build_number": "1",
+    "configuration": "Release",
+    "signing_state": "Apple Development signed; codesign verification passed",
+    "distribution_state": "local candidate only"
+  },
+  "web_preview": {
+    "filename": "find-the-bird-8d98445d-web-public.zip",
+    "local_path": "/private/tmp/ftb-portal-candidate/find-the-bird-8d98445d-web-public.zip",
+    "bytes": 42144178,
+    "sha256": "f53c3c1e50d504ee86cbce369d1f36f76e40ee675fed7ccc817f1ffae2e0d25e",
+    "file_count": 199,
+    "expanded_bytes": 52689256,
+    "source_maps_included": false,
+    "portal_rewrite_files": 4,
+    "unresolved_owned_references": 0,
+    "nested_preview_inspected": true
+  },
+  "gameplay_capture": {
+    "filename": "gameplay.mp4",
+    "local_path": "/private/tmp/ftb-portal-candidate/gameplay.mp4",
+    "bytes": 1296667,
+    "sha256": "35d5dd88726947a9b486c881d51e16ada295d32d5e096c903a0b206529d1b5a3",
+    "captured_at": "2026-08-05T23:49:19+03:00",
+    "platform": "Chromium browser at 390x844",
+    "duration_seconds": 18.44,
+    "classification": "diagnostic_only",
+    "satisfies_publication_gate": false
+  },
+  "poster": {
+    "filename": "poster.jpg",
+    "local_path": "/private/tmp/ftb-portal-candidate/poster.jpg",
+    "bytes": 98644,
+    "sha256": "97aa7313a4655af5c5e50156d01635a5e22e01c5081b265f4b1d387002de2431",
+    "captured_at": "2026-08-05T23:49:18+03:00",
+    "dimensions": "1200x630",
+    "classification": "diagnostic_only",
+    "satisfies_publication_gate": false
+  },
+  "canonical_campaign": {
+    "authority": "games/find_the_bird/tests/unit/five-square-campaign.test.ts",
+    "level_ids": [
+      "ad_campaigns_ad_autumn_forest_bird_native2k",
+      "ad_campaigns_ad_autumn_forest_bird_poststretch2"
+    ],
+    "quality_state": "blocked",
+    "blocker": "Both canonical scene images visibly contain baked QA labels. Replacing them with older pre-canonical levels would violate current repository authority."
+  },
+  "device_capture": {
+    "required": true,
+    "state": "blocked",
+    "physical_device": "Batu's iPhone, iPhone 12",
+    "coredevice_identifier": "2D894791-A5A3-58BE-9C88-AE0AF08B8C09",
+    "udid": "00008101-000410EC3EF9001E",
+    "queried_at": "2026-08-06T01:24:04+03:00",
+    "observed_state": "unavailable and offline",
+    "installed_build_identity": null,
+    "production_capture": null
+  },
+  "portal": {
+    "queried_at": "2026-08-06T01:24:04+03:00",
+    "existing_game_record": false,
+    "publication_state": "blocked",
+    "published": false,
+    "live_urls": null,
+    "live_readback_hashes": null
+  },
+  "distribution": {
+    "portal": "not published",
+    "testflight": "not queried or changed",
+    "app_store": "not queried or changed"
+  },
+  "required_next_gates": [
+    "Regenerate the two canonical campaign scenes without baked QA labels through the current canonical pipeline.",
+    "Rebuild the harness-free candidate from a new clean revision.",
+    "Install that exact artifact on the named physical device and record matching build identity and normal-speed gameplay.",
+    "Derive and inspect the release poster from that production capture.",
+    "Publish only after explicit production authorization, then verify all live bytes and rendered surfaces."
+  ]
+}
