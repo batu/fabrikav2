@@ -124,40 +124,55 @@ if (typeof window !== 'undefined') {
   const TAP_WINDOW_MS = 600;
   const TAPS_REQUIRED = 4;
 
-  // The 4-tap debug panel previously housed the screenshot-capture button.
-  // Per card PscoX2dh, capture moved into Settings. Keeping the 4-tap
-  // listener in place as a reserved gesture for future dev affordances
-  // without re-adding the panel plumbing that had only one tenant.
-  window.addEventListener('pointerup', (): void => {
-    const now = Date.now();
-    if (now - lastTapTime > TAP_WINDOW_MS) tapCount = 0;
-    tapCount += 1;
-    lastTapTime = now;
-    if (tapCount >= TAPS_REQUIRED) {
-      tapCount = 0;
-      // Pickup-style cycler (map #18 evaluation): 4 taps advances
-      // classic → juiced → dissolve → peel, persists the choice, and applies
-      // it to the running GameScene so styles can be compared on device.
-      const styles = ['classic', 'juiced', 'dissolve', 'peel'] as const;
-      // Session-only cycling: persisting the choice overrode the shipped
-      // default across app updates (observed on build 6).
-      const current = (window as unknown as { __ftbPickupStyle?: string }).__ftbPickupStyle ?? 'dissolve';
-      const next = styles[(styles.indexOf(current as typeof styles[number]) + 1) % styles.length];
-      (window as unknown as { __ftbPickupStyle?: string }).__ftbPickupStyle = next;
-      window.localStorage.removeItem('ftb.pickupStyle');
-      for (const scene of game.scene.getScenes(true)) {
-        (scene as Partial<{ setPickupStyleForTest: (s: typeof styles[number]) => void }>)
-          .setPickupStyleForTest?.(next);
-      }
-      const toast = document.createElement('div');
-      toast.textContent = `pickup: ${next}`;
-      toast.style.cssText = 'position:fixed;top:12%;left:50%;transform:translateX(-50%);'
-        + 'background:rgba(0,0,0,.75);color:#fff;padding:6px 14px;border-radius:14px;'
-        + 'font:600 14px system-ui;z-index:9999;pointer-events:none;';
-      document.body.appendChild(toast);
-      window.setTimeout(() => toast.remove(), 1400);
+  // The 4-tap pickup-style cycler was removed 2026-08-05 (Batu: single
+  // shipped style, accidental triggers during play were confusing A/B
+  // sessions). Reserved-gesture plumbing removed with it.
+  void tapCount; void lastTapTime; void TAP_WINDOW_MS; void TAPS_REQUIRED;
+
+  // TEMPORARY level-skip button for the level-variant A/B campaign: the
+  // player must be able to reach later variant levels even when an earlier
+  // variant's hitboxes are broken. Remove before any public build.
+  const skipBtn = document.createElement('button');
+  skipBtn.textContent = 'next ▸';
+  skipBtn.style.cssText = 'position:fixed;top:max(env(safe-area-inset-top,0px),8px);right:8px;'
+    + 'background:rgba(0,0,0,.6);color:#fff;border:0;padding:6px 12px;border-radius:12px;'
+    + 'font:700 13px system-ui;z-index:9999;';
+  skipBtn.addEventListener('click', (): void => {
+    for (const scene of game.scene.getScenes(true)) {
+      const s = scene as Partial<{ skipLevelForTest: () => void }>;
+      if (s.skipLevelForTest !== undefined) { s.skipLevelForTest(); return; }
     }
   });
+  document.body.appendChild(skipBtn);
+
+  // TEMPORARY variant-label overlay for the level A/B campaign: names the
+  // pipeline variant of the level being played so on-device judgments can
+  // be attributed. Remove together with the skip button.
+  const VARIANT_LABELS: Record<string, string> = {
+    ad_campaigns_ad_autumn_forest_bird_389c_v1oai: 'V1 LANE: openai masked crop — seamless pickups',
+    ad_campaigns_ad_autumn_forest_bird_389c_v1oai2: 'V1 LANE v2-code: openai crop, fixed PNG client',
+    ad_campaigns_ad_autumn_forest_bird_389c_v1refoai: 'V1 LANE + reference sheet (known junk birds)',
+    ad_campaigns_ad_autumn_forest_bird_389c_v1code: 'ACTUAL v1 pipeline output (16/16 birds)',
+    ad_campaigns_ad_autumn_forest_bird_389c: 'MAGENTA full-scene (gemini flash) + aligned restore',
+    ad_campaigns_ad_autumn_forest_bird_389c_adopt: 'ADOPT: painted birds pasted on clean bg',
+    ad_campaigns_ad_autumn_forest_bird_e016: 'MAGENTA full-scene (openai bg+paint), HITL hitboxes',
+    ad_campaigns_ad_autumn_forest_bird_389c_gpt2: 'MAGENTA full-scene (gpt-image-2 paint), HITL hitboxes',
+  };
+  const levelLabel = document.createElement('div');
+  levelLabel.style.cssText = 'position:fixed;top:max(env(safe-area-inset-top,0px),8px);left:8px;right:80px;'
+    + 'background:rgba(0,0,0,.65);color:#ffe14a;padding:5px 10px;border-radius:10px;'
+    + 'font:700 12px system-ui;z-index:9999;pointer-events:none;display:none;';
+  document.body.appendChild(levelLabel);
+  window.setInterval((): void => {
+    let id: string | undefined;
+    for (const scene of game.scene.getScenes(true)) {
+      const lvl = (scene as Partial<{ level: { id?: string } | null }>).level;
+      if (lvl?.id !== undefined) { id = lvl.id; break; }
+    }
+    if (id === undefined) { levelLabel.style.display = 'none'; return; }
+    levelLabel.textContent = VARIANT_LABELS[id] ?? id;
+    levelLabel.style.display = 'block';
+  }, 800);
 
   // __FIND_DOG_GAME__ is consumed by the Settings → Capture flow in HUD.ts,
   // which is itself gated on `!import.meta.env.PROD`. The
