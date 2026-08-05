@@ -3607,6 +3607,10 @@ def export_to_game(
                     "x": hitboxes[i]["x"],
                     "y": hitboxes[i]["y"],
                     "r": hitboxes[i].get("r", hitboxes[i].get("radius", 30)),
+                    # Per-bird difficulty (easy is the unmarked default): the
+                    # hard/easy ratio experiment records which birds were
+                    # painted as camouflage subjects.
+                    **({"difficulty": "hard"} if str(hitboxes[i].get("difficulty") or "").lower() == "hard" else {}),
                     **({"sprite": sprite_metadata_by_index[i]} if i in sprite_metadata_by_index else {}),
                 }
                 for i in painted_indices

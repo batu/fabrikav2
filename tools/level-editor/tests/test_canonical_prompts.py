@@ -37,6 +37,28 @@ class TestMagentaPrompt:
         assert "people" not in prompt
 
 
+class TestHardDifficulty:
+    def test_hard_flag_adds_cyan_clause_and_easy_prompt_is_unchanged(self):
+        entity = get_entity_prompt("clean_old_cartoon", "bird")
+        easy = _magenta_prompt(entity)
+        hard = _magenta_prompt(entity, hard=True)
+        assert "#00FFFF" not in easy and "CAMOUFLAGE" not in easy
+        assert "#00FFFF" in hard and "CAMOUFLAGE" in hard
+        # Camouflage must stay findable — the clause carries its own floor.
+        assert "findable" in hard
+
+    def test_overlay_draws_hard_hitboxes_cyan(self):
+        from PIL import Image
+        from levelbuilder.api.inpaint import _HARD_RGB, _MAGENTA_RGB, _build_magenta_overlay
+        bg = Image.new("RGB", (200, 200), (10, 10, 10))
+        ov = _build_magenta_overlay(bg, [
+            {"x": 50, "y": 50, "r": 20},
+            {"x": 150, "y": 150, "r": 20, "difficulty": "hard"},
+        ])
+        assert ov.getpixel((50, 50)) == _MAGENTA_RGB
+        assert ov.getpixel((150, 150)) == _HARD_RGB
+
+
 class TestScenePrompt:
     def test_purpose_is_aspect_neutral(self):
         prompt = build_scene_prompt(entity="bird")

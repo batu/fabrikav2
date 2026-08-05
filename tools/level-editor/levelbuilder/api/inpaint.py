@@ -4674,6 +4674,15 @@ def recomposite_apply(session_id: str, req: RecompositeRequest):
 #  - Model may bleed magenta tint if the prompt doesn't explicitly forbid it
 
 _MAGENTA_RGB = (255, 0, 255)
+# Hard-difficulty marker (2026-08-05 experiment): circles for camouflage
+# birds are drawn in cyan so the model can treat the two classes differently
+# in ONE call. A hitbox opts in via {"difficulty": "hard"}; anything else is
+# easy/magenta.
+_HARD_RGB = (0, 255, 255)
+
+
+def _hitbox_is_hard(hb: dict) -> bool:
+    return str(hb.get("difficulty") or "").lower() == "hard"
 
 
 def _build_magenta_overlay(bg: Image.Image, hitboxes: list[dict]) -> Image.Image:
@@ -4682,7 +4691,8 @@ def _build_magenta_overlay(bg: Image.Image, hitboxes: list[dict]) -> Image.Image
     draw = ImageDraw.Draw(overlay)
     for hb in hitboxes:
         cx, cy, r = hb["x"], hb["y"], hb["r"]
-        draw.ellipse((cx - r, cy - r, cx + r, cy + r), fill=_MAGENTA_RGB)
+        fill = _HARD_RGB if _hitbox_is_hard(hb) else _MAGENTA_RGB
+        draw.ellipse((cx - r, cy - r, cx + r, cy + r), fill=fill)
     return overlay
 
 
@@ -4728,7 +4738,7 @@ def _strip_positional_phrases(entity_prompt: str) -> str:
 
 
 
-def _magenta_prompt(entity_prompt: str) -> str:
+def _magenta_prompt(entity_prompt: str, *, hard: bool = False) -> str:
     # The entity_prompt from the wizard is tuned for per-crop inpaint
     # ("Add exactly one cute X at the center of the image, occupying
     # roughly the central third of the frame"). Those positional claims
@@ -4737,14 +4747,32 @@ def _magenta_prompt(entity_prompt: str) -> str:
     # clauses that no longer apply, keep the aesthetic clauses.
     cleaned = _strip_positional_phrases(entity_prompt)
 
+    hard_block = ""
+    if hard:
+        hard_block = (
+            "DIFFICULTY: Some circles are bright CYAN (#00FFFF) instead of "
+            "magenta. Cyan circles mark CAMOUFLAGE subjects: render that "
+            "subject genuinely hidden \u2014 tucked behind or beside a prop, "
+            "partially occluded, its colors drawn from the immediate "
+            "surroundings so it does not pop out, posed still and low. It must "
+            "remain findable by a careful player: keep its outline drawn in "
+            "the scene's line style and at least a third of its body visible "
+            "(an eye, beak, or wing edge readable on close inspection). Never "
+            "erase it, never fade it into pure texture. Magenta circles stay "
+            "clearly readable subjects as described above.\n\n"
+        )
+
     return (
-        "TASK: This image contains several opaque bright magenta (#FF00FF) "
-        "circular regions painted on top of a scene. The magenta circles are "
+        "TASK: This image contains several opaque bright marker circles "
+        "painted on top of a scene \u2014 bright magenta (#FF00FF)"
+        + (" and bright cyan (#00FFFF)" if hard else "")
+        + " circular regions. The circles are "
         "LOCATION MARKERS ONLY \u2014 each one marks roughly where one instance "
-        "of the subject should appear. Replace every magenta circle with exactly "
+        "of the subject should appear. Replace every marker circle with exactly "
         "one instance of the subject described below, centered near that "
         "circle's position.\n\n"
         f"SUBJECT: {cleaned}\n\n"
+        + hard_block +
         "SCALE: Do NOT fill the circle. Render the subject at whatever physical "
         "size is realistic for this scene \u2014 compare it to the other visible "
         "objects around that spot (doorways, furniture, crates, stalls, trees, "
@@ -4758,12 +4786,15 @@ def _magenta_prompt(entity_prompt: str) -> str:
         "lighting, shadow direction, and level of detail exactly. The subject "
         "must look like it was always part of the illustration.\n\n"
         "HARD CONSTRAINTS: "
-        "(1) Every magenta region must be fully replaced \u2014 no magenta pixels "
-        "may remain. "
-        "(2) Do not create any new marker-color (#FF00FF) pixels anywhere in "
+        "(1) Every marker region must be fully replaced \u2014 no magenta"
+        + (" or cyan" if hard else "")
+        + " marker pixels may remain. "
+        "(2) Do not create any new marker-color (#FF00FF"
+        + (" or #00FFFF" if hard else "")
+        + ") pixels anywhere in "
         "the output; legitimate pink or magenta scene art that already exists "
         "outside the circles stays untouched. "
-        "(3) Do not alter pixels far from the magenta regions \u2014 keep the "
+        "(3) Do not alter pixels far from the marker regions \u2014 keep the "
         "rest of the scene pixel-identical. "
         "(4) Produce exactly one subject per circle; do not clone the subject "
         "into the surrounding scene."
@@ -5230,7 +5261,8 @@ def run_magenta_inpaint(
         bg = bg_src.copy()
     w, h = bg.size
     overlay = _build_magenta_overlay(bg, hitbox_list)
-    prompt = magenta_override.strip() or _magenta_prompt(dog_prompt)
+    has_hard = any(_hitbox_is_hard(hb) for hb in hitbox_list)
+    prompt = magenta_override.strip() or _magenta_prompt(dog_prompt, hard=has_hard)
     try:
         if cancel_check is not None:
             cancel_check()
