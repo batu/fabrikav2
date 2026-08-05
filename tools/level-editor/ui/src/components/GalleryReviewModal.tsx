@@ -263,7 +263,8 @@ export default function GalleryReviewModal({
   const [activeAction, setActiveAction] = useState<string | null>(null);
   const [colorVersion, setColorVersion] = useState(0);
   const [visibilityIssues, setVisibilityIssues] = useState<VisibilityIssue[]>([]);
-  const [pickedUpView, setPickedUpView] = useState(false);
+  const [sceneView, setSceneView] = useState<'painted' | 'restore' | 'pickup'>('painted');
+  const pickedUpView = sceneView === 'restore';
   const [loadedMeta, setLoadedMeta] = useState<{ setting?: string | null; scene?: string | null; entity?: string | null; model?: string }>({});
 
   const dispatch: React.Dispatch<LevelCanvasAction> = useCallback((action) => {
@@ -604,15 +605,20 @@ export default function GalleryReviewModal({
 
   const canvasBgUrl = useMemo(() => {
     if (!item || !state.sessionId || !card) return undefined;
-    if (pickedUpView) {
-      // "All picked up" preview: the clean selected background is what the
-      // runtime reveals once every bird is collected. Viewing it under the
-      // hitbox overlay makes restore mismatches (drift/warp) obvious.
+    if (sceneView === 'restore') {
+      // Full clean background: what a pixel-perfect pipeline reveals after
+      // every bird. Makes drift/warp between paint and restore obvious.
       const bg = String(Number.isInteger(state.selectedBgIndex) ? state.selectedBgIndex : 0).padStart(2, '0');
       return `/levels/${item.id}/bg_${bg}.png?v=${item.assetVersion ?? colorVersion}`;
     }
+    if (sceneView === 'pickup') {
+      // Faithful runtime post-pickup state: painted scene with ONLY each
+      // dog's cleanup rect swapped to the restore bg — the seams a player
+      // actually sees.
+      return `/api/sessions/${encodeURIComponent(item.id)}/pickup-preview?v=${item.assetVersion ?? colorVersion}`;
+    }
     return variantPreviewUrl(item, card.variant, item.assetVersion ?? colorVersion);
-  }, [item, state.sessionId, colorVersion, card, pickedUpView, state.selectedBgIndex]);
+  }, [item, state.sessionId, colorVersion, card, sceneView, state.selectedBgIndex]);
   const downloadHref = item && card
     ? `/levels/${item.id}/${variantSourceFile(card.variant, state.selectedBgIndex)}?v=${item.assetVersion ?? colorVersion}`
     : '';
@@ -707,17 +713,26 @@ export default function GalleryReviewModal({
               width: 360, flexShrink: 0, overflowY: 'auto',
               display: 'flex', flexDirection: 'column', gap: 12,
             }}>
-              <button
-                type="button"
-                onClick={() => setPickedUpView((v) => !v)}
-                style={{
-                  padding: '10px 12px', borderRadius: 8, border: '1px solid #333', cursor: 'pointer',
-                  background: pickedUpView ? '#2e5d34' : '#1a1a1a', color: pickedUpView ? '#d6ffd9' : '#ccc',
-                  fontWeight: 700,
-                }}
-              >
-                {pickedUpView ? '◀ Back to painted scene' : '🐦 All picked up (restore view)'}
-              </button>
+              <div style={{ display: 'flex', gap: 6 }}>
+                {([
+                  ['painted', '🎨 Painted'],
+                  ['restore', '🧹 Clean bg'],
+                  ['pickup', '🐦 All picked up'],
+                ] as const).map(([mode, label]) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    onClick={() => setSceneView(mode)}
+                    style={{
+                      flex: 1, padding: '10px 6px', borderRadius: 8, border: '1px solid #333', cursor: 'pointer',
+                      background: sceneView === mode ? '#2e5d34' : '#1a1a1a',
+                      color: sceneView === mode ? '#d6ffd9' : '#ccc', fontWeight: 700, fontSize: '0.78rem',
+                    }}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
               <div style={{ background: '#0a0a0a', border: '1px solid #222', borderRadius: 8, padding: 12 }}>
                 <div style={{ fontSize: '0.85rem', color: '#ccc', marginBottom: 6 }}>
                   Hitboxes — {state.hitboxes.length}

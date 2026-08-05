@@ -5,6 +5,7 @@ All endpoints return JSON. SSE streaming endpoints are in inpaint.py.
 
 import hashlib
 import asyncio
+import io
 import json
 import logging
 import os
@@ -2095,6 +2096,69 @@ def place_hitboxes_vlm_route(session_id: str, radius: int = Query(58, ge=18, le=
         return place_hitboxes_vlm(session_id, radius=radius)
     except S.LevelNotReadyError as error:
         raise HTTPException(409, detail={"error": str(error), "code": "vlm_placement_failed"}) from error
+
+
+@router.get("/sessions/{session_id}/pickup-preview")
+def pickup_preview(session_id: str):
+    """The scene as the runtime shows it after ALL birds are collected:
+    the painted color image with each dog's cleanup rect replaced by the
+    restore background. Unlike the full clean-bg view, this exposes exactly
+    the seams a player sees — only the padded areas swap.
+
+    Restore source preference: the exported level's bg_00.webp (what the
+    game actually reveals) when the level was exported; the session's
+    selected clean bg otherwise."""
+    _validate_session_id(session_id)
+    sdir = S.session_dir(session_id)
+    color_path = sdir / "color.png"
+    if not color_path.exists():
+        raise HTTPException(404, detail={"error": "no color.png"})
+    level_path = sdir / "level.json"
+    exported = S.GAME_PUBLIC_LEVELS / session_id / "level.json"
+    lj = None
+    for p in (exported, level_path):
+        if p.exists():
+            try:
+                lj = json.loads(p.read_text())
+                break
+            except (OSError, ValueError):
+                continue
+    if lj is None:
+        raise HTTPException(409, detail={"error": "no level.json with cleanup metadata"})
+    with Image.open(color_path) as _c:
+        color = _c.convert("RGB")
+    restore_path = S.GAME_PUBLIC_LEVELS / session_id / "bg_00.webp"
+    if not restore_path.exists():
+        raw = S.load_session_raw(session_id) or {}
+        selected = raw.get("selected_bg") or 0
+        restore_path = sdir / f"bg_{int(selected):02d}.png"
+    if not restore_path.exists():
+        raise HTTPException(409, detail={"error": "no restore background"})
+    with Image.open(restore_path) as _b:
+        restore = _b.convert("RGB")
+        if restore.size != color.size:
+            restore = restore.resize(color.size, Image.LANCZOS)
+        scale_x = color.width / (lj.get("width") or color.width)
+        scale_y = color.height / (lj.get("height") or color.height)
+        out = color.copy()
+        n = 0
+        for dog in lj.get("dogs") or []:
+            sprite = dog.get("sprite") if isinstance(dog, dict) else None
+            cl = sprite.get("cleanup") if isinstance(sprite, dict) else None
+            if not isinstance(cl, dict):
+                continue
+            x0 = max(0, int(cl["x"] * scale_x)); y0 = max(0, int(cl["y"] * scale_y))
+            x1 = min(out.width, int((cl["x"] + cl["width"]) * scale_x))
+            y1 = min(out.height, int((cl["y"] + cl["height"]) * scale_y))
+            if x1 <= x0 or y1 <= y0:
+                continue
+            out.paste(restore.crop((x0, y0, x1, y1)), (x0, y0))
+            n += 1
+    buf = io.BytesIO()
+    out.save(buf, "JPEG", quality=88)
+    out.close(); color.close()
+    return Response(content=buf.getvalue(), media_type="image/jpeg",
+                    headers={"X-Cleanups-Swapped": str(n), "Cache-Control": "no-store"})
 
 
 @router.post("/sessions/{session_id}/clone")
