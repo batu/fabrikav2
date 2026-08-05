@@ -7,10 +7,24 @@ import { describe, expect, it } from 'vitest';
 // returns after Batu's per-level hitbox review (see git history of this
 // file for the full list).
 const CAMPAIGN_IDS = [
+  'ad_campaigns_ad_autumn_forest_bird_poststretch2',
+  'ad_campaigns_ad_autumn_forest_bird_389c_v1oai2',
+  'ad_campaigns_ad_autumn_forest_bird_389c_v1oai',
+  'ad_campaigns_ad_autumn_forest_bird_389c_v1refoai',
   'ad_campaigns_ad_autumn_forest_bird_389c',
+  'ad_campaigns_ad_autumn_forest_bird_389c_adopt',
+  'ad_campaigns_ad_autumn_forest_bird_e016',
+  'ad_campaigns_ad_autumn_forest_bird_389c_gpt2',
 ] as const;
 const TARGET_COUNTS: Record<string, number> = {
+  ad_campaigns_ad_autumn_forest_bird_poststretch2: 14,
+  ad_campaigns_ad_autumn_forest_bird_389c_v1oai2: 16,
+  ad_campaigns_ad_autumn_forest_bird_389c_v1oai: 10,
+  ad_campaigns_ad_autumn_forest_bird_389c_v1refoai: 16,
   ad_campaigns_ad_autumn_forest_bird_389c: 16,
+  ad_campaigns_ad_autumn_forest_bird_389c_adopt: 16,
+  ad_campaigns_ad_autumn_forest_bird_e016: 10,
+  ad_campaigns_ad_autumn_forest_bird_389c_gpt2: 11,
 };
 
 const levelsRoot = join(process.cwd(), 'public/levels');

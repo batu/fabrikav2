@@ -149,6 +149,7 @@ if (typeof window !== 'undefined') {
   // pipeline variant of the level being played so on-device judgments can
   // be attributed. Remove together with the skip button.
   const VARIANT_LABELS: Record<string, string> = {
+    ad_campaigns_ad_autumn_forest_bird_poststretch2: 'MAGENTA SQUARE-SEND — the fix (your hitboxes, 2x taps)',
     ad_campaigns_ad_autumn_forest_bird_389c_v1oai: 'V1 LANE: openai masked crop — seamless pickups',
     ad_campaigns_ad_autumn_forest_bird_389c_v1oai2: 'V1 LANE v2-code: openai crop, fixed PNG client',
     ad_campaigns_ad_autumn_forest_bird_389c_v1refoai: 'V1 LANE + reference sheet (known junk birds)',
