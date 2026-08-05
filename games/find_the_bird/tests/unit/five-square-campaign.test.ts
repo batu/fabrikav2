@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest';
 // returns after Batu's per-level hitbox review (see git history of this
 // file for the full list).
 const CAMPAIGN_IDS = [
+  'ad_campaigns_ad_autumn_forest_bird_native2k',
   'ad_campaigns_ad_autumn_forest_bird_poststretch2',
   'ad_campaigns_ad_autumn_forest_bird_389c_v1oai2',
   'ad_campaigns_ad_autumn_forest_bird_389c_v1oai',
@@ -17,6 +18,7 @@ const CAMPAIGN_IDS = [
   'ad_campaigns_ad_autumn_forest_bird_389c_gpt2',
 ] as const;
 const TARGET_COUNTS: Record<string, number> = {
+  ad_campaigns_ad_autumn_forest_bird_native2k: 16,
   ad_campaigns_ad_autumn_forest_bird_poststretch2: 14,
   ad_campaigns_ad_autumn_forest_bird_389c_v1oai2: 16,
   ad_campaigns_ad_autumn_forest_bird_389c_v1oai: 10,
@@ -51,7 +53,12 @@ describe('five-square bundled campaign', () => {
   it.each(CAMPAIGN_IDS)('%s is a complete 4096 square package with 15 one-to-one targets', (levelId) => {
     const level = readJson(join(levelsRoot, levelId, 'level.json'));
 
-    const expectedDim = levelId.includes('_13c5') || levelId.includes('_b8be') ? 1024 : 4096;
+    // Canonical square levels (PIPELINE.md) work at 2688 — sized so the
+    // magenta send region is the paint model's native 2048; export ships
+    // 2560px webps so no upscale is ever needed. 4096 is the pre-canonical
+    // era; 1024 the two legacy scenes.
+    const expectedDim = levelId.includes('_13c5') || levelId.includes('_b8be') ? 1024
+      : (levelId.includes('native2k') ? 2688 : 4096);
     expect([level.width, level.height]).toEqual([expectedDim, expectedDim]);
     expect(level.dogs).toHaveLength(TARGET_COUNTS[levelId]);
     expect(new Set(level.dogs.map((dog: any) => dog.id)).size).toBe(TARGET_COUNTS[levelId]);

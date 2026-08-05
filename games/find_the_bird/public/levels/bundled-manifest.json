@@ -1,9 +1,120 @@
 {
  "version": 1,
  "manifestRevision": 1,
- "generatedAt": "2026-08-05T12:22:23.515057Z",
+ "generatedAt": "2026-08-05T13:28:28.338941Z",
  "experimentId": "find-the-bird-empty-v1",
  "levels": [
+  {
+   "id": "ad_campaigns_ad_autumn_forest_bird_native2k",
+   "name": "Level ad_campaigns_ad_autumn_forest_bird_native2k (clean_old_cartoon)",
+   "width": 2688,
+   "height": 2688,
+   "cohort_buckets": [
+    "all"
+   ],
+   "bundled": true,
+   "assets": {
+    "levelJson": {
+     "hash": "8c48e41a4efb408c5fc38a1fd837efeeece96eaaed63b20d3ef28a297c6a0239",
+     "size": 7748,
+     "path": "levels/ad_campaigns_ad_autumn_forest_bird_native2k/level.json"
+    },
+    "colorImage": {
+     "hash": "c85cf71936215c039f58da807e33f0c4162b30305b0b8a30690ab9b8986e0d9d",
+     "size": 636506,
+     "path": "levels/ad_campaigns_ad_autumn_forest_bird_native2k/color.webp"
+    },
+    "bgImages": [
+     {
+      "hash": "4c845206c637492632fd6a3941b3200a89394674b5813fc1519d57686beced46",
+      "size": 604686,
+      "path": "levels/ad_campaigns_ad_autumn_forest_bird_native2k/bg_00.webp"
+     }
+    ],
+    "dogSprites": [
+     {
+      "hash": "ca93eb3ba7234b9353f61c16bf5a7ed5f907791c1fb881a0683438e658b33ea2",
+      "size": 29753,
+      "path": "levels/ad_campaigns_ad_autumn_forest_bird_native2k/dogs/dog_00/sprite_000.png"
+     },
+     {
+      "hash": "9e424d794a922d4f3860c06fb38a626af13d3be76bef9a8202b34b82330955e0",
+      "size": 32406,
+      "path": "levels/ad_campaigns_ad_autumn_forest_bird_native2k/dogs/dog_01/sprite_000.png"
+     },
+     {
+      "hash": "40be7cfabaafc22a10cd9670c173cb7dafb686f64dbf4df9c7133fcd007e0bdf",
+      "size": 10681,
+      "path": "levels/ad_campaigns_ad_autumn_forest_bird_native2k/dogs/dog_02/sprite_000.png"
+     },
+     {
+      "hash": "3a055bdc232613fd7c5cbeda9ca967bb2d6632f273185dd00525780f09e8de56",
+      "size": 37977,
+      "path": "levels/ad_campaigns_ad_autumn_forest_bird_native2k/dogs/dog_03/sprite_000.png"
+     },
+     {
+      "hash": "e76bb40baf05dc38b17e6ee9c1de629cffa4529434d144d16f7bfba436748354",
+      "size": 27477,
+      "path": "levels/ad_campaigns_ad_autumn_forest_bird_native2k/dogs/dog_04/sprite_000.png"
+     },
+     {
+      "hash": "a7d91aaff97c96d2038f8594c27f481a668b198f3aa8c0126b624e29e375ab30",
+      "size": 30387,
+      "path": "levels/ad_campaigns_ad_autumn_forest_bird_native2k/dogs/dog_05/sprite_000.png"
+     },
+     {
+      "hash": "d24b3d672e533eab157a9f4a288dce5caa2d74ebf8e115315b77eb7ca60f3dd9",
+      "size": 40128,
+      "path": "levels/ad_campaigns_ad_autumn_forest_bird_native2k/dogs/dog_06/sprite_000.png"
+     },
+     {
+      "hash": "1d29ea329ce79bd7a11dfbe65f3a3de564cafb8cecb3dc93210762c6f60ef340",
+      "size": 27701,
+      "path": "levels/ad_campaigns_ad_autumn_forest_bird_native2k/dogs/dog_07/sprite_000.png"
+     },
+     {
+      "hash": "7190a525802a5a5b5d243f5902756af6849fd8a77b8d19badbd71fe920fa9788",
+      "size": 34080,
+      "path": "levels/ad_campaigns_ad_autumn_forest_bird_native2k/dogs/dog_08/sprite_000.png"
+     },
+     {
+      "hash": "9a8bdb2e4cd9b19f967e1264bdf995e02e0edfb8f5a4c3567d242f3fa5602872",
+      "size": 28961,
+      "path": "levels/ad_campaigns_ad_autumn_forest_bird_native2k/dogs/dog_09/sprite_000.png"
+     },
+     {
+      "hash": "4975951cc904dd1842b78dea94ce815f084c41cffe426953bc12f071c2f31de7",
+      "size": 31193,
+      "path": "levels/ad_campaigns_ad_autumn_forest_bird_native2k/dogs/dog_10/sprite_000.png"
+     },
+     {
+      "hash": "c43a71c5f66f94d8888a23ffbdf95fac74b2fe8275eda5e64fb3d37fd64708e8",
+      "size": 13346,
+      "path": "levels/ad_campaigns_ad_autumn_forest_bird_native2k/dogs/dog_11/sprite_000.png"
+     },
+     {
+      "hash": "c94f829e347baa4b54d687e4b9883f5d94cc82bb05725ee7c19a0fc5bb24a3d4",
+      "size": 43149,
+      "path": "levels/ad_campaigns_ad_autumn_forest_bird_native2k/dogs/dog_12/sprite_000.png"
+     },
+     {
+      "hash": "f168675a0013769f7d835a373a1f002140735387781d5f2d401ce60f1c7c6fcb",
+      "size": 37183,
+      "path": "levels/ad_campaigns_ad_autumn_forest_bird_native2k/dogs/dog_13/sprite_000.png"
+     },
+     {
+      "hash": "021b30926c60cd78a49fbd38f83b01f4ff851be4647ca3bf6ef4e3bad935b039",
+      "size": 32870,
+      "path": "levels/ad_campaigns_ad_autumn_forest_bird_native2k/dogs/dog_14/sprite_000.png"
+     },
+     {
+      "hash": "feee19fc3768a39a21da5da8aa7460a58102d11cf551ef80ebd7f9167697b506",
+      "size": 13370,
+      "path": "levels/ad_campaigns_ad_autumn_forest_bird_native2k/dogs/dog_15/sprite_000.png"
+     }
+    ]
+   }
+  },
   {
    "id": "ad_campaigns_ad_autumn_forest_bird_poststretch2",
    "name": "Level ad_campaigns_ad_autumn_forest_bird_poststretch2 (clean_old_cartoon)",
