@@ -833,6 +833,206 @@ SETTINGS = {
             ),
         },
     },
+    "greece": {
+        "label": "Greece",
+        "scenes": {
+            "greece_santorini_steps": (
+                "A whitewashed Santorini cliffside sprawling down stacked terraces — a main stair cascade zigzagging between blue-domed chapels, a side lane branching along a low wall, a small terrace cafe tucked on a landing. "
+                "The entire ground surface is consistent whitewashed plaster steps, worn flagstone landings, and terracotta terrace tiles throughout — every area the viewer can see the ground, it reads as plaster, stone, or tile with no untextured blank areas. "
+                "Cubic white houses of varying sizes crowd unevenly down the slope, some stacked shoulder to shoulder, others standing alone with courtyard gaps. Blue domes and flat roofs at different heights, some overlapping, some freestanding. "
+                "A single crooked bougainvillea trunk leans across the stair at an unexpected angle, spilling magenta-free crimson blooms over a wall. "
+                "Scattered throughout without pattern: potted geraniums, stacked amphorae, woven donkey saddlebags on a wall hook, cafe tables with checked cloths, hanging octopus-drying lines left empty, blue shutters ajar, oil jars, coiled garden hoses, straw brooms, stone benches, lanterns on brackets, folded market umbrellas, crates of lemons, terracotta urns, a wooden ladder against a wall. "
+                "Dense clusters around the cafe landing and chapel forecourt, sparser breathing room on open stair runs. "
+                "Asymmetric, organic layout — like a village that grew down the cliff over centuries."
+            ),
+            "greece_olive_grove_press": (
+                "A hillside olive-press farmstead sprawling through gnarled groves — a main cart track winding between ancient olive trees, a stone press house with its yard, a drystone-walled terrace stepping down to a spring trough. "
+                "The entire ground surface is consistent packed pale earth, silvery fallen olive leaves, and worn stone paving throughout — every area the viewer can see the ground, it reads as earth, leaf litter, or stone with no untextured blank areas. "
+                "Gnarled olive trunks of varying thickness crowd unevenly across the terraces, some clustered in twisted family groups, others standing alone in open pockets. Canopies at different heights, some overlapping, some freestanding. "
+                "A huge round millstone leans against the press-house wall at an unexpected angle. "
+                "Scattered throughout without pattern: woven harvest nets rolled at trunk bases, wooden ladders in branches, stacked olive crates, clay oil jars, a donkey cart with sacks, pruning saws on a bench, burlap sacks, a stone well head, rope coils, tin watering cans, a low table with bread and oil, terracotta pots, drystone wall gaps, a rusted gate, beeswax lanterns. "
+                "Dense clusters around the press yard, sparser breathing room between distant trunks. "
+                "Asymmetric, organic layout — like a working grove tended for generations."
+            ),
+            "greece_harbor_taverna_morning": (
+                "A small Greek island harbor sprawling around a curved quay — a main waterfront walk lined with taverna tables, a mole arm reaching into turquoise water with moored caiques, a side alley climbing between white houses. "
+                "The entire ground surface is consistent large worn flagstones on the quay, weathered planks on the mole, and clear shallow harbor water throughout — every area the viewer can see the ground, it reads as stone, plank, or water with no untextured blank areas. "
+                "Wooden fishing caiques of varying sizes crowd unevenly along the mole, some rafted together, others moored alone. Masts and awning frames at different heights, some overlapping, some freestanding. "
+                "One beached blue rowboat sits tipped at an unexpected angle on the quay corner. "
+                "Scattered throughout without pattern: stacked fish crates, coiled mooring ropes, folded nets on rails, taverna chairs in blue paint, checked tablecloths, hanging squid-drying lines left empty, buoys in nets, oil lanterns, anchor chains, baskets of sponges, a hand cart, clay pitchers on tables, market umbrellas, lobster pots, a mounted ship's wheel by a door. "
+                "Dense clusters around the taverna spill and mole root, sparser breathing room mid-quay. "
+                "Asymmetric, organic layout — like a harbor that grew boat by boat."
+            ),
+            "greece_hilltop_windmills": (
+                "A breezy hilltop windmill row sprawling along a saddle ridge — a main path running past three stone windmills, a low chapel with a bell arch on the knoll, a walled threshing circle on the slope below. "
+                "The entire ground surface is consistent dry golden grass, exposed limestone patches, and packed footpaths throughout — every area the viewer can see the ground, it reads as grass, stone, or path with no untextured blank areas. "
+                "Cylindrical stone windmills of varying heights crowd the ridge unevenly, some with sails rigged, one derelict and capless. Thatched caps and sail booms at different heights, some overlapping, some freestanding. "
+                "A broken windmill sail lies propped against the derelict tower at an unexpected angle. "
+                "Scattered throughout without pattern: grain sacks by doorways, a wooden sledge, millstones stacked flat, rope-and-pulley rigs, a shepherd's crook on a wall, drystone sheep pens left open, water barrels, a bell on a post, hay bundles, wildflower clumps, a stone bench, canvas sail rolls, ladders to loft doors, clay jugs, a low table with olives and bread. "
+                "Dense clusters around the working mill's yard, sparser breathing room along the open ridge. "
+                "Asymmetric, organic layout — like a ridge worked by wind for centuries."
+            ),
+            "greece_agora_ruins_garden": (
+                "A sunken ancient agora garden sprawling through broken colonnades — a main gravel walk between fallen column drums, a side path through an oleander bed, a restored stoa corner with a low museum bench under its roof. "
+                "The entire ground surface is consistent raked gravel, cracked marble paving, and low herb ground-cover throughout — every area the viewer can see the ground, it reads as gravel, marble, or planting with no untextured blank areas. "
+                "Broken columns of varying heights crowd the site unevenly, some still paired with architraves, others reduced to drums scattered like stepping stones. Capitals and plinths at different heights, some overlapping, some freestanding. "
+                "One massive marble capital lies tipped at an unexpected angle in the oleander bed. "
+                "Scattered throughout without pattern: archaeologist's string grids on pegs, wooden site wheelbarrows, brushes and trowels on a cloth, crate-mounted pot shards, a shade canopy on poles, watering cans among herbs, stone benches, a sundial plinth, rope barriers on low posts, potted laurels, a stacked-stone boundary wall, clay replica urns, a site notebook table, lantern posts, stray fig saplings in cracks. "
+                "Dense clusters around the stoa corner and dig tables, sparser breathing room across the open marble floor. "
+                "Asymmetric, organic layout — like ruins the garden is slowly reclaiming."
+            ),
+        },
+    },
+    "southeast_asia": {
+        "label": "Southeast Asia",
+        "scenes": {
+            "sea_floating_market": (
+                "A dawn floating market sprawling across a wide brown-green canal — a main channel crowded with laden paddle boats, a plank-walk shore lined with stilt shops, a side inlet where boats tie up three deep. "
+                "The entire ground surface is consistent calm canal water, weathered plank walkways, and packed mud banks throughout — every area the viewer can see the ground, it reads as water, plank, or bank with no untextured blank areas. "
+                "Wooden longtail boats of varying sizes crowd the channel unevenly, some rafted gunwale to gunwale, others drifting alone. Woven cargo mounds and boat awnings at different heights, some overlapping, some freestanding. "
+                "One boat sits swung crosswise at an unexpected angle, bridging the channel like a temporary stall. "
+                "Scattered throughout without pattern: pyramid piles of mangoes and dragonfruit, conical hats hung on posts, woven baskets, brass cooking pots on boat braziers, bundles of lemongrass, hanging banana bunches, paddles laid across thwarts, clay teapots, folded canvas awnings, rope fenders, stacked steamers, water jars, a hanging scale, lotus bundles, wooden stools on the plank walk. "
+                "Dense clusters at the inlet raft-up, sparser breathing room mid-channel. "
+                "Asymmetric, organic layout — like a market that assembles itself each dawn."
+            ),
+            "sea_rice_terrace_village": (
+                "An emerald rice-terrace hillside sprawling in stacked curves — a main mud-bund path stepping down the paddies, a cluster of stilt granaries on a dry knoll, an irrigation flume zigzagging to a bamboo waterwheel. "
+                "The entire ground surface is consistent flooded paddy water, young green rice rows, and packed mud bunds throughout — every area the viewer can see the ground, it reads as water, rice, or bund with no untextured blank areas. "
+                "Stilt granaries of varying sizes crowd the knoll unevenly, some clustered under one shared roof, others standing alone on tall posts. Thatched ridges at different heights, some overlapping, some freestanding. "
+                "The bamboo waterwheel leans at an unexpected angle where the flume takes a hard turn. "
+                "Scattered throughout without pattern: rice-seedling trays, wooden threshing sledges, conical hats on bund posts, woven winnowing fans, water jars, bundled harvest sheaves, a hand plough, bamboo carrying poles with baskets, stone spirit-house shrines, banana clumps on bund corners, drying mats, hoes and sickles on a rack, a low bamboo bench, clay stoves, rope-tied firewood. "
+                "Dense clusters around the granary knoll, sparser breathing room across open paddies. "
+                "Asymmetric, organic layout — like terraces sculpted by generations of hands."
+            ),
+            "sea_jungle_temple_ruins": (
+                "A strangler-fig temple ruin sprawling through green shade — a main causeway of mossy blocks leading to a half-collapsed gate tower, a side gallery corridor open to the sky, a lily-choked reflecting pool off one corner. "
+                "The entire ground surface is consistent mossy sandstone paving, leaf-littered earth, and still pool water throughout — every area the viewer can see the ground, it reads as stone, litter, or water with no untextured blank areas. "
+                "Carved gallery walls of varying heights crowd the site unevenly, some still roofed, others reduced to lintel stacks. Tower tiers and fig canopies at different heights, some overlapping, some freestanding. "
+                "A giant strangler-fig root pours over the gate tower at an unexpected angle, gripping the stones like fingers. "
+                "Scattered throughout without pattern: fallen carved lintels, moss-capped guardian statues, incense pots, an offering table with marigolds, a conservator's bamboo scaffold, rope handrails on stakes, stacked numbered stones, water jars, stone lanterns, fern clumps in cracks, a wheelbarrow of tools, folded tarps, a shaded rest bench, clay oil lamps, butterfly-free flowering vines. "
+                "Dense clusters around the gate tower and offering table, sparser breathing room along the open causeway. "
+                "Asymmetric, organic layout — like architecture and jungle negotiating for centuries."
+            ),
+            "sea_stilt_village_shore": (
+                "A turquoise-lagoon stilt village sprawling off a palm shore — a main boardwalk running house to house over the shallows, a sand spit with beached outriggers, a netted fish pen enclosure off the deep end. "
+                "The entire ground surface is consistent clear shallow water over pale sand, weathered boardwalk planks, and dry coral-sand beach throughout — every area the viewer can see the ground, it reads as water, plank, or sand with no untextured blank areas. "
+                "Stilt houses of varying sizes crowd the boardwalk unevenly, some sharing verandas, others standing alone over deeper water. Thatched roofs and drying racks at different heights, some overlapping, some freestanding. "
+                "One outrigger canoe hangs hauled halfway up a ramp at an unexpected angle. "
+                "Scattered throughout without pattern: drying fish racks left empty, woven fish traps, coiled anchor ropes, paddle bundles, water gourds, hammocks between posts, shell wind chimes, stacked coconuts, a repair bench with net needles, buoy clusters, clay cook pots on veranda braziers, rolled sleeping mats, a rope ladder to the water, palm-frond brooms, a small shrine shelf with flowers. "
+                "Dense clusters around the shared veranda joints, sparser breathing room along open boardwalk spans. "
+                "Asymmetric, organic layout — like a village that grew plank by plank over the lagoon."
+            ),
+            "sea_lantern_festival_canal": (
+                "A festival-evening canal town sprawling along both banks — a main humpback bridge crossing at the center, stone ghats stepping down to the water, a temple forecourt opening on the far bank. "
+                "The entire ground surface is consistent worn stone ghat steps, brick lanes, and dark reflective canal water throughout — every area the viewer can see the ground, it reads as stone, brick, or water with no untextured blank areas. "
+                "Shophouse fronts of varying widths crowd both banks unevenly, some leaning together, others set back behind courtyard walls. Tiled eaves and lantern lines at different heights, some overlapping, some freestanding. "
+                "One long bamboo lantern pole leans out over the water at an unexpected angle from the bridge crown. "
+                "Scattered throughout without pattern: unlit paper lanterns in stacked piles, floating flower-candle trays waiting on the steps, incense coils, low tea tables, cushions, brass urns, folded paper boats, garland strings, ceramic stools, offering baskets of fruit, a hand bell on a stand, rolled prayer mats, potted kumquats, wooden buckets, a moored flat skiff full of lantern crates. "
+                "Dense clusters around the ghat landings and temple gate, sparser breathing room across the bridge deck. "
+                "Asymmetric, organic layout — like a town pausing at dusk before the first lantern is lit."
+            ),
+        },
+    },
+    "cozy_interiors": {
+        "label": "Cozy Interiors",
+        "scenes": {
+            "cozy_greenhouse_conservatory": (
+                "A glass conservatory interior sprawling through plant-crowded aisles — a main brick walk between raised beds, a side aisle under hanging baskets, a potting corner with a deep work bench by the far glass wall. "
+                "The entire ground surface is consistent herringbone brick paving, gravel drainage strips, and one worn doormat throughout — every area the viewer can see the ground, it reads as brick, gravel, or mat with no untextured blank areas. "
+                "Staged plant benches of varying heights crowd the aisles unevenly, some tiered three deep, others standing alone with a single specimen. Palms and trellised vines at different heights, some overlapping under the glass roof, some freestanding. "
+                "A long-armed watering rig leans across the main aisle at an unexpected angle, parked mid-job. "
+                "Scattered throughout without pattern: terracotta pots in stacks, seed-tray flats, brass misters, coiled hoses, a rolling ladder, hand trowels in a jar, twine balls, cushioned wicker chairs, a tea tray on a stool, hanging ferns, cactus bowls, bags of soil slumped open, cloches, a wall thermometer, rubber boots by the door. "
+                "Dense clusters around the potting bench, sparser breathing room down the main walk. "
+                "Asymmetric, organic layout — like a garden that moved indoors and kept growing."
+            ),
+            "cozy_attic_workshop": (
+                "A timber-framed attic workshop sprawling under sloped rafters — a main workbench wall beneath the dormer window, a side alcove of shelf-stacked crates, a rug-covered reading corner around a squat iron stove. "
+                "The entire ground surface is consistent wide worn floorboards, one braided rug, and a paint-spattered canvas drop cloth throughout — every area the viewer can see the ground, it reads as board, rug, or cloth with no untextured blank areas. "
+                "Storage crates and cabinets of varying sizes crowd the alcove unevenly, some stacked to the rafters, others standing alone half-open. Rafter ties and hanging tools at different heights, some overlapping, some freestanding. "
+                "A wooden glider-kite prototype hangs from the ridge beam at an unexpected angle, mid-repair. "
+                "Scattered throughout without pattern: hand planes, coiled measuring tapes, jars of buttons and screws, a kettle on the stove, model boats, paint pots, an oil lamp, curled blueprints, a stool with a sweater draped over it, sawdust piles, clamps on rails, a birdhouse-in-progress, spools of wire, a tin of biscuits, a magnifying lamp on an arm. "
+                "Dense clusters around the workbench, sparser breathing room by the stove corner. "
+                "Asymmetric, organic layout — like a maker's room arranged by habit, not plan."
+            ),
+            "cozy_village_bakery_kitchen": (
+                "A stone-floored village bakery kitchen sprawling around a domed wood oven — a main flour-dusted work table down the middle, a proofing shelf wall of cloth-covered baskets, a scullery nook with a deep copper sink by the window. "
+                "The entire ground surface is consistent worn stone flags, one flour-dusted runner mat, and a brick hearth apron throughout — every area the viewer can see the ground, it reads as stone, mat, or brick with no untextured blank areas. "
+                "Shelf racks of varying heights crowd the walls unevenly, some packed with loaves, others holding single big mixing bowls. Hanging pans and herb bundles at different heights, some overlapping, some freestanding. "
+                "A long wooden peel leans across the oven mouth at an unexpected angle, mid-bake. "
+                "Scattered throughout without pattern: proofing baskets, flour sacks slumped open, a marble slab with dough, rolling pins, jam jars, a scale with brass weights, egg baskets, butter crocks, a cooling rack of rolls, copper pots, a milk churn, tea towels on hooks, a stool with a recipe box, firewood stacked by the oven, a cat-basket left empty by the warm bricks. "
+                "Dense clusters around the work table and oven, sparser breathing room by the scullery window. "
+                "Asymmetric, organic layout — like a kitchen mid-morning on baking day."
+            ),
+            "cozy_toymaker_workshop": (
+                "A toymaker's workshop sprawling through lamplit clutter — a main carving bench under a bay window, a painting table with jars mid-wash, a display wall of finished toys climbing to the ceiling on staggered shelves. "
+                "The entire ground surface is consistent honey-colored floorboards, wood-shaving drifts, and one round rag rug throughout — every area the viewer can see the ground, it reads as board, shavings, or rug with no untextured blank areas. "
+                "Shelf towers of varying heights crowd the display wall unevenly, some packed with rocking horses and blocks, others holding a single music box. Suspended mobiles and a model railway at different heights, some overlapping, some freestanding. "
+                "A rocking horse missing a rocker leans against the bench at an unexpected angle, awaiting glue. "
+                "Scattered throughout without pattern: carving knives on a magnetic bar, paint pots with brushes, spinning tops, doll parts in labeled bins, a hand-crank lathe, wooden trains, glue pots, sandpaper sheets, a workbench vise, marionette strings on hooks, gift ribbon spools, a kettle on a shelf stove, spectacles on an open ledger, curled shavings, a stool with a half-painted duck. "
+                "Dense clusters around the carving bench and paint table, sparser breathing room by the door. "
+                "Asymmetric, organic layout — like a workshop where every toy is mid-journey."
+            ),
+            "cozy_potting_shed_garden": (
+                "A back-garden potting shed and yard sprawling half-in half-out — the shed interior open to view with its bench and shelves, a brick threshold spilling to a small walled yard, a cold frame and rain barrel corner against the ivy wall. "
+                "The entire ground surface is consistent brick pavers in the yard, packed earth beds, and worn shed floorboards throughout — every area the viewer can see the ground, it reads as brick, earth, or board with no untextured blank areas. "
+                "Pot stacks and crates of varying heights crowd the shed unevenly, some towered against the wall, others alone on the bench. Shelf rows and hanging tools at different heights, some overlapping, some freestanding. "
+                "A wheelbarrow sits tipped at an unexpected angle across the threshold, half-loaded with compost. "
+                "Scattered throughout without pattern: terracotta pots, seed packets in a tin, a watering can family of three sizes, spades and forks on nails, twine, cloches, a trug of carrots, gloves on the bench, a radio with a bent aerial, bulb crates, the cold frame propped open, a rain barrel with a tin cup, bean poles bundled, a robin-less bird table, muddy boots, an old kettle repurposed as a planter. "
+                "Dense clusters around the bench and threshold, sparser breathing room in the yard middle. "
+                "Asymmetric, organic layout — like a shed organized by decades of Saturday afternoons."
+            ),
+        },
+    },
+    "american_southwest": {
+        "label": "American Southwest",
+        "scenes": {
+            "sw_adobe_courtyard": (
+                "A terracotta adobe courtyard sprawling within thick rounded walls — a main flagstone path to a carved wooden gate, a shaded portal walkway along one side, a horno bread oven corner with its woodpile. "
+                "The entire ground surface is consistent pink flagstone, raked ochre earth, and one woven wool rug at the portal throughout — every area the viewer can see the ground, it reads as stone, earth, or rug with no untextured blank areas. "
+                "Adobe building wings of varying heights crowd the courtyard unevenly, some stepped two stories with ladders, others low with deep-set blue windows. Vigas and parapets at different heights, some overlapping, some freestanding. "
+                "A long wooden ladder leans against the tallest parapet at an unexpected angle. "
+                "Scattered throughout without pattern: ristra chile strings on posts, clay pots of varying bellies, a strings-up loom under the portal, woven baskets, a water olla in a rope sling, drying corn bundles, a bench with striped blankets, gourds, the horno's iron door ajar, firewood stacks, cactus pots, a tin washtub, saddle blankets on a rail, lanterns in wall niches, a wagon wheel against the wall. "
+                "Dense clusters around the portal and horno corner, sparser breathing room across the open court. "
+                "Asymmetric, organic layout — like a homestead added onto for two hundred years."
+            ),
+            "sw_canyon_river_camp": (
+                "A red-rock canyon river camp sprawling along a green-water bend — a main sandbar with beached rafts, a cottonwood flat with tents and a fire ring, a talus path climbing to a ledge lookout. "
+                "The entire ground surface is consistent rippled red sand, river cobbles, and calm green river water throughout — every area the viewer can see the ground, it reads as sand, cobble, or water with no untextured blank areas. "
+                "Striped canyon walls of varying heights crowd the bend unevenly, some overhanging in deep alcoves, others stepped back in ledges. Cottonwood crowns and boulder stacks at different heights, some overlapping, some freestanding. "
+                "One raft sits hauled out at an unexpected angle, propped on its cooler like a workbench. "
+                "Scattered throughout without pattern: dry bags in color piles, paddles fanned against a log, the fire ring with a kettle tripod, camp chairs, a folding table with maps weighted by stones, life vests on a line, water jugs, a dutch oven, driftwood stacks, a guitar against a chair, rolled sleeping pads, a bucket wash station, rescue rope bags, ammo-can side tables, a solar lantern string between cottonwoods. "
+                "Dense clusters around the fire ring and raft tie-up, sparser breathing room along the open sandbar. "
+                "Asymmetric, organic layout — like a camp that flows in with the river and out again."
+            ),
+            "sw_cactus_garden_ranch": (
+                "A high-desert cactus garden ranch sprawling around a windmill — a main gravel path looping the demonstration beds, a ramada-shaded seating patio, a lath propagation house with its door hooked open. "
+                "The entire ground surface is consistent crushed granite paths, ochre decomposed-granite beds, and flagstone patio throughout — every area the viewer can see the ground, it reads as gravel, granite, or flag with no untextured blank areas. "
+                "Saguaro and organ-pipe cacti of varying heights crowd the beds unevenly, some in armed families, others standing alone like sentries. Ocotillo wands and the windmill tower at different heights, some overlapping, some freestanding. "
+                "The windmill's tail vane is cocked at an unexpected angle, frozen mid-turn. "
+                "Scattered throughout without pattern: terracotta pots of barrel cacti, a wheelbarrow of mulch, hand tools in a leather roll, a water trough, bleached cow skull on a post, rain gauges, agave pups in nursery cans, a bench of succulent bowls, coiled drip line, a chuckwagon-style tool cart, straw bales, painted rocks marking beds, a shade sail corner, tin watering cans, a ranch bell on the ramada post. "
+                "Dense clusters around the ramada and lath house, sparser breathing room on the loop path. "
+                "Asymmetric, organic layout — like a garden negotiated with the desert, bed by bed."
+            ),
+            "sw_desert_trading_post": (
+                "A crossroads desert trading post sprawling under one long porch — a main plank porch running the storefront's length, a fuel island with a single antique pump, a side yard of weathered wagons and rain tanks. "
+                "The entire ground surface is consistent sun-bleached plank porch, packed caliche yard, and two strips of cracked concrete at the pump throughout — every area the viewer can see the ground, it reads as plank, caliche, or concrete with no untextured blank areas. "
+                "False-front buildings of varying widths crowd the crossroads unevenly, the main store tall and proud, sheds leaning behind it in a row. Porch posts and a water tower at different heights, some overlapping, some freestanding. "
+                "A wagon with one missing wheel sits jacked at an unexpected angle on stacked railroad ties. "
+                "Scattered throughout without pattern: stacked trade blankets, clay pots in straw, a barrel of walking sticks, rocking chairs, hanging lanterns, feed sacks on a dolly, a pyramid of peach tins, horseshoes nailed in a row, a checkers barrel-table mid-game, canteens on pegs, a hitching rail, washboards, a pot-bellied stove visible through the door, kindling crates, a wind chime of spoons. "
+                "Dense clusters on the porch and side yard, sparser breathing room across the crossroads. "
+                "Asymmetric, organic layout — like a post that outlasted the road it was built for."
+            ),
+            "sw_mesa_campground": (
+                "A mesa-top campground sprawling at golden hour — a main loop track past juniper-shaded sites, a stone-ringed overlook point at the rim, a ranger cabin with its porch lamp beside the water spigot. "
+                "The entire ground surface is consistent slickrock domes, red dust track, and juniper-needle duff throughout — every area the viewer can see the ground, it reads as rock, dust, or duff with no untextured blank areas. "
+                "Junipers and pinyons of varying sizes crowd the sites unevenly, some grown into wind-bent clusters, others alone on bare rock. Boulders and the cabin roofline at different heights, some overlapping, some freestanding. "
+                "One boulder the size of a wagon rests at an unexpected angle, propped on a smaller stone like a dolmen. "
+                "Scattered throughout without pattern: canvas tents guyed to rocks, picnic tables, fire rings with grates, a stack of firewood bundles, camp stoves, water jugs at the spigot, folding chairs, bear boxes, an easel facing the rim, binocular tripod, rolled maps on a table, cast-iron pans on a rack, lantern posts, a hammock between junipers, a telescope case by the cabin. "
+                "Dense clusters around the cabin and overlook, sparser breathing room along the loop. "
+                "Asymmetric, organic layout — like a campground that follows the slickrock's suggestions."
+            ),
+        },
+    },
     "ad_campaigns": {
         "label": "Ad Campaigns",
         "scenes": {
