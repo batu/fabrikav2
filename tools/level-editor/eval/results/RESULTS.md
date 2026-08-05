@@ -69,3 +69,12 @@ Golden: 22 levels / 412 hitboxes (`golden-hitboxes-2026-08-05`). Target: recall 
 | ens3-neg | 0.9296 | 0.9073 | 33.0 | 0.143 | 38 | 464 | vote>=3 of [owlv2-neg-c008:0.15,gdino-neg-c020:0.25,yoloworld-neg-c005:0.05,yolo11s-v4-c010:0.1] r87 |
 | vlm-rescue | 0.9782 | 0.9180 | 33.2 | 0.150 | 12 | 451 | VLM + >=2-vote free rescue clusters |
 | vlm-rescue-snap | 0.9757 | 0.9313 | 30.8 | 0.150 | 19 | 451 | VLM + >=2-vote free rescue clusters + snap |
+| owlv2-neg-clip-c0.15-p0.5 | 0.0000 | - | - | - | 0 | 0 | owlv2-neg conf>=0.15 + siglip bird-prob>=0.5 |
+| owlv2-neg-clip-c0.15-p0.7 | 0.0000 | - | - | - | 0 | 0 | owlv2-neg conf>=0.15 + siglip bird-prob>=0.7 |
+| owlv2-neg-clip-c0.15-p0.85 | 0.0000 | - | - | - | 0 | 0 | owlv2-neg conf>=0.15 + siglip bird-prob>=0.85 |
+| owlv2-neg-clip-c0.1-p0.7 | 0.0000 | - | - | - | 0 | 0 | owlv2-neg conf>=0.1 + siglip bird-prob>=0.7 |
+| owlv2-neg-clip-c0.1-p0.85 | 0.0000 | - | - | - | 0 | 0 | owlv2-neg conf>=0.1 + siglip bird-prob>=0.85 |
+| owlv2-neg-clip-c0.3-p0.5 | 0.0000 | - | - | - | 0 | 0 | owlv2-neg conf>=0.3 + siglip bird-prob>=0.5 |
+| owlv2-neg-nms07-conf0.15 | 0.9709 | 0.7949 | 31.9 | 0.149 | 282 | 858 | owlv2 conf>=0.15 tiled |
+| owlv2-neg-nms07-conf0.2 | 0.9709 | 0.7949 | 31.9 | 0.149 | 282 | 858 | owlv2 conf>=0.2 tiled |
+| owlv2-neg-nms07-conf0.3 | 0.9684 | 0.8594 | 32.7 | 0.148 | 206 | 704 | owlv2 conf>=0.3 tiled |
