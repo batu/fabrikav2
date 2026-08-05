@@ -1,0 +1,24 @@
+{
+  "runner": "clip-rerank",
+  "model": "google/siglip2-so400m-patch14-384",
+  "in_run": "runs/owlv2-neg-c008",
+  "pos": [
+    "a cartoon bird",
+    "a cute illustrated bird character"
+  ],
+  "neg": [
+    "a butterfly",
+    "a squirrel",
+    "a flower",
+    "a lantern",
+    "a mushroom",
+    "a basket",
+    "a rabbit",
+    "a fish",
+    "a leaf",
+    "a wooden object",
+    "empty background scenery",
+    "a house",
+    "a plant"
+  ]
+}

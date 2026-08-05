@@ -1,0 +1,30 @@
+{
+  "runner": "vlm",
+  "model": "gemini-3.6-flash",
+  "route": "openrouter",
+  "timings_s": {
+    "ancient_forest_creek_autumn_pond_reeds_bird_da7e": 13.25,
+    "fairytale_forest_fairy_ring_picnic_bird_9ed2": 14.25,
+    "hawaii_north_shore_surf_shack_bird_51c1": 13.38,
+    "hawaii_rainforest_waterfall_bird_4453": 12.17,
+    "italy_amalfi_cliff_lemons_bird_5a1c": 18.83,
+    "italy_tuscan_hill_village_bird_a61f": 15.29,
+    "mexico_dia_de_muertos_plaza_bird_8d56": 16.37,
+    "mexico_yucatan_cenote_ruins_bird_b8be": 15.22,
+    "pirate_shipwreck_island_broken_bow_lagoon_bird_ae98": 17.27,
+    "pirate_shipwreck_island_treasure_cove_camp_bird_13c5": 14.01
+  },
+  "costs_usd": {
+    "ancient_forest_creek_autumn_pond_reeds_bird_da7e": 0.017121,
+    "fairytale_forest_fairy_ring_picnic_bird_9ed2": 0.023691,
+    "hawaii_north_shore_surf_shack_bird_51c1": 0.019431,
+    "hawaii_rainforest_waterfall_bird_4453": 0.0189885,
+    "italy_amalfi_cliff_lemons_bird_5a1c": 0.0247185,
+    "italy_tuscan_hill_village_bird_a61f": 0.0197385,
+    "mexico_dia_de_muertos_plaza_bird_8d56": 0.021246,
+    "mexico_yucatan_cenote_ruins_bird_b8be": 0.0166635,
+    "pirate_shipwreck_island_broken_bow_lagoon_bird_ae98": 0.0193185,
+    "pirate_shipwreck_island_treasure_cove_camp_bird_13c5": 0.020736
+  },
+  "total_cost_usd": 0.2016525
+}

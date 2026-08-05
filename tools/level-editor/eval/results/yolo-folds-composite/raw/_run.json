@@ -1,0 +1,37 @@
+{
+  "runner": "stitch-folds",
+  "sources": {
+    "ad_campaigns_ad_autumn_forest_bird_389c": "yolo11m-foldA-golden",
+    "ad_campaigns_ad_autumn_forest_bird_native2k": "yolo11m-foldA-golden",
+    "ad_campaigns_ad_autumn_forest_bird_poststretch2": "yolo11m-foldA-golden",
+    "ad_campaigns_ad_bazaar_alley_bird_3663": "yolo11m-foldD-golden",
+    "ad_campaigns_ad_castle_market_bird_9721": "yolo11m-foldD-golden",
+    "ad_campaigns_ad_japanese_garden_bird_cd3d": "yolo11m-foldD-golden",
+    "ad_campaigns_ad_snowy_chalet_bird_c64d": "yolo11m-foldD-golden",
+    "ad_campaigns_ad_treehouse_village_bird_30fd": "yolo11m-foldD-golden",
+    "alpine_meadow_cheese_farm_courtyard_bird_50c1": "yolo11m-foldD-golden",
+    "alpine_meadow_goat_pasture_terraces_bird_6dff": "yolo11m-foldD-golden",
+    "alpine_meadow_herb_market_garden_bird_cf51": "yolo11m-foldD-golden",
+    "alpine_meadow_snowmelt_creek_bridges_bird_5c36": "yolo11m-foldD-golden",
+    "ancient_forest_creek_autumn_pond_reeds_bird_da7e": "yolo11m-foldD-golden",
+    "fairytale_forest_fairy_ring_picnic_bird_9ed2": "yolo11m-foldD-golden",
+    "hawaii_north_shore_surf_shack_bird_51c1": "yolo11m-foldD-golden",
+    "hawaii_rainforest_waterfall_bird_4453": "yolo11m-foldC-golden",
+    "italy_amalfi_cliff_lemons_bird_5a1c": "yolo11m-foldD-golden",
+    "italy_tuscan_hill_village_bird_a61f": "yolo11m-foldD-golden",
+    "mexico_dia_de_muertos_plaza_bird_8d56": "yolo11m-foldD-golden",
+    "mexico_yucatan_cenote_ruins_bird_b8be": "yolo11m-foldC-golden",
+    "pirate_shipwreck_island_broken_bow_lagoon_bird_ae98": "yolo11m-foldB-golden",
+    "pirate_shipwreck_island_treasure_cove_camp_bird_13c5": "yolo11m-foldB-golden"
+  },
+  "backend": "yolo11m LOFO composite",
+  "weights": "4 fold best.pt",
+  "weight_sha256": {
+    "foldA": "3a4dcc2885db64fc529d2324baa1d485bea906ed4e54ed1706c3a7bf76bae8c9",
+    "foldB": "8014edb268c2a3140354d17968165bc9929e8408199b846a3bb0df039f7bd4ab",
+    "foldC": "b83a8373592d80bf3cdd5a6ff0e65476802aa648bcc7e45ecf203d81a197da40",
+    "foldD": "f318fb9fe2e6fb20b76e0f3e6985ee6cb48a1717d1055c7cb4fc80bea2adc941"
+  },
+  "weights_location": "ubuntu-server:~/hitbox-lab/runs/detect/yolo11m-fold{A,B,C,D}/weights/best.pt",
+  "base_model": "yolo11m.pt imgsz=1024 epochs=150 patience=30 batch=8 seed=0 deterministic"
+}

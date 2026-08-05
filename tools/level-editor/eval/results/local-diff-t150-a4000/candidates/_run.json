@@ -1,0 +1,35 @@
+{
+  "runner": "local-diff",
+  "params": {
+    "out_dir": "eval/results/local-diff-t150-a4000/candidates",
+    "threshold": 150,
+    "min_area": 4000,
+    "merge_px": 4,
+    "center": "centroid"
+  },
+  "timings_s": {
+    "ad_campaigns_ad_autumn_forest_bird_389c": 5.4,
+    "ad_campaigns_ad_autumn_forest_bird_native2k": 1.11,
+    "ad_campaigns_ad_autumn_forest_bird_poststretch2": 1.25,
+    "ad_campaigns_ad_bazaar_alley_bird_3663": 3.07,
+    "ad_campaigns_ad_castle_market_bird_9721": 1.6,
+    "ad_campaigns_ad_japanese_garden_bird_cd3d": 3.62,
+    "ad_campaigns_ad_snowy_chalet_bird_c64d": 1.65,
+    "ad_campaigns_ad_treehouse_village_bird_30fd": 3.13,
+    "alpine_meadow_cheese_farm_courtyard_bird_50c1": 3.14,
+    "alpine_meadow_goat_pasture_terraces_bird_6dff": 2.25,
+    "alpine_meadow_herb_market_garden_bird_cf51": 2.17,
+    "alpine_meadow_snowmelt_creek_bridges_bird_5c36": 3.63,
+    "ancient_forest_creek_autumn_pond_reeds_bird_da7e": 4.39,
+    "fairytale_forest_fairy_ring_picnic_bird_9ed2": 3.64,
+    "hawaii_north_shore_surf_shack_bird_51c1": 2.81,
+    "hawaii_rainforest_waterfall_bird_4453": 3.41,
+    "italy_amalfi_cliff_lemons_bird_5a1c": 1.74,
+    "italy_tuscan_hill_village_bird_a61f": 8.06,
+    "mexico_dia_de_muertos_plaza_bird_8d56": 7.13,
+    "mexico_yucatan_cenote_ruins_bird_b8be": 0.19,
+    "pirate_shipwreck_island_broken_bow_lagoon_bird_ae98": 3.1,
+    "pirate_shipwreck_island_treasure_cove_camp_bird_13c5": 0.24
+  },
+  "total_s": 66.7
+}

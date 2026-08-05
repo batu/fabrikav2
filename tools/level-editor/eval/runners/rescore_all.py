@@ -1,0 +1,37 @@
+"""Rescore every run in eval/results/ (rebuilds RESULTS.md from scratch,
+preserving each run's notes/meta from its previous metrics.json)."""
+
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+EVAL_DIR = Path(__file__).resolve().parent.parent
+RESULTS = EVAL_DIR / "results"
+
+# Rebuild into a temp file and swap at the end: a mid-loop crash must not
+# leave a silently truncated ranking table in place.
+md = RESULTS / "RESULTS.md"
+tmp = RESULTS / "RESULTS.md.tmp"
+if tmp.exists():
+    tmp.unlink()
+skipped = []
+for run_dir in sorted(RESULTS.iterdir()):
+    cand = run_dir / "candidates"
+    if not cand.is_dir():
+        if run_dir.is_dir() and run_dir.name != "compare":
+            skipped.append(run_dir.name)
+        continue
+    meta_p = run_dir / "metrics.json"
+    notes, meta = "", {}
+    if meta_p.exists():
+        old = json.loads(meta_p.read_text())
+        notes, meta = old.get("notes", ""), old.get("meta", {})
+    subprocess.run([sys.executable, str(EVAL_DIR / "score.py"), str(cand),
+                    "--run-id", run_dir.name, "--notes", notes,
+                    "--meta", json.dumps(meta), "--results-md", str(tmp)],
+                   check=True, stdout=subprocess.DEVNULL)
+    print("rescored", run_dir.name)
+tmp.replace(md)
+if skipped:
+    print(f"skipped (no candidates/, raw-only or aux dirs): {', '.join(skipped)}")

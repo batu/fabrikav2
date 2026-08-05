@@ -228,6 +228,35 @@ def cmd_serve(args: argparse.Namespace) -> None:
     os.execv(sys.executable, argv)
 
 
+def cmd_eval_compare(args: argparse.Namespace) -> None:
+    """Server-free: side-by-side golden-vs-run comparison report over the
+    frozen golden set (eval/compare.py). Per-level renders are cached and
+    only stale/forced levels are regenerated, so tweaking a few levels and
+    rerunning rebuilds exactly those rows. Read-only over golden data."""
+    import importlib.util
+
+    compare_path = Path(__file__).resolve().parents[2] / "eval" / "compare.py"
+    if not compare_path.is_file():
+        raise CliError("eval_compare_missing",
+                       f"{compare_path} not found — eval-compare only works from a "
+                       "source checkout (eval/ is not packaged)", stage="preflight")
+    spec = importlib.util.spec_from_file_location("eval_compare", compare_path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    runs = [r for r in args.runs.split(",") if r]
+    levels = [s for s in args.levels.split(",") if s] or None
+    out_dir = Path(args.out_dir) if args.out_dir else mod.EVAL_DIR / "results" / "compare"
+    try:
+        for r in runs:
+            if not (mod.EVAL_DIR / "results" / r / "candidates").is_dir():
+                raise mod.CompareError(f"run '{r}' has no candidates dir under eval/results/")
+        out_html, rendered = mod.generate(runs, out_dir, levels=levels, force=args.force)
+    except mod.CompareError as err:
+        raise CliError("eval_compare_failed", str(err), stage="eval-compare") from err
+    _emit(args, {"outHtml": str(out_html), "rendered": rendered,
+                 "runs": runs, "forced": bool(args.force or levels)})
+
+
 def cmd_doctor(args: argparse.Namespace) -> None:
     """Server-free workspace census: orphaned sessions, stuck jobs, stale
     locks, disk usage. Reports; never mutates."""
@@ -1163,6 +1192,14 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = verb("doctor", cmd_doctor, needs_client=False)
     p.add_argument("--game", required=True)
+
+    p = verb("eval-compare", cmd_eval_compare, needs_client=False)
+    p.add_argument("--runs", default="vlm-snap,ensF2hi-snap",
+                   help="csv of run ids under eval/results/")
+    p.add_argument("--levels", default="",
+                   help="csv of level ids to force re-render (others reuse cache)")
+    p.add_argument("--force", action="store_true", help="re-render every level")
+    p.add_argument("--out-dir", default=None)
 
     verb("status", cmd_status)
     verb("config", cmd_config)

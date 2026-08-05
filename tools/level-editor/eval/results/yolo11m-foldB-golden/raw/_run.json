@@ -1,0 +1,42 @@
+{
+  "backend": "yolo-custom",
+  "weights": "runs/detect/yolo11m-foldB/weights/best.pt",
+  "params": {
+    "backend": "yolo-custom",
+    "out": "runs/yolo11m-foldB-golden",
+    "tile": 1024,
+    "overlap": 256,
+    "conf": 0.05,
+    "prompt": "bird",
+    "weights": "runs/detect/yolo11m-foldB/weights/best.pt",
+    "distractors": "",
+    "nms_iou": 0.5,
+    "full_pass": false
+  },
+  "timings_s": {
+    "ad_campaigns_ad_autumn_forest_bird_389c": 2.28,
+    "ad_campaigns_ad_autumn_forest_bird_native2k": 0.48,
+    "ad_campaigns_ad_autumn_forest_bird_poststretch2": 0.76,
+    "ad_campaigns_ad_bazaar_alley_bird_3663": 0.73,
+    "ad_campaigns_ad_castle_market_bird_9721": 0.73,
+    "ad_campaigns_ad_japanese_garden_bird_cd3d": 0.74,
+    "ad_campaigns_ad_snowy_chalet_bird_c64d": 0.76,
+    "ad_campaigns_ad_treehouse_village_bird_30fd": 0.73,
+    "alpine_meadow_cheese_farm_courtyard_bird_50c1": 0.75,
+    "alpine_meadow_goat_pasture_terraces_bird_6dff": 0.74,
+    "alpine_meadow_herb_market_garden_bird_cf51": 0.76,
+    "alpine_meadow_snowmelt_creek_bridges_bird_5c36": 0.76,
+    "ancient_forest_creek_autumn_pond_reeds_bird_da7e": 0.76,
+    "fairytale_forest_fairy_ring_picnic_bird_9ed2": 0.76,
+    "hawaii_north_shore_surf_shack_bird_51c1": 0.73,
+    "hawaii_rainforest_waterfall_bird_4453": 0.74,
+    "italy_amalfi_cliff_lemons_bird_5a1c": 0.75,
+    "italy_tuscan_hill_village_bird_a61f": 0.75,
+    "mexico_dia_de_muertos_plaza_bird_8d56": 0.76,
+    "mexico_yucatan_cenote_ruins_bird_b8be": 0.07,
+    "pirate_shipwreck_island_broken_bow_lagoon_bird_ae98": 0.74,
+    "pirate_shipwreck_island_treasure_cove_camp_bird_13c5": 0.07
+  },
+  "gpu_mem_mb": 328,
+  "torch": "2.13.0+cu130"
+}
