@@ -1,6 +1,6 @@
 {
   "run_id": "yolo11s-v1-c010-conf0.6",
-  "timestamp": "2026-08-05T14:20:10+00:00",
+  "timestamp": "2026-08-05T14:44:07+00:00",
   "notes": "yolo-custom conf>=0.6 tiled",
   "meta": {
     "backend": "yolo-custom",
@@ -26,6 +26,9 @@
   "center_err_px4096": 46.32306000482779,
   "radius_fit": 0.34074074074074073,
   "duplicates": 0,
+  "excluded_unlabeled": [
+    "ancient_forest_creek_autumn_pond_reeds_bird_da7e"
+  ],
   "per_level": {
     "ad_campaigns_ad_autumn_forest_bird_389c": {
       "golden": 16,
@@ -407,18 +410,6 @@
       "false_positives": 0,
       "duplicates": 0,
       "recall": 0.0,
-      "precision": null,
-      "center_err_px4096": null,
-      "radius_fit": null
-    },
-    "ancient_forest_creek_autumn_pond_reeds_bird_da7e": {
-      "golden": 0,
-      "candidates": 0,
-      "found": 0,
-      "missed": [],
-      "false_positives": 0,
-      "duplicates": 0,
-      "recall": null,
       "precision": null,
       "center_err_px4096": null,
       "radius_fit": null

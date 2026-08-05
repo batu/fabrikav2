@@ -1,15 +1,18 @@
 {
   "run_id": "local-diff-t200-a1500",
-  "timestamp": "2026-08-05T14:15:49+00:00",
+  "timestamp": "2026-08-05T14:44:06+00:00",
   "notes": "local-diff t200 a1500",
   "meta": {},
   "golden_total": 412,
-  "candidates_total": 3696,
+  "candidates_total": 3400,
   "recall": 0.40048543689320387,
-  "precision": 0.04897186147186147,
+  "precision": 0.05323529411764706,
   "center_err_px4096": 47.66587302860733,
   "radius_fit": 0.26180941988146206,
   "duplicates": 17,
+  "excluded_unlabeled": [
+    "ancient_forest_creek_autumn_pond_reeds_bird_da7e"
+  ],
   "per_level": {
     "ad_campaigns_ad_autumn_forest_bird_389c": {
       "golden": 16,
@@ -341,18 +344,6 @@
       "precision": 0.019305019305019305,
       "center_err_px4096": 38.58118867589519,
       "radius_fit": 0.0
-    },
-    "ancient_forest_creek_autumn_pond_reeds_bird_da7e": {
-      "golden": 0,
-      "candidates": 296,
-      "found": 0,
-      "missed": [],
-      "false_positives": 296,
-      "duplicates": 0,
-      "recall": null,
-      "precision": 0.0,
-      "center_err_px4096": null,
-      "radius_fit": null
     },
     "fairytale_forest_fairy_ring_picnic_bird_9ed2": {
       "golden": 24,

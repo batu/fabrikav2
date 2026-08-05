@@ -1,6 +1,6 @@
 {
   "run_id": "gdino-c020-conf0.35",
-  "timestamp": "2026-08-05T14:16:37+00:00",
+  "timestamp": "2026-08-05T14:44:06+00:00",
   "notes": "gdino conf>=0.35 tiled",
   "meta": {
     "backend": "gdino",
@@ -19,12 +19,15 @@
     "gpu_mem_mb": 1798
   },
   "golden_total": 412,
-  "candidates_total": 605,
+  "candidates_total": 580,
   "recall": 0.9514563106796117,
-  "precision": 0.8049586776859504,
+  "precision": 0.8396551724137931,
   "center_err_px4096": 37.16465135533935,
   "radius_fit": 0.1479896543912619,
   "duplicates": 95,
+  "excluded_unlabeled": [
+    "ancient_forest_creek_autumn_pond_reeds_bird_da7e"
+  ],
   "per_level": {
     "ad_campaigns_ad_autumn_forest_bird_389c": {
       "golden": 16,
@@ -175,18 +178,6 @@
       "precision": 0.9259259259259259,
       "center_err_px4096": 41.569074423322114,
       "radius_fit": 0.0
-    },
-    "ancient_forest_creek_autumn_pond_reeds_bird_da7e": {
-      "golden": 0,
-      "candidates": 25,
-      "found": 0,
-      "missed": [],
-      "false_positives": 25,
-      "duplicates": 0,
-      "recall": null,
-      "precision": 0.0,
-      "center_err_px4096": null,
-      "radius_fit": null
     },
     "fairytale_forest_fairy_ring_picnic_bird_9ed2": {
       "golden": 24,

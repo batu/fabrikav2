@@ -29,7 +29,7 @@ def selected_bg(sdir: Path) -> Path:
 
 
 def snap(sdir: Path, hitboxes: list[dict], *, crop_factor=2.2, threshold=80,
-         min_area=900, max_shift_factor=1.6, prune_empty=False) -> list[dict]:
+         min_area=900, max_shift_factor=1.6, dilate=5, prune_empty=False) -> list[dict]:
     a_full = np.asarray(Image.open(selected_bg(sdir)).convert("RGB"), dtype=np.int16)
     b_full = np.asarray(Image.open(sdir / "color.png").convert("RGB"), dtype=np.int16)
     H, W = b_full.shape[:2]
@@ -41,7 +41,8 @@ def snap(sdir: Path, hitboxes: list[dict], *, crop_factor=2.2, threshold=80,
         x0, y0 = max(0, hb["x"] - pad), max(0, hb["y"] - pad)
         x1, y1 = min(W, hb["x"] + pad), min(H, hb["y"] + pad)
         diff = np.abs(a_full[y0:y1, x0:x1] - b_full[y0:y1, x0:x1]).sum(axis=2) > threshold
-        diff = ndi.binary_dilation(diff, iterations=5)
+        if dilate:
+            diff = ndi.binary_dilation(diff, iterations=dilate)
         labels, _n = ndi.label(diff)
         best = None
         for idx, sl in enumerate(ndi.find_objects(labels), start=1):
@@ -73,6 +74,9 @@ def main() -> None:
     ap.add_argument("in_dir", type=Path)
     ap.add_argument("out_dir", type=Path)
     ap.add_argument("--prune-empty", action="store_true")
+    ap.add_argument("--threshold", type=int, default=80)
+    ap.add_argument("--dilate", type=int, default=5)
+    ap.add_argument("--min-area", type=int, default=900)
     args = ap.parse_args()
     args.out_dir.mkdir(parents=True, exist_ok=True)
     manifest = json.loads((GOLDEN_DIR / "manifest.json").read_text())
@@ -83,7 +87,8 @@ def main() -> None:
             continue
         t0 = time.time()
         hbs = json.loads(src.read_text())
-        snapped = snap(Path(info["color"]).parent, hbs, prune_empty=args.prune_empty)
+        snapped = snap(Path(info["color"]).parent, hbs, prune_empty=args.prune_empty,
+                       threshold=args.threshold, dilate=args.dilate, min_area=args.min_area)
         timings[sid] = round(time.time() - t0, 2)
         (args.out_dir / f"{sid}.json").write_text(json.dumps(snapped))
         print(f"{sid}: {len(hbs)} -> {len(snapped)} in {timings[sid]}s")

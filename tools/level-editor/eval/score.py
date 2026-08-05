@@ -108,8 +108,14 @@ def main() -> int:
     all_center: list[float] = []
     all_radius: list[float] = []
 
+    excluded: list[str] = []
     for sid, info in manifest.items():
         golden = json.loads((GOLDEN_DIR / f"{sid}.hitboxes.json").read_text())
+        if not golden:
+            # No ground truth (level was never hand-hitboxed, e.g. _da7e which
+            # visibly contains birds) — cannot score, exclude entirely.
+            excluded.append(sid)
+            continue
         cands = load_candidates(args.candidates_dir / f"{sid}.json")
         lvl = score_level(golden, cands, info["dims"][0])
         per_level[sid] = lvl
@@ -122,6 +128,8 @@ def main() -> int:
     # Exact aggregate center/radius means: re-walk matches per level.
     for sid, info in manifest.items():
         golden = json.loads((GOLDEN_DIR / f"{sid}.hitboxes.json").read_text())
+        if not golden:
+            continue
         cands = load_candidates(args.candidates_dir / f"{sid}.json")
         scale = NORM / info["dims"][0]
         dist = [[math.hypot(c["x"] - g["x"], c["y"] - g["y"]) for c in cands] for g in golden]
@@ -151,6 +159,7 @@ def main() -> int:
         "center_err_px4096": sum(all_center) / len(all_center) if all_center else None,
         "radius_fit": sum(all_radius) / len(all_radius) if all_radius else None,
         "duplicates": tot_dup,
+        "excluded_unlabeled": excluded,
         "per_level": per_level,
     }
 
