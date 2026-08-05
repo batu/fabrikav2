@@ -263,6 +263,7 @@ export default function GalleryReviewModal({
   const [activeAction, setActiveAction] = useState<string | null>(null);
   const [colorVersion, setColorVersion] = useState(0);
   const [visibilityIssues, setVisibilityIssues] = useState<VisibilityIssue[]>([]);
+  const [pickedUpView, setPickedUpView] = useState(false);
   const [loadedMeta, setLoadedMeta] = useState<{ setting?: string | null; scene?: string | null; entity?: string | null; model?: string }>({});
 
   const dispatch: React.Dispatch<LevelCanvasAction> = useCallback((action) => {
@@ -603,8 +604,15 @@ export default function GalleryReviewModal({
 
   const canvasBgUrl = useMemo(() => {
     if (!item || !state.sessionId || !card) return undefined;
+    if (pickedUpView) {
+      // "All picked up" preview: the clean selected background is what the
+      // runtime reveals once every bird is collected. Viewing it under the
+      // hitbox overlay makes restore mismatches (drift/warp) obvious.
+      const bg = String(Number.isInteger(state.selectedBgIndex) ? state.selectedBgIndex : 0).padStart(2, '0');
+      return `/levels/${item.id}/bg_${bg}.png?v=${item.assetVersion ?? colorVersion}`;
+    }
     return variantPreviewUrl(item, card.variant, item.assetVersion ?? colorVersion);
-  }, [item, state.sessionId, colorVersion, card]);
+  }, [item, state.sessionId, colorVersion, card, pickedUpView, state.selectedBgIndex]);
   const downloadHref = item && card
     ? `/levels/${item.id}/${variantSourceFile(card.variant, state.selectedBgIndex)}?v=${item.assetVersion ?? colorVersion}`
     : '';
@@ -699,6 +707,17 @@ export default function GalleryReviewModal({
               width: 360, flexShrink: 0, overflowY: 'auto',
               display: 'flex', flexDirection: 'column', gap: 12,
             }}>
+              <button
+                type="button"
+                onClick={() => setPickedUpView((v) => !v)}
+                style={{
+                  padding: '10px 12px', borderRadius: 8, border: '1px solid #333', cursor: 'pointer',
+                  background: pickedUpView ? '#2e5d34' : '#1a1a1a', color: pickedUpView ? '#d6ffd9' : '#ccc',
+                  fontWeight: 700,
+                }}
+              >
+                {pickedUpView ? '◀ Back to painted scene' : '🐦 All picked up (restore view)'}
+              </button>
               <div style={{ background: '#0a0a0a', border: '1px solid #222', borderRadius: 8, padding: 12 }}>
                 <div style={{ fontSize: '0.85rem', color: '#ccc', marginBottom: 6 }}>
                   Hitboxes — {state.hitboxes.length}

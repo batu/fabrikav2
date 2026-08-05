@@ -3310,6 +3310,11 @@ def _require_local_alignment(sdir: Path, raw: dict, *, max_shift: int = 8) -> No
     """
     import numpy as _np
 
+    # Dev-only bypass for A/B evaluation exports where the human IS the
+    # judge. Never set in a production/build lane.
+    if os.environ.get("FTD_SKIP_ALIGNMENT_GATE") == "1":
+        return
+
     color_path = sdir / "color.png"
     selected = raw.get("selected_bg") or 0
     bg_path = sdir / f"bg_{int(selected):02d}.png"
