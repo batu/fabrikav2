@@ -2701,9 +2701,16 @@ def materialize_detection_sprites(
             sprite_rgba = None
             if not os.environ.get("FTD_DISABLE_FLATKEY_SPRITES"):
                 from levelbuilder.api.flatkey import flatkey_recreate_sprite
-                inpaint_model = str(raw.get("inpaint_model") or raw.get("model") or "google/gemini-3.1-flash-image-preview")
+                # Cutout model is deliberately DECOUPLED from the scene paint
+                # model (2026-08-05): cutouts are the dominant per-level cost
+                # (16 calls vs 1) and quality-matched at half price on
+                # flash-lite ($0.034 vs $0.068 metered, identical output on
+                # the eval sample). At 1000 levels this knob is ~$550.
+                flatkey_model = os.environ.get(
+                    "FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-lite-image"
+                )
                 try:
-                    sprite_rgba = flatkey_recreate_sprite(painted, model=inpaint_model)
+                    sprite_rgba = flatkey_recreate_sprite(painted, model=flatkey_model)
                 except Exception:
                     sprite_rgba = None
             if sprite_rgba is not None:
