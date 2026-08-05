@@ -228,6 +228,27 @@ def cmd_serve(args: argparse.Namespace) -> None:
     os.execv(sys.executable, argv)
 
 
+def cmd_eval_compare(args: argparse.Namespace) -> None:
+    """Server-free: side-by-side golden-vs-run comparison report over the
+    frozen golden set (eval/compare.py). Per-level renders are cached and
+    only stale/forced levels are regenerated, so tweaking a few levels and
+    rerunning rebuilds exactly those rows. Read-only over golden data."""
+    import importlib.util
+
+    compare_path = Path(__file__).resolve().parents[2] / "eval" / "compare.py"
+    spec = importlib.util.spec_from_file_location("eval_compare", compare_path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    argv = ["--runs", args.runs]
+    if args.levels:
+        argv += ["--levels", args.levels]
+    if args.force:
+        argv += ["--force"]
+    if args.out_dir:
+        argv += ["--out-dir", args.out_dir]
+    mod.main(argv)
+
+
 def cmd_doctor(args: argparse.Namespace) -> None:
     """Server-free workspace census: orphaned sessions, stuck jobs, stale
     locks, disk usage. Reports; never mutates."""
@@ -1164,6 +1185,14 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = verb("doctor", cmd_doctor, needs_client=False)
     p.add_argument("--game", required=True)
+
+    p = verb("eval-compare", cmd_eval_compare, needs_client=False)
+    p.add_argument("--runs", default="vlm-snap,ensF2hi-snap",
+                   help="csv of run ids under eval/results/")
+    p.add_argument("--levels", default="",
+                   help="csv of level ids to force re-render (others reuse cache)")
+    p.add_argument("--force", action="store_true", help="re-render every level")
+    p.add_argument("--out-dir", default=None)
 
     verb("status", cmd_status)
     verb("config", cmd_config)
