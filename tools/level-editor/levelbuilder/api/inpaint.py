@@ -3280,6 +3280,19 @@ def _run_crop_inpaint_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
                 painted = painted.resize(crop_before.size, Image.LANCZOS)
             dog_mask = _extract_dog_pixels(crop_before, painted, threshold=30)
             hitbox = hitboxes_for_job[0]
+            # No-op gate (2026-08-05): crop_reference runs shipped 16/16
+            # "success" with EMPTY paints — the model returned the reference
+            # sheet unchanged, the diff mask was near-zero, and nothing
+            # checked. A painted subject must cover a meaningful fraction of
+            # its hitbox disc; below that the paint call was a no-op and the
+            # job must fail loudly instead of recording an invisible dog.
+            _hb_area = 3.14159 * float(getattr(hitbox, "r", 0) or (hitbox.get("r") if isinstance(hitbox, dict) else 0) or 58) ** 2
+            _mask_px = sum(dog_mask.point(lambda v: 1 if v > 0 else 0).getdata())
+            if _mask_px < max(200.0, 0.02 * _hb_area):
+                dog_mask.close()
+                raise RuntimeError(
+                    f"paint no-op: subject mask {_mask_px}px is below 2% of the hitbox disc — model returned the crop unchanged"
+                )
             repaired_mask = _subject_only_composite_mask(
                 clean_crop=clean_crop,
                 painted=painted,
