@@ -288,7 +288,7 @@ export default function StepPlaceDogs({
             <input
               type="range"
               min={20}
-              max={120}
+              max={200}
               value={radius}
               onChange={handleRadiusChange}
               className="radius-slider"

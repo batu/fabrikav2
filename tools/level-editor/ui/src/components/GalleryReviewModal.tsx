@@ -706,7 +706,7 @@ export default function GalleryReviewModal({
                 <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: '0.8rem', color: '#ccc', marginBottom: 10 }}>
                   <span>Radius <strong>{state.radius}px</strong></span>
                   <input
-                    type="range" min={20} max={120} step={1} value={state.radius}
+                    type="range" min={20} max={200} step={1} value={state.radius}
                     onChange={(e) => dispatchNarrow({ type: 'SET_RADIUS', radius: parseInt(e.target.value) || 40 })}
                   />
                 </label>

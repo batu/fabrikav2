@@ -129,7 +129,8 @@ describe("home menu polish regressions", () => {
     expect(sideNavIconRule).toContain("transform: translateY(-8px)");
     expect(CSS_TEXT).toMatch(/#home-shell #home-nav-achievements img\s*\{[^}]*width:\s*62px;[^}]*height:\s*62px;/s);
     expect(CSS_TEXT).not.toContain(".home-nav-play-btn");
-    expect(CSS_TEXT).toContain("bottom: calc(env(safe-area-inset-bottom, 0px) * 0.55 + 30px);");
+    // 2026-08-05: labels dropped 20px — text was overlapping the nav icons.
+    expect(CSS_TEXT).toContain("bottom: calc(env(safe-area-inset-bottom, 0px) * 0.55 + 10px);");
     expect(CSS_TEXT).toContain("font-size: 11px;");
     expect(CSS_TEXT).toContain("line-height: 18px;");
     expect(CSS_TEXT).toContain("text-align: center;");

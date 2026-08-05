@@ -2,52 +2,15 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-// Interim single-level test campaign (2026-08-04): the flat-key/dissolve
-// approach test ships the autumn-pond level alone; the ten-keeper campaign
-// replaces this list after Batu's review.
+// Interim single-level test campaign (2026-08-05): hitbox-quality salvage
+// ships the autumn-forest ad level alone; the 20-level campaign list
+// returns after Batu's per-level hitbox review (see git history of this
+// file for the full list).
 const CAMPAIGN_IDS = [
-  'ancient_forest_creek_autumn_pond_reeds_bird_da7e',
-  'hawaii_rainforest_waterfall_bird_4453',
-  'hawaii_north_shore_surf_shack_bird_51c1',
-  'pirate_shipwreck_island_broken_bow_lagoon_bird_ae98',
-  'pirate_shipwreck_island_treasure_cove_camp_bird_13c5',
-  'italy_amalfi_cliff_lemons_bird_5a1c',
-  'italy_tuscan_hill_village_bird_a61f',
-  'mexico_dia_de_muertos_plaza_bird_8d56',
-  'mexico_yucatan_cenote_ruins_bird_b8be',
-  'fairytale_forest_fairy_ring_picnic_bird_9ed2',
   'ad_campaigns_ad_autumn_forest_bird_389c',
-  'ad_campaigns_ad_snowy_chalet_bird_c64d',
-  'ad_campaigns_ad_castle_market_bird_9721',
-  'ad_campaigns_ad_japanese_garden_bird_cd3d',
-  'ad_campaigns_ad_bazaar_alley_bird_3663',
-  'ad_campaigns_ad_treehouse_village_bird_30fd',
-  'alpine_meadow_cheese_farm_courtyard_bird_50c1',
-  'alpine_meadow_goat_pasture_terraces_bird_6dff',
-  'alpine_meadow_herb_market_garden_bird_cf51',
-  'alpine_meadow_snowmelt_creek_bridges_bird_5c36',
 ] as const;
 const TARGET_COUNTS: Record<string, number> = {
-  ancient_forest_creek_autumn_pond_reeds_bird_da7e: 18,
-  hawaii_rainforest_waterfall_bird_4453: 19,
-  hawaii_north_shore_surf_shack_bird_51c1: 20,
-  pirate_shipwreck_island_broken_bow_lagoon_bird_ae98: 20,
-  pirate_shipwreck_island_treasure_cove_camp_bird_13c5: 19,
-  italy_amalfi_cliff_lemons_bird_5a1c: 23,
-  italy_tuscan_hill_village_bird_a61f: 20,
-  mexico_dia_de_muertos_plaza_bird_8d56: 22,
-  mexico_yucatan_cenote_ruins_bird_b8be: 17,
-  fairytale_forest_fairy_ring_picnic_bird_9ed2: 24,
   ad_campaigns_ad_autumn_forest_bird_389c: 16,
-  ad_campaigns_ad_snowy_chalet_bird_c64d: 20,
-  ad_campaigns_ad_castle_market_bird_9721: 17,
-  ad_campaigns_ad_japanese_garden_bird_cd3d: 17,
-  ad_campaigns_ad_bazaar_alley_bird_3663: 25,
-  ad_campaigns_ad_treehouse_village_bird_30fd: 21,
-  alpine_meadow_cheese_farm_courtyard_bird_50c1: 24,
-  alpine_meadow_goat_pasture_terraces_bird_6dff: 23,
-  alpine_meadow_herb_market_garden_bird_cf51: 17,
-  alpine_meadow_snowmelt_creek_bridges_bird_5c36: 20,
 };
 
 const levelsRoot = join(process.cwd(), 'public/levels');

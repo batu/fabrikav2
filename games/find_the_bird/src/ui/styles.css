@@ -3507,7 +3507,7 @@
 #home-shell .home-nav-btn > span {
   position: absolute;
   right: 0;
-  bottom: calc(env(safe-area-inset-bottom, 0px) * 0.55 + 30px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) * 0.55 + 10px);
   left: 0;
   font-size: 11px;
   line-height: 18px;
