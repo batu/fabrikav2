@@ -214,3 +214,131 @@ def flatkey_recreate_sprite(
             continue
         return cutout
     return None
+
+
+# ── Batched recreate (2026-08-05) ────────────────────────────────────────────
+# One grid call recreates up to grid² birds at once. Measured on native2k
+# (16 birds, flash-lite): 3x3 matched single-call quality at $0.0045/bird vs
+# $0.034; 4x4 passed the numeric gates but visibly bled panels (retained
+# scenery, merged fragments) — do not raise the default above 3.
+# Two splitter lessons are load-bearing here: the model re-renders panel
+# geometry (never split at input coordinates — detect magenta components and
+# take the largest per cell), and dilation bridges the gutters (label raw).
+
+GRID_PROMPT_TEMPLATE = (
+    "This image is a {n}x{n} grid of {count} panels separated by thick white "
+    "gutters. Each panel shows one cartoon bird in a scene. Recreate EACH "
+    "panel's bird — identical species impression, colors, markings, pose, "
+    "expression, and any held or worn item — as a clean sticker illustration "
+    "on a completely uniform, flat, pure magenta (#FF00FF) background, "
+    "KEEPING THE EXACT SAME grid layout and white gutters. Exactly one bird "
+    "per panel, centered in its panel. No shadows, no scenery, no gradients: "
+    "perfectly flat magenta in every panel except the birds. Do not merge, "
+    "move, or swap panels."
+)
+_GRID_CANVAS = 1000  # flash-lite rejects >1K input
+_GRID_GUTTER = 20
+
+
+def _compose_grid(crops: list[Image.Image], n: int) -> Image.Image:
+    cell = (_GRID_CANVAS - (n + 1) * _GRID_GUTTER) // n
+    grid = Image.new("RGB", (_GRID_CANVAS, _GRID_CANVAS), (255, 255, 255))
+    for i, crop in enumerate(crops):
+        c = crop.convert("RGB").copy()
+        c.thumbnail((cell, cell))
+        x = _GRID_GUTTER + (i % n) * (cell + _GRID_GUTTER) + (cell - c.width) // 2
+        y = _GRID_GUTTER + (i // n) * (cell + _GRID_GUTTER) + (cell - c.height) // 2
+        grid.paste(c, (x, y))
+    return grid
+
+
+def split_grid_panels(out: Image.Image, n: int, count: int) -> list[Image.Image | None]:
+    """Locate each panel in a model-rendered grid by its magenta field.
+    Plain labeling (NO dilation — it bridges the gutters), largest
+    component per cell, cell assignment by centroid."""
+    from scipy import ndimage as _ndi
+
+    arr = np.asarray(out.convert("RGB"), dtype=float)
+    mag = (arr[:, :, 0] > 150) & (arr[:, :, 2] > 150) & (arr[:, :, 1] < 130)
+    labels, _ = _ndi.label(mag)
+    height, width = arr.shape[:2]
+    min_area = (700 // n) ** 2
+    best: dict[int, tuple[int, int, int, int]] = {}
+    for sl in _ndi.find_objects(labels):
+        if sl is None:
+            continue
+        h = sl[0].stop - sl[0].start
+        w = sl[1].stop - sl[1].start
+        if w * h < min_area:
+            continue
+        box = (sl[1].start, sl[0].start, sl[1].stop, sl[0].stop)
+        cx, cy = (box[0] + box[2]) / 2, (box[1] + box[3]) / 2
+        cell = int(cy * n / height) * n + int(cx * n / width)
+        if cell not in best or (box[2] - box[0]) * (box[3] - box[1]) > (
+            (best[cell][2] - best[cell][0]) * (best[cell][3] - best[cell][1])
+        ):
+            best[cell] = box
+    return [out.convert("RGB").crop(best[i]) if i in best else None for i in range(count)]
+
+
+def _panel_cutout(panel: Image.Image) -> Image.Image | None:
+    cutout = strip_flat_rim(despill(chroma_key(panel)))
+    alpha = np.asarray(cutout)[:, :, 3]
+    subject = float((alpha > 0).mean())
+    if not (0.02 < subject < 0.9):
+        return None
+    bbox = cutout.getbbox()
+    return cutout.crop(bbox) if bbox else None
+
+
+def flatkey_recreate_sprites_batch(
+    crops: dict[int, Image.Image],
+    *,
+    model: str,
+    grid: int = 3,
+) -> dict[int, Image.Image]:
+    """Batched flat-key recreate with a retry ladder.
+
+    grid x grid panels per call, gated per panel; panels that fail are
+    re-batched once at 2x2, and final stragglers fall back to the proven
+    single-call flatkey_recreate_sprite (which carries the judge gate).
+    Returns only successes; caller treats missing keys as fallback-chain.
+    """
+    from merceka_core.image import edit_image
+
+    results: dict[int, Image.Image] = {}
+
+    def _run(indices: list[int], n: int) -> list[int]:
+        failed: list[int] = []
+        per = n * n
+        for start in range(0, len(indices), per):
+            chunk = indices[start:start + per]
+            grid_img = _compose_grid([crops[i] for i in chunk], n)
+            try:
+                out = edit_image(
+                    grid_img,
+                    GRID_PROMPT_TEMPLATE.format(n=n, count=len(chunk)),
+                    model=model,
+                )
+            except Exception:
+                failed.extend(chunk)
+                continue
+            panels = split_grid_panels(out, n, len(chunk))
+            for idx, panel in zip(chunk, panels):
+                cut = _panel_cutout(panel) if panel is not None else None
+                if cut is None:
+                    failed.append(idx)
+                else:
+                    results[idx] = cut
+        return failed
+
+    pending = sorted(crops)
+    if grid >= 3:
+        pending = _run(pending, grid)
+    if pending:
+        pending = _run(pending, 2)
+    for idx in pending:
+        single = flatkey_recreate_sprite(crops[idx], model=model)
+        if single is not None:
+            results[idx] = single
+    return results

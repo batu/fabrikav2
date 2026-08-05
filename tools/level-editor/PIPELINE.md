@@ -29,7 +29,7 @@ level-editor recenter-hitboxes-local <sid> --prune-empty
 | Side margins | `sections.square_send_side_margin` | sized to square the send | Edge windows showed the worst displacement (43–448px). Margins stay original pixels; placement deadzones exclude them so no dot lands where paint can't reach. Squares still pan — these are artifact buffers, NOT phone-crop deadzones. |
 | Paint | flash via guarded client | 1 call, all birds | $0.068 flat regardless of canvas (1120 output image tokens). Client refuses aspect-mismatched returns (>2%) instead of silently stretching — the silent stretch was the root cause of the pickup-seam era. |
 | Post-paint snap | `recenter-hitboxes-local --prune-empty` | local diff | With an aligned scene the diff is bird-only, so diff-snap beats VLM boxes (16/16, 0 false). VLM detection (`gemini-3.6-flash`) remains the periodic auditor. |
-| Cutouts | flat-key recreate, `FTD_FLATKEY_MODEL` | **`google/gemini-3.1-flash-lite-image`** | $0.034/call metered vs $0.068, quality-identical on eval. Dominant per-level cost: 16 calls. Batching (4/grid ≈ $0.14/level) is a known lever — requires a per-panel gate first (crop_reference's silent no-op lesson). |
+| Cutouts | flat-key recreate, **batched 3x3 grids** (`FTD_FLATKEY_GRID`, `FTD_FLATKEY_MODEL`) | flash-lite, 3x3 default | $0.0045/bird metered (~$0.07/level) vs $0.034 single. Ladder: 3x3 → 2x2 retry → single (judge-gated). 4x4 passes numeric gates but visibly bleeds panels — capped at 3. Splitter detects magenta components (never split at input coords; no dilation — it bridges gutters). |
 | Tap tolerance | runtime `hitboxGeometry.ts` | 2.0× hitbox radius (squares) | Painted birds render larger than their disc; neighbor-overlap clamp prevents shared areas. |
 | Restore bg | masked writer | bird-pixels-only + phase-align + sharpness match | Clean patches are unsharp-masked toward local painted crispness (measured 11.98 vs 8.64 gradient energy gap). |
 
@@ -44,9 +44,9 @@ level-editor recenter-hitboxes-local <sid> --prune-empty
 
 ## Cost & time per level (metered where a meter exists)
 
-- bg $0.068 · paint $0.068 · cutouts ~$0.54 (lite × 16) · VLM audit ~$0.07
+- bg $0.068 · paint $0.068 · cutouts ~$0.07 (batched 3x3 lite) · VLM audit ~$0.07
 - ESRGAN ~2–7¢/call (fal — **not yet in the merceka ledger**, estimate)
-- Total ≈ **$0.80 and 6–10 min**; 20 levels ≈ $16 / ~3 h; 1000 levels ≈ $800.
+- Total ≈ **$0.30 and 5–8 min**; 20 levels ≈ $6 / ~2.5 h; 1000 levels ≈ $300.
 - Known metering gaps to close: fal, OpenAI-direct, smart-placement scoring.
 
 ## What was eliminated (don't relitigate without new evidence)

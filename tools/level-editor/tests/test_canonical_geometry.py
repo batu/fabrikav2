@@ -123,3 +123,69 @@ def test_local_alignment_skip_env_allows_shift(monkeypatch, tmp_path: Path) -> N
     monkeypatch.setenv("FTD_SKIP_ALIGNMENT_GATE", "1")
 
     _require_local_alignment(tmp_path, raw)
+
+
+class TestBatchedFlatkeySplitter:
+    def test_split_grid_panels_finds_each_cell(self):
+        # Synthetic model output: 3x3 magenta panels with colored blobs,
+        # separated by white gutters — the shape a compliant grid call returns.
+        from PIL import Image, ImageDraw
+        from levelbuilder.api.flatkey import split_grid_panels
+        n = 3
+        img = Image.new('RGB', (1000, 1000), (255, 255, 255))
+        d = ImageDraw.Draw(img)
+        cell = (1000 - (n + 1) * 20) // n
+        for i in range(n * n):
+            x = 20 + (i % n) * (cell + 20)
+            y = 20 + (i // n) * (cell + 20)
+            d.rectangle([x, y, x + cell, y + cell], fill=(255, 0, 255))
+            d.ellipse([x + 60, y + 60, x + cell - 60, y + cell - 60], fill=(90, 60, 30))
+        panels = split_grid_panels(img, n, n * n)
+        assert all(p is not None for p in panels)
+        # gutters must NOT merge panels: each panel is cell-sized, not global
+        for p in panels:
+            assert p.width < 1000 // 2 and p.height < 1000 // 2
+
+    def test_split_missing_panel_reported_none(self):
+        from PIL import Image, ImageDraw
+        from levelbuilder.api.flatkey import split_grid_panels
+        img = Image.new('RGB', (1000, 1000), (255, 255, 255))
+        d = ImageDraw.Draw(img)
+        # only 3 of 4 panels present
+        for i in [0, 1, 3]:
+            x = 24 + (i % 2) * 500
+            y = 24 + (i // 2) * 500
+            d.rectangle([x, y, x + 440, y + 440], fill=(255, 0, 255))
+        panels = split_grid_panels(img, 2, 4)
+        assert panels[2] is None
+        assert sum(p is not None for p in panels) == 3
+
+    def test_batch_ladder_falls_back_to_single(self, monkeypatch):
+        # edit_image is stubbed: grid calls return a USELESS all-white image
+        # (no magenta -> every panel fails), single-call recreate returns a
+        # valid flat sticker — the ladder must land every bird via singles.
+        from PIL import Image
+        import levelbuilder.api.flatkey as fk
+        calls = {'grid': 0, 'single': 0}
+        def fake_edit(image, prompt, *, model, **kw):
+            if 'grid of' in prompt:
+                calls['grid'] += 1
+                return Image.new('RGB', (1000, 1000), (255, 255, 255))
+            calls['single'] += 1
+            flat = Image.new('RGB', image.size, (255, 0, 255))
+            from PIL import ImageDraw
+            ImageDraw.Draw(flat).ellipse(
+                [image.width // 4, image.height // 4, 3 * image.width // 4, 3 * image.height // 4],
+                fill=(90, 60, 30),
+            )
+            return flat
+        import merceka_core.image as mi
+        monkeypatch.setattr(mi, 'edit_image', fake_edit)
+        # judge_gate shells out to codex — stub it or the test spends a
+        # minute per single call and can flake the retry count.
+        monkeypatch.setattr(fk, 'judge_gate', lambda cutout, painted: True)
+        crops = {i: Image.new('RGB', (200, 200), (200, 150, 90)) for i in range(4)}
+        out = fk.flatkey_recreate_sprites_batch(crops, model='test/x', grid=3)
+        assert calls['grid'] >= 2  # 3x3 pass + 2x2 retry
+        assert calls['single'] == 4
+        assert set(out) == set(crops)

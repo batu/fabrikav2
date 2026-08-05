@@ -2698,21 +2698,11 @@ def materialize_detection_sprites(
             # Primary: the map #14 winning technique — LLM flat-key recreate
             # (paid, ~$0.01-0.07/bird, metered). The free chain remains as
             # fallback; SAM2-remote retired in favor of SAM3 (tracked issue).
-            sprite_rgba = None
-            if not os.environ.get("FTD_DISABLE_FLATKEY_SPRITES"):
-                from levelbuilder.api.flatkey import flatkey_recreate_sprite
-                # Cutout model is deliberately DECOUPLED from the scene paint
-                # model (2026-08-05): cutouts are the dominant per-level cost
-                # (16 calls vs 1) and quality-matched at half price on
-                # flash-lite ($0.034 vs $0.068 metered, identical output on
-                # the eval sample). At 1000 levels this knob is ~$550.
-                flatkey_model = os.environ.get(
-                    "FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-lite-image"
-                )
-                try:
-                    sprite_rgba = flatkey_recreate_sprite(painted, model=flatkey_model)
-                except Exception:
-                    sprite_rgba = None
+            # Recreated sprite comes from the 3x3 batched flat-key pass run
+            # before this pool (see prebatched above) — one grid call covers
+            # nine birds; the ladder already retried failures at 2x2 and
+            # single. Missing key -> free extractor chain below.
+            sprite_rgba = prebatched.pop(index, None)
             if sprite_rgba is not None:
                 # Fit the recreated sprite into the detection box (centered-x,
                 # bottom-anchored — same contract as the shipped corpus lane),
@@ -2798,6 +2788,40 @@ def materialize_detection_sprites(
                 except (OSError, ValueError):
                     pass
             pending.append((index, hitbox_data))
+        # Batched flat-key recreate (2026-08-05, default 3x3): all pending
+        # birds' crops go through grid calls FIRST ($0.0045/bird vs $0.034
+        # single, quality-matched on the native2k eval; ladder falls back to
+        # 2x2 then single per failed panel). _process_one consumes the
+        # precomputed sprite and keeps its free-extractor fallback chain.
+        prebatched: dict[int, Image.Image] = {}
+        if not os.environ.get("FTD_DISABLE_FLATKEY_SPRITES"):
+            from levelbuilder.api.flatkey import flatkey_recreate_sprites_batch
+            flatkey_model = os.environ.get(
+                "FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-lite-image"
+            )
+            grid_n = max(1, int(os.environ.get("FTD_FLATKEY_GRID", "3")))
+            batch_crops: dict[int, Image.Image] = {}
+            for index, hitbox_data in pending:
+                detection = detection_by_hitbox[index]
+                padding = max(16, int(round(max(detection["width"], detection["height"]) * 0.35)))
+                box = (
+                    max(0, detection["x"] - padding),
+                    max(0, detection["y"] - padding),
+                    min(color.width, detection["x"] + detection["width"] + padding),
+                    min(color.height, detection["y"] + detection["height"] + padding),
+                )
+                batch_crops[index] = color.crop(box)
+            if batch_crops:
+                if grid_n >= 2:
+                    prebatched = flatkey_recreate_sprites_batch(
+                        batch_crops, model=flatkey_model, grid=grid_n,
+                    )
+                else:  # FTD_FLATKEY_GRID=1: force the single-call path
+                    for index, crop in batch_crops.items():
+                        from levelbuilder.api.flatkey import flatkey_recreate_sprite
+                        single = flatkey_recreate_sprite(crop, model=flatkey_model)
+                        if single is not None:
+                            prebatched[index] = single
         with ThreadPoolExecutor(max_workers=max_workers) as pool:
             futures = [pool.submit(_process_one, idx, hb) for idx, hb in pending]
             for fut in as_completed(futures):
