@@ -2018,13 +2018,24 @@ def preview_level_locally(
 
 
 @router.post("/sessions/{session_id}/approve-catalog")
-def approve_level_for_catalog(session_id: str, requestId: str = Query(..., min_length=8, max_length=200)):
+def approve_level_for_catalog(
+    session_id: str,
+    requestId: str = Query(..., min_length=8, max_length=200),
+    bundled: bool = Query(False),
+):
     # Un-retired in the fork: FTD retired this because new-level publishing was
     # to move to the v2 editor at cutover, leaving new levels with NO live path
     # into the production catalog. This tool authors new levels, so the reviewed
     # session → catalog registration path is load-bearing again. The staging
     # export inside runs through the fail-closed export gate.
-    return S.approve_level_for_catalog(session_id, request_id=requestId)
+    #
+    # bundled=true is the canonical ship path (2026-08-05): marks the level
+    # bundledInApp AND upserts it into the bundled manifest — previously only
+    # reachable via inline Python, which every shipped level this era used.
+    result = S.approve_level_for_catalog(session_id, request_id=requestId, bundled_in_app=bundled)
+    if bundled:
+        S.upsert_bundled_manifest_level(session_id)
+    return result
 
 
 @router.get("/sessions/{session_id}/generations")

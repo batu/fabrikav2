@@ -982,9 +982,12 @@ def cmd_watch(client: Client, args: argparse.Namespace) -> None:
 
 
 def cmd_approve(client: Client, args: argparse.Namespace) -> None:
+    params: dict = {"requestId": str(uuid.uuid4())}
+    if args.bundled:
+        params["bundled"] = "true"
     _emit(args, client.post(
         f"/api/sessions/{args.session_id}/approve-catalog",
-        params={"requestId": str(uuid.uuid4())},
+        params=params,
     ))
 
 
@@ -1327,6 +1330,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     p = verb("approve", cmd_approve)
     p.add_argument("session_id")
+    p.add_argument("--bundled", action="store_true",
+                   help="canonical ship path: mark bundledInApp and upsert into the bundled manifest")
 
     p = verb("export", cmd_export)
     p.add_argument("session_id", nargs="?")
