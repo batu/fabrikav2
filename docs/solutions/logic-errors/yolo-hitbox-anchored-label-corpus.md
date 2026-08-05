@@ -27,7 +27,7 @@ Building an auto-labeled YOLO training corpus from ~78 archived Find The Bird
 level-editor sessions. Each session directory holds a painted scene
 (`color.png`), a clean background variant, human-placed tap targets
 (`hitboxes.json`), and per-bird materialization metadata
-(`dogs/dog_XX/sprite_000.json` with a `spriteBox` rect). The goal: fine-tune
+(`dogs/dog_XX/sprite_000.json` with a `spriteBox` rect — a filename pattern inside the untracked session workspace, not a repo path). The goal: fine-tune
 `yolo11m` to detect birds so a $0 local detector could challenge the paid
 VLM hitbox placer (`tools/level-editor/eval/FINDINGS.md`).
 
