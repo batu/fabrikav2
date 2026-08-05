@@ -982,6 +982,61 @@ def dogs_dir(session_id: str) -> Path:
     return session_dir(session_id) / "dogs"
 
 
+def clone_session(src_id: str, new_id: str, *, reset_paint: bool = False) -> dict:
+    """Clone a session under a new id, safe for variant/A-B lanes.
+
+    Hand-copying session dirs repeatedly shipped stale state (2026-08-05):
+    the level.json id (runtime guard rejects the level), the per-dog
+    activeVariant flags (author's inpaint step silently no-ops), and stale
+    dogs/ sprite metadata (export joins against the wrong birds). This verb
+    owns all three.
+
+    reset_paint=True returns the clone to the pre-paint state: color.png
+    becomes the selected clean bg at level size, painted artifacts and
+    dogs/ are dropped, dog paint state is cleared. Hitboxes are kept.
+    """
+    import shutil as _shutil
+
+    src = session_dir(src_id)
+    if not (src / "session.json").exists():
+        raise LevelNotReadyError(f"session {src_id} not found")
+    dst = LEVELS_DIR / new_id
+    if dst.exists():
+        raise LevelNotReadyError(f"session {new_id} already exists")
+    ignore = [".gallery_previews", ".gallery_thumbs"]
+    if reset_paint:
+        ignore.append("dogs")
+    _shutil.copytree(src, dst, ignore=_shutil.ignore_patterns(*ignore))
+
+    with open(dst / "session.json") as f:
+        sj = json.load(f)
+    for key in ("id", "sessionId", "session_id"):
+        if key in sj:
+            sj[key] = new_id
+    if reset_paint:
+        sj["dogs"] = []
+        lj_path = dst / "level.json"
+        level = json.loads(lj_path.read_text()) if lj_path.exists() else {}
+        selected = sj.get("selected_bg") or 0
+        bg_path = dst / f"bg_{int(selected):02d}.png"
+        if bg_path.exists() and level.get("width"):
+            with Image.open(bg_path) as _b:
+                clean = _b.convert("RGB")
+                if clean.size != (level["width"], level["height"]):
+                    clean = clean.resize((level["width"], level["height"]), Image.LANCZOS)
+                clean.save(dst / "color.png")
+        for name in ("inpainted.png", "inpainted.gen.json", "bw.png", "eval.png"):
+            (dst / name).unlink(missing_ok=True)
+    with open(dst / "session.json", "w") as f:
+        json.dump(sj, f, indent=1)
+    lj_path = dst / "level.json"
+    if lj_path.exists():
+        level = json.loads(lj_path.read_text())
+        level["id"] = new_id
+        lj_path.write_text(json.dumps(level, indent=1))
+    return {"sessionId": new_id, "clonedFrom": src_id, "resetPaint": reset_paint}
+
+
 def is_public_package_only(session_id: str) -> bool:
     return not (LEVELS_DIR / session_id).exists() and (GAME_PUBLIC_LEVELS / session_id).exists()
 
@@ -3286,10 +3341,32 @@ def _write_birdless_restore_bg(sdir: Path, dst: Path, raw: dict, level_data: dic
         x1, y1 = min(out.width, x + w), min(out.height, y + h)
         if x1 <= x0 or y1 <= y0:
             continue
-        diff = _np.abs(color_arr[y0:y1, x0:x1] - clean_arr[y0:y1, x0:x1]).sum(axis=2) > 45
+        # Register the clean patch to the painted scene before pasting: the
+        # paint model redraws nearby strokes a few pixels off, so an unshifted
+        # clean patch breaks every line crossing the mask edge. Phase
+        # correlation on the cleanup neighborhood finds the local translation
+        # (clamped to ±8px; subpixel is overkill for line art).
+        pad = 32
+        ay0, ay1 = max(0, y0 - pad), min(out.height, y1 + pad)
+        ax0, ax1 = max(0, x0 - pad), min(out.width, x1 + pad)
+        a = color_arr[ay0:ay1, ax0:ax1].sum(axis=2).astype(_np.float64)
+        b = clean_arr[ay0:ay1, ax0:ax1].sum(axis=2).astype(_np.float64)
+        fa, fb = _np.fft.fft2(a - a.mean()), _np.fft.fft2(b - b.mean())
+        rspec = fa * _np.conj(fb)
+        rspec /= _np.abs(rspec) + 1e-9
+        corr = _np.abs(_np.fft.ifft2(rspec))
+        dy, dx = _np.unravel_index(int(_np.argmax(corr)), corr.shape)
+        if dy > a.shape[0] // 2:
+            dy -= a.shape[0]
+        if dx > a.shape[1] // 2:
+            dx -= a.shape[1]
+        if abs(dx) > 8 or abs(dy) > 8:
+            dx = dy = 0
+        shifted_clean = clean_arr if (dx == 0 and dy == 0) else _np.roll(clean_arr, (dy, dx), axis=(0, 1))
+        diff = _np.abs(color_arr[y0:y1, x0:x1] - shifted_clean[y0:y1, x0:x1]).sum(axis=2) > 45
         diff = _ndi.binary_dilation(diff, iterations=4)
         mask = Image.fromarray((diff * 255).astype("uint8")).filter(_IF.GaussianBlur(3))
-        patch = clean.crop((x0, y0, x1, y1))
+        patch = Image.fromarray(shifted_clean[y0:y1, x0:x1].astype("uint8"))
         out.paste(patch, (x0, y0), mask)
     out.save(dst / "bg_00.png")
     (dst / "bg_00.webp").unlink(missing_ok=True)

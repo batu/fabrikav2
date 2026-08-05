@@ -2097,6 +2097,16 @@ def place_hitboxes_vlm_route(session_id: str, radius: int = Query(58, ge=18, le=
         raise HTTPException(409, detail={"error": str(error), "code": "vlm_placement_failed"}) from error
 
 
+@router.post("/sessions/{session_id}/clone")
+def clone_session_route(session_id: str, newId: str = Query(...), resetPaint: bool = Query(False)):
+    _validate_session_id(session_id)
+    _validate_session_id(newId)
+    try:
+        return S.clone_session(session_id, newId, reset_paint=resetPaint)
+    except S.LevelNotReadyError as error:
+        raise HTTPException(409, detail={"error": str(error), "code": "clone_failed"}) from error
+
+
 @router.post("/sessions/{session_id}/recenter-hitboxes-local")
 def recenter_hitboxes_local(session_id: str, radiusScale: float = Query(1.0, ge=0.5, le=3.0), pruneEmpty: bool = Query(False)):
     _validate_session_id(session_id)

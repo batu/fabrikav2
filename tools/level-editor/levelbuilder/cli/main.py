@@ -846,6 +846,13 @@ def cmd_place_hitboxes_vlm(client: Client, args: argparse.Namespace) -> None:
     ))
 
 
+def cmd_clone(client: Client, args: argparse.Namespace) -> None:
+    params: dict = {"newId": args.new_id}
+    if args.reset_paint:
+        params["resetPaint"] = "true"
+    _emit(args, client.post(f"/api/sessions/{args.session_id}/clone", params=params))
+
+
 def cmd_recenter_hitboxes_local(client: Client, args: argparse.Namespace) -> None:
     params: dict = {}
     if args.radius_scale != 1.0:
@@ -1279,6 +1286,12 @@ def build_parser() -> argparse.ArgumentParser:
     p = verb("place-hitboxes-vlm", cmd_place_hitboxes_vlm)
     p.add_argument("session_id")
     p.add_argument("--radius", type=int, default=58)
+
+    p = verb("clone", cmd_clone)
+    p.add_argument("session_id")
+    p.add_argument("new_id")
+    p.add_argument("--reset-paint", action="store_true",
+                   help="return the clone to pre-paint state (clean-bg color, no dogs) keeping hitboxes")
 
     p = verb("recenter-hitboxes-local", cmd_recenter_hitboxes_local)
     p.add_argument("session_id")
