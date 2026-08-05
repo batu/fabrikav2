@@ -18,8 +18,14 @@ cd tools/level-editor
 bash run-backend.sh          # backend on 127.0.0.1:5196; sources ~/dev/appletolye/.env
 ```
 
-- Restart recipe: `pkill -f levelbuilder.api.server`, then re-run
-  `run-backend.sh` (nohup if unattended). Health check: GET / returns 303.
+- **The CLI talks to the backend and defaults to port 5192 — wrong.** Always
+  `export LEVEL_EDITOR_URL=http://127.0.0.1:5196` or every verb fails with
+  `server_unreachable`.
+- **A running backend is not a current backend.** The server holds imported
+  code; after ANY levelbuilder edit, restart it or you silently run stale
+  prompts/logic. Restart recipe: `pkill -f levelbuilder.api.server`, then
+  re-run `run-backend.sh` (nohup if unattended). Health check: GET / returns 303.
+- Session id after create: newest entry in `GET $LEVEL_EDITOR_URL/api/sessions`.
 - Google prepay is DEPLETED — `MERCEKA_FORCE_OPENROUTER=1` (in .env) routes
   gemini via OpenRouter. `FAL_KEY` enables the ESRGAN upscale; without it a
   lanczos fallback runs (soft input → the model invents junk props; avoid
@@ -48,11 +54,17 @@ uv run level-editor recenter-hitboxes-local <sid> --prune-empty
 # 5. Approve (editor or `approve` verb); export runs the fail-closed gates
 ```
 
-Automated placement alternative: `uv run level-editor place-hitboxes-vlm <sid>`
-(gemini boxes + diff snap; golden-set score R .978 / P .978). Its radius now
-**scales with scene size** (`uniform_hitbox_radius`: 87px@4096, ~57@2688) —
-pass `--radius` only to override deliberately; the old fixed 58 measured
-−.02 recall/precision on 4096 scenes.
+**Run `place-hitboxes-vlm` after author, before the HITL gate** —
+`uv run level-editor place-hitboxes-vlm <sid>` (gemini boxes + diff snap;
+golden-set score R .978 / P .978). The author lane's `fix-hitboxes: moved 0`
+does NOT mean aligned: the paint model renders birds *near* the dots, not on
+them, and adds extras — on the 2026-08-05 e2e run the pre-dot hitboxes were
+visibly off every bird until the VLM pass replaced them (18/20 auto; HITL
+added the rest). Its radius **scales with scene size**
+(`uniform_hitbox_radius`: 87px@4096, ~57@2688) — pass `--radius` only to
+override deliberately; the old fixed 58 measured −.02 recall/precision on
+4096 scenes. Author's auto-dots may also place ≠ `--count` (20 dots on a
+count-16 session); the VLM pass + `--prune-empty` reconcile to actual birds.
 
 ## Gotchas (each of these cost at least one bad day)
 
@@ -101,7 +113,17 @@ pass `--radius` only to override deliberately; the old fixed 58 measured
 
 - **In-editor, before device**: the gallery review modal's three views —
   Painted / Clean bg / **All-picked-up** — the third shows exactly what
-  players see after collecting every bird, seams included.
+  players see after collecting every bird, seams included. Same view over
+  HTTP: `GET /api/sessions/<sid>/pickup-preview`. **It only works after
+  `approve`** — cleanup rects live in the exported level.json; before export
+  it silently returns the painted scene with every bird still present (not
+  a compositing bug).
+- **Prompt edits**: prompts are entity-parameterized (threaded from session
+  `entity`); invariants are locked by `tests/test_canonical_prompts.py`, and
+  the twin scene assemblers (prompts.py / routes.py) are held together by
+  `TestAssemblerParity`. Run that file after touching any prompt.
+- Paint retries are visible: `inpainted.gen.json` `params.attempts` = billed
+  draws for the paint step (1 = no retries).
 - **Placement vs golden**: `uv run level-editor eval-compare` renders a
   cached side-by-side report (golden rings vs a run's placements) at
   `eval/results/compare/compare.html`; after tweaking a few levels, plain

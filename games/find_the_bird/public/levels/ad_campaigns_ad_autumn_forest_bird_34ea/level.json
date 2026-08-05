@@ -1,0 +1,388 @@
+{
+  "id": "ad_campaigns_ad_autumn_forest_bird_34ea",
+  "name": "Level ad_campaigns_ad_autumn_forest_bird_34ea (clean_old_cartoon)",
+  "width": 2688,
+  "height": 2688,
+  "bwImage": "levels/ad_campaigns_ad_autumn_forest_bird_34ea/bw.png",
+  "colorImage": "levels/ad_campaigns_ad_autumn_forest_bird_34ea/color.png",
+  "dogs": [
+    {
+      "id": "dog_00",
+      "x": 694,
+      "y": 614,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_autumn_forest_bird_34ea/dogs/dog_00/sprite_000.png",
+        "x": 604,
+        "y": 626,
+        "width": 174,
+        "height": 118,
+        "cleanup": {
+          "x": 535,
+          "y": 495,
+          "width": 313,
+          "height": 214
+        },
+        "anchorX": 0.5057,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_01",
+      "x": 880,
+      "y": 807,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_autumn_forest_bird_34ea/dogs/dog_01/sprite_000.png",
+        "x": 815,
+        "y": 807,
+        "width": 128,
+        "height": 129,
+        "cleanup": {
+          "x": 723,
+          "y": 711,
+          "width": 313,
+          "height": 232
+        },
+        "anchorX": 0.5078,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_02",
+      "x": 1335,
+      "y": 935,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_autumn_forest_bird_34ea/dogs/dog_02/sprite_000.png",
+        "x": 1247,
+        "y": 904,
+        "width": 166,
+        "height": 157,
+        "cleanup": {
+          "x": 1180,
+          "y": 783,
+          "width": 307,
+          "height": 284
+        },
+        "anchorX": 0.506,
+        "anchorY": 0.172
+      }
+    },
+    {
+      "id": "dog_03",
+      "x": 574,
+      "y": 1260,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_autumn_forest_bird_34ea/dogs/dog_03/sprite_000.png",
+        "x": 480,
+        "y": 1243,
+        "width": 172,
+        "height": 145,
+        "cleanup": {
+          "x": 413,
+          "y": 1104,
+          "width": 313,
+          "height": 305
+        },
+        "anchorX": 0.5233,
+        "anchorY": 0.1241
+      }
+    },
+    {
+      "id": "dog_04",
+      "x": 1287,
+      "y": 1269,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_autumn_forest_bird_34ea/dogs/dog_04/sprite_000.png",
+        "x": 1199,
+        "y": 1260,
+        "width": 172,
+        "height": 122,
+        "cleanup": {
+          "x": 1129,
+          "y": 1104,
+          "width": 313,
+          "height": 313
+        },
+        "anchorX": 0.5058,
+        "anchorY": 0.0082
+      }
+    },
+    {
+      "id": "dog_05",
+      "x": 1318,
+      "y": 1674,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_autumn_forest_bird_34ea/dogs/dog_05/sprite_000.png",
+        "x": 1243,
+        "y": 1667,
+        "width": 156,
+        "height": 123,
+        "cleanup": {
+          "x": 1162,
+          "y": 1537,
+          "width": 313,
+          "height": 289
+        },
+        "anchorX": 0.4872,
+        "anchorY": 0.0244
+      }
+    },
+    {
+      "id": "dog_06",
+      "x": 973,
+      "y": 1674,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_autumn_forest_bird_34ea/dogs/dog_06/sprite_000.png",
+        "x": 882,
+        "y": 1595,
+        "width": 190,
+        "height": 196,
+        "cleanup": {
+          "x": 823,
+          "y": 1512,
+          "width": 313,
+          "height": 313
+        },
+        "anchorX": 0.5158,
+        "anchorY": 0.3776
+      }
+    },
+    {
+      "id": "dog_07",
+      "x": 539,
+      "y": 2063,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_autumn_forest_bird_34ea/dogs/dog_07/sprite_000.png",
+        "x": 452,
+        "y": 2036,
+        "width": 143,
+        "height": 152,
+        "cleanup": {
+          "x": 371,
+          "y": 1909,
+          "width": 269,
+          "height": 297
+        },
+        "anchorX": 0.5315,
+        "anchorY": 0.1974
+      }
+    },
+    {
+      "id": "dog_08",
+      "x": 743,
+      "y": 2159,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_autumn_forest_bird_34ea/dogs/dog_08/sprite_000.png",
+        "x": 657,
+        "y": 2145,
+        "width": 163,
+        "height": 149,
+        "cleanup": {
+          "x": 642,
+          "y": 2007,
+          "width": 233,
+          "height": 313
+        },
+        "anchorX": 0.5215,
+        "anchorY": 0.1275
+      }
+    },
+    {
+      "id": "dog_09",
+      "x": 492,
+      "y": 2352,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_autumn_forest_bird_34ea/dogs/dog_09/sprite_000.png",
+        "x": 398,
+        "y": 2345,
+        "width": 176,
+        "height": 128,
+        "cleanup": {
+          "x": 335,
+          "y": 2208,
+          "width": 281,
+          "height": 298
+        },
+        "anchorX": 0.5341,
+        "anchorY": 0.0547
+      }
+    },
+    {
+      "id": "dog_10",
+      "x": 1009,
+      "y": 2126,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_autumn_forest_bird_34ea/dogs/dog_10/sprite_000.png",
+        "x": 930,
+        "y": 2133,
+        "width": 155,
+        "height": 123,
+        "cleanup": {
+          "x": 877,
+          "y": 1990,
+          "width": 288,
+          "height": 292
+        },
+        "anchorX": 0.5097,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_11",
+      "x": 1430,
+      "y": 2120,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_autumn_forest_bird_34ea/dogs/dog_11/sprite_000.png",
+        "x": 1317,
+        "y": 2110,
+        "width": 225,
+        "height": 140,
+        "cleanup": {
+          "x": 1273,
+          "y": 1963,
+          "width": 313,
+          "height": 276
+        },
+        "anchorX": 0.5022,
+        "anchorY": 0.0714
+      }
+    },
+    {
+      "id": "dog_12",
+      "x": 1386,
+      "y": 2361,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_autumn_forest_bird_34ea/dogs/dog_12/sprite_000.png",
+        "x": 1292,
+        "y": 2289,
+        "width": 204,
+        "height": 197,
+        "cleanup": {
+          "x": 1233,
+          "y": 2241,
+          "width": 313,
+          "height": 274
+        },
+        "anchorX": 0.4804,
+        "anchorY": 0.3553
+      }
+    },
+    {
+      "id": "dog_13",
+      "x": 2000,
+      "y": 2098,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_autumn_forest_bird_34ea/dogs/dog_13/sprite_000.png",
+        "x": 1952,
+        "y": 2076,
+        "width": 156,
+        "height": 139,
+        "cleanup": {
+          "x": 1855,
+          "y": 1945,
+          "width": 313,
+          "height": 302
+        },
+        "anchorX": 0.3846,
+        "anchorY": 0.1079
+      }
+    },
+    {
+      "id": "dog_14",
+      "x": 1991,
+      "y": 1112,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_autumn_forest_bird_34ea/dogs/dog_14/sprite_000.png",
+        "x": 1876,
+        "y": 1053,
+        "width": 217,
+        "height": 175,
+        "cleanup": {
+          "x": 1829,
+          "y": 970,
+          "width": 293,
+          "height": 264
+        },
+        "anchorX": 0.5069,
+        "anchorY": 0.3143
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 2165,
+      "y": 1433,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_autumn_forest_bird_34ea/dogs/dog_15/sprite_000.png",
+        "x": 2024,
+        "y": 1389,
+        "width": 262,
+        "height": 177,
+        "cleanup": {
+          "x": 1999,
+          "y": 1279,
+          "width": 201,
+          "height": 313
+        },
+        "anchorX": 0.5038,
+        "anchorY": 0.2655
+      }
+    },
+    {
+      "id": "dog_16",
+      "x": 2238,
+      "y": 1375,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_autumn_forest_bird_34ea/dogs/dog_16/sprite_000.png",
+        "x": 2138,
+        "y": 1301,
+        "width": 223,
+        "height": 190,
+        "cleanup": {
+          "x": 2202,
+          "y": 1234,
+          "width": 194,
+          "height": 283
+        },
+        "anchorX": 0.4978,
+        "anchorY": 0.3158
+      }
+    },
+    {
+      "id": "dog_17",
+      "x": 2161,
+      "y": 826,
+      "r": 57,
+      "sprite": {
+        "image": "levels/ad_campaigns_ad_autumn_forest_bird_34ea/dogs/dog_17/sprite_000.png",
+        "x": 2065,
+        "y": 832,
+        "width": 196,
+        "height": 116,
+        "cleanup": {
+          "x": 2007,
+          "y": 661,
+          "width": 313,
+          "height": 307
+        },
+        "anchorX": 0.5051,
+        "anchorY": 0.0
+      }
+    }
+  ]
+}
