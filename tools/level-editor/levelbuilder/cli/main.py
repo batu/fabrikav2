@@ -344,13 +344,20 @@ def cmd_create(client: Client, args: argparse.Namespace) -> None:
         "oneShot": args.one_shot,
     }
     if args.aspect_ratio == "1:1":
-        # Square campaign levels ship at 4096: bake the deterministic upscale
-        # policy in at create time so author's upscale step can satisfy the
-        # route's session-policy check.
+        # CANONICAL square recipe (2026-08-05, see PIPELINE.md): the working
+        # canvas is 2688 so the magenta square-send region lands at EXACTLY
+        # 2048 — gemini flash's measured native output ceiling. Painting at
+        # native resolution is what keeps the scene byte-aligned with the
+        # clean bg (alignment gate PASS, ~4% diff = birds only); any other
+        # size forces a stretch somewhere and reintroduces pickup seams.
+        # ESRGAN gives the model a sharp input (lanczos input caused invented
+        # junk props); deterministic lanczos remains the keyless fallback.
+        # Export ships 2560px webps, so 2688 needs no final upscale.
+        has_fal = bool(os.environ.get("FAL_KEY"))
         body.update({
             "upscaleEnabled": True,
-            "upscaleModel": "deterministic-lanczos-4x",
-            "upscaleTargetLongEdge": 4096,
+            "upscaleModel": "fal-ai/esrgan" if has_fal else "deterministic-lanczos-4x",
+            "upscaleTargetLongEdge": 2688,
         })
     created = client.post("/api/sessions", json=body)
     _emit(args, created)

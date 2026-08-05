@@ -1703,7 +1703,9 @@ class AutoHitboxesRequest(BaseModel):
     """
     nDogs: int = Field(..., ge=1, le=40)
     nonce: int | None = None
-    radius: int = Field(50, ge=10, le=200)
+    # None -> canvas-scaled canonical default (58 at a 4096 reference, so 38
+    # on the canonical 2688 square working canvas). Explicit values win.
+    radius: int | None = Field(None, ge=10, le=200)
     strategy: Literal["random", "smart"] = "random"
     candidateCount: int = Field(36, ge=12, le=80)
 
@@ -1872,7 +1874,12 @@ def auto_place_hitboxes(session_id: str, req: AutoHitboxesRequest) -> dict[str, 
     else:
         forbidden = _portrait_deadzones(bg_w, bg_h)
 
-    radius = int(req.radius or _AUTOPLACE_DEFAULT_RADIUS)
+    if req.radius is not None:
+        radius = int(req.radius)
+    else:
+        # Canonical canvas-scaled default: 58 at a 4096 reference. On the
+        # canonical 2688 square working canvas this lands at 38 (PIPELINE.md).
+        radius = max(24, int(round(58 * max(int(bg_w), int(bg_h)) / 4096))) if bg_w and bg_h else _AUTOPLACE_DEFAULT_RADIUS
 
     if req.strategy == "smart":
         selected_bg = raw.get("selected_bg")
