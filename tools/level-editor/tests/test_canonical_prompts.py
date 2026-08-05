@@ -68,7 +68,12 @@ class TestAssemblerParity:
 
 class TestGridPrompt:
     def test_partial_grid_declares_padding_and_exact_count(self):
-        prompt = GRID_PROMPT_TEMPLATE.format(n=3, count=7)
+        prompt = GRID_PROMPT_TEMPLATE.format(n=3, count=7, entity="bird")
         assert "row-major" in prompt
         assert "empty white padding" in prompt
         assert "exactly 7 birds" in prompt
+
+    def test_entity_is_parameterized_not_hardcoded(self):
+        prompt = GRID_PROMPT_TEMPLATE.format(n=3, count=7, entity="capybara")
+        assert "bird" not in prompt
+        assert "exactly 7 capybaras" in prompt

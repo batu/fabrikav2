@@ -183,7 +183,7 @@ class TestBatchedFlatkeySplitter:
         monkeypatch.setattr(mi, 'edit_image', fake_edit)
         # judge_gate shells out to codex — stub it or the test spends a
         # minute per single call and can flake the retry count.
-        monkeypatch.setattr(fk, 'judge_gate', lambda cutout, painted: True)
+        monkeypatch.setattr(fk, 'judge_gate', lambda cutout, painted, **kw: True)
         crops = {i: Image.new('RGB', (200, 200), (200, 150, 90)) for i in range(4)}
         out = fk.flatkey_recreate_sprites_batch(crops, model='test/x', grid=3)
         assert calls['grid'] >= 2  # 3x3 pass + 2x2 retry

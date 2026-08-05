@@ -26,32 +26,40 @@ from PIL import Image, ImageDraw
 JUDGE_SCHEMA_VERSION = 1
 
 # The product rule for what a pickup sprite is (plan R2). Guarded by tests;
-# every backend prompt must carry it verbatim.
-SUBJECT_RULE = (
-    "A valid pickup sprite contains exactly one complete bird PLUS any items the "
-    "bird is holding, wearing, or using (binoculars, hat, book, telescope, map). "
-    "Perches, branches, stalls, shadows, foliage, and scenery the image model "
-    "painted around the bird are BACKGROUND and must NOT be part of the sprite."
-)
+# every backend prompt must carry it verbatim (for its entity).
+def subject_rule(entity: str = "bird") -> str:
+    return (
+        f"A valid pickup sprite contains exactly one complete {entity} PLUS any items the "
+        f"{entity} is holding, wearing, or using (binoculars, hat, book, telescope, map). "
+        "Perches, branches, stalls, shadows, foliage, and scenery the image model "
+        f"painted around the {entity} are BACKGROUND and must NOT be part of the sprite."
+    )
 
-PROMPT_TEMPLATE = (
-    "You are judging one pickup sprite for a hidden-object bird game drawn in a "
-    "coloring-book sticker style.\n"
-    + SUBJECT_RULE + "\n"
-    "The attached panel shows, left to right:\n"
-    "1. CLEAN: the background before the bird was painted (may be absent).\n"
-    "2. PAINTED: the scene after inpainting.\n"
-    "3. SPRITE: the extracted cutout on a checkerboard.\n"
-    "Score two axes from 0.0 to 1.0:\n"
-    "- subject: is the SPRITE a single recognizable bird plus only its "
-    "held/worn items? Background chunks, props (barrels, lanterns, rocks, "
-    "leaves), or empty cutouts score near 0.\n"
-    "- completeness: comparing SPRITE to the bird visible in PAINTED, is the "
-    "whole bird present (head, body, tail, feet when painted) without "
-    "truncation or missing parts? If PAINTED is absent judge the sprite alone.\n"
-    "Respond with ONLY a JSON object: {\"subject\": <float>, "
-    "\"completeness\": <float>, \"evidence\": \"<one sentence>\"}."
-)
+
+def prompt_template(entity: str = "bird") -> str:
+    return (
+        f"You are judging one pickup sprite for a hidden-object {entity} game.\n"
+        + subject_rule(entity) + "\n"
+        "The attached panel shows, left to right:\n"
+        f"1. CLEAN: the background before the {entity} was painted (may be absent).\n"
+        "2. PAINTED: the scene after inpainting.\n"
+        "3. SPRITE: the extracted cutout on a checkerboard.\n"
+        "Score two axes from 0.0 to 1.0:\n"
+        f"- subject: is the SPRITE a single recognizable {entity} plus only its "
+        "held/worn items? Background chunks, props (barrels, lanterns, rocks, "
+        "leaves), or empty cutouts score near 0.\n"
+        f"- completeness: comparing SPRITE to the {entity} visible in PAINTED, is the "
+        f"whole {entity} present (head, body, tail, feet when painted) without "
+        "truncation or missing parts? If PAINTED is absent judge the sprite alone.\n"
+        "Respond with ONLY a JSON object: {\"subject\": <float>, "
+        "\"completeness\": <float>, \"evidence\": \"<one sentence>\"}."
+    )
+
+
+# Bird defaults kept as constants for existing callers and the verbatim-rule
+# guard tests.
+SUBJECT_RULE = subject_rule()
+PROMPT_TEMPLATE = prompt_template()
 
 PANEL_HEIGHT = 512
 
@@ -158,9 +166,10 @@ class CodexExecJudge:
 
     name = "codex-exec"
 
-    def __init__(self, model: str | None = None, timeout_s: float = 240.0):
+    def __init__(self, model: str | None = None, timeout_s: float = 240.0, entity: str = "bird"):
         self.model = model
         self.timeout_s = timeout_s
+        self._prompt = prompt_template(entity)
 
     def judge(self, case: JudgeCase) -> JudgeVerdict:
         panel = build_judge_panel(case)
@@ -171,7 +180,7 @@ class CodexExecJudge:
             cmd = ["codex", "exec", "--json", "-i", str(panel_path)]
             if self.model:
                 cmd += ["-m", self.model]
-            cmd += ["--", PROMPT_TEMPLATE]
+            cmd += ["--", self._prompt]
             proc = subprocess.run(
                 cmd, capture_output=True, text=True, timeout=self.timeout_s, check=False,
             )
@@ -219,7 +228,8 @@ class OpenRouterJudge:
 
     name = "openrouter"
 
-    def __init__(self, model: str = "google/gemini-2.5-flash"):
+    def __init__(self, model: str = "google/gemini-2.5-flash", entity: str = "bird"):
+        self._prompt = prompt_template(entity)
         self.model = model
 
     def judge(self, case: JudgeCase) -> JudgeVerdict:
@@ -234,7 +244,7 @@ class OpenRouterJudge:
             panel.save(handle, format="PNG")
             panel_path = Path(handle.name)
         try:
-            llm = LLM(model_name=f"openrouter/{self.model}", system_prompt=PROMPT_TEMPLATE)
+            llm = LLM(model_name=f"openrouter/{self.model}", system_prompt=self._prompt)
             response = llm.generate_with_resource(
                 "Judge the attached panel.", resource_path=panel_path,
                 # Generous cap: reasoning models (gemini-2.5-pro) spend tokens
@@ -295,7 +305,7 @@ class OllamaJudge:
                     "options": {"temperature": 0.0},
                     "messages": [{
                         "role": "user",
-                        "content": PROMPT_TEMPLATE,
+                        "content": self._prompt,
                         "images": [base64.b64encode(buffer.getvalue()).decode()],
                     }],
                 },

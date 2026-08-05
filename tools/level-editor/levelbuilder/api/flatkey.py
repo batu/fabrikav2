@@ -12,16 +12,18 @@ import numpy as np
 from PIL import Image
 from scipy import ndimage
 
-FLAT_PROMPT = (
-    "Recreate the exact same cartoon bird character from this image — identical "
+FLAT_PROMPT_TEMPLATE = (
+    "Recreate the exact same cartoon {entity} character from this image — identical "
     "species impression, colors, markings, pose, expression, and any held or worn "
     "item (broom, basket, hat, tool: keep it) — as a clean sticker illustration "
     "on a completely uniform, flat, pure magenta (#FF00FF) background. Match the "
     "image's rendering style (if it is uncolored line art, stay uncolored). "
-    "Exactly ONE bird. No shadows, no scenery, no props that the bird is not "
+    "Exactly ONE {entity}. No shadows, no scenery, no props that the {entity} is not "
     "holding, no gradient, no texture: perfectly flat magenta everywhere except "
-    "the bird itself. The bird must be fully inside the frame."
+    "the {entity} itself. The {entity} must be fully inside the frame."
 )
+# Bird default kept for existing callers/tests.
+FLAT_PROMPT = FLAT_PROMPT_TEMPLATE.format(entity="bird")
 
 
 def _estimate_background_field(rgb: np.ndarray) -> tuple[np.ndarray, float]:
@@ -170,7 +172,7 @@ def strip_flat_rim(cutout: Image.Image) -> Image.Image:
     return Image.fromarray(a)
 
 
-def judge_gate(cutout: Image.Image, painted: Image.Image) -> bool:
+def judge_gate(cutout: Image.Image, painted: Image.Image, entity: str = "bird") -> bool:
     """Codex vision gate from the validated corpus lane: complete single bird
     (+ held item), no stray artifacts. Fails open when the judge is
     unavailable — the deterministic gates already passed."""
@@ -179,7 +181,7 @@ def judge_gate(cutout: Image.Image, painted: Image.Image) -> bool:
         return True
     try:
         from levelbuilder.api.sprite_judge import CodexExecJudge, JudgeCase
-        v = CodexExecJudge().judge(JudgeCase(dog_id="gate", sprite=cutout, painted_crop=painted))
+        v = CodexExecJudge(entity=entity).judge(JudgeCase(dog_id="gate", sprite=cutout, painted_crop=painted))
     except Exception:
         return True
     if not v.ok:
@@ -192,6 +194,7 @@ def flatkey_recreate_sprite(
     *,
     model: str,
     attempts: int = 2,
+    entity: str = "bird",
 ) -> Image.Image | None:
     """Painted bird crop -> RGBA sprite via magenta recreate + chroma key.
     Returns None when every attempt fails the purity gates (caller falls
@@ -199,7 +202,7 @@ def flatkey_recreate_sprite(
     from merceka_core.image import edit_image
 
     for _ in range(attempts):
-        flat = edit_image(painted_crop.convert("RGB"), FLAT_PROMPT, model=model)
+        flat = edit_image(painted_crop.convert("RGB"), FLAT_PROMPT_TEMPLATE.format(entity=entity), model=model)
         cutout = chroma_key(flat.convert("RGB"))
         ok, _reason = flat_ok(flat, cutout)
         if not ok:
@@ -210,7 +213,7 @@ def flatkey_recreate_sprite(
         if bbox is None:
             continue
         cutout = cutout.crop(bbox)
-        if not judge_gate(cutout, painted_crop):
+        if not judge_gate(cutout, painted_crop, entity=entity):
             continue
         return cutout
     return None
@@ -228,16 +231,16 @@ def flatkey_recreate_sprite(
 GRID_PROMPT_TEMPLATE = (
     "This image is a {n}x{n} grid of panels separated by thick white "
     "gutters. The first {count} panels in row-major order each show one "
-    "cartoon bird in a scene; any remaining cells are empty white padding. "
-    "Recreate EACH occupied panel's bird — identical species impression, "
+    "cartoon {entity} in a scene; any remaining cells are empty white padding. "
+    "Recreate EACH occupied panel's {entity} — identical species impression, "
     "colors, markings, pose, expression, and any held or worn item — as a "
     "clean sticker illustration on a completely uniform, flat, pure magenta "
     "(#FF00FF) background, KEEPING THE EXACT SAME grid layout and white "
-    "gutters. Exactly one bird per occupied panel, centered in its panel; "
-    "empty padding cells must stay empty white — do not invent birds there. "
-    "The output must contain exactly {count} birds. No shadows, no scenery, "
+    "gutters. Exactly one {entity} per occupied panel, centered in its panel; "
+    "empty padding cells must stay empty white — do not invent {entity}s there. "
+    "The output must contain exactly {count} {entity}s. No shadows, no scenery, "
     "no gradients: perfectly flat magenta in every occupied panel except the "
-    "birds. Do not merge, move, or swap panels."
+    "{entity}s. Do not merge, move, or swap panels."
 )
 _GRID_CANVAS = 1000  # flash-lite rejects >1K input
 _GRID_GUTTER = 20
@@ -307,6 +310,7 @@ def flatkey_recreate_sprites_batch(
     *,
     model: str,
     grid: int = 3,
+    entity: str = "bird",
 ) -> dict[int, Image.Image]:
     """Batched flat-key recreate with a retry ladder.
 
@@ -324,7 +328,7 @@ def flatkey_recreate_sprites_batch(
         try:
             out = edit_image(
                 grid_img,
-                GRID_PROMPT_TEMPLATE.format(n=n, count=len(chunk)),
+                GRID_PROMPT_TEMPLATE.format(n=n, count=len(chunk), entity=entity),
                 model=model,
             )
         except Exception:
@@ -359,7 +363,7 @@ def flatkey_recreate_sprites_batch(
         pending = _run(pending, 2)
     for idx in pending:
         try:
-            single = flatkey_recreate_sprite(crops[idx], model=model)
+            single = flatkey_recreate_sprite(crops[idx], model=model, entity=entity)
         except Exception:
             single = None
         if single is not None:

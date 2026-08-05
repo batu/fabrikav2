@@ -2800,6 +2800,7 @@ def materialize_detection_sprites(
                 "FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-lite-image"
             )
             grid_n = max(1, int(os.environ.get("FTD_FLATKEY_GRID", "3")))
+            entity = str(raw.get("entity") or "bird")
             batch_crops: dict[int, Image.Image] = {}
             for index, hitbox_data in pending:
                 detection = detection_by_hitbox[index]
@@ -2818,6 +2819,7 @@ def materialize_detection_sprites(
                     try:
                         prebatched = flatkey_recreate_sprites_batch(
                             batch_crops, model=flatkey_model, grid=grid_n,
+                            entity=entity,
                         )
                     except Exception:
                         prebatched = {}
@@ -2825,7 +2827,7 @@ def materialize_detection_sprites(
                     from levelbuilder.api.flatkey import flatkey_recreate_sprite
                     for index, crop in batch_crops.items():
                         try:
-                            single = flatkey_recreate_sprite(crop, model=flatkey_model)
+                            single = flatkey_recreate_sprite(crop, model=flatkey_model, entity=entity)
                         except Exception:
                             single = None
                         if single is not None:

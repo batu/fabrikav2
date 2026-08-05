@@ -4894,6 +4894,7 @@ def detect_birds_vlm(session_id: str, *, model: str = "gemini-3.6-flash") -> lis
     use_openrouter = bool(os.environ.get("MERCEKA_FORCE_OPENROUTER")) or not os.environ.get("GOOGLE_API_KEY")
     api_key = os.environ.get("GOOGLE_API_KEY")
     sdir = S.session_dir(session_id)
+    entity = str((S.load_session_raw(session_id) or {}).get("entity") or "bird")
     with Image.open(sdir / "color.png") as _c:
         W, H = _c.size
         scaled = _c.convert("RGB").resize((1024, 1024), Image.LANCZOS)
@@ -4901,7 +4902,7 @@ def detect_birds_vlm(session_id: str, *, model: str = "gemini-3.6-flash") -> lis
     payload = {
         "contents": [{"parts": [
             {"inlineData": {"mimeType": "image/png", "data": _b64.b64encode(buf.getvalue()).decode()}},
-            {"text": "Detect every bird in this illustrated hidden-object scene. Return bounding boxes for ALL birds."},
+            {"text": f"Detect every {entity} in this illustrated hidden-object scene. Return bounding boxes for ALL {entity}s."},
         ]}],
         "generationConfig": {"responseMimeType": "application/json",
             "responseSchema": {"type": "ARRAY", "items": {"type": "OBJECT", "properties": {

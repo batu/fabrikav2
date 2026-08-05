@@ -777,7 +777,7 @@ SETTINGS = {
                 "The entire ground surface is consistent lawn, gravel path, and narrow-gauge track throughout — every area the viewer can see the ground, it reads as mown grass, raked gravel, or tiny rails in ballast with no untextured blank areas. "
                 "Retired locomotives of varying sizes sit unevenly across the lawns, some clustered nose-to-tail on display track, others standing alone on plinths. Boiler tops and cab roofs at different heights, some overlapping the hedges, some freestanding. "
                 "A signal gantry spans the main path at an unexpected angle, repurposed as a rose arch. "
-                "Scattered throughout without pattern: brass nameplates on posts, a ticket kiosk with striped awning, picnic benches, a miniature steam engine pulling empty carriages, flower planters made from wheelbarrows,signal levers in a glass case, a water crane dribbling into a barrel, painted milestones, a bandstand, vintage station signs on the hedge, watering cans, a wheelbarrow of coal for the miniature line, topiary shaped like an engine, lamp posts from five different stations, a guard's van serving as a tea shop, croquet hoops on the lawn. "
+                "Scattered throughout without pattern: brass nameplates on posts, a ticket kiosk with striped awning, picnic benches, a miniature steam engine pulling empty carriages, flower planters made from wheelbarrows, signal levers in a glass case, a water crane dribbling into a barrel, painted milestones, a bandstand, vintage station signs on the hedge, watering cans, a wheelbarrow of coal for the miniature line, topiary shaped like an engine, lamp posts from five different stations, a guard's van serving as a tea shop, croquet hoops on the lawn. "
                 "Dense clusters around the exhibited engines, sparser breathing room along the pond loop. "
                 "Asymmetric, organic layout — like a museum assembled by volunteers who each loved a different railway."
             ),
@@ -1095,7 +1095,7 @@ def build_scene_prompt(
                 "named in the scene may appear but must show only illegible marks, squiggles, or "
                 "blank surfaces — never legible words or letters. "
                 "Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, "
-                "empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture "
+                "large featureless empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture "
                 "camouflage. Every visible ground, floor, or water-edge region should read as a clear "
                 "material appropriate to the scene; no untextured blank areas."
             ),
