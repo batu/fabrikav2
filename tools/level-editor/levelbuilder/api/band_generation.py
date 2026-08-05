@@ -102,7 +102,7 @@ def derive_band_prompt(side: Side, scene_meta: dict[str, Any]) -> str:
         if scene_meta.get(k)
     ]
     context = ", ".join(context_bits)
-    guard = "No animals, no characters, no dogs, no people, no text, no watermarks."
+    guard = "No animals, no birds, no characters, no dogs, no people, no text, no watermarks."
     if side == "bottom":
         body = (
             "Continue the scene seamlessly downward: more of the same foreground "

@@ -44,6 +44,28 @@ class TestScenePrompt:
         assert "portrait" not in prompt.split("[Short Description]")[0]
 
 
+class TestAssemblerParity:
+    def test_routes_and_prompts_scene_assemblers_share_blocks(self):
+        # Two scene-prompt assemblers exist (levelbuilder.prompts.build_scene_prompt
+        # and routes._build_scene_prompt). Their shared blocks must not drift.
+        from levelbuilder.api.routes import _build_scene_prompt as routes_build
+
+        def blocks(text: str) -> dict[str, str]:
+            out = {}
+            for chunk in text.split("\n\n"):
+                if chunk.startswith("["):
+                    out[chunk.split("]")[0] + "]"] = chunk
+            return out
+
+        a = blocks(build_scene_prompt(entity="bird"))
+        b = blocks(routes_build(
+            content_prompt="x", view_prompt="x", style_prompt="x",
+            scale_prompt="", title="X", entity_noun="bird",
+        ))
+        for key in ("[Purpose]", "[Gameplay Composition]", "[Constraints]"):
+            assert a[key] == b[key], key
+
+
 class TestGridPrompt:
     def test_partial_grid_declares_padding_and_exact_count(self):
         prompt = GRID_PROMPT_TEMPLATE.format(n=3, count=7)

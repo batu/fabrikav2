@@ -42,12 +42,10 @@ MODEL = "google/gemini-3.1-flash-image-preview"
 STYLE = "clean vector illustration, crisp outlines, flat color fills, warm golden hour light"
 
 VIEWS = {
-    # View blocks describe the camera only — no subject nouns. The old
-    # version over-specified orthographic projection ("parallel lines stay
-    # parallel, no vanishing points, no foreshortening"); testing showed
-    # gpt-image-2 and Gemini ignore all of it and render with perspective
-    # regardless. This is the honest version: describe what the model
-    # actually produces.
+    # View blocks describe the camera only — no subject nouns. Note: testing
+    # showed gpt-image-2 and Gemini largely ignore strict-orthographic
+    # language and render with perspective anyway; the ortho phrasing below
+    # is kept as a nudge, not a guarantee.
     "isometric": (
         "Strict orthographic isometric game-map view with a broad readable scene layout, roughly "
         "45° rotation and 30° tilt from horizontal. No perspective projection, no vanishing "
@@ -73,7 +71,7 @@ VIEWS = {
     "isometric_close_20": (
         "Moderately elevated three-quarter game-map view with a close, readable mobile-game "
         "camera: roughly 35 degrees down from horizontal, with only enough scene visible to "
-        "support about 20 hidden bird placements. Do not use an extreme aerial, distant "
+        "support about 20 hidden target placements. Do not use an extreme aerial, distant "
         "establishing, miniature-diorama, or whole-city view. Large scene anchors should occupy "
         "substantial frame area, and ordinary props must remain individually recognizable at "
         "phone size. Use controlled hidden-object density: arrange approximately 20 plausible "
@@ -301,7 +299,7 @@ SETTINGS = {
                 "The entire ground surface is consistent powdered snow throughout, packed down along the paths between tents — every area the viewer can see the ground, it reads as snow with footpaths and no untextured blank areas. "
                 "Lavvu tents of varying sizes cluster unevenly around the fire, some close together with shared wind-breaks, others standing alone at the edge of the clearing. Tent-pole tops at different heights, some overlapping as you look across, some freestanding. "
                 "A wooden sledge sits loaded at an unexpected angle near a hitching post. "
-                "Scattered throughout without pattern: reindeer hides draped on low racks, a glowing central campfire ringed with logs, antler-carved tools, strings of drying fish, snowshoes leaning on birch trees, coiled lassos, wooden pails, carved bone needles on a hide, bundles of firewood, a birch-bark basket of lingonberries, a joik-drum on a stand, lanterns hung from poles, folded woollen blankets, a hanging cauldron on a tripod, iron knives in sheaths, a dog harness coiled on snow. "
+                "Scattered throughout without pattern: reindeer hides draped on low racks, a glowing central campfire ringed with logs, antler-carved tools, strings of drying fish, snowshoes leaning on birch trees, coiled lassos, wooden pails, carved bone needles on a hide, bundles of firewood, a birch-bark basket of lingonberries, a joik-drum on a stand, lanterns hung from poles, folded woollen blankets, a hanging cauldron on a tripod, iron knives in sheaths, a sled harness coiled on snow. "
                 "Dense clusters around the fire, sparser breathing room at the birch edge. "
                 "Asymmetric, organic layout — like a camp that has returned to this clearing every winter for generations."
             ),
@@ -401,7 +399,7 @@ SETTINGS = {
                 "The entire ground surface is consistent sun-warmed stone paving throughout — every area the viewer can see the ground, it reads as pale flagstones and old setts with no untextured blank areas. "
                 "Ochre-stone houses of varying sizes crowd unevenly along the streets, some clustered into a tight terrace, others standing alone with pocket gardens. Terracotta-tiled roofs at different heights, some overlapping, some freestanding. "
                 "A stone fountain sits at an unexpected angle off the square's center. "
-                "Scattered throughout without pattern: turquoise shutters, baskets of lavender bundles drying under a porch, yellow sunflowers spilling from pots, a bakery chalkboard reading 'pain de campagne', stacked wicker crates of tomatoes and figs, lavender fields stretching beyond, a hanging wrought-iron sign, a blue bicycle leaned on a wall, woven baguette baskets, strings of garlic, painted window shutters ajar, climbing grapevines, a folded cushion on a step, sun-warmed stone details, a café table with a carafe, a rosemary bush. "
+                "Scattered throughout without pattern: turquoise shutters, baskets of lavender bundles drying under a porch, yellow sunflowers spilling from pots, a bakery chalkboard with illegible chalk marks, stacked wicker crates of tomatoes and figs, lavender fields stretching beyond, a hanging wrought-iron sign, a blue bicycle leaned on a wall, woven baguette baskets, strings of garlic, painted window shutters ajar, climbing grapevines, a folded cushion on a step, sun-warmed stone details, a café table with a carafe, a rosemary bush. "
                 "Dense clusters around the bakery, sparser breathing room along the ridge-walk. "
                 "Asymmetric, organic layout — like a village that grew around this fountain across centuries of lavender harvests."
             ),
@@ -1093,7 +1091,10 @@ def build_scene_prompt(
                 "[Constraints]\n"
                 f"Do not depict any {entity_noun}; every {entity_noun} is added during the later gameplay pass. "
                 "No people, no live animals, no insects, no mascots, no readable "
-                "text, no logos, no watermarks. Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, "
+                "text, no logos, no watermarks. Signs, chalkboards, labels, plaques, and boards "
+                "named in the scene may appear but must show only illegible marks, squiggles, or "
+                "blank surfaces — never legible words or letters. "
+                "Market food and fishing props are allowed when the scene calls for them. Avoid huge blank walls, roof-dominated compositions, "
                 "empty lawns, empty sand, empty floors, long straight roads, and noisy micro-texture "
                 "camouflage. Every visible ground, floor, or water-edge region should read as a clear "
                 "material appropriate to the scene; no untextured blank areas."
@@ -1117,7 +1118,7 @@ def get_dog_prompt(style: str = "clean_old_cartoon") -> str:
 # concrete 2-3 sentence scene description so levels with the same theme feel
 # distinct. Centralised here so tooling stays aligned.
 VARIATION_SYSTEM_PROMPT = (
-    "You are a scene description generator for a hidden-object puzzle game called 'Find the Dog'. "
+    "You are a scene description generator for a hidden-object puzzle game. "
     "Given a general scene description (content, perspective, art style), generate a SPECIFIC, UNIQUE "
     "variation of that scene with concrete details — specific objects, colors, arrangements, landmarks, "
     "and atmospheric details that make this particular level distinct from others with the same theme. "
