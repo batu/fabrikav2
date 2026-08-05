@@ -150,15 +150,7 @@ if (typeof window !== 'undefined') {
   // be attributed. Remove together with the skip button.
   const VARIANT_LABELS: Record<string, string> = {
     ad_campaigns_ad_autumn_forest_bird_native2k: 'CANONICAL: native-2k paint + lite cutouts',
-    ad_campaigns_ad_autumn_forest_bird_poststretch2: 'MAGENTA SQUARE-SEND — the fix (your hitboxes, 2x taps)',
-    ad_campaigns_ad_autumn_forest_bird_389c_v1oai: 'V1 LANE: openai masked crop — seamless pickups',
-    ad_campaigns_ad_autumn_forest_bird_389c_v1oai2: 'V1 LANE v2-code: openai crop, fixed PNG client',
-    ad_campaigns_ad_autumn_forest_bird_389c_v1refoai: 'V1 LANE + reference sheet (known junk birds)',
-    ad_campaigns_ad_autumn_forest_bird_389c_v1code: 'ACTUAL v1 pipeline output (16/16 birds)',
-    ad_campaigns_ad_autumn_forest_bird_389c: 'MAGENTA full-scene (gemini flash) + aligned restore',
-    ad_campaigns_ad_autumn_forest_bird_389c_adopt: 'ADOPT: painted birds pasted on clean bg',
-    ad_campaigns_ad_autumn_forest_bird_e016: 'MAGENTA full-scene (openai bg+paint), HITL hitboxes',
-    ad_campaigns_ad_autumn_forest_bird_389c_gpt2: 'MAGENTA full-scene (gpt-image-2 paint), HITL hitboxes',
+    ad_campaigns_ad_autumn_forest_bird_poststretch2: 'CANONICAL (early): square-send paint, your hitboxes',
   };
   const levelLabel = document.createElement('div');
   levelLabel.style.cssText = 'position:fixed;top:max(env(safe-area-inset-top,0px),8px);left:8px;right:80px;'

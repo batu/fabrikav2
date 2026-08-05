@@ -24,7 +24,7 @@ export class ApiError extends Error {
   }
 }
 
-export type InpaintMode = 'crop' | 'crop_reference' | 'magenta';
+export type InpaintMode = 'crop' | 'magenta';
 
 /** Fired on every API failure. App.tsx subscribes and renders a toast so
  * failures surface in the UI instead of only in the devtools console.

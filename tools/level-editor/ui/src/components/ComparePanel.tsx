@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 const APPROACHES = [
   { id: 'crop', label: 'Crop inpaint', blurb: 'per-bird crops, the production path' },
-  { id: 'crop_reference', label: 'Crop + reference', blurb: 'crops with a reference image steer' },
   { id: 'magenta', label: 'Magenta overlay', blurb: 'one whole-image call, all birds at once' },
 ] as const;
 
@@ -21,7 +20,6 @@ interface ComparisonEntry {
 export function ComparePanel({ sessionId }: { sessionId: string }) {
   const [selected, setSelected] = useState<Record<ApproachId, boolean>>({
     crop: true,
-    crop_reference: true,
     magenta: true,
   });
   const [running, setRunning] = useState(false);

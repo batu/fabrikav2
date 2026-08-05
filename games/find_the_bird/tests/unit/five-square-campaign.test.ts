@@ -2,31 +2,17 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-// Interim single-level test campaign (2026-08-05): hitbox-quality salvage
-// ships the autumn-forest ad level alone; the 20-level campaign list
-// returns after Batu's per-level hitbox review (see git history of this
-// file for the full list).
+// Canonical-regime campaign (2026-08-05): only levels produced by the
+// canonical pipeline (tools/level-editor/PIPELINE.md) ship. The 20-level
+// campaign returns via regeneration through that lane; pre-canonical level
+// lists live in this file's git history.
 const CAMPAIGN_IDS = [
   'ad_campaigns_ad_autumn_forest_bird_native2k',
   'ad_campaigns_ad_autumn_forest_bird_poststretch2',
-  'ad_campaigns_ad_autumn_forest_bird_389c_v1oai2',
-  'ad_campaigns_ad_autumn_forest_bird_389c_v1oai',
-  'ad_campaigns_ad_autumn_forest_bird_389c_v1refoai',
-  'ad_campaigns_ad_autumn_forest_bird_389c',
-  'ad_campaigns_ad_autumn_forest_bird_389c_adopt',
-  'ad_campaigns_ad_autumn_forest_bird_e016',
-  'ad_campaigns_ad_autumn_forest_bird_389c_gpt2',
 ] as const;
 const TARGET_COUNTS: Record<string, number> = {
   ad_campaigns_ad_autumn_forest_bird_native2k: 16,
   ad_campaigns_ad_autumn_forest_bird_poststretch2: 14,
-  ad_campaigns_ad_autumn_forest_bird_389c_v1oai2: 16,
-  ad_campaigns_ad_autumn_forest_bird_389c_v1oai: 10,
-  ad_campaigns_ad_autumn_forest_bird_389c_v1refoai: 16,
-  ad_campaigns_ad_autumn_forest_bird_389c: 16,
-  ad_campaigns_ad_autumn_forest_bird_389c_adopt: 16,
-  ad_campaigns_ad_autumn_forest_bird_e016: 10,
-  ad_campaigns_ad_autumn_forest_bird_389c_gpt2: 11,
 };
 
 const levelsRoot = join(process.cwd(), 'public/levels');
@@ -55,10 +41,9 @@ describe('five-square bundled campaign', () => {
 
     // Canonical square levels (PIPELINE.md) work at 2688 — sized so the
     // magenta send region is the paint model's native 2048; export ships
-    // 2560px webps so no upscale is ever needed. 4096 is the pre-canonical
-    // era; 1024 the two legacy scenes.
-    const expectedDim = levelId.includes('_13c5') || levelId.includes('_b8be') ? 1024
-      : (levelId.includes('native2k') ? 2688 : 4096);
+    // 2560px webps so no upscale is ever needed. poststretch2 predates the
+    // 2688 canvas (grandfathered at 4096) and retires with the campaign regen.
+    const expectedDim = levelId.includes('poststretch2') ? 4096 : 2688;
     expect([level.width, level.height]).toEqual([expectedDim, expectedDim]);
     expect(level.dogs).toHaveLength(TARGET_COUNTS[levelId]);
     expect(new Set(level.dogs.map((dog: any) => dog.id)).size).toBe(TARGET_COUNTS[levelId]);
