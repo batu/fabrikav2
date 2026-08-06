@@ -4892,7 +4892,10 @@
 }
 
 #level-complete-overlay .fab-complete-side-confetti {
-  z-index: 1;
+  /* In FRONT of the finale card (2026-08-06 device review) — celebration
+     particles reading as background decoration killed the moment. */
+  z-index: 30;
+  pointer-events: none;
 }
 
 /* Archived complete-surface pass. The preferred Cozy Garden 3D UI is the
