@@ -12,7 +12,7 @@ mode: pipeline
 Blocked only at the physical-device publication gate. The clean 53-level
 campaign, selective five-starter native bundle, live Bird CDN, signed
 harness-free Release app, and nested Portal browser preview are coherent at
-source revision `95fc6d9dbe4b5bbe669601acdd8e4d676fc3bed5`. Portal was left
+merged-main revision `e2bea87b28f6cd1d2531ee90a614bc594c725b8b`. Portal was left
 unchanged because the paired iPhone is unavailable and the exact build therefore
 has no physical-device gameplay video or derived release poster.
 
@@ -77,14 +77,15 @@ promoted to the required production gameplay video or release poster.
 - [`assets/portal-preview-gameplay.png`](assets/portal-preview-gameplay.png)
   shows current gameplay through the same preview.
 - Candidate native and web archives are under
-  `/private/tmp/ftb-portal-candidate-95fc6d9d/`. They are not publication
+  `/private/tmp/ftb-portal-candidate-e2bea87b/`. They are not publication
   artifacts until the exact physical-device gate passes.
 
 ## Next Action
 
-Connect and unlock Batu's iPhone by cable. Rebuild from the eventual merged
-revision, install that exact harness-free app, capture normal-speed gameplay,
-derive the poster, then publish and verify the immutable Portal entry.
+Connect and unlock Batu's iPhone by cable. Install the exact merged-main
+harness-free app, capture normal-speed gameplay, derive the poster, then publish
+and verify the immutable Portal entry. Rebuild only if runtime code moves beyond
+the recorded source revision first.
 
 ```json
 {
@@ -120,7 +121,7 @@ derive the poster, then publish and verify the immutable Portal entry.
   "gaps": [
     "The exact harness-free artifact has not been installed or captured on the unavailable physical iPhone."
   ],
-  "next_action": "Connect and unlock Batu's iPhone, rebuild from the merged revision, then capture and publish the exact production artifact.",
+  "next_action": "Connect and unlock Batu's iPhone, install the recorded merged-main artifact, then capture and publish it unless runtime code has moved.",
   "pr_updated": false
 }
 ```
