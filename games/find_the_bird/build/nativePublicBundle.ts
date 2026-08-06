@@ -242,17 +242,16 @@ export function copyNativePublicBundle(publicRoot: string, outputRoot: string): 
   collectManifestPaths(bundledManifest, requiredPaths);
   for (const relativePath of requiredPaths) copyFileWithinRoot(publicRoot, outputRoot, relativePath);
 
-  const outputBundledManifestPath = path.join(outputRoot, 'levels', 'bundled-manifest.json');
-  const bundledPackages = rewriteBundledManifest(outputBundledManifestPath, outputRoot);
-
+  // Catalog snapshots accrete one file per approve (129 files / 50 MB by
+  // 2026-08-06 — half the native cap). The runtime only consults a snapshot
+  // when a remote sequence pins an old catalog revision, so shipping the
+  // NEWEST one suffices for a fresh build; older revisions stream from the
+  // webroot/CDN if ever requested.
   const snapshots = path.join(levelsRoot, 'catalog-snapshots');
   if (existsSync(snapshots)) {
-    const outputSnapshots = path.join(outputRoot, 'levels', 'catalog-snapshots');
-    cpSync(snapshots, outputSnapshots, { recursive: true });
-    for (const entry of readdirSync(outputSnapshots, { withFileTypes: true })) {
-      if (entry.isFile() && entry.name.endsWith('.json')) {
-        rewriteNativeCatalog(path.join(outputSnapshots, entry.name), bundledPackages, false);
-      }
+    const newest = readdirSync(snapshots).filter((name) => name.endsWith('.json')).sort().at(-1);
+    if (newest !== undefined) {
+      copyFileWithinRoot(publicRoot, outputRoot, `levels/catalog-snapshots/${newest}`);
     }
   }
 
