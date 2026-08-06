@@ -20,12 +20,14 @@ after EVERY item. Morning deliverable: build 19 + Telegram report.
 - [x] D13 cleanup margin 32→48 (FTD_CLEANUP_MARGIN env), catalog-wide
       recentre+approve 53/53. Visual re-verify of greenhouse preview pending
       before ship.
-- [~] (delegated to design-iterator, sim) A1 Play Now + saga a few px down, bottom-side arrangement (pixelsmith, SIM).
-- [~] (delegated) A2 streak div sized like siblings.
-- [~] (delegated) A3 achievements+settings buttons toward middle.
+- [x] A1 Play Now + saga lowered/tightened toward nav (sim-verified, home-after.jpg).
+- [x] A2 streak pill matches sibling pills (icon 28px, CLAIM as absolute overlay).
+- [x] A3 achievements+settings nudged inward (nav translate ±6px).
 - [x] A4 crowned FTD-style no-ads premium icon generated (chroma-key lane), installed.
-- [~] (delegated) A5 settings "50 hints" crop fix.
-- [~] (delegated) A10/A11 toast font/design + wider container (backdrop overlap).
+- [x] A5 hint-amount crop fixed on the SHOP hint-pack card (font clamp). NOTE for
+      Batu: no "50 hints" element exists in settings markup — if the crop was in
+      settings, need a device screenshot to locate it.
+- [x] A10/A11 toast: Nunito, min(100%-24px,380px), cream/olive hud-toast restyle.
 - [x] A15 confetti z-index 1→30 (in front of finale card), pointer-events none.
 - [x] B6 achievements: names de-dogged, +5 tiers (500/1000 birds, 100 completions, 30-day streak, The Whole Atlas 58). Budget 795/19.
 - [ ] E1 SHIP — CDN republish RUNNING (final data); build 19 after A-lane lands: publish_ftb_cdn --starters 5 --r2-bucket ftb-levels-prod
