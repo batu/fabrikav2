@@ -99,6 +99,35 @@ def build(order: list[str], starters: int, staging: Path, rsync_target: str | No
         print(f"published to {rsync_target}")
 
 
+def upload_r2(order: list[str], staging: Path, bucket: str, workers: int = 8) -> None:
+    """Upload staging to R2 via wrangler. WRANGLER GOTCHA: `r2 object put`
+    without --remote writes a LOCAL simulator, reports "Upload complete", and
+    serves nothing — cost one full phantom upload on 2026-08-06. Assets
+    first, manifest last."""
+    import concurrent.futures
+    files = [p for p in staging.rglob("*") if p.is_file() and p.name != "manifest.json"]
+
+    def put(path: Path) -> str | None:
+        key = path.relative_to(staging).as_posix()
+        for _ in range(3):
+            r = subprocess.run(
+                ["npx", "wrangler", "r2", "object", "put", f"{bucket}/{key}",
+                 "--file", str(path), "--remote"],
+                capture_output=True, text=True,
+            )
+            if r.returncode == 0:
+                return None
+        return key
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
+        failed = [k for k in pool.map(put, files) if k]
+    if failed:
+        raise SystemExit(f"{len(failed)} uploads failed (manifest NOT published): {failed[:5]}")
+    subprocess.run(["npx", "wrangler", "r2", "object", "put", f"{bucket}/manifest.json",
+                    "--file", str(staging / "manifest.json"), "--remote"], check=True)
+    print(f"published {len(files)}+manifest to r2://{bucket}")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--starters", type=int, required=True)
@@ -106,6 +135,7 @@ def main() -> None:
                     help="one level id per line, progression order")
     ap.add_argument("--staging", default=str(Path.home() / ".ftb-cdn-staging"))
     ap.add_argument("--rsync", default=None, help="user@host:/path target")
+    ap.add_argument("--r2-bucket", default=None, help="R2 bucket (wrangler auth; uses --remote)")
     args = ap.parse_args()
     order = [l.strip() for l in Path(args.order_file).read_text().splitlines()
              if l.strip() and not l.startswith("#")]
@@ -113,6 +143,8 @@ def main() -> None:
     if missing:
         raise SystemExit(f"not exported: {missing}")
     build(order, args.starters, Path(args.staging), args.rsync)
+    if args.r2_bucket:
+        upload_r2(order, Path(args.staging), args.r2_bucket)
 
 
 if __name__ == "__main__":
