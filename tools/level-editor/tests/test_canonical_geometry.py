@@ -242,3 +242,20 @@ class TestNeighborSuppression:
         crop = _neighbor_free_crop(painted, clean, box, dets, keep_index=0)
         import numpy as np
         assert np.array_equal(np.asarray(crop), np.asarray(painted.crop(box)))
+
+    def test_overlapping_neighbor_box_never_erases_the_kept_bird(self):
+        # Dense-cluster case: neighbor's padded box overlaps A's own box.
+        import numpy as np
+        from levelbuilder.api.session import _neighbor_free_crop
+        clean, painted, _ = self._scene()
+        dets = {
+            0: {"x": 80, "y": 100, "width": 60, "height": 60},
+            1: {"x": 120, "y": 105, "width": 60, "height": 60},  # overlaps A
+        }
+        box = (60, 80, 240, 190)
+        crop = _neighbor_free_crop(painted, clean, box, dets, keep_index=0)
+        arr = np.asarray(crop).astype(int)
+        # A's center must survive even though B's padded box covers it.
+        assert arr[50, 50, 0] > 150, "kept bird erased by overlapping neighbor box"
+        # B's far side (outside A's box) must still be cleaned.
+        assert arr[55, 115, 2] < 120, "neighbor not erased outside the kept box"

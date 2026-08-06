@@ -2632,6 +2632,17 @@ def _neighbor_free_crop(
         erased += 1
     if erased == 0:
         return crop
+    # Dense clusters: a neighbor's padded box can overlap the KEPT bird's own
+    # box — erasing there bites the subject and the model compensates with
+    # multi-bird/prop sprites (observed on mushroom_cottage_glade, 18px
+    # pairs, 2026-08-06 staged rollout). The kept bird's detection box is
+    # sacrosanct: clear it from the mask after all neighbor rects.
+    keep = detections.get(keep_index)
+    if keep is not None:
+        kx0 = keep["x"] - x0
+        ky0 = keep["y"] - y0
+        draw.rectangle(
+            (kx0, ky0, kx0 + keep["width"], ky0 + keep["height"]), fill=0)
     feathered = mask.filter(ImageFilter.GaussianBlur(4))
     clean_crop = clean.crop(crop_box)
     if clean_crop.size != crop.size:
@@ -2859,8 +2870,17 @@ def materialize_detection_sprites(
             grid_n = max(1, int(os.environ.get("FTD_FLATKEY_GRID", "3")))
             entity = str(raw.get("entity") or "bird")
             batch_crops: dict[int, Image.Image] = {}
+            # Small detections are grid-poisonous: thumbnailed into a 3x3
+            # cell they become illegible and the model recreates the most
+            # salient PROP instead of the bird (observed 2026-08-06: a
+            # backpack-without-bird sprite from a 90px detection). Below this
+            # threshold the bird takes the single-call path, whose judge
+            # gate rejects non-birds.
+            SMALL_DETECTION_PX = 110
             for index, hitbox_data in pending:
                 detection = detection_by_hitbox[index]
+                if max(detection["width"], detection["height"]) < SMALL_DETECTION_PX:
+                    continue  # -> free extractor chain in _process_one
                 padding = max(16, int(round(max(detection["width"], detection["height"]) * 0.35)))
                 box = (
                     max(0, detection["x"] - padding),
@@ -2870,6 +2890,14 @@ def materialize_detection_sprites(
                 )
                 batch_crops[index] = _neighbor_free_crop(
                     color, clean_bg, box, detection_by_hitbox, index)
+            # Small detections (<110px) NEVER go through recreate — neither
+            # grid nor single. Grid cells render them illegibly and the model
+            # recreates props; the single path's judge fails OPEN when codex
+            # is unavailable, so prop sprites still leaked (measured
+            # 2026-08-06, two failed fixes). The free extractor chain cuts
+            # the ACTUAL painted pixels instead — the subject is guaranteed
+            # because the diff region IS the painted bird. Distant small
+            # birds don't need sticker-clean recreates.
             if batch_crops:
                 if grid_n >= 2:
                     # Fail-soft like the old per-dog path: a provider outage
@@ -2879,8 +2907,11 @@ def materialize_detection_sprites(
                             batch_crops, model=flatkey_model, grid=grid_n,
                             entity=entity,
                         )
-                    except Exception:
+                    except Exception as exc:
                         prebatched = {}
+                        logger.warning(
+                            "flatkey batch degraded to free extractor for ALL %d birds: %s",
+                            len(batch_crops), exc)
                 else:  # FTD_FLATKEY_GRID=1: force the single-call path
                     from levelbuilder.api.flatkey import flatkey_recreate_sprite
                     for index, crop in batch_crops.items():
@@ -2890,6 +2921,7 @@ def materialize_detection_sprites(
                             single = None
                         if single is not None:
                             prebatched[index] = single
+        flatkey_count = len(prebatched)
         with ThreadPoolExecutor(max_workers=max_workers) as pool:
             futures = [pool.submit(_process_one, idx, hb) for idx, hb in pending]
             for fut in as_completed(futures):
@@ -2919,6 +2951,12 @@ def materialize_detection_sprites(
         "materialized": len(materialized),
         "sprites": materialized,
         "failed": failed,
+        # Fail-LOUD accounting (2026-08-06): a dying provider key degraded
+        # batches to the free extractor while every level still printed OK.
+        # Drivers must check flatkeyCount vs pendingCount, not exit codes.
+        "pendingCount": len(pending),
+        "flatkeyCount": flatkey_count,
+        "degradedToFreeChain": max(0, len(pending) - flatkey_count),
     }
 
 
