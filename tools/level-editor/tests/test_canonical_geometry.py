@@ -259,3 +259,44 @@ class TestNeighborSuppression:
         assert arr[50, 50, 0] > 150, "kept bird erased by overlapping neighbor box"
         # B's far side (outside A's box) must still be cleaned.
         assert arr[55, 115, 2] < 120, "neighbor not erased outside the kept box"
+
+
+def test_recenter_close_pair_keeps_distinct_centers(tmp_path):
+    """Close pairs must NOT collapse to the merged-diff midpoint (2026-08-06
+    device feedback): each hitbox snaps to the center-mass of ITS OWN
+    Voronoi share of the painted diff."""
+    import json as _json
+    import numpy as np
+    from PIL import Image, ImageDraw
+    from levelbuilder.api import inpaint as I
+    from levelbuilder.api import session as S
+
+    sdir = tmp_path
+    bg = Image.new('RGB', (800, 600), (120, 150, 90))
+    bg.save(sdir / 'bg_00.png')
+    color = bg.copy()
+    d = ImageDraw.Draw(color)
+    # two birds 100px apart (r=57 -> nn < 2.2r = close pair)
+    d.ellipse((300 - 35, 300 - 35, 300 + 35, 300 + 35), fill=(200, 40, 40))
+    d.ellipse((400 - 35, 300 - 35, 400 + 35, 300 + 35), fill=(40, 40, 200))
+    color.save(sdir / 'color.png')
+    # hitboxes deliberately offset toward the midpoint (the bad state)
+    (sdir / 'hitboxes.json').write_text(_json.dumps([
+        {"id": "a", "x": 330, "y": 302, "r": 57},
+        {"id": "b", "x": 370, "y": 298, "r": 57},
+    ]))
+    (sdir / 'session.json').write_text('{"selected_bg": 0}')
+
+    import unittest.mock as um
+    with um.patch.object(S, 'session_dir', return_value=sdir), \
+         um.patch.object(S, 'load_session_raw', return_value={"selected_bg": 0}), \
+         um.patch.object(S, 'save_hitboxes', side_effect=lambda sid, hbs: hbs):
+        result = I.recenter_hitboxes_local_diff('testsession')
+
+    hbs = _json.loads((sdir / 'hitboxes.json').read_text()) if False else None
+    # centers must separate toward their own blobs, not stay at the midpoint
+    moved = {m['id']: m['to'] for m in result['moved']}
+    assert 'a' in moved and 'b' in moved, result
+    ax, _ = moved['a']; bx, _ = moved['b']
+    assert abs(ax - 300) <= 12, f"a snapped to {ax}, expected ~300"
+    assert abs(bx - 400) <= 12, f"b snapped to {bx}, expected ~400"

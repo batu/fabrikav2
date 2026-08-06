@@ -5075,7 +5075,29 @@ def recenter_hitboxes_local_diff(
         x0, y0 = max(0, hb["x"] - pad), max(0, hb["y"] - pad)
         x1, y1 = min(color.width, hb["x"] + pad), min(color.height, hb["y"] + pad)
         diff = _np.abs(a_full[y0:y1, x0:x1] - b_full[y0:y1, x0:x1]).sum(axis=2) > threshold
-        diff = _ndi.binary_dilation(diff, iterations=5)
+        # Close-pair center-mass fix (2026-08-06, device feedback): dilated
+        # diffs of birds closer than ~2.2r merge into ONE component and both
+        # hitboxes snap to the shared centroid — centers collapse toward the
+        # pair midpoint. Voronoi-split the diff by hitbox assignment first:
+        # only pixels NEARER to this hitbox than to any neighbor count toward
+        # this bird's centroid. Dilation shrinks for close pairs so the
+        # split isn't re-bridged.
+        neighbors = [
+            other for other in hitboxes
+            if other is not hb
+            and abs(other["x"] - hb["x"]) < pad * 2 and abs(other["y"] - hb["y"]) < pad * 2
+        ]
+        nn_dist = min(
+            (((other["x"] - hb["x"]) ** 2 + (other["y"] - hb["y"]) ** 2) ** 0.5 for other in neighbors),
+            default=float("inf"),
+        )
+        close_pair = nn_dist < r * 2.2
+        diff = _ndi.binary_dilation(diff, iterations=2 if close_pair else 5)
+        if close_pair:
+            yy, xx = _np.mgrid[y0:y1, x0:x1]
+            own = (xx - hb["x"]) ** 2 + (yy - hb["y"]) ** 2
+            for other in neighbors:
+                diff &= own <= (xx - other["x"]) ** 2 + (yy - other["y"]) ** 2
         labels, n = _ndi.label(diff)
         best = None
         for idx, sl in enumerate(_ndi.find_objects(labels), start=1):
