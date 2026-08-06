@@ -623,7 +623,7 @@ def cmd_author(client: Client, args: argparse.Namespace) -> None:
                     "dogPrompt": prompts["dogPrompt"],
                     "bgModel": model,
                     "inpaintModel": model,
-                    "nDogs": args.count,
+                    "nDogs": args.count if args.count is not None else int(template.get("nDogs", 20)),
                     "aspectRatio": "9:16",
                     "imageSize": "1K",
                 })
@@ -675,17 +675,26 @@ def cmd_author(client: Client, args: argparse.Namespace) -> None:
                         client.post(f"/api/sessions/{session_id}/select-bg", json={"bgIndex": int(up_index)})
                         note("upscale-select", {"index": up_index})
             elif step == "auto-hitboxes":
-                radius = args.radius or 30
+                # Mirror cmd_auto_hitboxes: count falls back to the session's
+                # n_dogs; radius omitted -> server canvas-scaled default.
+                step_count = args.count
+                if step_count is None:
+                    session = client.get(f"/api/sessions/{session_id}")
+                    step_count = int(session.get("nDogs") or session.get("n_dogs") or 20)
+                radius = args.radius
                 while True:
                     try:
+                        body = {"nDogs": step_count, "strategy": args.strategy}
+                        if radius is not None:
+                            body["radius"] = radius
                         result = client.post(f"/api/sessions/{session_id}/auto-hitboxes",
-                                             json={"nDogs": args.count, "strategy": args.strategy, "radius": radius})
+                                             json=body)
                         note("auto-hitboxes", {"placed": len(result.get("hitboxes", [])), "radius": radius})
                         break
                     except CliError as error:
                         if "non-overlapping" not in error.message and "smart_hitboxes_failed" not in error.message:
                             raise
-                        radius -= args.shrink_step
+                        radius = 30 if radius is None else radius - args.shrink_step
                         if radius < args.min_radius:
                             raise CliError("placement_did_not_fit",
                                            f"could not fit {args.count} hitboxes at radius >= {args.min_radius}",
@@ -1285,7 +1294,9 @@ def build_parser() -> argparse.ArgumentParser:
     p = verb("author", cmd_author)
     p.add_argument("--template")
     p.add_argument("--session-id", dest="session_id")
-    p.add_argument("--count", type=int, default=20)
+    # None -> the session's own n_dogs (the old default=20 silently overrode
+    # every create --count; wave-50 lesson 3, second copy of the same bug)
+    p.add_argument("--count", type=int, default=None)
     p.add_argument("--bg-index", type=int, default=0)
     p.add_argument("--strategy", default="smart")
     p.add_argument("--radius", type=int)
