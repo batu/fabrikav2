@@ -118,7 +118,7 @@ export const ACHIEVEMENT_CATALOG: readonly Achievement[] = [
   },
   {
     id: 'dogs_25',
-    name: 'Pack Leader',
+    name: 'Feathered Friends',
     description: 'Find 25 birds.',
     category: 'dogs',
     milestoneKind: 'occurrence-count',
@@ -129,7 +129,7 @@ export const ACHIEVEMENT_CATALOG: readonly Achievement[] = [
   },
   {
     id: 'dogs_100',
-    name: 'Hundred Hounds',
+    name: 'Century of Song',
     description: 'Find 100 birds.',
     category: 'dogs',
     milestoneKind: 'occurrence-count',
@@ -160,6 +160,64 @@ export const ACHIEVEMENT_CATALOG: readonly Achievement[] = [
     order: 110,
     entitledReward: { coins: 75, hints: 2 },
   },
+  // 2026-08-06 expansion: the catalog now spans 50+ levels with ~1000
+  // findable birds — the ladder extends to match. Existing ids/thresholds
+  // are untouched (persisted progress + analytics ids stay valid).
+  {
+    id: 'dogs_500',
+    name: 'Flock Master',
+    description: 'Find 500 birds.',
+    category: 'dogs',
+    milestoneKind: 'occurrence-count',
+    threshold: 500,
+    progressSource: 'lifetimeDogs',
+    order: 92,
+    entitledReward: { coins: 60, hints: 2 },
+  },
+  {
+    id: 'dogs_1000',
+    name: 'Thousand Wings',
+    description: 'Find 1000 birds.',
+    category: 'dogs',
+    milestoneKind: 'occurrence-count',
+    threshold: 1000,
+    progressSource: 'lifetimeDogs',
+    order: 94,
+    entitledReward: { coins: 80, hints: 3 },
+  },
+  {
+    id: 'completions_100',
+    name: 'Marathon Birder',
+    description: 'Complete 100 levels.',
+    category: 'completion',
+    milestoneKind: 'occurrence-count',
+    threshold: 100,
+    progressSource: 'totalCompletions',
+    order: 42,
+    entitledReward: { coins: 50, hints: 2 },
+  },
+  {
+    id: 'streak_30',
+    name: 'Monthly Migration',
+    description: 'Play on 30 consecutive days.',
+    category: 'streak',
+    milestoneKind: 'temporal',
+    threshold: 30,
+    progressSource: 'streakDays',
+    order: 72,
+    entitledReward: { coins: 40, hints: 3 },
+  },
+  {
+    id: 'mastery_58',
+    name: 'The Whole Atlas',
+    description: 'Complete 58 different levels.',
+    category: 'mastery',
+    milestoneKind: 'logical-progression',
+    threshold: 58,
+    progressSource: 'masteredLevels',
+    order: 112,
+    entitledReward: { coins: 10, hints: 2 },
+  },
 ] as const;
 
 let cachedOrdered: readonly Achievement[] | null = null;
@@ -175,8 +233,8 @@ export function orderedAchievements(): readonly Achievement[] {
 /**
  * Reward-budget total (AC6). Documented so a future catalog edit that inflates the
  * economy is caught by the U2 upper-bound test.
- *   coins: 25+50+75+100+20+30+60+30+60+30+75 = 555
- *   hints: 3+2+2 = 7
+ *   coins: 25+50+75+100+20+30+60+30+60+30+75+60+80+50+40+10 = 795
+ *   hints: 3+2+2+2+3+2+3+2 = 19
  */
 export function catalogRewardTotals(): { coins: number; hints: number } {
   let coins = 0;
