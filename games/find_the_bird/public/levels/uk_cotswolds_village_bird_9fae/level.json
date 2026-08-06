@@ -1,0 +1,388 @@
+{
+  "id": "uk_cotswolds_village_bird_9fae",
+  "name": "Level uk_cotswolds_village_bird_9fae (clean_old_cartoon)",
+  "width": 4096,
+  "height": 4096,
+  "bwImage": "levels/uk_cotswolds_village_bird_9fae/bw.png",
+  "colorImage": "levels/uk_cotswolds_village_bird_9fae/color.png",
+  "dogs": [
+    {
+      "id": "dog_00",
+      "x": 1123,
+      "y": 291,
+      "r": 87,
+      "sprite": {
+        "image": "levels/uk_cotswolds_village_bird_9fae/dogs/dog_00/sprite_000.png",
+        "x": 2748,
+        "y": 3205,
+        "width": 200,
+        "height": 141,
+        "cleanup": {
+          "x": 941,
+          "y": 45,
+          "width": 445,
+          "height": 445
+        },
+        "anchorX": 0.61,
+        "anchorY": 0.6028
+      }
+    },
+    {
+      "id": "dog_01",
+      "x": 401,
+      "y": 786,
+      "r": 87,
+      "sprite": {
+        "image": "levels/uk_cotswolds_village_bird_9fae/dogs/dog_01/sprite_000.png",
+        "x": 2752,
+        "y": 2751,
+        "width": 127,
+        "height": 161,
+        "cleanup": {
+          "x": 173,
+          "y": 575,
+          "width": 445,
+          "height": 445
+        },
+        "anchorX": 0.4252,
+        "anchorY": 0.5528
+      }
+    },
+    {
+      "id": "dog_02",
+      "x": 622,
+      "y": 1226,
+      "r": 87,
+      "sprite": {
+        "image": "levels/uk_cotswolds_village_bird_9fae/dogs/dog_02/sprite_000.png",
+        "x": 1241,
+        "y": 3009,
+        "width": 203,
+        "height": 190,
+        "cleanup": {
+          "x": 437,
+          "y": 1094,
+          "width": 357,
+          "height": 255
+        },
+        "anchorX": 0.5123,
+        "anchorY": 0.6158
+      }
+    },
+    {
+      "id": "dog_03",
+      "x": 1422,
+      "y": 2511,
+      "r": 87,
+      "sprite": {
+        "image": "levels/uk_cotswolds_village_bird_9fae/dogs/dog_03/sprite_000.png",
+        "x": 1311,
+        "y": 2458,
+        "width": 184,
+        "height": 233,
+        "cleanup": {
+          "x": 1195,
+          "y": 2309,
+          "width": 438,
+          "height": 408
+        },
+        "anchorX": 0.5815,
+        "anchorY": 0.1588
+      }
+    },
+    {
+      "id": "dog_04",
+      "x": 1310,
+      "y": 3141,
+      "r": 87,
+      "sprite": {
+        "image": "levels/uk_cotswolds_village_bird_9fae/dogs/dog_04/sprite_000.png",
+        "x": 2277,
+        "y": 2798,
+        "width": 200,
+        "height": 146,
+        "cleanup": {
+          "x": 1093,
+          "y": 2914,
+          "width": 445,
+          "height": 440
+        },
+        "anchorX": 0.605,
+        "anchorY": 0.5959
+      }
+    },
+    {
+      "id": "dog_05",
+      "x": 795,
+      "y": 3768,
+      "r": 87,
+      "sprite": {
+        "image": "levels/uk_cotswolds_village_bird_9fae/dogs/dog_05/sprite_000.png",
+        "x": 673,
+        "y": 3831,
+        "width": 219,
+        "height": 135,
+        "cleanup": {
+          "x": 563,
+          "y": 3548,
+          "width": 445,
+          "height": 445
+        },
+        "anchorX": 0.516,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_06",
+      "x": 2371,
+      "y": 3516,
+      "r": 87,
+      "sprite": {
+        "image": "levels/uk_cotswolds_village_bird_9fae/dogs/dog_06/sprite_000.png",
+        "x": 2293,
+        "y": 3483,
+        "width": 161,
+        "height": 209,
+        "cleanup": {
+          "x": 2152,
+          "y": 3275,
+          "width": 421,
+          "height": 445
+        },
+        "anchorX": 0.5093,
+        "anchorY": 0.0718
+      }
+    },
+    {
+      "id": "dog_07",
+      "x": 2956,
+      "y": 3701,
+      "r": 87,
+      "sprite": {
+        "image": "levels/uk_cotswolds_village_bird_9fae/dogs/dog_07/sprite_000.png",
+        "x": 2839,
+        "y": 3721,
+        "width": 202,
+        "height": 135,
+        "cleanup": {
+          "x": 2734,
+          "y": 3520,
+          "width": 426,
+          "height": 388
+        },
+        "anchorX": 0.4901,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_08",
+      "x": 2933,
+      "y": 3338,
+      "r": 87,
+      "sprite": {
+        "image": "levels/uk_cotswolds_village_bird_9fae/dogs/dog_08/sprite_000.png",
+        "x": 2841,
+        "y": 3276,
+        "width": 144,
+        "height": 150,
+        "cleanup": {
+          "x": 2679,
+          "y": 3101,
+          "width": 445,
+          "height": 417
+        },
+        "anchorX": 0.4236,
+        "anchorY": 0.32
+      }
+    },
+    {
+      "id": "dog_09",
+      "x": 2433,
+      "y": 2849,
+      "r": 87,
+      "sprite": {
+        "image": "levels/uk_cotswolds_village_bird_9fae/dogs/dog_09/sprite_000.png",
+        "x": 2333,
+        "y": 2907,
+        "width": 151,
+        "height": 145,
+        "cleanup": {
+          "x": 2187,
+          "y": 2672,
+          "width": 445,
+          "height": 409
+        },
+        "anchorX": 0.5099,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_10",
+      "x": 2200,
+      "y": 2494,
+      "r": 87,
+      "sprite": {
+        "image": "levels/uk_cotswolds_village_bird_9fae/dogs/dog_10/sprite_000.png",
+        "x": 2091,
+        "y": 2544,
+        "width": 192,
+        "height": 151,
+        "cleanup": {
+          "x": 1966,
+          "y": 2278,
+          "width": 445,
+          "height": 392
+        },
+        "anchorX": 0.5104,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_11",
+      "x": 2266,
+      "y": 1447,
+      "r": 87,
+      "sprite": {
+        "image": "levels/uk_cotswolds_village_bird_9fae/dogs/dog_11/sprite_000.png",
+        "x": 2198,
+        "y": 1505,
+        "width": 191,
+        "height": 130,
+        "cleanup": {
+          "x": 2064,
+          "y": 1230,
+          "width": 445,
+          "height": 445
+        },
+        "anchorX": 0.466,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_12",
+      "x": 2825,
+      "y": 1351,
+      "r": 87,
+      "sprite": {
+        "image": "levels/uk_cotswolds_village_bird_9fae/dogs/dog_12/sprite_000.png",
+        "x": 2627,
+        "y": 1230,
+        "width": 295,
+        "height": 279,
+        "cleanup": {
+          "x": 2639,
+          "y": 1179,
+          "width": 356,
+          "height": 357
+        },
+        "anchorX": 0.4949,
+        "anchorY": 0.3011
+      }
+    },
+    {
+      "id": "dog_13",
+      "x": 2898,
+      "y": 2084,
+      "r": 87,
+      "sprite": {
+        "image": "levels/uk_cotswolds_village_bird_9fae/dogs/dog_13/sprite_000.png",
+        "x": 2812,
+        "y": 2097,
+        "width": 183,
+        "height": 164,
+        "cleanup": {
+          "x": 2682,
+          "y": 1852,
+          "width": 445,
+          "height": 445
+        },
+        "anchorX": 0.5082,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_14",
+      "x": 3514,
+      "y": 2492,
+      "r": 87,
+      "sprite": {
+        "image": "levels/uk_cotswolds_village_bird_9fae/dogs/dog_14/sprite_000.png",
+        "x": 3429,
+        "y": 2523,
+        "width": 180,
+        "height": 173,
+        "cleanup": {
+          "x": 3297,
+          "y": 2278,
+          "width": 377,
+          "height": 445
+        },
+        "anchorX": 0.5056,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 3836,
+      "y": 2192,
+      "r": 87,
+      "sprite": {
+        "image": "levels/uk_cotswolds_village_bird_9fae/dogs/dog_15/sprite_000.png",
+        "x": 3762,
+        "y": 2235,
+        "width": 176,
+        "height": 150,
+        "cleanup": {
+          "x": 3676,
+          "y": 1972,
+          "width": 392,
+          "height": 445
+        },
+        "anchorX": 0.4773,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_16",
+      "x": 3937,
+      "y": 242,
+      "r": 87,
+      "sprite": {
+        "image": "levels/uk_cotswolds_village_bird_9fae/dogs/dog_16/sprite_000.png",
+        "x": 3848,
+        "y": 252,
+        "width": 183,
+        "height": 186,
+        "cleanup": {
+          "x": 3714,
+          "y": 35,
+          "width": 382,
+          "height": 429
+        },
+        "anchorX": 0.4863,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_17",
+      "x": 3308,
+      "y": 856,
+      "r": 87,
+      "sprite": {
+        "image": "levels/uk_cotswolds_village_bird_9fae/dogs/dog_17/sprite_000.png",
+        "x": 2014,
+        "y": 2448,
+        "width": 123,
+        "height": 150,
+        "cleanup": {
+          "x": 3137,
+          "y": 725,
+          "width": 344,
+          "height": 288
+        },
+        "anchorX": 0.6341,
+        "anchorY": 0.6133
+      }
+    }
+  ]
+}

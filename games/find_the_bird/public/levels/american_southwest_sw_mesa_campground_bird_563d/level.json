@@ -1,0 +1,346 @@
+{
+  "id": "american_southwest_sw_mesa_campground_bird_563d",
+  "name": "Level american_southwest_sw_mesa_campground_bird_563d (clean_old_cartoon)",
+  "width": 2688,
+  "height": 2688,
+  "bwImage": "levels/american_southwest_sw_mesa_campground_bird_563d/bw.png",
+  "colorImage": "levels/american_southwest_sw_mesa_campground_bird_563d/color.png",
+  "dogs": [
+    {
+      "id": "dog_00",
+      "x": 1202,
+      "y": 688,
+      "r": 57,
+      "sprite": {
+        "image": "levels/american_southwest_sw_mesa_campground_bird_563d/dogs/dog_00/sprite_000.png",
+        "x": 1117,
+        "y": 687,
+        "width": 134,
+        "height": 118,
+        "cleanup": {
+          "x": 1041,
+          "y": 550,
+          "width": 313,
+          "height": 251
+        },
+        "anchorX": 0.6045,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_01",
+      "x": 574,
+      "y": 983,
+      "r": 57,
+      "sprite": {
+        "image": "levels/american_southwest_sw_mesa_campground_bird_563d/dogs/dog_01/sprite_000.png",
+        "x": 500,
+        "y": 986,
+        "width": 134,
+        "height": 127,
+        "cleanup": {
+          "x": 433,
+          "y": 839,
+          "width": 271,
+          "height": 300
+        },
+        "anchorX": 0.5522,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_02",
+      "x": 1628,
+      "y": 864,
+      "r": 57,
+      "sprite": {
+        "image": "levels/american_southwest_sw_mesa_campground_bird_563d/dogs/dog_02/sprite_000.png",
+        "x": 1556,
+        "y": 890,
+        "width": 142,
+        "height": 112,
+        "cleanup": {
+          "x": 1471,
+          "y": 716,
+          "width": 270,
+          "height": 291
+        },
+        "anchorX": 0.507,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_03",
+      "x": 1856,
+      "y": 957,
+      "r": 57,
+      "sprite": {
+        "image": "levels/american_southwest_sw_mesa_campground_bird_563d/dogs/dog_03/sprite_000.png",
+        "x": 1779,
+        "y": 992,
+        "width": 144,
+        "height": 98,
+        "cleanup": {
+          "x": 1743,
+          "y": 808,
+          "width": 267,
+          "height": 308
+        },
+        "anchorX": 0.5208,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_04",
+      "x": 2238,
+      "y": 1138,
+      "r": 57,
+      "sprite": {
+        "image": "levels/american_southwest_sw_mesa_campground_bird_563d/dogs/dog_04/sprite_000.png",
+        "x": 2149,
+        "y": 1112,
+        "width": 166,
+        "height": 156,
+        "cleanup": {
+          "x": 2108,
+          "y": 1015,
+          "width": 262,
+          "height": 228
+        },
+        "anchorX": 0.5361,
+        "anchorY": 0.1667
+      }
+    },
+    {
+      "id": "dog_05",
+      "x": 1123,
+      "y": 1403,
+      "r": 57,
+      "sprite": {
+        "image": "levels/american_southwest_sw_mesa_campground_bird_563d/dogs/dog_05/sprite_000.png",
+        "x": 983,
+        "y": 1365,
+        "width": 244,
+        "height": 151,
+        "cleanup": {
+          "x": 1016,
+          "y": 1260,
+          "width": 154,
+          "height": 274
+        },
+        "anchorX": 0.5041,
+        "anchorY": 0.1921
+      }
+    },
+    {
+      "id": "dog_06",
+      "x": 1219,
+      "y": 1432,
+      "r": 57,
+      "sprite": {
+        "image": "levels/american_southwest_sw_mesa_campground_bird_563d/dogs/dog_06/sprite_000.png",
+        "x": 1199,
+        "y": 1454,
+        "width": 101,
+        "height": 98,
+        "cleanup": {
+          "x": 1172,
+          "y": 1280,
+          "width": 213,
+          "height": 222
+        },
+        "anchorX": 0.297,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_07",
+      "x": 907,
+      "y": 1486,
+      "r": 57,
+      "sprite": {
+        "image": "levels/american_southwest_sw_mesa_campground_bird_563d/dogs/dog_07/sprite_000.png",
+        "x": 836,
+        "y": 1511,
+        "width": 130,
+        "height": 105,
+        "cleanup": {
+          "x": 750,
+          "y": 1384,
+          "width": 264,
+          "height": 192
+        },
+        "anchorX": 0.5462,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_08",
+      "x": 885,
+      "y": 1668,
+      "r": 57,
+      "sprite": {
+        "image": "levels/american_southwest_sw_mesa_campground_bird_563d/dogs/dog_08/sprite_000.png",
+        "x": 763,
+        "y": 1610,
+        "width": 238,
+        "height": 187,
+        "cleanup": {
+          "x": 737,
+          "y": 1578,
+          "width": 297,
+          "height": 232
+        },
+        "anchorX": 0.4832,
+        "anchorY": 0.3529
+      }
+    },
+    {
+      "id": "dog_09",
+      "x": 1339,
+      "y": 1575,
+      "r": 57,
+      "sprite": {
+        "image": "levels/american_southwest_sw_mesa_campground_bird_563d/dogs/dog_09/sprite_000.png",
+        "x": 1232,
+        "y": 1556,
+        "width": 216,
+        "height": 151,
+        "cleanup": {
+          "x": 1185,
+          "y": 1504,
+          "width": 313,
+          "height": 218
+        },
+        "anchorX": 0.5093,
+        "anchorY": 0.1457
+      }
+    },
+    {
+      "id": "dog_10",
+      "x": 1451,
+      "y": 2009,
+      "r": 57,
+      "sprite": {
+        "image": "levels/american_southwest_sw_mesa_campground_bird_563d/dogs/dog_10/sprite_000.png",
+        "x": 1385,
+        "y": 1936,
+        "width": 129,
+        "height": 203,
+        "cleanup": {
+          "x": 1294,
+          "y": 1855,
+          "width": 230,
+          "height": 310
+        },
+        "anchorX": 0.5116,
+        "anchorY": 0.3596
+      }
+    },
+    {
+      "id": "dog_11",
+      "x": 1600,
+      "y": 2020,
+      "r": 57,
+      "sprite": {
+        "image": "levels/american_southwest_sw_mesa_campground_bird_563d/dogs/dog_11/sprite_000.png",
+        "x": 1491,
+        "y": 1953,
+        "width": 237,
+        "height": 182,
+        "cleanup": {
+          "x": 1526,
+          "y": 1892,
+          "width": 186,
+          "height": 272
+        },
+        "anchorX": 0.5232,
+        "anchorY": 0.3022
+      }
+    },
+    {
+      "id": "dog_12",
+      "x": 1826,
+      "y": 1929,
+      "r": 57,
+      "sprite": {
+        "image": "levels/american_southwest_sw_mesa_campground_bird_563d/dogs/dog_12/sprite_000.png",
+        "x": 1756,
+        "y": 1878,
+        "width": 191,
+        "height": 177,
+        "cleanup": {
+          "x": 1714,
+          "y": 1771,
+          "width": 266,
+          "height": 313
+        },
+        "anchorX": 0.356,
+        "anchorY": 0.2825
+      }
+    },
+    {
+      "id": "dog_13",
+      "x": 2189,
+      "y": 2116,
+      "r": 57,
+      "sprite": {
+        "image": "levels/american_southwest_sw_mesa_campground_bird_563d/dogs/dog_13/sprite_000.png",
+        "x": 2119,
+        "y": 2107,
+        "width": 138,
+        "height": 139,
+        "cleanup": {
+          "x": 2042,
+          "y": 1959,
+          "width": 278,
+          "height": 279
+        },
+        "anchorX": 0.5072,
+        "anchorY": 0.0647
+      }
+    },
+    {
+      "id": "dog_14",
+      "x": 725,
+      "y": 2193,
+      "r": 57,
+      "sprite": {
+        "image": "levels/american_southwest_sw_mesa_campground_bird_563d/dogs/dog_14/sprite_000.png",
+        "x": 664,
+        "y": 2104,
+        "width": 128,
+        "height": 200,
+        "cleanup": {
+          "x": 598,
+          "y": 2052,
+          "width": 236,
+          "height": 278
+        },
+        "anchorX": 0.4766,
+        "anchorY": 0.35
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 1512,
+      "y": 2388,
+      "r": 57,
+      "sprite": {
+        "image": "levels/american_southwest_sw_mesa_campground_bird_563d/dogs/dog_15/sprite_000.png",
+        "x": 1421,
+        "y": 2342,
+        "width": 212,
+        "height": 180,
+        "cleanup": {
+          "x": 1368,
+          "y": 2255,
+          "width": 313,
+          "height": 247
+        },
+        "anchorX": 0.4906,
+        "anchorY": 0.2778
+      }
+    }
+  ]
+}

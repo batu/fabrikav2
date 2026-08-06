@@ -1,0 +1,514 @@
+{
+  "id": "fairytale_forest_mushroom_cottage_glade_bird_94ca",
+  "name": "Level fairytale_forest_mushroom_cottage_glade_bird_94ca (clean_old_cartoon)",
+  "width": 2688,
+  "height": 2688,
+  "bwImage": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/bw.png",
+  "colorImage": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/color.png",
+  "dogs": [
+    {
+      "id": "dog_00",
+      "x": 1548,
+      "y": 754,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_00/sprite_000.png",
+        "x": 1505,
+        "y": 764,
+        "width": 97,
+        "height": 106,
+        "cleanup": {
+          "x": 1399,
+          "y": 627,
+          "width": 275,
+          "height": 229
+        },
+        "anchorX": 0.5155,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_01",
+      "x": 894,
+      "y": 920,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_01/sprite_000.png",
+        "x": 770,
+        "y": 867,
+        "width": 250,
+        "height": 183,
+        "cleanup": {
+          "x": 737,
+          "y": 771,
+          "width": 313,
+          "height": 237
+        },
+        "anchorX": 0.496,
+        "anchorY": 0.2896
+      }
+    },
+    {
+      "id": "dog_02",
+      "x": 762,
+      "y": 1099,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_02/sprite_000.png",
+        "x": 642,
+        "y": 1036,
+        "width": 225,
+        "height": 181,
+        "cleanup": {
+          "x": 604,
+          "y": 1010,
+          "width": 313,
+          "height": 210
+        },
+        "anchorX": 0.5289,
+        "anchorY": 0.2818
+      }
+    },
+    {
+      "id": "dog_03",
+      "x": 1195,
+      "y": 1132,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_03/sprite_000.png",
+        "x": 1120,
+        "y": 1154,
+        "width": 138,
+        "height": 106,
+        "cleanup": {
+          "x": 1038,
+          "y": 1018,
+          "width": 301,
+          "height": 204
+        },
+        "anchorX": 0.5435,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_04",
+      "x": 2064,
+      "y": 902,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_04/sprite_000.png",
+        "x": 1999,
+        "y": 914,
+        "width": 128,
+        "height": 118,
+        "cleanup": {
+          "x": 1913,
+          "y": 745,
+          "width": 307,
+          "height": 263
+        },
+        "anchorX": 0.5078,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_05",
+      "x": 984,
+      "y": 1357,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_05/sprite_000.png",
+        "x": 866,
+        "y": 1261,
+        "width": 245,
+        "height": 216,
+        "cleanup": {
+          "x": 841,
+          "y": 1229,
+          "width": 296,
+          "height": 274
+        },
+        "anchorX": 0.4694,
+        "anchorY": 0.3981
+      }
+    },
+    {
+      "id": "dog_06",
+      "x": 697,
+      "y": 1614,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_06/sprite_000.png",
+        "x": 620,
+        "y": 1606,
+        "width": 146,
+        "height": 127,
+        "cleanup": {
+          "x": 557,
+          "y": 1491,
+          "width": 282,
+          "height": 209
+        },
+        "anchorX": 0.5068,
+        "anchorY": 0.063
+      }
+    },
+    {
+      "id": "dog_07",
+      "x": 416,
+      "y": 1378,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_07/sprite_000.png",
+        "x": 320,
+        "y": 1315,
+        "width": 204,
+        "height": 190,
+        "cleanup": {
+          "x": 304,
+          "y": 1249,
+          "width": 251,
+          "height": 282
+        },
+        "anchorX": 0.4706,
+        "anchorY": 0.3158
+      }
+    },
+    {
+      "id": "dog_08",
+      "x": 539,
+      "y": 1788,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_08/sprite_000.png",
+        "x": 442,
+        "y": 1721,
+        "width": 150,
+        "height": 192,
+        "cleanup": {
+          "x": 382,
+          "y": 1702,
+          "width": 289,
+          "height": 201
+        },
+        "anchorX": 0.6467,
+        "anchorY": 0.349
+      }
+    },
+    {
+      "id": "dog_09",
+      "x": 909,
+      "y": 1836,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_09/sprite_000.png",
+        "x": 814,
+        "y": 1832,
+        "width": 167,
+        "height": 126,
+        "cleanup": {
+          "x": 746,
+          "y": 1735,
+          "width": 309,
+          "height": 196
+        },
+        "anchorX": 0.509,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_10",
+      "x": 1083,
+      "y": 2028,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_10/sprite_000.png",
+        "x": 953,
+        "y": 1927,
+        "width": 228,
+        "height": 206,
+        "cleanup": {
+          "x": 928,
+          "y": 1933,
+          "width": 313,
+          "height": 226
+        },
+        "anchorX": 0.5789,
+        "anchorY": 0.3689
+      }
+    },
+    {
+      "id": "dog_11",
+      "x": 454,
+      "y": 2144,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_11/sprite_000.png",
+        "x": 330,
+        "y": 2055,
+        "width": 254,
+        "height": 219,
+        "cleanup": {
+          "x": 317,
+          "y": 1987,
+          "width": 288,
+          "height": 243
+        },
+        "anchorX": 0.4882,
+        "anchorY": 0.4064
+      }
+    },
+    {
+      "id": "dog_12",
+      "x": 758,
+      "y": 2195,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_12/sprite_000.png",
+        "x": 669,
+        "y": 2153,
+        "width": 200,
+        "height": 170,
+        "cleanup": {
+          "x": 609,
+          "y": 2051,
+          "width": 307,
+          "height": 285
+        },
+        "anchorX": 0.485,
+        "anchorY": 0.2353
+      }
+    },
+    {
+      "id": "dog_13",
+      "x": 431,
+      "y": 2318,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_13/sprite_000.png",
+        "x": 359,
+        "y": 2281,
+        "width": 132,
+        "height": 166,
+        "cleanup": {
+          "x": 312,
+          "y": 2232,
+          "width": 248,
+          "height": 217
+        },
+        "anchorX": 0.5455,
+        "anchorY": 0.2229
+      }
+    },
+    {
+      "id": "dog_14",
+      "x": 1301,
+      "y": 1470,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_14/sprite_000.png",
+        "x": 1180,
+        "y": 1481,
+        "width": 201,
+        "height": 117,
+        "cleanup": {
+          "x": 1138,
+          "y": 1359,
+          "width": 173,
+          "height": 224
+        },
+        "anchorX": 0.5025,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_15",
+      "x": 1318,
+      "y": 1463,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_15/sprite_000.png",
+        "x": 1202,
+        "y": 1387,
+        "width": 224,
+        "height": 149,
+        "cleanup": {
+          "x": 1308,
+          "y": 1348,
+          "width": 130,
+          "height": 235
+        },
+        "anchorX": 0.5714,
+        "anchorY": 0.4765
+      }
+    },
+    {
+      "id": "dog_16",
+      "x": 1888,
+      "y": 1116,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_16/sprite_000.png",
+        "x": 1823,
+        "y": 1064,
+        "width": 195,
+        "height": 148,
+        "cleanup": {
+          "x": 1750,
+          "y": 1010,
+          "width": 220,
+          "height": 262
+        },
+        "anchorX": 0.3333,
+        "anchorY": 0.3514
+      }
+    },
+    {
+      "id": "dog_17",
+      "x": 2055,
+      "y": 1178,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_17/sprite_000.png",
+        "x": 1970,
+        "y": 1093,
+        "width": 202,
+        "height": 230,
+        "cleanup": {
+          "x": 1972,
+          "y": 1036,
+          "width": 226,
+          "height": 268
+        },
+        "anchorX": 0.3564,
+        "anchorY": 0.4348
+      }
+    },
+    {
+      "id": "dog_18",
+      "x": 1561,
+      "y": 1638,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_18/sprite_000.png",
+        "x": 1438,
+        "y": 1609,
+        "width": 241,
+        "height": 133,
+        "cleanup": {
+          "x": 1440,
+          "y": 1487,
+          "width": 189,
+          "height": 284
+        },
+        "anchorX": 0.4979,
+        "anchorY": 0.0451
+      }
+    },
+    {
+      "id": "dog_19",
+      "x": 1699,
+      "y": 1597,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_19/sprite_000.png",
+        "x": 1610,
+        "y": 1599,
+        "width": 209,
+        "height": 128,
+        "cleanup": {
+          "x": 1631,
+          "y": 1470,
+          "width": 171,
+          "height": 253
+        },
+        "anchorX": 0.5024,
+        "anchorY": 0.0
+      }
+    },
+    {
+      "id": "dog_20",
+      "x": 1907,
+      "y": 1720,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_20/sprite_000.png",
+        "x": 1815,
+        "y": 1708,
+        "width": 171,
+        "height": 142,
+        "cleanup": {
+          "x": 1804,
+          "y": 1593,
+          "width": 214,
+          "height": 245
+        },
+        "anchorX": 0.538,
+        "anchorY": 0.0845
+      }
+    },
+    {
+      "id": "dog_21",
+      "x": 2131,
+      "y": 1626,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_21/sprite_000.png",
+        "x": 2041,
+        "y": 1567,
+        "width": 171,
+        "height": 179,
+        "cleanup": {
+          "x": 2020,
+          "y": 1469,
+          "width": 266,
+          "height": 313
+        },
+        "anchorX": 0.5263,
+        "anchorY": 0.3296
+      }
+    },
+    {
+      "id": "dog_22",
+      "x": 1636,
+      "y": 1999,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_22/sprite_000.png",
+        "x": 1502,
+        "y": 1964,
+        "width": 252,
+        "height": 142,
+        "cleanup": {
+          "x": 1467,
+          "y": 1883,
+          "width": 313,
+          "height": 266
+        },
+        "anchorX": 0.4841,
+        "anchorY": 0.2465
+      }
+    },
+    {
+      "id": "dog_23",
+      "x": 2179,
+      "y": 1916,
+      "r": 57,
+      "sprite": {
+        "image": "levels/fairytale_forest_mushroom_cottage_glade_bird_94ca/dogs/dog_23/sprite_000.png",
+        "x": 2085,
+        "y": 1931,
+        "width": 188,
+        "height": 115,
+        "cleanup": {
+          "x": 2034,
+          "y": 1796,
+          "width": 310,
+          "height": 232
+        },
+        "anchorX": 0.5479,
+        "anchorY": 0.0
+      }
+    }
+  ]
+}
