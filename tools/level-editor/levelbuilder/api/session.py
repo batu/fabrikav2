@@ -2225,25 +2225,19 @@ def mobile_visibility_report(
                     ("SAFE_L", 0.0, 0.0, safe_x, vh),
                     ("SAFE_R", vw - safe_x, 0.0, safe_x, vh),
                 ])
-            # Square continuous levels can pan vertically by exactly the fixed
-            # UI safe areas at minimum zoom. Treat an initially covered bird as
-            # playable only when its complete hit circle can be moved into the
-            # unobscured band. Portrait and sectioned levels retain the strict
-            # fixed-camera gate.
-            square_safe_area_reachable = False
-            if not sections and width == height:
-                top_travel = vh * _SECTIONS_HUD_FRACTION
-                bottom_travel = vh * _SECTIONS_BANNER_FRACTION
-                reachable_center_min = screen_y - bottom_travel
-                reachable_center_max = screen_y + top_travel
-                safe_center_min = top_travel + screen_r
-                safe_center_max = vh - bottom_travel - screen_r
-                square_safe_area_reachable = (
-                    reachable_center_max >= safe_center_min
-                    and reachable_center_min <= safe_center_max
-                )
+            # Square continuous levels pan across their overflow AND pinch-zoom
+            # (GameScene: "let the player pan across any overflow at minimum
+            # zoom"; PinchZoom to 2.5x) — every bird can be brought into the
+            # unobscured band, so HUD/AD overlap is never publish-blocking for
+            # them. Portrait and sectioned levels retain the strict
+            # fixed-camera gate. (2026-08-06: replaced the old limited
+            # safe-area-travel model, which still blocked the canonical
+            # square lineup.)
+            square_pannable = (
+                not sections and height > 0 and 0.95 <= width / height <= 1.05
+            )
             for label, bx, by, bw, bh in blocked:
-                if label in ("HUD", "AD") and square_safe_area_reachable:
+                if label in ("HUD", "AD") and square_pannable:
                     continue
                 if right > bx and left < bx + bw and bottom > by and top < by + bh:
                     issues.append({

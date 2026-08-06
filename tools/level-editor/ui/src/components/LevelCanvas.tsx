@@ -147,6 +147,41 @@ export function getDeadZones(
 ): DeadZoneRect[] {
   if (bgWidth <= 0 || bgHeight <= 0) return [];
 
+  // Square (pan/zoom) levels: the portrait rects assume a fixed 768×1376
+  // crop and paint giant phantom strips on a 1:1 world. Mirror the server's
+  // _square_deadzones instead — HUD/AD bands, magenta-send side artifact
+  // margins, hint chip — ALL advisory: the runtime pans and pinch-zooms, so
+  // nothing is permanently hidden. (Matches the square publish gate.)
+  const isSquare = bgHeight > 0 && bgWidth / bgHeight >= 0.95 && bgWidth / bgHeight <= 1.05;
+  if (isSquare && orientation !== 'landscape') {
+    const hudFraction = geometry?.hudFraction ?? 0.139;
+    const bannerFraction = geometry?.bannerFraction ?? 0.071;
+    const sideFraction = geometry?.squareSideMarginFraction ?? 0.06;
+    const hud = Math.floor(bgHeight * hudFraction);
+    const banner = Math.floor(bgHeight * bannerFraction);
+    const innerH = bgHeight - hud - banner;
+    const side = Math.max(Math.floor(bgWidth * sideFraction), Math.floor((bgWidth - innerH) / 2));
+    const refW = geometry?.portraitReference.width ?? 768;
+    const chip = geometry?.portraitReference.deadzones.find((z) => z.label === 'HINT_CHIP');
+    const s = bgWidth / refW;
+    const zones: DeadZoneRect[] = [
+      { label: 'HUD', severity: 'danger', x: 0, y: 0, w: bgWidth, h: hud, color: DZ_HUD_BANNER },
+      { label: 'AD', severity: 'danger', x: 0, y: bgHeight - banner, w: bgWidth, h: banner, color: DZ_HUD_BANNER },
+      { label: 'EDGE L', severity: 'danger', x: 0, y: 0, w: side, h: bgHeight, color: DZ_CROP },
+      { label: 'EDGE R', severity: 'danger', x: bgWidth - side, y: 0, w: side, h: bgHeight, color: DZ_CROP },
+    ];
+    if (chip) {
+      const chipW = Math.floor(chip.w * s);
+      const chipH = Math.floor(chip.h * s);
+      zones.push({
+        label: 'HINT', severity: 'danger',
+        x: bgWidth - chipW - Math.floor((refW - chip.x - chip.w) * s),
+        y: bgHeight - banner - chipH, w: chipW, h: chipH, color: DZ_HINT,
+      });
+    }
+    return zones;
+  }
+
   if (geometry) {
     if (orientation === 'landscape') {
       const hud = Math.floor(bgHeight * geometry.hudFraction);

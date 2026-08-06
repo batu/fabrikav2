@@ -714,6 +714,7 @@ def get_geometry_config():
         "sectionBoundaryBuffer": G.SECTION_BOUNDARY_BUFFER,
         "landscapeEdgeSafeArea": G.LANDSCAPE_EDGE_SAFE_AREA,
         "viewportSafeFraction": G.VIEWPORT_SAFE_FRACTION,
+        "squareSideMarginFraction": G.SQUARE_SIDE_MARGIN_FRACTION,
         "nSections": G.N_SECTIONS,
         "portraitReference": {
             "width": G.PORTRAIT_REF_WIDTH,

@@ -35,10 +35,11 @@ function compareCards(a: ReviewCard, b: ReviewCard): number {
 }
 
 function nextNavigableCardId(cards: ReviewCard[], currentCardId: string, delta: 1 | -1): string | null {
+  // No wrap-around: navigation stops at the ends so the reviewer knows
+  // where the collection begins and finishes (2026-08-06 review feedback).
   if (cards.length === 0 || !cards.some((c) => !c.archived)) return null;
   const startIdx = Math.max(0, cards.findIndex((c) => c.id === currentCardId));
-  for (let step = 1; step <= cards.length; step += 1) {
-    const idx = (startIdx + delta * step + cards.length) % cards.length;
+  for (let idx = startIdx + delta; idx >= 0 && idx < cards.length; idx += delta) {
     const candidate = cards[idx];
     if (candidate && !candidate.archived) return candidate.id;
   }
@@ -235,9 +236,12 @@ export default function GalleryReviewModal({
       .map((id) => knownCardsRef.current.get(id))
       .filter((c): c is ReviewCard => c !== undefined);
   }, [cards]);
+  // Navigation spans the WHOLE filtered collection, not just the current
+  // setting: ←/→ walk every level in the focused view instead of orbiting
+  // one group (2026-08-06 review feedback).
   const items = useMemo(
-    () => workingCards.filter((c) => c.session.setting === currentSetting).sort(compareCards),
-    [workingCards, currentSetting],
+    () => [...workingCards].sort(compareCards),
+    [workingCards],
   );
   const navigableItems = useMemo(
     () => items.filter((c) => !c.archived),
@@ -256,6 +260,12 @@ export default function GalleryReviewModal({
       else onClose();
     }
   }, [rawIdx, items, navigableItems, onClose]);
+
+  // Navigation crosses settings now — keep the setting dropdown honest about
+  // where the reviewer actually is.
+  useEffect(() => {
+    if (card?.session.setting) setCurrentSetting(card.session.setting);
+  }, [card?.session.setting]);
 
   const [state, dispatchNarrow] = useReducer(reducer, undefined, initialModalState);
   const [loading, setLoading] = useState(true);
@@ -790,10 +800,10 @@ export default function GalleryReviewModal({
         display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'space-between',
       }}>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" className="btn" onClick={handlePrev} disabled={activeAction !== null} title="← (wraps)">
+          <button type="button" className="btn" onClick={handlePrev} disabled={activeAction !== null} title="← previous level">
             ← Prev
           </button>
-          <button type="button" className="btn" onClick={handleNext} disabled={activeAction !== null} title="→ (wraps)">
+          <button type="button" className="btn" onClick={handleNext} disabled={activeAction !== null} title="→ next level">
             Next →
           </button>
         </div>

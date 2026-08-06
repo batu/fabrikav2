@@ -174,6 +174,7 @@ export interface GeometryConfigResponse {
   sectionBoundaryBuffer: number;
   landscapeEdgeSafeArea: number;
   viewportSafeFraction: number;
+  squareSideMarginFraction?: number;
   nSections: number;
   portraitReference: {
     width: number;
