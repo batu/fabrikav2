@@ -1,0 +1,7 @@
+name = "ftb-level-origin"
+main = "src/index.js"
+compatibility_date = "2026-08-01"
+
+[[r2_buckets]]
+binding = "LEVELS"
+bucket_name = "ftb-levels-prod"

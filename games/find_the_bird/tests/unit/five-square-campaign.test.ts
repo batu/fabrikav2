@@ -2,18 +2,14 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-// Canonical-regime campaign (2026-08-05): only levels produced by the
-// canonical pipeline (tools/level-editor/PIPELINE.md) ship. The 20-level
-// campaign returns via regeneration through that lane; pre-canonical level
-// lists live in this file's git history.
-const CAMPAIGN_IDS = [
-  'ad_campaigns_ad_autumn_forest_bird_native2k',
-  'ad_campaigns_ad_autumn_forest_bird_poststretch2',
-] as const;
-const TARGET_COUNTS: Record<string, number> = {
-  ad_campaigns_ad_autumn_forest_bird_native2k: 16,
-  ad_campaigns_ad_autumn_forest_bird_poststretch2: 14,
-};
+// Wave-1 regime (2026-08-06): the campaign is the 53-level first-autonomous
+// batch. The first STARTER_COUNT levels of the index are bundled in-app
+// (bundled-manifest.json is the native build's copy list); the rest stream
+// from the ftb-level-origin worker. Previous fixed lists live in git history.
+const STARTER_COUNT = 5;
+const NATIVE_BUNDLE_MAX_BYTES = 100 * 1024 * 1024;
+// poststretch2 predates the 2688 canvas and is grandfathered at 4096.
+const ALLOWED_DIMS = new Set([2688, 4096]);
 
 const levelsRoot = join(process.cwd(), 'public/levels');
 
@@ -21,33 +17,53 @@ function readJson(path: string): any {
   return JSON.parse(readFileSync(path, 'utf8'));
 }
 
-describe('five-square bundled campaign', () => {
-  it('uses exactly the agreed five levels in progression order in every active manifest', () => {
-    const index = readJson(join(levelsRoot, 'levels-index.json'));
-    const bundled = readJson(join(levelsRoot, 'bundled-manifest.json'));
-    const catalog = readJson(join(levelsRoot, 'catalog-manifest.json'));
+function collectPaths(value: unknown, out: Set<string>): void {
+  if (Array.isArray(value)) { for (const item of value) collectPaths(item, out); return; }
+  if (value === null || typeof value !== 'object') return;
+  for (const [key, item] of Object.entries(value as Record<string, unknown>)) {
+    if (key === 'path' && typeof item === 'string') out.add(item);
+    else collectPaths(item, out);
+  }
+}
 
-    expect(index.map((level: any) => level.id)).toEqual(CAMPAIGN_IDS);
-    expect(bundled.levels.map((level: any) => level.id)).toEqual(CAMPAIGN_IDS);
-    const catalogById = new Map<string, any>(catalog.levels.map((level: any) => [level.id, level]));
-    for (const id of CAMPAIGN_IDS) {
-      expect(catalogById.get(id)?.listable).toBe(true);
-      expect(catalogById.get(id)?.bundledInApp).toBe(true);
+describe('wave-1 campaign (5 bundled starters + streamed rest)', () => {
+  const index: { id: string }[] = readJson(join(levelsRoot, 'levels-index.json'));
+  const bundled = readJson(join(levelsRoot, 'bundled-manifest.json'));
+  const catalog = readJson(join(levelsRoot, 'catalog-manifest.json'));
+
+  it('index is 53 unique levels and the starter prefix IS the bundled manifest', () => {
+    expect(index.length).toBe(53);
+    expect(new Set(index.map((l) => l.id)).size).toBe(53);
+    const starters = index.slice(0, STARTER_COUNT).map((l) => l.id);
+    expect(bundled.levels.map((l: any) => l.id)).toEqual(starters);
+    for (const level of bundled.levels) expect(level.bundled).toBe(true);
+  });
+
+  it('bundled manifest references only existing files and fits the native cap', () => {
+    const paths = new Set<string>();
+    collectPaths(bundled, paths);
+    let total = 0;
+    for (const rel of paths) {
+      const abs = join(process.cwd(), 'public', rel);
+      expect(existsSync(abs), rel).toBe(true);
+      total += readFileSync(abs).byteLength;
+    }
+    expect(total).toBeLessThan(NATIVE_BUNDLE_MAX_BYTES);
+  });
+
+  it('every indexed level is listable in the catalog', () => {
+    const byId = new Map<string, any>(catalog.levels.map((l: any) => [l.id, l]));
+    for (const { id } of index) {
+      expect(byId.get(id)?.listable, id).toBe(true);
     }
   });
 
-  it.each(CAMPAIGN_IDS)('%s is a complete 4096 square package with 15 one-to-one targets', (levelId) => {
+  it.each(index.map((l) => l.id))('%s is a complete square package', (levelId) => {
     const level = readJson(join(levelsRoot, levelId, 'level.json'));
-
-    // Canonical square levels (PIPELINE.md) work at 2688 — sized so the
-    // magenta send region is the paint model's native 2048; export ships
-    // 2560px webps so no upscale is ever needed. poststretch2 predates the
-    // 2688 canvas (grandfathered at 4096) and retires with the campaign regen.
-    const expectedDim = levelId.includes('poststretch2') ? 4096 : 2688;
-    expect([level.width, level.height]).toEqual([expectedDim, expectedDim]);
-    expect(level.dogs).toHaveLength(TARGET_COUNTS[levelId]);
-    expect(new Set(level.dogs.map((dog: any) => dog.id)).size).toBe(TARGET_COUNTS[levelId]);
-    expect(new Set(level.dogs.map((dog: any) => dog.sprite.image)).size).toBe(TARGET_COUNTS[levelId]);
+    expect(ALLOWED_DIMS.has(level.width), `width ${level.width}`).toBe(true);
+    expect(level.width).toBe(level.height);
+    expect(level.dogs.length).toBeGreaterThanOrEqual(10);
+    expect(new Set(level.dogs.map((dog: any) => dog.id)).size).toBe(level.dogs.length);
 
     for (const dog of level.dogs) {
       expect(Number.isFinite(dog.x) && Number.isFinite(dog.y) && Number.isFinite(dog.r)).toBe(true);
