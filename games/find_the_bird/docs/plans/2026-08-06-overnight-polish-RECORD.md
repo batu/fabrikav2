@@ -30,9 +30,10 @@ after EVERY item. Morning deliverable: build 19 + Telegram report.
 - [x] A10/A11 toast: Nunito, min(100%-24px,380px), cream/olive hud-toast restyle.
 - [x] A15 confetti z-index 1→30 (in front of finale card), pointer-events none.
 - [x] B6 achievements: names de-dogged, +5 tiers (500/1000 birds, 100 completions, 30-day streak, The Whole Atlas 58). Budget 795/19.
-- [ ] E1 SHIP — CDN republish RUNNING (final data); build 19 after A-lane lands: publish_ftb_cdn --starters 5 --r2-bucket ftb-levels-prod
-      (MANDATORY — recentre changed all level.json) → build:ios+sync →
-      archive 19 → upload → VALID poll → Telegram morning report.
+- [x] E1 SHIP — CDN rev 8 live (53 levels, final data); build 19 archived,
+      uploaded, VALID on TestFlight 2026-08-07 AM; Telegram report + home
+      before/after screenshots sent. Housekeeping queued: publisher stages
+      306 accreted catalog snapshots (292MB) — needs a trim pass.
 
 ## Ops guardrails (hard-won today — do not regress)
 
