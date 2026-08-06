@@ -161,25 +161,14 @@ export function getDeadZones(
     const banner = Math.floor(bgHeight * bannerFraction);
     const innerH = bgHeight - hud - banner;
     const side = Math.max(Math.floor(bgWidth * sideFraction), Math.floor((bgWidth - innerH) / 2));
-    const refW = geometry?.portraitReference.width ?? 768;
-    const chip = geometry?.portraitReference.deadzones.find((z) => z.label === 'HINT_CHIP');
-    const s = bgWidth / refW;
-    const zones: DeadZoneRect[] = [
+    // Hint chip intentionally omitted: floating chrome the player can pan
+    // away from — not worth an overlay (2026-08-06 review feedback).
+    return [
       { label: 'HUD', severity: 'danger', x: 0, y: 0, w: bgWidth, h: hud, color: DZ_HUD_BANNER },
       { label: 'AD', severity: 'danger', x: 0, y: bgHeight - banner, w: bgWidth, h: banner, color: DZ_HUD_BANNER },
       { label: 'EDGE L', severity: 'danger', x: 0, y: 0, w: side, h: bgHeight, color: DZ_CROP },
       { label: 'EDGE R', severity: 'danger', x: bgWidth - side, y: 0, w: side, h: bgHeight, color: DZ_CROP },
     ];
-    if (chip) {
-      const chipW = Math.floor(chip.w * s);
-      const chipH = Math.floor(chip.h * s);
-      zones.push({
-        label: 'HINT', severity: 'danger',
-        x: bgWidth - chipW - Math.floor((refW - chip.x - chip.w) * s),
-        y: bgHeight - banner - chipH, w: chipW, h: chipH, color: DZ_HINT,
-      });
-    }
-    return zones;
   }
 
   if (geometry) {

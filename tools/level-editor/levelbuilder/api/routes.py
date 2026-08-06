@@ -1769,12 +1769,10 @@ def _square_deadzones(bg_w: int, bg_h: int) -> list:
     )
     hud = int(bg_h * HUD_FRACTION)
     banner = int(bg_h * BANNER_FRACTION)
-    s = bg_w / float(PORTRAIT_REF_WIDTH)
-    chip = next(z for z in PORTRAIT_REFERENCE_DEADZONES if z[0] == "HINT_CHIP")
-    _, cx, _cy, cw, ch = chip
-    chip_w, chip_h = int(cw * s), int(ch * s)
     from levelbuilder.sections import square_send_side_margin
     side = square_send_side_margin(bg_w, bg_h)
+    # Hint chip intentionally omitted (2026-08-06): floating chrome the
+    # player pans away from — not a placement constraint on square levels.
     return [
         Rect(x=0, y=0, w=bg_w, h=hud),
         Rect(x=0, y=bg_h - banner, w=bg_w, h=banner),
@@ -1783,8 +1781,6 @@ def _square_deadzones(bg_w: int, bg_h: int) -> list:
         # would never receive paint.
         Rect(x=0, y=0, w=side, h=bg_h),
         Rect(x=bg_w - side, y=0, w=side, h=bg_h),
-        Rect(x=bg_w - chip_w - int((PORTRAIT_REF_WIDTH - cx - cw) * s),
-             y=bg_h - banner - chip_h, w=chip_w, h=chip_h),
     ]
 
 

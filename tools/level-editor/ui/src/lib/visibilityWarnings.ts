@@ -30,7 +30,10 @@ export function visibilityIssueLabel(issue: VisibilityIssue): string {
 }
 
 export function blockingVisibilityIssues(issues: VisibilityIssue[]): VisibilityIssue[] {
-  return issues.filter((issue) => issue.type === 'blocked_area' || issue.type === 'clipped');
+  // Server parity (session.blocking_visibility_issues): only blocked_area
+  // blocks. 'clipped' is advisory — on pan/zoom square levels an off-screen
+  // bird at the initial camera is normal, not a defect (2026-08-06).
+  return issues.filter((issue) => issue.type === 'blocked_area');
 }
 
 export function summarizeVisibilityIssues(issues: VisibilityIssue[]): VisibilityWarningSummary[] {
@@ -61,7 +64,7 @@ export function summarizeVisibilityIssues(issues: VisibilityIssue[]): Visibility
 }
 
 export function blockingVisibilitySummaries(summaries: VisibilityWarningSummary[]): VisibilityWarningSummary[] {
-  return summaries.filter((summary) => summary.type === 'blocked_area' || summary.type === 'clipped');
+  return summaries.filter((summary) => summary.type === 'blocked_area');
 }
 
 export function visibilitySummaryLabel(summary: VisibilityWarningSummary): string {
