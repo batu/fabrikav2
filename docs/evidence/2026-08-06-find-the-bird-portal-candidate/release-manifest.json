@@ -12,76 +12,104 @@
     "repo": "/Users/base/dev/appletolye/fabrikav2",
     "worktree": "/Users/base/dev/appletolye/fabrikav2/.worktrees/ftb-portal-release",
     "branch": "feat/ftb-portal-release",
-    "revision": "8d98445d0a633fc8ff4a7a8c66223dc1cb213c36",
-    "revision_committed_at": "2026-08-06T01:01:49+03:00",
+    "revision": "efb1ed977f85af3a923827137d792ea817d7e15d",
+    "revision_committed_at": "2026-08-06T09:50:32+03:00",
     "tracked_files_clean_at_build": true,
-    "generated_untracked_path_after_build": "games/find_the_bird/dist-portal/"
+    "generated_paths_after_build": [
+      "games/find_the_bird/dist/",
+      "games/find_the_bird/ios/",
+      "/private/tmp/ftb-portal-efb1ed97-derived/",
+      "/private/tmp/ftb-portal-efb1ed97-web/"
+    ]
   },
   "production_environment": {
     "mode": "ios",
     "harness_enabled": false,
+    "insitu_tour_enabled": false,
+    "dev_shell_enabled": false,
     "capacitor_debug": false,
     "commands": [
       "npm run build:ios",
       "npm run ios:sync",
-      "xcodebuild -quiet -workspace ios/App/App.xcworkspace -scheme App -configuration Release -sdk iphoneos -derivedDataPath ios/App/build DEVELOPMENT_TEAM=42L77JAX72 PRODUCT_BUNDLE_IDENTIFIER=com.baseardahan.hiddenobj CODE_SIGN_STYLE=Automatic build",
-      "npx vite build --mode ios --base ./ --outDir dist-portal"
+      "xcodebuild -quiet -project ios/App/App.xcodeproj -scheme App -configuration Release -sdk iphoneos -derivedDataPath /private/tmp/ftb-portal-efb1ed97-derived DEVELOPMENT_TEAM=42L77JAX72 PRODUCT_BUNDLE_IDENTIFIER=com.basegamelab.findthebird CODE_SIGN_STYLE=Automatic build",
+      "npx vite build --mode ios --base ./ --outDir /private/tmp/ftb-portal-efb1ed97-web --emptyOutDir"
     ]
   },
   "native_artifact": {
-    "filename": "find-the-bird-8d98445d-release.app.zip",
-    "local_path": "/private/tmp/ftb-portal-candidate/find-the-bird-8d98445d-release.app.zip",
-    "bytes": 48206582,
-    "sha256": "d88ad44d7b25a00e0000de79f973065f65f7ac0687820d14cef1666dcd2f63cd",
-    "app_bundle_tree_sha256": "eb81ac3b9d557a6aec2d0811c620b4bd27f166083bd0712d255598fd4d24da2f",
-    "bundle_id": "com.baseardahan.hiddenobj",
+    "filename": "find-the-bird-efb1ed97-release.app.zip",
+    "local_path": "/private/tmp/ftb-portal-candidate-efb1ed97/find-the-bird-efb1ed97-release.app.zip",
+    "bytes": 55132107,
+    "sha256": "f4e0b7a364e7381bb8d9458804c3fe690d1b0a31a51eec7ef656ed77e0d8cacd",
+    "app_bundle_tree_sha256": "26e7bab46ffc33fb70fb4bacbb0ea6e297b508b562938394ae9c8d8444e2830e",
+    "executable_sha256": "efd32e71862224c68ea77a17f3009a1550b29b078b948b9804a1b9189116f067",
+    "bundle_id": "com.basegamelab.findthebird",
     "marketing_version": "1.0",
     "build_number": "1",
     "configuration": "Release",
-    "signing_state": "Apple Development signed; codesign verification passed",
+    "build_info": {
+      "sha": "efb1ed977f",
+      "dirty": false
+    },
+    "public_file_count": 288,
+    "public_file_bytes": 72853610,
+    "bundled_level_count": 5,
+    "signing_state": "Apple Development signed; team 42L77JAX72; strict codesign verification passed",
     "distribution_state": "local candidate only"
   },
   "web_preview": {
-    "filename": "find-the-bird-8d98445d-web-public.zip",
-    "local_path": "/private/tmp/ftb-portal-candidate/find-the-bird-8d98445d-web-public.zip",
-    "bytes": 42144178,
-    "sha256": "f53c3c1e50d504ee86cbce369d1f36f76e40ee675fed7ccc817f1ffae2e0d25e",
-    "file_count": 199,
-    "expanded_bytes": 52689256,
+    "filename": "find-the-bird-efb1ed97-web-public.zip",
+    "local_path": "/private/tmp/ftb-portal-candidate-efb1ed97/find-the-bird-efb1ed97-web-public.zip",
+    "bytes": 49060463,
+    "sha256": "e3affc922967db97a5117d7dbee84da241b590c744bf378469020d98191ac50c",
+    "file_count": 393,
+    "expanded_bytes": 59959110,
     "source_maps_included": false,
-    "portal_rewrite_files": 4,
+    "portal_rewrite_files": 3,
     "unresolved_owned_references": 0,
-    "nested_preview_inspected": true
+    "nested_preview_inspected": true,
+    "http_status": 200,
+    "failed_responses": 0,
+    "page_errors": 0,
+    "horizontal_overflow": false
   },
-  "gameplay_capture": {
-    "filename": "gameplay.mp4",
-    "local_path": "/private/tmp/ftb-portal-candidate/gameplay.mp4",
-    "bytes": 1296667,
-    "sha256": "35d5dd88726947a9b486c881d51e16ada295d32d5e096c903a0b206529d1b5a3",
-    "captured_at": "2026-08-05T23:49:19+03:00",
-    "platform": "Chromium browser at 390x844",
-    "duration_seconds": 18.44,
-    "classification": "diagnostic_only",
-    "satisfies_publication_gate": false
-  },
-  "poster": {
-    "filename": "poster.jpg",
-    "local_path": "/private/tmp/ftb-portal-candidate/poster.jpg",
-    "bytes": 98644,
-    "sha256": "97aa7313a4655af5c5e50156d01635a5e22e01c5081b265f4b1d387002de2431",
-    "captured_at": "2026-08-05T23:49:18+03:00",
-    "dimensions": "1200x630",
-    "classification": "diagnostic_only",
-    "satisfies_publication_gate": false
-  },
-  "canonical_campaign": {
-    "authority": "games/find_the_bird/tests/unit/five-square-campaign.test.ts",
-    "level_ids": [
-      "ad_campaigns_ad_autumn_forest_bird_native2k",
+  "cdn": {
+    "origin": "https://ftb-level-origin.batuaytemiz.workers.dev",
+    "manifest_sha256": "aaa3dc47af3d267e754f42db49c4d52840d3821f1884ca64a95e7add2e109d7b",
+    "manifest_revision": 3,
+    "manifest_generated_at": "2026-08-06T05:49:25.905930Z",
+    "level_count": 53,
+    "bundled_prefix_count": 5,
+    "ordered_ids_match_repo": true,
+    "sampled_level_ids": [
+      "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "ad_campaigns_ad_cozy_library_bird_e654",
       "ad_campaigns_ad_autumn_forest_bird_poststretch2"
     ],
-    "quality_state": "blocked",
-    "blocker": "Both canonical scene images visibly contain baked QA labels. Replacing them with older pre-canonical levels would violate current repository authority."
+    "sampled_assets_checked": 61,
+    "sampled_bytes_checked": 6075753,
+    "sampled_hashes_and_sizes_match": true
+  },
+  "campaign": {
+    "authority": "games/find_the_bird/tests/unit/five-square-campaign.test.ts",
+    "level_count": 53,
+    "bundled_starter_ids": [
+      "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "hawaii_rainforest_waterfall_bird_0f98",
+      "greece_santorini_steps_bird_4634",
+      "cozy_interiors_cozy_greenhouse_conservatory_bird_e8e6",
+      "ad_campaigns_ad_treehouse_village_bird_24d4"
+    ],
+    "quality_state": "ready",
+    "starter_manifest_assets_verified": true,
+    "recovered_starter_art_inspected": true,
+    "qa_label_blocker": "resolved by the current clean five-starter campaign"
+  },
+  "browser_evidence": {
+    "home": "docs/evidence/2026-08-06-find-the-bird-portal-candidate/assets/portal-preview-home.png",
+    "gameplay": "docs/evidence/2026-08-06-find-the-bird-portal-candidate/assets/portal-preview-gameplay.png",
+    "viewport": "390x844",
+    "classification": "diagnostic_only",
+    "satisfies_publication_gate": false
   },
   "device_capture": {
     "required": true,
@@ -89,13 +117,15 @@
     "physical_device": "Batu's iPhone, iPhone 12",
     "coredevice_identifier": "2D894791-A5A3-58BE-9C88-AE0AF08B8C09",
     "udid": "00008101-000410EC3EF9001E",
-    "queried_at": "2026-08-06T01:24:04+03:00",
-    "observed_state": "unavailable and offline",
+    "queried_at": "2026-08-06T10:04:00+03:00",
+    "observed_state": "paired; tunnel unavailable; CoreDevice install failed with error 1011",
+    "last_connection_at": "2026-08-01T07:05:00Z",
     "installed_build_identity": null,
-    "production_capture": null
+    "production_capture": null,
+    "release_poster": null
   },
   "portal": {
-    "queried_at": "2026-08-06T01:24:04+03:00",
+    "queried_at": "2026-08-06T10:04:00+03:00",
     "existing_game_record": false,
     "publication_state": "blocked",
     "published": false,
@@ -108,10 +138,8 @@
     "app_store": "not queried or changed"
   },
   "required_next_gates": [
-    "Regenerate the two canonical campaign scenes without baked QA labels through the current canonical pipeline.",
-    "Rebuild the harness-free candidate from a new clean revision.",
+    "Merge the candidate changes and rebuild the harness-free artifacts from the resulting committed revision.",
     "Install that exact artifact on the named physical device and record matching build identity and normal-speed gameplay.",
-    "Derive and inspect the release poster from that production capture.",
-    "Publish only after explicit production authorization, then verify all live bytes and rendered surfaces."
+    "Derive and inspect the release poster from that production capture, publish to Portal, then verify live bytes and rendered surfaces."
   ]
 }

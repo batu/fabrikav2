@@ -9,111 +9,117 @@ mode: pipeline
 
 ## Verdict
 
-Blocked before publication. The selective native bundle, signed harness-free
-Release app, and nested Portal web preview are coherent at source revision
-`8d98445d0a633fc8ff4a7a8c66223dc1cb213c36`. The release cannot honestly become
-a Portal entry yet because the two current canonical campaign scenes contain
-visible QA labels and the required physical iPhone is offline. Portal was left
-unchanged.
+Blocked only at the physical-device publication gate. The clean 53-level
+campaign, selective five-starter native bundle, live Bird CDN, signed
+harness-free Release app, and nested Portal browser preview are coherent at
+source revision `efb1ed977f85af3a923827137d792ea817d7e15d`. Portal was left
+unchanged because the paired iPhone is unavailable and the exact build therefore
+has no physical-device gameplay video or derived release poster.
 
 ## What Works
 
-- The native bundle copies only manifest-authorized level assets, rewrites its
-  catalog metadata to the exact packaged bytes, and rejects missing or stale
-  assets.
-- The signed Release app has bundle id `com.baseardahan.hiddenobj`, marketing
+- All five starter packages are committed and manifest-authorized. The native
+  bundle contains only those five level directories and rewrites catalog
+  authority to the exact packaged bytes.
+- The runtime defaults to the dedicated Find the Bird worker. Its live revision
+  3 manifest has the same 53-level order and five-starter prefix as the repo.
+- The signed Release app uses bundle id `com.basegamelab.findthebird`, marketing
   version `1.0`, build `1`, no `CAPACITOR_DEBUG`, and passes strict `codesign`
   verification.
-- The public web zip contains 199 files, excludes source maps, stays under
-  Portal's current limit, and loads at Portal's nested build path after the real
-  extraction/rewrite lane.
-- The first-release description and changelog basis are factual. No previous
-  Find the Bird record exists in the live Portal database.
+- Portal's real zip extraction and nested-path rewrite changed three files and
+  left zero unresolved owned references. Home and gameplay rendered at 390x844
+  with no failed responses, page errors, or horizontal overflow.
+- The first-release description and changelog basis are factual. The live Portal
+  database still has no `find-the-bird` game or build row.
 
-## Publication Blockers
+## Defects Resolved
 
-1. The repository's current campaign authority requires
-   `ad_campaigns_ad_autumn_forest_bird_native2k` and
-   `ad_campaigns_ad_autumn_forest_bird_poststretch2`. Their scene images visibly
-   contain the labels `CANONICAL ... native-2k + lite cutouts` and
-   `MAGENTA SQUARE-SEND ... (the fix)`. The browser preview shows the clipped
-   label at the gameplay edge. Substituting older clean levels would violate the
-   explicit canonical-only policy in `five-square-campaign.test.ts`.
-2. `Batu's iPhone` (iPhone 12) is reported unavailable by CoreDevice and offline
-   by `xctrace`. The exact harness-free app therefore has no installed-build
-   identity or physical-device gameplay capture.
-3. The existing browser video and poster are diagnostic-only and cannot satisfy
-   the production capture gate. The release workflow now encodes this rule.
+1. Four of the five declared bundled starters were missing from Git. Their exact
+   runtime files were recovered from a previously signed production archive,
+   visually inspected, committed, and revalidated against every manifest hash
+   and byte size.
+2. Find the Bird inherited Find the Dog's default CDN origin. A failing
+   regression test demonstrated the cross-game route, and the fallback now uses
+   `ftb-level-origin.batuaytemiz.workers.dev`.
+3. The old candidate's two QA-labeled scenes are no longer campaign starters.
+   The current five clean starter scenes replace that obsolete blocker.
+4. Native catalog snapshots previously retained source-tree bundle flags and
+   package metadata. The selective build now reconciles them with exactly what
+   ships.
+
+## Verification
+
+- Find the Bird unit suite: 44 files, 285 tests passed.
+- TypeScript and focused ESLint over every changed TypeScript file: passed.
+  Repository-wide ESLint remains red on three unchanged baseline violations.
+- Live CDN: manifest HTTP 200; 53 ordered levels; 61 sampled assets across a
+  starter, streamed level, and final level matched declared hashes and sizes.
+- iOS environment validation, Vite build, Capacitor sync, Release Xcode build,
+  build provenance, strict signature verification, and artifact hashing: passed.
+- Human inspection: all four recovered starter paintings plus the current nested
+  Portal home and gameplay screens were inspected.
+
+## Publication Blocker
+
+`Batu's iPhone` (iPhone 12) remains paired but its CoreDevice tunnel is
+`unavailable`; the last recorded connection is 2026-08-01. Installing the exact
+Release app returned CoreDevice error 1011 because the device could not be
+located. Browser screenshots are diagnostic evidence only. They cannot be
+promoted to the required production gameplay video or release poster.
 
 ## Evidence Artifacts
 
 - [`release-manifest.json`](release-manifest.json) records source, commands,
-  hashes, identities, classifications, live query state, and exact gates.
+  hashes, identities, live CDN checks, and the remaining gate.
 - [`assets/portal-preview-home.png`](assets/portal-preview-home.png) shows the
-  rewritten nested Portal preview home screen.
+  current rewritten nested Portal preview home screen.
 - [`assets/portal-preview-gameplay.png`](assets/portal-preview-gameplay.png)
-  shows actual gameplay through that preview.
-- [`assets/canonical-level-qa-label.png`](assets/canonical-level-qa-label.png)
-  isolates the clipped baked label visible during gameplay.
-- The full source images remain at
-  `games/find_the_bird/public/levels/ad_campaigns_ad_autumn_forest_bird_native2k/color.webp`
-  and
-  `games/find_the_bird/public/levels/ad_campaigns_ad_autumn_forest_bird_poststretch2/color.webp`.
-
-## Verification
-
-- Find the Bird unit suite: 43 files, 277 tests passed.
-- TypeScript: `npm run typecheck` passed.
-- Focused ESLint over every changed TypeScript file: passed.
-- iOS environment validation, Vite build, Capacitor sync, Release Xcode build,
-  and strict signature verification: passed.
-- Portal nested preview: 390x844 viewport, no horizontal overflow, and no local
-  asset failures after the Portal rewrite fix.
-- Human inspection: home, gameplay, both canonical source scenes, release app
-  identity, and evidence screenshots inspected.
+  shows current gameplay through the same preview.
+- Candidate native and web archives are under
+  `/private/tmp/ftb-portal-candidate-efb1ed97/`. They are not publication
+  artifacts until the exact physical-device gate passes.
 
 ## Next Action
 
-Regenerate the two canonical scenes without QA labels through the current
-canonical editor pipeline. Then rebuild before reconnecting the iPhone; the
-existing artifacts must not be published or reused as release evidence.
+Connect and unlock Batu's iPhone by cable. Rebuild from the eventual merged
+revision, install that exact harness-free app, capture normal-speed gameplay,
+derive the poster, then publish and verify the immutable Portal entry.
 
 ```json
 {
   "skill": "ce-evidence",
   "status": "blocked",
   "artifact_path": "docs/evidence/2026-08-06-find-the-bird-portal-candidate/evidence.md",
-  "verdict": "The coherent local candidate is blocked before Portal publication by visibly labeled canonical levels and missing exact-build physical-device capture.",
+  "verdict": "The clean candidate passes source, build, CDN, and nested-browser gates; Portal publication is blocked only by missing exact-build physical-device capture.",
   "mode": "pipeline",
   "evidence": [
     {
       "type": "manifest",
       "label": "sanitized release manifest",
-      "result": "candidate fields complete; publication_state blocked",
+      "result": "candidate fields complete; publication_state blocked on device capture",
       "path": "docs/evidence/2026-08-06-find-the-bird-portal-candidate/release-manifest.json",
       "url": null
     },
     {
       "type": "test",
       "label": "Find the Bird unit suite",
-      "result": "passed: 277 tests in 43 files",
+      "result": "passed: 285 tests in 44 files",
       "path": null,
       "url": null
     },
     {
       "type": "rendered-preview",
       "label": "Portal nested browser preview",
-      "result": "loads home and gameplay without local asset failures; visible canonical QA label blocks release",
+      "result": "home and gameplay render without failed responses, page errors, unresolved owned paths, or horizontal overflow",
       "path": "docs/evidence/2026-08-06-find-the-bird-portal-candidate/assets/",
       "url": null
     }
   ],
   "reviewers": [],
   "gaps": [
-    "Canonical campaign scenes require clean regeneration.",
-    "The exact harness-free artifact has not been installed or captured on the offline physical iPhone."
+    "The exact harness-free artifact has not been installed or captured on the unavailable physical iPhone."
   ],
-  "next_action": "Regenerate clean canonical scenes, rebuild, then capture the exact artifact on the physical iPhone.",
+  "next_action": "Connect and unlock Batu's iPhone, rebuild from the merged revision, then capture and publish the exact production artifact.",
   "pr_updated": false
 }
 ```
