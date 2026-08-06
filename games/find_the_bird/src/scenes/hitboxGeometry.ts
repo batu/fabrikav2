@@ -18,7 +18,11 @@ const NEIGHBOR_GAP_LEVEL_PX = 4;
 // untappable slivers (2026-08-06 review). Lenient by design: the floor wins
 // even over the neighbor-overlap clamp — a slightly shared hit area beats an
 // untappable bird.
-const MIN_BASE_RADIUS_AT_2688 = 38;
+// 57 = the uniform catalog radius: even in dual-bird setups every bird keeps
+// AT LEAST the full standard base target (2026-08-06 device feedback — the
+// 38px floor still felt small on close pairs). Nearest-center resolution
+// disambiguates the overlap.
+const MIN_BASE_RADIUS_AT_2688 = 57;
 const REFERENCE_LEVEL_DIM = 2688;
 
 /** Keep square-level taps forgiving without letting adjacent birds share a hit area. */
