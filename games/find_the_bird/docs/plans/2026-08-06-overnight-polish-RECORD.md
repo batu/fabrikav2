@@ -17,19 +17,18 @@ after EVERY item. Morning deliverable: build 19 + Telegram report.
 - [x] C9 tutorial hint tap fires a REAL hint (suppression removed).
 - [x] C9b off-screen hint → screen-edge arrow (updateHintEdgeArrow in update()).
 - [x] C12 wrong-tap X → DOM layer (.wrong-tap-mark), screen-absolute.
-- [ ] D13 greenhouse cleanup padding: pickup-preview captured; suspicious
-      pale patches (bottom-center mat, left bench). NEXT: find cleanup
-      margin constant in recenter footprint→box writer, enlarge for this
-      level (or globally +N px), re-approve, re-verify preview.
-- [ ] A1 Play Now + saga a few px down, bottom-side arrangement (pixelsmith, SIM).
-- [ ] A2 streak div sized like siblings.
-- [ ] A3 achievements+settings buttons toward middle.
-- [ ] A4 no-ads icon: generate FTD-style icon (1 image call).
-- [ ] A5 settings "50 hints" crop fix.
-- [ ] A10/A11 toast font/design + wider container (backdrop overlap).
-- [ ] A15 win confetti IN FRONT of finale menu (z-order).
-- [ ] B6 achievements rewrite (remove "dog", bird-scale thresholds, keep ids).
-- [ ] E1 SHIP: publish_ftb_cdn --starters 5 --r2-bucket ftb-levels-prod
+- [x] D13 cleanup margin 32→48 (FTD_CLEANUP_MARGIN env), catalog-wide
+      recentre+approve 53/53. Visual re-verify of greenhouse preview pending
+      before ship.
+- [~] (delegated to design-iterator, sim) A1 Play Now + saga a few px down, bottom-side arrangement (pixelsmith, SIM).
+- [~] (delegated) A2 streak div sized like siblings.
+- [~] (delegated) A3 achievements+settings buttons toward middle.
+- [x] A4 crowned FTD-style no-ads premium icon generated (chroma-key lane), installed.
+- [~] (delegated) A5 settings "50 hints" crop fix.
+- [~] (delegated) A10/A11 toast font/design + wider container (backdrop overlap).
+- [x] A15 confetti z-index 1→30 (in front of finale card), pointer-events none.
+- [x] B6 achievements: names de-dogged, +5 tiers (500/1000 birds, 100 completions, 30-day streak, The Whole Atlas 58). Budget 795/19.
+- [ ] E1 SHIP — CDN republish RUNNING (final data); build 19 after A-lane lands: publish_ftb_cdn --starters 5 --r2-bucket ftb-levels-prod
       (MANDATORY — recentre changed all level.json) → build:ios+sync →
       archive 19 → upload → VALID poll → Telegram morning report.
 
