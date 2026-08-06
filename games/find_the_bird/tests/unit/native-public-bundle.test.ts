@@ -53,6 +53,9 @@ describe('copyNativePublicBundle', () => {
           { id: 'remote', bundledInApp: true },
         ],
       }));
+      write(publicRoot, 'levels/catalog-snapshots/catalog-0.json', JSON.stringify({
+        levels: [{ id: 'fallback', bundledInApp: false }],
+      }));
       write(publicRoot, 'levels/catalog-snapshots/catalog-1.json', JSON.stringify({
         levels: [
           { id: 'fallback', packageId: 'fallback:stale', bundledInApp: false, package: stalePackage },
@@ -110,6 +113,7 @@ describe('copyNativePublicBundle', () => {
           { id: 'remote', bundledInApp: false },
         ],
       });
+      expect(() => readFileSync(join(outputRoot, 'levels/catalog-snapshots/catalog-0.json'))).toThrow();
       expect(JSON.parse(readFileSync(join(outputRoot, 'levels/bundled-manifest.json'), 'utf8'))).toMatchObject({
         levels: [{
           id: 'fallback',

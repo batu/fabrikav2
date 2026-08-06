@@ -11,6 +11,7 @@ Produces, from the exported public levels:
                                     / bg webps — runtime verifies the hash)
        levels/<id>/dogs/**         (sprites stay path-addressed: cdnAssetPath
                                     exempts '/dogs/' paths)
+       levels/catalog-snapshots/** (immutable rollback sequence authority)
   3. Rewrites levels-index.json to the same order (editor/game-view parity).
 
 Usage:
@@ -32,6 +33,19 @@ from levelbuilder.settings import resolve_game  # noqa: E402
 resolve_game("find_the_bird").apply()
 from levelbuilder.api import public_levels as P  # noqa: E402
 from levelbuilder.api import session as S  # noqa: E402
+
+
+def stage_catalog_snapshots(public_levels: Path, staging: Path) -> int:
+    """Copy retained immutable catalog snapshots to their runtime CDN path."""
+    source = public_levels / "catalog-snapshots"
+    if not source.exists():
+        return 0
+    destination = staging / "levels" / "catalog-snapshots"
+    destination.mkdir(parents=True, exist_ok=True)
+    snapshots = sorted(source.glob("*.json"))
+    for snapshot in snapshots:
+        shutil.copyfile(snapshot, destination / snapshot.name)
+    return len(snapshots)
 
 
 def build(order: list[str], starters: int, staging: Path, rsync_target: str | None) -> None:
@@ -62,6 +76,7 @@ def build(order: list[str], starters: int, staging: Path, rsync_target: str | No
         shutil.rmtree(staging)
     (staging / "assets").mkdir(parents=True)
     (staging / "manifest.json").write_text(json.dumps(manifest(entries), indent=2))
+    snapshot_count = stage_catalog_snapshots(S.GAME_PUBLIC_LEVELS, staging)
 
     copied = 0
     for entry in entries:
@@ -86,7 +101,8 @@ def build(order: list[str], starters: int, staging: Path, rsync_target: str | No
 
     size = sum(f.stat().st_size for f in staging.rglob("*") if f.is_file())
     print(f"staged {len(entries)} levels ({starters} bundled), "
-          f"{copied} hashed assets, {size/1e6:.0f} MB at {staging}")
+          f"{copied} hashed assets, {snapshot_count} catalog snapshots, "
+          f"{size/1e6:.0f} MB at {staging}")
 
     if rsync_target:
         # Assets first, manifest LAST (cold-launchers mid-upload never see a
@@ -137,8 +153,8 @@ def main() -> None:
     ap.add_argument("--rsync", default=None, help="user@host:/path target")
     ap.add_argument("--r2-bucket", default=None, help="R2 bucket (wrangler auth; uses --remote)")
     args = ap.parse_args()
-    order = [l.strip() for l in Path(args.order_file).read_text().splitlines()
-             if l.strip() and not l.startswith("#")]
+    order = [line.strip() for line in Path(args.order_file).read_text().splitlines()
+             if line.strip() and not line.startswith("#")]
     missing = [sid for sid in order if not (S.GAME_PUBLIC_LEVELS / sid / "level.json").exists()]
     if missing:
         raise SystemExit(f"not exported: {missing}")

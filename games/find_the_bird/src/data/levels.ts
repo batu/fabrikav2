@@ -30,6 +30,7 @@ import {
 import { hasLowDataConnection, runWhenVisibleAndIdle } from '../platform/browserScheduling';
 import { cohortBucket } from './cohortContext';
 import { manifestEntryFromCatalogLevel } from './catalogManifestEntry';
+import { catalogSnapshotFetchUrls } from './catalogSnapshotUrls';
 import { assertRuntimeLevelFile } from './levelFileRuntimeGuard';
 import {
   buildPackageCatalogSnapshot,
@@ -165,6 +166,7 @@ let cachedIndex: LevelIndexEntry[] | null = null;
 let bundledManifestPromise: Promise<ManifestV1> | null = null;
 let bundledManifestSnapshot: ManifestV1 | null = null;
 let runtimeManifestSnapshot: ManifestV1 | null = null;
+let runtimeManifestSource: ManifestV1 | null = null;
 let runtimeManifestEntriesById = new Map<string, ManifestLevelEntry>();
 let catalogManifestPromise: Promise<RuntimeCatalogManifest | null> | null = null;
 const catalogSnapshotPromises = new Map<string, Promise<RuntimeCatalogManifest | null>>();
@@ -249,36 +251,44 @@ function manifestWithBundledFallbackEntries(activeManifest: ManifestV1): Manifes
 }
 
 function getRuntimeManifest(): ManifestV1 {
-  if (runtimeManifestSnapshot === null) {
-    runtimeManifestSnapshot = manifestWithBundledFallbackEntries(getManifestClient().getManifest());
+  const activeManifest = getManifestClient().getManifest();
+  if (runtimeManifestSnapshot === null || runtimeManifestSource !== activeManifest) {
+    runtimeManifestSource = activeManifest;
+    runtimeManifestSnapshot = manifestWithBundledFallbackEntries(activeManifest);
     runtimeManifestEntriesById = new Map(runtimeManifestSnapshot.levels.map((entry) => [entry.id, entry]));
+    cachedIndex = null;
   }
   return runtimeManifestSnapshot;
 }
 
-async function fetchRuntimeCatalogJson(path: string): Promise<RuntimeCatalogManifest | null> {
-  try {
-    const result = await fetchWithTimeout(path, CATALOG_FETCH_TIMEOUT_MS, async (response) => {
-      if (!response.ok) return { ok: false as const };
-      return { ok: true as const, text: await response.text() };
-    });
-    if (!result.ok) {
-      lastCatalogManifestFetchFailed = true;
-      return null;
+async function fetchRuntimeCatalogJson(
+  paths: string | readonly string[],
+): Promise<RuntimeCatalogManifest | null> {
+  const candidates = typeof paths === 'string' ? [paths] : paths;
+  let lastError: unknown = null;
+  for (const path of candidates) {
+    try {
+      const result = await fetchWithTimeout(path, CATALOG_FETCH_TIMEOUT_MS, async (response) => {
+        if (!response.ok) return { ok: false as const };
+        return { ok: true as const, text: await response.text() };
+      });
+      if (!result.ok) continue;
+      const rawCatalog = result.text;
+      if (rawCatalog.trimStart().startsWith('<')) continue;
+      const parsed = parseRuntimeCatalogManifest(JSON.parse(rawCatalog));
+      if (parsed !== null) {
+        lastCatalogManifestFetchFailed = false;
+        return parsed;
+      }
+    } catch (err) {
+      lastError = err;
     }
-    const rawCatalog = result.text;
-    if (rawCatalog.trimStart().startsWith('<')) {
-      lastCatalogManifestFetchFailed = true;
-      return null;
-    }
-    const parsed = parseRuntimeCatalogManifest(JSON.parse(rawCatalog));
-    if (parsed === null) lastCatalogManifestFetchFailed = true;
-    return parsed;
-  } catch (err) {
-    lastCatalogManifestFetchFailed = true;
-    console.warn('[levels] catalog manifest unavailable; preserving cached sequence/fallback state', err);
-    return null;
   }
+  lastCatalogManifestFetchFailed = true;
+  if (lastError !== null) {
+    console.warn('[levels] catalog manifest unavailable; preserving cached sequence/fallback state', lastError);
+  }
+  return null;
 }
 
 async function getCatalogManifest(): Promise<RuntimeCatalogManifest | null> {
@@ -307,7 +317,7 @@ async function getCatalogSnapshot(catalogRevision: string): Promise<RuntimeCatal
     if (retryAfterMs === 0 || Date.now() < retryAfterMs) return existing;
     catalogSnapshotPromises.delete(catalogRevision);
   }
-  const pending = fetchRuntimeCatalogJson(`levels/catalog-snapshots/${encodeURIComponent(catalogRevision)}.json`);
+  const pending = fetchRuntimeCatalogJson(catalogSnapshotFetchUrls(catalogRevision, getCdnOrigin()));
   pending.then((catalog): void => {
     if (catalog === null) catalogSnapshotRetryAfterMsByRevision.set(
       catalogRevision,
@@ -519,8 +529,8 @@ async function resolveActiveRuntimeSequence(manifest: ManifestV1): Promise<Runti
 
 /**
  * Initialize the manifest once per session. Called lazily by
- * `getLevelIndex()`. ManifestClient is session-locked — the second
- * call is a no-op.
+ * `getLevelIndex()`. A successful live manifest is session-locked; a
+ * transient fallback is retried by later calls.
  *
  * In no-CDN mode (getCdnOrigin returns null), pass null as the URL;
  * ManifestClient skips the network entirely and uses the bundled
@@ -835,10 +845,10 @@ function buildServingAttempt(
  * `cachedIndex` and lock the user to 3 bundled levels for the session.
  */
 export async function getLevelIndex(): Promise<LevelIndexEntry[]> {
-  if (cachedIndex !== null) return cachedIndex;
   await ensureManifestInitialized();
 
   const manifest = getRuntimeManifest();
+  if (cachedIndex !== null) return cachedIndex;
   const runtimeSequence = await resolveActiveRuntimeSequence(manifest);
   writeLiveListedIfFresh(runtimeSequence);
   const catalog = await getActivePackageCatalog(manifest);
@@ -1346,6 +1356,7 @@ export async function _clearAllLevelCaches(): Promise<void> {
   bundledManifestPromise = null;
   bundledManifestSnapshot = null;
   runtimeManifestSnapshot = null;
+  runtimeManifestSource = null;
   runtimeManifestEntriesById.clear();
   catalogManifestPromise = null;
   catalogManifestRetryAfterMs = 0;
