@@ -2592,6 +2592,54 @@ def reconcile_magenta_hitboxes_to_detections(
     }
 
 
+def _neighbor_free_crop(
+    color: "Image.Image",
+    clean: "Image.Image | None",
+    crop_box: tuple[int, int, int, int],
+    detections: dict[int, dict],
+    keep_index: int,
+) -> "Image.Image":
+    """Crop `color` to crop_box with every OTHER bird erased.
+
+    Close birds leak into each other's cutout crops: the model then merges
+    them, recreates both (duplicate-component gate -> billed retries), or
+    bakes a neighbor fragment into the sprite that visibly vanishes when the
+    neighbor is picked up. The clean background is pixel-aligned with the
+    painted scene (the canonical square-send invariant), so pasting the
+    clean pixels over each intersecting neighbor's padded box — with a
+    feathered edge — deletes the neighbor without touching scenery.
+    Falls back to a plain crop when no clean bg is available.
+    """
+    crop = color.crop(crop_box)
+    if clean is None:
+        return crop
+    from PIL import ImageDraw, ImageFilter
+    x0, y0, x1, y1 = crop_box
+    mask = Image.new("L", crop.size, 0)
+    draw = ImageDraw.Draw(mask)
+    erased = 0
+    for other_index, det in detections.items():
+        if other_index == keep_index:
+            continue
+        pad = max(8, int(round(max(det["width"], det["height"]) * 0.15)))
+        nx0 = det["x"] - pad - x0
+        ny0 = det["y"] - pad - y0
+        nx1 = det["x"] + det["width"] + pad - x0
+        ny1 = det["y"] + det["height"] + pad - y0
+        if nx1 <= 0 or ny1 <= 0 or nx0 >= crop.width or ny0 >= crop.height:
+            continue
+        draw.rectangle((nx0, ny0, nx1, ny1), fill=255)
+        erased += 1
+    if erased == 0:
+        return crop
+    feathered = mask.filter(ImageFilter.GaussianBlur(4))
+    clean_crop = clean.crop(crop_box)
+    if clean_crop.size != crop.size:
+        clean_crop = clean_crop.resize(crop.size, Image.LANCZOS)
+    crop.paste(clean_crop.convert("RGB"), (0, 0), feathered)
+    return crop
+
+
 def materialize_detection_sprites(
     session_id: str,
     *,
@@ -2668,6 +2716,20 @@ def materialize_detection_sprites(
     failed: list[dict] = []
     with Image.open(color_path) as source:
         color = source.convert("RGB")
+    # Aligned clean bg for neighbor suppression in cutout crops. Missing bg
+    # degrades to plain crops (older sessions), never blocks.
+    clean_bg: Image.Image | None = None
+    try:
+        selected_bg = raw.get("selected_bg")
+        if selected_bg is not None:
+            bg_path = session_dir(session_id) / f"bg_{int(selected_bg):02d}.png"
+            if bg_path.exists():
+                with Image.open(bg_path) as _bg_src:
+                    clean_bg = _bg_src.convert("RGB")
+                if clean_bg.size != color.size:
+                    clean_bg = clean_bg.resize(color.size, Image.LANCZOS)
+    except (OSError, ValueError):
+        clean_bg = None
     try:
         from concurrent.futures import ThreadPoolExecutor, as_completed
         max_workers = max(1, int(os.environ.get("FTD_SPRITE_WORKERS", "5")))
@@ -2683,7 +2745,8 @@ def materialize_detection_sprites(
                 min(color.width, detection["x"] + detection["width"] + padding),
                 min(color.height, detection["y"] + detection["height"] + padding),
             )
-            painted = color.crop(box)
+            painted = _neighbor_free_crop(
+                color, clean_bg, box, detection_by_hitbox, index)
             hitbox = _inpaint.Hitbox(
                 x=int(hitbox_data["x"]),
                 y=int(hitbox_data["y"]),
@@ -2805,7 +2868,8 @@ def materialize_detection_sprites(
                     min(color.width, detection["x"] + detection["width"] + padding),
                     min(color.height, detection["y"] + detection["height"] + padding),
                 )
-                batch_crops[index] = color.crop(box)
+                batch_crops[index] = _neighbor_free_crop(
+                    color, clean_bg, box, detection_by_hitbox, index)
             if batch_crops:
                 if grid_n >= 2:
                     # Fail-soft like the old per-dog path: a provider outage
@@ -2833,6 +2897,8 @@ def materialize_detection_sprites(
                 (materialized if kind == "ok" else failed).append(payload)
     finally:
         color.close()
+        if clean_bg is not None:
+            clean_bg.close()
 
     succeeded_indices = {entry["index"] for entry in materialized}
     dogs = []

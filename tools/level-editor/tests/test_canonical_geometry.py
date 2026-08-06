@@ -189,3 +189,56 @@ class TestBatchedFlatkeySplitter:
         assert calls['grid'] >= 2  # 3x3 pass + 2x2 retry
         assert calls['single'] == 4
         assert set(out) == set(crops)
+
+
+class TestNeighborSuppression:
+    """Close birds must not leak into each other's cutout crops (2026-08-06)."""
+
+    def _scene(self):
+        from PIL import Image, ImageDraw
+        clean = Image.new('RGB', (400, 300), (120, 160, 90))
+        d = ImageDraw.Draw(clean)
+        for x in range(0, 400, 20):
+            d.line((x, 0, x, 300), fill=(100, 140, 80), width=3)
+        painted = clean.copy()
+        pd = ImageDraw.Draw(painted)
+        pd.ellipse((80, 100, 140, 160), fill=(200, 40, 40))    # bird A
+        pd.ellipse((150, 110, 210, 170), fill=(40, 40, 200))   # bird B (close)
+        dets = {
+            0: {"x": 80, "y": 100, "width": 60, "height": 60},
+            1: {"x": 150, "y": 110, "width": 60, "height": 60},
+        }
+        return clean, painted, dets
+
+    def test_neighbor_is_erased_and_subject_kept(self):
+        import numpy as np
+        from levelbuilder.api.session import _neighbor_free_crop
+        clean, painted, dets = self._scene()
+        box = (60, 80, 240, 190)  # A's padded crop, overlapping B fully
+        crop = _neighbor_free_crop(painted, clean, box, dets, keep_index=0)
+        arr = np.asarray(crop).astype(int)
+        # B's center (level 180,140 -> crop 120,60) must be clean bg, not blue.
+        assert arr[60, 120, 2] < 120, "neighbor bird survived suppression"
+        # A's center (level 110,130 -> crop 50,50) must remain the red bird.
+        assert arr[50, 50, 0] > 150, "kept bird was damaged"
+
+    def test_no_clean_bg_degrades_to_plain_crop(self):
+        import numpy as np
+        from levelbuilder.api.session import _neighbor_free_crop
+        _, painted, dets = self._scene()
+        crop = _neighbor_free_crop(painted, None, (60, 80, 240, 190), dets, keep_index=0)
+        arr = np.asarray(crop).astype(int)
+        assert arr[60, 120, 2] > 150  # neighbor untouched without a clean bg
+
+    def test_far_neighbor_leaves_crop_untouched(self):
+        import numpy as np
+        from levelbuilder.api.session import _neighbor_free_crop
+        clean, painted, _ = self._scene()
+        dets = {
+            0: {"x": 80, "y": 100, "width": 60, "height": 60},
+            1: {"x": 340, "y": 10, "width": 40, "height": 40},  # far away
+        }
+        box = (60, 80, 160, 180)
+        crop = _neighbor_free_crop(painted, clean, box, dets, keep_index=0)
+        import numpy as np
+        assert np.array_equal(np.asarray(crop), np.asarray(painted.crop(box)))

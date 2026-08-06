@@ -1301,6 +1301,7 @@ export class GameScene extends Phaser.Scene {
         dog,
         this.level?.dogs ?? candidates,
         this.level?.width === this.level?.height,
+        this.level?.width ?? 2688,
       );
 
       if (dist <= toleranceRadius && dist < closestDist) {
@@ -1851,6 +1852,7 @@ export class GameScene extends Phaser.Scene {
       dog,
       this.level?.dogs ?? [dog],
       this.level?.width === this.level?.height,
+      this.level?.width ?? 2688,
     ) * this.imgScale;
     // Ring radius in CSS px (FIT scaling makes the canvas CSS size differ from
     // GAME.WIDTH) so the overlay's spotlight cutout matches the on-canvas ring.
@@ -3475,6 +3477,7 @@ export class GameScene extends Phaser.Scene {
       dog,
       this.level.dogs,
       this.level.width === this.level.height,
+      this.level.width,
     ) * this.imgScale;
 
     this.hintCircleGfx = this.add.graphics();
@@ -3560,6 +3563,7 @@ export class GameScene extends Phaser.Scene {
           dog,
           this.level.dogs,
           this.level.width === this.level.height,
+          this.level.width,
         ) * this.imgScale,
       );
 
