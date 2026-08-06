@@ -1,7 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 
 /**
- * CDN + experiment configuration for Find the Dog.
+ * CDN + experiment configuration for Find the Bird.
  *
  * Phase 2 of the CDN level-streaming rollout only activates cohort
  * tagging; the base URL is consumed once Phase 3 wires levels.ts
@@ -20,7 +20,7 @@ export const COHORT_BUCKET_COUNT = 100;
 
 export type CdnRuntimeEnv = Record<string, string | boolean | undefined>;
 
-const DEFAULT_CDN_ORIGIN = 'https://ftd-level-origin.batuaytemiz.workers.dev';
+const DEFAULT_CDN_ORIGIN = 'https://ftb-level-origin.batuaytemiz.workers.dev';
 
 function envString(value: string | boolean | undefined): string | null {
   if (typeof value !== 'string') return null;

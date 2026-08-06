@@ -1,5 +1,9 @@
 export const FALLBACK_RUNTIME_TEXTURE_LONG_EDGE = 2560;
 
+export function isSelectivePublicBundleMode(mode: string | undefined): boolean {
+  return mode === 'ios' || mode === 'android';
+}
+
 /** Use the renderer's real allocation limit; retain the shipped guard without WebGL capability. */
 export function resolveRuntimeTextureLongEdge(maxTextureSize: number | null): number {
   if (!Number.isFinite(maxTextureSize) || (maxTextureSize ?? 0) <= 0) {
@@ -24,7 +28,9 @@ export function selectRuntimeColorImageUrl(
   sourceWidth: number,
   sourceHeight: number,
   runtimeTextureLongEdge: number,
+  sourceImageAvailable = !isSelectivePublicBundleMode(import.meta.env.MODE),
 ): string {
+  if (!sourceImageAvailable) return fallbackUrl;
   const sourceLongEdge = Math.max(sourceWidth, sourceHeight);
   if (runtimeTextureLongEdge <= FALLBACK_RUNTIME_TEXTURE_LONG_EDGE) return fallbackUrl;
   if (sourceLongEdge <= FALLBACK_RUNTIME_TEXTURE_LONG_EDGE) return fallbackUrl;

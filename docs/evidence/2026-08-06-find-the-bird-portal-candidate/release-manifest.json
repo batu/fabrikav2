@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "game": {
+    "slug": "find-the-bird",
+    "title": "Find the Bird",
+    "portal_version": "2026.08.06-1",
+    "description": "Find hidden birds in hand-drawn scenes.",
+    "previous_portal_release": null,
+    "changelog_basis": "Initial release"
+  },
+  "source": {
+    "repo": "/Users/base/dev/appletolye/fabrikav2",
+    "worktree": "/Users/base/dev/appletolye/fabrikav2/.worktrees/ftb-portal-release",
+    "branch": "feat/ftb-portal-release",
+    "revision": "95fc6d9dbe4b5bbe669601acdd8e4d676fc3bed5",
+    "revision_committed_at": "2026-08-06T10:06:55+03:00",
+    "tracked_files_clean_at_build": true,
+    "generated_paths_after_build": [
+      "games/find_the_bird/dist/",
+      "games/find_the_bird/ios/",
+      "/private/tmp/ftb-portal-95fc6d9d-derived/",
+      "/private/tmp/ftb-portal-95fc6d9d-web/"
+    ]
+  },
+  "production_environment": {
+    "mode": "ios",
+    "harness_enabled": false,
+    "insitu_tour_enabled": false,
+    "dev_shell_enabled": false,
+    "capacitor_debug": false,
+    "commands": [
+      "npm run build:ios",
+      "npm run ios:sync",
+      "xcodebuild -quiet -project ios/App/App.xcodeproj -scheme App -configuration Release -sdk iphoneos -derivedDataPath /private/tmp/ftb-portal-95fc6d9d-derived DEVELOPMENT_TEAM=42L77JAX72 PRODUCT_BUNDLE_IDENTIFIER=com.basegamelab.findthebird CODE_SIGN_STYLE=Automatic build",
+      "npx vite build --mode ios --base ./ --outDir /private/tmp/ftb-portal-95fc6d9d-web --emptyOutDir"
+    ]
+  },
+  "native_artifact": {
+    "filename": "find-the-bird-95fc6d9d-release.app.zip",
+    "local_path": "/private/tmp/ftb-portal-candidate-95fc6d9d/find-the-bird-95fc6d9d-release.app.zip",
+    "bytes": 55132502,
+    "sha256": "9773c96603c6faad13d5bbfd605ecd179b278569295425ed3c26cf96cefac04e",
+    "app_bundle_tree_sha256": "1a4924bf2791c8f14a1d3a0ce47dfc446d53ef9fbda27a7f0e03ab33c86ba7d6",
+    "executable_sha256": "d227911abbd5034e5708c7e4df1b9a0268e095a93c4ebd39914aad30e6c3472a",
+    "bundle_id": "com.basegamelab.findthebird",
+    "marketing_version": "1.0",
+    "build_number": "1",
+    "configuration": "Release",
+    "build_info": {
+      "sha": "95fc6d9dbe",
+      "dirty": false
+    },
+    "public_file_count": 288,
+    "public_file_bytes": 72854652,
+    "bundled_level_count": 5,
+    "signing_state": "Apple Development signed; team 42L77JAX72; strict codesign verification passed",
+    "distribution_state": "local candidate only"
+  },
+  "web_preview": {
+    "filename": "find-the-bird-95fc6d9d-web-public.zip",
+    "local_path": "/private/tmp/ftb-portal-candidate-95fc6d9d/find-the-bird-95fc6d9d-web-public.zip",
+    "bytes": 49060460,
+    "sha256": "f6424caae8eabe9e688f1a02c76d774e7e1c1d274424c64dec680dbec550d37a",
+    "file_count": 393,
+    "expanded_bytes": 59959189,
+    "source_maps_included": false,
+    "portal_rewrite_files": 3,
+    "unresolved_owned_references": 0,
+    "nested_preview_inspected": true,
+    "http_status": 200,
+    "failed_responses": 0,
+    "page_errors": 0,
+    "horizontal_overflow": false
+  },
+  "cdn": {
+    "origin": "https://ftb-level-origin.batuaytemiz.workers.dev",
+    "manifest_sha256": "aaa3dc47af3d267e754f42db49c4d52840d3821f1884ca64a95e7add2e109d7b",
+    "manifest_revision": 3,
+    "manifest_generated_at": "2026-08-06T05:49:25.905930Z",
+    "level_count": 53,
+    "bundled_prefix_count": 5,
+    "ordered_ids_match_repo": true,
+    "sampled_level_ids": [
+      "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "ad_campaigns_ad_cozy_library_bird_e654",
+      "ad_campaigns_ad_autumn_forest_bird_poststretch2"
+    ],
+    "sampled_assets_checked": 61,
+    "sampled_bytes_checked": 6075753,
+    "sampled_hashes_and_sizes_match": true
+  },
+  "campaign": {
+    "authority": "games/find_the_bird/tests/unit/five-square-campaign.test.ts",
+    "level_count": 53,
+    "bundled_starter_ids": [
+      "ad_campaigns_ad_autumn_forest_bird_34ea",
+      "hawaii_rainforest_waterfall_bird_0f98",
+      "greece_santorini_steps_bird_4634",
+      "cozy_interiors_cozy_greenhouse_conservatory_bird_e8e6",
+      "ad_campaigns_ad_treehouse_village_bird_24d4"
+    ],
+    "quality_state": "ready",
+    "starter_manifest_assets_verified": true,
+    "recovered_starter_art_inspected": true,
+    "qa_label_blocker": "resolved by the current clean five-starter campaign"
+  },
+  "browser_evidence": {
+    "home": "docs/evidence/2026-08-06-find-the-bird-portal-candidate/assets/portal-preview-home.png",
+    "gameplay": "docs/evidence/2026-08-06-find-the-bird-portal-candidate/assets/portal-preview-gameplay.png",
+    "viewport": "390x844",
+    "classification": "diagnostic_only",
+    "satisfies_publication_gate": false
+  },
+  "device_capture": {
+    "required": true,
+    "state": "blocked",
+    "physical_device": "Batu's iPhone, iPhone 12",
+    "coredevice_identifier": "2D894791-A5A3-58BE-9C88-AE0AF08B8C09",
+    "udid": "00008101-000410EC3EF9001E",
+    "queried_at": "2026-08-06T10:11:51+03:00",
+    "observed_state": "paired; tunnel unavailable; CoreDevice install failed with error 1011",
+    "last_connection_at": "2026-08-01T07:05:00Z",
+    "installed_build_identity": null,
+    "production_capture": null,
+    "release_poster": null
+  },
+  "portal": {
+    "queried_at": "2026-08-06T10:11:51+03:00",
+    "existing_game_record": false,
+    "publication_state": "blocked",
+    "published": false,
+    "live_urls": null,
+    "live_readback_hashes": null
+  },
+  "distribution": {
+    "portal": "not published",
+    "testflight": "not queried or changed",
+    "app_store": "not queried or changed"
+  },
+  "required_next_gates": [
+    "Merge the candidate changes and rebuild the harness-free artifacts from the resulting committed revision.",
+    "Install that exact artifact on the named physical device and record matching build identity and normal-speed gameplay.",
+    "Derive and inspect the release poster from that production capture, publish to Portal, then verify live bytes and rendered surfaces."
+  ]
+}
