@@ -50,8 +50,9 @@ has no physical-device gameplay video or derived release poster.
 ## Verification
 
 - Find the Bird unit suite: 44 files, 285 tests passed.
-- TypeScript and focused ESLint over every changed TypeScript file: passed.
-  Repository-wide ESLint remains red on three unchanged baseline violations.
+- TypeScript and focused ESLint over every changed TypeScript file: passed at
+  the artifact revision. Full Find the Bird ESLint also passes at the branch tip
+  after two mechanical, runtime-neutral baseline fixes.
 - Live CDN: manifest HTTP 200; 53 ordered levels; 61 sampled assets across a
   starter, streamed level, and final level matched declared hashes and sizes.
 - iOS environment validation, Vite build, Capacitor sync, Release Xcode build,
