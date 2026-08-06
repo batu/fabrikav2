@@ -5523,3 +5523,42 @@
   height: 34px;
   font-size: 14px;
 }
+
+/* Wrong-tap X — DOM layer so it is screen-absolute under pan/zoom/shake
+   (2026-08-06 device review). */
+.wrong-tap-mark {
+  position: fixed;
+  width: 64px;
+  height: 64px;
+  margin: -32px 0 0 -32px;
+  pointer-events: none;
+  z-index: 55;
+  opacity: 0;
+  animation: wrong-tap-pop 0.9s ease-out forwards;
+}
+.wrong-tap-mark::before,
+.wrong-tap-mark::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 72px;
+  height: 12px;
+  margin: -6px 0 0 -36px;
+  border-radius: 6px;
+  background: #e5484d;
+  box-shadow: 0 0 0 2px rgba(28, 39, 51, 0.35);
+}
+.wrong-tap-mark::before { transform: rotate(45deg); }
+.wrong-tap-mark::after { transform: rotate(-45deg); }
+@keyframes wrong-tap-pop {
+  0% { opacity: 0; transform: scale(0.2); }
+  18% { opacity: 1; transform: scale(1.15); }
+  30% { transform: scale(1); }
+  75% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1); }
+}
+.wrong-tap-mark.reduced-motion { animation: wrong-tap-fade 0.9s ease-out forwards; }
+@keyframes wrong-tap-fade {
+  0% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; }
+}

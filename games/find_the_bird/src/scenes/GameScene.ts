@@ -285,7 +285,6 @@ export class GameScene extends Phaser.Scene {
    * hint is spent on a tutorial tap. Set here (before the tap) rather than
    * relying on event ordering, which is not guaranteed at the target element.
    */
-  private tutorialHintStep = false;
 
   /** Active rate-prompt handle. Set while a rate prompt is on screen. */
   ratePromptHandle: RatePromptHandle | null = null;
@@ -354,7 +353,6 @@ export class GameScene extends Phaser.Scene {
     this.tutorialRing = null;
     this.tutorialRingTween = null;
     this.tutorialAwaitingZoom = false;
-    this.tutorialHintStep = false;
     this.ratePromptHandle = null;
     this.pointerDownAt = null;
     this.preserveLevelUrlsOnShutdown = false;
@@ -594,9 +592,10 @@ export class GameScene extends Phaser.Scene {
       this.cameras.main.zoom > this.tutorialZoomBaseline + TUTORIAL_ZOOM_COMPLETE_DELTA
     ) {
       this.tutorialAwaitingZoom = false;
-      this.tutorialHintStep = false;
       this.tutorialHandle?.dismiss(true);
     }
+
+    this.updateHintEdgeArrow();
 
     if (this.activeRevealDirty) {
       this.activeRevealDirty = false;
@@ -1041,10 +1040,41 @@ export class GameScene extends Phaser.Scene {
       if (gameState.hintsRemaining <= 0) {
         gameState.ensureMinimumHints(GAMEPLAY.INITIAL_HINTS, 'tutorial');
       }
-      const dog = this.level.dogs[0];
-      const phaserX = this.imgOffsetX + dog.x * this.imgScale;
-      const phaserY = this.imgOffsetY + dog.y * this.imgScale;
-      this.time.delayedCall(TUTORIAL_PROMPT_DELAY_MS, () => this.showFirstTimeTutorial(dog, phaserX, phaserY));
+      this.time.delayedCall(TUTORIAL_PROMPT_DELAY_MS, () => {
+        if (this.isShuttingDown || !this.level) return;
+        // Square levels pan: dogs[0] can sit outside the initial viewport
+        // (pre-square-era bug — the ring pointed at empty scenery until the
+        // player scrolled). Pick the un-found bird nearest the CURRENT view
+        // center that is actually inside the view; if somehow none is,
+        // pan the camera to the nearest bird first, then prompt.
+        const cam = this.cameras.main;
+        const view = cam.worldView;
+        const margin = 60;
+        const toPhaser = (d: LevelDog) => ({
+          x: this.imgOffsetX + d.x * this.imgScale,
+          y: this.imgOffsetY + d.y * this.imgScale,
+        });
+        const cx = view.centerX; const cy = view.centerY;
+        const candidates = this.level.dogs
+          .filter((d) => !gameState.foundDogIds.has(d.id))
+          .map((d) => ({ d, p: toPhaser(d) }))
+          .sort((a, b) =>
+            Math.hypot(a.p.x - cx, a.p.y - cy) - Math.hypot(b.p.x - cx, b.p.y - cy));
+        if (candidates.length === 0) return;
+        const visible = candidates.find(({ p }) =>
+          p.x > view.left + margin && p.x < view.right - margin &&
+          p.y > view.top + margin && p.y < view.bottom - margin);
+        if (visible) {
+          this.showFirstTimeTutorial(visible.d, visible.p.x, visible.p.y);
+          return;
+        }
+        const nearest = candidates[0];
+        cam.pan(nearest.p.x, nearest.p.y, 450, 'Sine.easeInOut', false, (_c, t) => {
+          if (t >= 1 && !this.isShuttingDown) {
+            this.showFirstTimeTutorial(nearest.d, nearest.p.x, nearest.p.y);
+          }
+        });
+      });
     }
 
     this.events.once('shutdown', () => {
@@ -1786,7 +1816,6 @@ export class GameScene extends Phaser.Scene {
     this.tutorialRing?.destroy();
     this.tutorialRing = null;
     this.tutorialAwaitingZoom = false;
-    this.tutorialHintStep = false;
     this.tutorialHandle?.dismiss(true);
     this.tutorialHandle = null;
   }
@@ -1834,7 +1863,6 @@ export class GameScene extends Phaser.Scene {
     if (!this.tutorialHandle) return;
     // Now on the "try a hint" step — arm hint suppression so the tap that
     // advances to the zoom step neither fires a hint nor draws a hint circle.
-    this.tutorialHintStep = true;
     this.tutorialHandle.advanceToHintState();
     this.tutorialRingTween?.destroy();
     this.tutorialRingTween = null;
@@ -1890,12 +1918,9 @@ export class GameScene extends Phaser.Scene {
     });
     void this.tutorialHandle.dismissed.then(() => {
       // Clear the zoom watch on any dismissal path (real pinch, "Got it"
-      // skip, or scene teardown) so update() stops polling. Null the handle
-      // too: advanceTutorial() infers a live tutorial from a non-null handle,
-      // so a lingering dismissed handle would let a later dog-tap re-arm
-      // tutorialHintStep and silently swallow the player's next real hint.
+      // skip, or scene teardown) so update() stops polling, and null the
+      // handle so a later dog-tap cannot re-advance a dead tutorial.
       this.tutorialAwaitingZoom = false;
-      this.tutorialHintStep = false;
       this.tutorialHandle = null;
       this.tutorialRingTween?.destroy();
       this.tutorialRingTween = null;
@@ -1960,36 +1985,21 @@ export class GameScene extends Phaser.Scene {
       requested: { x: canvasX, y: canvasY },
       emitted: markPoint,
     };
-    const gfx = this.add.graphics();
-    gfx.lineStyle(9, COLORS.WRONG_TAP, 1);
-    const size = 36;
-    gfx.beginPath();
-    gfx.moveTo(-size, -size);
-    gfx.lineTo(size, size);
-    gfx.moveTo(size, -size);
-    gfx.lineTo(-size, size);
-    gfx.strokePath();
-    gfx.setPosition(markPoint.x, markPoint.y);
-    gfx.setScrollFactor(0);
-
-    // Bouncy overshoot entrance — a playful "pop" instead of a flat appear.
-    if (!reducedMotion) {
-      gfx.setScale(0);
-      this.tweens.add({
-        targets: gfx,
-        scale: 1,
-        duration: 220,
-        ease: 'Back.easeOut',
-      });
+    // Screen-ABSOLUTE X in the DOM layer (2026-08-06 device review): a Phaser
+    // scroll-factor-zero object still re-transforms under later pinch-zoom
+    // and reads as "the X moved with the camera". A DOM element cannot.
+    const canvas = this.scale.canvas;
+    if (canvas) {
+      const css = phaserPointToCssPoint(canvas, GAME.WIDTH, GAME.HEIGHT, canvasX, canvasY);
+      const rect = canvas.getBoundingClientRect();
+      const mark = document.createElement('div');
+      mark.className = 'wrong-tap-mark';
+      mark.style.left = `${rect.left + css.x}px`;
+      mark.style.top = `${rect.top + css.y}px`;
+      if (reducedMotion) mark.classList.add('reduced-motion');
+      document.body.appendChild(mark);
+      window.setTimeout(() => mark.remove(), 900);
     }
-
-    this.tweens.add({
-      targets: gfx,
-      alpha: 0,
-      delay: TIMING.WRONG_TAP_LINGER_MS,
-      duration: TIMING.WRONG_TAP_FADE_MS,
-      onComplete: () => gfx.destroy(),
-    });
 
     if (gameState.lives <= 0) {
       this.levelComplete = true;
@@ -3451,13 +3461,9 @@ export class GameScene extends Phaser.Scene {
   private hintCircleTween: Phaser.Tweens.Tween | null = null;
 
   private onHintRequested(): void {
-    // Tutorial step 2 → 3: the hint tap advances to the zoom lesson (handled by
-    // TutorialOverlay); suppress the hint itself so no circle shows / no hint is
-    // spent. One-shot: later hint taps (during zoom, or normal play) fire.
-    if (this.tutorialHintStep) {
-      this.tutorialHintStep = false;
-      return;
-    }
+    // Tutorial step 2 → 3: the hint tap advances to the zoom lesson (handled
+    // by TutorialOverlay) AND fires a real hint — the old suppression taught
+    // players that the hint button does nothing (2026-08-06 device review).
     if (!this.level || gameState.hintCircleActive || gameState.hintsRemaining <= 0) return;
 
     const unfound = this.level.dogs.filter((d) => !gameState.foundDogIds.has(d.id));
@@ -3487,30 +3493,77 @@ export class GameScene extends Phaser.Scene {
       if (!this.hintCircleGfx) return;
       const radius = sr * scale;
       this.hintCircleGfx.clear();
-      // Tri-stroke so the ring stays readable on any art: dark halo
-      // carries it on light scenes, the white inner edge on dark ones.
-      this.hintCircleGfx.lineStyle(10, 0x1c2733, 0.35);
-      this.hintCircleGfx.strokeCircle(sx, sy, radius + 3);
-      this.hintCircleGfx.lineStyle(6, COLORS.HINT_CIRCLE, 0.95);
+      // High-visibility ring (2026-08-06 device review: old ring too subtle):
+      // soft filled glow disc + wide dark halo + thick accent + white edge.
+      this.hintCircleGfx.fillStyle(COLORS.HINT_CIRCLE, 0.14);
+      this.hintCircleGfx.fillCircle(sx, sy, radius + 10);
+      this.hintCircleGfx.lineStyle(16, 0x1c2733, 0.45);
+      this.hintCircleGfx.strokeCircle(sx, sy, radius + 5);
+      this.hintCircleGfx.lineStyle(9, COLORS.HINT_CIRCLE, 1);
       this.hintCircleGfx.strokeCircle(sx, sy, radius);
-      this.hintCircleGfx.lineStyle(2, 0xffffff, 0.9);
-      this.hintCircleGfx.strokeCircle(sx, sy, radius - 4);
+      this.hintCircleGfx.lineStyle(3, 0xffffff, 0.95);
+      this.hintCircleGfx.strokeCircle(sx, sy, radius - 6);
     };
 
     drawHintCircle(1);
     const pulseTarget = { scale: 1 };
     this.hintCircleTween = this.tweens.add({
       targets: pulseTarget,
-      scale: 1.2,
-      duration: 600,
+      scale: 1.35,
+      duration: 550,
       yoyo: true,
       repeat: -1,
       ease: 'Sine.easeInOut',
       onUpdate: () => drawHintCircle(pulseTarget.scale),
     });
+    this.hintWorldPoint = { x: sx, y: sy };
+  }
+
+  /** World-space center of the active hint; drives the off-screen edge arrow. */
+  private hintWorldPoint: Point | null = null;
+  private hintEdgeArrow: Phaser.GameObjects.Graphics | null = null;
+
+  /** When the hinted bird is outside the viewport, show a screen-edge arrow
+   *  pointing toward it (2026-08-06 device review). Runs from update(). */
+  private updateHintEdgeArrow(): void {
+    if (this.hintWorldPoint === null || this.hintCircleGfx === null) {
+      this.hintEdgeArrow?.destroy();
+      this.hintEdgeArrow = null;
+      return;
+    }
+    const view = this.cameras.main.worldView;
+    const { x, y } = this.hintWorldPoint;
+    const inside = x > view.left && x < view.right && y > view.top && y < view.bottom;
+    if (inside) {
+      this.hintEdgeArrow?.destroy();
+      this.hintEdgeArrow = null;
+      return;
+    }
+    if (this.hintEdgeArrow === null) {
+      this.hintEdgeArrow = this.add.graphics().setDepth(70).setScrollFactor(0);
+    }
+    const cam = this.cameras.main;
+    // Screen-space (scroll-factor-zero) position clamped to the edges.
+    const sfx = Phaser.Math.Clamp(((x - view.left) / view.width) * cam.width, 44, cam.width - 44);
+    const sfy = Phaser.Math.Clamp(((y - view.top) / view.height) * cam.height, 120, cam.height - 140);
+    const pointLeft = x < view.left;
+    const gfx = this.hintEdgeArrow;
+    gfx.clear();
+    gfx.fillStyle(0x1c2733, 0.55);
+    gfx.fillCircle(sfx, sfy, 34);
+    gfx.fillStyle(COLORS.HINT_CIRCLE, 1);
+    const dir = pointLeft ? -1 : 1;
+    gfx.fillTriangle(
+      sfx + dir * 22, sfy,
+      sfx - dir * 10, sfy - 18,
+      sfx - dir * 10, sfy + 18,
+    );
   }
 
   dismissHintCircle(): void {
+    this.hintWorldPoint = null;
+    this.hintEdgeArrow?.destroy();
+    this.hintEdgeArrow = null;
     if (this.hintCircleTween) {
       this.hintCircleTween.destroy();
       this.hintCircleTween = null;
