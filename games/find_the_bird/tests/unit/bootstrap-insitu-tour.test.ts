@@ -24,12 +24,18 @@ const mockedModules = [
   "../../src/audio/AmbientManager",
   "../../src/notifications/NotificationService",
 ];
+const originalLocalStorageDescriptor = Object.getOwnPropertyDescriptor(window, "localStorage");
 
 describe("find_the_dog bootstrap insitu tour wiring", () => {
   afterEach(() => {
     for (const moduleId of mockedModules) vi.doUnmock(moduleId);
     vi.restoreAllMocks();
     vi.resetModules();
+    if (originalLocalStorageDescriptor === undefined) {
+      Reflect.deleteProperty(window, "localStorage");
+    } else {
+      Object.defineProperty(window, "localStorage", originalLocalStorageDescriptor);
+    }
     document.body.innerHTML = "";
   });
 
@@ -53,6 +59,14 @@ describe("find_the_dog bootstrap insitu tour wiring", () => {
     const Game = vi.fn(function MockPhaserGame() {
       return game;
     });
+    let gameConfigSawUsableStorage = false;
+
+    Object.defineProperty(window, "localStorage", {
+      configurable: true,
+      get: () => {
+        throw new DOMException("sandboxed", "SecurityError");
+      },
+    });
 
     vi.doMock("phaser", () => ({
       default: { Game },
@@ -61,7 +75,11 @@ describe("find_the_dog bootstrap insitu tour wiring", () => {
       assignWindowBindings,
       maybeRunInsituTour,
     }));
-    vi.doMock("../../src/core/GameConfig", () => ({ GameConfig: {} }));
+    vi.doMock("../../src/core/GameConfig", () => {
+      window.localStorage.getItem("bootstrap-order-probe");
+      gameConfigSawUsableStorage = true;
+      return { GameConfig: {} };
+    });
     vi.doMock("../../src/core/Constants", () => ({ TEST_HARNESS_ENABLED: true }));
     vi.doMock("../../src/core/GameState", () => ({
       gameState: {
@@ -139,6 +157,7 @@ describe("find_the_dog bootstrap insitu tour wiring", () => {
       // hooks and fire the one-time launch prompt path.
       expect(notificationService.install).toHaveBeenCalledTimes(1);
       expect(notificationService.maybePromptOnLaunch).toHaveBeenCalledTimes(1);
+      expect(gameConfigSawUsableStorage).toBe(true);
       expect(assignWindowBindings).toHaveBeenCalledWith(expect.any(Object), expect.objectContaining({
         __FIND_DOG_HARNESS__: harness,
       }));
