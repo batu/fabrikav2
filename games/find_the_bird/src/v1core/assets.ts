@@ -163,20 +163,34 @@ function validManifest(value: unknown): value is ManifestV1 {
 
 export function createManifestClient(): ManifestClient {
   let manifest: ManifestV1 | null = null;
+  // True when `manifest` is the bundled fallback because the CDN fetch
+  // failed or returned garbage. A cold-boot network hiccup used to lock the
+  // whole session to the bundled starter levels (observed on device,
+  // build 14: play 5 bundled levels, then the sequence wraps to level 1) —
+  // retry on later initialize() calls instead of session-locking the miss.
+  let usedFallback = false;
 
   return {
     async initialize(cdnManifestUrl, bundledFallback): Promise<void> {
-      if (manifest !== null) return;
+      if (manifest !== null && !usedFallback) return;
       if (cdnManifestUrl === null) {
         manifest = bundledFallback;
+        usedFallback = false; // explicit no-CDN mode is not a failure
         return;
       }
       try {
         const response = await fetch(cdnManifestUrl, { cache: 'no-cache' });
         const parsed = response.ok ? (await response.json()) as unknown : null;
-        manifest = validManifest(parsed) ? parsed : bundledFallback;
+        if (validManifest(parsed)) {
+          manifest = parsed;
+          usedFallback = false;
+        } else {
+          manifest = manifest ?? bundledFallback;
+          usedFallback = true;
+        }
       } catch {
-        manifest = bundledFallback;
+        manifest = manifest ?? bundledFallback;
+        usedFallback = true;
       }
     },
     getManifest(): ManifestV1 {

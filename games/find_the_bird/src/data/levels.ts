@@ -832,13 +832,14 @@ export async function getLevelIndex(): Promise<LevelIndexEntry[]> {
     const runtimeEntry = entry ?? (catalogLevel === undefined ? null : manifestEntryFromCatalogLevel(catalogLevel));
     if (runtimeEntry === null || runtimeEntry === undefined) continue;
     if (!isPlayableLevelAspect(runtimeEntry.width, runtimeEntry.height)) continue;
-    // Cohort filter: bundled levels always pass (they're universally
-    // cohorted). If cohort hasn't resolved yet (boot race), fall back
-    // to showing only bundled levels so the user has something playable
-    // — but do NOT cache this result so the next call gets the full
-    // cohort-filtered index once cohort resolution completes.
+    // Cohort filter. With bucket unresolved (boot race, or a cohort
+    // resolver failure that never retries), universally cohorted levels
+    // ('all') must STILL pass — restricting to bundled-only here locked a
+    // device session to the 5 starter levels and wrapped progression back
+    // to level 1 after the fifth (build 14). Only genuinely bucketed
+    // levels wait for a real bucket. Result stays uncached (see above).
     if (bucket === null) {
-      if (!runtimeEntry.bundled) continue;
+      if (!runtimeEntry.bundled && !runtimeEntry.cohort_buckets.includes('all')) continue;
     } else if (!isBucketInCohort(bucket, runtimeEntry.cohort_buckets)) {
       continue;
     }
