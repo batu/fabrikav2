@@ -929,6 +929,16 @@ def create_session(req: CreateSessionRequest):
         scene_prompt = assembled.scenePrompt
         dog_prompt = assembled.dogPrompt
         prompt_context = assembled.promptContext
+        # The close-camera view text hardcodes "about 20" placements; the
+        # session's real target count must drive the composition (wave-50
+        # lesson 3: requested 16, painted 12-26).
+        scene_prompt = scene_prompt.replace(
+            "about 20 hidden target placements",
+            f"about {req.nDogs} hidden target placements",
+        ).replace(
+            "approximately 20 plausible hiding pockets",
+            f"approximately {req.nDogs} plausible hiding pockets",
+        )
     else:
         if not req.scenePrompt or not req.dogPrompt:
             raise HTTPException(400, detail={"error": "recipe fields or legacy scenePrompt/dogPrompt are required", "code": "invalid_prompt"})

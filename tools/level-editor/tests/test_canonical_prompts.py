@@ -88,6 +88,17 @@ class TestAssemblerParity:
             assert a[key] == b[key], key
 
 
+class TestCountSubstitution:
+    def test_view_phrases_match_the_create_route_replacements(self):
+        # The create route rewrites these two exact phrases with the session's
+        # real nDogs (wave-50 lesson 3). If the view wording drifts, the
+        # substitution silently no-ops and levels drift back to ~20 birds.
+        from levelbuilder.prompts import VIEWS
+        view = VIEWS["isometric_close_20"]
+        assert "about 20 hidden target placements" in view
+        assert "approximately 20 plausible hiding pockets" in view
+
+
 class TestGridPrompt:
     def test_partial_grid_declares_padding_and_exact_count(self):
         prompt = GRID_PROMPT_TEMPLATE.format(n=3, count=7, entity="bird")

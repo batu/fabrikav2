@@ -422,19 +422,29 @@ def cmd_auto_hitboxes(client: Client, args: argparse.Namespace) -> None:
     count = args.count
     if count is None:
         session = client.get(f"/api/sessions/{args.session_id}")
-        count = int(session.get("nDogs") or len(session.get("hitboxes") or []) or 20)
+        # The API historically exposed n_dogs (snake_case); the old nDogs-only
+        # read silently fell through to 20 for every session (wave-50 lesson 3).
+        count = int(
+            session.get("nDogs") or session.get("n_dogs")
+            or len(session.get("hitboxes") or []) or 20
+        )
     # Placement fails closed when it cannot fit `count` non-overlapping
     # hitboxes at the requested radius, and the right radius depends on the
     # scene's density — hand-tuning it (50 -> 26 -> 24) was a papercut on every
     # level. Shrink and retry down to a floor, then report what actually fit.
     if args.shrink_step < 1:
         raise CliError("bad_shrink_step", "--shrink-step must be >= 1 (0 would retry forever)")
-    radius = args.radius or 30
-    if radius < args.min_radius:
+    # radius None -> omit from the request so the server's canvas-scaled
+    # canonical default applies (the old `or 30` stomped it on every author
+    # run — wave-50 levels all placed at r=30 instead of ~38).
+    radius = args.radius
+    if radius is not None and radius < args.min_radius:
         raise CliError("bad_radius", f"--radius {radius} is below --min-radius {args.min_radius}")
     attempts: list[dict] = []
     while True:
-        body = {"nDogs": count, "strategy": args.strategy, "radius": radius}
+        body = {"nDogs": count, "strategy": args.strategy}
+        if radius is not None:
+            body["radius"] = radius
         try:
             result = client.post(f"/api/sessions/{args.session_id}/auto-hitboxes", json=body)
             placed = len(result.get("hitboxes", []) if isinstance(result, dict) else [])
@@ -447,7 +457,9 @@ def cmd_auto_hitboxes(client: Client, args: argparse.Namespace) -> None:
                        for token in ("smart_hitboxes_failed", "non-overlapping", "placement_partial")):
                 raise
             attempts.append({"radius": radius, "outcome": "did not fit"})
-            radius -= args.shrink_step
+            # Server-default attempt failed: start the shrink ladder from the
+            # historical explicit baseline.
+            radius = 30 if radius is None else radius - args.shrink_step
             if radius < args.min_radius:
                 raise CliError(
                     "placement_did_not_fit",
