@@ -273,7 +273,7 @@ export default function GalleryReviewModal({
   const [activeAction, setActiveAction] = useState<string | null>(null);
   const [colorVersion, setColorVersion] = useState(0);
   const [visibilityIssues, setVisibilityIssues] = useState<VisibilityIssue[]>([]);
-  const [sceneView, setSceneView] = useState<'painted' | 'restore' | 'pickup'>('painted');
+  const [sceneView, setSceneView] = useState<'painted' | 'restore' | 'pickup' | 'sprites'>('painted');
   const pickedUpView = sceneView === 'restore';
   const [loadedMeta, setLoadedMeta] = useState<{ setting?: string | null; scene?: string | null; entity?: string | null; model?: string }>({});
 
@@ -621,6 +621,11 @@ export default function GalleryReviewModal({
       const bg = String(Number.isInteger(state.selectedBgIndex) ? state.selectedBgIndex : 0).padStart(2, '0');
       return `/levels/${item.id}/bg_${bg}.png?v=${item.assetVersion ?? colorVersion}`;
     }
+    if (sceneView === 'sprites') {
+      // Sprite cutouts alone on a checkerboard — chroma-key/rim defects have
+      // nowhere to hide.
+      return `/api/sessions/${encodeURIComponent(item.id)}/sprites-preview?v=${item.assetVersion ?? colorVersion}`;
+    }
     if (sceneView === 'pickup') {
       // Faithful runtime post-pickup state: painted scene with ONLY each
       // dog's cleanup rect swapped to the restore bg — the seams a player
@@ -728,6 +733,7 @@ export default function GalleryReviewModal({
                   ['painted', '🎨 Painted'],
                   ['restore', '🧹 Clean bg'],
                   ['pickup', '🐦 All picked up'],
+                  ['sprites', '✂️ Sprites only'],
                 ] as const).map(([mode, label]) => (
                   <button
                     key={mode}

@@ -2197,6 +2197,72 @@ def pickup_preview(session_id: str):
                     headers={"X-Cleanups-Swapped": str(n), "Cache-Control": "no-store"})
 
 
+@router.get("/sessions/{session_id}/sprites-preview")
+def sprites_preview(session_id: str):
+    """Only the pickup-sprite cutouts, composited at their level positions on
+    a checkerboard — no background. Reviews the extracted sprites exactly as
+    the runtime will draw them (position, scale, silhouette) with nothing to
+    hide chroma-key or rim defects behind."""
+    _validate_session_id(session_id)
+    sdir = S.session_dir(session_id)
+    level_path = sdir / "level.json"
+    exported = S.GAME_PUBLIC_LEVELS / session_id / "level.json"
+    lj = None
+    for p in (exported, level_path):
+        if p.exists():
+            try:
+                lj = json.loads(p.read_text())
+                break
+            except (OSError, ValueError):
+                continue
+    if lj is None:
+        raise HTTPException(409, detail={"error": "no level.json with sprite metadata"})
+    width = int(lj.get("width") or 0)
+    height = int(lj.get("height") or 0)
+    if width <= 0 or height <= 0:
+        raise HTTPException(409, detail={"error": "missing level dimensions"})
+
+    # Checkerboard base so alpha edges are legible in review.
+    square = max(16, width // 84)
+    out = Image.new("RGB", (width, height), (52, 52, 56))
+    tile = Image.new("RGB", (square, square), (72, 72, 78))
+    for ty in range(0, height, square):
+        for tx in range(0, width, square):
+            if (tx // square + ty // square) % 2:
+                out.paste(tile, (tx, ty))
+
+    n = 0
+    for dog in lj.get("dogs") or []:
+        sprite = dog.get("sprite") if isinstance(dog, dict) else None
+        if not isinstance(sprite, dict) or not sprite.get("image"):
+            continue
+        rel = str(sprite["image"])  # "levels/<sid>/dogs/dog_NN/sprite_000.png"
+        candidates = [
+            S.GAME_PUBLIC_LEVELS.parent / rel,
+            sdir / Path(rel).relative_to(Path("levels") / session_id) if rel.startswith(f"levels/{session_id}/") else sdir / rel,
+        ]
+        img_path = next((p for p in candidates if p.exists()), None)
+        if img_path is None:
+            continue
+        try:
+            with Image.open(img_path) as _s:
+                spr = _s.convert("RGBA")
+        except OSError:
+            continue
+        w = int(sprite.get("width") or spr.width)
+        h = int(sprite.get("height") or spr.height)
+        if (w, h) != spr.size and w > 0 and h > 0:
+            spr = spr.resize((w, h), Image.LANCZOS)
+        out.paste(spr, (int(sprite.get("x") or 0), int(sprite.get("y") or 0)), spr)
+        spr.close()
+        n += 1
+    buf = io.BytesIO()
+    out.save(buf, "JPEG", quality=88)
+    out.close()
+    return Response(content=buf.getvalue(), media_type="image/jpeg",
+                    headers={"X-Sprites-Composited": str(n), "Cache-Control": "no-store"})
+
+
 @router.post("/sessions/{session_id}/clone")
 def clone_session_route(session_id: str, newId: str = Query(...), resetPaint: bool = Query(False)):
     _validate_session_id(session_id)
