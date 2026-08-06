@@ -9,12 +9,11 @@ mode: pipeline
 
 ## Verdict
 
-Blocked only at the physical-device publication gate. The clean 53-level
-campaign, selective five-starter native bundle, live Bird CDN, signed
-harness-free Release app, and nested Portal browser preview are coherent at
-merged-main revision `e2bea87b28f6cd1d2531ee90a614bc594c725b8b`. Portal was left
-unchanged because the paired iPhone is unavailable and the exact build therefore
-has no physical-device gameplay video or derived release poster.
+Superseded. The recorded artifacts remain valid evidence for revision
+`e2bea87b28f6cd1d2531ee90a614bc594c725b8b`, but Find the Bird runtime and
+packaging moved afterward. They must not be installed or published as the
+current candidate. Portal remains unchanged; a fresh final-source build and
+matching physical-device gameplay capture are both required.
 
 ## What Works
 
@@ -82,23 +81,23 @@ promoted to the required production gameplay video or release poster.
 
 ## Next Action
 
-Connect and unlock Batu's iPhone by cable. Install the exact merged-main
-harness-free app, capture normal-speed gameplay, derive the poster, then publish
-and verify the immutable Portal entry. Rebuild only if runtime code moves beyond
-the recorded source revision first.
+Build a fresh harness-free candidate from the final merged runtime revision and
+regenerate its hashes and browser evidence. Then connect and unlock Batu's
+iPhone by cable, install that exact app, capture normal-speed gameplay, derive
+the poster, publish, and verify the immutable Portal entry.
 
 ```json
 {
   "skill": "ce-evidence",
   "status": "blocked",
   "artifact_path": "docs/evidence/2026-08-06-find-the-bird-portal-candidate/evidence.md",
-  "verdict": "The clean candidate passes source, build, CDN, and nested-browser gates; Portal publication is blocked only by missing exact-build physical-device capture.",
+  "verdict": "The recorded e2bea87b candidate is superseded by later runtime changes; rebuild before physical-device verification or Portal publication.",
   "mode": "pipeline",
   "evidence": [
     {
       "type": "manifest",
       "label": "sanitized release manifest",
-      "result": "candidate fields complete; publication_state blocked on device capture",
+      "result": "candidate superseded; rebuild and device capture required",
       "path": "docs/evidence/2026-08-06-find-the-bird-portal-candidate/release-manifest.json",
       "url": null
     },

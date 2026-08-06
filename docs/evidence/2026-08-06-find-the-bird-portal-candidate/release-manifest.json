@@ -1,5 +1,7 @@
 {
   "schema_version": 1,
+  "candidate_state": "superseded",
+  "superseded_by_runtime_revision": "9b4f5148e45b1b10e36eedccc4d7db2b4c3dc17e",
   "game": {
     "slug": "find-the-bird",
     "title": "Find the Bird",
@@ -115,8 +117,6 @@
     "required": true,
     "state": "blocked",
     "physical_device": "Batu's iPhone, iPhone 12",
-    "coredevice_identifier": "2D894791-A5A3-58BE-9C88-AE0AF08B8C09",
-    "udid": "00008101-000410EC3EF9001E",
     "queried_at": "2026-08-06T10:34:00+03:00",
     "observed_state": "paired; tunnel unavailable; CoreDevice install failed with error 1011",
     "last_connection_at": "2026-08-01T07:05:00Z",
@@ -127,7 +127,7 @@
   "portal": {
     "queried_at": "2026-08-06T10:34:00+03:00",
     "existing_game_record": false,
-    "publication_state": "blocked",
+    "publication_state": "superseded",
     "published": false,
     "live_urls": null,
     "live_readback_hashes": null
@@ -138,8 +138,10 @@
     "app_store": "not queried or changed"
   },
   "required_next_gates": [
-    "Install that exact artifact on the named physical device and record matching build identity and normal-speed gameplay.",
+    "Rebuild native and web artifacts from the final merged runtime revision and regenerate all provenance and hashes.",
+    "Publish retained catalog snapshots to the configured CDN path and read back at least one older revision.",
+    "Install the rebuilt exact artifact on the named physical device and record matching build identity and normal-speed gameplay.",
     "Derive and inspect the release poster from that production capture, publish to Portal, then verify live bytes and rendered surfaces.",
-    "Rebuild first only if runtime code moves beyond the recorded source revision."
+    "Re-run the runtime-path source-drift check immediately before install and Portal publication."
   ]
 }
