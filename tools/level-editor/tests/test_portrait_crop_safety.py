@@ -54,14 +54,21 @@ def test_portrait_bird_covered_by_hud_remains_blocking(isolated_session):
     assert any(issue.get("area") == "HUD" for issue in blocked), report["issues"]
 
 
-def test_clipped_is_blocking_in_the_ui_filter():
+def test_clipped_is_advisory_in_the_ui_filter():
+    """2026-08-06: client blocking must MATCH the server
+    (blocking_visibility_issues = blocked_area only). 'clipped' is advisory —
+    on pan/zoom square levels an off-initial-viewport bird is normal, and the
+    old clipped-blocks-too client filter kept every square level out of the
+    lineup after the server gate was fixed."""
     from pathlib import Path
 
     source = (Path(__file__).parent.parent / "ui/src/lib/visibilityWarnings.ts").read_text()
     for fn in ("blockingVisibilityIssues", "blockingVisibilitySummaries"):
         segment = source[source.index(fn):]
         segment = segment[:segment.index("}")]
-        assert "clipped" in segment, f"{fn} must treat 'clipped' as blocking"
+        assert "'blocked_area'" in segment, f"{fn} must block on blocked_area"
+        assert "|| issue.type === 'clipped'" not in segment and "|| summary.type === 'clipped'" not in segment, \
+            f"{fn} must not treat 'clipped' as blocking"
 
 
 def test_recenter_reports_crop_risk(isolated_session):

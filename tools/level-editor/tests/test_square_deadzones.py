@@ -19,10 +19,12 @@ class TestSquareDetection:
 
 
 class TestSquareDeadzones:
-    def test_bands_and_chip(self):
+    def test_bands_and_margins(self):
+        # 2026-08-06: hint chip removed from square deadzones — floating
+        # chrome the player pans away from is not a placement constraint.
         zones = _square_deadzones(4096, 4096)
-        assert len(zones) == 5
-        hud, banner, left, right, chip = zones
+        assert len(zones) == 4
+        hud, banner, left, right = zones
         assert (hud.x, hud.y, hud.w) == (0, 0, 4096)
         assert hud.h == int(4096 * HUD_FRACTION)
         assert banner.y == 4096 - int(4096 * BANNER_FRACTION)
@@ -34,10 +36,6 @@ class TestSquareDeadzones:
         side = square_send_side_margin(4096, 4096)
         assert (left.x, left.w, left.h) == (0, side, 4096)
         assert (right.x, right.w, right.h) == (4096 - side, side, 4096)
-        # Hint chip hugs the bottom-right, above the banner band.
-        assert chip.x + chip.w <= 4096
-        assert chip.y + chip.h == banner.y
-        assert chip.x > 4096 // 2
 
     def test_no_side_strips(self):
         # The portrait CROP_L/CROP_R strips must NOT appear on squares: a
