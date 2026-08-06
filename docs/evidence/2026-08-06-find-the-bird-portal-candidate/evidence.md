@@ -12,7 +12,7 @@ mode: pipeline
 Blocked only at the physical-device publication gate. The clean 53-level
 campaign, selective five-starter native bundle, live Bird CDN, signed
 harness-free Release app, and nested Portal browser preview are coherent at
-source revision `efb1ed977f85af3a923827137d792ea817d7e15d`. Portal was left
+source revision `95fc6d9dbe4b5bbe669601acdd8e4d676fc3bed5`. Portal was left
 unchanged because the paired iPhone is unavailable and the exact build therefore
 has no physical-device gameplay video or derived release poster.
 
@@ -76,7 +76,7 @@ promoted to the required production gameplay video or release poster.
 - [`assets/portal-preview-gameplay.png`](assets/portal-preview-gameplay.png)
   shows current gameplay through the same preview.
 - Candidate native and web archives are under
-  `/private/tmp/ftb-portal-candidate-efb1ed97/`. They are not publication
+  `/private/tmp/ftb-portal-candidate-95fc6d9d/`. They are not publication
   artifacts until the exact physical-device gate passes.
 
 ## Next Action

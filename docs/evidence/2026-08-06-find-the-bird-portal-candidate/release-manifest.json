@@ -12,14 +12,14 @@
     "repo": "/Users/base/dev/appletolye/fabrikav2",
     "worktree": "/Users/base/dev/appletolye/fabrikav2/.worktrees/ftb-portal-release",
     "branch": "feat/ftb-portal-release",
-    "revision": "efb1ed977f85af3a923827137d792ea817d7e15d",
-    "revision_committed_at": "2026-08-06T09:50:32+03:00",
+    "revision": "95fc6d9dbe4b5bbe669601acdd8e4d676fc3bed5",
+    "revision_committed_at": "2026-08-06T10:06:55+03:00",
     "tracked_files_clean_at_build": true,
     "generated_paths_after_build": [
       "games/find_the_bird/dist/",
       "games/find_the_bird/ios/",
-      "/private/tmp/ftb-portal-efb1ed97-derived/",
-      "/private/tmp/ftb-portal-efb1ed97-web/"
+      "/private/tmp/ftb-portal-95fc6d9d-derived/",
+      "/private/tmp/ftb-portal-95fc6d9d-web/"
     ]
   },
   "production_environment": {
@@ -31,38 +31,38 @@
     "commands": [
       "npm run build:ios",
       "npm run ios:sync",
-      "xcodebuild -quiet -project ios/App/App.xcodeproj -scheme App -configuration Release -sdk iphoneos -derivedDataPath /private/tmp/ftb-portal-efb1ed97-derived DEVELOPMENT_TEAM=42L77JAX72 PRODUCT_BUNDLE_IDENTIFIER=com.basegamelab.findthebird CODE_SIGN_STYLE=Automatic build",
-      "npx vite build --mode ios --base ./ --outDir /private/tmp/ftb-portal-efb1ed97-web --emptyOutDir"
+      "xcodebuild -quiet -project ios/App/App.xcodeproj -scheme App -configuration Release -sdk iphoneos -derivedDataPath /private/tmp/ftb-portal-95fc6d9d-derived DEVELOPMENT_TEAM=42L77JAX72 PRODUCT_BUNDLE_IDENTIFIER=com.basegamelab.findthebird CODE_SIGN_STYLE=Automatic build",
+      "npx vite build --mode ios --base ./ --outDir /private/tmp/ftb-portal-95fc6d9d-web --emptyOutDir"
     ]
   },
   "native_artifact": {
-    "filename": "find-the-bird-efb1ed97-release.app.zip",
-    "local_path": "/private/tmp/ftb-portal-candidate-efb1ed97/find-the-bird-efb1ed97-release.app.zip",
-    "bytes": 55132107,
-    "sha256": "f4e0b7a364e7381bb8d9458804c3fe690d1b0a31a51eec7ef656ed77e0d8cacd",
-    "app_bundle_tree_sha256": "26e7bab46ffc33fb70fb4bacbb0ea6e297b508b562938394ae9c8d8444e2830e",
-    "executable_sha256": "efd32e71862224c68ea77a17f3009a1550b29b078b948b9804a1b9189116f067",
+    "filename": "find-the-bird-95fc6d9d-release.app.zip",
+    "local_path": "/private/tmp/ftb-portal-candidate-95fc6d9d/find-the-bird-95fc6d9d-release.app.zip",
+    "bytes": 55132502,
+    "sha256": "9773c96603c6faad13d5bbfd605ecd179b278569295425ed3c26cf96cefac04e",
+    "app_bundle_tree_sha256": "1a4924bf2791c8f14a1d3a0ce47dfc446d53ef9fbda27a7f0e03ab33c86ba7d6",
+    "executable_sha256": "d227911abbd5034e5708c7e4df1b9a0268e095a93c4ebd39914aad30e6c3472a",
     "bundle_id": "com.basegamelab.findthebird",
     "marketing_version": "1.0",
     "build_number": "1",
     "configuration": "Release",
     "build_info": {
-      "sha": "efb1ed977f",
+      "sha": "95fc6d9dbe",
       "dirty": false
     },
     "public_file_count": 288,
-    "public_file_bytes": 72853610,
+    "public_file_bytes": 72854652,
     "bundled_level_count": 5,
     "signing_state": "Apple Development signed; team 42L77JAX72; strict codesign verification passed",
     "distribution_state": "local candidate only"
   },
   "web_preview": {
-    "filename": "find-the-bird-efb1ed97-web-public.zip",
-    "local_path": "/private/tmp/ftb-portal-candidate-efb1ed97/find-the-bird-efb1ed97-web-public.zip",
-    "bytes": 49060463,
-    "sha256": "e3affc922967db97a5117d7dbee84da241b590c744bf378469020d98191ac50c",
+    "filename": "find-the-bird-95fc6d9d-web-public.zip",
+    "local_path": "/private/tmp/ftb-portal-candidate-95fc6d9d/find-the-bird-95fc6d9d-web-public.zip",
+    "bytes": 49060460,
+    "sha256": "f6424caae8eabe9e688f1a02c76d774e7e1c1d274424c64dec680dbec550d37a",
     "file_count": 393,
-    "expanded_bytes": 59959110,
+    "expanded_bytes": 59959189,
     "source_maps_included": false,
     "portal_rewrite_files": 3,
     "unresolved_owned_references": 0,
@@ -117,7 +117,7 @@
     "physical_device": "Batu's iPhone, iPhone 12",
     "coredevice_identifier": "2D894791-A5A3-58BE-9C88-AE0AF08B8C09",
     "udid": "00008101-000410EC3EF9001E",
-    "queried_at": "2026-08-06T10:04:00+03:00",
+    "queried_at": "2026-08-06T10:11:51+03:00",
     "observed_state": "paired; tunnel unavailable; CoreDevice install failed with error 1011",
     "last_connection_at": "2026-08-01T07:05:00Z",
     "installed_build_identity": null,
@@ -125,7 +125,7 @@
     "release_poster": null
   },
   "portal": {
-    "queried_at": "2026-08-06T10:04:00+03:00",
+    "queried_at": "2026-08-06T10:11:51+03:00",
     "existing_game_record": false,
     "publication_state": "blocked",
     "published": false,
