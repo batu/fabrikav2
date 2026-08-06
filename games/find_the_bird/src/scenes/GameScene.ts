@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { Capacitor } from '@capacitor/core';
 import { COLORS, GAME, GAMEPLAY, TEST_HARNESS_ENABLED, TIMING } from '../core/Constants';
 import { gameState } from '../core/GameState';
+import { getDebugPickupStyle, registerPickupStyleApplier } from '../testing/debugPickupStyle';
 import { disposeLevelUrls, getLevelIndex, loadLevel, loadLevelForProgression, withDirectSelectServingAttempt } from '../data/levels';
 import type { LevelData, LevelDog, LevelSection } from '../data/levels';
 import { playFind, playWrongTap, preloadDogFoundSounds } from '../audio/AudioManager';
@@ -547,6 +548,12 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
+    if (TEST_HARNESS_ENABLED) {
+      // Debug settings dropdown live-applies to the running scene; the
+      // registration is scene-scoped and cleared on shutdown.
+      registerPickupStyleApplier((style) => this.setPickupStyleForTest(style));
+      this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => registerPickupStyleApplier(null));
+    }
     if (!this.level) {
       showSceneTransitionCover();
       this.loadLevelAndRestart();
@@ -2336,6 +2343,7 @@ export class GameScene extends Phaser.Scene {
   private pickupStyle: 'classic' | 'juiced' | 'dissolve' | 'peel' =
     (new URLSearchParams(globalThis.location?.search ?? '').get('pickupStyle') as
       'classic' | 'juiced' | 'dissolve' | 'peel' | null)
+    ?? getDebugPickupStyle()
     ?? 'dissolve';
 
   setPickupStyleForTest(style: 'classic' | 'juiced' | 'dissolve' | 'peel'): void {
