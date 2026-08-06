@@ -242,6 +242,13 @@ export function copyNativePublicBundle(publicRoot: string, outputRoot: string): 
   collectManifestPaths(bundledManifest, requiredPaths);
   for (const relativePath of requiredPaths) copyFileWithinRoot(publicRoot, outputRoot, relativePath);
 
+  // The packaged bytes are authoritative: recompute hash/size metadata for
+  // everything the bundled manifest references AFTER copying.
+  const bundledPackages = rewriteBundledManifest(
+    path.join(outputRoot, 'levels', 'bundled-manifest.json'),
+    outputRoot,
+  );
+
   // Catalog snapshots accrete one file per approve (129 files / 50 MB by
   // 2026-08-06 — half the native cap). The runtime only consults a snapshot
   // when a remote sequence pins an old catalog revision, so shipping the
@@ -252,6 +259,11 @@ export function copyNativePublicBundle(publicRoot: string, outputRoot: string): 
     const newest = readdirSync(snapshots).filter((name) => name.endsWith('.json')).sort().at(-1);
     if (newest !== undefined) {
       copyFileWithinRoot(publicRoot, outputRoot, `levels/catalog-snapshots/${newest}`);
+      rewriteNativeCatalog(
+        path.join(outputRoot, 'levels', 'catalog-snapshots', newest),
+        bundledPackages,
+        false,
+      );
     }
   }
 
