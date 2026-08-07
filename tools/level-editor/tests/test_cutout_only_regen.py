@@ -119,6 +119,7 @@ def test_cutout_only_regen_never_rewrites_scene_or_hitboxes(isolated_session, mo
     metadata = json.loads((dog_dir / "sprite_000.json").read_text())
     assert metadata["technique"] == "flatkey-recreate-cutout-only-v2"
     assert metadata["sourceBox"] == [60, 40, 140, 120]
+    assert metadata["cleanupBox"] == [60, 40, 140, 120]
 
 
 def test_cutout_retry_accepts_public_package_without_session_or_hitboxes_file(isolated_session, monkeypatch):

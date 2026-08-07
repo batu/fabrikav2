@@ -4443,7 +4443,9 @@ def _run_single_cutout_extraction(
         "mask": f"dogs/dog_{dog_index:02d}/{mask_path.name}",
         "sourceBox": list(crop_box),
         "spriteBox": placed_box,
-        "cleanupBox": placed_box,
+        # Cleanup is the human-controlled padding region. Best-safe controls
+        # sprite placement independently and must not overwrite this artifact.
+        "cleanupBox": list(crop_box),
         "width": placed_box[2] - placed_box[0],
         "height": placed_box[3] - placed_box[1],
         "anchorX": round(anchor_x, 4),
