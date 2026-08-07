@@ -2002,7 +2002,11 @@ export class GameScene extends Phaser.Scene {
     // re-querying matchMedia in each helper (and so they can never disagree).
     const reducedMotion = this.prefersReducedMotion();
 
-    gameState.lives--;
+    // Health off (default): keep the miss FEEDBACK — X, shake, dust, sound —
+    // but never drain lives, so the level can't be failed by an invisible
+    // mechanic. A hidden bar that still kills you is worse than a visible one.
+    const healthEnabled = remoteConfigService.value('healthBarEnabled');
+    if (healthEnabled) gameState.lives--;
     gameState.penaltyCooldownUntil = now + TIMING.PENALTY_COOLDOWN_MS;
     this.wrongTapsCount += 1;
     playWrongTap();
@@ -2012,9 +2016,9 @@ export class GameScene extends Phaser.Scene {
     updateHUD(this.level!.dogs.length, this.isRestoration);
     // Must follow updateHUD(): animateLifeLost() indexes into the heart pips
     // updateHUD just rebuilt. Reordering silently animates the wrong pip / none.
-    animateLifeLost();
+    if (healthEnabled) animateLifeLost();
 
-    if (gameState.lives <= 0) {
+    if (healthEnabled && gameState.lives <= 0) {
       void this.trackLevelFailed(gameState.foundDogIds.size);
     }
 
@@ -2059,7 +2063,7 @@ export class GameScene extends Phaser.Scene {
       onComplete: () => gfx.destroy(),
     });
 
-    if (gameState.lives <= 0) {
+    if (healthEnabled && gameState.lives <= 0) {
       this.levelComplete = true;
       // Tear down any live first-time tutorial before the fail overlay mounts.
       // The tutorial overlay is z-index 50 vs the fail overlay's 10 (both are

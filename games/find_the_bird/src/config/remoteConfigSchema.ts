@@ -19,6 +19,7 @@ export interface RemoteConfigValues {
   gameplayInitialHints: number;
   ratePromptEnabledDefault: boolean;
   findMomentBurstEnabled: boolean;
+  healthBarEnabled: boolean;
   microAnimationsEnabled: boolean;
   hintRwEnabled: boolean;
   levelContinueRwEnabled: boolean;
@@ -89,6 +90,9 @@ export const REMOTE_CONFIG_DEFAULTS: RemoteConfigValues = {
   gameplayInitialHints: 3,
   ratePromptEnabledDefault: true,
   findMomentBurstEnabled: true,
+  // Lives/health OFF by default (2026-08-07): losing a level to wrong taps
+  // is a retention risk we want to opt into remotely, not ship on.
+  healthBarEnabled: false,
   microAnimationsEnabled: false,
   hintRwEnabled: true,
   levelContinueRwEnabled: false,
@@ -163,6 +167,7 @@ export const REMOTE_CONFIG_DEFINITIONS_BY_KEY: {
   gameplayInitialHints: { key: 'gameplayInitialHints', remoteKey: 'gameplay_initial_hints', type: 'number', description: 'Default starting hints for new players.' },
   ratePromptEnabledDefault: { key: 'ratePromptEnabledDefault', remoteKey: 'rate_prompt_enabled_default', type: 'boolean', description: 'Default rate prompt availability for fresh installs.' },
   findMomentBurstEnabled: { key: 'findMomentBurstEnabled', remoteKey: 'find_moment_burst_enabled', type: 'boolean', description: 'Enable small find-moment burst feedback.' },
+  healthBarEnabled: { key: 'healthBarEnabled', remoteKey: 'health_bar_enabled', type: 'boolean', description: 'Show the lives/health bar and let wrong taps fail the level.' },
   microAnimationsEnabled: { key: 'microAnimationsEnabled', remoteKey: 'micro_animations_enabled', type: 'boolean', description: 'Enable subtle in-level micro animations.' },
   hintRwEnabled: { key: 'hintRwEnabled', remoteKey: 'hint_rw_enabled', type: 'boolean', description: 'Enable rewarded-ad hint acquisition when hints are empty.' },
   levelContinueRwEnabled: { key: 'levelContinueRwEnabled', remoteKey: 'level_continue_rw_enabled', type: 'boolean', description: 'Deprecated no-op: fail-screen rewarded-ad continue was removed.' },
@@ -271,6 +276,7 @@ export function mapRemoteConfigValues(
     gameplayInitialHints: read('gameplayInitialHints'),
     ratePromptEnabledDefault: read('ratePromptEnabledDefault'),
     findMomentBurstEnabled: read('findMomentBurstEnabled'),
+    healthBarEnabled: read('healthBarEnabled'),
     microAnimationsEnabled: read('microAnimationsEnabled'),
     hintRwEnabled: read('hintRwEnabled'),
     levelContinueRwEnabled: read('levelContinueRwEnabled'),
@@ -336,6 +342,7 @@ export function mapRemoteConfigSources<TSource>(
     gameplayInitialHints: read('gameplayInitialHints'),
     ratePromptEnabledDefault: read('ratePromptEnabledDefault'),
     findMomentBurstEnabled: read('findMomentBurstEnabled'),
+    healthBarEnabled: read('healthBarEnabled'),
     microAnimationsEnabled: read('microAnimationsEnabled'),
     hintRwEnabled: read('hintRwEnabled'),
     levelContinueRwEnabled: read('levelContinueRwEnabled'),

@@ -1,3 +1,4 @@
+import { remoteConfigService } from '../config/RemoteConfigService';
 import { gameState } from '../core/GameState';
 import { TEST_HARNESS_ENABLED, GAMEPLAY } from '../core/Constants';
 import { playUITap, playHint, setMusicEnabled, setSoundEffectsEnabled } from '../audio/AudioManager';
@@ -207,7 +208,13 @@ export function updateHUD(totalDogs: number, restorationActive: boolean = false)
 
   // Hearts
   const heartsEl = document.getElementById('hearts');
-  if (heartsEl) {
+  if (heartsEl && !remoteConfigService.value('healthBarEnabled')) {
+    // Flag off: no lives UI at all. GameScene also skips the penalty, so a
+    // hidden bar can never kill the player silently.
+    heartsEl.hidden = true;
+    heartsEl.innerHTML = '';
+  } else if (heartsEl) {
+    heartsEl.hidden = false;
     const hearts: string[] = [];
     for (let i = 0; i < GAMEPLAY.LIVES_PER_LEVEL; i++) {
       if (i < gameState.lives) {
