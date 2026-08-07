@@ -47,7 +47,7 @@ describe("device parity wave 7 CSS pins", () => {
     const ribbon = css.match(/\.marble-ui \.marble-settings-card > \.fab-modal-ribbon \{[^}]*\}/);
     expect(ribbon).not.toBeNull();
     expect(ribbon![0]).toContain("align-self: center");
-    expect(ribbon![0]).toContain("margin: calc(-104px - 26px)");
+    expect(ribbon![0]).toContain("margin: calc(-104px - 38px)");
   });
 
   it("insets the in-game Restart/Home action rows (defect 3)", () => {

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { createSdkContext } from '../../src/sdk/SdkContext';
 import { computeIncludePlugins, firebaseConfigPresentInEnv } from '../../src/sdk/includePlugins';
+import { loadCapacitorSyncEnv } from '../../src/sdk/capacitorSyncEnv';
 
 const FULL_ENV = {
   VITE_APPLOVIN_IOS_ENABLED: 'true',
@@ -95,6 +96,21 @@ describe('includePlugins', () => {
 
   it('includes the firebase pod only with the complete triple', () => {
     const env = { VITE_FIREBASE_API_KEY: 'k', VITE_FIREBASE_PROJECT_ID: 'p', VITE_FIREBASE_APP_ID: 'a' };
+    expect(computeIncludePlugins(env)).toContain('@capacitor-firebase/analytics');
+  });
+
+  it('loads production env values before computing the Capacitor plugin allowlist', () => {
+    const env = loadCapacitorSyncEnv(
+      { NODE_ENV: 'production', VITE_FIREBASE_PROJECT_ID: 'shell-override' },
+      '/game',
+      () => ({
+        VITE_FIREBASE_API_KEY: 'api-key',
+        VITE_FIREBASE_PROJECT_ID: 'file-project',
+        VITE_FIREBASE_APP_ID: 'app-id',
+      }),
+    );
+
+    expect(env.VITE_FIREBASE_PROJECT_ID).toBe('shell-override');
     expect(computeIncludePlugins(env)).toContain('@capacitor-firebase/analytics');
   });
 });

@@ -67,8 +67,10 @@ describe("marble_run bootstrap insitu tour wiring", () => {
       },
     }));
     vi.doMock("../../src/ui/HUD", () => ({ initHUD: vi.fn() }));
+    const initializeAnalytics = vi.fn();
     vi.doMock("../../src/analytics/AnalyticsService", () => ({
       analytics: {
+        init: initializeAnalytics,
         setCohortBucket: vi.fn(),
         appOpen: vi.fn(),
         configureExtraSinks: vi.fn(),
@@ -94,9 +96,9 @@ describe("marble_run bootstrap insitu tour wiring", () => {
     vi.doMock("../../src/data/cohortContext", () => ({
       initializeCohort: vi.fn(() => Promise.resolve(0)),
     }));
-    const initializeRemoteConfig = vi.fn(() => Promise.resolve());
+    const initializeRemoteConfig = vi.fn();
     vi.doMock("../../src/config/RemoteConfigService", () => ({
-      remoteConfigService: { initAndWait: initializeRemoteConfig },
+      remoteConfigService: { init: initializeRemoteConfig },
     }));
     const initializeIap = vi.fn();
     const installCustomerInfoListener = vi.fn();
@@ -150,5 +152,6 @@ describe("marble_run bootstrap insitu tour wiring", () => {
     expect(installCustomerInfoListener).not.toHaveBeenCalled();
     expect(restorePurchases).not.toHaveBeenCalled();
     expect(initializeRemoteConfig).toHaveBeenCalledOnce();
+    expect(initializeAnalytics).toHaveBeenCalledOnce();
   });
 });

@@ -4,12 +4,11 @@ import { GameScene } from '../scenes/GameScene';
 import { HomeScene } from '../scenes/HomeScene';
 import { COLORS, DPR, GAME } from './Constants';
 
-const rendererType = String(import.meta.env.VITE_FTD_FORCE_CANVAS) === 'true'
-  ? Phaser.CANVAS
-  : Phaser.AUTO;
-
 export const GameConfig: Phaser.Types.Core.GameConfig = {
-  type: rendererType,
+  // Marble Run's 3D board owns a separate Three.js WebGL canvas. Phaser only
+  // paints lightweight shell/vignette primitives, so a second WebGL context
+  // adds seconds to first-install startup without improving game rendering.
+  type: Phaser.CANVAS,
   width: GAME.WIDTH,
   height: GAME.HEIGHT,
   parent: 'game-container',

@@ -16,7 +16,7 @@ describe('mountSettings variants', () => {
     gameState.settings.hapticsOn = true;
   });
 
-  it('menu variant renders the three toggle rows and a single Close action', () => {
+  it('menu variant renders the three toggle rows with the X as its only dismiss control', () => {
     const root = document.createElement('div');
     document.body.appendChild(root);
     mountSettings({ mountInto: root, inGame: false });
@@ -25,8 +25,10 @@ describe('mountSettings variants', () => {
       (r) => (r as HTMLElement).dataset.fabToggleKey,
     );
     expect(keys).toEqual(['music', 'sfx', 'haptics']);
-    expect(actionLabels(root)).toEqual(['settings-close']);
-    expect(root.querySelector('[data-fab-action="settings-close"]')?.textContent).toBe('CLOSE');
+    expect(actionLabels(root)).toEqual([]);
+    expect(root.querySelector('.fab-modal-actions')).toBeNull();
+    expect(root.querySelector('[data-fab-action="settings-close"]')).toBeNull();
+    expect(root.querySelector('[data-fab-action="settings-x"]')).not.toBeNull();
     expect(root.querySelector('.fab-modal-backdrop')?.classList).toContain('marble-settings-modal--menu');
   });
 
@@ -84,11 +86,11 @@ describe('mountSettings variants', () => {
     expect(root.querySelector('[data-action="settings-close"]')).toBeNull();
   });
 
-  it('menu variant exposes the Close action as data-fab-action', () => {
+  it('menu variant does not expose a redundant Close action', () => {
     const root = document.createElement('div');
     document.body.appendChild(root);
     mountSettings({ mountInto: root, inGame: false });
-    expect(root.querySelector('[data-fab-action="settings-close"]')).not.toBeNull();
+    expect(root.querySelector('[data-fab-action="settings-close"]')).toBeNull();
     expect(root.querySelector('[data-action="settings-close"]')).toBeNull();
   });
 

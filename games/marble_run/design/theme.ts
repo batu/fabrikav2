@@ -571,14 +571,16 @@ body {
   max-width: min(92vw, 430px);
   min-height: 520px;
   padding: 104px 42px 34px;
+  overflow: visible;
 }
 .marble-ui .marble-settings-card > .fab-modal-ribbon {
   align-self: center;
-  /* v1: .settings-ribbon-art is width:96% of the card, offset top:-26px. */
-  width: 96%;
+  /* Let the ribbon tails overhang the panel instead of reading as a small label. */
+  width: min(calc(100% + 100px), calc(100vw - 16px));
+  max-width: none;
   /* v1 anchors the ribbon art at top:-26px against a 104px top padding; in the
      kit's flow layout that is the same lift expressed as a negative margin. */
-  margin: calc(-104px - 26px) 0 var(--fab-space-md);
+  margin: calc(-104px - 38px) 0 var(--fab-space-md);
 }
 .marble-ui .marble-settings-card > .fab-modal-ribbon > .fab-modal-ribbon-image {
   width: 100%;
@@ -595,6 +597,9 @@ body {
   margin-inline: auto;
   transform: translateY(-50%);
   text-align: center;
+  /* The sprite's visible orange face occupies the upper portion of its
+     transparent box; 39% centers the glyph on that face, not on the PNG bounds. */
+  top: 39%;
 }
 .marble-ui .fab-modal-ribbon-title {
   font-family: var(--fab-font-display);
@@ -613,6 +618,9 @@ body {
    visible exactly like v1. */
 .fab-ui.fab-modal-backdrop.marble-settings-modal--menu {
   background: transparent;
+  /* Negative ribbon overhang is otherwise outside the scroll origin on short
+     phone viewports, which clips the top edge even though the card can scroll. */
+  padding-top: max(48px, calc(env(safe-area-inset-top) + 24px));
 }
 .fab-ui.fab-modal-backdrop.marble-settings-modal--menu .fab-modal-scrim {
   /* v1 dims the home to a near-flat dark purple — banner, coin pill, gear, sun
@@ -628,6 +636,7 @@ body {
    this layer, so the composited Pixel shade lands on v1's ~(64,51,82). */
 .fab-ui.fab-modal-backdrop.marble-settings-modal--ingame {
   background: rgba(162, 129, 207, 0.93);
+  padding-top: max(48px, calc(env(safe-area-inset-top) + 24px));
 }
 /* MRV2-11 U3 (KTD3, ref refs/settings.png): a small blue rounded SQUARE with a
    white × glyph docked top-right over the ribbon. No X sprite exists in-repo, so
@@ -644,6 +653,9 @@ body {
   min-width: 60px;
   height: 65px;
   min-height: 65px;
+  display: grid;
+  place-items: center;
+  padding: 0 0 5px;
   background: url('${assetUrls.settingsButton}') center / 100% 100% no-repeat;
   border: 0;
   color: #fff;
@@ -652,19 +664,48 @@ body {
   font-weight: 900;
   line-height: 1;
   text-shadow: 0 2px 0 rgba(30, 70, 140, 0.5);
+  box-shadow: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.marble-ui .fab-modal-close:focus,
+.marble-ui .fab-modal-close:focus-visible {
+  outline: none;
+}
+.marble-ui .marble-settings-card > .fab-modal-close {
+  top: -38px;
+  right: -8px;
 }
 
 /* Sugar toggle rows: translucent white pill rows, green-on switch. */
 .marble-ui .fab-toggle-row {
   background: rgba(255, 255, 255, 0.54);
+  min-height: 62px;
+  padding: 10px 18px 10px 24px;
   /* v1 labels are near-black navy; #4a2f6d read as purple against v1's ink. */
   color: #22304d;
   font-family: var(--fab-font-display);
 }
-.marble-ui .fab-toggle-row-label { color: #4a2f6d; }
-.marble-ui .fab-toggle-slider::before { background: #fff4dc; }
+.marble-ui .fab-toggle-row-label {
+  color: #4a2f6d;
+  font-size: clamp(18px, 5vw, 21px);
+  white-space: nowrap;
+}
+.marble-ui .fab-toggle-switch {
+  width: 78px;
+  height: 42px;
+}
+.marble-ui .fab-toggle-slider::before {
+  width: 34px;
+  height: 34px;
+  left: 4px;
+  bottom: 4px;
+  background: #fff4dc;
+}
 .marble-ui .fab-toggle-input:checked + .fab-toggle-slider {
   background: linear-gradient(180deg, #55f464, #10b535);
+}
+.marble-ui .fab-toggle-input:checked + .fab-toggle-slider::before {
+  transform: translateX(36px);
 }
 
 /* In-game settings action rows (Restart / Home) + menu Close. */
@@ -681,8 +722,20 @@ body {
     0 2px 0 rgba(20, 90, 30, 0.58),
     0 4px 0 rgba(20, 50, 80, 0.58);
 }
-.marble-settings-modal--menu .fab-modal-actions {
-  padding-bottom: 4px;
+.marble-settings-modal--ingame .fab-modal-actions {
+  margin-top: 18px;
+  gap: 4px;
+}
+.marble-settings-modal--ingame .marble-settings-card {
+  flex: 0 0 auto;
+  height: 560px;
+  min-height: 560px;
+}
+.marble-settings-modal--ingame .marble-settings-action {
+  width: min(58%, 178px);
+  min-height: 76px;
+  -webkit-text-stroke: 1.4px #2b1f3d;
+  paint-order: stroke fill;
 }
 
 /* ---- Result cards (win/lose) ---- */

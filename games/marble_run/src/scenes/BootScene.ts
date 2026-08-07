@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import { remoteConfigService } from '../config/RemoteConfigService';
 
 export class BootScene extends Phaser.Scene {
   private isShuttingDown: boolean = false;
@@ -9,15 +8,17 @@ export class BootScene extends Phaser.Scene {
   }
 
   create(): void {
+    console.info(`[startup] boot-scene-create ${performance.now().toFixed(1)}ms`);
     this.isShuttingDown = false;
     this.events.once('shutdown', () => {
       this.isShuttingDown = true;
     });
-    void this.chooseStartScene();
+    // Phaser marks the scene RUNNING only after create() returns. Defer one
+    // microtask so the active-state guard observes that lifecycle transition.
+    queueMicrotask(() => this.chooseStartScene());
   }
 
-  private async chooseStartScene(): Promise<void> {
-    await remoteConfigService.initAndWaitForTest();
+  private chooseStartScene(): void {
     if (this.isShuttingDown || !this.sys.isActive()) return;
     this.scene.start('HomeScene');
   }

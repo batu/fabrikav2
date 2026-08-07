@@ -25,6 +25,8 @@ import './v1core/ui/ui.css';
 import './ui/styles.css';
 import './gameplay/hud.css';
 
+console.info(`[startup] bootstrap-evaluating ${performance.now().toFixed(1)}ms`);
+
 installPortraitOrientationLock();
 installAudioUnlock();
 installButtonVoiceEffects();
@@ -37,7 +39,11 @@ preloadIcons();
 // env config before any consumer fires an init or event. Off is a first-class
 // Disabled* state, so this is safe with an empty env.
 installSdkContext(createSdkContext());
+void analytics.init();
 void getSdkContext().meta.init();
+// Cached/compiled values are usable immediately. Refresh in the background so
+// a slow or offline Firebase request never holds the first Home scene paint.
+remoteConfigService.init();
 // Build-time automount for device evidence capture: a dev/harness build with
 // VITE_SDK_VERIFIER_AUTOMOUNT=true shows the SDK verifier pane at launch, so
 // screenshots need no tap choreography. Same gate as the 4-tap path.
@@ -59,6 +65,7 @@ if ((!import.meta.env.PROD || TEST_HARNESS_ENABLED) && import.meta.env.VITE_SDK_
 }
 
 const game: Phaser.Game = new Phaser.Game(GameConfig);
+console.info(`[startup] phaser-created ${performance.now().toFixed(1)}ms`);
 initHUD();
 // Install the single suspend/resume authority (Capacitor pause/resume +
 // visibilitychange) so backgrounding the app halts the rAF loop, Phaser
@@ -80,10 +87,8 @@ void adConsentReady
   .catch((err: unknown): void => {
     console.warn('[ads] consent initialization failed before attribution startup', err);
   });
-// Marble Run has no in-app purchases. Remote config still initializes the
-// gameplay and advertising policy, but no store provider or restore listener
+// Marble Run has no in-app purchases, so no store provider or restore listener
 // is started at launch.
-void remoteConfigService.initAndWait();
 let releaseTestBindings: (() => void) | null = null;
 let releaseSdkVerifierGesture: (() => void) | null = null;
 let sdkVerifierTogglePending = false;
