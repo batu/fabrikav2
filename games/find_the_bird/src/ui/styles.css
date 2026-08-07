@@ -5679,3 +5679,13 @@
   #home-shell .home-streak-pill > span.home-claim-dot,
   #home-shell .home-streak-pill.home-claim-attention .home-streak-flame { animation: none; }
 }
+
+
+/* The play-entry cover used to tile the four-point star motif (pattern-motif.png)
+   at 0.28 over its dark gradient, so pressing Play flashed a star field before
+   the level appeared (Batu, 2026-08-07). The cover's whole job is to hide the
+   swap; a visible pattern on it is noise. The HOME's own motif layer is
+   untouched — this suppresses it only on the transition clone. */
+#scene-transition-cover.scene-transition-cover--play-entry .play-entry-home-backdrop::before {
+  content: none;
+}
