@@ -20,7 +20,9 @@ import Phaser from 'phaser';
 
 export const PINCH = {
   minZoom: 1.0,
-  maxZoom: 2.5,
+  // 1.75 (2026-08-07, was 2.5): halve the zoom-in range beyond 1x — full 2.5x
+  // let players get lost in a face-sized crop of a 2688px scene.
+  maxZoom: 1.75,
   // Below this delta, ignore — prevents jitter while finger is "pressed but still"
   minDistPx: 8,
   // Pointer movement threshold: below this, ignore movement as touch jitter.

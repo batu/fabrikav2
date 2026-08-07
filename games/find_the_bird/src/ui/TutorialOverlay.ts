@@ -2,19 +2,13 @@ import { gameState } from '../core/GameState';
 import { GAMEPLAY } from '../core/Constants';
 
 /**
- * First-time tutorial — sequential state machine:
- *  State 1 "dog": a single bubble ("Tap the dog") anchored near dog_00.
- *  State 2 "hint": after the player taps the right dog, the dog bubble
- *  disappears and a hint bubble ("Now try a hint") reveals above the
- *  hint button. Tapping the hint button advances to state 3; that specific
- *  tap is SUPPRESSED in GameScene.onHintRequested (no hint circle, no hint
- *  spent) so it doesn't clutter the zoom lesson — it teaches where the hint
- *  button is without burning a hint.
- *  State 3 "zoom": the final step teaches the pinch-to-zoom gesture with a
- *  minimal spreading-dots animation (no caption). It completes when the
- *  player performs a real pinch (the scene captures the entry zoom via
- *  `onZoomStateEntered` and completes once the camera zooms in past it), or
- *  via a "Got it" skip button for mouse/desktop players who can't pinch.
+ * First-time tutorial — two beats:
+ *  State 1 "dog": a single bubble ("Tap the bird") anchored on the ringed
+ *  target bird chosen by the scene.
+ *  State 2 "hint": after the player taps that bird, a hint bubble ("Now try
+ *  a hint") reveals above the hint button. Tapping the hint button fires a
+ *  REAL hint and ends the tutorial. (The former state-3 pinch-to-zoom
+ *  lesson was removed 2026-08-07 with the zoom-range reduction.)
  *
  * Edge case: if the player taps the hint button while still in state 1,
  * the overlay silently dismisses (tutorialShown = true) and the hint
@@ -30,12 +24,6 @@ export interface TutorialAnchor {
   dogScreen: { x: number; y: number };
   /** CSS-pixel radius of the dog highlight, used to size the spotlight cutout. */
   dogRadius: number;
-  /**
-   * Invoked when the overlay enters the final zoom step. The scene uses this
-   * to start watching for a real pinch-zoom gesture; when the camera zooms
-   * past 1.0 it calls `dismiss(true)` to complete the tutorial.
-   */
-  onZoomStateEntered?: () => void;
 }
 
 export interface TutorialHandle {
@@ -62,7 +50,7 @@ export interface TutorialHandle {
   updateAnchor: (dogScreen: { x: number; y: number }, dogRadius: number) => void;
 }
 
-type TutorialState = 'dog' | 'hint' | 'zoom' | 'dismissed';
+type TutorialState = 'dog' | 'hint' | 'dismissed';
 
 export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
   const hudOverlay = document.getElementById('hud-overlay');
@@ -105,61 +93,11 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
     resolveFn?.();
   };
 
-  // Advance from state 2 (hint bubble) to state 3 (zoom gesture). The hint
-  // click that triggers this is suppressed in GameScene.onHintRequested (no
-  // circle, no hint spent) — see the onHintClick comment below — so the zoom
-  // lesson stays clean and the player keeps all their hints.
-  const advanceToZoomState = (): void => {
-    if (state !== 'hint') return;
-    state = 'zoom';
-    overlay.querySelector('.tutorial-bubble-hint')?.remove();
-
-    // Stop treating hint clicks as tutorial input — from here the only ways
-    // out are a real pinch (via the scene) or the "Got it" skip button.
-    // This lets the player freely spend more hints while learning to zoom.
-    hintBtn?.removeEventListener('click', onHintClick, true);
-
-    // Hide the spotlight so the whole image is bright and pinchable; there's
-    // no single target to cut out for a viewport-wide gesture.
-    if (spotlight) spotlight.style.display = 'none';
-
-    // Minimal pinch gesture: two small cream touch-points spreading apart over
-    // a single soft zoom ring — communicates "pinch to zoom" with no caption
-    // text and no raster asset. Pure CSS.
-    const gesture = document.createElement('div');
-    gesture.className = 'tutorial-pinch';
-    gesture.innerHTML = `
-      <div class="tutorial-zoom-glow"></div>
-      <div class="tutorial-zoom-ring"></div>
-      <div class="tutorial-zoom-dot"></div>
-      <div class="tutorial-zoom-dot tutorial-zoom-dot-r"></div>
-    `;
-    overlay.appendChild(gesture);
-
-    // Mouse/desktop players can't pinch — give them an explicit way out.
-    const skipBtn = document.createElement('button');
-    skipBtn.className = 'tutorial-dismiss';
-    skipBtn.type = 'button';
-    skipBtn.textContent = 'Got it';
-    skipBtn.addEventListener('click', () => dismiss(true));
-    overlay.appendChild(skipBtn);
-
-    anchor.onZoomStateEntered?.();
-  };
-
   const onHintClick = (): void => {
-    // State 2 (hint bubble): the tap advances to the zoom step. The hint itself
-    // is suppressed in GameScene.onHintRequested (via a flag set on entering the
-    // hint step) so no hint circle pulses during the zoom lesson — see there.
-    // Doing it there rather than here is deliberate: at the target element,
-    // listeners fire in registration order regardless of capture flag, so we
-    // cannot reliably stopImmediatePropagation ahead of HUD's own handler.
-    if (state === 'hint') {
-      advanceToZoomState();
-      return;
-    }
-    // State 1: player skipped ahead to hints on their own — let the hint fire
-    // normally and silently dismiss the tutorial.
+    // Any state: the hint fires normally (HUD's own handler) and the tutorial
+    // ends. The former state-3 pinch-to-zoom lesson was removed 2026-08-07
+    // along with most of the zoom range — two teachable beats (tap the bird,
+    // try a hint) are the whole tutorial now.
     dismiss(true);
   };
   hintBtn?.addEventListener('click', onHintClick, true);

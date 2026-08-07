@@ -46,7 +46,7 @@ import { registerLifecycleHooks } from '../platform/gameLifecycle';
 import { computeVoronoiCell, maxDistToPolygon, pointInPolygon } from '../utils/voronoi';
 import type { Point } from '../utils/voronoi';
 import { SectionController } from './SectionController';
-import { PinchZoom, PINCH } from './PinchZoom';
+import { PinchZoom } from './PinchZoom';
 import { MicroAnimationLayer, type MicroAnimationSnapshot } from '../effects/MicroAnimationLayer';
 import {
   FALLBACK_RUNTIME_TEXTURE_LONG_EDGE,
@@ -78,10 +78,6 @@ const CLASSIC_REVEAL_EDGE_FEATHER_PX = 10;
 const RESTORATION_CLEANUP_FOOTPRINT_SCALE = 2;
 const FAST_E2E_UI = String(import.meta.env.VITE_FTD_FAST_E2E_UI) === 'true';
 const TUTORIAL_PROMPT_DELAY_MS = FAST_E2E_UI ? 40 : 500;
-// Zoom increase (in camera-zoom units, minZoom 1.0 → maxZoom 2.5) required over
-// the baseline captured at zoom-step entry before the tutorial completes. Small
-// enough that any deliberate pinch clears it, large enough to ignore jitter.
-const TUTORIAL_ZOOM_COMPLETE_DELTA = 0.05;
 const NONCRITICAL_PRELOAD_DELAY_MS = 1_500;
 const NONCRITICAL_PRELOAD_IDLE_TIMEOUT_MS = 5_000;
 const AMBIENT_START_DELAY_MS = 1_500;
@@ -273,26 +269,6 @@ export class GameScene extends Phaser.Scene {
   private tutorialAnchorRadiusCss = 0;
   /** Last worldView the tutorial overlay was positioned for (dirty gate). */
   private lastTutorialView: { l: number; t: number; w: number } | null = null;
-  /**
-   * True while the tutorial is on its final zoom step, waiting for the player
-   * to perform a real pinch-zoom. `update()` completes the tutorial once the
-   * camera zooms in past `tutorialZoomBaseline`.
-   */
-  private tutorialAwaitingZoom = false;
-  /**
-   * Camera zoom captured when the zoom step is entered. Completion requires the
-   * player to zoom in *beyond* this — so a camera that was already zoomed (the
-   * player pinched during an earlier step and stayed zoomed) doesn't instantly
-   * satisfy an absolute `isZoomed()` check and flash the lesson away in a frame.
-   */
-  private tutorialZoomBaseline: number = PINCH.minZoom;
-  /**
-   * True while the tutorial is on step 2 (the "try a hint" bubble). The next
-   * hint-button tap advances the tutorial to the zoom step and is SUPPRESSED in
-   * onHintRequested — so no hint circle pulses during the zoom lesson and no
-   * hint is spent on a tutorial tap. Set here (before the tap) rather than
-   * relying on event ordering, which is not guaranteed at the target element.
-   */
 
   /** Active rate-prompt handle. Set while a rate prompt is on screen. */
   ratePromptHandle: RatePromptHandle | null = null;
@@ -360,7 +336,6 @@ export class GameScene extends Phaser.Scene {
     this.tutorialHandle = null;
     this.tutorialRing = null;
     this.tutorialRingTween = null;
-    this.tutorialAwaitingZoom = false;
     this.ratePromptHandle = null;
     this.pointerDownAt = null;
     this.preserveLevelUrlsOnShutdown = false;
@@ -596,19 +571,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   override update(): void {
-    // Final tutorial step: complete once the player zooms in beyond the level
-    // captured when the step began. Polling here (rather than an event) keeps
-    // PinchZoom free of tutorial coupling — it already owns the camera zoom; we
-    // just observe it. Requiring an increase over the baseline (not an absolute
-    // isZoomed()) avoids instant-completing when the camera was already zoomed.
-    if (
-      this.tutorialAwaitingZoom &&
-      this.cameras.main.zoom > this.tutorialZoomBaseline + TUTORIAL_ZOOM_COMPLETE_DELTA
-    ) {
-      this.tutorialAwaitingZoom = false;
-      this.tutorialHandle?.dismiss(true);
-    }
-
     this.updateHintEdgeArrow();
 
     // State-1 tutorial: keep the DOM spotlight/bubble glued to the target
@@ -1872,7 +1834,6 @@ export class GameScene extends Phaser.Scene {
     this.tutorialRingTween = null;
     this.tutorialRing?.destroy();
     this.tutorialRing = null;
-    this.tutorialAwaitingZoom = false;
     this.tutorialHandle?.dismiss(true);
     this.tutorialHandle = null;
   }
@@ -1985,16 +1946,10 @@ export class GameScene extends Phaser.Scene {
     this.tutorialHandle = showTutorialOverlay({
       dogScreen,
       dogRadius: dogRadiusCss,
-      onZoomStateEntered: () => {
-        this.tutorialZoomBaseline = this.cameras.main.zoom;
-        this.tutorialAwaitingZoom = true;
-      },
     });
     void this.tutorialHandle.dismissed.then(() => {
-      // Clear the zoom watch on any dismissal path (real pinch, "Got it"
-      // skip, or scene teardown) so update() stops polling, and null the
-      // handle so a later dog-tap cannot re-advance a dead tutorial.
-      this.tutorialAwaitingZoom = false;
+      // Null the handle on any dismissal path so a later bird-tap cannot
+      // re-advance a dead tutorial.
       this.tutorialHandle = null;
       this.tutorialTargetDogId = null;
       this.tutorialAnchorWorld = null;
