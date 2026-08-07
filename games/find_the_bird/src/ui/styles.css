@@ -2794,7 +2794,10 @@
   background-image: url('/ui/home/background-feather.svg');
   background-size: 132px 132px;
   background-repeat: repeat;
-  transform: translate3d(-92px, 92px, 0);
+  /* Travel MUST equal one background tile (132px) or the loop snaps: the
+     old -92 -> 92 span moved 184px against a 132px pattern, leaving 52px of
+     phase error at every cycle boundary (2026-08-07). */
+  transform: translate3d(-132px, 132px, 0);
   will-change: transform;
   animation: homeFeatherDrift 26s linear infinite;
 }
@@ -2950,8 +2953,10 @@
 
 
 @keyframes homeFeatherDrift {
-  from { transform: translate3d(-92px, 92px, 0); }
-  to { transform: translate3d(92px, -92px, 0); }
+  /* Exactly one 132px tile diagonally: the end frame is pixel-identical to
+     the start frame, so `infinite` never shows a seam. */
+  from { transform: translate3d(-132px, 132px, 0); }
+  to { transform: translate3d(0, 0, 0); }
 }
 
 @keyframes homeMascotLoad {
