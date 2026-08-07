@@ -87,6 +87,10 @@ const TUTORIAL_PROMPT_DELAY_MS = FAST_E2E_UI ? 40 : 500;
 // Zoom-lesson completion: camera-zoom increase over the baseline captured at
 // zoom-step entry (small enough that any real pinch clears it).
 const TUTORIAL_ZOOM_COMPLETE_DELTA = 0.05;
+/** Painted feather cutouts used for the pickup burst (magenta chroma-key lane). */
+const FEATHER_PARTICLE_KEYS = [
+  'feather_cream', 'feather_brown', 'feather_blue', 'feather_olive',
+] as const;
 const NONCRITICAL_PRELOAD_DELAY_MS = 1_500;
 const NONCRITICAL_PRELOAD_IDLE_TIMEOUT_MS = 5_000;
 const AMBIENT_START_DELAY_MS = 1_500;
@@ -402,6 +406,10 @@ export class GameScene extends Phaser.Scene {
     // outside the levelChanged gate; cached after the first level load.
     if (!this.textures.exists('hint_point')) {
       this.load.image('hint_point', 'ui/effects/hint_point_right.png');
+    }
+    // Pickup feather particles — four painted cutouts, level-independent.
+    for (const name of FEATHER_PARTICLE_KEYS) {
+      if (!this.textures.exists(name)) this.load.image(name, `ui/effects/${name}.png`);
     }
 
     // Reuse textures across same-level scene.restarts (fail overlay,
@@ -2566,27 +2574,56 @@ export class GameScene extends Phaser.Scene {
     this.pickupCoverFlash(start.x, start.y, size * 0.5, 0xffffff);
     this.pickupAnimationsActive += 1;
 
-    // A ring of particles thrown outward on the pickup frame. They cover the
-    // silhouette long enough that the swap lands unseen.
-    if (!reducedMotion && this.textures.exists('paw_particle')) {
-      for (let i = 0; i < 10; i++) {
-        const angle = (i / 10) * Math.PI * 2 + Math.random() * 0.4;
-        const dist = size * (0.5 + Math.random() * 0.5);
-        const bit = this.add.image(start.x, start.y, 'paw_particle')
-          .setScrollFactor(0).setDepth(86)
-          .setScale(0.5 + Math.random() * 0.4)
-          .setAlpha(0.95);
-        this.tweens.add({
-          targets: bit,
-          x: start.x + Math.cos(angle) * dist,
-          y: start.y + Math.sin(angle) * dist,
-          angle: Phaser.Math.Between(-220, 220),
-          alpha: 0,
-          scale: 0.15,
-          duration: 380 + Math.random() * 180,
-          ease: 'Cubic.easeOut',
-          onComplete: () => bit.destroy(),
-        });
+    // Subtle shockwave: a thin ring, no fill — enough to punctuate the tap
+    // without the "impact" weight the tumble style uses (Batu, 2026-08-07).
+    if (!reducedMotion) {
+      const ring = this.add.graphics().setScrollFactor(0).setDepth(84);
+      const wave = { r: size * 0.25, a: 0.55 };
+      const drawWave = (): void => {
+        ring.clear();
+        ring.lineStyle(3, 0xfff1cf, wave.a);
+        ring.strokeCircle(start.x, start.y, wave.r);
+      };
+      drawWave();
+      this.tweens.add({
+        targets: wave, r: size * 0.95, a: 0, duration: 340, ease: 'Cubic.easeOut',
+        onUpdate: drawWave, onComplete: () => ring.destroy(),
+      });
+    }
+
+    // Painted FEATHERS thrown outward on the pickup frame — they cover the
+    // silhouette while the swap happens, and they say "bird" rather than
+    // "generic particle". Each drifts, spins and settles with a little gravity
+    // so the spray reads as feathers falling, not sparks.
+    if (!reducedMotion) {
+      const available = FEATHER_PARTICLE_KEYS.filter((k) => this.textures.exists(k));
+      if (available.length > 0) {
+        const count = 8;
+        for (let i = 0; i < count; i++) {
+          const angle = (i / count) * Math.PI * 2 + Math.random() * 0.5;
+          const dist = size * (0.45 + Math.random() * 0.55);
+          const key = available[Math.floor(Math.random() * available.length)];
+          const bit = this.add.image(start.x, start.y, key)
+            .setScrollFactor(0).setDepth(86)
+            .setAngle(Math.random() * 360)
+            .setAlpha(0.98);
+          bit.setDisplaySize(size * 0.3, size * 0.3 * (bit.height / bit.width));
+          const driftX = start.x + Math.cos(angle) * dist;
+          // Gravity: feathers end up lower than they were thrown.
+          const driftY = start.y + Math.sin(angle) * dist * 0.7 + size * 0.35;
+          this.tweens.add({
+            targets: bit,
+            x: driftX,
+            y: driftY,
+            angle: bit.angle + Phaser.Math.Between(-150, 150),
+            alpha: 0,
+            scaleX: bit.scaleX * 0.55,
+            scaleY: bit.scaleY * 0.55,
+            duration: 520 + Math.random() * 260,
+            ease: 'Sine.easeOut',
+            onComplete: () => bit.destroy(),
+          });
+        }
       }
     }
 
