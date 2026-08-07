@@ -517,6 +517,13 @@ export class GameScene extends Phaser.Scene {
       GameScene.lastLoadedLevelId = null;
       if (textures.exists('color')) textures.remove('color');
       if (textures.exists('bw_generated')) textures.remove('bw_generated');
+      // bg_* are shared sequential keys too. Omitting them here meant the
+      // warmed level kept the PREVIOUS level's backgrounds — and because the
+      // skip-gate write below makes preload's own levelChanged eviction a
+      // no-op, nothing else ever removed them (2026-08-07 review).
+      for (let i = 0; textures.exists(`bg_${i}`); i++) {
+        textures.remove(`bg_${i}`);
+      }
       for (const key of GameScene.lastLoadedSpriteTextureKeys) {
         if (textures.exists(key)) textures.remove(key);
       }
@@ -3672,8 +3679,14 @@ export class GameScene extends Phaser.Scene {
     }
     const cam = this.cameras.main;
     // Screen-space (scroll-factor-zero) position clamped to the edges.
-    const sfx = Phaser.Math.Clamp(((x - view.left) / view.width) * cam.width, 86, cam.width - 86);
-    const sfy = Phaser.Math.Clamp(((y - view.top) / view.height) * cam.height, 120, cam.height - 140);
+    // Screen-space clamp, then the scroll-factor-0 conversion: this object is
+    // zero-scroll-factor and the camera still applies zoom to it — the same
+    // mistake fixed in the pickup and wrong-tap paths (2026-08-07 review).
+    const clampedX = Phaser.Math.Clamp(((x - view.left) / view.width) * cam.width, 86, cam.width - 86);
+    const clampedY = Phaser.Math.Clamp(((y - view.top) / view.height) * cam.height, 120, cam.height - 140);
+    const arrowPoint = this.viewportToScrollFactorZeroPoint(clampedX, clampedY);
+    const sfx = arrowPoint.x;
+    const sfy = arrowPoint.y;
     const pointLeft = x < view.left;
     const dir = pointLeft ? -1 : 1;
     // Deterministic nudge toward the target (~8px sinusoid) — per-frame

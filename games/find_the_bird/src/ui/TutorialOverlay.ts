@@ -145,6 +145,11 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
       overlay.querySelector('.tutorial-bubble-hint')?.remove();
       if (spotlight) spotlight.style.display = 'none';
       hintBtn?.removeEventListener('click', onHintClick, true);
+      // The HUD swallows the tap when a hint circle is already live or the
+      // player has none left, in which case no hinted bird is ever recorded
+      // and nothing can advance this state. Always offer the way out, or the
+      // tutorial replays every level forever (2026-08-07 review).
+      addSkipButton();
       return;
     }
     dismiss(true);
