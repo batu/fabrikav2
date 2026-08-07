@@ -2594,6 +2594,160 @@
   border-top: 14px solid white;
 }
 
+/* --- Pinch-to-zoom gesture visual (tutorial state 3) — minimal ---
+   Two small cream touch-points spread apart over a soft zoom ring. No caption
+   text, no shipped asset. Namespaced (tutorial-zoom-*) to avoid colliding with
+   generic selectors elsewhere. */
+
+.tutorial-pinch {
+  /* Centered anchor over the image. pointer-events none so the real pinch
+     reaches the canvas underneath. */
+  position: absolute;
+  left: 50%;
+  top: 44%;
+  width: 10rem;
+  height: 10rem;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.tutorial-zoom-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4.4rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(246, 241, 231, 0.1), transparent 62%);
+  animation: tutorial-zoom-glow 2.4s cubic-bezier(0.2, 0.78, 0.2, 1) infinite;
+}
+
+.tutorial-zoom-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 3.2rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 0.18rem solid rgba(246, 241, 231, 0.6);
+  box-shadow: 0 0 0.9rem rgba(246, 241, 231, 0.15);
+  animation: tutorial-zoom-ring 2.4s cubic-bezier(0.2, 0.78, 0.2, 1) infinite;
+}
+
+.tutorial-zoom-dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1.6rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 29%, #fffdf7 0 16%, #f6f1e7 42%, #e7ddcb 100%);
+  box-shadow: 0 0.5rem 0.9rem rgba(0, 0, 0, 0.3), 0 0 0 0.3rem rgba(246, 241, 231, 0.07),
+    inset 0 -0.12rem 0.18rem rgba(83, 63, 37, 0.12);
+  animation: tutorial-zoom-dot-l 2.4s cubic-bezier(0.22, 0.8, 0.2, 1) infinite;
+}
+.tutorial-zoom-dot-r { animation-name: tutorial-zoom-dot-r; }
+.tutorial-zoom-dot::after {
+  content: "";
+  position: absolute;
+  width: 22%;
+  height: 22%;
+  border-radius: 50%;
+  left: 25%;
+  top: 22%;
+  background: rgba(255, 255, 255, 0.66);
+}
+
+@keyframes tutorial-zoom-glow {
+  0%, 18% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.9); }
+  62%, 76% { opacity: 0.85; transform: translate(-50%, -50%) scale(1.08); }
+  100% { opacity: 0.4; transform: translate(-50%, -50%) scale(0.9); }
+}
+@keyframes tutorial-zoom-ring {
+  0%, 16% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+  30% { opacity: 0.7; }
+  70% { opacity: 0.25; transform: translate(-50%, -50%) scale(1.5); }
+  84%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.6); }
+}
+@keyframes tutorial-zoom-dot-l {
+  0%, 14% { transform: translate(-50%, -50%) translate(-0.5rem, 0) scale(0.96); }
+  56%, 74% { transform: translate(-50%, -50%) translate(-2.4rem, 0) scale(1); }
+  90%, 100% { transform: translate(-50%, -50%) translate(-0.5rem, 0) scale(0.96); }
+}
+@keyframes tutorial-zoom-dot-r {
+  0%, 14% { transform: translate(-50%, -50%) translate(0.5rem, 0) scale(0.96); }
+  56%, 74% { transform: translate(-50%, -50%) translate(2.4rem, 0) scale(1); }
+  90%, 100% { transform: translate(-50%, -50%) translate(0.5rem, 0) scale(0.96); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-zoom-glow, .tutorial-zoom-ring, .tutorial-zoom-dot { animation: none; }
+  /* Hold the spread pose so the pinch intent still reads. */
+  .tutorial-zoom-ring, .tutorial-zoom-glow { opacity: 0.5; }
+  .tutorial-zoom-dot { transform: translate(-50%, -50%) translate(-2.4rem, 0); }
+  .tutorial-zoom-dot-r { transform: translate(-50%, -50%) translate(2.4rem, 0); }
+}
+
+
+/* --- Drag-to-pan gesture visual (tutorial pan step) ---
+   The pointing-hand sprite slides left-right over a soft track, reading as
+   "drag the scene sideways". pointer-events none so real drags reach the
+   canvas underneath. */
+.tutorial-pan {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 240px;
+  height: 120px;
+  pointer-events: none;
+}
+.tutorial-pan-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 6px;
+  transform: translateY(-50%);
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.35);
+}
+.tutorial-pan-hand {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 84px;
+  height: 84px;
+  margin: -42px 0 0 -42px;
+  animation: tutorial-pan-slide 2.2s ease-in-out infinite;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
+}
+@keyframes tutorial-pan-slide {
+  0%, 100% { transform: translateX(-70px) scaleX(-1); }
+  48% { transform: translateX(70px) scaleX(-1); }
+  50% { transform: translateX(70px) scaleX(1); }
+  98% { transform: translateX(-70px) scaleX(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-pan-hand { animation: none; transform: translateX(0) scaleX(1); }
+}
+
+.tutorial-dismiss {
+  position: absolute;
+  left: 50%;
+  bottom: 60px;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.92);
+  color: #222;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+
 @keyframes tutorial-bounce {
   0%, 100% { transform: translate(-50%, calc(-100% - 28px)); }
   50% { transform: translate(-50%, calc(-100% - 36px)); }

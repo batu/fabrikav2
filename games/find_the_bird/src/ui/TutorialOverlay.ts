@@ -7,8 +7,11 @@ import { GAMEPLAY } from '../core/Constants';
  *  target bird chosen by the scene.
  *  State 2 "hint": after the player taps that bird, a hint bubble ("Now try
  *  a hint") reveals above the hint button. Tapping the hint button fires a
- *  REAL hint and ends the tutorial. (The former state-3 pinch-to-zoom
- *  lesson was removed 2026-08-07 with the zoom-range reduction.)
+ *  REAL hint and advances to the gesture lessons.
+ *  State 3 "pan": sliding-hand visual; the scene completes it when the
+ *  player pans the camera past a threshold (or "Got it" skips out).
+ *  State 4 "zoom": spreading-dots pinch visual; completes on a real pinch
+ *  past the entry baseline (or "Got it").
  *
  * Edge case: if the player taps the hint button while still in state 1,
  * the overlay silently dismisses (tutorialShown = true) and the hint
@@ -24,6 +27,12 @@ export interface TutorialAnchor {
   dogScreen: { x: number; y: number };
   /** CSS-pixel radius of the dog highlight, used to size the spotlight cutout. */
   dogRadius: number;
+  /** Invoked when the pan step begins; the scene watches camera scroll and
+   *  calls `advanceToZoomState()` once the player pans far enough. */
+  onPanStateEntered?: () => void;
+  /** Invoked when the zoom step begins; the scene watches camera zoom and
+   *  calls `dismiss(true)` once the player zooms in past the baseline. */
+  onZoomStateEntered?: () => void;
 }
 
 export interface TutorialHandle {
@@ -41,6 +50,9 @@ export interface TutorialHandle {
    * taps the correct dog.
    */
   advanceToHintState: () => void;
+  /** Advance from the pan step to the zoom step (scene calls this when the
+   *  player has panned far enough). No-op outside the pan step. */
+  advanceToZoomState: () => void;
   /**
    * Re-anchor the state-1 spotlight + bubble to a new viewport point. The
    * scene calls this every frame while the camera can pan/zoom so the
@@ -50,7 +62,7 @@ export interface TutorialHandle {
   updateAnchor: (dogScreen: { x: number; y: number }, dogRadius: number) => void;
 }
 
-type TutorialState = 'dog' | 'hint' | 'dismissed';
+type TutorialState = 'dog' | 'hint' | 'pan' | 'zoom' | 'dismissed';
 
 export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
   const hudOverlay = document.getElementById('hud-overlay');
@@ -93,11 +105,66 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
     resolveFn?.();
   };
 
+  // "Got it" escape hatch, shared by the gesture steps (pan + zoom): mouse
+  // players can't pinch, and nobody should be trapped in a lesson.
+  const addSkipButton = (): void => {
+    if (overlay.querySelector('.tutorial-dismiss')) return;
+    const skipBtn = document.createElement('button');
+    skipBtn.className = 'tutorial-dismiss';
+    skipBtn.type = 'button';
+    skipBtn.textContent = 'Got it';
+    skipBtn.addEventListener('click', () => dismiss(true));
+    overlay.appendChild(skipBtn);
+  };
+
+  // Pan lesson: pointing-hand sprite slides side to side over a track. The
+  // scene watches camera scrollX and advances to the zoom step on a real pan.
+  const advanceToPanState = (): void => {
+    if (state !== 'hint') return;
+    state = 'pan';
+    overlay.querySelector('.tutorial-bubble-hint')?.remove();
+    hintBtn?.removeEventListener('click', onHintClick, true);
+    // Whole-viewport gesture: no single target to spotlight.
+    if (spotlight) spotlight.style.display = 'none';
+    const gesture = document.createElement('div');
+    gesture.className = 'tutorial-pan';
+    gesture.innerHTML = `
+      <div class="tutorial-pan-track"></div>
+      <img class="tutorial-pan-hand" src="/ui/effects/hint_point_right.png" alt="" />
+    `;
+    overlay.appendChild(gesture);
+    addSkipButton();
+    anchor.onPanStateEntered?.();
+  };
+
+  // Zoom lesson (restored 2026-08-07): two touch-points spreading over a soft
+  // ring. Completes when the scene observes a real pinch past the baseline.
+  const advanceToZoomState = (): void => {
+    if (state !== 'pan') return;
+    state = 'zoom';
+    overlay.querySelector('.tutorial-pan')?.remove();
+    const gesture = document.createElement('div');
+    gesture.className = 'tutorial-pinch';
+    gesture.innerHTML = `
+      <div class="tutorial-zoom-glow"></div>
+      <div class="tutorial-zoom-ring"></div>
+      <div class="tutorial-zoom-dot"></div>
+      <div class="tutorial-zoom-dot tutorial-zoom-dot-r"></div>
+    `;
+    overlay.appendChild(gesture);
+    addSkipButton();
+    anchor.onZoomStateEntered?.();
+  };
+
   const onHintClick = (): void => {
-    // Any state: the hint fires normally (HUD's own handler) and the tutorial
-    // ends. The former state-3 pinch-to-zoom lesson was removed 2026-08-07
-    // along with most of the zoom range — two teachable beats (tap the bird,
-    // try a hint) are the whole tutorial now.
+    // State 2: the hint fires normally (HUD's own handler) AND the tutorial
+    // advances to the pan lesson — panning toward the hinted bird is the
+    // natural first pan. Any earlier state: the player skipped ahead; let
+    // the hint fire and end the tutorial quietly.
+    if (state === 'hint') {
+      advanceToPanState();
+      return;
+    }
     dismiss(true);
   };
   hintBtn?.addEventListener('click', onHintClick, true);
@@ -142,7 +209,7 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
     }
   };
 
-  return { dismissed, dismiss, advanceToHintState, updateAnchor };
+  return { dismissed, dismiss, advanceToHintState, advanceToZoomState, updateAnchor };
 }
 
 /** Slack added around a spotlit target so its edges aren't clipped by the dim. */
@@ -177,6 +244,7 @@ function noopHandle(): TutorialHandle {
     dismissed: Promise.resolve(),
     dismiss: () => {},
     advanceToHintState: () => {},
+    advanceToZoomState: () => {},
     updateAnchor: () => {},
   };
 }

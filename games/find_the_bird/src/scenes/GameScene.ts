@@ -78,6 +78,11 @@ const CLASSIC_REVEAL_EDGE_FEATHER_PX = 10;
 const RESTORATION_CLEANUP_FOOTPRINT_SCALE = 2;
 const FAST_E2E_UI = String(import.meta.env.VITE_FTD_FAST_E2E_UI) === 'true';
 const TUTORIAL_PROMPT_DELAY_MS = FAST_E2E_UI ? 40 : 500;
+// Gesture-lesson completion thresholds. Pan: world-px of camera travel that
+// counts as a deliberate pan. Zoom: camera-zoom increase over the baseline
+// captured at zoom-step entry (small enough that any real pinch clears it).
+const TUTORIAL_PAN_COMPLETE_PX = 120;
+const TUTORIAL_ZOOM_COMPLETE_DELTA = 0.05;
 const NONCRITICAL_PRELOAD_DELAY_MS = 1_500;
 const NONCRITICAL_PRELOAD_IDLE_TIMEOUT_MS = 5_000;
 const AMBIENT_START_DELAY_MS = 1_500;
@@ -269,6 +274,10 @@ export class GameScene extends Phaser.Scene {
   private tutorialAnchorRadiusCss = 0;
   /** Last worldView the tutorial overlay was positioned for (dirty gate). */
   private lastTutorialView: { l: number; t: number; w: number } | null = null;
+  /** Pan-lesson watch: scroll position captured at pan-step entry. */
+  private tutorialPanBaseline: { x: number; y: number } | null = null;
+  /** Zoom-lesson watch: camera zoom captured at zoom-step entry. */
+  private tutorialZoomBaseline: number | null = null;
 
   /** Active rate-prompt handle. Set while a rate prompt is on screen. */
   ratePromptHandle: RatePromptHandle | null = null;
@@ -571,6 +580,28 @@ export class GameScene extends Phaser.Scene {
   }
 
   override update(): void {
+    // Gesture-lesson watches (polling keeps PinchZoom tutorial-free — it owns
+    // the camera; we just observe it).
+    if (this.tutorialHandle && this.tutorialPanBaseline) {
+      const cam = this.cameras.main;
+      const moved = Math.hypot(
+        cam.scrollX - this.tutorialPanBaseline.x,
+        cam.scrollY - this.tutorialPanBaseline.y,
+      );
+      if (moved > TUTORIAL_PAN_COMPLETE_PX) {
+        this.tutorialPanBaseline = null;
+        this.tutorialHandle.advanceToZoomState();
+      }
+    }
+    if (
+      this.tutorialHandle &&
+      this.tutorialZoomBaseline !== null &&
+      this.cameras.main.zoom > this.tutorialZoomBaseline + TUTORIAL_ZOOM_COMPLETE_DELTA
+    ) {
+      this.tutorialZoomBaseline = null;
+      this.tutorialHandle.dismiss(true);
+    }
+
     this.updateHintEdgeArrow();
 
     // State-1 tutorial: keep the DOM spotlight/bubble glued to the target
@@ -1946,10 +1977,19 @@ export class GameScene extends Phaser.Scene {
     this.tutorialHandle = showTutorialOverlay({
       dogScreen,
       dogRadius: dogRadiusCss,
+      onPanStateEntered: () => {
+        const cam = this.cameras.main;
+        this.tutorialPanBaseline = { x: cam.scrollX, y: cam.scrollY };
+      },
+      onZoomStateEntered: () => {
+        this.tutorialZoomBaseline = this.cameras.main.zoom;
+      },
     });
     void this.tutorialHandle.dismissed.then(() => {
       // Null the handle on any dismissal path so a later bird-tap cannot
-      // re-advance a dead tutorial.
+      // re-advance a dead tutorial; clear gesture watches so update() stops.
+      this.tutorialPanBaseline = null;
+      this.tutorialZoomBaseline = null;
       this.tutorialHandle = null;
       this.tutorialTargetDogId = null;
       this.tutorialAnchorWorld = null;
@@ -3572,7 +3612,9 @@ export class GameScene extends Phaser.Scene {
   /** When the hinted bird is outside the viewport, show a screen-edge arrow
    *  pointing toward it (2026-08-06 device review). Runs from update(). */
   private updateHintEdgeArrow(): void {
-    if (this.hintWorldPoint === null || this.hintCircleGfx === null) {
+    // Suppress during the pan lesson: its sliding hand uses the same sprite,
+    // and two identical hands on screen read as noise, not guidance.
+    if (this.hintWorldPoint === null || this.hintCircleGfx === null || this.tutorialPanBaseline !== null) {
       this.hintEdgeArrow?.destroy();
       this.hintEdgeArrow = null;
       return;
@@ -3589,11 +3631,11 @@ export class GameScene extends Phaser.Scene {
       this.hintEdgeArrow = this.add.image(0, 0, 'hint_point')
         .setDepth(70)
         .setScrollFactor(0)
-        .setDisplaySize(96, 96);
+        .setDisplaySize(150, 150);
     }
     const cam = this.cameras.main;
     // Screen-space (scroll-factor-zero) position clamped to the edges.
-    const sfx = Phaser.Math.Clamp(((x - view.left) / view.width) * cam.width, 56, cam.width - 56);
+    const sfx = Phaser.Math.Clamp(((x - view.left) / view.width) * cam.width, 86, cam.width - 86);
     const sfy = Phaser.Math.Clamp(((y - view.top) / view.height) * cam.height, 120, cam.height - 140);
     const pointLeft = x < view.left;
     const dir = pointLeft ? -1 : 1;
