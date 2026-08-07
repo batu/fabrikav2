@@ -8,10 +8,9 @@ import { GAMEPLAY } from '../core/Constants';
  *  State 2 "hint": after the player taps that bird, a hint bubble ("Now try
  *  a hint") reveals above the hint button. Tapping the hint button fires a
  *  REAL hint and advances to the gesture lessons.
- *  State 3 "pan": sliding-hand visual; the scene completes it when the
- *  player pans the camera past a threshold (or "Got it" skips out).
- *  State 4 "zoom": spreading-dots pinch visual; completes on a real pinch
- *  past the entry baseline (or "Got it").
+ *  State 3 "zoom": spreading-dots pinch visual; completes on a real pinch
+ *  past the entry baseline (or "Got it"). A side-to-side pan lesson sat
+ *  here briefly on 2026-08-07 and was cut.
  *
  * Edge case: if the player taps the hint button while still in state 1,
  * the overlay silently dismisses (tutorialShown = true) and the hint
@@ -27,9 +26,6 @@ export interface TutorialAnchor {
   dogScreen: { x: number; y: number };
   /** CSS-pixel radius of the dog highlight, used to size the spotlight cutout. */
   dogRadius: number;
-  /** Invoked when the pan step begins; the scene watches camera scroll and
-   *  calls `advanceToZoomState()` once the player pans far enough. */
-  onPanStateEntered?: () => void;
   /** Invoked when the zoom step begins; the scene watches camera zoom and
    *  calls `dismiss(true)` once the player zooms in past the baseline. */
   onZoomStateEntered?: () => void;
@@ -62,7 +58,7 @@ export interface TutorialHandle {
   updateAnchor: (dogScreen: { x: number; y: number }, dogRadius: number) => void;
 }
 
-type TutorialState = 'dog' | 'hint' | 'pan' | 'zoom' | 'dismissed';
+type TutorialState = 'dog' | 'hint' | 'zoom' | 'dismissed';
 
 export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
   const hudOverlay = document.getElementById('hud-overlay');
@@ -105,7 +101,7 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
     resolveFn?.();
   };
 
-  // "Got it" escape hatch, shared by the gesture steps (pan + zoom): mouse
+  // "Got it" escape hatch for the zoom step: mouse
   // players can't pinch, and nobody should be trapped in a lesson.
   const addSkipButton = (): void => {
     if (overlay.querySelector('.tutorial-dismiss')) return;
@@ -117,32 +113,15 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
     overlay.appendChild(skipBtn);
   };
 
-  // Pan lesson: pointing-hand sprite slides side to side over a track. The
-  // scene watches camera scrollX and advances to the zoom step on a real pan.
-  const advanceToPanState = (): void => {
+  // Zoom lesson (restored 2026-08-07): two touch-points spreading over a soft
+  // ring. Completes when the scene observes a real pinch past the baseline.
+  const advanceToZoomState = (): void => {
     if (state !== 'hint') return;
-    state = 'pan';
+    state = 'zoom';
     overlay.querySelector('.tutorial-bubble-hint')?.remove();
     hintBtn?.removeEventListener('click', onHintClick, true);
     // Whole-viewport gesture: no single target to spotlight.
     if (spotlight) spotlight.style.display = 'none';
-    const gesture = document.createElement('div');
-    gesture.className = 'tutorial-pan';
-    gesture.innerHTML = `
-      <div class="tutorial-pan-track"></div>
-      <img class="tutorial-pan-hand" src="/ui/effects/hint_point_right.png" alt="" />
-    `;
-    overlay.appendChild(gesture);
-    addSkipButton();
-    anchor.onPanStateEntered?.();
-  };
-
-  // Zoom lesson (restored 2026-08-07): two touch-points spreading over a soft
-  // ring. Completes when the scene observes a real pinch past the baseline.
-  const advanceToZoomState = (): void => {
-    if (state !== 'pan') return;
-    state = 'zoom';
-    overlay.querySelector('.tutorial-pan')?.remove();
     const gesture = document.createElement('div');
     gesture.className = 'tutorial-pinch';
     gesture.innerHTML = `
@@ -162,7 +141,7 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
     // natural first pan. Any earlier state: the player skipped ahead; let
     // the hint fire and end the tutorial quietly.
     if (state === 'hint') {
-      advanceToPanState();
+      advanceToZoomState();
       return;
     }
     dismiss(true);

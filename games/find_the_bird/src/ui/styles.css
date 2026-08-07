@@ -2688,50 +2688,6 @@
   .tutorial-zoom-dot-r { transform: translate(-50%, -50%) translate(2.4rem, 0); }
 }
 
-
-/* --- Drag-to-pan gesture visual (tutorial pan step) ---
-   The pointing-hand sprite slides left-right over a soft track, reading as
-   "drag the scene sideways". pointer-events none so real drags reach the
-   canvas underneath. */
-.tutorial-pan {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 240px;
-  height: 120px;
-  pointer-events: none;
-}
-.tutorial-pan-track {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  height: 6px;
-  transform: translateY(-50%);
-  border-radius: 3px;
-  background: rgba(255, 255, 255, 0.35);
-}
-.tutorial-pan-hand {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 84px;
-  height: 84px;
-  margin: -42px 0 0 -42px;
-  animation: tutorial-pan-slide 2.2s ease-in-out infinite;
-  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35));
-}
-@keyframes tutorial-pan-slide {
-  0%, 100% { transform: translateX(-70px) scaleX(-1); }
-  48% { transform: translateX(70px) scaleX(-1); }
-  50% { transform: translateX(70px) scaleX(1); }
-  98% { transform: translateX(-70px) scaleX(1); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .tutorial-pan-hand { animation: none; transform: translateX(0) scaleX(1); }
-}
-
 .tutorial-dismiss {
   position: absolute;
   left: 50%;

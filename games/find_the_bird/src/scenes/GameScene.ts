@@ -78,10 +78,8 @@ const CLASSIC_REVEAL_EDGE_FEATHER_PX = 10;
 const RESTORATION_CLEANUP_FOOTPRINT_SCALE = 2;
 const FAST_E2E_UI = String(import.meta.env.VITE_FTD_FAST_E2E_UI) === 'true';
 const TUTORIAL_PROMPT_DELAY_MS = FAST_E2E_UI ? 40 : 500;
-// Gesture-lesson completion thresholds. Pan: world-px of camera travel that
-// counts as a deliberate pan. Zoom: camera-zoom increase over the baseline
-// captured at zoom-step entry (small enough that any real pinch clears it).
-const TUTORIAL_PAN_COMPLETE_PX = 120;
+// Zoom-lesson completion: camera-zoom increase over the baseline captured at
+// zoom-step entry (small enough that any real pinch clears it).
 const TUTORIAL_ZOOM_COMPLETE_DELTA = 0.05;
 const NONCRITICAL_PRELOAD_DELAY_MS = 1_500;
 const NONCRITICAL_PRELOAD_IDLE_TIMEOUT_MS = 5_000;
@@ -274,8 +272,6 @@ export class GameScene extends Phaser.Scene {
   private tutorialAnchorRadiusCss = 0;
   /** Last worldView the tutorial overlay was positioned for (dirty gate). */
   private lastTutorialView: { l: number; t: number; w: number } | null = null;
-  /** Pan-lesson watch: scroll position captured at pan-step entry. */
-  private tutorialPanBaseline: { x: number; y: number } | null = null;
   /** Zoom-lesson watch: camera zoom captured at zoom-step entry. */
   private tutorialZoomBaseline: number | null = null;
 
@@ -580,19 +576,8 @@ export class GameScene extends Phaser.Scene {
   }
 
   override update(): void {
-    // Gesture-lesson watches (polling keeps PinchZoom tutorial-free — it owns
-    // the camera; we just observe it).
-    if (this.tutorialHandle && this.tutorialPanBaseline) {
-      const cam = this.cameras.main;
-      const moved = Math.hypot(
-        cam.scrollX - this.tutorialPanBaseline.x,
-        cam.scrollY - this.tutorialPanBaseline.y,
-      );
-      if (moved > TUTORIAL_PAN_COMPLETE_PX) {
-        this.tutorialPanBaseline = null;
-        this.tutorialHandle.advanceToZoomState();
-      }
-    }
+    // Zoom-lesson watch (polling keeps PinchZoom tutorial-free — it owns the
+    // camera; we just observe it).
     if (
       this.tutorialHandle &&
       this.tutorialZoomBaseline !== null &&
@@ -1977,10 +1962,6 @@ export class GameScene extends Phaser.Scene {
     this.tutorialHandle = showTutorialOverlay({
       dogScreen,
       dogRadius: dogRadiusCss,
-      onPanStateEntered: () => {
-        const cam = this.cameras.main;
-        this.tutorialPanBaseline = { x: cam.scrollX, y: cam.scrollY };
-      },
       onZoomStateEntered: () => {
         this.tutorialZoomBaseline = this.cameras.main.zoom;
       },
@@ -1988,7 +1969,6 @@ export class GameScene extends Phaser.Scene {
     void this.tutorialHandle.dismissed.then(() => {
       // Null the handle on any dismissal path so a later bird-tap cannot
       // re-advance a dead tutorial; clear gesture watches so update() stops.
-      this.tutorialPanBaseline = null;
       this.tutorialZoomBaseline = null;
       this.tutorialHandle = null;
       this.tutorialTargetDogId = null;
@@ -2781,7 +2761,68 @@ export class GameScene extends Phaser.Scene {
    * their exact sprite-cleanup size so a pickup cannot erase another dog.
    */
   private restorationDissolvePolygons(dog: LevelDog): Point[][] {
-    return this.restorationDissolveRects(dog, false).map((rect) => this.polygonForLevelRect(rect));
+    const baseBounds = this.restorationSpriteCleanupBounds(dog, true);
+    if (baseBounds === null) return [];
+
+    // Overlapping padded areas are SPLIT down the middle rather than handed
+    // wholesale to the neighbor (2026-08-07). Subtracting a neighbor's whole
+    // cleanup rect left the picked bird's own pixels uncleaned inside the
+    // overlap; clipping to the perpendicular bisector of the two hitbox
+    // centers gives each bird the half of the contested region nearer to it
+    // — a two-site Voronoi split, applied per contesting neighbor.
+    //
+    // The clip is gated on actual rect overlap: without that gate a distant
+    // neighbor's bisector would slice away padding that was never contested.
+    // The picked bird's own center is always on its own side of every
+    // bisector (distance 0), so the cleanup can never lose the bird itself.
+    let polygons: Point[][] = [this.polygonForLevelRect(baseBounds)];
+    for (const candidate of this.level!.dogs) {
+      if (candidate.id === dog.id) continue;
+      if (gameState.foundDogIds.has(candidate.id)) continue;
+      const protectedBounds = this.restorationSpriteCleanupBounds(candidate, false);
+      if (protectedBounds === null) continue;
+      if (!this.levelRectsOverlap(baseBounds, protectedBounds)) continue;
+      polygons = polygons
+        .map((polygon) => this.clipPolygonNearerToSite(polygon, dog, candidate))
+        .filter((polygon) => polygon.length >= 3);
+      if (polygons.length === 0) break;
+    }
+    return polygons;
+  }
+
+  private levelRectsOverlap(a: LevelRect, b: LevelRect): boolean {
+    return a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+  }
+
+  /**
+   * Sutherland-Hodgman clip of `polygon` to the half-plane of points strictly
+   * nearer to `site` than to `other` — i.e. the site's cell in the two-site
+   * Voronoi diagram. Returns an empty array when nothing survives.
+   */
+  private clipPolygonNearerToSite(polygon: Point[], site: LevelDog, other: LevelDog): Point[] {
+    // Perpendicular bisector as a signed half-plane: points with f(p) > 0 are
+    // nearer to `site`. f(p) = (other - site) . (midpoint - p), derived from
+    // |p - site|^2 < |p - other|^2.
+    const dx = other.x - site.x;
+    const dy = other.y - site.y;
+    if (dx === 0 && dy === 0) return polygon;
+    const mx = (site.x + other.x) / 2;
+    const my = (site.y + other.y) / 2;
+    const signed = (p: Point): number => dx * (mx - p.x) + dy * (my - p.y);
+
+    const out: Point[] = [];
+    for (let i = 0; i < polygon.length; i++) {
+      const current = polygon[i];
+      const next = polygon[(i + 1) % polygon.length];
+      const dCurrent = signed(current);
+      const dNext = signed(next);
+      if (dCurrent >= 0) out.push(current);
+      if ((dCurrent >= 0) !== (dNext >= 0)) {
+        const t = dCurrent / (dCurrent - dNext);
+        out.push({ x: current.x + (next.x - current.x) * t, y: current.y + (next.y - current.y) * t });
+      }
+    }
+    return out;
   }
 
   private restorationDissolveRects(dog: LevelDog, protectFoundDogs: boolean): LevelRect[] {
@@ -2909,58 +2950,15 @@ export class GameScene extends Phaser.Scene {
       throw new Error(`Restoration dog ${dog.id} has no valid sprite cleanup area`);
     }
     this.lastRestorationDissolveBounds = bounds;
-
-    const cells = erasePolygons.map((polygon) => ({
-      dogId: dog.id,
-      polygon,
-      screenPoints: this.levelPolygonToScreenPoints(polygon),
-      alpha: 1,
-    }));
-
-    const commit = (): void => {
-      for (const cell of cells) {
-        const index = this.dissolveActiveCells.indexOf(cell);
-        if (index >= 0) this.dissolveActiveCells.splice(index, 1);
-        this.dissolveCompletedCells.push({ polygon: cell.polygon });
-        this.carvePermanentDissolveCell(cell.screenPoints);
-      }
-      this.syncRestorationMaskTexture();
-      this.onRevealedCellComplete();
-    };
-
-    // Reduced motion (and a dead tween manager during teardown) keep the
-    // original instant carve.
-    if (this.prefersReducedMotion() || this.isShuttingDown || !this.sys.isActive()) {
-      commit();
-      return;
+    // Instant carve. A 50ms cross-fade was tried on 2026-08-07 and read as
+    // mush on device — the swap is cleaner when it is immediate.
+    for (const polygon of erasePolygons) {
+      const screenPoints = this.levelPolygonToScreenPoints(polygon);
+      this.dissolveCompletedCells.push({ polygon });
+      this.carvePermanentDissolveCell(screenPoints);
     }
-
-    // Fade the bird out over RESTORATION_DISSOLVE_MS instead of snapping:
-    // the active-cell path carves with alpha (1 - cell.alpha), so tweening
-    // alpha 1 -> 0 dissolves the bird into the clean background. Hit-testing
-    // already treats active cells as revealed, so a tap mid-fade is safe.
-    //
-    // Linear, and driven by a wall-clock delta rather than the tween's own
-    // progress: at a 50ms duration against the 30fps loop the fade spans
-    // only ~1.5 frames, so an eased curve would quantize into a visible
-    // two-step pop. Linear over real elapsed time degrades gracefully to
-    // "slightly softer snap" on a slow frame instead of stuttering.
-    this.dissolveActiveCells.push(...cells);
-    const startedAt = performance.now();
-    const durationMs = Math.max(1, TIMING.RESTORATION_DISSOLVE_MS);
-    const fade = { t: 0 };
-    this.tweens.add({
-      targets: fade,
-      t: 1,
-      duration: durationMs,
-      ease: 'Linear',
-      onUpdate: () => {
-        const progress = Math.min(1, (performance.now() - startedAt) / durationMs);
-        for (const cell of cells) cell.alpha = 1 - progress;
-        this.activeRevealDirty = true;
-      },
-      onComplete: commit,
-    });
+    this.syncRestorationMaskTexture();
+    this.onRevealedCellComplete();
   }
 
   /**
@@ -3657,9 +3655,7 @@ export class GameScene extends Phaser.Scene {
   /** When the hinted bird is outside the viewport, show a screen-edge arrow
    *  pointing toward it (2026-08-06 device review). Runs from update(). */
   private updateHintEdgeArrow(): void {
-    // Suppress during the pan lesson: its sliding hand uses the same sprite,
-    // and two identical hands on screen read as noise, not guidance.
-    if (this.hintWorldPoint === null || this.hintCircleGfx === null || this.tutorialPanBaseline !== null) {
+    if (this.hintWorldPoint === null || this.hintCircleGfx === null) {
       this.hintEdgeArrow?.destroy();
       this.hintEdgeArrow = null;
       return;

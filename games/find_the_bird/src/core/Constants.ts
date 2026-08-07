@@ -46,11 +46,6 @@ export const GAME = {
 export const TIMING = {
   REVEAL_MS: 600,
   WRONG_TAP_FADE_MS: 500,
-  /** Bird -> clean-background dissolve on pickup. 50ms (2026-08-07): long
-   *  enough to smooth the edge off the swap, short enough that the pickup
-   *  still feels instant. At 30fps that is ~1.5 frames, so the fade is
-   *  driven off wall-clock (Linear ease) rather than frame count. */
-  RESTORATION_DISSOLVE_MS: 50,
   WRONG_TAP_LINGER_MS: 3000,
   PENALTY_COOLDOWN_MS: 300,
   LEVEL_COMPLETE_DELAY_MS: 300,
