@@ -47,6 +47,7 @@ import { computeVoronoiCell, maxDistToPolygon, pointInPolygon } from '../utils/v
 import type { Point } from '../utils/voronoi';
 import { SectionController } from './SectionController';
 import { PinchZoom } from './PinchZoom';
+import { pulseHighFrameRate, settleFrameRate } from '../core/FrameRateGovernor';
 import { MicroAnimationLayer, type MicroAnimationSnapshot } from '../effects/MicroAnimationLayer';
 import {
   FALLBACK_RUNTIME_TEXTURE_LONG_EDGE,
@@ -270,6 +271,8 @@ export class GameScene extends Phaser.Scene {
   /** World-space anchor + CSS radius for per-frame spotlight tracking. */
   private tutorialAnchorWorld: { x: number; y: number } | null = null;
   private tutorialAnchorRadiusCss = 0;
+  /** Camera pose last seen by the frame-rate governor (motion detector). */
+  private lastGovernorView: { x: number; y: number; zoom: number } | null = null;
   /** Last worldView the tutorial overlay was positioned for (dirty gate). */
   private lastTutorialView: { l: number; t: number; w: number } | null = null;
   /** Bird the tutorial's real hint pointed at; picking it up starts the
@@ -586,6 +589,26 @@ export class GameScene extends Phaser.Scene {
   }
 
   override update(): void {
+    // Uncap the loop while anything is actually moving; the 30fps cap returns
+    // on its own ~220ms after the last motion. Cheap checks only — this runs
+    // every frame.
+    const govCam = this.cameras.main;
+    const cameraMoved = this.lastGovernorView === null
+      || this.lastGovernorView.x !== govCam.scrollX
+      || this.lastGovernorView.y !== govCam.scrollY
+      || this.lastGovernorView.zoom !== govCam.zoom;
+    this.lastGovernorView = { x: govCam.scrollX, y: govCam.scrollY, zoom: govCam.zoom };
+    const animating = cameraMoved
+      || this.pointerDownAt !== null
+      || this.pickupAnimationsActive > 0
+      || this.activeRevealTween !== null
+      || this.dissolveActiveCells.length > 0
+      || this.pinchZoom?.isPinching === true
+      || this.pinchZoom?.isPanning === true
+      || this.tweens.getTweens().length > 0;
+    if (animating) pulseHighFrameRate(this.game);
+    else settleFrameRate(this.game);
+
     // Zoom-lesson watch (polling keeps PinchZoom tutorial-free — it owns the
     // camera; we just observe it).
     if (
