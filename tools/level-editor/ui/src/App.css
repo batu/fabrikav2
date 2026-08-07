@@ -2662,6 +2662,27 @@ label {
   cursor: pointer;
 }
 
+.cutout-flip-controls {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.cutout-flip-controls button {
+  min-height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: #11151a;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.cutout-flip-controls button.selected {
+  border-color: #4ce389;
+  background: rgba(76, 227, 137, 0.16);
+}
+
 .cutout-crop-nudge button {
   min-height: 34px;
   border: 1px solid var(--border);

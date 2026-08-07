@@ -1031,10 +1031,14 @@ def apply_match_report(
                 continue
             anchor_x = round((target_x - x0) / width, 4)
             anchor_y = round((target_y - y0) / height, 4)
-            changed = any(sprite.get(key) != value for key, value in {
+            updates = {
                 "x": x0, "y": y0, "width": width, "height": height,
                 "anchorX": anchor_x, "anchorY": anchor_y,
-            }.items())
+            }
+            for key in ("flipX", "flipY"):
+                if key in result:
+                    updates[key] = result[key] is True
+            changed = any(sprite.get(key) != value for key, value in updates.items())
             if not changed:
                 summary["unchanged"] += 1
                 continue
@@ -1046,10 +1050,7 @@ def apply_match_report(
                 "selectedMethod": result.get("method", method),
                 "score": result.get("score"),
             })
-            sprite.update({
-                "x": x0, "y": y0, "width": width, "height": height,
-                "anchorX": anchor_x, "anchorY": anchor_y,
-            })
+            sprite.update(updates)
             image = sprite.get("image")
             if isinstance(image, str):
                 marker = f"levels/{level_id}/"
@@ -1066,10 +1067,14 @@ def apply_match_report(
                             summary["sourceSidecarsMissing"] += 1
                         continue
                     data = json.loads(sidecar_path.read_text())
-                    data.update({
+                    sidecar_updates = {
                         "spriteBox": [x0, y0, x1, y1], "width": width, "height": height,
                         "anchorX": anchor_x, "anchorY": anchor_y,
-                    })
+                    }
+                    for key in ("flipX", "flipY"):
+                        if key in result:
+                            sidecar_updates[key] = result[key] is True
+                    data.update(sidecar_updates)
                     sidecars[sidecar_path] = data
                     if is_source:
                         summary["sourceSidecarsUpdated"] += 1

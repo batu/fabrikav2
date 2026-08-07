@@ -50,7 +50,10 @@ def test_manual_sprite_placement_updates_public_level_and_sidecar(app_client, is
 
     overlay = app_client.get(f"/api/sessions/{session_id}/sprite-candidates/dog_00:sprite_000/overlay?cropBox=50,50,150,150&spriteBox=70,70,130,130")
     scene_only = app_client.get(f"/api/sessions/{session_id}/sprite-candidates/dog_00:sprite_000/overlay?cropBox=50,50,150,150&spriteBox=70,70,130,130&sceneOnly=true")
-    response = app_client.put(f"/api/sessions/{session_id}/sprite-candidates/dog_00:sprite_000/placement", json={"spriteBox": [65, 75, 135, 125]})
+    response = app_client.put(
+        f"/api/sessions/{session_id}/sprite-candidates/dog_00:sprite_000/placement",
+        json={"spriteBox": [65, 75, 135, 125], "flipX": True, "flipY": True},
+    )
 
     assert overlay.status_code == 200
     assert overlay.headers["content-type"] == "image/png"
@@ -63,6 +66,13 @@ def test_manual_sprite_placement_updates_public_level_and_sidecar(app_client, is
     assert metadata["spriteBox"] == [65, 75, 135, 125]
     assert metadata["anchorX"] == 0.5
     assert metadata["anchorY"] == 0.5
+    assert level["dogs"][0]["sprite"]["flipX"] is True
+    assert level["dogs"][0]["sprite"]["flipY"] is True
+    assert metadata["flipX"] is True
+    assert metadata["flipY"] is True
+    candidates = app_client.get(f"/api/sessions/{session_id}/sprite-candidates").json()["candidates"]
+    assert candidates[0]["flipX"] is True
+    assert candidates[0]["flipY"] is True
     assert placement_lock_states == [True]
 
 

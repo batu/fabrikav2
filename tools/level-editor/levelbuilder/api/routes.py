@@ -515,6 +515,8 @@ class CreateAnimationJobRequest(BaseModel):
 
 class SaveSpritePlacementRequest(BaseModel):
     spriteBox: tuple[int, int, int, int]
+    flipX: bool | None = None
+    flipY: bool | None = None
 
 
 def _job_artifact_response(artifact: JobArtifact) -> JobArtifactResponse:
@@ -1102,7 +1104,12 @@ def _render_sprite_candidate_overlay(
         raise ValueError("candidate spriteBox is empty")
     with Image.open(scene_file) as source_scene, Image.open(sprite_file) as source_sprite:
         scene = source_scene.convert("RGBA")
-        sprite = source_sprite.convert("RGBA").resize((x1 - x0, y1 - y0), Image.Resampling.LANCZOS)
+        sprite = source_sprite.convert("RGBA")
+        if metadata.get("flipX") is True:
+            sprite = sprite.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+        if metadata.get("flipY") is True:
+            sprite = sprite.transpose(Image.Transpose.FLIP_TOP_BOTTOM)
+        sprite = sprite.resize((x1 - x0, y1 - y0), Image.Resampling.LANCZOS)
         cleanup = metadata.get("cleanupBox")
         if isinstance(cleanup, list) and len(cleanup) == 4:
             ux0, uy0, ux1, uy1 = [int(value) for value in cleanup]
@@ -1210,7 +1217,13 @@ def save_sprite_candidate_placement(
             "levelId": session_id,
             "birds": [{
                 "dogId": dog_id,
-                "cutoutMatches": {"manual": {"accepted": True, "fittedBox": [x0, y0, x1, y1], "method": "manual"}},
+                "cutoutMatches": {"manual": {
+                    "accepted": True,
+                    "fittedBox": [x0, y0, x1, y1],
+                    "method": "manual",
+                    **({"flipX": req.flipX} if req.flipX is not None else {}),
+                    **({"flipY": req.flipY} if req.flipY is not None else {}),
+                }},
             }],
         }]}
         # Autosave can overlap across tabs or with a prior delayed drag save.

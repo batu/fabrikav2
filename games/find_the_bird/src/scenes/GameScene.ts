@@ -2464,10 +2464,14 @@ export class GameScene extends Phaser.Scene {
     const start = this.viewportToScrollFactorZeroPoint(viewport.x, viewport.y);
     const target = this.counterTargetPoint();
     const image = this.add.image(start.x, start.y, textureKey)
-      .setOrigin(sprite.anchorX ?? 0.5, sprite.anchorY ?? 0.5)
+      .setOrigin(
+        sprite.flipX ? 1 - (sprite.anchorX ?? 0.5) : (sprite.anchorX ?? 0.5),
+        sprite.flipY ? 1 - (sprite.anchorY ?? 0.5) : (sprite.anchorY ?? 0.5),
+      )
       .setScrollFactor(0)
       .setDepth(85);
     image.setDisplaySize(sprite.width * this.imgScale, sprite.height * this.imgScale);
+    image.setFlip(sprite.flipX ?? false, sprite.flipY ?? false);
     return { image, start, target };
   }
 
@@ -2898,7 +2902,10 @@ export class GameScene extends Phaser.Scene {
     const start = this.levelToViewportPoint(dog.x, dog.y);
     const target = this.counterTargetPoint();
     const image = this.add.image(start.x, start.y, textureKey)
-      .setOrigin(sprite.anchorX ?? 0.5, sprite.anchorY ?? 0.5)
+      .setOrigin(
+        sprite.flipX ? 1 - (sprite.anchorX ?? 0.5) : (sprite.anchorX ?? 0.5),
+        sprite.flipY ? 1 - (sprite.anchorY ?? 0.5) : (sprite.anchorY ?? 0.5),
+      )
       .setScrollFactor(0)
       .setDepth(85);
 
@@ -2909,6 +2916,7 @@ export class GameScene extends Phaser.Scene {
     image.preFX?.addGlow(0xffffff, 6, 2);
 
     image.setDisplaySize(sprite.width * this.imgScale, sprite.height * this.imgScale);
+    image.setFlip(sprite.flipX ?? false, sprite.flipY ?? false);
     const startScaleX = image.scaleX;
     const startScaleY = image.scaleY;
     const startDisplaySize = Math.max(image.displayWidth, image.displayHeight, 1);

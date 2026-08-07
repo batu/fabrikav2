@@ -665,6 +665,8 @@ def sprite_animation_candidates(session_id: str) -> list[dict[str, Any]]:
                     "sourceVariant": data.get("sourceVariant") if isinstance(data.get("sourceVariant"), str) else None,
                     "anchorX": data.get("anchorX") if isinstance(data.get("anchorX"), (int, float)) else None,
                     "anchorY": data.get("anchorY") if isinstance(data.get("anchorY"), (int, float)) else None,
+                    "flipX": data.get("flipX") is True,
+                    "flipY": data.get("flipY") is True,
                     "spriteBox": data.get("spriteBox") if isinstance(data.get("spriteBox"), list) and len(data.get("spriteBox")) == 4 else None,
                     "cleanupBox": data.get("cleanupBox") if isinstance(data.get("cleanupBox"), list) and len(data.get("cleanupBox")) == 4 else None,
                     "technique": data.get("technique") if isinstance(data.get("technique"), str) else None,

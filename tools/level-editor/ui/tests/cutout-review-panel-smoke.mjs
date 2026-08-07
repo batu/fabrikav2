@@ -70,6 +70,8 @@ async function run() {
     let submittedCropBoxes = {};
     let submittedCutoutOnly = false;
     let submittedPlacement = null;
+    let submittedFlipX = false;
+    let submittedFlipY = false;
     let submittedModel = null;
     let overlayRequests = 0;
     await page.route('**/*', async (route) => {
@@ -96,6 +98,8 @@ async function run() {
                 sceneHeight: 300,
                 spriteBox: [60, 60, 120, 110],
                 cleanupBox: [50, 50, 130, 120],
+                flipX: submittedFlipX,
+                flipY: submittedFlipY,
                 technique: 'sam2-box075-component-cutout-v1',
                 quality: { pickupUsable: true, bboxCoverage: 0.18, visibleCoverage: 0.09, edgeTouches: 0 },
               },
@@ -187,7 +191,10 @@ async function run() {
         return;
       }
       if (url.pathname === `/api/sessions/${sessionId}/sprite-candidates/dog_00%3Asprite_000/placement` && route.request().method() === 'PUT') {
-        submittedPlacement = route.request().postDataJSON().spriteBox;
+        const body = route.request().postDataJSON();
+        submittedPlacement = body.spriteBox;
+        submittedFlipX = body.flipX;
+        submittedFlipY = body.flipY;
         await route.fulfill({ json: { ok: true, spriteBox: submittedPlacement } });
         return;
       }
@@ -275,6 +282,7 @@ async function run() {
     await page.mouse.down();
     await page.mouse.move(draggableBounds.x + draggableBounds.width / 2 + 20, draggableBounds.y + draggableBounds.height / 2);
     await page.mouse.up();
+    await page.waitForTimeout(1200);
     await page.waitForFunction(() => document.querySelector('.cutout-review-result')?.textContent?.includes('placement saved'));
     if (!submittedPlacement || submittedPlacement[0] <= 60 || submittedPlacement[2] <= 120) {
       throw new Error(`Manual placement was not submitted: ${JSON.stringify(submittedPlacement)}`);
@@ -329,7 +337,7 @@ async function run() {
     await dogOneCard.getByRole('tab', { name: 'Padding' }).click();
     await dogOneCard.getByLabel('dog #1 · sprite 000 padding left').fill('100');
     await page.getByText('Extract selected (2)').click();
-    await page.getByText('1/2 extraction finished').waitFor();
+    await page.getByText('1/2 extractions finished').waitFor();
     if (await page.locator('#last-action').innerText() !== 'none') {
       throw new Error('Cutout extraction was incorrectly applied as a painted-scene variant');
     }
@@ -350,6 +358,15 @@ async function run() {
     const refreshedLabel = await page.locator('.cutout-review-card').nth(1).locator('strong').innerText();
     if (!refreshedLabel.includes('sprite 000')) {
       throw new Error(`Extracted dog did not refresh its active cutout candidate: ${refreshedLabel}`);
+    }
+    await firstCard.getByRole('tab', { name: 'Sprite' }).click();
+    await controls.getByRole('button', { name: 'Flip X', exact: true }).click();
+    await page.waitForTimeout(100);
+    if (submittedFlipX !== true || submittedFlipY !== false) {
+      throw new Error(`Flip metadata was not submitted: ${JSON.stringify({ submittedFlipX, submittedFlipY })}`);
+    }
+    if (await controls.getByRole('button', { name: 'Flip X', exact: true }).getAttribute('aria-pressed') !== 'true') {
+      throw new Error('Flip X did not remain selected after refresh');
     }
     await page.screenshot({ path: '/tmp/pcdNQRrf-cutout-review-panel.png', fullPage: true });
     await page.locator('#switch-session').click();

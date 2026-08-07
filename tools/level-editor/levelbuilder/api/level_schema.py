@@ -67,6 +67,8 @@ class DogSprite(BaseModel):
     # default for the (rare) sprite that predates anchor metadata.
     anchorX: float = Field(default=0.5, ge=0.0, le=1.0)
     anchorY: float = Field(default=0.5, ge=0.0, le=1.0)
+    flipX: bool = False
+    flipY: bool = False
 
 
 class Dog(BaseModel):

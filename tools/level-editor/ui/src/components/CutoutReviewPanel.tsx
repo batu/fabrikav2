@@ -28,10 +28,16 @@ interface Props {
   expanded?: boolean;
 }
 
-function CandidateImage({ src, alt, fallback }: { src: string | null; alt: string; fallback: string }) {
+function CandidateImage({ src, alt, fallback, flipX = false, flipY = false }: {
+  src: string | null;
+  alt: string;
+  fallback: string;
+  flipX?: boolean;
+  flipY?: boolean;
+}) {
   const [failed, setFailed] = useState(false);
   if (src === null || failed) return <span>{fallback}</span>;
-  return <img src={src} alt={alt} draggable={false} onDragStart={(event) => event.preventDefault()} onError={() => setFailed(true)} />;
+  return <img src={src} alt={alt} draggable={false} style={{ transform: `scale(${flipX ? -1 : 1}, ${flipY ? -1 : 1})` }} onDragStart={(event) => event.preventDefault()} onError={() => setFailed(true)} />;
 }
 
 function numericQuality(candidate: SpriteCandidate, key: string): number | null {
@@ -152,7 +158,13 @@ function PlacementPreview({
         fallback="overlay unavailable"
       />
       <span className="cutout-padding-box" style={paddingStyle} />
-      <img className="cutout-placement-sprite" src={imageUrl} alt="" draggable={false} style={spriteStyle} />
+      <img
+        className="cutout-placement-sprite"
+        src={imageUrl}
+        alt=""
+        draggable={false}
+        style={{ ...spriteStyle, transform: `scale(${candidate.flipX ? -1 : 1}, ${candidate.flipY ? -1 : 1})` }}
+      />
     </span>
   );
 }
@@ -340,11 +352,16 @@ export default function CutoutReviewPanel({
     setCropBoxes((prev) => ({ ...prev, [candidate.id]: clampCropBox(candidate, hitbox, box) }));
   }, []);
 
-  const savePlacement = useCallback(async (candidate: SpriteCandidate, box: CropBox) => {
+  const savePlacement = useCallback(async (
+    candidate: SpriteCandidate,
+    box: CropBox,
+    flipX = candidate.flipX ?? false,
+    flipY = candidate.flipY ?? false,
+  ) => {
     setSavingPlacement(candidate.id);
     setError(null);
     try {
-      await saveSpriteCandidatePlacement(sessionId, candidate.id, box);
+      await saveSpriteCandidatePlacement(sessionId, candidate.id, box, flipX, flipY);
       setLastResult(`${candidateLabel(candidate)} placement saved`);
       await refresh();
       setPlacementBoxes((prev) => {
@@ -600,7 +617,7 @@ export default function CutoutReviewPanel({
               </button>
               <div className="cutout-review-images">
                 <div className="cutout-review-tool-image">
-                  <CandidateImage src={imageUrl} alt={candidateLabel(candidate)} fallback="missing sprite" />
+                  <CandidateImage src={imageUrl} alt={candidateLabel(candidate)} fallback="missing sprite" flipX={candidate.flipX} flipY={candidate.flipY} />
                 </div>
                 <div className="cutout-review-controls">
                   <div className="cutout-control-mode" role="tablist" aria-label={`${candidateLabel(candidate)} control target`}>
@@ -635,6 +652,20 @@ export default function CutoutReviewPanel({
                       <button type="button" onClick={() => resizeActiveBox([0, -5, 0, 5])}>Taller</button>
                       <button type="button" onClick={() => resizeActiveBox([0, 5, 0, -5])}>Shorter</button>
                     </div>
+                    {controlMode === 'sprite' && placementBox && <div className="cutout-flip-controls">
+                      <button
+                        type="button"
+                        className={candidate.flipX ? 'selected' : ''}
+                        aria-pressed={candidate.flipX ?? false}
+                        onClick={() => void savePlacement(candidate, placementBox, !(candidate.flipX ?? false), candidate.flipY ?? false)}
+                      >Flip X</button>
+                      <button
+                        type="button"
+                        className={candidate.flipY ? 'selected' : ''}
+                        aria-pressed={candidate.flipY ?? false}
+                        onClick={() => void savePlacement(candidate, placementBox, candidate.flipX ?? false, !(candidate.flipY ?? false))}
+                      >Flip Y</button>
+                    </div>}
                     <button type="button" onClick={resetActiveBox}>Reset</button>
                   </div>}
                 </div>
