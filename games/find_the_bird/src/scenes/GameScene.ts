@@ -409,6 +409,12 @@ export class GameScene extends Phaser.Scene {
     if (!this.level) return;
     const level = this.level;
 
+    // Off-screen hint edge indicator (pointing hand). Level-independent, so
+    // outside the levelChanged gate; cached after the first level load.
+    if (!this.textures.exists('hint_point')) {
+      this.load.image('hint_point', 'ui/effects/hint_point_right.png');
+    }
+
     // Reuse textures across same-level scene.restarts (fail overlay,
     // tutorial reset). ~10 MB of decode + GPU upload saved per restart
     // for a landscape level. When the level id changes, nuke + reload.
@@ -1335,7 +1341,7 @@ export class GameScene extends Phaser.Scene {
     }
 
     // 5. Wrong tap — penalty with cooldown
-    this.onWrongTap(screenX, screenY);
+    this.onWrongTap(worldX, worldY, screenX, screenY);
   }
 
   private findClosestUnfoundDog(levelX: number, levelY: number): LevelDog | null {
@@ -2001,7 +2007,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   /** Wrong tap — show red X, decrement lives. */
-  private onWrongTap(canvasX: number, canvasY: number): void {
+  private onWrongTap(worldX: number, worldY: number, canvasX: number, canvasY: number): void {
     const now = Date.now();
     if (now < gameState.penaltyCooldownUntil) return;
 
@@ -2025,32 +2031,46 @@ export class GameScene extends Phaser.Scene {
       void this.trackLevelFailed(gameState.foundDogIds.size);
     }
 
-    // Draw the X centered at local (0,0) and position the object at the tap
-    // point, so the scale-in tween pops around the X center rather than flying
-    // in from the world origin. Convert the viewport tap to the coordinate a
-    // scroll-factor-zero object needs before camera zoom is applied.
-    const markPoint = this.viewportToScrollFactorZeroPoint(canvasX, canvasY);
+    // WORLD-anchored X (2026-08-07 device review, third iteration): the X
+    // marks the SPOT on the map that was tapped, so it must move with the
+    // world under pan/zoom like a map pin. (scroll-factor-zero wobbled under
+    // pinch-zoom; a DOM mark stuck to the glass while the world panned away.)
+    // Draw centered at local (0,0) and position at the world point so the
+    // scale-in tween pops around the X center.
     this.lastViewportEffect = {
       kind: 'wrong-tap',
       requested: { x: canvasX, y: canvasY },
-      emitted: markPoint,
+      emitted: { x: worldX, y: worldY },
     };
-    // Screen-ABSOLUTE X in the DOM layer (2026-08-06 device review): a Phaser
-    // scroll-factor-zero object still re-transforms under later pinch-zoom
-    // and reads as "the X moved with the camera". A DOM element cannot.
-    const canvas = this.scale.canvas;
-    if (canvas) {
-      // phaserPointToCssPoint already returns viewport-absolute CSS coords
-      // (it adds the canvas rect offset internally) — do not add it again.
-      const css = phaserPointToCssPoint(canvas, GAME.WIDTH, GAME.HEIGHT, canvasX, canvasY);
-      const mark = document.createElement('div');
-      mark.className = 'wrong-tap-mark';
-      mark.style.left = `${css.x}px`;
-      mark.style.top = `${css.y}px`;
-      if (reducedMotion) mark.classList.add('reduced-motion');
-      document.body.appendChild(mark);
-      window.setTimeout(() => mark.remove(), 900);
+    const gfx = this.add.graphics().setDepth(55);
+    gfx.lineStyle(9, COLORS.WRONG_TAP, 1);
+    const size = 36;
+    gfx.beginPath();
+    gfx.moveTo(-size, -size);
+    gfx.lineTo(size, size);
+    gfx.moveTo(size, -size);
+    gfx.lineTo(-size, size);
+    gfx.strokePath();
+    gfx.setPosition(worldX, worldY);
+
+    // Bouncy overshoot entrance — a playful "pop" instead of a flat appear.
+    if (!reducedMotion) {
+      gfx.setScale(0);
+      this.tweens.add({
+        targets: gfx,
+        scale: 1,
+        duration: 220,
+        ease: 'Back.easeOut',
+      });
     }
+
+    this.tweens.add({
+      targets: gfx,
+      alpha: 0,
+      delay: TIMING.WRONG_TAP_LINGER_MS,
+      duration: TIMING.WRONG_TAP_FADE_MS,
+      onComplete: () => gfx.destroy(),
+    });
 
     if (gameState.lives <= 0) {
       this.levelComplete = true;
@@ -3572,7 +3592,7 @@ export class GameScene extends Phaser.Scene {
 
   /** World-space center of the active hint; drives the off-screen edge arrow. */
   private hintWorldPoint: Point | null = null;
-  private hintEdgeArrow: Phaser.GameObjects.Graphics | null = null;
+  private hintEdgeArrow: Phaser.GameObjects.Image | null = null;
 
   /** When the hinted bird is outside the viewport, show a screen-edge arrow
    *  pointing toward it (2026-08-06 device review). Runs from update(). */
@@ -3591,24 +3611,23 @@ export class GameScene extends Phaser.Scene {
       return;
     }
     if (this.hintEdgeArrow === null) {
-      this.hintEdgeArrow = this.add.graphics().setDepth(70).setScrollFactor(0);
+      this.hintEdgeArrow = this.add.image(0, 0, 'hint_point')
+        .setDepth(70)
+        .setScrollFactor(0)
+        .setDisplaySize(96, 96);
     }
     const cam = this.cameras.main;
     // Screen-space (scroll-factor-zero) position clamped to the edges.
-    const sfx = Phaser.Math.Clamp(((x - view.left) / view.width) * cam.width, 44, cam.width - 44);
+    const sfx = Phaser.Math.Clamp(((x - view.left) / view.width) * cam.width, 56, cam.width - 56);
     const sfy = Phaser.Math.Clamp(((y - view.top) / view.height) * cam.height, 120, cam.height - 140);
     const pointLeft = x < view.left;
-    const gfx = this.hintEdgeArrow;
-    gfx.clear();
-    gfx.fillStyle(0x1c2733, 0.55);
-    gfx.fillCircle(sfx, sfy, 34);
-    gfx.fillStyle(COLORS.HINT_CIRCLE, 1);
     const dir = pointLeft ? -1 : 1;
-    gfx.fillTriangle(
-      sfx + dir * 22, sfy,
-      sfx - dir * 10, sfy - 18,
-      sfx - dir * 10, sfy + 18,
-    );
+    // Deterministic nudge toward the target (~8px sinusoid) — per-frame
+    // repositioning makes a tween fight the base position, so animate here.
+    const bob = Math.sin(this.time.now / 260) * 8;
+    this.hintEdgeArrow
+      .setFlipX(pointLeft)
+      .setPosition(sfx + dir * bob, sfy);
   }
 
   dismissHintCircle(): void {

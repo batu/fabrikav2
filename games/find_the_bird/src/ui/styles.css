@@ -4683,9 +4683,11 @@
 /* ── Amount text ──────────────────────────────────────────── */
 .shop-grid-amount {
   font-family: 'FredokaOne', 'Nunito', sans-serif;
-  /* Min lowered so "50 hints" fits a 1/3-width card on small phones instead
-     of ellipsizing (A5, build-18 device review). */
-  font-size: clamp(13px, 4.6vw, 25.74px);
+  /* Sized so the longest labels ("50 hints", "100,000") keep ~15% slack in
+     a 1/3-width card: WKWebView renders FredokaOne wider than desktop, and
+     with center + nowrap + overflow:hidden any overflow clips the LEFT edge
+     first (build-21 device review; second tuning round — don't re-raise). */
+  font-size: clamp(12px, 4.1vw, 23px);
   font-weight: 700;
   color: #fff;
   -webkit-text-stroke: 0.8px #000;
@@ -4693,8 +4695,9 @@
   margin-bottom: 0;
   text-align: center;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* visible, not hidden: if a fallback font still renders wider than the
+     card, spill symmetrically instead of amputating the leading digit. */
+  overflow: visible;
 }
 
 /* ── Unified juicy candy-pill button (.btn-juicy anchor) ─────── */
@@ -5565,41 +5568,5 @@
   font-size: 14px;
 }
 
-/* Wrong-tap X — DOM layer so it is screen-absolute under pan/zoom/shake
-   (2026-08-06 device review). */
-.wrong-tap-mark {
-  position: fixed;
-  width: 64px;
-  height: 64px;
-  margin: -32px 0 0 -32px;
-  pointer-events: none;
-  z-index: 55;
-  opacity: 0;
-  animation: wrong-tap-pop 0.9s ease-out forwards;
-}
-.wrong-tap-mark::before,
-.wrong-tap-mark::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 72px;
-  height: 12px;
-  margin: -6px 0 0 -36px;
-  border-radius: 6px;
-  background: #e5484d;
-  box-shadow: 0 0 0 2px rgba(28, 39, 51, 0.35);
-}
-.wrong-tap-mark::before { transform: rotate(45deg); }
-.wrong-tap-mark::after { transform: rotate(-45deg); }
-@keyframes wrong-tap-pop {
-  0% { opacity: 0; transform: scale(0.2); }
-  18% { opacity: 1; transform: scale(1.15); }
-  30% { transform: scale(1); }
-  75% { opacity: 1; }
-  100% { opacity: 0; transform: scale(1); }
-}
-.wrong-tap-mark.reduced-motion { animation: wrong-tap-fade 0.9s ease-out forwards; }
-@keyframes wrong-tap-fade {
-  0% { opacity: 1; } 75% { opacity: 1; } 100% { opacity: 0; }
-}
+/* Wrong-tap X is a world-anchored Phaser graphic (GameScene.onWrongTap) —
+   the 2026-08-06 DOM variant stuck to the glass while the world panned. */
