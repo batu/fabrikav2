@@ -7,7 +7,8 @@ import { GAMEPLAY } from '../core/Constants';
  *  target bird chosen by the scene.
  *  State 2 "hint": after the player taps that bird, a hint bubble ("Now try
  *  a hint") reveals above the hint button. Tapping the hint button fires a
- *  REAL hint and advances to the gesture lessons.
+ *  REAL hint; the tutorial then WAITS silently until the player picks up
+ *  that hinted bird before teaching the last gesture.
  *  State 3 "zoom": spreading-dots pinch visual; completes on a real pinch
  *  past the entry baseline (or "Got it"). A side-to-side pan lesson sat
  *  here briefly on 2026-08-07 and was cut.
@@ -58,7 +59,7 @@ export interface TutorialHandle {
   updateAnchor: (dogScreen: { x: number; y: number }, dogRadius: number) => void;
 }
 
-type TutorialState = 'dog' | 'hint' | 'zoom' | 'dismissed';
+type TutorialState = 'dog' | 'hint' | 'awaiting-hinted-find' | 'zoom' | 'dismissed';
 
 export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
   const hudOverlay = document.getElementById('hud-overlay');
@@ -116,12 +117,8 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
   // Zoom lesson (restored 2026-08-07): two touch-points spreading over a soft
   // ring. Completes when the scene observes a real pinch past the baseline.
   const advanceToZoomState = (): void => {
-    if (state !== 'hint') return;
+    if (state !== 'awaiting-hinted-find') return;
     state = 'zoom';
-    overlay.querySelector('.tutorial-bubble-hint')?.remove();
-    hintBtn?.removeEventListener('click', onHintClick, true);
-    // Whole-viewport gesture: no single target to spotlight.
-    if (spotlight) spotlight.style.display = 'none';
     const gesture = document.createElement('div');
     gesture.className = 'tutorial-pinch';
     gesture.innerHTML = `
@@ -141,7 +138,13 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
     // natural first pan. Any earlier state: the player skipped ahead; let
     // the hint fire and end the tutorial quietly.
     if (state === 'hint') {
-      advanceToZoomState();
+      // The hint fires for real; the zoom lesson waits until the player has
+      // actually picked up the hinted bird (Batu, 2026-08-07) — teaching a
+      // new gesture on top of a live hint buried both.
+      state = 'awaiting-hinted-find';
+      overlay.querySelector('.tutorial-bubble-hint')?.remove();
+      if (spotlight) spotlight.style.display = 'none';
+      hintBtn?.removeEventListener('click', onHintClick, true);
       return;
     }
     dismiss(true);

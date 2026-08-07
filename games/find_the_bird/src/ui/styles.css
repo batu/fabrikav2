@@ -5588,9 +5588,12 @@
 /* Claimable-achievements attention: red dot + gentle icon bounce. */
 #home-shell .home-nav-btn { position: relative; }
 #home-shell .home-nav-dot {
+  /* Sits ON the icon (upper-right of the artwork) and rides the same bounce,
+     rather than floating in the button's corner (Batu, 2026-08-07). */
   position: absolute;
-  top: 6px;
-  right: 14px;
+  top: 14px;
+  right: 8px;
+  animation: home-nav-claim-bounce 1.6s ease-in-out infinite;
   width: 16px;
   height: 16px;
   border-radius: 50%;
@@ -5610,5 +5613,6 @@
   40% { transform: translateY(0); }
 }
 @media (prefers-reduced-motion: reduce) {
-  #home-shell .home-nav-attention img { animation: none; }
+  #home-shell .home-nav-attention img,
+  #home-shell .home-nav-dot { animation: none; }
 }

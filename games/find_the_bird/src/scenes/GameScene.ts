@@ -272,6 +272,9 @@ export class GameScene extends Phaser.Scene {
   private tutorialAnchorRadiusCss = 0;
   /** Last worldView the tutorial overlay was positioned for (dirty gate). */
   private lastTutorialView: { l: number; t: number; w: number } | null = null;
+  /** Bird the tutorial's real hint pointed at; picking it up starts the
+   *  zoom lesson. Null outside that window. */
+  private tutorialHintedDogId: string | null = null;
   /** Zoom-lesson watch: camera zoom captured at zoom-step entry. */
   private tutorialZoomBaseline: number | null = null;
 
@@ -1405,6 +1408,12 @@ export class GameScene extends Phaser.Scene {
     playFind();
     hapticFound();
     updateHUD(this.level!.dogs.length, this.isRestoration);
+    // Tutorial's zoom lesson waits for the HINTED bird to be picked up.
+    if (this.tutorialHandle && this.tutorialHintedDogId === dog.id) {
+      this.tutorialHintedDogId = null;
+      this.tutorialHandle.advanceToZoomState();
+    }
+
     // Tutorial points its pulsing ring at the bird chosen at prompt time
     // (nearest visible one — NOT dogs[0]). Only advance when the player taps
     // THAT bird — if their eye catches a different one first, leave the ring
@@ -1970,6 +1979,7 @@ export class GameScene extends Phaser.Scene {
       // Null the handle on any dismissal path so a later bird-tap cannot
       // re-advance a dead tutorial; clear gesture watches so update() stops.
       this.tutorialZoomBaseline = null;
+      this.tutorialHintedDogId = null;
       this.tutorialHandle = null;
       this.tutorialTargetDogId = null;
       this.tutorialAnchorWorld = null;
@@ -2315,7 +2325,7 @@ export class GameScene extends Phaser.Scene {
       throw new Error(`Restoration level ${level.id} has no dog sprites to clean up`);
     }
 
-    for (const dog of level.dogs) this.assertRestorationDogGeometryReady(dog, true);
+    for (const dog of level.dogs) this.assertRestorationDogGeometryReady(dog);
   }
 
   private assertRestorationDogReady(dog: LevelDog): void {
@@ -2324,17 +2334,22 @@ export class GameScene extends Phaser.Scene {
     if (!this.textures.exists(textureKey)) {
       throw new Error(`Restoration dog ${dog.id} sprite texture was not loaded`);
     }
-    this.assertRestorationDogGeometryReady(dog, false);
+    this.assertRestorationDogGeometryReady(dog);
   }
 
-  private assertRestorationDogGeometryReady(dog: LevelDog, protectFoundDogs: boolean): void {
+  private assertRestorationDogGeometryReady(dog: LevelDog): void {
     this.restorationSpriteForDog(dog);
     const baseBounds = this.restorationSpriteCleanupBounds(dog, false);
     if (baseBounds === null || !this.levelRectContainsPoint(baseBounds, dog.x, dog.y)) {
       throw new Error(`Restoration dog ${dog.id} hitbox is outside sprite cleanup bounds`);
     }
-    const cleanupRects = this.restorationDissolveRects(dog, protectFoundDogs);
-    if (!cleanupRects.some((rect) => this.levelRectContainsPoint(rect, dog.x, dog.y))) {
+    // Must mirror what spawnRestorationDissolve actually carves. It used to
+    // ask the old whole-rect subtraction, which surrenders the entire overlap
+    // to a neighbour and so reported "blocked" for close pairs that the
+    // Voronoi split handles fine — 12 birds in cozy_library alone, throwing
+    // mid-level (Batu, 2026-08-07: "the 4th level hangs").
+    const cleanupPolygons = this.restorationDissolvePolygons(dog);
+    if (!cleanupPolygons.some((polygon) => pointInPolygon({ x: dog.x, y: dog.y }, polygon))) {
       throw new Error(`Restoration dog ${dog.id} cleanup area is blocked by another dog sprite`);
     }
   }
@@ -2835,21 +2850,6 @@ export class GameScene extends Phaser.Scene {
     return out;
   }
 
-  private restorationDissolveRects(dog: LevelDog, protectFoundDogs: boolean): LevelRect[] {
-    const baseBounds = this.restorationSpriteCleanupBounds(dog, true);
-    if (baseBounds === null) return [];
-
-    let cleanupRects = [baseBounds];
-    for (const candidate of this.level!.dogs) {
-      if (candidate.id === dog.id) continue;
-      if (!protectFoundDogs && gameState.foundDogIds.has(candidate.id)) continue;
-      const protectedBounds = this.restorationSpriteCleanupBounds(candidate, false);
-      if (protectedBounds === null) continue;
-      cleanupRects = cleanupRects.flatMap((rect) => this.subtractLevelRect(rect, protectedBounds));
-      if (cleanupRects.length === 0) break;
-    }
-    return cleanupRects;
-  }
 
   private restorationSpriteCleanupBounds(dog: LevelDog, expand: boolean): LevelRect | null {
     const sprite = dog.sprite;
@@ -2895,23 +2895,6 @@ export class GameScene extends Phaser.Scene {
     return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
   }
 
-  private subtractLevelRect(source: LevelRect, blocker: LevelRect): LevelRect[] {
-    const overlap = {
-      left: Math.max(source.left, blocker.left),
-      top: Math.max(source.top, blocker.top),
-      right: Math.min(source.right, blocker.right),
-      bottom: Math.min(source.bottom, blocker.bottom),
-    };
-    if (overlap.right <= overlap.left || overlap.bottom <= overlap.top) return [source];
-
-    const rects: LevelRect[] = [
-      { left: source.left, top: source.top, right: source.right, bottom: overlap.top },
-      { left: source.left, top: overlap.bottom, right: source.right, bottom: source.bottom },
-      { left: source.left, top: overlap.top, right: overlap.left, bottom: overlap.bottom },
-      { left: overlap.right, top: overlap.top, right: source.right, bottom: overlap.bottom },
-    ];
-    return rects.filter((rect) => rect.right > rect.left && rect.bottom > rect.top);
-  }
 
   private levelRectForPolygon(polygon: Point[]): LevelRect | null {
     if (polygon.length === 0 || !this.level) return null;
@@ -3610,6 +3593,9 @@ export class GameScene extends Phaser.Scene {
 
     const dog = unfound[Math.floor(Math.random() * unfound.length)];
     if (!gameState.spendHint('gameplayHint')) return;
+    // Remember the hinted bird while a tutorial is live: picking THIS bird up
+    // is what starts the zoom lesson.
+    if (this.tutorialHandle !== null) this.tutorialHintedDogId = dog.id;
     gameState.hintCircleActive = true;
     gameState.save();
     this.hintsUsedThisLevel += 1;
