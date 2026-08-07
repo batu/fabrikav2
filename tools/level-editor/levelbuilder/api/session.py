@@ -585,6 +585,16 @@ def sprite_animation_candidates(session_id: str) -> list[dict[str, Any]]:
     if not base.exists():
         return []
 
+    scene_width: int | None = None
+    scene_height: int | None = None
+    scene_path = session_dir(session_id) / "color.png"
+    if scene_path.is_file():
+        try:
+            with Image.open(scene_path) as scene:
+                scene_width, scene_height = scene.size
+        except OSError:
+            pass
+
     candidates: list[dict[str, Any]] = []
     for dog_folder in sorted(base.iterdir()):
         if not dog_folder.is_dir():
@@ -646,6 +656,8 @@ def sprite_animation_candidates(session_id: str) -> list[dict[str, Any]]:
                 "metadataPath": f"dogs/{dog_folder.name}/{stem}.json" if meta_path.exists() else None,
                 "width": actual_width,
                 "height": actual_height,
+                "sceneWidth": scene_width,
+                "sceneHeight": scene_height,
             }
             if isinstance(data, dict):
                 candidate.update({

@@ -2462,6 +2462,72 @@ label {
   background: var(--accent-dim);
 }
 
+.cutout-crop-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: var(--radius-sm);
+  background: rgba(251, 191, 36, 0.06);
+}
+
+.cutout-crop-heading {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  color: #fde68a;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cutout-crop-controls label {
+  display: grid;
+  grid-template-columns: 1fr 72px;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 11px;
+  text-transform: capitalize;
+}
+
+.cutout-crop-controls input {
+  width: 100%;
+  min-height: 34px;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: #0b0d10;
+  color: var(--text-primary);
+}
+
+.cutout-crop-controls > button {
+  grid-column: 1 / -1;
+  min-height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.cutout-crop-nudge {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.cutout-crop-nudge button {
+  min-height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: #11151a;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
 /* ── Export (Step 6) ──────────────────────────────────────────────────── */
 
 .export-success {

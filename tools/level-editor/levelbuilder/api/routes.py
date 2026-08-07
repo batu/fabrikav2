@@ -1075,7 +1075,9 @@ def _candidate_file(roots: tuple[Path, ...], relative: str) -> Path | None:
 
 
 def _render_sprite_candidate_overlay(
-    roots: tuple[Path, ...], candidate: dict[str, Any], *, max_size: int = 720,
+    roots: tuple[Path, ...], candidate: dict[str, Any], *,
+    crop_box: tuple[int, int, int, int] | None = None,
+    max_size: int = 720,
 ) -> bytes:
     metadata_path = candidate.get("metadataPath")
     image_path = candidate.get("image")
@@ -1102,9 +1104,10 @@ def _render_sprite_candidate_overlay(
         else:
             ux0, uy0, ux1, uy1 = x0, y0, x1, y1
         pad = max(36, round(max(x1 - x0, y1 - y0) * 0.45))
+        requested = crop_box or (x0, y0, x1, y1)
         crop = (
-            max(0, min(x0, ux0) - pad), max(0, min(y0, uy0) - pad),
-            min(scene.width, max(x1, ux1) + pad), min(scene.height, max(y1, uy1) + pad),
+            max(0, min(x0, ux0, requested[0]) - pad), max(0, min(y0, uy0, requested[1]) - pad),
+            min(scene.width, max(x1, ux1, requested[2]) + pad), min(scene.height, max(y1, uy1, requested[3]) + pad),
         )
         preview = scene.crop(crop)
         alpha = sprite.getchannel("A")
@@ -1120,10 +1123,19 @@ def _render_sprite_candidate_overlay(
         px, py = x0 - crop[0], y0 - crop[1]
         preview.alpha_composite(tint, (px, py))
         preview.alpha_composite(edge, (px, py))
-        ImageDraw.Draw(preview).rectangle(
+        draw = ImageDraw.Draw(preview)
+        draw.rectangle(
             (px, py, px + x1 - x0 - 1, py + y1 - y0 - 1),
             outline=(76, 235, 147, 230), width=3,
         )
+        if crop_box is not None:
+            draw.rectangle(
+                (
+                    crop_box[0] - crop[0], crop_box[1] - crop[1],
+                    crop_box[2] - crop[0] - 1, crop_box[3] - crop[1] - 1,
+                ),
+                outline=(251, 191, 36, 255), width=5,
+            )
         preview.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
         output = io.BytesIO()
         preview.convert("RGB").save(output, "PNG", optimize=True)
@@ -1131,14 +1143,24 @@ def _render_sprite_candidate_overlay(
 
 
 @router.get("/sessions/{session_id}/sprite-candidates/{candidate_id}/overlay")
-def sprite_candidate_overlay(session_id: str, candidate_id: str):
+def sprite_candidate_overlay(
+    session_id: str,
+    candidate_id: str,
+    cropBox: str | None = Query(None, max_length=120),
+):
     _validate_session_id(session_id)
     candidate = S.sprite_animation_candidate_by_id(session_id, candidate_id)
     if candidate is None:
         raise HTTPException(404, detail={"error": "Sprite candidate not found"})
     roots = (S.session_dir(session_id), S.GAME_PUBLIC_LEVELS / session_id)
     try:
-        content = _render_sprite_candidate_overlay(roots, candidate)
+        crop_box = None
+        if cropBox is not None:
+            values = tuple(int(value) for value in cropBox.split(","))
+            if len(values) != 4 or values[2] <= values[0] or values[3] <= values[1]:
+                raise ValueError("cropBox must be x0,y0,x1,y1")
+            crop_box = values
+        content = _render_sprite_candidate_overlay(roots, candidate, crop_box=crop_box)
     except (OSError, ValueError, json.JSONDecodeError, UnidentifiedImageError) as error:
         raise HTTPException(422, detail={"error": str(error)}) from error
     return Response(content=content, media_type="image/png", headers={"Cache-Control": "no-store"})

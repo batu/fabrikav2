@@ -21,12 +21,13 @@ def test_candidate_overlay_renders_scene_crop_with_visible_match_box(tmp_path):
         "metadataPath": "dogs/dog_00/sprite_000.json",
     }
 
-    content = _render_sprite_candidate_overlay((root,), candidate)
+    content = _render_sprite_candidate_overlay((root,), candidate, crop_box=(40, 25, 110, 85))
     rendered = Image.open(io.BytesIO(content)).convert("RGB")
 
     assert rendered.width > 0 and rendered.height > 0
     pixels = np.asarray(rendered)
     assert bool(np.any((pixels[:, :, 1] > pixels[:, :, 0]) & (pixels[:, :, 1] > pixels[:, :, 2])))
+    assert bool(np.any((pixels[:, :, 0] > 180) & (pixels[:, :, 1] > 120) & (pixels[:, :, 2] < 100)))
 
 
 def test_candidate_overlay_path_resolution_fails_closed(tmp_path):

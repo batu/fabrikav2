@@ -59,6 +59,8 @@ export interface SpriteCandidate {
   sourceVariant?: string | null;
   width?: number | null;
   height?: number | null;
+  sceneWidth?: number | null;
+  sceneHeight?: number | null;
   anchorX?: number | null;
   anchorY?: number | null;
   technique?: string | null;

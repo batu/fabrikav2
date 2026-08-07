@@ -3773,6 +3773,7 @@ class RetryFailedDogsJobRequest(BaseModel):
     prompt: str = Field(..., min_length=1, max_length=4000)
     inpaintModel: str | None = Field(None, max_length=200)
     padding: float = Field(2.75, ge=0.5, le=4.0)
+    cropBoxes: dict[int, tuple[int, int, int, int]] = Field(default_factory=dict)
 
 
 class RetryFailedDogUnitResponse(BaseModel):
@@ -3850,6 +3851,7 @@ def _run_single_dog_regen(
     *,
     prompt: str,
     padding: float,
+    crop_box: tuple[int, int, int, int] | None = None,
     inpaint_model: str | None,
     defer_composite: bool,
 ) -> dict[str, Any]:
@@ -3912,7 +3914,9 @@ def _run_single_dog_regen(
     painted: Image.Image | None = None
     dog_mask: Image.Image | None = None
     try:
-        box = _crop_box(hb, w, h, padding=padding)
+        box = crop_box or _crop_box(hb, w, h, padding=padding)
+        if not (0 <= box[0] < box[2] <= w and 0 <= box[1] < box[3] <= h):
+            raise HTTPException(400, detail={"error": f"Crop box for dog {dog_index} is outside the scene"})
         crop_before = bg.crop(box)
         if model.startswith("fal-ai/") or model.startswith("openai/"):
             mask = Image.new("L", crop_before.size, 0)
@@ -4038,6 +4042,7 @@ def _retry_failed_dogs_idempotency_key(
     prompt: str,
     model: str | None,
     padding: float,
+    crop_boxes: dict[int, tuple[int, int, int, int]],
 ) -> str:
     payload = json.dumps(
         {
@@ -4045,6 +4050,7 @@ def _retry_failed_dogs_idempotency_key(
             "prompt": prompt,
             "model": model or "",
             "padding": padding,
+            "cropBoxes": crop_boxes,
         },
         sort_keys=True,
         separators=(",", ":"),
@@ -4086,6 +4092,22 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
     if raw is None:
         raise HTTPException(404, detail={"error": "Session not found"})
     dog_indices = _normalized_retry_dog_indices(session_id, req.dogIndices)
+    unknown_crop_boxes = sorted(set(req.cropBoxes) - set(dog_indices))
+    if unknown_crop_boxes:
+        raise HTTPException(400, detail={"error": f"Crop box supplied for unselected dog: {unknown_crop_boxes[0]}"})
+    hitboxes = _load_retry_hitboxes(session_id)
+    dogs = raw.get("dogs") or []
+    for dog_index, box in req.cropBoxes.items():
+        hb = _resolve_regen_hitbox(dogs, hitboxes, dog_index)
+        if hb is None:
+            raise HTTPException(404, detail={"error": f"Dog index out of range: {dog_index}"})
+        x0, y0, x1, y1 = box
+        radius = int(hb.get("r", hb.get("radius", 30)))
+        if x0 < 0 or y0 < 0 or x1 <= x0 or y1 <= y0:
+            raise HTTPException(400, detail={"error": f"Invalid crop box for dog {dog_index}"})
+        if not (x0 <= int(hb["x"]) - radius and x1 >= int(hb["x"]) + radius and
+                y0 <= int(hb["y"]) - radius and y1 >= int(hb["y"]) + radius):
+            raise HTTPException(400, detail={"error": f"Crop box must contain dog {dog_index}'s hitbox"})
     model = req.inpaintModel or raw.get("inpaint_model") or raw["model"]
     key = _retry_failed_dogs_idempotency_key(
         session_id,
@@ -4093,6 +4115,7 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
         prompt=req.prompt,
         model=model,
         padding=req.padding,
+        crop_boxes=req.cropBoxes,
     )
     existing = JOB_STORE.get_job_by_idempotency_key(kind="crop_inpaint_retry", idempotency_key=key)
     if existing is not None:
@@ -4109,6 +4132,7 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
             "prompt": req.prompt,
             "model": model,
             "padding": req.padding,
+            "cropBoxes": {str(index): list(box) for index, box in req.cropBoxes.items()},
             "safeToRequeue": True,
         },
     )
@@ -4180,6 +4204,10 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
     prompt = str(metadata["prompt"])
     model = str(metadata.get("model") or "")
     padding = float(metadata.get("padding") or 2.75)
+    crop_boxes = {
+        int(index): tuple(int(value) for value in box)
+        for index, box in (metadata.get("cropBoxes") or {}).items()
+    }
     child_jobs = _prepare_retry_failed_dog_unit_jobs(job, store, dog_indices)
     succeeded = 0
     failed = 0
@@ -4214,6 +4242,7 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
                 dog_index,
                 prompt=prompt,
                 padding=padding,
+                crop_box=crop_boxes.get(dog_index),
                 inpaint_model=model,
                 defer_composite=True,
             )
