@@ -358,6 +358,9 @@ export default function CutoutReviewPanel({
     flipX = candidate.flipX ?? false,
     flipY = candidate.flipY ?? false,
   ) => {
+    const pending = placementSaveTimers.current.get(candidate.id);
+    if (pending !== undefined) window.clearTimeout(pending);
+    placementSaveTimers.current.delete(candidate.id);
     setSavingPlacement(candidate.id);
     setError(null);
     try {

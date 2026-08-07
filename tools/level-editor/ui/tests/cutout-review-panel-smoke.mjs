@@ -282,11 +282,6 @@ async function run() {
     await page.mouse.down();
     await page.mouse.move(draggableBounds.x + draggableBounds.width / 2 + 20, draggableBounds.y + draggableBounds.height / 2);
     await page.mouse.up();
-    await page.waitForTimeout(1200);
-    await page.waitForFunction(() => document.querySelector('.cutout-review-result')?.textContent?.includes('placement saved'));
-    if (!submittedPlacement || submittedPlacement[0] <= 60 || submittedPlacement[2] <= 120) {
-      throw new Error(`Manual placement was not submitted: ${JSON.stringify(submittedPlacement)}`);
-    }
     await firstCard.getByRole('tab', { name: 'Padding' }).click();
     await page.waitForTimeout(100);
     const paddingLeft = firstCard.getByLabel('dog #0 · sprite 000 padding left');
@@ -303,6 +298,19 @@ async function run() {
     }
     if (overlayRequests !== overlayRequestsBeforePaddingDrag) {
       throw new Error('Padding drag should update client-side without requesting a new overlay');
+    }
+    await firstCard.getByRole('tab', { name: 'Sprite' }).click();
+    await controls.getByRole('button', { name: 'Flip X', exact: true }).click();
+    await page.waitForTimeout(1200);
+    await page.waitForFunction(() => document.querySelector('.cutout-review-result')?.textContent?.includes('placement saved'));
+    if (!submittedPlacement || submittedPlacement[0] <= 60 || submittedPlacement[2] <= 120) {
+      throw new Error(`Manual placement was not submitted: ${JSON.stringify(submittedPlacement)}`);
+    }
+    if (submittedFlipX !== true || submittedFlipY !== false) {
+      throw new Error(`Delayed drag autosave overwrote flip metadata: ${JSON.stringify({ submittedFlipX, submittedFlipY })}`);
+    }
+    if (await controls.getByRole('button', { name: 'Flip X', exact: true }).getAttribute('aria-pressed') !== 'true') {
+      throw new Error('Flip X did not remain selected after delayed autosave');
     }
     const summary = await page.locator('.cutout-review-summary').innerText();
     if (!summary.includes('2 selected')) {
@@ -358,15 +366,6 @@ async function run() {
     const refreshedLabel = await page.locator('.cutout-review-card').nth(1).locator('strong').innerText();
     if (!refreshedLabel.includes('sprite 000')) {
       throw new Error(`Extracted dog did not refresh its active cutout candidate: ${refreshedLabel}`);
-    }
-    await firstCard.getByRole('tab', { name: 'Sprite' }).click();
-    await controls.getByRole('button', { name: 'Flip X', exact: true }).click();
-    await page.waitForTimeout(100);
-    if (submittedFlipX !== true || submittedFlipY !== false) {
-      throw new Error(`Flip metadata was not submitted: ${JSON.stringify({ submittedFlipX, submittedFlipY })}`);
-    }
-    if (await controls.getByRole('button', { name: 'Flip X', exact: true }).getAttribute('aria-pressed') !== 'true') {
-      throw new Error('Flip X did not remain selected after refresh');
     }
     await page.screenshot({ path: '/tmp/pcdNQRrf-cutout-review-panel.png', fullPage: true });
     await page.locator('#switch-session').click();
