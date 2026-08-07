@@ -5608,7 +5608,7 @@
 
 /* Claimable-achievements attention: red dot + gentle icon bounce. */
 #home-shell .home-nav-btn { position: relative; }
-#home-shell .home-nav-btn > span.home-nav-dot {
+#home-shell .home-nav-btn > span.home-claim-dot--nav {
   /* Placed by MEASUREMENT, not by eye: the icon is centred in the button and
      the source PNG carries transparent padding (bbox 20,12,491,500 of 512 =>
      4.1% right, 2.3% top), so the artwork's real top-right corner sits at
@@ -5636,7 +5636,8 @@
   z-index: 2;
   animation: home-nav-claim-bounce 1.6s ease-in-out infinite;
 }
-#home-shell .home-nav-attention img {
+#home-shell .home-claim-attention .home-nav-btn-icon,
+#home-shell .home-nav-btn.home-claim-attention img {
   animation: home-nav-claim-bounce 1.6s ease-in-out infinite;
 }
 @keyframes home-nav-claim-bounce {
@@ -5648,5 +5649,33 @@
 }
 @media (prefers-reduced-motion: reduce) {
   #home-shell .home-nav-attention img,
-  #home-shell .home-nav-btn > span.home-nav-dot { animation: none; }
+  #home-shell .home-nav-btn > span.home-claim-dot--nav { animation: none; }
+}
+
+
+/* Claim affordance on the streak pill — same language as the achievements
+   nav button: a red dot on the artwork plus a gentle bounce, shown ONLY while
+   there is actually something to collect (both are rendered conditionally in
+   HomeScene, so an empty state can never animate). */
+#home-shell .home-streak-pill { position: relative; }
+#home-shell .home-streak-pill > span.home-claim-dot {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  left: auto;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #e5484d;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  z-index: 3;
+  animation: home-nav-claim-bounce 1.6s ease-in-out infinite;
+}
+#home-shell .home-streak-pill.home-claim-attention .home-streak-flame {
+  animation: home-nav-claim-bounce 1.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  #home-shell .home-streak-pill > span.home-claim-dot,
+  #home-shell .home-streak-pill.home-claim-attention .home-streak-flame { animation: none; }
 }

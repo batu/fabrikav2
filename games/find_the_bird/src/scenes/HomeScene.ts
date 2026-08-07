@@ -529,10 +529,11 @@ export class HomeScene extends Phaser.Scene {
 
         <div class="home-map-region">
           <aside class="home-rail home-rail-left" aria-label="Quick actions">
-            <button id="home-streak-reward" class="home-balance-pill home-streak-pill home-streak-side" type="button" data-reward-status="${streakReward.status}" aria-label="${streakDays}-day play streak. ${streakRewardDescription}">
+            <button id="home-streak-reward" class="home-balance-pill home-streak-pill home-streak-side${streakReward.status === 'claimable' ? ' home-claim-attention' : ''}" type="button" data-reward-status="${streakReward.status}" aria-label="${streakDays}-day play streak. ${streakRewardDescription}">
               <img class="home-streak-flame" src="/ui/menu-icons/icon_streak_flame.png" alt="" aria-hidden="true">
               <span>${streakDays}</span>
               <small>${streakRewardBadge}</small>
+              ${streakReward.status === 'claimable' ? '<span class="home-claim-dot" aria-hidden="true"></span>' : ''}
             </button>
           </aside>
           <section id="home-map-mount" class="home-map-stage" aria-label="Level progression"></section>
@@ -557,10 +558,10 @@ export class HomeScene extends Phaser.Scene {
         </div>
 
         <nav class="home-nav-bar" aria-label="Main navigation">
-          <button id="home-nav-achievements" class="home-nav-btn${claimableAchievements > 0 ? ' home-nav-attention' : ''}" type="button" aria-label="Open achievements${claimableAchievements > 0 ? `, ${claimableAchievements} reward${claimableAchievements === 1 ? '' : 's'} to claim` : ''}">
+          <button id="home-nav-achievements" class="home-nav-btn${claimableAchievements > 0 ? ' home-claim-attention' : ''}" type="button" aria-label="Open achievements${claimableAchievements > 0 ? `, ${claimableAchievements} reward${claimableAchievements === 1 ? '' : 's'} to claim` : ''}">
             <img src="/ui/achievements/achievement-shortcut-runtime.png" alt="" aria-hidden="true">
             <span>Achievements</span>
-            ${claimableAchievements > 0 ? '<span class="home-nav-dot" aria-hidden="true"></span>' : ''}
+            ${claimableAchievements > 0 ? '<span class="home-claim-dot home-claim-dot--nav" aria-hidden="true"></span>' : ''}
           </button>
           <button id="home-nav-shop" class="home-nav-btn" type="button" aria-label="Open shop">
             <img src="/ui/menu-icons/shop-icon-runtime.png" alt="" aria-hidden="true">
