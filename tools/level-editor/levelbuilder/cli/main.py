@@ -1143,21 +1143,92 @@ def cmd_evaluate_sprites(args: argparse.Namespace) -> None:
     root = resolve_game(args.game).game_root / "public" / "levels"
     if not root.is_dir():
         raise CliError("corpus_missing", f"no public/levels corpus at {root}")
+    methods = tuple(args.match_method or ("color", "hybrid", "features", "orb", "chamfer", "best"))
+    excluded = set(args.exclude_level or ())
     if args.level:
         report = {
-            "levels": [evaluate_level_dir(root / level_id) for level_id in args.level],
+            "levels": [evaluate_level_dir(
+                root / level_id,
+                Path(args.preview_dir) if args.preview_dir else None,
+                methods,
+                False,
+            ) for level_id in args.level if level_id not in excluded],
         }
         report["summary"] = {
             "levels": len(report["levels"]),
             "birds": sum(lv["summary"]["birds"] for lv in report["levels"]),
             "fail": sum(lv["summary"]["fail"] for lv in report["levels"]),
             "warn": sum(lv["summary"]["warn"] for lv in report["levels"]),
+            "alignmentOutliers": sum(lv["summary"]["alignmentOutliers"] for lv in report["levels"]),
         }
     else:
-        report = evaluate_corpus(root)
+        report = evaluate_corpus(
+            root,
+            preview_dir=Path(args.preview_dir) if args.preview_dir else None,
+            match_methods=methods,
+            include_legacy_xy=False,
+            workers=args.workers,
+            checkpoint_dir=Path(args.checkpoint_dir) if args.checkpoint_dir else None,
+            exclude_level_ids=excluded,
+        )
+    report["matchMethods"] = list(methods)
     if args.out:
         Path(args.out).write_text(json.dumps(report, indent=1))
         _emit(args, {"ok": True, "out": args.out, "summary": report["summary"]})
+    else:
+        _emit(args, report)
+
+
+def cmd_align_sprites(args: argparse.Namespace) -> None:
+    """Evaluate and atomically apply the conservative Best-safe selector."""
+    from levelbuilder.api.sprite_eval import apply_match_report, evaluate_corpus
+    from levelbuilder.settings import resolve_game
+
+    if not args.game:
+        raise CliError("game_required", "pass --game <name>")
+    root = resolve_game(args.game).game_root / "public" / "levels"
+    excluded = set(args.exclude_level or ())
+    if args.from_report:
+        report = json.loads(Path(args.from_report).read_text())
+        present = {level.get("levelId") for level in report.get("levels", [])}
+        forbidden = sorted(excluded & present)
+        if forbidden:
+            raise CliError("excluded_level_in_report", f"report contains excluded level(s): {', '.join(forbidden)}")
+    else:
+        report = evaluate_corpus(
+            root,
+            level_ids=args.level,
+            match_methods=("best",),
+            include_legacy_xy=False,
+            workers=args.workers,
+            exclude_level_ids=excluded,
+        )
+    application = apply_match_report(
+        root,
+        report,
+        method="best",
+        workspace_root=Path(args.workspace) if args.workspace else None,
+        dry_run=args.dry_run,
+    )
+    if not args.dry_run:
+        from levelbuilder.api.session import refresh_catalog_packages
+
+        changed_level_ids = sorted({
+            change["levelId"]
+            for change in application.get("changes", [])
+            if isinstance(change, dict) and isinstance(change.get("levelId"), str)
+        })
+        application["catalog"] = (
+            refresh_catalog_packages(changed_level_ids)
+            if changed_level_ids
+            else {"catalogRevision": None, "refreshedLevels": []}
+        )
+    report["matchMethods"] = ["best"]
+    report["excludedLevels"] = sorted(excluded)
+    report["application"] = application
+    if args.out:
+        Path(args.out).write_text(json.dumps(report, indent=1))
+        _emit(args, {"ok": True, "out": args.out, "summary": report["summary"], "application": application})
     else:
         _emit(args, report)
 
@@ -1411,7 +1482,26 @@ def build_parser() -> argparse.ArgumentParser:
     p = verb("evaluate-sprites", cmd_evaluate_sprites, needs_client=False)
     p.add_argument("--game")
     p.add_argument("--level", action="append", help="limit to specific level id(s)")
+    p.add_argument("--exclude-level", action="append", help="exclude a known-invalid level id; repeatable")
     p.add_argument("--out", help="write full report JSON to this path")
+    p.add_argument("--preview-dir", help="write red-cutout/green-painted overlays for alignment outliers")
+    p.add_argument(
+        "--match-method", action="append",
+        choices=("silhouette", "color", "hybrid", "features", "orb", "chamfer", "best"),
+        help="cutout matcher to run; repeat to compare methods",
+    )
+    p.add_argument("--workers", type=int, default=1, choices=range(1, 17), metavar="1..16", help="parallel level workers (default: 1)")
+    p.add_argument("--checkpoint-dir", help="write and resume one atomic JSON checkpoint per level")
+
+    p = verb("align-sprites", cmd_align_sprites, needs_client=False)
+    p.add_argument("--game")
+    p.add_argument("--level", action="append", help="limit to specific level id(s)")
+    p.add_argument("--exclude-level", action="append", help="exclude a known-invalid level id; repeatable")
+    p.add_argument("--workspace", help="session workspace whose sprite sidecars should be updated")
+    p.add_argument("--dry-run", action="store_true", help="evaluate and report changes without writing")
+    p.add_argument("--from-report", help="apply an existing fresh dry-run report without recomputing matches")
+    p.add_argument("--out", help="write evaluation and application report JSON")
+    p.add_argument("--workers", type=int, default=1, choices=range(1, 17), metavar="1..16")
 
     p = verb("jobs", cmd_jobs)
     p.add_argument("--session")

@@ -4125,6 +4125,12 @@ def _next_catalog_revision(manifest: dict | None) -> tuple[int, str]:
         value = manifest.get("revisionNumber")
         if isinstance(value, int) and value >= 0:
             current = value
+    snapshots = PublicLevels.catalog_snapshot_dir(GAME_PUBLIC_LEVELS)
+    if snapshots.is_dir():
+        for path in snapshots.glob("catalog-*.json"):
+            suffix = path.stem.removeprefix("catalog-")
+            if suffix.isdigit():
+                current = max(current, int(suffix))
     next_revision = current + 1
     return next_revision, f"catalog-{next_revision:06d}"
 
@@ -4273,6 +4279,50 @@ def _merge_existing_catalog_metadata(
         merged["listable"] = False
 
     return merged
+
+
+def refresh_catalog_packages(session_ids: list[str]) -> dict:
+    """Refresh existing catalog packages in one revision after a deterministic batch edit.
+
+    This does not upload or activate anything. It keeps the checked-in catalog
+    projection byte-coherent with public/levels while preserving human-owned
+    visibility, cohort, retention, tombstone, and source-variant metadata.
+    """
+    normalized_ids = sorted(set(session_ids))
+    for session_id in normalized_ids:
+        _validate_session_id_or_raise(session_id)
+
+    with _catalog_lock:
+        previous_manifest = load_catalog_manifest()
+        existing_by_id = _catalog_levels_by_id(previous_manifest)
+        missing = [session_id for session_id in normalized_ids if session_id not in existing_by_id]
+        if missing:
+            raise ValueError(f"Catalog entries not found: {', '.join(missing)}")
+        _, catalog_revision = _next_catalog_revision(previous_manifest)
+        for session_id in normalized_ids:
+            existing_entry = existing_by_id[session_id]
+            entry = PublicLevels.public_level_catalog_entry(
+                GAME_PUBLIC_LEVELS,
+                session_id,
+                catalog_revision=catalog_revision,
+                bundled_in_app=bool(existing_entry.get("bundledInApp")),
+                cohort_buckets=existing_entry.get("cohortBuckets"),
+                listable=bool(existing_entry.get("listable")),
+            )
+            entry = _merge_existing_catalog_metadata(
+                entry,
+                existing_entry,
+                bundled_in_app=None,
+                cohort_buckets=None,
+            )
+            if "sourceVariant" in existing_entry:
+                entry["sourceVariant"] = existing_entry["sourceVariant"]
+            existing_by_id[session_id] = entry
+        manifest = _write_catalog_levels(list(existing_by_id.values()), previous_manifest)
+    return {
+        "catalogRevision": manifest["catalogRevision"],
+        "refreshedLevels": normalized_ids,
+    }
 
 
 def approve_level_for_catalog(

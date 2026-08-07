@@ -10,6 +10,7 @@ import {
 } from '../api/editorApi';
 import { blockingVisibilitySummaries, summarizeVisibilityIssues, visibilitySummaryLabel } from '../lib/visibilityWarnings';
 import LevelCanvas, { type LevelCanvasAction, type LevelCanvasState } from './LevelCanvas';
+import CutoutReviewPanel from './CutoutReviewPanel';
 
 const PREVIEW_IMAGE_CACHE_LIMIT = 8;
 
@@ -105,6 +106,7 @@ interface ModalState extends LevelCanvasState {
   generationProgress: GenerationProgress;
   generationErrors: string[];
   inpainting: boolean;
+  inpaintModel: string;
   inpaintProgress: {
     done: number;
     total: number;
@@ -139,6 +141,7 @@ function initialModalState(): ModalState {
     generationProgress: { succeeded: 0, failed: 0, total: 0 },
     generationErrors: [],
     inpainting: false,
+    inpaintModel: '',
     inpaintProgress: { done: 0, total: 0, currentPass: 0, totalPasses: 0 },
     configSummary: '',
     exportError: null,
@@ -179,6 +182,7 @@ function reducer(state: ModalState, action: ModalAction): ModalState {
         hitboxes: s.hitboxes,
         dogs: s.dogs,
         dogPrompt: s.dogPrompt,
+        inpaintModel: s.inpaintModel ?? '',
         selectedDogIndex: null,
         radius: s.hitboxes[0]?.r ?? state.radius,
       };
@@ -274,6 +278,7 @@ export default function GalleryReviewModal({
   const [colorVersion, setColorVersion] = useState(0);
   const [visibilityIssues, setVisibilityIssues] = useState<VisibilityIssue[]>([]);
   const [sceneView, setSceneView] = useState<'painted' | 'restore' | 'pickup' | 'sprites'>('painted');
+  const [reviewMode, setReviewMode] = useState<'placement' | 'cutouts'>('placement');
   const pickedUpView = sceneView === 'restore';
   const [loadedMeta, setLoadedMeta] = useState<{ setting?: string | null; scene?: string | null; entity?: string | null; model?: string }>({});
 
@@ -613,6 +618,18 @@ export default function GalleryReviewModal({
   const visibilitySummaries = useMemo(() => summarizeVisibilityIssues(visibilityIssues), [visibilityIssues]);
   const blockerCount = blockingVisibilitySummaries(visibilitySummaries).length;
 
+  const handleDogComplete = useCallback((dogIndex: number, _file: string, variantIndex: number) => {
+    const nextDogs = state.dogs.map((dog) => (
+      dog.index === dogIndex ? { ...dog, activeVariant: variantIndex } : dog
+    ));
+    const cached = state.sessionId ? sessionCacheRef.current.get(state.sessionId) : undefined;
+    if (cached && state.sessionId) {
+      sessionCacheRef.current.set(state.sessionId, { ...cached, dogs: nextDogs });
+    }
+    if (cached) applySession({ ...cached, dogs: nextDogs });
+    else setColorVersion((version) => version + 1);
+  }, [applySession, state.dogs, state.sessionId]);
+
   const canvasBgUrl = useMemo(() => {
     if (!item || !state.sessionId || !card) return undefined;
     if (sceneView === 'restore') {
@@ -725,9 +742,23 @@ export default function GalleryReviewModal({
             </div>
 
             <aside style={{
-              width: 360, flexShrink: 0, overflowY: 'auto',
+              width: reviewMode === 'cutouts' ? 520 : 360, flexShrink: 0, overflowY: 'auto',
               display: 'flex', flexDirection: 'column', gap: 12,
             }}>
+              <div className="gallery-review-mode" role="tablist" aria-label="Focused review mode">
+                <button type="button" role="tab" aria-selected={reviewMode === 'placement'} onClick={() => setReviewMode('placement')}>Placement</button>
+                <button type="button" role="tab" aria-selected={reviewMode === 'cutouts'} onClick={() => setReviewMode('cutouts')}>Cutouts &amp; redo</button>
+              </div>
+              {reviewMode === 'cutouts' && state.sessionId ? (
+                <CutoutReviewPanel
+                  sessionId={state.sessionId}
+                  sharedPrompt={state.dogPrompt}
+                  inpaintModel={state.inpaintModel}
+                  hitboxes={state.hitboxes}
+                  dogs={state.dogs}
+                  onDogComplete={handleDogComplete}
+                />
+              ) : <>
               <div style={{ display: 'flex', gap: 6 }}>
                 {([
                   ['painted', '🎨 Painted'],
@@ -795,7 +826,7 @@ export default function GalleryReviewModal({
                   )}
                 </div>
               )}
-
+              </>}
             </aside>
           </>
         )}

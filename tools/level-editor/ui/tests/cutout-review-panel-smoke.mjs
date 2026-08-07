@@ -64,8 +64,9 @@ async function run() {
     await waitForServer();
     browser = await chromium.launch({ headless: true });
     const page = await browser.newPage({ viewport: { width: 1200, height: 900 } });
-    let activeRegens = 0;
     let completedRegens = 0;
+    let batchSubmissions = 0;
+    let submittedDogIndices = [];
     await page.route('**/*', async (route) => {
       const url = new URL(route.request().url());
       const isCandidateRequest =
@@ -152,21 +153,28 @@ async function run() {
         });
         return;
       }
-      if (url.pathname === `/api/sessions/${sessionId}/dogs/1/regen` || url.pathname === `/api/sessions/${sessionId}/dogs/2/regen`) {
-        const dogIndex = Number(url.pathname.match(/dogs\/(\d+)\/regen/)?.[1] ?? 0);
-        activeRegens += 1;
-        if (activeRegens > 1) {
-          await route.fulfill({ status: 409, json: { detail: 'parallel regen detected' } });
-          return;
-        }
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        activeRegens -= 1;
-        if (dogIndex === 2) {
-          await route.fulfill({ status: 500, json: { detail: 'dog 2 failed' } });
-          return;
-        }
-        completedRegens += 1;
-        await route.fulfill({ json: { variantIndex: 1, file: `dogs/dog_${String(dogIndex).padStart(2, '0')}/variant_001.png` } });
+      if (url.pathname.match(/^\/api\/sessions\/[^/]+\/sprite-candidates\/[^/]+\/overlay$/)) {
+        await route.fulfill({ contentType: 'image/png', body: png('blue') });
+        return;
+      }
+      if (url.pathname === `/api/sessions/${sessionId}/dogs/retry-inpaint/jobs` && route.request().method() === 'POST') {
+        batchSubmissions += 1;
+        const body = route.request().postDataJSON();
+        submittedDogIndices = body.dogIndices;
+        await route.fulfill({ json: {
+          jobId: 'retry_job_1', status: 'queued', succeeded: 0, failed: 0, units: [], error: null,
+        } });
+        return;
+      }
+      if (url.pathname === `/api/sessions/${sessionId}/dogs/retry-inpaint/jobs/retry_job_1`) {
+        completedRegens = 1;
+        await route.fulfill({ json: {
+          jobId: 'retry_job_1', status: 'failed_retryable', succeeded: 1, failed: 1, error: 'one failed',
+          units: [
+            { dogIndex: 1, status: 'succeeded', retryable: false, error: null, file: 'dogs/dog_01/variant_001.png', variantIndex: 1 },
+            { dogIndex: 2, status: 'failed_retryable', retryable: true, error: 'dog 2 failed', file: null, variantIndex: null },
+          ],
+        } });
         return;
       }
       if (url.pathname.startsWith(`/levels/${sessionId}/`) || url.pathname.startsWith(`/levels/${secondSessionId}/`)) {
@@ -190,6 +198,16 @@ async function run() {
     if (!summary.includes('2 need redo')) {
       throw new Error(`Unexpected initial summary: ${summary}`);
     }
+    const firstOverlay = page.getByRole('button', { name: 'Select dog #0 · sprite 000 for regeneration' });
+    if (await firstOverlay.getAttribute('aria-pressed') !== 'false') {
+      throw new Error('Clean overlay unexpectedly started selected.');
+    }
+    await firstOverlay.click();
+    await page.getByRole('button', { name: 'Redo selected (3)' }).waitFor();
+    const selectedOverlays = await page.locator('.cutout-review-overlay[aria-pressed="true"]').count();
+    if (selectedOverlays !== 3) throw new Error(`Expected three independently selected overlays, saw ${selectedOverlays}`);
+    await page.getByRole('button', { name: 'Remove dog #0 · sprite 000 from regeneration' }).click();
+    await page.getByRole('button', { name: 'Redo selected (2)' }).waitFor();
     await page.locator('.cutout-review-card').first().getByText('Keep').click();
     await page.waitForFunction(
       (key) => window.localStorage.getItem(key)?.includes('approved') === true,
@@ -203,6 +221,11 @@ async function run() {
     }
     await page.getByText('Redo selected (2)').click();
     await page.waitForSelector('#last-action:text("dog 1 regenerated as variant 1")');
+    if (batchSubmissions !== 1) throw new Error(`Expected one durable batch submission, saw ${batchSubmissions}`);
+    if (JSON.stringify(submittedDogIndices) !== JSON.stringify([1, 2])) {
+      throw new Error(`Batch did not target the selected dog indices: ${JSON.stringify(submittedDogIndices)}`);
+    }
+    await page.getByText('1 redo failed').waitFor();
     const replacedLabel = await page.locator('.cutout-review-card').nth(1).locator('strong').innerText();
     if (!replacedLabel.includes('sprite 001')) {
       throw new Error(`Regenerated dog did not refresh to replacement candidate: ${replacedLabel}`);

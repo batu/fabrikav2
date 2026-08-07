@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Any, Literal
 
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Query, Request, Response
-from PIL import Image, UnidentifiedImageError
+from PIL import Image, ImageDraw, ImageFilter, UnidentifiedImageError
 from pydantic import BaseModel, ConfigDict, Field
 from starlette.responses import FileResponse
 
@@ -1036,6 +1036,112 @@ def list_sprite_candidates(session_id: str) -> dict[str, list[dict[str, Any]]]:
     if not S.session_dir(session_id).exists():
         raise HTTPException(404, detail={"error": "Session not found"})
     return {"candidates": S.sprite_animation_candidates(session_id)}
+
+
+@router.get("/sessions/{session_id}/sprite-candidate/{asset_path:path}")
+def sprite_candidate_asset(session_id: str, asset_path: str):
+    """Serve one reviewed sprite asset from the session or exported level.
+
+    Candidate metadata deliberately contains relative paths. Resolve them
+    beneath known roots and fail closed so focused review does not depend on
+    the broad development-only /levels mount.
+    """
+    _validate_session_id(session_id)
+    roots = (S.session_dir(session_id), S.GAME_PUBLIC_LEVELS / session_id)
+    for root in roots:
+        try:
+            candidate = (root / asset_path).resolve()
+            candidate.relative_to(root.resolve())
+        except (OSError, ValueError):
+            continue
+        if candidate.is_file() and candidate.suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"}:
+            return FileResponse(candidate, headers={"Cache-Control": "no-store"})
+    raise HTTPException(404, detail={"error": "Sprite candidate asset not found"})
+
+
+def _candidate_file(roots: tuple[Path, ...], relative: str) -> Path | None:
+    path = Path(relative)
+    if path.is_absolute() or ".." in path.parts:
+        return None
+    for root in roots:
+        try:
+            candidate = (root / path).resolve()
+            candidate.relative_to(root.resolve())
+        except (OSError, ValueError):
+            continue
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+def _render_sprite_candidate_overlay(
+    roots: tuple[Path, ...], candidate: dict[str, Any], *, max_size: int = 720,
+) -> bytes:
+    metadata_path = candidate.get("metadataPath")
+    image_path = candidate.get("image")
+    if not isinstance(metadata_path, str) or not isinstance(image_path, str):
+        raise ValueError("candidate metadata or image is missing")
+    metadata_file = _candidate_file(roots, metadata_path)
+    sprite_file = _candidate_file(roots, image_path)
+    scene_file = next((root / "color.png" for root in roots if (root / "color.png").is_file()), None)
+    if metadata_file is None or sprite_file is None or scene_file is None:
+        raise ValueError("candidate overlay assets are missing")
+    metadata = json.loads(metadata_file.read_text())
+    box = metadata.get("spriteBox")
+    if not (isinstance(box, list) and len(box) == 4):
+        raise ValueError("candidate spriteBox is invalid")
+    x0, y0, x1, y1 = [int(value) for value in box]
+    if x1 <= x0 or y1 <= y0:
+        raise ValueError("candidate spriteBox is empty")
+    with Image.open(scene_file) as source_scene, Image.open(sprite_file) as source_sprite:
+        scene = source_scene.convert("RGBA")
+        sprite = source_sprite.convert("RGBA").resize((x1 - x0, y1 - y0), Image.Resampling.LANCZOS)
+        cleanup = metadata.get("cleanupBox")
+        if isinstance(cleanup, list) and len(cleanup) == 4:
+            ux0, uy0, ux1, uy1 = [int(value) for value in cleanup]
+        else:
+            ux0, uy0, ux1, uy1 = x0, y0, x1, y1
+        pad = max(36, round(max(x1 - x0, y1 - y0) * 0.45))
+        crop = (
+            max(0, min(x0, ux0) - pad), max(0, min(y0, uy0) - pad),
+            min(scene.width, max(x1, ux1) + pad), min(scene.height, max(y1, uy1) + pad),
+        )
+        preview = scene.crop(crop)
+        alpha = sprite.getchannel("A")
+        expanded = alpha.filter(ImageFilter.MaxFilter(9))
+        contour = Image.frombytes(
+            "L", alpha.size,
+            bytes(max(0, outer - inner) for outer, inner in zip(expanded.tobytes(), alpha.tobytes())),
+        )
+        tint = Image.new("RGBA", sprite.size, (76, 235, 147, 70))
+        tint.putalpha(alpha.point(lambda value: min(82, value)))
+        edge = Image.new("RGBA", sprite.size, (76, 235, 147, 255))
+        edge.putalpha(contour)
+        px, py = x0 - crop[0], y0 - crop[1]
+        preview.alpha_composite(tint, (px, py))
+        preview.alpha_composite(edge, (px, py))
+        ImageDraw.Draw(preview).rectangle(
+            (px, py, px + x1 - x0 - 1, py + y1 - y0 - 1),
+            outline=(76, 235, 147, 230), width=3,
+        )
+        preview.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
+        output = io.BytesIO()
+        preview.convert("RGB").save(output, "PNG", optimize=True)
+        return output.getvalue()
+
+
+@router.get("/sessions/{session_id}/sprite-candidates/{candidate_id}/overlay")
+def sprite_candidate_overlay(session_id: str, candidate_id: str):
+    _validate_session_id(session_id)
+    candidate = S.sprite_animation_candidate_by_id(session_id, candidate_id)
+    if candidate is None:
+        raise HTTPException(404, detail={"error": "Sprite candidate not found"})
+    roots = (S.session_dir(session_id), S.GAME_PUBLIC_LEVELS / session_id)
+    try:
+        content = _render_sprite_candidate_overlay(roots, candidate)
+    except (OSError, ValueError, json.JSONDecodeError, UnidentifiedImageError) as error:
+        raise HTTPException(422, detail={"error": str(error)}) from error
+    return Response(content=content, media_type="image/png", headers={"Cache-Control": "no-store"})
 
 
 @router.get("/sessions/{session_id}/animation-jobs")

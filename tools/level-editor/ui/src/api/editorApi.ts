@@ -1269,5 +1269,10 @@ export function recompositePreviewUrl(sessionId: string, version: string | numbe
 }
 
 export function dogVariantUrl(sessionId: string, variantPath: string): string {
-  return `/levels/${sessionId}/${variantPath}`;
+  return `/api/sessions/${encodeURIComponent(sessionId)}/sprite-candidate/${variantPath.split('/').map(encodeURIComponent).join('/')}`;
+}
+
+/** Painted-scene preview with one candidate placed using the active matcher. */
+export function spriteCandidateOverlayUrl(sessionId: string, candidateId: string): string {
+  return `/api/sessions/${encodeURIComponent(sessionId)}/sprite-candidates/${encodeURIComponent(candidateId)}/overlay`;
 }

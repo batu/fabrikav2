@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DogState, Hitbox, SpriteCandidate } from '../types';
-import { dogVariantUrl, listSpriteCandidates, regenDog, recompositeSession } from '../api/editorApi';
+import {
+  dogVariantUrl,
+  getRetryFailedDogsJob,
+  listSpriteCandidates,
+  spriteCandidateOverlayUrl,
+  startRetryFailedDogsJob,
+  type RetryFailedDogsJobResponse,
+} from '../api/editorApi';
 
 type ReviewStatus = 'pending' | 'approved' | 'cleanup' | 'rejected';
 
@@ -11,6 +18,12 @@ interface Props {
   hitboxes: Hitbox[];
   dogs: DogState[];
   onDogComplete: (dogIndex: number, file: string, variantIndex: number) => void;
+}
+
+function CandidateImage({ src, alt, fallback }: { src: string | null; alt: string; fallback: string }) {
+  const [failed, setFailed] = useState(false);
+  if (src === null || failed) return <span>{fallback}</span>;
+  return <img src={src} alt={alt} onError={() => setFailed(true)} />;
 }
 
 const REVIEW_LABELS: Record<ReviewStatus, string> = {
@@ -111,6 +124,21 @@ function reviewTargets(candidates: SpriteCandidate[], review: Record<string, Rev
   });
 }
 
+function isTerminalRetryStatus(status: RetryFailedDogsJobResponse['status']): boolean {
+  return status === 'succeeded' || status === 'failed_retryable' ||
+    status === 'failed_terminal' || status === 'orphaned_unknown' || status === 'cancelled';
+}
+
+async function waitForRetryJob(sessionId: string, job: RetryFailedDogsJobResponse): Promise<RetryFailedDogsJobResponse> {
+  if (isTerminalRetryStatus(job.status)) return job;
+  for (let attempt = 0; attempt < 600; attempt += 1) {
+    const current = await getRetryFailedDogsJob(sessionId, job.jobId);
+    if (isTerminalRetryStatus(current.status)) return current;
+    await new Promise((resolve) => window.setTimeout(resolve, 1000));
+  }
+  throw new Error('Timed out waiting for bird regeneration job');
+}
+
 export const cutoutReviewTestExports = {
   activeCandidates,
   parseStoredReview,
@@ -190,33 +218,42 @@ export default function CutoutReviewPanel({
     setReview((prev) => ({ ...prev, [candidate.id]: status }));
   }, []);
 
+  const toggleCandidate = useCallback((candidate: SpriteCandidate) => {
+    setReview((prev) => {
+      const current = prev[candidate.id] ?? initialStatus(candidate);
+      const selected = current === 'cleanup' || current === 'rejected';
+      return { ...prev, [candidate.id]: selected ? 'approved' : 'cleanup' };
+    });
+  }, []);
+
   const regenerateFlagged = useCallback(async () => {
     const targets = reviewTargets(candidates, review);
     if (targets.length === 0 || regenerating) return;
     setRegenerating(true);
     setError(null);
     setLastResult(null);
-    let failures = 0;
     const generatedVariants = new Map<number, number>();
     try {
       const padding = wideCrop ? 3.0 : 2.75;
-      for (const candidate of targets) {
-        try {
-          const result = await regenDog(sessionId, candidate.dogIndex, sharedPrompt, padding, inpaintModel, true);
-          onDogComplete(candidate.dogIndex, result.file, result.variantIndex);
-          generatedVariants.set(candidate.dogIndex, result.variantIndex);
-        } catch {
-          failures += 1;
-        }
+      const started = await startRetryFailedDogsJob(
+        sessionId,
+        targets.map((candidate) => candidate.dogIndex),
+        sharedPrompt,
+        padding,
+        inpaintModel,
+      );
+      const completed = await waitForRetryJob(sessionId, started);
+      for (const unit of completed.units) {
+        if (unit.status !== 'succeeded' || unit.file === null || unit.variantIndex === null) continue;
+        onDogComplete(unit.dogIndex, unit.file, unit.variantIndex);
+        generatedVariants.set(unit.dogIndex, unit.variantIndex);
       }
       const refreshedDogs = dogs.map((dog) => {
         const activeVariant = generatedVariants.get(dog.index);
         return activeVariant === undefined ? dog : { ...dog, activeVariant };
       });
-      if (generatedVariants.size > 0) {
-        await recompositeSession(sessionId);
-      }
       await refresh(refreshedDogs);
+      const failures = targets.length - generatedVariants.size;
       if (failures > 0) {
         setError(`${failures} redo${failures === 1 ? '' : 's'} failed`);
       }
@@ -275,9 +312,23 @@ export default function CutoutReviewPanel({
                 <strong>{candidateLabel(candidate)}</strong>
                 <span>{REVIEW_LABELS[status]}</span>
               </div>
+              <button
+                type="button"
+                className="cutout-review-overlay"
+                aria-label={`${willRegenerate ? 'Remove' : 'Select'} ${candidateLabel(candidate)} ${willRegenerate ? 'from' : 'for'} regeneration`}
+                aria-pressed={willRegenerate}
+                onClick={() => toggleCandidate(candidate)}
+              >
+                <CandidateImage
+                  src={spriteCandidateOverlayUrl(sessionId, candidate.id)}
+                  alt={`${candidateLabel(candidate)} matched over painted scene`}
+                  fallback="overlay unavailable"
+                />
+                <span>{willRegenerate ? 'Selected for redo' : 'Click to select'}</span>
+              </button>
               <div className="cutout-review-images">
-                <div>{imageUrl ? <img src={imageUrl} alt={candidateLabel(candidate)} /> : <span>missing</span>}</div>
-                <div>{maskUrl ? <img src={maskUrl} alt={`${candidateLabel(candidate)} mask`} /> : <span>mask</span>}</div>
+                <div><CandidateImage src={imageUrl} alt={candidateLabel(candidate)} fallback="missing sprite" /></div>
+                <div><CandidateImage src={maskUrl} alt={`${candidateLabel(candidate)} mask`} fallback="mask unavailable" /></div>
               </div>
               <div className="cutout-review-meta">
                 <code>{candidate.technique ?? candidate.status}</code>
