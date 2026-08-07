@@ -5587,17 +5587,25 @@
 
 /* Claimable-achievements attention: red dot + gentle icon bounce. */
 #home-shell .home-nav-btn { position: relative; }
-#home-shell .home-nav-dot {
-  /* Anchored to the ARTWORK's opaque corner, not the element box: the source
-     PNG carries 4.1% transparent padding on the right and 2.3% on top
-     (measured from achievement-shortcut-runtime.png, 512px: bbox 20,12,491,500),
-     so a box-relative dot floated off the icon. Rides the same bounce.
-     --nav-icon-size mirrors the achievements img rule below. */
-  --nav-icon-size: 78px;
+#home-shell .home-nav-btn > span.home-nav-dot {
+  /* Placed by MEASUREMENT, not by eye: the icon is centred in the button and
+     the source PNG carries transparent padding (bbox 20,12,491,500 of 512 =>
+     4.1% right, 2.3% top), so the artwork's real top-right corner sits at
+     50% + 35.8px across and 1.8px below the image top. The dot (16px) is
+     centred on that corner. A `right:`-based rule put it on the far LEFT of
+     the button — measured at x=14 when the corner was at x=107. Rides the
+     same bounce as the icon. */
   position: absolute;
-  top: calc(50% - (var(--nav-icon-size) / 2) - 6px + (var(--nav-icon-size) * 0.0234));
-  right: calc(50% - (var(--nav-icon-size) / 2) + (var(--nav-icon-size) * 0.041) - 4px);
-  animation: home-nav-claim-bounce 1.6s ease-in-out infinite;
+  /* Selector must out-specify `#home-shell .home-nav-btn > span` (the label
+     rule), which pins left:0/right:0 — that rule, not the maths, is why an
+     earlier attempt kept landing at the button's left edge.
+     +27.8px from centre = icon half-width (39) minus the art's transparent
+     right padding (78 * 4.102% = 3.2) minus half the dot (8). 18.8px down
+     from the button top puts the dot centre on the art's top edge. Both
+     verified in-page: dot centre lands on (artRight, artTop). */
+  left: calc(50% + 27.8px);
+  right: auto;
+  top: 18.8px;
   width: 16px;
   height: 16px;
   border-radius: 50%;
@@ -5605,6 +5613,7 @@
   border: 2px solid #fff;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
   z-index: 2;
+  animation: home-nav-claim-bounce 1.6s ease-in-out infinite;
 }
 #home-shell .home-nav-attention img {
   animation: home-nav-claim-bounce 1.6s ease-in-out infinite;
@@ -5618,5 +5627,5 @@
 }
 @media (prefers-reduced-motion: reduce) {
   #home-shell .home-nav-attention img,
-  #home-shell .home-nav-dot { animation: none; }
+  #home-shell .home-nav-btn > span.home-nav-dot { animation: none; }
 }
