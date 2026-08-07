@@ -119,9 +119,8 @@ function isElementVisible(el: Element | null | undefined): boolean {
 
 /**
  * Which settings modal (if any) is mounted AND visible, distinguished by the
- * action rows the game renders per variant (menu = Close; in-game = Restart/
- * Home). The kit modal card (`.fab-modal-card`) carries aria-modal, so the
- * testkit marker re-parents into it — the variant is the game's DOM truth.
+ * game-owned variant class. The menu has no redundant action row; the in-game
+ * variant has Restart/Home. The variant class is the game's DOM truth.
  */
 function detectSettingsVariant(): SettingsVariant {
   // MRV2-9 U7/U2c root cause: the kit's Button primitive renders `dataAction`
@@ -130,8 +129,8 @@ function detectSettingsVariant(): SettingsVariant {
   // `settings` and `pause` predicates could never see a mounted modal, and both
   // markers were MISSING on device (settings-MISSING / pause-MISSING) even though
   // the modal was on screen. Query the attribute the kit actually emits.
-  const menuBtn = document.querySelector('[data-fab-action="settings-close"]');
-  if (isElementVisible(menuBtn?.closest('.fab-modal-card') ?? menuBtn)) return 'menu';
+  const menuCard = document.querySelector('.marble-settings-modal--menu .marble-settings-card');
+  if (isElementVisible(menuCard)) return 'menu';
   const ingameBtn = document.querySelector('[data-fab-action="settings-restart"], [data-fab-action="settings-home"]');
   if (isElementVisible(ingameBtn?.closest('.fab-modal-card') ?? ingameBtn)) return 'ingame';
   return null;
@@ -506,8 +505,8 @@ export function createMarbleRunHarness(game: Phaser.Game): MarbleRunHarness {
 
   /**
    * Menu settings drive — go home first, then open the menu settings modal
-   * (Close variant) through the real home gear. MRV2-5 ruling: menu settings =
-   * Close variant. The wave-1 drive opened the in-game (Restart/Home) variant
+   * through the real home gear. The menu variant is X-only. The wave-1 drive
+   * opened the in-game (Restart/Home) variant
    * over gameplay and never published a marker.
    */
   async function driveMenuSettingsViaUi(): Promise<boolean> {

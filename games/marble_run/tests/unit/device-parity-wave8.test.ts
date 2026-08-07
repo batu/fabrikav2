@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import { installShellArt, MARBLE_LEVELMAP_THEME } from "../../design/theme";
 import { mountHomeShell } from "../../src/menu/homeMenu";
 
@@ -73,12 +74,86 @@ describe("device parity wave 8 CSS pins", () => {
     expect(title![0]).not.toContain("rgba(255, 240, 205");
   });
 
-  it("uses cream toggle knobs and keeps CLOSE padded inside the card", () => {
+  it("uses cream toggle knobs", () => {
     const css = shellArtCss();
-    expect(css).toMatch(/\.marble-ui \.fab-toggle-slider::before \{ background: #fff4dc; \}/);
+    expect(css).toMatch(/\.marble-ui \.fab-toggle-slider::before \{[^}]*background: #fff4dc;/);
     const card = css.match(/\.marble-ui \.marble-settings-card\.fab-modal-card--image \{[^}]*\}/);
     expect(card?.[0]).toContain("padding: 104px 42px 34px");
-    expect(css).toMatch(/\.marble-settings-modal--menu \.fab-modal-actions \{[^}]*padding-bottom: 4px/);
+  });
+
+  it("keeps the enlarged settings ribbon inside the phone safe area", () => {
+    const css = shellArtCss();
+    const ribbon = css.match(/\.marble-ui \.marble-settings-card > \.fab-modal-ribbon \{[^}]*\}/);
+    expect(ribbon?.[0]).toContain("width: min(calc(100% + 100px), calc(100vw - 16px))");
+
+    const modal = css.match(/\.fab-ui\.fab-modal-backdrop\.marble-settings-modal--menu \{[^}]*\}/);
+    expect(modal?.[0]).toContain("env(safe-area-inset-top)");
+    expect(modal?.[0]).toContain("48px");
+  });
+
+  it("uses the standard settings row, toggle, and action spacing", () => {
+    const css = shellArtCss();
+    const row = css.match(/\.marble-ui \.fab-toggle-row \{[^}]*\}/);
+    expect(row?.[0]).toContain("padding: 10px 18px 10px 24px");
+
+    const toggle = css.match(/\.marble-ui \.fab-toggle-switch \{[^}]*\}/);
+    expect(toggle?.[0]).toContain("width: 78px");
+    expect(toggle?.[0]).toContain("height: 42px");
+    expect(css).toMatch(/\.marble-ui \.fab-toggle-slider::before \{[^}]*width: 34px[^}]*height: 34px/);
+
+    const actions = css.match(/\.marble-settings-modal--ingame \.fab-modal-actions \{[^}]*\}/);
+    expect(actions?.[0]).toContain("margin-top: 18px");
+  });
+
+  it("matches the in-game card, ribbon, and outlined action geometry", () => {
+    const css = shellArtCss();
+    const card = css.match(/\.marble-settings-modal--ingame \.marble-settings-card \{[^}]*\}/);
+    expect(card?.[0]).toContain("height: 560px");
+    expect(card?.[0]).toContain("min-height: 560px");
+
+    const ribbon = css.match(/\.marble-ui \.marble-settings-card > \.fab-modal-ribbon \{[^}]*\}/);
+    expect(ribbon?.[0]).toContain("margin: calc(-104px - 38px)");
+
+    const title = css.match(/\.marble-ui \.marble-settings-card \.fab-modal-ribbon-title \{[^}]*\}/);
+    expect(title?.[0]).toContain("top: 39%");
+
+    const action = css.match(/\.marble-settings-modal--ingame \.marble-settings-action \{[^}]*\}/);
+    expect(action?.[0]).toContain("width: min(58%, 178px)");
+    expect(action?.[0]).toContain("-webkit-text-stroke: 1.4px #2b1f3d");
+  });
+
+  it("optically centers the close glyph and removes its clipped pressed outline", () => {
+    const css = shellArtCss();
+    const close = css.match(/\.marble-ui \.fab-modal-close \{[^}]*\}/);
+    expect(close?.[0]).toContain("display: grid");
+    expect(close?.[0]).toContain("place-items: center");
+    expect(close?.[0]).toContain("padding: 0 0 5px");
+    expect(css).toMatch(/\.marble-ui \.fab-modal-close:focus,[\s\S]*?\.marble-ui \.fab-modal-close:focus-visible \{[^}]*outline: none/);
+    const anchor = css.match(/\.marble-ui \.marble-settings-card > \.fab-modal-close \{[^}]*\}/);
+    expect(anchor?.[0]).toContain("top: -38px");
+    expect(anchor?.[0]).toContain("right: -8px");
+  });
+
+  it("renders an affordable hint at full opacity", () => {
+    const css = readFileSync("src/gameplay/hud.css", "utf8");
+    const enabledHint = css.match(/\.mr-gameplay-screen \.hint-btn:not\(:disabled\) \{[^}]*\}/);
+    expect(enabledHint).not.toBeNull();
+    expect(enabledHint![0]).toContain("opacity: 1");
+    const hintArt = css.match(/\.mr-gameplay-screen \.hint-btn-art \{[^}]*\}/);
+    expect(hintArt).not.toBeNull();
+    expect(hintArt![0]).not.toContain("filter:");
+    const disabledArt = css.match(/\.mr-gameplay-screen \.hint-btn:disabled \.hint-btn-art \{[^}]*\}/);
+    expect(disabledArt).not.toBeNull();
+    expect(disabledArt![0]).toContain("saturate(0.52)");
+  });
+
+  it("keeps the HINT label white with a dark outline", () => {
+    const css = readFileSync("src/gameplay/hud.css", "utf8");
+    const label = css.match(/\.mr-gameplay-screen \.hint-label \{[^}]*\}/);
+    expect(label).not.toBeNull();
+    expect(label![0]).toContain("color: #fff");
+    expect(label![0]).toContain("-webkit-text-stroke: 1px #4a356d");
+    expect(label![0]).toContain("text-shadow:");
   });
 
   it("uses v1's saga geometry", () => {

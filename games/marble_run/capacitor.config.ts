@@ -4,6 +4,9 @@
 // project (ios/ or android/) is generated on demand, never committed here — see
 // native-resources/README.md.
 import { computeIncludePlugins } from "./src/sdk/includePlugins";
+import { loadCapacitorSyncEnv } from "./src/sdk/capacitorSyncEnv";
+
+const syncEnv = loadCapacitorSyncEnv(process.env, process.cwd());
 
 const config = {
   appId: "com.basegamelab.marblerun",
@@ -13,7 +16,7 @@ const config = {
   // Firebase at boot (crashing when no config ships), so it is included ONLY when
   // the Firebase env config is present at sync time. Run ios:sync/android:sync
   // with the same env as the build so this check matches the shipped bundle.
-  includePlugins: computeIncludePlugins(process.env),
+  includePlugins: computeIncludePlugins(syncEnv),
   ios: {
     // Keep the WKWebView scroll view from applying automatic safe-area content
     // insets. The game owns safe-area rhythm through CSS env(...) probes and

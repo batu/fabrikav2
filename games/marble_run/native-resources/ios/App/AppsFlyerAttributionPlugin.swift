@@ -1,4 +1,5 @@
 import AppsFlyerLib
+import AppTrackingTransparency
 import Capacitor
 import UIKit
 
@@ -67,6 +68,11 @@ public class AppsFlyerAttributionPlugin: CAPPlugin, CAPBridgedPlugin {
             // Delay the first launch report until ATT resolves (or the timeout
             // fires) so conversion data carries the user's real consent state.
             lib.waitForATTUserAuthorization(timeoutInterval: Double(attWaitSeconds))
+            if #available(iOS 14, *), ATTrackingManager.trackingAuthorizationStatus == .notDetermined {
+                ATTrackingManager.requestTrackingAuthorization { [weak self] status in
+                    self?.log("ATT authorization resolved status=\(status.rawValue)")
+                }
+            }
         }
         lib.start()
         initialized = true

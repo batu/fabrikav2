@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+const projection = vi.hoisted(() => ({ x: 100, y: 200 }));
+
 // The three.js Stage + BoardScene need WebGL; mock them so the controller's
 // logic (engine wiring, tap → change, win/fail timing, hint gating, dispose)
 // runs headless. The marble-board engine itself is real.
@@ -14,12 +16,11 @@ vi.mock("../../src/three/Stage", () => ({
     dispose() {}
     pickObject() { return null; }
     pointerToWorld() { return null; }
-    worldToClient() { return { x: 0, y: 0 }; }
+    worldToClient() { return { ...projection }; }
   },
 }));
 
 interface MockBoardScene {
-  root: unknown;
   disposed: boolean;
 }
 
@@ -27,7 +28,6 @@ const boardHolder = vi.hoisted(() => ({ last: null as MockBoardScene | null }));
 
 vi.mock("../../src/three/BoardScene", () => {
   class MockBoardSceneImpl {
-    root = {};
     disposed = false;
     private readonly cb: {
       onAbsorbed: (c: unknown) => void;
@@ -41,6 +41,7 @@ vi.mock("../../src/three/BoardScene", () => {
     refreshGateLiveness() {}
     marbleMeshes() { return []; }
     cellOfMarble() { return null; }
+    worldPositionOfMarble() { return {}; }
     clearRoutePreview() {}
     isBlockedMarbleAnimating() { return false; }
     // Drive the controller's outcome callbacks the way the real animated board
@@ -56,7 +57,7 @@ vi.mock("../../src/three/BoardScene", () => {
     breakCompletedColor() {}
     dispose() { this.disposed = true; }
     tick() {}
-    cellToWorld() { return {}; }
+    cellToWorld() { throw new Error("input targeting must use the rendered marble position"); }
     worldToCell() { return null; }
     setAnimationSpeed() {}
     isAnimating() { return false; }
@@ -114,6 +115,8 @@ describe("GameplayController", () => {
     container.id = "game-container";
     document.body.appendChild(container);
     boardHolder.last = null;
+    projection.x = 100;
+    projection.y = 200;
   });
 
   afterEach(() => {
@@ -223,6 +226,22 @@ describe("GameplayController", () => {
     controller.showHint();
     expect(hooks.onHintUsed).toHaveBeenCalledTimes(1);
     expect(hooks.coins).toBe(0);
+  });
+
+  it("keeps the first-level tutorial target aligned while the board settles", () => {
+    controller = new GameplayController(container, makeHooks({ isFirstLevel: () => true }));
+    controller.startLevel(1);
+
+    const tutorial = container.querySelector<HTMLElement>(".tutorial-hand-layer");
+    expect(tutorial?.style.getPropertyValue("--tx")).toBe("100px");
+    expect(tutorial?.style.getPropertyValue("--ty")).toBe("200px");
+
+    projection.x = 124;
+    projection.y = 236;
+    vi.advanceTimersByTime(20);
+
+    expect(tutorial?.style.getPropertyValue("--tx")).toBe("124px");
+    expect(tutorial?.style.getPropertyValue("--ty")).toBe("236px");
   });
 
   it("disposes the board and cancels the loop on unmount", () => {

@@ -118,6 +118,7 @@ interface GateShard {
 
 export class BoardScene {
   readonly root = new THREE.Group();
+  private readonly marbleWorldPosition = new THREE.Vector3();
   private readonly engine: BoardEngine;
   private readonly callbacks: BoardCallbacks;
   private readonly marbles = new Map<number, MarbleNode>();
@@ -137,6 +138,7 @@ export class BoardScene {
   private routePreview: THREE.Group | null = null;
   private routePreviewT = 0;
   private breakingGates: Array<{ gate: THREE.Group; t: number }> = [];
+  private readonly pendingGateBreakColors = new Set<MarbleColor>();
   private gateShards: GateShard[] = [];
   private rollingSoundActive = false;
   private mistakeFeedbackT = 0;
@@ -333,6 +335,15 @@ export class BoardScene {
   cellOfMarble(id: number): Cell | null {
     const m = this.engine.allMarbles().find((x) => x.id === id);
     return m ? m.cell : null;
+  }
+
+  /** Current rendered centre of the marble occupying `cell`.
+   * Unlike an ideal grid projection, this includes board settle/drop motion. */
+  worldPositionOfMarble(cell: Cell): THREE.Vector3 | null {
+    const marble = this.engine.marbleAt(cell);
+    if (!marble) return null;
+    const node = this.marbles.get(marble.id);
+    return node ? node.group.getWorldPosition(this.marbleWorldPosition) : null;
   }
 
   isAnimating(): boolean {
@@ -995,6 +1006,21 @@ export class BoardScene {
   }
 
   breakCompletedColor(color: MarbleColor): void {
+    if (this.rolls.some((roll) => roll.change.color === color)) {
+      this.pendingGateBreakColors.add(color);
+      return;
+    }
+    this.startGateBreak(color);
+  }
+
+  private releasePendingGateBreak(color: MarbleColor): void {
+    if (!this.pendingGateBreakColors.has(color)) return;
+    if (this.rolls.some((roll) => roll.change.color === color)) return;
+    this.pendingGateBreakColors.delete(color);
+    this.startGateBreak(color);
+  }
+
+  private startGateBreak(color: MarbleColor): void {
     for (const gate of this.engine.level.gates) {
       if (gate.color !== color) continue;
       const key = gateKey(gate);
@@ -1222,6 +1248,7 @@ export class BoardScene {
       }
       this.spawnCollectionBurst(r.change.gate, r.change.color, r.change.streak);
       this.callbacks.onAbsorbed(r.change);
+      this.releasePendingGateBreak(r.change.color);
     }
     if (done.length > 0 && this.rolls.length === 0 && this.rollingSoundActive) {
       this.rollingSoundActive = false;

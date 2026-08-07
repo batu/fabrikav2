@@ -1,0 +1,50 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { describe, expect, it } from "vitest";
+
+const gameFile = (relativePath: string): string =>
+  readFileSync(resolve(process.cwd(), relativePath), "utf8");
+
+describe("Marble Run publisher bug-list regressions", () => {
+  it("disables iOS selection callouts and native image dragging across every game surface", () => {
+    const html = gameFile("index.html");
+    const rootRule = html.match(/html,\s*body\s*\{([^}]*)\}/)?.[1];
+    const imageRule = html.match(/img\s*\{([^}]*)\}/)?.[1];
+    expect(rootRule).toMatch(/-webkit-user-select:\s*none/);
+    expect(rootRule).toMatch(/-webkit-touch-callout:\s*none/);
+    expect(imageRule).toMatch(/-webkit-user-drag:\s*none/);
+  });
+
+  it("does not hold the first paint behind a remote-config network round trip", () => {
+    const bootScene = gameFile("src/scenes/BootScene.ts");
+    const bootstrap = gameFile("src/bootstrap.ts");
+    expect(bootstrap).toContain("remoteConfigService.init();");
+    expect(bootstrap.indexOf("remoteConfigService.init();"))
+      .toBeLessThan(bootstrap.indexOf("new Phaser.Game(GameConfig)"));
+    expect(bootScene).not.toContain("remoteConfigService");
+    expect(bootScene).not.toContain("await remoteConfigService.initAndWaitForTest()");
+  });
+
+  it("paints the home shell before constructing its decorative WebGL preview", () => {
+    const homeScene = gameFile("src/scenes/HomeScene.ts");
+    expect(homeScene).toContain("this.prepareBoardPreviewSlot();");
+    expect(homeScene.indexOf("this.prepareBoardPreviewSlot();"))
+      .toBeLessThan(homeScene.indexOf("this.scheduleBoardPreviewAfterPaint();"));
+    expect(homeScene).toContain("this.scheduleBoardPreviewAfterPaint();");
+    expect(homeScene).toMatch(/scheduleBoardPreviewAfterPaint[\s\S]*requestAnimationFrame\(\(\) => requestAnimationFrame/);
+  });
+
+  it("does not create a redundant Phaser WebGL renderer during cold boot", () => {
+    const gameConfig = gameFile("src/core/GameConfig.ts");
+    expect(gameConfig).toContain("type: Phaser.CANVAS");
+    expect(gameConfig).not.toContain("type: Phaser.AUTO");
+  });
+
+  it("requests ATT while authorization is still undetermined before AppsFlyer starts", () => {
+    const plugin = gameFile("native-resources/ios/App/AppsFlyerAttributionPlugin.swift");
+    expect(plugin).toContain("import AppTrackingTransparency");
+    expect(plugin).toContain("ATTrackingManager.requestTrackingAuthorization");
+    expect(plugin.indexOf("ATTrackingManager.requestTrackingAuthorization"))
+      .toBeLessThan(plugin.indexOf("lib.start()"));
+  });
+});

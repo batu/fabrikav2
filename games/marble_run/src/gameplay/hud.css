@@ -290,6 +290,9 @@
 .mr-gameplay-screen .hint-btn:active {
   transform: translateY(5px) scale(0.94);
 }
+.mr-gameplay-screen .hint-btn:not(:disabled) {
+  opacity: 1;
+}
 .mr-gameplay-screen .hint-btn:disabled {
   cursor: default;
   opacity: 0.58;
@@ -304,18 +307,23 @@
   height: 100%;
   object-fit: contain;
   pointer-events: none;
+}
+.mr-gameplay-screen .hint-btn:disabled .hint-btn-art {
   filter: saturate(0.52) brightness(0.96) hue-rotate(10deg);
 }
 .mr-gameplay-screen .hint-label {
   position: relative;
   z-index: 1;
   margin-top: 23px;
-  color: #e5ddff;
+  color: #fff;
   font-family: var(--vida-font-number);
   font-size: 17px;
   line-height: 1;
-  -webkit-text-stroke: 0;
-  text-shadow: 0 2px 0 #5a467b !important;
+  -webkit-text-stroke: 1px #4a356d;
+  paint-order: stroke fill;
+  text-shadow:
+    0 2px 0 #4a356d,
+    0 3px 2px rgba(35, 22, 58, 0.72) !important;
 }
 .mr-gameplay-screen .hint-cost {
   position: relative;

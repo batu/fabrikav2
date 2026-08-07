@@ -77,6 +77,7 @@ export class HomeScene extends Phaser.Scene {
   }
 
   create(): void {
+    console.info(`[startup] home-scene-create ${performance.now().toFixed(1)}ms`);
     this.isShuttingDown = false;
     const overlay = document.getElementById('hud-overlay');
     if (!overlay) {
@@ -88,6 +89,9 @@ export class HomeScene extends Phaser.Scene {
     void adService.hideBanner();
     setHomeCallback(() => this.renderHomeScreen());
     this.renderHomeScreen();
+    requestAnimationFrame(() => {
+      console.info(`[startup] home-first-paint ${performance.now().toFixed(1)}ms`);
+    });
     this.scheduleHomeAmbient();
     this.registerLifecycleSuspendHooks();
     this.startMenuVignette();
@@ -252,7 +256,26 @@ export class HomeScene extends Phaser.Scene {
       onOpenSettings: () => this.openHomeSettings(),
     });
 
-    this.mountBoardPreview();
+    this.prepareBoardPreviewSlot();
+    this.scheduleBoardPreviewAfterPaint();
+  }
+
+  private prepareBoardPreviewSlot(): void {
+    const shell = this.overlay?.querySelector<HTMLElement>('#home-shell');
+    if (!shell || shell.querySelector('.marble-home-board-preview-slot')) return;
+    const header = shell.querySelector<HTMLElement>('.marble-home-header');
+    const slot = document.createElement('div');
+    slot.className = 'marble-home-board-preview-slot';
+    if (header) header.insertAdjacentElement('afterend', slot);
+    else shell.prepend(slot);
+  }
+
+  private scheduleBoardPreviewAfterPaint(): void {
+    const generation = this.navigationGeneration;
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (this.isShuttingDown || generation !== this.navigationGeneration) return;
+      this.mountBoardPreview();
+    }));
   }
 
   /**
@@ -264,18 +287,10 @@ export class HomeScene extends Phaser.Scene {
   private mountBoardPreview(): void {
     this.disposeBoardPreview();
     const overlay = this.overlay;
-    const shell = overlay?.querySelector<HTMLElement>('#home-shell');
-    if (!overlay || !shell) return;
-    // MRV2-11 U4: reserve the banner→saga vertical room with an in-flow spacer,
-    // but render the actual decor canvas FULL-BLEED behind the home DOM (mounted
-    // on the overlay, CSS-positioned fixed/inset:0 at z-index:0 below the shell).
-    // Stage renders at viewport aspect, so a viewport-sized canvas reproduces
-    // v1's large tilted framed board — the old square slot squished it.
-    const header = shell.querySelector<HTMLElement>('.marble-home-header');
-    const slot = document.createElement('div');
-    slot.className = 'marble-home-board-preview-slot';
-    if (header) header.insertAdjacentElement('afterend', slot);
-    else shell.prepend(slot);
+    if (!overlay?.querySelector('#home-shell')) return;
+    // Render the actual decor canvas FULL-BLEED behind the home DOM. The in-flow
+    // spacer was inserted synchronously so this deferred construction cannot
+    // shift the already-painted saga layout.
     this.boardPreview = new HomeBoardPreview(overlay, 'marble-home-board-preview');
   }
 

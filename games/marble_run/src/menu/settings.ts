@@ -14,7 +14,7 @@ import { assetUrls } from '../../design/theme';
 /**
  * v1 sugar3d settings surface: one Popup modal with the Music / Sound Effects /
  * Haptics toggle rows, in two variants (KTD2 — v1 has no separate pause menu):
- *  - menu variant: a single Close action.
+ *  - menu variant: the banner X is the only dismiss control.
  *  - in-game variant: Restart + Home action rows (the HUD pause/settings button
  *    opens this same modal).
  * Toggles bind to the scaffold's existing gameState.settings audio/haptics store.
@@ -22,7 +22,7 @@ import { assetUrls } from '../../design/theme';
 
 export interface MountSettingsOptions {
   mountInto: HTMLElement;
-  /** In-game (pause) variant → Restart + Home rows; otherwise the menu Close row. */
+  /** In-game (pause) variant → Restart + Home rows; otherwise no action rows. */
   inGame: boolean;
   /** Restart the active level (in-game variant only). */
   onRestart?: () => void;
@@ -71,7 +71,7 @@ export function mountSettings(opts: MountSettingsOptions): UiHandle {
     onToggle: (key, next) => bindToggle(key as 'music' | 'sfx' | 'haptics', next),
   });
 
-  const actions: ModalAction[] = opts.inGame
+  const actions: ModalAction[] | undefined = opts.inGame
     ? [
         {
           label: 'Restart',
@@ -96,15 +96,7 @@ export function mountSettings(opts: MountSettingsOptions): UiHandle {
           },
         },
       ]
-    : [
-        {
-          label: 'CLOSE',
-          dataAction: 'settings-close',
-          className: 'marble-settings-action',
-          spriteImage: assetUrls.buttonGreen,
-          onClick: () => handle.dismiss(),
-        },
-      ];
+    : undefined;
 
   const handle = mountModalShell({
     mountInto: opts.mountInto,

@@ -87,6 +87,7 @@ export class GameplayController {
   private inputReadyAt = 0;
   private tutorialEl: HTMLElement | null = null;
   private tutorialCell: Cell | null = null;
+  private tutorialPoint: { x: number; y: number } | null = null;
   private lastTime = performance.now();
   private pendingPointer: PendingPointer | null = null;
   private longPressTimer: number | null = null;
@@ -220,6 +221,7 @@ export class GameplayController {
     this.engine = null;
     this.tutorialEl = null;
     this.tutorialCell = null;
+    this.tutorialPoint = null;
   }
 
   // ── Input ───────────────────────────────────────────────────────
@@ -384,6 +386,7 @@ export class GameplayController {
         this.tutorialEl.remove();
         this.tutorialEl = null;
         this.tutorialCell = null;
+        this.tutorialPoint = null;
       }
       this.hapticImpact(ImpactStyle.Light);
       this.hud.popStreak(change.streak);
@@ -493,6 +496,7 @@ export class GameplayController {
     this.tutorialCell = target;
     this.tutorialEl?.remove();
     this.tutorialEl = this.hud.showTutorialHand(point);
+    this.tutorialPoint = point;
     const preview = this.engine.previewTap(target);
     if (preview) this.board.showRoutePreview(preview);
   }
@@ -505,6 +509,17 @@ export class GameplayController {
     window.setTimeout(() => this.tutorialEl?.classList.remove('tutorial-reject'), 420);
   }
 
+  private updateTutorialPosition(): void {
+    if (!this.tutorialEl || !this.tutorialCell) return;
+    const point = this.cellClientPoint(this.tutorialCell);
+    if (!point) return;
+    const previousPoint = this.tutorialPoint;
+    if (previousPoint && point.x === previousPoint.x && point.y === previousPoint.y) return;
+    this.tutorialEl.style.setProperty('--tx', `${point.x}px`);
+    this.tutorialEl.style.setProperty('--ty', `${point.y}px`);
+    this.tutorialPoint = point;
+  }
+
   // ── Loop ────────────────────────────────────────────────────────
 
   private loop(): void {
@@ -514,6 +529,10 @@ export class GameplayController {
     this.lastTime = now;
     if (!this.paused) {
       this.board?.tick(dt);
+      // The cue is mounted before the board's settle/drop animation completes.
+      // Reproject it each frame so the visible marble and its tap cue stay one
+      // target instead of separating vertically during first-level onboarding.
+      this.updateTutorialPosition();
     }
     this.stage.render();
     this.rafHandle = requestAnimationFrame(() => this.loop());
@@ -521,8 +540,8 @@ export class GameplayController {
 
   cellClientPoint(cell: Cell): { x: number; y: number } | null {
     if (!this.board) return null;
-    const local = this.board.cellToWorld(cell, 0.15 + W3D.MARBLE_R);
-    const world = this.board.root.localToWorld(local);
+    const world = this.board.worldPositionOfMarble(cell);
+    if (!world) return null;
     return this.stage.worldToClient(world);
   }
 
