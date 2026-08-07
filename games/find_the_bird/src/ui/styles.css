@@ -3377,10 +3377,16 @@
 
 .home-map-stage .fab-levelmap-node.current .fab-levelmap-node-dot {
   /* Extra outline ring + depth shadow for the playable tile only. Locked tiles
-     keep their source art edges without the white halo. */
+     keep their source art edges without the white halo.
+     EIGHT directions, not four: four axis-aligned drop-shadows leave the
+     diagonals uncovered, so the ring's corners come out cut at 45 degrees —
+     the "octagonal corners" (2026-08-07). Diagonals use 1.06px = 1.5/sqrt(2)
+     so every direction extends the same distance. */
   filter:
     drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
     drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
+    drop-shadow(1.06px 1.06px 0 #fff) drop-shadow(-1.06px 1.06px 0 #fff)
+    drop-shadow(1.06px -1.06px 0 #fff) drop-shadow(-1.06px -1.06px 0 #fff)
     drop-shadow(0 5px 6px rgba(70, 35, 8, 0.34));
 }
 
@@ -3408,6 +3414,8 @@
     filter:
       drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
       drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
+      drop-shadow(1.06px 1.06px 0 #fff) drop-shadow(-1.06px 1.06px 0 #fff)
+      drop-shadow(1.06px -1.06px 0 #fff) drop-shadow(-1.06px -1.06px 0 #fff)
       drop-shadow(0 5px 6px rgba(70, 35, 8, 0.34))
       drop-shadow(0 0 6px rgba(64, 210, 222, 0.42));
   }
@@ -3416,6 +3424,8 @@
     filter:
       drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
       drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
+      drop-shadow(1.06px 1.06px 0 #fff) drop-shadow(-1.06px 1.06px 0 #fff)
+      drop-shadow(1.06px -1.06px 0 #fff) drop-shadow(-1.06px -1.06px 0 #fff)
       drop-shadow(0 7px 8px rgba(70, 35, 8, 0.34))
       drop-shadow(0 0 16px rgba(64, 210, 222, 0.85));
   }
@@ -3455,6 +3465,8 @@
     filter:
       drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
       drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
+      drop-shadow(1.06px 1.06px 0 #fff) drop-shadow(-1.06px 1.06px 0 #fff)
+      drop-shadow(1.06px -1.06px 0 #fff) drop-shadow(-1.06px -1.06px 0 #fff)
       drop-shadow(0 5px 6px rgba(70, 35, 8, 0.34))
       drop-shadow(0 0 12px rgba(64, 210, 222, 0.6));
   }
@@ -3525,6 +3537,8 @@
   filter:
     drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
     drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
+    drop-shadow(1.06px 1.06px 0 #fff) drop-shadow(-1.06px 1.06px 0 #fff)
+    drop-shadow(1.06px -1.06px 0 #fff) drop-shadow(-1.06px -1.06px 0 #fff)
     drop-shadow(0 4px 5px rgba(70, 36, 10, 0.5));
 }
 #home-shell #home-nav-achievements img {
@@ -5516,6 +5530,8 @@
   filter:
     drop-shadow(1.5px 0 0 #fff) drop-shadow(-1.5px 0 0 #fff)
     drop-shadow(0 1.5px 0 #fff) drop-shadow(0 -1.5px 0 #fff)
+    drop-shadow(1.06px 1.06px 0 #fff) drop-shadow(-1.06px 1.06px 0 #fff)
+    drop-shadow(1.06px -1.06px 0 #fff) drop-shadow(-1.06px -1.06px 0 #fff)
     drop-shadow(0 5px 6px rgba(70, 35, 8, 0.34));
 }
 
