@@ -10,7 +10,8 @@ have actually cost time.
 
 ## 1. The shape of the system
 
-Four things, one shared store:
+Four pieces: the UI and CLI share the backend session store; export
+materializes game assets, and the publisher uploads the curated build to R2:
 
 | Piece | What it is | Where |
 |---|---|---|
@@ -46,8 +47,10 @@ level.json        generated at export from hitboxes + sprite metadata
 dogs/dog_NN/      sprite_000.png (cutout), sprite_000.json (geometry)
 ```
 
-`hitboxes.json` is the file a human owns. Everything else is derived. When
-in doubt about "did my edit land", compare its mtime against the exported
+`hitboxes.json` is the human-owned placement artifact. Exported `level.json`
+is derived from it and the existing sprite metadata; generated scene,
+background, sprite and session files remain source artifacts for that export.
+When in doubt about "did my edit land", compare its mtime against the exported
 `public/levels/<id>/level.json`.
 
 ---
@@ -117,8 +120,8 @@ game's style, reuse that lane rather than hand-cutting.
 Placement is machine-proposed and human-corrected. Three stages:
 
 1. **Placement** — vision-scored candidate positions (`place-hitboxes-vlm`),
-   default radius scaled to the canvas (57 @ 2688). Deadzones exclude the HUD
-   band, banner, hint chip and the side margins.
+   default radius scaled from 58 at the 4096 reference (38 @ 2688). Deadzones
+   exclude the HUD band, banner, hint chip and the side margins.
 2. **Recentre** (`recenter-hitboxes-local --prune-empty`) — snaps each hitbox
    to the centroid of the painted-vs-clean **diff** in its neighbourhood.
    With an aligned scene the diff is bird-only, so this beats VLM boxes.
@@ -179,9 +182,9 @@ hand repeatedly):
 
 Three separate concepts, easy to confuse:
 
-- **Catalog** — append-only. Every level ever approved stays forever. 98
-  entries today for a 49-level game. Old campaign levels, A/B variants and
-  experiments all live here and reach nobody.
+- **Catalog** — append-only. Every level ever approved stays forever. 101
+  entries as of 2026-08-07 for a 49-level game. Old campaign levels, A/B
+  variants and experiments all live here and reach nobody.
 - **Lineup** (a.k.a. sequence) — the curated, ordered subset that IS the game.
   Edited in the editor's Lineup tab (drag to reorder), stored in
   `state/sequence-workflow.json` as `draft.levelIds`, activated through
