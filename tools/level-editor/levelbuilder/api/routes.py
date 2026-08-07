@@ -1166,6 +1166,18 @@ def sprite_candidate_overlay(
     return Response(content=content, media_type="image/png", headers={"Cache-Control": "no-store"})
 
 
+@router.get("/sessions/{session_id}/cutout-extraction-prompt")
+def cutout_extraction_prompt(session_id: str):
+    _validate_session_id(session_id)
+    raw = S.load_session_raw(session_id)
+    if raw is None:
+        raise HTTPException(404, detail={"error": "Session not found"})
+    from levelbuilder.api.flatkey import FLAT_PROMPT_TEMPLATE
+
+    entity = str(raw.get("entity") or "bird")
+    return {"prompt": FLAT_PROMPT_TEMPLATE.format(entity=entity), "entity": entity}
+
+
 @router.get("/sessions/{session_id}/animation-jobs")
 def list_animation_jobs(session_id: str) -> dict[str, list[dict[str, Any]]]:
     _validate_session_id(session_id)

@@ -13,14 +13,19 @@ from PIL import Image
 from scipy import ndimage
 
 FLAT_PROMPT_TEMPLATE = (
-    "Recreate the exact same cartoon {entity} character from this image — identical "
-    "species impression, colors, markings, pose, expression, and any held or worn "
-    "item (broom, basket, hat, tool: keep it) — as a clean sticker illustration "
-    "on a completely uniform, flat, pure magenta (#FF00FF) background. Match the "
-    "image's rendering style (if it is uncolored line art, stay uncolored). "
-    "Exactly ONE {entity}. No shadows, no scenery, no props that the {entity} is not "
-    "holding, no gradient, no texture: perfectly flat magenta everywhere except "
-    "the {entity} itself. The {entity} must be fully inside the frame."
+    "CUTOUT-ONLY TASK. Extract and faithfully duplicate exactly ONE selected cartoon "
+    "{entity} from the reference image as a standalone sprite. Preserve the same "
+    "species impression, colors, markings, proportions, pose, expression, line "
+    "weight, rendering style, and any item physically held or worn by the {entity}. "
+    "Do not redesign, restyle, beautify, simplify, recolor, reposition, or replace it. "
+    "If the selected {entity} is partially occluded, infer and complete only the hidden "
+    "anatomy needed to form one plausible complete {entity}; preserve every visible "
+    "part exactly and do not include the occluding object. "
+    "Output the complete {entity}, fully inside the frame, on a completely uniform, "
+    "flat, pure magenta (#FF00FF) background. Every pixel that is not the selected "
+    "{entity} or an item it is physically holding/wearing must be exactly #FF00FF. "
+    "No scenery, floor, wall, furniture, plants, other animals, detached props, cast "
+    "shadows, glow, outline sticker rim, text, gradient, texture, or second subject."
 )
 # Bird default kept for existing callers/tests.
 FLAT_PROMPT = FLAT_PROMPT_TEMPLATE.format(entity="bird")

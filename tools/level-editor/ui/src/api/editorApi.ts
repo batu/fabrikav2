@@ -363,6 +363,10 @@ export function listSpriteCandidates(sessionId: string): Promise<{ candidates: S
   return request<{ candidates: SpriteCandidate[] }>(`/api/sessions/${sessionId}/sprite-candidates`);
 }
 
+export function getCutoutExtractionPrompt(sessionId: string): Promise<{ prompt: string; entity: string }> {
+  return request(`/api/sessions/${sessionId}/cutout-extraction-prompt`);
+}
+
 export interface CreateAnimationJobRequest {
   sourceCandidateId: string;
   prompt: string;
@@ -798,6 +802,7 @@ export function startRetryFailedDogsJob(
   padding: number = 2.75,
   inpaintModel?: string,
   cropBoxes: Record<number, [number, number, number, number]> = {},
+  cutoutOnly: boolean = false,
 ): Promise<RetryFailedDogsJobResponse> {
   return request(`/api/sessions/${sessionId}/dogs/retry-inpaint/jobs`, {
     method: 'POST',
@@ -807,6 +812,7 @@ export function startRetryFailedDogsJob(
       prompt,
       padding,
       cropBoxes,
+      cutoutOnly,
       ...(inpaintModel ? { inpaintModel } : {}),
     }),
   });

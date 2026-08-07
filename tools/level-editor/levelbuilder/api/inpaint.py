@@ -3774,6 +3774,7 @@ class RetryFailedDogsJobRequest(BaseModel):
     inpaintModel: str | None = Field(None, max_length=200)
     padding: float = Field(2.75, ge=0.5, le=4.0)
     cropBoxes: dict[int, tuple[int, int, int, int]] = Field(default_factory=dict)
+    cutoutOnly: bool = False
 
 
 class RetryFailedDogUnitResponse(BaseModel):
@@ -4043,6 +4044,7 @@ def _retry_failed_dogs_idempotency_key(
     model: str | None,
     padding: float,
     crop_boxes: dict[int, tuple[int, int, int, int]],
+    cutout_only: bool,
 ) -> str:
     payload = json.dumps(
         {
@@ -4051,6 +4053,7 @@ def _retry_failed_dogs_idempotency_key(
             "model": model or "",
             "padding": padding,
             "cropBoxes": crop_boxes,
+            "cutoutOnly": cutout_only,
         },
         sort_keys=True,
         separators=(",", ":"),
@@ -4116,6 +4119,7 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
         model=model,
         padding=req.padding,
         crop_boxes=req.cropBoxes,
+        cutout_only=req.cutoutOnly,
     )
     existing = JOB_STORE.get_job_by_idempotency_key(kind="crop_inpaint_retry", idempotency_key=key)
     if existing is not None:
@@ -4133,6 +4137,7 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
             "model": model,
             "padding": req.padding,
             "cropBoxes": {str(index): list(box) for index, box in req.cropBoxes.items()},
+            "cutoutOnly": req.cutoutOnly,
             "safeToRequeue": True,
         },
     )
@@ -4197,6 +4202,107 @@ def _prepare_retry_failed_dog_unit_jobs(
     return child_jobs
 
 
+def _run_single_cutout_extraction(
+    session_id: str,
+    dog_index: int,
+    *,
+    crop_box: tuple[int, int, int, int],
+) -> dict[str, Any]:
+    """Extract and duplicate only the pickup sprite; scene and hitboxes stay immutable."""
+    raw = S.load_session_raw(session_id)
+    if raw is None:
+        raise HTTPException(404, detail={"error": "Session not found"})
+    dog = next(
+        (item for item in raw.get("dogs") or [] if isinstance(item, dict) and item.get("index") == dog_index),
+        None,
+    )
+    variant_index = dog.get("activeVariant") if dog is not None else None
+    if not isinstance(variant_index, int):
+        raise HTTPException(400, detail={"error": f"Dog {dog_index} has no active painted variant"})
+
+    sdir = S.session_dir(session_id)
+    color_path = sdir / "color.png"
+    dog_dir = S.dogs_dir(session_id) / f"dog_{dog_index:02d}"
+    metadata_path = dog_dir / f"sprite_{variant_index:03d}.json"
+    if not color_path.is_file() or not metadata_path.is_file():
+        raise HTTPException(400, detail={"error": f"Dog {dog_index} is missing cutout source assets"})
+    metadata = json.loads(metadata_path.read_text())
+    target_box = metadata.get("spriteBox")
+    if not (isinstance(target_box, list) and len(target_box) == 4):
+        raise HTTPException(400, detail={"error": f"Dog {dog_index} has invalid sprite placement"})
+
+    with Image.open(color_path) as source:
+        color = source.convert("RGB")
+    try:
+        if not (0 <= crop_box[0] < crop_box[2] <= color.width and
+                0 <= crop_box[1] < crop_box[3] <= color.height):
+            raise HTTPException(400, detail={"error": f"Crop box for dog {dog_index} is outside the scene"})
+        painted_crop = color.crop(crop_box)
+    finally:
+        color.close()
+
+    from levelbuilder.api.flatkey import flatkey_recreate_sprite
+
+    model = os.environ.get("FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-lite-image")
+    entity = str(raw.get("entity") or "bird")
+    try:
+        recreated = flatkey_recreate_sprite(painted_crop, model=model, entity=entity)
+    finally:
+        painted_crop.close()
+    if recreated is None:
+        raise InpaintError(dog_index, RuntimeError("cutout extraction failed purity or subject gates"))
+
+    x0, y0, x1, y1 = [int(value) for value in target_box]
+    target_width = max(1, x1 - x0)
+    target_height = max(1, y1 - y0)
+    scale = min(target_width / recreated.width, target_height / recreated.height)
+    fitted = recreated.resize(
+        (max(1, round(recreated.width * scale)), max(1, round(recreated.height * scale))),
+        Image.Resampling.LANCZOS,
+    )
+    recreated.close()
+    placed_x0 = x0 + (target_width - fitted.width) // 2
+    placed_y0 = y1 - fitted.height
+    fitted_width, fitted_height = fitted.size
+    placed_box = [placed_x0, placed_y0, placed_x0 + fitted_width, placed_y0 + fitted_height]
+    alpha = fitted.getchannel("A")
+    sprite_path = dog_dir / f"sprite_{variant_index:03d}.png"
+    mask_path = dog_dir / f"sprite_mask_{variant_index:03d}.png"
+    _atomic_save_image(fitted, sprite_path)
+    _atomic_save_image(alpha, mask_path)
+    fitted.close()
+    alpha.close()
+
+    hitbox_path = sdir / "hitboxes.json"
+    hitboxes = json.loads(hitbox_path.read_text())
+    hb_data = _resolve_regen_hitbox(raw.get("dogs") or [], hitboxes, dog_index)
+    anchor_x = 0.5
+    anchor_y = 0.5
+    if hb_data is not None:
+        anchor_x = min(1.0, max(0.0, (float(hb_data["x"]) - placed_box[0]) / max(1, fitted_width)))
+        anchor_y = min(1.0, max(0.0, (float(hb_data["y"]) - placed_box[1]) / max(1, fitted_height)))
+    next_metadata = {
+        **metadata,
+        "image": f"dogs/dog_{dog_index:02d}/{sprite_path.name}",
+        "mask": f"dogs/dog_{dog_index:02d}/{mask_path.name}",
+        "sourceBox": list(crop_box),
+        "spriteBox": placed_box,
+        "cleanupBox": placed_box,
+        "width": placed_box[2] - placed_box[0],
+        "height": placed_box[3] - placed_box[1],
+        "anchorX": round(anchor_x, 4),
+        "anchorY": round(anchor_y, 4),
+        "technique": "flatkey-recreate-cutout-only-v2",
+        "quality": {**(metadata.get("quality") or {}), "pickupUsable": True},
+    }
+    _atomic_write_json(next_metadata, metadata_path)
+    return {
+        "dogIndex": dog_index,
+        "variantIndex": variant_index,
+        "file": str(metadata.get("sourceVariant") or f"dogs/dog_{dog_index:02d}/variant_{variant_index:03d}.png"),
+    }
+
+
 def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any]:
     metadata = job.metadata
     session_id = job.session_id
@@ -4208,6 +4314,7 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
         int(index): tuple(int(value) for value in box)
         for index, box in (metadata.get("cropBoxes") or {}).items()
     }
+    cutout_only = bool(metadata.get("cutoutOnly"))
     child_jobs = _prepare_retry_failed_dog_unit_jobs(job, store, dog_indices)
     succeeded = 0
     failed = 0
@@ -4237,15 +4344,23 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
         })
         store.update_metadata(job.id, {"safeToRequeue": False, "providerSubmissionStarted": True})
         try:
-            result = _run_single_dog_regen(
-                session_id,
-                dog_index,
-                prompt=prompt,
-                padding=padding,
-                crop_box=crop_boxes.get(dog_index),
-                inpaint_model=model,
-                defer_composite=True,
-            )
+            if cutout_only:
+                crop_box = crop_boxes.get(dog_index)
+                if crop_box is None:
+                    raise HTTPException(400, detail={"error": f"Cutout-only redo requires a crop box for dog {dog_index}"})
+                result = _run_single_cutout_extraction(
+                    session_id, dog_index, crop_box=crop_box,
+                )
+            else:
+                result = _run_single_dog_regen(
+                    session_id,
+                    dog_index,
+                    prompt=prompt,
+                    padding=padding,
+                    crop_box=crop_boxes.get(dog_index),
+                    inpaint_model=model,
+                    defer_composite=True,
+                )
             variant_idx = int(result["variantIndex"])
             file_name = str(result["file"])
             _mark_crop_inpaint_unit_succeeded(
@@ -4282,7 +4397,7 @@ def _run_retry_failed_dogs_job(job: JobRecord, store: JobStore) -> dict[str, Any
             })
             failed += 1
 
-    if succeeded > 0:
+    if succeeded > 0 and not cutout_only:
         recomposite_color(session_id)
     result_data = {"succeeded": succeeded, "failed": failed, "dogIndices": dog_indices}
     store.update_result(job.id, result_data)

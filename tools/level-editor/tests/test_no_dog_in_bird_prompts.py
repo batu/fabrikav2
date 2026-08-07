@@ -24,6 +24,16 @@ def test_openai_mask_addendum_is_entity_neutral():
     assert not DOG.search(tail), tail
 
 
+def test_flatkey_prompt_is_cutout_only_and_completes_occlusion():
+    from levelbuilder.api.flatkey import FLAT_PROMPT
+
+    assert "CUTOUT-ONLY TASK" in FLAT_PROMPT
+    assert "Every pixel that is not" in FLAT_PROMPT
+    assert "partially occluded" in FLAT_PROMPT
+    assert "infer and complete only the hidden anatomy" in FLAT_PROMPT
+    assert "do not include the occluding object" in FLAT_PROMPT
+
+
 @pytest.mark.parametrize("style", ("bold_cardboard", "lineart", "clean_old_cartoon"))
 def test_server_recipe_scene_prompt_uses_selected_bird_entity(style):
     from levelbuilder.api.routes import RecipePromptRequest, _assemble_recipe_prompts
