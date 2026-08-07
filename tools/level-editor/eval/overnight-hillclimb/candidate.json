@@ -1,15 +1,12 @@
 {
-  "name": "nested-gradient-safe-redo-extra-trees",
+  "name": "nested-logistic-safe-redo-extra-trees",
   "redoWeight": 0.05,
   "placement": {
-    "model": "gradient_boosting",
+    "model": "logistic",
     "label": "correction",
     "featureSet": "all",
     "featureDrop": [],
-    "estimators": 100,
-    "learningRate": 0.05,
-    "maxDepth": 2,
-    "minLeaf": 3,
+    "C": 0.5,
     "classWeight": "balanced",
     "thresholds": [0.5, 0.6, 0.7, 0.8],
     "movementCaps": [0.25, 0.35, 0.45],
