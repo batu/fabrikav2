@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import math
+import subprocess
 import time
 from collections import defaultdict
 from pathlib import Path
@@ -113,15 +114,17 @@ def _model(config: dict[str, Any]) -> Any:
     class_weight = config.get("classWeight", "balanced")
     class_weight = None if class_weight in {None, "none"} else class_weight
     if name == "logistic":
+        logistic_options: dict[str, Any] = {}
+        if config.get("penalty") == "l1":
+            logistic_options["l1_ratio"] = 1.0
         return make_pipeline(
             StandardScaler(),
             LogisticRegression(
                 C=float(config.get("C", 0.5)),
                 class_weight=class_weight,
                 max_iter=5000,
-                penalty=config.get("penalty", "l2"),
-                solver="liblinear" if config.get("penalty") == "l1" else "lbfgs",
                 random_state=0,
+                **logistic_options,
             ),
         )
     if name == "forest":
@@ -421,6 +424,7 @@ def evaluate_redo(config: dict[str, Any]) -> dict[str, Any]:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, required=True)
+    parser.add_argument("--details-out", type=Path)
     arguments = parser.parse_args()
     started = time.monotonic()
     config_bytes = arguments.config.read_bytes()
@@ -432,6 +436,14 @@ def main() -> None:
     output = {
         "config_name": config.get("name", arguments.config.stem),
         "config_sha256": hashlib.sha256(config_bytes).hexdigest(),
+        "harness_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        "code_revision": subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=REPO_ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip(),
         "manifest_sha256": hashlib.sha256(MANIFEST.read_bytes()).hexdigest(),
         "manifest_valid": int(validation["approved"] == 162),
         "objective_loss": placement["balancedLoss"] + redo_weight * (1.0 - redo["averagePrecision"]),
@@ -454,7 +466,10 @@ def main() -> None:
         "redo_feature_count": redo["featureCount"],
         "runtime_seconds": time.monotonic() - started,
         "fold_policies": placement["folds"],
-        "changed_placements": [
+        "changed_placement_count": placement["applied"],
+    }
+    if arguments.details_out:
+        details = [
             {
                 "levelId": row["levelId"],
                 "dogId": row["dogId"],
@@ -466,8 +481,10 @@ def main() -> None:
                 "targetBox": row["targetBox"],
             }
             for row in selected_rows if row["applied"]
-        ],
-    }
+        ]
+        arguments.details_out.parent.mkdir(parents=True, exist_ok=True)
+        arguments.details_out.write_text(json.dumps(details, indent=2, sort_keys=True) + "\n")
+        output["details_path"] = str(arguments.details_out)
     print(json.dumps(output, sort_keys=True))
 
 
