@@ -14,6 +14,7 @@ import { setRewardedAdResultForTest, type RewardedAdResultForTest } from '../ads
 import { isGameSuspended, setLifecycleForTest } from '../platform/gameLifecycle';
 import { initHUD, openPage } from '../ui/HUD';
 import { setFailOverlayPendingRecoveryMsForTest } from '../ui/LevelFailedOverlay';
+import { setPickupStylePreference, type PickupStyle } from '../settings/pickupStylePreference';
 import { getSdkContext } from '../sdk/SdkContext';
 import {
   driveTo,
@@ -307,7 +308,7 @@ export interface FindTheDogHarness extends GameHarness<FindTheDogVerb> {
   drainEvents(): AnalyticsEvent[];
   setFailOverlayPendingRecoveryMsForTest(ms: number | null): void;
   enableMicroAnimationsForTest(): void;
-  setPickupStyleForTest(style: 'classic' | 'juiced' | 'dissolve' | 'peel'): void;
+  setPickupStyleForTest(style: PickupStyle): void;
   /**
    * Directly set the main camera zoom. Test-only: simulates the outcome of a
    * pinch gesture (multi-touch pinch is impractical to drive in Playwright)
@@ -957,8 +958,8 @@ export function createFindTheDogHarness(game: Phaser.Game): FindTheDogHarness {
       setFailOverlayPendingRecoveryMsForTest(ms);
     },
 
-    setPickupStyleForTest(style: 'classic' | 'juiced' | 'dissolve' | 'peel'): void {
-      getGameScene()?.setPickupStyleForTest(style);
+    setPickupStyleForTest(style: PickupStyle): void {
+      setPickupStylePreference(style);
     },
     enableMicroAnimationsForTest(): void {
       getGameScene()?.enableMicroAnimationsForTest();

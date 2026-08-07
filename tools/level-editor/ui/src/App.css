@@ -2223,6 +2223,31 @@ label {
   background: var(--bg-card);
 }
 
+.gallery-review-mode {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #2b2b2b;
+  border-radius: 10px;
+  background: #101010;
+}
+
+.gallery-review-mode button {
+  border: 0;
+  border-radius: 7px;
+  padding: 9px 10px;
+  background: transparent;
+  color: #999;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.gallery-review-mode button[aria-selected='true'] {
+  background: #31583b;
+  color: #dfffe5;
+}
+
 .cutout-review-header {
   display: flex;
   align-items: flex-start;
@@ -2337,6 +2362,49 @@ label {
   letter-spacing: 0.05em;
 }
 
+.cutout-review-overlay {
+  position: relative;
+  width: 100%;
+  min-height: 180px;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  background: #080a0d;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.cutout-review-overlay:hover {
+  border-color: rgba(255,255,255,0.4);
+}
+
+.cutout-review-overlay[aria-pressed='true'] {
+  border-color: #fbbf24;
+  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.18);
+}
+
+.cutout-review-overlay img {
+  width: 100%;
+  height: auto;
+  min-height: 180px;
+  max-height: 320px;
+  display: block;
+  object-fit: contain;
+}
+
+.cutout-review-overlay > span {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(5, 8, 12, 0.86);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+
 .cutout-review-images {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -2392,6 +2460,72 @@ label {
 .cutout-review-buttons button.selected {
   border-color: var(--accent);
   background: var(--accent-dim);
+}
+
+.cutout-crop-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: var(--radius-sm);
+  background: rgba(251, 191, 36, 0.06);
+}
+
+.cutout-crop-heading {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  color: #fde68a;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cutout-crop-controls label {
+  display: grid;
+  grid-template-columns: 1fr 72px;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 11px;
+  text-transform: capitalize;
+}
+
+.cutout-crop-controls input {
+  width: 100%;
+  min-height: 34px;
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: #0b0d10;
+  color: var(--text-primary);
+}
+
+.cutout-crop-controls > button {
+  grid-column: 1 / -1;
+  min-height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.cutout-crop-nudge {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.cutout-crop-nudge button {
+  min-height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: #11151a;
+  color: var(--text-primary);
+  cursor: pointer;
 }
 
 /* ── Export (Step 6) ──────────────────────────────────────────────────── */

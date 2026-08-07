@@ -292,6 +292,10 @@ async function run() {
         await route.fulfill({ status: 204, body: '' });
         return;
       }
+      if (url.pathname === `/api/sessions/${sessionListItem.id}/sprite-candidates`) {
+        await route.fulfill({ json: { candidates: [] } });
+        return;
+      }
       if (url.pathname.includes('/gallery-thumb/')) {
         thumbnailRequests += 1;
         await route.fulfill({ status: 404, body: 'missing thumbnail' });
@@ -356,6 +360,9 @@ async function run() {
     await page.getByRole('dialog').waitFor({ timeout: 10_000 });
     await waitUntil(() => geometryRequests > 0, 'Gallery review LevelCanvas did not request server geometry config.');
     assert(previewRequests > 0, 'Gallery review did not request proxy preview image.');
+    await page.getByRole('tab', { name: 'Cutouts & redo' }).click();
+    await page.getByText('No pickup cutouts found.').waitFor({ timeout: 10_000 });
+    assert(await page.getByRole('button', { name: 'Redo selected (0)' }).isDisabled(), 'Empty focused cutout review must not submit regeneration.');
     bodyText = await page.getByRole('dialog').innerText();
     for (const retiredText of [
       'Preview locally',

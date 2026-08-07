@@ -143,6 +143,49 @@ def test_catalog_required_bytes_counts_each_declared_asset(isolated_session):
     )
 
 
+def test_batch_catalog_refresh_uses_one_revision_and_preserves_metadata(isolated_session):
+    sess = isolated_session
+    ids = ["publish_refresh_a1", "publish_refresh_b2"]
+    for session_id in ids:
+        _build_exportable_session(sess, session_id)
+        sess.approve_level_for_catalog(session_id, request_id=f"req-{session_id}")
+
+    before = sess.load_catalog_manifest()
+    before_revision = before["catalogRevision"]
+    before_by_id = {entry["id"]: entry for entry in before["levels"]}
+    for session_id in ids:
+        level_path = sess.GAME_PUBLIC_LEVELS / session_id / "level.json"
+        level = json.loads(level_path.read_text())
+        level["name"] += " aligned"
+        level_path.write_text(json.dumps(level))
+
+    result = sess.refresh_catalog_packages(ids)
+    after = sess.load_catalog_manifest()
+    after_by_id = {entry["id"]: entry for entry in after["levels"]}
+
+    assert result["catalogRevision"] != before_revision
+    assert result["refreshedLevels"] == ids
+    assert {entry["catalogRevision"] for entry in after["levels"]} == {result["catalogRevision"]}
+    for session_id in ids:
+        assert after_by_id[session_id]["packageId"] != before_by_id[session_id]["packageId"]
+        assert after_by_id[session_id]["cohortBuckets"] == before_by_id[session_id]["cohortBuckets"]
+        assert after_by_id[session_id]["retention"] == before_by_id[session_id]["retention"]
+
+
+def test_catalog_revision_skips_retained_future_snapshot(isolated_session):
+    sess = isolated_session
+    _build_exportable_session(sess, "publish_revision_gap")
+    snapshot_dir = sess.GAME_PUBLIC_LEVELS / "catalog-snapshots"
+    snapshot_dir.mkdir(parents=True)
+    (snapshot_dir / "catalog-000123.json").write_text("{}")
+
+    result = sess.approve_level_for_catalog(
+        "publish_revision_gap", request_id="req-revision-gap"
+    )
+
+    assert result["catalogRevision"] == "catalog-000124"
+
+
 def test_refused_export_leaves_manifests_and_no_package(isolated_session):
     sess = isolated_session
     from levelbuilder.api.export_gate import ExportGateError

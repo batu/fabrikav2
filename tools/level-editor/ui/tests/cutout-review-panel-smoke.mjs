@@ -64,8 +64,10 @@ async function run() {
     await waitForServer();
     browser = await chromium.launch({ headless: true });
     const page = await browser.newPage({ viewport: { width: 1200, height: 900 } });
-    let activeRegens = 0;
     let completedRegens = 0;
+    let batchSubmissions = 0;
+    let submittedDogIndices = [];
+    let submittedCropBoxes = {};
     await page.route('**/*', async (route) => {
       const url = new URL(route.request().url());
       const isCandidateRequest =
@@ -86,6 +88,8 @@ async function run() {
                 metadataPath: 'dogs/dog_00/sprite_000.json',
                 width: 42,
                 height: 50,
+                sceneWidth: 400,
+                sceneHeight: 300,
                 technique: 'sam2-box075-component-cutout-v1',
                 quality: { pickupUsable: true, bboxCoverage: 0.18, visibleCoverage: 0.09, edgeTouches: 0 },
               },
@@ -100,6 +104,8 @@ async function run() {
                 metadataPath: 'dogs/dog_00/sprite_001.json',
                 width: 110,
                 height: 120,
+                sceneWidth: 400,
+                sceneHeight: 300,
                 technique: 'semantic-rembg-isnet-cutout-v1',
                 quality: { pickupUsable: true, bboxCoverage: 0.72, visibleCoverage: 0.51, edgeTouches: 3 },
               },
@@ -114,6 +120,8 @@ async function run() {
                 metadataPath: 'dogs/dog_01/sprite_000.json',
                 width: 94,
                 height: 88,
+                sceneWidth: 400,
+                sceneHeight: 300,
                 technique: 'semantic-rembg-isnet-cutout-v1',
                 quality: { pickupUsable: true, bboxCoverage: 0.64, visibleCoverage: 0.42, edgeTouches: 2 },
               },
@@ -129,6 +137,8 @@ async function run() {
                     metadataPath: 'dogs/dog_01/sprite_001.json',
                     width: 44,
                     height: 48,
+                    sceneWidth: 400,
+                    sceneHeight: 300,
                     technique: 'sam2-box075-component-cutout-v1',
                     quality: { pickupUsable: true, bboxCoverage: 0.16, visibleCoverage: 0.08, edgeTouches: 0 },
                   }]
@@ -144,6 +154,8 @@ async function run() {
                 metadataPath: 'dogs/dog_02/sprite_000.json',
                 width: 18,
                 height: 18,
+                sceneWidth: 400,
+                sceneHeight: 300,
                 technique: 'diff-mask-connected-components-v1',
                 quality: { pickupUsable: false },
               },
@@ -152,21 +164,29 @@ async function run() {
         });
         return;
       }
-      if (url.pathname === `/api/sessions/${sessionId}/dogs/1/regen` || url.pathname === `/api/sessions/${sessionId}/dogs/2/regen`) {
-        const dogIndex = Number(url.pathname.match(/dogs\/(\d+)\/regen/)?.[1] ?? 0);
-        activeRegens += 1;
-        if (activeRegens > 1) {
-          await route.fulfill({ status: 409, json: { detail: 'parallel regen detected' } });
-          return;
-        }
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        activeRegens -= 1;
-        if (dogIndex === 2) {
-          await route.fulfill({ status: 500, json: { detail: 'dog 2 failed' } });
-          return;
-        }
-        completedRegens += 1;
-        await route.fulfill({ json: { variantIndex: 1, file: `dogs/dog_${String(dogIndex).padStart(2, '0')}/variant_001.png` } });
+      if (url.pathname.match(/^\/api\/sessions\/[^/]+\/sprite-candidates\/[^/]+\/overlay$/)) {
+        await route.fulfill({ contentType: 'image/png', body: png('blue') });
+        return;
+      }
+      if (url.pathname === `/api/sessions/${sessionId}/dogs/retry-inpaint/jobs` && route.request().method() === 'POST') {
+        batchSubmissions += 1;
+        const body = route.request().postDataJSON();
+        submittedDogIndices = body.dogIndices;
+        submittedCropBoxes = body.cropBoxes;
+        await route.fulfill({ json: {
+          jobId: 'retry_job_1', status: 'queued', succeeded: 0, failed: 0, units: [], error: null,
+        } });
+        return;
+      }
+      if (url.pathname === `/api/sessions/${sessionId}/dogs/retry-inpaint/jobs/retry_job_1`) {
+        completedRegens = 1;
+        await route.fulfill({ json: {
+          jobId: 'retry_job_1', status: 'failed_retryable', succeeded: 1, failed: 1, error: 'one failed',
+          units: [
+            { dogIndex: 1, status: 'succeeded', retryable: false, error: null, file: 'dogs/dog_01/variant_001.png', variantIndex: 1 },
+            { dogIndex: 2, status: 'failed_retryable', retryable: true, error: 'dog 2 failed', file: null, variantIndex: null },
+          ],
+        } });
         return;
       }
       if (url.pathname.startsWith(`/levels/${sessionId}/`) || url.pathname.startsWith(`/levels/${secondSessionId}/`)) {
@@ -187,33 +207,38 @@ async function run() {
       throw new Error(`Expected active dog variant to use sprite 000, saw: ${firstLabel}`);
     }
     const summary = await page.locator('.cutout-review-summary').innerText();
-    if (!summary.includes('2 need redo')) {
+    if (!summary.includes('2 selected for redo')) {
       throw new Error(`Unexpected initial summary: ${summary}`);
     }
-    await page.locator('.cutout-review-card').first().getByText('Keep').click();
-    await page.waitForFunction(
-      (key) => window.localStorage.getItem(key)?.includes('approved') === true,
-      `ftd-cutout-review:${sessionId}`,
-    );
-    await page.reload();
-    await page.waitForSelector('.cutout-review-card.approved');
-    const persistedSummary = await page.locator('.cutout-review-summary').innerText();
-    if (!persistedSummary.includes('1/3 kept')) {
-      throw new Error(`Review status did not persist across reload: ${persistedSummary}`);
+    const firstOverlay = page.getByRole('button', { name: 'Select dog #0 · sprite 000 for regeneration' });
+    if (await firstOverlay.getAttribute('aria-pressed') !== 'false') {
+      throw new Error('Clean overlay unexpectedly started selected.');
     }
+    await firstOverlay.click();
+    await page.getByRole('button', { name: 'Redo selected (3)' }).waitFor();
+    const selectedOverlays = await page.locator('.cutout-review-overlay[aria-pressed="true"]').count();
+    if (selectedOverlays !== 3) throw new Error(`Expected three independently selected overlays, saw ${selectedOverlays}`);
+    await page.getByRole('button', { name: 'Remove dog #0 · sprite 000 from regeneration' }).click();
+    await page.getByRole('button', { name: 'Redo selected (2)' }).waitFor();
+    const dogOneCard = page.locator('.cutout-review-card').nth(1);
+    await dogOneCard.getByLabel('left', { exact: true }).fill('100');
     await page.getByText('Redo selected (2)').click();
     await page.waitForSelector('#last-action:text("dog 1 regenerated as variant 1")');
+    if (batchSubmissions !== 1) throw new Error(`Expected one durable batch submission, saw ${batchSubmissions}`);
+    if (JSON.stringify(submittedDogIndices) !== JSON.stringify([1, 2])) {
+      throw new Error(`Batch did not target the selected dog indices: ${JSON.stringify(submittedDogIndices)}`);
+    }
+    if (submittedCropBoxes['1']?.[0] !== 100) {
+      throw new Error(`Adjusted padding box was not submitted: ${JSON.stringify(submittedCropBoxes)}`);
+    }
+    await page.getByText('1 redo failed').waitFor();
     const replacedLabel = await page.locator('.cutout-review-card').nth(1).locator('strong').innerText();
     if (!replacedLabel.includes('sprite 001')) {
       throw new Error(`Regenerated dog did not refresh to replacement candidate: ${replacedLabel}`);
     }
     await page.screenshot({ path: '/tmp/pcdNQRrf-cutout-review-panel.png', fullPage: true });
     await page.locator('#switch-session').click();
-    await page.waitForFunction(() => !document.querySelector('.cutout-review-summary')?.textContent?.includes('1/3 kept'));
-    const switchedSummary = await page.locator('.cutout-review-summary').innerText();
-    if (switchedSummary.includes('1/3 kept')) {
-      throw new Error(`Review state leaked into second session: ${switchedSummary}`);
-    }
+    await page.waitForSelector('.cutout-review-summary');
   } finally {
     if (browser) await browser.close();
     if (process.platform === 'win32') {

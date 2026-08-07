@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pickup default delta</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0c0d11; --panel:#17191f; --line:#30343e; --ink:#f5f2ea; --muted:#aaa9a3; --old:#ff7b88; --new:#80e8a5; --accent:#ff4fd8; }
+    * { box-sizing:border-box } body { margin:0; padding:48px; background:var(--bg); color:var(--ink); font:16px/1.5 ui-sans-serif,system-ui; }
+    main { max-width:1080px; margin:auto } .eyebrow { color:var(--accent); font-size:12px; font-weight:800; letter-spacing:.1em; text-transform:uppercase }
+    h1 { max-width:850px; margin:12px 0 18px; font-size:clamp(42px,7vw,74px); line-height:.98 } .lede { max-width:750px; color:var(--muted); font-size:20px }
+    .comparison { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin:38px 0 } .panel { padding:24px; background:var(--panel); border:1px solid var(--line); border-radius:18px }
+    .panel h2 { margin:0 0 18px; font-size:14px; letter-spacing:.08em; text-transform:uppercase } .before h2 { color:var(--old) } .after h2 { color:var(--new) }
+    .select { display:flex; justify-content:space-between; align-items:center; margin:15px 0; padding:16px; border:1px solid var(--line); border-radius:12px; background:#0f1116; font-size:20px }
+    code { color:var(--muted); font-size:13px } .arrow { color:var(--accent) } ul { padding:0; list-style:none; margin:36px 0 } li { display:flex; justify-content:space-between; gap:20px; padding:13px 0; border-bottom:1px solid var(--line) }
+    .yes { color:var(--new); font-weight:750 } .no { color:var(--muted) } .proof { padding:22px; border-left:3px solid var(--new); background:var(--panel) } .proof strong { display:block; margin-bottom:6px }
+    @media(max-width:700px) { body{padding:24px}.comparison{grid-template-columns:1fr}li{display:block} }
+  </style>
+</head>
+<body><main>
+  <div class="eyebrow">Find the Bird · pickup setting delta · 7 August 2026</div>
+  <h1>The default actually changed.</h1>
+  <p class="lede">Previously, both gameplay startup and the Settings selector independently fell back to Dissolve. They now share one Classic default.</p>
+  <section class="comparison">
+    <article class="panel before"><h2>Before</h2><div class="select"><span>Pickup Style</span><b>Dissolve⌄</b></div><code>GameScene fallback: 'dissolve'</code><br><code>Settings fallback: 'dissolve'</code></article>
+    <article class="panel after"><h2>After</h2><div class="select"><span>Pickup Style</span><b>Classic⌄</b></div><code>DEFAULT_PICKUP_STYLE = 'classic'</code><br><code>Both consumers use the same constant</code></article>
+  </section>
+  <ul>
+    <li><span>Fresh game launch</span><span><span class="no">Dissolve</span> <span class="arrow">→</span> <span class="yes">Classic</span></span></li>
+    <li><span>Initial Settings selection</span><span><span class="no">Dissolve</span> <span class="arrow">→</span> <span class="yes">Classic</span></span></li>
+    <li><span>User-selected session style</span><span class="yes">Preserved</span></li>
+    <li><span><code>?pickupStyle=…</code> evaluation override</span><span class="yes">Preserved</span></li>
+    <li><span>Persistent cross-build override</span><span class="no">Still deliberately disabled</span></li>
+  </ul>
+  <div class="proof"><strong>Verification</strong>Pickup routing and Settings parity: 7/7 tests passed. TypeScript typecheck passed. The test first failed against the old Dissolve implementation, then passed after the production change.</div>
+</main></body></html>

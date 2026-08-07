@@ -797,6 +797,7 @@ export function startRetryFailedDogsJob(
   prompt: string,
   padding: number = 2.75,
   inpaintModel?: string,
+  cropBoxes: Record<number, [number, number, number, number]> = {},
 ): Promise<RetryFailedDogsJobResponse> {
   return request(`/api/sessions/${sessionId}/dogs/retry-inpaint/jobs`, {
     method: 'POST',
@@ -805,6 +806,7 @@ export function startRetryFailedDogsJob(
       dogIndices,
       prompt,
       padding,
+      cropBoxes,
       ...(inpaintModel ? { inpaintModel } : {}),
     }),
   });
@@ -1269,5 +1271,15 @@ export function recompositePreviewUrl(sessionId: string, version: string | numbe
 }
 
 export function dogVariantUrl(sessionId: string, variantPath: string): string {
-  return `/levels/${sessionId}/${variantPath}`;
+  return `/api/sessions/${encodeURIComponent(sessionId)}/sprite-candidate/${variantPath.split('/').map(encodeURIComponent).join('/')}`;
+}
+
+/** Painted-scene preview with one candidate placed using the active matcher. */
+export function spriteCandidateOverlayUrl(
+  sessionId: string,
+  candidateId: string,
+  cropBox?: [number, number, number, number],
+): string {
+  const suffix = cropBox ? `?cropBox=${cropBox.join(',')}` : '';
+  return `/api/sessions/${encodeURIComponent(sessionId)}/sprite-candidates/${encodeURIComponent(candidateId)}/overlay${suffix}`;
 }

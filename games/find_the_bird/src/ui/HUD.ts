@@ -1,8 +1,14 @@
 import { remoteConfigService } from '../config/RemoteConfigService';
 import { gameState } from '../core/GameState';
-import { TEST_HARNESS_ENABLED, GAMEPLAY } from '../core/Constants';
+import { GAMEPLAY } from '../core/Constants';
 import { playUITap, playHint, setMusicEnabled, setSoundEffectsEnabled } from '../audio/AudioManager';
-import { PICKUP_STYLES, getDebugPickupStyle, setDebugPickupStyle, type PickupStyle } from '../testing/debugPickupStyle';
+import {
+  DEFAULT_PICKUP_STYLE,
+  PICKUP_STYLE_OPTIONS,
+  getPickupStylePreference,
+  setPickupStylePreference,
+  type PickupStyle,
+} from '../settings/pickupStylePreference';
 import { syncAmbientMusicPreference } from '../audio/AmbientManager';
 import { analytics } from '../analytics/AnalyticsService';
 import { trackRewardedWatchedAfterGrant } from '../attribution/RewardedAttribution';
@@ -491,7 +497,7 @@ export function openPage(
       return;
     }
     if (event.key !== 'Tab') return;
-    const focusable = [...page.querySelectorAll<HTMLElement>('button:not([disabled]), [href], input:not([disabled]), [tabindex]:not([tabindex="-1"])')];
+    const focusable = [...page.querySelectorAll<HTMLElement>('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])')];
     if (focusable.length === 0) return;
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
@@ -888,15 +894,14 @@ function renderSettingsRows(): string {
           <span class="toggle-slider"></span>
         </label>
       </div>
-      ${TEST_HARNESS_ENABLED ? `
-      <div class="modal-row settings-row settings-debug-row">
+      <div class="modal-row settings-row settings-pickup-style-row">
         <div class="settings-row-left">
-          <span class="settings-row-label">Pickup style (debug)</span>
+          <span class="settings-row-label">Pickup Style</span>
         </div>
-        <select id="debug-pickup-style" class="settings-debug-select" aria-label="Debug pickup style">
-          ${PICKUP_STYLES.map((style) => `<option value="${style}" ${(getDebugPickupStyle() ?? 'dissolve') === style ? 'selected' : ''}>${style}</option>`).join('')}
+        <select id="pickup-style" class="settings-pickup-style-select" aria-label="Pickup style">
+          ${PICKUP_STYLE_OPTIONS.map(({ value, label }) => `<option value="${value}" ${(getPickupStylePreference() ?? DEFAULT_PICKUP_STYLE) === value ? 'selected' : ''}>${label}</option>`).join('')}
         </select>
-      </div>` : ''}
+      </div>
       <div class="settings-legal-footer" aria-label="Privacy, legal, and support links">
         <button id="settings-restore-btn" class="settings-footer-link settings-footer-action settings-restore-btn" type="button" aria-describedby="settings-restore-status">Restore Purchases</button>
         <span id="settings-restore-status" class="settings-restore-status" aria-live="polite">Restore No Ads purchases on this device.</span>
@@ -914,12 +919,10 @@ function renderSettingsRows(): string {
 }
 
 function wireSettingsPageListeners(page: HTMLElement): void {
-  if (TEST_HARNESS_ENABLED) {
-    page.querySelector<HTMLSelectElement>('#debug-pickup-style')?.addEventListener('change', (event) => {
-      playUITap();
-      setDebugPickupStyle((event.target as HTMLSelectElement).value as PickupStyle);
-    });
-  }
+  page.querySelector<HTMLSelectElement>('#pickup-style')?.addEventListener('change', (event) => {
+    playUITap();
+    setPickupStylePreference((event.target as HTMLSelectElement).value as PickupStyle);
+  });
   page.querySelector('#settings-home-btn')?.addEventListener('click', () => {
     playUITap();
     closePage();
