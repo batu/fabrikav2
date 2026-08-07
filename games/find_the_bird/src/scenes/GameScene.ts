@@ -2370,10 +2370,13 @@ export class GameScene extends Phaser.Scene {
     const counterRect = counter.getBoundingClientRect();
     if (canvasRect.width <= 0 || canvasRect.height <= 0) return fallback;
 
-    return {
-      x: ((counterRect.left + counterRect.width * 0.34 - canvasRect.left) / canvasRect.width) * GAME.WIDTH,
-      y: ((counterRect.top + counterRect.height * 0.5 - canvasRect.top) / canvasRect.height) * GAME.HEIGHT,
-    };
+    // Same scroll-factor-0 + zoom contract as the pickup spawn: the HUD
+    // counter is a DOM rect in screen space, so its target must be converted
+    // before a zero-scroll-factor object flies to it.
+    return this.viewportToScrollFactorZeroPoint(
+      ((counterRect.left + counterRect.width * 0.34 - canvasRect.left) / canvasRect.width) * GAME.WIDTH,
+      ((counterRect.top + counterRect.height * 0.5 - canvasRect.top) / canvasRect.height) * GAME.HEIGHT,
+    );
   }
 
   private startMicroAnimationsIfEnabled(): void {
@@ -2445,7 +2448,14 @@ export class GameScene extends Phaser.Scene {
   } {
     const sprite = this.restorationSpriteForDog(dog);
     const textureKey = this.spriteTextureKeyForDog(dog);
-    const start = this.levelToViewportPoint(dog.x, dog.y);
+    // levelToViewportPoint gives SCREEN coords, but this image is
+    // scroll-factor-0, which the camera still applies zoom to. Convert the
+    // same way the wrong-tap marker does, or the pickup sprite lands offset
+    // from the bird whenever the player is zoomed in — the "snaps to the
+    // side" report of 2026-08-07. At zoom 1 the two agree, which is why it
+    // never showed up in a sim capture.
+    const viewport = this.levelToViewportPoint(dog.x, dog.y);
+    const start = this.viewportToScrollFactorZeroPoint(viewport.x, viewport.y);
     const target = this.counterTargetPoint();
     const image = this.add.image(start.x, start.y, textureKey)
       .setOrigin(sprite.anchorX ?? 0.5, sprite.anchorY ?? 0.5)
