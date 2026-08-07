@@ -1,15 +1,19 @@
 import hashlib
 import json
+from pathlib import Path
 
 import numpy as np
 import pytest
 from PIL import Image
 
 from levelbuilder.golden_cutouts import (
+    _portable_tree_ensemble,
     GoldenDatasetError,
     cutout_quality_features,
+    evaluate_redo_classifier,
     placement_box_metrics,
     predict_portable_logistic,
+    predict_portable_tree_ensemble,
     should_apply_portable_placement,
     validate_manifest,
 )
@@ -200,3 +204,34 @@ def test_portable_placement_rejects_neighbor_jump_despite_high_probability():
     assert not should_apply_portable_placement(
         model, {"signal": 1.0, "hybridMovementNorm": 0.604},
     )
+
+
+def test_portable_tree_ensemble_matches_sklearn_probability():
+    from sklearn.ensemble import ExtraTreesClassifier
+
+    x = np.asarray([[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0], [2.0, 2.0]])
+    y = np.asarray([0, 0, 0, 1, 1])
+    classifier = ExtraTreesClassifier(
+        n_estimators=25, max_depth=3, min_samples_leaf=1, random_state=0,
+    ).fit(x, y)
+    portable = _portable_tree_ensemble(classifier, ["a", "b"])
+
+    for values in x:
+        expected = classifier.predict_proba(values.reshape(1, -1))[0, 1]
+        actual = predict_portable_tree_ensemble(portable, {"a": values[0], "b": values[1]})
+        assert actual == pytest.approx(expected)
+
+
+def test_frozen_redo_evaluation_recommends_review_only_extra_trees():
+    editor_root = Path(__file__).resolve().parents[1]
+    repo_root = editor_root.parents[1]
+    report = evaluate_redo_classifier(
+        editor_root / "eval/golden-cutout-placement-v1/manifest.json",
+        repo_root / "games/find_the_bird/public/levels",
+    )
+
+    assert report["winner"] == "extra-trees-depth-4-balanced"
+    assert report["recommendedProduction"] == report["winner"]
+    assert report["predictionMode"] == "review-ranking-only"
+    assert report["models"][report["winner"]]["averagePrecision"] == pytest.approx(0.6639843301623036)
+    assert report["productionModel"]["type"] == "binary-tree-ensemble-v1"

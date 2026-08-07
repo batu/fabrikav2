@@ -314,6 +314,8 @@ def cmd_golden_cutouts_evaluate(args: argparse.Namespace) -> None:
             "positive": report["positive"],
             "negative": report["negative"],
             "winner": report["winner"],
+            "recommendedProduction": report["recommendedProduction"],
+            "predictionMode": report["predictionMode"],
             **{key: winner[key] for key in ("balancedAccuracy", "precision", "recall", "f1", "rocAuc", "averagePrecision")},
         })
     else:

@@ -190,6 +190,56 @@ def predict_portable_logistic(model: dict[str, Any], features: dict[str, float])
     return 1.0 / (1.0 + math.exp(-score))
 
 
+def _portable_tree_ensemble(
+    model: Any,
+    feature_names: list[str],
+    threshold: float = 0.5,
+) -> dict[str, Any]:
+    """Serialize a fitted binary sklearn tree ensemble as stable JSON."""
+
+    classes = [int(value) for value in model.classes_]
+    if classes != [0, 1]:
+        raise ValueError(f"portable tree ensemble requires binary classes [0, 1], got {classes}")
+    trees = []
+    for estimator in model.estimators_:
+        tree = estimator.tree_
+        positive_probability = []
+        for values in tree.value[:, 0, :]:
+            total = float(values.sum())
+            positive_probability.append(float(values[1] / total) if total else 0.0)
+        trees.append({
+            "childrenLeft": [int(value) for value in tree.children_left],
+            "childrenRight": [int(value) for value in tree.children_right],
+            "feature": [int(value) for value in tree.feature],
+            "threshold": [float(value) for value in tree.threshold],
+            "positiveProbability": positive_probability,
+        })
+    return {
+        "type": "binary-tree-ensemble-v1",
+        "featureNames": feature_names,
+        "trees": trees,
+        "threshold": threshold,
+    }
+
+
+def predict_portable_tree_ensemble(model: dict[str, Any], features: dict[str, float]) -> float:
+    """Run a serialized binary tree ensemble without loading a pickle."""
+
+    values = [float(features[name]) for name in model["featureNames"]]
+    probabilities = []
+    for tree in model["trees"]:
+        node = 0
+        while tree["childrenLeft"][node] != tree["childrenRight"][node]:
+            feature = tree["feature"][node]
+            node = (
+                tree["childrenLeft"][node]
+                if values[feature] <= tree["threshold"][node]
+                else tree["childrenRight"][node]
+            )
+        probabilities.append(float(tree["positiveProbability"][node]))
+    return sum(probabilities) / len(probabilities) if probabilities else 0.0
+
+
 def should_apply_portable_placement(model: dict[str, Any], features: dict[str, float]) -> bool:
     """Apply a proposed placement only when probability and displacement are safe."""
 
@@ -335,6 +385,7 @@ def load_redo_samples(manifest_path: Path, levels_root: Path) -> tuple[list[str]
         "alphaCoverage", "changedPrecision", "changedRecall", "changedIou",
         "colorSimilarity", "cleanDifference", "componentCount", "speckFraction",
         "edgeTouchFraction", "boxAspect", "boxAreaFraction",
+        "precisionRecallGap", "qualityProduct", "logAreaFraction", "logComponentCount",
     ]
     arrays: dict[str, tuple[np.ndarray, np.ndarray]] = {}
     rows: list[dict[str, Any]] = []
@@ -368,6 +419,10 @@ def load_redo_samples(manifest_path: Path, levels_root: Path) -> tuple[list[str]
         box = _box(review.get("spriteBox"), label=f"{level_id}/{entry['dogId']} reviewInput.spriteBox")
         features = cutout_quality_features(clean, scene, sprite, box)
         features["boxAreaFraction"] = ((box[2] - box[0]) * (box[3] - box[1])) / (scene.shape[0] * scene.shape[1])
+        features["precisionRecallGap"] = abs(features["changedPrecision"] - features["changedRecall"])
+        features["qualityProduct"] = features["changedIou"] * features["colorSimilarity"]
+        features["logAreaFraction"] = math.log(max(1e-9, features["boxAreaFraction"]))
+        features["logComponentCount"] = math.log1p(features["componentCount"])
         rows.append({
             "levelId": level_id,
             "dogId": entry["dogId"],
@@ -382,7 +437,7 @@ def load_redo_samples(manifest_path: Path, levels_root: Path) -> tuple[list[str]
 def evaluate_redo_classifier(manifest_path: Path, levels_root: Path) -> dict[str, Any]:
     """Evaluate compact redo classifiers with leave-one-level-out predictions."""
 
-    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier
     from sklearn.linear_model import LogisticRegression
     from sklearn.metrics import (
         average_precision_score,
@@ -410,6 +465,15 @@ def evaluate_redo_classifier(manifest_path: Path, levels_root: Path) -> dict[str
             min_samples_leaf=3,
             max_features="sqrt",
             class_weight="balanced_subsample",
+            random_state=0,
+            n_jobs=1,
+        ),
+        "extra-trees-depth-4-balanced": lambda: ExtraTreesClassifier(
+            n_estimators=500,
+            max_depth=4,
+            min_samples_leaf=3,
+            max_features="sqrt",
+            class_weight="balanced",
             random_state=0,
             n_jobs=1,
         ),
@@ -456,8 +520,13 @@ def evaluate_redo_classifier(manifest_path: Path, levels_root: Path) -> dict[str
             ],
         }
     winner_name = max(results, key=lambda key: (results[key]["averagePrecision"], results[key]["f1"]))
-    production = models["logistic-balanced"]()
+    production = models[winner_name]()
     production.fit(x, y)
+    production_model = (
+        _portable_logistic(production, feature_names)
+        if winner_name == "logistic-balanced"
+        else _portable_tree_ensemble(production, feature_names)
+    )
     return {
         "schemaVersion": 1,
         "split": "leave-one-level-out",
@@ -468,8 +537,9 @@ def evaluate_redo_classifier(manifest_path: Path, levels_root: Path) -> dict[str
         "featureNames": feature_names,
         "models": results,
         "winner": winner_name,
-        "recommendedProduction": "logistic-balanced",
-        "productionModel": _portable_logistic(production, feature_names),
+        "recommendedProduction": winner_name,
+        "predictionMode": "review-ranking-only",
+        "productionModel": production_model,
     }
 
 
