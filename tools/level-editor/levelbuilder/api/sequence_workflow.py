@@ -762,6 +762,42 @@ def save_sequence_draft(
         return _build_state()
 
 
+def remove_level_from_draft(level_id: str) -> bool:
+    """Drop `level_id` from the current draft lineup, if present.
+
+    Server-side mutation used by session archiving: archiving a level must
+    also un-lineup it (2026-08-07 review — the two states silently diverged).
+    Bypasses the client revision lock deliberately: the archive action is
+    itself the user's intent, and the UI reloads workflow state afterwards.
+    Returns True when the draft changed. No-ops (False) when there is no
+    draft or the level isn't in it — archiving old catalog entries must not
+    invent a draft.
+    """
+    with _SEQUENCE_WORKFLOW_LOCK:
+        raw_state = _load_raw_state()
+        draft = (raw_state or {}).get("draft")
+        if not isinstance(draft, dict):
+            return False
+        level_ids = draft.get("levelIds")
+        if not isinstance(level_ids, list) or level_id not in level_ids:
+            return False
+        state = _build_state()
+        live_sequence = state["liveSequence"]
+        _save_raw_state({
+            "schemaVersion": _SCHEMA_VERSION,
+            "liveSequence": live_sequence,
+            "draft": _draft_state(
+                level_ids=[l for l in level_ids if l != level_id],
+                base_live_sequence_version=live_sequence["sequenceVersion"],
+                base_catalog_revision=state["catalog"]["catalogRevision"],
+                updated_at=_utc_now_iso(),
+            ),
+            "updatedAt": _utc_now_iso(),
+            **({"history": raw_state.get("history")} if isinstance(raw_state.get("history"), list) else {}),
+        })
+        return True
+
+
 def reset_sequence_draft(*, draft_revision: str, force: bool = False) -> dict[str, Any]:
     with _SEQUENCE_WORKFLOW_LOCK:
         state = _build_state()

@@ -2660,7 +2660,8 @@ label {
 
 .sequence-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  /* 4 per row, big cards (2026-08-07 review request). */
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
 }
 
@@ -2730,7 +2731,8 @@ label {
 
 .sequence-level-thumb-wrap {
   position: relative;
-  aspect-ratio: 9 / 16;
+  /* Square campaign levels are 1:1 — the 9:16 era cropped them badly. */
+  aspect-ratio: 1 / 1;
   background: var(--bg-input);
   border-bottom: 1px solid var(--border);
 }

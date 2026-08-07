@@ -2868,12 +2868,22 @@ def set_archived(session_id: str, req: SetArchivedRequest):
     S.set_archived(session_id, req.archived, variant=req.variant)
     # Remove local preview when the user archives the variant currently used
     # by the preview package, or when the whole session is archived.
+    removed_from_lineup = False
     if req.archived:
         raw = S.load_session_raw(session_id) or {}
         exported_variant = raw.get("exported_variant", "gemini")
         if req.variant is None or req.variant == exported_variant:
             S.revoke_export(session_id)
-    return {"id": session_id, "archived": req.archived, "variant": req.variant}
+        # Archiving un-lineups the level too — an archived level silently
+        # remaining in the sequence draft is exactly the divergence the
+        # 2026-08-07 review hit.
+        removed_from_lineup = SequenceWorkflow.remove_level_from_draft(session_id)
+    return {
+        "id": session_id,
+        "archived": req.archived,
+        "variant": req.variant,
+        "removedFromLineup": removed_from_lineup,
+    }
 
 
 class ReorderIndexRequest(BaseModel):
