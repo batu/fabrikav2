@@ -209,10 +209,9 @@ export function updateHUD(totalDogs: number, restorationActive: boolean = false)
   // Hearts
   const heartsEl = document.getElementById('hearts');
   if (heartsEl && !remoteConfigService.value('healthBarEnabled')) {
-    // Flag off: no lives UI at all. GameScene also skips the penalty, so a
-    // hidden bar can never kill the player silently.
-    heartsEl.hidden = true;
-    heartsEl.innerHTML = '';
+    // Flag off: drop the pill out of the DOM entirely rather than hiding it,
+    // so it can't hold layout space or be read by assistive tech.
+    heartsEl.remove();
   } else if (heartsEl) {
     heartsEl.hidden = false;
     const hearts: string[] = [];

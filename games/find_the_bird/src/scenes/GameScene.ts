@@ -1993,7 +1993,7 @@ export class GameScene extends Phaser.Scene {
     return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
   }
 
-  /** Wrong tap — show red X, decrement lives. */
+  /** Wrong tap. With healthBarEnabled off this is silent: counter only. */
   private onWrongTap(worldX: number, worldY: number, canvasX: number, canvasY: number): void {
     const now = Date.now();
     if (now < gameState.penaltyCooldownUntil) return;
@@ -2002,13 +2002,16 @@ export class GameScene extends Phaser.Scene {
     // re-querying matchMedia in each helper (and so they can never disagree).
     const reducedMotion = this.prefersReducedMotion();
 
-    // Health off (default): keep the miss FEEDBACK — X, shake, dust, sound —
-    // but never drain lives, so the level can't be failed by an invisible
-    // mechanic. A hidden bar that still kills you is worse than a visible one.
+    // Health off (default): a miss is a NON-EVENT. No lives, no X marker, no
+    // shake, no dust, no sound or haptic — the whole punishment vocabulary
+    // goes with the mechanic (2026-08-07). Only the analytics counter and the
+    // cooldown survive, so mis-tap rate stays measurable.
     const healthEnabled = remoteConfigService.value('healthBarEnabled');
-    if (healthEnabled) gameState.lives--;
     gameState.penaltyCooldownUntil = now + TIMING.PENALTY_COOLDOWN_MS;
     this.wrongTapsCount += 1;
+    if (!healthEnabled) return;
+
+    gameState.lives--;
     playWrongTap();
     hapticWrong();
     this.shakeBoardOnMiss(reducedMotion);
@@ -2016,9 +2019,9 @@ export class GameScene extends Phaser.Scene {
     updateHUD(this.level!.dogs.length, this.isRestoration);
     // Must follow updateHUD(): animateLifeLost() indexes into the heart pips
     // updateHUD just rebuilt. Reordering silently animates the wrong pip / none.
-    if (healthEnabled) animateLifeLost();
+    animateLifeLost();
 
-    if (healthEnabled && gameState.lives <= 0) {
+    if (gameState.lives <= 0) {
       void this.trackLevelFailed(gameState.foundDogIds.size);
     }
 
@@ -2063,7 +2066,7 @@ export class GameScene extends Phaser.Scene {
       onComplete: () => gfx.destroy(),
     });
 
-    if (healthEnabled && gameState.lives <= 0) {
+    if (gameState.lives <= 0) {
       this.levelComplete = true;
       // Tear down any live first-time tutorial before the fail overlay mounts.
       // The tutorial overlay is z-index 50 vs the fail overlay's 10 (both are

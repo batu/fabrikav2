@@ -24,8 +24,17 @@ describe('health bar remote config flag', () => {
     const scene = readFileSync(join(root, 'src/scenes/GameScene.ts'), 'utf8');
     expect(hud).toContain("healthBarEnabled");
     expect(scene).toContain("healthBarEnabled");
-    // the decrement and the fail branch must both be behind the flag
-    expect(scene).toMatch(/if \(healthEnabled\) gameState\.lives--/);
-    expect(scene).toMatch(/healthEnabled && gameState\.lives <= 0/);
+    // Flag off removes the pill from the DOM (not merely hidden)...
+    expect(hud).toMatch(/healthBarEnabled'\)\) \{[\s\S]{0,220}heartsEl\.remove\(\)/);
+    // ...and a miss returns before ANY punishment: no lives, X, shake, dust,
+    // sound or haptic. Only the counter and cooldown run.
+    expect(scene).toMatch(/if \(!healthEnabled\) return;/);
+    const missBody = scene.slice(scene.indexOf('private onWrongTap'), scene.indexOf('private onWrongTap') + 2200);
+    const guardAt = missBody.indexOf('if (!healthEnabled) return;');
+    expect(guardAt).toBeGreaterThan(0);
+    for (const punishment of ['gameState.lives--', 'playWrongTap()', 'hapticWrong()', 'shakeBoardOnMiss', 'emitDustPoof', 'wrong-tap']) {
+      const at = missBody.indexOf(punishment);
+      expect(at, `${punishment} must sit AFTER the flag guard`).toBeGreaterThan(guardAt);
+    }
   });
 });
