@@ -68,6 +68,7 @@ async function run() {
     let batchSubmissions = 0;
     let submittedDogIndices = [];
     let submittedCropBoxes = {};
+    let submittedCutoutOnly = false;
     await page.route('**/*', async (route) => {
       const url = new URL(route.request().url());
       const isCandidateRequest =
@@ -164,6 +165,13 @@ async function run() {
         });
         return;
       }
+      if (url.pathname.endsWith('/cutout-extraction-prompt')) {
+        await route.fulfill({ json: {
+          entity: 'bird',
+          prompt: 'CUTOUT-ONLY TASK. Extract and faithfully duplicate exactly ONE selected cartoon bird.',
+        } });
+        return;
+      }
       if (url.pathname.match(/^\/api\/sessions\/[^/]+\/sprite-candidates\/[^/]+\/overlay$/)) {
         await route.fulfill({ contentType: 'image/png', body: png('blue') });
         return;
@@ -173,6 +181,7 @@ async function run() {
         const body = route.request().postDataJSON();
         submittedDogIndices = body.dogIndices;
         submittedCropBoxes = body.cropBoxes;
+        submittedCutoutOnly = body.cutoutOnly;
         await route.fulfill({ json: {
           jobId: 'retry_job_1', status: 'queued', succeeded: 0, failed: 0, units: [], error: null,
         } });
@@ -207,22 +216,25 @@ async function run() {
       throw new Error(`Expected active dog variant to use sprite 000, saw: ${firstLabel}`);
     }
     const summary = await page.locator('.cutout-review-summary').innerText();
-    if (!summary.includes('2 selected for redo')) {
+    if (!summary.includes('2 selected')) {
       throw new Error(`Unexpected initial summary: ${summary}`);
     }
-    const firstOverlay = page.getByRole('button', { name: 'Select dog #0 · sprite 000 for regeneration' });
+    const firstOverlay = page.getByRole('button', { name: 'Select dog #0 · sprite 000 for cutout action' });
     if (await firstOverlay.getAttribute('aria-pressed') !== 'false') {
       throw new Error('Clean overlay unexpectedly started selected.');
     }
     await firstOverlay.click();
-    await page.getByRole('button', { name: 'Redo selected (3)' }).waitFor();
+    await page.getByRole('button', { name: 'Extract selected (3)' }).waitFor();
     const selectedOverlays = await page.locator('.cutout-review-overlay[aria-pressed="true"]').count();
     if (selectedOverlays !== 3) throw new Error(`Expected three independently selected overlays, saw ${selectedOverlays}`);
-    await page.getByRole('button', { name: 'Remove dog #0 · sprite 000 from regeneration' }).click();
-    await page.getByRole('button', { name: 'Redo selected (2)' }).waitFor();
+    await page.getByRole('button', { name: 'Remove dog #0 · sprite 000 from cutout action' }).click();
+    await page.getByRole('button', { name: 'Extract selected (2)' }).waitFor();
+    await page.getByRole('button', { name: 'Regenerate selected (2)' }).waitFor();
+    await page.getByText('Extraction prompt', { exact: true }).click();
+    await page.getByText(/Extract and faithfully duplicate exactly ONE/).waitFor();
     const dogOneCard = page.locator('.cutout-review-card').nth(1);
     await dogOneCard.getByLabel('left', { exact: true }).fill('100');
-    await page.getByText('Redo selected (2)').click();
+    await page.getByText('Extract selected (2)').click();
     await page.waitForSelector('#last-action:text("dog 1 regenerated as variant 1")');
     if (batchSubmissions !== 1) throw new Error(`Expected one durable batch submission, saw ${batchSubmissions}`);
     if (JSON.stringify(submittedDogIndices) !== JSON.stringify([1, 2])) {
@@ -231,7 +243,10 @@ async function run() {
     if (submittedCropBoxes['1']?.[0] !== 100) {
       throw new Error(`Adjusted padding box was not submitted: ${JSON.stringify(submittedCropBoxes)}`);
     }
-    await page.getByText('1 redo failed').waitFor();
+    if (submittedCutoutOnly !== true) {
+      throw new Error('Cutout review submitted a scene-edit job instead of extraction-only');
+    }
+    await page.getByText('1 extraction failed').waitFor();
     const replacedLabel = await page.locator('.cutout-review-card').nth(1).locator('strong').innerText();
     if (!replacedLabel.includes('sprite 001')) {
       throw new Error(`Regenerated dog did not refresh to replacement candidate: ${replacedLabel}`);

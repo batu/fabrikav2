@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { DogState, Hitbox, SpriteCandidate } from '../types';
 import {
   dogVariantUrl,
+  getCutoutExtractionPrompt,
   getRetryFailedDogsJob,
   listSpriteCandidates,
   spriteCandidateOverlayUrl,
@@ -11,6 +12,7 @@ import {
 
 type ReviewStatus = 'pending' | 'approved' | 'cleanup' | 'rejected';
 type CropBox = [number, number, number, number];
+type Operation = 'extract' | 'regenerate';
 
 interface Props {
   sessionId: string;
@@ -157,7 +159,7 @@ async function waitForRetryJob(sessionId: string, job: RetryFailedDogsJobRespons
     if (isTerminalRetryStatus(current.status)) return current;
     await new Promise((resolve) => window.setTimeout(resolve, 1000));
   }
-  throw new Error('Timed out waiting for bird regeneration job');
+  throw new Error('Timed out waiting for bird extraction job');
 }
 
 export const cutoutReviewTestExports = {
@@ -178,7 +180,8 @@ export default function CutoutReviewPanel({
   const [error, setError] = useState<string | null>(null);
   const [review, setReview] = useState<Record<string, ReviewStatus>>({});
   const [loadedReviewKey, setLoadedReviewKey] = useState<string | null>(null);
-  const [regenerating, setRegenerating] = useState(false);
+  const [runningOperation, setRunningOperation] = useState<Operation | null>(null);
+  const [extractionPrompt, setExtractionPrompt] = useState<string>('');
   const [lastResult, setLastResult] = useState<string | null>(null);
   const [cropBoxes, setCropBoxes] = useState<Record<string, CropBox>>({});
   const refreshRunId = useRef(0);
@@ -218,6 +221,7 @@ export default function CutoutReviewPanel({
     setReview(parseStoredReview(window.localStorage.getItem(reviewStorageKey)));
     setLoadedReviewKey(reviewStorageKey);
     void refresh();
+    void getCutoutExtractionPrompt(sessionId).then((result) => setExtractionPrompt(result.prompt)).catch(() => setExtractionPrompt(''));
   }, [refresh, reviewStorageKey]);
 
   useEffect(() => {
@@ -251,13 +255,13 @@ export default function CutoutReviewPanel({
     setCropBoxes((prev) => ({ ...prev, [candidate.id]: clampCropBox(candidate, hitbox, box) }));
   }, []);
 
-  const regenerateFlagged = useCallback(async () => {
+  const runSelected = useCallback(async (operation: Operation) => {
     const targets = reviewTargets(candidates, review);
-    if (targets.length === 0 || regenerating) return;
-    setRegenerating(true);
+    if (targets.length === 0 || runningOperation !== null) return;
+    setRunningOperation(operation);
     setError(null);
     setLastResult(null);
-    const generatedVariants = new Map<number, number>();
+    const completedVariants = new Map<number, number>();
     try {
       const started = await startRetryFailedDogsJob(
         sessionId,
@@ -270,27 +274,31 @@ export default function CutoutReviewPanel({
           if (!hitbox) return [];
           return [[candidate.dogIndex, cropBoxes[candidate.id] ?? defaultCropBox(candidate, hitbox)]];
         })),
+        operation === 'extract',
       );
       const completed = await waitForRetryJob(sessionId, started);
       for (const unit of completed.units) {
         if (unit.status !== 'succeeded' || unit.file === null || unit.variantIndex === null) continue;
         onDogComplete(unit.dogIndex, unit.file, unit.variantIndex);
-        generatedVariants.set(unit.dogIndex, unit.variantIndex);
+        completedVariants.set(unit.dogIndex, unit.variantIndex);
       }
       const refreshedDogs = dogs.map((dog) => {
-        const activeVariant = generatedVariants.get(dog.index);
+        const activeVariant = completedVariants.get(dog.index);
         return activeVariant === undefined ? dog : { ...dog, activeVariant };
       });
       await refresh(refreshedDogs);
-      const failures = targets.length - generatedVariants.size;
+      const failures = targets.length - completedVariants.size;
+      const noun = operation === 'extract' ? 'extraction' : 'regeneration';
       if (failures > 0) {
-        setError(`${failures} redo${failures === 1 ? '' : 's'} failed`);
+        setError(`${failures} ${noun}${failures === 1 ? '' : 's'} failed`);
       }
-      setLastResult(`${targets.length - failures}/${targets.length} redo${targets.length === 1 ? '' : 's'} finished`);
+      setLastResult(`${targets.length - failures}/${targets.length} ${noun}${targets.length === 1 ? '' : 's'} finished`);
     } finally {
-      setRegenerating(false);
+      setRunningOperation(null);
     }
-  }, [candidates, cropBoxes, dogs, hitboxes, inpaintModel, onDogComplete, regenerating, refresh, review, sessionId, sharedPrompt]);
+  }, [candidates, cropBoxes, dogs, hitboxes, inpaintModel, onDogComplete, refresh, review, runningOperation, sessionId, sharedPrompt]);
+
+  const busy = runningOperation !== null;
 
   return (
     <section className="cutout-review-panel">
@@ -298,23 +306,38 @@ export default function CutoutReviewPanel({
         <div>
           <h3>Cutout review</h3>
           <div className="cutout-review-summary">
-            {counts.cleanup + counts.rejected} selected for redo
+            {counts.cleanup + counts.rejected} selected
           </div>
         </div>
         <div className="cutout-review-actions">
-          <button type="button" className="btn" onClick={() => void refresh()} disabled={loading || regenerating}>
+          <button type="button" className="btn" onClick={() => void refresh()} disabled={loading || busy}>
             Refresh
           </button>
           <button
             type="button"
             className="btn btn-primary"
-            onClick={regenerateFlagged}
-            disabled={regenerating || counts.cleanup + counts.rejected === 0}
+            onClick={() => void runSelected('extract')}
+            disabled={busy || counts.cleanup + counts.rejected === 0}
           >
-            {regenerating ? 'Redoing...' : `Redo selected (${counts.cleanup + counts.rejected})`}
+            {runningOperation === 'extract' ? 'Extracting...' : `Extract selected (${counts.cleanup + counts.rejected})`}
+          </button>
+          <button
+            type="button"
+            className="btn"
+            onClick={() => void runSelected('regenerate')}
+            disabled={busy || counts.cleanup + counts.rejected === 0}
+          >
+            {runningOperation === 'regenerate' ? 'Regenerating...' : `Regenerate selected (${counts.cleanup + counts.rejected})`}
           </button>
         </div>
       </div>
+
+      {extractionPrompt && (
+        <details className="cutout-prompt-disclosure">
+          <summary>Extraction prompt</summary>
+          <p>{extractionPrompt}</p>
+        </details>
+      )}
 
       {error && <div className="cutout-review-error">{error}</div>}
       {lastResult && <div className="cutout-review-result">{lastResult}</div>}
@@ -339,7 +362,7 @@ export default function CutoutReviewPanel({
               <button
                 type="button"
                 className="cutout-review-overlay"
-                aria-label={`${willRegenerate ? 'Remove' : 'Select'} ${candidateLabel(candidate)} ${willRegenerate ? 'from' : 'for'} regeneration`}
+                aria-label={`${willRegenerate ? 'Remove' : 'Select'} ${candidateLabel(candidate)} ${willRegenerate ? 'from' : 'for'} cutout action`}
                 aria-pressed={willRegenerate}
                 onClick={() => toggleCandidate(candidate)}
               >
@@ -348,7 +371,7 @@ export default function CutoutReviewPanel({
                   alt={`${candidateLabel(candidate)} matched over painted scene`}
                   fallback="overlay unavailable"
                 />
-                {willRegenerate && <span>Selected for redo</span>}
+                {willRegenerate && <span>Selected</span>}
               </button>
               <div className="cutout-review-images">
                 <div><CandidateImage src={imageUrl} alt={candidateLabel(candidate)} fallback="missing sprite" /></div>
@@ -403,7 +426,7 @@ export default function CutoutReviewPanel({
                   className={willRegenerate ? 'selected' : ''}
                   onClick={() => setCandidateStatus(candidate, 'cleanup')}
                 >
-                  Redo
+                  Select
                 </button>
               </div>
             </article>

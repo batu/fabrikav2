@@ -2528,6 +2528,29 @@ label {
   cursor: pointer;
 }
 
+.cutout-prompt-disclosure {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #0d1014;
+}
+
+.cutout-prompt-disclosure summary {
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cutout-prompt-disclosure p {
+  margin: 10px 0 0;
+  color: #d8dee9;
+  font-size: 12px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
 /* ── Export (Step 6) ──────────────────────────────────────────────────── */
 
 .export-success {
