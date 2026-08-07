@@ -263,8 +263,6 @@ export class GameScene extends Phaser.Scene {
   /** Active tutorial handle (field-tracked so shutdown can dismiss cleanly without leaking DOM). */
   private tutorialHandle: TutorialHandle | null = null;
   /** Active tutorial highlight ring. Null when tutorial not shown. */
-  private tutorialRing: Phaser.GameObjects.Graphics | null = null;
-  private tutorialRingTween: Phaser.Tweens.Tween | null = null;
   /** The bird the state-1 tutorial ring points at (NOT necessarily dogs[0] —
    *  the prompt picks the nearest bird visible in the starting viewport). */
   private tutorialTargetDogId: string | null = null;
@@ -345,8 +343,6 @@ export class GameScene extends Phaser.Scene {
     this.sectionController = null;
     this.pinchZoom = null;
     this.tutorialHandle = null;
-    this.tutorialRing = null;
-    this.tutorialRingTween = null;
     this.ratePromptHandle = null;
     this.pointerDownAt = null;
     this.preserveLevelUrlsOnShutdown = false;
@@ -1336,7 +1332,7 @@ export class GameScene extends Phaser.Scene {
     // tutorial contract. The gate lifts when the ring tears down (target
     // found, hint used, or overlay dismissed). The target is the bird the
     // prompt chose (nearest visible one — NOT necessarily dogs[0]).
-    if (this.tutorialRing !== null) {
+    if (this.tutorialTargetDogId !== null) {
       const target = this.level.dogs.find((d) => d.id === this.tutorialTargetDogId);
       if (target) {
         const tutorialHit = this.findClosestUnfoundDogInSet(levelX, levelY, [target]);
@@ -1885,10 +1881,6 @@ export class GameScene extends Phaser.Scene {
 
   private clearCompletionGuidance(): void {
     this.dismissHintCircle();
-    this.tutorialRingTween?.destroy();
-    this.tutorialRingTween = null;
-    this.tutorialRing?.destroy();
-    this.tutorialRing = null;
     this.tutorialHandle?.dismiss(true);
     this.tutorialHandle = null;
   }
@@ -1939,10 +1931,6 @@ export class GameScene extends Phaser.Scene {
     // Now on the "try a hint" step — arm hint suppression so the tap that
     // advances to the zoom step neither fires a hint nor draws a hint circle.
     this.tutorialHandle.advanceToHintState();
-    this.tutorialRingTween?.destroy();
-    this.tutorialRingTween = null;
-    this.tutorialRing?.destroy();
-    this.tutorialRing = null;
   }
 
   private showFirstTimeTutorial(dog: LevelDog, phaserX: number, phaserY: number): void {
@@ -1971,27 +1959,10 @@ export class GameScene extends Phaser.Scene {
     // Ring radius in CSS px (FIT scaling makes the canvas CSS size differ from
     // GAME.WIDTH) so the overlay's spotlight cutout matches the on-canvas ring.
     const dogRadiusCss = ringRadius * (canvas.getBoundingClientRect().width / GAME.WIDTH);
-    const ring = this.add.graphics().setDepth(60);
-    this.tutorialRing = ring;
-    const drawRing = (scale: number, alpha: number): void => {
-      ring.clear();
-      ring.lineStyle(4, COLORS.HINT_CIRCLE, alpha);
-      ring.strokeCircle(phaserX, phaserY, ringRadius * scale);
-      ring.lineStyle(2, 0xffffff, alpha * 0.6);
-      ring.strokeCircle(phaserX, phaserY, ringRadius * scale - 3);
-    };
-    drawRing(1, 0.95);
-    const pulse = { scale: 1, alpha: 0.95 };
-    this.tutorialRingTween = this.tweens.add({
-      targets: pulse,
-      scale: 1.15,
-      alpha: 0.6,
-      duration: 800,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut',
-      onUpdate: () => drawRing(pulse.scale, pulse.alpha),
-    });
+    // No canvas ring (2026-08-07): the dimmed backdrop's spotlight hole already
+    // says "look here", and a pulsing ring read as a hint — which is a
+    // different, purchasable affordance. Radius is still needed to size the
+    // hole. The tap restriction now keys on tutorialTargetDogId, not the ring.
 
     this.tutorialTargetDogId = dog.id;
     this.tutorialAnchorWorld = { x: phaserX, y: phaserY };
@@ -2013,25 +1984,6 @@ export class GameScene extends Phaser.Scene {
       this.tutorialHandle = null;
       this.tutorialTargetDogId = null;
       this.tutorialAnchorWorld = null;
-      this.tutorialRingTween?.destroy();
-      this.tutorialRingTween = null;
-      const r = this.tutorialRing;
-      this.tutorialRing = null;
-      // Shutdown guard: if the scene is tearing down, tween.killAll has
-      // (or is about to) wipe the tween manager. Adding a fade tween now
-      // would either silently no-op or queue into a dead manager. Skip
-      // the graceful fade; shutdown will auto-destroy the ring Graphics
-      // as a scene-owned child anyway.
-      if (!r || this.isShuttingDown || !this.sys.isActive()) {
-        r?.destroy();
-        return;
-      }
-      this.tweens.add({
-        targets: r,
-        alpha: 0,
-        duration: 220,
-        onComplete: () => r.destroy(),
-      });
     });
   }
 
@@ -3621,7 +3573,29 @@ export class GameScene extends Phaser.Scene {
     const unfound = this.level.dogs.filter((d) => !gameState.foundDogIds.has(d.id));
     if (unfound.length === 0) return;
 
-    const dog = unfound[Math.floor(Math.random() * unfound.length)];
+    // Prefer a bird the player can actually SEE: a uniformly random pick sent
+    // most hints off-screen, which is why the edge-arrow affordance exists at
+    // all. Fall back to the nearest off-screen bird (arrow still guides them)
+    // only when nothing is in view.
+    const view = this.cameras.main.worldView;
+    const margin = 60;
+    const toWorld = (d: LevelDog): { x: number; y: number } => ({
+      x: this.imgOffsetX + d.x * this.imgScale,
+      y: this.imgOffsetY + d.y * this.imgScale,
+    });
+    const visible = unfound.filter((d) => {
+      const p = toWorld(d);
+      return p.x > view.left + margin && p.x < view.right - margin
+        && p.y > view.top + margin && p.y < view.bottom - margin;
+    });
+    const pool = visible.length > 0 ? visible : unfound;
+    const dog = visible.length > 0
+      ? pool[Math.floor(Math.random() * pool.length)]
+      : [...pool].sort((a, b) => {
+        const pa = toWorld(a); const pb = toWorld(b);
+        return Math.hypot(pa.x - view.centerX, pa.y - view.centerY)
+          - Math.hypot(pb.x - view.centerX, pb.y - view.centerY);
+      })[0];
     if (!gameState.spendHint('gameplayHint')) return;
     // Remember the hinted bird while a tutorial is live: picking THIS bird up
     // is what starts the zoom lesson.
