@@ -3698,6 +3698,34 @@ def export_to_game(
                 painted_indices=painted_indices,
             )
 
+            # HITL relabels routinely nudge a center just outside its baked
+            # cleanup box; the geometry gate then refuses the export. Expand
+            # each box minimally to contain its hitbox center (+16px pad,
+            # clamped to the level) — the shipped background is clean
+            # everywhere, so a slightly larger reveal patch is always safe.
+            # (Third manual occurrence of this repair on 2026-08-07 — now
+            # automatic.)
+            _PAD = 16
+            level_w = int(level_data.get("width") or 0)
+            level_h = int(level_data.get("height") or 0)
+            for i in painted_indices:
+                sprite = sprite_metadata_by_index.get(i)
+                cleanup = sprite.get("cleanup") if isinstance(sprite, dict) else None
+                if not isinstance(cleanup, dict):
+                    continue
+                cx, cy = hitboxes[i]["x"], hitboxes[i]["y"]
+                x0, y0 = cleanup["x"], cleanup["y"]
+                x1, y1 = x0 + cleanup["width"], y0 + cleanup["height"]
+                if x0 <= cx <= x1 and y0 <= cy <= y1:
+                    continue
+                x0 = min(x0, max(0, cx - _PAD))
+                y0 = min(y0, max(0, cy - _PAD))
+                if level_w: x1 = max(x1, min(level_w, cx + _PAD))
+                else: x1 = max(x1, cx + _PAD)
+                if level_h: y1 = max(y1, min(level_h, cy + _PAD))
+                else: y1 = max(y1, cy + _PAD)
+                cleanup.update({"x": x0, "y": y0, "width": x1 - x0, "height": y1 - y0})
+
             # Update dogs array with current hitbox positions — painted only.
             level_data["dogs"] = [
                 {

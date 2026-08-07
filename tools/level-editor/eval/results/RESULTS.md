@@ -99,3 +99,5 @@ Golden: 21 labeled levels / 412 hitboxes (`golden-hitboxes-2026-08-05`, sha ea1e
 | yoloworld-neg-c005-conf0.05 | 0.8277 | 0.6806 | 37.2 | 0.137 | 63 | 501 | 0.32 | ea1e958d05be | yoloworld conf>=0.05 tiled |
 | yoloworld-neg-c005-conf0.1 | 0.8277 | 0.6806 | 37.2 | 0.137 | 63 | 501 | 0.32 | ea1e958d05be | yoloworld conf>=0.1 tiled |
 | yoloworld-neg-c005-conf0.15 | 0.7427 | 0.8074 | 37.5 | 0.140 | 31 | 379 | 0.26 | ea1e958d05be | yoloworld conf>=0.15 tiled |
+| shipped-rev8-voronoi-2026-08-07 | 0.0000 | - | - | - | 0 | 0 | 0.00 | ea1e958d05be | shipped catalog after Voronoi close-pair recentre + 48px margins (CDN rev 8 / builds 19-22) |
+| shipped-rev8-voronoi-2026-08-07 | 0.8422 | 0.8382 | 37.5 | 0.000 | 2 | 414 | 0.58 | ea1e958d05be | shipped catalog after Voronoi close-pair recentre + 48px margins (CDN rev 8, builds 19-22) |
