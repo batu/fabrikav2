@@ -1,7 +1,7 @@
 {
   "version": 1,
   "manifestRevision": 12,
-  "generatedAt": "2026-08-07T09:41:35.282099Z",
+  "generatedAt": "2026-08-07T17:15:44.580697Z",
   "experimentId": "ftd_levelset_v1",
   "levels": [
     {
@@ -15,8 +15,8 @@
       "bundled": true,
       "assets": {
         "levelJson": {
-          "hash": "ccb8533def7bfc2746dbb408fc7eb2b2ab7865e637bc4d0e2036aa3e439605bb",
-          "size": 9630,
+          "hash": "06da56ff6059096477424dc7159762d468116697e1a985f0433d5334b90eda9f",
+          "size": 9629,
           "path": "levels/ad_campaigns_ad_treehouse_village_bird_24d4/level.json"
         },
         "colorImage": {
@@ -146,8 +146,8 @@
       "bundled": true,
       "assets": {
         "levelJson": {
-          "hash": "d68ba748b877feba7d3313b29d31962c357fc468004bd9c543fb4da856f49a0c",
-          "size": 9000,
+          "hash": "dd875bc1deeb6190ae13fc2248b8729520aa2df214e1def5bbdcbf0559dfe456",
+          "size": 8997,
           "path": "levels/hawaii_rainforest_waterfall_bird_0f98/level.json"
         },
         "colorImage": {
@@ -272,7 +272,7 @@
       "bundled": true,
       "assets": {
         "levelJson": {
-          "hash": "8d5f451c45a34509ce659dc2c63f943ecada6c8d4394962481838c55050b5f44",
+          "hash": "d2dbdc3d1455112aa3689ff4c2dcf9d6b007b46e8c8d2460e3f3caed0dbd87da",
           "size": 8771,
           "path": "levels/cozy_interiors_cozy_toymaker_workshop_bird_4e44/level.json"
         },
@@ -393,7 +393,7 @@
       "bundled": true,
       "assets": {
         "levelJson": {
-          "hash": "23ddeb64adae8de322a283d863f82f5b73174a002059a4dfdbaba81458368c39",
+          "hash": "cd737dd59656e51b7ee8ea29f6c3aa88d29a1af8bfd4119f1da0f82cf088ddd4",
           "size": 9499,
           "path": "levels/ad_campaigns_ad_cozy_library_bird_e654/level.json"
         },
@@ -524,8 +524,8 @@
       "bundled": true,
       "assets": {
         "levelJson": {
-          "hash": "9e604b4b5d56506dbb285b9f59cb45d75f3c6623d9ef58f80302c98061ec23a1",
-          "size": 9814,
+          "hash": "4d31ad295d9c38297d83e9c11927080b818b95c4fef0fac0c80d311bd6842213",
+          "size": 9811,
           "path": "levels/greece_santorini_steps_bird_4634/level.json"
         },
         "colorImage": {
@@ -645,6 +645,142 @@
             "hash": "c6a632c66fa968d65b6a2aa48917770f5977c07ebc675fc7a5747b440c383f0e",
             "size": 51264,
             "path": "levels/greece_santorini_steps_bird_4634/dogs/dog_20/sprite_000.png"
+          }
+        ]
+      }
+    },
+    {
+      "id": "alpine_meadow_cheese_farm_courtyard_bird_aba2",
+      "name": "Level alpine_meadow_cheese_farm_courtyard_bird_aba2 (clean_old_cartoon)",
+      "width": 2688,
+      "height": 2688,
+      "cohort_buckets": [
+        "all"
+      ],
+      "bundled": true,
+      "assets": {
+        "levelJson": {
+          "hash": "314bb7355fe76dc5064c6e39c746b4f4ba04fd07e508d0c417882bb21ba3df32",
+          "size": 10150,
+          "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/level.json"
+        },
+        "colorImage": {
+          "hash": "c29b3140be6e745ab243a9ebb6a474695b35df989d29cc670f58ff159e1e2963",
+          "size": 664166,
+          "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/color.webp"
+        },
+        "bgImages": [
+          {
+            "hash": "524b6614e91bccf0921cb8c6e9ac3720dad4ed79fbc00453c63a2f8a2e34d870",
+            "size": 662210,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/bg_00.webp"
+          }
+        ],
+        "dogSprites": [
+          {
+            "hash": "e12ea28497fbf8d7aa8e809b6944851918418a89fe36d5111e355e4e9cc0956a",
+            "size": 56867,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/dogs/dog_00/sprite_000.png"
+          },
+          {
+            "hash": "ef623ea70f545cf7217f9ed28357471dcbc22e1dee10eff8a88f3b931e3a78a7",
+            "size": 37900,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/dogs/dog_01/sprite_000.png"
+          },
+          {
+            "hash": "1470f65aec04d8a5ac44cf8f05f01aed7830cd4959bdd39df7809712eb0908a4",
+            "size": 40104,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/dogs/dog_02/sprite_000.png"
+          },
+          {
+            "hash": "fb87de8b408a3021d22aa549f6512ecfe353e1277284ed118f6f9d90258e5932",
+            "size": 43548,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/dogs/dog_03/sprite_000.png"
+          },
+          {
+            "hash": "22afdcd278c2c2d0a5711d16486123060008a371ce38d5fb253513083738b65c",
+            "size": 42398,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/dogs/dog_04/sprite_000.png"
+          },
+          {
+            "hash": "075fef1a753b9164cedabae61ad6015074b043f0ebcf4388100a0ea97e51cea0",
+            "size": 46389,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/dogs/dog_05/sprite_000.png"
+          },
+          {
+            "hash": "8d8682c9439fde384e721d1b8952fb1b812e763b0d0c10c14371b5b2934135ce",
+            "size": 40835,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/dogs/dog_06/sprite_000.png"
+          },
+          {
+            "hash": "fe553068e532607c6dc1c6337068e4325c9a5450dc2f0d4e78f8d196bbcf66f9",
+            "size": 40098,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/dogs/dog_07/sprite_000.png"
+          },
+          {
+            "hash": "8595932f9a9729f24398931d636d732af6515adb74bdbf33a83e3b823ef43e0b",
+            "size": 39252,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/dogs/dog_08/sprite_000.png"
+          },
+          {
+            "hash": "f23e2a2f50c2d42ed0c2d176d75032f2091abb5e40a3f12c404fc9bd9649129a",
+            "size": 52675,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/dogs/dog_09/sprite_000.png"
+          },
+          {
+            "hash": "4729750ba8e054e15227dfcd229c2ed4692ea7cee06609908e4798c68fccc3ea",
+            "size": 48531,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/dogs/dog_10/sprite_000.png"
+          },
+          {
+            "hash": "fdf4a5b12f7e3a72d5c3ad3f51b0cc250a6ae5f37a353978b34beee916550d61",
+            "size": 46749,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/dogs/dog_11/sprite_000.png"
+          },
+          {
+            "hash": "97a619affc6688a8dd27517471d5ec112a53ba30f58e6b6ab91bca91a8f0be53",
+            "size": 58063,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/dogs/dog_12/sprite_000.png"
+          },
+          {
+            "hash": "d67071bad2a76e177b39f9459ec425c8a908cbea680000c5d15bb662e8e96264",
+            "size": 54491,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/dogs/dog_13/sprite_000.png"
+          },
+          {
+            "hash": "6f8a363f3e306462c4fbea968a1d4207aa6fecf1247d5aa588d46797252ea9d1",
+            "size": 51823,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/dogs/dog_14/sprite_000.png"
+          },
+          {
+            "hash": "b1398794b4d45828f1fc46706451a3b34e67cbd66574387f8932e816d66dd8a6",
+            "size": 63120,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/dogs/dog_15/sprite_000.png"
+          },
+          {
+            "hash": "f906c1fe2a8b9bc5436277c6cffae320caf3fd40253f6ce8844cf69e4b7037f2",
+            "size": 56346,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/dogs/dog_16/sprite_000.png"
+          },
+          {
+            "hash": "fa2428156f5c48cbdfc36a1ea0548179b7aed87341c6c19c0c3082c705bdfaf1",
+            "size": 64232,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/dogs/dog_17/sprite_000.png"
+          },
+          {
+            "hash": "afedc25d05857a6919172c555f6e082547d3880030ba560946ffc31c9bebfbb3",
+            "size": 60270,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/dogs/dog_18/sprite_000.png"
+          },
+          {
+            "hash": "aa7b27c50afd2189f12b47eaf906e769e9efb02cbae498715e698821747cd31f",
+            "size": 42472,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/dogs/dog_19/sprite_000.png"
+          },
+          {
+            "hash": "a037e7c3ac44e7e04048ccf8cf35b996ac7015af6f4ed2882a0bbe5cba7a9047",
+            "size": 40050,
+            "path": "levels/alpine_meadow_cheese_farm_courtyard_bird_aba2/dogs/dog_20/sprite_000.png"
           }
         ]
       }
