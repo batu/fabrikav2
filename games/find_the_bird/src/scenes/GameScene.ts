@@ -2437,6 +2437,9 @@ export class GameScene extends Phaser.Scene {
 
   private playRestorationPickupAnimation(dog: LevelDog): void {
     switch (this.pickupStyle) {
+      case 'flashbulb': this.playPickupFlashbulb(dog); return;
+      case 'burst': this.playPickupBurst(dog); return;
+      case 'tumble': this.playPickupTumble(dog); return;
       case 'dissolve': this.playPickupDissolve(dog); return;
       case 'feathers': this.playPickupFeathers(dog); return;
       default: this.playPickupClassic(dog);
@@ -2474,6 +2477,210 @@ export class GameScene extends Phaser.Scene {
     image?.destroy();
     this.pulseDogCounter();
   }
+
+
+  /**
+   * Shared opener for the juiced styles: a bright cover beat exactly where the
+   * bird was, fired on the SAME frame the sprite appears. Its job is not
+   * decoration — the painted bird and its cutout differ slightly in size and
+   * seat, and a flash over that spot is what stops the eye reading the swap
+   * as a jump (2026-08-07 brief: "obscure the shifts around size misalignment").
+   */
+  private pickupCoverFlash(x: number, y: number, radius: number, tint: number): void {
+    const flash = this.add.graphics().setScrollFactor(0).setDepth(84);
+    const pulse = { r: radius * 0.35, a: 0.95 };
+    const draw = (): void => {
+      flash.clear();
+      flash.fillStyle(tint, pulse.a);
+      flash.fillCircle(x, y, pulse.r);
+      flash.lineStyle(3, 0xffffff, pulse.a * 0.9);
+      flash.strokeCircle(x, y, pulse.r * 1.08);
+    };
+    draw();
+    this.tweens.add({
+      targets: pulse,
+      r: radius * 1.5,
+      a: 0,
+      duration: 260,
+      ease: 'Cubic.easeOut',
+      onUpdate: draw,
+      onComplete: () => flash.destroy(),
+    });
+  }
+
+  /** Style A — Flashbulb: cover flash, punch-up hold, then a clean arc. */
+  private playPickupFlashbulb(dog: LevelDog): void {
+    const { image, start, target } = this.spawnPickupImage(dog);
+    const reducedMotion = this.prefersReducedMotion();
+    const baseX = image.scaleX;
+    const baseY = image.scaleY;
+    const size = Math.max(image.displayWidth, image.displayHeight, 1);
+    const land = Phaser.Math.Clamp(GAMEPLAY.RESTORATION_PICKUP_LANDING_SIZE_PX / size, 0.22, 0.72);
+    this.pickupCoverFlash(start.x, start.y, size * 0.6, 0xfff4c9);
+    image.preFX?.setPadding(14);
+    image.preFX?.addGlow(0xffffff, 7, 2);
+    this.pickupAnimationsActive += 1;
+
+    // Beat 1: punch to 1.22x while the flash is still bright — the size the
+    // player registers is the punched one, not the swapped-in sprite.
+    image.setScale(baseX * 0.72, baseY * 0.72);
+    this.tweens.add({
+      targets: image,
+      scaleX: baseX * 1.22,
+      scaleY: baseY * 1.22,
+      duration: reducedMotion ? 60 : 150,
+      ease: 'Back.easeOut',
+      onComplete: () => {
+        const arc = Math.max(GAMEPLAY.RESTORATION_PICKUP_MIN_ARC_PX, Math.abs(start.x - target.x) * 0.24);
+        const control = { x: (start.x + target.x) / 2, y: Math.min(start.y, target.y) - arc };
+        const p = { t: 0 };
+        this.tweens.add({
+          targets: p,
+          t: 1,
+          duration: reducedMotion ? 220 : TIMING.RESTORATION_PICKUP_FLY_MS,
+          ease: 'Cubic.easeIn',
+          onUpdate: () => {
+            const t = p.t; const inv = 1 - t;
+            image.setPosition(
+              inv * inv * start.x + 2 * inv * t * control.x + t * t * target.x,
+              inv * inv * start.y + 2 * inv * t * control.y + t * t * target.y,
+            );
+            const k = Phaser.Math.Linear(1.22, land, t);
+            image.setScale(baseX * k, baseY * k);
+            image.setAngle(Phaser.Math.Linear(0, 24, t));
+          },
+          onComplete: () => this.finishPickup(image),
+        });
+      },
+    });
+  }
+
+  /** Style B — Feather Burst: particles erupt and the sprite rides a trail. */
+  private playPickupBurst(dog: LevelDog): void {
+    const { image, start, target } = this.spawnPickupImage(dog);
+    const reducedMotion = this.prefersReducedMotion();
+    const baseX = image.scaleX;
+    const baseY = image.scaleY;
+    const size = Math.max(image.displayWidth, image.displayHeight, 1);
+    const land = Phaser.Math.Clamp(GAMEPLAY.RESTORATION_PICKUP_LANDING_SIZE_PX / size, 0.22, 0.72);
+    this.pickupCoverFlash(start.x, start.y, size * 0.5, 0xffffff);
+    this.pickupAnimationsActive += 1;
+
+    // A ring of particles thrown outward on the pickup frame. They cover the
+    // silhouette long enough that the swap lands unseen.
+    if (!reducedMotion && this.textures.exists('paw_particle')) {
+      for (let i = 0; i < 10; i++) {
+        const angle = (i / 10) * Math.PI * 2 + Math.random() * 0.4;
+        const dist = size * (0.5 + Math.random() * 0.5);
+        const bit = this.add.image(start.x, start.y, 'paw_particle')
+          .setScrollFactor(0).setDepth(86)
+          .setScale(0.5 + Math.random() * 0.4)
+          .setAlpha(0.95);
+        this.tweens.add({
+          targets: bit,
+          x: start.x + Math.cos(angle) * dist,
+          y: start.y + Math.sin(angle) * dist,
+          angle: Phaser.Math.Between(-220, 220),
+          alpha: 0,
+          scale: 0.15,
+          duration: 380 + Math.random() * 180,
+          ease: 'Cubic.easeOut',
+          onComplete: () => bit.destroy(),
+        });
+      }
+    }
+
+    const arc = Math.max(GAMEPLAY.RESTORATION_PICKUP_MIN_ARC_PX, Math.abs(start.x - target.x) * 0.2);
+    const control = { x: (start.x + target.x) / 2, y: Math.min(start.y, target.y) - arc };
+    const p = { t: 0 };
+    let lastGhost = 0;
+    this.tweens.add({
+      targets: p,
+      t: 1,
+      duration: reducedMotion ? 240 : TIMING.RESTORATION_PICKUP_FLY_MS + 80,
+      ease: 'Sine.easeInOut',
+      onUpdate: () => {
+        const t = p.t; const inv = 1 - t;
+        const x = inv * inv * start.x + 2 * inv * t * control.x + t * t * target.x;
+        const y = inv * inv * start.y + 2 * inv * t * control.y + t * t * target.y;
+        image.setPosition(x, y);
+        const k = Phaser.Math.Linear(1, land, t);
+        // Velocity-aligned stretch: longer along travel, thinner across it.
+        image.setScale(baseX * k * (1 + 0.18 * (1 - Math.abs(0.5 - t) * 2)), baseY * k * (1 - 0.1 * (1 - Math.abs(0.5 - t) * 2)));
+        // Motion echo: a fading copy every ~60ms reads as speed.
+        if (!reducedMotion && this.time.now - lastGhost > 60 && t < 0.85) {
+          lastGhost = this.time.now;
+          const ghost = this.add.image(x, y, image.texture.key)
+            .setOrigin(image.originX, image.originY)
+            .setScrollFactor(0).setDepth(83)
+            .setScale(image.scaleX, image.scaleY)
+            .setAlpha(0.32);
+          this.tweens.add({ targets: ghost, alpha: 0, duration: 220, onComplete: () => ghost.destroy() });
+        }
+      },
+      onComplete: () => this.finishPickup(image),
+    });
+  }
+
+  /** Style C — Pop & Tumble: anticipation squash, shockwave, tumbling dive. */
+  private playPickupTumble(dog: LevelDog): void {
+    const { image, start, target } = this.spawnPickupImage(dog);
+    const reducedMotion = this.prefersReducedMotion();
+    const baseX = image.scaleX;
+    const baseY = image.scaleY;
+    const size = Math.max(image.displayWidth, image.displayHeight, 1);
+    const land = Phaser.Math.Clamp(GAMEPLAY.RESTORATION_PICKUP_LANDING_SIZE_PX / size, 0.22, 0.72);
+    this.pickupAnimationsActive += 1;
+
+    // Expanding shockwave ring, no fill: reads as impact and its bright edge
+    // sweeps over the silhouette exactly where the swap happens.
+    const ring = this.add.graphics().setScrollFactor(0).setDepth(84);
+    const wave = { r: size * 0.2, a: 0.9 };
+    const drawRing = (): void => {
+      ring.clear();
+      ring.lineStyle(6, 0xffe9a8, wave.a);
+      ring.strokeCircle(start.x, start.y, wave.r);
+      ring.lineStyle(2, 0xffffff, wave.a * 0.8);
+      ring.strokeCircle(start.x, start.y, wave.r * 0.82);
+    };
+    drawRing();
+    this.tweens.add({
+      targets: wave, r: size * 1.35, a: 0, duration: 300, ease: 'Cubic.easeOut',
+      onUpdate: drawRing, onComplete: () => ring.destroy(),
+    });
+
+    // Anticipation: squash DOWN first, so the launch has something to release.
+    image.setScale(baseX * 1.18, baseY * 0.78);
+    this.tweens.add({
+      targets: image,
+      scaleX: baseX, scaleY: baseY,
+      duration: reducedMotion ? 50 : 130,
+      ease: 'Quad.easeOut',
+      onComplete: () => {
+        const arc = Math.max(GAMEPLAY.RESTORATION_PICKUP_MIN_ARC_PX * 1.6, Math.abs(start.x - target.x) * 0.34);
+        const control = { x: (start.x + target.x) / 2, y: Math.min(start.y, target.y) - arc };
+        const p = { t: 0 };
+        this.tweens.add({
+          targets: p,
+          t: 1,
+          duration: reducedMotion ? 240 : TIMING.RESTORATION_PICKUP_FLY_MS + 40,
+          ease: 'Quad.easeIn',
+          onUpdate: () => {
+            const t = p.t; const inv = 1 - t;
+            image.setPosition(
+              inv * inv * start.x + 2 * inv * t * control.x + t * t * target.x,
+              inv * inv * start.y + 2 * inv * t * control.y + t * t * target.y,
+            );
+            const k = Phaser.Math.Linear(1, land, t);
+            image.setScale(baseX * k, baseY * k);
+            image.setAngle(t * 380);
+          },
+          onComplete: () => this.finishPickup(image),
+        });
+      },
+    });
+  }
+
 
   /** Star pop at the counter target — the landing thump every style shares. */
   private emitCounterPop(): void {

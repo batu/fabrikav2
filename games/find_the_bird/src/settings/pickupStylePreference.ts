@@ -7,6 +7,11 @@ export const PICKUP_STYLE_OPTIONS = [
   { value: 'classic', label: 'Classic' },
   { value: 'dissolve', label: 'Dissolve' },
   { value: 'feathers', label: 'Feathers' },
+  // 2026-08-07 juice proposals — each hides the sprite-swap size shift with a
+  // different opening beat; see the Portal review post.
+  { value: 'flashbulb', label: 'Flashbulb' },
+  { value: 'burst', label: 'Feather burst' },
+  { value: 'tumble', label: 'Pop & tumble' },
 ] as const;
 
 export type PickupStyle = (typeof PICKUP_STYLE_OPTIONS)[number]['value'];
