@@ -41,6 +41,8 @@ WIZARD_OPERATIONS: dict[str, str] = {
     "inpaint-job": "inpaint",
     "retry-failed-dogs-job": "inpaint",
     "single-dog-regenerate": "regenerate",
+    "selected-cutout-extraction": "cutouts",
+    "selected-cutout-regeneration": "cutouts",
     "dog-set-active-variant": "dogs",
     "dog-delete": "dogs",
     "list-jobs": "jobs",
@@ -524,6 +526,94 @@ def cmd_regenerate(client: Client, args: argparse.Namespace) -> None:
         f"/api/sessions/{args.session_id}/dogs/by-id/{args.dog}/regen",
         json={"prompt": prompts["dogPrompt"]},
     ))
+
+
+def _parse_named_crop_boxes(values: list[str] | None) -> dict[str, list[int]]:
+    boxes: dict[str, list[int]] = {}
+    for value in values or []:
+        dog_id, separator, raw_box = value.partition("=")
+        try:
+            box = [int(part.strip()) for part in raw_box.split(",")]
+        except ValueError as error:
+            raise CliError("invalid_crop_box", f"invalid --crop-box {value!r}; use DOG_ID=x0,y0,x1,y1") from error
+        if not separator or not dog_id or len(box) != 4 or box[2] <= box[0] or box[3] <= box[1]:
+            raise CliError("invalid_crop_box", f"invalid --crop-box {value!r}; use DOG_ID=x0,y0,x1,y1")
+        if dog_id in boxes:
+            raise CliError("duplicate_crop_box", f"multiple crop boxes supplied for {dog_id}")
+        boxes[dog_id] = box
+    return boxes
+
+
+def cmd_cutouts(client: Client, args: argparse.Namespace) -> None:
+    """Extract or regenerate selected pickup cutouts through the durable job lane."""
+    session = client.get(f"/api/sessions/{args.session_id}")
+    dogs = session.get("dogs") or []
+    hitboxes = session.get("hitboxes") or []
+    dogs_by_id = {
+        str(dog["id"]): dog for dog in dogs
+        if isinstance(dog, dict) and dog.get("id") is not None and isinstance(dog.get("index"), int)
+    }
+    selected_ids = list(dict.fromkeys(args.dog))
+    missing = [dog_id for dog_id in selected_ids if dog_id not in dogs_by_id]
+    if missing:
+        raise CliError("dog_not_found", f"no dog with stable id {missing[0]!r}")
+    custom_boxes = _parse_named_crop_boxes(args.crop_box)
+    unselected_boxes = sorted(set(custom_boxes) - set(selected_ids))
+    if unselected_boxes:
+        raise CliError("crop_box_unselected", f"crop box supplied for unselected dog {unselected_boxes[0]!r}")
+
+    hitboxes_by_id = {
+        str(hitbox["id"]): hitbox for hitbox in hitboxes
+        if isinstance(hitbox, dict) and hitbox.get("id") is not None
+    }
+    scene_width = int(session.get("bgWidth") or session.get("width") or 0)
+    scene_height = int(session.get("bgHeight") or session.get("height") or 0)
+    crop_boxes: dict[int, list[int]] = {}
+    dog_indices: list[int] = []
+    for dog_id in selected_ids:
+        dog = dogs_by_id[dog_id]
+        dog_index = int(dog["index"])
+        dog_indices.append(dog_index)
+        hitbox = hitboxes_by_id.get(dog_id)
+        if hitbox is None and 0 <= dog_index < len(hitboxes):
+            hitbox = hitboxes[dog_index]
+        if not isinstance(hitbox, dict):
+            raise CliError("hitbox_not_found", f"dog {dog_id!r} has no matching hitbox")
+        if dog_id in custom_boxes:
+            crop_boxes[dog_index] = custom_boxes[dog_id]
+            continue
+        radius = float(hitbox.get("r", hitbox.get("radius", 30)))
+        half_side = round(radius * args.padding)
+        x, y = round(float(hitbox["x"])), round(float(hitbox["y"]))
+        crop_boxes[dog_index] = [
+            max(0, x - half_side),
+            max(0, y - half_side),
+            min(scene_width, x + half_side) if scene_width > 0 else x + half_side,
+            min(scene_height, y + half_side) if scene_height > 0 else y + half_side,
+        ]
+
+    if args.operation == "extract":
+        prompt = client.get(f"/api/sessions/{args.session_id}/cutout-extraction-prompt")["prompt"]
+    else:
+        prompts = client.post("/api/actions/assemble-recipe-prompts", json=_session_recipe(session))
+        prompt = prompts["dogPrompt"]
+    body = {
+        "dogIndices": dog_indices,
+        "prompt": prompt,
+        "inpaintModel": args.model,
+        "padding": args.padding,
+        "cropBoxes": crop_boxes,
+        "cutoutOnly": args.operation == "extract",
+    }
+    job = client.post(f"/api/sessions/{args.session_id}/dogs/retry-inpaint/jobs", json=body)
+    if args.wait:
+        _require_success(
+            _wait_for_job(client, job.get("jobId") or job.get("id"), timeout_s=args.timeout, quiet=args.json)
+        )
+        job = client.get(
+            f"/api/sessions/{args.session_id}/dogs/retry-inpaint/jobs/{job.get('jobId') or job.get('id')}"
+        )
+    _emit(args, job)
 
 
 def cmd_dogs(client: Client, args: argparse.Namespace) -> None:
@@ -1355,6 +1445,16 @@ def build_parser() -> argparse.ArgumentParser:
     p = verb("regenerate", cmd_regenerate)
     p.add_argument("session_id")
     p.add_argument("--dog", required=True)
+
+    p = verb("cutouts", cmd_cutouts)
+    p.add_argument("session_id")
+    p.add_argument("--operation", choices=("extract", "regenerate"), default="extract")
+    p.add_argument("--dog", action="append", required=True, help="stable bird id; repeat to select multiple")
+    p.add_argument("--crop-box", action="append", help="DOG_ID=x0,y0,x1,y1; repeat per custom padding box")
+    p.add_argument("--model", help="override the extraction/regeneration model")
+    p.add_argument("--padding", type=float, default=2.75)
+    p.add_argument("--wait", action="store_true")
+    p.add_argument("--timeout", type=float, default=3600.0)
 
     p = verb("dogs", cmd_dogs)
     p.add_argument("session_id")

@@ -43,6 +43,10 @@ function Harness() {
         sessionId={sessionId}
         sharedPrompt="A cute dog, complete body, clean silhouette, no attached scenery."
         inpaintModel="demo-model"
+        models={[
+          { id: 'google/gemini-3.1-flash-lite-image', label: 'Gemini 3.1 Flash Lite' },
+          { id: 'google/gemini-3.1-flash-image-preview', label: 'Gemini 3.1 Flash' },
+        ]}
         hitboxes={HITBOXES}
         dogs={dogs}
         onDogComplete={handleDogComplete}

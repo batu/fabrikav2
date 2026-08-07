@@ -513,6 +513,10 @@ class CreateAnimationJobRequest(BaseModel):
     fps: int = Field(24, ge=8, le=60)
 
 
+class SaveSpritePlacementRequest(BaseModel):
+    spriteBox: tuple[int, int, int, int]
+
+
 def _job_artifact_response(artifact: JobArtifact) -> JobArtifactResponse:
     return JobArtifactResponse(
         id=artifact.id,
@@ -582,6 +586,7 @@ MODELS = [
 ]
 
 INPAINT_MODELS = [
+    {"id": "google/gemini-3.1-flash-lite-image", "label": "Gemini 3.1 Flash Lite"},
     *BASE_MODELS,
 ]
 if os.environ.get("FAL_KEY"):
@@ -1089,8 +1094,8 @@ def _render_sprite_candidate_overlay(
     if metadata_file is None or sprite_file is None or scene_file is None:
         raise ValueError("candidate overlay assets are missing")
     metadata = json.loads(metadata_file.read_text())
-    box = metadata.get("spriteBox")
-    if not (isinstance(box, list) and len(box) == 4):
+    box = candidate.get("previewSpriteBox") or metadata.get("spriteBox")
+    if not (isinstance(box, (list, tuple)) and len(box) == 4):
         raise ValueError("candidate spriteBox is invalid")
     x0, y0, x1, y1 = [int(value) for value in box]
     if x1 <= x0 or y1 <= y0:
@@ -1110,25 +1115,26 @@ def _render_sprite_candidate_overlay(
             min(scene.width, max(x1, ux1, requested[2]) + pad), min(scene.height, max(y1, uy1, requested[3]) + pad),
         )
         preview = scene.crop(crop)
-        alpha = sprite.getchannel("A")
-        expanded = alpha.filter(ImageFilter.MaxFilter(9))
-        contour = Image.frombytes(
-            "L", alpha.size,
-            bytes(max(0, outer - inner) for outer, inner in zip(expanded.tobytes(), alpha.tobytes())),
-        )
-        tint = Image.new("RGBA", sprite.size, (76, 235, 147, 70))
-        tint.putalpha(alpha.point(lambda value: min(82, value)))
-        edge = Image.new("RGBA", sprite.size, (76, 235, 147, 255))
-        edge.putalpha(contour)
         px, py = x0 - crop[0], y0 - crop[1]
-        preview.alpha_composite(tint, (px, py))
-        preview.alpha_composite(edge, (px, py))
         draw = ImageDraw.Draw(preview)
-        draw.rectangle(
-            (px, py, px + x1 - x0 - 1, py + y1 - y0 - 1),
-            outline=(76, 235, 147, 230), width=3,
-        )
-        if crop_box is not None:
+        if candidate.get("sceneOnly") is not True:
+            alpha = sprite.getchannel("A")
+            expanded = alpha.filter(ImageFilter.MaxFilter(9))
+            contour = Image.frombytes(
+                "L", alpha.size,
+                bytes(max(0, outer - inner) for outer, inner in zip(expanded.tobytes(), alpha.tobytes())),
+            )
+            tint = Image.new("RGBA", sprite.size, (76, 235, 147, 70))
+            tint.putalpha(alpha.point(lambda value: min(82, value)))
+            edge = Image.new("RGBA", sprite.size, (76, 235, 147, 255))
+            edge.putalpha(contour)
+            preview.alpha_composite(tint, (px, py))
+            preview.alpha_composite(edge, (px, py))
+            draw.rectangle(
+                (px, py, px + x1 - x0 - 1, py + y1 - y0 - 1),
+                outline=(76, 235, 147, 230), width=3,
+            )
+        if crop_box is not None and candidate.get("sceneOnly") is not True:
             draw.rectangle(
                 (
                     crop_box[0] - crop[0], crop_box[1] - crop[1],
@@ -1147,6 +1153,8 @@ def sprite_candidate_overlay(
     session_id: str,
     candidate_id: str,
     cropBox: str | None = Query(None, max_length=120),
+    spriteBox: str | None = Query(None, max_length=120),
+    sceneOnly: bool = Query(False),
 ):
     _validate_session_id(session_id)
     candidate = S.sprite_animation_candidate_by_id(session_id, candidate_id)
@@ -1160,16 +1168,74 @@ def sprite_candidate_overlay(
             if len(values) != 4 or values[2] <= values[0] or values[3] <= values[1]:
                 raise ValueError("cropBox must be x0,y0,x1,y1")
             crop_box = values
+        if spriteBox is not None:
+            values = tuple(int(value) for value in spriteBox.split(","))
+            if len(values) != 4 or values[2] <= values[0] or values[3] <= values[1]:
+                raise ValueError("spriteBox must be x0,y0,x1,y1")
+            candidate = {**candidate, "previewSpriteBox": values}
+        if sceneOnly:
+            candidate = {**candidate, "sceneOnly": True}
         content = _render_sprite_candidate_overlay(roots, candidate, crop_box=crop_box)
     except (OSError, ValueError, json.JSONDecodeError, UnidentifiedImageError) as error:
         raise HTTPException(422, detail={"error": str(error)}) from error
     return Response(content=content, media_type="image/png", headers={"Cache-Control": "no-store"})
 
 
+@router.put("/sessions/{session_id}/sprite-candidates/{candidate_id}/placement")
+def save_sprite_candidate_placement(
+    session_id: str,
+    candidate_id: str,
+    req: SaveSpritePlacementRequest,
+):
+    _validate_session_id(session_id)
+    candidate = S.sprite_animation_candidate_by_id(session_id, candidate_id)
+    if candidate is None:
+        raise HTTPException(404, detail={"error": "Sprite candidate not found"})
+    try:
+        dog_index = int(candidate["dogIndex"])
+        level_path = S.GAME_PUBLIC_LEVELS / session_id / "level.json"
+        level = json.loads(level_path.read_text())
+        dogs = level.get("dogs") or []
+        dog = dogs[dog_index]
+        dog_id = dog["id"]
+        x0, y0, x1, y1 = req.spriteBox
+        if x1 <= x0 or y1 <= y0:
+            raise ValueError("spriteBox must have positive width and height")
+        if not (0 <= x0 < x1 <= int(level["width"]) and 0 <= y0 < y1 <= int(level["height"])):
+            raise ValueError("spriteBox must stay inside the scene")
+        if not (x0 <= int(dog["x"]) <= x1 and y0 <= int(dog["y"]) <= y1):
+            raise ValueError("spriteBox must contain the bird pickup point")
+        from levelbuilder.api.sprite_eval import apply_match_report
+        report = {"levels": [{
+            "levelId": session_id,
+            "birds": [{
+                "dogId": dog_id,
+                "cutoutMatches": {"manual": {"accepted": True, "fittedBox": [x0, y0, x1, y1], "method": "manual"}},
+            }],
+        }]}
+        # Autosave can overlap across tabs or with a prior delayed drag save.
+        # apply_match_report uses one atomic `level.json.tmp` path, so serialize
+        # the read-modify-write transaction instead of letting valid saves race
+        # into a transient 422 or overwrite newer geometry.
+        with S._session_lock:
+            result = apply_match_report(
+                S.GAME_PUBLIC_LEVELS,
+                report,
+                method="manual",
+                workspace_root=S.WORKSPACE_ROOT,
+            )
+        if result.get("applied") != 1 and result.get("unchanged") != 1:
+            raise ValueError("manual placement was rejected")
+        catalog = S.refresh_catalog_packages([session_id]) if result.get("applied") == 1 else None
+    except (OSError, KeyError, IndexError, TypeError, ValueError, json.JSONDecodeError) as error:
+        raise HTTPException(422, detail={"error": str(error)}) from error
+    return {"ok": True, "spriteBox": [x0, y0, x1, y1], "catalog": catalog}
+
+
 @router.get("/sessions/{session_id}/cutout-extraction-prompt")
 def cutout_extraction_prompt(session_id: str):
     _validate_session_id(session_id)
-    raw = S.load_session_raw(session_id)
+    raw = S.ensure_session_json(session_id)
     if raw is None:
         raise HTTPException(404, detail={"error": "Session not found"})
     from levelbuilder.api.flatkey import FLAT_PROMPT_TEMPLATE

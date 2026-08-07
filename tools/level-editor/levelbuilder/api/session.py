@@ -665,6 +665,8 @@ def sprite_animation_candidates(session_id: str) -> list[dict[str, Any]]:
                     "sourceVariant": data.get("sourceVariant") if isinstance(data.get("sourceVariant"), str) else None,
                     "anchorX": data.get("anchorX") if isinstance(data.get("anchorX"), (int, float)) else None,
                     "anchorY": data.get("anchorY") if isinstance(data.get("anchorY"), (int, float)) else None,
+                    "spriteBox": data.get("spriteBox") if isinstance(data.get("spriteBox"), list) and len(data.get("spriteBox")) == 4 else None,
+                    "cleanupBox": data.get("cleanupBox") if isinstance(data.get("cleanupBox"), list) and len(data.get("cleanupBox")) == 4 else None,
                     "technique": data.get("technique") if isinstance(data.get("technique"), str) else None,
                     "quality": data.get("quality") if isinstance(data.get("quality"), dict) else None,
                 })
@@ -1464,10 +1466,14 @@ def ensure_session_json(session_id: str) -> dict | None:
             return None
         with open(level_json_path) as f:
             level_json = json.load(f)
-        hitboxes = [
-            {"x": dog["x"], "y": dog["y"], "r": dog.get("r", dog.get("radius", 50))}
-            for dog in level_json.get("dogs", [])
+        level_dogs = [
+            dog for dog in level_json.get("dogs", [])
             if isinstance(dog, dict) and "x" in dog and "y" in dog
+        ]
+        hitboxes = [
+            {"x": dog["x"], "y": dog["y"], "r": dog.get("r", dog.get("radius", 50)),
+             **({"id": dog["id"]} if dog.get("id") else {})}
+            for dog in level_dogs
         ]
         with Image.open(color_path) as img:
             bg_width, bg_height = img.size
@@ -1498,14 +1504,23 @@ def ensure_session_json(session_id: str) -> dict | None:
             "bg_width": bg_width,
             "bg_height": bg_height,
             "sections": level_sections if inferred_mode == "landscape" else [],
+            "hitboxes": hitboxes,
             "dogs": [
                 {
                     "index": i,
+                    "id": dog.get("id"),
                     "status": "done",
-                    "activeVariant": None,
+                    "activeVariant": (
+                        int(match.group(1))
+                        if (match := re.search(
+                            r"sprite_(\d+)\.png$",
+                            str((dog.get("sprite") or {}).get("image") or ""),
+                        ))
+                        else None
+                    ),
                     "promptOverride": None,
                 }
-                for i in range(len(hitboxes))
+                for i, dog in enumerate(level_dogs)
             ],
         }
 
@@ -1782,7 +1797,12 @@ def hydrate_session(session_id: str) -> dict | None:
     hydrated_dogs.sort(key=lambda d: d["index"])
 
     # Get hitboxes from the latest hitboxes.json
-    hitboxes = []
+    hitboxes = [
+        {"x": h["x"], "y": h["y"], "r": h.get("r", h.get("radius", 30)),
+         **({"id": h["id"]} if h.get("id") else {})}
+        for h in (raw.get("hitboxes") or [])
+        if isinstance(h, dict) and "x" in h and "y" in h
+    ]
     hb_path = sdir / "hitboxes.json"
     if hb_path.exists():
         with open(hb_path) as f:

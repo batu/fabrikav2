@@ -23,6 +23,7 @@ def test_core_wizard_operations_are_covered() -> None:
         "create-session", "background-generation-job", "select-background",
         "upscale-background-job", "auto-hitboxes", "save-hitboxes",
         "inpaint-job", "single-dog-regenerate", "sequence-start-job",
+        "selected-cutout-extraction", "selected-cutout-regeneration",
         "get-session", "list-sessions", "prompt-library",
     }
     missing = required - set(WIZARD_OPERATIONS)
