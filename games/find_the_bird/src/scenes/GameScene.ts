@@ -2939,15 +2939,24 @@ export class GameScene extends Phaser.Scene {
     // the active-cell path carves with alpha (1 - cell.alpha), so tweening
     // alpha 1 -> 0 dissolves the bird into the clean background. Hit-testing
     // already treats active cells as revealed, so a tap mid-fade is safe.
+    //
+    // Linear, and driven by a wall-clock delta rather than the tween's own
+    // progress: at a 50ms duration against the 30fps loop the fade spans
+    // only ~1.5 frames, so an eased curve would quantize into a visible
+    // two-step pop. Linear over real elapsed time degrades gracefully to
+    // "slightly softer snap" on a slow frame instead of stuttering.
     this.dissolveActiveCells.push(...cells);
-    const fade = { alpha: 1 };
+    const startedAt = performance.now();
+    const durationMs = Math.max(1, TIMING.RESTORATION_DISSOLVE_MS);
+    const fade = { t: 0 };
     this.tweens.add({
       targets: fade,
-      alpha: 0,
-      duration: TIMING.RESTORATION_DISSOLVE_MS,
-      ease: 'Sine.easeOut',
+      t: 1,
+      duration: durationMs,
+      ease: 'Linear',
       onUpdate: () => {
-        for (const cell of cells) cell.alpha = fade.alpha;
+        const progress = Math.min(1, (performance.now() - startedAt) / durationMs);
+        for (const cell of cells) cell.alpha = 1 - progress;
         this.activeRevealDirty = true;
       },
       onComplete: commit,

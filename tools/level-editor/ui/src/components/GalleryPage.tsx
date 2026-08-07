@@ -111,6 +111,7 @@ export default function GalleryPage({ config, onOpen }: Props) {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [search, setSearch] = useState('');
   const [showArchived, setShowArchived] = useState(false);
+  const [lineupOnly, setLineupOnly] = useState(false);
   const [stateFilter, setStateFilter] = useState<Record<CardState, boolean>>({
     background: true,
     inpainted: true,
@@ -175,7 +176,10 @@ export default function GalleryPage({ config, onOpen }: Props) {
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
+    const lineupOrder = lineupState?.draft.levelIds ?? [];
+    const lineupSet = new Set(lineupOrder);
     return orderedAllCards
+      .filter((c) => (lineupOnly ? lineupSet.has(c.session.id) : true))
       .filter((c) => (showArchived ? true : !c.archived))
       .filter((c) => (settingFilter === 'all' ? true : c.session.setting === settingFilter))
       .filter((c) => (modelFilter === 'all' ? true : c.session.model === modelFilter))
@@ -191,8 +195,13 @@ export default function GalleryPage({ config, onOpen }: Props) {
           ...(c.session.tags ?? []),
         ].join(' ').toLowerCase();
         return haystack.includes(q);
-      });
-  }, [orderedAllCards, showArchived, settingFilter, modelFilter, selectedTags, stateFilter, search, config.settings]);
+      })
+      // Lineup view is an ORDER, not just a filter: sort by play position so
+      // the gallery reads the way players will meet the levels.
+      .sort((a, b) => (lineupOnly
+        ? lineupOrder.indexOf(a.session.id) - lineupOrder.indexOf(b.session.id)
+        : 0));
+  }, [orderedAllCards, lineupOnly, lineupState, showArchived, settingFilter, modelFilter, selectedTags, stateFilter, search, config.settings]);
 
   const visibilitySessionIds = useMemo(
     () => Array.from(new Set(
@@ -233,7 +242,7 @@ export default function GalleryPage({ config, onOpen }: Props) {
   }, [visibilitySessionKey]);
 
   const grouped = useMemo(() => {
-    if (!groupBySetting) return [['all', filtered] as const];
+    if (!groupBySetting || lineupOnly) return [['all', filtered] as const];
     const g = new Map<string, VariantCard[]>();
     for (const c of filtered) {
       const cards = g.get(c.session.setting) ?? [];
@@ -241,7 +250,7 @@ export default function GalleryPage({ config, onOpen }: Props) {
       g.set(c.session.setting, cards);
     }
     return Array.from(g.entries());
-  }, [filtered, groupBySetting]);
+  }, [filtered, groupBySetting, lineupOnly]);
 
   const stateCounts = useMemo(() => {
     const c: Record<CardState, number> = { background: 0, inpainted: 0, exported: 0 };
@@ -373,6 +382,14 @@ export default function GalleryPage({ config, onOpen }: Props) {
                 onChange={(e) => setShowArchived(e.target.checked)}
               />
               Show archived
+            </label>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.85rem', color: lineupOnly ? '#67e8f9' : '#ccc', fontWeight: lineupOnly ? 700 : 400 }}>
+              <input
+                type="checkbox"
+                checked={lineupOnly}
+                onChange={(e) => setLineupOnly(e.target.checked)}
+              />
+              Lineup ({lineupState?.draft.levelIds.length ?? 0}) — in the game, in play order
             </label>
             <label style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.85rem', color: '#ccc' }}>
               <input
