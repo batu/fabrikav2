@@ -5,7 +5,7 @@ import '../src/App.css';
 import type { DogState, Hitbox } from '../src/types';
 
 const HITBOXES: Hitbox[] = [
-  { x: 80, y: 90, r: 30 },
+  { x: 10, y: 20, r: 30 },
   { x: 180, y: 120, r: 36 },
   { x: 280, y: 160, r: 28 },
 ];

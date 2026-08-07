@@ -98,6 +98,8 @@ async function run() {
                 sceneHeight: 300,
                 spriteBox: [60, 60, 120, 110],
                 cleanupBox: [50, 50, 130, 120],
+                anchorX: 0.5,
+                anchorY: 0.5,
                 flipX: submittedFlipX,
                 flipY: submittedFlipY,
                 technique: 'sam2-box075-component-cutout-v1',
@@ -303,7 +305,7 @@ async function run() {
     await controls.getByRole('button', { name: 'Flip X', exact: true }).click();
     await page.waitForTimeout(1200);
     await page.waitForFunction(() => document.querySelector('.cutout-review-result')?.textContent?.includes('placement saved'));
-    if (!submittedPlacement || submittedPlacement[0] <= 60 || submittedPlacement[2] <= 120) {
+    if (!submittedPlacement || submittedPlacement[0] <= 60 || submittedPlacement[2] <= 120 || submittedPlacement[2] - submittedPlacement[0] > 100) {
       throw new Error(`Manual placement was not submitted: ${JSON.stringify(submittedPlacement)}`);
     }
     if (submittedFlipX !== true || submittedFlipY !== false) {

@@ -77,25 +77,39 @@ function candidateLabel(candidate: SpriteCandidate): string {
   return `dog #${candidate.dogIndex} · sprite ${String(candidate.spriteIndex).padStart(3, '0')}`;
 }
 
+function candidateTarget(candidate: SpriteCandidate, hitbox: Hitbox): { x: number; y: number; r: number } {
+  const box = candidate.spriteBox;
+  if (box && typeof candidate.anchorX === 'number' && typeof candidate.anchorY === 'number') {
+    return {
+      x: box[0] + candidate.anchorX * (box[2] - box[0]),
+      y: box[1] + candidate.anchorY * (box[3] - box[1]),
+      r: hitbox.r,
+    };
+  }
+  return hitbox;
+}
+
 function defaultCropBox(candidate: SpriteCandidate, hitbox: Hitbox): CropBox {
+  const target = candidateTarget(candidate, hitbox);
   const halfSide = Math.round(hitbox.r * 2.75);
   const sceneWidth = candidate.sceneWidth ?? Number.MAX_SAFE_INTEGER;
   const sceneHeight = candidate.sceneHeight ?? Number.MAX_SAFE_INTEGER;
   return [
-    Math.max(0, Math.round(hitbox.x - halfSide)),
-    Math.max(0, Math.round(hitbox.y - halfSide)),
-    Math.min(sceneWidth, Math.round(hitbox.x + halfSide)),
-    Math.min(sceneHeight, Math.round(hitbox.y + halfSide)),
+    Math.max(0, Math.round(target.x - halfSide)),
+    Math.max(0, Math.round(target.y - halfSide)),
+    Math.min(sceneWidth, Math.round(target.x + halfSide)),
+    Math.min(sceneHeight, Math.round(target.y + halfSide)),
   ];
 }
 
 function clampCropBox(candidate: SpriteCandidate, hitbox: Hitbox, box: CropBox): CropBox {
+  const target = candidateTarget(candidate, hitbox);
   const sceneWidth = candidate.sceneWidth ?? Number.MAX_SAFE_INTEGER;
   const sceneHeight = candidate.sceneHeight ?? Number.MAX_SAFE_INTEGER;
-  const minX = Math.max(0, Math.round(hitbox.x - hitbox.r));
-  const maxX = Math.min(sceneWidth, Math.round(hitbox.x + hitbox.r));
-  const minY = Math.max(0, Math.round(hitbox.y - hitbox.r));
-  const maxY = Math.min(sceneHeight, Math.round(hitbox.y + hitbox.r));
+  const minX = Math.max(0, Math.round(target.x - target.r));
+  const maxX = Math.min(sceneWidth, Math.round(target.x + target.r));
+  const minY = Math.max(0, Math.round(target.y - target.r));
+  const maxY = Math.min(sceneHeight, Math.round(target.y + target.r));
   return [
     Math.max(0, Math.min(minX, Math.round(box[0]))),
     Math.max(0, Math.min(minY, Math.round(box[1]))),
@@ -380,12 +394,13 @@ export default function CutoutReviewPanel({
   }, [refresh, sessionId]);
 
   const setPlacementBox = useCallback((candidate: SpriteCandidate, hitbox: Hitbox, box: CropBox) => {
+    const target = candidateTarget(candidate, hitbox);
     const width = candidate.sceneWidth ?? Number.MAX_SAFE_INTEGER;
     const height = candidate.sceneHeight ?? Number.MAX_SAFE_INTEGER;
-    const x0 = Math.max(0, Math.min(Math.round(hitbox.x), Math.round(box[0])));
-    const y0 = Math.max(0, Math.min(Math.round(hitbox.y), Math.round(box[1])));
-    const x1 = Math.min(width, Math.max(Math.round(hitbox.x), Math.round(box[2])));
-    const y1 = Math.min(height, Math.max(Math.round(hitbox.y), Math.round(box[3])));
+    const x0 = Math.max(0, Math.min(Math.round(target.x), Math.round(box[0])));
+    const y0 = Math.max(0, Math.min(Math.round(target.y), Math.round(box[1])));
+    const x1 = Math.min(width, Math.max(Math.round(target.x), Math.round(box[2])));
+    const y1 = Math.min(height, Math.max(Math.round(target.y), Math.round(box[3])));
     const next: CropBox = [x0, y0, x1, y1];
     setPlacementBoxes((prev) => ({ ...prev, [candidate.id]: next }));
     const pending = placementSaveTimers.current.get(candidate.id);
@@ -532,7 +547,7 @@ export default function CutoutReviewPanel({
             ? `${dogVariantUrl(sessionId, candidate.image)}?v=${assetRevision}`
             : null;
           const hitbox = hitboxes[candidate.dogIndex];
-          const cropBox = hitbox ? (cropBoxes[candidate.id] ?? defaultCropBox(candidate, hitbox)) : null;
+          const cropBox = hitbox ? (cropBoxes[candidate.id] ?? candidate.cleanupBox ?? defaultCropBox(candidate, hitbox)) : null;
           const placementBox = candidate.spriteBox
             ? (placementBoxes[candidate.id] ?? candidate.spriteBox)
             : null;

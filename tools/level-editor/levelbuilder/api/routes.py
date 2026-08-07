@@ -1210,7 +1210,10 @@ def save_sprite_candidate_placement(
             raise ValueError("spriteBox must have positive width and height")
         if not (0 <= x0 < x1 <= int(level["width"]) and 0 <= y0 < y1 <= int(level["height"])):
             raise ValueError("spriteBox must stay inside the scene")
-        if not (x0 <= int(dog["x"]) <= x1 and y0 <= int(dog["y"]) <= y1):
+        current_sprite = dog.get("sprite") or {}
+        target_x = round(float(current_sprite.get("x", dog["x"])) + float(current_sprite.get("anchorX", 0.5)) * float(current_sprite.get("width", 0)))
+        target_y = round(float(current_sprite.get("y", dog["y"])) + float(current_sprite.get("anchorY", 0.5)) * float(current_sprite.get("height", 0)))
+        if not (x0 <= target_x <= x1 and y0 <= target_y <= y1):
             raise ValueError("spriteBox must contain the bird pickup point")
         from levelbuilder.api.sprite_eval import apply_match_report
         report = {"levels": [{

@@ -36,7 +36,9 @@ def test_manual_sprite_placement_updates_public_level_and_sidecar(app_client, is
     Image.new("RGB", (200, 200), (80, 100, 120)).save(public_dir / "color.png")
     Image.new("RGBA", (40, 40), (200, 80, 30, 255)).save(dog_dir / "sprite_000.png")
     sprite = {"image": f"levels/{session_id}/dogs/dog_00/sprite_000.png", "x": 70, "y": 70, "width": 60, "height": 60, "cleanup": {"x": 60, "y": 60, "width": 80, "height": 80}, "anchorX": 0.5, "anchorY": 0.5}
-    (public_dir / "level.json").write_text(json.dumps({"id": session_id, "name": "Manual sprite", "width": 200, "height": 200, "dogs": [{"id": "dog_00", "x": 100, "y": 100, "r": 20, "sprite": sprite}]}))
+    # Panoramic exports can store hitboxes in a section-local frame while the
+    # sprite geometry is global. The sprite anchor is the portable target.
+    (public_dir / "level.json").write_text(json.dumps({"id": session_id, "name": "Manual sprite", "width": 200, "height": 200, "dogs": [{"id": "dog_00", "x": 10, "y": 20, "r": 20, "sprite": sprite}]}))
     (dog_dir / "sprite_000.json").write_text(json.dumps({"image": "dogs/dog_00/sprite_000.png", "spriteBox": [70, 70, 130, 130], "cleanupBox": [60, 60, 140, 140], "width": 60, "height": 60, "anchorX": 0.5, "anchorY": 0.5, "quality": {"pickupUsable": True}}))
     monkeypatch.setattr(isolated_session, "refresh_catalog_packages", lambda ids: {"refreshedLevels": ids})
     real_apply = sprite_eval.apply_match_report
