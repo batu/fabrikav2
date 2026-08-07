@@ -76,8 +76,8 @@ const PUBLIC_ASSET_SHA256 = {
   "ui/settings/settings_icon_home.svg": "b4aec7ec1e6db225d3d526062632ff76efd072ce3c5a473955d50c7bfc687052",
   "ui/home/no-ads-runtime.png": "017388ff0092d7a5453ae5163c0994d1c2341ccb63a1a9aadc180e75035c227c",
   "ui/menu-icons/magnifier-runtime.png": "ef455791858fca0e89a3c5634ca918b617635538dfe5d187dcd332ffa6c7abc9",
-  "ui/menu-icons/settings-icon-runtime.png": "1a3730b636ae359696816242926fa86d1047aba21f5c7e6d9deda8838430353d",
-  "ui/menu-icons/shop-icon-runtime.png": "f627574764c4a51b7f874eeb60cee50e6c1d850dd2c30c05995e882301ab8878",
+  "ui/menu-icons/settings-icon-runtime.png": "6e6f8d617705ad8a484f626f659792c8a48a7cf5898c102c526ba5208d280990",
+  "ui/menu-icons/shop-icon-runtime.png": "122a4a7169ab26920a93c94addbd4d88d4b30398a1675eb15f2ccecb11c06d8c",
   "ui/menu-icons/icon_streak_flame.png": "bbf7e5461d78bae54dd5b64a7054b80715e2aecd0f08b0742a3396bbc284dbd6",
 } as const;
 
