@@ -48,8 +48,14 @@ const HOME_AMBIENT_DELAY_MS = 1_500;
 // browser stays busy. Cheap to run here — only the (gesture-gated) crossfade is
 // registered; the 4.7MB fetch doesn't land until after user activation.
 const HOME_AMBIENT_IDLE_TIMEOUT_MS = 1_500;
-const HOME_PREWARM_DELAY_MS = 2_500;
-const HOME_PREWARM_IDLE_TIMEOUT_MS = 2_500;
+// 300ms (was 2_500): the level decode is the long pole on Play Now, and
+// 2.5s of dwell meant a normal-speed tap always paid the full 2688px decode
+// behind the transition cover (Batu, 2026-08-07: "takes too long"). Home is
+// a launcher — the current level is very nearly certain to be needed, so
+// start warming as soon as the first idle window opens. Still idle-gated and
+// generation-guarded, so it never competes with home's own first paint.
+const HOME_PREWARM_DELAY_MS = 300;
+const HOME_PREWARM_IDLE_TIMEOUT_MS = 800;
 
 function shouldRunHomeBannerVideo(): boolean {
   return !hasLowDataConnection() && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
