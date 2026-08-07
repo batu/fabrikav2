@@ -1,0 +1,2464 @@
+{
+  "schemaVersion": 1,
+  "split": "leave-one-level-out",
+  "levels": [
+    "ad_campaigns_ad_cozy_library_bird_e654",
+    "american_southwest_sw_adobe_courtyard_bird_419b",
+    "american_southwest_sw_canyon_river_camp_bird_6221",
+    "american_southwest_sw_desert_trading_post_bird_7396",
+    "cozy_interiors_cozy_attic_workshop_bird_6acc",
+    "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+    "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+    "greece_agora_ruins_garden_bird_8978",
+    "greece_harbor_taverna_morning_bird_3d5d"
+  ],
+  "samples": 159,
+  "positive": 27,
+  "negative": 132,
+  "featureNames": [
+    "alphaCoverage",
+    "changedPrecision",
+    "changedRecall",
+    "changedIou",
+    "colorSimilarity",
+    "cleanDifference",
+    "componentCount",
+    "speckFraction",
+    "edgeTouchFraction",
+    "boxAspect",
+    "boxAreaFraction"
+  ],
+  "models": {
+    "logistic-balanced": {
+      "threshold": 0.5,
+      "balancedAccuracy": 0.8762626262626263,
+      "precision": 0.5714285714285714,
+      "recall": 0.8888888888888888,
+      "f1": 0.6956521739130435,
+      "rocAuc": 0.9329405162738496,
+      "averagePrecision": 0.6501106270899044,
+      "confusion": {
+        "tn": 114,
+        "fp": 18,
+        "fn": 3,
+        "tp": 24
+      },
+      "folds": [
+        {
+          "heldOutLevel": "ad_campaigns_ad_cozy_library_bird_e654",
+          "train": 139,
+          "test": 20,
+          "positives": 0
+        },
+        {
+          "heldOutLevel": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "train": 145,
+          "test": 14,
+          "positives": 5
+        },
+        {
+          "heldOutLevel": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "train": 141,
+          "test": 18,
+          "positives": 4
+        },
+        {
+          "heldOutLevel": "american_southwest_sw_desert_trading_post_bird_7396",
+          "train": 144,
+          "test": 15,
+          "positives": 0
+        },
+        {
+          "heldOutLevel": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "train": 139,
+          "test": 20,
+          "positives": 2
+        },
+        {
+          "heldOutLevel": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "train": 140,
+          "test": 19,
+          "positives": 8
+        },
+        {
+          "heldOutLevel": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "train": 141,
+          "test": 18,
+          "positives": 3
+        },
+        {
+          "heldOutLevel": "greece_agora_ruins_garden_bird_8978",
+          "train": 143,
+          "test": 16,
+          "positives": 1
+        },
+        {
+          "heldOutLevel": "greece_harbor_taverna_morning_bird_3d5d",
+          "train": 140,
+          "test": 19,
+          "positives": 4
+        }
+      ],
+      "predictions": [
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_00",
+          "actual": false,
+          "probability": 0.017065,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_01",
+          "actual": false,
+          "probability": 0.019976,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_02",
+          "actual": false,
+          "probability": 0.031973,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_03",
+          "actual": false,
+          "probability": 0.007757,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_04",
+          "actual": false,
+          "probability": 0.013016,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_05",
+          "actual": false,
+          "probability": 0.092527,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_06",
+          "actual": false,
+          "probability": 0.134009,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_07",
+          "actual": false,
+          "probability": 0.994899,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_08",
+          "actual": false,
+          "probability": 0.027095,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_09",
+          "actual": false,
+          "probability": 0.106052,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_10",
+          "actual": false,
+          "probability": 0.104044,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_11",
+          "actual": false,
+          "probability": 0.090896,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_12",
+          "actual": false,
+          "probability": 0.052995,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_13",
+          "actual": false,
+          "probability": 0.063754,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_14",
+          "actual": true,
+          "probability": 0.865798,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_15",
+          "actual": false,
+          "probability": 0.06476,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_16",
+          "actual": false,
+          "probability": 0.312339,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_17",
+          "actual": true,
+          "probability": 0.675201,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_18",
+          "actual": false,
+          "probability": 0.063237,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_19",
+          "actual": false,
+          "probability": 0.112097,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_00",
+          "actual": false,
+          "probability": 0.004649,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_01",
+          "actual": true,
+          "probability": 0.328227,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_02",
+          "actual": true,
+          "probability": 0.768397,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_03",
+          "actual": false,
+          "probability": 0.00417,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_04",
+          "actual": false,
+          "probability": 0.472854,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_05",
+          "actual": false,
+          "probability": 0.006533,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_06",
+          "actual": false,
+          "probability": 0.078417,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_07",
+          "actual": true,
+          "probability": 0.726774,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_08",
+          "actual": true,
+          "probability": 0.987486,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_09",
+          "actual": false,
+          "probability": 0.023572,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_10",
+          "actual": false,
+          "probability": 0.003043,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_11",
+          "actual": false,
+          "probability": 0.007203,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_12",
+          "actual": true,
+          "probability": 0.958592,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_13",
+          "actual": false,
+          "probability": 0.003426,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_14",
+          "actual": true,
+          "probability": 0.992987,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_15",
+          "actual": true,
+          "probability": 0.944777,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_16",
+          "actual": false,
+          "probability": 0.101248,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_17",
+          "actual": true,
+          "probability": 0.943607,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_18",
+          "actual": false,
+          "probability": 0.772435,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_00",
+          "actual": false,
+          "probability": 0.047586,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_01",
+          "actual": false,
+          "probability": 0.00376,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_02",
+          "actual": false,
+          "probability": 0.002917,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_03",
+          "actual": false,
+          "probability": 0.058161,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_04",
+          "actual": false,
+          "probability": 0.030961,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_05",
+          "actual": false,
+          "probability": 0.030796,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_06",
+          "actual": false,
+          "probability": 0.003296,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_07",
+          "actual": false,
+          "probability": 0.009503,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_08",
+          "actual": true,
+          "probability": 0.816674,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_09",
+          "actual": false,
+          "probability": 0.028931,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_10",
+          "actual": true,
+          "probability": 0.91867,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_11",
+          "actual": false,
+          "probability": 0.093528,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_12",
+          "actual": false,
+          "probability": 0.122189,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_13",
+          "actual": false,
+          "probability": 0.015315,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_14",
+          "actual": false,
+          "probability": 0.052239,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_15",
+          "actual": false,
+          "probability": 0.500764,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_16",
+          "actual": false,
+          "probability": 0.167238,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_17",
+          "actual": true,
+          "probability": 0.995895,
+          "predicted": true
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_00",
+          "actual": false,
+          "probability": 0.054257,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_01",
+          "actual": false,
+          "probability": 0.001492,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_02",
+          "actual": false,
+          "probability": 0.00633,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_03",
+          "actual": false,
+          "probability": 0.604362,
+          "predicted": true
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_04",
+          "actual": false,
+          "probability": 0.000847,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_05",
+          "actual": false,
+          "probability": 0.051182,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_06",
+          "actual": false,
+          "probability": 0.001152,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_07",
+          "actual": false,
+          "probability": 0.412305,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_08",
+          "actual": false,
+          "probability": 0.154871,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_09",
+          "actual": false,
+          "probability": 0.360713,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_10",
+          "actual": false,
+          "probability": 0.171613,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_11",
+          "actual": false,
+          "probability": 0.005994,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_12",
+          "actual": false,
+          "probability": 0.949442,
+          "predicted": true
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_13",
+          "actual": false,
+          "probability": 0.838288,
+          "predicted": true
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_14",
+          "actual": false,
+          "probability": 0.045878,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_15",
+          "actual": false,
+          "probability": 0.817639,
+          "predicted": true
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_16",
+          "actual": false,
+          "probability": 0.473725,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_17",
+          "actual": false,
+          "probability": 0.992791,
+          "predicted": true
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_18",
+          "actual": false,
+          "probability": 0.743913,
+          "predicted": true
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_19",
+          "actual": false,
+          "probability": 0.109595,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_00",
+          "actual": false,
+          "probability": 0.009485,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_01",
+          "actual": false,
+          "probability": 0.000978,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_02",
+          "actual": false,
+          "probability": 0.004852,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_03",
+          "actual": true,
+          "probability": 0.915345,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_04",
+          "actual": true,
+          "probability": 0.878688,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_05",
+          "actual": true,
+          "probability": 0.681739,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_06",
+          "actual": true,
+          "probability": 0.697536,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_07",
+          "actual": false,
+          "probability": 0.014569,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_08",
+          "actual": false,
+          "probability": 0.016941,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_09",
+          "actual": true,
+          "probability": 0.536115,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_10",
+          "actual": false,
+          "probability": 0.019064,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_11",
+          "actual": false,
+          "probability": 0.220216,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_12",
+          "actual": false,
+          "probability": 0.011414,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_13",
+          "actual": false,
+          "probability": 0.004848,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_00",
+          "actual": false,
+          "probability": 0.909317,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_01",
+          "actual": false,
+          "probability": 0.004017,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_02",
+          "actual": false,
+          "probability": 0.273024,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_03",
+          "actual": true,
+          "probability": 0.820866,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_04",
+          "actual": false,
+          "probability": 0.026611,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_05",
+          "actual": false,
+          "probability": 0.020903,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_06",
+          "actual": true,
+          "probability": 0.694859,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_07",
+          "actual": false,
+          "probability": 0.010838,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_08",
+          "actual": false,
+          "probability": 0.618174,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_09",
+          "actual": true,
+          "probability": 0.465294,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_10",
+          "actual": false,
+          "probability": 0.009883,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_11",
+          "actual": false,
+          "probability": 0.008182,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_12",
+          "actual": false,
+          "probability": 0.425582,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_13",
+          "actual": false,
+          "probability": 0.514819,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_14",
+          "actual": false,
+          "probability": 0.318435,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_15",
+          "actual": false,
+          "probability": 0.612607,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_16",
+          "actual": true,
+          "probability": 0.798709,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_17",
+          "actual": false,
+          "probability": 0.320313,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_00",
+          "actual": false,
+          "probability": 0.005987,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_01",
+          "actual": false,
+          "probability": 0.00889,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_02",
+          "actual": false,
+          "probability": 0.008548,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_03",
+          "actual": false,
+          "probability": 0.009174,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_04",
+          "actual": false,
+          "probability": 0.010549,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_05",
+          "actual": false,
+          "probability": 0.015161,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_06",
+          "actual": false,
+          "probability": 0.001785,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_07",
+          "actual": false,
+          "probability": 0.014154,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_08",
+          "actual": false,
+          "probability": 0.013425,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_09",
+          "actual": false,
+          "probability": 0.2326,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_10",
+          "actual": false,
+          "probability": 0.234616,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_11",
+          "actual": false,
+          "probability": 0.100145,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_12",
+          "actual": true,
+          "probability": 0.360025,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_13",
+          "actual": false,
+          "probability": 0.043033,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_14",
+          "actual": false,
+          "probability": 0.017407,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_15",
+          "actual": false,
+          "probability": 0.050896,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_00",
+          "actual": false,
+          "probability": 0.011783,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_01",
+          "actual": false,
+          "probability": 0.336043,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_02",
+          "actual": true,
+          "probability": 0.93304,
+          "predicted": true
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_03",
+          "actual": false,
+          "probability": 0.006906,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_04",
+          "actual": false,
+          "probability": 0.105748,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_05",
+          "actual": false,
+          "probability": 0.010872,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_06",
+          "actual": true,
+          "probability": 0.994684,
+          "predicted": true
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_07",
+          "actual": true,
+          "probability": 0.740476,
+          "predicted": true
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_08",
+          "actual": true,
+          "probability": 0.880638,
+          "predicted": true
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_09",
+          "actual": false,
+          "probability": 0.011386,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_10",
+          "actual": false,
+          "probability": 0.065352,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_11",
+          "actual": false,
+          "probability": 0.014235,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_12",
+          "actual": false,
+          "probability": 0.037238,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_13",
+          "actual": false,
+          "probability": 0.027532,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_14",
+          "actual": false,
+          "probability": 0.0152,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_15",
+          "actual": false,
+          "probability": 0.455242,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_16",
+          "actual": false,
+          "probability": 0.352557,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_17",
+          "actual": false,
+          "probability": 0.155298,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_18",
+          "actual": false,
+          "probability": 0.574817,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_00",
+          "actual": false,
+          "probability": 0.170099,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_01",
+          "actual": false,
+          "probability": 0.003132,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_02",
+          "actual": false,
+          "probability": 0.004831,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_03",
+          "actual": false,
+          "probability": 0.442886,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_04",
+          "actual": false,
+          "probability": 0.85213,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_05",
+          "actual": false,
+          "probability": 0.002984,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_06",
+          "actual": false,
+          "probability": 0.979207,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_07",
+          "actual": false,
+          "probability": 0.901318,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_08",
+          "actual": false,
+          "probability": 0.013005,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_09",
+          "actual": false,
+          "probability": 0.689,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_10",
+          "actual": false,
+          "probability": 0.011021,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_11",
+          "actual": false,
+          "probability": 0.428444,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_12",
+          "actual": false,
+          "probability": 0.002997,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_16",
+          "actual": false,
+          "probability": 0.01442,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_17",
+          "actual": false,
+          "probability": 0.046756,
+          "predicted": false
+        }
+      ]
+    },
+    "forest-shallow-balanced": {
+      "threshold": 0.5,
+      "balancedAccuracy": 0.7984006734006734,
+      "precision": 0.5128205128205128,
+      "recall": 0.7407407407407407,
+      "f1": 0.6060606060606061,
+      "rocAuc": 0.9048821548821548,
+      "averagePrecision": 0.5189360082781636,
+      "confusion": {
+        "tn": 113,
+        "fp": 19,
+        "fn": 7,
+        "tp": 20
+      },
+      "folds": [
+        {
+          "heldOutLevel": "ad_campaigns_ad_cozy_library_bird_e654",
+          "train": 139,
+          "test": 20,
+          "positives": 0
+        },
+        {
+          "heldOutLevel": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "train": 145,
+          "test": 14,
+          "positives": 5
+        },
+        {
+          "heldOutLevel": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "train": 141,
+          "test": 18,
+          "positives": 4
+        },
+        {
+          "heldOutLevel": "american_southwest_sw_desert_trading_post_bird_7396",
+          "train": 144,
+          "test": 15,
+          "positives": 0
+        },
+        {
+          "heldOutLevel": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "train": 139,
+          "test": 20,
+          "positives": 2
+        },
+        {
+          "heldOutLevel": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "train": 140,
+          "test": 19,
+          "positives": 8
+        },
+        {
+          "heldOutLevel": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "train": 141,
+          "test": 18,
+          "positives": 3
+        },
+        {
+          "heldOutLevel": "greece_agora_ruins_garden_bird_8978",
+          "train": 143,
+          "test": 16,
+          "positives": 1
+        },
+        {
+          "heldOutLevel": "greece_harbor_taverna_morning_bird_3d5d",
+          "train": 140,
+          "test": 19,
+          "positives": 4
+        }
+      ],
+      "predictions": [
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_00",
+          "actual": false,
+          "probability": 0.091761,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_01",
+          "actual": false,
+          "probability": 0.138479,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_02",
+          "actual": false,
+          "probability": 0.04139,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_03",
+          "actual": false,
+          "probability": 0.010638,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_04",
+          "actual": false,
+          "probability": 0.056658,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_05",
+          "actual": false,
+          "probability": 0.12145,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_06",
+          "actual": false,
+          "probability": 0.218886,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_07",
+          "actual": false,
+          "probability": 0.773633,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_08",
+          "actual": false,
+          "probability": 0.016092,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_09",
+          "actual": false,
+          "probability": 0.116698,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_10",
+          "actual": false,
+          "probability": 0.131418,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_11",
+          "actual": false,
+          "probability": 0.121369,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_12",
+          "actual": false,
+          "probability": 0.062735,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_13",
+          "actual": false,
+          "probability": 0.0658,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_14",
+          "actual": true,
+          "probability": 0.463004,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_15",
+          "actual": false,
+          "probability": 0.049488,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_16",
+          "actual": false,
+          "probability": 0.349463,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_17",
+          "actual": true,
+          "probability": 0.701393,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_18",
+          "actual": false,
+          "probability": 0.130212,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_attic_workshop_bird_6acc",
+          "dogId": "dog_19",
+          "actual": false,
+          "probability": 0.045463,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_00",
+          "actual": false,
+          "probability": 0.008872,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_01",
+          "actual": true,
+          "probability": 0.323667,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_02",
+          "actual": true,
+          "probability": 0.688725,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_03",
+          "actual": false,
+          "probability": 0.015433,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_04",
+          "actual": false,
+          "probability": 0.278388,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_05",
+          "actual": false,
+          "probability": 0.008593,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_06",
+          "actual": false,
+          "probability": 0.118242,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_07",
+          "actual": true,
+          "probability": 0.648236,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_08",
+          "actual": true,
+          "probability": 0.785126,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_09",
+          "actual": false,
+          "probability": 0.016856,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_10",
+          "actual": false,
+          "probability": 0.00797,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_11",
+          "actual": false,
+          "probability": 0.037633,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_12",
+          "actual": true,
+          "probability": 0.673317,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_13",
+          "actual": false,
+          "probability": 0.059501,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_14",
+          "actual": true,
+          "probability": 0.783363,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_15",
+          "actual": true,
+          "probability": 0.778489,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_16",
+          "actual": false,
+          "probability": 0.245223,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_17",
+          "actual": true,
+          "probability": 0.664711,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_potting_shed_garden_bird_bd9a",
+          "dogId": "dog_18",
+          "actual": false,
+          "probability": 0.594205,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_00",
+          "actual": false,
+          "probability": 0.060477,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_01",
+          "actual": false,
+          "probability": 0.013252,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_02",
+          "actual": false,
+          "probability": 0.012555,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_03",
+          "actual": false,
+          "probability": 0.115742,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_04",
+          "actual": false,
+          "probability": 0.011727,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_05",
+          "actual": false,
+          "probability": 0.125385,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_06",
+          "actual": false,
+          "probability": 0.014545,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_07",
+          "actual": false,
+          "probability": 0.021978,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_08",
+          "actual": true,
+          "probability": 0.424787,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_09",
+          "actual": false,
+          "probability": 0.044999,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_10",
+          "actual": true,
+          "probability": 0.804486,
+          "predicted": true
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_11",
+          "actual": false,
+          "probability": 0.168263,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_12",
+          "actual": false,
+          "probability": 0.021638,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_13",
+          "actual": false,
+          "probability": 0.018044,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_14",
+          "actual": false,
+          "probability": 0.069229,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_15",
+          "actual": false,
+          "probability": 0.305384,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_16",
+          "actual": false,
+          "probability": 0.085159,
+          "predicted": false
+        },
+        {
+          "levelId": "cozy_interiors_cozy_toymaker_workshop_bird_4e44",
+          "dogId": "dog_17",
+          "actual": true,
+          "probability": 0.816587,
+          "predicted": true
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_00",
+          "actual": false,
+          "probability": 0.079686,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_01",
+          "actual": false,
+          "probability": 0.062145,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_02",
+          "actual": false,
+          "probability": 0.021583,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_03",
+          "actual": false,
+          "probability": 0.61361,
+          "predicted": true
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_04",
+          "actual": false,
+          "probability": 0.031168,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_05",
+          "actual": false,
+          "probability": 0.144327,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_06",
+          "actual": false,
+          "probability": 0.056213,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_07",
+          "actual": false,
+          "probability": 0.494318,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_08",
+          "actual": false,
+          "probability": 0.138932,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_09",
+          "actual": false,
+          "probability": 0.557138,
+          "predicted": true
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_10",
+          "actual": false,
+          "probability": 0.295443,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_11",
+          "actual": false,
+          "probability": 0.062873,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_12",
+          "actual": false,
+          "probability": 0.867386,
+          "predicted": true
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_13",
+          "actual": false,
+          "probability": 0.862195,
+          "predicted": true
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_14",
+          "actual": false,
+          "probability": 0.086454,
+          "predicted": false
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_15",
+          "actual": false,
+          "probability": 0.850909,
+          "predicted": true
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_16",
+          "actual": false,
+          "probability": 0.658001,
+          "predicted": true
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_17",
+          "actual": false,
+          "probability": 0.86374,
+          "predicted": true
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_18",
+          "actual": false,
+          "probability": 0.591477,
+          "predicted": true
+        },
+        {
+          "levelId": "ad_campaigns_ad_cozy_library_bird_e654",
+          "dogId": "dog_19",
+          "actual": false,
+          "probability": 0.156485,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_00",
+          "actual": false,
+          "probability": 0.020091,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_01",
+          "actual": false,
+          "probability": 0.010964,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_02",
+          "actual": false,
+          "probability": 0.044874,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_03",
+          "actual": true,
+          "probability": 0.842437,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_04",
+          "actual": true,
+          "probability": 0.749275,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_05",
+          "actual": true,
+          "probability": 0.503619,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_06",
+          "actual": true,
+          "probability": 0.311564,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_07",
+          "actual": false,
+          "probability": 0.008497,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_08",
+          "actual": false,
+          "probability": 0.037989,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_09",
+          "actual": true,
+          "probability": 0.357651,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_10",
+          "actual": false,
+          "probability": 0.094055,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_11",
+          "actual": false,
+          "probability": 0.185979,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_12",
+          "actual": false,
+          "probability": 0.008109,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_adobe_courtyard_bird_419b",
+          "dogId": "dog_13",
+          "actual": false,
+          "probability": 0.020273,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_00",
+          "actual": false,
+          "probability": 0.82034,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_01",
+          "actual": false,
+          "probability": 0.011626,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_02",
+          "actual": false,
+          "probability": 0.686755,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_03",
+          "actual": true,
+          "probability": 0.759815,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_04",
+          "actual": false,
+          "probability": 0.004892,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_05",
+          "actual": false,
+          "probability": 0.019809,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_06",
+          "actual": true,
+          "probability": 0.642816,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_07",
+          "actual": false,
+          "probability": 0.008761,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_08",
+          "actual": false,
+          "probability": 0.556006,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_09",
+          "actual": true,
+          "probability": 0.292676,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_10",
+          "actual": false,
+          "probability": 0.117446,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_11",
+          "actual": false,
+          "probability": 0.036251,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_12",
+          "actual": false,
+          "probability": 0.582024,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_13",
+          "actual": false,
+          "probability": 0.417486,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_14",
+          "actual": false,
+          "probability": 0.255421,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_15",
+          "actual": false,
+          "probability": 0.373862,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_16",
+          "actual": true,
+          "probability": 0.690087,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_canyon_river_camp_bird_6221",
+          "dogId": "dog_17",
+          "actual": false,
+          "probability": 0.292849,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_00",
+          "actual": false,
+          "probability": 0.018137,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_01",
+          "actual": false,
+          "probability": 0.018959,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_02",
+          "actual": false,
+          "probability": 0.111369,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_03",
+          "actual": false,
+          "probability": 0.036615,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_04",
+          "actual": false,
+          "probability": 0.018231,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_05",
+          "actual": false,
+          "probability": 0.023601,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_06",
+          "actual": false,
+          "probability": 0.010452,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_07",
+          "actual": false,
+          "probability": 0.030103,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_08",
+          "actual": false,
+          "probability": 0.012715,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_09",
+          "actual": false,
+          "probability": 0.090898,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_10",
+          "actual": false,
+          "probability": 0.337869,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_11",
+          "actual": false,
+          "probability": 0.096612,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_12",
+          "actual": true,
+          "probability": 0.596412,
+          "predicted": true
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_13",
+          "actual": false,
+          "probability": 0.033307,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_14",
+          "actual": false,
+          "probability": 0.082573,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_agora_ruins_garden_bird_8978",
+          "dogId": "dog_15",
+          "actual": false,
+          "probability": 0.043338,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_00",
+          "actual": false,
+          "probability": 0.031564,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_01",
+          "actual": false,
+          "probability": 0.42136,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_02",
+          "actual": true,
+          "probability": 0.740502,
+          "predicted": true
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_03",
+          "actual": false,
+          "probability": 0.093865,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_04",
+          "actual": false,
+          "probability": 0.092674,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_05",
+          "actual": false,
+          "probability": 0.009522,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_06",
+          "actual": true,
+          "probability": 0.62648,
+          "predicted": true
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_07",
+          "actual": true,
+          "probability": 0.475055,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_08",
+          "actual": true,
+          "probability": 0.685843,
+          "predicted": true
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_09",
+          "actual": false,
+          "probability": 0.009704,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_10",
+          "actual": false,
+          "probability": 0.222598,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_11",
+          "actual": false,
+          "probability": 0.023495,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_12",
+          "actual": false,
+          "probability": 0.167705,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_13",
+          "actual": false,
+          "probability": 0.109091,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_14",
+          "actual": false,
+          "probability": 0.102247,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_15",
+          "actual": false,
+          "probability": 0.466392,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_16",
+          "actual": false,
+          "probability": 0.387201,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_17",
+          "actual": false,
+          "probability": 0.300432,
+          "predicted": false
+        },
+        {
+          "levelId": "greece_harbor_taverna_morning_bird_3d5d",
+          "dogId": "dog_18",
+          "actual": false,
+          "probability": 0.386578,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_00",
+          "actual": false,
+          "probability": 0.051593,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_01",
+          "actual": false,
+          "probability": 0.006759,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_02",
+          "actual": false,
+          "probability": 0.015878,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_03",
+          "actual": false,
+          "probability": 0.645497,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_04",
+          "actual": false,
+          "probability": 0.549027,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_05",
+          "actual": false,
+          "probability": 0.013167,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_06",
+          "actual": false,
+          "probability": 0.780614,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_07",
+          "actual": false,
+          "probability": 0.653393,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_08",
+          "actual": false,
+          "probability": 0.051701,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_09",
+          "actual": false,
+          "probability": 0.533857,
+          "predicted": true
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_10",
+          "actual": false,
+          "probability": 0.041333,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_11",
+          "actual": false,
+          "probability": 0.413464,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_12",
+          "actual": false,
+          "probability": 0.012675,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_16",
+          "actual": false,
+          "probability": 0.01044,
+          "predicted": false
+        },
+        {
+          "levelId": "american_southwest_sw_desert_trading_post_bird_7396",
+          "dogId": "dog_17",
+          "actual": false,
+          "probability": 0.132643,
+          "predicted": false
+        }
+      ]
+    }
+  },
+  "winner": "logistic-balanced",
+  "recommendedProduction": "logistic-balanced",
+  "productionModel": {
+    "type": "standardized-logistic-v1",
+    "featureNames": [
+      "alphaCoverage",
+      "changedPrecision",
+      "changedRecall",
+      "changedIou",
+      "colorSimilarity",
+      "cleanDifference",
+      "componentCount",
+      "speckFraction",
+      "edgeTouchFraction",
+      "boxAspect",
+      "boxAreaFraction"
+    ],
+    "mean": [
+      0.4160214662198817,
+      0.8511640945900896,
+      0.6295304449743381,
+      0.56569939851449,
+      0.83614559986367,
+      0.29965776923645915,
+      1.5408805031446542,
+      0.01378507880093239,
+      0.0,
+      1.1332451429797148,
+      0.005173026098378295
+    ],
+    "scale": [
+      0.06586932563195216,
+      0.15536534083060669,
+      0.10384225676139398,
+      0.12134672468739494,
+      0.0673504702509369,
+      0.059032647927734216,
+      2.0974442020442563,
+      0.06207619116036558,
+      1.0,
+      0.2524415776345535,
+      0.0018258314017626774
+    ],
+    "coefficients": [
+      0.9496831812293197,
+      -0.1430679456526964,
+      -0.7686543832832369,
+      -0.8622734058595884,
+      -1.4319516733429578,
+      -0.011810894731179373,
+      0.5647906575899936,
+      0.05362975457909285,
+      0.0,
+      0.1388446568802202,
+      0.4587661670693463
+    ],
+    "intercept": -2.074539470054745,
+    "threshold": 0.5
+  }
+}

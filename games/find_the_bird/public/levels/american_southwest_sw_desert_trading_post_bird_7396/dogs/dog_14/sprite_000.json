@@ -10,10 +10,10 @@
     2222
   ],
   "spriteBox": [
-    1222,
-    1949,
-    1428,
-    2182
+    1234,
+    1916,
+    1440,
+    2149
   ],
   "cleanupBox": [
     1177,
@@ -23,8 +23,8 @@
   ],
   "width": 206,
   "height": 233,
-  "anchorX": 0.4951,
-  "anchorY": 0.2146,
+  "anchorX": 0.4369,
+  "anchorY": 0.3562,
   "technique": "flatkey-recreate-v1",
   "quality": {
     "visibleCoverage": 0.1625,
@@ -35,5 +35,7 @@
     "pickupUsable": true,
     "backgroundFallback": false,
     "templateFallback": false
-  }
+  },
+  "flipX": false,
+  "flipY": false
 }

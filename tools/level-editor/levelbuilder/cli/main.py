@@ -259,6 +259,106 @@ def cmd_eval_compare(args: argparse.Namespace) -> None:
                  "runs": runs, "forced": bool(args.force or levels)})
 
 
+def cmd_golden_cutouts_validate(args: argparse.Namespace) -> None:
+    """Validate the frozen full-level cutout review corpus and its hashes."""
+    from levelbuilder.golden_cutouts import GoldenDatasetError, validate_manifest
+    from levelbuilder.settings import resolve_game
+
+    manifest = Path(args.manifest) if args.manifest else (
+        Path(__file__).resolve().parents[2]
+        / "eval"
+        / "golden-cutout-placement-v1"
+        / "manifest.json"
+    )
+    levels_root = (
+        Path(args.levels_root)
+        if args.levels_root
+        else resolve_game(args.game).game_root / "public" / "levels"
+    )
+    try:
+        summary = validate_manifest(manifest, levels_root)
+    except GoldenDatasetError as error:
+        raise CliError("golden_cutouts_invalid", str(error), stage="golden-cutouts-validate") from error
+    _emit(args, {"ok": True, "manifest": str(manifest), "levelsRoot": str(levels_root), **summary})
+
+
+def cmd_golden_cutouts_evaluate(args: argparse.Namespace) -> None:
+    """Run leakage-safe redo classification over the frozen review corpus."""
+    from levelbuilder.golden_cutouts import GoldenDatasetError, evaluate_redo_classifier
+    from levelbuilder.settings import resolve_game
+
+    manifest = Path(args.manifest) if args.manifest else (
+        Path(__file__).resolve().parents[2]
+        / "eval"
+        / "golden-cutout-placement-v1"
+        / "manifest.json"
+    )
+    levels_root = (
+        Path(args.levels_root)
+        if args.levels_root
+        else resolve_game(args.game).game_root / "public" / "levels"
+    )
+    try:
+        report = evaluate_redo_classifier(manifest, levels_root)
+    except GoldenDatasetError as error:
+        raise CliError("golden_cutouts_invalid", str(error), stage="golden-cutouts-evaluate") from error
+    if args.out:
+        output = Path(args.out)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json.dumps(report, indent=2) + "\n")
+        winner = report["models"][report["winner"]]
+        _emit(args, {
+            "ok": True,
+            "out": str(output),
+            "samples": report["samples"],
+            "positive": report["positive"],
+            "negative": report["negative"],
+            "winner": report["winner"],
+            **{key: winner[key] for key in ("balancedAccuracy", "precision", "recall", "f1", "rocAuc", "averagePrecision")},
+        })
+    else:
+        _emit(args, report)
+
+
+def cmd_golden_cutouts_placement(args: argparse.Namespace) -> None:
+    """Evaluate placement matchers and held-out conservative selectors."""
+    from levelbuilder.golden_cutouts import GoldenDatasetError, evaluate_placement_trials
+    from levelbuilder.settings import resolve_game
+
+    manifest = Path(args.manifest) if args.manifest else (
+        Path(__file__).resolve().parents[2]
+        / "eval"
+        / "golden-cutout-placement-v1"
+        / "manifest.json"
+    )
+    levels_root = (
+        Path(args.levels_root)
+        if args.levels_root
+        else resolve_game(args.game).game_root / "public" / "levels"
+    )
+    try:
+        report = evaluate_placement_trials(manifest, levels_root, workers=args.workers)
+    except GoldenDatasetError as error:
+        raise CliError("golden_cutouts_invalid", str(error), stage="golden-cutouts-placement") from error
+    if args.out:
+        output = Path(args.out)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(json.dumps(report, indent=2) + "\n")
+        learned = min(report["learnedSelectors"], key=lambda name: report["learnedSelectors"][name]["balancedLoss"])
+        _emit(args, {
+            "ok": True,
+            "out": str(output),
+            "samples": report["samples"],
+            "corrections": report["corrections"],
+            "keeps": report["keeps"],
+            "baselineBalancedLoss": report["baseline"]["balancedLoss"],
+            "winner": learned,
+            "winnerBalancedLoss": report["learnedSelectors"][learned]["balancedLoss"],
+        })
+    else:
+        _emit(args, report)
+
+
 def cmd_doctor(args: argparse.Namespace) -> None:
     """Server-free workspace census: orphaned sessions, stuck jobs, stale
     locks, disk usage. Reports; never mutates."""
@@ -1382,6 +1482,24 @@ def build_parser() -> argparse.ArgumentParser:
                    help="csv of level ids to force re-render (others reuse cache)")
     p.add_argument("--force", action="store_true", help="re-render every level")
     p.add_argument("--out-dir", default=None)
+
+    p = verb("golden-cutouts-validate", cmd_golden_cutouts_validate, needs_client=False)
+    p.add_argument("--game", default="find_the_bird")
+    p.add_argument("--manifest")
+    p.add_argument("--levels-root")
+
+    p = verb("golden-cutouts-evaluate", cmd_golden_cutouts_evaluate, needs_client=False)
+    p.add_argument("--game", default="find_the_bird")
+    p.add_argument("--manifest")
+    p.add_argument("--levels-root")
+    p.add_argument("--out")
+
+    p = verb("golden-cutouts-placement", cmd_golden_cutouts_placement, needs_client=False)
+    p.add_argument("--game", default="find_the_bird")
+    p.add_argument("--manifest")
+    p.add_argument("--levels-root")
+    p.add_argument("--workers", type=int, default=4)
+    p.add_argument("--out")
 
     verb("status", cmd_status)
     verb("config", cmd_config)
