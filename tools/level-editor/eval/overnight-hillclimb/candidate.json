@@ -1,5 +1,5 @@
 {
-  "name": "nested-logistic-safe",
+  "name": "nested-logistic-safe-redo-extra-trees",
   "redoWeight": 0.05,
   "placement": {
     "model": "logistic",
@@ -14,10 +14,13 @@
     "collisionIou": 0.35
   },
   "redo": {
-    "model": "logistic",
+    "model": "extra_trees",
     "featureSet": "all",
     "featureDrop": [],
-    "C": 0.5,
+    "estimators": 500,
+    "maxDepth": 4,
+    "minLeaf": 3,
+    "maxFeatures": "sqrt",
     "classWeight": "balanced",
     "threshold": 0.5
   }
