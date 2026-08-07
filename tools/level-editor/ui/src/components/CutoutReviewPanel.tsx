@@ -15,7 +15,7 @@ type ReviewStatus = 'pending' | 'approved' | 'cleanup' | 'rejected';
 type CropBox = [number, number, number, number];
 type Operation = 'extract' | 'regenerate';
 type ControlMode = 'sprite' | 'padding';
-const DEFAULT_CUTOUT_MODEL = 'google/gemini-3.1-flash-lite-image';
+const DEFAULT_CUTOUT_MODEL = 'google/gemini-3.1-flash-image-preview';
 
 interface Props {
   sessionId: string;

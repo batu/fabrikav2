@@ -4400,7 +4400,7 @@ def _run_single_cutout_extraction(
 
     from levelbuilder.api.flatkey import flatkey_recreate_sprite
 
-    model = inpaint_model or os.environ.get("FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-lite-image")
+    model = inpaint_model or os.environ.get("FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-image-preview")
     entity = str(raw.get("entity") or "bird")
     try:
         recreated = flatkey_recreate_sprite(painted_crop, model=model, entity=entity)

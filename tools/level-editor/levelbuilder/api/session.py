@@ -2899,7 +2899,7 @@ def materialize_detection_sprites(
         if not os.environ.get("FTD_DISABLE_FLATKEY_SPRITES"):
             from levelbuilder.api.flatkey import flatkey_recreate_sprites_batch
             flatkey_model = os.environ.get(
-                "FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-lite-image"
+                "FTD_FLATKEY_MODEL", "google/gemini-3.1-flash-image-preview"
             )
             grid_n = max(1, int(os.environ.get("FTD_FLATKEY_GRID", "3")))
             entity = str(raw.get("entity") or "bird")

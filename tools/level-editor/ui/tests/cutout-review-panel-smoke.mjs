@@ -234,8 +234,8 @@ async function run() {
     }, `ftd-cutout-review:${sessionId}`);
     await page.goto(`${baseUrl}/tests/cutout-review-panel-harness.html`);
     await page.waitForSelector('.cutout-review-card');
-    if (await page.getByLabel('Model').inputValue() !== 'google/gemini-3.1-flash-lite-image') {
-      throw new Error('Cutout model picker did not default to Gemini 3.1 Flash Lite');
+    if (await page.getByLabel('Model').inputValue() !== 'google/gemini-3.1-flash-image-preview') {
+      throw new Error('Cutout model picker did not default to Gemini 3.1 Flash');
     }
     const overlayBounds = await page.locator('.cutout-review-overlay').first().boundingBox();
     if (!overlayBounds || Math.abs(overlayBounds.width - overlayBounds.height) > 1) {
@@ -351,7 +351,7 @@ async function run() {
     if (submittedCutoutOnly !== true) {
       throw new Error('Cutout review submitted a scene-edit job instead of extraction-only');
     }
-    if (submittedModel !== 'google/gemini-3.1-flash-lite-image') {
+    if (submittedModel !== 'google/gemini-3.1-flash-image-preview') {
       throw new Error(`Cutout review ignored the selected model: ${submittedModel}`);
     }
     await page.getByText('one failed').waitFor();
