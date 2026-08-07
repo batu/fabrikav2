@@ -143,11 +143,17 @@ describe("selected v1 runtime assets", () => {
     }
 
     vi.stubGlobal("Image", MockImage);
+    vi.useFakeTimers();
     const { preloadIcons, whenIconsDecoded } = await import("../../src/ui/iconPreload");
 
     preloadIcons();
     preloadIcons();
     await whenIconsDecoded();
+    // Home icons gate the boot path; shop/settings decode from a deferred
+    // idle/timeout callback — advance timers so the deferred set fires.
+    expect(decodedSources.filter((src) => src === "/ui/settings/settings_icon_home.png")).toHaveLength(0);
+    vi.runAllTimers();
+    vi.useRealTimers();
 
     expect(decodedSources.filter((src) => src === "/ui/settings/settings_icon_home.png")).toHaveLength(1);
   });

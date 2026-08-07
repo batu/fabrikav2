@@ -3,7 +3,8 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-// Wave-1 regime (2026-08-06): the campaign is the 53-level first-autonomous
+// Wave-1 regime (2026-08-07): the campaign is the 51-level first-autonomous
+// (53 minus greenhouse_e8e6 + venice_6e86, archived after the HITL relabel pass)
 // batch. The first STARTER_COUNT levels of the index are bundled in-app
 // (bundled-manifest.json is the native build's copy list); the rest stream
 // from the ftb-level-origin worker. Previous fixed lists live in git history.
@@ -98,9 +99,9 @@ describe('wave-1 campaign (5 bundled starters + streamed rest)', () => {
   const bundled = readJson<{ levels: BundledLevel[] }>(join(levelsRoot, 'bundled-manifest.json'));
   const catalog = readJson<{ levels: CatalogLevel[] }>(join(levelsRoot, 'catalog-manifest.json'));
 
-  it('index is 53 unique levels and the starter prefix IS the bundled manifest', () => {
-    expect(index.length).toBe(53);
-    expect(new Set(index.map((l) => l.id)).size).toBe(53);
+  it('index is 51 unique levels and the starter prefix IS the bundled manifest', () => {
+    expect(index.length).toBe(51);
+    expect(new Set(index.map((l) => l.id)).size).toBe(51);
     const starters = index.slice(0, STARTER_COUNT).map((l) => l.id);
     expect(bundled.levels.map((level) => level.id)).toEqual(starters);
     for (const level of bundled.levels) expect(level.bundled).toBe(true);

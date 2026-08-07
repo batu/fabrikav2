@@ -4,9 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Find the Bird</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet" />
+    <!-- Nunito is self-hosted (public/fonts/Nunito.woff2, variable 200-1000):
+         the Google Fonts stylesheet was a render-blocking cross-origin fetch
+         on capacitor://localhost — and a multi-second stall offline. -->
     <!-- Preload home-critical icons so they're cached before the home renders
          (loads during main.ts's viewport-stabilize wait). -->
     <link rel="preload" as="image" href="/ui/menu-icons/icon_coin.png" />

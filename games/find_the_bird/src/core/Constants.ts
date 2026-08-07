@@ -11,6 +11,10 @@ function detectMaxRenderbufferSize(): number {
   const gl = (canvas.getContext('webgl') ?? canvas.getContext('experimental-webgl')) as WebGLRenderingContext | null;
   if (!gl) return 4096;
   const value = gl.getParameter(gl.MAX_RENDERBUFFER_SIZE);
+  // Release the probe context: WebKit caps live WebGL contexts and evicts the
+  // OLDEST when the cap is hit — keeping this one alive for the app lifetime
+  // makes Phaser's real context the eviction candidate.
+  (gl.getExtension?.('WEBGL_lose_context') as { loseContext(): void } | null)?.loseContext();
   return typeof value === 'number' && Number.isFinite(value) ? value : 4096;
 }
 

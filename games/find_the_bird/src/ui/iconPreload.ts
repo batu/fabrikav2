@@ -1,11 +1,12 @@
 // Warm the UI icon images into the browser cache so they don't pop in when a
 // surface first renders. Home-critical icons are ALSO <link rel="preload">ed in
-// index.html for first-paint; this covers everything (incl. shop/settings,
-// which open later) from one list and is cheap to keep in sync.
+// index.html for first-paint. Shop/settings icons (~11 MB of PNG) are NOT on
+// the boot critical path: they decode from an idle callback after home is
+// interactive, since those surfaces only open on user action.
 
 export const HOME_NO_ADS_BADGE_SRC = '/ui/home/no-ads-runtime.png';
 
-const ICON_URLS: readonly string[] = [
+const HOME_ICON_URLS: readonly string[] = [
   // Home — nav bar, currency, no-ads, banner, level nodes
   '/ui/menu-icons/icon_coin.png',
   '/ui/menu-icons/icon_hint_magnifier.png',
@@ -18,9 +19,13 @@ const ICON_URLS: readonly string[] = [
   '/ui/home/level-node-locked-runtime.png',
   '/ui/home/level-node-locked-bones-runtime.png',
   '/ui/home/level-node-complete-runtime.png',
+];
+
+const DEFERRED_ICON_URLS: readonly string[] = [
   // Shop / settings page (open from the home "+" buttons and nav)
   '/ui/page-header/back_button.png',
   '/ui/shop/shop_no_ads.png',
+  '/ui/shop/shop_no_ads_premium.png',
   '/ui/shop/shop_vip_bundle.png',
   '/ui/shop/shop_hint_pack_small.png',
   '/ui/shop/shop_hint_pack_medium.png',
@@ -40,23 +45,34 @@ const ICON_URLS: readonly string[] = [
 let warmed = false;
 let decoded: Promise<void> = Promise.resolve();
 
-/** Fire-and-forget cache warm. Idempotent; safe to call from boot. Decodes each
- *  image (not just fetches) so the browser has a paint-ready bitmap cached and
- *  the real <img> doesn't blank-then-pop on first render. */
-export function preloadIcons(): void {
-  if (warmed) return;
-  warmed = true;
+function decodeAll(urls: readonly string[]): Promise<void> {
   const decodes: Promise<unknown>[] = [];
-  for (const src of ICON_URLS) {
+  for (const src of urls) {
     const img = new Image();
     img.decoding = 'async';
     img.src = src;
     decodes.push(img.decode().catch(() => undefined));
   }
-  decoded = Promise.all(decodes).then(() => undefined);
+  return Promise.all(decodes).then(() => undefined);
 }
 
-/** Resolves once the preloaded icons are decoded (paint-ready). Used to hold the
+/** Fire-and-forget cache warm. Idempotent; safe to call from boot. Decodes each
+ *  image (not just fetches) so the browser has a paint-ready bitmap cached and
+ *  the real <img> doesn't blank-then-pop on first render. Only the HOME set
+ *  gates `whenIconsDecoded()`; shop/settings decode later, off the boot path. */
+export function preloadIcons(): void {
+  if (warmed) return;
+  warmed = true;
+  decoded = decodeAll(HOME_ICON_URLS);
+  const deferShop = (): void => { void decodeAll(DEFERRED_ICON_URLS); };
+  if (typeof requestIdleCallback === 'function') {
+    requestIdleCallback(deferShop, { timeout: 4000 });
+  } else {
+    window.setTimeout(deferShop, 1500);
+  }
+}
+
+/** Resolves once the HOME icons are decoded (paint-ready). Used to hold the
  *  scene-transition cover until the home can render without icons popping in. */
 export function whenIconsDecoded(): Promise<void> {
   return decoded;

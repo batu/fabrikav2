@@ -271,6 +271,8 @@ export class GameScene extends Phaser.Scene {
   /** World-space anchor + CSS radius for per-frame spotlight tracking. */
   private tutorialAnchorWorld: { x: number; y: number } | null = null;
   private tutorialAnchorRadiusCss = 0;
+  /** Last worldView the tutorial overlay was positioned for (dirty gate). */
+  private lastTutorialView: { l: number; t: number; w: number } | null = null;
   /**
    * True while the tutorial is on its final zoom step, waiting for the player
    * to perform a real pinch-zoom. `update()` completes the tutorial once the
@@ -611,10 +613,18 @@ export class GameScene extends Phaser.Scene {
 
     // State-1 tutorial: keep the DOM spotlight/bubble glued to the target
     // bird while the camera pans or zooms (the canvas ring is world-space
-    // and tracks for free; the DOM overlay is not).
+    // and tracks for free; the DOM overlay is not). Dirty-gated on the
+    // worldView so the idle tutorial doesn't force a layout (rect read) +
+    // overlay repaint every frame.
     if (this.tutorialHandle && this.tutorialAnchorWorld) {
       const canvas = this.scale.canvas;
-      if (canvas) {
+      const v = this.cameras.main.worldView;
+      const moved = this.lastTutorialView === null
+        || this.lastTutorialView.l !== v.left
+        || this.lastTutorialView.t !== v.top
+        || this.lastTutorialView.w !== v.width;
+      if (canvas && moved) {
+        this.lastTutorialView = { l: v.left, t: v.top, w: v.width };
         const view = this.cameras.main.worldView;
         const css = phaserPointToCssPoint(
           canvas,
@@ -1133,6 +1143,16 @@ export class GameScene extends Phaser.Scene {
       setGameModeChangeCallback(null);
       this.bwImage = null;
       this.colorImage = null;
+      // Zero the canvas backing stores before dropping the references: in
+      // WKWebView the multi-MB stores otherwise survive until GC, which under
+      // memory pressure is exactly when they hurt (up to ~80 MB across a
+      // level transition).
+      for (const canvas of [
+        this.maskCanvas, this.permanentCanvas, this.compositeCanvas,
+        this.classicOverlayCanvas, this.classicBaseCanvas,
+      ]) {
+        if (canvas) { canvas.width = 0; canvas.height = 0; }
+      }
       this.maskCanvas = null;
       this.maskCtx = null;
       this.permanentCanvas = null;

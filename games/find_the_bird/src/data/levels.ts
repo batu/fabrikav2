@@ -893,8 +893,10 @@ export async function getLevelSelectEntries(): Promise<LevelSelectEntry[]> {
   return await Promise.all(index.map(async (level): Promise<LevelSelectEntry> => {
     const entry = await getRuntimeEntry(level.id);
     const thumbnailAsset = entry?.assets.thumbnailImage ?? entry?.assets.colorImage ?? null;
+    // webp fallback, not png: the native bundle ships only webp (the png
+    // would 404 on device) and the png is ~17x heavier for a thumbnail.
     const thumbnailImage = thumbnailAsset === null
-      ? `levels/${level.id}/color.png`
+      ? `levels/${level.id}/color.webp`
       : resolveAssetUrl(
         shouldUseBundledAssetPath(thumbnailAsset.path, entry?.bundled ?? false)
           ? thumbnailAsset.path
