@@ -18,7 +18,6 @@ import { isGameSuspended, registerLifecycleHooks } from '../platform/gameLifecyc
 import type { GameSceneData } from './GameScene';
 import { GameScene } from './GameScene';
 import { FTD_UI_THEME } from '../ui/ftdTheme';
-import { HOME_NO_ADS_BADGE_SRC } from '../ui/iconPreload';
 
 function triggerNavBounce(btn: HTMLButtonElement): void {
   btn.classList.remove('home-nav-btn--tapped');
@@ -500,6 +499,10 @@ export class HomeScene extends Phaser.Scene {
   private renderHome(): string {
     const wallet = gameState.walletSnapshot();
     const currentLevel = gameState.currentLevelIndex + 1;
+    const achievementProjection = gameState.achievementReadProjection();
+    const claimableAchievements = achievementProjection.status === 'ready'
+      ? achievementProjection.achievements.filter((a) => a.rewardStatus === 'unlocked-reward-claimable').length
+      : 0;
     // Read-side streak (0 when lapsed); the pill always renders, showing 0 for a dead streak.
     const streakDays = gameState.currentStreakDays();
     const streakReward = gameState.dailyStreakRewardStatus();
@@ -520,8 +523,10 @@ export class HomeScene extends Phaser.Scene {
 
         <div class="home-map-region">
           <aside class="home-rail home-rail-left" aria-label="Quick actions">
-            <button id="home-no-ads" class="home-side-btn home-no-ads-btn" type="button" aria-label="Remove ads">
-              <img class="home-no-ads-art" src="${HOME_NO_ADS_BADGE_SRC}" alt="" aria-hidden="true">
+            <button id="home-streak-reward" class="home-balance-pill home-streak-pill home-streak-side" type="button" data-reward-status="${streakReward.status}" aria-label="${streakDays}-day play streak. ${streakRewardDescription}">
+              <img class="home-streak-flame" src="/ui/menu-icons/icon_streak_flame.png" alt="" aria-hidden="true">
+              <span>${streakDays}</span>
+              <small>${streakRewardBadge}</small>
             </button>
           </aside>
           <section id="home-map-mount" class="home-map-stage" aria-label="Level progression"></section>
@@ -536,11 +541,6 @@ export class HomeScene extends Phaser.Scene {
               <img src="/ui/menu-icons/icon_hint_magnifier.png" alt="" aria-hidden="true" data-economy-anchor="hint">
               <button id="home-hint-plus" class="home-pill-plus" type="button" aria-label="Buy more hints">+</button>
             </div>
-            <button id="home-streak-reward" class="home-balance-pill home-streak-pill" type="button" data-reward-status="${streakReward.status}" aria-label="${streakDays}-day play streak. ${streakRewardDescription}">
-              <img class="home-streak-flame" src="/ui/menu-icons/icon_streak_flame.png" alt="" aria-hidden="true">
-              <span>${streakDays}</span>
-              <small>${streakRewardBadge}</small>
-            </button>
           </aside>
         </div>
 
@@ -551,9 +551,10 @@ export class HomeScene extends Phaser.Scene {
         </div>
 
         <nav class="home-nav-bar" aria-label="Main navigation">
-          <button id="home-nav-achievements" class="home-nav-btn" type="button" aria-label="Open achievements">
+          <button id="home-nav-achievements" class="home-nav-btn${claimableAchievements > 0 ? ' home-nav-attention' : ''}" type="button" aria-label="Open achievements${claimableAchievements > 0 ? `, ${claimableAchievements} reward${claimableAchievements === 1 ? '' : 's'} to claim` : ''}">
             <img src="/ui/achievements/achievement-shortcut-runtime.png" alt="" aria-hidden="true">
             <span>Achievements</span>
+            ${claimableAchievements > 0 ? '<span class="home-nav-dot" aria-hidden="true"></span>' : ''}
           </button>
           <button id="home-nav-shop" class="home-nav-btn" type="button" aria-label="Open shop">
             <img src="/ui/menu-icons/shop-icon-runtime.png" alt="" aria-hidden="true">

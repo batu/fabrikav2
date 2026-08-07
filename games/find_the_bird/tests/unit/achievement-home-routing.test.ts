@@ -9,7 +9,10 @@ describe('achievement Home discovery', () => {
   it('keeps Play Now as the sole play action and puts Achievements, Shop, and Settings in the bottom bar', () => {
     const rail = source.match(/<aside class="home-rail home-rail-left"[\s\S]*?<\/aside>/)?.[0] ?? '';
     const nav = source.match(/<nav class="home-nav-bar"[\s\S]*?<\/nav>/)?.[0] ?? '';
-    expect(rail).toContain('id="home-no-ads"');
+    // The left rail holds the streak-claim pill (it took the No-Ads slot on
+    // 2026-08-07; No-Ads was removed from Home). What matters for routing is
+    // that Achievements is NOT a rail entry point.
+    expect(rail).toContain('id="home-streak-reward"');
     expect(rail).not.toContain('id="home-achievements"');
     expect(nav).toContain('id="home-nav-achievements"');
     expect(nav).not.toContain('id="home-nav-play"');

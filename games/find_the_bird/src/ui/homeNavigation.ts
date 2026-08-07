@@ -1,4 +1,5 @@
 import { openPage } from './HUD';
+import { animateCoinsToBalance, animateHintsToBalance } from './EconomyTransfer';
 import { gameState } from '../core/GameState';
 import { analytics } from '../analytics/AnalyticsService';
 import { refreshHomeWalletBalances } from './WalletBalances';
@@ -39,7 +40,6 @@ export function bindHomeNavigation(overlay: HTMLElement, deps: HomeNavigationDep
   const shopShortcuts: Array<[string, 'coins' | 'hints' | 'entitlements']> = [
     ['#home-coin-plus', 'coins'],
     ['#home-hint-plus', 'hints'],
-    ['#home-no-ads', 'entitlements'],
   ];
   for (const [id, scrollTo] of shopShortcuts) {
     overlay.querySelector<HTMLButtonElement>(id)?.addEventListener('click', (e) => {
@@ -73,6 +73,31 @@ export function bindHomeNavigation(overlay: HTMLElement, deps: HomeNavigationDep
     button.dataset.rewardStatus = 'claimed';
     button.querySelector('small')!.textContent = '✓';
     button.setAttribute('aria-label', `${claim.streakDay}-day play streak. Today’s reward collected`);
+    // Fly the granted coins/hints from the streak pill to the wallet pills;
+    // the transfer animation updates the counters as tokens land.
+    const wallet = { coins: gameState.coinBalance, hints: gameState.hintsRemaining };
+    if (claim.coins > 0) {
+      void animateCoinsToBalance({
+        amount: claim.coins,
+        source: button,
+        target: overlay.querySelector<HTMLElement>('.home-coin-pill'),
+        owner: overlay,
+        countElement: overlay.querySelector<HTMLElement>('.home-coin-pill > span'),
+        fromValue: wallet.coins - claim.coins,
+        toValue: wallet.coins,
+      });
+    }
+    if (claim.hints > 0) {
+      void animateHintsToBalance({
+        amount: claim.hints,
+        source: button,
+        target: overlay.querySelector<HTMLElement>('.home-hint-pill'),
+        owner: overlay,
+        countElement: overlay.querySelector<HTMLElement>('.home-hint-pill > span'),
+        fromValue: wallet.hints - claim.hints,
+        toValue: wallet.hints,
+      });
+    }
     refreshHomeWalletBalances(overlay);
   });
 

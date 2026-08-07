@@ -2909,13 +2909,49 @@ export class GameScene extends Phaser.Scene {
       throw new Error(`Restoration dog ${dog.id} has no valid sprite cleanup area`);
     }
     this.lastRestorationDissolveBounds = bounds;
-    for (const polygon of erasePolygons) {
-      const screenPoints = this.levelPolygonToScreenPoints(polygon);
-      this.dissolveCompletedCells.push({ polygon });
-      this.carvePermanentDissolveCell(screenPoints);
+
+    const cells = erasePolygons.map((polygon) => ({
+      dogId: dog.id,
+      polygon,
+      screenPoints: this.levelPolygonToScreenPoints(polygon),
+      alpha: 1,
+    }));
+
+    const commit = (): void => {
+      for (const cell of cells) {
+        const index = this.dissolveActiveCells.indexOf(cell);
+        if (index >= 0) this.dissolveActiveCells.splice(index, 1);
+        this.dissolveCompletedCells.push({ polygon: cell.polygon });
+        this.carvePermanentDissolveCell(cell.screenPoints);
+      }
+      this.syncRestorationMaskTexture();
+      this.onRevealedCellComplete();
+    };
+
+    // Reduced motion (and a dead tween manager during teardown) keep the
+    // original instant carve.
+    if (this.prefersReducedMotion() || this.isShuttingDown || !this.sys.isActive()) {
+      commit();
+      return;
     }
-    this.syncRestorationMaskTexture();
-    this.onRevealedCellComplete();
+
+    // Fade the bird out over RESTORATION_DISSOLVE_MS instead of snapping:
+    // the active-cell path carves with alpha (1 - cell.alpha), so tweening
+    // alpha 1 -> 0 dissolves the bird into the clean background. Hit-testing
+    // already treats active cells as revealed, so a tap mid-fade is safe.
+    this.dissolveActiveCells.push(...cells);
+    const fade = { alpha: 1 };
+    this.tweens.add({
+      targets: fade,
+      alpha: 0,
+      duration: TIMING.RESTORATION_DISSOLVE_MS,
+      ease: 'Sine.easeOut',
+      onUpdate: () => {
+        for (const cell of cells) cell.alpha = fade.alpha;
+        this.activeRevealDirty = true;
+      },
+      onComplete: commit,
+    });
   }
 
   /**

@@ -46,6 +46,9 @@ export const GAME = {
 export const TIMING = {
   REVEAL_MS: 600,
   WRONG_TAP_FADE_MS: 500,
+  /** Bird -> clean-background dissolve on pickup. Fast enough to feel
+   *  responsive, slow enough not to read as a snap (2026-08-07). */
+  RESTORATION_DISSOLVE_MS: 200,
   WRONG_TAP_LINGER_MS: 3000,
   PENALTY_COOLDOWN_MS: 300,
   LEVEL_COMPLETE_DELAY_MS: 300,

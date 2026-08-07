@@ -5620,3 +5620,39 @@
 
 /* Wrong-tap X is a world-anchored Phaser graphic (GameScene.onWrongTap) —
    the 2026-08-06 DOM variant stuck to the glass while the world panned. */
+
+
+/* Streak pill in the left rail (took the No-Ads spot, 2026-08-07). Inherits
+   the balance-pill look; sized to the rail. */
+#home-shell .home-streak-side {
+  width: auto;
+  min-width: 84px;
+}
+
+/* Claimable-achievements attention: red dot + gentle icon bounce. */
+#home-shell .home-nav-btn { position: relative; }
+#home-shell .home-nav-dot {
+  position: absolute;
+  top: 6px;
+  right: 14px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #e5484d;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+  z-index: 2;
+}
+#home-shell .home-nav-attention img {
+  animation: home-nav-claim-bounce 1.6s ease-in-out infinite;
+}
+@keyframes home-nav-claim-bounce {
+  0%, 100% { transform: translateY(0); }
+  12% { transform: translateY(-7px); }
+  24% { transform: translateY(0); }
+  32% { transform: translateY(-3px); }
+  40% { transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  #home-shell .home-nav-attention img { animation: none; }
+}
