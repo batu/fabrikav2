@@ -1,0 +1,36 @@
+{
+  "name": "redo-forest-depth-3",
+  "placement": {
+    "C": 0.5,
+    "classWeight": "balanced",
+    "collisionGuard": true,
+    "collisionIou": 0.35,
+    "featureDrop": [],
+    "featureSet": "all",
+    "label": "correction",
+    "model": "logistic",
+    "movementCaps": [
+      0.25,
+      0.35,
+      0.45
+    ],
+    "thresholds": [
+      0.5,
+      0.6,
+      0.7,
+      0.8
+    ]
+  },
+  "redo": {
+    "classWeight": "balanced",
+    "estimators": 500,
+    "featureDrop": [],
+    "featureSet": "all",
+    "maxDepth": 3,
+    "maxFeatures": "sqrt",
+    "minLeaf": 3,
+    "model": "forest",
+    "threshold": 0.5
+  },
+  "redoWeight": 0.05
+}

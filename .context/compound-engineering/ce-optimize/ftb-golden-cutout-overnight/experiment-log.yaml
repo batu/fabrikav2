@@ -1,0 +1,318 @@
+spec: ftb-golden-cutout-overnight
+run_id: "2026-08-07T22-37-22Z"
+started_at: "2026-08-07T22:37:22Z"
+baseline:
+  timestamp: "2026-08-07T22:37:22Z"
+  gates:
+    manifest_valid: 1
+    wrong_neighbor_jumps: 0
+    duplicate_target_claims: 0
+    target_identity_errors: 0
+    keep_iou: 0.9799015299694437
+    correction_iou: 0.7373620466275973
+  diagnostics:
+    objective_loss: 0.11544623152457822
+    placement_balanced_loss: 0.0978666780717867
+    correction_center_px: 17.254976729145003
+    worst_level_loss: 0.1165091641096985
+    max_bird_loss: 0.6277586893355284
+    placement_apply_count: 36
+    redo_average_precision: 0.6484089309441696
+    redo_roc_auc: 0.9304152637485971
+    redo_precision: 0.5813953488372093
+    redo_recall: 0.9259259259259259
+    runtime_seconds: 2.8271844999981113
+    config_sha256: 2367461683323580c9b44ca494a14e3e42a6e6c0a707e4cc79483b1b26deaa62
+    harness_sha256: 0acf97c3158582c81814f0d2c5a5cdc48f39b28f8bade2a05a043d83fe71e2d4
+    manifest_sha256: 04eecb76c8257c1275c964a1ee05df148bd611d74129be33b8fc620afedc3079
+    code_revision: 04b14757001fceb82aca308cb5cc0757c731ae17
+experiments:
+  - iteration: 1
+    batch: 1
+    hypothesis: Stronger logistic regularization will reduce false placement accepts.
+    category: placement-model
+    outcome: reverted
+    gates_passed: true
+    gates:
+      manifest_valid: 1
+      wrong_neighbor_jumps: 0
+      duplicate_target_claims: 0
+      target_identity_errors: 0
+      keep_iou: 0.9804852737288017
+      correction_iou: 0.7373620466275973
+    diagnostics:
+      objective_loss: 0.1152526101592076
+      placement_balanced_loss: 0.09767305670641607
+      redo_average_precision: 0.6484089309441696
+    primary_delta: "-0.000194"
+    learnings: The apparent gain is below the declared 0.0005 stability threshold and only changes one abstention, so it is not a defensible winner.
+  - iteration: 2
+    batch: 1
+    hypothesis: Moderate logistic regularization at C 0.2 may improve held-out placement decisions.
+    category: placement-model
+    outcome: reverted
+    gates_passed: true
+    diagnostics:
+      objective_loss: 0.11544623152457822
+      placement_balanced_loss: 0.0978666780717867
+      redo_average_precision: 0.6484089309441696
+    primary_delta: "+0.000000"
+    learnings: C 0.2 reproduces the baseline policy and adds no value.
+  - iteration: 3
+    batch: 1
+    hypothesis: Weaker logistic regularization at C 1.0 may recover more useful corrections.
+    category: placement-model
+    outcome: reverted
+    gates_passed: true
+    diagnostics:
+      objective_loss: 0.12001514057383696
+      placement_balanced_loss: 0.10243558712104543
+      redo_average_precision: 0.6484089309441696
+    primary_delta: "+0.004569"
+    learnings: The looser model moves more keeps and reduces correction IoU.
+  - iteration: 4
+    batch: 1
+    hypothesis: A compact placement feature set will generalize better across levels.
+    category: feature-selection
+    outcome: reverted
+    gates_passed: true
+    diagnostics:
+      objective_loss: 0.12144380265168578
+      placement_balanced_loss: 0.10386424919889425
+      redo_average_precision: 0.6484089309441696
+    primary_delta: "+0.005998"
+    learnings: Removing the wider quality context loses useful placement discrimination.
+  - iteration: 5
+    batch: 1
+    hypothesis: Training on any measured placement improvement will better match the optimization target.
+    category: placement-label
+    outcome: degenerate
+    gates_passed: false
+    gates:
+      keep_iou: 0.9725044079216725
+    diagnostics:
+      objective_loss: 0.12308782561460911
+      placement_balanced_loss: 0.10550827216181759
+    primary_delta: "+0.007642"
+    learnings: Direct improvement labels overfit noisy wins and violate the keep-preservation gate.
+  - iteration: 6
+    batch: 1
+    hypothesis: A 0.02 improvement margin will remove ambiguous positive placement labels.
+    category: placement-label
+    outcome: degenerate
+    gates_passed: false
+    gates:
+      keep_iou: 0.9725044079216725
+    diagnostics:
+      objective_loss: 0.12308782561460911
+      placement_balanced_loss: 0.10550827216181759
+    primary_delta: "+0.007642"
+    learnings: The margin changes no decisions and still violates keep preservation.
+  - iteration: 7
+    batch: 1
+    hypothesis: A finer threshold and movement-cap grid will find a safer nested policy.
+    category: safety-policy
+    outcome: reverted
+    gates_passed: true
+    diagnostics:
+      objective_loss: 0.11933146302594932
+      placement_balanced_loss: 0.1017519095731578
+      redo_average_precision: 0.6484089309441696
+    primary_delta: "+0.003885"
+    learnings: Finer policy tuning increases variance between levels and misses useful corrections.
+  - iteration: 8
+    batch: 2
+    hypothesis: Shallow Extra Trees will improve redo-review ranking across held-out levels.
+    category: redo-model
+    outcome: kept
+    changes:
+      - file: tools/level-editor/eval/overnight-hillclimb/candidate.json
+        summary: Select the depth-four Extra Trees redo-review ranker.
+    gates_passed: true
+    gates:
+      manifest_valid: 1
+      wrong_neighbor_jumps: 0
+      duplicate_target_claims: 0
+      target_identity_errors: 0
+      keep_iou: 0.9799015299694437
+      correction_iou: 0.7373620466275973
+    diagnostics:
+      objective_loss: 0.11466746156367152
+      placement_balanced_loss: 0.0978666780717867
+      redo_average_precision: 0.6639843301623036
+      redo_roc_auc: 0.9270482603815937
+      redo_precision: 0.5102040816326531
+      redo_recall: 0.9259259259259259
+    primary_delta: "-0.000779"
+    learnings: Extra Trees improves ranking AP enough to clear the stability threshold, but its 0.5 classification threshold is worse; the output remains review-only.
+    commit: d0c769f55
+  - iteration: 9
+    batch: 3
+    hypothesis: A shallow random forest will improve redo-review ranking.
+    category: redo-model
+    outcome: reverted
+    gates_passed: true
+    diagnostics: {objective_loss: 0.12156148317416228, placement_balanced_loss: 0.0978666780717867, redo_average_precision: 0.5261038979524885}
+    primary_delta: "+0.006894"
+    learnings: Bagged trees rank redo cases substantially worse than the Extra Trees frontier.
+  - iteration: 10
+    batch: 3
+    hypothesis: Gradient boosting will improve redo-review ranking.
+    category: redo-model
+    outcome: reverted
+    gates_passed: true
+    diagnostics: {objective_loss: 0.1239306292062356, placement_balanced_loss: 0.0978666780717867, redo_average_precision: 0.47872097731102187}
+    primary_delta: "+0.009263"
+    learnings: Boosting overfits the small redo-positive set and produces the weakest ranking in this batch.
+  - iteration: 11
+    batch: 3
+    hypothesis: An RBF support-vector classifier will improve redo-review ranking.
+    category: redo-model
+    outcome: reverted
+    gates_passed: true
+    diagnostics: {objective_loss: 0.1231914131289148, placement_balanced_loss: 0.0978666780717867, redo_average_precision: 0.49350529885743816}
+    primary_delta: "+0.008524"
+    learnings: The nonlinear kernel does not transfer across held-out visual styles.
+  - iteration: 12
+    batch: 3
+    hypothesis: Compact cleanup features will make Extra Trees redo ranking more robust.
+    category: feature-selection
+    outcome: reverted
+    gates_passed: true
+    diagnostics: {objective_loss: 0.11793599383464487, placement_balanced_loss: 0.0978666780717867, redo_average_precision: 0.5986136847428365}
+    primary_delta: "+0.003269"
+    learnings: Component and shape context omitted by the compact set contains useful redo signal.
+  - iteration: 13
+    batch: 3
+    hypothesis: A shallow random forest will improve placement selection.
+    category: placement-model
+    outcome: degenerate
+    gates_passed: false
+    gates: {keep_iou: 0.970979168607512, correction_iou: 0.7494080060821618, wrong_neighbor_jumps: 0, duplicate_target_claims: 0, target_identity_errors: 0}
+    diagnostics: {objective_loss: 0.11373991417892737, placement_balanced_loss: 0.09693913068704255, redo_average_precision: 0.6639843301623036}
+    primary_delta: "-0.000928"
+    learnings: The raw metric win comes from moving too many approved keeps; the keep-preservation gate correctly rejects it.
+  - iteration: 14
+    batch: 3
+    hypothesis: Extra Trees will improve nonlinear placement selection.
+    category: placement-model
+    outcome: degenerate
+    gates_passed: false
+    gates: {keep_iou: 0.9722551648069849, correction_iou: 0.7298697154984569, wrong_neighbor_jumps: 0, duplicate_target_claims: 0, target_identity_errors: 0}
+    diagnostics: {objective_loss: 0.11966138322223413, placement_balanced_loss: 0.1028605997303493, redo_average_precision: 0.6639843301623036}
+    primary_delta: "+0.004994"
+    learnings: Extra Trees is both worse overall and below the keep-preservation gate.
+  - iteration: 15
+    batch: 3
+    hypothesis: Shallow gradient boosting will capture safe nonlinear placement interactions.
+    category: placement-model
+    outcome: reverted
+    changes:
+      - file: tools/level-editor/eval/overnight-hillclimb/candidate.json
+        summary: Select depth-two gradient boosting for nested placement acceptance.
+    gates_passed: true
+    gates: {manifest_valid: 1, wrong_neighbor_jumps: 0, duplicate_target_claims: 0, target_identity_errors: 0, keep_iou: 0.9819065370414982, correction_iou: 0.7400987184118308}
+    diagnostics:
+      objective_loss: 0.11416336172304443
+      placement_balanced_loss: 0.09736257823115961
+      correction_center_px: 16.50738277103218
+      worst_level_loss: 0.0908595051863931
+      max_bird_loss: 0.6277586893355284
+      placement_apply_count: 37
+      redo_average_precision: 0.6639843301623036
+    primary_delta: "-0.000504"
+    learnings: The aggregate win fails visual review. It drops strong fixes on Cozy Library dog_09 and Desert Trading Post dog_04, then moves approved Attic dog_07 and dog_16 away from exact placements.
+  - iteration: 16
+    batch: 3
+    hypothesis: A stricter collision IoU threshold will prevent ambiguous placement applications.
+    category: safety-policy
+    outcome: reverted
+    gates_passed: true
+    diagnostics: {objective_loss: 0.11466746156367152, placement_balanced_loss: 0.0978666780717867, redo_average_precision: 0.6639843301623036}
+    primary_delta: "+0.000504"
+    learnings: The stricter collision threshold changes no held-out decision on this corpus.
+  - iteration: 17
+    batch: 4
+    hypothesis: Histogram gradient boosting will regularize placement decisions better than classic boosting.
+    category: placement-model
+    outcome: reverted
+    gates_passed: true
+    diagnostics: {objective_loss: 0.11642660171414272, placement_balanced_loss: 0.0996258182222579, correction_iou: 0.7337358259313183, keep_iou: 0.9804852737288017, redo_average_precision: 0.6639843301623036}
+    primary_delta: "+0.002263"
+    learnings: Histogram binning loses useful detail on this 161-trial corpus.
+  - iteration: 18
+    batch: 4
+    hypothesis: An RBF support-vector classifier will improve placement selection.
+    category: placement-model
+    outcome: reverted
+    gates_passed: true
+    diagnostics: {objective_loss: 0.12510911216493825, placement_balanced_loss: 0.10830832867305344, correction_iou: 0.7085395368360784, keep_iou: 0.9770038010181537, redo_average_precision: 0.6639843301623036}
+    primary_delta: "+0.010946"
+    learnings: The kernel boundary transfers poorly between held-out art styles.
+  - iteration: 19
+    batch: 4
+    hypothesis: Degree-two interactions over compact placement features will recover useful nonlinearities.
+    category: feature-engineering
+    outcome: degenerate
+    gates_passed: false
+    gates: {keep_iou: 0.973542646119255, correction_iou: 0.7187099304522466, wrong_neighbor_jumps: 0, duplicate_target_claims: 0, target_identity_errors: 0}
+    diagnostics: {objective_loss: 0.12316251692326982, placement_balanced_loss: 0.106361733431385, redo_average_precision: 0.6639843301623036}
+    primary_delta: "+0.008999"
+    learnings: Polynomial expansion overfits and violates keep preservation.
+  - iteration: 20
+    batch: 4
+    hypothesis: Removing component-count and box-aspect features will stabilize redo ranking.
+    category: feature-selection
+    outcome: reverted
+    gates_passed: true
+    diagnostics: {objective_loss: 0.11774135353192089, placement_balanced_loss: 0.09736257823115961, redo_average_precision: 0.5924244939847746}
+    primary_delta: "+0.003578"
+    learnings: Shape and fragmentation features are important redo-ranking context rather than nuisance signals.
+  - iteration: 21
+    batch: 4
+    hypothesis: Decision stumps will make placement boosting more conservative.
+    category: placement-model
+    outcome: degenerate
+    gates_passed: false
+    gates: {keep_iou: 0.974930670838661, correction_iou: 0.7339063831802589, wrong_neighbor_jumps: 0, duplicate_target_claims: 0, target_identity_errors: 0}
+    diagnostics: {objective_loss: 0.1182352594082825, placement_balanced_loss: 0.10143447591639768, redo_average_precision: 0.6639843301623036}
+    primary_delta: "+0.004072"
+    learnings: Depth one is too weak and narrowly misses the keep-preservation gate.
+  - iteration: 22
+    batch: 4
+    hypothesis: Depth-three boosting will recover harder corrections without harming keeps.
+    category: placement-model
+    outcome: reverted
+    gates_passed: true
+    diagnostics: {objective_loss: 0.11834810632964009, placement_balanced_loss: 0.10154732283775526, correction_iou: 0.7240139524082304, keep_iou: 0.984510106279423, redo_average_precision: 0.6639843301623036}
+    primary_delta: "+0.004185"
+    learnings: The deeper model abstains safely but misses too many human corrections.
+  - iteration: 23
+    batch: 4
+    hypothesis: Slower learning over 150 depth-two boosting rounds will improve placement stability.
+    category: placement-model
+    outcome: reverted
+    gates_passed: true
+    diagnostics: {objective_loss: 0.11455431571360015, placement_balanced_loss: 0.09775353222171533, correction_iou: 0.7410158489703427, keep_iou: 0.9784250643308503, redo_average_precision: 0.6639843301623036}
+    primary_delta: "+0.000391"
+    learnings: More rounds trade away keep fidelity; the objective is also worse than the depth-two frontier.
+best:
+  iteration: 8
+  metrics:
+    objective_loss: 0.11466746156367152
+    placement_balanced_loss: 0.0978666780717867
+    correction_iou: 0.7373620466275973
+    keep_iou: 0.9799015299694437
+    correction_center_px: 17.254976729145003
+    wrong_neighbor_jumps: 0
+    duplicate_target_claims: 0
+    target_identity_errors: 0
+    worst_level_loss: 0.1165091641096985
+    max_bird_loss: 0.6277586893355284
+    placement_apply_count: 36
+    redo_average_precision: 0.6639843301623036
+    redo_roc_auc: 0.9270482603815937
+    redo_precision: 0.5102040816326531
+    redo_recall: 0.9259259259259259
+  total_judge_cost_usd: 0
+hypothesis_backlog: []

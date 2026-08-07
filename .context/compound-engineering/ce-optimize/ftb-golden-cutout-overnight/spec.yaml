@@ -1,0 +1,83 @@
+name: ftb-golden-cutout-overnight
+description: >-
+  Hill-climb placement selection and redo-review ranking on the frozen nine-level
+  Find the Bird golden corpus without changing any approved asset or label.
+metric:
+  primary:
+    type: hard
+    name: objective_loss
+    direction: minimize
+  degenerate_gates:
+    - name: manifest_valid
+      check: "== 1"
+      description: The content-addressed 162-bird corpus must remain unchanged.
+    - name: wrong_neighbor_jumps
+      check: "== 0"
+      description: No applied placement may exceed the production displacement guard.
+    - name: duplicate_target_claims
+      check: "== 0"
+      description: Two sprites may not newly collapse onto the same scene region.
+    - name: target_identity_errors
+      check: "== 0"
+      description: Held-out proposals must not fit another approved bird better than their own.
+    - name: keep_iou
+      check: ">= 0.975"
+      description: Explicit human keeps must remain effectively unchanged.
+    - name: correction_iou
+      check: ">= 0.700"
+      description: A conservative policy must still repair meaningful corrections.
+  diagnostics:
+    - name: placement_balanced_loss
+    - name: correction_center_px
+    - name: worst_level_loss
+    - name: max_bird_loss
+    - name: placement_apply_count
+    - name: redo_average_precision
+    - name: redo_roc_auc
+    - name: redo_precision
+    - name: redo_recall
+measurement:
+  command: >-
+    uv run python eval/overnight-hillclimb/measure.py
+    --config eval/overnight-hillclimb/candidate.json
+  timeout_seconds: 180
+  output_format: json
+  working_directory: tools/level-editor
+  stability:
+    mode: stable
+    noise_threshold: 0.0005
+scope:
+  mutable:
+    - tools/level-editor/eval/overnight-hillclimb/candidate.json
+    - tools/level-editor/levelbuilder/golden_cutouts.py
+    - tools/level-editor/tests/test_golden_cutout_dataset.py
+  immutable:
+    - tools/level-editor/eval/overnight-hillclimb/measure.py
+    - tools/level-editor/eval/golden-cutout-placement-v1/manifest.json
+    - tools/level-editor/eval/results/golden-cutout-v1/placement-evaluation.json
+    - games/find_the_bird/public/levels
+execution:
+  mode: serial
+  backend: worktree
+  max_concurrent: 1
+parallel:
+  port_strategy: none
+  shared_files: []
+  exclusive_resources:
+    - golden-corpus
+dependencies:
+  approved: []
+constraints:
+  - Never modify approved sprites, scenes, placement targets, labels, or hashes.
+  - Split all training and policy tuning by whole level; never by bird.
+  - Use only deterministic local computation and already-installed dependencies.
+  - Do not invoke paid providers or submit extraction or regeneration jobs.
+  - Treat needs-redo as human-review ranking, not an automatic generation decision.
+  - Reject metric wins that fail rendered overlay inspection.
+  - Record every measured experiment immediately in the append-only run log.
+stopping:
+  max_iterations: 24
+  max_hours: 6
+  plateau_iterations: 8
+  target_reached: false
+max_runner_up_merges_per_batch: 0

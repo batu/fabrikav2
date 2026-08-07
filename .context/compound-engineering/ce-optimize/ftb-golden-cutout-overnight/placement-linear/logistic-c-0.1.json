@@ -1,0 +1,24 @@
+{
+  "name": "placement-logistic-c-0.1",
+  "redoWeight": 0.05,
+  "placement": {
+    "model": "logistic",
+    "label": "correction",
+    "featureSet": "all",
+    "featureDrop": [],
+    "C": 0.1,
+    "classWeight": "balanced",
+    "thresholds": [0.5, 0.6, 0.7, 0.8],
+    "movementCaps": [0.25, 0.35, 0.45],
+    "collisionGuard": true,
+    "collisionIou": 0.35
+  },
+  "redo": {
+    "model": "logistic",
+    "featureSet": "all",
+    "featureDrop": [],
+    "C": 0.5,
+    "classWeight": "balanced",
+    "threshold": 0.5
+  }
+}

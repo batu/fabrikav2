@@ -1,0 +1,15 @@
+[
+  {
+    "name": "redo-extra-trees-depth-4",
+    "patch": {
+      "redo": {
+        "model": "extra_trees",
+        "estimators": 500,
+        "maxDepth": 4,
+        "minLeaf": 3,
+        "maxFeatures": "sqrt",
+        "classWeight": "balanced"
+      }
+    }
+  }
+]
