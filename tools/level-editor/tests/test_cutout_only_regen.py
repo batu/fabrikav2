@@ -148,6 +148,8 @@ def test_cutout_retry_accepts_public_package_without_session_or_hitboxes_file(is
         "image": "dogs/dog_00/sprite_000.png",
         "spriteBox": [80, 55, 120, 105],
         "cleanupBox": [75, 50, 125, 110],
+        "anchorX": 0.5,
+        "anchorY": 0.5,
         "quality": {"pickupUsable": True},
     }))
     (public_dir / "level.json").write_text(json.dumps({
@@ -156,7 +158,7 @@ def test_cutout_retry_accepts_public_package_without_session_or_hitboxes_file(is
         "width": 200,
         "height": 200,
         "dogs": [{
-            "id": "bird-0", "x": 100, "y": 80, "r": 20,
+            "id": "bird-0", "x": 10, "y": 20, "r": 20,
             "sprite": {"image": f"levels/{session_id}/dogs/dog_00/sprite_000.png"},
         }],
     }))

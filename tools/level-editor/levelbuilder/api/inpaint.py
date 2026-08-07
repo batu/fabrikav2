@@ -4079,6 +4079,15 @@ def _load_retry_hitboxes(session_id: str) -> list[dict[str, Any]]:
     else:
         raw = S.ensure_session_json(session_id)
         hitboxes = (raw or {}).get("hitboxes") or []
+        if not hitboxes:
+            level_path = S.GAME_PUBLIC_LEVELS / session_id / "level.json"
+            if level_path.is_file():
+                level = json.loads(level_path.read_text())
+                hitboxes = [
+                    {"id": dog.get("id"), "x": dog["x"], "y": dog["y"], "r": dog.get("r", 30)}
+                    for dog in level.get("dogs", [])
+                    if isinstance(dog, dict) and "x" in dog and "y" in dog
+                ]
     if not isinstance(hitboxes, list) or not hitboxes:
         raise HTTPException(400, detail={"error": "No hitboxes saved"})
     return [dict(item) for item in hitboxes]
@@ -4100,6 +4109,30 @@ def _normalized_retry_dog_indices(session_id: str, dog_indices: list[int]) -> li
     return normalized
 
 
+def _retry_crop_target(session_id: str, dog_index: int, hitbox: dict) -> tuple[int, int]:
+    """Resolve the crop target in scene-global coordinates.
+
+    Panoramic exports can retain section-local hitbox coordinates while sprite
+    sidecars are global. The sprite anchor is the portable target whenever an
+    extracted candidate exists; raw hitboxes remain the legacy fallback.
+    """
+    candidate = next(
+        (item for item in S.sprite_animation_candidates(session_id) if item.get("dogIndex") == dog_index),
+        None,
+    )
+    if candidate is not None:
+        box = candidate.get("spriteBox")
+        anchor_x = candidate.get("anchorX")
+        anchor_y = candidate.get("anchorY")
+        if (isinstance(box, list) and len(box) == 4
+                and isinstance(anchor_x, (int, float)) and isinstance(anchor_y, (int, float))):
+            return (
+                round(float(box[0]) + float(anchor_x) * (float(box[2]) - float(box[0]))),
+                round(float(box[1]) + float(anchor_y) * (float(box[3]) - float(box[1]))),
+            )
+    return int(hitbox["x"]), int(hitbox["y"])
+
+
 def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJobRequest) -> JobRecord:
     _validate_session_id(session_id)
     raw = S.ensure_session_json(session_id)
@@ -4117,10 +4150,11 @@ def _start_retry_failed_dogs_job_record(session_id: str, req: RetryFailedDogsJob
             raise HTTPException(404, detail={"error": f"Dog index out of range: {dog_index}"})
         x0, y0, x1, y1 = box
         radius = int(hb.get("r", hb.get("radius", 30)))
+        target_x, target_y = _retry_crop_target(session_id, dog_index, hb)
         if x0 < 0 or y0 < 0 or x1 <= x0 or y1 <= y0:
             raise HTTPException(400, detail={"error": f"Invalid crop box for dog {dog_index}"})
-        if not (x0 <= int(hb["x"]) - radius and x1 >= int(hb["x"]) + radius and
-                y0 <= int(hb["y"]) - radius and y1 >= int(hb["y"]) + radius):
+        if not (x0 <= target_x - radius and x1 >= target_x + radius and
+                y0 <= target_y - radius and y1 >= target_y + radius):
             raise HTTPException(400, detail={"error": f"Crop box must contain dog {dog_index}'s hitbox"})
     model = req.inpaintModel or raw.get("inpaint_model") or raw["model"]
     if req.cutoutOnly and (model not in INPAINT_MODEL_IDS or model.startswith("fal-ai/")):
