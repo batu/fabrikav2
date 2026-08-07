@@ -64,7 +64,7 @@ const REQUIRED_RESKIN_ASSET_IDS = [
 ] as const;
 
 const PUBLIC_ASSET_SHA256 = {
-  "ui/shop/shop_no_ads_premium.png": "83efb72daf936ffe3e983ccd8f4f6eb5c5357372f834096fdddd23f37a4eba54",
+  "ui/shop/shop_no_ads_premium.png": "e7c3cb5ded9eeaa63d2d84be49edc0fab36585a88fcc44a3ed2bedec54be37f7",
   "ui/shop/shop_hint_pack_small.png": "ec30d0d140afb221966a7512f8c72e00a96e1831f6281d61af1ddc2485f52234",
   "ui/shop/shop_hint_pack_medium.png": "ab5b25a558c30d33aa2b524dec171e2abee97e659efb50f8c9a0da65795e4ae4",
   "ui/shop/shop_hint_pack_large.png": "b982b9dac9f9ae37aa583bcb75d82fc157010ffbc05cfe869ad8f8834937a82f",

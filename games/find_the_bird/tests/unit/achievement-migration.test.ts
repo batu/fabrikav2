@@ -42,6 +42,11 @@ function todayStamp(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
+function yesterdayStamp(): string {
+  const d = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 beforeEach(() => {
   (globalThis as unknown as { localStorage: MemStorage }).localStorage = new MemStorage();
 });
@@ -87,7 +92,6 @@ describe('migration / backfill (AC4/AC5/KTD5)', () => {
     localStorage.setItem(K.BEST_TIMES, JSON.stringify({ 'served-a': 10, 'served-b': 12, 'served-c': 8 }));
     const gs = new GameState();
     expect(gs.achievementRecordSnapshot().masteredLevelIds).toEqual([]);
-    expect(gs.achievementRecordSnapshot().unlocked).not.toContain('mastery_5');
   });
 
   it('running migration twice yields an identical record (idempotent, AC3/AC4)', () => {
@@ -100,15 +104,17 @@ describe('migration / backfill (AC4/AC5/KTD5)', () => {
 
   it('no retroactive reward: migrated unlock never grants, new post-migration achievement does (correction 7)', () => {
     localStorage.setItem(K.TOTAL, '12');
+    localStorage.setItem(K.STREAK_DAYS, '2');
+    localStorage.setItem(K.STREAK_LAST_DATE, yesterdayStamp());
     const gs = new GameState();
-    expect(gs.coinBalance).toBe(0); // migration granted nothing
-    // A live completion: completions_10 is already unlocked (no re-grant); first_best
-    // is genuinely new post-migration and rewards normally (20 coins) + base 45.
+    expect(gs.coinBalance).toBe(0); // migration granted nothing (streak 2 < 3, no backfill)
+    // A live completion: completions_10 is already unlocked (no re-grant); streak_3
+    // is genuinely new post-migration (streak 2 → 3) and rewards normally (30 coins) + base 45.
     const result = gs.beginLevelCompletionTransaction({ levelId: 'lvl-live', levelIndex: 12, timeSeconds: 15, baseCoinReward: 45 });
     expect(result.achievementCommit?.rewards).toHaveLength(0);
-    expect(gs.claimAchievementReward('first_best')).toMatchObject({ coins: 20 });
+    expect(gs.claimAchievementReward('streak_3')).toMatchObject({ coins: 30 });
     expect(gs.claimAchievementReward('completions_10')).toBeNull();
-    expect(gs.coinBalance).toBe(65); // 45 base + claimed 20 first_best
+    expect(gs.coinBalance).toBe(75); // 45 base + claimed 30 streak_3
   });
 
   it('upgrades an older-version record without losing existing unlocks', () => {

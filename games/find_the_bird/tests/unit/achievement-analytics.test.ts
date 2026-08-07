@@ -24,13 +24,13 @@ function multiUnlockDelta(occurrenceId: string): CommittedAchievementDelta {
     progressChanges: [
       { achievementId: 'completions_10', progress: 5, threshold: 10 }, // advanced, not unlocked
       { achievementId: 'first_completion', progress: 1, threshold: 1 },
-      { achievementId: 'first_best', progress: 1, threshold: 1 },
+      { achievementId: 'streak_3', progress: 3, threshold: 3 },
     ],
-    newlyUnlocked: [catalogEntry('first_completion'), catalogEntry('first_best')],
+    newlyUnlocked: [catalogEntry('first_completion'), catalogEntry('streak_3')],
     masteredLevelIdsAdded: [],
     rewards: [
       { achievementId: 'first_completion', coins: 25, hints: 0 },
-      { achievementId: 'first_best', coins: 20, hints: 0 },
+      { achievementId: 'streak_3', coins: 30, hints: 0 },
     ],
   };
 }

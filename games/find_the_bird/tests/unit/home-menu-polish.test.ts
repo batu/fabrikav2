@@ -111,8 +111,8 @@ describe("home menu polish regressions", () => {
     expect(navCell.maxWidth).toBe("calc(100% / 3)");
     expect(window.getComputedStyle(element(".home-nav-bar")).padding).toBe("0px");
     expect(window.getComputedStyle(element(".home-nav-bar")).minHeight).toBe("134px");
-    expect(CSS_TEXT).toContain("width: 66px;");
-    expect(CSS_TEXT).toContain("height: 66px;");
+    expect(CSS_TEXT).toContain("width: 82px;");
+    expect(CSS_TEXT).toContain("height: 82px;");
     expect(HOME_SCENE_TEXT).not.toContain('id="home-nav-play"');
     expect(HOME_SCENE_TEXT).toContain('id="home-nav-achievements"');
 
@@ -127,7 +127,7 @@ describe("home menu polish regressions", () => {
     const sideNavIconRule = CSS_TEXT.match(/#home-shell \.home-nav-btn img\s*\{([^}]*)\}/s)?.[1] ?? "";
     expect(sideNavIconRule).toContain("margin-inline: auto");
     expect(sideNavIconRule).toContain("transform: translateY(-8px)");
-    expect(CSS_TEXT).toMatch(/#home-shell #home-nav-achievements img\s*\{[^}]*width:\s*62px;[^}]*height:\s*62px;/s);
+    expect(CSS_TEXT).toMatch(/#home-shell #home-nav-achievements img\s*\{[^}]*width:\s*78px;[^}]*height:\s*78px;/s);
     expect(CSS_TEXT).not.toContain(".home-nav-play-btn");
     // 2026-08-05: labels dropped 20px — text was overlapping the nav icons.
     expect(CSS_TEXT).toContain("bottom: calc(env(safe-area-inset-bottom, 0px) * 0.55 + 10px);");

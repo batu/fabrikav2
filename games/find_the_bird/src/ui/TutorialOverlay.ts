@@ -53,6 +53,13 @@ export interface TutorialHandle {
    * taps the correct dog.
    */
   advanceToHintState: () => void;
+  /**
+   * Re-anchor the state-1 spotlight + bubble to a new viewport point. The
+   * scene calls this every frame while the camera can pan/zoom so the
+   * cutout stays glued to the bird instead of to the screen. No-op outside
+   * state 1.
+   */
+  updateAnchor: (dogScreen: { x: number; y: number }, dogRadius: number) => void;
 }
 
 type TutorialState = 'dog' | 'hint' | 'zoom' | 'dismissed';
@@ -184,7 +191,20 @@ export function showTutorialOverlay(anchor: TutorialAnchor): TutorialHandle {
     overlay.appendChild(hintBubble);
   };
 
-  return { dismissed, dismiss, advanceToHintState };
+  const bubbleDog = overlay.querySelector<HTMLElement>('.tutorial-bubble-dog');
+  const updateAnchor = (dogScreen: { x: number; y: number }, dogRadius: number): void => {
+    if (state !== 'dog') return;
+    // Per-frame tracking: kill the state-change transition or the cutout
+    // rubber-bands behind the camera pan.
+    if (spotlight) spotlight.style.transition = 'none';
+    setCircleSpotlight(spotlight, dogScreen, dogRadius + SPOTLIGHT_PADDING_PX);
+    if (bubbleDog) {
+      bubbleDog.style.left = `${dogScreen.x}px`;
+      bubbleDog.style.top = `${dogScreen.y}px`;
+    }
+  };
+
+  return { dismissed, dismiss, advanceToHintState, updateAnchor };
 }
 
 /** Slack added around a spotlit target so its edges aren't clipped by the dim. */
@@ -219,6 +239,7 @@ function noopHandle(): TutorialHandle {
     dismissed: Promise.resolve(),
     dismiss: () => {},
     advanceToHintState: () => {},
+    updateAnchor: () => {},
   };
 }
 

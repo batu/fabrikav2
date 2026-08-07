@@ -3201,8 +3201,8 @@
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  margin-top: -24px;
-  margin-bottom: 6px;
+  margin-top: 8px;
+  margin-bottom: 2px;
   pointer-events: auto;
 }
 
@@ -3505,8 +3505,8 @@
 }
 #home-shell .home-nav-btn img {
   display: block;
-  width: 66px;
-  height: 66px;
+  width: 82px;
+  height: 82px;
   margin-inline: auto;
   object-fit: contain;
   object-position: center;
@@ -3517,8 +3517,8 @@
     drop-shadow(0 4px 5px rgba(70, 36, 10, 0.5));
 }
 #home-shell #home-nav-achievements img {
-  width: 62px;
-  height: 62px;
+  width: 78px;
+  height: 78px;
 }
 
 /* Pull the side slots a few px toward the middle (A2/A3, build-18 device

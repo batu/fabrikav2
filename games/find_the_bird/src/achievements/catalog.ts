@@ -84,17 +84,6 @@ export const ACHIEVEMENT_CATALOG: readonly Achievement[] = [
     entitledReward: { coins: 100, hints: 3 },
   },
   {
-    id: 'first_best',
-    name: 'Personal Best',
-    description: 'Set your first personal best time.',
-    category: 'progression',
-    milestoneKind: 'occurrence-count',
-    threshold: 1,
-    progressSource: 'personalBests',
-    order: 50,
-    entitledReward: { coins: 20 },
-  },
-  {
     id: 'streak_3',
     name: 'On a Roll',
     description: 'Play on 3 consecutive days.',
@@ -137,28 +126,6 @@ export const ACHIEVEMENT_CATALOG: readonly Achievement[] = [
     progressSource: 'lifetimeDogs',
     order: 90,
     entitledReward: { coins: 60 },
-  },
-  {
-    id: 'mastery_5',
-    name: 'Explorer',
-    description: 'Complete 5 different levels.',
-    category: 'mastery',
-    milestoneKind: 'logical-progression',
-    threshold: 5,
-    progressSource: 'masteredLevels',
-    order: 100,
-    entitledReward: { coins: 30 },
-  },
-  {
-    id: 'mastery_15',
-    name: 'Cartographer',
-    description: 'Complete 15 different levels.',
-    category: 'mastery',
-    milestoneKind: 'logical-progression',
-    threshold: 15,
-    progressSource: 'masteredLevels',
-    order: 110,
-    entitledReward: { coins: 75, hints: 2 },
   },
   // 2026-08-06 expansion: the catalog now spans 50+ levels with ~1000
   // findable birds — the ladder extends to match. Existing ids/thresholds
@@ -207,17 +174,6 @@ export const ACHIEVEMENT_CATALOG: readonly Achievement[] = [
     order: 72,
     entitledReward: { coins: 40, hints: 3 },
   },
-  {
-    id: 'mastery_58',
-    name: 'The Whole Atlas',
-    description: 'Complete 58 different levels.',
-    category: 'mastery',
-    milestoneKind: 'logical-progression',
-    threshold: 58,
-    progressSource: 'masteredLevels',
-    order: 112,
-    entitledReward: { coins: 10, hints: 2 },
-  },
 ] as const;
 
 let cachedOrdered: readonly Achievement[] | null = null;
@@ -233,8 +189,8 @@ export function orderedAchievements(): readonly Achievement[] {
 /**
  * Reward-budget total (AC6). Documented so a future catalog edit that inflates the
  * economy is caught by the U2 upper-bound test.
- *   coins: 25+50+75+100+20+30+60+30+60+30+75+60+80+50+40+10 = 795
- *   hints: 3+2+2+2+3+2+3+2 = 19
+ *   coins: 25+50+75+100+30+60+30+60+60+80+50+40 = 660
+ *   hints: 3+2+2+3+2+3 = 15
  */
 export function catalogRewardTotals(): { coins: number; hints: number } {
   let coins = 0;

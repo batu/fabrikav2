@@ -152,7 +152,7 @@ describe('happy path completion (AC2/AC6)', () => {
     expect(result.achievementCommitError).toBeUndefined();
     expect(gs.coinBalance).toBe(45);
     const rec = gs.achievementRecordSnapshot();
-    expect(rec.unlocked).toEqual(expect.arrayContaining(['first_completion', 'first_best']));
+    expect(rec.unlocked).toEqual(expect.arrayContaining(['first_completion']));
     expect(rec.pendingSettlement).toBeNull();
     expect(rec.progress['completions_10']).toBe(1);
     // Reward advances only coinsGranted, never the levelCompleteCoinGrants counter
@@ -445,11 +445,10 @@ describe('uncapped reward and analytics retry', () => {
         completions_10: 49,
         completions_25: 49,
         completions_50: 49,
-        first_best: 1,
       },
       masteredLevelIds: [],
-      unlocked: ['first_completion', 'completions_10', 'completions_25', 'first_best'],
-      claimedRewardAchievementIds: ['first_completion', 'completions_10', 'completions_25', 'first_best'],
+      unlocked: ['first_completion', 'completions_10', 'completions_25'],
+      claimedRewardAchievementIds: ['first_completion', 'completions_10', 'completions_25'],
       claimedDailyStreakRewardDates: [],
       migrationRewardIneligibleAchievementIds: [],
       legacyRewardProvenanceUnknownAchievementIds: [],
