@@ -737,7 +737,12 @@
   background:
     radial-gradient(circle at 50% 42%, rgba(20, 18, 15, 0.88) 0 30%, rgba(5, 4, 3, 0.98) 72%, #050403 100%),
     #050403;
-  opacity: 0;
+  /* Opaque from the FIRST frame. It used to start at 0 and fade in over
+     420ms, which meant pressing Play showed the backdrop's cream-to-amber
+     gradient underneath (--sch-bg-top #fff2cf -> --sch-bg-bot #f1a957) —
+     the "yellow flash" (Batu, 2026-08-07). The reveal/clearing rules below
+     still fade it OUT over 900ms, so the exit is unchanged. */
+  opacity: 1;
   transition: opacity 420ms cubic-bezier(0.33, 0, 0.67, 1);
 }
 
@@ -5688,4 +5693,26 @@
    untouched — this suppresses it only on the transition clone. */
 #scene-transition-cover.scene-transition-cover--play-entry .play-entry-home-backdrop::before {
   content: none;
+}
+
+
+/* The home clone sits ABOVE the veil (z-index 2) and its pieces left the
+   screen at full opacity — so the bright cream nav bar, title banner and
+   pills swept across the dark cover on every Play. That sweep is the
+   "yellow flash" (Batu, 2026-08-07); the veil was never the culprit.
+   They still slide (the transition reads as home leaving), they just fade
+   while doing it — the 180ms opacity transition is already declared above. */
+#scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-title-panel,
+#scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-map-stage,
+#scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-rail,
+#scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-rail-left,
+#scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-rail-right,
+#scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-play-now-btn,
+#scene-transition-cover[data-transition-state="revealing"] .play-entry-home-shell .home-nav-bar,
+#scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-title-panel,
+#scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-map-stage,
+#scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-rail,
+#scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-play-now-btn,
+#scene-transition-cover[data-transition-state="clearing"] .play-entry-home-shell .home-nav-bar {
+  opacity: 0;
 }
