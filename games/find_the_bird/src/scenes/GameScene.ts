@@ -1874,7 +1874,18 @@ export class GameScene extends Phaser.Scene {
     const canvas = this.scale.canvas;
     if (!canvas) return;
 
-    const dogScreen = phaserPointToCssPoint(canvas, GAME.WIDTH, GAME.HEIGHT, phaserX, phaserY);
+    // phaserX/Y are WORLD coords; the CSS converter expects screen-space
+    // (0..GAME.WIDTH) coords. Square levels start with the camera scrolled,
+    // so map through worldView first — without this the DOM spotlight sits
+    // scrollX px to the right of the bird (2026-08-07 device report).
+    const view = this.cameras.main.worldView;
+    const dogScreen = phaserPointToCssPoint(
+      canvas,
+      GAME.WIDTH,
+      GAME.HEIGHT,
+      ((phaserX - view.left) / view.width) * GAME.WIDTH,
+      ((phaserY - view.top) / view.height) * GAME.HEIGHT,
+    );
 
     const ringRadius = resolveRuntimeHitRadius(
       dog,
@@ -1990,12 +2001,13 @@ export class GameScene extends Phaser.Scene {
     // and reads as "the X moved with the camera". A DOM element cannot.
     const canvas = this.scale.canvas;
     if (canvas) {
+      // phaserPointToCssPoint already returns viewport-absolute CSS coords
+      // (it adds the canvas rect offset internally) — do not add it again.
       const css = phaserPointToCssPoint(canvas, GAME.WIDTH, GAME.HEIGHT, canvasX, canvasY);
-      const rect = canvas.getBoundingClientRect();
       const mark = document.createElement('div');
       mark.className = 'wrong-tap-mark';
-      mark.style.left = `${rect.left + css.x}px`;
-      mark.style.top = `${rect.top + css.y}px`;
+      mark.style.left = `${css.x}px`;
+      mark.style.top = `${css.y}px`;
       if (reducedMotion) mark.classList.add('reduced-motion');
       document.body.appendChild(mark);
       window.setTimeout(() => mark.remove(), 900);
