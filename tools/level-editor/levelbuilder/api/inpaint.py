@@ -5153,7 +5153,10 @@ def recenter_hitboxes_local_diff(
               max(cu[2], min(color.width, hb2["x"] + pad_c2)), max(cu[3], min(color.height, hb2["y"] + pad_c2))]
         meta2["cleanupBox"] = cu
         meta_path2.write_text(json.dumps(meta2, indent=2))
-    margin = 32
+    # 48 (2026-08-06 device review): 32 left visible bird remnants outside
+    # the restored patch on prop-dense scenes (greenhouse). Neighbor
+    # avoidance below still shrinks any side that would bite another bird.
+    margin = int(os.environ.get("FTD_CLEANUP_MARGIN", "48"))
     final_boxes: dict[int, list[int]] = {}
     # Neighbor avoidance must consider both measured footprints AND the
     # neighbors' spriteBoxes: the runtime carves other dogs' sprite rects out
