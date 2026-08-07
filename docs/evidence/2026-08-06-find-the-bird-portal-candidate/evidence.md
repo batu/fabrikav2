@@ -9,11 +9,12 @@ mode: pipeline
 
 ## Verdict
 
-Superseded. The recorded artifacts remain valid evidence for revision
-`e2bea87b28f6cd1d2531ee90a614bc594c725b8b`, but Find the Bird runtime and
-packaging moved afterward. They must not be installed or published as the
-current candidate. Portal remains unchanged; a fresh final-source build and
-matching physical-device gameplay capture are both required.
+Blocked only at the physical-device publication gate. The clean 53-level
+campaign, selective five-starter native bundle, live Bird CDN, signed
+harness-free Release app, and nested Portal browser preview are coherent at
+source revision `95fc6d9dbe4b5bbe669601acdd8e4d676fc3bed5`. Portal was left
+unchanged because the paired iPhone is unavailable and the exact build therefore
+has no physical-device gameplay video or derived release poster.
 
 ## What Works
 
@@ -76,28 +77,27 @@ promoted to the required production gameplay video or release poster.
 - [`assets/portal-preview-gameplay.png`](assets/portal-preview-gameplay.png)
   shows current gameplay through the same preview.
 - Candidate native and web archives are under
-  `/private/tmp/ftb-portal-candidate-e2bea87b/`. They are not publication
+  `/private/tmp/ftb-portal-candidate-95fc6d9d/`. They are not publication
   artifacts until the exact physical-device gate passes.
 
 ## Next Action
 
-Build a fresh harness-free candidate from the final merged runtime revision and
-regenerate its hashes and browser evidence. Then connect and unlock Batu's
-iPhone by cable, install that exact app, capture normal-speed gameplay, derive
-the poster, publish, and verify the immutable Portal entry.
+Connect and unlock Batu's iPhone by cable. Rebuild from the eventual merged
+revision, install that exact harness-free app, capture normal-speed gameplay,
+derive the poster, then publish and verify the immutable Portal entry.
 
 ```json
 {
   "skill": "ce-evidence",
   "status": "blocked",
   "artifact_path": "docs/evidence/2026-08-06-find-the-bird-portal-candidate/evidence.md",
-  "verdict": "The recorded e2bea87b candidate is superseded by later runtime changes; rebuild before physical-device verification or Portal publication.",
+  "verdict": "The clean candidate passes source, build, CDN, and nested-browser gates; Portal publication is blocked only by missing exact-build physical-device capture.",
   "mode": "pipeline",
   "evidence": [
     {
       "type": "manifest",
       "label": "sanitized release manifest",
-      "result": "candidate superseded; rebuild and device capture required",
+      "result": "candidate fields complete; publication_state blocked on device capture",
       "path": "docs/evidence/2026-08-06-find-the-bird-portal-candidate/release-manifest.json",
       "url": null
     },
@@ -120,7 +120,7 @@ the poster, publish, and verify the immutable Portal entry.
   "gaps": [
     "The exact harness-free artifact has not been installed or captured on the unavailable physical iPhone."
   ],
-  "next_action": "Connect and unlock Batu's iPhone, install the recorded merged-main artifact, then capture and publish it unless runtime code has moved.",
+  "next_action": "Connect and unlock Batu's iPhone, rebuild from the merged revision, then capture and publish the exact production artifact.",
   "pr_updated": false
 }
 ```

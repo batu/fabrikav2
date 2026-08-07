@@ -1,0 +1,2233 @@
+{
+ "japan_temple_garden": {
+  "sessionId": "japan_temple_garden_bird_f117",
+  "dogPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
+  "bgDone": true,
+  "upscaled": true,
+  "hitboxes": [
+   {
+    "x": 1942,
+    "y": 931,
+    "r": 58,
+    "id": "998c7843-f7e3-5dcc-82f8-dd835b0e04d4"
+   },
+   {
+    "x": 3439,
+    "y": 2865,
+    "r": 58,
+    "id": "bf9fd574-67c1-5a25-8ab9-cc000efe96a0"
+   },
+   {
+    "x": 2683,
+    "y": 2334,
+    "r": 58,
+    "id": "5ffb9941-3b50-5f91-b784-0a75d3e72580"
+   },
+   {
+    "x": 1959,
+    "y": 1607,
+    "r": 58,
+    "id": "f5b5a58a-1866-5ec6-ad1c-3d8b2c44a1f4"
+   },
+   {
+    "x": 927,
+    "y": 3148,
+    "r": 58,
+    "id": "e2bb1d79-d1e0-5a21-88d0-911aa419548b"
+   },
+   {
+    "x": 886,
+    "y": 1584,
+    "r": 58,
+    "id": "2ce28a93-5a19-5fb0-b6ff-1c1aff8540d5"
+   },
+   {
+    "x": 1363,
+    "y": 1564,
+    "r": 58,
+    "id": "77c4aa4c-7cc7-51a9-9c8c-59b6625a7693"
+   },
+   {
+    "x": 2869,
+    "y": 2992,
+    "r": 58,
+    "id": "aee2fba8-1c66-5af0-b5b3-cc9c4b6bf002"
+   },
+   {
+    "x": 3045,
+    "y": 1443,
+    "r": 58,
+    "id": "368e42f5-f0ce-5c5b-b766-5d81b29aeb61"
+   },
+   {
+    "x": 938,
+    "y": 2186,
+    "r": 58,
+    "id": "5628fecb-32fe-5194-8a1c-93ad997e9380"
+   },
+   {
+    "x": 2429,
+    "y": 3589,
+    "r": 58,
+    "id": "9ad22b80-8bba-50b6-93cd-9f46cd333692"
+   },
+   {
+    "x": 1157,
+    "y": 3625,
+    "r": 58,
+    "id": "e290891e-be69-597d-b91e-e8eee20df299"
+   },
+   {
+    "x": 1328,
+    "y": 2233,
+    "r": 58,
+    "id": "415cfd47-4368-5d80-9df1-09cc1532d218"
+   },
+   {
+    "x": 1858,
+    "y": 2602,
+    "r": 58,
+    "id": "47204463-af0a-5fc9-a883-0c878051202c"
+   },
+   {
+    "x": 2023,
+    "y": 2994,
+    "r": 58,
+    "id": "87050401-342d-5201-b6b7-493f730ae77e"
+   },
+   {
+    "x": 1792,
+    "y": 3391,
+    "r": 58,
+    "id": "a5be4e80-3fa2-5f96-aedf-c065017a0c4e"
+   },
+   {
+    "x": 3392,
+    "y": 2008,
+    "r": 58,
+    "id": "ac631f81-54d0-5472-a82f-dec6cd2e2512"
+   },
+   {
+    "x": 654,
+    "y": 1028,
+    "r": 58,
+    "id": "5ff405c8-f9bf-56b5-a5d1-e38e3a6e44a5"
+   },
+   {
+    "x": 1568,
+    "y": 1022,
+    "r": 58,
+    "id": "fc06d19c-8b3f-5858-951b-8b658493209f"
+   },
+   {
+    "x": 2257,
+    "y": 2529,
+    "r": 58,
+    "id": "454dea2e-6a6b-5b1b-983a-56e3334e47ee"
+   }
+  ],
+  "paintResult": {
+   "status": "succeeded"
+  },
+  "dogsDone": 20,
+  "painted": true,
+  "lastError": "HTTP Error 400: Bad Request",
+  "detections": [
+   {
+    "x": 2613,
+    "y": 77,
+    "width": 303,
+    "height": 278,
+    "confidence": 1.0
+   },
+   {
+    "x": 1888,
+    "y": 532,
+    "width": 253,
+    "height": 311,
+    "confidence": 1.0
+   },
+   {
+    "x": 520,
+    "y": 933,
+    "width": 323,
+    "height": 348,
+    "confidence": 1.0
+   },
+   {
+    "x": 1359,
+    "y": 778,
+    "width": 315,
+    "height": 339,
+    "confidence": 1.0
+   },
+   {
+    "x": 536,
+    "y": 2420,
+    "width": 389,
+    "height": 294,
+    "confidence": 1.0
+   },
+   {
+    "x": 1486,
+    "y": 1490,
+    "width": 245,
+    "height": 266,
+    "confidence": 1.0
+   },
+   {
+    "x": 2179,
+    "y": 1359,
+    "width": 245,
+    "height": 307,
+    "confidence": 1.0
+   },
+   {
+    "x": 2818,
+    "y": 1191,
+    "width": 327,
+    "height": 286,
+    "confidence": 1.0
+   },
+   {
+    "x": 3547,
+    "y": 1167,
+    "width": 200,
+    "height": 204,
+    "confidence": 1.0
+   },
+   {
+    "x": 2232,
+    "y": 1679,
+    "width": 475,
+    "height": 274,
+    "confidence": 1.0
+   },
+   {
+    "x": 3260,
+    "y": 1703,
+    "width": 458,
+    "height": 331,
+    "confidence": 1.0
+   },
+   {
+    "x": 1273,
+    "y": 2494,
+    "width": 315,
+    "height": 315,
+    "confidence": 1.0
+   },
+   {
+    "x": 2101,
+    "y": 2404,
+    "width": 307,
+    "height": 253,
+    "confidence": 1.0
+   },
+   {
+    "x": 1339,
+    "y": 2883,
+    "width": 282,
+    "height": 262,
+    "confidence": 1.0
+   },
+   {
+    "x": 405,
+    "y": 3411,
+    "width": 446,
+    "height": 430,
+    "confidence": 1.0
+   },
+   {
+    "x": 2973,
+    "y": 2686,
+    "width": 360,
+    "height": 352,
+    "confidence": 1.0
+   },
+   {
+    "x": 2469,
+    "y": 3072,
+    "width": 262,
+    "height": 348,
+    "confidence": 1.0
+   },
+   {
+    "x": 2994,
+    "y": 3395,
+    "width": 299,
+    "height": 217,
+    "confidence": 1.0
+   },
+   {
+    "x": 2117,
+    "y": 3514,
+    "width": 258,
+    "height": 233,
+    "confidence": 1.0
+   },
+   {
+    "x": 3588,
+    "y": 2912,
+    "width": 196,
+    "height": 167,
+    "confidence": 1.0
+   }
+  ],
+  "regens": 1,
+  "hitboxesFixed": true,
+  "rimStripped": 3,
+  "shipped": true
+ },
+ "uk_cotswolds_village": {
+  "sessionId": "uk_cotswolds_village_bird_9fae",
+  "dogPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
+  "bgDone": true,
+  "upscaled": true,
+  "hitboxes": [
+   {
+    "x": 2205,
+    "y": 3201,
+    "r": 58,
+    "id": "3894cde1-3b8a-53eb-9b44-374bf75a0196"
+   },
+   {
+    "x": 2547,
+    "y": 2723,
+    "r": 58,
+    "id": "01759a3e-1e12-5568-b559-7bdd2ecb34b2"
+   },
+   {
+    "x": 994,
+    "y": 2838,
+    "r": 58,
+    "id": "e2f4a79b-4da0-5843-949e-71df4e30efcf"
+   },
+   {
+    "x": 1520,
+    "y": 1452,
+    "r": 58,
+    "id": "4a3f6ecf-f5d8-5418-a931-e54111235fe5"
+   },
+   {
+    "x": 1847,
+    "y": 2673,
+    "r": 58,
+    "id": "da05b211-de0a-5fc7-8ee7-3d30baf84d82"
+   },
+   {
+    "x": 1146,
+    "y": 1088,
+    "r": 58,
+    "id": "3e5487f4-9f94-57bc-b3d1-16d44ccd5dd7"
+   },
+   {
+    "x": 2478,
+    "y": 2367,
+    "r": 58,
+    "id": "30388e2f-eac7-57dc-a592-d4802a4f45be"
+   },
+   {
+    "x": 2649,
+    "y": 1195,
+    "r": 58,
+    "id": "f545fcf3-1d73-5e6d-a941-8bff1cd68590"
+   },
+   {
+    "x": 2717,
+    "y": 1595,
+    "r": 58,
+    "id": "68c69571-ce9d-5176-b328-1a2866eb67d0"
+   },
+   {
+    "x": 3039,
+    "y": 1217,
+    "r": 58,
+    "id": "f0b3d360-b2cf-55ab-87bb-20fed346ccca"
+   },
+   {
+    "x": 1376,
+    "y": 2466,
+    "r": 58,
+    "id": "33a13e8a-7ffb-5fa6-bc99-7feb14890779"
+   },
+   {
+    "x": 2064,
+    "y": 1580,
+    "r": 58,
+    "id": "1ca79351-2292-5a6d-b761-d83549e2e4d1"
+   },
+   {
+    "x": 1693,
+    "y": 3625,
+    "r": 58,
+    "id": "1f530a05-6c9b-5f9f-a7cc-89f7aac5cfc5"
+   },
+   {
+    "x": 2298,
+    "y": 3625,
+    "r": 58,
+    "id": "67393a80-94f9-5a8c-8cce-9447aabed671"
+   },
+   {
+    "x": 1549,
+    "y": 967,
+    "r": 58,
+    "id": "00b68406-0221-5ef6-8596-2b1bef004f95"
+   },
+   {
+    "x": 2197,
+    "y": 1909,
+    "r": 58,
+    "id": "fff45091-f139-58f6-804b-0908a47d979e"
+   },
+   {
+    "x": 735,
+    "y": 1265,
+    "r": 58,
+    "id": "bd5a81b3-7ea9-5fb1-a7a8-4a6b69e9099c"
+   },
+   {
+    "x": 2105,
+    "y": 2349,
+    "r": 58,
+    "id": "df478772-453e-57d8-b40b-cc68d4c7d5cd"
+   },
+   {
+    "x": 3078,
+    "y": 2286,
+    "r": 58,
+    "id": "3bb83ded-7e74-5cff-a0df-1b3dc4b86be9"
+   },
+   {
+    "x": 641,
+    "y": 2841,
+    "r": 58,
+    "id": "72802442-71f1-5f76-8a4a-b66a84022540"
+   }
+  ],
+  "paintResult": {
+   "status": "succeeded"
+  },
+  "dogsDone": 20,
+  "painted": true,
+  "detections": [
+   {
+    "x": 1056,
+    "y": 69,
+    "width": 212,
+    "height": 311,
+    "confidence": 1.0
+   },
+   {
+    "x": 278,
+    "y": 716,
+    "width": 221,
+    "height": 237,
+    "confidence": 1.0
+   },
+   {
+    "x": 475,
+    "y": 1130,
+    "width": 385,
+    "height": 241,
+    "confidence": 1.0
+   },
+   {
+    "x": 1290,
+    "y": 2334,
+    "width": 303,
+    "height": 278,
+    "confidence": 1.0
+   },
+   {
+    "x": 1204,
+    "y": 3010,
+    "width": 282,
+    "height": 233,
+    "confidence": 1.0
+   },
+   {
+    "x": 561,
+    "y": 3682,
+    "width": 454,
+    "height": 262,
+    "confidence": 1.0
+   },
+   {
+    "x": 2117,
+    "y": 1347,
+    "width": 393,
+    "height": 258,
+    "confidence": 1.0
+   },
+   {
+    "x": 2564,
+    "y": 1150,
+    "width": 327,
+    "height": 241,
+    "confidence": 1.0
+   },
+   {
+    "x": 1912,
+    "y": 2420,
+    "width": 360,
+    "height": 241,
+    "confidence": 1.0
+   },
+   {
+    "x": 2265,
+    "y": 2797,
+    "width": 266,
+    "height": 176,
+    "confidence": 1.0
+   },
+   {
+    "x": 2686,
+    "y": 2740,
+    "width": 241,
+    "height": 200,
+    "confidence": 1.0
+   },
+   {
+    "x": 2752,
+    "y": 3211,
+    "width": 237,
+    "height": 159,
+    "confidence": 1.0
+   },
+   {
+    "x": 2220,
+    "y": 3244,
+    "width": 323,
+    "height": 454,
+    "confidence": 1.0
+   },
+   {
+    "x": 2670,
+    "y": 3510,
+    "width": 409,
+    "height": 299,
+    "confidence": 1.0
+   },
+   {
+    "x": 2805,
+    "y": 1904,
+    "width": 286,
+    "height": 262,
+    "confidence": 1.0
+   },
+   {
+    "x": 3358,
+    "y": 2351,
+    "width": 348,
+    "height": 364,
+    "confidence": 1.0
+   },
+   {
+    "x": 3678,
+    "y": 2039,
+    "width": 385,
+    "height": 311,
+    "confidence": 1.0
+   },
+   {
+    "x": 3174,
+    "y": 675,
+    "width": 245,
+    "height": 299,
+    "confidence": 1.0
+   },
+   {
+    "x": 3756,
+    "y": 65,
+    "width": 319,
+    "height": 335,
+    "confidence": 1.0
+   },
+   {
+    "x": 2646,
+    "y": 114,
+    "width": 147,
+    "height": 172,
+    "confidence": 1.0
+   }
+  ],
+  "regens": 0,
+  "hitboxesFixed": true,
+  "rimStripped": 8,
+  "shipped": true
+ },
+ "france_provence_lavender_village": {
+  "sessionId": "france_provence_lavender_village_bird_1191",
+  "dogPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
+  "bgDone": true,
+  "upscaled": true,
+  "hitboxes": [
+   {
+    "x": 2772,
+    "y": 2452,
+    "r": 58,
+    "id": "3195035c-2c03-5f2a-86d7-458bd62a3e2c"
+   },
+   {
+    "x": 2414,
+    "y": 3403,
+    "r": 58,
+    "id": "ebc02a89-81f7-513d-8588-2ed047056da7"
+   },
+   {
+    "x": 1309,
+    "y": 2024,
+    "r": 58,
+    "id": "872b609d-530b-5375-98e3-4a87ed68c039"
+   },
+   {
+    "x": 1873,
+    "y": 2403,
+    "r": 58,
+    "id": "1326bdf1-bb1d-5ed1-9e79-51c58370fb57"
+   },
+   {
+    "x": 3091,
+    "y": 1780,
+    "r": 58,
+    "id": "5aa1161c-5aef-5deb-beb5-3e9c71f879a1"
+   },
+   {
+    "x": 780,
+    "y": 1707,
+    "r": 58,
+    "id": "8313fe32-cff4-5507-8346-cc433fd11553"
+   },
+   {
+    "x": 855,
+    "y": 2919,
+    "r": 58,
+    "id": "55b38781-69f8-5d9a-b9b2-5949dbec67ed"
+   },
+   {
+    "x": 2890,
+    "y": 882,
+    "r": 58,
+    "id": "4c851049-a81c-5846-8e46-f2a0f464cf71"
+   },
+   {
+    "x": 1199,
+    "y": 1058,
+    "r": 58,
+    "id": "c9f98d4e-367d-5c49-9a35-dfd0c11c3d01"
+   },
+   {
+    "x": 2771,
+    "y": 3050,
+    "r": 58,
+    "id": "d2455f76-c789-5323-9dcd-cb54ff41836a"
+   },
+   {
+    "x": 1526,
+    "y": 1290,
+    "r": 58,
+    "id": "2d01131e-76f6-5c90-917a-e261f6953a50"
+   },
+   {
+    "x": 3198,
+    "y": 3155,
+    "r": 58,
+    "id": "25b31846-a4e0-57e2-b4b4-bdf665cddaa6"
+   },
+   {
+    "x": 2416,
+    "y": 2862,
+    "r": 58,
+    "id": "35e065cf-08e7-5bc6-ae95-563aeee6f4c2"
+   },
+   {
+    "x": 1315,
+    "y": 3555,
+    "r": 58,
+    "id": "600b0cc2-9207-5341-bc8c-91719a488840"
+   },
+   {
+    "x": 2301,
+    "y": 2274,
+    "r": 58,
+    "id": "5b32c0b7-bcfe-54f1-9a31-969ee2617cc3"
+   },
+   {
+    "x": 886,
+    "y": 2314,
+    "r": 58,
+    "id": "83ae6eee-0808-5127-b798-84d5a80b7448"
+   },
+   {
+    "x": 1981,
+    "y": 1642,
+    "r": 58,
+    "id": "835a4663-c94a-519d-9e95-b68192244992"
+   },
+   {
+    "x": 2513,
+    "y": 1396,
+    "r": 58,
+    "id": "ad4f9778-ebee-5cec-aa4a-082c4031ffdf"
+   },
+   {
+    "x": 2603,
+    "y": 1932,
+    "r": 58,
+    "id": "07110f2b-938e-5ac7-8357-25e241ce7d1d"
+   },
+   {
+    "x": 1711,
+    "y": 3383,
+    "r": 58,
+    "id": "b1c09d17-e33f-52a7-b1dc-fc57c4490831"
+   }
+  ],
+  "paintResult": {
+   "status": "succeeded"
+  },
+  "dogsDone": 20,
+  "painted": true,
+  "detections": [
+   {
+    "x": 12,
+    "y": 229,
+    "width": 425,
+    "height": 364,
+    "confidence": 1.0
+   },
+   {
+    "x": 704,
+    "y": 581,
+    "width": 352,
+    "height": 249,
+    "confidence": 1.0
+   },
+   {
+    "x": 544,
+    "y": 1052,
+    "width": 507,
+    "height": 299,
+    "confidence": 1.0
+   },
+   {
+    "x": 2785,
+    "y": 757,
+    "width": 360,
+    "height": 360,
+    "confidence": 1.0
+   },
+   {
+    "x": 3166,
+    "y": 753,
+    "width": 286,
+    "height": 217,
+    "confidence": 1.0
+   },
+   {
+    "x": 1785,
+    "y": 1138,
+    "width": 598,
+    "height": 299,
+    "confidence": 1.0
+   },
+   {
+    "x": 1560,
+    "y": 1630,
+    "width": 315,
+    "height": 327,
+    "confidence": 1.0
+   },
+   {
+    "x": 241,
+    "y": 1495,
+    "width": 462,
+    "height": 417,
+    "confidence": 1.0
+   },
+   {
+    "x": 737,
+    "y": 2170,
+    "width": 360,
+    "height": 266,
+    "confidence": 1.0
+   },
+   {
+    "x": 1581,
+    "y": 3047,
+    "width": 180,
+    "height": 155,
+    "confidence": 1.0
+   },
+   {
+    "x": 1609,
+    "y": 3104,
+    "width": 311,
+    "height": 245,
+    "confidence": 1.0
+   },
+   {
+    "x": 2232,
+    "y": 2277,
+    "width": 344,
+    "height": 286,
+    "confidence": 1.0
+   },
+   {
+    "x": 2543,
+    "y": 1916,
+    "width": 348,
+    "height": 331,
+    "confidence": 1.0
+   },
+   {
+    "x": 2543,
+    "y": 2703,
+    "width": 225,
+    "height": 442,
+    "confidence": 1.0
+   },
+   {
+    "x": 3059,
+    "y": 1224,
+    "width": 421,
+    "height": 430,
+    "confidence": 1.0
+   },
+   {
+    "x": 3010,
+    "y": 2125,
+    "width": 315,
+    "height": 356,
+    "confidence": 1.0
+   },
+   {
+    "x": 2899,
+    "y": 3284,
+    "width": 380,
+    "height": 327,
+    "confidence": 1.0
+   },
+   {
+    "x": 3657,
+    "y": 3309,
+    "width": 266,
+    "height": 192,
+    "confidence": 1.0
+   },
+   {
+    "x": 970,
+    "y": 3645,
+    "width": 442,
+    "height": 405,
+    "confidence": 1.0
+   },
+   {
+    "x": 2416,
+    "y": 3571,
+    "width": 499,
+    "height": 339,
+    "confidence": 1.0
+   }
+  ],
+  "lastError": "materialize failed: 409 {\"detail\":{\"error\":\"pickup sprite validation failed for detection 15\",\"code\":\"sprite_materialization_failed\"}}"
+ },
+ "italy_tuscan_hill_village": {
+  "sessionId": "italy_tuscan_hill_village_bird_a61f",
+  "dogPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
+  "bgDone": true,
+  "upscaled": true,
+  "hitboxes": [
+   {
+    "x": 1683,
+    "y": 1772,
+    "r": 58,
+    "id": "d78127c1-bc2d-526a-b3d1-004ea5b8747b"
+   },
+   {
+    "x": 2446,
+    "y": 875,
+    "r": 58,
+    "id": "4983cf27-bd97-5299-8b74-258eb9764f2b"
+   },
+   {
+    "x": 2213,
+    "y": 2783,
+    "r": 58,
+    "id": "6e67f947-455c-5eed-a255-0c83968fba6a"
+   },
+   {
+    "x": 3359,
+    "y": 1344,
+    "r": 58,
+    "id": "65494fac-2bd4-5576-bf53-844111d04475"
+   },
+   {
+    "x": 763,
+    "y": 3051,
+    "r": 58,
+    "id": "8f4cc21e-1fb8-5fbd-981a-a4fdbfe53302"
+   },
+   {
+    "x": 2805,
+    "y": 945,
+    "r": 58,
+    "id": "23c7932e-64d8-5ae1-bd0f-80994919b937"
+   },
+   {
+    "x": 2368,
+    "y": 1892,
+    "r": 58,
+    "id": "c8940dfa-8027-5603-804b-dbe8b495e544"
+   },
+   {
+    "x": 2641,
+    "y": 3211,
+    "r": 58,
+    "id": "29381245-aed2-5389-b9f7-c36c8bcd5caf"
+   },
+   {
+    "x": 2958,
+    "y": 1338,
+    "r": 58,
+    "id": "d505e17c-bb1c-511f-b480-835dacc9a260"
+   },
+   {
+    "x": 1769,
+    "y": 2587,
+    "r": 58,
+    "id": "d5904969-e3cb-5290-9816-c14260a9efe9"
+   },
+   {
+    "x": 3074,
+    "y": 1829,
+    "r": 58,
+    "id": "5706c15d-f58a-5d9f-adc8-e528968b8a63"
+   },
+   {
+    "x": 1765,
+    "y": 3560,
+    "r": 58,
+    "id": "38332b31-67bf-502a-adf0-16bfdf032eec"
+   },
+   {
+    "x": 1657,
+    "y": 1338,
+    "r": 58,
+    "id": "386f8382-b985-52fc-aa3a-3f46b77a546f"
+   },
+   {
+    "x": 1405,
+    "y": 3205,
+    "r": 58,
+    "id": "e94a49e3-192e-5568-b12a-7914421e8e25"
+   },
+   {
+    "x": 1188,
+    "y": 1804,
+    "r": 58,
+    "id": "99bfb808-d1f2-5266-9a0f-245c7476869e"
+   },
+   {
+    "x": 1250,
+    "y": 2260,
+    "r": 58,
+    "id": "44e832af-c212-568e-a26d-6156bece78c8"
+   },
+   {
+    "x": 1811,
+    "y": 992,
+    "r": 58,
+    "id": "87ae63aa-0515-526f-b2fd-c2814eaddc46"
+   },
+   {
+    "x": 830,
+    "y": 2181,
+    "r": 58,
+    "id": "18725448-3452-5c00-8fee-b9eb4dfdcf76"
+   },
+   {
+    "x": 2952,
+    "y": 2342,
+    "r": 58,
+    "id": "9bf7ffeb-70cf-56d1-9968-2df2955b1145"
+   },
+   {
+    "x": 2217,
+    "y": 3288,
+    "r": 58,
+    "id": "025bc634-6042-59cb-98ee-bb02c970f0ec"
+   }
+  ],
+  "paintResult": {
+   "status": "succeeded"
+  },
+  "dogsDone": 20,
+  "painted": true,
+  "detections": [
+   {
+    "x": 1257,
+    "y": 131,
+    "width": 249,
+    "height": 180,
+    "confidence": 1.0
+   },
+   {
+    "x": 3608,
+    "y": 643,
+    "width": 249,
+    "height": 319,
+    "confidence": 1.0
+   },
+   {
+    "x": 2752,
+    "y": 897,
+    "width": 176,
+    "height": 233,
+    "confidence": 1.0
+   },
+   {
+    "x": 2330,
+    "y": 983,
+    "width": 327,
+    "height": 294,
+    "confidence": 1.0
+   },
+   {
+    "x": 1753,
+    "y": 917,
+    "width": 159,
+    "height": 192,
+    "confidence": 1.0
+   },
+   {
+    "x": 1056,
+    "y": 1376,
+    "width": 176,
+    "height": 159,
+    "confidence": 1.0
+   },
+   {
+    "x": 1241,
+    "y": 1601,
+    "width": 311,
+    "height": 413,
+    "confidence": 1.0
+   },
+   {
+    "x": 1589,
+    "y": 1720,
+    "width": 335,
+    "height": 258,
+    "confidence": 1.0
+   },
+   {
+    "x": 3608,
+    "y": 1789,
+    "width": 409,
+    "height": 364,
+    "confidence": 1.0
+   },
+   {
+    "x": 561,
+    "y": 2105,
+    "width": 303,
+    "height": 196,
+    "confidence": 1.0
+   },
+   {
+    "x": 1052,
+    "y": 2138,
+    "width": 303,
+    "height": 270,
+    "confidence": 1.0
+   },
+   {
+    "x": 1101,
+    "y": 2543,
+    "width": 212,
+    "height": 241,
+    "confidence": 1.0
+   },
+   {
+    "x": 1384,
+    "y": 2490,
+    "width": 282,
+    "height": 253,
+    "confidence": 1.0
+   },
+   {
+    "x": 2162,
+    "y": 2277,
+    "width": 274,
+    "height": 262,
+    "confidence": 1.0
+   },
+   {
+    "x": 2506,
+    "y": 2232,
+    "width": 245,
+    "height": 241,
+    "confidence": 1.0
+   },
+   {
+    "x": 786,
+    "y": 3104,
+    "width": 249,
+    "height": 299,
+    "confidence": 1.0
+   },
+   {
+    "x": 1482,
+    "y": 3014,
+    "width": 315,
+    "height": 245,
+    "confidence": 1.0
+   },
+   {
+    "x": 2744,
+    "y": 2977,
+    "width": 425,
+    "height": 356,
+    "confidence": 1.0
+   },
+   {
+    "x": 1912,
+    "y": 3342,
+    "width": 372,
+    "height": 389,
+    "confidence": 1.0
+   },
+   {
+    "x": 3534,
+    "y": 3260,
+    "width": 299,
+    "height": 245,
+    "confidence": 1.0
+   }
+  ],
+  "regens": 4,
+  "hitboxesFixed": true,
+  "rimStripped": 3,
+  "shipped": true
+ },
+ "mexico_dia_de_muertos_plaza": {
+  "sessionId": "mexico_dia_de_muertos_plaza_bird_8d56",
+  "dogPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
+  "bgDone": true,
+  "upscaled": true,
+  "hitboxes": [
+   {
+    "x": 3256,
+    "y": 1429,
+    "r": 58,
+    "id": "280dd278-15a7-5a1a-8e23-ebbbf846106c"
+   },
+   {
+    "x": 3116,
+    "y": 2669,
+    "r": 58,
+    "id": "308492ba-4455-5939-afc2-7d4c28223818"
+   },
+   {
+    "x": 2511,
+    "y": 3593,
+    "r": 58,
+    "id": "d7b90b7b-d90d-5e13-a1d9-752a3139987b"
+   },
+   {
+    "x": 2579,
+    "y": 1755,
+    "r": 58,
+    "id": "aebe045a-4016-5976-9b2a-93d47c61fc6f"
+   },
+   {
+    "x": 1347,
+    "y": 2944,
+    "r": 58,
+    "id": "1fd337de-dd13-5836-b510-86603c1614f0"
+   },
+   {
+    "x": 1269,
+    "y": 2107,
+    "r": 58,
+    "id": "682395a0-bbf2-5e3d-a80a-c8736b189066"
+   },
+   {
+    "x": 1662,
+    "y": 1260,
+    "r": 58,
+    "id": "30244467-7e00-5ba0-9683-2e95eeafaced"
+   },
+   {
+    "x": 888,
+    "y": 1370,
+    "r": 58,
+    "id": "5a352187-d6b5-5f3f-82da-3c70e7e4f9d8"
+   },
+   {
+    "x": 1874,
+    "y": 2568,
+    "r": 58,
+    "id": "f001f67a-1d22-5c9d-a310-f4abfd83f280"
+   },
+   {
+    "x": 2372,
+    "y": 1424,
+    "r": 58,
+    "id": "1402c0c8-ca11-59c0-86a9-ad5bfad87b3e"
+   },
+   {
+    "x": 2342,
+    "y": 2508,
+    "r": 58,
+    "id": "af81e592-58f8-5712-8cfd-09a4a3ded16f"
+   },
+   {
+    "x": 874,
+    "y": 3372,
+    "r": 58,
+    "id": "237dcd93-2717-5b43-b9fc-5eb8f08b6f7c"
+   },
+   {
+    "x": 2063,
+    "y": 3390,
+    "r": 58,
+    "id": "70fa32c3-9df6-5eec-a1f3-36694a19d8e0"
+   },
+   {
+    "x": 856,
+    "y": 2276,
+    "r": 58,
+    "id": "ff76b64d-f769-56ba-a442-3cfaeb07ca28"
+   },
+   {
+    "x": 2814,
+    "y": 2341,
+    "r": 58,
+    "id": "609ebccf-a99c-5c2b-9371-9741d9974756"
+   },
+   {
+    "x": 1005,
+    "y": 948,
+    "r": 58,
+    "id": "a82fccc1-1f6f-57c0-a627-ff98bb915132"
+   },
+   {
+    "x": 1916,
+    "y": 1769,
+    "r": 58,
+    "id": "8af0a1e9-78db-5386-b20c-d856942af7a5"
+   },
+   {
+    "x": 1622,
+    "y": 3409,
+    "r": 58,
+    "id": "4fd9acc9-c452-53bc-b3f5-4f880e36b915"
+   },
+   {
+    "x": 3377,
+    "y": 2999,
+    "r": 58,
+    "id": "13bc89f2-4c21-539b-a667-c21c953cf655"
+   },
+   {
+    "x": 1281,
+    "y": 1678,
+    "r": 58,
+    "id": "3aa8965d-88ef-5822-9d7d-19a16c0d9d25"
+   }
+  ],
+  "paintResult": {
+   "status": "succeeded"
+  },
+  "dogsDone": 20,
+  "painted": true,
+  "detections": [
+   {
+    "x": 393,
+    "y": 229,
+    "width": 274,
+    "height": 294,
+    "confidence": 1.0
+   },
+   {
+    "x": 942,
+    "y": 811,
+    "width": 253,
+    "height": 245,
+    "confidence": 1.0
+   },
+   {
+    "x": 589,
+    "y": 950,
+    "width": 176,
+    "height": 167,
+    "confidence": 1.0
+   },
+   {
+    "x": 1462,
+    "y": 1040,
+    "width": 290,
+    "height": 278,
+    "confidence": 1.0
+   },
+   {
+    "x": 1867,
+    "y": 1069,
+    "width": 327,
+    "height": 315,
+    "confidence": 1.0
+   },
+   {
+    "x": 3092,
+    "y": 1191,
+    "width": 245,
+    "height": 376,
+    "confidence": 1.0
+   },
+   {
+    "x": 1347,
+    "y": 1302,
+    "width": 323,
+    "height": 278,
+    "confidence": 1.0
+   },
+   {
+    "x": 2383,
+    "y": 1347,
+    "width": 278,
+    "height": 241,
+    "confidence": 1.0
+   },
+   {
+    "x": 3174,
+    "y": 1601,
+    "width": 339,
+    "height": 286,
+    "confidence": 1.0
+   },
+   {
+    "x": 471,
+    "y": 1630,
+    "width": 323,
+    "height": 311,
+    "confidence": 1.0
+   },
+   {
+    "x": 1294,
+    "y": 1679,
+    "width": 413,
+    "height": 311,
+    "confidence": 1.0
+   },
+   {
+    "x": 2658,
+    "y": 1986,
+    "width": 233,
+    "height": 233,
+    "confidence": 1.0
+   },
+   {
+    "x": 659,
+    "y": 2068,
+    "width": 356,
+    "height": 344,
+    "confidence": 1.0
+   },
+   {
+    "x": 3452,
+    "y": 2138,
+    "width": 266,
+    "height": 335,
+    "confidence": 1.0
+   },
+   {
+    "x": 1421,
+    "y": 2199,
+    "width": 344,
+    "height": 323,
+    "confidence": 1.0
+   },
+   {
+    "x": 1998,
+    "y": 2260,
+    "width": 331,
+    "height": 352,
+    "confidence": 1.0
+   },
+   {
+    "x": 3260,
+    "y": 2912,
+    "width": 438,
+    "height": 270,
+    "confidence": 1.0
+   },
+   {
+    "x": 1081,
+    "y": 3383,
+    "width": 425,
+    "height": 372,
+    "confidence": 1.0
+   },
+   {
+    "x": 229,
+    "y": 3452,
+    "width": 540,
+    "height": 385,
+    "confidence": 1.0
+   },
+   {
+    "x": 2969,
+    "y": 3510,
+    "width": 471,
+    "height": 364,
+    "confidence": 1.0
+   }
+  ],
+  "regens": 1,
+  "hitboxesFixed": true,
+  "rimStripped": 3,
+  "shipped": true
+ },
+ "fairytale_forest_fairy_ring_picnic": {
+  "sessionId": "fairytale_forest_fairy_ring_picnic_bird_9ed2",
+  "dogPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
+  "bgDone": true,
+  "upscaled": true,
+  "hitboxes": [
+   {
+    "x": 2728,
+    "y": 2366,
+    "r": 58,
+    "id": "b7b807d9-8a4d-5751-bb1c-3f51ac93314e"
+   },
+   {
+    "x": 2484,
+    "y": 3349,
+    "r": 58,
+    "id": "509d6839-ae41-52cf-9792-fb6683ac135c"
+   },
+   {
+    "x": 1975,
+    "y": 1425,
+    "r": 58,
+    "id": "7f7bd2cd-051b-5791-8ea1-ae3d06b8c93e"
+   },
+   {
+    "x": 1134,
+    "y": 928,
+    "r": 58,
+    "id": "2af25866-fe45-5955-a650-613094df4015"
+   },
+   {
+    "x": 1031,
+    "y": 1268,
+    "r": 58,
+    "id": "298ca539-4dad-52c6-8123-3f8d30ced4a1"
+   },
+   {
+    "x": 3242,
+    "y": 2825,
+    "r": 58,
+    "id": "d7197bc1-a7d1-5cd5-9547-162411c89762"
+   },
+   {
+    "x": 1798,
+    "y": 3350,
+    "r": 58,
+    "id": "d21dd3e1-13f4-565c-bb21-1564c98c84e6"
+   },
+   {
+    "x": 1621,
+    "y": 1248,
+    "r": 58,
+    "id": "0780e76d-1dd4-5560-8309-0d2e8d654e3b"
+   },
+   {
+    "x": 3201,
+    "y": 2489,
+    "r": 58,
+    "id": "6c66a712-6342-535a-9b02-c84f9d6f65ad"
+   },
+   {
+    "x": 2711,
+    "y": 1833,
+    "r": 58,
+    "id": "f050b492-37d9-5880-b89b-247432a4d23a"
+   },
+   {
+    "x": 3198,
+    "y": 1760,
+    "r": 58,
+    "id": "80ab1bc9-f291-54ee-bafd-7314827bc587"
+   },
+   {
+    "x": 3351,
+    "y": 2128,
+    "r": 58,
+    "id": "786bd936-ae4c-585d-9ed7-ea37b37febed"
+   },
+   {
+    "x": 2856,
+    "y": 1117,
+    "r": 58,
+    "id": "de53d451-c259-5532-a305-5234a12d128a"
+   },
+   {
+    "x": 1255,
+    "y": 2924,
+    "r": 58,
+    "id": "8ac9c805-4eaa-5661-8071-2c8f4455b182"
+   },
+   {
+    "x": 1653,
+    "y": 2959,
+    "r": 58,
+    "id": "f7c7bc75-7cfb-5324-ad34-362d0d70507f"
+   },
+   {
+    "x": 2115,
+    "y": 2894,
+    "r": 58,
+    "id": "692716c4-d2d4-5023-a837-b293cc08389a"
+   },
+   {
+    "x": 962,
+    "y": 1764,
+    "r": 58,
+    "id": "eb12de9c-4844-54cf-8169-076b765d1d7f"
+   },
+   {
+    "x": 1655,
+    "y": 2543,
+    "r": 58,
+    "id": "aa2d40d2-c3dd-5ce6-b180-0edf9c693803"
+   },
+   {
+    "x": 1825,
+    "y": 1968,
+    "r": 58,
+    "id": "61bc676e-d919-59da-bcbc-1cb2bd4bb861"
+   },
+   {
+    "x": 2215,
+    "y": 2368,
+    "r": 58,
+    "id": "1cbd0fac-f858-5e7f-90c4-0ef3106d7d95"
+   }
+  ],
+  "paintResult": {
+   "status": "succeeded"
+  },
+  "dogsDone": 20,
+  "painted": true,
+  "detections": [
+   {
+    "x": 348,
+    "y": 356,
+    "width": 421,
+    "height": 335,
+    "confidence": 1.0
+   },
+   {
+    "x": 856,
+    "y": 671,
+    "width": 565,
+    "height": 376,
+    "confidence": 1.0
+   },
+   {
+    "x": 516,
+    "y": 1110,
+    "width": 327,
+    "height": 303,
+    "confidence": 1.0
+   },
+   {
+    "x": 1269,
+    "y": 1601,
+    "width": 290,
+    "height": 286,
+    "confidence": 1.0
+   },
+   {
+    "x": 1564,
+    "y": 1433,
+    "width": 245,
+    "height": 319,
+    "confidence": 1.0
+   },
+   {
+    "x": 2080,
+    "y": 1437,
+    "width": 307,
+    "height": 327,
+    "confidence": 1.0
+   },
+   {
+    "x": 2142,
+    "y": 827,
+    "width": 274,
+    "height": 303,
+    "confidence": 1.0
+   },
+   {
+    "x": 2445,
+    "y": 626,
+    "width": 249,
+    "height": 299,
+    "confidence": 1.0
+   },
+   {
+    "x": 3268,
+    "y": 278,
+    "width": 311,
+    "height": 237,
+    "confidence": 1.0
+   },
+   {
+    "x": 2695,
+    "y": 1052,
+    "width": 331,
+    "height": 294,
+    "confidence": 1.0
+   },
+   {
+    "x": 3452,
+    "y": 1069,
+    "width": 380,
+    "height": 286,
+    "confidence": 1.0
+   },
+   {
+    "x": 3153,
+    "y": 1454,
+    "width": 266,
+    "height": 229,
+    "confidence": 1.0
+   },
+   {
+    "x": 3133,
+    "y": 1835,
+    "width": 385,
+    "height": 344,
+    "confidence": 1.0
+   },
+   {
+    "x": 1060,
+    "y": 2289,
+    "width": 241,
+    "height": 278,
+    "confidence": 1.0
+   },
+   {
+    "x": 1470,
+    "y": 2543,
+    "width": 286,
+    "height": 241,
+    "confidence": 1.0
+   },
+   {
+    "x": 1150,
+    "y": 2830,
+    "width": 233,
+    "height": 229,
+    "confidence": 1.0
+   },
+   {
+    "x": 1892,
+    "y": 2850,
+    "width": 270,
+    "height": 278,
+    "confidence": 1.0
+   },
+   {
+    "x": 2416,
+    "y": 2850,
+    "width": 241,
+    "height": 204,
+    "confidence": 1.0
+   },
+   {
+    "x": 3436,
+    "y": 2899,
+    "width": 294,
+    "height": 401,
+    "confidence": 1.0
+   },
+   {
+    "x": 1277,
+    "y": 3264,
+    "width": 434,
+    "height": 319,
+    "confidence": 1.0
+   }
+  ],
+  "lastError": "materialize failed: 409 {\"detail\":{\"error\":\"pickup sprite validation failed for detection 0\",\"code\":\"sprite_materialization_failed\"}}"
+ },
+ "railway_roundhouse_sleepy_mountain_rail_stop": {
+  "sessionId": "railway_roundhouse_sleepy_mountain_rail_stop_bird_210e",
+  "dogPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
+  "bgDone": true,
+  "upscaled": true,
+  "hitboxes": [
+   {
+    "x": 1111,
+    "y": 3426,
+    "r": 58,
+    "id": "abe5c95f-0d1b-5f93-89e4-286414f6314e"
+   },
+   {
+    "x": 1844,
+    "y": 2965,
+    "r": 58,
+    "id": "5ea8261c-3e55-52a3-beaf-9c85c9141402"
+   },
+   {
+    "x": 2235,
+    "y": 2354,
+    "r": 58,
+    "id": "29efe727-3b2a-5b1a-8f91-2a02cf06e751"
+   },
+   {
+    "x": 1550,
+    "y": 2375,
+    "r": 58,
+    "id": "67316eda-912f-5101-8c3a-e3017efc1ee1"
+   },
+   {
+    "x": 3226,
+    "y": 2739,
+    "r": 58,
+    "id": "d71406d2-19e5-55dd-87a1-a08d83adefce"
+   },
+   {
+    "x": 2354,
+    "y": 2898,
+    "r": 58,
+    "id": "680935e4-f6a7-5e09-ab1d-e4bef0543598"
+   },
+   {
+    "x": 1845,
+    "y": 1322,
+    "r": 58,
+    "id": "96635d54-3f5b-5c81-ae1a-599a08c63420"
+   },
+   {
+    "x": 2192,
+    "y": 1098,
+    "r": 58,
+    "id": "e4b8fe35-2161-50bc-866c-e1653317dccd"
+   },
+   {
+    "x": 3265,
+    "y": 1958,
+    "r": 58,
+    "id": "6494e9b4-8f68-51dd-b3ed-2a4e3785304b"
+   },
+   {
+    "x": 1467,
+    "y": 3471,
+    "r": 58,
+    "id": "99211223-3bec-5d54-a21e-e15b73e21a6b"
+   },
+   {
+    "x": 2843,
+    "y": 1100,
+    "r": 58,
+    "id": "5b55ed8e-29e1-5f46-8cc7-0ea1e00fadf0"
+   },
+   {
+    "x": 1073,
+    "y": 3032,
+    "r": 58,
+    "id": "5a383b1f-aeb0-592f-a631-8390bff301d4"
+   },
+   {
+    "x": 1448,
+    "y": 1120,
+    "r": 58,
+    "id": "366a00ea-23d8-556e-a44d-977f4aa00051"
+   },
+   {
+    "x": 1799,
+    "y": 1662,
+    "r": 58,
+    "id": "79cbaa9f-060e-58ea-aa06-073201963d78"
+   },
+   {
+    "x": 3391,
+    "y": 2393,
+    "r": 58,
+    "id": "59fcfd6a-ac8c-5aca-8724-519e1604c02d"
+   },
+   {
+    "x": 809,
+    "y": 2449,
+    "r": 58,
+    "id": "e23e1942-087a-5b9b-8616-ab0ccc5ce28f"
+   },
+   {
+    "x": 1039,
+    "y": 1143,
+    "r": 58,
+    "id": "d9a3eda0-f824-53c5-a8bd-09f57126ab11"
+   },
+   {
+    "x": 2575,
+    "y": 3489,
+    "r": 58,
+    "id": "28db34b9-640e-5c1c-97a4-f9b199f487d0"
+   },
+   {
+    "x": 2068,
+    "y": 3609,
+    "r": 58,
+    "id": "23f43d01-b4de-512b-9cb5-df1c4b4bd5b8"
+   },
+   {
+    "x": 2678,
+    "y": 2524,
+    "r": 58,
+    "id": "f086d50d-c3bf-56f1-b57b-5b57bd16b145"
+   }
+  ],
+  "paintResult": {
+   "status": "succeeded"
+  },
+  "dogsDone": 20,
+  "painted": true,
+  "detections": [
+   {
+    "x": 2584,
+    "y": 581,
+    "width": 462,
+    "height": 311,
+    "confidence": 1.0
+   },
+   {
+    "x": 2015,
+    "y": 1122,
+    "width": 163,
+    "height": 233,
+    "confidence": 1.0
+   },
+   {
+    "x": 1622,
+    "y": 1159,
+    "width": 376,
+    "height": 274,
+    "confidence": 1.0
+   },
+   {
+    "x": 1032,
+    "y": 1052,
+    "width": 299,
+    "height": 262,
+    "confidence": 1.0
+   },
+   {
+    "x": 516,
+    "y": 1507,
+    "width": 315,
+    "height": 303,
+    "confidence": 1.0
+   },
+   {
+    "x": 880,
+    "y": 1986,
+    "width": 307,
+    "height": 200,
+    "confidence": 1.0
+   },
+   {
+    "x": 1912,
+    "y": 1847,
+    "width": 274,
+    "height": 352,
+    "confidence": 1.0
+   },
+   {
+    "x": 2392,
+    "y": 2228,
+    "width": 331,
+    "height": 339,
+    "confidence": 1.0
+   },
+   {
+    "x": 2990,
+    "y": 2203,
+    "width": 376,
+    "height": 425,
+    "confidence": 1.0
+   },
+   {
+    "x": 3080,
+    "y": 2633,
+    "width": 425,
+    "height": 360,
+    "confidence": 1.0
+   },
+   {
+    "x": 3485,
+    "y": 1757,
+    "width": 409,
+    "height": 299,
+    "confidence": 1.0
+   },
+   {
+    "x": 3596,
+    "y": 2285,
+    "width": 122,
+    "height": 233,
+    "confidence": 1.0
+   },
+   {
+    "x": 155,
+    "y": 2654,
+    "width": 294,
+    "height": 352,
+    "confidence": 1.0
+   },
+   {
+    "x": 974,
+    "y": 2531,
+    "width": 180,
+    "height": 253,
+    "confidence": 1.0
+   },
+   {
+    "x": 864,
+    "y": 3190,
+    "width": 409,
+    "height": 262,
+    "confidence": 1.0
+   },
+   {
+    "x": 1589,
+    "y": 2654,
+    "width": 331,
+    "height": 294,
+    "confidence": 1.0
+   },
+   {
+    "x": 1953,
+    "y": 2650,
+    "width": 278,
+    "height": 290,
+    "confidence": 1.0
+   },
+   {
+    "x": 2027,
+    "y": 3538,
+    "width": 380,
+    "height": 335,
+    "confidence": 1.0
+   },
+   {
+    "x": 2797,
+    "y": 1892,
+    "width": 221,
+    "height": 270,
+    "confidence": 1.0
+   },
+   {
+    "x": 2342,
+    "y": 3338,
+    "width": 163,
+    "height": 204,
+    "confidence": 1.0
+   }
+  ],
+  "regens": 1,
+  "hitboxesFixed": true,
+  "rimStripped": 4,
+  "shipped": true
+ },
+ "coral_reef_tidal_pool_labyrinth": {
+  "sessionId": "coral_reef_tidal_pool_labyrinth_bird_cfdd",
+  "dogPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged.",
+  "bgDone": true,
+  "upscaled": true,
+  "hitboxes": [
+   {
+    "x": 3413,
+    "y": 949,
+    "r": 58,
+    "id": "cdbdc335-455f-5a90-b1af-b3f2b03de19f"
+   },
+   {
+    "x": 2050,
+    "y": 2888,
+    "r": 58,
+    "id": "241d9805-aeae-52a6-bab6-d69655940f33"
+   },
+   {
+    "x": 2979,
+    "y": 3005,
+    "r": 58,
+    "id": "cbea4bfa-5884-5553-8919-0566bc5a32d5"
+   },
+   {
+    "x": 2300,
+    "y": 3449,
+    "r": 58,
+    "id": "67001578-8377-53a1-86cf-27faff62a70b"
+   },
+   {
+    "x": 745,
+    "y": 1054,
+    "r": 58,
+    "id": "9ae4889c-9730-5e6b-9033-8d5759685505"
+   },
+   {
+    "x": 3073,
+    "y": 1412,
+    "r": 58,
+    "id": "b258ba40-9647-5455-badb-a6c493d7dad5"
+   },
+   {
+    "x": 1958,
+    "y": 1253,
+    "r": 58,
+    "id": "79cd2871-d72f-5fc3-80e4-a992b7c1e60b"
+   },
+   {
+    "x": 736,
+    "y": 1423,
+    "r": 58,
+    "id": "17a86e40-8d44-5549-9a6f-06387270da56"
+   },
+   {
+    "x": 1908,
+    "y": 3388,
+    "r": 58,
+    "id": "cceea95e-99e0-56ae-aa16-bbca2cce20d3"
+   },
+   {
+    "x": 1718,
+    "y": 2508,
+    "r": 58,
+    "id": "9929c9ce-4b8f-5916-89df-70d830b3bbcd"
+   },
+   {
+    "x": 2291,
+    "y": 2259,
+    "r": 58,
+    "id": "d3f1f367-9b89-564c-b71f-b6787a674281"
+   },
+   {
+    "x": 2627,
+    "y": 2691,
+    "r": 58,
+    "id": "b16b1ac0-403d-5f14-b6dd-844ff8b41fcb"
+   },
+   {
+    "x": 1182,
+    "y": 863,
+    "r": 58,
+    "id": "87d224da-5b9a-598e-a254-afb33e558096"
+   },
+   {
+    "x": 2484,
+    "y": 1087,
+    "r": 58,
+    "id": "2dcc2a8c-2bd5-5624-b147-2c40a9e48938"
+   },
+   {
+    "x": 1299,
+    "y": 2868,
+    "r": 58,
+    "id": "83e4ea92-c948-52b1-a406-4219fecf60f2"
+   },
+   {
+    "x": 664,
+    "y": 1993,
+    "r": 58,
+    "id": "148dfad6-6610-51ec-865e-b9d8e704e623"
+   },
+   {
+    "x": 3436,
+    "y": 2527,
+    "r": 58,
+    "id": "fe36eeda-b361-5fef-8cb2-d1f687224121"
+   },
+   {
+    "x": 2401,
+    "y": 1922,
+    "r": 58,
+    "id": "06395cca-401a-5700-9ed2-a27e3879de58"
+   },
+   {
+    "x": 2641,
+    "y": 3586,
+    "r": 58,
+    "id": "4d60b385-baa8-529b-a458-0489ad22c968"
+   },
+   {
+    "x": 1275,
+    "y": 3516,
+    "r": 58,
+    "id": "102b88be-10dc-5539-885d-e317c093db67"
+   }
+  ],
+  "paintResult": {
+   "status": "succeeded"
+  },
+  "dogsDone": 20,
+  "painted": true,
+  "detections": [
+   {
+    "x": 253,
+    "y": 290,
+    "width": 512,
+    "height": 401,
+    "confidence": 1.0
+   },
+   {
+    "x": 2056,
+    "y": 483,
+    "width": 425,
+    "height": 397,
+    "confidence": 1.0
+   },
+   {
+    "x": 1953,
+    "y": 614,
+    "width": 184,
+    "height": 172,
+    "confidence": 1.0
+   },
+   {
+    "x": 3260,
+    "y": 487,
+    "width": 487,
+    "height": 356,
+    "confidence": 1.0
+   },
+   {
+    "x": 524,
+    "y": 901,
+    "width": 380,
+    "height": 294,
+    "confidence": 1.0
+   },
+   {
+    "x": 2383,
+    "y": 1196,
+    "width": 299,
+    "height": 290,
+    "confidence": 1.0
+   },
+   {
+    "x": 733,
+    "y": 1290,
+    "width": 368,
+    "height": 331,
+    "confidence": 1.0
+   },
+   {
+    "x": 1785,
+    "y": 1294,
+    "width": 348,
+    "height": 249,
+    "confidence": 1.0
+   },
+   {
+    "x": 2891,
+    "y": 1429,
+    "width": 401,
+    "height": 405,
+    "confidence": 1.0
+   },
+   {
+    "x": 2101,
+    "y": 1875,
+    "width": 323,
+    "height": 258,
+    "confidence": 1.0
+   },
+   {
+    "x": 548,
+    "y": 2215,
+    "width": 372,
+    "height": 356,
+    "confidence": 1.0
+   },
+   {
+    "x": 3608,
+    "y": 2232,
+    "width": 344,
+    "height": 471,
+    "confidence": 1.0
+   },
+   {
+    "x": 1560,
+    "y": 2371,
+    "width": 417,
+    "height": 323,
+    "confidence": 1.0
+   },
+   {
+    "x": 1044,
+    "y": 2691,
+    "width": 442,
+    "height": 348,
+    "confidence": 1.0
+   },
+   {
+    "x": 1232,
+    "y": 2748,
+    "width": 122,
+    "height": 143,
+    "confidence": 1.0
+   },
+   {
+    "x": 2629,
+    "y": 2785,
+    "width": 339,
+    "height": 339,
+    "confidence": 1.0
+   },
+   {
+    "x": 2842,
+    "y": 2809,
+    "width": 274,
+    "height": 204,
+    "confidence": 1.0
+   },
+   {
+    "x": 598,
+    "y": 3186,
+    "width": 495,
+    "height": 421,
+    "confidence": 1.0
+   },
+   {
+    "x": 2187,
+    "y": 3383,
+    "width": 405,
+    "height": 466,
+    "confidence": 1.0
+   },
+   {
+    "x": 3383,
+    "y": 3596,
+    "width": 471,
+    "height": 348,
+    "confidence": 1.0
+   }
+  ],
+  "regens": 4,
+  "hitboxesFixed": true,
+  "rimStripped": 7,
+  "shipped": true
+ },
+ "turkey_cappadocia_balloon_dawn": {
+  "sessionId": "turkey_cappadocia_balloon_dawn_bird_af46",
+  "dogPrompt": "Add exactly one bird to this crop. Place exactly one bird centered on the marked target area \u2014 do not repeat the subject. Match the scene's illustration style, line weight, palette, and flat-shaded rendering, but keep the bird's silhouette and boundary readable on a phone screen. The bird may be partially occluded or contextually disguised, but must not disappear through muddy edges, low contrast, texture camouflage, or ambiguous merged shapes. Vary the bird's colors, markings, proportions, and small physical details across crops so the level does not repeat the same bird design. The bird is a charming little anthropomorphic inhabitant of this world \u2014 a character with personality going about its business. Give it something simple and specific to do with its surroundings: holding an object, using a tool, sitting at a small task, peeking at something, carrying something, watching something with interest, tending a small thing, pausing mid-task. Keep the pose clear and readable. The charm comes from the context and the expression, not from dynamic motion. Size the bird realistically relative to the scene around it \u2014 compare it to whatever human-scale objects are visible in the crop and render the bird at the physical size a real bird would be next to them. Not so small that its species is ambiguous, not so large that it dominates the crop. The bird must be fully contained within the visible frame. Keep all other elements of the image unchanged."
+ }
+}

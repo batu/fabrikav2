@@ -1,7 +1,5 @@
 {
   "schema_version": 1,
-  "candidate_state": "superseded",
-  "superseded_by_runtime_revision": "9b4f5148e45b1b10e36eedccc4d7db2b4c3dc17e",
   "game": {
     "slug": "find-the-bird",
     "title": "Find the Bird",
@@ -13,15 +11,15 @@
   "source": {
     "repo": "/Users/base/dev/appletolye/fabrikav2",
     "worktree": "/Users/base/dev/appletolye/fabrikav2/.worktrees/ftb-portal-release",
-    "branch": "origin/main (detached at the merged revision during build)",
-    "revision": "e2bea87b28f6cd1d2531ee90a614bc594c725b8b",
-    "revision_committed_at": "2026-08-06T10:24:43+03:00",
+    "branch": "feat/ftb-portal-release",
+    "revision": "95fc6d9dbe4b5bbe669601acdd8e4d676fc3bed5",
+    "revision_committed_at": "2026-08-06T10:06:55+03:00",
     "tracked_files_clean_at_build": true,
     "generated_paths_after_build": [
       "games/find_the_bird/dist/",
       "games/find_the_bird/ios/",
-      "/private/tmp/ftb-portal-e2bea87b-derived/",
-      "/private/tmp/ftb-portal-e2bea87b-web/"
+      "/private/tmp/ftb-portal-95fc6d9d-derived/",
+      "/private/tmp/ftb-portal-95fc6d9d-web/"
     ]
   },
   "production_environment": {
@@ -33,36 +31,36 @@
     "commands": [
       "npm run build:ios",
       "npm run ios:sync",
-      "xcodebuild -quiet -project ios/App/App.xcodeproj -scheme App -configuration Release -sdk iphoneos -derivedDataPath /private/tmp/ftb-portal-e2bea87b-derived DEVELOPMENT_TEAM=42L77JAX72 PRODUCT_BUNDLE_IDENTIFIER=com.basegamelab.findthebird CODE_SIGN_STYLE=Automatic build",
-      "npx vite build --mode ios --base ./ --outDir /private/tmp/ftb-portal-e2bea87b-web --emptyOutDir"
+      "xcodebuild -quiet -project ios/App/App.xcodeproj -scheme App -configuration Release -sdk iphoneos -derivedDataPath /private/tmp/ftb-portal-95fc6d9d-derived DEVELOPMENT_TEAM=42L77JAX72 PRODUCT_BUNDLE_IDENTIFIER=com.basegamelab.findthebird CODE_SIGN_STYLE=Automatic build",
+      "npx vite build --mode ios --base ./ --outDir /private/tmp/ftb-portal-95fc6d9d-web --emptyOutDir"
     ]
   },
   "native_artifact": {
-    "filename": "find-the-bird-e2bea87b-release.app.zip",
-    "local_path": "/private/tmp/ftb-portal-candidate-e2bea87b/find-the-bird-e2bea87b-release.app.zip",
-    "bytes": 55132499,
-    "sha256": "bb8dd153a01b20e920412881360a392905bb9deadbea73d6ed2241ab49789f78",
-    "app_bundle_tree_sha256": "414fcfab8213e1403ab435d491a91b2468faf238efb834cbf23d5ed0137e85be",
-    "executable_sha256": "9209a10879c2838e8fd6d4fa69b1734119c65b9cc9f535da94414bbf4c666ee7",
+    "filename": "find-the-bird-95fc6d9d-release.app.zip",
+    "local_path": "/private/tmp/ftb-portal-candidate-95fc6d9d/find-the-bird-95fc6d9d-release.app.zip",
+    "bytes": 55132502,
+    "sha256": "9773c96603c6faad13d5bbfd605ecd179b278569295425ed3c26cf96cefac04e",
+    "app_bundle_tree_sha256": "1a4924bf2791c8f14a1d3a0ce47dfc446d53ef9fbda27a7f0e03ab33c86ba7d6",
+    "executable_sha256": "d227911abbd5034e5708c7e4df1b9a0268e095a93c4ebd39914aad30e6c3472a",
     "bundle_id": "com.basegamelab.findthebird",
     "marketing_version": "1.0",
     "build_number": "1",
     "configuration": "Release",
     "build_info": {
-      "sha": "e2bea87b28",
+      "sha": "95fc6d9dbe",
       "dirty": false
     },
     "public_file_count": 288,
-    "public_file_bytes": 72854639,
+    "public_file_bytes": 72854652,
     "bundled_level_count": 5,
     "signing_state": "Apple Development signed; team 42L77JAX72; strict codesign verification passed",
     "distribution_state": "local candidate only"
   },
   "web_preview": {
-    "filename": "find-the-bird-e2bea87b-web-public.zip",
-    "local_path": "/private/tmp/ftb-portal-candidate-e2bea87b/find-the-bird-e2bea87b-web-public.zip",
-    "bytes": 49060483,
-    "sha256": "737e76ca7f4831cb6393f53f475fdfffadf228035257c58d80208e8ccfcee93f",
+    "filename": "find-the-bird-95fc6d9d-web-public.zip",
+    "local_path": "/private/tmp/ftb-portal-candidate-95fc6d9d/find-the-bird-95fc6d9d-web-public.zip",
+    "bytes": 49060460,
+    "sha256": "f6424caae8eabe9e688f1a02c76d774e7e1c1d274424c64dec680dbec550d37a",
     "file_count": 393,
     "expanded_bytes": 59959189,
     "source_maps_included": false,
@@ -117,7 +115,9 @@
     "required": true,
     "state": "blocked",
     "physical_device": "Batu's iPhone, iPhone 12",
-    "queried_at": "2026-08-06T10:34:00+03:00",
+    "coredevice_identifier": "2D894791-A5A3-58BE-9C88-AE0AF08B8C09",
+    "udid": "00008101-000410EC3EF9001E",
+    "queried_at": "2026-08-06T10:11:51+03:00",
     "observed_state": "paired; tunnel unavailable; CoreDevice install failed with error 1011",
     "last_connection_at": "2026-08-01T07:05:00Z",
     "installed_build_identity": null,
@@ -125,9 +125,9 @@
     "release_poster": null
   },
   "portal": {
-    "queried_at": "2026-08-06T10:34:00+03:00",
+    "queried_at": "2026-08-06T10:11:51+03:00",
     "existing_game_record": false,
-    "publication_state": "superseded",
+    "publication_state": "blocked",
     "published": false,
     "live_urls": null,
     "live_readback_hashes": null
@@ -138,10 +138,8 @@
     "app_store": "not queried or changed"
   },
   "required_next_gates": [
-    "Rebuild native and web artifacts from the final merged runtime revision and regenerate all provenance and hashes.",
-    "Publish retained catalog snapshots to the configured CDN path and read back at least one older revision.",
-    "Install the rebuilt exact artifact on the named physical device and record matching build identity and normal-speed gameplay.",
-    "Derive and inspect the release poster from that production capture, publish to Portal, then verify live bytes and rendered surfaces.",
-    "Re-run the runtime-path source-drift check immediately before install and Portal publication."
+    "Merge the candidate changes and rebuild the harness-free artifacts from the resulting committed revision.",
+    "Install that exact artifact on the named physical device and record matching build identity and normal-speed gameplay.",
+    "Derive and inspect the release poster from that production capture, publish to Portal, then verify live bytes and rendered surfaces."
   ]
 }
