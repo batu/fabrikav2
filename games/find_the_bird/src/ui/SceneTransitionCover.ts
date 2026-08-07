@@ -234,6 +234,9 @@ export function hideSceneTransitionCover(): void {
   }
 }
 
+/** Escape hatch only: normal loads hide on the scene's first RENDER. */
+const PLAY_ENTRY_COVER_ESCAPE_MS = 1_500;
+
 export function hidePlayEntryTransitionCoverAfterSceneRender(scene: Phaser.Scene): void {
   let scheduled = false;
   const scheduleHide = (): void => {
@@ -251,7 +254,14 @@ export function hidePlayEntryTransitionCoverAfterSceneRender(scene: Phaser.Scene
   };
 
   scene.events.once(Phaser.Scenes.Events.RENDER, scheduleHide);
-  window.setTimeout(scheduleHide, 120);
+  // RENDER is the real signal — it means the board has actually drawn with the
+  // level's own textures. The old 120ms companion timeout fired blind, so on a
+  // slower decode the cover lifted BEFORE the first good frame and the player
+  // saw a flash of the previous level (Batu, 2026-08-07). Keep a timeout purely
+  // as an escape hatch — long enough that it never wins a normal load, short
+  // enough that a scene which never renders (e.g. a throw in preload) still
+  // releases the player instead of stranding them under the cover.
+  window.setTimeout(scheduleHide, PLAY_ENTRY_COVER_ESCAPE_MS);
 }
 
 export function isPlayEntryTransitionActive(): boolean {
