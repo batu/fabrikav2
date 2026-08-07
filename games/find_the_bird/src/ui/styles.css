@@ -5588,11 +5588,15 @@
 /* Claimable-achievements attention: red dot + gentle icon bounce. */
 #home-shell .home-nav-btn { position: relative; }
 #home-shell .home-nav-dot {
-  /* Sits ON the icon (upper-right of the artwork) and rides the same bounce,
-     rather than floating in the button's corner (Batu, 2026-08-07). */
+  /* Anchored to the ARTWORK's opaque corner, not the element box: the source
+     PNG carries 4.1% transparent padding on the right and 2.3% on top
+     (measured from achievement-shortcut-runtime.png, 512px: bbox 20,12,491,500),
+     so a box-relative dot floated off the icon. Rides the same bounce.
+     --nav-icon-size mirrors the achievements img rule below. */
+  --nav-icon-size: 78px;
   position: absolute;
-  top: 14px;
-  right: 8px;
+  top: calc(50% - (var(--nav-icon-size) / 2) - 6px + (var(--nav-icon-size) * 0.0234));
+  right: calc(50% - (var(--nav-icon-size) / 2) + (var(--nav-icon-size) * 0.041) - 4px);
   animation: home-nav-claim-bounce 1.6s ease-in-out infinite;
   width: 16px;
   height: 16px;
