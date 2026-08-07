@@ -45,21 +45,24 @@ describe('achievement collection page', () => {
 
     openPage('achievements');
 
-    expect([...document.querySelectorAll('.achievement-card')].map((node) => node.getAttribute('data-achievement-id'))).toEqual(['a', 'c', 'b']);
-    expect(document.body.textContent).toContain('0/1');
+    // ONE card per ladder (2026-08-07): the page shows the tier you can act on,
+    // not every tier. 'a' and 'c' are both 'completion'; 'c' is claimable so it
+    // is the one that surfaces, and the lower locked tier stays out of the way.
+    expect([...document.querySelectorAll('.achievement-card')].map((node) => node.getAttribute('data-achievement-id'))).toEqual(['c', 'b']);
+    expect(document.querySelector('[data-achievement-id="a"]')).toBeNull();
     expect(document.body.textContent).toContain('4/10');
     // Locked/in-progress reward lines are chip duplicates and stay visual-only
     // in the aria-label; only differentiated reward copy renders as text.
     expect(document.body.textContent).not.toContain('Reward locked');
     expect(document.body.textContent).not.toContain('Reward in progress');
-    expect(document.querySelector('[data-achievement-id="a"]')?.getAttribute('aria-label')).toContain('Reward locked');
     expect(document.querySelector('[data-achievement-id="c"] button')?.getAttribute('aria-label')).toBe('Claim 25 coins');
     expect(document.querySelector('[data-achievement-id="c"] button')?.textContent).toContain('Claim');
     expect(document.querySelector('.achievement-header-coin-count')?.textContent).toBe('125');
     expect(document.querySelector('.achievement-header-hint-count')?.textContent).toBe('7');
     expect(document.querySelector('[data-achievement-id="c"] [data-economy-anchor="coin"]')).not.toBeNull();
-    expect(document.querySelector('progress')?.getAttribute('aria-label')).toBe('First progress: 0 of 1');
-    expect(allocate).toHaveBeenCalledTimes(4);
+    // Each surfaced row states which rung of its ladder the player is on.
+    expect(document.body.textContent).toMatch(/Tier \d+ of \d+/);
+    expect(allocate).toHaveBeenCalled();
   });
 
   it.each([

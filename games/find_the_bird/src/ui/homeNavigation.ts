@@ -71,7 +71,14 @@ export function bindHomeNavigation(overlay: HTMLElement, deps: HomeNavigationDep
       item_type: 'rewarded', item_id: 'daily_streak',
     });
     button.dataset.rewardStatus = 'claimed';
-    button.querySelector('small')!.textContent = '✓';
+    // The claim affordance is computed at RENDER time, so a claim that mutates
+    // the pill in place must also retire the dot and the bounce — otherwise
+    // they keep insisting there is something to collect until the next full
+    // home render (2026-08-07).
+    button.classList.remove('home-claim-attention');
+    button.querySelector('.home-claim-dot')?.remove();
+    const badge = button.querySelector('small');
+    if (badge) badge.textContent = '✓';
     button.setAttribute('aria-label', `${claim.streakDay}-day play streak. Today’s reward collected`);
     // Fly the granted coins/hints from the streak pill to the wallet pills;
     // the transfer animation updates the counters as tokens land.

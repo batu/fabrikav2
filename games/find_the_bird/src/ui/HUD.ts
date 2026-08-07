@@ -566,6 +566,12 @@ export function closePage(): void {
   page.addEventListener('transitionend', onTransitionEnd);
   // Fallback: transform transition is 340ms; +80ms buffer for transitionend latency.
   window.setTimeout(remove, 420);
+  // Re-render home on EVERY page close, not just via Settings' home button:
+  // claim state (achievement dots, wallet, streak) is computed at render time,
+  // so returning from Achievements after collecting used to leave the dot
+  // insisting there was still something to pick up (2026-08-07). Fires after
+  // the page is closed, matching the ordering the Settings path had.
+  homeCallback?.();
 }
 
 function renderShopHeaderBalances(): string {
@@ -917,7 +923,6 @@ function wireSettingsPageListeners(page: HTMLElement): void {
   page.querySelector('#settings-home-btn')?.addEventListener('click', () => {
     playUITap();
     closePage();
-    homeCallback?.();
   });
 
   page.querySelector('#privacy-policy-link-btn')?.addEventListener('click', () => {

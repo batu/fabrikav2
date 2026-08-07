@@ -70,44 +70,81 @@ export function renderAchievementsPageBody(): string {
     return `<section class="achievement-unavailable" role="status"><h3>Collection unavailable</h3><p>${message}</p></section>`;
   }
 
+  // ONE ROW PER LADDER (2026-08-07). The catalog is three progressions
+  // (completions / birds found / daily streak) and listing all twelve tiers at
+  // once buried the one that matters. Each row shows the lowest tier that is
+  // still open; claiming it reveals the next. The 12 catalog entries stay as
+  // data — their ids are persisted in saves and used as analytics event ids,
+  // so collapsing them into three records would orphan both.
+  const CATEGORY_ROWS: ReadonlyArray<{ category: string; title: string }> = [
+    { category: 'completion', title: 'Levels completed' },
+    { category: 'dogs', title: 'Birds found' },
+    { category: 'streak', title: 'Daily streak' },
+  ];
+
   const groups = new Map<string, typeof projection.achievements>();
   for (const achievement of projection.achievements) {
     groups.set(achievement.category, [...(groups.get(achievement.category) ?? []), achievement]);
   }
-  const body = [...groups].map(([category, achievements]) => `
-    <section class="achievement-category" aria-labelledby="achievement-category-${category}">
-      <h3 id="achievement-category-${category}">${category}</h3>
-      <div class="achievement-list">
-        ${achievements.map((achievement) => {
-          const completed = achievement.progress >= achievement.threshold;
-          // Nothing gates these, so zero progress is "Not started", not "Locked".
-          const state = completed ? 'Completed' : achievement.progress > 0 ? 'In progress' : 'Not started';
-          const stateClass = completed ? 'completed' : achievement.progress > 0 ? 'in-progress' : 'not-started';
-          // The reward line repeats the state chip for locked/in-progress; only
-          // render it when it says something the chip does not. The full reward
-          // status stays in the card's aria-label either way.
-          const rewardCopy = rewardStatusCopy(achievement.rewardStatus);
-          const rewardLine = achievement.rewardStatus === 'locked' || achievement.rewardStatus === 'in-progress'
-            ? ''
-            : achievement.rewardStatus === 'unlocked-reward-claimable'
-              ? `<button class="achievement-claim-btn" type="button" data-claim-achievement="${achievement.id}" aria-label="Claim ${rewardLabel(achievement.entitledReward)}">
-                  <span>Claim</span>
-                  ${rewardButtonItems(achievement.entitledReward)}
-                </button>`
-              : `<p class="achievement-reward-status">${rewardCopy}</p>`;
-          return `<article class="achievement-card achievement-card--${stateClass}" data-achievement-id="${achievement.id}" aria-label="${achievement.name}: ${state}, ${achievement.progress} of ${achievement.threshold}. ${rewardCopy}">
-            <span class="achievement-badge" aria-hidden="true"><img src="${ACHIEVEMENT_CATEGORY_BADGES[achievement.category] ?? ACHIEVEMENT_CATEGORY_BADGES.completion}" alt=""></span>
+
+  const body = CATEGORY_ROWS.map(({ category, title }) => {
+    const tiers = [...(groups.get(category) ?? [])].sort((a, b) => a.threshold - b.threshold);
+    if (tiers.length === 0) return '';
+    // "Open" = not yet collected. A claimable tier outranks an unclaimed one so
+    // a player who jumped several thresholds at once collects them in order,
+    // one tap each, instead of the row skipping rewards they earned.
+    const active = tiers.find((t) => t.rewardStatus === 'unlocked-reward-claimable')
+      ?? tiers.find((t) => t.rewardStatus !== 'reward-claimed')
+      ?? null;
+    const claimedCount = tiers.filter((t) => t.rewardStatus === 'reward-claimed').length;
+    const ladder = `<p class="achievement-row-ladder">Tier ${Math.min(claimedCount + 1, tiers.length)} of ${tiers.length}</p>`;
+
+    if (active === null) {
+      // Row finished: keep it visible rather than hiding the accomplishment.
+      const last = tiers[tiers.length - 1];
+      return `<section class="achievement-category achievement-category--complete" aria-labelledby="achievement-category-${category}">
+        <header class="achievement-row-head"><h3 id="achievement-category-${category}">${title}</h3>${ladder}</header>
+        <div class="achievement-list">
+          <article class="achievement-card achievement-card--completed" data-achievement-id="${last.id}" aria-label="${title}: all ${tiers.length} tiers complete">
+            <span class="achievement-badge" aria-hidden="true"><img src="${ACHIEVEMENT_CATEGORY_BADGES[last.category] ?? ACHIEVEMENT_CATEGORY_BADGES.completion}" alt=""></span>
             <div class="achievement-card-main">
-              <header><h4>${achievement.name}</h4><strong class="achievement-state">${state}</strong></header>
-              <p>${achievement.description}</p>
-              <progress value="${achievement.progress}" max="${achievement.threshold}" aria-label="${achievement.name} progress: ${achievement.progress} of ${achievement.threshold}">${achievement.progress}/${achievement.threshold}</progress>
-              <span class="achievement-progress-text">${achievement.progress}/${achievement.threshold}</span>
-              ${rewardLine}
+              <header><h4>${last.name}</h4><strong class="achievement-state">All tiers complete</strong></header>
+              <p>Every ${title.toLowerCase()} reward collected.</p>
             </div>
-          </article>`;
-        }).join('')}
+          </article>
+        </div>
+      </section>`;
+    }
+
+    const achievement = active;
+    const completed = achievement.progress >= achievement.threshold;
+    const state = completed ? 'Completed' : achievement.progress > 0 ? 'In progress' : 'Not started';
+    const stateClass = completed ? 'completed' : achievement.progress > 0 ? 'in-progress' : 'not-started';
+    const rewardCopy = rewardStatusCopy(achievement.rewardStatus);
+    const rewardLine = achievement.rewardStatus === 'locked' || achievement.rewardStatus === 'in-progress'
+      ? ''
+      : achievement.rewardStatus === 'unlocked-reward-claimable'
+        ? `<button class="achievement-claim-btn" type="button" data-claim-achievement="${achievement.id}" aria-label="Claim ${rewardLabel(achievement.entitledReward)}">
+            <span>Claim</span>
+            ${rewardButtonItems(achievement.entitledReward)}
+          </button>`
+        : `<p class="achievement-reward-status">${rewardCopy}</p>`;
+    return `<section class="achievement-category" aria-labelledby="achievement-category-${category}">
+      <header class="achievement-row-head"><h3 id="achievement-category-${category}">${title}</h3>${ladder}</header>
+      <div class="achievement-list">
+        <article class="achievement-card achievement-card--${stateClass}" data-achievement-id="${achievement.id}" aria-label="${achievement.name}: ${state}, ${achievement.progress} of ${achievement.threshold}. ${rewardCopy}">
+          <span class="achievement-badge" aria-hidden="true"><img src="${ACHIEVEMENT_CATEGORY_BADGES[achievement.category] ?? ACHIEVEMENT_CATEGORY_BADGES.completion}" alt=""></span>
+          <div class="achievement-card-main">
+            <header><h4>${achievement.name}</h4><strong class="achievement-state">${state}</strong></header>
+            <p>${achievement.description}</p>
+            <progress value="${achievement.progress}" max="${achievement.threshold}" aria-label="${achievement.name} progress: ${achievement.progress} of ${achievement.threshold}">${achievement.progress}/${achievement.threshold}</progress>
+            <span class="achievement-progress-text">${achievement.progress}/${achievement.threshold}</span>
+            ${rewardLine}
+          </div>
+        </article>
       </div>
-    </section>`).join('');
+    </section>`;
+  }).join('');
 
   const pageEvent = gameState.allocateAchievementViewEvent({ name: 'achievement_page_viewed' });
   if (pageEvent) analytics.dispatchAchievementEvent(pageEvent);
