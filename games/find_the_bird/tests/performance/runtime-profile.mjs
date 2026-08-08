@@ -4,6 +4,8 @@ import { createHash } from 'node:crypto';
 import { createReadStream, existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { extname, join, normalize, relative, resolve, sep } from 'node:path';
+import process from 'node:process';
+import { URL } from 'node:url';
 import { chromium } from '@playwright/test';
 
 const gameRoot = resolve(import.meta.dirname, '../..');
@@ -86,9 +88,16 @@ function staticServer() {
     const safeCandidate = candidate === distRoot || candidate.startsWith(`${distRoot}${sep}`)
       ? candidate
       : join(distRoot, 'index.html');
-    const filePath = existsSync(safeCandidate) && statSync(safeCandidate).isFile()
-      ? safeCandidate
-      : join(distRoot, 'index.html');
+    const isFile = existsSync(safeCandidate) && statSync(safeCandidate).isFile();
+    const acceptsDocument = request.headers.accept?.includes('text/html') === true;
+    let filePath = isFile ? safeCandidate : null;
+    if (filePath === null && acceptsDocument) filePath = join(distRoot, 'index.html');
+    if (filePath === null) {
+      response.statusCode = 404;
+      response.setHeader('Content-Type', 'text/plain; charset=utf-8');
+      response.end('Not found');
+      return;
+    }
     response.statusCode = 200;
     response.setHeader('Cache-Control', 'no-store');
     response.setHeader('Content-Type', MIME_BY_EXTENSION[extname(filePath)] ?? 'application/octet-stream');
@@ -170,9 +179,9 @@ try {
       requestAnimationFrame(frame);
     };
     requestAnimationFrame(frame);
-    if (typeof PerformanceObserver === 'function') {
+    if (typeof globalThis.PerformanceObserver === 'function') {
       try {
-        const observer = new PerformanceObserver((list) => {
+        const observer = new globalThis.PerformanceObserver((list) => {
           for (const entry of list.getEntries()) perf.longTasks.push({ start: entry.startTime, duration: entry.duration });
         });
         observer.observe({ type: 'longtask', buffered: true });

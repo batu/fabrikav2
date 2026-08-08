@@ -846,14 +846,16 @@ function buildServingAttempt(
  * `cachedIndex` and lock the user to 3 bundled levels for the session.
  */
 export async function getLevelIndex(): Promise<LevelIndexEntry[]> {
-  await ensureManifestInitialized();
-  // Refresh manifest-derived caches before the fast-path. ManifestClient may
-  // replace a transient bundled fallback on a later initialize() attempt.
-  const manifest = getRuntimeManifest();
-  if (cachedIndex !== null) return cachedIndex;
   if (levelIndexPromise !== null) return await levelIndexPromise;
 
-  const pending = buildLevelIndex(manifest);
+  const pending = (async (): Promise<LevelIndexEntry[]> => {
+    await ensureManifestInitialized();
+    // Refresh manifest-derived caches before the fast-path. ManifestClient may
+    // replace a transient bundled fallback on a later initialize() attempt.
+    const manifest = getRuntimeManifest();
+    if (cachedIndex !== null) return cachedIndex;
+    return await buildLevelIndex(manifest);
+  })();
   levelIndexPromise = pending;
   try {
     return await pending;
@@ -1247,7 +1249,7 @@ export async function loadLevelForProgression(progressionIndex: number): Promise
  * one microtask preserves the "revoke eventually to free memory"
  * guarantee without racing Phaser.
  */
-export function disposeLevelUrls(id: string, preserveBundledCache = false): void {
+function disposeLevelResources(id: string, preserveBundledCache: boolean): void {
   const hadObjectUrls = colorUrlByLevel.has(id) || bgUrlsByLevel.has(id) || spriteUrlsByLevel.has(id);
   const url = colorUrlByLevel.get(id);
   if (url !== undefined) {
@@ -1272,6 +1274,17 @@ export function disposeLevelUrls(id: string, preserveBundledCache = false): void
   }
   if (!preserveBundledCache || hadObjectUrls) levelCache.delete(id);
   loadTokenByLevel.delete(id);
+}
+
+/** Revoke every Object URL and invalidate all cached data for a level. */
+export function disposeLevelUrls(id: string): void {
+  disposeLevelResources(id, false);
+}
+
+/** Release resources owned by a departing scene while retaining parsed data
+ * only when it contains stable bundled paths and no revocable Object URLs. */
+export function releaseLevelSceneResources(id: string): void {
+  disposeLevelResources(id, true);
 }
 
 /**

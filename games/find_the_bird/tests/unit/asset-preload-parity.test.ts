@@ -143,7 +143,6 @@ describe("selected v1 runtime assets", () => {
     }
 
     vi.stubGlobal("Image", MockImage);
-    vi.useFakeTimers();
     const { preloadDeferredIcons, preloadIcons, whenIconsDecoded } = await import("../../src/ui/iconPreload");
 
     preloadIcons();
@@ -155,8 +154,6 @@ describe("selected v1 runtime assets", () => {
     preloadDeferredIcons();
     preloadDeferredIcons();
     await Promise.resolve();
-    vi.useRealTimers();
-
     expect(decodedSources.filter((src) => src === "/ui/settings/settings_icon_home.png")).toHaveLength(1);
   });
 });

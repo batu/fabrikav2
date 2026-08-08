@@ -78,6 +78,10 @@ export function preloadDeferredIcons(): void {
   void decodeAll(DEFERRED_ICON_URLS);
 }
 
+export function hasDeferredIconPreloadStarted(): boolean {
+  return deferredWarmed;
+}
+
 /** Resolves once the HOME icons are decoded (paint-ready). Used to hold the
  *  scene-transition cover until the home can render without icons popping in. */
 export function whenIconsDecoded(): Promise<void> {

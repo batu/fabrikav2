@@ -18,7 +18,7 @@ import { isGameSuspended, registerLifecycleHooks } from '../platform/gameLifecyc
 import type { GameSceneData } from './GameScene';
 import { GameScene } from './GameScene';
 import { FTD_UI_THEME } from '../ui/ftdTheme';
-import { preloadDeferredIcons } from '../ui/iconPreload';
+import { hasDeferredIconPreloadStarted, preloadDeferredIcons } from '../ui/iconPreload';
 
 function triggerNavBounce(btn: HTMLButtonElement): void {
   btn.classList.remove('home-nav-btn--tapped');
@@ -286,8 +286,7 @@ export class HomeScene extends Phaser.Scene {
           this.prewarm.token.stale = true;
         }
       }
-      gameState.currentLevelIndex = logicalIndex;
-      gameState.persistCurrentLevelIndex();
+      gameState.selectLevelIndex(logicalIndex);
       this.startGameScene(levelData);
     } catch (error) {
       console.warn('Failed to load level from home map', error);
@@ -342,6 +341,7 @@ export class HomeScene extends Phaser.Scene {
 
   private scheduleDeferredIconPreload(): void {
     this.cancelScheduledDeferredIconPreload();
+    if (hasDeferredIconPreloadStarted()) return;
     this.cancelDeferredIconSchedule = runWhenVisibleAndIdle(preloadDeferredIcons, {
       delayMs: HOME_DEFERRED_ICON_DELAY_MS,
       idleTimeoutMs: HOME_DEFERRED_ICON_IDLE_TIMEOUT_MS,

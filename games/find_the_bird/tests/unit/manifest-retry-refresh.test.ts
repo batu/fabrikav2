@@ -80,4 +80,31 @@ describe('runtime manifest retry refresh', () => {
     expect((await getLevelIndex()).map((entry) => entry.id)).toEqual(['bundled', 'remote']);
     expect(fetchState.manifestAttempts).toBe(2);
   });
+
+  it('shares concurrent manifest initialization and retries fallback on the next completed call', async () => {
+    let releaseFallback!: () => void;
+    const delayedFallback = new Promise<Response>((resolve) => {
+      releaseFallback = () => resolve(new Response('', { status: 503 }));
+    });
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL): Promise<Response> => {
+      const url = String(input);
+      if (url === 'levels/bundled-manifest.json') return Response.json(bundled);
+      if (url === `${CDN_ORIGIN}/manifest.json`) {
+        fetchState.manifestAttempts += 1;
+        return fetchState.manifestAttempts === 1 ? delayedFallback : Response.json(live);
+      }
+      throw new Error(`unexpected fetch: ${url}`);
+    }));
+
+    const first = getLevelIndex();
+    const concurrent = getLevelIndex();
+    await vi.waitFor(() => expect(fetchState.manifestAttempts).toBe(1));
+    releaseFallback();
+
+    expect((await first).map((entry) => entry.id)).toEqual(['bundled']);
+    expect((await concurrent).map((entry) => entry.id)).toEqual(['bundled']);
+    expect(fetchState.manifestAttempts).toBe(1);
+    expect((await getLevelIndex()).map((entry) => entry.id)).toEqual(['bundled', 'remote']);
+    expect(fetchState.manifestAttempts).toBe(2);
+  });
 });

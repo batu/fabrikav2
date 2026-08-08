@@ -8,7 +8,7 @@ import {
   registerPickupStyleApplier,
   type PickupStyle,
 } from '../settings/pickupStylePreference';
-import { disposeLevelUrls, getLevelIndex, loadLevel, loadLevelForProgression, withDirectSelectServingAttempt } from '../data/levels';
+import { disposeLevelUrls, getLevelIndex, loadLevel, loadLevelForProgression, releaseLevelSceneResources, withDirectSelectServingAttempt } from '../data/levels';
 import type { LevelData, LevelDog, LevelSection } from '../data/levels';
 import { playFind, playWrongTap, preloadDogFoundSounds } from '../audio/AudioManager';
 import { crossfadeTo as crossfadeAmbient, presetForLevel } from '../audio/AmbientManager';
@@ -1159,7 +1159,7 @@ export class GameScene extends Phaser.Scene {
       // bundled levels (no-op when nothing is held). Must run before
       // the texture cache clears because the texture's underlying
       // image element still references the URL.
-      if (this.level !== null && !this.preserveLevelUrlsOnShutdown) disposeLevelUrls(this.level.id, true);
+      if (this.level !== null && !this.preserveLevelUrlsOnShutdown) releaseLevelSceneResources(this.level.id);
 
       this.input.off('pointerdown', pointerDownHandler);
       this.input.off('pointerup', tapHandler);
@@ -1293,8 +1293,7 @@ export class GameScene extends Phaser.Scene {
         return;
       }
 
-      gameState.currentLevelIndex = nextIndex;
-      gameState.persistCurrentLevelIndex();
+      gameState.selectLevelIndex(nextIndex);
 
       const levelData = withDirectSelectServingAttempt(await loadLevel(levelId), nextIndex, index.map((entry) => entry.id));
       if (this.isShuttingDown) return;

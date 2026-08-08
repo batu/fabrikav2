@@ -9,10 +9,9 @@ describe('active level index persistence', () => {
   it('writes only the progression index when a level starts', () => {
     const setItem = vi.fn();
     vi.stubGlobal('localStorage', { setItem });
-    gameState.currentLevelIndex = 7;
+    gameState.selectLevelIndex(7);
 
-    gameState.persistCurrentLevelIndex();
-
+    expect(gameState.currentLevelIndex).toBe(7);
     expect(setItem).toHaveBeenCalledOnce();
     expect(setItem).toHaveBeenCalledWith('ftd_level', '7');
   });

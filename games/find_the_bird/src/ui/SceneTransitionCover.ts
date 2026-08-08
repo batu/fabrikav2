@@ -93,6 +93,7 @@ function createOrReuseCover(kind: TransitionKind): HTMLElement {
   cover.dataset.transitionGeneration = nextTransitionGeneration();
   cover.dataset.transitionKind = kind;
   cover.dataset.transitionState = 'holding';
+  cover.style.setProperty('--play-entry-reveal-ms', `${PLAY_ENTRY_REVEAL_MS}ms`);
   cover.className = '';
   cover.classList.add('scene-transition-cover', `scene-transition-cover--${kind}`);
   cover.classList.remove('hiding');
