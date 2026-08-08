@@ -76,7 +76,7 @@ parallel:
 dependencies:
   approved: []
 stopping:
-  max_iterations: 8
+  max_iterations: 10
   max_hours: 7
   plateau_iterations: 3
   target_reached: false

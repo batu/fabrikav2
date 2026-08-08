@@ -3,7 +3,7 @@ import { whenIconsDecoded } from './iconPreload';
 
 const COVER_ID = 'scene-transition-cover';
 const COVER_ASSETS_READY_CAP_MS = 1500;
-const MIN_VISIBLE_MS = 500;
+const MIN_VISIBLE_MS = 300;
 const PLAY_ENTRY_REVEAL_MS = 620;
 const PLAY_ENTRY_CLEANUP_MS = 140;
 const PLAY_ENTRY_HUD_ENTER_MS = 680;

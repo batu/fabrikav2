@@ -171,10 +171,36 @@ experiments:
       cached_cycle_median_ms: 2298.2
       frame_gap_max_ms: 316.7
     learnings: The board was already ready long before the prior 2.01 s cover choreography ended. Removing dead dwell while preserving every visual phase produced the largest measured win; final retention still requires motion evidence.
+  - iteration: 6
+    batch: 6
+    hypothesis: Begin the preserved 620 ms reveal after 300 ms of cover legibility instead of holding a ready board for 500 ms.
+    category: transition
+    outcome: kept_pending_visual_gate
+    changes:
+      - file: games/find_the_bird/src/ui/SceneTransitionCover.ts
+        summary: Reduced the pre-reveal cover hold from 500 ms to 300 ms.
+    gates:
+      home_ready_success: 1
+      first_level_ready_success: 1
+      gameplay_state_consistent: 1
+      local_request_failures: 0
+      page_error_count: 0
+      texture_growth_count: 0
+      cached_cycle_worst_ms: 2092.8
+    gates_passed: true
+    primary:
+      runtime_ready_sum_ms: 4324.73
+    primary_delta_ms: -338.84
+    diagnostics:
+      home_ready_ms: 450.46
+      first_level_ready_ms: 1786.17
+      cached_cycle_median_ms: 2046.9
+      frame_gap_max_ms: 283.4
+    learnings: A 300 ms hold remains legible while revealing a board that is already rendered. The improvement clears noise; final retention still depends on motion review.
 best:
-  iteration: 5
+  iteration: 6
   metrics:
-    runtime_ready_sum_ms: 4663.57
+    runtime_ready_sum_ms: 4324.73
 hypothesis_backlog:
   - description: Parallelize independent required level asset fetches after level metadata validation.
     category: asset-loading
