@@ -336,6 +336,7 @@ export default function CutoutReviewPanel({
   const refreshAbortRef = useRef<AbortController | null>(null);
   const operationAbortRef = useRef<AbortController | null>(null);
   const placementSaveRunIds = useRef(new Map<string, number>());
+  const confirmationRunIds = useRef(new Map<string, number>());
   const dragRef = useRef<{ candidateId: string; mode: ControlMode; startX: number; startY: number; box: CropBox } | null>(null);
   const draggedCandidateRef = useRef<string | null>(null);
   const placementSaveTimers = useRef(new Map<string, number>());
@@ -417,18 +418,25 @@ export default function CutoutReviewPanel({
   }, []);
 
   const toggleHumanConfirmation = useCallback(async (candidate: SpriteCandidate) => {
+    const saveSessionId = sessionId;
+    const saveRunId = (confirmationRunIds.current.get(candidate.id) ?? 0) + 1;
+    confirmationRunIds.current.set(candidate.id, saveRunId);
     const confirmed = !candidate.humanConfirmed;
     setSavingConfirmation(candidate.id);
     setError(null);
     try {
-      await saveSpriteCandidateHumanConfirmation(sessionId, candidate.id, confirmed);
+      await saveSpriteCandidateHumanConfirmation(saveSessionId, candidate.id, confirmed);
+      if (currentSessionRef.current !== saveSessionId || confirmationRunIds.current.get(candidate.id) !== saveRunId) return;
       setCandidates((current) => current.map((item) => (
         item.id === candidate.id ? { ...item, humanConfirmed: confirmed } : item
       )));
     } catch (err) {
+      if (currentSessionRef.current !== saveSessionId || confirmationRunIds.current.get(candidate.id) !== saveRunId) return;
       setError(err instanceof Error ? err.message : String(err));
     } finally {
-      setSavingConfirmation(null);
+      if (currentSessionRef.current === saveSessionId && confirmationRunIds.current.get(candidate.id) === saveRunId) {
+        setSavingConfirmation(null);
+      }
     }
   }, [sessionId]);
 
@@ -509,6 +517,7 @@ export default function CutoutReviewPanel({
     for (const timer of placementSaveTimers.current.values()) window.clearTimeout(timer);
     placementSaveTimers.current.clear();
     placementSaveRunIds.current.clear();
+    confirmationRunIds.current.clear();
     operationAbortRef.current?.abort();
   }, [sessionId]);
 
@@ -779,12 +788,14 @@ export default function CutoutReviewPanel({
                     {controlMode === 'sprite' && placementBox && <div className="cutout-flip-controls">
                       <button
                         type="button"
+                        disabled={savingPlacement === candidate.id}
                         className={candidate.flipX ? 'selected' : ''}
                         aria-pressed={candidate.flipX ?? false}
                         onClick={() => void savePlacement(candidate, placementBox, !(candidate.flipX ?? false), candidate.flipY ?? false)}
                       >Flip X</button>
                       <button
                         type="button"
+                        disabled={savingPlacement === candidate.id}
                         className={candidate.flipY ? 'selected' : ''}
                         aria-pressed={candidate.flipY ?? false}
                         onClick={() => void savePlacement(candidate, placementBox, candidate.flipX ?? false, !(candidate.flipY ?? false))}

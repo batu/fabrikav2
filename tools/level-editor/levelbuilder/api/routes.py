@@ -1211,7 +1211,19 @@ def save_sprite_candidate_placement(
         level_path = S.GAME_PUBLIC_LEVELS / session_id / "level.json"
         level = json.loads(level_path.read_text())
         dogs = level.get("dogs") or []
-        dog = dogs[dog_index]
+        candidate_image = candidate.get("image")
+        dog = next((
+            item for item in dogs
+            if isinstance(item, dict)
+            and isinstance((item.get("sprite") or {}).get("image"), str)
+            and isinstance(candidate_image, str)
+            and (item.get("sprite") or {})["image"].endswith(candidate_image)
+        ), None)
+        if dog is None:
+            stable_id = f"dog_{dog_index:02d}"
+            dog = next((item for item in dogs if isinstance(item, dict) and item.get("id") == stable_id), None)
+        if dog is None:
+            raise ValueError("sprite candidate does not match an active level bird")
         dog_id = dog["id"]
         x0, y0, x1, y1 = req.spriteBox
         if x1 <= x0 or y1 <= y0:

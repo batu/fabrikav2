@@ -751,6 +751,8 @@ def set_level_golden_review(session_id: str, approved: bool, *, source: str = "e
     if approved:
         level = json.loads(level_path.read_text())
         birds = []
+        sidecar_updates: list[tuple[Path, dict[str, Any]]] = []
+        target_bases = tuple(dict.fromkeys((base, GAME_PUBLIC_LEVELS / session_id)))
         for dog in level.get("dogs", []):
             sprite = dog.get("sprite") if isinstance(dog, dict) else None
             image = sprite.get("image") if isinstance(sprite, dict) else None
@@ -763,10 +765,17 @@ def set_level_golden_review(session_id: str, approved: bool, *, source: str = "e
             if not sprite_path.is_file() or not sidecar_path.is_file():
                 raise ValueError(f"active sprite is incomplete: {dog.get('id')}")
             sidecar = json.loads(sidecar_path.read_text())
-            sidecar["humanReview"] = {"confirmed": True, "confirmedAt": now, "source": "level-bless"}
-            temporary = sidecar_path.with_suffix(sidecar_path.suffix + ".tmp")
-            temporary.write_text(json.dumps(sidecar, indent=2) + "\n")
-            temporary.replace(sidecar_path)
+            human_review = {"confirmed": True, "confirmedAt": now, "source": "level-bless"}
+            for target_base in target_bases:
+                target_sprite = target_base / relative
+                target_sidecar = target_sprite.with_suffix(".json")
+                if not target_sprite.exists() and not target_sidecar.exists():
+                    continue
+                if not target_sprite.is_file() or not target_sidecar.is_file():
+                    raise ValueError(f"active sprite is incomplete in {target_base}: {dog.get('id')}")
+                target_data = json.loads(target_sidecar.read_text())
+                target_data["humanReview"] = human_review
+                sidecar_updates.append((target_sidecar, target_data))
             birds.append({
                 "dogId": dog.get("id"),
                 "sprite": relative.as_posix(),
@@ -775,6 +784,12 @@ def set_level_golden_review(session_id: str, approved: bool, *, source: str = "e
                 "flipX": sidecar.get("flipX") is True,
                 "flipY": sidecar.get("flipY") is True,
             })
+        # Validate and prepare every active bird before mutating either store.
+        # A missing later bird must not leave earlier sidecars half-confirmed.
+        for sidecar_path, sidecar in sidecar_updates:
+            temporary = sidecar_path.with_suffix(sidecar_path.suffix + ".tmp")
+            temporary.write_text(json.dumps(sidecar, indent=2) + "\n")
+            temporary.replace(sidecar_path)
         scene_path = base / "color.png"
         review.update({
             "levelSha256": hashlib.sha256(level_path.read_bytes()).hexdigest(),

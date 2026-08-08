@@ -1383,7 +1383,8 @@ def cmd_align_sprites(args: argparse.Namespace) -> None:
 
     if not args.game:
         raise CliError("game_required", "pass --game <name>")
-    root = resolve_game(args.game).game_root / "public" / "levels"
+    game_profile = resolve_game(args.game)
+    root = game_profile.game_root / "public" / "levels"
     excluded = set(args.exclude_level or ())
     if args.from_report:
         report = json.loads(Path(args.from_report).read_text())
